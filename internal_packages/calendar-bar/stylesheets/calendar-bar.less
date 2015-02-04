@@ -1,0 +1,54 @@
+@import "ui-variables";
+@import "ui-mixins";
+
+
+#calendar-bar {
+  height: 45px;
+  overflow: hidden;
+  order: 50;
+  box-shadow: @standard-shadow-up;
+  z-index:2; // allows shadow over other elements
+  position: relative;
+  -webkit-user-select: none;
+
+  .marker {
+    position: absolute;
+    border-left:1px solid @border-color-subtle;
+    width:1px;
+    height:100%;
+    top:0;
+    z-index:0;
+    &.now {
+      width:4px;
+      z-index:1000;
+      border-right:1px solid white;
+      border-left:1px solid white;
+      background-color:@background-color-success;
+    }
+  }
+
+  .event {
+    position: absolute;
+    border:2px solid white;
+    background-color: @background-color-accent;
+    padding:3px;
+
+    span {
+      float:left;
+      font-weight: normal;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow:hidden;
+      color: @text-color-inverse;
+      width:100%;
+    }
+
+    span.title {
+      font-size:12px;
+    }
+    span.time {
+      font-size:10px;
+      opacity: 0.5;
+    }
+  }
+}

@@ -1,0 +1,233 @@
+@import "ui-variables";
+@import "ui-mixins";
+
+#message-list {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  padding: 0;
+  order: 2;
+  -webkit-user-select: none;
+
+  .message-list-headers {
+    text-align: left;
+    margin: 15px;
+    margin-top: 24px;
+    margin-bottom: 24px;
+
+    h2 {
+      margin: 0;
+      padding-bottom: 5px;
+      font-size: 26px;
+      line-height: 1.2;
+      -webkit-user-select: text;
+    }
+
+    .participants {
+      .contact-chip {
+        display:inline-block;
+      }
+    }
+  }
+
+  .message-list-primary-actions {
+    z-index: 2;
+    -webkit-user-select: none;
+    padding-top: 7px;
+    padding-bottom: 6px;
+    padding-left:13px;
+    background-color: @background-color;
+    border-bottom:1px solid @border-color;
+
+    .primary-actions-bar {
+      width: 100%;
+      font-size: 21px;
+      line-height: 2;
+      .btn-icon {
+        padding-top: 0;
+        padding-bottom: 0;
+      }
+      .btn {
+        margin-left: 4px;
+      }
+    }
+  }
+
+  .messages-wrap {
+    position: relative;
+    height: 100%;
+  }
+
+  .title-and-messages {
+    height: calc(~"100% - 56px");
+    min-width: 600px;
+    overflow: auto;
+    z-index: 1;
+    position: relative;
+  }
+
+  .message-item-wrap {
+    &:first-child {
+      margin-top: 0;
+    }
+
+    &.collapsed {
+      margin-top:0;
+      margin-bottom:0;
+      border-bottom:0;
+      &:last-child {
+        margin-bottom:15px;
+        border-bottom: 1px solid darken(@border-color, 5%);
+      }
+      .message-header {
+        border-bottom:0;
+      }
+    }
+
+    position: relative;
+    background: @background-color;
+    margin: 15px;
+    border-top: 1px solid darken(@border-color, 2%);
+    border-left: 1px solid darken(@border-color, 2%);
+    border-right: 1px solid darken(@border-color, 5%);
+    border-bottom: 1px solid darken(@border-color, 5%);
+    border-radius: 2px;
+
+    .message-header {
+      padding: 5px 15px;
+      border-bottom: 1px solid @border-color;
+      -webkit-user-select: text;
+    }
+
+    .message-time, .message-indicator {
+      font-size: @minor-font-size;
+      color: @text-color-subtle;
+      margin-top: 3px;
+      float: right;
+    }
+
+    .message-indicator {
+      margin-right: 4px;
+    }
+
+    .to-label, .to-everyone, .cc-label, .cc-contact, .to-label, .to-contact {
+      position: relative;
+      top: -1px;
+    }
+
+    .from-label {
+      display: none;
+    }
+    .from-contact {
+      .bold;
+      color: @text-color;
+      font-size: @major-font-size;
+      margin-right: 15px;
+    }
+
+    .to-label, .cc-label {
+      font-size: @minor-font-size;
+      color: @text-color;
+    }
+    .cc-label {
+      margin-left: 15px;
+    }
+    .to-contact, .cc-contact, .to-everyone {
+      font-size: @minor-font-size;
+      color: @text-color-subtle;
+    }
+
+    iframe {
+      width: 100%;
+      border: 0;
+      padding: 0 15px;
+      margin: 1em 0;
+      overflow: auto;
+    }
+  }
+}
+.attachments-area {
+  border-bottom: 1px solid @border-color;
+  padding: 5px 15px 0px 15px;
+
+  .attachment-file-wrap {
+    display: inline-block;
+    position: relative;
+    font-size: @minor-font-size;
+    margin-bottom: 0.5em;
+    margin-right: 0.5em;
+
+    &:hover {
+      .attachment-file-actions {
+        visibility: visible;
+      }
+    }
+
+    &.pending, &.started, &.progress {
+      // When downloading is in progress.
+      color: @text-color-subtle;
+
+      .attachment-file-and-name:hover {
+        cursor: default;
+        color: @text-color-subtle;
+      }
+
+      .attachment-file-actions {
+        visibility: visible;
+        margin-left: 0.4em;
+      }
+
+      .btn.btn-icon.attachment-icon {
+        font-size: 14px;
+        padding-bottom: 3px;
+      }
+    }
+  }
+
+  .attachment-file-and-name {
+    position: relative;
+    z-index: 2;
+    &:hover {
+      color: @text-color-link;
+      cursor: pointer;
+    }
+  }
+
+  .attachment-file-actions {
+    position: relative;
+    z-index: 2;
+    visibility: hidden;
+    margin-left: 0.3em;
+  }
+
+  .attachment-download-progress,
+  .attachment-upload-progress {
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    height: 2px;
+    width: 0; // Changed by React
+    z-index: 3;
+    display: block;
+    background: @progress-bar-fill;
+  }
+  .attachment-bar-bg {
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    height: 2px;
+    width: 100%;
+    z-index: 2;
+    display: block;
+    background: @progress-bar-background;
+  }
+
+  .btn.btn-icon.attachment-icon {
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+    height: auto;
+    font-size: 18px;
+  }
+
+}

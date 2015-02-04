@@ -1,0 +1,26 @@
+# Keybindings require three things to be fully defined: A selector that is
+# matched against the focused element, the keystroke and the command to
+# execute.
+#
+# Below is a basic keybinding which registers on all platforms by applying to
+# the root workspace element.
+
+# For more detailed documentation see
+# https://atom.io/docs/latest/advanced/keymaps
+'.thread-list-container':
+  'up' : 'thread-list:move-up'
+  'k'  : 'thread-list:move-up'
+
+  'down' : 'thread-list:move-down'
+  'j'    : 'thread-list:move-down'
+
+  'left'  : 'panel:focus-left'
+  'right' : 'panel:focus-right'
+
+  'e'        : 'thread-list:archive-thread'
+  'delete'   : 'thread-list:archive-thread'
+  'backspace': 'thread-list:archive-thread'
+
+  'r': 'thread-list:reply'
+  'a': 'thread-list:reply-all'
+  'f': 'thread-list:forward'

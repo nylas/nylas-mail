@@ -1,0 +1,7 @@
+{
+  "name": "notification-mailto",
+  "main": "./lib/main.coffee",
+  "version": "0.36.0",
+  "description": "Displays a notification asking the user to make Edgehill their default mailto handler",
+  "license": "Proprietary"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "inbox-composer",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Inbox Composer Component",
+  "license": "Proprietary",
+  "private": true,
+  "scripts": {
+    "postinstall": "./node_modules/.bin/bower install; node node_modules/.bin/r.js -o build.js"
+  },
+  "dependencies": {
+    "bower": "^1.3",
+    "requirejs": "~2.1.15"
+  }
+}

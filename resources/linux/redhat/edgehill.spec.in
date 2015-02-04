@@ -1,0 +1,26 @@
+Name:           <%= name %>
+Version:        <%= version %>
+Release:        0.1%{?dist}
+Summary:        Edgehill is an Email OS
+License:        Proprietary
+URL:            https://inboxapp.com/
+AutoReqProv:    no # Avoid libchromiumcontent.so missing dependency
+
+%description
+<%= description %>
+
+%install
+mkdir -p %{buildroot}/usr/local/share/edgehill
+cp -r /tmp/edgehill-build/Edgehill/* %{buildroot}/usr/local/share/edgehill
+mkdir -p %{buildroot}/usr/local/bin/
+ln -sf /usr/local/share/edgehill/resources/app/apm/node_modules/.bin/apm %{buildroot}/usr/local/bin/apm
+cp atom.sh %{buildroot}/usr/local/bin/edgehill
+chmod 755 edgehill
+mkdir -p %{buildroot}/usr/local/share/applications/
+mv edgehill.desktop %{buildroot}/usr/local/share/applications/
+
+%files
+/usr/local/bin/edgehill
+/usr/local/bin/apm
+/usr/local/share/edgehill/
+/usr/local/share/applications/edgehill.desktop

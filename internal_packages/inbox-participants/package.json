@@ -1,0 +1,8 @@
+{
+  "name": "inbox-participants",
+  "version": "0.0.1",
+  "description": "Contact List",
+  "main": "./lib/main",
+  "license": "Proprietary",
+  "private": true
+}

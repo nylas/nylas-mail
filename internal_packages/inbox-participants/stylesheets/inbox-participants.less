@@ -1,0 +1,12 @@
+.default-participant-chip {
+  padding: 0 3px;
+  position: relative;
+  left: -3px;
+}
+
+.default-participant-chip:not(:last-child) {
+  &:after {
+    content: ',';
+    display: inline;
+  }
+}

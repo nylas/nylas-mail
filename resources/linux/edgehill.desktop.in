@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Edgehill
+Comment=<%= description %>
+GenericName=Email OS
+Exec=<%= installDir %>/share/edgehill/edgehill %U
+Icon=<%= iconName %>
+Type=Application
+StartupNotify=true
+Categories=GNOME;GTK;Utility;EmailClient;Development;
+MimeType=text/plain;

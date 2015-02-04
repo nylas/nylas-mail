@@ -1,0 +1,23 @@
+@import "ui-variables";
+@import "ui-mixins";
+
+.template-picker .menu {
+    .content-container {
+        height:150px;
+        overflow:scroll;
+    }
+}
+
+.compose-body .scribe {
+    code.var {
+        font: inherit;
+        padding:0;
+        background-color: transparent;
+        border: 1px solid fade(@green, 15%);
+        background-color: fade(@green, 5%);
+        &.empty {
+            background-color: fade(@green, 15%);
+            border: 1px solid fade(@green, 25%);
+        }
+    }
+}

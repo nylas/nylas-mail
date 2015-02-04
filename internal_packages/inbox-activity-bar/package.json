@@ -1,0 +1,10 @@
+{
+  "name": "inbox-activity-bar",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Activity bar at the very bottom of the window",
+  "license": "Proprietary",
+  "private": true,
+  "dependencies": {
+  }
+}

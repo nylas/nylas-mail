@@ -1,0 +1,144 @@
+#!/usr/bin/env node
+
+var fs = require('fs');
+var verifyRequirements = require('./utils/verify-requirements');
+var safeExec = require('./utils/child-process-wrapper.js').safeExec;
+var path = require('path');
+
+// Executes an array of commands one by one.
+function executeCommands(commands, done, index) {
+  index = (index == undefined ? 0 : index);
+  if (index < commands.length) {
+    var command = commands[index];
+    if (command.message)
+      console.log(command.message);
+    var options = null;
+    if (typeof command !== 'string') {
+      options = command.options;
+      command = command.command;
+    }
+    safeExec(command, options, executeCommands.bind(this, commands, done, index + 1));
+  }
+  else
+    done(null);
+}
+
+function printArgs(args) {
+  out = "";
+  for(key in args) {
+    out += "--"+key+"="+args[key]+" ";
+  }
+  return out;
+}
+
+function bootstrap() {
+  var apmInstallPath = path.resolve(__dirname, '..', 'apm');
+  if (!fs.existsSync(apmInstallPath))
+    fs.mkdirSync(apmInstallPath);
+  if (!fs.existsSync(path.join(apmInstallPath, 'node_modules')))
+    fs.mkdirSync(path.join(apmInstallPath, 'node_modules'));
+
+  var apmPath = path.resolve(__dirname, '..', 'apm', 'node_modules', 'atom-package-manager', 'bin', 'apm')
+  var apmFlags = process.env.JANKY_SHA1 || process.argv.indexOf('--no-color') !== -1 ? ' --no-color' : '';
+
+  var npmPath = path.resolve(__dirname, '..', 'build', 'node_modules', '.bin', 'npm');
+  var initialNpmCommand = fs.existsSync(npmPath) ? npmPath : 'npm';
+  var npmFlags = ' --userconfig=' + path.resolve('.npmrc') + ' ';
+
+  var packagesToDedupe = ['fs-plus', 'humanize-plus', 'oniguruma', 'roaster', 'season', 'grim'];
+
+  var buildInstallCommand = initialNpmCommand + npmFlags + 'install';
+  var buildInstallOptions = {cwd: path.resolve(__dirname, '..', 'build')};
+  var apmInstallCommand = npmPath + npmFlags + 'install';
+  var apmInstallOptions = {cwd: apmInstallPath};
+  var moduleInstallCommand = apmPath + ' install' + apmFlags;
+  var dedupeApmCommand = apmPath + ' dedupe' + apmFlags;
+  var semverOptions = {cwd: path.resolve(__dirname, '..', 'apm', 'node_modules', 'atom-package-manager')};
+
+  if (process.argv.indexOf('--no-quiet') === -1) {
+    buildInstallCommand  += ' --loglevel error';
+    apmInstallCommand    += ' --loglevel error';
+    moduleInstallCommand += ' --loglevel error';
+    dedupeApmCommand     += ' --quiet';
+    buildInstallOptions.ignoreStdout = true;
+    apmInstallOptions.ignoreStdout = true;
+  }
+
+  // apm ships with 32-bit node so make sure its native modules are compiled
+  // for a 32-bit target architecture
+  if (process.env.JANKY_SHA1 && process.platform === 'win32')
+    apmInstallCommand += ' --arch=ia32';
+
+  m1  = "---> Installing Edgehill build tools\n"
+  m1 += "     This goes inside the `build` folder and runs `npm install`\n"
+  m1 += "     It will use the system `npm` to bootstrap our own Edgehill npm.\n"
+  m1 += "     Our build tools (like Grunt) need to be compiled against Node via `npm`.\n"
+  m1 += "     Everything else needs to be compiled against Chromium with `apm`.\n\n"
+  m1 += "     $ "+buildInstallCommand+" "+printArgs(buildInstallOptions)+"\n"
+
+  m2  = "---> Installing apm\n"
+  m2 += "     This installs apm via Edgehill's `npm`\n"
+  m2 += "     We use this local apm copy to install all Edgehill dependencies & packages\n\n"
+  m2 += "     $ "+apmInstallCommand+" "+printArgs(apmInstallOptions)+"\n"
+
+  m3  = "---> Cleaning apm via `apm clean`\n"
+
+  m4  = "---> Installing Edgehill dependencies & packages via `apm install`\n\n"
+  m4 += "     $ "+moduleInstallCommand+"\n"
+
+  m5  = "---> De-duping packages `apm clean`\n\n"
+  m5 += "     $ apm "+packagesToDedupe.join(' ')+"\n"
+
+  m6  = "---> Request version `apm clean`\n\n"
+  m6 += "     $ apm request semver "+printArgs(semverOptions)+"\n"
+
+  m7  = "---> Getting latest Atom Shell\n\n"
+  m7 += "     $ build/node_modules/.bin/grunt download-atom-shell --gruntfile build/Gruntfile.coffee\n"
+
+  var commands = [
+    {
+      command: buildInstallCommand,
+      message: m1,
+      options: buildInstallOptions
+    },
+    {
+      command: apmInstallCommand,
+      message: m2,
+      options: apmInstallOptions
+    },
+    {
+      command: apmPath + ' clean' + apmFlags,
+      message: m3
+    },
+    {
+      command: moduleInstallCommand,
+      message: m4
+    },
+    {
+      command: dedupeApmCommand + ' ' + packagesToDedupe.join(' '),
+      message: m5
+    },
+    {
+      command: dedupeApmCommand + ' request semver',
+      message: m6,
+      options: semverOptions
+    },
+    {
+      command: 'build/node_modules/.bin/grunt download-atom-shell --gruntfile build/Gruntfile.coffee',
+      message: m7
+    }
+  ];
+
+  process.chdir(path.dirname(__dirname));
+  executeCommands(commands, process.exit);
+}
+
+verifyRequirements(function(error, successMessage) {
+  if (error) {
+    console.log(error);
+    process.exit(1);
+  }
+
+  console.log(successMessage);
+  bootstrap();
+});

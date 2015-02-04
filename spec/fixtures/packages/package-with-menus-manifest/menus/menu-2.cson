@@ -1,0 +1,8 @@
+'menu': [
+  { 'label': 'Second to Last' }
+]
+
+'context-menu':
+  '.test-1': [
+    {label: 'Menu item 2', command: 'command-2'}
+  ]

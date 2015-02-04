@@ -1,0 +1,10 @@
+{
+  "name": "calendar-bar",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Footer bar that shows your daily availability",
+  "license": "Proprietary",
+  "private": true,
+  "dependencies": {
+  }
+}

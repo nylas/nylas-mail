@@ -1,0 +1,116 @@
+@import "ui-variables";
+@import "ui-mixins";
+
+.search-settings-bar {
+  background: -webkit-linear-gradient(top, @background-color, @background-color-secondary);
+  order: 200;
+
+  .showing {
+    display:inherit;
+    height: 85px;
+  }
+  .hidden {
+    display:none;
+  }
+
+  .field {
+    display:inline-block;
+    padding:5px;
+    padding-left:8px;
+    padding-right:8px;
+
+    input {
+      margin-left:5px;
+      vertical-align: middle;
+    }
+  }
+}
+
+.search-bar {
+  position: relative;
+  order: 1;
+  overflow: visible;
+  z-index: 100;
+  -webkit-user-select: none;
+
+  .menu .header-container {
+    padding: 0px 50px 0px 15px;
+    background-color: transparent;
+    border:none;
+
+    input {
+      width: 100%;
+      font-size: 20px;
+      line-height: 1;
+      border: 0;
+      padding-top: 16px;
+      padding-bottom: 15px;
+    }
+  }
+
+  .menu .content-container {
+    position: absolute;
+    z-index: 2;
+    width: 100%;
+
+    box-shadow: @standard-shadow;
+    background-color: @menu-color;
+
+    .divider {
+      .bold;
+      color: @menu-divider-color;
+      font-size: @minor-font-size;
+      text-transform: uppercase;
+      margin-top: 10px;
+      padding: 4px;
+      padding-left: 15px;
+    }
+
+    .item {
+      padding: 4px;
+      padding-left: 15px;
+    }
+  }
+
+  .search-container {
+    position: relative;
+
+    &.focused {
+      .search-accessory { color: @text-color-subtle; }
+      .search-accessory:hover {
+        cursor: pointer;
+        color: @input-accessory-color-hover !important;
+      }
+    }
+
+    &.committed-query {
+      .search-accessory.clear { display: block; }
+      .search-accessory.search {
+        display: none;
+      }
+    }
+
+    &.showing-suggestions {
+      .suggestions{ display: inherit; }
+    }
+  }
+
+  .search-accessory {
+    color: @input-accessory-color;
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    &.search {
+      padding: 18px 15px;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    &.clear {
+      display: none;
+      padding: 17px 19px;
+      line-height: 20px
+    }
+  }
+}

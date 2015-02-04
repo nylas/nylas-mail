@@ -1,0 +1,11 @@
+{
+  "project_id" : "edgehill",
+  "conduit_uri" : "https://review.inboxapp.com/",
+  "load" : [
+    "arclib"
+  ],
+  "lint.engine": "ArcanistSingleLintEngine",
+  "lint.engine.single.linter": "ArcanistScriptAndRegexLinter",
+  "linter.scriptandregex.script": "script/lint.sh",
+  "linter.scriptandregex.regex": "/^  ((?P<error>✖)|(?P<warning>⚠)) *line (?P<line>\\d+) +(?P<message>.*)$/m"
+}

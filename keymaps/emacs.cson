@@ -1,0 +1,7 @@
+'atom-text-editor':
+  'alt-f': 'editor:move-to-end-of-word'
+  'alt-F': 'editor:select-to-end-of-word'
+  'alt-b': 'editor:move-to-beginning-of-word'
+  'alt-B': 'editor:select-to-beginning-of-word'
+  'alt-h': 'editor:delete-to-beginning-of-word'
+  'alt-d': 'editor:delete-to-end-of-word'

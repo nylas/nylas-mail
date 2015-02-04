@@ -1,0 +1,16 @@
+# See https://atom.io/docs/latest/creating-a-package#menus for more details
+'context-menu':
+  '.overlayer':
+      'Enable inbox-composer': 'inbox-composer:toggle'
+
+'menu': [
+  {
+    'label': 'Packages'
+    'submenu': [
+      'label': 'inbox-composer'
+      'submenu': [
+        { 'label': 'Toggle', 'command': 'inbox-composer:toggle' }
+      ]
+    ]
+  }
+]

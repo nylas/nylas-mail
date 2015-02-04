@@ -1,0 +1,30 @@
+
+# The default state. There's no input in the text field and there are no
+# autocomplete suggestions
+'.autocomplete':
+  'backspace': 'native!'
+  'tab': 'native!'
+  ',': 'native!'
+
+# When the text in the input field looks like an emalil
+'.autocomplete.autocomplete-looks-like-raw-email':
+  'space': 'participants:add-raw-email'
+
+# When there is some text in the input field, but we have no suggestion
+'.autocomplete.autocomplete-no-suggestions':
+  ',': 'participants:add-raw-email'
+  'tab': 'participants:add-raw-email'
+  'enter': 'participants:add-raw-email'
+  'escape': 'participants:cancel'
+
+# When we found a name to suggest
+'.autocomplete.autocomplete-with-suggestion':
+  ',': 'participants:add-suggestion'
+  'tab': 'participants:add-suggestion'
+  'enter': 'participants:add-suggestion'
+  'up': 'participants:move-up'
+  'down': 'participants:move-down'
+  'escape': 'participants:cancel'
+
+'.autocomplete.autocomplete-empty':
+  'backspace': 'participants:remove'

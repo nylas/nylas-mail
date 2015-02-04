@@ -1,0 +1,10 @@
+{
+  "name": "thread-list",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "View threads using React",
+  "license": "Proprietary",
+  "private": true,
+  "dependencies": {
+  }
+}

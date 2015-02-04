@@ -1,0 +1,61 @@
+@import "ui-variables";
+@import "ui-mixins";
+
+
+#account-sidebar {
+  order: 2;
+
+  height: 100%;
+  overflow: auto;
+  padding-bottom: 2em;
+
+  background-color: @background-color-accent;
+
+  -webkit-user-select: none;
+
+  .item {
+    padding: 5px 15px 6px 15px;
+  }
+
+  .item-divider {
+    color:#586870;
+    .bold();
+    padding-top: 1em;
+    padding-bottom: 0.25em;
+  }
+
+  .item-tag {
+    color: fade(@text-color-inverse, 70%);
+    font-size: @font-size;
+
+    .name {
+      text-transform: lowercase;
+      font-family: @font-family-smallcap;
+      letter-spacing: 0.6px;
+    }
+    .unread {
+      display: inline;
+      float: right;
+      opacity: 0.3;
+      margin-left: 1em;
+    }
+    &.selected {
+      background: @background-color-selected;
+      color: @text-color-inverse;
+
+      .name {
+        font-family: @font-family-smallcap;
+        letter-spacing: 0.6px;
+      }
+
+      &:hover {
+        background: darken(@background-color-selected, 5%);
+      }
+    }
+
+    &:hover {
+      background: darken(@background-color-accent, 5%);
+      cursor: pointer;
+    }
+  }
+}

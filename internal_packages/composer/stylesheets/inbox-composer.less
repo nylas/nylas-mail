@@ -1,0 +1,311 @@
+// The ui-variables file is provided by base themes provided by Atom.
+//
+// See https://github.com/atom/atom-dark-ui/blob/master/stylesheets/ui-variables.less
+// for a full listing of what's available.
+@import "ui-variables";
+@import "ui-mixins";
+@import "buttons";
+
+.inbox-composer-full-window {
+  width: 100%;
+  height: 100%;
+  .inbox-composer-outer-wrap {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.inbox-composer-inner-wrap {
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+  padding-bottom: 57px;
+  position: relative;
+
+  .composer-header {
+    padding: 11px 15px 5px 15px;
+
+    .composer-title {
+      display: inline-block;
+      .bold;
+    }
+
+    .composer-header-actions {
+      float: right;
+      color: @text-color-subtle;
+      font-size: @minor-font-size;
+    }
+    .header-action {
+      padding-left: 1em;
+      &:hover {
+        color: @text-color-link;
+        cursor: pointer;
+      }
+    }
+  }
+
+  input, textarea, .scribe {
+    display: block;
+    background: inherit;
+    width: 100%;
+    resize: none;
+    border: none;
+  }
+
+  textarea, .scribe {
+    min-height: 10em;
+  }
+
+  .scribe {
+    flex: 1;
+  }
+
+  .scribe-toolbar-wrap {
+    display: inline-block;
+
+    > button {
+      margin-left: 5px;
+    }
+  }
+
+  .scribe-toolbar {
+    display: none;
+    box-shadow: @standard-shadow;
+    padding: 1px 1px 2px 1px;
+    position: absolute;
+    background: white;
+    z-index: 2;
+    bottom: 48px;
+    margin-left: -37.5px;
+  }
+
+  [disabled] {
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  .btn-send {
+    .btn-variant(@action-color);
+    margin-right: 15px;
+  }
+
+  .compose-participants-wrap {
+    padding: 5px 15px 0 15px;
+  }
+
+  .compose-subject-wrap {
+    margin: 9px 15px 0 15px;
+
+    input {
+      font-size: @major-font-size;
+      height:30px;
+    }
+  }
+
+  .compose-body {
+    flex: 1;
+    display: flex;
+    cursor: text;
+    overflow: auto;
+    margin: 0.7em 15px 15px 15px;
+  }
+
+  .compose-field {
+    border-bottom: 1px solid @border-color-divider;
+  }
+
+  .compose-footer {
+    padding: 10px 15px;
+    background: @background-color-accent;
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    text-align: left;
+
+    .btn-icon {
+      position: relative;
+      top: 2px;
+      margin-right:0;
+      color:rgba(255,255,255, 0.6);
+      box-shadow:none;
+      &:hover,&:active {
+        background-color:transparent;
+        color:rgba(255,255,255, 1);
+      }
+    }
+  }
+
+  .autocomplete input {
+    display: inline-block;
+    width: initial;
+    padding: 2px 0;
+    margin: 0 5px 5px 0;
+    border: none;
+    min-width: 5em;
+    background-color:transparent;
+  }
+
+
+  // TODO FIXME DRY From stylesheets/message-list.less
+  .attachments-area {
+    border-top: 1px solid @border-color-divider;
+    .attachment-file-wrap {
+      &.pending, &.started, &.progress {
+        color: @text-color-subtle;
+        .attachment-file-actions { visibility: visible; }
+        .attachment-file-and-name:hover { cursor: default; color: @text-color-subtle; }
+      }
+
+      &.completed, &.success {
+        color: @text-color-success; // Success state
+        .attachment-file-actions { visibility: hidden; }
+        .attachment-file-and-name:hover { cursor: default; color: @text-color-success; }
+        .attachment-upload-progress { background: @background-color-success; }
+      }
+
+      &.aborted, &.failed {
+        color: @text-color-error;
+        .attachment-file-actions { visibility: hidden; }
+        .attachment-file-and-name:hover { cursor: default; color: @text-color-error; }
+        .attachment-upload-progress { background: @background-color-error; }
+      }
+    }
+
+    .attachment-file-actions {
+      margin-left: 0.4em;
+    }
+  }
+}
+
+.quoted-text-toggle {
+  background-color: #f7f7f7;
+  border-radius: 5px;
+  padding: 7px;
+  margin-bottom: 10px;
+  margin-left: 15px;
+  display: inline-block;
+  padding-top: 0;
+  padding-bottom: 2px;
+  color: #333;
+  border: 1px solid #eee;
+  line-height: 16px;
+
+  &.hidden {
+    display:none;
+  }
+  &:hover {
+    border:1px solid @border-color;
+    background-color: @background-color-secondary;
+    text-decoration:none;
+  }
+  &.state-true:before {
+    content:'Hide Quoted Text';
+  }
+  &.state-false:before {
+    content:'\2022\2022\2022';
+  }
+}
+#new-compose-button {
+  order: 1;
+
+  background: @background-color-accent;
+  padding: 10px 15px 13px 15px;
+  text-align: center;
+
+  .btn-compose {
+    .btn-variant(@action-color);
+  }
+}
+
+.participants-label {
+  color: @text-color-subtle;
+  float: left;
+  padding-top: 2px;
+}
+
+ul.participants {
+  display: block;
+  padding: 0 0 0 32px;
+  margin: 0;
+  list-style-type: none;
+  border-bottom: 1px solid @border-color-divider;
+  min-height:30px;
+
+  > li {
+    display: inline-block;
+    padding: 2px 6px;
+    margin: 0 5px 5px 0;
+    background-color: @background-color-secondary;
+
+    .hasName .email {
+      display: none;
+    }
+
+    :not(.hasName) .name {
+      display: none;
+    }
+
+    button.remove {
+      font-size: @minor-font-size;
+      background: transparent;
+      &:hover { color: @text-color-destructive; }
+      padding: 0;
+      margin: 0;
+      margin-left: 7px;
+      color: fadeout(@black, 75%);
+      border: none;
+    }
+
+    &.hover {
+      background-color: @background-color-selected;
+      color: @text-color-inverse;
+    }
+
+    &.hasFocus {
+    }
+  }
+}
+
+ul.completions {
+  background: white;
+  box-shadow: @standard-shadow;
+  position: absolute;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  left: 0;
+  width: 100%;
+
+  > li {
+    padding: 4px 15px 3px 15px;
+    cursor: pointer;
+
+    &+li {
+      border-top: 1px solid @border-color-subtle;
+    }
+
+    .hasName span.email {
+      margin-left: 0.5em;
+      opacity: 0.7;
+      &::before {
+        content: '<';
+      }
+      &::after {
+        content: '>';
+      }
+    }
+
+    &.seen {
+      color: #666;
+      cursor: default;
+    }
+
+    &.selected {
+      background-color: @background-color-selected;
+      color: @text-color-inverse;
+    }
+  }
+
+  button.remove {
+    display: none;
+  }
+}

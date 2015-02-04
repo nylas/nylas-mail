@@ -1,0 +1,11 @@
+{
+  "name": "inbox-contact-chip",
+  "version": "0.1.0",
+  "description": "Contact Chip",
+  "main": "./lib/main",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "license": "Proprietary",
+  "private": true
+}

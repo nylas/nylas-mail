@@ -1,0 +1,16 @@
+*.swp
+*~
+.DS_Store
+Thumbs.db
+.project
+.svn
+.nvm-version
+node_modules
+npm-debug.log
+debug.log
+/tags
+/atom-shell/
+docs/output
+docs/includes
+spec/fixtures/evil-files/
+yoursway-create-dmg

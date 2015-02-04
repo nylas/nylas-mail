@@ -1,0 +1,10 @@
+{
+  "name": "onboarding",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "The sign in experience",
+  "license": "Proprietary",
+  "private": true,
+  "dependencies": {
+  }
+}

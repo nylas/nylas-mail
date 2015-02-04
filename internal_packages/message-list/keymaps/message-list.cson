@@ -1,0 +1,31 @@
+'.messages-wrap':
+  'up' : 'message-list:move-up'
+  'k'  : 'message-list:move-up'
+
+  'down' : 'message-list:move-down'
+  'j'    : 'message-list:move-down'
+
+  'left'  : 'panel:focus-left'
+  'right' : 'panel:focus-right'
+
+  'e': 'message-list:archive'
+
+  'r': 'message-list:reply'
+  'a': 'message-list:reply-all'
+  'f': 'message-list:forward'
+
+'.native-key-bindings':
+  'up' : 'native!'
+  'k'  : 'native!'
+
+  'down' : 'native!'
+  'j'    : 'native!'
+
+  'left'  : 'native!'
+  'right' : 'native!'
+
+  'e': 'native!'
+
+  'r': 'native!'
+  'a': 'native!'
+  'f': 'native!'

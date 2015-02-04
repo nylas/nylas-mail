@@ -1,0 +1,8 @@
+{
+  "name": "inbox-light-ui",
+  "theme": "ui",
+  "version": "0.1.0",
+  "description": "The Inbox Mail Client Theme",
+  "license": "Proprietary",
+  "private": true
+}

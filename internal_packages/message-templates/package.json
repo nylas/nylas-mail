@@ -1,0 +1,10 @@
+{
+  "name": "message-templates",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Template features galore!",
+  "license": "Proprietary",
+  "private": true,
+  "dependencies": {
+  }
+}

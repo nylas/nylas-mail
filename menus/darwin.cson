@@ -1,0 +1,117 @@
+'menu': [
+  {
+    label: 'Edgehill'
+    submenu: [
+      { label: 'About Edgehill', command: 'application:about' }
+      { label: 'Link External Account', command: 'atom-workspace:add-account' }
+      { label: 'Log Out', command: 'atom-workspace:logout' }
+      { label: 'View License', command: 'application:open-license' }
+      { label: 'VERSION', enabled: false }
+      { label: 'Restart and Install Update', command: 'application:install-update', visible: false}
+      { label: 'Check for Update', command: 'application:check-for-update', visible: false}
+      { label: 'Downloading Update', enabled: false, visible: false}
+      { type: 'separator' }
+      { label: 'Preferences...', command: 'application:show-settings' }
+      { type: 'separator' }
+      { label: 'Services', submenu: [] }
+      { type: 'separator' }
+      { label: 'Hide Atom', command: 'application:hide' }
+      { label: 'Hide Others', command: 'application:hide-other-applications' }
+      { label: 'Show All', command: 'application:unhide-all-applications' }
+      { type: 'separator' }
+      { label: 'Quit', command: 'application:quit' }
+    ]
+  }
+  {
+    label: 'File'
+    submenu: [
+      { label: 'New Message', command: 'application:new-message' }
+      { type: 'separator' }
+      { label: 'Save', command: 'core:save' }
+      { label: 'Save As...', command: 'core:save-as' }
+      { label: 'Save All', command: 'window:save-all' }
+      { type: 'separator' }
+      { label: 'Close Window', command: 'window:close' }
+    ]
+  }
+
+  {
+    label: 'Edit'
+    submenu: [
+      { label: 'Undo', command: 'core:undo' }
+      { label: 'Redo', command: 'core:redo' }
+      { type: 'separator' }
+      { label: 'Cut', command: 'core:cut' }
+      { label: 'Copy', command: 'core:copy' }
+      { label: 'Paste', command: 'core:paste' }
+      { label: 'Select All', command: 'core:select-all' }
+    ]
+  }
+
+  {
+    label: 'Find'
+    submenu: []
+  }
+
+  {
+    label: 'View'
+    submenu: [
+      { label: 'Reload', command: 'window:reload' }
+      { label: 'Toggle Full Screen', command: 'window:toggle-full-screen' }
+      {
+        label: 'Developer'
+        submenu: [
+          { label: 'Open In Dev Mode...', command: 'application:open-dev' }
+          { label: 'Run Edgehill Specs', command: 'application:run-all-specs' }
+          { label: 'Run Package Specs', command: 'window:run-package-specs' }
+          { label: 'Toggle Developer Tools', command: 'window:toggle-dev-tools' }
+        ]
+      }
+    ]
+  }
+
+  {
+    label: 'Packages'
+    submenu: []
+  }
+
+  {
+    label: 'Window'
+    submenu: [
+      { label: 'Minimize', command: 'application:minimize' }
+      { label: 'Zoom', command: 'application:zoom' }
+      { type: 'separator' }
+      { label: 'Message Viewer', command: 'application:show-main-window' }
+      { type: 'separator' }
+      { label: 'Bring All to Front', command: 'application:bring-all-windows-to-front' }
+    ]
+  }
+
+  {
+    label: 'Help'
+    submenu: [
+      { label: 'Terms of Use', command: 'application:open-terms-of-use' }
+      { label: 'Documentation', command: 'application:open-documentation' }
+      { label: 'Roadmap', command: 'application:open-roadmap' }
+      { label: 'Frequently Asked Questions', command: 'application:open-faq' }
+      { type: 'separator' }
+      { label: 'Community Discussions', command: 'application:open-discussions' }
+      { label: 'Report Issue', command: 'application:report-issue' }
+      { label: 'Search Issues', command: 'application:search-issues' }
+      { type: 'separator' }
+    ]
+  }
+]
+
+'context-menu':
+  'atom-text-editor, .overlayer': [
+    {label: 'Undo', command: 'core:undo'}
+    {label: 'Redo', command: 'core:redo'}
+    {type: 'separator'}
+    {label: 'Cut', command: 'core:cut'}
+    {label: 'Copy', command: 'core:copy'}
+    {label: 'Paste', command: 'core:paste'}
+    {label: 'Delete', command: 'core:delete'}
+    {label: 'Select All', command: 'core:select-all'}
+    {type: 'separator'}
+  ]

@@ -1,0 +1,93 @@
+/* Styles for an email iframe */
+@font-face {
+  font-family: 'Proxima Nova Regular';
+  src: url('fonts/Proxima-Nova/regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Proxima Nova Bold';
+  src: url('fonts/Proxima-Nova/bold.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Clean Message Display */
+html, body {
+  font-family: "Proxima Nova Regular", sans-serif;
+  font-size: 16px;
+  line-height: 1.35;
+
+  color: #333;
+
+  border: 0;
+  margin: 0;
+  padding: 0;
+
+  -webkit-text-size-adjust: auto;
+  word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;
+}
+
+::selection {
+  color: #f1f1f1;
+  background: #009ec4;
+}
+
+strong, b, .bold {
+  font-family: "Proxima Nova Bold", sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  letter-spacing: 0.3px;
+}
+
+body {
+  padding: 0;
+  margin: auto;
+  max-width: 840px;
+  overflow: hidden;
+}
+
+a {
+  color: #1486D4;
+  text-decoration: none;
+  border-bottom: 1px solid #1486D4;
+}
+
+a:hover {
+  color: #1069a5;
+  border-bottom: 1px solid #1069a5;
+}
+
+a:visited {
+  color: #1069a5;
+  border-bottom: 1px solid #1069a5;
+}
+a img {
+  border-bottom: 0;
+}
+
+body.heightDetermined {
+  overflow-y: hidden;
+}
+
+div,pre {
+  max-width: 100%;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  border: 0;
+}
+
+.gmail_extra,
+.gmail_quote,
+blockquote {
+  display:none;
+}
+
+.show-quoted-text .gmail_extra,
+.show-quoted-text .gmail_quote,
+.show-quoted-text blockquote {
+  display:inherit;
+}

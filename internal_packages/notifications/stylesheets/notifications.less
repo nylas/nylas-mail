@@ -1,0 +1,67 @@
+@import "ui-variables";
+@import "ui-mixins";
+
+// Notification Colors
+.notifications-wrap, .notifications-sticky-bar {
+  .notification-info { background: @background-color-info; }
+  .notification-error { background: @background-color-error; }
+  .notification-success { background: @background-color-success; }
+}
+
+// Notifications Above Threads
+.notifications-wrap {
+  position: absolute;
+  width: 100%;
+  order: 1;
+  z-index: 400;
+
+  .notifications {
+    text-align: center;
+    font-size: @minor-font-size;
+    height: 19px;
+    overflow: auto;
+  }
+
+  .notification-item {
+    color: @text-color-inverse;
+    padding: 0px 15px 2px 1px;
+  }
+}
+
+// Notifications Across Top Bar
+.notifications-sticky-bar {
+    order: -1;
+
+  .notifications-sticky-item {
+      height: 25px;
+      display:block;
+      padding-left:10px;
+      padding-right:10px;
+      padding-top:2px;
+      color:@text-color-inverse;
+      border-bottom:1px solid rgba(0,0,0,0.25);
+      a {
+        float:right;
+        font-size:13px;
+        background-color: rgba(255,255,255,0.2);
+        color:@text-color-inverse;
+        border-radius: 4px;
+        padding:1px;
+        padding-left:6px;
+        padding-right:6px;
+        margin-left:10px;
+        border-top:1px solid transparent;
+        border-bottom:none;
+      }
+      a:hover {
+        background-color: rgba(0,0,0,0.2);
+        border-top:1px solid rgba(0,0,0,0.35);
+        text-decoration:none;
+        color:@text-color-inverse;
+      }
+
+      i {
+        margin-right:8px;
+      }
+  }
+}
