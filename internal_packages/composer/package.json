@@ -1,5 +1,5 @@
 {
-  "name": "inbox-composer",
+  "name": "composer",
   "version": "0.1.0",
   "main": "./lib/main",
   "description": "Inbox Composer Component",

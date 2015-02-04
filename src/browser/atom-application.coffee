@@ -240,7 +240,7 @@ class AtomApplication
     #   frame: true
     #   draftId: draftId << arbitrary, goes into atom.getLoadSettings()
     #   windowName: 'composer' << available as atom.state.mode in window
-    #   windowPackages: ['inbox-composer'] << packages to activate in window
+    #   windowPackages: ['composer'] << packages to activate in window
     #
     ipc.on 'show-secondary-window', (event, options) =>
       options = _.extend options,

@@ -21,8 +21,8 @@ module.exports =
     else
       if @item? then return # Activate once
       @item = document.createElement("div")
-      @item.setAttribute("id", "inbox-composer-full-window")
-      @item.setAttribute("class", "inbox-composer-full-window")
+      @item.setAttribute("id", "composer-full-window")
+      @item.setAttribute("class", "composer-full-window")
       document.body.appendChild(@item)
 
       # Wait for the remaining state to be passed into the window

@@ -1,1 +1,1 @@
-# inbox-composer package
+# composer package

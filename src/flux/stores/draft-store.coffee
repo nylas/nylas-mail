@@ -99,7 +99,7 @@ DraftStore = Reflux.createStore
     DatabaseStore.persistModel(draft)
 
   # The logic to create a new Draft used to be in the DraftStore (which is
-  # where it should be). It got moved to inbox-composer/lib/main.cjsx becaues
+  # where it should be). It got moved to composer/lib/main.cjsx becaues
   # of an obscure atom-shell/Chrome bug whereby database requests firing right
   # before the new-window loaded would cause the new-window to load with
   # about:blank instead of its contents. By moving the DB logic there, we can

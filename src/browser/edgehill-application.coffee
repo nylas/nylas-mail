@@ -216,7 +216,7 @@ class AtomApplication
     #   frame: true
     #   draftId: draftId << arbitrary, goes into atom.getLoadSettings()
     #   windowName: 'composer' << available as atom.state.mode in window
-    #   windowPackages: ['inbox-composer'] << packages to activate in window
+    #   windowPackages: ['composer'] << packages to activate in window
     #
     ipc.on 'show-secondary-window', (event, options) =>
       w = @prepareSecondaryWindow(options)
@@ -351,7 +351,7 @@ class AtomApplication
   #   :title: 'Message'
   #   :frame: true
   #   :windowName: 'composer'
-  #   :windowPackages: ['inbox-composer']
+  #   :windowPackages: ['composer']
   prepareSecondaryWindow: (options) ->
     options = _.extend options,
       bootstrapScript: require.resolve("../window-secondary-bootstrap")
@@ -369,14 +369,14 @@ class AtomApplication
   #   :title: 'Message'
   #   :frame: true
   #   :windowName: 'composer'
-  #   :windowPackages: ['inbox-composer']
+  #   :windowPackages: ['composer']
   prepareComposerWindow: ->
     w = @_readyComposerWindow
     @_readyComposerWindow = @prepareSecondaryWindow
       title: 'Message'
       frame: true
       windowName: 'composer'
-      windowPackages: ['inbox-composer']
+      windowPackages: ['composer']
     w
 
   showComposerWindow: ({draftLocalId, draftInitialJSON} = {}) ->

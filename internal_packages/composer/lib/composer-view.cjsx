@@ -81,14 +81,14 @@ ComposerView = React.createClass
       </div>
 
   _wrapClasses: ->
-    "inbox-composer-outer-wrap #{@props.containerClass ? ""}"
+    "composer-outer-wrap #{@props.containerClass ? ""}"
 
   _renderComposer: ->
     # Do not render the composer unless we have loaded our draft.
     # Otherwise the Scribe component is initialized with HTML = ""
     return <div></div> if @state.body == undefined
 
-    <div className="inbox-composer-inner-wrap">
+    <div className="composer-inner-wrap">
 
       <div className="composer-header">
         <div className="composer-title">
@@ -107,6 +107,7 @@ ComposerView = React.createClass
           >Change Subject</span>
           <span
             className="header-action"
+            style={display: (@props.mode is "fullwindow") and 'none' or 'initial'}
             onClick={@_popoutComposer}
           >Popout&nbsp&nbsp;<i className="fa fa-expand"></i></span>
         </div>
