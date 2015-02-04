@@ -41,5 +41,8 @@
     "s3": "^4.3",
     "moment": "^2.8",
     "archiver": "^0.13"
+  },
+  "devDependencies": {
+    "grunt-coffee-react": "^2.1.0"
   }
 }

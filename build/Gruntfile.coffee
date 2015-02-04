@@ -54,6 +54,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks('grunt-lesslint')
   grunt.loadNpmTasks('grunt-cson')
   grunt.loadNpmTasks('grunt-contrib-csslint')
+  grunt.loadNpmTasks('grunt-coffee-react')
   grunt.loadNpmTasks('grunt-contrib-coffee')
   grunt.loadNpmTasks('grunt-contrib-less')
   grunt.loadNpmTasks('grunt-shell')
@@ -101,13 +102,21 @@ module.exports = (grunt) ->
 
   installDir = path.resolve(installDir)
 
-  coffeeConfig =
+  cjsxConfig =
     glob_to_multiple:
       expand: true
       src: [
         'src/**/*.cjsx'
-        'src/**/*.coffee'
         'internal_pacakges/**/*.cjsx'
+      ]
+      dest: appDir
+      ext: '.js'
+
+  coffeeConfig =
+    glob_to_multiple:
+      expand: true
+      src: [
+        'src/**/*.coffee'
         'internal_pacakges/**/*.coffee'
         'exports/**/*.coffee'
         'static/**/*.coffee'
@@ -178,6 +187,8 @@ module.exports = (grunt) ->
     docsOutputDir: 'docs/output'
 
     coffee: coffeeConfig
+
+    cjsx: cjsxConfig
 
     less: lessConfig
 
@@ -262,7 +273,7 @@ module.exports = (grunt) ->
           stderr: false
           failOnError: false
 
-  grunt.registerTask('compile', ['coffee', 'prebuild-less', 'cson', 'peg'])
+  grunt.registerTask('compile', ['coffee', 'cjsx', 'prebuild-less', 'cson', 'peg'])
   grunt.registerTask('lint', ['coffeelint', 'csslint', 'lesslint'])
   grunt.registerTask('test', ['shell:kill-atom', 'run-edgehill-specs'])
   grunt.registerTask('docs', ['markdown:guides', 'build-docs'])
