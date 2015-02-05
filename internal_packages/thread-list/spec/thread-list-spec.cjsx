@@ -337,53 +337,57 @@ describe "ThreadListNarrow", ->
                                                ThreadListNarrowItem)
       expect(items.length).toBe 3
 
-    describe "Shifting selected index", ->
-
-      beforeEach ->
-        spyOn(@thread_list, "_onShiftSelectedIndex")
-        spyOn(Actions, "selectThreadId")
-
-      it "can move selection up", ->
-        InboxTestUtils.keyPress("up", @thread_list_node)
-        expect(@thread_list._onShiftSelectedIndex).toHaveBeenCalledWith(-1)
-        InboxTestUtils.keyPress("k", @thread_list_node)
-        expect(@thread_list._onShiftSelectedIndex).toHaveBeenCalledWith(-1)
-
-      it "can move selection down", ->
-        InboxTestUtils.keyPress("down", @thread_list_node)
-        expect(@thread_list._onShiftSelectedIndex).toHaveBeenCalledWith(1)
-        InboxTestUtils.keyPress("j", @thread_list_node)
-        expect(@thread_list._onShiftSelectedIndex).toHaveBeenCalledWith(1)
-
-    describe "Triggering message list commands", ->
-      beforeEach ->
-        spyOn(Actions, "composeReply")
-        spyOn(Actions, "composeReplyAll")
-        spyOn(Actions, "composeForward")
-        ThreadStore._onSelectThreadId("111")
-        @thread = ThreadStore.selectedThread()
-        spyOn(@thread, "archive")
-
-      it "can reply to the currently selected thread", ->
-        InboxTestUtils.keyPress("r", @thread_list_node)
-        expect(Actions.composeReply).toHaveBeenCalledWith(@thread.id)
-
-      it "can reply all to the currently selected thread", ->
-        InboxTestUtils.keyPress("a", @thread_list_node)
-        expect(Actions.composeReplyAll).toHaveBeenCalledWith(@thread.id)
-
-      it "can forward the currently selected thread", ->
-        InboxTestUtils.keyPress("f", @thread_list_node)
-        expect(Actions.composeForward).toHaveBeenCalledWith(@thread.id)
-
-      it "can archive the currently selected thread", ->
-        InboxTestUtils.keyPress("e", @thread_list_node)
-        expect(@thread.archive).toHaveBeenCalled()
-
-      it "does nothing when no thread is selected", ->
-        ThreadStore._selectedId = null
-        InboxTestUtils.keyPress("r", @thread_list_node)
-        expect(Actions.composeReply.calls.length).toEqual(0)
+#     TODO: These need to be moved out of Thread List because the keymaps
+#     are now registered at the `body` level. There is no `body` dom node
+#     in this testing. We should move these to a workspace-level test
+#     suite.
+#     describe "Shifting selected index", ->
+#
+#       beforeEach ->
+#         spyOn(@thread_list, "_onShiftSelectedIndex")
+#         spyOn(Actions, "selectThreadId")
+#
+#       it "can move selection up", ->
+#         InboxTestUtils.keyPress("up", @thread_list_node)
+#         expect(@thread_list._onShiftSelectedIndex).toHaveBeenCalledWith(-1)
+#         InboxTestUtils.keyPress("k", @thread_list_node)
+#         expect(@thread_list._onShiftSelectedIndex).toHaveBeenCalledWith(-1)
+#
+#       it "can move selection down", ->
+#         InboxTestUtils.keyPress("down", @thread_list_node)
+#         expect(@thread_list._onShiftSelectedIndex).toHaveBeenCalledWith(1)
+#         InboxTestUtils.keyPress("j", @thread_list_node)
+#         expect(@thread_list._onShiftSelectedIndex).toHaveBeenCalledWith(1)
+#
+#     describe "Triggering message list commands", ->
+#       beforeEach ->
+#         spyOn(Actions, "composeReply")
+#         spyOn(Actions, "composeReplyAll")
+#         spyOn(Actions, "composeForward")
+#         ThreadStore._onSelectThreadId("111")
+#         @thread = ThreadStore.selectedThread()
+#         spyOn(@thread, "archive")
+#
+#       it "can reply to the currently selected thread", ->
+#         InboxTestUtils.keyPress("r", @thread_list_node)
+#         expect(Actions.composeReply).toHaveBeenCalledWith(@thread.id)
+#
+#       it "can reply all to the currently selected thread", ->
+#         InboxTestUtils.keyPress("a", @thread_list_node)
+#         expect(Actions.composeReplyAll).toHaveBeenCalledWith(@thread.id)
+#
+#       it "can forward the currently selected thread", ->
+#         InboxTestUtils.keyPress("f", @thread_list_node)
+#         expect(Actions.composeForward).toHaveBeenCalledWith(@thread.id)
+#
+#       it "can archive the currently selected thread", ->
+#         InboxTestUtils.keyPress("e", @thread_list_node)
+#         expect(@thread.archive).toHaveBeenCalled()
+#
+#       it "does nothing when no thread is selected", ->
+#         ThreadStore._selectedId = null
+#         InboxTestUtils.keyPress("r", @thread_list_node)
+#         expect(Actions.composeReply.calls.length).toEqual(0)
 
     describe "ThreadListNarrowItem", ->
       beforeEach ->

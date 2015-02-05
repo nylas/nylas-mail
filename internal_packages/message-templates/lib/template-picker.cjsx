@@ -22,7 +22,7 @@ TemplatePicker = React.createClass
     headerComponents = [
       <input type="text"
              tabIndex="1"
-             className="search native-key-bindings"
+             className="search"
              value={@state.searchValue}
              onChange={@_onSearchValueChange}/>
     ]

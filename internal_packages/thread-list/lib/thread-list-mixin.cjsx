@@ -8,18 +8,22 @@ ThreadListMixin =
 
   componentDidMount: ->
     @thread_store_unsubscribe = ThreadStore.listen @_onChange
-    @command_unsubscriber = atom.commands.add '.thread-list-container', {
-      'thread-list:move-up': => @_onShiftSelectedIndex(-1)
-      'thread-list:move-down': => @_onShiftSelectedIndex(1)
-      'thread-list:archive-thread': @_onArchiveSelected
-      'thread-list:reply': @_onReply
-      'thread-list:reply-all': @_onReplyAll
-      'thread-list:forward': @_onForward
+    @thread_unsubscriber = atom.commands.add '.thread-list-container', {
+      'thread-list:star-thread': @_onStarThread
+    }
+    @body_unsubscriber = atom.commands.add 'body', {
+      'application:previous-message': => @_onShiftSelectedIndex(-1)
+      'application:next-message': => @_onShiftSelectedIndex(1)
+      'application:archive-thread': @_onArchiveSelected
+      'application:reply': @_onReply
+      'application:reply-all': @_onReplyAll
+      'application:forward': @_onForward
     }
 
   componentWillUnmount: ->
     @thread_store_unsubscribe()
-    @command_unsubscriber.dispose()
+    @thread_unsubscriber.dispose()
+    @body_unsubscriber.dispose()
 
   _onShiftSelectedIndex: (delta) ->
     item = _.find @state.threads, (thread) => thread.id == @state?.selected
@@ -30,6 +34,10 @@ ThreadListMixin =
   _onArchiveSelected: ->
     thread = ThreadStore.selectedThread()
     thread.archive() if thread
+
+  _onStarThread: ->
+    thread = ThreadStore.selectedThread()
+    thread.toggleStar() if thread
 
   _onReply: ->
     thread = ThreadStore.selectedThread()

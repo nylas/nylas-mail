@@ -125,6 +125,10 @@ which is normally used to trigger the `tree-view:add-file` command:
 
 ## Forcing Chromium's Native Keystroke Handling
 
+EDIT: This has been overridden in the Edgehill project. By default, Chromium's
+native keystroke handling for Copy, Paste, Select-All, etc. is enabled. To except
+yourself from these behaviors, apply the `.override-key-bindings` class to an element.
+
 If you want to force the native browser behavior for a given keystroke, use the
 `native!` directive as the command of a binding. This can be useful to enable
 the correct behavior in native input elements, for example. If you apply the

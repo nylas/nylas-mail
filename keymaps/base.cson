@@ -1,63 +1,81 @@
+# Email-specific core key-mappings
+# All platforms are put here to consolidate custom actions and to prevent
+# duplication in 3 files.
+#
+# TODO let the user pick whether they want to use Gmail, Mac Mail, or
+# Outlook keymappings
+'body':
+  'c'     : 'application:new-message' # Gmail
+  'cmd-n' : 'application:new-message' # Mac mail
+  'ctrl-n': 'application:new-message' # Outlook
 
-# allow standard input fields to work correctly
-'body .native-key-bindings':
-  'tab': 'core:focus-next'
-  'shift-tab': 'core:focus-previous'
-  'enter': 'native!'
-  'backspace': 'native!'
-  'shift-backspace': 'native!'
-  'delete': 'native!'
-  'up': 'native!'
-  'down': 'native!'
-  'shift-up': 'native!'
-  'shift-down': 'native!'
-  'alt-up': 'native!'
-  'alt-down': 'native!'
-  'alt-shift-up': 'native!'
-  'alt-shift-down': 'native!'
-  'cmd-up': 'native!'
-  'cmd-down': 'native!'
-  'cmd-shift-up': 'native!'
-  'cmd-shift-down': 'native!'
-  'ctrl-up': 'native!'
-  'ctrl-down': 'native!'
-  'ctrl-shift-up': 'native!'
-  'ctrl-shift-down': 'native!'
-  'left': 'native!'
-  'right': 'native!'
-  'shift-left': 'native!'
-  'shift-right': 'native!'
-  'alt-left': 'native!'
-  'alt-right': 'native!'
-  'alt-shift-left': 'native!'
-  'alt-shift-right': 'native!'
-  'cmd-left': 'native!'
-  'cmd-right': 'native!'
-  'cmd-shift-left': 'native!'
-  'cmd-shift-right': 'native!'
-  'ctrl-left': 'native!'
-  'ctrl-right': 'native!'
-  'ctrl-shift-left': 'native!'
-  'ctrl-shift-right': 'native!'
-  'ctrl-b': 'native!'
-  'ctrl-f': 'native!'
-  'ctrl-F': 'native!'
-  'ctrl-B': 'native!'
-  'ctrl-h': 'native!'
-  'ctrl-d': 'native!'
+  'k' : 'application:previous-message' # Gmail
+  'up': 'application:previous-message' # Mac mail
 
-'body webview.native-key-bindings':
-  'tab': 'native!'
-  'shift-tab': 'native!'
+  'j'   : 'application:next-message' # Gmail
+  'down': 'application:next-message' # Mac mail
 
-# core components
+  'e'        : 'application:archive-thread' # Gmail
+  'delete'   : 'application:archive-thread' # Mac mail
+  'backspace': 'application:archive-thread' # Outlook
 
+  'r'     : 'application:reply' # Gmail
+  'cmd-r' : 'application:reply' # Mac mail
+  'ctrl-r': 'application:reply' # Outlook
+
+  'a'     : 'application:reply-all' # Gmail
+  'cmd-R' : 'application:reply-all' # Mac mail
+  'ctrl-R': 'application:reply-all' # Outlook
+
+  'f'     : 'application:forward' # Gmail
+  'cmd-F' : 'application:forward' # Mac mail
+  'ctrl-F': 'application:forward' # Outlook
+
+  'cmd-alt-f': 'application:focus-search' # Mac mail
+
+  'cmd-D': 'application:send-message' # Mac mail
+
+# Default cross-platform core behaviors
+  'up': 'core:move-up'
+  'down': 'core:move-down'
+  'left': 'core:move-left'
+  'right': 'core:move-right'
+  'enter': 'core:confirm'
+  'escape': 'core:cancel'
+  'shift-up': 'core:select-up'
+  'shift-down': 'core:select-down'
+  'shift-left': 'core:select-left'
+  'shift-right': 'core:select-right'
+  'shift-pageup': 'core:select-page-up'
+  'shift-pagedown': 'core:select-page-down'
+  'delete': 'core:delete'
+  'shift-delete': 'core:cut'
+
+# For menus
 'body .menu, body .menu .native-key-bindings':
   'up': 'menu:move-up'
-  'left': 'native!'
   'down': 'menu:move-down'
-  'right': 'native!'
   'enter': 'menu:enter'
+
+# For Popover Component
+'body .popover-container':
+  'escape': 'popover:close'
+
+# Inputs are native by default.
+'body input, body textarea, body *[contenteditable=true], body .native-key-bindings':
+  'up': 'native!'
+  'left': 'native!'
+  'down': 'native!'
+  'right': 'native!'
+  'cmd-up': 'native!'
+  'cmd-left': 'native!'
+  'cmd-down': 'native!'
+  'cmd-right': 'native!'
+  'ctrl-up':   'native!'
+  'ctrl-left': 'native!'
+  'ctrl-down': 'native!'
+  'ctrl-right': 'native!'
+  'enter': 'native!'
   'tab': 'core:focus-next'
   'shift-tab': 'core:focus-previous'
   'backspace': 'native!'
@@ -83,6 +101,96 @@
   'ctrl-V': 'native!'
   'ctrl-a': 'native!'
   'ctrl-A': 'native!'
-
-'body .popover-container':
-  'escape': 'popover:close'
+  'a': 'native!'
+  'b': 'native!'
+  'c': 'native!'
+  'd': 'native!'
+  'e': 'native!'
+  'f': 'native!'
+  'g': 'native!'
+  'h': 'native!'
+  'i': 'native!'
+  'j': 'native!'
+  'k': 'native!'
+  'l': 'native!'
+  'm': 'native!'
+  'n': 'native!'
+  'o': 'native!'
+  'p': 'native!'
+  'q': 'native!'
+  'r': 'native!'
+  's': 'native!'
+  't': 'native!'
+  'u': 'native!'
+  'v': 'native!'
+  'w': 'native!'
+  'x': 'native!'
+  'y': 'native!'
+  'z': 'native!'
+  'A': 'native!'
+  'B': 'native!'
+  'C': 'native!'
+  'D': 'native!'
+  'E': 'native!'
+  'F': 'native!'
+  'G': 'native!'
+  'H': 'native!'
+  'I': 'native!'
+  'J': 'native!'
+  'K': 'native!'
+  'L': 'native!'
+  'M': 'native!'
+  'N': 'native!'
+  'O': 'native!'
+  'P': 'native!'
+  'Q': 'native!'
+  'R': 'native!'
+  'S': 'native!'
+  'T': 'native!'
+  'U': 'native!'
+  'V': 'native!'
+  'W': 'native!'
+  'X': 'native!'
+  'Y': 'native!'
+  'Z': 'native!'
+  '1': 'native!'
+  '2': 'native!'
+  '3': 'native!'
+  '4': 'native!'
+  '5': 'native!'
+  '6': 'native!'
+  '7': 'native!'
+  '8': 'native!'
+  '9': 'native!'
+  '0': 'native!'
+  '~': 'native!'
+  '!': 'native!'
+  '@': 'native!'
+  '#': 'native!'
+  '$': 'native!'
+  '%': 'native!'
+  '^': 'native!'
+  '&': 'native!'
+  '*': 'native!'
+  '(': 'native!'
+  ')': 'native!'
+  '-': 'native!'
+  '_': 'native!'
+  '=': 'native!'
+  '+': 'native!'
+  '[': 'native!'
+  '{': 'native!'
+  ']': 'native!'
+  '}': 'native!'
+  '\\': 'native!'
+  '|': 'native!'
+  ';': 'native!'
+  ':': 'native!'
+  '\'': 'native!'
+  '"': 'native!'
+  '<': 'native!'
+  ',': 'native!'
+  '>': 'native!'
+  '.': 'native!'
+  '?': 'native!'
+  '/': 'native!'

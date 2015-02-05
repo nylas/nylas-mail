@@ -1,65 +1,29 @@
+# Note: For a menu item to have a keyboard equiavalent, it needs
+# to be listed in this file.
+
+# Windows application keys
 'body':
-  # Platform Bindings
-
-  # Atom Specific
-  'enter': 'core:confirm'
-  'escape': 'core:cancel'
-  'up': 'core:move-up'
-  'down': 'core:move-down'
-  'left': 'core:move-left'
-  'right': 'core:move-right'
-  'ctrl-alt-r': 'window:reload'
-  'ctrl-alt-i': 'window:toggle-dev-tools'
-  'ctrl-alt-p': 'window:run-package-specs'
+  'ctrl-q': 'application:quit'
   'ctrl-alt-s': 'application:run-all-specs'
-  'ctrl-alt-o': 'application:open-dev'
-  'F11': 'window:toggle-full-screen'
 
-  # Sublime Parity
-  'ctrl-,': 'application:show-settings'
-  'ctrl-w': 'window:close'
-  'ctrl-n': 'application:new-message'
-  'ctrl-s': 'core:save'
-  'ctrl-S': 'core:save-as'
+# Windows core keys
   'ctrl-z': 'core:undo'
-  'ctrl-shift-z': 'core:redo'
+  'ctrl-Z': 'core:redo'
   'ctrl-y': 'core:redo'
   'ctrl-x': 'core:cut'
   'ctrl-c': 'core:copy'
+  'ctrl-a': 'core:select-all'
   'ctrl-v': 'core:paste'
   'ctrl-insert': 'core:copy'
   'shift-insert': 'core:paste'
-  'shift-up': 'core:select-up'
-  'shift-down': 'core:select-down'
-  'shift-left': 'core:select-left'
-  'shift-right': 'core:select-right'
-  'shift-pageup': 'core:select-page-up'
-  'shift-pagedown': 'core:select-page-down'
-  'delete': 'core:delete'
-  'shift-delete': 'core:cut'
-  'pageup': 'core:page-up'
-  'pagedown': 'core:page-down'
-  'backspace': 'core:backspace'
-  'shift-backspace': 'core:backspace'
-  'ctrl-shift-up': 'core:move-up'
-  'ctrl-shift-down': 'core:move-down'
+
+# Windows window keys
   'ctrl-=': 'window:increase-font-size'
   'ctrl-+': 'window:increase-font-size'
   'ctrl--': 'window:decrease-font-size'
   'ctrl-_': 'window:decrease-font-size'
   'ctrl-0': 'window:reset-font-size'
-
-  'ctrl-k ctrl-p': 'window:focus-previous-pane'
-  'ctrl-k ctrl-n': 'window:focus-next-pane'
-  'ctrl-k ctrl-up':    'window:focus-pane-above'
-  'ctrl-k ctrl-down':  'window:focus-pane-below'
-  'ctrl-k ctrl-left':  'window:focus-pane-on-left'
-  'ctrl-k ctrl-right': 'window:focus-pane-on-right'
-
-# allow standard input fields to work correctly
-'body .native-key-bindings':
-  'ctrl-z': 'native!'
-  'ctrl-Z': 'native!'
-  'ctrl-x': 'native!'
-  'ctrl-c': 'native!'
-  'ctrl-v': 'native!'
+  'ctrl-alt-i': 'window:toggle-dev-tools'
+  'F11': 'window:toggle-full-screen'
+  'ctrl-alt-r': 'window:reload'
+  'ctrl-alt-p': 'window:run-package-specs'

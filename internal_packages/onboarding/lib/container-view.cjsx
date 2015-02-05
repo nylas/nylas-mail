@@ -70,7 +70,7 @@ ContainerView = React.createClass
       </div>
     else if @state.page is 'sign-in'
       <div className="page" key={@state.page}>
-        <form role="form" className="thin-container native-key-bindings">
+        <form role="form" className="thin-container">
           {alert}
           <div className="form-group">
             <input type="email" placeholder="Username" className="form-control" tabIndex="1" value={@state.username} onChange={@_onValueChange} id="username" />
@@ -83,7 +83,7 @@ ContainerView = React.createClass
       </div>
     else if @state.page == 'create-account'
       <div className="page" key={@state.page}>
-        <form role="form" className="thin-container native-key-bindings">
+        <form role="form" className="thin-container">
           {alert}
           <div className="form-group">
             <input type="text" placeholder="First Name" className="form-control" tabIndex="1" value={@state.first_name} onChange={@_onValueChange} id="first_name" />
@@ -117,7 +117,6 @@ ContainerView = React.createClass
       React.createElement('webview',{
         "ref": "connect-iframe",
         "key": this.state.page,
-        "className": "native-key-bindings",
         "src": this._connectWebViewURL()
       });
 

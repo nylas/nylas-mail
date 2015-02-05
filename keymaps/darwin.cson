@@ -1,45 +1,17 @@
+# Note: For a menu item to have a keyboard equiavalent, it needs
+# to be listed in this file.
+
+# Mac application keys
 'body':
-  # Apple specific
   'cmd-q': 'application:quit'
   'cmd-h': 'application:hide'
   'cmd-0': 'application:show-main-window'
-  'cmd-alt-h': 'application:hide-other-applications'
   'cmd-m': 'application:minimize'
+  'cmd-alt-h': 'application:hide-other-applications'
   'alt-cmd-ctrl-m': 'application:zoom'
-
-  'ctrl-p': 'core:move-up'
-  'ctrl-n': 'core:move-down'
-  'ctrl-b': 'core:move-left'
-  'ctrl-f': 'core:move-right'
-  'ctrl-P': 'core:select-up'
-  'ctrl-N': 'core:select-down'
-  'ctrl-F': 'core:select-right'
-  'ctrl-B': 'core:select-left'
-  'ctrl-h': 'core:backspace'
-  'ctrl-d': 'core:delete'
-
-  # Atom Specific
-  'cmd-O': 'application:open-dev'
   'cmd-alt-ctrl-s': 'application:run-all-specs'
-  'enter': 'core:confirm'
-  'escape': 'core:cancel'
-  'up': 'core:move-up'
-  'down': 'core:move-down'
-  'left': 'core:move-left'
-  'right': 'core:move-right'
-  'ctrl-alt-cmd-l': 'window:reload'
-  'alt-cmd-i': 'window:toggle-dev-tools'
-  'cmd-alt-ctrl-p': 'window:run-package-specs'
 
-  # Sublime Parity
-  'cmd-,': 'application:show-settings'
-  'cmd-w': 'window:close'
-  'cmd-o': 'application:open'
-  'cmd-n': 'application:new-message'
-  'cmd-s': 'core:save'
-  'cmd-S': 'core:save-as'
-  'cmd-alt-s': 'window:save-all'
-  'cmd-ctrl-f': 'window:toggle-full-screen'
+# Mac core keys
   'cmd-z': 'core:undo'
   'cmd-Z': 'core:redo'
   'cmd-y': 'core:redo'
@@ -47,31 +19,14 @@
   'cmd-c': 'core:copy'
   'cmd-a': 'core:select-all'
   'cmd-v': 'core:paste'
-  'shift-up': 'core:select-up'
-  'shift-down': 'core:select-down'
-  'shift-left': 'core:select-left'
-  'shift-right': 'core:select-right'
-  'shift-pageup': 'core:select-page-up'
-  'shift-pagedown': 'core:select-page-down'
-  'delete': 'core:delete'
-  'shift-delete': 'core:delete'
-  'pageup': 'core:page-up'
-  'pagedown': 'core:page-down'
-  'backspace': 'core:backspace'
-  'shift-backspace': 'core:backspace'
-  'cmd-up': 'core:move-to-top'
-  'cmd-down': 'core:move-to-bottom'
-  'cmd-shift-up': 'core:select-to-top'
-  'cmd-shift-down': 'core:select-to-bottom'
+
+# Mac window keys
   'cmd-=': 'window:increase-font-size'
   'cmd-+': 'window:increase-font-size'
   'cmd--': 'window:decrease-font-size'
   'cmd-_': 'window:decrease-font-size'
-
-# allow standard input fields to work correctly
-'body .native-key-bindings':
-  'cmd-z': 'native!'
-  'cmd-Z': 'native!'
-  'cmd-x': 'native!'
-  'cmd-c': 'native!'
-  'cmd-v': 'native!'
+  'cmd-0': 'window:reset-font-size'
+  'alt-cmd-i': 'window:toggle-dev-tools'
+  'cmd-ctrl-f': 'window:toggle-full-screen'
+  'ctrl-alt-cmd-l': 'window:reload'
+  'cmd-alt-ctrl-p': 'window:run-package-specs'

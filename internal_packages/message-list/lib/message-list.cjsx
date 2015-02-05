@@ -19,18 +19,9 @@ MessageList = React.createClass
     @_unsubscribers = []
     @_unsubscribers.push MessageStore.listen @_onChange
     @_unsubscribers.push ThreadStore.listen @_onChange
-    @_commandUnsubscribe = atom.commands.add '.messages-wrap', {
-      'pane-left:focus': @_paneLeftFocus
-      'pane-right:focus': @_paneRightFocus
-      'message-list:reply': => Actions.composeReply(@state.current_thread.id)
-      'message-list:reply-all': => Actions.composeReplyAll(@state.current_thread.id)
-      'message-list:forward': => Actions.composeForward(@state.current_thread.id)
-      'message-list:archive': => @state.current_thread.archive() # TODO Turn into ACtion
-    }
 
   componentWillUnmount: ->
     unsubscribe() for unsubscribe in @_unsubscribers
-    @_commandUnsubscribe.dispose()
 
   render: ->
     return <div></div> if not @state.current_thread?

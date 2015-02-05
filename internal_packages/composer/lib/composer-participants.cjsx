@@ -119,7 +119,6 @@ ComposerParticipants = React.createClass
   _containerClasses: ->
     React.addons.classSet
       "autocomplete": true
-      "native-key-bindings": true
       "increase-css-specificity": true
       "autocomplete-empty": @state.currentEmail.trim().length is 0
       "autocomplete-no-suggestions": @_noSuggestions()

@@ -149,7 +149,7 @@ ComposerView = React.createClass
                placeholder="Subject"
                tabIndex="108"
                disabled={not @state.showsubject}
-               className="compose-field compose-subject native-key-bindings"
+               className="compose-field compose-subject"
                defaultValue={@state.subject}
                onChange={@_onChangeSubject}/>
       </div>

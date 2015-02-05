@@ -106,12 +106,12 @@ class WindowEventHandler
     @handleNativeKeybindings()
 
   # Wire commands that should be handled by the native menu
-  # for elements with the `.native-key-bindings` class.
+  # for elements with the `.override-key-bindings` class.
   handleNativeKeybindings: ->
     menu = null
     bindCommandToAction = (command, action) =>
       @subscribe $(document), command, (event) ->
-        if event.target.webkitMatchesSelector('.native-key-bindings, input')
+        unless event.target.webkitMatchesSelector('.override-key-bindings')
           menu ?= require('remote').require('menu')
           menu.sendActionToFirstResponder(action)
         true

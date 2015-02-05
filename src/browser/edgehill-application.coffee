@@ -149,12 +149,12 @@ class AtomApplication
   # needs to manually bubble them up to the Application instance via IPC or they won't be
   # handled. This happens in workspace-element.coffee
   handleEvents: ->
+    @on 'application:new-message', => @showComposerWindow()
     @on 'application:run-all-specs', -> @runSpecs(exitWhenDone: false, resourcePath: global.devResourcePath, safeMode: @focusedWindow()?.safeMode)
     @on 'application:run-benchmarks', -> @runBenchmarks()
     @on 'application:quit', =>
       @quitting = true
       app.quit()
-    @on 'application:new-message', => @showComposerWindow()
     @on 'application:open-file-to-window', -> @promptForPath({type: 'file', to_window: true})
     @on 'application:open-dev', -> @promptForPath(devMode: true)
     @on 'application:open-safe', -> @promptForPath(safeMode: true)
