@@ -278,6 +278,9 @@ ul.completions {
   > li {
     padding: 4px 15px 3px 15px;
     cursor: pointer;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 
     &+li {
       border-top: 1px solid @border-color-subtle;
