@@ -43,6 +43,15 @@ ThreadListTabular = React.createClass
     </div>
 
   _defaultColumns: ->
+    c0 = new ThreadListColumn
+      name: "★"
+      flex: 0.2
+      resolver: (thread, parentComponent) ->
+        <span className="btn-icon star-button"
+              onClick={ -> thread.toggleStar.apply(thread)}>
+          <i className={"fa " + (thread.isStarred() and 'fa-star' or 'fa-star-o')}/>
+        </span>
+
     c1 = new ThreadListColumn
       name: "Name"
       flex: 2
@@ -76,7 +85,7 @@ ThreadListTabular = React.createClass
       flex: 1
       resolver: (thread, parentComponent) -> parentComponent.threadTime()
 
-    return [c1, c2, c3]
+    return [c0, c1, c2, c3]
 
   _threadHeaders: ->
     for col in @state.columns
@@ -86,10 +95,16 @@ ThreadListTabular = React.createClass
         {col.name}
       </div>
 
+  # The `numTags` attribute is only used to trigger a re-render of the
+  # ThreadListTabularItem when a tag gets added or removed (like a star).
+  # React's diffing engine does not detect the change the array nested
+  # deep inside of the thread and does not call render on the associated
+  # ThreadListTabularItem. Add the attribute fixes this.
   _threadRows: ->
     @state.threads.map (thread) =>
       <ThreadListTabularItem key={thread.id}
                              thread={thread}
+                             numTags={thread.tags.length}
                              columns={@state.columns}
                              unread={thread.isUnread()}
                              columnFlex={@_columnFlex()}

@@ -83,12 +83,35 @@
   }
 }
 
+.thread-list {
+  .star-button {
+    font-size: 16px;
+    .fa-star {
+      color: rgb(239, 209, 0);
+      &:hover {
+        cursor: pointer;
+        color: rgb(220,220,220);
+      }
+    }
+    .fa-star-o {
+      color: rgb(220,220,220);
+      &:hover {
+        cursor: pointer;
+        color: rgb(239, 209, 0);
+      }
+    }
+  }
+}
+
 .thread-list-tabular {
   flex: 1;
   width: 100%;
   display: flex;
   overflow: hidden;
   position: relative;
+
+  .star-button {
+  }
 
   .thread-list-tabular-item {
     position: relative;
@@ -148,13 +171,6 @@
     .star-button {
       margin-right:0;
       margin-left:5px;
-      font-size:16px;
-      .fa-star {
-        color:rgb(239, 209, 0);
-      }
-      .fa-star-o {
-        color:rgb(220,220,220);
-      }
     }
 
     .participants {
