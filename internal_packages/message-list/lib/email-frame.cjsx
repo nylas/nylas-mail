@@ -54,18 +54,14 @@ EmailFixingStyles = """
 
   a {
     color: #1486D4;
-    text-decoration: none;
-    border-bottom: 1px solid #1486D4;
   }
 
   a:hover {
     color: #1069a5;
-    border-bottom: 1px solid #1069a5;
   }
 
   a:visited {
     color: #1069a5;
-    border-bottom: 1px solid #1069a5;
   }
   a img {
     border-bottom: 0;
@@ -184,8 +180,15 @@ EmailFrame = React.createClass
   _onClick: (e) ->
     e.preventDefault()
     e.stopPropagation()
-    # Automatically checks if the target is openable
-    atom.windowEventHandler.openLink target: e.target
+    target = e.target
+
+    # This lets us detect when we click an element inside of an <a> tag
+    while target? and (target isnt document) and (target isnt window)
+      if target.getAttribute('href')?
+        atom.windowEventHandler.openLink target: target
+        target = null
+      else
+        target = target.parentElement
 
   _onKeydown: (event) ->
     @getDOMNode().dispatchEvent(new KeyboardEvent(event.type, event))
