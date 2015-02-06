@@ -77,7 +77,7 @@ class Message extends Model
 
   toJSON: ->
     json = super
-    json.file_ids = _.map @files, (file) -> file.id
+    json.file_ids = @fileIds()
     json.object = 'draft' if @draft
     json
 
@@ -102,6 +102,9 @@ class Message extends Model
       if contact? and contact.email?.length > 0
         participants["#{(contact?.email ? "").toLowerCase().trim()} #{(contact?.name ? "").toLowerCase().trim()}"] = contact if contact?
     return _.values(participants)
+
+  fileIds: ->
+    _.map @files, (file) -> file.id
 
   uploadFiles: (paths = []) ->
     # TODO: DEPRECATE. MOVE TO STORE

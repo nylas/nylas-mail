@@ -243,9 +243,6 @@ class AtomApplication
     ipc.on 'command', (event, command) =>
       @emit(command)
 
-    ipc.on 'save-file', (event, path) =>
-      @saveFile(path)
-
     ipc.on 'window-command', (event, command, args...) ->
       win = BrowserWindow.fromWebContents(event.sender)
       win.emit(command, args...)
@@ -521,18 +518,3 @@ class AtomApplication
     dialog = require 'dialog'
     dialog.showOpenDialog parentWindow, openOptions, (pathsToOpen) =>
       @lastFocusedWindow?.browserWindow.webContents.send("paths-to-open", pathsToOpen)
-
-  saveFile: (path) ->
-    dialog = require 'dialog'
-
-    # Show the open dialog as child window on Windows and Linux, and as
-    # independent dialog on OS X. This matches most native apps.
-    parentWindow =
-      if process.platform is 'darwin' then null else BrowserWindow.getFocusedWindow()
-
-    options =
-      title: "Save"
-      defaultPath: path
-
-    dialog.showSaveDialog parentWindow, options, (savePath) =>
-      @lastFocusedWindow?.browserWindow.webContents.send("save-file-selected", savePath)

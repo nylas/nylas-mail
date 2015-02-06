@@ -15,13 +15,13 @@ class File extends Model
 
     'contentType': Attributes.String
       modelKey: 'contentType'
-      jsonKey: 'content-type'
+      jsonKey: 'content_type'
 
     'messageIds': Attributes.Collection
       modelKey: 'messageIds'
       jsonKey: 'message_ids'
       itemClass: String
 
-    'isEmbedded': Attributes.Boolean
-      modelKey: 'isEmbedded'
-      jsonKey: 'is_embedded'
+    'contentId': Attributes.String
+      modelKey: 'contentId'
+      jsonKey: 'content_id'

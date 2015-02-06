@@ -70,6 +70,13 @@ MessageStore = Reflux.createStore
         return unless loadedThreadId == @_threadId
         @_items = items
         @_itemsLocalIds = localIds
+
+        # Start fetching inline image attachments. Note that the download store
+        # is smart enough that calling this multiple times is not bad!
+        for msg in items
+          for file in msg.files
+            Actions.fetchFile(file) if file.contentId
+
         @trigger(@)
 
   _fetchFromCacheDebounced: _.debounce ->

@@ -329,6 +329,7 @@ class Atom extends Model
         console.warn(error.stack)
       else
         console.warn(error)
+        console.warn(error.stack)
 
       @emitter.emit('will-throw-error', eventObject)
       @emit('uncaught-error', error.message, null, null, null, error)
@@ -825,14 +826,11 @@ class Atom extends Model
   setRepresentedFilename: (filename) ->
     ipc.send('call-window-method', 'setRepresentedFilename', filename)
 
-  showSaveDialog: (callback) ->
-    callback(showSaveDialogSync())
-
-  showSaveDialogSync: (defaultPath) ->
+  showSaveDialog: (defaultPath, callback) ->
     defaultPath ?= @project?.getPath()
-    currentWindow = @getCurrentWindow()
+    parentWindow = if process.platform is 'darwin' then null else @getCurrentWindow()
     dialog = remote.require('dialog')
-    dialog.showSaveDialog currentWindow, {title: 'Save File', defaultPath}
+    dialog.showSaveDialog(parentWindow, {title: 'Save File', defaultPath}, callback)
 
   saveSync: ->
     stateString = JSON.stringify(@state)

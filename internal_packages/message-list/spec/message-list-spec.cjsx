@@ -143,10 +143,6 @@ test_thread = (new Thread).fromJSON({
 })
 
 describe "MessageList", ->
-  keymap_path = "internal_packages/message-list/keymaps/message-list.cson"
-  base_path = "keymaps/base.cson"
-  keymap_mappings = CSON.readFileSync(keymap_path)
-
   _resetMessageStore = ->
     MessageStore._items = []
     MessageStore._threadId = null
@@ -155,10 +151,6 @@ describe "MessageList", ->
     _resetMessageStore()
     @message_list = TestUtils.renderIntoDocument(<MessageList />)
     @message_list_node = @message_list.getDOMNode()
-
-    # IMPORTANT: You need to manually register the keymaps with the
-    # KeymapManager (aliased onto atom.keymaps).
-    atom.keymaps.add(keymap_path, keymap_mappings)
 
   it "renders into the document", ->
     expect(TestUtils.isCompositeComponentWithType(@message_list,

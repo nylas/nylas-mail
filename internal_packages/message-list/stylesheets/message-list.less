@@ -163,10 +163,16 @@
       }
     }
 
-    &.pending, &.started, &.progress {
-      // When downloading is in progress.
+    .attachment-download-bar-wrap {
+      display:none;
+    }
+    &.downloading {
       color: @text-color-subtle;
 
+      .attachment-download-bar-wrap {
+        display:inherit;
+      }
+      
       .attachment-file-and-name:hover {
         cursor: default;
         color: @text-color-subtle;

@@ -66,11 +66,10 @@ windowActions = [
   "fileUploaded",
   "fileAborted",
   "removeFile",
-  "viewFile",
-  "saveFile",
+  "fetchAndOpenFile",
+  "fetchAndSaveFile",
+  "fetchFile",
   "abortDownload",
-  "downloadStateChanged",
-  "fileDownloaded",
 
   # Notification actions
   "postNotification",

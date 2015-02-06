@@ -1,24 +1,29 @@
 moment = require 'moment'
 React = require 'react'
+_ = require 'underscore-plus'
 EmailFrame = require './email-frame'
 MessageAttachment = require "./message-attachment.cjsx"
 MessageParticipants = require "./message-participants.cjsx"
-{FileDownloadStore, ComponentRegistry} = require 'inbox-exports'
+{ComponentRegistry, FileDownloadStore} = require 'inbox-exports'
 Autolinker = require 'autolinker'
 
 module.exports =
 MessageItem = React.createClass
   displayName: 'MessageItem'
+  propTypes:
+    message: React.PropTypes.object.isRequired,
+    collapsed: React.PropTypes.bool
+    thread_participants: React.PropTypes.arrayOf(React.PropTypes.object),
 
   getInitialState: ->
     # Holds the downloadData (if any) for all of our files. It's a hash
     # keyed by a fileId. The value is the downloadData.
-    downloads: FileDownloadStore.downloadsForFiles(@_fileIds())
+    downloads: FileDownloadStore.downloadsForFileIds(@props.message.fileIds())
     showQuotedText: false
     collapsed: @props.collapsed
 
   componentDidMount: ->
-    @_storeUnlisten = FileDownloadStore.listen(@_onFileDownloadStoreChange)
+    @_storeUnlisten = FileDownloadStore.listen(@_onDownloadStoreChange)
 
   componentWillUnmount: ->
     @_storeUnlisten() if @_storeUnlisten
@@ -29,6 +34,9 @@ MessageItem = React.createClass
     quotedTextClass += " state-" + @state.showQuotedText
 
     messageIndicators = ComponentRegistry.findAllViewsByRole('MessageIndicator')
+    attachments = @_attachmentComponents()
+    if attachments.length > 0
+      attachments = <div className="attachments-area">{attachments}</div>
 
     header =
       <header className="message-header" onClick={@_onToggleCollapsed}>
@@ -48,11 +56,9 @@ MessageItem = React.createClass
     else
       <div className="message-item-wrap">
         {header}
-        <div className="attachments-area" style={display: @_hasAttachments()}>
-          {@_attachmentCompontents()}
-        </div>
+        {attachments}
         <EmailFrame showQuotedText={@state.showQuotedText}>
-          {@_formatBody(@props.message.body)}
+          {@_formatBody()}
         </EmailFrame>
         <a className={quotedTextClass} onClick={@_toggleQuotedText}></a>
       </div>
@@ -60,13 +66,22 @@ MessageItem = React.createClass
 
   # Eventually, _formatBody will run a series of registered body transformers.
   # For now, it just runs a few we've hardcoded here, which are all synchronous.
-  _formatBody: (body) ->
-    return "" unless body
-    formattedBody = Autolinker.link(body, {twitter: false})
-    formattedBody
+  _formatBody: ->
+    return "" unless @props.message
 
-  _fileIds: ->
-    (@props.message?.files ? []).map (file) -> file.id
+    body = @props.message.body
+
+    # Apply the autolinker pass to make emails and links clickable
+    body = Autolinker.link(body, {twitter: false})
+
+    # Find cid:// references and replace them with the paths to downloaded files
+    for file in @props.message.files
+      continue if _.find @state.downloads, (d) -> d.fileId is file.id
+      cidLink = "cid:#{file.contentId}"
+      fileLink = "#{FileDownloadStore.pathForFile(file)}"
+      body = body.replace(cidLink, fileLink)
+
+    body
 
   _containsQuotedText: ->
     # I know this is gross - one day we'll replace it with a nice system.
@@ -84,12 +99,10 @@ MessageItem = React.createClass
 
   _formatContacts: (contacts=[]) ->
 
-  _attachmentCompontents: ->
-    (@props.message.files ? []).map (file) =>
-      <MessageAttachment file={file} downloadData={@state.downloads?[file.id] ? {}}/>
-
-  _hasAttachments: ->
-    if @props.message.files?.length > 0 then "block" else "none"
+  _attachmentComponents: ->
+    attachments = _.filter @props.message.files, (f) -> not f.contentId?
+    attachments.map (file) =>
+      <MessageAttachment file={file} download={@state.downloads[file.id]}/>
 
   _messageTime: ->
     moment(@props.message.date).format(@_timeFormat())
@@ -112,9 +125,9 @@ MessageItem = React.createClass
   # Stubbable for testing. Returns a `moment`
   _today: -> moment()
 
-  _onFileDownloadStoreChange: ->
-    # downloads is a hash keyed by the file id
-    @setState downloads: FileDownloadStore.downloadsForFiles(@_fileIds())
+  _onDownloadStoreChange: ->
+    @setState
+      downloads: FileDownloadStore.downloadsForFileIds(@props.message.fileIds())
 
   _onToggleCollapsed: ->
     @setState

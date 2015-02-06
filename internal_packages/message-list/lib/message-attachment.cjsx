@@ -3,30 +3,24 @@ React = require 'react'
 {Actions} = require 'inbox-exports'
 
 # Passed in as props from MessageItem and FileDownloadStore
-# Generated in tasks/download-file.coffee
 # This is empty if the attachment isn't downloading.
-# @props.downloadData:
-#   state - One of "pending "started" "progress" "completed" "aborted" "failed"
-#   fileId - The id of the file
-#   shellAction - Action used to open the file after downloading
-#   downloadPath - The full path of the download location
-#   total - From request-progress: total number of bytes
-#   percent - From request-progress
-#   received - From request-progress: currently received bytes
-#
+# @props.download is a FileDownloadStore.Download object
 # @props.file is a File object
 
 module.exports =
 MessageAttachment = React.createClass
   displayName: 'MessageAttachment'
 
+  propTypes:
+    file: React.PropTypes.object.isRequired,
+    download: React.PropTypes.object
+
   getInitialState: ->
     progressPercent: 0
 
   render: ->
-    <div className={"attachment-file-wrap " + (@props.downloadData?.state ? "")}>
-
-      <span className="attachment-download-bar-wrap" style={@_showDownload()}>
+    <div className={"attachment-file-wrap " + (@props.download?.state() ? "")}>
+      <span className="attachment-download-bar-wrap">
         <span className="attachment-bar-bg"></span>
         <span className="attachment-download-progress" style={@_downloadProgressStyle()}></span>
       </span>
@@ -57,23 +51,19 @@ MessageAttachment = React.createClass
       </button>
 
   _downloadProgressStyle: ->
-    width: @props.downloadData?.percent ? 0
+    width: @props.download?.percent ? 0
 
   _onClickRemove: ->
     Actions.removeFile
       file: @props.file
       messageLocalId: @props.messageLocalId
 
-  _onClickView: -> Actions.viewFile(@props.file) if @_canClickToView()
+  _onClickView: -> Actions.fetchAndOpenFile(@props.file) if @_canClickToView()
 
-  _onClickDownload: -> Actions.saveFile @props.file
+  _onClickDownload: -> Actions.fetchAndSaveFile(@props.file)
 
-  _onClickAbort: -> Actions.abortDownload(@props.file, @props.downloadData)
+  _onClickAbort: -> Actions.abortDownload(@props.file, @props.download)
 
   _canClickToView: -> not @props.removable and not @_isDownloading()
 
-  _showDownload: ->
-    if @_isDownloading() then {display: "block"} else {display: "none"}
-
-  _isDownloading: ->
-    @props.downloadData?.state in ["pending", "started", "progress"]
+  _isDownloading: -> @props.download?.state() is "downloading"

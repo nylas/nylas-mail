@@ -4,77 +4,133 @@ ipc = require 'ipc'
 path = require 'path'
 shell = require 'shell'
 Reflux = require 'reflux'
+_ = require 'underscore-plus'
 Actions = require '../actions'
-DownloadFileTask = require '../tasks/download-file'
+progress = require 'request-progress'
+NamespaceStore = require '../stores/namespace-store'
+
+class Download
+  constructor: ({@fileId, @targetPath, @progressCallback}) ->
+    @percent = 0
+    @promise = null
+    @
+
+  state: ->
+    if not @promise
+      'unstarted'
+    if @promise.isFulfilled()
+      'finished'
+    if @promise.isRejected()
+      'failed'
+    else
+      'downloading'
+
+  run: ->
+    # If run has already been called, return the existing promise. Never
+    # initiate multiple downloads for the same file
+    return @promise if @promise
+
+    namespace = NamespaceStore.current()?.id
+    @promise = new Promise (resolve, reject) =>
+      return reject(new Error("Must pass a fileID to download")) unless @fileId?
+      return reject(new Error("Must have a target path to download")) unless @targetPath?
+
+      # Does the file already exist on disk? If so, just resolve immediately.
+      fs.exists @targetPath, (exists) =>
+        return resolve(@) if exists
+        @request = atom.inbox.makeRequest
+          path: "/n/#{namespace}/files/#{@fileId}/download"
+          success: => resolve(@)
+          error: => reject(@)
+
+        progress(@request, {throtte: 250})
+        .on("progress", (progress) =>
+          @percent = progress.percent
+          @progressCallback()
+        ).pipe(fs.createWriteStream(@targetPath))
+
+  abort: ->
+    @request?.abort()
+
 
 module.exports =
 FileDownloadStore = Reflux.createStore
   init: ->
-    # From Views
-    @listenTo Actions.viewFile, @_onViewFile
-    @listenTo Actions.saveFile, @_onSaveFile
-    @listenTo Actions.abortDownload, @_onAbortDownload
+    @listenTo Actions.fetchFile, @_fetch
+    @listenTo Actions.fetchAndOpenFile, @_fetchAndOpen
+    @listenTo Actions.fetchAndSaveFile, @_fetchAndSave
+    @listenTo Actions.abortDownload, @_cleanupDownload
 
-    # From Tasks
-    @listenTo Actions.downloadStateChanged, @_onDownloadStateChanged
-    @listenTo Actions.fileDownloaded, @_onFileDownloaded
-
-    # Keyed by fileId
-    @_fileDownloads = {}
-
+    @_downloads = []
+    @_downloadDirectory = "#{atom.getConfigDirPath()}/downloads"
+    fs.exists @_downloadDirectory, (exists) =>
+      fs.mkdir(@_downloadDirectory) unless exists
 
   ######### PUBLIC #######################################################
 
-  # Returns a hash of fileDownloads keyed by fileId
-  downloadsForFiles: (fileIds=[]) ->
-    downloads = {}
+  # Returns a hash of download objects keyed by fileId
+
+  pathForFile: (file) ->
+    return undefined unless file
+    path.join(@_downloadDirectory, "#{file.id}-#{file.filename}")
+
+  downloadForFileId: (fileId) ->
+    _.find @_downloads, (d) -> d.fileId is fileId
+
+  downloadsForFileIds: (fileIds=[]) ->
+    map = {}
     for fileId in fileIds
-      downloads[fileId] = @_fileDownloads[fileId] if @_fileDownloads[fileId]?
-    return downloads
+      download = @downloadForFileId(fileId)
+      map[fileId] = download if download
+    map
 
   ########### PRIVATE ####################################################
 
-  _onViewFile: (file) ->
-    Actions.queueTask new DownloadFileTask
+  # Returns a promise allowing other actions to be daisy-chained
+  # to the end of the download operation
+  _startDownload: (file, options = {}) ->
+    targetPath = @pathForFile(file)
+
+    # is there an existing download for this file? If so,
+    # return that promise so users can chain to the end of it.
+    download = _.find @_downloads, (d) -> d.fileId is file.id
+    return download.run() if download
+
+    # create a new download for this file and add it to our queue
+    download = new Download
       fileId: file.id
-      shellAction: "openItem" # Safe to serialize
-      downloadPath: path.join(os.tmpDir(), file.filename)
+      targetPath: targetPath
+      progressCallback: => @trigger()
+ 
+    cleanup = =>
+      @_cleanupDownload(download)
+      Promise.resolve(download)
 
-  _onSaveFile: (file) ->
-    # We setup the listener here because we don't want to catch someone
-    # else's open dialog
-    unlistenSave = Actions.savePathSelected.listen (pathToSave) =>
-      unlistenSave?()
-      if pathToSave?
-        @_actionAfterDownload = "showItemInFolder"
-        Actions.queueTask new DownloadFileTask
-          fileId: file.id
-          shellAction: "showItemInFolder"
-          downloadPath: pathToSave
-
-    # When the dialog closes, it triggers `Actions.pathToSave`
-    ipc.send('save-file', @_defaultSavePath(file))
-
-  _onAbortDownload: (file) ->
-    Actions.abortTask({object: 'DownloadFileTask', fileId: file.id})
-
-  # Generated in tasks/download-file.coffee
-  # downloadData:
-  #   state - One of "pending "started" "progress" "completed" "aborted" "failed"
-  #   fileId - The id of the file
-  #   shellAction - Action used to open the file after downloading
-  #   downloadPath - The full path of the download location
-  #   total - From request-progress: total number of bytes
-  #   percent - From request-progress
-  #   received - From request-progress: currently received bytes
-  _onDownloadStateChanged: (downloadData={}) ->
-    @_fileDownloads[downloadData.fileId] = downloadData
+    @_downloads.push(download)
+    promise = download.run().catch(cleanup).then(cleanup)
     @trigger()
+    promise
 
-  _onFileDownloaded: ({fileId, shellAction, downloadPath}) ->
-    delete @_fileDownloads[fileId]
+  _fetch: (file) ->
+    @_startDownload(file)
+
+  _fetchAndOpen: (file) ->
+    @_startDownload(file).then (download) ->
+      shell.openItem(download.targetPath)
+
+  _fetchAndSave: (file) ->
+    atom.showSaveDialog @_defaultSavePath(file), (savePath) =>
+      return unless savePath
+      @_startDownload(file).then (download) ->
+        stream = fs.createReadStream(download.targetPath)
+        stream.pipe(fs.createWriteStream(savePath))
+        stream.on 'end', ->
+          shell.showItemInFolder(savePath)
+
+  _cleanupDownload: (download) ->
+    download.abort()
+    @_downloads = _.without(@_downloads, download)
     @trigger()
-    shell[shellAction](downloadPath)
 
   _defaultSavePath: (file) ->
     if process.platform is 'win32'
@@ -84,6 +140,5 @@ FileDownloadStore = Reflux.createStore
     downloadDir = path.join(home, 'Downloads')
     if not fs.existsSync(downloadDir)
       downloadDir = os.tmpdir()
-    else
 
     path.join(downloadDir, file.filename)
