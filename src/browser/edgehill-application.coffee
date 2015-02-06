@@ -70,6 +70,7 @@ class AtomApplication
     @pidsToOpenWindows = {}
     @mainWindow = null
     @windows = []
+    @databases = {}
 
     @autoUpdateManager = new AutoUpdateManager(@version)
     @applicationMenu = new ApplicationMenu(@version)
@@ -93,6 +94,64 @@ class AtomApplication
       @showMainWindow({devMode, safeMode})
       for urlToOpen in (urlsToOpen || [])
         @openUrl({urlToOpen})
+
+  prepareDatabaseInterface: ->
+    return @dblitePromise if @dblitePromise
+
+    # configure a listener that watches for incoming queries over IPC,
+    # executes them, and returns the responses to the remote renderer processes
+    ipc.on 'database-query', (event, {databasePath, queryKey, query, values}) =>
+      db = @databases[databasePath]
+      done = (err, result) ->
+        unless err
+          runtime = db.lastQueryTime()
+          if runtime > 250
+            console.log("Query #{queryKey}: #{query} took #{runtime}msec")
+        event.sender.send('database-result', {queryKey, err, result})
+
+      return done(new Error("Database not prepared.")) unless db
+      if query[0..5] is 'SELECT'
+        db.query(query, values, null, done)
+      else
+        db.query(query, values, done)
+
+    # return a promise that resolves after we've configured dblite for our platform
+    return @dblitePromise = new Promise (resolve, reject) =>
+      dblite = require('../../vendor/dblite-custom').withSQLite('3.8.6+')
+      vendor = @resourcePath + "/vendor"
+
+      if process.platform is 'win32'
+        dblite.bin = "#{vendor}/sqlite3-win32.exe"
+        resolve(dblite)
+      else if process.platform is 'linux'
+        exec "uname -a", (err, stdout, stderr) ->
+          arch = if stdout.toString().indexOf('x86_64') is -1 then "32" else "64"
+          dblite.bin = "#{vendor}/sqlite3-linux-#{arch}"
+          resolve(dblite)
+      else if process.platform is 'darwin'
+        dblite.bin = "#{vendor}/sqlite3-darwin"
+        resolve(dblite)
+
+  prepareDatabase: (databasePath, callback) ->
+    @prepareDatabaseInterface().then (dblite) =>
+      # Avoid opening a new connection to an existing database
+      return callback() if @databases[databasePath]
+
+      # Create a new database for the requested path
+      db = dblite(databasePath)
+
+      # By default, dblite stops all query execution when a query returns an error.
+      # We want to propogate those errors out, but still allow queries to be made.
+      db.ignoreErrors = true
+      @databases[databasePath] = db
+
+      # Tell the person who requested the database that they can begin making queries
+      callback()
+
+  teardownDatabase: (databasePath, callback) ->
+    @databases[databasePath]?.close()
+    delete @databases[databasePath]
+    fs.unlink(databasePath, callback)
 
   # Public: Removes the {AtomWindow} from the global window list.
   removeWindow: (window) ->

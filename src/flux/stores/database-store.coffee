@@ -1,5 +1,6 @@
 Reflux = require 'reflux'
 async = require 'async'
+remote = require 'remote'
 _ = require 'underscore-plus'
 Actions = require '../actions'
 Model = require '../models/model'
@@ -10,10 +11,35 @@ ModelQuery = require '../models/query'
 fs = require 'fs-plus'
 path = require 'path'
 exec = require('child_process').exec
+ipc = require 'ipc'
 
 silent = atom.getLoadSettings().isSpec
 verbose = false
 
+# DatabaseConnection is a small shim for making database queries. Queries
+# are actually executed in the Browser process and eventually, we'll move
+# more and more of this class there.
+class DatabaseProxy
+  constructor: (@databasePath) ->
+    @windowId = remote.getCurrentWindow().id
+    @queryCallbacks = {}
+    @queryId = 0
+
+    ipc.on 'database-result', ({queryKey, err, result}) =>
+      @queryCallbacks[queryKey](err, result) if @queryCallbacks[queryKey]
+      delete @queryCallbacks[queryKey]
+
+    @
+
+  query: (query, values, callback) ->
+    @queryId += 1
+    queryKey = "#{@windowId}-#{@queryId}"
+    @queryCallbacks[queryKey] = callback if callback
+    ipc.send('database-query', {@databasePath, queryKey, query, values})
+
+# DatabasePromiseTransaction converts the callback syntax of the Database
+# into a promise syntax with nice features like serial execution of many
+# queries in the same promise.
 class DatabasePromiseTransaction
   constructor: (@_db, @_resolve, @_reject) ->
     @_running = 0
@@ -22,17 +48,9 @@ class DatabasePromiseTransaction
     # Wrap any user-provided success callback in one that checks query time
     callback = (err, result) =>
       if err
-        if err.message.indexOf('database is locked') != -1
-          alert('Database lock error. You need to restart Edgehill (this is a known issue.)')
-
         console.log("Query #{query}, #{JSON.stringify(values)} failed #{err.message}")
         queryFailure(err) if queryFailure
         @_reject(err)
-      else
-        runtime = @_db.lastQueryTime()
-        if (runtime > 250 or verbose) and not silent
-          console.log("Query: #{query} took #{runtime}msec")
-        querySuccess(result) if querySuccess
 
       # The user can attach things to the finish promise to run code after
       # the completion of all pending queries in the transaction. We fire
@@ -43,17 +61,13 @@ class DatabasePromiseTransaction
         @_resolve(result)
 
     @_running += 1
-    if query[0..5] == 'SELECT'
-      @_db.query(query, values || [], null, callback)
-    else
-      @_db.query(query, values || [], callback)
+    @_db.query(query, values || [], callback)
 
   executeInSeries: (queries) ->
     async.eachSeries queries
     , (query, callback) =>
       @execute(query, [], -> callback())
     , (err) =>
-      console.log(err) if err
       @_resolve()
 
 
@@ -83,26 +97,10 @@ DatabaseStore = Reflux.createStore
     for key, klass of classMap
       callback(klass) if klass.attributes
 
-  prepareSqlite: (callback) ->
-    dblite = require('../../../vendor/dblite-custom').withSQLite('3.8.6+')
-    vendor = atom.getLoadSettings().resourcePath + "/vendor"
-
-    if process.platform is 'win32'
-      dblite.bin = "#{vendor}/sqlite3-win32.exe"
-      callback(dblite)
-    else if process.platform is 'linux'
-      exec "uname -a", (err, stdout, stderr) ->
-        arch = if stdout.toString().indexOf('x86_64') is -1 then "32" else "64"
-        dblite.bin = "#{vendor}/sqlite3-linux-#{arch}"
-        callback(dblite)
-    else if process.platform is 'darwin'
-      dblite.bin = "#{vendor}/sqlite3-darwin"
-      callback(dblite)
-
   openDatabase: (options = {createTables: false}) ->
-    @prepareSqlite (dblite) =>
-      # Open the database
-      database = dblite(@_dbPath)
+    app = remote.getGlobal('atomApplication')
+    app.prepareDatabase @_dbPath, =>
+      database = new DatabaseProxy(@_dbPath)
 
       if options.createTables
         # Initialize the database and setup our schema. Note that we try to do this every
@@ -124,9 +122,9 @@ DatabaseStore = Reflux.createStore
         @_db = database
 
   teardownDatabase: (callback) ->
-    @_db?.close()
-    @_db = null
-    fs.unlink @_dbPath, (err) =>
+    app = remote.getGlobal('atomApplication')
+    app.teardownDatabase @_dbPath, =>
+      @_db = null
       @trigger({})
       callback()
 
