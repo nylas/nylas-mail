@@ -373,7 +373,7 @@ class AtomApplication
       title: 'Message'
       frame: true
       windowName: 'composer'
-      windowPackages: ['composer']
+      windowPackages: ['composer', 'attachments']
     w
 
   showComposerWindow: ({draftLocalId, draftInitialJSON} = {}) ->

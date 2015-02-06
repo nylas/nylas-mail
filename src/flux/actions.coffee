@@ -8,6 +8,15 @@ Reflux = require 'reflux'
 globalActions = [
   "didSwapModel",
   "logout",
+
+  # File Actions
+  # Since the TaskStore is only in the main window, these actions need to
+  # be rebroadcasted to all windows so you can watch the upload progress
+  # from the popout composers
+  "uploadStateChanged",
+  "fileAborted",
+  "downloadStateChanged",
+  "fileUploaded"
 ]
 
 # These actions are rebroadcast through the ActionBridge to the
@@ -59,18 +68,6 @@ windowActions = [
   "searchConstantsChanged",
   "searchBlurred",
 
-  # File Actions
-  "attachFile",
-  "abortUpload",
-  "uploadStateChanged",
-  "fileUploaded",
-  "fileAborted",
-  "removeFile",
-  "fetchAndOpenFile",
-  "fetchAndSaveFile",
-  "fetchFile",
-  "abortDownload",
-
   # Notification actions
   "postNotification",
   "notificationActionTaken",
@@ -82,6 +79,18 @@ windowActions = [
   "insertTemplateId",
   "createTemplate",
   "showTemplates",
+
+  # File Actions
+  # Some file actions only need to be processed in their current window
+  "attachFile",
+  "abortUpload",
+  "persistUploadedFile", # This touches the DB, should only be in main window
+  "removeFile",
+  "fetchAndOpenFile",
+  "fetchAndSaveFile",
+  "fetchFile",
+  "abortDownload"
+  "fileDownloaded"
 ]
 
 allActions = [].concat(windowActions).concat(globalActions).concat(mainWindowActions)

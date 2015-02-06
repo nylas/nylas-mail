@@ -36,7 +36,7 @@ DraftStore = Reflux.createStore
     @listenTo Actions.destroyDraft, @_onDestroyDraft
 
     @listenTo Actions.removeFile, @_onRemoveFile
-    @listenTo Actions.fileUploaded, @_onFileUploaded
+    @listenTo Actions.persistUploadedFile, @_onFileUploaded
 
   ######### PUBLIC #######################################################
 

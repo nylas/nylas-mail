@@ -18,6 +18,7 @@
   'shift-insert': 'core:paste'
 
 # Windows window keys
+  'ctrl-w': 'window:close'
   'ctrl-=': 'window:increase-font-size'
   'ctrl-+': 'window:increase-font-size'
   'ctrl--': 'window:decrease-font-size'

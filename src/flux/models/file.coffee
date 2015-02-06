@@ -9,9 +9,11 @@ class File extends Model
   @attributes: _.extend {}, Model.attributes,
     'filename': Attributes.String
       modelKey: 'filename'
+      jsonKey: 'filename'
 
     'size': Attributes.Number
       modelKey: 'size'
+      jsonKey: 'size'
 
     'contentType': Attributes.String
       modelKey: 'contentType'

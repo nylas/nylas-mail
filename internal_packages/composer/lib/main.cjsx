@@ -62,7 +62,7 @@ module.exports =
           draft = new Message
             from: [NamespaceStore.current().me()]
             date: (new Date)
-            state: "draft"
+            draft: true
             namespaceId: NamespaceStore.current().id
           # If initial JSON was provided, apply it to the new model.
           # This is used to apply the values in mailto: links to new drafts

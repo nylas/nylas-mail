@@ -1,3 +1,4 @@
+_ = require 'underscore-plus'
 request = require 'request'
 Actions = require './actions'
 {APIError} = require './errors'
@@ -87,6 +88,11 @@ class InboxAPI
       if error? or response.statusCode > 299
         options.error(new APIError({error:error, response:response, body:body}))
       else
+        if _.isString body
+          try
+            body = JSON.parse(body)
+          catch error
+            options.error(new APIError({error:error, response:response, body:body}))
         @_handleModelResponse(body) if options.returnsModel
         options.success(body) if options.success
 

@@ -31,6 +31,7 @@ class FileUploadTask extends Task
         path: "/n/#{@_namespaceId()}/files"
         method: "POST"
         json: false
+        returnsModel: true
         formData: @_formData()
         success: (json) => @_onUploadSuccess(json, resolve)
         error: (apiError) =>
@@ -62,10 +63,17 @@ class FileUploadTask extends Task
 
     taskCallback()
 
+  # The `persistUploadFile` action affects the Database and should only be
+  # heard in the main window.
+  #
+  # The `fileUploaded` action is needed to notify all other windows (like
+  # composers) that the file has finished uploading.
   _completedNotification: (file) ->
     setTimeout =>
-      Actions.fileUploaded
+      Actions.persistUploadedFile
         file: file
+        uploadData: @_uploadData("completed")
+      Actions.fileUploaded
         uploadData: @_uploadData("completed")
     , 1000 # To see the success state for a little bit
 

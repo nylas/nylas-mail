@@ -127,7 +127,7 @@ ActivityBar = React.createClass
           email: "feedback@nilas.com"
       ]
       date: (new Date)
-      state: "draft"
+      draft: true
       subject: "Feedback"
       namespaceId: NamespaceStore.current().id
       body: """

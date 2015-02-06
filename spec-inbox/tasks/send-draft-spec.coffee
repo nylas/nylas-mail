@@ -14,7 +14,7 @@ describe "SendDraftTask", ->
         id: '1233123AEDF1'
         namespaceId: 'A12ADE'
         subject: 'New Draft'
-        state: 'draft'
+        draft: true
         to:
           name: 'Dummy'
           email: 'dummy@inboxapp.com'
@@ -24,7 +24,7 @@ describe "SendDraftTask", ->
         id: '1233OTHERDRAFT'
         namespaceId: 'A12ADE'
         subject: 'New Draft'
-        state: 'draft'
+        draft: true
         to:
           name: 'Dummy'
           email: 'dummy@inboxapp.com'
@@ -62,7 +62,7 @@ describe "SendDraftTask", ->
         id: '1233123AEDF1'
         namespaceId: 'A12ADE'
         subject: 'New Draft'
-        state: 'draft'
+        draft: true
         to:
           name: 'Dummy'
           email: 'dummy@inboxapp.com'

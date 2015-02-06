@@ -37,7 +37,7 @@ ComposerView = React.createClass
 
   getComponentRegistryState: ->
     ResizableComponent: ComponentRegistry.findViewByName 'ResizableComponent'
-    AttachmentComponent: ComponentRegistry.findAllViewsByRole 'MessageAttachment'
+    MessageAttachment: ComponentRegistry.findViewByName 'MessageAttachment'
     FooterComponents: ComponentRegistry.findAllViewsByRole 'Composer:Footer'
 
   componentWillMount: ->

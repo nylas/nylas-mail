@@ -187,34 +187,6 @@ describe "MessageList", ->
               ThreadParticipants)
       expect(items.length).toBe 1
 
-#     TODO: These need to be moved out of Thread List because the keymaps
-#     are now registered at the `body` level. There is no `body` dom node
-#     in this testing. We should move these to a workspace-level test
-#     suite.
-#
-#     describe "Triggering message list actions", ->
-#       beforeEach ->
-#         spyOn(Actions, "composeReply")
-#         spyOn(Actions, "composeReplyAll")
-#         spyOn(Actions, "composeForward")
-#         spyOn(test_thread, "archive")
-#
-#       it "can reply with a keyboard shortcut", ->
-#         InboxTestUtils.keyPress("r", @message_list_node)
-#         expect(Actions.composeReply).toHaveBeenCalledWith(test_thread.id)
-#
-#       it "can reply all with a keyboard shortcut", ->
-#         InboxTestUtils.keyPress("a", @message_list_node)
-#         expect(Actions.composeReplyAll).toHaveBeenCalledWith(test_thread.id)
-#
-#       it "can forward with a keyboard shortcut", ->
-#         InboxTestUtils.keyPress("f", @message_list_node)
-#         expect(Actions.composeForward).toHaveBeenCalledWith(test_thread.id)
-#
-#       it "can archive with a keyboard shortcut", ->
-#         InboxTestUtils.keyPress("e", @message_list_node)
-#         expect(test_thread.archive).toHaveBeenCalled()
-
     describe "Message", ->
       beforeEach ->
         items = TestUtils.scryRenderedComponentsWithType(@message_list,

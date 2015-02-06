@@ -25,7 +25,7 @@ testData =
   to: new Contact(name: "Ben Gotow", email: "ben@inboxapp.com")
   from: new Contact(name: "Evan Morikawa", email: "evan@inboxapp.com")
   date: new Date
-  state: "draft"
+  draft: true
   subject: "Test"
   namespaceId: "abc123"
 

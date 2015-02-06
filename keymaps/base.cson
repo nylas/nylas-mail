@@ -36,8 +36,6 @@
   'cmd-D': 'application:send-message' # Mac mail
 
 # Default cross-platform core behaviors
-  'up': 'core:move-up'
-  'down': 'core:move-down'
   'left': 'core:move-left'
   'right': 'core:move-right'
   'enter': 'core:confirm'

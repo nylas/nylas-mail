@@ -1,0 +1,85 @@
+@import "ui-variables";
+@import "ui-mixins";
+
+.attachment-file-wrap {
+  display: inline-block;
+  position: relative;
+  font-size: @minor-font-size;
+  margin-bottom: 0.5em;
+  margin-right: 0.5em;
+
+  &:hover {
+    .attachment-file-actions {
+      visibility: visible;
+    }
+  }
+
+  .attachment-download-bar-wrap {
+    display:none;
+  }
+  &.pending, &.started, &.progress, &.downloading {
+    // When downloading is in progress.
+    color: @text-color-subtle;
+
+    .attachment-file-and-name:hover {
+      cursor: default;
+      color: @text-color-subtle;
+    }
+
+    .attachment-file-actions {
+      visibility: visible;
+      margin-left: 0.4em;
+    }
+
+    .btn.btn-icon.attachment-icon {
+      font-size: 14px;
+      padding-bottom: 3px;
+    }
+  }
+
+  .attachment-file-and-name {
+    position: relative;
+    z-index: 2;
+    &:hover {
+      color: @text-color-link;
+      cursor: pointer;
+    }
+  }
+
+  .attachment-file-actions {
+    position: relative;
+    z-index: 2;
+    visibility: hidden;
+    margin-left: 0.3em;
+  }
+
+  .attachment-download-progress,
+  .attachment-upload-progress {
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    height: 2px;
+    width: 0; // Changed by React
+    z-index: 3;
+    display: block;
+    background: @progress-bar-fill;
+  }
+  .attachment-bar-bg {
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    height: 2px;
+    width: 100%;
+    z-index: 2;
+    display: block;
+    background: @progress-bar-background;
+  }
+
+  .btn.btn-icon.attachment-icon {
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+    height: auto;
+    font-size: 18px;
+  }
+}

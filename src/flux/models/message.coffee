@@ -81,9 +81,16 @@ class Message extends Model
     json.object = 'draft' if @draft
     json
 
-  fromJSON: (json) ->
+  fromJSON: (json={}) ->
     super (json)
-    @draft = (json.object is 'draft')
+
+    # Only change the `draft` bit if the incoming json has an `object`
+    # property. Because of `DraftChangeSet`, it's common for incoming json
+    # to be an empty hash. In this case we want to leave the pre-existing
+    # draft bit alone.
+    if json.object?
+      @draft = (json.object is 'draft')
+
     for file in (@files ? [])
       file.namespaceId = @namespaceId
     return @

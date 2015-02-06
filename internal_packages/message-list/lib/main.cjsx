@@ -1,6 +1,5 @@
 React = require "react"
 MessageList = require "./message-list"
-MessageAttachment = require "./message-attachment.cjsx"
 {ComponentRegistry} = require 'inbox-exports'
 
 {ReplyButton,
@@ -13,10 +12,6 @@ module.exports =
 
   activate: (@state={}) ->
     # Register components we provide globally
-    ComponentRegistry.register
-      name: 'MessageAttachment'
-      view: MessageAttachment
-
     ComponentRegistry.register
       name: 'edgehill-reply-button'
       role: 'MessageListPrimaryAction'

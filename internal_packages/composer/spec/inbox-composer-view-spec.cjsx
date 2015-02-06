@@ -60,7 +60,7 @@ beforeEach ->
       draft = new Message
         from: [NamespaceStore.current().me()]
         date: (new Date)
-        state: "draft"
+        draft: true
         namespaceId: NamespaceStore.current().id
 
       DatabaseStore.persistModel(draft).then ->

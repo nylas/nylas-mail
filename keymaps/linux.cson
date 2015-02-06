@@ -18,6 +18,7 @@
   'shift-insert': 'core:paste'
 
 # Linux window keys
+  'ctrl-w': 'core:close'
   'ctrl-=': 'window:increase-font-size'
   'ctrl-+': 'window:increase-font-size'
   'ctrl--': 'window:decrease-font-size'

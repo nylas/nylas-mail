@@ -2,7 +2,6 @@ moment = require 'moment'
 React = require 'react'
 _ = require 'underscore-plus'
 EmailFrame = require './email-frame'
-MessageAttachment = require "./message-attachment.cjsx"
 MessageParticipants = require "./message-participants.cjsx"
 {ComponentRegistry, FileDownloadStore} = require 'inbox-exports'
 Autolinker = require 'autolinker'
@@ -14,6 +13,9 @@ MessageItem = React.createClass
     message: React.PropTypes.object.isRequired,
     collapsed: React.PropTypes.bool
     thread_participants: React.PropTypes.arrayOf(React.PropTypes.object),
+
+  mixins: [ComponentRegistry.Mixin]
+  components: ['MessageAttachment']
 
   getInitialState: ->
     # Holds the downloadData (if any) for all of our files. It's a hash

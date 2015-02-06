@@ -21,6 +21,7 @@
   'cmd-v': 'core:paste'
 
 # Mac window keys
+  'cmd-w': 'window:close'
   'cmd-=': 'window:increase-font-size'
   'cmd-+': 'window:increase-font-size'
   'cmd--': 'window:decrease-font-size'

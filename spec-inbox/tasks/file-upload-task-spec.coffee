@@ -21,7 +21,7 @@ localId = "local-id_1234"
 
 fake_draft = new Message
   id: "draft-id_1234"
-  state: 'draft'
+  draft: true
 
 fileJSON =
   id: "file_id_123"
