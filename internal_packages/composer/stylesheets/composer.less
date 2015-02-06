@@ -44,7 +44,7 @@
     }
   }
 
-  input, textarea, .scribe {
+  input, textarea, div[contenteditable] {
     display: block;
     background: inherit;
     width: 100%;
@@ -52,15 +52,7 @@
     border: none;
   }
 
-  textarea, .scribe {
-    min-height: 10em;
-  }
-
-  .scribe {
-    flex: 1;
-  }
-
-  .scribe-toolbar-wrap {
+  .compose-toolbar-wrap {
     display: inline-block;
 
     > button {
@@ -68,7 +60,7 @@
     }
   }
 
-  .scribe-toolbar {
+  .compose-toolbar {
     display: none;
     box-shadow: @standard-shadow;
     padding: 1px 1px 2px 1px;
@@ -134,17 +126,6 @@
     }
   }
 
-  .autocomplete input {
-    display: inline-block;
-    width: initial;
-    padding: 2px 0;
-    margin: 0 5px 5px 0;
-    border: none;
-    min-width: 5em;
-    background-color:transparent;
-  }
-
-
   // TODO FIXME DRY From stylesheets/message-list.less
   .attachments-area {
     padding: 0px 15px 0px 15px;
@@ -206,6 +187,7 @@
     content:'\2022\2022\2022';
   }
 }
+
 #new-compose-button {
   order: 1;
 
@@ -215,102 +197,5 @@
 
   .btn-compose {
     .btn-variant(@action-color);
-  }
-}
-
-.participants-label {
-  color: @text-color-subtle;
-  float: left;
-  padding-top: 2px;
-}
-
-ul.participants {
-  display: block;
-  padding: 0 0 0 32px;
-  margin: 0;
-  list-style-type: none;
-  border-bottom: 1px solid @border-color-divider;
-  min-height:30px;
-
-  > li {
-    display: inline-block;
-    padding: 2px 6px;
-    margin: 0 5px 5px 0;
-    background-color: @background-color-secondary;
-
-    .hasName .email {
-      display: none;
-    }
-
-    :not(.hasName) .name {
-      display: none;
-    }
-
-    button.remove {
-      font-size: @minor-font-size;
-      background: transparent;
-      &:hover { color: @text-color-destructive; }
-      padding: 0;
-      margin: 0;
-      margin-left: 7px;
-      color: fadeout(@black, 75%);
-      border: none;
-    }
-
-    &.hover {
-      background-color: @background-color-selected;
-      color: @text-color-inverse;
-    }
-
-    &.hasFocus {
-    }
-  }
-}
-
-ul.completions {
-  background: white;
-  box-shadow: @standard-shadow;
-  position: absolute;
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-  left: 0;
-  width: 100%;
-
-  > li {
-    padding: 4px 15px 3px 15px;
-    cursor: pointer;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-
-    &+li {
-      border-top: 1px solid @border-color-subtle;
-    }
-
-    .hasName span.email {
-      margin-left: 0.5em;
-      opacity: 0.7;
-      &::before {
-        content: '<';
-      }
-      &::after {
-        content: '>';
-      }
-    }
-
-    &.seen {
-      color: #666;
-      cursor: default;
-    }
-
-    &.selected {
-      background-color: @background-color-selected;
-      color: @text-color-inverse;
-    }
-  }
-
-  button.remove {
-    display: none;
   }
 }

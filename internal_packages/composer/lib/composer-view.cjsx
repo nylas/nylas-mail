@@ -1,9 +1,7 @@
+React = require 'react'
 _ = require 'underscore-plus'
 
-React = require 'react'
-
 {Actions,
- ContactStore,
  FileUploadStore,
  ComponentRegistry} = require 'inbox-exports'
 
@@ -11,7 +9,7 @@ FileUploads = require './file-uploads.cjsx'
 DraftStoreProxy = require './draft-store-proxy'
 ContenteditableToolbar = require './contenteditable-toolbar.cjsx'
 ContenteditableComponent = require './contenteditable-component.cjsx'
-ComposerParticipants = require './composer-participants.cjsx'
+ParticipantsTextField = require './participants-text-field.cjsx'
 
 
 # The ComposerView is a unique React component because it (currently) is a
@@ -89,10 +87,9 @@ ComposerView = React.createClass
     return <div></div> if @state.body == undefined
 
     <div className="composer-inner-wrap">
-
       <div className="composer-header">
         <div className="composer-title">
-          {@_composerTitle()}
+          Compose Message
         </div>
         <div className="composer-header-actions">
           <span
@@ -113,33 +110,25 @@ ComposerView = React.createClass
         </div>
       </div>
 
-      <div className="compose-participants-wrap">
-        <ComposerParticipants name="to"
-                      tabIndex="101"
-                      participants={@state.to}
-                      participantFunctions={@_participantFunctions('to')}
-                      placeholder="To" />
-      </div>
+      <ParticipantsTextField 
+        field='to' 
+        change={@_proxy.changes.add}
+        participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
+        tabIndex='102'/>
 
-      <div className="compose-participants-wrap"
-           style={display: @state.showcc and 'initial' or 'none'}>
-        <ComposerParticipants name="cc"
-                      tabIndex="102"
-                      disabled={not @state.showcc}
-                      participants={@state.cc}
-                      participantFunctions={@_participantFunctions('cc')}
-                      placeholder="Cc" />
-      </div>
+      <ParticipantsTextField 
+        field='cc' 
+        visible={@state.showcc}
+        change={@_proxy.changes.add}
+        participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
+        tabIndex='103'/>
 
-      <div className="compose-participants-wrap"
-           style={display: @state.showcc and 'initial' or 'none'}>
-        <ComposerParticipants name="bcc"
-                      tabIndex="103"
-                      disabled={not @state.showcc}
-                      participants={@state.bcc}
-                      participantFunctions={@_participantFunctions('bcc')}
-                      placeholder="Bcc" />
-      </div>
+      <ParticipantsTextField 
+        field='bcc' 
+        visible={@state.showcc}
+        change={@_proxy.changes.add}
+        participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
+        tabIndex='104'/>
 
       <div className="compose-subject-wrap"
            style={display: @state.showsubject and 'initial' or 'none'}>
@@ -180,13 +169,16 @@ ComposerView = React.createClass
       </div>
     </div>
 
-  # TODO, in the future this will be smarter and say useful things like
-  # "Reply" or "Reply All" or "Reply + New Person1, New Person2"
-  _composerTitle: -> "Compose Message"
-
   _footerComponents: ->
     (@state.FooterComponents ? []).map (Component) =>
       <Component draftLocalId={@props.localId} />
+
+  _fileComponents: ->
+    MessageAttachment = @state.MessageAttachment
+    (@state.files ? []).map (file) =>
+      <MessageAttachment file={file}
+                         removable={true}
+                         messageLocalId={@props.localId} />
 
   _onDraftChanged: ->
     draft = @_proxy.draft()
@@ -206,9 +198,6 @@ ComposerView = React.createClass
 
     @setState(state)
 
-  _popoutComposer: ->
-    Actions.composePopoutDraft @props.localId
-
   _onComposeBodyClick: ->
     @refs.scribe.focus()
 
@@ -218,19 +207,40 @@ ComposerView = React.createClass
   _onChangeBody: (event) ->
     @_proxy.changes.add(body: event.target.value)
 
-  _participantFunctions: (field) ->
-    remove: (participant) =>
-      updates = {}
-      updates[field] = _.without(@state[field], participant)
-      @_proxy.changes.add(updates)
+  _popoutComposer: ->
+    Actions.composePopoutDraft @props.localId
 
-    add: (participant) =>
-      updates = {}
-      updates[field] = _.union (@state[field] ? []), [participant]
-      @_proxy.changes.add(updates)
-      ""
+  _sendDraft: (options = {}) ->
+    draft = @_proxy.draft()
+    remote = require('remote')
+    dialog = remote.require('dialog')
 
-  _sendDraft: ->
+    if [].concat(draft.to, draft.cc, draft.bcc).length is 0
+      dialog.showMessageBox(remote.getCurrentWindow(), {
+        type: 'warning',
+        buttons: ['Edit Message'],
+        message: 'Cannot Send',
+        detail: 'You need to provide one or more recipients before sending the message.'
+      })
+      return
+
+    warnings = []
+    if draft.subject.length is 0
+      warnings.push('without a subject line')
+    if draft.body.toLowerCase().indexOf('attachment') != -1 and draft.files?.length is 0
+      warnings.push('without an attachment')
+
+    if warnings.length > 0 and not options.force
+      dialog.showMessageBox remote.getCurrentWindow(), {
+        type: 'warning',
+        buttons: ['Cancel', 'Send Anyway'],
+        message: 'Are you sure?',
+        detail: "Send #{warnings.join(' and ')}?"
+      }, (response) =>
+        if response is 1 # button array index 1
+          @_sendDraft({force: true})
+      return
+
     @_proxy.changes.commit()
     Actions.sendDraft(@props.localId)
 
@@ -239,10 +249,3 @@ ComposerView = React.createClass
 
   _attachFile: ->
     Actions.attachFile({messageLocalId: @props.localId})
-
-  _fileComponents: ->
-    MessageAttachment = @state.MessageAttachment
-    (@state.files ? []).map (file) =>
-      <MessageAttachment file={file}
-                         removable={true}
-                         messageLocalId={@props.localId} />

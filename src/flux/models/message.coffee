@@ -70,6 +70,7 @@ class Message extends Model
   constructor: ->
     super
     @body ||= ""
+    @subject ||= ""
     @to ||= []
     @cc ||= []
     @bcc ||= []

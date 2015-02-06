@@ -125,40 +125,9 @@ DraftStore = Reflux.createStore
       task = new SaveDraftTask(draftLocalId, params)
       Actions.queueTask(task)
 
-  _onSendDraft: (draftLocalId, options = {}) ->
-    DatabaseStore.findByLocalId(Message, draftLocalId).then (draft) =>
-      return unless draft
-      remote = require('remote')
-      dialog = remote.require('dialog')
-
-      if [].concat(draft.to, draft.cc, draft.bcc).length is 0
-        dialog.showMessageBox(remote.getCurrentWindow(), {
-          type: 'warning',
-          buttons: ['Edit Message'],
-          message: 'Cannot Send',
-          detail: 'You need to provide one or more recipients before sending the message.'
-        })
-        return
-
-      warnings = []
-      if draft.subject.length is 0
-        warnings.push('without a subject line')
-      if draft.body.toLowerCase().indexOf('attachment') != -1 and draft.files?.length is 0
-        warnings.push('without an attachment')
-
-      if warnings.length > 0 and not options.force
-        dialog.showMessageBox remote.getCurrentWindow(), {
-          type: 'warning',
-          buttons: ['Cancel', 'Send Anyway'],
-          message: 'Are you sure?',
-          detail: "Send #{warnings.join(' and ')}?"
-        }, (response) =>
-          if response is 1 # button array index 1
-            @_onSendDraft(draftLocalId, {force: true})
-        return
-
-      Actions.queueTask(new SendDraftTask(draftLocalId))
-      atom.close() if atom.state.mode is "composer"
+  _onSendDraft: (draftLocalId) ->
+    Actions.queueTask(new SendDraftTask(draftLocalId))
+    atom.close() if atom.state.mode is "composer"
 
   _findDraft: (draftLocalId) ->
     new Promise (resolve, reject) ->

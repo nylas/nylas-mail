@@ -87,6 +87,9 @@ Menu = React.createClass
   getInitialState: ->
     selectedIndex: -1
 
+  getSelectedItem: ->
+    @props.items[@state.selectedIndex]
+    
   componentDidMount: ->
     @subscriptions = new CompositeDisposable()
     @subscriptions.add atom.commands.add '.menu', {

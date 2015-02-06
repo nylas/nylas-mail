@@ -18,14 +18,14 @@ class DraftChangeSet
     @_pending = {}
     @_timer = null
 
-  add: (changes, immediate) ->
+  add: (changes, immediate) =>
     @_pending = _.extend(@_pending, changes)
     @_onChange()
     if immediate
       @commit()
     else
       clearTimeout(@_timer) if @_timer
-      @_timer = setTimeout(@commit, 750)
+      @_timer = setTimeout(@commit, 5000)
 
   commit: =>
     @_pending.localId = @localId
@@ -33,7 +33,7 @@ class DraftChangeSet
       Actions.saveDraft(@_pending)
       @_pending = {}
 
-  applyToModel: (model) ->
+  applyToModel: (model) =>
     model.fromJSON(@_pending) if model
     model
 

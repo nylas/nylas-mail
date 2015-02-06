@@ -21,6 +21,7 @@ module.exports = ContactStore = Reflux.createStore
       @trigger(@)
 
   searchContacts: (search) ->
+    return [] if not search or search.length is 0
     search = search.toLowerCase()
     matches = _.filter @_all, (contact) ->
       return true if contact.email?.toLowerCase().indexOf(search) == 0

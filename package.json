@@ -73,6 +73,7 @@
     "theorist": "^1",
     "vm-compatibility-layer": "0.1.0",
     "react": "^0.12.2",
+    "react-dnd": "^0.6.3",
     "moment": "^2.8",
     "raven": "0.7.2",
     "request": "2.46.0",

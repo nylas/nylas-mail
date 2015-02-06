@@ -74,7 +74,14 @@
 // Inputs
 
 @input-background-color: white;
+
 @input-border-color: fadeout(@base-border-color, 10%);
+@input-border-color-blurred: desaturate(@input-border-color, 100%);
+
+@input-tint-color: fade(@background-color-selected, 10%);
+@input-tint-color-hover: fade(@input-tint-color, 30%);
+@input-tint-color-blurred: desaturate(@input-tint-color, 100%);
+
 @input-accessory-color-hover: @light-blue;
 @input-accessory-color: @cool-gray;
 

@@ -133,6 +133,15 @@ DatabaseStore = Reflux.createStore
   writeModels: (tx, models) ->
     # IMPORTANT: This method assumes that all the models you
     # provide are of the same class!
+
+    # Avoid trying to write too many objects a time - sqlite can only handle
+    # value sets `(?,?)...` of less than SQLITE_MAX_COMPOUND_SELECT (500),
+    # and we don't know ahead of time whether we'll hit that or not.
+    if models.length > 100
+      @writeModels(tx, models[0..99])
+      @writeModels(tx, models[100..models.length])
+      return
+
     klass = models[0].constructor
     attributes = _.values(klass.attributes)
     ids = []
@@ -181,8 +190,13 @@ DatabaseStore = Reflux.createStore
             joinMarks.push('(?,?)')
             joinedValues.push(model.id, joined.id)
       tx.execute("DELETE FROM `#{joinTable}` WHERE `id` IN ('#{ids.join("','")}')")
+
       unless joinedValues.length is 0
-        tx.execute("INSERT INTO `#{joinTable}` (`id`, `value`) VALUES #{joinMarks.join(',')}", joinedValues)
+        # Write no more than 200 items (400 values) at once to avoid sqlite limits
+        for slice in [0..Math.floor(joinedValues.length / 400)] by 1
+          [ms, me] = [slice*200, slice*200 + 199]
+          [vs, ve] = [slice*400, slice*400 + 399]
+          tx.execute("INSERT INTO `#{joinTable}` (`id`, `value`) VALUES #{joinMarks[ms..me].join(',')}", joinedValues[vs..ve])
 
   deleteModel: (tx, model) ->
     klass = model.constructor
