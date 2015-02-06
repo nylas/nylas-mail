@@ -39,7 +39,7 @@ participant5 = new Contact
   email: 'evan@elsewhere.com',
   name: 'EVAN'
 
-fdescribe 'TokenizingTextField', ->
+describe 'TokenizingTextField', ->
   keymap_path = 'keymaps/base.cson'
   keymap_file = CSON.readFileSync(keymap_path)
   atom.keymaps.add(keymap_path, keymap_file)

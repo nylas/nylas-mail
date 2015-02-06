@@ -2,7 +2,6 @@
 
 module.exports =
   activate: (@state={}) ->
-    console.log "REGISTERING MESSAGE ATTACHMENT"
     MessageAttachment = require "./message-attachment.cjsx"
 
     ComponentRegistry.register

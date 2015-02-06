@@ -49,18 +49,8 @@
   'delete': 'core:delete'
   'shift-delete': 'core:cut'
 
-# For menus
-'body .menu, body .menu .native-key-bindings':
-  'up': 'menu:move-up'
-  'down': 'menu:move-down'
-  'enter': 'menu:enter'
-
-# For Popover Component
-'body .popover-container':
-  'escape': 'popover:close'
-
 # Inputs are native by default.
-'body input, body textarea, body *[contenteditable=true], body .native-key-bindings':
+'body input, body textarea, body *[contenteditable=true]':
   'up': 'native!'
   'left': 'native!'
   'down': 'native!'
@@ -193,6 +183,13 @@
   '?': 'native!'
   '/': 'native!'
 
+# For menus
+'body .menu, body .menu, body .menu input':
+  'up': 'menu:move-up'
+  'down': 'menu:move-down'
+  'enter': 'menu:enter'
+
+# For Popover Component
 'body .popover-container':
   'escape': 'popover:close'
 
@@ -200,23 +197,23 @@
 
 # The default state. There's no input in the text field and there are no
 # autocomplete suggestions
-'.tokenizing-field':
+'.tokenizing-field input':
   'backspace': 'native!'
   'tab': 'native!'
   ',': 'native!'
 
-'.tokenizing-field.empty':
+'.tokenizing-field.empty input':
   'backspace': 'tokenizing-field:remove'
 
 # When we found a name to suggest
-'.tokenizing-field.has-suggestions':
+'.tokenizing-field.has-suggestions input':
   ',': 'tokenizing-field:add-suggestion'
   'tab': 'tokenizing-field:add-suggestion'
   'enter': 'tokenizing-field:add-suggestion'
   'escape': 'tokenizing-field:cancel'
 
 # When there is some text in the input field, but we have no suggestion
-'.tokenizing-field:not(.has-suggestions)':
+'.tokenizing-field:not(.has-suggestions) input':
   'tab': 'native!'
   ',': 'tokenizing-field:add-input-value'
   'enter': 'tokenizing-field:add-input-value'

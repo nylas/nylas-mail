@@ -51,6 +51,8 @@ class DatabasePromiseTransaction
         console.log("Query #{query}, #{JSON.stringify(values)} failed #{err.message}")
         queryFailure(err) if queryFailure
         @_reject(err)
+      else
+        querySuccess(result) if querySuccess
 
       # The user can attach things to the finish promise to run code after
       # the completion of all pending queries in the transaction. We fire
@@ -102,6 +104,8 @@ DatabaseStore = Reflux.createStore
     app.prepareDatabase @_dbPath, =>
       database = new DatabaseProxy(@_dbPath)
 
+      console.log('CREATE TABLES IS')
+      console.log(options.createTables)
       if options.createTables
         # Initialize the database and setup our schema. Note that we try to do this every
         # time right now and just do `IF NOT EXISTS`. In the future we need much better migration

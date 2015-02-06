@@ -3,7 +3,6 @@ ResizableComponent = require './resizable-component.cjsx'
 
 module.exports =
   activate: ->
-    console.log "REGISTERING RESIZABLE COMPONENT"
     ComponentRegistry.register
       name: 'ResizableComponent'
       view: ResizableComponent
