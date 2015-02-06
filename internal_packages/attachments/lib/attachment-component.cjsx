@@ -8,8 +8,8 @@ React = require 'react'
 # @props.file is a File object
 
 module.exports =
-MessageAttachment = React.createClass
-  displayName: 'MessageAttachment'
+AttachmentComponent = React.createClass
+  displayName: 'AttachmentComponent'
 
   propTypes:
     file: React.PropTypes.object.isRequired,

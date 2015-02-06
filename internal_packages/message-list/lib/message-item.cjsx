@@ -15,7 +15,7 @@ MessageItem = React.createClass
     thread_participants: React.PropTypes.arrayOf(React.PropTypes.object),
 
   mixins: [ComponentRegistry.Mixin]
-  components: ['MessageAttachment']
+  components: ['AttachmentComponent']
 
   getInitialState: ->
     # Holds the downloadData (if any) for all of our files. It's a hash
@@ -102,9 +102,10 @@ MessageItem = React.createClass
   _formatContacts: (contacts=[]) ->
 
   _attachmentComponents: ->
+    AttachmentComponent = @state.AttachmentComponent
     attachments = _.filter @props.message.files, (f) -> not f.contentId?
     attachments.map (file) =>
-      <MessageAttachment file={file} download={@state.downloads[file.id]}/>
+      <AttachmentComponent file={file} download={@state.downloads[file.id]}/>
 
   _messageTime: ->
     moment(@props.message.date).format(@_timeFormat())

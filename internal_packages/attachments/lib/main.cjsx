@@ -2,14 +2,14 @@
 
 module.exports =
   activate: (@state={}) ->
-    MessageAttachment = require "./message-attachment.cjsx"
+    AttachmentComponent = require "./attachment-component.cjsx"
 
     ComponentRegistry.register
-      name: 'MessageAttachment'
-      view: MessageAttachment
+      name: 'AttachmentComponent'
+      view: AttachmentComponent
       role: 'Attachment'
 
   deactivate: ->
-    ComponentRegistry.unregister "MessageAttachment"
+    ComponentRegistry.unregister "AttachmentComponent"
 
   serialize: -> @state

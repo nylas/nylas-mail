@@ -90,5 +90,6 @@
       # Temporarily disabled
       "sidebar-fullcontact",
       "message-templates",
-      "calendar-bar"
+      "calendar-bar",
+      "salesforce"
     ]

@@ -35,7 +35,7 @@ ComposerView = React.createClass
 
   getComponentRegistryState: ->
     ResizableComponent: ComponentRegistry.findViewByName 'ResizableComponent'
-    MessageAttachment: ComponentRegistry.findViewByName 'MessageAttachment'
+    AttachmentComponent: ComponentRegistry.findViewByName 'AttachmentComponent'
     FooterComponents: ComponentRegistry.findAllViewsByRole 'Composer:Footer'
 
   componentWillMount: ->
@@ -174,9 +174,9 @@ ComposerView = React.createClass
       <Component draftLocalId={@props.localId} />
 
   _fileComponents: ->
-    MessageAttachment = @state.MessageAttachment
+    AttachmentComponent = @state.AttachmentComponent
     (@state.files ? []).map (file) =>
-      <MessageAttachment file={file}
+      <AttachmentComponent file={file}
                          removable={true}
                          messageLocalId={@props.localId} />
 
