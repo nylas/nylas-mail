@@ -294,7 +294,6 @@ class ThemeManager
       if importFallbackVariables
         baseVarImports = """
         @import "variables/ui-variables";
-        @import "variables/syntax-variables";
         """
         less = fs.readFileSync(lessStylesheetPath, 'utf8')
         @lessCache.cssForFile(lessStylesheetPath, [baseVarImports, less].join('\n'))

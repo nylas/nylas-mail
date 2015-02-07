@@ -1,5 +1,7 @@
 # Style variables
 
+EDGEHILL NOTE: THIS FILE IS NOT UP TO DATE.
+
 Atom's UI provides a set of variables you can use in your own themes and packages.
 
 ## Use in Themes

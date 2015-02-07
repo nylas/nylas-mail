@@ -39,7 +39,6 @@ module.exports = (grunt) ->
       cssForFile = (file) ->
         baseVarImports = """
         @import "variables/ui-variables";
-        @import "variables/syntax-variables";
         """
         less = fs.readFileSync(file, 'utf8')
         lessCache.cssForFile(file, [baseVarImports, less].join('\n'))
