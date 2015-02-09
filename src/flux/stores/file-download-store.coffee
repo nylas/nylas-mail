@@ -3,6 +3,7 @@ fs = require 'fs'
 ipc = require 'ipc'
 path = require 'path'
 shell = require 'shell'
+mkdirp = require 'mkdirp'
 Reflux = require 'reflux'
 _ = require 'underscore-plus'
 Actions = require '../actions'
@@ -63,8 +64,7 @@ FileDownloadStore = Reflux.createStore
 
     @_downloads = []
     @_downloadDirectory = "#{atom.getConfigDirPath()}/downloads"
-    fs.exists @_downloadDirectory, (exists) =>
-      fs.mkdir(@_downloadDirectory) unless exists
+    mkdirp(@_downloadDirectory)
 
   ######### PUBLIC #######################################################
 
