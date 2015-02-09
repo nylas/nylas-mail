@@ -1,9 +1,14 @@
 exec = require('child_process').exec
+fs = require('fs')
 
 bundleIdentifier = 'com.inbox.edgehill'
+launchServicesPlistPath = "#{process.env.HOME}/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist"
 
 module.exports =
 class LaunchServices
+
+  constructor: ->
+    @secure = false
 
   getPlatform: ->
     process.platform
@@ -11,9 +16,37 @@ class LaunchServices
   available: ->
     @getPlatform() is 'darwin'
 
+  isYosemiteOrGreater: (callback) ->
+    fs.exists launchServicesPlistPath, (exists) =>
+      callback(exists)
+
   readDefaults: (callback) ->
     return callback(@_defaults) if @_defaults
-    exec "defaults read com.apple.launchservices LSHandlers", (err, stdout, stderr) ->
+    @isYosemiteOrGreater (result) =>
+      if result
+        @_readDefaultsSecure(callback)
+      else
+        @_readDefaultsPreYosemite(callback)
+
+  _readDefaultsSecure: (callback) ->
+    @secure = true
+    tmpPath = "#{launchServicesPlistPath}.#{Math.random()}"
+    exec "plutil -convert json \"#{launchServicesPlistPath}\" -o \"#{tmpPath}\"", (err, stdout, stderr) =>
+      return callback(err) if callback and err
+      fs.readFile tmpPath, (err, data) =>
+        return callback(err) if callback and err
+        try
+          data = JSON.parse(data)
+          callback(data['LSHandlers'], data)
+          fs.unlink(tmpPath)
+        catch e
+          callback(e) if callback and err
+
+  _readDefaultsPreYosemite: (callback) ->
+    @secure = false
+    exec "defaults read com.apple.launchservices LSHandlers", (err, stdout, stderr) =>
+      return callback(err) if callback and err
+
       # Convert the defaults from Apple's plist format into
       # JSON. It's nearly the same, just has different delimiters
       plist = stdout.toString()
@@ -26,13 +59,31 @@ class LaunchServices
       plist = plist.replace(/\)/g, ']')
       plist = plist.replace(/[\s]*,[\s]*\n[\s]*}/g, '\n}')
 
-      json = {}
+      json = []
       if plist.length > 0
         json = JSON.parse(plist)
 
       callback(json)
-  
+
   writeDefaults: (defaults, callback) ->
+    @_defaults = defaults
+    if @secure
+      @_writeDefaultsSecure(defaults, callback)
+    else
+      @_writeDefaultsPreYosemite(defaults, callback)
+
+  _writeDefaultsSecure: (newDefaults, callback) ->
+    @_readDefaultsSecure (currentDefaults, entireFileJSON) =>
+        entireFileJSON['LSHandlers'] = newDefaults
+        data = JSON.stringify(entireFileJSON)
+        tmpPath = "#{launchServicesPlistPath}.json"
+        fs.writeFile tmpPath, data, (err) =>
+          return callback(err) if callback and err
+          exec "plutil -convert binary1 \"#{tmpPath}\" -o \"#{launchServicesPlistPath}\"", =>
+            fs.unlink(tmpPath)
+            @triggerSystemReload(callback)
+
+  _writeDefaultsPreYosemite: (defaults, callback) ->
     # Convert the defaults JSON back into Apple's json-like
     # format. (I think it predates JSON?)
     json = JSON.stringify(defaults)
@@ -46,9 +97,11 @@ class LaunchServices
     # Write the new defaults back to the system
     exec "defaults write ~/Library/Preferences/com.apple.LaunchServices.plist LSHandlers '#{plist}'", (err, stdout, stderr) =>
       return callback(err) if callback and err
-      @_defaults = defaults
-      exec "/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user", (err, stdout, stderr) ->
-        callback(err) if callback
+      @triggerSystemReload(callback)
+
+  triggerSystemReload: (callback) ->
+    exec "/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user", (err, stdout, stderr) ->
+      callback(err) if callback
 
   isRegisteredForURLScheme: (scheme, callback) ->
     throw new Error "isRegisteredForURLScheme is async, provide a callback" unless callback
@@ -71,4 +124,3 @@ class LaunchServices
         LSHandlerRoleAll: bundleIdentifier
 
       @writeDefaults(defaults, callback)
-
