@@ -12,6 +12,7 @@ os = require 'os'
 net = require 'net'
 url = require 'url'
 qs = require 'querystring'
+exec = require('child_process').exec
 querystring = require 'querystring'
 {EventEmitter} = require 'events'
 _ = require 'underscore-plus'

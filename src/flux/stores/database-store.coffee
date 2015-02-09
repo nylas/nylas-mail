@@ -10,7 +10,6 @@ ModelQuery = require '../models/query'
 {modelFromJSON, modelClassMap, tableNameForJoin, generateTempId, isTempId} = require '../models/utils'
 fs = require 'fs-plus'
 path = require 'path'
-exec = require('child_process').exec
 ipc = require 'ipc'
 
 silent = atom.getLoadSettings().isSpec
