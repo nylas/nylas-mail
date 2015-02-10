@@ -28,7 +28,7 @@ ThreadStore = Reflux.createStore
     return if @_searchQuery # we don't load search results from cache
 
     oldSelectedThread = @selectedThread()
-    oldSelectedIndex = @_items.indexOf(oldSelectedThread)
+    oldSelectedIndex = @_items?.indexOf(oldSelectedThread)
 
     DatabaseStore.findAll(Thread, [
       Thread.attributes.namespaceId.equal(@_namespaceId),

@@ -68,7 +68,7 @@ describe "SendDraftTask", ->
           email: 'dummy@inboxapp.com'
       @task = new SendDraftTask(@draft)
       spyOn(atom.inbox, 'makeRequest').andCallFake (options) ->
-        options.success()
+        options.success() if options.success
       spyOn(DatabaseStore, 'findByLocalId').andCallFake (klass, localId) =>
         Promise.resolve(@draft)
       spyOn(DatabaseStore, 'unpersistModel').andCallFake (draft) =>

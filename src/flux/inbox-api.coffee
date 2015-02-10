@@ -25,7 +25,6 @@ class InboxAPI
     else if env in ['staging', 'development']
       @AppID = '54miogmnotxuo5st254trcmb9'
       @APIRoot = 'https://api-staging.inboxapp.com'
-    console.log("Inbox API Root: #{@APIRoot}")
 
     if @APIToken && (atom.state.mode == 'editor')
       @makeRequest

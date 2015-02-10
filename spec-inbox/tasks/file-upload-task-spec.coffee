@@ -43,7 +43,6 @@ describe "FileUploadTask", ->
       (new FileUploadTask(test_file_paths[0])).performLocal()
 
   beforeEach ->
-    spyOn(NamespaceStore, 'current').andReturn {id: "nsid"}
     @task = new FileUploadTask(test_file_paths[0], localId)
 
   it "notifies when the task locally starts", ->
@@ -66,7 +65,7 @@ describe "FileUploadTask", ->
       spyOn(Actions, "uploadStateChanged")
       @req = jasmine.createSpyObj('req', ['abort'])
       spyOn(atom.inbox, 'makeRequest').andCallFake (reqParams) =>
-        reqParams.success([fileJSON])
+        reqParams.success([fileJSON]) if reqParams.success
         return @req
 
     it "notifies when the task starts remote", ->

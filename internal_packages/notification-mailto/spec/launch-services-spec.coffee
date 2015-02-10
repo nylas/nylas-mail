@@ -6,7 +6,6 @@ execHitory = []
 
 ChildProcess =
   exec: (command, callback) ->
-    console.log(command)
     execHitory.push(arguments)
     callback(null, '', null)
 
@@ -19,6 +18,8 @@ fs =
     JSON.stringify(stubDefaultsJSON)
   writeFileSync: (path) ->
     null
+  unlink: (path, callback) ->
+    callback(null) if callback
 
 LaunchServices = proxyquire "../lib/launch-services",
   "child_process": ChildProcess

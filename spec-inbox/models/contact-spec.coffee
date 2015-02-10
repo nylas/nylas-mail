@@ -5,15 +5,7 @@ contact_1 =
   name: "Evan Morikawa"
   email: "evan@inboxapp.com"
 
-contact_me =
-  name: "Test Monkey"
-  email: "jester@inboxapp.com"
-
 describe "Contact", ->
-  beforeEach ->
-    spyOn(NamespaceStore, 'current').andCallFake ->
-      emailAddress: contact_me.email
-      me: -> new Contact(contact_me)
 
   it "can be built via the constructor", ->
     c1 = new Contact contact_1
@@ -85,7 +77,7 @@ describe "Contact", ->
     expect(c3.displayLastName()).toBe ""
 
   it "should properly return `Me` as the display name for the current user", ->
-    c1 = new Contact {name: " Test Monkey", email: contact_me.email}
+    c1 = new Contact {name: " Test Monkey", email: NamespaceStore.current().emailAddress}
     expect(c1.displayName()).toBe "Me"
     expect(c1.displayFirstName()).toBe "Me"
     expect(c1.displayLastName()).toBe ""

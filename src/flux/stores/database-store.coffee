@@ -76,8 +76,12 @@ DatabaseStore = Reflux.createStore
   init: ->
     @_root = (atom.state.mode == 'editor')
     @_localIdLookupCache = {}
-    @_dbPath = path.join(atom.getConfigDirPath(),'edgehill.db')
     @_db = null
+
+    if atom.inSpecMode()
+      @_dbPath = null
+    else
+      @_dbPath = path.join(atom.getConfigDirPath(),'edgehill.db')
 
     # Setup the database tables
     _.defer => @openDatabase({createTables: @_root})
@@ -103,8 +107,6 @@ DatabaseStore = Reflux.createStore
     app.prepareDatabase @_dbPath, =>
       database = new DatabaseProxy(@_dbPath)
 
-      console.log('CREATE TABLES IS')
-      console.log(options.createTables)
       if options.createTables
         # Initialize the database and setup our schema. Note that we try to do this every
         # time right now and just do `IF NOT EXISTS`. In the future we need much better migration
@@ -281,7 +283,6 @@ DatabaseStore = Reflux.createStore
 
   bindToLocalId: (model, localId) ->
     new Promise (resolve, reject) =>
-      console.log("Binding model id #{model.id} to localId #{localId}")
       unless localId
         if isTempId(model.id)
           localId = model.id
@@ -289,7 +290,6 @@ DatabaseStore = Reflux.createStore
           localId = generateTempId()
 
       link = new LocalLink({id: localId, objectId: model.id})
-      console.log("Bound model id #{model.id} to localId #{localId}")
       @persistModel(link).then ->
         resolve(localId)
       .catch(reject)

@@ -26,6 +26,9 @@ TextEditorComponent = require '../src/text-editor-component'
 pathwatcher = require 'pathwatcher'
 clipboard = require 'clipboard'
 
+NamespaceStore = require "../src/flux/stores/namespace-store"
+Contact = require '../src/flux/models/contact'
+
 atom.themes.loadBaseStylesheets()
 atom.themes.requireStylesheet '../static/jasmine'
 atom.themes.initialLoadComplete = true
@@ -106,6 +109,13 @@ beforeEach ->
 
   # prevent specs from modifying Atom's menus
   spyOn(atom.menu, 'sendToBrowserProcess')
+
+  # Log in a fake user
+  spyOn(NamespaceStore, 'current').andCallFake ->
+    emailAddress: 'tester@nilas.com'
+    id: 'nsid'
+    me: ->
+      new Contact(email: 'tester@nilas.com', name: 'Ben Tester')
 
   # reset config before each spec; don't load or save from/to `config.json`
   spyOn(Config::, 'load')

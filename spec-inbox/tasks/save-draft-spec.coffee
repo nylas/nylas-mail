@@ -69,7 +69,7 @@ describe "SaveDraftTask", ->
   describe "performRemote", ->
     beforeEach ->
       spyOn(atom.inbox, 'makeRequest').andCallFake (opts) ->
-        opts.success(remoteDraft.toJSON())
+        opts.success(remoteDraft.toJSON()) if opts.success
 
     it "does nothing if localOnly is set to true", ->
       task = new SaveDraftTask("localDraftId", {}, localOnly: true)

@@ -20,7 +20,6 @@ class EdgehillAPI
       @APIRoot = "https://edgehill-staging.inboxapp.com"
     else
       @APIRoot = "https://edgehill.inboxapp.com"
-    console.log("Edgehill API Root: #{@APIRoot}")
 
   request: (options={}) ->
     return if atom.getLoadSettings().isSpec
