@@ -114,11 +114,17 @@ ActivityBar = React.createClass
 
   _onFeedback: ->
     user = NamespaceStore.current().name
+
     debugData = JSON.stringify({
       queries: @state.curlHistory,
       queue: @state.queue,
       queue_pending: @state.queuePending
     }, null, '\t')
+
+    # Remove API tokens from URLs included in the debug data
+    # This regex detects ://user:pass@ and removes it.
+    debugData = debugData.replace(/:\/\/(\w)*:(\w)?@/g, '://')
+
     draft = new Message
       from: [NamespaceStore.current().me()]
       to: [
