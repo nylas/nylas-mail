@@ -83,6 +83,10 @@ MessageItem = React.createClass
       fileLink = "#{FileDownloadStore.pathForFile(file)}"
       body = body.replace(cidLink, fileLink)
 
+    # Remove any remaining cid:// references - we will not display them since they'll
+    # throw "unknown ERR_UNKNOWN_URL_SCHEME"
+    body = body.replace(/src=['"]cid:[^'"]*['"]/g, '')
+
     body
 
   _containsQuotedText: ->
