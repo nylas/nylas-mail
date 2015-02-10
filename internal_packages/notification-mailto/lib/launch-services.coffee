@@ -19,14 +19,14 @@ class LaunchServices
     secure = "#{process.env.HOME}/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist"
     insecure = "#{process.env.HOME}/Library/Preferences/com.apple.LaunchServices.plist"
 
-    fs.exists secure, (exists) =>
+    fs.exists secure, (exists) ->
       if exists
         callback(secure)
       else
         callback(insecure)
 
   readDefaults: (callback) ->
-    @getLaunchServicesPlistPath (plistPath) =>
+    @getLaunchServicesPlistPath (plistPath) ->
       tmpPath = "#{plistPath}.#{Math.random()}"
       exec "plutil -convert json \"#{plistPath}\" -o \"#{tmpPath}\"", (err, stdout, stderr) ->
         return callback(err) if callback and err

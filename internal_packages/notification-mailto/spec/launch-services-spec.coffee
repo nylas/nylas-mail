@@ -10,7 +10,7 @@ ChildProcess =
     execHitory.push(arguments)
     callback(null, '', null)
 
-fs = 
+fs =
   exists: (path, callback) ->
     callback(true)
   readFile: (path, callback) ->
