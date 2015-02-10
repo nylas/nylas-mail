@@ -41,8 +41,15 @@ ComposerView = React.createClass
   componentWillMount: ->
     @_prepareForDraft()
 
+  componentDidMount: ->
+    @keymap_unsubscriber = atom.commands.add '.composer-outer-wrap', {
+      'composer:show-and-focus-bcc': @_showAndFocusBcc
+      'composer:show-and-focus-cc': @_showAndFocusCc
+    }
+
   componentWillUnmount: ->
     @_teardownForDraft()
+    @keymap_unsubscriber.dispose()
 
   componentWillReceiveProps: (newProps) ->
     if newProps.localId != @props.localId
@@ -110,21 +117,24 @@ ComposerView = React.createClass
         </div>
       </div>
 
-      <ParticipantsTextField 
-        field='to' 
+      <ParticipantsTextField
+        ref="textFieldTo"
+        field='to'
         change={@_proxy.changes.add}
         participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
         tabIndex='102'/>
 
-      <ParticipantsTextField 
-        field='cc' 
+      <ParticipantsTextField
+        ref="textFieldCc"
+        field='cc'
         visible={@state.showcc}
         change={@_proxy.changes.add}
         participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
         tabIndex='103'/>
 
-      <ParticipantsTextField 
-        field='bcc' 
+      <ParticipantsTextField
+        ref="textFieldBcc"
+        field='bcc'
         visible={@state.showcc}
         change={@_proxy.changes.add}
         participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
@@ -168,6 +178,8 @@ ComposerView = React.createClass
         {@_footerComponents()}
       </div>
     </div>
+
+  _focus: (field) -> @refs[field]?.focus?()
 
   _footerComponents: ->
     (@state.FooterComponents ? []).map (Component) =>
@@ -249,3 +261,11 @@ ComposerView = React.createClass
 
   _attachFile: ->
     Actions.attachFile({messageLocalId: @props.localId})
+
+  _showAndFocusBcc: ->
+    @setState {showcc: true}
+    @_focus "textFieldBcc"
+
+  _showAndFocusCc: ->
+    @setState {showcc: true}
+    @_focus "textFieldCc"

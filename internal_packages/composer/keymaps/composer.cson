@@ -1,0 +1,4 @@
+'.composer-outer-wrap, .composer-outer-wrap input, .composer-outer-wrap
+div[contenteditable]':
+  'cmd-B' : 'composer:show-and-focus-bcc'
+  'cmd-C' : 'composer:show-and-focus-cc'

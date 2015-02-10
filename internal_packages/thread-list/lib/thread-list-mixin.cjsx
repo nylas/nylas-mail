@@ -9,12 +9,13 @@ ThreadListMixin =
   componentDidMount: ->
     @thread_store_unsubscribe = ThreadStore.listen @_onChange
     @thread_unsubscriber = atom.commands.add '.thread-list-container', {
-      'thread-list:star-thread': @_onStarThread
+      'thread-list:star-thread': => @_onStarThread()
     }
     @body_unsubscriber = atom.commands.add 'body', {
       'application:previous-message': => @_onShiftSelectedIndex(-1)
       'application:next-message': => @_onShiftSelectedIndex(1)
       'application:archive-thread': @_onArchiveSelected
+      'application:archive-and-previous': @_onArchiveAndPrevious
       'application:reply': @_onReply
       'application:reply-all': @_onReplyAll
       'application:forward': @_onForward
@@ -53,6 +54,10 @@ ThreadListMixin =
 
   _onChange: ->
     @setState(@_getStateFromStores())
+
+  _onArchiveAndPrevious: ->
+    @_onArchiveSelected()
+    @_onShiftSelectedIndex(-1)
 
   _getStateFromStores: ->
     count: ThreadStore.items().length

@@ -185,11 +185,6 @@ test_threads = -> [
 
 
 
-KeymapManager = require 'atom-keymap'
-keyPress = (key, target) ->
-  event = KeymapManager.keydownEvent(key, target: target)
-  document.dispatchEvent(event)
-
 cjsxSubjectResolver = (thread) ->
   <div>
     <span>Subject {thread.id}</span>
@@ -197,8 +192,6 @@ cjsxSubjectResolver = (thread) ->
   </div>
 
 describe "ThreadListTabular", ->
-  keymap_path = "internal_packages/thread-list/keymaps/thread-list.cson"
-  keymap_file = CSON.readFileSync(keymap_path)
 
   Foo = React.createClass({render: -> <div>{@props.children}</div>})
   c1 = new ThreadListColumn
@@ -216,6 +209,7 @@ describe "ThreadListTabular", ->
   columns = [c1,c2,c3]
 
   beforeEach ->
+    InboxTestUtils.loadKeymap("internal_packages/thread-list/keymaps/thread-list.cson")
     spyOn(ThreadStore, "_onNamespaceChanged")
     spyOn(DatabaseStore, "findAll").andCallFake ->
       new Promise (resolve, reject) -> resolve(test_threads())
@@ -228,13 +222,14 @@ describe "ThreadListTabular", ->
       <ThreadListTabular />
     )
 
-    # IMPORTANT: You need to manually register the keymaps with the
-    # KeymapManager (aliased onto atom.keymaps).
-    atom.keymaps.add(keymap_path, keymap_file)
-
   it "renders into the document", ->
     expect(ReactTestUtils.isCompositeComponentWithType(@thread_list,
                                           ThreadListTabular)).toBe true
+
+  it "archives on keymap", ->
+    spyOn(@thread_list, "_onStarThread")
+    InboxTestUtils.keyPress("s", @thread_list.getDOMNode())
+    expect(@thread_list._onStarThread).toHaveBeenCalled()
 
   it "has the expected columns", ->
     expect(@thread_list.state.columns).toEqual columns
@@ -298,11 +293,8 @@ describe "ThreadListTabular", ->
 
 describe "ThreadListNarrow", ->
 
-  keymap_path = "internal_packages/thread-list/keymaps/thread-list.cson"
-  keymap_file = CSON.readFileSync(keymap_path)
-
   beforeEach ->
-
+    InboxTestUtils.loadKeymap("internal_packages/thread-list/keymaps/thread-list.cson")
     spyOn(ThreadStore, "_onNamespaceChanged")
     spyOn(DatabaseStore, "findAll").andCallFake ->
       new Promise (resolve, reject) -> resolve(test_threads())
@@ -311,10 +303,6 @@ describe "ThreadListNarrow", ->
     @thread_list = ReactTestUtils.renderIntoDocument(
       <ThreadListNarrow />
     )
-
-    # IMPORTANT: You need to manually register the keymaps with the
-    # KeymapManager (aliased onto atom.keymaps).
-    atom.keymaps.add(keymap_path, keymap_file)
 
   it "renders into the document", ->
     expect(ReactTestUtils.isCompositeComponentWithType(@thread_list,
@@ -359,6 +347,8 @@ describe "ThreadListNarrow", ->
         ThreadStore._onSelectThreadId("111")
         @thread = ThreadStore.selectedThread()
         spyOn(@thread, "archive")
+        spyOn(@thread_list, "_onShiftSelectedIndex")
+        spyOn(Actions, "selectThreadId")
 
       it "can reply to the currently selected thread", ->
         atom.commands.dispatch(document.body, "application:reply")
@@ -375,6 +365,11 @@ describe "ThreadListNarrow", ->
       it "can archive the currently selected thread", ->
         atom.commands.dispatch(document.body, "application:archive-thread")
         expect(@thread.archive).toHaveBeenCalled()
+
+      it "can archive the currently selected thread and navigate up", ->
+        atom.commands.dispatch(document.body, "application:archive-and-previous")
+        expect(@thread.archive).toHaveBeenCalled()
+        expect(@thread_list._onShiftSelectedIndex).toHaveBeenCalledWith(-1)
 
       it "does nothing when no thread is selected", ->
         ThreadStore._selectedId = null

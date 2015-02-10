@@ -1,5 +1,4 @@
 _ = require 'underscore-plus'
-CSON = require 'season'
 React = require 'react/addons'
 ReactTestUtils = React.addons.TestUtils
 
@@ -40,9 +39,7 @@ participant5 = new Contact
   name: 'EVAN'
 
 describe 'TokenizingTextField', ->
-  keymap_path = 'keymaps/base.cson'
-  keymap_file = CSON.readFileSync(keymap_path)
-  atom.keymaps.add(keymap_path, keymap_file)
+  InboxTestUtils.loadKeymap()
 
   beforeEach ->
     @completions = []

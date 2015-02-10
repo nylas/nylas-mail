@@ -116,7 +116,7 @@ TokenizingTextField = React.createClass
           />
 
   _fieldComponent: ->
-    <div onClick={@_focusInput} {...@dropTargetFor('token')}>
+    <div onClick={@focus} {...@dropTargetFor('token')}>
       <div className="tokenizing-field-label">{"#{@props.prompt}:"}</div>
       <div className="tokenizing-field-input">
         {@_fieldTokenComponents()}
@@ -174,7 +174,7 @@ TokenizingTextField = React.createClass
       completions: []
       inputValue: ""
 
-  _focusInput: ->
+  focus: ->
     @refs.input.getDOMNode().focus()
 
   # Managing Tokens
@@ -195,7 +195,7 @@ TokenizingTextField = React.createClass
     return unless token
     @props.add(token)
     @_clearInput()
-    @_focusInput()
+    @focus()
 
   _removeToken: (token = null) ->
     if token

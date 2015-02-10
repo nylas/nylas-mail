@@ -2,7 +2,6 @@ Model = require './model'
 Attributes = require '../attributes'
 NamespaceStore = require '../stores/namespace-store'
 _ = require 'underscore-plus'
-_str = require 'underscore.string'
 
 name_prefixes = {}
 name_suffixes = {}

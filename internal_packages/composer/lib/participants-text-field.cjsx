@@ -36,6 +36,7 @@ ParticipantsTextField = React.createClass
   render: ->
     <div className="compose-participants-wrap" style={display: @props.visible and 'inline' or 'none'}>
       <TokenizingTextField
+        ref="textField"
         prompt={@props.field}
         tabIndex={@props.tabIndex}
         tokens={@props.participants[@props.field]}
@@ -47,6 +48,10 @@ ParticipantsTextField = React.createClass
         remove={@_remove}
         showMenu={@_showContextMenu} />
     </div>
+
+  # Public. Can be called by any component that has a ref to this one to
+  # focus the input field.
+  focus: -> @refs.textField.focus()
 
   _componentForParticipant: (p) ->
     if p.name?.length > 0

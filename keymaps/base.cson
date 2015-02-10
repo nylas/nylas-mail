@@ -15,6 +15,9 @@
   'j'   : 'application:next-message' # Gmail
   'down': 'application:next-message' # Mac mail
 
+  ']'        : 'application:archive-and-previous' # Gmail
+
+  '['        : 'application:archive-thread' # Gmail
   'e'        : 'application:archive-thread' # Gmail
   'delete'   : 'application:archive-thread' # Mac mail
   'backspace': 'application:archive-thread' # Outlook
