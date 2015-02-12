@@ -7,7 +7,6 @@ Serializable = require 'serializable'
 Delegator = require 'delegato'
 {Emitter, Disposable, CompositeDisposable} = require 'event-kit'
 Grim = require 'grim'
-TextEditor = require './text-editor'
 PaneContainer = require './pane-container'
 Pane = require './pane'
 Panel = require './panel'
@@ -57,7 +56,6 @@ class Workspace extends Model
   updateWindowTitle: ->
     ## TODO we might want to put the unread count here in the future.
     document.title = "Edgehill"
-    atom.setRepresentedFilename("Edgehill")
 
   confirmClose: ->
     true

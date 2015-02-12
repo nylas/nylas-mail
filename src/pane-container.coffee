@@ -7,8 +7,6 @@ PaneElement = require './pane-element'
 PaneContainerElement = require './pane-container-element'
 PaneAxisElement = require './pane-axis-element'
 PaneAxis = require './pane-axis'
-TextEditor = require './text-editor'
-TextEditorElement = require './text-editor-element'
 ItemRegistry = require './item-registry'
 
 module.exports =
@@ -62,8 +60,6 @@ class PaneContainer extends Model
       new PaneAxisElement().initialize(model)
     atom.views.addViewProvider Pane, (model) ->
       new PaneElement().initialize(model)
-    atom.views.addViewProvider TextEditor, (model) ->
-      new TextEditorElement().initialize(model)
 
   onDidChangeRoot: (fn) ->
     @emitter.on 'did-change-root', fn

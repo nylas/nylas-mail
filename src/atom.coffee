@@ -33,37 +33,6 @@ class Atom extends Model
     startTime = Date.now()
     atom = @deserialize(@loadState(mode)) ? new this({mode, @version})
     atom.deserializeTimings.atom = Date.now() -  startTime
-
-    workspaceViewDeprecationMessage = """
-      atom.workspaceView is no longer available.
-      In most cases you will not need the view. See the Workspace docs for
-      alternatives: https://atom.io/docs/api/latest/Workspace.
-      If you do need the view, please use `atom.views.getView(atom.workspace)`,
-      which returns an HTMLElement.
-    """
-
-    serviceHubDeprecationMessage = """
-      atom.services is no longer available. To register service providers and
-      consumers, use the `providedServices` and `consumedServices` fields in
-      your package's package.json.
-    """
-
-    Object.defineProperty atom, 'workspaceView',
-      get: ->
-        deprecate(workspaceViewDeprecationMessage)
-        atom.__workspaceView
-      set: (newValue) ->
-        deprecate(workspaceViewDeprecationMessage)
-        atom.__workspaceView = newValue
-
-    Object.defineProperty atom, 'services',
-      get: ->
-        deprecate(serviceHubDeprecationMessage)
-        atom.packages.serviceHub
-      set: (newValue) ->
-        deprecate(serviceHubDeprecationMessage)
-        atom.packages.serviceHub = newValue
-
     atom
 
   # Deserializes the Atom environment from a state object
@@ -162,12 +131,6 @@ class Atom extends Model
   # Experimental: A {NotificationManager} instance
   notifications: null
 
-  # Public: A {Project} instance
-  project: null
-
-  # Public: A {GrammarRegistry} instance
-  grammars: null
-
   # Public: A {PackageManager} instance
   packages: null
 
@@ -224,7 +187,6 @@ class Atom extends Model
     NotificationManager = require './notification-manager'
     PackageManager = require './package-manager'
     Clipboard = require './clipboard'
-    GrammarRegistry = require './grammar-registry'
     ThemeManager = require './theme-manager'
     StyleManager = require './style-manager'
     ActionBridge = require './flux/action-bridge'
@@ -250,7 +212,6 @@ class Atom extends Model
     @config = new Config({configDirPath, resourcePath})
 
     @keymaps = new KeymapManager({configDirPath, resourcePath})
-    @keymap = @keymaps # Deprecated
     @keymaps.subscribeToFileReadFailure()
     @tooltips = new TooltipManager
     @notifications = new NotificationManager
@@ -265,23 +226,10 @@ class Atom extends Model
     @menu = new MenuManager({resourcePath})
     @clipboard = new Clipboard()
 
-    @grammars = @deserializers.deserialize(@state.grammars ? @state.syntax) ? new GrammarRegistry()
-
+    # Edgehill-specific
     @inbox = new InboxAPI()
 
-    Object.defineProperty this, 'syntax', get: ->
-      deprecate "The atom.syntax global is deprecated. Use atom.grammars instead."
-      @grammars
-
     @subscribe @packages.onDidActivateInitialPackages => @watchThemes()
-
-    Project = require './project'
-    TextBuffer = require 'text-buffer'
-    @deserializers.add(TextBuffer)
-    TokenizedBuffer = require './tokenized-buffer'
-    DisplayBuffer = require './display-buffer'
-    TextEditor = require './text-editor'
-
     @windowEventHandler = new WindowEventHandler
 
   # Start our error reporting to the backend and attach error handlers
@@ -648,10 +596,8 @@ class Atom extends Model
     @themes.loadBaseStylesheets()
 
     Workspace = require './workspace-edgehill'
-    Project = require './project'
     Actions = require './flux/actions'
 
-    @project = new Project(paths: [@getLoadSettings().initialPath])
     @workspace = new Workspace
 
     for pack in packages
@@ -684,10 +630,6 @@ class Atom extends Model
     ipc.send('show-secondary-window', options)
 
   unloadEditorWindow: ->
-    return if not @project
-
-    @state.grammars = @grammars.serialize()
-    @state.project = @project.serialize()
     @state.edgehillWorkspace = @workspace.serialize()
     @packages.deactivatePackages()
     @state.packageStates = @packages.packageStates
@@ -695,13 +637,8 @@ class Atom extends Model
     @windowState = null
 
   removeEditorWindow: ->
-    return if not @project
-
     @workspace?.destroy()
     @workspace = null
-    @project?.destroy()
-    @project = null
-
     @windowEventHandler?.unsubscribe()
 
   ###
@@ -711,7 +648,6 @@ class Atom extends Model
   # Essential: Visually and audibly trigger a beep.
   beep: ->
     shell.beep() if @config.get('core.audioBeep')
-    @__workspaceView?.trigger 'beep'
     @emitter.emit 'did-beep'
 
   # Essential: A flexible way to open a dialog akin to an alert dialog.
@@ -774,13 +710,6 @@ class Atom extends Model
   Section: Private
   ###
 
-  deserializeProject: ->
-    Project = require './project'
-
-    startTime = Date.now()
-    @project ?= @deserializers.deserialize(@state.project) ? new Project(paths: [@getLoadSettings().initialPath])
-    @deserializeTimings.project = Date.now() - startTime
-
   deserializeWorkspaceView: ->
     Workspace = require './workspace-edgehill'
 
@@ -788,7 +717,6 @@ class Atom extends Model
     @workspace = Workspace.deserialize(@state.edgehillWorkspace) ? new Workspace
 
     @workspaceElement = @views.getView(@workspace)
-    @__workspaceView = @workspaceElement.__spacePenView
     @deserializeTimings.workspace = Date.now() - startTime
 
     @keymaps.defaultTarget = @workspaceElement
@@ -800,7 +728,6 @@ class Atom extends Model
 
   deserializeEditorWindow: ->
     @deserializePackageStates()
-    @deserializeProject()
     @deserializeWorkspaceView()
 
   loadThemes: ->
@@ -817,26 +744,12 @@ class Atom extends Model
         pack.reloadStylesheets?()
       null
 
-  # Notify the browser project of the window's current project path
-  watchProjectPath: ->
-    onProjectPathChanged = =>
-      ipc.send('window-command', 'project-path-changed', @project.getPaths()[0])
-    @subscribe @project.onDidChangePaths(onProjectPathChanged)
-    onProjectPathChanged()
-
   exit: (status) ->
     app = remote.require('app')
     app.emit('will-exit')
     remote.process.exit(status)
 
-  setDocumentEdited: (edited) ->
-    ipc.send('call-window-method', 'setDocumentEdited', edited)
-
-  setRepresentedFilename: (filename) ->
-    ipc.send('call-window-method', 'setRepresentedFilename', filename)
-
   showSaveDialog: (defaultPath, callback) ->
-    defaultPath ?= @project?.getPath()
     parentWindow = if process.platform is 'darwin' then null else @getCurrentWindow()
     dialog = remote.require('dialog')
     dialog.showSaveDialog(parentWindow, {title: 'Save File', defaultPath}, callback)
@@ -893,14 +806,6 @@ class Atom extends Model
 
   updateAvailable: (details) ->
     @emitter.emit 'update-available', details
-
-  # Deprecated: Callers should be converted to use atom.deserializers
-  registerRepresentationClass: ->
-    deprecate("Callers should be converted to use atom.deserializers")
-
-  # Deprecated: Callers should be converted to use atom.deserializers
-  registerRepresentationClasses: ->
-    deprecate("Callers should be converted to use atom.deserializers")
 
   setBodyPlatformClass: ->
     document.body.classList.add("platform-#{process.platform}")

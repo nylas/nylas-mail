@@ -14,15 +14,8 @@ KeymapManager = require '../src/keymap-extensions'
 {$} = require '../src/space-pen-extensions'
 
 Config = require '../src/config'
-{Point} = require 'text-buffer'
-Project = require '../src/project'
 Workspace = require '../src/workspace-edgehill'
 ServiceHub = require 'service-hub'
-TextEditor = require '../src/text-editor'
-TextEditorView = require '../src/text-editor-view'
-TextEditorElement = require '../src/text-editor-element'
-TokenizedBuffer = require '../src/tokenized-buffer'
-TextEditorComponent = require '../src/text-editor-component'
 pathwatcher = require 'pathwatcher'
 clipboard = require 'clipboard'
 
@@ -61,7 +54,6 @@ else
 
 specPackageName = null
 specPackagePath = null
-specProjectPath = null
 isCoreSpec = false
 
 {specDirectory, resourcePath} = atom.getLoadSettings()
@@ -70,7 +62,6 @@ if specDirectory
   specPackagePath = path.resolve(specDirectory, '..')
   try
     specPackageName = JSON.parse(fs.readFileSync(path.join(specPackagePath, 'package.json')))?.name
-  specProjectPath = path.join(specDirectory, 'fixtures')
 
 isCoreSpec = specDirectory == fs.realpathSync(__dirname)
 
@@ -78,8 +69,6 @@ beforeEach ->
   Grim.clearDeprecations() if isCoreSpec
   $.fx.off = true
   documentTitle = null
-  projectPath = specProjectPath ? path.join(@specDirectory, 'fixtures')
-  atom.project = new Project(paths: [projectPath])
   atom.workspace = new Workspace()
   atom.packages.serviceHub = new ServiceHub
   atom.keymaps.keyBindings = _.clone(keyBindingsToRestore)
@@ -98,7 +87,6 @@ beforeEach ->
   serializedWindowState = null
 
   spyOn(atom, 'saveSync')
-  atom.grammars.clearGrammarOverrides()
 
   spy = spyOn(atom.packages, 'resolvePackagePath').andCallFake (packageName) ->
     if specPackageName and packageName is specPackageName
@@ -135,16 +123,7 @@ beforeEach ->
   config.load.reset()
   config.save.reset()
 
-  # make editor display updates synchronous
-  TextEditorElement::setUpdatedSynchronously(true)
-
-  spyOn(atom, "setRepresentedFilename")
   spyOn(pathwatcher.File.prototype, "detectResurrectionAfterDelay").andCallFake -> @detectResurrection()
-  spyOn(TextEditor.prototype, "shouldPromptToSave").andReturn false
-
-  # make tokenization synchronous
-  TokenizedBuffer.prototype.chunkSize = Infinity
-  spyOn(TokenizedBuffer.prototype, "tokenizeInBackground").andCallFake -> @tokenizeNextChunk()
 
   clipboardContent = 'initial clipboard content'
   spyOn(clipboard, 'writeText').andCallFake (text) -> clipboardContent = text
@@ -159,11 +138,7 @@ afterEach ->
 
   atom.workspace?.destroy()
   atom.workspace = null
-  atom.__workspaceView = null
   delete atom.state.workspace
-
-  atom.project?.destroy()
-  atom.project = null
 
   atom.themes.removeStylesheet('global-editor-styles')
 
@@ -173,7 +148,6 @@ afterEach ->
 
   jasmine.unspy(atom, 'saveSync')
   ensureNoPathSubscriptions()
-  atom.grammars.clearObservers()
   waits(0) # yield to ui thread to make screen update more frequently
 
 ensureNoPathSubscriptions = ->

@@ -39,7 +39,6 @@ module.exports = (grunt) ->
     packageDirectories = []
     nonPackageDirectories = [
       'benchmark'
-      'dot-atom'
       'dot-inbox'
       'vendor'
       'resources'

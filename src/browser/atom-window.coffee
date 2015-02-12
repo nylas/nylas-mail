@@ -62,8 +62,6 @@ class AtomWindow
       @emit 'window:loaded'
       @loaded = true
 
-    @browserWindow.on 'project-path-changed', (@projectPath) =>
-
     @browserWindow.loadUrl @getUrl(loadSettings)
     @browserWindow.focusOnWebView() if @isSpec
 

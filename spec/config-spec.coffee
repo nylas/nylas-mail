@@ -8,9 +8,9 @@ describe "Config", ->
   dotAtomPath = null
 
   beforeEach ->
-    dotAtomPath = temp.path('dot-atom-dir')
+    dotAtomPath = temp.path('dot-inbox-dir')
     atom.config.configDirPath = dotAtomPath
-    atom.config.configFilePath = path.join(atom.config.configDirPath, "atom.config.cson")
+    atom.config.configFilePath = path.join(atom.config.configDirPath, "config.cson")
 
   describe ".get(keyPath, {scope, sources, excludeSources})", ->
     it "allows a key path's value to be read", ->
@@ -958,7 +958,7 @@ describe "Config", ->
         fs.removeSync(dotAtomPath)
 
       describe "when the configDirPath doesn't exist", ->
-        it "copies the contents of dot-atom to ~/.atom", ->
+        it "copies the contents of dot-inbox to ~/.inbox", ->
           initializationDone = false
           jasmine.unspy(window, "setTimeout")
           atom.config.initializeConfigDirectory ->
