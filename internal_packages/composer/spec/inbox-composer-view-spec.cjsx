@@ -79,7 +79,21 @@ describe "A blank composer view", ->
 
   describe "testing keyboard inputs", ->
     beforeEach ->
+      spyOn(@composer, "_sendDraft")
       InboxTestUtils.loadKeymap "internal_packages/composer/keymaps/composer.cson"
+
+    it "sends the draft on cmd-enter", ->
+      InboxTestUtils.keyPress("cmd-enter", @composer.getDOMNode())
+      expect(@composer._sendDraft).toHaveBeenCalled()
+
+    it "does not send the draft on enter if the button isn't in focus", ->
+      InboxTestUtils.keyPress("enter", @composer.getDOMNode())
+      expect(@composer._sendDraft).not.toHaveBeenCalled()
+
+    it "sends the draft on enter when the button is in focus", ->
+      sendBtn = ReactTestUtils.findRenderedDOMComponentWithClass(@composer, "btn-send")
+      InboxTestUtils.keyPress("enter", sendBtn.getDOMNode())
+      expect(@composer._sendDraft).toHaveBeenCalled()
 
     it "shows and focuses on bcc field", ->
 

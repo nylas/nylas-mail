@@ -2,3 +2,9 @@
 div[contenteditable]':
   'cmd-B' : 'composer:show-and-focus-bcc'
   'cmd-C' : 'composer:show-and-focus-cc'
+  'cmd-enter' : 'composer:send-message'
+
+'.composer-outer-wrap .btn.btn-send':
+  'enter' : 'composer:send-message'
+  'tab' : 'composer:focus-to'
+  'shift-tab' : 'native!'

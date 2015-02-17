@@ -13,7 +13,8 @@ TestUtils = React.addons.TestUtils
  Namespace,
  MessageStore,
  NamespaceStore,
- InboxTestUtils} = require "inbox-exports"
+ InboxTestUtils,
+ ComponentRegistry} = require "inbox-exports"
 
 MessageItem = proxyquire("../lib/message-item.cjsx", {
   "./email-frame": React.createClass({render: -> <div></div>})
@@ -22,6 +23,13 @@ MessageItem = proxyquire("../lib/message-item.cjsx", {
 MessageList = proxyquire("../lib/message-list.cjsx", {
   "./message-item.cjsx": MessageItem
 })
+
+ComposerItem = React.createClass
+  render: -> <div></div>
+  focus: ->
+ComponentRegistry.register
+  name: 'Composer'
+  view: ComposerItem
 
 MessageParticipants = require "../lib/message-participants.cjsx"
 ThreadParticipants = require "../lib/thread-participants.cjsx"
@@ -54,7 +62,7 @@ user_5 = _.extend _.clone(user_headers),
   name: "User Five"
   email: "user5@inboxapp.com"
 
-test_messages = [
+testMessages = [
   (new Message).fromJSON({
     "id"   : "111",
     "from" : [ user_1 ],
@@ -63,6 +71,7 @@ test_messages = [
     "bcc"  : null,
     "body"      : "Body One",
     "date"      : 1415814587,
+    "draft"     : false
     "files"     : [],
     "unread"    : false,
     "object"    : "message",
@@ -79,6 +88,7 @@ test_messages = [
     "bcc"  : null,
     "body"      : "Body Two",
     "date"      : 1415814587,
+    "draft"     : false
     "files"     : [],
     "unread"    : false,
     "object"    : "message",
@@ -95,6 +105,7 @@ test_messages = [
     "bcc"  : [],
     "body"      : "Body Three",
     "date"      : 1415814587,
+    "draft"     : false
     "files"     : [],
     "unread"    : false,
     "object"    : "message",
@@ -111,6 +122,7 @@ test_messages = [
     "bcc"  : [ user_5 ],
     "body"      : "Body Four",
     "date"      : 1415814587,
+    "draft"     : false
     "files"     : [],
     "unread"    : false,
     "object"    : "message",
@@ -127,11 +139,31 @@ test_messages = [
     "bcc"  : [],
     "body"      : "Body Five",
     "date"      : 1415814587,
+    "draft"     : false
     "files"     : [],
     "unread"    : false,
     "object"    : "message",
     "snippet"   : "snippet Five...",
     "subject"   : "Subject Five",
+    "thread_id" : "thread_12345",
+    "namespace_id" : "nsid"
+  }),
+]
+draftMessages = [
+  (new Message).fromJSON({
+    "id"   : "666",
+    "from" : [ user_1 ],
+    "to"   : [ ],
+    "cc"   : [ ],
+    "bcc"  : null,
+    "body"      : "Body One",
+    "date"      : 1415814587,
+    "draft"     : true
+    "files"     : [],
+    "unread"    : false,
+    "object"    : "draft",
+    "snippet"   : "draft snippet one...",
+    "subject"   : "Draft One",
     "thread_id" : "thread_12345",
     "namespace_id" : "nsid"
   }),
@@ -146,6 +178,8 @@ describe "MessageList", ->
   _resetMessageStore = ->
     MessageStore._items = []
     MessageStore._threadId = null
+    spyOn(MessageStore, "itemLocalIds").andCallFake ->
+      {"666": "666"}
 
   beforeEach ->
     _resetMessageStore()
@@ -164,7 +198,7 @@ describe "MessageList", ->
 
   describe "Populated Message list", ->
     beforeEach ->
-      MessageStore._items = test_messages
+      MessageStore._items = testMessages
       MessageStore.trigger(MessageStore)
       @message_list.setState current_thread: test_thread
 
@@ -186,6 +220,26 @@ describe "MessageList", ->
       items = TestUtils.scryRenderedComponentsWithType(@message_list,
               ThreadParticipants)
       expect(items.length).toBe 1
+
+    it "focuses new composers when a draft is added", ->
+      spyOn(@message_list, "_focusRef")
+      msgs = @message_list.state.messages
+      msgs = msgs.concat(draftMessages)
+      @message_list.setState messages: msgs
+      items = TestUtils.scryRenderedComponentsWithType(@message_list,
+              ComposerItem)
+      expect(items.length).toBe 1
+      composer = items[0]
+      expect(@message_list._focusRef).toHaveBeenCalledWith(composer)
+
+    it "doesn't focus if we're just navigating through messages", ->
+      spyOn(@message_list, "_focusRef")
+      @message_list.setState messages: draftMessages
+      items = TestUtils.scryRenderedComponentsWithType(@message_list,
+              ComposerItem)
+      expect(items.length).toBe 1
+      composer = items[0]
+      expect(@message_list._focusRef).not.toHaveBeenCalled()
 
     describe "Message", ->
       beforeEach ->
@@ -224,3 +278,18 @@ describe "MessageList", ->
         spyOn(@message_item, "_today").andCallFake =>
           @message_date.add(2, 'hours')
         expect(@message_item._timeFormat()).toBe "h:mm a"
+
+  describe "MessageList with draft", ->
+    beforeEach ->
+      MessageStore._items = testMessages.concat draftMessages
+      MessageStore.trigger(MessageStore)
+      @message_list.setState current_thread: test_thread
+
+    it "renders the composer", ->
+      items = TestUtils.scryRenderedComponentsWithType(@message_list,
+              ComposerItem)
+      expect(@message_list.state.messages.length).toBe 6
+      expect(@message_list.state.Composer).toEqual ComposerItem
+      expect(items.length).toBe 1
+
+      expect(items.length).toBe 1

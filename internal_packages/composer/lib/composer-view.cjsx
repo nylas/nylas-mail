@@ -20,17 +20,14 @@ module.exports =
 ComposerView = React.createClass
 
   getInitialState: ->
-    # A majority of the initial state is set in `_setInitialState` because
-    # those getters are asynchronous while `getInitialState` is
-    # synchronous.
     state = @getComponentRegistryState()
     _.extend state,
       populated: false
-      to: undefined
-      cc: undefined
-      bcc: undefined
-      body: undefined
-      subject: undefined
+      to: []
+      cc: []
+      bcc: []
+      body: ""
+      subject: ""
     state
 
   getComponentRegistryState: ->
@@ -45,7 +42,15 @@ ComposerView = React.createClass
     @keymap_unsubscriber = atom.commands.add '.composer-outer-wrap', {
       'composer:show-and-focus-bcc': @_showAndFocusBcc
       'composer:show-and-focus-cc': @_showAndFocusCc
+      'composer:focus-to': => @focus "textFieldTo"
+      'composer:send-message': => @_sendDraft()
     }
+    if @props.mode is "fullwindow"
+      # Need to delay so the component can be fully painted. Focus doesn't
+      # work unless the element is on the page.
+      _.delay =>
+        @focus("textFieldTo")
+      , 500
 
   componentWillUnmount: ->
     @_teardownForDraft()
@@ -89,10 +94,6 @@ ComposerView = React.createClass
     "composer-outer-wrap #{@props.containerClass ? ""}"
 
   _renderComposer: ->
-    # Do not render the composer unless we have loaded our draft.
-    # Otherwise the Scribe component is initialized with HTML = ""
-    return <div></div> if @state.body == undefined
-
     <div className="composer-inner-wrap">
       <div className="composer-header">
         <div className="composer-title">
@@ -154,8 +155,8 @@ ComposerView = React.createClass
       </div>
 
       <div className="compose-body"
-           onClick={@_onComposeBodyClick}>
-        <ContenteditableComponent ref="scribe"
+           onClick={=> @focus("contentBody")}>
+        <ContenteditableComponent ref="contentBody"
                              onChange={@_onChangeBody}
                              html={@state.body}
                              tabIndex="109" />
@@ -179,7 +180,7 @@ ComposerView = React.createClass
       </div>
     </div>
 
-  _focus: (field) -> @refs[field]?.focus?()
+  focus: (field) -> @refs[field]?.focus?() if @isMounted()
 
   _footerComponents: ->
     (@state.FooterComponents ? []).map (Component) =>
@@ -209,9 +210,6 @@ ComposerView = React.createClass
         populated: true
 
     @setState(state)
-
-  _onComposeBodyClick: ->
-    @refs.scribe.focus()
 
   _onChangeSubject: (event) ->
     @_proxy.changes.add(subject: event.target.value)
@@ -264,8 +262,8 @@ ComposerView = React.createClass
 
   _showAndFocusBcc: ->
     @setState {showcc: true}
-    @_focus "textFieldBcc"
+    @focus "textFieldBcc"
 
   _showAndFocusCc: ->
     @setState {showcc: true}
-    @_focus "textFieldCc"
+    @focus "textFieldCc"

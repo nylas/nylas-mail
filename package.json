@@ -63,6 +63,7 @@
     "request": "^2.53",
     "request-progress": "^0.3",
     "runas": "^2.0",
+    "sanitize-html": "^1.5",
     "scandal": "2.0.0",
     "scoped-property-store": "^0.16.2",
     "scrollbar-style": "^2.0",
