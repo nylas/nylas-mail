@@ -8,5 +8,13 @@ class Tag extends Model
     'name': Attributes.String
       queryable: true
       modelKey: 'name'
+    'readonly': Attributes.Boolean
+      modelKey: 'readonly'
+    'unreadCount': Attributes.Number
+      modelKey: 'unreadCount'
+      jsonKey: 'unread_count'
+    'threadCount': Attributes.Number
+      modelKey: 'threadCount'
+      jsonKey: 'thread_count'
 
 module.exports = Tag

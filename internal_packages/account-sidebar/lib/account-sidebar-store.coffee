@@ -60,13 +60,14 @@ AccountSidebarStore = Reflux.createStore
         # Some tags don't have unread counts
         return if tag.id in ['archive', 'drafts', 'sent', 'trash']
 
-        DatabaseStore.count(Thread, [
-          Thread.attributes.namespaceId.equal(namespace.id),
-          Thread.attributes.unread.equal(true),
-          Thread.attributes.tags.contains(tag.id),
-        ]).then (count) =>
-          @_unreadCounts[tag.id] = count
-          @trigger(@)
+        # Make a web request for unread count
+        atom.inbox.makeRequest
+          method: 'GET'
+          path: "/n/#{namespace.id}/tags/#{tag.id}"
+          success: (json) =>
+            tag = (new Tag).fromJSON(json)
+            @_unreadCounts[tag.id] = tag.unreadCount
+            @trigger(@)
 
   # Unfortunately, the joins necessary to compute unread counts are expensive.
   # Rather than update unread counts every time threads change in the database,
