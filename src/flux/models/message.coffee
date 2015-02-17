@@ -59,7 +59,7 @@ class Message extends Model
       jsonKey: 'draft'
       queryable: true
 
-    'version': Attributes.String
+    'version': Attributes.Number
       modelKey: 'version'
       queryable: true
 

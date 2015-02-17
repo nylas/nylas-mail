@@ -1,6 +1,5 @@
 {Emitter} = require 'event-kit'
 url = require 'url'
-https = require 'https'
 _ = require 'underscore-plus'
 
 class InboxLongConnection
@@ -83,9 +82,14 @@ class InboxLongConnection
       console.log("Long Polling Connection: Starting for namespace #{@_namespaceId}, token #{@_inbox.APIToken}, with cursor #{cursor}")
       options = url.parse("#{@_inbox.APIRoot}/n/#{@_namespaceId}/delta/streaming?cursor=#{cursor}&exclude_types=event")
       options.auth = "#{@_inbox.APIToken}:"
-      options.port = 443
 
-      req = https.request options, (res) =>
+      if @_inbox.APIRoot.indexOf('https') is -1
+        lib = require 'http'
+      else
+        options.port = 443
+        lib = require 'https'
+
+      req = lib.request options, (res) =>
         return @retry() unless res.statusCode == 200
         @_buffer = ''
         res.setEncoding('utf8')

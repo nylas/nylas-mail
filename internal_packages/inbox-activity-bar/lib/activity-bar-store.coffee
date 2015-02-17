@@ -39,7 +39,7 @@ ActivityBarStore = Reflux.createStore
   _onAPIRequest: ({request, response}) ->
     url = request.url
     if request.auth
-      url = url.replace('https://', "https://#{request.auth.user}:#{request.auth.pass}@")
+      url = url.replace('://', "://#{request.auth.user}:#{request.auth.pass}@")
     if request.qs
       url += "?#{qs.stringify(request.qs)}"
     postBody = ""

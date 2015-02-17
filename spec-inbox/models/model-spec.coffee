@@ -1,7 +1,9 @@
 Model = require '../../src/flux/models/model'
+Attributes = require '../../src/flux/attributes'
 {isTempId} = require '../../src/flux/models/utils'
+_ = require 'underscore-plus'
 
-describe "Model", ->
+fdescribe "Model", ->
   describe "constructor", ->
     it "should accept a hash of attributes and assign them to the new Model", ->
       attrs =
@@ -44,11 +46,22 @@ describe "Model", ->
 
   describe "fromJSON", ->
     beforeEach ->
+      class Submodel extends Model
+        @attributes: _.extend {}, Model.attributes,
+          'testNumber': Attributes.Number
+            modelKey: 'testNumber'
+            jsonKey: 'test_number'
+          'testBoolean': Attributes.Boolean
+            modelKey: 'testBoolean'
+            jsonKey: 'test_boolean'
+
       @json =
         'id': '1234'
+        'test_number': 4
+        'test_boolean': true
         'daysOld': 4
         'namespace_id': 'bla'
-      @m = new Model
+      @m = new Submodel
 
     it "should assign attribute values by calling through to attribute fromJSON functions", ->
       spyOn(Model.attributes.namespaceId, 'fromJSON').andCallFake (json) ->
@@ -69,6 +82,44 @@ describe "Model", ->
       @m.fromJSON(@json)
       expect(@m.daysOld).toBe(undefined)
 
+    describe "Attributes.Number", ->
+      it "should read number attributes and coerce them to numeric values", ->
+        @m.fromJSON('test_number': 4)
+        expect(@m.testNumber).toBe(4)
+
+        @m.fromJSON('test_number': '4')
+        expect(@m.testNumber).toBe(4)
+
+        @m.fromJSON('test_number': 'lolz')
+        expect(@m.testNumber).toBe(null)
+
+        @m.fromJSON('test_number': 0)
+        expect(@m.testNumber).toBe(0)
+
+
+    describe "Attributes.Boolean", ->
+      it "should read `true` or true and coerce everything else to false", ->
+        @m.fromJSON('test_boolean': true)
+        expect(@m.testBoolean).toBe(true)
+
+        @m.fromJSON('test_boolean': 'true')
+        expect(@m.testBoolean).toBe(true)
+
+        @m.fromJSON('test_boolean': 4)
+        expect(@m.testBoolean).toBe(false)
+
+        @m.fromJSON('test_boolean': '4')
+        expect(@m.testBoolean).toBe(false)
+
+        @m.fromJSON('test_boolean': false)
+        expect(@m.testBoolean).toBe(false)
+
+        @m.fromJSON('test_boolean': 0)
+        expect(@m.testBoolean).toBe(false)
+
+        @m.fromJSON('test_boolean': null)
+        expect(@m.testBoolean).toBe(false)
+
   describe "toJSON", ->
     beforeEach ->
       @model = new Model
@@ -86,7 +137,7 @@ describe "Model", ->
 
     it "should surface any exception one of the attribute toJSON functions raises", ->
       spyOn(Model.attributes.namespaceId, 'toJSON').andCallFake (json) ->
-        throw "Can't convert value into JSON format"
+        throw new Error("Can't convert value into JSON format")
       expect(-> @model.toJSON()).toThrow()
 
   describe "matches", ->

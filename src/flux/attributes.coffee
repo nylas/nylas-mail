@@ -92,7 +92,7 @@ class Attribute
 
 class AttributeNumber extends Attribute
   toJSON: (val) -> val
-  fromJSON: (val) -> val || null
+  fromJSON: (val) -> unless isNaN(val) then Number(val) else null
   columnSQL: -> "#{@jsonKey} INTEGER"
 
 class AttributeBoolean extends Attribute

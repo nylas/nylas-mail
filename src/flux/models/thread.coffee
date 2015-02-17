@@ -21,6 +21,9 @@ class Thread extends Model
       queryable: true
       modelKey: 'unread'
 
+    'version': Attributes.Number
+      modelKey: 'version'
+
     'tags': Attributes.Collection
       queryable: true
       modelKey: 'tags'

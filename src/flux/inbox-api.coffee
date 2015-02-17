@@ -105,13 +105,12 @@ class InboxAPI
       else if delta.event == 'modify'
         @_handleModelResponse(delta.attributes)
       else if delta.event == 'delete'
-        klass = modelClassMap[delta.object]
+        klass = modelClassMap()[delta.object]
         return unless klass
         DatabaseStore.find(klass, delta.id).then (model) ->
           DatabaseStore.unpersistModel(model)
     .catch (rejectionReason) ->
-      console.log("Delta to '#{delta.event}' a '#{delta.object}' was ignored:",
-        rejectionReason, delta)
+      console.log("Delta to #{delta.event} a '#{delta.object}' was ignored. #{rejectionReason}", delta)
 
   _defaultErrorCallback: (apiError) ->
     console.error("Unhandled Inbox API Error:", apiError.message, apiError)
@@ -132,19 +131,28 @@ class InboxAPI
       DatabaseStore.persistModels(objects) if objects.length > 0
 
   _shouldAcceptModel: (classname, model = null) ->
-    switch classname
-      when "message"
-        return Promise.resolve() unless model && model.draft
-        return new Promise (resolve, reject) ->
-          Message = require './models/message'
-          DatabaseStore = require './stores/database-store'
-          DatabaseStore.findBy(Message, {version: model.version}).then (draft) ->
-            if draft?
-              reject(new Error("Already a draft with version #{model.version}"))
-            else
-              resolve()
-      else
-        return Promise.resolve()
+    return Promise.resolve() unless model
+
+    if classname is "thread"
+      Thread = require './models/thread'
+      return @_shouldAcceptModelIfNewer(Thread, model)
+
+    # For some reason, we occasionally get a delta with:
+    # delta.object = 'message', delta.attributes.object = 'draft'
+    if classname is "draft" or model?.object is "draft"
+      Message = require './models/message'
+      return @_shouldAcceptModelIfNewer(Message, model)
+
+    Promise.resolve()
+
+  _shouldAcceptModelIfNewer: (klass, model = null) ->
+    new Promise (resolve, reject) ->
+      DatabaseStore = require './stores/database-store'
+      DatabaseStore.find(klass, model.id).then (existing) ->
+        if existing and existing.version >= model.version
+          reject(new Error("Rejecting version #{model.version}. Local version is #{existing.version}."))
+        else
+          resolve()
 
   getThreadsForSearch: (namespaceId, query, callback) ->
     throw (new Error "getThreadsForSearch requires namespaceId") unless namespaceId
