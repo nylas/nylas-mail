@@ -17,6 +17,8 @@ class InboxAPI
     @
 
   _onConfigChanged: =>
+    prev = {@APIToken, @AppID, @APIRoot}
+
     @APIToken = atom.config.get('inbox.token')
     env = atom.config.get('inbox.env')
     if env in ['production']
@@ -26,7 +28,9 @@ class InboxAPI
       @AppID = '54miogmnotxuo5st254trcmb9'
       @APIRoot = 'https://api-staging.inboxapp.com'
 
-    if @APIToken && (atom.state.mode == 'editor')
+    current = {@APIToken, @AppID, @APIRoot}
+
+    if atom.state.mode is 'editor' and not _.isEqual(prev, current)
       @makeRequest
         path: "/n"
         returnsModel: true
@@ -35,13 +39,21 @@ class InboxAPI
         error: =>
           @_startLongPolling()
 
+  _stopLongPolling: ->
+    for namespace, connection of @APILongConnections
+      connection.end()
+    @APILongConnections = {}
+
   _startLongPolling: ->
     return unless atom.state.mode == 'editor'
     return if atom.getLoadSettings().isSpec
 
     DatabaseStore = require './stores/database-store'
     Namespace = require './models/namespace'
+
     DatabaseStore.findAll(Namespace).then (namespaces) =>
+      @_stopLongPolling()
+
       namespaces.forEach (namespace) =>
         connection = new InboxLongConnection(@, namespace.id)
         @APILongConnections[namespace.id] = connection
@@ -54,10 +66,13 @@ class InboxAPI
           Actions.longPollStateChanged(state)
           if state == InboxLongConnection.State.Connected
             Actions.restartTaskQueue()
-        connection.onDelta (delta) =>
-          @_handleLongPollingChange(namespace.id, delta)
+
+        connection.onDeltas (deltas) =>
+          @_handleDeltas(namespace.id, deltas)
           Actions.restartTaskQueue()
+
         connection.start()
+
     .catch (error) -> console.error(error)
 
   # Delegates to node's request object.
@@ -95,22 +110,35 @@ class InboxAPI
         @_handleModelResponse(body) if options.returnsModel
         options.success(body) if options.success
 
-  _handleLongPollingChange: (namespaceId, delta) ->
-    return if delta.object == 'contact'
-    return if delta.object == 'event'
+  _handleDeltas: (namespaceId, deltas) ->
+    console.log("Processing deltas:")
 
-    @_shouldAcceptModel(delta.object, delta.attributes).then =>
-      if delta.event == 'create'
-        @_handleModelResponse(delta.attributes)
-      else if delta.event == 'modify'
-        @_handleModelResponse(delta.attributes)
-      else if delta.event == 'delete'
-        klass = modelClassMap()[delta.object]
-        return unless klass
-        DatabaseStore.find(klass, delta.id).then (model) ->
-          DatabaseStore.unpersistModel(model)
-    .catch (rejectionReason) ->
-      console.log("Delta to #{delta.event} a '#{delta.object}' was ignored. #{rejectionReason}", delta)
+    # Group deltas by object type so we can mutate our local cache efficiently
+    deltasByObject = {}
+    deltasDeletions = []
+    for delta in deltas
+      if delta.event is 'delete'
+        deltasDeletions.push(delta)
+      else if delta.event is 'create' or delta.event is 'modify'
+        deltasByObject[delta.object] ||= []
+        deltasByObject[delta.object].push(delta.attributes)
+
+    # Remove events and contacts - we don't apply deltas to them
+    delete deltasByObject['contact']
+    delete deltasByObject['event']
+
+    # Apply all the create / modfiy events by class
+    for object, items of deltasByObject
+      console.log(" + #{items.length} #{object}")
+      @_handleModelResponse(items)
+
+    # Apply all of the deletions
+    for delta in deltasDeletions
+      console.log(" - 1 #{delta.object} (#{delta.id})")
+      klass = modelClassMap()[delta.object]
+      return unless klass
+      DatabaseStore.find(klass, delta.id).then (model) ->
+        DatabaseStore.unpersistModel(model) if model
 
   _defaultErrorCallback: (apiError) ->
     console.error("Unhandled Inbox API Error:", apiError.message, apiError)

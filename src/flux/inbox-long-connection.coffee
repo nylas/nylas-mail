@@ -19,6 +19,13 @@ class InboxLongConnection
     @_req = null
     @_reqPingInterval = null
     @_buffer = null
+
+    @_deltas = []
+    @_flushDeltasDebounced = _.debounce =>
+      @_emitter.emit('deltas-stopped-arriving', @_deltas)
+      @_deltas = []
+    , 1000
+
     @
 
   hasCursor: ->
@@ -50,8 +57,8 @@ class InboxLongConnection
   onStateChange: (callback) ->
     @_emitter.on('state-change', callback)
 
-  onDelta: (callback) ->
-    @_emitter.on('delta', callback)
+  onDeltas: (callback) ->
+    @_emitter.on('deltas-stopped-arriving', callback)
 
   onProcessBuffer: =>
     bufferJSONs = @_buffer.split('\n')
@@ -66,12 +73,12 @@ class InboxLongConnection
         console.log("#{bufferJSONs[i]} could not be parsed as JSON.", e)
       if delta
         throw (new Error 'Received delta with no cursor!') unless delta.cursor
-        @_emitter.emit('delta', delta)
+        @_deltas.push(delta)
+        @_flushDeltasDebounced()
         bufferCursor = delta.cursor
 
     # Note: setCursor is slow and saves to disk, so we do it once at the end
     @setCursor(bufferCursor)
-    console.log("Long Polling Connection: Processed #{bufferJSONs.length-1} updates")
     @_buffer = bufferJSONs[bufferJSONs.length - 1]
 
   start: ->
@@ -93,7 +100,7 @@ class InboxLongConnection
         return @retry() unless res.statusCode == 200
         @_buffer = ''
         res.setEncoding('utf8')
-        processBufferThrottled = _.throttle(@onProcessBuffer, 500, {leading: false})
+        processBufferThrottled = _.throttle(@onProcessBuffer, 400, {leading: false})
         res.on 'close', => @retry()
         res.on 'data', (chunk) =>
           @_buffer += chunk
@@ -120,7 +127,8 @@ class InboxLongConnection
       @start()
     , 10000
 
-  end: =>
+  end: ->
+    console.log("Long Polling Connection: Closed.")
     @setState(InboxLongConnection.State.Idle)
     clearInterval(@_reqPingInterval) if @_reqPingInterval
     @_reqPingInterval = null
