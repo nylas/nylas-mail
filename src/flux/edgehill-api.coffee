@@ -15,11 +15,11 @@ class EdgehillAPI
   _onConfigChanged: =>
     env = atom.config.get('inbox.env')
     if env is 'development'
-      @APIRoot = "https://edgehill-dev.inboxapp.com"
+      @APIRoot = "https://edgehill-dev.nilas.com"
     else if env is 'staging'
-      @APIRoot = "https://edgehill-staging.inboxapp.com"
+      @APIRoot = "https://edgehill-staging.nilas.com"
     else
-      @APIRoot = "https://edgehill.inboxapp.com"
+      @APIRoot = "https://edgehill.nilas.com"
 
   request: (options={}) ->
     return if atom.getLoadSettings().isSpec

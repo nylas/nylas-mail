@@ -232,8 +232,10 @@ class AtomApplication
 
     @on 'application:show-main-window', => @showMainWindow()
 
-    @on 'application:install-update', -> @autoUpdateManager.install()
     @on 'application:check-for-update', => @autoUpdateManager.check()
+    @on 'application:install-update', =>
+      @quitting = true
+      @autoUpdateManager.install()
 
     if process.platform is 'darwin'
       @on 'application:about', -> Menu.sendActionToFirstResponder('orderFrontStandardAboutPanel:')

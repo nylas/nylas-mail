@@ -23,10 +23,10 @@ class InboxAPI
     env = atom.config.get('inbox.env')
     if env in ['production']
       @AppID = 'c96gge1jo29pl2rebcb7utsbp'
-      @APIRoot = 'https://api.inboxapp.com'
+      @APIRoot = 'https://api.nilas.com'
     else if env in ['staging', 'development']
       @AppID = '54miogmnotxuo5st254trcmb9'
-      @APIRoot = 'https://api-staging.inboxapp.com'
+      @APIRoot = 'https://api-staging.nilas.com'
 
     current = {@APIToken, @AppID, @APIRoot}
 
