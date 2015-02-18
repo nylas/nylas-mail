@@ -18,6 +18,7 @@ ParticipantsTextField = require './participants-text-field.cjsx'
 # simulate the effect of the parent re-rendering us
 module.exports =
 ComposerView = React.createClass
+  displayName: 'ComposerView'
 
   getInitialState: ->
     state = @getComponentRegistryState()

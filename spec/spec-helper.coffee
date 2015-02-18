@@ -21,6 +21,7 @@ clipboard = require 'clipboard'
 
 NamespaceStore = require "../src/flux/stores/namespace-store"
 Contact = require '../src/flux/models/contact'
+{ComponentRegistry} = require "inbox-exports"
 
 atom.themes.loadBaseStylesheets()
 atom.themes.requireStylesheet '../static/jasmine'
@@ -65,8 +66,35 @@ if specDirectory
 
 isCoreSpec = specDirectory == fs.realpathSync(__dirname)
 
+# Override React.addons.TestUtils.renderIntoDocument so that
+# we can remove all the created elements after the test completes.
+React = require "react/addons"
+ReactTestUtils = React.addons.TestUtils
+ReactTestUtils.scryRenderedDOMComponentsWithAttr = (root, attrName, attrValue) ->
+  ReactTestUtils.findAllInRenderedTree root, (inst) ->
+    inst.props[attrName] and (!attrValue or inst.props[attrName] is attrValue)
+
+ReactTestUtils.findRenderedDOMComponentWithAttr = (root, attrName, attrValue) ->
+  all = ReactTestUtils.scryRenderedDOMComponentsWithAttr(root, attrName, attrValue)
+  if all.length is not 1
+    throw new Error("Did not find exactly one match for data attribute: #{attrName} with value: #{attrValue}")
+  all[0]
+
+ReactElementContainers = []
+ReactTestUtils.renderIntoDocument = (element) ->
+  container = document.createElement('div')
+  ReactElementContainers.push(container)
+  React.render(element, container)
+
+ReactTestUtils.unmountAll = ->
+  for container in ReactElementContainers
+    React.unmountComponentAtNode(container)
+  ReactElementContainers = []
+
 beforeEach ->
   Grim.clearDeprecations() if isCoreSpec
+  ComponentRegistry._clear()
+
   $.fx.off = true
   documentTitle = null
   atom.workspace = new Workspace()
@@ -145,6 +173,8 @@ afterEach ->
   delete atom.state.packageStates
 
   $('#jasmine-content').empty() unless window.debugContent
+
+  ReactTestUtils.unmountAll()
 
   jasmine.unspy(atom, 'saveSync')
   ensureNoPathSubscriptions()

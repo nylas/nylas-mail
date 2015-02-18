@@ -16,17 +16,20 @@ getViewsByName = (components) ->
     [registered, requested] = component.split " as "
     requested ?= registered
     state[requested] = ComponentRegistry.findViewByName registered
+    if not state[requested]?
+      console.log("""Warning: No component found for #{requested} in
+        #{@constructor.displayName}. Loaded: #{Object.keys(registry)}""")
   state
 
 Mixin =
   getInitialState: ->
-    getViewsByName(@components)
+    getViewsByName.apply(@, [@components])
 
   componentWillMount: ->
-    @_componentUnlistener = ComponentRegistry.listen (event) =>
+    @_componentUnlistener = ComponentRegistry.listen =>
       @setState getViewsByName(@components)
 
-  componentDidUnmount: ->
+  componentWillUnmount: ->
     @_componentUnlistener()
 
 # Internal representation of components

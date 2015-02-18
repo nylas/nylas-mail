@@ -16,6 +16,18 @@ TestUtils = React.addons.TestUtils
  InboxTestUtils,
  ComponentRegistry} = require "inbox-exports"
 
+ComposerItem = React.createClass
+  render: -> <div></div>
+  focus: ->
+
+AttachmentItem = React.createClass
+  render: -> <div></div>
+  focus: ->
+
+ParticipantsItem = React.createClass
+  render: -> <div></div>
+  focus: ->
+
 MessageItem = proxyquire("../lib/message-item.cjsx", {
   "./email-frame": React.createClass({render: -> <div></div>})
 })
@@ -24,15 +36,7 @@ MessageList = proxyquire("../lib/message-list.cjsx", {
   "./message-item.cjsx": MessageItem
 })
 
-ComposerItem = React.createClass
-  render: -> <div></div>
-  focus: ->
-ComponentRegistry.register
-  name: 'Composer'
-  view: ComposerItem
-
 MessageParticipants = require "../lib/message-participants.cjsx"
-ThreadParticipants = require "../lib/thread-participants.cjsx"
 
 me = new Namespace(
   "name": "User One",
@@ -175,14 +179,22 @@ test_thread = (new Thread).fromJSON({
 })
 
 describe "MessageList", ->
-  _resetMessageStore = ->
+  beforeEach ->
+    ComponentRegistry.register
+      name: 'Composer'
+      view: ComposerItem
+    ComponentRegistry.register
+      name: 'Participants'
+      view: ParticipantsItem
+    ComponentRegistry.register
+      name: 'AttachmentComponent'
+      view: AttachmentItem
+
     MessageStore._items = []
     MessageStore._threadId = null
     spyOn(MessageStore, "itemLocalIds").andCallFake ->
       {"666": "666"}
 
-  beforeEach ->
-    _resetMessageStore()
     @message_list = TestUtils.renderIntoDocument(<MessageList />)
     @message_list_node = @message_list.getDOMNode()
 
@@ -218,7 +230,7 @@ describe "MessageList", ->
 
     it "displays the thread participants on the page", ->
       items = TestUtils.scryRenderedComponentsWithType(@message_list,
-              ThreadParticipants)
+              ParticipantsItem)
       expect(items.length).toBe 1
 
     it "focuses new composers when a draft is added", ->

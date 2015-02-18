@@ -29,7 +29,7 @@ textFieldStub = (className) ->
     focus: ->
 
 draftStoreProxyStub = (localId) ->
-  listen: -> # noop
+  listen: -> ->
   draft: -> new Message()
   changes:
     add: ->

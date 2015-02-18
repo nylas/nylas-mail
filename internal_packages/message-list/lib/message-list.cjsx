@@ -2,8 +2,6 @@ _ = require 'underscore-plus'
 React = require 'react'
 MessageItem = require "./message-item.cjsx"
 
-ThreadParticipants = require "./thread-participants.cjsx"
-
 {Actions, ThreadStore, MessageStore, ComponentRegistry} = require("inbox-exports")
 
 module.exports =
@@ -80,13 +78,9 @@ MessageList = React.createClass
     <div className="message-list-headers">
       <h2>{@state.current_thread.subject}</h2>
 
-      {if Participants?
-        <Participants clickable={true}
-                      context={'primary'}
-                      participants={@_threadParticipants()}/>
-      else
-        <ThreadParticipants thread_participants={@_threadParticipants()} />
-      }
+      <Participants clickable={true}
+                    context={'primary'}
+                    participants={@_threadParticipants()}/>
 
       {for MessageListHeader in MessageListHeaders
         <MessageListHeader thread={@state.current_thread} />

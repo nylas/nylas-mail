@@ -3,7 +3,7 @@ Attributes = require '../../src/flux/attributes'
 {isTempId} = require '../../src/flux/models/utils'
 _ = require 'underscore-plus'
 
-fdescribe "Model", ->
+describe "Model", ->
   describe "constructor", ->
     it "should accept a hash of attributes and assign them to the new Model", ->
       attrs =

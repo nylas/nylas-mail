@@ -11,7 +11,8 @@ ReactTestUtils = _.extend ReactTestUtils, require("jasmine-react-helpers")
  ThreadStore,
  DatabaseStore,
  InboxTestUtils,
- NamespaceStore} = require "inbox-exports"
+ NamespaceStore,
+ ComponentRegistry} = require "inbox-exports"
 
 ThreadListColumn = require("../lib/thread-list-column")
 
@@ -20,6 +21,9 @@ ThreadListNarrowItem = require("../lib/thread-list-narrow-item.cjsx")
 
 ThreadListTabular = require("../lib/thread-list-tabular.cjsx")
 ThreadListTabularItem = require("../lib/thread-list-tabular-item.cjsx")
+
+ParticipantsItem = React.createClass
+  render: -> <div></div>
 
 me = new Namespace(
   "name": "User One",
@@ -218,6 +222,10 @@ describe "ThreadListTabular", ->
 
     ThreadStore._resetInstanceVars()
 
+    ComponentRegistry.register
+      name: 'Participants'
+      view: ParticipantsItem
+
     @thread_list = ReactTestUtils.renderIntoDocument(
       <ThreadListTabular />
     )
@@ -299,6 +307,10 @@ describe "ThreadListNarrow", ->
     spyOn(DatabaseStore, "findAll").andCallFake ->
       new Promise (resolve, reject) -> resolve(test_threads())
     ThreadStore._resetInstanceVars()
+
+    ComponentRegistry.register
+      name: 'Participants'
+      view: ParticipantsItem
 
     @thread_list = ReactTestUtils.renderIntoDocument(
       <ThreadListNarrow />
