@@ -1,37 +1,65 @@
 _ = require 'underscore-plus'
 React = require 'react'
 sanitizeHtml = require 'sanitize-html'
+{Utils} = require 'inbox-exports'
 
 module.exports =
 ContenteditableComponent = React.createClass
-  render: ->
-    <div id="contenteditable"
-         ref="editableDif"
-         className="scribe native-key-bindings"
-         onInput={@_onChange}
-         onPaste={@_onPaste}
-         tabIndex={@props.tabIndex}
-         onBlur={@_onChange}
-         contentEditable
-         dangerouslySetInnerHTML={{__html: @props.html}}></div>
 
-  shouldComponentUpdate: (nextProps) ->
-    html = @getDOMNode().innerHTML
-    return (nextProps.html isnt html) and (document.activeElement isnt @getDOMNode())
+  getInitialState: ->
+    editQuotedText: false
+
+  getEditableNode: ->
+    @refs.contenteditable.getDOMNode()
+
+  render: ->
+    quotedTextClass = React.addons.classSet
+      "quoted-text-toggle": true
+      'hidden': @_htmlQuotedTextStart() is -1
+      'state-on': @state.editQuotedText
+
+    <div className="contenteditable-container">
+      <div id="contenteditable"
+           ref="contenteditable"
+           className="scribe native-key-bindings"
+           contentEditable
+           onInput={@_onChange}
+           onPaste={@_onPaste}
+           tabIndex={@props.tabIndex}
+           onBlur={@_onChange}
+           dangerouslySetInnerHTML={{__html: @_htmlForDisplay()}}></div>
+      <a className={quotedTextClass} onClick={@_onToggleQuotedText}></a>
+    </div>
+
+  shouldComponentUpdate: (nextProps, nextState) ->
+    return true if nextState.editQuotedText is not @state.editQuotedText
+
+    html = @getEditableNode().innerHTML
+    return (nextProps.html isnt html) and (document.activeElement isnt @getEditableNode())
 
   componentDidUpdate: ->
-    if ( @props.html != @getDOMNode().innerHTML )
-      @getDOMNode().innerHTML = @props.html
+    if (@props.html != @getEditableNode().innerHTML)
+      @getEditableNode().innerHTML = @_htmlForDisplay()
 
   focus: ->
-    @getDOMNode().focus()
+    @getEditableNode().focus()
 
   _onChange: (evt) ->
-    html = @getDOMNode().innerHTML
-    if (@props.onChange && html != @lastHtml)
-      evt.target = { value: html }
-      @props.onChange(evt)
+    html = @getEditableNode().innerHTML
+
+    # If we aren't displaying quoted text, add the quoted
+    # text to the end of the visible text
+    if not @state.editQuotedText
+      quoteStart = @_htmlQuotedTextStart()
+      html += @props.html.substr(quoteStart)
+
+    if html != @lastHtml
+      @props.onChange({target: {value: html}}) if @props.onChange
     @lastHtml = html
+
+  _onToggleQuotedText: ->
+    @setState
+      editQuotedText: !@state.editQuotedText
 
   _onPaste: (evt) ->
     html = evt.clipboardData.getData("text/html") ? ""
@@ -68,3 +96,14 @@ ContenteditableComponent = React.createClass
         table: "p"
 
     cleanHtml.replace(/<p>/gi, "").replace(/<\/p>/gi, "<br/><br/>")
+
+  _htmlQuotedTextStart: ->
+    @props.html.search(/<[^>]*gmail_quote/)
+
+  _htmlForDisplay: ->
+    if @state.editQuotedText
+      @props.html
+    else
+      quoteStart = @_htmlQuotedTextStart()
+      @props.html.substr(0, quoteStart) unless quoteStart is -1
+

@@ -75,4 +75,13 @@ utils =
   tableNameForJoin: (primaryKlass, secondaryKlass) ->
     "#{primaryKlass.name}-#{secondaryKlass.name}"
 
+  containsQuotedText: (html) ->
+    # I know this is gross - one day we'll replace it with a nice system.
+    return false unless html
+
+    regexs = [/<blockquote/i, /\n[ ]*(>|&gt;)/, /<br[ ]*>[\n]?[ ]*[>|&gt;]/i, /.gmail_quote/]
+    for regex in regexs
+      return true if html.match(regex)
+    return false
+
 module.exports = utils

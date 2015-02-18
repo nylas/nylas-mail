@@ -13,6 +13,24 @@
     width: 100%;
     height: 100%;
   }
+  .composer-inner-wrap {
+    .compose-body {
+      margin-bottom: 0;
+      position: relative;
+    
+      .contenteditable-container {
+        position:absolute;
+        width:100%;
+        height:100%;
+
+        div[contenteditable] {
+          // Ensure that the contentEditable always fills the window,
+          // but leaves room for the quoted text marker at the bottom.
+          min-height: calc(~"100% - 30px");
+        }
+      }
+    }
+  }
 }
 
 .composer-inner-wrap {
@@ -99,7 +117,15 @@
     cursor: text;
     overflow: auto;
     margin: 0.7em 15px 15px 15px;
-    min-height: 150px;
+    position: relative;
+
+    .quoted-text-toggle {
+      margin:0;
+    }
+
+    div[contenteditable] {
+      min-height: 150px;
+    }
   }
 
   .compose-field {
@@ -157,35 +183,6 @@
     .attachment-file-actions {
       margin-left: 0.4em;
     }
-  }
-}
-
-.quoted-text-toggle {
-  background-color: #f7f7f7;
-  border-radius: 5px;
-  padding: 7px;
-  margin-bottom: 10px;
-  margin-left: 15px;
-  display: inline-block;
-  padding-top: 0;
-  padding-bottom: 2px;
-  color: #333;
-  border: 1px solid #eee;
-  line-height: 16px;
-
-  &.hidden {
-    display:none;
-  }
-  &:hover {
-    border:1px solid @border-color;
-    background-color: @background-color-secondary;
-    text-decoration:none;
-  }
-  &.state-true:before {
-    content:'Hide Quoted Text';
-  }
-  &.state-false:before {
-    content:'\2022\2022\2022';
   }
 }
 

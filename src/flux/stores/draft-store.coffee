@@ -56,6 +56,7 @@ DraftStore = Reflux.createStore
     @_findLastMessageFromThread(threadId)
     .then ({lastMessage, thread}) =>
       @_createNewDraftFromThread thread,
+        quoted_text: lastMessage.body
         to: lastMessage.from
 
   _onComposeReplyAll: (threadId) ->
@@ -64,6 +65,7 @@ DraftStore = Reflux.createStore
       cc = [].concat(lastMessage.cc, lastMessage.to).filter (p) ->
         !_.contains([].concat(lastMessage.from, [NamespaceStore.current().me()]), p)
       @_createNewDraftFromThread thread,
+        quoted_text: lastMessage.body
         to: lastMessage.from
         cc: cc
 
@@ -72,7 +74,7 @@ DraftStore = Reflux.createStore
     .then ({lastMessage, thread}) =>
       @_createNewDraftFromThread thread,
         subject: "Fwd: " + thread.subject
-        body: lastMessage.body
+        quoted_text: lastMessage.body
 
   _findLastMessageFromThread: (threadId) ->
     new Promise (resolve, reject) ->
@@ -88,6 +90,15 @@ DraftStore = Reflux.createStore
       .catch (args...) -> reject(args...)
 
   _createNewDraftFromThread: (thread, attributes={}) ->
+    if attributes.quoted_text
+      attributes.body = """
+        <br><br>
+        <blockquote class="gmail_quote"
+          style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
+          #{attributes.quoted_text}
+        </blockquote>"""
+      delete attributes.quoted_text
+
     draft = new Message _.extend {}, attributes,
       from: [NamespaceStore.current().me()]
       date: (new Date)

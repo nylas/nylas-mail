@@ -3,7 +3,7 @@ React = require 'react'
 _ = require 'underscore-plus'
 EmailFrame = require './email-frame'
 MessageParticipants = require "./message-participants.cjsx"
-{ComponentRegistry, FileDownloadStore} = require 'inbox-exports'
+{ComponentRegistry, FileDownloadStore, Utils} = require 'inbox-exports'
 Autolinker = require 'autolinker'
 
 module.exports =
@@ -31,9 +31,10 @@ MessageItem = React.createClass
     @_storeUnlisten() if @_storeUnlisten
 
   render: ->
-    quotedTextClass = "quoted-text-toggle"
-    quotedTextClass += " hidden" unless @_containsQuotedText()
-    quotedTextClass += " state-" + @state.showQuotedText
+    quotedTextClass = React.addons.classSet
+      "quoted-text-toggle": true
+      'hidden': !Utils.containsQuotedText(@props.message.body)
+      'state-on': @state.showQuotedText
 
     messageIndicators = ComponentRegistry.findAllViewsByRole('MessageIndicator')
     attachments = @_attachmentComponents()
@@ -88,16 +89,6 @@ MessageItem = React.createClass
     body = body.replace(/src=['"]cid:[^'"]*['"]/g, '')
 
     body
-
-  _containsQuotedText: ->
-    # I know this is gross - one day we'll replace it with a nice system.
-    body = @props.message.body
-    return false unless body
-
-    regexs = [/<blockquote/i, /\n[ ]*(>|&gt;)/, /<br[ ]*>[\n]?[ ]*[>|&gt;]/i, /.gmail_quote/]
-    for regex in regexs
-      return true if body.match(regex)
-    return false
 
   _toggleQuotedText: ->
     @setState

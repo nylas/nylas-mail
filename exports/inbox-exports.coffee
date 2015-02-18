@@ -40,3 +40,6 @@ module.exports =
 
   # Component Registry
   ComponentRegistry: require '../src/component-registry'
+
+  # Utils
+  Utils: require '../src/flux/models/utils'

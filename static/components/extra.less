@@ -1,0 +1,30 @@
+
+.quoted-text-toggle {
+  background-color: #f7f7f7;
+  border-radius: 5px;
+  padding: 7px;
+  display: inline-block;
+  padding-top: 0;
+  padding-bottom: 2px;
+  color: #333;
+  border: 1px solid #eee;
+  line-height: 16px;
+  margin-bottom: 10px;
+  margin-left: 15px;
+  cursor: pointer;
+
+  &.hidden {
+    display:none;
+  }
+  &:hover {
+    border:1px solid @border-color;
+    background-color: @background-color-secondary;
+    text-decoration:none;
+  }
+  &.state-on:before {
+    content:'Hide Quoted Text';
+  }
+  &:before {
+    content:'\2022\2022\2022';
+  }
+}
