@@ -3,6 +3,7 @@ request = require 'request'
 Actions = require './actions'
 {APIError} = require './errors'
 DatabaseStore = require './stores/database-store'
+NamespaceStore = require './stores/namespace-store'
 InboxLongConnection = require './inbox-long-connection'
 {modelFromJSON, modelClassMap} = require './models/utils'
 async = require 'async'
@@ -10,10 +11,13 @@ async = require 'async'
 class InboxAPI
 
   constructor: ->
-    @APILongConnections = {}
+    @_streamingConnections = []
     atom.config.onDidChange('inbox.env', @_onConfigChanged)
     atom.config.onDidChange('inbox.token', @_onConfigChanged)
     @_onConfigChanged()
+
+    NamespaceStore.listen(@_onNamespacesChanged, @)
+    @_onNamespacesChanged()
     @
 
   _onConfigChanged: =>
@@ -30,50 +34,60 @@ class InboxAPI
 
     current = {@APIToken, @AppID, @APIRoot}
 
-    if atom.state.mode is 'editor' and not _.isEqual(prev, current)
-      @makeRequest
-        path: "/n"
-        returnsModel: true
-        success: =>
-          @_startLongPolling()
-        error: =>
-          @_startLongPolling()
+    if atom.state.mode is 'editor'
+      if not @APIToken?
+        @_closeStreamingConnections()
 
-  _stopLongPolling: ->
-    for namespace, connection of @APILongConnections
-      connection.end()
-    @APILongConnections = {}
+      if not _.isEqual(prev, current)
+        @makeRequest
+          path: "/n"
+          returnsModel: true
 
-  _startLongPolling: ->
-    return unless atom.state.mode == 'editor'
+      console.log(@_streamingConnections.length)
+
+  _onNamespacesChanged: ->
+    return unless atom.state.mode is 'editor'
     return if atom.getLoadSettings().isSpec
+    
+    namespaces = NamespaceStore.items()
+    connections = _.map(namespaces, @_streamingConnectionForNamespace)
 
-    DatabaseStore = require './stores/database-store'
-    Namespace = require './models/namespace'
+    # Close the connections that are not in the new connections list.
+    # These namespaces are no longer in our database, so we shouldn't
+    # be listening.
+    old = _.without(@_streamingConnections, connections...)
+    conn.end() for conn in old
 
-    DatabaseStore.findAll(Namespace).then (namespaces) =>
-      @_stopLongPolling()
+    @_streamingConnections = connections
 
-      namespaces.forEach (namespace) =>
-        connection = new InboxLongConnection(@, namespace.id)
-        @APILongConnections[namespace.id] = connection
+  _closeStreamingConnections: ->
+    for conn in @_streamingConnections
+      conn.end()
+    @_streamingConnections = []
 
-        if !connection.hasCursor()
-          @getThreads(namespace.id)
-          @getCalendars(namespace.id)
+  _streamingConnectionForNamespace: (namespace) =>
+    connection = _.find @_streamingConnections, (c) ->
+      c.namespaceId() is namespace.id
+    console.log('Found existing connection') if connection
+    return connection if connection
 
-        connection.onStateChange (state) ->
-          Actions.longPollStateChanged(state)
-          if state == InboxLongConnection.State.Connected
-            Actions.restartTaskQueue()
+    connection = new InboxLongConnection(@, namespace.id)
 
-        connection.onDeltas (deltas) =>
-          @_handleDeltas(namespace.id, deltas)
-          Actions.restartTaskQueue()
+    if !connection.hasCursor()
+      @getThreads(namespace.id)
+      @getCalendars(namespace.id)
 
-        connection.start()
+    connection.onStateChange (state) ->
+      Actions.longPollStateChanged(state)
+      if state == InboxLongConnection.State.Connected
+        Actions.restartTaskQueue()
 
-    .catch (error) -> console.error(error)
+    connection.onDeltas (deltas) =>
+      @_handleDeltas(namespace.id, deltas)
+      Actions.restartTaskQueue()
+
+    connection.start()
+    connection
 
   # Delegates to node's request object.
   # On success, it will call the passed in success callback with options.

@@ -27,6 +27,11 @@ ActivityBarStore = Reflux.createStore
     @listenTo Actions.didMakeAPIRequest, @_onAPIRequest
     @listenTo Actions.developerPanelSelectSection, @_onSelectSection
     @listenTo Actions.longPollStateChanged, @_onLongPollStateChange
+    @listenTo Actions.logout, @_onLogout
+
+  _onLogout: ->
+    @_setStoreDefaults()
+    @trigger(@)
 
   _onSelectSection: (section) ->
     @_section = section

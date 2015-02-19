@@ -6,6 +6,7 @@ class InboxLongConnection
 
   @State =
     Idle: 'idle'
+    Ended: 'ended'
     Connecting: 'connecting'
     Connected: 'connected'
     Retrying: 'retrying'
@@ -27,7 +28,10 @@ class InboxLongConnection
     , 1000
 
     @
-
+ 
+  namespaceId: ->
+    @_namespaceId
+    
   hasCursor: ->
     !!atom.config.get(@_cursorKey)
 
@@ -85,7 +89,9 @@ class InboxLongConnection
     throw (new Error 'Cannot start polling without auth token.') unless @_inbox.APIToken
     return if @_req
 
+    console.log("Long Polling Connection: Starting....")
     @withCursor (cursor) =>
+      return if @state is InboxLongConnection.State.Ended
       console.log("Long Polling Connection: Starting for namespace #{@_namespaceId}, token #{@_inbox.APIToken}, with cursor #{cursor}")
       options = url.parse("#{@_inbox.APIRoot}/n/#{@_namespaceId}/delta/streaming?cursor=#{cursor}&exclude_types=event")
       options.auth = "#{@_inbox.APIToken}:"
@@ -129,7 +135,7 @@ class InboxLongConnection
 
   end: ->
     console.log("Long Polling Connection: Closed.")
-    @setState(InboxLongConnection.State.Idle)
+    @setState(InboxLongConnection.State.Ended)
     clearInterval(@_reqPingInterval) if @_reqPingInterval
     @_reqPingInterval = null
     @_req.end() if @_req

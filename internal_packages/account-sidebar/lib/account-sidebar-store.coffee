@@ -55,6 +55,8 @@ AccountSidebarStore = Reflux.createStore
 
   _populateUnreadCounts: ->
     namespace = NamespaceStore.current()
+    return unless namespace
+
     @_sections.forEach (section) =>
       section.tags.forEach (tag) =>
         # Some tags don't have unread counts
