@@ -157,7 +157,10 @@ class InboxAPI
         for delta in destroy
           console.log(" - 1 #{delta.object} (#{delta.id})")
           klass = modelClassMap()[delta.object]
-          return unless klass
+          continue unless klass
+          # TODO NEVER ACCEPT DRAFT DELETIONS BECAUSE THE SERVER GETS DELETE HAPPY
+          # WHEN YOU'RE COMPOSING A DRAFT. DELETE THIS ASAP
+          continue if klass is 'message'
           DatabaseStore.find(klass, delta.id).then (model) ->
             DatabaseStore.unpersistModel(model) if model
 
@@ -195,8 +198,6 @@ class InboxAPI
     # For some reason, we occasionally get a delta with:
     # delta.object = 'message', delta.attributes.object = 'draft'
     if classname is "draft" or model?.object is "draft"
-      # TODO NEVER ACCEPT DRAFT CHANGES BECAUSE THE SERVER GETS DELETE HAPPY
-      return Promise.reject()
       Message = require './models/message'
       return @_shouldAcceptModelIfNewer(Message, model)
 
