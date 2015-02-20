@@ -195,6 +195,8 @@ class InboxAPI
     # For some reason, we occasionally get a delta with:
     # delta.object = 'message', delta.attributes.object = 'draft'
     if classname is "draft" or model?.object is "draft"
+      # TODO NEVER ACCEPT DRAFT CHANGES BECAUSE THE SERVER GETS DELETE HAPPY
+      return Promise.reject()
       Message = require './models/message'
       return @_shouldAcceptModelIfNewer(Message, model)
 
