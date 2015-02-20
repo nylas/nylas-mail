@@ -77,11 +77,14 @@ class InboxAPI
     connection.onStateChange (state) ->
       Actions.longPollStateChanged(state)
       if state == InboxLongConnection.State.Connected
-        Actions.restartTaskQueue()
+        ## TODO use OfflineStatusStore
+        Actions.longPollConnected()
+      else
+        ## TODO use OfflineStatusStore
+        Actions.longPollOffline()
 
     connection.onDeltas (deltas) =>
       @_handleDeltas(deltas)
-      Actions.restartTaskQueue()
 
     connection.start()
     connection

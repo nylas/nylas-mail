@@ -4,7 +4,7 @@ React = require "react"
 positions =
   top:
     transform: (state, event) ->
-      height: Math.max(state.initialHeight, state.bcr.bottom - Math.max(5, event.pageY)) + "px"
+      height: state.bcr.bottom - Math.max(5, event.pageY) + "px"
     cursor: "ns-resize"
   bottom:
     transform: (state, event) ->
@@ -27,7 +27,8 @@ React.createClass
 
   render: ->
     position = @props?.position ? 'top'
-    style = _.extend({}, @props.style ? {}, {height: @state.height, width: @state.width})
+    h =  @state.height ? @props.initialHeight
+    style = _.extend({}, @props.style ? {}, {height: h, width: @state.width})
     <div style={style} className="resizable">
       <div className={"resizeBar " + position} ref="resizeBar" style={@props.barStyle ? {}}/>
       {@props.children}

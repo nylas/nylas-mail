@@ -16,5 +16,13 @@ class APIError extends Error
   notifyConsole: ->
     console.error("Edgehill API Error: #{@message}", @)
 
+class OfflineError extends Error
+  constructor: ->
+
+class TimeoutError extends Error
+  constructor: ->
+
 module.exports =
   "APIError": APIError
+  "OfflineError": OfflineError
+  "TimeoutError": TimeoutError

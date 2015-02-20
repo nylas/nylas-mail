@@ -9,43 +9,24 @@ Message = require '../models/message'
 
 FileUploadTask = require './file-upload-task'
 
+module.exports =
 class SaveDraftTask extends Task
 
   constructor: (@draftLocalId, @changes={}, {@localOnly}={}) ->
+    @_saveAttempts = 0
     @queuedAt = Date.now()
-    @
+    super
 
-  # We can only cancel localOnly saves. API saves we keep.
-  #
   # We also don't want to cancel any tasks that have a later timestamp
   # creation than us. It's possible, because of retries, that tasks could
   # get re-pushed onto the queue out of order.
-  shouldCancelUnstartedTask: (other) ->
+  shouldDequeueOtherTask: (other) ->
     other instanceof SaveDraftTask and
     other.draftLocalId is @draftLocalId and
-    other.localOnly is true and
     other.queuedAt < @queuedAt # other is an older task.
 
-  # We want to wait for SendDraftTask because it's possible that we
-  # queued a SaveDraftTask (from some latent timer or something like that)
-  # while the SendDraftTask was in flight. Once the SendDraftTask is done,
-  # it will delete the draft from the database. The lack of the model in
-  # the DB will correctly prevent any late-to-the-game SaveDraftTask from
-  # executing.
   shouldWaitForTask: (other) ->
-    # The task require needs to be put here otherwise we get a circular
-    # reference.
-    # SaveDraftTask depends on SendDraftTask
-    # SendDraftTask depends on SaveDraftTask
-    SendDraftTask = require './send-draft'
-    other instanceof SendDraftTask and other.draftLocalId is @draftLocalId
     other instanceof FileUploadTask and other.draftLocalId is @draftLocalId
-
-  # It's possible that in between saves, the draft was destroyed on the
-  # server. Retry
-  shouldRetry: (error) ->
-    return true if error?.statusCode is 404
-    super(error)
 
   performLocal: -> new Promise (resolve, reject) =>
     if not @draftLocalId?
@@ -85,6 +66,7 @@ class SaveDraftTask extends Task
 
         initialId = draft.id
 
+        @_saveAttempts += 1
         atom.inbox.makeRequest
           path: path
           method: method
@@ -96,41 +78,67 @@ class SaveDraftTask extends Task
               DatabaseStore.swapModel(oldModel: draft, newModel: newDraft, localId: @draftLocalId).then(resolve)
             else
               DatabaseStore.persistModel(newDraft).then(resolve)
-          error: (apiError) =>
-            # If we get a 404 from the server this might mean that the
-            # draft has been deleted from underneath us. We should retry
-            # again. Before we can retry we need to set the ID to a
-            # localID so that the next time this fires the model will
-            # trigger a POST instead of a PUT
-            #
-            # The shouldRetry method will also detect the error as a 404
-            # and retry.
-            if apiError.statusCode is 404
-              @_handleRetry(apiError, reject)
-            else
-              reject(apiError)
+          error: reject
 
-  _handleRetry: (apiError, reject) ->
+  onAPIError: (apiError) ->
+    # If we get a 404 from the server this might mean that the
+    # draft has been deleted from underneath us. We should retry
+    # again. Before we can retry we need to set the ID to a
+    # localID so that the next time this fires the model will
+    # trigger a POST instead of a PUT
+    if apiError.statusCode is 404
+      msg = "It looks like the draft you're working on got deleted from underneath you. We're creating a new draft and saving your work."
+      @_retrySaveAsNewDraft(msg)
+    else
+      if @_saveAttempts <= 1
+        msg = "We had a problem with the server. We're going to try and save your draft again."
+        @_retrySaveToExistingDraft(msg)
+      else
+        msg = "We're continuing to have issues saving your draft. It will be saved locally, but is failing to save on the server."
+        @notifyErrorMessage(msg)
+
+  onOtherError: ->
+    msg = "We had a serious issue trying to save your draft. Please copy the text out of the composer and try again later."
+    @notifyErrorMessage(msg)
+
+  onTimeoutError: ->
+    if @_saveAttempts <= 1
+      msg = "The server is taking an abnormally long time to respond. We're going to try and save your changes again."
+      @_retrySaveToExistingDraft(msg)
+    else
+      msg = "We're continuing to have issues saving your draft. It will be saved locally, but is failing to save on the server."
+      @notifyErrorMessage(msg)
+
+  onOfflineError: ->
+    msg = "WARNING: You are offline. Your edits are being saved locally. They will save to the server when you come back online"
+    @notifyErrorMessage(msg)
+
+  _retrySaveAsNewDraft: (msg) ->
+    TaskQueue = require '../stores/task-queue'
     DatabaseStore.findByLocalId(Message, @draftLocalId).then (draft) =>
       if not draft?
-        # In the time since we asked the API for something, the draft has
-        # been deleted. Nothing we can do now.
-        msg = "The server returned an error, but the draft #{@draftLocalId} dissapeared"
-        console.error(msg, apiError)
-        reject(new Error(msg))
-      else if isTempId(draft.id)
-        msg = "The server returned an error, but the draft #{@draftLocalId} got reset to a localId"
-        console.error(msg, apiError)
-        reject(new Error(msg))
-      else
-        newJSON = _.extend({}, draft.toJSON(), id: generateTempId())
-        newDraft = (new Message).fromJSON(newJSON)
-        DatabaseStore.swapModel(oldModel: draft, newModel: newDraft, localId: @draftLocalId).then ->
-          reject(apiError)
+        console.log "Couldn't find draft!", @draftLocalId
+        @_onOtherError()
+
+      newJSON = _.clone(draft.toJSON())
+      newJSON.id = generateTempId() unless isTempId(draft.id)
+      newDraft = (new Message).fromJSON(newJSON)
+      DatabaseStore.swapModel(oldModel: draft, newModel: newDraft, localId: @draftLocalId).then =>
+        TaskQueue.enqueue @
+
+    @notifyErrorMessage(msg)
+
+  _retrySaveToExistingDraft: (msg) ->
+    TaskQueue = require '../stores/task-queue'
+    DatabaseStore.findByLocalId(Message, @draftLocalId).then (draft) =>
+      if not draft?
+        console.log "Couldn't find draft!", @draftLocalId
+        @_onOtherError()
+      TaskQueue.enqueue @
+
+    @notifyErrorMessage(msg)
 
   _applyChangesToDraft: (draft, changes={}) ->
     for key, definition of draft.attributes()
       draft[key] = changes[key] if changes[key]?
     return draft
-
-module.exports = SaveDraftTask

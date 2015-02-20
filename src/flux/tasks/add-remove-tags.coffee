@@ -6,17 +6,10 @@ Thread = require '../models/thread'
 _ = require 'underscore-plus'
 async = require 'async'
 
+module.exports =
 class AddRemoveTagsTask extends Task
 
-  constructor: (@threadId, @tagIdsToAdd = [], @tagIdsToRemove = []) ->
-    @
-
-  rollbackLocal: ->
-    # Run performLocal backwards to undo the tag changes
-    a = @tagIdsToAdd
-    @tagIdsToAdd = @tagIdsToRemove
-    @tagIdsToRemove = a
-    @performLocal(-1)
+  constructor: (@threadId, @tagIdsToAdd = [], @tagIdsToRemove = []) -> super
 
   performLocal:  (versionIncrement = 1) ->
     new Promise (resolve, reject) =>
@@ -26,7 +19,7 @@ class AddRemoveTagsTask extends Task
         return resolve() unless thread
 
         @namespaceId = thread.namespaceId
-        
+
         # increment the thread version number
         thread.version += versionIncrement
 
@@ -43,23 +36,29 @@ class AddRemoveTagsTask extends Task
             thread.tags.push(tag) if tag
           DatabaseStore.persistModel(thread).then(resolve)
 
-
   performRemote: ->
     new Promise (resolve, reject) =>
       # queue the operation to the server
-      atom.inbox.makeRequest {
+      atom.inbox.makeRequest
         path: "/n/#{@namespaceId}/threads/#{@threadId}"
         method: 'PUT'
-        body: {
+        body:
           add_tags: @tagIdsToAdd,
           remove_tags: @tagIdsToRemove
-        }
         returnsModel: true
         success: resolve
-        error: (apiError) =>
-          if "archive" in @tagIdsToAdd
-            Actions.postNotification({message: "Failed to archive thread: '#{@thread.subject}'", type: 'error'})
-          reject(apiError)
-      }
+        error: reject
 
-module.exports = AddRemoveTagsTask
+  onAPIError: (apiError) ->
+    if "archive" in @tagIdsToAdd
+      msg = "Failed to archive thread: '#{@thread.subject}'"
+      Actions.postNotification({message: msg, type: "error"})
+    @_rollbackLocal()
+    Promise.resolve()
+
+  _rollbackLocal: ->
+    # Run performLocal backwards to undo the tag changes
+    a = @tagIdsToAdd
+    @tagIdsToAdd = @tagIdsToRemove
+    @tagIdsToRemove = a
+    @performLocal(-1)

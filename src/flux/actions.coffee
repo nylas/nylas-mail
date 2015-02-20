@@ -11,7 +11,7 @@ globalActions = [
   "logout",
 
   # File Actions
-  # Since the TaskStore is only in the main window, these actions need to
+  # Since the TaskQueue is only in the main window, these actions need to
   # be rebroadcasted to all windows so you can watch the upload progress
   # from the popout composers
   "uploadStateChanged",
@@ -30,10 +30,11 @@ globalActions = [
 mainWindowActions = [
   # Actions for Tasks
   "queueTask",
-  "abortTask",
-  "restartTaskQueue",
-  "resetTaskQueue",
+  "dequeueTask",
+  "clearQueue",
   "longPollStateChanged",
+  "longPollConnected",
+  "longPollOffline",
   "didMakeAPIRequest",
 ]
 

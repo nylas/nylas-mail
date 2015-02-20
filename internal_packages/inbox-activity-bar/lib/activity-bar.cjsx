@@ -1,7 +1,9 @@
-React = require 'react'
-{DatabaseStore,
+_ = require 'underscore-plus'
+React = require 'react/addons'
+{ComponentRegistry,
+ DatabaseStore,
  NamespaceStore,
- TaskStore,
+ TaskQueue,
  Actions,
  Contact,
  Message} = require 'inbox-exports'
@@ -30,22 +32,68 @@ ActivityBarCurlItem = React.createClass
     shell = require 'shell'
     shell.openItem(curlFile)
 
+ActivityBarTask = React.createClass
+  render: ->
+    <div className={@_classNames()} onClick={=> @setState expanded: not @state?.expanded}>
+      <div className="task-summary">
+        {@_taskSummary()}
+      </div>
+      <div className="task-details">
+        {JSON.stringify(@props.task.toJSON())}
+      </div>
+    </div>
+
+  _taskSummary: ->
+    qs = @props.task.queueState
+    errType = ""
+    errCode = ""
+    errMessage = ""
+    if qs.localError?
+      localError = qs.localError
+      errType = localError.constructor.name
+      errMessage = localError.message ? JSON.stringify(localError)
+    else if qs.remoteError?
+      remoteError = qs.remoteError
+      errType = remoteError.constructor.name
+      errCode = remoteError.statusCode ? ""
+      errMessage = remoteError.body?.message ? remoteError?.message ? JSON.stringify(remoteError)
+
+    return "#{@props.task.constructor.name} #{errType} #{errCode} #{errMessage}"
+
+  _classNames: ->
+    qs = @props.task.queueState ? {}
+    React.addons.classSet
+      "task": true
+      "task-queued": @props.type is "queued"
+      "task-completed": @props.type is "completed"
+      "task-expanded": @state?.expanded
+      "task-local-error": qs.localError
+      "task-remote-error": qs.remoteError
+      "task-is-processing": qs.isProcessing
+      "task-success": qs.performedLocal and qs.performedRemote
 
 module.exports =
 ActivityBar = React.createClass
 
   getInitialState: ->
-    @_getStateFromStores()
+    _.extend @_getStateFromStores(),
+      open: false
 
   componentDidMount: ->
-    @task_store_unsubscribe = TaskStore.listen @_onChange
-    @activity_store_unsubscribe = ActivityBarStore.listen @_onChange
+    @taskQueueUnsubscribe = TaskQueue.listen @_onChange
+    @activityStoreUnsubscribe = ActivityBarStore.listen @_onChange
+    @registryUnlisten = ComponentRegistry.listen @_onChange
 
   componentWillUnmount: ->
-    @task_store_unsubscribe() if @task_store_unsubscribe
-    @activity_store_unsubscribe() if @activity_store_unsubscribe
+    @taskQueueUnsubscribe() if @taskQueueUnsubscribe
+    @activityStoreUnsubscribe() if @activityStoreUnsubscribe
+    @registryUnlisten() if @registryUnlisten
 
   render: ->
+    if @state?.ResizableComponent?
+      ResizableComponent = @state.ResizableComponent
+    else
+      ResizableComponent = React.createClass(render: -> <div>{@props.children}</div>)
     expandedDiv = <div></div>
 
     if @state.expandedSection == 'curl'
@@ -54,62 +102,87 @@ ActivityBar = React.createClass
       expandedDiv = <div className="expanded-section curl-history">{curlDivs}</div>
 
     if @state.expandedSection == 'queue'
-      queueDivs = @state.queuePending.map (task) ->
-        <div className="item item-pending">
-          <strong>{task.constructor.name}:</strong> {JSON.stringify(task.toJSON())}
+      queueDivs = for i in [@state.queue.length - 1..0] by -1
+        task = @state.queue[i]
+        <ActivityBarTask task=task
+                         key=task.id
+                         type="queued" />
+
+      queueCompletedDivs = for i in [@state.completed.length - 1..0] by -1
+        task = @state.completed[i]
+        <ActivityBarTask task=task
+                         key=task.id
+                         type="completed" />
+
+      expandedDiv =
+        <div className="expanded-section queue">
+          <div className="btn queue-buttons"
+               onClick={@_onClearQueue}>Clear Queue</div>
+          <div className="section-content">
+            {queueDivs}
+            <hr />
+            {queueCompletedDivs}
+          </div>
         </div>
-      queuePendingDivs = @state.queue.map (task) ->
-        <div className="item">
-          <strong>{task.constructor.name}:</strong> {JSON.stringify(task.toJSON())}
-        </div>
-      expandedDiv = <div className="expanded-section queue">
-        <div className="btn" onClick={@_onResetQueue}>Reset Queue</div>
-        <div className="btn" onClick={@_onRestartQueue}>Restart Queue</div>
-        {queueDivs}{queuePendingDivs}</div>
 
     <div>
-      <i className="fa fa-caret-square-o-down" onClick={@_onCloseSection}></i>
-      <div className="queue-status">
-        <div className="btn" onClick={@_onExpandQueueSection}>
-          <div className={"activity-status-bubble state-" + @state.queueState}></div>
-          <span>Queue Length: {@state.queue?.length + @state.queuePending?.length}</span>
+      <div className="controls">
+        {@_caret()}
+        <div className="queue-status">
+          <div className="btn" onClick={@_onExpandQueueSection}>
+            <span>Queue Length: {@state.queue?.length}</span>
+          </div>
+        </div>
+        <div className="long-poll-status">
+          <div className="btn">
+            <div className={"activity-status-bubble state-" + @state.longPollState}></div>
+            <span>Long Polling: {@state.longPollState}</span>
+          </div>
+        </div>
+        <div className="curl-status">
+          <div className="btn" onClick={@_onExpandCurlSection}>
+            <span>Requests: {@state.curlHistory.length}</span>
+          </div>
+        </div>
+        <div className="feedback">
+          <div className="btn" onClick={@_onFeedback}>
+            <span>Feedback</span>
+          </div>
         </div>
       </div>
-      <div className="long-poll-status">
-        <div className="btn">
-          <div className={"activity-status-bubble state-" + @state.longPollState}></div>
-          <span>Long Polling: {@state.longPollState}</span>
-        </div>
+      <div className={@_expandedPanelClass()}>
+        <ResizableComponent initialHeight=200 >
+          {expandedDiv}
+        </ResizableComponent>
       </div>
-      <div className="curl-status">
-        <div className="btn" onClick={@_onExpandCurlSection}>
-          <span>Requests: {@state.curlHistory.length}</span>
-        </div>
-      </div>
-      <div className="feedback">
-        <div className="btn" onClick={@_onFeedback}>
-          <span>Feedback</span>
-        </div>
-      </div>
-      {expandedDiv}
     </div>
+
+  _expandedPanelClass: ->
+    React.addons.classSet
+      "message-area": true
+      "panel-open": @state.open
+
+  _caret: ->
+    if @state.open
+      <i className="fa fa-caret-square-o-down" onClick={@_onHide}></i>
+    else
+      <i className="fa fa-caret-square-o-up" onClick={@_onShow}></i>
 
   _onChange: ->
     @setState(@_getStateFromStores())
 
-  _onRestartQueue: ->
-    Actions.restartTaskQueue()
+  _onClearQueue: ->
+    Actions.clearQueue()
 
-  _onResetQueue: ->
-    Actions.resetTaskQueue()
-
-  _onCloseSection: ->
-    Actions.developerPanelSelectSection('')
+  _onHide: -> @setState open: false
+  _onShow: -> @setState open: true
 
   _onExpandCurlSection: ->
+    @setState open: true
     Actions.developerPanelSelectSection('curl')
 
   _onExpandQueueSection: ->
+    @setState open: true
     Actions.developerPanelSelectSection('queue')
 
   _onFeedback: ->
@@ -118,7 +191,7 @@ ActivityBar = React.createClass
     debugData = JSON.stringify({
       queries: @state.curlHistory,
       queue: @state.queue,
-      queue_pending: @state.queuePending
+      completed: @state.completed
     }, null, '\t')
 
     # Remove API tokens from URLs included in the debug data
@@ -153,9 +226,9 @@ ActivityBar = React.createClass
         Actions.composePopoutDraft(localId)
 
   _getStateFromStores: ->
+    ResizableComponent: ComponentRegistry.findViewByName 'ResizableComponent'
     expandedSection: ActivityBarStore.expandedSection()
     curlHistory: ActivityBarStore.curlHistory()
-    queue:TaskStore.queuedTasks()
-    queuePending: TaskStore.pendingTasks()
-    queueState: if TaskStore.isPaused() then "paused" else "running"
+    queue: TaskQueue._queue
+    completed: TaskQueue._completed
     longPollState: ActivityBarStore.longPollState()

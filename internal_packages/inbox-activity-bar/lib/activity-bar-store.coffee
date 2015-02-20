@@ -6,6 +6,7 @@ ActivityBarStore = Reflux.createStore
   init: ->
     @_setStoreDefaults()
     @_registerListeners()
+    @_section = "curl"
 
 
   ########### PUBLIC #####################################################
@@ -20,7 +21,6 @@ ActivityBarStore = Reflux.createStore
 
   _setStoreDefaults: ->
     @_curlHistory = []
-    @_minified = true
     @_longPollState = 'Unknown'
 
   _registerListeners: ->

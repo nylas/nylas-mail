@@ -7,6 +7,7 @@ Message = require '../../src/flux/models/message'
 Contact = require '../../src/flux/models/contact'
 {APIError} = require '../../src/flux/errors'
 DatabaseStore = require '../../src/flux/stores/database-store'
+TaskQueue = require '../../src/flux/stores/task-queue'
 
 SaveDraftTask = require '../../src/flux/tasks/save-draft'
 
@@ -134,20 +135,16 @@ describe "SaveDraftTask", ->
 
   describe "When the api throws a 404 error", ->
     beforeEach ->
+      spyOn(TaskQueue, "enqueue")
       spyOn(atom.inbox, "makeRequest").andCallFake (opts) ->
         opts.error(testError(opts)) if opts.error
 
     it "resets the id", ->
       task = new SaveDraftTask("remoteDraftId")
-      waitsForPromise shouldReject: true, =>
-        promise = task.performRemote()
-        promise.catch (apiError) ->
-          newDraft = DatabaseStore.swapModel.mostRecentCall.args[0].newModel
-          expect(apiError instanceof APIError).toBe true
-          expect(apiError.statusCode).toBe 404
-          expect(isTempId(newDraft.id)).toBe true
-        promise
-
-    it "shouldRetry", ->
-      task = new SaveDraftTask("remoteDraftId")
-      expect(task.shouldRetry(testError())).toBe true
+      task.onAPIError(testError({}))
+      waitsFor ->
+        DatabaseStore.swapModel.calls.length > 0
+      runs ->
+        newDraft = DatabaseStore.swapModel.mostRecentCall.args[0].newModel
+        expect(isTempId(newDraft.id)).toBe true
+        expect(TaskQueue.enqueue).toHaveBeenCalled()

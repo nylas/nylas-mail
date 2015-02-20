@@ -19,7 +19,7 @@ Message =
 #    Root action is fired, it converts it's payload to JSON, tunnels it to the main window
 #    via IPC, and re-fires the Action in the main window. This means that calls to actions
 #    like Actions.queueTask(task) can be fired in secondary windows and consumed by the
-#    TaskStore, which only lives in the main window.
+#    TaskQueue, which only lives in the main window.
 
 # 2. The ActionBridge listens to the DatabaseStore and re-broadcasts it's trigger() event
 #    into all of the windows of the application. This is important, because the DatabaseStore

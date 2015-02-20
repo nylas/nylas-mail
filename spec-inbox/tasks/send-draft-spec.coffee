@@ -4,6 +4,7 @@ SendDraftTask = require '../../src/flux/tasks/send-draft'
 DatabaseStore = require '../../src/flux/stores/database-store'
 {generateTempId} = require '../../src/flux/models/utils'
 Message = require '../../src/flux/models/message'
+TaskQueue = require '../../src/flux/stores/task-queue'
 _ = require 'underscore-plus'
 
 describe "SendDraftTask", ->
@@ -34,6 +35,47 @@ describe "SendDraftTask", ->
       @sendA = new SendDraftTask('localid-A')
 
       expect(@sendA.shouldWaitForTask(@saveA)).toBe(true)
+
+  describe "When on the TaskQueue", ->
+    beforeEach ->
+      TaskQueue._queue = []
+      TaskQueue._completed = []
+      @saveTask = new SaveDraftTask('localid-A')
+      @saveTaskB = new SaveDraftTask('localid-B')
+      @sendTask = new SendDraftTask('localid-A')
+      @tasks = [@saveTask, @saveTaskB, @sendTask]
+
+    describe "when tasks succeed", ->
+      beforeEach ->
+        for task in @tasks
+          spyOn(task, "performLocal").andCallFake -> Promise.resolve()
+          spyOn(task, "performRemote").andCallFake -> Promise.resolve()
+        runs ->
+          TaskQueue.enqueue(@saveTask, silent: true)
+          TaskQueue.enqueue(@saveTaskB, silent: true)
+          TaskQueue.enqueue(@sendTask)
+        waitsFor ->
+          @sendTask.queueState.performedRemote isnt false
+
+      it "processes all of the items", ->
+        runs ->
+          expect(TaskQueue._queue.length).toBe 0
+          expect(TaskQueue._completed.length).toBe 3
+
+      it "all of the tasks", ->
+        runs ->
+          expect(@saveTask.performRemote).toHaveBeenCalled()
+          expect(@saveTaskB.performRemote).toHaveBeenCalled()
+          expect(@sendTask.performRemote).toHaveBeenCalled()
+
+      it "finishes the save before sending", ->
+        runs ->
+          save = @saveTask.queueState.performedRemote
+          send = @sendTask.queueState.performedRemote
+          expect(save).toBeGreaterThan 0
+          expect(send).toBeGreaterThan 0
+          expect(save <= send).toBe true
+
 
   describe "performLocal", ->
     it "should throw an exception if the first parameter is not a localId", ->

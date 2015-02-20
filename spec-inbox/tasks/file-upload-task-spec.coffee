@@ -56,7 +56,7 @@ describe "FileUploadTask", ->
   it "notifies when the file upload fails", ->
     spyOn(Actions, "uploadStateChanged")
     spyOn(@task, "_getBytesUploaded").andReturn(0)
-    @task.rollbackLocal()
+    @task._rollbackLocal()
     data = _.extend uploadData, state: "failed"
     expect(Actions.uploadStateChanged).toHaveBeenCalledWith(data)
 

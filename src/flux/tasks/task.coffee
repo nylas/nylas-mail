@@ -1,4 +1,9 @@
 _ = require 'underscore-plus'
+{generateTempId} = require '../models/utils'
+Actions = require '../actions'
+{APIError,
+ OfflineError,
+ TimeoutError} = require '../errors'
 
 # Tasks represent individual changes to the datastore that
 # alter the local cache and need to be synced back to the server.
@@ -23,7 +28,7 @@ _ = require 'underscore-plus'
 # shouldWaitForTask(other). For example, the SendDraft task is dependent
 # on the draft's files' UploadFile tasks completing.
 
-# Tasks may also implement shouldCancelUnstartedTask(other). Returning true
+# Tasks may also implement shouldDequeueOtherTask(other). Returning true
 # will cause the other event to be removed from the queue. This is useful in
 # offline mode especially, when the user might Save,Save,Save,Save,Send.
 # Each newly queued Save can cancel the (unstarted) save task in the queue.
@@ -33,41 +38,54 @@ _ = require 'underscore-plus'
 # serialize / deserialize to convert to / from raw JSON.
 
 class Task
-  constructor: ->
-    @retryCount = 0
+  ## These are commonly overridden ##
+  constructor: -> @id = generateTempId()
 
-  # Called if a task is aborted while it is being processed
-  abort: ->
+  performLocal: -> Promise.resolve()
 
-  cleanup: ->
-    true
+  performRemote: -> Promise.resolve()
 
-  shouldCancelUnstartedTask: (other) ->
-    false
+  shouldDequeueOtherTask: (other) -> false
 
-  shouldWaitForTask: (other) ->
-    false
+  shouldWaitForTask: (other) -> false
 
-  shouldRetry: (error) ->
-    # Do not retry if this is a non-network error. Subclasses can override
-    # shouldRetry to add additional logic here.
-    return false unless error.statusCode?
+  cleanup: -> true
 
-    # Do not retry if the server returned a code indicating successful
-    # handling of the request with a bad outcome. Making the request again
-    # would not resolve the situation.
-    return error.statusCode not in [401,403,404,405,406,409]
+  abort: -> Promise.resolve()
 
-  performLocal: ->
+  onAPIError: (apiError) ->
+    msg = "We had a problem with the server. Your action was NOT completed."
+    Actions.postNotification({message: msg, type: "error"})
     Promise.resolve()
 
-  rollbackLocal: ->
-    unless atom.inSpecMode()
-      console.log("Rolling back an instance of #{@constructor.name} which has not overridden rollbackLocal. Local cache may be contaminated.")
-    true
-
-  performRemote: ->
+  onOtherError: (otherError) ->
+    msg = "Something went wrong. Please report this issue immediately."
+    Actions.postNotification({message: msg, type: "error"})
     Promise.resolve()
+
+  onTimeoutError: (timeoutError) ->
+    msg = "This took too long. Check your internet connection. Your action was NOT completed."
+    Actions.postNotification({message: msg, type: "error"})
+    Promise.resolve()
+
+  onOfflineError: (offlineError) ->
+    msg = "WARNING: You are offline. This will complete when you come back online."
+    Actions.postNotification({message: msg, type: "error"})
+    Promise.resolve()
+
+  ## Only override if you know what you're doing ##
+  onError: (error) ->
+    if error instanceof APIError
+      @onAPIError(error)
+    else if error instanceof TimeoutError
+      @onTimeoutError(error)
+    else if error instanceof OfflineError
+      @onOfflineError(error)
+    else
+      @onOtherError(error)
+
+  notifyErrorMessage: (msg) ->
+    Actions.postNotification({message: msg, type: "error"})
 
   toJSON: ->
     json = _.clone(@)

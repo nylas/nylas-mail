@@ -3,17 +3,10 @@ DatabaseStore = require '../stores/database-store'
 Actions = require '../actions'
 _ = require 'underscore-plus'
 
+module.exports =
 class MarkMessageReadTask extends Task
 
-  constructor: (@message) ->
-    @
-
-  rollbackLocal: ->
-    new Promise (resolve, reject) =>
-      unless @_previousUnreadState?
-        reject(new Error("Cannot call rollbackLocal without previous call to performLocal"))
-      @message.unread = @_previousUnreadState
-      DatabaseStore.persistModel(@message).then(resolve).catch(reject)
+  constructor: (@message) -> super
 
   performLocal: ->
     new Promise (resolve, reject) =>
@@ -38,4 +31,15 @@ class MarkMessageReadTask extends Task
         error: reject
       }
 
-module.exports = MarkMessageReadTask
+  # We don't really care if this fails.
+  onAPIError: -> Promise.resolve()
+  onOtherError: -> Promise.resolve()
+  onTimeoutError: -> Promise.resolve()
+  onOfflineError: -> Promise.resolve()
+
+  _rollbackLocal: ->
+    new Promise (resolve, reject) =>
+      unless @_previousUnreadState?
+        reject(new Error("Cannot call rollbackLocal without previous call to performLocal"))
+      @message.unread = @_previousUnreadState
+      DatabaseStore.persistModel(@message).then(resolve).catch(reject)

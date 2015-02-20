@@ -6,11 +6,12 @@ Message = require '../models/message'
 Task = require './task'
 SaveDraftTask = require './save-draft'
 
+module.exports =
 class SendDraftTask extends Task
 
-  constructor: (@draftLocalId) -> @
+  constructor: (@draftLocalId) -> super
 
-  shouldCancelUnstartedTask: (other) ->
+  shouldDequeueOtherTask: (other) ->
     other instanceof SendDraftTask and other.draftLocalId is @draftLocalId
 
   shouldWaitForTask: (other) ->
@@ -45,5 +46,19 @@ class SendDraftTask extends Task
             Actions.postNotification({message: "Sent!", type: 'success'})
             DatabaseStore.unpersistModel(draft).then(resolve)
           error: reject
-  
-module.exports = SendDraftTask
+
+  onAPIError: ->
+    msg = "Our server is having problems. Your messages has NOT been sent"
+    @notifyErrorMessage(msg)
+
+  onOtherError: ->
+    msg = "We had a serious issue while sending. Your messages has NOT been sent"
+    @notifyErrorMessage(msg)
+
+  onTimeoutError: ->
+    msg = "The server is taking an abnormally long time to respond. Your messages has NOT been sent"
+    @notifyErrorMessage(msg)
+
+  onOfflineError: ->
+    msg = "You are offline. Your message has NOT been sent. Please send your message when you come back online."
+    @notifyErrorMessage(msg)

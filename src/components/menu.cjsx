@@ -116,20 +116,26 @@ Menu = React.createClass
 
   componentWillUnmount: ->
     @subscriptions?.dispose()
-    
+
   render: ->
+    hc = @props.headerComponents ? []
+    if hc.length is 0 then hc = <span></span>
+    items = @props.items.map(@_itemComponentForItem) ? []
+    if items is 0 then items = <span></span>
+    fc = @props.footerComponents ? []
+    if fc.length is 0 then fc = <span></span>
     <div className={"menu " + @props.className}>
       <div className="header-container">
-        {@props.headerComponents || []}
+        {hc}
       </div>
       <div className="content-container">
-        {@props.items.map(@_itemComponentForItem)}
+        {items}
       </div>
       <div className="footer-container">
-        {@props.footerComponents || []}
+        {fc}
       </div>
     </div>
-  
+
   _itemComponentForItem: (item, i) ->
     content = @props.itemContent(item)
     return content if content.type is MenuItem.type

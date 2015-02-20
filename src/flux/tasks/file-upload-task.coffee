@@ -12,16 +12,13 @@ class FileUploadTask extends Task
 
   constructor: (@filePath, @messageLocalId) ->
     @progress = null # The progress checking timer.
-    @
+    super
 
   performLocal: ->
     return Promise.reject(new Error("Must pass an absolute path to upload")) unless @filePath?.length
     return Promise.reject(new Error("Must be attached to a messageLocalId")) unless isTempId(@messageLocalId)
     Actions.uploadStateChanged @_uploadData("pending")
     Promise.resolve()
-
-  rollbackLocal: ->
-    Actions.uploadStateChanged @_uploadData("failed")
 
   performRemote: ->
     new Promise (resolve, reject) =>
@@ -34,9 +31,7 @@ class FileUploadTask extends Task
         returnsModel: true
         formData: @_formData()
         success: (json) => @_onUploadSuccess(json, resolve)
-        error: (apiError) =>
-          clearInterval(@progress)
-          reject(apiError)
+        error: reject
 
       @progress = setInterval =>
         Actions.uploadStateChanged(@_uploadData("progress"))
@@ -50,6 +45,22 @@ class FileUploadTask extends Task
     setTimeout =>
       Actions.fileAborted(@_uploadData("aborted"))
     , 1000 # To see the aborted state for a little bit
+    Promise.resolve()
+
+  onAPIError: (apiError) -> @_rollbackLocal()
+  onOtherError: (otherError) -> @_rollbackLocal()
+
+  onTimeoutError: -> Promise.resolve() # Do nothing. It could take a while.
+
+  onOfflineError: (offlineError) ->
+    msg = "You can't upload a file while you're offline."
+    @_rollbackLocal(msg)
+
+  _rollbackLocal: (msg) ->
+    clearInterval(@progress)
+    msg ?= "There was a problem uploading this file. Please try again later."
+    Actions.postNotification({message: msg, type: "error"})
+    Actions.uploadStateChanged @_uploadData("failed")
 
   _onUploadSuccess: (json, taskCallback) ->
     clearInterval(@progress)

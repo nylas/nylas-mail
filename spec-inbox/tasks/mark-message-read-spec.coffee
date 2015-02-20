@@ -16,7 +16,7 @@ describe "MarkMessageReadTask", ->
         email: 'dummy@inboxapp.com'
     @task = new MarkMessageReadTask(@message)
 
-  describe "rollbackLocal", ->
+  describe "_rollbackLocal", ->
     beforeEach ->
       spyOn(DatabaseStore, 'persistModel').andCallFake -> Promise.resolve()
 
@@ -31,17 +31,17 @@ describe "MarkMessageReadTask", ->
           email: 'dummy@inboxapp.com'
       @task = new MarkMessageReadTask(message)
       @task.performLocal()
-      @task.rollbackLocal()
+      @task._rollbackLocal()
       expect(message.unread).toBe(false)
 
     it "should mark the message as unread", ->
       @task.performLocal()
-      @task.rollbackLocal()
+      @task._rollbackLocal()
       expect(@message.unread).toBe(true)
 
     it "should trigger an action to persist the change", ->
       @task.performLocal()
-      @task.rollbackLocal()
+      @task._rollbackLocal()
       expect(DatabaseStore.persistModel).toHaveBeenCalled()
 
   describe "performLocal", ->

@@ -26,7 +26,7 @@ describe "AddRemoveTagsTask", ->
           new Tag({name: 'archive', id: 'archive'})
         ]
       task = new AddRemoveTagsTask(testThread.id, ['archive'], ['inbox'])
-      task.rollbackLocal()
+      task._rollbackLocal()
       waitsFor ->
         DatabaseStore.persistModel.callCount > 0
       runs ->

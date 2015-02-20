@@ -10,6 +10,7 @@ DraftStoreProxy = require './draft-store-proxy'
 ContenteditableToolbar = require './contenteditable-toolbar.cjsx'
 ContenteditableComponent = require './contenteditable-component.cjsx'
 ParticipantsTextField = require './participants-text-field.cjsx'
+idGen = 0
 
 
 # The ComposerView is a unique React component because it (currently) is a
@@ -185,14 +186,16 @@ ComposerView = React.createClass
 
   _footerComponents: ->
     (@state.FooterComponents ? []).map (Component) =>
-      <Component draftLocalId={@props.localId} />
+      idGen += 1
+      <Component key={Component.id ? idGen} draftLocalId={@props.localId} />
 
   _fileComponents: ->
     AttachmentComponent = @state.AttachmentComponent
     (@state.files ? []).map (file) =>
       <AttachmentComponent file={file}
-                         removable={true}
-                         messageLocalId={@props.localId} />
+                           key={file.filename}
+                           removable={true}
+                           messageLocalId={@props.localId} />
 
   _onDraftChanged: ->
     draft = @_proxy.draft()

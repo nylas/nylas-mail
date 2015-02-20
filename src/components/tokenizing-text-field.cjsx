@@ -12,7 +12,7 @@ Token = React.createClass
     select: React.PropTypes.func.isRequired,
     action: React.PropTypes.func,
     item: React.PropTypes.object,
-    
+
   configureDragDrop: (registerType) ->
     registerType('token', {
       dragSource:
@@ -116,7 +116,7 @@ TokenizingTextField = React.createClass
           />
 
   _fieldComponent: ->
-    <div onClick={@focus} {...@dropTargetFor('token')}>
+    <div key="field-component" onClick={@focus} {...@dropTargetFor('token')}>
       <div className="tokenizing-field-label">{"#{@props.prompt}:"}</div>
       <div className="tokenizing-field-input">
         {@_fieldTokenComponents()}

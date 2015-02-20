@@ -7,11 +7,11 @@ SaveDraftTask = require './save-draft'
 SendDraftTask = require './send-draft'
 FileUploadTask = require './file-upload-task'
 
+module.exports =
 class DestroyDraftTask extends Task
+  constructor: (@draftLocalId) -> super
 
-  constructor: (@draftLocalId) ->
-
-  shouldCancelUnstartedTask: (other) ->
+  shouldDequeueOtherTask: (other) ->
     (other instanceof SaveDraftTask and other.draftLocalId is @draftLocalId) or
     (other instanceof SendDraftTask and other.draftLocalId is @draftLocalId) or
     (other instanceof FileUploadTask and other.draftLocalId is @draftLocalId)
@@ -43,16 +43,25 @@ class DestroyDraftTask extends Task
           version: @draft.version
         returnsModel: false
         success: resolve
-        error: (apiError) ->
-          inboxMsg = apiError.body?.message ? ""
-          if inboxMsg.indexOf("No draft found") >= 0
-            # Draft has already been deleted, this is not really an error
-            resolve()
-          else if inboxMsg.indexOf("is not a draft") >= 0
-            # Draft has been sent, and can't be deleted. Not much we can
-            # do but finish
-            resolve()
-          else
-            reject(apiError)
+        error: reject
 
-module.exports = DestroyDraftTask
+  onAPIError: (apiError) ->
+    inboxMsg = apiError.body?.message ? ""
+    if inboxMsg.indexOf("No draft found") >= 0
+      # Draft has already been deleted, this is not really an error
+      return true
+    else if inboxMsg.indexOf("is not a draft") >= 0
+      # Draft has been sent, and can't be deleted. Not much we can
+      # do but finish
+      return true
+    else
+      @_rollbackLocal()
+
+  onOtherError: -> Promise.resolve()
+  onTimeoutError: -> Promise.resolve()
+  onOfflineError: -> Promise.resolve()
+
+  _rollbackLocal: (msg) ->
+    msg ?= "Unable to delete this draft. Restoring..."
+    Actions.postNotification({message: msg, type: "error"})
+    DatabaseStore.persistModel(@draft) if @draft?
