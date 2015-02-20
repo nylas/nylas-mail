@@ -43,8 +43,6 @@ class InboxAPI
           path: "/n"
           returnsModel: true
 
-      console.log(@_streamingConnections.length)
-
   _onNamespacesChanged: ->
     return unless atom.state.mode is 'editor'
     return if atom.getLoadSettings().isSpec
@@ -68,7 +66,6 @@ class InboxAPI
   _streamingConnectionForNamespace: (namespace) =>
     connection = _.find @_streamingConnections, (c) ->
       c.namespaceId() is namespace.id
-    console.log('Found existing connection') if connection
     return connection if connection
 
     connection = new InboxLongConnection(@, namespace.id)
@@ -83,7 +80,7 @@ class InboxAPI
         Actions.restartTaskQueue()
 
     connection.onDeltas (deltas) =>
-      @_handleDeltas(namespace.id, deltas)
+      @_handleDeltas(deltas)
       Actions.restartTaskQueue()
 
     connection.start()
@@ -124,54 +121,67 @@ class InboxAPI
         @_handleModelResponse(body) if options.returnsModel
         options.success(body) if options.success
 
-  _handleDeltas: (namespaceId, deltas) ->
-    console.log("Processing deltas:")
+  _handleDeltas: (deltas) ->
+    console.log("Processing Deltas")
 
-    # Group deltas by object type so we can mutate our local cache efficiently
-    deltasByObject = {}
-    deltasDeletions = []
+    # Group deltas by object type so we can mutate the cache efficiently
+    create = {}
+    modify = {}
+    destroy = []
     for delta in deltas
-      if delta.event is 'delete'
-        deltasDeletions.push(delta)
-      else if delta.event is 'create' or delta.event is 'modify'
-        deltasByObject[delta.object] ||= []
-        deltasByObject[delta.object].push(delta.attributes)
+      if delta.event is 'create'
+        create[delta.object] ||= []
+        create[delta.object].push(delta.attributes)
+      else if delta.event is 'modify'
+        modify[delta.object] ||= []
+        modify[delta.object].push(delta.attributes)
+      else if delta.event is 'delete'
+        destroy.push(delta)
 
-    # Remove events and contacts - we don't apply deltas to them
-    delete deltasByObject['contact']
-    delete deltasByObject['event']
+    # Apply all the deltas to create objects. Gets promises for handling
+    # each type of model in the `create` hash, waits for them all to resolve.
+    create[type] = @_handleModelResponse(items) for type, items of create
+    Promise.props(create).then (created) =>
+      if _.flatten(_.values(created)).length > 0
+        Actions.didPassivelyReceiveNewModels(created)
 
-    # Apply all the create / modfiy events by class
-    for object, items of deltasByObject
-      console.log(" + #{items.length} #{object}")
-      @_handleModelResponse(items)
+      # Apply all the deltas to modify objects. Gets promises for handling
+      # each type of model in the `modify` hash, waits for them all to resolve.
+      modify[type] = @_handleModelResponse(items) for type, items of modify
+      Promise.props(modify).then (modified) ->
 
-    # Apply all of the deletions
-    for delta in deltasDeletions
-      console.log(" - 1 #{delta.object} (#{delta.id})")
-      klass = modelClassMap()[delta.object]
-      return unless klass
-      DatabaseStore.find(klass, delta.id).then (model) ->
-        DatabaseStore.unpersistModel(model) if model
+        # Apply all of the deletions
+        for delta in destroy
+          console.log(" - 1 #{delta.object} (#{delta.id})")
+          klass = modelClassMap()[delta.object]
+          return unless klass
+          DatabaseStore.find(klass, delta.id).then (model) ->
+            DatabaseStore.unpersistModel(model) if model
 
   _defaultErrorCallback: (apiError) ->
     console.error("Unhandled Inbox API Error:", apiError.message, apiError)
 
   _handleModelResponse: (json) ->
-    throw new Error("handleModelResponse with no JSON provided") unless json
-    json = [json] unless json instanceof Array
+    new Promise (resolve, reject) =>
+      reject(new Error("handleModelResponse with no JSON provided")) unless json
 
-    async.filter json
-    , (json, callback) =>
-      @_shouldAcceptModel(json.object, json).then((-> callback(true)), (-> callback(false)))
-    , (json) ->
-      # Save changes to the database, which will generate actions
-      # that our views are observing.
-      objects = []
-      for objectJSON in json
-        objects.push(modelFromJSON(objectJSON))
-      DatabaseStore.persistModels(objects) if objects.length > 0
-
+      json = [json] unless json instanceof Array
+      async.filter json
+      , (item, filterCallback) =>
+        @_shouldAcceptModel(item.object, item).then ->
+          filterCallback(true)
+        .catch (e) ->
+          filterCallback(false)
+      , (json) ->
+        # Save changes to the database, which will generate actions
+        # that our views are observing.
+        objects = []
+        for objectJSON in json
+          objects.push(modelFromJSON(objectJSON))
+        if objects.length > 0
+          DatabaseStore.persistModels(objects)
+        resolve(objects)
+      
   _shouldAcceptModel: (classname, model = null) ->
     return Promise.resolve() unless model
 

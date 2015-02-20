@@ -14,18 +14,13 @@ AccountSidebarStore = Reflux.createStore
   sections: ->
     @_sections
 
-  unreadCounts: ->
-    @_unreadCounts
-
   selectedId: ->
     @_selectedId
-
 
   ########### PRIVATE ####################################################
 
   _setStoreDefaults: ->
     @_sections = []
-    @_unreadCounts = {}
     @_selectedId = null
 
   _registerListeners: ->
@@ -47,10 +42,13 @@ AccountSidebarStore = Reflux.createStore
       # Sort the main tags so they always appear in a standard order
       mainTags = _.sortBy mainTags, (tag) -> mainTagIDs.indexOf(tag.id)
 
+      lastSections = @_sections
       @_sections = [
         { label: namespace.emailAddress, tags: mainTags }
       ]
-      @_populateUnreadCounts()
+
+      if _.isEqual(@_sections, lastSections) is false
+        @_populateUnreadCounts()
       @trigger(@)
 
   _populateUnreadCounts: ->
@@ -66,10 +64,7 @@ AccountSidebarStore = Reflux.createStore
         atom.inbox.makeRequest
           method: 'GET'
           path: "/n/#{namespace.id}/tags/#{tag.id}"
-          success: (json) =>
-            tag = (new Tag).fromJSON(json)
-            @_unreadCounts[tag.id] = tag.unreadCount
-            @trigger(@)
+          returnsModel: true
 
   # Unfortunately, the joins necessary to compute unread counts are expensive.
   # Rather than update unread counts every time threads change in the database,

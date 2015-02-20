@@ -41,8 +41,9 @@ class SendDraftTask extends Task
             version: draft.version
           returnsModel: true
           success: ->
+            atom.playSound('mail_sent.ogg')
             Actions.postNotification({message: "Sent!", type: 'success'})
             DatabaseStore.unpersistModel(draft).then(resolve)
           error: reject
-
+  
 module.exports = SendDraftTask

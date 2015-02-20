@@ -17,7 +17,7 @@ PackageMain = proxyquire "../lib/main",
         releaseVersion: stubUpdaterReleaseVersion
         getState: -> stubUpdaterState
 
-fdescribe "NotificationUpdateAvailable", ->
+describe "NotificationUpdateAvailable", ->
   beforeEach ->
     stubUpdaterState = 'idle'
     stubUpdaterReleaseVersion = undefined

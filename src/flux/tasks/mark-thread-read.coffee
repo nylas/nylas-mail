@@ -10,8 +10,8 @@ _ = require 'underscore-plus'
 # thread is marked as read.
 class MarkThreadReadTask extends AddRemoveTagsTask
 
-  constructor: (@thread) ->
-    super(@thread, [], ['unread'])
+  constructor: (@threadId) ->
+    super(@threadId, [], ['unread'])
     @
 
   performLocal: ->
@@ -22,7 +22,7 @@ class MarkThreadReadTask extends AddRemoveTagsTask
         # tag change is executed on the server, all of the messages in the thread
         # will be marked as read. It looks bad to temporarily have unread messages
         # in a read thread...
-        DatabaseStore.findAll(Message, threadId: @thread.id).then (messages) ->
+        DatabaseStore.findAll(Message, threadId: @threadId).then (messages) ->
           messages = _.filter messages, (message) -> message.unread
           if messages.length > 0
             for message in messages

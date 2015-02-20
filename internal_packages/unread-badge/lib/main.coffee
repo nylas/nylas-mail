@@ -1,7 +1,7 @@
 module.exports =
 
   activate: ->
-    @store = require "./app-unread-badge-store"
+    @store = require "./unread-badge-store"
 
   deactivate: ->
 

@@ -57,7 +57,7 @@ class Thread extends Model
 
   markAsRead: ->
     MarkThreadReadTask = require '../tasks/mark-thread-read'
-    task = new MarkThreadReadTask(@)
+    task = new MarkThreadReadTask(@id)
     Actions.queueTask(task)
 
   star: ->
@@ -82,5 +82,5 @@ class Thread extends Model
   addRemoveTags: (tagIdsToAdd, tagIdsToRemove) ->
     # start web change, which will dispatch more actions
     AddRemoveTagsTask = require '../tasks/add-remove-tags'
-    task = new AddRemoveTagsTask(@, tagIdsToAdd, tagIdsToRemove)
+    task = new AddRemoveTagsTask(@id, tagIdsToAdd, tagIdsToRemove)
     Actions.queueTask(task)

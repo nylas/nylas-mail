@@ -1,5 +1,5 @@
 {
-  "name": "app-unread-badge",
+  "name": "unread-badge",
   "version": "0.1.0",
   "main": "./lib/main",
   "description": "Updates the Mac's app icon to display unread count",

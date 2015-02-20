@@ -35,7 +35,6 @@ AccountSidebar = React.createClass
       <SidebarTagItem
         key={tag.id}
         tag={tag}
-        unreadCount={@state.unreadCounts[tag.id]}
         select={tag?.id == @state?.selected}/>
 
   _onStoreChange: ->
@@ -44,7 +43,6 @@ AccountSidebar = React.createClass
       Actions.selectTagId("inbox")
 
   _getStateFromStores: ->
-    unreadCounts: SidebarStore.unreadCounts()
     sections: SidebarStore.sections()
     selected: SidebarStore.selectedId()
 

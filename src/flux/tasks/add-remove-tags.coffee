@@ -8,7 +8,7 @@ async = require 'async'
 
 class AddRemoveTagsTask extends Task
 
-  constructor: (@thread, @tagIdsToAdd = [], @tagIdsToRemove = []) ->
+  constructor: (@threadId, @tagIdsToAdd = [], @tagIdsToRemove = []) ->
     @
 
   rollbackLocal: ->
@@ -16,39 +16,46 @@ class AddRemoveTagsTask extends Task
     a = @tagIdsToAdd
     @tagIdsToAdd = @tagIdsToRemove
     @tagIdsToRemove = a
-    @performLocal()
+    @performLocal(-1)
 
-  performLocal:  ->
+  performLocal:  (versionIncrement = 1) ->
     new Promise (resolve, reject) =>
-      unless @thread instanceof Thread
-        return reject(new Error("Attempt to call AddRemoveTagsTask.performLocal without Thread"))
+      return reject(new Error("Attempt to call AddRemoveTagsTask.performLocal without Thread")) unless @threadId
 
-      # remove tags in the remove list
-      @thread.tags = _.filter @thread.tags, (tag) =>
-        @tagIdsToRemove.indexOf(tag.id) == -1
+      DatabaseStore.find(Thread, @threadId).then (thread) =>
+        return resolve() unless thread
 
-      # add tags in the add list
-      async.map @tagIdsToAdd, (id, callback) ->
-        DatabaseStore.find(Tag, id).then (tag) ->
-          callback(null, tag)
-      , (err, tags) =>
-        for tag in tags
-          @thread.tags.push(tag) if tag
-        DatabaseStore.persistModel(@thread).then(resolve)
+        @namespaceId = thread.namespaceId
+        
+        # increment the thread version number
+        thread.version += versionIncrement
+
+        # remove tags in the remove list
+        thread.tags = _.filter thread.tags, (tag) =>
+          @tagIdsToRemove.indexOf(tag.id) == -1
+
+        # add tags in the add list
+        async.map @tagIdsToAdd, (id, callback) ->
+          DatabaseStore.find(Tag, id).then (tag) ->
+            callback(null, tag)
+        , (err, tags) ->
+          for tag in tags
+            thread.tags.push(tag) if tag
+          DatabaseStore.persistModel(thread).then(resolve)
 
 
   performRemote: ->
     new Promise (resolve, reject) =>
       # queue the operation to the server
       atom.inbox.makeRequest {
-        path: "/n/#{@thread.namespaceId}/threads/#{@thread.id}"
+        path: "/n/#{@namespaceId}/threads/#{@threadId}"
         method: 'PUT'
         body: {
           add_tags: @tagIdsToAdd,
           remove_tags: @tagIdsToRemove
         }
         returnsModel: true
-        success: -> resolve()
+        success: resolve
         error: (apiError) =>
           if "archive" in @tagIdsToAdd
             Actions.postNotification({message: "Failed to archive thread: '#{@thread.subject}'", type: 'error'})

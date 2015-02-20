@@ -7,6 +7,7 @@ Reflux = require 'reflux'
 
 globalActions = [
   "didSwapModel",
+  "didPassivelyReceiveNewModels",
   "logout",
 
   # File Actions

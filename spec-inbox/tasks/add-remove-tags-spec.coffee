@@ -5,29 +5,45 @@ Thread = require '../../src/flux/models/thread'
 Tag = require '../../src/flux/models/tag'
 _ = require 'underscore-plus'
 
+testThread = null
+
 describe "AddRemoveTagsTask", ->
   beforeEach ->
     spyOn(DatabaseStore, 'persistModel').andCallFake -> Promise.resolve()
     spyOn(DatabaseStore, 'find').andCallFake (klass, id) =>
-      new Promise (resolve, reject) => resolve(new Tag({id: id, name: id}))
+      if klass is Thread
+        Promise.resolve(testThread)
+      else if klass is Tag
+        Promise.resolve(new Tag({id: id, name: id}))
+      else
+        throw new Error("Not stubbed!")
 
   describe "rollbackLocal", ->
     it "should perform the opposite changes to the thread", ->
-      thread = new Thread
+      testThread = new Thread
+        id: 'thread-id'
         tags: [
           new Tag({name: 'archive', id: 'archive'})
         ]
-      task = new AddRemoveTagsTask(thread, ['archive'], ['inbox'])
+      task = new AddRemoveTagsTask(testThread.id, ['archive'], ['inbox'])
       task.rollbackLocal()
       waitsFor ->
         DatabaseStore.persistModel.callCount > 0
       runs ->
-        expect(thread.tagIds()).toEqual(['inbox'])
+        expect(testThread.tagIds()).toEqual(['inbox'])
 
   describe "performLocal", ->
-    it "should throw an exception if task has not been given a thread", ->
-      badTasks = [new AddRemoveTagsTask(), new AddRemoveTagsTask(new Object)]
-      goodTasks = [new AddRemoveTagsTask(new Thread)]
+    beforeEach ->
+      testThread = new Thread
+        id: 'thread-id'
+        tags: [
+          new Tag({name: 'inbox', id: 'inbox'}),
+          new Tag({name: 'unread', id: 'unread'})
+        ]
+
+    it "should throw an exception if task has not been given a thread ID", ->
+      badTasks = [new AddRemoveTagsTask()]
+      goodTasks = [new AddRemoveTagsTask(testThread.id)]
       caught = []
       succeeded = []
 
@@ -37,59 +53,66 @@ describe "AddRemoveTagsTask", ->
           .then -> succeeded.push(task)
           .catch (err) -> caught.push(task)
       waitsFor ->
-        succeeded.length + caught.length == 3
+        succeeded.length + caught.length == 2
       runs ->
         expect(caught).toEqual(badTasks)
         expect(succeeded).toEqual(goodTasks)
 
     it "should trigger a persist action to commit changes to the thread to the local store", ->
-      task = new AddRemoveTagsTask(new Thread(), [], [])
+      task = new AddRemoveTagsTask(testThread.id, [], [])
       task.performLocal()
-      expect(DatabaseStore.persistModel).toHaveBeenCalled()
-
-    it "should remove the tag IDs passed to the task", ->
-      thread = new Thread
-        tags: [
-          new Tag({name: 'inbox', id: 'inbox'}),
-          new Tag({name: 'unread', id: 'unread'})
-        ]
-      task = new AddRemoveTagsTask(thread, [], ['unread'])
-      task.performLocal().catch (err) -> console.log(err.stack)
-      expect(thread.tagIds().length).toBe(1)
-      expect(thread.tagIds()[0]).toBe('inbox')
-
-    it "should add the tag IDs passed to the task", ->
-      thread = new Thread
-        tags: [
-          new Tag({name: 'inbox', id: 'inbox'})
-        ]
-      task = new AddRemoveTagsTask(thread, ['archive'], ['inbox'])
-      task.performLocal().catch (err) -> console.log(err.stack)
       waitsFor ->
         DatabaseStore.persistModel.callCount > 0
       runs ->
-        expect(thread.tagIds().length).toBe(1)
-        expect(thread.tagIds()[0]).toBe('archive')
+        expect(DatabaseStore.persistModel).toHaveBeenCalled()
+
+    it "should remove the tag IDs passed to the task", ->
+      task = new AddRemoveTagsTask(testThread.id, [], ['unread'])
+      task.performLocal()
+      waitsFor ->
+        DatabaseStore.persistModel.callCount > 0
+      runs ->
+        expect(testThread.tagIds().length).toBe(1)
+        expect(testThread.tagIds()[0]).toBe('inbox')
+
+    it "should add the tag IDs passed to the task", ->
+      testThread = new Thread
+        id: 'thread-id'
+        tags: [
+          new Tag({name: 'inbox', id: 'inbox'})
+        ]
+      task = new AddRemoveTagsTask(testThread.id, ['archive'], ['inbox'])
+      task.performLocal()
+      waitsFor ->
+        DatabaseStore.persistModel.callCount > 0
+      runs ->
+        expect(testThread.tagIds().length).toBe(1)
+        expect(testThread.tagIds()[0]).toBe('archive')
 
 
   describe "performRemote", ->
     beforeEach ->
-      @thread = new Thread
+      testThread = new Thread
         id: '1233123AEDF1'
         namespaceId: 'A12ADE'
-      @task = new AddRemoveTagsTask(@thread, ['archive'], ['inbox'])
+      @task = new AddRemoveTagsTask(testThread.id, ['archive'], ['inbox'])
 
     it "should start an API request with the Draft JSON", ->
       spyOn(atom.inbox, 'makeRequest')
-      @task.performRemote().catch (err) -> console.log(err.stack)
-      options = atom.inbox.makeRequest.mostRecentCall.args[0]
-      expect(options.path).toBe("/n/#{@thread.namespaceId}/threads/#{@thread.id}")
-      expect(options.method).toBe('PUT')
-      expect(options.body.add_tags[0]).toBe('archive')
-      expect(options.body.remove_tags[0]).toBe('inbox')
+      @task.performLocal()
+      waitsFor ->
+        DatabaseStore.persistModel.callCount > 0
+      runs ->
+        @task.performRemote()
+        options = atom.inbox.makeRequest.mostRecentCall.args[0]
+        expect(options.path).toBe("/n/#{testThread.namespaceId}/threads/#{testThread.id}")
+        expect(options.method).toBe('PUT')
+        expect(options.body.add_tags[0]).toBe('archive')
+        expect(options.body.remove_tags[0]).toBe('inbox')
 
     it "should pass returnsModel:true so that the draft is saved to the data store when returned", ->
       spyOn(atom.inbox, 'makeRequest')
-      @task.performRemote().catch (err) -> console.log(err.stack)
+      @task.performLocal()
+      @task.performRemote()
       options = atom.inbox.makeRequest.mostRecentCall.args[0]
       expect(options.returnsModel).toBe(true)

@@ -1,6 +1,6 @@
 Reflux = require 'reflux'
 _ = require 'underscore-plus'
-{DatabaseStore, NamespaceStore, Actions, Thread} = require 'inbox-exports'
+{DatabaseStore, NamespaceStore, Actions, Tag} = require 'inbox-exports'
 remote = require 'remote'
 app = remote.require 'app'
 
@@ -14,23 +14,17 @@ AppUnreadBadgeStore = Reflux.createStore
     @_onDataChanged()
 
   _onDataChanged: (change) ->
-    return if change && change.objectClass != Thread.name
+    return if change && change.objectClass != Tag.name
     return app.dock?.setBadge?("") unless NamespaceStore.current()
-    @_updateBadgeDebounced()
+    @_updateBadge()
 
   _updateBadge: ->
-    DatabaseStore.count(Thread, [
-      Thread.attributes.namespaceId.equal(NamespaceStore.current()?.id),
-      Thread.attributes.unread.equal(true),
-      Thread.attributes.tags.contains('inbox')
-    ]).then (count) ->
+    DatabaseStore.find(Tag, 'inbox').then (inbox) ->
+      return unless inbox
+      count = inbox.unreadCount
       if count > 999
         app.dock?.setBadge?("\u221E")
       else if count > 0
         app.dock?.setBadge?("#{count}")
       else
         app.dock?.setBadge?("")
-
-  _updateBadgeDebounced: _.debounce ->
-    @_updateBadge()
-  , 750
