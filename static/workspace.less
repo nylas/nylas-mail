@@ -1,0 +1,105 @@
+@import "ui-variables";
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: @font-family;
+  font-size: @font-size;
+}
+
+atom-workspace {
+  display: block;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  font-family: @font-family;
+
+  atom-workspace-axis.horizontal {
+    display: -webkit-flex;
+    height: 100%;
+  }
+
+  atom-workspace-axis.vertical {
+    display: -webkit-flex;
+    -webkit-flex: 1;
+    -webkit-flex-flow: column;
+  }
+}
+
+.sheet-container {
+  height:100%;
+}
+
+.sheet-stack-enter {
+  left:100%;
+  transition: left .20s ease-out;
+}
+
+.sheet-stack-enter.sheet-stack-enter-active {
+  left:0;
+}
+
+.sheet-stack-leave {
+  left:0;
+  transition: left .20s ease-in;
+}
+
+.sheet-stack-leave.sheet-stack-leave-active {
+  left:100%;
+}
+
+.toolbar-container {
+  background: @toolbar-background-color;
+  border-bottom: 1px solid @border-color-divider;
+
+  .toolbar {
+    width:100%;
+    height:50px;
+
+    .btn {
+      height:34px;
+      margin-top: (50px - 34px) / 2;
+
+      background: @btn-toolbar-bg;
+      color: @btn-toolbar-color;
+      border: 1px solid @btn-toolbar-border;
+      border-radius: @border-radius-base;
+
+      box-shadow: @standard-shadow;
+      line-height: @line-height-computed;
+      padding-left: @padding-base-horizontal;
+      padding-right: @padding-base-horizontal;
+      margin-right: @padding-base-horizontal;
+      margin-left: @padding-base-horizontal;
+    }
+
+    .btn:active {
+      background: darken(@btn-toolbar-bg, 10%);
+      box-shadow: none;
+    }
+  }
+}
+
+.flexbox-handle-horizontal {
+  width:6px;
+  top:0;
+  bottom:0;
+  z-index:2;
+  position:absolute;
+  cursor: col-resize;
+  div {
+    height:100%;
+    border-right: 1px solid @border-color-divider;
+  }
+
+  &.flexbox-handle-right {
+    right:-3px;
+    padding-right:3px;
+  }
+  &.flexbox-handle-left {
+    left:-3px;
+    padding-right:2px;
+  }
+}

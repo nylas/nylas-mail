@@ -146,9 +146,6 @@ class Atom extends Model
   # Public: A {ViewRegistry} instance
   views: null
 
-  # Public: A {Workspace} instance
-  workspace: null
-
   ###
   Section: Construction and Destruction
   ###
@@ -471,7 +468,6 @@ class Atom extends Model
     setImmediate =>
       @show()
       @focus()
-      @setFullScreen(true) if @workspace.fullScreen
       @maximize() if maximize
 
   # Get the dimensions of this window.
@@ -719,16 +715,21 @@ class Atom extends Model
   ###
 
   deserializeWorkspaceView: ->
-    Workspace = require './workspace-edgehill'
-
+    # Put state back into store
     startTime = Date.now()
-    @workspace = Workspace.deserialize(@state.edgehillWorkspace) ? new Workspace
-
-    @workspaceElement = @views.getView(@workspace)
+    Workspace = require './workspace-edgehill'
+    #@workspace = Workspace.deserialize(@state.edgehillWorkspace) ? new Workspace
+    @workspace = new Workspace
     @deserializeTimings.workspace = Date.now() - startTime
 
-    @keymaps.defaultTarget = @workspaceElement
-    document.querySelector(@workspaceViewParentSelector).appendChild(@workspaceElement)
+    SheetContainer = require './sheet-container'
+    @item = document.createElement("div")
+    @item.setAttribute("id", "sheet-container")
+    @item.setAttribute("class", "sheet-container")
+
+    React = require "react"
+    React.render(React.createElement(SheetContainer), @item)
+    document.querySelector(@workspaceViewParentSelector).appendChild(@item)
 
   deserializePackageStates: ->
     @packages.packageStates = @state.packageStates ? {}

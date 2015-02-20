@@ -18,19 +18,29 @@
   position: relative;
 
   .thread-list-item {
+    font-size: @font-size-base;
+    line-height: @line-height-large;
+    color: @text-color;
+    background: @list-bg;
+
+    .snippet, .timestamp {
+      font-size: @font-size-small;
+      color: @text-color-muted;
+    }
+
+    .no-subject {
+      color: @text-color-muted;
+    }
+
+    .participants {
+      font-weight: 500;
+    }
 
     &:hover {
-      background: @background-color-highlight;
+      background: @list-hover-bg;
     }
 
     &.unread:not(.selected) {
-      background-color: @background-color;
-      color: @text-color;
-
-      &:hover {
-        background: @background-color-highlight;
-      }
-
       &:before {
         content: "";
         position: absolute;
@@ -43,47 +53,26 @@
 
       .subject {
         color: @unread-color;
-      }
-
-      .participants {
-        .bold;
-      }
-
-      .subject {
-        .bold;
-      }
-
-      .snippet {
-        color: @black;
+        font-weight: 400;
       }
 
     }
 
     &.selected {
-      background: @background-color-selected;
-      color: @text-color-inverse;
+      background: @list-active-bg;
+      color: @list-active-color;
       .snippet {
-        color: @text-color-inverse-subtle;
+        color: @list-active-color-muted;
       }
       .no-subject {
-        color: @text-color-inverse-subtle;
+        color: @list-active-color-muted;
       }
       .message-time {
-        color: @text-color-inverse-subtle;
+        color: @list-active-color-muted;
       }
     }
-
-    .snippet {
-      font-size: @minor-font-size;
-      color: @text-color-subtle;
-    }
-    .no-subject {
-      color: @text-color-subtle;
-    }
   }
-}
 
-.thread-list {
   .star-button {
     font-size: 16px;
     .fa-star {
@@ -110,9 +99,6 @@
   overflow: hidden;
   position: relative;
 
-  .star-button {
-  }
-
   .thread-list-tabular-item {
     position: relative;
     width: 100%;
@@ -124,16 +110,17 @@
 
   .thread-rows {
     overflow: auto;
-    padding-top: 2.1em;
+    padding-top: @font-size-base * 2; /* height of thread-list-headers*/
   }
 
   .thread-list-column {
     // The width is set by React.
     display: inline-block;
-    padding: 5px 5px 5px 15px;
+    padding: @padding-base-vertical @padding-base-horizontal @padding-base-vertical @padding-base-horizontal;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    border-bottom: 1px solid @list-border;
 
     &:last-child {
       text-align: right;
@@ -144,10 +131,12 @@
     display: flex;
     position: absolute;
     width: 100%;
-    border-bottom: 2px solid @background-color-secondary;
     top: 0;
     position: absolute;
-    background: fade(@background-color,90%);
+    background: fade(@list-bg,90%);
+    font-size: @font-size-base;
+    line-height: @font-size-base * 1.6;
+    height:@font-size-base * 2;
     z-index: 3;
   }
 
@@ -159,56 +148,4 @@
     overflow: hidden;
   }
 
-}
-
-.thread-list-narrow {
-  .thread-list-narrow-item {
-    padding: 7px 15px 7px 15px;
-    overflow: hidden;
-    position: relative;
-    color: @text-color-subtle;
-
-    .star-button {
-      margin-right:0;
-      margin-left:5px;
-    }
-
-    .participants {
-      float: left;
-      width: 75%;
-      white-space: nowrap;
-      overflow: hidden;
-
-      .bold;
-      height:1.4em;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .thread-title {
-      &:hover {cursor: default;}
-      display: inline-block;
-      width: 100%;
-    }
-
-    .subject {
-      width: 100%;
-      display: block;
-    }
-
-    .message-time {
-      float: right;
-      padding-left: 7px;
-      padding-right: 5px;
-      padding-top: 1px;
-      font-size: @minor-font-size;
-      color: @text-color-subtle;
-    }
-
-    .preview-body {
-      &:hover {cursor: default;}
-      margin-top: -5px;
-    }
-
-  }
 }

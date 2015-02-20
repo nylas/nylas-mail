@@ -30,6 +30,18 @@ class ThemeManager
     stylesElement.onDidRemoveStyleElement @styleElementRemoved.bind(this)
     stylesElement.onDidUpdateStyleElement @styleElementUpdated.bind(this)
 
+    if atom.inDevMode()
+      console.log('In Dev Mode - Watching /static for LESS changes')
+      watchStylesIn = (folder) =>
+        stylePaths = fs.listTreeSync(folder)
+        PathWatcher = require 'pathwatcher'
+        for stylePath in stylePaths
+          continue unless path.extname(stylePath) is '.less'
+          PathWatcher.watch stylePath, =>
+            @activateThemes()
+      watchStylesIn("#{@resourcePath}/static")
+      watchStylesIn("#{@resourcePath}/internal_packages")
+
   styleElementAdded: (styleElement) ->
     {sheet} = styleElement
     @sheetsByStyleElement.set(styleElement, sheet)
@@ -262,11 +274,10 @@ class ThemeManager
     @userStyleSheetDisposable = atom.styles.addStyleSheet(userStylesheetContents, sourcePath: userStylesheetPath, priority: 2)
 
   loadBaseStylesheets: ->
-    @requireStylesheet('../static/bootstrap')
     @reloadBaseStylesheets()
 
   reloadBaseStylesheets: ->
-    @requireStylesheet('../static/atom')
+    @requireStylesheet('../static/index')
     if nativeStylesheetPath = fs.resolveOnLoadPath(process.platform, ['css', 'less'])
       @requireStylesheet(nativeStylesheetPath)
 

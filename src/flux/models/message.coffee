@@ -3,10 +3,7 @@ _ = require 'underscore-plus'
 File = require './file'
 Model = require './model'
 Contact = require './contact'
-Actions = require '../actions'
 Attributes = require '../attributes'
-MarkMessageReadTask = require '../tasks/mark-message-read'
-{generateTempId} = require './utils'
 
 class Message extends Model
 
@@ -100,10 +97,6 @@ class Message extends Model
       file.namespaceId = @namespaceId
     return @
 
-  markAsRead: ->
-    task = new MarkMessageReadTask(@)
-    Actions.queueTask(task)
-
   # We calculate the list of participants instead of grabbing it from
   # a parent because it is a better source of ground truth, and saves us
   # from more dependencies.
@@ -117,13 +110,6 @@ class Message extends Model
 
   fileIds: ->
     _.map @files, (file) -> file.id
-
-  uploadFiles: (paths = []) ->
-    # TODO: DEPRECATE. MOVE TO STORE
-    FileUploadTask = require '../tasks/file-upload-task'
-    paths = [paths] if _.isString(paths)
-    for path in paths
-      Actions.queueTask(new FileUploadTask(path, @localId))
 
 
 module.exports = Message

@@ -73,9 +73,7 @@ module.exports =
           .catch(reject)
 
   _activateComposeButton: ->
-    unless @new_compose_button?
-      @new_compose_button = document.createElement("div")
-      @new_compose_button.setAttribute("id", "new-compose-button")
-      @new_compose_button.setAttribute("class", "new-compose-button")
-      atom.workspace.addColumnItem(@new_compose_button, "left-sidebar")
-      React.render(<NewComposeButton />, @new_compose_button)
+    ComponentRegistry.register
+      view: NewComposeButton
+      name: 'NewComposeButton'
+      role: 'Global:Toolbar'

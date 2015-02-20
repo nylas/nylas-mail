@@ -1,60 +1,54 @@
 @import "ui-variables";
 @import "ui-mixins";
 
-
 #account-sidebar {
   order: 2;
-
   height: 100%;
   overflow: auto;
-  padding-bottom: 2em;
 
-  background-color: @background-color-accent;
-
+  background-color: @source-list-bg;
+  box-shadow: inset -1px -2px 5px rgba(0, 0, 0, 0.22);
   -webkit-user-select: none;
 
   .item {
-    padding: 5px 15px 6px 15px;
+    color: @text-color-muted;
+    font-size: @font-size-small;
+    font-weight: 400;
+    padding-left: @padding-base-horizontal;
+    padding-right: @padding-base-horizontal;
+    line-height: @line-height-large;
   }
 
   .item-divider {
     color:#586870;
-    .bold();
     padding-top: 1em;
     padding-bottom: 0.25em;
   }
 
   .item-tag {
-    color: fade(@text-color-inverse, 70%);
-    font-size: @font-size;
-
-    .name {
-      text-transform: lowercase;
-      font-family: @font-family-smallcap;
-      letter-spacing: 0.6px;
-    }
     .unread {
       display: inline;
       float: right;
-      opacity: 0.3;
-      margin-left: 1em;
+      vertical-align: baseline;
+      background: @source-list-bg;
+      margin-top: floor(@line-height-large - @line-height-small)/2.1;
+      line-height: @line-height-small;
+      padding: @padding-xs-vertical @padding-xs-horizontal @padding-xs-vertical @padding-xs-horizontal;
+      color: @source-list-active-bg;
+      border-radius: @border-radius-small;
+      font-weight: 500;
     }
     &.selected {
-      background: @background-color-selected;
-      color: @text-color-inverse;
-
-      .name {
-        font-family: @font-family-smallcap;
-        letter-spacing: 0.6px;
-      }
+      background: @source-list-active-bg;
+      color: @source-list-active-color;
 
       &:hover {
-        background: darken(@background-color-selected, 5%);
+        background: @source-list-active-bg;
       }
     }
 
     &:hover {
-      background: darken(@background-color-accent, 5%);
+      background: darken(@source-list-bg, 5%);
       cursor: pointer;
     }
   }

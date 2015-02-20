@@ -14,5 +14,5 @@ atom.startEditorWindow()
 # Workaround for focus getting cleared upon window creation
 windowFocused = ->
   window.removeEventListener('focus', windowFocused)
-  setTimeout (-> document.querySelector('atom-workspace').focus()), 0
+  setTimeout (-> document.getElementById('sheet-container').focus()), 0
 window.addEventListener('focus', windowFocused)

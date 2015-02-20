@@ -88,8 +88,10 @@ windowActions = [
   "fetchAndOpenFile",
   "fetchAndSaveFile",
   "fetchFile",
-  "abortDownload"
-  "fileDownloaded"
+  "abortDownload",
+  "fileDownloaded",
+
+  "popSheet"
 ]
 
 allActions = [].concat(windowActions).concat(globalActions).concat(mainWindowActions)

@@ -1,3 +1,345 @@
+//
+// Variables
+// --------------------------------------------------
+
+// Mostly drawn from Bootstrap's variables.less
+
+//== Colors
+//
+//## Gray and brand colors for use across Bootstrap.
+
+@gray-base:              #0a0b0c;
+@gray-darker:            lighten(@gray-base, 13.5%); // #222
+@gray-dark:              lighten(@gray-base, 20%);   // #333
+@gray:                   lighten(@gray-base, 33.5%); // #555
+@gray-light:             lighten(@gray-base, 46.7%); // #777
+@gray-lighter:           lighten(@gray-base, 92.5%); // #eee
+
+@brand-primary:         #428bca;
+@brand-success:         #5cb85c;
+@brand-info:            #5bc0de;
+@brand-warning:         #f0ad4e;
+@brand-danger:          #d9534f;
+
+
+//== Scaffolding
+//
+//## Settings for some of the most global styles.
+
+//** Background color for `<body>`.
+@body-bg:               #fff;
+//** Global text color on `<body>`.
+@text-color:            @gray-dark;
+@text-muted:            @gray-light;
+
+//** Global textual link color.
+@link-color:            @brand-primary;
+//** Link hover color set via `darken()` function.
+@link-hover-color:      darken(@link-color, 15%);
+//** Link hover decoration.
+@link-hover-decoration: underline;
+
+
+
+//== Panels and Sidebars
+//
+//
+@panel-background-color: @gray-lighter;
+@toolbar-background-color: @gray-lighter;
+
+
+//== Typography
+//
+//## Font, line-height, and color for body text, headings, and more.
+
+@font-face {
+  font-family: 'FaktPro';
+  font-style: normal;
+  font-weight: 400;
+  src: local('FaktPro-Normal'), url('fonts/Fakt/FaktPro-Normal.ttf'), local('Comic Sans MS');
+}
+
+@font-face {
+  font-family: 'FaktPro';
+  font-style: normal;
+  font-weight: 500;
+  src: local('FaktPro-Medium'), url('fonts/Fakt/FaktPro-Medium.ttf'), local('Comic Sans MS');
+}
+
+@font-face {
+  font-family: 'FaktPro';
+  font-style: normal;
+  font-weight: 600;
+  src: local('FaktPro-SemiBold'), url('fonts/Fakt/FaktPro-SemiBold.ttf'), local('Comic Sans MS');
+}
+
+@font-family-sans-serif:  "FaktPro", "Helvetica", 'Lucida Grande', 'Segoe UI', sans-serif;
+@font-family-smallcap:    "Proxima Nova Regular Small Cap", "sans-serif";
+@font-family-serif:       Georgia, "Times New Roman", Times, serif;
+@font-family-monospace:   Menlo, Monaco, Consolas, "Courier New", monospace;
+@font-family-base:        @font-family-sans-serif;
+@font-family:             @font-family-sans-serif;
+
+@font-size-base:          15px;
+@font-size-large:         ceil((@font-size-base * 1.25)); // ~18px
+@font-size-small:         ceil((@font-size-base * 0.85)); // ~12px
+
+@font-size-h1:            floor((@font-size-base * 2.6)); // ~36px
+@font-size-h2:            floor((@font-size-base * 2.15)); // ~30px
+@font-size-h3:            ceil((@font-size-base * 1.7)); // ~24px
+@font-size-h4:            ceil((@font-size-base * 1.25)); // ~18px
+@font-size-h5:            @font-size-base;
+@font-size-h6:            ceil((@font-size-base * 0.85)); // ~12px
+
+//** Unit-less `line-height` for use in components like buttons.
+@line-height-base:        1.428571429; // 20/14
+//** Computed "line-height" (`font-size` * `line-height`) for use with `margin`, `padding`, etc.
+@line-height-computed:    floor((@font-size-base * @line-height-base)); // ~20px
+
+//** By default, this inherits from the `<body>`.
+@headings-font-family:    inherit;
+@headings-font-weight:    500;
+@headings-line-height:    1.1;
+@headings-color:          inherit;
+
+
+//== Iconography
+//
+//## Specify custom location and filename of the included Glyphicons icon font. Useful for those including Bootstrap via Bower.
+
+//** Load fonts from this directory.
+@icon-font-path:          "../fonts/";
+//** File name for all font files.
+@icon-font-name:          "glyphicons-halflings-regular";
+//** Element ID within SVG icon file.
+@icon-font-svg-id:        "glyphicons_halflingsregular";
+
+
+//== Components
+//
+//## Define common padding and border radius sizes and more. Values based on 14px text and 1.428 line-height (~20px to start).
+
+@padding-base-vertical:     6px;
+@padding-base-horizontal:   12px;
+
+@padding-large-vertical:    10px;
+@padding-large-horizontal:  16px;
+
+@padding-small-vertical:    5px;
+@padding-small-horizontal:  10px;
+
+@padding-xs-vertical:       1px;
+@padding-xs-horizontal:     5px;
+
+@line-height-large:         @line-height-computed * 1.3;
+@line-height-small:         @line-height-computed * 0.95;
+
+@border-radius-base:        4px;
+@border-radius-large:       6px;
+@border-radius-small:       3px;
+
+//** Global color for active items (e.g., navs or dropdowns).
+@component-active-color:    #fff;
+//** Global background color for active items (e.g., navs or dropdowns).
+@component-active-bg:       #3a3e44;
+
+//== Tables
+//
+//## Customizes the `.table` component with basic values, each used across all table variations.
+
+//** Padding for `<th>`s and `<td>`s.
+@table-cell-padding:            8px;
+//** Padding for cells in `.table-condensed`.
+@table-condensed-cell-padding:  5px;
+
+//** Default background color used for all tables.
+@table-bg:                      transparent;
+//** Background color used for `.table-striped`.
+@table-bg-accent:               #f9f9f9;
+//** Background color used for `.table-hover`.
+@table-bg-hover:                #f5f5f5;
+@table-bg-active:               @table-bg-hover;
+
+//** Border color for table and cell borders.
+@table-border-color:            #ddd;
+
+
+//== Buttons
+//
+//## For each of Bootstrap's buttons, define text, background and border color.
+
+@btn-font-weight:                normal;
+
+@btn-toolbar-color:              #333;
+@btn-toolbar-bg:                 #fff;
+@btn-toolbar-border:             transparent;
+
+@btn-default-color:              #333;
+@btn-default-bg:                 #fff;
+@btn-default-border:             #ccc;
+
+@btn-primary-color:              #fff;
+@btn-primary-bg:                 @brand-primary;
+@btn-primary-border:             darken(@btn-primary-bg, 5%);
+
+@btn-success-color:              #fff;
+@btn-success-bg:                 @brand-success;
+@btn-success-border:             darken(@btn-success-bg, 5%);
+
+@btn-info-color:                 #fff;
+@btn-info-bg:                    @brand-info;
+@btn-info-border:                darken(@btn-info-bg, 5%);
+
+@btn-warning-color:              #fff;
+@btn-warning-bg:                 @brand-warning;
+@btn-warning-border:             darken(@btn-warning-bg, 5%);
+
+@btn-danger-color:               #fff;
+@btn-danger-bg:                  @brand-danger;
+@btn-danger-border:              darken(@btn-danger-bg, 5%);
+
+@btn-link-disabled-color:        @gray-light;
+
+
+//== Forms
+//
+//##
+
+//** `<input>` background color
+@input-bg:                       #fff;
+//** `<input disabled>` background color
+@input-bg-disabled:              @gray-lighter;
+
+//** Text color for `<input>`s
+@input-color:                    @gray;
+//** `<input>` border color
+@input-border:                   #ccc;
+
+// TODO: Rename `@input-border-radius` to `@input-border-radius-base` in v4
+//** Default `.form-control` border radius
+@input-border-radius:            @border-radius-base;
+//** Large `.form-control` border radius
+@input-border-radius-large:      @border-radius-large;
+//** Small `.form-control` border radius
+@input-border-radius-small:      @border-radius-small;
+
+//** Border color for inputs on focus
+@input-border-focus:             #66afe9;
+
+//** Placeholder text color
+@input-color-placeholder:        #999;
+
+//** Default `.form-control` height
+@input-height-base:              (@line-height-computed + (@padding-base-vertical * 2) + 2);
+//** Large `.form-control` height
+@input-height-large:             (ceil(@font-size-large * @line-height-large) + (@padding-large-vertical * 2) + 2);
+//** Small `.form-control` height
+@input-height-small:             (floor(@font-size-small * @line-height-small) + (@padding-small-vertical * 2) + 2);
+
+//** Background color for textual input addons
+@input-group-addon-bg:           @gray-lighter;
+//** Border color for textual input addons
+@input-group-addon-border-color: @input-border;
+
+
+//-- Z-index master list
+//
+// Warning: Avoid customizing these values. They're used for a bird's eye view
+// of components dependent on the z-axis and are designed to all work together.
+//
+// Note: These variables are not generated into the Customizer.
+
+@zindex-navbar:            1000;
+@zindex-dropdown:          1000;
+@zindex-popover:           1060;
+@zindex-tooltip:           1070;
+@zindex-navbar-fixed:      1030;
+@zindex-modal:             1040;
+
+//== Source List (used in Sidebar, iTunes-style)
+//
+// ##
+
+//** Background color on `.list-group-item`
+@source-list-bg:                 @panel-background-color;
+//** Text color of active list items
+@source-list-active-color:       @component-active-color;
+//** Background color of active list items
+@source-list-active-bg:          @component-active-bg;
+
+//== List
+//
+//##
+
+//** Background color on `.list-group-item`
+@list-bg:                 #fff;
+//** `.list-item` border color
+@list-border:             #ddd;
+//** List group border radius
+@list-border-radius:      @border-radius-base;
+
+//** Background color of single list items on hover
+@list-hover-bg:           #f5f5f5;
+//** Text color of active list items
+@list-active-color:       @component-active-color;
+//** Background color of active list items
+@list-active-bg:          @component-active-bg;
+//** Border color of active list elements
+@list-active-border:      @list-active-bg;
+//** Text color for content within active list items
+@list-active-color-muted:  lighten(@list-active-bg, 40%);
+
+//** Text color of disabled list items
+@list-disabled-color:      @gray-light;
+//** Background color of disabled list items
+@list-disabled-bg:         @gray-lighter;
+//** Text color for content within disabled list items
+@list-disabled-text-color: @list-disabled-color;
+
+//== Type
+//
+//##
+
+//** Horizontal offset for forms and lists.
+@component-offset-horizontal: 180px;
+//** Text muted color
+@text-color-muted:            @gray-light;
+
+//** Abbreviations and acronyms border color
+@abbr-border-color:           @gray-light;
+//** Headings small color
+@headings-small-color:        @gray-light;
+//** Blockquote small color
+@blockquote-small-color:      @gray-light;
+//** Blockquote font size
+@blockquote-font-size:        (@font-size-base * 1.25);
+//** Blockquote border color
+@blockquote-border-color:     @gray-lighter;
+
+
+//== Form states and alerts
+//
+//## Define colors for form feedback states and, by default, alerts.
+
+@state-success-text:             #3c763d;
+@state-success-bg:               #dff0d8;
+@state-success-border:           darken(spin(@state-success-bg, -10), 5%);
+
+@state-info-text:                #31708f;
+@state-info-bg:                  #d9edf7;
+@state-info-border:              darken(spin(@state-info-bg, -10), 7%);
+
+@state-warning-text:             #8a6d3b;
+@state-warning-bg:               #fcf8e3;
+@state-warning-border:           darken(spin(@state-warning-bg, -10), 5%);
+
+@state-danger-text:              #a94442;
+@state-danger-bg:                #f2dede;
+@state-danger-border:            darken(spin(@state-danger-bg, -10), 5%);
+
+/////
+
+
 // Private
 //
 // Do not use these colors outside of this file.
@@ -36,16 +378,13 @@
 
 // TEXT
 
-@unread-color: @light-blue;
+@unread-color: #009ec4; //!
 @action-color: @green;
 
-@text-color: @black;
 @text-color-highlight: @black;
 @text-color-selected: @white;
-@text-color-inverse: @white;
 @text-color-subtle: fadeout(@text-color, 50%);
-@text-color-inverse-subtle: fadeout(@text-color-inverse, 50%);
-
+@text-color-inverse: white;
 @text-color-info: @light-blue;
 @text-color-link: @light-blue;
 @text-color-success: @green;
@@ -119,10 +458,6 @@
 
 
 // Other
-@font-family: "Proxima Nova Regular", "Helvetica", 'Lucida Grande', 'Segoe UI', sans-serif;
-
-@font-family-smallcap: "Proxima Nova Regular Small Cap", "sans-serif";
 
 @standard-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.22);
-
 @standard-shadow-up: 0 -1px 2px 0 rgba(0, 0, 0, 0.22);

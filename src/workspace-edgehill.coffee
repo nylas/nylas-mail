@@ -1,19 +1,8 @@
-{deprecate} = require 'grim'
 _ = require 'underscore-plus'
-{join} = require 'path'
 {Model} = require 'theorist'
 Q = require 'q'
 Serializable = require 'serializable'
-Delegator = require 'delegato'
 {Emitter, Disposable, CompositeDisposable} = require 'event-kit'
-Grim = require 'grim'
-PaneContainer = require './pane-container'
-Pane = require './pane'
-Panel = require './panel'
-PanelElement = require './panel-element'
-PanelContainer = require './panel-container'
-PanelContainerElement = require './panel-container-element'
-ViewRegistry = require './view-registry'
 WorkspaceElement = require './workspace-element-edgehill'
 
 # Essential: Represents the state of the user interface for the entire window.
@@ -56,6 +45,7 @@ class Workspace extends Model
   updateWindowTitle: ->
     ## TODO we might want to put the unread count here in the future.
     document.title = "Edgehill"
+    atom.setRepresentedFilename("Edgehill")
 
   confirmClose: ->
     true
@@ -67,23 +57,5 @@ class Workspace extends Model
   # ----
   
   addColumnItem: (item, columnId="") ->
-    item = atom.views.getView(item)
-    container = atom.workspaceElement.horizontalAxis
-
-    if columnId.length > 0
-      parent = document.getElementById(columnId)
-      if not parent?
-        parent = document.createElement("div")
-        parent.setAttribute("id", columnId)
-        parent.setAttribute("class", "inbox-panel")
-        container.appendChild(parent)
-    else
-      parent = container
-
-    parent.appendChild(item)
-    return item
 
   addRow: (item) ->
-    item = atom.views.getView(item)
-    container = atom.workspaceElement.verticalAxis
-    container.appendChild(item)

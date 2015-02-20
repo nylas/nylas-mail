@@ -6,6 +6,7 @@ SidebarStore = require ("./account-sidebar-store")
 
 module.exports =
 AccountSidebar = React.createClass
+  displayName: 'AccountSidebar'
 
   getInitialState: ->
     @_getStateFromStores()
@@ -20,8 +21,10 @@ AccountSidebar = React.createClass
     @unsubscribe() if @unsubscribe
 
   render: ->
-    <div className="account-sidebar-sections">
-      {@_sections()}
+    <div id="account-sidebar" class="account-sidebar">
+      <div className="account-sidebar-sections">
+        {@_sections()}
+      </div>
     </div>
 
   _sections: ->
@@ -46,3 +49,6 @@ AccountSidebar = React.createClass
     sections: SidebarStore.sections()
     selected: SidebarStore.selectedId()
 
+
+AccountSidebar.minWidth = 150
+AccountSidebar.maxWidth = 250

@@ -40,20 +40,22 @@ MessageList = React.createClass
   render: ->
     return <div></div> if not @state.current_thread?
 
-    <div tabIndex=1 className="messages-wrap">
-      <div className="message-list-primary-actions">
-        {@_messageListPrimaryActions()}
-      </div>
+    <div class="message-list" id="message-list">
+      <div tabIndex=1 className="messages-wrap">
+        <div className="message-list-primary-actions">
+          {@_messageListPrimaryActions()}
+        </div>
 
-      <div className="message-list-notification-bars">
-        {@_messageListNotificationBars()}
-      </div>
+        <div className="message-list-notification-bars">
+          {@_messageListNotificationBars()}
+        </div>
 
-      <div className="title-and-messages">
-        {@_messageListHeaders()}
+        <div className="title-and-messages">
+          {@_messageListHeaders()}
 
-        <div className="message-components-wrap">
-          {@_messageComponents()}
+          <div className="message-components-wrap">
+            {@_messageComponents()}
+          </div>
         </div>
       </div>
     </div>
@@ -147,3 +149,7 @@ MessageList = React.createClass
         if contact? and contact.email?.length > 0
           participants[contact.email] = contact
     return _.values(participants)
+
+
+MessageList.minWidth = 600
+MessageList.maxWidth = 900

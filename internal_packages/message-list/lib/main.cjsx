@@ -29,37 +29,16 @@ module.exports =
       role: 'MessageListPrimaryAction'
       view: ArchiveButton
 
-    # Register Message Actions we provide globally
     ComponentRegistry.register
-      name: 'edgehill-msg-reply-button'
-      role: 'MessageAction'
-      view: ReplyButton
-    ComponentRegistry.register
-      name: 'edgehill-msg-reply-all-button'
-      role: 'MessageAction'
-      view: ReplyAllButton
-    ComponentRegistry.register
-      name: 'edgehill-msg-forward-button'
-      role: 'MessageAction'
-      view: ForwardButton
-
-    unless @item
-      @item = document.createElement("div")
-      @item.setAttribute("id", "message-list")
-      @item.setAttribute("class", "message-list")
-
-      atom.workspace.addColumnItem(@item, "message-and-composer")
-
-      React.render(<MessageList /> , @item)
+      name: 'MessageList'
+      role: 'ThreadList:Right'
+      view: MessageList
 
   deactivate: ->
     ComponentRegistry.unregister 'edgehill-reply-button'
     ComponentRegistry.unregister 'edgehill-reply-all-button'
     ComponentRegistry.unregister 'edgehill-forward-button'
     ComponentRegistry.unregister 'edgehill-archive-button'
-
-    React.unmountComponentAtNode(@item)
-    @item.remove()
-    @item = null
+    ComponentRegistry.unregister 'MessageList'
 
   serialize: -> @state

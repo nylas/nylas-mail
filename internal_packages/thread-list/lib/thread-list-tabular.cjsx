@@ -30,15 +30,17 @@ ThreadListTabular = React.createClass
     unlisten() for unlisten in @unlisteners
 
   render: ->
-    <div tabIndex=1
-         className="thread-list-container thread-list-tabular">
+    <div class="thread-list" id="thread-list">
+      <div tabIndex=1
+           className="thread-list-container thread-list-tabular">
 
-      <div className="thread-list-headers">
-        {@_threadHeaders()}
-      </div>
+        <div className="thread-list-headers">
+          {@_threadHeaders()}
+        </div>
 
-      <div className="thread-rows">
-        {@_threadRows()}
+        <div className="thread-rows">
+          {@_threadRows()}
+        </div>
       </div>
     </div>
 
@@ -83,7 +85,10 @@ ThreadListTabular = React.createClass
     c3 = new ThreadListColumn
       name: "Date"
       flex: 1
-      resolver: (thread, parentComponent) -> parentComponent.threadTime()
+      resolver: (thread, parentComponent) ->
+        <span className="timestamp">
+          {parentComponent.threadTime()}
+        </span>
 
     return [c0, c1, c2, c3]
 
@@ -116,3 +121,4 @@ ThreadListTabular = React.createClass
     for col in (@state.columns ? [])
       @_colFlex[col.name] = col.flex
     return @_colFlex
+
