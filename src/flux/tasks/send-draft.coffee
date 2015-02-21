@@ -31,7 +31,7 @@ class SendDraftTask extends Task
       # recent draft version
       DatabaseStore.findByLocalId(Message, @draftLocalId).then (draft) ->
         # The draft may have been deleted by another task. Nothing we can do.
-        return resolve() unless draft
+        return reject(new Error("We couldn't find the saved draft. Please try again in a couple seconds")) unless draft
         return reject(new Error("Cannot send draft that is not saved!")) unless draft.isSaved()
 
         atom.inbox.makeRequest
@@ -46,6 +46,7 @@ class SendDraftTask extends Task
             Actions.postNotification({message: "Sent!", type: 'success'})
             DatabaseStore.unpersistModel(draft).then(resolve)
           error: reject
+      .catch(reject)
 
   onAPIError: ->
     msg = "Our server is having problems. Your messages has NOT been sent"

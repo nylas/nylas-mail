@@ -138,3 +138,37 @@ describe "SendDraftTask", ->
           expect(atom.inbox.makeRequest.calls.length).toBe(1)
           options = atom.inbox.makeRequest.mostRecentCall.args[0]
           expect(options.returnsModel).toBe(true)
+
+  describe "failing performRemote", ->
+    beforeEach ->
+      @draft = new Message
+        version: '1'
+        id: '1233123AEDF1'
+        namespaceId: 'A12ADE'
+        subject: 'New Draft'
+        draft: true
+        to:
+          name: 'Dummy'
+          email: 'dummy@inboxapp.com'
+      @task = new SendDraftTask(@draft)
+
+    it "throws an error if the draft can't be found", ->
+      spyOn(DatabaseStore, 'findByLocalId').andCallFake (klass, localId) ->
+        Promise.resolve()
+      waitsForPromise =>
+        @task.performRemote().catch (error) ->
+          expect(error.message).toBeDefined()
+
+    it "throws an error if the draft isn't saved", ->
+      spyOn(DatabaseStore, 'findByLocalId').andCallFake (klass, localId) ->
+        Promise.resolve(isSaved: false)
+      waitsForPromise =>
+        @task.performRemote().catch (error) ->
+          expect(error.message).toBeDefined()
+
+    it "throws an error if the DB store has issues", ->
+      spyOn(DatabaseStore, 'findByLocalId').andCallFake (klass, localId) ->
+        Promise.reject("DB error")
+      waitsForPromise =>
+        @task.performRemote().catch (error) ->
+          expect(error).toBe "DB error"
