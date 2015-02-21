@@ -24,7 +24,6 @@ module.exports = (grunt) ->
         url: url
         json:
           username: "Edgehill Builds"
-          icon_emoji: ":shipit:"
           text: msg
       , (err, httpResponse, body) ->
         if err then reject(err)
