@@ -651,6 +651,7 @@ class Atom extends Model
     @emitter.emit 'did-beep'
 
   playSound: (filename) ->
+    return if @inSpecMode()
     {resourcePath} = atom.getLoadSettings()
     a = new Audio()
     a.src = path.join(resourcePath, 'static', 'sounds', filename)
