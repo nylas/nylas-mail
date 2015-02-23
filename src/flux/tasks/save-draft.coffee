@@ -35,8 +35,9 @@ class SaveDraftTask extends Task
 
     DatabaseStore.findByLocalId(Message, @draftLocalId).then (draft) =>
       if not draft?
-        errMsg = "Cannot persist changes to non-existent draft #{@draftLocalId}"
-        reject(new Error(errMsg))
+        # This can happen if a save draft task is queued after it has been
+        # destroyed. Nothing we can really do about it, so ignore this.
+        resolve()
       else if _.size(@changes) is 0
         resolve()
       else

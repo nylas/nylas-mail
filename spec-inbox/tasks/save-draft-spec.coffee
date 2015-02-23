@@ -67,6 +67,12 @@ describe "SaveDraftTask", ->
           newBody = DatabaseStore.persistModel.calls[0].args[0].body
           expect(newBody).toBe "test body"
 
+    it "does nothing if no draft can be found in the db", ->
+      task = new SaveDraftTask("missingDraftId")
+      waitsForPromise =>
+        task.performLocal().then ->
+          expect(DatabaseStore.persistModel).not.toHaveBeenCalled()
+
   describe "performRemote", ->
     beforeEach ->
       spyOn(atom.inbox, 'makeRequest').andCallFake (opts) ->
