@@ -7,7 +7,7 @@ ReactTestUtils = React.addons.TestUtils
  NamespaceStore,
  Contact,
 } = require 'inbox-exports'
-{TokenizingTextField} = require 'ui-components'
+{TokenizingTextField, Menu} = require 'ui-components'
 
 me = new Namespace
   name: 'Test User'
@@ -109,11 +109,26 @@ describe 'TokenizingTextField', ->
     it 'should not display items with keys matching items already in the token field', ->
       @completions = [participant2, participant4, participant1]
       ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'abc'}})
-      
+
       components = ReactTestUtils.scryRenderedComponentsWithType(@renderedField, CustomSuggestion)
       expect(components.length).toBe(1)
       expect(components[0].props.item).toBe(participant4)
-  
+
+    it 'should highlight the first completion', ->
+      @completions = [participant4, participant5]
+      ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'abc'}})
+      components = ReactTestUtils.scryRenderedComponentsWithType(@renderedField, Menu.Item)
+      menuItem = components[0]
+      expect(menuItem.props.selected).toBe true
+
+    it 'select the clicked element', ->
+      @completions = [participant4, participant5]
+      ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'abc'}})
+      components = ReactTestUtils.scryRenderedComponentsWithType(@renderedField, Menu.Item)
+      menuItem = components[0]
+      ReactTestUtils.Simulate.mouseDown(menuItem.getDOMNode())
+      expect(@propAdd).toHaveBeenCalledWith(participant4)
+
   ['enter', ','].forEach (key) ->
     describe "when the user presses #{key}", ->
       describe "and there is an completion available", ->

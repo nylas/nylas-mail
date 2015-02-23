@@ -69,7 +69,7 @@ MenuItem = React.createClass
     else
       className = "item"
       className += " selected" if @props.selected
-      <div className={className} key={@props.key} onClick={@props.onClick}>{@props.content}</div>
+      <div className={className} key={@props.key} onMouseDown={@props.onMouseDown}>{@props.content}</div>
 
 
 Menu = React.createClass
@@ -85,11 +85,11 @@ Menu = React.createClass
     onSelect: React.PropTypes.func.isRequired,
 
   getInitialState: ->
-    selectedIndex: -1
+    selectedIndex: 0
 
   getSelectedItem: ->
     @props.items[@state.selectedIndex]
-    
+
   componentDidMount: ->
     @subscriptions = new CompositeDisposable()
     @subscriptions.add atom.commands.add '.menu', {
@@ -108,11 +108,11 @@ Menu = React.createClass
       selectionKey = @props.itemKey(selection)
       newSelection = _.find newProps.items, (item) => @props.itemKey(item) is selectionKey
 
-    newSelectionIndex = -1
-    newSelectionIndex = newProps.items.indexOf(newSelection) if newSelection?
+      newSelectionIndex = -1
+      newSelectionIndex = newProps.items.indexOf(newSelection) if newSelection?
 
-    @setState
-      selectedIndex: newSelectionIndex
+      @setState
+        selectedIndex: newSelectionIndex
 
   componentWillUnmount: ->
     @subscriptions?.dispose()
@@ -140,12 +140,12 @@ Menu = React.createClass
     content = @props.itemContent(item)
     return content if content.type is MenuItem.type
 
-    onClick = (event) =>
+    onMouseDown = (event) =>
       event.preventDefault()
       @props.onSelect(item) if @props.onSelect
 
-    <MenuItem onClick={onClick} 
-              key={@props.itemKey(item)} 
+    <MenuItem onMouseDown={onMouseDown}
+              key={@props.itemKey(item)}
               content={content}
               selected={@state.selectedIndex is i} />
 
