@@ -105,5 +105,8 @@ ContenteditableComponent = React.createClass
       @props.html
     else
       quoteStart = @_htmlQuotedTextStart()
-      @props.html.substr(0, quoteStart) unless quoteStart is -1
+      if quoteStart is -1
+        return @props.html
+      else
+        return @props.html.substr(0, quoteStart)
 
