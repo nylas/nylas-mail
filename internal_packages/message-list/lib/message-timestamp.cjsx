@@ -6,9 +6,10 @@ MessageTimestamp = React.createClass
   displayName: 'MessageTimestamp'
   propTypes:
     date: React.PropTypes.object.isRequired,
+    className: React.PropTypes.string,
 
   render: ->
-    <div>{moment(@props.date).format(@_timeFormat())}</div>
+    <div className={@props.className}>{moment(@props.date).format(@_timeFormat())}</div>
 
   _timeFormat: ->
     today = moment(@_today())

@@ -44,7 +44,7 @@ MessageItem = React.createClass
 
     header =
       <header className="message-header" onClick={@_onToggleCollapsed}>
-        <MessageTimestamp date={@props.message.date} />
+        <MessageTimestamp className="message-time" date={@props.message.date} />
         <div className="message-actions">
           {<Action thread={@props.thread} message={@props.message} /> for Action in messageActions}
         </div>
