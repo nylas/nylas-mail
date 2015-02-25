@@ -167,12 +167,18 @@ EmailFrame = React.createClass
     # We had to break them out because we want to preserve <br> elements.
     lines = _.reject lines, (line) -> line == '\n'
 
+    regexs = [
+      /\n[ ]*(>|&gt;)/, # Plaintext lines beginning with >
+      /<[br|p][ ]*>[\n]?[ ]*[>|&gt;]/i, # HTML lines beginning with >
+      /[\n|>]On .* wrote:[\n|<]/, #On ... wrote: on it's own line
+    ]
     for ii in [lines.length-1..0] by -1
-      if (lines[ii].substr(0, 1) == '>' ||
-          lines[ii].substr(0, 4) == '\&gt;' ||
-          lines[ii].substr(0, 10) == '<p>\&gt; On')
-        lines.splice(ii+1,1) if lines[ii+1] == '<br>' # Remove following newline if it's a <br>
-        lines.splice(ii,1)
+      for regex in regexs
+        if lines[ii].match(regex)
+          lines.splice(ii,1)
+          # Remove following line if it's a <br>
+          lines.splice(ii,1) if lines[ii] is '<br>'
+          break
 
     # Return remaining compacted email body
     lines.join('\n')

@@ -63,8 +63,12 @@ class Message extends Model
       modelKey: 'version'
       queryable: true
 
+    'replyToMessageId': Attributes.String
+      modelKey: 'replyToMessageId'
+      jsonKey: 'reply_to_message_id'
+
   @naturalSortOrder: ->
-    Message.attributes.date.descending()
+    Message.attributes.date.ascending()
 
 
   constructor: ->

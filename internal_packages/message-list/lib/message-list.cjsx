@@ -115,6 +115,7 @@ MessageList = React.createClass
                          containerClass="message-item-wrap"/>
       else
         components.push <MessageItem key={message.id}
+                         thread={@state.current_thread}
                          message={message}
                          collapsed={collapsed}
                          thread_participants={@_threadParticipants()} />

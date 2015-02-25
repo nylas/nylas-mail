@@ -364,15 +364,15 @@ describe "ThreadListNarrow", ->
 
       it "can reply to the currently selected thread", ->
         atom.commands.dispatch(document.body, "application:reply")
-        expect(Actions.composeReply).toHaveBeenCalledWith(@thread.id)
+        expect(Actions.composeReply).toHaveBeenCalledWith(threadId: @thread.id)
 
       it "can reply all to the currently selected thread", ->
         atom.commands.dispatch(document.body, "application:reply-all")
-        expect(Actions.composeReplyAll).toHaveBeenCalledWith(@thread.id)
+        expect(Actions.composeReplyAll).toHaveBeenCalledWith(threadId: @thread.id)
 
       it "can forward the currently selected thread", ->
         atom.commands.dispatch(document.body, "application:forward")
-        expect(Actions.composeForward).toHaveBeenCalledWith(@thread.id)
+        expect(Actions.composeForward).toHaveBeenCalledWith(threadId: @thread.id)
 
       it "can archive the currently selected thread", ->
         atom.commands.dispatch(document.body, "application:archive-thread")

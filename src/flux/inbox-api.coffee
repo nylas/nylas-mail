@@ -125,6 +125,7 @@ class InboxAPI
         options.success(body) if options.success
 
   _handleDeltas: (deltas) ->
+    Actions.longPollReceivedRawDeltas(deltas)
     console.log("Processing Deltas")
 
     # Group deltas by object type so we can mutate the cache efficiently
@@ -158,9 +159,6 @@ class InboxAPI
           console.log(" - 1 #{delta.object} (#{delta.id})")
           klass = modelClassMap()[delta.object]
           continue unless klass
-          # TODO NEVER ACCEPT DRAFT DELETIONS BECAUSE THE SERVER GETS DELETE HAPPY
-          # WHEN YOU'RE COMPOSING A DRAFT. DELETE THIS ASAP
-          continue if klass is 'message'
           DatabaseStore.find(klass, delta.id).then (model) ->
             DatabaseStore.unpersistModel(model) if model
 

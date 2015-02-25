@@ -31,8 +31,9 @@ mainWindowActions = [
   # Actions for Tasks
   "queueTask",
   "dequeueTask",
-  "clearQueue",
+  "dequeueAllTasks",
   "longPollStateChanged",
+  "longPollReceivedRawDeltas",
   "longPollConnected",
   "longPollOffline",
   "didMakeAPIRequest",
@@ -42,9 +43,9 @@ mainWindowActions = [
 # all actions that are related to user interaction state belong here.
 
 windowActions = [
-  "developerPanelSelectSection",
-
   # Fired when a dialog is opened and a file is selected
+  "clearDeveloperConsole",
+
   "openPathsSelected",
   "savePathSelected",
 

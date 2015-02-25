@@ -79,7 +79,13 @@ utils =
     # I know this is gross - one day we'll replace it with a nice system.
     return false unless html
 
-    regexs = [/<blockquote/i, /\n[ ]*(>|&gt;)/, /<br[ ]*>[\n]?[ ]*[>|&gt;]/i, /.gmail_quote/]
+    regexs = [
+      /<blockquote/i, # blockquote element
+      /\n[ ]*(>|&gt;)/, # Plaintext lines beginning with >
+      /<[br|p][ ]*>[\n]?[ ]*[>|&gt;]/i, # HTML lines beginning with >
+      /[\n|>]On .* wrote:[\n|<]/, #On ... wrote: on it's own line
+      /.gmail_quote/ # gmail quote class class
+    ]
     for regex in regexs
       return true if html.match(regex)
     return false

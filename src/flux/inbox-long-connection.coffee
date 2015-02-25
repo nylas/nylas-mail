@@ -124,11 +124,13 @@ class InboxLongConnection
       @_req = req
       @_reqPingInterval = setInterval ->
         req.write("1")
-      ,500
+      ,250
 
   retry: ->
-    @end()
+    return if @_state is InboxLongConnection.State.Ended
     @setState(InboxLongConnection.State.Retrying)
+
+    @cleanup()
     setTimeout =>
       @start()
     , 10000
@@ -136,9 +138,14 @@ class InboxLongConnection
   end: ->
     console.log("Long Polling Connection: Closed.")
     @setState(InboxLongConnection.State.Ended)
+    @cleanup()
+
+  cleanup: ->
     clearInterval(@_reqPingInterval) if @_reqPingInterval
     @_reqPingInterval = null
-    @_req.end() if @_req
-    @_req = null
+    if @_req
+      @_req.end()
+      @_req.abort()
+      @_req = null
 
 module.exports = InboxLongConnection

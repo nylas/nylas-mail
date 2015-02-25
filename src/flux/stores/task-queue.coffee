@@ -21,11 +21,12 @@ TaskQueue = Reflux.createStore
 
     @_restoreQueueFromDisk()
 
-    @listenTo(Actions.queueTask,   @enqueue)
-    @listenTo(Actions.dequeueTask, @dequeue)
+    @listenTo(Actions.queueTask,       @enqueue)
+    @listenTo(Actions.dequeueTask,     @dequeue)
+    @listenTo(Actions.dequeueAllTasks, @dequeueAll)
+    @listenTo(Actions.logout,          @dequeueAll)
 
-    @listenTo(Actions.logout,     @clearQueue)
-    @listenTo(Actions.clearQueue, @clearQueue)
+    @listenTo(Actions.clearDeveloperConsole, @clearCompleted)
 
     # TODO
     # @listenTo(OnlineStatusStore, @_onOnlineChange)
@@ -72,10 +73,14 @@ TaskQueue = Reflux.createStore
     @_moveToCompleted(task)
     @_update() if not silent
 
-  clearQueue: ->
+  dequeueAll: ->
     for task in @_queue by -1
       @dequeue(task, silent: true) if task?
     @_update()
+
+  clearCompleted: ->
+    @_completed = []
+    @trigger()
 
   _processQueue: ->
     for task in @_queue by -1

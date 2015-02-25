@@ -36,6 +36,7 @@ MessageItem = React.createClass
       'hidden': !Utils.containsQuotedText(@props.message.body)
       'state-on': @state.showQuotedText
 
+    messageActions = ComponentRegistry.findAllViewsByRole('MessageAction')
     messageIndicators = ComponentRegistry.findAllViewsByRole('MessageIndicator')
     attachments = @_attachmentComponents()
     if attachments.length > 0
@@ -44,6 +45,9 @@ MessageItem = React.createClass
     header =
       <header className="message-header" onClick={@_onToggleCollapsed}>
         <div className="message-time">{@_messageTime()}</div>
+        <div className="message-actions">
+          {<Action thread={@props.thread} message={@props.message} /> for Action in messageActions}
+        </div>
         {<div className="message-indicator"><Indicator message={@props.message}/></div> for Indicator in messageIndicators}
         <MessageParticipants to={@props.message.to}
                              cc={@props.message.cc}

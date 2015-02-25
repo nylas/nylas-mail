@@ -11,7 +11,7 @@ module.exports =
   item: null # The DOM item the main React component renders into
 
   activate: (@state={}) ->
-    # Register components we provide globally
+    # Register Message List Actions we provide globally
     ComponentRegistry.register
       name: 'edgehill-reply-button'
       role: 'MessageListPrimaryAction'
@@ -28,6 +28,20 @@ module.exports =
       name: 'edgehill-archive-button'
       role: 'MessageListPrimaryAction'
       view: ArchiveButton
+
+    # Register Message Actions we provide globally
+    ComponentRegistry.register
+      name: 'edgehill-msg-reply-button'
+      role: 'MessageAction'
+      view: ReplyButton
+    ComponentRegistry.register
+      name: 'edgehill-msg-reply-all-button'
+      role: 'MessageAction'
+      view: ReplyAllButton
+    ComponentRegistry.register
+      name: 'edgehill-msg-forward-button'
+      role: 'MessageAction'
+      view: ForwardButton
 
     unless @item
       @item = document.createElement("div")

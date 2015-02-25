@@ -1,4 +1,5 @@
 _ = require 'underscore-plus'
+moment = require 'moment'
 
 Reflux = require 'reflux'
 DatabaseStore = require './database-store'
@@ -52,62 +53,66 @@ DraftStore = Reflux.createStore
     return unless containsDraft
     @trigger(change)
 
-  _onComposeReply: (threadId) ->
-    @_findLastMessageFromThread(threadId)
-    .then ({lastMessage, thread}) =>
-      @_createNewDraftFromThread thread,
-        quoted_text: lastMessage.body
-        to: lastMessage.from
+  _onComposeReply: (context) ->
+    @_newMessageWithContext context, (thread, message) ->
+      replyToMessageId: message.id
+      quotedMessage: message
+      to: message.from
 
-  _onComposeReplyAll: (threadId) ->
-    @_findLastMessageFromThread(threadId)
-    .then ({lastMessage, thread}) =>
-      cc = [].concat(lastMessage.cc, lastMessage.to).filter (p) ->
-        !_.contains([].concat(lastMessage.from, [NamespaceStore.current().me()]), p)
-      @_createNewDraftFromThread thread,
-        quoted_text: lastMessage.body
-        to: lastMessage.from
-        cc: cc
+  _onComposeReplyAll: (context) ->
+    @_newMessageWithContext context, (thread, message) ->
+      replyToMessageId: message.id
+      quotedMessage: message
+      to: message.from
+      cc: [].concat(message.cc, message.to).filter (p) ->
+        !_.contains([].concat(message.from, [NamespaceStore.current().me()]), p)
 
-  _onComposeForward: (threadId) ->
-    @_findLastMessageFromThread(threadId)
-    .then ({lastMessage, thread}) =>
-      @_createNewDraftFromThread thread,
-        subject: "Fwd: " + thread.subject
-        quoted_text: lastMessage.body
+  _onComposeForward: (context) ->
+    @_newMessageWithContext context, (thread, message) ->
+      subject: "Fwd: " + thread.subject
+      quotedMessage: message
 
-  _findLastMessageFromThread: (threadId) ->
-    new Promise (resolve, reject) ->
-      DatabaseStore.find(Thread, threadId).then (thread) ->
-        DatabaseStore.findAll(Message, threadId: threadId).then (msgs) ->
-          lastMessage = msgs[0]
-          if lastMessage? and thread?
-            resolve({lastMessage: lastMessage, thread: thread})
-          else
-            console.error("A last message couldn't be found for this thread", threadId)
-            reject(threadId)
-        .catch (args...) -> reject(args...)
-      .catch (args...) -> reject(args...)
+  _newMessageWithContext: ({threadId, messageId}, attributesCallback) ->
+    queries = {}
+    queries.thread = DatabaseStore.find(Thread, threadId)
+    if messageId?
+      queries.message = DatabaseStore.find(Message, messageId)
+    else
+      queries.message = DatabaseStore.findBy(Message, {threadId: threadId}).order(Message.attributes.date.descending()).limit(1)
 
-  _createNewDraftFromThread: (thread, attributes={}) ->
-    if attributes.quoted_text
-      attributes.body = """
-        <br><br>
-        <blockquote class="gmail_quote"
-          style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
-          #{attributes.quoted_text}
-        </blockquote>"""
-      delete attributes.quoted_text
+    # Waits for the query promises to resolve and then resolve with a hash
+    # of their resolved values. *swoon*
+    Promise.props(queries).then ({thread, message}) ->
+      attributes = attributesCallback(thread, message)
+      attributes.subject ?= thread.subject
 
-    draft = new Message _.extend {}, attributes,
-      from: [NamespaceStore.current().me()]
-      date: (new Date)
-      draft: true
-      subject: thread.subject
-      threadId: thread.id
-      namespaceId: thread.namespaceId
+      if attributes.quotedMessage
+        contact = attributes.quotedMessage.from[0] ? new Contact(name: 'Unknown', email:'Unknown')
+        quoteDate = moment(attributes.quotedMessage.date).format("MMM D YYYY, [at] h:mm a")
 
-    DatabaseStore.persistModel(draft)
+        if contact.name
+          quoteAttribution = "On #{quoteDate}, #{contact.name} <#{contact.email}> wrote:"
+        else
+          quoteAttribution = "On #{quoteDate}, #{contact.email} wrote:"
+
+        attributes.body = """
+          <br><br>
+          <blockquote class="gmail_quote"
+            style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
+            #{quoteAttribution}
+            <br>
+            #{attributes.quotedMessage.body}
+          </blockquote>"""
+        delete attributes.quotedMessage
+
+      draft = new Message _.extend {}, attributes,
+        from: [NamespaceStore.current().me()]
+        date: (new Date)
+        draft: true
+        threadId: thread.id
+        namespaceId: thread.namespaceId
+
+      DatabaseStore.persistModel(draft)
 
   # The logic to create a new Draft used to be in the DraftStore (which is
   # where it should be). It got moved to composer/lib/main.cjsx becaues

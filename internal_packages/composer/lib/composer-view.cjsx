@@ -222,6 +222,7 @@ ComposerView = React.createClass
     @_proxy.changes.add(body: event.target.value)
 
   _popoutComposer: ->
+    @_proxy.changes.commit()
     Actions.composePopoutDraft @props.localId
 
   _sendDraft: (options = {}) ->

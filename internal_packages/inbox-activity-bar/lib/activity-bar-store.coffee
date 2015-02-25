@@ -6,35 +6,45 @@ ActivityBarStore = Reflux.createStore
   init: ->
     @_setStoreDefaults()
     @_registerListeners()
-    @_section = "curl"
 
 
   ########### PUBLIC #####################################################
 
   curlHistory: -> @_curlHistory
 
-  expandedSection: -> @_section
-
   longPollState: -> @_longPollState
+
+  longPollHistory: -> @_longPollHistory
 
   ########### PRIVATE ####################################################
 
   _setStoreDefaults: ->
     @_curlHistory = []
+    @_longPollHistory = []
     @_longPollState = 'Unknown'
 
   _registerListeners: ->
     @listenTo Actions.didMakeAPIRequest, @_onAPIRequest
-    @listenTo Actions.developerPanelSelectSection, @_onSelectSection
+    @listenTo Actions.longPollReceivedRawDeltas, @_onLongPollDeltas
     @listenTo Actions.longPollStateChanged, @_onLongPollStateChange
-    @listenTo Actions.logout, @_onLogout
+    @listenTo Actions.clearDeveloperConsole, @_onClear
+    @listenTo Actions.logout, @_onClear
 
-  _onLogout: ->
-    @_setStoreDefaults()
+  _onClear: ->
+    @_curlHistory = []
+    @_longPollHistory = []
     @trigger(@)
 
-  _onSelectSection: (section) ->
-    @_section = section
+  _onLongPollDeltas: (deltas) ->
+    # Add a local timestamp to deltas so we can display it
+    now = new Date()
+    delta.timestamp = now for delta in deltas
+
+    # Incoming deltas are [oldest...newest]. Append them to the beginning
+    # of our internal history which is [newest...oldest]
+    @_longPollHistory.unshift(deltas.reverse()...)
+    if @_longPollHistory.length > 1000
+      @_longPollHistory.splice(1000, @_longPollHistory.length - 1000)
     @trigger(@)
 
   _onLongPollStateChange: (state) ->

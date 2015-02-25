@@ -4,19 +4,19 @@ React = require "react"
 positions =
   top:
     transform: (state, event) ->
-      height: state.bcr.bottom - Math.max(5, event.pageY) + "px"
+      height: state.bcr.bottom - Math.max(5, event.pageY)
     cursor: "ns-resize"
   bottom:
     transform: (state, event) ->
-      height: Math.max(state.initialHeight, event.pageY - state.bcr.top) + "px"
+      height: Math.max(state.initialHeight, event.pageY - state.bcr.top)
     cursor: "ns-resize"
   left:
     transform: (state, event) ->
-      width: Math.max(5, state.bcr.right - event.pageX) + "px"
+      width: Math.max(5, state.bcr.right - event.pageX)
     cursor: "ew-resize"
   right:
     transform: (state, event) ->
-      width: Math.max(5, - state.bcr.left + event.pageX) + "px"
+      width: Math.max(5, - state.bcr.left + event.pageX)
     cursor: "ew-resize"
 
 module.exports = ResizableComponent =
@@ -24,6 +24,7 @@ React.createClass
   displayName: 'ResizableComponent'
   propTypes:
     position: React.PropTypes.string
+    onResize: React.PropTypes.func
 
   render: ->
     position = @props?.position ? 'top'
@@ -39,6 +40,10 @@ React.createClass
 
   componentDidMount: ->
     @refs.resizeBar.getDOMNode().addEventListener('mousedown', @_mouseDown)
+
+  componentWillReceiveProps: (nextProps) ->
+    if nextProps.initialHeight != @props.initialHeight
+      @setState(height: nextProps.initialHeight)
 
   position: ->
     positions[@props?.position ? 'top']
@@ -70,6 +75,7 @@ React.createClass
     return if event.button != 0
     @setState
       dragging: off
+    @props.onResize(@state.height) if @props.onResize
     event.stopPropagation()
     event.preventDefault()
 

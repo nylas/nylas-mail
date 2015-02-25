@@ -42,15 +42,15 @@ ThreadListMixin =
 
   _onReply: ->
     thread = ThreadStore.selectedThread()
-    Actions.composeReply(thread.id) if thread?
+    Actions.composeReply(threadId: thread.id) if thread?
 
   _onReplyAll: ->
     thread = ThreadStore.selectedThread()
-    Actions.composeReplyAll(thread.id) if thread?
+    Actions.composeReplyAll(threadId: thread.id) if thread?
 
   _onForward: ->
     thread = ThreadStore.selectedThread()
-    Actions.composeForward(thread.id) if thread?
+    Actions.composeForward(threadId: thread.id) if thread?
 
   _onChange: ->
     @setState(@_getStateFromStores())

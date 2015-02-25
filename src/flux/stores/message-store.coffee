@@ -68,7 +68,8 @@ MessageStore = Reflux.createStore
         # Check to make sure that our thread is still the thread we were
         # loading items for. Necessary because this takes a while.
         return unless loadedThreadId == @_threadId
-        @_items = items
+
+        @_items = @_sortItemsForDisplay(items)
         @_itemsLocalIds = localIds
 
         # Start fetching inline image attachments. Note that the download store
@@ -92,5 +93,28 @@ MessageStore = Reflux.createStore
     atom.inbox.getCollection(namespace.id, 'messages', {thread_id: @_threadId}) if namespace
     atom.inbox.getCollection(namespace.id, 'drafts', {thread_id: @_threadId}) if namespace
   , 350
+ 
+  _sortItemsForDisplay: (items) ->
+    # Re-sort items in the list so that drafts appear after the message that
+    # they are in reply to, when possible. First, identify all the drafts
+    # with a replyToMessageId and remove them
+    itemsInReplyTo = []
+    for item, index in items by -1
+      if item.draft and item.replyToMessageId
+        itemsInReplyTo.push(item)
+        items.splice(index, 1)
+
+    # For each item with the reply header, re-inset it into the list after
+    # the message which it was in reply to. If we can't find it, put it at the end.
+    for item in itemsInReplyTo
+      for other, index in items
+        if item.replyToMessageId is other.id
+          items.splice(index+1, 0, item)
+          item = null
+          break
+      if item
+        items.push(item)
+
+    items
 
 module.exports = MessageStore
