@@ -1,8 +1,8 @@
-moment = require 'moment'
 React = require 'react'
 _ = require 'underscore-plus'
 EmailFrame = require './email-frame'
 MessageParticipants = require "./message-participants.cjsx"
+MessageTimestamp = require "./message-timestamp.cjsx"
 {ComponentRegistry, FileDownloadStore, Utils} = require 'inbox-exports'
 Autolinker = require 'autolinker'
 
@@ -21,7 +21,7 @@ MessageItem = React.createClass
     # Holds the downloadData (if any) for all of our files. It's a hash
     # keyed by a fileId. The value is the downloadData.
     downloads: FileDownloadStore.downloadsForFileIds(@props.message.fileIds())
-    showQuotedText: false
+    showQuotedText: @_messageIsEmptyForward()
     collapsed: @props.collapsed
 
   componentDidMount: ->
@@ -44,7 +44,7 @@ MessageItem = React.createClass
 
     header =
       <header className="message-header" onClick={@_onToggleCollapsed}>
-        <div className="message-time">{@_messageTime()}</div>
+        <MessageTimestamp date={@props.message.date} />
         <div className="message-actions">
           {<Action thread={@props.thread} message={@props.message} /> for Action in messageActions}
         </div>
@@ -106,26 +106,14 @@ MessageItem = React.createClass
     attachments.map (file) =>
       <AttachmentComponent file={file} download={@state.downloads[file.id]}/>
 
-  _messageTime: ->
-    moment(@props.message.date).format(@_timeFormat())
-
-  _timeFormat: ->
-    today = moment(@_today())
-    dayOfEra = today.dayOfYear() + today.year() * 365
-    msgDate = moment(@props.message.date)
-    msgDayOfEra = msgDate.dayOfYear() + msgDate.year() * 365
-    diff = dayOfEra - msgDayOfEra
-    if diff < 1
-      return "h:mm a"
-    if diff < 4
-      return "MMM D, h:mm a"
-    else if diff > 1 and diff <= 365
-      return "MMM D"
-    else
-      return "MMM D YYYY"
-
-  # Stubbable for testing. Returns a `moment`
-  _today: -> moment()
+  _messageIsEmptyForward: ->
+    # Returns true if the message contains "Forwarded" or "Fwd" in the first 250 characters.
+    # A strong indicator that the quoted text should be shown. Needs to be limited to first 250
+    # to prevent replies to forwarded messages from also being expanded.
+    body = @props.message.body.toLowerCase()
+    indexForwarded = body.indexOf('forwarded')
+    indexFwd = body.indexOf('fwd')
+    (indexForwarded >= 0 and indexForwarded < 250) or (indexFwd >= 0 and indexFwd < 250)
 
   _onDownloadStoreChange: ->
     @setState

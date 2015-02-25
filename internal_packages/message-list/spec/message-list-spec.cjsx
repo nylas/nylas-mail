@@ -259,37 +259,9 @@ describe "MessageList", ->
                 MessageItem)
         item = items.filter (message) -> message.props.message.id is "111"
         @message_item = item[0]
-        @message_date = moment([2010, 1, 14, 15, 25, 50, 125])
-        @message_item.props.message.date = moment(@message_date)
 
       it "finds the message by id", ->
         expect(@message_item.props.message.id).toBe "111"
-
-      # test messsage time is 1415814587
-      it "displays the time from messages LONG ago", ->
-        spyOn(@message_item, "_today").andCallFake =>
-          @message_date.add(2, 'years')
-        expect(@message_item._timeFormat()).toBe "MMM D YYYY"
-
-      it "displays the time and date from messages a bit ago", ->
-        spyOn(@message_item, "_today").andCallFake =>
-          @message_date.add(2, 'days')
-        expect(@message_item._timeFormat()).toBe "MMM D, h:mm a"
-
-      it "displays the time and date messages exactly a day ago", ->
-        spyOn(@message_item, "_today").andCallFake =>
-          @message_date.add(1, 'day')
-        expect(@message_item._timeFormat()).toBe "MMM D, h:mm a"
-
-      it "displays the time from messages yesterday with the day, even though it's less than 24 hours ago", ->
-        spyOn(@message_item, "_today").andCallFake ->
-          moment([2010, 1, 15, 2, 25, 50, 125])
-        expect(@message_item._timeFormat()).toBe "MMM D, h:mm a"
-
-      it "displays the time from messages recently", ->
-        spyOn(@message_item, "_today").andCallFake =>
-          @message_date.add(2, 'hours')
-        expect(@message_item._timeFormat()).toBe "h:mm a"
 
   describe "MessageList with draft", ->
     beforeEach ->

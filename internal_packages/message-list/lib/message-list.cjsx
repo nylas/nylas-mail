@@ -1,7 +1,6 @@
 _ = require 'underscore-plus'
 React = require 'react'
 MessageItem = require "./message-item.cjsx"
-
 {Actions, ThreadStore, MessageStore, ComponentRegistry} = require("inbox-exports")
 
 module.exports =

@@ -26,6 +26,7 @@ module.exports =
 
   # Models
   Tag: require '../src/flux/models/tag'
+  File: require '../src/flux/models/file'
   Thread: require '../src/flux/models/thread'
   Contact: require '../src/flux/models/contact'
   Message: require '../src/flux/models/message'
