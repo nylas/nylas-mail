@@ -7,6 +7,8 @@ _ = require 'underscore-plus'
  FileUploadStore,
  ComponentRegistry} = require 'inbox-exports'
 
+{ResizableRegion} = require 'ui-components'
+
 FileUploads = require './file-uploads.cjsx'
 ContenteditableComponent = require './contenteditable-component.cjsx'
 ParticipantsTextField = require './participants-text-field.cjsx'
@@ -32,7 +34,6 @@ ComposerView = React.createClass
     state
 
   getComponentRegistryState: ->
-    ResizableComponent: ComponentRegistry.findViewByName 'ResizableComponent'
     AttachmentComponent: ComponentRegistry.findViewByName 'AttachmentComponent'
     FooterComponents: ComponentRegistry.findAllViewsByRole 'Composer:Footer'
 
@@ -91,13 +92,11 @@ ComposerView = React.createClass
     @_proxy.changes.commit()
 
   render: ->
-    ResizableComponent = @state.ResizableComponent
-
-    if @props.mode is "inline" and ResizableComponent?
+    if @props.mode is "inline"
       <div className={@_wrapClasses()}>
-        <ResizableComponent position="bottom" barStyle={bottom: "57px", zIndex: 2}>
+        <ResizableRegion handle={ResizableRegion.Handle.Bottom}>
           {@_renderComposer()}
-        </ResizableComponent>
+        </ResizableRegion>
       </div>
     else
       <div className={@_wrapClasses()}>

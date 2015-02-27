@@ -1,12 +1,12 @@
 _ = require 'underscore-plus'
 React = require 'react/addons'
-{ComponentRegistry,
- DatabaseStore,
+{DatabaseStore,
  NamespaceStore,
  TaskQueue,
  Actions,
  Contact,
  Message} = require 'inbox-exports'
+{ResizableRegion} = require 'ui-components'
 
 ActivityBarStore = require './activity-bar-store'
 ActivityBarTask = require './activity-bar-task'
@@ -18,9 +18,6 @@ ActivityBarClosedHeight = 30
 module.exports =
 ActivityBar = React.createClass
 
-  mixins: [ComponentRegistry.Mixin]
-  components: ['ResizableComponent']
-
   getInitialState: ->
     _.extend @_getStateFromStores(),
       height: ActivityBarClosedHeight
@@ -30,18 +27,16 @@ ActivityBar = React.createClass
   componentDidMount: ->
     @taskQueueUnsubscribe = TaskQueue.listen @_onChange
     @activityStoreUnsubscribe = ActivityBarStore.listen @_onChange
-    @registryUnlisten = ComponentRegistry.listen @_onChange
 
   componentWillUnmount: ->
     @taskQueueUnsubscribe() if @taskQueueUnsubscribe
     @activityStoreUnsubscribe() if @activityStoreUnsubscribe
-    @registryUnlisten() if @registryUnlisten
 
   render: ->
-    ResizableComponent = @state.ResizableComponent
-    return <div></div> unless ResizableComponent?
-
-    <ResizableComponent initialHeight={@state.height} onResize={@_onTrayResized}>
+    <ResizableRegion className="activity-bar"
+                     initialHeight={@state.height}
+                     handle={ResizableRegion.Handle.Top}
+                     onResize={@_onTrayResized}>
       <div className="controls">
         {@_caret()}
         <div className="queue-status">
@@ -69,7 +64,7 @@ ActivityBar = React.createClass
         <div className="btn" onClick={@_onClear}>Clear</div>
         <input className="filter" placeholder="Filter..." value={@state.filter} onChange={@_onFilter} />
       </div>
-    </ResizableComponent>
+    </ResizableRegion>
 
   _caret: ->
     if @state.height > ActivityBarClosedHeight

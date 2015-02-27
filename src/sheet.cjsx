@@ -1,7 +1,8 @@
 React = require 'react'
 _ = require 'underscore-plus'
 {Actions,ComponentRegistry} = require "inbox-exports"
-{Flexbox, FlexboxResizableRegion, FlexboxResizeHandlePosition} = require './flexbox-components.cjsx'
+Flexbox = require './components/flexbox.cjsx'
+ResizableRegion = require './components/resizable-region.cjsx'
 
 module.exports =
 Sheet = React.createClass
@@ -56,13 +57,13 @@ Sheet = React.createClass
       resizable = minWidth != maxWidth && column != 'Center'
 
       if resizable
-        if column is 'Left' then handle = FlexboxResizeHandlePosition.right
-        if column is 'Right' then handle = FlexboxResizeHandlePosition.left
-        <FlexboxResizableRegion minWidth={minWidth} maxWidth={maxWidth} handlePosition={handle}>
+        if column is 'Left' then handle = ResizableRegion.Handle.Right
+        if column is 'Right' then handle = ResizableRegion.Handle.Left
+        <ResizableRegion minWidth={minWidth} maxWidth={maxWidth} handle={handle}>
           <Flexbox direction="column" name={column}>
             {components}
           </Flexbox>
-        </FlexboxResizableRegion>
+        </ResizableRegion>
       else
         <Flexbox direction="column" name={column} style={flex: 1}>
           {components}

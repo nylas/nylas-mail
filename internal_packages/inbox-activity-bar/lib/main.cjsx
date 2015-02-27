@@ -1,22 +1,14 @@
 React = require 'react'
-ActivityBar = require('./activity-bar')
+{ComponentRegistry} = require 'inbox-exports'
 
 module.exports =
   item: null
 
   activate: (@state={}) ->
-    unless @item?
-      @item = document.createElement("div")
-      @item.setAttribute("id", "activity-bar")
-      @item.setAttribute("class", "activity-bar")
-
-      atom.workspace.addRow(@item)
-
-      React.render(<ActivityBar />, @item)
+    ComponentRegistry.register
+      name: 'activity-bar'
+      role: 'Global:Footer'
+      view: require './activity-bar'
 
   deactivate: ->
-    React.unmountComponentAtNode(@item)
-    @item.remove()
-    @item = null
-
-  serialize: -> @state
+    ComponentRegistry.unregister 'activity-bar'

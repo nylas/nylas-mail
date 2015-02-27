@@ -103,3 +103,26 @@ atom-workspace {
     padding-right:2px;
   }
 }
+
+.flexbox-handle-vertical {
+  width:100%;
+  height:6px;
+  left:0;
+  right:0;
+  z-index:2;
+  position:absolute;
+  cursor: row-resize;
+  div {
+    width:100%;
+    border-top: 1px solid @border-color-divider;
+  }
+
+  &.flexbox-handle-top {
+    top:-3px;
+    padding-right:3px;
+  }
+  &.flexbox-handle-bottom {
+    bottom:-3px;
+    padding-right:2px;
+  }
+}

@@ -1,11 +1,10 @@
 React = require 'react'
 SheetStore = require './sheet-store'
 {Actions,ComponentRegistry} = require "inbox-exports"
-{Flexbox, FlexboxResizableRegion} = require './flexbox-components.cjsx'
+Flexbox = require './components/flexbox.cjsx'
 ReactCSSTransitionGroup = React.addons.CSSTransitionGroup
 
 Toolbar = React.createClass
-  
   propTypes:
     type: React.PropTypes.string.isRequired
 
@@ -36,6 +35,31 @@ Toolbar = React.createClass
 
     items: [].concat(globalItems, typeItems)
 
+Footer = React.createClass
+  getInitialState: ->
+    @_getComponentRegistryState()
+
+  componentDidMount: ->
+    @unlistener = ComponentRegistry.listen (event) =>
+      @setState(@_getComponentRegistryState())
+
+  componentWillUnmount: ->
+    @unlistener() if @unlistener
+
+  render: ->
+    <div className="footer">
+      <Flexbox direction="row">
+        {@_footerComponents()}
+      </Flexbox>
+    </div>
+
+  _footerComponents: ->
+    @state.items.map (item) =>
+      <item {...@props} />
+
+  _getComponentRegistryState: ->
+    items: ComponentRegistry.findAllViewsByRole "Global:Footer"
+
 
 module.exports =
 SheetContainer = React.createClass
@@ -65,6 +89,9 @@ SheetContainer = React.createClass
         <ReactCSSTransitionGroup transitionName="sheet-stack">
           {@state.stack}
         </ReactCSSTransitionGroup>
+      </div>
+      <div style={order:2} className="footer-container">
+        <Footer />
       </div>
     </Flexbox>
 
