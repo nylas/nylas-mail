@@ -82,7 +82,7 @@ utils =
     regexs = [
       /<blockquote/i, # blockquote element
       /\n[ ]*(>|&gt;)/, # Plaintext lines beginning with >
-      /<[br|p][ ]*>[\n]?[ ]*[>|&gt;]/i, # HTML lines beginning with >
+      /<[br|p][ ]*>[\n]?[ ]*&gt;/i, # HTML lines beginning with >
       /[\n|>]On .* wrote:[\n|<]/, #On ... wrote: on it's own line
       /.gmail_quote/ # gmail quote class class
     ]
