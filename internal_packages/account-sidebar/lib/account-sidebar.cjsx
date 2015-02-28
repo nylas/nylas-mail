@@ -21,7 +21,7 @@ AccountSidebar = React.createClass
     @unsubscribe() if @unsubscribe
 
   render: ->
-    <div id="account-sidebar" class="account-sidebar">
+    <div id="account-sidebar" className="account-sidebar">
       <div className="account-sidebar-sections">
         {@_sections()}
       </div>
