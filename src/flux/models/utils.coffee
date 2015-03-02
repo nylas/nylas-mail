@@ -88,9 +88,9 @@ Utils =
       console.log('Loaded Images', Utils.images)
 
     if window.devicePixelRatio > 1
-      return Utils.images["#{name}@2x.#{ext}"] ? Utils.images[fullname]
+      return Utils.images["#{name}@2x.#{ext}"] ? Utils.images[fullname] ? Utils.images["#{name}@1x.#{ext}"]
     else
-      return Utils.images["#{name}@1x.#{ext}"] ? Utils.images[fullname]
+      return Utils.images["#{name}@1x.#{ext}"] ? Utils.images[fullname] ? Utils.images["#{name}@2x.#{ext}"]
 
   containsQuotedText: (html) ->
     # I know this is gross - one day we'll replace it with a nice system.

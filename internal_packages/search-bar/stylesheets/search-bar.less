@@ -1,31 +1,6 @@
 @import "ui-variables";
 @import "ui-mixins";
 
-.search-settings-bar {
-  background: -webkit-linear-gradient(top, @background-color, @background-color-secondary);
-  order: 200;
-
-  .showing {
-    display:inherit;
-    height: 85px;
-  }
-  .hidden {
-    display:none;
-  }
-
-  .field {
-    display:inline-block;
-    padding:5px;
-    padding-left:8px;
-    padding-right:8px;
-
-    input {
-      margin-left:5px;
-      vertical-align: middle;
-    }
-  }
-}
-
 .search-bar {
   position: relative;
   order: 100;
@@ -44,8 +19,15 @@
     border:none;
 
     input {
+      padding-left:25px;
       width: 100%;
       height: 30px;
+    }
+    input.empty {
+      text-align: center;
+    }
+    input.empty:focus {
+      text-align: left;
     }
   }
 
@@ -82,42 +64,26 @@
   .search-container {
     position: relative;
 
-    &.focused {
-      .search-accessory { color: @text-color-subtle; }
-      .search-accessory:hover {
-        cursor: pointer;
-        color: @input-accessory-color-hover !important;
-      }
-    }
-
-    &.committed-query {
-      .search-accessory.clear { display: block; }
-      .search-accessory.search {
-        display: none;
-      }
-    }
-
     &.showing-suggestions {
       .suggestions{ display: inherit; }
     }
   }
 
   .search-accessory {
-    color: @input-accessory-color;
-    position: absolute;
-    top: 0;
-    right: 0;
 
     &.search {
-      padding: 18px 15px;
-      font-size: 20px;
-      line-height: 1;
+      position: absolute;
+      top: floor(40px - 16px)/2;
+      left: @padding-base-horizontal;
     }
 
     &.clear {
+      position: absolute;
+      top: 0;
       display: none;
       padding: 17px 19px;
       line-height: 20px
+      right: 0;
     }
   }
 }

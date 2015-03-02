@@ -1,6 +1,6 @@
 React = require 'react/addons'
 {Actions} = require 'inbox-exports'
-{Menu} = require 'ui-components'
+{Menu, RetinaImg} = require 'ui-components'
 SearchSuggestionStore = require './search-suggestion-store'
 _ = require 'underscore-plus'
 
@@ -23,17 +23,22 @@ SearchBar = React.createClass
     @unsubscribe()
 
   render: ->
+    inputValue = @_queryToString(@state.query)
+    inputClass = React.addons.classSet
+      'empty': inputValue.length is 0
+    
     headerComponents = [
       <input type="text"
-             placeholder="Search…"
-             value={@_queryToString(@state.query)}
+             className={inputClass}
+             placeholder="Search all email"
+             value={inputValue}
              onChange={@_onValueChange}
              onFocus={@_onFocus}
              onBlur={@_onBlur} />
 
-      <div className="search-accessory search"
-           onClick={@_doSearch}><i className="fa fa-search"></i></div>
-
+      <RetinaImg className="search-accessory search"
+                 name="searchloupe.png"
+                 onClick={@_doSearch} />
       <div className="search-accessory clear"
            onClick={@_onClearSearch}><i className="fa fa-remove"></i></div>
     ]

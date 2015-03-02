@@ -7,6 +7,7 @@ RetinaImg = React.createClass
   propTypes:
     name: React.PropTypes.string
     style: React.PropTypes.object
+    className: React.PropTypes.string
 
     # Optional additional properties which adjust the provided
     # name. Makes it easy to write parent components when images
@@ -22,7 +23,7 @@ RetinaImg = React.createClass
     style = @props.style ? {}
     style.zoom = if pathIsRetina then 0.5 else 1
 
-    <img src={path} style={style} />
+    <img className={@props.className ? ''} src={path} style={style} />
   
   _pathFor: (name) ->
     [basename, ext] = name.split('.')
