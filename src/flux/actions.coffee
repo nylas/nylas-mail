@@ -1,4 +1,3 @@
-ipc = require 'ipc'
 Reflux = require 'reflux'
 
 # These actions are rebroadcast through the ActionBridge to all
@@ -46,9 +45,6 @@ windowActions = [
   # Fired when a dialog is opened and a file is selected
   "clearDeveloperConsole",
 
-  "openPathsSelected",
-  "savePathSelected",
-
   # Actions for Selection State
   "selectNamespaceId",
   "selectThreadId",
@@ -87,7 +83,7 @@ windowActions = [
   # Some file actions only need to be processed in their current window
   "attachFile",
   "abortUpload",
-  "persistUploadedFile", # This touches the DB, should only be in main window
+  "attachFileComplete",
   "removeFile",
   "fetchAndOpenFile",
   "fetchAndSaveFile",
@@ -105,11 +101,5 @@ for key, action of Actions
 Actions.windowActions = windowActions
 Actions.mainWindowActions = mainWindowActions
 Actions.globalActions = globalActions
-
-ipc.on "paths-to-open", (pathsToOpen=[]) ->
-  Actions.openPathsSelected(pathsToOpen)
-
-ipc.on "save-file-selected", (savePath) ->
-  Actions.savePathSelected(savePath)
 
 module.exports = Actions

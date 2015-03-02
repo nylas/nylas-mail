@@ -3,7 +3,7 @@ Message = require '../models/message'
 DatabaseStore = require '../stores/database-store'
 Actions = require '../actions'
 
-SaveDraftTask = require './save-draft'
+SyncbackDraftTask = require './syncback-draft'
 SendDraftTask = require './send-draft'
 FileUploadTask = require './file-upload-task'
 
@@ -12,12 +12,12 @@ class DestroyDraftTask extends Task
   constructor: (@draftLocalId) -> super
 
   shouldDequeueOtherTask: (other) ->
-    (other instanceof SaveDraftTask and other.draftLocalId is @draftLocalId) or
+    (other instanceof SyncbackDraftTask and other.draftLocalId is @draftLocalId) or
     (other instanceof SendDraftTask and other.draftLocalId is @draftLocalId) or
     (other instanceof FileUploadTask and other.draftLocalId is @draftLocalId)
 
   shouldWaitForTask: (other) ->
-    (other instanceof SaveDraftTask and other.draftLocalId is @draftLocalId)
+    (other instanceof SyncbackDraftTask and other.draftLocalId is @draftLocalId)
 
   performLocal: ->
     new Promise (resolve, reject) =>
@@ -25,8 +25,8 @@ class DestroyDraftTask extends Task
         return reject(new Error("Attempt to call DestroyDraftTask.performLocal without @draftLocalId"))
 
       DatabaseStore.findByLocalId(Message, @draftLocalId).then (draft) =>
-        DatabaseStore.unpersistModel(draft).then(resolve)
         @draft = draft
+        DatabaseStore.unpersistModel(draft).then(resolve)
 
   performRemote: ->
     new Promise (resolve, reject) =>
@@ -47,7 +47,7 @@ class DestroyDraftTask extends Task
 
   onAPIError: (apiError) ->
     inboxMsg = apiError.body?.message ? ""
-    if inboxMsg.indexOf("No draft found") >= 0
+    if apiError.statusCode is 404
       # Draft has already been deleted, this is not really an error
       return true
     else if inboxMsg.indexOf("is not a draft") >= 0

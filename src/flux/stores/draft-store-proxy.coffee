@@ -1,4 +1,5 @@
-{Message, Actions,DraftStore} = require 'inbox-exports'
+Message = require '../models/message'
+Actions = require '../actions'
 EventEmitter = require('events').EventEmitter
 _ = require 'underscore-plus'
 
@@ -15,7 +16,11 @@ _ = require 'underscore-plus'
 #
 class DraftChangeSet
   constructor: (@localId, @_onChange) ->
+    @reset()
+ 
+  reset: ->
     @_pending = {}
+    clearTimeout(@_timer) if @_timer
     @_timer = null
 
   add: (changes, immediate) =>
@@ -28,9 +33,12 @@ class DraftChangeSet
       @_timer = setTimeout(@commit, 5000)
 
   commit: =>
-    @_pending.localId = @localId
-    if Object.keys(@_pending).length > 1
-      Actions.saveDraft(@_pending)
+    return unless Object.keys(@_pending).length > 0
+
+    DatabaseStore = require './database-store'
+    DatabaseStore.findByLocalId(Message, @localId).then (draft) =>
+      draft = @applyToModel(draft)
+      DatabaseStore.persistModel(draft)
       @_pending = {}
 
   applyToModel: (model) =>
@@ -51,19 +59,32 @@ module.exports =
 class DraftStoreProxy
 
   constructor: (@draftLocalId) ->
+    DraftStore = require './draft-store'
+
     @unlisteners = []
     @unlisteners.push DraftStore.listen(@_onDraftChanged, @)
     @unlisteners.push Actions.didSwapModel.listen(@_onDraftSwapped, @)
+
     @_emitter = new EventEmitter()
     @_draft = false
-    @_reloadDraft()
-
+    @_draftPromise = null
     @changes = new DraftChangeSet @draftLocalId, =>
       @_emitter.emit('trigger')
+    @prepare()
 
   draft: ->
     @changes.applyToModel(@_draft)
     @_draft
+  
+  prepare: ->
+    @_draftPromise ?= new Promise (resolve, reject) =>
+      DatabaseStore = require './database-store'
+      DatabaseStore.findByLocalId(Message, @draftLocalId).then (draft) =>
+        @_draft = draft
+        @_emitter.emit('trigger')
+        resolve(@)
+      .catch(reject)
+    @_draftPromise
 
   listen: (callback, bindContext) ->
     eventHandler = (args) ->
@@ -71,10 +92,11 @@ class DraftStoreProxy
     @_emitter.addListener('trigger', eventHandler)
     return =>
       @_emitter.removeListener('trigger', eventHandler)
-      if @_emitter.listeners('trigger').length == 0
-        # Unlink ourselves from the stores/actions we were listening to
-        # so that we can be garbage collected
-        unlisten() for unlisten in @unlisteners
+
+  cleanup: ->
+    # Unlink ourselves from the stores/actions we were listening to
+    # so that we can be garbage collected
+    unlisten() for unlisten in @unlisteners
 
   _onDraftChanged: (change) ->
     # We don't accept changes unless our draft object is loaded
@@ -93,12 +115,3 @@ class DraftStoreProxy
     if change.oldModel.id is @_draft.id
       @_draft = change.newModel
       @_emitter.emit('trigger')
-
-  _reloadDraft: ->
-    promise = DraftStore.findByLocalId(@draftLocalId)
-    promise.catch (err) ->
-      console.log(err)
-    promise.then (draft) =>
-      @_draft = draft
-      @_emitter.emit('trigger')
-

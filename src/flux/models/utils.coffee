@@ -16,7 +16,7 @@ utils =
     SalesforceContact = require './salesforce-contact'
     SalesforceTask = require './salesforce-task'
 
-    SaveDraftTask = require '../tasks/save-draft'
+    SyncbackDraftTask = require '../tasks/syncback-draft'
     SendDraftTask = require '../tasks/send-draft'
     DestroyDraftTask = require '../tasks/destroy-draft'
     AddRemoveTagsTask = require '../tasks/add-remove-tags'
@@ -43,7 +43,7 @@ utils =
       'MarkMessageReadTask': MarkMessageReadTask
       'AddRemoveTagsTask': AddRemoveTagsTask
       'SendDraftTask': SendDraftTask
-      'SaveDraftTask': SaveDraftTask
+      'SyncbackDraftTask': SyncbackDraftTask
       'DestroyDraftTask': DestroyDraftTask
       'FileUploadTask': FileUploadTask
     }

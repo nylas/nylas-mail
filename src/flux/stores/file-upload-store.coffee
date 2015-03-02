@@ -35,16 +35,13 @@ FileUploadStore = Reflux.createStore
   _onAttachFile: ({messageLocalId}) ->
     @_verifyId(messageLocalId)
 
-    unlistenOpen = Actions.openPathsSelected.listen (pathsToOpen=[]) ->
-      unlistenOpen?()
+    # When the dialog closes, it triggers `Actions.pathsToOpen`
+    atom.showOpenDialog {properties: ['openFile', 'multiSelections']}, (pathsToOpen) ->
       pathsToOpen = [pathsToOpen] if _.isString(pathsToOpen)
       for path in pathsToOpen
         # When this task runs, we expect to hear `uploadStateChanged`
         # Actions.
         Actions.queueTask(new FileUploadTask(path, messageLocalId))
-
-    # When the dialog closes, it triggers `Actions.pathsToOpen`
-    ipc.send('command', 'application:open-file-to-window')
 
   # Receives:
   #   uploadData:

@@ -119,7 +119,6 @@ describe "TaskQueue", ->
       taskToDie = makeRemoteFailed(new TaskSubclassA())
 
       spyOn(TaskQueue, "dequeue").andCallThrough()
-      spyOn(taskToDie, "abort")
 
       TaskQueue._queue = [taskToDie, @remoteFailed]
       TaskQueue.enqueue(new KillsTaskA())
@@ -127,7 +126,6 @@ describe "TaskQueue", ->
       expect(TaskQueue._queue.length).toBe 2
       expect(TaskQueue.dequeue).toHaveBeenCalledWith(taskToDie, silent: true)
       expect(TaskQueue.dequeue.calls.length).toBe 1
-      expect(taskToDie.abort).toHaveBeenCalled()
 
   describe "dequeue", ->
     beforeEach ->
@@ -147,36 +145,10 @@ describe "TaskQueue", ->
     it "throws an error if the task isn't found", ->
       expect( -> TaskQueue.dequeue("bad")).toThrow()
 
-    it "doesn't abort unstarted tasks", ->
-      spyOn(@unstartedTask, "abort")
-      TaskQueue.dequeue(@unstartedTask, silent: true)
-      expect(@unstartedTask.abort).not.toHaveBeenCalled()
-
-    it "aborts local tasks in progress", ->
-      spyOn(@localStarted, "abort")
-      TaskQueue.dequeue(@localStarted, silent: true)
-      expect(@localStarted.abort).toHaveBeenCalled()
-
-    it "aborts remote tasks in progress", ->
-      spyOn(@remoteStarted, "abort")
-      TaskQueue.dequeue(@remoteStarted, silent: true)
-      expect(@remoteStarted.abort).toHaveBeenCalled()
-
-    it "calls cleanup on aborted tasks", ->
+    it "calls cleanup on dequeued tasks", ->
       spyOn(@remoteStarted, "cleanup")
       TaskQueue.dequeue(@remoteStarted, silent: true)
       expect(@remoteStarted.cleanup).toHaveBeenCalled()
-
-    it "aborts stalled remote tasks", ->
-      spyOn(@remoteFailed, "abort")
-      TaskQueue.dequeue(@remoteFailed, silent: true)
-      expect(@remoteFailed.abort).toHaveBeenCalled()
-
-    it "doesn't abort if it's fully done", ->
-      TaskQueue._queue.push @remoteSuccess
-      spyOn(@remoteSuccess, "abort")
-      TaskQueue.dequeue(@remoteSuccess, silent: true)
-      expect(@remoteSuccess.abort).not.toHaveBeenCalled()
 
     it "moves it from the queue", ->
       TaskQueue.dequeue(@remoteStarted, silent: true)

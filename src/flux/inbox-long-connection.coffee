@@ -18,7 +18,7 @@ class InboxLongConnection
     @_emitter = new Emitter
     @_state = 'idle'
     @_req = null
-    @_reqPingInterval = null
+    @_reqForceReconnectInterval = null
     @_buffer = null
 
     @_deltas = []
@@ -86,8 +86,10 @@ class InboxLongConnection
     @_buffer = bufferJSONs[bufferJSONs.length - 1]
 
   start: ->
-    throw (new Error 'Cannot start polling without auth token.') unless @_inbox.APIToken
+    return if @_state is InboxLongConnection.State.Ended
     return if @_req
+
+    throw (new Error 'Cannot start polling without auth token.') unless @_inbox.APIToken
 
     console.log("Long Polling Connection: Starting....")
     @withCursor (cursor) =>
@@ -122,18 +124,22 @@ class InboxLongConnection
       req.write("1")
 
       @_req = req
-      @_reqPingInterval = setInterval ->
-        req.write("1")
-      ,250
 
-  retry: ->
+      # Currently we have trouble identifying when the connection has closed.
+      # Instead of trying to fix that, just reconnect every 30 seconds.
+      @_reqForceReconnectInterval = setInterval =>
+        @retry(true)
+      ,30000
+
+  retry: (immediate = false) ->
     return if @_state is InboxLongConnection.State.Ended
     @setState(InboxLongConnection.State.Retrying)
-
     @cleanup()
+
+    startDelay = if immediate then 0 else 10000
     setTimeout =>
       @start()
-    , 10000
+    , startDelay
 
   end: ->
     console.log("Long Polling Connection: Closed.")
@@ -141,8 +147,8 @@ class InboxLongConnection
     @cleanup()
 
   cleanup: ->
-    clearInterval(@_reqPingInterval) if @_reqPingInterval
-    @_reqPingInterval = null
+    clearInterval(@_reqForceReconnectInterval) if @_reqForceReconnectInterval
+    @_reqForceReconnectInterval = null
     if @_req
       @_req.end()
       @_req.abort()

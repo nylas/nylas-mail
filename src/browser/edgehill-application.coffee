@@ -215,9 +215,6 @@ class AtomApplication
     @on 'application:quit', =>
       @quitting = true
       app.quit()
-    @on 'application:open-file-to-window', -> @promptForPath({type: 'file', to_window: true})
-    @on 'application:open-dev', -> @promptForPath(devMode: true)
-    @on 'application:open-safe', -> @promptForPath(safeMode: true)
     @on 'application:inspect', ({x,y, atomWindow}) ->
       atomWindow ?= @focusedWindow()
       atomWindow?.browserWindow.inspectElement(x, y)

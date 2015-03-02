@@ -193,11 +193,11 @@ class InboxAPI
       Thread = require './models/thread'
       return @_shouldAcceptModelIfNewer(Thread, model)
 
-    # For some reason, we occasionally get a delta with:
-    # delta.object = 'message', delta.attributes.object = 'draft'
+    # For the time being, we never accept drafts from the server. This single
+    # change ensures that all drafts in the system are authored locally. To
+    # revert, change back to use _shouldAcceptModelIfNewer
     if classname is "draft" or model?.object is "draft"
-      Message = require './models/message'
-      return @_shouldAcceptModelIfNewer(Message, model)
+      return Promise.reject()
 
     Promise.resolve()
 

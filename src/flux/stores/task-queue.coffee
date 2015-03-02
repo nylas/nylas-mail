@@ -55,7 +55,6 @@ TaskQueue = Reflux.createStore
       throw new Error("You must queue a `Task` object")
 
     @_initializeTask(task)
-
     @_dequeueObsoleteTasks(task)
     @_queue.push(task)
     @_update() if not silent
@@ -63,10 +62,7 @@ TaskQueue = Reflux.createStore
   dequeue: (taskOrId={}, {silent}={}) ->
     task = @_parseArgs(taskOrId)
 
-    task.abort() if @_shouldAbort(task)
-
     task.queueState.isProcessing = false
-
     task.cleanup()
 
     @_queue.splice(@_queue.indexOf(task), 1)
@@ -116,13 +112,14 @@ TaskQueue = Reflux.createStore
     @_processQueue()
 
   _dequeueObsoleteTasks: (task) ->
-    for otherTask in @_queue
-      if otherTask? and task.shouldDequeueOtherTask(otherTask)
+    for otherTask in @_queue by -1
+      # Do not interrupt tasks which are currently processing
+      continue if otherTask.queueState.isProcessing
+      # Do not remove ourselves from the queue
+      continue if otherTask is task
+      # Dequeue tasks which our new task indicates it makes obsolete
+      if task.shouldDequeueOtherTask(otherTask)
         @dequeue(otherTask, silent: true)
-
-  _shouldAbort: (task) ->
-    task.queueState.isProcessing or
-    (task.queueState.performedLocal and not task.queueState.performedRemote)
 
   _taskIsBlocked: (task) ->
     _.any @_queue, (otherTask) ->

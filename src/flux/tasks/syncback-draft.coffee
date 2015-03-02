@@ -9,48 +9,33 @@ Message = require '../models/message'
 
 FileUploadTask = require './file-upload-task'
 
+# MutateDraftTask
+
 module.exports =
-class SaveDraftTask extends Task
+class SyncbackDraftTask extends Task
 
-  constructor: (@draftLocalId, @changes={}, {@localOnly}={}) ->
-    @_saveAttempts = 0
-    @queuedAt = Date.now()
+  constructor: (@draftLocalId) ->
     super
+    @_saveAttempts = 0
 
-  # We also don't want to cancel any tasks that have a later timestamp
-  # creation than us. It's possible, because of retries, that tasks could
-  # get re-pushed onto the queue out of order.
   shouldDequeueOtherTask: (other) ->
-    other instanceof SaveDraftTask and
-    other.draftLocalId is @draftLocalId and
-    other.queuedAt < @queuedAt # other is an older task.
+    other instanceof SyncbackDraftTask and other.draftLocalId is @draftLocalId and other.creationDate < @creationDate
 
   shouldWaitForTask: (other) ->
-    other instanceof FileUploadTask and other.draftLocalId is @draftLocalId
+    other instanceof SyncbackDraftTask and other.draftLocalId is @draftLocalId and other.creationDate < @creationDate
 
-  performLocal: -> new Promise (resolve, reject) =>
-    if not @draftLocalId?
-      errMsg = "Attempt to call FileUploadTask.performLocal without @draftLocalId"
-      return reject(new Error(errMsg))
-
-    DatabaseStore.findByLocalId(Message, @draftLocalId).then (draft) =>
-      if not draft?
-        # This can happen if a save draft task is queued after it has been
-        # destroyed. Nothing we can really do about it, so ignore this.
-        resolve()
-      else if _.size(@changes) is 0
-        resolve()
-      else
-        updatedDraft = @_applyChangesToDraft(draft, @changes)
-        DatabaseStore.persistModel(updatedDraft).then(resolve)
-    .catch(reject)
+ performLocal: ->
+  # SyncbackDraftTask does not do anything locally. You should persist your changes
+  # to the local database directly or using a DraftStoreProxy, and then queue a
+  # SyncbackDraftTask to send those changes to the server.
+  if not @draftLocalId?
+    errMsg = "Attempt to call FileUploadTask.performLocal without @draftLocalId"
+    Promise.reject(new Error(errMsg))
+  else
+    Promise.resolve()
 
   performRemote: ->
-    if @localOnly then return Promise.resolve()
-
     new Promise (resolve, reject) =>
-      # Fetch the latest draft data to make sure we make the request with the most
-      # recent draft version
       DatabaseStore.findByLocalId(Message, @draftLocalId).then (draft) =>
         # The draft may have been deleted by another task. Nothing we can do.
         return resolve() unless draft
@@ -74,11 +59,11 @@ class SaveDraftTask extends Task
           body: body
           returnsModel: false
           success: (json) =>
-            newDraft = (new Message).fromJSON(json)
-            if newDraft.id != initialId
+            if json.id != initialId
+              newDraft = (new Message).fromJSON(json)
               DatabaseStore.swapModel(oldModel: draft, newModel: newDraft, localId: @draftLocalId).then(resolve)
             else
-              DatabaseStore.persistModel(newDraft).then(resolve)
+              DatabaseStore.persistModel(draft).then(resolve)
           error: reject
 
   onAPIError: (apiError) ->
@@ -139,7 +124,3 @@ class SaveDraftTask extends Task
 
     @notifyErrorMessage(msg)
 
-  _applyChangesToDraft: (draft, changes={}) ->
-    for key, definition of draft.attributes()
-      draft[key] = changes[key] if changes[key]?
-    return draft

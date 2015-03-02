@@ -757,6 +757,11 @@ class Atom extends Model
     app.emit('will-exit')
     remote.process.exit(status)
 
+  showOpenDialog: (options, callback) ->
+    parentWindow = if process.platform is 'darwin' then null else @getCurrentWindow()
+    dialog = remote.require('dialog')
+    dialog.showOpenDialog(parentWindow, options, callback)
+
   showSaveDialog: (defaultPath, callback) ->
     parentWindow = if process.platform is 'darwin' then null else @getCurrentWindow()
     dialog = remote.require('dialog')

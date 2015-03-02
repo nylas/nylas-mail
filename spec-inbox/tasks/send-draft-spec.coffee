@@ -1,5 +1,5 @@
 Actions = require '../../src/flux/actions'
-SaveDraftTask = require '../../src/flux/tasks/save-draft'
+SyncbackDraftTask = require '../../src/flux/tasks/syncback-draft'
 SendDraftTask = require '../../src/flux/tasks/send-draft'
 DatabaseStore = require '../../src/flux/stores/database-store'
 {generateTempId} = require '../../src/flux/models/utils'
@@ -9,7 +9,7 @@ _ = require 'underscore-plus'
 
 describe "SendDraftTask", ->
   describe "shouldWaitForTask", ->
-    it "should return any SaveDraftTasks for the same draft", ->
+    it "should return any SyncbackDraftTasks for the same draft", ->
       @draftA = new Message
         version: '1'
         id: '1233123AEDF1'
@@ -30,8 +30,8 @@ describe "SendDraftTask", ->
           name: 'Dummy'
           email: 'dummy@inboxapp.com'
 
-      @saveA = new SaveDraftTask('localid-A')
-      @saveB = new SaveDraftTask('localid-B')
+      @saveA = new SyncbackDraftTask('localid-A')
+      @saveB = new SyncbackDraftTask('localid-B')
       @sendA = new SendDraftTask('localid-A')
 
       expect(@sendA.shouldWaitForTask(@saveA)).toBe(true)
@@ -40,8 +40,8 @@ describe "SendDraftTask", ->
     beforeEach ->
       TaskQueue._queue = []
       TaskQueue._completed = []
-      @saveTask = new SaveDraftTask('localid-A')
-      @saveTaskB = new SaveDraftTask('localid-B')
+      @saveTask = new SyncbackDraftTask('localid-A')
+      @saveTaskB = new SyncbackDraftTask('localid-B')
       @sendTask = new SendDraftTask('localid-A')
       @tasks = [@saveTask, @saveTaskB, @sendTask]
 
@@ -124,13 +124,33 @@ describe "SendDraftTask", ->
           expect(options.path).toBe("/n/#{@draft.namespaceId}/send")
           expect(options.method).toBe('POST')
 
-    it "should send the draft ID and version", ->
-      waitsForPromise =>
-        @task.performRemote().then =>
-          expect(atom.inbox.makeRequest.calls.length).toBe(1)
-          options = atom.inbox.makeRequest.mostRecentCall.args[0]
-          expect(options.body.version).toBe(@draft.version)
-          expect(options.body.draft_id).toBe(@draft.id)
+    describe "when the draft has been saved", ->
+      it "should send the draft ID and version", ->
+        waitsForPromise =>
+          @task.performRemote().then =>
+            expect(atom.inbox.makeRequest.calls.length).toBe(1)
+            options = atom.inbox.makeRequest.mostRecentCall.args[0]
+            expect(options.body.version).toBe(@draft.version)
+            expect(options.body.draft_id).toBe(@draft.id)
+
+    describe "when the draft has not been saved", ->
+      beforeEach ->
+        @draft = new Message
+          id: generateTempId()
+          namespaceId: 'A12ADE'
+          subject: 'New Draft'
+          draft: true
+          to:
+            name: 'Dummy'
+            email: 'dummy@inboxapp.com'
+        @task = new SendDraftTask(@draft)
+
+      it "should send the draft JSON", ->
+        waitsForPromise =>
+          @task.performRemote().then =>
+            expect(atom.inbox.makeRequest.calls.length).toBe(1)
+            options = atom.inbox.makeRequest.mostRecentCall.args[0]
+            expect(options.body).toEqual(@draft.toJSON())
 
     it "should pass returnsModel:true so that the draft is saved to the data store when returned", ->
       waitsForPromise =>

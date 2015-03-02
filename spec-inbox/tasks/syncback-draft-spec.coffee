@@ -9,7 +9,7 @@ Contact = require '../../src/flux/models/contact'
 DatabaseStore = require '../../src/flux/stores/database-store'
 TaskQueue = require '../../src/flux/stores/task-queue'
 
-SaveDraftTask = require '../../src/flux/tasks/save-draft'
+SyncbackDraftTask = require '../../src/flux/tasks/syncback-draft'
 
 inboxError =
   message: "No draft with public id bvn4aydxuyqlbmzowh4wraysg",
@@ -33,7 +33,7 @@ testData =
 localDraft = new Message _.extend {}, testData, {id: "local-id"}
 remoteDraft = new Message _.extend {}, testData, {id: "remoteid1234"}
 
-describe "SaveDraftTask", ->
+describe "SyncbackDraftTask", ->
   beforeEach ->
     spyOn(DatabaseStore, "findByLocalId").andCallFake (klass, localId) ->
       if localId is "localDraftId" then Promise.resolve(localDraft)
@@ -46,53 +46,19 @@ describe "SaveDraftTask", ->
     spyOn(DatabaseStore, "swapModel").andCallFake ->
       Promise.resolve()
 
-  describe "performLocal", ->
-    it "rejects if it isn't constructed with a draftLocalId", ->
-      task = new SaveDraftTask
-      waitsForPromise =>
-        task.performLocal().catch (error) ->
-          expect(error.message).toBeDefined()
-
-    it "does nothing if there are no new changes", ->
-      task = new SaveDraftTask("localDraftId")
-      waitsForPromise =>
-        task.performLocal().then ->
-          expect(DatabaseStore.persistModel).not.toHaveBeenCalled()
-
-    it "persists to the Database if there are new changes", ->
-      task = new SaveDraftTask("localDraftId", body: "test body")
-      waitsForPromise =>
-        task.performLocal().then ->
-          expect(DatabaseStore.persistModel).toHaveBeenCalled()
-          newBody = DatabaseStore.persistModel.calls[0].args[0].body
-          expect(newBody).toBe "test body"
-
-    it "does nothing if no draft can be found in the db", ->
-      task = new SaveDraftTask("missingDraftId")
-      waitsForPromise =>
-        task.performLocal().then ->
-          expect(DatabaseStore.persistModel).not.toHaveBeenCalled()
-
   describe "performRemote", ->
     beforeEach ->
       spyOn(atom.inbox, 'makeRequest').andCallFake (opts) ->
         opts.success(remoteDraft.toJSON()) if opts.success
 
-    it "does nothing if localOnly is set to true", ->
-      task = new SaveDraftTask("localDraftId", {}, localOnly: true)
-      waitsForPromise =>
-        task.performRemote().then ->
-          expect(DatabaseStore.findByLocalId).not.toHaveBeenCalled()
-          expect(atom.inbox.makeRequest).not.toHaveBeenCalled()
-
     it "does nothing if no draft can be found in the db", ->
-      task = new SaveDraftTask("missingDraftId")
+      task = new SyncbackDraftTask("missingDraftId")
       waitsForPromise =>
         task.performRemote().then ->
           expect(atom.inbox.makeRequest).not.toHaveBeenCalled()
 
     it "should start an API request with the Message JSON", ->
-      task = new SaveDraftTask("localDraftId")
+      task = new SyncbackDraftTask("localDraftId")
       waitsForPromise =>
         task.performRemote().then ->
           expect(atom.inbox.makeRequest).toHaveBeenCalled()
@@ -100,7 +66,7 @@ describe "SaveDraftTask", ->
           expect(reqBody.subject).toEqual testData.subject
 
     it "should do a PUT when the draft has already been saved", ->
-      task = new SaveDraftTask("remoteDraftId")
+      task = new SyncbackDraftTask("remoteDraftId")
       waitsForPromise =>
         task.performRemote().then ->
           expect(atom.inbox.makeRequest).toHaveBeenCalled()
@@ -109,7 +75,7 @@ describe "SaveDraftTask", ->
           expect(options.method).toBe('PUT')
 
     it "should do a POST when the draft is unsaved", ->
-      task = new SaveDraftTask("localDraftId")
+      task = new SyncbackDraftTask("localDraftId")
       waitsForPromise =>
         task.performRemote().then ->
           expect(atom.inbox.makeRequest).toHaveBeenCalled()
@@ -118,7 +84,7 @@ describe "SaveDraftTask", ->
           expect(options.method).toBe('POST')
 
     it "should pass returnsModel:false so that the draft can be manually removed/added to the database, accounting for its ID change", ->
-      task = new SaveDraftTask("localDraftId")
+      task = new SyncbackDraftTask("localDraftId")
       waitsForPromise =>
         task.performRemote().then ->
           expect(atom.inbox.makeRequest).toHaveBeenCalled()
@@ -126,14 +92,14 @@ describe "SaveDraftTask", ->
           expect(options.returnsModel).toBe(false)
 
     it "should swap the ids if we got a new one from the DB", ->
-      task = new SaveDraftTask("localDraftId")
+      task = new SyncbackDraftTask("localDraftId")
       waitsForPromise =>
         task.performRemote().then ->
           expect(DatabaseStore.swapModel).toHaveBeenCalled()
           expect(DatabaseStore.persistModel).not.toHaveBeenCalled()
 
     it "should not swap the ids if we're using a persisted one", ->
-      task = new SaveDraftTask("remoteDraftId")
+      task = new SyncbackDraftTask("remoteDraftId")
       waitsForPromise =>
         task.performRemote().then ->
           expect(DatabaseStore.swapModel).not.toHaveBeenCalled()
@@ -146,7 +112,7 @@ describe "SaveDraftTask", ->
         opts.error(testError(opts)) if opts.error
 
     it "resets the id", ->
-      task = new SaveDraftTask("remoteDraftId")
+      task = new SyncbackDraftTask("remoteDraftId")
       task.onAPIError(testError({}))
       waitsFor ->
         DatabaseStore.swapModel.calls.length > 0

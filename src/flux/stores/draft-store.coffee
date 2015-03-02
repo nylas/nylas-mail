@@ -2,10 +2,10 @@ _ = require 'underscore-plus'
 moment = require 'moment'
 
 Reflux = require 'reflux'
+DraftStoreProxy = require './draft-store-proxy'
 DatabaseStore = require './database-store'
 NamespaceStore = require './namespace-store'
 
-SaveDraftTask = require '../tasks/save-draft'
 SendDraftTask = require '../tasks/send-draft'
 DestroyDraftTask = require '../tasks/destroy-draft'
 
@@ -21,6 +21,7 @@ Actions = require '../actions'
 #
 # Remember that a "Draft" is actually just a "Message" with draft: true.
 #
+
 module.exports =
 DraftStore = Reflux.createStore
   init: ->
@@ -32,18 +33,19 @@ DraftStore = Reflux.createStore
     @listenTo Actions.composePopoutDraft, @_onComposePopoutDraft
     @listenTo Actions.composeNewBlankDraft, @_onComposeNewBlankDraft
 
-    @listenTo Actions.saveDraft, @_onSaveDraft
     @listenTo Actions.sendDraft, @_onSendDraft
     @listenTo Actions.destroyDraft, @_onDestroyDraft
 
     @listenTo Actions.removeFile, @_onRemoveFile
-    @listenTo Actions.persistUploadedFile, @_onFileUploaded
+    @listenTo Actions.attachFileComplete, @_onAttachFileComplete
+    @_draftSessions = {}
 
   ######### PUBLIC #######################################################
 
   # Returns a promise
-  findByLocalId: (localId) ->
-    DatabaseStore.findByLocalId(Message, localId)
+  sessionForLocalId: (localId) ->
+    @_draftSessions[localId] ?= new DraftStoreProxy(localId)
+    @_draftSessions[localId]
 
   ########### PRIVATE ####################################################
 
@@ -127,55 +129,30 @@ DraftStore = Reflux.createStore
     atom.displayComposer(draftLocalId)
 
   _onDestroyDraft: (draftLocalId) ->
+    # Immediately reset any pending changes so no saves occur
+    @_draftSessions[draftLocalId]?.changes.reset()
+    delete @_draftSessions[draftLocalId]
+
+    # Queue the task to destroy the draft
     Actions.queueTask(new DestroyDraftTask(draftLocalId))
     atom.close() if atom.state.mode is "composer"
 
-  _onSaveDraft: (paramsWithLocalId) ->
-    params = _.clone(paramsWithLocalId)
-    draftLocalId = params.localId
-
-    if (not draftLocalId?) then throw new Error("Must call saveDraft with a localId")
-    delete params.localId
-
-    if _.size(params) > 0
-      task = new SaveDraftTask(draftLocalId, params)
-      Actions.queueTask(task)
-
   _onSendDraft: (draftLocalId) ->
-    Actions.queueTask(new SendDraftTask(draftLocalId))
-    atom.close() if atom.state.mode is "composer"
+    # Immediately save any pending changes so we don't save after sending
+    save = @_draftSessions[draftLocalId]?.changes.commit() ? Promise.resolve()
+    save.then ->
+      # Queue the task to send the draft
+      Actions.queueTask(new SendDraftTask(draftLocalId))
+      atom.close() if atom.state.mode is "composer"
 
-  _findDraft: (draftLocalId) ->
-    new Promise (resolve, reject) ->
-      DatabaseStore.findByLocalId(Message, draftLocalId)
-      .then (draft) ->
-        if not draft? then reject("Can't find draft with id #{draftLocalId}")
-        else resolve(draft)
-      .catch (error) -> reject(error)
-
-  # Receives:
-  #   file: - A `File` object
-  #   uploadData:
-  #     messageLocalId
-  #     filePath
-  #     fileSize
-  #     fileName
-  #     bytesUploaded
-  #     state - one of "started" "progress" "completed" "aborted" "failed"
-  _onFileUploaded: ({file, uploadData}) ->
-    @_findDraft(uploadData.messageLocalId)
-    .then (draft) ->
-      draft.files ?= []
-      draft.files.push(file)
-      DatabaseStore.persistModel(draft)
-      Actions.queueTask(new SaveDraftTask(uploadData.messageLocalId))
-    .catch (error) -> console.error(error, error.stack)
+  _onAttachFileComplete: ({file, messageLocalId}) ->
+    @sessionForLocalId(messageLocalId).prepare().then (proxy) ->
+      files = proxy.draft().files ? []
+      files.push(file)
+      proxy.changes.add({files}, true)
 
   _onRemoveFile: ({file, messageLocalId}) ->
-    @_findDraft(messageLocalId)
-    .then (draft) ->
-      draft.files ?= []
-      draft.files = _.reject draft.files, (f) -> f.id is file.id
-      DatabaseStore.persistModel(draft)
-      Actions.queueTask(new SaveDraftTask(uploadData.messageLocalId))
-    .catch (error) -> console.error(error, error.stack)
+    @sessionForLocalId(messageLocalId).prepare().then (proxy) ->
+      files = proxy.draft().files ? []
+      files = _.reject files, (f) -> f.id is file.id
+      proxy.changes.add({files}, true)

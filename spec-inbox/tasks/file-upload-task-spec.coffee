@@ -81,18 +81,38 @@ describe "FileUploadTask", ->
         expect(options.method).toBe('POST')
         expect(options.formData.file.value).toBe("Read Stream")
 
-    it "can abort the upload with the full file path", ->
-      spyOn(@task, "_getBytesUploaded").andReturn(100)
-      waitsForPromise => @task.performRemote().then =>
-        @task.abort()
-        expect(@req.abort).toHaveBeenCalled()
-        data = _.extend uploadData,
-          state: "aborted"
-          bytesUploaded: 100
-        expect(Actions.uploadStateChanged).toHaveBeenCalledWith(data)
-
     it "notifies when the file successfully uploaded", ->
       spyOn(@task, "_completedNotification").andReturn(100)
       waitsForPromise => @task.performRemote().then =>
         file = (new File).fromJSON(fileJSON)
         expect(@task._completedNotification).toHaveBeenCalledWith(file)
+
+
+  describe "cleanup", ->
+    it "should not do anything if the request has finished", ->
+      req = jasmine.createSpyObj('req', ['abort'])
+      reqSuccess = null
+      spyOn(atom.inbox, 'makeRequest').andCallFake (reqParams) ->
+        reqSuccess = reqParams.success
+        req
+
+      @task.performRemote()
+      reqSuccess([fileJSON])
+      @task.cleanup()
+      expect(req.abort).not.toHaveBeenCalled()
+
+    it "should cancel the request if it's in flight", ->
+      req = jasmine.createSpyObj('req', ['abort'])
+      spyOn(atom.inbox, 'makeRequest').andCallFake (reqParams) -> req
+      spyOn(Actions, "uploadStateChanged")
+
+      @task.performRemote()
+      @task.cleanup()
+
+      expect(req.abort).toHaveBeenCalled()
+      data = _.extend uploadData,
+        state: "aborted"
+        bytesUploaded: 0
+      expect(Actions.uploadStateChanged).toHaveBeenCalledWith(data)
+
+

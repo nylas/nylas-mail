@@ -39,7 +39,9 @@ Actions = require '../actions'
 
 class Task
   ## These are commonly overridden ##
-  constructor: -> @id = generateTempId()
+  constructor: ->
+    @id = generateTempId()
+    @creationDate = new Date()
 
   performLocal: -> Promise.resolve()
 

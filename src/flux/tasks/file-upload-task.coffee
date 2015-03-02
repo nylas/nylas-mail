@@ -11,8 +11,8 @@ DatabaseStore = require '../stores/database-store'
 class FileUploadTask extends Task
 
   constructor: (@filePath, @messageLocalId) ->
-    @progress = null # The progress checking timer.
     super
+    @progress = null # The progress checking timer.
 
   performLocal: ->
     return Promise.reject(new Error("Must pass an absolute path to upload")) unless @filePath?.length
@@ -30,27 +30,44 @@ class FileUploadTask extends Task
         json: false
         returnsModel: true
         formData: @_formData()
-        success: (json) => @_onUploadSuccess(json, resolve)
         error: reject
+        success: (json) =>
+          # The Inbox API returns the file json wrapped in an array
+          file = (new File).fromJSON(json[0])
+          Actions.uploadStateChanged @_uploadData("completed")
+          @_completedNotification(file)
+
+          clearInterval(@progress)
+          @req = null
+          resolve()
 
       @progress = setInterval =>
         Actions.uploadStateChanged(@_uploadData("progress"))
       , 250
 
-  abort: ->
-    @req?.abort()
-    clearInterval(@progress)
-    Actions.uploadStateChanged(@_uploadData("aborted"))
+  cleanup: ->
+    super
 
-    setTimeout =>
-      Actions.fileAborted(@_uploadData("aborted"))
-    , 1000 # To see the aborted state for a little bit
+    # If the request is still in progress, notify observers that
+    # we've failed.
+    if @req
+      @req.abort()
+      clearInterval(@progress)
+      Actions.uploadStateChanged(@_uploadData("aborted"))
+      setTimeout =>
+        # To see the aborted state for a little bit
+        Actions.fileAborted(@_uploadData("aborted"))
+      , 1000
+
+  onAPIError: (apiError) ->
+    @_rollbackLocal()
+
+  onOtherError: (otherError) ->
+    @_rollbackLocal()
+
+  onTimeoutError: ->
+    # Do nothing. It could take a while.
     Promise.resolve()
-
-  onAPIError: (apiError) -> @_rollbackLocal()
-  onOtherError: (otherError) -> @_rollbackLocal()
-
-  onTimeoutError: -> Promise.resolve() # Do nothing. It could take a while.
 
   onOfflineError: (offlineError) ->
     msg = "You can't upload a file while you're offline."
@@ -58,21 +75,11 @@ class FileUploadTask extends Task
 
   _rollbackLocal: (msg) ->
     clearInterval(@progress)
+    @req = null
+
     msg ?= "There was a problem uploading this file. Please try again later."
     Actions.postNotification({message: msg, type: "error"})
     Actions.uploadStateChanged @_uploadData("failed")
-
-  _onUploadSuccess: (json, taskCallback) ->
-    clearInterval(@progress)
-
-    # The Inbox API returns the file json wrapped in an array
-    file = (new File).fromJSON(json[0])
-
-    Actions.uploadStateChanged @_uploadData("completed")
-
-    @_completedNotification(file)
-
-    taskCallback()
 
   # The `persistUploadFile` action affects the Database and should only be
   # heard in the main window.
@@ -81,11 +88,8 @@ class FileUploadTask extends Task
   # composers) that the file has finished uploading.
   _completedNotification: (file) ->
     setTimeout =>
-      Actions.persistUploadedFile
-        file: file
-        uploadData: @_uploadData("completed")
-      Actions.fileUploaded
-        uploadData: @_uploadData("completed")
+      Actions.attachFileComplete({file, @messageLocalId})
+      Actions.fileUploaded(uploadData: @_uploadData("completed"))
     , 1000 # To see the success state for a little bit
 
   _formData: ->

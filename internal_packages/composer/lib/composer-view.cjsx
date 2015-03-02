@@ -2,11 +2,11 @@ React = require 'react'
 _ = require 'underscore-plus'
 
 {Actions,
+ DraftStore,
  FileUploadStore,
  ComponentRegistry} = require 'inbox-exports'
 
 FileUploads = require './file-uploads.cjsx'
-DraftStoreProxy = require './draft-store-proxy'
 ContenteditableToolbar = require './contenteditable-toolbar.cjsx'
 ContenteditableComponent = require './contenteditable-component.cjsx'
 ParticipantsTextField = require './participants-text-field.cjsx'
@@ -67,8 +67,10 @@ ComposerView = React.createClass
       @_prepareForDraft()
 
   _prepareForDraft: ->
-    @_proxy = new DraftStoreProxy(@props.localId)
-
+    @_proxy = DraftStore.sessionForLocalId(@props.localId)
+    if @_proxy.draft()
+      @_onDraftChanged()
+      
     @unlisteners = []
     @unlisteners.push @_proxy.listen(@_onDraftChanged)
     @unlisteners.push ComponentRegistry.listen (event) =>
@@ -256,7 +258,6 @@ ComposerView = React.createClass
           @_sendDraft({force: true})
       return
 
-    @_proxy.changes.commit()
     Actions.sendDraft(@props.localId)
 
   _destroyDraft: ->

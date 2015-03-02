@@ -4,7 +4,7 @@ Actions = require '../actions'
 DatabaseStore = require '../stores/database-store'
 Message = require '../models/message'
 Task = require './task'
-SaveDraftTask = require './save-draft'
+SyncbackDraftTask = require './syncback-draft'
 
 module.exports =
 class SendDraftTask extends Task
@@ -15,7 +15,7 @@ class SendDraftTask extends Task
     other instanceof SendDraftTask and other.draftLocalId is @draftLocalId
 
   shouldWaitForTask: (other) ->
-    other instanceof SaveDraftTask and other.draftLocalId is @draftLocalId
+    other instanceof SyncbackDraftTask and other.draftLocalId is @draftLocalId
 
   performLocal: ->
     # When we send drafts, we don't update anything in the app until
@@ -31,15 +31,19 @@ class SendDraftTask extends Task
       # recent draft version
       DatabaseStore.findByLocalId(Message, @draftLocalId).then (draft) ->
         # The draft may have been deleted by another task. Nothing we can do.
-        return reject(new Error("We couldn't find the saved draft. Please try again in a couple seconds")) unless draft
-        return reject(new Error("Cannot send draft that is not saved!")) unless draft.isSaved()
+        return reject(new Error("We couldn't find the saved draft.")) unless draft
+
+        if draft.isSaved()
+          body =
+            draft_id: draft.id
+            version: draft.version
+        else
+          body = draft.toJSON()
 
         atom.inbox.makeRequest
           path: "/n/#{draft.namespaceId}/send"
           method: 'POST'
-          body:
-            draft_id: draft.id
-            version: draft.version
+          body: body
           returnsModel: true
           success: ->
             atom.playSound('mail_sent.ogg')
@@ -49,15 +53,15 @@ class SendDraftTask extends Task
       .catch(reject)
 
   onAPIError: ->
-    msg = "Our server is having problems. Your messages has NOT been sent"
+    msg = "Our server is having problems. Your message has not been sent."
     @notifyErrorMessage(msg)
 
   onOtherError: ->
-    msg = "We had a serious issue while sending. Your messages has NOT been sent"
+    msg = "We had a serious issue while sending. Your message has not been sent."
     @notifyErrorMessage(msg)
 
   onTimeoutError: ->
-    msg = "The server is taking an abnormally long time to respond. Your messages has NOT been sent"
+    msg = "The server is taking an abnormally long time to respond. Your message has not been sent."
     @notifyErrorMessage(msg)
 
   onOfflineError: ->
