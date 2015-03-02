@@ -16,7 +16,7 @@
     font-weight: 400;
     padding-left: @padding-base-horizontal;
     padding-right: @padding-base-horizontal;
-    line-height: @line-height-large;
+    line-height: @line-height-large * 1.1;
   }
 
   .item-divider {
@@ -31,12 +31,20 @@
       float: right;
       vertical-align: baseline;
       background: @source-list-bg;
-      margin-top: floor(@line-height-large - @line-height-small)/2.1;
+      margin-top: floor(@line-height-large - @line-height-small)/2;
       line-height: @line-height-small;
       padding: @padding-xs-vertical @padding-xs-horizontal @padding-xs-vertical @padding-xs-horizontal;
       color: @source-list-active-bg;
       border-radius: @border-radius-small;
       font-weight: 500;
+    }
+    img {
+    }
+    .name {
+      text-transform: capitalize;
+      margin-left: @padding-xs-horizontal;
+      position:relative;
+      top:1px;
     }
     &.selected {
       background: @source-list-active-bg;

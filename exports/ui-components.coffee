@@ -7,4 +7,4 @@ module.exports =
   TokenizingTextField: require '../src/components/tokenizing-text-field'
   ResizableRegion: require '../src/components/resizable-region'
   Flexbox: require '../src/components/flexbox'
-
+  RetinaImg: require '../src/components/retina-img'

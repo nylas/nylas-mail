@@ -1,5 +1,7 @@
+fs = require('fs-plus')
+path = require('path')
 
-utils =
+Utils =
   modelClassMap: ->
     Thread = require './thread'
     Message = require './message'
@@ -51,7 +53,7 @@ utils =
   modelFromJSON: (json) ->
     # These imports can't go at the top of the file
     # because they cause circular requires
-    klass = utils.modelClassMap()[json.object]
+    klass = Utils.modelClassMap()[json.object]
     throw (new Error "Unsure of how to inflate #{JSON.stringify(json)}") unless klass
     throw (new Error "Cannot inflate #{json.object}, require did not return constructor") unless klass instanceof Function
     object = new klass()
@@ -60,7 +62,7 @@ utils =
 
   modelReviver: (k, v) ->
     return v if k == ""
-    v = utils.modelFromJSON(v) if (v instanceof Object && v['object'])
+    v = Utils.modelFromJSON(v) if (v instanceof Object && v['object'])
     v
 
   generateTempId: ->
@@ -74,6 +76,21 @@ utils =
 
   tableNameForJoin: (primaryKlass, secondaryKlass) ->
     "#{primaryKlass.name}-#{secondaryKlass.name}"
+  
+  imageNamed: (fullname) ->
+    [name, ext] = fullname.split('.')
+
+    if Utils.images is undefined
+      Utils.images = {}
+      files = fs.listTreeSync('./static/images')
+      for file in files
+        Utils.images[path.basename(file)] = file.substr(7)
+      console.log('Loaded Images', Utils.images)
+
+    if window.devicePixelRatio > 1
+      return Utils.images["#{name}@2x.#{ext}"] ? Utils.images[fullname]
+    else
+      return Utils.images["#{name}@1x.#{ext}"] ? Utils.images[fullname]
 
   containsQuotedText: (html) ->
     # I know this is gross - one day we'll replace it with a nice system.
@@ -90,4 +107,4 @@ utils =
       return true if html.match(regex)
     return false
 
-module.exports = utils
+module.exports = Utils

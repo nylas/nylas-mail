@@ -1,13 +1,19 @@
 React = require 'react'
-{Actions} = require("inbox-exports")
+{Actions, Utils} = require 'inbox-exports'
+{RetinaImg} = require 'ui-components'
 
 module.exports =
 AccountSidebarTagItem = React.createClass
   render: ->
     unread = if @props.tag.unreadCount > 0 then <div className="unread">{@props.tag.unreadCount}</div> else []
-    className = "item item-tag" + if @props.select then " selected" else ""
-    <div className={className} onClick={@_onClick} id={@props.tag.id}>
+    classSet =  React.addons.classSet
+      'item': true
+      'item-tag': true
+      'selected': @props.select
+
+    <div className={classSet} onClick={@_onClick} id={@props.tag.id}>
       {unread}
+      <RetinaImg name={"#{@props.tag.id}.png"} fallback={'folder.png'} selected={@props.select}/>
       <span className="name"> {@props.tag.name}</span>
     </div>
 

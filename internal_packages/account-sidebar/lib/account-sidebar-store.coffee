@@ -44,7 +44,7 @@ AccountSidebarStore = Reflux.createStore
 
       lastSections = @_sections
       @_sections = [
-        { label: namespace.emailAddress, tags: mainTags }
+        { label: 'Mailboxes', tags: mainTags }
       ]
 
       if _.isEqual(@_sections, lastSections) is false
