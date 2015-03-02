@@ -41,7 +41,13 @@
 
 .bold() {
   font-family: "Proxima Nova Bold", sans-serif;
-  font-weight: normal;
+
+  // NOTE: It is important that this not be "normal". It would seem that under
+  // the hood, contenteditable and document.execCommand use the font-weight to
+  // determine if something is bolded or not. Setting this to normal prevented
+  // execCommand from unbolding text.
+  font-weight: bold;
+
   font-style: normal;
   letter-spacing: 0.3px;
 }

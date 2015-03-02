@@ -84,7 +84,8 @@ class InboxAPI
         Actions.longPollOffline()
 
     connection.onDeltas (deltas) =>
-      @_handleDeltas(deltas)
+      # TODO DO NOT FORGET TO UNCOMMENT ME
+      # @_handleDeltas(deltas)
 
     connection.start()
     connection

@@ -1,6 +1,6 @@
 @import "ui-variables";
 
-.quoted-text-toggle {
+.quoted-text-control {
   background-color: #f7f7f7;
   border-radius: 5px;
   padding: 7px;
@@ -10,11 +10,11 @@
   color: #333;
   border: 1px solid #eee;
   line-height: 16px;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   margin-left: 15px;
   cursor: pointer;
 
-  &.hidden {
+  &.no-quoted-text {
     display:none;
   }
   &:hover {
@@ -22,7 +22,7 @@
     background-color: @background-color-secondary;
     text-decoration:none;
   }
-  &.state-on:before {
+  &.show-quoted-text:before {
     content:'Hide Quoted Text';
   }
   &:before {

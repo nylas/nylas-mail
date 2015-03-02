@@ -31,3 +31,8 @@
   'cmd-ctrl-f': 'window:toggle-full-screen'
   'ctrl-alt-cmd-l': 'window:reload'
   'cmd-alt-ctrl-p': 'window:run-package-specs'
+
+'body div *[contenteditable]':
+  'cmd-z': 'core:undo'
+  'cmd-Z': 'core:redo'
+  'cmd-y': 'core:redo'

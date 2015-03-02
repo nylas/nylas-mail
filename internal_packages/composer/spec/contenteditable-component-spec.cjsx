@@ -34,27 +34,27 @@ describe "ContenteditableComponent", ->
     it "should include a content-editable div", ->
       expect(ReactTestUtils.findRenderedDOMComponentWithAttr(@component, 'contentEditable')).toBeDefined()
 
-    describe "quoted-text-toggle", ->
+    describe "quoted-text-control", ->
       it "should be rendered", ->
-        expect(ReactTestUtils.findRenderedDOMComponentWithClass(@component, 'quoted-text-toggle')).toBeDefined()
+        expect(ReactTestUtils.findRenderedDOMComponentWithClass(@component, 'quoted-text-control')).toBeDefined()
 
       it "should be visible if the html contains quoted text", ->
-        @toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@componentWithQuote, 'quoted-text-toggle')
-        expect(@toggle.props.className.indexOf('hidden') >= 0).toBe(false)
+        @toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@componentWithQuote, 'quoted-text-control')
+        expect(@toggle.props.className.indexOf('no-quoted-text') >= 0).toBe(false)
 
-      it "should be have `state-on` if editQuotedText is true", ->
+      it "should be have `show-quoted-text` if editQuotedText is true", ->
         @componentWithQuote.setState(editQuotedText: true)
-        @toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@componentWithQuote, 'quoted-text-toggle')
-        expect(@toggle.props.className.indexOf('state-on') >= 0).toBe(true)
+        @toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@componentWithQuote, 'quoted-text-control')
+        expect(@toggle.props.className.indexOf('show-quoted-text') >= 0).toBe(true)
 
-      it "should not have `state-on` if editQuotedText is false", ->
+      it "should not have `show-quoted-text` if editQuotedText is false", ->
         @componentWithQuote.setState(editQuotedText: false)
-        @toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@componentWithQuote, 'quoted-text-toggle')
-        expect(@toggle.props.className.indexOf('state-on') >= 0).toBe(false)
+        @toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@componentWithQuote, 'quoted-text-control')
+        expect(@toggle.props.className.indexOf('show-quoted-text') >= 0).toBe(false)
 
       it "should be hidden otherwise", ->
-        @toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@component, 'quoted-text-toggle')
-        expect(@toggle.props.className.indexOf('hidden') >= 0).toBe(true)
+        @toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@component, 'quoted-text-control')
+        expect(@toggle.props.className.indexOf('no-quoted-text') >= 0).toBe(true)
 
     describe "when editQuotedText is false", ->
       it "should only display HTML up to the beginning of the quoted text", ->
@@ -85,12 +85,14 @@ describe "ContenteditableComponent", ->
       @performEdit('Test <strong>New HTML</strong>')
       expect(@onChange).toHaveBeenCalled()
 
-    it "should not fire if the html is the same", ->
+    # One day we may make this more efficient. For now we aggressively
+    # re-render because of the manual cursor positioning.
+    it "should fire if the html is the same", ->
       expect(@onChange.callCount).toBe(0)
       @performEdit(@changedHtmlWithoutQuote)
       expect(@onChange.callCount).toBe(1)
       @performEdit(@changedHtmlWithoutQuote)
-      expect(@onChange.callCount).toBe(1)
+      expect(@onChange.callCount).toBe(2)
 
     describe "when editQuotedText is true", ->
       it "should call `props.onChange` with the entire HTML string", ->

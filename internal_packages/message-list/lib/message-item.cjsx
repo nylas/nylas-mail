@@ -31,11 +31,6 @@ MessageItem = React.createClass
     @_storeUnlisten() if @_storeUnlisten
 
   render: ->
-    quotedTextClass = React.addons.classSet
-      "quoted-text-toggle": true
-      'hidden': !Utils.containsQuotedText(@props.message.body)
-      'state-on': @state.showQuotedText
-
     messageActions = ComponentRegistry.findAllViewsByRole('MessageAction')
     messageIndicators = ComponentRegistry.findAllViewsByRole('MessageIndicator')
     attachments = @_attachmentComponents()
@@ -67,9 +62,13 @@ MessageItem = React.createClass
         <EmailFrame showQuotedText={@state.showQuotedText}>
           {@_formatBody()}
         </EmailFrame>
-        <a className={quotedTextClass} onClick={@_toggleQuotedText}></a>
+        <a className={@_quotedTextClasses()} onClick={@_toggleQuotedText}></a>
       </div>
 
+  _quotedTextClasses: -> React.addons.classSet
+    "quoted-text-control": true
+    'no-quoted-text': !Utils.containsQuotedText(@props.message.body)
+    'show-quoted-text': @state.showQuotedText
 
   # Eventually, _formatBody will run a series of registered body transformers.
   # For now, it just runs a few we've hardcoded here, which are all synchronous.

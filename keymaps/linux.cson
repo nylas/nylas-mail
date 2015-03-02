@@ -28,3 +28,8 @@
   'F11': 'window:toggle-full-screen'
   'ctrl-alt-r': 'window:reload'
   'ctrl-alt-p': 'window:run-package-specs'
+
+'body div *[contenteditable]':
+  'ctrl-z': 'core:undo'
+  'ctrl-Z': 'core:redo'
+  'ctrl-y': 'core:redo'

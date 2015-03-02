@@ -192,8 +192,8 @@ describe "MessageItem", ->
 
     it "should show the `show quoted text` toggle in the off state", ->
       @createComponent()
-      toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@component, 'quoted-text-toggle')
-      expect(toggle.getDOMNode().className.indexOf('state-on')).toBe(-1)
+      toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@component, 'quoted-text-control')
+      expect(toggle.getDOMNode().className.indexOf('show-quoted-text')).toBe(-1)
 
     it "should be initialized to true if the message contains `Forwarded`...", ->
       @message.body = """
@@ -233,8 +233,8 @@ describe "MessageItem", ->
         @component.setState(showQuotedText: true)
 
       it "should show the `show quoted text` toggle in the on state", ->
-        toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@component, 'quoted-text-toggle')
-        expect(toggle.getDOMNode().className.indexOf('state-on') > 0).toBe(true)
+        toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@component, 'quoted-text-control')
+        expect(toggle.getDOMNode().className.indexOf('show-quoted-text') > 0).toBe(true)
 
       it "should pass the value into the EmailFrame", ->
         frame = ReactTestUtils.findRenderedComponentWithType(@component, EmailFrameStub)

@@ -1,5 +1,3 @@
-# All Inbox Globals go here.
-
 module.exports =
 
   # The Task Queue
@@ -34,6 +32,9 @@ module.exports =
   Calendar: require '../src/flux/models/calendar'
   Event: require '../src/flux/models/event'
   SalesforceTask: require '../src/flux/models/salesforce-task'
+
+  # Mixins
+  UndoManager: require '../src/flux/undo-manager'
 
   # Stores
   DraftStore: require '../src/flux/stores/draft-store'

@@ -2,16 +2,15 @@ React = require 'react'
 _ = require 'underscore-plus'
 
 {Actions,
+ UndoManager,
  DraftStore,
  FileUploadStore,
  ComponentRegistry} = require 'inbox-exports'
 
 FileUploads = require './file-uploads.cjsx'
-ContenteditableToolbar = require './contenteditable-toolbar.cjsx'
 ContenteditableComponent = require './contenteditable-component.cjsx'
 ParticipantsTextField = require './participants-text-field.cjsx'
 idGen = 0
-
 
 # The ComposerView is a unique React component because it (currently) is a
 # singleton. Normally, the React way to do things would be to re-render the
@@ -41,11 +40,14 @@ ComposerView = React.createClass
     @_prepareForDraft()
 
   componentDidMount: ->
+    @undoManager = new UndoManager
     @keymap_unsubscriber = atom.commands.add '.composer-outer-wrap', {
       'composer:show-and-focus-bcc': @_showAndFocusBcc
       'composer:show-and-focus-cc': @_showAndFocusCc
       'composer:focus-to': => @focus "textFieldTo"
       'composer:send-message': => @_sendDraft()
+      "core:undo": @undo
+      "core:redo": @redo
     }
     if @props.mode is "fullwindow"
       # Need to delay so the component can be fully painted. Focus doesn't
@@ -57,6 +59,14 @@ ComposerView = React.createClass
   componentWillUnmount: ->
     @_teardownForDraft()
     @keymap_unsubscriber.dispose()
+
+  componentDidUpdate: ->
+    # We want to use a temporary variable instead of putting this into the
+    # state. This is because the selection is a transient property that
+    # only needs to be applied once. It's not a long-living property of
+    # the state. We could call `setState` here, but this saves us from a
+    # re-rendering.
+    @_recoveredSelection = null if @_recoveredSelection?
 
   componentWillReceiveProps: (newProps) ->
     if newProps.localId != @props.localId
@@ -70,7 +80,7 @@ ComposerView = React.createClass
     @_proxy = DraftStore.sessionForLocalId(@props.localId)
     if @_proxy.draft()
       @_onDraftChanged()
-      
+
     @unlisteners = []
     @unlisteners.push @_proxy.listen(@_onDraftChanged)
     @unlisteners.push ComponentRegistry.listen (event) =>
@@ -125,7 +135,7 @@ ComposerView = React.createClass
       <ParticipantsTextField
         ref="textFieldTo"
         field='to'
-        change={@_proxy.changes.add}
+        change={@_onChangeParticipants}
         participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
         tabIndex='102'/>
 
@@ -133,7 +143,7 @@ ComposerView = React.createClass
         ref="textFieldCc"
         field='cc'
         visible={@state.showcc}
-        change={@_proxy.changes.add}
+        change={@_onChangeParticipants}
         participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
         tabIndex='103'/>
 
@@ -141,7 +151,7 @@ ComposerView = React.createClass
         ref="textFieldBcc"
         field='bcc'
         visible={@state.showcc}
-        change={@_proxy.changes.add}
+        change={@_onChangeParticipants}
         participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
         tabIndex='104'/>
 
@@ -158,12 +168,12 @@ ComposerView = React.createClass
                onChange={@_onChangeSubject}/>
       </div>
 
-      <div className="compose-body"
-           onClick={=> @focus("contentBody")}>
+      <div className="compose-body">
         <ContenteditableComponent ref="contentBody"
-                             onChange={@_onChangeBody}
-                             html={@state.body}
-                             tabIndex="109" />
+                                  html={@state.body}
+                                  onChange={@_onChangeBody}
+                                  initialSelectionSnapshot={@_recoveredSelection}
+                                  tabIndex="109" />
       </div>
 
       <div className="attachments-area" >
@@ -177,7 +187,6 @@ ComposerView = React.createClass
         <button className="btn btn-send"
                 tabIndex="110"
                 onClick={@_sendDraft}><i className="fa fa-send"></i>&nbsp;Send</button>
-        <ContenteditableToolbar />
         <button className="btn btn-icon"
                 onClick={@_attachFile}><i className="fa fa-paperclip"></i></button>
         {@_footerComponents()}
@@ -201,6 +210,9 @@ ComposerView = React.createClass
 
   _onDraftChanged: ->
     draft = @_proxy.draft()
+    if not @_initialHistorySave
+      @_saveToHistory()
+      @_initialHistorySave = true
     state =
       to: draft.to
       cc: draft.cc
@@ -217,11 +229,18 @@ ComposerView = React.createClass
 
     @setState(state)
 
-  _onChangeSubject: (event) ->
-    @_proxy.changes.add(subject: event.target.value)
+  _onChangeParticipants: (changes={}) -> @_addToProxy(changes)
+  _onChangeSubject: (event) -> @_addToProxy(subject: event.target.value)
+  _onChangeBody: (event) -> @_addToProxy(body: event.target.value)
 
-  _onChangeBody: (event) ->
-    @_proxy.changes.add(body: event.target.value)
+  _addToProxy: (changes={}, source={}) ->
+    selections = @_getSelections()
+
+    oldDraft = @_proxy.draft()
+    return if _.all changes, (change, key) -> change == oldDraft[key]
+    @_proxy.changes.add(changes)
+
+    @_saveToHistory(selections) unless source.fromUndoManager
 
   _popoutComposer: ->
     @_proxy.changes.commit()
@@ -273,3 +292,49 @@ ComposerView = React.createClass
   _showAndFocusCc: ->
     @setState {showcc: true}
     @focus "textFieldCc"
+
+
+
+
+  undo: (event) ->
+    event.preventDefault()
+    event.stopPropagation()
+    historyItem = @undoManager.undo() ? {}
+    return unless historyItem.state?
+
+    @_recoveredSelection = historyItem.currentSelection
+    @_addToProxy historyItem.state, fromUndoManager: true
+
+  redo: (event) ->
+    event.preventDefault()
+    event.stopPropagation()
+    historyItem = @undoManager.redo() ? {}
+    return unless historyItem.state?
+
+    @_recoveredSelection = historyItem.currentSelection
+    @_addToProxy historyItem.state, fromUndoManager: true
+
+  _getSelections: ->
+    currentSelection: @refs.contentBody?.getCurrentSelection?()
+    previousSelection: @refs.contentBody?.getPreviousSelection?()
+
+  _saveToHistory: (selections) ->
+    selections ?= @_getSelections()
+
+    newDraft = @_proxy.draft()
+
+    historyItem =
+      previousSelection: selections.previousSelection
+      currentSelection: selections.currentSelection
+      state:
+        body: _.clone newDraft.body
+        subject: _.clone newDraft.subject
+        to: _.clone newDraft.to
+        cc: _.clone newDraft.cc
+        bcc: _.clone newDraft.bcc
+
+    lastState = @undoManager.current()
+    if lastState?
+      lastState.currentSelection = historyItem.previousSelection
+
+    @undoManager.saveToHistory(historyItem)
