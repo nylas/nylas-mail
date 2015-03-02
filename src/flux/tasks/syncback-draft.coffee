@@ -24,15 +24,16 @@ class SyncbackDraftTask extends Task
   shouldWaitForTask: (other) ->
     other instanceof SyncbackDraftTask and other.draftLocalId is @draftLocalId and other.creationDate < @creationDate
 
- performLocal: ->
-  # SyncbackDraftTask does not do anything locally. You should persist your changes
-  # to the local database directly or using a DraftStoreProxy, and then queue a
-  # SyncbackDraftTask to send those changes to the server.
-  if not @draftLocalId?
-    errMsg = "Attempt to call FileUploadTask.performLocal without @draftLocalId"
-    Promise.reject(new Error(errMsg))
-  else
-    Promise.resolve()
+  performLocal: ->
+    # SyncbackDraftTask does not do anything locally. You should persist your changes
+    # to the local database directly or using a DraftStoreProxy, and then queue a
+    # SyncbackDraftTask to send those changes to the server.
+    console.log('in performLocal')
+    if not @draftLocalId?
+      errMsg = "Attempt to call FileUploadTask.performLocal without @draftLocalId"
+      Promise.reject(new Error(errMsg))
+    else
+      Promise.resolve()
 
   performRemote: ->
     new Promise (resolve, reject) =>
