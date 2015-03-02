@@ -44,14 +44,16 @@ SearchBar = React.createClass
       else
         item.label
 
-    <Menu ref="menu"
-      className={@_containerClasses()}
-      headerComponents={headerComponents}
-      items={@state.suggestions}
-      itemContent={itemContentFunc}
-      itemKey={ (item) -> item.label }
-      onSelect={@_onSelectSuggestion}
-      />
+    <div className="search-bar">
+      <Menu ref="menu"
+        className={@_containerClasses()}
+        headerComponents={headerComponents}
+        items={@state.suggestions}
+        itemContent={itemContentFunc}
+        itemKey={ (item) -> item.label }
+        onSelect={@_onSelectSuggestion}
+        />
+    </div>
 
   _containerClasses: ->
     React.addons.classSet

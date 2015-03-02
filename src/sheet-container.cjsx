@@ -4,6 +4,10 @@ SheetStore = require './sheet-store'
 Flexbox = require './components/flexbox.cjsx'
 ReactCSSTransitionGroup = React.addons.CSSTransitionGroup
 
+ToolbarSpacer = React.createClass
+  render: ->
+    <div style={flex: 1, order:50}></div>
+
 Toolbar = React.createClass
   propTypes:
     type: React.PropTypes.string.isRequired
@@ -22,6 +26,7 @@ Toolbar = React.createClass
     <div className="toolbar" name={@props.type}>
       <Flexbox direction="row">
         {@_buttonComponents()}
+        <ToolbarSpacer />
       </Flexbox>
     </div>
 

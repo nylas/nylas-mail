@@ -28,26 +28,30 @@
 
 .search-bar {
   position: relative;
-  order: 1;
+  order: 100;
   overflow: visible;
   z-index: 100;
   -webkit-user-select: none;
+  width:270px;
+  margin-top: (50px - 30px) / 2;
+  margin-left: 12px;
+  margin-right: 12px;
 
   .menu .header-container {
-    padding: 0px 50px 0px 15px;
+    padding:0;
+    height:30px;
     background-color: transparent;
     border:none;
 
     input {
       width: 100%;
-      font-size: 20px;
-      line-height: 1;
-      border: 0;
-      padding-top: 16px;
-      padding-bottom: 15px;
+      height: 30px;
     }
   }
 
+  .menu .footer-container {
+    border:none;
+  }
   .menu .content-container {
     position: absolute;
     z-index: 2;
