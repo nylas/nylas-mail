@@ -51,24 +51,25 @@
 
 //============================= Typography =============================//
 
-@text-color: @black;
+// ----- Colors -----
+@text-color:         @black;
 @text-color-inverse: @white;
-@text-color-subtle: fadeout(@text-color, 50%);
+@text-color-subtle:  fadeout(@text-color, 50%);
 
-@text-color-link: @nilas-blue;
-@text-color-link-hover: @nilas-blue-dark;
+@text-color-link:        @nilas-blue;
+@text-color-link-hover:  @nilas-blue-dark;
 @text-color-link-active: @nilas-blue-dark;
 
-@text-color-highlight: @black;
-@text-color-selected: @white;
-@text-color-info: @light-blue;
-@text-color-success: @green;
-@text-color-warning: #ff982d;
-@text-color-error: @red;
-@text-color-destructive: @red;
+@text-color-selected:  @text-color-inverse;
+@text-color-highlight: @text-color;
 
+@text-color-info:        @info-color;
+@text-color-success:     @success-color;
+@text-color-warning:     @warning-color;
+@text-color-error:       @error-color;
+@text-color-destructive: @danger-color;
 
-
+// ----- Font Families -----
 @font-face {
   font-family: 'FaktPro';
   font-style: normal;
@@ -94,10 +95,14 @@
 @font-family-smallcap:    "Proxima Nova Regular Small Cap", "sans-serif";
 @font-family-serif:       Georgia, "Times New Roman", Times, serif;
 @font-family-monospace:   Menlo, Monaco, Consolas, "Courier New", monospace;
-@font-family-base:        @font-family-sans-serif;
-@font-family:             @font-family-sans-serif;
 
+@font-family-base:        @font-family-sans-serif;
+@font-family:             @font-family-base;
+@font-family-heading:     @font-family-sans-serif;
+
+// ----- Font Sizes -----
 @font-size-base:          15px;
+@font-size:               @font-size-base;
 @font-size-large:         ceil((@font-size-base * 1.25)); // ~18px
 @font-size-small:         ceil((@font-size-base * 0.85)); // ~12px
 
@@ -108,21 +113,17 @@
 @font-size-h5:            @font-size-base;
 @font-size-h6:            ceil((@font-size-base * 0.85)); // ~12px
 
-//** Unit-less `line-height` for use in components like buttons.
-@line-height-base:        1.428571429; // 20/14
-//** Computed "line-height" (`font-size` * `line-height`) for use with `margin`, `padding`, etc.
-@line-height-computed:    floor((@font-size-base * @line-height-base)); // ~20px
+// ----- Line Height -----
+@line-height-base:         1.428571429; // 20/14
+@line-height-computed:     floor((@font-size-base * @line-height-base)); // ~20px
+@line-height-heading:      1.1;
 
-//** By default, this inherits from the `<body>`.
-@headings-font-family:    inherit;
 @headings-font-weight:    500;
-@headings-line-height:    1.1;
-@headings-color:          inherit;
 
 
-//== Iconography
-//
-//## Specify custom location and filename of the included Glyphicons icon font. Useful for those including Bootstrap via Bower.
+//============================ Iconography =============================//
+// Specify custom location and filename of the included Glyphicons icon
+// font. Useful for those including Bootstrap via Bower.
 
 //** Load fonts from this directory.
 @icon-font-path:          "../fonts/";
@@ -132,9 +133,9 @@
 @icon-font-svg-id:        "glyphicons_halflingsregular";
 
 
-//== Components
-//
-//## Define common padding and border radius sizes and more. Values based on 14px text and 1.428 line-height (~20px to start).
+//============================== Spacing ===============================//
+// Define common padding and border radius sizes and more. Values based on
+// 14px text and 1.428 line-height (~20px to start).
 
 @padding-base-vertical:     6px;
 @padding-base-horizontal:   12px;
@@ -160,9 +161,10 @@
 //** Global background color for active items (e.g., navs or dropdowns).
 @component-active-bg:       #3a3e44;
 
-//== Tables
-//
-//## Customizes the `.table` component with basic values, each used across all table variations.
+
+//============================== Tables ===============================//
+// Customizes the `.table` component with basic values, each used across
+// all table variations.
 
 //** Padding for `<th>`s and `<td>`s.
 @table-cell-padding:            8px;
@@ -181,9 +183,7 @@
 @table-border-color:            #ddd;
 
 
-//== Buttons
-//
-//## For each of Bootstrap's buttons, define text, background and border color.
+//=============================== Buttons ==============================//
 
 @btn-font-weight:                normal;
 
@@ -218,9 +218,7 @@
 @btn-link-disabled-color:        @gray-light;
 
 
-//== Forms
-//
-//##
+//================================ Forms ===============================//
 
 //** `<input>` background color
 @input-bg:                       #fff;
@@ -259,10 +257,12 @@
 @input-group-addon-border-color: @input-border;
 
 
+//=============================== Z-Index ==============================//
 //-- Z-index master list
 //
-// Warning: Avoid customizing these values. They're used for a bird's eye view
-// of components dependent on the z-axis and are designed to all work together.
+// Warning: Avoid customizing these values. They're used for a bird's eye
+// view of components dependent on the z-axis and are designed to all work
+// together.
 //
 // Note: These variables are not generated into the Customizer.
 
@@ -272,6 +272,17 @@
 @zindex-tooltip:           1070;
 @zindex-navbar-fixed:      1030;
 @zindex-modal:             1040;
+
+
+
+
+
+
+
+
+
+
+
 
 //== Source List (used in Sidebar, iTunes-style)
 //
@@ -320,7 +331,6 @@
 //** Horizontal offset for forms and lists.
 @component-offset-horizontal: 180px;
 //** Text muted color
-@text-color-muted:            @gray-light;
 
 //** Abbreviations and acronyms border color
 @abbr-border-color:           @gray-light;
@@ -449,12 +459,8 @@
 
 // Sizes
 
-@font-size: 15px;
-@minor-font-size: 13px;
-@major-font-size: 17px;
-
-@input-font-size: 14px;
 @disclosure-arrow-size: 12px;
+@input-font-size: 14px;
 
 @component-padding: 10px;
 @component-icon-padding: 5px;

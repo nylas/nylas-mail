@@ -75,5 +75,6 @@ window.onload = function() {
     currentWindow.show();
     currentWindow.openDevTools();
     console.error(error.stack || error);
+    console.error(error.message, error);
   }
 }
