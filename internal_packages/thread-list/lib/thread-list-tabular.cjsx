@@ -34,10 +34,6 @@ ThreadListTabular = React.createClass
       <div tabIndex=1
            className="thread-list-container thread-list-tabular">
 
-        <div className="thread-list-headers">
-          {@_threadHeaders()}
-        </div>
-
         <div className="thread-rows">
           {@_threadRows()}
         </div>
@@ -72,17 +68,26 @@ ThreadListTabular = React.createClass
         LabelComponent = label.view
         <LabelComponent thread={thread} />
 
+    numMessages = (thread) ->
+      numMsg = thread.numMessages()
+      if numMsg < 1 then "" else numMsg
+
     c2 = new ThreadListColumn
       name: "Subject"
-      flex: 6
+      flex: 3
       resolver: (thread) ->
         <span>
-          <span className="subject">{subject(thread)}</span>&nbsp;&nbsp;&nbsp;
-          <span className="snippet">{thread.snippet}</span>
-          {labelComponents(thread)}
+          <span className="subject">{subject(thread)}</span>
+          <span className="message-count item-count-box">{numMessages(thread)}</span>
         </span>
 
     c3 = new ThreadListColumn
+      name: "Snippet"
+      flex: 4
+      resolver: (thread) ->
+        <span className="snippet">{thread.snippet}</span>
+
+    c4 = new ThreadListColumn
       name: "Date"
       flex: 1
       resolver: (thread, parentComponent) ->
@@ -90,15 +95,17 @@ ThreadListTabular = React.createClass
           {parentComponent.threadTime()}
         </span>
 
-    return [c0, c1, c2, c3]
+    return [c0, c1, c2, c3, c4]
 
   _threadHeaders: ->
-    for col in @state.columns
-      <div className="thread-list-header thread-list-column"
-           key={"header-#{col.name}"}
-           style={flex: "#{@_columnFlex()[col.name]}"}>
-        {col.name}
-      </div>
+    return <div></div>
+    # TODO: There's currently no styling for headers
+    # for col in @state.columns
+    #   <div className="thread-list-header thread-list-column"
+    #        key={"header-#{col.name}"}
+    #        style={flex: "#{@_columnFlex()[col.name]}"}>
+    #     {col.name}
+    #   </div>
 
   # The `numTags` attribute is only used to trigger a re-render of the
   # ThreadListTabularItem when a tag gets added or removed (like a star).

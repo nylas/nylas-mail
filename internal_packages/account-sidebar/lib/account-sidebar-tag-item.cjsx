@@ -5,7 +5,7 @@ React = require 'react'
 module.exports =
 AccountSidebarTagItem = React.createClass
   render: ->
-    unread = if @props.tag.unreadCount > 0 then <div className="unread">{@props.tag.unreadCount}</div> else []
+    unread = if @props.tag.unreadCount > 0 then <div className="unread item-count-box">{@props.tag.unreadCount}</div> else []
     classSet =  React.addons.classSet
       'item': true
       'item-tag': true

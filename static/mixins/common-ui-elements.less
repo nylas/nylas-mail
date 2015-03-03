@@ -1,0 +1,11 @@
+// A Mixin holding common UI elements.
+
+// A box to hold counts of things (like number of items in a tag, or
+// number of messages in a thread)
+.item-count-box {
+  display: inline;
+  padding: @padding-xs-vertical @padding-xs-horizontal @padding-xs-vertical @padding-xs-horizontal;
+  margin-top: floor(@line-height-large - @line-height-small)/2;
+  line-height: @line-height-small;
+  border-radius: @border-radius-small;
+}

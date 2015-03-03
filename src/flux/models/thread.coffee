@@ -41,6 +41,9 @@ class Thread extends Model
   @naturalSortOrder: ->
     Thread.attributes.lastMessageTimestamp.descending()
 
+  # TODO Implement me
+  numMessages: -> Math.round(Math.random() * 5)
+
   fromJSON: (json) =>
     super(json)
     @unread = @isUnread()

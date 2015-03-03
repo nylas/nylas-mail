@@ -96,10 +96,10 @@ mark,
 
 // Contextual colors
 .text-muted {
-  color: @text-muted;
+  color: @text-color-subtle;
 }
 .text-primary {
-  .text-emphasis-variant(@brand-primary);
+  .text-emphasis-variant(@accent-primary);
 }
 .text-success {
   .text-emphasis-variant(@state-success-text);
@@ -121,7 +121,7 @@ mark,
   // Given the contrast here, this is the only class to have its color inverted
   // automatically.
   color: #fff;
-  .bg-variant(@brand-primary);
+  .bg-variant(@accent-primary);
 }
 .bg-success {
   .bg-variant(@state-success-bg);

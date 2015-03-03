@@ -12,6 +12,11 @@
   -webkit-user-select: none;
   display: flex;
   position: relative;
+
+  .message-count {
+    color: @text-color-inverse;
+    background: @background-tertiary;
+  }
 }
 
 .thread-list-container {
@@ -110,7 +115,8 @@
 
   .thread-rows {
     overflow: auto;
-    padding-top: @font-size-base * 2; /* height of thread-list-headers*/
+    // Add back when when we re-implement thread-list-headers
+    // padding-top: @font-size-base * 2; /* height of thread-list-headers*/
   }
 
   .thread-list-column {

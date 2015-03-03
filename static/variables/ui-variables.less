@@ -1,56 +1,73 @@
-//
-// Variables
-// --------------------------------------------------
+// Color abstraction heirarcy:
+// 1. Hex code (#428bca)
+// 2. Common color name (@blue)
+// 3. Generic color descriptor (@accent-primary, @background-primary)
+// --------
+// 4. Generic usage descriptor (@input-background, @button-background)
+// 5. Application-specific usage (@unread-label-background)
 
-// Mostly drawn from Bootstrap's variables.less
+// Typography abstraction heirarcy
+// 1. Font-face (FaktPro)
+// 2. Common name (@bold, @italic)
+// 3. Generic font descriptor mixins (.bold, .italic, .h1, .h2)
+// --------
+// 4. Generic usage descriptor (.btn-text, .p-body)
+// 5. Application-specific usage (.message-list-h1, .salesforce-h1)
 
-//== Colors
-//
-//## Gray and brand colors for use across Bootstrap.
+//=============================== Colors ===============================//
+//== Brand colors
+@nilas-yellow:      #D5DC28;
+@nilas-yellow-dark: #A0C23A;
+@nilas-green:       #5CB346;
+@nilas-green-dark:  #078E46;
+@nilas-blue:        #11A1A2;
+@nilas-blue-dark:   #0F7982;
+@nilas-black:       #313435;
 
-@gray-base:              #0a0b0c;
-@gray-darker:            lighten(@gray-base, 13.5%); // #222
-@gray-dark:              lighten(@gray-base, 20%);   // #333
-@gray:                   lighten(@gray-base, 33.5%); // #555
-@gray-light:             lighten(@gray-base, 46.7%); // #777
-@gray-lighter:           lighten(@gray-base, 92.5%); // #eee
+//== Generic colors
+@black:        @nilas-black;
+@gray-base:    #0a0b0c;
+@gray-darker:  lighten(@gray-base, 13.5%); // #222
+@gray-dark:    lighten(@gray-base, 20%);   // #333
+@gray:         lighten(@gray-base, 33.5%); // #555
+@gray-light:   lighten(@gray-base, 46.7%); // #777
+@gray-lighter: lighten(@gray-base, 92.5%); // #eee
+@white:        #ffffff;
 
-@brand-primary:         #428bca;
-@brand-success:         #5cb85c;
-@brand-info:            #5bc0de;
-@brand-warning:         #f0ad4e;
-@brand-danger:          #d9534f;
+//== Color descriptors
+@accent-primary:   @nilas-blue;
+@accent-secondary: @nilas-yellow;
 
+@background-primary:   #ffffff;
+@background-secondary: #f6f6f6;
+@background-tertiary:  #6d7987;
 
-//== Scaffolding
-//
-//## Settings for some of the most global styles.
-
-//** Background color for `<body>`.
-@body-bg:               #fff;
-//** Global text color on `<body>`.
-@text-color:            @gray-dark;
-@text-muted:            @gray-light;
-
-//** Global textual link color.
-@link-color:            @brand-primary;
-//** Link hover color set via `darken()` function.
-@link-hover-color:      darken(@link-color, 15%);
-//** Link hover decoration.
-@link-hover-decoration: underline;
-
-
-
-//== Panels and Sidebars
-//
-//
-@panel-background-color: @gray-lighter;
-@toolbar-background-color: @gray-lighter;
+@info-color:    @nilas-blue-dark;
+@success-color: @nilas-green;
+@warning-color: #f0ad4e;
+@error-color:   #d9534f;
+@danger-color:  #d9534f;
 
 
-//== Typography
-//
-//## Font, line-height, and color for body text, headings, and more.
+//============================= Typography =============================//
+
+@text-color: @black;
+@text-color-inverse: @white;
+@text-color-subtle: fadeout(@text-color, 50%);
+
+@text-color-link: @nilas-blue;
+@text-color-link-hover: @nilas-blue-dark;
+@text-color-link-active: @nilas-blue-dark;
+
+@text-color-highlight: @black;
+@text-color-selected: @white;
+@text-color-info: @light-blue;
+@text-color-success: @green;
+@text-color-warning: #ff982d;
+@text-color-error: @red;
+@text-color-destructive: @red;
+
+
 
 @font-face {
   font-family: 'FaktPro';
@@ -179,23 +196,23 @@
 @btn-default-border:             #ccc;
 
 @btn-primary-color:              #fff;
-@btn-primary-bg:                 @brand-primary;
+@btn-primary-bg:                 @accent-primary;
 @btn-primary-border:             darken(@btn-primary-bg, 5%);
 
 @btn-success-color:              #fff;
-@btn-success-bg:                 @brand-success;
+@btn-success-bg:                 @success-color;
 @btn-success-border:             darken(@btn-success-bg, 5%);
 
 @btn-info-color:                 #fff;
-@btn-info-bg:                    @brand-info;
+@btn-info-bg:                    @info-color;
 @btn-info-border:                darken(@btn-info-bg, 5%);
 
 @btn-warning-color:              #fff;
-@btn-warning-bg:                 @brand-warning;
+@btn-warning-bg:                 @warning-color;
 @btn-warning-border:             darken(@btn-warning-bg, 5%);
 
 @btn-danger-color:               #fff;
-@btn-danger-bg:                  @brand-danger;
+@btn-danger-bg:                  @danger-color;
 @btn-danger-border:              darken(@btn-danger-bg, 5%);
 
 @btn-link-disabled-color:        @gray-light;
@@ -381,17 +398,6 @@
 @unread-color: #009ec4; //!
 @action-color: @green;
 
-@text-color-highlight: @black;
-@text-color-selected: @white;
-@text-color-subtle: fadeout(@text-color, 50%);
-@text-color-inverse: white;
-@text-color-info: @light-blue;
-@text-color-link: @light-blue;
-@text-color-success: @green;
-@text-color-warning: #ff982d;
-@text-color-error: @red;
-@text-color-destructive: @red;
-
 @progress-bar-fill: @light-blue;
 @progress-bar-background: @light-gray;
 
@@ -463,3 +469,8 @@
 @standard-shadow-up: 0 -1px 2px 0 rgba(0, 0, 0, 0.22);
 
 @btn-shadow: 0 1px 0.5px 0 rgba(0, 0, 0, 0.20);
+
+@body-bg: @white;
+//== Panels and Sidebars
+@panel-background-color: @gray-lighter;
+@toolbar-background-color: @gray-lighter;
