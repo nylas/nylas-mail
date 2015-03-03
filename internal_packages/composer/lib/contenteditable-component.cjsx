@@ -64,6 +64,7 @@ ContenteditableComponent = React.createClass
     @_editableNode().focus() if @isMounted()
 
   _onInput: (event) ->
+    @_editableNode().normalize()
     @_setNewSelectionState()
     html = @_unapplyHTMLDisplayFilters(@_editableNode().innerHTML)
     @props.onChange(target: value: html)
@@ -163,13 +164,10 @@ ContenteditableComponent = React.createClass
   # and our selection restoration will fail
   _setNewSelectionState: ->
     selection = document.getSelection()
-    return if @_checkSameSelection(selection)
     return if not @_selectionInScope(selection)
-    @_lastSelection =
-      anchorNode: selection.anchorNode?.cloneNode(true)
-      anchorOffset: selection.anchorOffset
-      focusNode: selection.focusNode?.cloneNode(true)
-      focusOffset: selection.focusOffset
+    # @_setSelectionMarkers()
+
+    return if @_checkSameSelection(selection)
     try
       range = selection.getRangeAt(0)
     catch
@@ -187,6 +185,14 @@ ContenteditableComponent = React.createClass
 
     @_refreshToolbarState()
     return @_selection
+
+  # _setSelectionMarkers: (selection) ->
+  #   startMarker = document.createElement("SPAN")
+  #   startMarker.setAttribute "id", "nilas-start-marker"
+  #   endMarker = document.createElement("SPAN")
+  #   endMarker.setAttribute "id", "nilas-end-marker"
+  #   selection.anchorNode.parentNode.insertBefore(startMarker, selection.anchorNode)
+  #   selection.focusNode.parentNode.insertBefore(endMarker, selection.focusNode)
 
   _setSelectionSnapshot: (selection) -> @_selection = selection
 
@@ -253,24 +259,39 @@ ContenteditableComponent = React.createClass
   # object will mutate underneath us.
   _checkSameSelection: (selection) ->
     return true if not selection?
-    return false if not @_lastSelection
+    return false if not @_previousSelection
     return false if not selection.anchorNode? or not selection.focusNode?
-    anchorEqual = selection.anchorNode.isEqualNode @_lastSelection.anchorNode
-    focusEqual = selection.focusNode.isEqualNode @_lastSelection.focusNode
 
-    anchorOffsetEqual = selection.anchorOffset == @_lastSelection.anchorOffset
-    focusOffsetEqual = selection.focusOffset == @_lastSelection.focusOffset
+    anchorIndex = @_getNodeIndex(selection.anchorNode)
+    focusIndex = @_getNodeIndex(selection.focusNode)
+
+    anchorEqual = selection.anchorNode.isEqualNode @_previousSelection.startNode
+    anchorIndexEqual = anchorIndex is @_previousSelection.startNodeIndex
+    focusEqual = selection.focusNode.isEqualNode @_previousSelection.endNode
+    focusIndexEqual = focusIndex is @_previousSelection.endNodeIndex
+    if not anchorEqual and not focusEqual
+      # This means the selection is the same, but just from the opposite
+      # direction. We don't care in this case, so check the reciprocal as
+      # well.
+      anchorEqual = selection.anchorNode.isEqualNode @_previousSelection.endNode
+      anchorIndexEqual = anchorIndex is @_previousSelection.endNodeIndex
+      focusEqual = selection.focusNode.isEqualNode @_previousSelection.startNode
+      focusIndexEqual = focusIndex is @_previousSelection.startndNodeIndex
+
+    anchorOffsetEqual = selection.anchorOffset == @_previousSelection.startOffset
+    focusOffsetEqual = selection.focusOffset == @_previousSelection.endOffset
     if not anchorOffsetEqual and not focusOffsetEqual
       # This means the selection is the same, but just from the opposite
       # direction. We don't care in this case, so check the reciprocal as
       # well.
-      anchorOffsetEqual = selection.anchorOffset == @_lastSelection.focusOffset
-      focusOffsetEqual = selection.focusOffset == @_lastSelection.anchorOffset
+      anchorOffsetEqual = selection.anchorOffset == @_previousSelection.focusOffset
+      focusOffsetEqual = selection.focusOffset == @_previousSelection.anchorOffset
 
-    if (@_lastSelection? and
-        anchorEqual and
+    if (anchorEqual and
+        anchorIndexEqual and
         anchorOffsetEqual and
         focusEqual and
+        focusIndexEqual and
         focusOffsetEqual)
       return true
     else
