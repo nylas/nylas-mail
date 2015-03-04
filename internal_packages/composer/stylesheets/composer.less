@@ -165,6 +165,18 @@
     padding: 5px 15px 0 15px;
   }
 
+  .participant{
+    .participant-primary {
+      font-weight: @font-weight-semi-bold;
+    }
+    .participant-secondary {
+      color: @text-color-very-subtle;
+    }
+  }
+  .token.selected .participant-secondary, .token.dragging .participant-secondary {
+    color: @text-color-inverse-subtle;
+  }
+
   .compose-subject-wrap {
     margin: 9px 15px 0 15px;
 

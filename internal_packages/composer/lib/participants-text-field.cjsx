@@ -55,13 +55,15 @@ ParticipantsTextField = React.createClass
 
   _componentForParticipant: (p) ->
     if p.name?.length > 0
-      content = p.name
+      <div className="participant">
+        <span className="participant-primary">{p.name}</span>&nbsp;
+        <span className="participant-secondary">({p.email})</span>
+      </div>
     else
-      content = p.email
+      <div className="participant">
+        <span className="participant-primary">{p.email}</span>&nbsp;
+      </div>
 
-    <div className="participant">
-      <span>{content}</span>
-    </div>
 
   _remove: (participant) ->
     field = @props.field
@@ -98,7 +100,7 @@ ParticipantsTextField = React.createClass
 
     menu = new Menu()
     menu.append(new MenuItem(
-      label: participant.email
+      label: "Copy #{participant.email}"
       click: -> require('clipboard').writeText(participant.email)
     ))
     menu.append(new MenuItem(
