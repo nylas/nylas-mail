@@ -9,10 +9,12 @@
 .composer-full-window {
   width: 100%;
   height: 100%;
+
   .composer-outer-wrap {
     width: 100%;
     height: 100%;
   }
+
   .composer-inner-wrap {
     .compose-body {
       margin-bottom: 0;
@@ -90,15 +92,35 @@
   }
 }
 
-.composer-inner-wrap {
+#message-list {
+  .message-item-wrap.composer-outer-wrap {
+    &:last-child { padding-bottom: 0; }
+  }
+  .composer-header-and-body-wrap, .compose-footer {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+}
+
+.composer-header-and-body {
+  position: relative;
   height: 100%;
   display: flex;
   flex-flow: column;
+}
+
+.composer-inner-wrap {
+  height: 100%;
   padding-bottom: 57px;
   position: relative;
 
   a:hover {
     cursor: pointer;
+  }
+
+  .composer-header-and-body {
+    position: relative;
   }
 
   .composer-header {
@@ -161,10 +183,33 @@
     margin-right: 15px;
   }
 
-  .compose-participants-wrap {
+  .compose-participants-wrap, .compose-subject-wrap {
     position: relative;
     z-index: 2;
     padding: 5px @spacing-standard 0 @spacing-standard;
+  }
+
+  .compose-subject-wrap {
+    margin: 0 @spacing-standard;
+    padding: 5px @spacing-standard 0 0;
+    border-bottom: 1px solid @border-color-divider;
+
+    .subject-label {
+      color: @text-color-very-subtle;
+      float: left;
+      padding-top: 8px;
+      display: block;
+    }
+
+    input.compose-field {
+      display: inline-block;
+      width: calc(~"100% - 61px");
+      padding: 6px 0 2px 0;
+      margin: 0 0 5px 5px;
+      min-width: 5em;
+      background-color: transparent;
+      border: none;
+    }
   }
 
   .completion-participant {
@@ -199,15 +244,6 @@
     color: @text-color-inverse-subtle;
   }
 
-  .compose-subject-wrap {
-    margin: 9px 15px 0 15px;
-
-    input {
-      font-size: @font-size-large;
-      height:30px;
-    }
-  }
-
   .compose-body {
     flex: 1;
     z-index: 1;
@@ -233,35 +269,22 @@
     }
   }
 
-  .compose-field {
-    border-bottom: 1px solid @border-color-divider;
-  }
-
-  .compose-footer {
-    padding: 10px 15px;
-    background: @background-color-accent;
+  .compose-footer-wrap {
     position: absolute;
     width: 100%;
     bottom: 0;
     text-align: left;
-
-    .btn-icon {
-      position: relative;
-      top: 2px;
-      margin-right:0;
-      color:rgba(255,255,255, 0.6);
-      box-shadow:none;
-      &:hover,&:active {
-        background-color:transparent;
-        color:rgba(255,255,255, 1);
-      }
-    }
+    background: @background-secondary;
+    border-top: 1px solid @border-color-divider;
+  }
+  .compose-footer {
+    padding: @spacing-standard;
+    padding-bottom: @spacing-standard*1.1;
   }
 
   // TODO FIXME DRY From stylesheets/message-list.less
   .attachments-area {
     padding: 0px 15px 0px 15px;
-    border-top: 1px solid @border-color-divider;
     .attachment-file-wrap {
       padding-top: 5px;
       &.pending, &.started, &.progress {

@@ -34,7 +34,7 @@ ParticipantsTextField = React.createClass
     visible: true
 
   render: ->
-    <div className="compose-participants-wrap" style={display: @props.visible and 'inline' or 'none'}>
+    <div className="compose-participants-wrap" style={zIndex: 1000-@props.tabIndex, display: @props.visible and 'inline' or 'none'}>
       <TokenizingTextField
         ref="textField"
         prompt={@props.field}
@@ -54,7 +54,7 @@ ParticipantsTextField = React.createClass
   focus: -> @refs.textField.focus()
 
   _completionContent: (p) ->
-    if p.name?.length > 0
+    if p.name?.length > 0 and p.name isnt p.email
       <div className="completion-participant">
         <span className="participant-name">{p.name}</span>
         <span className="participant-email">({p.email})</span>
@@ -65,7 +65,7 @@ ParticipantsTextField = React.createClass
       </div>
 
   _componentForParticipant: (p) ->
-    if p.name?.length > 0
+    if p.name?.length > 0 and p.name isnt p.email
       <div className="participant">
         <span className="participant-primary">{p.name}</span>&nbsp;&nbsp;
         <span className="participant-secondary">({p.email})</span>

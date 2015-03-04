@@ -7,7 +7,7 @@ _ = require 'underscore-plus'
  FileUploadStore,
  ComponentRegistry} = require 'inbox-exports'
 
-{ResizableRegion} = require 'ui-components'
+{ResizableRegion, RetinaImg} = require 'ui-components'
 
 FileUploads = require './file-uploads.cjsx'
 ContenteditableComponent = require './contenteditable-component.cjsx'
@@ -108,87 +108,95 @@ ComposerView = React.createClass
 
   _renderComposer: ->
     <div className="composer-inner-wrap">
-      <div className="composer-header">
-        <div className="composer-title">
-          Compose Message
+      <div className="composer-header-and-body-wrap">
+        <div className="composer-header-and-body">
+          <div className="composer-header">
+            <div className="composer-title">
+              Compose Message
+            </div>
+            <div className="composer-header-actions">
+              <span
+                className="header-action"
+                style={display: @state.showcc and 'none' or 'inline'}
+                onClick={=> @setState {showcc: true}}
+                >Add cc/bcc</span>
+              <span
+                className="header-action"
+                style={display: @state.showsubject and 'none' or 'initial'}
+                onClick={=> @setState {showsubject: true}}
+              >Change Subject</span>
+              <span
+                className="header-action"
+                style={display: (@props.mode is "fullwindow") and 'none' or 'initial'}
+                onClick={@_popoutComposer}
+              >Popout&nbsp&nbsp;<i className="fa fa-expand"></i></span>
+            </div>
+          </div>
+
+          <ParticipantsTextField
+            ref="textFieldTo"
+            field='to'
+            change={@_onChangeParticipants}
+            participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
+            tabIndex='102'/>
+
+          <ParticipantsTextField
+            ref="textFieldCc"
+            field='cc'
+            visible={@state.showcc}
+            change={@_onChangeParticipants}
+            participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
+            tabIndex='103'/>
+
+          <ParticipantsTextField
+            ref="textFieldBcc"
+            field='bcc'
+            visible={@state.showcc}
+            change={@_onChangeParticipants}
+            participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
+            tabIndex='104'/>
+
+          <div className="compose-subject-wrap"
+               style={display: @state.showsubject and 'initial' or 'none'}>
+            <input type="text"
+                   key="subject"
+                   name="subject"
+                   tabIndex="108"
+                   disabled={not @state.showsubject}
+                   className="compose-field compose-subject"
+                   value={@state.subject}
+                   onChange={@_onChangeSubject}/>
+            <div className="subject-label">Subject:</div>
+          </div>
+
+          <div className="compose-body">
+            <ContenteditableComponent ref="contentBody"
+                                      html={@state.body}
+                                      onChange={@_onChangeBody}
+                                      initialSelectionSnapshot={@_recoveredSelection}
+                                      tabIndex="109" />
+          </div>
+
+          <div className="attachments-area" >
+            {@_fileComponents()}
+            <FileUploads localId={@props.localId} />
+          </div>
         </div>
-        <div className="composer-header-actions">
-          <span
-            className="header-action"
-            style={display: @state.showcc and 'none' or 'inline'}
-            onClick={=> @setState {showcc: true}}
-            >Add cc/bcc</span>
-          <span
-            className="header-action"
-            style={display: @state.showsubject and 'none' or 'initial'}
-            onClick={=> @setState {showsubject: true}}
-          >Change Subject</span>
-          <span
-            className="header-action"
-            style={display: (@props.mode is "fullwindow") and 'none' or 'initial'}
-            onClick={@_popoutComposer}
-          >Popout&nbsp&nbsp;<i className="fa fa-expand"></i></span>
+      </div>
+
+      <div className="compose-footer-wrap">
+        <div className="compose-footer">
+          <button className="btn btn-icon pull-right"
+                  onClick={@_destroyDraft}><RetinaImg name="toolbar-trash.png" /></button>
+          <button className="btn btn-icon btn-send"
+                  tabIndex="110"
+                  style={padding:"0.45em 1.12em"}
+                  onClick={@_sendDraft}><RetinaImg name="toolbar-send.png" /></button>
+          <button className="btn btn-icon"
+                  style={padding:"0.53em 1.2em"}
+                  onClick={@_attachFile}><RetinaImg name="toolbar-attach.png"/></button>
+          {@_footerComponents()}
         </div>
-      </div>
-
-      <ParticipantsTextField
-        ref="textFieldTo"
-        field='to'
-        change={@_onChangeParticipants}
-        participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
-        tabIndex='102'/>
-
-      <ParticipantsTextField
-        ref="textFieldCc"
-        field='cc'
-        visible={@state.showcc}
-        change={@_onChangeParticipants}
-        participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
-        tabIndex='103'/>
-
-      <ParticipantsTextField
-        ref="textFieldBcc"
-        field='bcc'
-        visible={@state.showcc}
-        change={@_onChangeParticipants}
-        participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
-        tabIndex='104'/>
-
-      <div className="compose-subject-wrap"
-           style={display: @state.showsubject and 'initial' or 'none'}>
-        <input type="text"
-               key="subject"
-               name="subject"
-               placeholder="Subject"
-               tabIndex="108"
-               disabled={not @state.showsubject}
-               className="compose-field compose-subject"
-               defaultValue={@state.subject}
-               onChange={@_onChangeSubject}/>
-      </div>
-
-      <div className="compose-body">
-        <ContenteditableComponent ref="contentBody"
-                                  html={@state.body}
-                                  onChange={@_onChangeBody}
-                                  initialSelectionSnapshot={@_recoveredSelection}
-                                  tabIndex="109" />
-      </div>
-
-      <div className="attachments-area" >
-        {@_fileComponents()}
-        <FileUploads localId={@props.localId} />
-      </div>
-
-      <div className="compose-footer">
-        <button className="btn btn-icon pull-right"
-                onClick={@_destroyDraft}><i className="fa fa-trash"></i></button>
-        <button className="btn btn-send"
-                tabIndex="110"
-                onClick={@_sendDraft}><i className="fa fa-send"></i>&nbsp;Send</button>
-        <button className="btn btn-icon"
-                onClick={@_attachFile}><i className="fa fa-paperclip"></i></button>
-        {@_footerComponents()}
       </div>
     </div>
 
