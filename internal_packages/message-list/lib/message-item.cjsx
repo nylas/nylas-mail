@@ -53,16 +53,20 @@ MessageItem = React.createClass
 
     if @state.collapsed
       <div className="message-item-wrap collapsed">
-        {header}
+        <div className="messsage-item-area">
+          {header}
+        </div>
       </div>
     else
       <div className="message-item-wrap">
-        {header}
-        {attachments}
-        <EmailFrame showQuotedText={@state.showQuotedText}>
-          {@_formatBody()}
-        </EmailFrame>
-        <a className={@_quotedTextClasses()} onClick={@_toggleQuotedText}></a>
+        <div className="message-item-area">
+          {header}
+          {attachments}
+          <EmailFrame showQuotedText={@state.showQuotedText}>
+            {@_formatBody()}
+          </EmailFrame>
+          <a className={@_quotedTextClasses()} onClick={@_toggleQuotedText}></a>
+        </div>
       </div>
 
   _quotedTextClasses: -> React.addons.classSet

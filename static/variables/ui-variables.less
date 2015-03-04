@@ -42,6 +42,10 @@
 @background-secondary: #f6f6f6;
 @background-tertiary:  #6d7987;
 
+@border-primary-bg: darken(@background-primary, 10%);
+@border-secondary-bg: darken(@background-secondary, 10%);
+@border-tertiary-bg: darken(@background-tertiary, 10%);
+
 @info-color:    @nilas-blue-dark;
 @success-color: @nilas-green;
 @warning-color: #f0ad4e;
@@ -76,6 +80,13 @@
 @font-face {
   font-family: 'FaktPro';
   font-style: normal;
+  font-weight: 300;
+  src: local('FaktPro-Blond'), url('fonts/Fakt/FaktPro-Normal.ttf'), local('Comic Sans MS');
+}
+
+@font-face {
+  font-family: 'FaktPro';
+  font-style: normal;
   font-weight: 400;
   src: local('FaktPro-Normal'), url('fonts/Fakt/FaktPro-Normal.ttf'), local('Comic Sans MS');
 }
@@ -104,9 +115,11 @@
 @font-family-heading:     @font-family-sans-serif;
 
 // ----- Font Weights -----
+@font-weight-blond:       300;
 @font-weight-normal:      400;
 @font-weight-medium:      500;
 @font-weight-semi-bold:   600;
+@headings-font-weight:    600;
 
 // ----- Font Sizes -----
 @font-size-base:          15px;
@@ -117,19 +130,17 @@
 @font-size-large:         @font-size-base * 1.06; // 16px
 @font-size-larger:        @font-size-base * 1.20; // 18px
 
-@font-size-h1:            floor((@font-size-base * 2.6)); // ~36px
-@font-size-h2:            floor((@font-size-base * 2.15)); // ~30px
-@font-size-h3:            ceil((@font-size-base * 1.7)); // ~24px
-@font-size-h4:            ceil((@font-size-base * 1.25)); // ~18px
+@font-size-h1:            @font-size-base * 1.6;  // 24px
+@font-size-h2:            @font-size-base * 1.6;  // 24px
+@font-size-h3:            @font-size-base * 1.7;  // 24px
+@font-size-h4:            @font-size-base * 1.25; // 18px
 @font-size-h5:            @font-size-base;
-@font-size-h6:            ceil((@font-size-base * 0.85)); // ~12px
+@font-size-h6:            @font-size-base * 0.85; // 12px
 
 // ----- Line Height -----
 @line-height-base:         1.5; // 22.5/15
 @line-height-computed:     floor((@font-size-base * @line-height-base)); // ~20px
 @line-height-heading:      1.1;
-
-@headings-font-weight:    500;
 
 
 //============================ Iconography =============================//

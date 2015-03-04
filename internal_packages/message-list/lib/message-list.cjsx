@@ -54,17 +54,6 @@ MessageList = React.createClass
       </div>
     </div>
 
-  # TODO Add actions and notifications back in.
-  _oldMessageListHeaders: ->
-    return <div></div>
-    <div className="message-list-primary-actions">
-      {@_messageListPrimaryActions()}
-    </div>
-
-    <div className="message-list-notification-bars">
-      {@_messageListNotificationBars()}
-    </div>
-
   _messageListPrimaryActions: ->
     MLActions = ComponentRegistry.findAllViewsByRole('MessageListPrimaryAction')
     <div className="primary-actions-bar">
@@ -82,11 +71,9 @@ MessageList = React.createClass
     MessageListHeaders = ComponentRegistry.findAllViewsByRole('MessageListHeader')
 
     <div className="message-list-headers">
-      <h2>{@state.current_thread.subject}</h2>
+      <h2 className="message-subject">{@state.current_thread.subject}</h2>
 
-      <Participants clickable={true}
-                    context={'primary'}
-                    participants={@_threadParticipants()}/>
+      {@_oldParticipants()}
 
       {for MessageListHeader in MessageListHeaders
         <MessageListHeader thread={@state.current_thread} />
@@ -154,6 +141,31 @@ MessageList = React.createClass
         if contact? and contact.email?.length > 0
           participants[contact.email] = contact
     return _.values(participants)
+
+
+
+
+
+
+
+  # TODO Add actions and notifications back in.
+  _oldMessageListHeaders: ->
+    return <div></div>
+    <div className="message-list-primary-actions">
+      {@_messageListPrimaryActions()}
+    </div>
+
+    <div className="message-list-notification-bars">
+      {@_messageListNotificationBars()}
+    </div>
+
+  # TODO Add participants back in
+  _oldParticipants: ->
+    return <div></div>
+    <Participants clickable={true}
+                  context={'primary'}
+                  participants={@_threadParticipants()}/>
+
 
 
 MessageList.minWidth = 600
