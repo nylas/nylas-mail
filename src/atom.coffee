@@ -727,7 +727,7 @@ class Atom extends Model
     @deserializeTimings.workspace = Date.now() - startTime
 
     SheetContainer = require './sheet-container'
-    @item = document.createElement("div")
+    @item = document.createElement("atom-workspace")
     @item.setAttribute("id", "sheet-container")
     @item.setAttribute("class", "sheet-container")
 
