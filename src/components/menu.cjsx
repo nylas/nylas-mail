@@ -120,21 +120,26 @@ Menu = React.createClass
   render: ->
     hc = @props.headerComponents ? []
     if hc.length is 0 then hc = <span></span>
-    items = @props.items.map(@_itemComponentForItem) ? []
-    if items is 0 then items = <span></span>
     fc = @props.footerComponents ? []
     if fc.length is 0 then fc = <span></span>
     <div className={"menu " + @props.className}>
       <div className="header-container">
         {hc}
       </div>
-      <div className="content-container">
-        {items}
-      </div>
+      {@_contentContainer()}
       <div className="footer-container">
         {fc}
       </div>
     </div>
+
+  _contentContainer: ->
+    items = @props.items.map(@_itemComponentForItem) ? []
+    if items.length is 0
+      <span></span>
+    else
+      <div className="content-container">
+        {items}
+      </div>
 
   _itemComponentForItem: (item, i) ->
     content = @props.itemContent(item)

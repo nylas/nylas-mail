@@ -43,7 +43,7 @@ ParticipantsTextField = React.createClass
         tokenKey={ (p) -> p.email }
         tokenContent={@_componentForParticipant}
         completionsForInput={ (input) -> ContactStore.searchContacts(input) }
-        completionContent={ (p) -> "#{p.name} (#{p.email})" }
+        completionContent={@_completionContent}
         add={@_add}
         remove={@_remove}
         showMenu={@_showContextMenu} />
@@ -53,15 +53,26 @@ ParticipantsTextField = React.createClass
   # focus the input field.
   focus: -> @refs.textField.focus()
 
+  _completionContent: (p) ->
+    if p.name?.length > 0
+      <div className="completion-participant">
+        <span className="participant-name">{p.name}</span>
+        <span className="participant-email">({p.email})</span>
+      </div>
+    else
+      <div className="completion-participant">
+        <span className="participant-name">{p.email}</span>
+      </div>
+
   _componentForParticipant: (p) ->
     if p.name?.length > 0
       <div className="participant">
-        <span className="participant-primary">{p.name}</span>&nbsp;
+        <span className="participant-primary">{p.name}</span>&nbsp;&nbsp;
         <span className="participant-secondary">({p.email})</span>
       </div>
     else
       <div className="participant">
-        <span className="participant-primary">{p.email}</span>&nbsp;
+        <span className="participant-primary">{p.email}</span>
       </div>
 
 

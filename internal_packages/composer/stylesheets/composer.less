@@ -162,7 +162,27 @@
   }
 
   .compose-participants-wrap {
-    padding: 5px 15px 0 15px;
+    position: relative;
+    z-index: 2;
+    padding: 5px @spacing-standard 0 @spacing-standard;
+  }
+
+  .completion-participant {
+    .participant-name, .participant-email {
+      max-width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .participant-name {
+      display: block;
+      float: left;
+    }
+    .participant-email {
+      display: block;
+      float: right;
+    }
   }
 
   .participant{
@@ -173,6 +193,8 @@
       color: @text-color-very-subtle;
     }
   }
+
+
   .token.selected .participant-secondary, .token.dragging .participant-secondary {
     color: @text-color-inverse-subtle;
   }
@@ -188,6 +210,7 @@
 
   .compose-body {
     flex: 1;
+    z-index: 1;
     display: flex;
     cursor: text;
     overflow: auto;
