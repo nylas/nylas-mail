@@ -5,25 +5,40 @@ EmailFixingStyles = """
   <style>
   /* Styles for an email iframe */
   @font-face {
-    font-family: 'Proxima Nova Regular';
-    src: url('fonts/Proxima-Nova/regular.woff') format('woff');
-    font-weight: normal;
+    font-family: 'FaktPro';
     font-style: normal;
+    font-weight: 300;
+    src: local('FaktPro-Blond'), url('fonts/Fakt/FaktPro-Blond.ttf'), local('Comic Sans MS');
   }
+
   @font-face {
-    font-family: 'Proxima Nova Bold';
-    src: url('fonts/Proxima-Nova/bold.woff') format('woff');
-    font-weight: normal;
+    font-family: 'FaktPro';
     font-style: normal;
+    font-weight: 400;
+    src: local('FaktPro-Normal'), url('fonts/Fakt/FaktPro-Normal.ttf'), local('Comic Sans MS');
+  }
+
+  @font-face {
+    font-family: 'FaktPro';
+    font-style: normal;
+    font-weight: 500;
+    src: local('FaktPro-Medium'), url('fonts/Fakt/FaktPro-Medium.ttf'), local('Comic Sans MS');
+  }
+
+  @font-face {
+    font-family: 'FaktPro';
+    font-style: normal;
+    font-weight: 600;
+    src: local('FaktPro-SemiBold'), url('fonts/Fakt/FaktPro-SemiBold.ttf'), local('Comic Sans MS');
   }
 
   /* Clean Message Display */
   html, body {
-    font-family: "Proxima Nova Regular", sans-serif;
+    font-family: "FaktPro", "Helvetica", "Lucidia Grande", sans-serif;
     font-size: 16px;
-    line-height: 1.35;
+    line-height: 1.5;
 
-    color: #333;
+    color: #313435;
 
     border: 0;
     margin: 0;
@@ -33,16 +48,8 @@ EmailFixingStyles = """
     word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;
   }
 
-  ::selection {
-    color: #f1f1f1;
-    background: #009ec4;
-  }
-
   strong, b, .bold {
-    font-family: "Proxima Nova Bold", sans-serif;
-    font-weight: normal;
-    font-style: normal;
-    letter-spacing: 0.3px;
+    font-weight: 600;
   }
 
   body {
@@ -53,15 +60,15 @@ EmailFixingStyles = """
   }
 
   a {
-    color: #1486D4;
+    color: #11A1A2;
   }
 
   a:hover {
-    color: #1069a5;
+    color: #0f7982;
   }
 
   a:visited {
-    color: #1069a5;
+    color: #11A1A2;
   }
   a img {
     border-bottom: 0;

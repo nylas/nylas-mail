@@ -24,7 +24,8 @@
 
   .message-list-headers {
     margin: 0 auto;
-    padding: @spacing-double @spacing-standard;
+    padding: @spacing-double;
+    padding-bottom: @spacing-standard;
     width: 100%;
     max-width: 800px;
 
@@ -63,7 +64,7 @@
     width: 100%;
 
     margin: 0 auto;
-    padding-top: @spacing-standard;
+    padding: @spacing-double 0;
     &:first-child { padding-top: 0; }
 
     border-bottom: 1px solid @border-primary-bg;
@@ -74,13 +75,14 @@
     width: 100%;
     max-width: 800px;
     margin: 0 auto;
-    padding: @spacing-standard;
+    padding: @spacing-standard @spacing-double;
 
     &.collapsed {
-      padding: 0 @spacing-standard;
+      padding: 0 @spacing-double;
     }
 
     .message-header {
+      font-size: @font-size-small;
       .message-actions {
         float:right;
         padding-right:15px;
@@ -95,14 +97,17 @@
     }
 
     .message-time, .message-indicator {
-      font-size: @font-size-small;
-      color: @text-color-subtle;
+      color: @text-color-very-subtle;
       margin-top: 3px;
       float: right;
     }
 
     .message-indicator {
       margin-right: 4px;
+    }
+
+    .to-label {
+      font-weight: 600;
     }
 
     .to-label, .to-everyone, .cc-label, .cc-contact, .to-label, .to-contact {
@@ -114,29 +119,25 @@
       display: none;
     }
     .from-contact {
-      font-weight:@headings-font-weight;
+      font-weight: @headings-font-weight;
       color: @text-color;
-      font-size: @font-size-large;
-      margin-right: 15px;
     }
 
     .to-label, .cc-label {
-      font-size: @font-size-small;
-      color: @text-color;
+      color: @text-color-very-subtle;
     }
     .cc-label {
-      margin-left: 15px;
+      margin-left: @spacing-standard;
     }
     .to-contact, .cc-contact, .to-everyone {
-      font-size: @font-size-small;
-      color: @text-color-subtle;
+      color: @text-color-very-subtle;
     }
 
     iframe {
       width: 100%;
       border: 0;
       padding: 0;
-      margin-top: @spacing-standard;
+      margin-top: @spacing-sub-double;
       overflow: auto;
     }
   }

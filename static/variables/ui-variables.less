@@ -23,6 +23,7 @@
 @nilas-blue:        #11A1A2;
 @nilas-blue-dark:   #0F7982;
 @nilas-black:       #313435;
+@nilas-gray:        #434648;
 
 //== Generic colors
 @black:        @nilas-black;
@@ -63,6 +64,8 @@
 @text-color-inverse-subtle:  fadeout(@text-color-inverse, 20%);
 @text-color-inverse-very-subtle:  fadeout(@text-color-inverse, 50%);
 
+@text-color-heading: @nilas-gray;
+
 @text-color-link:        @nilas-blue;
 @text-color-link-hover:  @nilas-blue-dark;
 @text-color-link-active: @nilas-blue-dark;
@@ -81,7 +84,7 @@
   font-family: 'FaktPro';
   font-style: normal;
   font-weight: 300;
-  src: local('FaktPro-Blond'), url('fonts/Fakt/FaktPro-Normal.ttf'), local('Comic Sans MS');
+  src: local('FaktPro-Blond'), url('fonts/Fakt/FaktPro-Blond.ttf'), local('Comic Sans MS');
 }
 
 @font-face {
@@ -160,8 +163,15 @@
 // 14px text and 1.428 line-height (~20px to start).
 
 @spacing-standard:          @font-size-base;
-@spacing-double:            @spacing-standard * 2;
+
+@spacing-quarter:           @spacing-standard * 0.25;
 @spacing-half:              @spacing-standard * 0.5;
+@spacing-three-quarters:    @spacing-standard * 0.75;
+
+@spacing-sub-double:        @spacing-standard * 1.75;
+@spacing-double:            @spacing-standard * 2;
+@spacing-super-double:      @spacing-standard * 2.25;
+
 
 @padding-base-vertical:     6px;
 @padding-base-horizontal:   12px;
@@ -288,9 +298,6 @@
 
 
 
-
-
-
 //== Source List (used in Sidebar, iTunes-style)
 //
 // ##
@@ -331,24 +338,16 @@
 //** Text color for content within disabled list items
 @list-disabled-text-color: @list-disabled-color;
 
-//== Type
-//
-//##
-
-//** Horizontal offset for forms and lists.
-@component-offset-horizontal: 180px;
-//** Text muted color
 
 //** Abbreviations and acronyms border color
 @abbr-border-color:           @gray-light;
-//** Headings small color
-@headings-small-color:        @gray-light;
 //** Blockquote small color
 @blockquote-small-color:      @gray-light;
 //** Blockquote font size
 @blockquote-font-size:        (@font-size-base * 1.25);
 //** Blockquote border color
 @blockquote-border-color:     @gray-lighter;
+
 
 
 //== Form states and alerts

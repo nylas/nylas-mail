@@ -19,7 +19,7 @@ MessageParticipants = React.createClass
 
   _toEveryone: ->
     <span>
-      <span className="participant-label to-label">To:&nbsp;</span>
+      <span className="participant-label to-label">&nbsp;>&nbsp;</span>
       <span className="participant-name to-everyone">Everyone</span>
     </span>
 
@@ -30,7 +30,7 @@ MessageParticipants = React.createClass
         <span className="participant-name cc-contact">{@_joinNames(@props.cc)}</span>
       </span>
     <span>
-      <span className="participant-label to-label">To:&nbsp;</span>
+      <span className="participant-label to-label">&nbsp;>&nbsp;</span>
       <span className="participant-name to-contact">{@_joinNames(@props.to)}</span>
       {cc_spans}
     </span>

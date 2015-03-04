@@ -22,11 +22,11 @@ class Contact extends Model
     json
 
   displayName: ->
-    return "Me" if @email == NamespaceStore.current().emailAddress
+    return "You" if @email == NamespaceStore.current().emailAddress
     @_nameParts().join(' ')
 
   displayFirstName: ->
-    return "Me" if @email == NamespaceStore.current().emailAddress
+    return "You" if @email == NamespaceStore.current().emailAddress
     @firstName()
 
   displayLastName: ->

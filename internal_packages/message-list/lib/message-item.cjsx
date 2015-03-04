@@ -122,6 +122,7 @@ MessageItem = React.createClass
     @setState
       downloads: FileDownloadStore.downloadsForFileIds(@props.message.fileIds())
 
+  ## TODO: Re-implement message collapsing
   _onToggleCollapsed: ->
-    @setState
-      collapsed: !@state.collapsed
+    # @setState
+    #   collapsed: !@state.collapsed
