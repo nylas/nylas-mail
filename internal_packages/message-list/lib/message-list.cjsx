@@ -42,13 +42,7 @@ MessageList = React.createClass
 
     <div class="message-list" id="message-list">
       <div tabIndex=1 className="messages-wrap">
-        <div className="message-list-primary-actions">
-          {@_messageListPrimaryActions()}
-        </div>
-
-        <div className="message-list-notification-bars">
-          {@_messageListNotificationBars()}
-        </div>
+        {@_oldMessageListHeaders()}
 
         <div className="title-and-messages">
           {@_messageListHeaders()}
@@ -58,6 +52,17 @@ MessageList = React.createClass
           </div>
         </div>
       </div>
+    </div>
+
+  # TODO Add actions and notifications back in.
+  _oldMessageListHeaders: ->
+    return <div></div>
+    <div className="message-list-primary-actions">
+      {@_messageListPrimaryActions()}
+    </div>
+
+    <div className="message-list-notification-bars">
+      {@_messageListNotificationBars()}
     </div>
 
   _messageListPrimaryActions: ->

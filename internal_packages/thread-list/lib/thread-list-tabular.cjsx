@@ -55,8 +55,10 @@ ThreadListTabular = React.createClass
       flex: 2
       resolver: (thread, parentComponent) =>
         Participants = @state.Participants
-        <Participants participants={thread.participants}
-                      context={'list'} clickable={false} />
+        <div className="participants">
+          <Participants participants={thread.participants}
+                        context={'list'} clickable={false} />
+        </div>
 
     subject = (thread) ->
       if (thread.subject ? "").trim().length is 0
@@ -68,9 +70,12 @@ ThreadListTabular = React.createClass
         LabelComponent = label.view
         <LabelComponent thread={thread} />
 
-    numMessages = (thread) ->
-      numMsg = thread.numMessages()
-      if numMsg < 1 then "" else numMsg
+    numUnread = (thread) ->
+      numMsg = thread.numUnread()
+      if numMsg < 2
+        <span></span>
+      else
+        <span className="message-count item-count-box">{numMsg}</span>
 
     c2 = new ThreadListColumn
       name: "Subject"
@@ -78,7 +83,7 @@ ThreadListTabular = React.createClass
       resolver: (thread) ->
         <span>
           <span className="subject">{subject(thread)}</span>
-          <span className="message-count item-count-box">{numMessages(thread)}</span>
+          {numUnread(thread)}
         </span>
 
     c3 = new ThreadListColumn
@@ -95,7 +100,7 @@ ThreadListTabular = React.createClass
           {parentComponent.threadTime()}
         </span>
 
-    return [c0, c1, c2, c3, c4]
+    return [c1, c2, c3, c4]
 
   _threadHeaders: ->
     return <div></div>

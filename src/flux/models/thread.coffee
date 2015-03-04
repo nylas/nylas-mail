@@ -42,7 +42,10 @@ class Thread extends Model
     Thread.attributes.lastMessageTimestamp.descending()
 
   # TODO Implement me
-  numMessages: -> Math.round(Math.random() * 5)
+  numUnread: ->
+    if @unread
+      Math.round(Math.random() * 5)
+    else 0
 
   fromJSON: (json) =>
     super(json)

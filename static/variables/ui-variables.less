@@ -53,8 +53,11 @@
 
 // ----- Colors -----
 @text-color:         @black;
+@text-color-subtle:  fadeout(@text-color, 20%);
+@text-color-very-subtle:  fadeout(@text-color, 50%);
 @text-color-inverse: @white;
-@text-color-subtle:  fadeout(@text-color, 50%);
+@text-color-inverse-subtle:  fadeout(@text-color-inverse, 20%);
+@text-color-inverse-very-subtle:  fadeout(@text-color-inverse, 50%);
 
 @text-color-link:        @nilas-blue;
 @text-color-link-hover:  @nilas-blue-dark;
@@ -100,11 +103,19 @@
 @font-family:             @font-family-base;
 @font-family-heading:     @font-family-sans-serif;
 
+// ----- Font Weights -----
+@font-weight-normal:      400;
+@font-weight-medium:      500;
+@font-weight-semi-bold:   600;
+
 // ----- Font Sizes -----
 @font-size-base:          15px;
-@font-size:               @font-size-base;
-@font-size-large:         ceil((@font-size-base * 1.25)); // ~18px
-@font-size-small:         ceil((@font-size-base * 0.85)); // ~12px
+
+@font-size-smaller:       @font-size-base * 0.80; // 12px
+@font-size-small:         @font-size-base * 0.93; // 14px
+@font-size:               @font-size-base;        // 15px
+@font-size-large:         @font-size-base * 1.06; // 16px
+@font-size-larger:        @font-size-base * 1.20; // 18px
 
 @font-size-h1:            floor((@font-size-base * 2.6)); // ~36px
 @font-size-h2:            floor((@font-size-base * 2.15)); // ~30px
@@ -114,7 +125,7 @@
 @font-size-h6:            ceil((@font-size-base * 0.85)); // ~12px
 
 // ----- Line Height -----
-@line-height-base:         1.428571429; // 20/14
+@line-height-base:         1.5; // 22.5/15
 @line-height-computed:     floor((@font-size-base * @line-height-base)); // ~20px
 @line-height-heading:      1.1;
 
@@ -136,6 +147,10 @@
 //============================== Spacing ===============================//
 // Define common padding and border radius sizes and more. Values based on
 // 14px text and 1.428 line-height (~20px to start).
+
+@spacing-standard:          @font-size-base;
+@spacing-double:            @spacing-standard * 2;
+@spacing-half:              @spacing-standard * 0.5;
 
 @padding-base-vertical:     6px;
 @padding-base-horizontal:   12px;
@@ -185,38 +200,19 @@
 
 //=============================== Buttons ==============================//
 
-@btn-font-weight:                normal;
+@btn-shadow: 0 1px 4px rgba(0, 0, 0, 0.21);
 
-@btn-toolbar-color:              #333;
-@btn-toolbar-bg:                 #fff;
-@btn-toolbar-border:             transparent;
+@btn-default-bg-color:    @background-primary;
+@btn-default-text-color:  @text-color;
 
-@btn-default-color:              #333;
-@btn-default-bg:                 #fff;
-@btn-default-border:             #ccc;
+@btn-action-bg-color:     @success-color;
+@btn-action-text-color:   @text-color;
 
-@btn-primary-color:              #fff;
-@btn-primary-bg:                 @accent-primary;
-@btn-primary-border:             darken(@btn-primary-bg, 5%);
+@btn-emphasis-bg-color:   @accent-primary;
+@btn-emphasis-text-color: @text-color-inverse;
 
-@btn-success-color:              #fff;
-@btn-success-bg:                 @success-color;
-@btn-success-border:             darken(@btn-success-bg, 5%);
-
-@btn-info-color:                 #fff;
-@btn-info-bg:                    @info-color;
-@btn-info-border:                darken(@btn-info-bg, 5%);
-
-@btn-warning-color:              #fff;
-@btn-warning-bg:                 @warning-color;
-@btn-warning-border:             darken(@btn-warning-bg, 5%);
-
-@btn-danger-color:               #fff;
-@btn-danger-bg:                  @danger-color;
-@btn-danger-border:              darken(@btn-danger-bg, 5%);
-
-@btn-link-disabled-color:        @gray-light;
-
+@btn-danger-bg-color:     @danger-color;
+@btn-danger-text-color:   @text-color-inverse;
 
 //================================ Forms ===============================//
 
@@ -442,13 +438,6 @@
 @input-accessory-color-hover: @light-blue;
 @input-accessory-color: @cool-gray;
 
-// Buttons
-
-@button-background-color: @white;
-@button-background-color-hover: white;
-@button-background-color-selected: white;
-@button-border-color: @border-color;
-
 // Menus
 
 @menu-color: white;
@@ -473,8 +462,6 @@
 
 @standard-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.22);
 @standard-shadow-up: 0 -1px 2px 0 rgba(0, 0, 0, 0.22);
-
-@btn-shadow: 0 1px 0.5px 0 rgba(0, 0, 0, 0.20);
 
 @body-bg: @white;
 //== Panels and Sidebars

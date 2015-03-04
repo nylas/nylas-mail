@@ -1,126 +1,135 @@
-@import "ui-variables";
-@import "ui-mixins";
-
-.btn-background (@color, @hover-color, @selected-color, @border-color, @text-color, @text-color-hover) {
-  @border-shadow: inset 0 0 0 1px @border-color;
-  @active-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
-  color: @text-color;
-  box-shadow: 0 0 0;
-  background-color: @color;
-  // background-image: -webkit-linear-gradient(@color, darken(@color, 8%));
-  // box-shadow: @border-shadow;
-
-  &:focus {
-    box-shadow: 0 0 10px rgba(255,255,255,0.7);
-    // color: @text-color-hover;
-    // background: lighten(@color, 4%);
-  }
-
-  &:hover {
-    color: @text-color-hover;
-    background: lighten(@color, 4%);
-    // background-image: -webkit-linear-gradient(@hover-color, darken(@hover-color, 8%));
-  }
-  &:active,
-  &.selected:hover:active,
-  &.selected:focus:active {
-    // box-shadow: @active-shadow, @border-shadow;
-    box-shadow: 0 0 0;
-    background: @color;
-  }
-  &.selected,
-  &.selected:hover {
-    color: @text-color-selected;
-    // box-shadow: inset 0 2px 5px rgba(0, 0, 0,.3), @border-shadow;
-    // text-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
-    // background-image: -webkit-linear-gradient(darken(@selected-color, 8%), @selected-color);
-  }
-  &.selected:hover {
-    // box-shadow: @border-shadow;
-    // background-image: -webkit-linear-gradient(@selected-color, darken(@selected-color, 8%));
-  }
-}
-
-.btn-variant (@color) {
-  @bg: @color;
-  @hover: @color;
-  @selected: @color;
-  // fadeout(darken(@color, 20%), 50%);
-  @border: @color; 
-  .btn-background(@bg, @hover, @selected, @border, @text-color-selected, @text-color-selected);
-  outline: none;
-}
-
-
+// .btn-background (@color, @hover-color, @selected-color, @border-color, @text-color, @text-color-hover) {
+//   @border-shadow: inset 0 0 0 1px @border-color;
+//   @active-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
+//   color: @text-color;
+//   box-shadow: 0 0 0;
+//   background-color: @color;
+//   // background-image: -webkit-linear-gradient(@color, darken(@color, 8%));
+//   // box-shadow: @border-shadow;
+//
+//   &:focus {
+//     box-shadow: 0 0 10px rgba(255,255,255,0.7);
+//     // color: @text-color-hover;
+//     // background: lighten(@color, 4%);
+//   }
+//
+//   &:hover {
+//     color: @text-color-hover;
+//     background: lighten(@color, 4%);
+//     // background-image: -webkit-linear-gradient(@hover-color, darken(@hover-color, 8%));
+//   }
+//   &:active,
+//   &.selected:hover:active,
+//   &.selected:focus:active {
+//     // box-shadow: @active-shadow, @border-shadow;
+//     box-shadow: 0 0 0;
+//     background: @color;
+//   }
+//   &.selected,
+//   &.selected:hover {
+//     color: @text-color-selected;
+//     // box-shadow: inset 0 2px 5px rgba(0, 0, 0,.3), @border-shadow;
+//     // text-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+//     // background-image: -webkit-linear-gradient(darken(@selected-color, 8%), @selected-color);
+//   }
+//   &.selected:hover {
+//     // box-shadow: @border-shadow;
+//     // background-image: -webkit-linear-gradient(@selected-color, darken(@selected-color, 8%));
+//   }
+// }
+//
+// .btn-variant (@color) {
+//   @bg: @color;
+//   @hover: @color;
+//   @selected: @color;
+//   // fadeout(darken(@color, 20%), 50%);
+//   @border: @color; 
+//   .btn-background(@bg, @hover, @selected, @border, @text-color-selected, @text-color-selected);
+//   outline: none;
+// }
+//
+//
 .btn {
-  .btn-background(@button-background-color, @button-background-color-hover, @button-background-color-selected, @button-border-color, @text-color, @text-color-highlight);
-  outline: none;
-  height: @component-line-height * 1.5;
 
-  border: none;
-  font-family: "Proxima Nova Regular Small Cap";
-  text-transform: lowercase;
-  letter-spacing: 1px;
-  padding: 0 15px;
-}
+  border:  0;
+  padding: 0.33em 1em;
+  border-radius: @border-radius-base;
 
-.btn:focus {
-  outline:none;
-}
+  height: auto;
+  line-height: 1;
 
-.btn-default {
-  border:1px solid #ccc;
-}
-
-.btn.btn-primary {
-  .btn-variant(@background-color-info);
-}
-.btn.btn-info {
-  .btn-variant(@background-color-info);
-}
-.btn.btn-success {
-  .btn-variant(@background-color-success);
-}
-.btn.btn-warning {
-  .btn-variant(@background-color-warning);
-}
-.btn.btn-error {
-  .btn-variant(@background-color-error);
-}
-
-.btn-group > .btn {
-  border: none;
-}
-
-.btn-icon {
-  background: transparent;
-  border: 0;
-  color: @text-color-subtle;
-  margin-right: 10px;
-  outline: none !important;
-  font-size: 20px;
-
-  &:last-child {
-    margin-right: 0;
-  }
-
-  &.inverse {
-    color: @text-color-inverse;
-
-    &:hover {
-      color: white;
-    }
-
-    &:active {
-      color: @text-color-inverse;
-    }
-  }
-
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.21);
   &:hover {
     cursor: pointer;
-    color: @text-color-link;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.25);
   }
   &:active {
-    color: darken(@text-color-link, 5%);
+    cursor: pointer;
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.21);
+  }
+  &:focus {
+    outline: none
+  }
+
+  font-size: @font-size-base;
+  &.btn-smaller {
+    font-size: @font-size-smaller;
+  }
+  &.btn-small {
+    font-size: @font-size-small;
+  }
+  &.btn-large {
+    font-size: @font-size-large;
+  }
+  &.btn-larger {
+    font-size: @font-size-larger;
+  }
+
+  color:      @btn-default-text-color;
+  background: @btn-default-bg-color;
+  &.btn-action {
+    color:      @btn-action-text-color;
+    background: @btn-action-bg-color;
+  }
+  &.btn-emphasis {
+    color:      @btn-emphasis-text-color;
+    background: @btn-emphasis-bg-color;
+  }
+  &.btn-danger, .btn-destructive {
+    color:      @btn-danger-text-color;
+    background: @btn-danger-bg-color;
   }
 }
+
+// .btn-icon {
+//   background: transparent;
+//   border: 0;
+//   color: @text-color-subtle;
+//   margin-right: 10px;
+//   outline: none !important;
+//   font-size: 20px;
+//
+//   &:last-child {
+//     margin-right: 0;
+//   }
+//
+//   &.inverse {
+//     color: @text-color-inverse;
+//
+//     &:hover {
+//       color: white;
+//     }
+//
+//     &:active {
+//       color: @text-color-inverse;
+//     }
+//   }
+//
+//   &:hover {
+//     cursor: pointer;
+//     color: @text-color-link;
+//   }
+//   &:active {
+//     color: darken(@text-color-link, 5%);
+//   }
+// }

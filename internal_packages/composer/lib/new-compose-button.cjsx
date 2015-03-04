@@ -5,8 +5,10 @@ React = require 'react'
 module.exports =
 NewComposeButton = React.createClass
   render: ->
-    <button className="btn btn-compose" onClick={@_onNewCompose}>
-      <RetinaImg name="toolbar-compose.png" style={position:'relative', top:-3, left: 3}/>
-    </button>
+    <div id="new-compose-button">
+      <button className="btn btn-compose" onClick={@_onNewCompose}>
+        <RetinaImg name="toolbar-compose.png" style={position:'relative', top:-3, left: 3}/>
+      </button>
+    </div>
 
   _onNewCompose: -> Actions.composeNewBlankDraft()

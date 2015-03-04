@@ -16,6 +16,33 @@
   .message-count {
     color: @text-color-inverse;
     background: @background-tertiary;
+    padding: 4px 6px 2px 6px;
+    margin-left: 1em;
+  }
+
+  .participants {
+    font-size:   @font-size-large;
+    font-weight: @font-weight-semi-bold;
+  }
+  .subject {
+    font-size:   @font-size-small;
+    font-weight: @font-weight-normal;
+  }
+  .snippet, .timestamp {
+    font-size:   @font-size-small;
+    font-weight: @font-weight-normal;
+    color: @text-color-subtle;
+  }
+  .selected {
+    .participants {
+      color: @text-color-inverse;
+    }
+    .subject {
+      color: @text-color-inverse;
+    }
+    .snippet, .timestamp {
+      color: @text-color-inverse-subtle;
+    }
   }
 }
 
@@ -27,15 +54,6 @@
     line-height: @line-height-large;
     color: @text-color;
     background: @list-bg;
-
-    .snippet, .timestamp {
-      font-size: @font-size-small;
-      color: @text-color-subtle;
-    }
-
-    .no-subject {
-      color: @text-color-subtle;
-    }
 
     .participants {
       font-weight: 500;
@@ -58,7 +76,6 @@
 
       .subject {
         color: @unread-color;
-        font-weight: 400;
       }
 
     }
@@ -66,15 +83,6 @@
     &.selected {
       background: @list-active-bg;
       color: @list-active-color;
-      .snippet {
-        color: @list-active-color-muted;
-      }
-      .no-subject {
-        color: @list-active-color-muted;
-      }
-      .message-time {
-        color: @list-active-color-muted;
-      }
     }
   }
 

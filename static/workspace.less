@@ -1,5 +1,3 @@
-@import "ui-variables";
-
 html,
 body {
   width: 100%;
@@ -55,39 +53,17 @@ atom-workspace {
   border-bottom: 1px solid @border-color-divider;
 
   .toolbar {
-    width:100%;
-    height:50px;
-
-    .btn {
-      height:30px;
-      margin-top: (50px - 30px) / 2;
-
-      background: @btn-toolbar-bg;
-      color: @btn-toolbar-color;
-      border: 1px solid @btn-toolbar-border;
-      border-radius: @border-radius-base;
-
-      box-shadow: @btn-shadow;
-      line-height: @line-height-computed;
-      padding-left: @padding-base-horizontal;
-      padding-right: @padding-base-horizontal;
-      margin-right: @padding-base-horizontal;
-      margin-left: @padding-base-horizontal;
-    }
-
-    .btn:active {
-      background: darken(@btn-toolbar-bg, 10%);
-      box-shadow: none;
-    }
+    width:  100%;
+    height: 50px;
   }
 }
 
 .flexbox-handle-horizontal {
-  width:6px;
-  top:0;
-  bottom:0;
-  z-index:2;
-  position:absolute;
+  width: 6px;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  position: absolute;
   cursor: col-resize;
   div {
     height:100%;

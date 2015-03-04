@@ -33,7 +33,34 @@
   }
 }
 
-.toolbar {
+.floating-toolbar {
+  z-index: 10;
+  position: absolute;
+  background: @background-color-accent;
+  border-radius: 2px;
+  color: @text-color-inverse;
+
+  .toolbar-pointer {
+    content: " ";
+    position: absolute;
+    width: 0;
+    height: 0;
+    top: -13px;
+    left: 50%;
+    margin-left: -6px;
+    border: 7px solid transparent;
+    border-bottom-color: @background-color-accent;
+    border-bottom-width: 6px;
+  }
+
+  .floating-toolbar-input {
+    display: inline;
+    width: auto;
+    color: @text-color-inverse;
+    position: relative;
+    top: 1px;
+  }
+
   @padding: 0.5em;
   .btn {
     background: transparent;
@@ -61,7 +88,6 @@
     top: 1px;
     padding: 0 @padding;
   }
-
 }
 
 .composer-inner-wrap {
@@ -73,35 +99,6 @@
 
   a:hover {
     cursor: pointer;
-  }
-
-  .floating-toolbar {
-    z-index: 10;
-    position: absolute;
-    background: @background-color-accent;
-    border-radius: 2px;
-    color: @text-color-inverse;
-
-    .toolbar-pointer {
-      content: " ";
-      position: absolute;
-      width: 0;
-      height: 0;
-      top: -13px;
-      left: 50%;
-      margin-left: -6px;
-      border: 7px solid transparent;
-      border-bottom-color: @background-color-accent;
-      border-bottom-width: 6px;
-    }
-
-    .floating-toolbar-input {
-      display: inline;
-      width: auto;
-      color: @text-color-inverse;
-      position: relative;
-      top: 1px;
-    }
   }
 
   .composer-header {
@@ -160,7 +157,7 @@
   }
 
   .btn-send {
-    .btn-variant(@action-color);
+    // .btn-variant(@action-color);
     margin-right: 15px;
   }
 
@@ -260,13 +257,8 @@
 }
 
 #new-compose-button {
-  order: 1;
-
-  background: @background-color-accent;
-  padding: 10px 15px 13px 15px;
-  text-align: center;
-
   .btn-compose {
-    .btn-variant(@action-color);
+    margin-top: @spacing-half;
+    margin-left: @spacing-standard;
   }
 }
