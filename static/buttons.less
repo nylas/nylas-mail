@@ -50,22 +50,18 @@
 //
 //
 .btn {
-
   border:  0;
   padding: 0.33em 1em;
   border-radius: @border-radius-base;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.21);
 
   height: auto;
   line-height: 1;
 
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.21);
-  &:hover {
-    cursor: pointer;
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.25);
-  }
   &:active {
     cursor: pointer;
-    box-shadow: 0 0 1px rgba(0, 0, 0, 0.21);
+    background-color: darken(@btn-default-bg-color, 9%);
+    box-shadow: 0 -1px 1px rgba(0, 0, 0, 0.21);
   }
   &:focus {
     outline: none
@@ -80,9 +76,11 @@
   }
   &.btn-large {
     font-size: @font-size-large;
+    padding: 0.5em 1.3em;
   }
   &.btn-larger {
     font-size: @font-size-larger;
+    padding: 0.66em 1.6em;
   }
 
   color:      @btn-default-text-color;
@@ -99,6 +97,13 @@
     color:      @btn-danger-text-color;
     background: @btn-danger-bg-color;
   }
+}
+
+.btn-gradient {
+  background: -webkit-gradient(linear, left top, left bottom, from(@btn-default-bg-color), to(darken(@btn-default-bg-color, 4.5%)));
+}
+.btn-gradient:active {
+  background: -webkit-gradient(linear, left top, left bottom, from(darken(@btn-default-bg-color, 9%)), to(darken(@btn-default-bg-color, 13.5%)));
 }
 
 // .btn-icon {

@@ -583,7 +583,7 @@ class Atom extends Model
   # Call this method when establishing a secondary application window
   # displaying a specific set of packages.
   startSecondaryWindow: (packages = []) ->
-    {resourcePath, safeMode} = @getLoadSettings()
+    {resourcePath, safeMode, width, height} = @getLoadSettings()
 
     @loadConfig()
     @inbox.APIToken = atom.config.get('inbox.token')
@@ -600,6 +600,8 @@ class Atom extends Model
       @packages.loadPackage(pack)
     @packages.activate()
     @keymaps.loadUserKeymap()
+
+    @setWindowDimensions({width, height}) if width and height
 
     @menu.update()
     @subscribe @config.onDidChange 'core.autoHideMenuBar', ({newValue}) =>
@@ -621,6 +623,8 @@ class Atom extends Model
       title: 'Welcome to Edgehill'
       frame: false
       page: page
+      width: 340
+      height: 475
       windowName: 'onboarding'
       windowPackages: ['onboarding']
     ipc.send('show-secondary-window', options)

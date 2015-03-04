@@ -4,6 +4,7 @@ OnboardingActions = require './onboarding-actions'
 OnboardingStore = require './onboarding-store'
 querystring = require 'querystring'
 {EdgehillAPI} = require 'inbox-exports'
+{RetinaImg} = require 'ui-components'
 
 module.exports =
 ContainerView = React.createClass
@@ -41,7 +42,9 @@ ContainerView = React.createClass
       <ReactCSSTransitionGroup transitionName="page">
       {@_pageComponent()}
       </ReactCSSTransitionGroup>
-      <div className="quit" onClick={@_fireQuit}><i className="fa fa-times"></i></div>
+      <div className="quit" onClick={@_fireQuit}>
+        <RetinaImg name="onboarding-close.png"/>
+      </div>
       <button className="btn btn-default dismiss" onClick={@_fireDismiss}>Cancel</button>
       <button className="btn btn-default back" onClick={@_fireMoveToPrevPage}>Back</button>
     </div>
@@ -54,55 +57,20 @@ ContainerView = React.createClass
 
     if @state.page is 'welcome'
       <div className="page" key={@state.page}>
-        <h2>Welcome to Edgehill</h2>
-        <div className="thin-container">
-          <button className="btn btn-primary btn-lg btn-block" onClick={=> @_fireMoveToPage('create-account')}>Create an Account</button>
-          <button className="btn btn-primary btn-lg btn-block" onClick={=> @_fireMoveToPage('sign-in')}>Sign In</button>
-          <div className="environment-selector">
-            <h5>Environment</h5>
-            <select value={@state.environment} onChange={@_fireSetEnvironment}>
-              <option value="development">Development (edgehill-dev, api-staging)</option>
-              <option value="staging">Staging (edgehill-staging, api-staging)</option>
-              <option value="production">Production (edgehill, api)</option>
-            </select>
-          </div>
-        </div>
-      </div>
-    else if @state.page is 'sign-in'
-      <div className="page" key={@state.page}>
+        <RetinaImg name="onboarding-logo.png" />
+        <h2>Welcome to Nilas</h2>
+
+        <RetinaImg name="onboarding-divider.png" />
+
         <form role="form" className="thin-container">
-          {alert}
-          <div className="form-group">
-            <input type="email" placeholder="Username" className="form-control" tabIndex="1" value={@state.username} onChange={@_onValueChange} id="username" />
-          </div>
-          <div className="form-group">
-            <input type="password" placeholder="Password" className="form-control" tabIndex="2" value={@state.password} onChange={@_onValueChange} id="password" />
-          </div>
-          <button className="btn btn-primary btn-lg btn-block" onClick={@_fireSignIn}>Sign In</button>
+          <div className="prompt">Enter your email address:</div>
+          <input type="email" placeholder="you@gmail.com" tabIndex="1" value={@state.email} onChange={@_onValueChange} id="email" />
+          <button className="btn btn-larger btn-gradient" style={width:215} onClick={@_fireStart}>Start using Nilas</button>
+          {@_environmentComponent()}
         </form>
+
       </div>
-    else if @state.page == 'create-account'
-      <div className="page" key={@state.page}>
-        <form role="form" className="thin-container">
-          {alert}
-          <div className="form-group">
-            <input type="text" placeholder="First Name" className="form-control" tabIndex="1" value={@state.first_name} onChange={@_onValueChange} id="first_name" />
-          </div>
-          <div className="form-group">
-            <input type="text" placeholder="Last Name" className="form-control" tabIndex="2" value={@state.last_name} onChange={@_onValueChange} id="last_name" />
-          </div>
-          <div className="form-group">
-            <input type="text" placeholder="Email Address" className="form-control" tabIndex="3" value={@state.email} onChange={@_onValueChange} id="email" />
-          </div>
-          <div className="form-group">
-            <input type="email" placeholder="Username" className="form-control" tabIndex="4" value={@state.username} onChange={@_onValueChange} id="username" />
-          </div>
-          <div className="form-group">
-            <input type="password" placeholder="Password" className="form-control" tabIndex="5" value={@state.password} onChange={@_onValueChange} id="password" />
-          </div>
-          <button className="btn btn-primary btn-lg btn-block" onClick={@_fireCreateAccount}>Create Account</button>
-        </form>
-      </div>
+
     else if @state.page == 'add-account'
       <div className="page" key={@state.page}>
         <h2>Connect an Account</h2>
@@ -129,7 +97,16 @@ ContainerView = React.createClass
           </svg>
         </div>
       </div>
-
+  
+  _environmentComponent: ->
+    return [] unless atom.inDevMode()
+    <div className="environment-selector">
+      <select value={@state.environment} onChange={@_fireSetEnvironment}>
+        <option value="development">Development (edgehill-dev, api-staging)</option>
+        <option value="staging">Staging (edgehill-staging, api-staging)</option>
+        <option value="production">Production (edgehill, api)</option>
+      </select>
+    </div>
 
   _connectWebViewURL: ->
     EdgehillAPI.urlForConnecting(@state.connectType, @state.email)
@@ -151,6 +128,9 @@ ContainerView = React.createClass
   _fireSetEnvironment: (event) ->
     OnboardingActions.setEnvironment(event.target.value)
 
+  _fireStart: (e) ->
+    OnboardingActions.startConnect('inbox')
+
   _fireAuthAccount: (service) ->
     OnboardingActions.startConnect(service)
 
@@ -160,10 +140,3 @@ ContainerView = React.createClass
   _fireMoveToPrevPage: ->
     OnboardingActions.moveToPreviousPage()
 
-  _fireSignIn: (e) ->
-    e.preventDefault()
-    OnboardingActions.signIn(@state)
-
-  _fireCreateAccount: (e) ->
-    e.preventDefault()
-    OnboardingActions.createAccount(@state)

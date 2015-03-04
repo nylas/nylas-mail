@@ -1,4 +1,5 @@
-input[type="text"] {
+input[type="text"],
+input[type="email"] {
   width: 100%;
   padding-left: @padding-xs-horizontal;
   padding-right: @padding-xs-horizontal;
@@ -7,4 +8,8 @@ input[type="text"] {
   border-radius: @border-radius-base;
   border: 1px solid @input-border;
   font-weight:400;
+}
+input[type="text"]:focus,
+input[type="email"]:focus, {
+    box-shadow: 0 0 3px @accent-primary;
 }

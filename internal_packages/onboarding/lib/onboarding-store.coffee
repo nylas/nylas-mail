@@ -18,8 +18,6 @@ OnboardingStore = Reflux.createStore
     @listenTo Actions.moveToPage, @_onMoveToPage
     @listenTo Actions.startConnect, @_onStartConnect
     @listenTo Actions.finishedConnect, @_onFinishedConnect
-    @listenTo Actions.createAccount, @_onCreateAccount
-    @listenTo Actions.signIn, @_onSignIn
 
   page: ->
     @_page
@@ -43,37 +41,6 @@ OnboardingStore = Reflux.createStore
     @_pageStack.push(page)
     @_page = page
     @trigger()
-
-  _onSignIn: (fields) ->
-    @_error = null
-    @trigger()
-
-    EdgehillAPI.signIn(fields)
-    .then (user) =>
-      if atom.config.get('inbox.token')
-        @_onMoveToPage('add-account-success')
-        setTimeout ->
-          # Important: This delay is actually necessary, because
-          # atom.config changes are not persisted instantly.
-          ipc.send('onboarding-complete')
-          atom.close()
-        , 2500
-      else
-        @_onStartConnect('inbox')
-    .catch (err) =>
-      @_error = err
-      @trigger()
-
-  _onCreateAccount: (fields) ->
-    @_error = null
-    @trigger()
-
-    EdgehillAPI.createAccount(fields)
-    .then =>
-      @_onStartConnect('inbox')
-    .catch (err) =>
-      @_error = err
-      @trigger()
 
   _onStartConnect: (service) ->
     @_connectType = service
