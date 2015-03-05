@@ -39,6 +39,7 @@ ComposerView = React.createClass
 
   componentWillMount: ->
     @_prepareForDraft()
+    @_checkForKnownFrames()
 
   componentDidMount: ->
     @undoManager = new UndoManager
@@ -60,6 +61,9 @@ ComposerView = React.createClass
   componentWillUnmount: ->
     @_teardownForDraft()
     @keymap_unsubscriber.dispose()
+
+  componentWillUpdate: ->
+    @_checkForKnownFrames()
 
   componentDidUpdate: ->
     # We want to use a temporary variable instead of putting this into the
@@ -186,6 +190,7 @@ ComposerView = React.createClass
           <ContenteditableComponent ref="contentBody"
                                     html={@state.body}
                                     onChange={@_onChangeBody}
+                                    style={@_precalcComposerCss}
                                     initialSelectionSnapshot={@_recoveredSelection}
                                     tabIndex="109" />
         </div>
@@ -303,6 +308,17 @@ ComposerView = React.createClass
   _showAndFocusCc: ->
     @setState {showcc: true}
     @focus "textFieldCc"
+
+  # Warning this method makes optimistic assumptions about the mail client
+  # and is not properly encapsulated.
+  _checkForKnownFrames: ->
+    @_precalcComposerCss = {}
+    mwrap = document.getElementsByClassName("messages-wrap")[0]
+    if mwrap?
+      INLINE_COMPOSER_OTHER_HEIGHT = 192
+      mheight = mwrap.getBoundingClientRect().height
+      @_precalcComposerCss =
+        minHeight: mheight - INLINE_COMPOSER_OTHER_HEIGHT
 
 
 

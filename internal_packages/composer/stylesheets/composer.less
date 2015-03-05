@@ -22,7 +22,7 @@
       max-width: @compose-width;
       margin: 0 auto;
 
-      padding: @spacing-standard;
+      padding: @spacing-standard @spacing-double;
       padding-bottom: @spacing-standard*1.1;
     }
   }
@@ -39,6 +39,7 @@
     max-width: @compose-width;
     margin: 0 auto;
     margin-top: @spacing-standard;
+    padding: 0 @spacing-standard;
 
     height: 100%;
     display: flex;
@@ -65,7 +66,7 @@
   .composer-participant-actions {
     position: absolute;
     z-index: 900;
-    right: @spacing-standard;
+    right: @spacing-double;
     .header-action {
       position: relative;
       top: 1em;

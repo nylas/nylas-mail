@@ -51,6 +51,7 @@ ContenteditableComponent = React.createClass
            ref="contenteditable"
            contentEditable
            tabIndex={@props.tabIndex}
+           style={@props.style ? {}}
            onBlur={@_onBlur}
            onPaste={@_onPaste}
            onInput={@_onInput}
