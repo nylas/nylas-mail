@@ -1,87 +1,83 @@
 @import "ui-variables";
 
 .tokenizing-field {
-    display: block;
-    padding: 0;
-    margin: 0;
-    border-bottom: 1px solid @border-color-divider;
-    min-height:30px;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid @border-color-divider;
+  min-height: 30px;
+  position: relative;
+
+  .header-container, .footer-container {
+    background-color: transparent;
+    padding:0;
+    margin:0;
+    border:0;
+  }
+
+  .token {
+    display: inline-block;
     position: relative;
+    padding: 0.5em @spacing-half 0.30em @spacing-half;
+    padding-right: 1.5em;
+    margin: 0 5px 5px 0;
+    border-radius: @border-radius-base;
+    font-size: 15px;
+    background-color: @background-secondary;
+    max-width: 100%;
 
-    .header-container, .footer-container {
-        background-color: transparent;
-        padding:0;
-        margin:0;
-        border:0;
+    .action {
+      position:absolute;
+      padding: 0;
+      padding-top: 1px;
+      right: 5px;
+      border: 0;
+      margin: 0;
+      background-color: transparent;
+      color: @text-color-very-subtle;
+      font-size: 10px;
     }
-
-    .content-container {
-        position: absolute;
-        width: 100%;
-        background-color: @background-color;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-        z-index: 40;
+    &:hover {
+      background-color: darken(@background-secondary, 5%);
+      cursor: pointer;
     }
-    .token {
-        display: inline-block;
-        position: relative;
-        padding: 0 16px;
-        margin: 0 5px 5px 0;
-        border-radius: 18px;
-        font-size: 15px;
-        background-color: @input-tint-color;
-        border: 1px solid darken(@input-tint-color, 20%);
-        
-        .action {
-            position:absolute;
-            padding:2px;
-            right:2px;
-            border: 0;
-            margin: 0;
-            background-color: transparent;
-            color: transparent;
-            font-size: 12px;
-        }
-        &:hover {
-            background-color: @input-tint-color-hover;
-            .action {
-                color: @text-color-subtle;
-            }
-        }
-        &.selected,
-        &.dragging {
-          background-color: @background-color-selected;
-          color: @text-color-inverse;
-        }
+    &.selected,
+    &.dragging {
+      background-color: @background-tertiary;
+      color: @text-color-inverse;
+
+      .action { color: @text-color-inverse-subtle; }
     }
+  }
 
 
-    .tokenizing-field-label {
-      color: @text-color-subtle;
-      float: left;
-      text-transform: capitalize;
-      padding-top: 2px;
+  .tokenizing-field-label {
+    color: @text-color-very-subtle;
+    float: left;
+    text-transform: capitalize;
+    padding-top: 8px;
+    display: block;
+  }
+
+  .tokenizing-field-input {
+    position: relative;
+    padding-left: 2.1em;
+
+    input {
+      display: inline-block;
+      width: initial;
+      padding: 6px 0 2px 0;
+      margin: 0 5px 5px 0;
+      border: none;
+      min-width: 5em;
+      background-color:transparent;
     }
-    .tokenizing-field-input {
-        padding-left:30px;
-
-        input {
-            display: inline-block;
-            width: initial;
-            padding: 2px 0;
-            margin: 0 5px 5px 0;
-            border: none;
-            min-width: 5em;
-            background-color:transparent;
-        }
-
-        input:focus {
-            box-shadow: none;
-        }
+    input:focus {
+      box-shadow: none;
     }
+  }
 }
 
 body.is-blurred .tokenizing-field .token {
-    background-color: @input-tint-color-blurred;
-    border: 1px solid darken(@input-tint-color-blurred, 20%);
+  background-color: @background-secondary;
 }

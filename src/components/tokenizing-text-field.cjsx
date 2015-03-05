@@ -100,7 +100,7 @@ TokenizingTextField = React.createClass
   render: ->
     {Menu} = require 'ui-components'
 
-    classes = React.addons.classSet
+    classes = React.addons.classSet _.extend (@props.classSet ? {}),
       "tokenizing-field": true
       "focused": @state.focus
       "native-key-bindings": true

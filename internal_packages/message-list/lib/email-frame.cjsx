@@ -57,6 +57,7 @@ EmailFixingStyles = """
     margin: auto;
     max-width: 840px;
     overflow: hidden;
+    -webkit-font-smoothing: antialiased;
   }
 
   a {

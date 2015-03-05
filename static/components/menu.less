@@ -1,41 +1,48 @@
 @import "ui-variables";
 
 .menu {
-    .header-container {
-        background-color: @background-color-secondary;
-        border-bottom:1px solid @base-border-color;
-        padding:8px;
-        position: relative;
-        input.search {
-            border:1px solid darken(@background-color-secondary, 10%);
-            background-color:white;
-            border-radius:12px;
-            padding-left: 10px;
-        }
+  .header-container {
+    background-color: @background-color-secondary;
+    border-bottom:1px solid @base-border-color;
+    padding:8px;
+    position: relative;
+    input.search {
+      border:1px solid darken(@background-color-secondary, 10%);
+      background-color:white;
+      border-radius:12px;
+      padding-left: 10px;
     }
+  }
 
-    .footer-container {
-        position: relative;
-        background-color: @background-color-secondary;
-        border-top:1px solid @base-border-color;
-    }
+  .footer-container {
+    position: relative;
+    border-top:1px solid @base-border-color;
+  }
 
-    .content-container {
-    }
+  .content-container {
+    background: @background-color-secondary;
+    border: 1px solid @border-secondary-bg;
+    padding: 2px;
+    position: absolute;
+    width: 100%;
+    margin-top: -1px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    border-radius: @border-radius-small;
+  }
 
-    .item {
-        padding: 7px;
-        padding-left: 10px;
-        cursor: pointer;
-        display:block;
-        color: @text-color;
-        border-bottom:1px solid fade(@base-border-color, 50%);
-        a { border:none; }
-    }
+  .item {
+    display: block;
+    padding: 0.5em;
+    cursor: pointer;
+    color: @text-color;
+    background: @background-primary;
+    width: 100%;
+    overflow: hidden;
+  }
 
-    .item.selected, .item:hover {
-        text-decoration:none;
-        border-bottom:1px solid @base-border-color;
-        background-color: fade(@background-color-selected, 10%);
-    }
+  .item.selected, .item:hover {
+    text-decoration: none;
+    background: @accent-primary;
+    color: @text-color-inverse;
+  }
 }

@@ -5,6 +5,7 @@ body {
   overflow: hidden;
   font-family: @font-family;
   font-size: @font-size;
+  -webkit-font-smoothing: antialiased;
 }
 
 atom-workspace {
@@ -90,7 +91,7 @@ atom-workspace {
   cursor: row-resize;
   div {
     width:100%;
-    border-top: 1px solid @border-color-divider;
+    // border-top: 1px solid @border-color-divider;
   }
 
   &.flexbox-handle-top {
@@ -98,7 +99,7 @@ atom-workspace {
     padding-right:3px;
   }
   &.flexbox-handle-bottom {
-    bottom:-3px;
+    bottom: 0px;
     padding-right:2px;
   }
 }

@@ -34,16 +34,19 @@ ParticipantsTextField = React.createClass
     visible: true
 
   render: ->
-    <div className="compose-participants-wrap" style={display: @props.visible and 'inline' or 'none'}>
+    classSet = {}
+    classSet[@props.field] = true
+    <div className="compose-participants-wrap" style={zIndex: 1000-@props.tabIndex, display: @props.visible and 'inline' or 'none'}>
       <TokenizingTextField
         ref="textField"
         prompt={@props.field}
+        classSet={classSet}
         tabIndex={@props.tabIndex}
         tokens={@props.participants[@props.field]}
         tokenKey={ (p) -> p.email }
         tokenContent={@_componentForParticipant}
         completionsForInput={ (input) -> ContactStore.searchContacts(input) }
-        completionContent={ (p) -> "#{p.name} (#{p.email})" }
+        completionContent={@_completionContent}
         add={@_add}
         remove={@_remove}
         showMenu={@_showContextMenu} />
@@ -53,15 +56,28 @@ ParticipantsTextField = React.createClass
   # focus the input field.
   focus: -> @refs.textField.focus()
 
-  _componentForParticipant: (p) ->
-    if p.name?.length > 0
-      content = p.name
+  _completionContent: (p) ->
+    if p.name?.length > 0 and p.name isnt p.email
+      <div className="completion-participant">
+        <span className="participant-name">{p.name}</span>
+        <span className="participant-email">({p.email})</span>
+      </div>
     else
-      content = p.email
+      <div className="completion-participant">
+        <span className="participant-name">{p.email}</span>
+      </div>
 
-    <div className="participant">
-      <span>{content}</span>
-    </div>
+  _componentForParticipant: (p) ->
+    if p.name?.length > 0 and p.name isnt p.email
+      <div className="participant">
+        <span className="participant-primary">{p.name}</span>&nbsp;&nbsp;
+        <span className="participant-secondary">({p.email})</span>
+      </div>
+    else
+      <div className="participant">
+        <span className="participant-primary">{p.email}</span>
+      </div>
+
 
   _remove: (participant) ->
     field = @props.field
@@ -98,7 +114,7 @@ ParticipantsTextField = React.createClass
 
     menu = new Menu()
     menu.append(new MenuItem(
-      label: participant.email
+      label: "Copy #{participant.email}"
       click: -> require('clipboard').writeText(participant.email)
     ))
     menu.append(new MenuItem(

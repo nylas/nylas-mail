@@ -46,6 +46,7 @@
 @border-primary-bg: darken(@background-primary, 10%);
 @border-secondary-bg: darken(@background-secondary, 10%);
 @border-tertiary-bg: darken(@background-tertiary, 10%);
+@border-color-divider: @border-secondary-bg;
 
 @info-color:    @nilas-blue-dark;
 @success-color: @nilas-green;
@@ -235,12 +236,25 @@
 @btn-danger-bg-color:     @danger-color;
 @btn-danger-text-color:   @text-color-inverse;
 
-//================================ Forms ===============================//
+//=============================== Inputs ===============================//
 
 //** `<input>` background color
 @input-bg:                       #fff;
 //** `<input disabled>` background color
 @input-bg-disabled:              @gray-lighter;
+
+@input-background-color: white;
+
+@input-border-color: fadeout(@border-color, 10%);
+@input-border-color-blurred: desaturate(@input-border-color, 100%);
+
+@input-tint-color: fade(@background-color-selected, 10%);
+@input-tint-color-hover: fade(@input-tint-color, 30%);
+@input-tint-color-blurred: desaturate(@input-tint-color, 100%);
+
+
+@input-accessory-color-hover: @light-blue;
+@input-accessory-color: @cool-gray;
 
 //** Text color for `<input>`s
 @input-color:                    @gray;
@@ -415,7 +429,7 @@
 
 // TEXT
 
-@unread-color: #009ec4; //!
+@unread-color: @accent-primary; //!
 @action-color: @green;
 
 @progress-bar-fill: @light-blue;
@@ -436,21 +450,8 @@
 @base-border-color: darken(@background-color, 15%);
 @border-color: darken(@background-color, 15%);
 @border-color-subtle: darken(@background-color, 8%);
-@border-color-divider: darken(@background-color, 12%);
 
 // Inputs
-
-@input-background-color: white;
-
-@input-border-color: fadeout(@border-color, 10%);
-@input-border-color-blurred: desaturate(@input-border-color, 100%);
-
-@input-tint-color: fade(@background-color-selected, 10%);
-@input-tint-color-hover: fade(@input-tint-color, 30%);
-@input-tint-color-blurred: desaturate(@input-tint-color, 100%);
-
-@input-accessory-color-hover: @light-blue;
-@input-accessory-color: @cool-gray;
 
 // Menus
 
