@@ -46,9 +46,10 @@
 .floating-toolbar {
   z-index: 10;
   position: absolute;
-  background: @background-color-accent;
-  border-radius: 2px;
+  background: @background-tertiary;
+  border-radius: @border-radius-base;
   color: @text-color-inverse;
+  box-shadow: 0 0 8px rgba(0,0,0,0.4);
 
   .toolbar-pointer {
     content: " ";
@@ -59,7 +60,7 @@
     left: 50%;
     margin-left: -6px;
     border: 7px solid transparent;
-    border-bottom-color: @background-color-accent;
+    border-bottom-color: @background-tertiary;
     border-bottom-width: 6px;
   }
 
@@ -79,7 +80,7 @@
     border-radius: 0;
     padding: @padding*0.75 @padding;
     margin: 0;
-    color: rgba(255,255,255, 0.6);
+    color: @text-color-inverse;
     box-shadow: none;
     &:first-child {
       padding-left: 1.5*@padding;
@@ -88,7 +89,7 @@
       padding-right: 1.5*@padding;
     }
     &:hover, &:active {
-      color: rgba(255,255,255, 1);
+      color: lighten(@text-color-link, 10%);
       background: transparent;
     }
   }
