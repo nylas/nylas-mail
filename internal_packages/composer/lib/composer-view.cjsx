@@ -111,26 +111,24 @@ ComposerView = React.createClass
       <div className="composer-header-and-body-wrap">
         <div className="composer-header-and-body">
           <div className="composer-header">
-            <div className="composer-title">
-              Compose Message
-            </div>
             <div className="composer-header-actions">
-              <span
-                className="header-action"
-                style={display: @state.showcc and 'none' or 'inline'}
-                onClick={=> @setState {showcc: true}}
-                >Add cc/bcc</span>
-              <span
-                className="header-action"
-                style={display: @state.showsubject and 'none' or 'initial'}
-                onClick={=> @setState {showsubject: true}}
-              >Change Subject</span>
-              <span
-                className="header-action"
-                style={display: (@props.mode is "fullwindow") and 'none' or 'initial'}
-                onClick={@_popoutComposer}
-              >Popout&nbsp&nbsp;<i className="fa fa-expand"></i></span>
+            <span className="header-action"
+                  style={display: @state.showsubject and 'none' or 'initial'}
+                  onClick={=> @setState {showsubject: true}}>Change Subject</span>
+            <span className="header-action"
+                  style={display: (@props.mode is "fullwindow") and 'none' or 'initial'}
+                  onClick={@_popoutComposer}>Popout&nbsp&nbsp;<i className="fa fa-expand"></i></span>
             </div>
+          </div>
+
+          <div className="composer-participant-actions">
+            <span className="header-action"
+                  style={display: @state.showcc and 'none' or 'inline'}
+                  onClick={=> @setState {showcc: true}}>Cc</span>
+
+            <span className="header-action"
+                  style={display: @state.showbcc and 'none' or 'inline'}
+                  onClick={=> @setState {showbcc: true}}>Bcc</span>
           </div>
 
           <ParticipantsTextField
@@ -151,7 +149,7 @@ ComposerView = React.createClass
           <ParticipantsTextField
             ref="textFieldBcc"
             field='bcc'
-            visible={@state.showcc}
+            visible={@state.showbcc}
             change={@_onChangeParticipants}
             participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
             tabIndex='104'/>
@@ -230,7 +228,8 @@ ComposerView = React.createClass
 
     if !@state.populated
       _.extend state,
-        showcc: (not (_.isEmpty(draft.cc) and _.isEmpty(draft.bcc)))
+        showcc: not _.isEmpty(draft.cc)
+        showbcc: not _.isEmpty(draft.bcc)
         showsubject: _.isEmpty(draft.subject)
         populated: true
 
@@ -293,7 +292,7 @@ ComposerView = React.createClass
     Actions.attachFile({messageLocalId: @props.localId})
 
   _showAndFocusBcc: ->
-    @setState {showcc: true}
+    @setState {showbcc: true}
     @focus "textFieldBcc"
 
   _showAndFocusCc: ->

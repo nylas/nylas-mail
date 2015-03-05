@@ -16,22 +16,30 @@
   }
 
   .composer-inner-wrap {
+    padding-top: @spacing-standard;
     .compose-body {
       margin-bottom: 0;
       position: relative;
 
       .contenteditable-container {
-        position: absolute;
+        display: flex;
+        flex: 1;
         width: 100%;
-        min-height: 100%;
 
         div[contenteditable] {
-          // Ensure that the contentEditable always fills the window,
-          // but leaves room for the quoted text marker at the bottom.
-          min-height: calc(~"100% - 30px");
+          height: auto;
+          flex: 1;
         }
       }
     }
+
+    .composer-header { display: none; }
+  }
+
+  .composer-header-and-body-wrap, .compose-footer {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
   }
 }
 
@@ -103,6 +111,9 @@
   }
 }
 
+.composer-header-and-body-wrap {
+  height: 100%;
+}
 .composer-header-and-body {
   position: relative;
   height: 100%;
@@ -112,7 +123,7 @@
 
 .composer-inner-wrap {
   height: 100%;
-  padding-bottom: 57px;
+  padding-bottom: 65px;
   position: relative;
 
   a:hover {
@@ -121,6 +132,10 @@
 
   .composer-header-and-body {
     position: relative;
+
+    .tokenizing-field.to {
+      padding-right: 60px;
+    }
   }
 
   .composer-header {
@@ -130,18 +145,32 @@
       display: inline-block;
       font-weight:@headings-font-weight;
     }
+  }
 
-    .composer-header-actions {
-      float: right;
-      color: @text-color-subtle;
-      font-size: @font-size-small;
-    }
+  .header-action {
+    color: @text-color-very-subtle;
+    font-size: @font-size-small;
+  }
+
+  .composer-participant-actions {
+    position: absolute;
+    z-index: 900;
+    right: @spacing-standard;
     .header-action {
-      padding-left: 1em;
-      &:hover {
-        color: @text-color-link;
-        cursor: pointer;
-      }
+      position: relative;
+      top: 1em;
+    }
+  }
+
+  .composer-header-actions {
+    float: right;
+  }
+
+  .header-action {
+    padding-left: 1em;
+    &:hover {
+      color: @text-color-link;
+      cursor: pointer;
     }
   }
 
@@ -231,6 +260,8 @@
   }
 
   .participant{
+    white-space: nowrap;
+    text-overflow: ellipsis;
     .participant-primary {
       font-weight: @font-weight-semi-bold;
     }
@@ -261,7 +292,9 @@
 
     div[contenteditable] {
       min-height: 150px;
-      padding: 0.7em 15px 0 15px;
+      padding: @spacing-standard;
+      padding-top: @spacing-standard;
+      padding-bottom: 0;
       margin-bottom: 37px;
     }
     .contenteditable-container {

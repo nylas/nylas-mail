@@ -34,10 +34,13 @@ ParticipantsTextField = React.createClass
     visible: true
 
   render: ->
+    classSet = {}
+    classSet[@props.field] = true
     <div className="compose-participants-wrap" style={zIndex: 1000-@props.tabIndex, display: @props.visible and 'inline' or 'none'}>
       <TokenizingTextField
         ref="textField"
         prompt={@props.field}
+        classSet={classSet}
         tabIndex={@props.tabIndex}
         tokens={@props.participants[@props.field]}
         tokenKey={ (p) -> p.email }
