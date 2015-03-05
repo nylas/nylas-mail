@@ -86,7 +86,6 @@ ContenteditableComponent = React.createClass
     __html: @_applyHTMLDisplayFilters(@props.html)
 
   _applyHTMLDisplayFilters: (html) ->
-    html = @_ensureNotCompletelyBlank(html)
     html = @_removeQuotedTextFromHTML(html) unless @state.editQuotedText
     return html
 
@@ -310,13 +309,6 @@ ContenteditableComponent = React.createClass
     return nodeList
 
   _isEqualNode: ->
-
-  # This is so the contenteditable can have a non-blank TextNode for the
-  # selection to lock onto.
-  _ensureNotCompletelyBlank: (html) ->
-    if html.length is 0
-      return "&nbsp;"
-    else return html
 
   _linksInside: (selection) ->
     return _.filter @_getAllLinks(), (link) ->
