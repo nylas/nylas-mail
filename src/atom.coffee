@@ -509,6 +509,7 @@ class Atom extends Model
     width > 0 and height > 0 and x + width > 0 and y + height > 0
 
   storeDefaultWindowDimensions: ->
+    return unless @mode is 'editor'
     dimensions = @getWindowDimensions()
     if @isValidDimensions(dimensions)
       localStorage.setItem("defaultWindowDimensions", JSON.stringify(dimensions))
@@ -625,6 +626,7 @@ class Atom extends Model
       page: page
       width: 340
       height: 475
+      resizable: false
       windowName: 'onboarding'
       windowPackages: ['onboarding']
     ipc.send('show-secondary-window', options)

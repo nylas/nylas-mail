@@ -64,6 +64,7 @@
 
   .environment-selector {
     position: absolute;
+    opacity:0.1;
     top: 224px;
     width:292px;
     select {
@@ -78,45 +79,35 @@
     height:100%;
     padding-top:15%;
   }
-  .add-account .back,
-  .welcome .back {
-    display:none;
-  }
 
-  .quit, .dismiss {
-    display:none;
-  }
-  
-  .add-account .dismiss,
-  .welcome .quit {
-    display:inherit;
-  }
-
-  .back, .dismiss, .quit {
+  .quit {
     position: absolute;
     top:5px;
     left:5px;
   }
 
+  .back,
+  .dismiss {
+    position: absolute;
+    top:25px;
+    left:25px;
+  }
+
   .page-enter {
     opacity: 0.01;
-    transform: translateY(20px);
     transition: all .3s ease-out;
   }
 
   .page-enter.page-enter-active {
     opacity: 1;
-    transform: translateY(0);
   }
   .page-leave {
     opacity: 1;
-    transform: translateY(0);
     transition: all .3s ease-in;
   }
 
   .page-leave.page-leave-active {
     opacity: 0.01;
-    transform: translateY(20px);
   }
 
   .check {

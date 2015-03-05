@@ -31,23 +31,22 @@ ContainerView = React.createClass
     webview = this.refs['connect-iframe']
     if webview
       node = webview.getDOMNode()
-      node.addEventListener 'did-finish-load', (e) ->
-        if node.getUrl().indexOf('/connect/complete') != -1
-          query = node.getUrl().split('?')[1]
-          token = querystring.decode(query)
-          OnboardingActions.finishedConnect(token)
+      if node.hasListeners is undefined
+        node.addEventListener 'did-start-loading', (e) ->
+          if node.hasMobileUserAgent is undefined
+            node.setUserAgent("Mozilla/5.0 (iPhone; CPU iPhone OS 7_1 like Mac OS X) AppleWebKit/537.51.2 (KHTML, like Gecko) Version/7.0 Mobile/11D167 Safari/9537.53")
+            node.hasMobileUserAgent = true
+            node.reload()
+        node.addEventListener 'did-finish-load', (e) ->
+          if node.getUrl().indexOf('/connect/complete') != -1
+            query = node.getUrl().split('?')[1]
+            token = querystring.decode(query)
+            OnboardingActions.finishedConnect(token)
 
   render: ->
-    <div className={@state.page}>
-      <ReactCSSTransitionGroup transitionName="page">
-      {@_pageComponent()}
-      </ReactCSSTransitionGroup>
-      <div className="quit" onClick={@_fireQuit}>
-        <RetinaImg name="onboarding-close.png"/>
-      </div>
-      <button className="btn btn-default dismiss" onClick={@_fireDismiss}>Cancel</button>
-      <button className="btn btn-default back" onClick={@_fireMoveToPrevPage}>Back</button>
-    </div>
+    <ReactCSSTransitionGroup transitionName="page">
+    {@_pageComponent()}
+    </ReactCSSTransitionGroup>
 
   _pageComponent: ->
     if @state.error
@@ -57,6 +56,9 @@ ContainerView = React.createClass
 
     if @state.page is 'welcome'
       <div className="page" key={@state.page}>
+        <div className="quit" onClick={@_fireQuit}>
+          <RetinaImg name="onboarding-close.png"/>
+        </div>
         <RetinaImg name="onboarding-logo.png" />
         <h2>Welcome to Nilas</h2>
 
@@ -73,20 +75,34 @@ ContainerView = React.createClass
 
     else if @state.page == 'add-account'
       <div className="page" key={@state.page}>
-        <h2>Connect an Account</h2>
-        <p>Link accounts from other services to supercharge your email.</p>
-        <div className="thin-container">
-          <button className="btn btn-primary btn-lg btn-block" onClick={=> @_fireAuthAccount('salesforce')}>Salesforce</button>
-          <button className="btn btn-primary btn-lg btn-block" onClick={=> @_fireAuthAccount('linkedin')}>LinkedIn</button>
+        <div className="quit" onClick={@_fireDismiss}>
+          <RetinaImg name="onboarding-close.png"/>
         </div>
+        <RetinaImg name="onboarding-logo.png" />
+        <h2>Connect an Account</h2>
+
+        <RetinaImg name="onboarding-divider.png" />
+
+        <form role="form" className="thin-container">
+          <div className="prompt">Link accounts from other services to supercharge your email.</div>
+          <button className="btn btn-larger btn-gradient" onClick={=> @_fireAuthAccount('salesforce')}>Salesforce</button>
+          <button className="btn btn-larger btn-gradient" onClick={=> @_fireAuthAccount('linkedin')}>LinkedIn</button>
+        </form>
       </div>
 
     else if @state.page == 'add-account-auth'
-      React.createElement('webview',{
-        "ref": "connect-iframe",
-        "key": this.state.page,
-        "src": this._connectWebViewURL()
-      });
+      <div>
+        {
+          React.createElement('webview',{
+            "ref": "connect-iframe",
+            "key": this.state.page,
+            "src": this._connectWebViewURL()
+          });
+        }
+        <div className="back" onClick={@_fireMoveToPrevPage}>
+          <RetinaImg name="onboarding-back.png"/>
+        </div>
+      </div>
 
     else if @state.page == 'add-account-success'
       # http://codepen.io/stevenfabre/pen/NPWeVb

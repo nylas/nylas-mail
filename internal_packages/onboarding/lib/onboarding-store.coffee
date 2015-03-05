@@ -3,11 +3,14 @@ Actions = require './onboarding-actions'
 {EdgehillAPI} = require 'inbox-exports'
 ipc = require 'ipc'
 
+if atom.state.mode isnt "onboarding" and atom.state.mode isnt "spec" then return
+
 module.exports =
 OnboardingStore = Reflux.createStore
   init: ->
     @_error = ''
     @_page = atom.getLoadSettings().page || 'welcome'
+
     @_pageStack = [@_page]
 
     defaultEnv = if atom.inDevMode() then 'staging' else 'production'

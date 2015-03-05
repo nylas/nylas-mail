@@ -53,7 +53,8 @@
   'shift-delete': 'core:cut'
 
 # Inputs are native by default.
-'body input, body textarea, body *[contenteditable]':
+# Also make sure not to catch anything intended for a webview
+'body input, body textarea, body *[contenteditable], body webview':
   'up': 'native!'
   'left': 'native!'
   'down': 'native!'
@@ -79,8 +80,6 @@
   'cmd-enter': 'native!'
   'ctrl-enter': 'native!'
   'shift-enter': 'native!'
-  'tab': 'core:focus-next'
-  'shift-tab': 'core:focus-previous'
   'backspace': 'native!'
   'shift-backspace': 'native!'
   'delete': 'native!'
@@ -206,6 +205,16 @@
   '.': 'native!'
   '?': 'native!'
   '/': 'native!'
+
+'body input, body textarea, body *[contenteditable]':
+  'tab': 'core:focus-next'
+  'shift-tab': 'core:focus-previous'
+
+'body webview':
+  'tab': 'native!'
+  'shift-tab': 'native!'
+
+
 
 # For menus
 'body .menu, body .menu, body .menu input':
