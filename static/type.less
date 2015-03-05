@@ -58,6 +58,11 @@ h6, .h6 {
 // Body text
 // -------------------------
 
+a { color: @text-color-link; }
+a:hover { color: @text-color-link-hover; cursor: pointer; }
+a:active { color: @text-color-link-active; }
+a:visisted { color: @text-color-link-active; }
+
 p {
   margin: 0 0 (@line-height-computed / 2);
 }

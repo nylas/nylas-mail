@@ -36,7 +36,7 @@ ParticipantsTextField = React.createClass
   render: ->
     classSet = {}
     classSet[@props.field] = true
-    <div className="compose-participants-wrap" style={zIndex: 1000-@props.tabIndex, display: @props.visible and 'inline' or 'none'}>
+    <div className="participants-text-field" style={zIndex: 1000-@props.tabIndex, display: @props.visible and 'inline' or 'none'}>
       <TokenizingTextField
         ref="textField"
         prompt={@props.field}

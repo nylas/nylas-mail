@@ -6,151 +6,60 @@
 @import "ui-mixins";
 @import "buttons";
 
-.composer-full-window {
-  width: 100%;
-  height: 100%;
-
-  .composer-outer-wrap {
-    width: 100%;
-    height: 100%;
-  }
-
-  .composer-inner-wrap {
-    padding-top: @spacing-standard;
-    .compose-body {
-      margin-bottom: 0;
-      position: relative;
-
-      .contenteditable-container {
-        display: flex;
-        flex: 1;
-        width: 100%;
-
-        div[contenteditable] {
-          height: auto;
-          flex: 1;
-        }
-      }
-    }
-
-    .composer-header { display: none; }
-  }
-
-  .composer-header-and-body-wrap, .compose-footer {
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
-  }
-}
-
-.floating-toolbar {
-  z-index: 10;
-  position: absolute;
-  background: @background-tertiary;
-  border-radius: @border-radius-base;
-  color: @text-color-inverse;
-  box-shadow: 0 0 8px rgba(0,0,0,0.4);
-
-  .toolbar-pointer {
-    content: " ";
-    position: absolute;
-    width: 0;
-    height: 0;
-    top: -13px;
-    left: 50%;
-    margin-left: -6px;
-    border: 7px solid transparent;
-    border-bottom-color: @background-tertiary;
-    border-bottom-width: 6px;
-  }
-
-  .floating-toolbar-input {
-    display: inline;
-    width: auto;
-    color: @text-color-inverse;
-    position: relative;
-    top: 1px;
-  }
-
-  @padding: 0.5em;
-  .btn {
-    background: transparent;
-    font-size: 16px;
-    height: auto;
-    border-radius: 0;
-    padding: @padding*0.75 @padding;
-    margin: 0;
-    color: @text-color-inverse;
-    box-shadow: none;
-    &:first-child {
-      padding-left: 1.5*@padding;
-    }
-    &:last-child {
-      padding-right: 1.5*@padding;
-    }
-    &:hover, &:active {
-      color: lighten(@text-color-link, 10%);
-      background: transparent;
-    }
-  }
-
-  .preview-btn-icon {
-    position: relative;
-    top: 1px;
-    padding: 0 @padding;
-  }
-}
-
-#message-list {
-  .message-item-wrap.composer-outer-wrap {
-    &:last-child { padding-bottom: 0; }
-  }
-  .composer-header-and-body-wrap, .compose-footer {
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
-  }
-}
-
-.composer-header-and-body-wrap {
-  height: 100%;
-}
-.composer-header-and-body {
-  position: relative;
-  height: 100%;
-  display: flex;
-  flex-flow: column;
-}
+@compose-width: 800px;
 
 .composer-inner-wrap {
-  height: 100%;
-  padding-bottom: 65px;
   position: relative;
+  height: 100%;
 
-  a:hover {
-    cursor: pointer;
+  .composer-action-bar-wrap {
+    width: 100%;
+    background: transparent;
+    border-bottom: 0;
+
+    .composer-action-bar-content {
+      width: 100%;
+      max-width: @compose-width;
+      margin: 0 auto;
+
+      padding: @spacing-standard;
+      padding-bottom: @spacing-standard*1.1;
+    }
   }
 
-  .composer-header-and-body {
+  .pull-right {
+    &:first-child {margin-right: 0}
+    margin-right: @spacing-standard;
+  }
+
+  .composer-content-wrap {
     position: relative;
 
-    .tokenizing-field.to {
-      padding-right: 60px;
-    }
+    width: 100%;
+    max-width: @compose-width;
+    margin: 0 auto;
+    margin-top: @spacing-standard;
+
+    height: 100%;
+    display: flex;
+    flex-flow: column;
   }
 
-  .composer-header {
-    padding: 11px 15px 5px 15px;
-
-    .composer-title {
-      display: inline-block;
-      font-weight:@headings-font-weight;
-    }
+  .text-actions {
+    text-align: right;
+    line-height: 1.4;
+    position: relative;
+    top: -3px;
   }
 
   .header-action {
     color: @text-color-very-subtle;
     font-size: @font-size-small;
+    padding-left: 1em;
+    &:hover {
+      color: @text-color-link;
+      cursor: pointer;
+    }
   }
 
   .composer-participant-actions {
@@ -163,16 +72,8 @@
     }
   }
 
-  .composer-header-actions {
-    float: right;
-  }
-
-  .header-action {
-    padding-left: 1em;
-    &:hover {
-      color: @text-color-link;
-      cursor: pointer;
-    }
+  .tokenizing-field.to {
+    padding-right: 60px;
   }
 
   input, textarea, div[contenteditable] {
@@ -185,49 +86,17 @@
     border: none;
   }
 
-  .compose-toolbar-wrap {
-    display: inline-block;
-
-    > button {
-      margin-left: 5px;
-    }
-  }
-
-  .compose-toolbar {
-    display: none;
-    box-shadow: @standard-shadow;
-    padding: 1px 1px 2px 1px;
-    position: absolute;
-    background: white;
-    z-index: 2;
-    bottom: 48px;
-    margin-left: -37.5px;
-  }
-
-  [disabled] {
-    background: rgba(0, 0, 0, 0.2);
-  }
-
-  .btn-send {
-    // .btn-variant(@action-color);
-    margin-right: 15px;
-  }
-
-  .compose-participants-wrap, .compose-subject-wrap {
+  .compose-subject-wrap {
     position: relative;
     z-index: 2;
-    padding: 5px @spacing-standard 0 @spacing-standard;
-  }
-
-  .compose-subject-wrap {
-    margin: 0 @spacing-standard;
     padding: 5px @spacing-standard 0 0;
+    margin: 0 @spacing-standard;
     border-bottom: 1px solid @border-color-divider;
 
     .subject-label {
       color: @text-color-very-subtle;
       float: left;
-      padding-top: 8px;
+      padding-top: 6px;
       display: block;
     }
 
@@ -240,40 +109,6 @@
       background-color: transparent;
       border: none;
     }
-  }
-
-  .completion-participant {
-    .participant-name, .participant-email {
-      max-width: 100%;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-    }
-
-    .participant-name {
-      display: block;
-      float: left;
-    }
-    .participant-email {
-      display: block;
-      float: right;
-    }
-  }
-
-  .participant{
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    .participant-primary {
-      font-weight: @font-weight-semi-bold;
-    }
-    .participant-secondary {
-      color: @text-color-very-subtle;
-    }
-  }
-
-
-  .token.selected .participant-secondary, .token.dragging .participant-secondary {
-    color: @text-color-inverse-subtle;
   }
 
   .compose-body {
@@ -292,6 +127,8 @@
     }
 
     div[contenteditable] {
+      font-size: @font-size-large;
+      line-height: 1.4;
       min-height: 150px;
       padding: @spacing-standard;
       padding-top: @spacing-standard;
@@ -301,19 +138,6 @@
     .contenteditable-container {
       width: 100%;
     }
-  }
-
-  .compose-footer-wrap {
-    position: absolute;
-    width: 100%;
-    bottom: 0;
-    text-align: left;
-    background: @background-secondary;
-    border-top: 1px solid @border-color-divider;
-  }
-  .compose-footer {
-    padding: @spacing-standard;
-    padding-bottom: @spacing-standard*1.1;
   }
 
   // TODO FIXME DRY From stylesheets/message-list.less
@@ -348,9 +172,161 @@
   }
 }
 
+// Overrides for the full-window popout composer
+.composer-full-window {
+  width: 100%;
+  height: 100%;
+
+  .composer-outer-wrap {
+    width: 100%;
+    height: 100%;
+  }
+
+  .composer-inner-wrap {
+
+    .composer-action-bar-wrap {
+      background: @background-secondary;
+      border-bottom: 1px solid @border-color-divider;
+    }
+
+    .compose-body {
+      margin-bottom: 0;
+      position: relative;
+
+      .contenteditable-container {
+        display: flex;
+        flex: 1;
+        width: 100%;
+
+        div[contenteditable] {
+          height: auto;
+          flex: 1;
+        }
+      }
+    }
+
+  }
+}
+
+// Overrides for the composer in a message-list
+#message-list {
+  .message-item-wrap.composer-outer-wrap {
+    border-top: 2px solid @border-color-divider;
+    &:last-child { padding-bottom: 0; }
+  }
+}
+
+
+
+//////////////////////////////////
+// participants-text-field.cjsx //
+//////////////////////////////////
+.participants-text-field {
+  position: relative;
+  z-index: 2;
+  padding: 5px @spacing-standard 0 @spacing-standard;
+
+  .completion-participant {
+    .participant-name, .participant-email {
+      max-width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .participant-name {
+      display: block;
+      float: left;
+    }
+    .participant-email {
+      display: block;
+      float: right;
+    }
+  }
+
+  .participant {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    .participant-primary {
+      font-weight: @font-weight-semi-bold;
+    }
+    .participant-secondary {
+      color: @text-color-very-subtle;
+    }
+  }
+
+  .token.selected .participant-secondary, .token.dragging .participant-secondary {
+    color: @text-color-inverse-subtle;
+  }
+}
+
+
+/////////////////////////////
+// new-compose-button.cjsx //
+/////////////////////////////
 #new-compose-button {
   .btn-compose {
     margin-top: @spacing-half;
     margin-left: @spacing-standard;
+  }
+}
+
+
+///////////////////////////
+// floating-toolbar.cjsx //
+///////////////////////////
+.floating-toolbar {
+  z-index: 10;
+  position: absolute;
+  background: @background-tertiary;
+  border-radius: @border-radius-base;
+  color: @text-color-inverse;
+  box-shadow: 0 0 8px rgba(0,0,0,0.4);
+
+  .toolbar-pointer {
+    content: " ";
+    position: absolute;
+    width: 0;
+    height: 0;
+    top: -13px;
+    left: 50%;
+    margin-left: -6px;
+    border: 7px solid transparent;
+    border-bottom-color: @background-tertiary;
+    border-bottom-width: 6px;
+  }
+
+  .floating-toolbar-input {
+    display: inline;
+    width: auto;
+    color: @text-color-inverse;
+  }
+
+  @padding: 0.5em;
+  .btn {
+    background: transparent;
+    font-size: 16px;
+    height: auto;
+    border-radius: 0;
+    padding: @padding*0.75 @padding;
+    margin: 0;
+    color: @text-color-inverse;
+    box-shadow: none;
+    &:first-child {
+      padding-left: 1.5*@padding;
+    }
+    &:last-child {
+      padding-right: 1.5*@padding;
+    }
+    &:hover, &:active {
+      color: lighten(@text-color-link, 10%);
+      background: transparent;
+    }
+  }
+
+  .preview-btn-icon {
+    position: relative;
+    top: 1px;
+    padding: 0 @padding;
   }
 }
