@@ -81,11 +81,14 @@ Utils =
     [name, ext] = fullname.split('.')
 
     if Utils.images is undefined
+      start = Date.now()
+      {resourcePath} = atom.getLoadSettings()
+      imagesPath = path.join(resourcePath, 'static', 'images')
+      files = fs.listTreeSync(imagesPath)
+
       Utils.images = {}
-      files = fs.listTreeSync('./static/images')
-      for file in files
-        Utils.images[path.basename(file)] = file.substr(7)
-      console.log('Loaded Images', Utils.images)
+      Utils.images[path.basename(file)] = file for file in files
+      console.log("Loaded image map in #{Date.now()-start}msec")
 
     if window.devicePixelRatio > 1
       return Utils.images["#{name}@2x.#{ext}"] ? Utils.images[fullname] ? Utils.images["#{name}@1x.#{ext}"]
