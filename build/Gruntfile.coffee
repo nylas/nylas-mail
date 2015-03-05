@@ -262,7 +262,7 @@ module.exports = (grunt) ->
       authors: 'InboxApp Inc.'
       loadingGif: path.resolve(__dirname, '..', 'resources', 'win', 'loading.gif')
       iconUrl: 'https://raw.githubusercontent.com/atom/atom/master/resources/win/atom.ico'
-      setupIcon: path.resolve(__dirname, '..', 'resources', 'win', 'atom.ico')
+      setupIcon: path.resolve(__dirname, '..', 'resources', 'win', 'edgehill.ico')
 
     shell:
       'kill-atom':
@@ -281,10 +281,10 @@ module.exports = (grunt) ->
   ciTasks.push('dump-symbols') if process.platform isnt 'win32'
   ciTasks.push('set-version', 'lint')
   ciTasks.push('mkdeb') if process.platform is 'linux'
-  ciTasks.push('create-windows-installer') if process.platform is 'win32'
   ciTasks.push('test') if process.platform is 'darwin'
   ciTasks.push('codesign')
   ciTasks.push('mkdmg') if process.platform is 'darwin'
+  ciTasks.push('create-windows-installer') if process.platform is 'win32'
   ciTasks.push('publish-edgehill-build') if process.platform is 'darwin'
   # ciTasks.push('publish-build')
   grunt.registerTask('ci', ciTasks)

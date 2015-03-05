@@ -83,7 +83,7 @@ class InboxAPI
         ## TODO use OfflineStatusStore
         Actions.longPollOffline()
 
-    connection.onDeltas (deltas) =>
+    connection.onDeltas (deltas) ->
       # TODO DO NOT FORGET TO UNCOMMENT ME
       # @_handleDeltas(deltas)
 

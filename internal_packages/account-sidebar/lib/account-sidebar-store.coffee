@@ -55,8 +55,8 @@ AccountSidebarStore = Reflux.createStore
     namespace = NamespaceStore.current()
     return unless namespace
 
-    @_sections.forEach (section) =>
-      section.tags.forEach (tag) =>
+    @_sections.forEach (section) ->
+      section.tags.forEach (tag) ->
         # Some tags don't have unread counts
         return if tag.id in ['archive', 'drafts', 'sent', 'trash']
 

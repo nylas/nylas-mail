@@ -41,16 +41,19 @@ module.exports = (grunt) ->
         args = ['--deep', '--force', '--verbose', '--sign', 'Developer ID Application: InboxApp, Inc.', grunt.config.get('atom.shellAppDir')]
         spawn {cmd, args}, (error) -> callback(error)
       when 'win32'
-        spawn {cmd: 'taskkill', args: ['/F', '/IM', 'edgehill.exe']}, ->
+        # TODO: Don't do anything now, because we need a certificate pfx file
+        # issued from a certificate authority, and we don't have one.
+        return callback()
+        spawn {cmd: 'taskkill', args: ['/F', '/IM', 'atom.exe']}, ->
           cmd = process.env.JANKY_SIGNTOOL ? 'signtool'
-          args = [path.join(grunt.config.get('atom.shellAppDir'), 'edgehill.exe')]
+          args = ['sign', path.join(grunt.config.get('atom.shellAppDir'), 'atom.exe')]
 
           spawn {cmd, args}, (error) ->
             return callback(error) if error?
 
             setupExePath = path.resolve(grunt.config.get('atom.buildDir'), 'installer', 'AtomSetup.exe')
             if fs.isFileSync(setupExePath)
-              args = [setupExePath]
+              args = ['sign', setupExePath]
               spawn {cmd, args}, (error) -> callback(error)
             else
               callback()

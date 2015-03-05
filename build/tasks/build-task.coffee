@@ -21,6 +21,11 @@ module.exports = (grunt) ->
       cp(path.join(shellAppDir, 'Contents', 'MacOS', 'Atom'),
          path.join(shellAppDir, 'Contents', 'MacOS', 'Edgehill'))
       rm path.join(shellAppDir, 'Contents', 'MacOS', 'Atom')
+    else if process.platform is 'win32'
+      cp 'atom-shell', shellAppDir, filter: /default_app/
+      # We can rename atom.exe to edgehill.exe, but all of the node libraries with
+      # native code are hard-linked to a file called atom.exe. For now, let's just
+      # leave it as atom.exe. https://github.com/atom/atom-shell/issues/713
     else
       cp 'atom-shell', shellAppDir, filter: /default_app/
       cp path.join(shellAppDir, 'atom'), path.join(shellAppDir, 'edgehill')
