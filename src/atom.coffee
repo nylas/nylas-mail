@@ -570,7 +570,9 @@ class Atom extends Model
       @displayWindow({maximize})
 
     @commands.add 'atom-workspace',
-      'atom-workspace:logout': => @logout()
+      'atom-workspace:logout': =>
+        if atom.config.get('inbox')
+          @logout()
 
     @commands.add 'atom-workspace',
       'atom-workspace:add-account': => @displayOnboardingWindow('add-account')

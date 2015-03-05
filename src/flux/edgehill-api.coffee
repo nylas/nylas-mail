@@ -8,12 +8,12 @@ async = require 'async'
 class EdgehillAPI
 
   constructor: ->
-    atom.config.onDidChange('inbox.env', @_onConfigChanged)
+    atom.config.onDidChange('env', @_onConfigChanged)
     @_onConfigChanged()
     @
 
   _onConfigChanged: =>
-    env = atom.config.get('inbox.env')
+    env = atom.config.get('env')
     if env is 'development'
       @APIRoot = "https://edgehill-dev.nilas.com"
     else if env is 'staging'
@@ -52,18 +52,20 @@ class EdgehillAPI
     "#{root}/connect/#{provider}?login_hint=#{email_address}"
 
   getCredentials: ->
-    atom.config.get('inbox.account')
+    atom.config.get('edgehill.credentials')
 
   setCredentials: (credentials) ->
-    atom.config.set('inbox.account', credentials)
+    atom.config.set('edgehill.credentials', credentials)
 
   addTokens: (tokens) ->
     for token in tokens
       if token.provider is 'inbox'
         atom.config.set('inbox.token', token.access_token)
-        @setCredentials({username: token.access_token, password: ''})
       if token.provider is 'salesforce'
         atom.config.set('salesforce.token', token.access_token)
+
+      if token.user_identifier?
+        @setCredentials({username: token.user_identifier, password: ''})
 
   tokenForProvider: (provider) ->
     atom.config.get("#{provider}.token")

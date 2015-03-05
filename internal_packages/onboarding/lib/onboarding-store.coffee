@@ -14,7 +14,7 @@ OnboardingStore = Reflux.createStore
     @_pageStack = [@_page]
 
     defaultEnv = if atom.inDevMode() then 'staging' else 'production'
-    atom.config.set('inbox.env', defaultEnv) unless atom.config.get('inbox.env')
+    atom.config.set('env', defaultEnv) unless atom.config.get('env')
 
     @listenTo Actions.setEnvironment, @_onSetEnvironment
     @listenTo Actions.moveToPreviousPage, @_onMoveToPreviousPage
@@ -29,7 +29,7 @@ OnboardingStore = Reflux.createStore
     @_error
 
   environment: ->
-    atom.config.get('inbox.env')
+    atom.config.get('env')
 
   connectType: ->
     @_connectType
@@ -60,5 +60,5 @@ OnboardingStore = Reflux.createStore
 
   _onSetEnvironment: (env) ->
     throw new Error("Environment #{env} is not allowed") unless env in ['development', 'staging', 'production']
-    atom.config.set('inbox.env', env)
+    atom.config.set('env', env)
     @trigger()
