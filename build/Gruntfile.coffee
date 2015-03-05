@@ -248,6 +248,8 @@ module.exports = (grunt) ->
       src: [
         'static/**/*.less'
       ]
+      options:
+        imports: ['variables/*.less']
 
     'download-atom-shell':
       version: packageJson.atomShellVersion

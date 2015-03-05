@@ -20,7 +20,6 @@ class EdgehillAPI
       @APIRoot = "https://edgehill-staging.nilas.com"
     else
       @APIRoot = "https://edgehill.nilas.com"
-    @APIRoot = "http://localhost:5009"
 
   request: (options={}) ->
     return if atom.getLoadSettings().isSpec
