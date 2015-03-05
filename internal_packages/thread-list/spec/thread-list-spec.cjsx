@@ -259,10 +259,11 @@ describe "ThreadListTabular", ->
                                                ThreadListTabularItem)
       expect(items.length).toBe 3
 
-    it "Expects there to be headers", ->
-      heads = ReactTestUtils.scryRenderedDOMComponentsWithClass(@thread_list, "thread-list-header")
-      expect(heads.length).toBe(3)
-
+    # We no longer put headers in the thread list (for now)
+    # it "Expects there to be headers", ->
+    #   heads = ReactTestUtils.scryRenderedDOMComponentsWithClass(@thread_list, "thread-list-header")
+    #   expect(heads.length).toBe(3)
+    #
 
     describe "ThreadListTabularItem", ->
       beforeEach ->

@@ -228,10 +228,11 @@ describe "MessageList", ->
               MessageParticipants)
       expect(items.length).toBe 5
 
-    it "displays the thread participants on the page", ->
-      items = TestUtils.scryRenderedComponentsWithType(@message_list,
-              ParticipantsItem)
-      expect(items.length).toBe 1
+    # We no longer do this (for now)
+    # it "displays the thread participants on the page", ->
+    #   items = TestUtils.scryRenderedComponentsWithType(@message_list,
+    #           ParticipantsItem)
+    #   expect(items.length).toBe 1
 
     it "focuses new composers when a draft is added", ->
       spyOn(@message_list, "_focusRef")
