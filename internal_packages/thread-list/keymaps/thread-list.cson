@@ -7,7 +7,7 @@
 
 # For more detailed documentation see
 # https://atom.io/docs/latest/advanced/keymaps
-'.thread-list-container':
+'.thread-list':
   's'     : 'thread-list:star-thread' # Gmail
   'cmd-L' : 'thread-list:star-thread' # Mac mail
   'ctrl-G': 'thread-list:star-thread' # Outlook

@@ -85,7 +85,6 @@ Utils =
       files = fs.listTreeSync('./static/images')
       for file in files
         Utils.images[path.basename(file)] = file.substr(7)
-      console.log('Loaded Images', Utils.images)
 
     if window.devicePixelRatio > 1
       return Utils.images["#{name}@2x.#{ext}"] ? Utils.images[fullname] ? Utils.images["#{name}@1x.#{ext}"]

@@ -234,7 +234,7 @@ describe "ThreadListTabular", ->
     expect(ReactTestUtils.isCompositeComponentWithType(@thread_list,
                                           ThreadListTabular)).toBe true
 
-  it "archives on keymap", ->
+  it "stars on keymap", ->
     spyOn(@thread_list, "_onStarThread")
     InboxTestUtils.keyPress("s", @thread_list.getDOMNode())
     expect(@thread_list._onStarThread).toHaveBeenCalled()

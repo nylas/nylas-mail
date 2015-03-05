@@ -107,7 +107,7 @@ MessageItem = React.createClass
     AttachmentComponent = @state.AttachmentComponent
     attachments = _.filter @props.message.files, (f) -> not f.contentId?
     attachments.map (file) =>
-      <AttachmentComponent file={file} download={@state.downloads[file.id]}/>
+      <AttachmentComponent file={file} key={file.id} download={@state.downloads[file.id]}/>
 
   _messageIsEmptyForward: ->
     # Returns true if the message contains "Forwarded" or "Fwd" in the first 250 characters.

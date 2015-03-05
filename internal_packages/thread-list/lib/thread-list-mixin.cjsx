@@ -8,7 +8,7 @@ ThreadListMixin =
 
   componentDidMount: ->
     @thread_store_unsubscribe = ThreadStore.listen @_onChange
-    @thread_unsubscriber = atom.commands.add '.thread-list-container', {
+    @thread_unsubscriber = atom.commands.add '.thread-list', {
       'thread-list:star-thread': => @_onStarThread()
     }
     @body_unsubscriber = atom.commands.add 'body', {

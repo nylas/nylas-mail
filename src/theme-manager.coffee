@@ -30,7 +30,7 @@ class ThemeManager
     stylesElement.onDidRemoveStyleElement @styleElementRemoved.bind(this)
     stylesElement.onDidUpdateStyleElement @styleElementUpdated.bind(this)
 
-    if atom.inDevMode()
+    if atom.inDevMode() and not atom.inSpecMode()
       console.log('In Dev Mode - Watching /static for LESS changes')
       watchStylesIn = (folder) =>
         stylePaths = fs.listTreeSync(folder)
