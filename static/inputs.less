@@ -8,11 +8,16 @@ input[type="email"] {
   padding-right: @padding-xs-horizontal;
   font-size: @font-size-base;
   line-height: @line-height-computed;
-  border-radius: @border-radius-base;
-  border: 1px solid @input-border;
   font-weight:400;
+
+  &.input-bordered {
+    border-radius: @border-radius-base;
+    border: 1px solid @input-border;
+  }
 }
 input[type="text"]:focus,
 input[type="email"]:focus, {
+  &.input-bordered {
     box-shadow: 0 0 3px @accent-primary;
+  }
 }

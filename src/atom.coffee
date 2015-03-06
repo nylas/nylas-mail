@@ -211,6 +211,10 @@ class Atom extends Model
     @keymaps = new KeymapManager({configDirPath, resourcePath})
     @keymaps.subscribeToFileReadFailure()
     @keymaps.onDidMatchBinding (event) ->
+      # If the user fired a command with the application: prefix bound to the body, re-fire it
+      # up into the browser process. This prevents us from needing this crap, which has to be
+      # updated every time a new application: command is added:
+      # https://github.com/atom/atom/blob/master/src/workspace-element.coffee#L119
       if event.binding.command.indexOf('application:') is 0 and event.binding.selector is "body"
         ipc.send('command', event.binding.command)
 

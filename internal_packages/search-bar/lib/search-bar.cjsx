@@ -25,6 +25,7 @@ SearchBar = React.createClass
   render: ->
     inputValue = @_queryToString(@state.query)
     inputClass = React.addons.classSet
+      'input-bordered': true
       'empty': inputValue.length is 0
     
     headerComponents = [

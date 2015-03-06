@@ -30,7 +30,7 @@ ThreadListTabular = React.createClass
     unlisten() for unlisten in @unlisteners
 
   render: ->
-    <div class="thread-list" id="thread-list">
+    <div className="thread-list" id="thread-list">
       <div tabIndex=1
            className="thread-list-container thread-list-tabular">
 

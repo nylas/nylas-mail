@@ -76,8 +76,8 @@ describe "Contact", ->
     expect(c3.displayFirstName()).toBe ""
     expect(c3.displayLastName()).toBe ""
 
-  it "should properly return `Me` as the display name for the current user", ->
+  it "should properly return `You` as the display name for the current user", ->
     c1 = new Contact {name: " Test Monkey", email: NamespaceStore.current().emailAddress}
-    expect(c1.displayName()).toBe "Me"
-    expect(c1.displayFirstName()).toBe "Me"
+    expect(c1.displayName()).toBe "You"
+    expect(c1.displayFirstName()).toBe "You"
     expect(c1.displayLastName()).toBe ""

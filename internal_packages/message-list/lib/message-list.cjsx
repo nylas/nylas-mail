@@ -40,7 +40,7 @@ MessageList = React.createClass
   render: ->
     return <div></div> if not @state.current_thread?
 
-    <div class="message-list" id="message-list">
+    <div className="message-list" id="message-list">
       <div tabIndex=1 className="messages-wrap">
         {@_oldMessageListHeaders()}
 
