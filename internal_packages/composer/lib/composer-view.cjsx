@@ -41,7 +41,6 @@ ComposerView = React.createClass
     @_prepareForDraft()
 
   componentDidMount: ->
-    @undoManager = new UndoManager
     @keymap_unsubscriber = atom.commands.add '.composer-outer-wrap', {
       'composer:show-and-focus-bcc': @_showAndFocusBcc
       'composer:show-and-focus-cc': @_showAndFocusCc
@@ -78,6 +77,8 @@ ComposerView = React.createClass
       @_prepareForDraft()
 
   _prepareForDraft: ->
+    # UndoManager must be ready before we call _onDraftChanged for the first time
+    @undoManager = new UndoManager
     @_proxy = DraftStore.sessionForLocalId(@props.localId)
     if @_proxy.draft()
       @_onDraftChanged()
