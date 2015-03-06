@@ -53,14 +53,20 @@ atom-workspace {
   left:100%;
 }
 
-.toolbar-container {
+.sheet-column-toolbar {
   background: @toolbar-background-color;
   border-bottom: 1px solid @border-color-divider;
+  width:  100%;
+  height: 50px;
 
-  .toolbar {
-    width:  100%;
-    height: 50px;
-  }
+  // prevent flexbox from ever, ever resizing toolbars, no matter
+  // how much it thinks other content is being squished
+  min-height: 50px;
+  max-height: 50px;
+
+  // cover up the vertical resizing separators, so the toolbar appears
+  // to be one continuous bar.
+  z-index: 10;
 }
 
 .flexbox-handle-horizontal {

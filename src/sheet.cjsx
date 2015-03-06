@@ -4,6 +4,13 @@ _ = require 'underscore-plus'
 Flexbox = require './components/flexbox.cjsx'
 ResizableRegion = require './components/resizable-region.cjsx'
 
+
+ToolbarSpacer = React.createClass
+  propTypes:
+    order: React.PropTypes.number
+  render: ->
+    <div style={flex: 1, order:@props.order ? 0}></div>
+
 module.exports =
 Sheet = React.createClass
   displayName: 'Sheet'
@@ -33,7 +40,7 @@ Sheet = React.createClass
       width:'100%'
       height:'100%'
 
-    <div name={@props.type} style={style}>
+    <div name={"Sheet-#{@props.type}"} style={style}>
       <Flexbox direction="row">
         {@_backButtonComponent()}
         {@_columnFlexboxComponents()}
@@ -52,6 +59,8 @@ Sheet = React.createClass
       return if classes.length is 0
 
       components = classes.map (c) => <c {...@props} />
+      components.push(@_columnToolbarComponent(column))
+
       maxWidth = _.reduce classes, ((m,c) -> Math.min(c.maxWidth ? 10000, m)), 10000
       minWidth = _.reduce classes, ((m,c) -> Math.max(c.minWidth ? 0, m)), 0
       resizable = minWidth != maxWidth && column != 'Center'
@@ -60,19 +69,32 @@ Sheet = React.createClass
         if column is 'Left' then handle = ResizableRegion.Handle.Right
         if column is 'Right' then handle = ResizableRegion.Handle.Left
         <ResizableRegion minWidth={minWidth} maxWidth={maxWidth} handle={handle}>
-          <Flexbox direction="column" name={column}>
+          <Flexbox direction="column" name={"#{@props.type}:#{column}"}>
             {components}
           </Flexbox>
         </ResizableRegion>
       else
-        <Flexbox direction="column" name={column} style={flex: 1}>
+        <Flexbox direction="column" name={"#{@props.type}:#{column}"} style={flex: 1}>
           {components}
         </Flexbox>
+
+  _columnToolbarComponent: (column) ->
+    components = @state["#{column}Toolbar"].map (item) =>
+      <item {...@props} />
+
+    <div className="sheet-column-toolbar">
+      <Flexbox direction="row">
+        {components}
+        <ToolbarSpacer order={-50}/>
+        <ToolbarSpacer order={50}/>
+      </Flexbox>
+    </div>
 
   _getComponentRegistryState: ->
     state = {}
     for column in @props.columns
       state[column] = ComponentRegistry.findAllViewsByRole "#{@props.type}:#{column}"
+      state["#{column}Toolbar"] = ComponentRegistry.findAllViewsByRole "#{@props.type}:#{column}:Toolbar"
     state
 
   _pop: ->

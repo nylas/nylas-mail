@@ -17,6 +17,6 @@ Flexbox = React.createClass
       'display': 'flex'
       'height':'100%'
 
-    <div name={name} style={style}>
+    <div name={@props.name} style={style}>
       {@props.children}
     </div>

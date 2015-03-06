@@ -76,4 +76,4 @@ module.exports =
     ComponentRegistry.register
       view: NewComposeButton
       name: 'NewComposeButton'
-      role: 'Global:Toolbar'
+      role: 'ThreadList:Left:Toolbar'
