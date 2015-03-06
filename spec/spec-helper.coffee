@@ -14,7 +14,6 @@ KeymapManager = require '../src/keymap-extensions'
 {$} = require '../src/space-pen-extensions'
 
 Config = require '../src/config'
-Workspace = require '../src/workspace-edgehill'
 ServiceHub = require 'service-hub'
 pathwatcher = require 'pathwatcher'
 clipboard = require 'clipboard'
@@ -97,12 +96,10 @@ beforeEach ->
 
   $.fx.off = true
   documentTitle = null
-  atom.workspace = new Workspace()
   atom.packages.serviceHub = new ServiceHub
   atom.keymaps.keyBindings = _.clone(keyBindingsToRestore)
   atom.commands.restoreSnapshot(commandsToRestore)
   atom.styles.restoreSnapshot(styleElementsToRestore)
-
   atom.workspaceViewParentSelector = '#jasmine-content'
 
   window.resetTimeouts()
@@ -163,10 +160,6 @@ afterEach ->
   atom.packages.deactivatePackages()
   atom.menu.template = []
   atom.contextMenu.clear()
-
-  atom.workspace?.destroy()
-  atom.workspace = null
-  delete atom.state.workspace
 
   atom.themes.removeStylesheet('global-editor-styles')
 
