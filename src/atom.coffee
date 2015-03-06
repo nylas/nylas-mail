@@ -357,6 +357,9 @@ class Atom extends Model
   isReleasedVersion: ->
     not /\w{7}/.test(@getVersion()) # Check if the release is a 7-character SHA prefix
 
+  isLoggedIn: ->
+    atom.config.get('inbox.token')
+
   # Public: Get the directory path to Atom's configuration area.
   #
   # Returns the absolute path to `~/.atom`.
@@ -565,19 +568,17 @@ class Atom extends Model
     @requireUserInitScript() unless safeMode
     @menu.update()
 
+    @commands.add 'atom-workspace',
+      'atom-workspace:add-account': =>
+        @displayOnboardingWindow('add-account')
+      'atom-workspace:logout': =>
+        @logout() if @isLoggedIn()
+
     ipc.on 'onboarding-complete', =>
       maximize = dimensions?.maximized and process.platform isnt 'darwin'
       @displayWindow({maximize})
 
-    @commands.add 'atom-workspace',
-      'atom-workspace:logout': =>
-        if atom.config.get('inbox')
-          @logout()
-
-    @commands.add 'atom-workspace',
-      'atom-workspace:add-account': => @displayOnboardingWindow('add-account')
-
-    if atom.config.get('inbox.token')
+    if @isLoggedIn()
       maximize = dimensions?.maximized and process.platform isnt 'darwin'
       @displayWindow({maximize})
     else
@@ -593,11 +594,14 @@ class Atom extends Model
 
     @keymaps.loadBundledKeymaps()
     @themes.loadBaseStylesheets()
+    @keymaps.loadUserKeymap()
 
     Workspace = require './workspace-edgehill'
     Actions = require './flux/actions'
-
     @workspace = new Workspace
+
+    @item = document.createElement("atom-workspace")
+    document.querySelector(@workspaceViewParentSelector).appendChild(@item)
 
     for pack in packages
       @packages.loadPackage(pack)
@@ -730,12 +734,12 @@ class Atom extends Model
     @workspace = new Workspace
     @deserializeTimings.workspace = Date.now() - startTime
 
-    SheetContainer = require './sheet-container'
     @item = document.createElement("atom-workspace")
     @item.setAttribute("id", "sheet-container")
     @item.setAttribute("class", "sheet-container")
 
     React = require "react"
+    SheetContainer = require './sheet-container'
     React.render(React.createElement(SheetContainer), @item)
     document.querySelector(@workspaceViewParentSelector).appendChild(@item)
 

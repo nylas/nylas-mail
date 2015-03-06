@@ -139,7 +139,7 @@ ContainerView = React.createClass
     atom.close()
 
   _fireQuit: ->
-    require('remote').require('app').quit()
+    require('ipc').send('command', 'application:quit')
 
   _fireSetEnvironment: (event) ->
     OnboardingActions.setEnvironment(event.target.value)
