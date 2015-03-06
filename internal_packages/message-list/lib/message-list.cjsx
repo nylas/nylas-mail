@@ -42,15 +42,12 @@ MessageList = React.createClass
 
     <div className="message-list" id="message-list">
       <div tabIndex=1 className="messages-wrap">
-        {@_oldMessageListHeaders()}
-
-        <div className="title-and-messages">
-          {@_messageListHeaders()}
-
-          <div className="message-components-wrap">
-            {@_messageComponents()}
-          </div>
+        <div className="message-list-notification-bars">
+          {@_messageListNotificationBars()}
         </div>
+
+        {@_messageListHeaders()}
+        {@_messageComponents()}
       </div>
     </div>
 
@@ -66,8 +63,6 @@ MessageList = React.createClass
 
     <div className="message-list-headers">
       <h2 className="message-subject">{@state.current_thread.subject}</h2>
-
-      {@_oldParticipants()}
 
       {for MessageListHeader in MessageListHeaders
         <MessageListHeader thread={@state.current_thread} />
@@ -135,27 +130,6 @@ MessageList = React.createClass
         if contact? and contact.email?.length > 0
           participants[contact.email] = contact
     return _.values(participants)
-
-
-
-
-
-
-
-  # TODO Add actions and notifications back in.
-  _oldMessageListHeaders: ->
-    return <div></div>
-    <div className="message-list-notification-bars">
-      {@_messageListNotificationBars()}
-    </div>
-
-  # TODO Add participants back in
-  _oldParticipants: ->
-    return <div></div>
-    <Participants clickable={true}
-                  context={'primary'}
-                  participants={@_threadParticipants()}/>
-
 
 
 MessageList.minWidth = 600
