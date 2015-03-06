@@ -90,11 +90,25 @@ Sheet = React.createClass
       </Flexbox>
     </div>
 
+  # Load components that are part of our sheet. For each column,
+  # (eg 'Center') we look for items with a matching `role`. We
+  # then pull toolbar items the following places:
+  #  
+  # - ThreadList:Center:Toolbar
+  # - ComposeButton:Toolbar
+  #
   _getComponentRegistryState: ->
     state = {}
     for column in @props.columns
-      state[column] = ComponentRegistry.findAllViewsByRole "#{@props.type}:#{column}"
-      state["#{column}Toolbar"] = ComponentRegistry.findAllViewsByRole "#{@props.type}:#{column}:Toolbar"
+      views = []
+      toolbarViews = ComponentRegistry.findAllViewsByRole("#{@props.type}:#{column}:Toolbar")
+
+      for {view, name} in ComponentRegistry.findAllByRole("#{@props.type}:#{column}")
+        toolbarViews = toolbarViews.concat(ComponentRegistry.findAllViewsByRole("#{name}:Toolbar"))
+        views.push(view)
+
+      state["#{column}"] = views
+      state["#{column}Toolbar"] = toolbarViews
     state
 
   _pop: ->

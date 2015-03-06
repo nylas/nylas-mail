@@ -1,6 +1,32 @@
 @import "ui-variables";
 @import "ui-mixins";
 
+@message-max-width: 800px;
+
+// This class wraps the items that appear above the message list in the
+// toolbar. We want the toolbar items to sit right above the centered
+// content, so we need another 800px-wide container in the toolbar...
+.message-toolbar-items {
+  order: -100;
+  width: 100%;
+  text-align: center;
+  position: absolute;
+  pointer-events: none;
+  transition: opacity .25s ease-in-out;
+
+  .message-toolbar-items-inner {
+    margin: auto;
+    max-width: @message-max-width - @spacing-three-quarters*2;
+    text-align: left;
+    pointer-events: auto;
+  }
+}
+
+// .message-toolbar-items also fades in and out when you select / deselect
+.message-toolbar-items.hidden {
+  opacity: 0;
+}
+
 #message-list {
   position: relative;
 
@@ -27,7 +53,7 @@
     padding: @spacing-double;
     padding-bottom: @spacing-standard;
     width: 100%;
-    max-width: 800px;
+    max-width: @message-max-width;
 
     .participants {
       .contact-chip {
@@ -35,29 +61,6 @@
       }
     }
   }
-
-  // .message-list-primary-actions {
-  //   z-index: 2;
-  //   -webkit-user-select: none;
-  //   padding-top: 6px;
-  //   padding-bottom: 5px;
-  //   padding-left:13px;
-  //   background-color: @background-color;
-  //   border-bottom:1px solid @border-color;
-  //
-  //   .primary-actions-bar {
-  //     width: 100%;
-  //     font-size: 21px;
-  //     line-height: 2;
-  //     .btn-icon {
-  //       padding-top: 0;
-  //       padding-bottom: 0;
-  //     }
-  //     .btn {
-  //       margin-left: 4px;
-  //     }
-  //   }
-  // }
 
   .message-item-wrap {
     position: relative;
@@ -73,7 +76,7 @@
 
   .message-item-area {
     width: 100%;
-    max-width: 800px;
+    max-width: @message-max-width;
     margin: 0 auto;
     padding: @spacing-standard @spacing-double;
 

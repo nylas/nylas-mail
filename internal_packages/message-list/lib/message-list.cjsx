@@ -54,12 +54,6 @@ MessageList = React.createClass
       </div>
     </div>
 
-  _messageListPrimaryActions: ->
-    MLActions = ComponentRegistry.findAllViewsByRole('MessageListPrimaryAction')
-    <div className="primary-actions-bar">
-      {<MLAction thread={@state.current_thread} /> for MLAction in MLActions}
-    </div>
-
   _messageListNotificationBars: ->
     MLBars = ComponentRegistry.findAllViewsByRole('MessageListNotificationBar')
     <div className="message-list-notification-bar-wrap">
@@ -151,10 +145,6 @@ MessageList = React.createClass
   # TODO Add actions and notifications back in.
   _oldMessageListHeaders: ->
     return <div></div>
-    <div className="message-list-primary-actions">
-      {@_messageListPrimaryActions()}
-    </div>
-
     <div className="message-list-notification-bars">
       {@_messageListNotificationBars()}
     </div>
