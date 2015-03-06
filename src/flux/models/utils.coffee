@@ -87,7 +87,6 @@ Utils =
       files = fs.listTreeSync(imagesPath)
 
       Utils.images = {}
-      files = fs.listTreeSync('./static/images')
       Utils.images[path.basename(file)] = file for file in files
       # console.log("Loaded image map in #{Date.now()-start}msec")
 
