@@ -210,6 +210,10 @@ class Atom extends Model
 
     @keymaps = new KeymapManager({configDirPath, resourcePath})
     @keymaps.subscribeToFileReadFailure()
+    @keymaps.onDidMatchBinding (event) ->
+      if event.binding.command.indexOf('application:') is 0 and event.binding.selector is "body"
+        ipc.send('command', event.binding.command)
+
     @tooltips = new TooltipManager
     @notifications = new NotificationManager
     @commands = new CommandRegistry
@@ -596,13 +600,6 @@ class Atom extends Model
     @themes.loadBaseStylesheets()
     @keymaps.loadUserKeymap()
 
-    Workspace = require './workspace-edgehill'
-    Actions = require './flux/actions'
-    @workspace = new Workspace
-
-    @item = document.createElement("atom-workspace")
-    document.querySelector(@workspaceViewParentSelector).appendChild(@item)
-
     for pack in packages
       @packages.loadPackage(pack)
     @packages.activate()
@@ -638,15 +635,12 @@ class Atom extends Model
     ipc.send('show-secondary-window', options)
 
   unloadEditorWindow: ->
-    @state.edgehillWorkspace = @workspace.serialize()
     @packages.deactivatePackages()
     @state.packageStates = @packages.packageStates
     @saveSync()
     @windowState = null
 
   removeEditorWindow: ->
-    @workspace?.destroy()
-    @workspace = null
     @windowEventHandler?.unsubscribe()
 
   ###
@@ -727,11 +721,8 @@ class Atom extends Model
   ###
 
   deserializeWorkspaceView: ->
-    # Put state back into store
     startTime = Date.now()
-    Workspace = require './workspace-edgehill'
-    #@workspace = Workspace.deserialize(@state.edgehillWorkspace) ? new Workspace
-    @workspace = new Workspace
+    # Put state back into sheet-container? Restore app state here
     @deserializeTimings.workspace = Date.now() - startTime
 
     @item = document.createElement("atom-workspace")
