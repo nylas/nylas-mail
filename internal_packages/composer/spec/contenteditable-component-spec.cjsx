@@ -14,23 +14,22 @@ describe "ContenteditableComponent", ->
     @component = ReactTestUtils.renderIntoDocument(
       <ContenteditableComponent html={html} onChange={@onChange}/>
     )
+    @editableNode = ReactTestUtils.findRenderedDOMComponentWithAttr(@component, 'contentEditable').getDOMNode()
 
   describe "render", ->
     it 'should render into the document', ->
       expect(ReactTestUtils.isCompositeComponentWithType @component, ContenteditableComponent).toBe true
 
     it "should include a content-editable div", ->
-      expect(ReactTestUtils.findRenderedDOMComponentWithAttr(@component, 'contentEditable')).toBeDefined()
+      expect(@editableNode).toBeDefined()
 
   describe "when the html is changed", ->
     beforeEach ->
       @changedHtmlWithoutQuote = 'Changed <strong>NEW 1 HTML</strong><br>'
-      @changedHtmlWithQuote = 'Changed <strong>NEW 1 HTML</strong><br><blockquote class="gmail_quote">QUOTE</blockquote>'
 
       @performEdit = (newHTML, component = @component) =>
-        editDiv = ReactTestUtils.findRenderedDOMComponentWithAttr(component, 'contentEditable')
-        editDiv.getDOMNode().innerHTML = newHTML
-        ReactTestUtils.Simulate.input(editDiv, {target: {value: newHTML}})
+        @editableNode.innerHTML = newHTML
+        ReactTestUtils.Simulate.input(@editableNode, {target: {value: newHTML}})
 
     it "should fire `props.onChange`", ->
       @performEdit('Test <strong>New HTML</strong>')
