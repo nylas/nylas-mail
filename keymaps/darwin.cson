@@ -1,8 +1,16 @@
 # Note: For a menu item to have a keyboard equiavalent, it needs
 # to be listed in this file.
 
-# Mac application keys
 'body':
+  # Mac email-specific menu items
+  'cmd-n' : 'application:new-message' # Mac mail
+  'cmd-r' : 'application:reply' # Mac mail
+  'cmd-R' : 'application:reply-all' # Mac mail
+  'cmd-F' : 'application:forward' # Mac mail
+  'cmd-alt-f': 'application:focus-search' # Mac mail
+  'cmd-D': 'application:send-message' # Mac mail
+
+  # Mac application keys
   'cmd-q': 'application:quit'
   'cmd-h': 'application:hide'
   'cmd-1': 'application:show-main-window'
@@ -11,7 +19,7 @@
   'alt-cmd-ctrl-m': 'application:zoom'
   'cmd-alt-ctrl-s': 'application:run-all-specs'
 
-# Mac core keys
+  # Mac core keys
   'cmd-z': 'core:undo'
   'cmd-Z': 'core:redo'
   'cmd-y': 'core:redo'
@@ -20,7 +28,7 @@
   'cmd-a': 'core:select-all'
   'cmd-v': 'core:paste'
 
-# Mac window keys
+  # Mac window keys
   'cmd-w': 'window:close'
   'cmd-=': 'window:increase-font-size'
   'cmd-+': 'window:increase-font-size'
