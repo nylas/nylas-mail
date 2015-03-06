@@ -2,6 +2,7 @@
 require('crash-reporter').start(productName: 'Atom', companyName: 'GitHub')
 
 path = require 'path'
+fs = require 'fs-plus'
 
 # Swap out Node's native Promise for Bluebird, which allows us to
 # do fancy things like handle exceptions inside promise blocks
@@ -10,6 +11,7 @@ global.Promise = require 'bluebird'
 try
   require '../src/window'
   Atom = require '../src/atom'
+  Atom.configDirPath = fs.absolute('~/.inbox-spec')
   window.atom = Atom.loadOrCreate('spec')
 
   # Show window synchronously so a focusout doesn't fire on input elements
