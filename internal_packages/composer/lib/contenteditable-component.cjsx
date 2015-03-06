@@ -6,6 +6,12 @@ FloatingToolbar = require './floating-toolbar.cjsx'
 
 module.exports =
 ContenteditableComponent = React.createClass
+  propTypes:
+    html: React.PropTypes.string
+    style: React.PropTypes.object
+    tabIndex: React.PropTypes.number
+    onChange: React.PropTypes.func.isRequired
+
   getInitialState: ->
     toolbarTop: 0
     toolbarMode: "buttons"
