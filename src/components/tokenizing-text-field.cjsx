@@ -198,6 +198,9 @@ TokenizingTextField = React.createClass
     @focus()
 
   _removeToken: (token = null) ->
+    if @state.inputValue.trim().length is 0 and @props.tokens.length is 0 and @props.onRemove?
+      @props.onRemove()
+
     if token
       tokenToDelete = token
     else if @state.selectedTokenKey

@@ -162,6 +162,7 @@ ComposerView = React.createClass
           field='cc'
           visible={@state.showcc}
           change={@_onChangeParticipants}
+          onRemove={=> @setState showcc: false}
           participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
           tabIndex='103'/>
 
@@ -170,6 +171,7 @@ ComposerView = React.createClass
           field='bcc'
           visible={@state.showbcc}
           change={@_onChangeParticipants}
+          onRemove={=> @setState showbcc: false}
           participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
           tabIndex='104'/>
 

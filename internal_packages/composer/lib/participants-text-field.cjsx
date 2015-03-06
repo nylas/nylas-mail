@@ -43,6 +43,7 @@ ParticipantsTextField = React.createClass
         classSet={classSet}
         tabIndex={@props.tabIndex}
         tokens={@props.participants[@props.field]}
+        onRemove={@props.onRemove}
         tokenKey={ (p) -> p.email }
         tokenContent={@_componentForParticipant}
         completionsForInput={ (input) -> ContactStore.searchContacts(input) }
