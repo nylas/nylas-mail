@@ -7,7 +7,7 @@ React = require "react/addons"
 ReactTestUtils = React.addons.TestUtils
 ContenteditableComponent = require "../lib/contenteditable-component.cjsx",
 
-fdescribe "ContenteditableComponent", ->
+describe "ContenteditableComponent", ->
   beforeEach ->
     @onChange = jasmine.createSpy('onChange')
     html = 'Test <strong>HTML</strong>'

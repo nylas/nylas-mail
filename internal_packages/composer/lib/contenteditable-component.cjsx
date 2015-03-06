@@ -9,7 +9,7 @@ ContenteditableComponent = React.createClass
   propTypes:
     html: React.PropTypes.string
     style: React.PropTypes.object
-    tabIndex: React.PropTypes.number
+    tabIndex: React.PropTypes.string
     onChange: React.PropTypes.func.isRequired
 
   getInitialState: ->
