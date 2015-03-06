@@ -117,8 +117,7 @@ ComposerView = React.createClass
       <div className="composer-action-bar-wrap">
         <div className="composer-action-bar-content">
           {@_trashBtn()}
-          <button className="btn btn-icon pull-right btn-attach"
-                  style={padding:"0.53em 1.2em"}
+          <button className="btn btn-toolbar pull-right btn-attach"
                   onClick={@_attachFile}><RetinaImg name="toolbar-attach.png"/></button>
 
           <div className="text-actions pull-right">
@@ -131,9 +130,8 @@ ComposerView = React.createClass
                   onClick={=> @setState {showsubject: true}}>Change Subject</span>
           </div>
 
-          <button className="btn btn-icon btn-send"
+          <button className="btn btn-toolbar btn-send"
                   tabIndex="110"
-                  style={padding:"0.45em 1.12em"}
                   onClick={@_sendDraft}><RetinaImg name="toolbar-send.png" /></button>
           {@_footerComponents()}
         </div>
@@ -210,7 +208,7 @@ ComposerView = React.createClass
 
   _trashBtn: ->
     if @props.mode isnt "fullwindow"
-      <button className="btn btn-icon pull-right btn-trash"
+      <button className="btn btn-toolbar pull-right btn-trash"
               onClick={@_destroyDraft}><RetinaImg name="toolbar-trash.png" /></button>
 
   _footerComponents: ->
