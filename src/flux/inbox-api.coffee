@@ -12,7 +12,7 @@ class InboxAPI
 
   constructor: ->
     @_streamingConnections = []
-    atom.config.onDidChange('inbox.env', @_onConfigChanged)
+    atom.config.onDidChange('env', @_onConfigChanged)
     atom.config.onDidChange('inbox.token', @_onConfigChanged)
     @_onConfigChanged()
 
@@ -24,7 +24,7 @@ class InboxAPI
     prev = {@APIToken, @AppID, @APIRoot}
 
     @APIToken = atom.config.get('inbox.token')
-    env = atom.config.get('inbox.env')
+    env = atom.config.get('env')
     if env in ['production']
       @AppID = 'c96gge1jo29pl2rebcb7utsbp'
       @APIRoot = 'https://api.nilas.com'
@@ -83,7 +83,7 @@ class InboxAPI
         ## TODO use OfflineStatusStore
         Actions.longPollOffline()
 
-    connection.onDeltas (deltas) =>
+    connection.onDeltas (deltas) ->
       # TODO DO NOT FORGET TO UNCOMMENT ME
       # @_handleDeltas(deltas)
 

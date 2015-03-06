@@ -210,6 +210,14 @@ class Atom extends Model
 
     @keymaps = new KeymapManager({configDirPath, resourcePath})
     @keymaps.subscribeToFileReadFailure()
+    @keymaps.onDidMatchBinding (event) ->
+      # If the user fired a command with the application: prefix bound to the body, re-fire it
+      # up into the browser process. This prevents us from needing this crap, which has to be
+      # updated every time a new application: command is added:
+      # https://github.com/atom/atom/blob/master/src/workspace-element.coffee#L119
+      if event.binding.command.indexOf('application:') is 0 and event.binding.selector is "body"
+        ipc.send('command', event.binding.command)
+
     @tooltips = new TooltipManager
     @notifications = new NotificationManager
     @commands = new CommandRegistry
@@ -356,6 +364,9 @@ class Atom extends Model
   # Public: Determine whether the current version is an official release.
   isReleasedVersion: ->
     not /\w{7}/.test(@getVersion()) # Check if the release is a 7-character SHA prefix
+
+  isLoggedIn: ->
+    atom.config.get('inbox.token')
 
   # Public: Get the directory path to Atom's configuration area.
   #
@@ -509,6 +520,7 @@ class Atom extends Model
     width > 0 and height > 0 and x + width > 0 and y + height > 0
 
   storeDefaultWindowDimensions: ->
+    return unless @mode is 'editor'
     dimensions = @getWindowDimensions()
     if @isValidDimensions(dimensions)
       localStorage.setItem("defaultWindowDimensions", JSON.stringify(dimensions))
@@ -564,17 +576,17 @@ class Atom extends Model
     @requireUserInitScript() unless safeMode
     @menu.update()
 
+    @commands.add 'atom-workspace',
+      'atom-workspace:add-account': =>
+        @displayOnboardingWindow('add-account')
+      'atom-workspace:logout': =>
+        @logout() if @isLoggedIn()
+
     ipc.on 'onboarding-complete', =>
       maximize = dimensions?.maximized and process.platform isnt 'darwin'
       @displayWindow({maximize})
 
-    @commands.add 'atom-workspace',
-      'atom-workspace:logout': => @logout()
-
-    @commands.add 'atom-workspace',
-      'atom-workspace:add-account': => @displayOnboardingWindow('add-account')
-
-    if atom.config.get('inbox.token')
+    if @isLoggedIn()
       maximize = dimensions?.maximized and process.platform isnt 'darwin'
       @displayWindow({maximize})
     else
@@ -583,23 +595,21 @@ class Atom extends Model
   # Call this method when establishing a secondary application window
   # displaying a specific set of packages.
   startSecondaryWindow: (packages = []) ->
-    {resourcePath, safeMode} = @getLoadSettings()
+    {resourcePath, safeMode, width, height} = @getLoadSettings()
 
     @loadConfig()
     @inbox.APIToken = atom.config.get('inbox.token')
 
     @keymaps.loadBundledKeymaps()
     @themes.loadBaseStylesheets()
-
-    Workspace = require './workspace-edgehill'
-    Actions = require './flux/actions'
-
-    @workspace = new Workspace
+    @keymaps.loadUserKeymap()
 
     for pack in packages
       @packages.loadPackage(pack)
     @packages.activate()
     @keymaps.loadUserKeymap()
+
+    @setWindowDimensions({width, height}) if width and height
 
     @menu.update()
     @subscribe @config.onDidChange 'core.autoHideMenuBar', ({newValue}) =>
@@ -621,20 +631,20 @@ class Atom extends Model
       title: 'Welcome to Edgehill'
       frame: false
       page: page
+      width: 340
+      height: 475
+      resizable: false
       windowName: 'onboarding'
       windowPackages: ['onboarding']
     ipc.send('show-secondary-window', options)
 
   unloadEditorWindow: ->
-    @state.edgehillWorkspace = @workspace.serialize()
     @packages.deactivatePackages()
     @state.packageStates = @packages.packageStates
     @saveSync()
     @windowState = null
 
   removeEditorWindow: ->
-    @workspace?.destroy()
-    @workspace = null
     @windowEventHandler?.unsubscribe()
 
   ###
@@ -715,19 +725,16 @@ class Atom extends Model
   ###
 
   deserializeWorkspaceView: ->
-    # Put state back into store
     startTime = Date.now()
-    Workspace = require './workspace-edgehill'
-    #@workspace = Workspace.deserialize(@state.edgehillWorkspace) ? new Workspace
-    @workspace = new Workspace
+    # Put state back into sheet-container? Restore app state here
     @deserializeTimings.workspace = Date.now() - startTime
 
-    SheetContainer = require './sheet-container'
-    @item = document.createElement("div")
+    @item = document.createElement("atom-workspace")
     @item.setAttribute("id", "sheet-container")
     @item.setAttribute("class", "sheet-container")
 
     React = require "react"
+    SheetContainer = require './sheet-container'
     React.render(React.createElement(SheetContainer), @item)
     document.querySelector(@workspaceViewParentSelector).appendChild(@item)
 

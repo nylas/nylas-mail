@@ -2,35 +2,13 @@
 @import "ui-mixins";
 
 // Notification Colors
-.notifications-wrap, .notifications-sticky-bar {
+.notifications-momentary,
+.notifications-sticky {
   .notification-info { background: @background-color-info; }
   .notification-error { background: @background-color-error; }
   .notification-success { background: @background-color-success; }
-}
 
-// Notifications Above Threads
-.notifications-wrap {
-  position: absolute;
-  width: 100%;
-  order: 1;
-  z-index: 400;
-
-  .notifications {
-    text-align: center;
-    font-size: @font-size-small;
-    height: 19px;
-    overflow: auto;
-  }
-
-  .notification-item {
-    color: @text-color-inverse;
-    padding: 0px 15px 2px 1px;
-  }
-}
-
-// Notifications Across Top Bar
-.notifications-sticky-bar {
-    order: -1;
+  order: -1;
 
   .notifications-sticky-item {
       height: 25px;
@@ -63,5 +41,24 @@
       i {
         margin-right:8px;
       }
+  }
+}
+
+// Notifications Above Threads
+.notifications-momentary {
+  position: absolute;
+  order: 1;
+  z-index: 400;
+  width:100%;
+
+  .inner {
+    text-align: center;
+    font-size: @font-size-small;
+    overflow: auto;
+
+    .notification-item {
+      color: @text-color-inverse;
+      padding: 3px 15px 2px 1px;
+    }
   }
 }

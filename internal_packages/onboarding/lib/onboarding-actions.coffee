@@ -2,8 +2,6 @@ Reflux = require 'reflux'
 
 actions = [
   "setEnvironment",
-  "createAccount",
-  "signIn",
   "authErrorOccurred",
   "startConnect",
   "finishedConnect",

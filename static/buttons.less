@@ -1,3 +1,6 @@
+@import "ui-variables";
+@import "ui-mixins";
+
 // .btn-background (@color, @hover-color, @selected-color, @border-color, @text-color, @text-color-hover) {
 //   @border-shadow: inset 0 0 0 1px @border-color;
 //   @active-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
@@ -50,22 +53,18 @@
 //
 //
 .btn {
-
   border:  0;
   padding: 0.33em 1em;
   border-radius: @border-radius-base;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.21);
 
   height: auto;
   line-height: 1;
 
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.21);
-  &:hover {
-    cursor: pointer;
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.25);
-  }
   &:active {
     cursor: pointer;
-    box-shadow: 0 0 1px rgba(0, 0, 0, 0.21);
+    background-color: darken(@btn-default-bg-color, 9%);
+    box-shadow: 0 -1px 1px rgba(0, 0, 0, 0.21);
   }
   &:focus {
     outline: none
@@ -80,9 +79,11 @@
   }
   &.btn-large {
     font-size: @font-size-large;
+    padding: 0.5em 1.3em;
   }
   &.btn-larger {
     font-size: @font-size-larger;
+    padding: 0.66em 1.6em;
   }
 
   color:      @btn-default-text-color;
@@ -101,35 +102,42 @@
   }
 }
 
-// .btn-icon {
-//   background: transparent;
-//   border: 0;
-//   color: @text-color-subtle;
-//   margin-right: 10px;
-//   outline: none !important;
-//   font-size: 20px;
-//
-//   &:last-child {
-//     margin-right: 0;
-//   }
-//
-//   &.inverse {
-//     color: @text-color-inverse;
-//
-//     &:hover {
-//       color: white;
-//     }
-//
-//     &:active {
-//       color: @text-color-inverse;
-//     }
-//   }
-//
-//   &:hover {
-//     cursor: pointer;
-//     color: @text-color-link;
-//   }
-//   &:active {
-//     color: darken(@text-color-link, 5%);
-//   }
-// }
+.btn-gradient {
+  background: -webkit-gradient(linear, left top, left bottom, from(@btn-default-bg-color), to(darken(@btn-default-bg-color, 4.5%)));
+}
+.btn-gradient:active {
+  background: -webkit-gradient(linear, left top, left bottom, from(darken(@btn-default-bg-color, 9%)), to(darken(@btn-default-bg-color, 13.5%)));
+}
+
+.btn-icon {
+  background: transparent;
+  border: 0;
+  color: @text-color-subtle;
+  margin-right: 10px;
+  outline: none !important;
+  font-size: 20px;
+
+  &:last-child {
+    margin-right: 0;
+  }
+
+  &.inverse {
+    color: @text-color-inverse;
+
+    &:hover {
+      color: white;
+    }
+
+    &:active {
+      color: @text-color-inverse;
+    }
+  }
+
+  &:hover {
+    cursor: pointer;
+    color: @text-color-link;
+  }
+  &:active {
+    color: @text-color-link-active;
+  }
+}

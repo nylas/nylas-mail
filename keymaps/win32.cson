@@ -1,8 +1,14 @@
 # Note: For a menu item to have a keyboard equiavalent, it needs
 # to be listed in this file.
 
-# Windows application keys
 'body':
+  # Windows email-specific menu items
+  'ctrl-n': 'application:new-message' # Outlook
+  'ctrl-r': 'application:reply' # Outlook
+  'ctrl-R': 'application:reply-all' # Outlook
+  'ctrl-F': 'application:forward' # Outlook
+
+  # Windows application keys
   'ctrl-q': 'application:quit'
   'ctrl-alt-s': 'application:run-all-specs'
 

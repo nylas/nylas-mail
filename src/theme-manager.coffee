@@ -370,13 +370,15 @@ class ThemeManager
   isInitialLoadComplete: -> @initialLoadComplete
 
   addActiveThemeClasses: ->
-    workspaceElement = atom.views.getView(atom.workspace)
+    workspaceElement = document.getElementsByTagName('atom-workspace')[0]
+    return unless workspaceElement
     for pack in @getActiveThemes()
       workspaceElement.classList.add("theme-#{pack.name}")
     return
 
   removeActiveThemeClasses: ->
-    workspaceElement = atom.views.getView(atom.workspace)
+    workspaceElement = document.getElementsByTagName('atom-workspace')[0]
+    return unless workspaceElement
     for pack in @getActiveThemes()
       workspaceElement.classList.remove("theme-#{pack.name}")
     return

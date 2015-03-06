@@ -25,6 +25,7 @@ SearchBar = React.createClass
   render: ->
     inputValue = @_queryToString(@state.query)
     inputClass = React.addons.classSet
+      'input-bordered': true
       'empty': inputValue.length is 0
     
     headerComponents = [
@@ -93,6 +94,8 @@ SearchBar = React.createClass
 
   _onValueChange: (event) ->
     Actions.searchQueryChanged(@_stringToQuery(event.target.value))
+    if (event.target.value is '')
+      @_onClearSearch()
 
   _onSelectSuggestion: (item) ->
     Actions.searchQueryCommitted(item.value)

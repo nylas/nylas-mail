@@ -1,42 +1,24 @@
 # Email-specific core key-mappings
-# All platforms are put here to consolidate custom actions and to prevent
-# duplication in 3 files.
 #
-# TODO let the user pick whether they want to use Gmail, Mac Mail, or
-# Outlook keymappings
+# There are additional mappings in <platform>.cson files that bind
+# menu items. In the future, we should break these into files like:
+# darwin-gmail.cson, darwin-macmail.cson, win32-gmail.cson...
+
 'body':
-  'c'     : 'application:new-message' # Gmail
-  'cmd-n' : 'application:new-message' # Mac mail
-  'ctrl-n': 'application:new-message' # Outlook
-
-  'k' : 'application:previous-message' # Gmail
-  'up': 'application:previous-message' # Mac mail
-
-  'j'   : 'application:next-message' # Gmail
-  'down': 'application:next-message' # Mac mail
-
+  'c'        : 'application:new-message' # Gmail
+  'k'        : 'application:previous-message' # Gmail
+  'up'       : 'application:previous-message' # Mac mail
+  'j'        : 'application:next-message' # Gmail
+  'down'     : 'application:next-message' # Mac mail
   ']'        : 'application:archive-and-previous' # Gmail
-
   '['        : 'application:archive-thread' # Gmail
   'e'        : 'application:archive-thread' # Gmail
   'delete'   : 'application:archive-thread' # Mac mail
   'backspace': 'application:archive-thread' # Outlook
 
   'r'     : 'application:reply' # Gmail
-  'cmd-r' : 'application:reply' # Mac mail
-  'ctrl-r': 'application:reply' # Outlook
-
   'a'     : 'application:reply-all' # Gmail
-  'cmd-R' : 'application:reply-all' # Mac mail
-  'ctrl-R': 'application:reply-all' # Outlook
-
   'f'     : 'application:forward' # Gmail
-  'cmd-F' : 'application:forward' # Mac mail
-  'ctrl-F': 'application:forward' # Outlook
-
-  'cmd-alt-f': 'application:focus-search' # Mac mail
-
-  'cmd-D': 'application:send-message' # Mac mail
 
 # Default cross-platform core behaviors
   'left': 'core:move-left'
@@ -53,7 +35,8 @@
   'shift-delete': 'core:cut'
 
 # Inputs are native by default.
-'body input, body textarea, body *[contenteditable]':
+# Also make sure not to catch anything intended for a webview
+'body input, body textarea, body *[contenteditable], body webview':
   'up': 'native!'
   'left': 'native!'
   'down': 'native!'
@@ -79,8 +62,6 @@
   'cmd-enter': 'native!'
   'ctrl-enter': 'native!'
   'shift-enter': 'native!'
-  'tab': 'core:focus-next'
-  'shift-tab': 'core:focus-previous'
   'backspace': 'native!'
   'shift-backspace': 'native!'
   'delete': 'native!'
@@ -206,6 +187,16 @@
   '.': 'native!'
   '?': 'native!'
   '/': 'native!'
+
+'body input, body textarea, body *[contenteditable]':
+  'tab': 'core:focus-next'
+  'shift-tab': 'core:focus-previous'
+
+'body webview':
+  'tab': 'native!'
+  'shift-tab': 'native!'
+
+
 
 # For menus
 'body .menu, body .menu, body .menu input':

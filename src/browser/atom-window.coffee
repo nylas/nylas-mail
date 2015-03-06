@@ -18,7 +18,7 @@ class AtomWindow
   isSpec: null
 
   constructor: (settings={}) ->
-    {@resourcePath, pathToOpen, initialLine, initialColumn, @neverClose, @isSpec, @exitWhenDone, @safeMode, @devMode, frame, title} = settings
+    {@resourcePath, pathToOpen, initialLine, initialColumn, @neverClose, @isSpec, @exitWhenDone, @safeMode, @devMode, frame, title, resizable} = settings
 
     # Normalize to make sure drive letter case is consistent on Windows
     @resourcePath = path.normalize(@resourcePath) if @resourcePath
@@ -27,10 +27,12 @@ class AtomWindow
       show: false
       title: title ? 'Edgehill'
       frame: frame ? true
+      resizable: resizable ? true
       icon: @constructor.iconPath
       'web-preferences':
         'direct-write': true
         'subpixel-font-scaling': false
+
     # Don't set icon on Windows so the exe's ico will be used as window and
     # taskbar's icon. See https://github.com/atom/atom/issues/4811 for more.
     if process.platform is 'linux'

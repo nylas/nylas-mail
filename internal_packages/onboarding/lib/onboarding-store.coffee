@@ -3,23 +3,24 @@ Actions = require './onboarding-actions'
 {EdgehillAPI} = require 'inbox-exports'
 ipc = require 'ipc'
 
+if atom.state.mode isnt "onboarding" and atom.state.mode isnt "spec" then return
+
 module.exports =
 OnboardingStore = Reflux.createStore
   init: ->
     @_error = ''
     @_page = atom.getLoadSettings().page || 'welcome'
+
     @_pageStack = [@_page]
 
     defaultEnv = if atom.inDevMode() then 'staging' else 'production'
-    atom.config.set('inbox.env', defaultEnv) unless atom.config.get('inbox.env')
+    atom.config.set('env', defaultEnv) unless atom.config.get('env')
 
     @listenTo Actions.setEnvironment, @_onSetEnvironment
     @listenTo Actions.moveToPreviousPage, @_onMoveToPreviousPage
     @listenTo Actions.moveToPage, @_onMoveToPage
     @listenTo Actions.startConnect, @_onStartConnect
     @listenTo Actions.finishedConnect, @_onFinishedConnect
-    @listenTo Actions.createAccount, @_onCreateAccount
-    @listenTo Actions.signIn, @_onSignIn
 
   page: ->
     @_page
@@ -28,7 +29,7 @@ OnboardingStore = Reflux.createStore
     @_error
 
   environment: ->
-    atom.config.get('inbox.env')
+    atom.config.get('env')
 
   connectType: ->
     @_connectType
@@ -43,37 +44,6 @@ OnboardingStore = Reflux.createStore
     @_pageStack.push(page)
     @_page = page
     @trigger()
-
-  _onSignIn: (fields) ->
-    @_error = null
-    @trigger()
-
-    EdgehillAPI.signIn(fields)
-    .then (user) =>
-      if atom.config.get('inbox.token')
-        @_onMoveToPage('add-account-success')
-        setTimeout ->
-          # Important: This delay is actually necessary, because
-          # atom.config changes are not persisted instantly.
-          ipc.send('onboarding-complete')
-          atom.close()
-        , 2500
-      else
-        @_onStartConnect('inbox')
-    .catch (err) =>
-      @_error = err
-      @trigger()
-
-  _onCreateAccount: (fields) ->
-    @_error = null
-    @trigger()
-
-    EdgehillAPI.createAccount(fields)
-    .then =>
-      @_onStartConnect('inbox')
-    .catch (err) =>
-      @_error = err
-      @trigger()
 
   _onStartConnect: (service) ->
     @_connectType = service
@@ -90,5 +60,5 @@ OnboardingStore = Reflux.createStore
 
   _onSetEnvironment: (env) ->
     throw new Error("Environment #{env} is not allowed") unless env in ['development', 'staging', 'production']
-    atom.config.set('inbox.env', env)
+    atom.config.set('env', env)
     @trigger()

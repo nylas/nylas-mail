@@ -86,10 +86,9 @@ class InboxLongConnection
     @_buffer = bufferJSONs[bufferJSONs.length - 1]
 
   start: ->
+    return if not @_inbox.APIToken?
     return if @_state is InboxLongConnection.State.Ended
     return if @_req
-
-    throw (new Error 'Cannot start polling without auth token.') unless @_inbox.APIToken
 
     console.log("Long Polling Connection: Starting....")
     @withCursor (cursor) =>

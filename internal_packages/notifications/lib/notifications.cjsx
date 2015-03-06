@@ -14,12 +14,17 @@ Notifications = React.createClass
     @unsubscribeStore() if @unsubscribeStore
 
   render: ->
-    <div className="notifications">{
-      for notification in @state.notifications
-        <div className={"notification-item notification-#{notification.type}"}>
-          {notification.message}
-        </div>
-    }</div>
+    <div className="notifications-momentary">
+      <div className="inner">
+        {@_notificationComponents()}
+      </div>
+    </div>
+
+  _notificationComponents: ->
+    @state.notifications.map (notification) ->
+      <div className={"notification-item notification-#{notification.type}"}>
+        {notification.message}
+      </div>
 
   _onStoreChange: ->
     @setState

@@ -124,7 +124,7 @@ function bootstrap() {
       options: semverOptions
     },
     {
-      command: 'build/node_modules/.bin/grunt download-atom-shell --gruntfile build/Gruntfile.coffee',
+      command: 'grunt download-atom-shell --gruntfile ./build/Gruntfile.coffee',
       message: m7
     }
   ];

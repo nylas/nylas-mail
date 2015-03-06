@@ -35,8 +35,8 @@ ActivityBar = React.createClass
   render: ->
     <ResizableRegion className="activity-bar"
                      initialHeight={@state.height}
-                     handle={ResizableRegion.Handle.Top}
-                     onResize={@_onTrayResized}>
+                     minHeight={ActivityBarClosedHeight}
+                     handle={ResizableRegion.Handle.Top}>
       <div className="controls">
         {@_caret()}
         <div className="queue-status">
@@ -139,10 +139,6 @@ ActivityBar = React.createClass
   _onExpandSection: (section) ->
     @setState(section: section)
     @_onShow()
-
-  _onTrayResized: (height) ->
-    height = ActivityBarClosedHeight if height < 80
-    @setState(height: height)
 
   _onFeedback: ->
     user = NamespaceStore.current().name

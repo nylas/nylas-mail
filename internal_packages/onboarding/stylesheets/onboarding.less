@@ -22,52 +22,54 @@
 .onboarding-container {
   width:100%;
   height:100%;
+  background-color: #f0f0f0;
   -webkit-animation: fadein 0.8s;
+  -webkit-user-select:none;
+  text-align: center;
 
-  h2 {
-    padding:0;
-    margin:0;
-  }
-  h2, p {
-    text-align: center;
-  }
   iframe, webview {
+    position: absolute;
     width:100%;
     height:100%;
-    position: absolute;
+    left:0;
+    top:0;
     border:0;
+  }
+
+  h2 {
+    margin-top: 27px;
+    margin-bottom: 60px;
+  }
+
+  .prompt {
+    color:#5D5D5D;
+    font-size:1.07em;
+    font-weight:300;
+    margin-top:20px;
+    margin-bottom:14px;
+  }
+
+  form {
+    padding-right:25px;
+    padding-left:25px;
+  }
+
+  input {
+    display:block;
+    padding:10px;
+    width:100%;
+    margin-bottom:20px;
+    background-color: #F5F5F5;
   }
 
   .environment-selector {
     position: absolute;
-    bottom: 10px;
-    width:100%;
-    border-top:1px solid @border-color-divider;
-    text-align: center;
-
-    h5 {
-      text-align: center;
-      position: relative;
-      top: -18px;
-      background-color: white;
-      display: inline-block;
-      padding-left: 10px;
-      padding-right: 10px;
-      margin-bottom: 0;
-      height: 10px;
-    }
+    opacity:0.1;
+    top: 224px;
+    width:292px;
     select {
-      position: relative;
-      top: -14px;
       width:100%;
     }
-  }
-  .thin-container {
-    margin:auto;
-    padding-top:40px;
-    width:250px;
-    position: relative;
-    height:100%;
   }
 
   .page {
@@ -75,48 +77,37 @@
     top:0;
     width:100%;
     height:100%;
-    padding:40px;
     padding-top:15%;
   }
-  .add-account .back,
-  .welcome .back {
-    display:none;
-  }
 
-  .quit, .dismiss {
-    display:none;
-  }
-  
-  .add-account .dismiss,
-  .welcome .quit {
-    display:inherit;
-  }
-
-  .back, .dismiss, .quit {
+  .quit {
     position: absolute;
-    top:10px;
-    left:10px;
+    top:5px;
+    left:5px;
+  }
+
+  .back,
+  .dismiss {
+    position: absolute;
+    top:25px;
+    left:25px;
   }
 
   .page-enter {
     opacity: 0.01;
-    transform: translateY(20px);
     transition: all .3s ease-out;
   }
 
   .page-enter.page-enter-active {
     opacity: 1;
-    transform: translateY(0);
   }
   .page-leave {
     opacity: 1;
-    transform: translateY(0);
     transition: all .3s ease-in;
   }
 
   .page-leave.page-leave-active {
     opacity: 0.01;
-    transform: translateY(20px);
   }
 
   .check {

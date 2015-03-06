@@ -41,7 +41,7 @@ NotificationStickyBar = React.createClass
     @
 
   render: ->
-    <div>
+    <div className="notifications-sticky">
       {@_notificationComponents()}
     </div>
 

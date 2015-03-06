@@ -13,6 +13,7 @@ Flexbox = React.createClass
   render: ->
     style = _.extend (@props.style || {}),
       'flexDirection': @props.direction,
+      'position':'relative'
       'display': 'flex'
       'height':'100%'
 
