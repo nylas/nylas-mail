@@ -65,7 +65,10 @@
     position: relative;
 
     &.showing-suggestions {
-      .suggestions{ display: inherit; }
+      .suggestions { display: inherit; }
+    }
+    &.showing-query {
+      .clear { display: inherit; }
     }
   }
 
@@ -79,11 +82,10 @@
 
     &.clear {
       position: absolute;
-      top: 0;
+      top: floor(40px - 26px)/2;
+      color: @input-accessory-color;
+      right: @padding-base-horizontal;
       display: none;
-      padding: 17px 19px;
-      line-height: 20px
-      right: 0;
     }
   }
 }

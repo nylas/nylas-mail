@@ -94,6 +94,8 @@ SearchBar = React.createClass
 
   _onValueChange: (event) ->
     Actions.searchQueryChanged(@_stringToQuery(event.target.value))
+    if (event.target.value is '')
+      @_onClearSearch()
 
   _onSelectSuggestion: (item) ->
     Actions.searchQueryCommitted(item.value)
