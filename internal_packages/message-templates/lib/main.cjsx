@@ -7,11 +7,10 @@ module.exports =
 
   activate: (@state={}) ->
     # Register our menu item in the composer footer
-    ComponentRegistry.register
-      name: 'TemplatePicker'
-      role: 'Composer:Footer'
-      view: TemplatePicker
-
+    # ComponentRegistry.register
+    #   name: 'TemplatePicker'
+    #   role: 'Composer:Footer'
+    #   view: TemplatePicker
 
   deactivate: ->
 
