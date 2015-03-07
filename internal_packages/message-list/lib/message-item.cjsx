@@ -10,9 +10,9 @@ module.exports =
 MessageItem = React.createClass
   displayName: 'MessageItem'
   propTypes:
-    message: React.PropTypes.object.isRequired,
+    message: React.PropTypes.object.isRequired
+    thread_participants: React.PropTypes.arrayOf(React.PropTypes.object)
     collapsed: React.PropTypes.bool
-    thread_participants: React.PropTypes.arrayOf(React.PropTypes.object),
 
   mixins: [ComponentRegistry.Mixin]
   components: ['AttachmentComponent']
@@ -123,7 +123,6 @@ MessageItem = React.createClass
     @setState
       downloads: FileDownloadStore.downloadsForFileIds(@props.message.fileIds())
 
-  ## TODO: Re-implement message collapsing
   _onToggleCollapsed: ->
-    # @setState
-    #   collapsed: !@state.collapsed
+    @setState
+      collapsed: !@state.collapsed

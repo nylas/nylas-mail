@@ -59,6 +59,10 @@
 
     border-bottom: 1px solid @border-primary-bg;
     &:last-child { border-bottom: 0; }
+
+    &.collapsed {
+      padding: @spacing-standard @spacing-double;
+    }
   }
 
   .message-item-area {
@@ -66,10 +70,6 @@
     max-width: @message-max-width;
     margin: 0 auto;
     padding: @spacing-standard @spacing-double;
-
-    &.collapsed {
-      padding: 0 @spacing-double;
-    }
 
     .message-header {
       font-size: @font-size-small;
@@ -133,5 +133,5 @@
   }
 }
 .attachments-area {
-  padding: 5px 15px 0px 15px;
+  padding-top: @spacing-standard;
 }
