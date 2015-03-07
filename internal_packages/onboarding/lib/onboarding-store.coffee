@@ -13,7 +13,8 @@ OnboardingStore = Reflux.createStore
 
     @_pageStack = [@_page]
 
-    defaultEnv = if atom.inDevMode() then 'staging' else 'production'
+    # For the time being, always use staging
+    defaultEnv = if atom.inDevMode() then 'staging' else 'staging'
     atom.config.set('env', defaultEnv) unless atom.config.get('env')
 
     @listenTo Actions.setEnvironment, @_onSetEnvironment
