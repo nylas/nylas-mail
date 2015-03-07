@@ -39,7 +39,7 @@ ComposerView = React.createClass
 
   componentWillMount: ->
     @_prepareForDraft()
-    @_checkForKnownFrames()
+    # @_checkForKnownFrames()
 
   componentDidMount: ->
     @keymap_unsubscriber = atom.commands.add '.composer-outer-wrap', {
@@ -62,7 +62,7 @@ ComposerView = React.createClass
     @keymap_unsubscriber.dispose()
 
   componentWillUpdate: ->
-    @_checkForKnownFrames()
+    #@_checkForKnownFrames()
 
   componentDidUpdate: ->
     # We want to use a temporary variable instead of putting this into the
