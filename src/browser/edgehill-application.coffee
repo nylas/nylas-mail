@@ -412,6 +412,7 @@ class AtomApplication
     options = _.extend options,
       bootstrapScript: require.resolve("../window-secondary-bootstrap")
       safeMode: false
+      hideMenuBar: true
       devMode: @devMode
       resourcePath: @resourcePath
       icon: @constructor.iconPath

@@ -18,7 +18,7 @@ class AtomWindow
   isSpec: null
 
   constructor: (settings={}) ->
-    {@resourcePath, pathToOpen, initialLine, initialColumn, @neverClose, @isSpec, @exitWhenDone, @safeMode, @devMode, frame, title, resizable} = settings
+    {@resourcePath, pathToOpen, initialLine, initialColumn, @neverClose, @isSpec, @exitWhenDone, @safeMode, @devMode, frame, title, resizable, hideMenuBar} = settings
 
     # Normalize to make sure drive letter case is consistent on Windows
     @resourcePath = path.normalize(@resourcePath) if @resourcePath
@@ -29,6 +29,7 @@ class AtomWindow
       frame: frame ? true
       resizable: resizable ? true
       icon: @constructor.iconPath
+      'auto-hide-menu-bar': hideMenuBar
       'web-preferences':
         'direct-write': true
         'subpixel-font-scaling': false
