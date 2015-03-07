@@ -5,12 +5,15 @@
       { label: '&New Message', command: 'application:new-message' }
       { type: 'separator' }
       { label: 'Se&ttings', command: 'application:show-settings' }
+      { label: 'Link External Account', command: 'atom-workspace:add-account' }
       { type: 'separator' }
       { label: '&Save', command: 'core:save' }
       { label: 'Save &As...', command: 'core:save-as' }
       { label: 'Save A&ll', command: 'window:save-all' }
       { type: 'separator' }
       { label: 'Clos&e Window', command: 'window:close' }
+      { type: 'separator' }
+      { label: 'Log Out', command: 'atom-workspace:logout' }
       { type: 'separator' }
       { label: 'E&xit', command: 'application:quit' }
     ]
