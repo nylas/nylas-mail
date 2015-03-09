@@ -11,8 +11,7 @@ describe "MessageTimestamp", ->
     @item = TestUtils.renderIntoDocument(
       <MessageTimestamp date={testDate()} />
     )
-    @itemNode = @item.getDOMNode()
-  
+
   # test messsage time is 1415814587
   it "displays the time from messages LONG ago", ->
     spyOn(@item, "_today").andCallFake -> testDate().add(2, 'years')
@@ -33,3 +32,10 @@ describe "MessageTimestamp", ->
   it "displays the time from messages recently", ->
     spyOn(@item, "_today").andCallFake -> testDate().add(2, 'hours')
     expect(@item._timeFormat()).toBe "h:mm a"
+
+  it "displays the full time when in detailed timestamp mode", ->
+    itemDetailed = TestUtils.renderIntoDocument(
+      <MessageTimestamp date={testDate()} detailedTimestamp={true} />
+    )
+    spyOn(itemDetailed, "_today").andCallFake -> testDate()
+    expect(itemDetailed._timeFormat()).toBe "ddd, MMM Do YYYY, h:mm:ss a z"

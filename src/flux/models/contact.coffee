@@ -21,6 +21,12 @@ class Contact extends Model
     json['name'] ||= json['email']
     json
 
+  displayFullContact: ->
+    if @name and @name isnt @email
+      return "#{@name} <#{@email}>"
+    else
+      return @email
+
   displayName: ->
     return "You" if @email == NamespaceStore.current().emailAddress
     @_nameParts().join(' ')

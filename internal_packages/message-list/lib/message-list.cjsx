@@ -102,12 +102,6 @@ MessageList = React.createClass
                          collapsed={collapsed}
                          thread_participants={@_threadParticipants()} />
 
-        # Start collapsing messages if we've loaded more than 15. This prevents
-        # us from trying to load an unbounded number of iframes until we have
-        # a better optimized message list.
-        if components.length > 10
-          collapsed = true
-
     components
 
   _onChange: ->

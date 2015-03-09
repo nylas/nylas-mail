@@ -22,7 +22,7 @@ MessageItem = React.createClass
     # keyed by a fileId. The value is the downloadData.
     downloads: FileDownloadStore.downloadsForFileIds(@props.message.fileIds())
     showQuotedText: @_messageIsEmptyForward()
-    collapsed: @props.collapsed
+    detailedHeaders: false
 
   componentDidMount: ->
     @_storeUnlisten = FileDownloadStore.listen(@_onDownloadStoreChange)
@@ -38,8 +38,13 @@ MessageItem = React.createClass
       attachments = <div className="attachments-area">{attachments}</div>
 
     header =
-      <header className="message-header" onClick={@_onToggleCollapsed}>
-        <MessageTimestamp className="message-time" date={@props.message.date} />
+      <header className="message-header">
+
+        <MessageTimestamp className="message-time"
+                          onClick={=> @setState detailedHeaders: true}
+                          isDetailed={@state.detailedHeaders}
+                          date={@props.message.date} />
+
         <div className="message-actions">
           {<Action thread={@props.thread} message={@props.message} /> for Action in messageActions}
         </div>
@@ -47,27 +52,27 @@ MessageItem = React.createClass
         <MessageParticipants to={@props.message.to}
                              cc={@props.message.cc}
                              from={@props.message.from}
+                             onClick={=> @setState detailedHeaders: true}
                              thread_participants={@props.thread_participants}
+                             detailedParticipants={@state.detailedHeaders}
                              message_participants={@props.message.participants()} />
+
+        <div className="collapse-headers"
+             style={if @state.detailedHeaders then {display: "block"} else {display: "none"}}
+             onClick={=> @setState detailedHeaders: false}><i className="fa fa-chevron-up"></i>
+        </div>
       </header>
 
-    if @state.collapsed
-      <div className="message-item-wrap collapsed">
-        <div className="messsage-item-area">
-          {header}
-        </div>
+    <div className="message-item-wrap">
+      <div className="message-item-area">
+        {header}
+        {attachments}
+        <EmailFrame showQuotedText={@state.showQuotedText}>
+          {@_formatBody()}
+        </EmailFrame>
+        <a className={@_quotedTextClasses()} onClick={@_toggleQuotedText}></a>
       </div>
-    else
-      <div className="message-item-wrap">
-        <div className="message-item-area">
-          {header}
-          {attachments}
-          <EmailFrame showQuotedText={@state.showQuotedText}>
-            {@_formatBody()}
-          </EmailFrame>
-          <a className={@_quotedTextClasses()} onClick={@_toggleQuotedText}></a>
-        </div>
-      </div>
+    </div>
 
   _quotedTextClasses: -> React.addons.classSet
     "quoted-text-control": true
@@ -122,7 +127,3 @@ MessageItem = React.createClass
   _onDownloadStoreChange: ->
     @setState
       downloads: FileDownloadStore.downloadsForFileIds(@props.message.fileIds())
-
-  _onToggleCollapsed: ->
-    @setState
-      collapsed: !@state.collapsed

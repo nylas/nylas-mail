@@ -72,6 +72,7 @@
     padding: @spacing-standard @spacing-double;
 
     .message-header {
+      position: relative;
       font-size: @font-size-small;
       .message-actions {
         float:right;
@@ -88,39 +89,16 @@
 
     .message-time, .message-indicator {
       color: @text-color-very-subtle;
-      margin-top: 3px;
       float: right;
+      margin-left: 1em;
+
+      &:hover {
+        cursor: pointer;
+      }
     }
 
     .message-indicator {
       margin-right: 4px;
-    }
-
-    .to-label {
-      font-weight: 600;
-    }
-
-    .to-label, .to-everyone, .cc-label, .cc-contact, .to-label, .to-contact {
-      position: relative;
-      top: -1px;
-    }
-
-    .from-label {
-      display: none;
-    }
-    .from-contact {
-      font-weight: @headings-font-weight;
-      color: @text-color;
-    }
-
-    .to-label, .cc-label {
-      color: @text-color-very-subtle;
-    }
-    .cc-label {
-      margin-left: @spacing-standard;
-    }
-    .to-contact, .cc-contact, .to-everyone {
-      color: @text-color-very-subtle;
     }
 
     iframe {
@@ -131,7 +109,64 @@
       overflow: auto;
     }
   }
+
+
+  .collapse-headers {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    color: @text-color-very-subtle;
+  }
+
+  .collapse-headers:hover {cursor: pointer;}
+
 }
 .attachments-area {
   padding-top: @spacing-standard;
+}
+
+
+///////////////////////////////
+// message-participants.cjsx //
+///////////////////////////////
+.message-participants {
+
+  &.collapsed:hover {cursor: pointer;}
+
+  .from-contact {
+    font-weight: @headings-font-weight;
+    color: @text-color;
+  }
+
+  .to-label, .cc-label {
+    color: @text-color-very-subtle;
+  }
+  .cc-label {
+    margin-left: @spacing-standard;
+  }
+  .to-contact, .cc-contact, .to-everyone {
+    color: @text-color-very-subtle;
+  }
+
+  .to-label { font-weight: 600; }
+
+  .expanded-participants {
+    position: relative;
+    padding-right: 1.2em;
+
+    .from-label, .to-label, .cc-label {
+      float: left;
+      display: block;
+      font-weight: 600;
+      margin-left: 0;
+    }
+
+    .to-label, .cc-label {
+      margin-right: 1.15em;
+    }
+
+    .from-contact, .to-contact, .cc-contact {
+      padding-left: 2.85em;
+    }
+  }
 }

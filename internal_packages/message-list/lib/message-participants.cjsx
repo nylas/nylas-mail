@@ -6,39 +6,46 @@ MessageParticipants = React.createClass
   displayName: 'MessageParticipants'
 
   render: ->
-    <div className="participants message-participants">
-      {@_formattedParticipants()}
+    classSet = React.addons.classSet
+      "participants": true
+      "message-participants": true
+      "collapsed": not @props.detailedParticipants
+
+    <div className={classSet} onClick={@props.onClick}>
+      {if @props.detailedParticipants then @_renderExpanded() else @_renderCollapsed()}
     </div>
 
-  _formattedParticipants: ->
-    <span>
-      <span className="participant-label from-label">From:</span>
-      <span className="participant-name from-contact">{@_joinNames(@props.from)}</span>
-      {if @_isToEveryone() then @_toEveryone() else @_toSome()}
-    </span>
-
-  _toEveryone: ->
-    <span>
+  _renderCollapsed: ->
+    <span className="collapsed-participants">
+      <span className="participant-name from-contact">{@_shortNames(@props.from)}</span>
       <span className="participant-label to-label">&nbsp;>&nbsp;</span>
-      <span className="participant-name to-everyone">Everyone</span>
-    </span>
-
-  _toSome: ->
-    if @props.cc.length > 0
-      cc_spans = <span>
-        <span className="participant-label cc-label">CC:&nbsp;</span>
-        <span className="participant-name cc-contact">{@_joinNames(@props.cc)}</span>
+      <span className="participant-name to-contact">{@_shortNames(@props.to)}</span>
+      <span style={if @props.cc.length > 0 then display:"inline" else display:"none"}>
+        <span className="participant-label cc-label">Cc:&nbsp;</span>
+        <span className="participant-name cc-contact">{@_shortNames(@props.cc)}</span>
       </span>
-    <span>
-      <span className="participant-label to-label">&nbsp;>&nbsp;</span>
-      <span className="participant-name to-contact">{@_joinNames(@props.to)}</span>
-      {cc_spans}
     </span>
 
-  _joinNames: (contacts=[]) ->
+  _renderExpanded: ->
+    <div className="expanded-participants">
+      <div>
+        <div className="participant-label from-label">From:&nbsp;</div>
+        <div className="participant-name from-contact">{@_fullContact(@props.from)}</div>
+      </div>
+
+      <div>
+        <div className="participant-label to-label">To:&nbsp;</div>
+        <div className="participant-name to-contact">{@_fullContact(@props.to)}</div>
+      </div>
+
+      <div style={if @props.cc.length > 0 then display:"inline" else display:"none"}>
+        <div className="participant-label cc-label">Cc:&nbsp;</div>
+        <div className="participant-name cc-contact">{@_fullContact(@props.cc)}</div>
+      </div>
+    </div>
+
+  _shortNames: (contacts=[]) ->
     _.map(contacts, (c) -> c.displayFirstName()).join(", ")
 
-  _isToEveryone: ->
-    mp = _.map(@props.message_participants, (c) -> c.email)
-    tp = _.map(@props.thread_participants, (c) -> c.email)
-    mp.length > 10 and _.difference(tp, mp).length is 0
+  _fullContact: (contacts=[]) ->
+    _.map(contacts, (c) -> c.displayFullContact()).join(", ")

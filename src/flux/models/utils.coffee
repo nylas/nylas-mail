@@ -88,7 +88,6 @@ Utils =
 
       Utils.images = {}
       Utils.images[path.basename(file)] = file for file in files
-      # console.log("Loaded image map in #{Date.now()-start}msec")
 
     if window.devicePixelRatio > 1
       return Utils.images["#{name}@2x.#{ext}"] ? Utils.images[fullname] ? Utils.images["#{name}@1x.#{ext}"]

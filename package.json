@@ -45,6 +45,7 @@
     "marked": "^0.3",
     "mkdirp": "^0.5",
     "moment": "^2.8",
+    "moment-timezone": "^0.3",
     "nslog": "^2.0.0",
     "oniguruma": "^4.0.0",
     "optimist": "0.4.0",

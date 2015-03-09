@@ -66,6 +66,8 @@ EmailFrameStub = React.createClass({render: -> <div></div>})
 MessageItem = proxyquire '../lib/message-item.cjsx',
   './email-frame': EmailFrameStub
 
+MessageTimestamp = require '../lib/message-timestamp.cjsx'
+
 
 describe "MessageItem", ->
   beforeEach ->
@@ -98,7 +100,7 @@ describe "MessageItem", ->
       namespaceId: "nsid"
 
     @threadParticipants = [user_1, user_2, user_3, user_4]
-    
+
     # Generate the test component. Should be called after @message is configured
     # for the test, since MessageItem assumes attributes of the message will not
     # change after getInitialState runs.
@@ -110,16 +112,31 @@ describe "MessageItem", ->
                      collapsed={collapsed}
                      thread_participants={@threadParticipants} />
       )
-  
-  describe "when collapsed", ->
+
+  # TODO: We currently don't support collapsed messages
+  # describe "when collapsed", ->
+  #   beforeEach ->
+  #     @createComponent({collapsed: true})
+  #
+  #   it "should not render the EmailFrame", ->
+  #     expect( -> ReactTestUtils.findRenderedComponentWithType(@component, EmailFrameStub)).toThrow()
+  #
+  #   it "should have the `collapsed` class", ->
+  #     expect(@component.getDOMNode().className.indexOf('collapsed') >= 0).toBe(true)
+
+  describe "when displaying detailed headers", ->
     beforeEach ->
-      @createComponent({collapsed: true})
+      @createComponent({collapsed: false})
+      @component.setState detailedHeaders: true
 
-    it "should not render the EmailFrame", ->
-      expect( -> ReactTestUtils.findRenderedComponentWithType(@component, EmailFrameStub)).toThrow()
+    it "correctly sets the participant states", ->
+      participants = ReactTestUtils.findRenderedDOMComponentWithClass(@component, "expanded-participants")
+      expect(participants).toBeDefined()
+      expect(-> ReactTestUtils.findRenderedDOMComponentWithClass(@component, "collapsed-participants")).toThrow()
 
-    it "should have the `collapsed` class", ->
-      expect(@component.getDOMNode().className.indexOf('collapsed') >= 0).toBe(true)
+    it "correctly sets the timestamp", ->
+      ts = ReactTestUtils.findRenderedComponentWithType(@component, MessageTimestamp)
+      expect(ts.props.isDetailed).toBe true
 
   describe "when not collapsed", ->
     beforeEach ->
