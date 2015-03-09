@@ -732,6 +732,7 @@ class Atom extends Model
     @item = document.createElement("atom-workspace")
     @item.setAttribute("id", "sheet-container")
     @item.setAttribute("class", "sheet-container")
+    @item.setAttribute("tabIndex", "-1")
 
     React = require "react"
     SheetContainer = require './sheet-container'
