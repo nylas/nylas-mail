@@ -65,11 +65,11 @@ EmailFixingStyles = """
   }
 
   a:hover {
-    color: #0f7982;
+    color: #1f7498;
   }
 
   a:visited {
-    color: #11A1A2;
+    color: #1f7498;
   }
   a img {
     border-bottom: 0;
