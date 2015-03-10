@@ -24,6 +24,10 @@ MessageParticipants = React.createClass
         <span className="participant-label cc-label">Cc:&nbsp;</span>
         <span className="participant-name cc-contact">{@_shortNames(@props.cc)}</span>
       </span>
+      <span style={if @props.bcc.length > 0 then display:"inline" else display:"none"}>
+        <span className="participant-label bcc-label">Bcc:&nbsp;</span>
+        <span className="participant-name cc-contact">{@_shortNames(@props.bcc)}</span>
+      </span>
     </span>
 
   _renderExpanded: ->
@@ -42,6 +46,12 @@ MessageParticipants = React.createClass
            style={if @props.cc.length > 0 then display:"block" else display:"none"}>
         <div className="participant-label cc-label">Cc:&nbsp;</div>
         <div className="participant-name cc-contact">{@_fullContact(@props.cc)}</div>
+      </div>
+
+      <div className="participant-type"
+           style={if @props.bcc.length > 0 then display:"block" else display:"none"}>
+        <div className="participant-label bcc-label">Bcc:&nbsp;</div>
+        <div className="participant-name cc-contact">{@_fullContact(@props.bcc)}</div>
       </div>
     </div>
 
