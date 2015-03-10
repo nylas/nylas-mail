@@ -127,11 +127,12 @@ class WindowEventHandler
     atom.keymaps.handleKeyboardEvent(event)
     event.stopImmediatePropagation()
 
+  # Important: even though we don't do anything here, we need to catch the
+  # drop event to prevent the browser from navigating the to the "url" of the
+  # file and completely leaving the app.
   onDrop: (event) ->
     event.preventDefault()
     event.stopPropagation()
-    pathsToOpen = _.pluck(event.dataTransfer.files, 'path')
-    atom.open({pathsToOpen}) if pathsToOpen.length > 0
 
   onDragOver: (event) ->
     event.preventDefault()

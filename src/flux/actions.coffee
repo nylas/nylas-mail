@@ -92,6 +92,7 @@ windowActions = [
   # File Actions
   # Some file actions only need to be processed in their current window
   "attachFile",
+  "attachFilePath",
   "abortUpload",
   "attachFileComplete",
   "removeFile",

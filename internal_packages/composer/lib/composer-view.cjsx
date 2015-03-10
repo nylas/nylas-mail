@@ -112,7 +112,7 @@ ComposerView = React.createClass
     "composer-outer-wrap #{@props.containerClass ? ""}"
 
   _renderComposer: ->
-    <div className="composer-inner-wrap">
+    <div className="composer-inner-wrap" onDragOver={@_onDragNoop} onDragLeave={@_onDragNoop} onDragEnd={@_onDragNoop} onDrop={@_onDrop}>
 
       <div className="composer-action-bar-wrap">
         <div className="composer-action-bar-content">
@@ -242,6 +242,15 @@ ComposerView = React.createClass
         populated: true
 
     @setState(state)
+  
+  _onDragNoop: ->
+    false
+
+  _onDrop: (e) ->
+    e.preventDefault()
+    for file in e.dataTransfer.files
+      Actions.attachFilePath({path: file.path, messageLocalId: @props.localId})
+    false
 
   _onChangeParticipants: (changes={}) -> @_addToProxy(changes)
   _onChangeSubject: (event) -> @_addToProxy(subject: event.target.value)

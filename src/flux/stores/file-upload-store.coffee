@@ -9,6 +9,7 @@ FileUploadStore = Reflux.createStore
   init: ->
     # From Views
     @listenTo Actions.attachFile, @_onAttachFile
+    @listenTo Actions.attachFilePath, @_onAttachFilePath
     @listenTo Actions.abortUpload, @_onAbortUpload
 
     # From Tasks
@@ -39,9 +40,12 @@ FileUploadStore = Reflux.createStore
     atom.showOpenDialog {properties: ['openFile', 'multiSelections']}, (pathsToOpen) ->
       pathsToOpen = [pathsToOpen] if _.isString(pathsToOpen)
       for path in pathsToOpen
-        # When this task runs, we expect to hear `uploadStateChanged`
-        # Actions.
-        Actions.queueTask(new FileUploadTask(path, messageLocalId))
+        # When this task runs, we expect to hear `uploadStateChanged` actions.
+        Actions.attachFilePath({messageLocalId, path})
+ 
+  _onAttachFilePath: ({messageLocalId, path}) ->
+    @_verifyId(messageLocalId)
+    Actions.queueTask(new FileUploadTask(path, messageLocalId))
 
   # Receives:
   #   uploadData:
