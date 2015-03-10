@@ -80,10 +80,7 @@ ThreadList = React.createClass
       name: "Subject"
       flex: 3
       resolver: (thread) ->
-        <span>
-          <span className="subject">{subject(thread.subject)}</span>
-          {numUnread(thread)}
-        </span>
+        <span className="subject">{subject(thread.subject)}</span>
 
     c3 = new ListTabular.Column
       name: "Snippet"
