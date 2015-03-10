@@ -16,6 +16,8 @@ MessageList = React.createClass
     @_unsubscribers = []
     @_unsubscribers.push MessageStore.listen @_onChange
     @_unsubscribers.push ThreadStore.listen @_onChange
+    @_lastHeight = -1
+    @_scrollToBottom()
 
   componentWillUnmount: ->
     unsubscribe() for unsubscribe in @_unsubscribers
@@ -26,6 +28,8 @@ MessageList = React.createClass
       @_focusComposerId = newDrafts[0]
 
   componentDidUpdate: ->
+    @_lastHeight = -1
+    @_scrollToBottom()
     if @_focusComposerId?
       @_focusRef(@refs["composerItem-#{@_focusComposerId}"])
       @_focusComposerId = null
@@ -41,7 +45,7 @@ MessageList = React.createClass
     return <div></div> if not @state.current_thread?
 
     <div className="message-list" id="message-list">
-      <div tabIndex=1 className="messages-wrap">
+      <div tabIndex=1 ref="messageWrap" className="messages-wrap">
         <div className="message-list-notification-bars">
           {@_messageListNotificationBars()}
         </div>
@@ -84,7 +88,7 @@ MessageList = React.createClass
 
   _messageComponents: ->
     ComposerItem = @state.Composer
-    containsUnread = _.any @state.messages, (m) -> m.unread
+    # containsUnread = _.any @state.messages, (m) -> m.unread
     collapsed = false
     components = []
 
@@ -94,12 +98,15 @@ MessageList = React.createClass
                          ref="composerItem-#{message.id}"
                          key={@state.messageLocalIds[message.id]}
                          localId={@state.messageLocalIds[message.id]}
-                         containerClass="message-item-wrap"/>
+                         containerClass="message-item-wrap draft-message"/>
       else
+        className = "message-item-wrap"
+        if message.unread then className += " unread-message"
         components.push <MessageItem key={message.id}
                          thread={@state.current_thread}
                          message={message}
                          collapsed={collapsed}
+                         className={className}
                          thread_participants={@_threadParticipants()} />
 
     components
@@ -125,6 +132,35 @@ MessageList = React.createClass
           participants[contact.email] = contact
     return _.values(participants)
 
+  # There may be a lot of iframes to load which may take an indeterminate
+  # amount of time. As long as there is more content being painted onto
+  # the page, we keep trying to scroll to the bottom. We scroll to the top
+  # of the last message.
+  #
+  # We don't scroll if there's only 1 item.
+  # We don't screll if you're actively focused somewhere in the message
+  # list.
+  _scrollToBottom: ->
+    _.defer =>
+      if @isMounted()
+        messageWrap = @refs?.messageWrap?.getDOMNode?()
+
+        return if not messageWrap?
+        return if messageWrap.children <= 1
+        return if @getDOMNode().contains document.activeElement
+
+        msgToScroll = messageWrap.querySelector(".draft-message, .unread-message")
+        if not msgToScroll?
+          msgToScroll = messageWrap.children[messageWrap.children.length - 1]
+
+        currentHeight = messageWrap.getBoundingClientRect().height
+
+        if currentHeight isnt @_lastHeight
+          @_lastHeight = currentHeight
+          @_scrollToBottom()
+        else
+          scrollTo = currentHeight - msgToScroll.getBoundingClientRect().height
+          @getDOMNode().scrollTop = scrollTo
 
 MessageList.minWidth = 600
 MessageList.maxWidth = 900

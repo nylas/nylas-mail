@@ -3,13 +3,16 @@ _ = require 'underscore-plus'
 EmailFrame = require './email-frame'
 MessageParticipants = require "./message-participants.cjsx"
 MessageTimestamp = require "./message-timestamp.cjsx"
-{ComponentRegistry, FileDownloadStore, Utils} = require 'inbox-exports'
+{ComponentRegistry, FileDownloadStore, Utils, Actions} = require 'inbox-exports'
+{RetinaImg} = require 'ui-components'
 Autolinker = require 'autolinker'
 
 module.exports =
 MessageItem = React.createClass
   displayName: 'MessageItem'
+
   propTypes:
+    thread: React.PropTypes.object.isRequired
     message: React.PropTypes.object.isRequired
     thread_participants: React.PropTypes.arrayOf(React.PropTypes.object)
     collapsed: React.PropTypes.bool
@@ -31,7 +34,6 @@ MessageItem = React.createClass
     @_storeUnlisten() if @_storeUnlisten
 
   render: ->
-    messageActions = ComponentRegistry.findAllViewsByRole('MessageAction')
     messageIndicators = ComponentRegistry.findAllViewsByRole('MessageIndicator')
     attachments = @_attachmentComponents()
     if attachments.length > 0
@@ -40,30 +42,29 @@ MessageItem = React.createClass
     header =
       <header className="message-header">
 
-        <MessageTimestamp className="message-time"
-                          onClick={=> @setState detailedHeaders: true}
-                          isDetailed={@state.detailedHeaders}
-                          date={@props.message.date} />
+        <div className="message-header-right">
+          <MessageTimestamp className="message-time"
+                            isDetailed={@state.detailedHeaders}
+                            date={@props.message.date} />
 
-        <div className="message-actions">
-          {<Action thread={@props.thread} message={@props.message} /> for Action in messageActions}
+          {<div className="message-indicator"><Indicator message={@props.message}/></div> for Indicator in messageIndicators}
+
+          {if @state.detailedHeaders then @_renderMessageActionsInline() else @_renderMessageActionsTooltip()}
         </div>
-        {<div className="message-indicator"><Indicator message={@props.message}/></div> for Indicator in messageIndicators}
+
         <MessageParticipants to={@props.message.to}
                              cc={@props.message.cc}
                              from={@props.message.from}
                              onClick={=> @setState detailedHeaders: true}
                              thread_participants={@props.thread_participants}
-                             detailedParticipants={@state.detailedHeaders}
+                             isDetailed={@state.detailedHeaders}
                              message_participants={@props.message.participants()} />
 
-        <div className="collapse-headers"
-             style={if @state.detailedHeaders then {display: "block"} else {display: "none"}}
-             onClick={=> @setState detailedHeaders: false}><i className="fa fa-chevron-up"></i>
-        </div>
+        {@_renderCollapseControl()}
+
       </header>
 
-    <div className="message-item-wrap">
+    <div className={@props.className}>
       <div className="message-item-area">
         {header}
         {attachments}
@@ -78,6 +79,58 @@ MessageItem = React.createClass
     "quoted-text-control": true
     'no-quoted-text': !Utils.containsQuotedText(@props.message.body)
     'show-quoted-text': @state.showQuotedText
+
+  _renderMessageActionsInline: ->
+    @_renderMessageActions()
+
+  _renderMessageActionsTooltip: ->
+    ## TODO: Use Tooltip UI Component
+    <span className="msg-actions-tooltip"
+          onClick={=> @setState detailedHeaders: true}>
+      <RetinaImg name={"message-show-more.png"}/></span>
+
+  _renderMessageActions: ->
+    messageActions = ComponentRegistry.findAllViewsByRole('MessageAction')
+    <div className="message-actions">
+      <button className="btn btn-icon" onClick={@_onReply}>
+        <RetinaImg name={"message-reply.png"}/>
+      </button>
+      <button className="btn btn-icon" onClick={@_onReplyAll}>
+        <RetinaImg name={"message-reply-all.png"}/>
+      </button>
+      <button className="btn btn-icon" onClick={@_onForward}>
+        <RetinaImg name={"message-forward.png"}/>
+      </button>
+
+      {<Action thread={@props.thread} message={@props.message} /> for Action in messageActions}
+
+    </div>
+
+  _onReply: ->
+    tId = @props.thread.id; mId = @props.message.id
+    Actions.composeReply(threadId: tId, messageId: mId) if (tId and mId)
+
+  _onReplyAll: ->
+    tId = @props.thread.id; mId = @props.message.id
+    Actions.composeReplyAll(threadId: tId, messageId: mId) if (tId and mId)
+
+  _onForward: ->
+    tId = @props.thread.id; mId = @props.message.id
+    Actions.composeForward(threadId: tId, messageId: mId) if (tId and mId)
+
+  _renderCollapseControl: ->
+    if @state.detailedHeaders
+      <div className="collapse-control"
+           style={top: "-1px", left: "-17px"}
+           onClick={=> @setState detailedHeaders: false}>
+        <RetinaImg name={"message-disclosure-triangle-active.png"}/>
+      </div>
+    else
+      <div className="collapse-control inactive"
+           style={top: "-2px"}
+           onClick={=> @setState detailedHeaders: true}>
+        <RetinaImg name={"message-disclosure-triangle.png"}/>
+      </div>
 
   # Eventually, _formatBody will run a series of registered body transformers.
   # For now, it just runs a few we've hardcoded here, which are all synchronous.

@@ -80,7 +80,7 @@ describe "MessageParticipants", ->
                              cc={test_message.cc}
                              from={test_message.from}
                              thread_participants={many_thread_users}
-                             detailedParticipants={true}
+                             isDetailed={true}
                              message_participants={test_message.participants()} />
       )
 
@@ -90,7 +90,7 @@ describe "MessageParticipants", ->
 
     it "uses full names", ->
       to = ReactTestUtils.findRenderedDOMComponentWithClass(@participants, "to-contact")
-      expect(to.getDOMNode().innerHTML).toBe "User Two &lt;user2@nilas.com&gt;"
+      expect(to.getDOMNode().innerText).toEqual "User Two <user2@nilas.com>"
 
 
   # TODO: We no longer display "to everyone"

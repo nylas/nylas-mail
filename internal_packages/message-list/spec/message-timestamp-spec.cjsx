@@ -35,7 +35,7 @@ describe "MessageTimestamp", ->
 
   it "displays the full time when in detailed timestamp mode", ->
     itemDetailed = TestUtils.renderIntoDocument(
-      <MessageTimestamp date={testDate()} detailedTimestamp={true} />
+      <MessageTimestamp date={testDate()} isDetailed={true} />
     )
     spyOn(itemDetailed, "_today").andCallFake -> testDate()
-    expect(itemDetailed._timeFormat()).toBe "ddd, MMM Do YYYY, h:mm:ss a z"
+    expect(itemDetailed._timeFormat()).toBe "DD / MM / YYYY h:mm a z"

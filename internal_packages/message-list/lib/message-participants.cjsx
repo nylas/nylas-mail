@@ -9,10 +9,10 @@ MessageParticipants = React.createClass
     classSet = React.addons.classSet
       "participants": true
       "message-participants": true
-      "collapsed": not @props.detailedParticipants
+      "collapsed": not @props.isDetailed
 
     <div className={classSet} onClick={@props.onClick}>
-      {if @props.detailedParticipants then @_renderExpanded() else @_renderCollapsed()}
+      {if @props.isDetailed then @_renderExpanded() else @_renderCollapsed()}
     </div>
 
   _renderCollapsed: ->
@@ -28,17 +28,18 @@ MessageParticipants = React.createClass
 
   _renderExpanded: ->
     <div className="expanded-participants">
-      <div>
+      <div className="participant-type">
         <div className="participant-label from-label">From:&nbsp;</div>
         <div className="participant-name from-contact">{@_fullContact(@props.from)}</div>
       </div>
 
-      <div>
+      <div className="participant-type">
         <div className="participant-label to-label">To:&nbsp;</div>
         <div className="participant-name to-contact">{@_fullContact(@props.to)}</div>
       </div>
 
-      <div style={if @props.cc.length > 0 then display:"inline" else display:"none"}>
+      <div className="participant-type"
+           style={if @props.cc.length > 0 then display:"block" else display:"none"}>
         <div className="participant-label cc-label">Cc:&nbsp;</div>
         <div className="participant-name cc-contact">{@_fullContact(@props.cc)}</div>
       </div>
@@ -48,4 +49,14 @@ MessageParticipants = React.createClass
     _.map(contacts, (c) -> c.displayFirstName()).join(", ")
 
   _fullContact: (contacts=[]) ->
-    _.map(contacts, (c) -> c.displayFullContact()).join(", ")
+    _.map(contacts, (c) ->
+      if c.name?.length > 0 and c.name isnt c.email
+        <div key={c.email} className="participant">
+          <span className="participant-primary">{c.name}</span>&nbsp;
+          <span className="participant-secondary"><{c.email}></span>
+        </div>
+      else
+        <div key={c.email} className="participant">
+          <span className="participant-primary">{c.email}</span>
+        </div>
+    )
