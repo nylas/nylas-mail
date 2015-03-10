@@ -113,6 +113,9 @@ Menu = React.createClass
 
       @setState
         selectedIndex: newSelectionIndex
+    else
+      @setState
+        selectedIndex: 0
 
   componentWillUnmount: ->
     @subscriptions?.dispose()
