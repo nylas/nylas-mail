@@ -39,7 +39,6 @@ DraftStore = Reflux.createStore
     @listenTo Actions.removeFile, @_onRemoveFile
     @listenTo Actions.attachFileComplete, @_onAttachFileComplete
 
-    @listenTo Actions.sendDraftSuccess, @_closeWindow
     @listenTo Actions.destroyDraftSuccess, @_closeWindow
     @_drafts = []
     @_draftSessions = {}
@@ -189,9 +188,13 @@ DraftStore = Reflux.createStore
   _onSendDraft: (draftLocalId) ->
     # Immediately save any pending changes so we don't save after sending
     save = @_draftSessions[draftLocalId]?.changes.commit()
-    save.then ->
+    save.then =>
+      # We optimistically close the window. If we get an error, then it
+      # will re-open again.
+      @_closeWindow(draftLocalId)
       # Queue the task to send the draft
-      Actions.queueTask(new SendDraftTask(draftLocalId))
+      fromPopout = atom.state.mode is "composer"
+      Actions.queueTask(new SendDraftTask(draftLocalId, fromPopout: fromPopout))
 
   _onAttachFileComplete: ({file, messageLocalId}) ->
     @sessionForLocalId(messageLocalId).prepare().then (proxy) ->
@@ -204,3 +207,4 @@ DraftStore = Reflux.createStore
       files = proxy.draft().files ? []
       files = _.reject files, (f) -> f.id is file.id
       proxy.changes.add({files}, true)
+

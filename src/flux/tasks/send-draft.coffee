@@ -4,12 +4,13 @@ Actions = require '../actions'
 DatabaseStore = require '../stores/database-store'
 Message = require '../models/message'
 Task = require './task'
+TaskQueue = require '../stores/task-queue'
 SyncbackDraftTask = require './syncback-draft'
 
 module.exports =
 class SendDraftTask extends Task
 
-  constructor: (@draftLocalId) -> super
+  constructor: (@draftLocalId, {@fromPopout}={}) -> super
 
   shouldDequeueOtherTask: (other) ->
     other instanceof SendDraftTask and other.draftLocalId is @draftLocalId
@@ -49,27 +50,28 @@ class SendDraftTask extends Task
           success: =>
             atom.playSound('mail_sent.ogg')
             Actions.postNotification({message: "Sent!", type: 'success'})
-            Actions.sendDraftSuccess(@draftLocalId)
             DatabaseStore.unpersistModel(draft).then(resolve)
           error: reject
       .catch(reject)
 
   onAPIError: (apiError) ->
     msg = apiError.message ? "Our server is having problems. Your message has not been sent."
-    Actions.sendDraftError(@draftLocalId, msg)
-    @notifyErrorMessage(msg)
+    @_notifyError(msg)
 
   onOtherError: ->
     msg = "We had a serious issue while sending. Your message has not been sent."
-    Actions.sendDraftError(@draftLocalId, msg)
-    @notifyErrorMessage(msg)
+    @_notifyError(msg)
 
   onTimeoutError: ->
     msg = "The server is taking an abnormally long time to respond. Your message has not been sent."
-    Actions.sendDraftError(@draftLocalId, msg)
-    @notifyErrorMessage(msg)
+    @_notifyError(msg)
 
   onOfflineError: ->
     msg = "You are offline. Your message has NOT been sent. Please send your message when you come back online."
-    Actions.sendDraftError(@draftLocalId, msg)
+    @_notifyError(msg)
+    # For sending draft, we don't send when we come back online.
+    Actions.dequeueTask(@)
+
+  _notifyError: (msg) ->
+    if @fromPopout then atom.displayComposer(@draftLocalId, error: msg)
     @notifyErrorMessage(msg)

@@ -32,6 +32,10 @@ module.exports =
         options = JSON.parse(optionsJSON)
         @_createDraft(options).then (draftLocalId) =>
           React.render(<ComposerView mode="fullwindow" localId={draftLocalId} />, @item)
+          _.delay =>
+            if options.error? then @_showInitialErrorDialog(options.error)
+          , 100
+
         .catch (error) -> console.error(error)
 
   deactivate: ->
@@ -77,3 +81,13 @@ module.exports =
       view: NewComposeButton
       name: 'NewComposeButton'
       role: 'Root:Left:Toolbar'
+
+  _showInitialErrorDialog: (msg) ->
+    remote = require('remote')
+    dialog = remote.require('dialog')
+    dialog.showMessageBox remote.getCurrentWindow(), {
+      type: 'warning'
+      buttons: ['Okay'],
+      message: "Error"
+      detail: msg
+    }

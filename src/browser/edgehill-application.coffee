@@ -436,13 +436,13 @@ class AtomApplication
       windowPackages: ['composer', 'attachments']
     w
 
-  showComposerWindow: ({draftLocalId, draftInitialJSON} = {}) ->
+  showComposerWindow: ({draftLocalId, draftInitialJSON, error} = {}) ->
     w = @prepareComposerWindow()
     w.show()
     w.focus()
 
     sendComposerState = ->
-      json = JSON.stringify({draftLocalId, draftInitialJSON})
+      json = JSON.stringify({draftLocalId, draftInitialJSON, error})
       w.browserWindow.webContents.send('composer-state', json)
 
     if w.browserWindow.webContents.isLoading()

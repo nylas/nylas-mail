@@ -623,8 +623,8 @@ class Atom extends Model
     @hide()
     @displayOnboardingWindow()
 
-  displayComposer: (draftLocalId = null) ->
-    ipc.send('show-composer-window', {draftLocalId})
+  displayComposer: (draftLocalId = null, options={}) ->
+    ipc.send('show-composer-window', _.extend(options, {draftLocalId}))
 
   displayOnboardingWindow: (page = false) ->
     options =
