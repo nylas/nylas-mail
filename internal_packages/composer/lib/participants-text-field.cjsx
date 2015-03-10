@@ -89,13 +89,6 @@ ParticipantsTextField = React.createClass
       false
     @props.change(updates)
 
-  _removeOne: (participant) ->
-    field = @props.field
-    updates = {}
-    updates[field] = _.reject @props.participants[field], (p) ->
-      p.email is participant.email
-    @props.change(updates)
-
   _add: (values) ->
     values = _.compact _.map values, (value) ->
       if value instanceof Contact
