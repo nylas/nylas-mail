@@ -61,7 +61,7 @@ EmailFixingStyles = """
   }
 
   a {
-    color: #11A1A2;
+    color: #2794c3;
   }
 
   a:hover {

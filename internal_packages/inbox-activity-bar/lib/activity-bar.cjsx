@@ -167,16 +167,23 @@ ActivityBar = React.createClass
       subject: "Feedback"
       namespaceId: NamespaceStore.current().id
       body: """
-        <p>Hi, Edgehill team!</p>
-        <p>I have some feedback for you.</p>
-        <p><b>What happened</b><br/><br/></p>
-        <p><b>Impact</b><br/><br/></p>
-        <p><b>Feedback</b><br/><br/></p>
-        <p><b>Environment</b><br/>I'm using Edgehill #{atom.getVersion()} and my platform is #{process.platform}-#{process.arch}.</p>
-        <p>--</p>
-        <p>#{user}</p><br>
-        <p>-- Extra Debugging Data --</p>
-        <p>#{debugData}</p>
+        Hi, Edgehill team! I have some feedback for you.<br/>
+        <br/>
+        <b>What happened:</b><br/>
+        <br/>
+        <br/>
+        <b>Impact:</b><br/>
+        <br/>
+        <br/>
+        <b>Feedback:</b><br/>
+        <br/>
+        <br/>
+        <b>Environment:</b><br/>
+        I'm using Edgehill #{atom.getVersion()} and my platform is #{process.platform}-#{process.arch}.<br/>
+        --<br/>
+        #{user}<br/>
+        -- Extra Debugging Data --<br/>
+        #{debugData}
       """
     DatabaseStore.persistModel(draft).then ->
       DatabaseStore.localIdForModel(draft).then (localId) ->

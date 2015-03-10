@@ -35,9 +35,13 @@
 @gray-lighter: lighten(@gray-base, 92.5%); // #eee
 @white:        #ffffff;
 
+@blue:         #2794c3;
+@blue-dark:    darken(@blue, 10%);
+
 //== Color descriptors
-@accent-primary:   @nilas-blue;
-@accent-secondary: @nilas-yellow;
+@accent-primary:      @blue;
+@accent-primary-dark: @blue-dark;
+@accent-secondary:    @nilas-yellow;
 
 @background-primary:   #ffffff;
 @background-secondary: #f6f6f6;
@@ -48,7 +52,7 @@
 @border-tertiary-bg: darken(@background-tertiary, 10%);
 @border-color-divider: @border-secondary-bg;
 
-@info-color:    @nilas-blue-dark;
+@info-color:    @blue-dark;
 @success-color: @nilas-green;
 @warning-color: #f0ad4e;
 @error-color:   #d9534f;
@@ -67,9 +71,9 @@
 
 @text-color-heading: @nilas-gray;
 
-@text-color-link:        @nilas-blue;
-@text-color-link-hover:  @nilas-blue-dark;
-@text-color-link-active: @nilas-blue-dark;
+@text-color-link:        @blue;
+@text-color-link-hover:  @blue-dark;
+@text-color-link-active: @blue-dark;
 
 @text-color-selected:  @text-color-inverse;
 @text-color-highlight: @text-color;
@@ -193,13 +197,6 @@
 @border-radius-large:       6px;
 @border-radius-small:       3px;
 
-//** Global color for active items (e.g., navs or dropdowns).
-@component-active-color:    #fff;
-//** Global background color for active items (e.g., navs or dropdowns).
-// @component-active-bg:       #3a3e44;
-// @component-active-bg:       #116cd6;
-@component-active-bg:       @nilas-blue;
-
 
 //============================== Tables ===============================//
 // Customizes the `.table` component with basic values, each used across
@@ -318,6 +315,12 @@
 //
 // ##
 
+//** Global color for active items (e.g., navs or dropdowns).
+@component-active-color:    @background-primary;
+//** Global background color for active items (e.g., navs or dropdowns).
+@component-active-bg:           #383d44;
+@component-secondary-active-bg: @background-tertiary;
+
 //** Background color on `.list-group-item`
 @source-list-bg:                 @panel-background-color;
 //** Text color of active list items
@@ -341,7 +344,7 @@
 //** Text color of active list items
 @list-active-color:       @component-active-color;
 //** Background color of active list items
-@list-active-bg:          @component-active-bg;
+@list-active-bg:          @component-secondary-active-bg;
 //** Border color of active list elements
 @list-active-border:      @list-active-bg;
 //** Text color for content within active list items
@@ -431,7 +434,7 @@
 
 // TEXT
 
-@unread-color: @accent-primary; //!
+@unread-color: @blue; //!
 @action-color: @green;
 
 @progress-bar-fill: @light-blue;
