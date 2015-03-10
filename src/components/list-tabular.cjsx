@@ -11,6 +11,7 @@ ListTabularItem = React.createClass
     itemClassProvider: React.PropTypes.func
     displayHeaders: React.PropTypes.bool
     onSelect: React.PropTypes.func
+    onClick: React.PropTypes.func
     onDoubleClick: React.PropTypes.func
 
   # DO NOT DELETE unless you know what you're doing! This method cuts
@@ -32,14 +33,15 @@ ListTabularItem = React.createClass
            className="list-column">
         {column.resolver(@props.item, @)}
       </div>
-  
+
   _onClick: ->
     if not @props.selected
       @props.onSelect?(@props.item)
 
+    @props.onClick?(@props.item)
     if @_lastClickTime? and Date.now() - @_lastClickTime < 350
       @props.onDoubleClick?(@props.item)
-    
+
     @_lastClickTime = Date.now()
 
   _containerClasses: ->
@@ -60,6 +62,7 @@ ListTabular = React.createClass
     itemClassProvider: React.PropTypes.func
     selectedId: React.PropTypes.string
     onSelect: React.PropTypes.func
+    onClick: React.PropTypes.func
     onDoubleClick: React.PropTypes.func
 
   render: ->
@@ -92,6 +95,7 @@ ListTabular = React.createClass
                        itemClassProvider={@props.itemClassProvider}
                        columns={@props.columns}
                        onSelect={@props.onSelect}
+                       onClick={@props.onClick}
                        onDoubleClick={@props.onDoubleClick} />
 
 

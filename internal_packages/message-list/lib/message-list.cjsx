@@ -27,12 +27,24 @@ MessageList = React.createClass
     if newDrafts.length >= 1
       @_focusComposerId = newDrafts[0]
 
-  componentDidUpdate: ->
-    @_lastHeight = -1
-    @_scrollToBottom()
-    if @_focusComposerId?
-      @_focusRef(@refs["composerItem-#{@_focusComposerId}"])
-      @_focusComposerId = null
+  componentDidUpdate: (prevProps, prevState) ->
+    if @_shouldScroll(prevState)
+      @_lastHeight = -1
+      @_scrollToBottom()
+      if @_focusComposerId?
+        @_focusRef(@refs["composerItem-#{@_focusComposerId}"])
+        @_focusComposerId = null
+
+  # Only scroll if the messages change and there are some message
+  _shouldScroll: (prevState) ->
+    return false if (@state.messages ? []).length is 0
+    prevMsg = (prevState.messages ? []).map((m) -> m.id)
+    curMsg = (@state.messages ? []).map((m) -> m.id)
+    return true if prevMsg.length isnt curMsg.length
+    iLength = _.intersection(prevMsg, curMsg).length
+    return true if iLength isnt prevMsg.length or iLength isnt curMsg.length
+    return false
+
 
   # We need a 100ms delay so the DOM can finish painting the elements on
   # the page. The focus doesn't work for some reason while the paint is in
@@ -42,7 +54,7 @@ MessageList = React.createClass
   , 100
 
   render: ->
-    return <div></div> if not @state.current_thread?
+    return <div></div> if not @state.currentThread?
 
     <div className="message-list" id="message-list">
       <div tabIndex=1 ref="messageWrap" className="messages-wrap">
@@ -58,7 +70,7 @@ MessageList = React.createClass
   _messageListNotificationBars: ->
     MLBars = ComponentRegistry.findAllViewsByRole('MessageListNotificationBar')
     <div className="message-list-notification-bar-wrap">
-      {<MLBar thread={@state.current_thread} /> for MLBar in MLBars}
+      {<MLBar thread={@state.currentThread} /> for MLBar in MLBars}
     </div>
 
   _messageListHeaders: ->
@@ -66,10 +78,10 @@ MessageList = React.createClass
     MessageListHeaders = ComponentRegistry.findAllViewsByRole('MessageListHeader')
 
     <div className="message-list-headers">
-      <h2 className="message-subject">{@state.current_thread.subject}</h2>
+      <h2 className="message-subject">{@state.currentThread.subject}</h2>
 
       {for MessageListHeader in MessageListHeaders
-        <MessageListHeader thread={@state.current_thread} />
+        <MessageListHeader thread={@state.currentThread} />
       }
     </div>
 
@@ -103,7 +115,7 @@ MessageList = React.createClass
         className = "message-item-wrap"
         if message.unread then className += " unread-message"
         components.push <MessageItem key={message.id}
-                         thread={@state.current_thread}
+                         thread={@state.currentThread}
                          message={message}
                          collapsed={collapsed}
                          className={className}
@@ -117,11 +129,11 @@ MessageList = React.createClass
   _getStateFromStores: ->
     messages: (MessageStore.items() ? [])
     messageLocalIds: MessageStore.itemLocalIds()
-    current_thread: ThreadStore.selectedThread()
+    currentThread: ThreadStore.selectedThread()
 
   _threadParticipants: ->
     # We calculate the list of participants instead of grabbing it from
-    # `@state.current_thread.participants` because it makes it easier to
+    # `@state.currentThread.participants` because it makes it easier to
     # test, is a better source of ground truth, and saves us from more
     # dependencies.
     participants = {}

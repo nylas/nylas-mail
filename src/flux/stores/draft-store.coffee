@@ -179,6 +179,7 @@ DraftStore = Reflux.createStore
 
   _onDestroyDraft: (draftLocalId) ->
     # Immediately reset any pending changes so no saves occur
+    @_closeWindow(draftLocalId)
     @_draftSessions[draftLocalId]?.changes.reset()
     delete @_draftSessions[draftLocalId]
 

@@ -212,7 +212,7 @@ describe "MessageList", ->
     beforeEach ->
       MessageStore._items = testMessages
       MessageStore.trigger(MessageStore)
-      @message_list.setState current_thread: test_thread
+      @message_list.setState currentThread: test_thread
 
     it "renders all the correct number of messages", ->
       items = TestUtils.scryRenderedComponentsWithType(@message_list,
@@ -268,7 +268,7 @@ describe "MessageList", ->
     beforeEach ->
       MessageStore._items = testMessages.concat draftMessages
       MessageStore.trigger(MessageStore)
-      @message_list.setState current_thread: test_thread
+      @message_list.setState currentThread: test_thread
 
     it "renders the composer", ->
       items = TestUtils.scryRenderedComponentsWithType(@message_list,
