@@ -103,11 +103,14 @@ DraftStore = Reflux.createStore
 
   _onComposeReplyAll: (context) ->
     @_newMessageWithContext context, (thread, message) ->
+      excluded = message.from.map (c) -> c.email
+      excluded.push(NamespaceStore.current().me().email)
+
       replyToMessageId: message.id
       quotedMessage: message
       to: message.from
       cc: [].concat(message.cc, message.to).filter (p) ->
-        !_.contains([].concat(message.from, [NamespaceStore.current().me()]), p)
+        !_.contains(excluded, p.email)
 
   _onComposeForward: (context) ->
     @_newMessageWithContext context, (thread, message) ->

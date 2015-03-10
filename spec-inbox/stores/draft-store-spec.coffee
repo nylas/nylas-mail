@@ -6,35 +6,40 @@ DatabaseStore = require '../../src/flux/stores/database-store.coffee'
 DraftStore = require '../../src/flux/stores/draft-store.coffee'
 _ = require 'underscore-plus'
 
-fakeThread = new Thread
-  id: 'fake-thread-id'
-  subject: 'Fake Subject'
-
-fakeMessage1 = new Message
-  id: 'fake-message-1'
-  to: [new Contact(email: 'ben@nilas.com'), new Contact(email: 'evan@nilas.com')]
-  cc: [new Contact(email: 'mg@nilas.com'), NamespaceStore.current().me()]
-  bcc: [new Contact(email: 'recruiting@nilas.com')]
-  from: [new Contact(email: 'customer@example.com', name: 'Customer')]
-  threadId: 'fake-thread-id'
-  body: 'Fake Message 1'
-  date: new Date(1415814587)
-
-fakeMessage2 = new Message
-  id: 'fake-message-2'
-  to: [new Contact(email: 'customer@example.com')]
-  from: [new Contact(email: 'ben@nilas.com')]
-  threadId: 'fake-thread-id'
-  body: 'Fake Message 2'
-  date: new Date(1415814587)
-
-fakeMessages =
-  'fake-message-1': fakeMessage1
-  'fake-message-2': fakeMessage2
+fakeThread = null
+fakeMessage1 = null
+fakeMessage2 = null
+fakeMessages = null
 
 describe "DraftStore", ->
   describe "creating drafts", ->
     beforeEach ->
+      fakeThread = new Thread
+        id: 'fake-thread-id'
+        subject: 'Fake Subject'
+
+      fakeMessage1 = new Message
+        id: 'fake-message-1'
+        to: [new Contact(email: 'ben@nilas.com'), new Contact(email: 'evan@nilas.com')]
+        cc: [new Contact(email: 'mg@nilas.com'), new Contact(email: NamespaceStore.current().me().email)]
+        bcc: [new Contact(email: 'recruiting@nilas.com')]
+        from: [new Contact(email: 'customer@example.com', name: 'Customer')]
+        threadId: 'fake-thread-id'
+        body: 'Fake Message 1'
+        date: new Date(1415814587)
+
+      fakeMessage2 = new Message
+        id: 'fake-message-2'
+        to: [new Contact(email: 'customer@example.com')]
+        from: [new Contact(email: 'ben@nilas.com')]
+        threadId: 'fake-thread-id'
+        body: 'Fake Message 2'
+        date: new Date(1415814587)
+
+      fakeMessages =
+        'fake-message-1': fakeMessage1
+        'fake-message-2': fakeMessage2
+
       spyOn(DatabaseStore, 'find').andCallFake (klass, id) ->
         return Promise.resolve(fakeThread) if klass is Thread
         return Promise.resolve(fakeMessages[id]) if klass is Message
@@ -81,8 +86,7 @@ describe "DraftStore", ->
 
       it "should cc everyone who was on the previous message in to or cc", ->
         ccEmails = @model.cc.map (cc) -> cc.email
-        expectedEmails = [].concat(fakeMessage1.to, fakeMessage1.cc).map (cc) -> cc.email
-        expect(ccEmails.sort()).toEqual(expectedEmails.sort())
+        expect(ccEmails.sort()).toEqual([ 'ben@nilas.com', 'evan@nilas.com', 'mg@nilas.com'])
 
       it "should not include people who were bcc'd on the previous message", ->
         expect(@model.bcc).toEqual([])
