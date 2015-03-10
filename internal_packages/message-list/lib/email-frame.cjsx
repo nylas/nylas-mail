@@ -169,7 +169,7 @@ EmailFrame = React.createClass
     return email if @props.showQuotedText
 
     # Split the email into lines and remove lines that begin with > or &gt;
-    lines = email.split(/(\n|<br>)/)
+    lines = email.split(/(\n|<br[^>]*>)/)
 
     # Remove lines that are newlines - we'll add them back in when we join.
     # We had to break them out because we want to preserve <br> elements.
@@ -182,10 +182,14 @@ EmailFrame = React.createClass
     ]
     for ii in [lines.length-1..0] by -1
       for regex in regexs
+        # Never remove a line with a blockquote start tag, because it
+        # quotes multiple lines, not just the current line!
+        if lines[ii].match("<blockquote")
+          break
         if lines[ii].match(regex)
           lines.splice(ii,1)
-          # Remove following line if it's a <br>
-          lines.splice(ii,1) if lines[ii] is '<br>'
+          # Remove following line if its just a spacer-style element
+          lines.splice(ii,1) if lines[ii].match('<br[^>]*>')?[0] is lines[ii]
           break
 
     # Return remaining compacted email body
