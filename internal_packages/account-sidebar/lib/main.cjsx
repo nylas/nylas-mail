@@ -9,4 +9,4 @@ module.exports =
     ComponentRegistry.register
       view: AccountSidebar
       name: 'AccountSidebar'
-      role: 'ThreadList:Left'
+      role: 'Root:Left'

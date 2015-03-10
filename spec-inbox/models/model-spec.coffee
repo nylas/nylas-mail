@@ -22,20 +22,6 @@ describe "Model", ->
       m = new Model()
       expect(m.attributes()).toBe(m.constructor.attributes)
 
-  describe "isEqual", ->
-    it "should return true iff the classes and IDs match", ->
-      class Submodel extends Model
-        constructor: -> super
-
-      a = new Model({id: "A"})
-      b = new Model({id: "B"})
-      aSub = new Submodel({id: "A"})
-      aEqualSub = new Submodel({id: "A"})
-
-      expect(a.isEqual(b)).toBe(false)
-      expect(a.isEqual(aSub)).toBe(false)
-      expect(aSub.isEqual(aEqualSub)).toBe(true)
-
   describe "isSaved", ->
     it "should return false if the object has a temp ID", ->
       a = new Model()

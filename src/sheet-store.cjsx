@@ -6,7 +6,7 @@ Sheet = require './sheet'
 SheetStore = Reflux.createStore
   init: ->
     @_stack = []
-    @pushSheet(<Sheet type="ThreadList" depth=0 key="0" />)
+    @pushSheet(<Sheet type="Root" depth=0 key="0" />)
 
     @listenTo Actions.popSheet, @popSheet
     

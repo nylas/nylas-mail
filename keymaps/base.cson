@@ -6,15 +6,15 @@
 
 'body':
   'c'        : 'application:new-message' # Gmail
-  'k'        : 'application:previous-message' # Gmail
-  'up'       : 'application:previous-message' # Mac mail
-  'j'        : 'application:next-message' # Gmail
-  'down'     : 'application:next-message' # Mac mail
-  ']'        : 'application:archive-and-previous' # Gmail
-  '['        : 'application:archive-thread' # Gmail
-  'e'        : 'application:archive-thread' # Gmail
-  'delete'   : 'application:archive-thread' # Mac mail
-  'backspace': 'application:archive-thread' # Outlook
+  'k'        : 'application:previous-item' # Gmail
+  'up'       : 'application:previous-item' # Mac mail
+  'j'        : 'application:next-item' # Gmail
+  'down'     : 'application:next-item' # Mac mail
+  ']'        : 'application:remove-and-previous' # Gmail
+  '['        : 'application:remove-item' # Gmail
+  'e'        : 'application:remove-item' # Gmail
+  'delete'   : 'application:remove-item' # Mac mail
+  'backspace': 'application:remove-item' # Outlook
 
   'r'     : 'application:reply' # Gmail
   'a'     : 'application:reply-all' # Gmail

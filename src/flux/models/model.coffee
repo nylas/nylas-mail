@@ -31,9 +31,6 @@ class Model
   attributes: ->
     @constructor.attributes
 
-  isEqual: (other) ->
-    other?.id == @id && other?.constructor == @constructor
-
   isSaved: ->
     !isTempId(@id)
 

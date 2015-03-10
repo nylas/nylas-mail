@@ -45,14 +45,14 @@ class ActionBridge
       callback = => @onRebroadcast(TargetWindows.ALL, name, arguments)
       Actions[name].listen(callback, @)
 
-    if @role == Role.ROOT
-      # Observe the database store (possibly other stores in the future), and
-      # rebroadcast it's trigger() event.
-      callback = (change) =>
-        @onRebroadcast(TargetWindows.ALL, Message.DATABASE_STORE_TRIGGER, [change])
-      DatabaseStore.listen(callback, @)
+    # Observe the database store (possibly other stores in the future), and
+    # rebroadcast it's trigger() event.
+    databaseCallback = (change) =>
+      return if DatabaseStore.triggeringFromActionBridge
+      @onRebroadcast(TargetWindows.ALL, Message.DATABASE_STORE_TRIGGER, [change])
+    DatabaseStore.listen(databaseCallback, @)
 
-    else
+    if @role isnt Role.ROOT
       # Observe all mainWindow actions fired in this window and re-broadcast
       # them to other windows so the central application stores can take action
       Actions.mainWindowActions.forEach (name) =>
@@ -71,8 +71,10 @@ class ActionBridge
       console.error(e)
 
     if name == Message.DATABASE_STORE_TRIGGER
-      return unless @role == Role.SECONDARY
+      DatabaseStore.triggeringFromActionBridge = true
       DatabaseStore.trigger(args...)
+      DatabaseStore.triggeringFromActionBridge = false
+
     else if Actions[name]
       Actions[name].firing = true
       Actions[name](args...)

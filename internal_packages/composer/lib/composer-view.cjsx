@@ -116,7 +116,9 @@ ComposerView = React.createClass
 
       <div className="composer-action-bar-wrap">
         <div className="composer-action-bar-content">
-          {@_trashBtn()}
+          <button className="btn btn-toolbar pull-right btn-trash"
+                  onClick={@_destroyDraft}><RetinaImg name="toolbar-trash.png" /></button>
+        
           <button className="btn btn-toolbar pull-right btn-attach"
                   onClick={@_attachFile}><RetinaImg name="toolbar-attach.png"/></button>
 
@@ -205,11 +207,6 @@ ComposerView = React.createClass
     </div>
 
   focus: (field) -> @refs[field]?.focus?() if @isMounted()
-
-  _trashBtn: ->
-    if @props.mode isnt "fullwindow"
-      <button className="btn btn-toolbar pull-right btn-trash"
-              onClick={@_destroyDraft}><RetinaImg name="toolbar-trash.png" /></button>
 
   _footerComponents: ->
     (@state.FooterComponents ? []).map (Component) =>

@@ -442,7 +442,8 @@ class AtomApplication
     w.focus()
 
     sendComposerState = ->
-      w.browserWindow.webContents.send 'composer-state', JSON.stringify({draftLocalId, draftInitialJSON})
+      json = JSON.stringify({draftLocalId, draftInitialJSON})
+      w.browserWindow.webContents.send('composer-state', json)
 
     if w.browserWindow.webContents.isLoading()
       w.browserWindow.webContents.on('did-finish-load', sendComposerState)

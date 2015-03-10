@@ -15,7 +15,7 @@ module.exports =
 
     ComponentRegistry.register
       name: 'MessageList'
-      role: 'ThreadList:Right'
+      role: 'Root:Right'
       view: MessageList
 
   deactivate: ->

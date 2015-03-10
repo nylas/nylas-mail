@@ -5,12 +5,11 @@
   outline:none;
 }
 
-#thread-list {
+.thread-list {
   order: 3;
   flex: 1;
   overflow: auto;
   -webkit-user-select: none;
-  display: flex;
   position: relative;
 
   .message-count {
@@ -23,7 +22,10 @@
   .participants {
     font-size:   @font-size-large;
     font-weight: @font-weight-semi-bold;
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
+
   .subject {
     font-size:   @font-size-small;
     font-weight: @font-weight-normal;
@@ -33,6 +35,23 @@
     font-weight: @font-weight-normal;
     color: @text-color-subtle;
   }
+
+  .unread:not(.selected) {
+    &:before {
+      content: "";
+      position: absolute;
+      height: 99%;
+      width: 5px;
+      top: 0;
+      left: 1px;
+      background: @unread-color;
+    }
+
+    .subject {
+      color: @unread-color;
+    }
+  }
+
   .selected {
     .participants {
       color: @text-color-inverse;
@@ -42,47 +61,6 @@
     }
     .snippet, .timestamp {
       color: @text-color-inverse-subtle;
-    }
-  }
-}
-
-.thread-list-container {
-  position: relative;
-
-  .thread-list-item {
-    font-size: @font-size-base;
-    line-height: @line-height-large;
-    color: @text-color;
-    background: @list-bg;
-
-    .participants {
-      font-weight: 500;
-    }
-
-    &:hover {
-      background: @list-hover-bg;
-    }
-
-    &.unread:not(.selected) {
-      &:before {
-        content: "";
-        position: absolute;
-        height: 99%;
-        width: 5px;
-        top: 0;
-        left: 1px;
-        background: @unread-color;
-      }
-
-      .subject {
-        color: @unread-color;
-      }
-
-    }
-
-    &.selected {
-      background: @list-active-bg;
-      color: @list-active-color;
     }
   }
 
@@ -105,61 +83,3 @@
   }
 }
 
-.thread-list-tabular {
-  flex: 1;
-  width: 100%;
-  display: flex;
-  overflow: hidden;
-  position: relative;
-
-  .thread-list-tabular-item {
-    position: relative;
-    width: 100%;
-    display: flex;
-    &:hover {
-      cursor: default;
-    }
-  }
-
-  .thread-rows {
-    overflow: auto;
-    // Add back when when we re-implement thread-list-headers
-    // padding-top: @font-size-base * 2; /* height of thread-list-headers*/
-  }
-
-  .thread-list-column {
-    // The width is set by React.
-    display: inline-block;
-    padding: @padding-base-vertical @padding-base-horizontal @padding-base-vertical @padding-base-horizontal;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    border-bottom: 1px solid @list-border;
-
-    &:last-child {
-      text-align: right;
-    }
-  }
-
-  .thread-list-headers {
-    display: flex;
-    position: absolute;
-    width: 100%;
-    top: 0;
-    position: absolute;
-    background: fade(@list-bg,90%);
-    font-size: @font-size-base;
-    line-height: @font-size-base * 1.6;
-    height:@font-size-base * 2;
-    z-index: 3;
-  }
-
-  .thread-list-header {
-  }
-
-  .participants {
-    text-overflow: ellipsis;
-    overflow: hidden;
-  }
-
-}

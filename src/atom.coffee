@@ -624,7 +624,7 @@ class Atom extends Model
     @displayOnboardingWindow()
 
   displayComposer: (draftLocalId = null) ->
-    ipc.send('show-composer-window', {draftLocalId: draftLocalId})
+    ipc.send('show-composer-window', {draftLocalId})
 
   displayOnboardingWindow: (page = false) ->
     options =

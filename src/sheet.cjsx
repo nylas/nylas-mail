@@ -93,8 +93,8 @@ Sheet = React.createClass
   # Load components that are part of our sheet. For each column,
   # (eg 'Center') we look for items with a matching `role`. We
   # then pull toolbar items the following places:
-  #  
-  # - ThreadList:Center:Toolbar
+  #
+  # - Root:Center:Toolbar
   # - ComposeButton:Toolbar
   #
   _getComponentRegistryState: ->

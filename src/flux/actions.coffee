@@ -49,6 +49,7 @@ windowActions = [
   "selectNamespaceId",
   "selectThreadId",
   "selectTagId",
+  "selectView",
 
   # Actions for composer
   "composeReply",

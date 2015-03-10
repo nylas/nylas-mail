@@ -33,13 +33,14 @@ class DraftChangeSet
       @_timer = setTimeout(@commit, 5000)
 
   commit: =>
-    return unless Object.keys(@_pending).length > 0
+    if Object.keys(@_pending).length is 0
+      return Promise.resolve(true)
 
     DatabaseStore = require './database-store'
     DatabaseStore.findByLocalId(Message, @localId).then (draft) =>
       draft = @applyToModel(draft)
-      DatabaseStore.persistModel(draft)
       @_pending = {}
+      DatabaseStore.persistModel(draft)
 
   applyToModel: (model) =>
     model.fromJSON(@_pending) if model

@@ -3,7 +3,7 @@ _ = require 'underscore-plus'
 CSON = require 'season'
 React = require "react/addons"
 ReactTestUtils = React.addons.TestUtils
-ReactTestUtils = _.extend ReactTestUtils, require("jasmine-react-helpers")
+ReactTestUtils = _.extend ReactTestUtils, require "jasmine-react-helpers"
 
 {Thread,
  Actions,
@@ -13,14 +13,9 @@ ReactTestUtils = _.extend ReactTestUtils, require("jasmine-react-helpers")
  InboxTestUtils,
  NamespaceStore,
  ComponentRegistry} = require "inbox-exports"
+{ListTabular} = require 'ui-components'
 
-ThreadListColumn = require("../lib/thread-list-column")
-
-ThreadListNarrow = require("../lib/thread-list-narrow.cjsx")
-ThreadListNarrowItem = require("../lib/thread-list-narrow-item.cjsx")
-
-ThreadListTabular = require("../lib/thread-list-tabular.cjsx")
-ThreadListTabularItem = require("../lib/thread-list-tabular-item.cjsx")
+ThreadList = require "../lib/thread-list.cjsx"
 
 ParticipantsItem = React.createClass
   render: -> <div></div>
@@ -195,18 +190,18 @@ cjsxSubjectResolver = (thread) ->
     <span className="snippet">Snippet</span>
   </div>
 
-describe "ThreadListTabular", ->
+describe "ThreadList", ->
 
   Foo = React.createClass({render: -> <div>{@props.children}</div>})
-  c1 = new ThreadListColumn
+  c1 = new ListTabular.Column
     name: "Name"
     flex: 1
     resolver: (thread) -> "#{thread.id} Test Name"
-  c2 = new ThreadListColumn
+  c2 = new ListTabular.Column
     name: "Subject"
     flex: 3
     resolver: cjsxSubjectResolver
-  c3 = new ThreadListColumn
+  c3 = new ListTabular.Column
     name: "Date"
     resolver: (thread) -> <Foo>{thread.id}</Foo>
 
@@ -217,8 +212,7 @@ describe "ThreadListTabular", ->
     spyOn(ThreadStore, "_onNamespaceChanged")
     spyOn(DatabaseStore, "findAll").andCallFake ->
       new Promise (resolve, reject) -> resolve(test_threads())
-    ReactTestUtils.spyOnClass(ThreadListTabular, "_defaultColumns")
-                  .andReturn(columns)
+    ReactTestUtils.spyOnClass(ThreadList, "_computeColumns").andReturn(columns)
 
     ThreadStore._resetInstanceVars()
 
@@ -227,12 +221,12 @@ describe "ThreadListTabular", ->
       view: ParticipantsItem
 
     @thread_list = ReactTestUtils.renderIntoDocument(
-      <ThreadListTabular />
+      <ThreadList />
     )
 
   it "renders into the document", ->
     expect(ReactTestUtils.isCompositeComponentWithType(@thread_list,
-                                          ThreadListTabular)).toBe true
+                                          ThreadList)).toBe true
 
   it "stars on keymap", ->
     spyOn(@thread_list, "_onStarThread")
@@ -243,8 +237,7 @@ describe "ThreadListTabular", ->
     expect(@thread_list.state.columns).toEqual columns
 
   it "by default has zero children", ->
-    items = ReactTestUtils.scryRenderedComponentsWithType(@thread_list,
-                                             ThreadListTabularItem)
+    items = ReactTestUtils.scryRenderedComponentsWithType(@thread_list, ListTabular.Item)
     expect(items.length).toBe 0
 
   describe "Populated thread list", ->
@@ -255,184 +248,143 @@ describe "ThreadListTabular", ->
       @thread_list_node = @thread_list.getDOMNode()
 
     it "renders all of the thread list items", ->
-      items = ReactTestUtils.scryRenderedComponentsWithType(@thread_list,
-                                               ThreadListTabularItem)
+      items = ReactTestUtils.scryRenderedComponentsWithType(@thread_list, ListTabular.Item)
       expect(items.length).toBe 3
 
-    # We no longer put headers in the thread list (for now)
-    # it "Expects there to be headers", ->
-    #   heads = ReactTestUtils.scryRenderedDOMComponentsWithClass(@thread_list, "thread-list-header")
-    #   expect(heads.length).toBe(3)
-    #
 
-    describe "ThreadListTabularItem", ->
-      beforeEach ->
-        items = ReactTestUtils.scryRenderedComponentsWithType(@thread_list,
-                                                 ThreadListTabularItem)
-        item = items.filter (tli) -> tli.props.thread.id is "111"
-        @thread_list_item = item[0]
+# describe "ThreadListNarrow", ->
 
-      it "finds the thread list item by id", ->
-        expect(@thread_list_item.props.thread.id).toBe "111"
+#   beforeEach ->
+#     InboxTestUtils.loadKeymap("internal_packages/thread-list/keymaps/thread-list.cson")
+#     spyOn(ThreadStore, "_onNamespaceChanged")
+#     spyOn(DatabaseStore, "findAll").andCallFake ->
+#       new Promise (resolve, reject) -> resolve(test_threads())
+#     ThreadStore._resetInstanceVars()
 
-      it "Expects each thread list item to get the column list", ->
-        expect(@thread_list_item.props.columns).toEqual columns
+#     ComponentRegistry.register
+#       name: 'Participants'
+#       view: ParticipantsItem
 
-      it "has the proper column widths", ->
-        expect(@thread_list_item.props.columnFlex["Name"]).toEqual 1
-        expect(@thread_list_item.props.columnFlex["Subject"]).toEqual 3
-        expect(@thread_list_item.props.columnFlex["Date"]).toEqual undefined
+#     @thread_list = ReactTestUtils.renderIntoDocument(
+#       <ThreadListNarrow />
+#     )
 
-      describe "columns in thread list item", ->
-        beforeEach ->
-          @cols = ReactTestUtils.scryRenderedDOMComponentsWithClass(@thread_list_item, "thread-list-column")
+#   it "renders into the document", ->
+#     expect(ReactTestUtils.isCompositeComponentWithType(@thread_list,
+#                                           ThreadListNarrow)).toBe true
 
-        it "Expects there to be three columns", ->
-          expect(@cols.length).toBe(3)
+#   it "by default has zero children", ->
+#     items = ReactTestUtils.scryRenderedComponentsWithType(@thread_list,
+#                                              ThreadListNarrowItem)
+#     expect(items.length).toBe 0
 
-        it "Expects the correct test data in the columns", ->
-          snip1 = ReactTestUtils.scryRenderedDOMComponentsWithClass(@cols[1], "snippet")
-          snip2 = ReactTestUtils.scryRenderedComponentsWithType(@cols[2], Foo)
+#   describe "Populated thread list", ->
+#     beforeEach ->
+#       ThreadStore._items = test_threads()
+#       ThreadStore._selectedId = null
+#       ThreadStore.trigger()
+#       @thread_list_node = @thread_list.getDOMNode()
 
-          expect(@cols[0].props.children).toBe "111 Test Name"
-          expect(snip1.length).toBe 1
-          expect(snip1[0].props.children).toEqual "Snippet"
-          expect(snip2.length).toBe 1
-          expect(snip2[0].props.children).toEqual "111"
+#     it "renders all of the thread list items", ->
+#       items = ReactTestUtils.scryRenderedComponentsWithType(@thread_list,
+#                                                ThreadListNarrowItem)
+#       expect(items.length).toBe 3
 
-describe "ThreadListNarrow", ->
+#     describe "Shifting selected index", ->
 
-  beforeEach ->
-    InboxTestUtils.loadKeymap("internal_packages/thread-list/keymaps/thread-list.cson")
-    spyOn(ThreadStore, "_onNamespaceChanged")
-    spyOn(DatabaseStore, "findAll").andCallFake ->
-      new Promise (resolve, reject) -> resolve(test_threads())
-    ThreadStore._resetInstanceVars()
+#       beforeEach ->
+#         spyOn(@thread_list, "_onShiftSelectedIndex")
+#         spyOn(Actions, "selectThreadId")
 
-    ComponentRegistry.register
-      name: 'Participants'
-      view: ParticipantsItem
+#       it "can move selection up", ->
+#         atom.commands.dispatch(document.body, "application:previous-item")
+#         expect(@thread_list._onShiftSelectedIndex).toHaveBeenCalledWith(-1)
 
-    @thread_list = ReactTestUtils.renderIntoDocument(
-      <ThreadListNarrow />
-    )
+#       it "can move selection down", ->
+#         atom.commands.dispatch(document.body, "application:next-item")
+#         expect(@thread_list._onShiftSelectedIndex).toHaveBeenCalledWith(1)
 
-  it "renders into the document", ->
-    expect(ReactTestUtils.isCompositeComponentWithType(@thread_list,
-                                          ThreadListNarrow)).toBe true
+#     describe "Triggering message list commands", ->
+#       beforeEach ->
+#         spyOn(Actions, "composeReply")
+#         spyOn(Actions, "composeReplyAll")
+#         spyOn(Actions, "composeForward")
+#         ThreadStore._onSelectThreadId("111")
+#         @thread = ThreadStore.selectedThread()
+#         spyOn(@thread, "archive")
+#         spyOn(@thread_list, "_onShiftSelectedIndex")
+#         spyOn(Actions, "selectThreadId")
 
-  it "by default has zero children", ->
-    items = ReactTestUtils.scryRenderedComponentsWithType(@thread_list,
-                                             ThreadListNarrowItem)
-    expect(items.length).toBe 0
+#       it "can reply to the currently selected thread", ->
+#         atom.commands.dispatch(document.body, "application:reply")
+#         expect(Actions.composeReply).toHaveBeenCalledWith(threadId: @thread.id)
 
-  describe "Populated thread list", ->
-    beforeEach ->
-      ThreadStore._items = test_threads()
-      ThreadStore._selectedId = null
-      ThreadStore.trigger()
-      @thread_list_node = @thread_list.getDOMNode()
+#       it "can reply all to the currently selected thread", ->
+#         atom.commands.dispatch(document.body, "application:reply-all")
+#         expect(Actions.composeReplyAll).toHaveBeenCalledWith(threadId: @thread.id)
 
-    it "renders all of the thread list items", ->
-      items = ReactTestUtils.scryRenderedComponentsWithType(@thread_list,
-                                               ThreadListNarrowItem)
-      expect(items.length).toBe 3
+#       it "can forward the currently selected thread", ->
+#         atom.commands.dispatch(document.body, "application:forward")
+#         expect(Actions.composeForward).toHaveBeenCalledWith(threadId: @thread.id)
 
-    describe "Shifting selected index", ->
+#       it "can archive the currently selected thread", ->
+#         atom.commands.dispatch(document.body, "application:remove-item")
+#         expect(@thread.archive).toHaveBeenCalled()
 
-      beforeEach ->
-        spyOn(@thread_list, "_onShiftSelectedIndex")
-        spyOn(Actions, "selectThreadId")
+#       it "can archive the currently selected thread and navigate up", ->
+#         atom.commands.dispatch(document.body, "application:remove-and-previous")
+#         expect(@thread.archive).toHaveBeenCalled()
+#         expect(@thread_list._onShiftSelectedIndex).toHaveBeenCalledWith(-1)
 
-      it "can move selection up", ->
-        atom.commands.dispatch(document.body, "application:previous-message")
-        expect(@thread_list._onShiftSelectedIndex).toHaveBeenCalledWith(-1)
+#       it "does nothing when no thread is selected", ->
+#         ThreadStore._selectedId = null
+#         atom.commands.dispatch(document.body, "application:reply")
+#         expect(Actions.composeReply.calls.length).toEqual(0)
 
-      it "can move selection down", ->
-        atom.commands.dispatch(document.body, "application:next-message")
-        expect(@thread_list._onShiftSelectedIndex).toHaveBeenCalledWith(1)
+#     describe "ThreadListNarrowItem", ->
+#       beforeEach ->
+#         items = ReactTestUtils.scryRenderedComponentsWithType(@thread_list,
+#                                                  ThreadListNarrowItem)
+#         item = items.filter (tli) -> tli.props.thread.id is "111"
+#         @thread_list_item = item[0]
+#         @thread_date = moment(@thread_list_item.props.thread.lastMessageTimestamp)
 
-    describe "Triggering message list commands", ->
-      beforeEach ->
-        spyOn(Actions, "composeReply")
-        spyOn(Actions, "composeReplyAll")
-        spyOn(Actions, "composeForward")
-        ThreadStore._onSelectThreadId("111")
-        @thread = ThreadStore.selectedThread()
-        spyOn(@thread, "archive")
-        spyOn(@thread_list, "_onShiftSelectedIndex")
-        spyOn(Actions, "selectThreadId")
+#       it "finds the thread list item by id", ->
+#         expect(@thread_list_item.props.thread.id).toBe "111"
 
-      it "can reply to the currently selected thread", ->
-        atom.commands.dispatch(document.body, "application:reply")
-        expect(Actions.composeReply).toHaveBeenCalledWith(threadId: @thread.id)
+#       it "fires the appropriate Action on click", ->
+#         spyOn(Actions, "selectThreadId")
+#         ReactTestUtils.Simulate.click @thread_list_item.getDOMNode()
+#         expect(Actions.selectThreadId).toHaveBeenCalledWith("111")
 
-      it "can reply all to the currently selected thread", ->
-        atom.commands.dispatch(document.body, "application:reply-all")
-        expect(Actions.composeReplyAll).toHaveBeenCalledWith(threadId: @thread.id)
+#       it "sets the selected state on the thread item", ->
+#         ThreadStore._onSelectThreadId("111")
+#         items = ReactTestUtils.scryRenderedDOMComponentsWithClass(@thread_list, "selected")
+#         expect(items.length).toBe 1
+#         expect(items[0].props.id).toBe "111"
 
-      it "can forward the currently selected thread", ->
-        atom.commands.dispatch(document.body, "application:forward")
-        expect(Actions.composeForward).toHaveBeenCalledWith(threadId: @thread.id)
+#       it "renders de-selection when invalid id is emitted", ->
+#         ThreadStore._onSelectThreadId('abc')
+#         items = ReactTestUtils.scryRenderedDOMComponentsWithClass(@thread_list, "selected")
+#         expect(items.length).toBe 0
 
-      it "can archive the currently selected thread", ->
-        atom.commands.dispatch(document.body, "application:archive-thread")
-        expect(@thread.archive).toHaveBeenCalled()
+#       # test "last_message_timestamp": 1415742036
+#       it "displays the time from threads LONG ago", ->
+#         spyOn(@thread_list_item, "_today").andCallFake =>
+#           @thread_date.add(2, 'years')
+#         expect(@thread_list_item._timeFormat()).toBe "MMM D YYYY"
 
-      it "can archive the currently selected thread and navigate up", ->
-        atom.commands.dispatch(document.body, "application:archive-and-previous")
-        expect(@thread.archive).toHaveBeenCalled()
-        expect(@thread_list._onShiftSelectedIndex).toHaveBeenCalledWith(-1)
+#       it "displays the time from threads a bit ago", ->
+#         spyOn(@thread_list_item, "_today").andCallFake =>
+#           @thread_date.add(2, 'days')
+#         expect(@thread_list_item._timeFormat()).toBe "MMM D"
 
-      it "does nothing when no thread is selected", ->
-        ThreadStore._selectedId = null
-        atom.commands.dispatch(document.body, "application:reply")
-        expect(Actions.composeReply.calls.length).toEqual(0)
+#       it "displays the time from threads exactly a day ago", ->
+#         spyOn(@thread_list_item, "_today").andCallFake =>
+#           @thread_date.add(1, 'day')
+#         expect(@thread_list_item._timeFormat()).toBe "h:mm a"
 
-    describe "ThreadListNarrowItem", ->
-      beforeEach ->
-        items = ReactTestUtils.scryRenderedComponentsWithType(@thread_list,
-                                                 ThreadListNarrowItem)
-        item = items.filter (tli) -> tli.props.thread.id is "111"
-        @thread_list_item = item[0]
-        @thread_date = moment(@thread_list_item.props.thread.lastMessageTimestamp)
-
-      it "finds the thread list item by id", ->
-        expect(@thread_list_item.props.thread.id).toBe "111"
-
-      it "fires the appropriate Action on click", ->
-        spyOn(Actions, "selectThreadId")
-        ReactTestUtils.Simulate.click @thread_list_item.getDOMNode()
-        expect(Actions.selectThreadId).toHaveBeenCalledWith("111")
-
-      it "sets the selected state on the thread item", ->
-        ThreadStore._onSelectThreadId("111")
-        items = ReactTestUtils.scryRenderedDOMComponentsWithClass(@thread_list, "selected")
-        expect(items.length).toBe 1
-        expect(items[0].props.id).toBe "111"
-
-      it "renders de-selection when invalid id is emitted", ->
-        ThreadStore._onSelectThreadId('abc')
-        items = ReactTestUtils.scryRenderedDOMComponentsWithClass(@thread_list, "selected")
-        expect(items.length).toBe 0
-
-      # test "last_message_timestamp": 1415742036
-      it "displays the time from threads LONG ago", ->
-        spyOn(@thread_list_item, "_today").andCallFake =>
-          @thread_date.add(2, 'years')
-        expect(@thread_list_item._timeFormat()).toBe "MMM D YYYY"
-
-      it "displays the time from threads a bit ago", ->
-        spyOn(@thread_list_item, "_today").andCallFake =>
-          @thread_date.add(2, 'days')
-        expect(@thread_list_item._timeFormat()).toBe "MMM D"
-
-      it "displays the time from threads exactly a day ago", ->
-        spyOn(@thread_list_item, "_today").andCallFake =>
-          @thread_date.add(1, 'day')
-        expect(@thread_list_item._timeFormat()).toBe "h:mm a"
-
-      it "displays the time from threads recently", ->
-        spyOn(@thread_list_item, "_today").andCallFake =>
-          @thread_date.add(2, 'hours')
-        expect(@thread_list_item._timeFormat()).toBe "h:mm a"
+#       it "displays the time from threads recently", ->
+#         spyOn(@thread_list_item, "_today").andCallFake =>
+#           @thread_date.add(2, 'hours')
+#         expect(@thread_list_item._timeFormat()).toBe "h:mm a"

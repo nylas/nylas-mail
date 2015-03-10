@@ -24,7 +24,7 @@ AccountSidebarStore = Reflux.createStore
     @_selectedId = null
 
   _registerListeners: ->
-    @listenTo Actions.selectTagId, @_onSelectTagID
+    @listenTo Actions.selectTagId, @_onSelectTagId
     @listenTo DatabaseStore, @_onDataChanged
     @listenTo NamespaceStore, @_onNamespaceChanged
 
@@ -93,8 +93,8 @@ AccountSidebarStore = Reflux.createStore
     if change.objectClass == Thread.name
       @_populateUnreadCountsDebounced()
 
-  _onSelectTagID: (tagID) ->
-    @_selectedId = tagID
+  _onSelectTagId: (tagId) ->
+    @_selectedId = tagId
     @trigger(@)
 
 module.exports = AccountSidebarStore

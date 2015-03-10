@@ -38,11 +38,46 @@ DraftStore = Reflux.createStore
 
     @listenTo Actions.removeFile, @_onRemoveFile
     @listenTo Actions.attachFileComplete, @_onAttachFileComplete
+
+    @_drafts = []
     @_draftSessions = {}
+
+    # TODO: Doesn't work if we do window.addEventListener, but this is
+    # fragile. Pending an Atom fix perhaps?
+    window.onbeforeunload = (event) =>
+      promises = []
+
+      # Normally we'd just append all promises, even the ones already
+      # fulfilled (nothing to save), but in this case we only want to
+      # block window closing if we have to do real work. Calling
+      # window.close() within on onbeforeunload could do weird things.
+      for key, session of @_draftSessions
+        promise = session.changes.commit()
+        if not promise.isFulfilled()
+          promises.push(promise)
+
+      if promises.length > 0
+        Promise.settle(promises).then =>
+          @_draftSessions = {}
+          window.close()
+
+        # Stop and wait before closing
+        return false
+      else
+        # Continue closing
+        return true
+      
+    DatabaseStore.findAll(Message, draft: true).then (drafts) =>
+      @_drafts = drafts
+      @trigger({})
 
   ######### PUBLIC #######################################################
 
   # Returns a promise
+
+  items: ->
+    @_drafts
+
   sessionForLocalId: (localId) ->
     @_draftSessions[localId] ?= new DraftStoreProxy(localId)
     @_draftSessions[localId]
@@ -53,7 +88,10 @@ DraftStore = Reflux.createStore
     return unless change.objectClass is Message.name
     containsDraft = _.some(change.objects, (msg) -> msg.draft)
     return unless containsDraft
-    @trigger(change)
+
+    DatabaseStore.findAll(Message, draft: true).then (drafts) =>
+      @_drafts = drafts
+      @trigger(change)
 
   _onComposeReply: (context) ->
     @_newMessageWithContext context, (thread, message) ->
@@ -139,7 +177,7 @@ DraftStore = Reflux.createStore
 
   _onSendDraft: (draftLocalId) ->
     # Immediately save any pending changes so we don't save after sending
-    save = @_draftSessions[draftLocalId]?.changes.commit() ? Promise.resolve()
+    save = @_draftSessions[draftLocalId]?.changes.commit()
     save.then ->
       # Queue the task to send the draft
       Actions.queueTask(new SendDraftTask(draftLocalId))

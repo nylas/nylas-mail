@@ -10,12 +10,12 @@ module.exports =
     ComponentRegistry.register
       view: Notifications
       name: 'Notifications'
-      role: 'ThreadList:Center'
+      role: 'Root:Center'
 
     ComponentRegistry.register
       view: NotificationsStickyBar
       name: 'NotificationsStickyBar'
-      role: 'ThreadList:Top'
+      role: 'Root:Top'
 
   deactivate: ->
     ComponentRegistry.unregister('NotificationsStickyBar')

@@ -5,7 +5,10 @@ React = require 'react'
 module.exports =
 AccountSidebarTagItem = React.createClass
   render: ->
-    unread = if @props.tag.unreadCount > 0 then <div className="unread item-count-box">{@props.tag.unreadCount}</div> else []
+    unread = []
+    if @props.tag.unreadCount > 0
+      unread = <div className="unread item-count-box">{@props.tag.unreadCount}</div>
+
     classSet =  React.addons.classSet
       'item': true
       'item-tag': true
@@ -19,4 +22,9 @@ AccountSidebarTagItem = React.createClass
 
   _onClick: (event) ->
     event.preventDefault()
+
+    if @props.tag.id is 'drafts'
+      Actions.selectView('drafts')
+    else
+      Actions.selectView('threads')
     Actions.selectTagId(@props.tag.id)
