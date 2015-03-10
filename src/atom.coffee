@@ -710,10 +710,14 @@ class Atom extends Model
 
   # Extended: Open the dev tools for the current window.
   openDevTools: ->
+    Actions = require './flux/actions'
+    Actions.showDeveloperConsole()
     ipc.send('call-window-method', 'openDevTools')
 
   # Extended: Toggle the visibility of the dev tools for the current window.
   toggleDevTools: ->
+    Actions = require './flux/actions'
+    Actions.showDeveloperConsole()
     ipc.send('call-window-method', 'toggleDevTools')
 
   # Extended: Execute code in dev tools.

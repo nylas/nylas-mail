@@ -51,6 +51,7 @@ mainWindowActions = [
 
 windowActions = [
   # Fired when a dialog is opened and a file is selected
+  "showDeveloperConsole",
   "clearDeveloperConsole",
 
   # Actions for Selection State

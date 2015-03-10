@@ -16,19 +16,27 @@ ActivityBarStore = Reflux.createStore
 
   longPollHistory: -> @_longPollHistory
 
+  visible: -> @_visible
+  
   ########### PRIVATE ####################################################
 
   _setStoreDefaults: ->
     @_curlHistory = []
     @_longPollHistory = []
     @_longPollState = 'Unknown'
+    @_visible = false
 
   _registerListeners: ->
     @listenTo Actions.didMakeAPIRequest, @_onAPIRequest
     @listenTo Actions.longPollReceivedRawDeltas, @_onLongPollDeltas
     @listenTo Actions.longPollStateChanged, @_onLongPollStateChange
     @listenTo Actions.clearDeveloperConsole, @_onClear
+    @listenTo Actions.showDeveloperConsole, @_onShow
     @listenTo Actions.logout, @_onClear
+
+  _onShow: ->
+    @_visible = true
+    @trigger(@)
 
   _onClear: ->
     @_curlHistory = []

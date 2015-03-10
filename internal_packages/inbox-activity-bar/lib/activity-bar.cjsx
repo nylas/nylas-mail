@@ -33,6 +33,8 @@ ActivityBar = React.createClass
     @activityStoreUnsubscribe() if @activityStoreUnsubscribe
 
   render: ->
+    return <div></div> unless @state.visible
+
     <ResizableRegion className="activity-bar"
                      initialHeight={@state.height}
                      minHeight={ActivityBarClosedHeight}
@@ -181,6 +183,7 @@ ActivityBar = React.createClass
         Actions.composePopoutDraft(localId)
 
   _getStateFromStores: ->
+    visible: ActivityBarStore.visible()
     queue: TaskQueue._queue
     completed: TaskQueue._completed
     curlHistory: ActivityBarStore.curlHistory()
