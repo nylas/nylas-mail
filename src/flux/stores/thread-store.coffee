@@ -33,7 +33,7 @@ ThreadStore = Reflux.createStore
     DatabaseStore.findAll(Thread, [
       Thread.attributes.namespaceId.equal(@_namespaceId),
       Thread.attributes.tags.contains(@_tagId)
-    ]).then (items) =>
+    ]).limit(100).then (items) =>
       @_items = items
 
       if oldSelectedThread && !@selectedThread()
