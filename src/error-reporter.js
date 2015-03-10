@@ -21,6 +21,7 @@ module.exports = ErrorReporter = (function() {
     // or renderer process
     if (process.type === 'renderer') {
       this.spec = atom.inSpecMode();
+      this.dev = atom.inDevMode();
 
       atom.onDidThrowError(function(_arg) {
         return self.reportError(_arg.originalError, {
@@ -57,7 +58,9 @@ module.exports = ErrorReporter = (function() {
     if (this.spec) {
       return;
     }
-
+    if (this.dev) {
+      return;
+    }
     return this.client.captureError(err, {
       extra: metadata,
       tags: {
