@@ -146,7 +146,8 @@ MessageList = React.createClass
         messageWrap = @refs?.messageWrap?.getDOMNode?()
 
         return if not messageWrap?
-        return if messageWrap.children <= 1
+        items = messageWrap.querySelectorAll(".message-item-wrap")
+        return if items.length <= 1
         return if @getDOMNode().contains document.activeElement
 
         msgToScroll = messageWrap.querySelector(".draft-message, .unread-message")
