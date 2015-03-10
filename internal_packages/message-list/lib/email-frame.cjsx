@@ -181,6 +181,7 @@ EmailFrame = React.createClass
       /[\n|>]On .* wrote:[\n|<]/, #On ... wrote: on it's own line
     ]
     for ii in [lines.length-1..0] by -1
+      continue if not lines[ii]?
       for regex in regexs
         # Never remove a line with a blockquote start tag, because it
         # quotes multiple lines, not just the current line!
@@ -189,7 +190,7 @@ EmailFrame = React.createClass
         if lines[ii].match(regex)
           lines.splice(ii,1)
           # Remove following line if its just a spacer-style element
-          lines.splice(ii,1) if lines[ii].match('<br[^>]*>')?[0] is lines[ii]
+          lines.splice(ii,1) if lines[ii]?.match('<br[^>]*>')?[0] is lines[ii]
           break
 
     # Return remaining compacted email body

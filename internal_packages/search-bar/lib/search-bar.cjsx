@@ -27,7 +27,7 @@ SearchBar = React.createClass
     inputClass = React.addons.classSet
       'input-bordered': true
       'empty': inputValue.length is 0
-    
+
     headerComponents = [
       <input type="text"
              className={inputClass}
@@ -43,7 +43,7 @@ SearchBar = React.createClass
       <div className="search-accessory clear"
            onClick={@_onClearSearch}><i className="fa fa-remove"></i></div>
     ]
-    
+
     itemContentFunc = (item) ->
       if item.divider
         <Menu.Item divider={item.divider} />

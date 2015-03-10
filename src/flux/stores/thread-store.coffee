@@ -15,6 +15,7 @@ ThreadStore = Reflux.createStore
     @listenTo DatabaseStore, @_onDataChanged
     @listenTo NamespaceStore, -> @_onNamespaceChanged()
     @fetchFromCache()
+    @_lastQuery = null
 
   _resetInstanceVars: ->
     @_items = []
@@ -84,8 +85,11 @@ ThreadStore = Reflux.createStore
       @_items = []
       @trigger()
     else
+      return if not @_lastQuery? or @_lastQuery.length == 0
       @_searchQuery = null
       @fetchFromCache()
+
+    @_lastQuery = query
     Actions.selectThreadId(null)
     @fetchFromAPI()
 
