@@ -5,6 +5,7 @@ ReactTestUtils = React.addons.TestUtils
 {Contact,
  Message,
  File,
+ Thread,
  ComponentRegistry,
  FileDownloadStore,
  InboxTestUtils} = require "inbox-exports"
@@ -99,6 +100,9 @@ describe "MessageItem", ->
       threadId: "thread_12345"
       namespaceId: "nsid"
 
+    @thread = new Thread
+      id: 'thread-111'
+
     @threadParticipants = [user_1, user_2, user_3, user_4]
 
     # Generate the test component. Should be called after @message is configured
@@ -109,6 +113,7 @@ describe "MessageItem", ->
       @component = ReactTestUtils.renderIntoDocument(
         <MessageItem key={@message.id}
                      message={@message}
+                     thread={@thread}
                      collapsed={collapsed}
                      thread_participants={@threadParticipants} />
       )
