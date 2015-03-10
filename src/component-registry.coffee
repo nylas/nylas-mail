@@ -25,7 +25,7 @@ Mixin =
   getInitialState: ->
     getViewsByName.apply(@, [@components])
 
-  componentWillMount: ->
+  componentDidMount: ->
     @_componentUnlistener = ComponentRegistry.listen =>
       @setState getViewsByName(@components)
 
