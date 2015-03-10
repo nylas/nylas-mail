@@ -5,19 +5,31 @@ Main = require '../lib/main'
 
 describe "UnreadNotifications", ->
   beforeEach ->
+    Main.activate()
     spyOn(window, 'Notification').andCallFake ->
     @msg1 = new Message
       unread: true
+      date: new Date()
       from: [new Contact(name: 'Ben', email: 'ben@example.com')]
       subject: "Hello World"
     @msg2 = new Message
       unread: true
+      date: new Date()
       from: [new Contact(name: 'Mark', email: 'mark@example.com')]
       subject: "Hello World 2"
     @msgRead = new Message
       unread: false
+      date: new Date()
       from: [new Contact(name: 'Mark', email: 'mark@example.com')]
       subject: "Hello World Read Already"
+    @msgOld = new Message
+      unread: true
+      date: new Date(2000,1,1)
+      from: [new Contact(name: 'Mark', email: 'mark@example.com')]
+      subject: "Hello World Old"
+
+  afterEach ->
+    Main.deactivate()
 
   it "should create a Notification if there is one unread message", ->
     Main._onNewMailReceived({message: [@msgRead, @msg1]})
@@ -37,5 +49,9 @@ describe "UnreadNotifications", ->
 
   it "should not create a Notification if the new messages are not unread", ->
     Main._onNewMailReceived({message: [@msgRead]})
+    expect(window.Notification).not.toHaveBeenCalled()
+
+  it "should not create a Notification if the new messages are actually old ones", ->
+    Main._onNewMailReceived({message: [@msgOld]})
     expect(window.Notification).not.toHaveBeenCalled()
 

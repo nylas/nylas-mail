@@ -5,6 +5,7 @@ module.exports =
   activate: ->
     @unlisteners = []
     @unlisteners.push Actions.didPassivelyReceiveNewModels.listen(@_onNewMailReceived, @)
+    @activationTime = Date.now()
 
   deactivate: ->
     fn() for fn in @unlisteners
@@ -13,8 +14,8 @@ module.exports =
 
   _onNewMailReceived: (models) ->
     # Display a notification if we've received new messages
-    newUnreadMessages = _.filter (models['message'] ? []), (msg) ->
-      msg.unread is true
+    newUnreadMessages = _.filter (models['message'] ? []), (msg) =>
+      msg.unread is true and msg.date?.valueOf() >= @activationTime
 
     if newUnreadMessages.length is 1
       msg = newUnreadMessages.pop()
