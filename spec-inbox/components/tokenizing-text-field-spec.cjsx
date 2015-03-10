@@ -127,7 +127,7 @@ describe 'TokenizingTextField', ->
       components = ReactTestUtils.scryRenderedComponentsWithType(@renderedField, Menu.Item)
       menuItem = components[0]
       ReactTestUtils.Simulate.mouseDown(menuItem.getDOMNode())
-      expect(@propAdd).toHaveBeenCalledWith(participant4)
+      expect(@propAdd).toHaveBeenCalledWith([participant4])
 
   ['enter', ','].forEach (key) ->
     describe "when the user presses #{key}", ->
@@ -136,14 +136,14 @@ describe 'TokenizingTextField', ->
           @completions = [participant4]
           ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'abc'}})
           InboxTestUtils.keyPress(key, @renderedInput)
-          expect(@propAdd).toHaveBeenCalledWith(participant4)
+          expect(@propAdd).toHaveBeenCalledWith([participant4])
 
       describe "and there is NO completion available", ->
         it 'should call add, allowing the parent to (optionally) turn the text into a token', ->
           @completions = []
           ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'abc'}})
           InboxTestUtils.keyPress(key, @renderedInput)
-          expect(@propAdd).toHaveBeenCalledWith('abc')
+          expect(@propAdd).toHaveBeenCalledWith(['abc'])
 
   describe "when the user presses tab", ->
     describe "and there is an completion available", ->
@@ -151,14 +151,14 @@ describe 'TokenizingTextField', ->
         @completions = [participant4]
         ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'abc'}})
         InboxTestUtils.keyPress('tab', @renderedInput)
-        expect(@propAdd).toHaveBeenCalledWith(participant4)
+        expect(@propAdd).toHaveBeenCalledWith([participant4])
 
   describe "when blurred", ->
     it 'should call add, allowing the parent component to (optionally) turn the entered text into a token', ->
       ReactTestUtils.Simulate.focus(@renderedInput)
       ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'text'}})
       ReactTestUtils.Simulate.blur(@renderedInput)
-      expect(@propAdd).toHaveBeenCalledWith('text')
+      expect(@propAdd).toHaveBeenCalledWith(['text'])
 
     it 'should clear the entered text', ->
       ReactTestUtils.Simulate.focus(@renderedInput)

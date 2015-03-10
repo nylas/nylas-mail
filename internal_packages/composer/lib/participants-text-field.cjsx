@@ -80,31 +80,46 @@ ParticipantsTextField = React.createClass
       </div>
 
 
-  _remove: (participant) ->
+  _remove: (values) ->
+    field = @props.field
+    updates = {}
+    updates[field] = _.reject @props.participants[field], (p) ->
+      return true if p.email in values
+      return true if p.email in _.map values, (o) -> o.email
+      false
+    @props.change(updates)
+
+  _removeOne: (participant) ->
     field = @props.field
     updates = {}
     updates[field] = _.reject @props.participants[field], (p) ->
       p.email is participant.email
     @props.change(updates)
 
-  _add: (value) ->
-    if _.isString(value)
-      value = value.trim()
-      return unless /.+@.+\..+/.test(value)
-      value = new Contact(email: value, name: value)
+  _add: (values) ->
+    values = _.compact _.map values, (value) ->
+      if value instanceof Contact
+        return value
+      else if /.+@.+\..+/.test(value)
+        return new Contact(email: value.trim(), name: value.trim())
+      else
+        return null
 
     updates = {}
+    for field in Object.keys(@props.participants)
+      updates[field] = [].concat(@props.participants[field])
 
-    # first remove the participant from all the fields. This ensures
-    # that drag and drop isn't "drag and copy." and you can't have the
-    # same recipient in multiple places.
-    for otherField in Object.keys(@props.participants)
-      updates[otherField] = _.reject @props.participants[otherField], (p) ->
-        p.email is value.email
+    for value in values
+      # first remove the participant from all the fields. This ensures
+      # that drag and drop isn't "drag and copy." and you can't have the
+      # same recipient in multiple places.
+      for field in Object.keys(@props.participants)
+        updates[field] = _.reject updates[field], (p) ->
+          p.email is value.email
 
-    # add the participant to field
-    field = @props.field
-    updates[field] = _.union (updates[field] ? []), [value]
+      # add the participant to field
+      updates[@props.field] = _.union(updates[@props.field], [value])
+
     @props.change(updates)
     ""
 

@@ -54,7 +54,10 @@ TokenizingTextField = React.createClass
     tokenContent: React.PropTypes.func.isRequired,
     completionContent: React.PropTypes.func.isRequired,
     completionsForInput: React.PropTypes.func.isRequired
+
+    # called with an array of items to add
     add: React.PropTypes.func.isRequired,
+    # called with an array of items to remove
     remove: React.PropTypes.func.isRequired,
     showMenu: React.PropTypes.func,
 
@@ -179,8 +182,10 @@ TokenizingTextField = React.createClass
 
   # Managing Tokens
 
-  _addInputValue: ->
-    @props.add(@state.inputValue)
+  _addInputValue: (input) ->
+    input ?= @state.inputValue
+    values = input.split(/[, \n\r><]/)
+    @props.add(values)
     @_clearInput()
 
   _selectToken: (token) ->
@@ -193,7 +198,7 @@ TokenizingTextField = React.createClass
 
   _addToken: (token) ->
     return unless token
-    @props.add(token)
+    @props.add([token])
     @_clearInput()
     @focus()
 
@@ -209,7 +214,7 @@ TokenizingTextField = React.createClass
       @_selectToken(@props.tokens[@props.tokens.length - 1])
 
     if tokenToDelete
-      @props.remove(tokenToDelete)
+      @props.remove([tokenToDelete])
       if @props.tokenKey(tokenToDelete) is @state.selectedTokenKey
         @setState
           selectedTokenKey: null
@@ -242,10 +247,8 @@ TokenizingTextField = React.createClass
 
   _onPaste: (event) ->
     data = event.clipboardData.getData('text/plain')
-    matchingTokens = @_getCompletions(data)
-    if matchingTokens.length is 1
-      @_addToken(matchingTokens[0])
-      event.preventDefault()
+    @_addInputValue(data)
+    event.preventDefault()
 
   # Managing Suggestions
 
