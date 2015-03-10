@@ -465,7 +465,7 @@ class AtomApplication
     if parts.protocol is 'mailto:'
       query = qs.parse(parts.query)
       query.to = "#{parts.auth}@#{parts.host}"
-      
+
       json = {
         subject: query.subject || '',
         body: query.body || '',

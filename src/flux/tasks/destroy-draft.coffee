@@ -42,7 +42,9 @@ class DestroyDraftTask extends Task
         body:
           version: @draft.version
         returnsModel: false
-        success: resolve
+        success: (args...) =>
+          Actions.destroyDraftSuccess(@draftLocalId)
+          resolve(args...)
         error: reject
 
   onAPIError: (apiError) ->
@@ -55,6 +57,7 @@ class DestroyDraftTask extends Task
       # do but finish
       return true
     else
+      Actions.destroyDraftError(@draftLocalId)
       @_rollbackLocal()
 
   onOtherError: -> Promise.resolve()

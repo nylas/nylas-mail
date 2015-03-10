@@ -47,6 +47,8 @@ NotificationStore = Reflux.createStore
       @_removeNotification(notification)()
     @listenTo Actions.postNotification, (data) =>
       @_postNotification(new Notification(data))
+    @listenTo Actions.multiWindowNotification, (data={}, context={}) =>
+      @_postNotification(new Notification(data)) if @_inWindowContext(context)
  
   ######### PUBLIC #######################################################
 
@@ -82,3 +84,8 @@ NotificationStore = Reflux.createStore
     console.log "Removed #{notification}" if VERBOSE
     delete @_notifications[notification.id]
     @trigger()
+
+  # If the window matches the given context then we can show a
+  # notification.
+  _inWindowContext: (context={}) ->
+    return true

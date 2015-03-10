@@ -16,7 +16,15 @@ globalActions = [
   "uploadStateChanged",
   "fileAborted",
   "downloadStateChanged",
-  "fileUploaded"
+  "fileUploaded",
+
+  "multiWindowNotification",
+
+  # Draft actions
+  "sendDraftSuccess",
+  "sendDraftError",
+  "destroyDraftSuccess",
+  "destroyDraftError"
 ]
 
 # These actions are rebroadcast through the ActionBridge to the
@@ -71,7 +79,7 @@ windowActions = [
   # Notification actions
   "postNotification",
   "notificationActionTaken",
-  
+
   # FullContact Sidebar
   "getFullContactDetails",
 

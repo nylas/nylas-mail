@@ -39,6 +39,8 @@ DraftStore = Reflux.createStore
     @listenTo Actions.removeFile, @_onRemoveFile
     @listenTo Actions.attachFileComplete, @_onAttachFileComplete
 
+    @listenTo Actions.sendDraftSuccess, @_closeWindow
+    @listenTo Actions.destroyDraftSuccess, @_closeWindow
     @_drafts = []
     @_draftSessions = {}
 
@@ -66,7 +68,7 @@ DraftStore = Reflux.createStore
       else
         # Continue closing
         return true
-      
+
     DatabaseStore.findAll(Message, draft: true).then (drafts) =>
       @_drafts = drafts
       @trigger({})
@@ -154,6 +156,12 @@ DraftStore = Reflux.createStore
 
       DatabaseStore.persistModel(draft)
 
+  # We only want to close the popout window if we're sure various draft
+  # actions succeeded.
+  _closeWindow: (draftLocalId) ->
+    if atom.state.mode is "composer" and @_draftSessions[draftLocalId]?
+      atom.close()
+
   # The logic to create a new Draft used to be in the DraftStore (which is
   # where it should be). It got moved to composer/lib/main.cjsx becaues
   # of an obscure atom-shell/Chrome bug whereby database requests firing right
@@ -173,7 +181,6 @@ DraftStore = Reflux.createStore
 
     # Queue the task to destroy the draft
     Actions.queueTask(new DestroyDraftTask(draftLocalId))
-    atom.close() if atom.state.mode is "composer"
 
   _onSendDraft: (draftLocalId) ->
     # Immediately save any pending changes so we don't save after sending
@@ -181,7 +188,6 @@ DraftStore = Reflux.createStore
     save.then ->
       # Queue the task to send the draft
       Actions.queueTask(new SendDraftTask(draftLocalId))
-      atom.close() if atom.state.mode is "composer"
 
   _onAttachFileComplete: ({file, messageLocalId}) ->
     @sessionForLocalId(messageLocalId).prepare().then (proxy) ->

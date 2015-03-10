@@ -23,13 +23,14 @@ class SendDraftTask extends Task
     # already sent when they haven't!
     return Promise.reject("Attempt to call SendDraftTask.performLocal without @draftLocalId") unless @draftLocalId
     Actions.postNotification({message: "Sending message…", type: 'info'})
+
     Promise.resolve()
 
   performRemote: ->
     new Promise (resolve, reject) =>
       # Fetch the latest draft data to make sure we make the request with the most
       # recent draft version
-      DatabaseStore.findByLocalId(Message, @draftLocalId).then (draft) ->
+      DatabaseStore.findByLocalId(Message, @draftLocalId).then (draft) =>
         # The draft may have been deleted by another task. Nothing we can do.
         return reject(new Error("We couldn't find the saved draft.")) unless draft
 
@@ -45,25 +46,30 @@ class SendDraftTask extends Task
           method: 'POST'
           body: body
           returnsModel: true
-          success: ->
+          success: =>
             atom.playSound('mail_sent.ogg')
             Actions.postNotification({message: "Sent!", type: 'success'})
+            Actions.sendDraftSuccess(@draftLocalId)
             DatabaseStore.unpersistModel(draft).then(resolve)
           error: reject
       .catch(reject)
 
-  onAPIError: ->
-    msg = "Our server is having problems. Your message has not been sent."
+  onAPIError: (apiError) ->
+    msg = apiError.message ? "Our server is having problems. Your message has not been sent."
+    Actions.sendDraftError(@draftLocalId, msg)
     @notifyErrorMessage(msg)
 
   onOtherError: ->
     msg = "We had a serious issue while sending. Your message has not been sent."
+    Actions.sendDraftError(@draftLocalId, msg)
     @notifyErrorMessage(msg)
 
   onTimeoutError: ->
     msg = "The server is taking an abnormally long time to respond. Your message has not been sent."
+    Actions.sendDraftError(@draftLocalId, msg)
     @notifyErrorMessage(msg)
 
   onOfflineError: ->
     msg = "You are offline. Your message has NOT been sent. Please send your message when you come back online."
+    Actions.sendDraftError(@draftLocalId, msg)
     @notifyErrorMessage(msg)
