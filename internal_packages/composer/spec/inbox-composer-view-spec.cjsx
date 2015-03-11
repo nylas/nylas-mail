@@ -101,6 +101,37 @@ describe "A blank composer view", ->
 
     it "shows and focuses on bcc field when already open", ->
 
+  describe "should show subject", ->
+    it "shows the subject when the subject is empty", ->
+      msg = new Message
+        subject: ""
+      spyOn(@composer._proxy, "draft").andReturn msg
+      expect(@composer._shouldShowSubject()).toBe true
+
+    it "shows the subject when the subject looks like a fwd", ->
+      msg = new Message
+        subject: "Fwd: This is the message"
+      spyOn(@composer._proxy, "draft").andReturn msg
+      expect(@composer._shouldShowSubject()).toBe true
+
+    it "shows the subject when the subject looks like a fwd", ->
+      msg = new Message
+        subject: "fwd foo"
+      spyOn(@composer._proxy, "draft").andReturn msg
+      expect(@composer._shouldShowSubject()).toBe true
+
+    it "doesn't show subject when subject has fwd text in it", ->
+      msg = new Message
+        subject: "Trick fwd"
+      spyOn(@composer._proxy, "draft").andReturn msg
+      expect(@composer._shouldShowSubject()).toBe false
+
+    it "doesn't show the subject otherwise", ->
+      msg = new Message
+        subject: "Foo bar Baz"
+      spyOn(@composer._proxy, "draft").andReturn msg
+      expect(@composer._shouldShowSubject()).toBe false
+
 describe "When composing a new message", ->
   it "Can add someone in the to field", ->
 

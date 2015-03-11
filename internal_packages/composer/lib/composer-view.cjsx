@@ -236,11 +236,17 @@ ComposerView = React.createClass
       _.extend state,
         showcc: not _.isEmpty(draft.cc)
         showbcc: not _.isEmpty(draft.bcc)
-        showsubject: _.isEmpty(draft.subject)
+        showsubject: @_shouldShowSubject()
         populated: true
 
     @setState(state)
-  
+
+  _shouldShowSubject: ->
+    draft = @_proxy.draft()
+    if _.isEmpty(draft.subject ? "") then return true
+    else if draft.subject[0...3].toLowerCase() is "fwd" then return true
+    else return false
+
   _onDragNoop: ->
     false
 
