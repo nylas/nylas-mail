@@ -95,6 +95,14 @@ Utils =
     else
       return Utils.images["#{name}@1x.#{ext}"] ? Utils.images[fullname] ? Utils.images["#{name}@2x.#{ext}"]
 
+  subjectWithPrefix: (subject, prefix) ->
+    if subject.search(/fwd:/i) is 0
+      return subject.replace(/fwd:/i, prefix)
+    else if subject.search(/re:/i) is 0
+      return subject.replace(/re:/i, prefix)
+    else
+      return "#{prefix} #{subject}"
+
   containsQuotedText: (html) ->
     # I know this is gross - one day we'll replace it with a nice system.
     return false unless html

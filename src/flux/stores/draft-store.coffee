@@ -13,6 +13,8 @@ Thread = require '../models/thread'
 Message = require '../models/message'
 Actions = require '../actions'
 
+{subjectWithPrefix} = require '../models/utils'
+
 # A DraftStore responds to Actions that interact with Drafts and exposes
 # public getter methods to return Draft objects.
 #
@@ -111,7 +113,6 @@ DraftStore = Reflux.createStore
 
   _onComposeForward: (context) ->
     @_newMessageWithContext context, (thread, message) ->
-      subject: "Fwd: " + thread.subject
       forwardMessage: message
 
   _newMessageWithContext: ({threadId, messageId}, attributesCallback) ->
@@ -126,7 +127,7 @@ DraftStore = Reflux.createStore
     # of their resolved values. *swoon*
     Promise.props(queries).then ({thread, message}) ->
       attributes = attributesCallback(thread, message)
-      attributes.subject ?= thread.subject
+      attributes.subject ?= subjectWithPrefix(thread.subject, 'Re:')
 
       # A few helpers for formatting
       contactString = (c) ->
@@ -141,6 +142,7 @@ DraftStore = Reflux.createStore
         contact = msg.from[0] ? new Contact(name: 'Unknown', email:'Unknown')
         attribution = "On #{messageDate(msg.date)}, #{contactString(contact)} wrote:"
 
+        attributes.subject = subjectWithPrefix(msg.subject, 'Re:')
         attributes.replyToMessageId = msg.id
         attributes.body = """
           <br><br>
@@ -162,6 +164,7 @@ DraftStore = Reflux.createStore
         fields.push("CC: #{contactStrings(msg.cc)}") if msg.cc.length > 0
         fields.push("BCC: #{contactStrings(msg.bcc)}") if msg.bcc.length > 0
 
+        attributes.subject = subjectWithPrefix(msg.subject, 'Fwd:')
         attributes.body = """
           <br><br>
           <blockquote class="gmail_quote"

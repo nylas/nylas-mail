@@ -26,6 +26,7 @@ describe "DraftStore", ->
         from: [new Contact(email: 'customer@example.com', name: 'Customer')]
         threadId: 'fake-thread-id'
         body: 'Fake Message 1'
+        subject: 'Fake Subject'
         date: new Date(1415814587)
 
       fakeMessage2 = new Message
@@ -34,6 +35,7 @@ describe "DraftStore", ->
         from: [new Contact(email: 'ben@nilas.com')]
         threadId: 'fake-thread-id'
         body: 'Fake Message 2'
+        subject: 'Re: Fake Subject'
         date: new Date(1415814587)
 
       fakeMessages =
@@ -141,6 +143,13 @@ describe "DraftStore", ->
         , (model) ->
           expect(model.constructor).toBe(Message)
 
+      it "should set the subject of the new message automatically", ->
+        @_callNewMessageWithContext {threadId: fakeThread.id}
+        , (thread, message) ->
+          {}
+        , (model) ->
+          expect(model.subject).toEqual("Re: Fake Subject")
+
       it "should apply attributes provided by the attributesCallback", ->
         @_callNewMessageWithContext {threadId: fakeThread.id}
         , (thread, message) ->
@@ -149,7 +158,7 @@ describe "DraftStore", ->
         , (model) ->
           expect(model.subject).toEqual("Fwd: Fake subject")
 
-      describe "when a quoted message is provided by the attributesCallback", ->
+      describe "when a reply-to message is provided by the attributesCallback", ->
         it "should include quoted text in the new message", ->
           @_callNewMessageWithContext {threadId: fakeThread.id}
           , (thread, message) ->
@@ -165,12 +174,69 @@ describe "DraftStore", ->
           , (model) ->
             expect(model.body.indexOf('On Jan 17 1970, at 1:16 am, Customer &lt;customer@example.com&gt; wrote') > 0).toBe(true)
 
+        it "should make the subject the subject of the message, not the thread", ->
+          fakeMessage1.subject = "OLD SUBJECT"
+          @_callNewMessageWithContext {threadId: fakeThread.id}
+          , (thread, message) ->
+            replyToMessage: fakeMessage1
+          , (model) ->
+            expect(model.subject).toEqual("Re: OLD SUBJECT")
+
+        it "should change the subject from Fwd: back to Re: if necessary", ->
+          fakeMessage1.subject = "Fwd: This is my DRAFT"
+          @_callNewMessageWithContext {threadId: fakeThread.id}
+          , (thread, message) ->
+            replyToMessage: fakeMessage1
+          , (model) ->
+            expect(model.subject).toEqual("Re: This is my DRAFT")
+
         it "should only include the sender's name if it was available", ->
           @_callNewMessageWithContext {threadId: fakeThread.id}
           , (thread, message) ->
             replyToMessage: fakeMessage2
           , (model) ->
             expect(model.body.indexOf('On Jan 17 1970, at 1:16 am, ben@nilas.com wrote:') > 0).toBe(true)
+
+      describe "when a forward message is provided by the attributesCallback", ->
+        it "should include quoted text in the new message", ->
+          @_callNewMessageWithContext {threadId: fakeThread.id}
+          , (thread, message) ->
+            forwardMessage: fakeMessage1
+          , (model) ->
+            expect(model.body.indexOf('gmail_quote') > 0).toBe(true)
+            expect(model.body.indexOf('Fake Message 1') > 0).toBe(true)
+
+        it "should include the `Begin forwarded message:` line", ->
+          @_callNewMessageWithContext {threadId: fakeThread.id}
+          , (thread, message) ->
+            forwardMessage: fakeMessage1
+          , (model) ->
+            expect(model.body.indexOf('Begin forwarded message') > 0).toBe(true)
+
+        it "should make the subject the subject of the message, not the thread", ->
+          fakeMessage1.subject = "OLD SUBJECT"
+          @_callNewMessageWithContext {threadId: fakeThread.id}
+          , (thread, message) ->
+            forwardMessage: fakeMessage1
+          , (model) ->
+            expect(model.subject).toEqual("Fwd: OLD SUBJECT")
+
+        it "should change the subject from Re: back to Fwd: if necessary", ->
+          fakeMessage1.subject = "Re: This is my DRAFT"
+          @_callNewMessageWithContext {threadId: fakeThread.id}
+          , (thread, message) ->
+            forwardMessage: fakeMessage1
+          , (model) ->
+            expect(model.subject).toEqual("Fwd: This is my DRAFT")
+
+        it "should print the headers of the original message", ->
+          @_callNewMessageWithContext {threadId: fakeThread.id}
+          , (thread, message) ->
+            forwardMessage: fakeMessage2
+          , (model) ->
+            expect(model.body.indexOf('From: ben@nilas.com') > 0).toBe(true)
+            expect(model.body.indexOf('Subject: Re: Fake Subject') > 0).toBe(true)
+            expect(model.body.indexOf('To: customer@example.com') > 0).toBe(true)
 
       describe "attributesCallback", ->
         describe "when a threadId is provided", ->
