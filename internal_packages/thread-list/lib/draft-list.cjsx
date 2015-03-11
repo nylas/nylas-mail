@@ -21,15 +21,15 @@ DraftList = React.createClass
     selectedId: null
  
   componentDidMount: ->
-    @draft_store_unsubscribe = DraftStore.listen @_onChange
-    @body_unsubscriber = atom.commands.add 'body',
+    @draftStoreUnsubscribe = DraftStore.listen @_onChange
+    @bodyUnsubscriber = atom.commands.add 'body',
       'application:previous-item': => @_onShiftSelectedIndex(-1)
       'application:next-item': => @_onShiftSelectedIndex(1)
       'application:remove-item': @_onDeleteSelected
 
   componentWillUnmount: ->
-    @draft_store_unsubscribe()
-    @body_unsubscriber.dispose()
+    @draftStoreUnsubscribe()
+    @bodyUnsubscriber.dispose()
 
   render: ->
     <div className="thread-list">
@@ -50,6 +50,12 @@ DraftList = React.createClass
       Actions.composePopoutDraft(localId)
 
   _computeColumns: ->
+    snippet = (html) =>
+      @draftSanitizer ?= document.createElement('div')
+      @draftSanitizer.innerHTML = html
+      text = @draftSanitizer.innerText
+      text[0..140]
+
     c1 = new ListTabular.Column
       name: "Name"
       flex: 2
@@ -70,7 +76,7 @@ DraftList = React.createClass
       name: "Snippet"
       flex: 4
       resolver: (draft) ->
-        <span className="snippet">{draft.body}</span>
+        <span className="snippet">{snippet(draft.body)}</span>
 
     c4 = new ListTabular.Column
       name: "Date"
