@@ -1,4 +1,5 @@
 _ = require 'underscore-plus'
+ipc = require 'ipc'
 React = require 'react/addons'
 {DatabaseStore,
  NamespaceStore,
@@ -25,6 +26,7 @@ ActivityBar = React.createClass
       filter: ''
 
   componentDidMount: ->
+    ipc.on 'report-issue', => @_onFeedback()
     @taskQueueUnsubscribe = TaskQueue.listen @_onChange
     @activityStoreUnsubscribe = ActivityBarStore.listen @_onChange
 

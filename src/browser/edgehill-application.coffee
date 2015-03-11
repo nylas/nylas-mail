@@ -224,7 +224,7 @@ class AtomApplication
     @on 'application:open-roadmap', -> require('shell').openExternal('https://atom.io/roadmap?app')
     @on 'application:open-faq', -> require('shell').openExternal('https://atom.io/faq')
     @on 'application:open-terms-of-use', -> require('shell').openExternal('https://atom.io/terms')
-    @on 'application:report-issue', -> require('shell').openExternal('https://github.com/atom/atom/issues/new')
+    @on 'application:report-issue', => @_reportIssue()
     @on 'application:search-issues', -> require('shell').openExternal('https://github.com/issues?q=+is%3Aissue+user%3Aatom')
 
     @on 'application:show-main-window', => @showMainWindow()
@@ -536,3 +536,7 @@ class AtomApplication
     isSpec = true
     devMode = true
     new AtomWindow({bootstrapScript, @resourcePath, exitWhenDone, isSpec, specDirectory, devMode})
+
+  _reportIssue: ->
+    return unless @mainWindow
+    @mainWindow.browserWindow.webContents.send('report-issue')

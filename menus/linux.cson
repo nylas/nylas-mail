@@ -4,14 +4,9 @@
     submenu: [
       { label: '&New Message', command: 'application:new-message' }
       { type: 'separator' }
-      { label: '&Save', command: 'core:save' }
-      { label: 'Save &As...', command: 'core:save-as' }
-      { label: 'Save A&ll', command: 'window:save-all' }
-      { type: 'separator' }
-      { label: 'Clos&e Window', command: 'window:close' }
-      { type: 'separator' }
       { label: 'Link External Account', command: 'atom-workspace:add-account' }
       { label: 'Log Out', command: 'atom-workspace:logout' }
+      { label: 'Clos&e Window', command: 'window:close' }
       { label: 'Quit', command: 'application:quit' }
     ]
   }
@@ -26,9 +21,6 @@
       { label: 'C&opy', command: 'core:copy' }
       { label: '&Paste', command: 'core:paste' }
       { label: 'Select &All', command: 'core:select-all' }
-      { type: 'separator' }
-      { label: '&Preferences', command: 'application:show-settings' }
-      { type: 'separator' }
     ]
   }
 
@@ -38,43 +30,15 @@
       { label: '&Reload', command: 'window:reload' }
       { label: 'Toggle &Full Screen', command: 'window:toggle-full-screen' }
       { label: 'Toggle Menu Bar', command: 'window:toggle-menu-bar' }
-      {
-        label: 'Developer'
-        submenu: [
-          { label: 'Open In &Dev Mode...', command: 'application:open-dev' }
-          { label: 'Run &Atom Specs', command: 'application:run-all-specs' }
-          { label: 'Run Package &Specs', command: 'window:run-package-specs' }
-          { label: 'Toggle Developer &Tools', command: 'window:toggle-dev-tools' }
-        ]
-      }
     ]
-  }
-
-  {
-    label: 'F&ind'
-    submenu: []
-  }
-
-  {
-    label: '&Packages'
-    submenu: []
   }
 
   {
     label: '&Help'
     submenu: [
-      { label: 'View &Terms of Use', command: 'application:open-terms-of-use' }
-      { label: 'View &License', command: 'application:open-license' }
       { label: "VERSION", enabled: false }
       { type: 'separator' }
-      { label: '&Documentation', command: 'application:open-documentation' }
-      { label: 'Roadmap', command: 'application:open-roadmap' }
-      { label: 'Frequently Asked Questions', command: 'application:open-faq' }
-      { type: 'separator' }
-      { label: 'Community Discussions', command: 'application:open-discussions' }
       { label: 'Report Issue', command: 'application:report-issue' }
-      { label: 'Search Issues', command: 'application:search-issues' }
-      { type: 'separator' }
     ]
   }
 ]
