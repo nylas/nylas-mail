@@ -109,7 +109,6 @@ atom-workspace {
     width:100%;
     // border-top: 1px solid @border-color-divider;
   }
-
   &.flexbox-handle-top {
     top:-3px;
     padding-right:3px;
@@ -117,5 +116,15 @@ atom-workspace {
   &.flexbox-handle-bottom {
     bottom: 0;
     padding-right:2px;
+  }
+}
+
+
+body.platform-win32 {
+  .flexbox-handle-vertical {
+    cursor:ns-resize;
+  }
+  .flexbox-handle-horizontal {
+    cursor:ew-resize;
   }
 }
