@@ -118,19 +118,13 @@ ComposerView = React.createClass
         <div className="composer-action-bar-content">
           <button className="btn btn-toolbar pull-right btn-trash"
                   onClick={@_destroyDraft}><RetinaImg name="toolbar-trash.png" /></button>
-        
+
           <button className="btn btn-toolbar pull-right btn-attach"
                   onClick={@_attachFile}><RetinaImg name="toolbar-attach.png"/></button>
 
-          <div className="text-actions pull-right">
-            <span className="header-action"
+          <button className="btn btn-toolbar pull-right btn-popout"
                   style={display: (@props.mode is "fullwindow") and 'none' or 'initial'}
-                  onClick={@_popoutComposer}>Popout</span>
-            <br/>
-            <span className="header-action"
-                  style={display: @state.showsubject and 'none' or 'initial'}
-                  onClick={=> @setState {showsubject: true}}>Change Subject</span>
-          </div>
+                  onClick={@_popoutComposer}><RetinaImg name="toolbar-popout.png"/></button>
 
           <button className="btn btn-toolbar btn-send"
                   tabIndex="110"
@@ -149,6 +143,10 @@ ComposerView = React.createClass
           <span className="header-action"
                 style={display: @state.showbcc and 'none' or 'inline'}
                 onClick={=> @setState {showbcc: true}}>Bcc</span>
+
+          <span className="header-action"
+                style={display: @state.showsubject and 'none' or 'initial'}
+                onClick={=> @setState {showsubject: true}}>Subject</span>
         </div>
 
         <ParticipantsTextField

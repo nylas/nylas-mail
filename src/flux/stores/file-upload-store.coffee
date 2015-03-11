@@ -38,6 +38,7 @@ FileUploadStore = Reflux.createStore
 
     # When the dialog closes, it triggers `Actions.pathsToOpen`
     atom.showOpenDialog {properties: ['openFile', 'multiSelections']}, (pathsToOpen) ->
+      return if not pathsToOpen?
       pathsToOpen = [pathsToOpen] if _.isString(pathsToOpen)
       for path in pathsToOpen
         # When this task runs, we expect to hear `uploadStateChanged` actions.
