@@ -96,8 +96,7 @@ DraftStore = Reflux.createStore
 
   _onComposeReply: (context) ->
     @_newMessageWithContext context, (thread, message) ->
-      replyToMessageId: message.id
-      quotedMessage: message
+      replyToMessage: message
       to: message.from
 
   _onComposeReplyAll: (context) ->
@@ -105,8 +104,7 @@ DraftStore = Reflux.createStore
       excluded = message.from.map (c) -> c.email
       excluded.push(NamespaceStore.current().me().email)
 
-      replyToMessageId: message.id
-      quotedMessage: message
+      replyToMessage: message
       to: message.from
       cc: [].concat(message.cc, message.to).filter (p) ->
         !_.contains(excluded, p.email)
@@ -114,7 +112,7 @@ DraftStore = Reflux.createStore
   _onComposeForward: (context) ->
     @_newMessageWithContext context, (thread, message) ->
       subject: "Fwd: " + thread.subject
-      quotedMessage: message
+      forwardMessage: message
 
   _newMessageWithContext: ({threadId, messageId}, attributesCallback) ->
     queries = {}
@@ -130,24 +128,51 @@ DraftStore = Reflux.createStore
       attributes = attributesCallback(thread, message)
       attributes.subject ?= thread.subject
 
-      if attributes.quotedMessage
-        contact = attributes.quotedMessage.from[0] ? new Contact(name: 'Unknown', email:'Unknown')
-        quoteDate = moment(attributes.quotedMessage.date).format("MMM D YYYY, [at] h:mm a")
+      # A few helpers for formatting
+      contactString = (c) ->
+        if c.name then "#{c.name} &lt;#{c.email}&gt;" else c.email
+      contactStrings = (cs) ->
+        _.map(cs, contactString).join(", ")
+      messageDate = (d) ->
+        moment(d).format("MMM D YYYY, [at] h:mm a")
 
-        if contact.name
-          quoteAttribution = "On #{quoteDate}, #{contact.name} <#{contact.email}> wrote:"
-        else
-          quoteAttribution = "On #{quoteDate}, #{contact.email} wrote:"
+      if attributes.replyToMessage
+        msg = attributes.replyToMessage
+        contact = msg.from[0] ? new Contact(name: 'Unknown', email:'Unknown')
+        attribution = "On #{messageDate(msg.date)}, #{contactString(contact)} wrote:"
+
+        attributes.replyToMessageId = msg.id
+        attributes.body = """
+          <br><br>
+          <blockquote class="gmail_quote"
+            style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
+            #{attribution}
+            <br>
+            #{msg.body}
+          </blockquote>"""
+        delete attributes.quotedMessage
+
+      if attributes.forwardMessage
+        msg = attributes.forwardMessage
+        fields = []
+        fields.push("From: #{contactStrings(msg.from)}") if msg.from.length > 0
+        fields.push("Subject: #{msg.subject}")
+        fields.push("Date: #{messageDate(msg.date)}")
+        fields.push("To: #{contactStrings(msg.to)}") if msg.to.length > 0
+        fields.push("CC: #{contactStrings(msg.cc)}") if msg.cc.length > 0
+        fields.push("BCC: #{contactStrings(msg.bcc)}") if msg.bcc.length > 0
 
         attributes.body = """
           <br><br>
           <blockquote class="gmail_quote"
             style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
-            #{quoteAttribution}
-            <br>
-            #{attributes.quotedMessage.body}
+            Begin forwarded message:
+            <br><br>
+            #{fields.join('<br>')}
+            <br><br>
+            #{msg.body}
           </blockquote>"""
-        delete attributes.quotedMessage
+        delete attributes.forwardedMessage
 
       draft = new Message _.extend {}, attributes,
         from: [NamespaceStore.current().me()]

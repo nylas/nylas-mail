@@ -153,7 +153,7 @@ describe "DraftStore", ->
         it "should include quoted text in the new message", ->
           @_callNewMessageWithContext {threadId: fakeThread.id}
           , (thread, message) ->
-            quotedMessage: fakeMessage1
+            replyToMessage: fakeMessage1
           , (model) ->
             expect(model.body.indexOf('gmail_quote') > 0).toBe(true)
             expect(model.body.indexOf('Fake Message 1') > 0).toBe(true)
@@ -161,14 +161,14 @@ describe "DraftStore", ->
         it "should include the `On ... wrote:` line", ->
           @_callNewMessageWithContext {threadId: fakeThread.id}
           , (thread, message) ->
-            quotedMessage: fakeMessage1
+            replyToMessage: fakeMessage1
           , (model) ->
-            expect(model.body.indexOf('On Jan 17 1970, at 1:16 am, Customer <customer@example.com> wrote') > 0).toBe(true)
+            expect(model.body.indexOf('On Jan 17 1970, at 1:16 am, Customer &lt;customer@example.com&gt; wrote') > 0).toBe(true)
 
         it "should only include the sender's name if it was available", ->
           @_callNewMessageWithContext {threadId: fakeThread.id}
           , (thread, message) ->
-            quotedMessage: fakeMessage2
+            replyToMessage: fakeMessage2
           , (model) ->
             expect(model.body.indexOf('On Jan 17 1970, at 1:16 am, ben@nilas.com wrote:') > 0).toBe(true)
 
