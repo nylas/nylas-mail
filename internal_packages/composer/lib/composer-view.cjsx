@@ -127,7 +127,6 @@ ComposerView = React.createClass
                   onClick={@_popoutComposer}><RetinaImg name="toolbar-popout.png"/></button>
 
           <button className="btn btn-toolbar btn-send"
-                  tabIndex="110"
                   onClick={@_sendDraft}><RetinaImg name="toolbar-send.png" /></button>
           {@_footerComponents()}
         </div>
@@ -206,6 +205,10 @@ ComposerView = React.createClass
 
   focus: (field) -> @refs[field]?.focus?() if @isMounted()
 
+  isForwardedMessage: ->
+    draft = @_proxy.draft()
+    draft.subject[0...3].toLowerCase() is "fwd"
+
   _footerComponents: ->
     (@state.FooterComponents ? []).map (Component) =>
       idGen += 1
@@ -244,7 +247,7 @@ ComposerView = React.createClass
   _shouldShowSubject: ->
     draft = @_proxy.draft()
     if _.isEmpty(draft.subject ? "") then return true
-    else if draft.subject[0...3].toLowerCase() is "fwd" then return true
+    else if @isForwardedMessage() then return true
     else return false
 
   _onDragNoop: ->

@@ -23,9 +23,9 @@ MessageList = React.createClass
     unsubscribe() for unsubscribe in @_unsubscribers
 
   componentWillUpdate: (nextProps, nextState) ->
-    newDrafts = @_newDrafts(nextState)
-    if newDrafts.length >= 1
-      @_focusComposerId = newDrafts[0]
+    newDraftIds = @_newDraftIds(nextState)
+    if newDraftIds.length >= 1
+      @_focusComposerId = newDraftIds[0]
 
   componentDidUpdate: (prevProps, prevState) ->
     if @_shouldScroll(prevState)
@@ -50,7 +50,10 @@ MessageList = React.createClass
   # the page. The focus doesn't work for some reason while the paint is in
   # process.
   _focusRef: (component) -> _.delay ->
-    component?.focus("contentBody")
+    if component?.isForwardedMessage()
+      component?.focus("textFieldTo")
+    else
+      component?.focus("contentBody")
   , 100
 
   render: ->
@@ -85,7 +88,7 @@ MessageList = React.createClass
       }
     </div>
 
-  _newDrafts: (nextState) ->
+  _newDraftIds: (nextState) ->
     currentMsgIds = _.map(_.filter((@state.messages ? []), (m) -> not m.draft), (m) -> m.id)
     nextMsgIds = _.map(_.filter((nextState.messages ? []), (m) -> not m.draft), (m) -> m.id)
 
