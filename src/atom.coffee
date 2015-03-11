@@ -632,7 +632,7 @@ class Atom extends Model
       frame: false
       page: page
       width: 340
-      height: 475
+      height: 550
       resizable: false
       windowName: 'onboarding'
       windowPackages: ['onboarding']

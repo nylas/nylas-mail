@@ -46,6 +46,7 @@ ContainerView = React.createClass
   render: ->
     <ReactCSSTransitionGroup transitionName="page">
     {@_pageComponent()}
+    <div class="dragRegion" style={"-webkit-app-region": "drag", position: 'absolute', top:0, left:0, right:0, height: 20, zIndex:100}></div>
     </ReactCSSTransitionGroup>
 
   _pageComponent: ->
@@ -59,7 +60,7 @@ ContainerView = React.createClass
         <div className="quit" onClick={@_fireQuit}>
           <RetinaImg name="onboarding-close.png"/>
         </div>
-        <RetinaImg name="onboarding-logo.png" />
+        <RetinaImg name="onboarding-logo.png" className="logo"/>
         <h2>Welcome to Nilas</h2>
 
         <RetinaImg name="onboarding-divider.png" />
@@ -78,7 +79,7 @@ ContainerView = React.createClass
         <div className="quit" onClick={@_fireDismiss}>
           <RetinaImg name="onboarding-close.png"/>
         </div>
-        <RetinaImg name="onboarding-logo.png" />
+        <RetinaImg name="onboarding-logo.png" className="logo"/>
         <h2>Connect an Account</h2>
 
         <RetinaImg name="onboarding-divider.png" />

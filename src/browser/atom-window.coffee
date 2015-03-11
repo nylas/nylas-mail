@@ -18,7 +18,7 @@ class AtomWindow
   isSpec: null
 
   constructor: (settings={}) ->
-    {@resourcePath, pathToOpen, initialLine, initialColumn, @neverClose, @isSpec, @exitWhenDone, @safeMode, @devMode, frame, title, resizable, hideMenuBar} = settings
+    {@resourcePath, pathToOpen, initialLine, initialColumn, @neverClose, @isSpec, @exitWhenDone, @safeMode, @devMode, frame, title, hideMenuBar, resizable} = settings
 
     # Normalize to make sure drive letter case is consistent on Windows
     @resourcePath = path.normalize(@resourcePath) if @resourcePath
