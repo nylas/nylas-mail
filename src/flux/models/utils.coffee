@@ -1,3 +1,4 @@
+_ = require 'underscore-plus'
 fs = require('fs-plus')
 path = require('path')
 
@@ -108,5 +109,36 @@ Utils =
     for regex in regexs
       return true if html.match(regex)
     return false
+  
+  withoutQuotedText: (html) ->
+    return html unless Utils.containsQuotedText(html)
+
+    # Split the email into lines and remove lines that begin with > or &gt;
+    lines = html.split(/(\n|<br[^>]*>)/)
+
+    # Remove lines that are newlines - we'll add them back in when we join.
+    # We had to break them out because we want to preserve <br> elements.
+    lines = _.reject lines, (line) -> line == '\n'
+
+    regexs = [
+      /\n[ ]*(>|&gt;)/, # Plaintext lines beginning with >
+      /<[br|p][ ]*>[\n]?[ ]*[>|&gt;]/i, # HTML lines beginning with >
+      /[\n|>]On .* wrote:[\n|<]/, #On ... wrote: on it's own line
+    ]
+    for ii in [lines.length-1..0] by -1
+      continue if not lines[ii]?
+      for regex in regexs
+        # Never remove a line with a blockquote start tag, because it
+        # quotes multiple lines, not just the current line!
+        if lines[ii].match("<blockquote")
+          break
+        if lines[ii].match(regex)
+          lines.splice(ii,1)
+          # Remove following line if its just a spacer-style element
+          lines.splice(ii,1) if lines[ii]?.match('<br[^>]*>')?[0] is lines[ii]
+          break
+
+    # Return remaining compacted email body
+    lines.join('\n')
 
 module.exports = Utils
