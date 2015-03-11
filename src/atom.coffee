@@ -541,7 +541,7 @@ class Atom extends Model
     else
       screen = remote.require 'screen'
       {width, height} = screen.getPrimaryDisplay().workAreaSize
-      {x: 0, y: 0, width: Math.min(1024, width), height}
+      {x: 0, y: 0, width, height}
 
   restoreWindowDimensions: ->
     dimensions = @state.windowDimensions
