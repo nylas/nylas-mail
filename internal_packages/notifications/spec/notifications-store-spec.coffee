@@ -51,7 +51,7 @@ describe 'NotificationStore', ->
       Actions.postNotification({type: 'info', message: 'B', sticky: false})
       Actions.postNotification({type: 'info', message: 'C'})
       Actions.postNotification({type: 'info', message: 'D', sticky: true})
-      
+
     describe "stickyNotifications", ->
       it 'should return all of the notifications with the sticky flag, ordered by date DESC', ->
         messages = NotificationsStore.stickyNotifications().map (n) -> n.message

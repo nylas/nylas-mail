@@ -1,64 +1,59 @@
 @import "ui-variables";
 @import "ui-mixins";
 
-// Notification Colors
-.notifications-momentary,
-.notifications-sticky {
-  .notification-info { background: @background-color-info; }
-  .notification-error { background: @background-color-error; }
-  .notification-success { background: @background-color-success; }
+// Notifications Above Threads
+.notifications-momentary {
+  width: 100%;
+  bottom: 0;
+  position: absolute;
+  background: @background-off-primary;
+  border-top: 1px solid @border-secondary-bg;
+  box-shadow: @standard-shadow-up;
 
-  order: -1;
+  .notification-info { border-color: @background-color-info; }
+  .notification-error {
+    border-color: @background-color-error;
+    color: @error-color;
+  }
+  .notification-success { border-color: @background-color-success; }
 
-  .notifications-sticky-item {
-      height: 25px;
-      display:block;
-      padding-left:10px;
-      padding-right:10px;
-      padding-top:2px;
-      color:@text-color-inverse;
-      border-bottom:1px solid rgba(0,0,0,0.25);
-      a {
-        float:right;
-        font-size:13px;
-        background-color: rgba(255,255,255,0.2);
-        color:@text-color-inverse;
-        border-radius: 4px;
-        padding:1px;
-        padding-left:6px;
-        padding-right:6px;
-        margin-left:10px;
-        border-top:1px solid transparent;
-        border-bottom:none;
-      }
-      a:hover {
-        background-color: rgba(0,0,0,0.2);
-        border-top:1px solid rgba(0,0,0,0.35);
-        text-decoration:none;
-        color:@text-color-inverse;
-      }
-
-      i {
-        margin-right:8px;
-      }
+  .notification-item {
+    text-align: center;
+    border-top-width: 3px;
+    border-top-style: solid;
+    padding: @spacing-standard;
   }
 }
 
-// Notifications Above Threads
-.notifications-momentary {
-  position: absolute;
-  order: 1;
-  z-index: 400;
-  width:100%;
-
-  .inner {
-    text-align: center;
-    font-size: @font-size-small;
-    overflow: auto;
-
-    .notification-item {
-      color: @text-color-inverse;
-      padding: 3px 15px 2px 1px;
+.notifications-sticky-item {
+    height: 25px;
+    display:block;
+    padding-left:10px;
+    padding-right:10px;
+    padding-top:2px;
+    color:@text-color-inverse;
+    border-bottom:1px solid rgba(0,0,0,0.25);
+    a {
+      float:right;
+      font-size:13px;
+      background-color: rgba(255,255,255,0.2);
+      color:@text-color-inverse;
+      border-radius: 4px;
+      padding:1px;
+      padding-left:6px;
+      padding-right:6px;
+      margin-left:10px;
+      border-top:1px solid transparent;
+      border-bottom:none;
     }
-  }
+    a:hover {
+      background-color: rgba(0,0,0,0.2);
+      border-top:1px solid rgba(0,0,0,0.35);
+      text-decoration:none;
+      color:@text-color-inverse;
+    }
+
+    i {
+      margin-right:8px;
+    }
 }

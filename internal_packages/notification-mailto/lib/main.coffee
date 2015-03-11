@@ -17,20 +17,20 @@ module.exports =
 
     @services.isRegisteredForURLScheme 'mailto', (registered) =>
       # Prompt them to make Inbox their default client
-      unless registered
-        @_unlisten = Actions.notificationActionTaken.listen(@_onNotificationActionTaken, @)
-        Actions.postNotification
-          type: 'info',
-          sticky: true
-          message: "Thanks for trying out Edgehill! Would you like to make it your default mail client?",
-          icon: 'fa-inbox',
-          actions: [{
-            label: 'Yes'
-            id: NOTIF_ACTION_YES
-          },{
-            label: 'Not Now'
-            id: NOTIF_ACTION_NO
-          }]
+      # unless registered
+      @_unlisten = Actions.notificationActionTaken.listen(@_onNotificationActionTaken, @)
+      Actions.postNotification
+        type: 'info',
+        sticky: true
+        message: "Thanks for trying out Edgehill! Would you like to make it your default mail client?",
+        icon: 'fa-inbox',
+        actions: [{
+          label: 'Yes'
+          id: NOTIF_ACTION_YES
+        },{
+          label: 'Not Now'
+          id: NOTIF_ACTION_NO
+        }]
 
   deactivate: ->
     @_unlisten()

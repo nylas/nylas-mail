@@ -43,9 +43,10 @@
 @accent-primary-dark: @blue-dark;
 @accent-secondary:    @nilas-yellow;
 
-@background-primary:   #ffffff;
-@background-secondary: #f6f6f6;
-@background-tertiary:  #6d7987;
+@background-primary:     #ffffff;
+@background-off-primary: #fdfdfd;
+@background-secondary:   #f6f6f6;
+@background-tertiary:    #6d7987;
 
 @border-primary-bg: darken(@background-primary, 10%);
 @border-secondary-bg: darken(@background-secondary, 10%);
@@ -198,6 +199,11 @@
 @border-radius-small:       3px;
 
 
+//============================== Shadows ===============================//
+@standard-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.21);
+@standard-shadow-up: 0 -1px 4px 0 rgba(0, 0, 0, 0.21);
+
+
 //============================== Tables ===============================//
 // Customizes the `.table` component with basic values, each used across
 // all table variations.
@@ -221,7 +227,7 @@
 
 //=============================== Buttons ==============================//
 
-@btn-shadow: 0 1px 4px rgba(0, 0, 0, 0.21);
+@btn-shadow: @standard-shadow;
 
 @btn-default-bg-color:    @background-primary;
 @btn-default-text-color:  @text-color;
@@ -478,10 +484,6 @@
 @component-border-radius: 2px;
 
 
-// Other
-
-@standard-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.22);
-@standard-shadow-up: 0 -1px 2px 0 rgba(0, 0, 0, 0.22);
 
 @body-bg: @white;
 //== Panels and Sidebars

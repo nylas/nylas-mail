@@ -15,14 +15,13 @@ Notifications = React.createClass
 
   render: ->
     <div className="notifications-momentary">
-      <div className="inner">
-        {@_notificationComponents()}
-      </div>
+      {@_notificationComponents()}
     </div>
 
   _notificationComponents: ->
     @state.notifications.map (notification) ->
-      <div className={"notification-item notification-#{notification.type}"}>
+      <div key={notification.id}
+           className={"notification-item notification-#{notification.type}"}>
         {notification.message}
       </div>
 

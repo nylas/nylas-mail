@@ -10,7 +10,7 @@ module.exports =
     ComponentRegistry.register
       view: Notifications
       name: 'Notifications'
-      role: 'Root:Center'
+      role: 'Root:Left'
 
     ComponentRegistry.register
       view: NotificationsStickyBar
