@@ -124,16 +124,20 @@ ComposerView = React.createClass
       <div className="composer-action-bar-wrap">
         <div className="composer-action-bar-content">
           <button className="btn btn-toolbar pull-right btn-trash"
+                  data-tooltip="Delete draft"
                   onClick={@_destroyDraft}><RetinaImg name="toolbar-trash.png" /></button>
 
           <button className="btn btn-toolbar pull-right btn-attach"
+                  data-tooltip="Attach file"
                   onClick={@_attachFile}><RetinaImg name="toolbar-attach.png"/></button>
 
           <button className="btn btn-toolbar pull-right btn-popout"
+                  data-tooltip="Popout composer"
                   style={display: (@props.mode is "fullwindow") and 'none' or 'initial'}
                   onClick={@_popoutComposer}><RetinaImg name="toolbar-popout.png"/></button>
 
           <button className="btn btn-toolbar btn-send"
+                  data-tooltip="Send message"
                   ref="sendButton"
                   onClick={@_sendDraft}><RetinaImg name="toolbar-send.png" /></button>
           {@_footerComponents()}

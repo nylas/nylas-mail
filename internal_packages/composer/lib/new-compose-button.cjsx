@@ -5,7 +5,10 @@ React = require 'react'
 module.exports =
 NewComposeButton = React.createClass
   render: ->
-    <button style={order: -100} className="btn btn-toolbar" onClick={@_onNewCompose}>
+    <button style={order: -100}
+            className="btn btn-toolbar"
+            data-tooltip="Compose new message"
+            onClick={@_onNewCompose}>
       <RetinaImg name="toolbar-compose.png"/>
     </button>
 

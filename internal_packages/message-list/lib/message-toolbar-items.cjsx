@@ -7,7 +7,9 @@ React = require 'react'
 
 ReplyButton = React.createClass
   render: ->
-    <button className="btn btn-toolbar" onClick={@_onReply}>
+    <button className="btn btn-toolbar"
+            data-tooltip="Reply"
+            onClick={@_onReply}>
       <RetinaImg name="toolbar-reply.png" />
     </button>
 
@@ -17,7 +19,9 @@ ReplyButton = React.createClass
 
 ReplyAllButton = React.createClass
   render: ->
-    <button className="btn btn-toolbar" onClick={@_onReplyAll}>
+    <button className="btn btn-toolbar"
+            data-tooltip="Reply All"
+            onClick={@_onReplyAll}>
       <RetinaImg name="toolbar-reply-all.png" />
     </button>
 
@@ -27,7 +31,9 @@ ReplyAllButton = React.createClass
 
 ForwardButton = React.createClass
   render: ->
-    <button className="btn btn-toolbar" onClick={@_onForward}>
+    <button className="btn btn-toolbar"
+            data-tooltip="Forward"
+            onClick={@_onForward}>
       <RetinaImg name="toolbar-forward.png" />
     </button>
 
@@ -37,7 +43,9 @@ ForwardButton = React.createClass
 
 ArchiveButton = React.createClass
   render: ->
-    <button className="btn btn-toolbar" onClick={@_onArchive}>
+    <button className="btn btn-toolbar"
+            data-tooltip="Archive"
+            onClick={@_onArchive}>
       <RetinaImg name="toolbar-archive.png" />
     </button>
 

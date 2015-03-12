@@ -1,0 +1,35 @@
+#tooltip-container {
+  position: absolute;
+  z-index: 999;
+  top: 0;
+  left: 0;
+}
+.tooltip-wrap {
+  position: absolute;
+  display: none;
+  // Position and display are set by React
+
+  background: @black;
+  border-radius: @border-radius-base;
+  color: @text-color-inverse;
+  font-weight: @font-weight-medium;
+  box-shadow: 0 0 8px rgba(0,0,0,0.4);
+  text-align: center;
+  text-transform: capitalize;
+
+  .tooltip-content {
+    padding: 0.5em;
+  }
+
+  .tooltip-pointer {
+    position: absolute;
+    width: 0;
+    height: 0;
+    top: -13px;
+    left: 50%;
+    margin-left: -6px;
+    border: 7px solid transparent;
+    border-bottom-color: @black;
+    border-bottom-width: 6px;
+  }
+}
