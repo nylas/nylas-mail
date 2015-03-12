@@ -47,7 +47,8 @@ Tooltip = React.createClass
   # listeners.
   onMouseOver: (e) ->
     target = @_elementWithTooltip(e.target)
-    @_onTooltipEnter(target) if target
+    if target then @_onTooltipEnter(target)
+    else if @state.display then @_hideTooltip()
 
   onMouseOut: (e) ->
     if @_elementWithTooltip(e.fromElement) and not @_elementWithTooltip(e.toElement)
