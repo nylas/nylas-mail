@@ -47,12 +47,22 @@ Tooltip = React.createClass
   # listeners.
   onMouseOver: (e) ->
     target = @_elementWithTooltip(e.target)
-    if target then @_onTooltipEnter(target)
+    if target and @_targetIsVisible(target) then @_onTooltipEnter(target)
     else if @state.display then @_hideTooltip()
 
   onMouseOut: (e) ->
     if @_elementWithTooltip(e.fromElement) and not @_elementWithTooltip(e.toElement)
       @_onTooltipLeave()
+
+  _targetIsVisible: (target) ->
+    while target
+      style = window.getComputedStyle(target)
+      target = target.parentNode
+      continue unless style?
+      # NOTE: opacity must be soft ==
+      if style.opacity is 0 or style.opacity is "0" or style.visibility is "hidden" or style.display is "none"
+        return false
+    return true
 
   _elementWithTooltip: (target) ->
     while target
