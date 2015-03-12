@@ -41,9 +41,13 @@ DraftStore = Reflux.createStore
     @listenTo Actions.removeFile, @_onRemoveFile
     @listenTo Actions.attachFileComplete, @_onAttachFileComplete
 
+    @listenTo Actions.sendDraftError, @_onSendDraftSuccess
+    @listenTo Actions.sendDraftSuccess, @_onSendDraftError
+
     @listenTo Actions.destroyDraftSuccess, @_closeWindow
     @_drafts = []
     @_draftSessions = {}
+    @_sendingState = {}
 
     # TODO: Doesn't work if we do window.addEventListener, but this is
     # fragile. Pending an Atom fix perhaps?
@@ -84,6 +88,8 @@ DraftStore = Reflux.createStore
   sessionForLocalId: (localId) ->
     @_draftSessions[localId] ?= new DraftStoreProxy(localId)
     @_draftSessions[localId]
+
+  sendingState: (draftLocalId) -> @_sendingState[draftLocalId] ? false
 
   ########### PRIVATE ####################################################
 
@@ -213,7 +219,9 @@ DraftStore = Reflux.createStore
     # Queue the task to destroy the draft
     Actions.queueTask(new DestroyDraftTask(draftLocalId))
 
-  _onSendDraft: (draftLocalId) ->
+  _onSendDraft: (draftLocalId) -> new Promise (resolve, reject) =>
+    @_sendingState[draftLocalId] = true
+    @trigger()
     # Immediately save any pending changes so we don't save after sending
     save = @_draftSessions[draftLocalId]?.changes.commit()
     save.then =>
@@ -223,6 +231,15 @@ DraftStore = Reflux.createStore
       # Queue the task to send the draft
       fromPopout = atom.state.mode is "composer"
       Actions.queueTask(new SendDraftTask(draftLocalId, fromPopout: fromPopout))
+      resolve()
+
+  _onSendDraftError: (draftLocalId) ->
+    @_sendingState[draftLocalId] = false
+    @trigger()
+
+  _onSendDraftSuccess: (draftLocalId) ->
+    @_sendingState[draftLocalId] = false
+    @trigger()
 
   _onAttachFileComplete: ({file, messageLocalId}) ->
     @sessionForLocalId(messageLocalId).prepare().then (proxy) ->
@@ -235,4 +252,3 @@ DraftStore = Reflux.createStore
       files = proxy.draft().files ? []
       files = _.reject files, (f) -> f.id is file.id
       proxy.changes.add({files}, true)
-

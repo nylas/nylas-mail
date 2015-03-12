@@ -14,7 +14,16 @@
   display: flex;
   flex-direction: column;
 
+  .composer-cover {
+    position: absolute;
+    top: -1 * @spacing-double; right: 0; bottom: 0; left: 0;
+    z-index: 1000;
+    background: rgba(255,255,255,0.7);
+  }
+
   .composer-action-bar-wrap {
+    position: relative;
+    z-index: 1;
     width: 100%;
     background: transparent;
     border-bottom: 0;
@@ -36,6 +45,7 @@
 
   .composer-content-wrap {
     position: relative;
+    z-index: 1;
 
     width: 100%;
     max-width: @compose-width;

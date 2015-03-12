@@ -31,6 +31,7 @@ ComposerView = React.createClass
       bcc: []
       body: ""
       subject: ""
+      isSending: DraftStore.sendingState(@props.localId)
     state
 
   getComponentRegistryState: ->
@@ -42,6 +43,7 @@ ComposerView = React.createClass
     # @_checkForKnownFrames()
 
   componentDidMount: ->
+    @_draftStoreUnlisten = DraftStore.listen @_onSendingStateChanged
     @keymap_unsubscriber = atom.commands.add '.composer-outer-wrap', {
       'composer:show-and-focus-bcc': @_showAndFocusBcc
       'composer:show-and-focus-cc': @_showAndFocusCc
@@ -59,6 +61,7 @@ ComposerView = React.createClass
 
   componentWillUnmount: ->
     @_teardownForDraft()
+    @_draftStoreUnlisten() if @_draftStoreUnlisten
     @keymap_unsubscriber.dispose()
 
   componentWillUpdate: ->
@@ -114,6 +117,10 @@ ComposerView = React.createClass
   _renderComposer: ->
     <div className="composer-inner-wrap" onDragOver={@_onDragNoop} onDragLeave={@_onDragNoop} onDragEnd={@_onDragNoop} onDrop={@_onDrop}>
 
+      <div className="composer-cover"
+           style={display: (if @state.isSending then "block" else "none")}>
+      </div>
+
       <div className="composer-action-bar-wrap">
         <div className="composer-action-bar-content">
           <button className="btn btn-toolbar pull-right btn-trash"
@@ -127,6 +134,7 @@ ComposerView = React.createClass
                   onClick={@_popoutComposer}><RetinaImg name="toolbar-popout.png"/></button>
 
           <button className="btn btn-toolbar btn-send"
+                  ref="sendButton"
                   onClick={@_sendDraft}><RetinaImg name="toolbar-send.png" /></button>
           {@_footerComponents()}
         </div>
@@ -277,6 +285,7 @@ ComposerView = React.createClass
     Actions.composePopoutDraft @props.localId
 
   _sendDraft: (options = {}) ->
+    return if @state.isSending
     draft = @_proxy.draft()
     remote = require('remote')
     dialog = remote.require('dialog')
@@ -293,7 +302,7 @@ ComposerView = React.createClass
     warnings = []
     if draft.subject.length is 0
       warnings.push('without a subject line')
-    if draft.body.toLowerCase().indexOf('attachment') != -1 and draft.files?.length is 0
+    if (draft.files ? []).length is 0 and draft.body.toLowerCase().indexOf('attach') >= 0
       warnings.push('without an attachment')
 
     if warnings.length > 0 and not options.force
@@ -333,6 +342,9 @@ ComposerView = React.createClass
       mheight = mwrap.getBoundingClientRect().height
       @_precalcComposerCss =
         minHeight: mheight - INLINE_COMPOSER_OTHER_HEIGHT
+
+  _onSendingStateChanged: ->
+    @setState isSending: DraftStore.sendingState(@props.localId)
 
 
 

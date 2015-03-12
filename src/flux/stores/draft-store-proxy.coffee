@@ -100,6 +100,7 @@ class DraftStoreProxy
     unlisten() for unlisten in @unlisteners
 
   _onDraftChanged: (change) ->
+    return if not change?
     # We don't accept changes unless our draft object is loaded
     return unless @_draft
 

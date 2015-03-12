@@ -72,7 +72,7 @@ AccountSidebarStore = Reflux.createStore
   # Remove this when JOIN query speed is fixed!
   _populateUnreadCountsDebounced: _.debounce ->
     @_populateUnreadCounts()
-  , 750
+  , 2000
 
   _refetchFromAPI: ->
     namespace = NamespaceStore.current()

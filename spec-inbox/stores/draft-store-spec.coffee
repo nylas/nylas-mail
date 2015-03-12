@@ -4,6 +4,8 @@ Contact = require '../../src/flux/models/contact'
 NamespaceStore = require '../../src/flux/stores/namespace-store.coffee'
 DatabaseStore = require '../../src/flux/stores/database-store.coffee'
 DraftStore = require '../../src/flux/stores/draft-store.coffee'
+SendDraftTask = require '../../src/flux/tasks/send-draft'
+Actions = require '../../src/flux/actions'
 _ = require 'underscore-plus'
 
 fakeThread = null
@@ -264,3 +266,72 @@ describe "DraftStore", ->
             , (thread, message) ->
               expect(message).toEqual(fakeMessage1)
               {}
+
+  describe "sending a draft", ->
+    draftLocalId = "local-123"
+    beforeEach ->
+      DraftStore._sendingState = {}
+      DraftStore._draftSessions = {}
+      DraftStore._draftSessions[draftLocalId] =
+        changes:
+          commit: -> Promise.resolve()
+      spyOn(DraftStore, "trigger")
+
+    afterEach ->
+      atom.state.mode = "editor" # reset to default
+
+    it "sets the sending state when sending", ->
+      DraftStore._onSendDraft(draftLocalId)
+      expect(DraftStore.sendingState(draftLocalId)).toBe true
+      expect(DraftStore.trigger).toHaveBeenCalled()
+
+    it "returns false if the draft hasn't been seen", ->
+      expect(DraftStore.sendingState(draftLocalId)).toBe false
+
+    it "resets the sending state on success", ->
+      DraftStore._onSendDraft(draftLocalId)
+      expect(DraftStore.sendingState(draftLocalId)).toBe true
+      DraftStore._onSendDraftSuccess(draftLocalId)
+      expect(DraftStore.sendingState(draftLocalId)).toBe false
+      expect(DraftStore.trigger).toHaveBeenCalled()
+
+    it "resets the sending state on error", ->
+      DraftStore._onSendDraft(draftLocalId)
+      expect(DraftStore.sendingState(draftLocalId)).toBe true
+      DraftStore._onSendDraftError(draftLocalId)
+      expect(DraftStore.sendingState(draftLocalId)).toBe false
+      expect(DraftStore.trigger).toHaveBeenCalled()
+
+    it "closes the window if it's a popout", ->
+      atom.state.mode = "composer"
+      spyOn(atom, "close")
+      waitsForPromise ->
+        DraftStore._onSendDraft(draftLocalId).then ->
+          expect(atom.close).toHaveBeenCalled()
+
+    it "doesn't close the window if it's inline", ->
+      atom.state.mode = "other"
+      spyOn(atom, "close")
+      waitsForPromise ->
+        DraftStore._onSendDraft(draftLocalId).then ->
+          expect(atom.close).not.toHaveBeenCalled()
+
+    it "queues a SendDraftTask", ->
+      spyOn(Actions, "queueTask")
+      waitsForPromise ->
+        DraftStore._onSendDraft(draftLocalId).then ->
+          expect(Actions.queueTask).toHaveBeenCalled()
+          task = Actions.queueTask.calls[0].args[0]
+          expect(task instanceof SendDraftTask).toBe true
+          expect(task.draftLocalId).toBe draftLocalId
+          expect(task.fromPopout).toBe false
+
+    it "queues a SendDraftTask with popout info", ->
+      atom.state.mode = "composer"
+      spyOn(atom, "close")
+      spyOn(Actions, "queueTask")
+      waitsForPromise ->
+        DraftStore._onSendDraft(draftLocalId).then ->
+          expect(Actions.queueTask).toHaveBeenCalled()
+          task = Actions.queueTask.calls[0].args[0]
+          expect(task.fromPopout).toBe true

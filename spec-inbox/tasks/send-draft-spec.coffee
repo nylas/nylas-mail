@@ -108,13 +108,33 @@ describe "SendDraftTask", ->
         to:
           name: 'Dummy'
           email: 'dummy@inboxapp.com'
-      @task = new SendDraftTask(@draft)
+      @draftLocalId = "local-123"
+      @task = new SendDraftTask(@draftLocalId)
       spyOn(atom.inbox, 'makeRequest').andCallFake (options) ->
         options.success() if options.success
       spyOn(DatabaseStore, 'findByLocalId').andCallFake (klass, localId) =>
         Promise.resolve(@draft)
-      spyOn(DatabaseStore, 'unpersistModel').andCallFake (draft) =>
+      spyOn(DatabaseStore, 'unpersistModel').andCallFake (draft) ->
         Promise.resolve()
+      spyOn(atom, "playSound")
+      spyOn(Actions, "postNotification")
+      spyOn(Actions, "sendDraftSuccess")
+
+    it "should unpersist when successfully sent", ->
+      waitsForPromise => @task.performRemote().then =>
+        expect(DatabaseStore.unpersistModel).toHaveBeenCalledWith(@draft)
+
+    it "should notify the draft was sent", ->
+      waitsForPromise => @task.performRemote().then =>
+        expect(Actions.sendDraftSuccess).toHaveBeenCalledWith(@draftLocalId)
+
+    it "should play a sound", ->
+      waitsForPromise => @task.performRemote().then ->
+        expect(atom.playSound).toHaveBeenCalledWith("mail_sent.ogg")
+
+    it "post a notification", ->
+      waitsForPromise => @task.performRemote().then ->
+        expect(Actions.postNotification).toHaveBeenCalled()
 
     it "should start an API request to /send", ->
       waitsForPromise =>
@@ -143,7 +163,7 @@ describe "SendDraftTask", ->
           to:
             name: 'Dummy'
             email: 'dummy@inboxapp.com'
-        @task = new SendDraftTask(@draft)
+        @task = new SendDraftTask(@draftLocalId)
 
       it "should send the draft JSON", ->
         waitsForPromise =>
@@ -170,7 +190,9 @@ describe "SendDraftTask", ->
         to:
           name: 'Dummy'
           email: 'dummy@inboxapp.com'
-      @task = new SendDraftTask(@draft)
+      @task = new SendDraftTask(@draft.id)
+      spyOn(Actions, "dequeueTask")
+      spyOn(Actions, "sendDraftError")
 
     it "throws an error if the draft can't be found", ->
       spyOn(DatabaseStore, 'findByLocalId').andCallFake (klass, localId) ->
@@ -192,3 +214,26 @@ describe "SendDraftTask", ->
       waitsForPromise =>
         @task.performRemote().catch (error) ->
           expect(error).toBe "DB error"
+
+    checkError = ->
+      expect(Actions.sendDraftError).toHaveBeenCalled()
+      args = Actions.sendDraftError.calls[0].args
+      expect(args[0]).toBe @draft.id
+      expect(args[1].length).toBeGreaterThan 0
+
+    it "onAPIError notifies of the error", ->
+      @task.onAPIError(message: "oh no")
+      checkError.call(@)
+
+    it "onOtherError notifies of the error", ->
+      @task.onOtherError()
+      checkError.call(@)
+
+    it "onTimeoutError notifies of the error", ->
+      @task.onTimeoutError()
+      checkError.call(@)
+
+    it "onOfflineError notifies of the error and dequeues", ->
+      @task.onOfflineError()
+      checkError.call(@)
+      expect(Actions.dequeueTask).toHaveBeenCalledWith(@task)

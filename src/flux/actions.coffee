@@ -21,6 +21,8 @@ globalActions = [
   "multiWindowNotification",
 
   # Draft actions
+  "sendDraftError",
+  "sendDraftSuccess",
   "destroyDraftSuccess",
   "destroyDraftError"
 ]

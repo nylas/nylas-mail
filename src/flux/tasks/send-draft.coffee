@@ -31,7 +31,7 @@ class SendDraftTask extends Task
     new Promise (resolve, reject) =>
       # Fetch the latest draft data to make sure we make the request with the most
       # recent draft version
-      DatabaseStore.findByLocalId(Message, @draftLocalId).then (draft) ->
+      DatabaseStore.findByLocalId(Message, @draftLocalId).then (draft) =>
         # The draft may have been deleted by another task. Nothing we can do.
         return reject(new Error("We couldn't find the saved draft.")) unless draft
 
@@ -47,9 +47,10 @@ class SendDraftTask extends Task
           method: 'POST'
           body: body
           returnsModel: true
-          success: ->
+          success: =>
             atom.playSound('mail_sent.ogg')
             Actions.postNotification({message: "Sent!", type: 'success'})
+            Actions.sendDraftSuccess(@draftLocalId)
             DatabaseStore.unpersistModel(draft).then(resolve)
           error: reject
       .catch(reject)
@@ -73,5 +74,6 @@ class SendDraftTask extends Task
     Actions.dequeueTask(@)
 
   _notifyError: (msg) ->
+    Actions.sendDraftError(@draftLocalId, msg)
     if @fromPopout then atom.displayComposer(@draftLocalId, error: msg)
     @notifyErrorMessage(msg)
