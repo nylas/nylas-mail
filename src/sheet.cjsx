@@ -4,13 +4,6 @@ _ = require 'underscore-plus'
 Flexbox = require './components/flexbox.cjsx'
 ResizableRegion = require './components/resizable-region.cjsx'
 
-
-ToolbarSpacer = React.createClass
-  propTypes:
-    order: React.PropTypes.number
-  render: ->
-    <div style={flex: 1, order:@props.order ? 0}></div>
-
 module.exports =
 Sheet = React.createClass
   displayName: 'Sheet'
@@ -19,6 +12,7 @@ Sheet = React.createClass
     type: React.PropTypes.string.isRequired
     depth: React.PropTypes.number.isRequired
     columns: React.PropTypes.arrayOf(React.PropTypes.string)
+    onColumnSizeChanged: React.PropTypes.func
 
   getDefaultProps: ->
     columns: ['Left', 'Center', 'Right']
@@ -40,7 +34,9 @@ Sheet = React.createClass
       width:'100%'
       height:'100%'
 
-    <div name={"Sheet-#{@props.type}"} style={style}>
+    <div name={"Sheet"}
+         style={style}
+         data-type={@props.type}>
       <Flexbox direction="row">
         {@_backButtonComponent()}
         {@_columnFlexboxComponents()}
@@ -59,7 +55,6 @@ Sheet = React.createClass
       return if classes.length is 0
 
       components = classes.map (c) => <c {...@props} />
-      components.push(@_columnToolbarComponent(column))
 
       maxWidth = _.reduce classes, ((m,c) -> Math.min(c.maxWidth ? 10000, m)), 10000
       minWidth = _.reduce classes, ((m,c) -> Math.max(c.minWidth ? 0, m)), 0
@@ -68,47 +63,28 @@ Sheet = React.createClass
       if resizable
         if column is 'Left' then handle = ResizableRegion.Handle.Right
         if column is 'Right' then handle = ResizableRegion.Handle.Left
-        <ResizableRegion minWidth={minWidth} maxWidth={maxWidth} handle={handle}>
-          <Flexbox direction="column" name={"#{@props.type}:#{column}"}>
+        <ResizableRegion name={"#{@props.type}:#{column}"}
+                         data-column={column}
+                         onResize={@props.onColumnSizeChanged}
+                         minWidth={minWidth}
+                         maxWidth={maxWidth}
+                         handle={handle}>
+          <Flexbox direction="column">
             {components}
           </Flexbox>
         </ResizableRegion>
       else
-        <Flexbox direction="column" name={"#{@props.type}:#{column}"} style={flex: 1}>
+        <Flexbox direction="column"
+                 name={"#{@props.type}:#{column}"}
+                 data-column={column}
+                 style={flex: 1}>
           {components}
         </Flexbox>
 
-  _columnToolbarComponent: (column) ->
-    components = @state["#{column}Toolbar"].map (item) =>
-      <item {...@props} />
-
-    <div className="sheet-column-toolbar">
-      <Flexbox direction="row">
-        {components}
-        <ToolbarSpacer order={-50}/>
-        <ToolbarSpacer order={50}/>
-      </Flexbox>
-    </div>
-
-  # Load components that are part of our sheet. For each column,
-  # (eg 'Center') we look for items with a matching `role`. We
-  # then pull toolbar items the following places:
-  #
-  # - Root:Center:Toolbar
-  # - ComposeButton:Toolbar
-  #
   _getComponentRegistryState: ->
     state = {}
     for column in @props.columns
-      views = []
-      toolbarViews = ComponentRegistry.findAllViewsByRole("#{@props.type}:#{column}:Toolbar")
-
-      for {view, name} in ComponentRegistry.findAllByRole("#{@props.type}:#{column}")
-        toolbarViews = toolbarViews.concat(ComponentRegistry.findAllViewsByRole("#{name}:Toolbar"))
-        views.push(view)
-
-      state["#{column}"] = views
-      state["#{column}Toolbar"] = toolbarViews
+      state["#{column}"] = ComponentRegistry.findAllViewsByRole("#{@props.type}:#{column}")
     state
 
   _pop: ->

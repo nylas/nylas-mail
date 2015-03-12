@@ -4,11 +4,6 @@ _ = require 'underscore-plus'
 # Error types
 class RegistryError extends Error
 
-# Event types
-class ComponentRegistryEvent
-class ComponentAdded extends ComponentRegistryEvent
-  constructor: (@component) ->
-
 getViewsByName = (components) ->
   state = {}
   for component in components ? []
@@ -27,7 +22,7 @@ Mixin =
 
   componentDidMount: ->
     @_componentUnlistener = ComponentRegistry.listen =>
-      @setState getViewsByName(@components)
+      @setState(getViewsByName(@components))
 
   componentWillUnmount: ->
     @_componentUnlistener()
@@ -57,8 +52,12 @@ ComponentRegistry = Reflux.createStore
     if component.name in Object.keys(registry)
       throw new RegistryError "Error: Tried to register #{component.name} twice"
     registry[component.name] = component
-    # Trigger listeners
-    @trigger new ComponentAdded(component)
+
+    # Trigger listeners. It's very important the component registry is debounced.
+    # During app launch packages register tons of components and if we re-rendered
+    # the entire UI after each registration it takes forever to load the UI.
+    @triggerDebounced()
+
     # Return `this` for chaining
     @
 
@@ -82,13 +81,13 @@ ComponentRegistry = Reflux.createStore
   findAllViewsByRole: (role) ->
     _.map @findAllByRole(role), (component) -> component.view
 
+  triggerDebounced: _.debounce(( -> @trigger(@)), 1)
+
   _clear: ->
     registry = {}
 
   Component: Component
   RegistryError: RegistryError
-  ComponentRegistryEvent: ComponentRegistryEvent
-  ComponentAdded: ComponentAdded
   Mixin: Mixin
 
 module.exports = ComponentRegistry

@@ -25,12 +25,11 @@ ResizableHandle =
       'width': Math.min(props.maxWidth ? 10000, Math.max(props.minWidth ? 0, event.pageX - state.bcr.left))
 
 
-module.exports = 
+module.exports =
 ResizableRegion = React.createClass
   displayName: 'ResizableRegion'
 
   propTypes:
-    className: React.PropTypes.string
     handle: React.PropTypes.object.isRequired
     onResize: React.PropTypes.func
 
@@ -75,7 +74,9 @@ ResizableRegion = React.createClass
       else
         containerStyle.flex = 1
 
-    <div className={@props.className} style={containerStyle}>
+    otherProps = _.omit(@props, _.keys(@constructor.propTypes))
+    
+    <div style={containerStyle} {...otherProps}>
       {@props.children}
       <div className={@props.handle.className}
            onMouseDown={@_mouseDown}><div></div>
@@ -116,6 +117,7 @@ ResizableRegion = React.createClass
   _mouseMove: (event) ->
     return if !@state.dragging
     @setState @props.handle.transform(@state, @props, event)
+    @props.onResize(@state.height ? @state.width) if @props.onResize
     event.stopPropagation()
     event.preventDefault()
 

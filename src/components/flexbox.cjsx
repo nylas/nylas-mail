@@ -6,7 +6,6 @@ module.exports =
 Flexbox = React.createClass
   displayName: 'Flexbox'
   propTypes:
-    name: React.PropTypes.string
     direction: React.PropTypes.string
     style: React.PropTypes.object
 
@@ -17,6 +16,8 @@ Flexbox = React.createClass
       'display': 'flex'
       'height':'100%'
 
-    <div name={@props.name} style={style}>
+    otherProps = _.omit(@props, _.keys(@constructor.propTypes))
+
+    <div style={style} {...otherProps}>
       {@props.children}
     </div>
