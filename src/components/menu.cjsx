@@ -103,19 +103,15 @@ Menu = React.createClass
     # finding an item in the new list with a key matching the old
     # selected item's key
     selection = @props.items[@state.selectedIndex]
+    newSelectionIndex = 0
 
     if selection?
       selectionKey = @props.itemKey(selection)
       newSelection = _.find newProps.items, (item) => @props.itemKey(item) is selectionKey
-
-      newSelectionIndex = -1
       newSelectionIndex = newProps.items.indexOf(newSelection) if newSelection?
 
-      @setState
-        selectedIndex: newSelectionIndex
-    else
-      @setState
-        selectedIndex: 0
+    @setState
+      selectedIndex: newSelectionIndex
 
   componentWillUnmount: ->
     @subscriptions?.dispose()
