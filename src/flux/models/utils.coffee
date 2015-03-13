@@ -149,4 +149,19 @@ Utils =
     # Return remaining compacted email body
     lines.join('\n')
 
+  # Checks to see if a particular node is visible and any of its parents
+  # are visible.
+  #
+  # WARNING. This is a fairly expensive operation and should be used
+  # sparingly.
+  nodeIsVisible: (node) ->
+    while node
+      style = window.getComputedStyle(node)
+      node = node.parentNode
+      continue unless style?
+      # NOTE: opacity must be soft ==
+      if style.opacity is 0 or style.opacity is "0" or style.visibility is "hidden" or style.display is "none"
+        return false
+    return true
+
 module.exports = Utils

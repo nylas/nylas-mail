@@ -1,5 +1,5 @@
 React = require 'react'
-{Actions, ThreadStore} = require 'inbox-exports'
+{Actions, ThreadStore, Utils} = require 'inbox-exports'
 {RetinaImg} = require 'ui-components'
 
 # Note: These always have a thread, but only sometimes get a
@@ -14,6 +14,7 @@ ReplyButton = React.createClass
     </button>
 
   _onReply: (e) ->
+    return unless Utils.nodeIsVisible(e.currentTarget)
     Actions.composeReply(threadId: ThreadStore.selectedId())
     e.stopPropagation()
 
@@ -26,6 +27,7 @@ ReplyAllButton = React.createClass
     </button>
 
   _onReplyAll: (e) ->
+    return unless Utils.nodeIsVisible(e.currentTarget)
     Actions.composeReplyAll(threadId: ThreadStore.selectedId())
     e.stopPropagation()
 
@@ -38,6 +40,7 @@ ForwardButton = React.createClass
     </button>
 
   _onForward: (e) ->
+    return unless Utils.nodeIsVisible(e.currentTarget)
     Actions.composeForward(threadId: ThreadStore.selectedId())
     e.stopPropagation()
 
@@ -50,6 +53,7 @@ ArchiveButton = React.createClass
     </button>
 
   _onArchive: (e) ->
+    return unless Utils.nodeIsVisible(e.currentTarget)
     # Calling archive() sends an Actions.queueTask with an archive task
     # TODO Turn into an Action
     ThreadStore.selectedThread().archive()

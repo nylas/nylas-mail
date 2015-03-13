@@ -16,6 +16,8 @@
   'delete'   : 'application:remove-item' # Mac mail
   'backspace': 'application:remove-item' # Outlook
 
+  '/'        : 'application:focus-search' # Gmail
+
   'r'     : 'application:reply' # Gmail
   'a'     : 'application:reply-all' # Gmail
   'f'     : 'application:forward' # Gmail

@@ -16,12 +16,16 @@ SearchBar = React.createClass
 
   componentDidMount: ->
     @unsubscribe = SearchSuggestionStore.listen @_onStoreChange
+    @body_unsubscriber = atom.commands.add 'body', {
+      'application:focus-search': @_onFocusSearch
+    }
 
   # It's important that every React class explicitly stops listening to
   # atom events before it unmounts. Thank you event-kit
   # This can be fixed via a Reflux mixin
   componentWillUnmount: ->
     @unsubscribe()
+    @body_unsubscriber.dispose()
 
   render: ->
     inputValue = @_queryToString(@state.query)
@@ -31,6 +35,7 @@ SearchBar = React.createClass
 
     headerComponents = [
       <input type="text"
+             ref="searchInput"
              key="input"
              className={inputClass}
              placeholder="Search all email"
@@ -64,6 +69,10 @@ SearchBar = React.createClass
         onSelect={@_onSelectSuggestion}
         />
     </div>
+
+  _onFocusSearch: ->
+    return unless @isMounted()
+    @refs.searchInput.getDOMNode().focus()
 
   _containerClasses: ->
     React.addons.classSet
