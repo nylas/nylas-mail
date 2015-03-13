@@ -7,6 +7,7 @@ ReactCSSTransitionGroup = React.addons.CSSTransitionGroup
 
 
 ToolbarSpacer = React.createClass
+  className: 'ToolbarSpacer'
   propTypes:
     order: React.PropTypes.number
 
@@ -15,6 +16,7 @@ ToolbarSpacer = React.createClass
 
 
 Toolbar = React.createClass
+  className: 'Toolbar'
   propTypes:
     type: React.PropTypes.string
 
@@ -44,7 +46,8 @@ Toolbar = React.createClass
     columnToolbars = @state.itemsForViews.map ({column, name, items}) =>
       <div style={position: 'absolute', top:0}
            data-owner-name={name}
-           data-column={column}>
+           data-column={column}
+           key={column}>
         {@_flexboxForItems(items)}
       </div>
 
@@ -54,13 +57,13 @@ Toolbar = React.createClass
     </div>
   
   _flexboxForItems: (items) ->
-    components = items.map (item) =>
-      <item {...@props} />
+    components = items.map ({view, name}) =>
+      <view key={name} {...@props} />
 
     <Flexbox direction="row">
       {components}
-      <ToolbarSpacer order={-50}/>
-      <ToolbarSpacer order={50}/>
+      <ToolbarSpacer key="spacer-50" order={-50}/>
+      <ToolbarSpacer key="spacer+50" order={50} />
     </Flexbox>
 
   recomputeLayout: ->
@@ -83,13 +86,13 @@ Toolbar = React.createClass
 
   _getComponentRegistryState: ->
     items = []
-    items.push(ComponentRegistry.findAllViewsByRole("Global:Toolbar")...)
-    items.push(ComponentRegistry.findAllViewsByRole("#{@props.type}:Toolbar")...)
+    items.push(ComponentRegistry.findAllByRole("Global:Toolbar")...)
+    items.push(ComponentRegistry.findAllByRole("#{@props.type}:Toolbar")...)
 
     itemsForViews = []
     for column in ['Left', 'Right', 'Center']
       for {view, name} in ComponentRegistry.findAllByRole("#{@props.type}:#{column}")
-        itemsForView = ComponentRegistry.findAllViewsByRole("#{name}:Toolbar")
+        itemsForView = ComponentRegistry.findAllByRole("#{name}:Toolbar")
         if itemsForView.length > 0
           itemsForViews.push({column, name, items: itemsForView})
         
@@ -97,6 +100,7 @@ Toolbar = React.createClass
 
 
 FlexboxForRoles = React.createClass
+  className: 'FlexboxForRoles'
   propTypes:
     roles: React.PropTypes.arrayOf(React.PropTypes.string)
 
@@ -111,8 +115,8 @@ FlexboxForRoles = React.createClass
     @unlistener() if @unlistener
 
   render: ->
-    components = @state.items.map (item) =>
-      <item {...@props} />
+    components = @state.items.map ({view, name}) =>
+      <view key={name} {...@props} />
     
     <Flexbox direction="row">
       {components}
@@ -121,11 +125,12 @@ FlexboxForRoles = React.createClass
   _getComponentRegistryState: ->
     items = []
     for role in @props.roles
-      items = items.concat(ComponentRegistry.findAllViewsByRole(role))
+      items = items.concat(ComponentRegistry.findAllByRole(role))
     {items}
 
 module.exports =
 SheetContainer = React.createClass
+  className: 'SheetContainer'
 
   getInitialState: ->
     @_getStateFromStores()

@@ -29,7 +29,7 @@ AccountSidebar = React.createClass
 
   _sections: ->
     return @state.sections.map (section) =>
-      <section>
+      <section key={section.label}>
         {@_itemComponents(section)}
       </section>
 

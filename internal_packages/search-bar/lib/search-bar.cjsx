@@ -6,6 +6,7 @@ _ = require 'underscore-plus'
 
 module.exports =
 SearchBar = React.createClass
+  displayName: 'SearchBar'
 
   getInitialState: ->
     query: ""
@@ -30,6 +31,7 @@ SearchBar = React.createClass
 
     headerComponents = [
       <input type="text"
+             key="input"
              className={inputClass}
              placeholder="Search all email"
              value={inputValue}
@@ -39,8 +41,10 @@ SearchBar = React.createClass
 
       <RetinaImg className="search-accessory search"
                  name="searchloupe.png"
+                 key="accessory"
                  onClick={@_doSearch} />
       <div className="search-accessory clear"
+           key="clear"
            onClick={@_onClearSearch}><i className="fa fa-remove"></i></div>
     ]
 

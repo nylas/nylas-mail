@@ -45,7 +45,7 @@ Sheet = React.createClass
 
   _backButtonComponent: ->
     return [] if @props.depth is 0
-    <div onClick={@_pop}>
+    <div onClick={@_pop} key="back">
       Back
     </div>
 
@@ -54,16 +54,17 @@ Sheet = React.createClass
       classes = @state[column] || []
       return if classes.length is 0
 
-      components = classes.map (c) => <c {...@props} />
+      components = classes.map ({name, view}) => <view key={name} {...@props} />
 
-      maxWidth = _.reduce classes, ((m,c) -> Math.min(c.maxWidth ? 10000, m)), 10000
-      minWidth = _.reduce classes, ((m,c) -> Math.max(c.minWidth ? 0, m)), 0
+      maxWidth = _.reduce classes, ((m,{view}) -> Math.min(view.maxWidth ? 10000, m)), 10000
+      minWidth = _.reduce classes, ((m,{view}) -> Math.max(view.minWidth ? 0, m)), 0
       resizable = minWidth != maxWidth && column != 'Center'
 
       if resizable
         if column is 'Left' then handle = ResizableRegion.Handle.Right
         if column is 'Right' then handle = ResizableRegion.Handle.Left
-        <ResizableRegion name={"#{@props.type}:#{column}"}
+        <ResizableRegion key={"#{@props.type}:#{column}"}
+                         name={"#{@props.type}:#{column}"}
                          data-column={column}
                          onResize={@props.onColumnSizeChanged}
                          minWidth={minWidth}
@@ -75,6 +76,7 @@ Sheet = React.createClass
         </ResizableRegion>
       else
         <Flexbox direction="column"
+                 key={"#{@props.type}:#{column}"}
                  name={"#{@props.type}:#{column}"}
                  data-column={column}
                  style={flex: 1}>
@@ -84,7 +86,7 @@ Sheet = React.createClass
   _getComponentRegistryState: ->
     state = {}
     for column in @props.columns
-      state["#{column}"] = ComponentRegistry.findAllViewsByRole("#{@props.type}:#{column}")
+      state["#{column}"] = ComponentRegistry.findAllByRole("#{@props.type}:#{column}")
     state
 
   _pop: ->
