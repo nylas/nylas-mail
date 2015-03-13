@@ -2,8 +2,6 @@
 React = require "react"
 _ = require "underscore-plus"
 
-SORT = false
-
 DefaultChip = React.createClass
   render: ->
     display = @props.participant.name? and @props.participant.name or @props.participant.email
@@ -35,51 +33,17 @@ module.exports = React.createClass
     </div>
 
   getParticipants: ->
-    me = NamespaceStore.current().me()
+    myEmail = NamespaceStore.current().emailAddress
+    list = @props.participants
 
-    if SORT
-      sorted = _.sortBy @props.participants, (p) -> p.displayName()
-    else
-      sorted = @props.participants
+    # Remove 'Me' if there is more than one participant
+    if list.length > 1
+      list = _.reject list, (p) -> p.email is myEmail
 
-    # Pull 'me'
-    user = _.findWhere sorted, me
-    if self
-      sorted = _.without sorted, user
-
-    # Push 'me' if we just emptied the list
-    if user? and sorted.length == 0
-      sorted.push me
-    # Unshift 'me' if context says we're the sender
-    else if @_fromUserUnrepliedContext()
-      sorted.unshift me
-    # Unshift 'me' if context says we're the sender and it's a group thread
-    else if @_fromUserGroupThreadContext()
-      sorted.unshift me
-
-    # Pull the sender to the front, if it's not 'me'
-    if @_getSender()? and @_getSender().email != me.email
-      # It's probably the same contact object but why risk the fuck up?
-      sender = _.findWhere sorted, {email: @_getSender().email}
-      sorted = _.without sorted, sender
-      sorted.unshift sender
-
-    sorted.forEach (p) ->
+    list.forEach (p) ->
       p.id = p.name+p.email
 
-    sorted
+    list
 
   shouldComponentUpdate: (newProps, newState) ->
     !_.isEqual(newProps.participants, @props.participants)
-
-  # TODO - this'll require poking DatabaseStore
-  # UPDATE: Please move these so they're injected via props from somewhere
-  # that has the thread object. DON'T QUERY HERE! (@ben)
-  _fromUserUnrepliedContext: ->
-    false
-
-  _fromUserGroupThreadContext: ->
-    false
-
-  _getSender: ->
-    undefined
