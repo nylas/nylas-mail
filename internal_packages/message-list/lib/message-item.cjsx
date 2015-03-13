@@ -164,8 +164,10 @@ MessageItem = React.createClass
 
   _attachmentComponents: ->
     AttachmentComponent = @state.AttachmentComponent
-    attachments = _.filter @props.message.files, (f) ->
-      not f.contentId? and f.filename.length > 0
+    attachments = _.filter @props.message.files, (f) =>
+      inBody = f.contentId? and @props.message.body.indexOf(f.contentId) > 0
+      not inBody and f.filename.length > 0
+
     attachments.map (file) =>
       <AttachmentComponent file={file} key={file.id} download={@state.downloads[file.id]}/>
 

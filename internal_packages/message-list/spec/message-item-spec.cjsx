@@ -38,6 +38,12 @@ file_inline_not_downloaded = new File
   contentId: 'file_inline_not_downloaded_id'
   contentType: 'image/png'
   size: 10
+file_cid_but_not_referenced = new File
+  id: 'file_cid_but_not_referenced'
+  filename: 'f.png'
+  contentId: 'file_cid_but_not_referenced'
+  contentType: 'image/png'
+  size: 10
 
 download =
   fileId: 'file_1_id'
@@ -153,34 +159,17 @@ describe "MessageItem", ->
 
     it "should not have the `collapsed` class", ->
       expect(@component.getDOMNode().className.indexOf('collapsed') >= 0).toBe(false)
-    
+
   describe "when the message contains attachments", ->
-    beforeEach ->
-      @message.files = [file, file_not_downloaded]
-      @createComponent()
-
-    it "should include the attachments area", ->
-      attachments = ReactTestUtils.findRenderedDOMComponentWithClass(@component, 'attachments-area')
-      expect(attachments).toBeDefined()
-
-    it "should render the registered AttachmentComponent for each attachment", ->
-      attachments = ReactTestUtils.scryRenderedComponentsWithType(@component, AttachmentStub)
-      expect(attachments.length).toEqual(2)
-      expect(attachments[0].props.file).toBe(file)
-      expect(attachments[1].props.file).toBe(file_not_downloaded)
-
-    it "should provide file download state to each AttachmentComponent", ->
-      attachments = ReactTestUtils.scryRenderedComponentsWithType(@component, AttachmentStub)
-      expect(attachments[0].props.download).toBe(download)
-      expect(attachments[1].props.download).toBe(undefined)
-
-  describe "when the message contains inline attachments", ->
     beforeEach ->
       @message.files = [
         file,
+        file_not_downloaded,
+        file_cid_but_not_referenced,
+
         file_inline,
         file_inline_downloading,
-        file_inline_not_downloaded
+        file_inline_not_downloaded,
       ]
       @message.body = """
         <img alt=\"A\" src=\"cid:#{file_inline.contentId}\"/>
@@ -190,22 +179,39 @@ describe "MessageItem", ->
         """
       @createComponent()
 
-    it "should never include src=cid:// in the message body", ->
-      body = @component._formatBody()
-      expect(body.indexOf('cid')).toEqual(-1)
+    it "should include the attachments area", ->
+      attachments = ReactTestUtils.findRenderedDOMComponentWithClass(@component, 'attachments-area')
+      expect(attachments).toBeDefined()
 
-    it "should replace cid://<file.contentId> with the FileDownloadStore's path for the file", ->
-      body = @component._formatBody()
-      expect(body.indexOf('alt="A" src="/fake/path-inline.png"')).toEqual(@message.body.indexOf('alt="A"'))
-
-    it "should not replace cid://<file.contentId> with the FileDownloadStore's path if the download is in progress", ->
-      body = @component._formatBody()
-      expect(body.indexOf('/fake/path-downloading.png')).toEqual(-1)
-
-    it "should not include them in the attachments area", ->
+    it "should render the registered AttachmentComponent for each attachment", ->
       attachments = ReactTestUtils.scryRenderedComponentsWithType(@component, AttachmentStub)
-      expect(attachments.length).toEqual(1)
       expect(attachments[0].props.file).toBe(file)
+
+    it "should list attachments that are not mentioned in the body via cid", ->
+      attachments = ReactTestUtils.scryRenderedComponentsWithType(@component, AttachmentStub)
+      expect(attachments.length).toEqual(3)
+      expect(attachments[0].props.file).toBe(file)
+      expect(attachments[1].props.file).toBe(file_not_downloaded)
+      expect(attachments[2].props.file).toBe(file_cid_but_not_referenced)
+
+    it "should provide file download state to each AttachmentComponent", ->
+      attachments = ReactTestUtils.scryRenderedComponentsWithType(@component, AttachmentStub)
+      expect(attachments[0].props.download).toBe(download)
+      expect(attachments[1].props.download).toBe(undefined)
+
+    describe "inline", ->
+      it "should never leave src=cid:// in the message body", ->
+        body = @component._formatBody()
+        expect(body.indexOf('cid')).toEqual(-1)
+
+      it "should replace cid://<file.contentId> with the FileDownloadStore's path for the file", ->
+        body = @component._formatBody()
+        expect(body.indexOf('alt="A" src="/fake/path-inline.png"')).toEqual(@message.body.indexOf('alt="A"'))
+
+      it "should not replace cid://<file.contentId> with the FileDownloadStore's path if the download is in progress", ->
+        body = @component._formatBody()
+        expect(body.indexOf('/fake/path-downloading.png')).toEqual(-1)
+
 
   describe "showQuotedText", ->
     it "should be initialized to false", ->
