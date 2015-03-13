@@ -32,6 +32,7 @@ ComposerView = React.createClass
       bcc: []
       body: ""
       subject: ""
+      showQuotedText: false
       isSending: DraftStore.sendingState(@props.localId)
     state
 
@@ -204,6 +205,7 @@ ComposerView = React.createClass
                                     html={@state.body}
                                     onChange={@_onChangeBody}
                                     style={@_precalcComposerCss}
+                                    initialEditQuotedText={@state.showQuotedText}
                                     initialSelectionSnapshot={@_recoveredSelection}
                                     tabIndex="109" />
         </div>
@@ -220,7 +222,8 @@ ComposerView = React.createClass
 
   isForwardedMessage: ->
     draft = @_proxy.draft()
-    draft.subject[0...3].toLowerCase() is "fwd"
+    return false if not draft? or not draft.subject?
+    Utils.isForwardedMessage(draft.body, draft.subject)
 
   _footerComponents: ->
     (@state.FooterComponents ? []).map (Component) =>
@@ -253,6 +256,7 @@ ComposerView = React.createClass
         showcc: not _.isEmpty(draft.cc)
         showbcc: not _.isEmpty(draft.bcc)
         showsubject: @_shouldShowSubject()
+        showQuotedText: @isForwardedMessage()
         populated: true
 
     @setState(state)

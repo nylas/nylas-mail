@@ -24,7 +24,7 @@ MessageItem = React.createClass
     # Holds the downloadData (if any) for all of our files. It's a hash
     # keyed by a fileId. The value is the downloadData.
     downloads: FileDownloadStore.downloadsForFileIds(@props.message.fileIds())
-    showQuotedText: @_messageIsEmptyForward()
+    showQuotedText: @_isForwardedMessage()
     detailedHeaders: false
 
   componentDidMount: ->
@@ -171,14 +171,8 @@ MessageItem = React.createClass
     attachments.map (file) =>
       <AttachmentComponent file={file} key={file.id} download={@state.downloads[file.id]}/>
 
-  _messageIsEmptyForward: ->
-    # Returns true if the message contains "Forwarded" or "Fwd" in the first 250 characters.
-    # A strong indicator that the quoted text should be shown. Needs to be limited to first 250
-    # to prevent replies to forwarded messages from also being expanded.
-    body = @props.message.body.toLowerCase()
-    indexForwarded = body.indexOf('forwarded')
-    indexFwd = body.indexOf('fwd')
-    (indexForwarded >= 0 and indexForwarded < 250) or (indexFwd >= 0 and indexFwd < 250)
+  _isForwardedMessage: ->
+    Utils.isForwardedMessage(@props.message.body, @props.message.subject)
 
   _onDownloadStoreChange: ->
     @setState

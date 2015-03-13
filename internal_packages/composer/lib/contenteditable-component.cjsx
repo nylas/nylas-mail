@@ -18,7 +18,7 @@ ContenteditableComponent = React.createClass
     toolbarLeft: 0
     editAreaWidth: 9999 # This will get set on first selection
     toolbarVisible: false
-    editQuotedText: false
+    editQuotedText: @props.initialEditQuotedText ? false
 
   componentDidMount: ->
     @_setupSelectionListeners()
@@ -29,6 +29,7 @@ ContenteditableComponent = React.createClass
     @_teardownLinkHoverListeners()
 
   componentWillReceiveProps: (nextProps) ->
+    @setState editQuotedText: nextProps.initialEditQuotedText
     if nextProps.initialSelectionSnapshot?
       @_setSelectionSnapshot(nextProps.initialSelectionSnapshot)
 

@@ -154,6 +154,18 @@ Utils =
     # Return remaining compacted email body
     lines.join('\n')
 
+  # Returns true if the message contains "Forwarded" or "Fwd" in the first
+  # 250 characters.  A strong indicator that the quoted text should be
+  # shown. Needs to be limited to first 250 to prevent replies to
+  # forwarded messages from also being expanded.
+  isForwardedMessage: (body="", subject="") ->
+    indexForwarded = body.indexOf('forwarded')
+    indexFwd = body.indexOf('fwd')
+
+    return (indexForwarded >= 0 and indexForwarded < 250) or
+    (indexFwd >= 0 and indexFwd < 250) or
+    (subject[0...3].toLowerCase() is "fwd")
+
   # Checks to see if a particular node is visible and any of its parents
   # are visible.
   #
