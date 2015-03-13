@@ -1,12 +1,17 @@
 Reflux = require 'reflux'
 _ = require 'underscore-plus'
-{DatabaseStore, NamespaceStore, Actions, Tag, Thread} = require 'inbox-exports'
+{DatabaseStore, NamespaceStore, Actions, Tag, Message, Thread} = require 'inbox-exports'
 
 AccountSidebarStore = Reflux.createStore
   init: ->
     @_setStoreDefaults()
     @_registerListeners()
     @_populate()
+
+    # Keep a cache of unread counts since requesting the number from the
+    # server is a fairly expensive operation.
+    @_unreadCountCache = {}
+    @localDraftsTag = new Tag({id: "drafts", name: "Local Drafts"})
 
 
   ########### PUBLIC #####################################################
@@ -35,8 +40,16 @@ AccountSidebarStore = Reflux.createStore
     DatabaseStore.findAll(Tag, namespaceId: namespace.id).then (tags) =>
       # Collect the built-in tags we want to display, and the user tags
       # (which can be identified by having non-hardcoded IDs)
-      mainTagIDs = ['inbox', 'important', 'drafts', 'sent', 'archive', 'trash']
+
+      # We ignore the server drafts so we can use our own localDrafts
+      tags = _.reject tags, (tag) -> tag.id is "drafts"
+      tags.push(@localDraftsTag)
+
+      mainTagIDs = ['inbox', 'drafts', 'sent', 'archive']
       mainTags = _.filter tags, (tag) -> _.contains(mainTagIDs, tag.id)
+
+      console.log mainTags
+
       userTags = _.filter tags, (tag) -> tag.name != tag.id
 
       # Sort the main tags so they always appear in a standard order
@@ -55,16 +68,26 @@ AccountSidebarStore = Reflux.createStore
     namespace = NamespaceStore.current()
     return unless namespace
 
-    @_sections.forEach (section) ->
-      section.tags.forEach (tag) ->
-        # Some tags don't have unread counts
-        return if tag.id in ['archive', 'drafts', 'sent', 'trash']
+    @_sections.forEach (section) =>
+      section.tags.forEach (tag) =>
+        if tag.id is "drafts"
+          @_populateDraftsCount(tag)
+        else if tag.id in ['drafts', 'sent', 'archive', 'trash']
+          return
+        else
+          # Make a web request for unread count
+          atom.inbox.makeRequest
+            method: 'GET'
+            path: "/n/#{namespace.id}/tags/#{tag.id}"
+            returnsModel: true
 
-        # Make a web request for unread count
-        atom.inbox.makeRequest
-          method: 'GET'
-          path: "/n/#{namespace.id}/tags/#{tag.id}"
-          returnsModel: true
+  _populateDraftsCount: ->
+    namespace = NamespaceStore.current()
+    return unless namespace
+
+    DatabaseStore.count(Message, draft: true).then (count) =>
+      @localDraftsTag.unreadCount = count
+      @trigger(@)
 
   # Unfortunately, the joins necessary to compute unread counts are expensive.
   # Rather than update unread counts every time threads change in the database,
@@ -72,7 +95,7 @@ AccountSidebarStore = Reflux.createStore
   # Remove this when JOIN query speed is fixed!
   _populateUnreadCountsDebounced: _.debounce ->
     @_populateUnreadCounts()
-  , 2000
+  , 1000
 
   _refetchFromAPI: ->
     namespace = NamespaceStore.current()
@@ -91,7 +114,10 @@ AccountSidebarStore = Reflux.createStore
     if change.objectClass == Tag.name
       @_populate()
     if change.objectClass == Thread.name
+      console.log "Thread Changed", change
       @_populateUnreadCountsDebounced()
+    if change.objectClass == Message.name
+      @_populateDraftsCount()
 
   _onSelectTagId: (tagId) ->
     @_selectedId = tagId

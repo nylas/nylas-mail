@@ -153,7 +153,7 @@ MessageList = React.createClass
   # of the last message.
   #
   # We don't scroll if there's only 1 item.
-  # We don't screll if you're actively focused somewhere in the message
+  # We don't scroll if you're actively focused somewhere in the message
   # list.
   _scrollToBottom: ->
     _.defer =>
