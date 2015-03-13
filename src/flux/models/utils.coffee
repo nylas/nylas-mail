@@ -103,7 +103,9 @@ Utils =
     else
       return "#{prefix} #{subject}"
 
-  containsQuotedText: (html) ->
+  # A wrapper around String#search(). Returns the index of the first match
+  # or returns -1 if there are no matches
+  quotedTextIndex: (html) ->
     # I know this is gross - one day we'll replace it with a nice system.
     return false unless html
 
@@ -114,12 +116,15 @@ Utils =
       /[\n|>]On .* wrote:[\n|<]/, #On ... wrote: on it's own line
       /.gmail_quote/ # gmail quote class class
     ]
+
     for regex in regexs
-      return true if html.match(regex)
-    return false
-  
-  withoutQuotedText: (html) ->
-    return html unless Utils.containsQuotedText(html)
+      foundIndex = html.search(regex)
+      if foundIndex >= 0 then return foundIndex
+
+    return -1
+
+  stripQuotedText: (html) ->
+    return html if Utils.quotedTextIndex(html) is -1
 
     # Split the email into lines and remove lines that begin with > or &gt;
     lines = html.split(/(\n|<br[^>]*>)/)

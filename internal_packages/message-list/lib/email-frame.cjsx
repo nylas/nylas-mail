@@ -170,7 +170,7 @@ EmailFrame = React.createClass
     if @props.showQuotedText
       email
     else
-      Utils.withoutQuotedText(email)
+      Utils.stripQuotedText(email)
 
   _onClick: (e) ->
     e.preventDefault()

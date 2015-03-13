@@ -1,7 +1,8 @@
 React = require 'react'
 _ = require 'underscore-plus'
 
-{Actions,
+{Utils,
+ Actions,
  UndoManager,
  DraftStore,
  FileUploadStore,
@@ -306,7 +307,7 @@ ComposerView = React.createClass
     warnings = []
     if draft.subject.length is 0
       warnings.push('without a subject line')
-    if (draft.files ? []).length is 0 and draft.body.toLowerCase().indexOf('attach') >= 0
+    if (draft.files ? []).length is 0 and @_hasAttachment(draft.body)
       warnings.push('without an attachment')
 
     if warnings.length > 0 and not options.force
@@ -321,6 +322,16 @@ ComposerView = React.createClass
       return
 
     Actions.sendDraft(@props.localId)
+
+  _hasAttachment: (body) ->
+    body = body.toLowerCase().trim()
+    attachIndex = body.indexOf("attach")
+    if attachIndex >= 0
+      quotedTextIndex = Utils.quotedTextIndex(body)
+      if quotedTextIndex >= 0
+        return (attachIndex < quotedTextIndex)
+      else return true
+    else return false
 
   _destroyDraft: ->
     Actions.destroyDraft(@props.localId)

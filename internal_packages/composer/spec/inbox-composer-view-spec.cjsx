@@ -216,7 +216,7 @@ describe "populated composer", ->
         expect(dialogArgs.buttons).toEqual ['Cancel', 'Send Anyway']
 
       noWarn = (body) ->
-        useDraft.call @, subject: "Subject", to: [u1], body: "Sup yo"
+        useDraft.call @, subject: "Subject", to: [u1], body: body
         makeComposer.call(@); @composer._sendDraft()
         expect(Actions.sendDraft).toHaveBeenCalled()
         expect(@dialog.showMessageBox).not.toHaveBeenCalled()
@@ -224,9 +224,11 @@ describe "populated composer", ->
       it "warns", -> warn.call(@, "Check out the attached file")
       it "warns", -> warn.call(@, "I've added an attachment")
       it "warns", -> warn.call(@, "I'm going to attach the file")
+      it "warns", -> warn.call(@, "Hey attach me <div class='gmail_quote'>sup</div>")
 
       it "doesn't warn", -> noWarn.call(@, "sup yo")
       it "doesn't warn", -> noWarn.call(@, "Look at the file")
+      it "doesn't warn", -> noWarn.call(@, "Hey there <div class='gmail_quote'>attach</div>")
 
     it "doesn't show a warning if you've attached a file", ->
       useDraft.call @,
