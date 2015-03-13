@@ -1,5 +1,21 @@
+_ = require 'underscore-plus'
 React = require 'react'
 {Utils} = require "inbox-exports"
+
+StylesImpactedByZoom = [
+  'top',
+  'left',
+  'right',
+  'bottom',
+  'paddingTop',
+  'paddingLeft',
+  'paddingRight',
+  'paddingBottom',
+  'marginTop',
+  'marginBottom',
+  'marginLeft',
+  'marginRight'
+]
 
 module.exports =
 RetinaImg = React.createClass
@@ -7,7 +23,6 @@ RetinaImg = React.createClass
   propTypes:
     name: React.PropTypes.string
     style: React.PropTypes.object
-    className: React.PropTypes.string
 
     # Optional additional properties which adjust the provided
     # name. Makes it easy to write parent components when images
@@ -23,7 +38,13 @@ RetinaImg = React.createClass
     style = @props.style ? {}
     style.zoom = if pathIsRetina then 0.5 else 1
 
-    <img className={@props.className ? ''} src={path} style={style} />
+    for key, val of style
+      val = "#{val}"
+      if key in StylesImpactedByZoom and val.indexOf('%') is -1
+        style[key] = val.replace('px','') / style.zoom
+
+    otherProps = _.omit(@props, _.keys(@constructor.propTypes))
+    <img src={path} style={style} {...otherProps} />
   
   _pathFor: (name) ->
     [basename, ext] = name.split('.')

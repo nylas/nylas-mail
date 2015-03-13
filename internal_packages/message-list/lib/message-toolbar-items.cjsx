@@ -62,7 +62,7 @@ ArchiveButton = React.createClass
 
 module.exports = React.createClass
   getInitialState: ->
-    threadIsSelected: false
+    threadIsSelected: ThreadStore.selectedId()?
 
   render: ->
     classes = React.addons.classSet

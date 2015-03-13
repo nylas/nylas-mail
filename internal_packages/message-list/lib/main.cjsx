@@ -9,17 +9,33 @@ module.exports =
   activate: (@state={}) ->
     # Register Message List Actions we provide globally
     ComponentRegistry.register
-      name: 'MessageToolbarItems'
-      role: 'MessageList:Toolbar'
+      name: 'MessageListSplit'
+      role: 'Root:Right'
+      mode: 'split'
+      view: MessageList
+
+    ComponentRegistry.register
+      name: 'MessageToolbarItemsSplit'
+      role: 'Root:Right:Toolbar'
+      mode: 'split'
       view: MessageToolbarItems
 
     ComponentRegistry.register
       name: 'MessageList'
-      role: 'Root:Right'
+      role: 'Thread:Center'
+      mode: 'list'
       view: MessageList
+
+    ComponentRegistry.register
+      name: 'MessageToolbarItems'
+      role: 'Thread:Center:Toolbar'
+      mode: 'list'
+      view: MessageToolbarItems
+
 
   deactivate: ->
     ComponentRegistry.unregister 'MessageToolbarItems'
+    ComponentRegistry.unregister 'MessageListSplit'
     ComponentRegistry.unregister 'MessageList'
 
   serialize: -> @state

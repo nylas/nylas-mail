@@ -59,6 +59,7 @@ windowActions = [
   "selectThreadId",
   "selectTagId",
   "selectView",
+  "selectLayoutMode",
 
   # Actions for composer
   "composeReply",
@@ -102,7 +103,8 @@ windowActions = [
   "abortDownload",
   "fileDownloaded",
 
-  "popSheet"
+  "popSheet",
+  "pushSheet"
 ]
 
 allActions = [].concat(windowActions).concat(globalActions).concat(mainWindowActions)

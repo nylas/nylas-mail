@@ -1,6 +1,7 @@
 React = require 'react'
 _ = require 'underscore-plus'
-{Actions,ComponentRegistry} = require "inbox-exports"
+{Actions,ComponentRegistry, WorkspaceStore} = require "inbox-exports"
+RetinaImg = require './components/retina-img.cjsx'
 Flexbox = require './components/flexbox.cjsx'
 ResizableRegion = require './components/resizable-region.cjsx'
 
@@ -18,14 +19,17 @@ Sheet = React.createClass
     columns: ['Left', 'Center', 'Right']
 
   getInitialState: ->
-    @_getComponentRegistryState()
+    @_getStateFromStores()
 
   componentDidMount: ->
-    @unlistener = ComponentRegistry.listen (event) =>
-      @setState(@_getComponentRegistryState())
+    @unlisteners ?= []
+    @unlisteners.push ComponentRegistry.listen (event) =>
+      @setState(@_getStateFromStores())
+    @unlisteners.push WorkspaceStore.listen (event) =>
+      @setState(@_getStateFromStores())
 
   componentWillUnmount: ->
-    @unlistener() if @unlistener
+    unlisten() for unlisten in @unlisteners
 
   render: ->
     style =
@@ -33,6 +37,13 @@ Sheet = React.createClass
       backgroundColor:'white'
       width:'100%'
       height:'100%'
+      zIndex: 1
+
+    # Note - setting the z-index of the sheet is important, even though it's
+    # always 1. Assigning a z-index creates a "stacking context" in the browser,
+    # so z-indexes inside the sheet are relative to each other, but something in
+    # one sheet cannot be on top of something in another sheet.
+    # http://philipwalton.com/articles/what-no-one-told-you-about-z-index/
 
     <div name={"Sheet"}
          style={style}
@@ -45,8 +56,9 @@ Sheet = React.createClass
 
   _backButtonComponent: ->
     return [] if @props.depth is 0
-    <div onClick={@_pop} key="back">
-      Back
+    <div className="sheet-edge" onClick={@_pop} key="back">
+      <div className="gradient"></div>
+      <div className="x"><RetinaImg name="sheet-back.png"/></div>
     </div>
 
   _columnFlexboxComponents: ->
@@ -83,10 +95,17 @@ Sheet = React.createClass
           {components}
         </Flexbox>
 
-  _getComponentRegistryState: ->
+  _getStateFromStores: ->
     state = {}
+    state.mode = WorkspaceStore.selectedLayoutMode()
+
     for column in @props.columns
-      state["#{column}"] = ComponentRegistry.findAllByRole("#{@props.type}:#{column}")
+      views = []
+      for entry in ComponentRegistry.findAllByRole("#{@props.type}:#{column}")
+        continue if entry.mode? and entry.mode != state.mode
+        views.push(entry)
+      state["#{column}"] = views
+
     state
 
   _pop: ->

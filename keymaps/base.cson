@@ -22,11 +22,12 @@
   'a'     : 'application:reply-all' # Gmail
   'f'     : 'application:forward' # Gmail
 
-# Default cross-platform core behaviors
+  'escape': 'application:pop-sheet'
+
+  # Default cross-platform core behaviors
   'left': 'core:move-left'
   'right': 'core:move-right'
   'enter': 'core:confirm'
-  'escape': 'core:cancel'
   'shift-up': 'core:select-up'
   'shift-down': 'core:select-down'
   'shift-left': 'core:select-left'

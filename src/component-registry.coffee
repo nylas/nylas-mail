@@ -22,7 +22,10 @@ Mixin =
 
   componentDidMount: ->
     @_componentUnlistener = ComponentRegistry.listen =>
-      @setState(getViewsByName(@components))
+      if @isMounted() is false
+        console.log('WARNING: ComponentRegistry firing on unmounted component.')
+        return
+      @setState getViewsByName(@components)
 
   componentWillUnmount: ->
     @_componentUnlistener()
@@ -33,7 +36,7 @@ class Component
     # Don't shit the bed if the user forgets `new`
     return new Component(attributes) unless @ instanceof Component
 
-    ['name', 'model', 'view', 'role'].map (key) =>
+    ['name', 'model', 'view', 'role', 'mode'].map (key) =>
       @[key] = attributes[key] if attributes[key]
 
     unless @name?

@@ -1,10 +1,11 @@
 React = require 'react'
-SheetStore = require './sheet-store'
 Sheet = require './sheet'
-{Actions,ComponentRegistry} = require "inbox-exports"
 Flexbox = require './components/flexbox.cjsx'
 ReactCSSTransitionGroup = React.addons.CSSTransitionGroup
 
+{Actions,
+ ComponentRegistry,
+ WorkspaceStore} = require "inbox-exports"
 
 ToolbarSpacer = React.createClass
   className: 'ToolbarSpacer'
@@ -21,14 +22,22 @@ Toolbar = React.createClass
     type: React.PropTypes.string
 
   getInitialState: ->
-    @_getComponentRegistryState()
+    @_getStateFromStores()
 
   componentDidMount: ->
-    @unlistener = ComponentRegistry.listen (event) =>
-      @setState(@_getComponentRegistryState())
+    @unlisteners = []
+    @unlisteners.push WorkspaceStore.listen (event) =>
+      @setState(@_getStateFromStores())
+    @unlisteners.push ComponentRegistry.listen (event) =>
+      @setState(@_getStateFromStores())
+    window.addEventListener "resize", (event) =>
+      @recomputeLayout()
 
   componentWillUnmount: ->
     @unlistener() if @unlistener
+
+  componentWillReceiveProps: (props) ->
+    @setState(@_getStateFromStores(props))
 
   componentDidUpdate: ->
     # Wait for other components that are dirty (the actual columns in the sheet)
@@ -43,34 +52,34 @@ Toolbar = React.createClass
     # Column toolbars contain items with roles attaching them to items
     # in the sheet. Ex: MessageList:Toolbar items appear in the column
     # toolbar for the column containing <MessageList/>.
-    columnToolbars = @state.itemsForViews.map ({column, name, items}) =>
-      <div style={position: 'absolute', top:0}
+    columnToolbars = @state.itemsForColumns.map ({column, name, items}) =>
+      <div style={position: 'absolute', top:0, display:'none'}
            data-owner-name={name}
            data-column={column}
            key={column}>
         {@_flexboxForItems(items)}
       </div>
 
-    <div>
+    <ReactCSSTransitionGroup transitionName="sheet-toolbar">
       {mainToolbar}
       {columnToolbars}
-    </div>
+    </ReactCSSTransitionGroup>
   
   _flexboxForItems: (items) ->
     components = items.map ({view, name}) =>
       <view key={name} {...@props} />
 
-    <Flexbox direction="row">
+    <ReactCSSTransitionGroup component={Flexbox} direction="row" transitionName="sheet-toolbar">
       {components}
       <ToolbarSpacer key="spacer-50" order={-50}/>
       <ToolbarSpacer key="spacer+50" order={50} />
-    </Flexbox>
+    </ReactCSSTransitionGroup>
 
   recomputeLayout: ->
     return unless @isMounted()
     
     # Find our item containers that are tied to specific columns
-    columnToolbarEls = this.getDOMNode().querySelectorAll('[data-column]')
+    columnToolbarEls = @getDOMNode().querySelectorAll('[data-column]')
 
     # Find the top sheet in the stack
     sheet = document.querySelector("[name='Sheet']:last-child")
@@ -81,22 +90,33 @@ Toolbar = React.createClass
       column = columnToolbarEl.dataset.column
       columnEl = sheet.querySelector("[data-column='#{column}']")
       continue unless columnEl
+
+      columnToolbarEl.style.display = 'inherit'
       columnToolbarEl.style.left = "#{columnEl.offsetLeft}px"
       columnToolbarEl.style.width = "#{columnEl.offsetWidth}px"
 
-  _getComponentRegistryState: ->
-    items = []
-    items.push(ComponentRegistry.findAllByRole("Global:Toolbar")...)
-    items.push(ComponentRegistry.findAllByRole("#{@props.type}:Toolbar")...)
+  _getStateFromStores: (props) ->
+    props ?= @props
+    state =
+      mode: WorkspaceStore.selectedLayoutMode()
+      items: []
+      itemsForColumns: []
 
-    itemsForViews = []
-    for column in ['Left', 'Right', 'Center']
-      for {view, name} in ComponentRegistry.findAllByRole("#{@props.type}:#{column}")
-        itemsForView = ComponentRegistry.findAllByRole("#{name}:Toolbar")
-        if itemsForView.length > 0
-          itemsForViews.push({column, name, items: itemsForView})
+    for role in ["Global:Toolbar", "#{props.type}:Toolbar"]
+      for entry in ComponentRegistry.findAllByRole(role)
+        continue if entry.mode? and entry.mode != state.mode
+        state.items.push(entry)
+
+    for column in ["Left", "Center", "Right"]
+      role = "#{props.type}:#{column}:Toolbar"
+      items = []
+      for entry in ComponentRegistry.findAllByRole(role)
+        continue if entry.mode? and entry.mode != state.mode
+        items.push(entry)
+      if items.length > 0
+        state.itemsForColumns.push({column, name, items})
         
-    {items, itemsForViews}
+    state
 
 
 FlexboxForRoles = React.createClass
@@ -128,6 +148,7 @@ FlexboxForRoles = React.createClass
       items = items.concat(ComponentRegistry.findAllByRole(role))
     {items}
 
+
 module.exports =
 SheetContainer = React.createClass
   className: 'SheetContainer'
@@ -136,7 +157,7 @@ SheetContainer = React.createClass
     @_getStateFromStores()
 
   componentDidMount: ->
-    @unsubscribe = SheetStore.listen @_onStoreChange
+    @unsubscribe = WorkspaceStore.listen @_onStoreChange
 
   # It's important that every React class explicitly stops listening to
   # atom events before it unmounts. Thank you event-kit
@@ -146,7 +167,6 @@ SheetContainer = React.createClass
 
   render: ->
     topSheetType = @state.stack[@state.stack.length - 1]
-    
     <Flexbox direction="column">
       <div name="Toolbar" style={order:0} className="sheet-toolbar">
         <Toolbar ref="toolbar" type={topSheetType}/>
@@ -180,5 +200,5 @@ SheetContainer = React.createClass
     @setState @_getStateFromStores()
 
   _getStateFromStores: ->
-    stack: SheetStore.stack()
+    stack: WorkspaceStore.sheetStack()
 

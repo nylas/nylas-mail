@@ -75,6 +75,48 @@ atom-workspace {
   }
 }
 
+.sheet-toolbar-enter {
+  opacity:0;
+  transition: opacity .20s ease-out;
+}
+
+.sheet-toolbar-enter.sheet-toolbar-enter-active {
+  opacity:1;
+}
+
+.sheet-toolbar-leave {
+  opacity:1;
+  transition: opacity .20s ease-in;
+}
+
+.sheet-toolbar-leave.sheet-toolbar-leave-active {
+  opacity:0;
+}
+
+.sheet-edge {
+  height:100%;
+  z-index: @zindex-popover;
+  position: absolute;
+
+  .x {
+    position: absolute;
+    top: @spacing-standard * 1.5;
+    left: @spacing-standard * 1.5;
+  }
+  .gradient {
+    width:9px;
+    height:100%;
+    background-color: #f4f4f4;
+    background-image: -webkit-gradient(linear, left center, right center, from(rgb(244, 244, 244)), to(rgb(209, 209, 209)));
+    background-image: -webkit-linear-gradient(left, rgb(244, 244, 244), rgb(209, 209, 209));
+    background-image: -moz-linear-gradient(left, rgb(244, 244, 244), rgb(209, 209, 209));
+    background-image: -o-linear-gradient(left, rgb(244, 244, 244), rgb(209, 209, 209));
+    background-image: -ms-linear-gradient(left, rgb(244, 244, 244), rgb(209, 209, 209));
+    background-image: linear-gradient(left, rgb(244, 244, 244), rgb(209, 209, 209));
+    filter: progid:DXImageTransform.Microsoft.gradient(GradientType=1,StartColorStr='#f4f4f4', EndColorStr='#d1d1d1');
+  }
+}
+
 .flexbox-handle-horizontal {
   width: 6px;
   top: 0;

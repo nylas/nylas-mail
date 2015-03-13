@@ -1,0 +1,8 @@
+{
+  "name": "mode-switch",
+  "version": "0.0.1",
+  "description": "Mode switch",
+  "main": "./lib/main",
+  "license": "Proprietary",
+  "private": true
+}

@@ -582,6 +582,9 @@ class Atom extends Model
       'atom-workspace:logout': =>
         @logout() if @isLoggedIn()
 
+    # Make sure we can't be made so small that the interface looks like crap
+    @getCurrentWindow().setMinimumSize(875, 500)
+    
     ipc.on 'onboarding-complete', =>
       maximize = dimensions?.maximized and process.platform isnt 'darwin'
       @displayWindow({maximize})
