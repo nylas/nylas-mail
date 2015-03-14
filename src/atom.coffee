@@ -4,7 +4,6 @@ os = require 'os'
 path = require 'path'
 remote = require 'remote'
 shell = require 'shell'
-React = require "react"
 
 _ = require 'underscore-plus'
 {deprecate} = require 'grim'
