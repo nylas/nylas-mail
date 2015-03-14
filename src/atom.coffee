@@ -4,6 +4,7 @@ os = require 'os'
 path = require 'path'
 remote = require 'remote'
 shell = require 'shell'
+React = require "react"
 
 _ = require 'underscore-plus'
 {deprecate} = require 'grim'
@@ -457,6 +458,9 @@ class Atom extends Model
 
   maximize: ->
     ipc.send('call-window-method', 'maximize')
+
+  minimize: ->
+    ipc.send('call-window-method', 'minimize')
 
   # Extended: Is the current window in full screen mode?
   isFullScreen: ->

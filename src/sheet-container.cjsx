@@ -1,5 +1,6 @@
-React = require 'react'
+React = require 'react/addons'
 Sheet = require './sheet'
+TitleBar = require './titlebar'
 Flexbox = require './components/flexbox.cjsx'
 ReactCSSTransitionGroup = React.addons.CSSTransitionGroup
 
@@ -13,7 +14,7 @@ ToolbarSpacer = React.createClass
     order: React.PropTypes.number
 
   render: ->
-    <div style={flex: 1, order:@props.order ? 0}></div>
+    <div className="item-spacer" style={flex: 1, order:@props.order ? 0}></div>
 
 
 Toolbar = React.createClass
@@ -69,10 +70,14 @@ Toolbar = React.createClass
     components = items.map ({view, name}) =>
       <view key={name} {...@props} />
 
-    <ReactCSSTransitionGroup component={Flexbox} direction="row" transitionName="sheet-toolbar">
+    <ReactCSSTransitionGroup
+      className="item-container"
+      component={Flexbox}
+      direction="row"
+      transitionName="sheet-toolbar">
       {components}
       <ToolbarSpacer key="spacer-50" order={-50}/>
-      <ToolbarSpacer key="spacer+50" order={50} />
+      <ToolbarSpacer key="spacer+50" order={50}/>
     </ReactCSSTransitionGroup>
 
   recomputeLayout: ->
@@ -148,7 +153,6 @@ FlexboxForRoles = React.createClass
       items = items.concat(ComponentRegistry.findAllByRole(role))
     {items}
 
-
 module.exports =
 SheetContainer = React.createClass
   className: 'SheetContainer'
@@ -168,6 +172,7 @@ SheetContainer = React.createClass
   render: ->
     topSheetType = @state.stack[@state.stack.length - 1]
     <Flexbox direction="column">
+      <TitleBar />
       <div name="Toolbar" style={order:0} className="sheet-toolbar">
         <Toolbar ref="toolbar" type={topSheetType}/>
       </div>

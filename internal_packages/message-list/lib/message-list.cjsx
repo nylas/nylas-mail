@@ -178,5 +178,5 @@ MessageList = React.createClass
           scrollTo = currentHeight - msgToScroll.getBoundingClientRect().height
           @getDOMNode().scrollTop = scrollTo
 
-MessageList.minWidth = 600
+MessageList.minWidth = 680
 MessageList.maxWidth = 900

@@ -53,7 +53,74 @@ atom-workspace {
   left:100%;
 }
 
+.sheet-title-bar {
+  height:24px;
+  line-height: 24px;
+  cursor: default;
+  background: @toolbar-background-color;
+  -webkit-app-region: drag;
+  padding: 3px;
+  padding-left:@spacing-half;
+  padding-right:60px;
+  text-align: center;
+
+  button {
+    -webkit-app-region: no-drag;
+    display:inline-block;
+    padding:0;
+    width:13px;
+    height:13px;
+    margin:4px;
+    border-radius: 13px;
+    border: 1px solid rgba(0,0,0,0.2);
+    float:left;
+  }
+  .close {
+    background-color: #FB0015;
+    &:hover {
+      background-color: darken(#FB0015, 10%);
+    }
+    &:active {
+      background-color: darken(#FB0015, 20%);
+    }
+  }
+  .minimize {
+    background-color: #FCB40A;
+    &:hover {
+      background-color: darken(#FCB40A, 10%);
+    }
+    &:active {
+      background-color: darken(#FCB40A, 20%);
+    }
+  }
+  .maximize {
+    background-color: #0AAF00;
+    &:hover {
+      background-color: darken(#0AAF00, 10%);
+    }
+    &:active {
+      background-color: darken(#0AAF00, 20%);
+    }
+  }
+}
+
+body.platform-win32, body.platform-linux {
+  .sheet-title-bar {
+    display:none;
+  }
+}
+
+body.is-blurred {
+  .sheet-title-bar {
+    button {
+      background-color: desaturate(fade(#FCB40A, 20%), 100%);
+    }
+  }
+}
+
 .sheet-toolbar {
+  position: relative;
+  -webkit-app-region: drag;
   background: @toolbar-background-color;
   border-bottom: 1px solid @border-color-divider;
   width:  100%;
@@ -67,6 +134,13 @@ atom-workspace {
   // cover up the vertical resizing separators, so the toolbar appears
   // to be one continuous bar.
   z-index: 10;
+
+  .item-container > * {
+    -webkit-app-region: no-drag;
+  }
+  .item-spacer {
+    -webkit-app-region: drag;
+  }
 
   .btn-toolbar {
     margin-top: @spacing-half;

@@ -26,7 +26,7 @@ FileUploadStore = Reflux.createStore
   ######### PUBLIC #######################################################
 
   uploadsForMessage: (messageLocalId) ->
-    if not messageLocalId? then return {}
+    if not messageLocalId? then return []
     _.filter @_fileUploads, (uploadData, uploadKey) ->
       uploadData.messageLocalId is messageLocalId
 

@@ -36,6 +36,7 @@ RetinaImg = React.createClass
     pathIsRetina = path.indexOf('@2x') > 0
 
     style = @props.style ? {}
+    style.WebkitUserDrag = 'none'
     style.zoom = if pathIsRetina then 0.5 else 1
 
     for key, val of style

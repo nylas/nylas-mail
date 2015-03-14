@@ -25,7 +25,7 @@ class AtomWindow
 
     options =
       show: false
-      title: title ? 'Edgehill'
+      title: title ? 'Nilas'
       frame: frame ? true
       resizable: resizable ? true
       icon: @constructor.iconPath

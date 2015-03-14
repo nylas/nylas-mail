@@ -35,7 +35,7 @@ FileUpload = React.createClass
 module.exports =
 FileUploads = React.createClass
   getInitialState: ->
-    uploads: FileUploadStore.uploadsForMessage(@props.localId) ? {}
+    uploads: FileUploadStore.uploadsForMessage(@props.localId) ? []
 
   componentDidMount: ->
     @storeUnlisten = FileUploadStore.listen(@_onFileUploadStoreChange)

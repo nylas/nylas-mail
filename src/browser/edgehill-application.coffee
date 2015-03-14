@@ -399,7 +399,12 @@ class AtomApplication
       bootstrapScript ?= require.resolve('../window-bootstrap')
       resourcePath ?= @resourcePath
       neverClose = true
-      @mainWindow = new AtomWindow({bootstrapScript, resourcePath, devMode, safeMode, neverClose})
+      frame = true
+
+      if process.platform is 'darwin'
+        frame = false
+
+      @mainWindow = new AtomWindow({bootstrapScript, resourcePath, devMode, safeMode, neverClose, frame})
 
   # Public: Opens a secondary window, usually for displaying specific packages
   #
