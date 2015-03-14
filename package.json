@@ -44,6 +44,7 @@
     "less-cache": "0.21",
     "marked": "^0.3",
     "mkdirp": "^0.5",
+    "mixpanel": "^0.0.20",
     "moment": "^2.8",
     "moment-timezone": "^0.3",
     "nslog": "^2.0.0",

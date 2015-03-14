@@ -42,9 +42,10 @@ module.exports =
   MessageStore: require '../src/flux/stores/message-store'
   ContactStore: require '../src/flux/stores/contact-store'
   NamespaceStore: require '../src/flux/stores/namespace-store'
+  AnalyticsStore: require '../src/flux/stores/analytics-store'
+  WorkspaceStore: require '../src/flux/stores/workspace-store'
   FileUploadStore: require '../src/flux/stores/file-upload-store'
   FileDownloadStore: require '../src/flux/stores/file-download-store'
-  WorkspaceStore: require '../src/flux/stores/workspace-store'
 
   ## TODO move to inside of individual Salesforce package. See https://trello.com/c/tLAGLyeb/246-move-salesforce-models-into-individual-package-db-models-for-packages-various-refactors
   SalesforceAssociation: require '../src/flux/models/salesforce-association'
