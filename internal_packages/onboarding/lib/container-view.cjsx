@@ -46,7 +46,7 @@ ContainerView = React.createClass
   render: ->
     <ReactCSSTransitionGroup transitionName="page">
     {@_pageComponent()}
-    <div class="dragRegion" style={"-webkit-app-region": "drag", position: 'absolute', top:0, left:40, right:0, height: 20, zIndex:100}></div>
+    <div className="dragRegion" style={"WebkitAppRegion": "drag", position: 'absolute', top:0, left:40, right:0, height: 20, zIndex:100}></div>
     </ReactCSSTransitionGroup>
 
   _pageComponent: ->

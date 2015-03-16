@@ -47,9 +47,6 @@ AccountSidebarStore = Reflux.createStore
 
       mainTagIDs = ['inbox', 'drafts', 'sent', 'archive']
       mainTags = _.filter tags, (tag) -> _.contains(mainTagIDs, tag.id)
-
-      console.log mainTags
-
       userTags = _.filter tags, (tag) -> tag.name != tag.id
 
       # Sort the main tags so they always appear in a standard order
@@ -114,7 +111,6 @@ AccountSidebarStore = Reflux.createStore
     if change.objectClass == Tag.name
       @_populate()
     if change.objectClass == Thread.name
-      console.log "Thread Changed", change
       @_populateUnreadCountsDebounced()
     if change.objectClass == Message.name
       @_populateDraftsCount()
