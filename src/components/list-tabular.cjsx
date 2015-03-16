@@ -35,8 +35,7 @@ ListTabularItem = React.createClass
       </div>
 
   _onClick: ->
-    if not @props.selected
-      @props.onSelect?(@props.item)
+    @props.onSelect?(@props.item)
 
     @props.onClick?(@props.item)
     if @_lastClickTime? and Date.now() - @_lastClickTime < 350
