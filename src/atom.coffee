@@ -583,7 +583,7 @@ class Atom extends Model
       'atom-workspace:add-account': =>
         @displayOnboardingWindow('add-account')
       'atom-workspace:logout': =>
-        @logout() if @isLoggedIn()
+        @logout()
 
     # Make sure we can't be made so small that the interface looks like crap
     @getCurrentWindow().setMinimumSize(875, 500)
@@ -623,11 +623,12 @@ class Atom extends Model
     @setAutoHideMenuBar(true) if @config.get('core.autoHideMenuBar')
 
   logout: ->
-    Actions = require './flux/actions'
-    Actions.logout()
-    @config.set('inbox', null)
-    @hide()
-    @displayOnboardingWindow()
+    if @isLoggedIn()
+      @config.set('inbox', null)
+      Actions = require './flux/actions'
+      Actions.logout()
+      @hide()
+      @displayOnboardingWindow()
 
   displayComposer: (draftLocalId = null, options={}) ->
     ipc.send('show-composer-window', _.extend(options, {draftLocalId}))

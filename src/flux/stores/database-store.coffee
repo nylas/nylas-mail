@@ -102,7 +102,7 @@ DatabaseStore = Reflux.createStore
     for key, klass of classMap
       callback(klass) if klass.attributes
 
-  openDatabase: (options = {createTables: false}) ->
+  openDatabase: (options = {createTables: false}, callback) ->
     app = remote.getGlobal('atomApplication')
     app.prepareDatabase @_dbPath, =>
       database = new DatabaseProxy(@_dbPath)
@@ -119,12 +119,14 @@ DatabaseStore = Reflux.createStore
           tx.executeInSeries(queries)
         .then =>
           @_db = database
+          callback() if callback
         .catch ->
           # An error occured - most likely a schema change. Log the user out so the
           # database is compeltely reset.
           atom.logout()
       else
         @_db = database
+        callback() if callback
 
   teardownDatabase: (callback) ->
     app = remote.getGlobal('atomApplication')
@@ -221,7 +223,10 @@ DatabaseStore = Reflux.createStore
 
   onLogout: ->
     @teardownDatabase =>
-      @openDatabase({createTables: @_root})
+      @openDatabase {createTables: @_root}, =>
+        # Signal that different namespaces (ie none) are now available
+        Namespace = require '../models/namespace'
+        @trigger({objectClass: Namespace.name})
 
   persistModel: (model) ->
     @inTransaction {}, (tx) =>

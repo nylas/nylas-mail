@@ -71,6 +71,9 @@ ThreadStore = Reflux.createStore
 
   _onNamespaceChanged: ->
     @_namespaceId = NamespaceStore.current()?.id
+    @_items = []
+    @trigger(@)
+
     Actions.selectThreadId(null)
     @fetchFromCache()
     @fetchFromAPI()
