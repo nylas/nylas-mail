@@ -131,7 +131,7 @@ ParticipantsTextField = React.createClass
     ))
     menu.append(new MenuItem(
       label: 'Remove',
-      click: => @_remove(participant)
+      click: => @_remove([participant])
     ))
     menu.popup(remote.getCurrentWindow())
 
