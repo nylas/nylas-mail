@@ -2,6 +2,7 @@ React = require 'react/addons'
 _ = require 'underscore-plus'
 {CompositeDisposable} = require 'event-kit'
 {Contact, ContactStore} = require 'inbox-exports'
+RetinaImg = require './retina-img'
 
 {DragDropMixin} = require 'react-dnd'
 
@@ -29,7 +30,7 @@ Token = React.createClass
     <div {...@dragSourceFor('token')} 
          className={classes} 
          onClick={@_onSelect}>
-      <button className="action" onClick={@_onAction} ><i className="fa fa-chevron-down"></i></button>
+      <button className="action" onClick={@_onAction} style={marginTop: "2px"}><RetinaImg name="composer-caret.png" /></button>
       {@props.children}
     </div>
 

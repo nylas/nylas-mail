@@ -39,14 +39,16 @@
     }
     &:hover {
       background-color: darken(@background-secondary, 5%);
-      cursor: pointer;
+      cursor: -webkit-grab;
     }
     &.selected,
     &.dragging {
       background-color: @background-tertiary;
       color: @text-color-inverse;
-
       .action { color: @text-color-inverse-subtle; }
+    }
+    &.dragging {
+      cursor: -webkit-grabbing;
     }
   }
 

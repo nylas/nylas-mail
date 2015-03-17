@@ -37,7 +37,7 @@ AnalyticsStore = Reflux.createStore
     composeReply: ({threadId, messageId}) -> {threadId, messageId}
     composeForward: ({threadId, messageId}) -> {threadId, messageId}
     composeReplyAll: ({threadId, messageId}) -> {threadId, messageId}
-    composePopoutDraft: (localId) -> {draftLocalId: draftLocalId}
+    composePopoutDraft: (draftLocalId) -> {draftLocalId: draftLocalId}
     composeNewBlankDraft: -> {}
     sendDraft: (draftLocalId) -> {draftLocalId: draftLocalId}
     destroyDraft: (draftLocalId) -> {draftLocalId: draftLocalId}

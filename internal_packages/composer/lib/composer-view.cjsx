@@ -123,29 +123,6 @@ ComposerView = React.createClass
            style={display: (if @state.isSending then "block" else "none")}>
       </div>
 
-      <div className="composer-action-bar-wrap">
-        <div className="composer-action-bar-content">
-          <button className="btn btn-toolbar pull-right btn-trash"
-                  data-tooltip="Delete draft"
-                  onClick={@_destroyDraft}><RetinaImg name="toolbar-trash.png" /></button>
-
-          <button className="btn btn-toolbar pull-right btn-attach"
-                  data-tooltip="Attach file"
-                  onClick={@_attachFile}><RetinaImg name="toolbar-attach.png"/></button>
-
-          <button className="btn btn-toolbar pull-right btn-popout"
-                  data-tooltip="Popout composer"
-                  style={display: (@props.mode is "fullwindow") and 'none' or 'initial'}
-                  onClick={@_popoutComposer}><RetinaImg name="toolbar-popout.png"/></button>
-
-          <button className="btn btn-toolbar btn-send"
-                  data-tooltip="Send message"
-                  ref="sendButton"
-                  onClick={@_sendDraft}><RetinaImg name="toolbar-send.png" /></button>
-          {@_footerComponents()}
-        </div>
-      </div>
-
       <div className="composer-content-wrap">
 
         <div className="composer-participant-actions">
@@ -160,6 +137,12 @@ ComposerView = React.createClass
           <span className="header-action"
                 style={display: @state.showsubject and 'none' or 'initial'}
                 onClick={=> @setState {showsubject: true}}>Subject</span>
+
+          <span className="header-action"
+                data-tooltip="Popout composer"
+                style={{display: ((@props.mode is "fullwindow") and 'none' or 'initial'), paddingLeft: "1.5em"}}
+                onClick={@_popoutComposer}><RetinaImg name="composer-popout.png" style={{position: "relative", top: "-2px"}}/></span>
+
         </div>
 
         <ParticipantsTextField
@@ -205,8 +188,9 @@ ComposerView = React.createClass
                                     html={@state.body}
                                     onChange={@_onChangeBody}
                                     style={@_precalcComposerCss}
-                                    initialEditQuotedText={@state.showQuotedText}
                                     initialSelectionSnapshot={@_recoveredSelection}
+                                    mode={{showQuotedText: @state.showQuotedText}}
+                                    onChangeMode={@_onChangeEditableMode}
                                     tabIndex="109" />
         </div>
 
@@ -215,6 +199,25 @@ ComposerView = React.createClass
           <FileUploads localId={@props.localId} />
         </div>
       </div>
+
+      <div className="composer-action-bar-wrap">
+        <div className="composer-action-bar-content">
+          <button className="btn btn-toolbar pull-right btn-trash"
+                  data-tooltip="Delete draft"
+                  onClick={@_destroyDraft}><RetinaImg name="toolbar-trash.png" /></button>
+
+          <button className="btn btn-toolbar pull-right btn-attach"
+                  data-tooltip="Attach file"
+                  onClick={@_attachFile}><RetinaImg name="toolbar-attach.png"/></button>
+
+          <button className="btn btn-toolbar btn-send"
+                  data-tooltip="Send message"
+                  ref="sendButton"
+                  onClick={@_sendDraft}><RetinaImg name="toolbar-send.png" /></button>
+          {@_footerComponents()}
+        </div>
+      </div>
+
 
     </div>
 
@@ -290,6 +293,9 @@ ComposerView = React.createClass
   _onChangeParticipants: (changes={}) -> @_addToProxy(changes)
   _onChangeSubject: (event) -> @_addToProxy(subject: event.target.value)
   _onChangeBody: (event) -> @_addToProxy(body: event.target.value)
+
+  _onChangeEditableMode: ({showQuotedText}) ->
+    @setState showQuotedText: showQuotedText
 
   _addToProxy: (changes={}, source={}) ->
     selections = @_getSelections()

@@ -184,6 +184,37 @@
       margin-left: 0.4em;
     }
   }
+
+  .token {
+    background: transparent;
+    &.selected,
+    &.dragging {
+      .participant-secondary {
+        color: @text-color-inverse-very-subtle;
+      }
+    }
+    // &:hover {
+    //   background: transparent;
+    // }
+    // &.selected,
+    // &.dragging {
+    //   background: transparent;
+    //   color: @text-color;
+    //
+    //   .action { color: @text-color-subtle; }
+    // }
+  }
+
+  // .btn.btn-send {
+  //   font-weight: @font-weight-semi-bold;
+  //   color: @accent-primary-dark;
+  //   border-top: 1px solid fade(@accent-primary, 39%);
+  //   border-right: 1px solid fade(@accent-primary, 39%);
+  //   border-left: 1px solid fade(@accent-primary, 39%);
+  // }
+}
+body.is-blurred .composer-inner-wrap .tokenizing-field .token {
+  background: transparent;
 }
 
 // Overrides for the full-window popout composer
@@ -225,8 +256,8 @@
 // Overrides for the composer in a message-list
 #message-list {
   .message-item-wrap.composer-outer-wrap {
-    border-top: 2px solid @border-color-divider;
-    &:last-child { padding-bottom: 0; }
+    padding-top: @spacing-standard;
+    background: @background-off-primary;
   }
 }
 
@@ -268,10 +299,6 @@
       color: @text-color-very-subtle;
     }
   }
-
-  .token.selected .participant-secondary, .token.dragging .participant-secondary {
-    color: @text-color-inverse-subtle;
-  }
 }
 
 
@@ -281,28 +308,38 @@
 .floating-toolbar {
   z-index: 10;
   position: absolute;
-  background: @background-tertiary;
+
+  background: #fff;
+  box-shadow: 0px 10px 20px rgba(0,0,0,0.19), inset 0px 0px 1px rgba(0,0,0,0.5);
   border-radius: @border-radius-base;
-  color: @text-color-inverse;
-  box-shadow: 0 0 8px rgba(0,0,0,0.4);
+  color: @text-color;
 
   .toolbar-pointer {
-    content: " ";
     position: absolute;
-    width: 0;
-    height: 0;
-    top: -13px;
-    left: 50%;
-    margin-left: -6px;
-    border: 7px solid transparent;
-    border-bottom-color: @background-tertiary;
-    border-bottom-width: 6px;
+    width: 22.5px;
+    height: 10px;
+    background: transparent url('images/tooltip/tooltip-bg-pointer@2x.png') no-repeat;
+    background-size: 22.5px 10.5px;
+    margin-left: -11.2px;
+  }
+
+  &.above {
+    .toolbar-pointer {
+      transform: rotate(0deg);
+      bottom: -9px;
+    }
+  }
+  &.below {
+    .toolbar-pointer {
+      transform: rotate(180deg);
+      top: -9px;
+    }
   }
 
   .floating-toolbar-input {
     display: inline;
     width: auto;
-    color: @text-color-inverse;
+    color: @text-color;
   }
 
   @padding: 0.5em;
@@ -313,7 +350,7 @@
     border-radius: 0;
     padding: @padding*0.75 @padding;
     margin: 0;
-    color: @text-color-inverse;
+    color: @text-color;
     box-shadow: none;
     &:first-child {
       padding-left: 1.5*@padding;
@@ -331,5 +368,35 @@
     position: relative;
     top: 1px;
     padding: 0 @padding;
+  }
+
+  .toolbar-btn {
+    @padding-top: 4px;
+    @padding-left: 8px;
+
+    width: 12.5px + 2*@padding-left;
+    height: 12.5px + 2*@padding-top;
+    margin: 7.5px 0;
+
+    border-right: 1px solid @border-color-divider;
+    &:last-child { border-right: 0 }
+
+    background: no-repeat;
+    background-size: 12.5px 12.5px;
+    background-position: @padding-left @padding-top;
+    &.btn-bold { background-image: url("images/composer/tooltip-bold-black@2x.png") }
+    &.btn-italic { background-image: url("images/composer/tooltip-italic-black@2x.png") }
+    &.btn-underline { background-image: url("images/composer/tooltip-underline-black@2x.png") }
+    &.btn-link { background-image: url("images/composer/tooltip-link-black@2x.png") }
+    &:hover {
+      cursor: pointer;
+      background: no-repeat;
+      background-size: 12.5px 12.5px;
+      background-position: @padding-left @padding-top;
+      &.btn-bold { background-image: url("images/composer/tooltip-bold-blue@2x.png") }
+      &.btn-italic { background-image: url("images/composer/tooltip-italic-blue@2x.png") }
+      &.btn-underline { background-image: url("images/composer/tooltip-underline-blue@2x.png") }
+      &.btn-link { background-image: url("images/composer/tooltip-link-blue@2x.png") }
+    }
   }
 }

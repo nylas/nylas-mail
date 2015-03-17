@@ -4,6 +4,9 @@ sanitizeHtml = require 'sanitize-html'
 {Utils} = require 'inbox-exports'
 FloatingToolbar = require './floating-toolbar.cjsx'
 
+linkUUID = 0
+genLinkId = -> linkUUID += 1; return linkUUID
+
 module.exports =
 ContenteditableComponent = React.createClass
   propTypes:
@@ -11,14 +14,17 @@ ContenteditableComponent = React.createClass
     style: React.PropTypes.object
     tabIndex: React.PropTypes.string
     onChange: React.PropTypes.func.isRequired
+    mode: React.PropTypes.object
+    onChangeMode: React.PropTypes.func
+    initialSelectionSnapshot: React.PropTypes.object
 
   getInitialState: ->
     toolbarTop: 0
     toolbarMode: "buttons"
     toolbarLeft: 0
+    toolbarPos: "above"
     editAreaWidth: 9999 # This will get set on first selection
     toolbarVisible: false
-    editQuotedText: @props.initialEditQuotedText ? false
 
   componentDidMount: ->
     @_setupSelectionListeners()
@@ -29,9 +35,9 @@ ContenteditableComponent = React.createClass
     @_teardownLinkHoverListeners()
 
   componentWillReceiveProps: (nextProps) ->
-    @setState editQuotedText: nextProps.initialEditQuotedText
     if nextProps.initialSelectionSnapshot?
       @_setSelectionSnapshot(nextProps.initialSelectionSnapshot)
+      @_refreshToolbarState()
 
   componentWillUpdate: ->
     @_teardownLinkHoverListeners()
@@ -45,6 +51,7 @@ ContenteditableComponent = React.createClass
       <FloatingToolbar ref="floatingToolbar"
                        top={@state.toolbarTop}
                        left={@state.toolbarLeft}
+                       pos={@state.toolbarPos}
                        visible={@state.toolbarVisible}
                        tabIndex={@props.tabIndex}
                        onSaveUrl={@_onSaveUrl}
@@ -94,11 +101,11 @@ ContenteditableComponent = React.createClass
     __html: @_applyHTMLDisplayFilters(@props.html)
 
   _applyHTMLDisplayFilters: (html) ->
-    html = @_removeQuotedTextFromHTML(html) unless @state.editQuotedText
+    html = @_removeQuotedTextFromHTML(html) unless @props.mode?.showQuotedText
     return html
 
   _unapplyHTMLDisplayFilters: (html) ->
-    html = @_addQuotedTextToHTML(html) unless @state.editQuotedText
+    html = @_addQuotedTextToHTML(html) unless @props.mode?.showQuotedText
     return html
 
 
@@ -157,7 +164,7 @@ ContenteditableComponent = React.createClass
   # state.
   #
   # We can't use React's `state` variable because cursor position is not
-  # natrually supported in the virtual DOM.
+  # naturally supported in the virtual DOM.
   #
   # We also need to make sure that node references are cloned so they
   # don't change out from underneath us.
@@ -172,7 +179,6 @@ ContenteditableComponent = React.createClass
   _setNewSelectionState: ->
     selection = document.getSelection()
     return if not @_selectionInScope(selection)
-    # @_setSelectionMarkers()
 
     return if @_checkSameSelection(selection)
     try
@@ -182,6 +188,12 @@ ContenteditableComponent = React.createClass
     return if not range?
 
     @_previousSelection = @_selection
+
+    if selection.isCollapsed
+      selectionRect = null
+    else
+      selectionRect = range.getBoundingClientRect()
+
     @_selection =
       startNode: range.startContainer?.cloneNode(true)
       startOffset: range.startOffset
@@ -189,19 +201,15 @@ ContenteditableComponent = React.createClass
       endNode: range.endContainer?.cloneNode(true)
       endOffset: range.endOffset
       endNodeIndex: @_getNodeIndex(range.endContainer)
+      isCollapsed: selection.isCollapsed
+      selectionRect: selectionRect
 
     @_refreshToolbarState()
     return @_selection
 
-  # _setSelectionMarkers: (selection) ->
-  #   startMarker = document.createElement("SPAN")
-  #   startMarker.setAttribute "id", "nilas-start-marker"
-  #   endMarker = document.createElement("SPAN")
-  #   endMarker.setAttribute "id", "nilas-end-marker"
-  #   selection.anchorNode.parentNode.insertBefore(startMarker, selection.anchorNode)
-  #   selection.focusNode.parentNode.insertBefore(endMarker, selection.focusNode)
-
-  _setSelectionSnapshot: (selection) -> @_selection = selection
+  _setSelectionSnapshot: (selection) ->
+    @_previousSelection = @_selection
+    @_selection = selection
 
   # When we're dragging we don't want to the restoring the cursor as we're
   # dragging. Doing so caused selecting backwards to break because the
@@ -210,10 +218,10 @@ ContenteditableComponent = React.createClass
   # state.
   _onMouseDown: (event) ->
     @_ignoreSelectionRestoration = true
-    return true
-  _onMouseUp: ->
+    return event
+  _onMouseUp: (event) ->
     @_ignoreSelectionRestoration = false
-    return true
+    return event
 
   # We manually restore the selection on every render and when we need to
   # move the selection around manually.
@@ -236,11 +244,21 @@ ContenteditableComponent = React.createClass
     return if not startNode? or not endNode?
 
 
-    startIndex = Math.min(@_selection.startOffset ? 0, @_selection.endOffset ? 0)
-    startIndex = Math.min(startIndex, startNode.length)
+    # We want to not care about the selection direction.
+    # Selecting from index 1 to index 5 is the same as selecting from
+    # index 5 to index 1. However, this only works if the nodes we are
+    # grabbing the index from are the same. If they are different, then we
+    # can no longer make this gaurantee and have to grab their listed
+    # offsets.
+    if startNode is endNode
+      startIndex = Math.min(@_selection.startOffset ? 0, @_selection.endOffset ? 0)
+      startIndex = Math.min(startIndex, startNode.length)
 
-    endIndex = Math.max(@_selection.startOffset ? 0, @_selection.endOffset ? 0)
-    endIndex = Math.min(endIndex, endNode.length)
+      endIndex = Math.max(@_selection.startOffset ? 0, @_selection.endOffset ? 0)
+      endIndex = Math.min(endIndex, endNode.length)
+    else
+      startIndex = @_selection.startOffset
+      endIndex = @_selection.endOffset
 
     if collapse is "end"
       startNode = endNode
@@ -264,35 +282,35 @@ ContenteditableComponent = React.createClass
 
   # We need to break each node apart and cache since the `selection`
   # object will mutate underneath us.
-  _checkSameSelection: (selection) ->
-    return true if not selection?
-    return false if not @_previousSelection
-    return false if not selection.anchorNode? or not selection.focusNode?
+  _checkSameSelection: (newSelection) ->
+    return true if not newSelection?
+    return false if not @_selection
+    return false if not newSelection.anchorNode? or not newSelection.focusNode?
 
-    anchorIndex = @_getNodeIndex(selection.anchorNode)
-    focusIndex = @_getNodeIndex(selection.focusNode)
+    anchorIndex = @_getNodeIndex(newSelection.anchorNode)
+    focusIndex = @_getNodeIndex(newSelection.focusNode)
 
-    anchorEqual = selection.anchorNode.isEqualNode @_previousSelection.startNode
-    anchorIndexEqual = anchorIndex is @_previousSelection.startNodeIndex
-    focusEqual = selection.focusNode.isEqualNode @_previousSelection.endNode
-    focusIndexEqual = focusIndex is @_previousSelection.endNodeIndex
+    anchorEqual = newSelection.anchorNode.isEqualNode @_selection.startNode
+    anchorIndexEqual = anchorIndex is @_selection.startNodeIndex
+    focusEqual = newSelection.focusNode.isEqualNode @_selection.endNode
+    focusIndexEqual = focusIndex is @_selection.endNodeIndex
     if not anchorEqual and not focusEqual
-      # This means the selection is the same, but just from the opposite
+      # This means the newSelection is the same, but just from the opposite
       # direction. We don't care in this case, so check the reciprocal as
       # well.
-      anchorEqual = selection.anchorNode.isEqualNode @_previousSelection.endNode
-      anchorIndexEqual = anchorIndex is @_previousSelection.endNodeIndex
-      focusEqual = selection.focusNode.isEqualNode @_previousSelection.startNode
-      focusIndexEqual = focusIndex is @_previousSelection.startndNodeIndex
+      anchorEqual = newSelection.anchorNode.isEqualNode @_selection.endNode
+      anchorIndexEqual = anchorIndex is @_selection.endNodeIndex
+      focusEqual = newSelection.focusNode.isEqualNode @_selection.startNode
+      focusIndexEqual = focusIndex is @_selection.startndNodeIndex
 
-    anchorOffsetEqual = selection.anchorOffset == @_previousSelection.startOffset
-    focusOffsetEqual = selection.focusOffset == @_previousSelection.endOffset
+    anchorOffsetEqual = newSelection.anchorOffset == @_selection.startOffset
+    focusOffsetEqual = newSelection.focusOffset == @_selection.endOffset
     if not anchorOffsetEqual and not focusOffsetEqual
-      # This means the selection is the same, but just from the opposite
+      # This means the newSelection is the same, but just from the opposite
       # direction. We don't care in this case, so check the reciprocal as
       # well.
-      anchorOffsetEqual = selection.anchorOffset == @_previousSelection.focusOffset
-      focusOffsetEqual = selection.focusOffset == @_previousSelection.anchorOffset
+      anchorOffsetEqual = newSelection.anchorOffset == @_selection.focusOffset
+      focusOffsetEqual = newSelection.focusOffset == @_selection.anchorOffset
 
     if (anchorEqual and
         anchorIndexEqual and
@@ -338,35 +356,32 @@ ContenteditableComponent = React.createClass
     if @_linkHoveringOver
       url = @_linkHoveringOver.getAttribute('href')
       rect = @_linkHoveringOver.getBoundingClientRect()
-      [left, top, editAreaWidth] = @_getToolbarPos(rect)
+      [left, top, editAreaWidth, toolbarPos] = @_getToolbarPos(rect)
       @setState
         toolbarVisible: true
         toolbarMode: "edit-link"
         toolbarTop: top
         toolbarLeft: left
+        toolbarPos: toolbarPos
         linkToModify: @_linkHoveringOver
         editAreaWidth: editAreaWidth
     else
-      selection = document.getSelection()
-
-      # TODO do something smarter then this in the future
-      linksInside = [] # @_linksInside(selection)
-
-      if selection.isCollapsed and linksInside.length is 0
+      if not @_selection? or @_selection.isCollapsed
         @_hideToolbar()
       else
-        if selection.isCollapsed and linksInside.length > 0
+        if @_selection.isCollapsed
           linkRect = linksInside[0].getBoundingClientRect()
-          [left, top, editAreaWidth] = @_getToolbarPos(linkRect)
+          [left, top, editAreaWidth, toolbarPos] = @_getToolbarPos(linkRect)
         else
-          selectionRect = selection.getRangeAt(0).getBoundingClientRect()
-          [left, top, editAreaWidth] = @_getToolbarPos(selectionRect)
+          selectionRect = @_selection.selectionRect
+          [left, top, editAreaWidth, toolbarPos] = @_getToolbarPos(selectionRect)
 
         @setState
           toolbarVisible: true
           toolbarMode: "buttons"
           toolbarTop: top
           toolbarLeft: left
+          toolbarPos: toolbarPos
           linkToModify: null
           editAreaWidth: editAreaWidth
 
@@ -384,14 +399,20 @@ ContenteditableComponent = React.createClass
 
     TOP_PADDING = 10
 
+    BORDER_RADIUS_PADDING = 15
+
     editArea = @refs.contenteditable.getDOMNode().getBoundingClientRect()
 
     calcLeft = (referenceRect.left - editArea.left) + referenceRect.width/2
-    calcLeft = Math.min(Math.max(calcLeft, @CONTENT_PADDING), editArea.width)
+    calcLeft = Math.min(Math.max(calcLeft, @CONTENT_PADDING+BORDER_RADIUS_PADDING), editArea.width - BORDER_RADIUS_PADDING)
 
-    calcTop = referenceRect.top - editArea.top + referenceRect.height + TOP_PADDING
+    calcTop = referenceRect.top - editArea.top - 48
+    toolbarPos = "above"
+    if calcTop < TOP_PADDING
+      calcTop = referenceRect.top - editArea.top + referenceRect.height + TOP_PADDING + 4
+      toolbarPos = "below"
 
-    return [calcLeft, calcTop, editArea.width]
+    return [calcLeft, calcTop, editArea.width, toolbarPos]
 
   _hideToolbar: ->
     if not @_focusedOnToolbar() and @state.toolbarVisible
@@ -437,36 +458,40 @@ ContenteditableComponent = React.createClass
   _setupLinkHoverListeners: ->
     HOVER_IN_DELAY = 250
     HOVER_OUT_DELAY = 1000
-    @_links = []
+    @_links = {}
     links =  @_getAllLinks()
     return if links.length is 0
     links.forEach (link) =>
-      enterTimeout = null
-      leaveTimeout = null
+      link.hoverId = genLinkId()
+      @_links[link.hoverId] = {}
 
       enterListener = (event) =>
-        enterTimeout = setTimeout =>
+        @_clearLinkTimeouts()
+        @_linkHoveringOver = link
+        @_links[link.hoverId].enterTimeout = setTimeout =>
           return unless @isMounted()
-          @_linkHoveringOver = link
           @_refreshToolbarState()
         , HOVER_IN_DELAY
+
       leaveListener = (event) =>
-        leaveTimeout = setTimeout =>
-          @_linkHoveringOver = null
+        @_clearLinkTimeouts()
+        @_linkHoveringOver = null
+        @_links[link.hoverId].leaveTimeout = setTimeout =>
           return unless @isMounted()
           return if @refs.floatingToolbar.isHovering
           @_refreshToolbarState()
         , HOVER_OUT_DELAY
-        clearTimeout(enterTimeout)
 
       link.addEventListener "mouseenter", enterListener
       link.addEventListener "mouseleave", leaveListener
-      @_links.push
-        link: link
-        enterTimeout: enterTimeout
-        leaveTimeout: leaveTimeout
-        enterListener: enterListener
-        leaveListener: leaveListener
+      @_links[link.hoverId].link = link
+      @_links[link.hoverId].enterListener = enterListener
+      @_links[link.hoverId].leaveListener = leaveListener
+
+  _clearLinkTimeouts: ->
+    for hoverId, linkData of @_links
+      clearTimeout(linkData.enterTimeout) if linkData.enterTimeout?
+      clearTimeout(linkData.leaveTimeout) if linkData.leaveTimeout?
 
   _onTooltipMouseEnter: ->
     clearTimeout(@_clearTooltipTimeout) if @_clearTooltipTimeout?
@@ -477,12 +502,12 @@ ContenteditableComponent = React.createClass
     , 500
 
   _teardownLinkHoverListeners: ->
-    while @_links.length > 0
-      linkData = @_links.pop()
+    for hoverId, linkData of @_links
       clearTimeout linkData.enterTimeout
       clearTimeout linkData.leaveTimeout
       linkData.link.removeEventListener "mouseenter", linkData.enterListener
       linkData.link.removeEventListener "mouseleave", linkData.leaveListener
+    @_links = {}
 
 
 
@@ -531,13 +556,12 @@ ContenteditableComponent = React.createClass
   ####### QUOTED TEXT #########
 
   _onToggleQuotedText: ->
-    @setState
-      editQuotedText: !@state.editQuotedText
+    @props.onChangeMode?(showQuotedText: !@props.mode?.showQuotedText)
 
   _quotedTextClasses: -> React.addons.classSet
     "quoted-text-control": true
     "no-quoted-text": @_htmlQuotedTextStart() is -1
-    "show-quoted-text": @state.editQuotedText
+    "show-quoted-text": @props.mode?.showQuotedText
 
   _htmlQuotedTextStart: ->
     @props.html.search(/<[^>]*gmail_quote/)

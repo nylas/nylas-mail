@@ -1,6 +1,7 @@
 _ = require 'underscore-plus'
 React = require 'react'
 {CompositeDisposable} = require 'event-kit'
+{RetinaImg} = require 'ui-components'
 
 module.exports =
 FloatingToolbar = React.createClass
@@ -31,7 +32,7 @@ FloatingToolbar = React.createClass
 
   render: ->
     <div ref="floatingToolbar"
-         className="floating-toolbar toolbar" style={@_toolbarStyles()}>
+         className="floating-toolbar toolbar #{@props.pos}" style={@_toolbarStyles()}>
       <div className="toolbar-pointer" style={@_toolbarPointerStyles()}></div>
       {@_toolbarType()}
     </div>
@@ -43,15 +44,18 @@ FloatingToolbar = React.createClass
 
   _renderButtons: ->
     <div className="toolbar-buttons">
-      <button className="btn btn-bold btn-icon"
+      <button className="btn btn-bold toolbar-btn"
               onClick={@_execCommand}
-              data-command-name="bold"><strong>B</strong></button>
-      <button className="btn btn-italic btn-icon"
+              data-command-name="bold"></button>
+      <button className="btn btn-italic toolbar-btn"
               onClick={@_execCommand}
-              data-command-name="italic"><em>I</em></button>
-      <button className="btn btn-link btn-icon"
+              data-command-name="italic"></button>
+      <button className="btn btn-underline toolbar-btn"
+              onClick={@_execCommand}
+              data-command-name="underline"></button>
+      <button className="btn btn-link toolbar-btn"
               onClick={@_showLink}
-              data-command-name="link"><i className="fa fa-link"></i></button>
+              data-command-name="link"></button>
     </div>
 
   _renderLink: ->
@@ -106,6 +110,7 @@ FloatingToolbar = React.createClass
     @props.onSaveUrl "", @props.linkToModify
 
   __saveUrl: ->
+    return unless @isMounted() and @state.urlInputValue?
     @props.onSaveUrl @state.urlInputValue, @props.linkToModify
 
   _execCommand: (event) ->
@@ -143,7 +148,7 @@ FloatingToolbar = React.createClass
     # We can't calculate the width of the floating toolbar declaratively
     # because it hasn't been rendered yet. As such, we'll keep the width
     # fixed to make it much eaier.
-    TOOLBAR_BUTTONS_WIDTH = 86#px
+    TOOLBAR_BUTTONS_WIDTH = 114#px
     TOOLBAR_URL_WIDTH = 210#px
 
     if @state.mode is "buttons"

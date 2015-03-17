@@ -16,9 +16,11 @@ describe "ContenteditableComponent", ->
       <ContenteditableComponent html={html} onChange={@onChange}/>
     )
 
-    html = 'Test <strong>HTML</strong><br><blockquote class="gmail_quote">QUOTE</blockquote>'
+    @htmlWithQuote = 'Test <strong>HTML</strong><br><blockquote class="gmail_quote">QUOTE</blockquote>'
     @componentWithQuote = ReactTestUtils.renderIntoDocument(
-      <ContenteditableComponent html={html} onChange={@onChange}/>
+      <ContenteditableComponent html={@htmlWithQuote}
+                                onChange={@onChange} 
+                                mode={showQuotedText: false}/>
     )
 
   describe "quoted-text-control", ->
@@ -29,13 +31,15 @@ describe "ContenteditableComponent", ->
       @toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@componentWithQuote, 'quoted-text-control')
       expect(@toggle.props.className.indexOf('no-quoted-text') >= 0).toBe(false)
 
-    it "should be have `show-quoted-text` if editQuotedText is true", ->
-      @componentWithQuote.setState(editQuotedText: true)
+    it "should be have `show-quoted-text` if showQuotedText is true", ->
+      @componentWithQuote = ReactTestUtils.renderIntoDocument(
+        <ContenteditableComponent html={@htmlWithQuote} onChange={@onChange} mode={showQuotedText: true}/>
+      )
       @toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@componentWithQuote, 'quoted-text-control')
       expect(@toggle.props.className.indexOf('show-quoted-text') >= 0).toBe(true)
 
-    it "should not have `show-quoted-text` if editQuotedText is false", ->
-      @componentWithQuote.setState(editQuotedText: false)
+    it "should not have `show-quoted-text` if showQuotedText is false", ->
+      @componentWithQuote.setState(showQuotedText: false)
       @toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@componentWithQuote, 'quoted-text-control')
       expect(@toggle.props.className.indexOf('show-quoted-text') >= 0).toBe(false)
 
@@ -43,20 +47,27 @@ describe "ContenteditableComponent", ->
       @toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@component, 'quoted-text-control')
       expect(@toggle.props.className.indexOf('no-quoted-text') >= 0).toBe(true)
 
-  describe "when editQuotedText is false", ->
+  describe "when showQuotedText is false", ->
     it "should only display HTML up to the beginning of the quoted text", ->
       @editDiv = ReactTestUtils.findRenderedDOMComponentWithAttr(@componentWithQuote, 'contentEditable')
       expect(@editDiv.getDOMNode().innerHTML.indexOf('gmail_quote') >= 0).toBe(false)
 
-  describe "when editQuotedText is true", ->
+  describe "when showQuotedText is true", ->
+    beforeEach ->
+      @componentWithQuote = ReactTestUtils.renderIntoDocument(
+        <ContenteditableComponent html={@htmlWithQuote}
+                                  onChange={@onChange}
+                                  mode={showQuotedText: true}/>
+      )
+
     it "should display all the HTML", ->
-      @componentWithQuote.setState(editQuotedText: true)
+      @componentWithQuote.setState(showQuotedText: true)
       @editDiv = ReactTestUtils.findRenderedDOMComponentWithAttr(@componentWithQuote, 'contentEditable')
       expect(@editDiv.getDOMNode().innerHTML.indexOf('gmail_quote') >= 0).toBe(true)
 
-  describe "editQuotedText", ->
+  describe "showQuotedText", ->
     it "should default to false", ->
-      expect(@component.state.editQuotedText).toBe(false)
+      expect(@component.props.mode?.showQuotedText).toBeUndefined()
 
   describe "when the html is changed", ->
     beforeEach ->
@@ -68,30 +79,37 @@ describe "ContenteditableComponent", ->
         editDiv.getDOMNode().innerHTML = newHTML
         ReactTestUtils.Simulate.input(editDiv, {target: {value: newHTML}})
 
-    describe "when editQuotedText is true", ->
+    describe "when showQuotedText is true", ->
+      beforeEach ->
+        @componentWithQuote = ReactTestUtils.renderIntoDocument(
+          <ContenteditableComponent html={@htmlWithQuote}
+                                    onChange={@onChange}
+                                    mode={showQuotedText: true}/>
+        )
+
       it "should call `props.onChange` with the entire HTML string", ->
-        @componentWithQuote.setState(editQuotedText: true)
+        @componentWithQuote.setState(showQuotedText: true)
         @performEdit(@changedHtmlWithQuote)
         ev = @onChange.mostRecentCall.args[0]
         expect(ev.target.value).toEqual(@changedHtmlWithQuote)
 
       it "should allow the quoted text to be changed", ->
         changed = 'Test <strong>NEW 1 HTML</strong><br><blockquote class="gmail_quote">QUOTE CHANGED!!!</blockquote>'
-        @componentWithQuote.setState(editQuotedText: true)
+        @componentWithQuote.setState(showQuotedText: true)
         @performEdit(changed)
         ev = @onChange.mostRecentCall.args[0]
         expect(ev.target.value).toEqual(changed)
 
-    describe "when editQuotedText is false", ->
+    describe "when showQuotedText is false", ->
       it "should call `props.onChange` with the entire HTML string, even though the div being edited only contains some of it", ->
-        @componentWithQuote.setState(editQuotedText: false)
+        @componentWithQuote.setState(showQuotedText: false)
         @performEdit(@changedHtmlWithoutQuote)
         ev = @onChange.mostRecentCall.args[0]
         expect(ev.target.value).toEqual(@changedHtmlWithQuote)
 
       it "should work if the component does not contain quoted text", ->
         changed = 'Hallooo! <strong>NEW 1 HTML HTML HTML</strong><br>'
-        @component.setState(editQuotedText: true)
+        @component.setState(showQuotedText: true)
         @performEdit(changed, @component)
         ev = @onChange.mostRecentCall.args[0]
         expect(ev.target.value).toEqual(changed)

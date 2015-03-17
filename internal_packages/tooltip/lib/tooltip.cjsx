@@ -14,6 +14,7 @@ Tooltip = React.createClass
 
   getInitialState: ->
     top: 0
+    pos: "below"
     left: 0
     width: 0
     pointerLeft: 0
@@ -33,7 +34,7 @@ Tooltip = React.createClass
     clearTimeout @_showDelayTimeout
 
   render: ->
-    <div className="tooltip-wrap" style={@_positionStyles()}>
+    <div className="tooltip-wrap #{@state.pos}" style={@_positionStyles()}>
       <div className="tooltip-content">{@state.content}</div>
       <div className="tooltip-pointer" style={left: @state.pointerLeft}></div>
     </div>
@@ -86,10 +87,19 @@ Tooltip = React.createClass
     content = target.dataset.tooltip
     guessedWidth = @_guessWidth(content)
     dim = target.getBoundingClientRect()
-    top = dim.top + dim.height + 11
     left = dim.left + dim.width / 2
+
+    TOOLTIP_HEIGHT = 50
+    FLIP_THRESHOLD = TOOLTIP_HEIGHT + 30
+    top = dim.top + dim.height + 14
+    tooltipPos = "below"
+    if top + FLIP_THRESHOLD > @_windowHeight()
+      tooltipPos = "above"
+      top = dim.top - TOOLTIP_HEIGHT
+
     @setState
       top: top
+      pos: tooltipPos
       left: @_tooltipLeft(left, guessedWidth)
       width: guessedWidth
       pointerLeft: @_tooltipPointerLeft(left, guessedWidth)
@@ -118,6 +128,9 @@ Tooltip = React.createClass
 
   _windowWidth: ->
     document.getElementsByTagName('body')[0].getBoundingClientRect().width
+
+  _windowHeight: ->
+    document.getElementsByTagName('body')[0].getBoundingClientRect().height
 
   _hideTooltip: ->
     return unless @isMounted()
