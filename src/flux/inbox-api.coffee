@@ -185,7 +185,7 @@ class InboxAPI
         if objects.length > 0
           DatabaseStore.persistModels(objects)
         resolve(objects)
-      
+
   _shouldAcceptModel: (classname, model = null) ->
     return Promise.resolve() unless model
 
@@ -238,9 +238,9 @@ class InboxAPI
   getCalendars: (namespaceId) ->
     @getCollection(namespaceId, 'calendars', {})
 
-  getCollection: (namespaceId, collection, params={}) ->
+  getCollection: (namespaceId, collection, params={}, requestOptions={}) ->
     throw (new Error "getCollection requires namespaceId") unless namespaceId
-    @makeRequest
+    @makeRequest _.extend requestOptions,
       path: "/n/#{namespaceId}/#{collection}"
       qs: params
       returnsModel: true

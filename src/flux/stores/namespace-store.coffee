@@ -18,13 +18,10 @@ NamespaceStore = Reflux.createStore
 
   populateItems: ->
     DatabaseStore.findAll(Namespace).then (namespaces) =>
-      @_items = namespaces
-      @_current = _.find @_items, (n) -> n.id == @_current?.id
+      @_namespaces = namespaces
+      @_current = _.find @_namespaces, (n) -> n.id == @_current?.id
 
-      unless @_current
-        @_current = @_items?[0]
-        if @_current
-          atom.inbox.getCollection(@_current.id, "contacts")
+      @_current = @_namespaces?[0] unless @_current
 
       @trigger(@)
 
@@ -35,13 +32,13 @@ NamespaceStore = Reflux.createStore
     @populateItems()
 
   onSelectNamespaceId: (id) ->
-    @_current = _.find @_items, (n) -> n.id == @_current.id
+    @_current = _.find @_namespaces, (n) -> n.id == @_current.id
     @trigger(@)
 
   # Exposed Data
 
   items: ->
-    @_items
+    @_namespaces
 
   current: ->
     @_current
