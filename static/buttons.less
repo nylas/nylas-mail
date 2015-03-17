@@ -1,6 +1,13 @@
 @import "ui-variables";
 @import "ui-mixins";
 
+button, html input[type="button"] {
+  cursor: default;
+  &:hover, &:active {
+    cursor: default;
+  }
+}
+
 .btn {
   border:  0;
   padding: 0.33em 1em;
