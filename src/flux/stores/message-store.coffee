@@ -14,8 +14,14 @@ MessageStore = Reflux.createStore
 
   ########### PUBLIC #####################################################
 
-  items: -> @_items
-  itemLocalIds: -> @_itemsLocalIds
+  items: ->
+    @_items
+  
+  itemLocalIds: ->
+    @_itemsLocalIds
+  
+  itemsLoading: ->
+    @_threadId? and @_items.length is 0
 
   ########### PRIVATE ####################################################
 
@@ -45,8 +51,7 @@ MessageStore = Reflux.createStore
 
     # Fetch messages from cache. Fetch a few now,
     # and debounce loading all of them
-    @_fetchFromCache({preview: true})
-    @_fetchFromCacheDebounced()
+    @_fetchFromCache()
 
     # Fetch messages from API, only if the user
     # sits on this message for a moment
@@ -56,7 +61,6 @@ MessageStore = Reflux.createStore
     loadedThreadId = @_threadId
 
     query = DatabaseStore.findAll(Message, threadId: loadedThreadId)
-    query.limit(2) if options.preview
     query.then (items) =>
       localIds = {}
       async.each items, (item, callback) ->
@@ -79,10 +83,6 @@ MessageStore = Reflux.createStore
             Actions.fetchFile(file) if file.contentId
 
         @trigger(@)
-
-  _fetchFromCacheDebounced: _.debounce ->
-    @_fetchFromCache()
-  , 100
 
   _fetchFromAPIDebounced: _.debounce ->
     return unless @_threadId?

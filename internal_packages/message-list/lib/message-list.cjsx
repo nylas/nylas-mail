@@ -2,6 +2,7 @@ _ = require 'underscore-plus'
 React = require 'react'
 MessageItem = require "./message-item.cjsx"
 {Actions, ThreadStore, MessageStore, ComponentRegistry} = require("inbox-exports")
+{Spinner} = require('ui-components')
 
 module.exports =
 MessageList = React.createClass
@@ -16,51 +17,43 @@ MessageList = React.createClass
     @_unsubscribers = []
     @_unsubscribers.push MessageStore.listen @_onChange
     @_unsubscribers.push ThreadStore.listen @_onChange
-    @_lastHeight = -1
-    @_scrollToBottom()
+    if @state.messages.length > 0
+      @_prepareContentForDisplay()
 
   componentWillUnmount: ->
     unsubscribe() for unsubscribe in @_unsubscribers
 
-  componentWillUpdate: (nextProps, nextState) ->
-    newDraftIds = @_newDraftIds(nextState)
-    if newDraftIds.length >= 1
-      @_focusComposerId = newDraftIds[0]
-
   componentDidUpdate: (prevProps, prevState) ->
-    if @_shouldScroll(prevState)
-      @_lastHeight = -1
-      @_scrollToBottom()
-      if @_focusComposerId?
-        @_focusRef(@refs["composerItem-#{@_focusComposerId}"])
-        @_focusComposerId = null
+    didLoad = prevState.messages.length is 0 and @state.messages.length > 0
 
-  # Only scroll if the messages change and there are some message
-  _shouldScroll: (prevState) ->
-    return false if (@state.messages ? []).length is 0
-    prevMsg = (prevState.messages ? []).map((m) -> m.id)
-    curMsg = (@state.messages ? []).map((m) -> m.id)
-    return true if prevMsg.length isnt curMsg.length
-    iLength = _.intersection(prevMsg, curMsg).length
-    return true if iLength isnt prevMsg.length or iLength isnt curMsg.length
-    return false
+    oldDraftIds = _.map(_.filter((prevState.messages ? []), (m) -> m.draft), (m) -> m.id)
+    newDraftIds = _.map(_.filter((@state.messages ? []), (m) -> m.draft), (m) -> m.id)
+    addedDraftIds = _.difference(newDraftIds, oldDraftIds)
+    didAddDraft = addedDraftIds.length > 0
 
+    if didLoad
+      @_prepareContentForDisplay()
 
-  # We need a 100ms delay so the DOM can finish painting the elements on
-  # the page. The focus doesn't work for some reason while the paint is in
-  # process.
-  _focusRef: (component) -> _.delay ->
-    if component?.isForwardedMessage()
-      component?.focus("textFieldTo")
-    else
-      component?.focus("contentBody")
-  , 100
+    else if didAddDraft
+      @_focusDraft(@refs["composerItem-#{addedDraftIds[0]}"])
+
+  _focusDraft: (draftDOMNode) ->
+    # We need a 100ms delay so the DOM can finish painting the elements on
+    # the page. The focus doesn't work for some reason while the paint is in
+    # process.
+    _.delay =>
+      return unless @isMounted
+      draftDOMNode.focus()
+    ,100
 
   render: ->
     return <div></div> if not @state.currentThread?
+    wrapClass = React.addons.classSet
+      "messages-wrap": true
+      "ready": @state.ready
 
     <div className="message-list" id="message-list">
-      <div tabIndex=1 ref="messageWrap" className="messages-wrap">
+      <div tabIndex=1 className={wrapClass} ref="messageWrap">
         <div className="message-list-notification-bars">
           {@_messageListNotificationBars()}
         </div>
@@ -68,7 +61,34 @@ MessageList = React.createClass
         {@_messageListHeaders()}
         {@_messageComponents()}
       </div>
+      <Spinner visible={!@state.ready} />
     </div>
+
+  # There may be a lot of iframes to load which may take an indeterminate
+  # amount of time. As long as there is more content being painted onto
+  # the page and our height is changing, keep waiting. Then scroll to message.
+  scrollToMessage: (msgDOMNode, done) ->
+    return done() unless msgDOMNode?
+
+    messageWrap = @refs.messageWrap?.getDOMNode()
+    lastHeight = -1
+    stableCount = 0
+    scrollIfSettled = =>
+      return done() unless @isMounted()
+
+      messageWrapHeight = messageWrap.getBoundingClientRect().height
+      if messageWrapHeight isnt lastHeight
+        lastHeight = messageWrapHeight
+        stableCount = 0
+      else
+        stableCount += 1
+        if stableCount is 5
+          messageWrap.scrollTop = msgDOMNode.offsetTop
+          return done()
+
+      window.requestAnimationFrame -> scrollIfSettled(msgDOMNode, done)
+  
+    scrollIfSettled()
 
   _messageListNotificationBars: ->
     MLBars = ComponentRegistry.findAllViewsByRole('MessageListNotificationBar')
@@ -88,39 +108,34 @@ MessageList = React.createClass
       }
     </div>
 
-  _newDraftIds: (nextState) ->
-    currentMsgIds = _.map(_.filter((@state.messages ? []), (m) -> not m.draft), (m) -> m.id)
-    nextMsgIds = _.map(_.filter((nextState.messages ? []), (m) -> not m.draft), (m) -> m.id)
-
-    # Only return if all the non-draft messages are the same. If the
-    # non-draft messages aren't the same, that means we switched threads.
-    # Don't focus on new drafts if we just switched threads.
-    if nextMsgIds.length > 0 and _.difference(nextMsgIds, currentMsgIds).length is 0
-      nextDraftIds = _.map(_.filter((nextState.messages ? []), (m) -> m.draft), (m) -> m.id)
-      currentDraftIds = _.map(_.filter((@state.messages ? []), (m) -> m.draft), (m) -> m.id)
-      return (_.difference(nextDraftIds, currentDraftIds) ? [])
-    else return []
-
   _messageComponents: ->
     ComposerItem = @state.Composer
-    # containsUnread = _.any @state.messages, (m) -> m.unread
-    collapsed = false
+    appliedInitialFocus = false
     components = []
 
-    @state.messages?.forEach (message) =>
+    @state.messages?.forEach (message, idx) =>
+      initialFocus = not appliedInitialFocus and
+                    ((message.draft) or
+                     (message.unread) or
+                     (idx is @state.messages.length - 1 and idx > 0))
+      appliedInitialFocus ||= initialFocus
+
+      className = React.addons.classSet
+        "message-item-wrap": true
+        "initial-focus": initialFocus
+        "unread": message.unread
+        "draft": message.draft
+
       if message.draft
         components.push <ComposerItem mode="inline"
                          ref="composerItem-#{message.id}"
                          key={@state.messageLocalIds[message.id]}
                          localId={@state.messageLocalIds[message.id]}
-                         containerClass="message-item-wrap draft-message"/>
+                         className={className} />
       else
-        className = "message-item-wrap"
-        if message.unread then className += " unread-message"
         components.push <MessageItem key={message.id}
                          thread={@state.currentThread}
                          message={message}
-                         collapsed={collapsed}
                          className={className}
                          thread_participants={@_threadParticipants()} />
 
@@ -133,6 +148,12 @@ MessageList = React.createClass
     messages: (MessageStore.items() ? [])
     messageLocalIds: MessageStore.itemLocalIds()
     currentThread: ThreadStore.selectedThread()
+    ready: if MessageStore.itemsLoading() then false else @state?.ready ? false
+
+  _prepareContentForDisplay: ->
+    focusedMessage = @getDOMNode().querySelector(".initial-focus")
+    @scrollToMessage focusedMessage, =>
+      @setState(ready: true)
 
   _threadParticipants: ->
     # We calculate the list of participants instead of grabbing it from
@@ -146,37 +167,6 @@ MessageList = React.createClass
         if contact? and contact.email?.length > 0
           participants[contact.email] = contact
     return _.values(participants)
-
-  # There may be a lot of iframes to load which may take an indeterminate
-  # amount of time. As long as there is more content being painted onto
-  # the page, we keep trying to scroll to the bottom. We scroll to the top
-  # of the last message.
-  #
-  # We don't scroll if there's only 1 item.
-  # We don't scroll if you're actively focused somewhere in the message
-  # list.
-  _scrollToBottom: ->
-    _.defer =>
-      if @isMounted()
-        messageWrap = @refs?.messageWrap?.getDOMNode?()
-
-        return if not messageWrap?
-        items = messageWrap.querySelectorAll(".message-item-wrap")
-        return if items.length <= 1
-        return if @getDOMNode().contains document.activeElement
-
-        msgToScroll = messageWrap.querySelector(".draft-message, .unread-message")
-        if not msgToScroll?
-          msgToScroll = messageWrap.children[messageWrap.children.length - 1]
-
-        currentHeight = messageWrap.getBoundingClientRect().height
-
-        if currentHeight isnt @_lastHeight
-          @_lastHeight = currentHeight
-          @_scrollToBottom()
-        else
-          scrollTo = currentHeight - msgToScroll.getBoundingClientRect().height
-          @getDOMNode().scrollTop = scrollTo
 
 MessageList.minWidth = 680
 MessageList.maxWidth = 900

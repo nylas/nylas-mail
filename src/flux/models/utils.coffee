@@ -159,6 +159,7 @@ Utils =
   # shown. Needs to be limited to first 250 to prevent replies to
   # forwarded messages from also being expanded.
   isForwardedMessage: (body="", subject="") ->
+    body = body.toLowerCase()
     indexForwarded = body.indexOf('forwarded')
     indexFwd = body.indexOf('fwd')
 

@@ -26,6 +26,7 @@ class DatabaseProxy
 
     ipc.on 'database-result', ({queryKey, err, result}) =>
       @queryCallbacks[queryKey](err, result) if @queryCallbacks[queryKey]
+      console.timeStamp("DB END #{queryKey}. #{result?.length} chars")
       delete @queryCallbacks[queryKey]
 
     @
@@ -34,6 +35,7 @@ class DatabaseProxy
     @queryId += 1
     queryKey = "#{@windowId}-#{@queryId}"
     @queryCallbacks[queryKey] = callback if callback
+    console.timeStamp("DB SEND #{queryKey}: #{query}")
     ipc.send('database-query', {@databasePath, queryKey, query, values})
 
 # DatabasePromiseTransaction converts the callback syntax of the Database

@@ -103,13 +103,15 @@ ThreadStore = Reflux.createStore
     @fetchFromAPI()
 
   _onSelectThreadId: (id) ->
-    return if @_selectedId == id
-    @_selectedId = id
-    @trigger()
-
+    # Mark the *previously* selected thread as read,
+    # before we bring in the next thread
     thread = @selectedThread()
     if thread && thread.isUnread()
       thread.markAsRead()
+
+    return if @_selectedId == id
+    @_selectedId = id
+    @trigger()
 
   # Accessing Data
 

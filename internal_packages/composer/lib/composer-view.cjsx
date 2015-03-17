@@ -114,7 +114,7 @@ ComposerView = React.createClass
       </div>
 
   _wrapClasses: ->
-    "composer-outer-wrap #{@props.containerClass ? ""}"
+    "composer-outer-wrap #{@props.className ? ""}"
 
   _renderComposer: ->
     <div className="composer-inner-wrap" onDragOver={@_onDragNoop} onDragLeave={@_onDragNoop} onDragEnd={@_onDragNoop} onDrop={@_onDrop}>
@@ -218,7 +218,18 @@ ComposerView = React.createClass
 
     </div>
 
-  focus: (field) -> @refs[field]?.focus?() if @isMounted()
+  # Focus the composer view. Chooses the appropriate field to start
+  # focused depending on the draft type, or you can pass a field as
+  # the first parameter.
+  focus: (field = null) ->
+    return unless @isMounted()
+
+    if component?.isForwardedMessage()
+      field ?= "textFieldTo"
+    else
+      field ?= "contentBody"
+
+    @refs[field]?.focus?()
 
   isForwardedMessage: ->
     draft = @_proxy.draft()

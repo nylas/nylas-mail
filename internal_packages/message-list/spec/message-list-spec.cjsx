@@ -194,6 +194,8 @@ describe "MessageList", ->
     MessageStore._threadId = null
     spyOn(MessageStore, "itemLocalIds").andCallFake ->
       {"666": "666"}
+    spyOn(MessageStore, "itemsLoading").andCallFake ->
+      false
 
     @message_list = TestUtils.renderIntoDocument(<MessageList />)
     @message_list_node = @message_list.getDOMNode()
@@ -235,34 +237,27 @@ describe "MessageList", ->
     #   expect(items.length).toBe 1
 
     it "focuses new composers when a draft is added", ->
-      spyOn(@message_list, "_focusRef")
+      spyOn(@message_list, "_focusDraft")
       msgs = @message_list.state.messages
-      msgs = msgs.concat(draftMessages)
-      @message_list.setState messages: msgs
+
+      @message_list.setState
+        messages: msgs.concat(draftMessages)
+
       items = TestUtils.scryRenderedComponentsWithType(@message_list,
               ComposerItem)
+
       expect(items.length).toBe 1
-      composer = items[0]
-      expect(@message_list._focusRef).toHaveBeenCalledWith(composer)
+      expect(@message_list._focusDraft).toHaveBeenCalledWith(items[0])
 
     it "doesn't focus if we're just navigating through messages", ->
-      spyOn(@message_list, "_focusRef")
+      spyOn(@message_list, "scrollToMessage")
       @message_list.setState messages: draftMessages
       items = TestUtils.scryRenderedComponentsWithType(@message_list,
               ComposerItem)
       expect(items.length).toBe 1
       composer = items[0]
-      expect(@message_list._focusRef).not.toHaveBeenCalled()
+      expect(@message_list.scrollToMessage).not.toHaveBeenCalled()
 
-    describe "Message", ->
-      beforeEach ->
-        items = TestUtils.scryRenderedComponentsWithType(@message_list,
-                MessageItem)
-        item = items.filter (message) -> message.props.message.id is "111"
-        @message_item = item[0]
-
-      it "finds the message by id", ->
-        expect(@message_item.props.message.id).toBe "111"
 
   describe "MessageList with draft", ->
     beforeEach ->

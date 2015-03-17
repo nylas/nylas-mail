@@ -3,6 +3,7 @@
 module.exports =
   # Models
   Menu: require '../src/components/menu'
+  Spinner: require '../src/components/spinner'
   Popover: require '../src/components/popover'
   Flexbox: require '../src/components/flexbox'
   RetinaImg: require '../src/components/retina-img'
