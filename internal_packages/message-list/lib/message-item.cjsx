@@ -7,6 +7,9 @@ MessageTimestamp = require "./message-timestamp.cjsx"
 {RetinaImg} = require 'ui-components'
 Autolinker = require 'autolinker'
 
+TransparentPixel = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNikAQAACIAHF/uBd8AAAAASUVORK5CYII="
+MessageBodyWidth = 740
+
 module.exports =
 MessageItem = React.createClass
   displayName: 'MessageItem'
@@ -143,16 +146,36 @@ MessageItem = React.createClass
     # Apply the autolinker pass to make emails and links clickable
     body = Autolinker.link(body, {twitter: false})
 
-    # Find cid:// references and replace them with the paths to downloaded files
+    # Find inline images and give them a calculated CSS height based on
+    # html width and height, when available. This means nothing changes size
+    # as the image is loaded, and we can estimate final height correctly.
+    # Note that MessageBodyWidth must be updated if the UI is changed!
+
+    cidRegex = /src=['"]cid:([^'"]*)['"]/g
+    while (result = cidRegex.exec(body)) isnt null
+      imgstart = body.lastIndexOf('<', result.index)
+      imgend = body.indexOf('/>', result.index)
+
+      if imgstart != -1 and imgend > imgstart
+        imgtag = body.substr(imgstart, imgend - imgstart)
+        width = imgtag.match(/width[ ]?=[ ]?['"]?(\d*)['"]?/)?[1]
+        height = imgtag.match(/height[ ]?=[ ]?['"]?(\d*)['"]?/)?[1]
+        if width and height
+          scale = Math.min(1, MessageBodyWidth / width)
+          style = " style=\"height:#{height * scale}px;\" "
+          body = body.substr(0, imgend) + style + body.substr(imgend)
+
+    # Replace cid:// references with the paths to downloaded files
     for file in @props.message.files
       continue if _.find @state.downloads, (d) -> d.fileId is file.id
       cidLink = "cid:#{file.contentId}"
       fileLink = "#{FileDownloadStore.pathForFile(file)}"
       body = body.replace(cidLink, fileLink)
 
-    # Remove any remaining cid:// references - we will not display them since they'll
-    # throw "unknown ERR_UNKNOWN_URL_SCHEME"
-    body = body.replace(/src=['"]cid:[^'"]*['"]/g, '')
+    # Replace remaining cid:// references - we will not display them since they'll
+    # throw "unknown ERR_UNKNOWN_URL_SCHEME". Show a transparent pixel so that there's
+    # no "missing image" region shown, just a space.
+    body = body.replace(/src=['"]cid:[^'"]*['"]/g, "src=\"#{TransparentPixel}\"")
 
     body
 

@@ -204,6 +204,20 @@ describe "MessageItem", ->
         body = @component._formatBody()
         expect(body.indexOf('cid')).toEqual(-1)
 
+      it "should give images a fixed height when height and width are set as html attributes", ->
+        @message.body = """
+          <img src=\"cid:#{file_inline.contentId}\"/>
+          <img src=\"cid:#{file_inline.contentId}\" width="50"/>
+          <img src=\"cid:#{file_inline.contentId}\" width="50" height="40"/>
+          <img src=\"cid:#{file_inline.contentId}\" width="1000" height="800"/>
+          """
+        @createComponent()
+        body = @component._formatBody()
+        expect(body).toEqual """<img src="/fake/path-inline.png"/>
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNikAQAACIAHF/uBd8AAAAASUVORK5CYII=" width="50"/>
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNikAQAACIAHF/uBd8AAAAASUVORK5CYII=" width="50" height="40" style="height:40px;" />
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNikAQAACIAHF/uBd8AAAAASUVORK5CYII=" width="1000" height="800" style="height:592px;" />
+"""
       it "should replace cid://<file.contentId> with the FileDownloadStore's path for the file", ->
         body = @component._formatBody()
         expect(body.indexOf('alt="A" src="/fake/path-inline.png"')).toEqual(@message.body.indexOf('alt="A"'))

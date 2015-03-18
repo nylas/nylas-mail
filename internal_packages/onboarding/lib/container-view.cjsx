@@ -42,6 +42,8 @@ ContainerView = React.createClass
             query = node.getUrl().split('?')[1]
             token = querystring.decode(query)
             OnboardingActions.finishedConnect(token)
+          if node.getUrl().indexOf('cancelled') != -1
+            OnboardingActions.moveToPreviousPage()
 
   render: ->
     <ReactCSSTransitionGroup transitionName="page">
