@@ -40,6 +40,7 @@ ContainerView = React.createClass
         node.addEventListener 'did-finish-load', (e) ->
           if node.getUrl().indexOf('/connect/complete') != -1
             query = node.getUrl().split('?')[1]
+            query = query[0..-2] if query[query.length - 1] is '#'
             token = querystring.decode(query)
             OnboardingActions.finishedConnect(token)
           if node.getUrl().indexOf('cancelled') != -1
