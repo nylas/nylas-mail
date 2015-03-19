@@ -79,6 +79,7 @@ ContenteditableComponent = React.createClass
     @_editableNode().focus() if @isMounted()
 
   _onInput: (event) ->
+    @_ignoreSelectionRestoration = false
     @_editableNode().normalize()
     @_setNewSelectionState()
     html = @_unapplyHTMLDisplayFilters(@_editableNode().innerHTML)
