@@ -21,12 +21,13 @@ TaskQueue = Reflux.createStore
 
     @_restoreQueueFromDisk()
 
-    @listenTo(Actions.queueTask,       @enqueue)
-    @listenTo(Actions.dequeueTask,     @dequeue)
-    @listenTo(Actions.dequeueAllTasks, @dequeueAll)
-    @listenTo(Actions.logout,          @dequeueAll)
+    @listenTo(Actions.queueTask,              @enqueue)
+    @listenTo(Actions.dequeueTask,            @dequeue)
+    @listenTo(Actions.dequeueAllTasks,        @dequeueAll)
+    @listenTo(Actions.logout,                 @dequeueAll)
+    @listenTo(Actions.dequeueMatchingTask,    @dequeueMatching)
 
-    @listenTo(Actions.clearDeveloperConsole, @clearCompleted)
+    @listenTo(Actions.clearDeveloperConsole,  @clearCompleted)
 
     # TODO
     # @listenTo(OnlineStatusStore, @_onOnlineChange)
@@ -72,6 +73,17 @@ TaskQueue = Reflux.createStore
   dequeueAll: ->
     for task in @_queue by -1
       @dequeue(task, silent: true) if task?
+    @_update()
+
+  dequeueMatching: (task) ->
+    identifier = task.matchKey
+    propValue  = task.matchValue
+
+    for other in @_queue by -1
+      if task.object == task.object
+        if other[identifier] == propValue
+          @dequeue(other, silent: true)
+
     @_update()
 
   clearCompleted: ->

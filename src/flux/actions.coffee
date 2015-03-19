@@ -39,6 +39,7 @@ mainWindowActions = [
   "queueTask",
   "dequeueTask",
   "dequeueAllTasks",
+  "dequeueMatchingTask",
   "longPollStateChanged",
   "longPollReceivedRawDeltas",
   "longPollConnected",

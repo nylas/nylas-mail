@@ -46,7 +46,8 @@ FileUploadStore = Reflux.createStore
  
   _onAttachFilePath: ({messageLocalId, path}) ->
     @_verifyId(messageLocalId)
-    Actions.queueTask(new FileUploadTask(path, messageLocalId))
+    @task = new FileUploadTask(path, messageLocalId)
+    Actions.queueTask(@task)
 
   # Receives:
   #   uploadData:
@@ -61,10 +62,10 @@ FileUploadStore = Reflux.createStore
     @trigger()
 
   _onAbortUpload: (uploadData) ->
-    Actions.abortTask({
+    Actions.dequeueMatchingTask({
       object: 'FileUploadTask',
-      filePath: uploadData.filePath,
-      messageLocalId: uploadData.messageLocalId
+      matchKey: "filePath"
+      matchValue: uploadData.filePath
     })
 
   # Note that the MessageStore also receives the `fileUploaded` action.
