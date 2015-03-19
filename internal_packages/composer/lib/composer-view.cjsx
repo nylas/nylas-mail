@@ -176,11 +176,11 @@ ComposerView = React.createClass
                  key="subject"
                  name="subject"
                  tabIndex="108"
+                 placeholder="Subject:"
                  disabled={not @state.showsubject}
                  className="compose-field compose-subject"
                  value={@state.subject}
                  onChange={@_onChangeSubject}/>
-          <div className="subject-label">Subject:</div>
         </div>
 
         <div className="compose-body">

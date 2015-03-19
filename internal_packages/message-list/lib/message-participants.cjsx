@@ -42,11 +42,6 @@ MessageParticipants = React.createClass
         <div className="participant-name to-contact">{@_fullContact(@props.to)}</div>
       </div>
 
-      <div className="participant-type">
-        <div className="subject-label">Subject:&nbsp;</div>
-        <div className="subject">{@props.subject}</div>
-      </div>
-
       <div className="participant-type"
            style={if @props.cc?.length > 0 then display:"block" else display:"none"}>
         <div className="participant-label cc-label">Cc:&nbsp;</div>
@@ -58,6 +53,12 @@ MessageParticipants = React.createClass
         <div className="participant-label bcc-label">Bcc:&nbsp;</div>
         <div className="participant-name cc-contact">{@_fullContact(@props.bcc)}</div>
       </div>
+
+      <div className="participant-type">
+        <div className="subject-label">Subject:&nbsp;</div>
+        <div className="subject">{@props.subject}</div>
+      </div>
+
     </div>
 
   _shortNames: (contacts=[]) ->
