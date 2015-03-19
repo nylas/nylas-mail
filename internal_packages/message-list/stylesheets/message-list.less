@@ -192,11 +192,11 @@
     font-weight: @headings-font-weight;
     color: @text-color;
   }
-  .from-label, .to-label, .cc-label, .bcc-label {
+  .from-label, .to-label, .cc-label, .bcc-label, .subject-label {
     color: @text-color-very-subtle;
   }
   .to-label { font-weight: 600; }
-  .cc-label, .bcc-label { margin-left: @spacing-standard; }
+  .cc-label, .bcc-label, .subject-label { margin-left: @spacing-standard; }
   .to-contact, .cc-contact, .to-everyone {
     color: @text-color-very-subtle;
   }
@@ -215,15 +215,15 @@
       &:first-child {margin-top: 0;}
     }
 
-    .from-label, .to-label, .cc-label, .bcc-label {
+    .from-label, .to-label, .cc-label, .bcc-label, .subject-label {
       float: left;
       display: block;
       font-weight: 400;
       margin-left: 0;
     }
 
-    .from-contact, .to-contact, .cc-contact {
-      padding-left: 3.85em;
+    .from-contact, .to-contact, .cc-contact, .subject {
+      padding-left: 4.4em;
       font-weight: 500;
     }
 

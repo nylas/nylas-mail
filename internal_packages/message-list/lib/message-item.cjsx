@@ -62,6 +62,7 @@ MessageItem = React.createClass
                              cc={@props.message.cc}
                              bcc={@props.message.bcc}
                              from={@props.message.from}
+                             subject={@props.message.subject}
                              onClick={=> @setState detailedHeaders: true}
                              thread_participants={@props.thread_participants}
                              isDetailed={@state.detailedHeaders}
