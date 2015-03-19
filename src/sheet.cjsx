@@ -28,6 +28,12 @@ Sheet = React.createClass
     @unlisteners.push WorkspaceStore.listen (event) =>
       @setState(@_getStateFromStores())
 
+  componentDidUpdate: ->
+    @props.onColumnSizeChanged(@) if @props.onColumnSizeChanged
+
+  shouldComponentUpdate: (nextProps, nextState) ->
+    not _.isEqual(nextProps, @props) or not _.isEqual(nextState, @state)
+
   componentWillUnmount: ->
     unlisten() for unlisten in @unlisteners
 
@@ -49,16 +55,8 @@ Sheet = React.createClass
          style={style}
          data-type={@props.type}>
       <Flexbox direction="row">
-        {@_backButtonComponent()}
         {@_columnFlexboxComponents()}
       </Flexbox>
-    </div>
-
-  _backButtonComponent: ->
-    return [] if @props.depth is 0
-    <div className="sheet-edge" onClick={@_pop} key="back">
-      <div className="gradient"></div>
-      <div className="x"><RetinaImg name="sheet-back.png"/></div>
     </div>
 
   _columnFlexboxComponents: ->
@@ -66,7 +64,7 @@ Sheet = React.createClass
       classes = @state[column] || []
       return if classes.length is 0
 
-      components = classes.map ({name, view}) => <view key={name} {...@props} />
+      components = classes.map ({name, view}) -> <view key={name} />
 
       maxWidth = _.reduce classes, ((m,{view}) -> Math.min(view.maxWidth ? 10000, m)), 10000
       minWidth = _.reduce classes, ((m,{view}) -> Math.max(view.minWidth ? 0, m)), 0
@@ -78,7 +76,7 @@ Sheet = React.createClass
         <ResizableRegion key={"#{@props.type}:#{column}"}
                          name={"#{@props.type}:#{column}"}
                          data-column={column}
-                         onResize={@props.onColumnSizeChanged}
+                         onResize={ => @props.onColumnSizeChanged(@) }
                          minWidth={minWidth}
                          maxWidth={maxWidth}
                          handle={handle}>

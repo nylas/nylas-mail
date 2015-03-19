@@ -36,33 +36,33 @@ atom-workspace {
 }
 
 .sheet-stack-enter {
-  left:100%;
-  transition: left .20s ease-out;
+  left:7%;
+  opacity: 0;
+  transition: all .15s ease-out;
 }
 
 .sheet-stack-enter.sheet-stack-enter-active {
   left:0;
+  opacity: 1;
 }
 
 .sheet-stack-leave {
   left:0;
-  transition: left .20s ease-in;
+  opacity: 1;
+  transition: all .15s ease-in;
 }
 
 .sheet-stack-leave.sheet-stack-leave-active {
-  left:100%;
+  left:7%;
+  opacity: 0;
 }
 
-.sheet-title-bar {
-  height:24px;
-  line-height: 24px;
-  cursor: default;
-  background: @toolbar-background-color;
-  -webkit-app-region: drag;
-  padding: 3px;
+.toolbar-window-controls {
+  padding-top:14px;
   padding-left:@spacing-half;
-  padding-right:60px;
-  text-align: center;
+  order: -1000;
+  min-width: 102px;
+  width: 102px;
 
   button {
     -webkit-app-region: no-drag;
@@ -105,13 +105,13 @@ atom-workspace {
 }
 
 body.platform-win32, body.platform-linux {
-  .sheet-title-bar {
+  .toolbar-window-controls {
     display:none;
   }
 }
 
 body.is-blurred {
-  .sheet-title-bar {
+  .toolbar-window-controls {
     button {
       background-color: desaturate(fade(#FCB40A, 20%), 100%);
     }
@@ -121,11 +121,12 @@ body.is-blurred {
 .sheet-toolbar {
   position: relative;
   -webkit-app-region: drag;
+  -webkit-user-select:none;
   background: @toolbar-background-color;
   border-bottom: 1px solid @border-color-divider;
   width:  100%;
   height: 50px;
-
+  
   // prevent flexbox from ever, ever resizing toolbars, no matter
   // how much it thinks other content is being squished
   min-height: 50px;
@@ -140,6 +141,11 @@ body.is-blurred {
   }
   .item-spacer {
     -webkit-app-region: drag;
+  }
+  .item-back {
+    order:-999;
+    padding-top: 5px;
+    padding-left: @spacing-three-quarters;
   }
 
   .btn-toolbar {
@@ -165,30 +171,6 @@ body.is-blurred {
 
 .sheet-toolbar-leave.sheet-toolbar-leave-active {
   opacity:0;
-}
-
-.sheet-edge {
-  height:100%;
-  z-index: @zindex-popover;
-  position: absolute;
-
-  .x {
-    position: absolute;
-    top: @spacing-standard * 1.5;
-    left: @spacing-standard * 1.5;
-  }
-  .gradient {
-    width:9px;
-    height:100%;
-    background-color: #f4f4f4;
-    background-image: -webkit-gradient(linear, left center, right center, from(rgb(244, 244, 244)), to(rgb(209, 209, 209)));
-    background-image: -webkit-linear-gradient(left, rgb(244, 244, 244), rgb(209, 209, 209));
-    background-image: -moz-linear-gradient(left, rgb(244, 244, 244), rgb(209, 209, 209));
-    background-image: -o-linear-gradient(left, rgb(244, 244, 244), rgb(209, 209, 209));
-    background-image: -ms-linear-gradient(left, rgb(244, 244, 244), rgb(209, 209, 209));
-    background-image: linear-gradient(left, rgb(244, 244, 244), rgb(209, 209, 209));
-    filter: progid:DXImageTransform.Microsoft.gradient(GradientType=1,StartColorStr='#f4f4f4', EndColorStr='#d1d1d1');
-  }
 }
 
 .flexbox-handle-horizontal {

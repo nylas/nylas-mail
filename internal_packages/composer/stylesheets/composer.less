@@ -7,7 +7,7 @@
 @import "buttons";
 
 @compose-width: 800px;
-@compose-min-height: 250px;
+@compose-min-height: 150px;
 
 .composer-inner-wrap {
   position: relative;
@@ -257,7 +257,9 @@ body.is-blurred .composer-inner-wrap .tokenizing-field .token {
 #message-list {
   .message-item-wrap.composer-outer-wrap {
     padding-top: @spacing-standard;
-    background: @background-off-primary;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(@background-off-primary), to(@background-primary));
+    background-repeat:no-repeat;
+    -webkit-background-size:100% 150px;
   }
 }
 

@@ -13,7 +13,7 @@ module.exports =
     ComponentRegistry.register
       view: SearchBar
       name: 'SearchBar'
-      role: 'Global:Toolbar'
+      role: 'Root:Center:Toolbar'
 
   deactivate: ->
     ComponentRegistry.unregister 'SearchBar'

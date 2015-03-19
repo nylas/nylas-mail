@@ -5,7 +5,7 @@ React = require 'react'
 module.exports =
 NewComposeButton = React.createClass
   render: ->
-    <button style={order: -100}
+    <button style={order: 101}
             className="btn btn-toolbar"
             data-tooltip="Compose new message"
             onClick={@_onNewCompose}>

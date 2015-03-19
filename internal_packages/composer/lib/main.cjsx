@@ -80,7 +80,7 @@ module.exports =
     ComponentRegistry.register
       view: NewComposeButton
       name: 'NewComposeButton'
-      role: 'Global:Toolbar'
+      role: 'Root:Left:Toolbar'
 
   _showInitialErrorDialog: (msg) ->
     remote = require('remote')

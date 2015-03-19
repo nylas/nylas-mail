@@ -3,26 +3,56 @@
 
 @message-max-width: 800px;
 
-// This class wraps the items that appear above the message list in the
-// toolbar. We want the toolbar items to sit right above the centered
-// content, so we need another 800px-wide container in the toolbar...
-.message-toolbar-items {
-  order: -100;
-  width: 100%;
-  text-align: center;
-  position: absolute;
-  pointer-events: none;
+.sheet-toolbar {
+  // This class wraps the items that appear above the message list in the
+  // toolbar. We want the toolbar items to sit right above the centered
+  // content, so we need another 800px-wide container in the toolbar...
+  .message-toolbar-items {
+    order: -10000;
+    width: 100%;
+    text-align: center;
+    position: absolute;
+    pointer-events: none;
 
-  .message-toolbar-items-inner {
-    margin: auto;
-    max-width: @message-max-width - @spacing-three-quarters*2;
-    text-align: left;
-    pointer-events: auto;
+    .message-toolbar-items-inner {
+      margin: auto;
+      max-width: @message-max-width - @spacing-three-quarters*2;
+      text-align: right;
+      pointer-events: none;
+      & > * {
+        pointer-events: auto;
+      }
+    }
   }
-}
 
-.message-toolbar-items.hidden {
-  opacity: 0;
+  .message-toolbar-items.hidden {
+    opacity: 0;
+  }
+
+  .message-toolbar-subject {
+    order:-99;
+    cursor: default;
+    color:@text-color-heading;
+    -webkit-app-region: drag;
+    margin:0;
+    margin-top:13px;
+    font-size: @font-size-h4;
+    font-weight: @font-weight-normal;  
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .message-toolbar-arrow.down {
+    order:101;
+    padding-top:6px; 
+  }
+  .message-toolbar-arrow.up {
+    order:102;
+    padding-top:6px; 
+    // <1 because of hit region padding on the button
+    margin-right: @spacing-standard * 0.75;
+  }
 }
 
 #message-list {
@@ -36,8 +66,6 @@
 
   .message-list-headers {
     margin: 0 auto;
-    padding: @spacing-double;
-    padding-bottom: @spacing-standard;
     width: 100%;
     max-width: @message-max-width;
 

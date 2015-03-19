@@ -1,8 +1,9 @@
 React = require 'react/addons'
 Sheet = require './sheet'
-TitleBar = require './titlebar'
 Flexbox = require './components/flexbox.cjsx'
-ReactCSSTransitionGroup = React.addons.CSSTransitionGroup
+RetinaImg = require './components/retina-img'
+TimeoutTransitionGroup = require './components/timeout-transition-group'
+_ = require 'underscore-plus'
 
 {Actions,
  ComponentRegistry,
@@ -12,15 +13,39 @@ ToolbarSpacer = React.createClass
   className: 'ToolbarSpacer'
   propTypes:
     order: React.PropTypes.number
-
   render: ->
     <div className="item-spacer" style={flex: 1, order:@props.order ? 0}></div>
 
+ToolbarBack = React.createClass
+  className: 'ToolbarBack'
+  render: ->
+    <div className="item-back" onClick={@_onClick}>
+      <RetinaImg name="sheet-back.png" />
+    </div>
+
+  _onClick: ->
+    Actions.popSheet()
+
+ToolbarWindowControls = React.createClass
+  displayName: 'ToolbarWindowControls'
+  render: ->
+    <div name="ToolbarWindowControls" className="toolbar-window-controls">
+      <button className="close" onClick={ -> atom.close()}></button>
+      <button className="minimize" onClick={ -> atom.minimize()}></button>
+      <button className="maximize" onClick={ -> atom.maximize()}></button>
+    </div>
+
+ComponentRegistry.register
+  view: ToolbarWindowControls
+  name: 'ToolbarWindowControls'
+  role: 'Global:Left:Toolbar'
 
 Toolbar = React.createClass
   className: 'Toolbar'
+
   propTypes:
     type: React.PropTypes.string
+    depth: React.PropTypes.number
 
   getInitialState: ->
     @_getStateFromStores()
@@ -31,54 +56,60 @@ Toolbar = React.createClass
       @setState(@_getStateFromStores())
     @unlisteners.push ComponentRegistry.listen (event) =>
       @setState(@_getStateFromStores())
-    window.addEventListener "resize", (event) =>
-      @recomputeLayout()
+    window.addEventListener("resize", @_onWindowResize)
+    window.requestAnimationFrame => @recomputeLayout()
 
   componentWillUnmount: ->
-    @unlistener() if @unlistener
+    window.removeEventListener("resize", @_onWindowResize)
+    unlistener() for unlistener in @unlisteners
 
   componentWillReceiveProps: (props) ->
-    @setState(@_getStateFromStores(props))
+    @replaceState(@_getStateFromStores(props))
 
   componentDidUpdate: ->
     # Wait for other components that are dirty (the actual columns in the sheet)
     # to update as well.
-    setTimeout(( => @recomputeLayout()), 1)
+    window.requestAnimationFrame => @recomputeLayout()
+
+  shouldComponentUpdate: (nextProps, nextState) ->
+    # This is very important. Because toolbar uses ReactCSSTransitionGroup,
+    # repetitive unnecessary updates can break animations and cause performance issues.
+    not _.isEqual(nextProps, @props) or not _.isEqual(nextState, @state)
 
   render: ->
-    # The main toolbar contains items with roles <sheet type>:Toolbar
-    # and Global:Toolbar
-    mainToolbar = @_flexboxForItems(@state.items)
+    style =
+      position:'absolute'
+      backgroundColor:'white'
+      width:'100%'
+      height:'100%'
+      zIndex: 1
 
-    # Column toolbars contain items with roles attaching them to items
-    # in the sheet. Ex: MessageList:Toolbar items appear in the column
-    # toolbar for the column containing <MessageList/>.
-    columnToolbars = @state.itemsForColumns.map ({column, name, items}) =>
+    toolbars = @state.itemsForColumns.map ({column, items}) =>
       <div style={position: 'absolute', top:0, display:'none'}
-           data-owner-name={name}
            data-column={column}
            key={column}>
         {@_flexboxForItems(items)}
       </div>
 
-    <ReactCSSTransitionGroup transitionName="sheet-toolbar">
-      {mainToolbar}
-      {columnToolbars}
-    </ReactCSSTransitionGroup>
+    <div style={style}>
+      {toolbars}
+    </div>
   
   _flexboxForItems: (items) ->
     components = items.map ({view, name}) =>
       <view key={name} {...@props} />
 
-    <ReactCSSTransitionGroup
+    <TimeoutTransitionGroup
       className="item-container"
       component={Flexbox}
       direction="row"
+      leaveTimeout={200}
+      enterTimeout={200}
       transitionName="sheet-toolbar">
       {components}
       <ToolbarSpacer key="spacer-50" order={-50}/>
       <ToolbarSpacer key="spacer+50" order={50}/>
-    </ReactCSSTransitionGroup>
+    </TimeoutTransitionGroup>
 
   recomputeLayout: ->
     return unless @isMounted()
@@ -87,8 +118,9 @@ Toolbar = React.createClass
     columnToolbarEls = @getDOMNode().querySelectorAll('[data-column]')
 
     # Find the top sheet in the stack
-    sheet = document.querySelector("[name='Sheet']:last-child")
-    
+    sheet = document.querySelector("[name='Sheet']:nth-child(#{@props.depth+1})")
+    return unless sheet
+
     # Position item containers so they have the position and width
     # as their respective columns in the top sheet
     for columnToolbarEl in columnToolbarEls
@@ -100,32 +132,42 @@ Toolbar = React.createClass
       columnToolbarEl.style.left = "#{columnEl.offsetLeft}px"
       columnToolbarEl.style.width = "#{columnEl.offsetWidth}px"
 
+  _onWindowResize: ->
+    @recomputeLayout()
+
   _getStateFromStores: (props) ->
     props ?= @props
     state =
       mode: WorkspaceStore.selectedLayoutMode()
-      items: []
       itemsForColumns: []
 
-    for role in ["Global:Toolbar", "#{props.type}:Toolbar"]
-      for entry in ComponentRegistry.findAllByRole(role)
-        continue if entry.mode? and entry.mode != state.mode
-        state.items.push(entry)
-
+    items = {}
     for column in ["Left", "Center", "Right"]
-      role = "#{props.type}:#{column}:Toolbar"
-      items = []
-      for entry in ComponentRegistry.findAllByRole(role)
-        continue if entry.mode? and entry.mode != state.mode
-        items.push(entry)
-      if items.length > 0
-        state.itemsForColumns.push({column, name, items})
+      items[column] = []
+      for role in ["Global:#{column}:Toolbar", "#{props.type}:#{column}:Toolbar"]
+        for entry in ComponentRegistry.findAllByRole(role)
+          continue if entry.mode? and entry.mode != state.mode
+          items[column].push(entry)
         
+    if @props.depth > 0
+      items['Left'].push(view: ToolbarBack, name: 'ToolbarBack')
+
+    # If the left or right column does not contain any components, it won't
+    # be in the sheet. Go ahead and shift those toolbar items into the center
+    # region.
+    for column in ["Left", "Right"]
+      if ComponentRegistry.findAllByRole("#{props.type}:#{column}").length is 0
+        items['Center'].push(items[column]...)
+        delete items[column]
+
+    for key, val of items
+      state.itemsForColumns.push({column: key, items: val}) if val.length > 0
     state
 
 
 FlexboxForRoles = React.createClass
   className: 'FlexboxForRoles'
+
   propTypes:
     roles: React.PropTypes.arrayOf(React.PropTypes.string)
 
@@ -139,9 +181,17 @@ FlexboxForRoles = React.createClass
   componentWillUnmount: ->
     @unlistener() if @unlistener
 
+  shouldComponentUpdate: (nextProps, nextState) ->
+    # Note: we actually ignore props.roles. If roles change, but we get
+    # the same items, we don't need to re-render. Our render function is
+    # a function of state only.
+    nextItemNames = nextState.items.map (i) -> i.name
+    itemNames = @state.items?.map (i) -> i.name
+    !_.isEqual(nextItemNames, itemNames)
+
   render: ->
     components = @state.items.map ({view, name}) =>
-      <view key={name} {...@props} />
+      <view key={name} />
     
     <Flexbox direction="row">
       {components}
@@ -171,25 +221,42 @@ SheetContainer = React.createClass
 
   render: ->
     topSheetType = @state.stack[@state.stack.length - 1]
+
     <Flexbox direction="column">
-      <TitleBar />
-      <div name="Toolbar" style={order:0} className="sheet-toolbar">
-        <Toolbar ref="toolbar" type={topSheetType}/>
-      </div>
+      <TimeoutTransitionGroup  name="Toolbar" 
+                               style={order:0}
+                               leaveTimeout={200}
+                               enterTimeout={200}
+                               className="sheet-toolbar"
+                               transitionName="sheet-toolbar">
+        {@_toolbarComponents()}
+      </TimeoutTransitionGroup>
+
       <div name="Top" style={order:1}>
         <FlexboxForRoles roles={["Global:Top", "#{topSheetType}:Top"]}
                          type={topSheetType}/>
       </div>
-      <div name="Center" style={order:2, flex: 1, position:'relative'}>
-        <ReactCSSTransitionGroup transitionName="sheet-stack">
-          {@_sheetComponents()}
-        </ReactCSSTransitionGroup>
-      </div>
+
+      <TimeoutTransitionGroup name="Center"
+                              style={order:2, flex: 1, position:'relative'}
+                              leaveTimeout={150}
+                              enterTimeout={150}
+                              transitionName="sheet-stack">
+        {@_sheetComponents()}
+      </TimeoutTransitionGroup>
+
       <div name="Footer" style={order:3}>
         <FlexboxForRoles roles={["Global:Footer", "#{topSheetType}:Footer"]}
                          type={topSheetType}/>
       </div>
     </Flexbox>
+
+  _toolbarComponents: ->
+    @state.stack.map (type, index) ->
+      <Toolbar type={type}
+               ref={"toolbar-#{index}"}
+               depth={index}
+               key={index} />
 
   _sheetComponents: ->
     @state.stack.map (type, index) =>
@@ -198,11 +265,11 @@ SheetContainer = React.createClass
              key={index}
              onColumnSizeChanged={@_onColumnSizeChanged} />
 
-  _onColumnSizeChanged: ->
-    @refs.toolbar.recomputeLayout()
+  _onColumnSizeChanged: (sheet) ->
+    @refs["toolbar-#{sheet.props.depth}"]?.recomputeLayout()
 
   _onStoreChange: ->
-    @setState @_getStateFromStores()
+    _.defer => @setState(@_getStateFromStores())
 
   _getStateFromStores: ->
     stack: WorkspaceStore.sheetStack()

@@ -71,9 +71,6 @@ module.exports = React.createClass
 
     <div className={classes}>
       <div className="message-toolbar-items-inner">
-        <ReplyButton />
-        <ReplyAllButton />
-        <ForwardButton />
         <ArchiveButton />
       </div>
     </div>

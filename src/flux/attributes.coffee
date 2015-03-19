@@ -147,6 +147,10 @@ class AttributeCollection extends Attribute
     objs = []
     for objJSON in json
       obj = new @itemClass(objJSON)
+      # Important: if no ids are in the JSON, don't make them up randomly.
+      # This causes an object to be "different" each time it's de-serialized
+      # even if it's actually the same, makes React components re-render!
+      obj.id = undefined
       obj.fromJSON(objJSON) if obj.fromJSON?
       objs.push(obj)
     objs

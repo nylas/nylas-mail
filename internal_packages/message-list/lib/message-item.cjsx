@@ -36,6 +36,9 @@ MessageItem = React.createClass
   componentWillUnmount: ->
     @_storeUnlisten() if @_storeUnlisten
 
+  shouldComponentUpdate: (nextProps, nextState) ->
+    not _.isEqual(nextProps, @props) or not _.isEqual(nextState, @state)
+
   render: ->
     messageIndicators = ComponentRegistry.findAllViewsByRole('MessageIndicator')
     attachments = @_attachmentComponents()

@@ -189,7 +189,7 @@ EmailFrame = React.createClass
     @getDOMNode().dispatchEvent(new KeyboardEvent(event.type, event))
 
   _delegateMouseEvents: (doc, method="addEventListener") ->
-    for type in ["mousemove", "mouseup", "mousedown", "mouseover", "mouseout"]
+    for type in ["mouseup", "mousedown"]
       doc?[method]?(type, @_onMouseEvent)
 
   _onMouseEvent: (event) ->

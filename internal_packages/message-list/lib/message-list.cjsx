@@ -23,6 +23,9 @@ MessageList = React.createClass
   componentWillUnmount: ->
     unsubscribe() for unsubscribe in @_unsubscribers
 
+  shouldComponentUpdate: (nextProps, nextState) ->
+    not _.isEqual(nextProps, @props) or not _.isEqual(nextState, @state)
+
   componentDidUpdate: (prevProps, prevState) ->
     didLoad = prevState.messages.length is 0 and @state.messages.length > 0
 
@@ -48,6 +51,7 @@ MessageList = React.createClass
 
   render: ->
     return <div></div> if not @state.currentThread?
+
     wrapClass = React.addons.classSet
       "messages-wrap": true
       "ready": @state.ready
@@ -74,7 +78,7 @@ MessageList = React.createClass
     lastHeight = -1
     stableCount = 0
     scrollIfSettled = =>
-      return done() unless @isMounted()
+      return unless @isMounted()
 
       messageWrapHeight = messageWrap.getBoundingClientRect().height
       if messageWrapHeight isnt lastHeight
@@ -101,8 +105,6 @@ MessageList = React.createClass
     MessageListHeaders = ComponentRegistry.findAllViewsByRole('MessageListHeader')
 
     <div className="message-list-headers">
-      <h2 className="message-subject">{@state.currentThread.subject}</h2>
-
       {for MessageListHeader in MessageListHeaders
         <MessageListHeader thread={@state.currentThread} />
       }
@@ -151,9 +153,12 @@ MessageList = React.createClass
     ready: if MessageStore.itemsLoading() then false else @state?.ready ? false
 
   _prepareContentForDisplay: ->
-    focusedMessage = @getDOMNode().querySelector(".initial-focus")
-    @scrollToMessage focusedMessage, =>
-      @setState(ready: true)
+    _.delay =>
+      return unless @isMounted()
+      focusedMessage = @getDOMNode().querySelector(".initial-focus")
+      @scrollToMessage focusedMessage, =>
+        @setState(ready: true)
+    , 100
 
   _threadParticipants: ->
     # We calculate the list of participants instead of grabbing it from

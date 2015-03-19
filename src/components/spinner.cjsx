@@ -8,8 +8,18 @@ Spinner = React.createClass
     style: React.PropTypes.object
 
   getInitialState: ->
-    hidden: false
-    paused: false
+    hidden: true
+    paused: true
+
+  componentDidMount: ->
+    # The spinner always starts hidden. After it's mounted, it unhides itself
+    # if it's set to visible. This is a bit strange, but ensures that the CSS
+    # transition from .spinner.hidden => .spinner always happens, along with
+    # it's associated animation delay.
+    if @props.visible
+      _.defer =>
+        return unless @isMounted()
+        @setState({paused: false, hidden: false})
 
   componentWillReceiveProps: (nextProps) ->
     hidden = if nextProps.visible? then !nextProps.visible else false
