@@ -47,8 +47,8 @@ class EdgehillAPI
   urlForConnecting: (provider, email_address = '') ->
     auth = @getCredentials()
     root = @APIRoot
-    root = root.replace('://', "://#{auth.username}:#{auth.password}@") if auth
-    "#{root}/connect/#{provider}?login_hint=#{email_address}"
+    token = auth?.username
+    "#{root}/connect/#{provider}?login_hint=#{email_address}&token=#{token}"
 
   getCredentials: ->
     atom.config.get('edgehill.credentials')
