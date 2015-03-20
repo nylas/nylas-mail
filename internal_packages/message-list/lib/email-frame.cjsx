@@ -123,7 +123,6 @@ EmailFrame = React.createClass
     doc = @getDOMNode().contentDocument
     doc?.removeEventListener?("click")
     doc?.removeEventListener?("keydown")
-    @_delegateMouseEvents(doc, "removeEventListener")
 
   shouldComponentUpdate: (newProps, newState) ->
     # Turns out, React is not able to tell if props.children has changed,
@@ -141,7 +140,6 @@ EmailFrame = React.createClass
     doc.close()
     doc.addEventListener "click", @_onClick
     doc.addEventListener "keydown", @_onKeydown
-    @_delegateMouseEvents(doc, "addEventListener")
 
   _setFrameHeight: ->
     _.defer =>
@@ -186,14 +184,5 @@ EmailFrame = React.createClass
         target = target.parentElement
 
   _onKeydown: (event) ->
+    return if event.metaKey or event.altKey or event.ctrlKey
     @getDOMNode().dispatchEvent(new KeyboardEvent(event.type, event))
-
-  _delegateMouseEvents: (doc, method="addEventListener") ->
-    for type in ["mouseup", "mousedown"]
-      doc?[method]?(type, @_onMouseEvent)
-
-  _onMouseEvent: (event) ->
-    {top, left} = @getDOMNode().getBoundingClientRect()
-    new_coords = {clientX: event.clientX + left, clientY: event.clientY + top}
-    new_event = _.extend {}, event, new_coords
-    @getDOMNode().dispatchEvent(new MouseEvent(event.type, new_event))
