@@ -1,6 +1,6 @@
 Reflux = require 'reflux'
 _ = require 'underscore-plus'
-{DatabaseStore, Actions, Message} = require 'inbox-exports'
+{DatabaseStore, DraftStore, Actions, Message} = require 'inbox-exports'
 path = require 'path'
 fs = require 'fs-plus'
 
@@ -86,6 +86,7 @@ TemplateStore = Reflux.createStore
 
     fs.readFile template.path, (err, data) ->
       body = data.toString()
-      Actions.saveDraft({body: body, localId: draftLocalId})
+      session = DraftStore.sessionForLocalId(draftLocalId)
+      session.changes.add(body: body)
 
 module.exports = TemplateStore

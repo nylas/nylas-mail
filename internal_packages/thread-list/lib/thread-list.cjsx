@@ -22,6 +22,7 @@ ThreadList = React.createClass
     @body_unsubscriber = atom.commands.add 'body', {
       'application:previous-item': => @_onShiftSelectedIndex(-1)
       'application:next-item': => @_onShiftSelectedIndex(1)
+      'application:focus-item': => @_onFocusSelectedIndex()
       'application:remove-item': @_onArchiveSelected
       'application:remove-and-previous': @_onArchiveAndPrevious
       'application:reply': @_onReply
@@ -95,6 +96,9 @@ ThreadList = React.createClass
         <span className="timestamp">{timestamp(thread.lastMessageTimestamp)}</span>
 
     [c1, c2, c3, c4]
+
+  _onFocusSelectedIndex: ->
+    Actions.selectThreadId(@state.selectedId)
 
   _onShiftSelectedIndex: (delta) ->
     item = _.find @state.items, (thread) => thread.id == @state.selectedId

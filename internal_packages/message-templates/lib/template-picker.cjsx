@@ -2,10 +2,11 @@ _ = require 'underscore-plus'
 React = require 'react'
 TemplateStore = require './template-store'
 {Actions, Message, DatabaseStore} = require 'inbox-exports'
-{Popover, Menu} = require 'ui-components'
+{Popover, Menu, RetinaImg} = require 'ui-components'
 
 module.exports =
 TemplatePicker = React.createClass
+  displayName: 'TemplatePicker'
 
   getInitialState: ->
     searchValue: ""
@@ -18,7 +19,10 @@ TemplatePicker = React.createClass
     @unsubscribe() if @unsubscribe
 
   render: ->
-    button = <button className="btn btn-icon"><i className="fa fa-paste"></i></button>
+    button = <button className="btn btn-toolbar">
+      <RetinaImg name="toolbar-templates.png"/>
+      <RetinaImg name="toolbar-chevron.png"/>
+    </button>
     headerComponents = [
       <input type="text"
              tabIndex="1"
@@ -32,7 +36,7 @@ TemplatePicker = React.createClass
       <div className="item" key="manage" onClick={@_onManageTemplates}>Open Templates Folder...</div>
     ]
 
-    <Popover ref="popover" className="template-picker" buttonComponent={button}>
+    <Popover ref="popover" className="template-picker pull-right" buttonComponent={button}>
       <Menu ref="menu"
             headerComponents={headerComponents}
             footerComponents={footerComponents}

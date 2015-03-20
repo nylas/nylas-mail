@@ -65,7 +65,7 @@ ListTabular = React.createClass
     onDoubleClick: React.PropTypes.func
 
   render: ->
-    <div tabIndex=1 className="list-container list-tabular">
+    <div tabIndex="-1" className="list-container list-tabular">
       {@_headers()}
       <div className="list-rows">
         {@_rows()}

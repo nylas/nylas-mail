@@ -8,6 +8,18 @@
   min-height: 30px;
   position: relative;
 
+  .content-container {
+    border: 1px solid @border-secondary-bg;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    border-radius: @border-radius-small;
+    position: absolute;
+  }
+
+  .content-container.empty {
+    border: 0;
+    box-shadow: none;
+  }
+
   .header-container, .footer-container {
     background-color: transparent;
     padding:0;

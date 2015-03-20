@@ -51,6 +51,7 @@ ComposerView = proxyquire "../lib/composer-view.cjsx",
       listen: -> ->
       findViewByName: (component) -> reactStub(component)
       findAllViewsByRole: (role) -> [reactStub('a'),reactStub('b')]
+      findAllByRole: (role) -> [{view:reactStub('a'), name:'a'},{view:reactStub('b'),name:'b'}]
     DraftStore: DraftStore
 
 beforeEach ->

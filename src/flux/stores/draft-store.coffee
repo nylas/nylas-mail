@@ -48,6 +48,7 @@ DraftStore = Reflux.createStore
     @_drafts = []
     @_draftSessions = {}
     @_sendingState = {}
+    @_extensions = []
 
     # TODO: Doesn't work if we do window.addEventListener, but this is
     # fragile. Pending an Atom fix perhaps?
@@ -90,6 +91,17 @@ DraftStore = Reflux.createStore
     @_draftSessions[localId]
 
   sendingState: (draftLocalId) -> @_sendingState[draftLocalId] ? false
+
+  # Composer Extensions
+
+  extensions: (ext) ->
+    @_extensions
+
+  registerExtension: (ext) ->
+    @_extensions.push(ext)
+
+  unregisterExtension: (ext) ->
+    @_extensions = _.without(@_extensions, ext)
 
   ########### PRIVATE ####################################################
 
@@ -219,19 +231,27 @@ DraftStore = Reflux.createStore
     # Queue the task to destroy the draft
     Actions.queueTask(new DestroyDraftTask(draftLocalId))
 
-  _onSendDraft: (draftLocalId) -> new Promise (resolve, reject) =>
-    @_sendingState[draftLocalId] = true
-    @trigger()
-    # Immediately save any pending changes so we don't save after sending
-    save = @_draftSessions[draftLocalId]?.changes.commit()
-    save.then =>
-      # We optimistically close the window. If we get an error, then it
-      # will re-open again.
-      @_closeWindow(draftLocalId)
-      # Queue the task to send the draft
-      fromPopout = atom.state.mode is "composer"
-      Actions.queueTask(new SendDraftTask(draftLocalId, fromPopout: fromPopout))
-      resolve()
+  _onSendDraft: (draftLocalId) ->
+    new Promise (resolve, reject) =>
+      @_sendingState[draftLocalId] = true
+      @trigger()
+
+      session = @sessionForLocalId(draftLocalId)
+      session.prepare().then =>
+        # Give third-party plugins an opportunity to sanitize draft data
+        for extension in @_extensions
+          continue unless extension.finalizeSessionBeforeSending
+          extension.finalizeSessionBeforeSending(session)
+
+        # Immediately save any pending changes so we don't save after sending
+        session.changes.commit().then =>
+          # We optimistically close the window. If we get an error, then it
+          # will re-open again.
+          @_closeWindow(draftLocalId)
+          # Queue the task to send the draft
+          fromPopout = atom.state.mode is "composer"
+          Actions.queueTask(new SendDraftTask(draftLocalId, fromPopout: fromPopout))
+          resolve()
 
   _onSendDraftError: (draftLocalId) ->
     @_sendingState[draftLocalId] = false

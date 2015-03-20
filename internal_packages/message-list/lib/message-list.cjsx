@@ -57,7 +57,7 @@ MessageList = React.createClass
       "ready": @state.ready
 
     <div className="message-list" id="message-list">
-      <div tabIndex=1 className={wrapClass} ref="messageWrap">
+      <div tabIndex="-1" className={wrapClass} ref="messageWrap">
         <div className="message-list-notification-bars">
           {@_messageListNotificationBars()}
         </div>

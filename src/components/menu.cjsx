@@ -133,12 +133,13 @@ Menu = React.createClass
 
   _contentContainer: ->
     items = @props.items.map(@_itemComponentForItem) ? []
-    if items.length is 0
-      <span></span>
-    else
-      <div className="content-container">
-        {items}
-      </div>
+    contentClass = React.addons.classSet
+      'content-container': true
+      'empty': items.length is 0
+
+    <div className={contentClass}>
+      {items}
+    </div>
 
   _itemComponentForItem: (item, i) ->
     content = @props.itemContent(item)

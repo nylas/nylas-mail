@@ -15,6 +15,7 @@
   'e'        : 'application:remove-item' # Gmail
   'delete'   : 'application:remove-item' # Mac mail
   'backspace': 'application:remove-item' # Outlook
+  'enter'    : 'application:focus-item'
 
   '/'        : 'application:focus-search' # Gmail
 
@@ -27,7 +28,6 @@
   # Default cross-platform core behaviors
   'left': 'core:move-left'
   'right': 'core:move-right'
-  'enter': 'core:confirm'
   'shift-up': 'core:select-up'
   'shift-down': 'core:select-down'
   'shift-left': 'core:select-left'

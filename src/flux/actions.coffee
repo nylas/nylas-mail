@@ -69,7 +69,6 @@ windowActions = [
   "composePopoutDraft",
   "composeNewBlankDraft",
 
-  "saveDraft",
   "sendDraft",
   "destroyDraft",
 

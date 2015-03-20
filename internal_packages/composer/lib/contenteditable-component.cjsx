@@ -1,7 +1,7 @@
 _ = require 'underscore-plus'
 React = require 'react'
 sanitizeHtml = require 'sanitize-html'
-{Utils} = require 'inbox-exports'
+{Utils, DraftStore} = require 'inbox-exports'
 FloatingToolbar = require './floating-toolbar.cjsx'
 
 linkUUID = 0
@@ -31,10 +31,24 @@ ContenteditableComponent = React.createClass
     @_setupLinkHoverListeners()
     @_setupGlobalMouseListener()
 
+    @_disposable = atom.commands.add '.contenteditable-container *', {
+      'core:focus-next': (event) =>
+        editableNode = @_editableNode()
+        range = @_getRangeInScope()
+        for extension in DraftStore.extensions()
+          extension.onFocusNext(editableNode, range, event) if extension.onFocusNext
+      'core:focus-previous': (event) =>
+        editableNode = @_editableNode()
+        range = @_getRangeInScope()
+        for extension in DraftStore.extensions()
+          extension.onFocusPrevious(editableNode, range, event) if extension.onFocusPrevious
+    }
+
   componentWillUnmount: ->
     @_teardownSelectionListeners()
     @_teardownLinkHoverListeners()
     @_teardownGlobalMouseListener()
+    @_disposable.dispose()
 
   componentWillReceiveProps: (nextProps) ->
     if nextProps.initialSelectionSnapshot?
@@ -80,11 +94,18 @@ ContenteditableComponent = React.createClass
 
   _onInput: (event) ->
     @_dragging = false
-    @_editableNode().normalize()
-    @_setNewSelectionState()
-    html = @_unapplyHTMLDisplayFilters(@_editableNode().innerHTML)
-    @props.onChange(target: value: html)
+    editableNode = @_editableNode()
+    editableNode.normalize()
 
+    editableNode = @_editableNode()
+    for extension in DraftStore.extensions()
+      extension.onInput(editableNode, event) if extension.onInput
+
+    @_setNewSelectionState()
+
+    html = @_unapplyHTMLDisplayFilters(editableNode.innerHTML)
+    @props.onChange(target: value: html)
+  
   _onBlur: (event) ->
     # The delay here is necessary to see if the blur was caused by us
     # navigating to the toolbar and focusing on the set-url input.
@@ -161,6 +182,15 @@ ContenteditableComponent = React.createClass
   getCurrentSelection: -> _.clone(@_selection ? {})
   getPreviousSelection: -> _.clone(@_previousSelection ? {})
 
+  _getRangeInScope: ->
+    selection = document.getSelection()
+    return null if not @_selectionInScope(selection)
+    try
+      range = selection.getRangeAt(0)
+    catch
+      return
+    range
+
   # Every time the cursor changes we need to preserve its location and
   # state.
   #
@@ -179,14 +209,10 @@ ContenteditableComponent = React.createClass
   # and our selection restoration will fail
   _setNewSelectionState: ->
     selection = document.getSelection()
-    return if not @_selectionInScope(selection)
-
     return if @_checkSameSelection(selection)
-    try
-      range = selection.getRangeAt(0)
-    catch
-      return
-    return if not range?
+
+    range = @_getRangeInScope()
+    return unless range
 
     @_previousSelection = @_selection
 
@@ -223,6 +249,7 @@ ContenteditableComponent = React.createClass
     @__onMouseUp = _.bind(@_onMouseUp, @)
     window.addEventListener("mousedown", @__onMouseDown)
     window.addEventListener("mouseup", @__onMouseUp)
+
   _teardownGlobalMouseListener: ->
     window.removeEventListener("mousedown", @__onMouseDown)
     window.removeEventListener("mouseup", @__onMouseUp)
@@ -231,15 +258,32 @@ ContenteditableComponent = React.createClass
     @_mouseDownEvent = event
     @_mouseHasMoved = false
     window.addEventListener("mousemove", @__onMouseMove)
+
   _onMouseMove: (event) ->
     if not @_mouseHasMoved
       @_onDragStart(@_mouseDownEvent)
       @_mouseHasMoved = true
+
   _onMouseUp: (event) ->
     window.removeEventListener("mousemove", @__onMouseMove)
+
     if @_mouseHasMoved
       @_mouseHasMoved = false
       @_onDragEnd(event)
+
+    editableNode = @_editableNode()
+    selection = document.getSelection()
+    return event unless @_selectionInScope(selection)
+
+    range = @_getRangeInScope()
+    if range
+      try
+        for extension in DraftStore.extensions()
+          extension.onMouseUp(editableNode, range, event) if extension.onMouseUp
+      catch e
+        console.log('DraftStore extension raised an error: '+e.toString())
+    
+    event
 
   _onDragStart: (event) ->
     return unless @isMounted()
@@ -252,6 +296,7 @@ ContenteditableComponent = React.createClass
     if @_dragging
       @_dragging = false
       @_refreshToolbarState()
+    return event
 
   # We manually restore the selection on every render and when we need to
   # move the selection around manually.

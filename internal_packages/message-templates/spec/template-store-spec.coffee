@@ -1,4 +1,4 @@
-{Message, Actions, DatabaseStore} = require 'inbox-exports'
+{Message, Actions, DatabaseStore, DraftStore} = require 'inbox-exports'
 TemplateStore = require '../lib/template-store'
 fs = require 'fs-plus'
 shell = require 'shell'
@@ -54,14 +54,17 @@ describe "TemplateStore", ->
 
   describe "insertTemplateId", ->
     it "should insert the template with the given id into the draft with the given id", ->
-      spyOn(Actions, 'saveDraft')
+
+      add = jasmine.createSpy('add')
+      spyOn(DraftStore, 'sessionForLocalId').andCallFake ->
+        changes: {add}
+
       TemplateStore._onInsertTemplateId
         templateId: 'template1.html',
         draftLocalId: 'localid-draft'
 
-      expect(Actions.saveDraft).toHaveBeenCalledWith
-        body: stubTemplateFiles['template1.html'],
-        localId: 'localid-draft'
+      expect(add).toHaveBeenCalledWith
+        body: stubTemplateFiles['template1.html']
 
   describe "onCreateTemplate", ->
     beforeEach ->

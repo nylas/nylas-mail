@@ -1,6 +1,8 @@
 @import "ui-variables";
 @import "ui-mixins";
 
+@code-bg-color: #fcf4db;
+
 .template-picker .menu {
     .content-container {
         height:150px;
@@ -8,16 +10,34 @@
     }
 }
 
-.compose-body .scribe {
+.template-status-bar {
+    background-color: @code-bg-color;
+    color:darken(@code-bg-color, 70%);
+    border: 1.5px solid darken(@code-bg-color, 10%);
+    border-radius: @border-radius-small;
+    padding-top: @padding-small-vertical;
+    padding-bottom: @padding-small-vertical;
+    padding-left: @padding-small-horizontal;
+    padding-right: @padding-small-horizontal;
+    font-size: @font-size-small;
+    display:inline-block;
+    margin:auto;
+    -webkit-user-select:none;
+}
+
+.compose-body #contenteditable {
     code.var {
         font: inherit;
         padding:0;
+        padding-left:2px;
+        padding-right:2px;
         background-color: transparent;
-        border: 1px solid fade(@green, 15%);
-        background-color: fade(@green, 5%);
+        border-bottom: 1.5px solid darken(@code-bg-color, 10%);
+        background-color: fade(@code-bg-color, 10%);
         &.empty {
-            background-color: fade(@green, 15%);
-            border: 1px solid fade(@green, 25%);
+            color:darken(@code-bg-color, 70%);
+            border-bottom: 1px solid darken(@code-bg-color, 14%);
+            background-color: @code-bg-color;
         }
     }
 }

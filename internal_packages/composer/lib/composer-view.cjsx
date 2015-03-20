@@ -13,7 +13,6 @@ _ = require 'underscore-plus'
 FileUploads = require './file-uploads.cjsx'
 ContenteditableComponent = require './contenteditable-component.cjsx'
 ParticipantsTextField = require './participants-text-field.cjsx'
-idGen = 0
 
 # The ComposerView is a unique React component because it (currently) is a
 # singleton. Normally, the React way to do things would be to re-render the
@@ -38,7 +37,8 @@ ComposerView = React.createClass
 
   getComponentRegistryState: ->
     AttachmentComponent: ComponentRegistry.findViewByName 'AttachmentComponent'
-    FooterComponents: ComponentRegistry.findAllViewsByRole 'Composer:Footer'
+    ActionButtonComponents: ComponentRegistry.findAllByRole 'Composer:ActionButton'
+    FooterComponents: ComponentRegistry.findAllByRole 'Composer:Footer'
 
   componentWillMount: ->
     @_prepareForDraft()
@@ -198,8 +198,10 @@ ComposerView = React.createClass
           {@_fileComponents()}
           <FileUploads localId={@props.localId} />
         </div>
-      </div>
 
+        {@_footerComponents()}
+      </div>
+      
       <div className="composer-action-bar-wrap">
         <div className="composer-action-bar-content">
           <button className="btn btn-toolbar pull-right btn-trash"
@@ -214,11 +216,9 @@ ComposerView = React.createClass
                   data-tooltip="Send message"
                   ref="sendButton"
                   onClick={@_sendDraft}><RetinaImg name="toolbar-send.png" /></button>
-          {@_footerComponents()}
+          {@_actionButtonComponents()}
         </div>
       </div>
-
-
     </div>
 
   # Focus the composer view. Chooses the appropriate field to start
@@ -239,10 +239,13 @@ ComposerView = React.createClass
     return false if not draft? or not draft.subject?
     Utils.isForwardedMessage(draft.body, draft.subject)
 
+  _actionButtonComponents: ->
+    (@state.ActionButtonComponents ? []).map ({view, name}) =>
+      <view key={name} draftLocalId={@props.localId} />
+
   _footerComponents: ->
-    (@state.FooterComponents ? []).map (Component) =>
-      idGen += 1
-      <Component key={Component.id ? idGen} draftLocalId={@props.localId} />
+    (@state.FooterComponents ? []).map ({view, name}) =>
+      <view key={name} draftLocalId={@props.localId} />
 
   _fileComponents: ->
     AttachmentComponent = @state.AttachmentComponent
@@ -330,6 +333,11 @@ ComposerView = React.createClass
       warnings.push('without a subject line')
     if (draft.files ? []).length is 0 and @_hasAttachment(draft.body)
       warnings.push('without an attachment')
+
+    # Check third party warnings added via DraftStore extensions
+    for extension in DraftStore.extensions()
+      continue unless extension.warningsForSending
+      warnings = warnings.concat(extension.warningsForSending(draft))
 
     if warnings.length > 0 and not options.force
       dialog.showMessageBox remote.getCurrentWindow(), {

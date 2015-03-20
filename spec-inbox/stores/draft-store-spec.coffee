@@ -273,6 +273,7 @@ describe "DraftStore", ->
       DraftStore._sendingState = {}
       DraftStore._draftSessions = {}
       DraftStore._draftSessions[draftLocalId] =
+        prepare: -> Promise.resolve()
         changes:
           commit: -> Promise.resolve()
       spyOn(DraftStore, "trigger")

@@ -10,7 +10,7 @@ ThreadListNarrow = React.createClass
   mixins: [ThreadListMixin]
 
   render: ->
-    <div tabIndex=1
+    <div tabIndex="-1"
          className="thread-list-container thread-list-narrow">
       {@_threadComponents()}
     </div>

@@ -438,7 +438,7 @@ class AtomApplication
       title: 'Message'
       frame: true
       windowName: 'composer'
-      windowPackages: ['composer', 'attachments']
+      windowPackages: ['composer', 'attachments', 'message-templates']
     w
 
   showComposerWindow: ({draftLocalId, draftInitialJSON, error} = {}) ->
