@@ -85,7 +85,7 @@ MessageItem = React.createClass
 
   _quotedTextClasses: -> React.addons.classSet
     "quoted-text-control": true
-    'no-quoted-text': (Utils.quotedTextIndex(@props.message.body).length is 0)
+    'no-quoted-text': (Utils.quotedTextIndex(@props.message.body) is -1)
     'show-quoted-text': @state.showQuotedText
 
   _renderMessageActionsInline: ->

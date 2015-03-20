@@ -6,6 +6,7 @@ ReactTestUtils = React.addons.TestUtils
  Message,
  File,
  Thread,
+ Utils,
  ComponentRegistry,
  FileDownloadStore,
  InboxTestUtils} = require "inbox-exports"
@@ -236,6 +237,13 @@ describe "MessageItem", ->
       @createComponent()
       toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@component, 'quoted-text-control')
       expect(toggle.getDOMNode().className.indexOf('show-quoted-text')).toBe(-1)
+
+    it "should have the `no quoted text` class if there is no quoted text in the message", ->
+      spyOn(Utils, 'quotedTextIndex').andCallFake -> -1
+
+      @createComponent()
+      toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@component, 'quoted-text-control')
+      expect(toggle.getDOMNode().className.indexOf('no-quoted-text')).not.toBe(-1)
 
     it "should be initialized to true if the message contains `Forwarded`...", ->
       @message.body = """
