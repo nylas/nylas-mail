@@ -85,6 +85,7 @@ windowActions = [
 
   # FullContact Sidebar
   "getFullContactDetails",
+  "focusContact",
 
   # Templates
   "insertTemplateId",

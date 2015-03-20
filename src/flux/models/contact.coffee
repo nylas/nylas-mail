@@ -16,6 +16,10 @@ class Contact extends Model
       queryable: true
       modelKey: 'email'
 
+  # Used to uniquely identify a contact
+  nameEmail: ->
+    "#{(@name ? "").toLowerCase().trim()} #{@email.toLowerCase().trim()}"
+
   toJSON: ->
     json = super
     json['name'] ||= json['email']

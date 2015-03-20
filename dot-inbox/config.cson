@@ -4,7 +4,6 @@
       'inbox-light-ui'
     ]
     'disabledPackages': [
-      "sidebar-fullcontact",
       "message-templates",
       "calendar-bar",
       "salesforce"

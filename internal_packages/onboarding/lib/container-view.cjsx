@@ -101,7 +101,7 @@ ContainerView = React.createClass
             "ref": "connect-iframe",
             "key": this.state.page,
             "src": this._connectWebViewURL()
-          });
+          })
         }
         <div className="back" onClick={@_fireMoveToPrevPage}>
           <RetinaImg name="onboarding-back.png"/>

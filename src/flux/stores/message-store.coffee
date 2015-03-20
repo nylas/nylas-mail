@@ -16,6 +16,8 @@ MessageStore = Reflux.createStore
 
   items: ->
     @_items
+
+  threadId: -> @_threadId
   
   itemLocalIds: ->
     @_itemsLocalIds

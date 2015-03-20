@@ -2,6 +2,7 @@ _ = require 'underscore-plus'
 fs = require('fs-plus')
 path = require('path')
 
+module.exports =
 Utils =
   modelClassMap: ->
     Thread = require './thread'
@@ -182,4 +183,125 @@ Utils =
         return false
     return true
 
-module.exports = Utils
+  # True of all arguments have the same domains
+  emailsHaveSameDomain: (args...) ->
+    return false if args.length < 2
+    domains = args.map (email="") ->
+      _.last(email.toLowerCase().trim().split("@"))
+    toMatch = domains[0]
+    return _.every(domains, (domain) -> domain.length > 0 and toMatch is domain)
+
+  emailHasCommonDomain: (email="") ->
+    domain = _.last(email.toLowerCase().trim().split("@"))
+    return (Utils.commonDomains[domain] ? false)
+
+  # https://github.com/mailcheck/mailcheck/wiki/list-of-popular-domains
+  # As a hash for instant lookup.
+  commonDomains:
+    "aol.com": true
+    "att.net": true
+    "comcast.net": true
+    "facebook.com": true
+    "gmail.com": true
+    "gmx.com": true
+    "googlemail.com": true
+    "google.com": true
+    "hotmail.com": true
+    "hotmail.co.uk": true
+    "mac.com": true
+    "me.com": true
+    "mail.com": true
+    "msn.com": true
+    "live.com": true
+    "sbcglobal.net": true
+    "verizon.net": true
+    "yahoo.com": true
+    "yahoo.co.uk": true
+    "email.com": true
+    "games.com": true
+    "gmx.net": true
+    "hush.com": true
+    "hushmail.com": true
+    "inbox.com": true
+    "lavabit.com": true
+    "love.com": true
+    "pobox.com": true
+    "rocketmail.com": true
+    "safe-mail.net": true
+    "wow.com": true
+    "ygm.com": true
+    "ymail.com": true
+    "zoho.com": true
+    "fastmail.fm": true
+    "bellsouth.net": true
+    "charter.net": true
+    "cox.net": true
+    "earthlink.net": true
+    "juno.com": true
+    "btinternet.com": true
+    "virginmedia.com": true
+    "blueyonder.co.uk": true
+    "freeserve.co.uk": true
+    "live.co.uk": true
+    "ntlworld.com": true
+    "o2.co.uk": true
+    "orange.net": true
+    "sky.com": true
+    "talktalk.co.uk": true
+    "tiscali.co.uk": true
+    "virgin.net": true
+    "wanadoo.co.uk": true
+    "bt.com": true
+    "sina.com": true
+    "qq.com": true
+    "naver.com": true
+    "hanmail.net": true
+    "daum.net": true
+    "nate.com": true
+    "yahoo.co.jp": true
+    "yahoo.co.kr": true
+    "yahoo.co.id": true
+    "yahoo.co.in": true
+    "yahoo.com.sg": true
+    "yahoo.com.ph": true
+    "hotmail.fr": true
+    "live.fr": true
+    "laposte.net": true
+    "yahoo.fr": true
+    "wanadoo.fr": true
+    "orange.fr": true
+    "gmx.fr": true
+    "sfr.fr": true
+    "neuf.fr": true
+    "free.fr": true
+    "gmx.de": true
+    "hotmail.de": true
+    "live.de": true
+    "online.de": true
+    "t-online.de": true
+    "web.de": true
+    "yahoo.de": true
+    "mail.ru": true
+    "rambler.ru": true
+    "yandex.ru": true
+    "hotmail.be": true
+    "live.be": true
+    "skynet.be": true
+    "voo.be": true
+    "tvcablenet.be": true
+    "hotmail.com.ar": true
+    "live.com.ar": true
+    "yahoo.com.ar": true
+    "fibertel.com.ar": true
+    "speedy.com.ar": true
+    "arnet.com.ar": true
+    "hotmail.com": true
+    "gmail.com": true
+    "yahoo.com.mx": true
+    "live.com.mx": true
+    "yahoo.com": true
+    "hotmail.es": true
+    "live.com": true
+    "hotmail.com.mx": true
+    "prodigy.net.mx": true
+    "msn.com": true

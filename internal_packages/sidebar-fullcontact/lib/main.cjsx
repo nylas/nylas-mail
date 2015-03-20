@@ -10,6 +10,7 @@ module.exports =
     ComponentRegistry.register
       name: 'SidebarFullContact'
       view: SidebarFullContact
+      role: 'MessageListSidebar'
 
   deactivate: ->
     ComponentRegistry.unregister('SidebarFullContact')

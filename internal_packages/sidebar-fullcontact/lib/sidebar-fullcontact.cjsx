@@ -1,64 +1,63 @@
 _ = require 'underscore-plus'
 React = require "react"
-SidebarFullContactStore = require "./fullcontact-store"
-SidebarFullContactChip = require "./sidebar-fullcontact-chip.cjsx"
+FullContactStore = require "./fullcontact-store"
+
 SidebarFullContactDetails = require "./sidebar-fullcontact-details.cjsx"
 
-{Actions, MessageStore, NamespaceStore, ComponentRegistry} = require("inbox-exports")
+{Actions} = require("inbox-exports")
 
 module.exports =
 SidebarFullContact = React.createClass
 
   getInitialState: ->
-    messages: []
-    selectedContact: null
-    userData: {}
+    fullContactCache: {}
+    sortedContacts: []
+    focusedContact: null
 
   componentDidMount: ->
-    @message_store_unsubscribe = MessageStore.listen @_onChange
-    @fullcontact_store_unsubscribe = SidebarFullContactStore.listen @_onChange
+    @unsubscribe = FullContactStore.listen @_onChange
 
   componentWillUnmount: ->
-    @message_store_unsubscribe()
+    @unsubscribe()
 
   render: ->
-    @ownerEmail = NamespaceStore.current()?.emailAddress
-    thread_participants = @_getParticipants()
-    if @state.messages.length == 0 or thread_participants.length == 0
-      return <div></div>
-    if @state.selectedContact != null
-      <SidebarFullContactDetails data={@state.userData}
-                                 contacts={thread_participants}
-                                 selectContact={@_onSelectContact} />
+    <div className="full-contact-sidebar">
+      <SidebarFullContactDetails contact={@state.focusedContact ? {}}
+                                 fullContact={@_fullContact()}/>
+      <div className="other-contacts">
+        <h2 className="sidebar-h2">Thread Participants</h2>
+        {@_renderSortedContacts()}
+      </div>
+    </div>
+
+  _renderSortedContacts: ->
+    contacts = []
+    @state.sortedContacts.forEach (contact) =>
+      if contact is @state.focusedContact
+        selected = "selected"
+      else selected = ""
+      contacts.push(
+        <div className="other-contact #{selected}"
+             onClick={=> @_onSelectContact(contact)}
+             key={contact.id}>
+          {contact.name}
+        </div>
+      )
+    return contacts
+
+  _onSelectContact: (contact) ->
+    Actions.focusContact(contact)
+
+  _fullContact: ->
+    if @state.focusedContact?.email
+      return @state.fullContactCache[@state.focusedContact.email] ? {}
     else
-      <SidebarFullContactChip contacts={thread_participants}
-                              selectContact={@_onSelectContact} />
-
-  _getParticipants: ->
-    participants = {}
-    for msg in (@state.messages ? [])
-      contacts = msg.participants()
-      for contact in contacts
-        if contact? and contact.email?.length > 0
-          if contact.email != @ownerEmail
-            participants[contact.email] = contact
-    return _.values(participants)
-
-  _onSelectContact: (email) ->
-    Actions.getFullContactDetails(email)
-    @setState({selectedContact: email})
+      return {}
 
   _onChange: ->
     @setState(@_getStateFromStores())
 
   _getStateFromStores: ->
-    oldMessages = @state?.messages
-    newMessages = (MessageStore.items() ? [])
-    messageDiff = _.difference(_.pluck(oldMessages, 'id'), _.pluck(newMessages, 'id'))
-    if messageDiff.length is 0
-      messages: (MessageStore.items() ? [])
-      userData: SidebarFullContactStore.getDataFromEmail(@state.selectedContact)
-    else
-      @oldMessages = newMessages
-      messages: newMessages
-      selectedContact: null
+    fullContactCache: FullContactStore.fullContactCache()
+    sortedContacts: FullContactStore.sortedContacts()
+    focusedContact: FullContactStore.focusedContact()

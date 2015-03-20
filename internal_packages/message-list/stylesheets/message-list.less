@@ -56,6 +56,8 @@
 }
 
 #message-list {
+  display: flex;
+  flex-direction: row;
   position: relative;
 
   width: 100%;
@@ -63,6 +65,13 @@
   min-height: 100%;
   padding: 0;
   order: 2;
+
+  .message-list-sidebar {
+    display: flex;
+    flex-direction: column;
+    background: @background-off-primary;
+    height: 100%;
+  }
 
   .message-list-headers {
     margin: 0 auto;
@@ -77,9 +86,10 @@
   }
 
   .messages-wrap {
+    flex: 4;
     overflow-y: auto;
-    position: absolute;
-    top:0; left:0; right:0; bottom:0;
+    // position: absolute;
+    // top:0; left:0; right:0; bottom:0;
     opacity:0;
     transition: opacity 0s;
   }

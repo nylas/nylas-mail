@@ -1,36 +1,54 @@
-#sidebar-fullcontact {
-  width: 175px;
-  position: absolute;
-  right: 10px;
-  top: 0;
-  bottom: 0;
-  z-index: 1;
-  padding: 5px;
-  margin-top: 190px;
+.full-contact-sidebar {
+  padding: @spacing-standard;
+  order: 1;
 
-  h3 {
-    font-weight: bold;
-    margin: 2px 0 0 0;
+  .full-contact {
+    h1.name {
+      font-size: 20px;
+      font-weight: @font-weight-normal;
+      margin: 0;
+      padding: 0.6em 0 0.4em 0;
+    }
+
+    .profile-photo {
+      max-width: 42px;
+      max-height: 42px;
+      display: block;
+      float: right;
+      margin-left: @spacing-standard;
+    }
+
+    .header {
+      &:before, &:after { content: " "; display: table; }
+      &:after { clear: both; }
+    }
+
+    .subheader {
+      border-top: 1px solid @border-color-divider;
+      margin: @spacing-standard 0;
+      color: @text-color-subtle;
+      padding: @spacing-standard 0;
+      font-size: @font-size-smaller;
+    }
   }
 
-  h6 {
-    word-break: break-all;
+  h2.sidebar-h2 {
+    font-size: 10px;
+    font-weight: @font-weight-semi-bold;
+    text-transform: uppercase;
+    color: @text-color-very-subtle;
+    border-bottom: 1px solid @border-color-divider;
+    margin: 2em 0 1em 0;
   }
 
-  .fullcontact {
-    width: 135px;
-  }
-
-  .fullcontact-chip {
-    width: 150px;
-    border: 1px solid #ccc;
-    padding-left: 5px;
-    margin-bottom: 10px;
-    background: darken(#f1f1f1, 1%);
-
-    &:hover {
-      background: darken(#f1f1f1, 5%);
-      cursor: pointer;
+  .other-contacts {
+    .other-contact {
+      color: @text-color-subtle;
+      font-size: @font-size-smaller;
+      &.selected {
+        font-weight: @font-weight-semi-bold;
+      }
+      &:hover {cursor: pointer;}
     }
   }
 }
