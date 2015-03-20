@@ -43,7 +43,7 @@ ThreadList = React.createClass
         selectedId={@state.selectedId}
         onSelect={ (item) -> Actions.selectThreadId(item.id) } />
     </div>
-    
+
   _computeColumns: ->
     labelComponents = (thread) =>
       for label in @state.threadLabelComponents

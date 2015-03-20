@@ -1,5 +1,5 @@
 _ = require 'underscore-plus'
-React = require 'react'
+React = require 'react/addons'
 {CompositeDisposable} = require 'event-kit'
 {RetinaImg} = require 'ui-components'
 
@@ -32,10 +32,24 @@ FloatingToolbar = React.createClass
 
   render: ->
     <div ref="floatingToolbar"
-         className="floating-toolbar toolbar #{@props.pos}" style={@_toolbarStyles()}>
+         className={@_toolbarClasses()} style={@_toolbarStyles()}>
       <div className="toolbar-pointer" style={@_toolbarPointerStyles()}></div>
       {@_toolbarType()}
     </div>
+
+  _toolbarClasses: ->
+    classes = {}
+    classes[@props.pos] = true
+    React.addons.classSet _.extend classes,
+      "floating-toolbar": true
+      "toolbar": true
+      "toolbar-visible": @props.visible
+
+  _toolbarStyles: ->
+    styles =
+      left: @_toolbarLeft()
+      top: @props.top
+    return styles
 
   _toolbarType: ->
     if @state.mode is "buttons" then @_renderButtons()
@@ -117,13 +131,6 @@ FloatingToolbar = React.createClass
     cmd = event.currentTarget.getAttribute 'data-command-name'
     document.execCommand(cmd, false, null)
     true
-
-  _toolbarStyles: ->
-    styles =
-      left: @_toolbarLeft()
-      top: @props.top
-      display: if @props.visible then "block" else "none"
-    return styles
 
   _toolbarLeft: ->
     CONTENT_PADDING = @props.contentPadding ? 15

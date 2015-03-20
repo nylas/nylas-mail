@@ -322,6 +322,19 @@ body.is-blurred .composer-inner-wrap .tokenizing-field .token {
   border-radius: @border-radius-base;
   color: @text-color;
 
+  transition-duration: .15s;
+  // transition-delay: .1s;
+  transition-property: opacity, margin;
+  opacity: 0;
+  visibility: hidden;
+  margin-top: 3px;
+
+  &.toolbar-visible {
+    opacity: 1;
+    visibility: visible;
+    margin-top: 0px;
+  }
+
   .toolbar-pointer {
     position: absolute;
     width: 22.5px;

@@ -29,10 +29,12 @@ ContenteditableComponent = React.createClass
   componentDidMount: ->
     @_setupSelectionListeners()
     @_setupLinkHoverListeners()
+    @_setupGlobalMouseListener()
 
   componentWillUnmount: ->
     @_teardownSelectionListeners()
     @_teardownLinkHoverListeners()
+    @_teardownGlobalMouseListener()
 
   componentWillReceiveProps: (nextProps) ->
     if nextProps.initialSelectionSnapshot?
@@ -69,8 +71,6 @@ ContenteditableComponent = React.createClass
            onBlur={@_onBlur}
            onPaste={@_onPaste}
            onInput={@_onInput}
-           onMouseUp={@_onMouseUp}
-           onMouseDown={@_onMouseDown}
            dangerouslySetInnerHTML={@_dangerouslySetInnerHTML()}></div>
       <a className={@_quotedTextClasses()} onClick={@_onToggleQuotedText}></a>
     </div>
@@ -79,7 +79,7 @@ ContenteditableComponent = React.createClass
     @_editableNode().focus() if @isMounted()
 
   _onInput: (event) ->
-    @_ignoreSelectionRestoration = false
+    @_dragging = false
     @_editableNode().normalize()
     @_setNewSelectionState()
     html = @_unapplyHTMLDisplayFilters(@_editableNode().innerHTML)
@@ -212,17 +212,46 @@ ContenteditableComponent = React.createClass
     @_previousSelection = @_selection
     @_selection = selection
 
-  # When we're dragging we don't want to the restoring the cursor as we're
-  # dragging. Doing so caused selecting backwards to break because the
-  # Selection API does not yet expose the selection "direction". When we
-  # would go to reset the cursor selection, it would reset to the wrong
-  # state.
+
+  # We use global listeners to determine whether or not dragging is
+  # happening. This is because dragging may stop outside the scope of
+  # this element. Note that the `dragstart` and `dragend` events don't
+  # detect text selection. They are for drag & drop.
+  _setupGlobalMouseListener: ->
+    @__onMouseDown = _.bind(@_onMouseDown, @)
+    @__onMouseMove = _.bind(@_onMouseMove, @)
+    @__onMouseUp = _.bind(@_onMouseUp, @)
+    window.addEventListener("mousedown", @__onMouseDown)
+    window.addEventListener("mouseup", @__onMouseUp)
+  _teardownGlobalMouseListener: ->
+    window.removeEventListener("mousedown", @__onMouseDown)
+    window.removeEventListener("mouseup", @__onMouseUp)
+
   _onMouseDown: (event) ->
-    @_ignoreSelectionRestoration = true
-    return event
+    @_mouseDownEvent = event
+    @_mouseHasMoved = false
+    window.addEventListener("mousemove", @__onMouseMove)
+  _onMouseMove: (event) ->
+    if not @_mouseHasMoved
+      @_onDragStart(@_mouseDownEvent)
+      @_mouseHasMoved = true
   _onMouseUp: (event) ->
-    @_ignoreSelectionRestoration = false
-    return event
+    window.removeEventListener("mousemove", @__onMouseMove)
+    if @_mouseHasMoved
+      @_mouseHasMoved = false
+      @_onDragEnd(event)
+
+  _onDragStart: (event) ->
+    return unless @isMounted()
+    editable = @refs.contenteditable.getDOMNode()
+    if editable is event.target or editable.contains(event.target)
+      @_dragging = true
+
+  _onDragEnd: (event) ->
+    return unless @isMounted()
+    if @_dragging
+      @_dragging = false
+      @_refreshToolbarState()
 
   # We manually restore the selection on every render and when we need to
   # move the selection around manually.
@@ -234,7 +263,7 @@ ContenteditableComponent = React.createClass
   #            selection, we'll collapse the range into a single caret
   #            position
   _restoreSelection: ({force, collapse}={}) ->
-    return if @_ignoreSelectionRestoration
+    return if @_dragging
     return if not @_selection?
     return if document.activeElement isnt @_editableNode() and not force
     return if not @_selection.startNode? or not @_selection.endNode?
@@ -354,6 +383,7 @@ ContenteditableComponent = React.createClass
   # 2. When you've arrow-keyed the cursor into a link
   # 3. When you have selected a range of text.
   _refreshToolbarState: ->
+    return if @_dragging
     if @_linkHoveringOver
       url = @_linkHoveringOver.getAttribute('href')
       rect = @_linkHoveringOver.getBoundingClientRect()
