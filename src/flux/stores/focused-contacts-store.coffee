@@ -1,7 +1,7 @@
 _ = require 'underscore-plus'
 Reflux = require 'reflux'
 
-Utils = require '../models/utils.coffee'
+Utils = require '../models/utils'
 Actions = require '../actions'
 MessageStore = require './message-store'
 NamespaceStore = require './namespace-store'
