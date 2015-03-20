@@ -2,7 +2,11 @@ _ = require 'underscore-plus'
 React = require 'react'
 ipc = require 'ipc'
 
-{NamespaceStore, DatabaseStore, Message, ComponentRegistry} = require('inbox-exports')
+{NamespaceStore,
+ DatabaseStore,
+ Message,
+ ComponentRegistry,
+ WorkspaceStore} = require('inbox-exports')
 NewComposeButton = require('./new-compose-button')
 ComposerView = require('./composer-view')
 
@@ -80,7 +84,7 @@ module.exports =
     ComponentRegistry.register
       view: NewComposeButton
       name: 'NewComposeButton'
-      role: 'Root:Left:Toolbar'
+      location: WorkspaceStore.Location.RootSidebar.Toolbar
 
   _showInitialErrorDialog: (msg) ->
     remote = require('remote')

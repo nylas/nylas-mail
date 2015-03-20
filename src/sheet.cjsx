@@ -5,18 +5,16 @@ RetinaImg = require './components/retina-img.cjsx'
 Flexbox = require './components/flexbox.cjsx'
 ResizableRegion = require './components/resizable-region.cjsx'
 
+FLEX = 10000
+
 module.exports =
 Sheet = React.createClass
   displayName: 'Sheet'
 
   propTypes:
-    type: React.PropTypes.string.isRequired
+    data: React.PropTypes.object.isRequired
     depth: React.PropTypes.number.isRequired
-    columns: React.PropTypes.arrayOf(React.PropTypes.string)
     onColumnSizeChanged: React.PropTypes.func
-
-  getDefaultProps: ->
-    columns: ['Left', 'Center', 'Right']
 
   getInitialState: ->
     @_getStateFromStores()
@@ -53,57 +51,67 @@ Sheet = React.createClass
 
     <div name={"Sheet"}
          style={style}
-         data-type={@props.type}>
+         data-type={@props.data.type}>
       <Flexbox direction="row">
-        {@_columnFlexboxComponents()}
+        {@_columnFlexboxElements()}
       </Flexbox>
     </div>
 
-  _columnFlexboxComponents: ->
-    @props.columns.map (column) =>
-      classes = @state[column] || []
-      return if classes.length is 0
-
-      components = classes.map ({name, view}) -> <view key={name} />
-
-      maxWidth = _.reduce classes, ((m,{view}) -> Math.min(view.maxWidth ? 10000, m)), 10000
-      minWidth = _.reduce classes, ((m,{view}) -> Math.max(view.minWidth ? 0, m)), 0
-      resizable = minWidth != maxWidth && column != 'Center'
-
-      if resizable
-        if column is 'Left' then handle = ResizableRegion.Handle.Right
-        if column is 'Right' then handle = ResizableRegion.Handle.Left
-        <ResizableRegion key={"#{@props.type}:#{column}"}
-                         name={"#{@props.type}:#{column}"}
-                         data-column={column}
+  _columnFlexboxElements: ->
+    @state.columns.map ({entries, maxWidth, minWidth, handle, id}, idx) =>
+      elements = entries.map ({name, view}) -> <view key={name} />
+      if minWidth != maxWidth and maxWidth < FLEX
+        <ResizableRegion key={"#{@props.type}:#{idx}"}
+                         name={"#{@props.type}:#{idx}"}
+                         className={"column-#{id}"}
+                         data-column={idx}
                          onResize={ => @props.onColumnSizeChanged(@) }
                          minWidth={minWidth}
                          maxWidth={maxWidth}
                          handle={handle}>
           <Flexbox direction="column">
-            {components}
+            {elements}
           </Flexbox>
         </ResizableRegion>
       else
         <Flexbox direction="column"
-                 key={"#{@props.type}:#{column}"}
-                 name={"#{@props.type}:#{column}"}
-                 data-column={column}
+                 key={"#{@props.type}:#{idx}"}
+                 name={"#{@props.type}:#{idx}"}
+                 className={"column-#{id}"}
+                 data-column={idx}
                  style={flex: 1}>
-          {components}
+          {elements}
         </Flexbox>
 
   _getStateFromStores: ->
-    state = {}
-    state.mode = WorkspaceStore.selectedLayoutMode()
+    state = 
+      mode: WorkspaceStore.selectedLayoutMode()
+      columns: []
 
-    for column in @props.columns
-      views = []
-      for entry in ComponentRegistry.findAllByRole("#{@props.type}:#{column}")
-        continue if entry.mode? and entry.mode != state.mode
-        views.push(entry)
-      state["#{column}"] = views
+    widest = -1
+    widestWidth = -1
 
+    for location, idx in @props.data.columns[state.mode]
+      entries = ComponentRegistry.findAllByLocationAndMode(location, state.mode)
+      maxWidth = _.reduce entries, ((m,{view}) -> Math.min(view.maxWidth ? 10000, m)), 10000
+      minWidth = _.reduce entries, ((m,{view}) -> Math.max(view.minWidth ? 0, m)), 0
+      col = {entries, maxWidth, minWidth, id: location.id}
+      state.columns.push(col)
+
+      if maxWidth > widestWidth
+        widestWidth = maxWidth
+        widest = idx
+
+    # Once we've accumulated all the React components for the columns,
+    # ensure that at least one column has a huge max-width so that the columns
+    # expand to fill the window. This may make items in the column unhappy, but
+    # we pick the column with the highest max-width so the effect is minimal.
+    state.columns[widest].maxWidth = FLEX
+
+    # Assign flexible edges based on whether items are to the left or right
+    # of the flexible column (which has no edges)
+    state.columns[i].handle = ResizableRegion.Handle.Right for i in [0..widest-1] by 1
+    state.columns[i].handle = ResizableRegion.Handle.Left  for i in [widest..state.columns.length-1] by 1
     state
 
   _pop: ->

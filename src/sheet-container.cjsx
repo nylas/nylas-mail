@@ -38,13 +38,13 @@ ToolbarWindowControls = React.createClass
 ComponentRegistry.register
   view: ToolbarWindowControls
   name: 'ToolbarWindowControls'
-  role: 'Global:Left:Toolbar'
+  location: WorkspaceStore.Sheet.Global.Toolbar.Left
 
 Toolbar = React.createClass
   className: 'Toolbar'
 
   propTypes:
-    type: React.PropTypes.string
+    data: React.PropTypes.object
     depth: React.PropTypes.number
 
   getInitialState: ->
@@ -84,10 +84,10 @@ Toolbar = React.createClass
       height:'100%'
       zIndex: 1
 
-    toolbars = @state.itemsForColumns.map ({column, items}) =>
+    toolbars = @state.columns.map (items, idx) =>
       <div style={position: 'absolute', top:0, display:'none'}
-           data-column={column}
-           key={column}>
+           data-column={idx}
+           key={idx}>
         {@_flexboxForItems(items)}
       </div>
 
@@ -96,7 +96,7 @@ Toolbar = React.createClass
     </div>
   
   _flexboxForItems: (items) ->
-    components = items.map ({view, name}) =>
+    elements = items.map ({view, name}) =>
       <view key={name} {...@props} />
 
     <TimeoutTransitionGroup
@@ -106,7 +106,7 @@ Toolbar = React.createClass
       leaveTimeout={200}
       enterTimeout={200}
       transitionName="sheet-toolbar">
-      {components}
+      {elements}
       <ToolbarSpacer key="spacer-50" order={-50}/>
       <ToolbarSpacer key="spacer+50" order={50}/>
     </TimeoutTransitionGroup>
@@ -134,42 +134,37 @@ Toolbar = React.createClass
 
   _onWindowResize: ->
     @recomputeLayout()
-
+  
   _getStateFromStores: (props) ->
     props ?= @props
     state =
       mode: WorkspaceStore.selectedLayoutMode()
-      itemsForColumns: []
+      columns: []
 
-    items = {}
-    for column in ["Left", "Center", "Right"]
-      items[column] = []
-      for role in ["Global:#{column}:Toolbar", "#{props.type}:#{column}:Toolbar"]
-        for entry in ComponentRegistry.findAllByRole(role)
-          continue if entry.mode? and entry.mode != state.mode
-          items[column].push(entry)
-        
-    if @props.depth > 0
-      items['Left'].push(view: ToolbarBack, name: 'ToolbarBack')
+    # Add items registered to Regions in the current sheet
+    for loc in @props.data.columns[state.mode]
+      entries = ComponentRegistry.findAllByLocationAndMode(loc.Toolbar, state.mode)
+      state.columns.push(entries)
 
-    # If the left or right column does not contain any components, it won't
-    # be in the sheet. Go ahead and shift those toolbar items into the center
-    # region.
-    for column in ["Left", "Right"]
-      if ComponentRegistry.findAllByRole("#{props.type}:#{column}").length is 0
-        items['Center'].push(items[column]...)
-        delete items[column]
+    # Add left items registered to the Sheet instead of to a Region
+    for loc in [WorkspaceStore.Sheet.Global, @props.data]
+      entries = ComponentRegistry.findAllByLocationAndMode(loc.Toolbar.Left, state.mode)
+      state.columns[0].push(entries...)
+    state.columns[0].push(view: ToolbarBack, name: 'ToolbarBack') if @props.depth > 0
 
-    for key, val of items
-      state.itemsForColumns.push({column: key, items: val}) if val.length > 0
+    # Add right items registered to the Sheet instead of to a Region
+    for loc in [WorkspaceStore.Sheet.Global, @props.data]
+      entries = ComponentRegistry.findAllByLocationAndMode(loc.Toolbar.Right, state.mode)
+      state.columns[state.columns.length - 1].push(entries...)
+
     state
 
 
-FlexboxForRoles = React.createClass
-  className: 'FlexboxForRoles'
+FlexboxForLocations = React.createClass
+  className: 'FlexboxForLocations'
 
   propTypes:
-    roles: React.PropTypes.arrayOf(React.PropTypes.string)
+    locations: React.PropTypes.arrayOf(React.PropTypes.object)
 
   getInitialState: ->
     @_getComponentRegistryState()
@@ -190,17 +185,18 @@ FlexboxForRoles = React.createClass
     !_.isEqual(nextItemNames, itemNames)
 
   render: ->
-    components = @state.items.map ({view, name}) =>
+    elements = @state.items.map ({view, name}) =>
       <view key={name} />
     
     <Flexbox direction="row">
-      {components}
+      {elements}
     </Flexbox>
 
   _getComponentRegistryState: ->
     items = []
-    for role in @props.roles
-      items = items.concat(ComponentRegistry.findAllByRole(role))
+    mode = WorkspaceStore.selectedLayoutMode()
+    for location in @props.locations
+      items = items.concat(ComponentRegistry.findAllByLocationAndMode(location, mode))
     {items}
 
 module.exports =
@@ -220,7 +216,7 @@ SheetContainer = React.createClass
     @unsubscribe() if @unsubscribe
 
   render: ->
-    topSheetType = @state.stack[@state.stack.length - 1]
+    topSheet = @state.stack[@state.stack.length - 1]
 
     <Flexbox direction="column">
       <TimeoutTransitionGroup  name="Toolbar" 
@@ -229,12 +225,12 @@ SheetContainer = React.createClass
                                enterTimeout={200}
                                className="sheet-toolbar"
                                transitionName="sheet-toolbar">
-        {@_toolbarComponents()}
+        {@_toolbarElements()}
       </TimeoutTransitionGroup>
 
-      <div name="Top" style={order:1}>
-        <FlexboxForRoles roles={["Global:Top", "#{topSheetType}:Top"]}
-                         type={topSheetType}/>
+      <div name="Header" style={order:1}>
+        <FlexboxForLocations locations={[topSheet.Header, WorkspaceStore.Sheet.Global.Header]}
+                             type={topSheet.type}/>
       </div>
 
       <TimeoutTransitionGroup name="Center"
@@ -242,25 +238,25 @@ SheetContainer = React.createClass
                               leaveTimeout={150}
                               enterTimeout={150}
                               transitionName="sheet-stack">
-        {@_sheetComponents()}
+        {@_sheetElements()}
       </TimeoutTransitionGroup>
 
       <div name="Footer" style={order:3}>
-        <FlexboxForRoles roles={["Global:Footer", "#{topSheetType}:Footer"]}
-                         type={topSheetType}/>
+        <FlexboxForLocations locations={[topSheet.Footer, WorkspaceStore.Sheet.Global.Footer]}
+                             type={topSheet.type}/>
       </div>
     </Flexbox>
 
-  _toolbarComponents: ->
-    @state.stack.map (type, index) ->
-      <Toolbar type={type}
+  _toolbarElements: ->
+    @state.stack.map (data, index) ->
+      <Toolbar data={data}
                ref={"toolbar-#{index}"}
                depth={index}
                key={index} />
 
-  _sheetComponents: ->
-    @state.stack.map (type, index) =>
-      <Sheet type={type}
+  _sheetElements: ->
+    @state.stack.map (data, index) =>
+      <Sheet data={data}
              depth={index}
              key={index}
              onColumnSizeChanged={@_onColumnSizeChanged} />

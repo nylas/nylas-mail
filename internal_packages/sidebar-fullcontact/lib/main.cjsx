@@ -1,7 +1,7 @@
 _ = require 'underscore-plus'
 React = require "react"
 SidebarFullContact = require "./sidebar-fullcontact.cjsx"
-{ComponentRegistry} = require("inbox-exports")
+{ComponentRegistry, WorkspaceStore} = require "inbox-exports"
 
 module.exports =
   item: null
@@ -10,7 +10,7 @@ module.exports =
     ComponentRegistry.register
       name: 'SidebarFullContact'
       view: SidebarFullContact
-      role: 'MessageListSidebar'
+      location: WorkspaceStore.Location.MessageListSidebar
 
   deactivate: ->
     ComponentRegistry.unregister('SidebarFullContact')

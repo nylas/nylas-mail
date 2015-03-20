@@ -1,6 +1,6 @@
 React = require "react"
 AccountSidebar = require "./account-sidebar"
-{ComponentRegistry} = require "inbox-exports"
+{ComponentRegistry, WorkspaceStore} = require "inbox-exports"
 
 module.exports =
   item: null # The DOM item the main React component renders into
@@ -9,4 +9,4 @@ module.exports =
     ComponentRegistry.register
       view: AccountSidebar
       name: 'AccountSidebar'
-      role: 'Root:Left'
+      location: WorkspaceStore.Location.RootSidebar

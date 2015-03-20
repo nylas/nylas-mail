@@ -61,3 +61,6 @@ SidebarFullContact = React.createClass
     fullContactCache: FullContactStore.fullContactCache()
     sortedContacts: FullContactStore.sortedContacts()
     focusedContact: FullContactStore.focusedContact()
+
+SidebarFullContact.maxWidth = 300
+SidebarFullContact.minWidth = 200

@@ -8,21 +8,10 @@
   // toolbar. We want the toolbar items to sit right above the centered
   // content, so we need another 800px-wide container in the toolbar...
   .message-toolbar-items {
-    order: -10000;
-    width: 100%;
-    text-align: center;
-    position: absolute;
-    pointer-events: none;
-
-    .message-toolbar-items-inner {
-      margin: auto;
-      max-width: @message-max-width - @spacing-three-quarters*2;
-      text-align: right;
-      pointer-events: none;
-      & > * {
-        pointer-events: auto;
-      }
-    }
+    order: 200;
+    flex-grow: 0;
+    flex-shrink: 0;
+    margin-right: 10px;
   }
 
   .message-toolbar-items.hidden {
@@ -65,13 +54,6 @@
   min-height: 100%;
   padding: 0;
   order: 2;
-
-  .message-list-sidebar {
-    display: flex;
-    flex-direction: column;
-    background: @background-off-primary;
-    height: 100%;
-  }
 
   .message-list-headers {
     margin: 0 auto;
@@ -190,6 +172,10 @@
   padding-top: @spacing-standard;
 }
 
+
+.column-MessageListSidebar {
+  background-color: @background-off-primary;
+}
 
 ///////////////////////////////
 // message-participants.cjsx //

@@ -1,7 +1,7 @@
 path = require 'path'
 require 'coffee-react/register'
 React = require 'react'
-{ComponentRegistry} = require 'inbox-exports'
+{ComponentRegistry, WorkspaceStore} = require 'inbox-exports'
 SearchBar = require './search-bar'
 SearchSettingsBar = require './search-settings-bar'
 
@@ -13,7 +13,7 @@ module.exports =
     ComponentRegistry.register
       view: SearchBar
       name: 'SearchBar'
-      role: 'Root:Center:Toolbar'
+      location: WorkspaceStore.Location.RootCenter.Toolbar
 
   deactivate: ->
     ComponentRegistry.unregister 'SearchBar'

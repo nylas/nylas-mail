@@ -2,6 +2,30 @@ Reflux = require 'reflux'
 NamespaceStore = require './namespace-store'
 Actions = require '../actions'
 
+Location = {}
+for key in ['RootSidebar', 'RootCenter', 'MessageList', 'MessageListSidebar']
+  Location[key] = {id: "#{key}", Toolbar: {id: "#{key}:Toolbar"}}
+
+defineSheet = (type, columns) ->
+  Toolbar:
+    Left: {id: "Sheet:#{type}:Toolbar:Left"}
+    Right: {id: "Sheet:#{type}:Toolbar:Right"}
+  Header: {id: "Sheet:#{type}:Header"}
+  Footer: {id: "Sheet:#{type}:Footer"}
+  type: type
+  columns: columns
+
+Sheet =
+  Global: defineSheet 'Global'
+
+  Root: defineSheet 'Root', 
+    list: [Location.RootSidebar, Location.RootCenter]
+    split: [Location.RootSidebar, Location.RootCenter, Location.MessageList, Location.MessageListSidebar]
+
+  Thread: defineSheet 'Thread',
+    list: [Location.MessageList, Location.MessageListSidebar]
+
+
 WorkspaceStore = Reflux.createStore
   init: ->
     @_resetInstanceVars()
@@ -16,7 +40,7 @@ WorkspaceStore = Reflux.createStore
       'application:pop-sheet': => @popSheet()
 
   _resetInstanceVars: ->
-    @_sheetStack = ["Root"]
+    @_sheetStack = [Sheet.Root]
     @_view = 'threads'
     @_layoutMode = 'list'
 
@@ -51,8 +75,8 @@ WorkspaceStore = Reflux.createStore
     @trigger()
   
   pushThreadSheet: (threadId) ->
-    if @selectedLayoutMode() is 'list' and threadId and @sheet() isnt "Thread"
-      @pushSheet("Thread")
+    if @selectedLayoutMode() is 'list' and threadId and @sheet().type isnt Sheet.Thread.type
+      @pushSheet(Sheet.Thread)
 
   popSheet: ->
     if @_sheetStack.length > 1
@@ -61,8 +85,11 @@ WorkspaceStore = Reflux.createStore
 
   popToRootSheet: ->
     if @_sheetStack.length > 1
-      @_sheetStack = ["Root"]
+      @_sheetStack = [Sheet.Root]
       @trigger()
 
+
+WorkspaceStore.Location = Location
+WorkspaceStore.Sheet = Sheet
 
 module.exports = WorkspaceStore

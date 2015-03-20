@@ -1,4 +1,4 @@
-{ComponentRegistry} = require 'inbox-exports'
+{ComponentRegistry, WorkspaceStore} = require 'inbox-exports'
 ModeToggle = require './mode-toggle'
 
 module.exports =
@@ -6,4 +6,4 @@ module.exports =
     ComponentRegistry.register
       name: 'ModeToggle'
       view: ModeToggle
-      role: 'Root:Center:Toolbar'
+      location: WorkspaceStore.Sheet.Root.Toolbar.Right

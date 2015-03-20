@@ -65,7 +65,6 @@ MessageList = React.createClass
         {@_messageListHeaders()}
         {@_messageComponents()}
       </div>
-      {@_messageListSidebar()}
       <Spinner visible={!@state.ready} />
     </div>
 
@@ -100,22 +99,6 @@ MessageList = React.createClass
     <div className="message-list-notification-bar-wrap">
       {<MLBar thread={@state.currentThread} /> for MLBar in MLBars}
     </div>
-
-  _messageListSidebar: ->
-    sidebarItems = ComponentRegistry.findAllViewsByRole('MessageListSidebar')
-    if sidebarItems.length > 0
-      maxWidth = _.reduce sidebarItems, ((m,view) -> Math.min(view.maxWidth ? 640, m)), 640
-      minWidth = _.reduce sidebarItems, ((m,view) -> Math.max(view.minWidth ? 240, m)), 240
-
-      <ResizableRegion handle={ResizableRegion.Handle.Left}
-                       minWidth={minWidth}
-                       maxWidth={maxWidth}>
-        <div className="message-list-sidebar">
-          {<view thread={@state.currentThread} /> for view in sidebarItems}
-        </div>
-      </ResizableRegion>
-    else
-      return <div></div>
 
   _messageListHeaders: ->
     Participants = @state.Participants

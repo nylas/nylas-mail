@@ -36,7 +36,7 @@ class Component
     # Don't shit the bed if the user forgets `new`
     return new Component(attributes) unless @ instanceof Component
 
-    ['name', 'model', 'view', 'role', 'mode'].map (key) =>
+    ['name', 'model', 'view', 'role', 'mode', 'location'].map (key) =>
       @[key] = attributes[key] if attributes[key]
 
     unless @name?
@@ -83,6 +83,13 @@ ComponentRegistry = Reflux.createStore
 
   findAllViewsByRole: (role) ->
     _.map @findAllByRole(role), (component) -> component.view
+
+  findAllByLocationAndMode: (location, mode) ->
+    _.filter (_.values registry), (component) ->
+      return false unless component.location
+      return false if component.location.id isnt location.id
+      return false if component.mode and component.mode isnt mode
+      true
 
   triggerDebounced: _.debounce(( -> @trigger(@)), 1)
 

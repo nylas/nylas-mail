@@ -1,7 +1,7 @@
 React = require "react"
 Notifications = require "./notifications"
 NotificationsStickyBar = require "./notifications-sticky-bar"
-{ComponentRegistry} = require("inbox-exports")
+{ComponentRegistry, WorkspaceStore} = require("inbox-exports")
 
 module.exports =
   item: null # The DOM item the main React component renders into
@@ -10,12 +10,12 @@ module.exports =
     ComponentRegistry.register
       view: Notifications
       name: 'Notifications'
-      role: 'Root:Left'
+      location: WorkspaceStore.Location.RootSidebar
 
     ComponentRegistry.register
       view: NotificationsStickyBar
       name: 'NotificationsStickyBar'
-      role: 'Root:Top'
+      location: WorkspaceStore.Sheet.Root.Header
 
   deactivate: ->
     ComponentRegistry.unregister('NotificationsStickyBar')

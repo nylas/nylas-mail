@@ -70,9 +70,7 @@ module.exports = React.createClass
       "hidden": !@state.threadIsSelected
 
     <div className={classes}>
-      <div className="message-toolbar-items-inner">
-        <ArchiveButton />
-      </div>
+      <ArchiveButton />
     </div>
 
   componentDidMount: ->

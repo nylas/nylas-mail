@@ -33,4 +33,4 @@ module.exports =
     ComponentRegistry.register
       view: RootCenterComponent
       name: 'RootCenterComponent'
-      role: 'Root:Center'
+      location: WorkspaceStore.Location.RootCenter

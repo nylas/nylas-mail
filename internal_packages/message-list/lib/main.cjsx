@@ -2,7 +2,7 @@ React = require "react"
 MessageList = require "./message-list"
 MessageToolbarItems = require "./message-toolbar-items"
 MessageSubjectItem = require "./message-subject-item"
-{ComponentRegistry} = require 'inbox-exports'
+{ComponentRegistry, WorkspaceStore} = require 'inbox-exports'
 {RetinaImg} = require 'ui-components'
 
 DownButton = React.createClass
@@ -30,51 +30,38 @@ module.exports =
   activate: (@state={}) ->
     # Register Message List Actions we provide globally
     ComponentRegistry.register
-      name: 'MessageListSplit'
-      role: 'Root:Right'
-      mode: 'split'
-      view: MessageList
-
-    ComponentRegistry.register
-      name: 'MessageToolbarItemsSplit'
-      role: 'Root:Right:Toolbar'
-      mode: 'split'
-      view: MessageToolbarItems
-
-    ComponentRegistry.register
       name: 'MessageList'
-      role: 'Thread:Center'
-      mode: 'list'
       view: MessageList
+      location: WorkspaceStore.Location.MessageList
 
     ComponentRegistry.register
       name: 'MessageToolbarItems'
-      role: 'Thread:Center:Toolbar'
-      mode: 'list'
       view: MessageToolbarItems
+      location: WorkspaceStore.Location.MessageList.Toolbar
 
     ComponentRegistry.register
       name: 'MessageSubjectItem'
-      role: 'Thread:Center:Toolbar'
-      mode: 'list'
       view: MessageSubjectItem
+      location: WorkspaceStore.Location.MessageList.Toolbar
 
     ComponentRegistry.register
       name: 'DownButton'
-      role: 'Thread:Right:Toolbar'
       mode: 'list'
       view: DownButton
+      location: WorkspaceStore.Sheet.Thread.Toolbar.Right
 
     ComponentRegistry.register
       name: 'UpButton'
-      role: 'Thread:Right:Toolbar'
       mode: 'list'
       view: UpButton
+      location: WorkspaceStore.Sheet.Thread.Toolbar.Right
 
 
   deactivate: ->
     ComponentRegistry.unregister 'MessageToolbarItems'
-    ComponentRegistry.unregister 'MessageListSplit'
+    ComponentRegistry.unregister 'MessageSubjectItem'
     ComponentRegistry.unregister 'MessageList'
+    ComponentRegistry.unregister 'DownButton'
+    ComponentRegistry.unregister 'UpButton'
 
   serialize: -> @state
