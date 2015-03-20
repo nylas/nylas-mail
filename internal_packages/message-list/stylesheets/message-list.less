@@ -173,10 +173,6 @@
 }
 
 
-.column-MessageListSidebar {
-  background-color: @background-off-primary;
-}
-
 ///////////////////////////////
 // message-participants.cjsx //
 ///////////////////////////////
@@ -233,5 +229,43 @@
     .participant-secondary {
       color: @text-color-very-subtle;
     }
+  }
+}
+
+///////////////////////////////
+// sidebar-thread-participants.cjsx //
+///////////////////////////////
+.sidebar-thread-participants {
+  padding: @spacing-standard;
+  order: 10;
+  flex-shrink: 0;
+
+  .other-contact {
+    color: @text-color-subtle;
+    font-size: @font-size-smaller;
+    &.selected {
+      font-weight: @font-weight-semi-bold;
+    }
+    &:hover {cursor: pointer;}
+  }
+
+  // TODO: DRY
+  h2.sidebar-h2 {
+    font-size: 11px;
+    font-weight: @font-weight-semi-bold;
+    text-transform: uppercase;
+    color: @text-color-very-subtle;
+    border-bottom: 1px solid @border-color-divider;
+    margin: 2em 0 1em 0;
+  }
+}
+
+.column-MessageListSidebar {
+  background-color: @background-off-primary;
+  overflow: auto;
+  border-left: 1px solid #ddd;
+  .flexbox-handle-horizontal div {
+    border-right: 0;
+    width: 1px;
   }
 }

@@ -2,9 +2,15 @@ _ = require 'underscore-plus'
 React = require "react"
 
 {Actions} = require 'inbox-exports'
+{RetinaImg} = require 'ui-components'
 
 module.exports =
 SidebarFullContactDetails = React.createClass
+
+  _supportedProfileTypes:
+    twitter: true
+    linkedin: true
+    facebook: true
 
   propTypes:
     contact: React.PropTypes.object
@@ -21,12 +27,55 @@ SidebarFullContactDetails = React.createClass
         <div className="title">{@_title()}</div>
         <div className="company">{@_company()}</div>
       </div>
-      {@_renderActions()}
+      <div className="social-profiles"
+           style={display: if @_showSocialProfiles() then "block" else "none"}>
+        {@_socialProfiles()}
+      </div>
+      {@_noInfo()}
     </div>
 
-  _renderActions: ->
-    <div className="actions">
-    </div>
+  _socialProfiles: ->
+    profiles = @_profiles()
+    return profiles.map (profile) =>
+      <div className="social-profile">
+        <RetinaImg name="#{profile.typeId}-icon.png" className="social-icon" />
+        <div className="social-link">
+          <a href={profile.url}>{@_username(profile)}</a>
+          {@_twitterBio(profile)}
+        </div>
+      </div>
+
+  _profiles: ->
+    profiles = @props.fullContact.socialProfiles ? []
+    profiles = _.filter profiles, (p) => @_supportedProfileTypes[p.typeId]
+
+  _showSocialProfiles: ->
+    @_profiles().length > 0
+
+  _username: (profile) ->
+    if (profile.username ? "").length > 0
+      if profile.typeId is "twitter"
+        return "@#{profile.username}"
+      else
+        return profile.username
+    else
+      return profile.typeName
+
+  _noInfo: ->
+    if not @_showSocialProfiles() and not @_showSubheader()
+      <div className="sidebar-no-info">No additional information available.</div>
+    else return ""
+
+  _twitterBio: (profile) ->
+    return "" unless profile.typeId is "twitter"
+    return "" unless profile.bio?.length > 0
+
+    # http://stackoverflow.com/a/13398311/793472
+    twitterRegex = /(^|[^@\w])@(\w{1,15})\b/g
+    replace = '$1<a href="https://twitter.com/$2">@$2</a>'
+    bio = profile.bio.replace(twitterRegex, replace)
+    <div className="bio sidebar-extra-info"
+          dangerouslySetInnerHTML={{__html: bio}}></div>
 
   _showSubheader: ->
     @_title().length > 0 or @_company().length > 0

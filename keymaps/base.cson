@@ -24,6 +24,7 @@
   'f'     : 'application:forward' # Gmail
 
   'escape': 'application:pop-sheet'
+  'u': 'application:pop-sheet' # Gmail
 
   # Default cross-platform core behaviors
   'left': 'core:move-left'

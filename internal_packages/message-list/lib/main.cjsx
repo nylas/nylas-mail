@@ -3,6 +3,7 @@ MessageList = require "./message-list"
 MessageToolbarItems = require "./message-toolbar-items"
 MessageSubjectItem = require "./message-subject-item"
 {ComponentRegistry, WorkspaceStore} = require 'inbox-exports'
+SidebarThreadParticipants = require "./sidebar-thread-participants"
 {RetinaImg} = require 'ui-components'
 
 DownButton = React.createClass
@@ -56,6 +57,10 @@ module.exports =
       view: UpButton
       location: WorkspaceStore.Sheet.Thread.Toolbar.Right
 
+    ComponentRegistry.register
+      name: 'SidebarThreadParticipants'
+      location: WorkspaceStore.Location.MessageListSidebar
+      view: SidebarThreadParticipants
 
   deactivate: ->
     ComponentRegistry.unregister 'MessageToolbarItems'
