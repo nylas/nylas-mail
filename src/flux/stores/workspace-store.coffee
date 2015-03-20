@@ -18,7 +18,7 @@ defineSheet = (type, columns) ->
 Sheet =
   Global: defineSheet 'Global'
 
-  Root: defineSheet 'Root', 
+  Root: defineSheet 'Root',
     list: [Location.RootSidebar, Location.RootCenter]
     split: [Location.RootSidebar, Location.RootCenter, Location.MessageList, Location.MessageListSidebar]
 
