@@ -1,5 +1,5 @@
 {
-  "name": "tags-sidebar",
+  "name": "account-sidebar",
   "version": "0.1.0",
   "main": "./lib/main",
   "description": "Sidebar view that shows your account and important tags",
