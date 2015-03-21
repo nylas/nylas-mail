@@ -17,6 +17,7 @@ FullContactStore = Reflux.createStore
   dataForFocusedContact: ->
     return {loading: true} if @_accountCache is null or @_applicationCache is null
     contact = FocusedContactsStore.focusedContact()
+    return {} unless contact
     account = _.find @_accountCache, (account) -> account.email is contact.email
     apps = undefined
     if account
