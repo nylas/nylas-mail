@@ -5,6 +5,9 @@
   "description": "Template features galore!",
   "license": "Proprietary",
   "private": true,
+  "engines": {
+    "atom": "*"
+  },
   "dependencies": {
   }
 }

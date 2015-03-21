@@ -5,6 +5,9 @@
   "description": "View attachments on messages",
   "license": "Proprietary",
   "private": true,
+  "engines": {
+    "atom": "*"
+  },
   "dependencies": {
   }
 }

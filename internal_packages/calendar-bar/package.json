@@ -5,6 +5,9 @@
   "description": "Footer bar that shows your daily availability",
   "license": "Proprietary",
   "private": true,
+  "engines": {
+    "atom": "*"
+  },
   "dependencies": {
   }
 }

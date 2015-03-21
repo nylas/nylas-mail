@@ -147,7 +147,7 @@ module.exports = (grunt) ->
       pathToCopy = path.resolve(pathToCopy)
       nodeModulesFilter.test(pathToCopy) or testFolderPattern.test(pathToCopy) or exampleFolderPattern.test(pathToCopy)
 
-    packageFilter = new RegExp("(#{ignoredPaths.join('|')})|(.+\\.(cson|coffee)$)")
+    packageFilter = new RegExp("(#{ignoredPaths.join('|')})|(.+\\.(cson|coffee|cjsx|jsx)$)")
     filterPackage = (pathToCopy) ->
       return true if benchmarkFolderPattern.test(pathToCopy)
 
@@ -162,7 +162,7 @@ module.exports = (grunt) ->
 
     cp 'spec', path.join(appDir, 'spec')
     cp 'spec-inbox', path.join(appDir, 'spec-inbox')
-    cp 'src', path.join(appDir, 'src'), filter: /.+\.(cson|coffee)$/
+    cp 'src', path.join(appDir, 'src'), filter: /.+\.(cson|coffee|cjsx|jsx)$/
     cp 'static', path.join(appDir, 'static')
 
     cp path.join('apm', 'node_modules', 'atom-package-manager'), path.join(appDir, 'apm'), filter: filterNodeModule

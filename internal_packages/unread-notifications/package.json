@@ -5,6 +5,9 @@
   "description": "Fires notifications when new mail is received",
   "license": "Proprietary",
   "private": true,
+  "engines": {
+    "atom": "*"
+  },
   "dependencies": {
   }
 }

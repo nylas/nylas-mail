@@ -5,6 +5,9 @@
   "description": "Notifications",
   "license": "Proprietary",
   "private": true,
+  "engines": {
+    "atom": "*"
+  },
   "dependencies": {
   }
 }

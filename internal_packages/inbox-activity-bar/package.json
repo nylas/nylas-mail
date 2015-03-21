@@ -5,6 +5,9 @@
   "description": "Activity bar at the very bottom of the window",
   "license": "Proprietary",
   "private": true,
+  "engines": {
+    "atom": "*"
+  },
   "dependencies": {
   }
 }

@@ -5,6 +5,9 @@
   "description": "View messages for a thread",
   "license": "Proprietary",
   "private": true,
+  "engines": {
+    "atom": "*"
+  },
   "dependencies": {
   }
 }

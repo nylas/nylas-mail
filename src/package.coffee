@@ -390,6 +390,7 @@ class Package
     if @bundledPackage and packagesCache[@name]?
       if packagesCache[@name].main
         @mainModulePath = "#{atom.packages.resourcePath}#{path.sep}#{packagesCache[@name].main}"
+        @mainModulePath = fs.resolveExtension(@mainModulePath, ["", _.keys(require.extensions)...])
       else
         @mainModulePath = null
     else

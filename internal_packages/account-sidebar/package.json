@@ -5,6 +5,9 @@
   "description": "Sidebar view that shows your account and important tags",
   "license": "Proprietary",
   "private": true,
+  "engines": {
+    "atom": "*"
+  },
   "dependencies": {
   }
 }

@@ -4,5 +4,8 @@
   "description": "Mode switch",
   "main": "./lib/main",
   "license": "Proprietary",
+  "engines": {
+    "atom": "*"
+  },
   "private": true
 }

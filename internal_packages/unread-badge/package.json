@@ -5,6 +5,9 @@
   "description": "Updates the Mac's app icon to display unread count",
   "license": "Proprietary",
   "private": true,
+  "engines": {
+    "atom": "*"
+  },
   "dependencies": {
   }
 }

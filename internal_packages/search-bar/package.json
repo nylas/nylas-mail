@@ -5,6 +5,9 @@
   "description": "Search bar using React",
   "license": "Proprietary",
   "private": true,
+  "engines": {
+    "atom": "*"
+  },
   "dependencies": {
   }
 }

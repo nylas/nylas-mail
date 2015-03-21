@@ -107,7 +107,7 @@ module.exports = (grunt) ->
       expand: true
       src: [
         'src/**/*.cjsx'
-        'internal_pacakges/**/*.cjsx'
+        'internal_packages/**/*.cjsx'
       ]
       dest: appDir
       ext: '.js'
@@ -117,7 +117,7 @@ module.exports = (grunt) ->
       expand: true
       src: [
         'src/**/*.coffee'
-        'internal_pacakges/**/*.coffee'
+        'internal_packages/**/*.coffee'
         'exports/**/*.coffee'
         'static/**/*.coffee'
       ]

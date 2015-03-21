@@ -4,5 +4,8 @@
   "description": "Contact List",
   "main": "./lib/main",
   "license": "Proprietary",
+  "engines": {
+    "atom": "*"
+  },
   "private": true
 }

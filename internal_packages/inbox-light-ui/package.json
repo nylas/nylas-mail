@@ -4,5 +4,8 @@
   "version": "0.1.0",
   "description": "The Inbox Mail Client Theme",
   "license": "Proprietary",
+  "engines": {
+    "atom": "*"
+  },
   "private": true
 }
