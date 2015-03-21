@@ -1,0 +1,74 @@
+.full-contact-sidebar {
+  padding: @spacing-standard;
+  padding-bottom: 0;
+  order: 1;
+  flex-shrink: 0;
+
+  .full-contact {
+    h1.name {
+      font-size: 20px;
+      font-weight: @font-weight-normal;
+      margin: 0;
+      padding: 0.6em 0 0.4em 0;
+    }
+
+    .profile-photo {
+      max-width: 42px;
+      max-height: 42px;
+      display: block;
+      float: right;
+      margin-left: @spacing-standard;
+    }
+
+    .header {
+      &:before, &:after { content: " "; display: table; }
+      &:after { clear: both; }
+    }
+
+    .subheader {
+      color: @text-color-subtle;
+      padding: 0 0 @spacing-standard 0;
+      font-size: @font-size-smaller;
+    }
+  }
+
+  .social-profiles {
+    border-top: 1px solid @border-color-divider;
+    padding-top: 7px;
+  }
+  .social-profile {
+    margin-top: 0.5em;
+    .social-icon {
+      padding-top: 6px;
+      float: left;
+    }
+    .social-link {
+      padding-left: @spacing-double;
+      font-size: @font-size-smaller;
+      a {
+        text-decoration: none;
+      }
+    }
+  }
+
+
+  h2.sidebar-h2 {
+    font-size: 11px;
+    font-weight: @font-weight-semi-bold;
+    text-transform: uppercase;
+    color: @text-color-very-subtle;
+    border-bottom: 1px solid @border-color-divider;
+    margin: 2em 0 1em 0;
+  }
+  .sidebar-extra-info {
+    font-size: 10px;
+    font-weight: @font-weight-medium;
+    color: @text-color-subtle;
+  }
+  .sidebar-no-info {
+    font-size: @font-size-smaller;
+    color: fade(@text-color, 30%);
+  }
+
+
+}
