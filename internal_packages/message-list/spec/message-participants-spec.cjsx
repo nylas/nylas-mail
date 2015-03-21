@@ -3,7 +3,7 @@ React = require "react/addons"
 ReactTestUtils = React.addons.TestUtils
 TestUtils = React.addons.TestUtils
 {Contact, Message} = require "inbox-exports"
-MessageParticipants = require "../lib/message-participants.cjsx"
+MessageParticipants = require "../lib/message-participants"
 
 user_1 =
   name: "User One"

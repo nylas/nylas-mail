@@ -1,9 +1,9 @@
 React = require 'react'
 _ = require 'underscore-plus'
 {Actions,ComponentRegistry, WorkspaceStore} = require "inbox-exports"
-RetinaImg = require './components/retina-img.cjsx'
-Flexbox = require './components/flexbox.cjsx'
-ResizableRegion = require './components/resizable-region.cjsx'
+RetinaImg = require './components/retina-img'
+Flexbox = require './components/flexbox'
+ResizableRegion = require './components/resizable-region'
 
 FLEX = 10000
 

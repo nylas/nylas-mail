@@ -1,8 +1,8 @@
 React = require 'react'
 _ = require 'underscore-plus'
 EmailFrame = require './email-frame'
-MessageParticipants = require "./message-participants.cjsx"
-MessageTimestamp = require "./message-timestamp.cjsx"
+MessageParticipants = require "./message-participants"
+MessageTimestamp = require "./message-timestamp"
 {ComponentRegistry, FileDownloadStore, Utils, Actions} = require 'inbox-exports'
 {RetinaImg} = require 'ui-components'
 Autolinker = require 'autolinker'

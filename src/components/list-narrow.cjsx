@@ -1,8 +1,8 @@
 _ = require 'underscore-plus'
 React = require 'react'
 
-ThreadListMixin = require './thread-list-mixin.cjsx'
-ThreadListNarrowItem = require './thread-list-narrow-item.cjsx'
+ThreadListMixin = require './thread-list-mixin'
+ThreadListNarrowItem = require './thread-list-narrow-item'
 
 module.exports =
 ThreadListNarrow = React.createClass

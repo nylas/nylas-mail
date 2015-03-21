@@ -28,15 +28,15 @@ ParticipantsItem = React.createClass
   render: -> <div></div>
   focus: ->
 
-MessageItem = proxyquire("../lib/message-item.cjsx", {
+MessageItem = proxyquire("../lib/message-item", {
   "./email-frame": React.createClass({render: -> <div></div>})
 })
 
-MessageList = proxyquire("../lib/message-list.cjsx", {
-  "./message-item.cjsx": MessageItem
+MessageList = proxyquire("../lib/message-list", {
+  "./message-item": MessageItem
 })
 
-MessageParticipants = require "../lib/message-participants.cjsx"
+MessageParticipants = require "../lib/message-participants"
 
 me = new Namespace(
   "name": "User One",

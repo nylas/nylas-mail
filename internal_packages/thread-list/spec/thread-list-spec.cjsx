@@ -15,7 +15,7 @@ ReactTestUtils = _.extend ReactTestUtils, require "jasmine-react-helpers"
  ComponentRegistry} = require "inbox-exports"
 {ListTabular} = require 'ui-components'
 
-ThreadList = require "../lib/thread-list.cjsx"
+ThreadList = require "../lib/thread-list"
 
 ParticipantsItem = React.createClass
   render: -> <div></div>

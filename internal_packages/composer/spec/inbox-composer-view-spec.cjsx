@@ -41,9 +41,9 @@ draftStoreProxyStub = (localId, returnedDraft) ->
 searchContactStub = (email) ->
   _.filter(users, (u) u.email.toLowerCase() is email.toLowerCase())
 
-ComposerView = proxyquire "../lib/composer-view.cjsx",
-  "./file-uploads.cjsx": reactStub("file-uploads")
-  "./participants-text-field.cjsx": textFieldStub("")
+ComposerView = proxyquire "../lib/composer-view",
+  "./file-uploads": reactStub("file-uploads")
+  "./participants-text-field": textFieldStub("")
   "inbox-exports":
     ContactStore:
       searchContacts: (email) -> searchContactStub

@@ -1,6 +1,6 @@
 _ = require 'underscore-plus'
 React = require 'react'
-MessageItem = require "./message-item.cjsx"
+MessageItem = require "./message-item"
 {Actions, ThreadStore, MessageStore, ComponentRegistry} = require("inbox-exports")
 {Spinner, ResizableRegion} = require('ui-components')
 

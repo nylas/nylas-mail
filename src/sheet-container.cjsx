@@ -1,6 +1,6 @@
 React = require 'react/addons'
 Sheet = require './sheet'
-Flexbox = require './components/flexbox.cjsx'
+Flexbox = require './components/flexbox'
 RetinaImg = require './components/retina-img'
 TimeoutTransitionGroup = require './components/timeout-transition-group'
 _ = require 'underscore-plus'

@@ -10,9 +10,9 @@ _ = require 'underscore-plus'
 
 {ResizableRegion, RetinaImg} = require 'ui-components'
 
-FileUploads = require './file-uploads.cjsx'
-ContenteditableComponent = require './contenteditable-component.cjsx'
-ParticipantsTextField = require './participants-text-field.cjsx'
+FileUploads = require './file-uploads'
+ContenteditableComponent = require './contenteditable-component'
+ParticipantsTextField = require './participants-text-field'
 
 # The ComposerView is a unique React component because it (currently) is a
 # singleton. Normally, the React way to do things would be to re-render the

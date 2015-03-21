@@ -71,10 +71,10 @@ user_5 = new Contact
 AttachmentStub = React.createClass({render: -> <div></div>})
 EmailFrameStub = React.createClass({render: -> <div></div>})
 
-MessageItem = proxyquire '../lib/message-item.cjsx',
+MessageItem = proxyquire '../lib/message-item',
   './email-frame': EmailFrameStub
 
-MessageTimestamp = require '../lib/message-timestamp.cjsx'
+MessageTimestamp = require '../lib/message-timestamp'
 
 
 describe "MessageItem", ->

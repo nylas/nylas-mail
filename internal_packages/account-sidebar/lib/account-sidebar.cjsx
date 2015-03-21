@@ -1,7 +1,7 @@
 React = require 'react'
 {Actions} = require("inbox-exports")
-SidebarDividerItem = require("./account-sidebar-divider-item.cjsx")
-SidebarTagItem = require("./account-sidebar-tag-item.cjsx")
+SidebarDividerItem = require("./account-sidebar-divider-item")
+SidebarTagItem = require("./account-sidebar-tag-item")
 SidebarStore = require ("./account-sidebar-store")
 
 module.exports =

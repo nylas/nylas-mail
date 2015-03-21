@@ -2,7 +2,7 @@ _ = require 'underscore-plus'
 React = require "react"
 FullContactStore = require "./fullcontact-store"
 
-SidebarFullContactDetails = require "./sidebar-fullcontact-details.cjsx"
+SidebarFullContactDetails = require "./sidebar-fullcontact-details"
 
 module.exports =
 SidebarFullContact = React.createClass

@@ -3,7 +3,7 @@ _ = require 'underscore-plus'
 React = require 'react/addons'
 ReactTestUtils = React.addons.TestUtils
 
-Tooltip = require '../lib/tooltip.cjsx'
+Tooltip = require '../lib/tooltip'
 
 describe "Tooltip", ->
   beforeEach ->

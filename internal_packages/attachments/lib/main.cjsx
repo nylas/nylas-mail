@@ -2,7 +2,7 @@
 
 module.exports =
   activate: (@state={}) ->
-    AttachmentComponent = require "./attachment-component.cjsx"
+    AttachmentComponent = require "./attachment-component"
 
     ComponentRegistry.register
       name: 'AttachmentComponent'

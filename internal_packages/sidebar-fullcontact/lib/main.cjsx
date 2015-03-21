@@ -1,6 +1,6 @@
 _ = require 'underscore-plus'
 React = require "react"
-SidebarFullContact = require "./sidebar-fullcontact.cjsx"
+SidebarFullContact = require "./sidebar-fullcontact"
 {ComponentRegistry, WorkspaceStore} = require "inbox-exports"
 
 module.exports =

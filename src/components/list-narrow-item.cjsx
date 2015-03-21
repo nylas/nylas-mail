@@ -2,7 +2,7 @@ _ = require 'underscore-plus'
 React = require 'react/addons'
 {ComponentRegistry} = require 'inbox-exports'
 
-ThreadListItemMixin = require './thread-list-item-mixin.cjsx'
+ThreadListItemMixin = require './thread-list-item-mixin'
 
 DefaultParticipants = React.createClass
   render: ->

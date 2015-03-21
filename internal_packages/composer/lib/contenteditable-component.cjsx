@@ -2,7 +2,7 @@ _ = require 'underscore-plus'
 React = require 'react'
 sanitizeHtml = require 'sanitize-html'
 {Utils, DraftStore} = require 'inbox-exports'
-FloatingToolbar = require './floating-toolbar.cjsx'
+FloatingToolbar = require './floating-toolbar'
 
 linkUUID = 0
 genLinkId = -> linkUUID += 1; return linkUUID

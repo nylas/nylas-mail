@@ -6,7 +6,7 @@
 _ = require "underscore-plus"
 React = require "react/addons"
 ReactTestUtils = React.addons.TestUtils
-ContenteditableComponent = require "../lib/contenteditable-component.cjsx",
+ContenteditableComponent = require "../lib/contenteditable-component",
 
 describe "ContenteditableComponent", ->
   beforeEach ->

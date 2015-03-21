@@ -1,5 +1,5 @@
 {ComponentRegistry} = require 'inbox-exports'
-InboxParticipants = require './InboxParticipants.cjsx'
+InboxParticipants = require './InboxParticipants'
 
 module.exports =
   activate: (state) ->

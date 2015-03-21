@@ -1,5 +1,5 @@
 {ComponentRegistry} = require 'inbox-exports'
-ContactChip = require './ContactChip.cjsx'
+ContactChip = require './ContactChip'
 
 module.exports =
   activate: (state) ->
