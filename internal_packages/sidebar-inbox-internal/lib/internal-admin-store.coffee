@@ -1,7 +1,7 @@
 _ = require 'underscore-plus'
 Reflux = require 'reflux'
 request = require 'request'
-{FocusedContactsStore} = require 'inbox-exports'
+{FocusedContactsStore, NamespaceStore} = require 'inbox-exports'
 
 module.exports =
 FullContactStore = Reflux.createStore
@@ -9,10 +9,13 @@ FullContactStore = Reflux.createStore
   init: ->
     @_accountCache = null
     @_applicationCache = null
-    @listenTo FocusedContactsStore, @_onFocusedContacts
+    @_enabled = false
+    @_error = null
 
-    setInterval(( => @_fetchAPIData()), 5 * 60 * 1000)
-    @_fetchAPIData()
+    @listenTo FocusedContactsStore, @_onFocusedContacts
+    @listenTo NamespaceStore, @_onNamespaceChanged
+
+    @_onNamespaceChanged()
 
   dataForFocusedContact: ->
     return {loading: true} if @_accountCache is null or @_applicationCache is null
@@ -24,19 +27,46 @@ FullContactStore = Reflux.createStore
       apps = @_applicationCache.accounts["#{account.id}"]
     {account, apps}
 
+  enabled: ->
+    @_enabled
+
+  error: ->
+    @_error
+
   _onFocusedContacts: ->
+    @trigger(@)
+
+  _onNamespaceChanged: ->
+    clearInterval(@_fetchInterval) if @_fetchInterval
+    @_fetchInterval = null
+
+    n = NamespaceStore.current()
+    if n and n.emailAddress.indexOf('@nilas.com') > 0
+      @_fetchInterval = setInterval(( => @_fetchAPIData()), 5 * 60 * 1000)
+      @_fetchAPIData()
+      @_enabled = true
+    else
+      @_accountCache = null
+      @_applicationCache = null
+      @_enabled = false
     @trigger(@)
 
   _fetchAPIData: ->
     console.log('Fetching Internal Admin Data')
     # Swap the url's to see real data
     request 'https://admin.inboxapp.com/api/status/accounts', (err, resp, data) =>
-      console.log(err) if err
-      @_accountCache = JSON.parse(data)
+      if err
+        @_error = err
+      else
+        @_error = null
+        @_accountCache = JSON.parse(data)
       @trigger(@)
 
     # Swap the url's to see real data
     request 'https://admin.inboxapp.com/api/status/accounts/applications', (err, resp, data) =>
-      console.log(err) if err
-      @_applicationCache = JSON.parse(data)
+      if err
+        @_error = err
+      else
+        @_error = null
+        @_applicationCache = JSON.parse(data)
       @trigger(@)

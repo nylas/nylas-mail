@@ -4,7 +4,6 @@
       'inbox-light-ui'
     ]
     'disabledPackages': [
-      "message-templates",
       "calendar-bar",
       "salesforce"
     ]

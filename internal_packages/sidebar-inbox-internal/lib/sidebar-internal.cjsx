@@ -31,7 +31,7 @@ module.exports =
 SidebarInternal = React.createClass
 
   getInitialState: ->
-    data: {}
+    @_getStateFromStores()
 
   componentDidMount: ->
     @unsubscribe = InternalAdminStore.listen @_onChange
@@ -40,8 +40,10 @@ SidebarInternal = React.createClass
     @unsubscribe()
 
   render: ->
-    <div className="salesforce-sidebar">
-      <div className="salesforce-sidebar-sections">
+    return <div></div> unless @state.enabled
+
+    <div className="internal-sidebar">
+      <div className="internal-sidebar-sections">
         <div className="sidebar-section">
           <h2 className="sidebar-h2">Mailsync Account</h2>
           {@_renderAccount()}
@@ -54,23 +56,26 @@ SidebarInternal = React.createClass
     </div>
 
   _renderAccount: ->
-    if @state.data.loading
+    if @state.error
+      return <div>{@_errorString()}</div>
+    else if @state.data.loading
       return <div>Loading...</div>
-
-    acct = @state.data.account
-    if acct
-      <div className="sidebar-item">
-        <h3 className="sidebar-h3"><a href={@_accountUrl(acct)}>{acct.email} ({acct.id})</a></h3>
-        <div className="sidebar-extra-info">{@_accountDetails(acct)}</div>
-      </div>
     else
-      <div>No Matching Account</div>
- 
-  _renderApplications: ->
-    if @state.data.loading
-      return <div>Loading...</div>
+      acct = @state.data.account
+      if acct
+        <div className="sidebar-item">
+          <h3 className="sidebar-h3"><a href={@_accountUrl(acct)}>{acct.email} ({acct.id})</a></h3>
+          <div className="sidebar-extra-info">{@_accountDetails(acct)}</div>
+        </div>
+      else
+        <div>No Matching Account</div>
 
-    if @state.data.apps
+  _renderApplications: ->
+    if @state.error
+      return <div>{@_errorString()}</div>
+    else if @state.data.loading
+      return <div>Loading...</div>
+    else if @state.data.apps
       @state.data.apps.map (app) =>
         <div className="sidebar-item">
           <h3 className="sidebar-h3"><a href={@_appUrl(app)}>{app.name}</a></h3>
@@ -78,6 +83,12 @@ SidebarInternal = React.createClass
         </div>
     else
       <div>No Matching Applications</div>
+
+  _errorString: ->
+    if @state.error.toString().indexOf('ENOTFOUND') >= 0
+      "Unable to reach admin.nilas.com"
+    else
+      @state.error.toString()
 
   _accountUrl: (account) ->
     "https://admin.inboxapp.com/accounts/#{account.id}"
@@ -90,7 +101,7 @@ SidebarInternal = React.createClass
       continue unless value
       value = "True" if value is true
       value = "False" if value is false
-      value = moment.unix(value).format("DD / MM / YYYY h:mm a z") if key.indexOf("_time") > 0 
+      value = moment.unix(value).format("DD / MM / YYYY h:mm a z") if key.indexOf("_time") > 0
       cjsx.push <div style={textAlign:'right'}><span style={float:'left'}>{displayName}:</span>{value}</div>
     cjsx
 
@@ -105,6 +116,8 @@ SidebarInternal = React.createClass
 
   _getStateFromStores: ->
     data: InternalAdminStore.dataForFocusedContact()
+    enabled: InternalAdminStore.enabled()
+    error: InternalAdminStore.error()
 
 SidebarInternal.maxWidth = 300
 SidebarInternal.minWidth = 200
