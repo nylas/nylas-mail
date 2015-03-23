@@ -25,6 +25,7 @@ class DraftChangeSet
 
   add: (changes, immediate) =>
     @_pending = _.extend(@_pending, changes)
+    @_pending['pristine'] = false
     @_onChange()
     if immediate
       @commit()
@@ -39,8 +40,8 @@ class DraftChangeSet
     DatabaseStore = require './database-store'
     DatabaseStore.findByLocalId(Message, @localId).then (draft) =>
       draft = @applyToModel(draft)
-      @_pending = {}
-      DatabaseStore.persistModel(draft)
+      DatabaseStore.persistModel(draft).then =>
+        @_pending = {}
 
   applyToModel: (model) =>
     model.fromJSON(@_pending) if model
@@ -93,6 +94,9 @@ class DraftStoreProxy
     @_emitter.addListener('trigger', eventHandler)
     return =>
       @_emitter.removeListener('trigger', eventHandler)
+      if @_emitter.listeners('trigger').length is 0
+        DraftStore = require './draft-store'
+        DraftStore.cleanupSessionForLocalId(@draftLocalId)
 
   cleanup: ->
     # Unlink ourselves from the stores/actions we were listening to

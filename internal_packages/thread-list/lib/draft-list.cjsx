@@ -37,7 +37,7 @@ DraftList = React.createClass
         columns={@state.columns}
         items={@state.items}
         selectedId={@state.selectedId}
-        onClick={@_onClick}
+        onDoubleClick={@_onDoubleClick}
         onSelect={@_onSelect} />
     </div>
 
@@ -45,7 +45,7 @@ DraftList = React.createClass
     @setState
       selectedId: item.id
 
-  _onClick: (item) ->
+  _onDoubleClick: (item) ->
     DatabaseStore.localIdForModel(item).then (localId) ->
       Actions.composePopoutDraft(localId)
 

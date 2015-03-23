@@ -91,7 +91,7 @@ Toolbar = React.createClass
         {@_flexboxForItems(items)}
       </div>
 
-    <div style={style}>
+    <div style={style} className={"mode-#{@state.mode}"}>
       {toolbars}
     </div>
   

@@ -51,4 +51,4 @@ AccountSidebar = React.createClass
 
 
 AccountSidebar.minWidth = 165
-AccountSidebar.maxWidth = 250
+AccountSidebar.maxWidth = 190

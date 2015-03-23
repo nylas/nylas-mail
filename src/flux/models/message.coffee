@@ -56,6 +56,11 @@ class Message extends Model
       jsonKey: 'draft'
       queryable: true
 
+    'pristine': Attributes.Boolean
+      modelKey: 'pristine'
+      jsonKey: 'pristine'
+      queryable: false
+
     'version': Attributes.Number
       modelKey: 'version'
       queryable: true
@@ -110,6 +115,5 @@ class Message extends Model
 
   fileIds: ->
     _.map @files, (file) -> file.id
-
 
 module.exports = Message

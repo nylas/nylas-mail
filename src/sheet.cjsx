@@ -51,6 +51,7 @@ Sheet = React.createClass
 
     <div name={"Sheet"}
          style={style}
+         className={"mode-#{@state.mode}"}
          data-type={@props.data.type}>
       <Flexbox direction="row">
         {@_columnFlexboxElements()}
@@ -84,7 +85,7 @@ Sheet = React.createClass
         </Flexbox>
 
   _getStateFromStores: ->
-    state = 
+    state =
       mode: WorkspaceStore.selectedLayoutMode()
       columns: []
 

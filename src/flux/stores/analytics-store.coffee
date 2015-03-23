@@ -31,8 +31,6 @@ AnalyticsStore = Reflux.createStore
     fileUploaded: (uploadData={}) -> {fileSize: uploadData.fileSize}
     sendDraftError: (dId, msg) -> {drafLocalId: dId, error: msg}
     sendDraftSuccess: (draftLocalId) -> {draftLocalId: draftLocalId}
-    destroyDraftSuccess: -> {}
-    destroyDraftError: (msg) -> {error: msg}
     showDeveloperConsole: -> {}
     composeReply: ({threadId, messageId}) -> {threadId, messageId}
     composeForward: ({threadId, messageId}) -> {threadId, messageId}

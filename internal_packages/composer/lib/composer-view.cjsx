@@ -31,6 +31,9 @@ ComposerView = React.createClass
       bcc: []
       body: ""
       subject: ""
+      showcc: false
+      showbcc: false
+      showsubject: false
       showQuotedText: false
       isSending: DraftStore.sendingState(@props.localId)
     state
@@ -41,8 +44,7 @@ ComposerView = React.createClass
     FooterComponents: ComponentRegistry.findAllByRole 'Composer:Footer'
 
   componentWillMount: ->
-    @_prepareForDraft()
-    # @_checkForKnownFrames()
+    @_prepareForDraft(@props.localId)
 
   componentDidMount: ->
     @_draftStoreUnlisten = DraftStore.listen @_onSendingStateChanged
@@ -64,9 +66,6 @@ ComposerView = React.createClass
     @_draftStoreUnlisten() if @_draftStoreUnlisten
     @keymap_unsubscriber.dispose()
 
-  componentWillUpdate: ->
-    #@_checkForKnownFrames()
-
   componentDidUpdate: ->
     # We want to use a temporary variable instead of putting this into the
     # state. This is because the selection is a transient property that
@@ -76,28 +75,31 @@ ComposerView = React.createClass
     @_recoveredSelection = null if @_recoveredSelection?
 
   componentWillReceiveProps: (newProps) ->
-    if newProps.localId != @props.localId
+    if newProps.localId isnt @props.localId
       # When we're given a new draft localId, we have to stop listening to our
       # current DraftStoreProxy, create a new one and listen to that. The simplest
       # way to do this is to just re-call registerListeners.
       @_teardownForDraft()
-      @_prepareForDraft()
+      @_prepareForDraft(newProps.localId)
 
-  _prepareForDraft: ->
-    # UndoManager must be ready before we call _onDraftChanged for the first time
-    @undoManager = new UndoManager
-    @_proxy = DraftStore.sessionForLocalId(@props.localId)
-    if @_proxy.draft()
-      @_onDraftChanged()
-
+  _prepareForDraft: (localId) ->
     @unlisteners = []
-    @unlisteners.push @_proxy.listen(@_onDraftChanged)
     @unlisteners.push ComponentRegistry.listen (event) =>
       @setState(@getComponentRegistryState())
 
+    return unless localId
+
+    # UndoManager must be ready before we call _onDraftChanged for the first time
+    @undoManager = new UndoManager
+    @_proxy = DraftStore.sessionForLocalId(localId)
+    @unlisteners.push @_proxy.listen(@_onDraftChanged)
+    if @_proxy.draft()
+      @_onDraftChanged()
+
   _teardownForDraft: ->
     unlisten() for unlisten in @unlisteners
-    @_proxy.changes.commit()
+    if @_proxy
+      @_proxy.changes.commit()
 
   render: ->
     if @props.mode is "inline"
@@ -210,10 +212,10 @@ ComposerView = React.createClass
                   data-tooltip="Attach file"
                   onClick={@_attachFile}><RetinaImg name="toolbar-attach.png"/></button>
 
-          <button className="btn btn-toolbar btn-send"
+          <button className="btn btn-toolbar btn-emphasis btn-send"
                   data-tooltip="Send message"
                   ref="sendButton"
-                  onClick={@_sendDraft}><RetinaImg name="toolbar-send.png" /></button>
+                  onClick={@_sendDraft}><RetinaImg name="toolbar-send.png" /> Send</button>
           {@_actionButtonComponents()}
         </div>
       </div>
@@ -241,10 +243,12 @@ ComposerView = React.createClass
     Utils.isForwardedMessage(draft.body, draft.subject)
 
   _actionButtonComponents: ->
+    return [] unless @props.localId
     (@state.ActionButtonComponents ? []).map ({view, name}) =>
       <view key={name} draftLocalId={@props.localId} />
 
   _footerComponents: ->
+    return [] unless @props.localId
     (@state.FooterComponents ? []).map ({view, name}) =>
       <view key={name} draftLocalId={@props.localId} />
 
@@ -302,10 +306,12 @@ ComposerView = React.createClass
     @setState showQuotedText: showQuotedText
 
   _addToProxy: (changes={}, source={}) ->
+    return unless @_proxy
+
     selections = @_getSelections()
 
     oldDraft = @_proxy.draft()
-    return if _.all changes, (change, key) -> change == oldDraft[key]
+    return if _.all changes, (change, key) -> _.isEqual(change, oldDraft[key])
     @_proxy.changes.add(changes)
 
     @_saveToHistory(selections) unless source.fromUndoManager
@@ -377,21 +383,8 @@ ComposerView = React.createClass
     @setState {showcc: true}
     @focus "textFieldCc"
 
-  # Warning this method makes optimistic assumptions about the mail client
-  # and is not properly encapsulated.
-  _checkForKnownFrames: ->
-    @_precalcComposerCss = {}
-    mwrap = document.getElementsByClassName("messages-wrap")[0]
-    if mwrap?
-      INLINE_COMPOSER_OTHER_HEIGHT = 192
-      mheight = mwrap.getBoundingClientRect().height
-      @_precalcComposerCss =
-        minHeight: mheight - INLINE_COMPOSER_OTHER_HEIGHT
-
   _onSendingStateChanged: ->
     @setState isSending: DraftStore.sendingState(@props.localId)
-
-
 
 
   undo: (event) ->

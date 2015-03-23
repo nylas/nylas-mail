@@ -22,9 +22,7 @@ globalActions = [
 
   # Draft actions
   "sendDraftError",
-  "sendDraftSuccess",
-  "destroyDraftSuccess",
-  "destroyDraftError"
+  "sendDraftSuccess"
 ]
 
 # These actions are rebroadcast through the ActionBridge to the

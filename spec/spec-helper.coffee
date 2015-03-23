@@ -160,7 +160,8 @@ afterEach ->
   atom.packages.deactivatePackages()
   atom.menu.template = []
   atom.contextMenu.clear()
-
+  atom.state.mode = 'spec'
+  
   atom.themes.removeStylesheet('global-editor-styles')
 
   delete atom.state.packageStates

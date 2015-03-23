@@ -46,14 +46,26 @@ button, html input[type="button"] {
 
   color:      @btn-default-text-color;
   background: @btn-default-bg-color;
+
   &.btn-action {
     color:      @btn-action-text-color;
     background: @btn-action-bg-color;
   }
+
   &.btn-emphasis {
-    color:      @btn-emphasis-text-color;
-    background: @btn-emphasis-bg-color;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(lighten(@btn-emphasis-bg-color,10%)), to(@btn-emphasis-bg-color));
+    border:1px solid darken(@btn-emphasis-bg-color, 5%);
+    color: @btn-emphasis-text-color;
+    font-weight: @font-weight-medium;
+
+    img {-webkit-filter: brightness(100);}
   }
+
+  &.btn-emphasis:active {
+    background-image: -webkit-gradient(linear, left top, left bottom, from(darken(@btn-emphasis-bg-color,10%)), to(darken(@btn-emphasis-bg-color, 4%)));
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.21);
+  }
+
   &.btn-danger, .btn-destructive {
     color:      @btn-danger-text-color;
     background: @btn-danger-bg-color;

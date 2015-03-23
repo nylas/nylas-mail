@@ -44,7 +44,6 @@ DraftStore = Reflux.createStore
     @listenTo Actions.sendDraftError, @_onSendDraftSuccess
     @listenTo Actions.sendDraftSuccess, @_onSendDraftError
 
-    @listenTo Actions.destroyDraftSuccess, @_closeWindow
     @_drafts = []
     @_draftSessions = {}
     @_sendingState = {}
@@ -52,28 +51,7 @@ DraftStore = Reflux.createStore
 
     # TODO: Doesn't work if we do window.addEventListener, but this is
     # fragile. Pending an Atom fix perhaps?
-    window.onbeforeunload = (event) =>
-      promises = []
-
-      # Normally we'd just append all promises, even the ones already
-      # fulfilled (nothing to save), but in this case we only want to
-      # block window closing if we have to do real work. Calling
-      # window.close() within on onbeforeunload could do weird things.
-      for key, session of @_draftSessions
-        promise = session.changes.commit()
-        if not promise.isFulfilled()
-          promises.push(promise)
-
-      if promises.length > 0
-        Promise.settle(promises).then =>
-          @_draftSessions = {}
-          window.close()
-
-        # Stop and wait before closing
-        return false
-      else
-        # Continue closing
-        return true
+    window.onbeforeunload = => @_onBeforeUnload()
 
     DatabaseStore.findAll(Message, draft: true).then (drafts) =>
       @_drafts = drafts
@@ -87,6 +65,7 @@ DraftStore = Reflux.createStore
     @_drafts
 
   sessionForLocalId: (localId) ->
+    throw new Error("sessionForLocalId requires a localId") unless localId
     @_draftSessions[localId] ?= new DraftStoreProxy(localId)
     @_draftSessions[localId]
 
@@ -104,6 +83,43 @@ DraftStore = Reflux.createStore
     @_extensions = _.without(@_extensions, ext)
 
   ########### PRIVATE ####################################################
+ 
+  cleanupSessionForLocalId: (localId) ->
+    return unless @_draftSessions[localId]
+
+    draft = @_draftSessions[localId].draft()
+    Actions.queueTask(new DestroyDraftTask(localId)) if draft.pristine
+
+    if atom.state.mode is "composer"
+      atom.close()
+    else
+      @_draftSessions[localId].cleanup()
+      delete @_draftSessions[localId]
+
+  _onBeforeUnload: ->
+    promises = []
+
+    # Normally we'd just append all promises, even the ones already
+    # fulfilled (nothing to save), but in this case we only want to
+    # block window closing if we have to do real work. Calling
+    # window.close() within on onbeforeunload could do weird things.
+    for key, session of @_draftSessions
+      if session.draft()?.pristine
+        Actions.queueTask(new DestroyDraftTask(session.draftLocalId))
+      else
+        promise = session.changes.commit()
+        promises.push(promise) unless promise.isFulfilled()
+
+    if promises.length > 0
+      Promise.settle(promises).then =>
+        @_draftSessions = {}
+        window.close()
+
+      # Stop and wait before closing
+      return false
+    else
+      # Continue closing
+      return true
 
   _onDataChanged: (change) ->
     return unless change.objectClass is Message.name
@@ -199,16 +215,11 @@ DraftStore = Reflux.createStore
         from: [NamespaceStore.current().me()]
         date: (new Date)
         draft: true
+        pristine: true
         threadId: thread.id
         namespaceId: thread.namespaceId
 
       DatabaseStore.persistModel(draft)
-
-  # We only want to close the popout window if we're sure various draft
-  # actions succeeded.
-  _closeWindow: (draftLocalId) ->
-    if atom.state.mode is "composer" and @_draftSessions[draftLocalId]?
-      atom.close()
 
   # The logic to create a new Draft used to be in the DraftStore (which is
   # where it should be). It got moved to composer/lib/main.cjsx becaues
@@ -224,12 +235,13 @@ DraftStore = Reflux.createStore
 
   _onDestroyDraft: (draftLocalId) ->
     # Immediately reset any pending changes so no saves occur
-    @_closeWindow(draftLocalId)
     @_draftSessions[draftLocalId]?.changes.reset()
-    delete @_draftSessions[draftLocalId]
 
     # Queue the task to destroy the draft
     Actions.queueTask(new DestroyDraftTask(draftLocalId))
+
+    # Clean up the draft session
+    @cleanupSessionForLocalId(draftLocalId)
 
   _onSendDraft: (draftLocalId) ->
     new Promise (resolve, reject) =>
@@ -245,12 +257,13 @@ DraftStore = Reflux.createStore
 
         # Immediately save any pending changes so we don't save after sending
         session.changes.commit().then =>
-          # We optimistically close the window. If we get an error, then it
-          # will re-open again.
-          @_closeWindow(draftLocalId)
           # Queue the task to send the draft
           fromPopout = atom.state.mode is "composer"
           Actions.queueTask(new SendDraftTask(draftLocalId, fromPopout: fromPopout))
+
+          # Clean up session, close window
+          @cleanupSessionForLocalId(draftLocalId)
+
           resolve()
 
   _onSendDraftError: (draftLocalId) ->

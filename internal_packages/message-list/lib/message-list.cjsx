@@ -173,5 +173,5 @@ MessageList = React.createClass
           participants[contact.email] = contact
     return _.values(participants)
 
-MessageList.minWidth = 680
+MessageList.minWidth = 500
 MessageList.maxWidth = 900

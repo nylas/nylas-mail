@@ -29,16 +29,16 @@ module.exports =
       @item.setAttribute("class", "composer-full-window")
       document.body.appendChild(@item)
 
+      component = React.render(<ComposerView mode="fullwindow" />, @item)
+
       # Wait for the remaining state to be passed into the window
       # from our parent. We need to wait for state because the windows are
       # preloaded so they open instantly, so we don't have data initially
       ipc.on 'composer-state', (optionsJSON) =>
         options = JSON.parse(optionsJSON)
         @_createDraft(options).then (draftLocalId) =>
-          React.render(<ComposerView mode="fullwindow" localId={draftLocalId} />, @item)
-          _.delay =>
-            if options.error? then @_showInitialErrorDialog(options.error)
-          , 100
+          component.setProps {localId: draftLocalId}, =>
+            @_showInitialErrorDialog(options.error)  if options.error?
 
         .catch (error) -> console.error(error)
 
@@ -71,6 +71,7 @@ module.exports =
             from: [NamespaceStore.current().me()]
             date: (new Date)
             draft: true
+            pristine: true
             namespaceId: NamespaceStore.current().id
           # If initial JSON was provided, apply it to the new model.
           # This is used to apply the values in mailto: links to new drafts
