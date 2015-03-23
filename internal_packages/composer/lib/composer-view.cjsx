@@ -57,9 +57,7 @@ ComposerView = React.createClass
     if @props.mode is "fullwindow"
       # Need to delay so the component can be fully painted. Focus doesn't
       # work unless the element is on the page.
-      _.delay =>
-        @focus("textFieldTo")
-      , 500
+      @focus "textFieldTo"
 
   componentWillUnmount: ->
     @_teardownForDraft()
@@ -128,11 +126,11 @@ ComposerView = React.createClass
         <div className="composer-participant-actions">
           <span className="header-action"
                 style={display: @state.showcc and 'none' or 'inline'}
-                onClick={=> @setState {showcc: true}}>Cc</span>
+                onClick={=> @_showAndFocusCc()}>Cc</span>
 
           <span className="header-action"
                 style={display: @state.showbcc and 'none' or 'inline'}
-                onClick={=> @setState {showbcc: true}}>Bcc</span>
+                onClick={=> @_showAndFocusBcc()}>Bcc</span>
 
           <span className="header-action"
                 style={display: @state.showsubject and 'none' or 'initial'}
@@ -232,7 +230,10 @@ ComposerView = React.createClass
     else
       field ?= "contentBody"
 
-    @refs[field]?.focus?()
+    _.delay =>
+      return unless @isMounted()
+      @refs[field]?.focus?()
+    , 150
 
   isForwardedMessage: ->
     draft = @_proxy.draft()
