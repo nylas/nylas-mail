@@ -1,29 +1,10 @@
-React = require "react"
 MessageList = require "./message-list"
 MessageToolbarItems = require "./message-toolbar-items"
 MessageSubjectItem = require "./message-subject-item"
-{ComponentRegistry, WorkspaceStore} = require 'inbox-exports'
+{DownButton, UpButton} = require "./thread-nav-buttons"
+{ComponentRegistry,
+ WorkspaceStore} = require 'inbox-exports'
 SidebarThreadParticipants = require "./sidebar-thread-participants"
-{RetinaImg} = require 'ui-components'
-
-DownButton = React.createClass
-  render: ->
-    <div className="message-toolbar-arrow down" onClick={@_onClick}>
-      <RetinaImg name="toolbar-down-arrow.png"/>
-    </div>
-
-  _onClick: ->
-    atom.commands.dispatch(document.body, 'application:next-item')
-
-UpButton = React.createClass
-  render: ->
-    <div className="message-toolbar-arrow up" onClick={@_onClick}>
-      <RetinaImg name="toolbar-up-arrow.png"/>
-    </div>
-
-  _onClick: ->
-    atom.commands.dispatch(document.body, 'application:previous-item')
-
 
 module.exports =
   item: null # The DOM item the main React component renders into

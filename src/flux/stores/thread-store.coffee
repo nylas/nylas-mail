@@ -124,6 +124,12 @@ ThreadStore = Reflux.createStore
     return null unless @_selectedId
     _.find @_items, (thread) => thread.id == @_selectedId
 
+  isFirstThread: ->
+    @_items[0]?.id is @_selectedId and @_selectedId?
+
+  isLastThread: ->
+    @_items[@_items.length-1]?.id is @_selectedId and @_selectedId?
+
   items: ->
     @_items
 
