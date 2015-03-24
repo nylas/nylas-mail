@@ -31,6 +31,8 @@ ContenteditableComponent = React.createClass
     @_setupLinkHoverListeners()
     @_setupGlobalMouseListener()
 
+    @_refreshToolbarState = _.debounce(@__refreshToolbarState, 100)
+
     @_disposable = atom.commands.add '.contenteditable-container *', {
       'core:focus-next': (event) =>
         editableNode = @_editableNode()
@@ -259,6 +261,20 @@ ContenteditableComponent = React.createClass
     @_mouseHasMoved = false
     window.addEventListener("mousemove", @__onMouseMove)
 
+    # We can't use the native double click event because that only fires
+    # on the second up-stroke
+    if Date.now() - (@_lastMouseDown ? 0) < 250
+      @_onDoubleDown(event)
+      @_lastMouseDown = 0 # to prevent triple down
+    else
+      @_lastMouseDown = Date.now()
+
+  _onDoubleDown: (event) ->
+    return unless @isMounted()
+    editable = @refs.contenteditable.getDOMNode()
+    if editable is event.target or editable.contains(event.target)
+      @_doubleDown = true
+
   _onMouseMove: (event) ->
     if not @_mouseHasMoved
       @_onDragStart(@_mouseDownEvent)
@@ -266,6 +282,10 @@ ContenteditableComponent = React.createClass
 
   _onMouseUp: (event) ->
     window.removeEventListener("mousemove", @__onMouseMove)
+
+    if @_doubleDown
+      @_doubleDown = false
+      @_refreshToolbarState()
 
     if @_mouseHasMoved
       @_mouseHasMoved = false
@@ -282,7 +302,7 @@ ContenteditableComponent = React.createClass
           extension.onMouseUp(editableNode, range, event) if extension.onMouseUp
       catch e
         console.log('DraftStore extension raised an error: '+e.toString())
-    
+
     event
 
   _onDragStart: (event) ->
@@ -427,8 +447,9 @@ ContenteditableComponent = React.createClass
   # 1. When you're hovering over a link
   # 2. When you've arrow-keyed the cursor into a link
   # 3. When you have selected a range of text.
-  _refreshToolbarState: ->
-    return if @_dragging
+  __refreshToolbarState: ->
+    return unless @isMounted()
+    return if @_dragging or (@_doubleDown and not @state.toolbarVisible)
     if @_linkHoveringOver
       url = @_linkHoveringOver.getAttribute('href')
       rect = @_linkHoveringOver.getBoundingClientRect()
