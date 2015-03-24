@@ -66,93 +66,92 @@ user_5 = _.extend _.clone(user_headers),
   name: "User Five"
   email: "user5@inboxapp.com"
 
-testMessages = [
-  (new Message).fromJSON({
-    "id"   : "111",
-    "from" : [ user_1 ],
-    "to"   : [ user_2 ],
-    "cc"   : [ user_3, user_4 ],
-    "bcc"  : null,
-    "body"      : "Body One",
-    "date"      : 1415814587,
-    "draft"     : false
-    "files"     : [],
-    "unread"    : false,
-    "object"    : "message",
-    "snippet"   : "snippet one...",
-    "subject"   : "Subject One",
-    "thread_id" : "thread_12345",
-    "namespace_id" : "nsid"
-  }),
-  (new Message).fromJSON({
-    "id"   : "222",
-    "from" : [ user_2 ],
-    "to"   : [ user_1 ],
-    "cc"   : [ user_3, user_4 ],
-    "bcc"  : null,
-    "body"      : "Body Two",
-    "date"      : 1415814587,
-    "draft"     : false
-    "files"     : [],
-    "unread"    : false,
-    "object"    : "message",
-    "snippet"   : "snippet Two...",
-    "subject"   : "Subject Two",
-    "thread_id" : "thread_12345",
-    "namespace_id" : "nsid"
-  }),
-  (new Message).fromJSON({
-    "id"   : "333",
-    "from" : [ user_3 ],
-    "to"   : [ user_1 ],
-    "cc"   : [ user_2, user_4 ],
-    "bcc"  : [],
-    "body"      : "Body Three",
-    "date"      : 1415814587,
-    "draft"     : false
-    "files"     : [],
-    "unread"    : false,
-    "object"    : "message",
-    "snippet"   : "snippet Three...",
-    "subject"   : "Subject Three",
-    "thread_id" : "thread_12345",
-    "namespace_id" : "nsid"
-  }),
-  (new Message).fromJSON({
-    "id"   : "444",
-    "from" : [ user_4 ],
-    "to"   : [ user_1 ],
-    "cc"   : [],
-    "bcc"  : [ user_5 ],
-    "body"      : "Body Four",
-    "date"      : 1415814587,
-    "draft"     : false
-    "files"     : [],
-    "unread"    : false,
-    "object"    : "message",
-    "snippet"   : "snippet Four...",
-    "subject"   : "Subject Four",
-    "thread_id" : "thread_12345",
-    "namespace_id" : "nsid"
-  }),
-  (new Message).fromJSON({
-    "id"   : "555",
-    "from" : [ user_1 ],
-    "to"   : [ user_4 ],
-    "cc"   : [],
-    "bcc"  : [],
-    "body"      : "Body Five",
-    "date"      : 1415814587,
-    "draft"     : false
-    "files"     : [],
-    "unread"    : false,
-    "object"    : "message",
-    "snippet"   : "snippet Five...",
-    "subject"   : "Subject Five",
-    "thread_id" : "thread_12345",
-    "namespace_id" : "nsid"
-  }),
-]
+m1 = (new Message).fromJSON({
+  "id"   : "111",
+  "from" : [ user_1 ],
+  "to"   : [ user_2 ],
+  "cc"   : [ user_3, user_4 ],
+  "bcc"  : null,
+  "body"      : "Body One",
+  "date"      : 1415814587,
+  "draft"     : false
+  "files"     : [],
+  "unread"    : false,
+  "object"    : "message",
+  "snippet"   : "snippet one...",
+  "subject"   : "Subject One",
+  "thread_id" : "thread_12345",
+  "namespace_id" : "nsid"
+})
+m2 = (new Message).fromJSON({
+  "id"   : "222",
+  "from" : [ user_2 ],
+  "to"   : [ user_1 ],
+  "cc"   : [ user_3, user_4 ],
+  "bcc"  : null,
+  "body"      : "Body Two",
+  "date"      : 1415814587,
+  "draft"     : false
+  "files"     : [],
+  "unread"    : false,
+  "object"    : "message",
+  "snippet"   : "snippet Two...",
+  "subject"   : "Subject Two",
+  "thread_id" : "thread_12345",
+  "namespace_id" : "nsid"
+})
+m3 = (new Message).fromJSON({
+  "id"   : "333",
+  "from" : [ user_3 ],
+  "to"   : [ user_1 ],
+  "cc"   : [ user_2, user_4 ],
+  "bcc"  : [],
+  "body"      : "Body Three",
+  "date"      : 1415814587,
+  "draft"     : false
+  "files"     : [],
+  "unread"    : false,
+  "object"    : "message",
+  "snippet"   : "snippet Three...",
+  "subject"   : "Subject Three",
+  "thread_id" : "thread_12345",
+  "namespace_id" : "nsid"
+})
+m4 = (new Message).fromJSON({
+  "id"   : "444",
+  "from" : [ user_4 ],
+  "to"   : [ user_1 ],
+  "cc"   : [],
+  "bcc"  : [ user_5 ],
+  "body"      : "Body Four",
+  "date"      : 1415814587,
+  "draft"     : false
+  "files"     : [],
+  "unread"    : false,
+  "object"    : "message",
+  "snippet"   : "snippet Four...",
+  "subject"   : "Subject Four",
+  "thread_id" : "thread_12345",
+  "namespace_id" : "nsid"
+})
+m5 = (new Message).fromJSON({
+  "id"   : "555",
+  "from" : [ user_1 ],
+  "to"   : [ user_4 ],
+  "cc"   : [],
+  "bcc"  : [],
+  "body"      : "Body Five",
+  "date"      : 1415814587,
+  "draft"     : false
+  "files"     : [],
+  "unread"    : false,
+  "object"    : "message",
+  "snippet"   : "snippet Five...",
+  "subject"   : "Subject Five",
+  "thread_id" : "thread_12345",
+  "namespace_id" : "nsid"
+})
+testMessages = [m1, m2, m3, m4, m5]
 draftMessages = [
   (new Message).fromJSON({
     "id"   : "666",
@@ -273,3 +272,27 @@ describe "MessageList", ->
       expect(items.length).toBe 1
 
       expect(items.length).toBe 1
+
+  describe "reply type", ->
+    it "prompts for a reply when there's only one participant", ->
+      MessageStore._items = [m3, m5]
+      MessageStore.trigger()
+      @message_list.setState currentThread: test_thread
+      expect(@message_list._replyType()).toBe "reply"
+      cs = TestUtils.scryRenderedDOMComponentsWithClass(@message_list, "footer-reply-area")
+      expect(cs.length).toBe 1
+
+    it "prompts for a reply-all when there's more then one participant", ->
+      MessageStore._items = [m5, m3]
+      MessageStore.trigger()
+      @message_list.setState currentThread: test_thread
+      expect(@message_list._replyType()).toBe "reply-all"
+      cs = TestUtils.scryRenderedDOMComponentsWithClass(@message_list, "footer-reply-area")
+      expect(cs.length).toBe 1
+
+    it "hides the reply type if the last message is a draft", ->
+      MessageStore._items = [m5, m3, draftMessages[0]]
+      MessageStore.trigger()
+      @message_list.setState currentThread: test_thread
+      cs = TestUtils.scryRenderedDOMComponentsWithClass(@message_list, "footer-reply-area")
+      expect(cs.length).toBe 0

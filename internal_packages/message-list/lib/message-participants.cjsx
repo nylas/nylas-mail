@@ -18,7 +18,7 @@ MessageParticipants = React.createClass
   _renderCollapsed: ->
     <span className="collapsed-participants">
       <span className="participant-name from-contact">{@_shortNames(@props.from)}</span>
-      <span className="participant-label to-label">&nbsp;>&nbsp;</span>
+      <span className="participant-label to-label">To:&nbsp;</span>
       <span className="participant-name to-contact">{@_shortNames(@props.to)}</span>
       <span style={if @props.cc?.length > 0 then display:"inline" else display:"none"}>
         <span className="participant-label cc-label">Cc:&nbsp;</span>
@@ -33,7 +33,6 @@ MessageParticipants = React.createClass
   _renderExpanded: ->
     <div className="expanded-participants">
       <div className="participant-type">
-        <div className="participant-label from-label">From:&nbsp;</div>
         <div className="participant-name from-contact">{@_fullContact(@props.from)}</div>
       </div>
 
@@ -52,11 +51,6 @@ MessageParticipants = React.createClass
            style={if @props.bcc?.length > 0 then display:"block" else display:"none"}>
         <div className="participant-label bcc-label">Bcc:&nbsp;</div>
         <div className="participant-name cc-contact">{@_fullContact(@props.bcc)}</div>
-      </div>
-
-      <div className="participant-type">
-        <div className="subject-label">Subject:&nbsp;</div>
-        <div className="subject">{@props.subject}</div>
       </div>
 
     </div>

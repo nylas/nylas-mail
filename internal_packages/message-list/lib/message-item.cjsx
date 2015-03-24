@@ -92,26 +92,30 @@ MessageItem = React.createClass
     @_renderMessageActions()
 
   _renderMessageActionsTooltip: ->
-    ## TODO: Use Tooltip UI Component
-    <span className="msg-actions-tooltip"
-          onClick={=> @setState detailedHeaders: true}>
-      <RetinaImg name={"message-show-more.png"}/></span>
+    return <span></span>
+    ## TODO: For now leave blank. There may be an alternative UI in the
+    #future.
+    # <span className="msg-actions-tooltip"
+    #       onClick={=> @setState detailedHeaders: true}>
+    #   <RetinaImg name={"message-show-more.png"}/></span>
 
   _renderMessageActions: ->
     messageActions = ComponentRegistry.findAllViewsByRole('MessageAction')
-    <div className="message-actions">
-      <button className="btn btn-icon" onClick={@_onReply}>
-        <RetinaImg name={"message-reply.png"}/>
-      </button>
-      <button className="btn btn-icon" onClick={@_onReplyAll}>
-        <RetinaImg name={"message-reply-all.png"}/>
-      </button>
-      <button className="btn btn-icon" onClick={@_onForward}>
-        <RetinaImg name={"message-forward.png"}/>
-      </button>
+    <div className="message-actions-wrap">
+      <div className="message-actions">
+        <button className="btn btn-icon" onClick={@_onReply}>
+          <RetinaImg name={"message-reply.png"}/>
+        </button>
+        <button className="btn btn-icon" onClick={@_onReplyAll}>
+          <RetinaImg name={"message-reply-all.png"}/>
+        </button>
+        <button className="btn btn-icon" onClick={@_onForward}>
+          <RetinaImg name={"message-forward.png"}/>
+        </button>
 
-      {<Action thread={@props.thread} message={@props.message} /> for Action in messageActions}
+        {<Action thread={@props.thread} message={@props.message} /> for Action in messageActions}
 
+      </div>
     </div>
 
   _onReply: ->
@@ -129,13 +133,13 @@ MessageItem = React.createClass
   _renderCollapseControl: ->
     if @state.detailedHeaders
       <div className="collapse-control"
-           style={top: "-1px", left: "-17px"}
+           style={top: "4px", left: "-17px"}
            onClick={=> @setState detailedHeaders: false}>
         <RetinaImg name={"message-disclosure-triangle-active.png"}/>
       </div>
     else
       <div className="collapse-control inactive"
-           style={top: "-2px"}
+           style={top: "3px"}
            onClick={=> @setState detailedHeaders: true}>
         <RetinaImg name={"message-disclosure-triangle.png"}/>
       </div>

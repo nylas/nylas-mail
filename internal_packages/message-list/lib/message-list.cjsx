@@ -2,7 +2,7 @@ _ = require 'underscore-plus'
 React = require 'react'
 MessageItem = require "./message-item"
 {Actions, ThreadStore, MessageStore, ComponentRegistry} = require("inbox-exports")
-{Spinner, ResizableRegion} = require('ui-components')
+{Spinner, ResizableRegion, RetinaImg} = require('ui-components')
 
 module.exports =
 MessageList = React.createClass
@@ -39,6 +39,7 @@ MessageList = React.createClass
 
     else if didAddDraft
       @_focusDraft(@refs["composerItem-#{addedDraftIds[0]}"])
+      @_prepareContentForDisplay()
 
   _focusDraft: (draftDOMNode) ->
     # We need a 100ms delay so the DOM can finish painting the elements on
@@ -54,6 +55,7 @@ MessageList = React.createClass
 
     wrapClass = React.addons.classSet
       "messages-wrap": true
+      "has-reply-area": @_hasReplyArea()
       "ready": @state.ready
 
     <div className="message-list" id="message-list">
@@ -65,8 +67,35 @@ MessageList = React.createClass
         {@_messageListHeaders()}
         {@_messageComponents()}
       </div>
+      {@_renderReplyArea()}
       <Spinner visible={!@state.ready} />
     </div>
+
+  _renderReplyArea: ->
+    if @_hasReplyArea()
+      <div className="footer-reply-area-wrap" onClick={@_onClickReplyArea}>
+        <div className="footer-reply-area">
+          <RetinaImg name="#{@_replyType()}-footer.png" /><span className="reply-text">Write a reply…</span>
+        </div>
+      </div>
+    else return <div></div>
+
+  _hasReplyArea: ->
+    not _.last(@state.messages)?.draft
+
+  # Either returns "reply" or "reply-all"
+  _replyType: ->
+    lastMsg = _.last(_.filter((@state.messages ? []), (m) -> not m.draft))
+    if lastMsg?.cc.length is 0 and lastMsg?.to.length is 1
+      return "reply"
+    else return "reply-all"
+
+  _onClickReplyArea: ->
+    return unless @state.currentThread?.id
+    if @_replyType() is "reply-all"
+      Actions.composeReplyAll(threadId: @state.currentThread.id)
+    else
+      Actions.composeReply(threadId: @state.currentThread.id)
 
   # There may be a lot of iframes to load which may take an indeterminate
   # amount of time. As long as there is more content being painted onto
@@ -140,6 +169,9 @@ MessageList = React.createClass
                          message={message}
                          className={className}
                          thread_participants={@_threadParticipants()} />
+
+      unless idx is @state.messages.length - 1
+        components.push <hr className="message-item-divider" />
 
     components
 

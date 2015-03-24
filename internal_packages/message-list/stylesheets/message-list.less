@@ -82,6 +82,9 @@
     // top:0; left:0; right:0; bottom:0;
     opacity:0;
     transition: opacity 0s;
+    &.has-reply-area {
+      padding-bottom: 63px; // height of reply footer
+    }
   }
   .messages-wrap.ready {
     opacity:1;
@@ -93,37 +96,61 @@
     width: 100%;
 
     margin: 0 auto;
-    padding: @spacing-double 0;
+    padding: @spacing-standard 0 @spacing-double 0;
     &:first-child { padding-top: 0; }
-
-    border-bottom: 1px solid @border-primary-bg;
-    &:last-child { border-bottom: 0; }
 
     &.collapsed {
       padding: @spacing-standard @spacing-double;
     }
   }
 
+  .message-item-divider {
+    border-top: 2px solid @border-secondary-bg;
+    height: 3px;
+    background: @background-secondary;
+    border-bottom: 1px solid @border-primary-bg;
+    margin: 0;
+    margin-right: 2px;
+  }
+
   .message-header {
     position: relative;
     font-size: @font-size-small;
+    border-bottom: 1px solid @border-color-divider;
+    padding-bottom: @spacing-standard;
+    padding-top: 5px;
+
+    .message-actions-wrap {
+      width: 100%;
+      text-align: right;
+    }
 
     .message-actions {
+      display: inline-block;
+      width: 120px;
+      height: 22px;
+      border: 1px solid @border-color-divider;
+      border-radius: 11px;
+
       z-index: 4;
       margin-top: 0.35em;
       margin-left: 0.5em;
-      text-align: right;
+      text-align: center;
 
       .btn-icon {
+        opacity: 0.75;
         padding: 0 @spacing-half;
-        &:last-child { padding-right: 0; }
-        margin-left: 10px;
-        margin-right: 0;
+        height: 20px;
+        line-height: 10px;
+        border-radius: 0;
+        border-right: 1px solid @border-color-divider;
+        &:last-child { border-right: 0; }
+        margin: 0;
         &:active {background: transparent;}
       }
     }
 
-    .message-time         {
+    .message-time {
       z-index: 2; position: relative;
       display: inline-block;
     }
@@ -141,6 +168,7 @@
     .message-header-right {
       z-index: 4; position: relative;
       float: right;
+      text-align: right;
     }
 
   }
@@ -149,7 +177,7 @@
     width: 100%;
     max-width: @message-max-width;
     margin: 0 auto;
-    padding: @spacing-standard @spacing-double;
+    padding: 0 @spacing-double @spacing-standard @spacing-double;
 
     iframe {
       width: 100%;
@@ -175,6 +203,34 @@
 
   .collapse-control:hover {cursor: pointer;}
 
+  .footer-reply-area-wrap {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    color: @text-color-very-subtle;
+    border-top: 1px solid @border-color-divider;
+    background: @background-primary;
+    z-index: 10;
+
+    &:hover {
+      cursor: default;
+    }
+
+    .footer-reply-area {
+      width: 100%;
+      max-width: @message-max-width;
+      margin: 0 auto;
+      padding: 20px @spacing-double;
+    }
+    .reply-text {
+      display: inline-block;
+      margin-left: 0.5em;
+      position: relative;
+      top: 2px;
+    }
+  }
+
 }
 .attachments-area {
   padding-top: @spacing-standard;
@@ -195,8 +251,7 @@
   .from-label, .to-label, .cc-label, .bcc-label, .subject-label {
     color: @text-color-very-subtle;
   }
-  .to-label { font-weight: 600; }
-  .cc-label, .bcc-label, .subject-label { margin-left: @spacing-standard; }
+  .to-label, .cc-label, .bcc-label, .subject-label { margin-left: @spacing-standard; }
   .to-contact, .cc-contact, .to-everyone {
     color: @text-color-very-subtle;
   }
@@ -218,24 +273,31 @@
     .from-label, .to-label, .cc-label, .bcc-label, .subject-label {
       float: left;
       display: block;
-      font-weight: 400;
+      font-weight: @font-weight-normal;
       margin-left: 0;
     }
 
-    .from-contact, .to-contact, .cc-contact, .subject {
-      padding-left: 4.4em;
-      font-weight: 500;
+    .from-contact, .subject {
+      font-weight: @font-weight-semi-bold;
     }
 
-    .from-label { margin-right: 1em; }
-    .to-label, .cc-label { margin-right: 2.15em; }
-    .bcc-label { margin-right: 1.7em; }
+    // .from-label { margin-right: 1em; }
+    .to-label, .cc-label { margin-right: 0.5em; }
+    .bcc-label { margin-right: 0; }
 
     .participant-primary {
-      color: @text-color;
+      color: @text-color-very-subtle;
     }
     .participant-secondary {
       color: @text-color-very-subtle;
+    }
+    .from-contact {
+      .participant-primary {
+        color: @text-color;
+      }
+      .participant-secondary {
+        color: @text-color;
+      }
     }
   }
 }
