@@ -175,7 +175,7 @@ describe "DraftStore", ->
           , (thread, message) ->
             replyToMessage: fakeMessage1
           , (model) ->
-            expect(model.body.indexOf('On Jan 17 1970, at 1:16 am, Customer &lt;customer@example.com&gt; wrote') > 0).toBe(true)
+            expect(model.body.search(/On .+, at .+, Customer &lt;customer@example.com&gt; wrote/) > 0).toBe(true)
 
         it "should make the subject the subject of the message, not the thread", ->
           fakeMessage1.subject = "OLD SUBJECT"
@@ -198,7 +198,7 @@ describe "DraftStore", ->
           , (thread, message) ->
             replyToMessage: fakeMessage2
           , (model) ->
-            expect(model.body.indexOf('On Jan 17 1970, at 1:16 am, ben@nilas.com wrote:') > 0).toBe(true)
+            expect(model.body.search(/On .+, at .+, ben@nilas.com wrote:/) > 0).toBe(true)
 
       describe "when a forward message is provided by the attributesCallback", ->
         it "should include quoted text in the new message", ->

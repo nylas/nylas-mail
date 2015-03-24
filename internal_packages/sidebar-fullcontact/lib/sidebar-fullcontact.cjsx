@@ -8,8 +8,7 @@ module.exports =
 SidebarFullContact = React.createClass
 
   getInitialState: ->
-    fullContactCache: {}
-    focusedContact: null
+    @_getStateFromStores()
 
   componentDidMount: ->
     @unsubscribe = FullContactStore.listen @_onChange

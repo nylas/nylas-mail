@@ -8,8 +8,7 @@ SidebarThreadParticipants = React.createClass
   displayName: 'SidebarThreadParticipants'
 
   getInitialState: ->
-    sortedContacts: []
-    focusedContact: null
+    @_getStateFromStores()
 
   componentDidMount: ->
     @unsubscribe = FocusedContactsStore.listen @_onChange

@@ -33,6 +33,7 @@ FocusedContactsStore = Reflux.createStore
   _onSelectThreadId: (id) ->
     @_currentThreadId = id
     @_clearCurrentParticipants()
+    @_onMessageStoreChanged()
     # We need to wait now for the MessageStore to grab all of the
     # appropriate messages for the given thread.
 
