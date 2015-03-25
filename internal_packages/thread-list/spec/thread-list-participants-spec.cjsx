@@ -33,7 +33,7 @@ describe "ThreadListParticipants", ->
       @michael = new Contact(email: 'michael@nilas.com', name: 'michael')
       @kavya = new Contact(email: 'kavya@nilas.com', name: 'kavya')
 
-    describe "when thread.messages is available", -> 
+    describe "when thread.messages is available", ->
       it "correctly produces items for display in a wide range of scenarios", ->
         scenarios = [{
           name: 'single read email'
