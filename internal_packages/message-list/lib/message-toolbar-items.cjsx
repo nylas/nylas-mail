@@ -1,5 +1,5 @@
 React = require 'react'
-{Actions, ThreadStore, Utils} = require 'inbox-exports'
+{Actions, ThreadStore, Utils, WorkspaceStore} = require 'inbox-exports'
 {RetinaImg} = require 'ui-components'
 
 # Note: These always have a thread, but only sometimes get a
@@ -46,7 +46,7 @@ ForwardButton = React.createClass
 
 ArchiveButton = React.createClass
   render: ->
-    <button className="btn btn-toolbar"
+    <button className="btn btn-toolbar btn-archive"
             data-tooltip="Archive"
             onClick={@_onArchive}>
       <RetinaImg name="toolbar-archive.png" />
@@ -54,13 +54,15 @@ ArchiveButton = React.createClass
 
   _onArchive: (e) ->
     return unless Utils.nodeIsVisible(e.currentTarget)
-    # Calling archive() sends an Actions.queueTask with an archive task
-    # TODO Turn into an Action
-    ThreadStore.selectedThread().archive()
+    if WorkspaceStore.selectedLayoutMode() is "list"
+      Actions.archiveCurrentThread()
+    else if WorkspaceStore.selectedLayoutMode() is "split"
+      Actions.archiveAndNext()
     e.stopPropagation()
 
 
-module.exports = React.createClass
+module.exports =
+MessageToolbarItems = React.createClass
   getInitialState: ->
     threadIsSelected: ThreadStore.selectedId()?
 
@@ -70,7 +72,7 @@ module.exports = React.createClass
       "hidden": !@state.threadIsSelected
 
     <div className={classes}>
-      <ArchiveButton />
+      <ArchiveButton ref="archiveButton" />
     </div>
 
   componentDidMount: ->

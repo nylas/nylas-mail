@@ -1,6 +1,8 @@
 Reflux = require 'reflux'
 DatabaseStore = require './database-store'
 NamespaceStore = require './namespace-store'
+AddRemoveTagsTask = require '../tasks/add-remove-tags'
+MarkThreadReadTask = require '../tasks/mark-thread-read'
 Actions = require '../actions'
 Thread = require '../models/thread'
 _ = require 'underscore-plus'
@@ -11,6 +13,9 @@ ThreadStore = Reflux.createStore
 
     @listenTo Actions.selectThreadId, @_onSelectThreadId
     @listenTo Actions.selectTagId, @_onSelectTagId
+    @listenTo Actions.archiveAndPrevious, @_onArchiveAndPrevious
+    @listenTo Actions.archiveCurrentThread, @_onArchiveCurrentThread
+    @listenTo Actions.archiveAndNext, @_onArchiveAndNext
     @listenTo Actions.searchQueryCommitted, @_onSearchCommitted
     @listenTo DatabaseStore, @_onDataChanged
     @listenTo NamespaceStore, -> @_onNamespaceChanged()
@@ -23,6 +28,9 @@ ThreadStore = Reflux.createStore
     @_namespaceId = null
     @_tagId = null
     @_searchQuery = null
+    @_itemsLoading = false
+
+  itemsLoading: -> @_itemsLoading
 
   fetchFromCache: ->
     return unless @_namespaceId
@@ -56,16 +64,26 @@ ThreadStore = Reflux.createStore
           newSelectedId = null
         Actions.selectThreadId(newSelectedId)
 
+      @_itemsLoading = false
       @trigger()
 
   fetchFromAPI: ->
     return unless @_namespaceId
+    @_itemsLoading = true
     if @_searchQuery
       atom.inbox.getThreadsForSearch @_namespaceId, @_searchQuery, (items) =>
         @_items = items
+        @_itemsLoading = false
         @trigger()
     else
-      atom.inbox.getThreads(@_namespaceId, {tag: @_tagId})
+      success = =>
+        @_itemsLoading = false
+        @trigger()
+      error = =>
+        @_itemsLoading = false
+        @trigger()
+      atom.inbox.getThreads(@_namespaceId, {tag: @_tagId}, {success: success, error: error})
+    @trigger()
 
   # Inbound Events
 
@@ -83,6 +101,8 @@ ThreadStore = Reflux.createStore
     @fetchFromCache()
 
   _onSearchCommitted: (query) ->
+    Actions.selectThreadId(null)
+
     if query.length > 0
       @_searchQuery = query
       @_items = []
@@ -93,7 +113,6 @@ ThreadStore = Reflux.createStore
       @fetchFromCache()
 
     @_lastQuery = query
-    Actions.selectThreadId(null)
     @fetchFromAPI()
 
   _onSelectTagId: (id) ->
@@ -108,9 +127,44 @@ ThreadStore = Reflux.createStore
 
     thread = @selectedThread()
     if thread && thread.isUnread()
-      thread.markAsRead()
+      Actions.queueTask(new MarkThreadReadTask(thread.id))
 
     @trigger()
+
+  _onArchiveCurrentThread: ({silent}={}) ->
+    thread = @selectedThread()
+    return unless thread
+    @_archive(thread.id)
+    @_selectedId = null
+    if not silent
+      @trigger()
+      Actions.popSheet()
+      Actions.selectThreadId(null)
+
+  _archive: (threadId) ->
+    Actions.postNotification({message: "Archived thread", type: 'success'})
+    task = new AddRemoveTagsTask(threadId, ['archive'], ['inbox'])
+    Actions.queueTask(task)
+
+  _threadOffsetFromCurrentBy: (offset=0) ->
+    thread = @selectedThread()
+    index = @_items.indexOf(thread)
+    return null if index is -1
+    index += offset
+    index = Math.min(Math.max(index, 0), @_items.length - 1)
+    return @_items[index]
+
+  _onArchiveAndPrevious: ->
+    return unless @_selectedId
+    newSelectedId = @_threadOffsetFromCurrentBy(-1)?.id
+    @_onArchiveCurrentThread(silent: true)
+    Actions.selectThreadId(newSelectedId)
+
+  _onArchiveAndNext: ->
+    return unless @_selectedId
+    newSelectedId = @_threadOffsetFromCurrentBy(1)?.id
+    @_onArchiveCurrentThread(silent: true)
+    Actions.selectThreadId(newSelectedId)
 
   # Accessing Data
 

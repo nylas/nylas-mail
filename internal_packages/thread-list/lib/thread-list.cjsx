@@ -1,8 +1,11 @@
 _ = require 'underscore-plus'
 React = require 'react'
-{ListTabular} = require 'ui-components'
+{ListTabular, Spinner} = require 'ui-components'
 {timestamp, subject} = require './formatting-utils'
-{Actions, ThreadStore, ComponentRegistry} = require 'inbox-exports'
+{Actions,
+ ThreadStore,
+ WorkspaceStore,
+ ComponentRegistry} = require 'inbox-exports'
 
 module.exports =
 ThreadList = React.createClass
@@ -23,8 +26,9 @@ ThreadList = React.createClass
       'application:previous-item': => @_onShiftSelectedIndex(-1)
       'application:next-item': => @_onShiftSelectedIndex(1)
       'application:focus-item': => @_onFocusSelectedIndex()
-      'application:remove-item': @_onArchiveSelected
-      'application:remove-and-previous': @_onArchiveAndPrevious
+      'application:remove-item': @_onArchiveCurrentThread
+      'application:remove-and-previous': -> Actions.archiveAndPrevious()
+      'application:remove-and-next': -> Actions.archiveAndNext()
       'application:reply': @_onReply
       'application:reply-all': @_onReplyAll
       'application:forward': @_onForward
@@ -36,13 +40,15 @@ ThreadList = React.createClass
     @body_unsubscriber.dispose()
 
   render: ->
-    <div className="thread-list">
+    classes = React.addons.classSet("thread-list": true, "ready": @state.ready)
+    <div className={classes}>
       <ListTabular
         columns={@state.columns}
         items={@state.items}
         itemClassProvider={ (item) -> if item.isUnread() then 'unread' else '' }
         selectedId={@state.selectedId}
         onSelect={ (item) -> Actions.selectThreadId(item.id) } />
+      <Spinner visible={!@state.ready} />
     </div>
 
   _computeColumns: ->
@@ -106,34 +112,38 @@ ThreadList = React.createClass
     index = Math.max(0, Math.min(index + delta, @state.items.length-1))
     Actions.selectThreadId(@state.items[index].id)
 
-  _onArchiveSelected: ->
-    thread = ThreadStore.selectedThread()
-    thread.archive() if thread
-
   _onStarThread: ->
     thread = ThreadStore.selectedThread()
     thread.toggleStar() if thread
 
   _onReply: ->
-    return unless @state.selectedId?
+    return unless @state.selectedId? and @_actionInVisualScope()
     Actions.composeReply(threadId: @state.selectedId)
 
   _onReplyAll: ->
-    return unless @state.selectedId?
+    return unless @state.selectedId? and @_actionInVisualScope()
     Actions.composeReplyAll(threadId: @state.selectedId)
 
   _onForward: ->
-    return unless @state.selectedId?
+    return unless @state.selectedId? and @_actionInVisualScope()
     Actions.composeForward(threadId: @state.selectedId)
-    
+
+  _actionInVisualScope: ->
+    if WorkspaceStore.selectedLayoutMode() is "list"
+      WorkspaceStore.sheet().type is "Thread"
+    else true
+
+  _onArchiveCurrentThread: ->
+    if WorkspaceStore.selectedLayoutMode() is "list"
+      Actions.archiveCurrentThread()
+    else if WorkspaceStore.selectedLayoutMode() is "split"
+      Actions.archiveAndNext()
+
   _onChange: ->
     @setState(@_getStateFromStores())
 
-  _onArchiveAndPrevious: ->
-    @_onArchiveSelected()
-    @_onShiftSelectedIndex(-1)
-
   _getStateFromStores: ->
+    ready: not ThreadStore.itemsLoading()
     items: ThreadStore.items()
     columns: @_computeColumns()
     selectedId: ThreadStore.selectedId()

@@ -10,6 +10,7 @@ ReactTestUtils = _.extend ReactTestUtils, require "jasmine-react-helpers"
  Namespace,
  ThreadStore,
  DatabaseStore,
+ WorkspaceStore,
  InboxTestUtils,
  NamespaceStore,
  ComponentRegistry} = require "inbox-exports"
@@ -212,6 +213,9 @@ describe "ThreadList", ->
     spyOn(ThreadStore, "_onNamespaceChanged")
     spyOn(DatabaseStore, "findAll").andCallFake ->
       new Promise (resolve, reject) -> resolve(test_threads())
+    spyOn(Actions, "archiveCurrentThread")
+    spyOn(Actions, "archiveAndNext")
+    spyOn(Actions, "archiveAndPrevious")
     ReactTestUtils.spyOnClass(ThreadList, "_computeColumns").andReturn(columns)
 
     ThreadStore._resetInstanceVars()
@@ -239,6 +243,47 @@ describe "ThreadList", ->
   it "by default has zero children", ->
     items = ReactTestUtils.scryRenderedComponentsWithType(@thread_list, ListTabular.Item)
     expect(items.length).toBe 0
+
+  describe "when the workspace is in list mode", ->
+    beforeEach ->
+      spyOn(WorkspaceStore, "selectedLayoutMode").andReturn "list"
+      @thread_list.setState selectedId: "t111"
+
+    it "archives in list mode", ->
+      @thread_list._onArchiveCurrentThread()
+      expect(Actions.archiveCurrentThread).toHaveBeenCalled()
+      expect(Actions.archiveAndNext).not.toHaveBeenCalled()
+
+    it "allows reply only when the sheet type is 'Thread'", ->
+      spyOn(WorkspaceStore, "sheet").andCallFake -> {type: "Thread"}
+      spyOn(Actions, "composeReply")
+      @thread_list._onReply()
+      expect(Actions.composeReply).toHaveBeenCalled()
+      expect(@thread_list._actionInVisualScope()).toBe true
+
+    it "doesn't reply only when the sheet type isnt 'Thread'", ->
+      spyOn(WorkspaceStore, "sheet").andCallFake -> {type: "Root"}
+      spyOn(Actions, "composeReply")
+      @thread_list._onReply()
+      expect(Actions.composeReply).not.toHaveBeenCalled()
+      expect(@thread_list._actionInVisualScope()).toBe false
+
+  describe "when the workspace is in split mode", ->
+    beforeEach ->
+      spyOn(WorkspaceStore, "selectedLayoutMode").andReturn "split"
+      @thread_list.setState selectedId: "t111"
+
+    it "archives and next in split mode", ->
+      @thread_list._onArchiveCurrentThread()
+      expect(Actions.archiveCurrentThread).not.toHaveBeenCalled()
+      expect(Actions.archiveAndNext).toHaveBeenCalled()
+
+    it "allows reply and reply-all regardless of sheet type", ->
+      spyOn(WorkspaceStore, "sheet").andCallFake -> {type: "anything"}
+      spyOn(Actions, "composeReply")
+      @thread_list._onReply()
+      expect(Actions.composeReply).toHaveBeenCalled()
+      expect(@thread_list._actionInVisualScope()).toBe true
 
   describe "Populated thread list", ->
     beforeEach ->

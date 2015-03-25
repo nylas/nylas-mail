@@ -30,8 +30,18 @@ AccountSidebarStore = Reflux.createStore
 
   _registerListeners: ->
     @listenTo Actions.selectTagId, @_onSelectTagId
+    @listenTo Actions.searchQueryCommitted, @_onSearchQueryCommitted
     @listenTo DatabaseStore, @_onDataChanged
     @listenTo NamespaceStore, @_onNamespaceChanged
+
+  _onSearchQueryCommitted: (query) ->
+    if query? and query isnt ""
+      @_oldSelectedId = @_selectedId
+      @_selectedId = "search"
+    else
+      @_selectedId = @_oldSelectedId if @_oldSelectedId
+
+    @trigger(@)
 
   _populate: ->
     namespace = NamespaceStore.current()
@@ -116,6 +126,7 @@ AccountSidebarStore = Reflux.createStore
       @_populateDraftsCount()
 
   _onSelectTagId: (tagId) ->
+    Actions.searchQueryCommitted('') if @_selectedId is "search"
     @_selectedId = tagId
     @trigger(@)
 

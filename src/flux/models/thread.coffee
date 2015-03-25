@@ -61,11 +61,6 @@ class Thread extends Model
   isStarred: ->
     @tagIds().indexOf('starred') != -1
 
-  markAsRead: ->
-    MarkThreadReadTask = require '../tasks/mark-thread-read'
-    task = new MarkThreadReadTask(@id)
-    Actions.queueTask(task)
-
   star: ->
     @addRemoveTags(['starred'], [])
 
@@ -77,13 +72,6 @@ class Thread extends Model
       @unstar()
     else
       @star()
-
-  archive: ->
-    Actions.postNotification({message: "Archived thread", type: 'success'})
-    @addRemoveTags(['archive'], ['inbox'])
-
-  unarchive: ->
-    @addRemoveTags(['inbox'], ['archive'])
 
   addRemoveTags: (tagIdsToAdd, tagIdsToRemove) ->
     # start web change, which will dispatch more actions

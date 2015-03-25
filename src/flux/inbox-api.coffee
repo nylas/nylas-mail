@@ -232,8 +232,8 @@ class InboxAPI
   # API abstraction should not need to know about threads and calendars.
   # They're still here because of their dependency in
   # _postLaunchStartStreaming
-  getThreads: (namespaceId, params) ->
-    @getCollection(namespaceId, 'threads', params)
+  getThreads: (namespaceId, params, requestOptions={}) ->
+    @getCollection(namespaceId, 'threads', params, requestOptions)
 
   getCalendars: (namespaceId) ->
     @getCollection(namespaceId, 'calendars', {})

@@ -70,6 +70,10 @@ windowActions = [
   "sendDraft",
   "destroyDraft",
 
+  "archiveAndPrevious",
+  "archiveCurrentThread",
+  "archiveAndNext",
+
   # Actions for Search
   "searchQueryChanged",
   "searchQueryCommitted",

@@ -11,7 +11,7 @@
   'j'        : 'application:next-item' # Gmail
   'down'     : 'application:next-item' # Mac mail
   ']'        : 'application:remove-and-previous' # Gmail
-  '['        : 'application:remove-item' # Gmail
+  '['        : 'application:remove-and-next' # Gmail
   'e'        : 'application:remove-item' # Gmail
   'delete'   : 'application:remove-item' # Mac mail
   'backspace': 'application:remove-item' # Outlook
@@ -20,6 +20,7 @@
   '/'        : 'application:focus-search' # Gmail
 
   'r'     : 'application:reply' # Gmail
+  'R'     : 'application:reply-all' # Edgehill
   'a'     : 'application:reply-all' # Gmail
   'f'     : 'application:forward' # Gmail
 
