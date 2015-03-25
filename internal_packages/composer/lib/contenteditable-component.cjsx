@@ -661,7 +661,7 @@ ContenteditableComponent = React.createClass
     "show-quoted-text": @props.mode?.showQuotedText
 
   _htmlQuotedTextStart: ->
-    @props.html.search(/<[^>]*gmail_quote/)
+    @props.html.search(/(<br\/?>)?(<br\/?>)?<[^>]*gmail_quote/)
 
   _removeQuotedTextFromHTML: (html) ->
     quoteStart = @_htmlQuotedTextStart()

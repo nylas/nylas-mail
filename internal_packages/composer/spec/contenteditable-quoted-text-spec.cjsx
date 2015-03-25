@@ -16,7 +16,7 @@ describe "ContenteditableComponent", ->
       <ContenteditableComponent html={html} onChange={@onChange}/>
     )
 
-    @htmlWithQuote = 'Test <strong>HTML</strong><br><blockquote class="gmail_quote">QUOTE</blockquote>'
+    @htmlWithQuote = 'Test <strong>HTML</strong><br><br><blockquote class="gmail_quote">QUOTE</blockquote>'
     @componentWithQuote = ReactTestUtils.renderIntoDocument(
       <ContenteditableComponent html={@htmlWithQuote}
                                 onChange={@onChange} 
@@ -71,8 +71,8 @@ describe "ContenteditableComponent", ->
 
   describe "when the html is changed", ->
     beforeEach ->
-      @changedHtmlWithoutQuote = 'Changed <strong>NEW 1 HTML</strong><br>'
-      @changedHtmlWithQuote = 'Changed <strong>NEW 1 HTML</strong><br><blockquote class="gmail_quote">QUOTE</blockquote>'
+      @changedHtmlWithoutQuote = 'Changed <strong>NEW 1 HTML</strong>'
+      @changedHtmlWithQuote = 'Changed <strong>NEW 1 HTML</strong><br><br><blockquote class="gmail_quote">QUOTE</blockquote>'
 
       @performEdit = (newHTML, component = @componentWithQuote) =>
         editDiv = ReactTestUtils.findRenderedDOMComponentWithAttr(component, 'contentEditable')
@@ -94,7 +94,7 @@ describe "ContenteditableComponent", ->
         expect(ev.target.value).toEqual(@changedHtmlWithQuote)
 
       it "should allow the quoted text to be changed", ->
-        changed = 'Test <strong>NEW 1 HTML</strong><br><blockquote class="gmail_quote">QUOTE CHANGED!!!</blockquote>'
+        changed = 'Test <strong>NEW 1 HTML</strong><blockquote class="gmail_quote">QUOTE CHANGED!!!</blockquote>'
         @componentWithQuote.setState(showQuotedText: true)
         @performEdit(changed)
         ev = @onChange.mostRecentCall.args[0]

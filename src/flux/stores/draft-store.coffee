@@ -179,8 +179,7 @@ DraftStore = Reflux.createStore
         attributes.subject = subjectWithPrefix(msg.subject, 'Re:')
         attributes.replyToMessageId = msg.id
         attributes.body = """
-          <br><br>
-          <blockquote class="gmail_quote"
+          <br><br><blockquote class="gmail_quote"
             style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
             #{attribution}
             <br>
@@ -200,8 +199,7 @@ DraftStore = Reflux.createStore
 
         attributes.subject = subjectWithPrefix(msg.subject, 'Fwd:')
         attributes.body = """
-          <br><br>
-          <blockquote class="gmail_quote"
+          <br><br><blockquote class="gmail_quote"
             style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
             Begin forwarded message:
             <br><br>

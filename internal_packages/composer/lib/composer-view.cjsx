@@ -53,6 +53,7 @@ ComposerView = React.createClass
       'composer:show-and-focus-cc': @_showAndFocusCc
       'composer:focus-to': => @focus "textFieldTo"
       'composer:send-message': => @_sendDraft()
+      'composer:delete-empty-draft': => @_deleteEmptyDraft()
       "core:undo": @undo
       "core:redo": @redo
     }
@@ -429,3 +430,6 @@ ComposerView = React.createClass
       lastState.currentSelection = historyItem.previousSelection
 
     @undoManager.saveToHistory(historyItem)
+
+  _deleteEmptyDraft: ->
+    if @_proxy.draft().pristine then Actions.destroyDraft(@props.localId)
