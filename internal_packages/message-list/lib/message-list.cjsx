@@ -17,7 +17,7 @@ MessageList = React.createClass
     @_unsubscribers = []
     @_unsubscribers.push MessageStore.listen @_onChange
     @_unsubscribers.push ThreadStore.listen @_onChange
-    if @state.messages.length > 0
+    if not @state.loading
       @_prepareContentForDisplay()
 
   componentWillUnmount: ->
@@ -27,7 +27,7 @@ MessageList = React.createClass
     not _.isEqual(nextProps, @props) or not _.isEqual(nextState, @state)
 
   componentDidUpdate: (prevProps, prevState) ->
-    didLoad = prevState.messages.length is 0 and @state.messages.length > 0
+    didLoad = prevState.loading and not @state.loading
 
     oldDraftIds = _.map(_.filter((prevState.messages ? []), (m) -> m.draft), (m) -> m.id)
     newDraftIds = _.map(_.filter((@state.messages ? []), (m) -> m.draft), (m) -> m.id)
@@ -145,7 +145,9 @@ MessageList = React.createClass
     components = []
 
     @state.messages?.forEach (message, idx) =>
-      initialFocus = not appliedInitialFocus and
+      collapsed = !@state.messagesExpandedState[message.id]
+
+      initialFocus = not appliedInitialFocus and not collapsed and
                     ((message.draft) or
                      (message.unread) or
                      (idx is @state.messages.length - 1 and idx > 0))
@@ -156,6 +158,7 @@ MessageList = React.createClass
         "initial-focus": initialFocus
         "unread": message.unread
         "draft": message.draft
+        "collapsed": collapsed
 
       if message.draft
         components.push <ComposerItem mode="inline"
@@ -168,6 +171,7 @@ MessageList = React.createClass
                          thread={@state.currentThread}
                          message={message}
                          className={className}
+                         collapsed={collapsed}
                          thread_participants={@_threadParticipants()} />
 
       unless idx is @state.messages.length - 1
@@ -181,7 +185,9 @@ MessageList = React.createClass
   _getStateFromStores: ->
     messages: (MessageStore.items() ? [])
     messageLocalIds: MessageStore.itemLocalIds()
+    messagesExpandedState: MessageStore.itemsExpandedState()
     currentThread: ThreadStore.selectedThread()
+    loading: MessageStore.itemsLoading()
     ready: if MessageStore.itemsLoading() then false else @state?.ready ? false
 
   _prepareContentForDisplay: ->

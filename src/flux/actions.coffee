@@ -59,6 +59,8 @@ windowActions = [
   "selectTagId",
   "selectView",
   "selectLayoutMode",
+  
+  "toggleMessageIdExpanded",
 
   # Actions for composer
   "composeReply",

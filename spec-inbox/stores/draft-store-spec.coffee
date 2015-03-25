@@ -1,6 +1,7 @@
 Thread = require '../../src/flux/models/thread'
 Message = require '../../src/flux/models/message'
 Contact = require '../../src/flux/models/contact'
+ModelQuery = require '../../src/flux/models/query'
 NamespaceStore = require '../../src/flux/stores/namespace-store.coffee'
 DatabaseStore = require '../../src/flux/stores/database-store.coffee'
 DraftStore = require '../../src/flux/stores/draft-store.coffee'
@@ -46,9 +47,13 @@ describe "DraftStore", ->
         'fake-message-2': fakeMessage2
 
       spyOn(DatabaseStore, 'find').andCallFake (klass, id) ->
-        return Promise.resolve(fakeThread) if klass is Thread
-        return Promise.resolve(fakeMessages[id]) if klass is Message
-        return Promise.reject(new Error('Not Stubbed'))
+        query = new ModelQuery(klass, {id})
+        spyOn(query, 'then').andCallFake (fn) ->
+          return fn(fakeThread) if klass is Thread
+          return fn(fakeMessages[id]) if klass is Message
+          return fn(new Error('Not Stubbed'))
+        query
+
       spyOn(DatabaseStore, 'run').andCallFake (query) ->
         return Promise.resolve(fakeMessage2) if query._klass is Message
         return Promise.reject(new Error('Not Stubbed'))

@@ -39,9 +39,16 @@ class Model
       @[key] = attr.fromJSON(json[attr.jsonKey]) unless json[attr.jsonKey] is undefined
     @
 
-  toJSON: ->
+  toJSON: (options = {}) ->
     json = {}
-    json[attr.jsonKey] = attr.toJSON(@[key]) for key, attr of @attributes()
+    for key, attr of @attributes()
+      value = attr.toJSON(@[key])
+      if attr instanceof Attributes.AttributeJoinedData
+        if options.joined
+          throw new Error("toJSON called with {joined:true} but joined value not loaded.") unless value?
+        else
+          continue
+      json[attr.jsonKey] = value
     json['object'] = @constructor.name.toLowerCase()
     json
 

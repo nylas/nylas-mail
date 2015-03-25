@@ -1,6 +1,8 @@
 _ = require 'underscore-plus'
 {tableNameForJoin} = require './models/utils'
 
+NullPlaceholder = "!NULLVALUE!"
+
 # The Matcher class encapsulates a particular comparison clause on an attribute.
 # Matchers can evaluate whether or not an object matches them, and in the future
 # they will also compose WHERE clauses. Each matcher has a reference to a model
@@ -50,7 +52,7 @@ class Matcher
       when 'contains'
         return "`M#{@muid}`.`value` = #{escaped}"
       else
-        return "`#{@attr.jsonKey}` #{@comparator} #{escaped}"
+        return "`#{klass.name}`.`#{@attr.jsonKey}` #{@comparator} #{escaped}"
 
 
 class SortOrder
@@ -88,12 +90,26 @@ class Attribute
   ascending: ->
     new SortOrder(@, 'ASC')
   toJSON: (val) -> val
-  fromJSON: (val) -> val || null
+  fromJSON: (val) -> val ? null
 
 class AttributeNumber extends Attribute
   toJSON: (val) -> val
   fromJSON: (val) -> unless isNaN(val) then Number(val) else null
   columnSQL: -> "#{@jsonKey} INTEGER"
+
+class AttributeJoinedData extends Attribute
+  constructor: ({modelKey, jsonKey, modelTable}) ->
+    super
+    @modelTable = modelTable
+    @
+
+  selectSQL: (klass) ->
+    # NullPlaceholder is necessary because if the LEFT JOIN returns nothing, it leaves the field
+    # blank, and it comes through in the result row as "" rather than NULL
+    "IFNULL(`#{@modelTable}`.`value`, '#{NullPlaceholder}') AS `#{@modelKey}`"
+
+  includeSQL: (klass) ->
+    "LEFT OUTER JOIN `#{@modelTable}` ON `#{@modelTable}`.`id` = `#{klass.name}`.`id`"
 
 class AttributeBoolean extends Attribute
   toJSON: (val) -> val
@@ -164,13 +180,16 @@ module.exports = {
   Collection: -> new AttributeCollection(arguments...)
   Boolean: -> new AttributeBoolean(arguments...)
   Object: -> new Attribute(arguments...)
+  JoinedData: -> new AttributeJoinedData(arguments...)
   
   AttributeNumber: AttributeNumber
   AttributeString: AttributeString
   AttributeDateTime: AttributeDateTime
   AttributeCollection: AttributeCollection
   AttributeBoolean: AttributeBoolean
+  AttributeJoinedData: AttributeJoinedData
 
+  NullPlaceholder: NullPlaceholder
   SortOrder: SortOrder
   Matcher: Matcher
 }

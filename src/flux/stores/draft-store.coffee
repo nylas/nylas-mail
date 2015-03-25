@@ -53,7 +53,7 @@ DraftStore = Reflux.createStore
     # fragile. Pending an Atom fix perhaps?
     window.onbeforeunload = => @_onBeforeUnload()
 
-    DatabaseStore.findAll(Message, draft: true).then (drafts) =>
+    DatabaseStore.findAll(Message, draft: true).include(Message.attributes.body).then (drafts) =>
       @_drafts = drafts
       @trigger({})
 
@@ -126,7 +126,7 @@ DraftStore = Reflux.createStore
     containsDraft = _.some(change.objects, (msg) -> msg.draft)
     return unless containsDraft
 
-    DatabaseStore.findAll(Message, draft: true).then (drafts) =>
+    DatabaseStore.findAll(Message, draft: true).include(Message.attributes.body).then (drafts) =>
       @_drafts = drafts
       @trigger(change)
 
@@ -157,11 +157,15 @@ DraftStore = Reflux.createStore
     else
       queries.message = DatabaseStore.findBy(Message, {threadId: threadId}).order(Message.attributes.date.descending()).limit(1)
 
+    # Make sure message body is included
+    queries.message.include(Message.attributes.body)
+
     # Waits for the query promises to resolve and then resolve with a hash
     # of their resolved values. *swoon*
     Promise.props(queries).then ({thread, message}) ->
       attributes = attributesCallback(thread, message)
       attributes.subject ?= subjectWithPrefix(thread.subject, 'Re:')
+      attributes.body ?= ""
 
       # A few helpers for formatting
       contactString = (c) ->

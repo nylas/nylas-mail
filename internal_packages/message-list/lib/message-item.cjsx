@@ -41,6 +41,7 @@ MessageItem = React.createClass
 
   render: ->
     messageIndicators = ComponentRegistry.findAllViewsByRole('MessageIndicator')
+    
     attachments = @_attachmentComponents()
     if attachments.length > 0
       attachments = <div className="attachments-area">{attachments}</div>
@@ -72,16 +73,26 @@ MessageItem = React.createClass
 
       </header>
 
-    <div className={@props.className}>
-      <div className="message-item-area">
-        {header}
-        {attachments}
-        <EmailFrame showQuotedText={@state.showQuotedText}>
-          {@_formatBody()}
-        </EmailFrame>
-        <a className={@_quotedTextClasses()} onClick={@_toggleQuotedText}></a>
+    if @props.collapsed
+      <div className={@props.className} onClick={@_toggleCollapsed}>
+        <div className="message-item-area">
+          {header}
+          <div className="snippet">
+            {@props.message.snippet}
+          </div>
+        </div>
       </div>
-    </div>
+    else
+      <div className={@props.className}>
+        <div className="message-item-area">
+          {header}
+          {attachments}
+          <EmailFrame showQuotedText={@state.showQuotedText}>
+            {@_formatBody()}
+          </EmailFrame>
+          <a className={@_quotedTextClasses()} onClick={@_toggleQuotedText}></a>
+        </div>
+      </div>
 
   _quotedTextClasses: -> React.addons.classSet
     "quoted-text-control": true
@@ -147,7 +158,7 @@ MessageItem = React.createClass
   # Eventually, _formatBody will run a series of registered body transformers.
   # For now, it just runs a few we've hardcoded here, which are all synchronous.
   _formatBody: ->
-    return "" unless @props.message
+    return "" unless @props.message and @props.message.body
 
     body = @props.message.body
 
@@ -191,9 +202,14 @@ MessageItem = React.createClass
     @setState
       showQuotedText: !@state.showQuotedText
 
+  _toggleCollapsed: ->
+    Actions.toggleMessageIdExpanded(@props.message.id)
+
   _formatContacts: (contacts=[]) ->
 
   _attachmentComponents: ->
+    return [] unless @props.message.body
+
     AttachmentComponent = @state.AttachmentComponent
     attachments = _.filter @props.message.files, (f) =>
       inBody = f.contentId? and @props.message.body.indexOf(f.contentId) > 0
@@ -203,7 +219,7 @@ MessageItem = React.createClass
       <AttachmentComponent file={file} key={file.id} download={@state.downloads[file.id]}/>
 
   _isForwardedMessage: ->
-    Utils.isForwardedMessage(@props.message.body, @props.message.subject)
+    Utils.isForwardedMessage(@props.message)
 
   _onDownloadStoreChange: ->
     @setState

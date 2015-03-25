@@ -100,8 +100,16 @@
     &:first-child { padding-top: 0; }
 
     &.collapsed {
-      padding: @spacing-standard @spacing-double;
+      padding: 0;
+      background-color: @background-secondary;
+      .snippet {
+        cursor:default;
+        padding-top: @spacing-half;
+        color: @text-color-subtle;
+      }
     }
+
+    transition: all .125s ease-in-out;
   }
 
   .message-item-divider {
@@ -163,7 +171,6 @@
     .message-time, .message-indicator {
       color: @text-color-very-subtle;
     }
-
 
     .message-header-right {
       z-index: 4; position: relative;

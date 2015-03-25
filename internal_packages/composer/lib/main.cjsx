@@ -68,6 +68,7 @@ module.exports =
         else
           # Create a new draft
           draft = new Message
+            body: ""
             from: [NamespaceStore.current().me()]
             date: (new Date)
             draft: true
@@ -77,6 +78,7 @@ module.exports =
           # This is used to apply the values in mailto: links to new drafts
           if draftInitialJSON
             draft.fromJSON(draftInitialJSON)
+
           DatabaseStore.persistModel(draft).then ->
             DatabaseStore.localIdForModel(draft).then(resolve).catch(reject)
           .catch(reject)

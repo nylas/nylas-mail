@@ -108,7 +108,7 @@ Utils =
   # or returns -1 if there are no matches
   quotedTextIndex: (html) ->
     # I know this is gross - one day we'll replace it with a nice system.
-    return false unless html
+    return -1 unless html
 
     regexs = [
       /<blockquote/i, # blockquote element
@@ -159,14 +159,20 @@ Utils =
   # 250 characters.  A strong indicator that the quoted text should be
   # shown. Needs to be limited to first 250 to prevent replies to
   # forwarded messages from also being expanded.
-  isForwardedMessage: (body="", subject="") ->
-    body = body.toLowerCase()
-    indexForwarded = body.indexOf('forwarded')
-    indexFwd = body.indexOf('fwd')
+  isForwardedMessage: ({body, subject} = {}) ->
+    bodyForwarded = false
+    bodyFwd = false
+    subjectFwd = false
 
-    return (indexForwarded >= 0 and indexForwarded < 250) or
-    (indexFwd >= 0 and indexFwd < 250) or
-    (subject[0...3].toLowerCase() is "fwd")
+    if body
+      indexForwarded = body.search(/forwarded/i)
+      bodyForwarded = indexForwarded >= 0 and indexForwarded < 250
+      indexFwd = body.search(/fwd/i)
+      bodyFwd = indexFwd >= 0 and indexFwd < 250
+    if subject
+      subjectFwd = subject[0...3].toLowerCase() is "fwd"
+
+    return bodyForwarded or bodyFwd or subjectFwd
 
   # Checks to see if a particular node is visible and any of its parents
   # are visible.

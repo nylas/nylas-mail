@@ -41,12 +41,6 @@ class Thread extends Model
   @naturalSortOrder: ->
     Thread.attributes.lastMessageTimestamp.descending()
 
-  # TODO Implement me
-  numUnread: ->
-    if @unread
-      Math.round(Math.random() * 5)
-    else 0
-
   fromJSON: (json) =>
     super(json)
     @unread = @isUnread()
@@ -54,12 +48,15 @@ class Thread extends Model
 
   tagIds: =>
     _.map @tags, (tag) -> tag.id
+  
+  hasTagId: (id) ->
+    @tagIds().indexOf(id) != -1
 
   isUnread: ->
-    @tagIds().indexOf('unread') != -1
+    @hasTagId('unread')
 
   isStarred: ->
-    @tagIds().indexOf('starred') != -1
+    @hasTagId('starred')
 
   star: ->
     @addRemoveTags(['starred'], [])
@@ -78,3 +75,4 @@ class Thread extends Model
     AddRemoveTagsTask = require '../tasks/add-remove-tags'
     task = new AddRemoveTagsTask(@id, tagIdsToAdd, tagIdsToRemove)
     Actions.queueTask(task)
+

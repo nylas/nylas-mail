@@ -1,5 +1,6 @@
 ModelQuery = require '../../src/flux/models/query'
 {Matcher} = require '../../src/flux/attributes'
+Message = require '../../src/flux/models/message'
 Thread = require '../../src/flux/models/thread'
 Namespace = require '../../src/flux/models/namespace'
 
@@ -70,6 +71,29 @@ describe "ModelQuery", ->
 
     it "should return the query so it can be chained", ->
       expect(@q.order(@o2)).toBe(@q)
+  
+  describe "include", ->
+    beforeEach ->
+      @q = new ModelQuery(Message, @db)
+
+    it "should throw an exception if the attribute is not a joined data attribute", ->
+      expect( =>
+        @q.include(Message.attributes.unread)
+      ).toThrow()
+
+    it "should add the provided property to the list of joined properties", ->
+      expect(@q._includeJoinedData).toEqual([])
+      @q.include(Message.attributes.body)
+      expect(@q._includeJoinedData).toEqual([Message.attributes.body])
+
+  describe "includeAll", ->
+    beforeEach ->
+      @q = new ModelQuery(Message, @db)
+
+    it "should add all the JoinedData attributes of the class", ->
+      expect(@q._includeJoinedData).toEqual([])
+      @q.includeAll()
+      expect(@q._includeJoinedData).toEqual([Message.attributes.body])
 
   describe "sql", ->
     beforeEach ->
@@ -83,19 +107,19 @@ describe "ModelQuery", ->
       @runScenario Namespace,
         builder: (q) -> q.where({emailAddress: 'ben@inboxapp.com'}).where({id: 2})
         sql: "SELECT `Namespace`.`data` FROM `Namespace`  \
-              WHERE `email_address` = 'ben@inboxapp.com' AND `id` = 2"
+              WHERE `Namespace`.`email_address` = 'ben@inboxapp.com' AND `Namespace`.`id` = 2"
 
     it "should correctly generate COUNT queries", ->
       @runScenario Thread,
         builder: (q) -> q.where({namespaceId: 'abcd'}).count()
         sql: "SELECT COUNT(*) as count FROM `Thread`  \
-              WHERE `namespace_id` = 'abcd'  "
+              WHERE `Thread`.`namespace_id` = 'abcd'  "
 
     it "should correctly generate LIMIT 1 queries for single items", ->
       @runScenario Thread,
         builder: (q) -> q.where({namespaceId: 'abcd'}).one()
         sql: "SELECT `Thread`.`data` FROM `Thread`  \
-              WHERE `namespace_id` = 'abcd'  \
+              WHERE `Thread`.`namespace_id` = 'abcd'  \
               ORDER BY `Thread`.`last_message_timestamp` DESC LIMIT 1"
 
     it "should correctly generate `contains` queries using JOINS", ->
@@ -103,7 +127,7 @@ describe "ModelQuery", ->
         builder: (q) -> q.where(Thread.attributes.tags.contains('inbox')).where({id: '1234'})
         sql: "SELECT `Thread`.`data` FROM `Thread` \
               INNER JOIN `Thread-Tag` AS `M1` ON `M1`.`id` = `Thread`.`id` \
-              WHERE `M1`.`value` = 'inbox' AND `id` = '1234'  \
+              WHERE `M1`.`value` = 'inbox' AND `Thread`.`id` = '1234'  \
               ORDER BY `Thread`.`last_message_timestamp` DESC"
 
       @runScenario Thread,
@@ -118,17 +142,23 @@ describe "ModelQuery", ->
       @runScenario Thread,
         builder: (q) -> q.where({namespaceId: 'abcd'})
         sql: "SELECT `Thread`.`data` FROM `Thread`  \
-              WHERE `namespace_id` = 'abcd'  \
+              WHERE `Thread`.`namespace_id` = 'abcd'  \
               ORDER BY `Thread`.`last_message_timestamp` DESC"
 
       @runScenario Thread,
         builder: (q) -> q.where({namespaceId: 'abcd'}).order(Thread.attributes.lastMessageTimestamp.ascending())
         sql: "SELECT `Thread`.`data` FROM `Thread`  \
-              WHERE `namespace_id` = 'abcd'  \
+              WHERE `Thread`.`namespace_id` = 'abcd'  \
               ORDER BY `Thread`.`last_message_timestamp` ASC"
 
       @runScenario Namespace,
         builder: (q) -> q.where({id: 'abcd'})
         sql: "SELECT `Namespace`.`data` FROM `Namespace`  \
-              WHERE `id` = 'abcd'  "
+              WHERE `Namespace`.`id` = 'abcd'  "
 
+    it "should correctly generate queries requesting joined data attributes", ->
+      @runScenario Message,
+        builder: (q) -> q.where({id: '1234'}).include(Message.attributes.body)
+        sql: "SELECT `Message`.`data`, IFNULL(`MessageBody`.`value`, '!NULLVALUE!') AS `body`  \
+              FROM `Message` LEFT OUTER JOIN `MessageBody` ON `MessageBody`.`id` = `Message`.`id` \
+              WHERE `Message`.`id` = '1234'  ORDER BY `Message`.`date` ASC"

@@ -103,8 +103,8 @@ Toolbar = React.createClass
       className="item-container"
       component={Flexbox}
       direction="row"
-      leaveTimeout={200}
-      enterTimeout={200}
+      leaveTimeout={125}
+      enterTimeout={125}
       transitionName="sheet-toolbar">
       {elements}
       <ToolbarSpacer key="spacer-50" order={-50}/>
@@ -221,8 +221,8 @@ SheetContainer = React.createClass
     <Flexbox direction="column">
       <TimeoutTransitionGroup  name="Toolbar" 
                                style={order:0}
-                               leaveTimeout={200}
-                               enterTimeout={200}
+                               leaveTimeout={125}
+                               enterTimeout={125}
                                className="sheet-toolbar"
                                transitionName="sheet-toolbar">
         {@_toolbarElements()}
@@ -235,8 +235,8 @@ SheetContainer = React.createClass
 
       <TimeoutTransitionGroup name="Center"
                               style={order:2, flex: 1, position:'relative'}
-                              leaveTimeout={150}
-                              enterTimeout={150}
+                              leaveTimeout={125}
+                              enterTimeout={125}
                               transitionName="sheet-stack">
         {@_sheetElements()}
       </TimeoutTransitionGroup>

@@ -22,6 +22,7 @@ describe "ContactStore", ->
 
   describe "when the Namespace updates from null to valid", ->
     beforeEach ->
+      atom.state.mode = 'editor'
       spyOn(ContactStore, "_refreshDBFromAPI")
       NamespaceStore.trigger()
 
@@ -32,6 +33,13 @@ describe "ContactStore", ->
       args = ContactStore._refreshDBFromAPI.calls[0].args
       expect(args[0].limit).toBe ContactStore.BATCH_SIZE
       expect(args[0].offset).toBe 0
+
+  describe "when the Namespace updates fro null to valid in a secondary window", ->
+    it "should not trigger a refresh of contacts", ->
+      atom.state.mode = 'composer'
+      spyOn(ContactStore, "_refreshDBFromAPI")
+      NamespaceStore.trigger()
+      expect(ContactStore._refreshDBFromAPI.calls.length).toBe(0)
 
   describe "when the Namespace updates but the ID doesn't change", ->
     it "does nothing", ->

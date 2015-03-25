@@ -29,7 +29,8 @@ class Message extends Model
       queryable: true
       modelKey: 'date'
 
-    'body': Attributes.String
+    'body': Attributes.JoinedData
+      modelTable: 'MessageBody'
       modelKey: 'body'
 
     'files': Attributes.Collection
@@ -75,7 +76,6 @@ class Message extends Model
 
   constructor: ->
     super
-    @body ||= ""
     @subject ||= ""
     @to ||= []
     @cc ||= []

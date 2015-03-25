@@ -40,6 +40,16 @@ TestModel.configureWithCollectionAttribute = ->
       itemClass: Tag
 
 
+TestModel.configureWithJoinedDataAttribute = ->
+  TestModel.attributes =
+    'id': Attributes.String
+      queryable: true
+      modelKey: 'id'
+    'body': Attributes.JoinedData
+      modelTable: 'TestModelBody'
+      modelKey: 'body'
+
+
 testMatchers = {'id': 'b'}
 testModelInstance = new TestModel(id: '1234')
 testModelInstanceA = new TestModel(id: 'AAA')
@@ -70,7 +80,7 @@ describe "DatabaseStore", ->
   describe "find", ->
     it "should return a ModelQuery for retrieving a single item by Id", ->
       q = DatabaseStore.find(TestModel, "4")
-      expect(q.sql()).toBe("SELECT `TestModel`.`data` FROM `TestModel`  WHERE `id` = '4'  LIMIT 1")
+      expect(q.sql()).toBe("SELECT `TestModel`.`data` FROM `TestModel`  WHERE `TestModel`.`id` = '4'  LIMIT 1")
 
   describe "findBy", ->
     it "should pass the provided predicates on to the ModelQuery", ->
@@ -80,7 +90,7 @@ describe "DatabaseStore", ->
 
     it "should return a ModelQuery ready to be executed", ->
       q = DatabaseStore.findBy(TestModel, testMatchers)
-      expect(q.sql()).toBe("SELECT `TestModel`.`data` FROM `TestModel`  WHERE `id` = 'b'  LIMIT 1")
+      expect(q.sql()).toBe("SELECT `TestModel`.`data` FROM `TestModel`  WHERE `TestModel`.`id` = 'b'  LIMIT 1")
 
   describe "findAll", ->
     it "should pass the provided predicates on to the ModelQuery", ->
@@ -89,7 +99,7 @@ describe "DatabaseStore", ->
 
     it "should return a ModelQuery ready to be executed", ->
       q = DatabaseStore.findAll(TestModel, testMatchers)
-      expect(q.sql()).toBe("SELECT `TestModel`.`data` FROM `TestModel`  WHERE `id` = 'b'  ")
+      expect(q.sql()).toBe("SELECT `TestModel`.`data` FROM `TestModel`  WHERE `TestModel`.`id` = 'b'  ")
 
   describe "count", ->
     it "should pass the provided predicates on to the ModelQuery", ->
@@ -98,7 +108,7 @@ describe "DatabaseStore", ->
 
     it "should return a ModelQuery configured for COUNT ready to be executed", ->
       q = DatabaseStore.findAll(TestModel, testMatchers)
-      expect(q.sql()).toBe("SELECT `TestModel`.`data` FROM `TestModel`  WHERE `id` = 'b'  ")
+      expect(q.sql()).toBe("SELECT `TestModel`.`data` FROM `TestModel`  WHERE `TestModel`.`id` = 'b'  ")
 
   describe "persistModel", ->
     it "should cause the DatabaseStore to trigger with a change that contains the model", ->
@@ -156,6 +166,14 @@ describe "DatabaseStore", ->
         DatabaseStore.unpersistModel(testModelInstance)
         expect(@performed.length).toBe(4)
         expect(@performed[2].query).toBe("DELETE FROM `TestModel-Tag` WHERE `id` = ?")
+        expect(@performed[2].values[0]).toBe('1234')
+
+    describe "when the model has joined data attributes", ->
+      it "should delete the element in the joined data table", ->
+        TestModel.configureWithJoinedDataAttribute()
+        DatabaseStore.unpersistModel(testModelInstance)
+        expect(@performed.length).toBe(4)
+        expect(@performed[2].query).toBe("DELETE FROM `TestModelBody` WHERE `id` = ?")
         expect(@performed[2].values[0]).toBe('1234')
 
   describe "queriesForTableSetup", ->
@@ -243,3 +261,17 @@ describe "DatabaseStore", ->
         expect(@performed[2].query).toBe('INSERT INTO `TestModel-Tag` (`id`, `value`) VALUES (?,?),(?,?)')
         expect(@performed[2].values).toEqual(['local-6806434c-b0cd', 'a','local-6806434c-b0cd', 'b'])
 
+    describe "when the model has joined data attributes", ->
+      beforeEach ->
+        TestModel.configureWithJoinedDataAttribute()
+
+      it "should write the value to the joined table if it is defined", ->
+        @m = new TestModel(id: 'local-6806434c-b0cd', body: 'hello world')
+        DatabaseStore.writeModels(@spyTx(), [@m])
+        expect(@performed[1].query).toBe('REPLACE INTO `TestModelBody` (`id`, `value`) VALUES (?, ?)')
+        expect(@performed[1].values).toEqual([@m.id, @m.body])
+
+      it "should not write the valeu to the joined table if it undefined", ->
+        @m = new TestModel(id: 'local-6806434c-b0cd')
+        DatabaseStore.writeModels(@spyTx(), [@m])
+        expect(@performed.length).toBe(1)

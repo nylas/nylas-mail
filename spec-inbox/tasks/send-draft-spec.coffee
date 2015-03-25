@@ -105,6 +105,7 @@ describe "SendDraftTask", ->
         namespaceId: 'A12ADE'
         subject: 'New Draft'
         draft: true
+        body: 'hello world'
         to:
           name: 'Dummy'
           email: 'dummy@inboxapp.com'
@@ -160,6 +161,7 @@ describe "SendDraftTask", ->
           namespaceId: 'A12ADE'
           subject: 'New Draft'
           draft: true
+          body: 'hello world'
           to:
             name: 'Dummy'
             email: 'dummy@inboxapp.com'
@@ -170,7 +172,7 @@ describe "SendDraftTask", ->
           @task.performRemote().then =>
             expect(atom.inbox.makeRequest.calls.length).toBe(1)
             options = atom.inbox.makeRequest.mostRecentCall.args[0]
-            expect(options.body).toEqual(@draft.toJSON())
+            expect(options.body).toEqual(@draft.toJSON(joined: true))
 
     it "should pass returnsModel:true so that the draft is saved to the data store when returned", ->
       waitsForPromise =>

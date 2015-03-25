@@ -71,8 +71,11 @@ class DraftStoreProxy
     @_draft = false
     @_draftPromise = null
     @changes = new DraftChangeSet @draftLocalId, =>
+      if !@_draft
+        throw new Error("DraftChangeSet was modified before the draft was prepared.")
       @_emitter.emit('trigger')
-    @prepare()
+    @prepare().catch (error) ->
+      console.log("DraftStoreProxy prepare() failed with error #{error.toString()}.")
 
   draft: ->
     @changes.applyToModel(@_draft)
@@ -82,6 +85,8 @@ class DraftStoreProxy
     @_draftPromise ?= new Promise (resolve, reject) =>
       DatabaseStore = require './database-store'
       DatabaseStore.findByLocalId(Message, @draftLocalId).then (draft) =>
+        if !draft.body?
+          throw new Error("DraftStoreProxy.prepare - draft has no body.")
         @_draft = draft
         @_emitter.emit('trigger')
         resolve(@)

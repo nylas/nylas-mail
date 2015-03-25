@@ -92,7 +92,7 @@ describe "populated composer", ->
   # proxy system used by the composer.
   DRAFT_LOCAL_ID = "local-123"
   useDraft = (draftAttributes={}) ->
-    @draft = new Message _.extend({draft: true}, draftAttributes)
+    @draft = new Message _.extend({draft: true, body: ""}, draftAttributes)
     spyOn(DraftStore, "sessionForLocalId").andCallFake (localId) =>
       return draftStoreProxyStub(localId, @draft)
 

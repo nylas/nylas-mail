@@ -40,7 +40,8 @@ class SendDraftTask extends Task
             draft_id: draft.id
             version: draft.version
         else
-          body = draft.toJSON()
+          # Pass joined:true so the draft body is included
+          body = draft.toJSON(joined: true)
 
         atom.inbox.makeRequest
           path: "/n/#{draft.namespaceId}/send"

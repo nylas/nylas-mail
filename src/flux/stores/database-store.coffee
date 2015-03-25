@@ -6,14 +6,15 @@ Actions = require '../actions'
 Model = require '../models/model'
 LocalLink = require '../models/local-link'
 ModelQuery = require '../models/query'
-{AttributeCollection} = require '../attributes'
+{AttributeCollection, AttributeJoinedData} = require '../attributes'
 {modelFromJSON, modelClassMap, tableNameForJoin, generateTempId, isTempId} = require '../models/utils'
 fs = require 'fs-plus'
 path = require 'path'
 ipc = require 'ipc'
 
 silent = atom.getLoadSettings().isSpec
-verbose = false
+verboseFilter = (query) ->
+  false
 
 # DatabaseConnection is a small shim for making database queries. Queries
 # are actually executed in the Browser process and eventually, we'll move
@@ -36,6 +37,7 @@ class DatabaseProxy
     queryKey = "#{@windowId}-#{@queryId}"
     @queryCallbacks[queryKey] = callback if callback
     console.timeStamp("DB SEND #{queryKey}: #{query}")
+    console.log(query) if verboseFilter(query)
     ipc.send('database-query', {@databasePath, queryKey, query, values})
 
 # DatabasePromiseTransaction converts the callback syntax of the Database
@@ -205,6 +207,18 @@ DatabaseStore = Reflux.createStore
           [vs, ve] = [slice*400, slice*400 + 399]
           tx.execute("INSERT INTO `#{joinTable}` (`id`, `value`) VALUES #{joinMarks[ms..me].join(',')}", joinedValues[vs..ve])
 
+    # For each joined data property stored in another table...
+    values = []
+    marks = []
+    joinedAttributes = _.filter attributes, (attr) ->
+      attr instanceof AttributeJoinedData
+
+    joinedAttributes.forEach (attr) ->
+      for model in models
+        if model[attr.modelKey]?
+          tx.execute("REPLACE INTO `#{attr.modelTable}` (`id`, `value`) VALUES (?, ?)", [model.id, model[attr.modelKey]])
+
+
   deleteModel: (tx, model) ->
     klass = model.constructor
     attributes = _.values(klass.attributes)
@@ -220,6 +234,12 @@ DatabaseStore = Reflux.createStore
     joinAttributes.forEach (attr) ->
       joinTable = tableNameForJoin(klass, attr.itemClass)
       tx.execute("DELETE FROM `#{joinTable}` WHERE `id` = ?", [model.id])
+
+    joinedAttributes = _.filter attributes, (attr) ->
+      attr instanceof AttributeJoinedData
+
+    joinedAttributes.forEach (attr) ->
+      tx.execute("DELETE FROM `#{attr.modelTable}` WHERE `id` = ?", [model.id])
 
   # Inbound Events
 
@@ -282,11 +302,14 @@ DatabaseStore = Reflux.createStore
 
   # Support for Local IDs
 
+  # Note: When fetching an object by local Id, joined attributes
+  # (like body, stored in a separate table) are always included.
+  #
   findByLocalId: (klass, localId) ->
     new Promise (resolve, reject) =>
       @find(LocalLink, localId).then (link) =>
         return reject("Find by local ID lookup failed") unless link
-        @find(klass, link.objectId).then(resolve)
+        query = @find(klass, link.objectId).includeAll().then(resolve)
 
   bindToLocalId: (model, localId) ->
     new Promise (resolve, reject) =>
@@ -351,6 +374,11 @@ DatabaseStore = Reflux.createStore
       joinTable = tableNameForJoin(klass, attribute.itemClass)
       queries.push("CREATE TABLE IF NOT EXISTS `#{joinTable}` (id TEXT KEY, `value` TEXT)")
       queries.push("CREATE INDEX IF NOT EXISTS `#{joinTable}-id-val` ON `#{joinTable}` (`id`,`value`)")
+
+    joinedAttributes = _.filter attributes, (attr) ->
+      attr instanceof AttributeJoinedData
+    joinedAttributes.forEach (attribute) ->
+      queries.push("CREATE TABLE IF NOT EXISTS `#{attribute.modelTable}` (id TEXT PRIMARY KEY, `value` TEXT)")
 
     queries
 

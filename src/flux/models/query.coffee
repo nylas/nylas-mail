@@ -1,4 +1,4 @@
-{Matcher} = require '../attributes'
+{Matcher, NullPlaceholder, AttributeJoinedData} = require '../attributes'
 _ = require 'underscore-plus'
 
 class ModelQuery
@@ -8,6 +8,7 @@ class ModelQuery
     @_matchers = []
     @_orders = []
     @_singular = false
+    @_includeJoinedData = []
     @_count = false
     @
 
@@ -24,6 +25,17 @@ class ModelQuery
           msg = "Cannot create where clause `#{key}:#{value}`. #{key} is not an attribute of #{@_klass.name}"
           throw new Error msg
         @_matchers.push(attr.equal(value))
+    @
+  
+  include: (attr) ->
+    if attr instanceof AttributeJoinedData is false
+      throw new Error("query.include() must be called with a joined data attribute")
+    @_includeJoinedData.push(attr)
+    @
+
+  includeAll: ->
+    for key, attr of @_klass.attributes
+      @include(attr) if attr instanceof AttributeJoinedData
     @
 
   order: (orders) ->
@@ -66,6 +78,10 @@ class ModelQuery
         row = result[i]
         json = JSON.parse(row[0])
         object = (new @_klass).fromJSON(json)
+        for attr, j in @_includeJoinedData
+          value = row[j+1]
+          value = null if value is NullPlaceholder
+          object[attr.modelKey] = value
         objects.push(object)
       return objects[0] if @_singular
       return objects
@@ -73,7 +89,13 @@ class ModelQuery
   # Query SQL Building
 
   sql: ->
-    result = if @_count then "COUNT(*) as count" else "`#{@_klass.name}`.`data`"
+    if @_count
+      result = "COUNT(*) as count"
+    else
+      result = "`#{@_klass.name}`.`data`"
+      @_includeJoinedData.forEach (attr) =>
+        result += ", #{attr.selectSQL(@_klass)} "
+
     order = if @_count then "" else @_orderClause()
     if @_singular
       limit = "LIMIT 1"
@@ -89,6 +111,10 @@ class ModelQuery
     joins = []
     @_matchers.forEach (c) =>
       join = c.joinSQL(@_klass)
+      joins.push(join) if join
+
+    @_includeJoinedData.forEach (attr) =>
+      join = attr.includeSQL(@_klass)
       joins.push(join) if join
 
     wheres = []

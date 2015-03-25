@@ -155,12 +155,15 @@ class InboxAPI
       Promise.props(modify).then (modified) ->
 
         # Apply all of the deletions
-        for delta in destroy
+        destroyPromises = destroy.map (delta) ->
           console.log(" - 1 #{delta.object} (#{delta.id})")
           klass = modelClassMap()[delta.object]
-          continue unless klass
+          return unless klass
           DatabaseStore.find(klass, delta.id).then (model) ->
-            DatabaseStore.unpersistModel(model) if model
+            return Promise.resolve() unless model
+            return DatabaseStore.unpersistModel(model)
+
+        Promise.settle(destroyPromises)
 
   _defaultErrorCallback: (apiError) ->
     console.error("Unhandled Inbox API Error:", apiError.message, apiError)
@@ -232,7 +235,19 @@ class InboxAPI
   # API abstraction should not need to know about threads and calendars.
   # They're still here because of their dependency in
   # _postLaunchStartStreaming
-  getThreads: (namespaceId, params, requestOptions={}) ->
+  getThreads: (namespaceId, params = {}, requestOptions = {}) ->
+    requestSuccess = requestOptions.success
+    requestOptions.success = (json) =>
+      messages = []
+      for result in json
+        if result.messages
+          messages = messages.concat(result.messages)
+      if messages.length > 0
+        @_handleModelResponse(messages)
+      if requestSuccess
+        requestSuccess()
+
+    params.view = 'expanded'
     @getCollection(namespaceId, 'threads', params, requestOptions)
 
   getCalendars: (namespaceId) ->

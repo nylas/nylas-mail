@@ -5,6 +5,7 @@ AddRemoveTagsTask = require '../tasks/add-remove-tags'
 MarkThreadReadTask = require '../tasks/mark-thread-read'
 Actions = require '../actions'
 Thread = require '../models/thread'
+Message = require '../models/message'
 _ = require 'underscore-plus'
 
 ThreadStore = Reflux.createStore
@@ -39,33 +40,47 @@ ThreadStore = Reflux.createStore
     oldSelectedThread = @selectedThread()
     oldSelectedIndex = @_items?.indexOf(oldSelectedThread)
 
+    start = Date.now()
+
     DatabaseStore.findAll(Thread, [
       Thread.attributes.namespaceId.equal(@_namespaceId),
       Thread.attributes.tags.contains(@_tagId)
     ]).limit(100).then (items) =>
-      @_items = items
+      # Now, fetch the messages for each thread. We could do this with a
+      # complex join, but then we'd get thread columns repeated over and over.
+      # This is reasonably fast because we don't store message bodies in messages
+      # anymore.
+      itemMessagePromises = {}
+      for item in items
+        itemMessagePromises[item.id] = DatabaseStore.findAll(Message, [Message.attributes.threadId.equal(item.id)])
 
-      if oldSelectedThread && !@selectedThread()
-        # The previously selected item is no longer in the set
-        oldSelectedIndex = Math.max(0, Math.min(oldSelectedIndex, @_items.length - 1))
-        thread = @_items[oldSelectedIndex]
-        threadBefore = @_items[oldSelectedIndex-1]
+      Promise.props(itemMessagePromises).then (results) =>
+        for item in items
+          item.messageMetadata = results[item.id]
 
-        # Often when users read mail they go from oldest->newest and
-        # selecting the thread taking the place of the removed one would mean
-        # selecting an already-read thread. Copy behavior of Mail.app and move
-        # to the item ABOVE the previously selected item when it's unread,
-        # otherwise move down.
-        if thread && !thread.isUnread() && threadBefore && threadBefore.isUnread()
-          thread = threadBefore
-        if thread
-          newSelectedId = thread.id
-        else
-          newSelectedId = null
-        Actions.selectThreadId(newSelectedId)
+        @_items = items
 
-      @_itemsLoading = false
-      @trigger()
+        if oldSelectedThread && !@selectedThread()
+          # The previously selected item is no longer in the set
+          oldSelectedIndex = Math.max(0, Math.min(oldSelectedIndex, @_items.length - 1))
+          thread = @_items[oldSelectedIndex]
+          threadBefore = @_items[oldSelectedIndex-1]
+
+          # Often when users read mail they go from oldest->newest and
+          # selecting the thread taking the place of the removed one would mean
+          # selecting an already-read thread. Copy behavior of Mail.app and move
+          # to the item ABOVE the previously selected item when it's unread,
+          # otherwise move down.
+          if thread && !thread.isUnread() && threadBefore && threadBefore.isUnread()
+            thread = threadBefore
+          if thread
+            newSelectedId = thread.id
+          else
+            newSelectedId = null
+          Actions.selectThreadId(newSelectedId)
+
+        console.log("Fetching data for thread list took #{Date.now() - start} msec")
+        @trigger()
 
   fetchFromAPI: ->
     return unless @_namespaceId
@@ -116,13 +131,17 @@ ThreadStore = Reflux.createStore
     @fetchFromAPI()
 
   _onSelectTagId: (id) ->
+    return if @_tagId is id
     @_tagId = id
+
+    @_items = []
+    @trigger()
     Actions.selectThreadId(null)
     @fetchFromCache()
     @fetchFromAPI()
 
   _onSelectThreadId: (id) ->
-    return if @_selectedId == id
+    return if @_selectedId is id
     @_selectedId = id
 
     thread = @selectedThread()

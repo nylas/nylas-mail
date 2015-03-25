@@ -11,7 +11,6 @@ module.exports = ContactStore = Reflux.createStore
 
   init: ->
     @_contactCache = []
-    @_lastNamespaceId = null
     @_namespaceId = null
     @listenTo DatabaseStore, @_onDBChanged
     @listenTo NamespaceStore, @_onNamespaceChanged
@@ -63,10 +62,11 @@ module.exports = ContactStore = Reflux.createStore
     @trigger(@)
 
   _onNamespaceChanged: ->
+    return if @_namespaceId is NamespaceStore.current()?.id
     @_namespaceId = NamespaceStore.current()?.id
-    if @_namespaceId?
-      if @_namespaceId isnt @_lastNamespaceId
-        @_refreshDBFromAPI(limit: @BATCH_SIZE, offset: 0)
+
+    if @_namespaceId
+      @_refreshDBFromAPI(limit: @BATCH_SIZE, offset: 0) if atom.state.mode is 'editor'
+      @_refreshCacheFromDB()
     else
       @_resetCache()
-    @_lastNamespaceId = @_namespaceId

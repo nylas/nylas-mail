@@ -324,7 +324,11 @@ window.waitsForPromise = (args...) ->
     else
       promise.then(moveOn)
       promise.catch (error) ->
-        jasmine.getEnv().currentSpec.fail("Expected promise to be resolved, but it was rejected with #{jasmine.pp(error)}")
+        # I don't know what `pp` does, but for standard `new Error` objects,
+        # it sometimes returns "{  }". Catch this case and fall through to toString()
+        msg = jasmine.pp(error)
+        msg = error.toString() if msg is "{  }"
+        jasmine.getEnv().currentSpec.fail("Expected promise to be resolved, but it was rejected with #{msg}")
         moveOn()
 
 window.resetTimeouts = ->

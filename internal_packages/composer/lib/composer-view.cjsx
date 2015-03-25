@@ -240,8 +240,7 @@ ComposerView = React.createClass
 
   isForwardedMessage: ->
     draft = @_proxy.draft()
-    return false if not draft? or not draft.subject?
-    Utils.isForwardedMessage(draft.body, draft.subject)
+    Utils.isForwardedMessage(draft)
 
   _actionButtonComponents: ->
     return [] unless @props.localId

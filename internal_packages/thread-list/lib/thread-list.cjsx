@@ -3,16 +3,16 @@ React = require 'react'
 {ListTabular, Spinner} = require 'ui-components'
 {timestamp, subject} = require './formatting-utils'
 {Actions,
+ Utils,
  ThreadStore,
  WorkspaceStore,
- ComponentRegistry} = require 'inbox-exports'
+ NamespaceStore} = require 'inbox-exports'
+
+ThreadListParticipants = require './thread-list-participants'
 
 module.exports =
 ThreadList = React.createClass
   displayName: 'ThreadList'
-
-  mixins: [ComponentRegistry.Mixin]
-  components: ['Participants']
 
   getInitialState: ->
     @_getStateFromStores()
@@ -52,52 +52,52 @@ ThreadList = React.createClass
     </div>
 
   _computeColumns: ->
+    myEmail = NamespaceStore.current()?.emailAddress
+
     labelComponents = (thread) =>
       for label in @state.threadLabelComponents
         LabelComponent = label.view
         <LabelComponent thread={thread} />
 
-    numUnread = (thread) ->
-      numMsg = thread.numUnread()
-      if numMsg < 2
-        <span></span>
+    lastMessageType = (thread) ->
+      msgs = thread.messageMetadata
+      return 'unknown' unless msgs and msgs instanceof Array and msgs.length > 0
+      msg = msgs[msgs.length - 1]
+      if thread.unread
+        return 'unread'
+      else if msg.from[0].email isnt myEmail
+        return 'other'
+      else if Utils.isForwardedMessage(msg)
+        return 'forwarded'
       else
-        <span className="message-count item-count-box">{numMsg}</span>
-
-    c0 = new ListTabular.Column
-      name: "★"
-      flex: 0.2
-      resolver: (thread) ->
-        <span className="btn-icon star-button"
-              onClick={ -> thread.toggleStar.apply(thread)}>
-          <i className={"fa " + (thread.isStarred() and 'fa-star' or 'fa-star-o')}/>
-        </span>
+        return 'replied'
 
     c1 = new ListTabular.Column
-      name: "Name"
-      flex: 2
-      resolver: (thread) =>
-        Participants = @state.Participants
-        <div className="participants">
-          <Participants participants={thread.participants}
-                        context={'list'} clickable={false} />
-        </div>
+      name: "★"
+      resolver: (thread) ->
+        <div className="thread-icon thread-icon-#{lastMessageType(thread)}"></div>
 
     c2 = new ListTabular.Column
-      name: "Subject"
-      flex: 3
-      resolver: (thread) ->
-        <span className="subject">{subject(thread.subject)}</span>
+      name: "Name"
+      flex: 1
+      resolver: (thread) =>
+        <ThreadListParticipants thread={thread} />
 
     c3 = new ListTabular.Column
-      name: "Snippet"
+      name: "Message"
       flex: 4
       resolver: (thread) ->
-        <span className="snippet">{thread.snippet}</span>
+        attachments = []
+        if thread.hasTagId('attachment')
+          attachments = <div className="thread-icon thread-icon-attachment"></div>
+        <span className="details">
+          <span className="subject">{subject(thread.subject)}</span>
+          <span className="snippet">{thread.snippet}</span>
+          {attachments}
+        </span>
 
     c4 = new ListTabular.Column
       name: "Date"
-      flex: 1
       resolver: (thread) ->
         <span className="timestamp">{timestamp(thread.lastMessageTimestamp)}</span>
 

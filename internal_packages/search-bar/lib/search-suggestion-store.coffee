@@ -56,10 +56,12 @@ SearchSuggestionStore = Reflux.createStore
     val = term[key]?.toLowerCase()
     return @trigger(@) unless val
 
-    contactResults = _.filter @_all, (contact) ->
-      return true if contact.name?.toLowerCase().indexOf(val) == 0
-      return true if contact.email?.toLowerCase().indexOf(val) == 0
-      false
+    contactResults = []
+    for contact in @_all
+      if contact.name?.toLowerCase().indexOf(val) == 0 or contact.email?.toLowerCase().indexOf(val) == 0
+        contactResults.push(contact)
+      if contactResults.length is 10
+        break
 
     @_suggestions.push
       label: "Message Contains: #{val}"
