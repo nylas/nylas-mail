@@ -35,6 +35,7 @@ WorkspaceStore = Reflux.createStore
 
     @listenTo Actions.popSheet, @popSheet
     @listenTo Actions.searchQueryCommitted, @popToRootSheet
+    @listenTo Actions.logout, @popToRootSheet
     @listenTo Actions.selectThreadId, @pushThreadSheet
     atom.commands.add 'body',
       'application:pop-sheet': => @popSheet()
