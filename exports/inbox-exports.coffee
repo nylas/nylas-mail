@@ -28,6 +28,7 @@ module.exports =
   Thread: require '../src/flux/models/thread'
   Contact: require '../src/flux/models/contact'
   Message: require '../src/flux/models/message'
+  MessageUtils: require '../src/flux/models/message-utils'
   Namespace: require '../src/flux/models/namespace'
   Calendar: require '../src/flux/models/calendar'
   Event: require '../src/flux/models/event'

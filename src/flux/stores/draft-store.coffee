@@ -11,6 +11,7 @@ DestroyDraftTask = require '../tasks/destroy-draft'
 
 Thread = require '../models/thread'
 Message = require '../models/message'
+MessageUtils = require '../models/message-utils'
 Actions = require '../actions'
 
 {subjectWithPrefix} = require '../models/utils'
@@ -162,7 +163,7 @@ DraftStore = Reflux.createStore
 
     # Waits for the query promises to resolve and then resolve with a hash
     # of their resolved values. *swoon*
-    Promise.props(queries).then ({thread, message}) ->
+    Promise.props(queries).then ({thread, message}) =>
       attributes = attributesCallback(thread, message)
       attributes.subject ?= subjectWithPrefix(thread.subject, 'Re:')
       attributes.body ?= ""
@@ -187,7 +188,7 @@ DraftStore = Reflux.createStore
             style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
             #{attribution}
             <br>
-            #{msg.body}
+            #{@_formatBodyForQuoting(msg.body)}
           </blockquote>"""
         delete attributes.quotedMessage
 
@@ -201,6 +202,10 @@ DraftStore = Reflux.createStore
         fields.push("CC: #{contactStrings(msg.cc)}") if msg.cc.length > 0
         fields.push("BCC: #{contactStrings(msg.bcc)}") if msg.bcc.length > 0
 
+        if msg.files?.length > 0
+          attributes.files ?= []
+          attributes.files = attributes.files.concat(msg.files)
+
         attributes.subject = subjectWithPrefix(msg.subject, 'Fwd:')
         attributes.body = """
           <br><br><blockquote class="gmail_quote"
@@ -209,7 +214,7 @@ DraftStore = Reflux.createStore
             <br><br>
             #{fields.join('<br>')}
             <br><br>
-            #{msg.body}
+            #{@_formatBodyForQuoting(msg.body)}
           </blockquote>"""
         delete attributes.forwardedMessage
 
@@ -222,6 +227,14 @@ DraftStore = Reflux.createStore
         namespaceId: thread.namespaceId
 
       DatabaseStore.persistModel(draft)
+
+  # Eventually we'll want a nicer solution for inline attachments
+  _formatBodyForQuoting: (body="") ->
+    cidRE = MessageUtils.cidRegexString
+    # Be sure to match over multiple lines with [\s\S]*
+    # Regex explanation here: https://regex101.com/r/vO6eN2/1
+    re = new RegExp("<img.*#{cidRE}[\\s\\S]*?>", "igm")
+    body.replace(re, "")
 
   # The logic to create a new Draft used to be in the DraftStore (which is
   # where it should be). It got moved to composer/lib/main.cjsx becaues

@@ -3,7 +3,11 @@ _ = require 'underscore-plus'
 EmailFrame = require './email-frame'
 MessageParticipants = require "./message-participants"
 MessageTimestamp = require "./message-timestamp"
-{ComponentRegistry, FileDownloadStore, Utils, Actions} = require 'inbox-exports'
+{Utils,
+ Actions,
+ MessageUtils,
+ ComponentRegistry,
+ FileDownloadStore} = require 'inbox-exports'
 {RetinaImg} = require 'ui-components'
 Autolinker = require 'autolinker'
 
@@ -170,8 +174,7 @@ MessageItem = React.createClass
     # as the image is loaded, and we can estimate final height correctly.
     # Note that MessageBodyWidth must be updated if the UI is changed!
 
-    cidRegex = /src=['"]cid:([^'"]*)['"]/g
-    while (result = cidRegex.exec(body)) isnt null
+    while (result = MessageUtils.cidRegex.exec(body)) isnt null
       imgstart = body.lastIndexOf('<', result.index)
       imgend = body.indexOf('/>', result.index)
 
@@ -194,7 +197,7 @@ MessageItem = React.createClass
     # Replace remaining cid:// references - we will not display them since they'll
     # throw "unknown ERR_UNKNOWN_URL_SCHEME". Show a transparent pixel so that there's
     # no "missing image" region shown, just a space.
-    body = body.replace(/src=['"]cid:[^'"]*['"]/g, "src=\"#{TransparentPixel}\"")
+    body = body.replace(MessageUtils.cidRegex, "src=\"#{TransparentPixel}\"")
 
     body
 
