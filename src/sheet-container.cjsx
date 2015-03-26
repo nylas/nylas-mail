@@ -142,20 +142,21 @@ Toolbar = React.createClass
       columns: []
 
     # Add items registered to Regions in the current sheet
-    for loc in @props.data.columns[state.mode]
-      entries = ComponentRegistry.findAllByLocationAndMode(loc.Toolbar, state.mode)
-      state.columns.push(entries)
+    if @props.data?.columns[state.mode]?
+      for loc in @props.data.columns[state.mode]
+        entries = ComponentRegistry.findAllByLocationAndMode(loc.Toolbar, state.mode)
+        state.columns.push(entries)
 
     # Add left items registered to the Sheet instead of to a Region
     for loc in [WorkspaceStore.Sheet.Global, @props.data]
       entries = ComponentRegistry.findAllByLocationAndMode(loc.Toolbar.Left, state.mode)
-      state.columns[0].push(entries...)
-    state.columns[0].push(view: ToolbarBack, name: 'ToolbarBack') if @props.depth > 0
+      state.columns[0]?.push(entries...)
+    state.columns[0]?.push(view: ToolbarBack, name: 'ToolbarBack') if @props.depth > 0
 
     # Add right items registered to the Sheet instead of to a Region
     for loc in [WorkspaceStore.Sheet.Global, @props.data]
       entries = ComponentRegistry.findAllByLocationAndMode(loc.Toolbar.Right, state.mode)
-      state.columns[state.columns.length - 1].push(entries...)
+      state.columns[state.columns.length - 1]?.push(entries...)
 
     state
 

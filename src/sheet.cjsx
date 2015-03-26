@@ -92,27 +92,29 @@ Sheet = React.createClass
     widest = -1
     widestWidth = -1
 
-    for location, idx in @props.data.columns[state.mode]
-      entries = ComponentRegistry.findAllByLocationAndMode(location, state.mode)
-      maxWidth = _.reduce entries, ((m,{view}) -> Math.min(view.maxWidth ? 10000, m)), 10000
-      minWidth = _.reduce entries, ((m,{view}) -> Math.max(view.minWidth ? 0, m)), 0
-      col = {entries, maxWidth, minWidth, id: location.id}
-      state.columns.push(col)
+    if @props.data?.columns[state.mode]?
+      for location, idx in @props.data.columns[state.mode]
+        entries = ComponentRegistry.findAllByLocationAndMode(location, state.mode)
+        maxWidth = _.reduce entries, ((m,{view}) -> Math.min(view.maxWidth ? 10000, m)), 10000
+        minWidth = _.reduce entries, ((m,{view}) -> Math.max(view.minWidth ? 0, m)), 0
+        col = {entries, maxWidth, minWidth, id: location.id}
+        state.columns.push(col)
 
-      if maxWidth > widestWidth
-        widestWidth = maxWidth
-        widest = idx
+        if maxWidth > widestWidth
+          widestWidth = maxWidth
+          widest = idx
 
-    # Once we've accumulated all the React components for the columns,
-    # ensure that at least one column has a huge max-width so that the columns
-    # expand to fill the window. This may make items in the column unhappy, but
-    # we pick the column with the highest max-width so the effect is minimal.
-    state.columns[widest].maxWidth = FLEX
+    if state.columns.length > 0
+      # Once we've accumulated all the React components for the columns,
+      # ensure that at least one column has a huge max-width so that the columns
+      # expand to fill the window. This may make items in the column unhappy, but
+      # we pick the column with the highest max-width so the effect is minimal.
+      state.columns[widest].maxWidth = FLEX
 
-    # Assign flexible edges based on whether items are to the left or right
-    # of the flexible column (which has no edges)
-    state.columns[i].handle = ResizableRegion.Handle.Right for i in [0..widest-1] by 1
-    state.columns[i].handle = ResizableRegion.Handle.Left  for i in [widest..state.columns.length-1] by 1
+      # Assign flexible edges based on whether items are to the left or right
+      # of the flexible column (which has no edges)
+      state.columns[i].handle = ResizableRegion.Handle.Right for i in [0..widest-1] by 1
+      state.columns[i].handle = ResizableRegion.Handle.Left  for i in [widest..state.columns.length-1] by 1
     state
 
   _pop: ->

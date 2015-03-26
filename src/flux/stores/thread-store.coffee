@@ -1,6 +1,7 @@
 Reflux = require 'reflux'
 DatabaseStore = require './database-store'
 NamespaceStore = require './namespace-store'
+WorkspaceStore = require './workspace-store'
 AddRemoveTagsTask = require '../tasks/add-remove-tags'
 MarkThreadReadTask = require '../tasks/mark-thread-read'
 Actions = require '../actions'
@@ -18,6 +19,7 @@ ThreadStore = Reflux.createStore
     @listenTo Actions.archiveCurrentThread, @_onArchiveCurrentThread
     @listenTo Actions.archiveAndNext, @_onArchiveAndNext
     @listenTo Actions.searchQueryCommitted, @_onSearchCommitted
+    @listenTo Actions.selectLayoutMode, @_autoselectForLayoutMode
     @listenTo DatabaseStore, @_onDataChanged
     @listenTo NamespaceStore, -> @_onNamespaceChanged()
     @fetchFromCache()
@@ -78,6 +80,8 @@ ThreadStore = Reflux.createStore
           else
             newSelectedId = null
           Actions.selectThreadId(newSelectedId)
+
+        @_autoselectForLayoutMode()
 
         console.log("Fetching data for thread list took #{Date.now() - start} msec")
 
@@ -190,6 +194,10 @@ ThreadStore = Reflux.createStore
     newSelectedId = @_threadOffsetFromCurrentBy(1)?.id
     @_onArchiveCurrentThread(silent: true)
     Actions.selectThreadId(newSelectedId)
+
+  _autoselectForLayoutMode: ->
+    if WorkspaceStore.selectedLayoutMode() is "split" and not @selectedThread()
+      _.defer => Actions.selectThreadId(@_items[0]?.id)
 
   # Accessing Data
 
