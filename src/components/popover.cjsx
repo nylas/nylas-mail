@@ -78,7 +78,10 @@ Popover = React.createClass
     
     popoverComponent = []
     if @state.showing
-      popoverComponent = <div ref="popover" className="popover">{@props.children}</div>
+      popoverComponent = <div ref="popover" className="popover">
+        {@props.children}
+        <div className="popover-pointer"></div>
+      </div>
 
     <div className={"popover-container "+@props.className} onBlur={@_onBlur} ref="container">
       {wrappedButtonComponent}

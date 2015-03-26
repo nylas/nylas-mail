@@ -56,6 +56,8 @@ SearchBar = React.createClass
     itemContentFunc = (item) ->
       if item.divider
         <Menu.Item divider={item.divider} />
+      else if item.contact
+        <Menu.NameEmailItem name={item.contact.name} email={item.contact.email} />
       else
         item.label
 

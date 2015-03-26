@@ -78,8 +78,7 @@
   .messages-wrap {
     flex: 4;
     overflow-y: auto;
-    // position: absolute;
-    // top:0; left:0; right:0; bottom:0;
+    -webkit-user-select:none;
     opacity:0;
     transition: opacity 0s;
     &.has-reply-area {
@@ -97,15 +96,32 @@
 
     margin: 0 auto;
     padding: @spacing-standard 0 @spacing-double 0;
+    -webkit-user-select:none;
+
     &:first-child { padding-top: 0; }
 
     &.collapsed {
-      padding: 0;
-      background-color: @background-secondary;
+      padding-bottom: 0;
+      background-color: darken(@background-primary, 3%);
+      -webkit-user-select:none;
+      .message-header {
+        padding-top: 0;
+        padding-bottom: 5px;
+        -webkit-user-select:none;
+      }
       .snippet {
-        cursor:default;
+        cursor: default;
         padding-top: @spacing-half;
-        color: @text-color-subtle;
+        color: @text-color-very-subtle;
+      }
+      .collapse-control,
+      .participant-label.to-label,
+      .participant-label.cc-label,
+      .participant-label.bcc-label,
+      .participant-name.to-contact,
+      .participant-name.cc-contact,
+      .participant-name.bcc-contact {
+        opacity: 0;
       }
     }
 
@@ -113,12 +129,17 @@
   }
 
   .message-item-divider {
+    border:0; // remove default hr border left, right
     border-top: 2px solid @border-secondary-bg;
     height: 3px;
     background: @background-secondary;
     border-bottom: 1px solid @border-primary-bg;
     margin: 0;
-    margin-right: 2px;
+
+    &.collapsed {
+      height:0px;
+      border-bottom: 0;
+    }
   }
 
   .message-header {
@@ -127,6 +148,7 @@
     border-bottom: 1px solid @border-color-divider;
     padding-bottom: @spacing-standard;
     padding-top: 5px;
+    -webkit-user-select:auto;
 
     .message-actions-wrap {
       width: 100%;
@@ -139,6 +161,7 @@
       height: 22px;
       border: 1px solid @border-color-divider;
       border-radius: 11px;
+      -webkit-user-select:none;
 
       z-index: 4;
       margin-top: 0.35em;
@@ -208,8 +231,6 @@
     .collapse-control.inactive { display: block; }
   }
 
-  .collapse-control:hover {cursor: pointer;}
-
   .footer-reply-area-wrap {
     position: absolute;
     bottom: 0;
@@ -218,6 +239,7 @@
     color: @text-color-very-subtle;
     border-top: 1px solid @border-color-divider;
     background: @background-primary;
+    -webkit-user-select:none;
     z-index: 10;
 
     &:hover {
@@ -249,7 +271,7 @@
 ///////////////////////////////
 .message-participants {
 
-  &.collapsed:hover {cursor: pointer;}
+  &.collapsed:hover {cursor: default;}
 
   .from-contact {
     font-weight: @headings-font-weight;
@@ -316,6 +338,7 @@
   padding: @spacing-standard;
   order: 2;
   flex-shrink: 0;
+  cursor: default;
 
   .other-contact {
     color: @text-color-subtle;
@@ -323,7 +346,6 @@
     &.selected {
       font-weight: @font-weight-semi-bold;
     }
-    &:hover {cursor: pointer;}
   }
 
   // TODO: DRY

@@ -10,10 +10,14 @@
   flex: 1;
   overflow: auto;
   -webkit-user-select: none;
+  -webkit-font-smoothing: subpixel-antialiased;
   position: relative;
 
   .list-item {
-    background-color: @background-secondary;
+    background-color: darken(@background-primary, 3%);
+  }
+  .list-column {
+    border-bottom: 1px solid fade(@list-border, 60%);
   }
 
   .message-count {
@@ -71,13 +75,25 @@
   }
 
   .unread:not(.selected) {
-    background-color: white;
+    background-color: @background-primary;
+    &:hover {
+      background: darken(@background-primary, 2%);
+    }
+    .list-column {
+      border-bottom: 1px solid @list-border;
+    }
     .subject {
       font-weight: @font-weight-semi-bold;
+    }
+    .snippet {
+      color: @text-color-subtle;
     }
   }
 
   .selected {
+    // subpixel antialiasing looks awful against dark background colors
+    -webkit-font-smoothing: antialiased;
+
     .participants {
       color: @text-color-inverse;
       .unread-true {

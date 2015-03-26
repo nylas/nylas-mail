@@ -63,6 +63,7 @@ Events
 
 
 MenuItem = React.createClass
+  displayName: 'MenuItem'
   render: ->
     if @props.divider
       <div className="divider">{@props.divider}</div>
@@ -70,6 +71,22 @@ MenuItem = React.createClass
       className = "item"
       className += " selected" if @props.selected
       <div className={className} key={@props.key} onMouseDown={@props.onMouseDown}>{@props.content}</div>
+
+MenuNameEmailItem = React.createClass
+  displayName: 'MenuNameEmailItem'
+  propTypes:
+    name: React.PropTypes.string
+    email: React.PropTypes.string
+
+  render: ->
+    if @props.name?.length > 0 and @props.name isnt @props.email
+      <span>
+        <span className="primary">{@props.name}</span>
+        <span className="secondary">{"(#{@props.email})"}</span>
+      </span>
+    else
+      <span className="primary">{@props.email}</span>
+
 
 
 Menu = React.createClass
@@ -175,5 +192,6 @@ Menu = React.createClass
 
 
 Menu.Item = MenuItem
+Menu.NameEmailItem = MenuNameEmailItem
 
 module.exports = Menu

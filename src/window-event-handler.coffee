@@ -31,16 +31,10 @@ class WindowEventHandler
         when 'update-available'
           atom.updateAvailable(detail)
 
-          # FIXME: Remove this when deprecations are removed
-          {releaseVersion, releaseNotes} = detail
-          detail = [releaseVersion, releaseNotes]
-          if workspaceElement = atom.views.getView(atom.workspace)
-            atom.commands.dispatch workspaceElement, "window:update-available", detail
-
     @subscribe ipc, 'command', (command, args...) ->
       activeElement = document.activeElement
       # Use the workspace element view if body has focus
-      if activeElement is document.body and workspaceElement = atom.views.getView(atom.workspace)
+      if activeElement is document.body and workspaceElement = document.getElementById("atom-workspace")
         activeElement = workspaceElement
       atom.commands.dispatch(activeElement, command, args[0])
 

@@ -54,8 +54,13 @@ ThreadListParticipants = React.createClass
       list = @props.thread.participants
       return [] unless list and list instanceof Array
       me = NamespaceStore.current().emailAddress
-      if list.length > 1
-        list = _.reject list, (p) -> p.email is me
+      list = _.reject list, (p) -> p.email is me
+
+      # Removing "Me" may remove "Me" several times due to the way
+      # participants is created. If we're left with an empty array,
+      # put one a "Me" back in.
+      if list.length is 0
+        list.push(@props.thread.participants[0])
 
     # We only ever want to show three. Ben...Kevin... Marty
     # But we want the *right* three.

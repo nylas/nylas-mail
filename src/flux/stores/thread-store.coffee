@@ -80,25 +80,31 @@ ThreadStore = Reflux.createStore
           Actions.selectThreadId(newSelectedId)
 
         console.log("Fetching data for thread list took #{Date.now() - start} msec")
+
+        # If we've loaded threads, remove the loading indicator.
+        # If there are no results, wait for the API query to finish
+        if @_items.length > 0
+          @_itemsLoading = false
+
         @trigger()
 
   fetchFromAPI: ->
     return unless @_namespaceId
+
     @_itemsLoading = true
+    @trigger()
+
+    doneLoading = =>
+      return unless @_itemsLoading
+      @_itemsLoading = false
+      @trigger()
+
     if @_searchQuery
       atom.inbox.getThreadsForSearch @_namespaceId, @_searchQuery, (items) =>
         @_items = items
-        @_itemsLoading = false
-        @trigger()
+        doneLoading()
     else
-      success = =>
-        @_itemsLoading = false
-        @trigger()
-      error = =>
-        @_itemsLoading = false
-        @trigger()
-      atom.inbox.getThreads(@_namespaceId, {tag: @_tagId}, {success: success, error: error})
-    @trigger()
+      atom.inbox.getThreads(@_namespaceId, {tag: @_tagId}, {success: doneLoading, error: doneLoading})
 
   # Inbound Events
 

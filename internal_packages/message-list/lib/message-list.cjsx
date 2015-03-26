@@ -174,8 +174,13 @@ MessageList = React.createClass
                          collapsed={collapsed}
                          thread_participants={@_threadParticipants()} />
 
-      unless idx is @state.messages.length - 1
-        components.push <hr className="message-item-divider" />
+      if idx < @state.messages.length - 1
+        next = @state.messages[idx + 1]
+        nextCollapsed = next and !@state.messagesExpandedState[next.id]
+        if collapsed and nextCollapsed
+          components.push <hr className="message-item-divider collapsed" />
+        else
+          components.push <hr className="message-item-divider" />
 
     components
 

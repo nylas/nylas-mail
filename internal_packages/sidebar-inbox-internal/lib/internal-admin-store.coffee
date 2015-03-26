@@ -59,7 +59,11 @@ FullContactStore = Reflux.createStore
         @_error = err
       else
         @_error = null
-        @_accountCache = JSON.parse(data)
+        try
+          @_accountCache = JSON.parse(data)
+        catch err
+          @_error = err
+          @_accountCache = null
       @trigger(@)
 
     # Swap the url's to see real data
@@ -68,5 +72,9 @@ FullContactStore = Reflux.createStore
         @_error = err
       else
         @_error = null
-        @_applicationCache = JSON.parse(data)
+        try
+          @_applicationCache = JSON.parse(data)
+        catch err
+          @_error = err
+          @_applicationCache = null
       @trigger(@)

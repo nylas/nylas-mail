@@ -12,15 +12,13 @@ module.exports =
     if updater.getState() is 'update-available'
       @displayNotification(updater.releaseVersion)
 
-    # Watch for state changes via a command the auto-update manager fires.
-    # This is necessary because binding callbacks through `remote` is dangerous
-    @_command = atom.commands.add 'atom-workspace', 'window:update-available', (event, version, releaseNotes) =>
-      @displayNotification(version)
+    atom.onUpdateAvailable ({releaseVersion, releaseNotes} = {}) =>
+      @displayNotification(releaseVersion)
 
   displayNotification: (version) ->
     version = if version then "(#{version})" else ''
     Actions.postNotification
-      type: 'success',
+      type: 'info',
       sticky: true
       message: "An update to Edgehill is available #{version} - Restart now to update!",
       icon: 'fa-flag',
@@ -30,7 +28,6 @@ module.exports =
       }]
 
   deactivate: ->
-    @_command.dispose()
     @_unlisten()
 
   _onNotificationActionTaken: ({notification, action}) ->

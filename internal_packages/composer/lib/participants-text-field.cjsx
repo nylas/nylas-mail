@@ -3,7 +3,7 @@ _ = require 'underscore-plus'
 
 {Contact,
  ContactStore} = require 'inbox-exports'
-{TokenizingTextField} = require 'ui-components'
+{TokenizingTextField, Menu} = require 'ui-components'
 
 module.exports =
 ParticipantsTextField = React.createClass
@@ -58,15 +58,7 @@ ParticipantsTextField = React.createClass
   focus: -> @refs.textField.focus()
 
   _completionContent: (p) ->
-    if p.name?.length > 0 and p.name isnt p.email
-      <div className="completion-participant">
-        <span className="participant-name">{p.name}</span>
-        <span className="participant-email">({p.email})</span>
-      </div>
-    else
-      <div className="completion-participant">
-        <span className="participant-name">{p.email}</span>
-      </div>
+    <Menu.NameEmailItem name={p.name} email={p.email} />
 
   _componentForParticipant: (p) ->
     if p.name?.length > 0 and p.name isnt p.email

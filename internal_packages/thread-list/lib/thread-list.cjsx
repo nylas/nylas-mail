@@ -79,7 +79,7 @@ ThreadList = React.createClass
 
     c2 = new ListTabular.Column
       name: "Name"
-      flex: 1
+      width: 200
       resolver: (thread) ->
         <ThreadListParticipants thread={thread} />
 

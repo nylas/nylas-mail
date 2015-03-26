@@ -1,18 +1,54 @@
 @import "ui-variables";
 
 .popover-container {
-    display:inline-block;
-    position:relative;
+  display:inline-block;
+  position:relative;
 }
 
 .popover {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 250px;
+  max-height:400px;
+  background-color: @background-color;
+  transform: translate(-50%,-100%);
+  box-shadow: 0px 4px 30px rgba(0,0,0,0.19), inset 0px 0px 1px rgba(0,0,0,0.5);
+  border-radius: @border-radius-base;
+  z-index: 40;
+
+  .menu {
+    z-index:1;
+    position: relative;
+    .content-container {
+      background: none;
+    }
+    .header-container {
+      border-top-left-radius: @border-radius-base;
+      border-top-right-radius: @border-radius-base;
+      background: none;
+    }
+    .footer-container {
+      border-bottom-left-radius: @border-radius-base;
+      border-bottom-right-radius: @border-radius-base;
+      background: none;
+
+      .item:last-child:hover {
+          border-bottom-left-radius: @border-radius-base;
+          border-bottom-right-radius: @border-radius-base;
+      }
+    }
+  }
+
+  .popover-pointer {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 250px;
-    max-height:400px;
-    background-color: @background-color;
-    transform: translateY(-100%);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-    z-index: 40;
+    width: 22.5px;
+    height: 11px;
+    background: transparent url('images/tooltip/tooltip-bg-pointer@2x.png') no-repeat;
+    background-size: 22.5px 10.5px;
+    margin-left: 50%;
+    transform: translateX(-50%);
+    z-index:0;
+    bottom: -10px;
+  }
 }

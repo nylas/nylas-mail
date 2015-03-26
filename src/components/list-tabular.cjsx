@@ -2,7 +2,7 @@ _ = require 'underscore-plus'
 React = require 'react'
 
 class ListColumn
-  constructor: ({@name, @resolver, @flex}) ->
+  constructor: ({@name, @resolver, @flex, @width}) ->
 
 ListTabularItem = React.createClass
   displayName: 'ListTabularItem'
@@ -29,7 +29,7 @@ ListTabularItem = React.createClass
     for column in (@props.columns ? [])
       <div key={column.name}
            displayName={column.name}
-           style={flex: column.flex}
+           style={_.pick(column, ['flex', 'width'])}
            className="list-column">
         {column.resolver(@props.item, @)}
       </div>

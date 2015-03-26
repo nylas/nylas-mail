@@ -47,6 +47,8 @@ class InboxLongConnection
       success: (json) =>
         @setCursor(json['cursor'])
         callback(json['cursor'])
+        console.log("Retrieved cursor #{json['cursor']} from \
+                    `generate_cursor` with timestamp: #{stamp}")
 
   setCursor: (cursor) ->
     atom.config.set(@_cursorKey, cursor)
@@ -104,7 +106,15 @@ class InboxLongConnection
         lib = require 'https'
 
       req = lib.request options, (res) =>
-        return @retry() unless res.statusCode == 200
+        if res.statusCode isnt 200
+          res.on 'data', (chunk) =>
+            if chunk.toString().indexOf('Invalid cursor') > 0
+              console.log('Long Polling Connection: Cursor is invalid. Need to blow away local cache.')
+              # TODO THIS!
+            else
+              @retry()
+          return
+
         @_buffer = ''
         res.setEncoding('utf8')
         processBufferThrottled = _.throttle(@onProcessBuffer, 400, {leading: false})

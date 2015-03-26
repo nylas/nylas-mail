@@ -41,12 +41,9 @@ describe "NotificationUpdateAvailable", ->
       expect(@package.displayNotification).not.toHaveBeenCalled()
 
     it "should listen for `window:update-available`", ->
-      spyOn(atom.commands, 'add').andCallThrough()
+      spyOn(atom, 'onUpdateAvailable').andCallThrough()
       @package.activate()
-
-      args = atom.commands.add.mostRecentCall.args
-      expect(args[0]).toEqual('atom-workspace')
-      expect(args[1]).toEqual('window:update-available')
+      expect(atom.onUpdateAvailable).toHaveBeenCalled()
 
   describe "displayNotification", ->
     beforeEach ->

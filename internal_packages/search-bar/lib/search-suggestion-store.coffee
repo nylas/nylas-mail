@@ -1,5 +1,7 @@
 Reflux = require 'reflux'
-{DatabaseStore, Actions, Contact} = require 'inbox-exports'
+{Actions,
+ Contact,
+ ContactStore} = require 'inbox-exports'
 _ = require 'underscore-plus'
 
 # Stores should closely match the needs of a particular part of the front end.
@@ -9,7 +11,6 @@ _ = require 'underscore-plus'
 
 SearchSuggestionStore = Reflux.createStore
   init: ->
-    @_all = []
     @_suggestions = []
     @_searchConstants = {"from": 4, "subject": 2}
     @_query = ""
@@ -19,14 +20,6 @@ SearchSuggestionStore = Reflux.createStore
     @listenTo Actions.searchQueryChanged, @onSearchQueryChanged
     @listenTo Actions.searchQueryCommitted, @onSearchQueryCommitted
     @listenTo Actions.searchBlurred, @onSearchBlurred
-    @listenTo DatabaseStore, @onDataChanged
-    @onDataChanged()
-
-  onDataChanged: (change) ->
-    return if change && change.objectClass != Contact.name
-    DatabaseStore.findAll(Contact).then (contacts) =>
-      @_all = contacts
-      @repopulate()
 
   onSearchQueryChanged: (query) ->
     @_query = query
@@ -56,12 +49,7 @@ SearchSuggestionStore = Reflux.createStore
     val = term[key]?.toLowerCase()
     return @trigger(@) unless val
 
-    contactResults = []
-    for contact in @_all
-      if contact.name?.toLowerCase().indexOf(val) == 0 or contact.email?.toLowerCase().indexOf(val) == 0
-        contactResults.push(contact)
-      if contactResults.length is 10
-        break
+    contactResults = ContactStore.searchContacts(val, limit:10)
 
     @_suggestions.push
       label: "Message Contains: #{val}"
@@ -72,13 +60,8 @@ SearchSuggestionStore = Reflux.createStore
         divider: 'People'
 
       _.each contactResults, (contact) =>
-        if contact.name
-          label = "#{contact.name} <#{contact.email}>"
-        else
-          label = contact.email
-
         @_suggestions.push
-          label: label
+          contact: contact
           value: [{"participants": contact.email}]
 
     @trigger(@)

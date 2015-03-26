@@ -18,17 +18,32 @@ module.exports = ContactStore = Reflux.createStore
     @_refreshCacheFromDB()
 
   searchContacts: (search, {limit}={}) ->
+    return [] if not search or search.length is 0
+
     limit ?= 5
     limit = Math.max(limit, 0)
-    return [] if not search or search.length is 0
     search = search.toLowerCase()
-    matches = _.filter @_contactCache, (contact) ->
+
+    matchFunction = (contact) ->
+      # For a given contact, check:
+      # - email (bengotow@gmail.com)
+      # - name parts (Ben, Go)
+      # - name full (Ben Gotow)
+      #   (necessary so user can type more than first name ie: "Ben Go")
       return true if contact.email?.toLowerCase().indexOf(search) is 0
+      return true if contact.name?.toLowerCase().indexOf(search) is 0
       name = contact.name?.toLowerCase() ? ""
       for namePart in name.split(/\s/)
         return true if namePart.indexOf(search) is 0
       false
-    matches = matches[0..limit-1] if matches.length > limit
+
+    matches = []
+    for contact in @_contactCache
+      if matchFunction(contact)
+        matches.push(contact)
+        if matches.length is limit
+          break
+
     matches
 
   _refreshCacheFromDB: ->

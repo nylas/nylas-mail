@@ -5,12 +5,12 @@
 
   .list-item {
     font-size: @font-size-base;
-    line-height: @line-height-computed;
+    line-height: @line-height-computed * 1.15;
     color: @text-color;
     background: @list-bg;
 
     &:hover {
-      background: @list-hover-bg;
+      background: darken(@list-bg, 5%);
     }
 
     &.selected {
