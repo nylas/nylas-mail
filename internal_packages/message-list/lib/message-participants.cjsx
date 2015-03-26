@@ -69,12 +69,12 @@ MessageParticipants = React.createClass
         else comma = ","
 
         if c.name?.length > 0 and c.name isnt c.email
-          <div key={c.email} className="participant">
+          <div key={c.email} className="participant selectable">
             <span className="participant-primary" onClick={@_selectPlainText}>{c.name}</span>&nbsp;
             <span className="participant-secondary" onClick={@_selectBracketedText}><{c.email}>{comma}</span>&nbsp;
           </div>
         else
-          <div key={c.email} className="participant">
+          <div key={c.email} className="participant selectable">
             <span className="participant-primary" onClick={@_selectCommaText}>{c.email}{comma}</span>&nbsp;
           </div>
       )

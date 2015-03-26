@@ -78,7 +78,6 @@
   .messages-wrap {
     flex: 4;
     overflow-y: auto;
-    -webkit-user-select:none;
     opacity:0;
     transition: opacity 0s;
     &.has-reply-area {
@@ -96,18 +95,15 @@
 
     margin: 0 auto;
     padding: @spacing-standard 0 @spacing-double 0;
-    -webkit-user-select:none;
 
     &:first-child { padding-top: 0; }
 
     &.collapsed {
       padding-bottom: 0;
       background-color: darken(@background-primary, 3%);
-      -webkit-user-select:none;
       .message-header {
         padding-top: 0;
         padding-bottom: 5px;
-        -webkit-user-select:none;
       }
       .snippet {
         cursor: default;
@@ -148,7 +144,6 @@
     border-bottom: 1px solid @border-color-divider;
     padding-bottom: @spacing-standard;
     padding-top: 5px;
-    -webkit-user-select:auto;
 
     .message-actions-wrap {
       width: 100%;
@@ -161,7 +156,6 @@
       height: 22px;
       border: 1px solid @border-color-divider;
       border-radius: 11px;
-      -webkit-user-select:none;
 
       z-index: 4;
       margin-top: 0.35em;
@@ -239,7 +233,6 @@
     color: @text-color-very-subtle;
     border-top: 1px solid @border-color-divider;
     background: @background-primary;
-    -webkit-user-select:none;
     z-index: 10;
 
     &:hover {

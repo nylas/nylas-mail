@@ -54,7 +54,7 @@ MessageItem = React.createClass
       <header className="message-header">
 
         <div className="message-header-right">
-          <MessageTimestamp className="message-time"
+          <MessageTimestamp className="message-time selectable"
                             isDetailed={@state.detailedHeaders}
                             date={@props.message.date} />
 
