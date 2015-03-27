@@ -45,10 +45,12 @@ ThreadStore = Reflux.createStore
 
     start = Date.now()
 
-    DatabaseStore.findAll(Thread, [
-      Thread.attributes.namespaceId.equal(@_namespaceId),
-      Thread.attributes.tags.contains(@_tagId)
-    ]).limit(100).then (items) =>
+    matchers = []
+    matchers.push Thread.attributes.namespaceId.equal(@_namespaceId)
+    if @_tagId and @_tagId isnt "*"
+      matchers.push Thread.attributes.tags.contains(@_tagId)
+
+    DatabaseStore.findAll(Thread).where(matchers).limit(100).then (items) =>
       # Now, fetch the messages for each thread. We could do this with a
       # complex join, but then we'd get thread columns repeated over and over.
       # This is reasonably fast because we don't store message bodies in messages
@@ -122,7 +124,10 @@ ThreadStore = Reflux.createStore
         @_items = items
         doneLoading()
     else
-      atom.inbox.getThreads(@_namespaceId, {tag: @_tagId}, {success: doneLoading, error: doneLoading})
+      params = {}
+      if @_tagId and @_tagId isnt "*"
+        params = {tag: @_tagId}
+      atom.inbox.getThreads(@_namespaceId, params, {success: doneLoading, error: doneLoading})
 
   # Inbound Events
 

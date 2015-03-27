@@ -61,6 +61,7 @@ AccountSidebarStore = Reflux.createStore
 
       # Sort the main tags so they always appear in a standard order
       mainTags = _.sortBy mainTags, (tag) -> mainTagIDs.indexOf(tag.id)
+      mainTags.push new Tag(name: 'All Mail', id: '*')
 
       lastSections = @_sections
       @_sections = [
