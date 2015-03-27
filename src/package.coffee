@@ -203,7 +203,6 @@ class Package
   activateResources: ->
     @activationDisposables = new CompositeDisposable
     @activationDisposables.add(atom.keymaps.add(keymapPath, map)) for [keymapPath, map] in @keymaps
-    @activationDisposables.add(atom.contextMenu.add(map['context-menu'])) for [menuPath, map] in @menus when map['context-menu']?
     @activationDisposables.add(atom.menu.add(map['menu'])) for [menuPath, map] in @menus when map['menu']?
 
     unless @grammarsActivated

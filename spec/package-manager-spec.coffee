@@ -314,14 +314,11 @@ describe "PackageManager", ->
 
     describe "menu loading", ->
       beforeEach ->
-        atom.contextMenu.definitions = []
         atom.menu.template = []
 
       describe "when the metadata does not contain a 'menus' manifest", ->
         it "loads all the .cson/.json files in the menus directory", ->
           element = ($$ -> @div class: 'test-1')[0]
-
-          expect(atom.contextMenu.templateForElement(element)).toEqual []
 
           waitsForPromise ->
             atom.packages.activatePackage("package-with-menus")
@@ -330,15 +327,10 @@ describe "PackageManager", ->
             expect(atom.menu.template.length).toBe 2
             expect(atom.menu.template[0].label).toBe "Second to Last"
             expect(atom.menu.template[1].label).toBe "Last"
-            expect(atom.contextMenu.templateForElement(element)[0].label).toBe "Menu item 1"
-            expect(atom.contextMenu.templateForElement(element)[1].label).toBe "Menu item 2"
-            expect(atom.contextMenu.templateForElement(element)[2].label).toBe "Menu item 3"
 
       describe "when the metadata contains a 'menus' manifest", ->
         it "loads only the menus specified by the manifest, in the specified order", ->
           element = ($$ -> @div class: 'test-1')[0]
-
-          expect(atom.contextMenu.templateForElement(element)).toEqual []
 
           waitsForPromise ->
             atom.packages.activatePackage("package-with-menus-manifest")
@@ -346,9 +338,6 @@ describe "PackageManager", ->
           runs ->
             expect(atom.menu.template[0].label).toBe "Second to Last"
             expect(atom.menu.template[1].label).toBe "Last"
-            expect(atom.contextMenu.templateForElement(element)[0].label).toBe "Menu item 2"
-            expect(atom.contextMenu.templateForElement(element)[1].label).toBe "Menu item 1"
-            expect(atom.contextMenu.templateForElement(element)[2]).toBeUndefined()
 
       describe "when the menu file is empty", ->
         it "does not throw an error on activation", ->

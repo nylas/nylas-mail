@@ -116,9 +116,6 @@ class Atom extends Model
   # Public: A {Clipboard} instance
   clipboard: null
 
-  # Public: A {ContextMenuManager} instance
-  contextMenu: null
-
   # Public: A {MenuManager} instance
   menu: null
 
@@ -188,7 +185,6 @@ class Atom extends Model
     StyleManager = require './style-manager'
     ActionBridge = require './flux/action-bridge'
     InboxAPI = require './flux/inbox-api'
-    ContextMenuManager = require './context-menu-manager'
     MenuManager = require './menu-manager'
     {devMode, safeMode, resourcePath} = @getLoadSettings()
     configDirPath = @getConfigDirPath()
@@ -228,7 +224,6 @@ class Atom extends Model
     @actionBridge = new ActionBridge(ipc)
     document.head.appendChild(new StylesElement)
     @themes = new ThemeManager({packageManager: @packages, configDirPath, resourcePath, safeMode})
-    @contextMenu = new ContextMenuManager({resourcePath, devMode})
     @menu = new MenuManager({resourcePath})
     @clipboard = new Clipboard()
 

@@ -38,9 +38,6 @@ class WindowEventHandler
         activeElement = workspaceElement
       atom.commands.dispatch(activeElement, command, args[0])
 
-    @subscribe ipc, 'context-command', (command, args...) ->
-      $(atom.contextMenu.activeElement).trigger(command, args...)
-
     @subscribe $(window), 'focus', -> document.body.classList.remove('is-blurred')
 
     @subscribe $(window), 'blur', -> document.body.classList.add('is-blurred')
@@ -92,10 +89,6 @@ class WindowEventHandler
 
     # Prevent form submits from changing the current window's URL
     @subscribe $(document), 'submit', 'form', (e) -> e.preventDefault()
-
-    @subscribe $(document), 'contextmenu', (e) ->
-      e.preventDefault()
-      atom.contextMenu.showForEvent(e)
 
     @handleNativeKeybindings()
 

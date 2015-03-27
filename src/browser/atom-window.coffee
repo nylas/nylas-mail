@@ -179,8 +179,7 @@ class AtomWindow
         @sendCommandToBrowserWindow(command, args...)
 
   sendCommandToBrowserWindow: (command, args...) ->
-    action = if args[0]?.contextCommand then 'context-command' else 'command'
-    @browserWindow.webContents.send action, command, args...
+    @browserWindow.webContents.send 'command', command, args...
 
   getDimensions: ->
     [x, y] = @browserWindow.getPosition()
