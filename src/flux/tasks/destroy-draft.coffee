@@ -25,6 +25,7 @@ class DestroyDraftTask extends Task
         return reject(new Error("Attempt to call DestroyDraftTask.performLocal without @draftLocalId"))
 
       DatabaseStore.findByLocalId(Message, @draftLocalId).then (draft) =>
+        return resolve() unless draft
         @draft = draft
         DatabaseStore.unpersistModel(draft).then(resolve)
 
