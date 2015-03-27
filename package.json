@@ -76,7 +76,8 @@
     "text-buffer": "^4.1",
     "theorist": "^1.0",
     "underscore-plus": "^1.6",
-    "vm-compatibility-layer": "0.1.0"
+    "vm-compatibility-layer": "0.1.0",
+    "spellchecker": "2.2.0"
   },
   "devDependencies": {
     "proxyquire": "git+https://github.com/bengotow/proxyquire",

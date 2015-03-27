@@ -196,6 +196,7 @@ class Atom extends Model
     # Add 'exports' to module search path.
     exportsPath = path.join(resourcePath, 'exports')
     require('module').globalPaths.push(exportsPath)
+
     # Still set NODE_PATH since tasks may need it.
     process.env.NODE_PATH = exportsPath
 
@@ -233,6 +234,12 @@ class Atom extends Model
 
     # Edgehill-specific
     @inbox = new InboxAPI()
+
+    # initialize spell checking
+    require('web-frame').setSpellCheckProvider("en-US", false, {
+      spellCheck: (text) ->
+        !(require('spellchecker').isMisspelled(text))
+    })
 
     @subscribe @packages.onDidActivateInitialPackages => @watchThemes()
     @windowEventHandler = new WindowEventHandler

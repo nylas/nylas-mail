@@ -27,6 +27,7 @@ ContenteditableComponent = React.createClass
     toolbarVisible: false
 
   componentDidMount: ->
+    @_editableNode().addEventListener('contextmenu', @_onShowContextualMenu)
     @_setupSelectionListeners()
     @_setupLinkHoverListeners()
     @_setupGlobalMouseListener()
@@ -47,6 +48,7 @@ ContenteditableComponent = React.createClass
     }
 
   componentWillUnmount: ->
+    @_editableNode().removeEventListener('contextmenu', @_onShowContextualMenu)
     @_teardownSelectionListeners()
     @_teardownLinkHoverListeners()
     @_teardownGlobalMouseListener()
@@ -256,6 +258,54 @@ ContenteditableComponent = React.createClass
     window.removeEventListener("mousedown", @__onMouseDown)
     window.removeEventListener("mouseup", @__onMouseUp)
 
+  _onShowContextualMenu: (event) ->
+    @_hideToolbar()
+    event.preventDefault()
+
+    selection = document.getSelection()
+    range = selection.getRangeAt(0)
+    text = range.toString()
+
+    remote = require('remote')
+    clipboard = require('clipboard')
+    Menu = remote.require('menu')
+    MenuItem = remote.require('menu-item')
+    spellchecker = require('spellchecker')
+
+    apply = (newtext) ->
+      range.deleteContents()
+      node = document.createTextNode(newtext)
+      range.insertNode(node)
+      range.selectNode(node)
+      selection.removeAllRanges()
+      selection.addRange(range)
+
+    cut = ->
+      clipboard.writeText(text)
+      apply('')
+
+    copy = ->
+      clipboard.writeText(text)
+
+    paste = ->
+      apply(clipboard.readText())
+
+    menu = new Menu()
+
+    if spellchecker.isMisspelled(text)
+      corrections = spellchecker.getCorrectionsForMisspelling(text)
+      if corrections.length > 0
+        corrections.forEach (correction) ->
+          menu.append(new MenuItem({ label: correction, click:( -> apply(correction))}))
+        menu.append(new MenuItem({ type: 'separator' }))
+        menu.append(new MenuItem({ label: 'Learn Spelling', click:( -> spellchecker.add(text))}))
+        menu.append(new MenuItem({ type: 'separator' }))
+
+    menu.append(new MenuItem({ label: 'Cut', click:cut}))
+    menu.append(new MenuItem({ label: 'Copy', click:copy}))
+    menu.append(new MenuItem({ label: 'Paste', click:paste}))
+    menu.popup(remote.getCurrentWindow())
+      
   _onMouseDown: (event) ->
     @_mouseDownEvent = event
     @_mouseHasMoved = false
