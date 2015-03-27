@@ -443,6 +443,9 @@ class Atom extends Model
   show: ->
     ipc.send('call-window-method', 'show')
 
+  isVisible: ->
+    @getCurrentWindow().isVisible()
+
   # Extended: Hide the current window.
   hide: ->
     ipc.send('call-window-method', 'hide')

@@ -62,7 +62,14 @@ ThreadStore = Reflux.createStore
 
         @_items = items
 
-        if oldSelectedThread && !@selectedThread()
+        # Sometimes we can ask for a thread that's not in the current set
+        # of items. If the new set of items includes that thread we asked
+        # for, then trigger a new notification.
+        if not oldSelectedThread and @_selectedId and @selectedThread()
+          # This means in the latest set the thread we were trying to
+          # select has been found!
+          Actions.selectThreadId(@_selectedId, force: true)
+        else if oldSelectedThread && !@selectedThread()
           # The previously selected item is no longer in the set
           oldSelectedIndex = Math.max(0, Math.min(oldSelectedIndex, @_items.length - 1))
           thread = @_items[oldSelectedIndex]
@@ -126,8 +133,6 @@ ThreadStore = Reflux.createStore
     @fetchFromCache()
 
   _onSearchCommitted: (query) ->
-    Actions.selectThreadId(null)
-
     if query.length > 0
       @_searchQuery = query
       @_items = []
@@ -146,12 +151,11 @@ ThreadStore = Reflux.createStore
 
     @_items = []
     @trigger()
-    Actions.selectThreadId(null)
     @fetchFromCache()
     @fetchFromAPI()
 
-  _onSelectThreadId: (id) ->
-    return if @_selectedId is id
+  _onSelectThreadId: (id, {force}={}) ->
+    return if @_selectedId is id and not force
     @_selectedId = id
 
     thread = @selectedThread()
@@ -207,6 +211,10 @@ ThreadStore = Reflux.createStore
   selectedId: ->
     @_selectedId
 
+  # It is not uncommon for the @_selectedId to exist but the
+  # @selectedThread to be null. This happens when we try and select a
+  # thread that's not in the current result set. As the result set
+  # changes, this condition may change as well.
   selectedThread: ->
     return null unless @_selectedId
     _.find @_items, (thread) => thread.id == @_selectedId

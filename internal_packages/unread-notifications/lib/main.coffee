@@ -23,7 +23,9 @@ module.exports =
         body: msg.subject
         tag: 'unread-update'
       })
-      notif.onclick = -> Actions.selectThreadId(msg.threadId)
+      notif.onclick = ->
+        Actions.selectTagId("inbox")
+        Actions.selectThreadId(msg.threadId)
 
     if newUnreadMessages.length > 1
       new Notification("#{newUnreadMessages.length} Unread Messages", {
