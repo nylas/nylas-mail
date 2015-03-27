@@ -41,12 +41,12 @@ class Thread extends Model
   @naturalSortOrder: ->
     Thread.attributes.lastMessageTimestamp.descending()
 
-  fromJSON: (json) =>
+  fromJSON: (json) ->
     super(json)
     @unread = @isUnread()
     @
 
-  tagIds: =>
+  tagIds: ->
     _.map @tags, (tag) -> tag.id
   
   hasTagId: (id) ->

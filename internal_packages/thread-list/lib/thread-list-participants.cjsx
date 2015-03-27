@@ -16,20 +16,20 @@ ThreadListParticipants = React.createClass
     if @props.thread.messageMetadata and @props.thread.messageMetadata.length > 1
       count = " (#{@props.thread.messageMetadata.length})"
 
-    chips = items.map (item, idx) ->
-      if item.spacer
+    chips = items.map ({spacer, contact, unread}, idx) ->
+      if spacer
         <span key={idx}>...</span>
       else
-        if item.name.length > 0
+        if contact.name.length > 0
           if items.length > 1
-            short = item.displayFirstName()
+            short = contact.displayFirstName()
           else
-            short = item.displayName()
+            short = contact.displayName()
         else
-          short = item.email
+          short = contact.email
         if idx < items.length-1 and not items[idx+1].spacer
           short += ", "
-        <span key={idx} className="unread-#{item.unread}">{short}</span>
+        <span key={idx} className="unread-#{unread}">{short}</span>
 
     <div className="participants">
       {chips}{count}
@@ -44,10 +44,11 @@ ThreadListParticipants = React.createClass
       last = null
       for msg in @props.thread.messageMetadata
         from = msg.from[0]
-        continue unless from
-        if from.email isnt last
-          from.unread = msg.unread
-          list.push(from)
+        if from and from.email isnt last
+          list.push({
+            contact: msg.from[0]
+            unread: msg.unread
+          })
           last = from.email
 
     else

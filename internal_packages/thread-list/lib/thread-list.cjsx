@@ -18,6 +18,7 @@ ThreadList = React.createClass
     @_getStateFromStores()
  
   componentDidMount: ->
+    @_prepareColumns()
     @thread_store_unsubscribe = ThreadStore.listen @_onChange
     @thread_unsubscriber = atom.commands.add '.thread-list', {
       'thread-list:star-thread': => @_onStarThread()
@@ -40,18 +41,29 @@ ThreadList = React.createClass
     @body_unsubscriber.dispose()
 
   render: ->
+    # IMPORTANT: DO NOT pass inline functions as props. _.isEqual thinks these
+    # are "different", and will re-render everything. Instead, declare them with ?=,
+    # pass a reference. (Alternatively, ignore these in children's shouldComponentUpdate.)
+    #
+    # BAD:   onSelect={ (item) -> Actions.selectThreadId(item.id) }
+    # GOOD:  onSelect={@_onSelectItem}
+    #
     classes = React.addons.classSet("thread-list": true, "ready": @state.ready)
+
+    @_itemClassProvider ?= (item) -> if item.isUnread() then 'unread' else ''
+    @_itemOnSelect ?= (item) -> Actions.selectThreadId(item.id)
+
     <div className={classes}>
       <ListTabular
-        columns={@state.columns}
+        columns={@_columns}
         items={@state.items}
-        itemClassProvider={ (item) -> if item.isUnread() then 'unread' else '' }
+        itemClassProvider={@_itemClassProvider}
         selectedId={@state.selectedId}
-        onSelect={ (item) -> Actions.selectThreadId(item.id) } />
+        onSelect={@_itemOnSelect} />
       <Spinner visible={!@state.ready} />
     </div>
 
-  _computeColumns: ->
+  _prepareColumns: ->
     myEmail = NamespaceStore.current()?.emailAddress
 
     labelComponents = (thread) =>
@@ -101,7 +113,7 @@ ThreadList = React.createClass
       resolver: (thread) ->
         <span className="timestamp">{timestamp(thread.lastMessageTimestamp)}</span>
 
-    [c1, c2, c3, c4]
+    @_columns = [c1, c2, c3, c4]
 
   _onFocusSelectedIndex: ->
     Actions.selectThreadId(@state.selectedId)
@@ -145,5 +157,4 @@ ThreadList = React.createClass
   _getStateFromStores: ->
     ready: not ThreadStore.itemsLoading()
     items: ThreadStore.items()
-    columns: @_computeColumns()
     selectedId: ThreadStore.selectedId()

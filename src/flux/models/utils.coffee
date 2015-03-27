@@ -62,6 +62,13 @@ Utils =
     object.fromJSON(json)
     object
 
+  modelFreeze: (o) ->
+    Object.freeze(o)
+    for key, prop of o
+      if !o.hasOwnProperty(key) || typeof prop isnt 'object' || Object.isFrozen(prop)
+        continue
+      Utils.modelFreeze(prop)
+
   modelReviver: (k, v) ->
     return v if k == ""
     v = Utils.modelFromJSON(v) if (v instanceof Object && v['object'])

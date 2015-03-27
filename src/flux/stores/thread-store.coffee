@@ -5,6 +5,7 @@ WorkspaceStore = require './workspace-store'
 AddRemoveTagsTask = require '../tasks/add-remove-tags'
 MarkThreadReadTask = require '../tasks/mark-thread-read'
 Actions = require '../actions'
+Utils = require '../models/utils'
 Thread = require '../models/thread'
 Message = require '../models/message'
 _ = require 'underscore-plus'
@@ -60,6 +61,11 @@ ThreadStore = Reflux.createStore
         for item in items
           item.messageMetadata = results[item.id]
 
+          # Prevent anything from mutating these objects or their nested objects.
+          # Accidentally modifying items somewhere downstream (in a component)
+          # can trigger awful re-renders
+          Utils.modelFreeze(item)
+
         @_items = items
 
         # Sometimes we can ask for a thread that's not in the current set
@@ -89,6 +95,7 @@ ThreadStore = Reflux.createStore
           Actions.selectThreadId(newSelectedId)
 
         @_autoselectForLayoutMode()
+
 
         console.log("Fetching data for thread list took #{Date.now() - start} msec")
 
