@@ -54,7 +54,7 @@
 }
 #message-list {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   position: relative;
 
   width: 100%;
@@ -76,13 +76,10 @@
   }
 
   .messages-wrap {
-    flex: 4;
+    flex: 1;
     overflow-y: auto;
     opacity:0;
     transition: opacity 0s;
-    &.has-reply-area {
-      padding-bottom: 63px; // height of reply footer
-    }
   }
   .messages-wrap.ready {
     opacity:1;
@@ -226,14 +223,10 @@
   }
 
   .footer-reply-area-wrap {
-    position: absolute;
-    bottom: 0;
-    left: 0;
     width: 100%;
     color: @text-color-very-subtle;
     border-top: 1px solid @border-color-divider;
     background: @background-primary;
-    z-index: 10;
 
     &:hover {
       cursor: default;

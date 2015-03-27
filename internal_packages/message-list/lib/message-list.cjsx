@@ -55,7 +55,6 @@ MessageList = React.createClass
 
     wrapClass = React.addons.classSet
       "messages-wrap": true
-      "has-reply-area": @_hasReplyArea()
       "ready": @state.ready
 
     <div className="message-list" id="message-list">
