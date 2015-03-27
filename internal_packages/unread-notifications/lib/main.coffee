@@ -24,6 +24,7 @@ module.exports =
         tag: 'unread-update'
       })
       notif.onclick = ->
+        atom.displayWindow()
         Actions.selectTagId("inbox")
         Actions.selectThreadId(msg.threadId)
 

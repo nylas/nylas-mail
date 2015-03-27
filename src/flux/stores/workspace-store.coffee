@@ -55,6 +55,10 @@ WorkspaceStore = Reflux.createStore
     @_layoutMode = mode
     @trigger(@)
 
+  _onSelectThreadId: (threadId) ->
+    if @selectedLayoutMode() is 'list' and threadId and @sheet().type isnt Sheet.Thread.type
+      @pushSheet(Sheet.Thread)
+
   # Accessing Data
 
   selectedView: ->
@@ -74,16 +78,6 @@ WorkspaceStore = Reflux.createStore
   pushSheet: (type) ->
     @_sheetStack.push(type)
     @trigger()
-
-  _onSelectThreadId: (threadId) ->
-    if not atom.isVisible() and atom.state.mode is "editor"
-      atom.displayWindow()
-
-    @pushThreadSheet(threadId)
-
-  pushThreadSheet: (threadId) ->
-    if @selectedLayoutMode() is 'list' and threadId and @sheet().type isnt Sheet.Thread.type
-      @pushSheet(Sheet.Thread)
 
   popSheet: ->
     if @_sheetStack.length > 1
