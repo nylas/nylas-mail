@@ -78,6 +78,8 @@ MessageStore = Reflux.createStore
     @trigger()
 
   _fetchFromCache: (options = {}) ->
+    return unless @_threadId
+
     loadedThreadId = @_threadId
 
     query = DatabaseStore.findAll(Message, threadId: loadedThreadId)
