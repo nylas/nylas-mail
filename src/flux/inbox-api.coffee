@@ -146,13 +146,16 @@ class InboxAPI
     # each type of model in the `create` hash, waits for them all to resolve.
     create[type] = @_handleModelResponse(items) for type, items of create
     Promise.props(create).then (created) =>
-      if _.flatten(_.values(created)).length > 0
-        Actions.didPassivelyReceiveNewModels(created)
-
       # Apply all the deltas to modify objects. Gets promises for handling
       # each type of model in the `modify` hash, waits for them all to resolve.
       modify[type] = @_handleModelResponse(items) for type, items of modify
       Promise.props(modify).then (modified) ->
+
+        # Now that we've persisted creates/updates, fire an action
+        # that allows other parts of the app to update based on new models
+        # (notifications)
+        if _.flatten(_.values(created)).length > 0
+          Actions.didPassivelyReceiveNewModels(created)
 
         # Apply all of the deletions
         destroyPromises = destroy.map (delta) ->

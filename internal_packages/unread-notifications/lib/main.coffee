@@ -1,5 +1,5 @@
 _ = require 'underscore-plus'
-{Actions} = require 'inbox-exports'
+{Actions, DatabaseStore, Thread} = require 'inbox-exports'
 
 module.exports =
   activate: ->
@@ -12,26 +12,52 @@ module.exports =
 
   serialize: ->
 
-  _onNewMailReceived: (models) ->
-    # Display a notification if we've received new messages
-    newUnreadMessages = _.filter (models['message'] ? []), (msg) =>
-      msg.unread is true and msg.date?.valueOf() >= @activationTime
+  _onNewMailReceived: (incoming) ->
+    new Promise (resolve, reject) =>
+      incomingMessages = incoming['message'] ? []
+      incomingThreads = incoming['thread'] ? []
 
-    if newUnreadMessages.length is 1
-      msg = newUnreadMessages.pop()
-      notif = new Notification(msg.from[0].displayName(), {
-        body: msg.subject
-        tag: 'unread-update'
-      })
-      notif.onclick = ->
-        atom.displayWindow()
-        Actions.selectTagId("inbox")
-        Actions.selectThreadId(msg.threadId)
+      # Filter for new messages
+      newUnread = _.filter incomingMessages, (msg) =>
+        msg.unread is true and msg.date?.valueOf() >= @activationTime
 
-    if newUnreadMessages.length > 1
-      new Notification("#{newUnreadMessages.length} Unread Messages", {
-        tag: 'unread-update'
-      })
+      return resolve() if newUnread.length is 0
 
-    if newUnreadMessages.length > 0
-      atom.playSound('new_mail.ogg')
+      # For each message, find it's corresponding thread. First, look to see
+      # if it's already in the `incoming` payload (sent via delta sync
+      # at the same time as the message.) If it's not, try loading it from
+      # the local cache.
+      #
+      # Note we may receive multiple unread msgs for the same thread.
+      # Using a map and ?= to avoid repeating work.
+      threads = {}
+      for msg in newUnread
+        threads[msg.threadId] ?= _.findWhere(incomingThreads, {id: msg.threadId})
+        threads[msg.threadId] ?= DatabaseStore.find(Thread, msg.threadId)
+
+      Promise.props(threads).then (threads) ->
+
+        # Filter new unread messages to just the ones in the inbox
+        newUnreadInInbox = _.filter newUnread, (msg) ->
+          threads[msg.threadId]?.hasTagId('inbox')
+
+        if newUnreadInInbox.length is 1
+          msg = newUnreadInInbox.pop()
+          notif = new Notification(msg.from[0].displayName(), {
+            body: msg.subject
+            tag: 'unread-update'
+          })
+          notif.onclick = ->
+            atom.displayWindow()
+            Actions.selectTagId("inbox")
+            Actions.selectThreadId(msg.threadId)
+
+        if newUnreadInInbox.length > 1
+          new Notification("#{newUnreadInInbox.length} Unread Messages", {
+            tag: 'unread-update'
+          })
+
+        if newUnreadInInbox.length > 0
+          atom.playSound('new_mail.ogg')
+
+        resolve()
