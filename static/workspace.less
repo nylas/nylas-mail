@@ -66,43 +66,37 @@ atom-workspace {
   flex-grow: 0;
   flex-shrink: 0;
 
+  &:hover {
+    button {
+      background-position: 0 -12px;
+    }
+  }
+
   button {
     -webkit-app-region: no-drag;
     display:inline-block;
     padding:0;
-    width:13px;
-    height:13px;
+    width:12px;
+    height:12px;
     margin:4px;
-    border-radius: 13px;
-    border: 1px solid rgba(0,0,0,0.2);
     float:left;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    background-size: 12px 48px;
+    border: 0;
+    &:active {
+      background-position: 0 -24px;
+    }
   }
   .close {
-    background-color: #FB0015;
-    &:hover {
-      background-color: darken(#FB0015, 10%);
-    }
-    &:active {
-      background-color: darken(#FB0015, 20%);
-    }
+    background-image: url("images/application-frame/close@2x.png");
   }
   .minimize {
-    background-color: #FCB40A;
-    &:hover {
-      background-color: darken(#FCB40A, 10%);
-    }
-    &:active {
-      background-color: darken(#FCB40A, 20%);
-    }
+    background-image: url("images/application-frame/minimize@2x.png");
   }
   .maximize {
-    background-color: #0AAF00;
-    &:hover {
-      background-color: darken(#0AAF00, 10%);
-    }
-    &:active {
-      background-color: darken(#0AAF00, 20%);
-    }
+    background-image: url("images/application-frame/maximize@2x.png");
   }
 }
 
@@ -115,7 +109,7 @@ body.platform-win32, body.platform-linux {
 body.is-blurred {
   .toolbar-window-controls {
     button {
-      background-color: desaturate(fade(#FCB40A, 20%), 100%);
+      background-position: 0 -36px;
     }
   }
 }
