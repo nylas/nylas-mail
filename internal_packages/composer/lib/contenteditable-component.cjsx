@@ -645,8 +645,14 @@ ContenteditableComponent = React.createClass
         blockquote: "p"
         table: "p"
 
-    cleanHtml.replace(/<p>/gi, "").replace(/<\/p>/gi, "<br/><br/>")
+    # We sanitized everything and convert all whitespace-inducing elements
+    # into <p> tags. We want to de-wrap <p> tags and replace with two line
+    # breaks instead.
+    cleanHTML = cleanHtml.replace(/<p[\s\S]*?>/gim, "").replace(/<\/p>/gi, "<br/><br/>")
 
+    # We never want more then 2 line breaks in a row.
+    # https://regex101.com/r/gF6bF4/2
+    cleanHTML.replace(/(<br\/?>\s*){3,}/g, "<br/><br/>")
 
 
 
