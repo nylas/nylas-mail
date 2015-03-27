@@ -131,20 +131,38 @@ DraftStore = Reflux.createStore
       @_drafts = drafts
       @trigger(change)
 
+  _isMe: (contact={}) ->
+    contact.email is NamespaceStore.current().me().email
+
   _onComposeReply: (context) ->
-    @_newMessageWithContext context, (thread, message) ->
-      replyToMessage: message
-      to: message.from
+    @_newMessageWithContext context, (thread, message) =>
+      if @_isMe(message.from[0])
+        to = message.to
+      else
+        to = message.from
+
+      return {
+        replyToMessage: message
+        to: to
+      }
 
   _onComposeReplyAll: (context) ->
-    @_newMessageWithContext context, (thread, message) ->
-      excluded = message.from.map (c) -> c.email
-      excluded.push(NamespaceStore.current().me().email)
+    @_newMessageWithContext context, (thread, message) =>
+      if @_isMe(message.from[0])
+        to = message.to
+        cc = message.cc
+      else
+        excluded = message.from.map (c) -> c.email
+        excluded.push(NamespaceStore.current().me().email)
+        to = message.from
+        cc = [].concat(message.cc, message.to).filter (p) ->
+          !_.contains(excluded, p.email)
 
-      replyToMessage: message
-      to: message.from
-      cc: [].concat(message.cc, message.to).filter (p) ->
-        !_.contains(excluded, p.email)
+      return {
+        replyToMessage: message
+        to: to
+        cc: cc
+      }
 
   _onComposeForward: (context) ->
     @_newMessageWithContext context, (thread, message) ->

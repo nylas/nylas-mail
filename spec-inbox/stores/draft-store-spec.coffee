@@ -13,6 +13,7 @@ _ = require 'underscore-plus'
 fakeThread = null
 fakeMessage1 = null
 fakeMessage2 = null
+msgFromMe = null
 fakeMessages = null
 
 describe "DraftStore", ->
@@ -42,8 +43,20 @@ describe "DraftStore", ->
         subject: 'Re: Fake Subject'
         date: new Date(1415814587)
 
+      msgFromMe = new Message
+        id: 'fake-message-3'
+        to: [new Contact(email: '1@1.com'), new Contact(email: '2@2.com')]
+        cc: [new Contact(email: '3@3.com'), new Contact(email: '4@4.com')]
+        bcc: [new Contact(email: '5@5.com'), new Contact(email: '6@6.com')]
+        from: [new Contact(email: NamespaceStore.current().me().email)]
+        threadId: 'fake-thread-id'
+        body: 'Fake Message 2'
+        subject: 'Re: Fake Subject'
+        date: new Date(1415814587)
+
       fakeMessages =
         'fake-message-1': fakeMessage1
+        'fake-message-3': msgFromMe
         'fake-message-2': fakeMessage2
 
       spyOn(DatabaseStore, 'find').andCallFake (klass, id) ->
@@ -78,6 +91,29 @@ describe "DraftStore", ->
       it "should set the replyToMessageId to the previous message's ids", ->
         expect(@model.replyToMessageId).toEqual(fakeMessage1.id)
 
+    describe "when the reply-to address is you", ->
+      it "on reply sends to all of the last messages's to recipients only", ->
+        runs ->
+          DraftStore._onComposeReply({threadId: fakeThread.id, messageId: msgFromMe.id})
+        waitsFor ->
+          DatabaseStore.persistModel.callCount > 0
+        runs ->
+          @model = DatabaseStore.persistModel.mostRecentCall.args[0]
+          expect(@model.to).toEqual(msgFromMe.to)
+          expect(@model.cc.length).toBe 0
+          expect(@model.bcc.length).toBe 0
+
+      it "on reply-all sends to all of the last messages's recipients", ->
+        runs ->
+          DraftStore._onComposeReplyAll({threadId: fakeThread.id, messageId: msgFromMe.id})
+        waitsFor ->
+          DatabaseStore.persistModel.callCount > 0
+        runs ->
+          @model = DatabaseStore.persistModel.mostRecentCall.args[0]
+          expect(@model.to).toEqual(msgFromMe.to)
+          expect(@model.cc).toEqual(msgFromMe.cc)
+          expect(@model.bcc.length).toBe 0
+
     describe "onComposeReplyAll", ->
       beforeEach ->
         runs ->
@@ -104,8 +140,7 @@ describe "DraftStore", ->
 
       it "should not include you when you were cc'd on the previous message", ->
         ccEmails = @model.cc.map (cc) -> cc.email
-        myEmail = NamespaceStore.current().me().email
-        expect(ccEmails.indexOf(myEmail)).toEqual(-1)
+        expect(ccEmails.indexOf(NamespaceStore.current().me().email)).toEqual(-1)
 
       it "should set the replyToMessageId to the previous message's ids", ->
         expect(@model.replyToMessageId).toEqual(fakeMessage1.id)
