@@ -108,8 +108,8 @@ ContenteditableComponent = React.createClass
     @_setNewSelectionState()
 
     html = @_unapplyHTMLDisplayFilters(editableNode.innerHTML)
-    @props.onChange(target: value: html)
-  
+    @props.onChange(target: {value: html})
+
   _onBlur: (event) ->
     # The delay here is necessary to see if the blur was caused by us
     # navigating to the toolbar and focusing on the set-url input.
@@ -213,6 +213,7 @@ ContenteditableComponent = React.createClass
   # and our selection restoration will fail
   _setNewSelectionState: ->
     selection = document.getSelection()
+    return unless @isMounted()
     return if @_checkSameSelection(selection)
 
     range = @_getRangeInScope()
@@ -234,9 +235,24 @@ ContenteditableComponent = React.createClass
       endNodeIndex: @_getNodeIndex(range.endContainer)
       isCollapsed: selection.isCollapsed
       selectionRect: selectionRect
+      atEndOfContent: @_atEndOfContent(range, selection)
 
     @_refreshToolbarState()
     return @_selection
+
+  _atEndOfContent: (range, selection) ->
+    if selection.isCollapsed
+      lastChild = @_editableNode().lastElementChild
+      return false unless lastChild
+      inLastChild = lastChild.contains(range.endContainer)
+      isLastChild = lastChild is range.endContainer
+      if range.endContainer?.length
+        atEndIndex = range.endOffset is range.endContainer.length
+      else
+        atEndIndex = range.endOffset is 0
+
+      return (inLastChild or isLastChild) and atEndIndex
+    else return false
 
   _setSelectionSnapshot: (selection) ->
     @_previousSelection = @_selection

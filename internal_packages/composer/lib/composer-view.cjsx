@@ -300,7 +300,11 @@ ComposerView = React.createClass
 
   _onChangeParticipants: (changes={}) -> @_addToProxy(changes)
   _onChangeSubject: (event) -> @_addToProxy(subject: event.target.value)
-  _onChangeBody: (event) -> @_addToProxy(body: event.target.value)
+
+  _onChangeBody: (event) ->
+    if @_getSelections().currentSelection?.atEndOfContent
+      @props.onRequestScrollTo?(messageId: @_proxy.draft().id, location: "bottom")
+    @_addToProxy(body: event.target.value)
 
   _onChangeEditableMode: ({showQuotedText}) ->
     @setState showQuotedText: showQuotedText

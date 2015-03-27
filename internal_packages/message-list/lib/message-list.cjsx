@@ -100,7 +100,7 @@ MessageList = React.createClass
   # There may be a lot of iframes to load which may take an indeterminate
   # amount of time. As long as there is more content being painted onto
   # the page and our height is changing, keep waiting. Then scroll to message.
-  scrollToMessage: (msgDOMNode, done) ->
+  scrollToMessage: (msgDOMNode, done, location="top", stability=5) ->
     return done() unless msgDOMNode?
 
     messageWrap = @refs.messageWrap?.getDOMNode()
@@ -115,8 +115,13 @@ MessageList = React.createClass
         stableCount = 0
       else
         stableCount += 1
-        if stableCount is 5
-          messageWrap.scrollTop = msgDOMNode.offsetTop
+        if stableCount is stability
+          if location is "top"
+            messageWrap.scrollTop = msgDOMNode.offsetTop
+          else if location is "bottom"
+            offsetTop = msgDOMNode.offsetTop
+            messageHeight = msgDOMNode.getBoundingClientRect().height
+            messageWrap.scrollTop = offsetTop - (messageWrapHeight - messageHeight)
           return done()
 
       window.requestAnimationFrame -> scrollIfSettled(msgDOMNode, done)
@@ -165,6 +170,7 @@ MessageList = React.createClass
                          ref="composerItem-#{message.id}"
                          key={@state.messageLocalIds[message.id]}
                          localId={@state.messageLocalIds[message.id]}
+                         onRequestScrollTo={@_onRequestScrollToComposer}
                          className={className} />
       else
         components.push <MessageItem key={message.id}
@@ -183,6 +189,15 @@ MessageList = React.createClass
           components.push <hr className="message-item-divider" />
 
     components
+
+  # Some child components (like the compser) might request that we scroll
+  # to the bottom of the component.
+  _onRequestScrollToComposer: ({messageId, location}={}) ->
+    return unless @isMounted()
+    done = ->
+    location ?= "bottom"
+    composer = @refs["composerItem-#{messageId}"]?.getDOMNode()
+    @scrollToMessage(composer, done, location, 1)
 
   _onChange: ->
     @setState(@_getStateFromStores())
