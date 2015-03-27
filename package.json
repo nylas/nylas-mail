@@ -56,7 +56,7 @@
     "raven": "0.7.2",
     "react": "^0.12.2",
     "react-atom-fork": "^0.11.5",
-    "react-dnd": "^0.6.3",
+    "react-dnd": "^0.9.8",
     "reactionary-atom-fork": "^1.0.0",
     "reflux": "0.1.13",
     "request": "^2.53",
