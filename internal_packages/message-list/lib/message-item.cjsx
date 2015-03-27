@@ -117,6 +117,9 @@ MessageItem = React.createClass
   _renderMessageActions: ->
     messageActions = ComponentRegistry.findAllViewsByRole('MessageAction')
     <div className="message-actions-wrap">
+      <div className="message-actions-ellipsis" onClick={@_onShowActionsMenu}>
+        <RetinaImg name={"message-actions-ellipsis.png"}/>
+      </div>
       <div className="message-actions">
         <button className="btn btn-icon" onClick={@_onReply}>
           <RetinaImg name={"message-reply.png"}/>
@@ -127,9 +130,7 @@ MessageItem = React.createClass
         <button className="btn btn-icon" onClick={@_onForward}>
           <RetinaImg name={"message-forward.png"}/>
         </button>
-
         {<Action thread={@props.thread} message={@props.message} /> for Action in messageActions}
-
       </div>
     </div>
 
@@ -144,6 +145,43 @@ MessageItem = React.createClass
   _onForward: ->
     tId = @props.thread.id; mId = @props.message.id
     Actions.composeForward(threadId: tId, messageId: mId) if (tId and mId)
+ 
+  _onReport: (issueType) ->
+    {Contact, Message, DatabaseStore, NamespaceStore} = require 'inbox-exports'
+
+    draft = new Message
+      from: [NamespaceStore.current().me()]
+      to: [new Contact(name: "Nilas Team", email: "feedback@nilas.com")]
+      date: (new Date)
+      draft: true
+      subject: "Feedback - Message Display Issue (#{issueType})"
+      namespaceId: NamespaceStore.current().id
+      body: @props.message.body
+
+    DatabaseStore.persistModel(draft).then ->
+      DatabaseStore.localIdForModel(draft).then (localId) ->
+        Actions.sendDraft(localId)
+
+        remote = require('remote')
+        dialog = remote.require('dialog')
+        dialog.showMessageBox remote.getCurrentWindow(), {
+          type: 'warning'
+          buttons: ['OK'],
+          message: "Thank you."
+          detail: "The contents of this message have been sent to the Edgehill team and we added to a test suite."
+        }
+
+  _onShowActionsMenu: ->
+    remote = require('remote')
+    Menu = remote.require('menu')
+    MenuItem = remote.require('menu-item')
+
+    # Todo: refactor this so that message actions are provided
+    # dynamically. Waiting to see if this will be used often.
+    menu = new Menu()
+    menu.append(new MenuItem({ label: 'Report Issue: Quoted Text', click: => @_onReport('Quoted Text')}))
+    menu.append(new MenuItem({ label: 'Report Issue: Rendering', click: => @_onReport('Rendering')}))
+    menu.popup(remote.getCurrentWindow())
 
   _renderCollapseControl: ->
     if @state.detailedHeaders
