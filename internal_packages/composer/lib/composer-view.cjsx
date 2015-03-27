@@ -289,14 +289,14 @@ ComposerView = React.createClass
     else if @isForwardedMessage() then return true
     else return false
 
-  _onDragNoop: ->
-    false
+  _onDragNoop: (e) ->
+    e.preventDefault()
 
   _onDrop: (e) ->
     e.preventDefault()
     for file in e.dataTransfer.files
       Actions.attachFilePath({path: file.path, messageLocalId: @props.localId})
-    false
+    true
 
   _onChangeParticipants: (changes={}) -> @_addToProxy(changes)
   _onChangeSubject: (event) -> @_addToProxy(subject: event.target.value)

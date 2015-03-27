@@ -14,12 +14,13 @@ Token = React.createClass
     action: React.PropTypes.func,
     item: React.PropTypes.object,
 
-  configureDragDrop: (registerType) ->
-    registerType('token', {
-      dragSource:
-        beginDrag: ->
-          item: @props.item
-    })
+  statics:
+    configureDragDrop: (registerType) ->
+      registerType('token', {
+        dragSource:
+          beginDrag: (component) ->
+            item: component.props.item
+      })
 
   render: ->
     classes = React.addons.classSet
@@ -62,12 +63,13 @@ TokenizingTextField = React.createClass
     remove: React.PropTypes.func.isRequired,
     showMenu: React.PropTypes.func,
 
-  configureDragDrop: (registerType) ->
-    registerType('token', {
-      dropTarget:
-        acceptDrop: (token) ->
-          @_addToken(token)
-    })
+  statics:
+    configureDragDrop: (registerType) ->
+      registerType('token', {
+        dropTarget:
+          acceptDrop: (component, token) ->
+            component._addToken(token)
+      })
 
   getInitialState: ->
     completions: []
