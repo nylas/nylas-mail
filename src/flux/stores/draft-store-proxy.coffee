@@ -85,10 +85,7 @@ class DraftStoreProxy
     @_draftPromise ?= new Promise (resolve, reject) =>
       DatabaseStore = require './database-store'
       DatabaseStore.findByLocalId(Message, @draftLocalId).then (draft) =>
-        if !draft.body?
-          throw new Error("DraftStoreProxy.prepare - draft has no body.")
-        @_draft = draft
-        @_emitter.emit('trigger')
+        @_setDraft(draft)
         resolve(@)
       .catch(reject)
     @_draftPromise
@@ -107,6 +104,12 @@ class DraftStoreProxy
     # Unlink ourselves from the stores/actions we were listening to
     # so that we can be garbage collected
     unlisten() for unlisten in @unlisteners
+  
+  _setDraft: (draft) ->
+    if !draft.body?
+      throw new Error("DraftStoreProxy._setDraft - new draft has no body!")
+    @_draft = draft
+    @_emitter.emit('trigger')
 
   _onDraftChanged: (change) ->
     return if not change?
@@ -116,13 +119,11 @@ class DraftStoreProxy
     # Is this change an update to our draft?
     myDraft = _.find(change.objects, (obj) => obj.id == @_draft.id)
     if myDraft
-      @_draft = myDraft
-      @_emitter.emit('trigger')
+      @_setDraft(myDraft)
 
   _onDraftSwapped: (change) ->
     # A draft was saved with a new ID. Since we use the draft ID to
     # watch for changes to our draft, we need to pull again using our
     # localId.
     if change.oldModel.id is @_draft.id
-      @_draft = change.newModel
-      @_emitter.emit('trigger')
+      @_setDraft(change.newModel)
