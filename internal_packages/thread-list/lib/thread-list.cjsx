@@ -64,14 +64,13 @@ ThreadList = React.createClass
     </div>
 
   _prepareColumns: ->
-    myEmail = NamespaceStore.current()?.emailAddress
-
     labelComponents = (thread) =>
       for label in @state.threadLabelComponents
         LabelComponent = label.view
         <LabelComponent thread={thread} />
 
     lastMessageType = (thread) ->
+      myEmail = NamespaceStore.current()?.emailAddress
       msgs = thread.messageMetadata
       return 'unknown' unless msgs and msgs instanceof Array and msgs.length > 0
       msg = msgs[msgs.length - 1]
