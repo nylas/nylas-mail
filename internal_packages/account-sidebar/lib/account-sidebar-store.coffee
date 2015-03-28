@@ -80,7 +80,7 @@ AccountSidebarStore = Reflux.createStore
       section.tags.forEach (tag) =>
         if tag.id is "drafts"
           @_populateDraftsCount(tag)
-        else if tag.id in ['drafts', 'sent', 'archive', 'trash']
+        else if tag.id in ['drafts', 'sent', 'archive', 'trash', '*']
           return
         else
           # Make a web request for unread count
