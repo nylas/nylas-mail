@@ -340,7 +340,14 @@ body.is-blurred .composer-inner-wrap .tokenizing-field .token {
 
   .floating-toolbar-input {
     display: inline;
-    width: auto;
+    // The hardcoded numbers here represent the widths of the various
+    // icons and buttons that surround the input. They are hardcoded here
+    // because CSS does the calculation for us that we'd otherwise have to
+    // do in React before the element renders to the page.
+    width: calc(~"100% - 62px");
+    &.with-remove {
+      width: calc(~"100% - 95px");
+    }
     color: @text-color;
   }
 

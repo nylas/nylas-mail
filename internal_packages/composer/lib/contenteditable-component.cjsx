@@ -9,6 +9,8 @@ genLinkId = -> linkUUID += 1; return linkUUID
 
 module.exports =
 ContenteditableComponent = React.createClass
+  displayName: "Contenteditable"
+
   propTypes:
     html: React.PropTypes.string
     style: React.PropTypes.object

@@ -5,6 +5,8 @@ React = require 'react/addons'
 
 module.exports =
 FloatingToolbar = React.createClass
+  displayName: "FloatingToolbar"
+
   getInitialState: ->
     mode: "buttons"
     urlInputValue: @_initialUrl() ? ""
@@ -49,6 +51,7 @@ FloatingToolbar = React.createClass
     styles =
       left: @_toolbarLeft()
       top: @props.top
+      width: @_width()
     return styles
 
   _toolbarType: ->
@@ -74,7 +77,9 @@ FloatingToolbar = React.createClass
 
   _renderLink: ->
     removeBtn = ""
+    withRemove = ""
     if @_initialUrl()
+      withRemove = "with-remove"
       removeBtn = <button className="btn btn-icon"
                           onMouseDown={@_removeUrl}><i className="fa fa-times"></i></button>
 
@@ -88,7 +93,7 @@ FloatingToolbar = React.createClass
              onBlur={@_saveUrl}
              onKeyPress={@_saveUrlOnEnter}
              onChange={@_onInputChange}
-             className="floating-toolbar-input"
+             className="floating-toolbar-input #{withRemove}"
              placeholder="Paste or type a link" />
       <button className="btn btn-icon"
               onKeyPress={@_saveUrlOnEnter}
@@ -134,8 +139,8 @@ FloatingToolbar = React.createClass
 
   _toolbarLeft: ->
     CONTENT_PADDING = @props.contentPadding ? 15
-    max = @props.editAreaWidth - @_halfWidth()*2 - CONTENT_PADDING
-    left = Math.min(Math.max(@props.left - @_halfWidth(), CONTENT_PADDING), max)
+    max = @props.editAreaWidth - @_width() - CONTENT_PADDING
+    left = Math.min(Math.max(@props.left - @_width()/2, CONTENT_PADDING), max)
     return left
 
   _toolbarPointerStyles: ->
@@ -146,24 +151,35 @@ FloatingToolbar = React.createClass
     absoluteLeft = Math.max(Math.min(@props.left, max), min)
     relativeLeft = absoluteLeft - @_toolbarLeft()
 
-    left = Math.max(Math.min(relativeLeft, @_halfWidth()*2-POINTER_WIDTH), POINTER_WIDTH)
+    left = Math.max(Math.min(relativeLeft, @_width()-POINTER_WIDTH), POINTER_WIDTH)
     styles =
       left: left
     return styles
 
-  _halfWidth: ->
+  _width: ->
     # We can't calculate the width of the floating toolbar declaratively
     # because it hasn't been rendered yet. As such, we'll keep the width
     # fixed to make it much eaier.
     TOOLBAR_BUTTONS_WIDTH = 114#px
     TOOLBAR_URL_WIDTH = 210#px
 
+    # If we have a long link, we want to make a larger text area. It's not
+    # super important to get the lenght exactly so let's just get within
+    # the ballpark by guessing charcter lengths
+    WIDTH_PER_CHAR = 11
+    max = @props.editAreaWidth - (@props.contentPadding ? 15)*2
+
     if @state.mode is "buttons"
-      TOOLBAR_BUTTONS_WIDTH / 2
+      return TOOLBAR_BUTTONS_WIDTH
     else if @state.mode is "edit-link"
-      TOOLBAR_URL_WIDTH / 2
+      url = @_initialUrl()
+      if url?.length > 0
+        fullWidth = Math.max(Math.min(url.length * WIDTH_PER_CHAR, max), TOOLBAR_URL_WIDTH)
+        return fullWidth
+      else
+        return TOOLBAR_URL_WIDTH
     else
-      TOOLBAR_BUTTONS_WIDTH / 2
+      return TOOLBAR_BUTTONS_WIDTH
 
   _showLink: ->
     @setState mode: "edit-link"
