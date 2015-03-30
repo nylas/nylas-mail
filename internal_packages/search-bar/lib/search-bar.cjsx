@@ -19,6 +19,9 @@ SearchBar = React.createClass
     @body_unsubscriber = atom.commands.add 'body', {
       'application:focus-search': @_onFocusSearch
     }
+    @body_unsubscriber = atom.commands.add '.search-bar', {
+      'search-bar:escape-search': @_clearAndBlur
+    }
 
   # It's important that every React class explicitly stops listening to
   # atom events before it unmounts. Thank you event-kit
@@ -117,6 +120,10 @@ SearchBar = React.createClass
 
   _onClearSearch: (event) ->
     Actions.searchQueryCommitted('')
+
+  _clearAndBlur: ->
+    @_onClearSearch()
+    @refs.searchInput?.getDOMNode().blur()
 
   _onFocus: ->
     @setState focused: true
