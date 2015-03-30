@@ -40,20 +40,20 @@ describe "ThreadListParticipants", ->
           in: [
             new Message(unread: false, from: [@ben]),
           ]
-          out: [@ben]
+          out: [{contact: @ben, unread: false}]
         },{
           name: 'single unread email'
           in: [
             new Message(unread: true, from: [@evan]),
           ]
-          out: [@evan]
+          out: [{contact: @evan, unread: true}]
         },{
           name: 'single unread response'
           in: [
             new Message(unread: false, from: [@ben]),
             new Message(unread: true, from: [@evan]),
           ]
-          out: [@ben, @evan]
+          out: [{contact: @ben, unread: false}, {contact: @evan, unread: true}]
         },{
           name: 'two unread responses'
           in: [
@@ -61,7 +61,9 @@ describe "ThreadListParticipants", ->
             new Message(unread: true, from: [@evan]),
             new Message(unread: true, from: [@kavya]),
           ]
-          out: [@ben, @evan, @kavya]
+          out: [{contact: @ben, unread: false},
+                {contact: @evan, unread: true},
+                {contact: @kavya, unread: true}]
         },{
           name: 'two unread responses (repeated participants)'
           in: [
@@ -69,7 +71,7 @@ describe "ThreadListParticipants", ->
             new Message(unread: true, from: [@evan]),
             new Message(unread: true, from: [@evanAgain]),
           ]
-          out: [@ben, @evan]
+          out: [{contact: @ben, unread: false}, {contact: @evan, unread: true}]
         },{
           name: 'three unread responses (repeated participants)'
           in: [
@@ -78,7 +80,10 @@ describe "ThreadListParticipants", ->
             new Message(unread: true, from: [@michael]),
             new Message(unread: true, from: [@evanAgain]),
           ]
-          out: [@ben, {spacer: true}, @michael, @evanAgain]
+          out: [{contact: @ben, unread: false},
+                {spacer: true},
+                {contact: @michael, unread: true},
+                {contact: @evanAgain, unread: true}]
         },{
           name: 'three unread responses'
           in: [
@@ -87,7 +92,10 @@ describe "ThreadListParticipants", ->
             new Message(unread: true, from: [@michael]),
             new Message(unread: true, from: [@kavya]),
           ]
-          out: [@ben, {spacer: true}, @michael, @kavya]
+          out: [{contact: @ben, unread: false},
+                {spacer: true},
+                {contact: @michael, unread: true},
+                {contact: @kavya, unread: true}]
         },{
           name: 'three unread responses to long thread'
           in: [
@@ -99,7 +107,10 @@ describe "ThreadListParticipants", ->
             new Message(unread: true, from: [@michael]),
             new Message(unread: true, from: [@evanAgain]),
           ]
-          out: [@ben, {spacer: true}, @michael, @evanAgain]
+          out: [{contact: @ben, unread: false},
+                {spacer: true},
+                {contact: @michael, unread: true},
+                {contact: @evanAgain, unread: true}]
         },{
           name: 'single unread responses to long thread'
           in: [
@@ -109,7 +120,10 @@ describe "ThreadListParticipants", ->
             new Message(unread: false, from: [@ben]),
             new Message(unread: true, from: [@evanAgain]),
           ]
-          out: [@ben, {spacer: true}, @ben, @evanAgain]
+          out: [{contact: @ben, unread: false},
+                {spacer: true},
+                {contact: @ben, unread: false},
+                {contact: @evanAgain, unread: true}]
         },{
           name: 'long read thread'
           in: [
@@ -118,7 +132,10 @@ describe "ThreadListParticipants", ->
             new Message(unread: false, from: [@michael]),
             new Message(unread: false, from: [@ben]),
           ]
-          out: [@ben, {spacer: true}, @michael, @ben]
+          out: [{contact: @ben, unread: false},
+                {spacer: true},
+                {contact: @michael, unread: false},
+                {contact: @ben, unread: false}]
         }]
 
         for scenario in scenarios
@@ -141,23 +158,26 @@ describe "ThreadListParticipants", ->
         scenarios = [{
           name: 'one participant'
           in: [@ben]
-          out: [@ben]
+          out: [{contact: @ben, unread: false}]
         },{
           name: 'one participant (me)'
           in: [me]
-          out: [me]
+          out: [{contact: me, unread: false}]
         },{
           name: 'two participants'
           in: [@evan, @ben]
-          out: [@evan, @ben]
+          out: [{contact: @evan, unread: false}, {contact: @ben, unread: false}]
         },{
           name: 'two participants (me)'
           in: [@ben, me]
-          out: [@ben]
+          out: [{contact: @ben, unread: false}]
         },{
           name: 'lots of participants'
           in: [@ben, @evan, @michael, @kavya]
-          out: [@ben, {spacer: true}, @michael, @kavya]
+          out: [{contact: @ben, unread: false},
+                {spacer: true},
+                {contact: @michael, unread: false},
+                {contact: @kavya, unread: false}]
         }]
 
         for scenario in scenarios

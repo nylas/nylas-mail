@@ -216,7 +216,7 @@ describe "ThreadList", ->
     spyOn(Actions, "archiveCurrentThread")
     spyOn(Actions, "archiveAndNext")
     spyOn(Actions, "archiveAndPrevious")
-    ReactTestUtils.spyOnClass(ThreadList, "_computeColumns").andReturn(columns)
+    ReactTestUtils.spyOnClass(ThreadList, "_prepareColumns")
 
     ThreadStore._resetInstanceVars()
 
@@ -227,6 +227,7 @@ describe "ThreadList", ->
     @thread_list = ReactTestUtils.renderIntoDocument(
       <ThreadList />
     )
+    @thread_list._columns = columns
 
   it "renders into the document", ->
     expect(ReactTestUtils.isCompositeComponentWithType(@thread_list,
@@ -238,7 +239,7 @@ describe "ThreadList", ->
     expect(@thread_list._onStarThread).toHaveBeenCalled()
 
   it "has the expected columns", ->
-    expect(@thread_list.state.columns).toEqual columns
+    expect(@thread_list._columns).toEqual columns
 
   it "by default has zero children", ->
     items = ReactTestUtils.scryRenderedComponentsWithType(@thread_list, ListTabular.Item)

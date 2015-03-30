@@ -63,6 +63,11 @@ ThreadListParticipants = React.createClass
       if list.length is 0
         list.push(@props.thread.participants[0])
 
+      # Change the list to have the appropriate output format
+      list = list.map (contact) ->
+        contact: contact
+        unread: false # We don't have the data.
+
     # We only ever want to show three. Ben...Kevin... Marty
     # But we want the *right* three.
     if list.length > 3
