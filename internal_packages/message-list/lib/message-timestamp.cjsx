@@ -1,5 +1,7 @@
+_ = require 'underscore-plus'
 moment = require 'moment-timezone'
 React = require 'react'
+{Utils} = require 'inbox-exports'
 
 module.exports =
 MessageTimestamp = React.createClass
@@ -10,12 +12,15 @@ MessageTimestamp = React.createClass
     isDetailed: React.PropTypes.bool
     onClick: React.PropTypes.func
 
+  shouldComponentUpdate: (nextProps, nextState) ->
+    +nextProps.date isnt +@props.date or nextProps.isDetailed isnt @props.isDetailed
+
   render: ->
     <div className={@props.className}
          onClick={@props.onClick}>{@_formattedDate()}</div>
 
   _formattedDate: ->
-    moment.tz(@props.date, @_currentTimezone()).format(@_timeFormat())
+    moment.tz(@props.date, Utils.timeZone).format(@_timeFormat())
 
   _timeFormat: ->
     if @props.isDetailed
@@ -36,8 +41,6 @@ MessageTimestamp = React.createClass
         return "MMM D YYYY"
 
   # Stubbable for testing. Returns a `moment`
-  _today: -> moment.tz(@_currentTimezone())
-
-  _currentTimezone: -> Intl.DateTimeFormat().resolvedOptions().timeZone
+  _today: -> moment.tz(Utils.timeZone)
 
 

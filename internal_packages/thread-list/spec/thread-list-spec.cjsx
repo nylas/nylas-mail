@@ -292,8 +292,10 @@ describe "ThreadList", ->
       ThreadStore._selectedId = null
       ThreadStore.trigger(ThreadStore)
       @thread_list_node = @thread_list.getDOMNode()
+      spyOn(@thread_list, "setState").andCallThrough()
 
     it "renders all of the thread list items", ->
+      advanceClock(100)
       items = ReactTestUtils.scryRenderedComponentsWithType(@thread_list, ListTabular.Item)
       expect(items.length).toBe 3
 

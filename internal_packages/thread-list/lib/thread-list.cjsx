@@ -150,8 +150,13 @@ ThreadList = React.createClass
     else if WorkspaceStore.selectedLayoutMode() is "split"
       Actions.archiveAndNext()
 
-  _onChange: ->
+  # Message list rendering is more important than thread list rendering.
+  # Since they're on the same event listner, and the event listeners are
+  # unordered, we need a way to push thread list updates later back in the
+  # queue.
+  _onChange: -> _.delay =>
     @setState(@_getStateFromStores())
+  , 30
 
   _getStateFromStores: ->
     ready: not ThreadStore.itemsLoading()

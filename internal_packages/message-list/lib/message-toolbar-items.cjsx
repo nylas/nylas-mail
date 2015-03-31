@@ -1,3 +1,4 @@
+_ = require 'underscore-plus'
 React = require 'react'
 {Actions, ThreadStore, Utils, WorkspaceStore} = require 'inbox-exports'
 {RetinaImg} = require 'ui-components'
@@ -82,6 +83,7 @@ MessageToolbarItems = React.createClass
   componentWillUnmount: ->
     unsubscribe() for unsubscribe in @_unsubscribers
 
-  _onChange: ->
+  _onChange: -> _.defer =>
+    return unless @isMounted()
     @setState
       threadIsSelected: ThreadStore.selectedId()?

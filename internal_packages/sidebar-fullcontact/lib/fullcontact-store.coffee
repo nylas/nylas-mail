@@ -7,6 +7,7 @@ module.exports =
 FullContactStore = Reflux.createStore
 
   init: ->
+    @_fetchAPIData = _.debounce(_.bind(@__fetchAPIData, @), 50)
     @_cachedContactData = {}
     @listenTo FocusedContactsStore, @_onFocusedContacts
 
@@ -28,7 +29,7 @@ FullContactStore = Reflux.createStore
       @_fetchAPIData(contact.email)
     @trigger()
 
-  _fetchAPIData: (email="") ->
+  __fetchAPIData: (email="") ->
     # Swap the url's to see real data
     email = email.toLowerCase().trim()
     return if email.length is 0

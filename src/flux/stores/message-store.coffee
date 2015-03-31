@@ -18,7 +18,7 @@ MessageStore = Reflux.createStore
     @_items
 
   threadId: -> @_threadId
-  
+
   itemsExpandedState: ->
     # ensure that we're always serving up immutable objects.
     # this.state == nextState is always true if we modify objects in place.
@@ -26,7 +26,7 @@ MessageStore = Reflux.createStore
 
   itemLocalIds: ->
     _.clone @_itemsLocalIds
-  
+
   itemsLoading: ->
     @_itemsLoading
 
@@ -60,11 +60,13 @@ MessageStore = Reflux.createStore
     @_items = []
     @_itemsLoading = true
     @_itemsExpanded = {}
-    @trigger(@)
+    @_fetchFromCache()
 
-    _.defer =>
-      @_fetchFromCache()
-    ,50
+    # If the response is quick, then it will trigger when the fetch from
+    # cache returns.
+    _.delay =>
+      if @_itemsLoading then @trigger()
+    , 100
 
   _onToggleMessageIdExpanded: (id) ->
     if @_itemsExpanded[id]
@@ -128,10 +130,11 @@ MessageStore = Reflux.createStore
           for file in msg.files
             Actions.fetchFile(file) if file.contentId
 
-        # Normally, we would trigger often and let the view's shouldComponentUpdate
-        # decide whether to re-render, but if we know we're not ready, don't even bother.
-        # Trigger once at start and once when ready. Many third-party stores will
-        # observe MessageStore and they'll be stupid and re-render constantly.
+        # Normally, we would trigger often and let the view's
+        # shouldComponentUpdate decide whether to re-render, but if we
+        # know we're not ready, don't even bother.  Trigger once at start
+        # and once when ready. Many third-party stores will observe
+        # MessageStore and they'll be stupid and re-render constantly.
         if loaded
           @_itemsLoading = false
           @trigger(@)

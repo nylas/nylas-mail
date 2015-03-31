@@ -41,62 +41,76 @@ MessageItem = React.createClass
     @_storeUnlisten() if @_storeUnlisten
 
   shouldComponentUpdate: (nextProps, nextState) ->
-    not _.isEqual(nextProps, @props) or not _.isEqual(nextState, @state)
+    not Utils.isEqualReact(nextProps, @props) or
+    not Utils.isEqualReact(nextState, @state)
 
   render: ->
+    if @props.collapsed
+      @_renderCollapsed()
+    else
+      @_renderFull()
+
+  _renderCollapsed: ->
+    <div className={@props.className} onClick={@_toggleCollapsed}>
+      <div className="message-item-area">
+        <div className="collapsed-from">
+          {@props.message.from?[0]?.displayFirstName()}
+        </div>
+        <div className="collapsed-snippet">
+          {@props.message.snippet}
+        </div>
+        <div className="collapsed-timestamp">
+          <MessageTimestamp date={@props.message.date} />
+        </div>
+      </div>
+    </div>
+
+  _renderFull: ->
+    <div className={@props.className}>
+      <div className="message-item-area">
+        {@_renderHeader()}
+        {@_renderAttachments()}
+        <EmailFrame showQuotedText={@state.showQuotedText}>
+          {@_formatBody()}
+        </EmailFrame>
+        <a className={@_quotedTextClasses()} onClick={@_toggleQuotedText}></a>
+      </div>
+    </div>
+
+  _renderHeader: ->
     messageIndicators = ComponentRegistry.findAllViewsByRole('MessageIndicator')
-    
+    <header className="message-header">
+
+      <div className="message-header-right">
+        <MessageTimestamp className="message-time selectable"
+                          isDetailed={@state.detailedHeaders}
+                          date={@props.message.date} />
+
+        {<div className="message-indicator"><Indicator message={@props.message}/></div> for Indicator in messageIndicators}
+
+        {if @state.detailedHeaders then @_renderMessageActionsInline() else @_renderMessageActionsTooltip()}
+      </div>
+
+      <MessageParticipants to={@props.message.to}
+                           cc={@props.message.cc}
+                           bcc={@props.message.bcc}
+                           from={@props.message.from}
+                           subject={@props.message.subject}
+                           onClick={=> @setState detailedHeaders: true}
+                           thread_participants={@props.thread_participants}
+                           isDetailed={@state.detailedHeaders}
+                           message_participants={@props.message.participants()} />
+
+      {@_renderCollapseControl()}
+
+    </header>
+
+  _renderAttachments: ->
     attachments = @_attachmentComponents()
     if attachments.length > 0
-      attachments = <div className="attachments-area">{attachments}</div>
-
-    header =
-      <header className="message-header">
-
-        <div className="message-header-right">
-          <MessageTimestamp className="message-time selectable"
-                            isDetailed={@state.detailedHeaders}
-                            date={@props.message.date} />
-
-          {<div className="message-indicator"><Indicator message={@props.message}/></div> for Indicator in messageIndicators}
-
-          {if @state.detailedHeaders then @_renderMessageActionsInline() else @_renderMessageActionsTooltip()}
-        </div>
-
-        <MessageParticipants to={@props.message.to}
-                             cc={@props.message.cc}
-                             bcc={@props.message.bcc}
-                             from={@props.message.from}
-                             subject={@props.message.subject}
-                             onClick={=> @setState detailedHeaders: true}
-                             thread_participants={@props.thread_participants}
-                             isDetailed={@state.detailedHeaders}
-                             message_participants={@props.message.participants()} />
-
-        {@_renderCollapseControl()}
-
-      </header>
-
-    if @props.collapsed
-      <div className={@props.className} onClick={@_toggleCollapsed}>
-        <div className="message-item-area">
-          {header}
-          <div className="snippet">
-            {@props.message.snippet}
-          </div>
-        </div>
-      </div>
+      <div className="attachments-area">{attachments}</div>
     else
-      <div className={@props.className}>
-        <div className="message-item-area">
-          {header}
-          {attachments}
-          <EmailFrame showQuotedText={@state.showQuotedText}>
-            {@_formatBody()}
-          </EmailFrame>
-          <a className={@_quotedTextClasses()} onClick={@_toggleQuotedText}></a>
-        </div>
-      </div>
+      <div></div>
 
   _quotedTextClasses: -> React.addons.classSet
     "quoted-text-control": true

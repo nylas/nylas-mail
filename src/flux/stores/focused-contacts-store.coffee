@@ -31,13 +31,13 @@ FocusedContactsStore = Reflux.createStore
     @trigger() unless silent
 
   _onSelectThreadId: (id) ->
+    clear = true if id isnt @_currentThreadId
     @_currentThreadId = id
-    @_clearCurrentParticipants()
-    @_onMessageStoreChanged()
+    @_clearCurrentParticipants() if clear
     # We need to wait now for the MessageStore to grab all of the
     # appropriate messages for the given thread.
 
-  _onMessageStoreChanged: ->
+  _onMessageStoreChanged: -> _.defer =>
     if MessageStore.threadId() is @_currentThreadId
       @_setCurrentParticipants()
     else

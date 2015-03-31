@@ -1,7 +1,7 @@
 _ = require 'underscore-plus'
 React = require 'react'
 MessageItem = require "./message-item"
-{Actions, ThreadStore, MessageStore, ComponentRegistry} = require("inbox-exports")
+{Utils, Actions, ThreadStore, MessageStore, ComponentRegistry} = require("inbox-exports")
 {Spinner, ResizableRegion, RetinaImg} = require('ui-components')
 
 module.exports =
@@ -18,8 +18,10 @@ MessageList = React.createClass
     window.addEventListener("resize", @__onResize)
     @_unsubscribers = []
     @_unsubscribers.push MessageStore.listen @_onChange
-    @_unsubscribers.push ThreadStore.listen @_onChange
-    if not @state.loading
+    # We don't need to listen to ThreadStore bcause MessageStore already
+    # listens to thead selection changes
+
+    if not MessageStore.itemsLoading()
       @_prepareContentForDisplay()
 
   componentWillUnmount: ->
@@ -27,21 +29,18 @@ MessageList = React.createClass
     window.removeEventListener("resize", @__onResize)
 
   shouldComponentUpdate: (nextProps, nextState) ->
-    not _.isEqual(nextProps, @props) or not _.isEqual(nextState, @state)
+    not Utils.isEqualReact(nextProps, @props) or
+    not Utils.isEqualReact(nextState, @state)
 
   componentDidUpdate: (prevProps, prevState) ->
     newDraftIds = @_newDraftIds(prevState)
     newMessageIds = @_newMessageIds(prevState)
 
-    if prevState.loading and not @state.loading
-      @_prepareContentForDisplay()
-    else if newDraftIds.length > 0
+    if newDraftIds.length > 0
       @_focusDraft(@refs["composerItem-#{newDraftIds[0]}"])
       @_prepareContentForDisplay()
     else if newMessageIds.length > 0
       @_prepareContentForDisplay()
-
-    @_cacheScrollPos()
 
   _newDraftIds: (prevState) ->
     oldDraftIds = _.map(_.filter((prevState.messages ? []), (m) -> m.draft), (m) -> m.id)
@@ -221,7 +220,6 @@ MessageList = React.createClass
     messageLocalIds: MessageStore.itemLocalIds()
     messagesExpandedState: MessageStore.itemsExpandedState()
     currentThread: ThreadStore.selectedThread()
-    loading: MessageStore.itemsLoading()
     ready: if MessageStore.itemsLoading() then false else @state?.ready ? false
 
   _prepareContentForDisplay: ->
@@ -230,6 +228,7 @@ MessageList = React.createClass
       focusedMessage = @getDOMNode().querySelector(".initial-focus")
       @scrollToMessage focusedMessage, =>
         @setState(ready: true)
+      @_cacheScrollPos()
     , 100
 
   _threadParticipants: ->
@@ -256,6 +255,7 @@ MessageList = React.createClass
 
   _cacheScrollPos: ->
     messageWrap = @refs.messageWrap?.getDOMNode()
+    return unless messageWrap
     @_lastScrollTop = messageWrap.scrollTop
     @_lastHeight = messageWrap.getBoundingClientRect().height
     @_lastScrollHeight = messageWrap.scrollHeight

@@ -1,3 +1,4 @@
+_ = require 'underscore-plus'
 React = require 'react'
 {ThreadStore} = require 'inbox-exports'
 
@@ -17,7 +18,8 @@ MessageSubjectItem = React.createClass
   render: ->
     <div className="message-toolbar-subject">{@state.thread?.subject}</div>
 
-  _onChange: ->
+  _onChange: -> _.defer =>
+    return unless @isMounted()
     @setState(@_getStateFromStores())
 
   _getStateFromStores: ->
