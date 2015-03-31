@@ -288,16 +288,20 @@ DatabaseStore = Reflux.createStore
   # ActiveRecord-style Querying
 
   find: (klass, id) ->
-    throw (new Error "find takes a string Id. You may have intended to use findBy.") unless _.isString(id)
+    throw new Error("You must provide a class to findByLocalId") unless klass
+    throw new Error("find takes a string id. You may have intended to use findBy.") unless _.isString(id)
     new ModelQuery(klass, @).where({id:id}).one()
 
   findBy: (klass, predicates = []) ->
+    throw new Error("You must provide a class to findBy") unless klass
     new ModelQuery(klass, @).where(predicates).one()
 
   findAll: (klass, predicates = []) ->
+    throw new Error("You must provide a class to findAll") unless klass
     new ModelQuery(klass, @).where(predicates)
 
   count: (klass, predicates = []) ->
+    throw new Error("You must provide a class to count") unless klass
     new ModelQuery(klass, @).where(predicates).count()
 
   # Support for Local IDs
@@ -306,12 +310,17 @@ DatabaseStore = Reflux.createStore
   # (like body, stored in a separate table) are always included.
   #
   findByLocalId: (klass, localId) ->
+    return Promise.reject(new Error("You must provide a class to findByLocalId")) unless klass
+    return Promise.reject(new Error("You must provide a local Id to findByLocalId")) unless localId
+
     new Promise (resolve, reject) =>
       @find(LocalLink, localId).then (link) =>
         return reject("Find by local ID lookup failed") unless link
         query = @find(klass, link.objectId).includeAll().then(resolve)
 
   bindToLocalId: (model, localId) ->
+    return Promise.reject(new Error("You must provide a model to bindToLocalId")) unless model
+
     new Promise (resolve, reject) =>
       unless localId
         if isTempId(model.id)
@@ -325,10 +334,11 @@ DatabaseStore = Reflux.createStore
       .catch(reject)
 
   localIdForModel: (model) ->
+    return Promise.reject(new Error("You must provide a model to localIdForModel")) unless model
+
     new Promise (resolve, reject) =>
       if @_localIdLookupCache[model.id]
-        resolve(@_localIdLookupCache[model.id])
-        return
+        return resolve(@_localIdLookupCache[model.id])
 
       @findBy(LocalLink, {objectId: model.id}).then (link) =>
         if link

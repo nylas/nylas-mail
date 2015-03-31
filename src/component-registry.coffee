@@ -28,7 +28,7 @@ Mixin =
       @setState getViewsByName(@components)
 
   componentWillUnmount: ->
-    @_componentUnlistener()
+    @_componentUnlistener() if @_componentUnlistener
 
 # Internal representation of components
 class Component

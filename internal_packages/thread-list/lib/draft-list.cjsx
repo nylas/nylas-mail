@@ -88,6 +88,8 @@ DraftList = React.createClass
 
   _onShiftSelectedIndex: (delta) ->
     item = _.find @state.items, (draft) => draft.id is @state.selectedId
+    return unless item
+
     index = if item then @state.items.indexOf(item) else -1
     index = Math.max(0, Math.min(index + delta, @state.items.length-1))
     @setState
@@ -95,6 +97,7 @@ DraftList = React.createClass
 
   _onDeleteSelected: ->
     item = _.find @state.items, (draft) => draft.id is @state.selectedId
+    return unless item
 
     DatabaseStore.localIdForModel(item).then (localId) ->
       Actions.destroyDraft(localId)
