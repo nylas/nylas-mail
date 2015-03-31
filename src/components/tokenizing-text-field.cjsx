@@ -187,8 +187,7 @@ TokenizingTextField = React.createClass
 
   _addInputValue: (input) ->
     input ?= @state.inputValue
-    values = input.split(/[, \n\r><]/)
-    @props.add(values)
+    @props.add(input)
     @_clearInput()
 
   _selectToken: (token) ->

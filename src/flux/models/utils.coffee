@@ -204,6 +204,8 @@ Utils =
     toMatch = domains[0]
     return _.every(domains, (domain) -> domain.length > 0 and toMatch is domain)
 
+  emailRegex: /[a-z.A-Z0-9%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}/g
+
   emailHasCommonDomain: (email="") ->
     domain = _.last(email.toLowerCase().trim().split("@"))
     return (Utils.commonDomains[domain] ? false)

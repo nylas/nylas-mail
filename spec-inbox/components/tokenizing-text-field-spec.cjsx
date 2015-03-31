@@ -143,7 +143,7 @@ describe 'TokenizingTextField', ->
           @completions = []
           ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'abc'}})
           InboxTestUtils.keyPress(key, @renderedInput)
-          expect(@propAdd).toHaveBeenCalledWith(['abc'])
+          expect(@propAdd).toHaveBeenCalledWith('abc')
 
   describe "when the user presses tab", ->
     describe "and there is an completion available", ->
@@ -158,7 +158,7 @@ describe 'TokenizingTextField', ->
       ReactTestUtils.Simulate.focus(@renderedInput)
       ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'text'}})
       ReactTestUtils.Simulate.blur(@renderedInput)
-      expect(@propAdd).toHaveBeenCalledWith(['text'])
+      expect(@propAdd).toHaveBeenCalledWith('text')
 
     it 'should clear the entered text', ->
       ReactTestUtils.Simulate.focus(@renderedInput)

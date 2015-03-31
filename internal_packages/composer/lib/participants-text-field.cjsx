@@ -2,6 +2,7 @@ React = require 'react'
 _ = require 'underscore-plus'
 
 {Contact,
+ Utils,
  ContactStore} = require 'inbox-exports'
 {TokenizingTextField, Menu} = require 'ui-components'
 
@@ -82,11 +83,44 @@ ParticipantsTextField = React.createClass
     @props.change(updates)
 
   _add: (values) ->
+    # If the input is a string, parse out email addresses and build
+    # an array of contact objects. For each email address wrapped in
+    # parentheses, look for a preceding name, if one exists.
+
+    if _.isString(values)
+      detected = []
+      while (match = Utils.emailRegex.exec(values))
+        email = match[0]
+        name = null
+
+        hasLeadingParen  = values[match.index-1] in ['(','<']
+        hasTrailingParen = values[match.index+email.length] in [')','>']
+
+        if hasLeadingParen and hasTrailingParen
+          nameStart = 0
+          for char in ['>', ')', ',', '\n', '\r']
+            i = values.lastIndexOf(char, match.index)
+            nameStart = i+1 if i+1 > nameStart
+          name = values.substr(nameStart, match.index - 1 - nameStart).trim()
+
+        if not name or name.length is 0
+          # Look to see if we can find a name for this email address in the ContactStore.
+          # Otherwise, just populate the name with the email address.
+          existing = ContactStore.searchContacts(email, {limit:1})[0]
+          if existing and existing.name
+            name = existing.name
+          else
+            name = email
+
+        detected.push(new Contact({email, name}))
+      values = detected
+
+    # Safety check: remove anything from the incoming values that isn't
+    # a Contact. We should never receive anything else in the values array.
+
     values = _.compact _.map values, (value) ->
       if value instanceof Contact
         return value
-      else if /.+@.+\..+/.test(value)
-        return new Contact(email: value.trim(), name: value.trim())
       else
         return null
 
