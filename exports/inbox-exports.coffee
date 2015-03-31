@@ -37,6 +37,8 @@ module.exports =
   # Mixins
   UndoManager: require '../src/flux/undo-manager'
 
+  PriorityUICoordinator: require '../src/priority-ui-coordinator'
+
   # Stores
   DraftStore: require '../src/flux/stores/draft-store'
   ThreadStore: require '../src/flux/stores/thread-store'

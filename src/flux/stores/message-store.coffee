@@ -84,6 +84,7 @@ MessageStore = Reflux.createStore
 
     query = DatabaseStore.findAll(Message, threadId: loadedThreadId)
     query.include(Message.attributes.body)
+    query.evaluateImmediately()
     query.then (items) =>
       localIds = {}
       async.each items, (item, callback) ->

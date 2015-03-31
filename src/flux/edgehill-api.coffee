@@ -2,6 +2,7 @@ nodeRequest = require 'request'
 Actions = require './actions'
 {APIError} = require './errors'
 DatabaseStore = require './stores/database-store'
+PriorityUICoordinator = require '../priority-ui-coordinator'
 {modelFromJSON} = require './models/utils'
 async = require 'async'
 
@@ -38,11 +39,12 @@ class EdgehillAPI
     options.error ?= @_defaultErrorCallback
 
     nodeRequest options, (error, response, body) ->
-      Actions.didMakeAPIRequest({request: options, response: response})
-      if error? or response.statusCode > 299
-        options.error(new APIError({error:error, response:response, body:body, requestOptions: options}))
-      else
-        options.success(body) if options.success
+      PriorityUICoordinator.settle.then ->
+        Actions.didMakeAPIRequest({request: options, response: response})
+        if error? or response.statusCode > 299
+          options.error(new APIError({error:error, response:response, body:body, requestOptions: options}))
+        else
+          options.success(body) if options.success
 
   urlForConnecting: (provider, email_address = '') ->
     auth = @getCredentials()

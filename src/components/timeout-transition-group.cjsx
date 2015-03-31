@@ -23,13 +23,13 @@
 ###
 
 React = require('react/addons')
+PriorityUICoordinator = require('../priority-ui-coordinator')
 ReactTransitionGroup = React.addons.TransitionGroup
 TICK = 17
 
 endEvents = ['webkitTransitionEnd', 'webkitAnimationEnd']
 
-animationSupported = ->
-  endEvents.length != 0
+animationSupported = -> true
 
 ###*
 # Functions for element class management to replace dependency on jQuery
@@ -63,12 +63,31 @@ TimeoutTransitionGroupChild = React.createClass(
     className = @props.name + '-' + animationType
     activeClassName = className + '-active'
 
-    endListener = ->
-      removeClass node, className
-      removeClass node, activeClassName
+    # If you animate back and forth fast enough, you can call `transition`
+    # before a previous transition has finished. Make sure we cancel the
+    # old timeout.
+    if @animationTimeout
+      clearTimeout(@animationTimeout)
+      @animationTimeout = null
+
+    if @animationTaskId
+      PriorityUICoordinator.endPriorityTask(@animationTaskId)
+      @animationTaskId = null
+
+    # Block database responses, JSON parsing while we are in flight
+    @animationTaskId = PriorityUICoordinator.beginPriorityTask()
+
+    endListener = =>
+      removeClass(node, className)
+      removeClass(node, activeClassName)
       # Usually this optional callback is used for informing an owner of
       # a leave animation and telling it to remove the child.
       finishCallback and finishCallback()
+
+      if @animationTaskId
+        PriorityUICoordinator.endPriorityTask(@animationTaskId)
+        @animationTaskId = null
+      @animationTimeout = null
       return
 
     if !animationSupported()
@@ -78,7 +97,9 @@ TimeoutTransitionGroupChild = React.createClass(
         @animationTimeout = setTimeout(endListener, @props.enterTimeout)
       else if animationType == 'leave'
         @animationTimeout = setTimeout(endListener, @props.leaveTimeout)
-    addClass node, className
+
+    addClass(node, className)
+
     # Need to do this to actually trigger a transition.
     @queueClass activeClassName
     return
@@ -88,11 +109,11 @@ TimeoutTransitionGroupChild = React.createClass(
     if !@timeout
       @timeout = setTimeout(@flushClassNameQueue, TICK)
     return
-
+  
   flushClassNameQueue: ->
     if @isMounted()
       @classNameQueue.forEach ((name) ->
-        addClass @getDOMNode(), name
+        addClass(@getDOMNode(), name)
         return
       ).bind(this)
     @classNameQueue.length = 0
@@ -101,13 +122,19 @@ TimeoutTransitionGroupChild = React.createClass(
 
   componentWillMount: ->
     @classNameQueue = []
+    @animationTimeout = null
+    @animationTaskId = null
     return
 
   componentWillUnmount: ->
     if @timeout
-      clearTimeout @timeout
+      clearTimeout(@timeout)
     if @animationTimeout
-      clearTimeout @animationTimeout
+      clearTimeout(@animationTimeout)
+      @animationTimeout = null
+    if @animationTaskId
+      PriorityUICoordinator.endPriorityTask(@animationTaskId)
+      @animationTaskId = null
     return
 
   componentWillEnter: (done) ->

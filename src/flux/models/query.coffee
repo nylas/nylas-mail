@@ -8,6 +8,7 @@ class ModelQuery
     @_matchers = []
     @_orders = []
     @_singular = false
+    @_evaluateImmediately = false
     @_includeJoinedData = []
     @_count = false
     @
@@ -61,6 +62,9 @@ class ModelQuery
   count: ->
     @_count = true
     @
+  
+  evaluateImmediately: ->
+    @_evaluateImmediately = true
 
   # Query Execution
 
@@ -106,6 +110,9 @@ class ModelQuery
     if @_range?.offset
       limit += " OFFSET #{@_range.offset}"
     "SELECT #{result} FROM `#{@_klass.name}` #{@_whereClause()} #{order} #{limit}"
+
+  executeOptions: ->
+    evaluateImmediately: @_evaluateImmediately
 
   _whereClause: ->
     joins = []

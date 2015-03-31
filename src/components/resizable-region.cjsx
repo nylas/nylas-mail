@@ -1,6 +1,8 @@
 React = require 'react'
 _ = require 'underscore-plus'
-{Actions,ComponentRegistry} = require "inbox-exports"
+{Actions,
+ ComponentRegistry,
+ PriorityUICoordinator} = require "inbox-exports"
 
 ResizableHandle =
   Top:
@@ -96,6 +98,10 @@ ResizableRegion = React.createClass
       @setState(height: nextProps.initialHeight)
     if nextProps.handle.axis is 'horizontal' and nextProps.initialWidth != @props.initialWidth
       @setState(width: nextProps.initialWidth)
+ 
+  componentWillUnmount: ->
+    PriorityUICoordinator.endPriorityTask(@_taskId) if @_taskId
+    @_taskId = null
 
   _mouseDown: (event) ->
     return if event.button != 0
@@ -106,6 +112,9 @@ ResizableRegion = React.createClass
     event.stopPropagation()
     event.preventDefault()
 
+    PriorityUICoordinator.endPriorityTask(@_taskId) if @_taskId
+    @_taskId = PriorityUICoordinator.beginPriorityTask()
+
   _mouseUp: (event) ->
     return if event.button != 0
     @setState
@@ -113,6 +122,9 @@ ResizableRegion = React.createClass
     @props.onResize(@state.height ? @state.width) if @props.onResize
     event.stopPropagation()
     event.preventDefault()
+
+    PriorityUICoordinator.endPriorityTask(@_taskId)
+    @_taskId = null
 
   _mouseMove: (event) ->
     return if !@state.dragging

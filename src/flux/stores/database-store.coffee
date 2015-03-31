@@ -6,6 +6,7 @@ Actions = require '../actions'
 Model = require '../models/model'
 LocalLink = require '../models/local-link'
 ModelQuery = require '../models/query'
+PriorityUICoordinator = require '../../priority-ui-coordinator'
 {AttributeCollection, AttributeJoinedData} = require '../attributes'
 {modelFromJSON, modelClassMap, tableNameForJoin, generateTempId, isTempId} = require '../models/utils'
 fs = require 'fs-plus'
@@ -22,20 +23,28 @@ verboseFilter = (query) ->
 class DatabaseProxy
   constructor: (@databasePath) ->
     @windowId = remote.getCurrentWindow().id
-    @queryCallbacks = {}
+    @queryRecords = {}
     @queryId = 0
 
     ipc.on 'database-result', ({queryKey, err, result}) =>
-      @queryCallbacks[queryKey](err, result) if @queryCallbacks[queryKey]
+      {callback, options} = @queryRecords[queryKey]
       console.timeStamp("DB END #{queryKey}. #{result?.length} chars")
-      delete @queryCallbacks[queryKey]
+
+      waits = Promise.resolve()
+      waits = PriorityUICoordinator.settle unless options.evaluateImmediately
+      waits.then =>
+        callback(err, result) if callback
+        delete @queryRecords[queryKey]
 
     @
 
-  query: (query, values, callback) ->
+  query: (query, values, callback, options) ->
     @queryId += 1
     queryKey = "#{@windowId}-#{@queryId}"
-    @queryCallbacks[queryKey] = callback if callback
+    @queryRecords[queryKey] = {
+      callback: callback,
+      options: options
+    }
     console.timeStamp("DB SEND #{queryKey}: #{query}")
     console.log(query) if verboseFilter(query)
     ipc.send('database-query', {@databasePath, queryKey, query, values})
@@ -47,7 +56,7 @@ class DatabasePromiseTransaction
   constructor: (@_db, @_resolve, @_reject) ->
     @_running = 0
 
-  execute: (query, values, querySuccess, queryFailure) ->
+  execute: (query, values, querySuccess, queryFailure, options = {}) ->
     # Wrap any user-provided success callback in one that checks query time
     callback = (err, result) =>
       if err
@@ -66,7 +75,7 @@ class DatabasePromiseTransaction
         @_resolve(result)
 
     @_running += 1
-    @_db.query(query, values || [], callback)
+    @_db.query(query, values || [], callback, options)
 
   executeInSeries: (queries) ->
     async.eachSeries queries
@@ -354,7 +363,7 @@ DatabaseStore = Reflux.createStore
 
   run: (modelQuery) ->
     @inTransaction {readonly: true}, (tx) ->
-      tx.execute modelQuery.sql(), []
+      tx.execute(modelQuery.sql(), [], null, null, modelQuery.executeOptions())
     .then (result) ->
       Promise.resolve(modelQuery.formatResult(result))
 

@@ -1,7 +1,7 @@
 _ = require 'underscore-plus'
 Reflux = require 'reflux'
 request = require 'request'
-{FocusedContactsStore, NamespaceStore} = require 'inbox-exports'
+{FocusedContactsStore, NamespaceStore, PriorityUICoordinator} = require 'inbox-exports'
 
 module.exports =
 FullContactStore = Reflux.createStore
@@ -55,26 +55,28 @@ FullContactStore = Reflux.createStore
     console.log('Fetching Internal Admin Data')
     # Swap the url's to see real data
     request 'https://admin.inboxapp.com/api/status/accounts', (err, resp, data) =>
-      if err
-        @_error = err
-      else
-        @_error = null
-        try
-          @_accountCache = JSON.parse(data)
-        catch err
+      PriorityUICoordinator.settle.then =>
+        if err
           @_error = err
-          @_accountCache = null
-      @trigger(@)
+        else
+          @_error = null
+          try
+            @_accountCache = JSON.parse(data)
+          catch err
+            @_error = err
+            @_accountCache = null
+        @trigger(@)
 
     # Swap the url's to see real data
     request 'https://admin.inboxapp.com/api/status/accounts/applications', (err, resp, data) =>
-      if err
-        @_error = err
-      else
-        @_error = null
-        try
-          @_applicationCache = JSON.parse(data)
-        catch err
+      PriorityUICoordinator.settle.then =>
+        if err
           @_error = err
-          @_applicationCache = null
-      @trigger(@)
+        else
+          @_error = null
+          try
+            @_applicationCache = JSON.parse(data)
+          catch err
+            @_error = err
+            @_applicationCache = null
+        @trigger(@)

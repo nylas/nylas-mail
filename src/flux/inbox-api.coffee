@@ -2,6 +2,7 @@ _ = require 'underscore-plus'
 request = require 'request'
 Actions = require './actions'
 {APIError} = require './errors'
+PriorityUICoordinator = require '../priority-ui-coordinator'
 DatabaseStore = require './stores/database-store'
 NamespaceStore = require './stores/namespace-store'
 InboxLongConnection = require './inbox-long-connection'
@@ -84,7 +85,8 @@ class InboxAPI
         Actions.longPollOffline()
 
     connection.onDeltas (deltas) =>
-      @_handleDeltas(deltas)
+      PriorityUICoordinator.settle.then =>
+        @_handleDeltas(deltas)
 
     connection.start()
     connection
@@ -112,17 +114,18 @@ class InboxAPI
     options.error ?= @_defaultErrorCallback
 
     request options, (error, response, body) =>
-      Actions.didMakeAPIRequest({request: options, response: response})
-      if error? or response.statusCode > 299
-        options.error(new APIError({error:error, response:response, body:body}))
-      else
-        if _.isString body
-          try
-            body = JSON.parse(body)
-          catch error
-            options.error(new APIError({error:error, response:response, body:body}))
-        @_handleModelResponse(body) if options.returnsModel
-        options.success(body) if options.success
+      PriorityUICoordinator.settle.then =>
+        Actions.didMakeAPIRequest({request: options, response: response})
+        if error? or response.statusCode > 299
+          options.error(new APIError({error:error, response:response, body:body}))
+        else
+          if _.isString body
+            try
+              body = JSON.parse(body)
+            catch error
+              options.error(new APIError({error:error, response:response, body:body}))
+          @_handleModelResponse(body) if options.returnsModel
+          options.success(body) if options.success
 
   _handleDeltas: (deltas) ->
     Actions.longPollReceivedRawDeltas(deltas)
