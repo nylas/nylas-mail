@@ -14,6 +14,8 @@ MessageList = React.createClass
     @_getStateFromStores()
 
   componentDidMount: ->
+    @__onResize = _.bind @_onResize, @
+    window.addEventListener("resize", @__onResize)
     @_unsubscribers = []
     @_unsubscribers.push MessageStore.listen @_onChange
     @_unsubscribers.push ThreadStore.listen @_onChange
@@ -22,24 +24,34 @@ MessageList = React.createClass
 
   componentWillUnmount: ->
     unsubscribe() for unsubscribe in @_unsubscribers
+    window.removeEventListener("resize", @__onResize)
 
   shouldComponentUpdate: (nextProps, nextState) ->
     not _.isEqual(nextProps, @props) or not _.isEqual(nextState, @state)
 
   componentDidUpdate: (prevProps, prevState) ->
-    didLoad = prevState.loading and not @state.loading
+    newDraftIds = @_newDraftIds(prevState)
+    newMessageIds = @_newMessageIds(prevState)
 
+    if prevState.loading and not @state.loading
+      @_prepareContentForDisplay()
+    else if newDraftIds.length > 0
+      @_focusDraft(@refs["composerItem-#{newDraftIds[0]}"])
+      @_prepareContentForDisplay()
+    else if newMessageIds.length > 0
+      @_prepareContentForDisplay()
+
+    @_cacheScrollPos()
+
+  _newDraftIds: (prevState) ->
     oldDraftIds = _.map(_.filter((prevState.messages ? []), (m) -> m.draft), (m) -> m.id)
     newDraftIds = _.map(_.filter((@state.messages ? []), (m) -> m.draft), (m) -> m.id)
-    addedDraftIds = _.difference(newDraftIds, oldDraftIds)
-    didAddDraft = addedDraftIds.length > 0
+    return _.difference(newDraftIds, oldDraftIds) ? []
 
-    if didLoad
-      @_prepareContentForDisplay()
-
-    else if didAddDraft
-      @_focusDraft(@refs["composerItem-#{addedDraftIds[0]}"])
-      @_prepareContentForDisplay()
+  _newMessageIds: (prevState) ->
+    oldMessageIds = _.map(_.reject((prevState.messages ? []), (m) -> m.draft), (m) -> m.id)
+    newMessageIds = _.map(_.reject((@state.messages ? []), (m) -> m.draft), (m) -> m.id)
+    return _.difference(newMessageIds, oldMessageIds) ? []
 
   _focusDraft: (draftDOMNode) ->
     # We need a 100ms delay so the DOM can finish painting the elements on
@@ -58,7 +70,10 @@ MessageList = React.createClass
       "ready": @state.ready
 
     <div className="message-list" id="message-list">
-      <div tabIndex="-1" className={wrapClass} ref="messageWrap">
+      <div tabIndex="-1"
+           className={wrapClass}
+           onScroll={_.debounce(@_cacheScrollPos, 100)}
+           ref="messageWrap">
         <div className="message-list-notification-bars">
           {@_messageListNotificationBars()}
         </div>
@@ -229,6 +244,24 @@ MessageList = React.createClass
         if contact? and contact.email?.length > 0
           participants[contact.email] = contact
     return _.values(participants)
+
+  _onResize: (event) ->
+    return unless @isMounted()
+    @_scrollToBottom() if @_wasAtBottom()
+    @_cacheScrollPos()
+
+  _scrollToBottom: ->
+    messageWrap = @refs.messageWrap?.getDOMNode()
+    messageWrap.scrollTop = messageWrap.scrollHeight
+
+  _cacheScrollPos: ->
+    messageWrap = @refs.messageWrap?.getDOMNode()
+    @_lastScrollTop = messageWrap.scrollTop
+    @_lastHeight = messageWrap.getBoundingClientRect().height
+    @_lastScrollHeight = messageWrap.scrollHeight
+
+  _wasAtBottom: ->
+    (@_lastScrollTop + @_lastHeight) >= @_lastScrollHeight
 
 MessageList.minWidth = 500
 MessageList.maxWidth = 900
