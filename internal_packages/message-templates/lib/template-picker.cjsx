@@ -32,8 +32,8 @@ TemplatePicker = React.createClass
     ]
 
     footerComponents = [
-      <div className="item" key="new" onClick={@_onNewTemplate}>Save as Template...</div>
-      <div className="item" key="manage" onClick={@_onManageTemplates}>Open Templates Folder...</div>
+      <div className="item" key="new" onMouseDown={@_onNewTemplate}>Save as Template...</div>
+      <div className="item" key="manage" onMouseDown={@_onManageTemplates}>Open Templates Folder...</div>
     ]
 
     <Popover ref="popover" className="template-picker pull-right" buttonComponent={button}>

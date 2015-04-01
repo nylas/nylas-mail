@@ -55,7 +55,9 @@ TemplateStore = Reflux.createStore
 
   _onCreateTemplate: ({draftLocalId, name, contents} = {}) ->
     if draftLocalId
-      DatabaseStore.findByLocalId(Message, draftLocalId).then (draft) =>
+      session = DraftStore.sessionForLocalId(draftLocalId)
+      session.prepare().finally =>
+        draft = session.draft()
         if draft
           name ?= draft.subject
           contents ?= draft.body
