@@ -58,7 +58,7 @@ testModelInstanceB = new TestModel(id: 'BBB')
 describe "DatabaseStore", ->
   beforeEach ->
     spyOn(ModelQuery.prototype, 'where').andCallThrough()
-    spyOn(DatabaseStore, 'trigger').andCallThrough()
+    spyOn(DatabaseStore, 'trigger')
 
     @performed = []
     @transactionCount = 0

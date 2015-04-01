@@ -198,9 +198,9 @@ MessageList = React.createClass
         next = @state.messages[idx + 1]
         nextCollapsed = next and !@state.messagesExpandedState[next.id]
         if collapsed and nextCollapsed
-          components.push <hr className="message-item-divider collapsed" />
+          components.push <hr key={idx} className="message-item-divider collapsed" />
         else
-          components.push <hr className="message-item-divider" />
+          components.push <hr key={idx} className="message-item-divider" />
 
     components
 
