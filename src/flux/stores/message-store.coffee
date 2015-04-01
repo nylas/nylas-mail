@@ -62,13 +62,9 @@ MessageStore = Reflux.createStore
     @_items = []
     @_itemsLoading = true
     @_itemsExpanded = {}
-    @_fetchFromCache()
+    @trigger()
 
-    # If the response is quick, then it will trigger when the fetch from
-    # cache returns.
-    _.delay =>
-      if @_itemsLoading then @trigger()
-    , 100
+    @_fetchFromCache()
 
   _onToggleMessageIdExpanded: (id) ->
     if @_itemsExpanded[id]

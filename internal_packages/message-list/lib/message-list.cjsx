@@ -22,7 +22,7 @@ MessageList = React.createClass
     # We don't need to listen to ThreadStore bcause MessageStore already
     # listens to thead selection changes
 
-    if not MessageStore.itemsLoading()
+    if not @state.loading
       @_prepareContentForDisplay()
 
   componentWillUnmount: ->
@@ -34,14 +34,18 @@ MessageList = React.createClass
     not Utils.isEqualReact(nextState, @state)
 
   componentDidUpdate: (prevProps, prevState) ->
-    newDraftIds = @_newDraftIds(prevState)
-    newMessageIds = @_newMessageIds(prevState)
+    return if @state.loading
 
-    if newDraftIds.length > 0
-      @_focusDraft(@refs["composerItem-#{newDraftIds[0]}"])
+    if prevState.loading
       @_prepareContentForDisplay()
-    else if newMessageIds.length > 0
-      @_prepareContentForDisplay()
+    else
+      newDraftIds = @_newDraftIds(prevState)
+      newMessageIds = @_newMessageIds(prevState)
+      if newDraftIds.length > 0
+        @_focusDraft(@refs["composerItem-#{newDraftIds[0]}"])
+        @_prepareContentForDisplay()
+      else if newMessageIds.length > 0
+        @_prepareContentForDisplay()
 
   _newDraftIds: (prevState) ->
     oldDraftIds = _.map(_.filter((prevState.messages ? []), (m) -> m.draft), (m) -> m.id)
@@ -221,6 +225,7 @@ MessageList = React.createClass
     messageLocalIds: MessageStore.itemLocalIds()
     messagesExpandedState: MessageStore.itemsExpandedState()
     currentThread: MessageStore.thread()
+    loading: MessageStore.itemsLoading()
     ready: if MessageStore.itemsLoading() then false else @state?.ready ? false
 
   _prepareContentForDisplay: ->
