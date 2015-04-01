@@ -212,6 +212,7 @@ describe "MessageList", ->
   describe "Populated Message list", ->
     beforeEach ->
       MessageStore._items = testMessages
+      MessageStore._expandItemsToDefault()
       MessageStore.trigger(MessageStore)
       @message_list.setState currentThread: test_thread
 
@@ -220,6 +221,10 @@ describe "MessageList", ->
               MessageItem)
       expect(items.length).toBe 5
 
+    it "renders the correct number of expanded messages", ->
+      msgs = TestUtils.scryRenderedDOMComponentsWithClass(@message_list, "message-item-wrap collapsed")
+      expect(msgs.length).toBe 4
+
     it "aggregates participants across all messages", ->
       expect(@message_list._threadParticipants().length).toBe 4
       expect(@message_list._threadParticipants()[0] instanceof Contact).toBe true
@@ -227,13 +232,7 @@ describe "MessageList", ->
     it "displays lists of participants on the page", ->
       items = TestUtils.scryRenderedComponentsWithType(@message_list,
               MessageParticipants)
-      expect(items.length).toBe 5
-
-    # We no longer do this (for now)
-    # it "displays the thread participants on the page", ->
-    #   items = TestUtils.scryRenderedComponentsWithType(@message_list,
-    #           ParticipantsItem)
-    #   expect(items.length).toBe 1
+      expect(items.length).toBe 1
 
     it "focuses new composers when a draft is added", ->
       spyOn(@message_list, "_focusDraft")

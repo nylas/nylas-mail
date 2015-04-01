@@ -111,10 +111,7 @@ MessageStore = Reflux.createStore
           atom.inbox.getCollection namespace.id, 'messages', {thread_id: @_threadId}
           loaded = false
 
-        # Expand all unread messages, all drafts, and the last message
-        for item, idx in @_items
-          if item.unread or item.draft or idx is @_items.length - 1
-            @_itemsExpanded[item.id] = true
+        @_expandItemsToDefault()
 
         # Check that expanded messages have bodies. We won't mark ourselves
         # as loaded until they're all available. Note that items can be manually
@@ -138,6 +135,12 @@ MessageStore = Reflux.createStore
         if loaded
           @_itemsLoading = false
           @trigger(@)
+
+  # Expand all unread messages, all drafts, and the last message
+  _expandItemsToDefault: ->
+    for item, idx in @_items
+      if item.unread or item.draft or idx is @_items.length - 1
+        @_itemsExpanded[item.id] = true
 
   _fetchMessageIdFromAPI: (id) ->
     return if @_inflight[id]
