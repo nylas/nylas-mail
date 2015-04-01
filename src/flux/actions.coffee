@@ -55,10 +55,11 @@ windowActions = [
 
   # Actions for Selection State
   "selectNamespaceId",
-  "selectThreadId",
-  "selectTagId",
   "selectView",
   "selectLayoutMode",
+
+  "focusThread",
+  "focusTag",
   
   "toggleMessageIdExpanded",
 

@@ -1,6 +1,7 @@
 _ = require 'underscore-plus'
 React = require "react"
 {ComponentRegistry, WorkspaceStore} = require "inbox-exports"
+{DownButton, UpButton} = require "./thread-nav-buttons"
 ThreadList = require "./thread-list"
 DraftList  = require "./draft-list"
 
@@ -34,3 +35,20 @@ module.exports =
       view: RootCenterComponent
       name: 'RootCenterComponent'
       location: WorkspaceStore.Location.RootCenter
+
+    ComponentRegistry.register
+      name: 'DownButton'
+      mode: 'list'
+      view: DownButton
+      location: WorkspaceStore.Sheet.Thread.Toolbar.Right
+
+    ComponentRegistry.register
+      name: 'UpButton'
+      mode: 'list'
+      view: UpButton
+      location: WorkspaceStore.Sheet.Thread.Toolbar.Right
+
+  deactivate: ->
+    ComponentRegistry.unregister 'RootCenterComponent'
+    ComponentRegistry.unregister 'DownButton'
+    ComponentRegistry.unregister 'UpButton'

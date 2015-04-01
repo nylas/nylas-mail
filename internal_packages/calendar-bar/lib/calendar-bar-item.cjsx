@@ -29,4 +29,4 @@ CalendarBarItem = React.createClass
 
   _onClick: (event) ->
     event.preventDefault()
-    Actions.selectTagId(@props.tag.id)
+    Actions.focusTag(@props.tag)

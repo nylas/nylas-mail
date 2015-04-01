@@ -10,12 +10,12 @@ NamespaceStore = require './namespace-store'
 module.exports =
 FocusedContactsStore = Reflux.createStore
   init: ->
-    @listenTo Actions.selectThreadId, @_onSelectThreadId
+    @listenTo Actions.focusThread, @_onFocusThread
     @listenTo Actions.focusContact, @_focusContact
     @listenTo MessageStore, => @_onMessageStoreChanged()
     @listenTo NamespaceStore, => @_onNamespaceChanged()
 
-    @_currentThreadId = null
+    @_currentThread = null
     @_clearCurrentParticipants(silent: true)
 
     @_onNamespaceChanged()
@@ -30,15 +30,16 @@ FocusedContactsStore = Reflux.createStore
     @_currentFocusedContact = null
     @trigger() unless silent
 
-  _onSelectThreadId: (id) ->
-    clear = true if id isnt @_currentThreadId
-    @_currentThreadId = id
-    @_clearCurrentParticipants() if clear
+  _onFocusThread: (thread) ->
+    return if @_currentThread?.id is thread?.id
+    @_currentThread = thread
+    @_clearCurrentParticipants()
+    @_onMessageStoreChanged()
     # We need to wait now for the MessageStore to grab all of the
     # appropriate messages for the given thread.
 
   _onMessageStoreChanged: -> _.defer =>
-    if MessageStore.threadId() is @_currentThreadId
+    if MessageStore.threadId() is @_currentThread?.id
       @_setCurrentParticipants()
     else
       @_clearCurrentParticipants()

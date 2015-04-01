@@ -1,5 +1,5 @@
 _ = require 'underscore-plus'
-{Actions, DatabaseStore, Thread} = require 'inbox-exports'
+{Actions, DatabaseStore, Thread, Tag} = require 'inbox-exports'
 
 module.exports =
   activate: ->
@@ -49,8 +49,8 @@ module.exports =
           })
           notif.onclick = ->
             atom.displayWindow()
-            Actions.selectTagId("inbox")
-            Actions.selectThreadId(msg.threadId)
+            Actions.focusTag(new Tag(name: "inbox", id: "inbox"))
+            Actions.focusThread(threads[msg.threadId])
 
         if newUnreadInInbox.length > 1
           new Notification("#{newUnreadInInbox.length} Unread Messages", {

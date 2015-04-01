@@ -1,5 +1,5 @@
 React = require 'react'
-{Actions} = require("inbox-exports")
+{Actions, FocusedTagStore} = require("inbox-exports")
 SidebarDividerItem = require("./account-sidebar-divider-item")
 SidebarTagItem = require("./account-sidebar-tag-item")
 SidebarStore = require ("./account-sidebar-store")
@@ -13,12 +13,14 @@ AccountSidebar = React.createClass
 
   componentDidMount: ->
     @unsubscribe = SidebarStore.listen @_onStoreChange
+    @unsubscribe_focus = FocusedTagStore.listen @_onStoreChange
 
   # It's important that every React class explicitly stops listening to
   # atom events before it unmounts. Thank you event-kit
   # This can be fixed via a Reflux mixin
   componentWillUnmount: ->
     @unsubscribe() if @unsubscribe
+    @unsubscribe_focus() if @unsubscribe_focus
 
   render: ->
     <div id="account-sidebar" className="account-sidebar">
@@ -42,12 +44,10 @@ AccountSidebar = React.createClass
 
   _onStoreChange: ->
     @setState @_getStateFromStores()
-    if not SidebarStore.selectedId()?
-      Actions.selectTagId("inbox")
 
   _getStateFromStores: ->
     sections: SidebarStore.sections()
-    selected: SidebarStore.selectedId()
+    selected: FocusedTagStore.tagId()
 
 
 AccountSidebar.minWidth = 165

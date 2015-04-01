@@ -1,4 +1,6 @@
-module.exports =
+Utils = require '../src/flux/models/utils'
+
+Exports =
 
   # The Task Queue
   Task: require '../src/flux/tasks/task'
@@ -20,19 +22,8 @@ module.exports =
   ComponentRegistry: require '../src/component-registry'
 
   # Utils
-  Utils: require '../src/flux/models/utils'
-
-  # Models
-  Tag: require '../src/flux/models/tag'
-  File: require '../src/flux/models/file'
-  Thread: require '../src/flux/models/thread'
-  Contact: require '../src/flux/models/contact'
-  Message: require '../src/flux/models/message'
+  Utils: Utils
   MessageUtils: require '../src/flux/models/message-utils'
-  Namespace: require '../src/flux/models/namespace'
-  Calendar: require '../src/flux/models/calendar'
-  Event: require '../src/flux/models/event'
-  SalesforceTask: require '../src/flux/models/salesforce-task'
 
   # Mixins
   UndoManager: require '../src/flux/undo-manager'
@@ -41,12 +32,13 @@ module.exports =
 
   # Stores
   DraftStore: require '../src/flux/stores/draft-store'
-  ThreadStore: require '../src/flux/stores/thread-store'
   MessageStore: require '../src/flux/stores/message-store'
   ContactStore: require '../src/flux/stores/contact-store'
   NamespaceStore: require '../src/flux/stores/namespace-store'
   AnalyticsStore: require '../src/flux/stores/analytics-store'
   WorkspaceStore: require '../src/flux/stores/workspace-store'
+  FocusedTagStore: require '../src/flux/stores/focused-tag-store'
+  FocusedThreadStore: require '../src/flux/stores/focused-thread-store'
   FileUploadStore: require '../src/flux/stores/file-upload-store'
   FileDownloadStore: require '../src/flux/stores/file-download-store'
   FocusedContactsStore: require '../src/flux/stores/focused-contacts-store'
@@ -54,3 +46,9 @@ module.exports =
   ## TODO move to inside of individual Salesforce package. See https://trello.com/c/tLAGLyeb/246-move-salesforce-models-into-individual-package-db-models-for-packages-various-refactors
   SalesforceAssociation: require '../src/flux/models/salesforce-association'
   SalesforceContact: require '../src/flux/models/salesforce-contact'
+
+# Also include all of the model classes
+for key, klass of Utils.modelClassMap()
+  Exports[klass.name] = klass
+
+module.exports = Exports

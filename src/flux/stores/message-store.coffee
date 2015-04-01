@@ -17,7 +17,9 @@ MessageStore = Reflux.createStore
   items: ->
     @_items
 
-  threadId: -> @_threadId
+  threadId: -> @_thread?.id
+  
+  thread: -> @_thread
 
   itemsExpandedState: ->
     # ensure that we're always serving up immutable objects.
@@ -37,26 +39,26 @@ MessageStore = Reflux.createStore
     @_itemsExpanded = {}
     @_itemsLocalIds = {}
     @_itemsLoading = false
-    @_threadId = null
+    @_thread = null
     @_inflight = {}
 
   _registerListeners: ->
     @listenTo DatabaseStore, @_onDataChanged
-    @listenTo Actions.selectThreadId, @_onSelectThreadId
+    @listenTo Actions.focusThread, @_onFocusThread
     @listenTo Actions.toggleMessageIdExpanded, @_onToggleMessageIdExpanded
 
   _onDataChanged: (change) ->
     return unless change.objectClass == Message.name
-    return unless @_threadId
+    return unless @_thread
     inDisplayedThread = _.some change.objects, (obj) =>
-      obj.threadId == @_threadId
+      obj.threadId == @_thread.id
     return unless inDisplayedThread
     @_fetchFromCache()
 
-  _onSelectThreadId: (threadId) ->
-    return if @_threadId is threadId
+  _onFocusThread: (thread) ->
+    return if @_thread?.id is thread?.id
 
-    @_threadId = threadId
+    @_thread = thread
     @_items = []
     @_itemsLoading = true
     @_itemsExpanded = {}
@@ -80,9 +82,9 @@ MessageStore = Reflux.createStore
     @trigger()
 
   _fetchFromCache: (options = {}) ->
-    return unless @_threadId
+    return unless @_thread
 
-    loadedThreadId = @_threadId
+    loadedThreadId = @_thread.id
 
     query = DatabaseStore.findAll(Message, threadId: loadedThreadId)
     query.include(Message.attributes.body)
@@ -97,7 +99,7 @@ MessageStore = Reflux.createStore
       , =>
         # Check to make sure that our thread is still the thread we were
         # loading items for. Necessary because this takes a while.
-        return unless loadedThreadId == @_threadId
+        return unless loadedThreadId == @_thread.id
 
         loaded = true
 
@@ -108,7 +110,7 @@ MessageStore = Reflux.createStore
         # are returned, this will trigger a refresh here.
         if @_items.length is 0
           namespace = NamespaceStore.current()
-          atom.inbox.getCollection namespace.id, 'messages', {thread_id: @_threadId}
+          atom.inbox.getCollection namespace.id, 'messages', {thread_id: @_thread.id}
           loaded = false
 
         @_expandItemsToDefault()

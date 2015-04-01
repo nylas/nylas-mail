@@ -1,7 +1,7 @@
 _ = require 'underscore-plus'
 React = require 'react'
 MessageItem = require "./message-item"
-{Utils, Actions, ThreadStore, MessageStore, ComponentRegistry} = require("inbox-exports")
+{Utils, Actions, MessageStore, ComponentRegistry} = require("inbox-exports")
 {Spinner, ResizableRegion, RetinaImg} = require('ui-components')
 
 module.exports =
@@ -18,6 +18,7 @@ MessageList = React.createClass
     window.addEventListener("resize", @__onResize)
     @_unsubscribers = []
     @_unsubscribers.push MessageStore.listen @_onChange
+
     # We don't need to listen to ThreadStore bcause MessageStore already
     # listens to thead selection changes
 
@@ -219,7 +220,7 @@ MessageList = React.createClass
     messages: (MessageStore.items() ? [])
     messageLocalIds: MessageStore.itemLocalIds()
     messagesExpandedState: MessageStore.itemsExpandedState()
-    currentThread: ThreadStore.selectedThread()
+    currentThread: MessageStore.thread()
     ready: if MessageStore.itemsLoading() then false else @state?.ready ? false
 
   _prepareContentForDisplay: ->

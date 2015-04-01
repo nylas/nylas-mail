@@ -1,7 +1,6 @@
 MessageList = require "./message-list"
 MessageToolbarItems = require "./message-toolbar-items"
 MessageSubjectItem = require "./message-subject-item"
-{DownButton, UpButton} = require "./thread-nav-buttons"
 {ComponentRegistry,
  WorkspaceStore} = require 'inbox-exports'
 SidebarThreadParticipants = require "./sidebar-thread-participants"
@@ -27,18 +26,6 @@ module.exports =
       location: WorkspaceStore.Location.MessageList.Toolbar
 
     ComponentRegistry.register
-      name: 'DownButton'
-      mode: 'list'
-      view: DownButton
-      location: WorkspaceStore.Sheet.Thread.Toolbar.Right
-
-    ComponentRegistry.register
-      name: 'UpButton'
-      mode: 'list'
-      view: UpButton
-      location: WorkspaceStore.Sheet.Thread.Toolbar.Right
-
-    ComponentRegistry.register
       name: 'SidebarThreadParticipants'
       location: WorkspaceStore.Location.MessageListSidebar
       view: SidebarThreadParticipants
@@ -47,7 +34,5 @@ module.exports =
     ComponentRegistry.unregister 'MessageToolbarItems'
     ComponentRegistry.unregister 'MessageSubjectItem'
     ComponentRegistry.unregister 'MessageList'
-    ComponentRegistry.unregister 'DownButton'
-    ComponentRegistry.unregister 'UpButton'
 
   serialize: -> @state

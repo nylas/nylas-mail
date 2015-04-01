@@ -9,6 +9,8 @@ Utils =
   timeZone: tz
 
   modelClassMap: ->
+    return Utils._modelClassMap if Utils._modelClassMap
+
     Thread = require './thread'
     Message = require './message'
     Namespace = require './namespace'
@@ -32,7 +34,7 @@ Utils =
     MarkMessageReadTask = require '../tasks/mark-message-read'
     FileUploadTask = require '../tasks/file-upload-task'
 
-    return {
+    Utils._modelClassMap = {
       'thread': Thread
       'message': Message
       'draft': Message
@@ -55,6 +57,7 @@ Utils =
       'DestroyDraftTask': DestroyDraftTask
       'FileUploadTask': FileUploadTask
     }
+    Utils._modelClassMap
 
   modelFromJSON: (json) ->
     # These imports can't go at the top of the file
@@ -437,3 +440,50 @@ Utils =
     "hotmail.com.mx": true
     "prodigy.net.mx": true
     "msn.com": true
+
+  # This method ensures that the provided function `fn` is only executing
+  # once at any given time. `fn` should have the following signature:
+  #
+  # (finished, reinvoked, arg1, arg2, ...)
+  #
+  # During execution, the function can call reinvoked() to see if
+  # it has been called again since it was invoked. When it stops
+  # or finishes execution, it should call finished()
+  #
+  # If the wrapped function is called again while `fn` is still executing,
+  # another invocation of the function is queued up. The paramMerge
+  # function allows you to control the params that are passed to
+  # the next invocation.
+  #
+  # For example,
+  #
+  # fetchFromCache({shallow: true})
+  #
+  # fetchFromCache({shallow: true})
+  #  -- will be executed once the initial call finishes
+  #
+  # fetchFromCache({})
+  #  -- `paramMerge` is called with `[{}]` and `[{shallow:true}]`. At this
+  #     point it should return `[{}]` since calling fetchFromCache with no
+  #     options is a more significant refresh.
+  #
+  ensureSerialExecution: (fn, paramMerge) ->
+    fnRun = null
+    fnReinvoked = ->
+      fn.next
+    fnFinished = ->
+      fn.executing = false
+      if fn.next
+        args = fn.next
+        fn.next = null
+        fnRun(args...)
+    fnRun = ->
+      if fn.executing
+        if fn.next
+          fn.next = paramMerge(fn.next, arguments)
+        else
+          fn.next = arguments
+      else
+        fn.executing = true
+        fn.apply(@, [fnFinished, fnReinvoked, arguments...])
+    fnRun

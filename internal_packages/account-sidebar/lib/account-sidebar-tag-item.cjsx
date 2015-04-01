@@ -29,4 +29,4 @@ AccountSidebarTagItem = React.createClass
       Actions.selectView('drafts')
     else
       Actions.selectView('threads')
-    Actions.selectTagId(@props.tag.id)
+    Actions.focusTag(@props.tag)

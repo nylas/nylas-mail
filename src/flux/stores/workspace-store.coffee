@@ -32,11 +32,12 @@ WorkspaceStore = Reflux.createStore
 
     @listenTo Actions.selectView, @_onSelectView
     @listenTo Actions.selectLayoutMode, @_onSelectLayoutMode
+    @listenTo Actions.focusThread, @_onFocusThread
 
     @listenTo Actions.popSheet, @popSheet
     @listenTo Actions.searchQueryCommitted, @popToRootSheet
     @listenTo Actions.logout, @popToRootSheet
-    @listenTo Actions.selectThreadId, @_onSelectThreadId
+
     atom.commands.add 'body',
       'application:pop-sheet': => @popSheet()
 
@@ -55,9 +56,12 @@ WorkspaceStore = Reflux.createStore
     @_layoutMode = mode
     @trigger(@)
 
-  _onSelectThreadId: (threadId) ->
-    if @selectedLayoutMode() is 'list' and threadId and @sheet().type isnt Sheet.Thread.type
-      @pushSheet(Sheet.Thread)
+  _onFocusThread: (thread) ->
+    if @selectedLayoutMode() is 'list'
+      if thread and @sheet().type isnt Sheet.Thread.type
+        @pushSheet(Sheet.Thread)
+      if not thread and @sheet().type is Sheet.Thread.type
+        @popSheet()
 
   # Accessing Data
 

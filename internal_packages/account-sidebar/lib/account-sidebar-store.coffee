@@ -1,6 +1,12 @@
 Reflux = require 'reflux'
 _ = require 'underscore-plus'
-{DatabaseStore, NamespaceStore, Actions, Tag, Message, Thread} = require 'inbox-exports'
+{DatabaseStore,
+ NamespaceStore,
+ Actions,
+ Tag,
+ Message,
+ FocusedTagStore,
+ Thread} = require 'inbox-exports'
 
 AccountSidebarStore = Reflux.createStore
   init: ->
@@ -19,29 +25,14 @@ AccountSidebarStore = Reflux.createStore
   sections: ->
     @_sections
 
-  selectedId: ->
-    @_selectedId
-
   ########### PRIVATE ####################################################
 
   _setStoreDefaults: ->
     @_sections = []
-    @_selectedId = null
 
   _registerListeners: ->
-    @listenTo Actions.selectTagId, @_onSelectTagId
-    @listenTo Actions.searchQueryCommitted, @_onSearchQueryCommitted
     @listenTo DatabaseStore, @_onDataChanged
     @listenTo NamespaceStore, @_onNamespaceChanged
-
-  _onSearchQueryCommitted: (query) ->
-    if query? and query isnt ""
-      @_oldSelectedId = @_selectedId
-      @_selectedId = "search"
-    else
-      @_selectedId = @_oldSelectedId if @_oldSelectedId
-
-    @trigger(@)
 
   _populate: ->
     namespace = NamespaceStore.current()
@@ -70,6 +61,7 @@ AccountSidebarStore = Reflux.createStore
 
       if _.isEqual(@_sections, lastSections) is false
         @_populateUnreadCounts()
+
       @trigger(@)
 
   _populateUnreadCounts: ->
@@ -125,10 +117,5 @@ AccountSidebarStore = Reflux.createStore
       @_populateUnreadCountsDebounced()
     if change.objectClass == Message.name
       @_populateDraftsCount()
-
-  _onSelectTagId: (tagId) ->
-    Actions.searchQueryCommitted('') if @_selectedId is "search"
-    @_selectedId = tagId
-    @trigger(@)
 
 module.exports = AccountSidebarStore

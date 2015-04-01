@@ -181,8 +181,8 @@ class InboxAPI
       json = [json] unless json instanceof Array
       async.filter json
       , (item, filterCallback) =>
-        @_shouldAcceptModel(item.object, item).then ->
-          filterCallback(true)
+        @_shouldAcceptModel(item.object, item).then (accept) ->
+          filterCallback(accept)
         .catch (e) ->
           filterCallback(false)
       , (json) ->
@@ -196,7 +196,7 @@ class InboxAPI
         resolve(objects)
 
   _shouldAcceptModel: (classname, model = null) ->
-    return Promise.resolve() unless model
+    return Promise.resolve(false) unless model
 
     if classname is "thread"
       Thread = require './models/thread'
@@ -206,18 +206,18 @@ class InboxAPI
     # change ensures that all drafts in the system are authored locally. To
     # revert, change back to use _shouldAcceptModelIfNewer
     if classname is "draft" or model?.object is "draft"
-      return Promise.reject()
+      return Promise.resolve(false)
 
-    Promise.resolve()
+    Promise.resolve(true)
 
   _shouldAcceptModelIfNewer: (klass, model = null) ->
     new Promise (resolve, reject) ->
       DatabaseStore = require './stores/database-store'
       DatabaseStore.find(klass, model.id).then (existing) ->
         if existing and existing.version >= model.version
-          reject(new Error("Rejecting version #{model.version}. Local version is #{existing.version}."))
+          resolve(false)
         else
-          resolve()
+          resolve(true)
 
   getThreadsForSearch: (namespaceId, query, callback) ->
     throw (new Error "getThreadsForSearch requires namespaceId") unless namespaceId

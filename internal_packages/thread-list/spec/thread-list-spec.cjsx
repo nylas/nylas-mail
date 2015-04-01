@@ -8,7 +8,6 @@ ReactTestUtils = _.extend ReactTestUtils, require "jasmine-react-helpers"
 {Thread,
  Actions,
  Namespace,
- ThreadStore,
  DatabaseStore,
  WorkspaceStore,
  InboxTestUtils,
@@ -16,6 +15,8 @@ ReactTestUtils = _.extend ReactTestUtils, require "jasmine-react-helpers"
  ComponentRegistry} = require "inbox-exports"
 {ListTabular} = require 'ui-components'
 
+
+ThreadStore = require "../lib/thread-store"
 ThreadList = require "../lib/thread-list"
 
 ParticipantsItem = React.createClass
@@ -233,11 +234,6 @@ describe "ThreadList", ->
     expect(ReactTestUtils.isCompositeComponentWithType(@thread_list,
                                           ThreadList)).toBe true
 
-  it "stars on keymap", ->
-    spyOn(@thread_list, "_onStarThread")
-    InboxTestUtils.keyPress("s", @thread_list.getDOMNode())
-    expect(@thread_list._onStarThread).toHaveBeenCalled()
-
   it "has the expected columns", ->
     expect(@thread_list._columns).toEqual columns
 
@@ -248,12 +244,7 @@ describe "ThreadList", ->
   describe "when the workspace is in list mode", ->
     beforeEach ->
       spyOn(WorkspaceStore, "selectedLayoutMode").andReturn "list"
-      @thread_list.setState selectedId: "t111"
-
-    it "archives in list mode", ->
-      @thread_list._onArchiveCurrentThread()
-      expect(Actions.archiveCurrentThread).toHaveBeenCalled()
-      expect(Actions.archiveAndNext).not.toHaveBeenCalled()
+      @thread_list.setState focusedId: "t111"
 
     it "allows reply only when the sheet type is 'Thread'", ->
       spyOn(WorkspaceStore, "sheet").andCallFake -> {type: "Thread"}
@@ -272,12 +263,7 @@ describe "ThreadList", ->
   describe "when the workspace is in split mode", ->
     beforeEach ->
       spyOn(WorkspaceStore, "selectedLayoutMode").andReturn "split"
-      @thread_list.setState selectedId: "t111"
-
-    it "archives and next in split mode", ->
-      @thread_list._onArchiveCurrentThread()
-      expect(Actions.archiveCurrentThread).not.toHaveBeenCalled()
-      expect(Actions.archiveAndNext).toHaveBeenCalled()
+      @thread_list.setState focusedId: "t111"
 
     it "allows reply and reply-all regardless of sheet type", ->
       spyOn(WorkspaceStore, "sheet").andCallFake -> {type: "anything"}
@@ -289,7 +275,7 @@ describe "ThreadList", ->
   describe "Populated thread list", ->
     beforeEach ->
       ThreadStore._items = test_threads()
-      ThreadStore._selectedId = null
+      ThreadStore._focusedId = null
       ThreadStore.trigger(ThreadStore)
       @thread_list_node = @thread_list.getDOMNode()
       spyOn(@thread_list, "setState").andCallThrough()
@@ -329,7 +315,7 @@ describe "ThreadList", ->
 #   describe "Populated thread list", ->
 #     beforeEach ->
 #       ThreadStore._items = test_threads()
-#       ThreadStore._selectedId = null
+#       ThreadStore._focusedId = null
 #       ThreadStore.trigger()
 #       @thread_list_node = @thread_list.getDOMNode()
 
@@ -385,7 +371,7 @@ describe "ThreadList", ->
 #         expect(@thread_list._onShiftSelectedIndex).toHaveBeenCalledWith(-1)
 
 #       it "does nothing when no thread is selected", ->
-#         ThreadStore._selectedId = null
+#         ThreadStore._focusedId = null
 #         atom.commands.dispatch(document.body, "application:reply")
 #         expect(Actions.composeReply.calls.length).toEqual(0)
 
@@ -403,7 +389,7 @@ describe "ThreadList", ->
 #       it "fires the appropriate Action on click", ->
 #         spyOn(Actions, "selectThreadId")
 #         ReactTestUtils.Simulate.click @thread_list_item.getDOMNode()
-#         expect(Actions.selectThreadId).toHaveBeenCalledWith("111")
+#         expect(Actions.focusThreadId).toHaveBeenCalledWith("111")
 
 #       it "sets the selected state on the thread item", ->
 #         ThreadStore._onSelectThreadId("111")

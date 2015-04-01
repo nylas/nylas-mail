@@ -1,6 +1,6 @@
 _ = require 'underscore-plus'
 React = require 'react'
-{ThreadStore} = require 'inbox-exports'
+{FocusedThreadStore} = require 'inbox-exports'
 
 module.exports =
 MessageSubjectItem = React.createClass
@@ -10,7 +10,7 @@ MessageSubjectItem = React.createClass
     @_getStateFromStores()
 
   componentDidMount: ->
-    @_unsubscriber = ThreadStore.listen @_onChange
+    @_unsubscriber = FocusedThreadStore.listen @_onChange
 
   componentWillUnmount: ->
     @_unsubscriber() if @_unsubscriber
@@ -23,5 +23,5 @@ MessageSubjectItem = React.createClass
     @setState(@_getStateFromStores())
 
   _getStateFromStores: ->
-    thread: ThreadStore.selectedThread()
+    thread: FocusedThreadStore.thread()
 

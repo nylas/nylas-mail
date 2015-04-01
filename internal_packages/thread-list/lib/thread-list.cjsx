@@ -4,10 +4,11 @@ React = require 'react'
 {timestamp, subject} = require './formatting-utils'
 {Actions,
  Utils,
- ThreadStore,
  WorkspaceStore,
+ FocusedThreadStore,
  NamespaceStore} = require 'inbox-exports'
 
+ThreadStore = require './thread-store'
 ThreadListParticipants = require './thread-list-participants'
 
 module.exports =
@@ -20,14 +21,12 @@ ThreadList = React.createClass
   componentDidMount: ->
     @_prepareColumns()
     @thread_store_unsubscribe = ThreadStore.listen @_onChange
-    @thread_unsubscriber = atom.commands.add '.thread-list', {
-      'thread-list:star-thread': => @_onStarThread()
-    }
+    @focus_store_unsubscribe = FocusedThreadStore.listen @_onChange
     @body_unsubscriber = atom.commands.add 'body', {
-      'application:previous-item': => @_onShiftSelectedIndex(-1)
-      'application:next-item': => @_onShiftSelectedIndex(1)
-      'application:focus-item': => @_onFocusSelectedIndex()
-      'application:remove-item': @_onArchiveCurrentThread
+      'application:previous-item': => @_onShiftFocus(-1)
+      'application:next-item': => @_onShiftFocus(1)
+      'application:focus-item': => @_onFocus()
+      'application:remove-item': -> Actions.archiveCurrentThread()
       'application:remove-and-previous': -> Actions.archiveAndPrevious()
       'application:remove-and-next': -> Actions.archiveAndNext()
       'application:reply': @_onReply
@@ -36,8 +35,8 @@ ThreadList = React.createClass
     }
 
   componentWillUnmount: ->
+    @focus_store_unsubscribe()
     @thread_store_unsubscribe()
-    @thread_unsubscriber.dispose()
     @body_unsubscriber.dispose()
 
   render: ->
@@ -45,20 +44,20 @@ ThreadList = React.createClass
     # are "different", and will re-render everything. Instead, declare them with ?=,
     # pass a reference. (Alternatively, ignore these in children's shouldComponentUpdate.)
     #
-    # BAD:   onSelect={ (item) -> Actions.selectThreadId(item.id) }
+    # BAD:   onSelect={ (item) -> Actions.focusThread(item) }
     # GOOD:  onSelect={@_onSelectItem}
     #
     classes = React.addons.classSet("thread-list": true, "ready": @state.ready)
 
     @_itemClassProvider ?= (item) -> if item.isUnread() then 'unread' else ''
-    @_itemOnSelect ?= (item) -> Actions.selectThreadId(item.id)
+    @_itemOnSelect ?= (item) -> Actions.focusThread(item)
 
     <div className={classes}>
       <ListTabular
         columns={@_columns}
         items={@state.items}
         itemClassProvider={@_itemClassProvider}
-        selectedId={@state.selectedId}
+        selectedId={@state.focusedId}
         onSelect={@_itemOnSelect} />
       <Spinner visible={!@state.ready} />
     </div>
@@ -114,41 +113,33 @@ ThreadList = React.createClass
 
     @_columns = [c1, c2, c3, c4]
 
-  _onFocusSelectedIndex: ->
-    Actions.selectThreadId(@state.selectedId)
+  _onFocus: ->
+    item = _.find @state.items, (thread) => thread.id == @state.focusedId
+    Actions.focusThread(item) if item
 
-  _onShiftSelectedIndex: (delta) ->
-    item = _.find @state.items, (thread) => thread.id == @state.selectedId
+  _onShiftFocus: (delta) ->
+    item = _.find @state.items, (thread) => thread.id == @state.focusedId
     index = if item then @state.items.indexOf(item) else -1
     index = Math.max(0, Math.min(index + delta, @state.items.length-1))
-    Actions.selectThreadId(@state.items[index].id)
-
-  _onStarThread: ->
-    thread = ThreadStore.selectedThread()
-    thread.toggleStar() if thread
+    Actions.focusThread(@state.items[index])
 
   _onReply: ->
-    return unless @state.selectedId? and @_actionInVisualScope()
-    Actions.composeReply(threadId: @state.selectedId)
+    return unless @state.focusedId? and @_actionInVisualScope()
+    Actions.composeReply(threadId: @state.focusedId)
 
   _onReplyAll: ->
-    return unless @state.selectedId? and @_actionInVisualScope()
-    Actions.composeReplyAll(threadId: @state.selectedId)
+    return unless @state.focusedId? and @_actionInVisualScope()
+    Actions.composeReplyAll(threadId: @state.focusedId)
 
   _onForward: ->
-    return unless @state.selectedId? and @_actionInVisualScope()
-    Actions.composeForward(threadId: @state.selectedId)
+    return unless @state.focusedId? and @_actionInVisualScope()
+    Actions.composeForward(threadId: @state.focusedId)
 
   _actionInVisualScope: ->
     if WorkspaceStore.selectedLayoutMode() is "list"
       WorkspaceStore.sheet().type is "Thread"
-    else true
-
-  _onArchiveCurrentThread: ->
-    if WorkspaceStore.selectedLayoutMode() is "list"
-      Actions.archiveCurrentThread()
-    else if WorkspaceStore.selectedLayoutMode() is "split"
-      Actions.archiveAndNext()
+    else
+      true
 
   # Message list rendering is more important than thread list rendering.
   # Since they're on the same event listner, and the event listeners are
@@ -161,4 +152,4 @@ ThreadList = React.createClass
   _getStateFromStores: ->
     ready: not ThreadStore.itemsLoading()
     items: ThreadStore.items()
-    selectedId: ThreadStore.selectedId()
+    focusedId: FocusedThreadStore.threadId()
