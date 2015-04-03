@@ -158,6 +158,7 @@ class AtomApplication
   removeWindow: (window) ->
     @windows.splice @windows.indexOf(window), 1
     @applicationMenu?.enableWindowSpecificItems(false) if @windows.length == 0
+    @windowClosedOrHidden()
 
   # Public: Adds the {AtomWindow} to the global window list.
   # IMPORTANT: AtomWindows add themselves - you don't need to manually add them
@@ -169,10 +170,23 @@ class AtomApplication
 
     unless window.isSpec
       focusHandler = => @lastFocusedWindow = window
+      closePreventedHandler = => @windowClosedOrHidden()
+      window.on 'window:close-prevented', closePreventedHandler
       window.browserWindow.on 'focus', focusHandler
       window.browserWindow.once 'closed', =>
         @lastFocusedWindow = null if window is @lastFocusedWindow
-        window.browserWindow.removeListener 'focus', focusHandler
+        window.removeListener('window:close-prevented', closePreventedHandler)
+        window.browserWindow.removeListener('focus', focusHandler)
+
+  windowClosedOrHidden: ->
+    if process.platform in ['win32', 'linux']
+      visible = false
+      visible ||= window.isVisible() for window in @windows
+      if visible is false
+        @quitting = true
+        # Quitting the app from within a window event handler causes
+        # an assertion error. Wait a moment.
+        _.defer -> app.quit()
 
   # Creates server to listen for additional atom application launches.
   #
@@ -247,7 +261,7 @@ class AtomApplication
       @on 'application:zoom', -> @focusedWindow()?.maximize()
 
     app.on 'window-all-closed', ->
-      app.quit() if process.platform in ['win32', 'linux']
+      @windowClosedOrHidden()
 
     app.on 'will-quit', =>
       @deleteSocketFile()

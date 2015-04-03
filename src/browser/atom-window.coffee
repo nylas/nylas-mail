@@ -114,6 +114,7 @@ class AtomWindow
       if @neverClose and !global.atomApplication.quitting
         event.preventDefault()
         @browserWindow.hide()
+        @emit 'window:close-prevented'
 
     @browserWindow.on 'closed', =>
       global.atomApplication.removeWindow(this)
