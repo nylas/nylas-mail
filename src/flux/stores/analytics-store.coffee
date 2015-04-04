@@ -46,18 +46,17 @@ AnalyticsStore = Reflux.createStore
     fileDownloaded: -> {}
 
   track: (action, data={}) ->
-    return unless @id
-    @analytics.track(action, _.extend(data, namespaceId: @id))
+    @analytics.track(action, _.extend(data, namespaceId: NamespaceStore.current()?.id))
 
   identify: ->
-    @id = NamespaceStore.current?()?.id?
-    return unless @id
-    me = NamespaceStore.current().me()
-    @analytics.people.set @id,
-      "$email": me.email
-      "$first_name": me.firstName()
-      "$last_name": me.lastName()
-      "namespaceId": me.namespaceId
+    namespace = NamespaceStore.current()
+    if namespace
+      @analytics.alias("distinct_id", namespace.id)
+      @analytics.people.set namespace.id,
+        "$email": namespace.me().email
+        "$first_name": namespace.me().firstName()
+        "$last_name": namespace.me().lastName()
+        "namespaceId": namespace.id
 
   _listenToActions: ->
     _.each @actionsToTrack(), (callback, action) =>
