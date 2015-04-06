@@ -7,15 +7,13 @@ _ = require 'underscore-plus'
 
 module.exports = ContactStore = Reflux.createStore
 
-  BATCH_SIZE: 500 # Num contacts to pull at once
-
   init: ->
     @_contactCache = []
     @_namespaceId = null
-    @listenTo DatabaseStore, @_onDBChanged
+    @listenTo DatabaseStore, @_onDatabaseChanged
     @listenTo NamespaceStore, @_onNamespaceChanged
 
-    @_refreshCacheFromDB()
+    @_refreshCache()
 
   searchContacts: (search, {limit}={}) ->
     return [] if not search or search.length is 0
@@ -46,7 +44,7 @@ module.exports = ContactStore = Reflux.createStore
 
     matches
 
-  _refreshCacheFromDB: ->
+  _refreshCache: ->
     new Promise (resolve, reject) =>
       DatabaseStore.findAll(Contact)
       .then (contacts=[]) =>
@@ -55,22 +53,9 @@ module.exports = ContactStore = Reflux.createStore
         resolve()
       .catch(reject)
 
-  _refreshDBFromAPI: (params={}) ->
-    new Promise (resolve, reject) =>
-      requestOptions =
-        success: (json) =>
-          if json.length > 0
-            @_refreshDBFromAPI
-              limit: @BATCH_SIZE
-              offset: params.offset + json.length
-            .then(resolve).catch(reject)
-          else resolve(json)
-        error: reject
-      atom.inbox.getCollection(@_namespaceId, "contacts", params, requestOptions)
-
-  _onDBChanged: (change) ->
+  _onDatabaseChanged: (change) ->
     return unless change?.objectClass is Contact.name
-    @_refreshCacheFromDB()
+    @_refreshCache()
 
   _resetCache: ->
     @_contactCache = []
@@ -81,7 +66,6 @@ module.exports = ContactStore = Reflux.createStore
     @_namespaceId = NamespaceStore.current()?.id
 
     if @_namespaceId
-      @_refreshDBFromAPI(limit: @BATCH_SIZE, offset: 0) if atom.state.mode is 'editor'
-      @_refreshCacheFromDB()
+      @_refreshCache()
     else
       @_resetCache()

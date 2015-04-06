@@ -49,11 +49,8 @@ CalendarBarEventStore = Reflux.createStore
     # Trigger a request to the API
     oneDayAgo = Math.round(moment({hour: 0, milliseconds: -1}).valueOf() / 1000.0)
     DatabaseStore.findAll(Calendar, namespaceId: namespace.id).then (calendars) ->
-      if calendars.length == 0
-        atom.inbox.getCalendars(namespace.id)
-      else
-        calendars.forEach (calendar) ->
-          atom.inbox.getCollection(namespace.id, 'events', {calendar_id: calendar.id, ends_after: oneDayAgo})
+      calendars.forEach (calendar) ->
+        atom.inbox.getCollection(namespace.id, 'events', {calendar_id: calendar.id, ends_after: oneDayAgo})
 
   # Inbound Events
 

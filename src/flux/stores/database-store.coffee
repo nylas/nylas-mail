@@ -27,7 +27,10 @@ class DatabaseProxy
     @queryId = 0
 
     ipc.on 'database-result', ({queryKey, err, result}) =>
-      {callback, options} = @queryRecords[queryKey]
+      record = @queryRecords[queryKey]
+      return unless record
+
+      {callback, options} = record
       console.timeStamp("DB END #{queryKey}. #{result?.length} chars")
 
       waits = Promise.resolve()
@@ -150,7 +153,7 @@ DatabaseStore = Reflux.createStore
 
   writeModels: (tx, models) ->
     # IMPORTANT: This method assumes that all the models you
-    # provide are of the same class!
+    # provide are of the same class, and have different ids!
 
     # Avoid trying to write too many objects a time - sqlite can only handle
     # value sets `(?,?)...` of less than SQLITE_MAX_COMPOUND_SELECT (500),
@@ -193,11 +196,13 @@ DatabaseStore = Reflux.createStore
 
     # For each join table property, find all the items in the join table for this
     # model and delte them. Insert each new value back into the table.
-    joinAttributes = _.filter attributes, (attr) ->
+    collectionAttributes = _.filter attributes, (attr) ->
       attr.queryable && attr instanceof AttributeCollection
 
-    joinAttributes.forEach (attr) ->
+    collectionAttributes.forEach (attr) ->
       joinTable = tableNameForJoin(klass, attr.itemClass)
+
+      tx.execute("DELETE FROM `#{joinTable}` WHERE `id` IN ('#{ids.join("','")}')")
 
       joinMarks = []
       joinedValues = []
@@ -207,7 +212,6 @@ DatabaseStore = Reflux.createStore
           for joined in joinedModels
             joinMarks.push('(?,?)')
             joinedValues.push(model.id, joined.id)
-      tx.execute("DELETE FROM `#{joinTable}` WHERE `id` IN ('#{ids.join("','")}')")
 
       unless joinedValues.length is 0
         # Write no more than 200 items (400 values) at once to avoid sqlite limits
@@ -219,10 +223,10 @@ DatabaseStore = Reflux.createStore
     # For each joined data property stored in another table...
     values = []
     marks = []
-    joinedAttributes = _.filter attributes, (attr) ->
+    joinedDataAttributes = _.filter attributes, (attr) ->
       attr instanceof AttributeJoinedData
 
-    joinedAttributes.forEach (attr) ->
+    joinedDataAttributes.forEach (attr) ->
       for model in models
         if model[attr.modelKey]?
           tx.execute("REPLACE INTO `#{attr.modelTable}` (`id`, `value`) VALUES (?, ?)", [model.id, model[attr.modelKey]])
@@ -237,17 +241,17 @@ DatabaseStore = Reflux.createStore
 
     # For each join table property, find all the items in the join table for this
     # model and delte them. Insert each new value back into the table.
-    joinAttributes = _.filter attributes, (attr) ->
+    collectionAttributes = _.filter attributes, (attr) ->
       attr.queryable && attr instanceof AttributeCollection
 
-    joinAttributes.forEach (attr) ->
+    collectionAttributes.forEach (attr) ->
       joinTable = tableNameForJoin(klass, attr.itemClass)
       tx.execute("DELETE FROM `#{joinTable}` WHERE `id` = ?", [model.id])
 
-    joinedAttributes = _.filter attributes, (attr) ->
+    joinedDataAttributes = _.filter attributes, (attr) ->
       attr instanceof AttributeJoinedData
 
-    joinedAttributes.forEach (attr) ->
+    joinedDataAttributes.forEach (attr) ->
       tx.execute("DELETE FROM `#{attr.modelTable}` WHERE `id` = ?", [model.id])
 
   # Inbound Events
@@ -270,9 +274,14 @@ DatabaseStore = Reflux.createStore
     klass = models[0].constructor
     @inTransaction {}, (tx) =>
       tx.execute('BEGIN TRANSACTION')
+      ids = {}
       for model in models
         unless model.constructor == klass
-          throw new Error "When you batch persist objects, they must be of the same type"
+          throw new Error("persistModels(): When you batch persist objects, they must be of the same type")
+        if ids[model.id]
+          throw new Error("persistModels(): You must pass an array of models with different ids. ID #{model.id} is in the set multiple times.")
+        ids[model.id] = true
+
       @writeModels(tx, models)
       tx.execute('COMMIT')
       @trigger({objectClass: models[0].constructor.name, objects: models})
@@ -387,16 +396,16 @@ DatabaseStore = Reflux.createStore
 
     # Identify collection attributes that can be matched against. These require
     # JOIN tables. (Right now the only one of these is Thread.tags)
-    joinAttributes = _.filter attributes, (attr) ->
+    collectionAttributes = _.filter attributes, (attr) ->
       attr.queryable && attr instanceof AttributeCollection
-    joinAttributes.forEach (attribute) ->
+    collectionAttributes.forEach (attribute) ->
       joinTable = tableNameForJoin(klass, attribute.itemClass)
       queries.push("CREATE TABLE IF NOT EXISTS `#{joinTable}` (id TEXT KEY, `value` TEXT)")
       queries.push("CREATE INDEX IF NOT EXISTS `#{joinTable}-id-val` ON `#{joinTable}` (`id`,`value`)")
 
-    joinedAttributes = _.filter attributes, (attr) ->
+    joinedDataAttributes = _.filter attributes, (attr) ->
       attr instanceof AttributeJoinedData
-    joinedAttributes.forEach (attribute) ->
+    joinedDataAttributes.forEach (attribute) ->
       queries.push("CREATE TABLE IF NOT EXISTS `#{attribute.modelTable}` (id TEXT PRIMARY KEY, `value` TEXT)")
 
     queries

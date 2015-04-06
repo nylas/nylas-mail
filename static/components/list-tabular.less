@@ -1,7 +1,10 @@
 @import "ui-variables";
 
 .list-container {
-  position: relative;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  overflow: scroll;
 
   .list-item {
     font-size: @font-size-base;
@@ -23,8 +26,6 @@
 .list-tabular {
   flex: 1;
   width: 100%;
-  overflow: hidden;
-  position: relative;
 
   .list-tabular-item {
     position: relative;

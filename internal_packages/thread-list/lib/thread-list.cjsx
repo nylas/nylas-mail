@@ -4,6 +4,7 @@ React = require 'react'
 {timestamp, subject} = require './formatting-utils'
 {Actions,
  Utils,
+ Thread,
  WorkspaceStore,
  FocusedThreadStore,
  NamespaceStore} = require 'inbox-exports'
@@ -18,8 +19,10 @@ ThreadList = React.createClass
   getInitialState: ->
     @_getStateFromStores()
  
-  componentDidMount: ->
+  componentWillMount: ->
     @_prepareColumns()
+
+  componentDidMount: ->
     @thread_store_unsubscribe = ThreadStore.listen @_onChange
     @focus_store_unsubscribe = FocusedThreadStore.listen @_onChange
     @body_unsubscriber = atom.commands.add 'body', {
@@ -52,15 +55,20 @@ ThreadList = React.createClass
     @_itemClassProvider ?= (item) -> if item.isUnread() then 'unread' else ''
     @_itemOnSelect ?= (item) -> Actions.focusThread(item)
 
-    <div className={classes}>
-      <ListTabular
-        columns={@_columns}
-        items={@state.items}
-        itemClassProvider={@_itemClassProvider}
-        selectedId={@state.focusedId}
-        onSelect={@_itemOnSelect} />
-      <Spinner visible={!@state.ready} />
-    </div>
+    if @state.dataView
+      <div className={classes}>
+        <ListTabular
+          columns={@_columns}
+          dataView={@state.dataView}
+          itemClassProvider={@_itemClassProvider}
+          selectedId={@state.focusedId}
+          onSelect={@_itemOnSelect} />
+        <Spinner visible={!@state.ready} />
+      </div>
+    else
+      <div className={classes}>
+        <Spinner visible={!@state.ready} />
+      </div>
 
   _prepareColumns: ->
     labelComponents = (thread) =>
@@ -70,7 +78,7 @@ ThreadList = React.createClass
 
     lastMessageType = (thread) ->
       myEmail = NamespaceStore.current()?.emailAddress
-      msgs = thread.messageMetadata
+      msgs = thread.metadata
       return 'unknown' unless msgs and msgs instanceof Array and msgs.length > 0
       msg = msgs[msgs.length - 1]
       if thread.unread
@@ -114,14 +122,13 @@ ThreadList = React.createClass
     @_columns = [c1, c2, c3, c4]
 
   _onFocus: ->
-    item = _.find @state.items, (thread) => thread.id == @state.focusedId
+    item = @state.dataView.getById(@state.focusedId)
     Actions.focusThread(item) if item
 
   _onShiftFocus: (delta) ->
-    item = _.find @state.items, (thread) => thread.id == @state.focusedId
-    index = if item then @state.items.indexOf(item) else -1
-    index = Math.max(0, Math.min(index + delta, @state.items.length-1))
-    Actions.focusThread(@state.items[index])
+    index = @state.dataView.indexOfId(@state.focusedId)
+    index = Math.max(0, Math.min(index + delta, @state.dataView.count() - 1))
+    Actions.focusThread(@state.dataView.get(index))
 
   _onReply: ->
     return unless @state.focusedId? and @_actionInVisualScope()
@@ -146,10 +153,11 @@ ThreadList = React.createClass
   # unordered, we need a way to push thread list updates later back in the
   # queue.
   _onChange: -> _.delay =>
+    return unless @isMounted()
     @setState(@_getStateFromStores())
   , 30
 
   _getStateFromStores: ->
-    ready: not ThreadStore.itemsLoading()
-    items: ThreadStore.items()
+    dataView: ThreadStore.view()
+    ready: ThreadStore.view()?.loaded()
     focusedId: FocusedThreadStore.threadId()

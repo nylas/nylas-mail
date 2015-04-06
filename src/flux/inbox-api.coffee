@@ -5,14 +5,17 @@ Actions = require './actions'
 PriorityUICoordinator = require '../priority-ui-coordinator'
 DatabaseStore = require './stores/database-store'
 NamespaceStore = require './stores/namespace-store'
+InboxSyncWorker = require './inbox-sync-worker'
 InboxLongConnection = require './inbox-long-connection'
 {modelFromJSON, modelClassMap} = require './models/utils'
 async = require 'async'
 
+
 class InboxAPI
 
   constructor: ->
-    @_streamingConnections = []
+    @_workers = []
+
     atom.config.onDidChange('env', @_onConfigChanged)
     atom.config.onDidChange('inbox.token', @_onConfigChanged)
     @_onConfigChanged()
@@ -37,7 +40,7 @@ class InboxAPI
 
     if atom.state.mode is 'editor'
       if not @APIToken?
-        @_closeStreamingConnections()
+        @_cleanupNamespaceWorkers()
 
       if not _.isEqual(prev, current)
         @makeRequest
@@ -49,31 +52,28 @@ class InboxAPI
     return if atom.getLoadSettings().isSpec
     
     namespaces = NamespaceStore.items()
-    connections = _.map(namespaces, @_streamingConnectionForNamespace)
+    workers = _.map(namespaces, @_workerForNamespace)
 
-    # Close the connections that are not in the new connections list.
+    # Stop the workers that are not in the new workers list.
     # These namespaces are no longer in our database, so we shouldn't
     # be listening.
-    old = _.without(@_streamingConnections, connections...)
-    conn.end() for conn in old
+    old = _.without(@_workers, workers...)
+    worker.cleanup() for worker in old
 
-    @_streamingConnections = connections
+    @_workers = workers
 
-  _closeStreamingConnections: ->
-    for conn in @_streamingConnections
-      conn.end()
-    @_streamingConnections = []
+  _cleanupNamespaceWorkers: ->
+    for worker in @_workers
+      worker.cleanup()
+    @_workers = []
 
-  _streamingConnectionForNamespace: (namespace) =>
-    connection = _.find @_streamingConnections, (c) ->
+  _workerForNamespace: (namespace) =>
+    worker = _.find @_workers, (c) ->
       c.namespaceId() is namespace.id
-    return connection if connection
+    return worker if worker
 
-    connection = new InboxLongConnection(@, namespace.id)
-
-    if !connection.hasCursor()
-      @getThreads(namespace.id)
-      @getCalendars(namespace.id)
+    worker = new InboxSyncWorker(@, namespace.id)
+    connection = worker.connection()
 
     connection.onStateChange (state) ->
       Actions.longPollStateChanged(state)
@@ -88,8 +88,8 @@ class InboxAPI
       PriorityUICoordinator.settle.then =>
         @_handleDeltas(deltas)
 
-    connection.start()
-    connection
+    worker.start()
+    worker
 
   # Delegates to node's request object.
   # On success, it will call the passed in success callback with options.
@@ -131,27 +131,31 @@ class InboxAPI
     Actions.longPollReceivedRawDeltas(deltas)
     console.log("Processing Deltas")
 
-    # Group deltas by object type so we can mutate the cache efficiently
+    # Group deltas by object type so we can mutate the cache efficiently.
+    # NOTE: This code must not just accumulate creates, modifies and destroys
+    # but also de-dupe them. We cannot call "persistModels(itemA, itemA, itemB)"
+    # or it will throw an exception - use the last received copy of each model
+    # we see.
     create = {}
     modify = {}
     destroy = []
     for delta in deltas
       if delta.event is 'create'
-        create[delta.object] ||= []
-        create[delta.object].push(delta.attributes)
+        create[delta.object] ||= {}
+        create[delta.object][delta.attributes.id] = delta.attributes
       else if delta.event is 'modify'
-        modify[delta.object] ||= []
-        modify[delta.object].push(delta.attributes)
+        modify[delta.object] ||= {}
+        modify[delta.object][delta.attributes.id] = delta.attributes
       else if delta.event is 'delete'
         destroy.push(delta)
 
     # Apply all the deltas to create objects. Gets promises for handling
     # each type of model in the `create` hash, waits for them all to resolve.
-    create[type] = @_handleModelResponse(items) for type, items of create
+    create[type] = @_handleModelResponse(_.values(dict)) for type, dict of create
     Promise.props(create).then (created) =>
       # Apply all the deltas to modify objects. Gets promises for handling
       # each type of model in the `modify` hash, waits for them all to resolve.
-      modify[type] = @_handleModelResponse(items) for type, items of modify
+      modify[type] = @_handleModelResponse(_.values(dict)) for type, dict of modify
       Promise.props(modify).then (modified) ->
 
         # Now that we've persisted creates/updates, fire an action
@@ -219,28 +223,6 @@ class InboxAPI
         else
           resolve(true)
 
-  getThreadsForSearch: (namespaceId, query, callback) ->
-    throw (new Error "getThreadsForSearch requires namespaceId") unless namespaceId
-    @makeRequest
-      method: 'POST'
-      path: "/n/#{namespaceId}/threads/search"
-      body: {"query": query}
-      json: true
-      returnsModel: false
-      success: (json) ->
-        objects = []
-        for resultJSON in json.results
-          obj = modelFromJSON(resultJSON.object)
-          obj.relevance = resultJSON.relevance
-          objects.push(obj)
-
-        DatabaseStore.persistModels(objects) if objects.length > 0
-        callback(objects)
-
-  # TODO remove from inbox-api and put in individual stores. The general
-  # API abstraction should not need to know about threads and calendars.
-  # They're still here because of their dependency in
-  # _postLaunchStartStreaming
   getThreads: (namespaceId, params = {}, requestOptions = {}) ->
     requestSuccess = requestOptions.success
     requestOptions.success = (json) =>
@@ -251,13 +233,10 @@ class InboxAPI
       if messages.length > 0
         @_handleModelResponse(messages)
       if requestSuccess
-        requestSuccess()
+        requestSuccess(json)
 
     params.view = 'expanded'
     @getCollection(namespaceId, 'threads', params, requestOptions)
-
-  getCalendars: (namespaceId) ->
-    @getCollection(namespaceId, 'calendars', {})
 
   getCollection: (namespaceId, collection, params={}, requestOptions={}) ->
     throw (new Error "getCollection requires namespaceId") unless namespaceId

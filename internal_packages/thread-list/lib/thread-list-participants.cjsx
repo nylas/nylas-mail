@@ -12,13 +12,28 @@ ThreadListParticipants = React.createClass
   render: ->
     items = @getParticipants()
 
-    count = []
-    if @props.thread.messageMetadata and @props.thread.messageMetadata.length > 1
-      count = " (#{@props.thread.messageMetadata.length})"
+    spans = []
+    accumulated = null
+    accumulatedUnread = false
 
-    chips = items.map ({spacer, contact, unread}, idx) ->
+    flush = ->
+      if accumulated
+        spans.push <span key={spans.length} className="unread-#{accumulatedUnread}">{accumulated}</span>
+      accumulated = null
+      accumulatedUnread = false
+
+    accumulate = (text, unread) ->
+      if accumulated and unread and accumulatedUnread isnt unread
+        flush()
+      if accumulated
+        accumulated += text
+      else
+        accumulated = text
+        accumulatedUnread = unread
+
+    for {spacer, contact, unread}, idx in items
       if spacer
-        <span key={idx}>...</span>
+        accumulate('...')
       else
         if contact.name.length > 0
           if items.length > 1
@@ -29,20 +44,25 @@ ThreadListParticipants = React.createClass
           short = contact.email
         if idx < items.length-1 and not items[idx+1].spacer
           short += ", "
-        <span key={idx} className="unread-#{unread}">{short}</span>
+        accumulate(short, unread)
+
+    if @props.thread.metadata and @props.thread.metadata.length > 1
+      accumulate(" (#{@props.thread.metadata.length})")
+
+    flush()
 
     <div className="participants">
-      {chips}{count}
+      {spans}
     </div>
 
   shouldComponentUpdate: (newProps, newState) ->
     !_.isEqual(newProps.thread, @props.thread)
 
   getParticipants: ->
-    if @props.thread.messageMetadata
+    if @props.thread.metadata
       list = []
       last = null
-      for msg in @props.thread.messageMetadata
+      for msg in @props.thread.metadata
         from = msg.from[0]
         if from and from.email isnt last
           list.push({
@@ -60,7 +80,7 @@ ThreadListParticipants = React.createClass
       # Removing "Me" may remove "Me" several times due to the way
       # participants is created. If we're left with an empty array,
       # put one a "Me" back in.
-      if list.length is 0
+      if list.length is 0 and @props.thread.participants.length > 0
         list.push(@props.thread.participants[0])
 
       # Change the list to have the appropriate output format

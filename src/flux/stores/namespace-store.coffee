@@ -18,12 +18,13 @@ NamespaceStore = Reflux.createStore
 
   populateItems: ->
     DatabaseStore.findAll(Namespace).then (namespaces) =>
-      @_namespaces = namespaces
-      @_current = _.find @_namespaces, (n) -> n.id == @_current?.id
+      current = _.find namespaces, (n) -> n.id == @_current?.id
+      current = namespaces?[0] unless current
 
-      @_current = @_namespaces?[0] unless @_current
-
-      @trigger(@)
+      if current isnt @_current or not _.isEqual(namespaces, @_namespaces)
+        @_current = current
+        @_namespaces = namespaces
+        @trigger(@)
 
   # Inbound Events
 
@@ -32,6 +33,7 @@ NamespaceStore = Reflux.createStore
     @populateItems()
 
   onSelectNamespaceId: (id) ->
+    return if @_current?.id is id
     @_current = _.find @_namespaces, (n) -> n.id == @_current.id
     @trigger(@)
 

@@ -8,6 +8,8 @@ Exports =
 
   # The Database
   DatabaseStore: require '../src/flux/stores/database-store'
+  ModelView: require '../src/flux/stores/model-view'
+  DatabaseView: require '../src/flux/stores/database-view'
 
   # Actions
   Actions: require '../src/flux/actions'

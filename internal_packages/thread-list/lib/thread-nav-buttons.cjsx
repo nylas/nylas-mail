@@ -13,13 +13,13 @@ ThreadNavButtonMixin =
 
   isFirstThread: ->
     selectedId = FocusedThreadStore.threadId()
-    items = ThreadStore.items()
-    items?[0]?.id is selectedId
+    ThreadStore.view().get(0)?.id is selectedId
 
   isLastThread: ->
     selectedId = FocusedThreadStore.threadId()
-    items = ThreadStore.items()
-    items?[items.length - 1]?.id is selectedId
+
+    lastIndex = ThreadStore.view().count() - 1
+    ThreadStore.view().get(lastIndex)?.id is selectedId
 
   componentWillUnmount: ->
     @_unsubscribe()

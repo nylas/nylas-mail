@@ -23,27 +23,15 @@ describe "ContactStore", ->
   describe "when the Namespace updates from null to valid", ->
     beforeEach ->
       atom.state.mode = 'editor'
-      spyOn(ContactStore, "_refreshDBFromAPI")
+      spyOn(ContactStore, "_refreshCache")
       NamespaceStore.trigger()
 
     it "triggers a database fetch", ->
-      expect(ContactStore._refreshDBFromAPI.calls.length).toBe 1
-
-    it "starts at the current offset", ->
-      args = ContactStore._refreshDBFromAPI.calls[0].args
-      expect(args[0].limit).toBe ContactStore.BATCH_SIZE
-      expect(args[0].offset).toBe 0
-
-  describe "when the Namespace updates fro null to valid in a secondary window", ->
-    it "should not trigger a refresh of contacts", ->
-      atom.state.mode = 'composer'
-      spyOn(ContactStore, "_refreshDBFromAPI")
-      NamespaceStore.trigger()
-      expect(ContactStore._refreshDBFromAPI.calls.length).toBe(0)
+      expect(ContactStore._refreshCache.calls.length).toBe 1
 
   describe "when the Namespace updates but the ID doesn't change", ->
     it "does nothing", ->
-      spyOn(ContactStore, "_refreshDBFromAPI")
+      spyOn(ContactStore, "_refreshCache")
       ContactStore._contactCache = [1,2,3]
       ContactStore._fetchOffset = 3
       ContactStore._namespaceId = "nsid"
@@ -53,24 +41,7 @@ describe "ContactStore", ->
       NamespaceStore.trigger()
       expect(ContactStore._contactCache).toEqual [1,2,3]
       expect(ContactStore._fetchOffset).toBe 3
-      expect(ContactStore._refreshDBFromAPI).not.toHaveBeenCalled()
-
-  describe "When fetching from the API", ->
-    it "makes a request for the first batch", ->
-      batches = [[4,5,6], []]
-      spyOn(atom.inbox, "getCollection").andCallFake (nsid, type, params, opts) ->
-        opts.success(batches.shift())
-      waitsForPromise ->
-        ContactStore._refreshDBFromAPI().then ->
-          expect(atom.inbox.getCollection.calls.length).toBe 2
-
-    it "makes additional requests for future batches", ->
-      batches = [[1,2,3], [4,5,6], []]
-      spyOn(atom.inbox, "getCollection").andCallFake (nsid, type, params, opts) ->
-        opts.success(batches.shift())
-      waitsForPromise ->
-        ContactStore._refreshDBFromAPI().then ->
-          expect(atom.inbox.getCollection.calls.length).toBe 3
+      expect(ContactStore._refreshCache).not.toHaveBeenCalled()
 
   describe "when searching for a contact", ->
     beforeEach ->

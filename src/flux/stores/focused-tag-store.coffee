@@ -12,13 +12,12 @@ FocusedTagStore = Reflux.createStore
     @listenTo Actions.searchQueryCommitted, @_onSearchQueryCommitted
 
   _resetInstanceVars: ->
-    @_tag = null
+    @_tag = new Tag(id: 'inbox', name: 'inbox')
 
   # Inbound Events
 
   _onClearTag: ->
-    @_tag = new Tag(id: 'inbox', name: 'inbox')
-    @trigger()
+    @_setTag(new Tag(id: 'inbox', name: 'inbox'))
 
   _onFocusTag: (tag) ->
     return if @_tag?.id is tag?.id
@@ -26,15 +25,18 @@ FocusedTagStore = Reflux.createStore
     if @_tag is null and tag
       Actions.searchQueryCommitted('')
 
-    @_tag = tag
-    @trigger()
+    @_setTag(tag)
 
   _onSearchQueryCommitted: (query) ->
     if query? and query isnt ""
       @_oldTag = @_tag
-      @_tag = null
+      @_setTag(null)
     else
-      @_tag = @_oldTag
+      @_setTag(@_oldTag)
+
+  _setTag: (tag) ->
+    return if @_tag?.id is tag?.id
+    @_tag = tag
     @trigger()
 
   # Public Methods
@@ -43,6 +45,7 @@ FocusedTagStore = Reflux.createStore
     @_tag
 
   tagId: ->
-    @_tag?.id
+    return null unless @_tag
+    @_tag.id
 
 module.exports = FocusedTagStore

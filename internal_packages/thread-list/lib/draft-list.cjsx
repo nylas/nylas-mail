@@ -16,7 +16,7 @@ DraftList = React.createClass
   components: ['Participants']
 
   getInitialState: ->
-    items: DraftStore.items()
+    dataView: DraftStore.view()
     columns: @_computeColumns()
     selectedId: null
  
@@ -35,7 +35,7 @@ DraftList = React.createClass
     <div className="thread-list">
       <ListTabular
         columns={@state.columns}
-        items={@state.items}
+        dataView={@state.dataView}
         selectedId={@state.selectedId}
         onDoubleClick={@_onDoubleClick}
         onSelect={@_onSelect} />
@@ -58,45 +58,43 @@ DraftList = React.createClass
 
     c1 = new ListTabular.Column
       name: "Name"
-      flex: 2
+      width: 200
       resolver: (draft) =>
         Participants = @state.Participants
         <div className="participants">
-          <Participants participants={[].concat(draft.to,draft.cc,draft.bcc)}
+          <Participants participants={[].concat(draft.to, draft.cc, draft.bcc)}
                         context={'list'} clickable={false} />
         </div>
 
     c2 = new ListTabular.Column
-      name: "Subject"
-      flex: 3
-      resolver: (draft) ->
-        <span className="subject">{subject(draft.subject)}</span>
-
-    c3 = new ListTabular.Column
-      name: "Snippet"
+      name: "Message"
       flex: 4
       resolver: (draft) ->
-        <span className="snippet">{snippet(draft.body)}</span>
+        attachments = []
+        if draft.files?.length > 0
+          attachments = <div className="thread-icon thread-icon-attachment"></div>
+        <span className="details">
+          <span className="subject">{subject(draft.subject)}</span>
+          <span className="snippet">{snippet(draft.body)}</span>
+          {attachments}
+        </span>
 
-    c4 = new ListTabular.Column
+    c3 = new ListTabular.Column
       name: "Date"
       flex: 1
       resolver: (draft) ->
         <span className="timestamp">{timestamp(draft.date)}</span>
 
-    [c1, c2, c3, c4]
+    [c1, c2, c3]
 
   _onShiftSelectedIndex: (delta) ->
-    item = _.find @state.items, (draft) => draft.id is @state.selectedId
-    return unless item
-
-    index = if item then @state.items.indexOf(item) else -1
-    index = Math.max(0, Math.min(index + delta, @state.items.length-1))
+    index = @state.dataView.indexOfId(@state.selectedId)
+    index = Math.max(0, Math.min(index + delta, @state.dataView.count()-1))
     @setState
-      selectedId: @state.items[index].id
+      selectedId: @state.dataView.get(index).id
 
   _onDeleteSelected: ->
-    item = _.find @state.items, (draft) => draft.id is @state.selectedId
+    item = @state.dataView.getById(@state.selectedId)
     return unless item
 
     DatabaseStore.localIdForModel(item).then (localId) ->
@@ -105,4 +103,4 @@ DraftList = React.createClass
 
   _onChange: ->
     @setState
-      items: DraftStore.items()
+      dataView: DraftStore.view()

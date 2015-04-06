@@ -183,9 +183,6 @@ test_threads = -> [
 ]
 
 
-
-
-
 cjsxSubjectResolver = (thread) ->
   <div>
     <span>Subject {thread.id}</span>
@@ -217,7 +214,8 @@ describe "ThreadList", ->
     spyOn(Actions, "archiveCurrentThread")
     spyOn(Actions, "archiveAndNext")
     spyOn(Actions, "archiveAndPrevious")
-    ReactTestUtils.spyOnClass(ThreadList, "_prepareColumns")
+    ReactTestUtils.spyOnClass(ThreadList, "_prepareColumns").andCallFake ->
+      @_columns = columns
 
     ThreadStore._resetInstanceVars()
 
@@ -228,7 +226,6 @@ describe "ThreadList", ->
     @thread_list = ReactTestUtils.renderIntoDocument(
       <ThreadList />
     )
-    @thread_list._columns = columns
 
   it "renders into the document", ->
     expect(ReactTestUtils.isCompositeComponentWithType(@thread_list,
@@ -274,7 +271,12 @@ describe "ThreadList", ->
 
   describe "Populated thread list", ->
     beforeEach ->
-      ThreadStore._items = test_threads()
+      view =
+        loaded: -> true
+        get: (i) -> test_threads()[i]
+        count: -> test_threads().length
+        setRetainedRange: ->
+      ThreadStore._view = view
       ThreadStore._focusedId = null
       ThreadStore.trigger(ThreadStore)
       @thread_list_node = @thread_list.getDOMNode()
@@ -283,7 +285,7 @@ describe "ThreadList", ->
     it "renders all of the thread list items", ->
       advanceClock(100)
       items = ReactTestUtils.scryRenderedComponentsWithType(@thread_list, ListTabular.Item)
-      expect(items.length).toBe 3
+      expect(items.length).toBe(test_threads().length)
 
 
 # describe "ThreadListNarrow", ->
