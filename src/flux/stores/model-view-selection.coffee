@@ -1,4 +1,4 @@
-Model = require '../models/model.coffee'
+Model = require '../models/model'
 _ = require 'underscore-plus'
 
 module.exports =
