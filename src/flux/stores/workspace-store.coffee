@@ -32,7 +32,7 @@ WorkspaceStore = Reflux.createStore
 
     @listenTo Actions.selectView, @_onSelectView
     @listenTo Actions.selectLayoutMode, @_onSelectLayoutMode
-    @listenTo Actions.focusThread, @_onFocusThread
+    @listenTo Actions.focusInCollection, @_onFocusInCollection
 
     @listenTo Actions.popSheet, @popSheet
     @listenTo Actions.searchQueryCommitted, @popToRootSheet
@@ -56,12 +56,13 @@ WorkspaceStore = Reflux.createStore
     @_layoutMode = mode
     @trigger(@)
 
-  _onFocusThread: (thread) ->
-    if @selectedLayoutMode() is 'list'
-      if thread and @sheet().type isnt Sheet.Thread.type
-        @pushSheet(Sheet.Thread)
-      if not thread and @sheet().type is Sheet.Thread.type
-        @popSheet()
+  _onFocusInCollection: ({collection, item}) ->
+    if collection is 'thread'
+      if @selectedLayoutMode() is 'list'
+        if item and @sheet().type isnt Sheet.Thread.type
+          @pushSheet(Sheet.Thread)
+        if not item and @sheet().type is Sheet.Thread.type
+          @popSheet()
 
   # Accessing Data
 
@@ -84,9 +85,14 @@ WorkspaceStore = Reflux.createStore
     @trigger()
 
   popSheet: ->
+    sheet = @sheet()
+
     if @_sheetStack.length > 1
       @_sheetStack.pop()
       @trigger()
+
+    if sheet.type is Sheet.Thread.type
+      Actions.focusInCollection(collection: 'thread', item: null)
 
   popToRootSheet: ->
     if @_sheetStack.length > 1

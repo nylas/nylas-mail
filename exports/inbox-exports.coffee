@@ -40,7 +40,7 @@ Exports =
   AnalyticsStore: require '../src/flux/stores/analytics-store'
   WorkspaceStore: require '../src/flux/stores/workspace-store'
   FocusedTagStore: require '../src/flux/stores/focused-tag-store'
-  FocusedThreadStore: require '../src/flux/stores/focused-thread-store'
+  FocusedContentStore: require '../src/flux/stores/focused-content-store'
   FileUploadStore: require '../src/flux/stores/file-upload-store'
   FileDownloadStore: require '../src/flux/stores/file-download-store'
   FocusedContactsStore: require '../src/flux/stores/focused-contacts-store'

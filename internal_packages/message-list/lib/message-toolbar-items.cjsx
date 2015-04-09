@@ -1,6 +1,6 @@
 _ = require 'underscore-plus'
 React = require 'react'
-{Actions, Utils, FocusedThreadStore, WorkspaceStore} = require 'inbox-exports'
+{Actions, Utils, FocusedContentStore, WorkspaceStore} = require 'inbox-exports'
 {RetinaImg} = require 'ui-components'
 
 # Note: These always have a thread, but only sometimes get a
@@ -16,7 +16,7 @@ ReplyButton = React.createClass
 
   _onReply: (e) ->
     return unless Utils.nodeIsVisible(e.currentTarget)
-    Actions.composeReply(threadId: FocusedThreadStore.threadId())
+    Actions.composeReply(threadId: FocusedContentStore.focusedId('thread'))
     e.stopPropagation()
 
 ReplyAllButton = React.createClass
@@ -29,7 +29,7 @@ ReplyAllButton = React.createClass
 
   _onReplyAll: (e) ->
     return unless Utils.nodeIsVisible(e.currentTarget)
-    Actions.composeReplyAll(threadId: FocusedThreadStore.threadId())
+    Actions.composeReplyAll(threadId: FocusedContentStore.focusedId('thread'))
     e.stopPropagation()
 
 ForwardButton = React.createClass
@@ -42,7 +42,7 @@ ForwardButton = React.createClass
 
   _onForward: (e) ->
     return unless Utils.nodeIsVisible(e.currentTarget)
-    Actions.composeForward(threadId: FocusedThreadStore.threadId())
+    Actions.composeForward(threadId: FocusedContentStore.focusedId('thread'))
     e.stopPropagation()
 
 ArchiveButton = React.createClass
@@ -65,7 +65,7 @@ ArchiveButton = React.createClass
 module.exports =
 MessageToolbarItems = React.createClass
   getInitialState: ->
-    threadIsSelected: FocusedThreadStore.threadId()?
+    threadIsSelected: FocusedContentStore.focusedId('thread')?
 
   render: ->
     classes = React.addons.classSet
@@ -78,7 +78,7 @@ MessageToolbarItems = React.createClass
 
   componentDidMount: ->
     @_unsubscribers = []
-    @_unsubscribers.push FocusedThreadStore.listen @_onChange
+    @_unsubscribers.push FocusedContentStore.listen @_onChange
 
   componentWillUnmount: ->
     unsubscribe() for unsubscribe in @_unsubscribers
@@ -86,4 +86,4 @@ MessageToolbarItems = React.createClass
   _onChange: -> _.defer =>
     return unless @isMounted()
     @setState
-      threadIsSelected: FocusedThreadStore.threadId()?
+      threadIsSelected: FocusedContentStore.focusedId('thread')?

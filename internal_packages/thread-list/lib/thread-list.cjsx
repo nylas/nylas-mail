@@ -1,76 +1,21 @@
 _ = require 'underscore-plus'
 React = require 'react'
-{ListTabular, Spinner} = require 'ui-components'
+{ListTabular, ModelList} = require 'ui-components'
 {timestamp, subject} = require './formatting-utils'
 {Actions,
  Utils,
  Thread,
  WorkspaceStore,
- FocusedThreadStore,
  NamespaceStore} = require 'inbox-exports'
 
-ThreadStore = require './thread-store'
 ThreadListParticipants = require './thread-list-participants'
+ThreadListStore = require './thread-list-store'
 
 module.exports =
 ThreadList = React.createClass
   displayName: 'ThreadList'
 
-  getInitialState: ->
-    @_getStateFromStores()
- 
   componentWillMount: ->
-    @_prepareColumns()
-
-  componentDidMount: ->
-    @thread_store_unsubscribe = ThreadStore.listen @_onChange
-    @focus_store_unsubscribe = FocusedThreadStore.listen @_onChange
-    @body_unsubscriber = atom.commands.add 'body', {
-      'application:previous-item': => @_onShiftFocus(-1)
-      'application:next-item': => @_onShiftFocus(1)
-      'application:focus-item': => @_onFocus()
-      'application:remove-item': -> Actions.archiveCurrentThread()
-      'application:remove-and-previous': -> Actions.archiveAndPrevious()
-      'application:remove-and-next': -> Actions.archiveAndNext()
-      'application:reply': @_onReply
-      'application:reply-all': @_onReplyAll
-      'application:forward': @_onForward
-    }
-
-  componentWillUnmount: ->
-    @focus_store_unsubscribe()
-    @thread_store_unsubscribe()
-    @body_unsubscriber.dispose()
-
-  render: ->
-    # IMPORTANT: DO NOT pass inline functions as props. _.isEqual thinks these
-    # are "different", and will re-render everything. Instead, declare them with ?=,
-    # pass a reference. (Alternatively, ignore these in children's shouldComponentUpdate.)
-    #
-    # BAD:   onSelect={ (item) -> Actions.focusThread(item) }
-    # GOOD:  onSelect={@_onSelectItem}
-    #
-    classes = React.addons.classSet("thread-list": true, "ready": @state.ready)
-
-    @_itemClassProvider ?= (item) -> if item.isUnread() then 'unread' else ''
-    @_itemOnSelect ?= (item) -> Actions.focusThread(item)
-
-    if @state.dataView
-      <div className={classes}>
-        <ListTabular
-          columns={@_columns}
-          dataView={@state.dataView}
-          itemClassProvider={@_itemClassProvider}
-          selectedId={@state.focusedId}
-          onSelect={@_itemOnSelect} />
-        <Spinner visible={!@state.ready} />
-      </div>
-    else
-      <div className={classes}>
-        <Spinner visible={!@state.ready} />
-      </div>
-
-  _prepareColumns: ->
     labelComponents = (thread) =>
       for label in @state.threadLabelComponents
         LabelComponent = label.view
@@ -89,6 +34,14 @@ ThreadList = React.createClass
         return 'forwarded'
       else
         return 'replied'
+
+    c0 = new ListTabular.Column
+      name: ""
+      resolver: (thread) ->
+        toggle = (event) ->
+          ThreadListStore.view().selection.toggle(thread)
+          event.stopPropagation()
+        <div className="checkmark" onClick={toggle}><div className="inner"></div></div>
 
     c1 = new ListTabular.Column
       name: "★"
@@ -119,45 +72,45 @@ ThreadList = React.createClass
       resolver: (thread) ->
         <span className="timestamp">{timestamp(thread.lastMessageTimestamp)}</span>
 
-    @_columns = [c1, c2, c3, c4]
+    @columns = [c0, c1, c2, c3, c4]
+    @commands =
+      'core:remove-item': -> Actions.archiveCurrentThread()
+      'core:remove-and-previous': -> Actions.archiveAndPrevious()
+      'core:remove-and-next': -> Actions.archiveAndNext()
+      'application:reply': @_onReply
+      'application:reply-all': @_onReplyAll
+      'application:forward': @_onForward
+    @itemClassProvider = (item) ->
+      React.addons.classSet
+        'unread': item.isUnread()
 
-  _onFocus: ->
-    item = @state.dataView.getById(@state.focusedId)
-    Actions.focusThread(item) if item
+  render: ->
+    <ModelList
+      dataStore={ThreadListStore}
+      columns={@columns}
+      commands={@commands}
+      itemClassProvider={@itemClassProvider}
+      className="thread-list"
+      collection="thread" />
 
-  _onShiftFocus: (delta) ->
-    index = @state.dataView.indexOfId(@state.focusedId)
-    index = Math.max(0, Math.min(index + delta, @state.dataView.count() - 1))
-    Actions.focusThread(@state.dataView.get(index))
+  # Additional Commands
 
-  _onReply: ->
-    return unless @state.focusedId? and @_actionInVisualScope()
-    Actions.composeReply(threadId: @state.focusedId)
+  _onReply: ({focusedId}) ->
+    return unless focusedId? and @_viewingFocusedThread()
+    Actions.composeReply(threadId: focusedId)
 
-  _onReplyAll: ->
-    return unless @state.focusedId? and @_actionInVisualScope()
-    Actions.composeReplyAll(threadId: @state.focusedId)
+  _onReplyAll: ({focusedId}) ->
+    return unless focusedId? and @_viewingFocusedThread()
+    Actions.composeReplyAll(threadId: focusedId)
 
-  _onForward: ->
-    return unless @state.focusedId? and @_actionInVisualScope()
-    Actions.composeForward(threadId: @state.focusedId)
+  _onForward: ({focusedId}) ->
+    return unless focusedId? and @_viewingFocusedThread()
+    Actions.composeForward(threadId: focusedId)
 
-  _actionInVisualScope: ->
+  # Helpers
+
+  _viewingFocusedThread: ->
     if WorkspaceStore.selectedLayoutMode() is "list"
       WorkspaceStore.sheet().type is "Thread"
     else
       true
-
-  # Message list rendering is more important than thread list rendering.
-  # Since they're on the same event listner, and the event listeners are
-  # unordered, we need a way to push thread list updates later back in the
-  # queue.
-  _onChange: -> _.delay =>
-    return unless @isMounted()
-    @setState(@_getStateFromStores())
-  , 30
-
-  _getStateFromStores: ->
-    dataView: ThreadStore.view()
-    ready: ThreadStore.view()?.loaded()
-    focusedId: FocusedThreadStore.threadId()

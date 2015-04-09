@@ -234,6 +234,7 @@ Utils =
       return value
     else
     return value
+
   _isEqual: (a, b, aStack, bStack, options={}) ->
     # Identical objects are equal. `0 is -0`, but they aren't identical.
     # See the [Harmony `egal`
@@ -242,8 +243,8 @@ Utils =
     # A strict comparison is necessary because `null == undefined`.
     if (a == null or b == null) then return a is b
     # Unwrap any wrapped objects.
-    if (a._wrapped?) then a = a._wrapped
-    if (b._wrapped?) then b = b._wrapped
+    if (a?._wrapped?) then a = a._wrapped
+    if (b?._wrapped?) then b = b._wrapped
 
     if options.functionsAreEqual
       if _.isFunction(a) and _.isFunction(b) then return true

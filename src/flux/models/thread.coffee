@@ -6,6 +6,9 @@ Contact = require './contact'
 Actions = require '../actions'
 Attributes = require '../attributes'
 
+Function::getter = (prop, get) ->
+  Object.defineProperty @prototype, prop, {get, configurable: yes}
+
 module.exports =
 class Thread extends Model
 
@@ -41,11 +44,8 @@ class Thread extends Model
   @naturalSortOrder: ->
     Thread.attributes.lastMessageTimestamp.descending()
 
-  fromJSON: (json) ->
-    super(json)
-    @unread = @isUnread()
-    @
-
+  @getter 'unread', -> @isUnread()
+  
   tagIds: ->
     _.map @tags, (tag) -> tag.id
   

@@ -38,7 +38,6 @@ Sheet = React.createClass
   render: ->
     style =
       position:'absolute'
-      backgroundColor:'white'
       width:'100%'
       height:'100%'
       zIndex: 1
@@ -51,7 +50,7 @@ Sheet = React.createClass
 
     <div name={"Sheet"}
          style={style}
-         className={"mode-#{@state.mode}"}
+         className={"sheet mode-#{@state.mode}"}
          data-type={@props.data.type}>
       <Flexbox direction="row">
         {@_columnFlexboxElements()}

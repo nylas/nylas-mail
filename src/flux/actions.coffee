@@ -58,8 +58,11 @@ windowActions = [
   "selectView",
   "selectLayoutMode",
 
-  "focusThread",
+  "focusKeyboardInCollection",
+  "focusInCollection",
   "focusTag",
+
+  "selectThreads",
   
   "toggleMessageIdExpanded",
 

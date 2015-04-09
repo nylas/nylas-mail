@@ -1,9 +1,12 @@
 _ = require 'underscore-plus'
 React = require "react"
-{ComponentRegistry, WorkspaceStore} = require "inbox-exports"
+{ModelList} = require 'ui-components'
+{ComponentRegistry, WorkspaceStore, Actions, DraftStore} = require "inbox-exports"
+
 {DownButton, UpButton} = require "./thread-nav-buttons"
-ThreadList = require "./thread-list"
-DraftList  = require "./draft-list"
+ThreadSelectionBar = require './thread-selection-bar'
+ThreadList = require './thread-list'
+DraftList = require './draft-list'
 
 RootCenterComponent = React.createClass
   displayName: 'RootCenterComponent'
@@ -18,16 +21,14 @@ RootCenterComponent = React.createClass
     @unsubscribe() if @unsubscribe
 
   render: ->
-    views =
-      'threads': ThreadList
-      'drafts':  DraftList
-    view = views[@state.view]
-    <view />
-    
+    if @state.view is 'threads'
+      <ThreadList />
+    else
+      <DraftList />
+
   _onStoreChange: ->
     @setState
       view: WorkspaceStore.selectedView()
-
 
 module.exports =
   activate: (@state={}) ->
@@ -35,6 +36,11 @@ module.exports =
       view: RootCenterComponent
       name: 'RootCenterComponent'
       location: WorkspaceStore.Location.RootCenter
+
+    ComponentRegistry.register
+      name: 'ThreadSelectionBar'
+      view: ThreadSelectionBar
+      location: WorkspaceStore.Location.RootCenter.Toolbar
 
     ComponentRegistry.register
       name: 'DownButton'

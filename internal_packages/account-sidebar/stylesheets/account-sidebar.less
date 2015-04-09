@@ -8,6 +8,18 @@
 
   background-color: @source-list-bg;
 
+  section {
+    padding-bottom: @padding-base-vertical;
+  }
+
+  .heading {
+    color: @text-color-very-subtle;
+    font-weight: @font-weight-semi-bold;
+    font-size: @font-size-small;
+    padding-left:@padding-small-horizontal;
+    padding-top:@padding-small-horizontal;
+  }
+
   .item {
     color: @text-color-subtle;
     font-size: @font-size-small;
@@ -24,12 +36,12 @@
 
   .item-tag {
     .unread {
-      float: right;
       font-weight: @font-weight-medium;
       color: @source-list-active-bg;
-      background: @source-list-bg;
-    }
-    img {
+      background: @source-list-active-color;
+      padding-top:@padding-small-vertical * 0.8;
+      padding-bottom:@padding-small-vertical * 0.8 - 2;
+      margin-left:@padding-small-horizontal;
     }
     .name {
       text-transform: capitalize;
@@ -40,9 +52,8 @@
     &.selected {
       background: @source-list-active-bg;
       color: @source-list-active-color;
-
-      &:hover {
-        background: @source-list-active-bg;
+      img.colorfill { 
+        background: @source-list-active-color;
       }
     }
 

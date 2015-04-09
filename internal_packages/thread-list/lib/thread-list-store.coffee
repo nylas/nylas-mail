@@ -8,22 +8,25 @@ SearchView = require './search-view'
  WorkspaceStore,
  AddRemoveTagsTask,
  FocusedTagStore,
- FocusedThreadStore,
+ FocusedContentStore,
  Actions,
  Utils,
  Thread,
  Message} = require 'inbox-exports'
 
-ThreadStore = Reflux.createStore
+module.exports =
+ThreadListStore = Reflux.createStore
   init: ->
     @_resetInstanceVars()
+    @_afterViewUpdate = []
 
     @listenTo Actions.searchQueryCommitted, @_onSearchCommitted
-    @listenTo Actions.selectLayoutMode, @_autoselectForLayoutMode
+    @listenTo Actions.selectLayoutMode, @_autofocusForLayoutMode
 
     @listenTo Actions.archiveAndPrevious, @_onArchiveAndPrev
     @listenTo Actions.archiveAndNext, @_onArchiveAndNext
     @listenTo Actions.archiveCurrentThread, @_onArchive
+    @listenTo Actions.selectThreads, @_onSetSelection
 
     @listenTo DatabaseStore, @_onDataChanged
     @listenTo FocusedTagStore, @_onTagChanged
@@ -40,9 +43,11 @@ ThreadStore = Reflux.createStore
     @_viewUnlisten() if @_viewUnlisten
     @_view = view
 
-    @_viewUnlisten = @_view.listen ->
+    @_viewUnlisten = view.listen ->
       @trigger(@)
-      @_autoselectForLayoutMode()
+      fn() for fn in @_afterViewUpdate
+      @_afterViewUpdate = []
+      @_autofocusForLayoutMode()
     ,@
 
     @trigger(@)
@@ -61,7 +66,7 @@ ThreadStore = Reflux.createStore
       @setView new DatabaseView Thread, {matchers}, (item) ->
         DatabaseStore.findAll(Message, {threadId: item.id})
 
-    Actions.focusThread(null)
+    Actions.focusInCollection(collection: 'thread', item: null)
 
   # Inbound Events
 
@@ -72,13 +77,16 @@ ThreadStore = Reflux.createStore
     @_searchQuery = query
     @createView()
 
+  _onSetSelection: (threads) ->
+    @_view.selection.set(threads)
+
   _onDataChanged: (change) ->
     if change.objectClass is Thread.name
-      @_view.invalidate({shallow: true})
+      @_view.invalidate({changed: change.objects, shallow: true})
 
     if change.objectClass is Message.name
       threadIds = _.uniq _.map change.objects, (m) -> m.threadId
-      @_view.invalidateItems(threadIds)
+      @_view.invalidateMetadataFor(threadIds)
 
   _onArchive: ->
     @_archiveAndShiftBy('auto')
@@ -91,22 +99,17 @@ ThreadStore = Reflux.createStore
 
   _archiveAndShiftBy: (offset) ->
     layoutMode = WorkspaceStore.selectedLayoutMode()
-    selected = FocusedThreadStore.thread()
+    selected = FocusedContentStore.focused('thread')
     return unless selected
 
     # Determine the index of the current thread
     index = @_view.indexOfId(selected.id)
     return if index is -1
 
-    # Archive the current thread
-    task = new AddRemoveTagsTask(selected.id, ['archive'], ['inbox'])
-    Actions.postNotification({message: "Archived thread", type: 'success'})
-    Actions.queueTask(task)
-
     if offset is 'auto'
       if layoutMode is 'list'
         # If the user is in list mode, return to the thread lit
-        Actions.focusThread(null)
+        Actions.focusInCollection(collection: 'thread', item: null)
         return
       else if layoutMode is 'split'
         # If the user is in split mode, automatically select another
@@ -119,12 +122,19 @@ ThreadStore = Reflux.createStore
           offset = 1
 
     index = Math.min(Math.max(index + offset, 0), @_view.count() - 1)
-    Actions.focusThread(@_view.get(index))
+    next = @_view.get(index)
 
-  _autoselectForLayoutMode: ->
-    selectedId = FocusedThreadStore.threadId()
-    if WorkspaceStore.selectedLayoutMode() is "split" and not selectedId
-      _.defer => Actions.focusThread(@_view.get(0))
+    # Archive the current thread
+    task = new AddRemoveTagsTask(selected, ['archive'], ['inbox'])
 
+    Actions.queueTask(task)
+    Actions.postNotification({message: "Archived thread", type: 'success'})
 
-module.exports = ThreadStore
+    @_afterViewUpdate.push ->
+      Actions.focusInCollection(collection: 'thread', item: next)
+
+  _autofocusForLayoutMode: ->
+    focusedId = FocusedContentStore.focusedId('thread')
+    if WorkspaceStore.selectedLayoutMode() is "split" and not focusedId
+      _.defer => Actions.focusInCollection(collection: 'thread', item: @_view.get(0))
+

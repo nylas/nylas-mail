@@ -6,17 +6,6 @@
 
 'body':
   'c'        : 'application:new-message' # Gmail
-  'k'        : 'application:previous-item' # Gmail
-  'up'       : 'application:previous-item' # Mac mail
-  'j'        : 'application:next-item' # Gmail
-  'down'     : 'application:next-item' # Mac mail
-  ']'        : 'application:remove-and-previous' # Gmail
-  '['        : 'application:remove-and-next' # Gmail
-  'e'        : 'application:remove-item' # Gmail
-  'delete'   : 'application:remove-item' # Mac mail
-  'backspace': 'application:remove-item' # Outlook
-  'enter'    : 'application:focus-item'
-
   '/'        : 'application:focus-search' # Gmail
 
   'r'     : 'application:reply' # Gmail
@@ -25,7 +14,19 @@
   'f'     : 'application:forward' # Gmail
 
   'escape': 'application:pop-sheet'
-  'u': 'application:pop-sheet' # Gmail
+  'u'     : 'application:pop-sheet' # Gmail
+
+  'k'        : 'core:previous-item' # Gmail
+  'up'       : 'core:previous-item' # Mac mail
+  'j'        : 'core:next-item' # Gmail
+  'down'     : 'core:next-item' # Mac mail
+  ']'        : 'core:remove-and-previous' # Gmail
+  '['        : 'core:remove-and-next' # Gmail
+  'e'        : 'core:remove-item' # Gmail
+  'delete'   : 'core:remove-item' # Mac mail
+  'backspace': 'core:remove-item' # Outlook
+  'enter'    : 'core:focus-item'
+  'x'        : 'core:select-item'
 
   # Default cross-platform core behaviors
   'left': 'core:move-left'

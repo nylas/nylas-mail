@@ -35,9 +35,8 @@
 @gray-lighter: lighten(@gray-base, 92.5%); // #eee
 @white:        #ffffff;
 
-@blue:         #2794c3;
-@blue-dark:    #1880ab;
-// @blue-dark:    darken(@blue, 10%);
+@blue:         #419bf9;
+@blue-dark:    #3187e1;
 
 //== Color descriptors
 @accent-primary:      @blue;
@@ -313,21 +312,16 @@
 
 
 
+//** Global color for active items (e.g., navs or dropdowns).
+@component-active-color:        @accent-primary-dark;
+//** Global background color for active items (e.g., navs or dropdowns).
+@component-active-bg:           @background-primary;
 
-
-
-
-
+@component-secondary-active-bg: @background-primary;
 
 //== Source List (used in Sidebar, iTunes-style)
 //
 // ##
-
-//** Global color for active items (e.g., navs or dropdowns).
-@component-active-color:    @background-primary;
-//** Global background color for active items (e.g., navs or dropdowns).
-@component-active-bg:           #383d44;
-@component-secondary-active-bg: @background-tertiary;
 
 //** Background color on `.list-group-item`
 @source-list-bg:                 @background-primary;
@@ -349,14 +343,24 @@
 
 //** Background color of single list items on hover
 @list-hover-bg:           #f5f5f5;
+
 //** Text color of active list items
-@list-active-color:       @component-active-color;
+@list-focused-color:       @list-bg;
 //** Background color of active list items
-@list-active-bg:          @component-secondary-active-bg;
+@list-focused-bg:          @component-active-color;
 //** Border color of active list elements
-@list-active-border:      @list-active-bg;
+@list-focused-border:      @list-focused-bg;
 //** Text color for content within active list items
-@list-active-color-muted:  lighten(@list-active-bg, 40%);
+@list-focused-color-muted:  lighten(@list-focused-bg, 40%);
+
+//** Text color of active list items
+@list-selected-color:       inherit;
+//** Background color of active list items
+@list-selected-bg:          fade(@component-active-color, 17%);
+//** Border color of active list elements
+@list-selected-border:     fade(@component-active-color, 50%);
+//** Text color for content within active list items
+@list-selected-color-muted:  lighten(@list-selected-bg, 40%);
 
 //** Text color of disabled list items
 @list-disabled-color:      @gray-light;
@@ -489,4 +493,4 @@
 @body-bg: @white;
 //== Panels and Sidebars
 @panel-background-color: @gray-lighter;
-@toolbar-background-color: @gray-lighter;
+@toolbar-background-color: @white;

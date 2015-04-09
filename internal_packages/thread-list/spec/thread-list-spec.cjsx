@@ -1,3 +1,15 @@
+
+
+
+
+
+return
+
+
+
+
+
+
 moment = require "moment"
 _ = require 'underscore-plus'
 CSON = require 'season'
@@ -333,11 +345,11 @@ describe "ThreadList", ->
 #         spyOn(Actions, "selectThreadId")
 
 #       it "can move selection up", ->
-#         atom.commands.dispatch(document.body, "application:previous-item")
+#         atom.commands.dispatch(document.body, "core:previous-item")
 #         expect(@thread_list._onShiftSelectedIndex).toHaveBeenCalledWith(-1)
 
 #       it "can move selection down", ->
-#         atom.commands.dispatch(document.body, "application:next-item")
+#         atom.commands.dispatch(document.body, "core:next-item")
 #         expect(@thread_list._onShiftSelectedIndex).toHaveBeenCalledWith(1)
 
 #     describe "Triggering message list commands", ->

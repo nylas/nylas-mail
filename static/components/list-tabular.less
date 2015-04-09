@@ -11,14 +11,30 @@
     line-height: @line-height-computed * 1.15;
     color: @text-color;
     background: @list-bg;
+    border-left:0 solid @list-focused-bg;
+    transition: border-left 0.1s ease-in-out;
 
+    &.keyboard-cursor {
+      border-left:5px solid @list-focused-bg;
+    }
     &:hover {
       background: darken(@list-bg, 5%);
     }
 
     &.selected {
-      background: @list-active-bg;
-      color: @list-active-color;
+      background: @list-selected-bg;
+      color: @list-selected-color;
+      .list-column {
+        border-bottom: 1px solid @list-selected-border;
+      }
+    }
+
+    &.focused {
+      background: @list-focused-bg;
+      color: @list-focused-color;
+      .list-column {
+        border-bottom: 1px solid @list-focused-border;
+      }
     }
   }
 }
@@ -33,6 +49,41 @@
     display: flex;
     &:hover {
       cursor: default;
+    }
+
+    &.selected {
+      .checkmark .inner {
+        background-color: @accent-primary;
+        background-image: url(images/thread-list/checkbox-checkmark@2x.png);
+        border:none;
+        border-radius: 2px;
+      }
+    }
+
+    &.selected.focused {
+      .checkmark .inner {
+        background-color: @list-bg;
+        background-image: url(images/thread-list/checkbox-checkmark-activerow@2x.png);
+        border:none;
+        border-radius: 2px;
+      }
+    }
+
+    .checkmark {
+      padding: 12px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      .inner {
+        width:14px;
+        height:14px;
+        border:1px solid @table-border-color;
+        border-radius: 2px;
+        background: transparent;
+        background-size: 12px 9px;
+        background-repeat: no-repeat;
+        background-position: center;
+      }
     }
   }
 

@@ -1,5 +1,6 @@
 _ = require 'underscore-plus'
 EventEmitter = require('events').EventEmitter
+ModelViewSelection = require './model-view-selection'
 
 module.exports =
 class ModelView
@@ -9,6 +10,9 @@ class ModelView
     @_retainedRange = {start: 0, end: 50}
     @_pages = {}
     @_emitter = new EventEmitter()
+    
+    @selection = new ModelViewSelection @, => @_emitter.emit('trigger')
+    
     @
 
   # Accessing Data
@@ -82,11 +86,11 @@ class ModelView
   cullPages: ->
     false
 
-  invalidate: ({shallow} = {}) ->
+  invalidate: ({changed, shallow} = {}) ->
     # "Total Refresh" - in a subclass, do something smarter
     @invalidateRetainedRange()
 
-  invalidateItems: (ids = []) ->
+  invalidateMetadataFor: (ids = []) ->
     # "Total Refresh" - in a subclass, do something smarter
     @invalidateRetainedRange()
 

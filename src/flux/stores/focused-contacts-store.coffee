@@ -5,15 +5,16 @@ Utils = require '../models/utils'
 Actions = require '../actions'
 MessageStore = require './message-store'
 NamespaceStore = require './namespace-store'
+FocusedContentStore = require './focused-content-store'
 
 # A store that handles the focuses collections of and individual contacts
 module.exports =
 FocusedContactsStore = Reflux.createStore
   init: ->
-    @listenTo Actions.focusThread, @_onFocusThread
     @listenTo Actions.focusContact, @_focusContact
     @listenTo MessageStore, => @_onMessageStoreChanged()
     @listenTo NamespaceStore, => @_onNamespaceChanged()
+    @listenTo FocusedContentStore, @_onFocusChanged
 
     @_currentThread = null
     @_clearCurrentParticipants(silent: true)
@@ -30,11 +31,14 @@ FocusedContactsStore = Reflux.createStore
     @_currentFocusedContact = null
     @trigger() unless silent
 
-  _onFocusThread: (thread) ->
-    return if @_currentThread?.id is thread?.id
-    @_currentThread = thread
+  _onFocusChanged: (change) ->
+    return unless change.impactsCollection('thread')
+    item = FocusedContentStore.focused('thread')
+    return if @_currentThread?.id is item?.id
+    @_currentThread = item
     @_clearCurrentParticipants()
     @_onMessageStoreChanged()
+
     # We need to wait now for the MessageStore to grab all of the
     # appropriate messages for the given thread.
 

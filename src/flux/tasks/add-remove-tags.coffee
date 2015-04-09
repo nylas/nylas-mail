@@ -9,14 +9,27 @@ async = require 'async'
 module.exports =
 class AddRemoveTagsTask extends Task
 
-  constructor: (@threadId, @tagIdsToAdd = [], @tagIdsToRemove = []) -> super
+  constructor: (@thread, @tagIdsToAdd = [], @tagIdsToRemove = []) -> super
+
+  tagForId: (id) ->
 
   performLocal:  (versionIncrement = 1) ->
     new Promise (resolve, reject) =>
-      return reject(new Error("Attempt to call AddRemoveTagsTask.performLocal without Thread")) unless @threadId
+      if not @thread or not @thread instanceof Thread
+        return reject(new Error("Attempt to call AddRemoveTagsTask.performLocal without Thread"))
 
-      DatabaseStore.find(Thread, @threadId).then (thread) =>
-        return resolve() unless thread
+      # collect all of the models we need.
+      needed = {}
+      for id in @tagIdsToAdd
+        if id in ['archive', 'unread', 'inbox', 'unseen']
+          needed["tag-#{id}"] = new Tag(id: id, name: id)
+        else
+          needed["tag-#{id}"] = DatabaseStore.find(Tag, id)
+
+      Promise.props(needed).then (objs) =>
+        # Always apply our changes to a new copy of the thread.
+        # In some scenarios it may actually be frozen
+        thread = new Thread(@thread)
 
         @namespaceId = thread.namespaceId
 
@@ -25,22 +38,20 @@ class AddRemoveTagsTask extends Task
 
         # remove tags in the remove list
         thread.tags = _.filter thread.tags, (tag) =>
-          @tagIdsToRemove.indexOf(tag.id) == -1
+          @tagIdsToRemove.indexOf(tag.id) is -1
 
         # add tags in the add list
-        async.map @tagIdsToAdd, (id, callback) ->
-          DatabaseStore.find(Tag, id).then (tag) ->
-            callback(null, tag)
-        , (err, tags) ->
-          for tag in tags
-            thread.tags.push(tag) if tag
-          DatabaseStore.persistModel(thread).then(resolve)
+        for id in @tagIdsToAdd
+          tag = objs["tag-#{id}"]
+          thread.tags.push(tag) if tag
+
+        DatabaseStore.persistModel(thread).then(resolve)
 
   performRemote: ->
     new Promise (resolve, reject) =>
       # queue the operation to the server
       atom.inbox.makeRequest
-        path: "/n/#{@namespaceId}/threads/#{@threadId}"
+        path: "/n/#{@namespaceId}/threads/#{@thread.id}"
         method: 'PUT'
         body:
           add_tags: @tagIdsToAdd,

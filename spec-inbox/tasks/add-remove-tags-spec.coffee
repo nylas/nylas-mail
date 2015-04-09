@@ -25,11 +25,12 @@ describe "AddRemoveTagsTask", ->
         tags: [
           new Tag({name: 'archive', id: 'archive'})
         ]
-      task = new AddRemoveTagsTask(testThread.id, ['archive'], ['inbox'])
+      task = new AddRemoveTagsTask(testThread, ['archive'], ['inbox'])
       task._rollbackLocal()
       waitsFor ->
         DatabaseStore.persistModel.callCount > 0
       runs ->
+        testThread = DatabaseStore.persistModel.mostRecentCall.args[0]
         expect(testThread.tagIds()).toEqual(['inbox'])
 
   describe "performLocal", ->
@@ -41,9 +42,9 @@ describe "AddRemoveTagsTask", ->
           new Tag({name: 'unread', id: 'unread'})
         ]
 
-    it "should throw an exception if task has not been given a thread ID", ->
+    it "should throw an exception if task has not been given a thread", ->
       badTasks = [new AddRemoveTagsTask()]
-      goodTasks = [new AddRemoveTagsTask(testThread.id)]
+      goodTasks = [new AddRemoveTagsTask(testThread)]
       caught = []
       succeeded = []
 
@@ -59,7 +60,7 @@ describe "AddRemoveTagsTask", ->
         expect(succeeded).toEqual(goodTasks)
 
     it "should trigger a persist action to commit changes to the thread to the local store", ->
-      task = new AddRemoveTagsTask(testThread.id, [], [])
+      task = new AddRemoveTagsTask(testThread, [], [])
       task.performLocal()
       waitsFor ->
         DatabaseStore.persistModel.callCount > 0
@@ -67,11 +68,12 @@ describe "AddRemoveTagsTask", ->
         expect(DatabaseStore.persistModel).toHaveBeenCalled()
 
     it "should remove the tag IDs passed to the task", ->
-      task = new AddRemoveTagsTask(testThread.id, [], ['unread'])
+      task = new AddRemoveTagsTask(testThread, [], ['unread'])
       task.performLocal()
       waitsFor ->
         DatabaseStore.persistModel.callCount > 0
       runs ->
+        testThread = DatabaseStore.persistModel.mostRecentCall.args[0]
         expect(testThread.tagIds().length).toBe(1)
         expect(testThread.tagIds()[0]).toBe('inbox')
 
@@ -81,11 +83,12 @@ describe "AddRemoveTagsTask", ->
         tags: [
           new Tag({name: 'inbox', id: 'inbox'})
         ]
-      task = new AddRemoveTagsTask(testThread.id, ['archive'], ['inbox'])
+      task = new AddRemoveTagsTask(testThread, ['archive'], ['inbox'])
       task.performLocal()
       waitsFor ->
         DatabaseStore.persistModel.callCount > 0
       runs ->
+        testThread = DatabaseStore.persistModel.mostRecentCall.args[0]
         expect(testThread.tagIds().length).toBe(1)
         expect(testThread.tagIds()[0]).toBe('archive')
 
@@ -95,7 +98,7 @@ describe "AddRemoveTagsTask", ->
       testThread = new Thread
         id: '1233123AEDF1'
         namespaceId: 'A12ADE'
-      @task = new AddRemoveTagsTask(testThread.id, ['archive'], ['inbox'])
+      @task = new AddRemoveTagsTask(testThread, ['archive'], ['inbox'])
 
     it "should start an API request with the Draft JSON", ->
       spyOn(atom.inbox, 'makeRequest')

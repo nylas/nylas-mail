@@ -35,6 +35,10 @@ atom-workspace {
   height:100%;
 }
 
+.sheet {
+  background-color: @background-primary;
+}
+
 .sheet-stack-enter {
   left:30px;
   opacity: 0;
@@ -114,6 +118,10 @@ body.is-blurred {
   }
 }
 
+.sheet-toolbar-container {
+  background: @toolbar-background-color;
+}
+
 .sheet-toolbar {
   position: relative;
   -webkit-app-region: drag;
@@ -121,8 +129,6 @@ body.is-blurred {
   border-bottom: 1px solid @border-color-divider;
   width:  100%;
   height: 50px;
-
-  box-shadow: 0 0 6px rgba(0,0,0,0.09);
 
   // prevent flexbox from ever, ever resizing toolbars, no matter
   // how much it thinks other content is being squished
@@ -150,6 +156,7 @@ body.is-blurred {
   .btn-toolbar {
     margin-top: @spacing-half;
     margin-left: @spacing-three-quarters;
+    margin-right: @spacing-three-quarters;
     height:32px;
   }
 }

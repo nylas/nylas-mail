@@ -4,7 +4,6 @@ moment = require 'moment'
 Reflux = require 'reflux'
 DraftStoreProxy = require './draft-store-proxy'
 DatabaseStore = require './database-store'
-DatabaseView = require './database-view'
 NamespaceStore = require './namespace-store'
 
 SendDraftTask = require '../tasks/send-draft'
@@ -46,7 +45,6 @@ DraftStore = Reflux.createStore
     @listenTo Actions.sendDraftError, @_onSendDraftSuccess
     @listenTo Actions.sendDraftSuccess, @_onSendDraftError
 
-    @_drafts = []
     @_draftSessions = {}
     @_sendingState = {}
     @_extensions = []
@@ -55,18 +53,9 @@ DraftStore = Reflux.createStore
     # fragile. Pending an Atom fix perhaps?
     window.onbeforeunload = => @_onBeforeUnload()
 
-    @_view = new DatabaseView Message,
-      matchers: [Message.attributes.draft.equal(true)],
-      includes: [Message.attributes.body]
-
-    @listenTo @_view, => @trigger({})
-
   ######### PUBLIC #######################################################
 
   # Returns a promise
-
-  view: ->
-    @_view
 
   sessionForLocalId: (localId) ->
     throw new Error("sessionForLocalId requires a localId") unless localId
@@ -129,7 +118,6 @@ DraftStore = Reflux.createStore
     return unless change.objectClass is Message.name
     containsDraft = _.some(change.objects, (msg) -> msg.draft)
     return unless containsDraft
-    @_view.invalidate()
 
   _isMe: (contact={}) ->
     contact.email is NamespaceStore.current().me().email

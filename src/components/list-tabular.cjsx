@@ -12,24 +12,24 @@ ListTabularItem = React.createClass
     metrics: React.PropTypes.object
     columns: React.PropTypes.arrayOf(React.PropTypes.object).isRequired
     item: React.PropTypes.object.isRequired
-    itemClassProvider: React.PropTypes.func
+    itemClass: React.PropTypes.string
     displayHeaders: React.PropTypes.bool
     onSelect: React.PropTypes.func
     onClick: React.PropTypes.func
     onDoubleClick: React.PropTypes.func
-    selected: React.PropTypes.bool
 
   # DO NOT DELETE unless you know what you're doing! This method cuts
   # React.Perf.wasted-time from ~300msec to 20msec by doing a deep
   # comparison of props before triggering a re-render.
   shouldComponentUpdate: (nextProps, nextState) ->
     # Quick check to avoid running isEqual if our item === existing item
-    return false if @props.item is nextProps.item and @props.selected is nextProps.selected
+    return false if @props.item is nextProps.item and @props.itemClass is nextProps.itemClass and _.isEqual(@props.metrics, nextProps.metrics)
     return false if _.isEqual(@props, nextProps)
     true
 
   render: ->
-    <div className={@_containerClasses()} onClick={@_onClick} style={position:'absolute', top: @props.metrics.top, width:'100%', height:@props.metrics.height}>
+    className = "list-item list-tabular-item #{@props.itemClass}"
+    <div className={className} onClick={@_onClick} style={position:'absolute', top: @props.metrics.top, width:'100%', height:@props.metrics.height}>
       {@_columns()}
     </div>
 
@@ -42,23 +42,15 @@ ListTabularItem = React.createClass
         {column.resolver(@props.item, @)}
       </div>
 
-  _onClick: ->
-    @props.onSelect?(@props.item)
+  _onClick: (event) ->
+    @props.onSelect?(@props.item, event)
 
-    @props.onClick?(@props.item)
+    @props.onClick?(@props.item, event)
     if @_lastClickTime? and Date.now() - @_lastClickTime < 350
-      @props.onDoubleClick?(@props.item)
+      @props.onDoubleClick?(@props.item, event)
 
     @_lastClickTime = Date.now()
 
-  _containerClasses: ->
-    classes = @props.itemClassProvider?(@props.item)
-    classes =  '' unless _.isString(classes)
-    classes += ' ' + React.addons.classSet
-      'selected': @props.selected
-      'list-item': true
-      'list-tabular-item': true
-    classes
 
 module.exports =
 ListTabular = React.createClass
@@ -67,7 +59,6 @@ ListTabular = React.createClass
     columns: React.PropTypes.arrayOf(React.PropTypes.object).isRequired
     dataView: React.PropTypes.object
     itemClassProvider: React.PropTypes.func
-    selectedId: React.PropTypes.string
     onSelect: React.PropTypes.func
     onClick: React.PropTypes.func
     onDoubleClick: React.PropTypes.func
@@ -194,11 +185,14 @@ ListTabular = React.createClass
       item = @props.dataView.get(idx)
       continue unless item
 
+      itemClass = ''
+      if @props.itemClassProvider
+        itemClass = @props.itemClassProvider(item)
+
       rows.push <ListTabularItem key={item.id ? idx}
-                                 selected={item.id is @props.selectedId}
                                  item={item}
+                                 itemClass={itemClass}
                                  metrics={top: idx * rowHeight, height: rowHeight}
-                                 itemClassProvider={@props.itemClassProvider}
                                  columns={@props.columns}
                                  onSelect={@props.onSelect}
                                  onClick={@props.onClick}

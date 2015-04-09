@@ -5,6 +5,72 @@
   outline:none;
 }
 
+.sheet-toolbar .thread-selection-bar {
+  // This item sits in the toolbar and takes up all the remaining
+  // space from the toolbar-spacer divs, but flex-shrink means that
+  // it shrinks before any other element when not enough space is available.
+
+  // This is important because the spacers will prevent items from being clickable,
+  // (webkit-app-region:drag) even if we're covering them up. We need to make them
+  // 0px wide!
+
+  width: 100%;
+  flex-shrink:100;
+  height:49px;
+  z-index: 10000;
+  -webkit-app-region: drag;
+
+  .absolute {
+    position: absolute;
+    left: -1px;
+    right:-1px;
+    top: 0;
+    height:49px;
+    border-left:1px solid @border-color-divider;
+    border-right:1px solid @border-color-divider;
+    background-color: @gray-lighter;
+    opacity:0;
+    transition: opacity 0.2s ease-in-out;
+    pointer-events: none;
+
+    .inner {
+      top: -100%;
+      position: absolute;
+      width: 100%;
+      display:flex;
+      transition: top 0.2s ease-in-out;
+      -webkit-app-region: no-drag;
+
+      .centered {
+        flex: 1;
+        cursor:default;
+        text-align: center;
+        color:@text-color-subtle;
+        padding-top: 15px;
+      }
+    }
+  }
+
+  // .absolute is positioned full-width over all the other items in the toolbar.
+  // when .enabled, it transitions to opacity:1, hiding other items beneath it.
+
+  // .inner contains the actual buttons and animates *down* while the opacity animation
+  // is running. This means the items beneath fade out as the new ones slide in.
+
+  &.enabled {
+    .absolute {
+      opacity: 1;
+      pointer-events: initial;
+      .inner {
+        top:0;
+        .centered {
+          -webkit-app-region: drag;
+        }
+      }
+    }
+  }
+}
+
 .thread-list {
   order: 3;
   flex: 1;
@@ -13,6 +79,7 @@
   .list-item {
     background-color: darken(@background-primary, 3%);
   }
+
   .list-column {
     border-bottom: 1px solid fade(@list-border, 60%);
   }
@@ -71,7 +138,7 @@
     top:2px;
   }
 
-  .unread:not(.selected) {
+  .unread:not(.focused):not(.selected) {
     background-color: @background-primary;
     &:hover {
       background: darken(@background-primary, 2%);
@@ -79,6 +146,12 @@
     .list-column {
       border-bottom: 1px solid @list-border;
     }
+  }
+
+  .unread:not(.focused) {
+    // Never show any unread styles when the thread is focused.
+    // It will be marked as read and the delay from focus=>read
+    // is noticeable.
     .subject {
       font-weight: @font-weight-semi-bold;
     }
@@ -87,7 +160,7 @@
     }
   }
 
-  .selected {
+  .focused {
     // subpixel antialiasing looks awful against dark background colors
     -webkit-font-smoothing: antialiased;
 
@@ -103,6 +176,10 @@
     }
     .snippet, .timestamp {
       color: @text-color-inverse-subtle;
+    }
+
+    .thread-icon {
+      -webkit-filter: brightness(600%);
     }
   }
 

@@ -1,6 +1,7 @@
 _ = require 'underscore-plus'
 EventEmitter = require('events').EventEmitter
 proxyquire = require 'proxyquire'
+Tag = require '../src/flux/models/tag'
 Thread = require '../src/flux/models/thread'
 Message = require '../src/flux/models/message'
 
@@ -107,16 +108,98 @@ describe "DatabaseView", ->
           expect(@view.invalidateRetainedRange).toHaveBeenCalled()
           expect(@view._pages[0].metadata).toEqual(beforeMetadata)
 
-    describe "invalidateItems", ->
+      describe "when the shallow option is provided with specific changed items", ->
+        it "should determine whether changes to these items make page(s) invalid", ->
+          spyOn(@view, 'invalidateIfItemsInconsistent').andCallFake ->
+          @view.invalidate({shallow: true, changed: ['a']})
+          expect(@view.invalidateIfItemsInconsistent).toHaveBeenCalled()
+
+    describe "invalidateMetadataFor", ->
       it "should clear cached metadata for just the items whose ids are provided", ->
-        @view.invalidateItems(['b', 'e'])
+        @view.invalidateMetadataFor(['b', 'e'])
         expect(@view._pages[0].metadata).toEqual({'a': 'a-metadata', 'c': 'c-metadata'})
         expect(@view._pages[1].metadata).toEqual({'d': 'd-metadata', 'f': 'f-metadata'})
 
-      it "should invalidate the entire range, since individual item changes can change sort orders, etc.", ->
-        spyOn(@view, 'retrievePage')
-        @view.invalidateItems(['e'])
+      it "should re-retrieve page metadata for only impacted pages", ->
+        spyOn(@view, 'retrievePageMetadata')
+        @view.invalidateMetadataFor(['e'])
+        expect(@view.retrievePageMetadata).toHaveBeenCalled()
+        expect(@view.retrievePageMetadata.calls[0].args[0]).toEqual('1')
+
+    describe "invalidateIfItemsInconsistent", ->
+      beforeEach ->
+        @inbox = new Tag(id: 'inbox', name: 'Inbox')
+        @archive = new Tag(id: 'archive', name: 'archive')
+        @a = new Thread(id: 'a', subject: 'a', tags:[@inbox], lastMessageTimestamp: new Date(1428526885604))
+        @b = new Thread(id: 'b', subject: 'b', tags:[@inbox], lastMessageTimestamp: new Date(1428526885604))
+        @c = new Thread(id: 'c', subject: 'c', tags:[@inbox], lastMessageTimestamp: new Date(1428526885604))
+        @d = new Thread(id: 'd', subject: 'd', tags:[@inbox], lastMessageTimestamp: new Date(1428526885604))
+        @e = new Thread(id: 'e', subject: 'e', tags:[@inbox], lastMessageTimestamp: new Date(1428526885604))
+        @f = new Thread(id: 'f', subject: 'f', tags:[@inbox], lastMessageTimestamp: new Date(1428526885604))
+
+        @view = new DatabaseView Thread,
+          matchers: [Thread.attributes.tags.contains('inbox')]
+        @view._pages =
+          "0":
+            items: [@a, @b, @c]
+            metadata: {'a': 'a-metadata', 'b': 'b-metadata', 'c': 'c-metadata'}
+            loaded: true
+          "1":
+            items: [@d, @e, @f]
+            metadata: {'d': 'd-metadata', 'e': 'e-metadata', 'f': 'f-metadata'}
+            loaded: true
+        spyOn(@view, 'invalidateRetainedRange')
+
+      it "should invalidate the entire range if more than 5 items are provided", ->
+        @view.invalidateIfItemsInconsistent([@a, @b, @c, @d, @e, @f])
         expect(@view.invalidateRetainedRange).toHaveBeenCalled()
+
+      it "should invalidate the entire range if a provided item is in the set but no longer matches the set", ->
+        a = new Thread(@a)
+        a.tags = [@archive]
+        @view.invalidateIfItemsInconsistent([a])
+        expect(@view.invalidateRetainedRange).toHaveBeenCalled()
+
+      it "should invalidate the entire range if a provided item is not in the set but matches the set", ->
+        incoming = new Thread(id: 'a', subject: 'a', tags:[@inbox], lastMessageTimestamp: new Date())
+        @view.invalidateIfItemsInconsistent([incoming])
+        expect(@view.invalidateRetainedRange).toHaveBeenCalled()
+
+      it "should invalidate the entire range if a provided item matches the set and the value of it's sorting attribute has changed", ->
+        a = new Thread(@a)
+        a.lastMessageTimestamp = new Date(1428526909533)
+        @view.invalidateIfItemsInconsistent([a])
+        expect(@view.invalidateRetainedRange).toHaveBeenCalled()
+
+      it "should not do anything if no provided items are in the set or belong in the set", ->
+        archived = new Thread(id: 'zz', tags: [@archive])
+        @view.invalidateIfItemsInconsistent([archived])
+        expect(@view.invalidateRetainedRange).not.toHaveBeenCalled()
+
+      it "should replace items in place otherwise", ->
+        a = new Thread(@a)
+        a.subject = 'Subject changed, nothing to see here!'
+        @view.invalidateIfItemsInconsistent([a])
+        expect(@view.invalidateRetainedRange).not.toHaveBeenCalled()
+
+        a = new Thread(@a)
+        a.tags = [@inbox, @archive] # not realistic, but doesn't change membership in set
+        @view.invalidateIfItemsInconsistent([a])
+        expect(@view.invalidateRetainedRange).not.toHaveBeenCalled()
+
+      it "should attach the metadata field to replaced items", ->
+        spyOn(@view._emitter, 'emit')
+        subject = 'Subject changed, nothing to see here!'
+        runs ->
+          e = new Thread(@e)
+          e.subject = subject
+          @view.invalidateIfItemsInconsistent([e])
+        waitsFor ->
+          @view._emitter.emit.callCount > 0
+        runs ->
+          expect(@view._pages[1].items[1].id).toEqual(@e.id)
+          expect(@view._pages[1].items[1].subject).toEqual(subject)
+          expect(@view._pages[1].items[1].metadata).toEqual(@view._pages[1].metadata[@e.id])
 
     describe "cullPages", ->
       beforeEach ->
@@ -149,7 +232,9 @@ describe "DatabaseView", ->
 
     it "should initialize the page and set loading to true", ->
       @view.retrievePage(0)
-      expect(@view._pages[0]).toEqual({metadata: {}, items: [], loading: true})
+      expect(@view._pages[0].metadata).toEqual({})
+      expect(@view._pages[0].items).toEqual([])
+      expect(@view._pages[0].loading).toEqual(true)
 
     it "should make a database query for the correct item range", ->
       @view.retrievePage(2)
@@ -164,6 +249,7 @@ describe "DatabaseView", ->
           @items = [{id: 'model-a'}, {id: 'model-b'}, {id: 'model-c'}]
           @queries[0].resolve(@items)
           @queries = []
+        spyOn(@view, 'loaded').andCallFake -> true
         spyOn(@view._emitter, 'emit')
 
       it "should populate the page items and call trigger", ->

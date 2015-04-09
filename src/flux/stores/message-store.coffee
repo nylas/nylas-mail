@@ -3,6 +3,7 @@ Actions = require "../actions"
 Message = require "../models/message"
 DatabaseStore = require "./database-store"
 NamespaceStore = require "./namespace-store"
+FocusedContentStore = require "./focused-content-store"
 async = require 'async'
 _ = require 'underscore-plus'
 
@@ -44,7 +45,7 @@ MessageStore = Reflux.createStore
 
   _registerListeners: ->
     @listenTo DatabaseStore, @_onDataChanged
-    @listenTo Actions.focusThread, @_onFocusThread
+    @listenTo FocusedContentStore, @_onFocusChanged
     @listenTo Actions.toggleMessageIdExpanded, @_onToggleMessageIdExpanded
 
   _onDataChanged: (change) ->
@@ -55,10 +56,11 @@ MessageStore = Reflux.createStore
     return unless inDisplayedThread
     @_fetchFromCache()
 
-  _onFocusThread: (thread) ->
-    return if @_thread?.id is thread?.id
+  _onFocusChanged: (change) ->
+    focused = FocusedContentStore.focused('thread')
+    return if @_thread?.id is focused?.id
 
-    @_thread = thread
+    @_thread = focused
     @_items = []
     @_itemsLoading = true
     @_itemsExpanded = {}
@@ -79,7 +81,6 @@ MessageStore = Reflux.createStore
 
   _fetchFromCache: (options = {}) ->
     return unless @_thread
-
     loadedThreadId = @_thread.id
 
     query = DatabaseStore.findAll(Message, threadId: loadedThreadId)
@@ -95,7 +96,7 @@ MessageStore = Reflux.createStore
       , =>
         # Check to make sure that our thread is still the thread we were
         # loading items for. Necessary because this takes a while.
-        return unless loadedThreadId == @_thread.id
+        return unless loadedThreadId == @_thread?.id
 
         loaded = true
 

@@ -1,6 +1,6 @@
 React = require "react/addons"
-ThreadStore = require './thread-store'
-{FocusedThreadStore} = require 'inbox-exports'
+ThreadListStore = require './thread-list-store'
+{FocusedContentStore} = require 'inbox-exports'
 {RetinaImg} = require 'ui-components'
 
 ThreadNavButtonMixin =
@@ -8,18 +8,18 @@ ThreadNavButtonMixin =
     @_getStateFromStores()
 
   componentDidMount: ->
-    @_unsubscribe = ThreadStore.listen @_onStoreChange
-    @_unsubscribe_focus = FocusedThreadStore.listen @_onStoreChange
+    @_unsubscribe = ThreadListStore.listen @_onStoreChange
+    @_unsubscribe_focus = FocusedContentStore.listen @_onStoreChange
 
   isFirstThread: ->
-    selectedId = FocusedThreadStore.threadId()
-    ThreadStore.view().get(0)?.id is selectedId
+    selectedId = FocusedContentStore.focusedId('thread')
+    ThreadListStore.view().get(0)?.id is selectedId
 
   isLastThread: ->
-    selectedId = FocusedThreadStore.threadId()
+    selectedId = FocusedContentStore.focusedId('thread')
 
-    lastIndex = ThreadStore.view().count() - 1
-    ThreadStore.view().get(lastIndex)?.id is selectedId
+    lastIndex = ThreadListStore.view().count() - 1
+    ThreadListStore.view().get(lastIndex)?.id is selectedId
 
   componentWillUnmount: ->
     @_unsubscribe()
@@ -45,7 +45,7 @@ DownButton = React.createClass
 
   _onClick: ->
     return if @state.disabled
-    atom.commands.dispatch(document.body, 'application:next-item')
+    atom.commands.dispatch(document.body, 'core:next-item')
 
   _getStateFromStores: ->
     disabled: @isLastThread()
@@ -66,7 +66,7 @@ UpButton = React.createClass
 
   _onClick: ->
     return if @state.disabled
-    atom.commands.dispatch(document.body, 'application:previous-item')
+    atom.commands.dispatch(document.body, 'core:previous-item')
 
   _getStateFromStores: ->
     disabled: @isFirstThread()

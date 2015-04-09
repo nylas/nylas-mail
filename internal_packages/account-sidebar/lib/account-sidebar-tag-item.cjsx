@@ -17,9 +17,9 @@ AccountSidebarTagItem = React.createClass
       'selected': @props.select
 
     <div className={classSet} onClick={@_onClick} id={@props.tag.id}>
-      {unread}
-      <RetinaImg name={"#{@props.tag.id}.png"} fallback={'folder.png'} selected={@props.select}/>
+      <RetinaImg name={"#{@props.tag.id}.png"} fallback={'folder.png'} colorfill={@props.select} />
       <span className="name"> {name}</span>
+      {unread}
     </div>
 
   _onClick: (event) ->

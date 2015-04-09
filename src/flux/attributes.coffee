@@ -26,7 +26,8 @@ class Matcher
         # Assumes that `value` is an array of items
         !!_.find value, (x) =>
           @val == x?.id || @val == x || @val?.id == x || @val?.id == x?.id
-      when 'startsWith' then return value.startsWith(@val)
+      else
+        throw new Error("Matcher.evaulate() not sure how to evaluate @{@attr.modelKey} with comparator #{@comparator}")
 
   joinSQL: (klass) ->
     switch @comparator
@@ -59,6 +60,8 @@ class SortOrder
   constructor: (@attr, @direction = 'DESC') ->
   orderBySQL: (klass) ->
     "`#{klass.name}`.`#{@attr.jsonKey}` #{@direction}"
+  attribute: ->
+    @attr
 
 # The Attribute class represents a single model attribute, like 'namespace_id'
 # Subclasses of Attribute like AttributeDateTime know how to covert between

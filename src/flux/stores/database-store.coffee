@@ -49,7 +49,7 @@ class DatabaseProxy
       options: options
     }
     console.timeStamp("DB SEND #{queryKey}: #{query}")
-    console.log(query) if verboseFilter(query)
+    console.log(query,values) if verboseFilter(query)
     ipc.send('database-query', {@databasePath, queryKey, query, values})
 
 # DatabasePromiseTransaction converts the callback syntax of the Database

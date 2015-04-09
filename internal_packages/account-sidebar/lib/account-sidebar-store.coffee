@@ -48,40 +48,34 @@ AccountSidebarStore = Reflux.createStore
 
       mainTagIDs = ['inbox', 'drafts', 'sent', 'archive']
       mainTags = _.filter tags, (tag) -> _.contains(mainTagIDs, tag.id)
-      userTags = _.filter tags, (tag) -> tag.name != tag.id
+      userTags = _.reject tags, (tag) -> _.contains(mainTagIDs, tag.id)
 
       # Sort the main tags so they always appear in a standard order
       mainTags = _.sortBy mainTags, (tag) -> mainTagIDs.indexOf(tag.id)
       mainTags.push new Tag(name: 'All Mail', id: '*')
 
+      # Sort user tags by name
+      userTags = _.sortBy(userTags, 'name')
+
       lastSections = @_sections
       @_sections = [
-        { label: 'Mailboxes', tags: mainTags }
+        { label: 'Mailboxes', tags: mainTags },
+        { label: 'Tags', tags: userTags },
       ]
-
-      if _.isEqual(@_sections, lastSections) is false
-        @_populateUnreadCounts()
 
       @trigger(@)
 
-  _populateUnreadCounts: ->
+  _populateInboxCount: ->
     namespace = NamespaceStore.current()
     return unless namespace
 
-    @_sections.forEach (section) =>
-      section.tags.forEach (tag) =>
-        if tag.id is "drafts"
-          @_populateDraftsCount(tag)
-        else if tag.id in ['drafts', 'sent', 'archive', 'trash', '*']
-          return
-        else
-          # Make a web request for unread count
-          atom.inbox.makeRequest
-            method: 'GET'
-            path: "/n/#{namespace.id}/tags/#{tag.id}"
-            returnsModel: true
+    # Make a web request for unread count
+    atom.inbox.makeRequest
+      method: 'GET'
+      path: "/n/#{namespace.id}/tags/inbox"
+      returnsModel: true
 
-  _populateDraftsCount: ->
+  _populateDraftCount: ->
     namespace = NamespaceStore.current()
     return unless namespace
 
@@ -89,33 +83,33 @@ AccountSidebarStore = Reflux.createStore
       @localDraftsTag.unreadCount = count
       @trigger(@)
 
-  # Unfortunately, the joins necessary to compute unread counts are expensive.
-  # Rather than update unread counts every time threads change in the database,
-  # we debounce aggressively and update only after changes have stopped.
-  # Remove this when JOIN query speed is fixed!
-  _populateUnreadCountsDebounced: _.debounce ->
-    @_populateUnreadCounts()
-  , 1000
 
   _refetchFromAPI: ->
     namespace = NamespaceStore.current()
     return unless namespace
-
-    # Trigger a request to the API
     atom.inbox.getCollection(namespace.id, 'tags')
 
   # Inbound Events
 
   _onNamespaceChanged: ->
     @_refetchFromAPI()
+    @_populateInboxCount()
     @_populate()
 
   _onDataChanged: (change) ->
-    if change.objectClass == Tag.name
+    @populateInboxCountDebounced ?= _.debounce ->
+      @_populateInboxCount()
+    , 1000
+    @populateDraftCountDebounced ?= _.debounce ->
+      @_populateDraftCount()
+    , 1000
+
+    if change.objectClass is Tag.name
       @_populate()
-    if change.objectClass == Thread.name
-      @_populateUnreadCountsDebounced()
-    if change.objectClass == Message.name
-      @_populateDraftsCount()
+    if change.objectClass is Thread.name
+      @populateInboxCountDebounced()
+    if change.objectClass is Message.name
+      return unless _.some change.objects, (msg) -> msg.draft
+      @populateDraftCountDebounced()
 
 module.exports = AccountSidebarStore
