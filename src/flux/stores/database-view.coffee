@@ -232,6 +232,7 @@ class DatabaseView extends ModelView
     query.then (items) =>
       # If we've started reloading since we made our query, don't do any more work
       if page.loadingStart isnt start
+        @log("Retrieval cancelled — out of date.")
         return
 
       # Now, fetch the messages for each thread. We could do this with a
@@ -241,7 +242,9 @@ class DatabaseView extends ModelView
       @retrievePageMetadata(idx, items)
 
   retrievePageMetadata: (idx, items) ->
+    start = Date.now()
     page = @_pages[idx]
+    page.loadingStart = start
 
     # This method can only be used once the page is loaded. If no page is present,
     # go ahead and retrieve it in full.
@@ -259,6 +262,11 @@ class DatabaseView extends ModelView
         metadataPromises[item.id] ?= @_itemMetadataProvider(item)
 
     Promise.props(metadataPromises).then (results) =>
+      # If we've started reloading since we made our query, don't do any more work
+      if page.loadingStart isnt start
+        @log("Metadata retrieval cancelled — out of date.")
+        return
+
       for item in items
         item.metadata = results[item.id]
         page.metadata[item.id] = results[item.id]

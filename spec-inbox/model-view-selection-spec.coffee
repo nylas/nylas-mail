@@ -118,6 +118,17 @@ describe "ModelViewSelection", ->
       @selection.walk({current, next})
       expect(@selection.ids()).toEqual(['2', '4', '5'])
 
+    it "should select only one item if either current or next is null or undefined", ->
+      current = null
+      next = @items[5]
+      @selection.walk({current, next})
+      expect(@selection.ids()).toEqual(['2', '5'])
+
+      next = null
+      current = @items[7]
+      @selection.walk({current, next})
+      expect(@selection.ids()).toEqual(['2', '5', '7'])
+
     describe "when the `next` item is a step backwards in the selection history", ->
       it "should deselect the current item", ->
         @selection.set([@items[2], @items[3], @items[4], @items[5]])

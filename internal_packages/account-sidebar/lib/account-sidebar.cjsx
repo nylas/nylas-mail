@@ -1,7 +1,8 @@
 React = require 'react'
-{Actions, FocusedTagStore} = require("inbox-exports")
+{Actions} = require("inbox-exports")
 SidebarDividerItem = require("./account-sidebar-divider-item")
 SidebarTagItem = require("./account-sidebar-tag-item")
+SidebarSheetItem = require("./account-sidebar-sheet-item")
 SidebarStore = require ("./account-sidebar-store")
 
 module.exports =
@@ -13,14 +14,12 @@ AccountSidebar = React.createClass
 
   componentDidMount: ->
     @unsubscribe = SidebarStore.listen @_onStoreChange
-    @unsubscribe_focus = FocusedTagStore.listen @_onStoreChange
 
   # It's important that every React class explicitly stops listening to
   # atom events before it unmounts. Thank you event-kit
   # This can be fixed via a Reflux mixin
   componentWillUnmount: ->
     @unsubscribe() if @unsubscribe
-    @unsubscribe_focus() if @unsubscribe_focus
 
   render: ->
     <div id="account-sidebar" className="account-sidebar">
@@ -37,18 +36,25 @@ AccountSidebar = React.createClass
       </section>
 
   _itemComponents: (section) ->
-    return section.tags?.map (tag) =>
-      <SidebarTagItem
-        key={tag.id}
-        tag={tag}
-        select={tag?.id == @state?.selected}/>
+    if section.type is 'tag'
+      itemClass = SidebarTagItem
+    else if section.type is 'sheet'
+      itemClass = SidebarSheetItem
+    else
+      throw new Error("Unsure how to render item type #{section.type}")
+
+    section.items?.map (item) =>
+      <itemClass
+        key={item.id ? item.type}
+        item={item}
+        select={item.id is @state.selected.id }/>
 
   _onStoreChange: ->
     @setState @_getStateFromStores()
 
   _getStateFromStores: ->
     sections: SidebarStore.sections()
-    selected: FocusedTagStore.tagId()
+    selected: SidebarStore.selected()
 
 
 AccountSidebar.minWidth = 165

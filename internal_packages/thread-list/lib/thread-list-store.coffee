@@ -25,7 +25,8 @@ ThreadListStore = Reflux.createStore
 
     @listenTo Actions.archiveAndPrevious, @_onArchiveAndPrev
     @listenTo Actions.archiveAndNext, @_onArchiveAndNext
-    @listenTo Actions.archiveCurrentThread, @_onArchive
+    @listenTo Actions.archiveSelection, @_onArchiveSelection
+    @listenTo Actions.archive, @_onArchive
     @listenTo Actions.selectThreads, @_onSetSelection
 
     @listenTo DatabaseStore, @_onDataChanged
@@ -91,6 +92,21 @@ ThreadListStore = Reflux.createStore
   _onArchive: ->
     @_archiveAndShiftBy('auto')
 
+  _onArchiveSelection: ->
+    selected = @_view.selection.items()
+    focusedId = FocusedContentStore.focusedId('thread')
+    keyboardId = FocusedContentStore.keyboardCursorId('thread')
+
+    for thread in selected
+      task = new AddRemoveTagsTask(thread, ['archive'], ['inbox'])
+      Actions.queueTask(task)
+      if thread.id is focusedId
+        Actions.focusInCollection(collection: 'thread', item: null)
+      if thread.id is keyboardId
+        Actions.focusKeyboardInCollection(collection: 'thread', item: null)
+
+    @_view.selection.clear()
+
   _onArchiveAndPrev: ->
     @_archiveAndShiftBy(-1)
 
@@ -98,43 +114,45 @@ ThreadListStore = Reflux.createStore
     @_archiveAndShiftBy(1)
 
   _archiveAndShiftBy: (offset) ->
-    layoutMode = WorkspaceStore.selectedLayoutMode()
-    selected = FocusedContentStore.focused('thread')
-    return unless selected
+    layoutMode = WorkspaceStore.layoutMode()
+    focused = FocusedContentStore.focused('thread')
+    explicitOffset = if offset is "auto" then false else true
 
-    # Determine the index of the current thread
-    index = @_view.indexOfId(selected.id)
+    return unless focused
+
+    # Determine the current index
+    index = @_view.indexOfId(focused.id)
     return if index is -1
 
+    # Determine the next index we want to move to
     if offset is 'auto'
-      if layoutMode is 'list'
-        # If the user is in list mode, return to the thread lit
-        Actions.focusInCollection(collection: 'thread', item: null)
-        return
-      else if layoutMode is 'split'
-        # If the user is in split mode, automatically select another
-        # thead when they archive the current one. We move up if the one above
-        # the current thread is unread. Otherwise move down.
-        thread = @_view.get(index - 1)
-        if thread?.isUnread()
-          offset = -1
-        else
-          offset = 1
+      if @_view.get(index - 1)?.isUnread()
+        offset = -1
+      else
+        offset = 1
 
     index = Math.min(Math.max(index + offset, 0), @_view.count() - 1)
-    next = @_view.get(index)
+    nextKeyboard = nextFocus = @_view.get(index)
 
     # Archive the current thread
-    task = new AddRemoveTagsTask(selected, ['archive'], ['inbox'])
-
+    task = new AddRemoveTagsTask(focused, ['archive'], ['inbox'])
     Actions.queueTask(task)
     Actions.postNotification({message: "Archived thread", type: 'success'})
 
+    # Remove the current thread from selection
+    @_view.selection.remove(focused)
+
+    # If the user is in list mode and archived without specifically saying
+    # "archive and next" or "archive and prev", return to the thread list
+    # instead of focusing on the next message.
+    if layoutMode is 'list' and not explicitOffset
+      nextFocus = null
+
     @_afterViewUpdate.push ->
-      Actions.focusInCollection(collection: 'thread', item: next)
+      Actions.focusInCollection(collection: 'thread', item: nextFocus)
+      Actions.focusKeyboardInCollection(collection: 'thread', item: nextKeyboard)
 
   _autofocusForLayoutMode: ->
     focusedId = FocusedContentStore.focusedId('thread')
-    if WorkspaceStore.selectedLayoutMode() is "split" and not focusedId
+    if WorkspaceStore.layoutMode() is "split" and not focusedId
       _.defer => Actions.focusInCollection(collection: 'thread', item: @_view.get(0))
-

@@ -8,20 +8,18 @@ describe "MessageToolbarItems", ->
     @toolbarItems = ReactTestUtils.renderIntoDocument(<MessageToolbarItems />)
     @archiveButton = @toolbarItems.refs["archiveButton"]
     spyOn(Actions, "archiveAndNext")
-    spyOn(Actions, "archiveCurrentThread")
+    spyOn(Actions, "archive")
 
   it "renders the archive button", ->
     btns = ReactTestUtils.scryRenderedDOMComponentsWithClass(@toolbarItems, "btn-archive")
     expect(btns.length).toBe 1
 
-  it "archives and next in split mode", ->
-    spyOn(WorkspaceStore, "selectedLayoutMode").andReturn "split"
+  it "archives in split mode", ->
+    spyOn(WorkspaceStore, "layoutMode").andReturn "split"
     ReactTestUtils.Simulate.click(@archiveButton.getDOMNode())
-    expect(Actions.archiveCurrentThread).not.toHaveBeenCalled()
-    expect(Actions.archiveAndNext).toHaveBeenCalled()
+    expect(Actions.archive).toHaveBeenCalled()
 
   it "archives in list mode", ->
-    spyOn(WorkspaceStore, "selectedLayoutMode").andReturn "list"
+    spyOn(WorkspaceStore, "layoutMode").andReturn "list"
     ReactTestUtils.Simulate.click(@archiveButton.getDOMNode())
-    expect(Actions.archiveCurrentThread).toHaveBeenCalled()
-    expect(Actions.archiveAndNext).not.toHaveBeenCalled()
+    expect(Actions.archive).toHaveBeenCalled()

@@ -2,6 +2,7 @@ Reflux = require 'reflux'
 _ = require 'underscore-plus'
 {DatabaseStore,
  NamespaceStore,
+ WorkspaceStore,
  Actions,
  Tag,
  Message,
@@ -14,16 +15,16 @@ AccountSidebarStore = Reflux.createStore
     @_registerListeners()
     @_populate()
 
-    # Keep a cache of unread counts since requesting the number from the
-    # server is a fairly expensive operation.
-    @_unreadCountCache = {}
-    @localDraftsTag = new Tag({id: "drafts", name: "Local Drafts"})
-
-
   ########### PUBLIC #####################################################
 
   sections: ->
     @_sections
+
+  selected: ->
+    if WorkspaceStore.rootSheet() is WorkspaceStore.Sheet.Threads
+      FocusedTagStore.tag()
+    else
+      WorkspaceStore.rootSheet()
 
   ########### PRIVATE ####################################################
 
@@ -33,6 +34,8 @@ AccountSidebarStore = Reflux.createStore
   _registerListeners: ->
     @listenTo DatabaseStore, @_onDataChanged
     @listenTo NamespaceStore, @_onNamespaceChanged
+    @listenTo WorkspaceStore, @_onWorkspaceChanged
+    @listenTo FocusedTagStore, @_onFocusChange
 
   _populate: ->
     namespace = NamespaceStore.current()
@@ -44,7 +47,9 @@ AccountSidebarStore = Reflux.createStore
 
       # We ignore the server drafts so we can use our own localDrafts
       tags = _.reject tags, (tag) -> tag.id is "drafts"
-      tags.push(@localDraftsTag)
+
+      # We ignore the trash tag because you can't trash anything
+      tags = _.reject tags, (tag) -> tag.id is "trash"
 
       mainTagIDs = ['inbox', 'drafts', 'sent', 'archive']
       mainTags = _.filter tags, (tag) -> _.contains(mainTagIDs, tag.id)
@@ -57,10 +62,14 @@ AccountSidebarStore = Reflux.createStore
       # Sort user tags by name
       userTags = _.sortBy(userTags, 'name')
 
+      # Find root views, add the Views section
+      rootSheets = _.filter WorkspaceStore.Sheet, (sheet) -> sheet.root and sheet.name
+
       lastSections = @_sections
       @_sections = [
-        { label: 'Mailboxes', tags: mainTags },
-        { label: 'Tags', tags: userTags },
+        { label: 'Mailboxes', items: mainTags, type: 'tag' },
+        { label: 'Views', items: rootSheets, type: 'sheet' },
+        { label: 'Tags', items: userTags, type: 'tag' },
       ]
 
       @trigger(@)
@@ -83,7 +92,6 @@ AccountSidebarStore = Reflux.createStore
       @localDraftsTag.unreadCount = count
       @trigger(@)
 
-
   _refetchFromAPI: ->
     namespace = NamespaceStore.current()
     return unless namespace
@@ -95,6 +103,12 @@ AccountSidebarStore = Reflux.createStore
     @_refetchFromAPI()
     @_populateInboxCount()
     @_populate()
+
+  _onWorkspaceChanged: ->
+    @_populate()
+
+  _onFocusChange: ->
+    @trigger(@)
 
   _onDataChanged: (change) ->
     @populateInboxCountDebounced ?= _.debounce ->

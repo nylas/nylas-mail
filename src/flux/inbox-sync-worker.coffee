@@ -1,7 +1,7 @@
 _ = require 'underscore-plus'
 InboxLongConnection = require './inbox-long-connection'
 
-PAGE_SIZE = 500
+PAGE_SIZE = 250
 
 module.exports =
 class InboxSyncWorker
@@ -26,6 +26,7 @@ class InboxSyncWorker
     @fetchCollection('threads')
     @fetchCollection('calendars')
     @fetchCollection('contacts')
+    @fetchCollection('files')
 
   cleanup: ->
     @_connection.end()

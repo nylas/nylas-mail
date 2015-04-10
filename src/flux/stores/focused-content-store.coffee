@@ -19,7 +19,7 @@ FocusedContentStore = Reflux.createStore
   _resetInstanceVars: ->
     @_focused = {}
     @_keyboardCursor = {}
-    @_keyboardCursorEnabled = WorkspaceStore.selectedLayoutMode() is 'list'
+    @_keyboardCursorEnabled = WorkspaceStore.layoutMode() is 'list'
 
   # Inbound Events
 
@@ -48,7 +48,7 @@ FocusedContentStore = Reflux.createStore
     @trigger({ impactsCollection: (c) -> c is collection })
  
   _onWorkspaceChange: ->
-    keyboardCursorEnabled = WorkspaceStore.selectedLayoutMode() is 'list'
+    keyboardCursorEnabled = WorkspaceStore.layoutMode() is 'list'
 
     if keyboardCursorEnabled isnt @_keyboardCursorEnabled
       @_keyboardCursorEnabled = keyboardCursorEnabled

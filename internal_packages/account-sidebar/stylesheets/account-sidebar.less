@@ -26,15 +26,7 @@
     font-weight: 400;
     padding: 0 @spacing-standard;
     line-height: @line-height-large * 1.1;
-  }
 
-  .item-divider {
-    color:#586870;
-    padding-top: 1em;
-    padding-bottom: 0.25em;
-  }
-
-  .item-tag {
     .unread {
       font-weight: @font-weight-medium;
       color: @source-list-active-bg;
@@ -56,10 +48,16 @@
         background: @source-list-active-color;
       }
     }
-
+    
     &:hover {
       background: darken(@source-list-bg, 5%);
       cursor: default;
     }
+  }
+
+  .item-divider {
+    color:#586870;
+    padding-top: 1em;
+    padding-bottom: 0.25em;
   }
 }

@@ -5,27 +5,34 @@
 React = require "react"
 _ = require "underscore-plus"
 
+
+##
+## THIS FILE IS NOT IN USE! DEPRECATED IN FAVOR OF ModeToggle
+##
+
 module.exports =
 ModeSwitch = React.createClass
   displayName: 'ModeSwitch'
 
   getInitialState: ->
-    mode: WorkspaceStore.selectedLayoutMode()
+    @_getStateFromStores()
 
   componentDidMount: ->
-    @unsubscribe = WorkspaceStore.listen(@_onStateChanged, @)
+    @unsubscribe = WorkspaceStore.listen @_onStateChanged
 
   componentWillUnmount: ->
     @unsubscribe?()
 
   render: ->
+    return <div></div> unless @state.visible
+
     knobX = if @state.mode is 'list' then 25 else 41
 
     # Currently ModeSwitch is an opaque control that is not intended
     # to be styled, hence the fixed margins and positions. If we
     # turn this into a standard component one day, change!
     <div className="mode-switch"
-         style={order:51, marginTop:14, marginRight:20}
+         style={order:1001, marginTop:14, marginRight:20}
          onClick={@_onToggleMode}>
       <RetinaImg
         data-mode={'list'}
@@ -48,8 +55,14 @@ ModeSwitch = React.createClass
     </div>
   
   _onStateChanged: ->
-    @setState
-      mode: WorkspaceStore.selectedLayoutMode()
+    @setState(@_getStateFromStores())
+
+  _getStateFromStores: ->
+    rootModes = WorkspaceStore.rootSheet().supportedModes
+    rootVisible = WorkspaceStore.rootSheet() is WorkspaceStore.topSheet()
+
+    mode: WorkspaceStore.layoutMode()
+    visible: rootVisible and rootModes and rootModes.length > 1
 
   _onToggleMode: ->
     if @state.mode is 'list'

@@ -77,6 +77,9 @@ class Attribute
   equal: (val) ->
     throw (new Error "this field cannot be queried against.") unless @queryable
     new Matcher(@, '=', val)
+  not: (val) ->
+    throw (new Error "this field cannot be queried against.") unless @queryable
+    new Matcher(@, '!=', val)
   greaterThan: (val) ->
     throw (new Error "this field cannot be queried against.") unless @queryable
     new Matcher(@, '>', val)

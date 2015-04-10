@@ -56,7 +56,7 @@ windowActions = [
 
   # Actions for Selection State
   "selectNamespaceId",
-  "selectView",
+  "selectRootSheet",
   "selectLayoutMode",
 
   "focusKeyboardInCollection",
@@ -77,9 +77,10 @@ windowActions = [
   "sendDraft",
   "destroyDraft",
 
-  "archiveAndPrevious",
-  "archiveCurrentThread",
+  "archive",
+  "archiveSelection",
   "archiveAndNext",
+  "archiveAndPrevious",
 
   # Actions for Search
   "searchQueryChanged",

@@ -1,7 +1,25 @@
 React = require "react/addons"
 ThreadListStore = require './thread-list-store'
-{FocusedContentStore} = require 'inbox-exports'
 {RetinaImg} = require 'ui-components'
+{Actions, AddRemoveTagsTask, FocusedContentStore} = require "inbox-exports"
+
+ThreadBulkArchiveButton = React.createClass
+  displayName: 'ThreadBulkArchiveButton'
+
+  propTypes:
+    selection: React.PropTypes.object.isRequired
+
+  render: ->
+    <button style={order:-100}
+            className="btn btn-toolbar"
+            data-tooltip="Archive"
+            onClick={@_onArchive}>
+      <RetinaImg name="toolbar-archive.png" />
+    </button>
+
+  _onArchive: ->
+    Actions.archiveSelection()
+
 
 ThreadNavButtonMixin =
   getInitialState: ->
@@ -71,4 +89,4 @@ UpButton = React.createClass
   _getStateFromStores: ->
     disabled: @isFirstThread()
 
-module.exports = {DownButton, UpButton}
+module.exports = {DownButton, UpButton, ThreadBulkArchiveButton}

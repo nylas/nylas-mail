@@ -10,6 +10,7 @@ class File extends Model
     'filename': Attributes.String
       modelKey: 'filename'
       jsonKey: 'filename'
+      queryable: true
 
     'size': Attributes.Number
       modelKey: 'size'

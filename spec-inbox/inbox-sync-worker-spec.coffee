@@ -37,15 +37,16 @@ describe "InboxSyncWorker", ->
 
     it "should start querying for model collections that haven't been fully cached", ->
       @worker.start()
-      expect(@apiRequests.length).toBe(2)
+      expect(@apiRequests.length).toBe(3)
       modelsRequested = _.map @apiRequests, (r) -> r.model
-      expect(modelsRequested).toEqual(['threads', 'contacts'])
+      expect(modelsRequested).toEqual(['threads', 'contacts', 'files'])
 
     it "should mark incomplete collections as `busy`", ->
       @worker.start()
       expect(@state).toEqual({
         "contacts": {busy: true}
         "threads": {busy: true}
+        "files": {busy: true}
         "calendars": {complete: true}
       })
 
@@ -58,10 +59,10 @@ describe "InboxSyncWorker", ->
     describe "successfully, with models", ->
       it "should request the next page", ->
         models = []
-        models.push(new Thread) for i in [0..499]
+        models.push(new Thread) for i in [0..249]
         @request.requestOptions.success(models)
         expect(@apiRequests.length).toBe(1)
-        expect(@apiRequests[0].params).toEqual({limit:500; offset: 500})
+        expect(@apiRequests[0].params).toEqual({limit:250; offset: 250})
 
     describe "successfully, with fewer models than requested", ->
       beforeEach ->
@@ -77,6 +78,7 @@ describe "InboxSyncWorker", ->
         @request.requestOptions.success([])
         expect(@state).toEqual({
           "contacts": {busy: true}
+          "files": {busy: true}
           "threads": {complete : true}
           "calendars": {complete: true}
         })
@@ -90,6 +92,7 @@ describe "InboxSyncWorker", ->
         @request.requestOptions.success([])
         expect(@state).toEqual({
           "contacts": {busy: true}
+          "files": {busy: true}
           "threads": {complete : true}
           "calendars": {complete: true}
         })
@@ -100,6 +103,7 @@ describe "InboxSyncWorker", ->
         @request.requestOptions.error(err)
         expect(@state).toEqual({
           "contacts": {busy: true}
+          "files": {busy: true}
           "threads": {busy: false, error: err.toString()}
           "calendars": {complete: true}
         })

@@ -10,8 +10,8 @@ Spinner = require './spinner'
 EventEmitter = require('events').EventEmitter
 
 module.exports =
-ModelList = React.createClass
-  displayName: 'ModelList'
+MultiselectList = React.createClass
+  displayName: 'MultiselectList'
 
   propTypes:
     className: React.PropTypes.string.isRequired
@@ -32,6 +32,11 @@ ModelList = React.createClass
     @teardownForProps()
     @setupForProps(newProps)
     @setState(@_getStateFromStores(newProps))
+
+  componentDidUpdate: (prevProps, prevState) ->
+    if prevState.focusedId isnt @state.focusedId or
+       prevState.keyboardCursorId isnt @state.keyboardCursorId
+      @scrollToCurrentItem()
 
   componentWillUnmount: ->
     @teardownForProps()
@@ -55,10 +60,37 @@ ModelList = React.createClass
         context = {focusedId: @state.focusedId}
         props.commands[key](context)
 
+    checkmarkColumn = new ListTabular.Column
+      name: ""
+      resolver: (thread) ->
+        toggle = (event) ->
+          props.dataStore.view().selection.toggle(thread)
+          event.stopPropagation()
+        <div className="checkmark" onClick={toggle}><div className="inner"></div></div>
+
+    props.columns.splice(0, 0, checkmarkColumn)
+
     @unsubscribers = []
     @unsubscribers.push props.dataStore.listen @_onChange
     @unsubscribers.push FocusedContentStore.listen @_onChange
     @command_unsubscriber = atom.commands.add('body', commands)
+ 
+  scrollToCurrentItem: ->
+    item = @getDOMNode().querySelector(".focused")
+    item ?= @getDOMNode().querySelector(".keyboard-cursor")
+    
+    if item
+      list = @refs.list.getDOMNode()
+      itemRect = item.getBoundingClientRect()
+      listRect = list.getBoundingClientRect()
+
+      distanceBelowBottom = (itemRect.top + itemRect.height) - (listRect.top + listRect.height)
+      if distanceBelowBottom > 0
+        list.scrollTop += distanceBelowBottom
+
+      distanceAboveTop = listRect.top - itemRect.top
+      if distanceAboveTop > 0
+        list.scrollTop -= distanceAboveTop
 
   render: ->
     # IMPORTANT: DO NOT pass inline functions as props. _.isEqual thinks these
@@ -80,6 +112,7 @@ ModelList = React.createClass
     if @state.dataView
       <div className={className}>
         <ListTabular
+          ref="list"
           columns={@props.columns}
           dataView={@state.dataView}
           itemClassProvider={@itemClassProvider}
@@ -138,8 +171,8 @@ ModelList = React.createClass
       @state.dataView.selection.walk({current, next})
 
   _visible: ->
-    if WorkspaceStore.selectedLayoutMode() is "list"
-      WorkspaceStore.sheet().type is "Root"
+    if WorkspaceStore.layoutMode() is "list"
+      WorkspaceStore.topSheet().root
     else
       true
 

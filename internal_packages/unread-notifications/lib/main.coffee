@@ -43,8 +43,11 @@ module.exports =
 
         if newUnreadInInbox.length is 1
           msg = newUnreadInInbox.pop()
+          body = msg.subject
+          if not body or body.length is 0
+            body = msg.snippet
           notif = new Notification(msg.from[0].displayName(), {
-            body: msg.subject
+            body: body
             tag: 'unread-update'
           })
           notif.onclick = ->

@@ -1,6 +1,6 @@
 _ = require 'underscore-plus'
 React = require 'react'
-{ListTabular, ModelList} = require 'ui-components'
+{ListTabular, MultiselectList} = require 'ui-components'
 {timestamp, subject} = require './formatting-utils'
 {Actions,
  DatabaseStore,
@@ -53,7 +53,7 @@ DraftList = React.createClass
       'core:remove-item': @_onDelete
 
   render: ->
-    <ModelList
+    <MultiselectList
       dataStore={DraftListStore}
       columns={@columns}
       commands={@commands}

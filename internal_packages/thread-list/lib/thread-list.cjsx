@@ -1,6 +1,6 @@
 _ = require 'underscore-plus'
 React = require 'react'
-{ListTabular, ModelList} = require 'ui-components'
+{ListTabular, MultiselectList} = require 'ui-components'
 {timestamp, subject} = require './formatting-utils'
 {Actions,
  Utils,
@@ -35,14 +35,6 @@ ThreadList = React.createClass
       else
         return 'replied'
 
-    c0 = new ListTabular.Column
-      name: ""
-      resolver: (thread) ->
-        toggle = (event) ->
-          ThreadListStore.view().selection.toggle(thread)
-          event.stopPropagation()
-        <div className="checkmark" onClick={toggle}><div className="inner"></div></div>
-
     c1 = new ListTabular.Column
       name: "★"
       resolver: (thread) ->
@@ -72,9 +64,9 @@ ThreadList = React.createClass
       resolver: (thread) ->
         <span className="timestamp">{timestamp(thread.lastMessageTimestamp)}</span>
 
-    @columns = [c0, c1, c2, c3, c4]
+    @columns = [c1, c2, c3, c4]
     @commands =
-      'core:remove-item': -> Actions.archiveCurrentThread()
+      'core:remove-item': @_onArchive
       'core:remove-and-previous': -> Actions.archiveAndPrevious()
       'core:remove-and-next': -> Actions.archiveAndNext()
       'application:reply': @_onReply
@@ -85,7 +77,7 @@ ThreadList = React.createClass
         'unread': item.isUnread()
 
   render: ->
-    <ModelList
+    <MultiselectList
       dataStore={ThreadListStore}
       columns={@columns}
       commands={@commands}
@@ -94,6 +86,12 @@ ThreadList = React.createClass
       collection="thread" />
 
   # Additional Commands
+
+  _onArchive: ->
+    if @_viewingFocusedThread() or ThreadListStore.view().selection.count() is 0
+      Actions.archive()
+    else
+      Actions.archiveSelection()
 
   _onReply: ({focusedId}) ->
     return unless focusedId? and @_viewingFocusedThread()
@@ -110,7 +108,7 @@ ThreadList = React.createClass
   # Helpers
 
   _viewingFocusedThread: ->
-    if WorkspaceStore.selectedLayoutMode() is "list"
-      WorkspaceStore.sheet().type is "Thread"
+    if WorkspaceStore.layoutMode() is "list"
+      WorkspaceStore.topSheet() is WorkspaceStore.Sheet.Thread
     else
       true

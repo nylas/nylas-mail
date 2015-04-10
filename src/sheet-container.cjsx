@@ -117,7 +117,7 @@ Toolbar = React.createClass
     columnToolbarEls = @getDOMNode().querySelectorAll('[data-column]')
 
     # Find the top sheet in the stack
-    sheet = document.querySelector("[name='Sheet']:nth-child(#{@props.depth+1})")
+    sheet = document.querySelectorAll("[name='Sheet']")[@props.depth]
     return unless sheet
 
     # Position item containers so they have the position and width
@@ -137,7 +137,7 @@ Toolbar = React.createClass
   _getStateFromStores: (props) ->
     props ?= @props
     state =
-      mode: WorkspaceStore.selectedLayoutMode()
+      mode: WorkspaceStore.layoutMode()
       columns: []
 
     # Add items registered to Regions in the current sheet
@@ -194,7 +194,7 @@ FlexboxForLocations = React.createClass
 
   _getComponentRegistryState: ->
     items = []
-    mode = WorkspaceStore.selectedLayoutMode()
+    mode = WorkspaceStore.layoutMode()
     for location in @props.locations
       items = items.concat(ComponentRegistry.findAllByLocationAndMode(location, mode))
     {items}
@@ -216,49 +216,54 @@ SheetContainer = React.createClass
     @unsubscribe() if @unsubscribe
 
   render: ->
-    topSheet = @state.stack[@state.stack.length - 1]
+    totalSheets = @state.stack.length
+    topSheet = @state.stack[totalSheets - 1]
+
+    toolbarElements = @_toolbarElements()
+    sheetElements = @_sheetElements()
 
     <Flexbox direction="column">
-      <TimeoutTransitionGroup  name="Toolbar" 
-                               style={order:0}
-                               leaveTimeout={125}
-                               enterTimeout={125}
-                               className="sheet-toolbar"
-                               transitionName="sheet-toolbar">
-        {@_toolbarElements()}
-      </TimeoutTransitionGroup>
+      <div name="Toolbar" style={order:0} className="sheet-toolbar">
+        {toolbarElements[0]}
+        <TimeoutTransitionGroup  leaveTimeout={125}
+                                 enterTimeout={125}
+                                 transitionName="sheet-toolbar">
+          {toolbarElements[1..-1]}
+        </TimeoutTransitionGroup>
+      </div>
 
       <div name="Header" style={order:1}>
         <FlexboxForLocations locations={[topSheet.Header, WorkspaceStore.Sheet.Global.Header]}
-                             type={topSheet.type}/>
+                             id={topSheet.id}/>
       </div>
 
-      <TimeoutTransitionGroup name="Center"
-                              style={order:2, flex: 1, position:'relative'}
-                              leaveTimeout={125}
-                              enterTimeout={125}
-                              transitionName="sheet-stack">
-        {@_sheetElements()}
-      </TimeoutTransitionGroup>
+      <div name="Center" style={order:2, flex: 1, position:'relative'}>
+        {sheetElements[0]}
+        <TimeoutTransitionGroup leaveTimeout={125}
+                                enterTimeout={125}
+                                transitionName="sheet-stack">
+          {sheetElements[1..-1]}
+        </TimeoutTransitionGroup>
+      </div>
 
       <div name="Footer" style={order:3}>
         <FlexboxForLocations locations={[topSheet.Footer, WorkspaceStore.Sheet.Global.Footer]}
-                             type={topSheet.type}/>
+                             id={topSheet.id}/>
       </div>
     </Flexbox>
 
   _toolbarElements: ->
-    @state.stack.map (data, index) ->
-      <Toolbar data={data}
+    @state.stack.map (sheet, index) ->
+      <Toolbar data={sheet}
                ref={"toolbar-#{index}"}
-               depth={index}
-               key={index} />
+               key={"#{index}:#{sheet.id}:toolbar"}
+               depth={index} />
 
   _sheetElements: ->
-    @state.stack.map (data, index) =>
-      <Sheet data={data}
+    @state.stack.map (sheet, index) =>
+      <Sheet data={sheet}
              depth={index}
-             key={index}
+             key={"#{index}:#{sheet.id}"}
              onColumnSizeChanged={@_onColumnSizeChanged} />
 
   _onColumnSizeChanged: (sheet) ->

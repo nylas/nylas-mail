@@ -3,34 +3,25 @@ NamespaceStore = require './namespace-store'
 Actions = require '../actions'
 
 Location = {}
-for key in ['RootSidebar', 'RootCenter', 'MessageList', 'MessageListSidebar']
-  Location[key] = {id: "#{key}", Toolbar: {id: "#{key}:Toolbar"}}
-
-defineSheet = (type, columns) ->
-  Toolbar:
-    Left: {id: "Sheet:#{type}:Toolbar:Left"}
-    Right: {id: "Sheet:#{type}:Toolbar:Right"}
-  Header: {id: "Sheet:#{type}:Header"}
-  Footer: {id: "Sheet:#{type}:Footer"}
-  type: type
-  columns: columns
-
-Sheet =
-  Global: defineSheet 'Global'
-
-  Root: defineSheet 'Root',
-    list: [Location.RootSidebar, Location.RootCenter]
-    split: [Location.RootSidebar, Location.RootCenter, Location.MessageList, Location.MessageListSidebar]
-
-  Thread: defineSheet 'Thread',
-    list: [Location.MessageList, Location.MessageListSidebar]
-
+Sheet = {}
 
 WorkspaceStore = Reflux.createStore
   init: ->
+    @defineSheet 'Global'
+
+    @defineSheet 'Threads', {root: true},
+      list: ['RootSidebar', 'ThreadList']
+      split: ['RootSidebar', 'ThreadList', 'MessageList', 'MessageListSidebar']
+
+    @defineSheet 'Drafts', {root: true, name: 'Local Drafts'},
+      list: ['RootSidebar', 'DraftList']
+
+    @defineSheet 'Thread', {},
+      list: ['MessageList', 'MessageListSidebar']
+
     @_resetInstanceVars()
 
-    @listenTo Actions.selectView, @_onSelectView
+    @listenTo Actions.selectRootSheet, @_onSelectRootSheet
     @listenTo Actions.selectLayoutMode, @_onSelectLayoutMode
     @listenTo Actions.focusInCollection, @_onFocusInCollection
 
@@ -42,63 +33,100 @@ WorkspaceStore = Reflux.createStore
       'application:pop-sheet': => @popSheet()
 
   _resetInstanceVars: ->
-    @_sheetStack = [Sheet.Root]
-    @_view = 'threads'
-    @_layoutMode = 'list'
+    @_preferredLayoutMode = 'list'
+    @_sheetStack = []
+
+    @_onSelectRootSheet(Sheet.Threads)
 
   # Inbound Events
 
-  _onSelectView: (view) ->
-    @_view = view
+  _onSelectRootSheet: (sheet) ->
+    if not sheet
+      throw new Error("Actions.selectRootSheet - #{sheet} is not a valid sheet.")
+    if not sheet.root
+      throw new Error("Actions.selectRootSheet - #{sheet} is not registered as a root sheet.")
+
+    @_sheetStack = []
+    @_sheetStack.push(sheet)
     @trigger(@)
 
   _onSelectLayoutMode: (mode) ->
-    @_layoutMode = mode
+    @_preferredLayoutMode = mode
     @trigger(@)
 
   _onFocusInCollection: ({collection, item}) ->
     if collection is 'thread'
-      if @selectedLayoutMode() is 'list'
-        if item and @sheet().type isnt Sheet.Thread.type
+      if @layoutMode() is 'list'
+        if item and @topSheet() isnt Sheet.Thread
           @pushSheet(Sheet.Thread)
-        if not item and @sheet().type is Sheet.Thread.type
+        if not item and @topSheet() is Sheet.Thread
+          @popSheet()
+
+    if collection is 'file'
+      if @layoutMode() is 'list'
+        if item and @topSheet() isnt Sheet.File
+          @pushSheet(Sheet.File)
+        if not item and @topSheet() is Sheet.File
           @popSheet()
 
   # Accessing Data
 
-  selectedView: ->
-    @_view
+  layoutMode: ->
+    if @_preferredLayoutMode in @rootSheet().supportedModes
+      @_preferredLayoutMode
+    else
+      @rootSheet().supportedModes[0]
 
-  selectedLayoutMode: ->
-    @_layoutMode
-
-  sheet: ->
+  topSheet: ->
     @_sheetStack[@_sheetStack.length - 1]
 
+  rootSheet: ->
+    @_sheetStack[0]
+  
   sheetStack: ->
     @_sheetStack
 
   # Managing Sheets
 
-  pushSheet: (type) ->
-    @_sheetStack.push(type)
+  defineSheet: (id, options = {}, columns = {}) ->
+    # Make sure all the locations have definitions so that packages
+    # can register things into these locations and their toolbars.
+    for layout, cols of columns
+      for col, idx in cols
+        Location[col] ?= {id: "#{col}", Toolbar: {id: "#{col}:Toolbar"}}
+        cols[idx] = Location[col]
+
+    Sheet[id] =
+      id: id
+      columns: columns
+      supportedModes: Object.keys(columns)
+
+      name: options.name
+      root: options.root
+
+      Toolbar:
+        Left: {id: "Sheet:#{id}:Toolbar:Left"}
+        Right: {id: "Sheet:#{id}:Toolbar:Right"}
+      Header: {id: "Sheet:#{id}:Header"}
+      Footer: {id: "Sheet:#{id}:Footer"}
+
+  pushSheet: (sheet) ->
+    @_sheetStack.push(sheet)
     @trigger()
 
   popSheet: ->
-    sheet = @sheet()
+    sheet = @topSheet()
 
     if @_sheetStack.length > 1
       @_sheetStack.pop()
       @trigger()
 
-    if sheet.type is Sheet.Thread.type
+    if sheet is Sheet.Thread
       Actions.focusInCollection(collection: 'thread', item: null)
 
   popToRootSheet: ->
-    if @_sheetStack.length > 1
-      @_sheetStack = [Sheet.Root]
-      @trigger()
-
+    @_sheetStack.length = 1
+    @trigger()
 
 WorkspaceStore.Location = Location
 WorkspaceStore.Sheet = Sheet

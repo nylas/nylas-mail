@@ -55,10 +55,7 @@ ArchiveButton = React.createClass
 
   _onArchive: (e) ->
     return unless Utils.nodeIsVisible(e.currentTarget)
-    if WorkspaceStore.selectedLayoutMode() is "list"
-      Actions.archiveCurrentThread()
-    else if WorkspaceStore.selectedLayoutMode() is "split"
-      Actions.archiveAndNext()
+    Actions.archive()
     e.stopPropagation()
 
 

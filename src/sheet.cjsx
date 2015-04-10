@@ -51,7 +51,7 @@ Sheet = React.createClass
     <div name={"Sheet"}
          style={style}
          className={"sheet mode-#{@state.mode}"}
-         data-type={@props.data.type}>
+         data-id={@props.data.id}>
       <Flexbox direction="row">
         {@_columnFlexboxElements()}
       </Flexbox>
@@ -61,8 +61,8 @@ Sheet = React.createClass
     @state.columns.map ({entries, maxWidth, minWidth, handle, id}, idx) =>
       elements = entries.map ({name, view}) -> <view key={name} />
       if minWidth != maxWidth and maxWidth < FLEX
-        <ResizableRegion key={"#{@props.type}:#{idx}"}
-                         name={"#{@props.type}:#{idx}"}
+        <ResizableRegion key={"#{@props.data.id}:#{idx}"}
+                         name={"#{@props.data.id}:#{idx}"}
                          className={"column-#{id}"}
                          data-column={idx}
                          onResize={ => @props.onColumnSizeChanged(@) }
@@ -75,8 +75,8 @@ Sheet = React.createClass
         </ResizableRegion>
       else
         <Flexbox direction="column"
-                 key={"#{@props.type}:#{idx}"}
-                 name={"#{@props.type}:#{idx}"}
+                 key={"#{@props.data.id}:#{idx}"}
+                 name={"#{@props.data.id}:#{idx}"}
                  className={"column-#{id}"}
                  data-column={idx}
                  style={flex: 1}>
@@ -85,7 +85,7 @@ Sheet = React.createClass
 
   _getStateFromStores: ->
     state =
-      mode: WorkspaceStore.selectedLayoutMode()
+      mode: WorkspaceStore.layoutMode()
       columns: []
 
     widest = -1

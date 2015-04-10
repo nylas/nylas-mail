@@ -10,7 +10,7 @@ ModeToggle = React.createClass
   displayName: 'ModeToggle'
 
   getInitialState: ->
-    mode: WorkspaceStore.selectedLayoutMode()
+    @_getStateFromStores()
 
   componentDidMount: ->
     @unsubscribe = WorkspaceStore.listen(@_onStateChanged, @)
@@ -19,6 +19,8 @@ ModeToggle = React.createClass
     @unsubscribe?()
 
   render: ->
+    return <div></div> unless @state.visible
+
     <div className="mode-switch"
          style={order:51, marginTop:10, marginRight:14}
          onClick={@_onToggleMode}>
@@ -28,8 +30,14 @@ ModeToggle = React.createClass
     </div>
   
   _onStateChanged: ->
-    @setState
-      mode: WorkspaceStore.selectedLayoutMode()
+    @setState(@_getStateFromStores())
+
+  _getStateFromStores: ->
+    rootModes = WorkspaceStore.rootSheet().supportedModes
+    rootVisible = WorkspaceStore.rootSheet() is WorkspaceStore.topSheet()
+
+    mode: WorkspaceStore.layoutMode()
+    visible: rootVisible and rootModes and rootModes.length > 1
 
   _onToggleMode: ->
     if @state.mode is 'list'

@@ -4,5 +4,7 @@ React = require 'react'
 
 module.exports =
 AccountSidebarDividerItem = React.createClass
+  displayName: 'AccountSidebarDividerItem'
+
   render: ->
     <div className="item item-divider">{@props.label}</div>

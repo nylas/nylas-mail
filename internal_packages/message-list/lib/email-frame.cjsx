@@ -1,5 +1,6 @@
 React = require 'react'
 _ = require "underscore-plus"
+{EventedIFrame} = require 'ui-components'
 {Utils} = require 'inbox-exports'
 
 EmailFixingStyles = """
@@ -109,7 +110,7 @@ EmailFrame = React.createClass
   displayName: 'EmailFrame'
 
   render: ->
-    <iframe seamless="seamless" />
+    <EventedIFrame seamless="seamless" />
 
   componentDidMount: ->
     @_writeContent()
@@ -118,11 +119,6 @@ EmailFrame = React.createClass
   componentDidUpdate: ->
     @_writeContent()
     @_setFrameHeight()
-
-  componentWillUnmount: ->
-    doc = @getDOMNode().contentDocument
-    doc?.removeEventListener?("click")
-    doc?.removeEventListener?("keydown")
 
   shouldComponentUpdate: (newProps, newState) ->
     # Turns out, React is not able to tell if props.children has changed,
@@ -138,11 +134,6 @@ EmailFrame = React.createClass
     doc.write(EmailFixingStyles)
     doc.write("<div id='inbox-html-wrapper' class='#{wrapperClass}'>#{@_emailContent()}</div>")
     doc.close()
-    doc.addEventListener "click", @_onIFrameClick
-    doc.addEventListener "keydown", @_onIFrameKeydown
-    doc.addEventListener "mousedown", @_onIFrameMouseEvent
-    doc.addEventListener "mousemove", @_onIFrameMouseEvent
-    doc.addEventListener "mouseup", @_onIFrameMouseEvent
 
   _setFrameHeight: ->
     _.defer =>
@@ -172,33 +163,3 @@ EmailFrame = React.createClass
       email
     else
       Utils.stripQuotedText(email)
-
-  # The iFrame captures events that take place over it, which causes some
-  # interesting behaviors. For example, when you drag and release over the
-  # iFrame, the mouseup never fires in the parent window.
-
-  _onIFrameClick: (e) ->
-    e.preventDefault()
-    e.stopPropagation()
-    target = e.target
-
-    # This lets us detect when we click an element inside of an <a> tag
-    while target? and (target isnt document) and (target isnt window)
-      if target.getAttribute('href')?
-        atom.windowEventHandler.openLink target: target
-        target = null
-      else
-        target = target.parentElement
-
-  _onIFrameMouseEvent: (event) ->
-    nodeRect = @getDOMNode().getBoundingClientRect()
-    @getDOMNode().dispatchEvent(new MouseEvent(event.type, _.extend({}, event, {
-      clientX: event.clientX + nodeRect.left
-      clientY: event.clientY + nodeRect.top
-      pageX: event.pageX + nodeRect.left
-      pageY: event.pageY + nodeRect.top
-    })))
-
-  _onIFrameKeydown: (event) ->
-    return if event.metaKey or event.altKey or event.ctrlKey
-    @getDOMNode().dispatchEvent(new KeyboardEvent(event.type, event))

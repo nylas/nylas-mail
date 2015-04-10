@@ -223,7 +223,7 @@ describe "ThreadList", ->
     spyOn(ThreadStore, "_onNamespaceChanged")
     spyOn(DatabaseStore, "findAll").andCallFake ->
       new Promise (resolve, reject) -> resolve(test_threads())
-    spyOn(Actions, "archiveCurrentThread")
+    spyOn(Actions, "archive")
     spyOn(Actions, "archiveAndNext")
     spyOn(Actions, "archiveAndPrevious")
     ReactTestUtils.spyOnClass(ThreadList, "_prepareColumns").andCallFake ->
@@ -252,7 +252,7 @@ describe "ThreadList", ->
 
   describe "when the workspace is in list mode", ->
     beforeEach ->
-      spyOn(WorkspaceStore, "selectedLayoutMode").andReturn "list"
+      spyOn(WorkspaceStore, "layoutMode").andReturn "list"
       @thread_list.setState focusedId: "t111"
 
     it "allows reply only when the sheet type is 'Thread'", ->
@@ -271,7 +271,7 @@ describe "ThreadList", ->
 
   describe "when the workspace is in split mode", ->
     beforeEach ->
-      spyOn(WorkspaceStore, "selectedLayoutMode").andReturn "split"
+      spyOn(WorkspaceStore, "layoutMode").andReturn "split"
       @thread_list.setState focusedId: "t111"
 
     it "allows reply and reply-all regardless of sheet type", ->

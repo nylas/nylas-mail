@@ -7,7 +7,10 @@ class ModelViewSelection
   constructor: (@_view, @trigger) ->
     throw new Error("new ModelViewSelection(): You must provide a view.") unless @_view
     @_items = []
-    
+
+  count: ->
+    @_items.length
+
   ids: ->
     _.pluck(@_items, 'id')
 
@@ -39,6 +42,12 @@ class ModelViewSelection
       @_items.push(item)
     @trigger(@)
 
+  remove: (item) ->
+    without = _.reject @_items, (t) -> t.id is item.id
+    if without.length < @_items.length
+      @_items = without
+      @trigger(@)
+
   expandTo: (item) ->
     if @_items.length is 0
       @_items.push(item)
@@ -68,11 +77,11 @@ class ModelViewSelection
 
     ids = @ids()
     noSelection = @_items.length is 0
-    neitherSelected = ids.indexOf(current.id) is -1 and ids.indexOf(next.id) is -1
+    neitherSelected = (not current or ids.indexOf(current.id) is -1) and (not next or ids.indexOf(next.id) is -1)
 
     if noSelection or neitherSelected
-      @_items.push(current)
-      @_items.push(next)
+      @_items.push(current) if current
+      @_items.push(next) if next
     else
       selectionPostPopHeadId = null
       if @_items.length > 1

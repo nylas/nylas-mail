@@ -15,7 +15,7 @@ module.exports =
     ComponentRegistry.register
       view: NotificationsStickyBar
       name: 'NotificationsStickyBar'
-      location: WorkspaceStore.Sheet.Root.Header
+      location: WorkspaceStore.Sheet.Global.Header
 
   deactivate: ->
     ComponentRegistry.unregister('NotificationsStickyBar')

@@ -13,7 +13,7 @@ module.exports =
     ComponentRegistry.register
       view: SearchBar
       name: 'SearchBar'
-      location: WorkspaceStore.Location.RootCenter.Toolbar
+      location: WorkspaceStore.Location.ThreadList.Toolbar
 
   deactivate: ->
     ComponentRegistry.unregister 'SearchBar'

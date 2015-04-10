@@ -55,9 +55,6 @@ ThreadListParticipants = React.createClass
       {spans}
     </div>
 
-  shouldComponentUpdate: (newProps, newState) ->
-    !_.isEqual(newProps.thread, @props.thread)
-
   getParticipants: ->
     if @props.thread.metadata
       list = []
