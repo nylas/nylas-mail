@@ -17,6 +17,7 @@ globalActions = [
   "fileAborted",
   "downloadStateChanged",
   "fileUploaded",
+  "attachFileComplete",
 
   "multiWindowNotification",
 
@@ -104,7 +105,6 @@ windowActions = [
   "attachFile",
   "attachFilePath",
   "abortUpload",
-  "attachFileComplete",
   "removeFile",
   "fetchAndOpenFile",
   "fetchAndSaveFile",

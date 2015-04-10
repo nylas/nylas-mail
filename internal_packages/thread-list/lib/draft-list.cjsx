@@ -21,7 +21,7 @@ DraftList = React.createClass
     c1 = new ListTabular.Column
       name: "Name"
       width: 200
-      resolver: (draft) =>
+      resolver: (draft) ->
         Participants = ComponentRegistry.findViewByName('Participants')
         return <div></div> unless Participants
         <div className="participants">
