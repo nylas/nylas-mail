@@ -1,9 +1,11 @@
 Reflux = require "reflux"
 Actions = require "../actions"
 Message = require "../models/message"
+Thread = require "../models/thread"
 DatabaseStore = require "./database-store"
 NamespaceStore = require "./namespace-store"
 FocusedContentStore = require "./focused-content-store"
+MarkThreadReadTask = require '../tasks/mark-thread-read'
 async = require 'async'
 _ = require 'underscore-plus'
 
@@ -19,7 +21,7 @@ MessageStore = Reflux.createStore
     @_items
 
   threadId: -> @_thread?.id
-  
+
   thread: -> @_thread
 
   itemsExpandedState: ->
@@ -49,12 +51,18 @@ MessageStore = Reflux.createStore
     @listenTo Actions.toggleMessageIdExpanded, @_onToggleMessageIdExpanded
 
   _onDataChanged: (change) ->
-    return unless change.objectClass == Message.name
     return unless @_thread
-    inDisplayedThread = _.some change.objects, (obj) =>
-      obj.threadId == @_thread.id
-    return unless inDisplayedThread
-    @_fetchFromCache()
+
+    if change.objectClass is Message.name
+      inDisplayedThread = _.some change.objects, (obj) => obj.threadId is @_thread.id
+      if inDisplayedThread
+        @_fetchFromCache()
+
+    if change.objectClass is Thread.name
+      updatedThread = _.find change.objects, (obj) => obj.id is @_thread.id
+      if updatedThread
+        @_thread = updatedThread
+        @_fetchFromCache()
 
   _onFocusChanged: (change) ->
     focused = FocusedContentStore.focused('thread')
@@ -79,9 +87,15 @@ MessageStore = Reflux.createStore
 
     @trigger()
 
+  _markAsReadIfNecessary: ->
+    if @_thread && @_thread.isUnread()
+      Actions.queueTask(new MarkThreadReadTask(@_thread))
+
   _fetchFromCache: (options = {}) ->
     return unless @_thread
     loadedThreadId = @_thread.id
+
+    @_markAsReadIfNecessary()
 
     query = DatabaseStore.findAll(Message, threadId: loadedThreadId)
     query.include(Message.attributes.body)

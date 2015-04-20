@@ -4,7 +4,6 @@ NamespaceStore = require './namespace-store'
 WorkspaceStore = require './workspace-store'
 Actions = require '../actions'
 Thread = require '../models/thread'
-MarkThreadReadTask = require '../tasks/mark-thread-read'
 AddRemoveTagsTask = require '../tasks/add-remove-tags'
 
 module.exports =
@@ -42,11 +41,8 @@ FocusedContentStore = Reflux.createStore
     @_focused[collection] = item
     @_keyboardCursor[collection] = item if item
 
-    if item  && item instanceof Thread && item.isUnread()
-      Actions.queueTask(new MarkThreadReadTask(item))
-
     @trigger({ impactsCollection: (c) -> c is collection })
- 
+
   _onWorkspaceChange: ->
     keyboardCursorEnabled = WorkspaceStore.layoutMode() is 'list'
 

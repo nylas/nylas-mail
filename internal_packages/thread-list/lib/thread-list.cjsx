@@ -23,12 +23,17 @@ ThreadList = React.createClass
 
     lastMessageType = (thread) ->
       myEmail = NamespaceStore.current()?.emailAddress
+
       msgs = thread.metadata
-      return 'unknown' unless msgs and msgs instanceof Array and msgs.length > 0
+      return 'unknown' unless msgs and msgs instanceof Array
+
+      msgs = _.filter msgs, (m) -> m.isSaved()
       msg = msgs[msgs.length - 1]
+      return 'unknown' unless msgs.length > 0
+
       if thread.unread
         return 'unread'
-      else if msg.from[0].email isnt myEmail
+      else if msg.from[0].email isnt myEmail or msgs.length is 1
         return 'other'
       else if Utils.isForwardedMessage(msg)
         return 'forwarded'
