@@ -52,6 +52,7 @@ mainWindowActions = [
 windowActions = [
   # Fired when a dialog is opened and a file is selected
   "showDeveloperConsole",
+  "toggleComponentRegions",
   "clearDeveloperConsole",
 
   # Actions for Selection State
@@ -64,7 +65,7 @@ windowActions = [
   "focusTag",
 
   "selectThreads",
-  
+
   "toggleMessageIdExpanded",
 
   # Actions for composer

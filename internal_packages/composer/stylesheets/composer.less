@@ -28,20 +28,22 @@
     width: 100%;
     background: transparent;
     border-bottom: 0;
+    max-width: @compose-width;
+    margin: 0 auto;
 
     .composer-action-bar-content {
-      width: 100%;
-      max-width: @compose-width;
-      margin: 0 auto;
-
+      display:flex;
+      flex-direction:row;
+      margin-left: -@spacing-standard / 2;
+      margin-right: -@spacing-standard / 2;
       padding: @spacing-standard @spacing-double;
       padding-bottom: @spacing-standard*1.1;
-    }
-  }
 
-  .pull-right {
-    &:first-child {margin-right: 0}
-    margin-right: @spacing-standard;
+      > * {
+        margin-left: @spacing-standard / 2;
+        margin-right: @spacing-standard / 2;
+      }
+    }
   }
 
   .composer-content-wrap {

@@ -1,5 +1,6 @@
 Reflux = require 'reflux'
 _ = require 'underscore-plus'
+Actions = require './flux/actions'
 
 # Error types
 class RegistryError extends Error
@@ -48,6 +49,10 @@ class Component
 registry = {}
 
 ComponentRegistry = Reflux.createStore
+  init: ->
+    @_showComponentRegions = false
+    @listenTo Actions.toggleComponentRegions, @_onToggleComponentRegions
+
   register: (component) ->
     # Receive a component or something which can build one
     throw new RegistryError 'Required: ComponentRegistry.Component or something which conforms to {name, view}' unless component instanceof Object
@@ -65,6 +70,9 @@ ComponentRegistry = Reflux.createStore
     @
 
   unregister: (name) -> delete registry[name]
+
+  showComponentRegions: ->
+    @_showComponentRegions
 
   getByName: (name) ->
     component = registry[name]
@@ -95,6 +103,10 @@ ComponentRegistry = Reflux.createStore
 
   _clear: ->
     registry = {}
+
+  _onToggleComponentRegions: ->
+    @_showComponentRegions = !@_showComponentRegions
+    @trigger(@)
 
   Component: Component
   RegistryError: RegistryError

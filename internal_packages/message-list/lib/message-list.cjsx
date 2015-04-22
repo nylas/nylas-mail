@@ -2,12 +2,12 @@ _ = require 'underscore-plus'
 React = require 'react'
 MessageItem = require "./message-item"
 {Utils, Actions, MessageStore, ComponentRegistry} = require("inbox-exports")
-{Spinner, ResizableRegion, RetinaImg} = require('ui-components')
+{Spinner, ResizableRegion, RetinaImg, RegisteredRegion} = require('ui-components')
 
 module.exports =
 MessageList = React.createClass
   mixins: [ComponentRegistry.Mixin]
-  components: ['Participants', 'Composer']
+  components: ['Composer']
   displayName: 'MessageList'
 
   getInitialState: ->
@@ -78,11 +78,15 @@ MessageList = React.createClass
            className={wrapClass}
            onScroll={_.debounce(@_cacheScrollPos, 100)}
            ref="messageWrap">
-        <div className="message-list-notification-bars">
-          {@_messageListNotificationBars()}
-        </div>
 
-        {@_messageListHeaders()}
+        <RegisteredRegion className="message-list-notification-bars"
+                          location="MessageListNotificationBar"
+
+                          thread={@state.currentThread}/>
+        <RegisteredRegion className="message-list-headers"
+                          location="MessageListHeaders"
+                          thread={@state.currentThread}/>
+
         {@_messageComponents()}
       </div>
       {@_renderReplyArea()}
@@ -143,24 +147,8 @@ MessageList = React.createClass
           return done()
 
       window.requestAnimationFrame -> scrollIfSettled(msgDOMNode, done)
-  
+
     scrollIfSettled()
-
-  _messageListNotificationBars: ->
-    MLBars = ComponentRegistry.findAllViewsByRole('MessageListNotificationBar')
-    <div className="message-list-notification-bar-wrap">
-      {<MLBar thread={@state.currentThread} /> for MLBar in MLBars}
-    </div>
-
-  _messageListHeaders: ->
-    Participants = @state.Participants
-    MessageListHeaders = ComponentRegistry.findAllViewsByRole('MessageListHeader')
-
-    <div className="message-list-headers">
-      {for MessageListHeader in MessageListHeaders
-        <MessageListHeader thread={@state.currentThread} />
-      }
-    </div>
 
   _messageComponents: ->
     ComposerItem = @state.Composer

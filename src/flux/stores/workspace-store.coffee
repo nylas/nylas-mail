@@ -82,7 +82,7 @@ WorkspaceStore = Reflux.createStore
 
   rootSheet: ->
     @_sheetStack[0]
-  
+
   sheetStack: ->
     @_sheetStack
 

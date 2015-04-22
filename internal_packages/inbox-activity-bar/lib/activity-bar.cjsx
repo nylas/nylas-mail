@@ -43,24 +43,27 @@ ActivityBar = React.createClass
                      handle={ResizableRegion.Handle.Top}>
       <div className="controls">
         {@_caret()}
-        <div className="queue-status">
+        <div className="btn-container pull-left">
           <div className="btn" onClick={ => @_onExpandSection('queue')}>
             <span>Queue Length: {@state.queue?.length}</span>
           </div>
         </div>
-        <div className="long-poll-status">
+        <div className="btn-container pull-left">
           <div className="btn" onClick={ => @_onExpandSection('long-polling')}>
             <div className={"activity-status-bubble state-" + @state.longPollState}></div>
             <span>Long Polling: {@state.longPollState}</span>
           </div>
         </div>
-        <div className="curl-status">
+        <div className="btn-container pull-left">
           <div className="btn" onClick={ => @_onExpandSection('curl')}>
             <span>Requests: {@state.curlHistory.length}</span>
           </div>
         </div>
-        <div className="feedback">
+        <div className="btn-container pull-right">
           <div className="btn" onClick={@_onFeedback}>Feedback</div>
+        </div>
+        <div className="btn-container pull-right">
+          <div className="btn" onClick={@_onToggleRegions}>Component Regions</div>
         </div>
       </div>
       {@_sectionContent()}
@@ -143,6 +146,9 @@ ActivityBar = React.createClass
   _onExpandSection: (section) ->
     @setState(section: section)
     @_onShow()
+
+  _onToggleRegions: ->
+    Actions.toggleComponentRegions()
 
   _onFeedback: ->
     user = NamespaceStore.current().name

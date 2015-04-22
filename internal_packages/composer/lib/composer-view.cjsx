@@ -8,7 +8,9 @@ _ = require 'underscore-plus'
  FileUploadStore,
  ComponentRegistry} = require 'inbox-exports'
 
-{ResizableRegion, RetinaImg} = require 'ui-components'
+{ResizableRegion,
+ RegisteredRegion,
+ RetinaImg} = require 'ui-components'
 
 FileUploads = require './file-uploads'
 ContenteditableComponent = require './contenteditable-component'
@@ -40,9 +42,7 @@ ComposerView = React.createClass
 
   getComponentRegistryState: ->
     AttachmentComponent: ComponentRegistry.findViewByName 'AttachmentComponent'
-    ActionButtonComponents: ComponentRegistry.findAllByRole 'Composer:ActionButton'
-    FooterComponents: ComponentRegistry.findAllByRole 'Composer:Footer'
-
+    
   componentWillMount: ->
     @_prepareForDraft(@props.localId)
 
@@ -199,26 +199,31 @@ ComposerView = React.createClass
           {@_fileComponents()}
           <FileUploads localId={@props.localId} />
         </div>
-
-        {@_footerComponents()}
+        <RegisteredRegion location="Composer:Footer"
+                          draftLocalId={@props.localId}/>
       </div>
-      
+
       <div className="composer-action-bar-wrap">
-        <div className="composer-action-bar-content">
-          <button className="btn btn-toolbar pull-right btn-trash"
+        <RegisteredRegion className="composer-action-bar-content"
+                          location="Composer:ActionButton"
+                          draftLocalId={@props.localId}>
+
+          <button className="btn btn-toolbar btn-trash" style={order: 100}
                   data-tooltip="Delete draft"
                   onClick={@_destroyDraft}><RetinaImg name="toolbar-trash.png" /></button>
 
-          <button className="btn btn-toolbar pull-right btn-attach"
+          <button className="btn btn-toolbar btn-attach" style={order: 50}
                   data-tooltip="Attach file"
                   onClick={@_attachFile}><RetinaImg name="toolbar-attach.png"/></button>
 
-          <button className="btn btn-toolbar btn-emphasis btn-send"
+          <div style={order: 0, flex: 1} />
+
+          <button className="btn btn-toolbar btn-emphasis btn-send" style={order: -100}
                   data-tooltip="Send message"
                   ref="sendButton"
                   onClick={@_sendDraft}><RetinaImg name="toolbar-send.png" /> Send</button>
-          {@_actionButtonComponents()}
-        </div>
+
+        </RegisteredRegion>
       </div>
     </div>
 
@@ -241,16 +246,6 @@ ComposerView = React.createClass
   isForwardedMessage: ->
     draft = @_proxy.draft()
     Utils.isForwardedMessage(draft)
-
-  _actionButtonComponents: ->
-    return [] unless @props.localId
-    (@state.ActionButtonComponents ? []).map ({view, name}) =>
-      <view key={name} draftLocalId={@props.localId} />
-
-  _footerComponents: ->
-    return [] unless @props.localId
-    (@state.FooterComponents ? []).map ({view, name}) =>
-      <view key={name} draftLocalId={@props.localId} />
 
   _fileComponents: ->
     AttachmentComponent = @state.AttachmentComponent

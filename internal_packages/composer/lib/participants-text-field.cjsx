@@ -144,10 +144,13 @@ ParticipantsTextField = React.createClass
 
   _showContextMenu: (participant) ->
     remote = require('remote')
-    Menu = remote.require('menu')
+
+    # Warning: Menu is already initialized as Menu.cjsx!
+
+    MenuClass = remote.require('menu')
     MenuItem = remote.require('menu-item')
 
-    menu = new Menu()
+    menu = new MenuClass()
     menu.append(new MenuItem(
       label: "Copy #{participant.email}"
       click: -> require('clipboard').writeText(participant.email)

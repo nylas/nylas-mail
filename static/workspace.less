@@ -223,6 +223,22 @@ body.is-blurred {
   }
 }
 
+.registered-region-visible {
+  background-color: rgba(255,0,0,0.3);
+  position:relative;
+  min-height:1.5em;
+  .name {
+    background-color: rgba(255,180,180,0.9);
+    position: absolute;
+    color: black;
+    font-size: 13px;
+    top:50%;
+    left:50%;
+    white-space: nowrap;
+    z-index:100;
+    -webkit-transform: translate(-50%, -50%);
+  }
+}
 
 body.platform-win32 {
   .flexbox-handle-vertical {

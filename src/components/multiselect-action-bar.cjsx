@@ -1,10 +1,11 @@
 React = require "react/addons"
-{RetinaImg} = require 'ui-components'
+_ = require 'underscore-plus'
+
 {Actions,
  AddRemoveTagsTask,
- WorkspaceStore,
- ComponentRegistry} = require "inbox-exports"
-_ = require 'underscore-plus'
+ WorkspaceStore} = require "inbox-exports"
+RegisteredRegion = require './registered-region'
+RetinaImg = require './retina-img'
 
 module.exports =
 MultiselectActionBar = React.createClass
@@ -15,7 +16,7 @@ MultiselectActionBar = React.createClass
 
   getInitialState: ->
     @_getStateFromStores()
- 
+
   componentDidMount: ->
     @setupForProps(@props)
 
@@ -36,7 +37,6 @@ MultiselectActionBar = React.createClass
     @unsubscribers = []
     @unsubscribers.push props.dataStore.listen @_onChange
     @unsubscribers.push WorkspaceStore.listen @_onChange
-    @unsubscribers.push ComponentRegistry.listen @_onChange
 
   shouldComponentUpdate: (nextProps, nextState) ->
     @props.collection isnt nextProps.collection or
@@ -46,7 +46,7 @@ MultiselectActionBar = React.createClass
 
   render: ->
     <div className={@_classSet()}><div className="absolute"><div className="inner">
-      {@_renderButtonsForItemType()}
+      {@_renderActions()}
 
       <div className="centered">
         {@_label()}
@@ -58,11 +58,11 @@ MultiselectActionBar = React.createClass
         Clear Selection
       </button>
     </div></div></div>
-  
-  _renderButtonsForItemType: ->
-    return [] unless @state.view
-    (@state.ActionComponents ? []).map ({view, name}) =>
-      <view key={name} selection={@state.view.selection} />
+
+  _renderActions: ->
+    return <div></div> unless @state.view
+    <RegisteredRegion location={"#{@props.collection}:BulkAction"}
+                      selection={@state.view.selection} />
 
   _label: ->
     if @state.count > 1
@@ -83,7 +83,6 @@ MultiselectActionBar = React.createClass
 
     view: view
     count: view?.selection.items().length
-    ActionComponents: ComponentRegistry.findAllByRole("#{props.collection}:BulkAction")
 
   _onChange: ->
     @setState(@_getStateFromStores())

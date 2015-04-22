@@ -8,7 +8,7 @@ MessageTimestamp = require "./message-timestamp"
  MessageUtils,
  ComponentRegistry,
  FileDownloadStore} = require 'inbox-exports'
-{RetinaImg} = require 'ui-components'
+{RetinaImg,  RegisteredRegion} = require 'ui-components'
 Autolinker = require 'autolinker'
 
 TransparentPixel = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNikAQAACIAHF/uBd8AAAAASUVORK5CYII="
@@ -78,7 +78,6 @@ MessageItem = React.createClass
     </div>
 
   _renderHeader: ->
-    messageIndicators = ComponentRegistry.findAllViewsByRole('MessageIndicator')
     <header className="message-header">
 
       <div className="message-header-right">
@@ -86,7 +85,9 @@ MessageItem = React.createClass
                           isDetailed={@state.detailedHeaders}
                           date={@props.message.date} />
 
-        {<div className="message-indicator"><Indicator message={@props.message}/></div> for Indicator in messageIndicators}
+        <RegisteredRegion className="message-indicator"
+                          location="MessageIndicator"
+                          message={@props.message}/>
 
         {if @state.detailedHeaders then @_renderMessageActionsInline() else @_renderMessageActionsTooltip()}
       </div>
@@ -129,12 +130,14 @@ MessageItem = React.createClass
     #   <RetinaImg name={"message-show-more.png"}/></span>
 
   _renderMessageActions: ->
-    messageActions = ComponentRegistry.findAllViewsByRole('MessageAction')
     <div className="message-actions-wrap">
       <div className="message-actions-ellipsis" onClick={@_onShowActionsMenu}>
         <RetinaImg name={"message-actions-ellipsis.png"}/>
       </div>
-      <div className="message-actions">
+      <RegisteredRegion className="message-actions"
+                        location="MessageAction"
+                        thread={@props.thread}
+                        message={@props.message}>
         <button className="btn btn-icon" onClick={@_onReply}>
           <RetinaImg name={"message-reply.png"}/>
         </button>
@@ -144,8 +147,7 @@ MessageItem = React.createClass
         <button className="btn btn-icon" onClick={@_onForward}>
           <RetinaImg name={"message-forward.png"}/>
         </button>
-        {<Action thread={@props.thread} message={@props.message} /> for Action in messageActions}
-      </div>
+      </RegisteredRegion>
     </div>
 
   _onReply: ->
