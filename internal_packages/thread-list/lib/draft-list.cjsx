@@ -58,7 +58,7 @@ DraftList = React.createClass
       columns={@columns}
       commands={@commands}
       onDoubleClick={@_onDoubleClick}
-      itemClassProvider={ -> }
+      itemPropsProvider={ -> {} }
       className="draft-list"
       collection="draft" />
 

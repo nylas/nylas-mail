@@ -12,7 +12,7 @@ ListTabularItem = React.createClass
     metrics: React.PropTypes.object
     columns: React.PropTypes.arrayOf(React.PropTypes.object).isRequired
     item: React.PropTypes.object.isRequired
-    itemClass: React.PropTypes.string
+    itemProps: React.PropTypes.object
     displayHeaders: React.PropTypes.bool
     onSelect: React.PropTypes.func
     onClick: React.PropTypes.func
@@ -23,13 +23,14 @@ ListTabularItem = React.createClass
   # comparison of props before triggering a re-render.
   shouldComponentUpdate: (nextProps, nextState) ->
     # Quick check to avoid running isEqual if our item === existing item
-    return false if @props.item is nextProps.item and @props.itemClass is nextProps.itemClass and _.isEqual(@props.metrics, nextProps.metrics)
     return false if _.isEqual(@props, nextProps)
     true
 
   render: ->
-    className = "list-item list-tabular-item #{@props.itemClass}"
-    <div className={className} onClick={@_onClick} style={position:'absolute', top: @props.metrics.top, width:'100%', height:@props.metrics.height}>
+    className = "list-item list-tabular-item #{@props.itemProps?.className}"
+    props = _.omit(@props.itemProps ? {}, 'className')
+
+    <div {...props} className={className} onClick={@_onClick} style={position:'absolute', top: @props.metrics.top, width:'100%', height:@props.metrics.height}>
       {@_columns()}
     </div>
 
@@ -58,7 +59,7 @@ ListTabular = React.createClass
   propTypes:
     columns: React.PropTypes.arrayOf(React.PropTypes.object).isRequired
     dataView: React.PropTypes.object
-    itemClassProvider: React.PropTypes.func
+    itemPropsProvider: React.PropTypes.func
     onSelect: React.PropTypes.func
     onClick: React.PropTypes.func
     onDoubleClick: React.PropTypes.func
@@ -105,7 +106,7 @@ ListTabular = React.createClass
   onDoneReceivingScrollEvents: ->
     @setState({scrollInProgress: false})
     @updateRangeState()
- 
+
   updateRangeState: ->
     container = @refs.container
     scrollTop = container?.getDOMNode().scrollTop
@@ -124,7 +125,7 @@ ListTabular = React.createClass
     #
     rangeStart = Math.max(0, rangeStart - RangeChunkSize * 1.5)
     rangeEnd = Math.min(rangeEnd + RangeChunkSize * 1.5, @props.dataView.count())
-    
+
     if @state.scrollInProgress
       # only extend the range while scrolling. If we remove the DOM node
       # the user started scrolling over, the deceleration stops.
@@ -159,7 +160,7 @@ ListTabular = React.createClass
         {@_rows()}
       </div>
     </div>
-  
+
   _rowHeight: ->
     39
 
@@ -185,18 +186,19 @@ ListTabular = React.createClass
       item = @props.dataView.get(idx)
       continue unless item
 
-      itemClass = ''
-      if @props.itemClassProvider
-        itemClass = @props.itemClassProvider(item)
+      itemProps = {}
+      if @props.itemPropsProvider
+        itemProps = @props.itemPropsProvider(item)
 
       rows.push <ListTabularItem key={item.id ? idx}
-                                 item={item}
-                                 itemClass={itemClass}
-                                 metrics={top: idx * rowHeight, height: rowHeight}
-                                 columns={@props.columns}
-                                 onSelect={@props.onSelect}
-                                 onClick={@props.onClick}
-                                 onDoubleClick={@props.onDoubleClick} />
+                               item={item}
+                               itemProps={itemProps}
+                               metrics={top: idx * rowHeight, height: rowHeight}
+                               columns={@props.columns}
+                               onSelect={@props.onSelect}
+                               onClick={@props.onClick}
+                               onReorder={@props.onReorder}
+                               onDoubleClick={@props.onDoubleClick} />
     rows
 
 ListTabular.Item = ListTabularItem

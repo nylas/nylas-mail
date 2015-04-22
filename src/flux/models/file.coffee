@@ -4,6 +4,12 @@ Attributes = require '../attributes'
 _ = require 'underscore-plus'
 
 module.exports =
+
+##
+# Files are small objects that wrap attachments and other files available via the API.
+#
+# @namespace Models
+#
 class File extends Model
 
   @attributes: _.extend {}, Model.attributes,

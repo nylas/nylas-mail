@@ -203,6 +203,20 @@ Utils =
         return false
     return true
 
+  scrollNodeToVisibleInContainer: (node, container) ->
+    return unless node
+
+    nodeRect = node.getBoundingClientRect()
+    containerRect = container.getBoundingClientRect()
+
+    distanceBelowBottom = (nodeRect.top + nodeRect.height) - (containerRect.top + containerRect.height)
+    if distanceBelowBottom > 0
+      container.scrollTop += distanceBelowBottom
+
+    distanceAboveTop = containerRect.top - nodeRect.top
+    if distanceAboveTop > 0
+      container.scrollTop -= distanceAboveTop
+
   # True of all arguments have the same domains
   emailsHaveSameDomain: (args...) ->
     return false if args.length < 2

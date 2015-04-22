@@ -201,6 +201,25 @@ describe "DatabaseView", ->
           expect(@view._pages[1].items[1].subject).toEqual(subject)
           expect(@view._pages[1].items[1].metadata).toEqual(@view._pages[1].metadata[@e.id])
 
+      describe "when items have been removed", ->
+        beforeEach ->
+          spyOn(@view._emitter, 'emit')
+          @start = @view._pages[1].loadingStart
+          runs ->
+            b = new Thread(@b)
+            b.tags = []
+            @view.invalidateIfItemsInconsistent([b])
+          waitsFor ->
+            @view._emitter.emit.callCount > 0
+
+        it "should optimistically remove them and shift result pages", ->
+          expect(@view._pages[0].items).toEqual([@a, @c, @d])
+          expect(@view._pages[1].items).toEqual([@e, @f])
+
+        it "should change the loadingStart date of changed pages so that refreshes started before the replacement do not revert it's changes", ->
+          expect(@view._pages[0].loadingStart isnt @start).toEqual(true)
+          expect(@view._pages[1].loadingStart isnt @start).toEqual(true)
+
     describe "cullPages", ->
       beforeEach ->
         @view._retainedRange = {start: 200, end: 399}

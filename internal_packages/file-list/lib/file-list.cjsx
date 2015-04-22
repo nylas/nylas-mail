@@ -40,9 +40,8 @@ FileList = React.createClass
       columns={@columns}
       commands={{}}
       onDoubleClick={@_onDoubleClick}
-      itemClassProvider={ -> }
+      itemPropsProvider={ -> {} }
       className="file-list"
       collection="file" />
 
   _onDoubleClick: (item) ->
-

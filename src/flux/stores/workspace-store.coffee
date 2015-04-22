@@ -5,6 +5,14 @@ Actions = require '../actions'
 Location = {}
 Sheet = {}
 
+###
+# The WorkspaceStore manages Sheets and layout modes in the application.
+# Observing the WorkspaceStore makes it easy to monitor the sheet stack.
+#
+# @class WorkspaceStore
+# @namespace Application
+###
+
 WorkspaceStore = Reflux.createStore
   init: ->
     @defineSheet 'Global'
@@ -71,23 +79,43 @@ WorkspaceStore = Reflux.createStore
 
   # Accessing Data
 
+  ##
+  # @return {String} The current layout mode. Either `split` or `list`
+  #
   layoutMode: ->
     if @_preferredLayoutMode in @rootSheet().supportedModes
       @_preferredLayoutMode
     else
       @rootSheet().supportedModes[0]
 
+  ##
+  # @return {Sheet} The top sheet in the current stack. Use this method to determine
+  # the sheet the user is looking at.
+  #
   topSheet: ->
     @_sheetStack[@_sheetStack.length - 1]
 
+  ##
+  # @return {Sheet} The sheet at the root of the current stack.
+  #
   rootSheet: ->
     @_sheetStack[0]
 
+  ##
+  # @return {Array<Sheet>} The stack of sheets
+  #
   sheetStack: ->
     @_sheetStack
 
   # Managing Sheets
 
+  ##
+  # @param {String} id The ID of the Sheet being defined.
+  # @param {Object} options If the sheet should be listed in the left sidebar,
+  #        pass `root: true, name: 'Label'`.
+  # @param {Object} columns An object with keys for each layout mode the Sheet
+  #        supports. For each key, provide an array of column names.
+  #
   defineSheet: (id, options = {}, columns = {}) ->
     # Make sure all the locations have definitions so that packages
     # can register things into these locations and their toolbars.
@@ -110,10 +138,18 @@ WorkspaceStore = Reflux.createStore
       Header: {id: "Sheet:#{id}:Header"}
       Footer: {id: "Sheet:#{id}:Footer"}
 
+  # Push the sheet on top of the current sheet, with a quick animation.
+  # A back button will appear in the top left of the pushed sheet.
+  # This method triggers, allowing observers to update.
+  #
+  # @param {Sheet} sheet The sheet type to push onto the stack.
+  #
   pushSheet: (sheet) ->
     @_sheetStack.push(sheet)
     @trigger()
 
+  # Remove the top sheet, with a quick animation. This method triggers,
+  # allowing observers to update.
   popSheet: ->
     sheet = @topSheet()
 
@@ -124,6 +160,8 @@ WorkspaceStore = Reflux.createStore
     if sheet is Sheet.Thread
       Actions.focusInCollection(collection: 'thread', item: null)
 
+  # Return to the root sheet. This method triggers, allowing observers
+  # to update.
   popToRootSheet: ->
     @_sheetStack.length = 1
     @trigger()

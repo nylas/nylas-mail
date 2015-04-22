@@ -1,12 +1,16 @@
-{ModelView, Utils, DatabaseStore} = require 'inbox-exports'
+_ = require 'underscore-plus'
+Utils = require '../models/utils'
+DatabaseStore = require './database-store'
+ModelView = require './model-view'
 
 module.exports =
 class SearchView extends ModelView
-  
+
   constructor: (@_query, @_namespaceId) ->
     super
     @_queryResultTotal = -1
-    @retrievePage(0)
+    @_querySort = 'datetime'
+    _.defer => @retrievePage(0)
     @
 
   query: ->
@@ -16,8 +20,11 @@ class SearchView extends ModelView
     @_query = query
     @invalidateRetainedRange()
 
+  setSortOrder: (sort) ->
+    @_querySort = sort
+
   # Accessing Data
-  
+
   padRetainedRange: ({start, end}) ->
     # Load the next page before the view needs it by padding the "retained range" used
     # to retrieve pages.
@@ -42,9 +49,12 @@ class SearchView extends ModelView
     atom.inbox.makeRequest
       method: 'POST'
       path: "/n/#{@_namespaceId}/threads/search?offset=#{idx * @_pageSize}&limit=#{@_pageSize}"
-      body: {"query": @_query}
+      body: {"query": @_query, "sort": @_querySort}
       json: true
       returnsModel: false
+      error: =>
+        page.loading = false
+        @_emitter.emit('trigger')
       success: (json) =>
         objects = []
 
@@ -62,4 +72,3 @@ class SearchView extends ModelView
         @_emitter.emit('trigger')
 
         console.log("Search view fetched #{idx} in #{Date.now() - start} msec.")
-

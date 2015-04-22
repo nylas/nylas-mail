@@ -10,6 +10,7 @@ MessageTimestamp = require "./message-timestamp"
  FileDownloadStore} = require 'inbox-exports'
 {RetinaImg,  RegisteredRegion} = require 'ui-components'
 Autolinker = require 'autolinker'
+remote = require 'remote'
 
 TransparentPixel = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNikAQAACIAHF/uBd8AAAAASUVORK5CYII="
 MessageBodyWidth = 740
@@ -161,7 +162,7 @@ MessageItem = React.createClass
   _onForward: ->
     tId = @props.thread.id; mId = @props.message.id
     Actions.composeForward(threadId: tId, messageId: mId) if (tId and mId)
- 
+
   _onReport: (issueType) ->
     {Contact, Message, DatabaseStore, NamespaceStore} = require 'inbox-exports'
 
@@ -178,7 +179,6 @@ MessageItem = React.createClass
       DatabaseStore.localIdForModel(draft).then (localId) ->
         Actions.sendDraft(localId)
 
-        remote = require('remote')
         dialog = remote.require('dialog')
         dialog.showMessageBox remote.getCurrentWindow(), {
           type: 'warning'
@@ -186,6 +186,23 @@ MessageItem = React.createClass
           message: "Thank you."
           detail: "The contents of this message have been sent to the Edgehill team and we added to a test suite."
         }
+
+  _onShowOriginal: ->
+    fs = require 'fs'
+    path = require 'path'
+    BrowserWindow = remote.require('browser-window')
+    app = remote.require('app')
+    tmpfile = path.join(app.getPath('temp'), @props.message.id)
+
+    atom.inbox.makeRequest
+      headers:
+        Accept: 'message/rfc822'
+      path: "/n/#{@props.message.namespaceId}/messages/#{@props.message.id}"
+      json:null
+      success: (body) =>
+        fs.writeFile tmpfile, body, =>
+          window = new BrowserWindow(width: 800, height: 600, title: "#{@props.message.subject} - RFC822")
+          window.loadUrl('file://'+tmpfile)
 
   _onShowActionsMenu: ->
     remote = require('remote')
@@ -197,6 +214,8 @@ MessageItem = React.createClass
     menu = new Menu()
     menu.append(new MenuItem({ label: 'Report Issue: Quoted Text', click: => @_onReport('Quoted Text')}))
     menu.append(new MenuItem({ label: 'Report Issue: Rendering', click: => @_onReport('Rendering')}))
+    menu.append(new MenuItem({ type: 'separator'}))
+    menu.append(new MenuItem({ label: 'Show Original', click: => @_onShowOriginal()}))
     menu.popup(remote.getCurrentWindow())
 
   _renderCollapseControl: ->

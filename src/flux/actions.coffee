@@ -86,7 +86,7 @@ windowActions = [
   # Actions for Search
   "searchQueryChanged",
   "searchQueryCommitted",
-  "searchConstantsChanged",
+  "searchWeightsChanged",
   "searchBlurred",
 
   # Notification actions

@@ -1,0 +1,53 @@
+@import "ui-variables";
+@import "ui-mixins";
+
+.search-bar,
+.search-settings-bar {
+  .header {
+    color: @text-color-very-subtle;
+    font-weight: @font-weight-semi-bold;
+    font-size: @font-size-small;
+    padding-top:@padding-small-horizontal;
+    display:block;
+  }
+}
+
+.search-settings-bar {
+  padding:15px;
+  padding-bottom:25px;
+  border-bottom:1px solid #ccc;
+  background: url(nylas://search-playground/cloudine.png) top right no-repeat;
+  background-size:contain;
+
+  .field {
+    display:inline-block;
+    padding-right:15px;
+  }
+  input[type=range] {
+    margin-left:10px;
+    position:relative;
+    top:3px;
+  }
+  input[type=text] {
+    margin-left:10px;
+    width:40px;
+    padding-bottom:0;
+  }
+}
+
+.search-bottom-bar {
+  order:100;
+  text-align:right;
+  padding-top:15px;
+  padding-bottom:15px;
+  .btn {
+    margin-right:15px;
+  }
+}
+
+.search-playground {
+  .thread-list {
+    position: relative;
+    flex: 1;
+  }
+}

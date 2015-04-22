@@ -1,5 +1,6 @@
 React = require 'react/addons'
 _ = require 'underscore-plus'
+{Utils} = require 'inbox-exports'
 {CompositeDisposable} = require 'event-kit'
 
 ###
@@ -72,6 +73,7 @@ MenuItem = React.createClass
       className += " selected" if @props.selected
       <div className={className} key={@props.key} onMouseDown={@props.onMouseDown}>{@props.content}</div>
 
+
 MenuNameEmailItem = React.createClass
   displayName: 'MenuNameEmailItem'
   propTypes:
@@ -88,7 +90,6 @@ MenuNameEmailItem = React.createClass
       <span className="primary">{@props.email}</span>
 
 
-
 Menu = React.createClass
 
   propTypes:
@@ -97,12 +98,12 @@ Menu = React.createClass
     headerComponents: React.PropTypes.arrayOf(React.PropTypes.element),
     itemContent: React.PropTypes.func.isRequired,
     itemKey: React.PropTypes.func.isRequired,
-    items: React.PropTypes.arrayOf(React.PropTypes.object)
+    items: React.PropTypes.array.isRequired
 
     onSelect: React.PropTypes.func.isRequired,
 
   getInitialState: ->
-    selectedIndex: 0
+    selectedIndex: -1
 
   getSelectedItem: ->
     @props.items[@state.selectedIndex]
@@ -129,6 +130,11 @@ Menu = React.createClass
 
     @setState
       selectedIndex: newSelectionIndex
+ 
+  componentDidUpdate: ->
+    item = @getDOMNode().querySelector(".selected")
+    container = @getDOMNode().querySelector(".content-container")
+    Utils.scrollNodeToVisibleInContainer(item, container)
 
   componentWillUnmount: ->
     @subscriptions?.dispose()
@@ -138,7 +144,7 @@ Menu = React.createClass
     if hc.length is 0 then hc = <span></span>
     fc = @props.footerComponents ? []
     if fc.length is 0 then fc = <span></span>
-    <div className={"menu " + @props.className}>
+    <div className={"menu " + @props.className} tabIndex="-1">
       <div className="header-container">
         {hc}
       </div>

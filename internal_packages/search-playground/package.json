@@ -1,0 +1,13 @@
+{
+  "name": "search-bar",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Search bar using React",
+  "license": "Proprietary",
+  "private": true,
+  "engines": {
+    "atom": "*"
+  },
+  "dependencies": {
+  }
+}

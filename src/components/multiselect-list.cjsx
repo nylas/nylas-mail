@@ -19,11 +19,11 @@ MultiselectList = React.createClass
     commands: React.PropTypes.object.isRequired
     columns: React.PropTypes.array.isRequired
     dataStore: React.PropTypes.object.isRequired
-    itemClassProvider: React.PropTypes.func.isRequired
+    itemPropsProvider: React.PropTypes.func.isRequired
 
   getInitialState: ->
     @_getStateFromStores()
- 
+
   componentDidMount: ->
     @setupForProps(@props)
 
@@ -36,7 +36,11 @@ MultiselectList = React.createClass
   componentDidUpdate: (prevProps, prevState) ->
     if prevState.focusedId isnt @state.focusedId or
        prevState.keyboardCursorId isnt @state.keyboardCursorId
-      @scrollToCurrentItem()
+
+      item = @getDOMNode().querySelector(".focused")
+      item ?= @getDOMNode().querySelector(".keyboard-cursor")
+      list = @refs.list.getDOMNode()
+      Utils.scrollNodeToVisibleInContainer(item, list)
 
   componentWillUnmount: ->
     @teardownForProps()
@@ -74,23 +78,6 @@ MultiselectList = React.createClass
     @unsubscribers.push props.dataStore.listen @_onChange
     @unsubscribers.push FocusedContentStore.listen @_onChange
     @command_unsubscriber = atom.commands.add('body', commands)
- 
-  scrollToCurrentItem: ->
-    item = @getDOMNode().querySelector(".focused")
-    item ?= @getDOMNode().querySelector(".keyboard-cursor")
-    
-    if item
-      list = @refs.list.getDOMNode()
-      itemRect = item.getBoundingClientRect()
-      listRect = list.getBoundingClientRect()
-
-      distanceBelowBottom = (itemRect.top + itemRect.height) - (listRect.top + listRect.height)
-      if distanceBelowBottom > 0
-        list.scrollTop += distanceBelowBottom
-
-      distanceAboveTop = listRect.top - itemRect.top
-      if distanceAboveTop > 0
-        list.scrollTop -= distanceAboveTop
 
   render: ->
     # IMPORTANT: DO NOT pass inline functions as props. _.isEqual thinks these
@@ -103,11 +90,14 @@ MultiselectList = React.createClass
     className = @props.className
     className += " ready" if @state.ready
 
-    @itemClassProvider ?= (item) =>
-      @props.itemClassProvider(item) + " " + React.addons.classSet
+    @itemPropsProvider ?= (item) =>
+      props = @props.itemPropsProvider(item)
+      props.className ?= ''
+      props.className += " " + React.addons.classSet
         'selected': item.id in @state.selectedIds
         'focused': @state.showFocus and item.id is @state.focusedId
         'keyboard-cursor': @state.showKeyboardCursor and item.id is @state.keyboardCursorId
+      props
 
     if @state.dataView
       <div className={className}>
@@ -115,14 +105,14 @@ MultiselectList = React.createClass
           ref="list"
           columns={@props.columns}
           dataView={@state.dataView}
-          itemClassProvider={@itemClassProvider}
+          itemPropsProvider={@itemPropsProvider}
           onSelect={@_onClickItem}
           onDoubleClick={@props.onDoubleClick} />
-        <Spinner visible={!@state.ready} />
+        <Spinner visible={@state.ready is false} />
       </div>
     else
       <div className={className}>
-        <Spinner visible={!@state.ready} />
+        <Spinner visible={@state.ready is false} />
       </div>
 
   _onClickItem: (item, event) ->
@@ -187,7 +177,7 @@ MultiselectList = React.createClass
 
   _getStateFromStores: (props) ->
     props ?= @props
-  
+
     view = props.dataStore?.view()
     return {} unless view
 

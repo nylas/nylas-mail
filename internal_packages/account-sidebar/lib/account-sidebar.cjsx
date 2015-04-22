@@ -47,7 +47,7 @@ AccountSidebar = React.createClass
       <itemClass
         key={item.id ? item.type}
         item={item}
-        select={item.id is @state.selected.id }/>
+        select={item.id is @state.selected?.id }/>
 
   _onStoreChange: ->
     @setState @_getStateFromStores()

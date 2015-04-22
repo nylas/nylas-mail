@@ -2,6 +2,8 @@ Utils = require '../src/flux/models/utils'
 
 Exports =
 
+  React: require 'react'
+
   # The Task Queue
   Task: require '../src/flux/tasks/task'
   TaskQueue: require '../src/flux/stores/task-queue'
@@ -10,6 +12,7 @@ Exports =
   DatabaseStore: require '../src/flux/stores/database-store'
   ModelView: require '../src/flux/stores/model-view'
   DatabaseView: require '../src/flux/stores/database-view'
+  SearchView: require '../src/flux/stores/search-view'
 
   # Actions
   Actions: require '../src/flux/actions'

@@ -57,6 +57,9 @@ class ModelView
   count: ->
     throw new Error("ModelView base class does not implement count()")
 
+  pageSize: ->
+    @_pageSize
+
   pagesRetained: ->
     [Math.floor(@_retainedRange.start / @_pageSize)..Math.floor(@_retainedRange.end / @_pageSize)]
 

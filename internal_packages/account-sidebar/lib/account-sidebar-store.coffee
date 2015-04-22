@@ -89,7 +89,7 @@ AccountSidebarStore = Reflux.createStore
     return unless namespace
 
     DatabaseStore.count(Message, draft: true).then (count) =>
-      # Todo: Display Draft Unread Count
+      #TODO: Save Draft Count
       @trigger(@)
 
   _refetchFromAPI: ->

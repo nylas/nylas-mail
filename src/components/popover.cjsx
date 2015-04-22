@@ -89,14 +89,15 @@ Popover = React.createClass
     </div>
 
   _onClick: ->
-    @setState
-      showing:true
+    showing = !@state.showing
+    @setState({showing})
 
-    setTimeout =>
-      # Automatically focus the element inside us with the lowest tab index
-      node = @refs.popover.getDOMNode()
-      matches = _.sortBy node.querySelectorAll("[tabIndex]"), (a,b) -> a.tabIndex < b.tabIndex
-      matches[0].focus() if matches[0]
+    if showing
+      setTimeout =>
+        # Automatically focus the element inside us with the lowest tab index
+        node = @refs.popover.getDOMNode()
+        matches = _.sortBy node.querySelectorAll("[tabIndex]"), (a,b) -> a.tabIndex < b.tabIndex
+        matches[0].focus() if matches[0]
 
   _onBlur: (event) ->
     target = event.nativeEvent.relatedTarget

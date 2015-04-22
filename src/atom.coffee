@@ -592,7 +592,7 @@ class Atom extends Model
 
     # Make sure we can't be made so small that the interface looks like crap
     @getCurrentWindow().setMinimumSize(875, 500)
-    
+
     ipc.on 'onboarding-complete', =>
       maximize = dimensions?.maximized and process.platform isnt 'darwin'
       @displayWindow({maximize})
@@ -675,7 +675,7 @@ class Atom extends Model
     a.src = path.join(resourcePath, 'static', 'sounds', filename)
     a.autoplay = true
     a.play()
-    
+
   # Essential: A flexible way to open a dialog akin to an alert dialog.
   #
   # ## Examples

@@ -29,7 +29,7 @@ EventEmitter = require('events').EventEmitter
 verbose = true
 
 class DatabaseView extends ModelView
-  
+
   constructor: (@klass, config = {}, @_itemMetadataProvider) ->
     super
     @_pageSize = 100
@@ -92,7 +92,7 @@ class DatabaseView extends ModelView
         page.metadata = {}
       @invalidateCount()
       @invalidateRetainedRange()
-  
+
   invalidateIfItemsInconsistent: (items) ->
     if items.length is 0
       return
@@ -115,12 +115,19 @@ class DatabaseView extends ModelView
       # Remove the item in question from the page
       @_pages[page]?.items.splice(pageIdx, 1)
 
+      # Update the page's `loadingStart`. This causes pending refreshes
+      # of page data to be cancelled. This is important because these refreshes
+      # would actually roll back this optimistic change.
+      @_pages[page]?.loadingStart = Date.now()
+
       # Iterate through the remaining pages. Take the first
       # item from the next page, remove it, and put it at the
       # end of our page (to fill the space left by splice above.)
-      while @_pages[page + 1] and @_pages[page + 1].loading is false
+      while @_pages[page + 1] and @_pages[page + 1].items
         item = @_pages[page + 1].items[0]
+        break unless item
         @_pages[page + 1].items.splice(0, 1)
+        @_pages[page + 1].loadingStart = Date.now()
         @_pages[page].items.push(item)
         page += 1
 
@@ -280,7 +287,7 @@ class DatabaseView extends ModelView
 
       page.items = items
       page.loading = false
-      
+
       # Trigger if this is the last page that needed to be loaded
       @_emitter.emit('trigger') if @loaded()
 

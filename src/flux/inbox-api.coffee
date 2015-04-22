@@ -50,7 +50,7 @@ class InboxAPI
   _onNamespacesChanged: ->
     return unless atom.state.mode is 'editor'
     return if atom.getLoadSettings().isSpec
-    
+
     namespaces = NamespaceStore.items()
     workers = _.map(namespaces, @_workerForNamespace)
 
@@ -117,15 +117,19 @@ class InboxAPI
       PriorityUICoordinator.settle.then =>
         Actions.didMakeAPIRequest({request: options, response: response})
         if error? or response.statusCode > 299
-          options.error(new APIError({error:error, response:response, body:body}))
+          options.error(new APIError({error, response, body}))
         else
-          if _.isString body
-            try
-              body = JSON.parse(body)
-            catch error
-              options.error(new APIError({error:error, response:response, body:body}))
-          @_handleModelResponse(body) if options.returnsModel
-          options.success(body) if options.success
+          if options.json
+            if _.isString(body)
+              try
+                body = JSON.parse(body)
+              catch error
+                options.error(new APIError({error, response, body}))
+            if options.returnsModel
+              @_handleModelResponse(body)
+
+          if options.success
+            options.success(body)
 
   _handleDeltas: (deltas) ->
     Actions.longPollReceivedRawDeltas(deltas)

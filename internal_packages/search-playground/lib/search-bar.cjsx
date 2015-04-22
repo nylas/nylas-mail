@@ -65,6 +65,7 @@ SearchBar = React.createClass
         item.label
 
     <div className="search-bar">
+      <div className="header">Search Query</div>
       <Menu ref="menu"
         className={@_containerClasses()}
         headerComponents={headerComponents}
@@ -135,7 +136,7 @@ SearchBar = React.createClass
     setTimeout =>
       Actions.searchBlurred()
       if @isMounted()
-        @setState(focused: false)
+        @setState focused: false
     , 150
 
   _doSearch: ->

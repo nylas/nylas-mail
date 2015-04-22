@@ -17,9 +17,13 @@ silent = atom.getLoadSettings().isSpec
 verboseFilter = (query) ->
   false
 
-# DatabaseConnection is a small shim for making database queries. Queries
-# are actually executed in the Browser process and eventually, we'll move
-# more and more of this class there.
+##
+# The DatabaseProxy dispatches queries to the Browser process via IPC and listens
+# for results. It maintains a hash of `queryRecords` representing queries that are
+# currently running and fires the correct callbacks when data is received.
+#
+# @namespace Application
+#
 class DatabaseProxy
   constructor: (@databasePath) ->
     @windowId = remote.getCurrentWindow().id
@@ -52,9 +56,13 @@ class DatabaseProxy
     console.log(query,values) if verboseFilter(query)
     ipc.send('database-query', {@databasePath, queryKey, query, values})
 
+##
 # DatabasePromiseTransaction converts the callback syntax of the Database
 # into a promise syntax with nice features like serial execution of many
 # queries in the same promise.
+#
+# @namespace Application
+#
 class DatabasePromiseTransaction
   constructor: (@_db, @_resolve, @_reject) ->
     @_running = 0
@@ -87,7 +95,20 @@ class DatabasePromiseTransaction
     , (err) =>
       @_resolve()
 
+###
+# N1 is built on top of a custom database layer modeled after ActiveRecord.
+# For many parts of the application, the database is the source of truth.
+# Data is retrieved from the API, written to the database, and changes to the
+# database trigger Stores and components to refresh their contents.
 
+# The DatabaseStore is available in every application window and allows you to
+# make queries against the local cache. Every change to the local cache is
+# broadcast as a change event, and listening to the DatabaseStore keeps the
+# rest of the application in sync.
+#
+# @class DatabaseStore
+# @namespace Application
+###
 DatabaseStore = Reflux.createStore
   init: ->
     @_root = (atom.state.mode == 'editor')
@@ -263,6 +284,10 @@ DatabaseStore = Reflux.createStore
         Namespace = require '../models/namespace'
         @trigger({objectClass: Namespace.name})
 
+  ##
+  # Asynchronously writes `model` to the cache and triggers a change event.
+  # @param {Model} model
+  #
   persistModel: (model) ->
     @inTransaction {}, (tx) =>
       tx.execute('BEGIN TRANSACTION')
@@ -270,6 +295,11 @@ DatabaseStore = Reflux.createStore
       tx.execute('COMMIT')
       @trigger({objectClass: model.constructor.name, objects: [model]})
 
+  ##
+  # Asynchronously writes `models` to the cache and triggers a single change event.
+  # Note: Models must be of the same class to be persisted in a batch operation.
+  # @param {Array<Model>} model
+  #
   persistModels: (models) ->
     klass = models[0].constructor
     @inTransaction {}, (tx) =>
@@ -286,6 +316,10 @@ DatabaseStore = Reflux.createStore
       tx.execute('COMMIT')
       @trigger({objectClass: models[0].constructor.name, objects: models})
 
+  ##
+  # Asynchronously removes `model` from the cache and triggers a change event.
+  # @param {Model} model
+  #
   unpersistModel: (model) ->
     @inTransaction {}, (tx) =>
       tx.execute('BEGIN TRANSACTION')
@@ -305,19 +339,45 @@ DatabaseStore = Reflux.createStore
 
   # ActiveRecord-style Querying
 
+  ##
+  # Creates a new Model Query for retrieving a single model specified by the class and id.
+  # @param {Model.constructor} klass The class of the Model you are requesting
+  # @param {String} id The id of the Model you are requesting
+  # @return {ModelQuery}
+  #
   find: (klass, id) ->
     throw new Error("You must provide a class to findByLocalId") unless klass
     throw new Error("find takes a string id. You may have intended to use findBy.") unless _.isString(id)
     new ModelQuery(klass, @).where({id:id}).one()
 
+  ##
+  # Creates a new Model Query for retrieving a single model matching the predicates provided.
+  # @param {Model.constructor} klass The class of the Model you are requesting
+  # @param {Array<Matcher>} predicates A set of predicates (where clauses) the
+  #        returned model must match.
+  # @return {ModelQuery}
+  #
   findBy: (klass, predicates = []) ->
     throw new Error("You must provide a class to findBy") unless klass
     new ModelQuery(klass, @).where(predicates).one()
 
+  ##
+  # Creates a new Model Query for retrieving models matching the predicates provided.
+  # @param {Model.constructor} klass The class of the Model you are requesting
+  # @param {Array<Matcher>} predicates A set of predicates (where clauses) that
+  #        returned models must match.
+  # @return {ModelQuery}
+  #
   findAll: (klass, predicates = []) ->
     throw new Error("You must provide a class to findAll") unless klass
     new ModelQuery(klass, @).where(predicates)
 
+  ##
+  # Creates a new Model Query for counting models matching the predicates provided.
+  # @param {Model.constructor} klass The class of the Model you are requesting
+  # @param {Array<Matcher>} predicates A set of predicates (where clauses)
+  # @return {ModelQuery}
+  #
   count: (klass, predicates = []) ->
     throw new Error("You must provide a class to count") unless klass
     new ModelQuery(klass, @).where(predicates).count()

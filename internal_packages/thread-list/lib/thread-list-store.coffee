@@ -1,9 +1,9 @@
 Reflux = require 'reflux'
 _ = require 'underscore-plus'
-SearchView = require './search-view'
 
 {DatabaseStore,
  DatabaseView,
+ SearchView,
  NamespaceStore,
  WorkspaceStore,
  AddRemoveTagsTask,

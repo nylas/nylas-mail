@@ -3,10 +3,14 @@ _ = require 'underscore-plus'
 
 NullPlaceholder = "!NULLVALUE!"
 
+##
 # The Matcher class encapsulates a particular comparison clause on an attribute.
 # Matchers can evaluate whether or not an object matches them, and in the future
 # they will also compose WHERE clauses. Each matcher has a reference to a model
 # attribute, a comparator and a value.
+#
+# @namespace Attribute Types
+#
 class Matcher
   constructor: (@attr, @comparator, @val) ->
     @muid = Matcher.muid
@@ -55,7 +59,13 @@ class Matcher
       else
         return "`#{klass.name}`.`#{@attr.jsonKey}` #{@comparator} #{escaped}"
 
-
+##
+# Represents a particular sort direction on a particular column. You should not
+# instantiate SortOrders manually. Instead, call `Attribute.ascending()` or
+# `Attribute.descending()` to obtain a sort order.
+#
+# @namespace Attribute Types
+#
 class SortOrder
   constructor: (@attr, @direction = 'DESC') ->
   orderBySQL: (klass) ->
@@ -63,10 +73,15 @@ class SortOrder
   attribute: ->
     @attr
 
+##
 # The Attribute class represents a single model attribute, like 'namespace_id'
 # Subclasses of Attribute like AttributeDateTime know how to covert between
 # the JSON representation of that type and the javascript representation.
 # The Attribute class also exposes convenience methods for generating Matchers.
+#
+# @abstract
+# @namespace Attribute Types
+#
 class Attribute
   constructor: ({modelKey, queryable, jsonKey}) ->
     @modelKey = modelKey
@@ -98,11 +113,44 @@ class Attribute
   toJSON: (val) -> val
   fromJSON: (val) -> val ? null
 
+##
+# The value of this attribute is always a number, or null.
+#
+# @namespace Attribute Types
+#
 class AttributeNumber extends Attribute
   toJSON: (val) -> val
   fromJSON: (val) -> unless isNaN(val) then Number(val) else null
   columnSQL: -> "#{@jsonKey} INTEGER"
 
+##
+# Joined Data attributes allow you to store certain attributes of an
+# object in a separate table in the database. We use this attribute
+# type for Message bodies. Storing message bodies, which can be very
+# large, in a separate table allows us to make queries on message
+# metadata extremely fast, and inflate Message objects without their
+# bodies to build the thread list.
+#
+# When building a query on a model with a JoinedData attribute, you need
+# to call `include` to explicitly load the joined data attribute.
+# The query builder will automatically perform a `LEFT OUTER JOIN` with
+# the secondary table to retrieve the attribute:
+#
+# ```
+# DatabaseStore.find(Message, '123').then (message) ->
+#   // message.body is undefined
+#
+# DatabaseStore.find(Message, '123').include(Message.attributes.body).then (message) ->
+#   // message.body is defined
+# ```
+#
+# When you call `persistModel`, JoinedData attributes are automatically
+# written to the secondary table.
+#
+# JoinedData attributes cannot be `queryable`.
+#
+# @namespace Attribute Types
+#
 class AttributeJoinedData extends Attribute
   constructor: ({modelKey, jsonKey, modelTable}) ->
     super
@@ -117,6 +165,14 @@ class AttributeJoinedData extends Attribute
   includeSQL: (klass) ->
     "LEFT OUTER JOIN `#{@modelTable}` ON `#{@modelTable}`.`id` = `#{klass.name}`.`id`"
 
+##
+# The value of this attribute is always a boolean. Null values are coerced to false.
+#
+# String attributes can be queries using `equal` and `not`. Matching on
+# `greaterThan` and `lessThan` is not supported.
+#
+# @namespace Attribute Types
+#
 class AttributeBoolean extends Attribute
   toJSON: (val) -> val
   fromJSON: (val) -> (val is 'true' or val is true) || false
@@ -124,6 +180,14 @@ class AttributeBoolean extends Attribute
   lessThan: (val) -> throw new Error "greaterThan cannot be applied to AttributeBoolean"
   columnSQL: -> "#{@jsonKey} INTEGER"
 
+##
+# The value of this attribute is always a string or `null`.
+#
+# String attributes can be queries using `equal`, `not`, and `startsWith`. Matching on
+# `greaterThan` and `lessThan` is not supported.
+#
+# @namespace Attribute Types
+#
 class AttributeString extends Attribute
   toJSON: (val) -> val
   fromJSON: (val) -> val || ""
@@ -132,6 +196,11 @@ class AttributeString extends Attribute
   startsWith: (val) -> new Matcher(@, 'startsWith', val)
   columnSQL: -> "#{@jsonKey} TEXT"
 
+##
+# The value of this attribute is always a Javascript `Date`, or `null`.
+#
+# @namespace Attribute Types
+#
 class AttributeDateTime extends Attribute
   toJSON: (val) ->
     return null unless val
@@ -145,6 +214,34 @@ class AttributeDateTime extends Attribute
 
   columnSQL: -> "#{@jsonKey} INTEGER"
 
+##
+# Collection attributes provide basic support for one-to-many relationships.
+# For example, Threads in N1 have a collection of Tags.
+#
+# When Collection attributes are marked as `queryable`, the DatabaseStore
+# automatically creates a join table and maintains it as you create, save,
+# and delete models. When you call `persistModel`, entries are added to the
+# join table associating the ID of the model with the IDs of models in the
+# collection.
+#
+# Collection attributes have an additional clause builder, `contains`:
+#
+#```
+#DatabaseStore.findAll(Thread).where([Thread.attributes.tags.contains('inbox')])
+#```
+#
+#This is equivalent to writing the following SQL:
+#
+#```
+#SELECT `Thread`.`data` FROM `Thread` INNER JOIN `Thread-Tag` AS `M1` ON `M1`.`id` = `Thread`.`id` WHERE `M1`.`value` = 'inbox' ORDER BY `Thread`.`last_message_timestamp` DESC
+#```
+#
+# The value of this attribute is always an array of ff other model objects. To use
+# a Collection attribute, the JSON for the parent object must contain the nested
+# objects, complete with their `object` field.
+#
+# @namespace Attribute Types
+#
 class AttributeCollection extends Attribute
   constructor: ({modelKey, jsonKey, itemClass}) ->
     super
@@ -187,7 +284,7 @@ module.exports = {
   Boolean: -> new AttributeBoolean(arguments...)
   Object: -> new Attribute(arguments...)
   JoinedData: -> new AttributeJoinedData(arguments...)
-  
+
   AttributeNumber: AttributeNumber
   AttributeString: AttributeString
   AttributeDateTime: AttributeDateTime

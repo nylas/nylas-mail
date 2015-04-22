@@ -77,8 +77,8 @@ ThreadList = React.createClass
       'application:reply': @_onReply
       'application:reply-all': @_onReplyAll
       'application:forward': @_onForward
-    @itemClassProvider = (item) ->
-      React.addons.classSet
+    @itemPropsProvider = (item) ->
+      className: React.addons.classSet
         'unread': item.isUnread()
 
   render: ->
@@ -86,7 +86,7 @@ ThreadList = React.createClass
       dataStore={ThreadListStore}
       columns={@columns}
       commands={@commands}
-      itemClassProvider={@itemClassProvider}
+      itemPropsProvider={@itemPropsProvider}
       className="thread-list"
       collection="thread" />
 

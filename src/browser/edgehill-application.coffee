@@ -1,6 +1,6 @@
 AtomWindow = require './atom-window'
 ApplicationMenu = require './application-menu'
-AtomProtocolHandler = require './atom-protocol-handler'
+NylasProtocolHandler = require './nylas-protocol-handler'
 AutoUpdateManager = require './auto-update-manager'
 BrowserWindow = require 'browser-window'
 Menu = require 'menu'
@@ -54,7 +54,7 @@ class AtomApplication
   windows: null
   mainWindow: null
   applicationMenu: null
-  atomProtocolHandler: null
+  nylasProtocolHandler: null
   resourcePath: null
   version: null
 
@@ -75,7 +75,7 @@ class AtomApplication
 
     @autoUpdateManager = new AutoUpdateManager(@version)
     @applicationMenu = new ApplicationMenu(@version)
-    @atomProtocolHandler = new AtomProtocolHandler(@resourcePath, @safeMode)
+    @nylasProtocolHandler = new NylasProtocolHandler(@resourcePath, @safeMode)
 
     @listenForArgumentsFromNewProcess()
     @setupJavaScriptArguments()
