@@ -1,7 +1,6 @@
 {Emitter, Disposable, CompositeDisposable} = require 'event-kit'
 {specificity} = require 'clear-cut'
 _ = require 'underscore-plus'
-{$} = require './space-pen-extensions'
 
 SequenceCount = 0
 SpecificityCache = {}

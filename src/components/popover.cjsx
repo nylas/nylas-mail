@@ -8,15 +8,6 @@ user clicks the React element provided as `buttonComponent`. In Edgehill, the Po
 component is used to create rich dropdown menus, detail popups, etc. with consistent
 look and feel and behavior.
 
-The Popover manages two React components:
-
-- `buttonComponent`: This is typically a button or call-to-action for opening the
-  popover. Popover wraps this item in a <div> with an onClick handler.
-
-- `props.children`: Any components you put inside the Popover component are shown
-  when you click the `buttonComponent`. They're automatically wrapped in a
-  `<div class="popover">`, which applies standard shadowing and styles.
-
 The Popover component handles:
 
 - Rendering it's children when you click `buttonComponent`, and dismissing it's
@@ -44,9 +35,18 @@ showMyPopover: =>
 
 ```
 ###
-
 class Popover extends React.Component
 
+  ###
+  Public: React `props` supported by Popover:
+  
+   - `buttonComponent` The React element that will be rendered in place of the Popover and trigger it to appear. This is typically a button or call-to-action for opening the
+   popover. Popover wraps this item in a <div> with an onClick handler.
+
+   - `children` The React elements that should appear when the Popover is opened.
+     They're automatically wrapped in a `<div class="popover">`, which applies standard
+     shadowing and styles.
+  ###
   @propTypes =
     buttonComponent: React.PropTypes.element
 

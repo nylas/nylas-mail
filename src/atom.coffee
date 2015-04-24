@@ -12,7 +12,6 @@ _ = require 'underscore-plus'
 fs = require 'fs-plus'
 {convertStackTrace, convertLine} = require 'coffeestack'
 
-{$} = require './space-pen-extensions'
 WindowEventHandler = require './window-event-handler'
 StylesElement = require './styles-element'
 
@@ -122,9 +121,6 @@ class Atom extends Model
   # Public: A {KeymapManager} instance
   keymaps: null
 
-  # Public: A {TooltipManager} instance
-  tooltips: null
-
   # Experimental: A {NotificationManager} instance
   notifications: null
 
@@ -139,9 +135,6 @@ class Atom extends Model
 
   # Public: A {DeserializerManager} instance
   deserializers: null
-
-  # Public: A {ViewRegistry} instance
-  views: null
 
   ###
   Section: Construction and Destruction
@@ -175,9 +168,7 @@ class Atom extends Model
 
     Config = require './config'
     KeymapManager = require './keymap-extensions'
-    ViewRegistry = require './view-registry'
     CommandRegistry = require './command-registry'
-    TooltipManager = require './tooltip-manager'
     NotificationManager = require './notification-manager'
     PackageManager = require './package-manager'
     Clipboard = require './clipboard'
@@ -215,10 +206,8 @@ class Atom extends Model
       if event.binding.command.indexOf('application:') is 0 and event.binding.selector is "body"
         ipc.send('command', event.binding.command)
 
-    @tooltips = new TooltipManager
     @notifications = new NotificationManager
     @commands = new CommandRegistry
-    @views = new ViewRegistry
     @packages = new PackageManager({devMode, configDirPath, resourcePath, safeMode})
     @styles = new StyleManager
     @actionBridge = new ActionBridge(ipc)
@@ -446,7 +435,7 @@ class Atom extends Model
   # Extended: Focus the current window.
   focus: ->
     ipc.send('call-window-method', 'focus')
-    $(window).focus()
+    window.focus()
 
   # Extended: Show the current window.
   show: ->

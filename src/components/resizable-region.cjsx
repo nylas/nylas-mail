@@ -26,10 +26,26 @@ ResizableHandle =
     transform: (state, props, event) ->
       'width': Math.min(props.maxWidth ? 10000, Math.max(props.minWidth ? 0, event.pageX - state.bcr.left))
 
-
+###
+Public: ResizableRegion wraps it's `children` in a div with a fixed width or height, and a
+draggable edge. It is used throughout Nylas Mail to implement resizable columns, trays, etc.
+###
 class ResizableRegion extends React.Component
   @displayName = 'ResizableRegion'
 
+  ###
+  Public: React `props` supported by ResizableRegion:
+  
+   - `handle` Provide a {ResizableHandle} to indicate which edge of the
+     region should be draggable.
+   - `onResize` A {Function} that will be called continuously as the region is resized.
+   - `initialWidth` (optional) Initial width, if the handle indicates a horizontal resizing axis.
+   - `minWidth` (optional) Minimum width, if the handle indicates a horizontal resizing axis.
+   - `maxWidth` (optional) Maximum width, if the handle indicates a horizontal resizing axis.
+   - `initialHeight` (optional) Initial height, if the handle indicates a vertical resizing axis.
+   - `minHeight` (optional) Minimum height, if the handle indicates a vertical resizing axis.
+   - `maxHeight` (optional) Maximum height, if the handle indicates a vertical resizing axis.
+  ###
   @propTypes =
     handle: React.PropTypes.object.isRequired
     onResize: React.PropTypes.func

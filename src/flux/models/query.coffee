@@ -131,7 +131,7 @@ class ModelQuery
     return null unless result
 
     if @_count
-      return result[0][0]
+      return result[0][0] / 1
     else
       objects = []
       for i in [0..result.length-1] by 1

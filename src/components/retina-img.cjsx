@@ -17,28 +17,34 @@ StylesImpactedByZoom = [
   'marginRight'
 ]
 
-module.exports =
-RetinaImg = React.createClass
-  displayName: 'RetinaImg'
-  propTypes:
+###
+Public: RetinaImg wraps the DOM's standard `<img`> tag and implements a `UIImage` style
+  interface. Rather than specifying an image `src`, RetinaImg allows you to provide
+  an image name. Like UIImage on iOS, it automatically finds the best image for the current
+  display based on pixel density. Given `image.png`, on a Retina screen, it looks for 
+  `image@2x.png`, `image.png`, `image@1x.png` in that order. It uses a lookup table and caches
+  image names, so images generally resolve immediately.
+###
+class RetinaImg extends React.Component
+  @displayName: 'RetinaImg'
+
+  ###
+  Public: React `props` supported by RetinaImg:
+  
+   - `name` (optional) A {String} image name to display.
+   - `fallback` (optional) A {String} image name to use when `name` cannot be found.
+   - `selected` (optional) Appends "-selected" to the end of the image name when when true
+   - `active` (optional) Appends "-active" to the end of the image name when when true
+   - `colorfill` (optional) Adds -webkit-mask-image and other styles, and the .colorfill CSS
+      class, so that setting a CSS background color will colorfill the image.
+   - `style` (optional) An {Object} with additional styles to apply to the image.
+  ###
+  @propTypes:
     name: React.PropTypes.string
     style: React.PropTypes.object
-
-    # Optional additional properties which adjust the provided
-    # name. Makes it easy to write parent components when images
-    # are used in some standard ways.
-    
-    # Use when image cannot be found
     fallback: React.PropTypes.string
-    
-    # Appends -selected when true
     selected: React.PropTypes.bool
-    
-    # Appends -active when true
     active: React.PropTypes.bool
-
-    # Adds -webkit-mask-image and other styles, and the .colorfill CSS
-    # class, so that setting a CSS background color will colorfill the image.
     colorfill: React.PropTypes.bool
 
   render: ->
@@ -70,3 +76,6 @@ RetinaImg = React.createClass
     if @props.selected is true
       name = "#{basename}-selected.#{ext}"
     Utils.imageNamed(name)
+
+
+module.exports = RetinaImg

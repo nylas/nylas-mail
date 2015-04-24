@@ -4,10 +4,32 @@ _ = require 'underscore-plus'
  WorkspaceStore,
  ComponentRegistry} = require "inbox-exports"
 
-class InjectedComponent extends React.Component
+###
+Public: InjectedComponent makes it easy to include dynamically registered
+components inside of your React render method. Rather than explicitly render
+a component, such as a `<Composer>`, you can use InjectedComponent:
 
-  @displayName = 'InjectedComponent'
-  @propTypes =
+```
+<InjectedComponent name="Composer" draftId={123} />
+```
+
+InjectedComponent will look up the component registered with that name in the
+{ComponentRegistry} and render it, passing any additional props, like `draftId` along.
+
+InjectedComponent monitors the ComponentRegistry for changes. If a new component
+is registered for the name `Composer`, InjectedComponent will swap it in.
+
+If no matching component is found, the InjectedComponent renders an empty div.
+###
+class InjectedComponent extends React.Component
+  @displayName: 'InjectedComponent'
+
+  ###
+  Public: React `props` supported by InjectedComponent:
+  
+   - `name` The {String} name of the component to display. Should be a name passed to the {ComponentRegistry} when registering a component.
+  ###
+  @propTypes:
     name: React.PropTypes.string.isRequired
 
   constructor: (@props) ->

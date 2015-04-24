@@ -1,0 +1,116 @@
+@import "ui-variables";
+
+@duration: 1s;
+
+.empty-state {
+  position:absolute;
+  display: none;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1002;
+  overflow:hidden;
+
+  > div {
+    opacity:0;
+    -webkit-transition: opacity @duration ease-out;
+    width:100%;
+    height: 100%;
+    min-width: 840px;
+    min-height: 650px;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    left: 50%;
+    top: 50%;
+
+    .message {
+      opacity:0;
+      -webkit-user-select: text;
+      -webkit-transition: opacity @duration ease-in;
+      -webkit-transition-delay: 0.6s;
+      top:45%;
+      left:50%;
+      transform: translate(-50%, -50%);
+      width:50%;
+      min-width: 500px;
+      position: absolute;
+      color: @text-color-very-subtle;
+      font-size: 28px;
+      font-weight: @font-weight-blond;
+      text-align: center;
+
+      // Sequences of whitespace are collapsed. Lines are broken at
+      // newline characters, at <br>, and as necessary to fill line boxes.
+      white-space: pre-line;
+
+      .byline {
+        padding-top:25px;
+        font-size:14px;
+        color: fade(@text-color-very-subtle, 50%);
+      }
+    }
+
+    .top-left {
+      -webkit-transition: all @duration ease-out;
+      position:absolute;
+      top:-10px;
+      left:-20px;
+    }
+
+    .top-right {
+      -webkit-transition: all @duration ease-out;
+      position:absolute;
+      top:-10px;
+      right:-20px;
+    }
+
+    .bottom-left {
+      -webkit-transition: all @duration ease-out;
+      position:absolute;
+      bottom:-10px;
+      left:-20px;
+    }
+
+    .bottom-right {
+      -webkit-transition: all @duration ease-out;
+      position:absolute;
+      bottom:-10px;
+      right:-20px;
+    }
+  }
+
+  &.visible {
+    display:block;
+  }
+
+  &.active {
+    > div {
+      opacity:1;
+
+      .message {
+        opacity:1;
+      }
+
+      .top-left {
+        top:0;
+        left:0;
+      }
+
+      .top-right {
+        top:0;
+        right:0;
+      }
+
+      .bottom-left {
+        bottom:0;
+        left:0;
+      }
+
+      .bottom-right {
+        bottom:0;
+        right:0;
+      }
+    }
+  }
+}

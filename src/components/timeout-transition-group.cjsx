@@ -6,22 +6,6 @@
 
 # https://github.com/facebook/react/issues/1707
 
-###*
-# The CSSTransitionGroup component uses the 'transitionend' event, which
-# browsers will not send for any number of reasons, including the
-# transitioning node not being painted or in an unfocused tab.
-#
-# This TimeoutTransitionGroup instead uses a user-defined timeout to determine
-# when it is a good time to remove the component. Currently there is only one
-# timeout specified, but in the future it would be nice to be able to specify
-# separate timeouts for enter and leave, in case the timeouts for those
-# animations differ. Even nicer would be some sort of inspection of the CSS to
-# automatically determine the duration of the animation or transition.
-#
-# This is adapted from Facebook's CSSTransitionGroup which is in the React
-# addons and under the Apache 2.0 License.
-###
-
 React = require('react/addons')
 PriorityUICoordinator = require('../priority-ui-coordinator')
 ReactTransitionGroup = React.addons.TransitionGroup
@@ -58,6 +42,32 @@ hasClass = (element, className) =>
     (' ' + element.className + ' ').indexOf(' ' + className + ' ') > -1
 
 
+###
+Public: TimeoutTransitionGroup applies a CSS transition to the components added
+or removed from it's children. It is similar to React's CSSTransitionGroup, but
+that uses the 'transitionend' event, which browsers will not send for any
+number of reasons, including the transitioning node not being painted.
+
+This TimeoutTransitionGroup instead uses a user-defined timeout to determine
+when it is a good time to remove the component. Currently there is only one
+timeout specified, but in the future it would be nice to be able to specify
+separate timeouts for enter and leave, in case the timeouts for those
+animations differ. Even nicer would be some sort of inspection of the CSS to
+automatically determine the duration of the animation or transition.
+
+This is adapted from Facebook's CSSTransitionGroup which is in the React
+addons and under the Apache 2.0 License.
+
+Example:
+```
+<TimeoutTransitionGroup 
+  leaveTimeout={125}
+  enterTimeout={125}
+  transitionName="sheet-toolbar">
+  {toolbarElements[1..-1]}
+</TimeoutTransitionGroup>
+```
+###
 class TimeoutTransitionGroupChild extends React.Component
 
   transition: (animationType, finishCallback) =>

@@ -11,6 +11,7 @@ module.exports =
   Popover: require '../src/components/popover'
   Flexbox: require '../src/components/flexbox'
   RetinaImg: require '../src/components/retina-img'
+  EmptyState: require '../src/components/empty-state'
   ListTabular: require '../src/components/list-tabular'
   MultiselectList: require '../src/components/multiselect-list'
   MultiselectActionBar: require '../src/components/multiselect-action-bar'
@@ -18,6 +19,7 @@ module.exports =
   InjectedComponentSet: require '../src/components/injected-component-set'
   InjectedComponent: require '../src/components/injected-component'
   TokenizingTextField: require '../src/components/tokenizing-text-field'
+  TimeoutTransitionGroup: require '../src/components/timeout-transition-group'
   FormItem: FormItem
   GeneratedForm: GeneratedForm
   GeneratedFieldset: GeneratedFieldset

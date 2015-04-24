@@ -95,6 +95,12 @@ describe "ModelQuery", ->
       @q.includeAll()
       expect(@q._includeJoinedData).toEqual([Message.attributes.body])
 
+  describe "formatResult", ->
+    it "should always return a Number for counts", ->
+      q = new ModelQuery(Message, @db)
+      q.where({namespaceId: 'abcd'}).count()
+      expect(q.formatResult([["12"]])).toBe(12)
+
   describe "sql", ->
     beforeEach ->
       @runScenario = (klass, scenario) ->

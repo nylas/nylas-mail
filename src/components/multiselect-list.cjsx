@@ -2,6 +2,7 @@ _ = require 'underscore-plus'
 React = require 'react'
 classNames = require 'classnames'
 ListTabular = require './list-tabular'
+EmptyState = require './empty-state'
 Spinner = require './spinner'
 {Actions,
  Utils,
@@ -10,6 +11,15 @@ Spinner = require './spinner'
  NamespaceStore} = require 'inbox-exports'
 EventEmitter = require('events').EventEmitter
 
+###
+Public: MultiselectList wraps {ListTabular} and makes it easy to present a
+{ModelView} with selection support. It adds a checkbox column to the columns
+you provide, and also handles:
+
+- Command-clicking individual items
+- Shift-clicking to select a range
+- Using the keyboard to select a range
+###
 class MultiselectList extends React.Component
   @displayName = 'MultiselectList'
 
@@ -108,7 +118,8 @@ class MultiselectList extends React.Component
           itemPropsProvider={@itemPropsProvider}
           onSelect={@_onClickItem}
           onDoubleClick={@props.onDoubleClick} />
-        <Spinner visible={@state.ready is false} />
+        <Spinner visible={!@state.ready} />
+        <EmptyState visible={@state.ready && @state.dataView.count() is 0} />
       </div>
     else
       <div className={className}>

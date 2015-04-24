@@ -6,11 +6,10 @@ querystring = require 'querystring'
 {EdgehillAPI} = require 'inbox-exports'
 {RetinaImg} = require 'ui-components'
 
-module.exports =
-ContainerView = React.createClass
+class ContainerView extends React.Component
 
-  getInitialState: =>
-    @getStateFromStore()
+  constructor: (@props) ->
+    @state = @getStateFromStore()
 
   getStateFromStore: =>
     page: OnboardingStore.page()
@@ -160,3 +159,5 @@ ContainerView = React.createClass
   _fireMoveToPrevPage: =>
     OnboardingActions.moveToPreviousPage()
 
+
+module.exports = ContainerView

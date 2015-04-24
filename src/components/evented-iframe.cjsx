@@ -1,6 +1,12 @@
 React = require 'react'
 _ = require "underscore-plus"
 
+###
+Public: EventedIFrame is a thin wrapper around the DOM's standard `<iframe>` element.
+You should always use EventedIFrame, because it provides important event hooks that
+ensure keyboard and mouse events are properly delivered to the application when
+fired within iFrames.
+###
 class EventedIFrame extends React.Component
   @displayName = 'EventedIFrame'
 
