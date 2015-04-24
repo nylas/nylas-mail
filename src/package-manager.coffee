@@ -273,8 +273,7 @@ class PackageManager
     if windowType
       packagePaths = _.filter packagePaths, (packagePath) ->
         try
-          metadataPath = path.join(packagePath, 'package.json')
-          {windowTypes} = JSON.parse(fs.readFileSync(metadataPath)) ? {}
+          {windowTypes} = Package.loadMetadata(packagePath) ? {}
           return windowType of (windowTypes ? {})
         catch
           return false
