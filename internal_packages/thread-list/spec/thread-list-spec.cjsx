@@ -291,7 +291,7 @@ describe "ThreadList", ->
       ThreadStore._view = view
       ThreadStore._focusedId = null
       ThreadStore.trigger(ThreadStore)
-      @thread_list_node = @thread_list.getDOMNode()
+      @thread_list_node = @thread_list.findDOMNode()
       spyOn(@thread_list, "setState").andCallThrough()
 
     it "renders all of the thread list items", ->
@@ -331,7 +331,7 @@ describe "ThreadList", ->
 #       ThreadStore._items = test_threads()
 #       ThreadStore._focusedId = null
 #       ThreadStore.trigger()
-#       @thread_list_node = @thread_list.getDOMNode()
+#       @thread_list_node = @thread_list.findDOMNode()
 
 #     it "renders all of the thread list items", ->
 #       items = ReactTestUtils.scryRenderedComponentsWithType(@thread_list,
@@ -402,7 +402,7 @@ describe "ThreadList", ->
 
 #       it "fires the appropriate Action on click", ->
 #         spyOn(Actions, "selectThreadId")
-#         ReactTestUtils.Simulate.click @thread_list_item.getDOMNode()
+#         ReactTestUtils.Simulate.click @thread_list_item.findDOMNode()
 #         expect(Actions.focusThreadId).toHaveBeenCalledWith("111")
 
 #       it "sets the selected state on the thread item", ->

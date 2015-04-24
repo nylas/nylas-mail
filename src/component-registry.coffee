@@ -13,8 +13,7 @@ getViewsByName = (components) ->
     requested ?= registered
     state[requested] = ComponentRegistry.findViewByName registered
     if not state[requested]?
-      console.log("""Warning: No component found for #{requested} in
-        #{@constructor.displayName}. Loaded: #{Object.keys(registry)}""")
+      console.log("Warning: No component found for #{requested} in #{@constructor.displayName}. Loaded: #{Object.keys(registry)}")
   state
 
 Mixin =

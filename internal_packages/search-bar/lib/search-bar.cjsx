@@ -1,20 +1,22 @@
 React = require 'react/addons'
+classNames = require 'classnames'
 {Actions} = require 'inbox-exports'
 {Menu, RetinaImg} = require 'ui-components'
 SearchSuggestionStore = require './search-suggestion-store'
 _ = require 'underscore-plus'
 
-module.exports =
-SearchBar = React.createClass
-  displayName: 'SearchBar'
 
-  getInitialState: ->
-    query: ""
-    focused: false
-    suggestions: []
-    committedQuery: ""
+class SearchBar extends React.Component
+  @displayName = 'SearchBar'
 
-  componentDidMount: ->
+  constructor: (@props) ->
+    @state =
+      query: ""
+      focused: false
+      suggestions: []
+      committedQuery: ""
+
+  componentDidMount: =>
     @unsubscribe = SearchSuggestionStore.listen @_onStoreChange
     @body_unsubscriber = atom.commands.add 'body', {
       'application:focus-search': @_onFocusSearch
@@ -26,13 +28,13 @@ SearchBar = React.createClass
   # It's important that every React class explicitly stops listening to
   # atom events before it unmounts. Thank you event-kit
   # This can be fixed via a Reflux mixin
-  componentWillUnmount: ->
+  componentWillUnmount: =>
     @unsubscribe()
     @body_unsubscriber.dispose()
 
-  render: ->
+  render: =>
     inputValue = @_queryToString(@state.query)
-    inputClass = React.addons.classSet
+    inputClass = classNames
       'input-bordered': true
       'empty': inputValue.length is 0
 
@@ -56,7 +58,7 @@ SearchBar = React.createClass
            onClick={@_onClearSearch}><i className="fa fa-remove"></i></div>
     ]
 
-    itemContentFunc = (item) ->
+    itemContentFunc = (item) =>
       if item.divider
         <Menu.Item divider={item.divider} />
       else if item.contact
@@ -75,19 +77,18 @@ SearchBar = React.createClass
         />
     </div>
 
-  _onFocusSearch: ->
-    return unless @isMounted()
-    @refs.searchInput.getDOMNode().focus()
+  _onFocusSearch: =>
+    React.findDOMNode(@refs.searchInput).focus()
 
-  _containerClasses: ->
-    React.addons.classSet
+  _containerClasses: =>
+    classNames
       'focused': @state.focused
       'showing-query': @state.query?.length > 0
       'committed-query': @state.committedQuery.length > 0
       'search-container': true
       'showing-suggestions': @state.suggestions?.length > 0
 
-  _queryToString: (query) ->
+  _queryToString: (query) =>
     return "" unless query instanceof Array
     str = ""
     for term in query
@@ -97,7 +98,7 @@ SearchBar = React.createClass
         else
           str += "#{key}:#{val}"
 
-  _stringToQuery: (str) ->
+  _stringToQuery: (str) =>
     return [] unless str
 
     # note: right now this only works if there's one term. In the future,
@@ -110,39 +111,41 @@ SearchBar = React.createClass
       term["all"] = a
     [term]
 
-  _onValueChange: (event) ->
+  _onValueChange: (event) =>
     Actions.searchQueryChanged(@_stringToQuery(event.target.value))
     if (event.target.value is '')
       @_onClearSearch()
 
-  _onSelectSuggestion: (item) ->
+  _onSelectSuggestion: (item) =>
     Actions.searchQueryCommitted(item.value)
 
-  _onClearSearch: (event) ->
+  _onClearSearch: (event) =>
     Actions.searchQueryCommitted('')
 
-  _clearAndBlur: ->
+  _clearAndBlur: =>
     @_onClearSearch()
-    @refs.searchInput?.getDOMNode().blur()
+    React.findDOMNode(@refs.searchInput)?.blur()
 
-  _onFocus: ->
+  _onFocus: =>
     @setState focused: true
 
-  _onBlur: ->
+  _onBlur: =>
     # Don't immediately hide the menu when the text input is blurred,
     # because the user might have clicked an item in the menu. Wait to
     # handle the touch event, then dismiss the menu.
     setTimeout =>
       Actions.searchBlurred()
-      if @isMounted()
-        @setState(focused: false)
+      @setState(focused: false)
     , 150
 
-  _doSearch: ->
+  _doSearch: =>
     Actions.searchQueryCommitted(@state.query)
 
-  _onStoreChange: ->
+  _onStoreChange: =>
     @setState
       query: SearchSuggestionStore.query()
       suggestions: SearchSuggestionStore.suggestions()
       committedQuery: SearchSuggestionStore.committedQuery()
+
+
+module.exports = SearchBar

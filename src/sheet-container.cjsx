@@ -9,26 +9,27 @@ _ = require 'underscore-plus'
  ComponentRegistry,
  WorkspaceStore} = require "inbox-exports"
 
-ToolbarSpacer = React.createClass
-  className: 'ToolbarSpacer'
-  propTypes:
+class ToolbarSpacer extends React.Component
+  @displayName = 'ToolbarSpacer'
+  @propTypes =
     order: React.PropTypes.number
-  render: ->
+
+  render: =>
     <div className="item-spacer" style={flex: 1, order:@props.order ? 0}></div>
 
-ToolbarBack = React.createClass
-  className: 'ToolbarBack'
-  render: ->
+class ToolbarBack extends React.Component
+  @displayName = 'ToolbarBack'
+  render: =>
     <div className="item-back" onClick={@_onClick}>
       <RetinaImg name="sheet-back.png" />
     </div>
 
-  _onClick: ->
+  _onClick: =>
     Actions.popSheet()
 
-ToolbarWindowControls = React.createClass
-  displayName: 'ToolbarWindowControls'
-  render: ->
+class ToolbarWindowControls extends React.Component
+  @displayName = 'ToolbarWindowControls'
+  render: =>
     <div name="ToolbarWindowControls" className="toolbar-window-controls">
       <button className="close" onClick={ -> atom.close()}></button>
       <button className="minimize" onClick={ -> atom.minimize()}></button>
@@ -40,17 +41,17 @@ ComponentRegistry.register
   name: 'ToolbarWindowControls'
   location: WorkspaceStore.Sheet.Global.Toolbar.Left
 
-Toolbar = React.createClass
-  className: 'Toolbar'
+class Toolbar extends React.Component
+  displayName = 'Toolbar'
 
-  propTypes:
+  propTypes =
     data: React.PropTypes.object
     depth: React.PropTypes.number
 
-  getInitialState: ->
-    @_getStateFromStores()
+  constructor: (@props) ->
+    @state = @_getStateFromStores()
 
-  componentDidMount: ->
+  componentDidMount: =>
     @unlisteners = []
     @unlisteners.push WorkspaceStore.listen (event) =>
       @setState(@_getStateFromStores())
@@ -59,24 +60,24 @@ Toolbar = React.createClass
     window.addEventListener("resize", @_onWindowResize)
     window.requestAnimationFrame => @recomputeLayout()
 
-  componentWillUnmount: ->
+  componentWillUnmount: =>
     window.removeEventListener("resize", @_onWindowResize)
     unlistener() for unlistener in @unlisteners
 
-  componentWillReceiveProps: (props) ->
-    @replaceState(@_getStateFromStores(props))
+  componentWillReceiveProps: (props) =>
+    @setState(@_getStateFromStores(props))
 
-  componentDidUpdate: ->
+  componentDidUpdate: =>
     # Wait for other components that are dirty (the actual columns in the sheet)
     # to update as well.
     window.requestAnimationFrame => @recomputeLayout()
 
-  shouldComponentUpdate: (nextProps, nextState) ->
+  shouldComponentUpdate: (nextProps, nextState) =>
     # This is very important. Because toolbar uses ReactCSSTransitionGroup,
     # repetitive unnecessary updates can break animations and cause performance issues.
     not _.isEqual(nextProps, @props) or not _.isEqual(nextState, @state)
 
-  render: ->
+  render: =>
     style =
       position:'absolute'
       width:'100%'
@@ -94,7 +95,7 @@ Toolbar = React.createClass
       {toolbars}
     </div>
   
-  _flexboxForItems: (items) ->
+  _flexboxForItems: (items) =>
     elements = items.map ({view, name}) =>
       <view key={name} {...@props} />
 
@@ -110,11 +111,9 @@ Toolbar = React.createClass
       <ToolbarSpacer key="spacer+50" order={50}/>
     </TimeoutTransitionGroup>
 
-  recomputeLayout: ->
-    return unless @isMounted()
-    
+  recomputeLayout: =>
     # Find our item containers that are tied to specific columns
-    columnToolbarEls = @getDOMNode().querySelectorAll('[data-column]')
+    columnToolbarEls = React.findDOMNode(@).querySelectorAll('[data-column]')
 
     # Find the top sheet in the stack
     sheet = document.querySelectorAll("[name='Sheet']")[@props.depth]
@@ -131,10 +130,10 @@ Toolbar = React.createClass
       columnToolbarEl.style.left = "#{columnEl.offsetLeft}px"
       columnToolbarEl.style.width = "#{columnEl.offsetWidth}px"
 
-  _onWindowResize: ->
+  _onWindowResize: =>
     @recomputeLayout()
   
-  _getStateFromStores: (props) ->
+  _getStateFromStores: (props) =>
     props ?= @props
     state =
       mode: WorkspaceStore.layoutMode()
@@ -160,23 +159,23 @@ Toolbar = React.createClass
     state
 
 
-FlexboxForLocations = React.createClass
-  className: 'FlexboxForLocations'
+class FlexboxForLocations extends React.Component
+  @displayName = 'FlexboxForLocations'
 
-  propTypes:
+  @propTypes =
     locations: React.PropTypes.arrayOf(React.PropTypes.object)
 
-  getInitialState: ->
-    @_getComponentRegistryState()
+  constructor: (@props) ->
+    @state = @_getComponentRegistryState()
 
-  componentDidMount: ->
+  componentDidMount: =>
     @unlistener = ComponentRegistry.listen (event) =>
       @setState(@_getComponentRegistryState())
 
-  componentWillUnmount: ->
+  componentWillUnmount: =>
     @unlistener() if @unlistener
 
-  shouldComponentUpdate: (nextProps, nextState) ->
+  shouldComponentUpdate: (nextProps, nextState) =>
     # Note: we actually ignore props.roles. If roles change, but we get
     # the same items, we don't need to re-render. Our render function is
     # a function of state only.
@@ -184,7 +183,7 @@ FlexboxForLocations = React.createClass
     itemNames = @state.items?.map (i) -> i.name
     !_.isEqual(nextItemNames, itemNames)
 
-  render: ->
+  render: =>
     elements = @state.items.map ({view, name}) =>
       <view key={name} />
     
@@ -192,30 +191,29 @@ FlexboxForLocations = React.createClass
       {elements}
     </Flexbox>
 
-  _getComponentRegistryState: ->
+  _getComponentRegistryState: =>
     items = []
     mode = WorkspaceStore.layoutMode()
     for location in @props.locations
       items = items.concat(ComponentRegistry.findAllByLocationAndMode(location, mode))
     {items}
 
-module.exports =
-SheetContainer = React.createClass
-  className: 'SheetContainer'
+class SheetContainer extends React.Component
+  displayName = 'SheetContainer'
 
-  getInitialState: ->
-    @_getStateFromStores()
+  constructor: (@props) ->
+    @state = @_getStateFromStores()
 
-  componentDidMount: ->
+  componentDidMount: =>
     @unsubscribe = WorkspaceStore.listen @_onStoreChange
 
   # It's important that every React class explicitly stops listening to
   # atom events before it unmounts. Thank you event-kit
   # This can be fixed via a Reflux mixin
-  componentWillUnmount: ->
+  componentWillUnmount: =>
     @unsubscribe() if @unsubscribe
 
-  render: ->
+  render: =>
     totalSheets = @state.stack.length
     topSheet = @state.stack[totalSheets - 1]
 
@@ -252,26 +250,28 @@ SheetContainer = React.createClass
       </div>
     </Flexbox>
 
-  _toolbarElements: ->
+  _toolbarElements: =>
     @state.stack.map (sheet, index) ->
       <Toolbar data={sheet}
                ref={"toolbar-#{index}"}
                key={"#{index}:#{sheet.id}:toolbar"}
                depth={index} />
 
-  _sheetElements: ->
+  _sheetElements: =>
     @state.stack.map (sheet, index) =>
       <Sheet data={sheet}
              depth={index}
              key={"#{index}:#{sheet.id}"}
              onColumnSizeChanged={@_onColumnSizeChanged} />
 
-  _onColumnSizeChanged: (sheet) ->
+  _onColumnSizeChanged: (sheet) =>
     @refs["toolbar-#{sheet.props.depth}"]?.recomputeLayout()
 
-  _onStoreChange: ->
+  _onStoreChange: =>
     _.defer => @setState(@_getStateFromStores())
 
-  _getStateFromStores: ->
+  _getStateFromStores: =>
     stack: WorkspaceStore.sheetStack()
 
+
+module.exports = SheetContainer

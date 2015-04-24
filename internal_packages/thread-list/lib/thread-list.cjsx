@@ -1,5 +1,6 @@
 _ = require 'underscore-plus'
 React = require 'react'
+classNames = require 'classnames'
 {ListTabular, MultiselectList} = require 'ui-components'
 {timestamp, subject} = require './formatting-utils'
 {Actions,
@@ -78,7 +79,7 @@ ThreadList = React.createClass
       'application:reply-all': @_onReplyAll
       'application:forward': @_onForward
     @itemPropsProvider = (item) ->
-      className: React.addons.classSet
+      className: classNames
         'unread': item.isUnread()
 
   render: ->

@@ -8,6 +8,9 @@
   "arrow_spacing": {
     "level": "error"
   },
+  "no_unnecessary_fat_arrows": {
+    "level": "ignore"
+  },
   "no_interpolation_in_single_quotes": {
     "level": "error"
   },

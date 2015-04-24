@@ -1,4 +1,5 @@
 React = require 'react/addons'
+classNames = require 'classnames'
 
 module.exports =
 ActivityBarTask = React.createClass
@@ -36,7 +37,7 @@ ActivityBarTask = React.createClass
 
   _classNames: ->
     qs = @props.task.queueState ? {}
-    React.addons.classSet
+    classNames
       "task": true
       "task-queued": @props.type is "queued"
       "task-completed": @props.type is "completed"

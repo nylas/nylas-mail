@@ -250,7 +250,7 @@ describe "populated composer", ->
 
     it "sends when you click the send button", ->
       useFullDraft.apply(@); makeComposer.call(@)
-      sendBtn = @composer.refs.sendButton.getDOMNode()
+      sendBtn = React.findDOMNode(@composer.refs.sendButton)
       ReactTestUtils.Simulate.click sendBtn
       expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_LOCAL_ID)
       expect(Actions.sendDraft.calls.length).toBe 1
@@ -261,7 +261,7 @@ describe "populated composer", ->
 
     it "doesn't send twice if you double click", ->
       useFullDraft.apply(@); makeComposer.call(@)
-      sendBtn = @composer.refs.sendButton.getDOMNode()
+      sendBtn = React.findDOMNode(@composer.refs.sendButton)
       ReactTestUtils.Simulate.click sendBtn
       simulateDraftStore()
       ReactTestUtils.Simulate.click sendBtn
@@ -270,17 +270,17 @@ describe "populated composer", ->
 
     it "disables the composer once sending has started", ->
       useFullDraft.apply(@); makeComposer.call(@)
-      sendBtn = @composer.refs.sendButton.getDOMNode()
+      sendBtn = React.findDOMNode(@composer.refs.sendButton)
       cover = ReactTestUtils.findRenderedDOMComponentWithClass(@composer, "composer-cover")
-      expect(cover.getDOMNode().style.display).toBe "none"
+      expect(React.findDOMNode(cover).style.display).toBe "none"
       ReactTestUtils.Simulate.click sendBtn
       simulateDraftStore()
-      expect(cover.getDOMNode().style.display).toBe "block"
+      expect(React.findDOMNode(cover).style.display).toBe "block"
       expect(@composer.state.isSending).toBe true
 
     it "re-enables the composer if sending threw an error", ->
       useFullDraft.apply(@); makeComposer.call(@)
-      sendBtn = @composer.refs.sendButton.getDOMNode()
+      sendBtn = React.findDOMNode(@composer.refs.sendButton)
       ReactTestUtils.Simulate.click sendBtn
       simulateDraftStore()
       expect(@composer.state.isSending).toBe true
@@ -297,21 +297,21 @@ describe "populated composer", ->
         InboxTestUtils.loadKeymap "internal_packages/composer/keymaps/composer.cson"
 
       it "sends the draft on cmd-enter", ->
-        InboxTestUtils.keyPress("cmd-enter", @composer.getDOMNode())
+        InboxTestUtils.keyPress("cmd-enter", React.findDOMNode(@composer))
         expect(@composer._sendDraft).toHaveBeenCalled()
 
       it "does not send the draft on enter if the button isn't in focus", ->
-        InboxTestUtils.keyPress("enter", @composer.getDOMNode())
+        InboxTestUtils.keyPress("enter", React.findDOMNode(@composer))
         expect(@composer._sendDraft).not.toHaveBeenCalled()
 
       it "sends the draft on enter when the button is in focus", ->
         sendBtn = ReactTestUtils.findRenderedDOMComponentWithClass(@composer, "btn-send")
-        InboxTestUtils.keyPress("enter", sendBtn.getDOMNode())
+        InboxTestUtils.keyPress("enter", React.findDOMNode(sendBtn))
         expect(@composer._sendDraft).toHaveBeenCalled()
 
       it "doesn't let you send twice", ->
         sendBtn = ReactTestUtils.findRenderedDOMComponentWithClass(@composer, "btn-send")
-        InboxTestUtils.keyPress("enter", sendBtn.getDOMNode())
+        InboxTestUtils.keyPress("enter", React.findDOMNode(sendBtn))
         expect(@composer._sendDraft).toHaveBeenCalled()
 
 

@@ -27,11 +27,10 @@ ResizableHandle =
       'width': Math.min(props.maxWidth ? 10000, Math.max(props.minWidth ? 0, event.pageX - state.bcr.left))
 
 
-module.exports =
-ResizableRegion = React.createClass
-  displayName: 'ResizableRegion'
+class ResizableRegion extends React.Component
+  @displayName = 'ResizableRegion'
 
-  propTypes:
+  @propTypes =
     handle: React.PropTypes.object.isRequired
     onResize: React.PropTypes.func
 
@@ -43,13 +42,12 @@ ResizableRegion = React.createClass
     minHeight: React.PropTypes.number
     maxHeight: React.PropTypes.number
 
-  getDefaultProps: ->
-    handle: ResizableHandle.Right
+  constructor: (@props = {}) ->
+    @props.handle ?= ResizableHandle.Right
+    @state =
+      dragging: false
 
-  getInitialState: ->
-    dragging: false
-
-  render: ->
+  render: =>
     if @props.handle.axis is 'horizontal'
       containerStyle =
         'minWidth': @props.minWidth
@@ -85,7 +83,7 @@ ResizableRegion = React.createClass
       </div>
     </div>
 
-  componentDidUpdate: (lastProps, lastState) ->
+  componentDidUpdate: (lastProps, lastState) =>
     if lastState.dragging and not @state.dragging
       document.removeEventListener('mousemove', @_mouseMove)
       document.removeEventListener('mouseup', @_mouseUp)
@@ -93,19 +91,19 @@ ResizableRegion = React.createClass
       document.addEventListener('mousemove', @_mouseMove)
       document.addEventListener('mouseup', @_mouseUp)
 
-  componentWillReceiveProps: (nextProps) ->
+  componentWillReceiveProps: (nextProps) =>
     if nextProps.handle.axis is 'vertical' and nextProps.initialHeight != @props.initialHeight
       @setState(height: nextProps.initialHeight)
     if nextProps.handle.axis is 'horizontal' and nextProps.initialWidth != @props.initialWidth
       @setState(width: nextProps.initialWidth)
  
-  componentWillUnmount: ->
+  componentWillUnmount: =>
     PriorityUICoordinator.endPriorityTask(@_taskId) if @_taskId
     @_taskId = null
 
-  _mouseDown: (event) ->
+  _mouseDown: (event) =>
     return if event.button != 0
-    bcr = @getDOMNode().getBoundingClientRect()
+    bcr = React.findDOMNode(@).getBoundingClientRect()
     @setState
       dragging: true
       bcr: bcr
@@ -115,7 +113,7 @@ ResizableRegion = React.createClass
     PriorityUICoordinator.endPriorityTask(@_taskId) if @_taskId
     @_taskId = PriorityUICoordinator.beginPriorityTask()
 
-  _mouseUp: (event) ->
+  _mouseUp: (event) =>
     return if event.button != 0
     @setState
       dragging: false
@@ -126,7 +124,7 @@ ResizableRegion = React.createClass
     PriorityUICoordinator.endPriorityTask(@_taskId)
     @_taskId = null
 
-  _mouseMove: (event) ->
+  _mouseMove: (event) =>
     return if !@state.dragging
     @setState @props.handle.transform(@state, @props, event)
     @props.onResize(@state.height ? @state.width) if @props.onResize
@@ -134,3 +132,5 @@ ResizableRegion = React.createClass
     event.preventDefault()
 
 ResizableRegion.Handle = ResizableHandle
+
+module.exports = ResizableRegion

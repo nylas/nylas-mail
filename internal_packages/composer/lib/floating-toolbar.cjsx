@@ -1,65 +1,66 @@
 _ = require 'underscore-plus'
 React = require 'react/addons'
+classNames = require 'classnames'
 {CompositeDisposable} = require 'event-kit'
 {RetinaImg} = require 'ui-components'
 
-module.exports =
-FloatingToolbar = React.createClass
-  displayName: "FloatingToolbar"
+class FloatingToolbar extends React.Component
+  @displayName = "FloatingToolbar"
 
-  getInitialState: ->
-    mode: "buttons"
-    urlInputValue: @_initialUrl() ? ""
+  constructor: (@props) ->
+    @state =
+      mode: "buttons"
+      urlInputValue: @_initialUrl() ? ""
 
-  componentDidMount: ->
+  componentDidMount: =>
     @isHovering = false
     @subscriptions = new CompositeDisposable()
     @_saveUrl = _.debounce @__saveUrl, 10
 
-  componentWillReceiveProps: (nextProps) ->
+  componentWillReceiveProps: (nextProps) =>
     @setState
       mode: nextProps.initialMode
       urlInputValue: @_initialUrl(nextProps)
 
-  componentWillUnmount: ->
+  componentWillUnmount: =>
     @subscriptions?.dispose()
     @isHovering = false
 
-  componentDidUpdate: ->
+  componentDidUpdate: =>
     if @state.mode is "edit-link" and not @props.linkToModify
       # Note, it's important that we're focused on the urlInput because
       # the parent of this component needs to know to not hide us on their
       # onBlur method.
-      @refs.urlInput.getDOMNode().focus() if @isMounted()
+      React.findDOMNode(@refs.urlInput).focus()
 
-  render: ->
+  render: =>
     <div ref="floatingToolbar"
          className={@_toolbarClasses()} style={@_toolbarStyles()}>
       <div className="toolbar-pointer" style={@_toolbarPointerStyles()}></div>
       {@_toolbarType()}
     </div>
 
-  _toolbarClasses: ->
+  _toolbarClasses: =>
     classes = {}
     classes[@props.pos] = true
-    React.addons.classSet _.extend classes,
+    classNames _.extend classes,
       "floating-toolbar": true
       "toolbar": true
       "toolbar-visible": @props.visible
 
-  _toolbarStyles: ->
+  _toolbarStyles: =>
     styles =
       left: @_toolbarLeft()
       top: @props.top
       width: @_width()
     return styles
 
-  _toolbarType: ->
+  _toolbarType: =>
     if @state.mode is "buttons" then @_renderButtons()
     else if @state.mode is "edit-link" then @_renderLink()
     else return <div></div>
 
-  _renderButtons: ->
+  _renderButtons: =>
     <div className="toolbar-buttons">
       <button className="btn btn-bold toolbar-btn"
               onClick={@_execCommand}
@@ -75,7 +76,7 @@ FloatingToolbar = React.createClass
               data-command-name="link"></button>
     </div>
 
-  _renderLink: ->
+  _renderLink: =>
     removeBtn = ""
     withRemove = ""
     if @_initialUrl()
@@ -101,49 +102,49 @@ FloatingToolbar = React.createClass
       {removeBtn}
     </div>
 
-  _onMouseEnter: ->
+  _onMouseEnter: =>
     @isHovering = true
     @props.onMouseEnter?()
 
-  _onMouseLeave: ->
+  _onMouseLeave: =>
     @isHovering = false
-    if @props.linkToModify and document.activeElement isnt @refs.urlInput.getDOMNode()
+    if @props.linkToModify and document.activeElement isnt React.findDOMNode(@refs.urlInput)
       @props.onMouseLeave?()
 
 
-  _initialUrl: (props=@props) ->
+  _initialUrl: (props=@props) =>
     props.linkToModify?.getAttribute?('href')
 
-  _onInputChange: (event) ->
+  _onInputChange: (event) =>
     @setState urlInputValue: event.target.value
 
-  _saveUrlOnEnter: (event) ->
+  _saveUrlOnEnter: (event) =>
     if event.key is "Enter" and @state.urlInputValue.trim().length > 0
       @_saveUrl()
 
   # We signify the removal of a url with an empty string. This protects us
   # from the case where people delete the url text and hit save. In that
   # case we also want to remove the link.
-  _removeUrl: ->
+  _removeUrl: =>
     @setState urlInputValue: ""
     @props.onSaveUrl "", @props.linkToModify
 
-  __saveUrl: ->
-    return unless @isMounted() and @state.urlInputValue?
+  __saveUrl: =>
+    return unless @state.urlInputValue?
     @props.onSaveUrl @state.urlInputValue, @props.linkToModify
 
-  _execCommand: (event) ->
+  _execCommand: (event) =>
     cmd = event.currentTarget.getAttribute 'data-command-name'
     document.execCommand(cmd, false, null)
     true
 
-  _toolbarLeft: ->
+  _toolbarLeft: =>
     CONTENT_PADDING = @props.contentPadding ? 15
     max = @props.editAreaWidth - @_width() - CONTENT_PADDING
     left = Math.min(Math.max(@props.left - @_width()/2, CONTENT_PADDING), max)
     return left
 
-  _toolbarPointerStyles: ->
+  _toolbarPointerStyles: =>
     CONTENT_PADDING = @props.contentPadding ? 15
     POINTER_WIDTH = 6 + 2 #2px of border-radius
     max = @props.editAreaWidth - CONTENT_PADDING
@@ -156,7 +157,7 @@ FloatingToolbar = React.createClass
       left: left
     return styles
 
-  _width: ->
+  _width: =>
     # We can't calculate the width of the floating toolbar declaratively
     # because it hasn't been rendered yet. As such, we'll keep the width
     # fixed to make it much eaier.
@@ -181,5 +182,7 @@ FloatingToolbar = React.createClass
     else
       return TOOLBAR_BUTTONS_WIDTH
 
-  _showLink: ->
+  _showLink: =>
     @setState mode: "edit-link"
+
+module.exports = FloatingToolbar

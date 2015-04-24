@@ -23,6 +23,7 @@ TemplatePicker = React.createClass
       <RetinaImg name="toolbar-templates.png"/>
       <RetinaImg name="toolbar-chevron.png"/>
     </button>
+
     headerComponents = [
       <input type="text"
              tabIndex="1"

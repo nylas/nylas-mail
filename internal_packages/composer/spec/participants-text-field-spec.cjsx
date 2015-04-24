@@ -50,7 +50,7 @@ describe 'ParticipantsTextField', ->
         participants={@participants}
         change={@propChange} />
     )
-    @renderedInput = ReactTestUtils.findRenderedDOMComponentWithTag(@renderedField, 'input').getDOMNode()
+    @renderedInput = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithTag(@renderedField, 'input'))
 
     @expectInputToYield = (input, expected) ->
       ReactTestUtils.Simulate.change(@renderedInput, {target: {value: input}})

@@ -3,8 +3,8 @@ _ = require 'underscore-plus'
 {CompositeDisposable} = require 'event-kit'
 
 ###
-The Popover component makes it easy to display a sheet or popup menu when the user
-clicks the React element provided as `buttonComponent`. In Edgehill, the Popover
+Public: The Popover component makes it easy to display a sheet or popup menu when the
+user clicks the React element provided as `buttonComponent`. In Edgehill, the Popover
 component is used to create rich dropdown menus, detail popups, etc. with consistent
 look and feel and behavior.
 
@@ -24,54 +24,54 @@ The Popover component handles:
 
 - Automatically focusing the item with the lowest tabIndex inside the popover
 
-Input Focus
------------
+## Input Focus
+
 If your Popover contains an input, like a search bar, give it a tabIndex and
 Popover will automatically focus it when the popover is opened.
 
-Advanced Use
-------------
+## Advanced Use
+
 If you don't want to use the Popover in conjunction with a triggering button,
 you can manually call `open()` and `close()` to display it. A typical scenario
 looks like this:
 
-```
-render: ->
+```coffeescript
+render: =>
   <Popover ref="myPopover"> Popover Contents </Popover>
 
-showMyPopover: ->
+showMyPopover: =>
   @refs.myPopover.open()
 
 ```
-
 ###
-module.exports =
-Popover = React.createClass
 
-  propTypes:
-    buttonComponent: React.PropTypes.element,
+class Popover extends React.Component
 
-  getInitialState: ->
-    showing: false
+  @propTypes =
+    buttonComponent: React.PropTypes.element
 
-  componentDidMount: ->
+  constructor: (@props) ->
+    @state =
+      showing: false
+
+  componentDidMount: =>
     @subscriptions = new CompositeDisposable()
     @subscriptions.add atom.commands.add '.popover-container', {
       'popover:close': => @close()
     }
 
-  componentWillUnmount: ->
+  componentWillUnmount: =>
     @subscriptions?.dispose()
 
-  open: ->
+  open: =>
     @setState
       showing: true
 
-  close: ->
+  close: =>
     @setState
       showing: false
 
-  render: ->
+  render: =>
     wrappedButtonComponent = []
     if @props.buttonComponent
       wrappedButtonComponent = <div onClick={@_onClick}>{@props.buttonComponent}</div>
@@ -88,21 +88,22 @@ Popover = React.createClass
       {popoverComponent}
     </div>
 
-  _onClick: ->
+  _onClick: =>
     showing = !@state.showing
     @setState({showing})
 
     if showing
       setTimeout =>
         # Automatically focus the element inside us with the lowest tab index
-        node = @refs.popover.getDOMNode()
+        node = @refs.popover.findDOMNode()
         matches = _.sortBy node.querySelectorAll("[tabIndex]"), (a,b) -> a.tabIndex < b.tabIndex
         matches[0].focus() if matches[0]
 
-  _onBlur: (event) ->
+  _onBlur: (event) =>
     target = event.nativeEvent.relatedTarget
-    if target? and @refs.container.getDOMNode().contains(target)
+    if target? and @refs.container.findDOMNode().contains(target)
       return
     @setState
       showing:false
 
+module.exports = Popover

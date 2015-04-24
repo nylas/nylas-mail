@@ -1,4 +1,5 @@
 React = require 'react'
+classNames = require 'classnames'
 {Actions, Utils, WorkspaceStore} = require 'inbox-exports'
 {RetinaImg} = require 'ui-components'
 
@@ -7,7 +8,7 @@ AccountSidebarSheetItem = React.createClass
   displayName: 'AccountSidebarSheetItem'
 
   render: ->
-    classSet =  React.addons.classSet
+    classSet =  classNames
       'item': true
       'selected': @props.select
 

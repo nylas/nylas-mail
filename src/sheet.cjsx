@@ -7,35 +7,34 @@ ResizableRegion = require './components/resizable-region'
 
 FLEX = 10000
 
-module.exports =
-Sheet = React.createClass
-  displayName: 'Sheet'
+class Sheet extends React.Component
+  @displayName = 'Sheet'
 
-  propTypes:
+  @propTypes =
     data: React.PropTypes.object.isRequired
     depth: React.PropTypes.number.isRequired
     onColumnSizeChanged: React.PropTypes.func
 
-  getInitialState: ->
-    @_getStateFromStores()
+  constructor: (@props) ->
+    @state = @_getStateFromStores()
 
-  componentDidMount: ->
+  componentDidMount: =>
     @unlisteners ?= []
     @unlisteners.push ComponentRegistry.listen (event) =>
       @setState(@_getStateFromStores())
     @unlisteners.push WorkspaceStore.listen (event) =>
       @setState(@_getStateFromStores())
 
-  componentDidUpdate: ->
+  componentDidUpdate: =>
     @props.onColumnSizeChanged(@) if @props.onColumnSizeChanged
 
-  shouldComponentUpdate: (nextProps, nextState) ->
+  shouldComponentUpdate: (nextProps, nextState) =>
     not _.isEqual(nextProps, @props) or not _.isEqual(nextState, @state)
 
-  componentWillUnmount: ->
+  componentWillUnmount: =>
     unlisten() for unlisten in @unlisteners
 
-  render: ->
+  render: =>
     style =
       position:'absolute'
       width:'100%'
@@ -57,7 +56,7 @@ Sheet = React.createClass
       </Flexbox>
     </div>
 
-  _columnFlexboxElements: ->
+  _columnFlexboxElements: =>
     @state.columns.map ({entries, maxWidth, minWidth, handle, id}, idx) =>
       elements = entries.map ({name, view}) -> <view key={name} />
       if minWidth != maxWidth and maxWidth < FLEX
@@ -83,7 +82,7 @@ Sheet = React.createClass
           {elements}
         </Flexbox>
 
-  _getStateFromStores: ->
+  _getStateFromStores: =>
     state =
       mode: WorkspaceStore.layoutMode()
       columns: []
@@ -116,5 +115,7 @@ Sheet = React.createClass
       state.columns[i].handle = ResizableRegion.Handle.Left  for i in [widest..state.columns.length-1] by 1
     state
 
-  _pop: ->
+  _pop: =>
     Actions.popSheet()
+
+module.exports = Sheet

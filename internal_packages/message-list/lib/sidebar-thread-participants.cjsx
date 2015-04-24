@@ -3,26 +3,26 @@ React = require "react"
 
 {Actions, FocusedContactsStore} = require("inbox-exports")
 
-module.exports =
-SidebarThreadParticipants = React.createClass
-  displayName: 'SidebarThreadParticipants'
+class SidebarThreadParticipants extends React.Component
+  @displayName = 'SidebarThreadParticipants'
 
-  getInitialState: ->
-    @_getStateFromStores()
+  constructor: (@props) ->
+    @state =
+      @_getStateFromStores()
 
-  componentDidMount: ->
+  componentDidMount: =>
     @unsubscribe = FocusedContactsStore.listen @_onChange
 
-  componentWillUnmount: ->
+  componentWillUnmount: =>
     @unsubscribe()
 
-  render: ->
+  render: =>
     <div className="sidebar-thread-participants">
       <h2 className="sidebar-h2">Thread Participants</h2>
       {@_renderSortedContacts()}
     </div>
 
-  _renderSortedContacts: ->
+  _renderSortedContacts: =>
     contacts = []
     @state.sortedContacts.forEach (contact) =>
       if contact is @state.focusedContact
@@ -31,18 +31,21 @@ SidebarThreadParticipants = React.createClass
       contacts.push(
         <div className="other-contact #{selected}"
              onClick={=> @_onSelectContact(contact)}
-             key={contact.id}>
+             key={contact.email+contact.name}>
           {contact.name}
         </div>
       )
     return contacts
 
-  _onSelectContact: (contact) ->
+  _onSelectContact: (contact) =>
     Actions.focusContact(contact)
 
-  _onChange: ->
+  _onChange: =>
     @setState(@_getStateFromStores())
 
-  _getStateFromStores: ->
+  _getStateFromStores: =>
     sortedContacts: FocusedContactsStore.sortedContacts()
     focusedContact: FocusedContactsStore.focusedContact()
+
+
+module.exports = SidebarThreadParticipants

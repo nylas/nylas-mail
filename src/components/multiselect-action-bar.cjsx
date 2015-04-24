@@ -1,10 +1,11 @@
 React = require "react/addons"
+classNames = require 'classnames'
 _ = require 'underscore-plus'
 
 {Actions,
  AddRemoveTagsTask,
  WorkspaceStore} = require "inbox-exports"
-RegisteredRegion = require './registered-region'
+InjectedComponentSet = require './injected-component-set'
 RetinaImg = require './retina-img'
 
 module.exports =
@@ -61,7 +62,7 @@ MultiselectActionBar = React.createClass
 
   _renderActions: ->
     return <div></div> unless @state.view
-    <RegisteredRegion location={"#{@props.collection}:BulkAction"}
+    <InjectedComponentSet location={"#{@props.collection}:BulkAction"}
                       selection={@state.view.selection} />
 
   _label: ->
@@ -73,7 +74,7 @@ MultiselectActionBar = React.createClass
       ""
 
   _classSet: ->
-    React.addons.classSet
+    classNames
       "selection-bar": true
       "enabled": @state.count > 0
 

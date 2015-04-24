@@ -14,6 +14,9 @@ _ = require 'underscore-plus'
  Thread,
  Message} = require 'inbox-exports'
 
+# Public: A mutable text container with undo/redo support and the ability to
+# annotate logical regions in the text.
+#
 module.exports =
 ThreadListStore = Reflux.createStore
   init: ->

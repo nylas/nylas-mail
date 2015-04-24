@@ -6,9 +6,9 @@ RangeChunkSize = 10
 class ListColumn
   constructor: ({@name, @resolver, @flex, @width}) ->
 
-ListTabularItem = React.createClass
-  displayName: 'ListTabularItem'
-  propTypes:
+class ListTabularItem extends React.Component
+  @displayName = 'ListTabularItem'
+  @propTypes =
     metrics: React.PropTypes.object
     columns: React.PropTypes.arrayOf(React.PropTypes.object).isRequired
     item: React.PropTypes.object.isRequired
@@ -21,12 +21,12 @@ ListTabularItem = React.createClass
   # DO NOT DELETE unless you know what you're doing! This method cuts
   # React.Perf.wasted-time from ~300msec to 20msec by doing a deep
   # comparison of props before triggering a re-render.
-  shouldComponentUpdate: (nextProps, nextState) ->
+  shouldComponentUpdate: (nextProps, nextState) =>
     # Quick check to avoid running isEqual if our item === existing item
     return false if _.isEqual(@props, nextProps)
     true
 
-  render: ->
+  render: =>
     className = "list-item list-tabular-item #{@props.itemProps?.className}"
     props = _.omit(@props.itemProps ? {}, 'className')
 
@@ -34,7 +34,7 @@ ListTabularItem = React.createClass
       {@_columns()}
     </div>
 
-  _columns: ->
+  _columns: =>
     for column in (@props.columns ? [])
       <div key={column.name}
            displayName={column.name}
@@ -43,7 +43,7 @@ ListTabularItem = React.createClass
         {column.resolver(@props.item, @)}
       </div>
 
-  _onClick: (event) ->
+  _onClick: (event) =>
     @props.onSelect?(@props.item, event)
 
     @props.onClick?(@props.item, event)
@@ -53,10 +53,9 @@ ListTabularItem = React.createClass
     @_lastClickTime = Date.now()
 
 
-module.exports =
-ListTabular = React.createClass
-  displayName: 'ListTabular'
-  propTypes:
+class ListTabular extends React.Component
+  @displayName = 'ListTabular'
+  @propTypes =
     columns: React.PropTypes.arrayOf(React.PropTypes.object).isRequired
     dataView: React.PropTypes.object
     itemPropsProvider: React.PropTypes.func
@@ -64,32 +63,31 @@ ListTabular = React.createClass
     onClick: React.PropTypes.func
     onDoubleClick: React.PropTypes.func
 
-  getInitialState: ->
-    renderedRangeStart: -1
-    renderedRangeEnd: -1
-    scrollTop: 0
-    scrollInProgress: false
+  constructor: (@props) ->
+    @state =
+      renderedRangeStart: -1
+      renderedRangeEnd: -1
+      scrollTop: 0
+      scrollInProgress: false
 
-  componentDidMount: ->
+  componentDidMount: =>
     @updateRangeState()
 
-  componentDidUpdate: (prevProps, prevState) ->
+  componentDidUpdate: (prevProps, prevState) =>
     # If our view has been swapped out for an entirely different one,
     # reset our scroll position to the top.
     if prevProps.dataView isnt @props.dataView
-      container = @refs.container.getDOMNode()
+      container = React.findDOMNode(@refs.container)
       container.scrollTop = 0
     @updateRangeState()
 
-  updateScrollState: ->
+  updateScrollState: =>
     window.requestAnimationFrame =>
-      return unless @isMounted()
-      container = @refs.container.getDOMNode()
+      container = React.findDOMNode(@refs.container)
 
       # Create an event that fires when we stop receiving scroll events.
       # There is no "scrollend" event, but we really need one.
       @_scrollTick ?= _.debounce =>
-        return unless @isMounted()
         @onDoneReceivingScrollEvents()
       , 100
       @_scrollTick()
@@ -103,13 +101,13 @@ ListTabular = React.createClass
       if Math.abs(@state.scrollTop - container.scrollTop) >= @_rowHeight() * RangeChunkSize
         @updateRangeState()
 
-  onDoneReceivingScrollEvents: ->
+  onDoneReceivingScrollEvents: =>
     @setState({scrollInProgress: false})
     @updateRangeState()
 
-  updateRangeState: ->
+  updateRangeState: =>
     container = @refs.container
-    scrollTop = container?.getDOMNode().scrollTop
+    scrollTop = React.findDOMNode(container)?.scrollTop
 
     rowHeight = @_rowHeight()
 
@@ -149,7 +147,7 @@ ListTabular = React.createClass
       renderedRangeStart: rangeStart
       renderedRangeEnd: rangeEnd
 
-  render: ->
+  render: =>
     innerStyles =
       height: @props.dataView.count() * @_rowHeight()
       pointerEvents: if @state.scrollInProgress then 'none' else 'auto'
@@ -161,10 +159,10 @@ ListTabular = React.createClass
       </div>
     </div>
 
-  _rowHeight: ->
+  _rowHeight: =>
     39
 
-  _headers: ->
+  _headers: =>
     return [] unless @props.displayHeaders
 
     headerColumns = @props.columns.map (column) ->
@@ -178,7 +176,7 @@ ListTabular = React.createClass
       {headerColumns}
     </div>
 
-  _rows: ->
+  _rows: =>
     rowHeight = @_rowHeight()
     rows = []
 
@@ -203,3 +201,5 @@ ListTabular = React.createClass
 
 ListTabular.Item = ListTabularItem
 ListTabular.Column = ListColumn
+
+module.exports = ListTabular

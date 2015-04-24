@@ -1,17 +1,18 @@
 React = require 'react'
 _ = require 'underscore-plus'
+classNames = require 'classnames'
 
-module.exports =
-Spinner = React.createClass
-  propTypes:
+class Spinner extends React.Component
+  @propTypes =
     visible: React.PropTypes.bool
     style: React.PropTypes.object
 
-  getInitialState: ->
-    hidden: true
-    paused: true
+  constructor: (@props) ->
+    @state =
+      hidden: true
+      paused: true
 
-  componentDidMount: ->
+  componentDidMount: =>
     # The spinner always starts hidden. After it's mounted, it unhides itself
     # if it's set to visible. This is a bit strange, but ensures that the CSS
     # transition from .spinner.hidden => .spinner always happens, along with
@@ -19,7 +20,7 @@ Spinner = React.createClass
     if @props.visible and @state.hidden
       @showAfterDelay()
 
-  componentWillReceiveProps: (nextProps) ->
+  componentWillReceiveProps: (nextProps) =>
     hidden = if nextProps.visible? then !nextProps.visible else false
 
     if @state.hidden is false and hidden is true
@@ -28,21 +29,19 @@ Spinner = React.createClass
     else if @state.hidden is true and hidden is false
       @showAfterDelay()
 
-  pauseAfterDelay: ->
+  pauseAfterDelay: =>
     _.delay =>
-      return unless @isMounted()
       return if @props.visible
       @setState({paused: true})
     ,250
 
-  showAfterDelay: ->
+  showAfterDelay: =>
     _.delay =>
-      return unless @isMounted()
       return if @props.visible isnt true
       @setState({paused: false, hidden: false})
     , 300
 
-  render: ->
+  render: =>
     if @props.withCover
       @_renderDotsWithCover()
     else
@@ -51,7 +50,7 @@ Spinner = React.createClass
   # This displays an extra div that's a partially transparent white cover.
   # If you don't want to make your own background for the loading state,
   # this is a convenient default.
-  _renderDotsWithCover: ->
+  _renderDotsWithCover: =>
     coverClasses = React.addons.classSet
       "spinner-cover": true
       "hidden": @state.hidden
@@ -70,8 +69,8 @@ Spinner = React.createClass
       {@_renderSpinnerDots()}
     </div>
 
-  _renderSpinnerDots: ->
-    spinnerClass = React.addons.classSet
+  _renderSpinnerDots: =>
+    spinnerClass = classNames
       'spinner': true
       'hidden': @state.hidden
       'paused': @state.paused
@@ -81,7 +80,7 @@ Spinner = React.createClass
       'left': '50%'
       'top': '50%'
       'zIndex': @props.zIndex+1 ? 1001
-      'transform':'translate(-50%,-50%);'
+      'transform':'translate(-50%,-50%)'
 
     otherProps = _.omit(@props, _.keys(@constructor.propTypes))
 
@@ -90,3 +89,5 @@ Spinner = React.createClass
       <div className="bounce2"></div>
       <div className="bounce3"></div>
     </div>
+
+module.exports = Spinner

@@ -1,12 +1,13 @@
 _ = require 'underscore-plus'
 React = require "react"
+classNames = require 'classnames'
 
 module.exports =
 MessageParticipants = React.createClass
   displayName: 'MessageParticipants'
 
   render: ->
-    classSet = React.addons.classSet
+    classSet = classNames
       "participants": true
       "message-participants": true
       "collapsed": not @props.isDetailed

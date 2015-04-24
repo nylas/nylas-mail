@@ -1,4 +1,5 @@
 React = require 'react'
+classNames = require 'classnames'
 {Actions, Utils, WorkspaceStore} = require 'inbox-exports'
 {RetinaImg} = require 'ui-components'
 
@@ -16,11 +17,11 @@ AccountSidebarTagItem = React.createClass
     if @props.item.unreadCount > 0
       unread = <div className="unread item-count-box">{@props.item.unreadCount}</div>
 
-    classSet =  React.addons.classSet
+    coontainerClass = classNames
       'item': true
       'selected': @props.select
 
-    <div className={classSet} onClick={@_onClick} id={@props.item.id}>
+    <div className={coontainerClass} onClick={@_onClick} id={@props.item.id}>
       <RetinaImg name={"#{@props.item.id}.png"} fallback={'folder.png'} colorfill={@props.select} />
       <span className="name"> {@props.item.name}</span>
       {unread}

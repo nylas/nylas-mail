@@ -1,4 +1,5 @@
 React = require 'react/addons'
+classNames = require 'classnames'
 _ = require 'underscore-plus'
 {CompositeDisposable} = require 'event-kit'
 {Contact, ContactStore} = require 'inbox-exports'
@@ -25,7 +26,7 @@ Token = React.createClass
       })
 
   render: ->
-    classes = React.addons.classSet
+    classes = classNames
       "token": true
       "dragging": @getDragState('token').isDragging
       "selected": @props.selected
@@ -196,7 +197,7 @@ TokenizingTextField = React.createClass
   render: ->
     {Menu} = require 'ui-components'
 
-    classes = React.addons.classSet _.extend (@props.menuClassSet ? {}),
+    classes = classNames _.extend (@props.menuClassSet ? {}),
       "tokenizing-field": true
       "focused": @state.focus
       "native-key-bindings": true

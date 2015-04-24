@@ -71,7 +71,7 @@ describe "MessageParticipants", ->
 
     it "uses short names", ->
       to = ReactTestUtils.findRenderedDOMComponentWithClass(@participants, "to-contact")
-      expect(to.getDOMNode().innerHTML).toBe "User"
+      expect(React.findDOMNode(to).innerHTML).toBe "User"
 
   describe "when expanded", ->
     beforeEach ->
@@ -90,7 +90,7 @@ describe "MessageParticipants", ->
 
     it "uses full names", ->
       to = ReactTestUtils.findRenderedDOMComponentWithClass(@participants, "to-contact")
-      expect(to.getDOMNode().innerText.trim()).toEqual "User Two <user2@nilas.com>"
+      expect(React.findDOMNode(to).innerText.trim()).toEqual "User Two <user2@nilas.com>"
 
 
   # TODO: We no longer display "to everyone"

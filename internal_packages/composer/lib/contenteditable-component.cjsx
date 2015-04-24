@@ -1,5 +1,6 @@
 _ = require 'underscore-plus'
 React = require 'react'
+classNames = require 'classnames'
 sanitizeHtml = require 'sanitize-html'
 {Utils, DraftStore} = require 'inbox-exports'
 FloatingToolbar = require './floating-toolbar'
@@ -7,11 +8,9 @@ FloatingToolbar = require './floating-toolbar'
 linkUUID = 0
 genLinkId = -> linkUUID += 1; return linkUUID
 
-module.exports =
-ContenteditableComponent = React.createClass
-  displayName: "Contenteditable"
-
-  propTypes:
+class ContenteditableComponent extends React.Component
+  @displayName = "Contenteditable"
+  @propTypes =
     html: React.PropTypes.string
     style: React.PropTypes.object
     tabIndex: React.PropTypes.string
@@ -20,15 +19,16 @@ ContenteditableComponent = React.createClass
     onChangeMode: React.PropTypes.func
     initialSelectionSnapshot: React.PropTypes.object
 
-  getInitialState: ->
-    toolbarTop: 0
-    toolbarMode: "buttons"
-    toolbarLeft: 0
-    toolbarPos: "above"
-    editAreaWidth: 9999 # This will get set on first selection
-    toolbarVisible: false
+  constructor: (@props) ->
+    @state =
+      toolbarTop: 0
+      toolbarMode: "buttons"
+      toolbarLeft: 0
+      toolbarPos: "above"
+      editAreaWidth: 9999 # This will get set on first selection
+      toolbarVisible: false
 
-  componentDidMount: ->
+  componentDidMount: =>
     @_editableNode().addEventListener('contextmenu', @_onShowContextualMenu)
     @_setupSelectionListeners()
     @_setupLinkHoverListeners()
@@ -49,26 +49,26 @@ ContenteditableComponent = React.createClass
           extension.onFocusPrevious(editableNode, range, event) if extension.onFocusPrevious
     }
 
-  componentWillUnmount: ->
+  componentWillUnmount: =>
     @_editableNode().removeEventListener('contextmenu', @_onShowContextualMenu)
     @_teardownSelectionListeners()
     @_teardownLinkHoverListeners()
     @_teardownGlobalMouseListener()
     @_disposable.dispose()
 
-  componentWillReceiveProps: (nextProps) ->
+  componentWillReceiveProps: (nextProps) =>
     if nextProps.initialSelectionSnapshot?
       @_setSelectionSnapshot(nextProps.initialSelectionSnapshot)
       @_refreshToolbarState()
 
-  componentWillUpdate: ->
+  componentWillUpdate: =>
     @_teardownLinkHoverListeners()
 
-  componentDidUpdate: ->
+  componentDidUpdate: =>
     @_setupLinkHoverListeners()
     @_restoreSelection()
 
-  render: ->
+  render: =>
     <div className="contenteditable-container">
       <FloatingToolbar ref="floatingToolbar"
                        top={@state.toolbarTop}
@@ -95,10 +95,10 @@ ContenteditableComponent = React.createClass
       <a className={@_quotedTextClasses()} onClick={@_onToggleQuotedText}></a>
     </div>
 
-  focus: ->
-    @_editableNode().focus() if @isMounted()
+  focus: =>
+    @_editableNode().focus()
 
-  _onInput: (event) ->
+  _onInput: (event) =>
     @_dragging = false
     editableNode = @_editableNode()
     editableNode.normalize()
@@ -112,27 +112,26 @@ ContenteditableComponent = React.createClass
     html = @_unapplyHTMLDisplayFilters(editableNode.innerHTML)
     @props.onChange(target: {value: html})
 
-  _onBlur: (event) ->
+  _onBlur: (event) =>
     # The delay here is necessary to see if the blur was caused by us
     # navigating to the toolbar and focusing on the set-url input.
     _.delay =>
-      return unless @isMounted() # Who knows what can happen in 50ms
       @_hideToolbar()
     , 50
 
-  _editableNode: -> @refs.contenteditable.getDOMNode()
+  _editableNode: => React.findDOMNode(@refs.contenteditable)
 
-  _getAllLinks: ->
+  _getAllLinks: =>
     Array.prototype.slice.call(@_editableNode().querySelectorAll("*[href]"))
 
-  _dangerouslySetInnerHTML: ->
+  _dangerouslySetInnerHTML: =>
     __html: @_applyHTMLDisplayFilters(@props.html)
 
-  _applyHTMLDisplayFilters: (html) ->
+  _applyHTMLDisplayFilters: (html) =>
     html = @_removeQuotedTextFromHTML(html) unless @props.mode?.showQuotedText
     return html
 
-  _unapplyHTMLDisplayFilters: (html) ->
+  _unapplyHTMLDisplayFilters: (html) =>
     html = @_addQuotedTextToHTML(html) unless @props.mode?.showQuotedText
     return html
 
@@ -178,17 +177,17 @@ ContenteditableComponent = React.createClass
   # which node is most likely the matching one.
 
   # http://www.w3.org/TR/selection-api/#selectstart-event
-  _setupSelectionListeners: ->
+  _setupSelectionListeners: =>
     @_onSelectionChange = => @_setNewSelectionState()
     document.addEventListener "selectionchange", @_onSelectionChange
 
-  _teardownSelectionListeners: ->
+  _teardownSelectionListeners: =>
     document.removeEventListener("selectionchange", @_onSelectionChange)
 
-  getCurrentSelection: -> _.clone(@_selection ? {})
-  getPreviousSelection: -> _.clone(@_previousSelection ? {})
+  getCurrentSelection: => _.clone(@_selection ? {})
+  getPreviousSelection: => _.clone(@_previousSelection ? {})
 
-  _getRangeInScope: ->
+  _getRangeInScope: =>
     selection = document.getSelection()
     return null if not @_selectionInScope(selection)
     try
@@ -213,9 +212,8 @@ ContenteditableComponent = React.createClass
   # our anchorNodes are divs with nested <br> tags. If we don't do a deep
   # clone then when `isEqualNode` is run it will erroneously return false
   # and our selection restoration will fail
-  _setNewSelectionState: ->
+  _setNewSelectionState: =>
     selection = document.getSelection()
-    return unless @isMounted()
     return if @_checkSameSelection(selection)
 
     range = @_getRangeInScope()
@@ -242,7 +240,7 @@ ContenteditableComponent = React.createClass
     @_refreshToolbarState()
     return @_selection
 
-  _atEndOfContent: (range, selection) ->
+  _atEndOfContent: (range, selection) =>
     if selection.isCollapsed
       lastChild = @_editableNode().lastElementChild
       return false unless lastChild
@@ -256,7 +254,7 @@ ContenteditableComponent = React.createClass
       return (inLastChild or isLastChild) and atEndIndex
     else return false
 
-  _setSelectionSnapshot: (selection) ->
+  _setSelectionSnapshot: (selection) =>
     @_previousSelection = @_selection
     @_selection = selection
 
@@ -265,18 +263,18 @@ ContenteditableComponent = React.createClass
   # happening. This is because dragging may stop outside the scope of
   # this element. Note that the `dragstart` and `dragend` events don't
   # detect text selection. They are for drag & drop.
-  _setupGlobalMouseListener: ->
+  _setupGlobalMouseListener: =>
     @__onMouseDown = _.bind(@_onMouseDown, @)
     @__onMouseMove = _.bind(@_onMouseMove, @)
     @__onMouseUp = _.bind(@_onMouseUp, @)
     window.addEventListener("mousedown", @__onMouseDown)
     window.addEventListener("mouseup", @__onMouseUp)
 
-  _teardownGlobalMouseListener: ->
+  _teardownGlobalMouseListener: =>
     window.removeEventListener("mousedown", @__onMouseDown)
     window.removeEventListener("mouseup", @__onMouseUp)
 
-  _onShowContextualMenu: (event) ->
+  _onShowContextualMenu: (event) =>
     @_hideToolbar()
     event.preventDefault()
 
@@ -290,7 +288,7 @@ ContenteditableComponent = React.createClass
     MenuItem = remote.require('menu-item')
     spellchecker = require('spellchecker')
 
-    apply = (newtext) ->
+    apply = (newtext) =>
       range.deleteContents()
       node = document.createTextNode(newtext)
       range.insertNode(node)
@@ -298,14 +296,14 @@ ContenteditableComponent = React.createClass
       selection.removeAllRanges()
       selection.addRange(range)
 
-    cut = ->
+    cut = =>
       clipboard.writeText(text)
       apply('')
 
-    copy = ->
+    copy = =>
       clipboard.writeText(text)
 
-    paste = ->
+    paste = =>
       apply(clipboard.readText())
 
     menu = new Menu()
@@ -324,7 +322,7 @@ ContenteditableComponent = React.createClass
     menu.append(new MenuItem({ label: 'Paste', click:paste}))
     menu.popup(remote.getCurrentWindow())
       
-  _onMouseDown: (event) ->
+  _onMouseDown: (event) =>
     @_mouseDownEvent = event
     @_mouseHasMoved = false
     window.addEventListener("mousemove", @__onMouseMove)
@@ -337,18 +335,17 @@ ContenteditableComponent = React.createClass
     else
       @_lastMouseDown = Date.now()
 
-  _onDoubleDown: (event) ->
-    return unless @isMounted()
-    editable = @refs.contenteditable.getDOMNode()
+  _onDoubleDown: (event) =>
+    editable = React.findDOMNode(@refs.contenteditable)
     if editable is event.target or editable.contains(event.target)
       @_doubleDown = true
 
-  _onMouseMove: (event) ->
+  _onMouseMove: (event) =>
     if not @_mouseHasMoved
       @_onDragStart(@_mouseDownEvent)
       @_mouseHasMoved = true
 
-  _onMouseUp: (event) ->
+  _onMouseUp: (event) =>
     window.removeEventListener("mousemove", @__onMouseMove)
 
     if @_doubleDown
@@ -373,14 +370,12 @@ ContenteditableComponent = React.createClass
 
     event
 
-  _onDragStart: (event) ->
-    return unless @isMounted()
-    editable = @refs.contenteditable.getDOMNode()
+  _onDragStart: (event) =>
+    editable = React.findDOMNode(@refs.contenteditable)
     if editable is event.target or editable.contains(event.target)
       @_dragging = true
 
-  _onDragEnd: (event) ->
-    return unless @isMounted()
+  _onDragEnd: (event) =>
     if @_dragging
       @_dragging = false
       @_refreshToolbarState()
@@ -395,7 +390,7 @@ ContenteditableComponent = React.createClass
   # collapse - Can either be "end" or "start". When we reset the
   #            selection, we'll collapse the range into a single caret
   #            position
-  _restoreSelection: ({force, collapse}={}) ->
+  _restoreSelection: ({force, collapse}={}) =>
     return if @_dragging
     return if not @_selection?
     return if document.activeElement isnt @_editableNode() and not force
@@ -445,7 +440,7 @@ ContenteditableComponent = React.createClass
 
   # We need to break each node apart and cache since the `selection`
   # object will mutate underneath us.
-  _checkSameSelection: (newSelection) ->
+  _checkSameSelection: (newSelection) =>
     return true if not newSelection?
     return false if not @_selection
     return false if not newSelection.anchorNode? or not newSelection.focusNode?
@@ -485,10 +480,10 @@ ContenteditableComponent = React.createClass
     else
       return false
 
-  _getNodeIndex: (nodeToFind) ->
+  _getNodeIndex: (nodeToFind) =>
     @_findSimilarNodes(nodeToFind).indexOf nodeToFind
 
-  _findSimilarNodes: (nodeToFind) ->
+  _findSimilarNodes: (nodeToFind) =>
     nodeList = []
     treeWalker = document.createTreeWalker @_editableNode()
     while treeWalker.nextNode()
@@ -497,9 +492,9 @@ ContenteditableComponent = React.createClass
 
     return nodeList
 
-  _isEqualNode: ->
+  _isEqualNode: =>
 
-  _linksInside: (selection) ->
+  _linksInside: (selection) =>
     return _.filter @_getAllLinks(), (link) ->
       selection.containsNode(link, true)
 
@@ -515,8 +510,7 @@ ContenteditableComponent = React.createClass
   # 1. When you're hovering over a link
   # 2. When you've arrow-keyed the cursor into a link
   # 3. When you have selected a range of text.
-  __refreshToolbarState: ->
-    return unless @isMounted()
+  __refreshToolbarState: =>
     return if @_dragging or (@_doubleDown and not @state.toolbarVisible)
     if @_linkHoveringOver
       url = @_linkHoveringOver.getAttribute('href')
@@ -551,22 +545,21 @@ ContenteditableComponent = React.createClass
           editAreaWidth: editAreaWidth
 
   # See selection API: http://www.w3.org/TR/selection-api/
-  _selectionInScope: (selection) ->
+  _selectionInScope: (selection) =>
     return false if not selection?
-    return false if not @isMounted()
-    editNode = @refs.contenteditable.getDOMNode()
+    editNode = React.findDOMNode(@refs.contenteditable)
     return (editNode.contains(selection.anchorNode) and
             editNode.contains(selection.focusNode))
 
   CONTENT_PADDING: 15
 
-  _getToolbarPos: (referenceRect) ->
+  _getToolbarPos: (referenceRect) =>
 
     TOP_PADDING = 10
 
     BORDER_RADIUS_PADDING = 15
 
-    editArea = @refs.contenteditable.getDOMNode().getBoundingClientRect()
+    editArea = React.findDOMNode(@refs.contenteditable).getBoundingClientRect()
 
     calcLeft = (referenceRect.left - editArea.left) + referenceRect.width/2
     calcLeft = Math.min(Math.max(calcLeft, @CONTENT_PADDING+BORDER_RADIUS_PADDING), editArea.width - BORDER_RADIUS_PADDING)
@@ -579,18 +572,18 @@ ContenteditableComponent = React.createClass
 
     return [calcLeft, calcTop, editArea.width, toolbarPos]
 
-  _hideToolbar: ->
+  _hideToolbar: =>
     if not @_focusedOnToolbar() and @state.toolbarVisible
       @setState toolbarVisible: false
 
-  _focusedOnToolbar: ->
-    @refs.floatingToolbar.getDOMNode().contains(document.activeElement)
+  _focusedOnToolbar: =>
+    React.findDOMNode(@refs.floatingToolbar).contains(document.activeElement)
 
   # This needs to be in the contenteditable area because we need to first
   # restore the selection before calling the `execCommand`
   #
   # If the url is empty, that means we want to remove the url.
-  _onSaveUrl: (url, linkToModify) ->
+  _onSaveUrl: (url, linkToModify) =>
     if linkToModify?
       linkToModify = @_findSimilarNodes(linkToModify)?[0]?.childNodes[0]
       return if not linkToModify?
@@ -620,7 +613,7 @@ ContenteditableComponent = React.createClass
           document.execCommand("createLink", false, url)
         @_restoreSelection(force: true, collapse: "end")
 
-  _setupLinkHoverListeners: ->
+  _setupLinkHoverListeners: =>
     HOVER_IN_DELAY = 250
     HOVER_OUT_DELAY = 1000
     @_links = {}
@@ -634,7 +627,6 @@ ContenteditableComponent = React.createClass
         @_clearLinkTimeouts()
         @_linkHoveringOver = link
         @_links[link.hoverId].enterTimeout = setTimeout =>
-          return unless @isMounted()
           @_refreshToolbarState()
         , HOVER_IN_DELAY
 
@@ -642,7 +634,6 @@ ContenteditableComponent = React.createClass
         @_clearLinkTimeouts()
         @_linkHoveringOver = null
         @_links[link.hoverId].leaveTimeout = setTimeout =>
-          return unless @isMounted()
           return if @refs.floatingToolbar.isHovering
           @_refreshToolbarState()
         , HOVER_OUT_DELAY
@@ -653,20 +644,20 @@ ContenteditableComponent = React.createClass
       @_links[link.hoverId].enterListener = enterListener
       @_links[link.hoverId].leaveListener = leaveListener
 
-  _clearLinkTimeouts: ->
+  _clearLinkTimeouts: =>
     for hoverId, linkData of @_links
       clearTimeout(linkData.enterTimeout) if linkData.enterTimeout?
       clearTimeout(linkData.leaveTimeout) if linkData.leaveTimeout?
 
-  _onTooltipMouseEnter: ->
+  _onTooltipMouseEnter: =>
     clearTimeout(@_clearTooltipTimeout) if @_clearTooltipTimeout?
 
-  _onTooltipMouseLeave: ->
+  _onTooltipMouseLeave: =>
     @_clearTooltipTimeout = setTimeout =>
       @_refreshToolbarState()
     , 500
 
-  _teardownLinkHoverListeners: ->
+  _teardownLinkHoverListeners: =>
     for hoverId, linkData of @_links
       clearTimeout linkData.enterTimeout
       clearTimeout linkData.leaveTimeout
@@ -679,7 +670,7 @@ ContenteditableComponent = React.createClass
 
   ####### CLEAN PASTE #########
 
-  _onPaste: (evt) ->
+  _onPaste: (evt) =>
     html = evt.clipboardData.getData("text/html") ? ""
     if html.length is 0
       text = evt.clipboardData.getData("text/plain") ? ""
@@ -695,7 +686,7 @@ ContenteditableComponent = React.createClass
     return false
 
   # This is used primarily when pasting text in
-  _sanitizeHtml: (html) ->
+  _sanitizeHtml: (html) =>
     cleanHTML = sanitizeHtml html.replace(/[\n\r]/g, "<br/>"),
       allowedTags: ['p', 'b', 'i', 'em', 'strong', 'a', 'br', 'img', 'ul', 'ol', 'li', 'strike']
       allowedAttributes:
@@ -728,23 +719,26 @@ ContenteditableComponent = React.createClass
 
   ####### QUOTED TEXT #########
 
-  _onToggleQuotedText: ->
+  _onToggleQuotedText: =>
     @props.onChangeMode?(showQuotedText: !@props.mode?.showQuotedText)
 
-  _quotedTextClasses: -> React.addons.classSet
+  _quotedTextClasses: => classNames
     "quoted-text-control": true
     "no-quoted-text": @_htmlQuotedTextStart() is -1
     "show-quoted-text": @props.mode?.showQuotedText
 
-  _htmlQuotedTextStart: ->
+  _htmlQuotedTextStart: =>
     @props.html.search(/(<br\/?>)?(<br\/?>)?<[^>]*gmail_quote/)
 
-  _removeQuotedTextFromHTML: (html) ->
+  _removeQuotedTextFromHTML: (html) =>
     quoteStart = @_htmlQuotedTextStart()
     if quoteStart is -1 then return html
     else return html.substr(0, quoteStart)
 
-  _addQuotedTextToHTML: (innerHTML) ->
+  _addQuotedTextToHTML: (innerHTML) =>
     quoteStart = @_htmlQuotedTextStart()
     if quoteStart is -1 then return innerHTML
     else return (innerHTML + @props.html.substr(quoteStart))
+
+
+module.exports = ContenteditableComponent

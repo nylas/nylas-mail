@@ -1,5 +1,6 @@
 _ = require 'underscore-plus'
 React = require 'react'
+classNames = require 'classnames'
 {Actions, Utils, FocusedContentStore, WorkspaceStore} = require 'inbox-exports'
 {RetinaImg} = require 'ui-components'
 
@@ -65,7 +66,7 @@ MessageToolbarItems = React.createClass
     threadIsSelected: FocusedContentStore.focusedId('thread')?
 
   render: ->
-    classes = React.addons.classSet
+    classes = classNames
       "message-toolbar-items": true
       "hidden": !@state.threadIsSelected
 

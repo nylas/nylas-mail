@@ -5,8 +5,8 @@ _ = require 'underscore-plus'
  ComponentRegistry} = require "inbox-exports"
 
 module.exports =
-RegisteredRegion = React.createClass
-  displayName: 'RegisteredRegion'
+InjectedComponentSet = React.createClass
+  displayName: 'InjectedComponentSet'
 
   propTypes:
     location: React.PropTypes.string.isRequired

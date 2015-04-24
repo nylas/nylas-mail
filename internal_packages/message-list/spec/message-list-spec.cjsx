@@ -197,7 +197,7 @@ describe "MessageList", ->
       false
 
     @message_list = TestUtils.renderIntoDocument(<MessageList />)
-    @message_list_node = @message_list.getDOMNode()
+    @message_list_node = React.findDOMNode(@message_list)
 
   it "renders into the document", ->
     expect(TestUtils.isCompositeComponentWithType(@message_list,
@@ -241,11 +241,8 @@ describe "MessageList", ->
       @message_list.setState
         messages: msgs.concat(draftMessages)
 
-      items = TestUtils.scryRenderedComponentsWithType(@message_list,
-              ComposerItem)
-
-      expect(items.length).toBe 1
-      expect(@message_list._focusDraft).toHaveBeenCalledWith(items[0])
+      expect(@message_list._focusDraft).toHaveBeenCalled()
+      expect(@message_list._focusDraft.mostRecentCall.args[0].props.localId).toEqual(draftMessages[0].id)
 
     it "doesn't focus if we're just navigating through messages", ->
       spyOn(@message_list, "scrollToMessage")
@@ -267,7 +264,6 @@ describe "MessageList", ->
       items = TestUtils.scryRenderedComponentsWithType(@message_list,
               ComposerItem)
       expect(@message_list.state.messages.length).toBe 6
-      expect(@message_list.state.Composer).toEqual ComposerItem
       expect(items.length).toBe 1
 
       expect(items.length).toBe 1

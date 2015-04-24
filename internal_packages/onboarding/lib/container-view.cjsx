@@ -9,28 +9,28 @@ querystring = require 'querystring'
 module.exports =
 ContainerView = React.createClass
 
-  getInitialState: ->
+  getInitialState: =>
     @getStateFromStore()
 
-  getStateFromStore: ->
+  getStateFromStore: =>
     page: OnboardingStore.page()
     error: OnboardingStore.error()
     environment: OnboardingStore.environment()
     connectType: OnboardingStore.connectType()
 
-  componentDidMount: ->
+  componentDidMount: =>
     @unsubscribe = OnboardingStore.listen(@_onStateChanged, @)
 
   # It's important that every React class explicitly stops listening to
   # atom events before it unmounts. Thank you event-kit
   # This can be fixed via a Reflux mixin
-  componentWillUnmount: ->
+  componentWillUnmount: =>
     @unsubscribe() if @unsubscribe
 
-  componentDidUpdate: ->
-    webview = this.refs['connect-iframe']
+  componentDidUpdate: =>
+    webview = @refs['connect-iframe']
     if webview
-      node = webview.getDOMNode()
+      node = React.findDOMNode(webview)
       if node.hasListeners is undefined
         node.addEventListener 'did-start-loading', (e) ->
           if node.hasMobileUserAgent is undefined
@@ -46,13 +46,13 @@ ContainerView = React.createClass
           if node.getUrl().indexOf('cancelled') != -1
             OnboardingActions.moveToPreviousPage()
 
-  render: ->
+  render: =>
     <ReactCSSTransitionGroup transitionName="page">
     {@_pageComponent()}
     <div className="dragRegion" style={"WebkitAppRegion": "drag", position: 'absolute', top:0, left:40, right:0, height: 20, zIndex:100}></div>
     </ReactCSSTransitionGroup>
 
-  _pageComponent: ->
+  _pageComponent: =>
     if @state.error
       alert = <div className="alert alert-danger" role="alert">{@state.error}</div>
     else
@@ -99,8 +99,8 @@ ContainerView = React.createClass
         {
           React.createElement('webview',{
             "ref": "connect-iframe",
-            "key": this.state.page,
-            "src": this._connectWebViewURL()
+            "key": @state.page,
+            "src": @_connectWebViewURL()
           })
         }
         <div className="back" onClick={@_fireMoveToPrevPage}>
@@ -118,7 +118,7 @@ ContainerView = React.createClass
         </div>
       </div>
   
-  _environmentComponent: ->
+  _environmentComponent: =>
     return [] unless atom.inDevMode()
     <div className="environment-selector">
       <select value={@state.environment} onChange={@_fireSetEnvironment}>
@@ -128,35 +128,35 @@ ContainerView = React.createClass
       </select>
     </div>
 
-  _connectWebViewURL: ->
+  _connectWebViewURL: =>
     EdgehillAPI.urlForConnecting(@state.connectType, @state.email)
 
-  _onStateChanged: ->
+  _onStateChanged: =>
     @setState(@getStateFromStore())
 
-  _onValueChange: (event) ->
+  _onValueChange: (event) =>
     changes = {}
     changes[event.target.id] = event.target.value
     @setState(changes)
 
-  _fireDismiss: ->
+  _fireDismiss: =>
     atom.close()
 
-  _fireQuit: ->
+  _fireQuit: =>
     require('ipc').send('command', 'application:quit')
 
-  _fireSetEnvironment: (event) ->
+  _fireSetEnvironment: (event) =>
     OnboardingActions.setEnvironment(event.target.value)
 
-  _fireStart: (e) ->
+  _fireStart: (e) =>
     OnboardingActions.startConnect('inbox')
 
-  _fireAuthAccount: (service) ->
+  _fireAuthAccount: (service) =>
     OnboardingActions.startConnect(service)
 
-  _fireMoveToPage: (page) ->
+  _fireMoveToPage: (page) =>
     OnboardingActions.moveToPage(page)
 
-  _fireMoveToPrevPage: ->
+  _fireMoveToPrevPage: =>
     OnboardingActions.moveToPreviousPage()
 

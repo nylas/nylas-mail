@@ -1,4 +1,5 @@
 React = require "react/addons"
+classNames = require 'classnames'
 ThreadListStore = require './thread-list-store'
 {RetinaImg} = require 'ui-components'
 {Actions, AddRemoveTagsTask, FocusedContentStore} = require "inbox-exports"
@@ -56,7 +57,7 @@ DownButton = React.createClass
     </div>
 
   _classSet: ->
-    React.addons.classSet
+    classNames
       "message-toolbar-arrow": true
       "down": true
       "disabled": @state.disabled
@@ -77,7 +78,7 @@ UpButton = React.createClass
     </div>
 
   _classSet: ->
-    React.addons.classSet
+    classNames
       "message-toolbar-arrow": true
       "up": true
       "disabled": @state.disabled

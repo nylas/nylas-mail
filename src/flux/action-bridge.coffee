@@ -14,7 +14,8 @@ TargetWindows =
 Message =
   DATABASE_STORE_TRIGGER: 'db-store-trigger'
 
-###
+# Public: ActionBridge
+#
 # The ActionBridge has two responsibilities:
 # 1. When you're in a secondary window, the ActionBridge observes all Root actions. When a
 #    Root action is fired, it converts it's payload to JSON, tunnels it to the main window
@@ -26,7 +27,7 @@ Message =
 #    into all of the windows of the application. This is important, because the DatabaseStore
 #    in all secondary windows is a read-replica. Only the DatabaseStore in the main window
 #    of the application consumes persistModel actions and writes changes to the database.
-###
+
 class ActionBridge
   @Role: Role
   @Message: Message

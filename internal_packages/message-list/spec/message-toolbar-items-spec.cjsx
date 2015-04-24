@@ -16,10 +16,10 @@ describe "MessageToolbarItems", ->
 
   it "archives in split mode", ->
     spyOn(WorkspaceStore, "layoutMode").andReturn "split"
-    ReactTestUtils.Simulate.click(@archiveButton.getDOMNode())
+    ReactTestUtils.Simulate.click(React.findDOMNode(@archiveButton))
     expect(Actions.archive).toHaveBeenCalled()
 
   it "archives in list mode", ->
     spyOn(WorkspaceStore, "layoutMode").andReturn "list"
-    ReactTestUtils.Simulate.click(@archiveButton.getDOMNode())
+    ReactTestUtils.Simulate.click(React.findDOMNode(@archiveButton))
     expect(Actions.archive).toHaveBeenCalled()

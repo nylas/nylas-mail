@@ -5,11 +5,11 @@ _ = require 'underscore-plus'
  Actions,
  UndoManager,
  DraftStore,
- FileUploadStore,
- ComponentRegistry} = require 'inbox-exports'
+ FileUploadStore} = require 'inbox-exports'
 
 {ResizableRegion,
- RegisteredRegion,
+ InjectedComponentSet,
+ InjectedComponent,
  RetinaImg} = require 'ui-components'
 
 FileUploads = require './file-uploads'
@@ -25,24 +25,18 @@ ComposerView = React.createClass
   displayName: 'ComposerView'
 
   getInitialState: ->
-    state = @getComponentRegistryState()
-    _.extend state,
-      populated: false
-      to: []
-      cc: []
-      bcc: []
-      body: ""
-      subject: ""
-      showcc: false
-      showbcc: false
-      showsubject: false
-      showQuotedText: false
-      isSending: DraftStore.sendingState(@props.localId)
-    state
+    populated: false
+    to: []
+    cc: []
+    bcc: []
+    body: ""
+    subject: ""
+    showcc: false
+    showbcc: false
+    showsubject: false
+    showQuotedText: false
+    isSending: DraftStore.sendingState(@props.localId)
 
-  getComponentRegistryState: ->
-    AttachmentComponent: ComponentRegistry.findViewByName 'AttachmentComponent'
-    
   componentWillMount: ->
     @_prepareForDraft(@props.localId)
 
@@ -85,9 +79,6 @@ ComposerView = React.createClass
 
   _prepareForDraft: (localId) ->
     @unlisteners = []
-    @unlisteners.push ComponentRegistry.listen (event) =>
-      @setState(@getComponentRegistryState())
-
     return unless localId
 
     # UndoManager must be ready before we call _onDraftChanged for the first time
@@ -195,37 +186,55 @@ ComposerView = React.createClass
                                     tabIndex="109" />
         </div>
 
-        <div className="attachments-area" >
-          {@_fileComponents()}
-          <FileUploads localId={@props.localId} />
-        </div>
-        <RegisteredRegion location="Composer:Footer"
-                          draftLocalId={@props.localId}/>
+        {@_renderFooterRegions()}
       </div>
 
       <div className="composer-action-bar-wrap">
-        <RegisteredRegion className="composer-action-bar-content"
-                          location="Composer:ActionButton"
-                          draftLocalId={@props.localId}>
-
-          <button className="btn btn-toolbar btn-trash" style={order: 100}
-                  data-tooltip="Delete draft"
-                  onClick={@_destroyDraft}><RetinaImg name="toolbar-trash.png" /></button>
-
-          <button className="btn btn-toolbar btn-attach" style={order: 50}
-                  data-tooltip="Attach file"
-                  onClick={@_attachFile}><RetinaImg name="toolbar-attach.png"/></button>
-
-          <div style={order: 0, flex: 1} />
-
-          <button className="btn btn-toolbar btn-emphasis btn-send" style={order: -100}
-                  data-tooltip="Send message"
-                  ref="sendButton"
-                  onClick={@_sendDraft}><RetinaImg name="toolbar-send.png" /> Send</button>
-
-        </RegisteredRegion>
+        {@_renderActionsRegion()}
       </div>
     </div>
+
+  _renderFooterRegions: ->
+    return <div></div> unless @props.localId
+
+    <span>
+      <div className="attachments-area">
+        {
+          (@state.files ? []).map (file) =>
+            <InjectedComponent name="Attachment"
+                                 file={file}
+                                 key={file.filename}
+                                 removable={true}
+                                 messageLocalId={@props.localId} />
+        }
+        <FileUploads localId={@props.localId} />
+      </div>
+      <InjectedComponentSet location="Composer:Footer" draftLocalId={@props.localId}/>
+    </span>
+
+  _renderActionsRegion: ->
+    return <div></div> unless @props.localId
+
+    <InjectedComponentSet className="composer-action-bar-content"
+                      location="Composer:ActionButton"
+                      draftLocalId={@props.localId}>
+
+      <button className="btn btn-toolbar btn-trash" style={order: 100}
+              data-tooltip="Delete draft"
+              onClick={@_destroyDraft}><RetinaImg name="toolbar-trash.png" /></button>
+
+      <button className="btn btn-toolbar btn-attach" style={order: 50}
+              data-tooltip="Attach file"
+              onClick={@_attachFile}><RetinaImg name="toolbar-attach.png"/></button>
+
+      <div style={order: 0, flex: 1} />
+
+      <button className="btn btn-toolbar btn-emphasis btn-send" style={order: -100}
+              data-tooltip="Send message"
+              ref="sendButton"
+              onClick={@_sendDraft}><RetinaImg name="toolbar-send.png" /> Send</button>
+
+    </InjectedComponentSet>
 
   # Focus the composer view. Chooses the appropriate field to start
   # focused depending on the draft type, or you can pass a field as
@@ -246,14 +255,6 @@ ComposerView = React.createClass
   isForwardedMessage: ->
     draft = @_proxy.draft()
     Utils.isForwardedMessage(draft)
-
-  _fileComponents: ->
-    AttachmentComponent = @state.AttachmentComponent
-    (@state.files ? []).map (file) =>
-      <AttachmentComponent file={file}
-                           key={file.filename}
-                           removable={true}
-                           messageLocalId={@props.localId} />
 
   _onDraftChanged: ->
     draft = @_proxy.draft()

@@ -134,7 +134,7 @@ describe "MessageItem", ->
   #     expect( -> ReactTestUtils.findRenderedComponentWithType(@component, EmailFrameStub)).toThrow()
   #
   #   it "should have the `collapsed` class", ->
-  #     expect(@component.getDOMNode().className.indexOf('collapsed') >= 0).toBe(true)
+  #     expect(React.findDOMNode(@component).className.indexOf('collapsed') >= 0).toBe(true)
 
   describe "when displaying detailed headers", ->
     beforeEach ->
@@ -159,7 +159,7 @@ describe "MessageItem", ->
       expect(frame).toBeDefined()
 
     it "should not have the `collapsed` class", ->
-      expect(@component.getDOMNode().className.indexOf('collapsed') >= 0).toBe(false)
+      expect(React.findDOMNode(@component).className.indexOf('collapsed') >= 0).toBe(false)
 
   describe "when the message contains attachments", ->
     beforeEach ->
@@ -236,14 +236,14 @@ describe "MessageItem", ->
     it "should show the `show quoted text` toggle in the off state", ->
       @createComponent()
       toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@component, 'quoted-text-control')
-      expect(toggle.getDOMNode().className.indexOf('show-quoted-text')).toBe(-1)
+      expect(React.findDOMNode(toggle).className.indexOf('show-quoted-text')).toBe(-1)
 
     it "should have the `no quoted text` class if there is no quoted text in the message", ->
       spyOn(Utils, 'quotedTextIndex').andCallFake -> -1
 
       @createComponent()
       toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@component, 'quoted-text-control')
-      expect(toggle.getDOMNode().className.indexOf('no-quoted-text')).not.toBe(-1)
+      expect(React.findDOMNode(toggle).className.indexOf('no-quoted-text')).not.toBe(-1)
 
     it "should be initialized to true if the message contains `Forwarded`...", ->
       @message.body = """
@@ -284,7 +284,7 @@ describe "MessageItem", ->
 
       it "should show the `show quoted text` toggle in the on state", ->
         toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@component, 'quoted-text-control')
-        expect(toggle.getDOMNode().className.indexOf('show-quoted-text') > 0).toBe(true)
+        expect(React.findDOMNode(toggle).className.indexOf('show-quoted-text') > 0).toBe(true)
 
       it "should pass the value into the EmailFrame", ->
         frame = ReactTestUtils.findRenderedComponentWithType(@component, EmailFrameStub)

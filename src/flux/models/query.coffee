@@ -1,11 +1,8 @@
 {Matcher, NullPlaceholder, AttributeJoinedData} = require '../attributes'
 _ = require 'underscore-plus'
 
-###
-# ModelQuery exposes an ActiveRecord-style syntax for building database queries.
+# Database: ModelQuery exposes an ActiveRecord-style syntax for building database queries.
 #
-# @namespace Application
-###
 class ModelQuery
 
   ##

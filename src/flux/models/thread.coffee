@@ -9,10 +9,8 @@ Attributes = require '../attributes'
 Function::getter = (prop, get) ->
   Object.defineProperty @prototype, prop, {get, configurable: yes}
 
-module.exports =
-##
-# @class Thread
-# @namespace Models
+#
+# Public: Thread
 #
 class Thread extends Model
 
@@ -120,3 +118,6 @@ class Thread extends Model
     AddRemoveTagsTask = require '../tasks/add-remove-tags'
     task = new AddRemoveTagsTask(@id, tagIdsToAdd, tagIdsToRemove)
     Actions.queueTask(task)
+
+
+module.exports = Thread

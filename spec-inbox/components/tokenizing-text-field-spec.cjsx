@@ -148,7 +148,7 @@ describe 'TokenizingTextField', ->
       ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'abc'}})
       components = ReactTestUtils.scryRenderedComponentsWithType(@renderedField, Menu.Item)
       menuItem = components[0]
-      ReactTestUtils.Simulate.mouseDown(menuItem.getDOMNode())
+      ReactTestUtils.Simulate.mouseDown(React.findDOMNode(menuItem))
       expect(@propAdd).toHaveBeenCalledWith([participant4])
 
   ['enter', ','].forEach (key) ->

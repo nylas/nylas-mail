@@ -50,7 +50,7 @@ describe "ContenteditableComponent", ->
   describe "when showQuotedText is false", ->
     it "should only display HTML up to the beginning of the quoted text", ->
       @editDiv = ReactTestUtils.findRenderedDOMComponentWithAttr(@componentWithQuote, 'contentEditable')
-      expect(@editDiv.getDOMNode().innerHTML.indexOf('gmail_quote') >= 0).toBe(false)
+      expect(React.findDOMNode(@editDiv).innerHTML.indexOf('gmail_quote') >= 0).toBe(false)
 
   describe "when showQuotedText is true", ->
     beforeEach ->
@@ -63,7 +63,7 @@ describe "ContenteditableComponent", ->
     it "should display all the HTML", ->
       @componentWithQuote.setState(showQuotedText: true)
       @editDiv = ReactTestUtils.findRenderedDOMComponentWithAttr(@componentWithQuote, 'contentEditable')
-      expect(@editDiv.getDOMNode().innerHTML.indexOf('gmail_quote') >= 0).toBe(true)
+      expect(React.findDOMNode(@editDiv).innerHTML.indexOf('gmail_quote') >= 0).toBe(true)
 
   describe "showQuotedText", ->
     it "should default to false", ->
@@ -76,7 +76,7 @@ describe "ContenteditableComponent", ->
 
       @performEdit = (newHTML, component = @componentWithQuote) =>
         editDiv = ReactTestUtils.findRenderedDOMComponentWithAttr(component, 'contentEditable')
-        editDiv.getDOMNode().innerHTML = newHTML
+        React.findDOMNode(editDiv).innerHTML = newHTML
         ReactTestUtils.Simulate.input(editDiv, {target: {value: newHTML}})
 
     describe "when showQuotedText is true", ->

@@ -7,7 +7,7 @@
 #
 # module.exports =
 # ContenteditableToolbar = React.createClass
-#   render: ->
+#   render: =>
 #     style =
 #       display: @state.show and 'initial' or 'none'
 #     <div className="compose-toolbar-wrap" onBlur={@onBlur}>
@@ -21,19 +21,19 @@
 #       </div>
 #     </div>
 #
-#   getInitialState: ->
+#   getInitialState: =>
 #     show: false
 #
-#   componentDidUpdate: (lastProps, lastState) ->
+#   componentDidUpdate: (lastProps, lastState) =>
 #     if !lastState.show and @state.show
-#       @refs.toolbar.getDOMNode().focus()
+#       @refs.toolbar.findDOMNode().focus()
 #
-#   onClick: (event) ->
+#   onClick: (event) =>
 #     cmd = event.currentTarget.getAttribute 'data-command-name'
 #     document.execCommand(cmd, false, null)
 #     true
 #
-#   onBlur: (event) ->
+#   onBlur: (event) =>
 #     target = event.nativeEvent.relatedTarget
 #     if target? and target.getAttribute 'data-command-name'
 #       return

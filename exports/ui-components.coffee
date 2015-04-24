@@ -15,7 +15,8 @@ module.exports =
   MultiselectList: require '../src/components/multiselect-list'
   MultiselectActionBar: require '../src/components/multiselect-action-bar'
   ResizableRegion: require '../src/components/resizable-region'
-  RegisteredRegion: require '../src/components/registered-region'
+  InjectedComponentSet: require '../src/components/injected-component-set'
+  InjectedComponent: require '../src/components/injected-component'
   TokenizingTextField: require '../src/components/tokenizing-text-field'
   FormItem: FormItem
   GeneratedForm: GeneratedForm

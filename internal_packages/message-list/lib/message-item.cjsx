@@ -1,4 +1,5 @@
 React = require 'react'
+classNames = require 'classnames'
 _ = require 'underscore-plus'
 EmailFrame = require './email-frame'
 MessageParticipants = require "./message-participants"
@@ -8,50 +9,49 @@ MessageTimestamp = require "./message-timestamp"
  MessageUtils,
  ComponentRegistry,
  FileDownloadStore} = require 'inbox-exports'
-{RetinaImg,  RegisteredRegion} = require 'ui-components'
+{RetinaImg,
+ InjectedComponentSet,
+ InjectedComponent} = require 'ui-components'
 Autolinker = require 'autolinker'
 remote = require 'remote'
 
 TransparentPixel = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNikAQAACIAHF/uBd8AAAAASUVORK5CYII="
 MessageBodyWidth = 740
 
-module.exports =
-MessageItem = React.createClass
-  displayName: 'MessageItem'
+class MessageItem extends React.Component
+  @displayName = 'MessageItem'
 
-  propTypes:
+  @propTypes =
     thread: React.PropTypes.object.isRequired
     message: React.PropTypes.object.isRequired
     thread_participants: React.PropTypes.arrayOf(React.PropTypes.object)
     collapsed: React.PropTypes.bool
 
-  mixins: [ComponentRegistry.Mixin]
-  components: ['AttachmentComponent']
+  constructor: (@props) ->
+    @state =
+      # Holds the downloadData (if any) for all of our files. It's a hash
+      # keyed by a fileId. The value is the downloadData.
+      downloads: FileDownloadStore.downloadsForFileIds(@props.message.fileIds())
+      showQuotedText: @_isForwardedMessage()
+      detailedHeaders: false
 
-  getInitialState: ->
-    # Holds the downloadData (if any) for all of our files. It's a hash
-    # keyed by a fileId. The value is the downloadData.
-    downloads: FileDownloadStore.downloadsForFileIds(@props.message.fileIds())
-    showQuotedText: @_isForwardedMessage()
-    detailedHeaders: false
-
-  componentDidMount: ->
+  componentDidMount: =>
     @_storeUnlisten = FileDownloadStore.listen(@_onDownloadStoreChange)
 
-  componentWillUnmount: ->
+  componentWillUnmount: =>
     @_storeUnlisten() if @_storeUnlisten
 
-  shouldComponentUpdate: (nextProps, nextState) ->
+  shouldComponentUpdate: (nextProps, nextState) =>
     not Utils.isEqualReact(nextProps, @props) or
     not Utils.isEqualReact(nextState, @state)
 
-  render: ->
+  render: =>
     if @props.collapsed
       @_renderCollapsed()
     else
       @_renderFull()
 
-  _renderCollapsed: ->
+  _renderCollapsed: =>
     <div className={@props.className} onClick={@_toggleCollapsed}>
       <div className="message-item-area">
         <div className="collapsed-from">
@@ -66,7 +66,7 @@ MessageItem = React.createClass
       </div>
     </div>
 
-  _renderFull: ->
+  _renderFull: =>
     <div className={@props.className}>
       <div className="message-item-area">
         {@_renderHeader()}
@@ -78,7 +78,7 @@ MessageItem = React.createClass
       </div>
     </div>
 
-  _renderHeader: ->
+  _renderHeader: =>
     <header className="message-header">
 
       <div className="message-header-right">
@@ -86,7 +86,7 @@ MessageItem = React.createClass
                           isDetailed={@state.detailedHeaders}
                           date={@props.message.date} />
 
-        <RegisteredRegion className="message-indicator"
+        <InjectedComponentSet className="message-indicator"
                           location="MessageIndicator"
                           message={@props.message}/>
 
@@ -107,22 +107,22 @@ MessageItem = React.createClass
 
     </header>
 
-  _renderAttachments: ->
+  _renderAttachments: =>
     attachments = @_attachmentComponents()
     if attachments.length > 0
       <div className="attachments-area">{attachments}</div>
     else
       <div></div>
 
-  _quotedTextClasses: -> React.addons.classSet
+  _quotedTextClasses: => classNames
     "quoted-text-control": true
     'no-quoted-text': (Utils.quotedTextIndex(@props.message.body) is -1)
     'show-quoted-text': @state.showQuotedText
 
-  _renderMessageActionsInline: ->
+  _renderMessageActionsInline: =>
     @_renderMessageActions()
 
-  _renderMessageActionsTooltip: ->
+  _renderMessageActionsTooltip: =>
     return <span></span>
     ## TODO: For now leave blank. There may be an alternative UI in the
     #future.
@@ -130,12 +130,12 @@ MessageItem = React.createClass
     #       onClick={=> @setState detailedHeaders: true}>
     #   <RetinaImg name={"message-show-more.png"}/></span>
 
-  _renderMessageActions: ->
+  _renderMessageActions: =>
     <div className="message-actions-wrap">
       <div className="message-actions-ellipsis" onClick={@_onShowActionsMenu}>
         <RetinaImg name={"message-actions-ellipsis.png"}/>
       </div>
-      <RegisteredRegion className="message-actions"
+      <InjectedComponentSet className="message-actions"
                         location="MessageAction"
                         thread={@props.thread}
                         message={@props.message}>
@@ -148,22 +148,22 @@ MessageItem = React.createClass
         <button className="btn btn-icon" onClick={@_onForward}>
           <RetinaImg name={"message-forward.png"}/>
         </button>
-      </RegisteredRegion>
+      </InjectedComponentSet>
     </div>
 
-  _onReply: ->
+  _onReply: =>
     tId = @props.thread.id; mId = @props.message.id
     Actions.composeReply(threadId: tId, messageId: mId) if (tId and mId)
 
-  _onReplyAll: ->
+  _onReplyAll: =>
     tId = @props.thread.id; mId = @props.message.id
     Actions.composeReplyAll(threadId: tId, messageId: mId) if (tId and mId)
 
-  _onForward: ->
+  _onForward: =>
     tId = @props.thread.id; mId = @props.message.id
     Actions.composeForward(threadId: tId, messageId: mId) if (tId and mId)
 
-  _onReport: (issueType) ->
+  _onReport: (issueType) =>
     {Contact, Message, DatabaseStore, NamespaceStore} = require 'inbox-exports'
 
     draft = new Message
@@ -175,8 +175,8 @@ MessageItem = React.createClass
       namespaceId: NamespaceStore.current().id
       body: @props.message.body
 
-    DatabaseStore.persistModel(draft).then ->
-      DatabaseStore.localIdForModel(draft).then (localId) ->
+    DatabaseStore.persistModel(draft).then =>
+      DatabaseStore.localIdForModel(draft).then (localId) =>
         Actions.sendDraft(localId)
 
         dialog = remote.require('dialog')
@@ -187,7 +187,7 @@ MessageItem = React.createClass
           detail: "The contents of this message have been sent to the Edgehill team and we added to a test suite."
         }
 
-  _onShowOriginal: ->
+  _onShowOriginal: =>
     fs = require 'fs'
     path = require 'path'
     BrowserWindow = remote.require('browser-window')
@@ -204,7 +204,7 @@ MessageItem = React.createClass
           window = new BrowserWindow(width: 800, height: 600, title: "#{@props.message.subject} - RFC822")
           window.loadUrl('file://'+tmpfile)
 
-  _onShowActionsMenu: ->
+  _onShowActionsMenu: =>
     remote = require('remote')
     Menu = remote.require('menu')
     MenuItem = remote.require('menu-item')
@@ -218,7 +218,7 @@ MessageItem = React.createClass
     menu.append(new MenuItem({ label: 'Show Original', click: => @_onShowOriginal()}))
     menu.popup(remote.getCurrentWindow())
 
-  _renderCollapseControl: ->
+  _renderCollapseControl: =>
     if @state.detailedHeaders
       <div className="collapse-control"
            style={top: "4px", left: "-17px"}
@@ -234,7 +234,7 @@ MessageItem = React.createClass
 
   # Eventually, _formatBody will run a series of registered body transformers.
   # For now, it just runs a few we've hardcoded here, which are all synchronous.
-  _formatBody: ->
+  _formatBody: =>
     return "" unless @props.message and @props.message.body
 
     body = @props.message.body
@@ -274,29 +274,30 @@ MessageItem = React.createClass
 
     body
 
-  _toggleQuotedText: ->
+  _toggleQuotedText: =>
     @setState
       showQuotedText: !@state.showQuotedText
 
-  _toggleCollapsed: ->
+  _toggleCollapsed: =>
     Actions.toggleMessageIdExpanded(@props.message.id)
 
-  _formatContacts: (contacts=[]) ->
+  _formatContacts: (contacts=[]) =>
 
-  _attachmentComponents: ->
+  _attachmentComponents: =>
     return [] unless @props.message.body
 
-    AttachmentComponent = @state.AttachmentComponent
     attachments = _.filter @props.message.files, (f) =>
       inBody = f.contentId? and @props.message.body.indexOf(f.contentId) > 0
       not inBody and f.filename.length > 0
 
     attachments.map (file) =>
-      <AttachmentComponent file={file} key={file.id} download={@state.downloads[file.id]}/>
+      <InjectedComponent name="AttachmentComponent" file={file} key={file.id} download={@state.downloads[file.id]}/>
 
-  _isForwardedMessage: ->
+  _isForwardedMessage: =>
     Utils.isForwardedMessage(@props.message)
 
-  _onDownloadStoreChange: ->
+  _onDownloadStoreChange: =>
     @setState
       downloads: FileDownloadStore.downloadsForFileIds(@props.message.fileIds())
+
+module.exports = MessageItem

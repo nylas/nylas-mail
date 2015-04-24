@@ -14,7 +14,7 @@ describe "ContenteditableComponent", ->
     @component = ReactTestUtils.renderIntoDocument(
       <ContenteditableComponent html={html} onChange={@onChange}/>
     )
-    @editableNode = ReactTestUtils.findRenderedDOMComponentWithAttr(@component, 'contentEditable').getDOMNode()
+    @editableNode = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithAttr(@component, 'contentEditable'))
 
   describe "render", ->
     it 'should render into the document', ->

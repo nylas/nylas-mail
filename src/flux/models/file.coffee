@@ -3,8 +3,6 @@ Actions = require '../actions'
 Attributes = require '../attributes'
 _ = require 'underscore-plus'
 
-module.exports =
-
 ##
 # Files are small objects that wrap attachments and other files available via the API.
 #
@@ -34,3 +32,6 @@ class File extends Model
     'contentId': Attributes.String
       modelKey: 'contentId'
       jsonKey: 'content_id'
+
+
+module.exports = File

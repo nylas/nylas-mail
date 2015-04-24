@@ -66,7 +66,9 @@ DraftStore = Reflux.createStore
   # Returns a promise
 
   sessionForLocalId: (localId) ->
-    throw new Error("sessionForLocalId requires a localId") unless localId
+    if not localId
+      console.log((new Error).stack)
+      throw new Error("sessionForLocalId requires a localId")
     @_draftSessions[localId] ?= new DraftStoreProxy(localId)
     @_draftSessions[localId]
 

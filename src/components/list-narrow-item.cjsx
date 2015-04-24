@@ -1,5 +1,6 @@
 _ = require 'underscore-plus'
 React = require 'react/addons'
+classNames = require 'classnames'
 {ComponentRegistry} = require 'inbox-exports'
 
 ThreadListItemMixin = require './thread-list-item-mixin'
@@ -35,7 +36,7 @@ ThreadListNarrowItem = React.createClass
     </div>
 
   _containerClasses: ->
-    React.addons.classSet
+    classNames
       'unread': @props.unread
       'selected': @props.selected
       'thread-list-item': true

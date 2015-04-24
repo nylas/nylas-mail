@@ -1,5 +1,6 @@
 _ = require 'underscore-plus'
 React = require 'react'
+classNames = require 'classnames'
 ListTabular = require './list-tabular'
 Spinner = require './spinner'
 {Actions,
@@ -9,11 +10,10 @@ Spinner = require './spinner'
  NamespaceStore} = require 'inbox-exports'
 EventEmitter = require('events').EventEmitter
 
-module.exports =
-MultiselectList = React.createClass
-  displayName: 'MultiselectList'
+class MultiselectList extends React.Component
+  @displayName = 'MultiselectList'
 
-  propTypes:
+  @propTypes =
     className: React.PropTypes.string.isRequired
     collection: React.PropTypes.string.isRequired
     commands: React.PropTypes.object.isRequired
@@ -21,36 +21,36 @@ MultiselectList = React.createClass
     dataStore: React.PropTypes.object.isRequired
     itemPropsProvider: React.PropTypes.func.isRequired
 
-  getInitialState: ->
-    @_getStateFromStores()
+  constructor: (@props) ->
+    @state = @_getStateFromStores()
 
-  componentDidMount: ->
+  componentDidMount: =>
     @setupForProps(@props)
 
-  componentWillReceiveProps: (newProps) ->
+  componentWillReceiveProps: (newProps) =>
     return if _.isEqual(@props, newProps)
     @teardownForProps()
     @setupForProps(newProps)
     @setState(@_getStateFromStores(newProps))
 
-  componentDidUpdate: (prevProps, prevState) ->
+  componentDidUpdate: (prevProps, prevState) =>
     if prevState.focusedId isnt @state.focusedId or
        prevState.keyboardCursorId isnt @state.keyboardCursorId
 
-      item = @getDOMNode().querySelector(".focused")
-      item ?= @getDOMNode().querySelector(".keyboard-cursor")
-      list = @refs.list.getDOMNode()
+      item = React.findDOMNode(@).querySelector(".focused")
+      item ?= React.findDOMNode(@).querySelector(".keyboard-cursor")
+      list = React.findDOMNode(@refs.list)
       Utils.scrollNodeToVisibleInContainer(item, list)
 
-  componentWillUnmount: ->
+  componentWillUnmount: =>
     @teardownForProps()
 
-  teardownForProps: ->
+  teardownForProps: =>
     return unless @unsubscribers
     unsubscribe() for unsubscribe in @unsubscribers
     @command_unsubscriber.dispose()
 
-  setupForProps: (props) ->
+  setupForProps: (props) =>
     commands = _.extend {},
       'core:focus-item': => @_onEnter()
       'core:select-item': => @_onSelect()
@@ -66,8 +66,8 @@ MultiselectList = React.createClass
 
     checkmarkColumn = new ListTabular.Column
       name: ""
-      resolver: (thread) ->
-        toggle = (event) ->
+      resolver: (thread) =>
+        toggle = (event) =>
           props.dataStore.view().selection.toggle(thread)
           event.stopPropagation()
         <div className="checkmark" onClick={toggle}><div className="inner"></div></div>
@@ -79,7 +79,7 @@ MultiselectList = React.createClass
     @unsubscribers.push FocusedContentStore.listen @_onChange
     @command_unsubscriber = atom.commands.add('body', commands)
 
-  render: ->
+  render: =>
     # IMPORTANT: DO NOT pass inline functions as props. _.isEqual thinks these
     # are "different", and will re-render everything. Instead, declare them with ?=,
     # pass a reference. (Alternatively, ignore these in children's shouldComponentUpdate.)
@@ -93,7 +93,7 @@ MultiselectList = React.createClass
     @itemPropsProvider ?= (item) =>
       props = @props.itemPropsProvider(item)
       props.className ?= ''
-      props.className += " " + React.addons.classSet
+      props.className += " " + classNames
         'selected': item.id in @state.selectedIds
         'focused': @state.showFocus and item.id is @state.focusedId
         'keyboard-cursor': @state.showKeyboardCursor and item.id is @state.keyboardCursorId
@@ -115,7 +115,7 @@ MultiselectList = React.createClass
         <Spinner visible={@state.ready is false} />
       </div>
 
-  _onClickItem: (item, event) ->
+  _onClickItem: (item, event) =>
     if event.metaKey
       @state.dataView.selection.toggle(item)
       if @state.showKeyboardCursor
@@ -127,13 +127,13 @@ MultiselectList = React.createClass
     else
       Actions.focusInCollection({collection: @props.collection, item: item})
 
-  _onEnter: ->
+  _onEnter: =>
     return unless @state.showKeyboardCursor
     item = @state.dataView.getById(@state.keyboardCursorId)
     if item
       Actions.focusInCollection({collection: @props.collection, item: item})
 
-  _onSelect: ->
+  _onSelect: =>
     if @state.showKeyboardCursor and @_visible()
       id = @state.keyboardCursorId
     else
@@ -142,7 +142,7 @@ MultiselectList = React.createClass
     return unless id
     @state.dataView.selection.toggle(@state.dataView.getById(id))
 
-  _onShift: (delta, options = {}) ->
+  _onShift: (delta, options = {}) =>
     if @state.showKeyboardCursor and @_visible()
       id = @state.keyboardCursorId
       action = Actions.focusKeyboardInCollection
@@ -160,7 +160,7 @@ MultiselectList = React.createClass
     if options.select
       @state.dataView.selection.walk({current, next})
 
-  _visible: ->
+  _visible: =>
     if WorkspaceStore.layoutMode() is "list"
       WorkspaceStore.topSheet().root
     else
@@ -170,12 +170,11 @@ MultiselectList = React.createClass
   # Since they're on the same event listner, and the event listeners are
   # unordered, we need a way to push thread list updates later back in the
   # queue.
-  _onChange: -> _.delay =>
-    return unless @isMounted()
+  _onChange: => _.delay =>
     @setState(@_getStateFromStores())
   , 1
 
-  _getStateFromStores: (props) ->
+  _getStateFromStores: (props) =>
     props ?= @props
 
     view = props.dataStore?.view()
@@ -188,3 +187,6 @@ MultiselectList = React.createClass
     keyboardCursorId: FocusedContentStore.keyboardCursorId(props.collection)
     showFocus: !FocusedContentStore.keyboardCursorEnabled()
     showKeyboardCursor: FocusedContentStore.keyboardCursorEnabled()
+
+
+module.exports = MultiselectList

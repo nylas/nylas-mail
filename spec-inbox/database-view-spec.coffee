@@ -116,9 +116,11 @@ describe "DatabaseView", ->
 
     describe "invalidateMetadataFor", ->
       it "should clear cached metadata for just the items whose ids are provided", ->
+        expect(@view._pages[0].metadata).toEqual({'a': 'a-metadata', 'b': 'b-metadata', 'c': 'c-metadata'})
+        expect(@view._pages[1].metadata).toEqual({'d': 'd-metadata', 'e': 'e-metadata', 'f': 'f-metadata'})
         @view.invalidateMetadataFor(['b', 'e'])
-        expect(@view._pages[0].metadata).toEqual({'a': 'a-metadata', 'c': 'c-metadata'})
-        expect(@view._pages[1].metadata).toEqual({'d': 'd-metadata', 'f': 'f-metadata'})
+        expect(@view._pages[0].metadata['b']).toBe(undefined)
+        expect(@view._pages[1].metadata['e']).toBe(undefined)
 
       it "should re-retrieve page metadata for only impacted pages", ->
         spyOn(@view, 'retrievePageMetadata')
