@@ -422,14 +422,16 @@ describe "DraftStore", ->
       expect(DraftStore.trigger).toHaveBeenCalled()
 
     it "closes the window if it's a popout", ->
-      atom.state.mode = "composer"
+      spyOn(atom, "getWindowType").andReturn "composer"
+      spyOn(atom, "isMainWindow").andReturn false
       spyOn(atom, "close")
       waitsForPromise ->
         DraftStore._onSendDraft(draftLocalId).then ->
           expect(atom.close).toHaveBeenCalled()
 
     it "doesn't close the window if it's inline", ->
-      atom.state.mode = "other"
+      spyOn(atom, "getWindowType").andReturn "other"
+      spyOn(atom, "isMainWindow").andReturn false
       spyOn(atom, "close")
       waitsForPromise ->
         DraftStore._onSendDraft(draftLocalId).then ->
@@ -446,7 +448,8 @@ describe "DraftStore", ->
           expect(task.fromPopout).toBe false
 
     it "queues a SendDraftTask with popout info", ->
-      atom.state.mode = "composer"
+      spyOn(atom, "getWindowType").andReturn "composer"
+      spyOn(atom, "isMainWindow").andReturn false
       spyOn(atom, "close")
       spyOn(Actions, "queueTask")
       waitsForPromise ->
@@ -474,7 +477,8 @@ describe "DraftStore", ->
 
     describe "when in the popout composer", ->
       beforeEach ->
-        atom.state.mode = 'composer'
+        spyOn(atom, "getWindowType").andReturn "composer"
+        spyOn(atom, "isMainWindow").andReturn false
         DraftStore._draftSessions = {"abc":{
           draft: ->
             pristine: false
@@ -494,6 +498,7 @@ describe "DraftStore", ->
     describe "when it is in a main window", ->
       beforeEach ->
         @cleanup = jasmine.createSpy('cleanup')
+        spyOn(atom, "isMainWindow").andReturn true
         DraftStore._draftSessions = {"abc":{
           draft: ->
             pristine: false

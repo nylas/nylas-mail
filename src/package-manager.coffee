@@ -260,12 +260,24 @@ class PackageManager
   ###
 
   # Public: Get an {Array} of {String}s of all the available package paths.
-  getAvailablePackagePaths: ->
+  #
+  # If the optional windowType is passed, it will only load packages
+  # that declare that windowType in their package.json
+  getAvailablePackagePaths: (windowType) ->
     packagePaths = []
 
     for packageDirPath in @packageDirPaths
       for packagePath in fs.listSync(packageDirPath)
         packagePaths.push(packagePath) if fs.isDirectorySync(packagePath)
+
+    if windowType
+      packagePaths = _.filter packagePaths, (packagePath) ->
+        try
+          metadataPath = path.join(packagePath, 'package.json')
+          {windowTypes} = JSON.parse(fs.readFileSync(metadataPath)) ? {}
+          return windowType of (windowTypes ? {})
+        catch
+          return false
 
     packagesPath = path.join(@resourcePath, 'node_modules')
     for packageName, packageVersion of @getPackageDependencies()
@@ -323,17 +335,23 @@ class PackageManager
       @activatePackage(packageName) for packageName in packagesToEnable
       null
 
-  loadPackages: ->
+  # If a windowType is passed, we'll only load packages who declare that
+  # windowType as `true` in their package.json file.
+  loadPackages: (windowType) ->
     # Ensure atom exports is already in the require cache so the load time
     # of the first package isn't skewed by being the first to require atom
     require '../exports/atom'
 
-    packagePaths = @getAvailablePackagePaths()
+    packagePaths = @getAvailablePackagePaths(windowType)
+
     packagePaths = packagePaths.filter (packagePath) => not @isPackageDisabled(path.basename(packagePath))
     packagePaths = _.uniq packagePaths, (packagePath) -> path.basename(packagePath)
     @loadPackage(packagePath) for packagePath in packagePaths
     @emit 'loaded'
-    @emitter.emit 'did-load-initial-packages'
+    if windowType
+      @emitter.emit 'did-load-window-packages', windowType
+    else
+      @emitter.emit 'did-load-initial-packages'
 
   loadPackage: (nameOrPath) ->
     return pack if pack = @getLoadedPackage(nameOrPath)
@@ -422,3 +440,6 @@ class PackageManager
     pack.deactivate()
     delete @activePackages[pack.name]
     @emitter.emit 'did-deactivate-package', pack
+
+  refreshWindowProps: (windowProps) ->
+    pack.refreshWindowProps?(windowProps) for pack in @getLoadedPackages()

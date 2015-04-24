@@ -23,7 +23,12 @@ globalActions = [
 
   # Draft actions
   "sendDraftError",
-  "sendDraftSuccess"
+  "sendDraftSuccess",
+
+  # Generic action
+  # Packages can use this action to broadcast custom actions globally to
+  # all windows.
+  "sendToAllWindows"
 ]
 
 # These actions are rebroadcast through the ActionBridge to the

@@ -153,6 +153,9 @@ class Package
 
     Q.all([@grammarsPromise, @settingsPromise, @activationDeferred.promise])
 
+  refreshWindowProps: (windowProps) ->
+    @mainModule?.refreshWindowProps?(windowProps)
+
   activateNow: ->
     try
       @activateConfig()

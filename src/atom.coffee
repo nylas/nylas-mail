@@ -23,26 +23,24 @@ module.exports =
 class Atom extends Model
   @version: 1  # Increment this when the serialization format changes
 
-  # Load or create the Atom environment in the given mode.
-  #
-  # * `mode` A {String} mode that is either 'editor' or 'spec' depending on the
-  #   kind of environment you want to build.
-  #
+  # Load or create the application environment
   # Returns an Atom instance, fully initialized
-  @loadOrCreate: (mode) ->
+  @loadOrCreate: ->
     startTime = Date.now()
-    atom = @deserialize(@loadState(mode)) ? new this({mode, @version})
-    atom.deserializeTimings.atom = Date.now() -  startTime
-    atom
 
-  # Deserializes the Atom environment from a state object
-  @deserialize: (state) ->
-    new this(state) if state?.version is @version
+    savedState = @_loadSavedState()
+    if savedState and savedState?.version is @version
+      app = new this(savedState)
+    else
+      app = new this({@version})
+
+    app.deserializeTimings.app = Date.now() -  startTime
+    return app
 
   # Loads and returns the serialized state corresponding to this window
   # if it exists; otherwise returns undefined.
-  @loadState: (mode) ->
-    statePath = @getStatePath(mode)
+  @_loadSavedState: ->
+    statePath = @getStatePath()
 
     if fs.existsSync(statePath)
       try
@@ -59,15 +57,14 @@ class Atom extends Model
 
   # Returns the path where the state for the current window will be
   # located if it exists.
-  @getStatePath: (mode) ->
-    switch mode
-      when 'spec'
-        filename = 'spec'
-      when 'editor'
-        {initialPath} = @getLoadSettings()
-        if initialPath
-          sha1 = crypto.createHash('sha1').update(initialPath).digest('hex')
-          filename = "editor-#{sha1}"
+  @getStatePath: ->
+    if @getLoadSettings().isSpec
+      filename = 'spec'
+    else
+      {initialPath} = @getLoadSettings()
+      if initialPath
+        sha1 = crypto.createHash('sha1').update(initialPath).digest('hex')
+        filename = "application-#{sha1}"
 
     if filename
       path.join(@getStorageDirPath(), filename)
@@ -88,7 +85,10 @@ class Atom extends Model
 
   # Returns the load settings hash associated with the current window.
   @getLoadSettings: ->
-    @loadSettings ?= JSON.parse(decodeURIComponent(location.search.substr(14)))
+    # We pull from the window object instead of the url so the
+    # loadSettings can change post bootup. This is very useful for
+    # starting hot windows.
+    @loadSettings ?= @getCurrentWindow().loadSettings
     cloned = _.deepClone(@loadSettings)
     # The loadSettings.windowState could be large, request it only when needed.
     cloned.__defineGetter__ 'windowState', =>
@@ -148,9 +148,9 @@ class Atom extends Model
   ###
 
   # Call .loadOrCreate instead
-  constructor: (@state) ->
+  constructor: (@savedState={}) ->
+    {@version} = @savedState
     @emitter = new Emitter
-    {@mode} = @state
     DeserializerManager = require './deserializer-manager'
     @deserializers = new DeserializerManager()
     @deserializeTimings = {}
@@ -238,6 +238,8 @@ class Atom extends Model
 
     @subscribe @packages.onDidActivateInitialPackages => @watchThemes()
     @windowEventHandler = new WindowEventHandler
+
+    ipc.on("refresh-window-props", => @refreshWindowProps())
 
   # Start our error reporting to the backend and attach error handlers
   # to the window and the Bluebird Promise library, converting things
@@ -344,6 +346,11 @@ class Atom extends Model
   ###
   Section: Atom Details
   ###
+  isMainWindow: ->
+    !!@getLoadSettings().mainWindow
+
+  getWindowType: ->
+    @getLoadSettings().windowType
 
   # Public: Is the current window in development mode?
   inDevMode: ->
@@ -456,6 +463,19 @@ class Atom extends Model
   reload: ->
     ipc.send('call-window-method', 'restart')
 
+  # Calls the `reload` method of all packages that are currently loaded
+  refreshWindowProps: ->
+    # This will cause it to get refreshed the next time they're queried
+    @constructor.loadSettings = null
+
+    {width,
+     height,
+     windowProps} = @getLoadSettings()
+
+    @packages.refreshWindowProps(windowProps)
+
+    @setWindowDimensions({width, height}) if width and height
+
   # Extended: Returns a {Boolean} true when the current window is maximized.
   isMaximixed: ->
     @getCurrentWindow().isMaximized()
@@ -528,7 +548,7 @@ class Atom extends Model
     width > 0 and height > 0 and x + width > 0 and y + height > 0
 
   storeDefaultWindowDimensions: ->
-    return unless @mode is 'editor'
+    return unless @isMainWindow()
     dimensions = @getWindowDimensions()
     if @isValidDimensions(dimensions)
       localStorage.setItem("defaultWindowDimensions", JSON.stringify(dimensions))
@@ -552,7 +572,7 @@ class Atom extends Model
       {x: 0, y: 0, width, height}
 
   restoreWindowDimensions: ->
-    dimensions = @state.windowDimensions
+    dimensions = @savedState.windowDimensions
     unless @isValidDimensions(dimensions)
       dimensions = @getDefaultWindowDimensions()
     @setWindowDimensions(dimensions)
@@ -560,10 +580,10 @@ class Atom extends Model
 
   storeWindowDimensions: ->
     dimensions = @getWindowDimensions()
-    @state.windowDimensions = dimensions if @isValidDimensions(dimensions)
+    @savedState.windowDimensions = dimensions if @isValidDimensions(dimensions)
 
   # Call this method when establishing a real application window.
-  startEditorWindow: ->
+  startRootWindow: ->
     {resourcePath, safeMode} = @getLoadSettings()
 
     CommandInstaller = require './command-installer'
@@ -605,8 +625,12 @@ class Atom extends Model
 
   # Call this method when establishing a secondary application window
   # displaying a specific set of packages.
-  startSecondaryWindow: (packages = []) ->
-    {resourcePath, safeMode, width, height} = @getLoadSettings()
+  #
+  startSecondaryWindow: ->
+    {width,
+     height,
+     windowType,
+     windowPackages} = @getLoadSettings()
 
     @loadConfig()
     @inbox.APIToken = atom.config.get('inbox.token')
@@ -615,9 +639,10 @@ class Atom extends Model
     @themes.loadBaseStylesheets()
     @keymaps.loadUserKeymap()
 
-    for pack in packages
-      @packages.loadPackage(pack)
+    @packages.loadPackages(windowType)
+    @packages.loadPackage(pack) for pack in (windowPackages ? [])
     @packages.activate()
+
     @keymaps.loadUserKeymap()
 
     @setWindowDimensions({width, height}) if width and height
@@ -635,8 +660,16 @@ class Atom extends Model
       @hide()
       @displayOnboardingWindow()
 
-  displayComposer: (draftLocalId = null, options={}) ->
-    ipc.send('show-composer-window', _.extend(options, {draftLocalId}))
+  # Requests that the backend browser bootup a new window with the given
+  # options.
+  # See the valid option types in AtomApplication::newWindow in
+  # src/browser/edgehill-application.coffee
+  newWindow: (options={}) -> ipc.send('new-window', options)
+
+  # Registers a hot window for certain packages
+  # See the valid option types in AtomApplication::registerHotWindow in
+  # src/browser/edgehill-application.coffee
+  registerHotWindow: (options={}) -> ipc.send('register-hot-window', options)
 
   displayOnboardingWindow: (page = false) ->
     options =
@@ -646,13 +679,13 @@ class Atom extends Model
       width: 340
       height: 550
       resizable: false
-      windowName: 'onboarding'
+      windowType: 'onboarding'
       windowPackages: ['onboarding']
-    ipc.send('show-secondary-window', options)
+    ipc.send('new-window', options)
 
   unloadEditorWindow: ->
     @packages.deactivatePackages()
-    @state.packageStates = @packages.packageStates
+    @savedState.packageStates = @packages.packageStates
     @saveSync()
     @windowState = null
 
@@ -756,8 +789,8 @@ class Atom extends Model
     document.querySelector(@workspaceViewParentSelector).appendChild(@item)
 
   deserializePackageStates: ->
-    @packages.packageStates = @state.packageStates ? {}
-    delete @state.packageStates
+    @packages.packageStates = @savedState.packageStates ? {}
+    delete @savedState.packageStates
 
   deserializeEditorWindow: ->
     @deserializePackageStates()
@@ -793,8 +826,8 @@ class Atom extends Model
     dialog.showSaveDialog(parentWindow, {title: 'Save File', defaultPath}, callback)
 
   saveSync: ->
-    stateString = JSON.stringify(@state)
-    if statePath = @constructor.getStatePath(@mode)
+    stateString = JSON.stringify(@savedState)
+    if statePath = @constructor.getStatePath()
       fs.writeFileSync(statePath, stateString, 'utf8')
     else
       @getCurrentWindow().loadSettings.windowState = stateString

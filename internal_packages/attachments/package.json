@@ -9,5 +9,8 @@
     "atom": "*"
   },
   "dependencies": {
+  },
+  "windowTypes": {
+    "composer": true
   }
 }

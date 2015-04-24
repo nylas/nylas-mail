@@ -7,6 +7,8 @@ RetinaImg = require './retina-img'
 {DragDropMixin} = require 'react-dnd'
 
 Token = React.createClass
+  displayName: "Token"
+
   mixins: [DragDropMixin]
   propTypes:
     selected: React.PropTypes.bool,
@@ -44,24 +46,109 @@ Token = React.createClass
     event.preventDefault()
 
 
+###
+The TokenizingTextField component displays a list of options as you type
+and converts them into stylable tokens.
+
+It wraps the Menu component, which takes care of the typing and keyboard
+interactions.
+
+See documentation on the propTypes for usage info.
+
+###
 module.exports =
 TokenizingTextField = React.createClass
-  mixins: [DragDropMixin]
+  displayName: "TokenizingTextField"
 
   propTypes:
-    className: React.PropTypes.string,
-    prompt: React.PropTypes.string,
-    tokens: React.PropTypes.arrayOf(React.PropTypes.object),
-    tokenKey: React.PropTypes.func.isRequired,
-    tokenContent: React.PropTypes.func.isRequired,
-    completionContent: React.PropTypes.func.isRequired,
-    completionsForInput: React.PropTypes.func.isRequired
 
-    # called with an array of items to add
-    add: React.PropTypes.func.isRequired,
-    # called with an array of items to remove
-    remove: React.PropTypes.func.isRequired,
-    showMenu: React.PropTypes.func,
+    # An array of current tokens.
+    #
+    # A token is usually an object type like a
+    # `Contact` or a `SalesforceObject`. The set of tokens is stored as a
+    # prop instead of `state`. This means that when the set of tokens
+    # needs to be changed, it is the parent's responsibility to make that
+    # change.
+    tokens: React.PropTypes.arrayOf(React.PropTypes.object)
+
+    # A unique ID for each token object
+    #
+    # A function that, given an object used for tokens, returns a unique
+    # id (key) for that object.
+    #
+    # This is necessary for React to assign each of the subitems and
+    # unique key.
+    tokenKey: React.PropTypes.func.isRequired
+
+    # What each token looks like
+    #
+    # A function that is passed an object and should return React elements
+    # to display that individual token.
+    tokenNode: React.PropTypes.func.isRequired
+
+    # The function responsible for providing a list of possible options
+    # given the current input.
+    #
+    # It takes the current input as a value and should return an array of
+    # candidate objects. These objects must be the same type as are passed
+    # to the `tokens` prop.
+    onRequestCompletions: React.PropTypes.func.isRequired
+
+    # What each suggestion looks like.
+    #
+    # This is passed through to the Menu component's `itemContent` prop.
+    # See components/menu.cjsx for more info.
+    completionNode: React.PropTypes.func.isRequired
+
+    # If the onRequestCompletions function is asynchronous, the parent will
+    # have to pass in the correct completions as new props.
+    initialCompletions: React.PropTypes.array
+
+    # Gets called when we we're ready to add whatever it is we're
+    # completing
+    #
+    # It's either passed an array of objects (the same ones used to
+    # render tokens)
+    #
+    # OR
+    #
+    # It's passed the string currently in the input field. The string case
+    # happens on paste and blur.
+    #
+    # The function doesn't need to return anything, but it is generally
+    # responible for mutating the parent's state in a way that eventually
+    # updates this component's `tokens` prop.
+    onAdd: React.PropTypes.func.isRequired
+
+    # Gets called when we remove a token
+    #
+    # It's passed an array of objects (the same ones used to render
+    # tokens)
+    #
+    # The function doesn't need to return anything, but it is generally
+    # responible for mutating the parent's state in a way that eventually
+    # updates this component's `tokens` prop.
+    onRemove: React.PropTypes.func.isRequired
+
+    # Called when we remove and there's nothing left to remove
+    onEmptied: React.PropTypes.func
+
+    # Gets called when the secondary action of the token gets invoked.
+    onTokenAction: React.PropTypes.func
+
+    # The tabIndex of the input item
+    tabIndex: React.PropTypes.oneOfType([
+      React.PropTypes.number
+      React.PropTypes.string
+    ])
+
+    # A Prompt used in the head of the menu
+    menuPrompt: React.PropTypes.string
+
+    # A classSet hash applied to the Menu item
+    menuClassSet: React.PropTypes.object
+
+  mixins: [DragDropMixin]
 
   statics:
     configureDragDrop: (registerType) ->
@@ -72,7 +159,7 @@ TokenizingTextField = React.createClass
       })
 
   getInitialState: ->
-    completions: []
+    completions: @props.initialCompletions ? []
     inputValue: ""
     selectedTokenKey: null
 
@@ -93,6 +180,9 @@ TokenizingTextField = React.createClass
   componentWillUnmount: ->
     @subscriptions?.dispose()
 
+  componentWillReceiveProps: (nextProps) ->
+    @setState completions: nextProps.initialCompletions ? []
+
   componentDidUpdate: ->
     # Measure the width of the text in the input and
     # resize the input field to fit.
@@ -106,24 +196,24 @@ TokenizingTextField = React.createClass
   render: ->
     {Menu} = require 'ui-components'
 
-    classes = React.addons.classSet _.extend (@props.classSet ? {}),
+    classes = React.addons.classSet _.extend (@props.menuClassSet ? {}),
       "tokenizing-field": true
       "focused": @state.focus
       "native-key-bindings": true
-      "empty": @state.inputValue.trim().length is 0
+      "empty": (@state.inputValue ? "").trim().length is 0
       "has-suggestions": @state.completions.length > 0
 
     <Menu className={classes} ref="completions"
           items={@state.completions}
           itemKey={ (item) -> item.id }
-          itemContent={@props.completionContent}
+          itemContent={@props.completionNode}
           headerComponents={[@_fieldComponent()]}
           onSelect={@_addToken}
           />
 
   _fieldComponent: ->
     <div key="field-component" onClick={@focus} {...@dropTargetFor('token')}>
-      <div className="tokenizing-field-label">{"#{@props.prompt}:"}</div>
+      {@_renderPrompt()}
       <div className="tokenizing-field-input">
         {@_fieldTokenComponents()}
 
@@ -145,14 +235,20 @@ TokenizingTextField = React.createClass
       </div>
     </div>
 
+  _renderPrompt: ->
+    if @props.menuPrompt
+      <div className="tokenizing-field-label">{"#{@props.menuPrompt}:"}</div>
+    else
+      <div></div>
+
   _fieldTokenComponents: ->
     @props.tokens.map (item) =>
       <Token item={item}
              key={@props.tokenKey(item)}
              select={@_selectToken}
-             action={@props.showMenu || @_showDefaultTokenMenu}
+             action={@props.onTokenAction || @_showDefaultTokenMenu}
              selected={@state.selectedTokenKey is @props.tokenKey(item)}>
-        {@props.tokenContent(item)}
+        {@props.tokenNode(item)}
       </Token>
 
   # Maintaining Input State
@@ -177,7 +273,7 @@ TokenizingTextField = React.createClass
 
   _clearInput: ->
     @setState
-      completions: []
+      completions: @_getCompletions("", clear: true)
       inputValue: ""
 
   focus: ->
@@ -187,7 +283,7 @@ TokenizingTextField = React.createClass
 
   _addInputValue: (input) ->
     input ?= @state.inputValue
-    @props.add(input)
+    @props.onAdd(input)
     @_clearInput()
 
   _selectToken: (token) ->
@@ -200,13 +296,13 @@ TokenizingTextField = React.createClass
 
   _addToken: (token) ->
     return unless token
-    @props.add([token])
+    @props.onAdd([token])
     @_clearInput()
     @focus()
 
   _removeToken: (token = null) ->
-    if @state.inputValue.trim().length is 0 and @props.tokens.length is 0 and @props.onRemove?
-      @props.onRemove()
+    if @state.inputValue.trim().length is 0 and @props.tokens.length is 0 and @props.onEmptied?
+      @props.onEmptied()
 
     if token
       tokenToDelete = token
@@ -216,7 +312,7 @@ TokenizingTextField = React.createClass
       @_selectToken(@props.tokens[@props.tokens.length - 1])
 
     if tokenToDelete
-      @props.remove([tokenToDelete])
+      @props.onRemove([tokenToDelete])
       if @props.tokenKey(tokenToDelete) is @state.selectedTokenKey
         @setState
           selectedTokenKey: null
@@ -238,7 +334,7 @@ TokenizingTextField = React.createClass
 
   _onCut: (event) ->
     if @state.selectedTokenKey
-      event.clipboardData.setData('text/plain', @props.tokenKey(@_selectedToken()))
+      event.clipboardData?.setData('text/plain', @props.tokenKey(@_selectedToken()))
       event.preventDefault()
       @_removeToken(@_selectedToken())
 
@@ -254,8 +350,16 @@ TokenizingTextField = React.createClass
 
   # Managing Suggestions
 
-  _getCompletions: (val = @state.inputValue) ->
+  _getCompletions: (val = @state.inputValue, {clear}={}) ->
     existingKeys = _.map(@props.tokens, @props.tokenKey)
-    tokens = @props.completionsForInput(val)
-    _.reject tokens, (t) => @props.tokenKey(t) in existingKeys
+    tokens = @props.onRequestCompletions(val, {clear})
+    if _.isArray(tokens)
+      _.reject tokens, (t) => @props.tokenKey(t) in existingKeys
+    else
+      # This case commonly happens when @props.onRequestCompletions returns
+      # a Promise object. In this case we can't synchronously return the
+      # new completion objects. Instead we need to wait for the parent to
+      # finish what it's doing and set the `initialCompletions` props.
+      if clear then return []
+      else return @props.initialCompletions ? []
 

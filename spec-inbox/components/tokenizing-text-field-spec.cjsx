@@ -45,29 +45,32 @@ describe 'TokenizingTextField', ->
     @completions = []
     @propAdd = jasmine.createSpy 'add'
     @propRemove = jasmine.createSpy 'remove'
-    @propTokenKey = (p) -> p.email
-    @propTokenContent = (p) -> <CustomToken item={p} />
+    @propEmptied = jasmine.createSpy 'emptied'
+    @propTokenKey = jasmine.createSpy("tokenKey").andCallFake (p) -> p.email
+    @propTokenNode = (p) -> <CustomToken item={p} />
+    @propOnTokenAction = jasmine.createSpy 'tokenAction'
+    @propCompletionNode = (p) -> <CustomSuggestion item={p} />
     @propCompletionsForInput = (input) => @completions
-    @propCompletionContent = (p) -> <CustomSuggestion item={p} />
 
-    spyOn(@, 'propCompletionContent').andCallThrough()
+    spyOn(@, 'propCompletionNode').andCallThrough()
     spyOn(@, 'propCompletionsForInput').andCallThrough()
 
-    @fieldName = 'to'
     @tabIndex = 100
     @tokens = [participant1, participant2, participant3]
 
     @renderedField = ReactTestUtils.renderIntoDocument(
       <TokenizingTextField
-        name={@fieldName}
-        tabIndex={@tabIndex}
         tokens={@tokens}
         tokenKey={@propTokenKey}
-        tokenContent={@propTokenContent}
-        completionsForInput={@propCompletionsForInput}
-        completionContent={@propCompletionContent}
-        add={@propAdd}
-        remove={@propRemove} />
+        tokenNode={@propTokenNode}
+        onRequestCompletions={@propCompletionsForInput}
+        completionNode={@propCompletionNode}
+        onAdd={@propAdd}
+        onRemove={@propRemove}
+        onEmptied={@propEmptied}
+        onTokenAction={@propOnTokenAction}
+        tabIndex={@tabIndex}
+        />
     )
     @renderedInput = ReactTestUtils.findRenderedDOMComponentWithTag(@renderedField, 'input').getDOMNode()
 
@@ -77,7 +80,7 @@ describe 'TokenizingTextField', ->
   it 'applies the tabIndex provided to the inner input', ->
     expect(@renderedInput.tabIndex).toBe(@tabIndex)
 
-  it 'shows the tokens provided by the tokenContent method', ->
+  it 'shows the tokens provided by the tokenNode method', ->
     @renderedTokens = ReactTestUtils.scryRenderedComponentsWithType(@renderedField, CustomToken)
     expect(@renderedTokens.length).toBe(@tokens.length)
 
@@ -85,6 +88,20 @@ describe 'TokenizingTextField', ->
     @renderedTokens = ReactTestUtils.scryRenderedComponentsWithType(@renderedField, CustomToken)
     for i in [0..@tokens.length-1]
       expect(@renderedTokens[i].props.item).toBe(@tokens[i])
+
+  describe "When the user selects a token", ->
+    beforeEach ->
+      token = ReactTestUtils.scryRenderedDOMComponentsWithClass(@renderedField, 'token')[0]
+      ReactTestUtils.Simulate.click(token)
+
+    it "should mark the token as focused", ->
+      expect(@propTokenKey).toHaveBeenCalledWith(participant1)
+
+    it "should set the selectedTokenKeyState", ->
+      expect(@renderedField.state.selectedTokenKey).toBe participant1.email
+
+    it "should return the appropriate token objet", ->
+      expect(@renderedField._selectedToken()).toBe participant1
 
   describe "when focused", ->
     it 'should receive the `focused` class', ->
@@ -95,7 +112,12 @@ describe 'TokenizingTextField', ->
   describe "when the user types in the input", ->
     it 'should fetch completions for the text', ->
       ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'abc'}})
-      expect(@propCompletionsForInput).toHaveBeenCalledWith('abc')
+      expect(@propCompletionsForInput.calls[0].args[0]).toBe('abc')
+
+    it 'should fetch completions on focus', ->
+      @renderedField.setState inputValue: "abc"
+      ReactTestUtils.Simulate.focus(@renderedInput)
+      expect(@propCompletionsForInput.calls[0].args[0]).toBe('abc')
 
     it 'should display the completions', ->
       @completions = [participant4, participant5]
@@ -171,4 +193,51 @@ describe 'TokenizingTextField', ->
       expect(ReactTestUtils.scryRenderedDOMComponentsWithClass(@renderedField, 'focused').length).toBe(1)
       ReactTestUtils.Simulate.blur(@renderedInput)
       expect(ReactTestUtils.scryRenderedDOMComponentsWithClass(@renderedField, 'focused').length).toBe(0)
+
+
+  describe "When the user removes a token", ->
+
+    it "deletes with the backspace key", ->
+      spyOn(@renderedField, "_removeToken")
+      InboxTestUtils.keyPress("backspace", @renderedInput)
+      expect(@renderedField._removeToken).toHaveBeenCalled()
+
+    describe "when removal is passed in a token object", ->
+      it "asks to removes that participant", ->
+        @renderedField._removeToken(participant1)
+        expect(@propRemove).toHaveBeenCalledWith([participant1])
+        expect(@propEmptied).not.toHaveBeenCalled()
+
+    describe "when no token is selected", ->
+      it "selects the last token first and doesn't remove", ->
+        @renderedField._removeToken()
+        expect(@renderedField._selectedToken()).toBe participant3
+        expect(@propRemove).not.toHaveBeenCalled()
+        expect(@propEmptied).not.toHaveBeenCalled()
+
+    describe "when a token is selected", ->
+      beforeEach ->
+        @renderedField.setState selectedTokenKey: participant1.email
+
+      it "removes that token and deselects", ->
+        @renderedField._removeToken()
+        expect(@propRemove).toHaveBeenCalledWith([participant1])
+        expect(@renderedField._selectedToken()).toBeUndefined()
+        expect(@propEmptied).not.toHaveBeenCalled()
+
+      it "removes on cut when a token is selected", ->
+        @renderedField._onCut({preventDefault: -> })
+        expect(@propRemove).toHaveBeenCalledWith([participant1])
+        expect(@renderedField._selectedToken()).toBeUndefined()
+        expect(@propEmptied).not.toHaveBeenCalled()
+
+    describe "when there are no tokens left", ->
+      it "fires onEmptied", ->
+        newProps = _.clone @renderedField.props
+        newProps.tokens = []
+        emptyField = ReactTestUtils.renderIntoDocument(
+          React.createElement(TokenizingTextField, newProps)
+        )
+        emptyField._removeToken()
+        expect(@propEmptied).toHaveBeenCalled()
 

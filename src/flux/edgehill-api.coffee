@@ -5,6 +5,7 @@ DatabaseStore = require './stores/database-store'
 PriorityUICoordinator = require '../priority-ui-coordinator'
 {modelFromJSON} = require './models/utils'
 async = require 'async'
+SALESFORCE_PROXY_ROOT = "/proxy/salesforce/services/data/v33.0"
 
 class EdgehillAPI
 
@@ -16,7 +17,7 @@ class EdgehillAPI
   _onConfigChanged: =>
     env = atom.config.get('env')
     if env is 'development'
-      @APIRoot = "https://edgehill-dev.nilas.com"
+      @APIRoot = "http://localhost:5009"
     else if env is 'staging'
       @APIRoot = "https://edgehill-staging.nilas.com"
     else
@@ -25,7 +26,10 @@ class EdgehillAPI
   request: (options={}) ->
     return if atom.getLoadSettings().isSpec
     options.method ?= 'GET'
-    options.url ?= "#{@APIRoot}#{options.path}" if options.path
+    if options.proxyPath
+      options.url ?= "#{@APIRoot}#{SALESFORCE_PROXY_ROOT}/#{options.proxyPath}"
+    else
+      options.url ?= "#{@APIRoot}#{options.path}" if options.path
     options.body ?= {} unless options.formData
     options.json = true
 

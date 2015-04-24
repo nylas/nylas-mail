@@ -1,5 +1,6 @@
 _ = require 'underscore-plus'
 moment = require 'moment'
+ipc = require 'ipc'
 
 Reflux = require 'reflux'
 DraftStoreProxy = require './draft-store-proxy'
@@ -36,6 +37,9 @@ DraftStore = Reflux.createStore
     @listenTo Actions.composePopoutDraft, @_onComposePopoutDraft
     @listenTo Actions.composeNewBlankDraft, @_onComposeNewBlankDraft
 
+    atom.commands.add 'body',
+      'application:new-message': => @_onComposeNewBlankDraft()
+
     @listenTo Actions.sendDraft, @_onSendDraft
     @listenTo Actions.destroyDraft, @_onDestroyDraft
 
@@ -48,6 +52,10 @@ DraftStore = Reflux.createStore
     @_draftSessions = {}
     @_sendingState = {}
     @_extensions = []
+
+    ipc.on 'mailto', (mailToJSON) =>
+      return unless atom.isMainWindow()
+      atom.newWindow @_composerWindowProps(draftInitialJSON: mailToJSON)
 
     # TODO: Doesn't work if we do window.addEventListener, but this is
     # fragile. Pending an Atom fix perhaps?
@@ -83,9 +91,10 @@ DraftStore = Reflux.createStore
     draft = @_draftSessions[localId].draft()
     Actions.queueTask(new DestroyDraftTask(localId)) if draft.pristine
 
-    if atom.state.mode is "composer"
+    if atom.getWindowType() is "composer"
       atom.close()
-    else
+
+    if atom.isMainWindow()
       @_draftSessions[localId].cleanup()
       delete @_draftSessions[localId]
 
@@ -249,10 +258,15 @@ DraftStore = Reflux.createStore
   # about:blank instead of its contents. By moving the DB logic there, we can
   # get around this.
   _onComposeNewBlankDraft: ->
-    atom.displayComposer()
+    atom.newWindow @_composerWindowProps()
 
   _onComposePopoutDraft: (draftLocalId) ->
-    atom.displayComposer(draftLocalId)
+    atom.newWindow @_composerWindowProps(draftLocalId: draftLocalId)
+
+  _composerWindowProps: (props={}) ->
+    title: "Message"
+    windowType: "composer"
+    windowProps: _.extend {}, props, createNew: true
 
   _onDestroyDraft: (draftLocalId) ->
     # Immediately reset any pending changes so no saves occur
@@ -279,7 +293,7 @@ DraftStore = Reflux.createStore
         # Immediately save any pending changes so we don't save after sending
         session.changes.commit().then =>
           # Queue the task to send the draft
-          fromPopout = atom.state.mode is "composer"
+          fromPopout = atom.getWindowType() is "composer"
           Actions.queueTask(new SendDraftTask(draftLocalId, fromPopout: fromPopout))
 
           # Clean up session, close window

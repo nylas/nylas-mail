@@ -1,5 +1,9 @@
 # All Inbox Globals go here.
 
+{FormItem,
+ GeneratedForm,
+ GeneratedFieldset} = require ('../src/components/generated-form')
+
 module.exports =
   # Models
   Menu: require '../src/components/menu'
@@ -13,4 +17,7 @@ module.exports =
   ResizableRegion: require '../src/components/resizable-region'
   RegisteredRegion: require '../src/components/registered-region'
   TokenizingTextField: require '../src/components/tokenizing-text-field'
+  FormItem: FormItem
+  GeneratedForm: GeneratedForm
+  GeneratedFieldset: GeneratedFieldset
   EventedIFrame: require '../src/components/evented-iframe'

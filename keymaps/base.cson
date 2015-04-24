@@ -220,11 +220,13 @@
 # autocomplete suggestions
 '.tokenizing-field input':
   'backspace': 'native!'
+  'delete': 'native!'
   'tab': 'native!'
   ',': 'native!'
 
 '.tokenizing-field.empty input':
   'backspace': 'tokenizing-field:remove'
+  'delete': 'tokenizing-field:remove'
 
 # When we found a name to suggest
 '.tokenizing-field.has-suggestions input':

@@ -43,6 +43,34 @@ Spinner = React.createClass
     , 300
 
   render: ->
+    if @props.withCover
+      @_renderDotsWithCover()
+    else
+      @_renderSpinnerDots()
+
+  # This displays an extra div that's a partially transparent white cover.
+  # If you don't want to make your own background for the loading state,
+  # this is a convenient default.
+  _renderDotsWithCover: ->
+    coverClasses = React.addons.classSet
+      "spinner-cover": true
+      "hidden": @state.hidden
+
+    style = _.extend @props.style ? {},
+      'position':'absolute'
+      'display': if @state.hidden then "none" else "block"
+      'top': '0'
+      'left': '0'
+      'width': '100%'
+      'height': '100%'
+      'background': 'rgba(255,255,255,0.9)'
+      'zIndex': @props.zIndex ? 1000
+
+    <div className={coverClasses} style={style}>
+      {@_renderSpinnerDots()}
+    </div>
+
+  _renderSpinnerDots: ->
     spinnerClass = React.addons.classSet
       'spinner': true
       'hidden': @state.hidden
@@ -52,6 +80,7 @@ Spinner = React.createClass
       'position':'absolute'
       'left': '50%'
       'top': '50%'
+      'zIndex': @props.zIndex+1 ? 1001
       'transform':'translate(-50%,-50%);'
 
     otherProps = _.omit(@props, _.keys(@constructor.propTypes))

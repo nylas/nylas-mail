@@ -111,7 +111,7 @@ class DatabasePromiseTransaction
 ###
 DatabaseStore = Reflux.createStore
   init: ->
-    @_root = (atom.state.mode == 'editor')
+    @_root = atom.isMainWindow()
     @_localIdLookupCache = {}
     @_db = null
 

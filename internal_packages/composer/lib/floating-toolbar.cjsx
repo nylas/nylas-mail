@@ -164,7 +164,7 @@ FloatingToolbar = React.createClass
     TOOLBAR_URL_WIDTH = 210#px
 
     # If we have a long link, we want to make a larger text area. It's not
-    # super important to get the lenght exactly so let's just get within
+    # super important to get the length exactly so let's just get within
     # the ballpark by guessing charcter lengths
     WIDTH_PER_CHAR = 11
     max = @props.editAreaWidth - (@props.contentPadding ? 15)*2

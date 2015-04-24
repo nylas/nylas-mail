@@ -1,6 +1,5 @@
 _ = require 'underscore-plus'
 React = require 'react'
-ipc = require 'ipc'
 
 {NamespaceStore,
  DatabaseStore,
@@ -14,43 +13,47 @@ module.exports =
   item: null # The DOM item the main React component renders into
 
   activate: (@state={}) ->
+
+    atom.registerHotWindow
+      windowType: "composer"
+      replenishNum: 2
+
     # Register our composer as the app-wide Composer
     ComponentRegistry.register
       name: 'Composer'
       view: ComposerView
 
-    if atom.state.mode is 'editor'
+    if atom.isMainWindow()
       @_activateComposeButton()
-
     else
-      if @item? then return # Activate once
-      @item = document.createElement("div")
-      @item.setAttribute("id", "composer-full-window")
-      @item.setAttribute("class", "composer-full-window")
-      document.body.appendChild(@item)
+      windowProps = atom.getLoadSettings().windowProps ? {}
+      @refreshWindowProps(windowProps)
 
-      component = React.render(<ComposerView mode="fullwindow" />, @item)
+  refreshWindowProps: (windowProps) ->
+    return unless windowProps.createNew
 
-      # Wait for the remaining state to be passed into the window
-      # from our parent. We need to wait for state because the windows are
-      # preloaded so they open instantly, so we don't have data initially
-      ipc.on 'composer-state', (optionsJSON) =>
-        options = JSON.parse(optionsJSON)
-        @_createDraft(options).then (draftLocalId) =>
-          component.setProps {localId: draftLocalId}, =>
-            @_showInitialErrorDialog(options.error)  if options.error?
+    if @item? then return # Activate once
+    @item = document.createElement("div")
+    @item.setAttribute("id", "composer-full-window")
+    @item.setAttribute("class", "composer-full-window")
+    document.body.appendChild(@item)
 
-        .catch (error) -> console.error(error)
+    @_prepareDraft(windowProps).then (draftLocalId) =>
+      React.render(
+        <ComposerView mode="fullwindow" localId={draftLocalId} />, @item
+      )
+    .catch (error) ->
+      console.error(error.stack)
 
   deactivate: ->
-    if atom.state.mode is 'composer'
-      React.unmountComponentAtNode(@item)
-      @item.remove()
-      @item = null
-    else
+    if atom.isMainWindow()
       React.unmountComponentAtNode(@new_compose_button)
       @new_compose_button.remove()
       @new_compose_button = null
+    else
+      React.unmountComponentAtNode(@item)
+      @item.remove()
+      @item = null
 
   serialize: -> @state
 
@@ -59,7 +62,7 @@ module.exports =
   # requests firing right before the new-window loaded would cause the
   # new-window to load with about:blank instead of its contents. By moving the
   # DB logic here, we can get around this.
-  _createDraft: ({draftLocalId, draftInitialJSON}) ->
+  _prepareDraft: ({draftLocalId, draftInitialJSON}={}) ->
     # The NamespaceStore isn't set yet in the new window, populate it first.
     NamespaceStore.populateItems().then ->
       new Promise (resolve, reject) ->

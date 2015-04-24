@@ -7,7 +7,7 @@ module.exports =
 
   activate: (@state) ->
     # This package does nothing in other windows
-    return unless atom.state.mode is 'onboarding'
+    return unless atom.getWindowType() is 'onboarding'
 
     @item = document.createElement("div")
     @item.setAttribute("id", "onboarding-container")

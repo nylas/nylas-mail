@@ -70,7 +70,12 @@ class AtomApplication
 
     @pidsToOpenWindows = {}
     @mainWindow = null
+
+    # A collection of active windows
     @windows = []
+
+    @hotWindows = {}
+
     @databases = {}
 
     @autoUpdateManager = new AutoUpdateManager(@version)
@@ -81,10 +86,6 @@ class AtomApplication
     @setupJavaScriptArguments()
     @handleEvents()
 
-    # Prepare a composer window offscreen so that it's ready and waiting
-    # when the user tries to compose a message. We delay by 500msec so
-    # that it doesn't slow down the main application launch.
-    setTimeout(( => @prepareComposerWindow()), 500)
     @launchWithOptions(options)
 
   # Opens a new window based on the options provided.
@@ -95,6 +96,168 @@ class AtomApplication
       @showMainWindow({devMode, safeMode})
       for urlToOpen in (urlsToOpen || [])
         @openUrl({urlToOpen})
+
+  # Makes a new window appear of a certain `windowType`.
+  #
+  # In almost all cases, instead of booting up a new window from scratch,
+  # we pass in new `windowProps` to a pre-loaded "hot window".
+  #
+  # Individual packages declare what windowTypes they support. We use this
+  # to determine what packages to load in a given `windowType`. Inside a
+  # package's `package.json` we expect to find an entry of the form:
+  #
+  #   "windowTypes": {
+  #     "myCustomWindowType": true
+  #     "someOtherWindowType": true
+  #     "composer": true
+  #   }
+  #
+  # Individual packages must also call `registerHotWindow` upon activation
+  # to start the prepartion of `hotWindows` of various types.
+  #
+  # Once a hot window is registered, we'll have a hidden window with the
+  # declared packages of that `windowType` pre-loaded.
+  #
+  # This means thatn when `newWindow` is called, instead of going through
+  # the bootup process, it simply replaces key parameters and does a soft
+  # reload.
+  #
+  # Since the window is already loaded, there are only some options that
+  # can be soft-reloaded. If you attempt to pass options that a soft
+  # reload doesn't support, you'll be forced to load from a `coldStart`.
+  #
+  # Any options passed in here will be passed into the AtomWindow
+  # constructor, which will eventually show up in the window's main
+  # loadSettings, which is accessible via `atom.getLoadSettings()`
+  #
+  # REQUIRED options:
+  #   - windowType: defaults "popout". This eventually ends up as
+  #     atom.getWindowType()
+  #
+  # Valid options:
+  #   - coldStart: true
+  #   - windowProps: A good place to put any data components of the window
+  #       need to initialize properly. NOTE: You can only put JSON
+  #       serializable data. No functions!
+  #   - title: The title of the page
+  #
+  # Other options that will trigger a
+  #   - frame: defaults true. Whether or not the popup has a frame
+  #   - forceNewWindow
+  #
+  # Other non required options:
+  #   - All of the options of BrowserWindow
+  #     https://github.com/atom/atom-shell/blob/master/docs/api/browser-window.md#new-browserwindowoptions
+  newWindow: (options={}) ->
+    supportedHotWindowKeys = [
+      "title"
+      "width"
+      "height"
+      "windowType"
+      "windowProps"
+    ]
+
+    unsupported =  _.difference(Object.keys(options), supportedHotWindowKeys)
+    if unsupported.length > 0
+      console.log "WARNING! You are passing in options that can't be hotLoaded into a new window. Please either change the options or pass the `coldStart:true` option to suppress this warning. If it's just data for the window, please put them in the `windowProps` param."
+      console.log unsupported
+
+    # Make sure we registered the window
+    if @hotWindows[options.windowType]?
+      coldStart = options.coldStart
+    else
+      coldStart = true
+
+    if coldStart
+      @newColdWindow(options)
+    else
+      @newHotWindow(options)
+    return
+
+  # This sets up some windows in the background with the requested
+  # packages already pre-loaded into it.
+  #
+  # REQUIRED options:
+  #   - windowType: registers a new hot window of the given type. This is
+  #   the key we use to find what packages to load and what kind of window
+  #   to open
+  #
+  # Optional options:
+  #   - replenishNum - (defaults 1) The number of hot windows to keep
+  #   loaded at any given time. If your package is expected to use a large
+  #   number of windows, it may be advisable to make this number more than
+  #   1. Beware that each load is very resource intensive.
+  #
+  #   - windowPackages - A list of additional packages to load into a
+  #   window in addition to those declared in various `package.json`s
+  registerHotWindow: ({windowType, replenishNum, windowPackages}={}) ->
+    if not windowType
+      throw new Error("please provide a windowType when registering a hot window")
+
+    @hotWindows ?= {}
+    @hotWindows[windowType] ?= {}
+    @hotWindows[windowType].replenishNum ?= (replenishNum ? 1)
+    @hotWindows[windowType].loadedWindows ?= []
+    @hotWindows[windowType].windowPackages ?= (windowPackages ? [])
+
+    @replenishHotWindows(windowType)
+
+  defaultWindowOptions: ->
+    devMode: @devMode
+    safeMode: @safeMode
+    windowType: 'popout'
+    hideMenuBar: true
+    resourcePath: @resourcePath
+    bootstrapScript: require.resolve("../window-secondary-bootstrap")
+
+  newColdWindow: (options={}) ->
+    options = _.extend(@defaultWindowOptions(), options)
+    w = new AtomWindow options
+    w.show()
+    w.focus()
+
+  # Tries to create a new hot window. Since we're updating an existing
+  # window instead of creatinga new one, there are limitations in the
+  # options you can provide.
+  newHotWindow: (options={}) ->
+    hotWindowParams = @hotWindows[options.windowType]
+    if not hotWindowParams?
+      console.log "WARNING! The requested windowType '#{options.windowType}' has not been registered. Be sure to call `registerWindowType` first in your packages setup."
+      @newColdWindow(options)
+      return
+
+    if hotWindowParams.loadedWindows.length is 0
+      # No windows ready
+      options.windowPackages = hotWindowParams.windowPackages
+      @newColdWindow(options)
+    else
+      win = hotWindowParams.loadedWindows.pop()
+      newLoadSettings = _.extend(win.loadSettings(), options)
+
+      # This will update the internal instance variable that the window will
+      # query for its load settings.
+      win.setLoadSettings(newLoadSettings)
+
+      # This is expected to be caught by the main application to re-fetch
+      # the loadSettings and re-render itself accordingly.
+      win.browserWindow.webContents.send('refresh-window-props')
+
+      win.show()
+      win.focus()
+
+    @replenishHotWindows(options.windowType)
+
+  replenishHotWindows: (windowType) ->
+    if not @hotWindows[windowType]?
+      console.error "Call `registerHotWindow` before replenishing for #{windowType}"
+      return false
+
+    loadedWindows = @hotWindows[windowType].loadedWindows
+    while loadedWindows.length < @hotWindows[windowType].replenishNum
+      options = @defaultWindowOptions()
+      options.windowType = windowType
+      options.windowPackages = @hotWindows[windowType].windowPackages
+      loadedWindows.push(new AtomWindow(options))
 
   prepareDatabaseInterface: ->
     return @dblitePromise if @dblitePromise
@@ -223,7 +386,6 @@ class AtomApplication
   # needs to manually bubble them up to the Application instance via IPC or they won't be
   # handled. This happens in workspace-element.coffee
   handleEvents: ->
-    @on 'application:new-message', => @showComposerWindow()
     @on 'application:run-all-specs', -> @runSpecs(exitWhenDone: false, resourcePath: global.devResourcePath, safeMode: @focusedWindow()?.safeMode)
     @on 'application:run-benchmarks', -> @runBenchmarks()
     @on 'application:quit', =>
@@ -276,34 +438,19 @@ class AtomApplication
       @openUrl({urlToOpen})
       event.preventDefault()
 
+    ipc.on 'new-window', (event, options) => @newWindow(options)
+
+    ipc.on 'register-hot-window', (event, options) => @registerHotWindow(options)
+
     app.on 'activate-with-no-open-windows', (event) =>
       event.preventDefault()
       @showMainWindow()
-
-    # Opens a new AtomWindow and initializes the Atom instance to display
-    # particular packages. This is a general purpose method of showing
-    # secondary windows. Typical options to pass look like this:
-    #
-    # options =
-    #   title: 'Composer'
-    #   frame: true
-    #   draftId: draftId << arbitrary, goes into atom.getLoadSettings()
-    #   windowName: 'composer' << available as atom.state.mode in window
-    #   windowPackages: ['composer'] << packages to activate in window
-    #
-    ipc.on 'show-secondary-window', (event, options) =>
-      w = @prepareSecondaryWindow(options)
-      w.browserWindow.webContents.on 'did-finish-load', ->
-        w.show()
-        w.focus()
-
-    ipc.on 'show-composer-window', (event, options) =>
-      @showComposerWindow(options)
 
     ipc.on 'onboarding-complete', (event, options) =>
       win = BrowserWindow.fromWebContents(event.sender)
       @windows.forEach (atomWindow) ->
         return if atomWindow.browserWindow == win
+        return unless atomWindow.browserWindow.webContents
         atomWindow.browserWindow.webContents.send('onboarding-complete')
 
     ipc.on 'update-application-menu', (event, template, keystrokesByCommand) =>
@@ -394,7 +541,6 @@ class AtomApplication
   # Public: Opens or unhides the main application window
   #
   # options -
-  #   :newWindow - Boolean of whether this should be opened in a new window.
   #   :devMode - Boolean to control the opened window's dev mode.
   #   :safeMode - Boolean to control the opened window's safe mode.
   showMainWindow: ({devMode, safeMode}={}) ->
@@ -414,61 +560,12 @@ class AtomApplication
       resourcePath ?= @resourcePath
       neverClose = true
       frame = true
+      mainWindow = true
 
       if process.platform is 'darwin'
         frame = false
 
-      @mainWindow = new AtomWindow({bootstrapScript, resourcePath, devMode, safeMode, neverClose, frame})
-
-  # Public: Opens a secondary window, usually for displaying specific packages
-  #
-  # options -
-  #   :title: 'Message'
-  #   :frame: true
-  #   :windowName: 'composer'
-  #   :windowPackages: ['composer']
-  prepareSecondaryWindow: (options) ->
-    options = _.extend options,
-      bootstrapScript: require.resolve("../window-secondary-bootstrap")
-      safeMode: false
-      hideMenuBar: true
-      devMode: @devMode
-      resourcePath: @resourcePath
-      icon: @constructor.iconPath
-    new AtomWindow(options)
-
-  # Public: Opens a composer window for displaying the given message. This is
-  # special cased because the composer is opened from Cmd-N, even when no
-  # primary window is open, so the logic needs to be application-wide.
-  #
-  # options -
-  #   :title: 'Message'
-  #   :frame: true
-  #   :windowName: 'composer'
-  #   :windowPackages: ['composer']
-  prepareComposerWindow: ->
-    w = @_readyComposerWindow
-    @_readyComposerWindow = @prepareSecondaryWindow
-      title: 'Message'
-      frame: true
-      windowName: 'composer'
-      windowPackages: ['composer', 'attachments', 'message-templates']
-    w
-
-  showComposerWindow: ({draftLocalId, draftInitialJSON, error} = {}) ->
-    w = @prepareComposerWindow()
-    w.show()
-    w.focus()
-
-    sendComposerState = ->
-      json = JSON.stringify({draftLocalId, draftInitialJSON, error})
-      w.browserWindow.webContents.send('composer-state', json)
-
-    if w.browserWindow.webContents.isLoading()
-      w.browserWindow.webContents.on('did-finish-load', sendComposerState)
-    else
-      sendComposerState()
-
+      @mainWindow = new AtomWindow({bootstrapScript, resourcePath, devMode, safeMode, neverClose, frame, mainWindow})
 
   # Open an atom:// or mailto:// url.
   #
@@ -494,7 +591,7 @@ class AtomApplication
       for attr in ['to', 'cc', 'bcc']
         json[attr] = query[attr]?.split(',').map(emailToObj) || []
 
-      @showComposerWindow({draftInitialJSON: json})
+      @mainWindow.browserWindow.webContents.send('mailto', json)
 
     # The host of the URL being opened is assumed to be the package name
     # responsible for opening the URL.  A new window will be created with

@@ -1,5 +1,9 @@
 Utils = require '../src/flux/models/utils'
 
+{APIError,
+ OfflineError,
+ TimeoutError} = require '../src/flux/errors'
+
 Exports =
 
   React: require 'react'
@@ -48,9 +52,16 @@ Exports =
   FileDownloadStore: require '../src/flux/stores/file-download-store'
   FocusedContactsStore: require '../src/flux/stores/focused-contacts-store'
 
+  # Errors
+  APIError: APIError
+  OfflineError: OfflineError
+  TimeoutError: TimeoutError
+
   ## TODO move to inside of individual Salesforce package. See https://trello.com/c/tLAGLyeb/246-move-salesforce-models-into-individual-package-db-models-for-packages-various-refactors
   SalesforceAssociation: require '../src/flux/models/salesforce-association'
   SalesforceContact: require '../src/flux/models/salesforce-contact'
+  SalesforceObject: require '../src/flux/models/salesforce-object'
+  SalesforceSchema: require '../src/flux/models/salesforce-schema'
 
 # Also include all of the model classes
 for key, klass of Utils.modelClassMap()

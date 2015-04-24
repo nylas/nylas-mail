@@ -18,7 +18,18 @@ class AtomWindow
   isSpec: null
 
   constructor: (settings={}) ->
-    {@resourcePath, pathToOpen, initialLine, initialColumn, @neverClose, @isSpec, @exitWhenDone, @safeMode, @devMode, frame, title, hideMenuBar, resizable} = settings
+    {frame,
+     title,
+     resizable,
+     pathToOpen,
+     hideMenuBar,
+     @isSpec,
+     @devMode,
+     @safeMode,
+     @neverClose,
+     @mainWindow,
+     @resourcePath,
+     @exitWhenDone} = settings
 
     # Normalize to make sure drive letter case is consistent on Windows
     @resourcePath = path.normalize(@resourcePath) if @resourcePath
@@ -50,6 +61,8 @@ class AtomWindow
     loadSettings.resourcePath = @resourcePath
     loadSettings.devMode ?= false
     loadSettings.safeMode ?= false
+    loadSettings.mainWindow ?= @mainWindow
+    loadSettings.windowType ?= "default"
 
     # Only send to the first non-spec window created
     if @constructor.includeShellLoadTime and not @isSpec
@@ -60,7 +73,8 @@ class AtomWindow
     if fs.statSyncNoException(pathToOpen).isFile?()
       loadSettings.initialPath = path.dirname(pathToOpen)
 
-    @browserWindow.loadSettings = loadSettings
+    @setLoadSettings(loadSettings)
+
     @browserWindow.once 'window:loaded', =>
       @emit 'window:loaded'
       @loaded = true
@@ -68,7 +82,12 @@ class AtomWindow
     @browserWindow.loadUrl @getUrl(loadSettings)
     @browserWindow.focusOnWebView() if @isSpec
 
-    @openPath(pathToOpen, initialLine, initialColumn) unless @isSpecWindow()
+    @openPath(pathToOpen) unless @isSpecWindow()
+
+  loadSettings: -> @browserWindow.loadSettings
+
+  setLoadSettings: (loadSettings) ->
+    @browserWindow.loadSettings = loadSettings
 
   getUrl: (loadSettingsObj) ->
     # Ignore the windowState when passing loadSettings via URL, since it could
@@ -156,12 +175,12 @@ class AtomWindow
       @browserWindow.on 'blur', =>
         @browserWindow.focusOnWebView() unless @isWindowClosing
 
-  openPath: (pathToOpen, initialLine, initialColumn) ->
+  openPath: (pathToOpen) ->
     if @loaded
       @focus()
-      @sendMessage 'open-path', {pathToOpen, initialLine, initialColumn}
+      @sendMessage 'open-path', pathToOpen
     else
-      @browserWindow.once 'window:loaded', => @openPath(pathToOpen, initialLine, initialColumn)
+      @browserWindow.once 'window:loaded', => @openPath(pathToOpen)
 
   sendMessage: (message, detail) ->
     @browserWindow.webContents.send 'message', message, detail

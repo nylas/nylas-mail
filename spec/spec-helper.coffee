@@ -159,11 +159,10 @@ beforeEach ->
 afterEach ->
   atom.packages.deactivatePackages()
   atom.menu.template = []
-  atom.state.mode = 'spec'
-  
+
   atom.themes.removeStylesheet('global-editor-styles')
 
-  delete atom.state.packageStates
+  delete atom.state?.packageStates
 
   $('#jasmine-content').empty() unless window.debugContent
 

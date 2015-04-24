@@ -3,7 +3,7 @@ Actions = require './onboarding-actions'
 {EdgehillAPI} = require 'inbox-exports'
 ipc = require 'ipc'
 
-if atom.state.mode isnt "onboarding" and atom.state.mode isnt "spec" then return
+return unless atom.getWindowType() is "onboarding"
 
 module.exports =
 OnboardingStore = Reflux.createStore

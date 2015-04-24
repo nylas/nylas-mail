@@ -40,28 +40,29 @@ ParticipantsTextField = React.createClass
     <div className="participants-text-field" style={zIndex: 1000-@props.tabIndex, display: @props.visible and 'inline' or 'none'}>
       <TokenizingTextField
         ref="textField"
-        prompt={@props.field}
-        classSet={classSet}
-        tabIndex={@props.tabIndex}
         tokens={@props.participants[@props.field]}
-        onRemove={@props.onRemove}
         tokenKey={ (p) -> p.email }
-        tokenContent={@_componentForParticipant}
-        completionsForInput={ (input) -> ContactStore.searchContacts(input) }
-        completionContent={@_completionContent}
-        add={@_add}
-        remove={@_remove}
-        showMenu={@_showContextMenu} />
+        tokenNode={@_tokenNode}
+        onRequestCompletions={ (input) -> ContactStore.searchContacts(input) }
+        completionNode={@_completionNode}
+        onAdd={@_add}
+        onRemove={@_remove}
+        onEmptied={@props.onEmptied}
+        onTokenAction={@_showContextMenu}
+        tabIndex={@props.tabIndex}
+        menuClassSet={classSet}
+        menuPrompt={@props.field}
+        />
     </div>
 
   # Public. Can be called by any component that has a ref to this one to
   # focus the input field.
   focus: -> @refs.textField.focus()
 
-  _completionContent: (p) ->
+  _completionNode: (p) ->
     <Menu.NameEmailItem name={p.name} email={p.email} />
 
-  _componentForParticipant: (p) ->
+  _tokenNode: (p) ->
     if p.name?.length > 0 and p.name isnt p.email
       <div className="participant">
         <span className="participant-primary">{p.name}</span>&nbsp;&nbsp;

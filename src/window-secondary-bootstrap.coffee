@@ -5,12 +5,14 @@ global.Promise = require 'bluebird'
 # Like sands through the hourglass, so are the days of our lives.
 require './window'
 
-{windowName, windowPackages} = JSON.parse(decodeURIComponent(location.search.substr(14)))
+# Skip "?loadSettings=".
+# loadSettings = JSON.parse(decodeURIComponent(location.search.substr(14)))
+# {windowType} = loadSettings
 
 Atom = require './atom'
-window.atom = Atom.loadOrCreate(windowName)
+window.atom = Atom.loadOrCreate()
 atom.initialize()
-atom.startSecondaryWindow(windowPackages)
+atom.startSecondaryWindow()
 
 # Workaround for focus getting cleared upon window creation
 windowFocused = ->

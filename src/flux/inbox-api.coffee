@@ -38,7 +38,7 @@ class InboxAPI
 
     current = {@APIToken, @AppID, @APIRoot}
 
-    if atom.state.mode is 'editor'
+    if atom.isMainWindow()
       if not @APIToken?
         @_cleanupNamespaceWorkers()
 
@@ -48,8 +48,8 @@ class InboxAPI
           returnsModel: true
 
   _onNamespacesChanged: ->
-    return unless atom.state.mode is 'editor'
-    return if atom.getLoadSettings().isSpec
+    return if atom.inSpecMode()
+    return unless atom.isMainWindow()
 
     namespaces = NamespaceStore.items()
     workers = _.map(namespaces, @_workerForNamespace)

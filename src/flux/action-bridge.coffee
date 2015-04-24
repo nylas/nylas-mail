@@ -34,8 +34,8 @@ class ActionBridge
 
   constructor: (ipc) ->
     @ipc = ipc
-    @initiatorId = atom.state.mode
-    @role = if @initiatorId == 'editor' then Role.ROOT else Role.SECONDARY
+    @initiatorId = atom.getWindowType()
+    @role = if atom.isMainWindow() then Role.ROOT else Role.SECONDARY
     @logging = false
 
     # Listen for action bridge messages from other windows

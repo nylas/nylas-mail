@@ -1,6 +1,65 @@
 _ = require('underscore-plus')
 Utils = require '../src/flux/models/utils'
 
+class Foo
+  constructor: (@instanceVar) ->
+  field:
+    a: 1
+    b: 2
+  method: (@stuff) ->
+
+class Bar extends Foo
+  subMethod: (stuff) ->
+    @moreStuff = stuff
+    @method(stuff)
+
+describe "deepClone", ->
+  beforeEach ->
+    @v1 = [1,2,3]
+    @v2 = [4,5,6]
+    @foo = new Foo(@v1)
+    @bar = new Bar(@v2)
+    @o2 = [
+      @foo,
+      {v1: @v1, v2: @v2, foo: @foo, bar: @bar, baz: "baz", fn: Foo},
+      "abc"
+    ]
+    @o2.circular = @o2
+    @o2Clone = Utils.deepClone(@o2)
+
+  it "makes a deep clone", ->
+    @v1.push(4)
+    @v2.push(7)
+    @foo.stuff = "stuff"
+    @bar.subMethod("stuff")
+    expect(@o2Clone[0].stuff).toBeUndefined()
+    expect(@o2Clone[1].foo.stuff).toBeUndefined()
+    expect(@o2Clone[1].bar.stuff).toBeUndefined()
+    expect(@o2Clone[1].v1.length).toBe 3
+    expect(@o2Clone[1].v2.length).toBe 3
+    expect(@o2Clone[2]).toBe "abc"
+
+  it "does not deep clone the prototype", ->
+    @foo.field.a = "changed under the hood"
+    expect(@o2Clone[0].field.a).toBe "changed under the hood"
+
+  it "clones constructors properly", ->
+    expect((new @o2Clone[1].fn) instanceof Foo).toBe true
+
+  it "clones prototypes properly", ->
+    expect(@o2Clone[1].foo instanceof Foo).toBe true
+    expect(@o2Clone[1].bar instanceof Bar).toBe true
+
+  it "can take a customizer to edit values as we clone", ->
+    clone = Utils.deepClone @o2, (key, clonedValue) ->
+      if key is "v2"
+        clonedValue.push("custom value")
+        return clonedValue
+      else return clonedValue
+    @v2.push(7)
+    expect(clone[1].v2.length).toBe 4
+    expect(clone[1].v2[3]).toBe "custom value"
+
 # Pulled equality tests from underscore
 # https://github.com/jashkenas/underscore/blob/master/test/objects.js
 describe "isEqual", ->

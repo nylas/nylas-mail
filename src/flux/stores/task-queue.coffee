@@ -11,7 +11,7 @@ Actions = require '../actions'
  OfflineError,
  TimeoutError} = require '../errors'
 
-if atom.state.mode isnt "editor" and atom.state.mode isnt "spec" then return
+if not atom.isMainWindow() and not atom.inSpecMode() then return
 
 module.exports =
 TaskQueue = Reflux.createStore

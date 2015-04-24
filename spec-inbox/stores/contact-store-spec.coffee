@@ -22,7 +22,6 @@ describe "ContactStore", ->
 
   describe "when the Namespace updates from null to valid", ->
     beforeEach ->
-      atom.state.mode = 'editor'
       spyOn(ContactStore, "_refreshCache")
       NamespaceStore.trigger()
 

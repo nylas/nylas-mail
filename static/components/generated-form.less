@@ -1,0 +1,104 @@
+@import "ui-variables";
+
+.generated-form {
+  position: relative;
+
+  fieldset {
+    legend {
+      margin-bottom: @spacing-double;
+      color: fade(@black, 40%);
+      font-weight: @font-weight-semi-bold;
+    }
+    margin: 0;
+    padding: @spacing-double 50px 50px 50px;
+    border: 0;
+    border-bottom: 1px solid fade(@black, 20%);
+  }
+
+  .form-item {
+    display: flex;
+    flex-direction: row;
+    .label-area {
+      padding-top: 0.5em;
+      width: 125px;
+      margin-right: @spacing-standard;
+    }
+
+    .input-area {
+      position: relative;
+      flex: 2;
+    }
+
+    .form-error {
+      position: absolute;
+      color: @error-color;
+      font-size: @font-size-smaller;
+      margin-top: 0.3em;
+    }
+
+    input {
+      padding-top: 5px;
+      padding-bottom: 2px;
+      padding-left: 5px;
+    }
+
+    textarea {
+      width: 100%;
+      border: 1px solid @input-border;
+    }
+  }
+
+  .fieldset-form-items {
+    .row {
+      position: relative;
+      margin-top: @spacing-double;
+      display: flex;
+      flex-direction: row;
+    }
+    .column {
+      flex: 1;
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+    .column-spacer {
+      min-width: 30px;
+      max-width: 80px;
+      width: 10%;
+    }
+  }
+
+  .form-footer {
+    background: @background-secondary;
+    text-align: center;
+    padding: 22px 0;
+  }
+
+  button {
+    font-size: @font-size-larger;
+    background: #fff;
+    border: 0;
+    border-bottom: 3px solid @input-border;
+    border-radius: 4px;
+    padding: 7px 35px 2px 35px;
+  }
+
+  .tokenizing-field-input {
+    padding: 0;
+    .token {
+      padding-top: 0.4em;
+      margin-bottom: 3px;
+    }
+    input {
+      margin-bottom: 3px;
+    }
+  }
+
+  /* NOTE: We intentionally don't use the HTML :valid :invalid CSS pseudo
+   * selectors since we can't set them declaratively with React.
+  input, textarea {
+    &:valid { }
+    &:invalid { }
+  }
+  */
+}

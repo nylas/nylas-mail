@@ -30,6 +30,8 @@ class Matcher
         # Assumes that `value` is an array of items
         !!_.find value, (x) =>
           @val == x?.id || @val == x || @val?.id == x || @val?.id == x?.id
+      when 'startsWith' then return value.startsWith(@val)
+      when 'like' then value.search(new RegExp(".*#{@val}.*", "gi")) >= 0
       else
         throw new Error("Matcher.evaulate() not sure how to evaluate @{@attr.modelKey} with comparator #{@comparator}")
 
@@ -42,14 +44,20 @@ class Matcher
         return false
 
   whereSQL: (klass) ->
-    if _.isString(@val)
-      escaped = "'#{@val.replace(/'/g, '\\\'')}'"
-    else if @val is true
+
+    if @comparator is "like"
+      val = "%#{@val}%"
+    else
+      val = @val
+
+    if _.isString(val)
+      escaped = "'#{val.replace(/'/g, '\\\'')}'"
+    else if val is true
       escaped = 1
-    else if @val is false
+    else if val is false
       escaped = 0
     else
-      escaped = @val
+      escaped = val
 
     switch @comparator
       when 'startsWith'
@@ -195,6 +203,9 @@ class AttributeString extends Attribute
   lessThan: (val) -> throw new Error "greaterThan cannot be applied to AttributeString"
   startsWith: (val) -> new Matcher(@, 'startsWith', val)
   columnSQL: -> "#{@jsonKey} TEXT"
+  like: (val) ->
+    throw (new Error "this field cannot be queried against.") unless @queryable
+    new Matcher(@, 'like', val)
 
 ##
 # The value of this attribute is always a Javascript `Date`, or `null`.

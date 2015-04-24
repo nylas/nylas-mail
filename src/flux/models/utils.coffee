@@ -8,6 +8,42 @@ module.exports =
 Utils =
   timeZone: tz
 
+  isHash: (object) ->
+    _.isObject(object) and not _.isFunction(object) and not _.isArray(object)
+
+  # Takes an optional customizer. The customizer is passed the key and the
+  # new cloned value for that key. The customizer is expected to either
+  # modify the value and return it or simply be the identity function.
+  deepClone: (object, customizer, stackSeen=[], stackRefs=[]) ->
+    return object unless _.isObject(object)
+    return object if _.isFunction(object)
+
+    if _.isArray(object)
+      # http://perfectionkills.com/how-ecmascript-5-still-does-not-allow-to-subclass-an-array/
+      newObject = []
+    else
+      newObject = Object.create(Object.getPrototypeOf(object))
+
+    # Circular reference check
+    seenIndex = stackSeen.indexOf(object)
+    if seenIndex >= 0 then return stackRefs[seenIndex]
+    stackSeen.push(object); stackRefs.push(newObject)
+
+    # It's important to use getOwnPropertyNames instead of Object.keys to
+    # get the non-enumerable items as well.
+    for key in Object.getOwnPropertyNames(object)
+      newVal = Utils.deepClone(object[key], customizer, stackSeen, stackRefs)
+      if _.isFunction(customizer)
+        newObject[key] = customizer(key, newVal)
+      else
+        newObject[key] = newVal
+    return newObject
+
+  toSet: (arr=[]) ->
+    set = {}
+    set[item] = true for item in arr
+    return set
+
   modelClassMap: ->
     return Utils._modelClassMap if Utils._modelClassMap
 
@@ -22,6 +58,8 @@ Utils =
     Calendar = require './calendar'
 
     ## TODO move to inside of individual Salesforce package. See https://trello.com/c/tLAGLyeb/246-move-salesforce-models-into-individual-package-db-models-for-packages-various-refactors
+    SalesforceObject = require './salesforce-object'
+    SalesforceSchema = require './salesforce-schema'
     SalesforceAssociation = require './salesforce-association'
     SalesforceContact = require './salesforce-contact'
     SalesforceTask = require './salesforce-task'
@@ -45,9 +83,11 @@ Utils =
       'locallink': LocalLink
       'calendar': Calendar
       'event': Event
+      'salesforceschema': SalesforceSchema
+      'salesforceobject': SalesforceObject
       'salesforceassociation': SalesforceAssociation
       'salesforcecontact': SalesforceContact
-      'SalesforceTask': SalesforceTask
+      'salesforcetask': SalesforceTask
 
       'MarkThreadReadTask': MarkThreadReadTask
       'MarkMessageReadTask': MarkMessageReadTask
