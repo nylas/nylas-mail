@@ -57,7 +57,7 @@ class RetinaImg extends React.Component
     style.zoom = if pathIsRetina then 0.5 else 1
 
     if @props.colorfill
-      style.WebkitMaskImage = "url(#{path})"
+      style.WebkitMaskImage = "url('#{path}')"
       style.objectPosition = "10000px"
       className = "colorfill"
 
