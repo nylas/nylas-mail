@@ -5,6 +5,7 @@ classNames = require 'classnames'
 SearchSuggestionStore = require './search-suggestion-store'
 _ = require 'underscore-plus'
 
+
 class SearchBar extends React.Component
   @displayName = 'SearchBar'
 
@@ -78,8 +79,7 @@ class SearchBar extends React.Component
     </div>
 
   _onFocusSearch: =>
-    return unless @isMounted()
-    @refs.searchInput.findDOMNode().focus()
+    React.findDOMNode(@refs.searchInput).focus()
 
   _containerClasses: =>
     classNames
@@ -125,7 +125,7 @@ class SearchBar extends React.Component
 
   _clearAndBlur: =>
     @_onClearSearch()
-    @refs.searchInput?.findDOMNode().blur()
+    React.findDOMNode(@refs.searchInput)?.blur()
 
   _onFocus: =>
     @setState focused: true
@@ -136,8 +136,7 @@ class SearchBar extends React.Component
     # handle the touch event, then dismiss the menu.
     setTimeout =>
       Actions.searchBlurred()
-      if @isMounted()
-        @setState focused: false
+      @setState(focused: false)
     , 150
 
   _doSearch: =>
