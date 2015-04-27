@@ -1,8 +1,8 @@
 {
-  "name": "search-bar",
+  "name": "search-playground",
   "version": "0.1.0",
   "main": "./lib/main",
-  "description": "Search bar using React",
+  "description": "Internal search playground for testing",
   "license": "Proprietary",
   "private": true,
   "engines": {
