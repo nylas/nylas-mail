@@ -1,0 +1,19 @@
+<h4 id={{name}}>{{name}} <a href="#{{name}}">Link</a></h4>
+<p>{{{description}}}</p>
+{{#if arguments.length}}
+    Parameters
+    <table>
+        {{#each arguments}}
+        <tr><td>{{name}}</td><td>{{type}}</td><td>{{{description}}}</td><td>{{isOptional}}</td></tr>
+        {{/each}}
+    </table>
+{{/if}}
+
+{{#if returnValues.length}}
+    Returns
+    <table>
+        {{#each returnValues}}
+        <tr><td>{{type}}</td><td>{{{description}}}</td></tr>
+        {{/each}}
+    </table>
+{{/if}}

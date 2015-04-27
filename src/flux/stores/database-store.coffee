@@ -1,4 +1,3 @@
-Reflux = require 'reflux'
 async = require 'async'
 remote = require 'remote'
 _ = require 'underscore-plus'
@@ -8,21 +7,25 @@ LocalLink = require '../models/local-link'
 ModelQuery = require '../models/query'
 PriorityUICoordinator = require '../../priority-ui-coordinator'
 {AttributeCollection, AttributeJoinedData} = require '../attributes'
-{modelFromJSON, modelClassMap, tableNameForJoin, generateTempId, isTempId} = require '../models/utils'
+{modelFromJSON,
+ modelClassMap,
+ tableNameForJoin,
+ generateTempId,
+ isTempId} = require '../models/utils'
 fs = require 'fs-plus'
 path = require 'path'
 ipc = require 'ipc'
+
+{Listener, Publisher} = require '../modules/reflux-coffee'
+CoffeeHelpers = require '../coffee-helpers'
 
 silent = atom.getLoadSettings().isSpec
 verboseFilter = (query) ->
   false
 
-##
 # The DatabaseProxy dispatches queries to the Browser process via IPC and listens
 # for results. It maintains a hash of `queryRecords` representing queries that are
 # currently running and fires the correct callbacks when data is received.
-#
-# @namespace Application
 #
 class DatabaseProxy
   constructor: (@databasePath) ->
@@ -56,12 +59,9 @@ class DatabaseProxy
     console.log(query,values) if verboseFilter(query)
     ipc.send('database-query', {@databasePath, queryKey, query, values})
 
-##
 # DatabasePromiseTransaction converts the callback syntax of the Database
 # into a promise syntax with nice features like serial execution of many
 # queries in the same promise.
-#
-# @namespace Application
 #
 class DatabasePromiseTransaction
   constructor: (@_db, @_resolve, @_reject) ->
@@ -95,22 +95,23 @@ class DatabasePromiseTransaction
     , (err) =>
       @_resolve()
 
-###
-# N1 is built on top of a custom database layer modeled after ActiveRecord.
-# For many parts of the application, the database is the source of truth.
-# Data is retrieved from the API, written to the database, and changes to the
-# database trigger Stores and components to refresh their contents.
+# Public: Nylas Mail is built on top of a custom database layer modeled after
+# ActiveRecord. For many parts of the application, the database is the source
+# of truth. Data is retrieved from the API, written to the database, and changes
+# to the database trigger Stores and components to refresh their contents.
 
 # The DatabaseStore is available in every application window and allows you to
 # make queries against the local cache. Every change to the local cache is
 # broadcast as a change event, and listening to the DatabaseStore keeps the
 # rest of the application in sync.
 #
-# @class DatabaseStore
-# @namespace Application
-###
-DatabaseStore = Reflux.createStore
-  init: ->
+class DatabaseStore
+  @include: CoffeeHelpers.includeModule
+
+  @include Publisher
+  @include Listener
+
+  constructor: ->
     @_root = atom.isMainWindow()
     @_localIdLookupCache = {}
     @_db = null
@@ -284,9 +285,9 @@ DatabaseStore = Reflux.createStore
         Namespace = require '../models/namespace'
         @trigger({objectClass: Namespace.name})
 
-  ##
-  # Asynchronously writes `model` to the cache and triggers a change event.
-  # @param {Model} model
+  # Public: Asynchronously writes `model` to the cache and triggers a change event.
+  #
+  # - `model` A {Model} to write to the database.
   #
   persistModel: (model) ->
     @inTransaction {}, (tx) =>
@@ -295,10 +296,10 @@ DatabaseStore = Reflux.createStore
       tx.execute('COMMIT')
       @trigger({objectClass: model.constructor.name, objects: [model]})
 
-  ##
-  # Asynchronously writes `models` to the cache and triggers a single change event.
-  # Note: Models must be of the same class to be persisted in a batch operation.
-  # @param {Array<Model>} model
+  # Public: Asynchronously writes `models` to the cache and triggers a single change
+  # event. Note: Models must be of the same class to be persisted in a batch operation.
+  #
+  # - `models` An {Array} of {Model} objects to write to the database.
   #
   persistModels: (models) ->
     klass = models[0].constructor
@@ -316,9 +317,9 @@ DatabaseStore = Reflux.createStore
       tx.execute('COMMIT')
       @trigger({objectClass: models[0].constructor.name, objects: models})
 
-  ##
-  # Asynchronously removes `model` from the cache and triggers a change event.
-  # @param {Model} model
+  # Public: Asynchronously removes `model` from the cache and triggers a change event.
+  #
+  # - `model` A {Model} to write to the database.
   #
   unpersistModel: (model) ->
     @inTransaction {}, (tx) =>
@@ -337,52 +338,79 @@ DatabaseStore = Reflux.createStore
       @trigger({objectClass: newModel.constructor.name, objects: [oldModel, newModel]})
       Actions.didSwapModel({oldModel, newModel, localId})
 
-  # ActiveRecord-style Querying
+  ###
+  ActiveRecord-style Querying
+  ###
 
-  ##
-  # Creates a new Model Query for retrieving a single model specified by the class and id.
-  # @param {Model.constructor} klass The class of the Model you are requesting
-  # @param {String} id The id of the Model you are requesting
-  # @return {ModelQuery}
+  # Public: Creates a new Model Query for retrieving a single model specified by
+  # the class and id.
+  #
+  # - `class` The class of the {Model} you're trying to retrieve.
+  # - `id` The {String} id of the {Model} you're trying to retrieve
+  #
+  # Example:
+  # ```
+  # DatabaseStore.find(Thread, 'id-123').then (thread) ->
+  #   # thread is a Thread object, or null if no match was found.
+  # ```
+  #
+  # Returns a {ModelQuery}
   #
   find: (klass, id) ->
     throw new Error("You must provide a class to findByLocalId") unless klass
     throw new Error("find takes a string id. You may have intended to use findBy.") unless _.isString(id)
     new ModelQuery(klass, @).where({id:id}).one()
 
-  ##
-  # Creates a new Model Query for retrieving a single model matching the predicates provided.
-  # @param {Model.constructor} klass The class of the Model you are requesting
-  # @param {Array<Matcher>} predicates A set of predicates (where clauses) the
-  #        returned model must match.
-  # @return {ModelQuery}
+  # Public: Creates a new Model Query for retrieving a single model matching the
+  # predicates provided.
+  #
+  # - `class` The class of the {Model} you're trying to retrieve.
+  # - `predicates` An {Array} of {matcher} objects. The set of predicates the
+  #    returned model must match.
+  #
+  # Returns a {ModelQuery}
   #
   findBy: (klass, predicates = []) ->
     throw new Error("You must provide a class to findBy") unless klass
     new ModelQuery(klass, @).where(predicates).one()
 
-  ##
-  # Creates a new Model Query for retrieving models matching the predicates provided.
-  # @param {Model.constructor} klass The class of the Model you are requesting
-  # @param {Array<Matcher>} predicates A set of predicates (where clauses) that
-  #        returned models must match.
-  # @return {ModelQuery}
+  # Public: Creates a new Model Query for retrieving all models matching the
+  # predicates provided.
+  #
+  # - `class` The class of the {Model} you're trying to retrieve.
+  # - `predicates` An {Array} of {matcher} objects. The set of predicates the
+  #    returned model must match.
+  #
+  # Returns a {ModelQuery}
   #
   findAll: (klass, predicates = []) ->
     throw new Error("You must provide a class to findAll") unless klass
     new ModelQuery(klass, @).where(predicates)
 
-  ##
-  # Creates a new Model Query for counting models matching the predicates provided.
-  # @param {Model.constructor} klass The class of the Model you are requesting
-  # @param {Array<Matcher>} predicates A set of predicates (where clauses)
-  # @return {ModelQuery}
+  # Public: Creates a new Model Query that returns the {Number} of models matching
+  # the predicates provided.
+  #
+  # - `class` The class of the {Model} you're trying to retrieve.
+  # - `predicates` An {Array} of {matcher} objects. The set of predicates the
+  #    returned model must match.
+  #
+  # Returns a {ModelQuery}
   #
   count: (klass, predicates = []) ->
     throw new Error("You must provide a class to count") unless klass
     new ModelQuery(klass, @).where(predicates).count()
 
-  # Support for Local IDs
+  ###
+  Support for Local IDs
+  ###
+
+  # Public: Retrieve a Model given a localId.
+  #
+  # - `class` The class of the {Model} you're trying to retrieve.
+  # - `localId` The {String} localId of the object.
+  #
+  # Returns a {Promise} that resolves with the Model associated with the localId,
+  # or rejects if no matching object is found.
 
   # Note: When fetching an object by local Id, joined attributes
   # (like body, stored in a separate table) are always included.
@@ -471,4 +499,4 @@ DatabaseStore = Reflux.createStore
     queries
 
 
-module.exports = DatabaseStore
+module.exports = new DatabaseStore()

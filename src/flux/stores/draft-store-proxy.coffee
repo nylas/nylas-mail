@@ -3,21 +3,22 @@ Actions = require '../actions'
 EventEmitter = require('events').EventEmitter
 _ = require 'underscore-plus'
 
-# As the user interacts with the draft, changes are accumulated in the
-# DraftChangeSet associated with the store proxy. The DraftChangeSet does two things:
-#
-# 1. It debounces changes and calls Actions.saveDraft() at a reasonable interval.
-#
-# 2. It exposes `applyToModel`, which allows you to optimistically apply changes
-#    to a draft object. When the proxy vends the draft, it passes it through this
-#    function to apply uncommitted changes. This means the Draft provided by the
-#    DraftStoreProxy will always relfect recent changes, even though they're
-#    written to the database intermittently.
-#
+###
+Public: As the user interacts with the draft, changes are accumulated in the
+DraftChangeSet associated with the store proxy. The DraftChangeSet does two things:
+
+1. It debounces changes and calls Actions.saveDraft() at a reasonable interval.
+
+2. It exposes `applyToModel`, which allows you to optimistically apply changes
+  to a draft object. When the proxy vends the draft, it passes it through this
+  function to apply uncommitted changes. This means the Draft provided by the
+  DraftStoreProxy will always relfect recent changes, even though they're
+  written to the database intermittently.
+###
 class DraftChangeSet
   constructor: (@localId, @_onChange) ->
     @reset()
- 
+
   reset: ->
     @_pending = {}
     clearTimeout(@_timer) if @_timer
@@ -47,17 +48,17 @@ class DraftChangeSet
     model.fromJSON(@_pending) if model
     model
 
-# DraftStoreProxy is a small class that makes it easy to implement components
-# that display Draft objects or allow for interactive editing of Drafts.
-#
-# 1. It synchronously provides an instance of a draft via `draft()`, and
-#    triggers whenever that draft instance has changed.
-#
-# 2. It provides an interface for modifying the draft that transparently
-#    batches changes, and ensures that the draft provided via `draft()`
-#    always has pending changes applied.
-#
-module.exports =
+###
+Public: DraftStoreProxy is a small class that makes it easy to implement components
+that display Draft objects or allow for interactive editing of Drafts.
+
+1. It synchronously provides an instance of a draft via `draft()`, and
+   triggers whenever that draft instance has changed.
+
+2. It provides an interface for modifying the draft that transparently
+   batches changes, and ensures that the draft provided via `draft()`
+   always has pending changes applied.
+###
 class DraftStoreProxy
 
   constructor: (@draftLocalId) ->
@@ -80,7 +81,7 @@ class DraftStoreProxy
   draft: ->
     @changes.applyToModel(@_draft)
     @_draft
-  
+
   prepare: ->
     @_draftPromise ?= new Promise (resolve, reject) =>
       DatabaseStore = require './database-store'
@@ -104,7 +105,7 @@ class DraftStoreProxy
     # Unlink ourselves from the stores/actions we were listening to
     # so that we can be garbage collected
     unlisten() for unlisten in @unlisteners
-  
+
   _setDraft: (draft) ->
     if !draft.body?
       throw new Error("DraftStoreProxy._setDraft - new draft has no body!")
@@ -127,3 +128,6 @@ class DraftStoreProxy
     # localId.
     if change.oldModel.id is @_draft.id
       @_setDraft(change.newModel)
+
+
+module.exports = DraftStoreProxy

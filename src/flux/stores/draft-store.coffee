@@ -2,7 +2,6 @@ _ = require 'underscore-plus'
 moment = require 'moment'
 ipc = require 'ipc'
 
-Reflux = require 'reflux'
 DraftStoreProxy = require './draft-store-proxy'
 DatabaseStore = require './database-store'
 NamespaceStore = require './namespace-store'
@@ -17,18 +16,25 @@ Actions = require '../actions'
 
 {subjectWithPrefix} = require '../models/utils'
 
-# A DraftStore responds to Actions that interact with Drafts and exposes
-# public getter methods to return Draft objects.
-#
-# It also handles the dispatching of Tasks to persist changes to the Inbox
-# API.
-#
-# Remember that a "Draft" is actually just a "Message" with draft: true.
-#
+{Listener, Publisher} = require '../modules/reflux-coffee'
+CoffeeHelpers = require '../coffee-helpers'
 
-module.exports =
-DraftStore = Reflux.createStore
-  init: ->
+###
+Public: DraftStore responds to Actions that interact with Drafts and exposes
+public getter methods to return Draft objects and sessions.
+
+It also creates and queues {Task} objects to persist changes to the Nylas
+API.
+
+Remember that a "Draft" is actually just a "Message" with `draft: true`.
+###
+class DraftStore
+  @include: CoffeeHelpers.includeModule
+
+  @include Publisher
+  @include Listener
+
+  constructor: ->
     @listenTo DatabaseStore, @_onDataChanged
 
     @listenTo Actions.composeReply, @_onComposeReply
@@ -63,8 +69,25 @@ DraftStore = Reflux.createStore
 
   ######### PUBLIC #######################################################
 
-  # Returns a promise
-
+  # Public: Fetch a {DraftStoreProxy} for displaying and/or editing the
+  # draft with `localId`. After calling `sessionForLocalId`, you generally
+  # want to call {DraftStoreProxy::prepare} and wait for the returned
+  # {Promise} to resolve:
+  #
+  # Example:
+  #
+  # ```
+  # session = DraftStore.sessionForLocalId(localId)
+  # session.prepare().then ->
+  #    # session.draft() is now ready
+  # ```
+  #
+  # - `localId` The {String} local ID of the draft.
+  #
+  # Returns a {Object} with:
+  # - `key1` A {String} that contains bla
+  # - `key2` A {String} that contains bla
+  #
   sessionForLocalId: (localId) ->
     if not localId
       console.log((new Error).stack)
@@ -72,21 +95,35 @@ DraftStore = Reflux.createStore
     @_draftSessions[localId] ?= new DraftStoreProxy(localId)
     @_draftSessions[localId]
 
+  # Public: Look up the sending state of the given draft Id.
   sendingState: (draftLocalId) -> @_sendingState[draftLocalId] ? false
 
-  # Composer Extensions
+  ###
+  Composer Extensions
+  ###
 
+  # Public: Returns the extensions registered with the DraftStore.
   extensions: (ext) ->
     @_extensions
 
+  # Public: Registers a new extension with the DraftStore. DraftStore extensions
+  # make it possible to extend the editor experience, modify draft contents,
+  # display warnings before draft are sent, and more.
+  #
+  # - `ext` A {DraftStoreExtension} instance.
+  #
   registerExtension: (ext) ->
     @_extensions.push(ext)
 
+  # Public: Unregisters the extension provided from the DraftStore.
+  #
+  # - `ext` A {DraftStoreExtension} instance.
+  #
   unregisterExtension: (ext) ->
     @_extensions = _.without(@_extensions, ext)
 
   ########### PRIVATE ####################################################
- 
+
   cleanupSessionForLocalId: (localId) ->
     return unless @_draftSessions[localId]
 
@@ -322,3 +359,6 @@ DraftStore = Reflux.createStore
       files = proxy.draft().files ? []
       files = _.reject files, (f) -> f.id is file.id
       proxy.changes.add({files}, true)
+
+
+module.exports = new DraftStore()

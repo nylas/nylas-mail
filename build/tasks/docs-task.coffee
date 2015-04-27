@@ -1,6 +1,6 @@
 path = require 'path'
 Handlebars = require 'handlebars'
-markdown = require('markdown').markdown
+marked = require 'marked'
 cjsxtransform = require 'coffee-react-transform'
 rimraf = require 'rimraf'
 
@@ -13,6 +13,10 @@ tello = require 'tello'
 moduleBlacklist = [
   'space-pen'
 ]
+
+marked.setOptions
+  highlight: (code) ->
+    require('highlight.js').highlightAuto(code).value
 
 standardClassURLRoot = 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/'
 
@@ -154,7 +158,7 @@ module.exports = (grunt) ->
       val
 
     for classname, contents of api.classes
-      processFields(contents, ['description'], [markdown.toHTML, expandTypeReferences, expandFuncReferences])
+      processFields(contents, ['description'], [marked, expandTypeReferences, expandFuncReferences])
       processFields(contents, ['type'], [expandTypeReferences])
 
       result = template(contents)

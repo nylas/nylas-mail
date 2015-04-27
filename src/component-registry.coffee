@@ -1,6 +1,8 @@
-Reflux = require 'reflux'
 _ = require 'underscore-plus'
 Actions = require './flux/actions'
+
+{Listener, Publisher} = require './flux/modules/reflux-coffee'
+CoffeeHelpers = require './flux/coffee-helpers'
 
 # Error types
 class RegistryError extends Error
@@ -47,8 +49,13 @@ class Component
 # Avoid direct access to the registry
 registry = {}
 
-ComponentRegistry = Reflux.createStore
-  init: ->
+class ComponentRegistry
+  @include: CoffeeHelpers.includeModule
+
+  @include Publisher
+  @include Listener
+
+  constructor: ->
     @_showComponentRegions = false
     @listenTo Actions.toggleComponentRegions, @_onToggleComponentRegions
 
@@ -111,4 +118,5 @@ ComponentRegistry = Reflux.createStore
   RegistryError: RegistryError
   Mixin: Mixin
 
-module.exports = ComponentRegistry
+
+module.exports = new ComponentRegistry()

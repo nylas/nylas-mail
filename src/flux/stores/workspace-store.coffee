@@ -6,13 +6,9 @@ Location = {}
 Sheet = {}
 
 ###
-# The WorkspaceStore manages Sheets and layout modes in the application.
-# Observing the WorkspaceStore makes it easy to monitor the sheet stack.
-#
-# @class WorkspaceStore
-# @namespace Application
+Public: The WorkspaceStore manages Sheets and layout modes in the application.
+Observing the WorkspaceStore makes it easy to monitor the sheet stack.
 ###
-
 WorkspaceStore = Reflux.createStore
   init: ->
     @defineSheet 'Global'
@@ -46,7 +42,9 @@ WorkspaceStore = Reflux.createStore
 
     @_onSelectRootSheet(Sheet.Threads)
 
-  # Inbound Events
+  ###
+  Inbound Events
+  ###
 
   _onSelectRootSheet: (sheet) ->
     if not sheet
@@ -77,10 +75,11 @@ WorkspaceStore = Reflux.createStore
         if not item and @topSheet() is Sheet.File
           @popSheet()
 
-  # Accessing Data
+  ###
+  Accessing Data
+  ###
 
-  ##
-  # @return {String} The current layout mode. Either `split` or `list`
+  # Returns a {String}: The current layout mode. Either `split` or `list`
   #
   layoutMode: ->
     if @_preferredLayoutMode in @rootSheet().supportedModes
@@ -88,33 +87,31 @@ WorkspaceStore = Reflux.createStore
     else
       @rootSheet().supportedModes[0]
 
-  ##
-  # @return {Sheet} The top sheet in the current stack. Use this method to determine
+  # Returns The top {Sheet} in the current stack. Use this method to determine
   # the sheet the user is looking at.
   #
   topSheet: ->
     @_sheetStack[@_sheetStack.length - 1]
 
-  ##
-  # @return {Sheet} The sheet at the root of the current stack.
+  # Returns The {Sheet} at the root of the current stack.
   #
   rootSheet: ->
     @_sheetStack[0]
 
-  ##
-  # @return {Array<Sheet>} The stack of sheets
+  # Returns an {Array<Sheet>} The stack of sheets
   #
   sheetStack: ->
     @_sheetStack
 
-  # Managing Sheets
-
-  ##
-  # @param {String} id The ID of the Sheet being defined.
-  # @param {Object} options If the sheet should be listed in the left sidebar,
-  #        pass `root: true, name: 'Label'`.
-  # @param {Object} columns An object with keys for each layout mode the Sheet
-  #        supports. For each key, provide an array of column names.
+  ###
+  Managing Sheets
+  ###
+  
+  # * `id` {String} The ID of the Sheet being defined.
+  # * `options` {Object} If the sheet should be listed in the left sidebar,
+  #      pass `{root: true, name: 'Label'}`.
+  # *`columns` An {Object} with keys for each layout mode the Sheet
+  #      supports. For each key, provide an array of column names.
   #
   defineSheet: (id, options = {}, columns = {}) ->
     # Make sure all the locations have definitions so that packages
@@ -142,7 +139,7 @@ WorkspaceStore = Reflux.createStore
   # A back button will appear in the top left of the pushed sheet.
   # This method triggers, allowing observers to update.
   #
-  # @param {Sheet} sheet The sheet type to push onto the stack.
+  # * `sheet` The {Sheet} type to push onto the stack.
   #
   pushSheet: (sheet) ->
     @_sheetStack.push(sheet)

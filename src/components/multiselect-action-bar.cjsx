@@ -9,7 +9,7 @@ InjectedComponentSet = require './injected-component-set'
 RetinaImg = require './retina-img'
 
 ###
-# Public: MultiselectActionBar is a simple component that can be placed in a {Sheet} Toolbar.
+Public: MultiselectActionBar is a simple component that can be placed in a {Sheet} Toolbar.
 When the provided `dataStore` has a selection, it appears over the other items in the toolbar.
 
 Generally, you wrap {MultiselectActionBar} in your own simple component to provide a dataStore
@@ -30,10 +30,10 @@ The MultiselectActionBar uses the `ComponentRegistry` to find items to display f
 collection name. To add an item to the bar created in the example above, register it like this:
 
 ```
-  ComponentRegistry.register
-    view: ThreadBulkArchiveButton
-    name: 'ThreadBulkArchiveButton'
-    role: 'thread:BulkAction'
+ComponentRegistry.register
+  view: ThreadBulkArchiveButton
+  name: 'ThreadBulkArchiveButton'
+  role: 'thread:BulkAction'
 ```
 ###
 class MultiselectActionBar extends React.Component

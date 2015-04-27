@@ -1,14 +1,22 @@
-Reflux = require 'reflux'
 Actions = require '../actions'
 Namespace = require '../models/namespace'
 DatabaseStore = require './database-store'
 _ = require 'underscore-plus'
 
-# The ThreadStore listens to changes to the avaialble namespaces in the database
-# and manages the currently selected namespace.
+{Listener, Publisher} = require '../modules/reflux-coffee'
+CoffeeHelpers = require '../coffee-helpers'
 
-NamespaceStore = Reflux.createStore
-  init: ->
+###
+Public: The NamespaceStore listens to changes to the available namespaces in
+the database and exposes the currently active Namespace via {::current}
+###
+class NamespaceStore
+  @include: CoffeeHelpers.includeModule
+
+  @include Publisher
+  @include Listener
+
+  constructor: ->
     @_items = []
     @_current = null
 
@@ -39,10 +47,12 @@ NamespaceStore = Reflux.createStore
 
   # Exposed Data
 
+  # Public: Returns an {Array} of {Namespace} objects
   items: ->
     @_namespaces
 
+  # Public: Returns the currently active {Namespace}.
   current: ->
     @_current
 
-module.exports = NamespaceStore
+module.exports = new NamespaceStore()
