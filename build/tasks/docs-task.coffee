@@ -37,8 +37,13 @@ standardClasses = [
   'typeerror',
   'syntaxerror',
   'referenceerror',
-  'rangeerror'
+  'rangeerror',
 ]
+
+thirdPartyClasses = {
+  'react.component': 'https://facebook.github.io/react/docs/component-api.html',
+  'promise': 'https://github.com/petkaantonov/bluebird/blob/master/API.md'
+}
 
 module.exports = (grunt) ->
   getClassesToInclude = ->
@@ -113,7 +118,7 @@ module.exports = (grunt) ->
   grunt.registerTask 'render-docs', 'Builds html from the API docs', ->
     docsOutputDir = grunt.config.get('docsOutputDir')
     apiJsonPath = path.join(docsOutputDir, 'api.json')
-    
+
     templatesPath = path.resolve(__dirname, '..', '..', 'docs-templates')
     grunt.file.recurse templatesPath, (abspath, root, subdir, filename) ->
       if filename[0] is '_' and path.extname(filename) is '.html'
@@ -127,12 +132,14 @@ module.exports = (grunt) ->
     console.log("Generating HTML for #{classnames.length} classes")
 
     expandTypeReferences = (val) ->
-      refRegex = /{([\w]*)}/g
+      refRegex = /{([\w.]*)}/g
       while (match = refRegex.exec(val)) isnt null
         classname = match[1].toLowerCase()
         url = false
         if classname in standardClasses
           url = standardClassURLRoot+classname
+        else if thirdPartyClasses[classname]
+          url = thirdPartyClasses[classname]
         else if classname in classnames
           url = "./#{classname}.html"
         else

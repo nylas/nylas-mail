@@ -95,16 +95,17 @@ class DatabasePromiseTransaction
     , (err) =>
       @_resolve()
 
-# Public: Nylas Mail is built on top of a custom database layer modeled after
-# ActiveRecord. For many parts of the application, the database is the source
-# of truth. Data is retrieved from the API, written to the database, and changes
-# to the database trigger Stores and components to refresh their contents.
+###
+Public: Nylas Mail is built on top of a custom database layer modeled after
+ActiveRecord. For many parts of the application, the database is the source
+of truth. Data is retrieved from the API, written to the database, and changes
+to the database trigger Stores and components to refresh their contents.
 
-# The DatabaseStore is available in every application window and allows you to
-# make queries against the local cache. Every change to the local cache is
-# broadcast as a change event, and listening to the DatabaseStore keeps the
-# rest of the application in sync.
-#
+The DatabaseStore is available in every application window and allows you to
+make queries against the local cache. Every change to the local cache is
+broadcast as a change event, and listening to the DatabaseStore keeps the
+rest of the application in sync.
+###
 class DatabaseStore
   @include: CoffeeHelpers.includeModule
 
@@ -424,6 +425,14 @@ class DatabaseStore
         return reject("Find by local ID lookup failed") unless link
         query = @find(klass, link.objectId).includeAll().then(resolve)
 
+  # Public: Give a Model a localId.
+  #
+  # - `model` A {Model} object to assign a localId.
+  # - `localId` (Optional) The {String} localId. If you don't pass a LocalId, one
+  #    will be automatically assigned.
+  #
+  # Returns a {Promise} that resolves with the localId assigned to the model.
+  #
   bindToLocalId: (model, localId) ->
     return Promise.reject(new Error("You must provide a model to bindToLocalId")) unless model
 
@@ -439,6 +448,12 @@ class DatabaseStore
         resolve(localId)
       .catch(reject)
 
+  # Public: Look up the localId assigned to the model. If no localId has been
+  # assigned to the model yet, it assigns a new one and persists it to the database.
+  #
+  # - `model` A {Model} object to assign a localId.
+  #
+  # Returns a {Promise} that resolves with the {String} localId.
   localIdForModel: (model) ->
     return Promise.reject(new Error("You must provide a model to localIdForModel")) unless model
 
@@ -458,6 +473,12 @@ class DatabaseStore
 
   # Heavy Lifting
 
+  # Public: Executes a {ModelQuery} on the local database.
+  #
+  # - `modelQuery` A {ModelQuery} to execute.
+  #
+  # Returns a {Promise} that resolves with the result of the database query.
+  #
   run: (modelQuery) ->
     @inTransaction {readonly: true}, (tx) ->
       tx.execute(modelQuery.sql(), [], null, null, modelQuery.executeOptions())

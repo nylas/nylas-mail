@@ -3,11 +3,9 @@ Actions = require '../actions'
 Attributes = require '../attributes'
 _ = require 'underscore-plus'
 
-##
-# Files are small objects that wrap attachments and other files available via the API.
-#
-# @namespace Models
-#
+###
+Public: Files are small objects that wrap attachments and other files available via the API.
+###
 class File extends Model
 
   @attributes: _.extend {}, Model.attributes,
