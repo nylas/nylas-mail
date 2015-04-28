@@ -78,6 +78,7 @@ ThreadListStore = Reflux.createStore
   _onNamespaceChanged: -> @createView()
 
   _onSearchCommitted: (query) ->
+    return if @_searchQuery is query
     @_searchQuery = query
     @createView()
 

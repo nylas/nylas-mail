@@ -21,11 +21,12 @@ ModeToggle = React.createClass
   render: ->
     return <div></div> unless @state.visible
 
-    <div className="mode-switch"
+    <div className="mode-toggle"
          style={order:51, marginTop:10, marginRight:14}
          onClick={@_onToggleMode}>
       <RetinaImg
         name="toolbar-icon-toggle-pane.png"
+        colorfill={@state.mode is 'split'}
         onClick={@_onToggleMode}  />
     </div>
   

@@ -78,7 +78,10 @@ class MultiselectList extends React.Component
       name: ""
       resolver: (thread) =>
         toggle = (event) =>
-          props.dataStore.view().selection.toggle(thread)
+          if event.shiftKey
+            props.dataStore.view().selection.expandTo(thread)
+          else
+            props.dataStore.view().selection.toggle(thread)
           event.stopPropagation()
         <div className="checkmark" onClick={toggle}><div className="inner"></div></div>
 

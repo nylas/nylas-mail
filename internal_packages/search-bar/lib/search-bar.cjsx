@@ -14,7 +14,7 @@ class SearchBar extends React.Component
       query: ""
       focused: false
       suggestions: []
-      committedQuery: ""
+      committedQuery: null
 
   componentDidMount: =>
     @unsubscribe = SearchSuggestionStore.listen @_onStoreChange
@@ -84,7 +84,7 @@ class SearchBar extends React.Component
     classNames
       'focused': @state.focused
       'showing-query': @state.query?.length > 0
-      'committed-query': @state.committedQuery.length > 0
+      'committed-query': @state.committedQuery?.length > 0
       'search-container': true
       'showing-suggestions': @state.suggestions?.length > 0
 
@@ -120,7 +120,7 @@ class SearchBar extends React.Component
     Actions.searchQueryCommitted(item.value)
 
   _onClearSearch: (event) =>
-    Actions.searchQueryCommitted('')
+    Actions.searchQueryCommitted(null)
 
   _clearAndBlur: =>
     @_onClearSearch()

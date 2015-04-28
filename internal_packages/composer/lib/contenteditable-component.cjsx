@@ -577,7 +577,7 @@ class ContenteditableComponent extends React.Component
       @setState toolbarVisible: false
 
   _focusedOnToolbar: =>
-    React.findDOMNode(@refs.floatingToolbar).contains(document.activeElement)
+    React.findDOMNode(@refs.floatingToolbar)?.contains(document.activeElement)
 
   # This needs to be in the contenteditable area because we need to first
   # restore the selection before calling the `execCommand`

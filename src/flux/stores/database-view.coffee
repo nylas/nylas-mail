@@ -237,6 +237,10 @@ class DatabaseView extends ModelView
     query.include(attr) for attr in @_includes
 
     query.then (items) =>
+      # If the page is no longer in the cache at all, it may have fallen out of the
+      # retained range and been cleaned up.
+      return unless @_pages[idx]
+
       # If we've started reloading since we made our query, don't do any more work
       if page.loadingStart isnt start
         @log("Retrieval cancelled — out of date.")
@@ -251,6 +255,7 @@ class DatabaseView extends ModelView
   retrievePageMetadata: (idx, items) ->
     start = Date.now()
     page = @_pages[idx]
+
     page.loadingStart = start
 
     # This method can only be used once the page is loaded. If no page is present,

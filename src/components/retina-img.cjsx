@@ -19,11 +19,11 @@ StylesImpactedByZoom = [
 
 ###
 Public: RetinaImg wraps the DOM's standard `<img`> tag and implements a `UIImage` style
-  interface. Rather than specifying an image `src`, RetinaImg allows you to provide
-  an image name. Like UIImage on iOS, it automatically finds the best image for the current
-  display based on pixel density. Given `image.png`, on a Retina screen, it looks for 
-  `image@2x.png`, `image.png`, `image@1x.png` in that order. It uses a lookup table and caches
-  image names, so images generally resolve immediately.
+interface. Rather than specifying an image `src`, RetinaImg allows you to provide
+an image name. Like UIImage on iOS, it automatically finds the best image for the current
+display based on pixel density. Given `image.png`, on a Retina screen, it looks for 
+`image@2x.png`, `image.png`, `image@1x.png` in that order. It uses a lookup table and caches
+image names, so images generally resolve immediately.
 ###
 class RetinaImg extends React.Component
   @displayName: 'RetinaImg'
