@@ -4,7 +4,7 @@ _ = require 'underscore-plus'
 
 ###
 Public: The Tag model represents a Nylas Tag object. For more information
-about Tags on the Nylas Platform, read the 
+about Tags on the Nylas Platform, read the
 [https://nylas.com/docs/api#tags](Tags API Documentation)
 
 ## Attributes

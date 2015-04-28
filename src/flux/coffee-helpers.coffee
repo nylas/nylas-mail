@@ -4,10 +4,10 @@ module.exports =
   # This copied out CoffeeScript
   includeModule: (mixin) ->
     if not mixin
-      return throw 'Supplied mixin was not found'
+      return throw new Error('Supplied mixin was not found')
 
     if not _
-      return throw 'Underscore was not found'
+      return throw new Error('Underscore was not found')
 
     mixin = mixin.prototype if _.isFunction(mixin)
 
