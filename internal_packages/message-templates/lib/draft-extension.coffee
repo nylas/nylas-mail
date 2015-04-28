@@ -1,18 +1,20 @@
+{DraftStoreExtension} = require 'inbox-exports'
 
-module.exports =
-  warningsForSending: (draft) ->
+class TemplatesDraftStoreExtension extends DraftStoreExtension
+
+  @warningsForSending: (draft) ->
     warnings = []
     if draft.body.search(/<code[^>]*empty[^>]*>/i) > 0
       warnings.push("with an empty template area")
     warnings
-  
-  finalizeSessionBeforeSending: (session) ->
+
+  @finalizeSessionBeforeSending: (session) ->
     body = session.draft().body
     clean = body.replace(/<\/?code[^>]*>/g, '')
     if body != clean
       session.changes.add(body: clean)
 
-  onMouseUp: (editableNode, range, event) ->
+  @onMouseUp: (editableNode, range, event) ->
     parent = range.startContainer?.parentNode
     parentCodeNode = null
 
@@ -29,14 +31,14 @@ module.exports =
       selection = document.getSelection()
       selection.removeAllRanges()
       selection.addRange(range)
- 
-  onFocusPrevious: (editableNode, range, event) ->
+
+  @onFocusPrevious: (editableNode, range, event) ->
     @onFocusShift(editableNode, range, event, -1)
 
-  onFocusNext: (editableNode, range, event) ->
+  @onFocusNext: (editableNode, range, event) ->
     @onFocusShift(editableNode, range, event, 1)
 
-  onFocusShift: (editableNode, range, event, delta) ->
+  @onFocusShift: (editableNode, range, event, delta) ->
     return unless range
 
     # Try to find the node that the selection range is
@@ -95,7 +97,7 @@ module.exports =
       event.preventDefault()
       event.stopPropagation()
 
-  onInput: (editableNode, event) ->
+  @onInput: (editableNode, event) ->
     selection = document.getSelection()
 
     isWithinNode = (node) ->
@@ -109,3 +111,6 @@ module.exports =
     for codeTag in codeTags
       if selection.containsNode(codeTag) or isWithinNode(codeTag)
         codeTag.classList.remove('empty')
+
+
+module.exports = TemplatesDraftStoreExtension

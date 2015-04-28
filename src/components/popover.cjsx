@@ -39,7 +39,7 @@ class Popover extends React.Component
 
   ###
   Public: React `props` supported by Popover:
-  
+
    - `buttonComponent` The React element that will be rendered in place of the Popover and trigger it to appear. This is typically a button or call-to-action for opening the
    popover. Popover wraps this item in a <div> with an onClick handler.
 
@@ -75,7 +75,7 @@ class Popover extends React.Component
     wrappedButtonComponent = []
     if @props.buttonComponent
       wrappedButtonComponent = <div onClick={@_onClick}>{@props.buttonComponent}</div>
-    
+
     popoverComponent = []
     if @state.showing
       popoverComponent = <div ref="popover" className="popover">
@@ -95,13 +95,13 @@ class Popover extends React.Component
     if showing
       setTimeout =>
         # Automatically focus the element inside us with the lowest tab index
-        node = @refs.popover.findDOMNode()
+        node = React.findDOMNode(@refs.popover)
         matches = _.sortBy node.querySelectorAll("[tabIndex]"), (a,b) -> a.tabIndex < b.tabIndex
         matches[0].focus() if matches[0]
 
   _onBlur: (event) =>
     target = event.nativeEvent.relatedTarget
-    if target? and @refs.container.findDOMNode().contains(target)
+    if target? and React.findDOMNode(@refs.container).contains(target)
       return
     @setState
       showing:false

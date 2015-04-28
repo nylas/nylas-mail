@@ -37,12 +37,15 @@ standardClasses = [
   'typeerror',
   'syntaxerror',
   'referenceerror',
-  'rangeerror',
+  'rangeerror'
 ]
 
 thirdPartyClasses = {
   'react.component': 'https://facebook.github.io/react/docs/component-api.html',
-  'promise': 'https://github.com/petkaantonov/bluebird/blob/master/API.md'
+  'promise': 'https://github.com/petkaantonov/bluebird/blob/master/API.md',
+  'range': 'https://developer.mozilla.org/en-US/docs/Web/API/Range',
+  'selection': 'https://developer.mozilla.org/en-US/docs/Web/API/Selection',
+  'node': 'https://developer.mozilla.org/en-US/docs/Web/API/Node',
 }
 
 module.exports = (grunt) ->

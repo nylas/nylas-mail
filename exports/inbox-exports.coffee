@@ -41,6 +41,7 @@ Exports =
 
   # Stores
   DraftStore: require '../src/flux/stores/draft-store'
+  DraftStoreExtension: require '../src/flux/stores/draft-store-extension'
   MessageStore: require '../src/flux/stores/message-store'
   ContactStore: require '../src/flux/stores/contact-store'
   NamespaceStore: require '../src/flux/stores/namespace-store'
