@@ -103,7 +103,6 @@ class ContenteditableComponent extends React.Component
     editableNode = @_editableNode()
     editableNode.normalize()
 
-    editableNode = @_editableNode()
     for extension in DraftStore.extensions()
       extension.onInput(editableNode, event) if extension.onInput
 
@@ -119,7 +118,8 @@ class ContenteditableComponent extends React.Component
       @_hideToolbar()
     , 50
 
-  _editableNode: => React.findDOMNode(@refs.contenteditable)
+  _editableNode: =>
+    React.findDOMNode(@refs.contenteditable)
 
   _getAllLinks: =>
     Array.prototype.slice.call(@_editableNode().querySelectorAll("*[href]"))
@@ -336,7 +336,8 @@ class ContenteditableComponent extends React.Component
       @_lastMouseDown = Date.now()
 
   _onDoubleDown: (event) =>
-    editable = React.findDOMNode(@refs.contenteditable)
+    editable = @_editableNode()
+    return unless editable?
     if editable is event.target or editable.contains(event.target)
       @_doubleDown = true
 
@@ -371,7 +372,8 @@ class ContenteditableComponent extends React.Component
     event
 
   _onDragStart: (event) =>
-    editable = React.findDOMNode(@refs.contenteditable)
+    editable = @_editableNode()
+    return unless editable?
     if editable is event.target or editable.contains(event.target)
       @_dragging = true
 
@@ -547,9 +549,10 @@ class ContenteditableComponent extends React.Component
   # See selection API: http://www.w3.org/TR/selection-api/
   _selectionInScope: (selection) =>
     return false if not selection?
-    editNode = React.findDOMNode(@refs.contenteditable)
-    return (editNode.contains(selection.anchorNode) and
-            editNode.contains(selection.focusNode))
+    editable = @_editableNode()
+    return false if not editable?
+    return (editable.contains(selection.anchorNode) and
+            editable.contains(selection.focusNode))
 
   CONTENT_PADDING: 15
 
@@ -559,7 +562,7 @@ class ContenteditableComponent extends React.Component
 
     BORDER_RADIUS_PADDING = 15
 
-    editArea = React.findDOMNode(@refs.contenteditable).getBoundingClientRect()
+    editArea = @_editableNode().getBoundingClientRect()
 
     calcLeft = (referenceRect.left - editArea.left) + referenceRect.width/2
     calcLeft = Math.min(Math.max(calcLeft, @CONTENT_PADDING+BORDER_RADIUS_PADDING), editArea.width - BORDER_RADIUS_PADDING)

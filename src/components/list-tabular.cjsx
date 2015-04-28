@@ -102,6 +102,7 @@ class ListTabular extends React.Component
         @updateRangeState()
 
   onDoneReceivingScrollEvents: =>
+    return unless React.findDOMNode(@refs.container)
     @setState({scrollInProgress: false})
     @updateRangeState()
 

@@ -1,6 +1,9 @@
 _ = require('underscore-plus')
 EventEmitter = require('events').EventEmitter
 
+callbackName = (string) ->
+  "on"+string.charAt(0).toUpperCase()+string.slice(1)
+
 ###*
 # Extract child listenables from a parent from their
 # children property and return them in a keyed Object
@@ -63,7 +66,7 @@ module.exports =
     listenToMany: (listenables) ->
       allListenables = flattenListenables(listenables)
       for key of allListenables
-        cbname = _.callbackName(key)
+        cbname = callbackName(key)
         localname = if @[cbname] then cbname else if @[key] then key else undefined
         if localname
           @listenTo allListenables[key], localname, @[cbname + 'Default'] or @[localname + 'Default'] or localname
@@ -90,7 +93,8 @@ module.exports =
 
       unsubscriber = ->
         index = subs.indexOf(subscriptionobj)
-        _.throwIf index == -1, 'Tried to remove listen already gone from subscriptions list!'
+        if index == -1
+          throw new Error('Tried to remove listen already gone from subscriptions list!')
         subs.splice index, 1
         desub()
         return
@@ -109,7 +113,8 @@ module.exports =
         sub = subs[i]
         if sub.listenable == listenable
           sub.stop()
-          _.throwIf subs.indexOf(sub) != -1, 'Failed to remove listen from subscriptions list!'
+          if subs.indexOf(sub) != -1
+            throw new Error('Failed to remove listen from subscriptions list!')
           return true
         i++
       false
@@ -119,7 +124,8 @@ module.exports =
       subs = @subscriptions or []
       while remaining = subs.length
         subs[0].stop()
-        _.throwIf subs.length != remaining - 1, 'Failed to remove listen from subscriptions list!'
+        if subs.length != remaining - 1
+          throw new Error('Failed to remove listen from subscriptions list!')
       return
 
     fetchInitialState: (listenable, defaultCallback) ->
@@ -146,14 +152,14 @@ module.exports =
       @setupEmitter()
       bindContext ?= @
       aborted = false
-      eventHandler = ->
+      eventHandler = (args) ->
         return if aborted
-        callback.apply(bindContext, arguments)
+        callback.apply(bindContext, args)
       @_emitter.addListener('trigger', eventHandler)
       return =>
         aborted = true
         @_emitter.removeListener('trigger', eventHandler)
 
-    trigger: (arg) ->
+    trigger: ->
       @setupEmitter()
-      @_emitter.emit('trigger', arg)
+      @_emitter.emit('trigger', arguments)

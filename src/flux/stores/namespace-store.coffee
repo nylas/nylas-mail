@@ -24,7 +24,7 @@ class NamespaceStore
     @listenTo DatabaseStore, @onDataChanged
     @populateItems()
 
-  populateItems: ->
+  populateItems: =>
     DatabaseStore.findAll(Namespace).then (namespaces) =>
       current = _.find namespaces, (n) -> n.id == @_current?.id
       current = namespaces?[0] unless current
@@ -36,11 +36,11 @@ class NamespaceStore
 
   # Inbound Events
 
-  onDataChanged: (change) ->
+  onDataChanged: (change) =>
     return unless change && change.objectClass == Namespace.name
     @populateItems()
 
-  onSelectNamespaceId: (id) ->
+  onSelectNamespaceId: (id) =>
     return if @_current?.id is id
     @_current = _.find @_namespaces, (n) -> n.id == @_current.id
     @trigger(@)
@@ -48,11 +48,11 @@ class NamespaceStore
   # Exposed Data
 
   # Public: Returns an {Array} of {Namespace} objects
-  items: ->
+  items: =>
     @_namespaces
 
   # Public: Returns the currently active {Namespace}.
-  current: ->
+  current: =>
     @_current
 
 module.exports = new NamespaceStore()

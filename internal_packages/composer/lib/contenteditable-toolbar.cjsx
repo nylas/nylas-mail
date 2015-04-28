@@ -26,7 +26,7 @@
 #
 #   componentDidUpdate: (lastProps, lastState) =>
 #     if !lastState.show and @state.show
-#       @refs.toolbar.findDOMNode().focus()
+#       React.findDOMNode(@refs.toolbar).focus()
 #
 #   onClick: (event) =>
 #     cmd = event.currentTarget.getAttribute 'data-command-name'

@@ -160,7 +160,7 @@ class DatabaseStore
     if @_root
       @listenTo(Actions.logout, @onLogout)
 
-  inTransaction: (options = {}, callback) ->
+  inTransaction: (options = {}, callback) =>
     new Promise (resolve, reject) =>
       aquire = =>
         db = @_db || options.database
@@ -168,12 +168,12 @@ class DatabaseStore
         callback(new DatabasePromiseTransaction(db, resolve, reject))
       aquire()
 
-  forEachClass: (callback) ->
+  forEachClass: (callback) =>
     classMap = modelClassMap()
     for key, klass of classMap
       callback(klass) if klass.attributes
 
-  openDatabase: (options = {createTables: false}, callback) ->
+  openDatabase: (options = {createTables: false}, callback) =>
     app = remote.getGlobal('atomApplication')
     app.prepareDatabase @_dbPath, =>
       database = new DatabaseProxy(@_dbPath)
@@ -199,14 +199,14 @@ class DatabaseStore
         @_db = database
         callback() if callback
 
-  teardownDatabase: (callback) ->
+  teardownDatabase: (callback) =>
     app = remote.getGlobal('atomApplication')
     app.teardownDatabase @_dbPath, =>
       @_db = null
       @trigger({})
       callback()
 
-  writeModels: (tx, models) ->
+  writeModels: (tx, models) =>
     # IMPORTANT: This method assumes that all the models you
     # provide are of the same class, and have different ids!
 
@@ -287,7 +287,7 @@ class DatabaseStore
           tx.execute("REPLACE INTO `#{attr.modelTable}` (`id`, `value`) VALUES (?, ?)", [model.id, model[attr.modelKey]])
 
 
-  deleteModel: (tx, model) ->
+  deleteModel: (tx, model) =>
     klass = model.constructor
     attributes = _.values(klass.attributes)
 
@@ -311,7 +311,7 @@ class DatabaseStore
 
   # Inbound Events
 
-  onLogout: ->
+  onLogout: =>
     @teardownDatabase =>
       @openDatabase {createTables: @_root}, =>
         # Signal that different namespaces (ie none) are now available
@@ -322,7 +322,7 @@ class DatabaseStore
   #
   # - `model` A {Model} to write to the database.
   #
-  persistModel: (model) ->
+  persistModel: (model) =>
     @inTransaction {}, (tx) =>
       tx.execute('BEGIN TRANSACTION')
       @writeModels(tx, [model])
@@ -334,7 +334,7 @@ class DatabaseStore
   #
   # - `models` An {Array} of {Model} objects to write to the database.
   #
-  persistModels: (models) ->
+  persistModels: (models) =>
     klass = models[0].constructor
     @inTransaction {}, (tx) =>
       tx.execute('BEGIN TRANSACTION')
@@ -354,14 +354,14 @@ class DatabaseStore
   #
   # - `model` A {Model} to write to the database.
   #
-  unpersistModel: (model) ->
+  unpersistModel: (model) =>
     @inTransaction {}, (tx) =>
       tx.execute('BEGIN TRANSACTION')
       @deleteModel(tx, model)
       tx.execute('COMMIT')
       @trigger({objectClass: model.constructor.name, objects: [model]})
 
-  swapModel: ({oldModel, newModel, localId}) ->
+  swapModel: ({oldModel, newModel, localId}) =>
     @inTransaction {}, (tx) =>
       tx.execute('BEGIN TRANSACTION')
       @deleteModel(tx, oldModel)
@@ -389,7 +389,7 @@ class DatabaseStore
   #
   # Returns a {ModelQuery}
   #
-  find: (klass, id) ->
+  find: (klass, id) =>
     throw new Error("You must provide a class to findByLocalId") unless klass
     throw new Error("find takes a string id. You may have intended to use findBy.") unless _.isString(id)
     new ModelQuery(klass, @).where({id:id}).one()
@@ -403,7 +403,7 @@ class DatabaseStore
   #
   # Returns a {ModelQuery}
   #
-  findBy: (klass, predicates = []) ->
+  findBy: (klass, predicates = []) =>
     throw new Error("You must provide a class to findBy") unless klass
     new ModelQuery(klass, @).where(predicates).one()
 
@@ -416,7 +416,7 @@ class DatabaseStore
   #
   # Returns a {ModelQuery}
   #
-  findAll: (klass, predicates = []) ->
+  findAll: (klass, predicates = []) =>
     throw new Error("You must provide a class to findAll") unless klass
     new ModelQuery(klass, @).where(predicates)
 
@@ -429,7 +429,7 @@ class DatabaseStore
   #
   # Returns a {ModelQuery}
   #
-  count: (klass, predicates = []) ->
+  count: (klass, predicates = []) =>
     throw new Error("You must provide a class to count") unless klass
     new ModelQuery(klass, @).where(predicates).count()
 
@@ -448,7 +448,7 @@ class DatabaseStore
   # Note: When fetching an object by local Id, joined attributes
   # (like body, stored in a separate table) are always included.
   #
-  findByLocalId: (klass, localId) ->
+  findByLocalId: (klass, localId) =>
     return Promise.reject(new Error("You must provide a class to findByLocalId")) unless klass
     return Promise.reject(new Error("You must provide a local Id to findByLocalId")) unless localId
 
@@ -465,7 +465,7 @@ class DatabaseStore
   #
   # Returns a {Promise} that resolves with the localId assigned to the model.
   #
-  bindToLocalId: (model, localId) ->
+  bindToLocalId: (model, localId) =>
     return Promise.reject(new Error("You must provide a model to bindToLocalId")) unless model
 
     new Promise (resolve, reject) =>
@@ -486,7 +486,7 @@ class DatabaseStore
   # - `model` A {Model} object to assign a localId.
   #
   # Returns a {Promise} that resolves with the {String} localId.
-  localIdForModel: (model) ->
+  localIdForModel: (model) =>
     return Promise.reject(new Error("You must provide a model to localIdForModel")) unless model
 
     new Promise (resolve, reject) =>
@@ -511,13 +511,13 @@ class DatabaseStore
   #
   # Returns a {Promise} that resolves with the result of the database query.
   #
-  run: (modelQuery) ->
+  run: (modelQuery) =>
     @inTransaction {readonly: true}, (tx) ->
       tx.execute(modelQuery.sql(), [], null, null, modelQuery.executeOptions())
     .then (result) ->
       Promise.resolve(modelQuery.formatResult(result))
 
-  queriesForTableSetup: (klass) ->
+  queriesForTableSetup: (klass) =>
     attributes = _.values(klass.attributes)
     queries = []
 

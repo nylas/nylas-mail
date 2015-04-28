@@ -21,6 +21,7 @@ class Spinner extends React.Component
     style: React.PropTypes.object
 
   constructor: (@props) ->
+    @timer = null
     @state =
       hidden: true
       paused: true
@@ -33,6 +34,9 @@ class Spinner extends React.Component
     if @props.visible and @state.hidden
       @showAfterDelay()
 
+  componentWillUnmount: =>
+    clearTimeout(@timer) if @timer
+
   componentWillReceiveProps: (nextProps) =>
     hidden = if nextProps.visible? then !nextProps.visible else false
 
@@ -43,13 +47,15 @@ class Spinner extends React.Component
       @showAfterDelay()
 
   pauseAfterDelay: =>
-    _.delay =>
+    clearTimeout(@timer) if @timer
+    @timer = setTimeout =>
       return if @props.visible
       @setState({paused: true})
     ,250
 
   showAfterDelay: =>
-    _.delay =>
+    clearTimeout(@timer) if @timer
+    @timer = setTimeout =>
       return if @props.visible isnt true
       @setState({paused: false, hidden: false})
     , 300

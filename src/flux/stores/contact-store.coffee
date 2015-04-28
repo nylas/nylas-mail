@@ -33,7 +33,7 @@ class ContactStore
   @include Publisher
   @include Listener
 
-  init: ->
+  constructor: ->
     @_contactCache = []
     @_namespaceId = null
     @listenTo DatabaseStore, @_onDatabaseChanged
@@ -52,7 +52,7 @@ class ContactStore
   #
   # Returns an {Array} of matching {Contact} models
   #
-  searchContacts: (search, {limit}={}) ->
+  searchContacts: (search, {limit}={}) =>
     return [] if not search or search.length is 0
 
     limit ?= 5
@@ -80,7 +80,7 @@ class ContactStore
 
     matches
 
-  _refreshCache: ->
+  _refreshCache: =>
     new Promise (resolve, reject) =>
       DatabaseStore.findAll(Contact)
       .then (contacts=[]) =>
@@ -89,15 +89,15 @@ class ContactStore
         resolve()
       .catch(reject)
 
-  _onDatabaseChanged: (change) ->
+  _onDatabaseChanged: (change) =>
     return unless change?.objectClass is Contact.name
     @_refreshCache()
 
-  _resetCache: ->
+  _resetCache: =>
     @_contactCache = []
     @trigger(@)
 
-  _onNamespaceChanged: ->
+  _onNamespaceChanged: =>
     return if @_namespaceId is NamespaceStore.current()?.id
     @_namespaceId = NamespaceStore.current()?.id
 

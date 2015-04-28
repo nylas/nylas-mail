@@ -1,7 +1,7 @@
 {
-  "name": "inbox-participants",
+  "name": "inbox-contact-elements",
   "version": "0.0.1",
-  "description": "Contact List",
+  "description": "Contact React Elements",
   "main": "./lib/main",
   "license": "Proprietary",
   "engines": {

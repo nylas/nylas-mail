@@ -88,7 +88,7 @@ class DraftStore
   # - `key1` A {String} that contains bla
   # - `key2` A {String} that contains bla
   #
-  sessionForLocalId: (localId) ->
+  sessionForLocalId: (localId) =>
     if not localId
       console.log((new Error).stack)
       throw new Error("sessionForLocalId requires a localId")
@@ -103,7 +103,7 @@ class DraftStore
   ###
 
   # Public: Returns the extensions registered with the DraftStore.
-  extensions: (ext) ->
+  extensions: (ext) =>
     @_extensions
 
   # Public: Registers a new extension with the DraftStore. DraftStore extensions
@@ -112,19 +112,19 @@ class DraftStore
   #
   # - `ext` A {DraftStoreExtension} instance.
   #
-  registerExtension: (ext) ->
+  registerExtension: (ext) =>
     @_extensions.push(ext)
 
   # Public: Unregisters the extension provided from the DraftStore.
   #
   # - `ext` A {DraftStoreExtension} instance.
   #
-  unregisterExtension: (ext) ->
+  unregisterExtension: (ext) =>
     @_extensions = _.without(@_extensions, ext)
 
   ########### PRIVATE ####################################################
 
-  cleanupSessionForLocalId: (localId) ->
+  cleanupSessionForLocalId: (localId) =>
     return unless @_draftSessions[localId]
 
     draft = @_draftSessions[localId].draft()
@@ -137,7 +137,7 @@ class DraftStore
       @_draftSessions[localId].cleanup()
       delete @_draftSessions[localId]
 
-  _onBeforeUnload: ->
+  _onBeforeUnload: =>
     promises = []
 
     # Normally we'd just append all promises, even the ones already
@@ -162,15 +162,15 @@ class DraftStore
       # Continue closing
       return true
 
-  _onDataChanged: (change) ->
+  _onDataChanged: (change) =>
     return unless change.objectClass is Message.name
     containsDraft = _.some(change.objects, (msg) -> msg.draft)
     return unless containsDraft
 
-  _isMe: (contact={}) ->
+  _isMe: (contact={}) =>
     contact.email is NamespaceStore.current().me().email
 
-  _onComposeReply: (context) ->
+  _onComposeReply: (context) =>
     @_newMessageWithContext context, (thread, message) =>
       if @_isMe(message.from[0])
         to = message.to
@@ -182,7 +182,7 @@ class DraftStore
         to: to
       }
 
-  _onComposeReplyAll: (context) ->
+  _onComposeReplyAll: (context) =>
     @_newMessageWithContext context, (thread, message) =>
       if @_isMe(message.from[0])
         to = message.to
@@ -200,11 +200,11 @@ class DraftStore
         cc: cc
       }
 
-  _onComposeForward: (context) ->
+  _onComposeForward: (context) =>
     @_newMessageWithContext context, (thread, message) ->
       forwardMessage: message
 
-  _newMessageWithContext: ({threadId, messageId}, attributesCallback) ->
+  _newMessageWithContext: ({threadId, messageId}, attributesCallback) =>
     queries = {}
     queries.thread = DatabaseStore.find(Thread, threadId)
     if messageId?
@@ -283,7 +283,7 @@ class DraftStore
       DatabaseStore.persistModel(draft)
 
   # Eventually we'll want a nicer solution for inline attachments
-  _formatBodyForQuoting: (body="") ->
+  _formatBodyForQuoting: (body="") =>
     cidRE = MessageUtils.cidRegexString
     # Be sure to match over multiple lines with [\s\S]*
     # Regex explanation here: https://regex101.com/r/vO6eN2/1
@@ -296,18 +296,18 @@ class DraftStore
   # before the new-window loaded would cause the new-window to load with
   # about:blank instead of its contents. By moving the DB logic there, we can
   # get around this.
-  _onComposeNewBlankDraft: ->
+  _onComposeNewBlankDraft: =>
     atom.newWindow @_composerWindowProps()
 
-  _onComposePopoutDraft: (draftLocalId) ->
+  _onComposePopoutDraft: (draftLocalId) =>
     atom.newWindow @_composerWindowProps(draftLocalId: draftLocalId)
 
-  _composerWindowProps: (props={}) ->
+  _composerWindowProps: (props={}) =>
     title: "Message"
     windowType: "composer"
     windowProps: _.extend {}, props, createNew: true
 
-  _onDestroyDraft: (draftLocalId) ->
+  _onDestroyDraft: (draftLocalId) =>
     # Immediately reset any pending changes so no saves occur
     @_draftSessions[draftLocalId]?.changes.reset()
 
@@ -317,7 +317,7 @@ class DraftStore
     # Clean up the draft session
     @cleanupSessionForLocalId(draftLocalId)
 
-  _onSendDraft: (draftLocalId) ->
+  _onSendDraft: (draftLocalId) =>
     new Promise (resolve, reject) =>
       @_sendingState[draftLocalId] = true
       @trigger()
@@ -340,21 +340,21 @@ class DraftStore
 
           resolve()
 
-  _onSendDraftError: (draftLocalId) ->
+  _onSendDraftError: (draftLocalId) =>
     @_sendingState[draftLocalId] = false
     @trigger()
 
-  _onSendDraftSuccess: (draftLocalId) ->
+  _onSendDraftSuccess: (draftLocalId) =>
     @_sendingState[draftLocalId] = false
     @trigger()
 
-  _onAttachFileComplete: ({file, messageLocalId}) ->
+  _onAttachFileComplete: ({file, messageLocalId}) =>
     @sessionForLocalId(messageLocalId).prepare().then (proxy) ->
       files = proxy.draft().files ? []
       files.push(file)
       proxy.changes.add({files}, true)
 
-  _onRemoveFile: ({file, messageLocalId}) ->
+  _onRemoveFile: ({file, messageLocalId}) =>
     @sessionForLocalId(messageLocalId).prepare().then (proxy) ->
       files = proxy.draft().files ? []
       files = _.reject files, (f) -> f.id is file.id

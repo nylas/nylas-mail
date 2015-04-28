@@ -42,7 +42,7 @@ ComposerView = React.createClass
 
   componentDidMount: ->
     @_draftStoreUnlisten = DraftStore.listen @_onSendingStateChanged
-    @keymap_unsubscriber = atom.commands.add '.composer-outer-wrap', {
+    @_keymapUnlisten = atom.commands.add '.composer-outer-wrap', {
       'composer:show-and-focus-bcc': @_showAndFocusBcc
       'composer:show-and-focus-cc': @_showAndFocusCc
       'composer:focus-to': => @focus "textFieldTo"
@@ -59,7 +59,7 @@ ComposerView = React.createClass
   componentWillUnmount: ->
     @_teardownForDraft()
     @_draftStoreUnlisten() if @_draftStoreUnlisten
-    @keymap_unsubscriber.dispose()
+    @_keymapUnlisten.dispose() if @_keymapUnlisten
 
   componentDidUpdate: ->
     # We want to use a temporary variable instead of putting this into the

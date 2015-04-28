@@ -7,30 +7,6 @@ CoffeeHelpers = require './flux/coffee-helpers'
 # Error types
 class RegistryError extends Error
 
-getViewsByName = (components) ->
-  state = {}
-  for component in components ? []
-    # Allow components to be requested as "Component" or "Component as C"
-    [registered, requested] = component.split " as "
-    requested ?= registered
-    state[requested] = ComponentRegistry.findViewByName registered
-    if not state[requested]?
-      console.log("Warning: No component found for #{requested} in #{@constructor.displayName}. Loaded: #{Object.keys(registry)}")
-  state
-
-Mixin =
-  getInitialState: ->
-    getViewsByName.apply(@, [@components])
-
-  componentDidMount: ->
-    @_componentUnlistener = ComponentRegistry.listen =>
-      if @isMounted() is false
-        console.log('WARNING: ComponentRegistry firing on unmounted component.')
-        return
-      @setState getViewsByName(@components)
-
-  componentWillUnmount: ->
-    @_componentUnlistener() if @_componentUnlistener
 
 # Internal representation of components
 class Component
@@ -84,7 +60,7 @@ class ComponentRegistry
   #
   # This method is chainable.
   #
-  register: (component) ->
+  register: (component) =>
     # Receive a component or something which can build one
     throw new RegistryError 'Required: ComponentRegistry.Component or something which conforms to {name, view}' unless component instanceof Object
     component = new Component(component) unless component instanceof Component
@@ -100,12 +76,12 @@ class ComponentRegistry
     # Return `this` for chaining
     @
 
-  unregister: (name) -> delete registry[name]
+  unregister: (name) => delete registry[name]
 
-  showComponentRegions: ->
+  showComponentRegions: =>
     @_showComponentRegions
 
-  getByName: (name) ->
+  getByName: (name) =>
     component = registry[name]
     throw new RegistryError 'No such component' unless component?
     component
@@ -116,10 +92,10 @@ class ComponentRegistry
   #
   # Returns a {React.Component}
   #
-  findByName: (name, alt) ->
+  findByName: (name, alt) =>
     registry[name] ? alt
 
-  findViewByName: (name, alt) ->
+  findViewByName: (name, alt) =>
     registry[name]?.view ? alt
 
   # Public: Retrieve all of the registry entries for a given role.
@@ -128,14 +104,14 @@ class ComponentRegistry
   #
   # Returns an {Array} of {React.Component} objects
   #
-  findAllByRole: (role) ->
+  findAllByRole: (role) =>
     _.filter (_.values registry), (component) ->
       component.role == role
 
-  findAllViewsByRole: (role) ->
+  findAllViewsByRole: (role) =>
     _.map @findAllByRole(role), (component) -> component.view
 
-  findAllByLocationAndMode: (location, mode) ->
+  findAllByLocationAndMode: (location, mode) =>
     _.filter (_.values registry), (component) ->
       return false unless component.location
       return false if component.location.id isnt location.id
@@ -144,7 +120,7 @@ class ComponentRegistry
 
   triggerDebounced: _.debounce(( -> @trigger(@)), 1)
 
-  _clear: ->
+  _clear: =>
     registry = {}
 
   _onToggleComponentRegions: ->
@@ -153,7 +129,5 @@ class ComponentRegistry
 
   Component: Component
   RegistryError: RegistryError
-  Mixin: Mixin
-
 
 module.exports = new ComponentRegistry()

@@ -1,11 +1,8 @@
-{ComponentRegistry, NamespaceStore} = require "inbox-exports"
 React = require "react"
 _ = require "underscore-plus"
 
-DefaultChip = React.createClass
-  render: ->
-    display = @props.participant.name? and @props.participant.name or @props.participant.email
-    <span className="default-participant-chip">{display}</span>
+{NamespaceStore} = require "inbox-exports"
+{InjectedComponent} = require 'ui-components'
 
 # Parameters
 # clickable (optional) - is this currently clickable?
@@ -16,14 +13,10 @@ DefaultChip = React.createClass
 #  - 'list'
 
 module.exports = React.createClass
-  mixins: [ComponentRegistry.Mixin]
-  components: ["ParticipantChip"]
-
   render: ->
-    ParticipantChip = @state.ParticipantChip ? DefaultChip
     chips = @getParticipants().map (p) =>
-      <ParticipantChip key={p.id}
-        displayName="ParticipantChip"
+      <InjectedComponent name="ContactChip"
+        key={p.id}
         clickable={@props.clickable}
         context={@props.context}
         participant={p} />
