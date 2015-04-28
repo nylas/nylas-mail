@@ -1,4 +1,4 @@
-{Matcher, NullPlaceholder, AttributeJoinedData} = require '../attributes'
+{Matcher, AttributeJoinedData} = require '../attributes'
 _ = require 'underscore-plus'
 
 ###
@@ -179,7 +179,7 @@ class ModelQuery
         object = (new @_klass).fromJSON(json)
         for attr, j in @_includeJoinedData
           value = row[j+1]
-          value = null if value is NullPlaceholder
+          value = null if value is AttributeJoinedData.NullPlaceholder
           object[attr.modelKey] = value
         objects.push(object)
       return objects[0] if @_singular

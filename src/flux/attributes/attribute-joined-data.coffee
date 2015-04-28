@@ -44,5 +44,6 @@ class AttributeJoinedData extends Attribute
   includeSQL: (klass) ->
     "LEFT OUTER JOIN `#{@modelTable}` ON `#{@modelTable}`.`id` = `#{klass.name}`.`id`"
 
+  NullPlaceholder: NullPlaceholder
 
 module.exports = AttributeJoinedData
