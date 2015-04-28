@@ -2,13 +2,40 @@
 _ = require 'underscore-plus'
 
 ###
-Public: ModelQuery exposes an ActiveRecord-style syntax for building database queries.
+Public: ModelQuery exposes an ActiveRecord-style syntax for building database queries
+that return models and model counts. Model queries are returned from the factory methods
+{DatabaseStore::find}, {DatabaseStore::findBy}, {DatabaseStore::findAll}, and {DatabaseStore::count}, and are the primary interface for retrieving data
+from the app's local cache.
+
+ModelQuery does not allow you to modify the local cache. To create, update or
+delete items from the local cache, see {DatabaseStore::persistModel}
+and {DatabaseStore::unpersistModel}.
+
+**Simple Example:** Fetch a thread
+
+```
+query = DatabaseStore.find(Thread, '123a2sc1ef4131')
+query.then (thread) ->
+  # thread or null
+```
+
+**Advanced Example:** Fetch 50 threads in the inbox, in descending order
+
+```
+query = DatabaseStore.findAll(Thread)
+query.where([Thread.attributes.tagIds.contains('inbox')])
+     .order([Thread.attributes.lastMessageTimestamp.descending()])
+     .limit(100).offset(50)
+     .then (threads) ->
+  # array of threads
+```
+
 ###
 class ModelQuery
 
   # Public
   # - `class` A {Model} class to query
-  # - `database` (Optional) An optional reference to a {DatabaseStore} the
+  # - `database` (optional) An optional reference to a {DatabaseStore} the
   #   query will be executed on.
   #
   constructor: (@_klass, @_database) ->
@@ -55,7 +82,6 @@ class ModelQuery
     @_includeJoinedData.push(attr)
     @
 
-  ##
   # Public: Include all of the available joined data attributes in returned models.
   #
   # This method is chainable.
@@ -65,7 +91,6 @@ class ModelQuery
       @include(attr) if attr instanceof AttributeJoinedData
     @
 
-  ##
   # Public: Apply a sort order to the query.
   # - `orders` An {Array} of one or more {SortOrder} objects that determine the
   #   sort order of returned models.
@@ -77,7 +102,6 @@ class ModelQuery
     @_orders = @_orders.concat(orders)
     @
 
-  #
   # Public: Set the `singular` flag - only one model will be returned from the
   # query, and a `LIMIT 1` clause will be used.
   #
@@ -89,7 +113,7 @@ class ModelQuery
 
   # Public: Limit the number of query results.
   #
-  # - `limit` The number of models that should be returned.
+  # - `limit` {Number} The number of models that should be returned.
   #
   # This method is chainable.
   #
@@ -101,7 +125,7 @@ class ModelQuery
 
   # Public:
   #
-  # - `offset` The start offset of the query.
+  # - `offset` {Number] The start offset of the query.
   #
   # This method is chainable.
   #
@@ -134,7 +158,6 @@ class ModelQuery
   Query Execution
   ###
 
-  ##
   # Public: Starts query execution and returns a Promise.
   #
   # Returns A {Promise} that resolves with the Models returned by the

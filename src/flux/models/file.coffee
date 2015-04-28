@@ -4,7 +4,17 @@ Attributes = require '../attributes'
 _ = require 'underscore-plus'
 
 ###
-Public: Files are small objects that wrap attachments and other files available via the API.
+Public: File model represents a File object served by the Nylas Platform API.
+For more information about Files on the Nylas Platform, read the
+[https://nylas.com/docs/api#files](Files API Documentation)
+
+## Attributes
+
+`snippet`: {AttributeString} A short, ~140 character string with the content
+   of the last message in the thread. Queryable.
+
+This class also inherits attributes from {Model}
+
 ###
 class File extends Model
 

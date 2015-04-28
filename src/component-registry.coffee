@@ -74,11 +74,11 @@ class ComponentRegistry
   # * `component` {Object} with the following keys:
   #   * `name`: {String} name of your component. Must be globally unique.
   #   * `view`: {React.Component} The React Component you are registering.
-  #   * `role`: (Optional) {String} If you want to display your component in a location
+  #   * `role`: (optional) {String} If you want to display your component in a location
   #      desigated by a role, pass the role identifier.
-  #   * `mode`: (Optional) {React.Component} If your component should only be displayed
+  #   * `mode`: (optional) {React.Component} If your component should only be displayed
   #      in a particular Workspace Mode, pass the mode. ('list' or 'split')
-  #   * `location`: (Optional) {Object} If your component should be displayed in a
+  #   * `location`: (optional) {Object} If your component should be displayed in a
   #      column or toolbar, pass the fully qualified location object, such as:
   #      `WorkspaceStore.Location.ThreadList`
   #

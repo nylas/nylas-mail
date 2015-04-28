@@ -6,6 +6,16 @@ _ = require 'underscore-plus'
 ###
 Public: A base class for API objects that provides abstract support for
 serialization and deserialization, matching by attributes, and ID-based equality.
+
+## Attributes
+
+`id`: {AttributeString} The ID of the model. Queryable.
+
+`object`: {AttributeString} The model's type. This field is used by the JSON
+ deserializer to create an instance of the correct class when inflating the object.
+
+`namespaceId`: {AttributeString} The string Namespace Id this model belongs to.
+
 ###
 class Model
 
@@ -56,7 +66,7 @@ class Model
   # Public: Deflates the model to a plain JSON object. Only attributes defined
   # on the model are included in the JSON.
   #
-  # - `options` (Optional) An {Object} with additional options. To include joined
+  # - `options` (optional) An {Object} with additional options. To include joined
   #    data attributes in the toJSON representation, pass the `joined:true`
   #
   # Returns an {Object} with the JSON representation of the model.
@@ -78,6 +88,7 @@ class Model
     JSON.stringify(@toJSON())
 
   # Public: Evaluates the model against one or more {Matcher} objects.
+  #
   # - `criteria` An {Array} of {Matcher}s to run on the model.
   #
   # Returns true if the model matches the criteria.

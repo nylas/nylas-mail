@@ -105,6 +105,38 @@ The DatabaseStore is available in every application window and allows you to
 make queries against the local cache. Every change to the local cache is
 broadcast as a change event, and listening to the DatabaseStore keeps the
 rest of the application in sync.
+
+## Listening for Changes
+
+To listen for changes to the local cache, subscribe to the DatabaseStore and
+inspect the changes that are sent to your listener method.
+
+```
+@unsubscribe = DatabaseStore.listen(@_onDataChanged, @)
+
+...
+
+_onDataChanged: (change) ->
+  return unless change.objectClass is Message
+  return unless @_myMessageID in _.map change.objects, (m) -> m.id 
+
+  # Refresh Data
+
+```
+
+The local cache changes very frequently, and your stores and components should
+carefully choose when to refresh their data. The `change` object passed to your
+event handler allows you to decide whether to refresh your data and exposes
+the following keys:
+
+`objectClass`: The {Model} class that has been changed. If multiple types of models
+were saved to the database, you will receive multiple change events.
+
+`objects`: An {Array} of {Model} instances that were either created, updated or
+deleted from the local cache. If your component or store presents a single object
+or a small collection of objects, you should look to see if any of the objects
+are in your displayed set before refreshing.
+
 ###
 class DatabaseStore
   @include: CoffeeHelpers.includeModule
@@ -428,7 +460,7 @@ class DatabaseStore
   # Public: Give a Model a localId.
   #
   # - `model` A {Model} object to assign a localId.
-  # - `localId` (Optional) The {String} localId. If you don't pass a LocalId, one
+  # - `localId` (optional) The {String} localId. If you don't pass a LocalId, one
   #    will be automatically assigned.
   #
   # Returns a {Promise} that resolves with the localId assigned to the model.

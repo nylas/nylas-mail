@@ -150,7 +150,7 @@ module.exports = (grunt) ->
       val
 
     expandFuncReferences = (val) ->
-      refRegex = /{([\w])?::([\w]*)}/g
+      refRegex = /{([\w]*)?::([\w]*)}/g
       while (match = refRegex.exec(val)) isnt null
         [text, a, b] = match
         url = false

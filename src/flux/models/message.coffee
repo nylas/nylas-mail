@@ -6,10 +6,55 @@ Contact = require './contact'
 Attributes = require '../attributes'
 
 ###
-Public: Messages are a sub-object of threads. The content of a message is immutable (with the
+Public: The Message model represents a Message object served by the Nylas Platform API.
+For more information about Messages on the Nylas Platform, read the
+[https://nylas.com/docs/api#messages](Messages API Documentation)
+
+Messages are a sub-object of threads. The content of a message is immutable (with the
 exception being drafts). Nylas does not support operations such as move or delete on
 individual messages; those operations should be performed on the message’s thread.
 All messages are part of a thread, even if that thread has only one message.
+
+## Attributes
+
+`to`: {AttributeCollection} A collection of {Contact} objects
+
+`cc`: {AttributeCollection} A collection of {Contact} objects
+
+`bcc`: {AttributeCollection} A collection of {Contact} objects
+
+`from`: {AttributeCollection} A collection of {Contact} objects.
+
+`date`: {AttributeDateTime} When the message was delivered. Queryable.
+
+`subject`: {AttributeString} The subject of the thread. Queryable.
+
+`snippet`: {AttributeString} A short, 140-character plain-text summary of the message body.
+
+`unread`: {AttributeBoolean} True if the message is unread. Queryable.
+
+`draft`: {AttributeBoolean} True if the message is a draft. Queryable.
+
+`version`: {AttributeNumber} The version number of the message. Message
+   versions are used for drafts, and increment when attributes are changed.
+
+`files`: {AttributeCollection} A set of {File} models representing
+   the attachments on this thread.
+
+`body`: {AttributeJoinedData} The HTML body of the message. You must specifically
+ request this attribute when querying for a Message using the {{AttributeJoinedData::include}}
+ method.
+
+`pristine`: {AttributeBoolean} True if the message is a draft which has not been
+ edited since it was created.
+
+`threadId`: {AttributeString} The ID of the Message's parent {Thread}. Queryable.
+
+`replyToMessageId`: {AttributeString} The ID of a {Message} that this message
+ is in reply to.
+
+This class also inherits attributes from {Model}
+
 ###
 class Message extends Model
 
@@ -119,6 +164,7 @@ class Message extends Model
         participants["#{(contact?.email ? "").toLowerCase().trim()} #{(contact?.name ? "").toLowerCase().trim()}"] = contact if contact?
     return _.values(participants)
 
+  # Public: Returns an {Array} of {File} IDs
   fileIds: ->
     _.map @files, (file) -> file.id
 

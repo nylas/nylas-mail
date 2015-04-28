@@ -5,6 +5,21 @@ _ = require 'underscore-plus'
 
 name_prefixes = {}
 name_suffixes = {}
+
+###
+Public: The Contact model represents a Contact object served by the Nylas Platform API.
+For more information about Contacts on the Nylas Platform, read the
+[https://nylas.com/docs/api#contacts](Contacts API Documentation)
+
+## Attributes
+
+`name`: {AttributeString} The name of the contact. Queryable.
+
+`email`: {AttributeString} The email address of the contact. Queryable.
+
+This class also inherits attributes from {Model}
+
+###
 class Contact extends Model
 
   @attributes: _.extend {}, Model.attributes,
@@ -25,6 +40,10 @@ class Contact extends Model
     json['name'] ||= json['email']
     json
 
+  # Returns a {String} display name.
+  # - "You" if the contact is the current user
+  # - `name` if the contact has a populated name value
+  # - `email` in all other cases.
   displayName: ->
     return "You" if @email == NamespaceStore.current().emailAddress
     @_nameParts().join(' ')

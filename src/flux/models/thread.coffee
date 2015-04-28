@@ -10,8 +10,8 @@ Function::getter = (prop, get) ->
   Object.defineProperty @prototype, prop, {get, configurable: yes}
 
 ###
-Public: The Thread model represents a Nylas Thread object. For more information
-about Threads on the Nylas Platform, read the
+Public: The Thread model represents a Thread object served by the Nylas Platform API.
+For more information about Threads on the Nylas Platform, read the
 [https://nylas.com/docs/api#threads](Threads API Documentation)
 
 ## Attributes
@@ -35,6 +35,8 @@ about Threads on the Nylas Platform, read the
 
 `lastMessageTimestamp`: {AttributeDateTime} The timestamp of the
    last message on the thread.
+
+This class also inherits attributes from {Model}
 
 ###
 class Thread extends Model

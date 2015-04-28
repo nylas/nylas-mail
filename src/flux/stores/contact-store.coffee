@@ -5,7 +5,33 @@ DatabaseStore = require './database-store'
 NamespaceStore = require './namespace-store'
 _ = require 'underscore-plus'
 
-module.exports = ContactStore = Reflux.createStore
+{Listener, Publisher} = require '../modules/reflux-coffee'
+CoffeeHelpers = require '../coffee-helpers'
+
+###
+Public: ContactStore maintains an in-memory cache of the user's address
+book, making it easy to build autocompletion functionality and resolve
+the names associated with email addresses.
+
+## Listening for Changes
+
+The ContactStore monitors the {DatabaseStore} for changes to {Contact} models
+and triggers when contacts have changed, allowing your stores and components
+to refresh data based on the ContactStore.
+
+```
+@unsubscribe = ContactStore.listen(@_onContactsChanged, @)
+
+_onContactsChanged: ->
+  # refresh your contact results
+```
+
+###
+class ContactStore
+  @include: CoffeeHelpers.includeModule
+
+  @include Publisher
+  @include Listener
 
   init: ->
     @_contactCache = []
@@ -15,6 +41,17 @@ module.exports = ContactStore = Reflux.createStore
 
     @_refreshCache()
 
+  # Public: Search the user's contact list for the given search term. 
+  # This method compares the `search` string against each Contact's
+  # `name` and `email`.
+  #
+  # - `search` {String} A search phrase, such as `ben@n` or `Ben G`
+  # - `options` (optional) {Object} If you will only be displaying a few results,
+  #   you should pass a limit value. {::searchContacts} will return as soon
+  #   as `limit` matches have been found.
+  #
+  # Returns an {Array} of matching {Contact} models
+  #
   searchContacts: (search, {limit}={}) ->
     return [] if not search or search.length is 0
 
@@ -23,7 +60,6 @@ module.exports = ContactStore = Reflux.createStore
     search = search.toLowerCase()
 
     matchFunction = (contact) ->
-      # For a given contact, check:
       # - email (bengotow@gmail.com)
       # - name parts (Ben, Go)
       # - name full (Ben Gotow)
@@ -69,3 +105,6 @@ module.exports = ContactStore = Reflux.createStore
       @_refreshCache()
     else
       @_resetCache()
+
+
+module.exports = new ContactStore()
