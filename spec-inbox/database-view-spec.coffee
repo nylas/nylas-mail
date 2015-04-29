@@ -41,19 +41,14 @@ describe "DatabaseView", ->
       view = new DatabaseView(Message)
       expect(view.count()).toBe(-1)
 
-    it "should immediately start fetching a row count and page one", ->
+    it "should immediately start fetching a row count", ->
       config =
         matchers: [Message.attributes.namespaceId.equal('asd')]
       view = new DatabaseView(Message, config)
 
       # Count query
-      expect(@queries.length).toEqual(2)
       expect(@queries[0]._count).toEqual(true)
       expect(@queries[0]._matchers).toEqual(config.matchers)
-
-      # Items query
-      expect(@queries[1]._matchers).toEqual(config.matchers)
-      expect(@queries[1]._range).toEqual({offset:0, limit:view._pageSize})
 
   describe "instance methods", ->
     beforeEach ->
@@ -206,7 +201,7 @@ describe "DatabaseView", ->
       describe "when items have been removed", ->
         beforeEach ->
           spyOn(@view._emitter, 'emit')
-          @start = @view._pages[1].loadingStart
+          @start = @view._pages[1].lastTouchTime
           runs ->
             b = new Thread(@b)
             b.tags = []
@@ -218,9 +213,9 @@ describe "DatabaseView", ->
           expect(@view._pages[0].items).toEqual([@a, @c, @d])
           expect(@view._pages[1].items).toEqual([@e, @f])
 
-        it "should change the loadingStart date of changed pages so that refreshes started before the replacement do not revert it's changes", ->
-          expect(@view._pages[0].loadingStart isnt @start).toEqual(true)
-          expect(@view._pages[1].loadingStart isnt @start).toEqual(true)
+        it "should change the lastTouchTime date of changed pages so that refreshes started before the replacement do not revert it's changes", ->
+          expect(@view._pages[0].lastTouchTime isnt @start).toEqual(true)
+          expect(@view._pages[1].lastTouchTime isnt @start).toEqual(true)
 
     describe "cullPages", ->
       beforeEach ->
@@ -342,4 +337,3 @@ describe "DatabaseView", ->
             expect(@view._pages[0].items[0].metadata).toEqual('metadata-for-model-a')
             expect(@view._pages[0].items[1].metadata).toEqual('metadata-for-model-b')
             expect(@view._emitter.emit).toHaveBeenCalled()
-

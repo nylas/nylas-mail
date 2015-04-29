@@ -41,7 +41,7 @@ class ContactStore
 
     @_refreshCache()
 
-  # Public: Search the user's contact list for the given search term. 
+  # Public: Search the user's contact list for the given search term.
   # This method compares the `search` string against each Contact's
   # `name` and `email`.
   #

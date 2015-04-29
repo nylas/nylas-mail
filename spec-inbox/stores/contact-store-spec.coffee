@@ -16,7 +16,7 @@ describe "ContactStore", ->
 
   it "initializes the cache from the DB", ->
     spyOn(DatabaseStore, "findAll").andCallFake -> Promise.resolve([])
-    ContactStore.init()
+    ContactStore.constructor()
     expect(ContactStore._contactCache.length).toBe 0
     expect(ContactStore._fetchOffset).toBe 0
 

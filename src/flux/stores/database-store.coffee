@@ -118,7 +118,7 @@ inspect the changes that are sent to your listener method.
 
 _onDataChanged: (change) ->
   return unless change.objectClass is Message
-  return unless @_myMessageID in _.map change.objects, (m) -> m.id 
+  return unless @_myMessageID in _.map change.objects, (m) -> m.id
 
   # Refresh Data
 

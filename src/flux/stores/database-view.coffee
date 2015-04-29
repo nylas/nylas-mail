@@ -4,12 +4,15 @@ DatabaseStore = require './database-store'
 ModelView = require './model-view'
 EventEmitter = require('events').EventEmitter
 
-# DatabaseView abstracts away the process of paginating a query
+verbose = true
+
+# Public: DatabaseView abstracts away the process of paginating a query
 # and loading ranges of data. It's very smart about deciding when
 # results need to be refreshed. There are a few core concepts that
 # make it flexible:
 #
-# matchers: The where clauses that should be applied to queries.
+# - `matchers`: The where clauses that should be applied to queries.
+# - `includes`: The include clauses that should be applied to queries.
 #
 # metadataProvider: For each item loaded, you can provide a promise
 # that resolves with additional data for that item. The DatabaseView
@@ -24,10 +27,6 @@ EventEmitter = require('events').EventEmitter
 # DatabaseView may internally keep a larger set of items loaded
 # for performance.
 #
-#
-
-verbose = true
-
 class DatabaseView extends ModelView
 
   constructor: (@klass, config = {}, @_itemMetadataProvider) ->
@@ -108,6 +107,8 @@ class DatabaseView extends ModelView
     sortAttribute = items[0].constructor.naturalSortOrder()?.attribute()
     indexes = []
 
+    touchTime = Date.now()
+
     spliceItem = (idx) =>
       page = Math.floor(idx / @_pageSize)
       pageIdx = idx - page * @_pageSize
@@ -115,10 +116,10 @@ class DatabaseView extends ModelView
       # Remove the item in question from the page
       @_pages[page]?.items.splice(pageIdx, 1)
 
-      # Update the page's `loadingStart`. This causes pending refreshes
+      # Update the page's `lastTouchTime`. This causes pending refreshes
       # of page data to be cancelled. This is important because these refreshes
       # would actually roll back this optimistic change.
-      @_pages[page]?.loadingStart = Date.now()
+      @_pages[page]?.lastTouchTime = touchTime
 
       # Iterate through the remaining pages. Take the first
       # item from the next page, remove it, and put it at the
@@ -127,7 +128,7 @@ class DatabaseView extends ModelView
         item = @_pages[page + 1].items[0]
         break unless item
         @_pages[page + 1].items.splice(0, 1)
-        @_pages[page + 1].loadingStart = Date.now()
+        @_pages[page + 1].lastTouchTime = touchTime
         @_pages[page].items.push(item)
         page += 1
 
@@ -195,7 +196,6 @@ class DatabaseView extends ModelView
       @selection.updateModelReferences(items)
       @_emitter.emit('trigger')
 
-
   invalidateMetadataFor: (ids = []) ->
     # This method should be called when you know that only the metadata for
     # a given set of items has been dirtied. For example, when we have a view
@@ -220,17 +220,30 @@ class DatabaseView extends ModelView
       @_count = count
       @_emitter.emit('trigger')
 
-  retrievePage: (idx) ->
-    start = Date.now()
+  invalidateRetainedRange: _.debounce ->
+    for idx in @pagesRetained()
+      @retrievePage(idx)
+  ,10
 
+  retrieveDirtyInRetainedRange: ->
+    for idx in @pagesRetained()
+      if not @_pages[idx] or @_pages[idx].lastTouchTime > @_pages[idx].lastLoadTime
+        @retrievePage(idx)
+
+  retrievePage: (idx) ->
     page = @_pages[idx] ? {
+      lastTouchTime: 0
+      lastLoadTime: 0
       metadata: {}
       items: []
     }
 
-    page.loadingStart = start
     page.loading = true
     @_pages[idx] = page
+
+    # Even though we won't touch the items array for another 100msec, the data
+    # will reflect "now" since we make the query now.
+    touchTime = Date.now()
 
     query = DatabaseStore.findAll(@klass).where(@_matchers)
     query.offset(idx * @_pageSize).limit(@_pageSize)
@@ -241,9 +254,10 @@ class DatabaseView extends ModelView
       # retained range and been cleaned up.
       return unless @_pages[idx]
 
-      # If we've started reloading since we made our query, don't do any more work
-      if page.loadingStart isnt start
-        @log("Retrieval cancelled — out of date.")
+      # The data has been changed and is now "newer" than our query result. Applying
+      # our version of the items would roll it back. Abort!
+      if page.lastTouchTime >= touchTime
+        @log("Version #{touchTime} fetched, but out of date (current is #{page.lastTouchTime})")
         return
 
       # Now, fetch the messages for each thread. We could do this with a
@@ -253,10 +267,11 @@ class DatabaseView extends ModelView
       @retrievePageMetadata(idx, items)
 
   retrievePageMetadata: (idx, items) ->
-    start = Date.now()
     page = @_pages[idx]
 
-    page.loadingStart = start
+    # Even though we won't touch the items array for another 100msec, the data
+    # will reflect "now" since we make the query now.
+    touchTime = Date.now()
 
     # This method can only be used once the page is loaded. If no page is present,
     # go ahead and retrieve it in full.
@@ -275,8 +290,8 @@ class DatabaseView extends ModelView
 
     Promise.props(metadataPromises).then (results) =>
       # If we've started reloading since we made our query, don't do any more work
-      if page.loadingStart isnt start
-        @log("Metadata retrieval cancelled — out of date.")
+      if page.lastTouchTime >= touchTime
+        @log("Metadata version #{touchTime} fetched, but out of date (current is #{page.lastTouchTime})")
         return
 
       for item in items
@@ -292,6 +307,8 @@ class DatabaseView extends ModelView
 
       page.items = items
       page.loading = false
+      page.lastLoadTime = touchTime
+      page.lastTouchTime = touchTime
 
       # Trigger if this is the last page that needed to be loaded
       @_emitter.emit('trigger') if @loaded()

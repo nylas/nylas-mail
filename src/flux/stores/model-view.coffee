@@ -4,15 +4,15 @@ ModelViewSelection = require './model-view-selection'
 
 module.exports =
 class ModelView
-  
+
   constructor: ->
     @_pageSize = 100
     @_retainedRange = {start: 0, end: 50}
     @_pages = {}
     @_emitter = new EventEmitter()
-    
+
     @selection = new ModelViewSelection @, => @_emitter.emit('trigger')
-    
+
     @
 
   # Accessing Data
@@ -39,7 +39,7 @@ class ModelView
 
   getStub: ->
     @_sample ?= new klass
-     
+
   getById: (id) ->
     return null unless id
     for pageIdx, page of @_pages
@@ -53,7 +53,7 @@ class ModelView
       for item, itemIdx in page.items
         return pageIdx * @_pageSize + itemIdx if item.id is id
     return -1
-  
+
   count: ->
     throw new Error("ModelView base class does not implement count()")
 
@@ -72,11 +72,7 @@ class ModelView
               end is @_retainedRange.end
 
     @_retainedRange = {start, end}
-
-    for idx in @pagesRetained()
-      if not @_pages[idx]
-        @retrievePage(idx)
-
+    @retrieveDirtyInRetainedRange()
     @cullPages()
 
   # Optionally implement this method in subclasses to expand the retained range provided
@@ -100,6 +96,11 @@ class ModelView
   invalidateRetainedRange: ->
     for idx in @pagesRetained()
       @retrievePage(idx)
+
+  retrieveDirtyInRetainedRange: ->
+    for idx in @pagesRetained()
+      if not @_pages[idx]
+        @retrievePage(idx)
 
   retrievePage: (page) ->
     throw new Error("ModelView base class does not implement retrievePage()")

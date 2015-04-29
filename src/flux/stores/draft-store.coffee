@@ -125,16 +125,17 @@ class DraftStore
   ########### PRIVATE ####################################################
 
   cleanupSessionForLocalId: (localId) =>
-    return unless @_draftSessions[localId]
+    session = @_draftSessions[localId]
+    return unless session
 
-    draft = @_draftSessions[localId].draft()
+    draft = session.draft()
     Actions.queueTask(new DestroyDraftTask(localId)) if draft.pristine
 
     if atom.getWindowType() is "composer"
       atom.close()
 
     if atom.isMainWindow()
-      @_draftSessions[localId].cleanup()
+      session.cleanup()
       delete @_draftSessions[localId]
 
   _onBeforeUnload: =>
