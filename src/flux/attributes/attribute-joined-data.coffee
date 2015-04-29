@@ -31,6 +31,8 @@ written to the secondary table.
 JoinedData attributes cannot be `queryable`.
 ###
 class AttributeJoinedData extends Attribute
+  @NullPlaceholder: NullPlaceholder
+
   constructor: ({modelKey, jsonKey, modelTable}) ->
     super
     @modelTable = modelTable
@@ -43,7 +45,5 @@ class AttributeJoinedData extends Attribute
 
   includeSQL: (klass) ->
     "LEFT OUTER JOIN `#{@modelTable}` ON `#{@modelTable}`.`id` = `#{klass.name}`.`id`"
-
-  NullPlaceholder: NullPlaceholder
 
 module.exports = AttributeJoinedData
