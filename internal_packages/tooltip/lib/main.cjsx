@@ -13,9 +13,11 @@ module.exports =
     @tooltip = React.render(React.createElement(Tooltip), @item)
     document.querySelector(atom.workspaceViewParentSelector).appendChild(@item)
 
+    @mouseDownListener = _.bind(@tooltip.onMouseDown, @tooltip)
     @mouseOverListener = _.bind(@tooltip.onMouseOver, @tooltip)
     @mouseOutListener = _.bind(@tooltip.onMouseOut, @tooltip)
 
+    window.addEventListener("mousedown", @mouseDownListener)
     window.addEventListener("mouseover", @mouseOverListener)
     window.addEventListener("mouseout", @mouseOutListener)
 
@@ -23,6 +25,7 @@ module.exports =
     React.unmountComponentAtNode(@item)
     document.querySelector(atom.workspaceViewParentSelector).removeChild(@item)
 
+    window.removeEventListener("mousedown", @mouseDownListener)
     window.removeEventListener("mouseover", @mouseOverListener)
     window.removeEventListener("mouseout", @mouseOutListener)
 

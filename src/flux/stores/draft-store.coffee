@@ -52,8 +52,8 @@ class DraftStore
     @listenTo Actions.removeFile, @_onRemoveFile
     @listenTo Actions.attachFileComplete, @_onAttachFileComplete
 
-    @listenTo Actions.sendDraftError, @_onSendDraftSuccess
-    @listenTo Actions.sendDraftSuccess, @_onSendDraftError
+    @listenTo Actions.sendDraftError, @_onSendDraftError
+    @listenTo Actions.sendDraftSuccess, @_onSendDraftSuccess
 
     @_draftSessions = {}
     @_sendingState = {}
@@ -341,8 +341,10 @@ class DraftStore
 
           resolve()
 
-  _onSendDraftError: (draftLocalId) =>
+  _onSendDraftError: (draftLocalId, errorMessage) ->
     @_sendingState[draftLocalId] = false
+    if atom.getWindowType() is "composer"
+      atom.newWindow @_composerWindowProps({errorMessage, draftLocalId})
     @trigger()
 
   _onSendDraftSuccess: (draftLocalId) =>

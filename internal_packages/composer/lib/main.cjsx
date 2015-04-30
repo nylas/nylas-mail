@@ -42,6 +42,8 @@ module.exports =
       React.render(
         <ComposerView mode="fullwindow" localId={draftLocalId} />, @item
       )
+      if windowProps.errorMessage
+        @_showInitialErrorDialog(windowProps.errorMessage)
     .catch (error) ->
       console.error(error.stack)
 

@@ -23,7 +23,7 @@ Tooltip = React.createClass
 
   componentWillMount: ->
     @CONTENT_PADDING = 15
-    @DEFAULT_DELAY = 750
+    @DEFAULT_DELAY = 1500
     @KEEP_DELAY = 500
     @_showDelay = @DEFAULT_DELAY
     @_showTimeout = null
@@ -56,6 +56,9 @@ Tooltip = React.createClass
     if @_elementWithTooltip(e.fromElement) and not @_elementWithTooltip(e.toElement)
       @_onTooltipLeave()
 
+  onMouseDown: (e) ->
+    if @state.display then @_hideTooltip()
+
   _elementWithTooltip: (target) ->
     while target
       break if target?.dataset?.tooltip?
@@ -84,6 +87,7 @@ Tooltip = React.createClass
 
   _showTooltip: (target) ->
     return unless @isMounted()
+    return unless Utils.nodeIsVisible(target)
     content = target.dataset.tooltip
     guessedWidth = @_guessWidth(content)
     dim = target.getBoundingClientRect()

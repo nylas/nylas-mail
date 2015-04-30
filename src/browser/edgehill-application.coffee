@@ -94,8 +94,9 @@ class AtomApplication
       @runSpecs({exitWhenDone: true, @resourcePath, specDirectory, specFilePattern, logFile})
     else
       @showMainWindow({devMode, safeMode})
-      for urlToOpen in (urlsToOpen || [])
-        @openUrl({urlToOpen})
+      @mainWindow.on "window:loaded", =>
+        for urlToOpen in (urlsToOpen || [])
+          @openUrl({urlToOpen})
 
   # Makes a new window appear of a certain `windowType`.
   #

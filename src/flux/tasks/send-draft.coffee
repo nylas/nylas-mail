@@ -76,5 +76,4 @@ class SendDraftTask extends Task
 
   _notifyError: (msg) ->
     Actions.sendDraftError(@draftLocalId, msg)
-    if @fromPopout then atom.displayComposer(@draftLocalId, error: msg)
     @notifyErrorMessage(msg)
