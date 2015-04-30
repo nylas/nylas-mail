@@ -5,20 +5,19 @@
 React = require "react"
 _ = require "underscore-plus"
 
-module.exports =
-ModeToggle = React.createClass
-  displayName: 'ModeToggle'
+class ModeToggle extends React.Component
+  @displayName: 'ModeToggle'
 
-  getInitialState: ->
-    @_getStateFromStores()
+  constructor: (@props) ->
+    @state = @_getStateFromStores()
 
-  componentDidMount: ->
+  componentDidMount: =>
     @unsubscribe = WorkspaceStore.listen(@_onStateChanged, @)
 
-  componentWillUnmount: ->
+  componentWillUnmount: =>
     @unsubscribe?()
 
-  render: ->
+  render: =>
     return <div></div> unless @state.visible
 
     <div className="mode-toggle"
@@ -30,18 +29,21 @@ ModeToggle = React.createClass
         onClick={@_onToggleMode}  />
     </div>
   
-  _onStateChanged: ->
+  _onStateChanged: =>
     @setState(@_getStateFromStores())
 
-  _getStateFromStores: ->
+  _getStateFromStores: =>
     rootModes = WorkspaceStore.rootSheet().supportedModes
     rootVisible = WorkspaceStore.rootSheet() is WorkspaceStore.topSheet()
 
     mode: WorkspaceStore.layoutMode()
     visible: rootVisible and rootModes and rootModes.length > 1
 
-  _onToggleMode: ->
+  _onToggleMode: =>
     if @state.mode is 'list'
       Actions.selectLayoutMode('split')
     else
       Actions.selectLayoutMode('list')
+
+
+module.exports = ModeToggle

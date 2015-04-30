@@ -27,19 +27,19 @@ AccountKeys =
   "sync_start_time": "Sync Start Time"
   "sync_type": "Sync Type"
 
-module.exports =
-SidebarInternal = React.createClass
+class SidebarInternal extends React.Component
+  @displayName: "SidebarInternal"
 
-  getInitialState: ->
-    @_getStateFromStores()
+  constructor: (@props) ->
+    @state = @_getStateFromStores()
 
-  componentDidMount: ->
+  componentDidMount: =>
     @unsubscribe = InternalAdminStore.listen @_onChange
 
-  componentWillUnmount: ->
+  componentWillUnmount: =>
     @unsubscribe()
 
-  render: ->
+  render: =>
     return <div></div> unless @state.enabled
 
     <div className="internal-sidebar">
@@ -55,7 +55,7 @@ SidebarInternal = React.createClass
       </div>
     </div>
 
-  _renderAccount: ->
+  _renderAccount: =>
     if @state.error
       return <div>{@_errorString()}</div>
     else if @state.data.loading
@@ -70,7 +70,7 @@ SidebarInternal = React.createClass
       else
         <div>No Matching Account</div>
 
-  _renderApplications: ->
+  _renderApplications: =>
     if @state.error
       return <div>{@_errorString()}</div>
     else if @state.data.loading
@@ -84,16 +84,16 @@ SidebarInternal = React.createClass
     else
       <div>No Matching Applications</div>
 
-  _errorString: ->
+  _errorString: =>
     if @state.error.toString().indexOf('ENOTFOUND') >= 0
       "Unable to reach admin.nilas.com"
     else
       @state.error.toString()
 
-  _accountUrl: (account) ->
+  _accountUrl: (account) =>
     "https://admin.inboxapp.com/accounts/#{account.id}"
 
-  _accountDetails: (account) ->
+  _accountDetails: (account) =>
     cjsx = []
     for key, value of account
       displayName = AccountKeys[key]
@@ -105,19 +105,22 @@ SidebarInternal = React.createClass
       cjsx.push <div style={textAlign:'right'}><span style={float:'left'}>{displayName}:</span>{value}</div>
     cjsx
 
-  _appUrl: (app) ->
+  _appUrl: (app) =>
     "https://admin.inboxapp.com/apps/#{app.id}"
 
-  _appDetails: (app) ->
+  _appDetails: (app) =>
     "No Extra Details"
 
-  _onChange: ->
+  _onChange: =>
     @setState(@_getStateFromStores())
 
-  _getStateFromStores: ->
+  _getStateFromStores: =>
     data: InternalAdminStore.dataForFocusedContact()
     enabled: InternalAdminStore.enabled()
     error: InternalAdminStore.error()
 
 SidebarInternal.maxWidth = 300
 SidebarInternal.minWidth = 200
+
+
+module.exports = SidebarInternal

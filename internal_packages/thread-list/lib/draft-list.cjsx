@@ -7,11 +7,10 @@ React = require 'react'
  ComponentRegistry} = require 'inbox-exports'
 DraftListStore = require './draft-list-store'
 
-module.exports =
-DraftList = React.createClass
-  displayName: 'DraftList'
+class DraftList extends React.Component
+  @displayName: 'DraftList'
 
-  componentWillMount: ->
+  componentWillMount: =>
     snippet = (html) =>
       @draftSanitizer ?= document.createElement('div')
       @draftSanitizer.innerHTML = html
@@ -21,7 +20,7 @@ DraftList = React.createClass
     c1 = new ListTabular.Column
       name: "Name"
       width: 200
-      resolver: (draft) ->
+      resolver: (draft) =>
         Participants = ComponentRegistry.findViewByName('Participants')
         return <div></div> unless Participants
         <div className="participants">
@@ -32,7 +31,7 @@ DraftList = React.createClass
     c2 = new ListTabular.Column
       name: "Message"
       flex: 4
-      resolver: (draft) ->
+      resolver: (draft) =>
         attachments = []
         if draft.files?.length > 0
           attachments = <div className="thread-icon thread-icon-attachment"></div>
@@ -45,14 +44,14 @@ DraftList = React.createClass
     c3 = new ListTabular.Column
       name: "Date"
       flex: 1
-      resolver: (draft) ->
+      resolver: (draft) =>
         <span className="timestamp">{timestamp(draft.date)}</span>
 
     @columns = [c1, c2, c3]
     @commands =
       'core:remove-item': @_onDelete
 
-  render: ->
+  render: =>
     <MultiselectList
       dataStore={DraftListStore}
       columns={@columns}
@@ -62,15 +61,18 @@ DraftList = React.createClass
       className="draft-list"
       collection="draft" />
 
-  _onDoubleClick: (item) ->
+  _onDoubleClick: (item) =>
     DatabaseStore.localIdForModel(item).then (localId) ->
       Actions.composePopoutDraft(localId)
 
   # Additional Commands
 
-  _onDelete: ({focusedId}) ->
+  _onDelete: ({focusedId}) =>
     item = @state.dataView.getById(focusedId)
     return unless item
     DatabaseStore.localIdForModel(item).then (localId) ->
       Actions.destroyDraft(localId)
     @_onShiftSelectedIndex(-1)
+
+
+module.exports = DraftList

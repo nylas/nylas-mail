@@ -5,37 +5,36 @@ SidebarTagItem = require("./account-sidebar-tag-item")
 SidebarSheetItem = require("./account-sidebar-sheet-item")
 SidebarStore = require ("./account-sidebar-store")
 
-module.exports =
-AccountSidebar = React.createClass
-  displayName: 'AccountSidebar'
+class AccountSidebar extends React.Component
+  @displayName: 'AccountSidebar'
 
-  getInitialState: ->
-    @_getStateFromStores()
+  constructor: (@props) ->
+    @state = @_getStateFromStores()
 
-  componentDidMount: ->
+  componentDidMount: =>
     @unsubscribe = SidebarStore.listen @_onStoreChange
 
   # It's important that every React class explicitly stops listening to
   # atom events before it unmounts. Thank you event-kit
   # This can be fixed via a Reflux mixin
-  componentWillUnmount: ->
+  componentWillUnmount: =>
     @unsubscribe() if @unsubscribe
 
-  render: ->
+  render: =>
     <div id="account-sidebar" className="account-sidebar">
       <div className="account-sidebar-sections">
         {@_sections()}
       </div>
     </div>
 
-  _sections: ->
+  _sections: =>
     return @state.sections.map (section) =>
       <section key={section.label}>
         <div className="heading">{section.label}</div>
         {@_itemComponents(section)}
       </section>
 
-  _itemComponents: (section) ->
+  _itemComponents: (section) =>
     if section.type is 'tag'
       itemClass = SidebarTagItem
     else if section.type is 'sheet'
@@ -49,13 +48,16 @@ AccountSidebar = React.createClass
         item={item}
         select={item.id is @state.selected?.id }/>
 
-  _onStoreChange: ->
+  _onStoreChange: =>
     @setState @_getStateFromStores()
 
-  _getStateFromStores: ->
+  _getStateFromStores: =>
     sections: SidebarStore.sections()
     selected: SidebarStore.selected()
 
 
 AccountSidebar.minWidth = 165
 AccountSidebar.maxWidth = 190
+
+
+module.exports = AccountSidebar

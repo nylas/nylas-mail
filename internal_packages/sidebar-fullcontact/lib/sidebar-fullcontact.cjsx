@@ -4,36 +4,39 @@ FullContactStore = require "./fullcontact-store"
 
 SidebarFullContactDetails = require "./sidebar-fullcontact-details"
 
-module.exports =
-SidebarFullContact = React.createClass
+class SidebarFullContact extends React.Component
+  @displayName: "SidebarFullContact"
 
-  getInitialState: ->
-    @_getStateFromStores()
+  constructor: (@props) ->
+    @state = @_getStateFromStores()
 
-  componentDidMount: ->
+  componentDidMount: =>
     @unsubscribe = FullContactStore.listen @_onChange
 
-  componentWillUnmount: ->
+  componentWillUnmount: =>
     @unsubscribe()
 
-  render: ->
+  render: =>
     <div className="full-contact-sidebar">
       <SidebarFullContactDetails contact={@state.focusedContact ? {}}
                                  fullContact={@_fullContact()}/>
     </div>
 
-  _fullContact: ->
+  _fullContact: =>
     if @state.focusedContact?.email
       return @state.fullContactCache[@state.focusedContact.email] ? {}
     else
       return {}
 
-  _onChange: ->
+  _onChange: =>
     @setState(@_getStateFromStores())
 
-  _getStateFromStores: ->
+  _getStateFromStores: =>
     fullContactCache: FullContactStore.fullContactCache()
     focusedContact: FullContactStore.focusedContact()
 
 SidebarFullContact.maxWidth = 300
 SidebarFullContact.minWidth = 200
+
+
+module.exports = SidebarFullContact

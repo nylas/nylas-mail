@@ -6,11 +6,10 @@ React = require 'react'
  ComponentRegistry} = require 'inbox-exports'
 FileListStore = require './file-list-store'
 
-module.exports =
-FileList = React.createClass
-  displayName: 'FileList'
+class FileList extends React.Component
+  @displayName: 'FileList'
 
-  componentWillMount: ->
+  componentWillMount: =>
     prettySize = (size) ->
       units = ['GB', 'MB', 'KB', 'bytes']
       while size > 1024
@@ -23,18 +22,18 @@ FileList = React.createClass
     c1 = new ListTabular.Column
       name: "Name"
       flex: 1
-      resolver: (file) ->
+      resolver: (file) =>
         <div>{file.filename}</div>
 
     c2 = new ListTabular.Column
       name: "Size"
       width: '100px'
-      resolver: (file) ->
+      resolver: (file) =>
         <div>{prettySize(file.size)}</div>
 
     @columns = [c1, c2]
 
-  render: ->
+  render: =>
     <MultiselectList
       dataStore={FileListStore}
       columns={@columns}
@@ -44,4 +43,7 @@ FileList = React.createClass
       className="file-list"
       collection="file" />
 
-  _onDoubleClick: (item) ->
+  _onDoubleClick: (item) =>
+
+
+module.exports = FileList

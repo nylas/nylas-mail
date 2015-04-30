@@ -185,7 +185,8 @@ TaskQueue = Reflux.createStore
           task.queueState.isProcessing = false
       @_queue = queue
     catch e
-      console.log("Queue deserialization failed with error: #{e.toString()}")
+      if not atom.inSpecMode()
+        console.log("Queue deserialization failed with error: #{e.toString()}")
 
   _saveQueueToDisk: (callback) ->
     queueFile = path.join(atom.getConfigDirPath(), 'task-queue.json')

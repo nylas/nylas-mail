@@ -10,20 +10,19 @@ _ = require "underscore-plus"
 ## THIS FILE IS NOT IN USE! DEPRECATED IN FAVOR OF ModeToggle
 ##
 
-module.exports =
-ModeSwitch = React.createClass
-  displayName: 'ModeSwitch'
+class ModeSwitch extends React.Component
+  @displayName: 'ModeSwitch'
 
-  getInitialState: ->
-    @_getStateFromStores()
+  constructor: (@props) ->
+    @state = @_getStateFromStores()
 
-  componentDidMount: ->
+  componentDidMount: =>
     @unsubscribe = WorkspaceStore.listen @_onStateChanged
 
-  componentWillUnmount: ->
+  componentWillUnmount: =>
     @unsubscribe?()
 
-  render: ->
+  render: =>
     return <div></div> unless @state.visible
 
     knobX = if @state.mode is 'list' then 25 else 41
@@ -54,22 +53,25 @@ ModeSwitch = React.createClass
         style={paddingLeft:12} />
     </div>
   
-  _onStateChanged: ->
+  _onStateChanged: =>
     @setState(@_getStateFromStores())
 
-  _getStateFromStores: ->
+  _getStateFromStores: =>
     rootModes = WorkspaceStore.rootSheet().supportedModes
     rootVisible = WorkspaceStore.rootSheet() is WorkspaceStore.topSheet()
 
     mode: WorkspaceStore.layoutMode()
     visible: rootVisible and rootModes and rootModes.length > 1
 
-  _onToggleMode: ->
+  _onToggleMode: =>
     if @state.mode is 'list'
       Actions.selectLayoutMode('split')
     else
       Actions.selectLayoutMode('list')
 
-  _onSetMode: (event) ->
+  _onSetMode: (event) =>
     Actions.selectLayoutMode(event.target.dataset.mode)
     event.stopPropagation()
+
+
+module.exports = ModeSwitch

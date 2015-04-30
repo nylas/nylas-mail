@@ -4,11 +4,10 @@ _ = require "underscore-plus"
 {Spinner, EventedIFrame} = require 'ui-components'
 FileFrameStore = require './file-frame-store'
 
-module.exports =
-FileFrame = React.createClass
-  displayName: 'FileFrame'
+class FileFrame extends React.Component
+  @displayName: 'FileFrame'
 
-  render: ->
+  render: =>
     src = if @state.ready then @state.filepath else ''
     if @state.file
       <div className="file-frame-container">
@@ -18,20 +17,23 @@ FileFrame = React.createClass
     else
       <div></div>
 
-  getInitialState: ->
-    @getStateFromStores()
+  constructor: (@props) ->
+    @state = @getStateFromStores()
 
-  componentDidMount: ->
+  componentDidMount: =>
     @_unsubscribers = []
     @_unsubscribers.push FileFrameStore.listen @_onChange
 
-  componentWillUnmount: ->
+  componentWillUnmount: =>
     unsubscribe() for unsubscribe in @_unsubscribers
 
-  getStateFromStores: ->
+  getStateFromStores: =>
     file: FileFrameStore.file()
     filepath: FileDownloadStore.pathForFile(FileFrameStore.file())
     ready: FileFrameStore.ready()
 
-  _onChange: ->
+  _onChange: =>
     @setState(@getStateFromStores())
+
+
+module.exports = FileFrame

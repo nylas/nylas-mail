@@ -4,21 +4,21 @@ TemplateStore = require './template-store'
 {Actions, Message, DatabaseStore} = require 'inbox-exports'
 {Popover, Menu, RetinaImg} = require 'ui-components'
 
-module.exports =
-TemplatePicker = React.createClass
-  displayName: 'TemplatePicker'
+class TemplatePicker extends React.Component
+  @displayName: 'TemplatePicker'
 
-  getInitialState: ->
-    searchValue: ""
-    templates: TemplateStore.items()
+  constructor: (@props) ->
+    @state =
+      searchValue: ""
+      templates: TemplateStore.items()
 
-  componentDidMount: ->
+  componentDidMount: =>
     @unsubscribe = TemplateStore.listen @_onStoreChange
 
-  componentWillUnmount: ->
+  componentWillUnmount: =>
     @unsubscribe() if @unsubscribe
 
-  render: ->
+  render: =>
     button = <button className="btn btn-toolbar">
       <RetinaImg name="toolbar-templates.png"/>
       <RetinaImg name="toolbar-chevron.png"/>
@@ -49,7 +49,7 @@ TemplatePicker = React.createClass
     </Popover>
 
 
-  _filteredTemplates: (search) ->
+  _filteredTemplates: (search) =>
     search ?= @state.searchValue
     items = TemplateStore.items()
 
@@ -58,23 +58,26 @@ TemplatePicker = React.createClass
     _.filter items, (t) ->
       t.name.toLowerCase().indexOf(search.toLowerCase()) == 0
 
-  _onStoreChange: ->
+  _onStoreChange: =>
     @setState
       templates: @_filteredTemplates()
 
-  _onSearchValueChange: ->
+  _onSearchValueChange: =>
     newSearch = event.target.value
     @setState
       searchValue: newSearch
       templates: @_filteredTemplates(newSearch)
 
-  _onChooseTemplate: (template) ->
+  _onChooseTemplate: (template) =>
     Actions.insertTemplateId({templateId:template.id, draftLocalId: @props.draftLocalId})
     @refs.popover.close()
 
-  _onManageTemplates: ->
+  _onManageTemplates: =>
     Actions.showTemplates()
 
-  _onNewTemplate: ->
+  _onNewTemplate: =>
     Actions.createTemplate({draftLocalId: @props.draftLocalId})
 
+
+
+module.exports = TemplatePicker

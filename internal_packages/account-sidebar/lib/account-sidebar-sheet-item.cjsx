@@ -3,11 +3,10 @@ classNames = require 'classnames'
 {Actions, Utils, WorkspaceStore} = require 'inbox-exports'
 {RetinaImg} = require 'ui-components'
 
-module.exports =
-AccountSidebarSheetItem = React.createClass
-  displayName: 'AccountSidebarSheetItem'
+class AccountSidebarSheetItem extends React.Component
+  @displayName: 'AccountSidebarSheetItem'
 
-  render: ->
+  render: =>
     classSet =  classNames
       'item': true
       'selected': @props.select
@@ -17,6 +16,9 @@ AccountSidebarSheetItem = React.createClass
       <span className="name"> {@props.item.name}</span>
     </div>
 
-  _onClick: (event) ->
+  _onClick: (event) =>
     event.preventDefault()
     Actions.selectRootSheet(@props.item)
+
+
+module.exports = AccountSidebarSheetItem

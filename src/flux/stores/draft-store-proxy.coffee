@@ -76,7 +76,9 @@ class DraftStoreProxy
         throw new Error("DraftChangeSet was modified before the draft was prepared.")
       @_emitter.emit('trigger')
     @prepare().catch (error) ->
-      console.log("DraftStoreProxy prepare() failed with error #{error.toString()}.")
+      console.error(error)
+      console.error(error.stack)
+      throw new Error("DraftStoreProxy prepare() failed with error #{error.toString()}.")
 
   draft: ->
     @changes.applyToModel(@_draft)

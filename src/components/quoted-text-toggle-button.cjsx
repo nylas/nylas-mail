@@ -5,9 +5,10 @@ _ = require 'underscore-plus'
 ###
 ###
 
-module.exports =
-QuotedTextToggleButton = React.createClass
-  render: ->
+class QuotedTextToggleButton extends React.Component
+  @displayName: "QuotedTextToggleButton"
+
+  render: =>
     style =
       'backgroundColor': '#f7f7f7'
       'borderRadius': 5
@@ -32,3 +33,4 @@ QuotedTextToggleButton = React.createClass
 
     <a onClick={@props.onClick} style={style}>{content}</a>
 
+module.exports = QuotedTextToggleButton

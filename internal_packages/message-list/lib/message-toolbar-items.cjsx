@@ -7,54 +7,62 @@ classNames = require 'classnames'
 # Note: These always have a thread, but only sometimes get a
 # message, depending on where in the UI they are being displayed.
 
-ReplyButton = React.createClass
-  render: ->
+class ReplyButton extends React.Component
+  @displayName: "ReplyButton"
+
+  render: =>
     <button className="btn btn-toolbar"
             data-tooltip="Reply"
             onClick={@_onReply}>
       <RetinaImg name="toolbar-reply.png" />
     </button>
 
-  _onReply: (e) ->
+  _onReply: (e) =>
     return unless Utils.nodeIsVisible(e.currentTarget)
     Actions.composeReply(threadId: FocusedContentStore.focusedId('thread'))
     e.stopPropagation()
 
-ReplyAllButton = React.createClass
-  render: ->
+class ReplyAllButton extends React.Component
+  @displayName: "ReplyAllButton"
+
+  render: =>
     <button className="btn btn-toolbar"
             data-tooltip="Reply All"
             onClick={@_onReplyAll}>
       <RetinaImg name="toolbar-reply-all.png" />
     </button>
 
-  _onReplyAll: (e) ->
+  _onReplyAll: (e) =>
     return unless Utils.nodeIsVisible(e.currentTarget)
     Actions.composeReplyAll(threadId: FocusedContentStore.focusedId('thread'))
     e.stopPropagation()
 
-ForwardButton = React.createClass
-  render: ->
+class ForwardButton extends React.Component
+  @displayName: "ForwardButton"
+
+  render: =>
     <button className="btn btn-toolbar"
             data-tooltip="Forward"
             onClick={@_onForward}>
       <RetinaImg name="toolbar-forward.png" />
     </button>
 
-  _onForward: (e) ->
+  _onForward: (e) =>
     return unless Utils.nodeIsVisible(e.currentTarget)
     Actions.composeForward(threadId: FocusedContentStore.focusedId('thread'))
     e.stopPropagation()
 
-ArchiveButton = React.createClass
-  render: ->
+class ArchiveButton extends React.Component
+  @displayName: "ArchiveButton"
+
+  render: =>
     <button className="btn btn-toolbar btn-archive"
             data-tooltip="Archive"
             onClick={@_onArchive}>
       <RetinaImg name="toolbar-archive.png" />
     </button>
 
-  _onArchive: (e) ->
+  _onArchive: (e) =>
     return unless Utils.nodeIsVisible(e.currentTarget)
     Actions.archive()
     e.stopPropagation()

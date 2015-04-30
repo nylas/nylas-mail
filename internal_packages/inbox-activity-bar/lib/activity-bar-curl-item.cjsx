@@ -1,10 +1,9 @@
 React = require 'react/addons'
 
-module.exports =
-ActivityBarCurlItem = React.createClass
-  displayName: 'ActivityBarCurlItem'
+class ActivityBarCurlItem extends React.Component
+  @displayName: 'ActivityBarCurlItem'
 
-  render: ->
+  render: =>
     <div className={"item status-code-#{@props.item.statusCode}"}>
       <div className="code">{@props.item.statusCode}</div>
       <a onClick={@_onRunCommand}>Run</a>
@@ -12,11 +11,11 @@ ActivityBarCurlItem = React.createClass
       {@props.item.command}
     </div>
 
-  _onCopyCommand: ->
+  _onCopyCommand: =>
     clipboard = require('clipboard')
     clipboard.writeText(@props.item.command)
 
-  _onRunCommand: ->
+  _onRunCommand: =>
     curlFile = "#{atom.getConfigDirPath()}/curl.command"
     fs = require 'fs-plus'
     if fs.existsSync(curlFile)
@@ -25,3 +24,6 @@ ActivityBarCurlItem = React.createClass
     fs.chmodSync(curlFile, '777')
     shell = require 'shell'
     shell.openItem(curlFile)
+
+
+module.exports = ActivityBarCurlItem

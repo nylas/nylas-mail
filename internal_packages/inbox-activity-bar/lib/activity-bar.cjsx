@@ -16,25 +16,25 @@ ActivityBarLongPollItem = require './activity-bar-long-poll-item'
 
 ActivityBarClosedHeight = 30
 
-module.exports =
-ActivityBar = React.createClass
+class ActivityBar extends React.Component
+  @displayName: "ActivityBar"
 
-  getInitialState: ->
-    _.extend @_getStateFromStores(),
+  constructor: (@props) ->
+    @state = _.extend @_getStateFromStores(),
       height: ActivityBarClosedHeight
       section: 'curl'
       filter: ''
 
-  componentDidMount: ->
+  componentDidMount: =>
     ipc.on 'report-issue', => @_onFeedback()
     @taskQueueUnsubscribe = TaskQueue.listen @_onChange
     @activityStoreUnsubscribe = ActivityBarStore.listen @_onChange
 
-  componentWillUnmount: ->
+  componentWillUnmount: =>
     @taskQueueUnsubscribe() if @taskQueueUnsubscribe
     @activityStoreUnsubscribe() if @activityStoreUnsubscribe
 
-  render: ->
+  render: =>
     return <div></div> unless @state.visible
 
     <ResizableRegion className="activity-bar"
@@ -73,13 +73,13 @@ ActivityBar = React.createClass
       </div>
     </ResizableRegion>
 
-  _caret: ->
+  _caret: =>
     if @state.height > ActivityBarClosedHeight
       <i className="fa fa-caret-square-o-down" onClick={@_onHide}></i>
     else
       <i className="fa fa-caret-square-o-up" onClick={@_onShow}></i>
 
-  _sectionContent: ->
+  _sectionContent: =>
     expandedDiv = <div></div>
 
     matchingFilter = (item) =>
@@ -124,33 +124,33 @@ ActivityBar = React.createClass
 
       expandedDiv
 
-  _onChange: ->
+  _onChange: =>
     @setState(@_getStateFromStores())
 
-  _onClear: ->
+  _onClear: =>
     Actions.clearDeveloperConsole()
 
-  _onFilter: (ev) ->
+  _onFilter: (ev) =>
     @setState(filter: ev.target.value)
 
-  _onDequeueAll: ->
+  _onDequeueAll: =>
     Actions.dequeueAllTasks()
 
-  _onHide: ->
+  _onHide: =>
     @setState
       height: ActivityBarClosedHeight
 
-  _onShow: ->
+  _onShow: =>
     @setState(height: 200) if @state.height < 100
 
-  _onExpandSection: (section) ->
+  _onExpandSection: (section) =>
     @setState(section: section)
     @_onShow()
 
-  _onToggleRegions: ->
+  _onToggleRegions: =>
     Actions.toggleComponentRegions()
 
-  _onFeedback: ->
+  _onFeedback: =>
     user = NamespaceStore.current().name
 
     debugData = JSON.stringify({
@@ -197,10 +197,13 @@ ActivityBar = React.createClass
       DatabaseStore.localIdForModel(draft).then (localId) ->
         Actions.composePopoutDraft(localId)
 
-  _getStateFromStores: ->
+  _getStateFromStores: =>
     visible: ActivityBarStore.visible()
     queue: TaskQueue._queue
     completed: TaskQueue._completed
     curlHistory: ActivityBarStore.curlHistory()
     longPollHistory: ActivityBarStore.longPollHistory()
     longPollState: ActivityBarStore.longPollState()
+
+
+module.exports = ActivityBar

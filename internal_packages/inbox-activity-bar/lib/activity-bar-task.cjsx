@@ -1,14 +1,13 @@
 React = require 'react/addons'
 classNames = require 'classnames'
 
-module.exports =
-ActivityBarTask = React.createClass
-  displayName: 'ActivityBarTask'
+class ActivityBarTask extends React.Component
+  @displayName: 'ActivityBarTask'
 
-  getInitialState: ->
-    expanded: false
+  constructor: (@props) ->
+    @state = expanded: false
 
-  render: ->
+  render: =>
     <div className={@_classNames()} onClick={=> @setState expanded: not @state.expanded}>
       <div className="task-summary">
         {@_taskSummary()}
@@ -18,7 +17,7 @@ ActivityBarTask = React.createClass
       </div>
     </div>
 
-  _taskSummary: ->
+  _taskSummary: =>
     qs = @props.task.queueState
     errType = ""
     errCode = ""
@@ -35,7 +34,7 @@ ActivityBarTask = React.createClass
 
     return "#{@props.task.constructor.name} #{errType} #{errCode} #{errMessage}"
 
-  _classNames: ->
+  _classNames: =>
     qs = @props.task.queueState ? {}
     classNames
       "task": true
@@ -46,3 +45,6 @@ ActivityBarTask = React.createClass
       "task-remote-error": qs.remoteError
       "task-is-processing": qs.isProcessing
       "task-success": qs.performedLocal and qs.performedRemote
+
+
+module.exports = ActivityBarTask

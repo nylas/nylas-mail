@@ -6,11 +6,10 @@ _ = require 'underscore-plus'
  ContactStore} = require 'inbox-exports'
 {TokenizingTextField, Menu} = require 'ui-components'
 
-module.exports =
-ParticipantsTextField = React.createClass
-  displayName: 'ParticipantsTextField'
+class ParticipantsTextField extends React.Component
+  @displayName: 'ParticipantsTextField'
 
-  propTypes:
+  @propTypes:
     # The tab index of the ParticipantsTextField
     tabIndex: React.PropTypes.string,
 
@@ -31,10 +30,10 @@ ParticipantsTextField = React.createClass
     # changes are made.
     change: React.PropTypes.func.isRequired,
 
-  getDefaultProps: ->
+  getDefaultProps: =>
     visible: true
 
-  render: ->
+  render: =>
     classSet = {}
     classSet[@props.field] = true
     <div className="participants-text-field" style={zIndex: 1000-@props.tabIndex, display: @props.visible and 'inline' or 'none'}>
@@ -57,12 +56,12 @@ ParticipantsTextField = React.createClass
 
   # Public. Can be called by any component that has a ref to this one to
   # focus the input field.
-  focus: -> @refs.textField.focus()
+  focus: => @refs.textField.focus()
 
-  _completionNode: (p) ->
+  _completionNode: (p) =>
     <Menu.NameEmailItem name={p.name} email={p.email} />
 
-  _tokenNode: (p) ->
+  _tokenNode: (p) =>
     if p.name?.length > 0 and p.name isnt p.email
       <div className="participant">
         <span className="participant-primary">{p.name}</span>&nbsp;&nbsp;
@@ -74,7 +73,7 @@ ParticipantsTextField = React.createClass
       </div>
 
 
-  _remove: (values) ->
+  _remove: (values) =>
     field = @props.field
     updates = {}
     updates[field] = _.reject @props.participants[field], (p) ->
@@ -83,7 +82,7 @@ ParticipantsTextField = React.createClass
       false
     @props.change(updates)
 
-  _add: (values) ->
+  _add: (values) =>
     # If the input is a string, parse out email addresses and build
     # an array of contact objects. For each email address wrapped in
     # parentheses, look for a preceding name, if one exists.
@@ -143,7 +142,7 @@ ParticipantsTextField = React.createClass
     @props.change(updates)
     ""
 
-  _showContextMenu: (participant) ->
+  _showContextMenu: (participant) =>
     remote = require('remote')
 
     # Warning: Menu is already initialized as Menu.cjsx!
@@ -154,7 +153,7 @@ ParticipantsTextField = React.createClass
     menu = new MenuClass()
     menu.append(new MenuItem(
       label: "Copy #{participant.email}"
-      click: -> require('clipboard').writeText(participant.email)
+      click: => require('clipboard').writeText(participant.email)
     ))
     menu.append(new MenuItem(
       type: 'separator'
@@ -165,3 +164,5 @@ ParticipantsTextField = React.createClass
     ))
     menu.popup(remote.getCurrentWindow())
 
+
+module.exports = ParticipantsTextField

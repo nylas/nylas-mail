@@ -2,11 +2,10 @@ _ = require 'underscore-plus'
 React = require "react"
 classNames = require 'classnames'
 
-module.exports =
-MessageParticipants = React.createClass
-  displayName: 'MessageParticipants'
+class MessageParticipants extends React.Component
+  @displayName: 'MessageParticipants'
 
-  render: ->
+  render: =>
     classSet = classNames
       "participants": true
       "message-participants": true
@@ -16,7 +15,7 @@ MessageParticipants = React.createClass
       {if @props.isDetailed then @_renderExpanded() else @_renderCollapsed()}
     </div>
 
-  _renderCollapsed: ->
+  _renderCollapsed: =>
     <span className="collapsed-participants">
       <span className="participant-name from-contact">{@_shortNames(@props.from)}</span>
       <span className="participant-label to-label">To:&nbsp;</span>
@@ -31,7 +30,7 @@ MessageParticipants = React.createClass
       </span>
     </span>
 
-  _renderExpanded: ->
+  _renderExpanded: =>
     <div className="expanded-participants">
       <div className="participant-type">
         <div className="participant-name from-contact">{@_fullContact(@props.from)}</div>
@@ -56,10 +55,10 @@ MessageParticipants = React.createClass
 
     </div>
 
-  _shortNames: (contacts=[]) ->
+  _shortNames: (contacts=[]) =>
     _.map(contacts, (c) -> c.displayFirstName()).join(", ")
 
-  _fullContact: (contacts=[]) ->
+  _fullContact: (contacts=[]) =>
     if contacts.length is 0
       # This is necessary to make the floats work properly
       <div>&nbsp;</div>
@@ -80,19 +79,19 @@ MessageParticipants = React.createClass
           </div>
       )
 
-  _selectPlainText: (e) ->
+  _selectPlainText: (e) =>
     textNode = e.currentTarget.childNodes[0]
     @_selectText(textNode)
 
-  _selectCommaText: (e) ->
+  _selectCommaText: (e) =>
     textNode = e.currentTarget.childNodes[0].childNodes[0]
     @_selectText(textNode)
 
-  _selectBracketedText: (e) ->
+  _selectBracketedText: (e) =>
     textNode = e.currentTarget.childNodes[1].childNodes[0] # because of React rendering
     @_selectText(textNode)
 
-  _selectText: (textNode) ->
+  _selectText: (textNode) =>
     range = document.createRange()
     range.setStart(textNode, 0)
     range.setEnd(textNode, textNode.length)
@@ -100,3 +99,6 @@ MessageParticipants = React.createClass
     selection.removeAllRanges()
     selection.addRange(range)
 
+
+
+module.exports = MessageParticipants

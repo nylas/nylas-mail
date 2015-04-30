@@ -12,8 +12,10 @@ _ = require "underscore-plus"
 #  - 'primary'
 #  - 'list'
 
-module.exports = React.createClass
-  render: ->
+class Participants extends React.Component
+  @displayName: "Participants"
+
+  render: =>
     chips = @getParticipants().map (p) =>
       <InjectedComponent name="ContactChip"
         key={p.id}
@@ -25,7 +27,7 @@ module.exports = React.createClass
       {chips}
     </div>
 
-  getParticipants: ->
+  getParticipants: =>
     myEmail = NamespaceStore.current().emailAddress
     list = @props.participants
 
@@ -38,5 +40,8 @@ module.exports = React.createClass
 
     list
 
-  shouldComponentUpdate: (newProps, newState) ->
+  shouldComponentUpdate: (newProps, newState) =>
     !_.isEqual(newProps.participants, @props.participants)
+
+
+module.exports = Participants

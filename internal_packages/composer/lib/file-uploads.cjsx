@@ -3,8 +3,8 @@ React = require 'react'
 {Actions,
  FileUploadStore} = require 'inbox-exports'
 
-FileUpload = React.createClass
-  render: ->
+class FileUpload extends React.Component
+  render: =>
     <div className={"attachment-file-wrap " + @props.uploadData.state}>
       <span className="attachment-bar-bg"></span>
       <span className="attachment-upload-progress" style={@_uploadProgressStyle()}></span>
@@ -19,40 +19,40 @@ FileUpload = React.createClass
       </span>
     </div>
 
-  _uploadProgressStyle: ->
+  _uploadProgressStyle: =>
     if @props.uploadData.fileSize <= 0
       percent = 0
     else
       percent = (@props.uploadData.bytesUploaded / @props.uploadData.fileSize) * 100
     width: "#{percent}%"
 
-  _onClickRemove: ->
+  _onClickRemove: =>
     Actions.abortUpload @props.uploadData
 
-  _basename: ->
+  _basename: =>
     path.basename(@props.uploadData.filePath)
 
-module.exports =
-FileUploads = React.createClass
-  getInitialState: ->
-    uploads: FileUploadStore.uploadsForMessage(@props.localId) ? []
+class FileUploads extends React.Component
+  constructor: (@props) ->
+    @state =
+      uploads: FileUploadStore.uploadsForMessage(@props.localId) ? []
 
-  componentDidMount: ->
+  componentDidMount: =>
     @storeUnlisten = FileUploadStore.listen(@_onFileUploadStoreChange)
 
-  componentWillUnmount: ->
+  componentWillUnmount: =>
     @storeUnlisten() if @storeUnlisten
 
-  render: ->
+  render: =>
     <span className="file-uploads">
       {@_fileUploads()}
     </span>
 
-  _fileUploads: ->
+  _fileUploads: =>
     @state.uploads.map (uploadData) =>
       <FileUpload key={@_key(uploadData)} uploadData={uploadData} />
 
-  _key: (uploadData) ->
+  _key: (uploadData) =>
     "#{uploadData.messageLocalId} #{uploadData.filePath}"
 
   # fileUploads:
@@ -63,5 +63,7 @@ FileUploads = React.createClass
   #     fileName - The basename of the file
   #     bytesUploaded - Current number of bytes uploaded
   #     state - one of "started" "progress" "completed" "aborted" "failed"
-  _onFileUploadStoreChange: ->
+  _onFileUploadStoreChange: =>
     @setState uploads: FileUploadStore.uploadsForMessage(@props.localId)
+
+module.exports = FileUploads

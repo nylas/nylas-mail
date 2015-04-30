@@ -2,14 +2,13 @@ React = require 'react/addons'
 moment = require 'moment'
 
 
-module.exports =
-ActivityBarLongPollItem = React.createClass
-  displayName: 'ActivityBarLongPollItem'
+class ActivityBarLongPollItem extends React.Component
+  @displayName: 'ActivityBarLongPollItem'
 
-  getInitialState: ->
-    expanded: false
+  constructor: (@props) ->
+    @state = expanded: false
 
-  render: ->
+  render: =>
     if @state.expanded
       payload = JSON.stringify(@props.item)
     else
@@ -29,3 +28,6 @@ ActivityBarLongPollItem = React.createClass
       </div>
     </div>
 
+
+
+module.exports = ActivityBarLongPollItem

@@ -2,14 +2,13 @@ React = require 'react'
 _ = require 'underscore-plus'
 {NamespaceStore} = require 'inbox-exports'
 
-module.exports =
-ThreadListParticipants = React.createClass
-  displayName: 'ThreadListParticipants'
+class ThreadListParticipants extends React.Component
+  @displayName: 'ThreadListParticipants'
 
-  propTypes:
+  @propTypes:
     thread: React.PropTypes.object.isRequired
       
-  render: ->
+  render: =>
     items = @getParticipants()
 
     spans = []
@@ -55,7 +54,7 @@ ThreadListParticipants = React.createClass
       {spans}
     </div>
 
-  getParticipants: ->
+  getParticipants: =>
     if @props.thread.metadata
       list = []
       last = null
@@ -101,3 +100,6 @@ ThreadListParticipants = React.createClass
 
     list
 
+
+
+module.exports = ThreadListParticipants

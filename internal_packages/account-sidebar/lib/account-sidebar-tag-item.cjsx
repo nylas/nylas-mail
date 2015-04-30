@@ -3,16 +3,15 @@ classNames = require 'classnames'
 {Actions, Utils, WorkspaceStore} = require 'inbox-exports'
 {RetinaImg} = require 'ui-components'
 
-module.exports =
-AccountSidebarTagItem = React.createClass
-  displayName: 'AccountSidebarTagItem'
+class AccountSidebarTagItem extends React.Component
+  @displayName: 'AccountSidebarTagItem'
 
-  shouldComponentUpdate: (nextProps) ->
+  shouldComponentUpdate: (nextProps) =>
     @props?.item.id isnt nextProps.item.id or
     @props?.item.unreadCount isnt nextProps.item.unreadCount or
     @props?.select isnt nextProps.select
 
-  render: ->
+  render: =>
     unread = []
     if @props.item.unreadCount > 0
       unread = <div className="unread item-count-box">{@props.item.unreadCount}</div>
@@ -27,7 +26,10 @@ AccountSidebarTagItem = React.createClass
       {unread}
     </div>
 
-  _onClick: (event) ->
+  _onClick: (event) =>
     event.preventDefault()
     Actions.selectRootSheet(WorkspaceStore.Sheet.Threads)
     Actions.focusTag(@props.item)
+
+
+module.exports = AccountSidebarTagItem

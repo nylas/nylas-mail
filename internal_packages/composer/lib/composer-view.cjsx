@@ -19,27 +19,27 @@ ParticipantsTextField = require './participants-text-field'
 # The ComposerView is a unique React component because it (currently) is a
 # singleton. Normally, the React way to do things would be to re-render the
 # Composer with new props.
-module.exports =
-ComposerView = React.createClass
-  displayName: 'ComposerView'
+class ComposerView extends React.Component
+  @displayName: 'ComposerView'
 
-  getInitialState: ->
-    populated: false
-    to: []
-    cc: []
-    bcc: []
-    body: ""
-    subject: ""
-    showcc: false
-    showbcc: false
-    showsubject: false
-    showQuotedText: false
-    isSending: DraftStore.sendingState(@props.localId)
+  constructor: (@props) ->
+    @state =
+      populated: false
+      to: []
+      cc: []
+      bcc: []
+      body: ""
+      subject: ""
+      showcc: false
+      showbcc: false
+      showsubject: false
+      showQuotedText: false
+      isSending: DraftStore.sendingState(@props.localId)
 
-  componentWillMount: ->
+  componentWillMount: =>
     @_prepareForDraft(@props.localId)
 
-  componentDidMount: ->
+  componentDidMount: =>
     @_draftStoreUnlisten = DraftStore.listen @_onSendingStateChanged
     @_keymapUnlisten = atom.commands.add '.composer-outer-wrap', {
       'composer:show-and-focus-bcc': @_showAndFocusBcc
@@ -55,12 +55,12 @@ ComposerView = React.createClass
       # work unless the element is on the page.
       @focus "textFieldTo"
 
-  componentWillUnmount: ->
+  componentWillUnmount: =>
     @_teardownForDraft()
     @_draftStoreUnlisten() if @_draftStoreUnlisten
     @_keymapUnlisten.dispose() if @_keymapUnlisten
 
-  componentDidUpdate: ->
+  componentDidUpdate: =>
     # We want to use a temporary variable instead of putting this into the
     # state. This is because the selection is a transient property that
     # only needs to be applied once. It's not a long-living property of
@@ -68,7 +68,7 @@ ComposerView = React.createClass
     # re-rendering.
     @_recoveredSelection = null if @_recoveredSelection?
 
-  componentWillReceiveProps: (newProps) ->
+  componentWillReceiveProps: (newProps) =>
     if newProps.localId isnt @props.localId
       # When we're given a new draft localId, we have to stop listening to our
       # current DraftStoreProxy, create a new one and listen to that. The simplest
@@ -76,7 +76,7 @@ ComposerView = React.createClass
       @_teardownForDraft()
       @_prepareForDraft(newProps.localId)
 
-  _prepareForDraft: (localId) ->
+  _prepareForDraft: (localId) =>
     @unlisteners = []
     return unless localId
 
@@ -87,12 +87,12 @@ ComposerView = React.createClass
     if @_proxy.draft()
       @_onDraftChanged()
 
-  _teardownForDraft: ->
+  _teardownForDraft: =>
     unlisten() for unlisten in @unlisteners
     if @_proxy
       @_proxy.changes.commit()
 
-  render: ->
+  render: =>
     if @props.mode is "inline"
       <div className={@_wrapClasses()}>
         <ResizableRegion handle={ResizableRegion.Handle.Bottom}>
@@ -104,10 +104,10 @@ ComposerView = React.createClass
         {@_renderComposer()}
       </div>
 
-  _wrapClasses: ->
+  _wrapClasses: =>
     "composer-outer-wrap #{@props.className ? ""}"
 
-  _renderComposer: ->
+  _renderComposer: =>
     <div className="composer-inner-wrap" onDragOver={@_onDragNoop} onDragLeave={@_onDragNoop} onDragEnd={@_onDragNoop} onDrop={@_onDrop}>
 
       <div className="composer-cover"
@@ -139,6 +139,7 @@ ComposerView = React.createClass
         <ParticipantsTextField
           ref="textFieldTo"
           field='to'
+          visible={true}
           change={@_onChangeParticipants}
           participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
           tabIndex='102'/>
@@ -193,7 +194,7 @@ ComposerView = React.createClass
       </div>
     </div>
 
-  _renderFooterRegions: ->
+  _renderFooterRegions: =>
     return <div></div> unless @props.localId
 
     <span>
@@ -211,7 +212,7 @@ ComposerView = React.createClass
       <InjectedComponentSet location="Composer:Footer" draftLocalId={@props.localId}/>
     </span>
 
-  _renderActionsRegion: ->
+  _renderActionsRegion: =>
     return <div></div> unless @props.localId
 
     <InjectedComponentSet className="composer-action-bar-content"
@@ -238,8 +239,7 @@ ComposerView = React.createClass
   # Focus the composer view. Chooses the appropriate field to start
   # focused depending on the draft type, or you can pass a field as
   # the first parameter.
-  focus: (field = null) ->
-    return unless @isMounted()
+  focus: (field = null) =>
 
     if component?.isForwardedMessage()
       field ?= "textFieldTo"
@@ -247,15 +247,14 @@ ComposerView = React.createClass
       field ?= "contentBody"
 
     _.delay =>
-      return unless @isMounted()
       @refs[field]?.focus?()
     , 150
 
-  isForwardedMessage: ->
+  isForwardedMessage: =>
     draft = @_proxy.draft()
     Utils.isForwardedMessage(draft)
 
-  _onDraftChanged: ->
+  _onDraftChanged: =>
     draft = @_proxy.draft()
     if not @_initialHistorySave
       @_saveToHistory()
@@ -278,33 +277,33 @@ ComposerView = React.createClass
 
     @setState(state)
 
-  _shouldShowSubject: ->
+  _shouldShowSubject: =>
     draft = @_proxy.draft()
     if _.isEmpty(draft.subject ? "") then return true
     else if @isForwardedMessage() then return true
     else return false
 
-  _onDragNoop: (e) ->
+  _onDragNoop: (e) =>
     e.preventDefault()
 
-  _onDrop: (e) ->
+  _onDrop: (e) =>
     e.preventDefault()
     for file in e.dataTransfer.files
       Actions.attachFilePath({path: file.path, messageLocalId: @props.localId})
     true
 
-  _onChangeParticipants: (changes={}) -> @_addToProxy(changes)
-  _onChangeSubject: (event) -> @_addToProxy(subject: event.target.value)
+  _onChangeParticipants: (changes={}) => @_addToProxy(changes)
+  _onChangeSubject: (event) => @_addToProxy(subject: event.target.value)
 
-  _onChangeBody: (event) ->
+  _onChangeBody: (event) =>
     if @_getSelections().currentSelection?.atEndOfContent
       @props.onRequestScrollTo?(messageId: @_proxy.draft().id, location: "bottom")
     @_addToProxy(body: event.target.value)
 
-  _onChangeEditableMode: ({showQuotedText}) ->
+  _onChangeEditableMode: ({showQuotedText}) =>
     @setState showQuotedText: showQuotedText
 
-  _addToProxy: (changes={}, source={}) ->
+  _addToProxy: (changes={}, source={}) =>
     return unless @_proxy
 
     selections = @_getSelections()
@@ -315,11 +314,11 @@ ComposerView = React.createClass
 
     @_saveToHistory(selections) unless source.fromUndoManager
 
-  _popoutComposer: ->
+  _popoutComposer: =>
     @_proxy.changes.commit()
     Actions.composePopoutDraft @props.localId
 
-  _sendDraft: (options = {}) ->
+  _sendDraft: (options = {}) =>
     return if @state.isSending
     draft = @_proxy.draft()
     remote = require('remote')
@@ -358,7 +357,7 @@ ComposerView = React.createClass
 
     Actions.sendDraft(@props.localId)
 
-  _hasAttachment: (body) ->
+  _hasAttachment: (body) =>
     body = body.toLowerCase().trim()
     attachIndex = body.indexOf("attach")
     if attachIndex >= 0
@@ -368,25 +367,25 @@ ComposerView = React.createClass
       else return true
     else return false
 
-  _destroyDraft: ->
+  _destroyDraft: =>
     Actions.destroyDraft(@props.localId)
 
-  _attachFile: ->
+  _attachFile: =>
     Actions.attachFile({messageLocalId: @props.localId})
 
-  _showAndFocusBcc: ->
+  _showAndFocusBcc: =>
     @setState {showbcc: true}
     @focus "textFieldBcc"
 
-  _showAndFocusCc: ->
+  _showAndFocusCc: =>
     @setState {showcc: true}
     @focus "textFieldCc"
 
-  _onSendingStateChanged: ->
+  _onSendingStateChanged: =>
     @setState isSending: DraftStore.sendingState(@props.localId)
 
 
-  undo: (event) ->
+  undo: (event) =>
     event.preventDefault()
     event.stopPropagation()
     historyItem = @undoManager.undo() ? {}
@@ -395,7 +394,7 @@ ComposerView = React.createClass
     @_recoveredSelection = historyItem.currentSelection
     @_addToProxy historyItem.state, fromUndoManager: true
 
-  redo: (event) ->
+  redo: (event) =>
     event.preventDefault()
     event.stopPropagation()
     historyItem = @undoManager.redo() ? {}
@@ -404,11 +403,11 @@ ComposerView = React.createClass
     @_recoveredSelection = historyItem.currentSelection
     @_addToProxy historyItem.state, fromUndoManager: true
 
-  _getSelections: ->
+  _getSelections: =>
     currentSelection: @refs.contentBody?.getCurrentSelection?()
     previousSelection: @refs.contentBody?.getPreviousSelection?()
 
-  _saveToHistory: (selections) ->
+  _saveToHistory: (selections) =>
     selections ?= @_getSelections()
 
     newDraft = @_proxy.draft()
@@ -429,5 +428,8 @@ ComposerView = React.createClass
 
     @undoManager.saveToHistory(historyItem)
 
-  _deleteEmptyDraft: ->
+  _deleteEmptyDraft: =>
     if @_proxy.draft().pristine then Actions.destroyDraft(@props.localId)
+
+
+module.exports = ComposerView

@@ -12,11 +12,10 @@ classNames = require 'classnames'
 ThreadListParticipants = require './thread-list-participants'
 ThreadListStore = require './thread-list-store'
 
-module.exports =
-ThreadList = React.createClass
-  displayName: 'ThreadList'
+class ThreadList extends React.Component
+  @displayName: 'ThreadList'
 
-  componentWillMount: ->
+  componentWillMount: =>
     labelComponents = (thread) =>
       for label in @state.threadLabelComponents
         LabelComponent = label.view
@@ -43,19 +42,19 @@ ThreadList = React.createClass
 
     c1 = new ListTabular.Column
       name: "★"
-      resolver: (thread) ->
+      resolver: (thread) =>
         <div className="thread-icon thread-icon-#{lastMessageType(thread)}"></div>
 
     c2 = new ListTabular.Column
       name: "Name"
       width: 200
-      resolver: (thread) ->
+      resolver: (thread) =>
         <ThreadListParticipants thread={thread} />
 
     c3 = new ListTabular.Column
       name: "Message"
       flex: 4
-      resolver: (thread) ->
+      resolver: (thread) =>
         attachments = []
         if thread.hasTagId('attachment')
           attachments = <div className="thread-icon thread-icon-attachment"></div>
@@ -67,7 +66,7 @@ ThreadList = React.createClass
 
     c4 = new ListTabular.Column
       name: "Date"
-      resolver: (thread) ->
+      resolver: (thread) =>
         <span className="timestamp">{timestamp(thread.lastMessageTimestamp)}</span>
 
     @columns = [c1, c2, c3, c4]
@@ -82,7 +81,7 @@ ThreadList = React.createClass
       className: classNames
         'unread': item.isUnread()
 
-  render: ->
+  render: =>
     <MultiselectList
       dataStore={ThreadListStore}
       columns={@columns}
@@ -93,28 +92,31 @@ ThreadList = React.createClass
 
   # Additional Commands
 
-  _onArchive: ->
+  _onArchive: =>
     if @_viewingFocusedThread() or ThreadListStore.view().selection.count() is 0
       Actions.archive()
     else
       Actions.archiveSelection()
 
-  _onReply: ({focusedId}) ->
+  _onReply: ({focusedId}) =>
     return unless focusedId? and @_viewingFocusedThread()
     Actions.composeReply(threadId: focusedId)
 
-  _onReplyAll: ({focusedId}) ->
+  _onReplyAll: ({focusedId}) =>
     return unless focusedId? and @_viewingFocusedThread()
     Actions.composeReplyAll(threadId: focusedId)
 
-  _onForward: ({focusedId}) ->
+  _onForward: ({focusedId}) =>
     return unless focusedId? and @_viewingFocusedThread()
     Actions.composeForward(threadId: focusedId)
 
   # Helpers
 
-  _viewingFocusedThread: ->
+  _viewingFocusedThread: =>
     if WorkspaceStore.layoutMode() is "list"
       WorkspaceStore.topSheet() is WorkspaceStore.Sheet.Thread
     else
       true
+
+
+module.exports = ThreadList

@@ -4,19 +4,14 @@ React = require "react"
 {Actions} = require 'inbox-exports'
 {RetinaImg} = require 'ui-components'
 
-module.exports =
-SidebarFullContactDetails = React.createClass
+class SidebarFullContactDetails extends React.Component
+  @displayName: "SidebarFullContactDetails"
 
-  _supportedProfileTypes:
-    twitter: true
-    linkedin: true
-    facebook: true
-
-  propTypes:
+  @propTypes:
     contact: React.PropTypes.object
     fullContact: React.PropTypes.object
 
-  render: ->
+  render: =>
     <div className="full-contact">
       <div className="header">
         {@_profilePhoto()}
@@ -34,7 +29,7 @@ SidebarFullContactDetails = React.createClass
       {@_noInfo()}
     </div>
 
-  _socialProfiles: ->
+  _socialProfiles: =>
     profiles = @_profiles()
     return profiles.map (profile) =>
       <div className="social-profile">
@@ -45,14 +40,19 @@ SidebarFullContactDetails = React.createClass
         </div>
       </div>
 
-  _profiles: ->
+  _profiles: =>
     profiles = @props.fullContact.socialProfiles ? []
     profiles = _.filter profiles, (p) => @_supportedProfileTypes[p.typeId]
 
-  _showSocialProfiles: ->
+  _supportedProfileTypes:
+    twitter: true
+    linkedin: true
+    facebook: true
+
+  _showSocialProfiles: =>
     @_profiles().length > 0
 
-  _username: (profile) ->
+  _username: (profile) =>
     if (profile.username ? "").length > 0
       if profile.typeId is "twitter"
         return "@#{profile.username}"
@@ -61,12 +61,12 @@ SidebarFullContactDetails = React.createClass
     else
       return profile.typeName
 
-  _noInfo: ->
+  _noInfo: =>
     if not @_showSocialProfiles() and not @_showSubheader()
       <div className="sidebar-no-info">No additional information available.</div>
     else return ""
 
-  _twitterBio: (profile) ->
+  _twitterBio: (profile) =>
     return "" unless profile.typeId is "twitter"
     return "" unless profile.bio?.length > 0
 
@@ -77,13 +77,13 @@ SidebarFullContactDetails = React.createClass
     <div className="bio sidebar-extra-info"
           dangerouslySetInnerHTML={{__html: bio}}></div>
 
-  _showSubheader: ->
+  _showSubheader: =>
     @_title().length > 0 or @_company().length > 0
 
-  _name: ->
+  _name: =>
     (@props.fullContact.contactInfo?.fullName) ? @props.contact?.name
 
-  _title: ->
+  _title: =>
     org = @_primaryOrg()
     return "" unless org?
     if org.current and org.title?
@@ -92,7 +92,7 @@ SidebarFullContactDetails = React.createClass
       return "Former #{org.title}"
     else return ""
 
-  _company: ->
+  _company: =>
     location = @props.fullContact.demographics?.locationGeneral ? ""
     name = @_primaryOrg()?.name ? ""
     if name.length > 0 and location.length > 0
@@ -103,13 +103,13 @@ SidebarFullContactDetails = React.createClass
       return "(#{location})"
     else return ""
 
-  _primaryOrg: ->
+  _primaryOrg: =>
     orgs = @props.fullContact.organizations ? []
     org = _.findWhere orgs, isPrimary: true
     if not org? then org = orgs[0]
     return org
 
-  _profilePhoto: ->
+  _profilePhoto: =>
     photos = @props.fullContact.photos ? []
     photo = _.findWhere photo, isPrimary: true
     if not photo? then photo = _.findWhere photo, typeId: "linkedin"
@@ -117,3 +117,6 @@ SidebarFullContactDetails = React.createClass
     if photo? and photo.url?
       return <img src={photo.url} className="profile-photo" />
     else return ""
+
+
+module.exports = SidebarFullContactDetails

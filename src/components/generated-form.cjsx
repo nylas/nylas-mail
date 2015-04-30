@@ -1,4 +1,5 @@
 _ = require 'underscore-plus'
+classNames = require 'classnames'
 React = require 'react'
 {Utils} = require 'inbox-exports'
 
@@ -13,33 +14,31 @@ idPropType = React.PropTypes.oneOfType([
 # parents can lookup and change the data appropriately) and the new value.
 # Either direct parents, grandparents, etc are responsible for updating
 # the `value` prop to update the value again.
-FormItem = React.createClass
-  displayName: "FormItem"
+class FormItem extends React.Component
+  @displayName: "FormItem"
 
-  statics:
-    # A Set of valid types that can be sent into an "input" element
-    inputElementTypes:
-      "checkbox": true
-      "color": true
-      "date": true
-      "datetime": true
-      "datetime-local": true
-      "email": true
-      "file": true
-      "hidden": true
-      "month": true
-      "number": true
-      "password": true
-      "radio": true
-      "range": true
-      "search": true
-      "tel": true
-      "text": true
-      "time": true
-      "url": true
-      "week": true
+  @inputElementTypes:
+    "checkbox": true
+    "color": true
+    "date": true
+    "datetime": true
+    "datetime-local": true
+    "email": true
+    "file": true
+    "hidden": true
+    "month": true
+    "number": true
+    "password": true
+    "radio": true
+    "range": true
+    "search": true
+    "tel": true
+    "text": true
+    "time": true
+    "url": true
+    "week": true
 
-  propTypes:
+  @propTypes:
     # Some sort of unique identifier
     id: idPropType.isRequired
 
@@ -94,8 +93,8 @@ FormItem = React.createClass
 
     relationshipName: React.PropTypes.string
 
-  render: ->
-    classes = React.addons.classSet
+  render: =>
+    classes = classNames
       "form-item": true
       "valid": @state.valid
 
@@ -120,19 +119,18 @@ FormItem = React.createClass
   # DOM nodes we need to bend the React rules a bit and do a
   # repeated-render until the `state` matches the validity state of the
   # input.
-  componentWillMount: ->
+  componentWillMount: =>
     @setState valid: true
 
-  componentDidMount: -> @refreshValidityState()
+  componentDidMount: => @refreshValidityState()
 
-  componentDidUpdate: -> @refreshValidityState()
+  componentDidUpdate: => @refreshValidityState()
 
-  shouldComponentUpdate: (nextProps, nextState) ->
+  shouldComponentUpdate: (nextProps, nextState) =>
     not Utils.isEqualReact(nextProps, @props) or
     not Utils.isEqualReact(nextState, @state)
 
-  refreshValidityState: -> _.defer =>
-    return unless @isMounted()
+  refreshValidityState: => _.defer =>
     return unless @refs.input
     el = React.findDOMNode(@refs.input)
 
@@ -149,7 +147,7 @@ FormItem = React.createClass
 
     @_lastValidity = newValidity
 
-  _renderError: ->
+  _renderError: =>
     if @state.valid
       <div></div>
     else
@@ -158,7 +156,7 @@ FormItem = React.createClass
       else
         <div></div>
 
-  _renderInput: ->
+  _renderInput: =>
     inputProps = _.extend {}, @props,
       ref: "input"
       onChange: (eventOrValue) =>
@@ -180,10 +178,10 @@ FormItem = React.createClass
     else
       console.warn "We do not support type #{@props.type} with attributes:", inputProps
 
-GeneratedFieldset = React.createClass
-  displayName: "GeneratedFieldset"
+class GeneratedFieldset extends React.Component
+  @displayName: "GeneratedFieldset"
 
-  propTypes:
+  @propTypes:
     # Some sort of unique identifier
     id: idPropType.isRequired
 
@@ -205,7 +203,7 @@ GeneratedFieldset = React.createClass
     heading: React.PropTypes.node
     useHeading: React.PropTypes.bool
 
-  render: ->
+  render: =>
     <fieldset>
       {@_renderHeader()}
       <div className="fieldset-form-items">
@@ -214,20 +212,20 @@ GeneratedFieldset = React.createClass
       {@_renderFooter()}
     </fieldset>
 
-  shouldComponentUpdate: (nextProps, nextState) ->
+  shouldComponentUpdate: (nextProps, nextState) =>
     not Utils.isEqualReact(nextProps, @props) or
     not Utils.isEqualReact(nextState, @state)
 
-  refreshValidityStates: ->
+  refreshValidityStates: =>
     for key, ref in @refs
       ref.refreshValidityState() if key.indexOf("form-item") is 0
 
-  _renderHeader: ->
+  _renderHeader: =>
     if @props.useHeading
       <header><legend>{@props.heading}</legend></header>
     else <div></div>
 
-  _renderFormItems: ->
+  _renderFormItems: =>
     byRow = _.groupBy(@props.formItems, "row")
     _.map byRow, (items=[], rowNum) =>
       itemsWithSpacers = []
@@ -255,7 +253,7 @@ GeneratedFieldset = React.createClass
 
   # Given the raw data of an individual FormItem, prepare a set of props
   # to pass down into the FormItem.
-  _propsFromFormItemData: (formItemData) ->
+  _propsFromFormItemData: (formItemData) =>
     props = _.clone(formItemData)
     props.key = props.id
     error = @props.formItemErrors?[props.id]
@@ -263,7 +261,7 @@ GeneratedFieldset = React.createClass
     props.onChange = _.bind(@_onChangeItem, @)
     return props
 
-  _onChangeItem: (itemId, newValue) ->
+  _onChangeItem: (itemId, newValue) =>
     newFormItems = _.map @props.formItems, (formItem) ->
       if formItem.id is itemId
         newFormItem = _.clone(formItem)
@@ -272,13 +270,13 @@ GeneratedFieldset = React.createClass
       else return formItem
     @props.onChange(@props.id, newFormItems)
 
-  _renderFooter: ->
+  _renderFooter: =>
     <footer></footer>
 
-GeneratedForm = React.createClass
-  displayName: "GeneratedForm"
+class GeneratedForm extends React.Component
+  @displayName: "GeneratedForm"
 
-  propTypes:
+  @propTypes:
     # Some sort of unique identifier
     id: idPropType
 
@@ -299,7 +297,7 @@ GeneratedForm = React.createClass
 
     onSubmit: React.PropTypes.func.isRequired
 
-  render: ->
+  render: =>
     <form className="generated-form" ref="form">
       {@_renderHeaderFormError()}
       {@_renderFieldsets()}
@@ -309,34 +307,34 @@ GeneratedForm = React.createClass
       </div>
     </form>
 
-  shouldComponentUpdate: (nextProps, nextState) ->
+  shouldComponentUpdate: (nextProps, nextState) =>
     not Utils.isEqualReact(nextProps, @props) or
     not Utils.isEqualReact(nextState, @state)
 
-  _onSubmit: ->
+  _onSubmit: =>
     valid = React.findDOMNode(@refs.form).reportValidity()
     if valid
       @props.onSubmit()
     else
       @refreshValidityStates()
 
-  refreshValidityStates: ->
+  refreshValidityStates: =>
     for key, ref in @refs
       ref.refreshValidityStates() if key.indexOf("fieldset") is 0
 
-  _renderHeaderFormError: ->
+  _renderHeaderFormError: =>
     if @props.errors?.formError
       <div className="form-error form-header-error">
         {@props.errors.formError.message}
       </div>
     else return <div></div>
 
-  _renderFieldsets: ->
+  _renderFieldsets: =>
     (@props.fieldsets ? []).map (fieldset) =>
       props = @_propsFromFieldsetData(fieldset)
       <GeneratedFieldset {...props} ref={"fieldset-#{fieldset.id}"} />
 
-  _propsFromFieldsetData: (fieldsetData) ->
+  _propsFromFieldsetData: (fieldsetData) =>
     props = _.clone(fieldsetData)
     errors = @props.errors?.formItemErrors
     if errors then props.formItemErrors = errors
@@ -344,7 +342,7 @@ GeneratedForm = React.createClass
     props.onChange = _.bind(@_onChangeFieldset, @)
     return props
 
-  _onChangeFieldset: (fieldsetId, newFormItems) ->
+  _onChangeFieldset: (fieldsetId, newFormItems) =>
     newFieldsets = _.map @props.fieldsets, (fieldset) ->
       if fieldset.id is fieldsetId
         newFieldset = _.clone(fieldset)

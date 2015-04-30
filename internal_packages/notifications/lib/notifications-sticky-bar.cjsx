@@ -2,8 +2,10 @@ React = require 'react'
 {Actions} = require 'inbox-exports'
 NotificationStore = require './notifications-store'
 
-NotificationStickyItem = React.createClass
-  render: ->
+class NotificationStickyItem extends React.Component
+  @displayName: "NotificationStickyItem"
+
+  render: =>
     notif = @props.notification
     iconClass = if notif.icon then "fa #{notif.icon}" else ""
     actionComponents = notif.actions?.map (action) =>
@@ -13,39 +15,44 @@ NotificationStickyItem = React.createClass
       <i className={iconClass}></i><span>{notif.message}</span>{actionComponents}
     </div>
 
-  _fireItemAction: (notification, action) ->
+  _fireItemAction: (notification, action) =>
     Actions.notificationActionTaken({notification, action})
 
 
-module.exports =
-NotificationStickyBar = React.createClass
+class NotificationStickyBar extends React.Component
+  @displayName: "NotificationStickyBar"
 
-  getInitialState: ->
-    @_getStateFromStores()
+  constructor: (@props) ->
+    @state = @_getStateFromStores()
 
-  _getStateFromStores: ->
+  _getStateFromStores: =>
     items: NotificationStore.stickyNotifications()
-    
-  _onDataChanged: ->
+
+  _onDataChanged: =>
     @setState @_getStateFromStores()
 
-  componentDidMount: ->
+  componentDidMount: =>
     @_unlistener = NotificationStore.listen(@_onDataChanged, @)
     @
 
   # It's important that every React class explicitly stops listening to
   # atom events before it unmounts. Thank you event-kit
   # This can be fixed via a Reflux mixin
-  componentWillUnmount: ->
+  componentWillUnmount: =>
     @_unlistener() if @_unlistener
     @
 
-  render: ->
+  render: =>
     <div className="notifications-sticky">
       {@_notificationComponents()}
     </div>
 
-  _notificationComponents: ->
+  _notificationComponents: =>
     @state.items.map (notif) ->
       <NotificationStickyItem notification={notif} />
 
+
+
+
+
+module.exports = NotificationStickyBar

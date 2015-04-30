@@ -7,18 +7,17 @@ React = require 'react'
 # @props.download is a FileDownloadStore.Download object
 # @props.file is a File object
 
-module.exports =
-AttachmentComponent = React.createClass
-  displayName: 'AttachmentComponent'
+class AttachmentComponent extends React.Component
+  @displayName: 'AttachmentComponent'
 
-  propTypes:
+  @propTypes:
     file: React.PropTypes.object.isRequired,
     download: React.PropTypes.object
 
-  getInitialState: ->
-    progressPercent: 0
+  constructor: (@props) ->
+    @state = progressPercent: 0
 
-  render: ->
+  render: =>
     <div className={"attachment-file-wrap " + (@props.download?.state() ? "")}>
       <span className="attachment-download-bar-wrap">
         <span className="attachment-bar-bg"></span>
@@ -36,7 +35,7 @@ AttachmentComponent = React.createClass
 
     </div>
 
-  _fileActions: ->
+  _fileActions: =>
     if @props.removable
       <button className="btn btn-icon attachment-icon" onClick={@_onClickRemove}>
         <i className="fa fa-remove"></i>
@@ -50,20 +49,23 @@ AttachmentComponent = React.createClass
         <i className="fa fa-download"></i>
       </button>
 
-  _downloadProgressStyle: ->
+  _downloadProgressStyle: =>
     width: @props.download?.percent ? 0
 
-  _onClickRemove: ->
+  _onClickRemove: =>
     Actions.removeFile
       file: @props.file
       messageLocalId: @props.messageLocalId
 
-  _onClickView: -> Actions.fetchAndOpenFile(@props.file) if @_canClickToView()
+  _onClickView: => Actions.fetchAndOpenFile(@props.file) if @_canClickToView()
 
-  _onClickDownload: -> Actions.fetchAndSaveFile(@props.file)
+  _onClickDownload: => Actions.fetchAndSaveFile(@props.file)
 
-  _onClickAbort: -> Actions.abortDownload(@props.file, @props.download)
+  _onClickAbort: => Actions.abortDownload(@props.file, @props.download)
 
-  _canClickToView: -> not @props.removable and not @_isDownloading()
+  _canClickToView: => not @props.removable and not @_isDownloading()
 
-  _isDownloading: -> @props.download?.state() is "downloading"
+  _isDownloading: => @props.download?.state() is "downloading"
+
+
+module.exports = AttachmentComponent

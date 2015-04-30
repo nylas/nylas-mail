@@ -11,35 +11,37 @@ class CalendarBarRow
       @last = initialItem.event.end
       @items.push(initialItem)
   
-  canHoldItem: (item) ->
+  canHoldItem: (item) =>
     item.event.start > @last
 
-  addItem: (item) ->
+  addItem: (item) =>
     @last = item.event.end
     @items.push(item)
 
-CalendarBarMarker = React.createClass
-  render: ->
+class CalendarBarMarker extends React.Component
+  @displayName: "CalendarBarMarker"
+
+  render: =>
     classname = "marker"
     classname += " now" if @props.marker.now
     <div className={classname} style={left: @props.marker.xPercent} id={@props.marker.xPercent}/>
 
-module.exports =
-CalendarBar = React.createClass
+class CalendarBar extends React.Component
+  @displayName: "CalendarBar"
 
-  getInitialState: ->
-    @_getStateFromStores()
+  constructor: (@props) ->
+    @state = @_getStateFromStores()
 
-  componentDidMount: ->
+  componentDidMount: =>
     @unsubscribe = CalendarBarEventStore.listen @_onStoreChange
 
   # It's important that every React class explicitly stops listening to
   # atom events before it unmounts. Thank you event-kit
   # This can be fixed via a Reflux mixin
-  componentWillUnmount: ->
+  componentWillUnmount: =>
     @unsubscribe() if @unsubscribe
 
-  render: ->
+  render: =>
     markers = @_getMarkers().map (marker) ->
       <CalendarBarMarker marker={marker}/>
 
@@ -52,14 +54,14 @@ CalendarBar = React.createClass
       {items}
     </div>
 
-  _onStoreChange: ->
+  _onStoreChange: =>
     @setState @_getStateFromStores()
 
-  _getStateFromStores: ->
+  _getStateFromStores: =>
     events: CalendarBarEventStore.events()
     range: CalendarBarEventStore.range()
 
-  _getMarkers: ->
+  _getMarkers: =>
     range = @state.range
     now = (new Date).getTime()/1000 - range.start
     markers = []
@@ -72,7 +74,7 @@ CalendarBar = React.createClass
       xPercent: (now * 100) / (range.end - range.start) + "%"
     markers
 
-  _getItemsForEvents: (events) ->
+  _getItemsForEvents: (events) =>
     # Create an array of items with additional metadata needed for our view.
     # We compute the X and width of elements using their durations as a fraction
     # of the displayed range
@@ -121,3 +123,5 @@ CalendarBar = React.createClass
       item.hPercent = (100.0 / item.rowCount) + "%"
 
     items
+
+module.exports = CalendarBar

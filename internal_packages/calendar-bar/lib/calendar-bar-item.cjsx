@@ -2,9 +2,8 @@ React = require 'react'
 {Actions} = require("inbox-exports")
 moment = require 'moment'
 
-module.exports =
-CalendarBarItem = React.createClass
-  render: ->
+class CalendarBarItem extends React.Component
+  render: =>
     style =
       left: @props.item.xPercent
       top: @props.item.yPercent
@@ -16,7 +15,7 @@ CalendarBarItem = React.createClass
         <span className="time">{@_time()}</span>
     </div>
 
-  _time: ->
+  _time: =>
     w = @props.item.event.when
     if w.start_time
       return moment.unix(w.start_time).format('h:mm a')
@@ -27,6 +26,9 @@ CalendarBarItem = React.createClass
     else
       return ""
 
-  _onClick: (event) ->
+  _onClick: (event) =>
     event.preventDefault()
     Actions.focusTag(@props.tag)
+
+
+module.exports = CalendarBarItem

@@ -70,7 +70,7 @@ class Spinner extends React.Component
   # If you don't want to make your own background for the loading state,
   # this is a convenient default.
   _renderDotsWithCover: =>
-    coverClasses = React.addons.classSet
+    coverClasses = classNames
       "spinner-cover": true
       "hidden": @state.hidden
 

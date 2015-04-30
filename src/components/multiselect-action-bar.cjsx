@@ -16,10 +16,10 @@ Generally, you wrap {MultiselectActionBar} in your own simple component to provi
 and other settings:
 
 ```
-ThreadSelectionBar = React.createClass
-  displayName: 'ThreadSelectionBar'
+class MultiselectActionBar extends React.Component
+  @displayName: 'MultiselectActionBar'
 
-  render: ->
+  render: =>
     <MultiselectActionBar
       dataStore={ThreadListStore}
       className="thread-list"

@@ -11,19 +11,20 @@ Activate by adding a `data-tooltip="Label"` to any element
 It's a global-level singleton
 ###
 
-module.exports =
-Tooltip = React.createClass
+class Tooltip extends React.Component
+  @displayName: "Tooltip"
 
-  getInitialState: ->
-    top: 0
-    pos: "below"
-    left: 0
-    width: 0
-    pointerLeft: 0
-    display: false
-    content: ""
+  constructor: (@props) ->
+    @state =
+      top: 0
+      pos: "below"
+      left: 0
+      width: 0
+      pointerLeft: 0
+      display: false
+      content: ""
 
-  componentWillMount: ->
+  componentWillMount: =>
     @CONTENT_PADDING = 15
     @DEFAULT_DELAY = 1500
     @KEEP_DELAY = 500
@@ -31,17 +32,17 @@ Tooltip = React.createClass
     @_showTimeout = null
     @_showDelayTimeout = null
 
-  componentWillUnmount: ->
+  componentWillUnmount: =>
     clearTimeout @_showTimeout
     clearTimeout @_showDelayTimeout
 
-  render: ->
+  render: =>
     <div className="tooltip-wrap #{@state.pos}" style={@_positionStyles()}>
       <div className="tooltip-content">{@state.content}</div>
       <div className="tooltip-pointer" style={left: @state.pointerLeft}></div>
     </div>
 
-  _positionStyles: ->
+  _positionStyles: =>
     top: @state.top
     left: @state.left
     width: @state.width
@@ -49,25 +50,25 @@ Tooltip = React.createClass
 
   # This are public methods so they can be bound to the window event
   # listeners.
-  onMouseOver: (e) ->
+  onMouseOver: (e) =>
     target = @_elementWithTooltip(e.target)
     if target and Utils.nodeIsVisible(target) then @_onTooltipEnter(target)
     else if @state.display then @_hideTooltip()
 
-  onMouseOut: (e) ->
+  onMouseOut: (e) =>
     if @_elementWithTooltip(e.fromElement) and not @_elementWithTooltip(e.toElement)
       @_onTooltipLeave()
 
-  onMouseDown: (e) ->
+  onMouseDown: (e) =>
     if @state.display then @_hideTooltip()
 
-  _elementWithTooltip: (target) ->
+  _elementWithTooltip: (target) =>
     while target
       break if target?.dataset?.tooltip?
       target = target.parentNode
     return target
 
-  _onTooltipEnter: (target) ->
+  _onTooltipEnter: (target) =>
     @_enteredTooltip = true
     clearTimeout(@_showTimeout)
     clearTimeout(@_showDelayTimeout)
@@ -75,7 +76,7 @@ Tooltip = React.createClass
       @_showTooltip(target)
     , @_showDelay
 
-  _onTooltipLeave: ->
+  _onTooltipLeave: =>
     return unless @_enteredTooltip
     @_enteredTooltip = false
     clearTimeout(@_showTimeout)
@@ -87,8 +88,7 @@ Tooltip = React.createClass
       @_showDelay = @DEFAULT_DELAY
     , @KEEP_DELAY
 
-  _showTooltip: (target) ->
-    return unless @isMounted()
+  _showTooltip: (target) =>
     return unless Utils.nodeIsVisible(target)
     content = target.dataset.tooltip
     guessedWidth = @_guessWidth(content)
@@ -112,17 +112,17 @@ Tooltip = React.createClass
       display: true
       content: target.dataset.tooltip
 
-  _guessWidth: (content) ->
+  _guessWidth: (content) =>
     # roughly 11px per character
     guessWidth = content.length * 11
     return Math.max(Math.min(guessWidth, 250), 50)
 
-  _tooltipLeft: (targetLeft, guessedWidth) ->
+  _tooltipLeft: (targetLeft, guessedWidth) =>
     max = @_windowWidth() - guessedWidth - @CONTENT_PADDING
     left = Math.min(Math.max(targetLeft - guessedWidth/2, @CONTENT_PADDING), max)
     return left
 
-  _tooltipPointerLeft: (targetLeft, guessedWidth) ->
+  _tooltipPointerLeft: (targetLeft, guessedWidth) =>
     POINTER_WIDTH = 6 + 2 #2px of border-radius
     max = @_windowWidth() - @CONTENT_PADDING
     min = @CONTENT_PADDING
@@ -132,14 +132,13 @@ Tooltip = React.createClass
     left = Math.max(Math.min(relativeLeft, guessedWidth-POINTER_WIDTH), POINTER_WIDTH)
     return left
 
-  _windowWidth: ->
+  _windowWidth: =>
     document.getElementsByTagName('body')[0].getBoundingClientRect().width
 
-  _windowHeight: ->
+  _windowHeight: =>
     document.getElementsByTagName('body')[0].getBoundingClientRect().height
 
-  _hideTooltip: ->
-    return unless @isMounted()
+  _hideTooltip: =>
     @setState
       top: 0
       left: 0
@@ -147,3 +146,6 @@ Tooltip = React.createClass
       pointerLeft: 0
       display: false
       content: ""
+
+
+module.exports = Tooltip

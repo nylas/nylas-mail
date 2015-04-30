@@ -3,26 +3,25 @@ moment = require 'moment-timezone'
 React = require 'react'
 {Utils} = require 'inbox-exports'
 
-module.exports =
-MessageTimestamp = React.createClass
-  displayName: 'MessageTimestamp'
-  propTypes:
+class MessageTimestamp extends React.Component
+  @displayName: 'MessageTimestamp'
+  @propTypes:
     date: React.PropTypes.object.isRequired,
     className: React.PropTypes.string,
     isDetailed: React.PropTypes.bool
     onClick: React.PropTypes.func
 
-  shouldComponentUpdate: (nextProps, nextState) ->
+  shouldComponentUpdate: (nextProps, nextState) =>
     +nextProps.date isnt +@props.date or nextProps.isDetailed isnt @props.isDetailed
 
-  render: ->
+  render: =>
     <div className={@props.className}
          onClick={@props.onClick}>{@_formattedDate()}</div>
 
-  _formattedDate: ->
+  _formattedDate: =>
     moment.tz(@props.date, Utils.timeZone).format(@_timeFormat())
 
-  _timeFormat: ->
+  _timeFormat: =>
     if @props.isDetailed
       return "DD / MM / YYYY h:mm a z"
     else
@@ -44,3 +43,6 @@ MessageTimestamp = React.createClass
   _today: -> moment.tz(Utils.timeZone)
 
 
+
+
+module.exports = MessageTimestamp

@@ -2,9 +2,8 @@ React = require 'react'
 {Message, Actions, NamespaceStore} = require 'inbox-exports'
 {RetinaImg} = require 'ui-components'
 
-module.exports =
-NewComposeButton = React.createClass
-  render: ->
+class NewComposeButton extends React.Component
+  render: =>
     <button style={order: 101}
             className="btn btn-toolbar"
             data-tooltip="Compose new message"
@@ -12,4 +11,6 @@ NewComposeButton = React.createClass
       <RetinaImg name="toolbar-compose.png"/>
     </button>
 
-  _onNewCompose: -> Actions.composeNewBlankDraft()
+  _onNewCompose: => Actions.composeNewBlankDraft()
+
+module.exports = NewComposeButton
