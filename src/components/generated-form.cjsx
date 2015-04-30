@@ -133,7 +133,8 @@ FormItem = React.createClass
 
   refreshValidityState: -> _.defer =>
     return unless @isMounted()
-    el = @refs.input.getDOMNode()
+    return unless @refs.input
+    el = React.findDOMNode(@refs.input)
 
     customMsg = @props.formItemError?.message
     if el.setCustomValidity?
@@ -236,7 +237,10 @@ GeneratedFieldset = React.createClass
         if i isnt items.length - 1 or items.length is 1
           itemsWithSpacers.push(spacer: true)
 
-      <div className="row" data-row-num={rowNum} key={rowNum}>
+      <div className="row"
+           data-row-num={rowNum}
+           style={zIndex: 1000-rowNum}
+           key={rowNum}>
         {_.map itemsWithSpacers, (formItemData, i) =>
           if formItemData.spacer
             <div className="column-spacer" data-col-num={i} key={i}>
@@ -310,7 +314,7 @@ GeneratedForm = React.createClass
     not Utils.isEqualReact(nextState, @state)
 
   _onSubmit: ->
-    valid = @refs.form.getDOMNode().reportValidity()
+    valid = React.findDOMNode(@refs.form).reportValidity()
     if valid
       @props.onSubmit()
     else

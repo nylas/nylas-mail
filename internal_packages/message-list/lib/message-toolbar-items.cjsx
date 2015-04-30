@@ -59,13 +59,14 @@ ArchiveButton = React.createClass
     Actions.archive()
     e.stopPropagation()
 
+class MessageToolbarItems extends React.Component
+  @displayName: "MessageToolbarItems"
 
-module.exports =
-MessageToolbarItems = React.createClass
-  getInitialState: ->
-    threadIsSelected: FocusedContentStore.focusedId('thread')?
+  constructor: (@props) ->
+    @state =
+      threadIsSelected: FocusedContentStore.focusedId('thread')?
 
-  render: ->
+  render: =>
     classes = classNames
       "message-toolbar-items": true
       "hidden": !@state.threadIsSelected
@@ -74,14 +75,15 @@ MessageToolbarItems = React.createClass
       <ArchiveButton ref="archiveButton" />
     </div>
 
-  componentDidMount: ->
+  componentDidMount: =>
     @_unsubscribers = []
     @_unsubscribers.push FocusedContentStore.listen @_onChange
 
-  componentWillUnmount: ->
+  componentWillUnmount: =>
     unsubscribe() for unsubscribe in @_unsubscribers
 
-  _onChange: -> _.defer =>
-    return unless @isMounted()
+  _onChange: => _.defer =>
     @setState
       threadIsSelected: FocusedContentStore.focusedId('thread')?
+
+module.exports = MessageToolbarItems

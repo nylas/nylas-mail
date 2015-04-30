@@ -111,10 +111,10 @@ AccountSidebarStore = Reflux.createStore
     @trigger(@)
 
   _onDataChanged: (change) ->
-    @populateInboxCountDebounced ?= _.debounce ->
+    @populateInboxCountDebounced ?= _.debounce =>
       @_populateInboxCount()
     , 1000
-    @populateDraftCountDebounced ?= _.debounce ->
+    @populateDraftCountDebounced ?= _.debounce =>
       @_populateDraftCount()
     , 1000
 

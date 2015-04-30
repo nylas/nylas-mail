@@ -7,6 +7,7 @@ require './window'
 
 Atom = require './atom'
 window.atom = Atom.loadOrCreate('editor')
+global.Promise.longStackTraces() if atom.inDevMode()
 atom.initialize()
 atom.startRootWindow()
 

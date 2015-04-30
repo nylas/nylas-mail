@@ -120,7 +120,11 @@ windowActions = [
   "fileDownloaded",
 
   "popSheet",
-  "pushSheet"
+  "pushSheet",
+
+  "metadataError",
+  "metadataCreated",
+  "metadataDestroyed"
 ]
 
 allActions = [].concat(windowActions).concat(globalActions).concat(mainWindowActions)

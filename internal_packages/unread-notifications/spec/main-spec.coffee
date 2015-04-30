@@ -1,5 +1,4 @@
 _ = require 'underscore-plus'
-Promise = require 'bluebird'
 Contact = require '../../../src/flux/models/contact'
 Message = require '../../../src/flux/models/message'
 Thread = require '../../../src/flux/models/thread'

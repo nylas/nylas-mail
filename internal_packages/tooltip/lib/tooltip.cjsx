@@ -6,6 +6,8 @@ React = require 'react/addons'
 The Tooltip component displays a consistent hovering tooltip for use when
 extra context information is required.
 
+Activate by adding a `data-tooltip="Label"` to any element
+
 It's a global-level singleton
 ###
 

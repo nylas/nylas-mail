@@ -12,6 +12,10 @@ Exports =
   Task: require '../src/flux/tasks/task'
   TaskQueue: require '../src/flux/stores/task-queue'
 
+  # Tasks
+  CreateMetadataTask: require '../src/flux/tasks/create-metadata-task'
+  DestroyMetadataTask: require '../src/flux/tasks/destroy-metadata-task'
+
   # The Database
   DatabaseStore: require '../src/flux/stores/database-store'
   ModelView: require '../src/flux/stores/model-view'
@@ -44,6 +48,7 @@ Exports =
   DraftStoreExtension: require '../src/flux/stores/draft-store-extension'
   MessageStore: require '../src/flux/stores/message-store'
   ContactStore: require '../src/flux/stores/contact-store'
+  MetadataStore: require '../src/flux/stores/metadata-store'
   NamespaceStore: require '../src/flux/stores/namespace-store'
   AnalyticsStore: require '../src/flux/stores/analytics-store'
   WorkspaceStore: require '../src/flux/stores/workspace-store'
@@ -60,7 +65,7 @@ Exports =
 
   ## TODO move to inside of individual Salesforce package. See https://trello.com/c/tLAGLyeb/246-move-salesforce-models-into-individual-package-db-models-for-packages-various-refactors
   SalesforceAssociation: require '../src/flux/models/salesforce-association'
-  SalesforceContact: require '../src/flux/models/salesforce-contact'
+  SalesforceSearchResult: require '../src/flux/models/salesforce-search-result'
   SalesforceObject: require '../src/flux/models/salesforce-object'
   SalesforceSchema: require '../src/flux/models/salesforce-schema'
 

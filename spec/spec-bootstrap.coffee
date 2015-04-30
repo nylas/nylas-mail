@@ -13,6 +13,7 @@ try
   Atom = require '../src/atom'
   Atom.configDirPath = fs.absolute('~/.inbox-spec')
   window.atom = Atom.loadOrCreate()
+  global.Promise.longStackTraces() if atom.inDevMode()
 
   # Show window synchronously so a focusout doesn't fire on input elements
   # that are focused in the very first spec run.

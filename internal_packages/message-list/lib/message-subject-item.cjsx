@@ -2,26 +2,25 @@ _ = require 'underscore-plus'
 React = require 'react'
 {FocusedContentStore} = require 'inbox-exports'
 
-module.exports =
-MessageSubjectItem = React.createClass
-  displayName: 'MessageSubjectItem'
+class MessageSubjectItem extends React.Component
+  @displayName: 'MessageSubjectItem'
 
-  getInitialState: ->
-    @_getStateFromStores()
+  constructor: (@props) ->
+    @state = @_getStateFromStores()
 
-  componentDidMount: ->
+  componentDidMount: =>
     @_unsubscriber = FocusedContentStore.listen @_onChange
 
-  componentWillUnmount: ->
+  componentWillUnmount: =>
     @_unsubscriber() if @_unsubscriber
 
-  render: ->
+  render: =>
     <div className="message-toolbar-subject">{@state.thread?.subject}</div>
 
-  _onChange: -> _.defer =>
-    return unless @isMounted()
+  _onChange: => _.defer =>
     @setState(@_getStateFromStores())
 
-  _getStateFromStores: ->
+  _getStateFromStores: =>
     thread: FocusedContentStore.focused('thread')
 
+module.exports = MessageSubjectItem

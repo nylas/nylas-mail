@@ -56,12 +56,13 @@ Utils =
     LocalLink = require './local-link'
     Event = require './event'
     Calendar = require './calendar'
+    Metadata = require './metadata'
 
     ## TODO move to inside of individual Salesforce package. See https://trello.com/c/tLAGLyeb/246-move-salesforce-models-into-individual-package-db-models-for-packages-various-refactors
     SalesforceObject = require './salesforce-object'
     SalesforceSchema = require './salesforce-schema'
     SalesforceAssociation = require './salesforce-association'
-    SalesforceContact = require './salesforce-contact'
+    SalesforceSearchResult = require './salesforce-search-result'
     SalesforceTask = require './salesforce-task'
 
     SyncbackDraftTask = require '../tasks/syncback-draft'
@@ -83,10 +84,11 @@ Utils =
       'locallink': LocalLink
       'calendar': Calendar
       'event': Event
+      'metadata': Metadata
       'salesforceschema': SalesforceSchema
       'salesforceobject': SalesforceObject
       'salesforceassociation': SalesforceAssociation
-      'salesforcecontact': SalesforceContact
+      'salesforcesearchresult': SalesforceSearchResult
       'salesforcetask': SalesforceTask
 
       'MarkThreadReadTask': MarkThreadReadTask

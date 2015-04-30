@@ -21,7 +21,7 @@ class SearchBar extends React.Component
     @body_unsubscriber = atom.commands.add 'body', {
       'application:focus-search': @_onFocusSearch
     }
-    @body_unsubscriber = atom.commands.add '.search-bar', {
+    @search_unsubscriber = atom.commands.add '.search-bar', {
       'search-bar:escape-search': @_clearAndBlur
     }
 
@@ -31,6 +31,7 @@ class SearchBar extends React.Component
   componentWillUnmount: =>
     @unsubscribe()
     @body_unsubscriber.dispose()
+    @search_unsubscriber.dispose()
 
   render: =>
     inputValue = @_queryToString(@state.query)

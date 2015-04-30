@@ -370,7 +370,8 @@ class PackageManager
         @emitter.emit 'did-load-package', pack
         return pack
       catch error
-        console.warn "Failed to load package.json '#{path.basename(packagePath)}'", error.stack ? error
+        console.warn "Failed to load package.json '#{path.basename(packagePath)}'"
+        console.warn error.stack ? error
     else
       console.warn "Could not resolve '#{nameOrPath}' to a package path"
     null

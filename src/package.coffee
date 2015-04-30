@@ -128,7 +128,8 @@ class Package
         @requireMainModule() unless @hasActivationCommands()
 
       catch error
-        console.warn "Failed to load package named '#{@name}'", error.stack ? error
+        console.warn "Failed to load package named '#{@name}'"
+        console.warn error.stack ? error
         console.error(error.message, error)
     this
 

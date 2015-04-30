@@ -11,6 +11,7 @@ require './window'
 
 Atom = require './atom'
 window.atom = Atom.loadOrCreate()
+global.Promise.longStackTraces() if atom.inDevMode()
 atom.initialize()
 atom.startSecondaryWindow()
 

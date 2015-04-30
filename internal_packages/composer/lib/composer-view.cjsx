@@ -18,8 +18,7 @@ ParticipantsTextField = require './participants-text-field'
 
 # The ComposerView is a unique React component because it (currently) is a
 # singleton. Normally, the React way to do things would be to re-render the
-# Composer with new props. As an alternative, we can call `setProps` to
-# simulate the effect of the parent re-rendering us
+# Composer with new props.
 module.exports =
 ComposerView = React.createClass
   displayName: 'ComposerView'

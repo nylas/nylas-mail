@@ -165,7 +165,7 @@ TokenizingTextField = React.createClass
     selectedTokenKey: null
 
   componentDidMount: ->
-    input = @refs.input.getDOMNode()
+    input = React.findDOMNode(@refs.input)
     check = (fn) -> (event) ->
       return unless event.target is input
       # Wrapper to guard against events triggering on the wrong element
@@ -187,12 +187,12 @@ TokenizingTextField = React.createClass
   componentDidUpdate: ->
     # Measure the width of the text in the input and
     # resize the input field to fit.
-    input = @refs.input.getDOMNode()
-    measure = @refs.measure.getDOMNode()
+    input = React.findDOMNode(@refs.input)
+    measure = React.findDOMNode(@refs.measure)
     measure.innerText = @state.inputValue
     measure.style.top = input.offsetTop + "px"
     measure.style.left = input.offsetLeft + "px"
-    input.style.width = "calc(4px + #{measure.offsetWidth}px)"
+    input.style.width = "calc(6px + #{measure.offsetWidth}px)"
 
   render: ->
     {Menu} = require 'ui-components'
@@ -278,7 +278,7 @@ TokenizingTextField = React.createClass
       inputValue: ""
 
   focus: ->
-    @refs.input.getDOMNode().focus()
+    React.findDOMNode(@refs.input).focus()
 
   # Managing Tokens
 
@@ -296,6 +296,7 @@ TokenizingTextField = React.createClass
       @props.tokenKey(t) is @state.selectedTokenKey
 
   _addToken: (token) ->
+    return unless @isMounted()
     return unless token
     @props.onAdd([token])
     @_clearInput()

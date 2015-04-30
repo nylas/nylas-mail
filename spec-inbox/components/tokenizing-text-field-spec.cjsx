@@ -72,7 +72,7 @@ describe 'TokenizingTextField', ->
         tabIndex={@tabIndex}
         />
     )
-    @renderedInput = ReactTestUtils.findRenderedDOMComponentWithTag(@renderedField, 'input').getDOMNode()
+    @renderedInput = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithTag(@renderedField, 'input'))
 
   it 'renders into the document', ->
     expect(ReactTestUtils.isCompositeComponentWithType @renderedField, TokenizingTextField).toBe(true)

@@ -5,7 +5,6 @@ DatabaseStore = require './stores/database-store'
 PriorityUICoordinator = require '../priority-ui-coordinator'
 {modelFromJSON} = require './models/utils'
 async = require 'async'
-SALESFORCE_PROXY_ROOT = "/proxy/salesforce/services/data/v33.0"
 
 class EdgehillAPI
 
@@ -17,23 +16,21 @@ class EdgehillAPI
   _onConfigChanged: =>
     env = atom.config.get('env')
     if env is 'development'
-      @APIRoot = "http://localhost:5009"
+      # @APIRoot = "http://localhost:5009"
+      @APIRoot = "https://edgehill-dev.nylas.com"
     else if env is 'staging'
-      @APIRoot = "https://edgehill-staging.nilas.com"
+      @APIRoot = "https://edgehill-staging.nylas.com"
     else
-      @APIRoot = "https://edgehill.nilas.com"
+      @APIRoot = "https://edgehill.nylas.com"
 
   request: (options={}) ->
     return if atom.getLoadSettings().isSpec
     options.method ?= 'GET'
-    if options.proxyPath
-      options.url ?= "#{@APIRoot}#{SALESFORCE_PROXY_ROOT}/#{options.proxyPath}"
-    else
-      options.url ?= "#{@APIRoot}#{options.path}" if options.path
+    options.url ?= "#{@APIRoot}#{options.path}" if options.path
     options.body ?= {} unless options.formData
     options.json = true
 
-    auth = @getCredentials()
+    auth = @_getCredentials()
     if auth
       options.auth =
         user: auth.username
@@ -51,29 +48,26 @@ class EdgehillAPI
           options.success(body) if options.success
 
   urlForConnecting: (provider, email_address = '') ->
-    auth = @getCredentials()
+    auth = @_getCredentials()
     root = @APIRoot
     token = auth?.username
     "#{root}/connect/#{provider}?login_hint=#{email_address}&token=#{token}"
 
-  getCredentials: ->
-    atom.config.get('edgehill.credentials')
-
-  setCredentials: (credentials) ->
-    atom.config.set('edgehill.credentials', credentials)
-
   addTokens: (tokens) ->
     for token in tokens
-      if token.provider is 'inbox'
-        atom.config.set('inbox.token', token.access_token)
-      if token.provider is 'salesforce'
-        atom.config.set('salesforce.token', token.access_token)
+      atom.config.set("#{token.provider}.token", token.access_token)
 
       if token.user_identifier?
-        @setCredentials({username: token.user_identifier, password: ''})
+        @_setCredentials({username: token.user_identifier, password: ''})
 
   tokenForProvider: (provider) ->
     atom.config.get("#{provider}.token")
+
+  _getCredentials: ->
+    atom.config.get('edgehill.credentials')
+
+  _setCredentials: (credentials) ->
+    atom.config.set('edgehill.credentials', credentials)
 
   _defaultErrorCallback: (apiError) ->
     apiError.notifyConsole()
