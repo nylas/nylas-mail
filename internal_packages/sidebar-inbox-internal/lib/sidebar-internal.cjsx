@@ -27,8 +27,13 @@ AccountKeys =
   "sync_start_time": "Sync Start Time"
   "sync_type": "Sync Type"
 
+
 class SidebarInternal extends React.Component
   @displayName: "SidebarInternal"
+
+  @containerStyles:
+    maxWidth: 300
+    minWidth: 200
 
   constructor: (@props) ->
     @state = @_getStateFromStores()
@@ -118,9 +123,6 @@ class SidebarInternal extends React.Component
     data: InternalAdminStore.dataForFocusedContact()
     enabled: InternalAdminStore.enabled()
     error: InternalAdminStore.error()
-
-SidebarInternal.maxWidth = 300
-SidebarInternal.minWidth = 200
 
 
 module.exports = SidebarInternal

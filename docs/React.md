@@ -4,13 +4,16 @@ Nylas Mail uses [React](https://facebook.github.io/react/) to create a fast, res
 
 For a quick introduction to React, take a look at Facebook's [Getting Started with React](https://facebook.github.io/react/docs/getting-started.html).
 
-#####Standard React Components
+#### React Components
 
-The Nylas Mail client provides a set of core React components you can use in your packages. To use a pre-built component, require it from `ui-components` and wrap it in your own React component. React uses composition rather than inheritance, so your `<ThreadList>` component may render a `<ModelList>` component and pass it function arguments and other `props` to adjust it's behavior.
+Nylas Mail provides a set of core React components you can use in your packages. Many of the standard components listen for key events, include considerations for different platforms, and have extensive CSS. Wrapping standard components makes it easy to build rich interfaces that are consistent with the rest of the Nylas Mail platform.
 
-Many of the standard components listen for key events, include considerations for different platforms, and have extensive CSS. Wrapping standard components makes your package match the rest of Nylas Mail and is encouraged!
+To use a standard component, require it from `ui-components` and use it in your component's `render` method. 
 
-Here's a quick look at pre-built components you can require from `ui-components`:
+> Keep in mind that React's Component model is based on composition rather than inheritance. On other platforms, you might subclass `Popover` to create your own custom Popover. In React, you should wrap the standard Popover component in your own component, which provides the Popover with `props` and children to customize it's behavior.
+
+
+Here's a quick look at standard components you can require from `ui-components`:
 
 - **Menu**: Allows you to display a list of items consistent with the rest of the Nylas Mail user experience.
 
@@ -38,37 +41,69 @@ Here's a quick look at pre-built components you can require from `ui-components`
 
 #####Registering Components
 
-Once you've created components, the next step is to register them with the Component Registry. The Component Registry enables the React component injection that makes Nylas Mail so extensible. You can request that your components appear in a specific `Location`, override a built-in component by re-registering under it's `name`, or register your component for a `Role` that another package has declared.
+Once you've created components, the next step is to register them with the {ComponentRegistry}. The Component Registry enables the React component injection that makes Nylas Mail so extensible. You can request that your components appear in a specific `Location` defined by the {WorkspaceStore}, or register your component for a `Role` that another package has declared. 
 
-The Component Registry API will be refined in the months to come. Here are a few examples of how to use it to extend Nylas Mail:
+> The Component Registry allows you to insert your custom component without hacking up the DOM. Register for a `Location` or `Role` and your Component will be rendered into that part of the interface.
 
-1. Add a component to the bottom of the Thread List column:
+It's easy to see where registered components are displayed in Nylas Mail. Enable the Developer bar at the bottom of the app by opening the Inspector panel, and then click "**Component Regions**":
 
-```
-    ComponentRegistry.register
-      view: ThreadList
-      name: 'ThreadList'
-      location: WorkspaceStore.Location.ThreadList
-```
+<img src="./images/injected-components.png" style="max-width:800px;">
 
-2. Add a component to the footer of the Composer:
+Each region outlined in red is filled dynamically by looking up a React component or set of components from the Component Registry. You can see the role or location you'd need to register for, and the `props` that your component will receive in those locations.
 
-```
-    ComponentRegistry.register
-      name: 'TemplatePicker'
-      role: 'Composer:ActionButton'
-      view: TemplatePicker
-```
+Here are a few examples of how to use it to extend Nylas Mail:
 
+1. Add a component to the Thread List column:
+	
+	```
+	    ComponentRegistry.register ThreadList,
+	      location: WorkspaceStore.Location.ThreadList
+	```
 
+2. Add a component to the action bar at the bottom of the Composer:
+
+	```
+	    ComponentRegistry.register TemplatePicker,
+	      role: 'Composer:ActionButton'
+	```
+	
 3. Replace the `Participants` component that ships with Nylas Mail to display thread participants on your own:
-
-```
-    ComponentRegistry.register
-      name: 'Participants'
-      view: InboxParticipants
-```
-
+	
+	```
+	    ComponentRegistry.register ParticipantsWithStatusDots,
+	        role: 'Participants'
+	```
 
 *Tip: Remember to unregister components in the `deactivate` method of your package.*
 
+
+### Using Registered Components
+
+It's easy to build packages that use the Component Registry to display components vended by other parts of the application. You can query the Component Registry and display the components it returns. The Component Registry is a Reflux-compatible Store, so you can listen to it and update your state as the registry changes. 
+
+There are also several convenience components that make it easy to dynamically inject components into your Virtual DOM. These are the preferred way of using injected components.
+
+- {InjectedComponent}: Renders the first component for the `matching` criteria you provide, and passes it the props in `externalProps`. See the API reference for more information.
+
+```
+<InjectedComponent 
+    matching={role:"Attachment"}
+    exposedProps={file: file, messageLocalId: @props.localId}/>
+```
+
+- {InjectedComponentSet}: Renders all of the components `matching` criteria you provide inside a {Flexbox}, and passes it the props in `externalProps`. See the API reference for more information.
+
+```
+<InjectedComponentSet
+    className="message-actions"
+    matching={role:"MessageAction"}
+    exposedProps={thread:@props.thread, message: @props.message}>
+```
+
+### Unsafe Components
+
+Nylas Mail considers all injected components "unsafe". When you render them using {InjectedComponent} or {InjectedComponentSet}, they will be wrapped in a component that prevents exceptions in their React render and lifecycle methods from impacting your component. Instead of your component triggering a React Invariant exception in the application, an exception notice will be rendered in place of the unsafe component.
+
+<img src="./images/unsafe-component-exception.png" style="max-width:800px;">
+
+In the future, Nylas Mail may automatically disable packages when their React components throw exceptions.

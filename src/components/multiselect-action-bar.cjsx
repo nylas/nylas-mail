@@ -30,9 +30,7 @@ The MultiselectActionBar uses the `ComponentRegistry` to find items to display f
 collection name. To add an item to the bar created in the example above, register it like this:
 
 ```
-ComponentRegistry.register
-  view: ThreadBulkArchiveButton
-  name: 'ThreadBulkArchiveButton'
+ComponentRegistry.register ThreadBulkArchiveButton,
   role: 'thread:BulkAction'
 ```
 ###
@@ -41,7 +39,7 @@ class MultiselectActionBar extends React.Component
 
   ###
   Public: React `props` supported by MultiselectActionBar:
-  
+
    - `dataStore` An instance of a {ModelView}.
    - `collection` The name of the collection. The collection name is used for the text
       that appears in the bar "1 thread selected" and is also used to find components
@@ -98,8 +96,8 @@ class MultiselectActionBar extends React.Component
 
   _renderActions: =>
     return <div></div> unless @state.view
-    <InjectedComponentSet location={"#{@props.collection}:BulkAction"}
-                      selection={@state.view.selection} />
+    <InjectedComponentSet matching={role:"#{@props.collection}:BulkAction"}
+                          exposedProps={selection: @state.view.selection} />
 
   _label: =>
     if @state.count > 1

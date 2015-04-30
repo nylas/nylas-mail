@@ -8,6 +8,11 @@ SidebarStore = require ("./account-sidebar-store")
 class AccountSidebar extends React.Component
   @displayName: 'AccountSidebar'
 
+  @containerRequired: false
+  @containerStyles:
+    minWidth: 165
+    maxWidth: 190
+
   constructor: (@props) ->
     @state = @_getStateFromStores()
 
@@ -54,10 +59,6 @@ class AccountSidebar extends React.Component
   _getStateFromStores: =>
     sections: SidebarStore.sections()
     selected: SidebarStore.selected()
-
-
-AccountSidebar.minWidth = 165
-AccountSidebar.maxWidth = 190
 
 
 module.exports = AccountSidebar

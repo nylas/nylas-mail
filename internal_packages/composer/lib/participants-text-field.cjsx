@@ -30,7 +30,7 @@ class ParticipantsTextField extends React.Component
     # changes are made.
     change: React.PropTypes.func.isRequired,
 
-  getDefaultProps: =>
+  @defaultProps:
     visible: true
 
   render: =>

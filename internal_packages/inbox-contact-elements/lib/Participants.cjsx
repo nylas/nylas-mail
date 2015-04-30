@@ -1,13 +1,12 @@
 React = require "react"
 _ = require "underscore-plus"
+ContactChip = require './ContactChip'
 
 {NamespaceStore} = require "inbox-exports"
-{InjectedComponent} = require 'ui-components'
 
 # Parameters
 # clickable (optional) - is this currently clickable?
 # thread (optional) - thread context for sorting
-# context (optional) - additional information for determining appearance,
 #  passed into the ParticipantChip
 #  - 'primary'
 #  - 'list'
@@ -15,13 +14,11 @@ _ = require "underscore-plus"
 class Participants extends React.Component
   @displayName: "Participants"
 
+  @containerRequired: false
+
   render: =>
     chips = @getParticipants().map (p) =>
-      <InjectedComponent name="ContactChip"
-        key={p.id}
-        clickable={@props.clickable}
-        context={@props.context}
-        participant={p} />
+      <ContactChip key={p.nameEmail()} clickable={@props.clickable} participant={p} />
 
     <div displayName="div.participants" className="participants">
       {chips}

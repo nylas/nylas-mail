@@ -1,14 +1,17 @@
 _ = require 'underscore-plus'
 React = require 'react'
-{ListTabular, MultiselectList} = require 'ui-components'
+{ListTabular,
+ MultiselectList,
+ InjectedComponent} = require 'ui-components'
 {timestamp, subject} = require './formatting-utils'
 {Actions,
- DatabaseStore,
- ComponentRegistry} = require 'inbox-exports'
+ DatabaseStore} = require 'inbox-exports'
 DraftListStore = require './draft-list-store'
 
 class DraftList extends React.Component
   @displayName: 'DraftList'
+
+  @containerRequired: false
 
   componentWillMount: =>
     snippet = (html) =>
@@ -21,11 +24,12 @@ class DraftList extends React.Component
       name: "Name"
       width: 200
       resolver: (draft) =>
-        Participants = ComponentRegistry.findViewByName('Participants')
-        return <div></div> unless Participants
         <div className="participants">
-          <Participants participants={[].concat(draft.to, draft.cc, draft.bcc)}
-                        context={'list'} clickable={false} />
+          <InjectedComponent matching={role:"Participants"}
+                             exposedProps={
+                               participants: [].concat(draft.to, draft.cc, draft.bcc)
+                               clickable: false
+                             }/>
         </div>
 
     c2 = new ListTabular.Column

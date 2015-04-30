@@ -87,8 +87,8 @@ class MessageItem extends React.Component
                           date={@props.message.date} />
 
         <InjectedComponentSet className="message-indicator"
-                          location="MessageIndicator"
-                          message={@props.message}/>
+                              matching={role: "MessageIndicator"}
+                              exposedProps={message: @props.message}/>
 
         {if @state.detailedHeaders then @_renderMessageActionsInline() else @_renderMessageActionsTooltip()}
       </div>
@@ -136,9 +136,9 @@ class MessageItem extends React.Component
         <RetinaImg name={"message-actions-ellipsis.png"}/>
       </div>
       <InjectedComponentSet className="message-actions"
-                        location="MessageAction"
-                        thread={@props.thread}
-                        message={@props.message}>
+                            inline={true}
+                            matching={role:"MessageAction"}
+                            exposedProps={thread:@props.thread, message: @props.message}>
         <button className="btn btn-icon" onClick={@_onReply}>
           <RetinaImg name={"message-reply.png"}/>
         </button>
@@ -291,7 +291,10 @@ class MessageItem extends React.Component
       not inBody and f.filename.length > 0
 
     attachments.map (file) =>
-      <InjectedComponent name="AttachmentComponent" file={file} key={file.id} download={@state.downloads[file.id]}/>
+      <InjectedComponent
+        matching={role:"Attachment"}
+        exposedProps={file:file, download: @state.downloads[file.id]}
+        key={file.id}/>
 
   _isForwardedMessage: =>
     Utils.isForwardedMessage(@props.message)

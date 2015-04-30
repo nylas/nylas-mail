@@ -224,10 +224,11 @@ body.is-blurred {
 }
 
 .registered-region-visible {
-  background-color: rgba(255,0,0,0.3);
+  border: 1px dashed rgba(255,0,0,0.5);
+  margin: 2px;
   position:relative;
   min-height:1.5em;
-  .name {
+  > .name {
     background-color: rgba(255,180,180,0.9);
     position: absolute;
     color: black;
@@ -237,6 +238,10 @@ body.is-blurred {
     white-space: nowrap;
     z-index:100;
     -webkit-transform: translate(-50%, -50%);
+    -webkit-user-select:text;
+  }
+  &:hover {
+    border: 1px dashed rgba(255,0,0,1);
   }
 }
 

@@ -1,14 +1,13 @@
 React = require 'react'
 {ComponentRegistry, WorkspaceStore} = require 'inbox-exports'
+ActivityBar = require './activity-bar'
 
 module.exports =
   item: null
 
   activate: (@state={}) ->
-    ComponentRegistry.register
-      name: 'activity-bar'
-      view: require './activity-bar'
+    ComponentRegistry.register ActivityBar,
       location: WorkspaceStore.Sheet.Global.Footer
 
   deactivate: ->
-    ComponentRegistry.unregister 'activity-bar'
+    ComponentRegistry.unregister ActivityBar

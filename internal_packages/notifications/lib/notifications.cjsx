@@ -4,6 +4,8 @@ NotificationStore = require './notifications-store'
 class Notifications extends React.Component
   @displayName: "Notifications"
 
+  @containerRequired: false
+
   constructor: (@props) ->
     @state = notifications: NotificationStore.notifications()
 

@@ -9,10 +9,8 @@ module.exports =
     showOnRightSide: false
 
   activate: (@state) ->
-    ComponentRegistry.register
-      view: SearchBar
-      name: 'SearchBar'
+    ComponentRegistry.register SearchBar,
       location: WorkspaceStore.Location.ThreadList.Toolbar
 
   deactivate: ->
-    ComponentRegistry.unregister 'SearchBar'
+    ComponentRegistry.unregister SearchBar

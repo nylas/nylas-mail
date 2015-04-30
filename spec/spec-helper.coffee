@@ -69,6 +69,13 @@ isCoreSpec = specDirectory == fs.realpathSync(__dirname)
 # we can remove all the created elements after the test completes.
 React = require "react/addons"
 ReactTestUtils = React.addons.TestUtils
+ReactTestUtils.scryRenderedComponentsWithTypeAndProps = (root, type, props) ->
+  _.compact _.map ReactTestUtils.scryRenderedComponentsWithType(root, type), (el) ->
+    if _.isEqual(_.pick(el.props, Object.keys(props)), props)
+      return el
+    else
+      return false
+
 ReactTestUtils.scryRenderedDOMComponentsWithAttr = (root, attrName, attrValue) ->
   ReactTestUtils.findAllInRenderedTree root, (inst) ->
     inst.props[attrName] and (!attrValue or inst.props[attrName] is attrValue)

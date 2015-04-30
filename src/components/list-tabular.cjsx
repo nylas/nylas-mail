@@ -35,7 +35,12 @@ class ListTabularItem extends React.Component
     </div>
 
   _columns: =>
+    names = {}
     for column in (@props.columns ? [])
+      if names[column.name]
+        console.warn("ListTabular: Columns do not have distinct names, will cause React error! `#{column.name}` twice.")
+      names[column.name] = true
+
       <div key={column.name}
            displayName={column.name}
            style={_.pick(column, ['flex', 'width'])}

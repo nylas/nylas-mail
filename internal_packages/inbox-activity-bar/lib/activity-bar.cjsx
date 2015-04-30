@@ -19,6 +19,8 @@ ActivityBarClosedHeight = 30
 class ActivityBar extends React.Component
   @displayName: "ActivityBar"
 
+  @containerRequired: false
+
   constructor: (@props) ->
     @state = _.extend @_getStateFromStores(),
       height: ActivityBarClosedHeight

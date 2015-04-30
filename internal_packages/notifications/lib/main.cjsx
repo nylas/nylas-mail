@@ -7,14 +7,10 @@ module.exports =
   item: null # The DOM item the main React component renders into
 
   activate: (@state={}) ->
-    ComponentRegistry.register
-      view: Notifications
-      name: 'Notifications'
+    ComponentRegistry.register Notifications,
       location: WorkspaceStore.Location.RootSidebar
 
-    ComponentRegistry.register
-      view: NotificationsStickyBar
-      name: 'NotificationsStickyBar'
+    ComponentRegistry.register NotificationsStickyBar,
       location: WorkspaceStore.Sheet.Global.Header
 
   deactivate: ->

@@ -10,29 +10,21 @@ module.exports =
 
   activate: (@state={}) ->
     # Register Message List Actions we provide globally
-    ComponentRegistry.register
-      name: 'MessageList'
-      view: MessageList
+    ComponentRegistry.register MessageList,
       location: WorkspaceStore.Location.MessageList
 
-    ComponentRegistry.register
-      name: 'MessageToolbarItems'
-      view: MessageToolbarItems
+    ComponentRegistry.register MessageToolbarItems,
       location: WorkspaceStore.Location.MessageList.Toolbar
 
-    ComponentRegistry.register
-      name: 'MessageSubjectItem'
-      view: MessageSubjectItem
+    ComponentRegistry.register MessageSubjectItem,
       location: WorkspaceStore.Location.MessageList.Toolbar
 
-    ComponentRegistry.register
-      name: 'SidebarThreadParticipants'
+    ComponentRegistry.register SidebarThreadParticipants,
       location: WorkspaceStore.Location.MessageListSidebar
-      view: SidebarThreadParticipants
 
   deactivate: ->
-    ComponentRegistry.unregister 'MessageToolbarItems'
-    ComponentRegistry.unregister 'MessageSubjectItem'
-    ComponentRegistry.unregister 'MessageList'
+    ComponentRegistry.unregister MessageToolbarItems
+    ComponentRegistry.unregister MessageSubjectItem
+    ComponentRegistry.unregister MessageList
 
   serialize: -> @state

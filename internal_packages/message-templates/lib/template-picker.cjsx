@@ -7,6 +7,9 @@ TemplateStore = require './template-store'
 class TemplatePicker extends React.Component
   @displayName: 'TemplatePicker'
 
+  @containerStyles:
+    order:2
+
   constructor: (@props) ->
     @state =
       searchValue: ""
@@ -27,6 +30,7 @@ class TemplatePicker extends React.Component
     headerComponents = [
       <input type="text"
              tabIndex="1"
+             key="textfield"
              className="search"
              value={@state.searchValue}
              onChange={@_onSearchValueChange}/>
@@ -77,7 +81,6 @@ class TemplatePicker extends React.Component
 
   _onNewTemplate: =>
     Actions.createTemplate({draftLocalId: @props.draftLocalId})
-
 
 
 module.exports = TemplatePicker

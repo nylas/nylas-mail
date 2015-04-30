@@ -10,16 +10,7 @@ class ContactChip extends React.Component
     if @props.clickable
       className += " clickable"
 
-    img = []
-    if @props.context is 'primary'
-      img = <img
-          className="contact-img"
-          src={"https://secure.gravatar.com/avatar/#{@md5}?s=20&d=blank"}
-          style={{"backgroundColor": @bg}}
-        />
-
     <span className={className} onClick={@_onClick}>
-      {img}
       <span className="contact-name">{@_getParticipantDisplay()}</span>
     </span>
 

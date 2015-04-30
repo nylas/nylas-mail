@@ -268,7 +268,11 @@ class PackageManager
 
     for packageDirPath in @packageDirPaths
       for packagePath in fs.listSync(packageDirPath)
-        packagePaths.push(packagePath) if fs.isDirectorySync(packagePath)
+        # Ignore files in package directory
+        continue unless fs.isDirectorySync(packagePath)
+        # Ignore .git in package directory
+        continue if path.basename(packagePath)[0] is '.'
+        packagePaths.push(packagePath)
 
     if windowType
       packagePaths = _.filter packagePaths, (packagePath) ->

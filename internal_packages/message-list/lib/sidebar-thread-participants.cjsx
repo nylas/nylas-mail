@@ -4,7 +4,10 @@ React = require "react"
 {Actions, FocusedContactsStore} = require("inbox-exports")
 
 class SidebarThreadParticipants extends React.Component
-  @displayName = 'SidebarThreadParticipants'
+  @displayName: 'SidebarThreadParticipants'
+  @containerStyles:
+    order: 2
+    flexShrink: 0
 
   constructor: (@props) ->
     @state =

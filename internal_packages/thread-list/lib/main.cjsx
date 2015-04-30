@@ -11,48 +11,34 @@ DraftList = require './draft-list'
 
 module.exports =
   activate: (@state={}) ->
-    ComponentRegistry.register
-      view: ThreadList
-      name: 'ThreadList'
+    ComponentRegistry.register ThreadList,
       location: WorkspaceStore.Location.ThreadList
 
-    ComponentRegistry.register
-      name: 'ThreadSelectionBar'
-      view: ThreadSelectionBar
+    ComponentRegistry.register ThreadSelectionBar,
       location: WorkspaceStore.Location.ThreadList.Toolbar
 
-    ComponentRegistry.register
-      view: DraftList
-      name: 'DraftList'
+    ComponentRegistry.register DraftList,
       location: WorkspaceStore.Location.DraftList
 
-    ComponentRegistry.register
-      name: 'DraftSelectionBar'
-      view: DraftSelectionBar
+    ComponentRegistry.register DraftSelectionBar,
       location: WorkspaceStore.Location.DraftList.Toolbar
 
-    ComponentRegistry.register
-      name: 'DownButton'
-      mode: 'list'
-      view: DownButton
+    ComponentRegistry.register DownButton,
       location: WorkspaceStore.Sheet.Thread.Toolbar.Right
+      modes: ['list']
 
-    ComponentRegistry.register
-      name: 'UpButton'
-      mode: 'list'
-      view: UpButton
+    ComponentRegistry.register UpButton,
       location: WorkspaceStore.Sheet.Thread.Toolbar.Right
+      modes: ['list']
 
-    ComponentRegistry.register
-      view: ThreadBulkArchiveButton
-      name: 'ThreadBulkArchiveButton'
+    ComponentRegistry.register ThreadBulkArchiveButton,
       role: 'thread:BulkAction'
 
   deactivate: ->
-    ComponentRegistry.unregister 'DraftList'
-    ComponentRegistry.unregister 'DraftSelectionBar'
-    ComponentRegistry.unregister 'ThreadList'
-    ComponentRegistry.unregister 'ThreadSelectionBar'
-    ComponentRegistry.unregister 'ThreadBulkArchiveButton'
-    ComponentRegistry.unregister 'DownButton'
-    ComponentRegistry.unregister 'UpButton'
+    ComponentRegistry.unregister DraftList
+    ComponentRegistry.unregister DraftSelectionBar
+    ComponentRegistry.unregister ThreadList
+    ComponentRegistry.unregister ThreadSelectionBar
+    ComponentRegistry.unregister ThreadBulkArchiveButton
+    ComponentRegistry.unregister DownButton
+    ComponentRegistry.unregister UpButton

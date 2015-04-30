@@ -20,7 +20,9 @@ class NotificationStickyItem extends React.Component
 
 
 class NotificationStickyBar extends React.Component
-  @displayName: "NotificationStickyBar"
+  @displayName: "NotificationsStickyBar"
+
+  @containerRequired: false
 
   constructor: (@props) ->
     @state = @_getStateFromStores()
@@ -50,9 +52,6 @@ class NotificationStickyBar extends React.Component
   _notificationComponents: =>
     @state.items.map (notif) ->
       <NotificationStickyItem notification={notif} />
-
-
-
 
 
 module.exports = NotificationStickyBar

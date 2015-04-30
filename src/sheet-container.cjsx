@@ -2,6 +2,7 @@ React = require 'react/addons'
 Sheet = require './sheet'
 Flexbox = require './components/flexbox'
 RetinaImg = require './components/retina-img'
+InjectedComponentSet = require './components/injected-component-set'
 TimeoutTransitionGroup = require './components/timeout-transition-group'
 _ = require 'underscore-plus'
 
@@ -36,9 +37,7 @@ class ToolbarWindowControls extends React.Component
       <button className="maximize" onClick={ -> atom.maximize()}></button>
     </div>
 
-ComponentRegistry.register
-  view: ToolbarWindowControls
-  name: 'ToolbarWindowControls'
+ComponentRegistry.register ToolbarWindowControls,
   location: WorkspaceStore.Sheet.Global.Toolbar.Left
 
 class Toolbar extends React.Component
@@ -84,20 +83,20 @@ class Toolbar extends React.Component
       height:'100%'
       zIndex: 1
 
-    toolbars = @state.columns.map (items, idx) =>
+    toolbars = @state.columns.map (components, idx) =>
       <div style={position: 'absolute', top:0, display:'none'}
            data-column={idx}
            key={idx}>
-        {@_flexboxForItems(items)}
+        {@_flexboxForComponents(components)}
       </div>
 
     <div style={style} className={"sheet-toolbar-container mode-#{@state.mode}"}>
       {toolbars}
     </div>
-  
-  _flexboxForItems: (items) =>
-    elements = items.map ({view, name}) =>
-      <view key={name} {...@props} />
+
+  _flexboxForComponents: (components) =>
+    elements = components.map (component) =>
+      <component key={component.displayName} {...@props} />
 
     <TimeoutTransitionGroup
       className="item-container"
@@ -132,7 +131,7 @@ class Toolbar extends React.Component
 
   _onWindowResize: =>
     @recomputeLayout()
-  
+
   _getStateFromStores: (props) =>
     props ?= @props
     state =
@@ -142,61 +141,22 @@ class Toolbar extends React.Component
     # Add items registered to Regions in the current sheet
     if @props.data?.columns[state.mode]?
       for loc in @props.data.columns[state.mode]
-        entries = ComponentRegistry.findAllByLocationAndMode(loc.Toolbar, state.mode)
+        entries = ComponentRegistry.findComponentsMatching({location: loc.Toolbar, mode: state.mode})
         state.columns.push(entries)
 
     # Add left items registered to the Sheet instead of to a Region
     for loc in [WorkspaceStore.Sheet.Global, @props.data]
-      entries = ComponentRegistry.findAllByLocationAndMode(loc.Toolbar.Left, state.mode)
+      entries = ComponentRegistry.findComponentsMatching({location: loc.Toolbar.Left, mode: state.mode})
       state.columns[0]?.push(entries...)
-    state.columns[0]?.push(view: ToolbarBack, name: 'ToolbarBack') if @props.depth > 0
+    state.columns[0]?.push(ToolbarBack) if @props.depth > 0
 
     # Add right items registered to the Sheet instead of to a Region
     for loc in [WorkspaceStore.Sheet.Global, @props.data]
-      entries = ComponentRegistry.findAllByLocationAndMode(loc.Toolbar.Right, state.mode)
+      entries = ComponentRegistry.findComponentsMatching({location: loc.Toolbar.Right, mode: state.mode})
       state.columns[state.columns.length - 1]?.push(entries...)
 
     state
 
-
-class FlexboxForLocations extends React.Component
-  @displayName = 'FlexboxForLocations'
-
-  @propTypes =
-    locations: React.PropTypes.arrayOf(React.PropTypes.object)
-
-  constructor: (@props) ->
-    @state = @_getComponentRegistryState()
-
-  componentDidMount: =>
-    @unlistener = ComponentRegistry.listen (event) =>
-      @setState(@_getComponentRegistryState())
-
-  componentWillUnmount: =>
-    @unlistener() if @unlistener
-
-  shouldComponentUpdate: (nextProps, nextState) =>
-    # Note: we actually ignore props.roles. If roles change, but we get
-    # the same items, we don't need to re-render. Our render function is
-    # a function of state only.
-    nextItemNames = nextState.items.map (i) -> i.name
-    itemNames = @state.items?.map (i) -> i.name
-    !_.isEqual(nextItemNames, itemNames)
-
-  render: =>
-    elements = @state.items.map ({view, name}) =>
-      <view key={name} />
-    
-    <Flexbox direction="row">
-      {elements}
-    </Flexbox>
-
-  _getComponentRegistryState: =>
-    items = []
-    mode = WorkspaceStore.layoutMode()
-    for location in @props.locations
-      items = items.concat(ComponentRegistry.findAllByLocationAndMode(location, mode))
-    {items}
 
 class SheetContainer extends React.Component
   displayName = 'SheetContainer'
@@ -231,8 +191,8 @@ class SheetContainer extends React.Component
       </div>
 
       <div name="Header" style={order:1}>
-        <FlexboxForLocations locations={[topSheet.Header, WorkspaceStore.Sheet.Global.Header]}
-                             id={topSheet.id}/>
+        <InjectedComponentSet matching={locations: [topSheet.Header, WorkspaceStore.Sheet.Global.Header]}
+                              id={topSheet.id}/>
       </div>
 
       <div name="Center" style={order:2, flex: 1, position:'relative'}>
@@ -245,8 +205,8 @@ class SheetContainer extends React.Component
       </div>
 
       <div name="Footer" style={order:3}>
-        <FlexboxForLocations locations={[topSheet.Footer, WorkspaceStore.Sheet.Global.Footer]}
-                             id={topSheet.id}/>
+        <InjectedComponentSet matching={locations: [topSheet.Footer, WorkspaceStore.Sheet.Global.Footer]}
+                              id={topSheet.id}/>
       </div>
     </Flexbox>
 

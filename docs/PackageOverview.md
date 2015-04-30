@@ -3,7 +3,7 @@
 Packages lie at the heart of Nylas Mail. Each part of the core experience is a separate package that uses the Nilas Package API to add functionality to the client. Want to make a read-only mail client? Remove the core `Composer` package and you'll see reply buttons and composer functionality disappear.
 
 Let's explore the files in a simple package that adds a Translate option to the Composer. When you tap the Translate button, we'll display a popup menu with a list of languages. When you pick a language, we'll make a web request and convert your reply into the desired language.
-    
+
 #####Package Structure
 
 Each package is defined by a `package.json` file that includes it's name, version and dependencies. Our `translate` package uses React and the Node [request](https://github.com/request/request) library.
@@ -42,18 +42,16 @@ Our package also contains source files, a spec file with complete tests for the 
 
 ```
 module.exports =
-  
+
   ##
   # Activate is called when the package is loaded. If your package previously
   # saved state using `serialize` it is provided.
   #
   activate: (@state) ->
-    ComponentRegistry.register
-      view: TranslateButton
-      name: 'TranslateButton'
+    ComponentRegistry.register TranslateButton,
       role: 'Composer:ActionButton'
- 
-  ## 
+
+  ##
   # Serialize is called when your package is about to be unmounted.
   # You can return a state object that will be passed back to your package
   # when it is re-activated.
@@ -99,4 +97,3 @@ by name to specify a loading order; otherwise, all style sheets are loaded.
 Nylas Mail ships with many packages already bundled with the application. When the application launches, it looks for additional packages in `~/.inbox/packages`. Each package you create belongs in it's own directory inside this folder.
 
 In the future, it will be possible to install packages directly from within the client.
-

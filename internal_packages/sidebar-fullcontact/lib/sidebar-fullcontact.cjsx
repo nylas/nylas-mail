@@ -6,6 +6,9 @@ SidebarFullContactDetails = require "./sidebar-fullcontact-details"
 
 class SidebarFullContact extends React.Component
   @displayName: "SidebarFullContact"
+  @containerStyles:
+    maxWidth: 300
+    minWidth: 200
 
   constructor: (@props) ->
     @state = @_getStateFromStores()
@@ -34,9 +37,6 @@ class SidebarFullContact extends React.Component
   _getStateFromStores: =>
     fullContactCache: FullContactStore.fullContactCache()
     focusedContact: FullContactStore.focusedContact()
-
-SidebarFullContact.maxWidth = 300
-SidebarFullContact.minWidth = 200
 
 
 module.exports = SidebarFullContact

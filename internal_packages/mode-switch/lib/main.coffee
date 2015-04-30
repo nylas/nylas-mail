@@ -3,7 +3,5 @@ ModeToggle = require './mode-toggle'
 
 module.exports =
   activate: (state) ->
-    ComponentRegistry.register
-      name: 'ModeToggle'
-      view: ModeToggle
+    ComponentRegistry.register ModeToggle,
       location: WorkspaceStore.Sheet.Global.Toolbar.Right

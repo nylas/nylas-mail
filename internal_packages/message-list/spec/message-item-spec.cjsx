@@ -7,10 +7,12 @@ ReactTestUtils = React.addons.TestUtils
  File,
  Thread,
  Utils,
- ComponentRegistry,
  FileDownloadStore,
  InboxTestUtils} = require "inbox-exports"
 
+EmailFrameStub = React.createClass({render: -> <div></div>})
+
+{InjectedComponent} = require 'ui-components'
 file = new File
   id: 'file_1_id'
   filename: 'a.png'
@@ -68,9 +70,6 @@ user_5 = new Contact
   email: "user5@inboxapp.com"
 
 
-AttachmentStub = React.createClass({render: -> <div></div>})
-EmailFrameStub = React.createClass({render: -> <div></div>})
-
 MessageItem = proxyquire '../lib/message-item',
   './email-frame': EmailFrameStub
 
@@ -79,10 +78,6 @@ MessageTimestamp = require '../lib/message-timestamp'
 
 describe "MessageItem", ->
   beforeEach ->
-    ComponentRegistry.register
-      name: 'AttachmentComponent'
-      view: AttachmentStub
-
     spyOn(FileDownloadStore, 'pathForFile').andCallFake (f) ->
       return '/fake/path.png' if f.id is file.id
       return '/fake/path-inline.png' if f.id is file_inline.id
@@ -184,21 +179,21 @@ describe "MessageItem", ->
       attachments = ReactTestUtils.findRenderedDOMComponentWithClass(@component, 'attachments-area')
       expect(attachments).toBeDefined()
 
-    it "should render the registered AttachmentComponent for each attachment", ->
-      attachments = ReactTestUtils.scryRenderedComponentsWithType(@component, AttachmentStub)
-      expect(attachments[0].props.file).toBe(file)
+    it "should render the registered an injected component for each attachment", ->
+      attachments = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@component, InjectedComponent, matching: {role: 'Attachment'})
+      expect(attachments[0].props.exposedProps.file).toBe(file)
 
     it "should list attachments that are not mentioned in the body via cid", ->
-      attachments = ReactTestUtils.scryRenderedComponentsWithType(@component, AttachmentStub)
+      attachments = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@component, InjectedComponent, matching: {role: 'Attachment'})
       expect(attachments.length).toEqual(3)
-      expect(attachments[0].props.file).toBe(file)
-      expect(attachments[1].props.file).toBe(file_not_downloaded)
-      expect(attachments[2].props.file).toBe(file_cid_but_not_referenced)
+      expect(attachments[0].props.exposedProps.file).toBe(file)
+      expect(attachments[1].props.exposedProps.file).toBe(file_not_downloaded)
+      expect(attachments[2].props.exposedProps.file).toBe(file_cid_but_not_referenced)
 
-    it "should provide file download state to each AttachmentComponent", ->
-      attachments = ReactTestUtils.scryRenderedComponentsWithType(@component, AttachmentStub)
-      expect(attachments[0].props.download).toBe(download)
-      expect(attachments[1].props.download).toBe(undefined)
+    it "should provide file download state to each InjectedComponent", ->
+      attachments = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@component, InjectedComponent, matching: {role: 'Attachment'})
+      expect(attachments[0].props.exposedProps.download).toBe(download)
+      expect(attachments[1].props.exposedProps.download).toBe(undefined)
 
     describe "inline", ->
       it "should never leave src=cid:// in the message body", ->

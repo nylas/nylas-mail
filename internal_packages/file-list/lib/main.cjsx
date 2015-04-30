@@ -13,22 +13,16 @@ module.exports =
     WorkspaceStore.defineSheet 'File', {supportedModes: ['list']},
       list: ['File']
 
-    ComponentRegistry.register
-      view: FileList
-      name: 'FileList'
+    ComponentRegistry.register FileList,
       location: WorkspaceStore.Location.FileList
 
-    ComponentRegistry.register
-      view: FileSelectionBar
-      name: 'FileSelectionBar'
+    ComponentRegistry.register FileSelectionBar,
       location: WorkspaceStore.Location.FileList.Toolbar
 
-    ComponentRegistry.register
-      name: 'FileFrame'
-      view: FileFrame
+    ComponentRegistry.register FileFrame,
       location: WorkspaceStore.Location.File
 
   deactivate: ->
-    ComponentRegistry.unregister 'FileSelectionBar'
-    ComponentRegistry.unregister 'FileList'
-    ComponentRegistry.unregister 'FileFrame'
+    ComponentRegistry.unregister FileList
+    ComponentRegistry.unregister FileSelectionBar
+    ComponentRegistry.unregister FileFrame

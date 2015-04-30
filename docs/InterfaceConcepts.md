@@ -8,9 +8,9 @@ The Nylas Mail user interface is conceptually organized into Sheets. Each Sheet 
 
 The `WorkspaceStore` maintains the state of the application's workspace and the stack of sheets currently being displayed. Your packages can declare "root" sheets which are listed in the app's main sidebar, or push custom sheets on top of sheets to display data.
 
-The Nilas Workspace supports two display modes: `split` and `list`. Each Sheet describes it's appearance in each of the view modes it supports. For example, the `Threads` sheet describes a three column `split` view and a single column `list` view. Other sheets, like `Files` register for only one mode, and the user's mode preference is ignored. 
+The Nilas Workspace supports two display modes: `split` and `list`. Each Sheet describes it's appearance in each of the view modes it supports. For example, the `Threads` sheet describes a three column `split` view and a single column `list` view. Other sheets, like `Files` register for only one mode, and the user's mode preference is ignored.
 
-For each mode, Sheets register a set of column names. 
+For each mode, Sheets register a set of column names.
 
 <img src="./images/columns.png" style="max-width:800px;">
 
@@ -26,15 +26,11 @@ Sheets also have a `Header` and `Footer` region that spans all of their content 
 
 
 ```
-ComponentRegistry.register
-  view: AccountSidebar
-  name: 'AccountSidebar'
+ComponentRegistry.register AccountSidebar,
   location: WorkspaceStore.Location.RootSidebar
 
 
-ComponentRegistry.register
-  view: NotificationsStickyBar
-  name: 'NotificationsStickyBar'
+ComponentRegistry.register NotificationsStickyBar,
   location: WorkspaceStore.Sheet.Threads.Header
 
 ```
@@ -65,5 +61,3 @@ To add items to a toolbar, you inject them via the Component Registry. There are
 - `Global.Toolbar.Left`: This component will always be added to the leftmost column of the toolbar.
 
     (Example: Window Controls)
-
-

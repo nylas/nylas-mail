@@ -11,12 +11,13 @@ class Flexbox extends React.Component
 
   ###
   Public: React `props` supported by Flexbox:
-  
+
    - `direction` (optional) A {String} Flexbox direction: either `column` or `row`.
    - `style` (optional) An {Object} with styles to apply to the flexbox.
   ###
   @propTypes:
     direction: React.PropTypes.string
+    inline: React.PropTypes.bool
     style: React.PropTypes.object
 
   render: ->
@@ -25,6 +26,9 @@ class Flexbox extends React.Component
       'position':'relative'
       'display': 'flex'
       'height':'100%'
+
+    if @props.inline is true
+      style.display = 'inline-flex'
 
     otherProps = _.omit(@props, _.keys(@constructor.propTypes))
 

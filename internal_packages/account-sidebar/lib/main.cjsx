@@ -6,7 +6,5 @@ module.exports =
   item: null # The DOM item the main React component renders into
 
   activate: (@state) ->
-    ComponentRegistry.register
-      view: AccountSidebar
-      name: 'AccountSidebar'
+    ComponentRegistry.register AccountSidebar,
       location: WorkspaceStore.Location.RootSidebar

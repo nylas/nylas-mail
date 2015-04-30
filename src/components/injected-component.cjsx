@@ -1,5 +1,8 @@
 React = require 'react'
 _ = require 'underscore-plus'
+UnsafeComponent = require './unsafe-component'
+InjectedComponentLabel = require './injected-component-label'
+
 {Actions,
  WorkspaceStore,
  ComponentRegistry} = require "inbox-exports"
@@ -10,14 +13,14 @@ components inside of your React render method. Rather than explicitly render
 a component, such as a `<Composer>`, you can use InjectedComponent:
 
 ```
-<InjectedComponent name="Composer" draftId={123} />
+<InjectedComponent matching={role:"Composer"} exposedProps={draftId:123} />
 ```
 
-InjectedComponent will look up the component registered with that name in the
-{ComponentRegistry} and render it, passing any additional props, like `draftId` along.
+InjectedComponent will look up the component registered with that role in the
+{ComponentRegistry} and render it, passing the exposedProps (`draftId={123}`) along.
 
 InjectedComponent monitors the ComponentRegistry for changes. If a new component
-is registered for the name `Composer`, InjectedComponent will swap it in.
+is registered that matches the descriptor you provide, InjectedComponent will refresh.
 
 If no matching component is found, the InjectedComponent renders an empty div.
 ###
@@ -26,11 +29,21 @@ class InjectedComponent extends React.Component
 
   ###
   Public: React `props` supported by InjectedComponent:
-  
-   - `name` The {String} name of the component to display. Should be a name passed to the {ComponentRegistry} when registering a component.
+
+   - `matching` Pass an {Object} with ComponentRegistry descriptors.
+      This set of descriptors is provided to {ComponentRegistry::findComponentsForDescriptor}
+      to retrieve the component that will be displayed.
+
+   - `className` (optional) A {String} class name for the containing element.
+
+   - `exposedProps` (optional) An {Object} with props that will be passed to each
+      item rendered into the set.
+
   ###
   @propTypes:
-    name: React.PropTypes.string.isRequired
+    matching: React.PropTypes.object.isRequired
+    className: React.PropTypes.string
+    exposedProps: React.PropTypes.object
 
   constructor: (@props) ->
     @state = @_getStateFromStores()
@@ -43,26 +56,52 @@ class InjectedComponent extends React.Component
     @_componentUnlistener() if @_componentUnlistener
 
   componentWillReceiveProps: (newProps) =>
-    if newProps.name isnt @props?.name
+    if not _.isEqual(newProps.matching, @props?.matching)
       @setState(@_getStateFromStores(newProps))
 
   render: =>
-    view = @state.component
-    return <div></div> unless view
-    props = _.omit(@props, _.keys(@constructor.propTypes))
+    return <div></div> unless @state.component
 
-    <view ref="inner" key={name} {...props} />
- 
+    exposedProps = @props.exposedProps ? {}
+    className = @props.className ? ""
+    className += "registered-region-visible" if @state.visible
+
+    component = @state.component
+
+    if component.containerRequired is false
+      element = <component ref="inner" key={component.displayName} {...exposedProps} />
+    else
+      element = <UnsafeComponent ref="inner" component={component} key={component.displayName} {...exposedProps} />
+
+    if @state.visible
+      <div className={className}>
+        {element}
+        <InjectedComponentLabel matching={@props.matching} {...exposedProps} />
+        <span style={clear:'both'}/>
+      </div>
+    else
+      <div className={className}>
+        {element}
+      </div>
+
   focus: =>
     # Not forwarding event - just a method call
     @refs.inner.focus() if @refs.inner.focus?
- 
+
   blur: =>
     # Not forwarding an event - just a method call
     @refs.inner.blur() if @refs.inner.blur?
 
   _getStateFromStores: (props) =>
     props ?= @props
-    component: ComponentRegistry.findViewByName(props.name)
+
+    components = ComponentRegistry.findComponentsMatching(props.matching)
+    if components.length > 1
+      console.warn("There are multiple components available for \
+                   #{JSON.stringify(props.matching)}. <InjectedComponent> is \
+                   only rendering the first one.")
+
+    component: components[0]
+    visible: ComponentRegistry.showComponentRegions()
 
 module.exports = InjectedComponent

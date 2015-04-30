@@ -74,18 +74,18 @@ class MultiselectList extends React.Component
         context = {focusedId: @state.focusedId}
         props.commands[key](context)
 
-    checkmarkColumn = new ListTabular.Column
-      name: ""
-      resolver: (thread) =>
-        toggle = (event) =>
-          if event.shiftKey
-            props.dataStore.view().selection.expandTo(thread)
-          else
-            props.dataStore.view().selection.toggle(thread)
-          event.stopPropagation()
-        <div className="checkmark" onClick={toggle}><div className="inner"></div></div>
-
-    props.columns.splice(0, 0, checkmarkColumn)
+    unless props.columns[0].name is 'Check'
+      checkmarkColumn = new ListTabular.Column
+        name: "Check"
+        resolver: (thread) =>
+          toggle = (event) =>
+            if event.shiftKey
+              props.dataStore.view().selection.expandTo(thread)
+            else
+              props.dataStore.view().selection.toggle(thread)
+            event.stopPropagation()
+          <div className="checkmark" onClick={toggle}><div className="inner"></div></div>
+      props.columns.splice(0, 0, checkmarkColumn)
 
     @unsubscribers = []
     @unsubscribers.push props.dataStore.listen @_onChange

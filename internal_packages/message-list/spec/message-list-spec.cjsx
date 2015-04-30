@@ -16,17 +16,7 @@ TestUtils = React.addons.TestUtils
  InboxTestUtils,
  ComponentRegistry} = require "inbox-exports"
 
-ComposerItem = React.createClass
-  render: -> <div></div>
-  focus: ->
-
-AttachmentItem = React.createClass
-  render: -> <div></div>
-  focus: ->
-
-ParticipantsItem = React.createClass
-  render: -> <div></div>
-  focus: ->
+{InjectedComponent} = require 'ui-components'
 
 MessageItem = proxyquire("../lib/message-item", {
   "./email-frame": React.createClass({render: -> <div></div>})
@@ -179,16 +169,6 @@ test_thread = (new Thread).fromJSON({
 
 describe "MessageList", ->
   beforeEach ->
-    ComponentRegistry.register
-      name: 'Composer'
-      view: ComposerItem
-    ComponentRegistry.register
-      name: 'Participants'
-      view: ParticipantsItem
-    ComponentRegistry.register
-      name: 'AttachmentComponent'
-      view: AttachmentItem
-
     MessageStore._items = []
     MessageStore._threadId = null
     spyOn(MessageStore, "itemLocalIds").andCallFake ->
@@ -242,13 +222,12 @@ describe "MessageList", ->
         messages: msgs.concat(draftMessages)
 
       expect(@message_list._focusDraft).toHaveBeenCalled()
-      expect(@message_list._focusDraft.mostRecentCall.args[0].props.localId).toEqual(draftMessages[0].id)
+      expect(@message_list._focusDraft.mostRecentCall.args[0].props.exposedProps.localId).toEqual(draftMessages[0].id)
 
     it "doesn't focus if we're just navigating through messages", ->
       spyOn(@message_list, "scrollToMessage")
       @message_list.setState messages: draftMessages
-      items = TestUtils.scryRenderedComponentsWithType(@message_list,
-              ComposerItem)
+      items = TestUtils.scryRenderedComponentsWithTypeAndProps(@message_list, InjectedComponent, matching: {role:"Composer"})
       expect(items.length).toBe 1
       composer = items[0]
       expect(@message_list.scrollToMessage).not.toHaveBeenCalled()
@@ -261,8 +240,7 @@ describe "MessageList", ->
       @message_list.setState currentThread: test_thread
 
     it "renders the composer", ->
-      items = TestUtils.scryRenderedComponentsWithType(@message_list,
-              ComposerItem)
+      items = TestUtils.scryRenderedComponentsWithTypeAndProps(@message_list, InjectedComponent, matching: {role:"Composer"})
       expect(@message_list.state.messages.length).toBe 6
       expect(items.length).toBe 1
 

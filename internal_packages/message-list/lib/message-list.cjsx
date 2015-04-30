@@ -10,7 +10,8 @@ MessageItem = require "./message-item"
  InjectedComponent} = require('ui-components')
 
 class MessageList extends React.Component
-  @displayName = 'MessageList'
+  @displayName: 'MessageList'
+  @containerRequired: false
 
   constructor: (@props) ->
     @state = @_getStateFromStores()
@@ -80,13 +81,14 @@ class MessageList extends React.Component
            onScroll={_.debounce(@_cacheScrollPos, 100)}
            ref="messageWrap">
 
-        <InjectedComponentSet className="message-list-notification-bars"
-                          location="MessageListNotificationBar"
-
-                          thread={@state.currentThread}/>
-        <InjectedComponentSet className="message-list-headers"
-                          location="MessageListHeaders"
-                          thread={@state.currentThread}/>
+        <InjectedComponentSet
+          className="message-list-notification-bars"
+          matching={role:"MessageListNotificationBar"}
+          exposedProps={thread: @state.currentThread}/>
+        <InjectedComponentSet
+          className="message-list-headers"
+          matching={role:"MessageListHeaders"}
+          exposedProps={thread: @state.currentThread}/>
 
         {@_messageComponents()}
       </div>
@@ -170,12 +172,10 @@ class MessageList extends React.Component
         "collapsed": collapsed
 
       if message.draft
-        components.push <InjectedComponent name="Composer"
-                         mode="inline"
+        components.push <InjectedComponent matching={role:"Composer"}
+                         exposedProps={mode:"inline", localId:@state.messageLocalIds[message.id], onRequestScrollTo:@_onRequestScrollToComposer}
                          ref="composerItem-#{message.id}"
                          key={@state.messageLocalIds[message.id]}
-                         localId={@state.messageLocalIds[message.id]}
-                         onRequestScrollTo={@_onRequestScrollToComposer}
                          className={className} />
       else
         components.push <MessageItem key={message.id}

@@ -9,21 +9,17 @@ module.exports =
   item: null # The DOM item the main React component renders into
 
   activate: (@state={}) ->
-    ComponentRegistry.register
-      name: 'TemplatePicker'
+    ComponentRegistry.register TemplatePicker,
       role: 'Composer:ActionButton'
-      view: TemplatePicker
 
-    ComponentRegistry.register
-      name: 'TemplateStatusBar'
+    ComponentRegistry.register TemplateStatusBar,
       role: 'Composer:Footer'
-      view: TemplateStatusBar
 
     DraftStore.registerExtension(Extension)
 
   deactivate: ->
-    ComponentRegistry.unregister('TemplatePicker')
-    ComponentRegistry.unregister('TemplateStatusBar')
+    ComponentRegistry.unregister(TemplatePicker)
+    ComponentRegistry.unregister(TemplateStatusBar)
     DraftStore.unregisterExtension(Extension)
 
   serialize: -> @state

@@ -22,6 +22,8 @@ ParticipantsTextField = require './participants-text-field'
 class ComposerView extends React.Component
   @displayName: 'ComposerView'
 
+  @containerRequired: false
+
   constructor: (@props) ->
     @state =
       populated: false
@@ -201,23 +203,23 @@ class ComposerView extends React.Component
       <div className="attachments-area">
         {
           (@state.files ? []).map (file) =>
-            <InjectedComponent name="Attachment"
-                                 file={file}
-                                 key={file.filename}
-                                 removable={true}
-                                 messageLocalId={@props.localId} />
+            <InjectedComponent matching={role:"Attachment"}
+                               exposedProps={file: file, removable: true, messageLocalId: @props.localId}
+                               key={file.filename} />
         }
         <FileUploads localId={@props.localId} />
       </div>
-      <InjectedComponentSet location="Composer:Footer" draftLocalId={@props.localId}/>
+      <InjectedComponentSet
+        matching={role: "Composer:Footer"}
+        exposedProps={draftLocalId:@props.localId}/>
     </span>
 
   _renderActionsRegion: =>
     return <div></div> unless @props.localId
 
     <InjectedComponentSet className="composer-action-bar-content"
-                      location="Composer:ActionButton"
-                      draftLocalId={@props.localId}>
+                      matching={role: "Composer:ActionButton"}
+                      exposedProps={draftLocalId:@props.localId}>
 
       <button className="btn btn-toolbar btn-trash" style={order: 100}
               data-tooltip="Delete draft"

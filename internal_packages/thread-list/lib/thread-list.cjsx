@@ -14,6 +14,8 @@ ThreadListStore = require './thread-list-store'
 
 class ThreadList extends React.Component
   @displayName: 'ThreadList'
+  
+  @containerRequired: false
 
   componentWillMount: =>
     labelComponents = (thread) =>

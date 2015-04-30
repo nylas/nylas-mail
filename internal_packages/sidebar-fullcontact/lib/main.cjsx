@@ -7,12 +7,10 @@ module.exports =
   item: null
 
   activate: (@state={}) ->
-    ComponentRegistry.register
-      name: 'SidebarFullContact'
-      view: SidebarFullContact
+    ComponentRegistry.register SidebarFullContact,
       location: WorkspaceStore.Location.MessageListSidebar
 
   deactivate: ->
-    ComponentRegistry.unregister('SidebarFullContact')
+    ComponentRegistry.unregister(SidebarFullContact)
 
   serialize: -> @state

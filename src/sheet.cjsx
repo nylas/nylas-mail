@@ -3,6 +3,7 @@ _ = require 'underscore-plus'
 {Actions,ComponentRegistry, WorkspaceStore} = require "inbox-exports"
 RetinaImg = require './components/retina-img'
 Flexbox = require './components/flexbox'
+InjectedComponentSet = require './components/injected-component-set'
 ResizableRegion = require './components/resizable-region'
 
 FLEX = 10000
@@ -57,30 +58,26 @@ class Sheet extends React.Component
     </div>
 
   _columnFlexboxElements: =>
-    @state.columns.map ({entries, maxWidth, minWidth, handle, id}, idx) =>
-      elements = entries.map ({name, view}) -> <view key={name} />
+    @state.columns.map ({maxWidth, minWidth, handle, location}, idx) =>
       if minWidth != maxWidth and maxWidth < FLEX
         <ResizableRegion key={"#{@props.data.id}:#{idx}"}
                          name={"#{@props.data.id}:#{idx}"}
-                         className={"column-#{id}"}
+                         className={"column-#{location.id}"}
                          data-column={idx}
                          onResize={ => @props.onColumnSizeChanged(@) }
                          minWidth={minWidth}
                          maxWidth={maxWidth}
                          handle={handle}>
-          <Flexbox direction="column">
-            {elements}
-          </Flexbox>
+          <InjectedComponentSet direction="column" matching={location: location, mode: @state.mode}/>
         </ResizableRegion>
       else
-        <Flexbox direction="column"
-                 key={"#{@props.data.id}:#{idx}"}
-                 name={"#{@props.data.id}:#{idx}"}
-                 className={"column-#{id}"}
-                 data-column={idx}
-                 style={flex: 1}>
-          {elements}
-        </Flexbox>
+        <InjectedComponentSet direction="column"
+                              key={"#{@props.data.id}:#{idx}"}
+                              name={"#{@props.data.id}:#{idx}"}
+                              className={"column-#{location.id}"}
+                              data-column={idx}
+                              style={flex: 1}
+                              matching={location: location, mode: @state.mode}/>
 
   _getStateFromStores: =>
     state =
@@ -92,10 +89,10 @@ class Sheet extends React.Component
 
     if @props.data?.columns[state.mode]?
       for location, idx in @props.data.columns[state.mode]
-        entries = ComponentRegistry.findAllByLocationAndMode(location, state.mode)
-        maxWidth = _.reduce entries, ((m,{view}) -> Math.min(view.maxWidth ? 10000, m)), 10000
-        minWidth = _.reduce entries, ((m,{view}) -> Math.max(view.minWidth ? 0, m)), 0
-        col = {entries, maxWidth, minWidth, id: location.id}
+        entries = ComponentRegistry.findComponentsMatching({location: location, mode: state.mode})
+        maxWidth = _.reduce entries, ((m,component) -> Math.min(component.containerStyles?.maxWidth ? 10000, m)), 10000
+        minWidth = _.reduce entries, ((m,component) -> Math.max(component.containerStyles?.minWidth ? 0, m)), 0
+        col = {maxWidth, minWidth, location}
         state.columns.push(col)
 
         if maxWidth > widestWidth

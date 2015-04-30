@@ -1,93 +1,93 @@
 React = require 'react'
 ComponentRegistry = require '../src/component-registry'
 
-dummy_component = new ComponentRegistry.Component
-  name: 'dummy-component'
-  view: ->
-  role: 'button'
+class TestComponent extends React.Component
+  @displayName: 'TestComponent'
+  constructor: ->
 
-describe 'a Component', ->
-  it 'should not construct if a name or view is unspecified', ->
-    expect(-> ComponentRegistry.Component()).toThrow()
+class TestComponentNoDisplayName extends React.Component
+  constructor: ->
 
-  it 'should construct if there is both a name and a view', ->
-    i = ComponentRegistry.Component
-      name: 'reply-button'
-      view: ->
-    expect(i).toBeDefined()
+class AComponent extends React.Component
+  @displayName: 'A'
+
+class BComponent extends React.Component
+  @displayName: 'B'
+
+class CComponent extends React.Component
+  @displayName: 'C'
+
+class DComponent extends React.Component
+  @displayName: 'D'
+
+class EComponent extends React.Component
+  @displayName: 'E'
+
+class FComponent extends React.Component
+  @displayName: 'F'
 
 describe 'ComponentRegistry', ->
   beforeEach ->
     ComponentRegistry._clear()
 
-  describe '.register()', ->
+  describe 'register', ->
     it 'throws an exception if passed a non-component', ->
       expect(-> ComponentRegistry.register(null)).toThrow()
       expect(-> ComponentRegistry.register("cheese")).toThrow()
 
     it 'returns itself', ->
-      expect(ComponentRegistry.register dummy_component).toBe(ComponentRegistry)
+      expect(ComponentRegistry.register(TestComponent, {role: "bla"})).toBe(ComponentRegistry)
 
-    it 'does not allow a component to be registered twice', ->
-      ComponentRegistry.register dummy_component
-      expect(-> ComponentRegistry.register dummy_component).toThrow()
+    it 'does not allow components to be overridden by others with the same displayName', ->
+      ComponentRegistry.register(TestComponent, {role: "bla"})
+      expect(-> ComponentRegistry.register(TestComponent, {role: "bla"})).toThrow()
 
-  describe '.getByName()', ->
+    it 'does not allow components to be registered without a displayName', ->
+      expect(-> ComponentRegistry.register(TestComponentNoDisplayName, {role: "bla"})).toThrow()
+
+  describe 'findComponentByName', ->
     it 'should return a component', ->
-      ComponentRegistry.register dummy_component
-      expect(ComponentRegistry.getByName dummy_component.name).toEqual dummy_component
-
-    it 'should throw an exception if a component is undefined', ->
-      expect(-> ComponentRegistry.getByName "not actually a name").toThrow()
-
-  describe '.findByName()', ->
-    it 'should return a component', ->
-      ComponentRegistry.register dummy_component
-      expect(ComponentRegistry.findByName dummy_component.name).toEqual dummy_component
+      ComponentRegistry.register(TestComponent, {role: "bla"})
+      expect(ComponentRegistry.findComponentByName('TestComponent')).toEqual(TestComponent)
 
     it 'should return undefined if there is no component', ->
-      expect(ComponentRegistry.findByName "not actually a name").toBeUndefined()
+      expect(ComponentRegistry.findComponentByName("not actually a name")).toBeUndefined()
 
-    it 'should return an alternate if there is no component, and an alt', ->
-      alt = "alt"
-      expect(ComponentRegistry.findByName "not actually a name", alt).toBe alt
+  describe 'findComponentsMatching', ->
+    it 'should throw if a descriptor is not provided', ->
+      expect( -> ComponentRegistry.findComponentsMatching()).toThrow()
 
-  describe '.findViewByName()', ->
-    it 'should return a component view', ->
-      ComponentRegistry.register dummy_component
-      expect(ComponentRegistry.findViewByName dummy_component.name).toEqual dummy_component.view
+    it 'should return the correct results in a wide range of test cases', ->
+      StubLocation1 =
+        id: 'StubLocation1'
+      StubLocation2 =
+        id: 'StubLocation2'
+      ComponentRegistry.register(AComponent, { role: 'ThreadAction' })
+      ComponentRegistry.register(BComponent, { role: 'ThreadAction', modes: ['list'] })
+      ComponentRegistry.register(CComponent, { location: StubLocation1, modes: ['split'] })
+      ComponentRegistry.register(DComponent, { locations: [StubLocation1, StubLocation2] })
+      ComponentRegistry.register(EComponent, { roles: ['ThreadAction', 'MessageAction'] })
+      ComponentRegistry.register(FComponent, { roles: ['MessageAction'], mode: 'list' })
 
-    it 'should return undefined if there is no component', ->
-      expect(ComponentRegistry.findViewByName "not actually a name").toBeUndefined()
+      scenarios = [
+        {descriptor: {role: 'ThreadAction'}, results: [AComponent, BComponent, EComponent]}
+        {descriptor: {role: 'ThreadAction', mode: 'list'}, results: [AComponent, BComponent, EComponent]}
+        {descriptor: {role: 'ThreadAction', mode: 'split'}, results: [AComponent, EComponent]}
+        {descriptor: {location: StubLocation1}, results: [CComponent, DComponent]}
+        {descriptor: {location: StubLocation1, mode: 'list'}, results: [DComponent]}
+        {descriptor: {locations: [StubLocation1, StubLocation2]}, results: [CComponent, DComponent]}
+        {descriptor: {roles: ['ThreadAction', 'MessageAction']}, results: [AComponent, BComponent, EComponent, FComponent]}
+      ]
 
-    it 'should return an alternate if there is no component, and an alt', ->
-      alt = "alt"
-      expect(ComponentRegistry.findViewByName "not actually a name", alt).toBe alt
+      scenarios.forEach ({descriptor, results}) ->
+        expect(ComponentRegistry.findComponentsMatching(descriptor)).toEqual(results)
 
-  describe '.findAllByRole()', ->
-    it 'should return a list of matching components', ->
-      ComponentRegistry.register dummy_component
-      expect(ComponentRegistry.findAllByRole 'button').toEqual [dummy_component]
 
-    it 'should return an empty list for non-matching components', ->
-      expect(ComponentRegistry.findAllByRole 'dummy').toEqual []
-
-  describe '.findAllViewsByRole()', ->
-    it 'should return a list of matching components', ->
-      ComponentRegistry.register dummy_component
-      expect(ComponentRegistry.findAllViewsByRole 'button').toEqual [dummy_component.view]
-
-    it 'should return an empty list for non-matching components', ->
-      expect(ComponentRegistry.findAllViewsByRole 'dummy').toEqual []
-
-  describe '.unregister()', ->
+  describe 'unregister', ->
     it 'unregisters the component if it exists', ->
-      ComponentRegistry.register dummy_component
-      ComponentRegistry.unregister dummy_component.name
-      expect(ComponentRegistry.findByName dummy_component.name).toBeUndefined()
+      ComponentRegistry.register(TestComponent, { role: 'bla' })
+      ComponentRegistry.unregister(TestComponent)
+      expect(ComponentRegistry.findComponentByName('TestComponent')).toBeUndefined()
 
-    it 'notifies of an error if an invalid component is unregistered', ->
-      ComponentRegistry.register dummy_component
-      unregistered = ComponentRegistry.unregister "something-else"
-      expect(ComponentRegistry.findByName dummy_component.name).toEqual dummy_component
-
+    it 'throws if a string is passed instead of a component', ->
+      expect( -> ComponentRegistry.unregister('TestComponent')).toThrow()

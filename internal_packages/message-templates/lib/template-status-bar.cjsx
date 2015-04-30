@@ -5,6 +5,11 @@ React = require 'react'
 class TemplateStatusBar extends React.Component
   @displayName: 'TemplateStatusBar'
 
+  @containerStyles:
+    textAlign:'center'
+    width:530
+    margin:'auto'
+
   @propTypes:
     draftLocalId: React.PropTypes.string
 

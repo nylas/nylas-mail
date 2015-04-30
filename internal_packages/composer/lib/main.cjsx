@@ -19,9 +19,8 @@ module.exports =
       replenishNum: 2
 
     # Register our composer as the app-wide Composer
-    ComponentRegistry.register
-      name: 'Composer'
-      view: ComposerView
+    ComponentRegistry.register ComposerView,
+      role: 'Composer'
 
     if atom.isMainWindow()
       @_activateComposeButton()
@@ -89,9 +88,7 @@ module.exports =
           .catch(reject)
 
   _activateComposeButton: ->
-    ComponentRegistry.register
-      view: NewComposeButton
-      name: 'NewComposeButton'
+    ComponentRegistry.register NewComposeButton,
       location: WorkspaceStore.Location.RootSidebar.Toolbar
 
   _showInitialErrorDialog: (msg) ->

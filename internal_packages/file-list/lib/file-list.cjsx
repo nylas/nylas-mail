@@ -9,6 +9,8 @@ FileListStore = require './file-list-store'
 class FileList extends React.Component
   @displayName: 'FileList'
 
+  @containerRequired: false
+
   componentWillMount: =>
     prettySize = (size) ->
       units = ['GB', 'MB', 'KB', 'bytes']

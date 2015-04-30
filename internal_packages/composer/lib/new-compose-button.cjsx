@@ -3,6 +3,8 @@ React = require 'react'
 {RetinaImg} = require 'ui-components'
 
 class NewComposeButton extends React.Component
+  @displayName: 'NewComposeButton'
+
   render: =>
     <button style={order: 101}
             className="btn btn-toolbar"
