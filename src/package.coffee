@@ -154,8 +154,8 @@ class Package
 
     Q.all([@grammarsPromise, @settingsPromise, @activationDeferred.promise])
 
-  refreshWindowProps: (windowProps) ->
-    @mainModule?.refreshWindowProps?(windowProps)
+  windowPropsChanged: (windowProps) ->
+    @mainModule?.windowPropsChanged?(windowProps)
 
   activateNow: ->
     try

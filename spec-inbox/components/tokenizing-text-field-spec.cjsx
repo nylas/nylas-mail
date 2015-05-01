@@ -72,6 +72,7 @@ describe 'TokenizingTextField', ->
         tabIndex={@tabIndex}
         />
     )
+
     @renderedInput = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithTag(@renderedField, 'input'))
 
   it 'renders into the document', ->
@@ -112,11 +113,13 @@ describe 'TokenizingTextField', ->
   describe "when the user types in the input", ->
     it 'should fetch completions for the text', ->
       ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'abc'}})
+      advanceClock(1000)
       expect(@propCompletionsForInput.calls[0].args[0]).toBe('abc')
 
     it 'should fetch completions on focus', ->
       @renderedField.setState inputValue: "abc"
       ReactTestUtils.Simulate.focus(@renderedInput)
+      advanceClock(1000)
       expect(@propCompletionsForInput.calls[0].args[0]).toBe('abc')
 
     it 'should display the completions', ->

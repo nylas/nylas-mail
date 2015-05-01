@@ -25,24 +25,17 @@ module.exports =
     if atom.isMainWindow()
       @_activateComposeButton()
     else
+      @_setupContainer()
       windowProps = atom.getLoadSettings().windowProps ? {}
-      @refreshWindowProps(windowProps)
+      @windowPropsChanged(windowProps)
 
-  refreshWindowProps: (windowProps) ->
-    return unless windowProps.createNew
-
-    if @item? then return # Activate once
-    @item = document.createElement("div")
-    @item.setAttribute("id", "composer-full-window")
-    @item.setAttribute("class", "composer-full-window")
-    document.body.appendChild(@item)
-
-    @_prepareDraft(windowProps).then (draftLocalId) =>
+  windowPropsChanged: (newWindowProps) ->
+    @_prepareDraft(newWindowProps).then (draftLocalId) =>
       React.render(
         <ComposerView mode="fullwindow" localId={draftLocalId} />, @item
       )
-      if windowProps.errorMessage
-        @_showInitialErrorDialog(windowProps.errorMessage)
+      if newWindowProps.errorMessage
+        @_showInitialErrorDialog(newWindowProps.errorMessage)
     .catch (error) ->
       console.error(error.stack)
 
@@ -57,6 +50,13 @@ module.exports =
       @item = null
 
   serialize: -> @state
+
+  _setupContainer: ->
+    if @item? then return # Activate once
+    @item = document.createElement("div")
+    @item.setAttribute("id", "composer-full-window")
+    @item.setAttribute("class", "composer-full-window")
+    document.body.appendChild(@item)
 
   # This logic used to be in the DraftStore (which is where it should be). It
   # got moved here becaues of an obscure atom-shell/Chrome bug whereby database

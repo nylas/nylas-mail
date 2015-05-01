@@ -11,6 +11,7 @@ Token = React.createClass
   displayName: "Token"
 
   mixins: [DragDropMixin]
+
   propTypes:
     selected: React.PropTypes.bool,
     select: React.PropTypes.func.isRequired,
@@ -18,10 +19,10 @@ Token = React.createClass
     item: React.PropTypes.object,
 
   statics:
-    configureDragDrop: (registerType) ->
+    configureDragDrop: (registerType) =>
       registerType('token', {
         dragSource:
-          beginDrag: (component) ->
+          beginDrag: (component) =>
             item: component.props.item
       })
 
@@ -46,7 +47,6 @@ Token = React.createClass
     @props.action(@props.item)
     event.preventDefault()
 
-
 ###
 The TokenizingTextField component displays a list of options as you type
 and converts them into stylable tokens.
@@ -57,12 +57,10 @@ interactions.
 See documentation on the propTypes for usage info.
 
 ###
-module.exports =
 TokenizingTextField = React.createClass
   displayName: "TokenizingTextField"
 
   propTypes:
-
     # An array of current tokens.
     #
     # A token is usually an object type like a
@@ -93,6 +91,9 @@ TokenizingTextField = React.createClass
     # It takes the current input as a value and should return an array of
     # candidate objects. These objects must be the same type as are passed
     # to the `tokens` prop.
+    #
+    # The function may either directly return tokens, or may return a
+    # Promise, that resolves with the requested tokens
     onRequestCompletions: React.PropTypes.func.isRequired
 
     # What each suggestion looks like.
@@ -100,10 +101,6 @@ TokenizingTextField = React.createClass
     # This is passed through to the Menu component's `itemContent` prop.
     # See components/menu.cjsx for more info.
     completionNode: React.PropTypes.func.isRequired
-
-    # If the onRequestCompletions function is asynchronous, the parent will
-    # have to pass in the correct completions as new props.
-    initialCompletions: React.PropTypes.array
 
     # Gets called when we we're ready to add whatever it is we're
     # completing
@@ -152,16 +149,16 @@ TokenizingTextField = React.createClass
   mixins: [DragDropMixin]
 
   statics:
-    configureDragDrop: (registerType) ->
+    configureDragDrop: (registerType) =>
       registerType('token', {
         dropTarget:
-          acceptDrop: (component, token) ->
+          acceptDrop: (component, token) =>
             component._addToken(token)
       })
 
   getInitialState: ->
-    completions: @props.initialCompletions ? []
     inputValue: ""
+    completions: []
     selectedTokenKey: null
 
   componentDidMount: ->
@@ -180,9 +177,6 @@ TokenizingTextField = React.createClass
 
   componentWillUnmount: ->
     @subscriptions?.dispose()
-
-  componentWillReceiveProps: (nextProps) ->
-    @setState completions: nextProps.initialCompletions ? []
 
   componentDidUpdate: ->
     # Measure the width of the text in the input and
@@ -255,16 +249,15 @@ TokenizingTextField = React.createClass
   # Maintaining Input State
 
   _onInputFocused: ->
-    @setState
-      completions: @_getCompletions()
-      focus: true
+    @setState focus: true
+    @_refreshCompletions()
 
   _onInputChanged: (event) ->
     val = event.target.value.trimLeft()
     @setState
       selectedTokenKey: null
-      completions: @_getCompletions(val)
       inputValue: val
+    @_refreshCompletions(val)
 
   _onInputBlurred: ->
     @_addInputValue()
@@ -273,9 +266,8 @@ TokenizingTextField = React.createClass
       focus: false
 
   _clearInput: ->
-    @setState
-      completions: @_getCompletions("", clear: true)
-      inputValue: ""
+    @setState inputValue: ""
+    @_refreshCompletions("", clear: true)
 
   focus: ->
     React.findDOMNode(@refs.input).focus()
@@ -296,7 +288,6 @@ TokenizingTextField = React.createClass
       @props.tokenKey(t) is @state.selectedTokenKey
 
   _addToken: (token) ->
-    return unless @isMounted()
     return unless token
     @props.onAdd([token])
     @_clearInput()
@@ -352,16 +343,25 @@ TokenizingTextField = React.createClass
 
   # Managing Suggestions
 
-  _getCompletions: (val = @state.inputValue, {clear}={}) ->
+  # Asks `@props.onRequestCompletions` for new completions given the
+  # current inputValue. Since `onRequestCompletions` can be asynchronous,
+  # this function will handle calling `setState` on `completions` when
+  # `onRequestCompletions` returns.
+  _refreshCompletions: (val = @state.inputValue, {clear}={}) ->
     existingKeys = _.map(@props.tokens, @props.tokenKey)
-    tokens = @props.onRequestCompletions(val, {clear})
-    if _.isArray(tokens)
+    filterTokens = (tokens) =>
       _.reject tokens, (t) => @props.tokenKey(t) in existingKeys
-    else
-      # This case commonly happens when @props.onRequestCompletions returns
-      # a Promise object. In this case we can't synchronously return the
-      # new completion objects. Instead we need to wait for the parent to
-      # finish what it's doing and set the `initialCompletions` props.
-      if clear then return []
-      else return @props.initialCompletions ? []
 
+    tokensOrPromise = @props.onRequestCompletions(val, {clear})
+
+    if _.isArray(tokensOrPromise)
+      @setState completions: filterTokens(tokensOrPromise)
+    else if tokensOrPromise instanceof Promise
+      tokensOrPromise.then (tokens) =>
+        return unless @isMounted()
+        @setState completions: filterTokens(tokens)
+    else
+      console.warn "onRequestCompletions returned an invalid type. It must return an Array of tokens or a Promise that resolves to an array of tokens"
+      @setState completions: []
+
+module.exports = TokenizingTextField

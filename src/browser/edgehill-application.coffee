@@ -119,9 +119,9 @@ class AtomApplication
   # Once a hot window is registered, we'll have a hidden window with the
   # declared packages of that `windowType` pre-loaded.
   #
-  # This means thatn when `newWindow` is called, instead of going through
+  # This means that when `newWindow` is called, instead of going through
   # the bootup process, it simply replaces key parameters and does a soft
-  # reload.
+  # reload via `windowPropsChanged`.
   #
   # Since the window is already loaded, there are only some options that
   # can be soft-reloaded. If you attempt to pass options that a soft
@@ -201,7 +201,7 @@ class AtomApplication
     @hotWindows[windowType].loadedWindows ?= []
     @hotWindows[windowType].windowPackages ?= (windowPackages ? [])
 
-    @replenishHotWindows(windowType)
+    @_replenishHotWindows()
 
   defaultWindowOptions: ->
     devMode: @devMode
@@ -241,24 +241,63 @@ class AtomApplication
 
       # This is expected to be caught by the main application to re-fetch
       # the loadSettings and re-render itself accordingly.
-      win.browserWindow.webContents.send('refresh-window-props')
+      win.browserWindow.webContents.send('window-props-changed')
 
       win.show()
       win.focus()
 
-    @replenishHotWindows(options.windowType)
+    @_replenishHotWindows()
 
-  replenishHotWindows: (windowType) ->
-    if not @hotWindows[windowType]?
-      console.error "Call `registerHotWindow` before replenishing for #{windowType}"
-      return false
+  # There may be many windowTypes, each that request many windows of that
+  # type (the `replenishNum`).
+  #
+  # Loading windows is very resource intensive, so we want to do them
+  # sequentially.
+  #
+  # We also want to round-robin load across the breadth of window types
+  # instead of loading all of the windows of a single type then moving on
+  # to the next.
+  #
+  # We first need to cycle through the registered `hotWindows` and create
+  # a breadth-first queue of window loads that we'll store in
+  # `@_replenishQueue`.
+  #
+  # Next we need to start processing the `@_replenishQueue`
+  __replenishHotWindows: =>
+    @_replenishQueue = []
+    queues = {}
+    maxWin = 0
+    for windowType, data of @hotWindows
+      numOfType = data.replenishNum - data.loadedWindows.length
+      maxWin = Math.max(numOfType, maxWin)
+      if numOfType > 0
+        options = @defaultWindowOptions()
+        options.windowType = windowType
+        options.windowPackages = data.windowPackages
+        queues[windowType] ?= []
+        queues[windowType].push(options) for [0...numOfType]
 
-    loadedWindows = @hotWindows[windowType].loadedWindows
-    while loadedWindows.length < @hotWindows[windowType].replenishNum
-      options = @defaultWindowOptions()
-      options.windowType = windowType
-      options.windowPackages = @hotWindows[windowType].windowPackages
-      loadedWindows.push(new AtomWindow(options))
+    for [0...maxWin]
+      for windowType, optionsArray of queues
+        if optionsArray.length > 0
+          @_replenishQueue.push(optionsArray.shift())
+
+    @_processReplenishQueue()
+  _replenishHotWindows: _.debounce(AtomApplication::__replenishHotWindows, 100)
+
+  _processReplenishQueue: ->
+    return if @_processingQueue
+    @_processingQueue = true
+    if @_replenishQueue.length > 0
+      options = @_replenishQueue.shift()
+      console.log "---> Launching new '#{options.windowType}' window"
+      newWindow = new AtomWindow(options)
+      @hotWindows[options.windowType].loadedWindows.push(newWindow)
+      newWindow.once 'window:loaded', =>
+        @_processingQueue = false
+        @_processReplenishQueue()
+    else
+      @_processingQueue = false
 
   prepareDatabaseInterface: ->
     return @dblitePromise if @dblitePromise

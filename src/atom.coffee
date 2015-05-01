@@ -228,7 +228,7 @@ class Atom extends Model
     @subscribe @packages.onDidActivateInitialPackages => @watchThemes()
     @windowEventHandler = new WindowEventHandler
 
-    ipc.on("refresh-window-props", => @refreshWindowProps())
+    ipc.on("window-props-changed", => @windowPropsChanged())
 
   # Start our error reporting to the backend and attach error handlers
   # to the window and the Bluebird Promise library, converting things
@@ -452,8 +452,9 @@ class Atom extends Model
   reload: ->
     ipc.send('call-window-method', 'restart')
 
-  # Calls the `reload` method of all packages that are currently loaded
-  refreshWindowProps: ->
+  # Calls the `windowPropsChanged` method of all packages that are
+  # currently loaded
+  windowPropsChanged: ->
     # This will cause it to get refreshed the next time they're queried
     @constructor.loadSettings = null
 
@@ -461,7 +462,7 @@ class Atom extends Model
      height,
      windowProps} = @getLoadSettings()
 
-    @packages.refreshWindowProps(windowProps)
+    @packages.windowPropsChanged(windowProps)
 
     @setWindowDimensions({width, height}) if width and height
 

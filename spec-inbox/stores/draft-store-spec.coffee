@@ -425,9 +425,11 @@ describe "DraftStore", ->
       spyOn(atom, "getWindowType").andReturn "composer"
       spyOn(atom, "isMainWindow").andReturn false
       spyOn(atom, "close")
-      waitsForPromise ->
-        DraftStore._onSendDraft(draftLocalId).then ->
-          expect(atom.close).toHaveBeenCalled()
+      runs ->
+        DraftStore._onSendDraft(draftLocalId)
+      waitsFor "Atom to close", ->
+        advanceClock(1000)
+        atom.close.calls.length > 0
 
     it "doesn't close the window if it's inline", ->
       spyOn(atom, "getWindowType").andReturn "other"
@@ -488,11 +490,13 @@ describe "DraftStore", ->
       it "should close the composer window", ->
         spyOn(atom, 'close')
         DraftStore.cleanupSessionForLocalId('abc')
+        advanceClock(1000)
         expect(atom.close).toHaveBeenCalled()
 
       it "should not close the composer window if the draft session is not in the window", ->
         spyOn(atom, 'close')
         DraftStore.cleanupSessionForLocalId('other-random-draft-id')
+        advanceClock(1000)
         expect(atom.close).not.toHaveBeenCalled()
 
     describe "when it is in a main window", ->

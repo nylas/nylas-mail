@@ -132,11 +132,21 @@ class DraftStore
     Actions.queueTask(new DestroyDraftTask(localId)) if draft.pristine
 
     if atom.getWindowType() is "composer"
-      atom.close()
+      # Sometimes we swap out one ID for another. In that case we don't
+      # want to close while it's swapping. We are using a defer here to
+      # give the swap code time to put the new ID in the @_draftSessions.
+      #
+      # This defer hack prevents us from having to pass around a lock or a
+      # parameter through functions who may do this in other parts of the
+      # application.
+      _.defer =>
+        if Object.keys(@_draftSessions).length is 0
+          atom.close()
 
     if atom.isMainWindow()
       session.cleanup()
-      delete @_draftSessions[localId]
+
+    delete @_draftSessions[localId]
 
   _onBeforeUnload: =>
     promises = []
@@ -306,7 +316,7 @@ class DraftStore
   _composerWindowProps: (props={}) =>
     title: "Message"
     windowType: "composer"
-    windowProps: _.extend {}, props, createNew: true
+    windowProps: _.extend {}, props
 
   _onDestroyDraft: (draftLocalId) =>
     # Immediately reset any pending changes so no saves occur
