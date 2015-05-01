@@ -26,10 +26,7 @@ class DraftList extends React.Component
       resolver: (draft) =>
         <div className="participants">
           <InjectedComponent matching={role:"Participants"}
-                             exposedProps={
-                               participants: [].concat(draft.to, draft.cc, draft.bcc)
-                               clickable: false
-                             }/>
+                             exposedProps={participants: [].concat(draft.to, draft.cc, draft.bcc), clickable: false}/>
         </div>
 
     c2 = new ListTabular.Column
