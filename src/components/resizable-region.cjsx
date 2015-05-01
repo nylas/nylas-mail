@@ -69,7 +69,6 @@ class ResizableRegion extends React.Component
         'minWidth': @props.minWidth
         'maxWidth': @props.maxWidth
         'position': 'relative'
-        'height': '100%'
 
       if @state.width?
         containerStyle.width = @state.width

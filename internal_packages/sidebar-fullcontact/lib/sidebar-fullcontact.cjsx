@@ -7,6 +7,7 @@ SidebarFullContactDetails = require "./sidebar-fullcontact-details"
 class SidebarFullContact extends React.Component
   @displayName: "SidebarFullContact"
   @containerStyles:
+    order: 1
     maxWidth: 300
     minWidth: 200
 

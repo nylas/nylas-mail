@@ -32,6 +32,7 @@ class SidebarInternal extends React.Component
   @displayName: "SidebarInternal"
 
   @containerStyles:
+    order: 10
     maxWidth: 300
     minWidth: 200
 

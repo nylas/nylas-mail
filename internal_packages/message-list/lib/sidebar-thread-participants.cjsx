@@ -5,8 +5,9 @@ React = require "react"
 
 class SidebarThreadParticipants extends React.Component
   @displayName: 'SidebarThreadParticipants'
+
   @containerStyles:
-    order: 2
+    order: 3
     flexShrink: 0
 
   constructor: (@props) ->
