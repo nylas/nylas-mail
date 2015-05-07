@@ -445,5 +445,5 @@ class PackageManager
     delete @activePackages[pack.name]
     @emitter.emit 'did-deactivate-package', pack
 
-  windowPropsChanged: (windowProps) ->
-    pack.windowPropsChanged?(windowProps) for pack in @getLoadedPackages()
+  windowPropsReceived: (windowProps) ->
+    pack.windowPropsReceived?(windowProps) for pack in @getLoadedPackages()

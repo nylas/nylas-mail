@@ -11,7 +11,6 @@ path = require 'path'
 os = require 'os'
 net = require 'net'
 url = require 'url'
-qs = require 'querystring'
 exec = require('child_process').exec
 querystring = require 'querystring'
 {EventEmitter} = require 'events'
@@ -121,7 +120,7 @@ class AtomApplication
   #
   # This means that when `newWindow` is called, instead of going through
   # the bootup process, it simply replaces key parameters and does a soft
-  # reload via `windowPropsChanged`.
+  # reload via `windowPropsReceived`.
   #
   # Since the window is already loaded, there are only some options that
   # can be soft-reloaded. If you attempt to pass options that a soft
@@ -213,9 +212,8 @@ class AtomApplication
 
   newColdWindow: (options={}) ->
     options = _.extend(@defaultWindowOptions(), options)
-    w = new AtomWindow options
-    w.show()
-    w.focus()
+    w = new AtomWindow(options)
+    w.showWhenLoaded()
 
   # Tries to create a new hot window. Since we're updating an existing
   # window instead of creatinga new one, there are limitations in the
@@ -232,19 +230,10 @@ class AtomApplication
       options.windowPackages = hotWindowParams.windowPackages
       @newColdWindow(options)
     else
-      win = hotWindowParams.loadedWindows.pop()
+      [win] = hotWindowParams.loadedWindows.splice(0,1)
       newLoadSettings = _.extend(win.loadSettings(), options)
-
-      # This will update the internal instance variable that the window will
-      # query for its load settings.
       win.setLoadSettings(newLoadSettings)
-
-      # This is expected to be caught by the main application to re-fetch
-      # the loadSettings and re-render itself accordingly.
-      win.browserWindow.webContents.send('window-props-changed')
-
-      win.show()
-      win.focus()
+      win.showWhenLoaded()
 
     @_replenishHotWindows()
 
@@ -283,6 +272,7 @@ class AtomApplication
           @_replenishQueue.push(optionsArray.shift())
 
     @_processReplenishQueue()
+
   _replenishHotWindows: _.debounce(AtomApplication::__replenishHotWindows, 100)
 
   _processReplenishQueue: ->
@@ -619,19 +609,7 @@ class AtomApplication
     # Attempt to parse the mailto link into Message object JSON
     # and then open a composer window
     if parts.protocol is 'mailto:'
-      query = qs.parse(parts.query)
-      query.to = "#{parts.auth}@#{parts.host}"
-
-      json = {
-        subject: query.subject || '',
-        body: query.body || '',
-      }
-
-      emailToObj = (email) -> {email: email, object: 'Contact'}
-      for attr in ['to', 'cc', 'bcc']
-        json[attr] = query[attr]?.split(',').map(emailToObj) || []
-
-      @mainWindow.browserWindow.webContents.send('mailto', json)
+      @mainWindow.browserWindow.webContents.send('mailto', urlToOpen)
 
     # The host of the URL being opened is assumed to be the package name
     # responsible for opening the URL.  A new window will be created with

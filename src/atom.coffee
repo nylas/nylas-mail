@@ -84,10 +84,8 @@ class Atom extends Model
 
   # Returns the load settings hash associated with the current window.
   @getLoadSettings: ->
-    # We pull from the window object instead of the url so the
-    # loadSettings can change post bootup. This is very useful for
-    # starting hot windows.
-    @loadSettings ?= @getCurrentWindow().loadSettings
+    @loadSettings ?= JSON.parse(decodeURIComponent(location.search.substr(14)))
+
     cloned = _.deepClone(@loadSettings)
     # The loadSettings.windowState could be large, request it only when needed.
     cloned.__defineGetter__ 'windowState', =>
@@ -227,8 +225,6 @@ class Atom extends Model
 
     @subscribe @packages.onDidActivateInitialPackages => @watchThemes()
     @windowEventHandler = new WindowEventHandler
-
-    ipc.on("window-props-changed", => @windowPropsChanged())
 
   # Start our error reporting to the backend and attach error handlers
   # to the window and the Bluebird Promise library, converting things
@@ -452,19 +448,16 @@ class Atom extends Model
   reload: ->
     ipc.send('call-window-method', 'restart')
 
-  # Calls the `windowPropsChanged` method of all packages that are
+  # Calls the `windowPropsReceived` method of all packages that are
   # currently loaded
-  windowPropsChanged: ->
-    # This will cause it to get refreshed the next time they're queried
-    @constructor.loadSettings = null
+  loadSettingsChanged: (loadSettings) =>
+    @loadSettings = loadSettings
+    {width, height, windowProps} = loadSettings
 
-    {width,
-     height,
-     windowProps} = @getLoadSettings()
+    @packages.windowPropsReceived(windowProps ? {})
 
-    @packages.windowPropsChanged(windowProps)
-
-    @setWindowDimensions({width, height}) if width and height
+    if width and height
+      @setWindowDimensions({width, height})
 
   # Extended: Returns a {Boolean} true when the current window is maximized.
   isMaximixed: ->
@@ -620,6 +613,7 @@ class Atom extends Model
     {width,
      height,
      windowType,
+     windowProps,
      windowPackages} = @getLoadSettings()
 
     @loadConfig()
@@ -633,6 +627,9 @@ class Atom extends Model
     @packages.loadPackage(pack) for pack in (windowPackages ? [])
     @packages.activate()
 
+    ipc.on("load-settings-changed", @loadSettingsChanged)
+    @packages.windowPropsReceived(windowProps ? {})
+
     @keymaps.loadUserKeymap()
 
     @setWindowDimensions({width, height}) if width and height
@@ -645,6 +642,7 @@ class Atom extends Model
   logout: ->
     if @isLoggedIn()
       @config.set('inbox', null)
+      @config.set('edgehill', null)
       Actions = require './flux/actions'
       Actions.logout()
       @hide()

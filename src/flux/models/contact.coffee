@@ -45,15 +45,15 @@ class Contact extends Model
   # - `name` if the contact has a populated name value
   # - `email` in all other cases.
   displayName: ->
-    return "You" if @email == NamespaceStore.current().emailAddress
+    return "You" if @email is NamespaceStore.current()?.emailAddress
     @_nameParts().join(' ')
 
   displayFirstName: ->
-    return "You" if @email == NamespaceStore.current().emailAddress
+    return "You" if @email is NamespaceStore.current()?.emailAddress
     @firstName()
 
   displayLastName: ->
-    return "" if @email == NamespaceStore.current().emailAddress
+    return "" if @email is NamespaceStore.current()?.emailAddress
     @lastName()
 
   firstName: ->

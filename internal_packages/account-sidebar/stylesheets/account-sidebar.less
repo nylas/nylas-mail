@@ -4,7 +4,7 @@
 #account-sidebar {
   order: 2;
   height: 100%;
-  overflow: auto;
+  overflow-y: auto;
 
   background-color: @source-list-bg;
 
@@ -44,11 +44,11 @@
     &.selected {
       background: @source-list-active-bg;
       color: @source-list-active-color;
-      img.colorfill { 
+      img.colorfill {
         background: @source-list-active-color;
       }
     }
-    
+
     &:hover {
       background: darken(@source-list-bg, 5%);
       cursor: default;

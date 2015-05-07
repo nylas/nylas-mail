@@ -5,11 +5,13 @@ ipc = require 'ipc'
 DraftStoreProxy = require './draft-store-proxy'
 DatabaseStore = require './database-store'
 NamespaceStore = require './namespace-store'
+ContactStore = require './contact-store'
 
 SendDraftTask = require '../tasks/send-draft'
 DestroyDraftTask = require '../tasks/destroy-draft'
 
 Thread = require '../models/thread'
+Contact = require '../models/contact'
 Message = require '../models/message'
 MessageUtils = require '../models/message-utils'
 Actions = require '../actions'
@@ -40,11 +42,11 @@ class DraftStore
     @listenTo Actions.composeReply, @_onComposeReply
     @listenTo Actions.composeForward, @_onComposeForward
     @listenTo Actions.composeReplyAll, @_onComposeReplyAll
-    @listenTo Actions.composePopoutDraft, @_onComposePopoutDraft
-    @listenTo Actions.composeNewBlankDraft, @_onComposeNewBlankDraft
+    @listenTo Actions.composePopoutDraft, @_onPopoutDraftLocalId
+    @listenTo Actions.composeNewBlankDraft, @_onPopoutBlankDraft
 
     atom.commands.add 'body',
-      'application:new-message': => @_onComposeNewBlankDraft()
+      'application:new-message': => @_onPopoutBlankDraft()
 
     @listenTo Actions.sendDraft, @_onSendDraft
     @listenTo Actions.destroyDraft, @_onDestroyDraft
@@ -59,9 +61,7 @@ class DraftStore
     @_sendingState = {}
     @_extensions = []
 
-    ipc.on 'mailto', (mailToJSON) =>
-      return unless atom.isMainWindow()
-      atom.newWindow @_composerWindowProps(draftInitialJSON: mailToJSON)
+    ipc.on 'mailto', @_onHandleMailtoLink
 
     # TODO: Doesn't work if we do window.addEventListener, but this is
     # fragile. Pending an Atom fix perhaps?
@@ -301,22 +301,54 @@ class DraftStore
     re = new RegExp("<img.*#{cidRE}[\\s\\S]*?>", "igm")
     body.replace(re, "")
 
-  # The logic to create a new Draft used to be in the DraftStore (which is
-  # where it should be). It got moved to composer/lib/main.cjsx becaues
-  # of an obscure atom-shell/Chrome bug whereby database requests firing right
-  # before the new-window loaded would cause the new-window to load with
-  # about:blank instead of its contents. By moving the DB logic there, we can
-  # get around this.
-  _onComposeNewBlankDraft: =>
-    atom.newWindow @_composerWindowProps()
+  _onPopoutBlankDraft: =>
+    draft = new Message
+      body: ""
+      from: [NamespaceStore.current().me()]
+      date: (new Date)
+      draft: true
+      pristine: true
+      namespaceId: NamespaceStore.current().id
+    DatabaseStore.persistModel(draft).then =>
+      DatabaseStore.localIdForModel(draft).then(@_onPopoutDraftLocalId)
 
-  _onComposePopoutDraft: (draftLocalId) =>
-    atom.newWindow @_composerWindowProps(draftLocalId: draftLocalId)
+  _onPopoutDraftLocalId: (draftLocalId, options = {}) =>
+    options.draftLocalId = draftLocalId
 
-  _composerWindowProps: (props={}) =>
-    title: "Message"
-    windowType: "composer"
-    windowProps: _.extend {}, props
+    atom.newWindow
+      title: "Message"
+      windowType: "composer"
+      windowProps: options
+
+  _onHandleMailtoLink: (urlString) =>
+    namespace = NamespaceStore.current()
+    return unless namespace
+
+    url = require 'url'
+    qs = require 'querystring'
+    parts = url.parse(urlString)
+    query = qs.parse(parts.query)
+    query.to = "#{parts.auth}@#{parts.host}"
+
+    draft = new Message
+      body: query.body || ''
+      subject: query.subject || '',
+      from: [namespace.me()]
+      date: (new Date)
+      draft: true
+      pristine: true
+      namespaceId: namespace.id
+
+    contactForEmail = (email) ->
+      match = ContactStore.searchContacts(email, 1)
+      return match[0] if match[0]
+      return new Contact({email})
+
+    for attr in ['to', 'cc', 'bcc']
+      draft[attr] = query[attr]?.split(',').map(contactForEmail) || []
+
+    DatabaseStore.persistModel(draft).then =>
+      DatabaseStore.localIdForModel(draft).then(@_onPopoutDraftLocalId)
 
   _onDestroyDraft: (draftLocalId) =>
     # Immediately reset any pending changes so no saves occur
@@ -354,7 +386,7 @@ class DraftStore
   _onSendDraftError: (draftLocalId, errorMessage) ->
     @_sendingState[draftLocalId] = false
     if atom.getWindowType() is "composer"
-      atom.newWindow @_composerWindowProps({errorMessage, draftLocalId})
+      @_onPopoutDraftLocalId(draftLocalId, {errorMessage})
     @trigger()
 
   _onSendDraftSuccess: (draftLocalId) =>

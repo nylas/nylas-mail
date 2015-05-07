@@ -12,6 +12,9 @@ MessageItem = require "./message-item"
 class MessageList extends React.Component
   @displayName: 'MessageList'
   @containerRequired: false
+  @containerStyles:
+    minWidth: 500
+    maxWidth: 900
 
   constructor: (@props) ->
     @state = @_getStateFromStores()
@@ -253,7 +256,5 @@ class MessageList extends React.Component
   _wasAtBottom: =>
     (@_lastScrollTop + @_lastHeight) >= @_lastScrollHeight
 
-MessageList.minWidth = 500
-MessageList.maxWidth = 900
 
 module.exports = MessageList
