@@ -20,6 +20,8 @@ class AtomWindow
   constructor: (settings={}) ->
     {frame,
      title,
+     width,
+     height,
      resizable,
      pathToOpen,
      hideMenuBar,
@@ -38,6 +40,8 @@ class AtomWindow
       show: false
       title: title ? 'Nilas'
       frame: frame ? true
+      width: width
+      height: height
       resizable: resizable ? true
       icon: @constructor.iconPath
       'auto-hide-menu-bar': hideMenuBar
@@ -78,6 +82,8 @@ class AtomWindow
     @browserWindow.once 'window:loaded', =>
       @emit 'window:loaded'
       @loaded = true
+      if @browserWindow.loadSettingsChangedSinceGetURL
+        @browserWindow.webContents.send('load-settings-changed', @browserWindow.loadSettings)
 
     @browserWindow.loadUrl @getUrl(loadSettings)
     @browserWindow.focusOnWebView() if @isSpec
@@ -88,12 +94,16 @@ class AtomWindow
 
   setLoadSettings: (loadSettings) ->
     @browserWindow.loadSettings = loadSettings
+    @browserWindow.loadSettingsChangedSinceGetURL = true
+    @browserWindow.webContents.send('load-settings-changed', loadSettings) if @loaded
 
   getUrl: (loadSettingsObj) ->
     # Ignore the windowState when passing loadSettings via URL, since it could
     # be quite large.
     loadSettings = _.clone(loadSettingsObj)
     delete loadSettings['windowState']
+
+    @browserWindow.loadSettingsChangedSinceGetURL = false
 
     url.format
       protocol: 'file'
@@ -211,6 +221,15 @@ class AtomWindow
   hide: -> @browserWindow.hide()
 
   show: -> @browserWindow.show()
+
+  showWhenLoaded: ->
+    if @loaded
+      @show()
+      @focus()
+    else
+      @once 'window:loaded', =>
+        @show()
+        @focus()
 
   focus: -> @browserWindow.focus()
 

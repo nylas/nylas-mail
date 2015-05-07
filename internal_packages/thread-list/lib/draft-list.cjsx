@@ -69,11 +69,10 @@ class DraftList extends React.Component
   # Additional Commands
 
   _onDelete: ({focusedId}) =>
-    item = @state.dataView.getById(focusedId)
+    item = DraftListStore.view().getById(focusedId)
     return unless item
     DatabaseStore.localIdForModel(item).then (localId) ->
       Actions.destroyDraft(localId)
-    @_onShiftSelectedIndex(-1)
 
 
 module.exports = DraftList
