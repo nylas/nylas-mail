@@ -219,7 +219,9 @@ class MessageList extends React.Component
 
   _prepareContentForDisplay: =>
     _.delay =>
-      focusedMessage = React.findDOMNode(@).querySelector(".initial-focus")
+      node = React.findDOMNode(@)
+      return unless node
+      focusedMessage = node.querySelector(".initial-focus")
       @scrollToMessage focusedMessage, =>
         @setState(ready: true)
       @_cacheScrollPos()
