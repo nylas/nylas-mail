@@ -124,7 +124,6 @@ class Message extends Model
   @naturalSortOrder: ->
     Message.attributes.date.ascending()
 
-
   constructor: ->
     super
     @subject ||= ""

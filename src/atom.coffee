@@ -226,6 +226,8 @@ class Atom extends Model
     @subscribe @packages.onDidActivateInitialPackages => @watchThemes()
     @windowEventHandler = new WindowEventHandler
 
+    window.onbeforeunload = => @onBeforeUnload()
+
   # Start our error reporting to the backend and attach error handlers
   # to the window and the Bluebird Promise library, converting things
   # back through the sourcemap as necessary.
@@ -452,6 +454,7 @@ class Atom extends Model
   # currently loaded
   loadSettingsChanged: (loadSettings) =>
     @loadSettings = loadSettings
+    @constructor.loadSettings = loadSettings
     {width, height, windowProps} = loadSettings
 
     @packages.windowPropsReceived(windowProps ? {})
@@ -872,3 +875,7 @@ class Atom extends Model
   setAutoHideMenuBar: (autoHide) ->
     ipc.send('call-window-method', 'setAutoHideMenuBar', autoHide)
     ipc.send('call-window-method', 'setMenuBarVisibility', !autoHide)
+
+  onBeforeUnload: ->
+    Actions = require './flux/actions'
+    Actions.unloading()

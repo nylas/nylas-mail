@@ -135,22 +135,21 @@ Utils =
   tableNameForJoin: (primaryKlass, secondaryKlass) ->
     "#{primaryKlass.name}-#{secondaryKlass.name}"
   
-  imageNamed: (fullname) ->
+  imageNamed: (resourcePath, fullname) ->
     [name, ext] = fullname.split('.')
 
-    if Utils.images is undefined
-      start = Date.now()
-      {resourcePath} = atom.getLoadSettings()
+    Utils.images ?= {}
+    if not Utils.images[resourcePath]?
       imagesPath = path.join(resourcePath, 'static', 'images')
       files = fs.listTreeSync(imagesPath)
 
-      Utils.images = {}
-      Utils.images[path.basename(file)] = file for file in files
+      Utils.images[resourcePath] ?= {}
+      Utils.images[resourcePath][path.basename(file)] = file for file in files
 
     if window.devicePixelRatio > 1
-      return Utils.images["#{name}@2x.#{ext}"] ? Utils.images[fullname] ? Utils.images["#{name}@1x.#{ext}"]
+      return Utils.images[resourcePath]["#{name}@2x.#{ext}"] ? Utils.images[resourcePath][fullname] ? Utils.images[resourcePath]["#{name}@1x.#{ext}"]
     else
-      return Utils.images["#{name}@1x.#{ext}"] ? Utils.images[fullname] ? Utils.images["#{name}@2x.#{ext}"]
+      return Utils.images[resourcePath]["#{name}@1x.#{ext}"] ? Utils.images[resourcePath][fullname] ? Utils.images[resourcePath]["#{name}@2x.#{ext}"]
 
   subjectWithPrefix: (subject, prefix) ->
     if subject.search(/fwd:/i) is 0

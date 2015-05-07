@@ -56,6 +56,7 @@ class DraftStore
 
     @listenTo Actions.sendDraftError, @_onSendDraftError
     @listenTo Actions.sendDraftSuccess, @_onSendDraftSuccess
+    @listenTo Actions.unloading, @_onBeforeUnload
 
     @_draftSessions = {}
     @_sendingState = {}
@@ -65,7 +66,6 @@ class DraftStore
 
     # TODO: Doesn't work if we do window.addEventListener, but this is
     # fragile. Pending an Atom fix perhaps?
-    window.onbeforeunload = => @_onBeforeUnload()
 
   ######### PUBLIC #######################################################
 
@@ -389,7 +389,7 @@ class DraftStore
       @_onPopoutDraftLocalId(draftLocalId, {errorMessage})
     @trigger()
 
-  _onSendDraftSuccess: (draftLocalId) =>
+  _onSendDraftSuccess: ({draftLocalId}) =>
     @_sendingState[draftLocalId] = false
     @trigger()
 

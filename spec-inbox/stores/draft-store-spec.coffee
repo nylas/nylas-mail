@@ -408,18 +408,21 @@ describe "DraftStore", ->
       expect(DraftStore.sendingState(draftLocalId)).toBe false
 
     it "resets the sending state on success", ->
-      DraftStore._onSendDraft(draftLocalId)
-      expect(DraftStore.sendingState(draftLocalId)).toBe true
-      DraftStore._onSendDraftSuccess(draftLocalId)
-      expect(DraftStore.sendingState(draftLocalId)).toBe false
-      expect(DraftStore.trigger).toHaveBeenCalled()
+      waitsForPromise ->
+        DraftStore._onSendDraft(draftLocalId).then ->
+          expect(DraftStore.sendingState(draftLocalId)).toBe true
+
+          DraftStore._onSendDraftSuccess({draftLocalId})
+          expect(DraftStore.sendingState(draftLocalId)).toBe false
+          expect(DraftStore.trigger).toHaveBeenCalled()
 
     it "resets the sending state on error", ->
-      DraftStore._onSendDraft(draftLocalId)
-      expect(DraftStore.sendingState(draftLocalId)).toBe true
-      DraftStore._onSendDraftError(draftLocalId)
-      expect(DraftStore.sendingState(draftLocalId)).toBe false
-      expect(DraftStore.trigger).toHaveBeenCalled()
+      waitsForPromise ->
+        DraftStore._onSendDraft(draftLocalId).then ->
+          expect(DraftStore.sendingState(draftLocalId)).toBe true
+          DraftStore._onSendDraftError(draftLocalId)
+          expect(DraftStore.sendingState(draftLocalId)).toBe false
+          expect(DraftStore.trigger).toHaveBeenCalled()
 
     it "closes the window if it's a popout", ->
       spyOn(atom, "getWindowType").andReturn "composer"

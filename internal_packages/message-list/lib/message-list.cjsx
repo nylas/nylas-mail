@@ -176,7 +176,7 @@ class MessageList extends React.Component
 
       if message.draft
         components.push <InjectedComponent matching={role:"Composer"}
-                         exposedProps={mode:"inline", localId:@state.messageLocalIds[message.id], onRequestScrollTo:@_onRequestScrollToComposer}
+                         exposedProps={mode:"inline", localId:@state.messageLocalIds[message.id], onRequestScrollTo:@_onRequestScrollToComposer, threadId:@state.currentThread.id}
                          ref="composerItem-#{message.id}"
                          key={@state.messageLocalIds[message.id]}
                          className={className} />

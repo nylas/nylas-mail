@@ -111,8 +111,8 @@ describe "SendDraftTask", ->
           email: 'dummy@inboxapp.com'
       @draftLocalId = "local-123"
       @task = new SendDraftTask(@draftLocalId)
-      spyOn(atom.inbox, 'makeRequest').andCallFake (options) ->
-        options.success() if options.success
+      spyOn(atom.inbox, 'makeRequest').andCallFake (options) =>
+        options.success(@draft.toJSON()) if options.success
       spyOn(DatabaseStore, 'findByLocalId').andCallFake (klass, localId) =>
         Promise.resolve(@draft)
       spyOn(DatabaseStore, 'unpersistModel').andCallFake (draft) ->
@@ -127,7 +127,13 @@ describe "SendDraftTask", ->
 
     it "should notify the draft was sent", ->
       waitsForPromise => @task.performRemote().then =>
-        expect(Actions.sendDraftSuccess).toHaveBeenCalledWith(@draftLocalId)
+        args = Actions.sendDraftSuccess.calls[0].args[0]
+        expect(args.draftLocalId).toBe @draftLocalId
+
+    it "get an object back on success", ->
+      waitsForPromise => @task.performRemote().then =>
+        args = Actions.sendDraftSuccess.calls[0].args[0]
+        expect(args.newMessage.id).toBe @draft.id
 
     it "should play a sound", ->
       waitsForPromise => @task.performRemote().then ->

@@ -78,6 +78,10 @@
     position: relative;
     padding-left: 2.1em;
 
+    &:hover {
+      cursor: text;
+    }
+
     input {
       display: inline-block;
       width: initial;
@@ -87,7 +91,14 @@
       min-width: 5em;
       background-color:transparent;
       vertical-align:bottom;
+      &.noop-input {
+        position: absolute;
+        min-width: 0;
+        padding-left: 0;
+        margin-right: 0;
+      }
     }
+
     input:focus {
       box-shadow: none;
     }

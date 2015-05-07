@@ -14,7 +14,7 @@ CreateMetadataTask = require '../tasks/create-metadata-task'
 DestroyMetadataTask = require '../tasks/destroy-metadata-task'
 
 # TODO: This Store is like many other stores (like the
-# SalesforceObjectStore or the SalesforceAssociationStore) in that it has
+# SalesforceObjectStore or the SalesforceThreadAssociationStore) in that it has
 # to double cache data from the API and the DB with minor variation.
 # There's a task to refactor these stores into something like an
 # `APIBackedStore` to abstract some of the complex logic out.
@@ -24,7 +24,6 @@ MAX_API_RATE = 1000
 module.exports =
 MetadataStore = Reflux.createStore
   init: ->
-    return unless atom.isMainWindow()
     @listenTo DatabaseStore, @_onDBChanged
     @listenTo NamespaceStore, @_onNamespaceChanged
 
@@ -45,9 +44,8 @@ MetadataStore = Reflux.createStore
     @_namespaceId = NamespaceStore.current()?.id
     @_metadata = {}
 
-    return if atom.inSpecMode()
-
     @_fullRefreshFromAPI()
+
     @_refreshCacheFromDB = _.debounce(_.bind(@_refreshCacheFromDB, @), 16)
     @_refreshCacheFromDB()
 
@@ -62,10 +60,12 @@ MetadataStore = Reflux.createStore
     else return null
 
   _fullRefreshFromAPI: ->
+    return if not atom.isMainWindow() or atom.inSpecMode()
     return unless @_namespaceId
     @_apiRequest() # The lack of type will request everything!
 
   _refreshDBFromAPI: ->
+    return if not atom.isMainWindow() or atom.inSpecMode()
     types = Object.keys(@_typesToRefresh)
     @_typesToRefresh = {}
     promises = types.map (type) => @_apiRequest(type)

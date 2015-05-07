@@ -96,8 +96,15 @@ class Popover extends React.Component
       setTimeout =>
         # Automatically focus the element inside us with the lowest tab index
         node = React.findDOMNode(@refs.popover)
-        matches = _.sortBy node.querySelectorAll("[tabIndex]"), (a,b) -> a.tabIndex < b.tabIndex
-        matches[0].focus() if matches[0]
+
+        # _.sortBy ranks in ascending numerical order.
+        matches = _.sortBy node.querySelectorAll("[tabIndex], input"), (node) ->
+          if node.tabIndex > 0
+            return node.tabIndex
+          else if node.nodeName is "INPUT"
+            return 1000000
+          else return 1000001
+        matches[0]?.focus()
 
   _onBlur: (event) =>
     target = event.nativeEvent.relatedTarget
