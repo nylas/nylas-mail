@@ -78,6 +78,9 @@ class ListTabular extends React.Component
   componentDidMount: =>
     @updateRangeState()
 
+  componentWillUnmount: =>
+    clearTimeout(@_scrollTimer) if @_scrollTimer
+
   componentDidUpdate: (prevProps, prevState) =>
     # If our view has been swapped out for an entirely different one,
     # reset our scroll position to the top.
@@ -92,10 +95,8 @@ class ListTabular extends React.Component
 
       # Create an event that fires when we stop receiving scroll events.
       # There is no "scrollend" event, but we really need one.
-      @_scrollTick ?= _.debounce =>
-        @onDoneReceivingScrollEvents()
-      , 100
-      @_scrollTick()
+      clearTimeout(@_scrollTimer) if @_scrollTimer
+      @_scrollTimer = setTimeout(@onDoneReceivingScrollEvents, 100)
 
       # If we just started scrolling, scrollInProgress changes our CSS styles
       # and disables pointer events to our contents for rendering speed
