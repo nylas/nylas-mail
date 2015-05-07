@@ -55,16 +55,25 @@ class UnsafeComponent extends React.Component
       element = <component key={name} {...props} />
       @injected = React.render(element, node)
     catch err
-      stack = err.stack
-      stackEnd = stack.indexOf('react/lib/')
-      if stackEnd > 0
-        stackEnd = stack.lastIndexOf('\n', stackEnd)
-        stack = stack.substr(0,stackEnd)
+      if atom.inDevMode()
+        console.error err
+        stack = err.stack
+        console.log stack
+        stackEnd = stack.indexOf('react/lib/')
+        if stackEnd > 0
+          stackEnd = stack.lastIndexOf('\n', stackEnd)
+          stack = stack.substr(0,stackEnd)
 
-      element = <div className="unsafe-component-exception">
-        <div className="message">{@props.component.displayName} could not be displayed.</div>
-        <div className="trace">{stack}</div>
-      </div>
+        element = <div className="unsafe-component-exception">
+          <div className="message">{@props.component.displayName} could not be displayed.</div>
+          <div className="trace">{stack}</div>
+        </div>
+      else
+        ## TODO
+        # Add some sort of notification code here that lets us know when
+        # production builds are having issues!
+        #
+        element = <div></div>
 
     @injected = React.render(element, node)
 

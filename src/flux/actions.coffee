@@ -125,6 +125,8 @@ windowActions = [
   "metadataError",
   "metadataCreated",
   "metadataDestroyed"
+
+  "unloading" # Tied to `window.onbeforeunload`
 ]
 
 allActions = [].concat(windowActions).concat(globalActions).concat(mainWindowActions)

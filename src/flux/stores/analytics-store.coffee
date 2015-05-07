@@ -30,7 +30,7 @@ AnalyticsStore = Reflux.createStore
     fileAborted: (uploadData={}) -> {fileSize: uploadData.fileSize}
     fileUploaded: (uploadData={}) -> {fileSize: uploadData.fileSize}
     sendDraftError: (dId, msg) -> {drafLocalId: dId, error: msg}
-    sendDraftSuccess: (draftLocalId) -> {draftLocalId: draftLocalId}
+    sendDraftSuccess: ({draftLocalId}) -> {draftLocalId: draftLocalId}
     showDeveloperConsole: -> {}
     composeReply: ({threadId, messageId}) -> {threadId, messageId}
     composeForward: ({threadId, messageId}) -> {threadId, messageId}

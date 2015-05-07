@@ -32,8 +32,8 @@ Token = React.createClass
       "dragging": @getDragState('token').isDragging
       "selected": @props.selected
 
-    <div {...@dragSourceFor('token')} 
-         className={classes} 
+    <div {...@dragSourceFor('token')}
+         className={classes}
          onClick={@_onSelect}>
       <button className="action" onClick={@_onAction} style={marginTop: "2px"}><RetinaImg name="composer-caret.png" /></button>
       {@props.children}
@@ -69,6 +69,10 @@ TokenizingTextField = React.createClass
     # needs to be changed, it is the parent's responsibility to make that
     # change.
     tokens: React.PropTypes.arrayOf(React.PropTypes.object)
+
+    # The maximum number of tokens allowed. When null (the default) and
+    # unlimited number of tokens may be given
+    maxTokens: React.PropTypes.number
 
     # A unique ID for each token object
     #
@@ -117,6 +121,10 @@ TokenizingTextField = React.createClass
     # responible for mutating the parent's state in a way that eventually
     # updates this component's `tokens` prop.
     onAdd: React.PropTypes.func.isRequired
+
+    # By default, when blurred, whatever is in the field is added. If this
+    # is true, the field will be cleared instead.
+    clearOnBlur: React.PropTypes.bool
 
     # Gets called when we remove a token
     #
@@ -186,7 +194,10 @@ TokenizingTextField = React.createClass
     measure.innerText = @state.inputValue
     measure.style.top = input.offsetTop + "px"
     measure.style.left = input.offsetLeft + "px"
-    input.style.width = "calc(6px + #{measure.offsetWidth}px)"
+    if @_atMaxTokens()
+      input.style.width = "4px"
+    else
+      input.style.width = "calc(6px + #{measure.offsetWidth}px)"
 
   render: ->
     {Menu} = require 'ui-components'
@@ -212,23 +223,43 @@ TokenizingTextField = React.createClass
       <div className="tokenizing-field-input">
         {@_fieldTokenComponents()}
 
-        <input type="text"
-               ref="input"
-               onCopy={@_onCopy}
-               onCut={@_onCut}
-               onPaste={@_onPaste}
-               onBlur={@_onInputBlurred}
-               onFocus={@_onInputFocused}
-               onChange={@_onInputChanged}
-               disabled={@props.disabled}
-               tabIndex={@props.tabIndex}
-               value={@state.inputValue} />
+        {@_inputEl()}
         <span ref="measure" style={
           position: 'absolute'
           visibility: 'hidden'
         }/>
       </div>
     </div>
+
+  _inputEl: ->
+    if @_atMaxTokens()
+      <input type="text"
+             ref="input"
+             className="noop-input"
+             onCopy={@_onCopy}
+             onCut={@_onCut}
+             onBlur={@_onInputBlurred}
+             onFocus={ => @_onInputFocused(noCompletions: true)}
+             onChange={ -> "noop" }
+             tabIndex={@props.tabIndex}
+             value="" />
+    else
+      <input type="text"
+             ref="input"
+             onCopy={@_onCopy}
+             onCut={@_onCut}
+             onPaste={@_onPaste}
+             onBlur={@_onInputBlurred}
+             onFocus={@_onInputFocused}
+             onChange={@_onInputChanged}
+             disabled={@props.disabled}
+             tabIndex={@props.tabIndex}
+             value={@state.inputValue} />
+
+  _atMaxTokens: ->
+    if @props.maxTokens
+      @props.tokens.length >= @props.maxTokens
+    else return false
 
   _renderPrompt: ->
     if @props.menuPrompt
@@ -248,9 +279,9 @@ TokenizingTextField = React.createClass
 
   # Maintaining Input State
 
-  _onInputFocused: ->
+  _onInputFocused: ({noCompletions}={}) ->
     @setState focus: true
-    @_refreshCompletions()
+    @_refreshCompletions() unless noCompletions
 
   _onInputChanged: (event) ->
     val = event.target.value.trimLeft()
@@ -260,7 +291,11 @@ TokenizingTextField = React.createClass
     @_refreshCompletions(val)
 
   _onInputBlurred: ->
-    @_addInputValue()
+    if @props.clearOnBlur
+      @_clearInput()
+    else
+      @_addInputValue()
+    @_refreshCompletions("", clear: true)
     @setState
       selectedTokenKey: null
       focus: false
@@ -275,6 +310,7 @@ TokenizingTextField = React.createClass
   # Managing Tokens
 
   _addInputValue: (input) ->
+    return if @_atMaxTokens()
     input ?= @state.inputValue
     @props.onAdd(input)
     @_clearInput()

@@ -71,7 +71,7 @@ beforeEach ->
 describe "A blank composer view", ->
   beforeEach ->
     @composer = ReactTestUtils.renderIntoDocument(
-      <ComposerView />
+      <ComposerView localId="test123" />
     )
     @composer.setState
       body: ""

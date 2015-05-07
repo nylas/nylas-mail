@@ -162,7 +162,7 @@ class Package
       @activateConfig()
       @activateStylesheets()
       if @requireMainModule()
-        @mainModule.activate(atom.packages.getPackageState(@name) ? {})
+        @mainModule.activate(atom.packages.getPackageState(@name) ? {}, path.resolve(@path))
         @mainActivated = true
         @activateServices()
     catch e
@@ -385,6 +385,7 @@ class Package
       return
     mainModulePath = @getMainModulePath()
     @mainModule = require(mainModulePath) if fs.isFileSync(mainModulePath)
+    return @mainModule
 
   getMainModulePath: ->
     return @mainModulePath if @resolvedMainModulePath

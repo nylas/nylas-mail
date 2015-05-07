@@ -48,10 +48,13 @@ class SendDraftTask extends Task
           method: 'POST'
           body: body
           returnsModel: true
-          success: =>
+          success: (newMessage) =>
+            newMessage = (new Message).fromJSON(newMessage)
             atom.playSound('mail_sent.ogg')
             Actions.postNotification({message: "Sent!", type: 'success'})
-            Actions.sendDraftSuccess(@draftLocalId)
+            Actions.sendDraftSuccess
+              draftLocalId: @draftLocalId
+              newMessage: newMessage
             DatabaseStore.unpersistModel(draft).then(resolve)
           error: reject
       .catch(reject)

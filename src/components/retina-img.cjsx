@@ -17,11 +17,17 @@ StylesImpactedByZoom = [
   'marginRight'
 ]
 
+# We don't want to call `getLoadSettings` for each and every RetinaImg
+# instance because it's a fairly expensive operation. Since the
+# resourcePath can't change once the app has booted, it's safe to set the
+# constant at require-time
+DEFAULT_RESOURCE_PATH = atom.getLoadSettings().resourcePath
+
 ###
 Public: RetinaImg wraps the DOM's standard `<img`> tag and implements a `UIImage` style
 interface. Rather than specifying an image `src`, RetinaImg allows you to provide
 an image name. Like UIImage on iOS, it automatically finds the best image for the current
-display based on pixel density. Given `image.png`, on a Retina screen, it looks for 
+display based on pixel density. Given `image.png`, on a Retina screen, it looks for
 `image@2x.png`, `image.png`, `image@1x.png` in that order. It uses a lookup table and caches
 image names, so images generally resolve immediately.
 ###
@@ -38,6 +44,7 @@ class RetinaImg extends React.Component
    - `colorfill` (optional) Adds -webkit-mask-image and other styles, and the .colorfill CSS
       class, so that setting a CSS background color will colorfill the image.
    - `style` (optional) An {Object} with additional styles to apply to the image.
+   - `resourcePath` (options) Changes the default lookup location used to find the images.
   ###
   @propTypes:
     name: React.PropTypes.string
@@ -46,6 +53,7 @@ class RetinaImg extends React.Component
     selected: React.PropTypes.bool
     active: React.PropTypes.bool
     colorfill: React.PropTypes.bool
+    resourcePath: React.PropTypes.string
 
   render: ->
     path = @_pathFor(@props.name) ? @_pathFor(@props.fallback) ? ''
@@ -75,7 +83,8 @@ class RetinaImg extends React.Component
       name = "#{basename}-active.#{ext}"
     if @props.selected is true
       name = "#{basename}-selected.#{ext}"
-    Utils.imageNamed(name)
+    resourcePath = @props.resourcePath ? DEFAULT_RESOURCE_PATH
+    Utils.imageNamed(resourcePath, name)
 
 
 module.exports = RetinaImg

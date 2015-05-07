@@ -24,6 +24,22 @@ class ComposerView extends React.Component
 
   @containerRequired: false
 
+  @propTypes:
+    localId: React.PropTypes.string.isRequired
+
+    # Either "inline" or "fullwindow"
+    mode: React.PropTypes.string
+
+    # If this composer is part of an existing thread (like inline
+    # composers) the threadId will be handed down
+    threadId: React.PropTypes.string
+
+    # Sometimes when changes in the composer happens it's desirable to
+    # have the parent scroll to a certain location. A parent component can
+    # pass a callback that gets called when this composer wants to be
+    # scrolled to.
+    onRequestScrollTo: React.PropTypes.func
+
   constructor: (@props) ->
     @state =
       populated: false
@@ -211,7 +227,7 @@ class ComposerView extends React.Component
       </div>
       <InjectedComponentSet
         matching={role: "Composer:Footer"}
-        exposedProps={draftLocalId:@props.localId}/>
+        exposedProps={draftLocalId:@props.localId, threadId: @props.threadId}/>
     </span>
 
   _renderActionsRegion: =>
@@ -219,7 +235,7 @@ class ComposerView extends React.Component
 
     <InjectedComponentSet className="composer-action-bar-content"
                       matching={role: "Composer:ActionButton"}
-                      exposedProps={draftLocalId:@props.localId}>
+                      exposedProps={draftLocalId:@props.localId, threadId: @props.threadId}>
 
       <button className="btn btn-toolbar btn-trash" style={order: 100}
               data-tooltip="Delete draft"

@@ -181,7 +181,7 @@ class SheetContainer extends React.Component
     sheetElements = @_sheetElements()
 
     <Flexbox direction="column">
-      <div name="Toolbar" style={order:0} className="sheet-toolbar">
+      <div name="Toolbar" style={order:0, zIndex: 2} className="sheet-toolbar">
         {toolbarElements[0]}
         <TimeoutTransitionGroup  leaveTimeout={125}
                                  enterTimeout={125}
@@ -190,12 +190,12 @@ class SheetContainer extends React.Component
         </TimeoutTransitionGroup>
       </div>
 
-      <div name="Header" style={order:1}>
+      <div name="Header" style={order:1, zIndex: 3}>
         <InjectedComponentSet matching={locations: [topSheet.Header, WorkspaceStore.Sheet.Global.Header]}
                               id={topSheet.id}/>
       </div>
 
-      <div name="Center" style={order:2, flex: 1, position:'relative'}>
+      <div name="Center" style={order:2, flex: 1, position:'relative', zIndex: 1}>
         {sheetElements[0]}
         <TimeoutTransitionGroup leaveTimeout={125}
                                 enterTimeout={125}
@@ -204,7 +204,7 @@ class SheetContainer extends React.Component
         </TimeoutTransitionGroup>
       </div>
 
-      <div name="Footer" style={order:3}>
+      <div name="Footer" style={order:3, zIndex: 4}>
         <InjectedComponentSet matching={locations: [topSheet.Footer, WorkspaceStore.Sheet.Global.Footer]}
                               id={topSheet.id}/>
       </div>
