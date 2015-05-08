@@ -134,7 +134,7 @@ Utils =
 
   tableNameForJoin: (primaryKlass, secondaryKlass) ->
     "#{primaryKlass.name}-#{secondaryKlass.name}"
-  
+
   imageNamed: (resourcePath, fullname) ->
     [name, ext] = fullname.split('.')
 
@@ -171,6 +171,7 @@ Utils =
       /<[br|p][ ]*>[\n]?[ ]*&gt;/i, # HTML lines beginning with >
       /[\n|>]On .* wrote:[\n|<]/, #On ... wrote: on it's own line
       /.gmail_quote/ # gmail quote class class
+      /divRplyFwdMsg/ # outlook?
     ]
 
     for regex in regexs

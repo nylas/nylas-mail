@@ -24,7 +24,7 @@ ActivityBarStore = Reflux.createStore
     @_curlHistory = []
     @_longPollHistory = []
     @_longPollState = 'Unknown'
-    @_visible = false
+    @_visible = atom.inDevMode()
 
   _registerListeners: ->
     @listenTo Actions.didMakeAPIRequest, @_onAPIRequest

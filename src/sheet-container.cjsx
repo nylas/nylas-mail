@@ -192,6 +192,7 @@ class SheetContainer extends React.Component
 
       <div name="Header" style={order:1, zIndex: 3}>
         <InjectedComponentSet matching={locations: [topSheet.Header, WorkspaceStore.Sheet.Global.Header]}
+                              direction="column"
                               id={topSheet.id}/>
       </div>
 
@@ -206,6 +207,7 @@ class SheetContainer extends React.Component
 
       <div name="Footer" style={order:3, zIndex: 4}>
         <InjectedComponentSet matching={locations: [topSheet.Footer, WorkspaceStore.Sheet.Global.Footer]}
+                              direction="column"
                               id={topSheet.id}/>
       </div>
     </Flexbox>

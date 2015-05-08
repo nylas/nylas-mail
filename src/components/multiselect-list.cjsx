@@ -68,6 +68,7 @@ class MultiselectList extends React.Component
       'core:previous-item': => @_onShift(-1)
       'core:select-down': => @_onShift(1, {select: true})
       'core:select-up': => @_onShift(-1, {select: true})
+      'application:pop-sheet': => @_onDeselect()
 
     Object.keys(props.commands).forEach (key) =>
       commands[key] = =>
@@ -155,6 +156,10 @@ class MultiselectList extends React.Component
 
     return unless id
     @state.dataView.selection.toggle(@state.dataView.getById(id))
+
+  _onDeselect: =>
+    return unless @_visible()
+    @state.dataView.selection.clear()
 
   _onShift: (delta, options = {}) =>
     if @state.showKeyboardCursor and @_visible()

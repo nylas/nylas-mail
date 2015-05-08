@@ -106,7 +106,7 @@ WorkspaceStore = Reflux.createStore
   ###
   Managing Sheets
   ###
-  
+
   # * `id` {String} The ID of the Sheet being defined.
   # * `options` {Object} If the sheet should be listed in the left sidebar,
   #      pass `{root: true, name: 'Label'}`.
@@ -126,6 +126,7 @@ WorkspaceStore = Reflux.createStore
       columns: columns
       supportedModes: Object.keys(columns)
 
+      icon: options.icon
       name: options.name
       root: options.root
 

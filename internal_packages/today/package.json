@@ -1,0 +1,14 @@
+{
+  "name": "today",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Today View",
+  "license": "Proprietary",
+  "private": true,
+  "engines": {
+    "atom": "*"
+  },
+  "dependencies": {
+    "moment": "^2.8"
+  }
+}

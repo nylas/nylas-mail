@@ -63,6 +63,7 @@ class Sheet extends React.Component
         <ResizableRegion key={"#{@props.data.id}:#{idx}"}
                          name={"#{@props.data.id}:#{idx}"}
                          className={"column-#{location.id}"}
+                         style={height:'100%'}
                          data-column={idx}
                          onResize={ => @props.onColumnSizeChanged(@) }
                          minWidth={minWidth}
@@ -76,7 +77,7 @@ class Sheet extends React.Component
                               name={"#{@props.data.id}:#{idx}"}
                               className={"column-#{location.id}"}
                               data-column={idx}
-                              style={flex: 1}
+                              style={flex: 1, height:'100%'}
                               matching={location: location, mode: @state.mode}/>
 
   _getStateFromStores: =>
