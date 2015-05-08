@@ -8,11 +8,31 @@ NamespaceStore = require './namespace-store'
 module.exports =
 AnalyticsStore = Reflux.createStore
   init: ->
+    @listenAndTrack = (dispatcher=Actions) => (callback, action) =>
+      @listenTo dispatcher[action], (args...) =>
+        @track(action, callback(args...))
+
     @analytics = Mixpanel.init("625e2300ef07cb4eb70a69b3638ca579")
     @listenTo NamespaceStore, => @identify()
     @identify()
 
-    @_listenToActions()
+    @_listenToCoreActions()
+
+    @_setupGlobalPackageActions()
+
+  addPackageActions: (listeners, dispatcher=Actions) ->
+    _.each listeners, @listenAndTrack(dispatcher)
+
+  addGlobalPackageActions: (listeners) ->
+    @_globalPackageActions = _.extend @_globalPackageActions, listeners
+
+  _setupGlobalPackageActions: ->
+    @_globalPackageActions = {}
+    @listenTo Actions.sendToAllWindows, (actionData={}) =>
+      return unless atom.isMainWindow()
+      callback = @_globalPackageActions[actionData.action]
+      if callback?
+        @track(actionData.action, callback(actionData))
 
   # We white list actions to track.
   #
@@ -25,12 +45,7 @@ AnalyticsStore = Reflux.createStore
   #
   # Only completely anonymous data essential to future metrics or
   # debugging may be sent.
-  actionsToTrack: ->
-    logout: -> {}
-    fileAborted: (uploadData={}) -> {fileSize: uploadData.fileSize}
-    fileUploaded: (uploadData={}) -> {fileSize: uploadData.fileSize}
-    sendDraftError: (dId, msg) -> {drafLocalId: dId, error: msg}
-    sendDraftSuccess: ({draftLocalId}) -> {draftLocalId: draftLocalId}
+  coreWindowActions: ->
     showDeveloperConsole: -> {}
     composeReply: ({threadId, messageId}) -> {threadId, messageId}
     composeForward: ({threadId, messageId}) -> {threadId, messageId}
@@ -45,6 +60,13 @@ AnalyticsStore = Reflux.createStore
     abortDownload: -> {}
     fileDownloaded: -> {}
 
+  coreGlobalActions: ->
+    logout: -> {}
+    fileAborted: (uploadData={}) -> {fileSize: uploadData.fileSize}
+    fileUploaded: (uploadData={}) -> {fileSize: uploadData.fileSize}
+    sendDraftError: (dId, msg) -> {drafLocalId: dId, error: msg}
+    sendDraftSuccess: ({draftLocalId}) -> {draftLocalId: draftLocalId}
+
   track: (action, data={}) ->
     @analytics.track(action, _.extend(data, namespaceId: NamespaceStore.current()?.id))
 
@@ -58,7 +80,6 @@ AnalyticsStore = Reflux.createStore
         "$last_name": namespace.me().lastName()
         "namespaceId": namespace.id
 
-  _listenToActions: ->
-    _.each @actionsToTrack(), (callback, action) =>
-      @listenTo Actions[action], (args...) =>
-        @track(action, callback(args...))
+  _listenToCoreActions: ->
+    _.each @coreWindowActions(), @listenAndTrack()
+    _.each @coreGlobalActions(), @listenAndTrack() if atom.isMainWindow()
