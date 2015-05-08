@@ -35,7 +35,7 @@ class ResizableRegion extends React.Component
 
   ###
   Public: React `props` supported by ResizableRegion:
-  
+
    - `handle` Provide a {ResizableHandle} to indicate which edge of the
      region should be draggable.
    - `onResize` A {Function} that will be called continuously as the region is resized.
@@ -58,6 +58,8 @@ class ResizableRegion extends React.Component
     minHeight: React.PropTypes.number
     maxHeight: React.PropTypes.number
 
+    style: React.PropTypes.object
+
   constructor: (@props = {}) ->
     @props.handle ?= ResizableHandle.Right
     @state =
@@ -65,7 +67,7 @@ class ResizableRegion extends React.Component
 
   render: =>
     if @props.handle.axis is 'horizontal'
-      containerStyle =
+      containerStyle = _.extend {}, @props.style,
         'minWidth': @props.minWidth
         'maxWidth': @props.maxWidth
         'position': 'relative'
@@ -76,7 +78,7 @@ class ResizableRegion extends React.Component
         containerStyle.flex = 1
 
     else
-      containerStyle =
+      containerStyle = _.extend {}, @props.style,
         'minHeight': @props.minHeight
         'maxHeight': @props.maxHeight
         'position': 'relative'
@@ -90,7 +92,7 @@ class ResizableRegion extends React.Component
         containerStyle.flex = 1
 
     otherProps = _.omit(@props, _.keys(@constructor.propTypes))
-    
+
     <div style={containerStyle} {...otherProps}>
       {@props.children}
       <div className={@props.handle.className}
@@ -111,7 +113,7 @@ class ResizableRegion extends React.Component
       @setState(height: nextProps.initialHeight)
     if nextProps.handle.axis is 'horizontal' and nextProps.initialWidth != @props.initialWidth
       @setState(width: nextProps.initialWidth)
- 
+
   componentWillUnmount: =>
     PriorityUICoordinator.endPriorityTask(@_taskId) if @_taskId
     @_taskId = null

@@ -15,8 +15,12 @@ about Tags on the Nylas Platform, read the
  API documentation for more information about what tags are read-only.
 
 `unreadCount`: {AttributeNumber} The number of unread threads with the tag.
+  Note: This attribute is only available when a single tag is fetched directly
+  from the Nylas API, not when all tags are listed.
 
 `threadCount`: {AttributeNumber} The number of threads with the tag.
+  Note: This attribute is only available when a single tag is fetched directly
+  from the Nylas API, not when all tags are listed.
 
 ###
 class Tag extends Model

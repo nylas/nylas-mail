@@ -31,6 +31,8 @@ class ContainerView extends React.Component
     if webview
       node = React.findDOMNode(webview)
       if node.hasListeners is undefined
+        node.addEventListener 'new-window', (e) ->
+          require('shell').openExternal(e.url)
         node.addEventListener 'did-start-loading', (e) ->
           if node.hasMobileUserAgent is undefined
             node.setUserAgent("Mozilla/5.0 (iPhone; CPU iPhone OS 7_1 like Mac OS X) AppleWebKit/537.51.2 (KHTML, like Gecko) Version/7.0 Mobile/11D167 Safari/9537.53")

@@ -93,12 +93,14 @@ EmailFixingStyles = """
 
   .gmail_extra,
   .gmail_quote,
+  #divRplyFwdMsg,
   blockquote {
     display:none;
   }
 
   .show-quoted-text .gmail_extra,
   .show-quoted-text .gmail_quote,
+  .show-quoted-text #divRplyFwdMsg,
   .show-quoted-text blockquote {
     display:inherit;
   }
