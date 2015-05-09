@@ -2,9 +2,6 @@ React = require 'react/addons'
 _ = require 'underscore-plus'
 {CompositeDisposable} = require 'event-kit'
 
-###
-###
-
 class QuotedTextToggleButton extends React.Component
   @displayName: "QuotedTextToggleButton"
 
@@ -25,7 +22,7 @@ class QuotedTextToggleButton extends React.Component
 
     if @props.hidden
       style.display = 'none'
-    
+
     if @props.toggled
       content = 'Hide Quoted Text'
     else

@@ -19,7 +19,7 @@ The ContactStore monitors the {DatabaseStore} for changes to {Contact} models
 and triggers when contacts have changed, allowing your stores and components
 to refresh data based on the ContactStore.
 
-```
+```coffee
 @unsubscribe = ContactStore.listen(@_onContactsChanged, @)
 
 _onContactsChanged: ->

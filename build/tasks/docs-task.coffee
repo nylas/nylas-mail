@@ -49,6 +49,9 @@ thirdPartyClasses = {
 }
 
 module.exports = (grunt) ->
+
+  {cp, mkdir, rm} = require('./task-helpers')(grunt)
+
   getClassesToInclude = ->
     modulesPath = path.resolve(__dirname, '..', '..', 'internal_packages')
     classes = {}
@@ -127,6 +130,8 @@ module.exports = (grunt) ->
       if filename[0] is '_' and path.extname(filename) is '.html'
         Handlebars.registerPartial(filename[0..-6], grunt.file.read(abspath))
 
+    # Class-level documentation
+
     templatePath = path.join(templatesPath, 'class.html')
     template = Handlebars.compile(grunt.file.read(templatePath))
 
@@ -174,3 +179,26 @@ module.exports = (grunt) ->
       result = template(contents)
       resultPath = path.join(docsOutputDir, "#{classname}.html")
       grunt.file.write(resultPath, result)
+
+    # Conceptual documentation
+
+    articleTemplatePath = path.join(templatesPath, 'article.html')
+    articleTemplate = Handlebars.compile(grunt.file.read(articleTemplatePath))
+
+    articlesPath = path.resolve(__dirname, '..', '..', 'docs')
+    fs.traverseTreeSync articlesPath, (file) ->
+      if path.extname(file) is '.md'
+        content = grunt.file.read(file)
+        for task in [marked, expandTypeReferences, expandFuncReferences]
+          content = task(content)
+        result = articleTemplate({content})
+        resultPath = path.join(docsOutputDir, path.basename(file)[0..-3]+'html')
+        grunt.file.write(resultPath, result)
+      true
+
+    # Copy styles and images
+
+    imagesPath = path.resolve(__dirname, '..', '..', 'docs', 'images')
+    cssPath = path.resolve(__dirname, '..', '..', 'docs', 'css')
+    cp imagesPath, path.join(docsOutputDir, "images")
+    cp cssPath, path.join(docsOutputDir, "css")

@@ -2,7 +2,7 @@
 
 Nylas Mail is built on top of a custom database layer modeled after ActiveRecord. For many parts of the application, the database is the source of truth. Data is retrieved from the API, written to the database, and changes to the database trigger Stores and components to refresh their contents. The illustration below shows this flow of data:
 
-<img src="./images/database-flow.png" style="max-width:750px;">
+<img src="./images/database-flow.png">
 
 The Database connection is managed by the `DatabaseStore`, a singleton object that exists in every window. All Database requests are asynchronous. Queries are forwarded to the application's `Browser` process via IPC and run in SQLite.
 
@@ -10,7 +10,7 @@ The Database connection is managed by the `DatabaseStore`, a singleton object th
 
 In Nylas Mail, Models are thin wrappers around data with a particular schema. Each Model class declares a set of attributes that define the object's data. For example:
 
-```
+```coffee
 class Example extends Model
 
   @attributes:
@@ -25,7 +25,7 @@ class Example extends Model
       queryable: true
       modelKey: 'namespaceId'
       jsonKey: 'namespace_id'
-      
+
     'body': Attributes.JoinedData
       modelTable: 'MessageBody'
       modelKey: 'body'
@@ -43,14 +43,14 @@ When models are inflated from JSON using `fromJSON` or converted to JSON using `
 
 The DatabaseStore automatically maintains cache tables for storing Model objects. By default, models are stored in the cache as JSON blobs and basic attributes are not queryable. When the `queryable` option is specified on an attribute, it is given a separate column and index in the SQLite table for the model, and you can construct queries using the attribute:
 
-```
-Thread.attributes.namespaceId.equals("123") 
+```coffee
+Thread.attributes.namespaceId.equals("123")
 // where namespace_id = '123'
 
-Thread.attributes.lastMessageTimestamp.greaterThan(123) 
+Thread.attributes.lastMessageTimestamp.greaterThan(123)
 // where last_message_timestamp > 123
 
-Thread.attributes.lastMessageTimestamp.descending() 
+Thread.attributes.lastMessageTimestamp.descending()
 // order by last_message_timestamp DESC
 ```
 
@@ -58,7 +58,7 @@ Thread.attributes.lastMessageTimestamp.descending()
 
 You can make queries for models stored in SQLite using a Promise-based ActiveRecord-style syntax. There is no way to make raw SQL queries against the local data store.
 
-```
+```coffee
 DatabaseStore.find(Thread, '123').then (thread) ->
     # thread is a thread object
 
@@ -100,7 +100,7 @@ Joined Data attributes allow you to store certain attributes of an object in a s
 
 When building a query on a model with a JoinedData attribute, you need to call `include` to explicitly load the joined data attribute. The query builder will automatically perform a `LEFT OUTER JOIN` with the secondary table to retrieve the attribute:
 
-```
+```coffee
 DatabaseStore.find(Message, '123').then (message) ->
 	// message.body is undefined
 
@@ -120,13 +120,13 @@ When Collection attributes are marked as `queryable`, the DatabaseStore automati
 
 Collection attributes have an additional clause builder, `contains`:
 
-```
+```coffee
 DatabaseStore.findAll(Thread).where([Thread.attributes.tags.contains('inbox')])
 ```
 
 This is equivalent to writing the following SQL:
 
-```
+```sql
 SELECT `Thread`.`data` FROM `Thread` INNER JOIN `Thread-Tag` AS `M1` ON `M1`.`id` = `Thread`.`id` WHERE `M1`.`value` = 'inbox' ORDER BY `Thread`.`last_message_timestamp` DESC
 ```
 
@@ -136,13 +136,13 @@ For many parts of the application, the Database is the source of truth. Funnelin
 
 Within Reflux Stores, you can listen to the DatabaseStore using the `listenTo` helper method:
 
-```
+```coffee
 @listenTo(DatabaseStore, @_onDataChanged)
 ```
 
 Within generic code, you can listen to the DatabaseStore using this syntax:
 
-```
+```coffee
 @unlisten = DatabaseStore.listen(@_onDataChanged, @)
 ```
 
@@ -163,6 +163,3 @@ Nylas Mail exposes a minimal Database API that exposes high-level methods for sa
 - Package code should not be tightly coupled to SQLite
 - Queries should be composed in a way that makes invalid queries impossible
 - All changes to the local database must be observable
-
-
-

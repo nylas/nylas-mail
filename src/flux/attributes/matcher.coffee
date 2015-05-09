@@ -2,10 +2,35 @@ _ = require 'underscore-plus'
 {tableNameForJoin} = require '../models/utils'
 
 ###
-Public: The Matcher class encapsulates a particular comparison clause on an attribute.
-Matchers can evaluate whether or not an object matches them, and in the future
-they will also compose WHERE clauses. Each matcher has a reference to a model
+Public: The Matcher class encapsulates a particular comparison clause on an {Attribute}.
+Matchers can evaluate whether or not an object matches them, and also compose
+SQL clauses for the DatabaseStore. Each matcher has a reference to a model
 attribute, a comparator and a value.
+
+```coffee
+
+# Retrieving Matchers
+
+isUnread = Thread.attributes.unread.equal(true)
+
+isInInbox = Thread.attributes.tags.contains('inbox')
+
+# Using Matchers in Database Queries
+
+DatabaseStore.findAll(Thread).where(isUnread)...
+
+# Using Matchers to test Models
+
+threadA = new Thread(unread: true)
+threadB = new Thread(unread: false)
+
+isUnread.evaluate(threadA)
+# => true
+isUnread.evaluate(threadB)
+# => false
+
+```
+
 ###
 class Matcher
   constructor: (@attr, @comparator, @val) ->

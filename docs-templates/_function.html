@@ -1,19 +1,28 @@
-<h4 id={{name}}>{{name}} <a href="#{{name}}">Link</a></h4>
+<h4 id={{name}} class="function-name">
+  {{name}} <a href="#{{name}}" class="link"></a>
+</h4>
 <p>{{{description}}}</p>
 {{#if arguments.length}}
-    Parameters
-    <table>
+    <strong>Parameters</strong>
+    <table class="arguments">
         {{#each arguments}}
-        <tr><td>{{name}}</td><td>{{type}}</td><td>{{{description}}}</td><td>{{isOptional}}</td></tr>
+        <tr>
+          <td style="width:15%;">
+            <em>{{name}}</em>
+          </td>
+          <td>
+            {{{description}}} {{#if isOptional}} (Optional) {{/if}}
+          </td>
+        </tr>
         {{/each}}
     </table>
 {{/if}}
 
 {{#if returnValues.length}}
-    Returns
-    <table>
+    <strong>Returns</strong>
+    <table class="arguments">
         {{#each returnValues}}
-        <tr><td>{{type}}</td><td>{{{description}}}</td></tr>
+        <tr><td style="width:15%;">{{type}}</td><td>{{{description}}}</td></tr>
         {{/each}}
     </table>
 {{/if}}

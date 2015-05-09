@@ -7,7 +7,7 @@ To register your extension with the DraftStore, call {DraftStore::registerExtens
 When your package is being unloaded, you *must* call the corresponding
 {DraftStore::unregisterExtension} to unhook your extension.
 
-```
+```coffee
 activate: ->
   DraftStore.registerExtension(MyExtension)
 
@@ -51,7 +51,7 @@ class DraftStoreExtension
 
   Example:
 
-  ```
+  ```coffee
   # Remove any <code> tags found in the draft body
   finalizeSessionBeforeSending: (session) ->
     body = session.draft().body
@@ -122,7 +122,7 @@ class DraftStoreExtension
   `<code>` tag placed in the body and change it's CSS class to reflect that it is no
   longer empty.
 
-  ```
+  ```coffee
   onInput: (editableNode, event) ->
     selection = document.getSelection()
 

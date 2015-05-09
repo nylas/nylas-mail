@@ -17,7 +17,7 @@ to call `include` to explicitly load the joined data attribute.
 The query builder will automatically perform a `LEFT OUTER JOIN` with
 the secondary table to retrieve the attribute:
 
-```
+```coffee
 DatabaseStore.find(Message, '123').then (message) ->
   # message.body is undefined
 

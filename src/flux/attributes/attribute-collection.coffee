@@ -15,13 +15,13 @@ collection.
 
 Collection attributes have an additional clause builder, `contains`:
 
-```
+```coffee
 DatabaseStore.findAll(Thread).where([Thread.attributes.tags.contains('inbox')])
 ```
 
 This is equivalent to writing the following SQL:
 
-```
+```sql
 SELECT `Thread`.`data` FROM `Thread`
 INNER JOIN `Thread-Tag` AS `M1` ON `M1`.`id` = `Thread`.`id`
 WHERE `M1`.`value` = 'inbox'

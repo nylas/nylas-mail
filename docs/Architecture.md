@@ -1,8 +1,8 @@
-### Flux Architecture
+### Application Architecture: Flux
 
 Nylas Mail also uses [Reflux](https://github.com/spoike/refluxjs), a slim implementation of Facebook's [Flux Application Architecture](https://facebook.github.io/flux/) to coordinate the movement of data through the application. Flux is extremely well suited for applications that support third-party extension, because it emphasizes loose coupling and well defined interfaces between components. It enforces:
 
-- **Uni-directional data flow** 
+- **Uni-directional data flow**
 - **Loose coupling between components**
 
 For more information about the Flux pattern, check out [this diagram](https://facebook.github.io/flux/docs/overview.html#structure-and-data-flow).
@@ -35,4 +35,3 @@ For a complete list of available actions, see `Actions.coffee`. Actions in Nylas
 - Main Window Actions: These actions can be fired in any window and are automatically sent to the main window via IPC. They are not sent to other windows of the app.
 
 - Window Actions: These actions only broadcast within the window they're fired in.
-

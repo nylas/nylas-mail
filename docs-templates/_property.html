@@ -1,9 +1,16 @@
-<h4 id={{name}}>{{name}} <a href="#{{name}}">Link</a></h4>
+<h4 id={{name}}>{{name}} <a href="#{{name}}" class="link"></a></h4>
 <p>{{{description}}}</p>
 {{#if arguments.length}}
-    <table>
+    <table class="arguments">
         {{#each arguments}}
-        <tr><td>{{name}}</td><td>{{type}}</td><td>{{{description}}}</p></td><td>{{isOptional}}</td></tr>
+        <tr>
+          <td style="width:15%;">
+            <em>{{name}}</em>
+          </td>
+          <td>
+            {{{description}}} {{#if isOptional}} (Optional) {{/if}}
+          </td>
+        </tr>
         {{/each}}
     </table>
 {{/if}}

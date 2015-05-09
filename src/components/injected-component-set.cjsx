@@ -13,7 +13,7 @@ Public: InjectedComponent makes it easy to include a set of dynamically register
 components inside of your React render method. Rather than explicitly render
 an array of buttons, for example, you can use InjectedComponentSet:
 
-```
+```coffee
 <InjectedComponentSet className="message-actions"
                   matching={role: 'ThreadActionButton'}
                   exposedProps={thread:@props.thread, message:@props.message}>

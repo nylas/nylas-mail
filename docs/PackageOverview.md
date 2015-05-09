@@ -40,7 +40,7 @@ Our package also contains source files, a spec file with complete tests for the 
 
 `package.json` lists `lib/main` as the root file of our package. As our package expands, we can add other source files. Since Nylas Mail runs NodeJS, you can `require` other source files, Node packages, etc. Inside `main.cjsx`, there are two important functions being exported:
 
-```
+```coffee
 module.exports =
 
   ##
