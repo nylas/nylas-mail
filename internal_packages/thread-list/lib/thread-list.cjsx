@@ -14,7 +14,7 @@ ThreadListStore = require './thread-list-store'
 
 class ThreadList extends React.Component
   @displayName: 'ThreadList'
-  
+
   @containerRequired: false
 
   componentWillMount: =>
@@ -35,7 +35,7 @@ class ThreadList extends React.Component
 
       if thread.unread
         return 'unread'
-      else if msg.from[0].email isnt myEmail or msgs.length is 1
+      else if msg.from[0]?.email isnt myEmail or msgs.length is 1
         return 'other'
       else if Utils.isForwardedMessage(msg)
         return 'forwarded'

@@ -46,7 +46,8 @@ module.exports =
           body = msg.subject
           if not body or body.length is 0
             body = msg.snippet
-          notif = new Notification(msg.from[0].displayName(), {
+          from = msg.from[0]?.displayName ? "Unknown"
+          notif = new Notification(from, {
             body: body
             tag: 'unread-update'
           })
