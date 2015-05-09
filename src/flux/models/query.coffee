@@ -13,7 +13,7 @@ and {DatabaseStore::unpersistModel}.
 
 **Simple Example:** Fetch a thread
 
-```
+```coffee
 query = DatabaseStore.find(Thread, '123a2sc1ef4131')
 query.then (thread) ->
   # thread or null
@@ -21,7 +21,7 @@ query.then (thread) ->
 
 **Advanced Example:** Fetch 50 threads in the inbox, in descending order
 
-```
+```coffee
 query = DatabaseStore.findAll(Thread)
 query.where([Thread.attributes.tagIds.contains('inbox')])
      .order([Thread.attributes.lastMessageTimestamp.descending()])
@@ -125,7 +125,7 @@ class ModelQuery
 
   # Public:
   #
-  # - `offset` {Number] The start offset of the query.
+  # - `offset` {Number} The start offset of the query.
   #
   # This method is chainable.
   #
@@ -160,7 +160,7 @@ class ModelQuery
 
   # Public: Starts query execution and returns a Promise.
   #
-  # Returns A {Promise} that resolves with the Models returned by the
+  # Returns a {Promise} that resolves with the Models returned by the
   # query, or rejects with an error from the Database layer.
   #
   then: (next) ->

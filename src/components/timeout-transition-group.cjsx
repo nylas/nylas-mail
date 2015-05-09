@@ -59,8 +59,8 @@ This is adapted from Facebook's CSSTransitionGroup which is in the React
 addons and under the Apache 2.0 License.
 
 Example:
-```
-<TimeoutTransitionGroup 
+```coffee
+<TimeoutTransitionGroup
   leaveTimeout={125}
   enterTimeout={125}
   transitionName="sheet-toolbar">
@@ -121,7 +121,7 @@ class TimeoutTransitionGroupChild extends React.Component
     if !@timeout
       @timeout = setTimeout(@flushClassNameQueue, TICK)
     return
-  
+
   flushClassNameQueue: =>
     @classNameQueue.forEach ((name) =>
       addClass(React.findDOMNode(@), name)

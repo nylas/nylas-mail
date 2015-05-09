@@ -1,49 +1,60 @@
-##Nylas Package API
+<img src="images/edgehill.png" class="center-logo"/>
+<h2 style="text-align:center;">Nylas Package API</h2>
+<p style="text-align:center; width:75%; margin:auto; margin-top:18px;">
+  The Nylas Package API allows you to create powerful extensions to Nylas Mail. The client is built on top of Atom Shell and runs on Mac OS X, Windows, and Linux. It exposes rich APIs for working with the mail, contacts, and calendar and a robust local cache layer. Your packages can leverage NodeJS and other web technologies to create innovative new experiences.
+</p>
 
-The Nylas Package API allows you to create powerful extensions to Nylas Mail. The client is built on top of Atom Shell and runs on Mac OS X, Windows, and Linux. It exposes rich APIs for working with the mail, contacts, and calendar and a robust local cache layer. Your packages can leverage NodeJS and other web technologies to create innovative new experiences.
-
-<table>
+<table class="no-border">
 <tr><td style="width:50%;">
 
-###Installing Nylas Mail
-
+<h4>Installing Nylas Mail</h4>
+<p>
 Nylas Mail is available for Mac, Windows, and Linux. Download the latest build for your platform below:
-
-- [Mac OS X](https://edgehill.nylas.com/download?platform=darwin)
-- [Linux](https://edgehill.nylas.com/download?platform=linux)
-- [Windows](https://edgehill.nylas.com/download?platform=win32)
+</p>
+<ul>
+<li><a href="https://edgehill.nylas.com/download?platform=darwin">Mac OS X</a></li>
+<li><a href="https://edgehill.nylas.com/download?platform=linux">Linux</a></li>
+<li><a href="https://edgehill.nylas.com/download?platform=win32">Windows</a></li>
+</ul>
 
 </td><td style="width:50%;">
 
-###Package Architecture
-
+<h4>Package Architecture</h4>
+<p>
 Packages lie at the heart of Nylas Mail. Each part of the core experience is a separate package that uses the Nilas Package API to add functionality to the client. Learn more about packages and create your first package.
-
-- [Package Overview](./PackageOverview.md)
+</p>
+<ul>
+<li><a href="./PackageOverview.html">Package Overview</a></li>
+</ul>
 
 </td></tr>
 <tr><td style="width:50%; vertical-align:top;">
 
-### Dive Deeper
+<h4>Dive Deeper</h4>
 
-- [Application Architecture](./Architecture.md)
-- [React & Component Injection](./React.md)
-- [Core Interface Concepts](./InterfaceConcepts.md)
-- [Accessing the Database](./Database.md)
-- [Draft Store Extensions](./DraftStoreExtensions.md)
+<ul>
+<li><a href="./Architecture.html">Application Architecture</a></li>
+<li><a href="./React.html">React & Component Injection</a></li>
+<li><a href="./InterfaceConcepts.html">Core Interface Concepts</a></li>
+<li><a href="./Database.html">Accessing the Database</a></li>
+<li><a href="./DraftStoreExtensions.html">Draft Store Extensions</a></li>
+</ul>
 
 </td><td style="width:50%; vertical-align:top;">
 
-### Debugging Packages
-
+<h4>Debugging Packages</h4>
+<p>
 Nylas Mail is built on top of Electron, which runs the latest version of Chromium. Learn how to access debug tools in Electron and use our Developer Tools Extensions:
-
-- [Debugging in Nylas](./Debugging.md)
+</p>
+<ul>
+<li><a href="./Debugging.html">Debugging in Nylas</a></li>
+</ul>
 
 </td></tr>
 <tr colspan="2"><td>
-##### Questions?
-
-Need help? Check out the [FAQ](./FAQ.md) or post a question in the [Nylas Mail Facebook Group](facebook.com/groups/nylas.mail)
+<h4>Questions?</h4>
+<p>
+Need help? Check out the [FAQ](./FAQ.html) or post a question in the [Nylas Mail Facebook Group](facebook.com/groups/nylas.mail)
+</p>
 
 </td></tr>

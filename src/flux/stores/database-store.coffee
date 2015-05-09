@@ -111,7 +111,7 @@ rest of the application in sync.
 To listen for changes to the local cache, subscribe to the DatabaseStore and
 inspect the changes that are sent to your listener method.
 
-```
+```coffeescript
 @unsubscribe = DatabaseStore.listen(@_onDataChanged, @)
 
 ...
@@ -382,7 +382,7 @@ class DatabaseStore
   # - `id` The {String} id of the {Model} you're trying to retrieve
   #
   # Example:
-  # ```
+  # ```coffee
   # DatabaseStore.find(Thread, 'id-123').then (thread) ->
   #   # thread is a Thread object, or null if no match was found.
   # ```

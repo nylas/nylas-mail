@@ -12,7 +12,7 @@ Public: InjectedComponent makes it easy to include dynamically registered
 components inside of your React render method. Rather than explicitly render
 a component, such as a `<Composer>`, you can use InjectedComponent:
 
-```
+```coffee
 <InjectedComponent matching={role:"Composer"} exposedProps={draftId:123} />
 ```
 

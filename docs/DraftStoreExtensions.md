@@ -16,7 +16,7 @@ To create a Draft Store Extension, subclass {DraftStoreExtension} and override t
 
 This extension displays a warning before sending a draft that contains the names of competitor's products and if the user proceeds to send the draft containing the words, it appends a disclaimer.
 
-```
+```coffee
 {DraftStoreExtension} = require 'inbox-exports'
 
 class ProductsExtension extends DraftStoreExtension
@@ -28,7 +28,7 @@ class ProductsExtension extends DraftStoreExtension
         if body.indexOf(word) > 0
         	return ["with the word '#{word}'?"]
 	  return []
-	  
+
    @finalizeSessionBeforeSending: (session) ->
       draft = session.draft()
       if @warningsForSending(draft)
@@ -37,4 +37,3 @@ class ProductsExtension extends DraftStoreExtension
         	or trademarks used in context."
          session.changes.add(body: bodyWithWarning)
 ```
-

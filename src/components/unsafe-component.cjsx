@@ -13,7 +13,7 @@ your `flex` and `order` values to be one level too deep. For these scenarios,
 UnsafeComponent looks for `containerStyles` on your React component and attaches
 them to the wrapper div:
 
-```
+```coffee
 class MyComponent extends React.Component
   @displayName: 'MyComponent'
   @containerStyles:

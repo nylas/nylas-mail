@@ -76,7 +76,7 @@ class DraftStore
   #
   # Example:
   #
-  # ```
+  # ```coffee
   # session = DraftStore.sessionForLocalId(localId)
   # session.prepare().then ->
   #    # session.draft() is now ready
