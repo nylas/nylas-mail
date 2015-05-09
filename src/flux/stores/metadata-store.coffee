@@ -72,7 +72,7 @@ MetadataStore = Reflux.createStore
     Promise.settle(promises)
 
   _apiRequest: (type) ->
-    typePath = if type then "/#{type}/" else ""
+    typePath = if type then "/#{type}/" else "/"
     new Promise (resolve, reject) =>
       EdgehillAPI.request
         path: "/metadata/#{@_namespaceId}#{typePath}"
