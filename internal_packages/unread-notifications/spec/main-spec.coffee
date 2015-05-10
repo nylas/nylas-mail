@@ -21,6 +21,12 @@ describe "UnreadNotifications", ->
       from: [new Contact(name: 'Ben', email: 'ben@example.com')]
       subject: "Hello World"
       threadId: "A"
+    @msgNoSender = new Message
+      unread: true
+      date: new Date()
+      from: []
+      subject: "Hello World"
+      threadId: "A"
     @msg2 = new Message
       unread: true
       date: new Date()
@@ -77,6 +83,13 @@ describe "UnreadNotifications", ->
       .then ->
         expect(window.Notification).toHaveBeenCalled()
         expect(window.Notification.mostRecentCall.args).toEqual([ '2 Unread Messages', { tag : 'unread-update' } ])
+
+  it "should create a Notification correctly, even if new mail has no sender", ->
+    waitsForPromise =>
+      Main._onNewMailReceived({message: [@msgNoSender]})
+      .then ->
+        expect(window.Notification).toHaveBeenCalled()
+        expect(window.Notification.mostRecentCall.args).toEqual([ 'Unknown', { body : 'Hello World', tag : 'unread-update' } ])
 
   it "should not create a Notification if there are no new messages", ->
     waitsForPromise ->
