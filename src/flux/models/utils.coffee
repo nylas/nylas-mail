@@ -114,8 +114,9 @@ Utils =
   modelFreeze: (o) ->
     Object.freeze(o)
     for key, prop of o
-      if !o.hasOwnProperty(key) || typeof prop isnt 'object' || Object.isFrozen(prop)
-        continue
+      continue unless o.hasOwnProperty(key)
+      continue unless typeof prop is 'object' and prop isnt null
+      continue if Object.isFrozen(prop)
       Utils.modelFreeze(prop)
 
   modelReviver: (k, v) ->
