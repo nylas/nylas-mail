@@ -1,9 +1,9 @@
 {
-  "name": "atom-build",
-  "description": "Atom build",
+  "name": "edgehill-build",
+  "description": "Edgehill build",
   "repository": {
     "type": "git",
-    "url": "https://github.com/atom/atom.git"
+    "url": "https://github.com/nylas/edgehill.git"
   },
   "dependencies": {
     "archiver": "^0.13",
@@ -15,7 +15,7 @@
     "fs-plus": "2.x",
     "github-releases": "~0.2.0",
     "grunt": "~0.4.1",
-    "grunt-atom-shell-installer": "^0.20.0",
+    "grunt-atom-shell-installer": "^0.29.0",
     "grunt-cli": "~0.1.9",
     "grunt-coffeelint": "git+https://github.com/atom/grunt-coffeelint.git#cfb99aa99811d52687969532bd5a98011ed95bfe",
     "grunt-coffeelint-cjsx": "^0.1",
@@ -23,7 +23,7 @@
     "grunt-contrib-csslint": "~0.1.2",
     "grunt-contrib-less": "~0.8.0",
     "grunt-cson": "0.14.0",
-    "grunt-download-atom-shell": "~0.11.0",
+    "grunt-download-atom-shell": "~0.14.0",
     "grunt-lesslint": "0.13.0",
     "grunt-markdown": "^0.7.0",
     "grunt-peg": "~1.1.0",

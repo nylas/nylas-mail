@@ -45,6 +45,8 @@ function bootstrap() {
   var initialNpmCommand = fs.existsSync(npmPath) ? npmPath : 'npm';
   var npmFlags = ' --userconfig=' + path.resolve('.npmrc') + ' ';
 
+  var gruntPath = path.resolve(__dirname, '..', 'build', 'node_modules', '.bin', 'grunt');
+
   var packagesToDedupe = ['fs-plus', 'humanize-plus', 'oniguruma', 'roaster', 'season', 'grim'];
 
   var buildInstallCommand = initialNpmCommand + npmFlags + 'install';
@@ -93,7 +95,9 @@ function bootstrap() {
   m6 += "     $ apm request semver "+printArgs(semverOptions)+"\n"
 
   m7  = "---> Getting latest Atom Shell\n\n"
-  m7 += "     $ build/node_modules/.bin/grunt download-atom-shell --gruntfile build/Gruntfile.coffee\n"
+  var gruntCmd = ""
+  var downloadAtomShellCmd = gruntPath + " download-atom-shell --gruntfile build/Gruntfile.coffee"
+  m7 += "     $ "+downloadAtomShellCmd
 
   var commands = [
     {
@@ -124,7 +128,7 @@ function bootstrap() {
       options: semverOptions
     },
     {
-      command: 'grunt download-atom-shell --gruntfile ./build/Gruntfile.coffee',
+      command: downloadAtomShellCmd,
       message: m7
     }
   ];
