@@ -1,5 +1,7 @@
 _ = require('underscore-plus')
 Utils = require '../src/flux/models/utils'
+Thread = require '../src/flux/models/thread'
+Contact = require '../src/flux/models/contact'
 
 class Foo
   constructor: (@instanceVar) ->
@@ -12,6 +14,20 @@ class Bar extends Foo
   subMethod: (stuff) ->
     @moreStuff = stuff
     @method(stuff)
+
+describe "modelFreeze", ->
+  it "should freeze the object", ->
+    o =
+      a: 1
+      b: 2
+    Utils.modelFreeze(o)
+    expect(Object.isFrozen(o)).toBe(true)
+  
+  it "should not throw an exception when nulls appear in strange places", ->
+    t = new Thread(participants: [new Contact(email: 'ben@nylas.com'), null], subject: '123')
+    Utils.modelFreeze(t)
+    expect(Object.isFrozen(t)).toBe(true)
+    expect(Object.isFrozen(t.participants[0])).toBe(true)
 
 describe "deepClone", ->
   beforeEach ->
