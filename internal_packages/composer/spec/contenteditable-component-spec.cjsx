@@ -43,3 +43,77 @@ describe "ContenteditableComponent", ->
       expect(@onChange.callCount).toBe(1)
       @performEdit(@changedHtmlWithoutQuote)
       expect(@onChange.callCount).toBe(2)
+
+  describe "pasting behavior", ->
+    tests = [
+      {
+        in: ""
+        sanitizedAsHTML: ""
+        sanitizedAsPlain: ""
+      },
+      {
+        in: "Hello World"
+        sanitizedAsHTML: "Hello World"
+        sanitizedAsPlain: "Hello World"
+      },
+      {
+        in: "  Hello  World"
+        # Should collapse to 1 space when rendered
+        sanitizedAsHTML: "  Hello  World"
+        # Preserving 2 spaces
+        sanitizedAsPlain: " &nbsp;Hello &nbsp;World"
+      },
+      {
+        in: "   Hello   World"
+        sanitizedAsHTML: "   Hello   World"
+        # Preserving 3 spaces
+        sanitizedAsPlain: " &nbsp; Hello &nbsp; World"
+      },
+      {
+        in: "    Hello    World"
+        sanitizedAsHTML: "    Hello    World"
+        # Preserving 4 spaces
+        sanitizedAsPlain: " &nbsp; &nbsp;Hello &nbsp; &nbsp;World"
+      },
+      {
+        in: "Hello\nWorld"
+        sanitizedAsHTML: "Hello<br />World"
+        # Convert newline to br
+        sanitizedAsPlain: "Hello<br/>World"
+      },
+      {
+        in: "Hello\rWorld"
+        sanitizedAsHTML: "Hello<br />World"
+        # Convert carriage return to br
+        sanitizedAsPlain: "Hello<br/>World"
+      },
+      {
+        in: "Hello\n\n\nWorld"
+        # Never have more than 2 br's in a row
+        sanitizedAsHTML: "Hello<br/><br/>World"
+        # Convert multiple newlines to same number of brs
+        sanitizedAsPlain: "Hello<br/><br/><br/>World"
+      },
+      {
+        in: "<style>Yo</style> Foo Bar <div>Baz</div>"
+        # Strip bad tags
+        sanitizedAsHTML: " Foo Bar Baz<br/>"
+        # HTML encode tags for literal display
+        sanitizedAsPlain: "&lt;style&gt;Yo&lt;/style&gt; Foo Bar &lt;div&gt;Baz&lt;/div&gt;"
+      }
+      {
+        in: "<script>Bah</script> Yo < script>Boo! < / script >"
+        # Strip non white-list tags and encode malformed ones.
+        sanitizedAsHTML: " Yo &lt; script&gt;Boo! &lt; / script &gt;"
+        # HTML encode tags for literal display
+        sanitizedAsPlain: "&lt;script&gt;Bah&lt;/script&gt; Yo &lt; script&gt;Boo! &lt; / script &gt;"
+      }
+    ]
+
+    it "sanitizes plain text properly", ->
+      for test in tests
+        expect(@component._sanitizeInput(test.in, "text/plain")).toBe test.sanitizedAsPlain
+
+    it "sanitizes html text properly", ->
+      for test in tests
+        expect(@component._sanitizeInput(test.in, "text/html")).toBe test.sanitizedAsHTML

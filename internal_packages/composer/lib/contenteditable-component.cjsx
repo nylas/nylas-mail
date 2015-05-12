@@ -670,53 +670,57 @@ class ContenteditableComponent extends React.Component
 
 
 
-
   ####### CLEAN PASTE #########
 
   _onPaste: (evt) =>
-    html = evt.clipboardData.getData("text/html") ? ""
-    if html.length is 0
-      text = evt.clipboardData.getData("text/plain") ? ""
-      if text.length > 0
-        evt.preventDefault()
-        cleanHtml = text
-      else
-    else
-      evt.preventDefault()
-      cleanHtml = @_sanitizeHtml(html)
+    inputText = evt.clipboardData.getData("text/html") ? ""
+    type = "text/html"
+    if inputText.length is 0
+      inputText = evt.clipboardData.getData("text/plain") ? ""
+      type = "text/plain"
 
-    document.execCommand("insertHTML", false, cleanHtml)
+    if inputText.length > 0
+      cleanHtml = @_sanitizeInput(inputText, type)
+      document.execCommand("insertHTML", false, cleanHtml)
+
+    evt.preventDefault()
     return false
 
   # This is used primarily when pasting text in
-  _sanitizeHtml: (html) =>
-    cleanHTML = sanitizeHtml html.replace(/[\n\r]/g, "<br/>"),
-      allowedTags: ['p', 'b', 'i', 'em', 'strong', 'a', 'br', 'img', 'ul', 'ol', 'li', 'strike']
-      allowedAttributes:
-        a: ['href', 'name']
-        img: ['src', 'alt']
-      transformTags:
-        h1: "p"
-        h2: "p"
-        h3: "p"
-        h4: "p"
-        h5: "p"
-        h6: "p"
-        div: "p"
-        pre: "p"
-        blockquote: "p"
-        table: "p"
+  _sanitizeInput: (inputText="", type="text/html") =>
+    if type is "text/plain"
+      inputText = Utils.encodeHTMLEntities(inputText)
+      inputText = inputText.replace(/[\r\n]|&#1[03];/g, "<br/>").
+                            replace(/\s\s/g, " &nbsp;")
+    else
+      inputText = sanitizeHtml inputText.replace(/[\n\r]/g, "<br/>"),
+        allowedTags: ['p', 'b', 'i', 'em', 'strong', 'a', 'br', 'img', 'ul', 'ol', 'li', 'strike']
+        allowedAttributes:
+          a: ['href', 'name']
+          img: ['src', 'alt']
+        transformTags:
+          h1: "p"
+          h2: "p"
+          h3: "p"
+          h4: "p"
+          h5: "p"
+          h6: "p"
+          div: "p"
+          pre: "p"
+          blockquote: "p"
+          table: "p"
 
-    # We sanitized everything and convert all whitespace-inducing elements
-    # into <p> tags. We want to de-wrap <p> tags and replace with two line
-    # breaks instead.
-    cleanHTML = cleanHTML.replace(/<p[\s\S]*?>/gim, "").replace(/<\/p>/gi, "<br/>")
+      # We sanitized everything and convert all whitespace-inducing
+      # elements into <p> tags. We want to de-wrap <p> tags and replace
+      # with two line breaks instead.
+      inputText = inputText.replace(/<p[\s\S]*?>/gim, "").
+                            replace(/<\/p>/gi, "<br/>")
 
-    # We never want more then 2 line breaks in a row.
-    # https://regex101.com/r/gF6bF4/4
-    cleanHTML = cleanHTML.replace(/(<br\s*\/?>\s*){3,}/g, "<br/><br/>")
+      # We never want more then 2 line breaks in a row.
+      # https://regex101.com/r/gF6bF4/4
+      inputText = inputText.replace(/(<br\s*\/?>\s*){3,}/g, "<br/><br/>")
 
-    return cleanHTML
+    return inputText
 
 
 
