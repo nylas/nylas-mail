@@ -44,6 +44,28 @@ Utils =
     set[item] = true for item in arr
     return set
 
+  # Escapes potentially dangerous html characters
+  # This code is lifted from Angular.js
+  # See their specs here:
+  # https://github.com/angular/angular.js/blob/master/test/ngSanitize/sanitizeSpec.js
+  # And the original source here: https://github.com/angular/angular.js/blob/master/src/ngSanitize/sanitize.js#L451
+  encodeHTMLEntities: (value) ->
+    SURROGATE_PAIR_REGEXP = /[\uD800-\uDBFF][\uDC00-\uDFFF]/g
+    pairFix = (value) ->
+      hi = value.charCodeAt(0)
+      low = value.charCodeAt(1)
+      return '&#' + (((hi - 0xD800) * 0x400) + (low - 0xDC00) + 0x10000) + ';'
+
+    # Match everything outside of normal chars and " (quote character)
+    NON_ALPHANUMERIC_REGEXP = /([^\#-~| |!])/g
+    alphaFix = (value) -> '&#' + value.charCodeAt(0) + ';'
+
+    value.replace(/&/g, '&amp;').
+          replace(SURROGATE_PAIR_REGEXP, pairFix).
+          replace(NON_ALPHANUMERIC_REGEXP, alphaFix).
+          replace(/</g, '&lt;').
+          replace(/>/g, '&gt;')
+
   modelClassMap: ->
     return Utils._modelClassMap if Utils._modelClassMap
 
