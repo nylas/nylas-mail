@@ -5,7 +5,6 @@ classNames = require 'classnames'
 SearchSuggestionStore = require './search-suggestion-store'
 _ = require 'underscore-plus'
 
-
 class SearchBar extends React.Component
   @displayName = 'SearchBar'
 
@@ -97,20 +96,11 @@ class SearchBar extends React.Component
         if key == "all"
           str += val
         else
-          str += "#{key}:#{val}"
+          str += val
 
   _stringToQuery: (str) =>
     return [] unless str
-
-    # note: right now this only works if there's one term. In the future,
-    # we'll make this whole search input a tokenizing field
-    [a,b] = str.split(':')
-    term = {}
-    if b
-      term[a] = b
-    else
-      term["all"] = a
-    [term]
+    return [all: str]
 
   _onValueChange: (event) =>
     Actions.searchQueryChanged(@_stringToQuery(event.target.value))
@@ -147,6 +137,5 @@ class SearchBar extends React.Component
       query: SearchSuggestionStore.query()
       suggestions: SearchSuggestionStore.suggestions()
       committedQuery: SearchSuggestionStore.committedQuery()
-
 
 module.exports = SearchBar
