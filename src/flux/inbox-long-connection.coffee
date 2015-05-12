@@ -28,10 +28,10 @@ class InboxLongConnection
     , 1000
 
     @
- 
+
   namespaceId: ->
     @_namespaceId
-    
+
   hasCursor: ->
     !!atom.config.get(@_cursorKey)
 
@@ -120,6 +120,8 @@ class InboxLongConnection
         processBufferThrottled = _.throttle(@onProcessBuffer, 400, {leading: false})
         res.on 'close', => @retry()
         res.on 'data', (chunk) =>
+          # Ignore characters sent as pings
+          return if chunk is '\n'
           @_buffer += chunk
           processBufferThrottled()
 
