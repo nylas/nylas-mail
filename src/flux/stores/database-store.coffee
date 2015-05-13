@@ -137,6 +137,7 @@ deleted from the local cache. If your component or store presents a single objec
 or a small collection of objects, you should look to see if any of the objects
 are in your displayed set before refreshing.
 
+Section: Database
 ###
 class DatabaseStore
   @include: CoffeeHelpers.includeModule

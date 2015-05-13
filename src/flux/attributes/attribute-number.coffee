@@ -4,6 +4,8 @@ Matcher = require './matcher'
 
 ###
 Public: The value of this attribute is always a number, or null.
+
+Section: Database
 ###
 class AttributeNumber extends Attribute
   toJSON: (val) -> val

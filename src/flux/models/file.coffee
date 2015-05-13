@@ -6,15 +6,22 @@ _ = require 'underscore-plus'
 ###
 Public: File model represents a File object served by the Nylas Platform API.
 For more information about Files on the Nylas Platform, read the
-[https://nylas.com/docs/api#files](Files API Documentation)
+[Files API Documentation](https://nylas.com/docs/api#files)
 
 ## Attributes
 
-`snippet`: {AttributeString} A short, ~140 character string with the content
-   of the last message in the thread. Queryable.
+`filename`: {AttributeString} The display name of the file. Queryable.
+
+`size`: {AttributeNumber} The size of the file, in bytes.
+
+`contentType`: {AttributeString} The content type of the file (ex: `image/png`)
+
+`contentId`: {AttributeString} If this file is an inline attachment, contentId
+is a string that matches a cid:<value> found in the HTML body of a {Message}.
 
 This class also inherits attributes from {Model}
 
+Section: Models
 ###
 class File extends Model
 

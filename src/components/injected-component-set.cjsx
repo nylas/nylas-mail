@@ -28,6 +28,8 @@ InjectedComponentSet monitors the ComponentRegistry for changes. If a new compon
 is registered into the location you provide, InjectedComponentSet will re-render.
 
 If no matching components is found, the InjectedComponent renders an empty span.
+
+Section: Component Kit
 ###
 class InjectedComponentSet extends React.Component
   @displayName: 'InjectedComponentSet'

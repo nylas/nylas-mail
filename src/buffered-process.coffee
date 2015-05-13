@@ -6,6 +6,8 @@ path = require 'path'
 # Extended: A wrapper which provides standard error/output line buffering for
 # Node's ChildProcess.
 #
+# Section: Atom
+#
 # ## Examples
 #
 # ```coffee
@@ -17,6 +19,7 @@ path = require 'path'
 # exit = (code) -> console.log("ps -ef exited with #{code}")
 # process = new BufferedProcess({command, args, stdout, exit})
 # ```
+#
 module.exports =
 class BufferedProcess
   ###

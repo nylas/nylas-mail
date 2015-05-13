@@ -1,17 +1,26 @@
 <h4 id={{name}} class="function-name">
-  {{name}} <a href="#{{name}}" class="link"></a>
+  {{name}}(<span class="args">{{#each arguments}}<span class="arg">{{#if isOptional}}[{{/if}}{{name}}{{#if isOptional}}]{{/if}}</span>{{/each}}</span>) <a href="#{{name}}" class="link"></a>
 </h4>
-<p>{{{description}}}</p>
+
+<div class="function-description markdown-from-sourecode">
+  <p>{{{description}}}</p>
+</div>
+
 {{#if arguments.length}}
     <strong>Parameters</strong>
     <table class="arguments">
+        <tr>
+          <th>Argument</th>
+          <th>Description</th>
+        </tr>
         {{#each arguments}}
         <tr>
           <td style="width:15%;">
             <em>{{name}}</em>
           </td>
-          <td>
-            {{{description}}} {{#if isOptional}} (Optional) {{/if}}
+          <td class="markdown-from-sourecode">
+            {{#if isOptional}}<span class="optional">Optional</span>{{/if}}
+            {{{description}}}
           </td>
         </tr>
         {{/each}}
@@ -21,8 +30,11 @@
 {{#if returnValues.length}}
     <strong>Returns</strong>
     <table class="arguments">
-        {{#each returnValues}}
-        <tr><td style="width:15%;">{{type}}</td><td>{{{description}}}</td></tr>
-        {{/each}}
+      <tr>
+        <th>Return Values</th>
+      </tr>
+      {{#each returnValues}}
+      <tr><td class="markdown-from-sourecode">{{{description}}}</td></tr>
+      {{/each}}
     </table>
 {{/if}}

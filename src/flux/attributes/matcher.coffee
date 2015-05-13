@@ -31,6 +31,7 @@ isUnread.evaluate(threadB)
 
 ```
 
+Section: Database
 ###
 class Matcher
   constructor: (@attr, @comparator, @val) ->

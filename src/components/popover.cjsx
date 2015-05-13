@@ -34,6 +34,8 @@ showMyPopover: =>
   @refs.myPopover.open()
 
 ```
+
+Section: Component Kit
 ###
 class Popover extends React.Component
 

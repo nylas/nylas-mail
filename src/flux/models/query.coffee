@@ -30,6 +30,7 @@ query.where([Thread.attributes.tagIds.contains('inbox')])
   # array of threads
 ```
 
+Section: Database
 ###
 class ModelQuery
 

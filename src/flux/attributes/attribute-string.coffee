@@ -6,6 +6,8 @@ Public: The value of this attribute is always a string or `null`.
 
 String attributes can be queries using `equal`, `not`, and `startsWith`. Matching on
 `greaterThan` and `lessThan` is not supported.
+
+Section: Database
 ###
 class AttributeString extends Attribute
   toJSON: (val) -> val

@@ -13,6 +13,8 @@ Package = require './package'
 # Extended: Handles loading and activating available themes.
 #
 # An instance of this class is always available as the `atom.themes` global.
+#
+# Section: Atom
 module.exports =
 class ThemeManager
   EmitterMixin.includeInto(this)

@@ -6,11 +6,14 @@ path = require 'path'
 #
 # This is necessary on Windows since it doesn't support shebang `#!` lines.
 #
+# Section: Atom
+#
 # ## Examples
 #
 # ```coffee
 #   {BufferedNodeProcess} = require 'atom'
 # ```
+#
 module.exports =
 class BufferedNodeProcess extends BufferedProcess
 

@@ -67,6 +67,8 @@ Example:
   {toolbarElements[1..-1]}
 </TimeoutTransitionGroup>
 ```
+
+Section: Component Kit
 ###
 class TimeoutTransitionGroupChild extends React.Component
 

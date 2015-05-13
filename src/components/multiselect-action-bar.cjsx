@@ -33,6 +33,8 @@ collection name. To add an item to the bar created in the example above, registe
 ComponentRegistry.register ThreadBulkArchiveButton,
   role: 'thread:BulkAction'
 ```
+
+Section: Component Kit
 ###
 class MultiselectActionBar extends React.Component
   @displayName: 'MultiselectActionBar'

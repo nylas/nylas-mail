@@ -1,6 +1,10 @@
-### The Nylas Mail Interface
+---
+Title:   Interface Components
+Section: Guides
+Order:   3
+---
 
-Nylas Mail uses [React](https://facebook.github.io/react/) to create a fast, responsive UI. Packages that want to extend the Nylas Mail interface should use React. Using React's `JSX` is optional, but both `JSX` and `CJSX` (Coffeescript) are available.
+Nylas Mail uses [React](https://facebook.github.io/react/) to create a fast, responsive UI. Packages that want to extend the Nylas Mail interface should use React. Using React's [JSX](https://facebook.github.io/react/docs/jsx-in-depth.html) is optional, but both [JSX](https://facebook.github.io/react/docs/jsx-in-depth.html) and [CJSX](https://github.com/jsdf/coffee-react) (Coffeescript) are available.
 
 For a quick introduction to React, take a look at Facebook's [Getting Started with React](https://facebook.github.io/react/docs/getting-started.html).
 
@@ -10,7 +14,7 @@ Nylas Mail provides a set of core React components you can use in your packages.
 
 To use a standard component, require it from `ui-components` and use it in your component's `render` method.
 
-> Keep in mind that React's Component model is based on composition rather than inheritance. On other platforms, you might subclass `Popover` to create your own custom Popover. In React, you should wrap the standard Popover component in your own component, which provides the Popover with `props` and children to customize it's behavior.
+> Keep in mind that React's Component model is based on composition rather than inheritance. On other platforms, you might subclass {Popover} to create your own custom Popover. In React, you should wrap the standard Popover component in your own component, which provides the Popover with `props` and children to customize it's behavior.
 
 
 Here's a quick look at standard components you can require from `ui-components`:

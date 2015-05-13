@@ -9,6 +9,8 @@ DatabaseStore.findBy(Message)
   .order(Message.attributes.date.descending()).then (messages) ->
 
 ```
+
+Section: Database
 ###
 class SortOrder
   constructor: (@attr, @direction = 'DESC') ->

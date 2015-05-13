@@ -19,6 +19,8 @@ you provide, and also handles:
 - Command-clicking individual items
 - Shift-clicking to select a range
 - Using the keyboard to select a range
+
+Section: Component Kit
 ###
 class MultiselectList extends React.Component
   @displayName = 'MultiselectList'

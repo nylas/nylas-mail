@@ -9,6 +9,8 @@ CoffeeHelpers = require '../coffee-helpers'
 ###
 Public: The NamespaceStore listens to changes to the available namespaces in
 the database and exposes the currently active Namespace via {::current}
+
+Section: Stores
 ###
 class NamespaceStore
   @include: CoffeeHelpers.includeModule

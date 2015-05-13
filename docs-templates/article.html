@@ -1,7 +1,15 @@
 {{>_header}}
 
-<div class="article">
-{{{content}}}
+{{#if meta.TitleHidden}}
+{{else}}
+<div class="page-title">{{meta.title}}</div>
+{{/if}}
+
+<div id="sidebar">
+{{>_sidebar}}
+</div>
+<div id="main" class="article">
+{{{html}}}
 </div>
 
 {{>_footer}}

@@ -14,6 +14,8 @@ DraftChangeSet associated with the store proxy. The DraftChangeSet does two thin
   function to apply uncommitted changes. This means the Draft provided by the
   DraftStoreProxy will always relfect recent changes, even though they're
   written to the database intermittently.
+
+Section: Drafts
 ###
 class DraftChangeSet
   constructor: (@localId, @_onChange) ->
@@ -58,6 +60,8 @@ that display Draft objects or allow for interactive editing of Drafts.
 2. It provides an interface for modifying the draft that transparently
    batches changes, and ensures that the draft provided via `draft()`
    always has pending changes applied.
+
+Section: Drafts
 ###
 class DraftStoreProxy
 

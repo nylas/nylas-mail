@@ -3,7 +3,6 @@ Utils = require '../models/utils'
 DatabaseStore = require './database-store'
 ModelView = require './model-view'
 
-# Public: Class here!
 class SearchView extends ModelView
 
   constructor: (@_query, @_namespaceId) ->
@@ -13,11 +12,6 @@ class SearchView extends ModelView
     _.defer => @retrievePage(0)
     @
 
-  # Public: Takes an argument and does some stuff.
-  #
-  # a - A {String}
-  #
-  # Returns {Boolean}.
   query: ->
     @_query
 
@@ -35,11 +29,6 @@ class SearchView extends ModelView
     # to retrieve pages.
     {start: start, end: end + 100}
 
-  # Public: It's my song turn it up.
-  #
-  # a - A {String}
-  #
-  # Returns {Boolean}.
   count: ->
     @_queryResultTotal
 

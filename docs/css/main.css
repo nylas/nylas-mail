@@ -37,11 +37,11 @@ strong {
 body {
     font-family: 'FaktPro';
     font-weight: normal;
-    font-size: 17px;
+    font-size: 16px;
     line-height: 1.5em;
     color: #737373;
     background-color: white;
-    margin: 10px 13px 10px 13px;
+    margin: 0;
 }
 table {
     margin: 10px 0 15px 0;
@@ -81,11 +81,12 @@ h6 {
     line-height: 36px;
 }
 h1 {
-    margin-bottom: 18px;
-    font-size: 30px;
+    font-size: 40px;
+    margin-top:30px;
 }
 h2 {
     font-size: 30px;
+    margin-top:30px;
 }
 h3 {
     font-size: 24px;
@@ -106,62 +107,69 @@ hr {
     border: 0;
     border-bottom: 1px solid #ccc;
 }
-blockquote {
-    padding: 13px 13px 21px 15px;
-    margin-bottom: 18px;
-    font-family:georgia,serif;
-    font-style: italic;
+h1:first-child,
+h2:first-child,
+h3:first-child,
+h4:first-child,
+h5:first-child,
+h6:first-child {
+    margin-top:0;
 }
-blockquote:before {
-    content:"\201C";
-    font-size:40px;
-    margin-left:-10px;
-    font-family:georgia,serif;
-    color:#eee;
+
+blockquote {
+  padding: 13px 13px 21px 15px;
+  margin-bottom: 18px;
+  font-family:georgia,serif;
+  font-style: italic;
+  border-left: 5px solid #C7DDDB;
+  background-color: #EAF7F6;
 }
 blockquote p {
-    font-size: 16px;
-    font-weight: normal;
-    margin-bottom: 0;
-    font-style: italic;
+  font-size: 15px;
+  font-weight: normal;
+  margin-bottom: 0;
+  font-style: italic;
+}
+blockquote code {
+  background-color:white;
 }
 img {
   max-width:100%;
 }
 code, pre {
-    font-family: Monaco, Andale Mono, Courier New, monospace;
+  font-family: Monaco, Andale Mono, Courier New, monospace;
 }
 code {
-    color: rgba(0, 0, 0, 0.75);
-    background-color: #fee9cc;
-    padding: 1px 3px;
-    font-size: 14px;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    border-radius: 3px;
+  color: rgba(0, 0, 0, 0.75);
+  background-color: #EAF7F6;
+  padding: 1px 3px;
+  font-size: 14px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
 }
 pre {
-    margin: 0 0 18px;
-    line-height: 18px;
-    font-size: 14px;
-    border: 1px solid #d9d9d9;
-    white-space: pre-wrap;
-    word-wrap: break-word;
+  margin: 0 0 18px;
+  line-height: 18px;
+  font-size: 14px;
+  border: 1px solid #d9d9d9;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 pre code {
-    font-size: 13px;
-    background-color: white;
-    padding: 0;
-    display: block;
-    padding: 14px;
+  font-size: 13px;
+  background-color: white;
+  padding: 0;
+  display: block;
+  padding: 14px;
 }
 sup {
-    font-size: 0.83em;
-    vertical-align: super;
-    line-height: 0;
+  font-size: 0.83em;
+  vertical-align: super;
+  line-height: 0;
 }
 * {
-    -webkit-print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
 }
 
 .link {
@@ -174,10 +182,10 @@ sup {
   background-size:cover;
 }
 
-@media screen and (min-width: 914px) {
-    body {
-        width: 854px;
-        margin:10px auto;
+@media screen and (min-width: 1020px) {
+    .container {
+        width: 960px;
+        margin:auto;
     }
 }
 @media print {
@@ -189,12 +197,99 @@ sup {
     }
 }
 
+#header {
+  padding-top:40px;
+  padding-bottom:20px;
+  background-color:#eee;
+  margin-bottom:40px;
+}
+#footer {
+  margin-top:50px;
+  padding-top:30px;
+  padding-bottom:30px;
+  background-color:#eee;
+  clear:both;
+}
 
+#header .logo,
+#footer .logo {
+  float:left;
+  width:50px;
+  padding-right: 15px;
+}
+#header .title,
+#footer .title {
+  line-height: 22px;
+  font-size:20px;
+  font-weight:600;
+  padding-top:6px;
+}
+#header .small,
+#footer .small {
+  font-weight:300;
+  font-size:0.9em;
+}
+
+#main {
+  margin-left:290px;
+}
+
+#sidebar {
+  float:left;
+  position:static;
+  width:250px;
+}
+
+#sidebar .heading {
+  color:#404040;
+  line-height:28px;
+  font-size:16px;
+  font-weight:bold;
+}
+#sidebar ul .heading {
+  line-height:22px;
+  font-size:14px;
+  padding-top:6px;
+}
+
+#sidebar ul {
+  margin-top:0;
+  padding-left:15px;
+}
+#sidebar ul li {
+  list-style-type:none;
+}
+#sidebar ul li a {
+  color:#404040;
+  font-size:14px;
+  line-height:1.8em;
+}
+
+.page-title {
+  font-weight:200;
+  font-size:40px;
+  color:#404040;
+  padding-bottom:40px;
+  padding-top:30px;
+}
+.page-title .extends {
+  font-style: italic;
+  font-size:0.7em;
+  color:#ccc;
+}
+
+/* It's not possible to make H3+ in Markdown parsed out of source code, because
+ Coffeescript uses the ### as the comment block character. Allow the use of #
+ and ##, but convert these h1 and h2 elements to smaller headings. */
+.markdown-from-sourecode h1,
+.markdown-from-sourecode h2 {
+  font-size: 24px;
+  margin-top:30px;
+}
 
 .article img {
   margin-top:18px;
   margin-bottom:18px;
-  border:1px solid #ccc;
 }
 
 .article .center-logo {
@@ -210,12 +305,49 @@ sup {
   border-bottom:1px solid #ccc;
   padding-top:10px;
 }
+.function-name .arg {
+  color: #999;
+}
+.function-name .arg:after {
+  content: ", ";
+  color: #999;
+}
+.function-name .arg:last-child:after {
+  content: "";
+}
+.function-description h1,
+.function-description h2,
+.function-description h3,
+.function-description h4,
+.function-description h5 {
+  font-size: 16px;
+  line-height:1.5em;
+  margin:0;
+}
 
+table th {
+  background-color: #EAF7F6;
+  text-align:left;
+}
+table td {
+  position:relative;
+}
 table.arguments {
   width:100%;
 }
 table.arguments p {
   margin-bottom:0;
+}
+table.arguments .optional {
+  background-color: #EAF7F6;
+  position:absolute;
+  top:0px;
+  right:0px;
+  padding-right: 4px;
+  padding-left: 4px;
+  font-weight: 500;
+  font-size: 11px;
+  line-height:16px;
 }
 
 table.no-border td {

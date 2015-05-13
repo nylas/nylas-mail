@@ -12,7 +12,7 @@ Function::getter = (prop, get) ->
 ###
 Public: The Thread model represents a Thread object served by the Nylas Platform API.
 For more information about Threads on the Nylas Platform, read the
-[https://nylas.com/docs/api#threads](Threads API Documentation)
+[Threads API Documentation](https://nylas.com/docs/api#threads)
 
 ## Attributes
 
@@ -38,6 +38,7 @@ For more information about Threads on the Nylas Platform, read the
 
 This class also inherits attributes from {Model}
 
+Section: Models
 ###
 class Thread extends Model
 

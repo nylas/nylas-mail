@@ -56,6 +56,7 @@ interactions.
 
 See documentation on the propTypes for usage info.
 
+Section: Component Kit
 ###
 TokenizingTextField = React.createClass
   displayName: "TokenizingTextField"

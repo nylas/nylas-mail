@@ -1,4 +1,7 @@
-###Building a Package
+---
+Title:   Building a Package
+Section: Getting Started
+---
 
 Packages lie at the heart of Nylas Mail. Each part of the core experience is a separate package that uses the Nilas Package API to add functionality to the client. Want to make a read-only mail client? Remove the core `Composer` package and you'll see reply buttons and composer functionality disappear.
 
@@ -6,7 +9,7 @@ Let's explore the files in a simple package that adds a Translate option to the 
 
 #####Package Structure
 
-Each package is defined by a `package.json` file that includes it's name, version and dependencies. Our `translate` package uses React and the Node [request](https://github.com/request/request) library.
+Each package is defined by a `package.json` file that includes it's name, version and dependencies. Our `translate` package uses [React](https://facebook.github.io/react/) and the Node [request](https://github.com/request/request) library.
 
 ```
 {
@@ -72,7 +75,7 @@ module.exports =
 > Nylas Mail uses CJSX, a Coffeescript version of JSX, which makes it easy to express Virtual DOM in React `render` methods! You may want to add the [Babel](https://github.com/babel/babel-sublime) plugin to Sublime Text, or the [CJSX Language](https://atom.io/packages/language-cjsx) for syntax highlighting.
 
 
-#####Package Style Sheets
+#####Package Stylesheets
 
 Style sheets for your package should be placed in the _styles_ directory.
 Any style sheets in this directory will be loaded and attached to the DOM when
@@ -84,7 +87,7 @@ set of components which define both the colors and UI elements for any package
 that fits into Nylas Mail seamlessly.
 
 If you _do_ need special styling, try to keep only structural styles in the
-package style sheets. If you _must_ specify colors and sizing, these should be
+package stylesheets. If you _must_ specify colors and sizing, these should be
 taken from the active theme's [ui-variables.less][ui-variables]. For more
 information, see the [theme variables docs][theme-variables]. If you follow this
 guideline, your package will look good out of the box with any theme!

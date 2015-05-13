@@ -8,7 +8,7 @@ Every object on the Nylas platform exists within a Namespace, which typically re
 an email account.
 
 For more information about Namespaces on the Nylas Platform, read the
-[https://nylas.com/docs/api#namespace](Namespace API Documentation)
+[Namespace API Documentation](https://nylas.com/docs/api#namespace)
 
 ## Attributes
 
@@ -21,6 +21,7 @@ For more information about Namespaces on the Nylas Platform, read the
 
 This class also inherits attributes from {Model}
 
+Section: Models
 ###
 class Namespace extends Model
 

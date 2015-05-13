@@ -5,6 +5,8 @@ _ = require 'underscore-plus'
 ###
 Public: A simple wrapper that provides a Flexbox layout with the given direction and style.
 Any additional props you set on the Flexbox are rendered.
+
+Section: Component Kit
 ###
 class Flexbox extends React.Component
   @displayName: 'Flexbox'

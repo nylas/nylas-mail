@@ -30,7 +30,6 @@ ThreadListStore = Reflux.createStore
     @listenTo Actions.archiveAndNext, @_onArchiveAndNext
     @listenTo Actions.archiveSelection, @_onArchiveSelection
     @listenTo Actions.archive, @_onArchive
-    @listenTo Actions.selectThreads, @_onSetSelection
 
     @listenTo DatabaseStore, @_onDataChanged
     @listenTo FocusedTagStore, @_onTagChanged
@@ -81,9 +80,6 @@ ThreadListStore = Reflux.createStore
     return if @_searchQuery is query
     @_searchQuery = query
     @createView()
-
-  _onSetSelection: (threads) ->
-    @_view.selection.set(threads)
 
   _onDataChanged: (change) ->
     if change.objectClass is Thread.name
