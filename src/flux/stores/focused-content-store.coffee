@@ -7,6 +7,9 @@ Actions = require '../actions'
 Thread = require '../models/thread'
 AddRemoveTagsTask = require '../tasks/add-remove-tags'
 
+{Listener, Publisher} = require '../modules/reflux-coffee'
+CoffeeHelpers = require '../coffee-helpers'
+
 ###
 Public: The FocusedContentStore provides access to the objects currently selected
 or otherwise focused in the window. Normally, focus would be maintained internally
@@ -49,6 +52,10 @@ _onFocusChanged: ->
 Section: Stores
 ###
 class FocusedContentStore
+  @include: CoffeeHelpers.includeModule
+
+  @include Publisher
+  @include Listener
 
   constructor: ->
     @_resetInstanceVars()
