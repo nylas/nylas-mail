@@ -7,13 +7,15 @@ _ = require 'underscore-plus'
 ###
 Public: `MenuItem` components can be provided to the {Menu} by the `itemContent` function.
 MenuItem's props allow you to display dividers as well as standard items.
+
+Section: Component Kit
 ###
 class MenuItem extends React.Component
   @displayName = 'MenuItem'
 
   ###
   Public: React `props` supported by MenuItem:
-  
+
    - `divider` (optional) Pass a {String} to render the menu item as a section divider.
    - `key` (optional)
    - `selected` (optional)
@@ -33,13 +35,15 @@ class MenuItem extends React.Component
 
 ###
 Public: React component for a {Menu} item that displays a name and email address.
+
+Section: Component Kit
 ###
 class MenuNameEmailItem extends React.Component
   @displayName: 'MenuNameEmailItem'
 
   ###
   Public: React `props` supported by MenuNameEmailItem:
-  
+
    - `name` (optional) The {String} name to be displayed.
    - `email` (optional) The {String} email address to be displayed.
   ###
@@ -81,32 +85,33 @@ component's Menu instance:
   height: 100px;
 }
 ```
-###
 
+Section: Component Kit
+###
 class Menu extends React.Component
   @displayName: 'Menu'
 
   ###
   Public: React `props` supported by Menu:
-  
+
    - `className` (optional) The {String} class name applied to the Menu
 
    - `itemContent` A {Function} that returns a {MenuItem}, {String}, or
      React component for the given `item`.
-  
+
      If you return a {MenuItem}, your item is injected into the list directly.
-  
+
      If you return a string or React component, the result is placed within a
      {MenuItem}, resulting in the following DOM:
      `<div className="item [selected]">{your content}</div>`.
-  
+
      To create dividers and other special menu items, return an instance of:
      <Menu.Item divider content="Label">
-  
+
    - `itemKey` A {Function} that returns a unique string key for the given `item`.
      Keys are important for efficient React rendering when `items` is changed, and a
      key function is required.
-  
+
    - `items` An {Array} of arbitrary objects the menu should display.
 
    - `onSelect` A {Function} called with the selected item when the user clicks
@@ -159,7 +164,7 @@ class Menu extends React.Component
 
     @setState
       selectedIndex: newSelectionIndex
- 
+
   componentDidUpdate: =>
     item = React.findDOMNode(@).querySelector(".selected")
     container = React.findDOMNode(@).querySelector(".content-container")

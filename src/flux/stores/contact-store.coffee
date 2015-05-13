@@ -26,6 +26,7 @@ _onContactsChanged: ->
   # refresh your contact results
 ```
 
+Section: Stores
 ###
 class ContactStore
   @include: CoffeeHelpers.includeModule

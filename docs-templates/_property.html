@@ -8,7 +8,8 @@
             <em>{{name}}</em>
           </td>
           <td>
-            {{{description}}} {{#if isOptional}} (Optional) {{/if}}
+            {{#if isOptional}}<span class="optional">Optional</span>{{/if}}
+            {{{description}}}
           </td>
         </tr>
         {{/each}}

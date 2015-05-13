@@ -27,6 +27,8 @@ verbose = true
 # DatabaseView may internally keep a larger set of items loaded
 # for performance.
 #
+# Section: Database
+#
 class DatabaseView extends ModelView
 
   constructor: (@klass, config = {}, @_itemMetadataProvider) ->

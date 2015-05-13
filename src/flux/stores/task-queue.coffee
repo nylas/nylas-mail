@@ -3,6 +3,9 @@ fs = require 'fs-plus'
 path = require 'path'
 {generateTempId} = require '../models/utils'
 
+{Listener, Publisher} = require '../modules/reflux-coffee'
+CoffeeHelpers = require '../coffee-helpers'
+
 Task = require "../tasks/task"
 Reflux = require 'reflux'
 Actions = require '../actions'
@@ -13,9 +16,56 @@ Actions = require '../actions'
 
 if not atom.isMainWindow() and not atom.inSpecMode() then return
 
-module.exports =
-TaskQueue = Reflux.createStore
-  init: ->
+###
+Public: The TaskQueue is a Flux-compatible Store that manages a queue of {Task}
+objects. Each {Task} represents an individual API action, like sending a draft
+or marking a thread as "read". Tasks optimistically make changes to the app's
+local cache and encapsulate logic for performing changes on the server, rolling
+back in case of failure, and waiting on dependent tasks.
+
+The TaskQueue is essential to offline mode in Nylas Mail. It automatically pauses
+when the user's internet connection is unavailable and resumes when online.
+
+The task queue is persisted to disk, ensuring that tasks are executed later,
+even if the user quits Nylas Mail.
+
+The TaskQueue is only available in the app's main window. Rather than directly
+queuing tasks, you should use the {Actions} to interact with the {TaskQueue}.
+Tasks queued from secondary windows are serialized and sent to the application's
+main window via IPC.
+
+## Queueing a Task
+
+```coffee
+if @_thread && @_thread.isUnread()
+  Actions.queueTask(new MarkThreadReadTask(@_thread))
+```
+
+## Dequeueing a Task
+
+```coffee
+Actions.dequeueMatchingTask({
+  object: 'FileUploadTask',
+  matchKey: "filePath"
+  matchValue: uploadData.filePath
+})
+```
+
+## Creating Tasks
+
+Support for creating custom {Task} subclasses in third-party packages is coming soon.
+This is currently blocked by the ActionBridge, which is responsible for sending actions
+between windows, since it's JSON serializer is not extensible.
+
+Section: Stores
+###
+class TaskQueue
+  @include: CoffeeHelpers.includeModule
+
+  @include Publisher
+  @include Listener
+
+  constructor: ->
     @_queue = []
     @_completed = []
 
@@ -39,7 +89,7 @@ TaskQueue = Reflux.createStore
       @_onlineStatus = false
       @_update()
 
-  _initializeTask: (task) ->
+  _initializeTask: (task) =>
     task.id ?= generateTempId()
     task.queueState ?= {}
     task.queueState =
@@ -51,7 +101,7 @@ TaskQueue = Reflux.createStore
       performedRemote: false
       notifiedOffline: false
 
-  enqueue: (task, {silent}={}) ->
+  enqueue: (task, {silent}={}) =>
     if not (task instanceof Task)
       throw new Error("You must queue a `Task` object")
 
@@ -60,7 +110,7 @@ TaskQueue = Reflux.createStore
     @_queue.push(task)
     @_update() if not silent
 
-  dequeue: (taskOrId={}, {silent}={}) ->
+  dequeue: (taskOrId={}, {silent}={}) =>
     task = @_parseArgs(taskOrId)
 
     task.queueState.isProcessing = false
@@ -70,12 +120,12 @@ TaskQueue = Reflux.createStore
     @_moveToCompleted(task)
     @_update() if not silent
 
-  dequeueAll: ->
+  dequeueAll: =>
     for task in @_queue by -1
       @dequeue(task, silent: true) if task?
     @_update()
 
-  dequeueMatching: (task) ->
+  dequeueMatching: (task) =>
     identifier = task.matchKey
     propValue  = task.matchValue
 
@@ -86,15 +136,15 @@ TaskQueue = Reflux.createStore
 
     @_update()
 
-  clearCompleted: ->
+  clearCompleted: =>
     @_completed = []
     @trigger()
 
-  _processQueue: ->
+  _processQueue: =>
     for task in @_queue by -1
       @_processTask(task) if task?
 
-  _processTask: (task) ->
+  _processTask: (task) =>
     return if task.queueState.isProcessing
     return if @_taskIsBlocked(task)
 
@@ -108,7 +158,7 @@ TaskQueue = Reflux.createStore
         @_performRemote(task)
       .catch @_onLocalError(task)
 
-  _performRemote: (task) ->
+  _performRemote: (task) =>
     if @_isOnline()
       task.queueState.remoteAttempts += 1
       task.performRemote().then =>
@@ -118,12 +168,12 @@ TaskQueue = Reflux.createStore
     else
       @_notifyOffline(task)
 
-  _update: ->
+  _update: =>
     @trigger()
     @_saveQueueToDisk()
     @_processQueue()
 
-  _dequeueObsoleteTasks: (task) ->
+  _dequeueObsoleteTasks: (task) =>
     for otherTask in @_queue by -1
       # Do not interrupt tasks which are currently processing
       continue if otherTask.queueState.isProcessing
@@ -133,33 +183,33 @@ TaskQueue = Reflux.createStore
       if task.shouldDequeueOtherTask(otherTask)
         @dequeue(otherTask, silent: true)
 
-  _taskIsBlocked: (task) ->
+  _taskIsBlocked: (task) =>
     _.any @_queue, (otherTask) ->
       task.shouldWaitForTask(otherTask) and task isnt otherTask
 
-  _notifyOffline: (task) ->
+  _notifyOffline: (task) =>
     task.queueState.isProcessing = false
     if not task.queueState.notifiedOffline
       task.queueState.notifiedOffline = true
       task.onError(new OfflineError)
 
-  _onLocalError: (task) -> (error) =>
+  _onLocalError: (task) => (error) =>
     task.queueState.isProcessing = false
     task.queueState.localError = error
     task.onError(error)
     @dequeue(task)
 
-  _onRemoteError: (task) -> (apiError) =>
+  _onRemoteError: (task) => (apiError) =>
     task.queueState.isProcessing = false
     task.queueState.notifiedOffline = false
     task.queueState.remoteError = apiError
     task.onError(apiError)
     @dequeue(task)
 
-  _isOnline: -> @_onlineStatus # TODO # OnlineStatusStore.isOnline()
-  _onOnlineChange: -> @_processQueue()
+  _isOnline: => @_onlineStatus # TODO # OnlineStatusStore.isOnline()
+  _onOnlineChange: => @_processQueue()
 
-  _parseArgs: (taskOrId) ->
+  _parseArgs: (taskOrId) =>
     if taskOrId instanceof Task
       task = _.find @_queue, (task) -> task is taskOrId
     else
@@ -168,11 +218,11 @@ TaskQueue = Reflux.createStore
       throw new Error("Can't find task #{taskOrId}")
     return task
 
-  _moveToCompleted: (task) ->
+  _moveToCompleted: (task) =>
     @_completed.push(task)
     @_completed.shift() if @_completed.length > 1000
 
-  _restoreQueueFromDisk: ->
+  _restoreQueueFromDisk: =>
     {modelReviver} = require '../models/utils'
     try
       queueFile = path.join(atom.getConfigDirPath(), 'task-queue.json')
@@ -188,7 +238,10 @@ TaskQueue = Reflux.createStore
       if not atom.inSpecMode()
         console.log("Queue deserialization failed with error: #{e.toString()}")
 
-  _saveQueueToDisk: (callback) ->
+  _saveQueueToDisk: (callback) =>
     queueFile = path.join(atom.getConfigDirPath(), 'task-queue.json')
     queueJSON = JSON.stringify((@_queue ? []))
     fs.writeFile(queueFile, queueJSON, callback)
+
+
+module.exports = new TaskQueue()

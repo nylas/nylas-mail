@@ -55,6 +55,8 @@ MenuHelpers = require './menu-helpers'
 # ```
 #
 # See {::add} for more info about adding menu's directly.
+#
+# Section: Atom
 module.exports =
 class MenuManager
   constructor: ({@resourcePath}) ->

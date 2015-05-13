@@ -3,6 +3,9 @@ ParsedColor = null
 
 # Essential: A simple color class returned from {Config::get} when the value
 # at the key path is of type 'color'.
+#
+# Section: Atom
+#
 module.exports =
 class Color
   # Essential: Parse a {String} or {Object} into a {Color}.

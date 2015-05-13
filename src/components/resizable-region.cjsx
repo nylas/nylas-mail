@@ -29,6 +29,8 @@ ResizableHandle =
 ###
 Public: ResizableRegion wraps it's `children` in a div with a fixed width or height, and a
 draggable edge. It is used throughout Nylas Mail to implement resizable columns, trays, etc.
+
+Section: Component Kit
 ###
 class ResizableRegion extends React.Component
   @displayName = 'ResizableRegion'

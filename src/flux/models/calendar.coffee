@@ -5,7 +5,7 @@ _ = require 'underscore-plus'
 ###
 Public: The Calendar model represents a Calendar object served by the Nylas Platform API.
 For more information about Calendar on the Nylas Platform, read the
-[https://nylas.com/docs/api#calendar](Calendar API Documentation)
+[Calendar API Documentation](https://nylas.com/docs/api#calendar)
 
 ## Attributes
 
@@ -15,6 +15,7 @@ For more information about Calendar on the Nylas Platform, read the
 
 This class also inherits attributes from {Model}
 
+Section: Models
 ###
 class Calendar extends Model
 
@@ -23,5 +24,5 @@ class Calendar extends Model
       modelKey: 'name'
     'description': Attributes.String
       modelKey: 'description'
-    
+
 module.exports = Calendar

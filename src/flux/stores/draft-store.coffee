@@ -29,6 +29,8 @@ It also creates and queues {Task} objects to persist changes to the Nylas
 API.
 
 Remember that a "Draft" is actually just a "Message" with `draft: true`.
+
+Section: Drafts
 ###
 class DraftStore
   @include: CoffeeHelpers.includeModule

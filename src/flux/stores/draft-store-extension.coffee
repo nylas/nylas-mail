@@ -26,6 +26,8 @@ drafts at any time. You should not expect that the session you receive in
 The DraftStoreExtension API does not currently expose any asynchronous or {Promise}-based APIs.
 This will likely change in the future. If you have a use-case for a Draft Store extension that
 is not possible with the current API, please let us know.
+
+Section: Drafts
 ###
 class DraftStoreExtension
 

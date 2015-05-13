@@ -31,6 +31,8 @@ ORDER BY `Thread`.`last_message_timestamp` DESC
 The value of this attribute is always an array of ff other model objects. To use
 a Collection attribute, the JSON for the parent object must contain the nested
 objects, complete with their `object` field.
+
+Section: Database
 ###
 class AttributeCollection extends Attribute
   constructor: ({modelKey, jsonKey, itemClass}) ->

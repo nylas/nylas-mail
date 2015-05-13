@@ -7,6 +7,8 @@ path = require 'path'
 # sheets. The `StyleManager` doesn't add any style elements to the DOM on its
 # own, but is instead subscribed to by individual `<atom-styles>` elements,
 # which clone and attach style elements in different contexts.
+#
+# Section: Atom
 module.exports =
 class StyleManager
   constructor: ->

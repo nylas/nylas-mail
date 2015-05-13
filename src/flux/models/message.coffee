@@ -8,7 +8,7 @@ Attributes = require '../attributes'
 ###
 Public: The Message model represents a Message object served by the Nylas Platform API.
 For more information about Messages on the Nylas Platform, read the
-[https://nylas.com/docs/api#messages](Messages API Documentation)
+[Messages API Documentation](https://nylas.com/docs/api#messages)
 
 Messages are a sub-object of threads. The content of a message is immutable (with the
 exception being drafts). Nylas does not support operations such as move or delete on
@@ -55,6 +55,7 @@ All messages are part of a thread, even if that thread has only one message.
 
 This class also inherits attributes from {Model}
 
+Section: Models
 ###
 class Message extends Model
 

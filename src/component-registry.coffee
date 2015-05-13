@@ -8,6 +8,9 @@ CoffeeHelpers = require './flux/coffee-helpers'
 Public: The ComponentRegistry maintains an index of React components registered
 by Nylas packages. Components can use {InjectedComponent} and {InjectedComponentSet}
 to dynamically render components registered with the ComponentRegistry.
+
+Section: Stores
+
 ###
 class ComponentRegistry
   @include: CoffeeHelpers.includeModule
@@ -85,25 +88,36 @@ class ComponentRegistry
   findComponentByName: (name) =>
     @_registry[name]?.component
 
-  # Public: Retrieve all of the registry entries matching a given descriptor.
-  #
-  # - `descriptor`: An {Object} that specifies set of components using the
-  #   available keys below.
-  #
-  #   * `mode`: (optional) {String} Components that specifically list modes
-  #      will only be returned if they include this mode.
-  #
-  #   * `role`: (optional) {String} Only return components that have registered
-  #      for this role.
-  #
-  #   * `location`: (optional) {Object} Only return components that have registered
-  #      for this location.
-  #
-  #   Note that for advanced use cases, you can also pass (`modes`, `roles`, `locations`)
-  #   with arrays instead of single values.
-  #
-  # Returns an {Array} of {React.Component} objects
-  #
+  ###
+  Public: Retrieve all of the registry entries matching a given descriptor.
+
+  ```coffee
+    ComponentRegistry.findComponentsMatching({
+      role: 'Composer:ActionButton'
+    })
+
+    ComponentRegistry.findComponentsMatching({
+      location: WorkspaceStore.Location.RootSidebar.Toolbar
+    })
+  ```
+
+  - `descriptor`: An {Object} that specifies set of components using the
+    available keys below.
+
+    * `mode`: (optional) {String} Components that specifically list modes
+       will only be returned if they include this mode.
+
+    * `role`: (optional) {String} Only return components that have registered
+       for this role.
+
+    * `location`: (optional) {Object} Only return components that have registered
+       for this location.
+
+    Note that for advanced use cases, you can also pass (`modes`, `roles`, `locations`)
+    with arrays instead of single values.
+
+  Returns an {Array} of {React.Component} objects
+  ###
   findComponentsMatching: (descriptor) =>
     if not descriptor?
       throw new Error("ComponentRegistry.findComponentsMatching called without descriptor")

@@ -26,6 +26,8 @@ ThemePackage = require './theme-package'
 #
 # Packages can be enabled/disabled via the `core.disabledPackages` config
 # settings and also by calling `enablePackage()/disablePackage()`.
+#
+# Section: Atom
 module.exports =
 class PackageManager
   EmitterMixin.includeInto(this)

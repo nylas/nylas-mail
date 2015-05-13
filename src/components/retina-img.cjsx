@@ -30,13 +30,15 @@ an image name. Like UIImage on iOS, it automatically finds the best image for th
 display based on pixel density. Given `image.png`, on a Retina screen, it looks for
 `image@2x.png`, `image.png`, `image@1x.png` in that order. It uses a lookup table and caches
 image names, so images generally resolve immediately.
+
+Section: Component Kit
 ###
 class RetinaImg extends React.Component
   @displayName: 'RetinaImg'
 
   ###
   Public: React `props` supported by RetinaImg:
-  
+
    - `name` (optional) A {String} image name to display.
    - `fallback` (optional) A {String} image name to use when `name` cannot be found.
    - `selected` (optional) Appends "-selected" to the end of the image name when when true
@@ -76,7 +78,7 @@ class RetinaImg extends React.Component
 
     otherProps = _.omit(@props, _.keys(@constructor.propTypes))
     <img className={className} src={path} style={style} {...otherProps} />
-  
+
   _pathFor: (name) ->
     [basename, ext] = name.split('.')
     if @props.active is true

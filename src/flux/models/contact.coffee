@@ -9,7 +9,7 @@ name_suffixes = {}
 ###
 Public: The Contact model represents a Contact object served by the Nylas Platform API.
 For more information about Contacts on the Nylas Platform, read the
-[https://nylas.com/docs/api#contacts](Contacts API Documentation)
+[Contacts API Documentation](https://nylas.com/docs/api#contacts)
 
 ## Attributes
 
@@ -19,6 +19,7 @@ For more information about Contacts on the Nylas Platform, read the
 
 This class also inherits attributes from {Model}
 
+Section: Models
 ###
 class Contact extends Model
 

@@ -2,15 +2,30 @@ Reflux = require 'reflux'
 NamespaceStore = require './namespace-store'
 Actions = require '../actions'
 
+{Listener, Publisher} = require '../modules/reflux-coffee'
+CoffeeHelpers = require '../coffee-helpers'
+
 Location = {}
 Sheet = {}
 
 ###
 Public: The WorkspaceStore manages Sheets and layout modes in the application.
-Observing the WorkspaceStore makes it easy to monitor the sheet stack.
+Observing the WorkspaceStore makes it easy to monitor the sheet stack. To learn
+more about sheets and layout in Nylas Mail, see the {InterfaceConcepts.md}
+documentation.
+
+Section: Stores
 ###
-WorkspaceStore = Reflux.createStore
-  init: ->
+class WorkspaceStore
+  @include: CoffeeHelpers.includeModule
+
+  @include Publisher
+  @include Listener
+
+  constructor: ->
+    @Location = Location
+    @Sheet = Sheet
+
     @defineSheet 'Global'
 
     @defineSheet 'Threads', {root: true},
@@ -36,7 +51,7 @@ WorkspaceStore = Reflux.createStore
     atom.commands.add 'body',
       'application:pop-sheet': => @popSheet()
 
-  _resetInstanceVars: ->
+  _resetInstanceVars: =>
     @_preferredLayoutMode = 'list'
     @_sheetStack = []
 
@@ -46,7 +61,7 @@ WorkspaceStore = Reflux.createStore
   Inbound Events
   ###
 
-  _onSelectRootSheet: (sheet) ->
+  _onSelectRootSheet: (sheet) =>
     if not sheet
       throw new Error("Actions.selectRootSheet - #{sheet} is not a valid sheet.")
     if not sheet.root
@@ -56,11 +71,11 @@ WorkspaceStore = Reflux.createStore
     @_sheetStack.push(sheet)
     @trigger(@)
 
-  _onSelectLayoutMode: (mode) ->
+  _onSelectLayoutMode: (mode) =>
     @_preferredLayoutMode = mode
     @trigger(@)
 
-  _onFocusInCollection: ({collection, item}) ->
+  _onFocusInCollection: ({collection, item}) =>
     if collection is 'thread'
       if @layoutMode() is 'list'
         if item and @topSheet() isnt Sheet.Thread
@@ -81,7 +96,7 @@ WorkspaceStore = Reflux.createStore
 
   # Returns a {String}: The current layout mode. Either `split` or `list`
   #
-  layoutMode: ->
+  layoutMode: =>
     if @_preferredLayoutMode in @rootSheet().supportedModes
       @_preferredLayoutMode
     else
@@ -90,17 +105,17 @@ WorkspaceStore = Reflux.createStore
   # Returns The top {Sheet} in the current stack. Use this method to determine
   # the sheet the user is looking at.
   #
-  topSheet: ->
+  topSheet: =>
     @_sheetStack[@_sheetStack.length - 1]
 
   # Returns The {Sheet} at the root of the current stack.
   #
-  rootSheet: ->
+  rootSheet: =>
     @_sheetStack[0]
 
   # Returns an {Array<Sheet>} The stack of sheets
   #
-  sheetStack: ->
+  sheetStack: =>
     @_sheetStack
 
   ###
@@ -113,7 +128,7 @@ WorkspaceStore = Reflux.createStore
   # *`columns` An {Object} with keys for each layout mode the Sheet
   #      supports. For each key, provide an array of column names.
   #
-  defineSheet: (id, options = {}, columns = {}) ->
+  defineSheet: (id, options = {}, columns = {}) =>
     # Make sure all the locations have definitions so that packages
     # can register things into these locations and their toolbars.
     for layout, cols of columns
@@ -142,13 +157,13 @@ WorkspaceStore = Reflux.createStore
   #
   # * `sheet` The {Sheet} type to push onto the stack.
   #
-  pushSheet: (sheet) ->
+  pushSheet: (sheet) =>
     @_sheetStack.push(sheet)
     @trigger()
 
   # Remove the top sheet, with a quick animation. This method triggers,
   # allowing observers to update.
-  popSheet: ->
+  popSheet: =>
     sheet = @topSheet()
 
     if @_sheetStack.length > 1
@@ -160,11 +175,8 @@ WorkspaceStore = Reflux.createStore
 
   # Return to the root sheet. This method triggers, allowing observers
   # to update.
-  popToRootSheet: ->
+  popToRootSheet: =>
     @_sheetStack.length = 1
     @trigger()
 
-WorkspaceStore.Location = Location
-WorkspaceStore.Sheet = Sheet
-
-module.exports = WorkspaceStore
+module.exports = new WorkspaceStore()

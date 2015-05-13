@@ -23,6 +23,8 @@ InjectedComponent monitors the ComponentRegistry for changes. If a new component
 is registered that matches the descriptor you provide, InjectedComponent will refresh.
 
 If no matching component is found, the InjectedComponent renders an empty div.
+
+Section: Component Kit
 ###
 class InjectedComponent extends React.Component
   @displayName: 'InjectedComponent'

@@ -5,6 +5,8 @@ crypto = require 'crypto'
 #
 # An instance of this class is always available as the `atom.clipboard` global.
 #
+# Section: Atom
+#
 # ## Examples
 #
 # ```coffee

@@ -7,6 +7,8 @@ Public: The value of this attribute is always a boolean. Null values are coerced
 
 String attributes can be queries using `equal` and `not`. Matching on
 `greaterThan` and `lessThan` is not supported.
+
+Section: Database
 ###
 class AttributeBoolean extends Attribute
   toJSON: (val) -> val

@@ -27,6 +27,8 @@ SpecificityCache = {}
 # `stopPropagation` and `stopImmediatePropagation` can be used to terminate the
 # bubbling process and prevent invocation of additional listeners.
 #
+# Section: Atom
+#
 # ## Example
 #
 # Here is a command that inserts the current date in an editor:

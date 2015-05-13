@@ -6,6 +6,17 @@ Public: EventedIFrame is a thin wrapper around the DOM's standard `<iframe>` ele
 You should always use EventedIFrame, because it provides important event hooks that
 ensure keyboard and mouse events are properly delivered to the application when
 fired within iFrames.
+
+```
+<div className="file-frame-container">
+  <EventedIFrame src={src} />
+  <Spinner visible={!@state.ready} />
+</div>
+```
+
+Any `props` added to the <EventedIFrame> are passed to the iFrame it renders.
+
+Section: Component Kit
 ###
 class EventedIFrame extends React.Component
   @displayName = 'EventedIFrame'

@@ -6,6 +6,8 @@ Grim = require 'grim'
 # An instance of this class is always available as the `atom.deserializers`
 # global.
 #
+# Section: Atom
+#
 # ## Examples
 #
 # ```coffee

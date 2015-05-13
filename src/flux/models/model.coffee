@@ -16,6 +16,7 @@ serialization and deserialization, matching by attributes, and ID-based equality
 
 `namespaceId`: {AttributeString} The string Namespace Id this model belongs to.
 
+Section: Models
 ###
 class Model
 

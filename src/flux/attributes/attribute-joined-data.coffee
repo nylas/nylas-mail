@@ -29,6 +29,8 @@ When you call `persistModel`, JoinedData attributes are automatically
 written to the secondary table.
 
 JoinedData attributes cannot be `queryable`.
+
+Section: Database
 ###
 class AttributeJoinedData extends Attribute
   @NullPlaceholder: NullPlaceholder

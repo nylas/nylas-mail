@@ -4,6 +4,8 @@ Matcher = require './matcher'
 
 ###
 Public: The value of this attribute is always a Javascript `Date`, or `null`.
+
+Section: Database
 ###
 class AttributeDateTime extends Attribute
   toJSON: (val) ->

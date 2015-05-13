@@ -21,6 +21,7 @@ class MyComponent extends React.Component
     order: 2
 ```
 
+Section: Component Kit
 ###
 class UnsafeComponent extends React.Component
   @displayName: 'UnsafeComponent'
