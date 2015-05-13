@@ -311,7 +311,6 @@ module.exports = (grunt) ->
   ciTasks.push('mkdmg') if process.platform is 'darwin'
   ciTasks.push('create-windows-installer') if process.platform is 'win32'
   ciTasks.push('publish-edgehill-build') if process.platform is 'darwin'
-  # ciTasks.push('publish-build')
   grunt.registerTask('ci', ciTasks)
 
   defaultTasks = ['download-atom-shell', 'build', 'set-version']

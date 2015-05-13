@@ -42,15 +42,28 @@ class Popover extends React.Component
   ###
   Public: React `props` supported by Popover:
 
-   - `buttonComponent` The React element that will be rendered in place of the Popover and trigger it to appear. This is typically a button or call-to-action for opening the
-   popover. Popover wraps this item in a <div> with an onClick handler.
+   - `buttonComponent` The React element that will be rendered in place of the
+     Popover and trigger it to appear. This is typically a button or call-to-action for
+     opening the popover. Popover wraps this item in a <div> with an onClick handler.
 
    - `children` The React elements that should appear when the Popover is opened.
      They're automatically wrapped in a `<div class="popover">`, which applies standard
      shadowing and styles.
+
+  - `direction` Defaults to 'up'. You can also pass 'down' to make the Popover float beneath
+    the button component.
+
+  Events
+
+  - `onOpened` A {Function} that will be called when the popover is opened.
+
   ###
   @propTypes =
     buttonComponent: React.PropTypes.element
+    direction: React.PropTypes.string
+
+  @defaultProps =
+    direction: 'up'
 
   constructor: (@props) ->
     @state =
@@ -68,6 +81,8 @@ class Popover extends React.Component
   open: =>
     @setState
       showing: true
+    if @props.onOpened?
+      @props.onOpened()
 
   close: =>
     @setState
@@ -80,9 +95,37 @@ class Popover extends React.Component
 
     popoverComponent = []
     if @state.showing
-      popoverComponent = <div ref="popover" className="popover">
+      popoverStyle =
+        'position': 'absolute'
+        'left': '50%'
+        'zIndex': 40
+      pointerStyle =
+        'position': 'absolute'
+        'marginLeft': '50%'
+        'width': 22.5
+        'height': 11
+        'zIndex': 0
+
+      if @props.direction is 'up'
+        popoverStyle = _.extend popoverStyle,
+          'transform': 'translate(-50%,-100%)'
+          'top': -10,
+        pointerStyle = _.extend pointerStyle,
+          'transform': 'translateX(-50%)'
+          'bottom': -10
+
+      else if @props.direction is 'down'
+        popoverStyle = _.extend popoverStyle,
+          'transform': 'translate(-50%,15px)'
+          'top': '100%'
+        pointerStyle = _.extend pointerStyle,
+          'transform': 'rotateX(180deg)'
+          'top': -10
+          'left':-12
+
+      popoverComponent = <div ref="popover" className={"popover popover-"+@props.direction} style={popoverStyle}>
         {@props.children}
-        <div className="popover-pointer"></div>
+        <div className="popover-pointer" style={pointerStyle}></div>
       </div>
 
     <div className={"popover-container "+@props.className} onBlur={@_onBlur} ref="container">
@@ -91,10 +134,8 @@ class Popover extends React.Component
     </div>
 
   _onClick: =>
-    showing = !@state.showing
-    @setState({showing})
-
-    if showing
+    if not @state.showing
+      @open()
       setTimeout =>
         # Automatically focus the element inside us with the lowest tab index
         node = React.findDOMNode(@refs.popover)
@@ -107,6 +148,8 @@ class Popover extends React.Component
             return 1000000
           else return 1000001
         matches[0]?.focus()
+    else
+      @close()
 
   _onBlur: (event) =>
     target = event.nativeEvent.relatedTarget

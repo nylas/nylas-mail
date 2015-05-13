@@ -19,18 +19,22 @@ class MenuItem extends React.Component
    - `divider` (optional) Pass a {String} to render the menu item as a section divider.
    - `key` (optional)
    - `selected` (optional)
+   - `checked` (optional)
   ###
   @propTypes:
     divider: React.PropTypes.string
     key: React.PropTypes.string
     selected: React.PropTypes.bool
+    checked: React.PropTypes.bool
 
   render: =>
-    if @props.divider
-      <div className="divider">{@props.divider}</div>
+    if @props.divider?
+      <div className="item divider">{@props.divider}</div>
     else
-      className = "item"
-      className += " selected" if @props.selected
+      className = classNames
+        "item": true
+        "selected": @props.selected
+        "checked": @props.checked
       <div className={className} key={@props.key} onMouseDown={@props.onMouseDown}>{@props.content}</div>
 
 ###
@@ -106,11 +110,16 @@ class Menu extends React.Component
      `<div className="item [selected]">{your content}</div>`.
 
      To create dividers and other special menu items, return an instance of:
-     <Menu.Item divider content="Label">
+
+     <Menu.Item divider="Label">
 
    - `itemKey` A {Function} that returns a unique string key for the given `item`.
      Keys are important for efficient React rendering when `items` is changed, and a
      key function is required.
+
+   - `itemChecked` A {Function} that returns true if the given item should be shown
+     with a checkmark. If you don't provide an implementation for `itemChecked`, no
+     checkmarks are ever shown.
 
    - `items` An {Array} of arbitrary objects the menu should display.
 
@@ -124,6 +133,7 @@ class Menu extends React.Component
     headerComponents: React.PropTypes.arrayOf(React.PropTypes.element),
     itemContent: React.PropTypes.func.isRequired,
     itemKey: React.PropTypes.func.isRequired,
+    itemChecked: React.PropTypes.func,
 
     items: React.PropTypes.array.isRequired
 
@@ -131,16 +141,19 @@ class Menu extends React.Component
 
   constructor: (@props) ->
     @state =
-      selectedIndex: -1
+      selectedIndex: 0
 
-  # Public: Takes an argument and does some stuff.
-  #
-  # a - A {String}
-  #
-  # Returns {Boolean}.
+  # Public: Returns the currently selected item.
   #
   getSelectedItem: =>
     @props.items[@state.selectedIndex]
+
+  # Public: Set the currently selected item. Pass
+  # null to remove the selection
+  #
+  setSelectedItem: (item) =>
+    @setState
+      selectedIndex: @props.items.indexOf(item)
 
   componentDidMount: =>
     @subscriptions = new CompositeDisposable()
@@ -154,8 +167,11 @@ class Menu extends React.Component
     # Attempt to preserve selection across props.items changes by
     # finding an item in the new list with a key matching the old
     # selected item's key
-    selection = @props.items[@state.selectedIndex]
-    newSelectionIndex = 0
+    if @state.selectedIndex >= 0
+      selection = @props.items[@state.selectedIndex]
+      newSelectionIndex = 0
+    else
+      newSelectionIndex = -1
 
     if selection?
       selectionKey = @props.itemKey(selection)
@@ -200,7 +216,9 @@ class Menu extends React.Component
 
   _itemComponentForItem: (item, i) =>
     content = @props.itemContent(item)
-    return content if content instanceof MenuItem
+
+    if React.isValidElement(content) and content.type is MenuItem
+      return content
 
     onMouseDown = (event) =>
       event.preventDefault()
@@ -208,6 +226,7 @@ class Menu extends React.Component
 
     <MenuItem onMouseDown={onMouseDown}
               key={@props.itemKey(item)}
+              checked={@props.itemChecked?(item)}
               content={content}
               selected={@state.selectedIndex is i} />
 

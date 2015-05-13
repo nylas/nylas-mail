@@ -2,6 +2,7 @@ _ = require 'underscore-plus'
 Reflux = require 'reflux'
 NamespaceStore = require './namespace-store'
 WorkspaceStore = require './workspace-store'
+DatabaseStore = require './database-store'
 Actions = require '../actions'
 Thread = require '../models/thread'
 AddRemoveTagsTask = require '../tasks/add-remove-tags'
@@ -28,7 +29,7 @@ have the latest version of the the selected object.
 
    - thread
    - file
-   
+
 **Example: Observing the Selected Thread**
 
 ```coffeescript
@@ -49,10 +50,11 @@ Section: Stores
 ###
 class FocusedContentStore
 
-  init: ->
+  constructor: ->
     @_resetInstanceVars()
     @listenTo NamespaceStore, @_onClear
     @listenTo WorkspaceStore, @_onWorkspaceChange
+    @listenTo DatabaseStore, @_onDataChange
     @listenTo Actions.focusInCollection, @_onFocus
     @listenTo Actions.focusKeyboardInCollection, @_onFocusKeyboard
 
@@ -99,6 +101,25 @@ class FocusedContentStore
           @_onFocus({collection, item})
 
     @trigger({ impactsCollection: -> true })
+
+  _onDataChange: (change) =>
+    # If one of the objects we're storing in our focused or keyboard cursor
+    # dictionaries has changed, we need to let our observers know, since they
+    # may now be holding on to outdated data.
+    return unless change and change.objectClass
+
+    touched = []
+
+    for data in [@_focused, @_keyboardCursor]
+      for key, val of data
+        continue unless val and val.constructor.name is change.objectClass
+        for obj in change.objects
+          if val.id is obj.id
+            data[key] = obj
+            touched.push(key)
+
+    if touched.length > 0
+      @trigger({ impactsCollection: (c) -> c in touched })
 
   # Public Methods
 

@@ -3,6 +3,7 @@ path = require 'path'
 
 _ = require 'underscore-plus'
 async = require 'async'
+request = require 'request'
 
 concurrency = 2
 
@@ -134,9 +135,35 @@ module.exports = (grunt) ->
   grunt.registerTask 'run-edgehill-specs', 'Run the specs', ->
     proc = require 'child_process'
     done = @async()
+    testSucceeded = false
+    testOutput = ""
     testProc = proc.spawn("./atom.sh", ["--test"])
-    testProc.stdout.on 'data', (data) -> console.log(data.toString())
-    testProc.stderr.on 'data', (data) -> grunt.log.error(data.toString())
-    testProc.on 'error', (err) -> grunt.log.error("Process error: #{err}")
+
+    testProc.stdout.on 'data', (data) ->
+      str = data.toString()
+      testOutput += str
+      console.log(str)
+      if str.indexOf(' 0 failures') isnt -1
+        testSucceeded = true
+
+    testProc.stderr.on 'data', (data) ->
+      str = data.toString()
+      testOutput += str
+      grunt.log.error(str)
+
+    testProc.on 'error', (err) ->
+      grunt.log.error("Process error: #{err}")
+
     testProc.on 'close', (exitCode, signal) ->
-      done()
+      if testSucceeded
+        return done()
+      else
+        testOutput = testOutput.replace(/\x1b\[[^m]+m/g, '')
+        url = "https://hooks.slack.com/services/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"
+        request.post
+          url: url
+          json:
+            username: "Edgehill Builds"
+            text: "Aghhh somebody broke the build. ```#{testOutput}```"
+        , (err, httpResponse, body) ->
+          done(false)
