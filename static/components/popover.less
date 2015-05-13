@@ -6,16 +6,11 @@
 }
 
 .popover {
-  position: absolute;
-  top: -10px;
-  left: 50%;
   width: 250px;
   max-height:400px;
   background-color: @background-color;
-  transform: translate(-50%,-100%);
-  box-shadow: 0 4px 30px rgba(0,0,0,0.19), inset 0 0 1px rgba(0,0,0,0.5);
   border-radius: @border-radius-base;
-  z-index: 40;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.19), inset 0 0 1px rgba(0,0,0,0.5);
 
   .menu {
     z-index:1;
@@ -41,14 +36,7 @@
   }
 
   .popover-pointer {
-    position: absolute;
-    width: 22.5px;
-    height: 11px;
     background: transparent url('images/tooltip/tooltip-bg-pointer@2x.png') no-repeat;
     background-size: 22.5px 10.5px;
-    margin-left: 50%;
-    transform: translateX(-50%);
-    z-index:0;
-    bottom: -10px;
   }
 }

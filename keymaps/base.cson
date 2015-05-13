@@ -211,7 +211,7 @@
   'enter': 'menu:enter'
 
 # For Popover Component
-'body .popover-container':
+'body .popover-container, body .popover-container input':
   'escape': 'popover:close'
 
 # Tokenizing Text fields

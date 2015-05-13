@@ -51,9 +51,32 @@
     }
   }
 
+  .item.divider {
+    font-weight:@headings-font-weight;
+    color: @menu-divider-color;
+    font-size: @font-size-small;
+    text-transform: uppercase;
+    margin-top: 10px;
+    pointer-events: none;
+  }
+
+  .item.checked {
+    background-image:url(./images/menu/checked@2x.png);
+    background-size: 16px;
+    background-position: right;
+    background-repeat: no-repeat;
+    background-position-x: 97%;
+    margin-right: 20px;
+    padding-right: 10%;
+  }
+
+  .item.selected.checked, .item.checked:hover {
+    background-image:url(./images/menu/checked-selected@2x.png);
+  }
+
   .item.selected, .item:hover {
     text-decoration: none;
-    background: @accent-primary;
+    background-color: @accent-primary;
     color: @text-color-inverse;
     .primary {
       color: @text-color-inverse;
