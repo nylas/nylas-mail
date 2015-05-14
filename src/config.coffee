@@ -853,7 +853,7 @@ class Config
     @watchSubscription = null
 
   notifyFailure: (errorMessage, detail) ->
-    atom.notifications.addError(errorMessage, {detail, dismissable: true})
+    console.log(errorMessage, detail)
 
   save: ->
     allSettings = {'*': @settings}

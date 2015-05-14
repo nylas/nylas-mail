@@ -53,7 +53,7 @@ start = function() {
     return setupCrashReporter();
   });
   return app.on('ready', function() {
-    var AtomApplication;
+    var Application;
     app.removeListener('open-file', addPathToOpen);
     app.removeListener('open-url', addUrlToOpen);
     args.pathsToOpen = args.pathsToOpen.map(function(pathToOpen) {
@@ -63,11 +63,11 @@ start = function() {
     setupCoffeeScript();
     if (args.devMode) {
       require(path.join(args.resourcePath, 'src', 'coffee-cache')).register();
-      AtomApplication = require(path.join(args.resourcePath, 'src', 'browser', 'edgehill-application'));
+      Application = require(path.join(args.resourcePath, 'src', 'browser', 'application'));
     } else {
-      AtomApplication = require('./edgehill-application');
+      Application = require('./application');
     }
-    AtomApplication.open(args);
+    Application.open(args);
     if (!args.test) {
       return console.log("App load time: " + (Date.now() - global.shellStartTime) + "ms");
     }

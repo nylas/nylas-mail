@@ -6,7 +6,7 @@ module.exports =
 
   activate: (@state) ->
     # Populate our initial state directly from the auto update manager.
-    updater = remote.getGlobal('atomApplication').autoUpdateManager
+    updater = remote.getGlobal('application').autoUpdateManager
     @_unlisten = Actions.notificationActionTaken.listen(@_onNotificationActionTaken, @)
 
     if updater.getState() is 'update-available'

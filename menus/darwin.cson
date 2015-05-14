@@ -4,7 +4,7 @@
     submenu: [
       { label: 'About Edgehill', command: 'application:about' }
       { label: 'Link External Account', command: 'atom-workspace:add-account' }
-      { label: 'Log Out', command: 'atom-workspace:logout' }
+      { label: 'Log Out', command: 'application:logout' }
       { label: 'VERSION', enabled: false }
       { label: 'Restart and Install Update', command: 'application:install-update', visible: false}
       { label: 'Check for Update', command: 'application:check-for-update', visible: false}

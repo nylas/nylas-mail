@@ -61,7 +61,12 @@ window.onload = function() {
     require('../src/coffee-cache').register();
 
     require(loadSettings.bootstrapScript);
-    require('ipc').sendChannel('window-command', 'window:loaded');
+
+    // Defer by one tick to make sure the window has rendered. This was in Atom,
+    // but special cased in Atom.coffee instead of here.
+    setTimeout(function() {
+      require('ipc').sendChannel('window-command', 'window:loaded');
+    }, 1);
 
     if (global.atom) {
       global.atom.loadTime = Date.now() - startTime;

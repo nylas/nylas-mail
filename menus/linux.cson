@@ -5,7 +5,7 @@
       { label: '&New Message', command: 'application:new-message' }
       { type: 'separator' }
       { label: 'Link External Account', command: 'atom-workspace:add-account' }
-      { label: 'Log Out', command: 'atom-workspace:logout' }
+      { label: 'Log Out', command: 'application:logout' }
       { label: 'Clos&e Window', command: 'window:close' }
       { label: 'Quit', command: 'application:quit' }
     ]
@@ -45,4 +45,3 @@
 
 'context-menu':[
 ]
-

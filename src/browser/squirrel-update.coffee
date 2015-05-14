@@ -204,7 +204,7 @@ exports.existsSync = ->
 
 # Restart Atom using the version pointed to by the atom.cmd shim
 exports.restartAtom = (app) ->
-  if projectPath = global.atomApplication?.lastFocusedWindow?.projectPath
+  if projectPath = global.application?.lastFocusedWindow?.projectPath
     args = [projectPath]
   app.once 'will-quit', -> spawn(path.join(binFolder, 'atom.cmd'), args)
   app.quit()

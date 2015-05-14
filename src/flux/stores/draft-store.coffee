@@ -218,6 +218,8 @@ class DraftStore
       forwardMessage: message
 
   _newMessageWithContext: ({threadId, messageId}, attributesCallback) =>
+    return unless NamespaceStore.current()
+
     queries = {}
     queries.thread = DatabaseStore.find(Thread, threadId)
     if messageId?
@@ -304,17 +306,22 @@ class DraftStore
     body.replace(re, "")
 
   _onPopoutBlankDraft: =>
+    namespace = NamespaceStore.current()
+    return unless namespace
+
     draft = new Message
       body: ""
-      from: [NamespaceStore.current().me()]
+      from: [namespace.me()]
       date: (new Date)
       draft: true
       pristine: true
-      namespaceId: NamespaceStore.current().id
+      namespaceId: namespace.id
     DatabaseStore.persistModel(draft).then =>
       DatabaseStore.localIdForModel(draft).then(@_onPopoutDraftLocalId)
 
   _onPopoutDraftLocalId: (draftLocalId, options = {}) =>
+    return unless NamespaceStore.current()
+
     options.draftLocalId = draftLocalId
 
     atom.newWindow

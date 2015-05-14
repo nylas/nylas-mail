@@ -46,7 +46,6 @@ class WorkspaceStore
 
     @listenTo Actions.popSheet, @popSheet
     @listenTo Actions.searchQueryCommitted, @popToRootSheet
-    @listenTo Actions.logout, @popToRootSheet
 
     atom.commands.add 'body',
       'application:pop-sheet': => @popSheet()
