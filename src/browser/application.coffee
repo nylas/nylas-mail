@@ -1,11 +1,14 @@
 AtomWindow = require './atom-window'
+BrowserWindow = require 'browser-window'
 ApplicationMenu = require './application-menu'
 NylasProtocolHandler = require './nylas-protocol-handler'
 AutoUpdateManager = require './auto-update-manager'
-BrowserWindow = require 'browser-window'
+WindowManager = require './window-manager'
+Config = require '../config'
+
+fs = require 'fs-plus'
 Menu = require 'menu'
 app = require 'app'
-fs = require 'fs'
 ipc = require 'ipc'
 path = require 'path'
 os = require 'os'
@@ -28,19 +31,19 @@ socketPath =
 # of the application.
 #
 module.exports =
-class AtomApplication
+class Application
   _.extend @prototype, EventEmitter.prototype
 
   # Public: The entry point into the Atom application.
   @open: (options) ->
-    createAtomApplication = -> new AtomApplication(options)
+    createApplication = -> new Application(options)
 
     # FIXME: Sometimes when socketPath doesn't exist, net.connect would strangely
     # take a few seconds to trigger 'error' event, it could be a bug of node
     # or atom-shell, before it's fixed we check the existence of socketPath to
     # speedup startup.
     if (process.platform isnt 'win32' and not fs.existsSync socketPath) or options.test
-      createAtomApplication()
+      createApplication()
       return
 
     client = net.connect {path: socketPath}, ->
@@ -48,10 +51,9 @@ class AtomApplication
         client.end()
         app.terminate()
 
-    client.on 'error', createAtomApplication
+    client.on 'error', createApplication
 
-  windows: null
-  mainWindow: null
+  windowManager: null
   applicationMenu: null
   nylasProtocolHandler: null
   resourcePath: null
@@ -65,18 +67,14 @@ class AtomApplication
     # Normalize to make sure drive letter case is consistent on Windows
     @resourcePath = path.normalize(@resourcePath) if @resourcePath
 
-    global.atomApplication = this
+    global.application = this
 
-    @pidsToOpenWindows = {}
-    @mainWindow = null
-
-    # A collection of active windows
-    @windows = []
-
-    @hotWindows = {}
+    configDirPath = fs.absolute('~/.inbox')
+    @config = new Config({configDirPath})
+    @config.load()
 
     @databases = {}
-
+    @windowManager = new WindowManager({@resourcePath, @config, @devMode, @safeMode})
     @autoUpdateManager = new AutoUpdateManager(@version)
     @applicationMenu = new ApplicationMenu(@version)
     @nylasProtocolHandler = new NylasProtocolHandler(@resourcePath, @safeMode)
@@ -92,202 +90,9 @@ class AtomApplication
     if test
       @runSpecs({exitWhenDone: true, @resourcePath, specDirectory, specFilePattern, logFile})
     else
-      @showMainWindow({devMode, safeMode})
-      @mainWindow.on "window:loaded", =>
-        for urlToOpen in (urlsToOpen || [])
-          @openUrl({urlToOpen})
-
-  # Makes a new window appear of a certain `windowType`.
-  #
-  # In almost all cases, instead of booting up a new window from scratch,
-  # we pass in new `windowProps` to a pre-loaded "hot window".
-  #
-  # Individual packages declare what windowTypes they support. We use this
-  # to determine what packages to load in a given `windowType`. Inside a
-  # package's `package.json` we expect to find an entry of the form:
-  #
-  #   "windowTypes": {
-  #     "myCustomWindowType": true
-  #     "someOtherWindowType": true
-  #     "composer": true
-  #   }
-  #
-  # Individual packages must also call `registerHotWindow` upon activation
-  # to start the prepartion of `hotWindows` of various types.
-  #
-  # Once a hot window is registered, we'll have a hidden window with the
-  # declared packages of that `windowType` pre-loaded.
-  #
-  # This means that when `newWindow` is called, instead of going through
-  # the bootup process, it simply replaces key parameters and does a soft
-  # reload via `windowPropsReceived`.
-  #
-  # Since the window is already loaded, there are only some options that
-  # can be soft-reloaded. If you attempt to pass options that a soft
-  # reload doesn't support, you'll be forced to load from a `coldStart`.
-  #
-  # Any options passed in here will be passed into the AtomWindow
-  # constructor, which will eventually show up in the window's main
-  # loadSettings, which is accessible via `atom.getLoadSettings()`
-  #
-  # REQUIRED options:
-  #   - windowType: defaults "popout". This eventually ends up as
-  #     atom.getWindowType()
-  #
-  # Valid options:
-  #   - coldStart: true
-  #   - windowProps: A good place to put any data components of the window
-  #       need to initialize properly. NOTE: You can only put JSON
-  #       serializable data. No functions!
-  #   - title: The title of the page
-  #
-  # Other options that will trigger a
-  #   - frame: defaults true. Whether or not the popup has a frame
-  #   - forceNewWindow
-  #
-  # Other non required options:
-  #   - All of the options of BrowserWindow
-  #     https://github.com/atom/atom-shell/blob/master/docs/api/browser-window.md#new-browserwindowoptions
-  newWindow: (options={}) ->
-    supportedHotWindowKeys = [
-      "title"
-      "width"
-      "height"
-      "windowType"
-      "windowProps"
-    ]
-
-    unsupported =  _.difference(Object.keys(options), supportedHotWindowKeys)
-    if unsupported.length > 0
-      console.log "WARNING! You are passing in options that can't be hotLoaded into a new window. Please either change the options or pass the `coldStart:true` option to suppress this warning. If it's just data for the window, please put them in the `windowProps` param."
-      console.log unsupported
-
-    # Make sure we registered the window
-    if @hotWindows[options.windowType]?
-      coldStart = options.coldStart
-    else
-      coldStart = true
-
-    if coldStart
-      @newColdWindow(options)
-    else
-      @newHotWindow(options)
-    return
-
-  # This sets up some windows in the background with the requested
-  # packages already pre-loaded into it.
-  #
-  # REQUIRED options:
-  #   - windowType: registers a new hot window of the given type. This is
-  #   the key we use to find what packages to load and what kind of window
-  #   to open
-  #
-  # Optional options:
-  #   - replenishNum - (defaults 1) The number of hot windows to keep
-  #   loaded at any given time. If your package is expected to use a large
-  #   number of windows, it may be advisable to make this number more than
-  #   1. Beware that each load is very resource intensive.
-  #
-  #   - windowPackages - A list of additional packages to load into a
-  #   window in addition to those declared in various `package.json`s
-  registerHotWindow: ({windowType, replenishNum, windowPackages}={}) ->
-    if not windowType
-      throw new Error("please provide a windowType when registering a hot window")
-
-    @hotWindows ?= {}
-    @hotWindows[windowType] ?= {}
-    @hotWindows[windowType].replenishNum ?= (replenishNum ? 1)
-    @hotWindows[windowType].loadedWindows ?= []
-    @hotWindows[windowType].windowPackages ?= (windowPackages ? [])
-
-    @_replenishHotWindows()
-
-  defaultWindowOptions: ->
-    devMode: @devMode
-    safeMode: @safeMode
-    windowType: 'popout'
-    hideMenuBar: true
-    resourcePath: @resourcePath
-    bootstrapScript: require.resolve("../window-secondary-bootstrap")
-
-  newColdWindow: (options={}) ->
-    options = _.extend(@defaultWindowOptions(), options)
-    w = new AtomWindow(options)
-    w.showWhenLoaded()
-
-  # Tries to create a new hot window. Since we're updating an existing
-  # window instead of creatinga new one, there are limitations in the
-  # options you can provide.
-  newHotWindow: (options={}) ->
-    hotWindowParams = @hotWindows[options.windowType]
-    if not hotWindowParams?
-      console.log "WARNING! The requested windowType '#{options.windowType}' has not been registered. Be sure to call `registerWindowType` first in your packages setup."
-      @newColdWindow(options)
-      return
-
-    if hotWindowParams.loadedWindows.length is 0
-      # No windows ready
-      options.windowPackages = hotWindowParams.windowPackages
-      @newColdWindow(options)
-    else
-      [win] = hotWindowParams.loadedWindows.splice(0,1)
-      newLoadSettings = _.extend(win.loadSettings(), options)
-      win.setLoadSettings(newLoadSettings)
-      win.showWhenLoaded()
-
-    @_replenishHotWindows()
-
-  # There may be many windowTypes, each that request many windows of that
-  # type (the `replenishNum`).
-  #
-  # Loading windows is very resource intensive, so we want to do them
-  # sequentially.
-  #
-  # We also want to round-robin load across the breadth of window types
-  # instead of loading all of the windows of a single type then moving on
-  # to the next.
-  #
-  # We first need to cycle through the registered `hotWindows` and create
-  # a breadth-first queue of window loads that we'll store in
-  # `@_replenishQueue`.
-  #
-  # Next we need to start processing the `@_replenishQueue`
-  __replenishHotWindows: =>
-    @_replenishQueue = []
-    queues = {}
-    maxWin = 0
-    for windowType, data of @hotWindows
-      numOfType = data.replenishNum - data.loadedWindows.length
-      maxWin = Math.max(numOfType, maxWin)
-      if numOfType > 0
-        options = @defaultWindowOptions()
-        options.windowType = windowType
-        options.windowPackages = data.windowPackages
-        queues[windowType] ?= []
-        queues[windowType].push(options) for [0...numOfType]
-
-    for [0...maxWin]
-      for windowType, optionsArray of queues
-        if optionsArray.length > 0
-          @_replenishQueue.push(optionsArray.shift())
-
-    @_processReplenishQueue()
-
-  _replenishHotWindows: _.debounce(AtomApplication::__replenishHotWindows, 100)
-
-  _processReplenishQueue: ->
-    return if @_processingQueue
-    @_processingQueue = true
-    if @_replenishQueue.length > 0
-      options = @_replenishQueue.shift()
-      console.log "---> Launching new '#{options.windowType}' window"
-      newWindow = new AtomWindow(options)
-      @hotWindows[options.windowType].loadedWindows.push(newWindow)
-      newWindow.once 'window:loaded', =>
-        @_processingQueue = false
-        @_processReplenishQueue()
-    else
-      @_processingQueue = false
+      @windowManager.ensurePrimaryWindowOnscreen()
+      for urlToOpen in (urlsToOpen || [])
+        @openUrl({urlToOpen})
 
   prepareDatabaseInterface: ->
     return @dblitePromise if @dblitePromise
@@ -347,40 +152,6 @@ class AtomApplication
     delete @databases[databasePath]
     fs.unlink(databasePath, callback)
 
-  # Public: Removes the {AtomWindow} from the global window list.
-  removeWindow: (window) ->
-    @windows.splice @windows.indexOf(window), 1
-    @applicationMenu?.enableWindowSpecificItems(false) if @windows.length == 0
-    @windowClosedOrHidden()
-
-  # Public: Adds the {AtomWindow} to the global window list.
-  # IMPORTANT: AtomWindows add themselves - you don't need to manually add them
-  addWindow: (window) ->
-    @windows.push window
-    @applicationMenu?.addWindow(window.browserWindow)
-    window.once 'window:loaded', =>
-      @autoUpdateManager.emitUpdateAvailableEvent(window)
-
-    unless window.isSpec
-      focusHandler = => @lastFocusedWindow = window
-      closePreventedHandler = => @windowClosedOrHidden()
-      window.on 'window:close-prevented', closePreventedHandler
-      window.browserWindow.on 'focus', focusHandler
-      window.browserWindow.once 'closed', =>
-        @lastFocusedWindow = null if window is @lastFocusedWindow
-        window.removeListener('window:close-prevented', closePreventedHandler)
-        window.browserWindow.removeListener('focus', focusHandler)
-
-  windowClosedOrHidden: ->
-    if process.platform in ['win32', 'linux']
-      visible = false
-      visible ||= window.isVisible() for window in @windows
-      if visible is false
-        @quitting = true
-        # Quitting the app from within a window event handler causes
-        # an assertion error. Wait a moment.
-        _.defer -> app.quit()
-
   # Creates server to listen for additional atom application launches.
   #
   # You can run the atom command multiple times, but after the first launch
@@ -416,13 +187,19 @@ class AtomApplication
   # needs to manually bubble them up to the Application instance via IPC or they won't be
   # handled. This happens in workspace-element.coffee
   handleEvents: ->
-    @on 'application:run-all-specs', -> @runSpecs(exitWhenDone: false, resourcePath: global.devResourcePath, safeMode: @focusedWindow()?.safeMode)
+    @on 'application:run-all-specs', -> @runSpecs(exitWhenDone: false, resourcePath: global.devResourcePath, safeMode: @windowManager.focusedWindow()?.safeMode)
     @on 'application:run-benchmarks', -> @runBenchmarks()
+    @on 'application:logout', =>
+      for path, val of @databases
+        @teardownDatabase(path)
+      @config.set('inbox', null)
+      @config.set('edgehill', null)
+
     @on 'application:quit', =>
       @quitting = true
       app.quit()
     @on 'application:inspect', ({x,y, atomWindow}) ->
-      atomWindow ?= @focusedWindow()
+      atomWindow ?= @windowManager.focusedWindow()
       atomWindow?.browserWindow.inspectElement(x, y)
 
     @on 'application:open-documentation', -> require('shell').openExternal('https://atom.io/docs/latest/?app')
@@ -432,9 +209,7 @@ class AtomApplication
     @on 'application:open-terms-of-use', -> require('shell').openExternal('https://atom.io/terms')
     @on 'application:report-issue', => @_reportIssue()
     @on 'application:search-issues', -> require('shell').openExternal('https://github.com/issues?q=+is%3Aissue+user%3Aatom')
-
-    @on 'application:show-main-window', => @showMainWindow()
-
+    @on 'application:show-main-window', => @windowManager.ensurePrimaryWindowOnscreen()
     @on 'application:check-for-update', => @autoUpdateManager.check()
     @on 'application:install-update', =>
       @quitting = true
@@ -449,11 +224,11 @@ class AtomApplication
       @on 'application:unhide-all-applications', -> Menu.sendActionToFirstResponder('unhideAllApplications:')
       @on 'application:zoom', -> Menu.sendActionToFirstResponder('zoom:')
     else
-      @on 'application:minimize', -> @focusedWindow()?.minimize()
-      @on 'application:zoom', -> @focusedWindow()?.maximize()
+      @on 'application:minimize', -> @windowManager.focusedWindow()?.minimize()
+      @on 'application:zoom', -> @windowManager.focusedWindow()?.maximize()
 
-    app.on 'window-all-closed', ->
-      @windowClosedOrHidden()
+    app.on 'window-all-closed', =>
+      @windowManager.windowClosedOrHidden()
 
     app.on 'will-quit', =>
       @deleteSocketFile()
@@ -468,20 +243,15 @@ class AtomApplication
       @openUrl({urlToOpen})
       event.preventDefault()
 
-    ipc.on 'new-window', (event, options) => @newWindow(options)
+    ipc.on 'new-window', (event, options) =>
+      @windowManager.newWindow(options)
 
-    ipc.on 'register-hot-window', (event, options) => @registerHotWindow(options)
+    ipc.on 'register-hot-window', (event, options) =>
+      @windowManager.registerHotWindow(options)
 
     app.on 'activate-with-no-open-windows', (event) =>
+      @windowManager.ensurePrimaryWindowOnscreen()
       event.preventDefault()
-      @showMainWindow()
-
-    ipc.on 'onboarding-complete', (event, options) =>
-      win = BrowserWindow.fromWebContents(event.sender)
-      @windows.forEach (atomWindow) ->
-        return if atomWindow.browserWindow == win
-        return unless atomWindow.browserWindow.webContents
-        atomWindow.browserWindow.webContents.send('onboarding-complete')
 
     ipc.on 'update-application-menu', (event, template, keystrokesByCommand) =>
       win = BrowserWindow.fromWebContents(event.sender)
@@ -503,15 +273,16 @@ class AtomApplication
 
     ipc.on 'action-bridge-rebroadcast-to-all', (event, args...) =>
       win = BrowserWindow.fromWebContents(event.sender)
-      @windows.forEach (atomWindow) ->
+      @windowManager.windows().forEach (atomWindow) ->
         return if atomWindow.browserWindow == win
         return unless atomWindow.browserWindow.webContents
         atomWindow.browserWindow.webContents.send('action-bridge-message', args...)
 
     ipc.on 'action-bridge-rebroadcast-to-main', (event, args...) =>
-      return unless @mainWindow
-      return if BrowserWindow.fromWebContents(event.sender) is @mainWindow
-      @mainWindow.browserWindow.webContents.send('action-bridge-message', args...)
+      mainWindow = @windowManager.mainWindow()
+      return if not mainWindow
+      return if BrowserWindow.fromWebContents(event.sender) is mainWindow
+      mainWindow.browserWindow.webContents.send('action-bridge-message', args...)
 
     clipboard = null
     ipc.on 'write-text-to-selection-clipboard', (event, selectedText) ->
@@ -526,7 +297,7 @@ class AtomApplication
   # args - The optional arguments to pass along.
   sendCommand: (command, args...) ->
     unless @emit(command, args...)
-      focusedWindow = @focusedWindow()
+      focusedWindow = @windowManager.focusedWindow()
       if focusedWindow?
         focusedWindow.sendCommand(command, args...)
       else
@@ -559,44 +330,6 @@ class AtomApplication
       else return false
     true
 
-  # Returns the {AtomWindow} for the given ipc event.
-  windowForEvent: ({sender}) ->
-    window = BrowserWindow.fromWebContents(sender)
-    _.find @windows, ({browserWindow}) -> window is browserWindow
-
-  # Public: Returns the currently focused {AtomWindow} or undefined if none.
-  focusedWindow: ->
-    _.find @windows, (atomWindow) -> atomWindow.isFocused()
-
-  # Public: Opens or unhides the main application window
-  #
-  # options -
-  #   :devMode - Boolean to control the opened window's dev mode.
-  #   :safeMode - Boolean to control the opened window's safe mode.
-  showMainWindow: ({devMode, safeMode}={}) ->
-    if @mainWindow
-      if @mainWindow.isMinimized()
-        @mainWindow.restore()
-      else if !@mainWindow.isVisible()
-        @mainWindow.show()
-      @mainWindow.focus()
-    else
-      if devMode
-        try
-          bootstrapScript = require.resolve(path.join(global.devResourcePath, 'src', 'window-bootstrap'))
-          resourcePath = global.devResourcePath
-
-      bootstrapScript ?= require.resolve('../window-bootstrap')
-      resourcePath ?= @resourcePath
-      neverClose = true
-      frame = true
-      mainWindow = true
-
-      if process.platform is 'darwin'
-        frame = false
-
-      @mainWindow = new AtomWindow({bootstrapScript, resourcePath, devMode, safeMode, neverClose, frame, mainWindow})
-
   # Open an atom:// or mailto:// url.
   #
   # options -
@@ -609,32 +342,9 @@ class AtomApplication
     # Attempt to parse the mailto link into Message object JSON
     # and then open a composer window
     if parts.protocol is 'mailto:'
-      @mainWindow.browserWindow.webContents.send('mailto', urlToOpen)
-
-    # The host of the URL being opened is assumed to be the package name
-    # responsible for opening the URL.  A new window will be created with
-    # that package's `urlMain` as the bootstrap script.
-    else if parts.protocol is 'atom:'
-      unless @packages?
-        PackageManager = require '../package-manager'
-        fs = require 'fs-plus'
-        @packages = new PackageManager
-          configDirPath: fs.absolute('~/.atom')
-          devMode: devMode
-          resourcePath: @resourcePath
-
-      packageName = url.parse(urlToOpen).host
-      pack = _.find @packages.getAvailablePackageMetadata(), ({name}) -> name is packageName
-      if pack?
-        if pack.urlMain
-          packagePath = @packages.resolvePackagePath(packageName)
-          bootstrapScript = path.resolve(packagePath, pack.urlMain)
-          windowDimensions = @focusedWindow()?.getDimensions()
-          new AtomWindow({bootstrapScript, @resourcePath, devMode, safeMode, urlToOpen, windowDimensions})
-        else
-          console.log "Package '#{pack.name}' does not have a url main: #{urlToOpen}"
-      else
-        console.log "Opening unknown url: #{urlToOpen}"
+      @windowManager.sendToMainWindow('mailto', urlToOpen)
+    else
+      console.log "Opening unknown url: #{urlToOpen}"
 
   # Opens up a new {AtomWindow} to run specs within.
   #
@@ -672,5 +382,4 @@ class AtomApplication
     new AtomWindow({bootstrapScript, @resourcePath, exitWhenDone, isSpec, specDirectory, devMode})
 
   _reportIssue: ->
-    return unless @mainWindow
-    @mainWindow.browserWindow.webContents.send('report-issue')
+    @windowManager.sendToMainWindow('report-issue')

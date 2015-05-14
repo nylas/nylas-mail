@@ -158,8 +158,6 @@ class DatabaseStore
     # Setup the database tables
     _.defer => @openDatabase({createTables: @_root})
 
-    if @_root
-      @listenTo(Actions.logout, @onLogout)
 
   inTransaction: (options = {}, callback) =>
     new Promise (resolve, reject) =>
@@ -175,7 +173,7 @@ class DatabaseStore
       callback(klass) if klass.attributes
 
   openDatabase: (options = {createTables: false}, callback) =>
-    app = remote.getGlobal('atomApplication')
+    app = remote.getGlobal('application')
     app.prepareDatabase @_dbPath, =>
       database = new DatabaseProxy(@_dbPath)
 
@@ -201,7 +199,7 @@ class DatabaseStore
         callback() if callback
 
   teardownDatabase: (callback) =>
-    app = remote.getGlobal('atomApplication')
+    app = remote.getGlobal('application')
     app.teardownDatabase @_dbPath, =>
       @_db = null
       @trigger({})
@@ -338,15 +336,6 @@ class DatabaseStore
 
     joinedDataAttributes.forEach (attr) ->
       tx.execute("DELETE FROM `#{attr.modelTable}` WHERE `id` = ?", [model.id])
-
-  # Inbound Events
-
-  onLogout: =>
-    @teardownDatabase =>
-      @openDatabase {createTables: @_root}, =>
-        # Signal that different namespaces (ie none) are now available
-        Namespace = require '../models/namespace'
-        @trigger({objectClass: Namespace.name})
 
   # Public: Asynchronously writes `model` to the cache and triggers a change event.
   #

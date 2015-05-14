@@ -7,7 +7,7 @@
       { label: 'Link External Account', command: 'atom-workspace:add-account' }
       { label: 'Clos&e Window', command: 'window:close' }
       { type: 'separator' }
-      { label: 'Log Out', command: 'atom-workspace:logout' }
+      { label: 'Log Out', command: 'application:logout' }
       { type: 'separator' }
       { label: 'E&xit', command: 'application:quit' }
     ]
@@ -50,4 +50,3 @@
 
 'context-menu':[
 ]
-

@@ -111,4 +111,4 @@ class AutoUpdateManager
       detail: message
 
   getWindows: ->
-    global.atomApplication.windows
+    global.application.windows

@@ -74,7 +74,6 @@ class TaskQueue
     @listenTo(Actions.queueTask,              @enqueue)
     @listenTo(Actions.dequeueTask,            @dequeue)
     @listenTo(Actions.dequeueAllTasks,        @dequeueAll)
-    @listenTo(Actions.logout,                 @dequeueAll)
     @listenTo(Actions.dequeueMatchingTask,    @dequeueMatching)
 
     @listenTo(Actions.clearDeveloperConsole,  @clearCompleted)

@@ -44,11 +44,11 @@ start = ->
 
     if args.devMode
       require(path.join(args.resourcePath, 'src', 'coffee-cache')).register()
-      AtomApplication = require path.join(args.resourcePath, 'src', 'browser', 'edgehill-application')
+      Application = require path.join(args.resourcePath, 'src', 'browser', 'application')
     else
-      AtomApplication = require './edgehill-application'
+      Application = require './application'
 
-    AtomApplication.open(args)
+    Application.open(args)
     console.log("App load time: #{Date.now() - global.shellStartTime}ms") unless args.test
 
 global.devResourcePath = process.env.EDGEHILL_PATH ? process.cwd()

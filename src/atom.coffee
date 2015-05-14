@@ -119,9 +119,6 @@ class Atom extends Model
   # Public: A {KeymapManager} instance
   keymaps: null
 
-  # Experimental: A {NotificationManager} instance
-  notifications: null
-
   # Public: A {PackageManager} instance
   packages: null
 
@@ -167,7 +164,6 @@ class Atom extends Model
     Config = require './config'
     KeymapManager = require './keymap-extensions'
     CommandRegistry = require './command-registry'
-    NotificationManager = require './notification-manager'
     PackageManager = require './package-manager'
     Clipboard = require './clipboard'
     ThemeManager = require './theme-manager'
@@ -204,7 +200,6 @@ class Atom extends Model
       if event.binding.command.indexOf('application:') is 0 and event.binding.selector is "body"
         ipc.send('command', event.binding.command)
 
-    @notifications = new NotificationManager
     @commands = new CommandRegistry
     @packages = new PackageManager({devMode, configDirPath, resourcePath, safeMode})
     @styles = new StyleManager
@@ -363,6 +358,9 @@ class Atom extends Model
 
   isLoggedIn: ->
     atom.config.get('inbox.token')
+
+  logout: ->
+    ipc.send('command', 'application:logout')
 
   # Public: Get the directory path to Atom's configuration area.
   #
@@ -572,6 +570,7 @@ class Atom extends Model
   startRootWindow: ->
     {resourcePath, safeMode} = @getLoadSettings()
 
+    console.log ('startRootWindow')
     CommandInstaller = require './command-installer'
     CommandInstaller.installAtomCommand resourcePath, false, (error) ->
       console.warn error.message if error?
@@ -592,22 +591,22 @@ class Atom extends Model
 
     @commands.add 'atom-workspace',
       'atom-workspace:add-account': =>
-        @displayOnboardingWindow('add-account')
-      'atom-workspace:logout': =>
-        @logout()
+        options =
+          title: 'Add an Account'
+          frame: false
+          page: 'add-account'
+          width: 340
+          height: 550
+          resizable: false
+          windowType: 'onboarding'
+          windowPackages: ['onboarding']
+        ipc.send('new-window', options)
 
     # Make sure we can't be made so small that the interface looks like crap
     @getCurrentWindow().setMinimumSize(875, 500)
 
-    ipc.on 'onboarding-complete', =>
-      maximize = dimensions?.maximized and process.platform isnt 'darwin'
-      @displayWindow({maximize})
-
-    if @isLoggedIn()
-      maximize = dimensions?.maximized and process.platform isnt 'darwin'
-      @displayWindow({maximize})
-    else
-      @displayOnboardingWindow()
+    maximize = dimensions?.maximized and process.platform isnt 'darwin'
+    @displayWindow({maximize})
 
   # Call this method when establishing a secondary application window
   # displaying a specific set of packages.
@@ -642,37 +641,16 @@ class Atom extends Model
       @setAutoHideMenuBar(newValue)
     @setAutoHideMenuBar(true) if @config.get('core.autoHideMenuBar')
 
-  logout: ->
-    if @isLoggedIn()
-      @config.set('inbox', null)
-      @config.set('edgehill', null)
-      Actions = require './flux/actions'
-      Actions.logout()
-      @hide()
-      @displayOnboardingWindow()
-
   # Requests that the backend browser bootup a new window with the given
   # options.
-  # See the valid option types in AtomApplication::newWindow in
-  # src/browser/edgehill-application.coffee
+  # See the valid option types in Application::newWindow in
+  # src/browser/application.coffee
   newWindow: (options={}) -> ipc.send('new-window', options)
 
   # Registers a hot window for certain packages
-  # See the valid option types in AtomApplication::registerHotWindow in
-  # src/browser/edgehill-application.coffee
+  # See the valid option types in Application::registerHotWindow in
+  # src/browser/application.coffee
   registerHotWindow: (options={}) -> ipc.send('register-hot-window', options)
-
-  displayOnboardingWindow: (page = false) ->
-    options =
-      title: 'Welcome to Edgehill'
-      frame: false
-      page: page
-      width: 340
-      height: 550
-      resizable: false
-      windowType: 'onboarding'
-      windowPackages: ['onboarding']
-    ipc.send('new-window', options)
 
   unloadEditorWindow: ->
     @packages.deactivatePackages()
@@ -838,9 +816,7 @@ class Atom extends Model
       try
         require(userInitScriptPath) if fs.isFileSync(userInitScriptPath)
       catch error
-        atom.notifications.addError "Failed to load `#{userInitScriptPath}`",
-          detail: error.message
-          dismissable: true
+        console.log(error)
 
   # Require the module with the given globals.
   #

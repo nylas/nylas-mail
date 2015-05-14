@@ -55,7 +55,7 @@ class AtomWindow
       options.icon = @constructor.iconPath
 
     @browserWindow = new BrowserWindow options
-    global.atomApplication.addWindow(this)
+    global.application.windowManager.addWindow(this)
 
     @handleEvents()
 
@@ -140,13 +140,13 @@ class AtomWindow
 
   handleEvents: ->
     @browserWindow.on 'close', (event) =>
-      if @neverClose and !global.atomApplication.quitting
+      if @neverClose and !global.application.quitting
         event.preventDefault()
         @browserWindow.hide()
         @emit 'window:close-prevented'
 
     @browserWindow.on 'closed', =>
-      global.atomApplication.removeWindow(this)
+      global.application.windowManager.removeWindow(this)
 
     @browserWindow.on 'unresponsive', =>
       return if @isSpec
@@ -160,7 +160,7 @@ class AtomWindow
       @browserWindow.destroy() if chosen is 0
 
     @browserWindow.webContents.on 'crashed', =>
-      global.atomApplication.exit(100) if @exitWhenDone
+      global.application.exit(100) if @exitWhenDone
 
       dialog = require 'dialog'
       chosen = dialog.showMessageBox @browserWindow,
@@ -186,18 +186,18 @@ class AtomWindow
         @browserWindow.focusOnWebView() unless @isWindowClosing
 
   openPath: (pathToOpen) ->
-    if @loaded
-      @focus()
-      @sendMessage 'open-path', pathToOpen
-    else
-      @browserWindow.once 'window:loaded', => @openPath(pathToOpen)
+    @sendMessage 'open-path', pathToOpen
 
   sendMessage: (message, detail) ->
-    @browserWindow.webContents.send 'message', message, detail
+    if @loaded
+      @browserWindow.webContents.send 'message', message, detail
+    else
+      @once 'window:loaded', =>
+        @browserWindow.webContents.send 'message', message, detail
 
   sendCommand: (command, args...) ->
     if @isSpecWindow()
-      unless global.atomApplication.sendCommandToFirstResponder(command)
+      unless global.application.sendCommandToFirstResponder(command)
         switch command
           when 'window:reload' then @reload()
           when 'window:toggle-dev-tools' then @toggleDevTools()
@@ -205,7 +205,7 @@ class AtomWindow
     else if @isWebViewFocused()
       @sendCommandToBrowserWindow(command, args...)
     else
-      unless global.atomApplication.sendCommandToFirstResponder(command)
+      unless global.application.sendCommandToFirstResponder(command)
         @sendCommandToBrowserWindow(command, args...)
 
   sendCommandToBrowserWindow: (command, args...) ->

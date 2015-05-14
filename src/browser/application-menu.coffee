@@ -5,14 +5,14 @@ _ = require 'underscore-plus'
 
 # Used to manage the global application menu.
 #
-# It's created by {AtomApplication} upon instantiation and used to add, remove
+# It's created by {Application} upon instantiation and used to add, remove
 # and maintain the state of all menu items.
 module.exports =
 class ApplicationMenu
   constructor: (@version) ->
     @windowTemplates = new WeakMap()
     @setActiveTemplate(@getDefaultTemplate())
-    global.atomApplication.autoUpdateManager.on 'state-changed', (state) =>
+    global.application.autoUpdateManager.on 'state-changed', (state) =>
       @showUpdateMenuItem(state)
 
   # Public: Updates the entire menu with the given keybindings.
@@ -33,7 +33,7 @@ class ApplicationMenu
       @menu = Menu.buildFromTemplate(_.deepClone(template))
       Menu.setApplicationMenu(@menu)
 
-    @showUpdateMenuItem(global.atomApplication.autoUpdateManager.getState())
+    @showUpdateMenuItem(global.application.autoUpdateManager.getState())
 
   # Register a BrowserWindow with this application menu.
   addWindow: (window) ->
@@ -125,7 +125,7 @@ class ApplicationMenu
     ]
 
   focusedWindow: ->
-    _.find global.atomApplication.windows, (atomWindow) -> atomWindow.isFocused()
+    _.find global.application.windows, (atomWindow) -> atomWindow.isFocused()
 
   # Combines a menu template with the appropriate keystroke.
   #
@@ -140,7 +140,7 @@ class ApplicationMenu
       item.metadata ?= {}
       if item.command
         item.accelerator = @acceleratorForCommand(item.command, keystrokesByCommand)
-        item.click = -> global.atomApplication.sendCommand(item.command)
+        item.click = -> global.application.sendCommand(item.command)
         item.metadata['windowSpecific'] = true unless /^application:/.test(item.command)
       @translateTemplate(item.submenu, keystrokesByCommand) if item.submenu
     template

@@ -55,7 +55,6 @@ OnboardingStore = Reflux.createStore
     @_onMoveToPage('add-account-success')
 
     setTimeout ->
-      ipc.send('onboarding-complete')
       atom.close()
     , 2500
 

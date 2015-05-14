@@ -20,7 +20,7 @@ ActivityBarStore = Reflux.createStore
   longPollHistory: -> @_longPollHistory
 
   visible: -> @_visible
-  
+
   ########### PRIVATE ####################################################
 
   triggerThrottled: ->
@@ -39,7 +39,6 @@ ActivityBarStore = Reflux.createStore
     @listenTo Actions.longPollStateChanged, @_onLongPollStateChange
     @listenTo Actions.clearDeveloperConsole, @_onClear
     @listenTo Actions.showDeveloperConsole, @_onShow
-    @listenTo Actions.logout, @_onClear
 
   _onShow: ->
     @_visible = true
