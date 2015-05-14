@@ -170,7 +170,7 @@ class TaskQueue
 
   _update: =>
     @trigger()
-    @_saveQueueToDisk()
+    @_saveQueueToDiskDebounced()
     @_processQueue()
 
   _dequeueObsoleteTasks: (task) =>
@@ -238,10 +238,18 @@ class TaskQueue
       if not atom.inSpecMode()
         console.log("Queue deserialization failed with error: #{e.toString()}")
 
-  _saveQueueToDisk: (callback) =>
+
+  # It's very important that we debounce saving here. When the user bulk-archives
+  # items, they can easily process 1000 tasks at the same moment. We can't try to
+  # save 1000 times! (Do not remove debounce without a plan!)
+
+  _saveQueueToDisk: =>
     queueFile = path.join(atom.getConfigDirPath(), 'task-queue.json')
     queueJSON = JSON.stringify((@_queue ? []))
-    fs.writeFile(queueFile, queueJSON, callback)
+    fs.writeFile(queueFile, queueJSON)
 
+  _saveQueueToDiskDebounced: =>
+    @__saveQueueToDiskDebounced ?= _.debounce(@_saveQueueToDisk, 150)
+    @__saveQueueToDiskDebounced()
 
 module.exports = new TaskQueue()

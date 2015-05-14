@@ -3,7 +3,6 @@ classNames = require 'classnames'
 _ = require 'underscore-plus'
 
 {Actions,
- AddRemoveTagsTask,
  WorkspaceStore} = require "inbox-exports"
 InjectedComponentSet = require './injected-component-set'
 RetinaImg = require './retina-img'

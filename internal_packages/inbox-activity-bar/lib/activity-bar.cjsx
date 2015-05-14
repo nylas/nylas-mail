@@ -90,7 +90,7 @@ class ActivityBar extends React.Component
 
     if @state.section == 'curl'
       itemDivs = @state.curlHistory.filter(matchingFilter).map (item) ->
-        <ActivityBarCurlItem item={item}/>
+        <ActivityBarCurlItem item={item} key={item.id}/>
       expandedDiv = <div className="expanded-section curl-history">{itemDivs}</div>
 
     else if @state.section == 'long-polling'
@@ -102,15 +102,15 @@ class ActivityBar extends React.Component
       queue = @state.queue.filter(matchingFilter)
       queueDivs = for i in [@state.queue.length - 1..0] by -1
         task = @state.queue[i]
-        <ActivityBarTask task=task
-                         key=task.id
+        <ActivityBarTask task={task}
+                         key={task.id}
                          type="queued" />
 
       queueCompleted = @state.completed.filter(matchingFilter)
       queueCompletedDivs = for i in [@state.completed.length - 1..0] by -1
         task = @state.completed[i]
-        <ActivityBarTask task=task
-                         key=task.id
+        <ActivityBarTask task={task}
+                         key={task.id}
                          type="completed" />
 
       expandedDiv =

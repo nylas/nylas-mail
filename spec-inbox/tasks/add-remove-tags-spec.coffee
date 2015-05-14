@@ -92,6 +92,21 @@ describe "AddRemoveTagsTask", ->
         expect(testThread.tagIds().length).toBe(1)
         expect(testThread.tagIds()[0]).toBe('archive')
 
+    it "should never result in a tag ID being added twice", ->
+      testThread = new Thread
+        id: 'thread-id'
+        tags: [
+          new Tag({name: 'archive', id: 'archive'})
+        ]
+      task = new AddRemoveTagsTask(testThread, ['archive'], ['inbox'])
+      task.performLocal()
+      waitsFor ->
+        DatabaseStore.persistModel.callCount > 0
+      runs ->
+        testThread = DatabaseStore.persistModel.mostRecentCall.args[0]
+        expect(testThread.tagIds().length).toBe(1)
+        expect(testThread.tagIds()[0]).toBe('archive')
+
 
   describe "performRemote", ->
     beforeEach ->

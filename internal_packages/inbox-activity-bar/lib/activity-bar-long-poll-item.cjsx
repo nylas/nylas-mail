@@ -1,12 +1,15 @@
 React = require 'react/addons'
 moment = require 'moment'
-
+Utils = require 'inbox-exports'
 
 class ActivityBarLongPollItem extends React.Component
   @displayName: 'ActivityBarLongPollItem'
 
   constructor: (@props) ->
     @state = expanded: false
+
+  shouldComponentUpdate: (nextProps, nextState) =>
+    return not Utils.isEqualReact(nextProps, @props) or not Utils.isEqualReact(nextState, @state)
 
   render: =>
     if @state.expanded

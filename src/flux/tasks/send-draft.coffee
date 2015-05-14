@@ -10,7 +10,8 @@ SyncbackDraftTask = require './syncback-draft'
 module.exports =
 class SendDraftTask extends Task
 
-  constructor: (@draftLocalId, {@fromPopout}={}) -> super
+  constructor: (@draftLocalId, {@fromPopout}={}) ->
+    super
 
   shouldDequeueOtherTask: (other) ->
     other instanceof SendDraftTask and other.draftLocalId is @draftLocalId

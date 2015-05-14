@@ -98,6 +98,7 @@ ThreadListStore = Reflux.createStore
     keyboardId = FocusedContentStore.keyboardCursorId('thread')
 
     for thread in selected
+      continue if thread.hasTagId('archive')
       task = new AddRemoveTagsTask(thread, ['archive'], ['inbox'])
       Actions.queueTask(task)
       if thread.id is focusedId
@@ -118,7 +119,8 @@ ThreadListStore = Reflux.createStore
     focused = FocusedContentStore.focused('thread')
     explicitOffset = if offset is "auto" then false else true
 
-    return unless focused
+    return unless focused and not focused.hasTagId('archive')
+
 
     # Determine the current index
     index = @_view.indexOfId(focused.id)
