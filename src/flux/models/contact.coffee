@@ -17,6 +17,14 @@ For more information about Contacts on the Nylas Platform, read the
 
 `email`: {AttributeString} The email address of the contact. Queryable.
 
+`thirdPartyData`: {AttributeObject} Extra data that we find out about a
+contact.  The data is keyed by the service that dumped the data there e.g.
+"salesforce" or "fullcontact". The value is an object of raw data in the
+form that the service provides
+
+We also have "normalized" optional data for each contact. This list may
+grow as the needs of a contact become more complex.
+
 This class also inherits attributes from {Model}
 
 Section: Models
@@ -31,6 +39,19 @@ class Contact extends Model
     'email': Attributes.String
       queryable: true
       modelKey: 'email'
+
+    # Contains the raw thirdPartyData (keyed by the vendor name) about
+    # this contact.
+    'thirdPartyData': Attributes.Object
+      modelKey: 'thirdPartyData'
+
+    # The following are "normalized" fields that we can use to consolidate
+    # various thirdPartyData source. These list of attributes should
+    # always be optional and may change as the needs of a Nylas contact
+    # change over time.
+    'title': Attributes.String(modelKey: 'title')
+    'phone': Attributes.String(modelKey: 'phone')
+    'company': Attributes.String(modelKey: 'company')
 
   # Used to uniquely identify a contact
   nameEmail: ->

@@ -1,37 +1,41 @@
 _ = require 'underscore-plus'
 Reflux = require 'reflux'
 request = require 'request'
-{FocusedContactsStore} = require 'inbox-exports'
+{Contact, ContactStore, DatabaseStore, FocusedContactsStore} = require 'inbox-exports'
 
 module.exports =
 FullContactStore = Reflux.createStore
 
   init: ->
-    @_fetchAPIData = _.debounce(_.bind(@__fetchAPIData, @), 50)
-    @_cachedContactData = {}
-    @listenTo FocusedContactsStore, @_onFocusedContacts
+    @_loadContactDataFromAPI = _.debounce(_.bind(@__loadContactDataFromAPI, @), 50)
+    # @_cachedContactData = {}
+    @_resolvedFocusedContact = null
+    @_loadFocusedContact = _.debounce(_.bind(@_loadFocusedContact, @), 20)
+    @_loadFocusedContact()
 
-  sortedContacts: -> FocusedContactsStore.sortedContacts()
-  focusedContact: -> FocusedContactsStore.focusedContact()
+    @listenTo ContactStore, @_loadFocusedContact
+    @listenTo FocusedContactsStore, @_loadFocusedContact
 
-  fullContactCache: ->
-    emails = {}
-    contacts = FocusedContactsStore.sortedContacts()
-    emails[contact.email] = contact for contact in contacts
-    fullContactCache = {}
-    _.each @_cachedContactData, (fullContactData, email) ->
-      if email of emails then fullContactCache[email] = fullContactData
-    return fullContactCache
+  focusedContact: -> @_resolvedFocusedContact
 
-  _onFocusedContacts: ->
-    contact = FocusedContactsStore.focusedContact() ? {}
-    if not @_cachedContactData[contact.email]
-      @_fetchAPIData(contact.email)
-    @trigger()
+  # We need to pull fresh from the database so when we update data in the
+  # for the contact, we get it anew.
+  _loadFocusedContact: ->
+    contact = FocusedContactsStore.focusedContact()
+    if contact
+      @_resolvedFocusedContact = contact
+      DatabaseStore.findBy(Contact, email: contact.email).then (contact) =>
+        @_resolvedFocusedContact = contact
+        if contact and not contact.thirdPartyData?["FullContact"]?
+          @_loadContactDataFromAPI(contact)
+        @trigger()
+    else
+      @_resolvedFocusedContact = null
+      @trigger()
 
-  __fetchAPIData: (email="") ->
+  __loadContactDataFromAPI: (contact) ->
     # Swap the url's to see real data
-    email = email.toLowerCase().trim()
+    email = contact.email.toLowerCase().trim()
     return if email.length is 0
     url = "https://api.fullcontact.com/v2/person.json?email=#{email}&apiKey=eadcbaf0286562a"
     request url, (err, resp, data) =>
@@ -39,5 +43,12 @@ FullContactStore = Reflux.createStore
       return {} if resp.statusCode != 200
       try
         data = JSON.parse data
-        @_cachedContactData[email] = data
-        @trigger(@)
+        contact = @_mergeDataIntoContact(contact, data)
+        DatabaseStore.persistModel(contact).then => @trigger(@)
+
+  _mergeDataIntoContact: (contact, data) ->
+    contact.title = data.organizations?[0]?["title"]
+    contact.company = data.organizations?[0]?["name"]
+    contact.thirdPartyData ?= {}
+    contact.thirdPartyData["FullContact"] = data
+    return contact

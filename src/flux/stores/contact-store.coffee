@@ -81,7 +81,7 @@ class ContactStore
 
     matches
 
-  _refreshCache: =>
+  __refreshCache: =>
     new Promise (resolve, reject) =>
       DatabaseStore.findAll(Contact)
       .then (contacts=[]) =>
@@ -89,6 +89,7 @@ class ContactStore
         @trigger()
         resolve()
       .catch(reject)
+  _refreshCache: _.debounce(ContactStore::__refreshCache, 20)
 
   _onDatabaseChanged: (change) =>
     return unless change?.objectClass is Contact.name

@@ -10,7 +10,7 @@ fixtureModule = 'internal_packages/salesforce'
 Adapter = require path.join('../../', fixtureModule, 'lib/salesforce-schema-adapter.coffee')
 fpath = path.join(fixtureModule, 'spec/fixtures/opportunity-layouts.json')
 rawData = JSON.parse(fs.readFileSync(fpath, 'utf-8'))
-testData = Adapter.convertLayout("opportunity", rawData)
+testData = Adapter.convertFullEditLayout("opportunity", rawData)
 
 describe "Form Builder", ->
   beforeEach ->

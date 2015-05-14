@@ -232,7 +232,7 @@ class GeneratedFieldset extends React.Component
 
       for item, i in items
         itemsWithSpacers.push(item)
-        if i isnt items.length - 1 or items.length is 1
+        if i isnt items.length - 1
           itemsWithSpacers.push(spacer: true)
 
       <div className="row"

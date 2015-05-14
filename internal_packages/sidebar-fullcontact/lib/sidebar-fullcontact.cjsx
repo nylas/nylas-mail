@@ -2,6 +2,8 @@ _ = require 'underscore-plus'
 React = require "react"
 FullContactStore = require "./fullcontact-store"
 
+{InjectedComponentSet} = require 'ui-components'
+
 SidebarFullContactDetails = require "./sidebar-fullcontact-details"
 
 class SidebarFullContact extends React.Component
@@ -10,6 +12,7 @@ class SidebarFullContact extends React.Component
     order: 1
     maxWidth: 300
     minWidth: 200
+    flexShrink: 0
 
   constructor: (@props) ->
     @state = @_getStateFromStores()
@@ -24,11 +27,13 @@ class SidebarFullContact extends React.Component
     <div className="full-contact-sidebar">
       <SidebarFullContactDetails contact={@state.focusedContact ? {}}
                                  fullContact={@_fullContact()}/>
+      <InjectedComponentSet matching={role: "sidebar:focusedContactInfo"}
+                            exposedProps={focusedContact: @state.focusedContact}/>
     </div>
 
   _fullContact: =>
-    if @state.focusedContact?.email
-      return @state.fullContactCache[@state.focusedContact.email] ? {}
+    if @state.focusedContact?.thirdPartyData
+      return @state.focusedContact?.thirdPartyData["FullContact"] ? {}
     else
       return {}
 
@@ -36,7 +41,6 @@ class SidebarFullContact extends React.Component
     @setState(@_getStateFromStores())
 
   _getStateFromStores: =>
-    fullContactCache: FullContactStore.fullContactCache()
     focusedContact: FullContactStore.focusedContact()
 
 

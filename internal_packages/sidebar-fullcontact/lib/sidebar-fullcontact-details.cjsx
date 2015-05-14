@@ -16,6 +16,7 @@ class SidebarFullContactDetails extends React.Component
       <div className="header">
         {@_profilePhoto()}
         <h1 className="name">{@_name()}</h1>
+        <div className="email">{@_email()}</div>
       </div>
       <div className="subheader"
            style={display: if @_showSubheader() then "block" else "none"}>
@@ -81,7 +82,13 @@ class SidebarFullContactDetails extends React.Component
     @_title().length > 0 or @_company().length > 0
 
   _name: =>
-    (@props.fullContact.contactInfo?.fullName) ? @props.contact?.name
+    (@props.fullContact.contactInfo?.fullName) ? @props.contact?.name ? ""
+
+  _email: =>
+    email = @props.contact.email ? ""
+    if @_name().toLowerCase().trim() isnt email.toLowerCase().trim()
+      return email
+    else return ""
 
   _title: =>
     org = @_primaryOrg()
