@@ -1,6 +1,9 @@
 Reflux = require 'reflux'
 {Actions} = require 'inbox-exports'
 qs = require 'querystring'
+_ = require 'underscore-plus'
+
+curlItemId = 0
 
 ActivityBarStore = Reflux.createStore
   init: ->
@@ -19,6 +22,10 @@ ActivityBarStore = Reflux.createStore
   visible: -> @_visible
   
   ########### PRIVATE ####################################################
+
+  triggerThrottled: ->
+    @_triggerThrottled ?= _.throttle(@trigger, 100)
+    @_triggerThrottled()
 
   _setStoreDefaults: ->
     @_curlHistory = []
@@ -53,11 +60,11 @@ ActivityBarStore = Reflux.createStore
     @_longPollHistory.unshift(deltas.reverse()...)
     if @_longPollHistory.length > 1000
       @_longPollHistory.splice(1000, @_longPollHistory.length - 1000)
-    @trigger(@)
+    @triggerThrottled(@)
 
   _onLongPollStateChange: (state) ->
     @_longPollState = state
-    @trigger(@)
+    @triggerThrottled(@)
 
   _onAPIRequest: ({request, response}) ->
     url = request.url
@@ -71,9 +78,13 @@ ActivityBarStore = Reflux.createStore
     data = "-d '#{postBody}'" unless request.method == 'GET'
 
     item =
+      id: curlItemId
       command: "curl -X #{request.method} #{data} #{url}"
       statusCode: response?.statusCode || 0
+
     @_curlHistory.unshift(item)
-    @trigger(@)
+    curlItemId += 1
+
+    @triggerThrottled(@)
 
 module.exports = ActivityBarStore

@@ -1,5 +1,7 @@
 React = require 'react/addons'
 classNames = require 'classnames'
+_ = require 'underscore-plus'
+{Utils} = require 'inbox-exports'
 
 class ActivityBarTask extends React.Component
   @displayName: 'ActivityBarTask'
@@ -16,6 +18,9 @@ class ActivityBarTask extends React.Component
         {JSON.stringify(@props.task.toJSON())}
       </div>
     </div>
+
+  shouldComponentUpdate: (nextProps, nextState) =>
+    return not Utils.isEqualReact(nextProps, @props) or not Utils.isEqualReact(nextState, @state)
 
   _taskSummary: =>
     qs = @props.task.queueState

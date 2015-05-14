@@ -9,7 +9,8 @@ async = require 'async'
 module.exports =
 class AddRemoveTagsTask extends Task
 
-  constructor: (@thread, @tagIdsToAdd = [], @tagIdsToRemove = []) -> super
+  constructor: (@thread, @tagIdsToAdd = [], @tagIdsToRemove = []) ->
+    super
 
   tagForId: (id) ->
 
@@ -36,9 +37,11 @@ class AddRemoveTagsTask extends Task
         # increment the thread version number
         thread.version += versionIncrement
 
-        # remove tags in the remove list
+        # filter the tags array to exclude tags we're removing and tags we're adding.
+        # Removing before adding is a quick way to make sure they're only in the set
+        # once. (super important)
         thread.tags = _.filter thread.tags, (tag) =>
-          @tagIdsToRemove.indexOf(tag.id) is -1
+          @tagIdsToRemove.indexOf(tag.id) is -1 and @tagIdsToAdd.indexOf(tag.id) is -1
 
         # add tags in the add list
         for id in @tagIdsToAdd

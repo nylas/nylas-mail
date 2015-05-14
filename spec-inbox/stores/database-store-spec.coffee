@@ -58,7 +58,7 @@ testModelInstanceB = new TestModel(id: 'BBB')
 describe "DatabaseStore", ->
   beforeEach ->
     spyOn(ModelQuery.prototype, 'where').andCallThrough()
-    spyOn(DatabaseStore, 'trigger')
+    spyOn(DatabaseStore, 'triggerSoon')
 
     @performed = []
     @transactionCount = 0
@@ -113,9 +113,9 @@ describe "DatabaseStore", ->
   describe "persistModel", ->
     it "should cause the DatabaseStore to trigger with a change that contains the model", ->
       DatabaseStore.persistModel(testModelInstance)
-      expect(DatabaseStore.trigger).toHaveBeenCalled()
+      expect(DatabaseStore.triggerSoon).toHaveBeenCalled()
 
-      change = DatabaseStore.trigger.mostRecentCall.args[0]
+      change = DatabaseStore.triggerSoon.mostRecentCall.args[0]
       expect(change).toEqual({objectClass: TestModel.name, objects: [testModelInstance]})
 
     it "should call through to writeModels", ->
@@ -126,9 +126,9 @@ describe "DatabaseStore", ->
   describe "persistModels", ->
     it "should cause the DatabaseStore to trigger with a change that contains the models", ->
       DatabaseStore.persistModels([testModelInstanceA, testModelInstanceB])
-      expect(DatabaseStore.trigger).toHaveBeenCalled()
+      expect(DatabaseStore.triggerSoon).toHaveBeenCalled()
 
-      change = DatabaseStore.trigger.mostRecentCall.args[0]
+      change = DatabaseStore.triggerSoon.mostRecentCall.args[0]
       expect(change).toEqual
         objectClass: TestModel.name,
         objects: [testModelInstanceA, testModelInstanceB]
@@ -155,9 +155,9 @@ describe "DatabaseStore", ->
 
     it "should cause the DatabaseStore to trigger() with a change that contains the model", ->
       DatabaseStore.unpersistModel(testModelInstance)
-      expect(DatabaseStore.trigger).toHaveBeenCalled()
+      expect(DatabaseStore.triggerSoon).toHaveBeenCalled()
 
-      change = DatabaseStore.trigger.mostRecentCall.args[0]
+      change = DatabaseStore.triggerSoon.mostRecentCall.args[0]
       expect(change).toEqual({objectClass: TestModel.name, objects: [testModelInstance]})
 
     describe "when the model has collection attributes", ->
@@ -190,8 +190,8 @@ describe "DatabaseStore", ->
       queries = DatabaseStore.queriesForTableSetup(TestModel)
       expected = [
         'CREATE TABLE IF NOT EXISTS `TestModel` (id TEXT PRIMARY KEY,data BLOB,attr_queryable INTEGER)',
-        'CREATE INDEX IF NOT EXISTS `TestModel-attr_queryable` ON `TestModel` (`attr_queryable`)',
-        'CREATE INDEX IF NOT EXISTS `TestModel-id` ON `TestModel` (`id`)'
+        'CREATE INDEX IF NOT EXISTS `TestModel_attr_queryable` ON `TestModel` (`attr_queryable`)',
+        'CREATE UNIQUE INDEX IF NOT EXISTS `TestModel_id` ON `TestModel` (`id`)'
       ]
       for query,i in queries
         expect(query).toBe(expected[i])
@@ -201,9 +201,9 @@ describe "DatabaseStore", ->
       queries = DatabaseStore.queriesForTableSetup(TestModel)
       expected = [
         'CREATE TABLE IF NOT EXISTS `TestModel` (id TEXT PRIMARY KEY,data BLOB)',
-        'CREATE INDEX IF NOT EXISTS `TestModel-id` ON `TestModel` (`id`)',
+        'CREATE UNIQUE INDEX IF NOT EXISTS `TestModel_id` ON `TestModel` (`id`)',
         'CREATE TABLE IF NOT EXISTS `TestModel-Tag` (id TEXT KEY, `value` TEXT)'
-        'CREATE INDEX IF NOT EXISTS `TestModel-Tag-id-val` ON `TestModel-Tag` (`id`,`value`)',
+        'CREATE UNIQUE INDEX IF NOT EXISTS `TestModel_Tag_id_val` ON `TestModel-Tag` (`id`,`value`)',
       ]
       for query,i in queries
         expect(query).toBe(expected[i])
@@ -258,7 +258,7 @@ describe "DatabaseStore", ->
         expect(@performed[1].query).toBe('DELETE FROM `TestModel-Tag` WHERE `id` IN (\'local-6806434c-b0cd\')')
 
       it "should insert new association records into join tables in a single query", ->
-        expect(@performed[2].query).toBe('INSERT INTO `TestModel-Tag` (`id`, `value`) VALUES (?,?),(?,?)')
+        expect(@performed[2].query).toBe('INSERT OR IGNORE INTO `TestModel-Tag` (`id`, `value`) VALUES (?,?),(?,?)')
         expect(@performed[2].values).toEqual(['local-6806434c-b0cd', 'a','local-6806434c-b0cd', 'b'])
 
     describe "when the model has joined data attributes", ->

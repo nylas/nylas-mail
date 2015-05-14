@@ -11,6 +11,9 @@ class ActivityBarCurlItem extends React.Component
       {@props.item.command}
     </div>
 
+  shouldComponentUpdate: (nextProps) =>
+    return @props.item isnt nextProps.item
+
   _onCopyCommand: =>
     clipboard = require('clipboard')
     clipboard.writeText(@props.item.command)

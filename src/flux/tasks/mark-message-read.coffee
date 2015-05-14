@@ -6,7 +6,8 @@ _ = require 'underscore-plus'
 module.exports =
 class MarkMessageReadTask extends Task
 
-  constructor: (@message) -> super
+  constructor: (@message) ->
+    super
 
   performLocal: ->
     new Promise (resolve, reject) =>

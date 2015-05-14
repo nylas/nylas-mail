@@ -9,6 +9,7 @@ NamespaceStore = require '../stores/namespace-store'
 module.exports =
 class CreateMetadataTask extends Task
   constructor: ({@type, @publicId, @key, @value}) ->
+    super
     @name = "CreateMetadataTask"
 
   shouldDequeueOtherTask: (other) ->

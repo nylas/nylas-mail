@@ -187,13 +187,15 @@ class MultiselectList extends React.Component
     else
       true
 
-  # Message list rendering is more important than thread list rendering.
-  # Since they're on the same event listner, and the event listeners are
-  # unordered, we need a way to push thread list updates later back in the
-  # queue.
-  _onChange: => _.delay =>
-    @setState(@_getStateFromStores())
-  , 1
+  # This onChange handler can be called many times back to back and setState
+  # sometimes triggers an immediate render. Ensure that we never render back-to-back,
+  # because rendering this view (even just to determine that there are no changes)
+  # is expensive.
+  _onChange: =>
+    @_onChangeDebounced ?= _.debounce =>
+      @setState(@_getStateFromStores())
+    , 1
+    @_onChangeDebounced()
 
   _getStateFromStores: (props) =>
     props ?= @props

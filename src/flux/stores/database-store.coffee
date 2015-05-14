@@ -207,6 +207,35 @@ class DatabaseStore
       @trigger({})
       callback()
 
+  # TriggerSoon is a guarded version of trigger that can accumulate changes.
+  # This means that even if you're a bad person and call `persistModel` 100 times
+  # from 100 task objects queued at the same time, it will only create one
+  # `trigger` event. This is important since the database triggering impacts
+  # the entire application.
+  triggerSoon: (change) =>
+    flush = =>
+      return unless @_changeAccumulated
+      clearTimeout(@_changeFireTimer) if @_changeFireTimer
+      @trigger(@_changeAccumulated)
+      @_changeAccumulated = null
+      @_changeFireTimer = null
+
+    set = (change) =>
+      clearTimeout(@_changeFireTimer) if @_changeFireTimer
+      @_changeAccumulated = change
+      @_changeFireTimer = setTimeout(flush, 50)
+
+    concat = (change) =>
+      @_changeAccumulated.objects.push(change.objects...)
+
+    if not @_changeAccumulated
+      set(change)
+    else if @_changeAccumulated.objectClass is change.objectClass
+      concat(change)
+    else
+      flush()
+      set(change)
+
   writeModels: (tx, models) =>
     # IMPORTANT: This method assumes that all the models you
     # provide are of the same class, and have different ids!
@@ -274,7 +303,7 @@ class DatabaseStore
         for slice in [0..Math.floor(joinedValues.length / 400)] by 1
           [ms, me] = [slice*200, slice*200 + 199]
           [vs, ve] = [slice*400, slice*400 + 399]
-          tx.execute("INSERT INTO `#{joinTable}` (`id`, `value`) VALUES #{joinMarks[ms..me].join(',')}", joinedValues[vs..ve])
+          tx.execute("INSERT OR IGNORE INTO `#{joinTable}` (`id`, `value`) VALUES #{joinMarks[ms..me].join(',')}", joinedValues[vs..ve])
 
     # For each joined data property stored in another table...
     values = []
@@ -328,7 +357,7 @@ class DatabaseStore
       tx.execute('BEGIN TRANSACTION')
       @writeModels(tx, [model])
       tx.execute('COMMIT')
-      @trigger({objectClass: model.constructor.name, objects: [model]})
+      @triggerSoon({objectClass: model.constructor.name, objects: [model]})
 
   # Public: Asynchronously writes `models` to the cache and triggers a single change
   # event. Note: Models must be of the same class to be persisted in a batch operation.
@@ -349,7 +378,7 @@ class DatabaseStore
 
       @writeModels(tx, models)
       tx.execute('COMMIT')
-      @trigger({objectClass: models[0].constructor.name, objects: models})
+      @triggerSoon({objectClass: models[0].constructor.name, objects: models})
 
   # Public: Asynchronously removes `model` from the cache and triggers a change event.
   #
@@ -360,7 +389,7 @@ class DatabaseStore
       tx.execute('BEGIN TRANSACTION')
       @deleteModel(tx, model)
       tx.execute('COMMIT')
-      @trigger({objectClass: model.constructor.name, objects: [model]})
+      @triggerSoon({objectClass: model.constructor.name, objects: [model]})
 
   swapModel: ({oldModel, newModel, localId}) =>
     @inTransaction {}, (tx) =>
@@ -369,7 +398,7 @@ class DatabaseStore
       @writeModels(tx, [newModel])
       @writeModels(tx, [new LocalLink(id: localId, objectId: newModel.id)]) if localId
       tx.execute('COMMIT')
-      @trigger({objectClass: newModel.constructor.name, objects: [oldModel, newModel]})
+      @triggerSoon({objectClass: newModel.constructor.name, objects: [oldModel, newModel]})
       Actions.didSwapModel({oldModel, newModel, localId})
 
   ###
@@ -530,11 +559,13 @@ class DatabaseStore
     columns = ['id TEXT PRIMARY KEY', 'data BLOB']
     columnAttributes.forEach (attr) ->
       columns.push(attr.columnSQL())
-      queries.push("CREATE INDEX IF NOT EXISTS `#{klass.name}-#{attr.jsonKey}` ON `#{klass.name}` (`#{attr.jsonKey}`)")
+      # TODO: These indexes are not effective because SQLite only uses one index-per-table
+      # and there will almost always be an additional `where namespaceId =` clause.
+      queries.push("CREATE INDEX IF NOT EXISTS `#{klass.name}_#{attr.jsonKey}` ON `#{klass.name}` (`#{attr.jsonKey}`)")
 
     columnsSQL = columns.join(',')
     queries.unshift("CREATE TABLE IF NOT EXISTS `#{klass.name}` (#{columnsSQL})")
-    queries.push("CREATE INDEX IF NOT EXISTS `#{klass.name}-id` ON `#{klass.name}` (`id`)")
+    queries.push("CREATE UNIQUE INDEX IF NOT EXISTS `#{klass.name}_id` ON `#{klass.name}` (`id`)")
 
     # Identify collection attributes that can be matched against. These require
     # JOIN tables. (Right now the only one of these is Thread.tags)
@@ -542,8 +573,9 @@ class DatabaseStore
       attr.queryable && attr instanceof AttributeCollection
     collectionAttributes.forEach (attribute) ->
       joinTable = tableNameForJoin(klass, attribute.itemClass)
+      joinIndexName = "#{joinTable.replace('-', '_')}_id_val"
       queries.push("CREATE TABLE IF NOT EXISTS `#{joinTable}` (id TEXT KEY, `value` TEXT)")
-      queries.push("CREATE INDEX IF NOT EXISTS `#{joinTable}-id-val` ON `#{joinTable}` (`id`,`value`)")
+      queries.push("CREATE UNIQUE INDEX IF NOT EXISTS `#{joinIndexName}` ON `#{joinTable}` (`id`,`value`)")
 
     joinedDataAttributes = _.filter attributes, (attr) ->
       attr instanceof AttributeJoinedData
