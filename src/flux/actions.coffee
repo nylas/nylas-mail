@@ -441,7 +441,6 @@ class Actions
   @metadataError: ActionScopeWindow
   @metadataCreated: ActionScopeWindow
   @metadataDestroyed: ActionScopeWindow
-  @unloading: ActionScopeWindow
 
 
 # Read the actions we declared on the dummy Actions object above
