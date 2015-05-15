@@ -9,7 +9,7 @@ _ = require 'underscore-plus'
 Actions = require '../actions'
 progress = require 'request-progress'
 NamespaceStore = require '../stores/namespace-store'
-NylasAPI = require '../inbox-api'
+NylasAPI = require '../nylas-api'
 
 class Download
   constructor: ({@fileId, @targetPath, @progressCallback}) ->

@@ -6,7 +6,7 @@ DatabaseStore = require "./database-store"
 NamespaceStore = require "./namespace-store"
 FocusedContentStore = require "./focused-content-store"
 MarkThreadReadTask = require '../tasks/mark-thread-read'
-NylasAPI = require '../inbox-api'
+NylasAPI = require '../nylas-api'
 async = require 'async'
 _ = require 'underscore-plus'
 

@@ -192,7 +192,7 @@ class Application
     @on 'application:logout', =>
       for path, val of @databases
         @teardownDatabase(path)
-      @config.set('inbox', null)
+      @config.set('nylas', null)
       @config.set('edgehill', null)
 
     @on 'application:quit', =>

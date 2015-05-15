@@ -1,4 +1,4 @@
-NylasAPI = require '../../src/flux/inbox-api'
+NylasAPI = require '../../src/flux/nylas-api'
 Actions = require '../../src/flux/actions'
 SyncbackDraftTask = require '../../src/flux/tasks/syncback-draft'
 SendDraftTask = require '../../src/flux/tasks/send-draft'

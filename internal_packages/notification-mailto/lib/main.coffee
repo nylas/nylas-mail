@@ -4,8 +4,9 @@ LaunchServices = require './launch-services'
 NOTIF_ACTION_YES = 'mailto:set-default-yes'
 NOTIF_ACTION_NO = 'mailto:set-default-no'
 
-module.exports =
+NOTIF_SETTINGS_KEY = 'nylas.mailto.prompted-about-default'
 
+module.exports =
   activate: (@state) ->
     @services = new LaunchServices()
 
@@ -13,7 +14,7 @@ module.exports =
     return unless @services.available()
 
     # We shouldn't ask if they've already said No
-    return if atom.config.get('inbox.mailto.prompted-about-default') is true
+    return if atom.config.get(NOTIF_SETTINGS_KEY) is true
 
     @services.isRegisteredForURLScheme 'mailto', (registered) =>
       # Prompt them to make Inbox their default client
@@ -43,4 +44,4 @@ module.exports =
         console.log(err) if err
 
     if action.id is NOTIF_ACTION_NO
-      atom.config.set('inbox.mailto.prompted-about-default', true)
+      atom.config.set(NOTIF_SETTINGS_KEY, true)

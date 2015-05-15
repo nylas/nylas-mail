@@ -1,4 +1,4 @@
-NylasAPI = require '../../src/flux/inbox-api'
+NylasAPI = require '../../src/flux/nylas-api'
 Actions = require '../../src/flux/actions'
 MarkMessageReadTask = require '../../src/flux/tasks/mark-message-read'
 DatabaseStore = require '../../src/flux/stores/database-store'

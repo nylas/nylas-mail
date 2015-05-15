@@ -10,11 +10,11 @@ class WindowManager
     @_mainWindow = null
     @_hotWindows = {}
 
-    @config.onDidChange 'inbox.token', =>
+    @config.onDidChange 'nylas.token', =>
       @ensurePrimaryWindowOnscreen()
 
   ensurePrimaryWindowOnscreen: ->
-    hasToken = @config.get('inbox.token')
+    hasToken = @config.get('nylas.token')
     if hasToken
       @showMainWindow()
     else

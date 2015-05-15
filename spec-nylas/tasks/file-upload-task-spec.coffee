@@ -1,6 +1,6 @@
 proxyquire = require 'proxyquire'
 _ = require 'underscore-plus'
-NylasAPI = require '../../src/flux/inbox-api'
+NylasAPI = require '../../src/flux/nylas-api'
 File = require '../../src/flux/models/file'
 Message = require '../../src/flux/models/message'
 Actions = require '../../src/flux/actions'

@@ -1,7 +1,7 @@
 Task = require './task'
 DatabaseStore = require '../stores/database-store'
 Actions = require '../actions'
-NylasAPI = require '../inbox-api'
+NylasAPI = require '../nylas-api'
 _ = require 'underscore-plus'
 
 module.exports =

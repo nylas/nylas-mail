@@ -3,7 +3,7 @@ _ = require 'underscore-plus'
 
 Actions = require '../actions'
 DatabaseStore = require '../stores/database-store'
-NylasAPI = require '../inbox-api'
+NylasAPI = require '../nylas-api'
 
 Task = require './task'
 Message = require '../models/message'

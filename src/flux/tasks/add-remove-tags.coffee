@@ -1,5 +1,5 @@
 Task = require './task'
-NylasAPI = require '../inbox-api'
+NylasAPI = require '../nylas-api'
 DatabaseStore = require '../stores/database-store'
 Actions = require '../actions'
 Tag = require '../models/tag'

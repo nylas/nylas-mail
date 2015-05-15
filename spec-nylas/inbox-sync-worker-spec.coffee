@@ -1,9 +1,9 @@
 _ = require 'underscore-plus'
-InboxLongConnection = require '../src/flux/inbox-long-connection'
-InboxSyncWorker = require '../src/flux/inbox-sync-worker'
+NylasLongConnection = require '../src/flux/nylas-long-connection'
+NylasSyncWorker = require '../src/flux/nylas-sync-worker'
 Thread = require '../src/flux/models/thread'
 
-describe "InboxSyncWorker", ->
+describe "NylasSyncWorker", ->
   beforeEach ->
     @apiRequests = []
     @api =
@@ -17,16 +17,16 @@ describe "InboxSyncWorker", ->
       "calendars": {complete: true}
 
     spyOn(atom.config, 'get').andCallFake (key) =>
-      expected = "inbox.namespace-id.worker-state"
+      expected = "nylas.namespace-id.worker-state"
       return throw new Error("Not stubbed!") unless key is expected
       return @state
 
     spyOn(atom.config, 'set').andCallFake (key, val) =>
-      expected = "inbox.namespace-id.worker-state"
+      expected = "nylas.namespace-id.worker-state"
       return throw new Error("Not stubbed!") unless key is expected
       @state = val
 
-    @worker = new InboxSyncWorker(@api, 'namespace-id')
+    @worker = new NylasSyncWorker(@api, 'namespace-id')
     @connection = @worker.connection()
 
   describe "start", ->
@@ -117,4 +117,3 @@ describe "InboxSyncWorker", ->
       spyOn(@connection, 'end')
       @worker.cleanup()
       expect(@connection.end).toHaveBeenCalled()
-

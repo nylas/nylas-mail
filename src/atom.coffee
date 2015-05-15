@@ -353,7 +353,7 @@ class Atom extends Model
     not /\w{7}/.test(@getVersion()) # Check if the release is a 7-character SHA prefix
 
   isLoggedIn: ->
-    atom.config.get('inbox.token')
+    atom.config.get('nylas.token')
 
   logout: ->
     ipc.send('command', 'application:logout')

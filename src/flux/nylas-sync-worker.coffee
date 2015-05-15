@@ -1,20 +1,20 @@
 _ = require 'underscore-plus'
-InboxLongConnection = require './inbox-long-connection'
+NylasLongConnection = require './nylas-long-connection'
 
 PAGE_SIZE = 250
 
 module.exports =
-class InboxSyncWorker
+class NylasSyncWorker
 
-  constructor: (inbox, namespaceId) ->
-    @_inbox = inbox
+  constructor: (api, namespaceId) ->
+    @_api = api
     @_namespaceId = namespaceId
 
     @_terminated = false
-    @_connection = new InboxLongConnection(inbox, namespaceId)
-    @_state = atom.config.get("inbox.#{namespaceId}.worker-state") ? {}
+    @_connection = new NylasLongConnection(api, namespaceId)
+    @_state = atom.config.get("nylas.#{namespaceId}.worker-state") ? {}
     @
-  
+
   namespaceId: ->
     @_namespaceId
 
@@ -62,12 +62,12 @@ class InboxSyncWorker
           callback() if callback
 
     if model is 'threads'
-      @_inbox.getThreads(@_namespaceId, params, requestOptions)
+      @_api.getThreads(@_namespaceId, params, requestOptions)
     else
-      @_inbox.getCollection(@_namespaceId, model, params, requestOptions)
-  
+      @_api.getCollection(@_namespaceId, model, params, requestOptions)
+
   writeState: ->
     @_writeState ?= _.debounce =>
-      atom.config.set("inbox.#{@_namespaceId}.worker-state", @_state)
+      atom.config.set("nylas.#{@_namespaceId}.worker-state", @_state)
     ,100
     @_writeState()

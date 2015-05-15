@@ -1,6 +1,6 @@
 React = require 'react/addons'
 moment = require 'moment'
-{Utils} = require 'inbox-exports'
+{Utils} = require 'nylas-exports'
 
 class ActivityBarLongPollItem extends React.Component
   @displayName: 'ActivityBarLongPollItem'
