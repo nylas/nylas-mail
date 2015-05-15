@@ -97,16 +97,42 @@ describe "ContenteditableComponent", ->
       {
         in: "<style>Yo</style> Foo Bar <div>Baz</div>"
         # Strip bad tags
-        sanitizedAsHTML: " Foo Bar Baz<br/>"
+        sanitizedAsHTML: " Foo Bar Baz"
         # HTML encode tags for literal display
         sanitizedAsPlain: "&lt;style&gt;Yo&lt;/style&gt; Foo Bar &lt;div&gt;Baz&lt;/div&gt;"
-      }
+      },
       {
         in: "<script>Bah</script> Yo < script>Boo! < / script >"
         # Strip non white-list tags and encode malformed ones.
         sanitizedAsHTML: " Yo &lt; script&gt;Boo! &lt; / script &gt;"
         # HTML encode tags for literal display
         sanitizedAsPlain: "&lt;script&gt;Bah&lt;/script&gt; Yo &lt; script&gt;Boo! &lt; / script &gt;"
+      },
+      {
+        in: """
+        <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+        <html>
+        <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta http-equiv="Content-Style-Type" content="text/css">
+        <title></title>
+        <meta name="Generator" content="Cocoa HTML Writer">
+        <meta name="CocoaVersion" content="1265.21">
+        <style type="text/css">
+        li.li1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+        ul.ul1 {list-style-type: disc}
+        </style>
+        </head>
+        <body>
+        <ul class="ul1">
+        <li class="li1"><b>Packet pickup: </b>I'll pick up my packet at some point on Saturday at Fort Mason. Let me know if you'd like me to get yours. I'll need a photo of your ID and your confirmation number. Also, shirt color preference, I believe. Gray or black? Can't remember...</li>
+        </ul>
+        </body>
+        </html>"""
+        # Strip non white-list tags and encode malformed ones.
+        sanitizedAsHTML: "<ul><br /><li><b>Packet pickup: </b>I'll pick up my packet at some point on Saturday at Fort Mason. Let me know if you'd like me to get yours. I'll need a photo of your ID and your confirmation number. Also, shirt color preference, I believe. Gray or black? Can't remember...</li><br /></ul>"
+        # HTML encode tags for literal display
+        sanitizedAsPlain: "&lt;!DOCTYPE html PUBLIC &#34;-//W3C//DTD HTML 4.01//EN&#34; &#34;http://www.w3.org/TR/html4/strict.dtd&#34;&gt;<br/>&lt;html&gt;<br/>&lt;head&gt;<br/>&lt;meta http-equiv=&#34;Content-Type&#34; content=&#34;text/html; charset=UTF-8&#34;&gt;<br/>&lt;meta http-equiv=&#34;Content-Style-Type&#34; content=&#34;text/css&#34;&gt;<br/>&lt;title&gt;&lt;/title&gt;<br/>&lt;meta name=&#34;Generator&#34; content=&#34;Cocoa HTML Writer&#34;&gt;<br/>&lt;meta name=&#34;CocoaVersion&#34; content=&#34;1265.21&#34;&gt;<br/>&lt;style type=&#34;text/css&#34;&gt;<br/>li.li1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}<br/>ul.ul1 {list-style-type: disc}<br/>&lt;/style&gt;<br/>&lt;/head&gt;<br/>&lt;body&gt;<br/>&lt;ul class=&#34;ul1&#34;&gt;<br/>&lt;li class=&#34;li1&#34;&gt;&lt;b&gt;Packet pickup: &lt;/b&gt;I'll pick up my packet at some point on Saturday at Fort Mason. Let me know if you'd like me to get yours. I'll need a photo of your ID and your confirmation number. Also, shirt color preference, I believe. Gray or black? Can't remember...&lt;/li&gt;<br/>&lt;/ul&gt;<br/>&lt;/body&gt;<br/>&lt;/html&gt;"
       }
     ]
 

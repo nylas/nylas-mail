@@ -339,7 +339,7 @@ class ContenteditableComponent extends React.Component
     menu.append(new MenuItem({ label: 'Copy', click:copy}))
     menu.append(new MenuItem({ label: 'Paste', click:paste}))
     menu.popup(remote.getCurrentWindow())
-      
+
   _onMouseDown: (event) =>
     @_mouseDownEvent = event
     @_mouseHasMoved = false
@@ -722,6 +722,14 @@ class ContenteditableComponent extends React.Component
       # We never want more then 2 line breaks in a row.
       # https://regex101.com/r/gF6bF4/4
       inputText = inputText.replace(/(<br\s*\/?>\s*){3,}/g, "<br/><br/>")
+
+      # We never want to keep leading and trailing <brs>, since the user
+      # would have started a new paragraph themselves if they wanted space
+      # before what they paste.
+      # BAD:    "<p>begins at<br>12AM</p>" => "<br><br>begins at<br>12AM<br><br>"
+      # Better: "<p>begins at<br>12AM</p>" => "begins at<br>12"
+      inputText = inputText.replace(/^(<br ?\/>)+/, '')
+      inputText = inputText.replace(/(<br ?\/>)+$/, '')
 
     return inputText
 
