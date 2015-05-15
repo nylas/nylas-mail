@@ -5,19 +5,19 @@ Actions = require './actions'
 PriorityUICoordinator = require '../priority-ui-coordinator'
 DatabaseStore = require './stores/database-store'
 NamespaceStore = require './stores/namespace-store'
-InboxSyncWorker = require './inbox-sync-worker'
-InboxLongConnection = require './inbox-long-connection'
+NylasSyncWorker = require './nylas-sync-worker'
+NylasLongConnection = require './nylas-long-connection'
 {modelFromJSON, modelClassMap} = require './models/utils'
 async = require 'async'
 
 
-class InboxAPI
+class NylasAPI
 
   constructor: ->
     @_workers = []
 
     atom.config.onDidChange('env', @_onConfigChanged)
-    atom.config.onDidChange('inbox.token', @_onConfigChanged)
+    atom.config.onDidChange('nylas.token', @_onConfigChanged)
     @_onConfigChanged()
 
     NamespaceStore.listen(@_onNamespacesChanged, @)
@@ -27,7 +27,7 @@ class InboxAPI
   _onConfigChanged: =>
     prev = {@APIToken, @AppID, @APIRoot}
 
-    @APIToken = atom.config.get('inbox.token')
+    @APIToken = atom.config.get('nylas.token')
     env = atom.config.get('env')
     if env in ['production']
       @AppID = 'c96gge1jo29pl2rebcb7utsbp'
@@ -72,12 +72,12 @@ class InboxAPI
       c.namespaceId() is namespace.id
     return worker if worker
 
-    worker = new InboxSyncWorker(@, namespace.id)
+    worker = new NylasSyncWorker(@, namespace.id)
     connection = worker.connection()
 
     connection.onStateChange (state) ->
       Actions.longPollStateChanged(state)
-      if state == InboxLongConnection.State.Connected
+      if state == NylasLongConnection.State.Connected
         ## TODO use OfflineStatusStore
         Actions.longPollConnected()
       else
@@ -99,13 +99,13 @@ class InboxAPI
   # Options:
   #   {Any option that node's request takes}
   #   returnsModel - boolean to determine if the response should be
-  #                  unpacked into an Inbox data wrapper
+  #                  unpacked into an Nylas data wrapper
   #   success: (body) -> callback gets passed the returned json object
-  #   error: (apiError) -> the error callback gets passed an Inbox
+  #   error: (apiError) -> the error callback gets passed an Nylas
   #                        APIError object.
   makeRequest: (options={}) ->
     return if atom.getLoadSettings().isSpec
-    return console.log('Cannot make Inbox request without auth token.') unless @APIToken
+    return console.log('Cannot make Nylas request without auth token.') unless @APIToken
     options.method ?= 'GET'
     options.url ?= "#{@APIRoot}#{options.path}" if options.path
     options.body ?= {} unless options.formData
@@ -179,7 +179,7 @@ class InboxAPI
         Promise.settle(destroyPromises)
 
   _defaultErrorCallback: (apiError) ->
-    console.error("Unhandled Inbox API Error:", apiError.message, apiError)
+    console.error("Unhandled Nylas API Error:", apiError.message, apiError)
 
   _handleModelResponse: (json) ->
     new Promise (resolve, reject) =>
@@ -248,4 +248,4 @@ class InboxAPI
       qs: params
       returnsModel: true
 
-module.exports = new InboxAPI()
+module.exports = new NylasAPI()

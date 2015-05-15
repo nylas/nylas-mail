@@ -1,7 +1,7 @@
 _ = require 'underscore-plus'
 {generateTempId, isTempId} = require '../../src/flux/models/utils'
 
-NylasAPI = require '../../src/flux/inbox-api'
+NylasAPI = require '../../src/flux/nylas-api'
 Task = require '../../src/flux/tasks/task'
 Actions = require '../../src/flux/actions'
 Message = require '../../src/flux/models/message'

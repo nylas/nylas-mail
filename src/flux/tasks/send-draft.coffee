@@ -6,7 +6,7 @@ Message = require '../models/message'
 Task = require './task'
 TaskQueue = require '../stores/task-queue'
 SyncbackDraftTask = require './syncback-draft'
-NylasAPI = require '../inbox-api'
+NylasAPI = require '../nylas-api'
 
 module.exports =
 class SendDraftTask extends Task

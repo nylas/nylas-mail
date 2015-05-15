@@ -2,7 +2,7 @@ _ = require 'underscore-plus'
 Utils = require '../models/utils'
 DatabaseStore = require './database-store'
 ModelView = require './model-view'
-NylasAPI = require '../inbox-api'
+NylasAPI = require '../nylas-api'
 
 class SearchView extends ModelView
 

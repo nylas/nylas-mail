@@ -7,7 +7,7 @@ Actions = require '../actions'
 NamespaceStore = require '../stores/namespace-store'
 DatabaseStore = require '../stores/database-store'
 {isTempId} = require '../models/utils'
-NylasAPI = require '../inbox-api'
+NylasAPI = require '../nylas-api'
 
 class FileUploadTask extends Task
 

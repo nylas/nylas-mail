@@ -57,6 +57,10 @@ class EdgehillAPI
     for token in tokens
       atom.config.set("#{token.provider}.token", token.access_token)
 
+      # todo: remove once the edgehill-server inbox service is called `nylas`
+      if token.provider is 'inbox'
+        atom.config.set("nylas.token", token.access_token) 
+
       if token.user_identifier?
         @_setCredentials({username: token.user_identifier, password: ''})
 
