@@ -127,7 +127,6 @@ class InboxAPI
                 options.error(new APIError({error, response, body}))
             if options.returnsModel
               @_handleModelResponse(body)
-
           if options.success
             options.success(body)
 

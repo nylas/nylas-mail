@@ -17,12 +17,15 @@ class TemplateStatusBar extends React.Component
     @state = draft: null
 
   componentDidMount: =>
-    @_proxy = DraftStore.sessionForLocalId(@props.draftLocalId)
-    @unsubscribe = @_proxy.listen(@_onDraftChange, @)
-    if @_proxy.draft()
+    DraftStore.sessionForLocalId(@props.draftLocalId).then (_proxy) =>
+      return if @_unmounted
+      return unless _proxy.draftLocalId is @props.draftLocalId
+      @_proxy = _proxy
+      @unsubscribe = @_proxy.listen(@_onDraftChange, @)
       @_onDraftChange()
 
   componentWillUnmount: =>
+    @_unmounted = true
     @unsubscribe() if @unsubscribe
 
   render: =>

@@ -33,6 +33,7 @@ textFieldStub = (className) ->
 draftStoreProxyStub = (localId, returnedDraft) ->
   listen: -> ->
   draft: -> (returnedDraft ? new Message(draft: true))
+  draftLocalId: localId
   changes:
     add: ->
     commit: ->
@@ -93,8 +94,12 @@ describe "populated composer", ->
   DRAFT_LOCAL_ID = "local-123"
   useDraft = (draftAttributes={}) ->
     @draft = new Message _.extend({draft: true, body: ""}, draftAttributes)
-    spyOn(DraftStore, "sessionForLocalId").andCallFake (localId) =>
-      return draftStoreProxyStub(localId, @draft)
+    draft = @draft
+    proxy = draftStoreProxyStub(DRAFT_LOCAL_ID, @draft)
+    spyOn(DraftStore, "sessionForLocalId").andCallFake -> new Promise (resolve, reject) -> resolve(proxy)
+    spyOn(ComposerView.prototype, "componentWillMount").andCallFake ->
+      @_prepareForDraft(DRAFT_LOCAL_ID)
+      @_setupSession(proxy)
 
   useFullDraft = ->
     useDraft.call @,

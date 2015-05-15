@@ -101,6 +101,11 @@ class ContenteditableComponent extends React.Component
   _onInput: (event) =>
     @_dragging = false
     editableNode = @_editableNode()
+
+    # The Node.normalize() method puts the specified node and all of its
+    # sub-tree into a "normalized" form. In a normalized sub-tree, no text
+    # nodes in the sub-tree are empty and there are no adjacent text
+    # nodes.
     editableNode.normalize()
 
     for extension in DraftStore.extensions()
@@ -112,6 +117,7 @@ class ContenteditableComponent extends React.Component
     @props.onChange(target: {value: html})
 
   _onBlur: (event) =>
+    @_dragging = false
     # The delay here is necessary to see if the blur was caused by us
     # navigating to the toolbar and focusing on the set-url input.
     _.delay =>
@@ -211,7 +217,19 @@ class ContenteditableComponent extends React.Component
   # We need to be sure to deeply `cloneNode`. This is because sometimes
   # our anchorNodes are divs with nested <br> tags. If we don't do a deep
   # clone then when `isEqualNode` is run it will erroneously return false
-  # and our selection restoration will fail
+  # and our selection restoration will fail.
+  #
+  # The Selection API has the concept of an `anchorNode` and a
+  # `focusNode`. The `anchorNode` is where the selection started from and
+  # does not move. The `focusNode` is where the end of the selection
+  # currently is and may move. A "caret" is simply a selection whose
+  # anchorNode == focusNode and anchorOffset == focusOffset.
+  #
+  # An `anchorNode` is also known as a `startNode`, or `baseNode`. We use
+  # the alias `startNode` since I think it makes more intuitive sense.
+  #
+  # A `focusNode` is also known as an `endNode` or `focusNode`. I use the
+  # `endNode` alias since it makes more inuitive sense.
   _setNewSelectionState: =>
     selection = document.getSelection()
     return if @_checkSameSelection(selection)
@@ -227,11 +245,11 @@ class ContenteditableComponent extends React.Component
       selectionRect = range.getBoundingClientRect()
 
     @_selection =
-      startNode: range.startContainer?.cloneNode(true)
-      startOffset: range.startOffset
+      startNode: selection.anchorNode?.cloneNode(true)
+      startOffset: selection.anchorOffset
       startNodeIndex: @_getNodeIndex(range.startContainer)
-      endNode: range.endContainer?.cloneNode(true)
-      endOffset: range.endOffset
+      endNode: selection.focusNode.cloneNode(true)
+      endOffset: selection.focusOffset
       endNodeIndex: @_getNodeIndex(range.endContainer)
       isCollapsed: selection.isCollapsed
       selectionRect: selectionRect
@@ -383,8 +401,24 @@ class ContenteditableComponent extends React.Component
       @_refreshToolbarState()
     return event
 
-  # We manually restore the selection on every render and when we need to
-  # move the selection around manually.
+  # We restore the Selection via the `setBaseAndExtent` property of the
+  # `Selection` API
+  #
+  # See http://w3c.github.io/selection-api/#widl-Selection-setBaseAndExtent-void-Node-anchorNode-unsigned-long-anchorOffset-Node-focusNode-unsigned-long-focusOffset
+  #
+  # Since the last time we saved the `@_selection`, the DOM may have
+  # completely changed due to a re-render. To the user it may look
+  # identical, but the newly rendered region may be comprised of
+  # completely new DOM nodes. Our old node references may not exist
+  # anymore. As such, we have the task of re-finding the nodes again and
+  # creating a new selection that matches as accurately as possible.
+  #
+  # There are multiple ways of setting a new selection with the Selection
+  # API. One very common one is to create a new Range object and then call
+  # `addRange` on a selection instance. This does NOT work for us because
+  # `Range` objects are direction-less. A Selection's start node (aka
+  # anchor node aka base node) can be "after" a selection's end node (aka
+  # focus node aka extent node).
   #
   # force - when set to true it will not care whether or not the selection
   #         is already in the box. Normally we only restore when the
@@ -397,47 +431,17 @@ class ContenteditableComponent extends React.Component
     return if not @_selection?
     return if document.activeElement isnt @_editableNode() and not force
     return if not @_selection.startNode? or not @_selection.endNode?
-    range = document.createRange()
 
-    startNode = @_findSimilarNodes(@_selection.startNode)[@_selection.startNodeIndex]
-    endNode = @_findSimilarNodes(@_selection.endNode)[@_selection.endNodeIndex]
-    return if not startNode? or not endNode?
+    newStartNode = @_findSimilarNodes(@_selection.startNode)[@_selection.startNodeIndex]
+    newEndNode = @_findSimilarNodes(@_selection.endNode)[@_selection.endNodeIndex]
+    return if not newStartNode? or not newEndNode?
 
-
-    # We want to not care about the selection direction.
-    # Selecting from index 1 to index 5 is the same as selecting from
-    # index 5 to index 1. However, this only works if the nodes we are
-    # grabbing the index from are the same. If they are different, then we
-    # can no longer make this gaurantee and have to grab their listed
-    # offsets.
-    if startNode is endNode
-      startIndex = Math.min(@_selection.startOffset ? 0, @_selection.endOffset ? 0)
-      startIndex = Math.min(startIndex, startNode.length)
-
-      endIndex = Math.max(@_selection.startOffset ? 0, @_selection.endOffset ? 0)
-      endIndex = Math.min(endIndex, endNode.length)
-    else
-      startIndex = @_selection.startOffset
-      endIndex = @_selection.endOffset
-
-    if collapse is "end"
-      startNode = endNode
-      startIndex = endIndex
-    else if collapse is "start"
-      endNode = startNode
-      endIndex = endIndex
-
-
-    try
-      range.setStart(startNode, startIndex)
-      range.setEnd(endNode, endIndex)
-    catch
-      return
-
-    selection = document.getSelection()
     @_teardownSelectionListeners()
-    selection.removeAllRanges()
-    selection.addRange(range)
+    selection = document.getSelection()
+    selection.setBaseAndExtent(newStartNode,
+                               @_selection.startOffset,
+                               newEndNode,
+                               @_selection.endOffset)
     @_setupSelectionListeners()
 
   # We need to break each node apart and cache since the `selection`
@@ -684,7 +688,6 @@ class ContenteditableComponent extends React.Component
       document.execCommand("insertHTML", false, cleanHtml)
 
     evt.preventDefault()
-    return false
 
   # This is used primarily when pasting text in
   _sanitizeInput: (inputText="", type="text/html") =>

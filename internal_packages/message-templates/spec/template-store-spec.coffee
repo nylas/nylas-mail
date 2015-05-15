@@ -57,14 +57,17 @@ describe "TemplateStore", ->
 
       add = jasmine.createSpy('add')
       spyOn(DraftStore, 'sessionForLocalId').andCallFake ->
-        changes: {add}
+        Promise.resolve(changes: {add})
 
-      TemplateStore._onInsertTemplateId
-        templateId: 'template1.html',
-        draftLocalId: 'localid-draft'
-
-      expect(add).toHaveBeenCalledWith
-        body: stubTemplateFiles['template1.html']
+      runs ->
+        TemplateStore._onInsertTemplateId
+          templateId: 'template1.html',
+          draftLocalId: 'localid-draft'
+      waitsFor ->
+        add.calls.length > 0
+      runs ->
+        expect(add).toHaveBeenCalledWith
+          body: stubTemplateFiles['template1.html']
 
   describe "onCreateTemplate", ->
     beforeEach ->

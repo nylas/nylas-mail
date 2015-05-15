@@ -16,7 +16,7 @@ class SearchBar extends React.Component
       committedQuery: null
 
   componentDidMount: =>
-    @unsubscribe = SearchSuggestionStore.listen @_onStoreChange
+    @unsubscribe = SearchSuggestionStore.listen @_onChange
     @body_unsubscriber = atom.commands.add 'body', {
       'application:focus-search': @_onFocusSearch
     }
@@ -132,10 +132,11 @@ class SearchBar extends React.Component
   _doSearch: =>
     Actions.searchQueryCommitted(@state.query)
 
-  _onStoreChange: =>
-    @setState
-      query: SearchSuggestionStore.query()
-      suggestions: SearchSuggestionStore.suggestions()
-      committedQuery: SearchSuggestionStore.committedQuery()
+  _onChange: => @setState @_getStateFromStores()
+
+  _getStateFromStores: =>
+    query: SearchSuggestionStore.query()
+    suggestions: SearchSuggestionStore.suggestions()
+    committedQuery: SearchSuggestionStore.committedQuery()
 
 module.exports = SearchBar

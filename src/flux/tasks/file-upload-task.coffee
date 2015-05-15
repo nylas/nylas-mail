@@ -31,15 +31,22 @@ class FileUploadTask extends Task
         returnsModel: true
         formData: @_formData()
         error: reject
-        success: (json) =>
-          # The Inbox API returns the file json wrapped in an array
-          file = (new File).fromJSON(json[0])
-          Actions.uploadStateChanged @_uploadData("completed")
-          @_completedNotification(file)
+        success: (rawResponseString) =>
+          # The Inbox API returns the file json wrapped in an array.
+          #
+          # Since we requested `json:false` the response will come back as
+          # a raw string.
+          try
+            json = JSON.parse(rawResponseString)
+            file = (new File).fromJSON(json[0])
+            Actions.uploadStateChanged @_uploadData("completed")
+            @_completedNotification(file)
 
-          clearInterval(@progress)
-          @req = null
-          resolve()
+            clearInterval(@progress)
+            @req = null
+            resolve()
+          catch error
+            reject(error)
 
       @progress = setInterval =>
         Actions.uploadStateChanged(@_uploadData("progress"))
@@ -81,13 +88,14 @@ class FileUploadTask extends Task
     Actions.postNotification({message: msg, type: "error"})
     Actions.uploadStateChanged @_uploadData("failed")
 
-  # The `persistUploadFile` action affects the Database and should only be
-  # heard in the main window.
-  #
   # The `fileUploaded` action is needed to notify all other windows (like
   # composers) that the file has finished uploading.
   _completedNotification: (file) ->
     setTimeout =>
+      # We need these to be two separate actions in this sequence so
+      # stores (like the DrafStore) can attach the file to their objects
+      # before we take action (like sending and closing the message) upon
+      # upload completion
       Actions.attachFileComplete({file, @messageLocalId})
       Actions.fileUploaded(uploadData: @_uploadData("completed"))
     , 1000 # To see the success state for a little bit
