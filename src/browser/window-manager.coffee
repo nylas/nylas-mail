@@ -2,6 +2,7 @@ _ = require 'underscore-plus'
 fs = require 'fs-plus'
 AtomWindow = require './atom-window'
 BrowserWindow = require 'browser-window'
+app = require 'app'
 
 class WindowManager
 
@@ -312,10 +313,9 @@ class WindowManager
       visible = false
       visible ||= window.isVisible() for window in @_windows
       if visible is false
-        @quitting = true
+        global.application.quitting = true
         # Quitting the app from within a window event handler causes
         # an assertion error. Wait a moment.
         _.defer -> app.quit()
-
 
 module.exports = WindowManager
