@@ -169,7 +169,6 @@ class Atom extends Model
     ThemeManager = require './theme-manager'
     StyleManager = require './style-manager'
     ActionBridge = require './flux/action-bridge'
-    InboxAPI = require './flux/inbox-api'
     MenuManager = require './menu-manager'
     {devMode, safeMode, resourcePath} = @getLoadSettings()
     configDirPath = @getConfigDirPath()
@@ -208,9 +207,6 @@ class Atom extends Model
     @themes = new ThemeManager({packageManager: @packages, configDirPath, resourcePath, safeMode})
     @menu = new MenuManager({resourcePath})
     @clipboard = new Clipboard()
-
-    # Edgehill-specific
-    @inbox = new InboxAPI()
 
     # initialize spell checking
     require('web-frame').setSpellCheckProvider("en-US", false, {
@@ -619,7 +615,6 @@ class Atom extends Model
      windowPackages} = @getLoadSettings()
 
     @loadConfig()
-    @inbox.APIToken = atom.config.get('inbox.token')
 
     @keymaps.loadBundledKeymaps()
     @themes.loadBaseStylesheets()

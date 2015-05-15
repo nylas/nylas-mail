@@ -1,6 +1,7 @@
 Task = require './task'
 DatabaseStore = require '../stores/database-store'
 Actions = require '../actions'
+NylasAPI = require '../inbox-api'
 _ = require 'underscore-plus'
 
 module.exports =
@@ -21,7 +22,7 @@ class MarkMessageReadTask extends Task
   performRemote: ->
     new Promise (resolve, reject) =>
       # queue the operation to the server
-      atom.inbox.makeRequest {
+      NylasAPI.makeRequest {
         path: "/n/#{@message.namespaceId}/messages/#{@message.id}"
         method: 'PUT'
         body: {

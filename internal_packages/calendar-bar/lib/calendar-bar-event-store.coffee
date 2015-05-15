@@ -1,6 +1,11 @@
 Reflux = require 'reflux'
 _ = require 'underscore-plus'
-{DatabaseStore, NamespaceStore, Actions, Event, Calendar} = require 'nylas-exports'
+{DatabaseStore,
+ NamespaceStore,
+ Actions,
+ Event,
+ Calendar,
+ NylasAPI} = require 'nylas-exports'
 moment = require 'moment'
 
 CalendarBarEventStore = Reflux.createStore
@@ -50,7 +55,7 @@ CalendarBarEventStore = Reflux.createStore
     oneDayAgo = Math.round(moment({hour: 0, milliseconds: -1}).valueOf() / 1000.0)
     DatabaseStore.findAll(Calendar, namespaceId: namespace.id).then (calendars) ->
       calendars.forEach (calendar) ->
-        atom.inbox.getCollection(namespace.id, 'events', {calendar_id: calendar.id, ends_after: oneDayAgo})
+        NylasAPI.getCollection(namespace.id, 'events', {calendar_id: calendar.id, ends_after: oneDayAgo})
 
   # Inbound Events
 

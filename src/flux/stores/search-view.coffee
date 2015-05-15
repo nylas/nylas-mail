@@ -2,6 +2,7 @@ _ = require 'underscore-plus'
 Utils = require '../models/utils'
 DatabaseStore = require './database-store'
 ModelView = require './model-view'
+NylasAPI = require '../inbox-api'
 
 class SearchView extends ModelView
 
@@ -45,7 +46,7 @@ class SearchView extends ModelView
 
     @_pages[idx] = page
 
-    atom.inbox.makeRequest
+    NylasAPI.makeRequest
       method: 'POST'
       path: "/n/#{@_namespaceId}/threads/search?offset=#{idx * @_pageSize}&limit=#{@_pageSize}"
       body: {"query": @_query, "sort": @_querySort}

@@ -1,5 +1,6 @@
 proxyquire = require 'proxyquire'
 _ = require 'underscore-plus'
+NylasAPI = require '../../src/flux/inbox-api'
 File = require '../../src/flux/models/file'
 Message = require '../../src/flux/models/message'
 Actions = require '../../src/flux/actions'
@@ -73,7 +74,7 @@ describe "FileUploadTask", ->
     beforeEach ->
       spyOn(Actions, "uploadStateChanged")
       @req = jasmine.createSpyObj('req', ['abort'])
-      spyOn(atom.inbox, 'makeRequest').andCallFake (reqParams) =>
+      spyOn(NylasAPI, 'makeRequest').andCallFake (reqParams) =>
         reqParams.success(testResponse) if reqParams.success
         return @req
 
@@ -85,7 +86,7 @@ describe "FileUploadTask", ->
 
     it "should start an API request", ->
       waitsForPromise => @task.performRemote().then ->
-        options = atom.inbox.makeRequest.mostRecentCall.args[0]
+        options = NylasAPI.makeRequest.mostRecentCall.args[0]
         expect(options.path).toBe("/n/nsid/files")
         expect(options.method).toBe('POST')
         expect(options.formData.file.value).toBe("Read Stream")
@@ -131,7 +132,7 @@ describe "FileUploadTask", ->
     it "should not do anything if the request has finished", ->
       req = jasmine.createSpyObj('req', ['abort'])
       reqSuccess = null
-      spyOn(atom.inbox, 'makeRequest').andCallFake (reqParams) ->
+      spyOn(NylasAPI, 'makeRequest').andCallFake (reqParams) ->
         reqSuccess = reqParams.success
         req
 
@@ -142,7 +143,7 @@ describe "FileUploadTask", ->
 
     it "should cancel the request if it's in flight", ->
       req = jasmine.createSpyObj('req', ['abort'])
-      spyOn(atom.inbox, 'makeRequest').andCallFake (reqParams) -> req
+      spyOn(NylasAPI, 'makeRequest').andCallFake (reqParams) -> req
       spyOn(Actions, "uploadStateChanged")
 
       @task.performRemote()
@@ -153,5 +154,3 @@ describe "FileUploadTask", ->
         state: "aborted"
         bytesUploaded: 0
       expect(Actions.uploadStateChanged).toHaveBeenCalledWith(data)
-
-

@@ -248,4 +248,4 @@ class InboxAPI
       qs: params
       returnsModel: true
 
-module.exports = InboxAPI
+module.exports = new InboxAPI()

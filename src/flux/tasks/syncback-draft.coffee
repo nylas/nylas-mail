@@ -3,6 +3,7 @@ _ = require 'underscore-plus'
 
 Actions = require '../actions'
 DatabaseStore = require '../stores/database-store'
+NylasAPI = require '../inbox-api'
 
 Task = require './task'
 Message = require '../models/message'
@@ -54,7 +55,7 @@ class SyncbackDraftTask extends Task
         initialId = draft.id
 
         @_saveAttempts += 1
-        atom.inbox.makeRequest
+        NylasAPI.makeRequest
           path: path
           method: method
           body: body
@@ -124,4 +125,3 @@ class SyncbackDraftTask extends Task
       TaskQueue.enqueue @
 
     @notifyErrorMessage(msg)
-

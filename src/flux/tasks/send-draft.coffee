@@ -6,6 +6,7 @@ Message = require '../models/message'
 Task = require './task'
 TaskQueue = require '../stores/task-queue'
 SyncbackDraftTask = require './syncback-draft'
+NylasAPI = require '../inbox-api'
 
 module.exports =
 class SendDraftTask extends Task
@@ -44,7 +45,7 @@ class SendDraftTask extends Task
           # Pass joined:true so the draft body is included
           body = draft.toJSON(joined: true)
 
-        atom.inbox.makeRequest
+        NylasAPI.makeRequest
           path: "/n/#{draft.namespaceId}/send"
           method: 'POST'
           body: body

@@ -1,3 +1,4 @@
+NylasAPI = require '../../src/flux/inbox-api'
 Actions = require '../../src/flux/actions'
 MarkMessageReadTask = require '../../src/flux/tasks/mark-message-read'
 DatabaseStore = require '../../src/flux/stores/database-store'
@@ -56,10 +57,9 @@ describe "MarkMessageReadTask", ->
 
   describe "performRemote", ->
     it "should make the PUT request to the message endpoint", ->
-      spyOn(atom.inbox, 'makeRequest')
+      spyOn(NylasAPI, 'makeRequest')
       @task.performRemote()
-      options = atom.inbox.makeRequest.mostRecentCall.args[0]
+      options = NylasAPI.makeRequest.mostRecentCall.args[0]
       expect(options.path).toBe("/n/#{@message.namespaceId}/messages/#{@message.id}")
       expect(options.method).toBe('PUT')
       expect(options.body.unread).toBe(false)
-
