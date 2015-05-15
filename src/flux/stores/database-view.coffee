@@ -36,6 +36,7 @@ class DatabaseView extends ModelView
     @_pageSize = 100
     @_matchers = config.matchers ? []
     @_includes = config.includes ? []
+    @_orders = config.orders ? []
 
     @_count = -1
     @invalidate()
@@ -70,6 +71,14 @@ class DatabaseView extends ModelView
 
   setIncludes: (includes) ->
     @_includes = includes
+    @_pages = {}
+    @invalidate()
+
+  orders: ->
+    @_orders
+
+  setOrders: (orders) ->
+    @_orders = orders
     @_pages = {}
     @invalidate()
 
@@ -250,6 +259,7 @@ class DatabaseView extends ModelView
     query = DatabaseStore.findAll(@klass).where(@_matchers)
     query.offset(idx * @_pageSize).limit(@_pageSize)
     query.include(attr) for attr in @_includes
+    query.order(@_orders) if @_orders.length > 0
 
     query.then (items) =>
       # If the page is no longer in the cache at all, it may have fallen out of the

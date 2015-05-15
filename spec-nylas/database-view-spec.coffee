@@ -32,6 +32,12 @@ describe "DatabaseView", ->
       expect(view._matchers).toEqual(config.matchers)
       expect(view._includes).toEqual(config.includes)
 
+    it "should optionally populate ordering", ->
+      config =
+        orders: [Message.attributes.date.descending()]
+      view = new DatabaseView(Message, config)
+      expect(view._orders).toEqual(config.orders)
+
     it "should optionally accept a metadata provider", ->
       provider = ->
       view = new DatabaseView(Message, {}, provider)
@@ -243,6 +249,7 @@ describe "DatabaseView", ->
     beforeEach ->
       @config =
         matchers: [Message.attributes.namespaceId.equal('asd')]
+        orders: [Message.attributes.date.descending()]
       @view = new DatabaseView(Message, @config)
       @queries = []
 
@@ -257,6 +264,11 @@ describe "DatabaseView", ->
       expect(@queries.length).toBe(1)
       expect(@queries[0]._range).toEqual({offset: @view._pageSize * 2, limit: @view._pageSize})
       expect(@queries[0]._matchers).toEqual(@config.matchers)
+
+    it "should order results properly", ->
+      @view.retrievePage(2)
+      expect(@queries.length).toBe(1)
+      expect(@queries[0]._orders).toEqual(@config.orders)
 
     describe "once the database request has completed", ->
       beforeEach ->

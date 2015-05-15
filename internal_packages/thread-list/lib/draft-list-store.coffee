@@ -12,6 +12,7 @@ DraftListStore = Reflux.createStore
     @_view = new DatabaseView Message,
       matchers: [Message.attributes.draft.equal(true)],
       includes: [Message.attributes.body]
+      orders: [Message.attributes.date.descending()]
 
     @listenTo @_view, => @trigger({})
 
