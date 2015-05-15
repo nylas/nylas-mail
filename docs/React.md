@@ -12,12 +12,12 @@ For a quick introduction to React, take a look at Facebook's [Getting Started wi
 
 Nylas Mail provides a set of core React components you can use in your packages. Many of the standard components listen for key events, include considerations for different platforms, and have extensive CSS. Wrapping standard components makes it easy to build rich interfaces that are consistent with the rest of the Nylas Mail platform.
 
-To use a standard component, require it from `ui-components` and use it in your component's `render` method.
+To use a standard component, require it from `nylas-component-kit` and use it in your component's `render` method.
 
 > Keep in mind that React's Component model is based on composition rather than inheritance. On other platforms, you might subclass {Popover} to create your own custom Popover. In React, you should wrap the standard Popover component in your own component, which provides the Popover with `props` and children to customize it's behavior.
 
 
-Here's a quick look at standard components you can require from `ui-components`:
+Here's a quick look at standard components you can require from `nylas-component-kit`:
 
 - **{Menu}**: Allows you to display a list of items consistent with the rest of the Nylas Mail user experience.
 

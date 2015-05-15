@@ -1,4 +1,4 @@
-{ComponentRegistry} = require 'inbox-exports'
+{ComponentRegistry} = require 'nylas-exports'
 Participants = require './Participants'
 
 module.exports =

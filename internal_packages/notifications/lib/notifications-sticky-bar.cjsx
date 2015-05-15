@@ -1,5 +1,5 @@
 React = require 'react'
-{Actions} = require 'inbox-exports'
+{Actions} = require 'nylas-exports'
 NotificationStore = require './notifications-store'
 
 class NotificationStickyItem extends React.Component

@@ -13,7 +13,7 @@ describe "MarkMessageReadTask", ->
       unread: true
       to:
         name: 'Dummy'
-        email: 'dummy@inboxapp.com'
+        email: 'dummy@nylas.com'
     @task = new MarkMessageReadTask(@message)
 
   describe "_rollbackLocal", ->
@@ -28,7 +28,7 @@ describe "MarkMessageReadTask", ->
         unread: false
         to:
           name: 'Dummy'
-          email: 'dummy@inboxapp.com'
+          email: 'dummy@nylas.com'
       @task = new MarkMessageReadTask(message)
       @task.performLocal()
       @task._rollbackLocal()

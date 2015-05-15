@@ -1,7 +1,7 @@
 React = require 'react'
 ReactTestUtils = React.addons.TestUtils
 
-{Actions} = require 'inbox-exports'
+{Actions} = require 'nylas-exports'
 
 SearchBar = require '../lib/search-bar'
 SearchSuggestionStore = require '../lib/search-suggestion-store.coffee'

@@ -1,7 +1,7 @@
 _ = require 'underscore-plus'
 React = require 'react'
-{Actions, Utils} = require 'inbox-exports'
-{RetinaImg} = require 'ui-components'
+{Actions, Utils} = require 'nylas-exports'
+{RetinaImg} = require 'nylas-component-kit'
 
 class ArchiveButton extends React.Component
   @displayName: "ArchiveButton"

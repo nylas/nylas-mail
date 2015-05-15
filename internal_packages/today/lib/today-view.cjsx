@@ -1,7 +1,7 @@
 React = require 'react'
 _ = require "underscore-plus"
-{Utils, Actions} = require 'inbox-exports'
-{Spinner, EventedIFrame} = require 'ui-components'
+{Utils, Actions} = require 'nylas-exports'
+{Spinner, EventedIFrame} = require 'nylas-component-kit'
 moment = require 'moment'
 
 class TodayViewDateTime extends React.Component

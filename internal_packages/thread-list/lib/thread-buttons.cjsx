@@ -1,8 +1,8 @@
 React = require "react/addons"
 classNames = require 'classnames'
 ThreadListStore = require './thread-list-store'
-{RetinaImg} = require 'ui-components'
-{Actions, FocusedContentStore} = require "inbox-exports"
+{RetinaImg} = require 'nylas-component-kit'
+{Actions, FocusedContentStore} = require "nylas-exports"
 
 class ThreadBulkArchiveButton extends React.Component
   @displayName: 'ThreadBulkArchiveButton'

@@ -1,8 +1,8 @@
 _ = require 'underscore-plus'
 React = require 'react'
 classNames = require 'classnames'
-{Actions, Utils, FocusedContentStore, WorkspaceStore} = require 'inbox-exports'
-{RetinaImg, Popover, Menu} = require 'ui-components'
+{Actions, Utils, FocusedContentStore, WorkspaceStore} = require 'nylas-exports'
+{RetinaImg, Popover, Menu} = require 'nylas-component-kit'
 
 ThreadArchiveButton = require './thread-archive-button'
 

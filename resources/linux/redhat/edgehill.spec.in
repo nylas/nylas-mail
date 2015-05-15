@@ -3,7 +3,7 @@ Version:        <%= version %>
 Release:        0.1%{?dist}
 Summary:        Edgehill is an Email OS
 License:        Proprietary
-URL:            https://inboxapp.com/
+URL:            https://nylas.com/
 AutoReqProv:    no # Avoid libchromiumcontent.so missing dependency
 
 %description

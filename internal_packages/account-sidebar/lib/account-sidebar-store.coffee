@@ -7,7 +7,7 @@ _ = require 'underscore-plus'
  Tag,
  Message,
  FocusedTagStore,
- Thread} = require 'inbox-exports'
+ Thread} = require 'nylas-exports'
 
 AccountSidebarStore = Reflux.createStore
   init: ->

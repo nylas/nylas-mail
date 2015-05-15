@@ -2,13 +2,13 @@ Message = require "../../src/flux/models/message"
 
 contact_1 =
   name: "Contact One"
-  email: "contact1@inboxapp.com"
+  email: "contact1@nylas.com"
 contact_2 =
   name: "Contact Two"
-  email: "contact2@inboxapp.com"
+  email: "contact2@nylas.com"
 contact_3 =
   name: ""
-  email: "contact3@inboxapp.com"
+  email: "contact3@nylas.com"
 contact_4 =
   name: "Contact Four"
   email: ""

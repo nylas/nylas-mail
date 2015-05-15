@@ -25,9 +25,9 @@ describe "DraftStore", ->
 
       fakeMessage1 = new Message
         id: 'fake-message-1'
-        to: [new Contact(email: 'ben@nilas.com'), new Contact(email: 'evan@nilas.com')]
-        cc: [new Contact(email: 'mg@nilas.com'), new Contact(email: NamespaceStore.current().me().email)]
-        bcc: [new Contact(email: 'recruiting@nilas.com')]
+        to: [new Contact(email: 'ben@nylas.com'), new Contact(email: 'evan@nylas.com')]
+        cc: [new Contact(email: 'mg@nylas.com'), new Contact(email: NamespaceStore.current().me().email)]
+        bcc: [new Contact(email: 'recruiting@nylas.com')]
         from: [new Contact(email: 'customer@example.com', name: 'Customer')]
         threadId: 'fake-thread-id'
         body: 'Fake Message 1'
@@ -37,7 +37,7 @@ describe "DraftStore", ->
       fakeMessage2 = new Message
         id: 'fake-message-2'
         to: [new Contact(email: 'customer@example.com')]
-        from: [new Contact(email: 'ben@nilas.com')]
+        from: [new Contact(email: 'ben@nylas.com')]
         threadId: 'fake-thread-id'
         body: 'Fake Message 2'
         subject: 'Re: Fake Subject'
@@ -132,7 +132,7 @@ describe "DraftStore", ->
 
       it "should cc everyone who was on the previous message in to or cc", ->
         ccEmails = @model.cc.map (cc) -> cc.email
-        expect(ccEmails.sort()).toEqual([ 'ben@nilas.com', 'evan@nilas.com', 'mg@nilas.com'])
+        expect(ccEmails.sort()).toEqual([ 'ben@nylas.com', 'evan@nylas.com', 'mg@nylas.com'])
 
       it "should not include people who were bcc'd on the previous message", ->
         expect(@model.bcc).toEqual([])
@@ -238,7 +238,7 @@ describe "DraftStore", ->
           , (thread, message) ->
             replyToMessage: fakeMessage2
           , (model) ->
-            expect(model.body.search(/On .+, at .+, ben@nilas.com wrote:/) > 0).toBe(true)
+            expect(model.body.search(/On .+, at .+, ben@nylas.com wrote:/) > 0).toBe(true)
 
       describe "when a forward message is provided by the attributesCallback", ->
         it "should include quoted text in the new message", ->
@@ -277,7 +277,7 @@ describe "DraftStore", ->
           , (thread, message) ->
             forwardMessage: fakeMessage2
           , (model) ->
-            expect(model.body.indexOf('From: ben@nilas.com') > 0).toBe(true)
+            expect(model.body.indexOf('From: ben@nylas.com') > 0).toBe(true)
             expect(model.body.indexOf('Subject: Re: Fake Subject') > 0).toBe(true)
             expect(model.body.indexOf('To: customer@example.com') > 0).toBe(true)
 

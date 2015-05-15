@@ -1,5 +1,5 @@
 React = require 'react'
-{Actions} = require("inbox-exports")
+{Actions} = require("nylas-exports")
 CalendarBarItem = require("./calendar-bar-item")
 CalendarBarEventStore = require ("./calendar-bar-event-store")
 

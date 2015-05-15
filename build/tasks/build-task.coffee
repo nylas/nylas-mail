@@ -44,7 +44,7 @@ module.exports = (grunt) ->
     packageDirectories = []
     nonPackageDirectories = [
       'benchmark'
-      'dot-inbox'
+      'dot-nylas'
       'vendor'
       'resources'
     ]
@@ -161,7 +161,7 @@ module.exports = (grunt) ->
       cp directory, path.join(appDir, directory), filter: filterPackage
 
     cp 'spec', path.join(appDir, 'spec')
-    cp 'spec-inbox', path.join(appDir, 'spec-inbox')
+    cp 'spec-nylas', path.join(appDir, 'spec-nylas')
     cp 'src', path.join(appDir, 'src'), filter: /.+\.(cson|coffee|cjsx|jsx)$/
     cp 'static', path.join(appDir, 'static')
 

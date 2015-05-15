@@ -44,13 +44,13 @@ describe "ContactStore", ->
 
   describe "when searching for a contact", ->
     beforeEach ->
-      @c1 = new Contact(name: "", email: "1test@nilas.com")
-      @c2 = new Contact(name: "First", email: "2test@nilas.com")
-      @c3 = new Contact(name: "First Last", email: "3test@nilas.com")
-      @c4 = new Contact(name: "Fit", email: "fit@nilas.com")
-      @c5 = new Contact(name: "Fins", email: "fins@nilas.com")
-      @c6 = new Contact(name: "Fill", email: "fill@nilas.com")
-      @c7 = new Contact(name: "Fin", email: "fin@nilas.com")
+      @c1 = new Contact(name: "", email: "1test@nylas.com")
+      @c2 = new Contact(name: "First", email: "2test@nylas.com")
+      @c3 = new Contact(name: "First Last", email: "3test@nylas.com")
+      @c4 = new Contact(name: "Fit", email: "fit@nylas.com")
+      @c5 = new Contact(name: "Fins", email: "fins@nylas.com")
+      @c6 = new Contact(name: "Fill", email: "fill@nylas.com")
+      @c7 = new Contact(name: "Fin", email: "fin@nylas.com")
       ContactStore._contactCache = [@c1,@c2,@c3,@c4,@c5,@c6,@c7]
 
     it "can find by first name", ->

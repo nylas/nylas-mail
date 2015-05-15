@@ -1,6 +1,6 @@
 React = require "react/addons"
 ThreadListStore = require './thread-list-store'
-{MultiselectActionBar} = require 'ui-components'
+{MultiselectActionBar} = require 'nylas-component-kit'
 
 class ThreadSelectionBar extends React.Component
   @displayName: 'ThreadSelectionBar'

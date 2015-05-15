@@ -1,7 +1,7 @@
 _ = require 'underscore-plus'
 moment = require 'moment-timezone'
 React = require 'react'
-{Utils} = require 'inbox-exports'
+{Utils} = require 'nylas-exports'
 
 class MessageTimestamp extends React.Component
   @displayName: 'MessageTimestamp'

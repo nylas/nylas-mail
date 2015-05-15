@@ -1,7 +1,7 @@
 _ = require 'underscore-plus'
 React = require "react"
 Tooltip = require "./tooltip"
-{ComponentRegistry} = require("inbox-exports")
+{ComponentRegistry} = require("nylas-exports")
 
 module.exports =
   item: null # The DOM item the main React component renders into

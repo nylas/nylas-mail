@@ -5,7 +5,7 @@ fs = require 'fs'
 {WorkspaceStore,
  FocusedContentStore,
  FileDownloadStore,
- Actions} = require 'inbox-exports'
+ Actions} = require 'nylas-exports'
 
 module.exports =
 FileFrameStore = Reflux.createStore

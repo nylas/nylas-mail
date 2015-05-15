@@ -1,7 +1,7 @@
 _ = require 'underscore-plus'
 React = require 'react/addons'
 classNames = require 'classnames'
-{ComponentRegistry} = require 'inbox-exports'
+{ComponentRegistry} = require 'nylas-exports'
 
 ThreadListItemMixin = require './thread-list-item-mixin'
 

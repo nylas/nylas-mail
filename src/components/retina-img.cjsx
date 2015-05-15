@@ -1,6 +1,6 @@
 _ = require 'underscore-plus'
 React = require 'react'
-{Utils} = require "inbox-exports"
+{Utils} = require "nylas-exports"
 
 StylesImpactedByZoom = [
   'top',

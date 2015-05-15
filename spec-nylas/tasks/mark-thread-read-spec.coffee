@@ -14,7 +14,7 @@ describe "MarkThreadReadTask", ->
       unread: true
       to:
         name: 'Dummy'
-        email: 'dummy@inboxapp.com'
+        email: 'dummy@nylas.com'
     @task = new MarkThreadReadTask(@thread)
 
   describe "performLocal", ->

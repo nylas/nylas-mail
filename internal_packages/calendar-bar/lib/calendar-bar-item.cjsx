@@ -1,5 +1,5 @@
 React = require 'react'
-{Actions} = require("inbox-exports")
+{Actions} = require("nylas-exports")
 moment = require 'moment'
 
 class CalendarBarItem extends React.Component

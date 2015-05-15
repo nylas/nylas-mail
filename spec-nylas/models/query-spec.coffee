@@ -111,9 +111,9 @@ describe "ModelQuery", ->
 
     it "should correctly generate queries with multiple where clauses", ->
       @runScenario Namespace,
-        builder: (q) -> q.where({emailAddress: 'ben@inboxapp.com'}).where({id: 2})
+        builder: (q) -> q.where({emailAddress: 'ben@nylas.com'}).where({id: 2})
         sql: "SELECT `Namespace`.`data` FROM `Namespace`  \
-              WHERE `Namespace`.`email_address` = 'ben@inboxapp.com' AND `Namespace`.`id` = 2"
+              WHERE `Namespace`.`email_address` = 'ben@nylas.com' AND `Namespace`.`id` = 2"
 
     it "should correctly generate COUNT queries", ->
       @runScenario Thread,

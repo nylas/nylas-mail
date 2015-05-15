@@ -1,6 +1,6 @@
 React = require 'react'
 
-{Actions} = require "inbox-exports"
+{Actions} = require "nylas-exports"
 
 class AccountSidebarDividerItem extends React.Component
   displayName: 'AccountSidebarDividerItem'

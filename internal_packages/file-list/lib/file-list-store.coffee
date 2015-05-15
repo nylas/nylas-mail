@@ -2,7 +2,7 @@ Reflux = require 'reflux'
 _ = require 'underscore-plus'
 {File,
  DatabaseStore,
- DatabaseView} = require 'inbox-exports'
+ DatabaseView} = require 'nylas-exports'
 
 module.exports =
 FileListStore = Reflux.createStore

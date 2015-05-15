@@ -1,7 +1,7 @@
 React = require 'react'
 _ = require "underscore-plus"
-{EventedIFrame} = require 'ui-components'
-{Utils} = require 'inbox-exports'
+{EventedIFrame} = require 'nylas-component-kit'
+{Utils} = require 'nylas-exports'
 
 EmailFixingStyles = """
   <style>

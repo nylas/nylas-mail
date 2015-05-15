@@ -65,7 +65,7 @@ if [ $OS == 'Mac' ]; then
   $ATOM_SHELL_PATH/Atom.app/Contents/MacOS/Atom --executed-from="$(pwd)" --pid=$$ "$@" $EDGEHILL_PATH
 
 elif [ $OS == 'Linux' ]; then
-  DOT_INBOX_DIR="$HOME/.inbox"
+  DOT_INBOX_DIR="$HOME/.nylas"
 
   mkdir -p "$DOT_INBOX_DIR"
 

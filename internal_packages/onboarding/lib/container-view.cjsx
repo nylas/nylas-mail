@@ -3,8 +3,8 @@ ReactCSSTransitionGroup = React.addons.CSSTransitionGroup
 OnboardingActions = require './onboarding-actions'
 OnboardingStore = require './onboarding-store'
 querystring = require 'querystring'
-{EdgehillAPI} = require 'inbox-exports'
-{RetinaImg} = require 'ui-components'
+{EdgehillAPI} = require 'nylas-exports'
+{RetinaImg} = require 'nylas-component-kit'
 
 class ContainerView extends React.Component
 
@@ -65,14 +65,14 @@ class ContainerView extends React.Component
           <RetinaImg name="onboarding-close.png"/>
         </div>
         <RetinaImg name="onboarding-logo.png" className="logo"/>
-        <h2>Welcome to Nilas</h2>
+        <h2>Welcome to Nylas</h2>
 
         <RetinaImg name="onboarding-divider.png" />
 
         <form role="form" className="thin-container">
           <div className="prompt">Enter your email address:</div>
           <input className="input-bordered" type="email" placeholder="you@gmail.com" tabIndex="1" value={@state.email} onChange={@_onValueChange} id="email" />
-          <button className="btn btn-larger btn-gradient" style={width:215} onClick={@_fireStart}>Start using Nilas</button>
+          <button className="btn btn-larger btn-gradient" style={width:215} onClick={@_fireStart}>Start using Nylas</button>
           {@_environmentComponent()}
         </form>
 
@@ -118,7 +118,7 @@ class ContainerView extends React.Component
           </svg>
         </div>
       </div>
-  
+
   _environmentComponent: =>
     return [] unless atom.inDevMode()
     <div className="environment-selector">

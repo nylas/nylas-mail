@@ -1,6 +1,6 @@
 _ = require 'underscore-plus'
 Reflux = require 'reflux'
-{Actions} = require 'inbox-exports'
+{Actions} = require 'nylas-exports'
 
 VERBOSE = false
 DISPLAY_TIME = 3000 # in ms

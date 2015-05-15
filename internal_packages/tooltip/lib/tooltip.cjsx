@@ -1,6 +1,6 @@
 _ = require 'underscore-plus'
 React = require 'react/addons'
-{Utils} = require 'inbox-exports'
+{Utils} = require 'nylas-exports'
 
 ###
 The Tooltip component displays a consistent hovering tooltip for use when

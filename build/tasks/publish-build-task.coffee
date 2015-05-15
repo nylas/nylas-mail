@@ -121,10 +121,10 @@ zipAssets = (buildDir, assets, callback) ->
   async.parallel(tasks, callback)
 
 getAtomDraftRelease = (callback) ->
-  atomRepo = new GitHub({repo: 'inboxapp/inboxapp', token})
+  atomRepo = new GitHub({repo: 'nylas/edgehill', token})
   atomRepo.getReleases (error, releases=[]) ->
     if error?
-      logError('Fetching inboxapp/edgehill releases failed', error, releases)
+      logError('Fetching nylas/edgehill releases failed', error, releases)
       callback(error)
     else
       [firstDraft] = releases.filter ({draft}) -> draft
@@ -142,7 +142,7 @@ getAtomDraftRelease = (callback) ->
             firstDraft.assets = assets
             callback(null, firstDraft)
       else
-        callback(new Error('No draft release in inboxapp/edgehill repo'))
+        callback(new Error('No draft release in nylas/edgehill repo'))
 
 deleteRelease = (release) ->
   options =

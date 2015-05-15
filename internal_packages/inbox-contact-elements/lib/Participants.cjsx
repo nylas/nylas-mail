@@ -2,7 +2,7 @@ React = require "react"
 _ = require "underscore-plus"
 ContactChip = require './ContactChip'
 
-{NamespaceStore} = require "inbox-exports"
+{NamespaceStore} = require "nylas-exports"
 
 # Parameters
 # clickable (optional) - is this currently clickable?

@@ -6,7 +6,7 @@ LessCache = require 'less-cache'
 module.exports = (grunt) ->
   grunt.registerMultiTask 'prebuild-less', 'Prebuild cached of compiled LESS files', ->
     prebuiltConfigurations = [
-      ['inbox-light-ui']
+      ['light-ui']
     ]
 
     directory = path.join(grunt.config.get('atom.appDir'), 'less-compile-cache')

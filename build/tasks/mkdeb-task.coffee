@@ -33,7 +33,7 @@ module.exports = (grunt) ->
 
     {name, version, description} = grunt.file.readJSON('package.json')
     section = 'devel'
-    maintainer = 'InboxApp <edgehill@inboxapp.com>'
+    maintainer = 'InboxApp <edgehill@nylas.com>'
     installDir = '/usr'
     iconName = 'edgehill'
     getInstalledSize buildDir, (error, installedSize) ->

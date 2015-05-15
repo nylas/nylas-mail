@@ -1,8 +1,8 @@
 React = require 'react'
 _ = require 'underscore-plus'
 classNames = require 'classnames'
-{Actions, Utils, WorkspaceStore} = require 'inbox-exports'
-{RetinaImg} = require 'ui-components'
+{Actions, Utils, WorkspaceStore} = require 'nylas-exports'
+{RetinaImg} = require 'nylas-component-kit'
 
 class AccountSidebarSheetItem extends React.Component
   @displayName: 'AccountSidebarSheetItem'

@@ -20,7 +20,7 @@ To create a Draft Store Extension, subclass {DraftStoreExtension} and override t
 This extension displays a warning before sending a draft that contains the names of competitor's products and if the user proceeds to send the draft containing the words, it appends a disclaimer.
 
 ```coffee
-{DraftStoreExtension} = require 'inbox-exports'
+{DraftStoreExtension} = require 'nylas-exports'
 
 class ProductsExtension extends DraftStoreExtension
 

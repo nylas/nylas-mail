@@ -36,7 +36,7 @@ runAllSpecs = ->
   # requireSpecs(path.join(resourcePath, 'spec'))
   #
   # EDGEHILL_CORE: Load edgehill core specs instead of Atom text editor core specs.
-  requireSpecs(path.join(resourcePath, 'spec-inbox'))
+  requireSpecs(path.join(resourcePath, 'spec-nylas'))
 
   setSpecType('core')
 

@@ -5,7 +5,7 @@ InjectedComponentLabel = require './injected-component-label'
 
 {Actions,
  WorkspaceStore,
- ComponentRegistry} = require "inbox-exports"
+ ComponentRegistry} = require "nylas-exports"
 
 ###
 Public: InjectedComponent makes it easy to include dynamically registered

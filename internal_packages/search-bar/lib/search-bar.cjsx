@@ -1,7 +1,7 @@
 React = require 'react/addons'
 classNames = require 'classnames'
-{Actions} = require 'inbox-exports'
-{Menu, RetinaImg} = require 'ui-components'
+{Actions} = require 'nylas-exports'
+{Menu, RetinaImg} = require 'nylas-component-kit'
 SearchSuggestionStore = require './search-suggestion-store'
 _ = require 'underscore-plus'
 

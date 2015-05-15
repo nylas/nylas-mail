@@ -14,7 +14,7 @@ module.exports =
           type: 'string'
       themes:
         type: 'array'
-        default: ['inbox-light-ui']
+        default: ['light-ui']
         items:
           type: 'string'
 

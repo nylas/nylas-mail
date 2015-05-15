@@ -8,11 +8,11 @@ ReactTestUtils = React.addons.TestUtils
  Thread,
  Utils,
  FileDownloadStore,
- InboxTestUtils} = require "inbox-exports"
+ InboxTestUtils} = require "nylas-exports"
 
 EmailFrameStub = React.createClass({render: -> <div></div>})
 
-{InjectedComponent} = require 'ui-components'
+{InjectedComponent} = require 'nylas-component-kit'
 file = new File
   id: 'file_1_id'
   filename: 'a.png'
@@ -55,19 +55,19 @@ download_inline =
 
 user_1 = new Contact
   name: "User One"
-  email: "user1@inboxapp.com"
+  email: "user1@nylas.com"
 user_2 = new Contact
   name: "User Two"
-  email: "user2@inboxapp.com"
+  email: "user2@nylas.com"
 user_3 = new Contact
   name: "User Three"
-  email: "user3@inboxapp.com"
+  email: "user3@nylas.com"
 user_4 = new Contact
   name: "User Four"
-  email: "user4@inboxapp.com"
+  email: "user4@nylas.com"
 user_5 = new Contact
   name: "User Five"
-  email: "user5@inboxapp.com"
+  email: "user5@nylas.com"
 
 
 MessageItem = proxyquire '../lib/message-item',

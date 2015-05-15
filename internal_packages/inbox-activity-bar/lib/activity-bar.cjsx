@@ -6,8 +6,8 @@ React = require 'react/addons'
  TaskQueue,
  Actions,
  Contact,
- Message} = require 'inbox-exports'
-{ResizableRegion} = require 'ui-components'
+ Message} = require 'nylas-exports'
+{ResizableRegion} = require 'nylas-component-kit'
 
 ActivityBarStore = require './activity-bar-store'
 ActivityBarTask = require './activity-bar-task'
@@ -169,15 +169,15 @@ class ActivityBar extends React.Component
       from: [NamespaceStore.current().me()]
       to: [
         new Contact
-          name: "Nilas Team"
-          email: "feedback@nilas.com"
+          name: "Nylas Team"
+          email: "feedback@nylas.com"
       ]
       date: (new Date)
       draft: true
       subject: "Feedback"
       namespaceId: NamespaceStore.current().id
       body: """
-        Hi, Edgehill team! I have some feedback for you.<br/>
+        Hi, Nylas team! I have some feedback for you.<br/>
         <br/>
         <b>What happened:</b><br/>
         <br/>

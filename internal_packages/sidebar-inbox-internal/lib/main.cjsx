@@ -1,7 +1,7 @@
 _ = require 'underscore-plus'
 React = require "react"
 SidebarInternal = require "./sidebar-internal"
-{ComponentRegistry, WorkspaceStore} = require "inbox-exports"
+{ComponentRegistry, WorkspaceStore} = require "nylas-exports"
 
 module.exports =
   item: null

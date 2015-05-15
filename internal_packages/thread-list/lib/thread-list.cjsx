@@ -1,13 +1,13 @@
 _ = require 'underscore-plus'
 React = require 'react'
 classNames = require 'classnames'
-{ListTabular, MultiselectList} = require 'ui-components'
+{ListTabular, MultiselectList} = require 'nylas-component-kit'
 {timestamp, subject} = require './formatting-utils'
 {Actions,
  Utils,
  Thread,
  WorkspaceStore,
- NamespaceStore} = require 'inbox-exports'
+ NamespaceStore} = require 'nylas-exports'
 
 ThreadListParticipants = require './thread-list-participants'
 ThreadListStore = require './thread-list-store'

@@ -200,11 +200,11 @@ class ThemeManager
     # available.
     if themeNames.length is 0
       builtInThemeNames = [
-        'inbox-light-ui'
+        'light-ui'
       ]
       themeNames = _.intersection(themeNames, builtInThemeNames)
       if themeNames.length is 0
-        themeNames = ['inbox-light-ui']
+        themeNames = ['light-ui']
 
     # Reverse so the first (top) theme is loaded after the others. We want
     # the first/top theme to override later themes in the stack.

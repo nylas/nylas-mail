@@ -13,7 +13,7 @@ FreeBSD -RELEASE 64-bit is the recommended platform.
 ## Instructions
 
   ```sh
-  git clone https://github.com/inboxapp/edgehill
+  git clone https://github.com/nylas/edgehill
   cd edgehill
   script/build # Creates application at $TMPDIR/edgehill-build/Edgehill
   sudo script/grunt install # Installs command to /usr/local/bin/edgehill

@@ -28,7 +28,7 @@
   # Use the `Git Shell` app which was installed by GitHub for Windows. Also Make
   # sure you have logged into the GitHub for Windows GUI App.
   cd C:\
-  git clone https://github.com/inboxapp/edgehill/
+  git clone https://github.com/nylas/edgehill/
   cd edgehill
   script/build # Creates application in the `Program Files` directory
   ```

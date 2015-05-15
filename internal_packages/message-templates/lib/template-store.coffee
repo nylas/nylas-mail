@@ -1,6 +1,6 @@
 Reflux = require 'reflux'
 _ = require 'underscore-plus'
-{DatabaseStore, DraftStore, Actions, Message} = require 'inbox-exports'
+{DatabaseStore, DraftStore, Actions, Message} = require 'nylas-exports'
 path = require 'path'
 fs = require 'fs-plus'
 

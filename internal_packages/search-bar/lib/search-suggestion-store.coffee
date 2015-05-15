@@ -1,7 +1,7 @@
 Reflux = require 'reflux'
 {Actions,
  Contact,
- ContactStore} = require 'inbox-exports'
+ ContactStore} = require 'nylas-exports'
 _ = require 'underscore-plus'
 
 # Stores should closely match the needs of a particular part of the front end.

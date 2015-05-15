@@ -1,6 +1,6 @@
 Reflux = require 'reflux'
 _ = require 'underscore-plus'
-{DatabaseStore, NamespaceStore, Actions, Event, Calendar} = require 'inbox-exports'
+{DatabaseStore, NamespaceStore, Actions, Event, Calendar} = require 'nylas-exports'
 moment = require 'moment'
 
 CalendarBarEventStore = Reflux.createStore

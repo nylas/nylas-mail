@@ -18,7 +18,7 @@ describe "SendDraftTask", ->
         draft: true
         to:
           name: 'Dummy'
-          email: 'dummy@inboxapp.com'
+          email: 'dummy@nylas.com'
 
       @draftB = new Message
         version: '1'
@@ -28,7 +28,7 @@ describe "SendDraftTask", ->
         draft: true
         to:
           name: 'Dummy'
-          email: 'dummy@inboxapp.com'
+          email: 'dummy@nylas.com'
 
       @saveA = new SyncbackDraftTask('localid-A')
       @saveB = new SyncbackDraftTask('localid-B')
@@ -108,7 +108,7 @@ describe "SendDraftTask", ->
         body: 'hello world'
         to:
           name: 'Dummy'
-          email: 'dummy@inboxapp.com'
+          email: 'dummy@nylas.com'
       @draftLocalId = "local-123"
       @task = new SendDraftTask(@draftLocalId)
       spyOn(atom.inbox, 'makeRequest').andCallFake (options) =>
@@ -170,7 +170,7 @@ describe "SendDraftTask", ->
           body: 'hello world'
           to:
             name: 'Dummy'
-            email: 'dummy@inboxapp.com'
+            email: 'dummy@nylas.com'
         @task = new SendDraftTask(@draftLocalId)
 
       it "should send the draft JSON", ->
@@ -197,7 +197,7 @@ describe "SendDraftTask", ->
         draft: true
         to:
           name: 'Dummy'
-          email: 'dummy@inboxapp.com'
+          email: 'dummy@nylas.com'
       @task = new SendDraftTask(@draft.id)
       spyOn(Actions, "dequeueTask")
       spyOn(Actions, "sendDraftError")

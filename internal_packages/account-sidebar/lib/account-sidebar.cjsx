@@ -1,5 +1,5 @@
 React = require 'react'
-{Actions} = require("inbox-exports")
+{Actions} = require("nylas-exports")
 SidebarDividerItem = require("./account-sidebar-divider-item")
 SidebarTagItem = require("./account-sidebar-tag-item")
 SidebarSheetItem = require("./account-sidebar-sheet-item")

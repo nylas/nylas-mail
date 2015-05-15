@@ -1,4 +1,4 @@
-{DraftStoreExtension} = require 'inbox-exports'
+{DraftStoreExtension} = require 'nylas-exports'
 
 class TemplatesDraftStoreExtension extends DraftStoreExtension
 

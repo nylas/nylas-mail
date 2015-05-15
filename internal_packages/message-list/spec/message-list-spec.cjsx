@@ -14,9 +14,9 @@ TestUtils = React.addons.TestUtils
  MessageStore,
  NamespaceStore,
  InboxTestUtils,
- ComponentRegistry} = require "inbox-exports"
+ ComponentRegistry} = require "nylas-exports"
 
-{InjectedComponent} = require 'ui-components'
+{InjectedComponent} = require 'nylas-component-kit'
 
 MessageItem = proxyquire("../lib/message-item", {
   "./email-frame": React.createClass({render: -> <div></div>})
@@ -30,7 +30,7 @@ MessageParticipants = require "../lib/message-participants"
 
 me = new Namespace(
   "name": "User One",
-  "email": "user1@inboxapp.com"
+  "email": "user1@nylas.com"
   "provider": "inbox"
 )
 NamespaceStore._current = me
@@ -42,19 +42,19 @@ user_headers =
 
 user_1 = _.extend _.clone(user_headers),
   name: "User One"
-  email: "user1@inboxapp.com"
+  email: "user1@nylas.com"
 user_2 = _.extend _.clone(user_headers),
   name: "User Two"
-  email: "user2@inboxapp.com"
+  email: "user2@nylas.com"
 user_3 = _.extend _.clone(user_headers),
   name: "User Three"
-  email: "user3@inboxapp.com"
+  email: "user3@nylas.com"
 user_4 = _.extend _.clone(user_headers),
   name: "User Four"
-  email: "user4@inboxapp.com"
+  email: "user4@nylas.com"
 user_5 = _.extend _.clone(user_headers),
   name: "User Five"
-  email: "user5@inboxapp.com"
+  email: "user5@nylas.com"
 
 m1 = (new Message).fromJSON({
   "id"   : "111",

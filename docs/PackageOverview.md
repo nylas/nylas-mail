@@ -97,6 +97,6 @@ by name to specify a loading order; otherwise, all style sheets are loaded.
 
 ###Installing a Package
 
-Nylas Mail ships with many packages already bundled with the application. When the application launches, it looks for additional packages in `~/.inbox/packages`. Each package you create belongs in it's own directory inside this folder.
+Nylas Mail ships with many packages already bundled with the application. When the application launches, it looks for additional packages in `~/.nylas/packages`. Each package you create belongs in it's own directory inside this folder.
 
 In the future, it will be possible to install packages directly from within the client.

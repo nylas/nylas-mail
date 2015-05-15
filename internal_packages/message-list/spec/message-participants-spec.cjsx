@@ -2,24 +2,24 @@ _ = require 'underscore-plus'
 React = require "react/addons"
 ReactTestUtils = React.addons.TestUtils
 TestUtils = React.addons.TestUtils
-{Contact, Message} = require "inbox-exports"
+{Contact, Message} = require "nylas-exports"
 MessageParticipants = require "../lib/message-participants"
 
 user_1 =
   name: "User One"
-  email: "user1@nilas.com"
+  email: "user1@nylas.com"
 user_2 =
   name: "User Two"
-  email: "user2@nilas.com"
+  email: "user2@nylas.com"
 user_3 =
   name: "User Three"
-  email: "user3@nilas.com"
+  email: "user3@nylas.com"
 user_4 =
   name: "User Four"
-  email: "user4@nilas.com"
+  email: "user4@nylas.com"
 user_5 =
   name: "User Five"
-  email: "user5@nilas.com"
+  email: "user5@nylas.com"
 
 many_users = (new Contact({name: "User #{i}", email:"#{i}@app.com"}) for i in [0..100])
 
@@ -90,7 +90,7 @@ describe "MessageParticipants", ->
 
     it "uses full names", ->
       to = ReactTestUtils.findRenderedDOMComponentWithClass(@participants, "to-contact")
-      expect(React.findDOMNode(to).innerText.trim()).toEqual "User Two <user2@nilas.com>"
+      expect(React.findDOMNode(to).innerText.trim()).toEqual "User Two <user2@nylas.com>"
 
 
   # TODO: We no longer display "to everyone"

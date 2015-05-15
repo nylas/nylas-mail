@@ -1,6 +1,6 @@
 Reflux = require 'reflux'
 Actions = require './onboarding-actions'
-{EdgehillAPI} = require 'inbox-exports'
+{EdgehillAPI} = require 'nylas-exports'
 ipc = require 'ipc'
 
 return unless atom.getWindowType() is "onboarding"

@@ -10,10 +10,10 @@ classNames = require 'classnames'
  DatabaseStore,
  Tag,
  Thread,
- TaskQueue} = require 'inbox-exports'
+ TaskQueue} = require 'nylas-exports'
 {RetinaImg,
  Popover,
- Menu} = require 'ui-components'
+ Menu} = require 'nylas-component-kit'
 
 TagsStore = Reflux.createStore
   init: ->

@@ -1,6 +1,6 @@
 React = require 'react'
-{Message, Actions, NamespaceStore} = require 'inbox-exports'
-{RetinaImg} = require 'ui-components'
+{Message, Actions, NamespaceStore} = require 'nylas-exports'
+{RetinaImg} = require 'nylas-component-kit'
 
 class NewComposeButton extends React.Component
   @displayName: 'NewComposeButton'

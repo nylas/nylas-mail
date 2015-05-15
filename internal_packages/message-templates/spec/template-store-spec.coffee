@@ -1,4 +1,4 @@
-{Message, Actions, DatabaseStore, DraftStore} = require 'inbox-exports'
+{Message, Actions, DatabaseStore, DraftStore} = require 'nylas-exports'
 TemplateStore = require '../lib/template-store'
 fs = require 'fs-plus'
 shell = require 'shell'

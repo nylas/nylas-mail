@@ -1,4 +1,4 @@
-{Actions} = require 'inbox-exports'
+{Actions} = require 'nylas-exports'
 LaunchServices = require './launch-services'
 
 NOTIF_ACTION_YES = 'mailto:set-default-yes'
@@ -22,7 +22,7 @@ module.exports =
         Actions.postNotification
           type: 'info',
           sticky: true
-          message: "Thanks for trying out Edgehill! Would you like to make it your default mail client?",
+          message: "Thanks for trying out Nylas Mail! Would you like to make it your default mail client?",
           icon: 'fa-inbox',
           actions: [{
             label: 'Yes'

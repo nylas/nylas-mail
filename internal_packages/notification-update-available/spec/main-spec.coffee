@@ -1,7 +1,7 @@
 _ = require 'underscore-plus'
 proxyquire = require 'proxyquire'
 Reflux = require 'reflux'
-{Actions} = require 'inbox-exports'
+{Actions} = require 'nylas-exports'
 
 stubUpdaterState = null
 stubUpdaterReleaseVersion = null
