@@ -7,6 +7,7 @@ _ = require 'underscore-plus'
  Tag,
  Message,
  FocusedTagStore,
+ NylasAPI,
  Thread} = require 'nylas-exports'
 
 AccountSidebarStore = Reflux.createStore
@@ -107,7 +108,7 @@ AccountSidebarStore = Reflux.createStore
   _refetchFromAPI: ->
     namespace = NamespaceStore.current()
     return unless namespace
-    atom.inbox.getCollection(namespace.id, 'tags')
+    NylasAPI.getCollection(namespace.id, 'tags')
 
   # Inbound Events
 

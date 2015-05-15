@@ -26,6 +26,7 @@ Exports =
   Actions: require '../src/flux/actions'
 
   # API Endpoints
+  NylasAPI: require '../src/flux/inbox-api'
   EdgehillAPI: require '../src/flux/edgehill-api'
 
   # Testing

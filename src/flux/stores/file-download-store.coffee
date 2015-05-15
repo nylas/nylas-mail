@@ -9,6 +9,7 @@ _ = require 'underscore-plus'
 Actions = require '../actions'
 progress = require 'request-progress'
 NamespaceStore = require '../stores/namespace-store'
+NylasAPI = require '../inbox-api'
 
 class Download
   constructor: ({@fileId, @targetPath, @progressCallback}) ->
@@ -39,7 +40,7 @@ class Download
       # Does the file already exist on disk? If so, just resolve immediately.
       fs.exists @targetPath, (exists) =>
         return resolve(@) if exists
-        @request = atom.inbox.makeRequest
+        @request = NylasAPI.makeRequest
           path: "/n/#{namespace}/files/#{@fileId}/download"
           success: => resolve(@)
           error: => reject(@)
@@ -101,7 +102,7 @@ FileDownloadStore = Reflux.createStore
       fileId: file.id
       targetPath: targetPath
       progressCallback: => @trigger()
- 
+
     cleanup = =>
       @_cleanupDownload(download)
       Promise.resolve(download)

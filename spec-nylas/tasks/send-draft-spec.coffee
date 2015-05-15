@@ -1,3 +1,4 @@
+NylasAPI = require '../../src/flux/inbox-api'
 Actions = require '../../src/flux/actions'
 SyncbackDraftTask = require '../../src/flux/tasks/syncback-draft'
 SendDraftTask = require '../../src/flux/tasks/send-draft'
@@ -111,7 +112,7 @@ describe "SendDraftTask", ->
           email: 'dummy@nylas.com'
       @draftLocalId = "local-123"
       @task = new SendDraftTask(@draftLocalId)
-      spyOn(atom.inbox, 'makeRequest').andCallFake (options) =>
+      spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
         options.success(@draft.toJSON()) if options.success
       spyOn(DatabaseStore, 'findByLocalId').andCallFake (klass, localId) =>
         Promise.resolve(@draft)
@@ -146,8 +147,8 @@ describe "SendDraftTask", ->
     it "should start an API request to /send", ->
       waitsForPromise =>
         @task.performRemote().then =>
-          expect(atom.inbox.makeRequest.calls.length).toBe(1)
-          options = atom.inbox.makeRequest.mostRecentCall.args[0]
+          expect(NylasAPI.makeRequest.calls.length).toBe(1)
+          options = NylasAPI.makeRequest.mostRecentCall.args[0]
           expect(options.path).toBe("/n/#{@draft.namespaceId}/send")
           expect(options.method).toBe('POST')
 
@@ -155,8 +156,8 @@ describe "SendDraftTask", ->
       it "should send the draft ID and version", ->
         waitsForPromise =>
           @task.performRemote().then =>
-            expect(atom.inbox.makeRequest.calls.length).toBe(1)
-            options = atom.inbox.makeRequest.mostRecentCall.args[0]
+            expect(NylasAPI.makeRequest.calls.length).toBe(1)
+            options = NylasAPI.makeRequest.mostRecentCall.args[0]
             expect(options.body.version).toBe(@draft.version)
             expect(options.body.draft_id).toBe(@draft.id)
 
@@ -176,15 +177,15 @@ describe "SendDraftTask", ->
       it "should send the draft JSON", ->
         waitsForPromise =>
           @task.performRemote().then =>
-            expect(atom.inbox.makeRequest.calls.length).toBe(1)
-            options = atom.inbox.makeRequest.mostRecentCall.args[0]
+            expect(NylasAPI.makeRequest.calls.length).toBe(1)
+            options = NylasAPI.makeRequest.mostRecentCall.args[0]
             expect(options.body).toEqual(@draft.toJSON(joined: true))
 
     it "should pass returnsModel:true so that the draft is saved to the data store when returned", ->
       waitsForPromise =>
         @task.performRemote().then ->
-          expect(atom.inbox.makeRequest.calls.length).toBe(1)
-          options = atom.inbox.makeRequest.mostRecentCall.args[0]
+          expect(NylasAPI.makeRequest.calls.length).toBe(1)
+          options = NylasAPI.makeRequest.mostRecentCall.args[0]
           expect(options.returnsModel).toBe(true)
 
   describe "failing performRemote", ->

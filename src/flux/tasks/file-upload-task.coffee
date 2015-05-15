@@ -7,6 +7,7 @@ Actions = require '../actions'
 NamespaceStore = require '../stores/namespace-store'
 DatabaseStore = require '../stores/database-store'
 {isTempId} = require '../models/utils'
+NylasAPI = require '../inbox-api'
 
 class FileUploadTask extends Task
 
@@ -24,7 +25,7 @@ class FileUploadTask extends Task
     new Promise (resolve, reject) =>
       Actions.uploadStateChanged @_uploadData("started")
 
-      @req = atom.inbox.makeRequest
+      @req = NylasAPI.makeRequest
         path: "/n/#{@_namespaceId()}/files"
         method: "POST"
         json: false

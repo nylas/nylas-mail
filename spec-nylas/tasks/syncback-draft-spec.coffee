@@ -1,6 +1,7 @@
 _ = require 'underscore-plus'
 {generateTempId, isTempId} = require '../../src/flux/models/utils'
 
+NylasAPI = require '../../src/flux/inbox-api'
 Task = require '../../src/flux/tasks/task'
 Actions = require '../../src/flux/actions'
 Message = require '../../src/flux/models/message'
@@ -48,29 +49,29 @@ describe "SyncbackDraftTask", ->
 
   describe "performRemote", ->
     beforeEach ->
-      spyOn(atom.inbox, 'makeRequest').andCallFake (opts) ->
+      spyOn(NylasAPI, 'makeRequest').andCallFake (opts) ->
         opts.success(remoteDraft.toJSON()) if opts.success
 
     it "does nothing if no draft can be found in the db", ->
       task = new SyncbackDraftTask("missingDraftId")
       waitsForPromise =>
         task.performRemote().then ->
-          expect(atom.inbox.makeRequest).not.toHaveBeenCalled()
+          expect(NylasAPI.makeRequest).not.toHaveBeenCalled()
 
     it "should start an API request with the Message JSON", ->
       task = new SyncbackDraftTask("localDraftId")
       waitsForPromise =>
         task.performRemote().then ->
-          expect(atom.inbox.makeRequest).toHaveBeenCalled()
-          reqBody = atom.inbox.makeRequest.mostRecentCall.args[0].body
+          expect(NylasAPI.makeRequest).toHaveBeenCalled()
+          reqBody = NylasAPI.makeRequest.mostRecentCall.args[0].body
           expect(reqBody.subject).toEqual testData.subject
 
     it "should do a PUT when the draft has already been saved", ->
       task = new SyncbackDraftTask("remoteDraftId")
       waitsForPromise =>
         task.performRemote().then ->
-          expect(atom.inbox.makeRequest).toHaveBeenCalled()
-          options = atom.inbox.makeRequest.mostRecentCall.args[0]
+          expect(NylasAPI.makeRequest).toHaveBeenCalled()
+          options = NylasAPI.makeRequest.mostRecentCall.args[0]
           expect(options.path).toBe("/n/abc123/drafts/remoteid1234")
           expect(options.method).toBe('PUT')
 
@@ -78,8 +79,8 @@ describe "SyncbackDraftTask", ->
       task = new SyncbackDraftTask("localDraftId")
       waitsForPromise =>
         task.performRemote().then ->
-          expect(atom.inbox.makeRequest).toHaveBeenCalled()
-          options = atom.inbox.makeRequest.mostRecentCall.args[0]
+          expect(NylasAPI.makeRequest).toHaveBeenCalled()
+          options = NylasAPI.makeRequest.mostRecentCall.args[0]
           expect(options.path).toBe("/n/abc123/drafts")
           expect(options.method).toBe('POST')
 
@@ -87,8 +88,8 @@ describe "SyncbackDraftTask", ->
       task = new SyncbackDraftTask("localDraftId")
       waitsForPromise =>
         task.performRemote().then ->
-          expect(atom.inbox.makeRequest).toHaveBeenCalled()
-          options = atom.inbox.makeRequest.mostRecentCall.args[0]
+          expect(NylasAPI.makeRequest).toHaveBeenCalled()
+          options = NylasAPI.makeRequest.mostRecentCall.args[0]
           expect(options.returnsModel).toBe(false)
 
     it "should swap the ids if we got a new one from the DB", ->
@@ -108,7 +109,7 @@ describe "SyncbackDraftTask", ->
   describe "When the api throws a 404 error", ->
     beforeEach ->
       spyOn(TaskQueue, "enqueue")
-      spyOn(atom.inbox, "makeRequest").andCallFake (opts) ->
+      spyOn(NylasAPI, "makeRequest").andCallFake (opts) ->
         opts.error(testError(opts)) if opts.error
 
     it "resets the id", ->

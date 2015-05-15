@@ -6,6 +6,7 @@ MessageParticipants = require "./message-participants"
 MessageTimestamp = require "./message-timestamp"
 {Utils,
  Actions,
+ NylasAPI,
  MessageUtils,
  ComponentRegistry,
  FileDownloadStore} = require 'nylas-exports'
@@ -194,7 +195,7 @@ class MessageItem extends React.Component
     app = remote.require('app')
     tmpfile = path.join(app.getPath('temp'), @props.message.id)
 
-    atom.inbox.makeRequest
+    NylasAPI.makeRequest
       headers:
         Accept: 'message/rfc822'
       path: "/n/#{@props.message.namespaceId}/messages/#{@props.message.id}"

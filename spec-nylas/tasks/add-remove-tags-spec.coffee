@@ -1,4 +1,5 @@
 Actions = require '../../src/flux/actions'
+NylasAPI = require '../../src/flux/inbox-api'
 AddRemoveTagsTask = require '../../src/flux/tasks/add-remove-tags'
 DatabaseStore = require '../../src/flux/stores/database-store'
 Thread = require '../../src/flux/models/thread'
@@ -116,21 +117,21 @@ describe "AddRemoveTagsTask", ->
       @task = new AddRemoveTagsTask(testThread, ['archive'], ['inbox'])
 
     it "should start an API request with the Draft JSON", ->
-      spyOn(atom.inbox, 'makeRequest')
+      spyOn(NylasAPI, 'makeRequest')
       @task.performLocal()
       waitsFor ->
         DatabaseStore.persistModel.callCount > 0
       runs ->
         @task.performRemote()
-        options = atom.inbox.makeRequest.mostRecentCall.args[0]
+        options = NylasAPI.makeRequest.mostRecentCall.args[0]
         expect(options.path).toBe("/n/#{testThread.namespaceId}/threads/#{testThread.id}")
         expect(options.method).toBe('PUT')
         expect(options.body.add_tags[0]).toBe('archive')
         expect(options.body.remove_tags[0]).toBe('inbox')
 
     it "should pass returnsModel:true so that the draft is saved to the data store when returned", ->
-      spyOn(atom.inbox, 'makeRequest')
+      spyOn(NylasAPI, 'makeRequest')
       @task.performLocal()
       @task.performRemote()
-      options = atom.inbox.makeRequest.mostRecentCall.args[0]
+      options = NylasAPI.makeRequest.mostRecentCall.args[0]
       expect(options.returnsModel).toBe(true)

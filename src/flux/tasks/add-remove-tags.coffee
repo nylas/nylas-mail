@@ -1,4 +1,5 @@
 Task = require './task'
+NylasAPI = require '../inbox-api'
 DatabaseStore = require '../stores/database-store'
 Actions = require '../actions'
 Tag = require '../models/tag'
@@ -53,7 +54,7 @@ class AddRemoveTagsTask extends Task
   performRemote: ->
     new Promise (resolve, reject) =>
       # queue the operation to the server
-      atom.inbox.makeRequest
+      NylasAPI.makeRequest
         path: "/n/#{@namespaceId}/threads/#{@thread.id}"
         method: 'PUT'
         body:

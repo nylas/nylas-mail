@@ -6,6 +6,7 @@ DatabaseStore = require "./database-store"
 NamespaceStore = require "./namespace-store"
 FocusedContentStore = require "./focused-content-store"
 MarkThreadReadTask = require '../tasks/mark-thread-read'
+NylasAPI = require '../inbox-api'
 async = require 'async'
 _ = require 'underscore-plus'
 
@@ -121,7 +122,7 @@ MessageStore = Reflux.createStore
         # are returned, this will trigger a refresh here.
         if @_items.length is 0
           namespace = NamespaceStore.current()
-          atom.inbox.getCollection namespace.id, 'messages', {thread_id: @_thread.id}
+          NylasAPI.getCollection namespace.id, 'messages', {thread_id: @_thread.id}
           loaded = false
 
         @_expandItemsToDefault()
@@ -160,7 +161,7 @@ MessageStore = Reflux.createStore
 
     @_inflight[id] = true
     namespace = NamespaceStore.current()
-    atom.inbox.makeRequest
+    NylasAPI.makeRequest
       path: "/n/#{namespace.id}/messages/#{id}"
       returnsModel: true
       success: =>
