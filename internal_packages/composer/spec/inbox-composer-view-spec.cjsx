@@ -197,6 +197,36 @@ describe "populated composer", ->
       dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
       expect(dialogArgs.buttons).toEqual ['Edit Message']
 
+    it "shows a warning if the body of the email is empty", ->
+      useDraft.call @, to: [u1], body: ""
+      makeComposer.call(@)
+      @composer._sendDraft()
+      expect(Actions.sendDraft).not.toHaveBeenCalled()
+      expect(@dialog.showMessageBox).toHaveBeenCalled()
+      dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
+      expect(dialogArgs.buttons).toEqual ['Cancel', 'Send Anyway']
+
+    it "shows a warning if the body of the email is all quoted text", ->
+      useDraft.call @,
+        to: [u1]
+        subject: "Hello World"
+        body: "<br><br><blockquote class='gmail_quote'>This is my quoted text!</blockquote>"
+      makeComposer.call(@)
+      @composer._sendDraft()
+      expect(Actions.sendDraft).not.toHaveBeenCalled()
+      expect(@dialog.showMessageBox).toHaveBeenCalled()
+      dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
+      expect(dialogArgs.buttons).toEqual ['Cancel', 'Send Anyway']
+
+    it "does not show a warning if the body of the email is all quoted text, but the email is a forward", ->
+      useDraft.call @,
+        to: [u1]
+        subject: "Fwd: Hello World"
+        body: "<br><br><blockquote class='gmail_quote'>This is my quoted text!</blockquote>"
+      makeComposer.call(@)
+      @composer._sendDraft()
+      expect(Actions.sendDraft).toHaveBeenCalled()
+
     it "shows a warning if there's no subject", ->
       useDraft.call @, to: [u1], subject: ""
       makeComposer.call(@)

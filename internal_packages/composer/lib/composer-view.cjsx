@@ -263,7 +263,6 @@ class ComposerView extends React.Component
   # focused depending on the draft type, or you can pass a field as
   # the first parameter.
   focus: (field = null) =>
-
     if component?.isForwardedMessage()
       field ?= "textFieldTo"
     else
@@ -367,6 +366,14 @@ class ComposerView extends React.Component
       warnings.push('without a subject line')
     if (draft.files ? []).length is 0 and @_hasAttachment(draft.body)
       warnings.push('without an attachment')
+
+    # Warn if the user tries to send a message with no body, or with a body that
+    # is only quoted text and not a forward.
+    body = draft.body.toLowerCase().trim()
+    forwarded = Utils.isForwardedMessage(draft)
+    quotedTextIndex = Utils.quotedTextIndex(body)
+    if body.length is 0 or (0 <= quotedTextIndex <= 10 and not forwarded)
+      warnings.push('without a body')
 
     # Check third party warnings added via DraftStore extensions
     for extension in DraftStore.extensions()
