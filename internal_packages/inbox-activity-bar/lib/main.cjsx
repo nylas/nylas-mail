@@ -1,5 +1,5 @@
 React = require 'react'
-{ComponentRegistry, WorkspaceStore} = require 'inbox-exports'
+{ComponentRegistry, WorkspaceStore} = require 'nylas-exports'
 ActivityBar = require './activity-bar'
 
 module.exports =

@@ -9,16 +9,16 @@ protocol = require 'protocol'
 # custom resource loader for 'nylas://' URLs.
 #
 # The following directories are searched in order:
-#   * ~/.inbox/assets
-#   * ~/.inbox/dev/packages (unless in safe mode)
-#   * ~/.inbox/packages
+#   * ~/.nylas/assets
+#   * ~/.nylas/dev/packages (unless in safe mode)
+#   * ~/.nylas/packages
 #   * RESOURCE_PATH/node_modules
 #
 module.exports =
 class NylasProtocolHandler
   constructor: (resourcePath, safeMode) ->
     @loadPaths = []
-    @dotNylasDirectory = path.join(app.getHomeDir(), '.inbox')
+    @dotNylasDirectory = path.join(app.getHomeDir(), '.nylas')
 
     unless safeMode
       @loadPaths.push(path.join(@dotNylasDirectory, 'dev', 'packages'))

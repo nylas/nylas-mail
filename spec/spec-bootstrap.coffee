@@ -11,7 +11,7 @@ global.Promise = require 'bluebird'
 try
   require '../src/window'
   Atom = require '../src/atom'
-  Atom.configDirPath = fs.absolute('~/.inbox-spec')
+  Atom.configDirPath = fs.absolute('~/.nylas-spec')
   window.atom = Atom.loadOrCreate()
   global.Promise.longStackTraces() if atom.inDevMode()
 

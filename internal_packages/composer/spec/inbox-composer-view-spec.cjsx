@@ -11,13 +11,13 @@ ReactTestUtils = React.addons.TestUtils
  DraftStore,
  DatabaseStore,
  InboxTestUtils,
- NamespaceStore} = require "inbox-exports"
+ NamespaceStore} = require "nylas-exports"
 
-u1 = new Contact(name: "Christine Spang", email: "spang@inboxapp.com")
-u2 = new Contact(name: "Michael Grinich", email: "mg@inboxapp.com")
-u3 = new Contact(name: "Evan Morikawa",   email: "evan@inboxapp.com")
-u4 = new Contact(name: "Zoë Leiper",      email: "zip@inboxapp.com")
-u5 = new Contact(name: "Ben Gotow",       email: "ben@inboxapp.com")
+u1 = new Contact(name: "Christine Spang", email: "spang@nylas.com")
+u2 = new Contact(name: "Michael Grinich", email: "mg@nylas.com")
+u3 = new Contact(name: "Evan Morikawa",   email: "evan@nylas.com")
+u4 = new Contact(name: "Zoë Leiper",      email: "zip@nylas.com")
+u5 = new Contact(name: "Ben Gotow",       email: "ben@nylas.com")
 users = [u1, u2, u3, u4, u5]
 NamespaceStore._current = new Namespace(
   {name: u1.name, provider: "inbox", emailAddress: u1.email})
@@ -45,7 +45,7 @@ searchContactStub = (email) ->
 ComposerView = proxyquire "../lib/composer-view",
   "./file-uploads": reactStub("file-uploads")
   "./participants-text-field": textFieldStub("")
-  "inbox-exports":
+  "nylas-exports":
     ContactStore:
       searchContacts: (email) -> searchContactStub
     ComponentRegistry:

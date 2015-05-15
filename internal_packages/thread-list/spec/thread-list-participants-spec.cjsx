@@ -2,7 +2,7 @@ React = require "react/addons"
 ReactTestUtils = React.addons.TestUtils
 
 _ = require 'underscore-plus'
-{NamespaceStore, Thread, Contact, Message} = require 'inbox-exports'
+{NamespaceStore, Thread, Contact, Message} = require 'nylas-exports'
 ThreadListParticipants = require '../lib/thread-list-participants'
 
 describe "ThreadListParticipants", ->
@@ -14,7 +14,7 @@ describe "ThreadListParticipants", ->
     expect(ReactTestUtils.isCompositeComponentWithType(@participants, ThreadListParticipants)).toBe true
 
   it "renders unread contacts with .unread-true", ->
-    ben = new Contact(email: 'ben@nilas.com', name: 'ben')
+    ben = new Contact(email: 'ben@nylas.com', name: 'ben')
     ben.unread = true
     thread = new Thread()
     thread.metadata = [new Message(from: [ben], unread:true)]
@@ -27,11 +27,11 @@ describe "ThreadListParticipants", ->
 
   describe "getParticipants", ->
     beforeEach ->
-      @ben = new Contact(email: 'ben@nilas.com', name: 'ben')
-      @evan = new Contact(email: 'evan@nilas.com', name: 'evan')
-      @evanAgain = new Contact(email: 'evan@nilas.com', name: 'evan')
-      @michael = new Contact(email: 'michael@nilas.com', name: 'michael')
-      @kavya = new Contact(email: 'kavya@nilas.com', name: 'kavya')
+      @ben = new Contact(email: 'ben@nylas.com', name: 'ben')
+      @evan = new Contact(email: 'evan@nylas.com', name: 'evan')
+      @evanAgain = new Contact(email: 'evan@nylas.com', name: 'evan')
+      @michael = new Contact(email: 'michael@nylas.com', name: 'michael')
+      @kavya = new Contact(email: 'kavya@nylas.com', name: 'kavya')
 
     describe "when thread.messages is available", ->
       it "correctly produces items for display in a wide range of scenarios", ->

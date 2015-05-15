@@ -3,7 +3,7 @@ Reflux = require 'reflux'
 request = require 'request'
 {FocusedContactsStore,
  NamespaceStore,
- PriorityUICoordinator} = require 'inbox-exports'
+ PriorityUICoordinator} = require 'nylas-exports'
 
 module.exports =
 # The InternalAdminStore manages the data that backs the admin sidebar and emits
@@ -23,7 +23,7 @@ InternalAdminStore = Reflux.createStore
 
     # Stores often listen to other stores to vend correct data to their views.
     # Since we serve information about a contact we listen for changes to the
-    # focused contact. Since we only want to be enabled for @nilas.com emails,
+    # focused contact. Since we only want to be enabled for @nylas.com emails,
     # we listen for changes to available Namespaces.
     @listenTo FocusedContactsStore, @_onFocusedContacts
     @listenTo NamespaceStore, @_onNamespaceChanged
@@ -59,7 +59,7 @@ InternalAdminStore = Reflux.createStore
     clearInterval(@_fetchInterval) if @_fetchInterval
     @_fetchInterval = null
 
-    # We only want to enable this package for users with nilas.com email addresses.
+    # We only want to enable this package for users with nylas.com email addresses.
     n = NamespaceStore.current()
     if n and n.emailAddress.indexOf('@nylas.com') > 0
       @_fetchInterval = setInterval(( => @_fetchAPIData()), 5 * 60 * 1000)
@@ -75,7 +75,7 @@ InternalAdminStore = Reflux.createStore
     # Make a HTTP request to the Admin service using the `request` library. Using
     # the priority UI coordinator ensures that the expensive JSON.parse operation
     # doesn't happen while an animation is running.
-    request 'https://admin.inboxapp.com/api/status/accounts', (err, resp, data) =>
+    request 'https://admin.nylas.com/api/status/accounts', (err, resp, data) =>
       PriorityUICoordinator.settle.then =>
         if err
           @_error = err
@@ -88,7 +88,7 @@ InternalAdminStore = Reflux.createStore
             @_accountCache = null
         @trigger(@)
 
-    request 'https://admin.inboxapp.com/api/status/accounts/applications', (err, resp, data) =>
+    request 'https://admin.nylas.com/api/status/accounts/applications', (err, resp, data) =>
       PriorityUICoordinator.settle.then =>
         if err
           @_error = err

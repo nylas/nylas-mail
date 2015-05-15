@@ -138,7 +138,7 @@ parseCommandLine = ->
       # want to test.
       if test and toString.call(test) is "[object String]"
         if test is "core"
-          specDirectory = path.join(global.devResourcePath, "spec-inbox")
+          specDirectory = path.join(global.devResourcePath, "spec-nylas")
         else
           specDirectory = path.resolve(path.join(global.devResourcePath, "internal_packages", test))
 

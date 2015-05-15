@@ -23,8 +23,8 @@ testError = (opts) ->
     requestOptions: opts
 
 testData =
-  to: new Contact(name: "Ben Gotow", email: "ben@inboxapp.com")
-  from: new Contact(name: "Evan Morikawa", email: "evan@inboxapp.com")
+  to: new Contact(name: "Ben Gotow", email: "ben@nylas.com")
+  from: new Contact(name: "Evan Morikawa", email: "evan@nylas.com")
   date: new Date
   draft: true
   subject: "Test"

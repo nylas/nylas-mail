@@ -12,7 +12,7 @@ _ = require 'underscore-plus'
  Actions,
  Utils,
  Thread,
- Message} = require 'inbox-exports'
+ Message} = require 'nylas-exports'
 
 # Public: A mutable text container with undo/redo support and the ability to
 # annotate logical regions in the text.

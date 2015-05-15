@@ -29,7 +29,7 @@ Exports =
   EdgehillAPI: require '../src/flux/edgehill-api'
 
   # Testing
-  InboxTestUtils: require '../spec-inbox/test_utils'
+  InboxTestUtils: require '../spec-nylas/test_utils'
 
   # Component Registry
   ComponentRegistry: require '../src/component-registry'

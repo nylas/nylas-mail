@@ -1,6 +1,6 @@
 _ = require 'underscore-plus'
 React = require 'react'
-{Actions, Message, DraftStore} = require 'inbox-exports'
+{Actions, Message, DraftStore} = require 'nylas-exports'
 
 class TemplateStatusBar extends React.Component
   @displayName: 'TemplateStatusBar'

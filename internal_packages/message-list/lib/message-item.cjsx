@@ -8,10 +8,10 @@ MessageTimestamp = require "./message-timestamp"
  Actions,
  MessageUtils,
  ComponentRegistry,
- FileDownloadStore} = require 'inbox-exports'
+ FileDownloadStore} = require 'nylas-exports'
 {RetinaImg,
  InjectedComponentSet,
- InjectedComponent} = require 'ui-components'
+ InjectedComponent} = require 'nylas-component-kit'
 Autolinker = require 'autolinker'
 remote = require 'remote'
 
@@ -164,11 +164,11 @@ class MessageItem extends React.Component
     Actions.composeForward(threadId: tId, messageId: mId) if (tId and mId)
 
   _onReport: (issueType) =>
-    {Contact, Message, DatabaseStore, NamespaceStore} = require 'inbox-exports'
+    {Contact, Message, DatabaseStore, NamespaceStore} = require 'nylas-exports'
 
     draft = new Message
       from: [NamespaceStore.current().me()]
-      to: [new Contact(name: "Nilas Team", email: "feedback@nilas.com")]
+      to: [new Contact(name: "Nilas Team", email: "feedback@nylas.com")]
       date: (new Date)
       draft: true
       subject: "Feedback - Message Display Issue (#{issueType})"

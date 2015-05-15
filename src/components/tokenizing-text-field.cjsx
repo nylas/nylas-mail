@@ -2,7 +2,7 @@ React = require 'react/addons'
 classNames = require 'classnames'
 _ = require 'underscore-plus'
 {CompositeDisposable} = require 'event-kit'
-{Contact, ContactStore} = require 'inbox-exports'
+{Contact, ContactStore} = require 'nylas-exports'
 RetinaImg = require './retina-img'
 
 {DragDropMixin} = require 'react-dnd'
@@ -201,7 +201,7 @@ TokenizingTextField = React.createClass
       input.style.width = "calc(6px + #{measure.offsetWidth}px)"
 
   render: ->
-    {Menu} = require 'ui-components'
+    {Menu} = require 'nylas-component-kit'
 
     classes = classNames _.extend (@props.menuClassSet ? {}),
       "tokenizing-field": true

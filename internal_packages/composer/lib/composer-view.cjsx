@@ -5,12 +5,12 @@ _ = require 'underscore-plus'
  Actions,
  UndoManager,
  DraftStore,
- FileUploadStore} = require 'inbox-exports'
+ FileUploadStore} = require 'nylas-exports'
 
 {ResizableRegion,
  InjectedComponentSet,
  InjectedComponent,
- RetinaImg} = require 'ui-components'
+ RetinaImg} = require 'nylas-component-kit'
 
 FileUploads = require './file-uploads'
 ContenteditableComponent = require './contenteditable-component'

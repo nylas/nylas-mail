@@ -1,6 +1,6 @@
 path = require 'path'
 React = require 'react'
-{Actions} = require 'inbox-exports'
+{Actions} = require 'nylas-exports'
 
 # Passed in as props from MessageItem and FileDownloadStore
 # This is empty if the attachment isn't downloading.

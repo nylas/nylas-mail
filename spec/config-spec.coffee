@@ -5,11 +5,11 @@ fs = require 'fs-plus'
 Grim = require 'grim'
 
 describe "Config", ->
-  dotAtomPath = null
+  dotNylasPath = null
 
   beforeEach ->
-    dotAtomPath = temp.path('dot-inbox-dir')
-    atom.config.configDirPath = dotAtomPath
+    dotNylasPath = temp.path('dot-nylas-dir')
+    atom.config.configDirPath = dotNylasPath
     atom.config.configFilePath = path.join(atom.config.configDirPath, "config.cson")
 
   describe ".get(keyPath, {scope, sources, excludeSources})", ->
@@ -680,7 +680,7 @@ describe "Config", ->
               default: 12
 
       afterEach ->
-        fs.removeSync(dotAtomPath)
+        fs.removeSync(dotNylasPath)
 
       describe "when the config file contains scoped settings", ->
         beforeEach ->
@@ -816,7 +816,7 @@ describe "Config", ->
 
       afterEach ->
         atom.config.unobserveUserConfig()
-        fs.removeSync(dotAtomPath)
+        fs.removeSync(dotNylasPath)
 
       describe "when the config file changes to contain valid cson", ->
         it "updates the config data", ->
@@ -949,16 +949,16 @@ describe "Config", ->
 
     describe ".initializeConfigDirectory()", ->
       beforeEach ->
-        if fs.existsSync(dotAtomPath)
-          fs.removeSync(dotAtomPath)
+        if fs.existsSync(dotNylasPath)
+          fs.removeSync(dotNylasPath)
 
-        atom.config.configDirPath = dotAtomPath
+        atom.config.configDirPath = dotNylasPath
 
       afterEach ->
-        fs.removeSync(dotAtomPath)
+        fs.removeSync(dotNylasPath)
 
       describe "when the configDirPath doesn't exist", ->
-        it "copies the contents of dot-inbox to ~/.inbox", ->
+        it "copies the contents of dot-nylas to ~/.nylas", ->
           initializationDone = false
           jasmine.unspy(window, "setTimeout")
           atom.config.initializeConfigDirectory ->

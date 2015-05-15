@@ -81,7 +81,7 @@ module.exports = (grunt) ->
   installDir = grunt.option('install-dir')
 
   home = if process.platform is 'win32' then process.env.USERPROFILE else process.env.HOME
-  atomShellDownloadDir = path.join(home, '.inbox', 'atom-shell')
+  atomShellDownloadDir = path.join(home, '.nylas', 'atom-shell')
 
   symbolsDir = path.join(buildDir, 'Atom.breakpad.syms')
   shellAppDir = path.join(buildDir, appName)
@@ -147,7 +147,7 @@ module.exports = (grunt) ->
   csonConfig =
     options:
       rootObject: true
-      cachePath: path.join(home, '.inbox', 'compile-cache', 'grunt-cson')
+      cachePath: path.join(home, '.nylas', 'compile-cache', 'grunt-cson')
 
     glob_to_multiple:
       expand: true
@@ -204,7 +204,7 @@ module.exports = (grunt) ->
       src: [
         'internal_packages/**/*.cjsx'
         'internal_packages/**/*.coffee'
-        'dot-inbox/**/*.coffee'
+        'dot-nylas/**/*.coffee'
         'exports/**/*.coffee'
         'src/**/*.coffee'
       ]
@@ -214,8 +214,8 @@ module.exports = (grunt) ->
       ]
       test: [
         'spec/*.coffee'
-        'spec-inbox/*.cjsx'
-        'spec-inbox/*.coffee'
+        'spec-nylas/*.cjsx'
+        'spec-nylas/*.coffee'
       ]
       target:
         grunt.option("target")?.split(" ") or []

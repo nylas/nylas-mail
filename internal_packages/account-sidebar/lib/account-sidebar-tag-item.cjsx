@@ -1,7 +1,7 @@
 React = require 'react'
 classNames = require 'classnames'
-{Actions, Utils, WorkspaceStore} = require 'inbox-exports'
-{RetinaImg} = require 'ui-components'
+{Actions, Utils, WorkspaceStore} = require 'nylas-exports'
+{RetinaImg} = require 'nylas-component-kit'
 
 class AccountSidebarTagItem extends React.Component
   @displayName: 'AccountSidebarTagItem'

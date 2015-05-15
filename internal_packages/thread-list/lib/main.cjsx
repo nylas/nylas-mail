@@ -1,6 +1,6 @@
 _ = require 'underscore-plus'
 React = require "react"
-{ComponentRegistry, WorkspaceStore} = require "inbox-exports"
+{ComponentRegistry, WorkspaceStore} = require "nylas-exports"
 
 {DownButton, UpButton, ThreadBulkArchiveButton} = require "./thread-buttons"
 ThreadSelectionBar = require './thread-selection-bar'

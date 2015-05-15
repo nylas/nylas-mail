@@ -2,7 +2,7 @@ _ = require 'underscore-plus'
 React = require 'react'
 classNames = require 'classnames'
 sanitizeHtml = require 'sanitize-html'
-{Utils, DraftStore} = require 'inbox-exports'
+{Utils, DraftStore} = require 'nylas-exports'
 FloatingToolbar = require './floating-toolbar'
 
 linkUUID = 0

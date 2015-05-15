@@ -9,7 +9,7 @@
 ## Instructions
 
   ```sh
-  git clone git@github.com:inboxapp/edgehill.git
+  git clone git@github.com:nylas/edgehill.git
   cd edgehill
   script/build # Creates application at /Applications/Edgehill.app
   ```

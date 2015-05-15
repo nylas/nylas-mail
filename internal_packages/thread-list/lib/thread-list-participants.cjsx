@@ -1,6 +1,6 @@
 React = require 'react'
 _ = require 'underscore-plus'
-{NamespaceStore} = require 'inbox-exports'
+{NamespaceStore} = require 'nylas-exports'
 
 class ThreadListParticipants extends React.Component
   @displayName: 'ThreadListParticipants'

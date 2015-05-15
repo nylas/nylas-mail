@@ -2,10 +2,10 @@ _ = require 'underscore-plus'
 React = require 'react'
 {ListTabular,
  MultiselectList,
- InjectedComponent} = require 'ui-components'
+ InjectedComponent} = require 'nylas-component-kit'
 {timestamp, subject} = require './formatting-utils'
 {Actions,
- DatabaseStore} = require 'inbox-exports'
+ DatabaseStore} = require 'nylas-exports'
 DraftListStore = require './draft-list-store'
 
 class DraftList extends React.Component

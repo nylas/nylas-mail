@@ -1,7 +1,7 @@
 exec = require('child_process').exec
 fs = require('fs')
 
-bundleIdentifier = 'com.inbox.edgehill'
+bundleIdentifier = 'com.nylas.nylas-mail'
 
 module.exports =
 class LaunchServices

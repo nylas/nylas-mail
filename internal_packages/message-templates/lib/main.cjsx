@@ -1,5 +1,5 @@
 React = require "react"
-{ComponentRegistry, DraftStore} = require 'inbox-exports'
+{ComponentRegistry, DraftStore} = require 'nylas-exports'
 TemplatePicker = require './template-picker'
 TemplateStatusBar = require './template-status-bar'
 Extension = require './draft-extension'

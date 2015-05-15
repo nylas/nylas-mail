@@ -2,7 +2,7 @@ FileFrame = require "./file-frame"
 FileList = require './file-list'
 FileSelectionBar = require './file-selection-bar'
 {ComponentRegistry,
- WorkspaceStore} = require 'inbox-exports'
+ WorkspaceStore} = require 'nylas-exports'
 
 module.exports =
 

@@ -1,5 +1,5 @@
 Reflux = require 'reflux'
-{Actions} = require 'inbox-exports'
+{Actions} = require 'nylas-exports'
 qs = require 'querystring'
 _ = require 'underscore-plus'
 

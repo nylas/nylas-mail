@@ -7,7 +7,7 @@
 # The credentials for the Keychain are availble via the Jenkins-injected
 # KEYCHAIN_ACCESS environment variable.
 
-rm -rf ~/.inbox;
+rm -rf ~/.nylas;
 echo "---> $(npm --version)"
 echo "---> $(node --version)"
 script/bootstrap

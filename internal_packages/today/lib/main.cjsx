@@ -1,7 +1,7 @@
 TodayView = require "./today-view"
 TodayIcon = require "./today-icon"
 {ComponentRegistry,
- WorkspaceStore} = require 'inbox-exports'
+ WorkspaceStore} = require 'nylas-exports'
 
 module.exports =
 

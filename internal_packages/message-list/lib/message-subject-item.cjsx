@@ -1,6 +1,6 @@
 _ = require 'underscore-plus'
 React = require 'react'
-{FocusedContentStore} = require 'inbox-exports'
+{FocusedContentStore} = require 'nylas-exports'
 
 class MessageSubjectItem extends React.Component
   @displayName: 'MessageSubjectItem'

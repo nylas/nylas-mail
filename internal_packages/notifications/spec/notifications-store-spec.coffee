@@ -1,6 +1,6 @@
 NotificationsStore = require '../lib/notifications-store.coffee'
 Notification = NotificationsStore.Notification
-{Actions} = require 'inbox-exports'
+{Actions} = require 'nylas-exports'
 
 describe 'Notification', ->
 

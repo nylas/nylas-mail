@@ -3,19 +3,19 @@ NamespaceStore = require "../../src/flux/stores/namespace-store"
 
 contact_1 =
   name: "Evan Morikawa"
-  email: "evan@inboxapp.com"
+  email: "evan@nylas.com"
 
 describe "Contact", ->
 
   it "can be built via the constructor", ->
     c1 = new Contact contact_1
     expect(c1.name).toBe "Evan Morikawa"
-    expect(c1.email).toBe "evan@inboxapp.com"
+    expect(c1.email).toBe "evan@nylas.com"
 
   it "accepts a JSON response", ->
     c1 = (new Contact).fromJSON(contact_1)
     expect(c1.name).toBe "Evan Morikawa"
-    expect(c1.email).toBe "evan@inboxapp.com"
+    expect(c1.email).toBe "evan@nylas.com"
 
   it "correctly parses first and last names", ->
     c1 = new Contact {name: "Evan Morikawa"}
@@ -61,12 +61,12 @@ describe "Contact", ->
     expect(c8.lastName()).toBe "Morikawa"
 
   it "falls back to the first component of the email if name isn't present", ->
-    c1 = new Contact {name: " Evan Morikawa ", email: "evan@inboxapp.com"}
+    c1 = new Contact {name: " Evan Morikawa ", email: "evan@nylas.com"}
     expect(c1.displayName()).toBe "Evan Morikawa"
     expect(c1.displayFirstName()).toBe "Evan"
     expect(c1.displayLastName()).toBe "Morikawa"
 
-    c2 = new Contact {name: "", email: "evan@inboxapp.com"}
+    c2 = new Contact {name: "", email: "evan@nylas.com"}
     expect(c2.displayName()).toBe "Evan"
     expect(c2.displayFirstName()).toBe "Evan"
     expect(c2.displayLastName()).toBe ""

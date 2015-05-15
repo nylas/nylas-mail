@@ -1,7 +1,7 @@
 _ = require 'underscore-plus'
 React = require "react"
 
-{Actions, FocusedContactsStore} = require("inbox-exports")
+{Actions, FocusedContactsStore} = require("nylas-exports")
 
 class SidebarThreadParticipants extends React.Component
   @displayName: 'SidebarThreadParticipants'

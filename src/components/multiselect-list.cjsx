@@ -8,7 +8,7 @@ Spinner = require './spinner'
  Utils,
  WorkspaceStore,
  FocusedContentStore,
- NamespaceStore} = require 'inbox-exports'
+ NamespaceStore} = require 'nylas-exports'
 EventEmitter = require('events').EventEmitter
 
 ###

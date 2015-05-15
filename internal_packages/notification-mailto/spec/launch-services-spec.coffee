@@ -154,7 +154,7 @@ describe "LaunchServices", ->
             "LSHandlerContentTagClass": "public.filename-extension",
             "LSHandlerRoleAll": "com.sublimetext.2"
           }, {
-            "LSHandlerRoleAll": "com.inbox.edgehill",
+            "LSHandlerRoleAll": "com.nylas.nylas-mail",
             "LSHandlerURLScheme": "mailto"
           }])
         @services.isRegisteredForURLScheme 'mailto', (registered) ->
@@ -170,7 +170,7 @@ describe "LaunchServices", ->
             LSHandlerContentTagClass: "public.filename-extension",
             LSHandlerRoleAll: "com.sublimetext.2"
           },{
-            LSHandlerRoleAll: "com.inbox.edgehill",
+            LSHandlerRoleAll: "com.nylas.nylas-mail",
             LSHandlerURLScheme: "atom"
           }])
         @services.isRegisteredForURLScheme 'mailto', (registered) ->
@@ -202,7 +202,7 @@ describe "LaunchServices", ->
         @services.registerForURLScheme 'mailto', =>
           @services.readDefaults (defaults) ->
             match = _.find defaults, (d) ->
-              d.LSHandlerURLScheme is 'mailto' and d.LSHandlerRoleAll is 'com.inbox.edgehill'
+              d.LSHandlerURLScheme is 'mailto' and d.LSHandlerRoleAll is 'com.nylas.nylas-mail'
             expect(match).not.toBe(null)
 
       it "should write the new defaults", ->

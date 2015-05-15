@@ -92,12 +92,12 @@ class SidebarInternal extends React.Component
 
   _errorString: =>
     if @state.error.toString().indexOf('ENOTFOUND') >= 0
-      "Unable to reach admin.nilas.com"
+      "Unable to reach admin.nylas.com"
     else
       @state.error.toString()
 
   _accountUrl: (account) =>
-    "https://admin.inboxapp.com/accounts/#{account.id}"
+    "https://admin.nylas.com/accounts/#{account.id}"
 
   _accountDetails: (account) =>
     cjsx = []
@@ -112,7 +112,7 @@ class SidebarInternal extends React.Component
     cjsx
 
   _appUrl: (app) =>
-    "https://admin.inboxapp.com/apps/#{app.id}"
+    "https://admin.nylas.com/apps/#{app.id}"
 
   _appDetails: (app) =>
     "No Extra Details"

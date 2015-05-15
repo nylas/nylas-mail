@@ -2,7 +2,7 @@ React = require 'react'
 _ = require 'underscore-plus'
 {Actions,
  ComponentRegistry,
- PriorityUICoordinator} = require "inbox-exports"
+ PriorityUICoordinator} = require "nylas-exports"
 
 ResizableHandle =
   Top:

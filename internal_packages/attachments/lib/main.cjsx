@@ -1,4 +1,4 @@
-{ComponentRegistry} = require 'inbox-exports'
+{ComponentRegistry} = require 'nylas-exports'
 
 module.exports =
   activate: (@state={}) ->

@@ -9,22 +9,22 @@ proxyquire = require 'proxyquire'
  ContactStore,
  Contact,
  Utils,
-} = require 'inbox-exports'
+} = require 'nylas-exports'
 
 ParticipantsTextField = proxyquire '../lib/participants-text-field',
-  'inbox-exports': {Contact, ContactStore}
+  'nylas-exports': {Contact, ContactStore}
 
 participant1 = new Contact
-  email: 'ben@nilas.com'
+  email: 'ben@nylas.com'
 participant2 = new Contact
   email: 'ben@example.com'
-  name: 'ben'
+  name: 'Ben Gotow'
 participant3 = new Contact
   email: 'ben@inboxapp.com'
-  name: 'Duplicate email'
+  name: 'Ben Inboxer'
 participant4 = new Contact
   email: 'ben@elsewhere.com',
-  name: 'ben again'
+  name: 'ben Again'
 participant5 = new Contact
   email: 'evan@elsewhere.com',
   name: 'EVAN'
@@ -105,14 +105,14 @@ describe 'ParticipantsTextField', ->
 
     describe "when text contains Name (Email) formatted data", ->
       it "should correctly parse it into named Contact objects", ->
-        newContact1 = new Contact(name:'Ben Imposter', email:'imposter@nilas.com')
-        newContact2 = new Contact(name:'Nilas Team', email:'feedback@nilas.com')
-        
+        newContact1 = new Contact(name:'Ben Imposter', email:'imposter@nylas.com')
+        newContact2 = new Contact(name:'Nylas Team', email:'feedback@nylas.com')
+
         inputs = [
-          "Ben Imposter <imposter@nilas.com>, Nilas Team <feedback@nilas.com>",
-          "\n\nbla\nBen Imposter (imposter@nilas.com), Nilas Team (feedback@nilas.com)",
-          "Hello world! I like cheese. \rBen Imposter (imposter@nilas.com)\nNilas Team (feedback@nilas.com)",
-          "Ben Imposter<imposter@nilas.com>Nilas Team (feedback@nilas.com)"
+          "Ben Imposter <imposter@nylas.com>, Nylas Team <feedback@nylas.com>",
+          "\n\nbla\nBen Imposter (imposter@nylas.com), Nylas Team (feedback@nylas.com)",
+          "Hello world! I like cheese. \rBen Imposter (imposter@nylas.com)\nNylas Team (feedback@nylas.com)",
+          "Ben Imposter<imposter@nylas.com>Nylas Team (feedback@nylas.com)"
         ]
 
         for input in inputs
@@ -123,14 +123,14 @@ describe 'ParticipantsTextField', ->
 
     describe "when text contains emails mixed with garbage text", ->
       it "should still parse out emails into Contact objects", ->
-        newContact1 = new Contact(name:'garbage-man@nilas.com', email:'garbage-man@nilas.com')
-        newContact2 = new Contact(name:'recycling-guy@nilas.com', email:'recycling-guy@nilas.com')
-        
+        newContact1 = new Contact(name:'garbage-man@nylas.com', email:'garbage-man@nylas.com')
+        newContact2 = new Contact(name:'recycling-guy@nylas.com', email:'recycling-guy@nylas.com')
+
         inputs = [
-          "Hello world I real. \n asd. garbage-man@nilas.com—he's cool Also 'recycling-guy@nilas.com'!",
-          "garbage-man@nilas.com|recycling-guy@nilas.com",
-          "garbage-man@nilas.com1WHOA I REALLY HATE DATA,recycling-guy@nilas.com",
-          "nils.com garbage-man@nilas.com @nilas.com nope@.com nope!recycling-guy@nilas.com HOLLA AT recycling-guy@nilas."
+          "Hello world I real. \n asd. garbage-man@nylas.com—he's cool Also 'recycling-guy@nylas.com'!",
+          "garbage-man@nylas.com|recycling-guy@nylas.com",
+          "garbage-man@nylas.com1WHOA I REALLY HATE DATA,recycling-guy@nylas.com",
+          "nils.com garbage-man@nylas.com @nylas.com nope@.com nope!recycling-guy@nylas.com HOLLA AT recycling-guy@nylas."
         ]
 
         for input in inputs

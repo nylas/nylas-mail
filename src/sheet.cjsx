@@ -1,6 +1,6 @@
 React = require 'react'
 _ = require 'underscore-plus'
-{Actions,ComponentRegistry, WorkspaceStore} = require "inbox-exports"
+{Actions,ComponentRegistry, WorkspaceStore} = require "nylas-exports"
 RetinaImg = require './components/retina-img'
 Flexbox = require './components/flexbox'
 InjectedComponentSet = require './components/injected-component-set'

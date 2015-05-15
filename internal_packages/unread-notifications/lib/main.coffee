@@ -1,5 +1,5 @@
 _ = require 'underscore-plus'
-{Actions, DatabaseStore, Thread, Tag} = require 'inbox-exports'
+{Actions, DatabaseStore, Thread, Tag} = require 'nylas-exports'
 
 module.exports =
   activate: ->

@@ -2,7 +2,7 @@ _ = require 'underscore-plus'
 React = require "react"
 FullContactStore = require "./fullcontact-store"
 
-{InjectedComponentSet} = require 'ui-components'
+{InjectedComponentSet} = require 'nylas-component-kit'
 
 SidebarFullContactDetails = require "./sidebar-fullcontact-details"
 

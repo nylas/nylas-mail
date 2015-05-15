@@ -811,7 +811,7 @@ class Config
   initializeConfigDirectory: (done) ->
     return if fs.existsSync(@configDirPath)
     fs.makeTreeSync(@configDirPath)
-    templateConfigDirPath = fs.resolve(@resourcePath, 'dot-inbox')
+    templateConfigDirPath = fs.resolve(@resourcePath, 'dot-nylas')
     fs.copySync(templateConfigDirPath, @configDirPath)
 
   loadUserConfig: ->

@@ -361,7 +361,7 @@ class Actions
   Actions.postNotification
     type: 'info',
     sticky: true
-    message: "Thanks for trying out Edgehill! Would you like to make it your default mail client?",
+    message: "Thanks for trying out Nylas Mail! Would you like to make it your default mail client?",
     icon: 'fa-inbox',
     actions: [{
       label: 'Yes'

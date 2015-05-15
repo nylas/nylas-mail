@@ -1,6 +1,6 @@
 React = require 'react'
 _ = require 'underscore-plus'
-{Actions,ComponentRegistry} = require "inbox-exports"
+{Actions,ComponentRegistry} = require "nylas-exports"
 
 ###
 Public: A simple wrapper that provides a Flexbox layout with the given direction and style.

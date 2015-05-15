@@ -1,9 +1,9 @@
 _ = require 'underscore-plus'
 React = require 'react'
-{ListTabular, MultiselectList} = require 'ui-components'
+{ListTabular, MultiselectList} = require 'nylas-component-kit'
 {Actions,
  DatabaseStore,
- ComponentRegistry} = require 'inbox-exports'
+ ComponentRegistry} = require 'nylas-exports'
 FileListStore = require './file-list-store'
 
 class FileList extends React.Component

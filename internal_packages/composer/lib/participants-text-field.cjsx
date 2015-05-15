@@ -3,8 +3,8 @@ _ = require 'underscore-plus'
 
 {Contact,
  Utils,
- ContactStore} = require 'inbox-exports'
-{TokenizingTextField, Menu} = require 'ui-components'
+ ContactStore} = require 'nylas-exports'
+{TokenizingTextField, Menu} = require 'nylas-component-kit'
 
 class ParticipantsTextField extends React.Component
   @displayName: 'ParticipantsTextField'

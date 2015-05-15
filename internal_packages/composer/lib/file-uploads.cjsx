@@ -1,7 +1,7 @@
 path = require 'path'
 React = require 'react'
 {Actions,
- FileUploadStore} = require 'inbox-exports'
+ FileUploadStore} = require 'nylas-exports'
 
 class FileUpload extends React.Component
   render: =>

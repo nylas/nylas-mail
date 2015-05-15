@@ -1,7 +1,7 @@
 {ComponentRegistry,
  WorkspaceStore,
- Actions} = require "inbox-exports"
-{RetinaImg} = require 'ui-components'
+ Actions} = require "nylas-exports"
+{RetinaImg} = require 'nylas-component-kit'
 React = require "react"
 _ = require "underscore-plus"
 

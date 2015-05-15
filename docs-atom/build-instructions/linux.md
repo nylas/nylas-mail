@@ -41,27 +41,27 @@ Ubuntu LTS 12.04 64-bit is the recommended platform.
 
 If you have problems with permissions don't forget to prefix with `sudo`
 
-1. Clone the Edgehill repository:
+1. Clone the Nylas Mail repository:
 
   ```sh
-  git clone https://github.com/inboxapp/edgehill
+  git clone https://github.com/nylas/edgehill
   cd edgehill
   ```
 
-2. Checkout the latest Edgehill release:
+2. Checkout the latest Nylas Mail release:
 
   ```sh
   git fetch -p
   git checkout $(git describe --tags `git rev-list --tags --max-count=1`)
   ```
 
-3. Build Edgehill:
+3. Build Nylas Mail:
 
   ```sh
   script/build
   ```
 
-  This will create the edgehill application at `$TMPDIR/edgehill-build/Edgehill`.
+  This will create the Nylas Mail application at `$TMPDIR/edgehill-build/Edgehill`.
 
 4. Install the `edgehill` and `apm` commands to `/usr/local/bin` by executing:
 
@@ -69,9 +69,9 @@ If you have problems with permissions don't forget to prefix with `sudo`
   sudo script/grunt install
   ```
 
-  To use the newly installed Edgehill, quit and restart all running Edgehill instances.
+  To use the newly installed Nylas Mail, quit and restart all running Nylas Mail instances.
 
-5. *Optionally*, you may generate distributable packages of Edgehill at `$TMPDIR/edgehill-build`. Currenty, `.deb` and `.rpm` package types are supported. To create a `.deb` package run:
+5. *Optionally*, you may generate distributable packages of Nylas Mail at `$TMPDIR/edgehill-build`. Currenty, `.deb` and `.rpm` package types are supported. To create a `.deb` package run:
 
   ```sh
   script/grunt mkdeb
@@ -101,7 +101,7 @@ script/build --build-dir /build/edgehill/here
 
 ### TypeError: Unable to watch path
 
-If you get following error with a big traceback right after Edgehill starts:
+If you get following error with a big traceback right after Nylas Mail starts:
 
   ```
   TypeError: Unable to watch path
@@ -114,7 +114,7 @@ this is the reason for this error you can issue
   sudo sysctl fs.inotify.max_user_watches=32768
   ```
 
-and restart Edgehill.  If Edgehill now works fine, you can make this setting permanent:
+and restart Nylas Mail.  If Nylas Mail now works fine, you can make this setting permanent:
 
   ```sh
   echo 32768 | sudo tee -a /proc/sys/fs/inotify/max_user_watches
@@ -140,7 +140,7 @@ sudo update-alternatives --install /usr/bin/node node /usr/bin/nodejs 1 --slave 
 
 ### AttributeError: 'module' object has no attribute 'script_main'
 
-If you get following error with a big traceback while building Edgehill:
+If you get following error with a big traceback while building Nylas Mail:
 
   ```
   sys.exit(gyp.script_main()) AttributeError: 'module' object has no attribute 'script_main' gyp ERR!

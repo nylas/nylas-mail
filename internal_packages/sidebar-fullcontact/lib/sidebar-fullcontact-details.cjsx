@@ -1,8 +1,8 @@
 _ = require 'underscore-plus'
 React = require "react"
 
-{Actions} = require 'inbox-exports'
-{RetinaImg} = require 'ui-components'
+{Actions} = require 'nylas-exports'
+{RetinaImg} = require 'nylas-component-kit'
 
 class SidebarFullContactDetails extends React.Component
   @displayName: "SidebarFullContactDetails"

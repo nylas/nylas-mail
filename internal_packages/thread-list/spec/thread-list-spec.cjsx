@@ -24,8 +24,8 @@ ReactTestUtils = _.extend ReactTestUtils, require "jasmine-react-helpers"
  WorkspaceStore,
  InboxTestUtils,
  NamespaceStore,
- ComponentRegistry} = require "inbox-exports"
-{ListTabular} = require 'ui-components'
+ ComponentRegistry} = require "nylas-exports"
+{ListTabular} = require 'nylas-component-kit'
 
 
 ThreadStore = require "../lib/thread-store"
@@ -36,7 +36,7 @@ ParticipantsItem = React.createClass
 
 me = new Namespace(
   "name": "User One",
-  "email": "user1@inboxapp.com"
+  "email": "user1@nylas.com"
   "provider": "inbox"
 )
 NamespaceStore._current = me
@@ -87,13 +87,13 @@ test_threads = -> [
         "created_at": null,
         "updated_at": null,
         "name": "User One",
-        "email": "user1@inboxapp.com"
+        "email": "user1@nylas.com"
       },
       {
         "created_at": null,
         "updated_at": null,
         "name": "User Two",
-        "email": "user2@inboxapp.com"
+        "email": "user2@nylas.com"
       }
     ],
     "last_message_timestamp": 1415742036
@@ -137,13 +137,13 @@ test_threads = -> [
         "created_at": null,
         "updated_at": null,
         "name": "User One",
-        "email": "user1@inboxapp.com"
+        "email": "user1@nylas.com"
       },
       {
         "created_at": null,
         "updated_at": null,
         "name": "User Three",
-        "email": "user3@inboxapp.com"
+        "email": "user3@nylas.com"
       }
     ],
     "last_message_timestamp": 1415741913
@@ -181,13 +181,13 @@ test_threads = -> [
         "created_at": null,
         "updated_at": null,
         "name": "User One",
-        "email": "user1@inboxapp.com"
+        "email": "user1@nylas.com"
       },
       {
         "created_at": null,
         "updated_at": null,
         "name": "User Four",
-        "email": "user4@inboxapp.com"
+        "email": "user4@nylas.com"
       }
     ],
     "last_message_timestamp": 1415741837

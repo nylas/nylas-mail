@@ -1,8 +1,8 @@
 _ = require 'underscore-plus'
 React = require 'react'
 TemplateStore = require './template-store'
-{Actions, Message, DatabaseStore} = require 'inbox-exports'
-{Popover, Menu, RetinaImg} = require 'ui-components'
+{Actions, Message, DatabaseStore} = require 'nylas-exports'
+{Popover, Menu, RetinaImg} = require 'nylas-component-kit'
 
 class TemplatePicker extends React.Component
   @displayName: 'TemplatePicker'

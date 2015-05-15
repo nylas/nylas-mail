@@ -20,7 +20,7 @@ clipboard = require 'clipboard'
 
 NamespaceStore = require "../src/flux/stores/namespace-store"
 Contact = require '../src/flux/models/contact'
-{ComponentRegistry} = require "inbox-exports"
+{ComponentRegistry} = require "nylas-exports"
 
 atom.themes.loadBaseStylesheets()
 atom.themes.requireStylesheet '../static/jasmine'
@@ -132,10 +132,10 @@ beforeEach ->
 
   # Log in a fake user
   spyOn(NamespaceStore, 'current').andCallFake ->
-    emailAddress: 'tester@nilas.com'
+    emailAddress: 'tester@nylas.com'
     id: 'nsid'
     me: ->
-      new Contact(email: 'tester@nilas.com', name: 'Ben Tester')
+      new Contact(email: 'tester@nylas.com', name: 'Ben Tester')
 
   # reset config before each spec; don't load or save from/to `config.json`
   spyOn(Config::, 'load')

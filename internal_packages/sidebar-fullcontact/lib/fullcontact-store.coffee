@@ -1,7 +1,7 @@
 _ = require 'underscore-plus'
 Reflux = require 'reflux'
 request = require 'request'
-{Contact, ContactStore, DatabaseStore, FocusedContactsStore} = require 'inbox-exports'
+{Contact, ContactStore, DatabaseStore, FocusedContactsStore} = require 'nylas-exports'
 
 module.exports =
 FullContactStore = Reflux.createStore

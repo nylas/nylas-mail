@@ -69,7 +69,7 @@ class Application
 
     global.application = this
 
-    configDirPath = fs.absolute('~/.inbox')
+    configDirPath = fs.absolute('~/.nylas')
     @config = new Config({configDirPath})
     @config.load()
 

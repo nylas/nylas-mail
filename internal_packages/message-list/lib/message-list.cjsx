@@ -2,12 +2,12 @@ _ = require 'underscore-plus'
 React = require 'react'
 classNames = require 'classnames'
 MessageItem = require "./message-item"
-{Utils, Actions, MessageStore, ComponentRegistry} = require("inbox-exports")
+{Utils, Actions, MessageStore, ComponentRegistry} = require("nylas-exports")
 {Spinner,
  ResizableRegion,
  RetinaImg,
  InjectedComponentSet,
- InjectedComponent} = require('ui-components')
+ InjectedComponent} = require('nylas-component-kit')
 
 class MessageList extends React.Component
   @displayName: 'MessageList'

@@ -8,7 +8,7 @@ _ = require 'underscore-plus'
 
 {Actions,
  ComponentRegistry,
- WorkspaceStore} = require "inbox-exports"
+ WorkspaceStore} = require "nylas-exports"
 
 class ToolbarSpacer extends React.Component
   @displayName = 'ToolbarSpacer'

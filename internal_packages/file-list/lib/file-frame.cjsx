@@ -1,7 +1,7 @@
 React = require 'react'
 _ = require "underscore-plus"
-{Utils, FileDownloadStore, Actions} = require 'inbox-exports'
-{Spinner, EventedIFrame} = require 'ui-components'
+{Utils, FileDownloadStore, Actions} = require 'nylas-exports'
+{Spinner, EventedIFrame} = require 'nylas-component-kit'
 FileFrameStore = require './file-frame-store'
 
 class FileFrame extends React.Component

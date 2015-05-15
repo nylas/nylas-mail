@@ -1,7 +1,7 @@
 'global':
   'core':
     'themes': [
-      'inbox-light-ui'
+      'light-ui'
     ]
     'disabledPackages': [
       "calendar-bar",

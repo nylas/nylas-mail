@@ -72,13 +72,13 @@ class Atom extends Model
 
   # Get the directory path to Atom's configuration area.
   #
-  # Returns the absolute path to ~/.inbox
+  # Returns the absolute path to ~/.nylas
   @getConfigDirPath: ->
-    @configDirPath ?= fs.absolute('~/.inbox')
+    @configDirPath ?= fs.absolute('~/.nylas')
 
   # Get the path to Atom's storage directory.
   #
-  # Returns the absolute path to ~/.inbox/storage
+  # Returns the absolute path to ~/.nylas/storage
   @getStorageDirPath: ->
     @storageDirPath ?= path.join(@getConfigDirPath(), 'storage')
 

@@ -1,5 +1,5 @@
 React = require "react"
-{Actions} = require 'inbox-exports'
+{Actions} = require 'nylas-exports'
 crypto = require "crypto"
 
 class ContactChip extends React.Component

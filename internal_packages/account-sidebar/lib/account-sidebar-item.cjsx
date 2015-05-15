@@ -1,5 +1,5 @@
 React = require 'react'
-{Actions} = require("inbox-exports")
+{Actions} = require("nylas-exports")
 
 class AccountSidebarItem extends React.Component
   @displayName: "AccountSidebarItem"

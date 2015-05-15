@@ -1,6 +1,6 @@
 Reflux = require 'reflux'
 _ = require 'underscore-plus'
-{DatabaseStore, NamespaceStore, Actions, Thread} = require 'inbox-exports'
+{DatabaseStore, NamespaceStore, Actions, Thread} = require 'nylas-exports'
 remote = require 'remote'
 app = remote.require 'app'
 

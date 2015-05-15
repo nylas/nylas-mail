@@ -5,7 +5,7 @@ React = require 'react'
  DatabaseStore,
  Message,
  ComponentRegistry,
- WorkspaceStore} = require('inbox-exports')
+ WorkspaceStore} = require('nylas-exports')
 NewComposeButton = require('./new-compose-button')
 ComposerView = require('./composer-view')
 

@@ -2,7 +2,7 @@ MessageList = require "./message-list"
 MessageToolbarItems = require "./message-toolbar-items"
 MessageSubjectItem = require "./message-subject-item"
 {ComponentRegistry,
- WorkspaceStore} = require 'inbox-exports'
+ WorkspaceStore} = require 'nylas-exports'
 SidebarThreadParticipants = require "./sidebar-thread-participants"
 
 module.exports =

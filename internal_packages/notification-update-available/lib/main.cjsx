@@ -1,5 +1,5 @@
 remote = require 'remote'
-{Actions} = require 'inbox-exports'
+{Actions} = require 'nylas-exports'
 ipc = require('ipc')
 
 module.exports =

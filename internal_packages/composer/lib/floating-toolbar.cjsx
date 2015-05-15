@@ -2,7 +2,7 @@ _ = require 'underscore-plus'
 React = require 'react/addons'
 classNames = require 'classnames'
 {CompositeDisposable} = require 'event-kit'
-{RetinaImg} = require 'ui-components'
+{RetinaImg} = require 'nylas-component-kit'
 
 class FloatingToolbar extends React.Component
   @displayName = "FloatingToolbar"

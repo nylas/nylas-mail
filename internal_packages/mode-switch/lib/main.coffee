@@ -1,4 +1,4 @@
-{ComponentRegistry, WorkspaceStore} = require 'inbox-exports'
+{ComponentRegistry, WorkspaceStore} = require 'nylas-exports'
 ModeToggle = require './mode-toggle'
 
 module.exports =

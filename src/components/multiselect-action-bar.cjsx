@@ -3,7 +3,7 @@ classNames = require 'classnames'
 _ = require 'underscore-plus'
 
 {Actions,
- WorkspaceStore} = require "inbox-exports"
+ WorkspaceStore} = require "nylas-exports"
 InjectedComponentSet = require './injected-component-set'
 RetinaImg = require './retina-img'
 

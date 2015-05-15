@@ -1,7 +1,7 @@
 _ = require 'underscore-plus'
 classNames = require 'classnames'
 React = require 'react'
-{Utils} = require 'inbox-exports'
+{Utils} = require 'nylas-exports'
 
 idPropType = React.PropTypes.oneOfType([
   React.PropTypes.string

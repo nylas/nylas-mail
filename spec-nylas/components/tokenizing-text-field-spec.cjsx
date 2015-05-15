@@ -6,8 +6,8 @@ ReactTestUtils = React.addons.TestUtils
  Namespace,
  NamespaceStore,
  Contact,
-} = require 'inbox-exports'
-{TokenizingTextField, Menu} = require 'ui-components'
+} = require 'nylas-exports'
+{TokenizingTextField, Menu} = require 'nylas-component-kit'
 
 me = new Namespace
   name: 'Test User'
@@ -24,19 +24,19 @@ CustomSuggestion = React.createClass
     <span>{@props.item.email}</span>
 
 participant1 = new Contact
-  email: 'ben@nilas.com'
+  email: 'ben@nylas.com'
 participant2 = new Contact
-  email: 'ben@example.com'
-  name: 'ben'
+  email: 'burgers@nilas.com'
+  name: 'Nilas Burger Basket'
 participant3 = new Contact
-  email: 'ben@inboxapp.com'
-  name: 'Duplicate email'
+  email: 'evan@inboxapp.com'
+  name: 'Evan'
 participant4 = new Contact
-  email: 'ben@elsewhere.com',
-  name: 'ben again'
+  email: 'tester@elsewhere.com',
+  name: 'Tester'
 participant5 = new Contact
-  email: 'evan@elsewhere.com',
-  name: 'EVAN'
+  email: 'michael@elsewhere.com',
+  name: 'Michael'
 
 describe 'TokenizingTextField', ->
   InboxTestUtils.loadKeymap()
@@ -243,4 +243,3 @@ describe 'TokenizingTextField', ->
         )
         emptyField._removeToken()
         expect(@propEmptied).toHaveBeenCalled()
-
