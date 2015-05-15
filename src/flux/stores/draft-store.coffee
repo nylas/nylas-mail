@@ -58,7 +58,8 @@ class DraftStore
 
     @listenTo Actions.sendDraftError, @_onSendDraftError
     @listenTo Actions.sendDraftSuccess, @_onSendDraftSuccess
-    @listenTo Actions.unloading, @_onBeforeUnload
+
+    atom.onBeforeUnload @_onBeforeUnload
 
     @_draftSessions = {}
     @_sendingState = {}
@@ -163,7 +164,7 @@ class DraftStore
     if promises.length > 0
       Promise.settle(promises).then =>
         @_draftSessions = {}
-        window.close()
+        atom.close()
 
       # Stop and wait before closing
       return false

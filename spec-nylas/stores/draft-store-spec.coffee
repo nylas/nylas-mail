@@ -365,14 +365,14 @@ describe "DraftStore", ->
         }}
 
       it "should return false and call window.close itself", ->
-        spyOn(window, 'close')
+        spyOn(atom, 'close')
         expect(DraftStore._onBeforeUnload()).toBe(false)
         runs ->
         @resolve()
         waitsFor ->
-          window.close.callCount > 0
+          atom.close.callCount > 0
         runs ->
-          expect(window.close).toHaveBeenCalled()
+          expect(atom.close).toHaveBeenCalled()
 
     describe "when no drafts return unresolved commit promises", ->
       beforeEach ->

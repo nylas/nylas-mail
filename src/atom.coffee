@@ -217,7 +217,8 @@ class Atom extends Model
     @subscribe @packages.onDidActivateInitialPackages => @watchThemes()
     @windowEventHandler = new WindowEventHandler
 
-    window.onbeforeunload = => @onBeforeUnload()
+    window.onbeforeunload = => @_unloading()
+    @_unloadCallbacks = []
 
   # Start our error reporting to the backend and attach error handlers
   # to the window and the Bluebird Promise library, converting things
@@ -847,6 +848,18 @@ class Atom extends Model
     ipc.send('call-window-method', 'setAutoHideMenuBar', autoHide)
     ipc.send('call-window-method', 'setMenuBarVisibility', !autoHide)
 
-  onBeforeUnload: ->
-    Actions = require './flux/actions'
-    Actions.unloading()
+  # Lets multiple components register callbacks.
+  # The callbacks are expected to return either true or false
+  onBeforeUnload: (callback) -> @_unloadCallbacks.push(callback)
+
+  _unloading: ->
+    continueUnload = true
+    for callback in @_unloadCallbacks
+      returnValue = callback()
+      if returnValue is true
+        continue
+      else if returnValue is false
+        continueUnload = false
+      else
+        console.warn "You registered an `onBeforeUnload` callback that does not return either exactly `true` or `false`. It returned #{returnValue}", callback
+    return continueUnload
