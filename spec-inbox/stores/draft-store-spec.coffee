@@ -391,12 +391,13 @@ describe "DraftStore", ->
     beforeEach ->
       DraftStore._sendingState = {}
       DraftStore._draftSessions = {}
-      DraftStore._draftSessions[draftLocalId] =
-        prepare: -> Promise.resolve()
+      proxy =
+        prepare: -> Promise.resolve(proxy)
         cleanup: ->
         draft: -> {}
         changes:
           commit: -> Promise.resolve()
+      DraftStore._draftSessions[draftLocalId] = proxy
       spyOn(DraftStore, "trigger")
 
     it "sets the sending state when sending", ->
@@ -519,4 +520,3 @@ describe "DraftStore", ->
       it "should remove the proxy from the sessions list", ->
         DraftStore.cleanupSessionForLocalId('abc')
         expect(DraftStore._draftSessions).toEqual({})
-

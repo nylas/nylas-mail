@@ -72,9 +72,7 @@ class DraftStore
   ######### PUBLIC #######################################################
 
   # Public: Fetch a {DraftStoreProxy} for displaying and/or editing the
-  # draft with `localId`. After calling `sessionForLocalId`, you generally
-  # want to call {DraftStoreProxy::prepare} and wait for the returned
-  # {Promise} to resolve:
+  # draft with `localId`.
   #
   # Example:
   #
@@ -86,16 +84,14 @@ class DraftStore
   #
   # - `localId` The {String} local ID of the draft.
   #
-  # Returns a {Object} with:
-  # - `key1` A {String} that contains bla
-  # - `key2` A {String} that contains bla
-  #
+  # Returns a {Promise} that resolves to an {DraftStoreProxy} for the
+  # draft:
   sessionForLocalId: (localId) =>
     if not localId
       console.log((new Error).stack)
       throw new Error("sessionForLocalId requires a localId")
     @_draftSessions[localId] ?= new DraftStoreProxy(localId)
-    @_draftSessions[localId]
+    @_draftSessions[localId].prepare()
 
   # Public: Look up the sending state of the given draft Id.
   sendingState: (draftLocalId) -> @_sendingState[draftLocalId] ? false
@@ -374,8 +370,7 @@ class DraftStore
       @_sendingState[draftLocalId] = true
       @trigger()
 
-      session = @sessionForLocalId(draftLocalId)
-      session.prepare().then =>
+      @sessionForLocalId(draftLocalId).then (session) =>
         # Give third-party plugins an opportunity to sanitize draft data
         for extension in @_extensions
           continue unless extension.finalizeSessionBeforeSending
@@ -403,16 +398,16 @@ class DraftStore
     @trigger()
 
   _onAttachFileComplete: ({file, messageLocalId}) =>
-    @sessionForLocalId(messageLocalId).prepare().then (proxy) ->
-      files = proxy.draft().files ? []
+    @sessionForLocalId(messageLocalId).then (session) ->
+      files = _.clone(session.draft().files) ? []
       files.push(file)
-      proxy.changes.add({files}, true)
+      session.changes.add({files}, true)
 
   _onRemoveFile: ({file, messageLocalId}) =>
-    @sessionForLocalId(messageLocalId).prepare().then (proxy) ->
-      files = proxy.draft().files ? []
+    @sessionForLocalId(messageLocalId).then (session) ->
+      files = _.clone(session.draft().files) ? []
       files = _.reject files, (f) -> f.id is file.id
-      proxy.changes.add({files}, true)
+      session.changes.add({files}, true)
 
 
 module.exports = new DraftStore()

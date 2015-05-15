@@ -55,12 +55,10 @@ TemplateStore = Reflux.createStore
 
   _onCreateTemplate: ({draftLocalId, name, contents} = {}) ->
     if draftLocalId
-      session = DraftStore.sessionForLocalId(draftLocalId)
-      session.prepare().finally =>
+      DraftStore.sessionForLocalId(draftLocalId).then (session) =>
         draft = session.draft()
-        if draft
-          name ?= draft.subject
-          contents ?= draft.body
+        name ?= draft.subject
+        contents ?= draft.body
         @_writeTemplate(name, contents)
     else
       @_writeTemplate(name, contents)
@@ -88,7 +86,7 @@ TemplateStore = Reflux.createStore
 
     fs.readFile template.path, (err, data) ->
       body = data.toString()
-      session = DraftStore.sessionForLocalId(draftLocalId)
-      session.changes.add(body: body)
+      DraftStore.sessionForLocalId(draftLocalId).then (session) ->
+        session.changes.add(body: body)
 
 module.exports = TemplateStore

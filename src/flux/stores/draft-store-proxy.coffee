@@ -79,6 +79,7 @@ class DraftStoreProxy
       if !@_draft
         throw new Error("DraftChangeSet was modified before the draft was prepared.")
       @_emitter.emit('trigger')
+
     @prepare().catch (error) ->
       console.error(error)
       console.error(error.stack)
@@ -92,8 +93,11 @@ class DraftStoreProxy
     @_draftPromise ?= new Promise (resolve, reject) =>
       DatabaseStore = require './database-store'
       DatabaseStore.findByLocalId(Message, @draftLocalId).then (draft) =>
-        @_setDraft(draft)
-        resolve(@)
+        if not draft
+          reject(new Error("Can't prepare. Draft is null"))
+        else
+          @_setDraft(draft)
+          resolve(@)
       .catch(reject)
     @_draftPromise
 

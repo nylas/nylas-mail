@@ -23,8 +23,17 @@ fake_draft = new Message
   id: "draft-id_1234"
   draft: true
 
-fileJSON =
-  id: "file_id_123"
+testResponse = '[
+    {
+        "content_type": "image/jpeg",
+        "filename": "TestFilename.jpg",
+        "id": "nylas_id_123",
+        "namespace_id": "ns-id",
+        "object": "file",
+        "size": 19013
+    }
+]'
+equivalentFile = (new File).fromJSON(JSON.parse(testResponse)[0])
 
 uploadData =
   messageLocalId: localId
@@ -65,7 +74,7 @@ describe "FileUploadTask", ->
       spyOn(Actions, "uploadStateChanged")
       @req = jasmine.createSpyObj('req', ['abort'])
       spyOn(atom.inbox, 'makeRequest').andCallFake (reqParams) =>
-        reqParams.success([fileJSON]) if reqParams.success
+        reqParams.success(testResponse) if reqParams.success
         return @req
 
     it "notifies when the task starts remote", ->
@@ -81,12 +90,42 @@ describe "FileUploadTask", ->
         expect(options.method).toBe('POST')
         expect(options.formData.file.value).toBe("Read Stream")
 
-    it "notifies when the file successfully uploaded", ->
+    it "passes the file to the completed notification function", ->
       spyOn(@task, "_completedNotification").andReturn(100)
       waitsForPromise => @task.performRemote().then =>
-        file = (new File).fromJSON(fileJSON)
-        expect(@task._completedNotification).toHaveBeenCalledWith(file)
+        expect(@task._completedNotification).toHaveBeenCalledWith(equivalentFile)
 
+    describe "file upload notifications", ->
+      beforeEach ->
+        @fileUploadFiredLast = false
+        spyOn(Actions, "attachFileComplete").andCallFake =>
+          @fileUploadFiredLast = false
+        spyOn(Actions, "fileUploaded").andCallFake =>
+          @fileUploadFiredLast = true
+        spyOn(@task, "_getBytesUploaded").andReturn(1000)
+
+        runs =>
+          @task.performRemote()
+          advanceClock(2000)
+        waitsFor ->
+          Actions.fileUploaded.calls.length > 0
+
+      it "calls the `attachFileComplete` action first", ->
+        runs ->
+          expect(@fileUploadFiredLast).toBe true
+
+      it "correctly fires the attachFileComplete action", ->
+        runs ->
+          expect(Actions.attachFileComplete).toHaveBeenCalledWith
+            file: equivalentFile
+            messageLocalId: localId
+
+      it "correctly fires the fileUploaded action", ->
+        runs ->
+          expect(Actions.fileUploaded).toHaveBeenCalledWith
+            uploadData: _.extend {}, uploadData,
+              state: "completed"
+              bytesUploaded: 1000
 
   describe "cleanup", ->
     it "should not do anything if the request has finished", ->
@@ -97,7 +136,7 @@ describe "FileUploadTask", ->
         req
 
       @task.performRemote()
-      reqSuccess([fileJSON])
+      reqSuccess(testResponse)
       @task.cleanup()
       expect(req.abort).not.toHaveBeenCalled()
 

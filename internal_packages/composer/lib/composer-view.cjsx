@@ -74,6 +74,7 @@ class ComposerView extends React.Component
       @focus "textFieldTo"
 
   componentWillUnmount: =>
+    @_unmounted = true # rarf
     @_teardownForDraft()
     @_draftStoreUnlisten() if @_draftStoreUnlisten
     @_keymapUnlisten.dispose() if @_keymapUnlisten
@@ -100,10 +101,14 @@ class ComposerView extends React.Component
 
     # UndoManager must be ready before we call _onDraftChanged for the first time
     @undoManager = new UndoManager
-    @_proxy = DraftStore.sessionForLocalId(localId)
+    DraftStore.sessionForLocalId(localId).then(@_setupSession)
+
+  _setupSession: (proxy) =>
+    return if @_unmounted
+    return unless proxy.draftLocalId is @props.localId
+    @_proxy = proxy
     @unlisteners.push @_proxy.listen(@_onDraftChanged)
-    if @_proxy.draft()
-      @_onDraftChanged()
+    @_onDraftChanged()
 
   _teardownForDraft: =>
     unlisten() for unlisten in @unlisteners
@@ -269,10 +274,12 @@ class ComposerView extends React.Component
     , 150
 
   isForwardedMessage: =>
+    return false if not @_proxy
     draft = @_proxy.draft()
     Utils.isForwardedMessage(draft)
 
   _onDraftChanged: =>
+    return unless @_proxy
     draft = @_proxy.draft()
     if not @_initialHistorySave
       @_saveToHistory()
@@ -296,6 +303,7 @@ class ComposerView extends React.Component
     @setState(state)
 
   _shouldShowSubject: =>
+    return false unless @_proxy
     draft = @_proxy.draft()
     if _.isEmpty(draft.subject ? "") then return true
     else if @isForwardedMessage() then return true
@@ -314,6 +322,7 @@ class ComposerView extends React.Component
   _onChangeSubject: (event) => @_addToProxy(subject: event.target.value)
 
   _onChangeBody: (event) =>
+    return unless @_proxy
     if @_getSelections().currentSelection?.atEndOfContent
       @props.onRequestScrollTo?(messageId: @_proxy.draft().id, location: "bottom")
     @_addToProxy(body: event.target.value)
@@ -333,10 +342,12 @@ class ComposerView extends React.Component
     @_saveToHistory(selections) unless source.fromUndoManager
 
   _popoutComposer: =>
+    return unless @_proxy
     @_proxy.changes.commit()
     Actions.composePopoutDraft @props.localId
 
   _sendDraft: (options = {}) =>
+    return unless @_proxy
     return if @state.isSending
     draft = @_proxy.draft()
     remote = require('remote')
@@ -426,6 +437,7 @@ class ComposerView extends React.Component
     previousSelection: @refs.contentBody?.getPreviousSelection?()
 
   _saveToHistory: (selections) =>
+    return unless @_proxy
     selections ?= @_getSelections()
 
     newDraft = @_proxy.draft()
@@ -447,6 +459,7 @@ class ComposerView extends React.Component
     @undoManager.saveToHistory(historyItem)
 
   _deleteEmptyDraft: =>
+    return unless @_proxy
     if @_proxy.draft().pristine then Actions.destroyDraft(@props.localId)
 
 

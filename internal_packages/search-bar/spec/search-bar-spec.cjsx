@@ -17,3 +17,11 @@ describe 'SearchBar', ->
     test = "::Hello: World::"
     ReactTestUtils.Simulate.change @input, target: value: test
     expect(Actions.searchQueryChanged).toHaveBeenCalledWith [all: test]
+
+  it 'preserves capitalization on seraches', ->
+    test = "HeLlO wOrLd"
+    ReactTestUtils.Simulate.change @input, target: value: test
+    waitsFor =>
+      @input.value.length > 0
+    runs =>
+      expect(@input.value).toBe test

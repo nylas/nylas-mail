@@ -68,8 +68,6 @@ FileUploadStore = Reflux.createStore
       matchValue: uploadData.filePath
     })
 
-  # Note that the MessageStore also receives the `fileUploaded` action.
-  # It will trigger the change in message object.
   _onFileUploaded: ({file, uploadData}) ->
     delete @_fileUploads[@_uploadId(uploadData)]
     @trigger()

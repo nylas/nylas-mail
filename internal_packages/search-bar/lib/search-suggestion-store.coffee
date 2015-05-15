@@ -39,7 +39,7 @@ SearchSuggestionStore = Reflux.createStore
     return @trigger(@) unless term
 
     key = Object.keys(term)[0]
-    val = term[key]?.toLowerCase()
+    val = term[key]
     return @trigger(@) unless val
 
     contactResults = ContactStore.searchContacts(val, limit:10)
