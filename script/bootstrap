@@ -71,21 +71,21 @@ function bootstrap() {
   if (process.env.JANKY_SHA1 && process.platform === 'win32')
     apmInstallCommand += ' --arch=ia32';
 
-  m1  = "---> Installing Edgehill build tools\n"
+  m1  = "---> Installing Nylas Mail build tools\n"
   m1 += "     This goes inside the `build` folder and runs `npm install`\n"
-  m1 += "     It will use the system `npm` to bootstrap our own Edgehill npm.\n"
+  m1 += "     It will use the system `npm` to bootstrap our own Nylas Mail npm.\n"
   m1 += "     Our build tools (like Grunt) need to be compiled against Node via `npm`.\n"
   m1 += "     Everything else needs to be compiled against Chromium with `apm`.\n\n"
   m1 += "     $ "+buildInstallCommand+" "+printArgs(buildInstallOptions)+"\n"
 
   m2  = "---> Installing apm\n"
-  m2 += "     This installs apm via Edgehill's `npm`\n"
-  m2 += "     We use this local apm copy to install all Edgehill dependencies & packages\n\n"
+  m2 += "     This installs apm via Nylas Mails `npm`\n"
+  m2 += "     We use this local apm copy to install all Nylas Mail dependencies & packages\n\n"
   m2 += "     $ "+apmInstallCommand+" "+printArgs(apmInstallOptions)+"\n"
 
   m3  = "---> Cleaning apm via `apm clean`\n"
 
-  m4  = "---> Installing Edgehill dependencies & packages via `apm install`\n\n"
+  m4  = "---> Installing Nylas Mail dependencies & packages via `apm install`\n\n"
   m4 += "     $ "+moduleInstallCommand+"\n"
 
   m5  = "---> De-duping packages `apm clean`\n\n"

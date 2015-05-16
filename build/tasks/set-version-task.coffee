@@ -44,10 +44,10 @@ module.exports = (grunt) ->
         shellExePath = path.join(shellAppDir, 'edgehill.exe')
 
         strings =
-          CompanyName: 'InboxApp, Inc.'
-          FileDescription: 'Edgehill'
-          LegalCopyright: 'Copyright (C) 2014 InboxApp, Inc. All rights reserved'
-          ProductName: 'Edgehill'
+          CompanyName: 'Nylas, Inc.'
+          FileDescription: 'Nylas Mail'
+          LegalCopyright: 'Copyright (C) 2014-2015 Nylas, Inc. All rights reserved'
+          ProductName: 'Nylas Mail'
           ProductVersion: version
 
         rcedit = require('rcedit')

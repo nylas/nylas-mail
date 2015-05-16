@@ -9,7 +9,7 @@
   '/'        : 'application:focus-search' # Gmail
 
   'r'     : 'application:reply' # Gmail
-  'R'     : 'application:reply-all' # Edgehill
+  'R'     : 'application:reply-all' # Nylas Mail
   'a'     : 'application:reply-all' # Gmail
   'f'     : 'application:forward' # Gmail
 

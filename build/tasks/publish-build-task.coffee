@@ -13,7 +13,7 @@ commitSha = process.env.JANKY_SHA1
 token = process.env.EDGEHILL_ACCESS_TOKEN
 defaultHeaders =
   Authorization: "token #{token}"
-  'User-Agent': 'Edgehill'
+  'User-Agent': 'Nylas Mail'
 
 module.exports = (gruntObject) ->
   grunt = gruntObject
