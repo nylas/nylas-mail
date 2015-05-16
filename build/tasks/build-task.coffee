@@ -147,7 +147,7 @@ module.exports = (grunt) ->
       pathToCopy = path.resolve(pathToCopy)
       nodeModulesFilter.test(pathToCopy) or testFolderPattern.test(pathToCopy) or exampleFolderPattern.test(pathToCopy)
 
-    packageFilter = new RegExp("(#{ignoredPaths.join('|')})|(.+\\.(cson|coffee|cjsx|jsx)$)")
+    packageFilter = new RegExp("(#{ignoredPaths.join('|')})|(.+\\.(coffee|cjsx|jsx)$)")
     filterPackage = (pathToCopy) ->
       return true if benchmarkFolderPattern.test(pathToCopy)
 
