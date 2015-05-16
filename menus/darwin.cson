@@ -1,8 +1,8 @@
 'menu': [
   {
-    label: 'Edgehill'
+    label: 'Nylas Mail'
     submenu: [
-      { label: 'About Edgehill', command: 'application:about' }
+      { label: 'About Nylas Mail', command: 'application:about' }
       { label: 'Link External Account', command: 'atom-workspace:add-account' }
       { label: 'Log Out', command: 'application:logout' }
       { label: 'VERSION', enabled: false }
@@ -13,7 +13,7 @@
       { type: 'separator' }
       { label: 'Services', submenu: [] }
       { type: 'separator' }
-      { label: 'Hide Edgehill', command: 'application:hide' }
+      { label: 'Hide Nylas Mail', command: 'application:hide' }
       { label: 'Hide Others', command: 'application:hide-other-applications' }
       { label: 'Show All', command: 'application:unhide-all-applications' }
       { type: 'separator' }

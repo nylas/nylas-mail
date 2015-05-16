@@ -11,9 +11,9 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>Edgehill</string>
+	<string>Nylas Mail</string>
 	<key>CFBundleDisplayName</key>
-	<string>Edgehill</string>
+	<string>Nylas Mail</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleDevelopmentRegion</key>
@@ -25,7 +25,7 @@
 	<key>CFBundleVersion</key>
 	<string>0</string>
 	<key>LSApplicationCategoryType</key>
-	<string>public.app-category.developer-tools</string>
+	<string>public.app-category.business</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>10.8</string>
 	<key>NSAppleScriptEnabled</key>

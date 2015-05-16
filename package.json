@@ -1,22 +1,16 @@
 {
-  "name": "edgehill",
-  "productName": "Edgehill",
+  "name": "nylas-mail",
+  "productName": "Nylas Mail",
   "version": "0.178.0",
   "description": "An email OS",
   "main": "./src/browser/main.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/atom/atom.git"
+    "url": "https://github.com/nylas/edgehill.git"
   },
   "bugs": {
-    "url": "https://github.com/atom/atom/issues"
+    "url": "https://github.com/nylas/edgehill/issues"
   },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "http://github.com/atom/atom/raw/master/LICENSE.md"
-    }
-  ],
   "atomShellVersion": "0.21.0",
   "dependencies": {
     "6to5-core": "^3.5",
