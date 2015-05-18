@@ -1,6 +1,6 @@
 {
   "project_id" : "edgehill",
-  "conduit_uri" : "https://review.inboxapp.com/",
+  "conduit_uri" : "https://phab.nylas.com/",
   "load" : [
     "arclib"
   ],
