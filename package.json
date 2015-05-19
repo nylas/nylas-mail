@@ -1,6 +1,6 @@
 {
-  "name": "nylas-mail",
-  "productName": "Nylas Mail",
+  "name": "nylas",
+  "productName": "Nylas",
   "version": "0.178.0",
   "description": "An email OS",
   "main": "./src/browser/main.js",

@@ -87,7 +87,7 @@ class WindowManager
       existing.showWhenLoaded()
     else
       @newWindow
-        title: 'Welcome to Nylas Mail'
+        title: 'Welcome to Nylas'
         frame: false
         width: 340
         height: 550

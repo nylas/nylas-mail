@@ -27,7 +27,7 @@ Nylas Mail is available for Mac, Windows, and Linux. Download the latest build f
 
 <h4>Package Architecture</h4>
 <p>
-Packages lie at the heart of Nylas Mail. Each part of the core experience is a separate package that uses the Nilas Package API to add functionality to the client. Learn more about packages and create your first package.
+Packages lie at the heart of Nylas Mail. Each part of the core experience is a separate package that uses the Nylas Package API to add functionality to the client. Learn more about packages and create your first package.
 </p>
 <ul>
 <li><a href="./PackageOverview.html">Package Overview</a></li>

@@ -10,7 +10,7 @@ module.exports =
 # a "trigger" event that the view listens to.
 #
 # If the Admin sidebar allowed you to take actions, like modifying someone's
-# Nilas account, the InternalAdminStore would also listen for those user actions
+# Nylas account, the InternalAdminStore would also listen for those user actions
 # and perform business logic.
 #
 InternalAdminStore = Reflux.createStore
