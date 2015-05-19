@@ -13,7 +13,8 @@ class AddRemoveTagsTask extends Task
   constructor: (@thread, @tagIdsToAdd = [], @tagIdsToRemove = []) ->
     super
 
-  tagForId: (id) ->
+  label: ->
+    "Applying tags..."
 
   performLocal:  (versionIncrement = 1) ->
     new Promise (resolve, reject) =>

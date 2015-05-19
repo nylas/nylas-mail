@@ -9,28 +9,28 @@ React = require 'react/addons'
  Message} = require 'nylas-exports'
 {ResizableRegion} = require 'nylas-component-kit'
 
-ActivityBarStore = require './activity-bar-store'
-ActivityBarTask = require './activity-bar-task'
-ActivityBarCurlItem = require './activity-bar-curl-item'
-ActivityBarLongPollItem = require './activity-bar-long-poll-item'
+DeveloperBarStore = require './developer-bar-store'
+DeveloperBarTask = require './developer-bar-task'
+DeveloperBarCurlItem = require './developer-bar-curl-item'
+DeveloperBarLongPollItem = require './developer-bar-long-poll-item'
 
-ActivityBarClosedHeight = 30
+DeveloperBarClosedHeight = 30
 
-class ActivityBar extends React.Component
-  @displayName: "ActivityBar"
+class DeveloperBar extends React.Component
+  @displayName: "DeveloperBar"
 
   @containerRequired: false
 
   constructor: (@props) ->
     @state = _.extend @_getStateFromStores(),
-      height: ActivityBarClosedHeight
+      height: DeveloperBarClosedHeight
       section: 'curl'
       filter: ''
 
   componentDidMount: =>
     ipc.on 'report-issue', => @_onFeedback()
     @taskQueueUnsubscribe = TaskQueue.listen @_onChange
-    @activityStoreUnsubscribe = ActivityBarStore.listen @_onChange
+    @activityStoreUnsubscribe = DeveloperBarStore.listen @_onChange
 
   componentWillUnmount: =>
     @taskQueueUnsubscribe() if @taskQueueUnsubscribe
@@ -39,9 +39,9 @@ class ActivityBar extends React.Component
   render: =>
     return <div></div> unless @state.visible
 
-    <ResizableRegion className="activity-bar"
+    <ResizableRegion className="developer-bar"
                      initialHeight={@state.height}
-                     minHeight={ActivityBarClosedHeight}
+                     minHeight={DeveloperBarClosedHeight}
                      handle={ResizableRegion.Handle.Top}>
       <div className="controls">
         {@_caret()}
@@ -76,7 +76,7 @@ class ActivityBar extends React.Component
     </ResizableRegion>
 
   _caret: =>
-    if @state.height > ActivityBarClosedHeight
+    if @state.height > DeveloperBarClosedHeight
       <i className="fa fa-caret-square-o-down" onClick={@_onHide}></i>
     else
       <i className="fa fa-caret-square-o-up" onClick={@_onShow}></i>
@@ -90,26 +90,26 @@ class ActivityBar extends React.Component
 
     if @state.section == 'curl'
       itemDivs = @state.curlHistory.filter(matchingFilter).map (item) ->
-        <ActivityBarCurlItem item={item} key={item.id}/>
+        <DeveloperBarCurlItem item={item} key={item.id}/>
       expandedDiv = <div className="expanded-section curl-history">{itemDivs}</div>
 
     else if @state.section == 'long-polling'
       itemDivs = @state.longPollHistory.filter(matchingFilter).map (item) ->
-        <ActivityBarLongPollItem item={item} key={item.cursor}/>
+        <DeveloperBarLongPollItem item={item} key={item.cursor}/>
       expandedDiv = <div className="expanded-section long-polling">{itemDivs}</div>
 
     else if @state.section == 'queue'
       queue = @state.queue.filter(matchingFilter)
       queueDivs = for i in [@state.queue.length - 1..0] by -1
         task = @state.queue[i]
-        <ActivityBarTask task={task}
+        <DeveloperBarTask task={task}
                          key={task.id}
                          type="queued" />
 
       queueCompleted = @state.completed.filter(matchingFilter)
       queueCompletedDivs = for i in [@state.completed.length - 1..0] by -1
         task = @state.completed[i]
-        <ActivityBarTask task={task}
+        <DeveloperBarTask task={task}
                          key={task.id}
                          type="completed" />
 
@@ -140,7 +140,7 @@ class ActivityBar extends React.Component
 
   _onHide: =>
     @setState
-      height: ActivityBarClosedHeight
+      height: DeveloperBarClosedHeight
 
   _onShow: =>
     @setState(height: 200) if @state.height < 100
@@ -200,12 +200,12 @@ class ActivityBar extends React.Component
         Actions.composePopoutDraft(localId)
 
   _getStateFromStores: =>
-    visible: ActivityBarStore.visible()
+    visible: DeveloperBarStore.visible()
     queue: TaskQueue._queue
     completed: TaskQueue._completed
-    curlHistory: ActivityBarStore.curlHistory()
-    longPollHistory: ActivityBarStore.longPollHistory()
-    longPollState: ActivityBarStore.longPollState()
+    curlHistory: DeveloperBarStore.curlHistory()
+    longPollHistory: DeveloperBarStore.longPollHistory()
+    longPollState: DeveloperBarStore.longPollState()
 
 
-module.exports = ActivityBar
+module.exports = DeveloperBar

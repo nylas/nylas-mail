@@ -117,6 +117,8 @@ beforeEach ->
   spyOn(_._, "now").andCallFake -> window.now
   spyOn(window, "setTimeout").andCallFake window.fakeSetTimeout
   spyOn(window, "clearTimeout").andCallFake window.fakeClearTimeout
+  spyOn(window, "setInterval").andCallFake window.fakeSetInterval
+  spyOn(window, "clearInterval").andCallFake window.fakeClearInterval
 
   atom.packages.packageStates = {}
 

@@ -1,4 +1,5 @@
 fs = require 'fs'
+_ = require 'underscore-plus'
 pathUtils = require 'path'
 Task = require './task'
 File = require '../models/file'
@@ -122,7 +123,7 @@ class FileUploadTask extends Task
       fileName: pathUtils.basename(@filePath)
     @_memoUploadData.bytesUploaded = @_getBytesUploaded()
     @_memoUploadData.state = state if state?
-    return @_memoUploadData
+    return _.extend({}, @_memoUploadData)
 
   _getFileSize: (path) ->
     fs.statSync(path)["size"]

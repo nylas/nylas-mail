@@ -14,6 +14,9 @@ class SendDraftTask extends Task
   constructor: (@draftLocalId, {@fromPopout}={}) ->
     super
 
+  label: ->
+    "Sending draft..."
+
   shouldDequeueOtherTask: (other) ->
     other instanceof SendDraftTask and other.draftLocalId is @draftLocalId
 
@@ -25,7 +28,6 @@ class SendDraftTask extends Task
     # it actually succeeds. We don't want users to think messages have
     # already sent when they haven't!
     return Promise.reject("Attempt to call SendDraftTask.performLocal without @draftLocalId") unless @draftLocalId
-    Actions.postNotification({message: "Sending message…", type: 'info'})
 
     Promise.resolve()
 
@@ -59,7 +61,6 @@ class SendDraftTask extends Task
   _onSendDraftSuccess: (draft, resolve, reject) => (newMessage) =>
     newMessage = (new Message).fromJSON(newMessage)
     atom.playSound('mail_sent.ogg')
-    Actions.postNotification({message: "Sent!", type: 'success'})
     Actions.sendDraftSuccess
       draftLocalId: @draftLocalId
       newMessage: newMessage

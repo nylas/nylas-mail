@@ -1,13 +1,13 @@
 React = require 'react'
 {ComponentRegistry, WorkspaceStore} = require 'nylas-exports'
-ActivityBar = require './activity-bar'
+DeveloperBar = require './developer-bar'
 
 module.exports =
   item: null
 
   activate: (@state={}) ->
-    ComponentRegistry.register ActivityBar,
+    ComponentRegistry.register DeveloperBar,
       location: WorkspaceStore.Sheet.Global.Footer
 
   deactivate: ->
-    ComponentRegistry.unregister ActivityBar
+    ComponentRegistry.unregister DeveloperBar

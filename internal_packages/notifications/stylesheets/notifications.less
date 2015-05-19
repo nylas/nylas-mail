@@ -1,29 +1,76 @@
 @import "ui-variables";
 @import "ui-mixins";
 
-// Notifications Above Threads
-.notifications-momentary {
+.sidebar-activity {
   width: 100%;
   bottom: 0;
-  position: absolute;
+  order:2;
   background: @background-off-primary;
-  border-top: 1px solid @border-secondary-bg;
-  box-shadow: @standard-shadow-up;
+  font-size: @font-size-small;
+  color: @text-color-subtle;
+  line-height:@line-height-computed * 0.95;
+  height:140px;
+  overflow-y:scroll;
+  box-shadow:inset 0 1px 0 @border-color-divider;
 
-  .notification-info { border-color: @background-color-info; }
-  .notification-error {
-    border-color: @background-color-error;
-    color: @error-color;
+  .item {
+    border-bottom:1px solid @border-color-divider;
+    .inner {
+      padding: @padding-large-vertical @padding-base-horizontal @padding-large-vertical @padding-base-horizontal;
+      margin-top:3px;
+    }
+    .count {
+      color: @text-color-very-subtle;
+      float:right;
+    }
+    .btn {
+      display:block;
+      text-align:center;
+      margin-top:4px;
+      margin-bottom:4px;
+      font-size: @font-size-small;
+    }
+    .progress-track {
+      display:block;
+      height:3px;
+      font-size:0;
+      .progress {
+        transition: width 0.4s;
+        height:3px;
+        background-color: @background-color-info;
+      }
+    }
   }
-  .notification-success { border-color: @background-color-success; }
 
-  .notification-item {
-    text-align: center;
-    border-top-width: 3px;
-    border-top-style: solid;
-    padding: @spacing-standard;
+  transition: height 0.4s;
+  transition-delay: 2s;
+  &.sidebar-activity-error {
+    .progress {
+      background-color: @error-color;
+    }
   }
 }
+
+.activity-item-enter {
+  opacity:0;
+  transition: opacity .125s ease-out;
+}
+
+.activity-item-enter.activity-item-enter-active {
+  opacity:1;
+}
+
+.activity-item-leave {
+  opacity:1;
+  transition: opacity .125s ease-in;
+  transition-delay: 0.5s;
+}
+
+.activity-item-leave.activity-item-leave-active {
+  transition-delay: 0.5s;
+  opacity:0;
+}
+
 
 .notifications-sticky {
   width:100%;

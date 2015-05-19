@@ -2,8 +2,8 @@ React = require 'react/addons'
 moment = require 'moment'
 {Utils} = require 'nylas-exports'
 
-class ActivityBarLongPollItem extends React.Component
-  @displayName: 'ActivityBarLongPollItem'
+class DeveloperBarLongPollItem extends React.Component
+  @displayName: 'DeveloperBarLongPollItem'
 
   constructor: (@props) ->
     @state = expanded: false
@@ -33,4 +33,4 @@ class ActivityBarLongPollItem extends React.Component
 
 
 
-module.exports = ActivityBarLongPollItem
+module.exports = DeveloperBarLongPollItem

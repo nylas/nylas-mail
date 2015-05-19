@@ -68,7 +68,7 @@ module.exports =
   # watching any files, holding external resources, providing commands or
   # subscribing to events, release them here.
   deactivate: ->
-    ComponentRegistry.unregister('TranslateButton')
+    ComponentRegistry.unregister(TranslateButton)
 ```
 
 

@@ -5,7 +5,7 @@ _ = require 'underscore-plus'
 
 curlItemId = 0
 
-ActivityBarStore = Reflux.createStore
+DeveloperBarStore = Reflux.createStore
   init: ->
     @_setStoreDefaults()
     @_registerListeners()
@@ -86,4 +86,4 @@ ActivityBarStore = Reflux.createStore
 
     @triggerThrottled(@)
 
-module.exports = ActivityBarStore
+module.exports = DeveloperBarStore

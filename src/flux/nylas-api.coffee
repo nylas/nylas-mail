@@ -52,7 +52,7 @@ class NylasAPI
     return unless atom.isMainWindow()
 
     namespaces = NamespaceStore.items()
-    workers = _.map(namespaces, @_workerForNamespace)
+    workers = _.map(namespaces, @workerForNamespace)
 
     # Stop the workers that are not in the new workers list.
     # These namespaces are no longer in our database, so we shouldn't
@@ -62,12 +62,10 @@ class NylasAPI
 
     @_workers = workers
 
-  _cleanupNamespaceWorkers: ->
-    for worker in @_workers
-      worker.cleanup()
-    @_workers = []
+  workers: =>
+    @_workers
 
-  _workerForNamespace: (namespace) =>
+  workerForNamespace: (namespace) =>
     worker = _.find @_workers, (c) ->
       c.namespaceId() is namespace.id
     return worker if worker
@@ -90,6 +88,12 @@ class NylasAPI
 
     worker.start()
     worker
+
+  _cleanupNamespaceWorkers: ->
+    for worker in @_workers
+      worker.cleanup()
+    @_workers = []
+
 
   # Delegates to node's request object.
   # On success, it will call the passed in success callback with options.

@@ -1,7 +1,7 @@
 React = require 'react/addons'
 
-class ActivityBarCurlItem extends React.Component
-  @displayName: 'ActivityBarCurlItem'
+class DeveloperBarCurlItem extends React.Component
+  @displayName: 'DeveloperBarCurlItem'
 
   render: =>
     <div className={"item status-code-#{@props.item.statusCode}"}>
@@ -29,4 +29,4 @@ class ActivityBarCurlItem extends React.Component
     shell.openItem(curlFile)
 
 
-module.exports = ActivityBarCurlItem
+module.exports = DeveloperBarCurlItem
