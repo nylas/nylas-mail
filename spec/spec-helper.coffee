@@ -20,7 +20,7 @@ clipboard = require 'clipboard'
 
 NamespaceStore = require "../src/flux/stores/namespace-store"
 Contact = require '../src/flux/models/contact'
-{ComponentRegistry} = require "nylas-exports"
+{TaskQueue, ComponentRegistry} = require "nylas-exports"
 
 atom.themes.loadBaseStylesheets()
 atom.themes.requireStylesheet '../static/jasmine'
@@ -100,6 +100,10 @@ ReactTestUtils.unmountAll = ->
 beforeEach ->
   Grim.clearDeprecations() if isCoreSpec
   ComponentRegistry._clear()
+
+  TaskQueue._queue = []
+  TaskQueue._completed = []
+  TaskQueue._onlineStatus = true
 
   $.fx.off = true
   documentTitle = null

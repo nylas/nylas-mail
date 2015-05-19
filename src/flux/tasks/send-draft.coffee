@@ -37,29 +37,33 @@ class SendDraftTask extends Task
         # The draft may have been deleted by another task. Nothing we can do.
         return reject(new Error("We couldn't find the saved draft.")) unless draft
 
-        if draft.isSaved()
-          body =
-            draft_id: draft.id
-            version: draft.version
-        else
-          # Pass joined:true so the draft body is included
-          body = draft.toJSON(joined: true)
-
         NylasAPI.makeRequest
           path: "/n/#{draft.namespaceId}/send"
           method: 'POST'
-          body: body
+          body: @_prepareBody(draft)
           returnsModel: true
-          success: (newMessage) =>
-            newMessage = (new Message).fromJSON(newMessage)
-            atom.playSound('mail_sent.ogg')
-            Actions.postNotification({message: "Sent!", type: 'success'})
-            Actions.sendDraftSuccess
-              draftLocalId: @draftLocalId
-              newMessage: newMessage
-            DatabaseStore.unpersistModel(draft).then(resolve)
+          success: @_onSendDraftSuccess(draft, resolve, reject)
           error: reject
       .catch(reject)
+
+  _prepareBody: (draft) ->
+    if draft.isSaved()
+      body =
+        draft_id: draft.id
+        version: draft.version
+    else
+      # Pass joined:true so the draft body is included
+      body = draft.toJSON(joined: true)
+    return body
+
+  _onSendDraftSuccess: (draft, resolve, reject) => (newMessage) =>
+    newMessage = (new Message).fromJSON(newMessage)
+    atom.playSound('mail_sent.ogg')
+    Actions.postNotification({message: "Sent!", type: 'success'})
+    Actions.sendDraftSuccess
+      draftLocalId: @draftLocalId
+      newMessage: newMessage
+    DatabaseStore.unpersistModel(draft).then(resolve).catch(reject)
 
   onAPIError: (apiError) ->
     msg = apiError.message ? "Our server is having problems. Your message has not been sent."
@@ -80,5 +84,6 @@ class SendDraftTask extends Task
     Actions.dequeueTask(@)
 
   _notifyError: (msg) ->
-    Actions.sendDraftError(@draftLocalId, msg)
     @notifyErrorMessage(msg)
+    if @fromPopout
+      Actions.composePopoutDraft(@draftLocalId, {errorMessage: msg})

@@ -84,6 +84,9 @@ class Task
     else if error instanceof OfflineError
       @onOfflineError(error)
     else
+      if error instanceof Error
+        console.error "Task #{@constructor.name} threw an unknown error: #{error.message}"
+        console.error error.stack
       @onOtherError(error)
 
   notifyErrorMessage: (msg) ->

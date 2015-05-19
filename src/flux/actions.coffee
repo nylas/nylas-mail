@@ -95,7 +95,6 @@ class Actions
   @fileUploaded: ActionScopeGlobal
   @attachFileComplete: ActionScopeGlobal
   @multiWindowNotification: ActionScopeGlobal
-  @sendDraftError: ActionScopeGlobal
   @sendDraftSuccess: ActionScopeGlobal
   @sendToAllWindows: ActionScopeGlobal
 

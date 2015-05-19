@@ -246,7 +246,7 @@ class Atom extends Model
       # to prevent the developer tools from being shown
       @emitter.emit('will-throw-error', eventObject)
 
-      if openDevTools
+      if openDevTools and @inDevMode()
         @openDevTools()
         @executeJavaScriptInDevTools('InspectorFrontendAPI.showConsole()')
 
@@ -257,21 +257,17 @@ class Atom extends Model
     # Since Bluebird is the promise library, we can properly report
     # unhandled errors from business logic inside promises.
     Promise.longStackTraces() unless @inSpecMode()
-    Promise.onPossiblyUnhandledRejection (error) =>
-      # In many cases, a promise will return a legitimate error which the receiver
-      # doesn't care to handle. The ones we want to surface are core javascript errors:
-      # Syntax problems, type errors, etc. If we didn't catch them here, these issues
-      # (usually inside then() blocks) would be hard to track down.
-      return unless (error instanceof TypeError or
-                     error instanceof SyntaxError or
-                     error instanceof RangeError or
-                     error instanceof ReferenceError)
 
+    Promise.onPossiblyUnhandledRejection (error) =>
       error.stack = convertStackTrace(error.stack, sourceMapCache)
       eventObject = {message: error.message, originalError: error}
 
       if @inSpecMode()
-        console.warn(error.stack)
+        console.error(error.stack)
+      else if @inDevMode()
+        console.error(error.message, error.stack, error)
+        @openDevTools()
+        @executeJavaScriptInDevTools('InspectorFrontendAPI.showConsole()')
       else
         console.warn(error)
         console.warn(error.stack)

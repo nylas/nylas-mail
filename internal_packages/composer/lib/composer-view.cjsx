@@ -52,7 +52,7 @@ class ComposerView extends React.Component
       showbcc: false
       showsubject: false
       showQuotedText: false
-      isSending: DraftStore.sendingState(@props.localId)
+      isSending: DraftStore.isSendingDraft(@props.localId)
 
   componentWillMount: =>
     @_prepareForDraft(@props.localId)
@@ -418,7 +418,7 @@ class ComposerView extends React.Component
     @focus "textFieldCc"
 
   _onSendingStateChanged: =>
-    @setState isSending: DraftStore.sendingState(@props.localId)
+    @setState isSending: DraftStore.isSendingDraft(@props.localId)
 
 
   undo: (event) =>

@@ -1,6 +1,9 @@
 Message = require '../models/message'
 Actions = require '../actions'
-EventEmitter = require('events').EventEmitter
+
+{Listener, Publisher} = require '../modules/reflux-coffee'
+CoffeeHelpers = require '../coffee-helpers'
+
 _ = require 'underscore-plus'
 
 ###
@@ -64,21 +67,23 @@ that display Draft objects or allow for interactive editing of Drafts.
 Section: Drafts
 ###
 class DraftStoreProxy
+  @include: CoffeeHelpers.includeModule
+
+  @include Publisher
+  @include Listener
 
   constructor: (@draftLocalId) ->
     DraftStore = require './draft-store'
 
-    @unlisteners = []
-    @unlisteners.push DraftStore.listen(@_onDraftChanged, @)
-    @unlisteners.push Actions.didSwapModel.listen(@_onDraftSwapped, @)
+    @listenTo DraftStore, @_onDraftChanged
+    @listenTo Actions.didSwapModel, @_onDraftSwapped
 
-    @_emitter = new EventEmitter()
     @_draft = false
     @_draftPromise = null
     @changes = new DraftChangeSet @draftLocalId, =>
       if !@_draft
         throw new Error("DraftChangeSet was modified before the draft was prepared.")
-      @_emitter.emit('trigger')
+      @trigger()
 
     @prepare().catch (error) ->
       console.error(error)
@@ -101,26 +106,14 @@ class DraftStoreProxy
       .catch(reject)
     @_draftPromise
 
-  listen: (callback, bindContext) ->
-    eventHandler = (args) ->
-      callback.apply(bindContext, args)
-    @_emitter.addListener('trigger', eventHandler)
-    return =>
-      @_emitter.removeListener('trigger', eventHandler)
-      if @_emitter.listeners('trigger').length is 0
-        DraftStore = require './draft-store'
-        DraftStore.cleanupSessionForLocalId(@draftLocalId)
-
   cleanup: ->
-    # Unlink ourselves from the stores/actions we were listening to
-    # so that we can be garbage collected
-    unlisten() for unlisten in @unlisteners
+    @stopListeningToAll()
 
   _setDraft: (draft) ->
     if !draft.body?
       throw new Error("DraftStoreProxy._setDraft - new draft has no body!")
     @_draft = draft
-    @_emitter.emit('trigger')
+    @trigger()
 
   _onDraftChanged: (change) ->
     return if not change?

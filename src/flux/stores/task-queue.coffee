@@ -100,6 +100,12 @@ class TaskQueue
       performedRemote: false
       notifiedOffline: false
 
+  findTask: ({object, matchKey, matchValue}) ->
+    for other in @_queue by -1
+      if object is object and other[matchKey] is matchValue
+        return other
+    return null
+
   enqueue: (task, {silent}={}) =>
     if not (task instanceof Task)
       throw new Error("You must queue a `Task` object")
@@ -111,6 +117,8 @@ class TaskQueue
 
   dequeue: (taskOrId={}, {silent}={}) =>
     task = @_parseArgs(taskOrId)
+    if not task
+      throw new Error("Couldn't find task in queue to dequeue")
 
     task.queueState.isProcessing = false
     task.cleanup()
@@ -125,14 +133,12 @@ class TaskQueue
     @_update()
 
   dequeueMatching: (task) =>
-    identifier = task.matchKey
-    propValue  = task.matchValue
+    toDequeue = @findTask(task)
 
-    for other in @_queue by -1
-      if task.object == task.object
-        if other[identifier] == propValue
-          @dequeue(other, silent: true)
+    if not toDequeue
+      console.warn("Could not find task: #{task?.object}", task)
 
+    @dequeue(toDequeue, silent: true)
     @_update()
 
   clearCompleted: =>
@@ -213,8 +219,6 @@ class TaskQueue
       task = _.find @_queue, (task) -> task is taskOrId
     else
       task = _.findWhere(@_queue, id: taskOrId)
-    if not task?
-      throw new Error("Can't find task #{taskOrId}")
     return task
 
   _moveToCompleted: (task) =>
@@ -236,7 +240,6 @@ class TaskQueue
     catch e
       if not atom.inSpecMode()
         console.log("Queue deserialization failed with error: #{e.toString()}")
-
 
   # It's very important that we debounce saving here. When the user bulk-archives
   # items, they can easily process 1000 tasks at the same moment. We can't try to

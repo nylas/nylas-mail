@@ -181,12 +181,12 @@ describe "populated composer", ->
 
   describe "When sending a message", ->
     beforeEach ->
+      spyOn(atom, "isMainWindow").andReturn true
       remote = require('remote')
       @dialog = remote.require('dialog')
       spyOn(remote, "getCurrentWindow")
       spyOn(@dialog, "showMessageBox")
       spyOn(Actions, "sendDraft")
-      DraftStore._sendingState = {}
 
     it "shows a warning if there are no recipients", ->
       useDraft.call @, subject: "no recipients"
@@ -291,7 +291,7 @@ describe "populated composer", ->
       expect(Actions.sendDraft.calls.length).toBe 1
 
     simulateDraftStore = ->
-      DraftStore._sendingState[DRAFT_LOCAL_ID] = true
+      spyOn(DraftStore, "isSendingDraft").andReturn true
       DraftStore.trigger()
 
     it "doesn't send twice if you double click", ->
@@ -314,14 +314,20 @@ describe "populated composer", ->
       expect(@composer.state.isSending).toBe true
 
     it "re-enables the composer if sending threw an error", ->
+      sending = null
+      spyOn(DraftStore, "isSendingDraft").andCallFake => return sending
       useFullDraft.apply(@); makeComposer.call(@)
       sendBtn = React.findDOMNode(@composer.refs.sendButton)
       ReactTestUtils.Simulate.click sendBtn
-      simulateDraftStore()
-      expect(@composer.state.isSending).toBe true
-      Actions.sendDraftError("oh no")
-      DraftStore._sendingState[DRAFT_LOCAL_ID] = false
+
+      sending = true
       DraftStore.trigger()
+
+      expect(@composer.state.isSending).toBe true
+
+      sending = false
+      DraftStore.trigger()
+
       expect(@composer.state.isSending).toBe false
 
     describe "when sending a message with keyboard inputs", ->
