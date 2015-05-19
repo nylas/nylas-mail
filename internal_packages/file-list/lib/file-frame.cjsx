@@ -1,5 +1,5 @@
 React = require 'react'
-_ = require "underscore-plus"
+_ = require "underscore"
 {Utils, FileDownloadStore, Actions} = require 'nylas-exports'
 {Spinner, EventedIFrame} = require 'nylas-component-kit'
 FileFrameStore = require './file-frame-store'

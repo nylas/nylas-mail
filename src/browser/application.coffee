@@ -17,7 +17,7 @@ url = require 'url'
 exec = require('child_process').exec
 querystring = require 'querystring'
 {EventEmitter} = require 'events'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 socketPath =
   if process.platform is 'win32'

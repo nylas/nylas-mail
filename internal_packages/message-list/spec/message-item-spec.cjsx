@@ -7,8 +7,7 @@ ReactTestUtils = React.addons.TestUtils
  File,
  Thread,
  Utils,
- FileDownloadStore,
- InboxTestUtils} = require "nylas-exports"
+ FileDownloadStore} = require "nylas-exports"
 
 EmailFrameStub = React.createClass({render: -> <div></div>})
 

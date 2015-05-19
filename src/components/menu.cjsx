@@ -1,6 +1,6 @@
 React = require 'react/addons'
 classNames = require 'classnames'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 {Utils} = require 'nylas-exports'
 {CompositeDisposable} = require 'event-kit'
 

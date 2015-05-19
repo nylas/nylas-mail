@@ -3,7 +3,7 @@ Actions = require '../../src/flux/actions'
 MarkMessageReadTask = require '../../src/flux/tasks/mark-message-read'
 DatabaseStore = require '../../src/flux/stores/database-store'
 Message = require '../../src/flux/models/message'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 describe "MarkMessageReadTask", ->
   beforeEach ->

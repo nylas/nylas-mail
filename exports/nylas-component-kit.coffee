@@ -1,4 +1,4 @@
-# All Inbox Globals go here.
+# Publically exposed Nylas UI Components
 
 {FormItem,
  GeneratedForm,

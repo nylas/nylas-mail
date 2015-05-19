@@ -1,5 +1,5 @@
 React = require 'react'
-_ = require "underscore-plus"
+_ = require "underscore"
 {EventedIFrame} = require 'nylas-component-kit'
 {Utils} = require 'nylas-exports'
 

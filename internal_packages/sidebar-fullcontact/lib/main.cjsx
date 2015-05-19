@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 React = require "react"
 SidebarFullContact = require "./sidebar-fullcontact"
 {ComponentRegistry, WorkspaceStore} = require "nylas-exports"

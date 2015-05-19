@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 NylasLongConnection = require './nylas-long-connection'
 
 {Publisher} = require './modules/reflux-coffee'

@@ -1,9 +1,9 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 React = require 'react/addons'
 ReactTestUtils = React.addons.TestUtils
 proxyquire = require 'proxyquire'
 
-{InboxTestUtils,
+{NylasTestUtils,
  Namespace,
  NamespaceStore,
  ContactStore,
@@ -20,8 +20,8 @@ participant2 = new Contact
   email: 'ben@example.com'
   name: 'Ben Gotow'
 participant3 = new Contact
-  email: 'ben@inboxapp.com'
-  name: 'Ben Inboxer'
+  email: 'evan@nylas.com'
+  name: 'Evan Morikawa'
 participant4 = new Contact
   email: 'ben@elsewhere.com',
   name: 'ben Again'
@@ -30,7 +30,7 @@ participant5 = new Contact
   name: 'EVAN'
 
 describe 'ParticipantsTextField', ->
-  InboxTestUtils.loadKeymap()
+  NylasTestUtils.loadKeymap()
 
   beforeEach ->
     @propChange = jasmine.createSpy('change')
@@ -54,7 +54,7 @@ describe 'ParticipantsTextField', ->
 
     @expectInputToYield = (input, expected) ->
       ReactTestUtils.Simulate.change(@renderedInput, {target: {value: input}})
-      InboxTestUtils.keyPress('enter', @renderedInput)
+      NylasTestUtils.keyPress('enter', @renderedInput)
 
       reviver = (k,v) ->
         return undefined if k in ["id", "object"]

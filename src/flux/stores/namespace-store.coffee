@@ -1,7 +1,7 @@
 Actions = require '../actions'
 Namespace = require '../models/namespace'
 DatabaseStore = require './database-store'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 {Listener, Publisher} = require '../modules/reflux-coffee'
 CoffeeHelpers = require '../coffee-helpers'

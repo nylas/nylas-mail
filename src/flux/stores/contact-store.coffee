@@ -3,7 +3,7 @@ Actions = require '../actions'
 Contact = require '../models/contact'
 DatabaseStore = require './database-store'
 NamespaceStore = require './namespace-store'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 {Listener, Publisher} = require '../modules/reflux-coffee'
 CoffeeHelpers = require '../coffee-helpers'

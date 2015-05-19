@@ -1,5 +1,6 @@
 path = require 'path'
-_ = require 'underscore-plus'
+_ = require 'underscore'
+_str = require 'underscore.string'
 {convertStackTrace} = require 'coffeestack'
 {View, $, $$} = require '../src/space-pen-extensions'
 grim = require 'grim'
@@ -192,7 +193,7 @@ class AtomReporter extends View
         # Package specs being run, show a more descriptive label
         {specDirectory} = specs[0]
         packageFolderName = path.basename(path.dirname(specDirectory))
-        packageName = _.undasherize(_.uncamelcase(packageFolderName))
+        packageName = _str.humanize(packageFolderName)
         @userHeader.text("#{packageName} Specs")
       else
         @userHeader.text("User Package Specs (#{userPackageSpecs})")

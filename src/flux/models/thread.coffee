@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 Tag = require './tag'
 Model = require './model'

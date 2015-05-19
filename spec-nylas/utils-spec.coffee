@@ -1,4 +1,4 @@
-_ = require('underscore-plus')
+_ = require('underscore')
 Utils = require '../src/flux/models/utils'
 Thread = require '../src/flux/models/thread'
 Contact = require '../src/flux/models/contact'
@@ -328,7 +328,7 @@ describe "isEqual", ->
     ok(Utils.isEqual(a, b), 'Cyclic structures with nested and identically-named properties are equal')
 
     # Chaining.
-    # NOTE: underscore-plus doesn't support chaining
+    # NOTE: underscore doesn't support chaining
     #
     # ok(!Utils.isEqual(_({x: 1, y: undefined}).chain(), _({x: 1, z: 2}).chain()), 'Chained objects containing different values are not equal')
     #

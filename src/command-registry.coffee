@@ -1,6 +1,7 @@
 {Emitter, Disposable, CompositeDisposable} = require 'event-kit'
 {specificity} = require 'clear-cut'
-_ = require 'underscore-plus'
+_ = require 'underscore'
+_str = require 'underscore.string'
 
 SequenceCount = 0
 SpecificityCache = {}
@@ -139,7 +140,7 @@ class CommandRegistry
       for name, listeners of @inlineListenersByCommandName
         if listeners.has(currentTarget) and not commandNames.has(name)
           commandNames.add(name)
-          commands.push({name, displayName: _.humanizeEventName(name)})
+          commands.push({name, displayName: _str.humanize(name)})
 
       for commandName, listeners of @selectorBasedListenersByCommandName
         for listener in listeners
@@ -148,7 +149,7 @@ class CommandRegistry
               commandNames.add(commandName)
               commands.push
                 name: commandName
-                displayName: _.humanizeEventName(commandName)
+                displayName: _str.humanize(commandName)
 
       break if currentTarget is window
       currentTarget = currentTarget.parentNode ? window

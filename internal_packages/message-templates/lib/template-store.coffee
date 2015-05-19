@@ -1,5 +1,5 @@
 Reflux = require 'reflux'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 {DatabaseStore, DraftStore, Actions, Message} = require 'nylas-exports'
 path = require 'path'
 fs = require 'fs-plus'

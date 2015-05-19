@@ -1,6 +1,6 @@
 Model = require './model'
 Attributes = require '../attributes'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 ###
 Public: The Tag model represents a Nylas Tag object. For more information

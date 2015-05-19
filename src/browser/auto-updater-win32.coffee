@@ -1,5 +1,5 @@
 {EventEmitter} = require 'events'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 SquirrelUpdate = require './squirrel-update'
 
 class AutoUpdater

@@ -4,7 +4,7 @@ Actions = require '../actions'
 {Listener, Publisher} = require '../modules/reflux-coffee'
 CoffeeHelpers = require '../coffee-helpers'
 
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 ###
 Public: As the user interacts with the draft, changes are accumulated in the

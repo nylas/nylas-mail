@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 React = require 'react/addons'
 classNames = require 'classnames'
 {CompositeDisposable} = require 'event-kit'

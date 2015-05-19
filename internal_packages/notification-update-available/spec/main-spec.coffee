@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 proxyquire = require 'proxyquire'
 Reflux = require 'reflux'
 {Actions} = require 'nylas-exports'
@@ -67,5 +67,5 @@ describe "NotificationUpdateAvailable", ->
     describe "when the action is taken", ->
       it "should fire the `application:install-update` IPC event", ->
         Actions.notificationActionTaken({notification: {}, action: {id: 'release-bar:install-update'}})
-        expect(ipcSendArgs).toEqual(0: 'command', 1: 'application:install-update')
+        expect(Array.prototype.slice.call(ipcSendArgs)).toEqual(['command', 'application:install-update'])
 

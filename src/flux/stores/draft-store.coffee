@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 moment = require 'moment'
 ipc = require 'ipc'
 

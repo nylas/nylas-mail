@@ -6,7 +6,7 @@ DatabaseStore = require '../../src/flux/stores/database-store'
 {generateTempId} = require '../../src/flux/models/utils'
 Message = require '../../src/flux/models/message'
 TaskQueue = require '../../src/flux/stores/task-queue'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 describe "SendDraftTask", ->
   describe "shouldWaitForTask", ->

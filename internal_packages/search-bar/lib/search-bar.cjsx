@@ -3,7 +3,7 @@ classNames = require 'classnames'
 {Actions} = require 'nylas-exports'
 {Menu, RetinaImg} = require 'nylas-component-kit'
 SearchSuggestionStore = require './search-suggestion-store'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 class SearchBar extends React.Component
   @displayName = 'SearchBar'

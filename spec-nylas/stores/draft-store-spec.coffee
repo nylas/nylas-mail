@@ -9,7 +9,7 @@ TaskQueue = require '../../src/flux/stores/task-queue'
 SendDraftTask = require '../../src/flux/tasks/send-draft'
 DestroyDraftTask = require '../../src/flux/tasks/destroy-draft'
 Actions = require '../../src/flux/actions'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 fakeThread = null
 fakeMessage1 = null

@@ -5,7 +5,8 @@ atom.restoreWindowDimensions()
 require 'jasmine-json'
 require '../vendor/jasmine-jquery'
 path = require 'path'
-_ = require 'underscore-plus'
+_ = require 'underscore'
+_str = require 'underscore.string'
 fs = require 'fs-plus'
 Grim = require 'grim'
 KeymapManager = require '../src/keymap-extensions'
@@ -199,7 +200,7 @@ ensureNoDeprecatedFunctionsCalled = ->
       output = []
       for deprecation in deprecations
         output.push "#{deprecation.originName} is deprecated. #{deprecation.message}"
-        output.push _.multiplyString("-", output[output.length - 1].length)
+        output.push _str.repeat("-", output[output.length - 1].length)
         for stack in deprecation.getStacks()
           for {functionName, location} in stack
             output.push "#{functionName} -- #{location}"

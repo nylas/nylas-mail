@@ -11,7 +11,7 @@ return
 
 
 moment = require "moment"
-_ = require 'underscore-plus'
+_ = require 'underscore'
 CSON = require 'season'
 React = require "react/addons"
 ReactTestUtils = React.addons.TestUtils
@@ -22,7 +22,7 @@ ReactTestUtils = _.extend ReactTestUtils, require "jasmine-react-helpers"
  Namespace,
  DatabaseStore,
  WorkspaceStore,
- InboxTestUtils,
+ NylasTestUtils,
  NamespaceStore,
  ComponentRegistry} = require "nylas-exports"
 {ListTabular} = require 'nylas-component-kit'
@@ -219,7 +219,7 @@ describe "ThreadList", ->
   columns = [c1,c2,c3]
 
   beforeEach ->
-    InboxTestUtils.loadKeymap("internal_packages/thread-list/keymaps/thread-list.cson")
+    NylasTestUtils.loadKeymap("internal_packages/thread-list/keymaps/thread-list.cson")
     spyOn(ThreadStore, "_onNamespaceChanged")
     spyOn(DatabaseStore, "findAll").andCallFake ->
       new Promise (resolve, reject) -> resolve(test_threads())

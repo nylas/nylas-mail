@@ -3,7 +3,7 @@ AddRemoveTagsTask = require '../../src/flux/tasks/add-remove-tags'
 MarkThreadReadTask = require '../../src/flux/tasks/mark-thread-read'
 DatabaseStore = require '../../src/flux/stores/database-store'
 Thread = require '../../src/flux/models/thread'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 describe "MarkThreadReadTask", ->
   beforeEach ->

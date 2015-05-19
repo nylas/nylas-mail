@@ -1,5 +1,5 @@
 proxyquire = require 'proxyquire'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 NylasAPI = require '../../src/flux/nylas-api'
 File = require '../../src/flux/models/file'
 Message = require '../../src/flux/models/message'

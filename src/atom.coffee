@@ -5,7 +5,7 @@ path = require 'path'
 remote = require 'remote'
 shell = require 'shell'
 
-_ = require 'underscore-plus'
+_ = require 'underscore'
 {deprecate} = require 'grim'
 {Emitter} = require 'event-kit'
 {Model} = require 'theorist'
@@ -14,6 +14,8 @@ fs = require 'fs-plus'
 
 WindowEventHandler = require './window-event-handler'
 StylesElement = require './styles-element'
+
+Utils = require './flux/models/utils'
 
 # Essential: Atom global for dealing with packages, themes, menus, and the window.
 #
@@ -86,7 +88,7 @@ class Atom extends Model
   @getLoadSettings: ->
     @loadSettings ?= JSON.parse(decodeURIComponent(location.search.substr(14)))
 
-    cloned = _.deepClone(@loadSettings)
+    cloned = Utils.deepClone(@loadSettings)
     # The loadSettings.windowState could be large, request it only when needed.
     cloned.__defineGetter__ 'windowState', =>
       @getCurrentWindow().loadSettings.windowState

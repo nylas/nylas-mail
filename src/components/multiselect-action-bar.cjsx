@@ -1,6 +1,6 @@
 React = require "react/addons"
 classNames = require 'classnames'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 {Actions,
  WorkspaceStore} = require "nylas-exports"

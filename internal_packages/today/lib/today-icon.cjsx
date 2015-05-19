@@ -1,5 +1,5 @@
 React = require 'react'
-_ = require "underscore-plus"
+_ = require "underscore"
 moment = require 'moment'
 classNames = require 'classnames'
 

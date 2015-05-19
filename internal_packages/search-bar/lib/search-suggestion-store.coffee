@@ -2,7 +2,7 @@ Reflux = require 'reflux'
 {Actions,
  Contact,
  ContactStore} = require 'nylas-exports'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 # Stores should closely match the needs of a particular part of the front end.
 # For example, we might create a "MessageStore" that observes this store

@@ -1,5 +1,5 @@
 path = require 'path'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 fs = require 'fs-plus'
 runas = null
 temp = require 'temp'

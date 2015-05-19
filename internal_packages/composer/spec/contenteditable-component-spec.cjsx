@@ -2,7 +2,7 @@
 # the contenteditable (such as selection, tooltip, quoting, etc) see the
 # related test files.
 #
-_ = require "underscore-plus"
+_ = require "underscore"
 React = require "react/addons"
 ReactTestUtils = React.addons.TestUtils
 ContenteditableComponent = require "../lib/contenteditable-component",

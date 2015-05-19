@@ -1,4 +1,4 @@
-_ = require "underscore-plus"
+_ = require "underscore"
 proxyquire = require "proxyquire"
 
 React = require "react/addons"
@@ -10,7 +10,7 @@ ReactTestUtils = React.addons.TestUtils
  Namespace,
  DraftStore,
  DatabaseStore,
- InboxTestUtils,
+ NylasTestUtils,
  NamespaceStore} = require "nylas-exports"
 
 u1 = new Contact(name: "Christine Spang", email: "spang@nylas.com")
@@ -335,24 +335,24 @@ describe "populated composer", ->
         useFullDraft.apply(@)
         makeComposer.call(@)
         spyOn(@composer, "_sendDraft")
-        InboxTestUtils.loadKeymap "internal_packages/composer/keymaps/composer.cson"
+        NylasTestUtils.loadKeymap "internal_packages/composer/keymaps/composer.cson"
 
       it "sends the draft on cmd-enter", ->
-        InboxTestUtils.keyPress("cmd-enter", React.findDOMNode(@composer))
+        NylasTestUtils.keyPress("cmd-enter", React.findDOMNode(@composer))
         expect(@composer._sendDraft).toHaveBeenCalled()
 
       it "does not send the draft on enter if the button isn't in focus", ->
-        InboxTestUtils.keyPress("enter", React.findDOMNode(@composer))
+        NylasTestUtils.keyPress("enter", React.findDOMNode(@composer))
         expect(@composer._sendDraft).not.toHaveBeenCalled()
 
       it "sends the draft on enter when the button is in focus", ->
         sendBtn = ReactTestUtils.findRenderedDOMComponentWithClass(@composer, "btn-send")
-        InboxTestUtils.keyPress("enter", React.findDOMNode(sendBtn))
+        NylasTestUtils.keyPress("enter", React.findDOMNode(sendBtn))
         expect(@composer._sendDraft).toHaveBeenCalled()
 
       it "doesn't let you send twice", ->
         sendBtn = ReactTestUtils.findRenderedDOMComponentWithClass(@composer, "btn-send")
-        InboxTestUtils.keyPress("enter", React.findDOMNode(sendBtn))
+        NylasTestUtils.keyPress("enter", React.findDOMNode(sendBtn))
         expect(@composer._sendDraft).toHaveBeenCalled()
 
 

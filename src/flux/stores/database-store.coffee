@@ -1,6 +1,6 @@
 async = require 'async'
 remote = require 'remote'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 Actions = require '../actions'
 Model = require '../models/model'
 LocalLink = require '../models/local-link'

@@ -1,5 +1,5 @@
 React = require 'react'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 {Actions,ComponentRegistry, WorkspaceStore} = require "nylas-exports"
 RetinaImg = require './components/retina-img'
 Flexbox = require './components/flexbox'

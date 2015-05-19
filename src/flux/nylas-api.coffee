@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 request = require 'request'
 Actions = require './actions'
 {APIError} = require './errors'

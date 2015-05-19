@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 Reflux = require 'reflux'
 NamespaceStore = require './namespace-store'
 WorkspaceStore = require './workspace-store'

@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 {generateTempId} = require '../models/utils'
 Actions = require '../actions'
 {APIError,

@@ -1,6 +1,6 @@
 React = require 'react'
 classNames = require 'classnames'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 EmailFrame = require './email-frame'
 MessageParticipants = require "./message-participants"
 MessageTimestamp = require "./message-timestamp"

@@ -41,7 +41,7 @@ os = require 'os'
 # modules work under node v0.11.x.
 require 'vm-compatibility-layer'
 
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 packageJson = require '../package.json'
 
@@ -284,7 +284,7 @@ module.exports = (grunt) ->
     'create-windows-installer':
       appDirectory: shellAppDir
       outputDirectory: path.join(buildDir, 'installer')
-      authors: 'InboxApp Inc.'
+      authors: 'Nylas'
       loadingGif: path.resolve(__dirname, '..', 'resources', 'win', 'loading.gif')
       iconUrl: 'https://raw.githubusercontent.com/atom/atom/master/resources/win/atom.ico'
       setupIcon: path.resolve(__dirname, '..', 'resources', 'win', 'edgehill.ico')

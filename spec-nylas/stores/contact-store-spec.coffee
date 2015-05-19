@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 proxyquire = require 'proxyquire'
 Contact = require '../../src/flux/models/contact'
 ContactStore = require '../../src/flux/stores/contact-store'

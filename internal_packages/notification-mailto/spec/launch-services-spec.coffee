@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 proxyquire = require 'proxyquire'
 
 stubDefaultsJSON = null

@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 {tableNameForJoin} = require '../models/utils'
 Attribute = require './attribute'
 Matcher = require './matcher'

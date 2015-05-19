@@ -1,6 +1,6 @@
 React = require 'react/addons'
 classNames = require 'classnames'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 {CompositeDisposable} = require 'event-kit'
 {Contact, ContactStore} = require 'nylas-exports'
 RetinaImg = require './retina-img'

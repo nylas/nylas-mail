@@ -1,9 +1,15 @@
 fs = require 'fs'
 path = require 'path'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 module.exports = (grunt) ->
   {cp, isAtomPackage, mkdir, rm} = require('./task-helpers')(grunt)
+
+  escapeRegExp = (string) ->
+    if string
+      return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
+    else
+      return ''
 
   grunt.registerTask 'build', 'Build the application', ->
     shellAppDir = grunt.config.get('atom.shellAppDir')
@@ -108,37 +114,37 @@ module.exports = (grunt) ->
       '.pairs'
       '.travis.yml'
     ]
-    ignoredPaths = ignoredPaths.map (ignoredPath) -> _.escapeRegExp(ignoredPath)
+    ignoredPaths = ignoredPaths.map (ignoredPath) -> escapeRegExp(ignoredPath)
 
     # Add .* to avoid matching hunspell_dictionaries.
-    ignoredPaths.push "#{_.escapeRegExp(path.join('spellchecker', 'vendor', 'hunspell') + path.sep)}.*"
-    ignoredPaths.push "#{_.escapeRegExp(path.join('build', 'Release') + path.sep)}.*\\.pdb"
+    ignoredPaths.push "#{escapeRegExp(path.join('spellchecker', 'vendor', 'hunspell') + path.sep)}.*"
+    ignoredPaths.push "#{escapeRegExp(path.join('build', 'Release') + path.sep)}.*\\.pdb"
 
     # Ignore *.cc and *.h files from native modules
-    ignoredPaths.push "#{_.escapeRegExp(path.join('ctags', 'src') + path.sep)}.*\\.(cc|h)*"
-    ignoredPaths.push "#{_.escapeRegExp(path.join('git-utils', 'src') + path.sep)}.*\\.(cc|h)*"
-    ignoredPaths.push "#{_.escapeRegExp(path.join('keytar', 'src') + path.sep)}.*\\.(cc|h)*"
-    ignoredPaths.push "#{_.escapeRegExp(path.join('nslog', 'src') + path.sep)}.*\\.(cc|h)*"
-    ignoredPaths.push "#{_.escapeRegExp(path.join('oniguruma', 'src') + path.sep)}.*\\.(cc|h)*"
-    ignoredPaths.push "#{_.escapeRegExp(path.join('pathwatcher', 'src') + path.sep)}.*\\.(cc|h)*"
-    ignoredPaths.push "#{_.escapeRegExp(path.join('runas', 'src') + path.sep)}.*\\.(cc|h)*"
-    ignoredPaths.push "#{_.escapeRegExp(path.join('scrollbar-style', 'src') + path.sep)}.*\\.(cc|h)*"
-    ignoredPaths.push "#{_.escapeRegExp(path.join('spellchecker', 'src') + path.sep)}.*\\.(cc|h)*"
+    ignoredPaths.push "#{escapeRegExp(path.join('ctags', 'src') + path.sep)}.*\\.(cc|h)*"
+    ignoredPaths.push "#{escapeRegExp(path.join('git-utils', 'src') + path.sep)}.*\\.(cc|h)*"
+    ignoredPaths.push "#{escapeRegExp(path.join('keytar', 'src') + path.sep)}.*\\.(cc|h)*"
+    ignoredPaths.push "#{escapeRegExp(path.join('nslog', 'src') + path.sep)}.*\\.(cc|h)*"
+    ignoredPaths.push "#{escapeRegExp(path.join('oniguruma', 'src') + path.sep)}.*\\.(cc|h)*"
+    ignoredPaths.push "#{escapeRegExp(path.join('pathwatcher', 'src') + path.sep)}.*\\.(cc|h)*"
+    ignoredPaths.push "#{escapeRegExp(path.join('runas', 'src') + path.sep)}.*\\.(cc|h)*"
+    ignoredPaths.push "#{escapeRegExp(path.join('scrollbar-style', 'src') + path.sep)}.*\\.(cc|h)*"
+    ignoredPaths.push "#{escapeRegExp(path.join('spellchecker', 'src') + path.sep)}.*\\.(cc|h)*"
 
     # Ignore build files
-    ignoredPaths.push "#{_.escapeRegExp(path.sep)}binding\\.gyp$"
-    ignoredPaths.push "#{_.escapeRegExp(path.sep)}.+\\.target.mk$"
-    ignoredPaths.push "#{_.escapeRegExp(path.sep)}linker\\.lock$"
-    ignoredPaths.push "#{_.escapeRegExp(path.join('build', 'Release') + path.sep)}.+\\.node\\.dSYM"
+    ignoredPaths.push "#{escapeRegExp(path.sep)}binding\\.gyp$"
+    ignoredPaths.push "#{escapeRegExp(path.sep)}.+\\.target.mk$"
+    ignoredPaths.push "#{escapeRegExp(path.sep)}linker\\.lock$"
+    ignoredPaths.push "#{escapeRegExp(path.join('build', 'Release') + path.sep)}.+\\.node\\.dSYM"
 
     # Hunspell dictionaries are only not needed on OS X.
     if process.platform is 'darwin'
       ignoredPaths.push path.join('spellchecker', 'vendor', 'hunspell_dictionaries')
     ignoredPaths = ignoredPaths.map (ignoredPath) -> "(#{ignoredPath})"
 
-    testFolderPattern = new RegExp("#{_.escapeRegExp(path.sep)}te?sts?#{_.escapeRegExp(path.sep)}")
-    exampleFolderPattern = new RegExp("#{_.escapeRegExp(path.sep)}examples?#{_.escapeRegExp(path.sep)}")
-    benchmarkFolderPattern = new RegExp("#{_.escapeRegExp(path.sep)}benchmarks?#{_.escapeRegExp(path.sep)}")
+    testFolderPattern = new RegExp("#{escapeRegExp(path.sep)}te?sts?#{escapeRegExp(path.sep)}")
+    exampleFolderPattern = new RegExp("#{escapeRegExp(path.sep)}examples?#{escapeRegExp(path.sep)}")
+    benchmarkFolderPattern = new RegExp("#{escapeRegExp(path.sep)}benchmarks?#{escapeRegExp(path.sep)}")
 
     nodeModulesFilter = new RegExp(ignoredPaths.join('|'))
     filterNodeModule = (pathToCopy) ->

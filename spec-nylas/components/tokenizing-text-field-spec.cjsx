@@ -1,8 +1,8 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 React = require 'react/addons'
 ReactTestUtils = React.addons.TestUtils
 
-{InboxTestUtils,
+{NylasTestUtils,
  Namespace,
  NamespaceStore,
  Contact,
@@ -26,10 +26,10 @@ CustomSuggestion = React.createClass
 participant1 = new Contact
   email: 'ben@nylas.com'
 participant2 = new Contact
-  email: 'burgers@nilas.com'
+  email: 'burgers@nylas.com'
   name: 'Nylas Burger Basket'
 participant3 = new Contact
-  email: 'evan@inboxapp.com'
+  email: 'evan@nylas.com'
   name: 'Evan'
 participant4 = new Contact
   email: 'tester@elsewhere.com',
@@ -39,7 +39,7 @@ participant5 = new Contact
   name: 'Michael'
 
 describe 'TokenizingTextField', ->
-  InboxTestUtils.loadKeymap()
+  NylasTestUtils.loadKeymap()
 
   beforeEach ->
     @completions = []
@@ -160,14 +160,14 @@ describe 'TokenizingTextField', ->
         it "should call add with the first completion", ->
           @completions = [participant4]
           ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'abc'}})
-          InboxTestUtils.keyPress(key, @renderedInput)
+          NylasTestUtils.keyPress(key, @renderedInput)
           expect(@propAdd).toHaveBeenCalledWith([participant4])
 
       describe "and there is NO completion available", ->
         it 'should call add, allowing the parent to (optionally) turn the text into a token', ->
           @completions = []
           ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'abc'}})
-          InboxTestUtils.keyPress(key, @renderedInput)
+          NylasTestUtils.keyPress(key, @renderedInput)
           expect(@propAdd).toHaveBeenCalledWith('abc')
 
   describe "when the user presses tab", ->
@@ -175,7 +175,7 @@ describe 'TokenizingTextField', ->
       it "should call add with the first completion", ->
         @completions = [participant4]
         ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'abc'}})
-        InboxTestUtils.keyPress('tab', @renderedInput)
+        NylasTestUtils.keyPress('tab', @renderedInput)
         expect(@propAdd).toHaveBeenCalledWith([participant4])
 
   describe "when blurred", ->
@@ -202,7 +202,7 @@ describe 'TokenizingTextField', ->
 
     it "deletes with the backspace key", ->
       spyOn(@renderedField, "_removeToken")
-      InboxTestUtils.keyPress("backspace", @renderedInput)
+      NylasTestUtils.keyPress("backspace", @renderedInput)
       expect(@renderedField._removeToken).toHaveBeenCalled()
 
     describe "when removal is passed in a token object", ->

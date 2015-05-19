@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 Tag = require '../../src/flux/models/tag'
 NamespaceStore = require '../../src/flux/stores/namespace-store'
 FocusedTagStore = require '../../src/flux/stores/focused-tag-store'

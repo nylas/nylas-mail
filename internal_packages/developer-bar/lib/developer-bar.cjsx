@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 ipc = require 'ipc'
 React = require 'react/addons'
 {DatabaseStore,

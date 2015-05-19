@@ -1,6 +1,6 @@
 path = require 'path'
 
-_ = require 'underscore-plus'
+_ = require 'underscore'
 async = require 'async'
 CSON = require 'season'
 fs = require 'fs-plus'

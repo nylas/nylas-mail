@@ -1,7 +1,7 @@
 Model = require '../../src/flux/models/model'
 Attributes = require '../../src/flux/attributes'
 {isTempId} = require '../../src/flux/models/utils'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 describe "Model", ->
   describe "constructor", ->

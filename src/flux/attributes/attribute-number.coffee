@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 Attribute = require './attribute'
 Matcher = require './matcher'
 

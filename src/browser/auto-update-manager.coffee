@@ -1,5 +1,5 @@
 autoUpdater = null
-_ = require 'underscore-plus'
+_ = require 'underscore'
 {EventEmitter} = require 'events'
 path = require 'path'
 fs = require 'fs'

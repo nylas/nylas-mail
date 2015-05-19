@@ -1,4 +1,4 @@
-_ = require "underscore-plus"
+_ = require "underscore"
 moment = require "moment"
 proxyquire = require "proxyquire"
 
@@ -13,7 +13,6 @@ TestUtils = React.addons.TestUtils
  Namespace,
  MessageStore,
  NamespaceStore,
- InboxTestUtils,
  ComponentRegistry} = require "nylas-exports"
 
 {InjectedComponent} = require 'nylas-component-kit'

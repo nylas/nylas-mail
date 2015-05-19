@@ -1,4 +1,5 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
+_str = require 'underscore.string'
 
 module.exports =
 class TimeReporter extends jasmine.Reporter
@@ -45,7 +46,7 @@ class TimeReporter extends jasmine.Reporter
       if index is 0
         "#{description}"
       else
-        "#{memo}\n#{_.multiplyString('  ', index)}#{description}"
+        "#{memo}\n#{_str.repeat('  ', index)}#{description}"
     @description = _.reduce(stack, reducer, '')
     @time = Date.now()
 

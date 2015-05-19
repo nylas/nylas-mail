@@ -1,7 +1,7 @@
 Reflux = require 'reflux'
 {Actions} = require 'nylas-exports'
 qs = require 'querystring'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 curlItemId = 0
 

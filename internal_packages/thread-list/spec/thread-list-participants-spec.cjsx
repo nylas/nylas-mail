@@ -1,7 +1,7 @@
 React = require "react/addons"
 ReactTestUtils = React.addons.TestUtils
 
-_ = require 'underscore-plus'
+_ = require 'underscore'
 {NamespaceStore, Thread, Contact, Message} = require 'nylas-exports'
 ThreadListParticipants = require '../lib/thread-list-participants'
 

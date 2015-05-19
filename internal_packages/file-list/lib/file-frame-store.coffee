@@ -1,5 +1,5 @@
 Reflux = require 'reflux'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 fs = require 'fs'
 
 {WorkspaceStore,

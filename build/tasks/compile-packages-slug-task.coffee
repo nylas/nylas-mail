@@ -1,7 +1,7 @@
 path = require 'path'
 CSON = require 'season'
 fs = require 'fs-plus'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 module.exports = (grunt) ->
   {spawn, rm} = require('./task-helpers')(grunt)
@@ -10,10 +10,10 @@ module.exports = (grunt) ->
     appDir = fs.realpathSync(grunt.config.get('atom.appDir'))
 
     modulesDirectory = path.join(appDir, 'node_modules')
-    internalInboxPackagesDirectory = path.join(appDir, 'internal_packages')
+    internalNylasPackagesDirectory = path.join(appDir, 'internal_packages')
 
     modulesPaths = fs.listSync(modulesDirectory)
-    modulesPaths = modulesPaths.concat(fs.listSync(internalInboxPackagesDirectory))
+    modulesPaths = modulesPaths.concat(fs.listSync(internalNylasPackagesDirectory))
     packages = {}
 
     for moduleDirectory in modulesPaths
@@ -26,7 +26,10 @@ module.exports = (grunt) ->
       moduleCache = metadata._atomModuleCache ? {}
 
       rm metadataPath
-      _.remove(moduleCache.extensions?['.json'] ? [], 'package.json')
+
+      extensions = moduleCache.extensions?['.json'] ? []
+      i = extensions.indexOf('package.json')
+      if i >= 0 then extensions.splice(i, 1)
 
       for property in ['_from', '_id', 'dist', 'readme', 'readmeFilename']
         delete metadata[property]

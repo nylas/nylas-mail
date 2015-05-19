@@ -1,6 +1,6 @@
 path = require 'path'
 
-_ = require 'underscore-plus'
+_ = require 'underscore'
 EmitterMixin = require('emissary').Emitter
 {Emitter} = require 'event-kit'
 fs = require 'fs-plus'

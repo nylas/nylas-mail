@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 Thread = require '../src/flux/models/thread'
 ModelView = require '../src/flux/stores/model-view'

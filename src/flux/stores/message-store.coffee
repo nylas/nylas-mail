@@ -8,7 +8,7 @@ FocusedContentStore = require "./focused-content-store"
 MarkThreadReadTask = require '../tasks/mark-thread-read'
 NylasAPI = require '../nylas-api'
 async = require 'async'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 MessageStore = Reflux.createStore
   init: ->

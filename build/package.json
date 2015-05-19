@@ -44,7 +44,8 @@
     "s3": "^4.3",
     "tello": "git+https://github.com/nylas/tello.git",
     "temp": "~0.8.1",
-    "underscore-plus": "1.x",
+    "underscore": "^1.8",
+    "underscore.string": "^3.0",
     "unzip": "~0.1.9",
     "vm-compatibility-layer": "~0.1.0"
   },

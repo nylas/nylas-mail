@@ -1,7 +1,7 @@
 child_process = require 'child_process'
 path = require 'path'
 
-_ = require 'underscore-plus'
+_ = require 'underscore'
 async = require 'async'
 fs = require 'fs-plus'
 GitHub = require 'github-releases'

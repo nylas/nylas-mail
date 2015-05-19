@@ -1,6 +1,6 @@
 fs = require 'fs'
 path = require 'path'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 Promise = require("bluebird")
 
 module.exports = (grunt) ->

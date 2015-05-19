@@ -1,5 +1,5 @@
 # Testing the Tooltip component
-_ = require 'underscore-plus'
+_ = require 'underscore'
 React = require 'react/addons'
 ReactTestUtils = React.addons.TestUtils
 

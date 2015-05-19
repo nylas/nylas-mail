@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 EventEmitter = require('events').EventEmitter
 proxyquire = require 'proxyquire'
 Tag = require '../src/flux/models/tag'
