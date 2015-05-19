@@ -3,7 +3,7 @@ Title:   Building a Package
 Section: Getting Started
 ---
 
-Packages lie at the heart of Nylas Mail. Each part of the core experience is a separate package that uses the Nilas Package API to add functionality to the client. Want to make a read-only mail client? Remove the core `Composer` package and you'll see reply buttons and composer functionality disappear.
+Packages lie at the heart of Nylas Mail. Each part of the core experience is a separate package that uses the Nylas Package API to add functionality to the client. Want to make a read-only mail client? Remove the core `Composer` package and you'll see reply buttons and composer functionality disappear.
 
 Let's explore the files in a simple package that adds a Translate option to the Composer. When you tap the Translate button, we'll display a popup menu with a list of languages. When you pick a language, we'll make a web request and convert your reply into the desired language.
 

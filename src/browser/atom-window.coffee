@@ -38,7 +38,7 @@ class AtomWindow
 
     options =
       show: false
-      title: title ? 'Nilas'
+      title: title ? 'Nylas'
       frame: frame ? true
       width: width
       height: height

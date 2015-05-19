@@ -169,7 +169,7 @@ class MessageItem extends React.Component
 
     draft = new Message
       from: [NamespaceStore.current().me()]
-      to: [new Contact(name: "Nilas Team", email: "feedback@nylas.com")]
+      to: [new Contact(name: "Nylas Team", email: "feedback@nylas.com")]
       date: (new Date)
       draft: true
       subject: "Feedback - Message Display Issue (#{issueType})"

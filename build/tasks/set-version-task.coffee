@@ -45,9 +45,9 @@ module.exports = (grunt) ->
 
         strings =
           CompanyName: 'Nylas, Inc.'
-          FileDescription: 'Nylas Mail'
+          FileDescription: 'Nylas'
           LegalCopyright: 'Copyright (C) 2014-2015 Nylas, Inc. All rights reserved'
-          ProductName: 'Nylas Mail'
+          ProductName: 'Nylas'
           ProductVersion: version
 
         rcedit = require('rcedit')

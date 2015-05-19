@@ -27,7 +27,7 @@ participant1 = new Contact
   email: 'ben@nylas.com'
 participant2 = new Contact
   email: 'burgers@nilas.com'
-  name: 'Nilas Burger Basket'
+  name: 'Nylas Burger Basket'
 participant3 = new Contact
   email: 'evan@inboxapp.com'
   name: 'Evan'

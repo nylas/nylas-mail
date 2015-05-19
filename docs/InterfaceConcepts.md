@@ -10,7 +10,7 @@ The Nylas Mail user interface is conceptually organized into Sheets. Each Sheet 
 
 The {WorkspaceStore} maintains the state of the application's workspace and the stack of sheets currently being displayed. Your packages can declare "root" sheets which are listed in the app's main sidebar, or push custom sheets on top of sheets to display data.
 
-The Nilas Workspace supports two display modes: `split` and `list`. Each Sheet describes it's appearance in each of the view modes it supports. For example, the `Threads` sheet describes a three column `split` view and a single column `list` view. Other sheets, like `Files` register for only one mode, and the user's mode preference is ignored.
+The Nylas Workspace supports two display modes: `split` and `list`. Each Sheet describes it's appearance in each of the view modes it supports. For example, the `Threads` sheet describes a three column `split` view and a single column `list` view. Other sheets, like `Files` register for only one mode, and the user's mode preference is ignored.
 
 For each mode, Sheets register a set of column names.
 
