@@ -206,6 +206,7 @@ class ComposerView extends React.Component
                                     initialSelectionSnapshot={@_recoveredSelection}
                                     mode={{showQuotedText: @state.showQuotedText}}
                                     onChangeMode={@_onChangeEditableMode}
+                                    onRequestScrollTo={@props.onRequestScrollTo}
                                     tabIndex="109" />
         </div>
 
@@ -429,6 +430,7 @@ class ComposerView extends React.Component
 
     @_recoveredSelection = historyItem.currentSelection
     @_addToProxy historyItem.state, fromUndoManager: true
+    @_recoveredSelection = null
 
   redo: (event) =>
     event.preventDefault()
@@ -438,6 +440,7 @@ class ComposerView extends React.Component
 
     @_recoveredSelection = historyItem.currentSelection
     @_addToProxy historyItem.state, fromUndoManager: true
+    @_recoveredSelection = null
 
   _getSelections: =>
     currentSelection: @refs.contentBody?.getCurrentSelection?()

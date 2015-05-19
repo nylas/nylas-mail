@@ -199,12 +199,28 @@ class MessageList extends React.Component
     components
 
   # Some child components (like the compser) might request that we scroll
-  # to the bottom of the component.
-  _onRequestScrollToComposer: ({messageId, location}={}) =>
-    done = ->
-    location ?= "bottom"
+  # to a given location. If `selectionTop` is defined that means we should
+  # scroll to that absolute position.
+  #
+  # If messageId and location are defined, that means we want to scroll
+  # smoothly to the top of a particular message.
+  _onRequestScrollToComposer: ({messageId, location, selectionTop}={}) =>
     composer = React.findDOMNode(@refs["composerItem-#{messageId}"])
-    @scrollToMessage(composer, done, location, 1)
+    if selectionTop
+      messageWrap = React.findDOMNode(@refs.messageWrap)
+      wrapRect = messageWrap.getBoundingClientRect()
+      if selectionTop < wrapRect.top or selectionTop > wrapRect.bottom
+        wrapMid = wrapRect.top + Math.abs(wrapRect.top - wrapRect.bottom) / 2
+        diff = selectionTop - wrapMid
+        messageWrap.scrollTop += diff
+    else
+      done = ->
+      location ?= "bottom"
+      composer = React.findDOMNode(@refs["composerItem-#{messageId}"])
+      @scrollToMessage(composer, done, location, 1)
+
+  _makeRectVisible: (rect) ->
+    messageWrap = React.findDOMNode(@refs.messageWrap)
 
   _onChange: =>
     @setState(@_getStateFromStores())
