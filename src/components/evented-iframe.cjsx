@@ -28,18 +28,33 @@ class EventedIFrame extends React.Component
     @_subscribeToIFrameEvents()
 
   componentWillUnmount: =>
+    @_unsubscribeFromIFrameEvents()
+
+  ###
+  Public: Call this method if you replace the contents of the iframe's document.
+  This allows {EventedIframe} to re-attach it's event listeners.
+  ###
+  documentWasReplaced: =>
+    @_unsubscribeFromIFrameEvents()
+    @_subscribeToIFrameEvents()
+
+  _unsubscribeFromIFrameEvents: =>
     doc = React.findDOMNode(@).contentDocument
-    for e in ['click', 'keydown', 'mousedown', 'mousemove', 'mouseup']
-      doc?.removeEventListener?(e)
+    return unless doc
+    doc.removeEventListener('click', @_onIFrameClick)
+    doc.removeEventListener('keydown', @_onIFrameKeydown)
+    doc.removeEventListener('mousedown', @_onIFrameMouseEvent)
+    doc.removeEventListener('mousemove', @_onIFrameMouseEvent)
+    doc.removeEventListener('mouseup', @_onIFrameMouseEvent)
 
   _subscribeToIFrameEvents: =>
     doc = React.findDOMNode(@).contentDocument
     _.defer =>
-      doc.addEventListener "click", @_onIFrameClick
-      doc.addEventListener "keydown", @_onIFrameKeydown
-      doc.addEventListener "mousedown", @_onIFrameMouseEvent
-      doc.addEventListener "mousemove", @_onIFrameMouseEvent
-      doc.addEventListener "mouseup", @_onIFrameMouseEvent
+      doc.addEventListener("click", @_onIFrameClick)
+      doc.addEventListener("keydown", @_onIFrameKeydown)
+      doc.addEventListener("mousedown", @_onIFrameMouseEvent)
+      doc.addEventListener("mousemove", @_onIFrameMouseEvent)
+      doc.addEventListener("mouseup", @_onIFrameMouseEvent)
 
   # The iFrame captures events that take place over it, which causes some
   # interesting behaviors. For example, when you drag and release over the
