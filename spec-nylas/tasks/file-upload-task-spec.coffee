@@ -45,12 +45,14 @@ uploadData =
 
 describe "FileUploadTask", ->
   it "rejects if not initialized with a path name", (done) ->
-    waitsForPromise shouldReject: true, ->
-      (new FileUploadTask).performLocal()
+    waitsForPromise ->
+      (new FileUploadTask).performLocal().catch (err) ->
+        expect(err instanceof Error).toBe true
 
   it "rejects if not initialized with a messageLocalId", ->
-    waitsForPromise shouldReject: true, ->
-      (new FileUploadTask(test_file_paths[0])).performLocal()
+    waitsForPromise ->
+      (new FileUploadTask(test_file_paths[0])).performLocal().catch (err) ->
+        expect(err instanceof Error).toBe true
 
   beforeEach ->
     @task = new FileUploadTask(test_file_paths[0], localId)

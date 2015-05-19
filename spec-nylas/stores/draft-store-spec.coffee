@@ -5,6 +5,7 @@ ModelQuery = require '../../src/flux/models/query'
 NamespaceStore = require '../../src/flux/stores/namespace-store'
 DatabaseStore = require '../../src/flux/stores/database-store'
 DraftStore = require '../../src/flux/stores/draft-store'
+TaskQueue = require '../../src/flux/stores/task-queue'
 SendDraftTask = require '../../src/flux/tasks/send-draft'
 DestroyDraftTask = require '../../src/flux/tasks/destroy-draft'
 Actions = require '../../src/flux/actions'
@@ -307,28 +308,28 @@ describe "DraftStore", ->
             , (thread, message) ->
               expect(message).toEqual(fakeMessage1)
               {}
-  
+
   describe "onDestroyDraft", ->
     beforeEach ->
       @draftReset = jasmine.createSpy('draft reset')
-      spyOn(Actions, 'queueTask')
-      DraftStore._draftSessions = {"abc":{
+      @session =
         draft: ->
           pristine: false
         changes:
           commit: -> Promise.resolve()
           reset: @draftReset
         cleanup: ->
-      }}
+      DraftStore._draftSessions = {"abc": @session}
+      spyOn(Actions, 'queueTask')
 
     it "should reset the draft session, ensuring no more saves are made", ->
       DraftStore._onDestroyDraft('abc')
       expect(@draftReset).toHaveBeenCalled()
 
-    it "should not do anything if the draft session is not in the window", ->
+    it "should throw if the draft session is not in the window", ->
       expect ->
         DraftStore._onDestroyDraft('other')
-      .not.toThrow()
+      .toThrow()
       expect(@draftReset).not.toHaveBeenCalled()
 
     it "should queue a destroy draft task", ->
@@ -337,9 +338,21 @@ describe "DraftStore", ->
       expect(Actions.queueTask.mostRecentCall.args[0] instanceof DestroyDraftTask).toBe(true)
 
     it "should clean up the draft session", ->
-      spyOn(DraftStore, 'cleanupSessionForLocalId')
+      spyOn(DraftStore, '_doneWithSession')
       DraftStore._onDestroyDraft('abc')
-      expect(DraftStore.cleanupSessionForLocalId).toHaveBeenCalledWith('abc')
+      expect(DraftStore._doneWithSession).toHaveBeenCalledWith(@session)
+
+    it "should close the window if it's a popout", ->
+      spyOn(atom, "close")
+      spyOn(DraftStore, "_isPopout").andReturn true
+      DraftStore._onDestroyDraft('abc')
+      expect(atom.close).toHaveBeenCalled()
+
+    it "should NOT close the window if isn't a popout", ->
+      spyOn(atom, "close")
+      spyOn(DraftStore, "_isPopout").andReturn false
+      DraftStore._onDestroyDraft('abc')
+      expect(atom.close).not.toHaveBeenCalled()
 
   describe "before unloading", ->
     it "should destroy pristine drafts", ->
@@ -389,7 +402,6 @@ describe "DraftStore", ->
   describe "sending a draft", ->
     draftLocalId = "local-123"
     beforeEach ->
-      DraftStore._sendingState = {}
       DraftStore._draftSessions = {}
       proxy =
         prepare: -> Promise.resolve(proxy)
@@ -398,32 +410,25 @@ describe "DraftStore", ->
         changes:
           commit: -> Promise.resolve()
       DraftStore._draftSessions[draftLocalId] = proxy
+      spyOn(DraftStore, "_doneWithSession").andCallThrough()
       spyOn(DraftStore, "trigger")
+      TaskQueue._queue = []
 
     it "sets the sending state when sending", ->
-      DraftStore._onSendDraft(draftLocalId)
-      expect(DraftStore.sendingState(draftLocalId)).toBe true
-      expect(DraftStore.trigger).toHaveBeenCalled()
+      spyOn(atom, "isMainWindow").andReturn true
+      spyOn(TaskQueue, "_update")
+      spyOn(Actions, "queueTask").andCallThrough()
+      runs ->
+        DraftStore._onSendDraft(draftLocalId)
+      waitsFor ->
+        Actions.queueTask.calls.length > 0
+      runs ->
+        expect(DraftStore.isSendingDraft(draftLocalId)).toBe true
+        expect(DraftStore.trigger).toHaveBeenCalled()
 
     it "returns false if the draft hasn't been seen", ->
-      expect(DraftStore.sendingState(draftLocalId)).toBe false
-
-    it "resets the sending state on success", ->
-      waitsForPromise ->
-        DraftStore._onSendDraft(draftLocalId).then ->
-          expect(DraftStore.sendingState(draftLocalId)).toBe true
-
-          DraftStore._onSendDraftSuccess({draftLocalId})
-          expect(DraftStore.sendingState(draftLocalId)).toBe false
-          expect(DraftStore.trigger).toHaveBeenCalled()
-
-    it "resets the sending state on error", ->
-      waitsForPromise ->
-        DraftStore._onSendDraft(draftLocalId).then ->
-          expect(DraftStore.sendingState(draftLocalId)).toBe true
-          DraftStore._onSendDraftError(draftLocalId)
-          expect(DraftStore.sendingState(draftLocalId)).toBe false
-          expect(DraftStore.trigger).toHaveBeenCalled()
+      spyOn(atom, "isMainWindow").andReturn true
+      expect(DraftStore.isSendingDraft(draftLocalId)).toBe false
 
     it "closes the window if it's a popout", ->
       spyOn(atom, "getWindowType").andReturn "composer"
@@ -432,91 +437,63 @@ describe "DraftStore", ->
       runs ->
         DraftStore._onSendDraft(draftLocalId)
       waitsFor "Atom to close", ->
-        advanceClock(1000)
         atom.close.calls.length > 0
 
     it "doesn't close the window if it's inline", ->
       spyOn(atom, "getWindowType").andReturn "other"
       spyOn(atom, "isMainWindow").andReturn false
       spyOn(atom, "close")
-      waitsForPromise ->
-        DraftStore._onSendDraft(draftLocalId).then ->
-          expect(atom.close).not.toHaveBeenCalled()
+      spyOn(DraftStore, "_isPopout").andCallThrough()
+      runs ->
+        DraftStore._onSendDraft(draftLocalId)
+      waitsFor ->
+        DraftStore._isPopout.calls.length > 0
+      runs ->
+        expect(atom.close).not.toHaveBeenCalled()
 
     it "queues a SendDraftTask", ->
       spyOn(Actions, "queueTask")
-      waitsForPromise ->
-        DraftStore._onSendDraft(draftLocalId).then ->
-          expect(Actions.queueTask).toHaveBeenCalled()
-          task = Actions.queueTask.calls[0].args[0]
-          expect(task instanceof SendDraftTask).toBe true
-          expect(task.draftLocalId).toBe draftLocalId
-          expect(task.fromPopout).toBe false
+      runs ->
+        DraftStore._onSendDraft(draftLocalId)
+      waitsFor ->
+        DraftStore._doneWithSession.calls.length > 0
+      runs ->
+        expect(Actions.queueTask).toHaveBeenCalled()
+        task = Actions.queueTask.calls[0].args[0]
+        expect(task instanceof SendDraftTask).toBe true
+        expect(task.draftLocalId).toBe draftLocalId
+        expect(task.fromPopout).toBe false
 
     it "queues a SendDraftTask with popout info", ->
       spyOn(atom, "getWindowType").andReturn "composer"
       spyOn(atom, "isMainWindow").andReturn false
       spyOn(atom, "close")
       spyOn(Actions, "queueTask")
-      waitsForPromise ->
-        DraftStore._onSendDraft(draftLocalId).then ->
-          expect(Actions.queueTask).toHaveBeenCalled()
-          task = Actions.queueTask.calls[0].args[0]
-          expect(task.fromPopout).toBe true
+      runs ->
+        DraftStore._onSendDraft(draftLocalId)
+      waitsFor ->
+        DraftStore._doneWithSession.calls.length > 0
+      runs ->
+        expect(Actions.queueTask).toHaveBeenCalled()
+        task = Actions.queueTask.calls[0].args[0]
+        expect(task.fromPopout).toBe true
 
-  describe "cleanupSessionForLocalId", ->
-    it "should destroy the draft if it is pristine", ->
-      DraftStore._draftSessions = {"abc":{
+  describe "session cleanup", ->
+    beforeEach ->
+      @draftCleanup = jasmine.createSpy('draft cleanup')
+      @session =
+        draftLocalId: "abc"
         draft: ->
-          pristine: true
-        cleanup: ->
-      }}
-      spyOn(Actions, 'queueTask')
-      DraftStore.cleanupSessionForLocalId('abc')
-      expect(Actions.queueTask).toHaveBeenCalled()
-      expect(Actions.queueTask.mostRecentCall.args[0] instanceof DestroyDraftTask).toBe(true)
+          pristine: false
+        changes:
+          commit: -> Promise.resolve()
+          reset: ->
+        cleanup: @draftCleanup
+      DraftStore._draftSessions = {"abc": @session}
+      DraftStore._doneWithSession(@session)
 
-    it "should not do anything bad if the session does not exist", ->
-      expect ->
-        DraftStore.cleanupSessionForLocalId('dne')
-      .not.toThrow()
+    it "removes from the list of draftSessions", ->
+      expect(DraftStore._draftSessions["abc"]).toBeUndefined()
 
-    describe "when in the popout composer", ->
-      beforeEach ->
-        spyOn(atom, "getWindowType").andReturn "composer"
-        spyOn(atom, "isMainWindow").andReturn false
-        DraftStore._draftSessions = {"abc":{
-          draft: ->
-            pristine: false
-          cleanup: ->
-        }}
-
-      it "should close the composer window", ->
-        spyOn(atom, 'close')
-        DraftStore.cleanupSessionForLocalId('abc')
-        advanceClock(1000)
-        expect(atom.close).toHaveBeenCalled()
-
-      it "should not close the composer window if the draft session is not in the window", ->
-        spyOn(atom, 'close')
-        DraftStore.cleanupSessionForLocalId('other-random-draft-id')
-        advanceClock(1000)
-        expect(atom.close).not.toHaveBeenCalled()
-
-    describe "when it is in a main window", ->
-      beforeEach ->
-        @cleanup = jasmine.createSpy('cleanup')
-        spyOn(atom, "isMainWindow").andReturn true
-        DraftStore._draftSessions = {"abc":{
-          draft: ->
-            pristine: false
-          cleanup: @cleanup
-        }}
-
-      it "should call proxy.cleanup() to unlink listeners", ->
-        DraftStore.cleanupSessionForLocalId('abc')
-        expect(@cleanup).toHaveBeenCalled()
-
-      it "should remove the proxy from the sessions list", ->
-        DraftStore.cleanupSessionForLocalId('abc')
-        expect(DraftStore._draftSessions).toEqual({})
+    it "Calls cleanup on the session", ->
+      expect(@draftCleanup).toHaveBeenCalled

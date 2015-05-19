@@ -64,7 +64,6 @@ AnalyticsStore = Reflux.createStore
     logout: -> {}
     fileAborted: (uploadData={}) -> {fileSize: uploadData.fileSize}
     fileUploaded: (uploadData={}) -> {fileSize: uploadData.fileSize}
-    sendDraftError: (dId, msg) -> {drafLocalId: dId, error: msg}
     sendDraftSuccess: ({draftLocalId}) -> {draftLocalId: draftLocalId}
 
   track: (action, data={}) ->

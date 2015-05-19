@@ -21,7 +21,7 @@
     "clear-cut": "0.4.0",
     "coffee-react": "^2.0.0",
     "coffee-script": "1.9.0",
-    "coffeestack": "0.8.0",
+    "coffeestack": "^1.1",
     "classnames": "1.2.1",
     "color": "^0.7.3",
     "delegato": "^1",

@@ -15,6 +15,7 @@ class TaskSubclassB extends Task
   constructor: (val) -> @bProp = val; super
 
 describe "TaskQueue", ->
+
   makeUnstartedTask = (task) ->
     TaskQueue._initializeTask(task)
     return task
@@ -50,7 +51,6 @@ describe "TaskQueue", ->
     return task
 
   beforeEach ->
-    TaskQueue._onlineStatus = true
     @task              = new Task()
     @unstartedTask     = makeUnstartedTask(new Task())
     @localStarted      = makeLocalStarted(new Task())
@@ -83,9 +83,11 @@ describe "TaskQueue", ->
     taks.queueState.performedRemote = false
     taks.queueState.notifiedOffline = false
 
-  afterEach ->
-    TaskQueue._queue = []
-    TaskQueue._completed = []
+  localSpy = (task) ->
+    spyOn(task, "performLocal").andCallFake -> Promise.resolve()
+
+  remoteSpy = (task) ->
+    spyOn(task, "performRemote").andCallFake -> Promise.resolve()
 
   describe "enqueue", ->
     it "makes sure you've queued a real task", ->
@@ -169,8 +171,8 @@ describe "TaskQueue", ->
 
   describe "process Task", ->
     it "doesn't process processing tasks", ->
-      spyOn(@remoteStarted, "performLocal")
-      spyOn(@remoteStarted, "performRemote")
+      localSpy(@remoteStarted)
+      remoteSpy(@remoteStarted)
       TaskQueue._processTask(@remoteStarted)
       expect(@remoteStarted.performLocal).not.toHaveBeenCalled()
       expect(@remoteStarted.performRemote).not.toHaveBeenCalled()
@@ -181,8 +183,8 @@ describe "TaskQueue", ->
         shouldWaitForTask: (other) -> other instanceof TaskSubclassA
 
       blockedByTask = new BlockedByTaskA()
-      spyOn(blockedByTask, "performLocal")
-      spyOn(blockedByTask, "performRemote")
+      localSpy(blockedByTask)
+      remoteSpy(blockedByTask)
 
       blockingTask = makeRemoteFailed(new TaskSubclassA())
 
@@ -199,8 +201,8 @@ describe "TaskQueue", ->
         shouldWaitForTask: (other) -> other instanceof BlockingTask
 
       blockedByTask = new BlockingTask()
-      spyOn(blockedByTask, "performLocal")
-      spyOn(blockedByTask, "performRemote")
+      localSpy(blockedByTask)
+      remoteSpy(blockedByTask)
 
       blockingTask = makeRemoteFailed(new BlockingTask())
 
@@ -212,19 +214,21 @@ describe "TaskQueue", ->
       expect(blockedByTask.performRemote).not.toHaveBeenCalled()
 
     it "sets the processing bit", ->
-      spyOn(@unstartedTask, "performLocal").andCallFake -> Promise.resolve()
+      localSpy(@unstartedTask)
+      TaskQueue._queue = [@unstartedTask]
       TaskQueue._processTask(@unstartedTask)
       expect(@unstartedTask.queueState.isProcessing).toBe true
 
     it "performs local if it's a fresh task", ->
-      spyOn(@unstartedTask, "performLocal").andCallFake -> Promise.resolve()
+      localSpy(@unstartedTask)
+      TaskQueue._queue = [@unstartedTask]
       TaskQueue._processTask(@unstartedTask)
       expect(@unstartedTask.performLocal).toHaveBeenCalled()
 
   describe "performLocal", ->
     it "on success it marks it as complete with the timestamp", ->
-      spyOn(@unstartedTask, "performLocal").andCallFake -> Promise.resolve()
-      spyOn(@unstartedTask, "performRemote").andCallFake -> Promise.resolve()
+      localSpy(@unstartedTask)
+      remoteSpy(@unstartedTask)
       runs ->
         TaskQueue.enqueue(@unstartedTask)
       waitsFor =>
@@ -234,7 +238,7 @@ describe "TaskQueue", ->
 
     it "throws an error if it fails", ->
       spyOn(@unstartedTask, "performLocal").andCallFake -> Promise.reject("boo")
-      spyOn(@unstartedTask, "performRemote").andCallFake -> Promise.resolve()
+      remoteSpy(@unstartedTask)
       runs ->
         TaskQueue.enqueue(@unstartedTask)
       waitsFor =>
@@ -246,7 +250,7 @@ describe "TaskQueue", ->
 
     it "dequeues the task if it fails locally", ->
       spyOn(@unstartedTask, "performLocal").andCallFake -> Promise.reject("boo")
-      spyOn(@unstartedTask, "performRemote").andCallFake -> Promise.resolve()
+      remoteSpy(@unstartedTask)
       runs ->
         TaskQueue.enqueue(@unstartedTask)
       waitsFor =>
@@ -257,10 +261,10 @@ describe "TaskQueue", ->
 
   describe "performRemote", ->
     beforeEach ->
-      spyOn(@unstartedTask, "performLocal").andCallFake -> Promise.resolve()
+      localSpy(@unstartedTask)
 
     it "performs remote properly", ->
-      spyOn(@unstartedTask, "performRemote").andCallFake -> Promise.resolve()
+      remoteSpy(@unstartedTask)
       runs ->
         TaskQueue.enqueue(@unstartedTask)
       waitsFor =>
@@ -270,7 +274,7 @@ describe "TaskQueue", ->
         expect(@unstartedTask.performRemote).toHaveBeenCalled()
 
     it "dequeues on success", ->
-      spyOn(@unstartedTask, "performRemote").andCallFake -> Promise.resolve()
+      remoteSpy(@unstartedTask)
       runs ->
         TaskQueue.enqueue(@unstartedTask)
       waitsFor =>
@@ -282,7 +286,7 @@ describe "TaskQueue", ->
 
     it "notifies we're offline the first time", ->
       spyOn(TaskQueue, "_isOnline").andReturn false
-      spyOn(@unstartedTask, "performRemote").andCallFake -> Promise.resolve()
+      remoteSpy(@unstartedTask)
       spyOn(@unstartedTask, "onError")
       runs ->
         TaskQueue.enqueue(@unstartedTask)
@@ -297,8 +301,8 @@ describe "TaskQueue", ->
 
     it "doesn't notify we're offline the second+ time", ->
       spyOn(TaskQueue, "_isOnline").andReturn false
-      spyOn(@remoteFailed, "performLocal").andCallFake -> Promise.resolve()
-      spyOn(@remoteFailed, "performRemote").andCallFake -> Promise.resolve()
+      localSpy(@remoteFailed)
+      remoteSpy(@remoteFailed)
       spyOn(@remoteFailed, "onError")
       @remoteFailed.queueState.notifiedOffline = true
       TaskQueue._queue = [@remoteFailed]
@@ -312,7 +316,7 @@ describe "TaskQueue", ->
         expect(@remoteFailed.onError).not.toHaveBeenCalled()
 
     it "marks performedRemote on success", ->
-      spyOn(@unstartedTask, "performRemote").andCallFake -> Promise.resolve()
+      remoteSpy(@unstartedTask)
       runs ->
         TaskQueue.enqueue(@unstartedTask)
       waitsFor =>
@@ -362,8 +366,8 @@ describe "TaskQueue", ->
                           @remoteFailed]
     it "when all tasks pass it processes all items", ->
       for task in TaskQueue._queue
-        spyOn(task, "performLocal").andCallFake -> Promise.resolve()
-        spyOn(task, "performRemote").andCallFake -> Promise.resolve()
+        localSpy(task)
+        remoteSpy(task)
       runs ->
         TaskQueue.enqueue(new Task)
       waitsFor ->

@@ -16,6 +16,8 @@ Message = require '../models/message'
 MessageUtils = require '../models/message-utils'
 Actions = require '../actions'
 
+TaskQueue = require './task-queue'
+
 {subjectWithPrefix} = require '../models/utils'
 
 {Listener, Publisher} = require '../modules/reflux-coffee'
@@ -50,19 +52,18 @@ class DraftStore
     atom.commands.add 'body',
       'application:new-message': => @_onPopoutBlankDraft()
 
+    # Remember that these two actions only fire in the current window and
+    # are picked up by the instance of the DraftStore in the current
+    # window.
     @listenTo Actions.sendDraft, @_onSendDraft
     @listenTo Actions.destroyDraft, @_onDestroyDraft
 
     @listenTo Actions.removeFile, @_onRemoveFile
     @listenTo Actions.attachFileComplete, @_onAttachFileComplete
 
-    @listenTo Actions.sendDraftError, @_onSendDraftError
-    @listenTo Actions.sendDraftSuccess, @_onSendDraftSuccess
-
     atom.onBeforeUnload @_onBeforeUnload
 
     @_draftSessions = {}
-    @_sendingState = {}
     @_extensions = []
 
     ipc.on 'mailto', @_onHandleMailtoLink
@@ -86,7 +87,7 @@ class DraftStore
   # - `localId` The {String} local ID of the draft.
   #
   # Returns a {Promise} that resolves to an {DraftStoreProxy} for the
-  # draft:
+  # draft once it has been prepared:
   sessionForLocalId: (localId) =>
     if not localId
       console.log((new Error).stack)
@@ -95,7 +96,15 @@ class DraftStore
     @_draftSessions[localId].prepare()
 
   # Public: Look up the sending state of the given draft Id.
-  sendingState: (draftLocalId) -> @_sendingState[draftLocalId] ? false
+  # In popout windows the existance of the window is the sending state.
+  isSendingDraft: (draftLocalId) ->
+    if atom.isMainWindow()
+      task = TaskQueue.findTask
+        object: "SendDraftTask"
+        matchKey: "draftLocalId"
+        matchValue: draftLocalId
+      return task?
+    else return false
 
   ###
   Composer Extensions
@@ -123,29 +132,9 @@ class DraftStore
 
   ########### PRIVATE ####################################################
 
-  cleanupSessionForLocalId: (localId) =>
-    session = @_draftSessions[localId]
-    return unless session
-
-    draft = session.draft()
-    Actions.queueTask(new DestroyDraftTask(localId)) if draft.pristine
-
-    if atom.getWindowType() is "composer"
-      # Sometimes we swap out one ID for another. In that case we don't
-      # want to close while it's swapping. We are using a defer here to
-      # give the swap code time to put the new ID in the @_draftSessions.
-      #
-      # This defer hack prevents us from having to pass around a lock or a
-      # parameter through functions who may do this in other parts of the
-      # application.
-      _.defer =>
-        if Object.keys(@_draftSessions).length is 0
-          atom.close()
-
-    if atom.isMainWindow()
-      session.cleanup()
-
-    delete @_draftSessions[localId]
+  _doneWithSession: (session) ->
+    session.cleanup()
+    delete @_draftSessions[session.draftLocalId]
 
   _onBeforeUnload: =>
     promises = []
@@ -357,46 +346,49 @@ class DraftStore
       DatabaseStore.localIdForModel(draft).then(@_onPopoutDraftLocalId)
 
   _onDestroyDraft: (draftLocalId) =>
+    session = @_draftSessions[draftLocalId]
+
+    if not session
+      throw new Error("Couldn't find the draft session in the current window")
+
     # Immediately reset any pending changes so no saves occur
-    @_draftSessions[draftLocalId]?.changes.reset()
+    session.changes.reset()
 
     # Queue the task to destroy the draft
     Actions.queueTask(new DestroyDraftTask(draftLocalId))
 
-    # Clean up the draft session
-    @cleanupSessionForLocalId(draftLocalId)
+    @_doneWithSession(session)
 
+    atom.close() if @_isPopout()
+
+  # The user request to send the draft
   _onSendDraft: (draftLocalId) =>
-    new Promise (resolve, reject) =>
-      @_sendingState[draftLocalId] = true
-      @trigger()
+    @sessionForLocalId(draftLocalId).then (session) =>
+      @_runExtensionsBeforeSend(session)
 
-      @sessionForLocalId(draftLocalId).then (session) =>
-        # Give third-party plugins an opportunity to sanitize draft data
-        for extension in @_extensions
-          continue unless extension.finalizeSessionBeforeSending
-          extension.finalizeSessionBeforeSending(session)
+      # Immediately save any pending changes so we don't save after sending
+      session.changes.commit().then =>
 
-        # Immediately save any pending changes so we don't save after sending
-        session.changes.commit().then =>
-          # Queue the task to send the draft
-          fromPopout = atom.getWindowType() is "composer"
-          Actions.queueTask(new SendDraftTask(draftLocalId, fromPopout: fromPopout))
+        task = new SendDraftTask draftLocalId, {fromPopout: @_isPopout()}
+        Actions.queueTask(task)
 
-          # Clean up session, close window
-          @cleanupSessionForLocalId(draftLocalId)
+        # As far as this window is concerned, we're not making any more
+        # edits and are destroying the session. If there are errors down
+        # the line, we'll make a new session and handle them later
+        @_doneWithSession(session)
 
-          resolve()
+        atom.close() if @_isPopout()
 
-  _onSendDraftError: (draftLocalId, errorMessage) ->
-    @_sendingState[draftLocalId] = false
-    if atom.getWindowType() is "composer"
-      @_onPopoutDraftLocalId(draftLocalId, {errorMessage})
     @trigger()
 
-  _onSendDraftSuccess: ({draftLocalId}) =>
-    @_sendingState[draftLocalId] = false
-    @trigger()
+  _isPopout: ->
+    atom.getWindowType() is "composer"
+
+  # Give third-party plugins an opportunity to sanitize draft data
+  _runExtensionsBeforeSend: (session) ->
+    for extension in @_extensions
+      continue unless extension.finalizeSessionBeforeSending
+      extension.finalizeSessionBeforeSending(session)
 
   _onAttachFileComplete: ({file, messageLocalId}) =>
     @sessionForLocalId(messageLocalId).then (session) ->

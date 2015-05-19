@@ -201,7 +201,6 @@ describe "SendDraftTask", ->
           email: 'dummy@nylas.com'
       @task = new SendDraftTask(@draft.id)
       spyOn(Actions, "dequeueTask")
-      spyOn(Actions, "sendDraftError")
 
     it "throws an error if the draft can't be found", ->
       spyOn(DatabaseStore, 'findByLocalId').andCallFake (klass, localId) ->
@@ -224,25 +223,15 @@ describe "SendDraftTask", ->
         @task.performRemote().catch (error) ->
           expect(error).toBe "DB error"
 
-    checkError = ->
-      expect(Actions.sendDraftError).toHaveBeenCalled()
-      args = Actions.sendDraftError.calls[0].args
-      expect(args[0]).toBe @draft.id
-      expect(args[1].length).toBeGreaterThan 0
-
     it "onAPIError notifies of the error", ->
       @task.onAPIError(message: "oh no")
-      checkError.call(@)
 
     it "onOtherError notifies of the error", ->
       @task.onOtherError()
-      checkError.call(@)
 
     it "onTimeoutError notifies of the error", ->
       @task.onTimeoutError()
-      checkError.call(@)
 
     it "onOfflineError notifies of the error and dequeues", ->
       @task.onOfflineError()
-      checkError.call(@)
       expect(Actions.dequeueTask).toHaveBeenCalledWith(@task)
