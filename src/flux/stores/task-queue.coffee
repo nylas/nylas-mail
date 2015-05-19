@@ -100,6 +100,9 @@ class TaskQueue
       performedRemote: false
       notifiedOffline: false
 
+  queue: =>
+    @_queue
+
   findTask: ({object, matchKey, matchValue}) ->
     for other in @_queue by -1
       if object is object and other[matchKey] is matchValue

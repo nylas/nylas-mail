@@ -140,10 +140,6 @@ describe "SendDraftTask", ->
       waitsForPromise => @task.performRemote().then ->
         expect(atom.playSound).toHaveBeenCalledWith("mail_sent.ogg")
 
-    it "post a notification", ->
-      waitsForPromise => @task.performRemote().then ->
-        expect(Actions.postNotification).toHaveBeenCalled()
-
     it "should start an API request to /send", ->
       waitsForPromise =>
         @task.performRemote().then =>

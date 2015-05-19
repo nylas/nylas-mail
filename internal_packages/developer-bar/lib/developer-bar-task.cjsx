@@ -3,8 +3,8 @@ classNames = require 'classnames'
 _ = require 'underscore-plus'
 {Utils} = require 'nylas-exports'
 
-class ActivityBarTask extends React.Component
-  @displayName: 'ActivityBarTask'
+class DeveloperBarTask extends React.Component
+  @displayName: 'DeveloperBarTask'
 
   constructor: (@props) ->
     @state = expanded: false
@@ -52,4 +52,4 @@ class ActivityBarTask extends React.Component
       "task-success": qs.performedLocal and qs.performedRemote
 
 
-module.exports = ActivityBarTask
+module.exports = DeveloperBarTask

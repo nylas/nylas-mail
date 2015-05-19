@@ -139,7 +139,6 @@ ThreadListStore = Reflux.createStore
     # Archive the current thread
     task = new AddRemoveTagsTask(focused, ['archive'], ['inbox'])
     Actions.queueTask(task)
-    Actions.postNotification({message: "Archived thread", type: 'success'})
 
     # Remove the current thread from selection
     @_view.selection.remove(focused)

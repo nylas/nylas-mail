@@ -1,5 +1,5 @@
 React = require "react"
-Notifications = require "./notifications"
+ActivitySidebar = require "./activity-sidebar"
 NotificationsStickyBar = require "./notifications-sticky-bar"
 {ComponentRegistry, WorkspaceStore} = require("nylas-exports")
 
@@ -7,14 +7,14 @@ module.exports =
   item: null # The DOM item the main React component renders into
 
   activate: (@state={}) ->
-    ComponentRegistry.register Notifications,
+    ComponentRegistry.register ActivitySidebar,
       location: WorkspaceStore.Location.RootSidebar
 
     ComponentRegistry.register NotificationsStickyBar,
       location: WorkspaceStore.Sheet.Global.Header
 
   deactivate: ->
-    ComponentRegistry.unregister('NotificationsStickyBar')
-    ComponentRegistry.unregister('Notifications')
+    ComponentRegistry.unregister(ActivitySidebar)
+    ComponentRegistry.unregister(NotificationsStickyBar)
 
   serialize: -> @state

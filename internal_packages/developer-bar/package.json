@@ -1,8 +1,8 @@
 {
-  "name": "inbox-activity-bar",
+  "name": "developer-bar",
   "version": "0.1.0",
   "main": "./lib/main",
-  "description": "Activity bar at the very bottom of the window",
+  "description": "Developer bar at the very bottom of the window",
   "license": "Proprietary",
   "private": true,
   "engines": {
