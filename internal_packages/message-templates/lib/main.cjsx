@@ -3,7 +3,7 @@ React = require "react"
 TemplatePicker = require './template-picker'
 TemplateStatusBar = require './template-status-bar'
 Extension = require './draft-extension'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 module.exports =
   item: null # The DOM item the main React component renders into

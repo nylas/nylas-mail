@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 Utils = require '../models/utils'
 DatabaseStore = require './database-store'
 ModelView = require './model-view'

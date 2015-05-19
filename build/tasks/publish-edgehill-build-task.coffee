@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 s3 = require 's3'
 fs = require 'fs'
 path = require 'path'

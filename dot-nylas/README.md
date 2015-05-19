@@ -1,2 +1,2 @@
 # Config, Saved State, & defaults
-These are the default Inbox configs
+These are the default Nylas configs

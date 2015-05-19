@@ -1,7 +1,7 @@
 Attributes = require '../attributes'
 ModelQuery = require './query'
 {isTempId, generateTempId} = require './utils'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 ###
 Public: A base class for API objects that provides abstract support for

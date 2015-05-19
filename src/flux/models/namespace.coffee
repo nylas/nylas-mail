@@ -1,6 +1,6 @@
 Model = require './model'
 Attributes = require '../attributes'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 ###
 Public: The Namespace model represents a Namespace served by the Nylas Platform API.

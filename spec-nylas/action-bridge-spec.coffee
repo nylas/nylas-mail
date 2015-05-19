@@ -4,7 +4,7 @@ ActionBridge = require '../src/flux/action-bridge'
 Message = require '../src/flux/models/message'
 DatabaseStore = require '../src/flux/stores/database-store'
 NamespaceStore = require '../src/flux/stores/namespace-store'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 ipc =
     on: ->

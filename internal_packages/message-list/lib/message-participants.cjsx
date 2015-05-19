@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 React = require "react"
 classNames = require 'classnames'
 

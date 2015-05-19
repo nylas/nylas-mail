@@ -4,7 +4,7 @@ AddRemoveTagsTask = require '../../src/flux/tasks/add-remove-tags'
 DatabaseStore = require '../../src/flux/stores/database-store'
 Thread = require '../../src/flux/models/thread'
 Tag = require '../../src/flux/models/tag'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 testThread = null
 

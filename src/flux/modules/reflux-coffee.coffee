@@ -1,4 +1,5 @@
-_ = require('underscore-plus')
+_ = require('underscore')
+_str = require('underscore.string')
 EventEmitter = require('events').EventEmitter
 
 callbackName = (string) ->
@@ -40,7 +41,7 @@ flattenListenables = (listenables) ->
     flattened[key] = listenable
     for childKey of children
       childListenable = children[childKey]
-      flattened[key + _.capitalize(childKey)] = childListenable
+      flattened[key + _str.capitalize(childKey)] = childListenable
   flattened
 
 

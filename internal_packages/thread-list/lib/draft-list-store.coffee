@@ -1,5 +1,5 @@
 Reflux = require 'reflux'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 {Message,
  DatabaseStore,
  DatabaseView} = require 'nylas-exports'

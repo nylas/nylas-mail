@@ -2,7 +2,7 @@ Task = require './task'
 DatabaseStore = require '../stores/database-store'
 Actions = require '../actions'
 NylasAPI = require '../nylas-api'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 module.exports =
 class MarkMessageReadTask extends Task

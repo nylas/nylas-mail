@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 Matcher = require './matcher'
 SortOrder = require './sort-order'
 

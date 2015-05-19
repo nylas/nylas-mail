@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 {fork} = require 'child_process'
 {Emitter} = require 'emissary'
 

@@ -1,5 +1,5 @@
 path = require 'path'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 async = require 'async'
 fs = require 'fs-plus'
 mkdirp = require 'mkdirp'

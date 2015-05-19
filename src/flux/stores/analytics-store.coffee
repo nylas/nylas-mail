@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 Reflux = require 'reflux'
 Mixpanel = require 'mixpanel'
 

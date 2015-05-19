@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 Task = require './task'
 Actions = require '../actions'
 Metadata = require '../models/metadata'

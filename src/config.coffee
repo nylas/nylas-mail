@@ -1,4 +1,5 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
+_ = _.extend(_, require('./config-utils'))
 fs = require 'fs-plus'
 EmitterMixin = require('emissary').Emitter
 {CompositeDisposable, Disposable, Emitter} = require 'event-kit'

@@ -1,5 +1,5 @@
 React = require 'react'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 UnsafeComponent = require './unsafe-component'
 Flexbox = require './flexbox'
 InjectedComponentLabel = require './injected-component-label'

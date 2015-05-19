@@ -1,6 +1,6 @@
 # {APIError} = require '../../src/flux/errors'
 # Task = require '../../src/flux/tasks/task'
-# _ = require 'underscore-plus'
+# _ = require 'underscore'
 #
 # describe "Task", ->
 #   beforeEach ->

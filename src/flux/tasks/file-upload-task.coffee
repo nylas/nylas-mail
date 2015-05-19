@@ -1,5 +1,5 @@
 fs = require 'fs'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 pathUtils = require 'path'
 Task = require './task'
 File = require '../models/file'
@@ -34,7 +34,7 @@ class FileUploadTask extends Task
         formData: @_formData()
         error: reject
         success: (rawResponseString) =>
-          # The Inbox API returns the file json wrapped in an array.
+          # The Nylas API returns the file json wrapped in an array.
           #
           # Since we requested `json:false` the response will come back as
           # a raw string.
@@ -103,7 +103,7 @@ class FileUploadTask extends Task
     , 1000 # To see the success state for a little bit
 
   _formData: ->
-    file: # Must be named `file` as per the Inbox API spec
+    file: # Must be named `file` as per the Nylas API spec
       value: fs.createReadStream(@filePath)
       options:
         filename: @_uploadData().fileName

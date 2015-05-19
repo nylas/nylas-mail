@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 React = require "react"
 moment = require 'moment-timezone'
 InternalAdminStore = require "./internal-admin-store"

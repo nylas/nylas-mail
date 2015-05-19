@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 React = require 'react/addons'
 
 RangeChunkSize = 10

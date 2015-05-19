@@ -1,4 +1,5 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
+_ = _.extend(_, require('./space-pen-utils'))
 SpacePen = require 'space-pen'
 {Subscriber} = require 'emissary'
 

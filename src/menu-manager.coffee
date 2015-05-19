@@ -1,10 +1,11 @@
 path = require 'path'
 
-_ = require 'underscore-plus'
+_ = require 'underscore'
 ipc = require 'ipc'
 CSON = require 'season'
 fs = require 'fs-plus'
 {Disposable} = require 'event-kit'
+Utils = require './flux/models/utils'
 
 MenuHelpers = require './menu-helpers'
 
@@ -86,7 +87,7 @@ class MenuManager
   # Returns a {Disposable} on which `.dispose()` can be called to remove the
   # added menu items.
   add: (items) ->
-    items = _.deepClone(items)
+    items = Utils.deepClone(items)
     @merge(@template, item) for item in items
     @update()
     new Disposable => @remove(items)

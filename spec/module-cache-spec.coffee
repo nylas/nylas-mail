@@ -38,21 +38,21 @@ describe 'ModuleCache', ->
             ''
           ]
           dependencies:
-            'underscore-plus': '*'
+            'underscore': '*'
         }]
     }
     ModuleCache.add atom.getLoadSettings().resourcePath, {
       _atomModuleCache:
         dependencies: [{
-          name: 'underscore-plus'
-          version: require('underscore-plus/package.json').version
-          path: path.join('node_modules', 'underscore-plus', 'lib', 'underscore-plus.js')
+          name: 'underscore'
+          version: require('underscore/package.json').version
+          path: path.join('node_modules', 'underscore', 'lib', 'underscore.js')
         }]
     }
 
     indexPath = path.join(packagePath, 'index.js')
     fs.writeFileSync indexPath, """
-      exports.load = function() { require('underscore-plus'); };
+      exports.load = function() { require('underscore'); };
     """
 
     packageMain = require(indexPath)
@@ -69,21 +69,21 @@ describe 'ModuleCache', ->
             ''
           ]
           dependencies:
-            'underscore-plus': '0.0.1'
+            'underscore': '0.0.1'
         }]
     }
     ModuleCache.add atom.getLoadSettings().resourcePath, {
       _atomModuleCache:
         dependencies: [{
-          name: 'underscore-plus'
-          version: require('underscore-plus/package.json').version
-          path: path.join('node_modules', 'underscore-plus', 'lib', 'underscore-plus.js')
+          name: 'underscore'
+          version: require('underscore/package.json').version
+          path: path.join('node_modules', 'underscore', 'lib', 'underscore.js')
         }]
     }
 
     indexPath = path.join(packagePath, 'index.js')
     fs.writeFileSync indexPath, """
-      exports.load = function() { require('underscore-plus'); };
+      exports.load = function() { require('underscore'); };
     """
 
     packageMain = require(indexPath)

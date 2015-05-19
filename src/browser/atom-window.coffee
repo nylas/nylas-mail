@@ -3,7 +3,7 @@ app = require 'app'
 path = require 'path'
 fs = require 'fs'
 url = require 'url'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 {EventEmitter} = require 'events'
 
 module.exports =

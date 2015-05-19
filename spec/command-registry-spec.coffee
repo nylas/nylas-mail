@@ -1,5 +1,5 @@
 CommandRegistry = require '../src/command-registry'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 describe "CommandRegistry", ->
   [registry, parent, child, grandchild] = []

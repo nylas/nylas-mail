@@ -3,7 +3,7 @@ Model = require '../../src/flux/models/model'
 ModelQuery = require '../../src/flux/models/query'
 Attributes = require '../../src/flux/attributes'
 Tag = require '../../src/flux/models/tag'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 class TestModel extends Model
   @attributes =

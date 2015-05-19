@@ -1,5 +1,5 @@
 React = require 'react'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 class InjectedComponentLabel extends React.Component
   @displayName: 'InjectedComponentLabel'

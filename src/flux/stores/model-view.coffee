@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 EventEmitter = require('events').EventEmitter
 ModelViewSelection = require './model-view-selection'
 

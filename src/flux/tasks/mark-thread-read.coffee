@@ -4,7 +4,7 @@ AddRemoveTagsTask = require './add-remove-tags'
 Message = require '../models/message'
 Thread = require '../models/thread'
 Actions = require '../actions'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 # A subclass of AddRemoveTagsTask that adds a bit of additional behavior.
 # It optimistically sets unread=false on the messages in a thread when the

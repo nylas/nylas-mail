@@ -70,7 +70,7 @@
     "temp": "^0.8",
     "text-buffer": "^4.1",
     "theorist": "^1.0",
-    "underscore-plus": "^1.6",
+    "underscore": "^1.8",
     "underscore.string": "^3.0",
     "vm-compatibility-layer": "0.1.0",
     "spellchecker": "2.2.0"

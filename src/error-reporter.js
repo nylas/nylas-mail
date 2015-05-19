@@ -3,7 +3,7 @@
 
 var ErrorReporter, raven, _;
 raven = require('raven');
-_ = require('underscore-plus');
+_ = require('underscore');
 
 module.exports = ErrorReporter = (function() {
   function ErrorReporter() {

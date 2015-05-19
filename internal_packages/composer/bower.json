@@ -2,7 +2,7 @@
   "name": "composer",
   "version": "0.0.0",
   "authors": [
-    "InboxApp"
+    "Nylas"
   ],
   "moduleType": [
     "amd"

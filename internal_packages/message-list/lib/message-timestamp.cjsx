@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 moment = require 'moment-timezone'
 React = require 'react'
 {Utils} = require 'nylas-exports'

@@ -3,7 +3,7 @@
  Actions} = require "nylas-exports"
 {RetinaImg} = require 'nylas-component-kit'
 React = require "react"
-_ = require "underscore-plus"
+_ = require "underscore"
 
 class ModeToggle extends React.Component
   @displayName: 'ModeToggle'

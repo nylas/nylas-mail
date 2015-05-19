@@ -5,7 +5,7 @@ cjsxtransform = require 'coffee-react-transform'
 rimraf = require 'rimraf'
 
 fs = require 'fs-plus'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 donna = require 'donna'
 tello = require 'tello'

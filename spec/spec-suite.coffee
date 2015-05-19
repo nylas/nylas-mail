@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 fs = require 'fs-plus'
 path = require 'path'
 require './spec-helper'

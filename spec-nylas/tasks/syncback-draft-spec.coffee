@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 {generateTempId, isTempId} = require '../../src/flux/models/utils'
 
 NylasAPI = require '../../src/flux/nylas-api'

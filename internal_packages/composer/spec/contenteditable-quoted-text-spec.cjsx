@@ -3,7 +3,7 @@
 # For a test of the basic component itself see
 # contenteditable-component-spec.cjsx
 #
-_ = require "underscore-plus"
+_ = require "underscore"
 React = require "react/addons"
 ReactTestUtils = React.addons.TestUtils
 ContenteditableComponent = require "../lib/contenteditable-component",

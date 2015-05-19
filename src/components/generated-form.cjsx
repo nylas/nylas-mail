@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 classNames = require 'classnames'
 React = require 'react'
 {Utils} = require 'nylas-exports'

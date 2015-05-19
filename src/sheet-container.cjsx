@@ -4,7 +4,7 @@ Flexbox = require './components/flexbox'
 RetinaImg = require './components/retina-img'
 InjectedComponentSet = require './components/injected-component-set'
 TimeoutTransitionGroup = require './components/timeout-transition-group'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 {Actions,
  ComponentRegistry,

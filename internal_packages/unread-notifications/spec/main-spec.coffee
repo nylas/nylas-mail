@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 Contact = require '../../../src/flux/models/contact'
 Message = require '../../../src/flux/models/message'
 Thread = require '../../../src/flux/models/thread'

@@ -1,5 +1,5 @@
 React = require 'react'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 {Actions,
  ComponentRegistry,
  PriorityUICoordinator} = require "nylas-exports"

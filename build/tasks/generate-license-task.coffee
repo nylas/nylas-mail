@@ -24,7 +24,7 @@ module.exports = (grunt) ->
       done()
 
 getLicenseText = (dependencyLicenses) ->
-  {keys} = require 'underscore-plus'
+  {keys} = require 'underscore'
   text = """
     #{fs.readFileSync('LICENSE.md', 'utf8')}
 

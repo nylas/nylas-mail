@@ -17,7 +17,7 @@ module.exports =
     return if atom.config.get(NOTIF_SETTINGS_KEY) is true
 
     @services.isRegisteredForURLScheme 'mailto', (registered) =>
-      # Prompt them to make Inbox their default client
+      # Prompt them to make Nylas their default client
       unless registered
         @_unlisten = Actions.notificationActionTaken.listen(@_onNotificationActionTaken, @)
         Actions.postNotification

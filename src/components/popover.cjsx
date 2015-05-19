@@ -1,5 +1,5 @@
 React = require 'react/addons'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 {CompositeDisposable} = require 'event-kit'
 
 ###

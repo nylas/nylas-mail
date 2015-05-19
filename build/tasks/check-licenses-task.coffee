@@ -1,7 +1,7 @@
 module.exports = (grunt) ->
   grunt.registerTask 'check-licenses', 'Report the licenses of all dependencies', ->
     legalEagle = require 'legal-eagle'
-    {size, keys} = require 'underscore-plus'
+    {size, keys} = require 'underscore'
     done = @async()
 
     options =

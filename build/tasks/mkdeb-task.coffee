@@ -1,6 +1,6 @@
 fs = require 'fs'
 path = require 'path'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 module.exports = (grunt) ->
   {spawn} = require('./task-helpers')(grunt)
@@ -33,7 +33,7 @@ module.exports = (grunt) ->
 
     {name, version, description} = grunt.file.readJSON('package.json')
     section = 'devel'
-    maintainer = 'InboxApp <edgehill@nylas.com>'
+    maintainer = 'Nylas <edgehill@nylas.com>'
     installDir = '/usr'
     iconName = 'edgehill'
     getInstalledSize buildDir, (error, installedSize) ->

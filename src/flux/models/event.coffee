@@ -1,6 +1,6 @@
 Model = require './model'
 Attributes = require '../attributes'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 class Event extends Model
 

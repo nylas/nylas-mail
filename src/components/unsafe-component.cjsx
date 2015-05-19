@@ -1,5 +1,5 @@
 React = require 'react'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 ###
 Public: Renders a component provided via the `component` prop, and ensures that

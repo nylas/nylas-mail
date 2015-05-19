@@ -4,7 +4,7 @@ DatabaseStore = require '../stores/database-store'
 Actions = require '../actions'
 Tag = require '../models/tag'
 Thread = require '../models/thread'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 async = require 'async'
 
 module.exports =

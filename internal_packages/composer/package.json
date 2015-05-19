@@ -2,7 +2,7 @@
   "name": "composer",
   "version": "0.1.0",
   "main": "./lib/main",
-  "description": "Inbox Composer Component",
+  "description": "Nylas Composer Component",
   "license": "Proprietary",
   "private": true,
   "scripts": {

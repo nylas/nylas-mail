@@ -1,6 +1,6 @@
 {Emitter} = require 'event-kit'
 url = require 'url'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 class NylasLongConnection
 

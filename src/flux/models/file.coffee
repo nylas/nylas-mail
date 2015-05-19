@@ -1,7 +1,7 @@
 Model = require './model'
 Actions = require '../actions'
 Attributes = require '../attributes'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 ###
 Public: File model represents a File object served by the Nylas Platform API.

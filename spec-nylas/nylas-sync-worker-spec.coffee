@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 NylasLongConnection = require '../src/flux/nylas-long-connection'
 NylasSyncWorker = require '../src/flux/nylas-sync-worker'
 Thread = require '../src/flux/models/thread'

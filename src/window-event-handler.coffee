@@ -1,6 +1,6 @@
 path = require 'path'
 {$} = require './space-pen-extensions'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 {Disposable} = require 'event-kit'
 ipc = require 'ipc'
 shell = require 'shell'

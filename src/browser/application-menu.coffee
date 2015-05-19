@@ -1,7 +1,8 @@
 app = require 'app'
 ipc = require 'ipc'
 Menu = require 'menu'
-_ = require 'underscore-plus'
+_ = require 'underscore'
+Utils = require '../flux/models/utils'
 
 # Used to manage the global application menu.
 #
@@ -30,7 +31,7 @@ class ApplicationMenu
   setActiveTemplate: (template) ->
     unless _.isEqual(template, @activeTemplate)
       @activeTemplate = template
-      @menu = Menu.buildFromTemplate(_.deepClone(template))
+      @menu = Menu.buildFromTemplate(Utils.deepClone(template))
       Menu.setApplicationMenu(@menu)
 
     @showUpdateMenuItem(global.application.autoUpdateManager.getState())

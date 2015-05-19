@@ -2,7 +2,7 @@
 CSON = require 'season'
 KeymapManager = require 'atom-keymap'
 
-InboxTestUtils =
+NylasTestUtils =
   loadKeymap: (keymapPath) ->
     baseKeymaps = CSON.readFileSync("keymaps/base.cson")
     atom.keymaps.add("keymaps/base.cson", baseKeymaps)
@@ -15,5 +15,5 @@ InboxTestUtils =
     event = KeymapManager.buildKeydownEvent(key, target: target)
     document.dispatchEvent(event)
 
-module.exports = InboxTestUtils
+module.exports = NylasTestUtils
 

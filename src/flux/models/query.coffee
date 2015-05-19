@@ -1,5 +1,5 @@
 {Matcher, AttributeJoinedData} = require '../attributes'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 ###
 Public: ModelQuery exposes an ActiveRecord-style syntax for building database queries

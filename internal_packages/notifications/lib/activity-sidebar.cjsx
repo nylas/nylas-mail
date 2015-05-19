@@ -1,5 +1,5 @@
 React = require 'react'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 classNames = require 'classnames'
 NotificationStore = require './notifications-store'
 {Actions,

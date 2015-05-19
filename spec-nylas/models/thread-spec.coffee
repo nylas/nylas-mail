@@ -1,7 +1,7 @@
 {generateTempId} = require '../../src/flux/models/utils'
 Message = require '../../src/flux/models/message'
 Thread = require '../../src/flux/models/thread'
-_ = require 'underscore-plus'
+_ = require 'underscore'
 
 mockThread =
   namespaceId: "abc"

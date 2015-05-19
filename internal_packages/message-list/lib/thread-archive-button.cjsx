@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 React = require 'react'
 {Actions, Utils} = require 'nylas-exports'
 {RetinaImg} = require 'nylas-component-kit'

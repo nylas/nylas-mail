@@ -1,4 +1,4 @@
-_ = require 'underscore-plus'
+_ = require 'underscore'
 ChildProcess = require 'child_process'
 {Emitter} = require 'event-kit'
 path = require 'path'
