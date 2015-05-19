@@ -111,7 +111,7 @@ class EmailFrame extends React.Component
   @displayName = 'EmailFrame'
 
   render: =>
-    <EventedIFrame seamless="seamless" />
+    <EventedIFrame ref="iframe" seamless="seamless" />
 
   componentDidMount: =>
     @_mounted = true
@@ -139,6 +139,10 @@ class EmailFrame extends React.Component
     doc.write(EmailFixingStyles)
     doc.write("<div id='inbox-html-wrapper' class='#{wrapperClass}'>#{@_emailContent()}</div>")
     doc.close()
+
+    # Notify the EventedIFrame that we've replaced it's document (with `open`)
+    # so it can attach event listeners again.
+    @refs.iframe.documentWasReplaced()
 
   _setFrameHeight: =>
     _.defer =>

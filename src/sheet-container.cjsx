@@ -181,7 +181,7 @@ class SheetContainer extends React.Component
     sheetElements = @_sheetElements()
 
     <Flexbox direction="column">
-      <div name="Toolbar" style={order:0, zIndex: 2} className="sheet-toolbar">
+      <div name="Toolbar" style={order:0, zIndex: 3} className="sheet-toolbar">
         {toolbarElements[0]}
         <TimeoutTransitionGroup  leaveTimeout={125}
                                  enterTimeout={125}
@@ -190,7 +190,7 @@ class SheetContainer extends React.Component
         </TimeoutTransitionGroup>
       </div>
 
-      <div name="Header" style={order:1, zIndex: 3}>
+      <div name="Header" style={order:1, zIndex: 2}>
         <InjectedComponentSet matching={locations: [topSheet.Header, WorkspaceStore.Sheet.Global.Header]}
                               direction="column"
                               id={topSheet.id}/>
