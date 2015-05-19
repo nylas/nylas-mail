@@ -3,32 +3,48 @@ _ = require 'underscore'
 module.exports =
 class UndoManager
   constructor: ->
-    @_position = -1
+    @_historyIndex = -1
+    @_markerIndex = -1
     @_history = []
-    @_MAX_HISTORY_SIZE = 100
+    @_markers = []
+    @_MAX_HISTORY_SIZE = 1000
 
   current: ->
-    return @_history[@_position]
+    return @_history[@_historyIndex]
 
   undo: ->
-    if @_position > 0
-      @_position -= 1
-      return @_history[@_position]
+    @__saveHistoryMarker()
+    if @_historyIndex > 0
+      @_markerIndex -= 1
+      @_historyIndex = @_markers[@_markerIndex]
+      return @_history[@_historyIndex]
     else return null
 
   redo: ->
-    if @_position < (@_history.length - 1)
-      @_position += 1
-      return @_history[@_position]
+    @__saveHistoryMarker()
+    if @_historyIndex < (@_history.length - 1)
+      @_markerIndex += 1
+      @_historyIndex = @_markers[@_markerIndex]
+      return @_history[@_historyIndex]
     else return null
 
-  immediatelySaveToHistory: (historyItem) =>
+  saveToHistory: (historyItem) =>
     if not _.isEqual((_.last(@_history) ? {}), historyItem)
-      @_position += 1
-      @_history.length = @_position
+      @_historyIndex += 1
+      @_history.length = @_historyIndex
       @_history.push(historyItem)
+      @_saveHistoryMarker()
       while @_history.length > @_MAX_HISTORY_SIZE
         @_history.shift()
-        @_position -= 1
+        @_historyIndex -= 1
 
-  saveToHistory: _.debounce(UndoManager::immediatelySaveToHistory, 300)
+  __saveHistoryMarker: =>
+    if @_markers[@_markerIndex] isnt @_historyIndex
+      @_markerIndex += 1
+      @_markers.length = @_markerIndex
+      @_markers.push(@_historyIndex)
+      while @_markers.length > @_MAX_HISTORY_SIZE
+        @_markers.shift()
+        @_markerIndex -= 1
+
+  _saveHistoryMarker: _.debounce(UndoManager::__saveHistoryMarker, 300)

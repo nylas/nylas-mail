@@ -355,6 +355,12 @@ describe "populated composer", ->
         NylasTestUtils.keyPress("enter", React.findDOMNode(sendBtn))
         expect(@composer._sendDraft).toHaveBeenCalled()
 
+  describe "when scrolling to track your cursor", ->
+    it "it tracks when you're at the end of the text", ->
+
+    it "it doesn't track when typing in the middle of the body", ->
+
+    it "it doesn't track when typing in the middle of the body", ->
 
   describe "When composing a new message", ->
     it "Can add someone in the to field", ->
