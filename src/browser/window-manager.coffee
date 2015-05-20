@@ -19,8 +19,13 @@ class WindowManager
     if hasToken
       @showMainWindow()
     else
+      onboarding = @onboardingWindow() ? @newOnboardingWindow()
+      onboarding.showWhenLoaded()
+
       @closeMainWindow()
-      @showOnboardingWindow()
+      @unregisterAllHotWindows()
+      for win in @_windows
+        win.close() unless win is onboarding
 
   windows: ->
     @_windows
@@ -81,21 +86,29 @@ class WindowManager
         mainWindow: true
 
 
-  showOnboardingWindow: ->
-    existing = @windowWithPropsMatching({uniqueId: 'onboarding'})
-    if existing
-      existing.showWhenLoaded()
-    else
-      @newWindow
-        title: 'Welcome to Nylas'
-        frame: false
-        width: 340
-        height: 550
-        resizable: false
-        windowType: 'onboarding'
-        windowPackages: ['onboarding']
-        windowProps:
-          'uniqueId': 'onboarding'
+  ###
+  Onboarding Window
+
+  The onboarding window is a normal secondary window, but the WindowManager knows
+  how to create it itself.
+  ###
+
+  onboardingWindow: ->
+    @windowWithPropsMatching({uniqueId: 'onboarding'})
+
+  # Returns a new onboarding window
+  #
+  newOnboardingWindow: ->
+    @newWindow
+      title: 'Welcome to Nylas'
+      frame: false
+      width: 340
+      height: 550
+      resizable: false
+      windowType: 'onboarding'
+      windowPackages: ['onboarding']
+      windowProps:
+        'uniqueId': 'onboarding'
 
   # Makes a new window appear of a certain `windowType`.
   #
@@ -148,6 +161,9 @@ class WindowManager
   # Other non required options:
   #   - All of the options of BrowserWindow
   #     https://github.com/atom/atom-shell/blob/master/docs/api/browser-window.md#new-browserwindowoptions
+  #
+  # Returns a new AtomWindow
+  #
   newWindow: (options={}) ->
     supportedHotWindowKeys = [
       "title"
@@ -163,10 +179,9 @@ class WindowManager
       console.log unsupported
 
     if options.coldStart or not @_hotWindows[options.windowType]?
-      @newColdWindow(options)
+      return @newColdWindow(options)
     else
-      @newHotWindow(options)
-    return
+      return @newHotWindow(options)
 
   # This sets up some windows in the background with the requested
   # packages already pre-loaded into it.
@@ -197,6 +212,13 @@ class WindowManager
 
     @_replenishHotWindows()
 
+  unregisterAllHotWindows: ->
+    for type, {loadedWindows} of @_hotWindows
+      for win in loadedWindows
+        win.close()
+    @_replenishQueue = []
+    @_hotWindows = {}
+
   defaultWindowOptions: ->
     devMode: @devMode
     safeMode: @safeMode
@@ -209,21 +231,26 @@ class WindowManager
     options = _.extend(@defaultWindowOptions(), options)
     win = new AtomWindow(options)
     win.showWhenLoaded()
+    return win
 
   # Tries to create a new hot window. Since we're updating an existing
   # window instead of creatinga new one, there are limitations in the
   # options you can provide.
+  #
+  # Returns a new AtomWindow
+  #
   newHotWindow: (options={}) ->
     hotWindowParams = @_hotWindows[options.windowType]
+    win = null
+
     if not hotWindowParams?
       console.log "WARNING! The requested windowType '#{options.windowType}' has not been registered. Be sure to call `registerWindowType` first in your packages setup."
-      @newColdWindow(options)
-      return
+      return @newColdWindow(options)
 
     if hotWindowParams.loadedWindows.length is 0
       # No windows ready
       options.windowPackages = hotWindowParams.windowPackages
-      @newColdWindow(options)
+      win = @newColdWindow(options)
     else
       [win] = hotWindowParams.loadedWindows.splice(0,1)
       newLoadSettings = _.extend(win.loadSettings(), options)
@@ -231,6 +258,8 @@ class WindowManager
       win.showWhenLoaded()
 
     @_replenishHotWindows()
+
+    return win
 
   # There may be many windowTypes, each that request many windows of that
   # type (the `replenishNum`).
@@ -283,6 +312,11 @@ class WindowManager
         @_processReplenishQueue()
     else
       @_processingQueue = false
+
+
+  ###
+  Methods called from AtomWindow
+  ###
 
   # Public: Removes the {AtomWindow} from the global window list.
   removeWindow: (window) ->
