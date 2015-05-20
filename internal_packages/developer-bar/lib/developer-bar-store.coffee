@@ -10,7 +10,6 @@ DeveloperBarStore = Reflux.createStore
     @_setStoreDefaults()
     @_registerListeners()
 
-
   ########### PUBLIC #####################################################
 
   curlHistory: -> @_curlHistory
@@ -39,6 +38,7 @@ DeveloperBarStore = Reflux.createStore
     @listenTo Actions.longPollStateChanged, @_onLongPollStateChange
     @listenTo Actions.clearDeveloperConsole, @_onClear
     @listenTo Actions.showDeveloperConsole, @_onShow
+    @listenTo Actions.sendFeedback, @_onSendFeedback
 
   _onShow: ->
     @_visible = true
@@ -86,4 +86,58 @@ DeveloperBarStore = Reflux.createStore
 
     @triggerThrottled(@)
 
+<<<<<<< HEAD:internal_packages/inbox-activity-bar/lib/activity-bar-store.coffee
+  _onSendFeedback: ->
+    {NamespaceStore,
+     Contact,
+     Message,
+     DatabaseStore} = require 'nylas-exports'
+
+    user = NamespaceStore.current().name
+
+    debugData = JSON.stringify({
+      queries: @_curlHistory
+    }, null, '\t')
+
+    # Remove API tokens from URLs included in the debug data
+    # This regex detects ://user:pass@ and removes it.
+    debugData = debugData.replace(/:\/\/(\w)*:(\w)?@/g, '://')
+
+    draft = new Message
+      from: [NamespaceStore.current().me()]
+      to: [
+        new Contact
+          name: "Nylas Team"
+          email: "feedback@nylas.com"
+      ]
+      date: (new Date)
+      draft: true
+      subject: "Feedback"
+      namespaceId: NamespaceStore.current().id
+      body: """
+        Hi, Nylas team! I have some feedback for you.<br/>
+        <br/>
+        <b>What happened:</b><br/>
+        <br/>
+        <br/>
+        <b>Impact:</b><br/>
+        <br/>
+        <br/>
+        <b>Feedback:</b><br/>
+        <br/>
+        <br/>
+        <b>Environment:</b><br/>
+        I'm using Edgehill #{atom.getVersion()} and my platform is #{process.platform}-#{process.arch}.<br/>
+        --<br/>
+        #{user}<br/>
+        -- Extra Debugging Data --<br/>
+        #{debugData}
+      """
+    DatabaseStore.persistModel(draft).then ->
+      DatabaseStore.localIdForModel(draft).then (localId) ->
+        Actions.composePopoutDraft(localId)
+
+module.exports = ActivityBarStore
+=======
 module.exports = DeveloperBarStore
+>>>>>>> master:internal_packages/developer-bar/lib/developer-bar-store.coffee

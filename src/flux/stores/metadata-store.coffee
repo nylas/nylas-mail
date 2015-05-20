@@ -103,7 +103,8 @@ MetadataStore = Reflux.createStore
           @_metadata[metadatum.type][metadatum.publicId][metadatum.key] = metadatum.value
         @trigger()
         resolve()
-      .catch(reject)
+      .catch (err) ->
+        console.warn("Request for Metadata failed. #{err}")
 
   _onNamespaceChanged: ->
     @_namespaceId = NamespaceStore.current()?.id

@@ -1,5 +1,4 @@
 _ = require 'underscore'
-ipc = require 'ipc'
 React = require 'react/addons'
 {DatabaseStore,
  NamespaceStore,
@@ -28,7 +27,6 @@ class DeveloperBar extends React.Component
       filter: ''
 
   componentDidMount: =>
-    ipc.on 'report-issue', => @_onFeedback()
     @taskQueueUnsubscribe = TaskQueue.listen @_onChange
     @activityStoreUnsubscribe = DeveloperBarStore.listen @_onChange
 
@@ -62,7 +60,7 @@ class DeveloperBar extends React.Component
           </div>
         </div>
         <div className="btn-container pull-right">
-          <div className="btn" onClick={@_onFeedback}>Feedback</div>
+          <div className="btn" onClick={Actions.sendFeedback}>Feedback</div>
         </div>
         <div className="btn-container pull-right">
           <div className="btn" onClick={@_onToggleRegions}>Component Regions</div>
@@ -151,53 +149,6 @@ class DeveloperBar extends React.Component
 
   _onToggleRegions: =>
     Actions.toggleComponentRegions()
-
-  _onFeedback: =>
-    user = NamespaceStore.current().name
-
-    debugData = JSON.stringify({
-      queries: @state.curlHistory,
-      queue: @state.queue,
-      completed: @state.completed
-    }, null, '\t')
-
-    # Remove API tokens from URLs included in the debug data
-    # This regex detects ://user:pass@ and removes it.
-    debugData = debugData.replace(/:\/\/(\w)*:(\w)?@/g, '://')
-
-    draft = new Message
-      from: [NamespaceStore.current().me()]
-      to: [
-        new Contact
-          name: "Nylas Team"
-          email: "feedback@nylas.com"
-      ]
-      date: (new Date)
-      draft: true
-      subject: "Feedback"
-      namespaceId: NamespaceStore.current().id
-      body: """
-        Hi, Nylas team! I have some feedback for you.<br/>
-        <br/>
-        <b>What happened:</b><br/>
-        <br/>
-        <br/>
-        <b>Impact:</b><br/>
-        <br/>
-        <br/>
-        <b>Feedback:</b><br/>
-        <br/>
-        <br/>
-        <b>Environment:</b><br/>
-        I'm using Edgehill #{atom.getVersion()} and my platform is #{process.platform}-#{process.arch}.<br/>
-        --<br/>
-        #{user}<br/>
-        -- Extra Debugging Data --<br/>
-        #{debugData}
-      """
-    DatabaseStore.persistModel(draft).then ->
-      DatabaseStore.localIdForModel(draft).then (localId) ->
-        Actions.composePopoutDraft(localId)
 
   _getStateFromStores: =>
     visible: DeveloperBarStore.visible()

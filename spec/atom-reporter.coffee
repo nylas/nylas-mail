@@ -206,8 +206,8 @@ class AtomReporter extends View
   specComplete: (spec) ->
     specSummaryElement = $("#spec-summary-#{spec.id}")
     specSummaryElement.removeClass('pending')
-    specSummaryElement.setTooltip(title: spec.getFullName(), container: '.spec-reporter')
-
+    specSummaryElement.attr('title', spec.getFullName())
+    
     results = spec.results()
     if results.skipped
       specSummaryElement.addClass("skipped")

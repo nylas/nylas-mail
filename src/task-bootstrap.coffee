@@ -10,6 +10,14 @@ setupGlobals = ->
     trace: ->
   global.__defineGetter__ 'console', -> console
 
+  fs = require 'fs'
+  fs.existsSync = (path) ->
+    try
+      fs.accessSync(path)
+      return true
+    catch
+      return false
+
   global.document =
     createElement: ->
       setAttribute: ->
@@ -24,7 +32,7 @@ setupGlobals = ->
 
   global.emit = (event, args...) ->
     process.send({event, args})
-  global.navigator = {userAgent}
+  global.navigator = {userAgent: userAgent}
   global.window = global
 
 handleEvents = ->
@@ -41,6 +49,14 @@ handleEvents = ->
     result = handler.bind({async})(args...)
     emit('task:completed', result) unless isAsync
 
+setupDeprecations = ->
+  Grim = require 'grim'
+  Grim.on 'updated', ->
+    deprecations = Grim.getDeprecations().map (deprecation) -> deprecation.serialize()
+    Grim.clearDeprecations()
+    emit('task:deprecations', deprecations)
+
 setupGlobals()
 handleEvents()
+setupDeprecations()
 handler = require(taskPath)

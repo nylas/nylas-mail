@@ -35,6 +35,8 @@ class NamespaceStore
         @_current = current
         @_namespaces = namespaces
         @trigger(@)
+    .catch (err) =>
+      console.warn("Request for Namespaces failed. #{err}")
 
   # Inbound Events
 

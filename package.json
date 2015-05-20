@@ -11,8 +11,9 @@
   "bugs": {
     "url": "https://github.com/nylas/edgehill/issues"
   },
-  "atomShellVersion": "0.21.0",
+  "atomShellVersion": "0.26.0",
   "dependencies": {
+    "asar": "^0.5.0",
     "6to5-core": "^3.5",
     "async": "^0.9",
     "atom-keymap": "^3.1",
@@ -43,9 +44,8 @@
     "moment": "^2.8",
     "moment-timezone": "^0.3",
     "nslog": "^2.0.0",
-    "oniguruma": "^4.0.0",
     "optimist": "0.4.0",
-    "pathwatcher": "^4.0",
+    "pathwatcher": "^4.4.0",
     "property-accessors": "^1",
     "q": "^1.0.1",
     "raven": "0.7.2",
@@ -73,7 +73,8 @@
     "underscore": "^1.8",
     "underscore.string": "^3.0",
     "vm-compatibility-layer": "0.1.0",
-    "spellchecker": "2.2.0"
+    "spellchecker": "2.2.0",
+    "aws-sdk": "2.1.28"
   },
   "devDependencies": {
     "proxyquire": "git+https://github.com/bengotow/proxyquire",

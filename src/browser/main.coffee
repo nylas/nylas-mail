@@ -1,6 +1,7 @@
 global.shellStartTime = Date.now()
 
 errorReporter = new (require '../error-reporter')
+
 app = require 'app'
 fs = require 'fs'
 path = require 'path'

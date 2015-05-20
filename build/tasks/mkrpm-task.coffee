@@ -31,12 +31,12 @@ module.exports = (grunt) ->
     mkdir rpmDir
 
     installDir = grunt.config.get('atom.installDir')
-    shareDir = path.join(installDir, 'share', 'edgehill')
-    iconName = path.join(shareDir, 'resources', 'app', 'resources', 'edgehill.png')
+    shareDir = path.join(installDir, 'share', 'nylas')
+    iconName = path.join(shareDir, 'resources', 'app', 'resources', 'nylas.png')
 
     data = {name, version, description, installDir, iconName}
-    specFilePath = fillTemplate(path.join('resources', 'linux', 'redhat', 'edgehill.spec'), data)
-    desktopFilePath = fillTemplate(path.join('resources', 'linux', 'edgehill.desktop'), data)
+    specFilePath = fillTemplate(path.join('resources', 'linux', 'redhat', 'nylas.spec'), data)
+    desktopFilePath = fillTemplate(path.join('resources', 'linux', 'nylas.desktop'), data)
 
     cmd = path.join('script', 'mkrpm')
     args = [specFilePath, desktopFilePath, buildDir]

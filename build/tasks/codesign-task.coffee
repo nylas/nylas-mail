@@ -44,14 +44,14 @@ module.exports = (grunt) ->
         # TODO: Don't do anything now, because we need a certificate pfx file
         # issued from a certificate authority, and we don't have one.
         return callback()
-        spawn {cmd: 'taskkill', args: ['/F', '/IM', 'atom.exe']}, ->
+        spawn {cmd: 'taskkill', args: ['/F', '/IM', 'nylas.exe']}, ->
           cmd = process.env.JANKY_SIGNTOOL ? 'signtool'
-          args = ['sign', path.join(grunt.config.get('atom.shellAppDir'), 'atom.exe')]
+          args = ['sign', path.join(grunt.config.get('atom.shellAppDir'), 'nylas.exe')]
 
           spawn {cmd, args}, (error) ->
             return callback(error) if error?
 
-            setupExePath = path.resolve(grunt.config.get('atom.buildDir'), 'installer', 'AtomSetup.exe')
+            setupExePath = path.resolve(grunt.config.get('atom.buildDir'), 'installer', 'NylasSetup.exe')
             if fs.isFileSync(setupExePath)
               args = ['sign', setupExePath]
               spawn {cmd, args}, (error) -> callback(error)

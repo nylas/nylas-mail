@@ -49,7 +49,16 @@
       { label: 'Toggle Full Screen', command: 'window:toggle-full-screen' }
     ]
   }
-
+  {
+    label: 'Developer'
+    submenu: [
+      { label: 'Open In Dev Mode...', command: 'application:open-dev' }
+      { type: 'separator' }
+      { label: 'Run Nylas Mail Specs', command: 'application:run-all-specs' }
+      { label: 'Run Package Specs', command: 'application:run-package-specs' }
+      { label: 'Toggle Developer Tools', command: 'window:toggle-dev-tools' }
+    ]
+  }
   {
     label: 'Window'
     submenu: [
@@ -65,7 +74,7 @@
   {
     label: 'Help'
     submenu: [
-      { label: 'Report Issue', command: 'application:report-issue' }
+      { label: 'Send Feedback to Nylas', command: 'application:send-feedback' }
     ]
   }
 ]

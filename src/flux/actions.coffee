@@ -125,6 +125,7 @@ class Actions
   @longPollConnected: ActionScopeMainWindow
   @longPollOffline: ActionScopeMainWindow
   @didMakeAPIRequest: ActionScopeMainWindow
+  @sendFeedback: ActionScopeMainWindow
 
 
   ###

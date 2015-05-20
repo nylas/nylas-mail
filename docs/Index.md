@@ -4,7 +4,7 @@ TitleHidden: true
 Section:     Getting Started
 ---
 
-<img src="images/edgehill.png" class="center-logo"/>
+<img src="images/nylas.png" class="center-logo"/>
 <h2 style="text-align:center;">Nylas Package API</h2>
 <p style="text-align:center; margin:auto; margin-bottom:60px;">
   The Nylas Package API allows you to create powerful extensions to Nylas Mail. The client is built on top of Electron and runs on Mac OS X, Windows, and Linux. It exposes rich APIs for working with the mail, contacts, and calendar and a robust local cache layer. Your packages can leverage NodeJS and other web technologies to create innovative new experiences.

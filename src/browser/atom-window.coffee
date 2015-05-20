@@ -10,7 +10,7 @@ module.exports =
 class AtomWindow
   _.extend @prototype, EventEmitter.prototype
 
-  @iconPath: path.resolve(__dirname, '..', '..', 'resources', 'edgehill.png')
+  @iconPath: path.resolve(__dirname, '..', '..', 'resources', 'nylas.png')
   @includeShellLoadTime: true
 
   browserWindow: null
@@ -40,6 +40,8 @@ class AtomWindow
       show: false
       title: title ? 'Nylas'
       frame: frame ? true
+      #https://atomio.slack.com/archives/electron/p1432056952000608
+      'standard-window': frame ? true
       width: width
       height: height
       resizable: resizable ? true

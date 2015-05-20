@@ -201,10 +201,12 @@ class Atom extends Model
       if event.binding.command.indexOf('application:') is 0 and event.binding.selector is "body"
         ipc.send('command', event.binding.command)
 
+    unless @inSpecMode()
+      @actionBridge = new ActionBridge(ipc)
+
     @commands = new CommandRegistry
     @packages = new PackageManager({devMode, configDirPath, resourcePath, safeMode})
     @styles = new StyleManager
-    @actionBridge = new ActionBridge(ipc)
     document.head.appendChild(new StylesElement)
     @themes = new ThemeManager({packageManager: @packages, configDirPath, resourcePath, safeMode})
     @menu = new MenuManager({resourcePath})

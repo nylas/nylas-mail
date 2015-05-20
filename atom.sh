@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This file is sym-linked to the `atom` executable.
+# This file is sym-linked to the `electron` executable.
 # It is used by `apm` when calling commands.
 
 if [ "$(uname)" == 'Darwin' ]; then
@@ -53,16 +53,16 @@ if [ $OS == 'Mac' ]; then
     exit 1
   fi
 
-  ATOM_SHELL_PATH=${ATOM_SHELL_PATH:-$EDGEHILL_PATH/atom-shell} # Set ATOM_SHELL_PATH unless it is already set
+  ELECTRON_PATH=${ELECTRON_PATH:-$EDGEHILL_PATH/atom-shell} # Set ELECTRON_PATH unless it is already set
 
   # Exit if Atom can't be found
-  if [ -z "$ATOM_SHELL_PATH" ]; then
-    echo "Cannot locate atom-shell. Be sure you have run script/grunt download-atom-shell first from $EDGEHILL_PATH"
+  if [ -z "$ELECTRON_PATH" ]; then
+    echo "Cannot locate electron. Be sure you have run script/grunt download-electron first from $EDGEHILL_PATH"
     exit 1
   fi
 
   # We find the atom-shell executable inside of the atom-shell directory.
-  $ATOM_SHELL_PATH/Atom.app/Contents/MacOS/Atom --executed-from="$(pwd)" --pid=$$ "$@" $EDGEHILL_PATH
+  $ELECTRON_PATH/Electron.app/Contents/MacOS/Electron --executed-from="$(pwd)" --pid=$$ "$@" $EDGEHILL_PATH
 
 elif [ $OS == 'Linux' ]; then
   DOT_INBOX_DIR="$HOME/.nylas"
@@ -74,16 +74,16 @@ elif [ $OS == 'Linux' ]; then
     exit 1
   fi
 
-  ATOM_SHELL_PATH=${ATOM_SHELL_PATH:-$EDGEHILL_PATH/atom-shell} # Set ATOM_SHELL_PATH unless it is already set
+  ELECTRON_PATH=${ELECTRON_PATH:-$EDGEHILL_PATH/electron} # Set ELECTRON_PATH unless it is already set
 
   # Exit if Atom can't be found
-  if [ -z "$ATOM_SHELL_PATH" ]; then
+  if [ -z "$ELECTRON_PATH" ]; then
     echo "Cannot locate atom-shell. Be sure you have run script/grunt download-atom-shell first from $EDGEHILL_PATH"
     exit 1
   fi
 
-  # We find the atom-shell executable inside of the atom-shell directory.
-  $ATOM_SHELL_PATH/atom --executed-from="$(pwd)" --pid=$$ "$@" $EDGEHILL_PATH
+  # We find the electron executable inside of the atom-shell directory.
+  $ELECTRON_PATH/electron --executed-from="$(pwd)" --pid=$$ "$@" $EDGEHILL_PATH
 
 fi
 

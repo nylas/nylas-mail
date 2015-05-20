@@ -1,9 +1,9 @@
 Reflux = require 'reflux'
 Actions = require '../src/flux/actions'
-ActionBridge = require '../src/flux/action-bridge'
 Message = require '../src/flux/models/message'
 DatabaseStore = require '../src/flux/stores/database-store'
 NamespaceStore = require '../src/flux/stores/namespace-store'
+ActionBridge = require '../src/flux/action-bridge',
 _ = require 'underscore'
 
 ipc =
@@ -86,17 +86,16 @@ describe "ActionBridge", ->
         Actions.didSwapModel.firing = false
         @bridge.onRebroadcast(ActionBridge.TargetWindows.ALL, 'didSwapModel', [{oldModel: '1', newModel: 2}])
         expect(ipc.send).toHaveBeenCalledWith('action-bridge-rebroadcast-to-all', 'popout', 'didSwapModel', '[{"oldModel":"1","newModel":2}]')
-    
+
     describe "when called with TargetWindows.MAIN", ->
       it "should broadcast the action over IPC to the main window only", ->
         spyOn(ipc, 'send')
         Actions.didSwapModel.firing = false
         @bridge.onRebroadcast(ActionBridge.TargetWindows.MAIN, 'didSwapModel', [{oldModel: '1', newModel: 2}])
         expect(ipc.send).toHaveBeenCalledWith('action-bridge-rebroadcast-to-main', 'popout', 'didSwapModel', '[{"oldModel":"1","newModel":2}]')
-    
+
     it "should not do anything if the current invocation of the Action was triggered by itself", ->
       spyOn(ipc, 'send')
       Actions.didSwapModel.firing = true
       @bridge.onRebroadcast(ActionBridge.TargetWindows.ALL, 'didSwapModel', [{oldModel: '1', newModel: 2}])
       expect(ipc.send).not.toHaveBeenCalled()
-

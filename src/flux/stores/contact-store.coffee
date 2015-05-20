@@ -88,7 +88,8 @@ class ContactStore
         @_contactCache = contacts
         @trigger()
         resolve()
-      .catch(reject)
+      .catch (err) ->
+        console.warn("Request for Contacts failed. #{err}")
   _refreshCache: _.debounce(ContactStore::__refreshCache, 20)
 
   _onDatabaseChanged: (change) =>

@@ -15,7 +15,7 @@ module.exports = (grunt) ->
 
   getInstalledSize = (buildDir, callback) ->
     cmd = 'du'
-    args = ['-sk', path.join(buildDir, 'Edgehill')]
+    args = ['-sk', path.join(buildDir, 'Nylas')]
     spawn {cmd, args}, (error, {stdout}) ->
       installedSize = stdout.split(/\s+/)?[0] or '200000' # default to 200MB
       callback(null, installedSize)
@@ -35,12 +35,12 @@ module.exports = (grunt) ->
     section = 'devel'
     maintainer = 'Nylas <edgehill@nylas.com>'
     installDir = '/usr'
-    iconName = 'edgehill'
+    iconName = 'nylas'
     getInstalledSize buildDir, (error, installedSize) ->
       data = {name, version, description, section, arch, maintainer, installDir, iconName, installedSize}
       controlFilePath = fillTemplate(path.join('resources', 'linux', 'debian', 'control'), data)
-      desktopFilePath = fillTemplate(path.join('resources', 'linux', 'edgehill.desktop'), data)
-      icon = path.join('resources', 'edgehill.png')
+      desktopFilePath = fillTemplate(path.join('resources', 'linux', 'nylas.desktop'), data)
+      icon = path.join('resources', 'nylas.png')
 
       cmd = path.join('script', 'mkdeb')
       args = [version, arch, controlFilePath, desktopFilePath, icon, buildDir]
@@ -48,5 +48,5 @@ module.exports = (grunt) ->
         if error?
           done(error)
         else
-          grunt.log.ok "Created #{buildDir}/edgehill-#{version}-#{arch}.deb"
+          grunt.log.ok "Created #{buildDir}/nylas-#{version}-#{arch}.deb"
           done()

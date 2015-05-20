@@ -5,6 +5,8 @@ Mixpanel = require 'mixpanel'
 Actions = require '../actions'
 NamespaceStore = require './namespace-store'
 
+printToConsole = false
+
 module.exports =
 AnalyticsStore = Reflux.createStore
   init: ->
@@ -61,13 +63,16 @@ AnalyticsStore = Reflux.createStore
     fileDownloaded: -> {}
 
   coreGlobalActions: ->
-    logout: -> {}
     fileAborted: (uploadData={}) -> {fileSize: uploadData.fileSize}
     fileUploaded: (uploadData={}) -> {fileSize: uploadData.fileSize}
     sendDraftSuccess: ({draftLocalId}) -> {draftLocalId: draftLocalId}
 
   track: (action, data={}) ->
+    # send to the analytics service
     @analytics.track(action, _.extend(data, namespaceId: NamespaceStore.current()?.id))
+
+    # send to the logs that we ship to LogStash
+    console.debug(printToConsole, {action, data})
 
   identify: ->
     namespace = NamespaceStore.current()
