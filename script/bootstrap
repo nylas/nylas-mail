@@ -71,33 +71,33 @@ function bootstrap() {
   if (process.env.JANKY_SHA1 && process.platform === 'win32')
     apmInstallCommand += ' --arch=ia32';
 
-  m1  = "---> Installing Nylas Mail build tools\n"
+  m1  = "\n---> Installing Nylas Mail build tools\n"
   m1 += "     This goes inside the `build` folder and runs `npm install`\n"
   m1 += "     It will use the system `npm` to bootstrap our own Nylas Mail npm.\n"
   m1 += "     Our build tools (like Grunt) need to be compiled against Node via `npm`.\n"
   m1 += "     Everything else needs to be compiled against Chromium with `apm`.\n\n"
   m1 += "     $ "+buildInstallCommand+" "+printArgs(buildInstallOptions)+"\n"
 
-  m2  = "---> Installing apm\n"
-  m2 += "     This installs apm via Nylas Mails `npm`\n"
+  m2  = "\n\n---> Installing apm\n"
+  m2 += "     This installs apm via Nylas Mail's `npm`\n"
   m2 += "     We use this local apm copy to install all Nylas Mail dependencies & packages\n\n"
   m2 += "     $ "+apmInstallCommand+" "+printArgs(apmInstallOptions)+"\n"
 
-  m3  = "---> Cleaning apm via `apm clean`\n"
+  m3  = "\n\n---> Cleaning apm via `apm clean`\n"
 
-  m4  = "---> Installing Nylas Mail dependencies & packages via `apm install`\n\n"
+  m4  = "\n\n---> Installing Nylas Mail dependencies & packages via `apm install`\n\n"
   m4 += "     $ "+moduleInstallCommand+"\n"
 
-  m5  = "---> De-duping packages `apm clean`\n\n"
+  m5  = "\n\n---> De-duping packages `apm clean`\n\n"
   m5 += "     $ apm "+packagesToDedupe.join(' ')+"\n"
 
-  m6  = "---> Request version `apm clean`\n\n"
+  m6  = "\n\n---> Request version `apm clean`\n\n"
   m6 += "     $ apm request semver "+printArgs(semverOptions)+"\n"
 
-  m7  = "---> Getting latest Atom Shell\n\n"
+  m7  = "\n\n---> Getting latest Electron\n\n"
   var gruntCmd = ""
-  var downloadAtomShellCmd = gruntPath + " download-atom-shell --gruntfile build/Gruntfile.coffee"
-  m7 += "     $ "+downloadAtomShellCmd
+  var downloadElectronCmd = gruntPath + " download-electron --gruntfile build/Gruntfile.coffee"
+  m7 += "     $ "+downloadElectronCmd
 
   var commands = [
     {
@@ -128,7 +128,7 @@ function bootstrap() {
       options: semverOptions
     },
     {
-      command: downloadAtomShellCmd,
+      command: downloadElectronCmd,
       message: m7
     }
   ];

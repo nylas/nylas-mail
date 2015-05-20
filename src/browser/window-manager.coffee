@@ -160,7 +160,7 @@ class WindowManager
   #
   # Other non required options:
   #   - All of the options of BrowserWindow
-  #     https://github.com/atom/atom-shell/blob/master/docs/api/browser-window.md#new-browserwindowoptions
+  #     https://github.com/atom/electron/blob/master/docs/api/browser-window.md#new-browserwindowoptions
   #
   # Returns a new AtomWindow
   #

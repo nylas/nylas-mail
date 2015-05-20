@@ -53,7 +53,7 @@ if [ $OS == 'Mac' ]; then
     exit 1
   fi
 
-  ELECTRON_PATH=${ELECTRON_PATH:-$EDGEHILL_PATH/atom-shell} # Set ELECTRON_PATH unless it is already set
+  ELECTRON_PATH=${ELECTRON_PATH:-$EDGEHILL_PATH/electron} # Set ELECTRON_PATH unless it is already set
 
   # Exit if Atom can't be found
   if [ -z "$ELECTRON_PATH" ]; then
@@ -61,7 +61,7 @@ if [ $OS == 'Mac' ]; then
     exit 1
   fi
 
-  # We find the atom-shell executable inside of the atom-shell directory.
+  # We find the electron executable inside of the electron directory.
   $ELECTRON_PATH/Electron.app/Contents/MacOS/Electron --executed-from="$(pwd)" --pid=$$ "$@" $EDGEHILL_PATH
 
 elif [ $OS == 'Linux' ]; then
@@ -78,11 +78,11 @@ elif [ $OS == 'Linux' ]; then
 
   # Exit if Atom can't be found
   if [ -z "$ELECTRON_PATH" ]; then
-    echo "Cannot locate atom-shell. Be sure you have run script/grunt download-atom-shell first from $EDGEHILL_PATH"
+    echo "Cannot locate electron. Be sure you have run script/grunt download-electron first from $EDGEHILL_PATH"
     exit 1
   fi
 
-  # We find the electron executable inside of the atom-shell directory.
+  # We find the electron executable inside of the electron directory.
   $ELECTRON_PATH/electron --executed-from="$(pwd)" --pid=$$ "$@" $EDGEHILL_PATH
 
 fi
