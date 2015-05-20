@@ -20,33 +20,25 @@ module.exports = (grunt) ->
     rm path.join(buildDir, 'installer')
     mkdir path.dirname(buildDir)
 
-    # Atom-shell IS the executable. We just need to make sure our Edgehill
-    # app ends up in the correct `app` folder for atom-shell to find.
     if process.platform is 'darwin'
-      cp 'atom-shell/Atom.app', shellAppDir, filter: /default_app/
-      cp(path.join(shellAppDir, 'Contents', 'MacOS', 'Atom'),
-         path.join(shellAppDir, 'Contents', 'MacOS', 'Edgehill'))
-      rm path.join(shellAppDir, 'Contents', 'MacOS', 'Atom')
-    else if process.platform is 'win32'
-      cp 'atom-shell', shellAppDir, filter: /default_app/
-      # We can rename atom.exe to edgehill.exe, but all of the node libraries with
-      # native code are hard-linked to a file called atom.exe. For now, let's just
-      # leave it as atom.exe. https://github.com/atom/atom-shell/issues/713
+      cp 'atom-shell/Electron.app', shellAppDir, filter: /default_app/
+      cp(path.join(shellAppDir, 'Contents', 'MacOS', 'Electron'),
+         path.join(shellAppDir, 'Contents', 'MacOS', 'Nylas'))
+      rm path.join(shellAppDir, 'Contents', 'MacOS', 'Electron')
     else
       cp 'atom-shell', shellAppDir, filter: /default_app/
-      cp path.join(shellAppDir, 'atom'), path.join(shellAppDir, 'edgehill')
+      cp path.join(shellAppDir, 'atom'), path.join(shellAppDir, 'nylas')
       rm path.join(shellAppDir, 'atom')
 
     mkdir appDir
 
-    # Note that `atom.sh` can't be renamed `edgehill.sh` because `apm`
-    # is currently hard-coded to call `atom.sh`
     if process.platform isnt 'win32'
-      cp 'atom.sh', path.join(appDir, 'atom.sh')
+      cp 'atom.sh', path.resolve(appDir, '..', 'new-app', 'atom.sh')
 
     cp 'package.json', path.join(appDir, 'package.json')
-    cp path.join('resources', 'edgehill.png'), path.join(appDir, 'edgehill.png')
+    cp path.join('resources', 'nylas.png'), path.join(appDir, 'nylas.png')
 
+    packageNames = []
     packageDirectories = []
     nonPackageDirectories = [
       'benchmark'
@@ -56,26 +48,19 @@ module.exports = (grunt) ->
     ]
 
     {devDependencies} = grunt.file.readJSON('package.json')
+    for packageFolder in ['node_modules', 'internal_packages']
+      for child in fs.readdirSync(packageFolder)
+        directory = path.join(packageFolder, child)
+        if isAtomPackage(directory)
+          packageDirectories.push(directory)
+          packageNames.push(child)
+        else
+          nonPackageDirectories.push(directory)
 
-    for child in fs.readdirSync('node_modules')
-      directory = path.join('node_modules', child)
-      if isAtomPackage(directory)
-        packageDirectories.push(directory)
-      else
-        nonPackageDirectories.push(directory)
-
-    for child in fs.readdirSync('internal_packages')
-      directory = path.join('internal_packages', child)
-      if isAtomPackage(directory)
-        packageDirectories.push(directory)
-      else
-        nonPackageDirectories.push(directory)
-
-    # Put any paths here that shouldn't end up in the built Atom.app
+    # Put any paths here that shouldn't end up in the built Electron.app
     # so that it doesn't becomes larger than it needs to be.
     ignoredPaths = [
       path.join('git-utils', 'deps')
-      path.join('oniguruma', 'deps')
       path.join('less', 'dist')
       path.join('npm', 'doc')
       path.join('npm', 'html')
@@ -101,19 +86,32 @@ module.exports = (grunt) ->
       path.join('resources', 'win')
 
       # These are only require in dev mode when the grammar isn't precompiled
-      path.join('atom-keymap', 'node_modules', 'loophole')
-      path.join('atom-keymap', 'node_modules', 'pegjs')
-      path.join('atom-keymap', 'node_modules', '.bin', 'pegjs')
       path.join('snippets', 'node_modules', 'loophole')
       path.join('snippets', 'node_modules', 'pegjs')
       path.join('snippets', 'node_modules', '.bin', 'pegjs')
+
+      # These aren't needed since WeakMap is built-in
+      path.join('emissary', 'node_modules', 'es6-weak-map')
+      path.join('property-accessors', 'node_modules', 'es6-weak-map')
 
       '.DS_Store'
       '.jshintrc'
       '.npmignore'
       '.pairs'
       '.travis.yml'
+      'appveyor.yml'
+      '.idea'
+      '.editorconfig'
+      '.lint'
+      '.lintignore'
+      '.eslintrc'
+      '.jshintignore'
+      '.gitattributes'
+      '.gitkeep'
     ]
+
+    packageNames.forEach (packageName) -> ignoredPaths.push(path.join(packageName, 'spec'))
+
     ignoredPaths = ignoredPaths.map (ignoredPath) -> escapeRegExp(ignoredPath)
 
     # Add .* to avoid matching hunspell_dictionaries.
@@ -125,7 +123,6 @@ module.exports = (grunt) ->
     ignoredPaths.push "#{escapeRegExp(path.join('git-utils', 'src') + path.sep)}.*\\.(cc|h)*"
     ignoredPaths.push "#{escapeRegExp(path.join('keytar', 'src') + path.sep)}.*\\.(cc|h)*"
     ignoredPaths.push "#{escapeRegExp(path.join('nslog', 'src') + path.sep)}.*\\.(cc|h)*"
-    ignoredPaths.push "#{escapeRegExp(path.join('oniguruma', 'src') + path.sep)}.*\\.(cc|h)*"
     ignoredPaths.push "#{escapeRegExp(path.join('pathwatcher', 'src') + path.sep)}.*\\.(cc|h)*"
     ignoredPaths.push "#{escapeRegExp(path.join('runas', 'src') + path.sep)}.*\\.(cc|h)*"
     ignoredPaths.push "#{escapeRegExp(path.join('scrollbar-style', 'src') + path.sep)}.*\\.(cc|h)*"
@@ -153,7 +150,7 @@ module.exports = (grunt) ->
       pathToCopy = path.resolve(pathToCopy)
       nodeModulesFilter.test(pathToCopy) or testFolderPattern.test(pathToCopy) or exampleFolderPattern.test(pathToCopy)
 
-    packageFilter = new RegExp("(#{ignoredPaths.join('|')})|(.+\\.(coffee|cjsx|jsx)$)")
+    packageFilter = new RegExp("(#{ignoredPaths.join('|')})|(.+\\.(cson|coffee|cjsx|jsx)$)")
     filterPackage = (pathToCopy) ->
       return true if benchmarkFolderPattern.test(pathToCopy)
 
@@ -171,9 +168,9 @@ module.exports = (grunt) ->
     cp 'src', path.join(appDir, 'src'), filter: /.+\.(cson|coffee|cjsx|jsx)$/
     cp 'static', path.join(appDir, 'static')
 
-    cp path.join('apm', 'node_modules', 'atom-package-manager'), path.join(appDir, 'apm'), filter: filterNodeModule
+    cp path.join('apm', 'node_modules', 'atom-package-manager'), path.resolve(appDir, '..', 'new-app', 'apm'), filter: filterNodeModule
     if process.platform isnt 'win32'
-      fs.symlinkSync(path.join('..', '..', 'bin', 'apm'), path.join(appDir, 'apm', 'node_modules', '.bin', 'apm'))
+      fs.symlinkSync(path.join('..', '..', 'bin', 'apm'), path.resolve(appDir, '..', 'new-app', 'apm', 'node_modules', '.bin', 'apm'))
 
     if process.platform is 'darwin'
       grunt.file.recurse path.join('resources', 'mac'), (sourcePath, rootDirectory, subDirectory='', filename) ->
@@ -186,9 +183,10 @@ module.exports = (grunt) ->
       cp path.join('resources', 'win', 'atom.js'), path.join(shellAppDir, 'resources', 'cli', 'atom.js')
       cp path.join('resources', 'win', 'apm.sh'), path.join(shellAppDir, 'resources', 'cli', 'apm.sh')
 
+    if process.platform is 'linux'
+      cp path.join('resources', 'linux', 'icons'), path.join(buildDir, 'icons')
+
     dependencies = ['compile', 'generate-license:save', 'generate-module-cache', 'compile-packages-slug']
     dependencies.push('copy-info-plist') if process.platform is 'darwin'
     dependencies.push('set-exe-icon') if process.platform is 'win32'
     grunt.task.run(dependencies...)
-
-    grunt.log.ok("Built Edgehill into #{buildDir}")

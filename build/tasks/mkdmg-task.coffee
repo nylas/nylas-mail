@@ -30,12 +30,12 @@ module.exports = (grunt) ->
 
   executeDmgMaker = (dmgExecutable) ->
     new Promise (resolve, reject) ->
-      console.log("---> Bulding Edgehill DMG")
+      console.log("---> Bulding Nylas DMG")
       spawn
         cmd: dmgExecutable
         args: [
-          "--volname", "Edgehill Installer",
-          "--volicon", path.join("resources", "edgehill.png"),
+          "--volname", "Nylas Installer",
+          "--volicon", path.join("resources", "nylas.png"),
           "--window-pos", "200", "120",
           "--window-size", "800", "400",
           "--icon-size", "100",

@@ -47,7 +47,7 @@ function bootstrap() {
 
   var gruntPath = path.resolve(__dirname, '..', 'build', 'node_modules', '.bin', 'grunt');
 
-  var packagesToDedupe = ['fs-plus', 'humanize-plus', 'oniguruma', 'roaster', 'season', 'grim'];
+  var packagesToDedupe = ['fs-plus', 'humanize-plus', 'roaster', 'season', 'grim'];
 
   var buildInstallCommand = initialNpmCommand + npmFlags + 'install';
   var buildInstallOptions = {cwd: path.resolve(__dirname, '..', 'build')};

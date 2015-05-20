@@ -20,8 +20,7 @@ ipc = require 'ipc'
 CoffeeHelpers = require '../coffee-helpers'
 
 silent = atom.getLoadSettings().isSpec
-verboseFilter = (query) ->
-  false
+printToConsole = false
 
 # The DatabaseProxy dispatches queries to the Browser process via IPC and listens
 # for results. It maintains a hash of `queryRecords` representing queries that are
@@ -37,8 +36,16 @@ class DatabaseProxy
       record = @queryRecords[queryKey]
       return unless record
 
-      {callback, options} = record
-      console.timeStamp("DB END #{queryKey}. #{result?.length} chars")
+      {callback, options, start, query} = record
+
+      duration = Date.now() - start
+      metadata =
+        duration: duration
+        result_length: result?.length
+
+      console.debug(printToConsole, "DatabaseStore: #{query}", metadata)
+      if duration > 300
+        atom.errorReporter.shipLogs("Poor Query Performance")
 
       waits = Promise.resolve()
       waits = PriorityUICoordinator.settle unless options.evaluateImmediately
@@ -53,10 +60,10 @@ class DatabaseProxy
     queryKey = "#{@windowId}-#{@queryId}"
     @queryRecords[queryKey] = {
       callback: callback,
-      options: options
+      query: query,
+      options: options,
+      start: Date.now()
     }
-    console.timeStamp("DB SEND #{queryKey}: #{query}")
-    console.log(query,values) if verboseFilter(query)
     ipc.send('database-query', {@databasePath, queryKey, query, values})
 
 # DatabasePromiseTransaction converts the callback syntax of the Database
@@ -71,7 +78,7 @@ class DatabasePromiseTransaction
     # Wrap any user-provided success callback in one that checks query time
     callback = (err, result) =>
       if err
-        console.log("Query #{query}, #{JSON.stringify(values)} failed #{err.message}")
+        console.error("DatabaseStore: Query #{query}, #{JSON.stringify(values)} failed #{err.message}")
         queryFailure(err) if queryFailure
         @_reject(err)
       else

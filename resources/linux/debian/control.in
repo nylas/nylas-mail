@@ -8,4 +8,4 @@ Architecture: <%= arch %>
 Installed-Size: <%= installedSize %>
 Maintainer: <%= maintainer %>
 Description: <%= description %>
- Edgehill is an email OS
+ Nylas is an email OS

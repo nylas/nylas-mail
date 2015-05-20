@@ -14,6 +14,8 @@ TargetWindows =
 Message =
   DATABASE_STORE_TRIGGER: 'db-store-trigger'
 
+printToConsole = false
+
 # Public: ActionBridge
 #
 # The ActionBridge has two responsibilities:
@@ -37,7 +39,6 @@ class ActionBridge
     @ipc = ipc
     @initiatorId = atom.getWindowType()
     @role = if atom.isMainWindow() then Role.ROOT else Role.SECONDARY
-    @logging = false
 
     # Listen for action bridge messages from other windows
     @ipc.on('action-bridge-message', @onIPCMessage)
@@ -63,7 +64,7 @@ class ActionBridge
 
 
   onIPCMessage: (initiatorId, name, json) =>
-    console.log("#{@initiatorId} Action Bridge Received: #{name}") if @logging
+    console.debug(printToConsole, "ActionBridge: #{@initiatorId} Action Bridge Received: #{name}")
 
     # Inflate the arguments using the modelReviver to get actual
     # Models, tasks, etc. out of the JSON
@@ -96,7 +97,7 @@ class ActionBridge
       params.push(arg[0])
     json = JSON.stringify(params)
 
-    console.log("#{@initiatorId} Action Bridge Broadcasting: #{name}") if @logging
+    console.debug(printToConsole, "ActionBridge: #{@initiatorId} Action Bridge Broadcasting: #{name}")
     @ipc.send("action-bridge-rebroadcast-to-#{target}", @initiatorId, name, json)
 
 

@@ -62,13 +62,13 @@ getAssets = ->
   switch process.platform
     when 'darwin'
       [
-        {assetName: 'edgehill-mac.zip', sourcePath: 'Edgehill.app'}
-        {assetName: 'edgehill-mac-symbols.zip', sourcePath: 'Atom.breakpad.syms'}
-        {assetName: 'edgehill-api.json', sourcePath: 'edgehill-api.json'}
+        {assetName: 'nylas-mac.zip', sourcePath: 'Nylas.app'}
+        {assetName: 'nylas-mac-symbols.zip', sourcePath: 'Nylas.breakpad.syms'}
+        {assetName: 'nylas-api.json', sourcePath: 'nylas-api.json'}
       ]
     when 'win32'
-      assets = [{assetName: 'atom-windows.zip', sourcePath: 'Atom'}]
-      for squirrelAsset in ['AtomSetup.exe', 'RELEASES', "atom-#{version}-full.nupkg"]
+      assets = [{assetName: 'nylas-windows.zip', sourcePath: 'Nylas'}]
+      for squirrelAsset in ['NylasSetup.exe', 'RELEASES', "nylas-#{version}-full.nupkg"]
         cp path.join(buildDir, 'installer', squirrelAsset), path.join(buildDir, squirrelAsset)
         assets.push({assetName: squirrelAsset, sourcePath: assetName})
       assets

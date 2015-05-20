@@ -6,14 +6,11 @@ path = require 'path'
 #
 # This is necessary on Windows since it doesn't support shebang `#!` lines.
 #
-# Section: Atom
-#
 # ## Examples
 #
 # ```coffee
 #   {BufferedNodeProcess} = require 'atom'
 # ```
-#
 module.exports =
 class BufferedNodeProcess extends BufferedProcess
 
@@ -51,5 +48,8 @@ class BufferedNodeProcess extends BufferedProcess
     options.env ?= Object.create(process.env)
     options.env['ATOM_SHELL_INTERNAL_RUN_AS_NODE'] = 1
 
+    args = args?.slice() ? []
     args.unshift(command)
+    args.unshift('--no-deprecation')
+
     super({command: node, args, options, stdout, stderr, exit})

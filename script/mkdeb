@@ -17,7 +17,7 @@ FILE_MODE=755
 
 TARGET_ROOT="`mktemp -d`"
 chmod $FILE_MODE "$TARGET_ROOT"
-TARGET="$TARGET_ROOT/edgehill-$VERSION-$ARCH"
+TARGET="$TARGET_ROOT/nylas-$VERSION-$ARCH"
 
 mkdir -m $FILE_MODE -p "$TARGET/usr"
 env INSTALL_PREFIX="$TARGET/usr" script/grunt install
@@ -31,17 +31,17 @@ cp "$DESKTOP_FILE" "$TARGET/usr/share/applications"
 mkdir -m $FILE_MODE -p "$TARGET/usr/share/pixmaps"
 cp "$ICON_FILE" "$TARGET/usr/share/pixmaps"
 
-# Copy generated LICENSE.md to /usr/share/doc/edgehill/copyright
-mkdir -m $FILE_MODE -p "$TARGET/usr/share/doc/edgehill"
-cp "$TARGET/usr/share/edgehill/resources/app/LICENSE.md" "$TARGET/usr/share/doc/edgehill/copyright"
+# Copy generated LICENSE.md to /usr/share/doc/nylas/copyright
+mkdir -m $FILE_MODE -p "$TARGET/usr/share/doc/nylas"
+cp "$TARGET/usr/share/nylas/resources/app/LICENSE.md" "$TARGET/usr/share/doc/nylas/copyright"
 
 # Add lintian overrides
 mkdir -m $FILE_MODE -p "$TARGET/usr/share/lintian/overrides"
-cp "$ROOT/resources/linux/debian/lintian-overrides" "$TARGET/usr/share/lintian/overrides/edgehill"
+cp "$ROOT/resources/linux/debian/lintian-overrides" "$TARGET/usr/share/lintian/overrides/nylas"
 
 # Remove executable bit from .node files
 find "$TARGET" -type f -name "*.node" -exec chmod a-x {} \;
 
 fakeroot dpkg-deb -b "$TARGET"
-mv "$TARGET_ROOT/edgehill-$VERSION-$ARCH.deb" "$DEB_PATH"
+mv "$TARGET_ROOT/nylas-$VERSION-$ARCH.deb" "$DEB_PATH"
 rm -rf "$TARGET_ROOT"

@@ -30,10 +30,11 @@
   'ctrl--': 'window:decrease-font-size'
   'ctrl-_': 'window:decrease-font-size'
   'ctrl-0': 'window:reset-font-size'
-  'ctrl-alt-i': 'window:toggle-dev-tools'
-  'F11': 'window:toggle-full-screen'
   'ctrl-alt-r': 'window:reload'
-  'ctrl-alt-p': 'window:run-package-specs'
+  'ctrl-alt-i': 'window:toggle-dev-tools'
+  'ctrl-alt-p': 'application:run-package-specs'
+  'ctrl-alt-s': 'application:run-all-specs'
+  'F11': 'window:toggle-full-screen'
 
 'body div *[contenteditable]':
   'ctrl-z': 'core:undo'

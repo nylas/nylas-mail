@@ -38,7 +38,7 @@
   'alt-cmd-i': 'window:toggle-dev-tools'
   'cmd-ctrl-f': 'window:toggle-full-screen'
   'ctrl-alt-cmd-l': 'window:reload'
-  'cmd-alt-ctrl-p': 'window:run-package-specs'
+  'cmd-alt-ctrl-p': 'application:run-package-specs'
 
 'body div *[contenteditable]':
   'cmd-z': 'core:undo'

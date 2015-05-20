@@ -259,7 +259,7 @@ Utils =
   # WARNING. This is a fairly expensive operation and should be used
   # sparingly.
   nodeIsVisible: (node) ->
-    while node
+    while node and node isnt window.document
       style = window.getComputedStyle(node)
       node = node.parentNode
       continue unless style?

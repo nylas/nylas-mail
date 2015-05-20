@@ -75,8 +75,8 @@ module.exports = (grunt) ->
 
   [major, minor, patch] = packageJson.version.split('.')
   tmpDir = os.tmpdir()
-  appName = if process.platform is 'darwin' then 'Edgehill.app' else 'Edgehill'
-  buildDir = grunt.option('build-dir') ? path.join(tmpDir, 'edgehill-build')
+  appName = if process.platform is 'darwin' then 'Nylas.app' else 'Nylas'
+  buildDir = grunt.option('build-dir') ? path.join(tmpDir, 'nylas-build')
   buildDir = path.resolve(buildDir)
   installDir = grunt.option('install-dir')
 
@@ -89,17 +89,17 @@ module.exports = (grunt) ->
     contentsDir = shellAppDir
     appDir = path.join(shellAppDir, 'resources', 'app')
     installDir ?= path.join(process.env.ProgramFiles, appName)
-    killCommand = 'taskkill /F /IM edgehill.exe'
+    killCommand = 'taskkill /F /IM nylas.exe'
   else if process.platform is 'darwin'
     contentsDir = path.join(shellAppDir, 'Contents')
     appDir = path.join(contentsDir, 'Resources', 'app')
     installDir ?= path.join('/Applications', appName)
-    killCommand = 'pkill -9 Edgehill'
+    killCommand = 'pkill -9 Nylas'
   else
     contentsDir = shellAppDir
     appDir = path.join(shellAppDir, 'resources', 'app')
     installDir ?= process.env.INSTALL_PREFIX ? '/usr/local'
-    killCommand ='pkill -9 edgehill'
+    killCommand ='pkill -9 nylas'
 
   installDir = path.resolve(installDir)
 
@@ -284,10 +284,10 @@ module.exports = (grunt) ->
     'create-windows-installer':
       appDirectory: shellAppDir
       outputDirectory: path.join(buildDir, 'installer')
-      authors: 'Nylas'
+      authors: 'Nylas Inc.'
       loadingGif: path.resolve(__dirname, '..', 'resources', 'win', 'loading.gif')
       iconUrl: 'https://raw.githubusercontent.com/atom/atom/master/resources/win/atom.ico'
-      setupIcon: path.resolve(__dirname, '..', 'resources', 'win', 'edgehill.ico')
+      setupIcon: path.resolve(__dirname, '..', 'resources', 'win', 'nylas.ico')
 
     shell:
       'kill-atom':

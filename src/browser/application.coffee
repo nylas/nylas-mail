@@ -5,6 +5,7 @@ NylasProtocolHandler = require './nylas-protocol-handler'
 AutoUpdateManager = require './auto-update-manager'
 WindowManager = require './window-manager'
 Config = require '../config'
+dialog = require 'dialog'
 
 fs = require 'fs-plus'
 Menu = require 'menu'
@@ -25,6 +26,8 @@ socketPath =
   else
     path.join(os.tmpdir(), 'edgehill.sock')
 
+configDirPath = fs.absolute('~/.nylas')
+
 # The application's singleton class.
 #
 # It's the entry point into the Atom application and maintains the global state
@@ -34,7 +37,7 @@ module.exports =
 class Application
   _.extend @prototype, EventEmitter.prototype
 
-  # Public: The entry point into the Atom application.
+  # Public: The entry point into the Nylas Mail application.
   @open: (options) ->
     createApplication = -> new Application(options)
 
@@ -69,8 +72,7 @@ class Application
 
     global.application = this
 
-    configDirPath = fs.absolute('~/.nylas')
-    @config = new Config({configDirPath})
+    @config = new Config({configDirPath, @resourcePath})
     @config.load()
 
     @databases = {}
@@ -187,8 +189,27 @@ class Application
   # needs to manually bubble them up to the Application instance via IPC or they won't be
   # handled. This happens in workspace-element.coffee
   handleEvents: ->
-    @on 'application:run-all-specs', -> @runSpecs(exitWhenDone: false, resourcePath: global.devResourcePath, safeMode: @windowManager.focusedWindow()?.safeMode)
-    @on 'application:run-benchmarks', -> @runBenchmarks()
+    @on 'application:run-all-specs', ->
+      @runSpecs
+        exitWhenDone: false
+        resourcePath: global.devResourcePath
+        safeMode: @windowManager.focusedWindow()?.safeMode
+
+    @on 'application:run-package-specs', ->
+      dialog.showOpenDialog {
+        title: 'Choose a Package Directory'
+        defaultPath: configDirPath,
+        properties: ['openDirectory']
+      }, (filenames) =>
+        return if filenames.length is 0
+        @runSpecs
+          exitWhenDone: false
+          resourcePath: global.devResourcePath
+          specDirectory: filenames[0]
+
+    @on 'application:run-benchmarks', ->
+      @runBenchmarks()
+
     @on 'application:logout', =>
       for path, val of @databases
         @teardownDatabase(path)
@@ -202,18 +223,17 @@ class Application
       atomWindow ?= @windowManager.focusedWindow()
       atomWindow?.browserWindow.inspectElement(x, y)
 
-    @on 'application:open-documentation', -> require('shell').openExternal('https://atom.io/docs/latest/?app')
-    @on 'application:open-discussions', -> require('shell').openExternal('https://discuss.atom.io')
-    @on 'application:open-roadmap', -> require('shell').openExternal('https://atom.io/roadmap?app')
-    @on 'application:open-faq', -> require('shell').openExternal('https://atom.io/faq')
-    @on 'application:open-terms-of-use', -> require('shell').openExternal('https://atom.io/terms')
-    @on 'application:report-issue', => @_reportIssue()
-    @on 'application:search-issues', -> require('shell').openExternal('https://github.com/issues?q=+is%3Aissue+user%3Aatom')
+    @on 'application:send-feedback', => @windowManager.sendToMainWindow('send-feedback')
     @on 'application:show-main-window', => @windowManager.ensurePrimaryWindowOnscreen()
     @on 'application:check-for-update', => @autoUpdateManager.check()
     @on 'application:install-update', =>
       @quitting = true
       @autoUpdateManager.install()
+    @on 'application:open-dev', =>
+      @devMode = true
+      @windowManager.closeMainWindow()
+      @windowManager.devMode = true
+      @windowManager.ensurePrimaryWindowOnscreen()
 
     if process.platform is 'darwin'
       @on 'application:about', -> Menu.sendActionToFirstResponder('orderFrontStandardAboutPanel:')
@@ -256,9 +276,6 @@ class Application
     ipc.on 'update-application-menu', (event, template, keystrokesByCommand) =>
       win = BrowserWindow.fromWebContents(event.sender)
       @applicationMenu.update(win, template, keystrokesByCommand)
-
-    ipc.on 'run-package-specs', (event, specDirectory) =>
-      @runSpecs({resourcePath: global.devResourcePath, specDirectory: specDirectory, exitWhenDone: false})
 
     ipc.on 'command', (event, command) =>
       @emit(command)
@@ -380,6 +397,3 @@ class Application
     isSpec = true
     devMode = true
     new AtomWindow({bootstrapScript, @resourcePath, exitWhenDone, isSpec, specDirectory, devMode})
-
-  _reportIssue: ->
-    @windowManager.sendToMainWindow('report-issue')

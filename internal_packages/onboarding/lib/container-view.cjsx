@@ -31,6 +31,9 @@ class ContainerView extends React.Component
     if webview
       node = React.findDOMNode(webview)
       if node.hasListeners is undefined
+        # Remove as soon as possible. Initial src is not correctly loaded
+        # on webview, and this fixes it. Electron 0.26.0
+        setTimeout -> node.src = node.src
         node.addEventListener 'new-window', (e) ->
           require('shell').openExternal(e.url)
         node.addEventListener 'did-start-loading', (e) ->

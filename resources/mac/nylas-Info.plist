@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleExecutable</key>
-	<string>Edgehill</string>
+	<string>Nylas</string>
 	<key>CFBundleIconFile</key>
-	<string>edgehill.icns</string>
+	<string>nylas.icns</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.nylas.nylas-mail</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -48,7 +48,7 @@
 				<string>edgehill</string>
 			</array>
 			<key>CFBundleURLName</key>
-			<string>Edgehill Shared Session Protocol</string>
+			<string>Nylas Shared Session Protocol</string>
 		</dict>
 		<dict>
 			<key>CFBundleURLSchemes</key>

@@ -31,6 +31,10 @@ class WindowEventHandler
         when 'update-available'
           atom.updateAvailable(detail)
 
+        when 'send-feedback'
+          Actions = require './flux/actions'
+          Actions.sendFeedback()
+
     @subscribe ipc, 'command', (command, args...) ->
       activeElement = document.activeElement
       # Use the workspace element view if body has focus
