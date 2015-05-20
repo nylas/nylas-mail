@@ -86,7 +86,6 @@ DeveloperBarStore = Reflux.createStore
 
     @triggerThrottled(@)
 
-<<<<<<< HEAD:internal_packages/inbox-activity-bar/lib/activity-bar-store.coffee
   _onSendFeedback: ->
     {NamespaceStore,
      Contact,
@@ -127,7 +126,7 @@ DeveloperBarStore = Reflux.createStore
         <br/>
         <br/>
         <b>Environment:</b><br/>
-        I'm using Edgehill #{atom.getVersion()} and my platform is #{process.platform}-#{process.arch}.<br/>
+        I'm using Nylas Mail #{atom.getVersion()} and my platform is #{process.platform}-#{process.arch}.<br/>
         --<br/>
         #{user}<br/>
         -- Extra Debugging Data --<br/>
@@ -137,7 +136,4 @@ DeveloperBarStore = Reflux.createStore
       DatabaseStore.localIdForModel(draft).then (localId) ->
         Actions.composePopoutDraft(localId)
 
-module.exports = ActivityBarStore
-=======
 module.exports = DeveloperBarStore
->>>>>>> master:internal_packages/developer-bar/lib/developer-bar-store.coffee
