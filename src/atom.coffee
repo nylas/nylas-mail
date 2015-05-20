@@ -567,7 +567,6 @@ class Atom extends Model
   startRootWindow: ->
     {resourcePath, safeMode} = @getLoadSettings()
 
-    console.log ('startRootWindow')
     CommandInstaller = require './command-installer'
     CommandInstaller.installAtomCommand resourcePath, false, (error) ->
       console.warn error.message if error?

@@ -34,10 +34,10 @@ class AutoUpdateManager
       autoUpdater = require 'auto-updater'
 
     autoUpdater.on 'error', (event, message) =>
-      @setState(ErrorState)
       console.error "Error Downloading Update: #{message}"
+      @setState(ErrorState)
 
-    autoUpdater.setFeedUrl @feedUrl
+    autoUpdater.setFeedUrl(@feedUrl)
 
     autoUpdater.on 'checking-for-update', =>
       @setState(CheckingState)
@@ -53,6 +53,9 @@ class AutoUpdateManager
       @emitUpdateAvailableEvent(@getWindows()...)
 
     @check(hidePopups: true)
+    setInterval =>
+      @check(hidePopups: true)
+    , (1000 * 60 * 5)
 
     switch process.platform
       when 'win32'
@@ -74,10 +77,10 @@ class AutoUpdateManager
     @state
 
   check: ({hidePopups}={}) ->
+    console.log "Checking for updates..."
     unless hidePopups
       autoUpdater.once 'update-not-available', @onUpdateNotAvailable
       autoUpdater.once 'error', @onUpdateError
-
     autoUpdater.checkForUpdates()
 
   install: ->
@@ -97,7 +100,7 @@ class AutoUpdateManager
       icon: @iconURL()
       message: 'No update available.'
       title: 'No Update Available'
-      detail: "Version #{@version} is the latest version."
+      detail: "You're running the latest version of Nylas Mail (#{@version})."
 
   onUpdateError: (event, message) =>
     autoUpdater.removeListener 'update-not-available', @onUpdateNotAvailable
@@ -111,4 +114,4 @@ class AutoUpdateManager
       detail: message
 
   getWindows: ->
-    global.application.windows
+    global.application.windowManager.windows()

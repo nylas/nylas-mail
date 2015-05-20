@@ -165,19 +165,6 @@ class WindowManager
   # Returns a new AtomWindow
   #
   newWindow: (options={}) ->
-    supportedHotWindowKeys = [
-      "title"
-      "width"
-      "height"
-      "windowType"
-      "windowProps"
-    ]
-
-    unsupported =  _.difference(Object.keys(options), supportedHotWindowKeys)
-    if unsupported.length > 0
-      console.log "WARNING! You are passing in options that can't be hotLoaded into a new window. Please either change the options or pass the `coldStart:true` option to suppress this warning. If it's just data for the window, please put them in the `windowProps` param."
-      console.log unsupported
-
     if options.coldStart or not @_hotWindows[options.windowType]?
       return @newColdWindow(options)
     else
@@ -202,7 +189,7 @@ class WindowManager
   #
   registerHotWindow: ({windowType, replenishNum, windowPackages}={}) ->
     if not windowType
-      throw new Error("please provide a windowType when registering a hot window")
+      throw new Error("registerHotWindow: please provide a windowType")
 
     @_hotWindows ?= {}
     @_hotWindows[windowType] ?= {}
@@ -244,8 +231,26 @@ class WindowManager
     win = null
 
     if not hotWindowParams?
-      console.log "WARNING! The requested windowType '#{options.windowType}' has not been registered. Be sure to call `registerWindowType` first in your packages setup."
+      console.log "WindowManager: Warning! The requested windowType '#{options.windowType}'
+                  has not been registered. Be sure to call `registerWindowType` first
+                  in your packages setup."
       return @newColdWindow(options)
+
+    supportedHotWindowKeys = [
+      "title"
+      "width"
+      "height"
+      "windowType"
+      "windowProps"
+    ]
+
+    unsupported =  _.difference(Object.keys(options), supportedHotWindowKeys)
+    if unsupported.length > 0
+      console.log "WindowManager: Nylas will open a new hot window of type #{options.windowType},
+                   but you are passing options that can't be applied to the preloaded window
+                   (#{JSON.stringify(unsupported)}). Please change the options or pass the
+                   `coldStart:true` option to use a new window instead of a hot window. If
+                   it's just data for the window, please put them in the `windowProps` param."
 
     if hotWindowParams.loadedWindows.length is 0
       # No windows ready
@@ -304,7 +309,7 @@ class WindowManager
     @_processingQueue = true
     if @_replenishQueue.length > 0
       options = @_replenishQueue.shift()
-      console.log "---> Launching new '#{options.windowType}' window"
+      console.log "WindowManager: Preparing a new '#{options.windowType}' window"
       newWindow = new AtomWindow(options)
       @_hotWindows[options.windowType].loadedWindows.push(newWindow)
       newWindow.once 'window:loaded', =>

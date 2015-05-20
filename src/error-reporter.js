@@ -163,6 +163,22 @@ module.exports = ErrorReporter = (function() {
   };
 
   ErrorReporter.prototype.shipLogs = function(reason) {
+    if (!this.shipLogsQueued) {
+      var timeSinceLogShip = Date.now() - this.shipLogsTime;
+      if (timeSinceLogShip > 20000) {
+        this.runShipLogsTask(reason);
+      } else {
+        this.shipLogsQueued = true;
+        var self = this;
+        setTimeout(function() {
+          self.runShipLogsTask(reason);
+          self.shipLogsQueued = false;
+        }, 20000 - timeSinceLogShip);
+      }
+    }
+  };
+
+  ErrorReporter.prototype.runShipLogsTask = function(reason) {
     var self = this;
 
     this.shipLogsTime = Date.now();
@@ -179,27 +195,12 @@ module.exports = ErrorReporter = (function() {
 
     console.log("ErrorReporter: Shipping Logs. " + reason);
 
-    Task = require('./task')
+    Task = require('./task');
     ship = Task.once(fs.absolute('./tasks/ship-logs-task'), tmpPath, logPattern, function() {
       self.appendLog("ErrorReporter: Shipped Logs.");
     });
   };
 
-  ErrorReporter.prototype.shipLogsThrottled = function(reason) {
-    if (!this.shipLogsQueued) {
-      var timeSinceLogShip = Date.now() - this.shipLogsTime;
-      if (timeSinceLogShip > 5000) {
-        this.shipLogs(reason);
-      } else {
-        this.shipLogsQueued = true;
-        var self = this;
-        setTimeout(function() {
-          self.shipLogs(reason);
-          self.shipLogsQueued = false;
-        }, 5000 - timeSinceLogShip);
-      }
-    }
-  };
 
   ErrorReporter.prototype.getVersion = function() {
     var _ref;
@@ -224,7 +225,7 @@ module.exports = ErrorReporter = (function() {
     });
 
     this.appendLog(err, metadata);
-    this.shipLogsThrottled('Exception occurred');
+    this.shipLogs('Exception occurred');
   };
 
   return ErrorReporter;
