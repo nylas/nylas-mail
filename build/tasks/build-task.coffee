@@ -21,12 +21,12 @@ module.exports = (grunt) ->
     mkdir path.dirname(buildDir)
 
     if process.platform is 'darwin'
-      cp 'atom-shell/Electron.app', shellAppDir, filter: /default_app/
+      cp 'electron/Electron.app', shellAppDir, filter: /default_app/
       cp(path.join(shellAppDir, 'Contents', 'MacOS', 'Electron'),
          path.join(shellAppDir, 'Contents', 'MacOS', 'Nylas'))
       rm path.join(shellAppDir, 'Contents', 'MacOS', 'Electron')
     else
-      cp 'atom-shell', shellAppDir, filter: /default_app/
+      cp 'electron', shellAppDir, filter: /default_app/
       cp path.join(shellAppDir, 'atom'), path.join(shellAppDir, 'nylas')
       rm path.join(shellAppDir, 'atom')
 

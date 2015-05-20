@@ -59,8 +59,8 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks('grunt-contrib-less')
   grunt.loadNpmTasks('grunt-shell')
   grunt.loadNpmTasks('grunt-markdown')
-  grunt.loadNpmTasks('grunt-download-atom-shell')
-  grunt.loadNpmTasks('grunt-atom-shell-installer')
+  grunt.loadNpmTasks('grunt-download-electron')
+  grunt.loadNpmTasks('grunt-electron-installer')
   grunt.loadNpmTasks('grunt-peg')
   grunt.loadTasks('tasks')
 
@@ -81,7 +81,7 @@ module.exports = (grunt) ->
   installDir = grunt.option('install-dir')
 
   home = if process.platform is 'win32' then process.env.USERPROFILE else process.env.HOME
-  atomShellDownloadDir = path.join(home, '.nylas', 'atom-shell')
+  electronDownloadDir = path.join(home, '.nylas', 'electron')
 
   symbolsDir = path.join(buildDir, 'Atom.breakpad.syms')
   shellAppDir = path.join(buildDir, appName)
@@ -274,11 +274,11 @@ module.exports = (grunt) ->
             _.extend(context, parsed.attributes)
             parsed.body
 
-    'download-atom-shell':
-      version: packageJson.atomShellVersion
-      outputDir: 'atom-shell'
-      downloadDir: atomShellDownloadDir
-      rebuild: true  # rebuild native modules after atom-shell is updated
+    'download-electron':
+      version: packageJson.electronVersion
+      outputDir: 'electron'
+      downloadDir: electronDownloadDir
+      rebuild: true  # rebuild native modules after electron is updated
       token: process.env.ATOM_ACCESS_TOKEN
 
     'create-windows-installer':
@@ -302,7 +302,7 @@ module.exports = (grunt) ->
   grunt.registerTask('test', ['shell:kill-atom', 'run-edgehill-specs'])
   grunt.registerTask('docs', ['build-docs', 'render-docs'])
 
-  ciTasks = ['output-disk-space', 'download-atom-shell', 'build']
+  ciTasks = ['output-disk-space', 'download-electron', 'build']
   ciTasks.push('dump-symbols') if process.platform isnt 'win32'
   ciTasks.push('set-version', 'lint')
   ciTasks.push('mkdeb') if process.platform is 'linux'
@@ -313,7 +313,7 @@ module.exports = (grunt) ->
   ciTasks.push('publish-edgehill-build') if process.platform is 'darwin'
   grunt.registerTask('ci', ciTasks)
 
-  defaultTasks = ['download-atom-shell', 'build', 'set-version']
+  defaultTasks = ['download-electron', 'build', 'set-version']
   # We don't run `install` on linux because you need to run `sudo`.
   # See docs/build-instructions/linux.md
   # `sudo script/grunt install`
