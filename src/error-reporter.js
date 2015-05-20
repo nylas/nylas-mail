@@ -180,7 +180,7 @@ module.exports = ErrorReporter = (function() {
     console.log("ErrorReporter: Shipping Logs. " + reason);
 
     Task = require('./task')
-    ship = Task.once(fs.absolute('./tasks/ship-logs-task.coffee'), tmpPath, logPattern, function() {
+    ship = Task.once(fs.absolute('./tasks/ship-logs-task'), tmpPath, logPattern, function() {
       self.appendLog("ErrorReporter: Shipped Logs.");
     });
   };
