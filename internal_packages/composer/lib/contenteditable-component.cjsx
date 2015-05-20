@@ -346,6 +346,7 @@ class ContenteditableComponent extends React.Component
     selection = document.getSelection()
     return if @_checkSameSelection(selection)
     return unless selection.anchorNode? and selection.focusNode?
+    return unless @_selectionInScope(selection)
 
     @_previousSelection = @_selection
 
@@ -766,7 +767,6 @@ class ContenteditableComponent extends React.Component
             linkToModify: null
             editAreaWidth: editAreaWidth
 
-  # See selection API: http://www.w3.org/TR/selection-api/
   _selectionInScope: (selection) =>
     return false if not selection?
     editable = @_editableNode()
