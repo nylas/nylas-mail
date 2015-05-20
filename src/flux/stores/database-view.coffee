@@ -223,7 +223,10 @@ class DatabaseView extends ModelView
             delete page.metadata[id]
             dirtied = true
       if dirtied
-        @log('Invalidated metadata for items with ids: '+JSON.stringify(ids))
+        if ids.length < 5
+          @log("Invalidated metadata for items with ids: #{JSON.stringify(ids)}")
+        else
+          @log("Invalidated metadata for #{ids.length} items")
         @retrievePageMetadata(idx, page.items)
 
   invalidateCount: ->
