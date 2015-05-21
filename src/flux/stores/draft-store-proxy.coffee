@@ -45,6 +45,8 @@ class DraftChangeSet
 
     DatabaseStore = require './database-store'
     DatabaseStore.findByLocalId(Message, @localId).then (draft) =>
+      if not draft
+        throw new Error("Tried to commit a draft that had already been removed from the database. DraftId: #{@localId}")
       draft = @applyToModel(draft)
       DatabaseStore.persistModel(draft).then =>
         @_pending = {}
@@ -123,7 +125,8 @@ class DraftStoreProxy
     # Is this change an update to our draft?
     myDraft = _.find(change.objects, (obj) => obj.id == @_draft.id)
     if myDraft
-      @_setDraft(myDraft)
+      @_draft = _.extend @_draft, myDraft
+      @trigger()
 
   _onDraftSwapped: (change) ->
     # A draft was saved with a new ID. Since we use the draft ID to

@@ -41,14 +41,9 @@ class FileUploadTask extends Task
           try
             json = JSON.parse(rawResponseString)
             file = (new File).fromJSON(json[0])
-            Actions.uploadStateChanged @_uploadData("completed")
-            @_completedNotification(file)
-
-            clearInterval(@progress)
-            @req = null
-            resolve()
           catch error
             reject(error)
+          @_onRemoteSuccess(file, resolve, reject)
 
       @progress = setInterval =>
         Actions.uploadStateChanged(@_uploadData("progress"))
@@ -90,17 +85,21 @@ class FileUploadTask extends Task
     Actions.postNotification({message: msg, type: "error"})
     Actions.uploadStateChanged @_uploadData("failed")
 
-  # The `fileUploaded` action is needed to notify all other windows (like
-  # composers) that the file has finished uploading.
-  _completedNotification: (file) ->
-    setTimeout =>
-      # We need these to be two separate actions in this sequence so
-      # stores (like the DrafStore) can attach the file to their objects
-      # before we take action (like sending and closing the message) upon
-      # upload completion
-      Actions.attachFileComplete({file, @messageLocalId})
+  _onRemoteSuccess: (file, resolve, reject) =>
+    clearInterval(@progress)
+    @req = null
+    @_attachFileToDraft(file).then =>
+      Actions.uploadStateChanged @_uploadData("completed")
       Actions.fileUploaded(uploadData: @_uploadData("completed"))
-    , 1000 # To see the success state for a little bit
+      resolve()
+    .catch(reject)
+
+  _attachFileToDraft: (file) ->
+    DraftStore = require '../stores/draft-store'
+    DraftStore.sessionForLocalId(@messageLocalId).then (session) =>
+      files = _.clone(session.draft().files) ? []
+      files.push(file)
+      return session.changes.add({files}, true)
 
   _formData: ->
     file: # Must be named `file` as per the Nylas API spec

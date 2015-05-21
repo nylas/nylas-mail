@@ -93,7 +93,6 @@ class Actions
   @fileAborted: ActionScopeGlobal
   @downloadStateChanged: ActionScopeGlobal
   @fileUploaded: ActionScopeGlobal
-  @attachFileComplete: ActionScopeGlobal
   @multiWindowNotification: ActionScopeGlobal
   @sendDraftSuccess: ActionScopeGlobal
   @sendToAllWindows: ActionScopeGlobal
@@ -400,12 +399,24 @@ class Actions
   @createTemplate: ActionScopeWindow
   @showTemplates: ActionScopeWindow
 
+  ###
+  Public: Remove a file from a draft.
+
+  *Scope: Window*
+
+  ```
+  Actions.removeFile
+    file: fileObject
+    messageLocalId: draftLocalId
+  ```
+  ###
+  @removeFile: ActionScopeWindow
+
   # File Actions
   # Some file actions only need to be processed in their current window
   @attachFile: ActionScopeWindow
   @attachFilePath: ActionScopeWindow
   @abortUpload: ActionScopeWindow
-  @removeFile: ActionScopeWindow
   @fetchAndOpenFile: ActionScopeWindow
   @fetchAndSaveFile: ActionScopeWindow
   @fetchFile: ActionScopeWindow
