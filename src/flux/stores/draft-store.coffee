@@ -59,7 +59,6 @@ class DraftStore
     @listenTo Actions.destroyDraft, @_onDestroyDraft
 
     @listenTo Actions.removeFile, @_onRemoveFile
-    @listenTo Actions.attachFileComplete, @_onAttachFileComplete
 
     atom.onBeforeUnload @_onBeforeUnload
 
@@ -165,6 +164,7 @@ class DraftStore
     return unless change.objectClass is Message.name
     containsDraft = _.some(change.objects, (msg) -> msg.draft)
     return unless containsDraft
+    @trigger(change)
 
   _isMe: (contact={}) =>
     contact.email is NamespaceStore.current().me().email
@@ -389,12 +389,6 @@ class DraftStore
     for extension in @_extensions
       continue unless extension.finalizeSessionBeforeSending
       extension.finalizeSessionBeforeSending(session)
-
-  _onAttachFileComplete: ({file, messageLocalId}) =>
-    @sessionForLocalId(messageLocalId).then (session) ->
-      files = _.clone(session.draft().files) ? []
-      files.push(file)
-      session.changes.add({files}, true)
 
   _onRemoveFile: ({file, messageLocalId}) =>
     @sessionForLocalId(messageLocalId).then (session) ->

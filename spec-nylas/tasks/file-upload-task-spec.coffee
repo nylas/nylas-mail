@@ -6,6 +6,7 @@ Message = require '../../src/flux/models/message'
 Actions = require '../../src/flux/actions'
 
 NamespaceStore = require "../../src/flux/stores/namespace-store"
+DraftStore = require "../../src/flux/stores/draft-store"
 
 FileUploadTask = proxyquire "../../src/flux/tasks/file-upload-task",
   fs:
@@ -79,6 +80,14 @@ describe "FileUploadTask", ->
       spyOn(NylasAPI, 'makeRequest').andCallFake (reqParams) =>
         reqParams.success(testResponse) if reqParams.success
         return @req
+      @testFiles = []
+      @changes = []
+      spyOn(DraftStore, "sessionForLocalId").andCallFake =>
+        Promise.resolve(
+          draft: => files: @testFiles
+          changes:
+            add: ({files}) => @changes = files
+        )
 
     it "notifies when the task starts remote", ->
       waitsForPromise =>
@@ -93,18 +102,13 @@ describe "FileUploadTask", ->
         expect(options.method).toBe('POST')
         expect(options.formData.file.value).toBe("Read Stream")
 
-    it "passes the file to the completed notification function", ->
-      spyOn(@task, "_completedNotification").andReturn(100)
+    it "attaches the file to the draft", ->
       waitsForPromise => @task.performRemote().then =>
-        expect(@task._completedNotification).toHaveBeenCalledWith(equivalentFile)
+        expect(@changes).toEqual [equivalentFile]
 
     describe "file upload notifications", ->
       beforeEach ->
-        @fileUploadFiredLast = false
-        spyOn(Actions, "attachFileComplete").andCallFake =>
-          @fileUploadFiredLast = false
-        spyOn(Actions, "fileUploaded").andCallFake =>
-          @fileUploadFiredLast = true
+        spyOn(Actions, "fileUploaded")
         spyOn(@task, "_getBytesUploaded").andReturn(1000)
 
         runs =>
@@ -112,16 +116,6 @@ describe "FileUploadTask", ->
           advanceClock(2000)
         waitsFor ->
           Actions.fileUploaded.calls.length > 0
-
-      it "calls the `attachFileComplete` action first", ->
-        runs ->
-          expect(@fileUploadFiredLast).toBe true
-
-      it "correctly fires the attachFileComplete action", ->
-        runs ->
-          expect(Actions.attachFileComplete).toHaveBeenCalledWith
-            file: equivalentFile
-            messageLocalId: localId
 
       it "correctly fires the fileUploaded action", ->
         runs ->
