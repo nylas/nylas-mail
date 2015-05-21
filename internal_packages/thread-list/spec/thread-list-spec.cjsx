@@ -219,7 +219,7 @@ describe "ThreadList", ->
   columns = [c1,c2,c3]
 
   beforeEach ->
-    NylasTestUtils.loadKeymap("internal_packages/thread-list/keymaps/thread-list.cson")
+    NylasTestUtils.loadKeymap("internal_packages/thread-list/keymaps/thread-list")
     spyOn(ThreadStore, "_onNamespaceChanged")
     spyOn(DatabaseStore, "findAll").andCallFake ->
       new Promise (resolve, reject) -> resolve(test_threads())

@@ -61,7 +61,7 @@ If you have problems with permissions don't forget to prefix with `sudo`
   script/build
   ```
 
-  This will create the Nylas Mail application at `$TMPDIR/edgehill-build/Edgehill`.
+  This will create the Nylas Mail application at `$TMPDIR/nylas-build/Nylas`.
 
 4. Install the `edgehill` and `apm` commands to `/usr/local/bin` by executing:
 
@@ -71,7 +71,7 @@ If you have problems with permissions don't forget to prefix with `sudo`
 
   To use the newly installed Nylas Mail, quit and restart all running Nylas Mail instances.
 
-5. *Optionally*, you may generate distributable packages of Nylas Mail at `$TMPDIR/edgehill-build`. Currenty, `.deb` and `.rpm` package types are supported. To create a `.deb` package run:
+5. *Optionally*, you may generate distributable packages of Nylas Mail at `$TMPDIR/nylas-build`. Currenty, `.deb` and `.rpm` package types are supported. To create a `.deb` package run:
 
   ```sh
   script/grunt mkdeb

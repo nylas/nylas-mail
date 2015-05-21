@@ -123,7 +123,7 @@ module.exports = (grunt) ->
           process.chdir(orig)
           reject(err)
 
-  grunt.registerTask "publish-edgehill-build", "Publish Edgehill build", ->
+  grunt.registerTask "publish-nylas-build", "Publish Nylas build", ->
     done = @async()
 
     dmgPath = path.join(grunt.config.get('atom.buildDir'), dmgName())

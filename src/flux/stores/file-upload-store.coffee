@@ -43,7 +43,7 @@ FileUploadStore = Reflux.createStore
       for path in pathsToOpen
         # When this task runs, we expect to hear `uploadStateChanged` actions.
         Actions.attachFilePath({messageLocalId, path})
- 
+
   _onAttachFilePath: ({messageLocalId, path}) ->
     @_verifyId(messageLocalId)
     @task = new FileUploadTask(path, messageLocalId)
@@ -63,9 +63,10 @@ FileUploadStore = Reflux.createStore
 
   _onAbortUpload: (uploadData) ->
     Actions.dequeueMatchingTask({
-      object: 'FileUploadTask',
-      matchKey: "filePath"
-      matchValue: uploadData.filePath
+      type: 'FileUploadTask',
+      matching: {
+        filePath: uploadData.filePath
+      }
     })
 
   _onFileUploaded: ({file, uploadData}) ->

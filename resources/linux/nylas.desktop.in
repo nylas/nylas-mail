@@ -1,8 +1,8 @@
 [Desktop Entry]
-Name=Edgehill
+Name=Nylas
 Comment=<%= description %>
-GenericName=Email OS
-Exec=<%= installDir %>/share/edgehill/edgehill %U
+GenericName=Nylas
+Exec=<%= installDir %>/share/nylas/nylas %U
 Icon=<%= iconName %>
 Type=Application
 StartupNotify=true

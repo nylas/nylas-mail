@@ -2,7 +2,7 @@ fs = require 'fs'
 path = require 'path'
 os = require 'os'
 
-# This is the main Gruntfile that manages building Edgehill distributions.
+# This is the main Gruntfile that manages building Nylas Mail distributions.
 # The reason it's inisde of the build/ folder is so everything can be
 # compiled against Node's v8 headers instead of Atom's v8 headers. All
 # packages in the root-level node_modules are compiled against Atom's v8
@@ -17,25 +17,25 @@ os = require 'os'
 #
 # tmpDir: /var/folders/xl/_qdlmc512sb6cpqryy_2tzzw0000gn/T/ (aka /tmp)
 #
-# buildDir    = /tmp/edgehill-build
-# shellAppDir = /tmp/edgehill-build/Edgehill.app
-# contentsDir = /tmp/edgehill-build/Edgehill.app/Contents
-# appDir      = /tmp/edgehill-build/Edgehill.app/Contents/Resources/app
+# buildDir    = /tmp/nylas-build
+# shellAppDir = /tmp/nylas-build/Nylas.app
+# contentsDir = /tmp/nylas-build/Nylas.app/Contents
+# appDir      = /tmp/nylas-build/Nylas.app/Contents/Resources/app
 #
-# installDir = /Applications/Edgehil.app
+# installDir = /Applications/Nylas.app
 #
 # And on Linux:
 #
 # tmpDir: /tmp/
 #
-# buildDir    = /tmp/edgehill-build
-# shellAppDir = /tmp/edgehill-build/Edgehill
-# contentsDir = /tmp/edgehill-build/Edgehill
-# appDir      = /tmp/edgehill-build/Edgehill/resources/app
+# buildDir    = /tmp/nylas-build
+# shellAppDir = /tmp/nylas-build/Nylas
+# contentsDir = /tmp/nylas-build/Nylas
+# appDir      = /tmp/nylas-build/Nylas/resources/app
 #
 # installDir = /usr/local OR $INSTALL_PREFIX
 # binDir     = /usr/local/bin
-# shareDir   = /usr/local/share/edgehill
+# shareDir   = /usr/local/share/nylas
 
 # Add support for obselete APIs of vm module so we can make some third-party
 # modules work under node v0.11.x.
@@ -99,7 +99,7 @@ module.exports = (grunt) ->
     contentsDir = shellAppDir
     appDir = path.join(shellAppDir, 'resources', 'app')
     installDir ?= process.env.INSTALL_PREFIX ? '/usr/local'
-    killCommand ='pkill -9 nylas'
+    killCommand = 'pkill -9 nylas'
 
   installDir = path.resolve(installDir)
 
@@ -166,18 +166,19 @@ module.exports = (grunt) ->
       dest: appDir
       ext: '.js'
 
-  for child in fs.readdirSync('node_modules') when child isnt '.bin'
-    directory = path.join('node_modules', child)
-    metadataPath = path.join(directory, 'package.json')
-    continue unless grunt.file.isFile(metadataPath)
+  for folder in ['node_modules', 'internal_packages']
+    for child in fs.readdirSync(folder) when child isnt '.bin'
+      directory = path.join(folder, child)
+      metadataPath = path.join(directory, 'package.json')
+      continue unless grunt.file.isFile(metadataPath)
 
-    {engines, theme} = grunt.file.readJSON(metadataPath)
-    if engines?.atom?
-      coffeeConfig.glob_to_multiple.src.push("#{directory}/**/*.coffee")
-      lessConfig.glob_to_multiple.src.push("#{directory}/**/*.less")
-      prebuildLessConfig.src.push("#{directory}/**/*.less") unless theme
-      csonConfig.glob_to_multiple.src.push("#{directory}/**/*.cson")
-      pegConfig.glob_to_multiple.src.push("#{directory}/**/*.pegjs")
+      {engines, theme} = grunt.file.readJSON(metadataPath)
+      if engines?.atom?
+        coffeeConfig.glob_to_multiple.src.push("#{directory}/**/*.coffee")
+        lessConfig.glob_to_multiple.src.push("#{directory}/**/*.less")
+        prebuildLessConfig.src.push("#{directory}/**/*.less") unless theme
+        csonConfig.glob_to_multiple.src.push("#{directory}/**/*.cson")
+        pegConfig.glob_to_multiple.src.push("#{directory}/**/*.pegjs")
 
   grunt.initConfig
     pkg: grunt.file.readJSON('package.json')
@@ -304,16 +305,16 @@ module.exports = (grunt) ->
 
   ciTasks = ['output-disk-space', 'download-electron', 'build']
   ciTasks.push('dump-symbols') if process.platform isnt 'win32'
-  ciTasks.push('set-version', 'lint')
+  ciTasks.push('set-version', 'lint', 'generate-asar')
   ciTasks.push('mkdeb') if process.platform is 'linux'
   ciTasks.push('test') if process.platform is 'darwin'
   ciTasks.push('codesign')
   ciTasks.push('mkdmg') if process.platform is 'darwin'
   ciTasks.push('create-windows-installer') if process.platform is 'win32'
-  ciTasks.push('publish-edgehill-build') if process.platform is 'darwin'
+  ciTasks.push('publish-nylas-build') if process.platform is 'darwin'
   grunt.registerTask('ci', ciTasks)
 
-  defaultTasks = ['download-electron', 'build', 'set-version']
+  defaultTasks = ['download-electron', 'build', 'set-version', 'generate-asar']
   # We don't run `install` on linux because you need to run `sudo`.
   # See docs/build-instructions/linux.md
   # `sudo script/grunt install`

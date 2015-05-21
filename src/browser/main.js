@@ -2,7 +2,7 @@ var app, errorReporter, fs, lstatSyncNoException, optimist, parseCommandLine, pa
 
 global.shellStartTime = Date.now();
 
-errorReporter = new (require('../error-reporter'));
+global.errorReporter = new (require('../error-reporter'));
 
 app = require('app');
 

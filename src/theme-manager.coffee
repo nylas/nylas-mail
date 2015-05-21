@@ -32,17 +32,17 @@ class ThemeManager
     stylesElement.onDidRemoveStyleElement @styleElementRemoved.bind(this)
     stylesElement.onDidUpdateStyleElement @styleElementUpdated.bind(this)
 
-    if atom.inDevMode() and not atom.inSpecMode()
-      console.log('In Dev Mode - Watching /static for LESS changes')
-      watchStylesIn = (folder) =>
-        stylePaths = fs.listTreeSync(folder)
-        PathWatcher = require 'pathwatcher'
-        for stylePath in stylePaths
-          continue unless path.extname(stylePath) is '.less'
-          PathWatcher.watch stylePath, =>
-            @activateThemes()
-      watchStylesIn("#{@resourcePath}/static")
-      watchStylesIn("#{@resourcePath}/internal_packages")
+  watchCoreStyles: ->
+    console.log('Watching /static and /internal_packages for LESS changes')
+    watchStylesIn = (folder) =>
+      stylePaths = fs.listTreeSync(folder)
+      PathWatcher = require 'pathwatcher'
+      for stylePath in stylePaths
+        continue unless path.extname(stylePath) is '.less'
+        PathWatcher.watch stylePath, =>
+          @activateThemes()
+    watchStylesIn("#{@resourcePath}/static")
+    watchStylesIn("#{@resourcePath}/internal_packages")
 
   styleElementAdded: (styleElement) ->
     {sheet} = styleElement

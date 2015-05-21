@@ -31,9 +31,20 @@ module.exports = (dir, regexPattern) ->
 
     console.log("Uploading #{logs} to S3")
 
+    # The AWS Module does some really interesting stuff - it loads it's configuration
+    # from JSON files. Unfortunately, when the app is built into an ASAR bundle, child
+    # processes forked from the main process can't seem to access files inside the archive,
+    # so AWS can't find it's JSON config. (5/20)
+    if __dirname.indexOf('app.asar') != -1
+      AWSModulePath = path.join(__dirname, '..','..','..', 'app.asar.unpacked', 'node_modules', 'aws-sdk')
+    else
+      AWSModulePath = 'aws-sdk'
+
+    console.log("Load AWS module from #{AWSModulePath}")
+
     # Note: These credentials are only good for uploading to this
     # specific bucket and can't be used for anything else.
-    AWS = require 'aws-sdk'
+    AWS = require(AWSModulePath)
     AWS.config.update
       accessKeyId: 'AKIAIEGVDSVLK3Z7UVFA',
       secretAccessKey: '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'

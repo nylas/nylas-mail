@@ -45,9 +45,10 @@ if @_thread && @_thread.isUnread()
 
 ```coffee
 Actions.dequeueMatchingTask({
-  object: 'FileUploadTask',
-  matchKey: "filePath"
-  matchValue: uploadData.filePath
+  type: 'FileUploadTask',
+  matching: {
+    filePath: uploadData.filePath
+  }
 })
 ```
 
@@ -103,11 +104,23 @@ class TaskQueue
   queue: =>
     @_queue
 
-  findTask: ({object, matchKey, matchValue}) ->
-    for other in @_queue by -1
-      if object is object and other[matchKey] is matchValue
-        return other
-    return null
+  ###
+  Public: Returns an existing task in the queue that matches the type you provide,
+  and any other match properties. Useful for checking to see if something, like
+  a "SendDraft" task is in-flight.
+
+  - `type`: The string name of the task class, or the Task class itself. (ie:
+    {SaveDraftTask} or 'SaveDraftTask')
+
+  - `matching`: Optional An {Object} with criteria to pass to _.isMatch. For a
+     SaveDraftTask, this could be {draftLocalId: "123123"}
+
+  Returns a matching {Task}, or null.
+  ###
+  findTask: (type, matching = {}) ->
+    type = type.name unless _.isString(type)
+    match = _.find @_queue, (task) -> task.constructor.name is type and _.isMatch(task, matching)
+    match ? null
 
   enqueue: (task, {silent}={}) =>
     if not (task instanceof Task)
@@ -135,8 +148,8 @@ class TaskQueue
       @dequeue(task, silent: true) if task?
     @_update()
 
-  dequeueMatching: (task) =>
-    toDequeue = @findTask(task)
+  dequeueMatching: ({type, matching}) =>
+    toDequeue = @findTask(type, matching)
 
     if not toDequeue
       console.warn("Could not find task: #{task?.object}", task)

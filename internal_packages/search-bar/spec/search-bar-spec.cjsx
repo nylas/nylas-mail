@@ -4,7 +4,7 @@ ReactTestUtils = React.addons.TestUtils
 {Actions} = require 'nylas-exports'
 
 SearchBar = require '../lib/search-bar'
-SearchSuggestionStore = require '../lib/search-suggestion-store.coffee'
+SearchSuggestionStore = require '../lib/search-suggestion-store'
 
 describe 'SearchBar', ->
   beforeEach ->

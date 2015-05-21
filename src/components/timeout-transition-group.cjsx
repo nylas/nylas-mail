@@ -21,25 +21,13 @@ animationSupported = => true
 ###
 
 addClass = (element, className) =>
-  if element.classList
-    element.classList.add className
-  else if !hasClass(element, className)
-    element.className = element.className + ' ' + className
+  element.classList.add(className)
   element
 
 removeClass = (element, className) =>
-  if hasClass(className)
-    if element.classList
-      element.classList.remove className
-    else
-      element.className = (' ' + element.className + ' ').replace(' ' + className + ' ', ' ').trim()
+  if element.classList.contains(className)
+    element.classList.remove(className)
   element
-
-hasClass = (element, className) =>
-  if element.classList
-    element.classList.contains className
-  else
-    (' ' + element.className + ' ').indexOf(' ' + className + ' ') > -1
 
 
 ###

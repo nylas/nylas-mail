@@ -6,8 +6,8 @@ ReactTestUtils = React.addons.TestUtils
  GeneratedForm,
  GeneratedFieldset} = require ('../../src/components/generated-form')
 
-fixtureModule = 'internal_packages/salesforce'
-Adapter = require path.join('../../', fixtureModule, 'lib/salesforce-schema-adapter.coffee')
+fixtureModule = path.resolve(__dirname, '..', '..', 'internal_packages', 'salesforce')
+Adapter = require(path.join(fixtureModule, 'lib/salesforce-schema-adapter'))
 fpath = path.join(fixtureModule, 'spec/fixtures/opportunity-layouts.json')
 rawData = JSON.parse(fs.readFileSync(fpath, 'utf-8'))
 testData = Adapter.convertFullEditLayout("opportunity", rawData)

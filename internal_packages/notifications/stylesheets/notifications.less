@@ -40,6 +40,9 @@
         background-color: @background-color-info;
       }
     }
+    // TODO: Necessary for Chromium 42 to render `activity-item-leave` animation
+    // properly. Removing position relative causes the div to remain visible
+    position:relative;
   }
 
   transition: height 0.4s;

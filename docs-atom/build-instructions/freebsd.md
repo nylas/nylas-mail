@@ -15,8 +15,8 @@ FreeBSD -RELEASE 64-bit is the recommended platform.
   ```sh
   git clone https://github.com/nylas/edgehill
   cd edgehill
-  script/build # Creates application at $TMPDIR/edgehill-build/Edgehill
-  sudo script/grunt install # Installs command to /usr/local/bin/edgehill
+  script/build # Creates application at $TMPDIR/nylas-build/Nylas
+  sudo script/grunt install # Installs command to /usr/local/bin/nylas
   ```
 
 ## Troubleshooting
