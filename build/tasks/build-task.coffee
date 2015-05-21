@@ -110,8 +110,6 @@ module.exports = (grunt) ->
       '.gitkeep'
     ]
 
-    packageNames.forEach (packageName) -> ignoredPaths.push(path.join(packageName, 'spec'))
-
     ignoredPaths = ignoredPaths.map (ignoredPath) -> escapeRegExp(ignoredPath)
 
     # Add .* to avoid matching hunspell_dictionaries.
@@ -141,19 +139,14 @@ module.exports = (grunt) ->
 
     testFolderPattern = new RegExp("#{escapeRegExp(path.sep)}te?sts?#{escapeRegExp(path.sep)}")
     exampleFolderPattern = new RegExp("#{escapeRegExp(path.sep)}examples?#{escapeRegExp(path.sep)}")
-    benchmarkFolderPattern = new RegExp("#{escapeRegExp(path.sep)}benchmarks?#{escapeRegExp(path.sep)}")
 
     nodeModulesFilter = new RegExp(ignoredPaths.join('|'))
     filterNodeModule = (pathToCopy) ->
-      return true if benchmarkFolderPattern.test(pathToCopy)
-
       pathToCopy = path.resolve(pathToCopy)
       nodeModulesFilter.test(pathToCopy) or testFolderPattern.test(pathToCopy) or exampleFolderPattern.test(pathToCopy)
 
     packageFilter = new RegExp("(#{ignoredPaths.join('|')})|(.+\\.(cson|coffee|cjsx|jsx)$)")
     filterPackage = (pathToCopy) ->
-      return true if benchmarkFolderPattern.test(pathToCopy)
-
       pathToCopy = path.resolve(pathToCopy)
       packageFilter.test(pathToCopy) or testFolderPattern.test(pathToCopy) or exampleFolderPattern.test(pathToCopy)
 

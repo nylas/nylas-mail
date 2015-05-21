@@ -14,7 +14,14 @@ if (process.type === 'renderer') {
   app = require('app');
 }
 
-tmpPath = app.getPath('temp');
+var tmpPath = app.getPath('temp');
+
+var logpid = process.pid;
+if (process.type === 'renderer') {
+  logpid = remote.process.pid + "." +  process.pid;
+}
+var logpath = path.join(tmpPath, 'edgehill-' + logpid + '.log');
+
 
 module.exports = ErrorReporter = (function() {
   function ErrorReporter() {
@@ -55,11 +62,6 @@ module.exports = ErrorReporter = (function() {
     }
 
     // Open a file write stream to log output from this process
-    var pid = process.pid;
-    if (process.type === 'renderer') {
-      pid = remote.process.pid + "." +  process.pid;
-    }
-    var logpath = path.join(tmpPath, 'edgehill-' + pid + '.log');
     console.log("Streaming log data to "+logpath);
 
     this.loghost = os.hostname();
@@ -160,6 +162,11 @@ module.exports = ErrorReporter = (function() {
     } catch (err) {
       console.error("ErrorReporter: Unable to write to the log stream." + err.toString());
     }
+  };
+
+  ErrorReporter.prototype.openLogs = function() {
+    var shell = require('shell');
+    shell.openItem(logpath);
   };
 
   ErrorReporter.prototype.shipLogs = function(reason) {

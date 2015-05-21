@@ -335,7 +335,7 @@ describe "populated composer", ->
         useFullDraft.apply(@)
         makeComposer.call(@)
         spyOn(@composer, "_sendDraft")
-        NylasTestUtils.loadKeymap "internal_packages/composer/keymaps/composer.cson"
+        NylasTestUtils.loadKeymap("internal_packages/composer/keymaps/composer")
 
       it "sends the draft on cmd-enter", ->
         NylasTestUtils.keyPress("cmd-enter", React.findDOMNode(@composer))

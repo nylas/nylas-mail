@@ -43,12 +43,10 @@ module.exports = (grunt) ->
       for keymapPath in fs.listSync(path.join(moduleDirectory, 'keymaps'), ['.cson', '.json'])
         relativePath = path.relative(appDir, keymapPath)
         pack.keymaps[relativePath] = CSON.readFileSync(keymapPath)
-        rm keymapPath
 
       for menuPath in fs.listSync(path.join(moduleDirectory, 'menus'), ['.cson', '.json'])
         relativePath = path.relative(appDir, menuPath)
         pack.menus[relativePath] = CSON.readFileSync(menuPath)
-        rm menuPath
 
       packages[metadata.name] = pack
 

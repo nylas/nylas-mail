@@ -4,10 +4,13 @@ KeymapManager = require 'atom-keymap'
 
 NylasTestUtils =
   loadKeymap: (keymapPath) ->
-    baseKeymaps = CSON.readFileSync("keymaps/base.cson")
-    atom.keymaps.add("keymaps/base.cson", baseKeymaps)
+    {resourcePath} = atom.getLoadSettings()
+    basePath = CSON.resolve("#{resourcePath}/keymaps/base")
+    baseKeymaps = CSON.readFileSync(basePath)
+    atom.keymaps.add(basePath, baseKeymaps)
 
     if keymapPath?
+      keymapPath = CSON.resolve("#{resourcePath}/#{keymapPath}")
       keymapFile = CSON.readFileSync(keymapPath)
       atom.keymaps.add(keymapPath, keymapFile)
 
@@ -16,4 +19,3 @@ NylasTestUtils =
     document.dispatchEvent(event)
 
 module.exports = NylasTestUtils
-

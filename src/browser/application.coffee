@@ -119,7 +119,7 @@ class Application
     # return a promise that resolves after we've configured dblite for our platform
     return @dblitePromise = new Promise (resolve, reject) =>
       dblite = require('../../vendor/dblite-custom').withSQLite('3.8.6+')
-      vendor = @resourcePath + "/vendor"
+      vendor = path.join(@resourcePath.replace('app.asar', 'app.asar.unpacked'), '/vendor')
 
       if process.platform is 'win32'
         dblite.bin = "#{vendor}/sqlite3-win32.exe"
@@ -192,8 +192,16 @@ class Application
     @on 'application:run-all-specs', ->
       @runSpecs
         exitWhenDone: false
-        resourcePath: global.devResourcePath
+        resourcePath: @resourcePath
         safeMode: @windowManager.focusedWindow()?.safeMode
+
+    @on 'application:ship-logs', ->
+      global.errorReporter.shipLogs("User triggered.")
+      dialog.showMessageBox
+        type: 'warning'
+        buttons: ['OK']
+        message: 'Your local Nylas Mail logs have been sent to LogStash.'
+        title: 'Logs Shipped'
 
     @on 'application:run-package-specs', ->
       dialog.showOpenDialog {
@@ -204,7 +212,7 @@ class Application
         return if filenames.length is 0
         @runSpecs
           exitWhenDone: false
-          resourcePath: global.devResourcePath
+          resourcePath: @resourcePath
           specDirectory: filenames[0]
 
     @on 'application:run-benchmarks', ->

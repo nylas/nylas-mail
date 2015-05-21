@@ -1,4 +1,4 @@
-NotificationsStore = require '../lib/notifications-store.coffee'
+NotificationsStore = require '../lib/notifications-store'
 Notification = NotificationsStore.Notification
 {Actions} = require 'nylas-exports'
 

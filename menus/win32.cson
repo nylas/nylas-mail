@@ -39,6 +39,9 @@
     submenu: [
       { label: 'Open In &Dev Mode...', command: 'application:open-dev' }
       { type: 'separator' }
+      { label: 'Open Detailed Logs', command: 'window:open-errorreporter-logs' }
+      { label: 'Ship Detailed Logs to Nylas', command: 'application:ship-logs' }
+      { type: 'separator' }
       { label: 'Run &Atom Specs', command: 'application:run-all-specs' }
       { label: 'Run Package &Specs', command: 'application:run-package-specs' }
       { label: 'Toggle Developer &Tools', command: 'window:toggle-dev-tools' }

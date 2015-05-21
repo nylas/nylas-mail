@@ -1,5 +1,6 @@
 # Start the crash reporter before anything else.
-require('crash-reporter').start(productName: 'Atom', companyName: 'GitHub')
+require('crash-reporter').start(productName: 'Nylas Mail', companyName: 'Nylas')
+
 
 path = require 'path'
 fs = require 'fs-plus'

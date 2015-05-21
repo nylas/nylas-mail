@@ -98,10 +98,7 @@ class DraftStore
   # In popout windows the existance of the window is the sending state.
   isSendingDraft: (draftLocalId) ->
     if atom.isMainWindow()
-      task = TaskQueue.findTask
-        object: "SendDraftTask"
-        matchKey: "draftLocalId"
-        matchValue: draftLocalId
+      task = TaskQueue.findTask(SendDraftTask, {draftLocalId})
       return task?
     else return false
 
@@ -376,10 +373,9 @@ class DraftStore
         # edits and are destroying the session. If there are errors down
         # the line, we'll make a new session and handle them later
         @_doneWithSession(session)
+        @trigger()
 
         atom.close() if @_isPopout()
-
-    @trigger()
 
   _isPopout: ->
     atom.getWindowType() is "composer"

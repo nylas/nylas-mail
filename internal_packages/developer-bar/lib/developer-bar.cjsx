@@ -35,7 +35,10 @@ class DeveloperBar extends React.Component
     @activityStoreUnsubscribe() if @activityStoreUnsubscribe
 
   render: =>
-    return <div></div> unless @state.visible
+    # TODO WARNING: This 1px height is necessary to fix a redraw issue in the thread
+    # list in Chrome 42 (Electron 0.26.0). Do not remove unless you've verified that
+    # scrolling works fine now and repaints aren't visible.
+    return <div style={height:1}></div> unless @state.visible
 
     <ResizableRegion className="developer-bar"
                      initialHeight={@state.height}
