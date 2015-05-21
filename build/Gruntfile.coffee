@@ -208,6 +208,7 @@ module.exports = (grunt) ->
         'dot-nylas/**/*.coffee'
         'exports/**/*.coffee'
         'src/**/*.coffee'
+        'src/**/*.cjsx'
       ]
       build: [
         'build/tasks/**/*.coffee'
@@ -248,6 +249,8 @@ module.exports = (grunt) ->
 
     lesslint:
       src: [
+        'internal_packages/**/*.less'
+        'dot-nylas/**/*.less'
         'static/**/*.less'
       ]
       options:
