@@ -94,7 +94,7 @@ class Application
     else
       @windowManager.ensurePrimaryWindowOnscreen()
       for urlToOpen in (urlsToOpen || [])
-        @openUrl({urlToOpen})
+        @openUrl(urlToOpen)
 
   prepareDatabaseInterface: ->
     return @dblitePromise if @dblitePromise
@@ -268,7 +268,7 @@ class Application
       event.preventDefault()
 
     app.on 'open-url', (event, urlToOpen) =>
-      @openUrl({urlToOpen})
+      @openUrl(urlToOpen)
       event.preventDefault()
 
     ipc.on 'new-window', (event, options) =>
@@ -355,21 +355,14 @@ class Application
       else return false
     true
 
-  # Open an atom:// or mailto:// url.
+  # Open a mailto:// url.
   #
-  # options -
-  #   :urlToOpen - The atom:// or mailto:// url to open.
-  #   :devMode - Boolean to control the opened window's dev mode.
-  #   :safeMode - Boolean to control the opened window's safe mode.
-  openUrl: ({urlToOpen, devMode, safeMode}) ->
-    parts = url.parse(urlToOpen)
-
-    # Attempt to parse the mailto link into Message object JSON
-    # and then open a composer window
-    if parts.protocol is 'mailto:'
+  openUrl: (urlToOpen) ->
+    {protocol} = url.parse(urlToOpen)
+    if protocol is 'mailto:'
       @windowManager.sendToMainWindow('mailto', urlToOpen)
     else
-      console.log "Opening unknown url: #{urlToOpen}"
+      console.log "Ignoring unknown URL type: #{urlToOpen}"
 
   # Opens up a new {AtomWindow} to run specs within.
   #

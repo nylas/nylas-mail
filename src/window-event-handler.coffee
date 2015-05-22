@@ -16,24 +16,20 @@ class WindowEventHandler
   constructor: ->
     @reloadRequested = false
 
-    @subscribe ipc, 'message', (message, detail) ->
-      switch message
-        when 'open-path'
-          pathToOpen = detail
+    @subscribe ipc, 'open-path', (pathToOpen) ->
+      unless atom.project?.getPaths().length
+        if fs.existsSync(pathToOpen) or fs.existsSync(path.dirname(pathToOpen))
+          atom.project?.setPaths([pathToOpen])
 
-          unless atom.project?.getPaths().length
-            if fs.existsSync(pathToOpen) or fs.existsSync(path.dirname(pathToOpen))
-              atom.project?.setPaths([pathToOpen])
+      unless fs.isDirectorySync(pathToOpen)
+        atom.workspace?.open(pathToOpen, {})
 
-          unless fs.isDirectorySync(pathToOpen)
-            atom.workspace?.open(pathToOpen, {})
+    @subscribe ipc, 'update-available', (detail) ->
+      atom.updateAvailable(detail)
 
-        when 'update-available'
-          atom.updateAvailable(detail)
-
-        when 'send-feedback'
-          Actions = require './flux/actions'
-          Actions.sendFeedback()
+    @subscribe ipc, 'send-feedback', (detail) ->
+      Actions = require './flux/actions'
+      Actions.sendFeedback()
 
     @subscribe ipc, 'command', (command, args...) ->
       activeElement = document.activeElement
@@ -135,10 +131,7 @@ class WindowEventHandler
     location = target?.getAttribute('href') or currentTarget?.getAttribute('href')
     if location?
       schema = url.parse(location).protocol
-      # special handling for mailto
       if schema? and schema in ['http:', 'https:', 'mailto:', 'tel:']
-        # should add test coverage to this, need to discuss which
-        # protocols are allowable, add map(s) eventually...
         shell.openExternal(location)
       false
 

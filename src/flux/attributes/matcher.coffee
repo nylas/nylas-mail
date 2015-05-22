@@ -38,6 +38,12 @@ class Matcher
     @muid = Matcher.muid
     Matcher.muid = (Matcher.muid + 1) % 50
     @
+ 
+  attribute: ->
+    @attr
+
+  value: ->
+    @val
 
   evaluate: (model) ->
     value = model[@attr.modelKey]

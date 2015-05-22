@@ -6,6 +6,8 @@ _ = require 'underscore'
 {Listener, Publisher} = require '../modules/reflux-coffee'
 CoffeeHelpers = require '../coffee-helpers'
 
+saveStateKey = "nylas.current_namespace"
+
 ###
 Public: The NamespaceStore listens to changes to the available namespaces in
 the database and exposes the currently active Namespace via {::current}
@@ -21,20 +23,26 @@ class NamespaceStore
   constructor: ->
     @_items = []
     @_current = null
+    
+    saveState = atom.config.get(saveStateKey)
+    if saveState and _.isObject(saveState)
+      @_current = (new Namespace).fromJSON(saveState)
 
     @listenTo Actions.selectNamespaceId, @onSelectNamespaceId
     @listenTo DatabaseStore, @onDataChanged
+
     @populateItems()
 
   populateItems: =>
     DatabaseStore.findAll(Namespace).then (namespaces) =>
-      current = _.find namespaces, (n) -> n.id == @_current?.id
+      current = _.find namespaces, (n) -> n.id is @_current?.id
       current = namespaces?[0] unless current
-
       if current isnt @_current or not _.isEqual(namespaces, @_namespaces)
+        atom.config.set(saveStateKey, current)
         @_current = current
         @_namespaces = namespaces
         @trigger(@)
+
     .catch (err) =>
       console.warn("Request for Namespaces failed. #{err}")
 

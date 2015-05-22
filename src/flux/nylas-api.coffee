@@ -49,7 +49,7 @@ class NylasAPI
 
   _onNamespacesChanged: ->
     return if atom.inSpecMode()
-    return unless atom.isMainWindow()
+    return if not atom.isMainWindow()
 
     namespaces = NamespaceStore.items()
     workers = _.map(namespaces, @workerForNamespace)
@@ -66,8 +66,7 @@ class NylasAPI
     @_workers
 
   workerForNamespace: (namespace) =>
-    worker = _.find @_workers, (c) ->
-      c.namespaceId() is namespace.id
+    worker = _.find @_workers, (c) -> c.namespaceId() is namespace.id
     return worker if worker
 
     worker = new NylasSyncWorker(@, namespace.id)
@@ -86,6 +85,7 @@ class NylasAPI
       PriorityUICoordinator.settle.then =>
         @_handleDeltas(deltas)
 
+    @_workers.push(worker)
     worker.start()
     worker
 
