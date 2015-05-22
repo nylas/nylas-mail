@@ -69,14 +69,19 @@ class NylasLongConnection
   onProcessBuffer: =>
     bufferJSONs = @_buffer.split('\n')
     bufferCursor = null
-    return if bufferJSONs.length == 1
 
-    for i in [0..bufferJSONs.length - 2]
+    # We can't parse the last block - we don't know whether we've
+    # received the entire delta or only part of it. Wait
+    # until we have more.
+    @_buffer = bufferJSONs.pop()
+
+    for deltaJSON in bufferJSONs
+      continue if deltaJSON.length is 0
       delta = null
       try
-        delta = JSON.parse(bufferJSONs[i])
+        delta = JSON.parse(deltaJSON)
       catch e
-        console.log("#{bufferJSONs[i]} could not be parsed as JSON.", e)
+        console.log("#{deltaJSON} could not be parsed as JSON.", e)
       if delta
         throw (new Error 'Received delta with no cursor!') unless delta.cursor
         @_deltas.push(delta)
@@ -84,15 +89,14 @@ class NylasLongConnection
         bufferCursor = delta.cursor
 
     # Note: setCursor is slow and saves to disk, so we do it once at the end
-    @setCursor(bufferCursor)
-    @_buffer = bufferJSONs[bufferJSONs.length - 1]
+    if bufferCursor
+      @setCursor(bufferCursor)
 
   start: ->
     return if not @_api.APIToken?
     return if @_state is NylasLongConnection.State.Ended
     return if @_req
 
-    console.log("Long Polling Connection: Starting....")
     @withCursor (cursor) =>
       return if @state is NylasLongConnection.State.Ended
       console.log("Long Polling Connection: Starting for namespace #{@_namespaceId}, token #{@_api.APIToken}, with cursor #{cursor}")
@@ -116,12 +120,13 @@ class NylasLongConnection
           return
 
         @_buffer = ''
-        res.setEncoding('utf8')
         processBufferThrottled = _.throttle(@onProcessBuffer, 400, {leading: false})
+        res.setEncoding('utf8')
         res.on 'close', => @retry()
         res.on 'data', (chunk) =>
-          # Ignore characters sent as pings
-          return if chunk is '\n'
+          # Ignore redundant newlines sent as pings. Want to avoid
+          # calls to @onProcessBuffer that contain no actual updates
+          return if chunk is '\n' and (@_buffer.length is 0 or @_buffer[-1] is '\n')
           @_buffer += chunk
           processBufferThrottled()
 
@@ -160,6 +165,7 @@ class NylasLongConnection
   cleanup: ->
     clearInterval(@_reqForceReconnectInterval) if @_reqForceReconnectInterval
     @_reqForceReconnectInterval = null
+    @_buffer = ''
     if @_req
       @_req.end()
       @_req.abort()

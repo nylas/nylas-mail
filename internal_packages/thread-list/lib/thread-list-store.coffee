@@ -35,6 +35,8 @@ ThreadListStore = Reflux.createStore
     @listenTo FocusedTagStore, @_onTagChanged
     @listenTo NamespaceStore, @_onNamespaceChanged
 
+    @createView()
+
   _resetInstanceVars: ->
     @_lastQuery = null
     @_searchQuery = null
@@ -74,7 +76,13 @@ ThreadListStore = Reflux.createStore
   # Inbound Events
 
   _onTagChanged: -> @createView()
-  _onNamespaceChanged: -> @createView()
+  _onNamespaceChanged: ->
+    namespaceId = NamespaceStore.current()?.id
+    namespaceMatcher = (m) ->
+      m.attribute() is Thread.attributes.namespaceId and m.value() is namespaceId
+
+    return if @view and _.find(@view.matchers, namespaceMatcher)
+    @createView()
 
   _onSearchCommitted: (query) ->
     return if @_searchQuery is query

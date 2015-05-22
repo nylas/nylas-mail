@@ -5,7 +5,7 @@
   order: 2;
   height: 100%;
   overflow-y: auto;
-
+  overflow-x: hidden;
   background-color: @source-list-bg;
 
   section {
@@ -26,6 +26,9 @@
     font-weight: 400;
     padding: 0 @spacing-standard;
     line-height: @line-height-large * 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 
     .unread {
       font-weight: @font-weight-medium;

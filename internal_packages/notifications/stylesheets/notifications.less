@@ -15,6 +15,7 @@
 
   .item {
     border-bottom:1px solid @border-color-divider;
+    
     .inner {
       padding: @padding-large-vertical @padding-base-horizontal @padding-large-vertical @padding-base-horizontal;
       margin-top:3px;
@@ -43,6 +44,7 @@
     // TODO: Necessary for Chromium 42 to render `activity-item-leave` animation
     // properly. Removing position relative causes the div to remain visible
     position:relative;
+    opacity: 1;
   }
 
   transition: height 0.4s;

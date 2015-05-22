@@ -192,10 +192,10 @@ class AtomWindow
 
   sendMessage: (message, detail) ->
     if @loaded
-      @browserWindow.webContents.send 'message', message, detail
+      @browserWindow.webContents.send(message, detail)
     else
-      @once 'window:loaded', =>
-        @browserWindow.webContents.send 'message', message, detail
+      @browserWindow.once 'window:loaded', =>
+        @browserWindow.webContents.send(message, detail)
 
   sendCommand: (command, args...) ->
     if @isSpecWindow()
