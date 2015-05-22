@@ -33,7 +33,7 @@ cp "$ICON_FILE" "$TARGET/usr/share/pixmaps"
 
 # Copy generated LICENSE.md to /usr/share/doc/nylas/copyright
 mkdir -m $FILE_MODE -p "$TARGET/usr/share/doc/nylas"
-cp "$TARGET/usr/share/nylas/resources/app/LICENSE.md" "$TARGET/usr/share/doc/nylas/copyright"
+cp "$TARGET/usr/share/nylas/resources/LICENSE.md" "$TARGET/usr/share/doc/nylas/copyright"
 
 # Add lintian overrides
 mkdir -m $FILE_MODE -p "$TARGET/usr/share/lintian/overrides"
