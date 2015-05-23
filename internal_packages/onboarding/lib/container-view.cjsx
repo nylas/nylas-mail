@@ -74,7 +74,14 @@ class ContainerView extends React.Component
 
         <form role="form" className="thin-container">
           <div className="prompt">Enter your email address:</div>
-          <input className="input-bordered" type="email" placeholder="you@gmail.com" tabIndex="1" value={@state.email} onChange={@_onValueChange} id="email" />
+          <input className="input-bordered"
+                 type="email"
+                 placeholder="you@gmail.com"
+                 tabIndex="1"
+                 value={@state.email}
+                 onChange={@_onValueChange}
+                 id="email"
+                 spellCheck="false"/>
           <button className="btn btn-larger btn-gradient" style={width:215} onClick={@_fireStart}>Start using Nylas</button>
           {@_environmentComponent()}
         </form>
