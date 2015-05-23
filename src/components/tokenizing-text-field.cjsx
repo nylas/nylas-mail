@@ -236,6 +236,7 @@ TokenizingTextField = React.createClass
     if @_atMaxTokens()
       <input type="text"
              ref="input"
+             spellCheck="false"
              className="noop-input"
              onCopy={@_onCopy}
              onCut={@_onCut}
@@ -247,6 +248,7 @@ TokenizingTextField = React.createClass
     else
       <input type="text"
              ref="input"
+             spellCheck="false"
              onCopy={@_onCopy}
              onCut={@_onCut}
              onPaste={@_onPaste}
