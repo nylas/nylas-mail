@@ -17,10 +17,14 @@ describe 'Notification', ->
     expect( -> new Notification({type: 'info', message: '2', actions:[{label: 'b'}]})).toThrow()
     expect( -> new Notification({type: 'info', message: '3', actions:[{id: 'a', label: 'b'}]})).not.toThrow()
 
-  it 'should assign its own ID and creation time', ->
+  it 'should assign a tag and creation time', ->
     @n = new Notification({type: 'info', message: 'A', actions:[{id: 'a', label: 'b'}]})
-    expect(@n.id).toBeDefined()
+    expect(@n.tag).toBeDefined()
     expect(@n.creation).toBeDefined()
+
+  it 'should use a provided tag if the notification is meant to replace an existing tag', ->
+    @n = new Notification({tag: 'update', type: 'info', message: 'A', actions:[{id: 'a', label: 'b'}]})
+    expect(@n.tag).toBe('update')
 
   it 'should be valid at creation', ->
     @n = new Notification({type: 'info', message: 'A', actions:[{id: 'a', label: 'b'}]})
