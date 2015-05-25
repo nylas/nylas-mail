@@ -18,10 +18,11 @@ module.exports =
   displayNotification: (version) ->
     version = if version then "(#{version})" else ''
     Actions.postNotification
-      type: 'info',
+      type: 'info'
+      tag: 'app-update'
       sticky: true
-      message: "An update to Edgehill is available #{version} - Restart now to update!",
-      icon: 'fa-flag',
+      message: "An update to Nylas Mail is available #{version} - Restart now to update!",
+      icon: 'fa-flag'
       actions: [{
         label: 'Install'
         id: 'release-bar:install-update'

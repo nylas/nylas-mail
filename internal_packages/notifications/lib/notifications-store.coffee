@@ -8,7 +8,7 @@ DISPLAY_TIME = 3000 # in ms
 uuid_count = 0
 
 class Notification
-  constructor: ({@message, @type, @sticky, @actions, @icon} = {}) ->
+  constructor: ({@message, @type, @tag, @sticky, @actions, @icon} = {}) ->
     # Check to make sure the provided data is a valid notificaiton, since
     # notifications may be constructed by anyone developing on Edgehill
     throw new Error "No `new` keyword when constructing Notification" unless @ instanceof Notification
@@ -19,20 +19,20 @@ class Notification
         throw new Error "Actions must have an `label`" unless action['label']
         throw new Error "Actions must have an `id`" unless action['id']
 
-    @id = uuid_count++
+    @tag ?= uuid_count++
     @creation = Date.now()
     @sticky ?= false
     unless @sticky
       @expiry = @creation + DISPLAY_TIME
 
-    console.log "Created new notif with #{@id}: #{@message}" if VERBOSE
+    console.log "Created new notif with #{@tag}: #{@message}" if VERBOSE
     @
 
   valid: ->
     @sticky or @expiry > Date.now()
 
   toString: ->
-    "Notification.#{@constructor.name}(#{@id})"
+    "Notification.#{@constructor.name}(#{@tag})"
 
 module.exports =
 NotificationStore = Reflux.createStore
@@ -49,17 +49,17 @@ NotificationStore = Reflux.createStore
       @_postNotification(new Notification(data))
     @listenTo Actions.multiWindowNotification, (data={}, context={}) =>
       @_postNotification(new Notification(data)) if @_inWindowContext(context)
- 
+
   ######### PUBLIC #######################################################
 
   notifications: ->
     console.log(JSON.stringify(@_notifications)) if VERBOSE
-    sorted = _.sortBy(_.values(@_notifications), (n) -> -1*(n.creation + n.id))
+    sorted = _.sortBy(_.values(@_notifications), (n) -> -1*(n.creation + n.tag))
     _.reject sorted, (n) -> n.sticky
 
   stickyNotifications: ->
     console.log(JSON.stringify(@_notifications)) if VERBOSE
-    sorted = _.sortBy(_.values(@_notifications), (n) -> -1*(n.creation + n.id))
+    sorted = _.sortBy(_.values(@_notifications), (n) -> -1*(n.creation + n.tag))
     _.filter sorted, (n) -> n.sticky
 
   Notification: Notification
@@ -71,7 +71,7 @@ NotificationStore = Reflux.createStore
 
   _postNotification: (notification) ->
     console.log "Queue Notification.#{notification}" if VERBOSE
-    @_notifications[notification.id] = notification
+    @_notifications[notification.tag] = notification
     if notification.expiry?
       timeoutVal = Math.max(0, notification.expiry - Date.now())
       setTimeout(@_removeNotification(notification), timeoutVal)
@@ -82,7 +82,7 @@ NotificationStore = Reflux.createStore
   # above in setTimeout()
   _removeNotification: (notification) -> =>
     console.log "Removed #{notification}" if VERBOSE
-    delete @_notifications[notification.id]
+    delete @_notifications[notification.tag]
     @trigger()
 
   # If the window matches the given context then we can show a
