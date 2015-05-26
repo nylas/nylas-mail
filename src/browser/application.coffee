@@ -235,7 +235,10 @@ class Application
     @on 'application:send-feedback', => @windowManager.sendToMainWindow('send-feedback')
     @on 'application:show-main-window', => @windowManager.ensurePrimaryWindowOnscreen()
     @on 'application:check-for-update', => @autoUpdateManager.check()
-    @on 'application:install-update', => @autoUpdateManager.install()
+    @on 'application:install-update', =>
+      @quitting = true
+      @windowManager.unregisterAllHotWindows()
+      @autoUpdateManager.install()
     @on 'application:open-dev', =>
       @devMode = true
       @windowManager.closeMainWindow()
