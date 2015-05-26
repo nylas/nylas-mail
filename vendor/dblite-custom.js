@@ -161,7 +161,7 @@ var
  *                        db.query('SELECT table.a, table.other FROM table', ['a', 'b']);
  *                        [{a:'first value', b:'second'},{a:'row2 value', b:'row2'}]
  *
- *                        
+ *
  *                        db.query('SELECT table.a, table.other FROM table', ['a', 'b']);
  *                        [{a:'first value', b:'second'},{a:'row2 value', b:'row2'}]
  *  callback:Function
@@ -215,7 +215,8 @@ function dblite() {
     // accordingly. As simple as that ^_^
     queue = [],
     // set as true only once db.close() has been called
-    notWorking = false,
+    closeRequested = false,
+    closed = false,
     // marks the shell busy or not
     busy = false,
     // tells if current output needs to be processed
@@ -412,20 +413,25 @@ function dblite() {
   // property is explicitly set to false
   // it keeps running queries no matter what
   self.ignoreErrors = false;
+
   // - - - - - - - - - - - - - - - - - - - -
 
   // safely closes the process
   // will emit 'close' once done
   self.close = function() {
-    // close can happen only once
-    if (!notWorking) {
-      // this should gently terminate the program
-      // only once everything scheduled has been completed
-      self.query('.exit');
-      notWorking = true;
-      // the hardly killed version was like this:
-      //  program.stdin.end();
-      //  program.kill();
+    if (!closeRequested) {
+      var kill = function() {
+        closed = true;
+        program.stdin.end();
+        program.kill();
+      }
+
+      // send the .exit pragma to sqlite, and kill the process once the query
+      // executes. If we don't hear back for 1000msec, force kill sqlite.
+      // This is necessary because on Linux the process can be left open forever.
+      //
+      self.query('.exit', null, null, kill);
+      closeRequested = true;
     }
   };
 
@@ -465,10 +471,10 @@ function dblite() {
 
   // main logic/method/entry point
   self.query = function(string, params, fields, callback) {
-    // notWorking is set once .close() has been called
+    // closed is set once .close() has been called and run.
     // it does not make sense to execute anything after
     // the program is being closed
-    if (notWorking) return onerror('closing'), self;
+    if (closed) return onerror('closed'), self;
     // if something is still going on in the sqlite3 shell
     // the progcess is flagged as busy. Just queue other operations
     if (busy) return queue.push(arguments), self;

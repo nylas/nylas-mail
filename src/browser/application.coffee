@@ -154,6 +154,10 @@ class Application
     delete @databases[databasePath]
     fs.unlink(databasePath, callback)
 
+  teardownAllDatabases: ->
+    for path, val of @databases
+      @teardownDatabase(path)
+
   # Creates server to listen for additional atom application launches.
   #
   # You can run the atom command multiple times, but after the first launch
@@ -219,14 +223,11 @@ class Application
       @runBenchmarks()
 
     @on 'application:logout', =>
-      for path, val of @databases
-        @teardownDatabase(path)
+      @teardownAllDatabases()
       @config.set('nylas', null)
       @config.set('edgehill', null)
 
-    @on 'application:quit', =>
-      @quitting = true
-      app.quit()
+    @on 'application:quit', => app.quit()
     @on 'application:inspect', ({x,y, atomWindow}) ->
       atomWindow ?= @windowManager.focusedWindow()
       atomWindow?.browserWindow.inspectElement(x, y)
@@ -234,9 +235,7 @@ class Application
     @on 'application:send-feedback', => @windowManager.sendToMainWindow('send-feedback')
     @on 'application:show-main-window', => @windowManager.ensurePrimaryWindowOnscreen()
     @on 'application:check-for-update', => @autoUpdateManager.check()
-    @on 'application:install-update', =>
-      @quitting = true
-      @autoUpdateManager.install()
+    @on 'application:install-update', => @autoUpdateManager.install()
     @on 'application:open-dev', =>
       @devMode = true
       @windowManager.closeMainWindow()
@@ -258,10 +257,21 @@ class Application
     app.on 'window-all-closed', =>
       @windowManager.windowClosedOrHidden()
 
+    # Called before the app tries to close any windows.
+    app.on 'before-quit', =>
+      # Destroy hot windows so that they can't block the app from quitting.
+      # (Electron will wait for them to finish loading before quitting.)
+      @windowManager.unregisterAllHotWindows()
+      # Allow the main window to be closed.
+      @quitting = true
+
+    # Called after the app has closed all windows.
     app.on 'will-quit', =>
+      @teardownAllDatabases()
       @deleteSocketFile()
 
     app.on 'will-exit', =>
+      @teardownAllDatabases()
       @deleteSocketFile()
 
     app.on 'open-file', (event, pathToOpen) ->
