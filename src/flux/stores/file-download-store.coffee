@@ -37,19 +37,49 @@ class Download
       return reject(new Error("Must pass a fileID to download")) unless @fileId?
       return reject(new Error("Must have a target path to download")) unless @targetPath?
 
-      # Does the file already exist on disk? If so, just resolve immediately.
       fs.exists @targetPath, (exists) =>
+        # Does the file already exist on disk? If so, just resolve immediately.
         return resolve(@) if exists
+
+        stream = fs.createWriteStream(@targetPath)
+        finished = false
+        finishedAction = null
+
+        # We need to watch the request for `success` or `error`, but not fire
+        # a callback until the stream has ended. These helper functions ensure
+        # that resolve or reject is only fired once regardless of the order
+        # these two events (stream end and `success`) happen in.
+        streamEnded = ->
+          finished = true
+          if finishedAction
+            finishedAction(@)
+
+        onStreamEnded = (action) ->
+          if finished
+            action(@)
+          else
+            finishedAction = action
+
         @request = NylasAPI.makeRequest
+          json: false
           path: "/n/#{namespace}/files/#{@fileId}/download"
-          success: => resolve(@)
-          error: => reject(@)
+          success: =>
+            # At this point, the file stream has not finished writing to disk.
+            # Don't resolve yet, or the browser will load only part of the image.
+            onStreamEnded(resolve)
+          error: =>
+            onStreamEnded(reject)
 
         progress(@request, {throtte: 250})
         .on("progress", (progress) =>
           @percent = progress.percent
           @progressCallback()
-        ).pipe(fs.createWriteStream(@targetPath))
+        )
+        .on("end", =>
+          # Wait for the file stream to finish writing before we resolve or reject
+          stream.end(streamEnded)
+        )
+        .pipe(stream)
 
   abort: ->
     @request?.abort()

@@ -30,7 +30,6 @@ class FileUploadTask extends Task
         path: "/n/#{@_namespaceId()}/files"
         method: "POST"
         json: false
-        returnsModel: true
         formData: @_formData()
         error: reject
         success: (rawResponseString) =>
