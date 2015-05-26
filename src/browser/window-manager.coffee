@@ -39,6 +39,9 @@ class WindowManager
   focusedWindow: ->
     _.find @_windows, (atomWindow) -> atomWindow.isFocused()
 
+  visibleWindows: ->
+    _.filter @_windows, (atomWindow) -> atomWindow.isVisible()
+
   ###
   Main Window
 
@@ -199,10 +202,17 @@ class WindowManager
 
     @_replenishHotWindows()
 
+  # Immediately close all of the hot windows and reset the replentish queue
+  # to prevent more from being opened without additional calls to registerHotWindow.
+  #
+  # Note: This method calls `browserWindow.destroy()` which closes windows without
+  # waiting for them to load or firing window lifecycle events. This is necessary
+  # for the app to quit promptly on Linux. https://phab.nylas.com/T1282
+  #
   unregisterAllHotWindows: ->
     for type, {loadedWindows} of @_hotWindows
       for win in loadedWindows
-        win.close()
+        win.browserWindow.destroy()
     @_replenishQueue = []
     @_hotWindows = {}
 
@@ -349,10 +359,7 @@ class WindowManager
 
   windowClosedOrHidden: ->
     if process.platform in ['win32', 'linux']
-      visible = false
-      visible ||= window.isVisible() for window in @_windows
-      if visible is false
-        global.application.quitting = true
+      if @visibleWindows().length is 0
         # Quitting the app from within a window event handler causes
         # an assertion error. Wait a moment.
         _.defer -> app.quit()
