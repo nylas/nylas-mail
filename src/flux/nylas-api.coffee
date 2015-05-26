@@ -112,10 +112,12 @@ class NylasAPI
     return console.log('Cannot make Nylas request without auth token.') unless @APIToken
     options.method ?= 'GET'
     options.url ?= "#{@APIRoot}#{options.path}" if options.path
-    options.body ?= {} unless options.formData
     options.json ?= true
     options.auth = {'user': @APIToken, 'pass': '', sendImmediately: true}
     options.error ?= @_defaultErrorCallback
+
+    unless options.method is 'GET' or options.formData
+      options.body ?= {}
 
     request options, (error, response, body) =>
       PriorityUICoordinator.settle.then =>
