@@ -62,6 +62,10 @@ EmailFixingStyles = """
     -webkit-font-smoothing: antialiased;
   }
 
+  pre {
+    white-space: normal;
+  }
+
   a {
     color: #2794c3;
   }
