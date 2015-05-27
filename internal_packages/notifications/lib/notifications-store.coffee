@@ -74,7 +74,8 @@ NotificationStore = Reflux.createStore
     @_notifications[notification.tag] = notification
     if notification.expiry?
       timeoutVal = Math.max(0, notification.expiry - Date.now())
-      setTimeout(@_removeNotification(notification), timeoutVal)
+      timeoutId = setTimeout(@_removeNotification(notification), timeoutVal)
+      notification.timeoutId = timeoutId
 
     @trigger()
 
@@ -82,6 +83,9 @@ NotificationStore = Reflux.createStore
   # above in setTimeout()
   _removeNotification: (notification) -> =>
     console.log "Removed #{notification}" if VERBOSE
+
+    clearTimeout(notification.timeoutId) if notification.timeoutId
+
     delete @_notifications[notification.tag]
     @trigger()
 
