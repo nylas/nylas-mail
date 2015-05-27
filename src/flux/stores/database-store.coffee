@@ -205,12 +205,11 @@ class DatabaseStore
         @_db = database
         callback() if callback
 
-  teardownDatabase: (callback) =>
+  closeDBConnection: =>
     app = remote.getGlobal('application')
-    app.teardownDatabase @_dbPath, =>
-      @_db = null
-      @trigger({})
-      callback()
+    app.closeDBConnection(@_dbPath)
+    @_db = null
+    @trigger({})
 
   # TriggerSoon is a guarded version of trigger that can accumulate changes.
   # This means that even if you're a bad person and call `persistModel` 100 times

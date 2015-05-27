@@ -149,14 +149,18 @@ class Application
       # Tell the person who requested the database that they can begin making queries
       callback()
 
-  teardownDatabase: (databasePath, callback) ->
+  closeDBConnection: (databasePath) ->
     @databases[databasePath]?.close()
     delete @databases[databasePath]
-    fs.unlink(databasePath, callback)
 
-  teardownAllDatabases: ->
+  deleteAllDatabases: ->
     for path, val of @databases
-      @teardownDatabase(path)
+      @closeDBConnection(path)
+      fs.unlinkSync(path)
+
+  closeDBConnections: ->
+    for path, val of @databases
+      @closeDBConnection(path)
 
   # Creates server to listen for additional atom application launches.
   #
@@ -223,7 +227,7 @@ class Application
       @runBenchmarks()
 
     @on 'application:logout', =>
-      @teardownAllDatabases()
+      @deleteAllDatabases()
       @config.set('nylas', null)
       @config.set('edgehill', null)
 
@@ -270,11 +274,11 @@ class Application
 
     # Called after the app has closed all windows.
     app.on 'will-quit', =>
-      @teardownAllDatabases()
+      @closeDBConnections()
       @deleteSocketFile()
 
     app.on 'will-exit', =>
-      @teardownAllDatabases()
+      @closeDBConnections()
       @deleteSocketFile()
 
     app.on 'open-file', (event, pathToOpen) ->
