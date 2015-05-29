@@ -285,11 +285,12 @@ class MessageItem extends React.Component
   _formatContacts: (contacts=[]) =>
 
   _attachmentComponents: =>
-    return [] unless @props.message.body
-
     attachments = _.filter @props.message.files, (f) =>
-      inBody = f.contentId? and @props.message.body.indexOf(f.contentId) > 0
-      not inBody and f.filename.length > 0
+      # We ignore files with no name because they're actually mime-parts of the
+      # message being served by the API as files.
+      hasName = f.filename and f.filename.length > 0
+      hasCIDInBody = f.contentId? and @props.message.body?.indexOf(f.contentId) > 0
+      hasName and not hasCIDInBody
 
     attachments.map (file) =>
       <InjectedComponent
