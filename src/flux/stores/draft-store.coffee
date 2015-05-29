@@ -170,6 +170,8 @@ class DraftStore
     @_newMessageWithContext context, (thread, message) =>
       if @_isMe(message.from[0])
         to = message.to
+      else if message.replyTo.length
+        to = message.replyTo
       else
         to = message.from
 
@@ -186,7 +188,10 @@ class DraftStore
       else
         excluded = message.from.map (c) -> c.email
         excluded.push(NamespaceStore.current().me().email)
-        to = message.from
+        if message.replyTo.length
+          to = message.replyTo
+        else
+          to = message.from
         cc = [].concat(message.cc, message.to).filter (p) ->
           !_.contains(excluded, p.email)
 

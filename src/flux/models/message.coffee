@@ -25,6 +25,8 @@ All messages are part of a thread, even if that thread has only one message.
 
 `from`: {AttributeCollection} A collection of {Contact} objects.
 
+`replyTo`: {AttributeCollection} A collection of {Contact} objects.
+
 `date`: {AttributeDateTime} When the message was delivered. Queryable.
 
 `subject`: {AttributeString} The subject of the thread. Queryable.
@@ -75,6 +77,11 @@ class Message extends Model
 
     'from': Attributes.Collection
       modelKey: 'from'
+      itemClass: Contact
+
+    'replyTo': Attributes.Collection
+      modelKey: 'replyTo'
+      jsonKey: 'reply_to'
       itemClass: Contact
 
     'date': Attributes.DateTime
@@ -131,6 +138,7 @@ class Message extends Model
     @to ||= []
     @cc ||= []
     @bcc ||= []
+    @replyTo ||= []
     @
 
   toJSON: ->

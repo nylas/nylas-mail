@@ -15,6 +15,7 @@ fakeThread = null
 fakeMessage1 = null
 fakeMessage2 = null
 msgFromMe = null
+msgWithReplyTo = null
 fakeMessages = null
 
 describe "DraftStore", ->
@@ -55,10 +56,23 @@ describe "DraftStore", ->
         subject: 'Re: Fake Subject'
         date: new Date(1415814587)
 
+      msgWithReplyTo = new Message
+        id: 'fake-message-reply-to'
+        to: [new Contact(email: '1@1.com'), new Contact(email: '2@2.com')]
+        cc: [new Contact(email: '3@3.com'), new Contact(email: '4@4.com')]
+        bcc: [new Contact(email: '5@5.com'), new Contact(email: '6@6.com')]
+        replyTo: [new Contact(email: 'reply-to@5.com'), new Contact(email: 'reply-to@6.com')]
+        from: [new Contact(email: 'from@5.com')]
+        threadId: 'fake-thread-id'
+        body: 'Fake Message 2'
+        subject: 'Re: Fake Subject'
+        date: new Date(1415814587)
+
       fakeMessages =
         'fake-message-1': fakeMessage1
         'fake-message-3': msgFromMe
         'fake-message-2': fakeMessage2
+        'fake-message-reply-to': msgWithReplyTo
 
       spyOn(DatabaseStore, 'find').andCallFake (klass, id) ->
         query = new ModelQuery(klass, {id})
@@ -92,28 +106,31 @@ describe "DraftStore", ->
       it "should set the replyToMessageId to the previous message's ids", ->
         expect(@model.replyToMessageId).toEqual(fakeMessage1.id)
 
-    describe "when the reply-to address is you", ->
-      it "on reply sends to all of the last messages's to recipients only", ->
-        runs ->
-          DraftStore._onComposeReply({threadId: fakeThread.id, messageId: msgFromMe.id})
-        waitsFor ->
-          DatabaseStore.persistModel.callCount > 0
-        runs ->
-          @model = DatabaseStore.persistModel.mostRecentCall.args[0]
-          expect(@model.to).toEqual(msgFromMe.to)
-          expect(@model.cc.length).toBe 0
-          expect(@model.bcc.length).toBe 0
+    describe "onComposeReply", ->
+      describe "when the message provided as context has one or more 'ReplyTo' recipients", ->
+        it "addresses the draft to all of the message's 'ReplyTo' recipients", ->
+          runs ->
+            DraftStore._onComposeReply({threadId: fakeThread.id, messageId: msgWithReplyTo.id})
+          waitsFor ->
+            DatabaseStore.persistModel.callCount > 0
+          runs ->
+            @model = DatabaseStore.persistModel.mostRecentCall.args[0]
+            expect(@model.to).toEqual(msgWithReplyTo.replyTo)
+            expect(@model.cc.length).toBe 0
+            expect(@model.bcc.length).toBe 0
 
-      it "on reply-all sends to all of the last messages's recipients", ->
-        runs ->
-          DraftStore._onComposeReplyAll({threadId: fakeThread.id, messageId: msgFromMe.id})
-        waitsFor ->
-          DatabaseStore.persistModel.callCount > 0
-        runs ->
-          @model = DatabaseStore.persistModel.mostRecentCall.args[0]
-          expect(@model.to).toEqual(msgFromMe.to)
-          expect(@model.cc).toEqual(msgFromMe.cc)
-          expect(@model.bcc.length).toBe 0
+    describe "onComposeReply", ->
+      describe "when the message provided as context was sent by the current user", ->
+        it "addresses the draft to all of the last messages's 'To' recipients", ->
+          runs ->
+            DraftStore._onComposeReply({threadId: fakeThread.id, messageId: msgFromMe.id})
+          waitsFor ->
+            DatabaseStore.persistModel.callCount > 0
+          runs ->
+            @model = DatabaseStore.persistModel.mostRecentCall.args[0]
+            expect(@model.to).toEqual(msgFromMe.to)
+            expect(@model.cc.length).toBe 0
+            expect(@model.bcc.length).toBe 0
 
     describe "onComposeReplyAll", ->
       beforeEach ->
@@ -145,6 +162,37 @@ describe "DraftStore", ->
 
       it "should set the replyToMessageId to the previous message's ids", ->
         expect(@model.replyToMessageId).toEqual(fakeMessage1.id)
+
+    describe "onComposeReplyAll", ->
+      describe "when the message provided as context has one or more 'ReplyTo' recipients", ->
+        beforeEach ->
+          runs ->
+            DraftStore._onComposeReply({threadId: fakeThread.id, messageId: msgWithReplyTo.id})
+          waitsFor ->
+            DatabaseStore.persistModel.callCount > 0
+          runs ->
+            @model = DatabaseStore.persistModel.mostRecentCall.args[0]
+
+        it "addresses the draft to all of the message's 'ReplyTo' recipients", ->
+          expect(@model.to).toEqual(msgWithReplyTo.replyTo)
+
+        it "should not include the message's 'From' recipient in any field", ->
+          all = [].concat(@model.to, @model.cc, @model.bcc)
+          match = _.find all, (c) -> c.email is msgWithReplyTo.from[0].email
+          expect(match).toEqual(undefined)
+
+    describe "onComposeReplyAll", ->
+      describe "when the message provided as context was sent by the current user", ->
+        it "addresses the draft to all of the last messages's recipients", ->
+          runs ->
+            DraftStore._onComposeReplyAll({threadId: fakeThread.id, messageId: msgFromMe.id})
+          waitsFor ->
+            DatabaseStore.persistModel.callCount > 0
+          runs ->
+            @model = DatabaseStore.persistModel.mostRecentCall.args[0]
+            expect(@model.to).toEqual(msgFromMe.to)
+            expect(@model.cc).toEqual(msgFromMe.cc)
+            expect(@model.bcc.length).toBe 0
 
     describe "onComposeForward", ->
       beforeEach ->
