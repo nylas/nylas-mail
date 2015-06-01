@@ -179,6 +179,34 @@ describe "populated composer", ->
       makeComposer.call @
       expect(@composer.state.showbcc).toBe true
 
+  describe "when focus() is called", ->
+    describe "if a field name is provided", ->
+      it "should focus that field", ->
+        useDraft.call(@)
+        makeComposer.call(@)
+        spyOn(@composer.refs['textFieldCc'], 'focus')
+        @composer.focus('textFieldCc')
+        advanceClock(1000)
+        expect(@composer.refs['textFieldCc'].focus).toHaveBeenCalled()
+
+    describe "if the draft is a forward", ->
+      it "should focus the to field", ->
+        useDraft.call(@, {subject: 'Fwd: This is a test'})
+        makeComposer.call(@)
+        spyOn(@composer.refs['textFieldTo'], 'focus')
+        @composer.focus()
+        advanceClock(1000)
+        expect(@composer.refs['textFieldTo'].focus).toHaveBeenCalled()
+
+    describe "if the draft is a normal message", ->
+      it "should focus on the body", ->
+        useDraft.call(@)
+        makeComposer.call(@)
+        spyOn(@composer.refs['contentBody'], 'focus')
+        @composer.focus()
+        advanceClock(1000)
+        expect(@composer.refs['contentBody'].focus).toHaveBeenCalled()
+
   describe "When sending a message", ->
     beforeEach ->
       spyOn(atom, "isMainWindow").andReturn true

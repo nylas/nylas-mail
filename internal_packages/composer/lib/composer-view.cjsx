@@ -264,7 +264,7 @@ class ComposerView extends React.Component
   # focused depending on the draft type, or you can pass a field as
   # the first parameter.
   focus: (field = null) =>
-    if component?.isForwardedMessage()
+    if @isForwardedMessage()
       field ?= "textFieldTo"
     else
       field ?= "contentBody"
