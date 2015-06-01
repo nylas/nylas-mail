@@ -334,14 +334,21 @@ class Application
   # Public: Executes the given command.
   #
   # If it isn't handled globally, delegate to the currently focused window.
+  # If there is no focused window (all the windows of the app are hidden),
+  # fire the command to the main window. (This ensures that `application:`
+  # commands, like Cmd-N work when no windows are visible.)
   #
   # command - The string representing the command.
   # args - The optional arguments to pass along.
   sendCommand: (command, args...) ->
     unless @emit(command, args...)
       focusedWindow = @windowManager.focusedWindow()
+      mainWindow = @windowManager.mainWindow()
+
       if focusedWindow?
         focusedWindow.sendCommand(command, args...)
+      else if mainWindow?
+        mainWindow.sendCommand(command, args...)
       else
         @sendCommandToFirstResponder(command)
 
