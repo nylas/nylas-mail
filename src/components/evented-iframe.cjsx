@@ -47,6 +47,7 @@ class EventedIFrame extends React.Component
     doc.removeEventListener('mousedown', @_onIFrameMouseEvent)
     doc.removeEventListener('mousemove', @_onIFrameMouseEvent)
     doc.removeEventListener('mouseup', @_onIFrameMouseEvent)
+    node.contentWindow.removeEventListener('focus', @_onIFrameFocus)
     node.contentWindow.removeEventListener('blur', @_onIFrameBlur)
 
   _subscribeToIFrameEvents: =>
@@ -58,11 +59,15 @@ class EventedIFrame extends React.Component
       doc.addEventListener("mousedown", @_onIFrameMouseEvent)
       doc.addEventListener("mousemove", @_onIFrameMouseEvent)
       doc.addEventListener("mouseup", @_onIFrameMouseEvent)
+      node.contentWindow.addEventListener("focus", @_onIFrameFocus)
       node.contentWindow.addEventListener("blur", @_onIFrameBlur)
 
   _onIFrameBlur: (event) =>
     node = React.findDOMNode(@)
     node.contentWindow.getSelection().empty()
+
+  _onIFrameFocus: (event) =>
+    window.getSelection().empty()
 
   # The iFrame captures events that take place over it, which causes some
   # interesting behaviors. For example, when you drag and release over the
