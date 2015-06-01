@@ -348,7 +348,9 @@ class ComposerView extends React.Component
 
   _sendDraft: (options = {}) =>
     return unless @_proxy
+
     return if @state.isSending
+
     draft = @_proxy.draft()
     remote = require('remote')
     dialog = remote.require('dialog')
@@ -391,6 +393,11 @@ class ComposerView extends React.Component
         if response is 1 # button array index 1
           @_sendDraft({force: true})
       return
+
+    # There can be a delay between when the send request gets initiated
+    # by a user and when the draft is prepared on on the TaskQueue, which
+    # is how we detect that the draft is sending.
+    @setState isSending: true
 
     Actions.sendDraft(@props.localId)
 

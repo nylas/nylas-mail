@@ -188,6 +188,13 @@ describe "populated composer", ->
       spyOn(@dialog, "showMessageBox")
       spyOn(Actions, "sendDraft")
 
+    it "doesn't send twice", ->
+      useFullDraft.call(@)
+      makeComposer.call(@)
+      @composer._sendDraft()
+      @composer._sendDraft()
+      expect(Actions.sendDraft.calls.length).toBe 1
+
     it "shows a warning if there are no recipients", ->
       useDraft.call @, subject: "no recipients"
       makeComposer.call(@)
