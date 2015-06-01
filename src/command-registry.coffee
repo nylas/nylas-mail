@@ -167,12 +167,11 @@ class CommandRegistry
   # * `commandName` {String} indicating the name of the command to dispatch.
   dispatch: (target, commandName, detail) ->
     event = new CustomEvent(commandName, {bubbles: true, detail})
-    eventWithTarget = Object.create event,
-      target: value: target
-      preventDefault: value: ->
-      stopPropagation: value: ->
-      stopImmediatePropagation: value: ->
-    @handleCommandEvent(eventWithTarget)
+    Object.defineProperty(event, 'target', {value: target})
+    Object.defineProperty(event, 'preventDefault', {value: -> })
+    Object.defineProperty(event, 'stopPropagation', {value: -> })
+    Object.defineProperty(event, 'stopImmediatePropagation', {value: -> })
+    @handleCommandEvent(event)
 
   onWillDispatch: (callback) ->
     @emitter.on 'will-dispatch', callback
@@ -194,7 +193,8 @@ class CommandRegistry
     matched = false
     currentTarget = originalEvent.target
 
-    syntheticEvent = Object.create originalEvent,
+    syntheticEvent = _.extend({}, originalEvent)
+    syntheticEventProps =
       eventPhase: value: Event.BUBBLING_PHASE
       currentTarget: get: -> currentTarget
       preventDefault: value: ->
@@ -208,6 +208,9 @@ class CommandRegistry
         immediatePropagationStopped = true
       abortKeyBinding: value: ->
         originalEvent.abortKeyBinding?()
+
+    for prop, def in syntheticEventProps
+      Object.defineProperty(syntheticEvent, prop, def)
 
     @emitter.emit 'will-dispatch', syntheticEvent
 
