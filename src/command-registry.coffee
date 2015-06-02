@@ -190,27 +190,34 @@ class CommandRegistry
   handleCommandEvent: (originalEvent) =>
     propagationStopped = false
     immediatePropagationStopped = false
-    matched = false
     currentTarget = originalEvent.target
+    matched = false
 
-    syntheticEvent = _.extend({}, originalEvent)
-    syntheticEventProps =
+    # We want to be able to simulate event bubbling and know when propogation
+    # should stop. Redefine a few of the event's methods so that we can observe
+    # them.
+    _stopPropagation = originalEvent.stopPropagation
+    _stopImmediatePropagation = originalEvent.stopImmediatePropagation
+    _abortKeyBinding = originalEvent.abortKeyBinding
+
+    eventHooks =
       eventPhase: value: Event.BUBBLING_PHASE
       currentTarget: get: -> currentTarget
-      preventDefault: value: ->
-        originalEvent.preventDefault()
       stopPropagation: value: ->
-        originalEvent.stopPropagation()
         propagationStopped = true
+        _stopPropagation()
       stopImmediatePropagation: value: ->
-        originalEvent.stopImmediatePropagation()
         propagationStopped = true
         immediatePropagationStopped = true
+        _stopImmediatePropagation()
       abortKeyBinding: value: ->
         originalEvent.abortKeyBinding?()
 
-    for prop, def in syntheticEventProps
-      Object.defineProperty(syntheticEvent, prop, def)
+    # Note: There used to be a more elegant solution to this, but you can no longer
+    # call Object.create with a CustomEvent as the object prototype.
+    for prop, def in eventHooks
+      Object.defineProperty(originalEvent, prop, def)
+    syntheticEvent = originalEvent
 
     @emitter.emit 'will-dispatch', syntheticEvent
 
