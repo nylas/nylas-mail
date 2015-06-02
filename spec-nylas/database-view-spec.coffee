@@ -63,11 +63,11 @@ describe "DatabaseView", ->
       @view = new DatabaseView(Message, config)
       @view._pages =
         0:
-          items: [{id: 'a'}, {id: 'b'}, {id: 'c'}]
+          items: [new Thread(id: 'a'), new Thread(id: 'b'), new Thread(id: 'c')]
           metadata: {'a': 'a-metadata', 'b': 'b-metadata', 'c': 'c-metadata'}
           loaded: true
         1:
-          items: [{id: 'd'}, {id: 'e'}, {id: 'f'}]
+          items: [new Thread(id: 'd'), new Thread(id: 'e'), new Thread(id: 'f')]
           metadata: {'d': 'd-metadata', 'e': 'e-metadata', 'f': 'f-metadata'}
           loaded: true
       @view._count = 1
@@ -229,7 +229,7 @@ describe "DatabaseView", ->
         @view._pages = {}
         for i in [0..9]
           @view._pages[i] =
-            items: [{id: 'a'}, {id: 'b'}, {id: 'c'}]
+            items: [new Thread(id: 'a'), new Thread(id: 'b'), new Thread(id: 'c')]
             metadata: {'a': 'a-metadata', 'b': 'b-metadata', 'c': 'c-metadata'}
             loaded: true
 
@@ -274,7 +274,7 @@ describe "DatabaseView", ->
       beforeEach ->
         @view.retrievePage(0)
         @completeQuery = =>
-          @items = [{id: 'model-a'}, {id: 'model-b'}, {id: 'model-c'}]
+          @items = [new Thread(id: 'model-a'), new Thread(id: 'model-b'), new Thread(id: 'model-c')]
           @queries[0].resolve(@items)
           @queries = []
         spyOn(@view, 'loaded').andCallFake -> true

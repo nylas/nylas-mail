@@ -50,6 +50,27 @@ describe "ModelViewSelection", ->
       @selection.clear()
       expect(@trigger).toHaveBeenCalled()
 
+  describe "remove", ->
+    beforeEach ->
+      @selection.set([@items[2], @items[4]])
+
+    it "should do nothing if called without a valid item", ->
+      @selection.remove(null)
+      @selection.remove(undefined)
+      @selection.remove(false)
+      expect(@selection.ids()).toEqual(['2', '4'])
+
+    it "should remove the item from the set", ->
+      @selection.remove(@items[2])
+      expect(@selection.ids()).toEqual(['4'])
+
+    it "should throw an exception if the item passed is not a model", ->
+      expect( => @selection.remove('hi')).toThrow()
+
+    it "should trigger", ->
+      @selection.remove()
+      expect(@trigger).toHaveBeenCalled()
+
   describe "updateModelReferences", ->
     it "should replace items in the selection with the matching provided items, if present", ->
       @selection.set([@items[2], @items[4], @items[7]])
@@ -63,6 +84,15 @@ describe "ModelViewSelection", ->
   describe "toggle", ->
     beforeEach ->
       @selection.set([@items[2]])
+
+    it "should do nothing if called without a valid item", ->
+      @selection.toggle(null)
+      @selection.toggle(undefined)
+      @selection.toggle(false)
+      expect(@selection.ids()).toEqual(['2'])
+
+    it "should throw an exception if the item passed is not a model", ->
+      expect( => @selection.toggle('hi')).toThrow()
 
     it "should select the item if it is not selected", ->
       @selection.toggle(@items[3])
@@ -81,6 +111,15 @@ describe "ModelViewSelection", ->
       @selection.clear()
       @selection.expandTo(@items[2])
       expect(@selection.ids()).toEqual(['2'])
+
+    it "should do nothing if called without a valid item", ->
+      @selection.expandTo(null)
+      @selection.expandTo(undefined)
+      @selection.expandTo(false)
+      expect(@selection.ids()).toEqual([])
+
+    it "should throw an exception if the item passed is not a model", ->
+      expect( => @selection.expandTo('hi')).toThrow()
 
     it "should select all items from the last selected item to the provided item", ->
       @selection.set([@items[2], @items[5]])

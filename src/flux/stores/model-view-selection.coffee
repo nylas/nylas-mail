@@ -23,18 +23,25 @@ class ModelViewSelection
   set: (items) ->
     @_items = []
     for item in items
-      throw new Error("selectItems must be called with Models") unless item instanceof Model
+      throw new Error("set must be called with Models") unless item instanceof Model
       @_items.push(item)
     @trigger(@)
 
   updateModelReferences: (items = []) ->
     for newer in items
+      unless newer instanceof Model
+        console.error(JSON.stringify(newer))
+        throw new Error("updateModelReferences must be called with Models")
+
       for existing, idx in @_items
         if existing.id is newer.id
           @_items[idx] = newer
           break
 
   toggle: (item) ->
+    return unless item
+    throw new Error("toggle must be called with a Model") unless item instanceof Model
+
     without = _.reject @_items, (t) -> t.id is item.id
     if without.length < @_items.length
       @_items = without
@@ -43,12 +50,18 @@ class ModelViewSelection
     @trigger(@)
 
   remove: (item) ->
+    return unless item
+    throw new Error("remove must be called with a Model") unless item instanceof Model
+
     without = _.reject @_items, (t) -> t.id is item.id
     if without.length < @_items.length
       @_items = without
       @trigger(@)
 
   expandTo: (item) ->
+    return unless item
+    throw new Error("expandTo must be called with a Model") unless item instanceof Model
+
     if @_items.length is 0
       @_items.push(item)
     else
