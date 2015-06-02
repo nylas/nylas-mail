@@ -39,8 +39,8 @@ class DatabaseView extends ModelView
     @_orders = config.orders ? []
 
     @_count = -1
-    @invalidate()
-
+    @invalidateCount()
+    @invalidateRetainedRangeImmediate()
     @
 
   log: ->
@@ -235,9 +235,12 @@ class DatabaseView extends ModelView
       @_emitter.emit('trigger')
 
   invalidateRetainedRange: _.debounce ->
+    @invalidateRetainedRangeImmediate()
+  ,10
+
+  invalidateRetainedRangeImmediate: ->
     for idx in @pagesRetained()
       @retrievePage(idx)
-  ,10
 
   retrieveDirtyInRetainedRange: ->
     for idx in @pagesRetained()
