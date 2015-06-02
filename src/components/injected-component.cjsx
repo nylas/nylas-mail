@@ -88,11 +88,13 @@ class InjectedComponent extends React.Component
 
   focus: =>
     # Not forwarding event - just a method call
-    @refs.inner.focus() if @refs.inner.focus?
+    # Note that our inner may not be populated, and it may not have a focus method
+    @refs.inner.focus() if @refs.inner?.focus?
 
   blur: =>
     # Not forwarding an event - just a method call
-    @refs.inner.blur() if @refs.inner.blur?
+    # Note that our inner may not be populated, and it may not have a blur method
+    @refs.inner.blur() if @refs.inner?.blur?
 
   _getStateFromStores: (props) =>
     props ?= @props
