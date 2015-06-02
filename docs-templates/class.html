@@ -1,5 +1,3 @@
-{{>_header}}
-
 <div class="page-title">
   {{name}}
   {{#if documentation.superClass}}
@@ -7,51 +5,44 @@
   {{/if}}
 </div>
 
-<div id="sidebar">
-{{>_sidebar}}
+
+<h2>Summary</h2>
+
+<div class="markdown-from-sourecode">
+  <p>{{{documentation.description}}}</p>
 </div>
 
-<div id="main">
-  <h2>Summary</h2>
-
-  <div class="markdown-from-sourecode">
-    <p>{{{documentation.description}}}</p>
-  </div>
-
-  <ul>
-      {{#each documentation.sections}}
-      <li><a href="#{{name}}">{{name}}</a></li>
-      {{/each}}
-  </ul>
+<ul>
+    {{#each documentation.sections}}
+    <li><a href="#{{name}}">{{name}}</a></li>
+    {{/each}}
+</ul>
 
 
-  {{#if documentation.classProperties.length}}
-      <h3>Class Properties</h3>
+{{#if documentation.classProperties.length}}
+    <h3>Class Properties</h3>
 
-      {{#each documentation.classProperties}}
-      {{>_property}}
-      {{/each}}
+    {{#each documentation.classProperties}}
+    {{>_property}}
+    {{/each}}
 
-  {{/if}}
+{{/if}}
 
-  {{#if documentation.classMethods.length}}
-      <h3>Class Methods</h3>
+{{#if documentation.classMethods.length}}
+    <h3>Class Methods</h3>
 
-      {{#each documentation.classMethods}}
-      {{>_function}}
-      {{/each}}
+    {{#each documentation.classMethods}}
+    {{>_function}}
+    {{/each}}
 
-  {{/if}}
+{{/if}}
 
 
-  {{#if documentation.instanceMethods.length}}
-      <h3>Instance Methods</h3>
+{{#if documentation.instanceMethods.length}}
+    <h3>Instance Methods</h3>
 
-      {{#each documentation.instanceMethods}}
-      {{>_function}}
-      {{/each}}
+    {{#each documentation.instanceMethods}}
+    {{>_function}}
+    {{/each}}
 
-  {{/if}}
-</div>
-
-{{>_footer}}
+{{/if}}
