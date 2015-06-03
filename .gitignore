@@ -14,3 +14,5 @@ docs/output
 docs/includes
 spec/fixtures/evil-files/
 yoursway-create-dmg
+
+!spec-nylas/fixtures/packages/package-with-incompatible-native-module/node_modules
