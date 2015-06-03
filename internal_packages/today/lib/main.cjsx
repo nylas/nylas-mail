@@ -14,3 +14,4 @@ module.exports =
 
   deactivate: ->
     ComponentRegistry.unregister(TodayView)
+    WorkspaceStore.undefineSheet('Today')

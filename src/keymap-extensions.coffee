@@ -44,7 +44,7 @@ KeymapManager::loadUserKeymap = ->
         [this document][watches] for more info.
         [watches]:https://github.com/atom/atom/blob/master/docs/build-instructions/linux.md#typeerror-unable-to-watch-path
       """
-      atom.notifications.addError(message, {dismissable: true})
+      console.error(message, {dismissable: true})
     else
       detail = error.path
       stack = error.stack
@@ -60,7 +60,7 @@ KeymapManager::subscribeToFileReadFailure = ->
     else
       error.message
 
-    atom.notifications.addError(message, {detail, dismissable: true})
+    console.error(message, {detail: detail, dismissable: true})
 
 # This enables command handlers registered via jQuery to call
 # `.abortKeyBinding()` on the `jQuery.Event` object passed to the handler.

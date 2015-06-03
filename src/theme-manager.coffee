@@ -271,7 +271,7 @@ class ThemeManager
         [this document][watches] for more info.
         [watches]:https://github.com/atom/atom/blob/master/docs/build-instructions/linux.md#typeerror-unable-to-watch-path
       """
-      atom.notifications.addError(message, dismissable: true)
+      console.error(message, dismissable: true)
 
     try
       userStylesheetContents = @loadStylesheet(userStylesheetPath, true)
@@ -328,7 +328,8 @@ class ThemeManager
         message = "Error loading Less stylesheet: `#{lessStylesheetPath}`"
         detail = error.message
 
-      atom.notifications.addError(message, {detail, dismissable: true})
+      console.error(message, {detail, dismissable: true})
+      console.error(detail)
       throw error
 
   removeStylesheet: (stylesheetPath) ->

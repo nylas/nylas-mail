@@ -7,6 +7,8 @@ Utils = require '../src/flux/models/utils'
 Exports =
 
   React: require 'react'
+  BufferedProcess: require '../src/buffered-process'
+  BufferedNodeProcess: require '../src/buffered-node-process'
 
   # The Task Queue
   Task: require '../src/flux/tasks/task'

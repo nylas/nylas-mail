@@ -23,6 +23,8 @@ module.exports =
       location: WorkspaceStore.Location.File
 
   deactivate: ->
-    ComponentRegistry.unregister FileList
-    ComponentRegistry.unregister FileSelectionBar
-    ComponentRegistry.unregister FileFrame
+    ComponentRegistry.unregister(FileList)
+    ComponentRegistry.unregister(FileSelectionBar)
+    ComponentRegistry.unregister(FileFrame)
+    WorkspaceStore.undefineSheet('Files')
+    WorkspaceStore.undefineSheet('File')

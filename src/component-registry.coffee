@@ -78,6 +78,7 @@ class ComponentRegistry
     if _.isString(component)
       throw new Error("ComponentRegistry.unregister() must be called with a component.")
     delete @_registry[component.displayName]
+    @triggerDebounced()
 
   # Public: Retrieve the registry entry for a given name.
   #
