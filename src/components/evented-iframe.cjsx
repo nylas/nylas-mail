@@ -47,8 +47,9 @@ class EventedIFrame extends React.Component
     doc.removeEventListener('mousedown', @_onIFrameMouseEvent)
     doc.removeEventListener('mousemove', @_onIFrameMouseEvent)
     doc.removeEventListener('mouseup', @_onIFrameMouseEvent)
-    node.contentWindow.removeEventListener('focus', @_onIFrameFocus)
-    node.contentWindow.removeEventListener('blur', @_onIFrameBlur)
+    if node.contentWindow
+      node.contentWindow.removeEventListener('focus', @_onIFrameFocus)
+      node.contentWindow.removeEventListener('blur', @_onIFrameBlur)
 
   _subscribeToIFrameEvents: =>
     node = React.findDOMNode(@)
@@ -59,8 +60,9 @@ class EventedIFrame extends React.Component
       doc.addEventListener("mousedown", @_onIFrameMouseEvent)
       doc.addEventListener("mousemove", @_onIFrameMouseEvent)
       doc.addEventListener("mouseup", @_onIFrameMouseEvent)
-      node.contentWindow.addEventListener("focus", @_onIFrameFocus)
-      node.contentWindow.addEventListener("blur", @_onIFrameBlur)
+      if node.contentWindow
+        node.contentWindow.addEventListener("focus", @_onIFrameFocus)
+        node.contentWindow.addEventListener("blur", @_onIFrameBlur)
 
   _onIFrameBlur: (event) =>
     node = React.findDOMNode(@)

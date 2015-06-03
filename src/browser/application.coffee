@@ -294,6 +294,9 @@ class Application
     ipc.on 'register-hot-window', (event, options) =>
       @windowManager.registerHotWindow(options)
 
+    ipc.on 'unregister-hot-window', (event, windowType) =>
+      @windowManager.unregisterHotWindow(windowType)
+
     app.on 'activate-with-no-open-windows', (event) =>
       @windowManager.ensurePrimaryWindowOnscreen()
       event.preventDefault()

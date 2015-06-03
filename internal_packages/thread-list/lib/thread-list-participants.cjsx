@@ -59,6 +59,7 @@ class ThreadListParticipants extends React.Component
       list = []
       last = null
       for msg in @props.thread.metadata
+        continue if msg.draft
         from = msg.from[0]
         if from and from.email isnt last
           list.push({
@@ -99,7 +100,6 @@ class ThreadListParticipants extends React.Component
       list = listTrimmed
 
     list
-
 
 
 module.exports = ThreadListParticipants

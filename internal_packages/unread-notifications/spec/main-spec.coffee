@@ -4,6 +4,7 @@ Message = require '../../../src/flux/models/message'
 Thread = require '../../../src/flux/models/thread'
 Tag = require '../../../src/flux/models/tag'
 DatabaseStore = require '../../../src/flux/stores/database-store'
+NamespaceStore = require '../../../src/flux/stores/namespace-store'
 Main = require '../lib/main'
 
 describe "UnreadNotifications", ->
@@ -50,6 +51,12 @@ describe "UnreadNotifications", ->
       date: new Date(2000,1,1)
       from: [new Contact(name: 'Mark', email: 'mark@example.com')]
       subject: "Hello World Old"
+      threadId: "A"
+    @msgFromMe = new Message
+      unread: true
+      date: new Date()
+      from: [NamespaceStore.current().me()]
+      subject: "A Sent Mail!"
       threadId: "A"
 
     spyOn(DatabaseStore, 'find').andCallFake (klass, id) =>
@@ -118,6 +125,12 @@ describe "UnreadNotifications", ->
   it "should not create a Notification if the new messages are actually old ones", ->
     waitsForPromise =>
       Main._onNewMailReceived({message: [@msgOld]})
+      .then ->
+        expect(window.Notification).not.toHaveBeenCalled()
+
+  it "should not create a Notification if the new message is one I sent", ->
+    waitsForPromise =>
+      Main._onNewMailReceived({message: [@msgFromMe]})
       .then ->
         expect(window.Notification).not.toHaveBeenCalled()
 

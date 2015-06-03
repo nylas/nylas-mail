@@ -18,10 +18,10 @@ class AtomWindow
   isSpec: null
 
   constructor: (settings={}) ->
-    {frame,
-     title,
+    {title,
      width,
      height,
+     toolbar,
      resizable,
      pathToOpen,
      hideMenuBar,
@@ -36,12 +36,23 @@ class AtomWindow
     # Normalize to make sure drive letter case is consistent on Windows
     @resourcePath = path.normalize(@resourcePath) if @resourcePath
 
+    # Mac: We'll render a CSS toolbar if `toolbar=true`. No frame required.
+    # Win / Linux: We don't render a toolbar in CSS - include frame if the
+    # window requests a toolbar. Remove this code once we have custom toolbars
+    # on win/linux.
+
+    toolbar ?= true
+    if process.platform is 'darwin'
+      frame = false
+    else
+      frame = toolbar
+
     options =
       show: false
       title: title ? 'Nylas'
-      frame: frame ? true
+      frame: frame
       #https://atomio.slack.com/archives/electron/p1432056952000608
-      'standard-window': frame ? true
+      'standard-window': frame
       width: width
       height: height
       resizable: resizable ? true
@@ -62,6 +73,7 @@ class AtomWindow
     @handleEvents()
 
     loadSettings = _.extend({}, settings)
+    loadSettings.toolbar = toolbar
     loadSettings.windowState ?= '{}'
     loadSettings.appVersion = app.getVersion()
     loadSettings.resourcePath = @resourcePath

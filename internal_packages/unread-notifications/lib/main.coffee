@@ -1,5 +1,5 @@
 _ = require 'underscore'
-{Actions, DatabaseStore, Thread, Tag} = require 'nylas-exports'
+{Actions, DatabaseStore, NamespaceStore, Thread, Tag} = require 'nylas-exports'
 
 module.exports =
   activate: ->
@@ -17,9 +17,13 @@ module.exports =
       incomingMessages = incoming['message'] ? []
       incomingThreads = incoming['thread'] ? []
 
-      # Filter for new messages
+      # Filter for new messages that are not sent by the current user
+      myEmail = NamespaceStore.current().emailAddress
       newUnread = _.filter incomingMessages, (msg) =>
-        msg.unread is true and msg.date?.valueOf() >= @activationTime
+        isUnread = msg.unread is true
+        isNew = msg.date?.valueOf() >= @activationTime
+        isFromMe = msg.from[0]?.email is myEmail
+        return isUnread and isNew and not isFromMe
 
       return resolve() if newUnread.length is 0
 

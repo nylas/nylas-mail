@@ -1,7 +1,7 @@
 _ = require 'underscore'
 React = require 'react'
 classNames = require 'classnames'
-{ListTabular, MultiselectList} = require 'nylas-component-kit'
+{ListTabular, MultiselectList, RetinaImg} = require 'nylas-component-kit'
 {timestamp, subject} = require './formatting-utils'
 {Actions,
  Utils,
@@ -29,7 +29,7 @@ class ThreadList extends React.Component
       msgs = thread.metadata
       return 'unknown' unless msgs and msgs instanceof Array
 
-      msgs = _.filter msgs, (m) -> m.isSaved()
+      msgs = _.filter msgs, (m) -> m.isSaved() and not m.draft
       msg = msgs[msgs.length - 1]
       return 'unknown' unless msgs.length > 0
 
@@ -51,7 +51,14 @@ class ThreadList extends React.Component
       name: "Name"
       width: 200
       resolver: (thread) =>
-        <ThreadListParticipants thread={thread} />
+        hasDraft = _.find (thread.metadata ? []), (m) -> m.draft
+        if hasDraft
+          <div style={display: 'flex'}>
+            <ThreadListParticipants thread={thread} />
+            <RetinaImg name="icon-draft-pencil.png" className="draft-icon" />
+          </div>
+        else
+          <ThreadListParticipants thread={thread} />
 
     c3 = new ListTabular.Column
       name: "Message"

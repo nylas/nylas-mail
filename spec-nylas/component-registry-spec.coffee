@@ -5,6 +5,10 @@ class TestComponent extends React.Component
   @displayName: 'TestComponent'
   constructor: ->
 
+class TestComponentNotSameIdentity extends React.Component
+  @displayName: 'TestComponent'
+  constructor: ->
+
 class TestComponentNoDisplayName extends React.Component
   constructor: ->
 
@@ -38,9 +42,13 @@ describe 'ComponentRegistry', ->
     it 'returns itself', ->
       expect(ComponentRegistry.register(TestComponent, {role: "bla"})).toBe(ComponentRegistry)
 
-    it 'does not allow components to be overridden by others with the same displayName', ->
+    it 'does allow the exact same component to be redefined with different role/locations', ->
       ComponentRegistry.register(TestComponent, {role: "bla"})
-      expect(-> ComponentRegistry.register(TestComponent, {role: "bla"})).toThrow()
+      expect(-> ComponentRegistry.register(TestComponent, {role: "other-role"})).not.toThrow()
+
+    it 'does not allow components to be overridden by other components with the same displayName', ->
+      ComponentRegistry.register(TestComponent, {role: "bla"})
+      expect(-> ComponentRegistry.register(TestComponentNotSameIdentity, {role: "bla"})).toThrow()
 
     it 'does not allow components to be registered without a displayName', ->
       expect(-> ComponentRegistry.register(TestComponentNoDisplayName, {role: "bla"})).toThrow()

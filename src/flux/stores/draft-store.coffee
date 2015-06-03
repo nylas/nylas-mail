@@ -310,12 +310,15 @@ class DraftStore
   _onPopoutDraftLocalId: (draftLocalId, options = {}) =>
     return unless NamespaceStore.current()
 
-    options.draftLocalId = draftLocalId
+    save = Promise.resolve()
+    if @_draftSessions[draftLocalId]
+      save = @_draftSessions[draftLocalId].changes.commit()
 
-    atom.newWindow
-      title: "Message"
-      windowType: "composer"
-      windowProps: options
+    save.then =>
+      atom.newWindow
+        title: "Message"
+        windowType: "composer"
+        windowProps: _.extend(options, {draftLocalId})
 
   _onHandleMailtoLink: (urlString) =>
     namespace = NamespaceStore.current()

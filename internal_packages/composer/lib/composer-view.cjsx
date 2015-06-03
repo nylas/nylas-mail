@@ -342,8 +342,6 @@ class ComposerView extends React.Component
     @_saveToHistory(selections) unless source.fromUndoManager
 
   _popoutComposer: =>
-    return unless @_proxy
-    @_proxy.changes.commit()
     Actions.composePopoutDraft @props.localId
 
   _sendDraft: (options = {}) =>
