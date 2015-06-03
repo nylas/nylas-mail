@@ -271,7 +271,8 @@ class Package
     else if indexStylesheet = fs.resolve(@path, 'index', ['css', 'less'])
       [indexStylesheet]
     else
-      fs.listSync(stylesheetDirPath, ['css', 'less'])
+      _.filter fs.listSync(stylesheetDirPath, ['css', 'less']), (file) ->
+        path.basename(file)[0] isnt '.'
 
   loadGrammarsSync: ->
     return if @grammarsLoaded

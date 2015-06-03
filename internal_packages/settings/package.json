@@ -1,0 +1,14 @@
+{
+  "name": "settings",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Settings",
+  "license": "Proprietary",
+  "private": true,
+  "engines": {
+    "atom": "*"
+  },
+  "dependencies": {
+    "moment": "^2.8"
+  }
+}

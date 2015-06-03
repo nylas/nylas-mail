@@ -21,7 +21,8 @@ module.exports =
       role: 'Composer'
 
     if atom.isMainWindow()
-      @_activateComposeButton()
+      ComponentRegistry.register NewComposeButton,
+        location: WorkspaceStore.Location.RootSidebar.Toolbar
     else
       @_setupContainer()
 
@@ -34,14 +35,9 @@ module.exports =
       @_showInitialErrorDialog(errorMessage)
 
   deactivate: ->
+    ComponentRegistry.unregister(ComposerView)
     if atom.isMainWindow()
-      React.unmountComponentAtNode(@_composeButton)
-      @_composeButton.remove()
-      @_composeButton = null
-    else
-      React.unmountComponentAtNode(@_container)
-      @_container.remove()
-      @_container = null
+      ComponentRegistry.unregister(NewComposeButton)
 
   serialize: -> @state
 
@@ -51,10 +47,6 @@ module.exports =
     @_container.setAttribute("id", "composer-full-window")
     @_container.setAttribute("class", "composer-full-window")
     document.body.appendChild(@_container)
-
-  _activateComposeButton: ->
-    ComponentRegistry.register NewComposeButton,
-      location: WorkspaceStore.Location.RootSidebar.Toolbar
 
   _showInitialErrorDialog: (msg) ->
     remote = require('remote')

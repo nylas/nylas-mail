@@ -12,6 +12,9 @@ class ActivitySidebar extends React.Component
   @displayName: 'ActivitySidebar'
 
   @containerRequired: false
+  @containerStyles:
+    minWidth: 165
+    maxWidth: 190
 
   constructor: (@props) ->
     @state = @_getStateFromStores()

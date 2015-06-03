@@ -1,6 +1,7 @@
 Reflux = require 'reflux'
 NamespaceStore = require './namespace-store'
 Actions = require '../actions'
+_ = require 'underscore'
 
 {Listener, Publisher} = require '../modules/reflux-coffee'
 CoffeeHelpers = require '../coffee-helpers'
@@ -150,6 +151,12 @@ class WorkspaceStore
       Header: {id: "Sheet:#{id}:Header"}
       Footer: {id: "Sheet:#{id}:Footer"}
 
+    @triggerDebounced()
+
+  undefineSheet: (id) =>
+    delete Sheet[id]
+    @triggerDebounced()
+
   # Push the sheet on top of the current sheet, with a quick animation.
   # A back button will appear in the top left of the pushed sheet.
   # This method triggers, allowing observers to update.
@@ -177,5 +184,7 @@ class WorkspaceStore
   popToRootSheet: =>
     @_sheetStack.length = 1
     @trigger()
+
+  triggerDebounced: _.debounce(( -> @trigger(@)), 1)
 
 module.exports = new WorkspaceStore()

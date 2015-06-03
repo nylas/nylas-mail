@@ -8,3 +8,6 @@ module.exports =
   activate: (@state) ->
     ComponentRegistry.register AccountSidebar,
       location: WorkspaceStore.Location.RootSidebar
+
+  deactivate: (@state) ->
+    ComponentRegistry.unregister(AccountSidebar)
