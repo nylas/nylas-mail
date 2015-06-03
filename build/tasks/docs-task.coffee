@@ -188,8 +188,8 @@ module.exports = (grunt) ->
       sorted.push(val)
 
     api_sidebar_meta = sorted.map ({name, classes}) ->
-        name: name
-        items: classes.map ({name}) -> {name: name, link: relativePathForClass(name), slug: name.toLowerCase() }
+      name: name
+      items: classes.map ({name}) -> {name: name, link: relativePathForClass(name), slug: name.toLowerCase() }
 
     console.log("Here's the sidebar info:")
     console.log(api_sidebar_meta.toString())
