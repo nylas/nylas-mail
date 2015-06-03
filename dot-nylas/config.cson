@@ -1,7 +1,7 @@
 'global':
   'core':
     'themes': [
-      'light-ui'
+      'ui-light'
     ]
     'disabledPackages': [
       "calendar-bar",

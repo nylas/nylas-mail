@@ -23,7 +23,7 @@ describe 'ModuleCache', ->
       _atomModuleCache:
         extensions:
           '.json': [
-            path.join('spec', 'fixtures', 'module-cache', 'file.json')
+            path.join('spec-nylas', 'fixtures', 'module-cache', 'file.json')
           ]
     }
     expect(require('./fixtures/module-cache/file.json').foo).toBe 'bar'
@@ -46,7 +46,7 @@ describe 'ModuleCache', ->
         dependencies: [{
           name: 'underscore'
           version: require('underscore/package.json').version
-          path: path.join('node_modules', 'underscore', 'lib', 'underscore.js')
+          path: path.join('node_modules', 'underscore', 'underscore.js')
         }]
     }
 
@@ -77,7 +77,7 @@ describe 'ModuleCache', ->
         dependencies: [{
           name: 'underscore'
           version: require('underscore/package.json').version
-          path: path.join('node_modules', 'underscore', 'lib', 'underscore.js')
+          path: path.join('node_modules', 'underscore', 'underscore.js')
         }]
     }
 

@@ -27,7 +27,7 @@ atom.themes.loadBaseStylesheets()
 atom.themes.requireStylesheet '../static/jasmine'
 atom.themes.initialLoadComplete = true
 
-fixturePackagesPath = path.resolve(__dirname, './fixtures/packages')
+fixturePackagesPath = path.resolve(__dirname, '../spec-nylas/fixtures/packages')
 atom.packages.packageDirPaths.unshift(fixturePackagesPath)
 atom.keymaps.loadBundledKeymaps()
 keyBindingsToRestore = atom.keymaps.getKeyBindings()
@@ -101,6 +101,7 @@ ReactTestUtils.unmountAll = ->
 beforeEach ->
   Grim.clearDeprecations() if isCoreSpec
   ComponentRegistry._clear()
+  global.localStorage.clear()
 
   TaskQueue._queue = []
   TaskQueue._completed = []
@@ -325,8 +326,11 @@ window.waitsForPromise = (args...) ->
 
   window.waitsFor timeout, (moveOn) ->
     promise = fn()
-    if not (promise instanceof Promise)
-      jasmine.getEnv().currentSpec.fail("Expected callback to return a promise, but it returned #{promise}")
+    # Keep in mind we can't check `promise instanceof Promise` because parts of
+    # the app still use other Promise libraries (Atom used Q, we use Bluebird.)
+    # Just see if it looks promise-like.
+    if not promise or not promise.then
+      jasmine.getEnv().currentSpec.fail("Expected callback to return a promise-like object, but it returned #{promise}")
       moveOn()
     else if shouldReject
       promise.catch(moveOn)

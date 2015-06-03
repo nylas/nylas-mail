@@ -14,7 +14,7 @@ module.exports =
           type: 'string'
       themes:
         type: 'array'
-        default: ['light-ui']
+        default: ['ui-light']
         items:
           type: 'string'
 

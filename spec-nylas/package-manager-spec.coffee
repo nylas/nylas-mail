@@ -6,7 +6,8 @@ describe "PackageManager", ->
   workspaceElement = null
 
   beforeEach ->
-    workspaceElement = atom.views.getView(atom.workspace)
+    workspaceElement = document.createElement('atom-workspace')
+    jasmine.attachToDOM(workspaceElement)
 
   describe "::loadPackage(name)", ->
     beforeEach ->
@@ -32,7 +33,7 @@ describe "PackageManager", ->
     it "returns null if the package has an invalid package.json", ->
       spyOn(console, 'warn')
       expect(atom.packages.loadPackage("package-with-broken-package-json")).toBeNull()
-      expect(console.warn.callCount).toBe(1)
+      expect(console.warn.callCount).toBe(2)
       expect(console.warn.argsForCall[0][0]).toContain("Failed to load package.json")
 
     it "returns null if the package is not found in any package directory", ->
@@ -154,64 +155,6 @@ describe "PackageManager", ->
             expect(atom.config.get('package-with-config-defaults.numbers.one')).toBe 1
             expect(atom.config.get('package-with-config-defaults.numbers.two')).toBe 2
 
-      describe "when the package metadata includes `activationCommands`", ->
-        [mainModule, promise, workspaceCommandListener] = []
-
-        beforeEach ->
-          jasmine.attachToDOM(workspaceElement)
-          mainModule = require './fixtures/packages/package-with-activation-commands/index'
-          mainModule.legacyActivationCommandCallCount = 0
-          mainModule.activationCommandCallCount = 0
-          spyOn(mainModule, 'activate').andCallThrough()
-          spyOn(Package.prototype, 'requireMainModule').andCallThrough()
-
-          workspaceCommandListener = jasmine.createSpy('workspaceCommandListener')
-          atom.commands.add '.workspace', 'activation-command', workspaceCommandListener
-
-          promise = atom.packages.activatePackage('package-with-activation-commands')
-
-        it "defers requiring/activating the main module until an activation event bubbles to the root view", ->
-          expect(promise.isFulfilled()).not.toBeTruthy()
-          workspaceElement.dispatchEvent(new CustomEvent('activation-command', bubbles: true))
-
-          waitsForPromise ->
-            promise
-
-        it "triggers the activation event on all handlers registered during activation", ->
-          waitsForPromise ->
-            atom.workspace.open()
-
-          runs ->
-            editorView = atom.views.getView(atom.workspace.getActiveTextEditor()).__spacePenView
-            legacyCommandListener = jasmine.createSpy("legacyCommandListener")
-            editorView.command 'activation-command', legacyCommandListener
-            editorCommandListener = jasmine.createSpy("editorCommandListener")
-            atom.commands.add 'atom-text-editor', 'activation-command', editorCommandListener
-            atom.commands.dispatch(editorView[0], 'activation-command')
-            expect(mainModule.activate.callCount).toBe 1
-            expect(mainModule.legacyActivationCommandCallCount).toBe 1
-            expect(mainModule.activationCommandCallCount).toBe 1
-            expect(legacyCommandListener.callCount).toBe 1
-            expect(editorCommandListener.callCount).toBe 1
-            expect(workspaceCommandListener.callCount).toBe 1
-            atom.commands.dispatch(editorView[0], 'activation-command')
-            expect(mainModule.legacyActivationCommandCallCount).toBe 2
-            expect(mainModule.activationCommandCallCount).toBe 2
-            expect(legacyCommandListener.callCount).toBe 2
-            expect(editorCommandListener.callCount).toBe 2
-            expect(workspaceCommandListener.callCount).toBe 2
-            expect(mainModule.activate.callCount).toBe 1
-
-        it "activates the package immediately when the events are empty", ->
-          mainModule = require './fixtures/packages/package-with-empty-activation-commands/index'
-          spyOn(mainModule, 'activate').andCallThrough()
-
-          waitsForPromise ->
-            atom.packages.activatePackage('package-with-empty-activation-commands')
-
-          runs ->
-            expect(mainModule.activate.callCount).toBe 1
-
     describe "when the package has no main module", ->
       it "does not throw an exception", ->
         spyOn(console, "error")
@@ -233,7 +176,7 @@ describe "PackageManager", ->
         waitsForPromise ->
           atom.packages.activatePackage("package-with-serialization")
         runs ->
-          expect(pack.mainModule.activate).toHaveBeenCalledWith({someNumber: 77})
+          expect(pack.mainModule.activate.calls[0].args[0]).toEqual({someNumber: 77})
 
     it "invokes ::onDidActivatePackage listeners with the activated package", ->
       activatedPackage = null
@@ -424,15 +367,6 @@ describe "PackageManager", ->
 
           expect(count).toBe 4
 
-    describe "grammar loading", ->
-      it "loads the package's grammars", ->
-        waitsForPromise ->
-          atom.packages.activatePackage('package-with-grammars')
-
-        runs ->
-          expect(atom.grammars.selectGrammar('a.alot').name).toBe 'Alot'
-          expect(atom.grammars.selectGrammar('a.alittle').name).toBe 'Alittle'
-
     describe "scoped-property loading", ->
       it "loads the scoped properties", ->
         waitsForPromise ->
@@ -549,15 +483,6 @@ describe "PackageManager", ->
       runs ->
         expect(-> atom.packages.deactivatePackage("package-that-throws-on-deactivate")).not.toThrow()
         expect(console.error).toHaveBeenCalled()
-
-    it "removes the package's grammars", ->
-      waitsForPromise ->
-        atom.packages.activatePackage('package-with-grammars')
-
-      runs ->
-        atom.packages.deactivatePackage('package-with-grammars')
-        expect(atom.grammars.selectGrammar('a.alot').name).toBe 'Null Grammar'
-        expect(atom.grammars.selectGrammar('a.alittle').name).toBe 'Null Grammar'
 
     it "removes the package's keymaps", ->
       waitsForPromise ->
