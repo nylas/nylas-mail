@@ -31,7 +31,7 @@
   .token {
     display: inline-block;
     position: relative;
-    padding: 0.5em @spacing-half 0.10em @spacing-half;
+    padding: 0.4em @spacing-half 0.4em @spacing-half;
     padding-right: 1.5em;
     margin: 0 5px 5px 0;
     border-radius: @border-radius-base;
@@ -43,7 +43,7 @@
       position:absolute;
       padding: 0;
       padding-top: 1px;
-      right: 5px;
+      right: 7px;
       border: 0;
       margin: 0;
       background-color: transparent;
@@ -58,7 +58,10 @@
     &.dragging {
       background-color: @background-tertiary;
       color: @text-color-inverse;
-      .action { color: @text-color-inverse-subtle; }
+      .action {
+        color: @text-color-inverse-subtle;
+        img { -webkit-filter: brightness(100); }
+      }
     }
     &.dragging {
       cursor: -webkit-grabbing;
@@ -85,12 +88,17 @@
     input {
       display: inline-block;
       width: initial;
-      padding: 6px 0 3px 0;
-      margin: 0 5px 5px 0;
+      vertical-align:top;
       border: none;
       min-width: 5em;
       background-color:transparent;
-      vertical-align:bottom;
+
+      // Note: padding and margin should match `.token` to ensure
+      // they have the same baseline!
+      padding: 0.4em @spacing-half 0.4em @spacing-half;
+      padding-right: 1.5em;
+      margin: 0 5px 5px 0;
+
       &.noop-input {
         position: absolute;
         min-width: 0;

@@ -10,28 +10,28 @@ EmailFixingStyles = """
     font-family: 'FaktPro';
     font-style: normal;
     font-weight: 300;
-    src: local('FaktPro-Blond'), url('fonts/Fakt/FaktPro-Blond.ttf'), local('Comic Sans MS');
+    src: local('FaktPro-Blond'), url('fonts/Fakt/FaktPro-Blond.otf'), local('Comic Sans MS');
   }
 
   @font-face {
     font-family: 'FaktPro';
     font-style: normal;
     font-weight: 400;
-    src: local('FaktPro-Normal'), url('fonts/Fakt/FaktPro-Normal.ttf'), local('Comic Sans MS');
+    src: local('FaktPro-Normal'), url('fonts/Fakt/FaktPro-Normal.otf'), local('Comic Sans MS');
   }
 
   @font-face {
     font-family: 'FaktPro';
     font-style: normal;
     font-weight: 500;
-    src: local('FaktPro-Medium'), url('fonts/Fakt/FaktPro-Medium.ttf'), local('Comic Sans MS');
+    src: local('FaktPro-Medium'), url('fonts/Fakt/FaktPro-Medium.otf'), local('Comic Sans MS');
   }
 
   @font-face {
     font-family: 'FaktPro';
     font-style: normal;
     font-weight: 600;
-    src: local('FaktPro-SemiBold'), url('fonts/Fakt/FaktPro-SemiBold.ttf'), local('Comic Sans MS');
+    src: local('FaktPro-SemiBold'), url('fonts/Fakt/FaktPro-SemiBold.otf'), local('Comic Sans MS');
   }
 
   /* Clean Message Display */
