@@ -6,7 +6,7 @@ LessCache = require 'less-cache'
 module.exports = (grunt) ->
   grunt.registerMultiTask 'prebuild-less', 'Prebuild cached of compiled LESS files', ->
     prebuiltConfigurations = [
-      ['light-ui']
+      ['ui-light', 'ui-dark']
     ]
 
     directory = path.join(grunt.config.get('atom.appDir'), 'less-compile-cache')
@@ -19,7 +19,7 @@ module.exports = (grunt) ->
         themePath = path.resolve('node_modules', theme)
         if fs.existsSync(themePath) is false
           themePath = path.resolve('internal_packages', theme)
-          
+
         if fs.existsSync(path.join(themePath, 'stylesheets'))
           stylesheetsDir = path.join(themePath, 'stylesheets')
         else

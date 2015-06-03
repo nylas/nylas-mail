@@ -3,20 +3,23 @@ path = require 'path'
 Package = require '../src/package'
 ThemePackage = require '../src/theme-package'
 
+resolveFixturePath = (packagename) ->
+  path.join(__dirname, 'fixtures', 'packages', packagename)
+
 describe "Package", ->
   describe "when the package contains incompatible native modules", ->
     beforeEach ->
       spyOn(atom, 'inDevMode').andReturn(false)
 
     it "does not activate it", ->
-      packagePath = atom.project.getDirectories()[0]?.resolve('packages/package-with-incompatible-native-module')
+      packagePath = resolveFixturePath('package-with-incompatible-native-module')
       pack = new Package(packagePath)
       expect(pack.isCompatible()).toBe false
       expect(pack.incompatibleModules[0].name).toBe 'native-module'
       expect(pack.incompatibleModules[0].path).toBe path.join(packagePath, 'node_modules', 'native-module')
 
     it "caches the incompatible native modules in local storage", ->
-      packagePath = atom.project.getDirectories()[0]?.resolve('packages/package-with-incompatible-native-module')
+      packagePath = resolveFixturePath('package-with-incompatible-native-module')
       cacheKey = null
       cacheItem = null
 
@@ -46,14 +49,14 @@ describe "Package", ->
     describe "when the theme contains a single style file", ->
       it "loads and applies css", ->
         expect($("atom-text-editor").css("padding-bottom")).not.toBe "1234px"
-        themePath = atom.project.getDirectories()[0]?.resolve('packages/theme-with-index-css')
+        themePath = resolveFixturePath('theme-with-index-css')
         theme = new ThemePackage(themePath)
         theme.activate()
         expect($("atom-text-editor").css("padding-top")).toBe "1234px"
 
       it "parses, loads and applies less", ->
         expect($("atom-text-editor").css("padding-bottom")).not.toBe "1234px"
-        themePath = atom.project.getDirectories()[0]?.resolve('packages/theme-with-index-less')
+        themePath = resolveFixturePath('theme-with-index-less')
         theme = new ThemePackage(themePath)
         theme.activate()
         expect($("atom-text-editor").css("padding-top")).toBe "4321px"
@@ -64,7 +67,7 @@ describe "Package", ->
         expect($("atom-text-editor").css("padding-right")).not.toBe("102px")
         expect($("atom-text-editor").css("padding-bottom")).not.toBe("103px")
 
-        themePath = atom.project.getDirectories()[0]?.resolve('packages/theme-with-package-file')
+        themePath = resolveFixturePath('theme-with-package-file')
         theme = new ThemePackage(themePath)
         theme.activate()
         expect($("atom-text-editor").css("padding-top")).toBe("101px")
@@ -77,7 +80,7 @@ describe "Package", ->
         expect($("atom-text-editor").css("padding-right")).not.toBe "20px"
         expect($("atom-text-editor").css("padding-bottom")).not.toBe "30px"
 
-        themePath = atom.project.getDirectories()[0]?.resolve('packages/theme-without-package-file')
+        themePath = resolveFixturePath('theme-without-package-file')
         theme = new ThemePackage(themePath)
         theme.activate()
         expect($("atom-text-editor").css("padding-top")).toBe "10px"
@@ -86,7 +89,7 @@ describe "Package", ->
 
     describe "reloading a theme", ->
       beforeEach ->
-        themePath = atom.project.getDirectories()[0]?.resolve('packages/theme-with-package-file')
+        themePath = resolveFixturePath('theme-with-package-file')
         theme = new ThemePackage(themePath)
         theme.activate()
 
@@ -97,7 +100,7 @@ describe "Package", ->
 
     describe "events", ->
       beforeEach ->
-        themePath = atom.project.getDirectories()[0]?.resolve('packages/theme-with-package-file')
+        themePath = resolveFixturePath('theme-with-package-file')
         theme = new ThemePackage(themePath)
         theme.activate()
 

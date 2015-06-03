@@ -2,7 +2,7 @@ path = require 'path'
 
 _ = require 'underscore'
 EmitterMixin = require('emissary').Emitter
-{Emitter, Disposable} = require 'event-kit'
+{Emitter, Disposable, CompositeDisposable} = require 'event-kit'
 {File} = require 'pathwatcher'
 fs = require 'fs-plus'
 Q = require 'q'
@@ -196,15 +196,15 @@ class ThemeManager
         console.warn("Enabled theme '#{themeName}' is not installed.")
       false
 
-    # Use a built-in syntax and UI theme any time the configured themes are not
+    # Use a built-in theme any time the configured themes are not
     # available.
     if themeNames.length is 0
       builtInThemeNames = [
-        'light-ui'
+        'ui-light', 'ui-dark'
       ]
       themeNames = _.intersection(themeNames, builtInThemeNames)
       if themeNames.length is 0
-        themeNames = ['light-ui']
+        themeNames = ['ui-light']
 
     # Reverse so the first (top) theme is loaded after the others. We want
     # the first/top theme to override later themes in the stack.
@@ -254,7 +254,6 @@ class ThemeManager
 
     userStylesheetPath = atom.styles.getUserStyleSheetPath()
     return unless fs.isFileSync(userStylesheetPath)
-
     try
       @userStylesheetFile = new File(userStylesheetPath)
       @userStylsheetSubscriptions = new CompositeDisposable()
@@ -272,6 +271,7 @@ class ThemeManager
         [watches]:https://github.com/atom/atom/blob/master/docs/build-instructions/linux.md#typeerror-unable-to-watch-path
       """
       console.error(message, dismissable: true)
+      console.error(error.toString())
 
     try
       userStylesheetContents = @loadStylesheet(userStylesheetPath, true)

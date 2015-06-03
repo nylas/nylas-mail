@@ -19,6 +19,10 @@ atom-workspace {
   position: relative;
   font-family: @font-family;
 
+  /* Important: This attribute is used in the theme-manager-specs to check that
+     themes load and override each other correctly. Do not remove! */
+  background-color: @background-primary;
+
   atom-workspace-axis.horizontal {
     display: -webkit-flex;
     height: 100%;
