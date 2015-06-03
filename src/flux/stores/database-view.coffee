@@ -312,7 +312,9 @@ class DatabaseView extends ModelView
         @log("Metadata version #{touchTime} fetched, but out of date (current is #{page.lastTouchTime})")
         return
 
-      for item in items
+      for item, idx in items
+        if Object.isFrozen(item)
+          item = items[idx] = new @klass(item)
         item.metadata = results[item.id]
         page.metadata[item.id] = results[item.id]
 

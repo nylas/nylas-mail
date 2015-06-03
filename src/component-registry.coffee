@@ -61,8 +61,8 @@ class ComponentRegistry
 
     throw new Error("ComponentRegistry.register() requires `role` or `location`") if not roles and not locations
 
-    if @_registry[component.displayName]
-      throw new Error("ComponentRegistry.register(): A component has already been registered with the name #{component.displayName}")
+    if @_registry[component.displayName] and @_registry[component.displayName].component isnt component
+      throw new Error("ComponentRegistry.register(): A different component was already registered with the name #{component.displayName}")
 
     @_registry[component.displayName] = {component, locations, modes, roles}
 

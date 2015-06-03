@@ -24,21 +24,6 @@ class WorkspaceStore
   @include Listener
 
   constructor: ->
-    @Location = Location
-    @Sheet = Sheet
-
-    @defineSheet 'Global'
-
-    @defineSheet 'Threads', {root: true},
-      list: ['RootSidebar', 'ThreadList']
-      split: ['RootSidebar', 'ThreadList', 'MessageList', 'MessageListSidebar']
-
-    @defineSheet 'Drafts', {root: true, name: 'Local Drafts'},
-      list: ['RootSidebar', 'DraftList']
-
-    @defineSheet 'Thread', {},
-      list: ['MessageList', 'MessageListSidebar']
-
     @_resetInstanceVars()
 
     @listenTo Actions.selectRootSheet, @_onSelectRootSheet
@@ -52,10 +37,24 @@ class WorkspaceStore
       'application:pop-sheet': => @popSheet()
 
   _resetInstanceVars: =>
+    @Location = Location = {}
+    @Sheet = Sheet = {}
+
     @_preferredLayoutMode = 'list'
     @_sheetStack = []
 
-    @_onSelectRootSheet(Sheet.Threads)
+    if atom.isMainWindow()
+      @defineSheet 'Global'
+      @defineSheet 'Threads', {root: true},
+        list: ['RootSidebar', 'ThreadList']
+        split: ['RootSidebar', 'ThreadList', 'MessageList', 'MessageListSidebar']
+      @defineSheet 'Drafts', {root: true, name: 'Local Drafts'},
+        list: ['RootSidebar', 'DraftList']
+      @defineSheet 'Thread', {},
+        list: ['MessageList', 'MessageListSidebar']
+      @_onSelectRootSheet(Sheet.Threads)
+    else
+      @defineSheet 'Global'
 
   ###
   Inbound Events
@@ -97,10 +96,13 @@ class WorkspaceStore
   # Returns a {String}: The current layout mode. Either `split` or `list`
   #
   layoutMode: =>
-    if @_preferredLayoutMode in @rootSheet().supportedModes
+    root = @rootSheet()
+    if not root
+      'list'
+    else if @_preferredLayoutMode in root.supportedModes
       @_preferredLayoutMode
     else
-      @rootSheet().supportedModes[0]
+      root.supportedModes[0]
 
   # Returns The top {Sheet} in the current stack. Use this method to determine
   # the sheet the user is looking at.
@@ -151,6 +153,9 @@ class WorkspaceStore
       Header: {id: "Sheet:#{id}:Header"}
       Footer: {id: "Sheet:#{id}:Footer"}
 
+    if options.root and not @rootSheet()
+      @_onSelectRootSheet(Sheet[id])
+
     @triggerDebounced()
 
   undefineSheet: (id) =>
@@ -176,7 +181,7 @@ class WorkspaceStore
       @_sheetStack.pop()
       @trigger()
 
-    if sheet is Sheet.Thread
+    if Sheet.Thread and sheet is Sheet.Thread
       Actions.focusInCollection(collection: 'thread', item: null)
 
   # Return to the root sheet. This method triggers, allowing observers

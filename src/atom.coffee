@@ -445,17 +445,33 @@ class Atom extends Model
   reload: ->
     ipc.send('call-window-method', 'restart')
 
-  # Calls the `windowPropsReceived` method of all packages that are
-  # currently loaded
+  # Updates the window load settings - called when the app is ready to display
+  # a hot-loaded window. Causes listeners registered with `onWindowPropsReceived`
+  # to receive new window props.
   loadSettingsChanged: (loadSettings) =>
     @loadSettings = loadSettings
     @constructor.loadSettings = loadSettings
     {width, height, windowProps} = loadSettings
 
-    @packages.windowPropsReceived(windowProps ? {})
+    @emitter.emit('window-props-received', windowProps ? {})
 
     if width and height
       @setWindowDimensions({width, height})
+
+  # Public: The windowProps passed when creating the window via `newWindow`.
+  #
+  getWindowProps: ->
+    @getLoadSettings().windowProps ? {}
+
+  # Public: If your package declares hot-loaded window types, `onWindowPropsReceived`
+  # fires when your hot-loaded window is about to be shown so you can update
+  # components to reflect the new window props.
+  #
+  # - callback: A function to call when window props are received, just before
+  #   the hot window is shown. The first parameter is the new windowProps.
+  #
+  onWindowPropsReceived: (callback) ->
+    @emitter.on('window-props-received', callback)
 
   # Extended: Returns a {Boolean} true when the current window is maximized.
   isMaximixed: ->
@@ -579,7 +595,7 @@ class Atom extends Model
     @keymaps.loadBundledKeymaps()
     @themes.loadBaseStylesheets()
     @packages.loadPackages()
-    @deserializeEditorWindow()
+    @deserializeRootWindow()
     @packages.activate()
     @keymaps.loadUserKeymap()
     @requireUserInitScript() unless safeMode
@@ -589,10 +605,10 @@ class Atom extends Model
       'atom-workspace:add-account': =>
         options =
           title: 'Add an Account'
-          frame: false
           page: 'add-account'
           width: 340
           height: 550
+          toolbar: false
           resizable: false
           windowType: 'onboarding'
           windowPackages: ['onboarding']
@@ -611,7 +627,6 @@ class Atom extends Model
     {width,
      height,
      windowType,
-     windowProps,
      windowPackages} = @getLoadSettings()
 
     @loadConfig()
@@ -622,10 +637,10 @@ class Atom extends Model
 
     @packages.loadPackages(windowType)
     @packages.loadPackage(pack) for pack in (windowPackages ? [])
+    @deserializeSheetContainer()
     @packages.activate()
 
     ipc.on("load-settings-changed", @loadSettingsChanged)
-    @packages.windowPropsReceived(windowProps ? {})
 
     @keymaps.loadUserKeymap()
 
@@ -646,6 +661,9 @@ class Atom extends Model
   # See the valid option types in Application::registerHotWindow in
   # src/browser/application.coffee
   registerHotWindow: (options={}) -> ipc.send('register-hot-window', options)
+
+  # Unregisters a hot window with the given windowType
+  unregisterHotWindow: (windowType) -> ipc.send('unregister-hot-window', windowType)
 
   unloadEditorWindow: ->
     @packages.deactivatePackages()
@@ -737,7 +755,7 @@ class Atom extends Model
   Section: Private
   ###
 
-  deserializeWorkspaceView: ->
+  deserializeSheetContainer: ->
     startTime = Date.now()
     # Put state back into sheet-container? Restore app state here
     @deserializeTimings.workspace = Date.now() - startTime
@@ -756,9 +774,9 @@ class Atom extends Model
     @packages.packageStates = @savedState.packageStates ? {}
     delete @savedState.packageStates
 
-  deserializeEditorWindow: ->
+  deserializeRootWindow: ->
     @deserializePackageStates()
-    @deserializeWorkspaceView()
+    @deserializeSheetContainer()
 
   loadThemes: ->
     @themes.load()

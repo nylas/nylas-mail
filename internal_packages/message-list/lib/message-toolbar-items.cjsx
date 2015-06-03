@@ -29,7 +29,7 @@ class MessageToolbarItems extends React.Component
   componentWillUnmount: =>
     unsubscribe() for unsubscribe in @_unsubscribers
 
-  _onChange: => _.defer =>
+  _onChange: =>
     @setState
       threadIsSelected: FocusedContentStore.focusedId('thread')?
 

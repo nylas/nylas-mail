@@ -2,8 +2,8 @@ React = require 'react'
 {Message, Actions, NamespaceStore} = require 'nylas-exports'
 {RetinaImg} = require 'nylas-component-kit'
 
-class NewComposeButton extends React.Component
-  @displayName: 'NewComposeButton'
+class ComposeButton extends React.Component
+  @displayName: 'ComposeButton'
 
   render: =>
     <button style={order: 101}
@@ -15,4 +15,4 @@ class NewComposeButton extends React.Component
 
   _onNewCompose: => Actions.composeNewBlankDraft()
 
-module.exports = NewComposeButton
+module.exports = ComposeButton

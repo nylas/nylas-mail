@@ -7,6 +7,8 @@ querystring = require 'querystring'
 {RetinaImg} = require 'nylas-component-kit'
 
 class ContainerView extends React.Component
+  @displayName: 'ContainerView'
+  @containerRequired: false
 
   constructor: (@props) ->
     @state = @getStateFromStore()
@@ -51,10 +53,12 @@ class ContainerView extends React.Component
             OnboardingActions.moveToPreviousPage()
 
   render: =>
-    <ReactCSSTransitionGroup transitionName="page">
-    {@_pageComponent()}
-    <div className="dragRegion" style={"WebkitAppRegion": "drag", position: 'absolute', top:0, left:40, right:0, height: 20, zIndex:100}></div>
-    </ReactCSSTransitionGroup>
+    <div className="onboarding-container">
+      <ReactCSSTransitionGroup transitionName="page">
+      {@_pageComponent()}
+      <div className="dragRegion" style={"WebkitAppRegion": "drag", position: 'absolute', top:0, left:40, right:0, height: 20, zIndex:100}></div>
+      </ReactCSSTransitionGroup>
+    </div>
 
   _pageComponent: =>
     if @state.error

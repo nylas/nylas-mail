@@ -108,7 +108,8 @@
     padding: 5px @spacing-standard 0 0;
     margin: 0 @spacing-standard;
     border-bottom: 1px solid @border-color-divider;
-
+    flex-shrink:0;
+    
     .subject-label {
       color: @text-color-very-subtle;
       float: left;
@@ -280,6 +281,7 @@ body.is-blurred .composer-inner-wrap .tokenizing-field .token {
   position: relative;
   z-index: 2;
   padding: 5px @spacing-standard 0 @spacing-standard;
+  flex-shrink: 0;
 
   .participant {
     white-space: nowrap;

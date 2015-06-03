@@ -85,7 +85,6 @@ class WindowManager
         devMode: @devMode
         safeMode: @safeMode
         neverClose: true
-        frame: process.platform isnt 'darwin'
         mainWindow: true
 
 
@@ -104,7 +103,7 @@ class WindowManager
   newOnboardingWindow: ->
     @newWindow
       title: 'Welcome to Nylas'
-      frame: false
+      toolbar: false
       width: 340
       height: 550
       resizable: false
@@ -136,7 +135,10 @@ class WindowManager
   #
   # This means that when `newWindow` is called, instead of going through
   # the bootup process, it simply replaces key parameters and does a soft
-  # reload via `windowPropsReceived`.
+  # reload.
+  #
+  # To listen for window props being sent to your existing hot-loaded window,
+  # add a callback to `atom.onWindowPropsChanged`.
   #
   # Since the window is already loaded, there are only some options that
   # can be soft-reloaded. If you attempt to pass options that a soft
@@ -156,10 +158,6 @@ class WindowManager
   #       need to initialize properly. NOTE: You can only put JSON
   #       serializable data. No functions!
   #   - title: The title of the page
-  #
-  # Other options that will trigger a
-  #   - frame: defaults true. Whether or not the popup has a frame
-  #   - forceNewWindow
   #
   # Other non required options:
   #   - All of the options of BrowserWindow
@@ -202,6 +200,28 @@ class WindowManager
 
     @_replenishHotWindows()
 
+  unregisterHotWindow: (windowType) ->
+    return unless @_hotWindows[windowType]
+
+    # Remove entries from the replentishQueue
+    @_replenishQueue = _.reject @_replenishQueue, (item) => item.windowType is windowType
+
+    # Destroy any hot windows already loaded
+    destroyedLoadingWindow = false
+    {loadedWindows} = @_hotWindows[windowType]
+    for win in loadedWindows
+      destroyedLoadingWindow = true if not win.loaded
+      win.browserWindow.destroy()
+
+    # Delete the hot window configuration
+    delete @_hotWindows[windowType]
+
+    # If we destroyed a window that was currently loading,
+    # the queue will stop processing forever.
+    if destroyedLoadingWindow
+      @_processingQueue = false
+      @_processReplenishQueue()
+
   # Immediately close all of the hot windows and reset the replentish queue
   # to prevent more from being opened without additional calls to registerHotWindow.
   #
@@ -217,6 +237,7 @@ class WindowManager
     @_hotWindows = {}
 
   defaultWindowOptions: ->
+    #TODO: Defaults are also applied in AtomWindow.constructor.
     devMode: @devMode
     safeMode: @safeMode
     windowType: 'popout'

@@ -26,6 +26,13 @@
     margin-left: 1em;
   }
 
+  .draft-icon {
+    margin-top:8px;
+    margin-left:10px;
+    flex-shrink: 0;
+    object-fit: contain;
+  }
+
   .participants {
     font-size:   @font-size-small;
     text-overflow: ellipsis;
@@ -113,8 +120,8 @@
       color: @text-color-inverse-subtle;
     }
 
-    .thread-icon {
-      -webkit-filter: brightness(600%);
+    .thread-icon, .draft-icon {
+      -webkit-filter: brightness(600%) grayscale(100%);
     }
   }
 

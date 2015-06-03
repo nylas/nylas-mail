@@ -6,47 +6,30 @@ React = require 'react'
  Message,
  ComponentRegistry,
  WorkspaceStore} = require('nylas-exports')
-NewComposeButton = require('./new-compose-button')
+ComposeButton = require('./compose-button')
 ComposerView = require('./composer-view')
 
-module.exports =
 
-  activate: (@state={}) ->
-    atom.registerHotWindow
-      windowType: "composer"
-      replenishNum: 2
+class ComposerWithWindowProps extends React.Component
+  @displayName: 'ComposerWithWindowProps'
+  @containerRequired: false
 
-    # Register our composer as the app-wide Composer
-    ComponentRegistry.register ComposerView,
-      role: 'Composer'
+  constructor: (@props) ->
+    @state = atom.getWindowProps()
 
-    if atom.isMainWindow()
-      ComponentRegistry.register NewComposeButton,
-        location: WorkspaceStore.Location.RootSidebar.Toolbar
-    else
-      @_setupContainer()
+  componentDidMount: ->
+    @unlisten = atom.onWindowPropsReceived (windowProps) =>
+      {errorMessage} = windowProps
+      @_showInitialErrorDialog(errorMessage) if errorMessage
+      @setState(windowProps)
 
-  windowPropsReceived: ({draftLocalId, errorMessage}) ->
-    return unless @_container
-    React.render(
-      <ComposerView mode="fullwindow" localId={draftLocalId} />, @_container
-    )
-    if errorMessage
-      @_showInitialErrorDialog(errorMessage)
+  componentWillUnmount: ->
+    @unlisten()
 
-  deactivate: ->
-    ComponentRegistry.unregister(ComposerView)
-    if atom.isMainWindow()
-      ComponentRegistry.unregister(NewComposeButton)
-
-  serialize: -> @state
-
-  _setupContainer: ->
-    if @_container? then return # Activate once
-    @_container = document.createElement("div")
-    @_container.setAttribute("id", "composer-full-window")
-    @_container.setAttribute("class", "composer-full-window")
-    document.body.appendChild(@_container)
+  render: ->
+    <div className="composer-full-window">
+      <ComposerView mode="fullwindow" localId={@state.draftLocalId} />
+    </div>
 
   _showInitialErrorDialog: (msg) ->
     remote = require('remote')
@@ -57,3 +40,30 @@ module.exports =
       message: "Error"
       detail: msg
     }
+
+module.exports =
+  activate: (@state={}) ->
+    atom.registerHotWindow
+      windowType: 'composer'
+      replenishNum: 2
+
+    # Register our composer as the app-wide Composer
+    ComponentRegistry.register ComposerView,
+      role: 'Composer'
+
+    if atom.isMainWindow()
+      ComponentRegistry.register ComposeButton,
+        location: WorkspaceStore.Location.RootSidebar.Toolbar
+    else
+      WorkspaceStore.defineSheet 'Main', {root: true},
+        list: ['Center']
+      ComponentRegistry.register ComposerWithWindowProps,
+        location: WorkspaceStore.Location.Center
+
+  deactivate: ->
+    atom.unregisterHotWindow('composer')
+    ComponentRegistry.unregister(ComposerView)
+    ComponentRegistry.unregister(ComposeButton)
+    ComponentRegistry.unregister(ComposerWithWindowProps)
+
+  serialize: -> @state

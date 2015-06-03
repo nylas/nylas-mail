@@ -42,6 +42,13 @@ describe "ThreadListParticipants", ->
           ]
           out: [{contact: @ben, unread: false}]
         },{
+          name: 'single read email and draft'
+          in: [
+            new Message(unread: false, from: [@ben]),
+            new Message(from: [@ben], draft: true),
+          ]
+          out: [{contact: @ben, unread: false}]
+        },{
           name: 'single unread email'
           in: [
             new Message(unread: true, from: [@evan]),
