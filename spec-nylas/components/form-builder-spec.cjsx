@@ -1,6 +1,6 @@
 fs = require 'fs'
 path = require 'path'
-React = require ('react')
+React = require ('react/addons')
 ReactTestUtils = React.addons.TestUtils
 {FormItem,
  GeneratedForm,
