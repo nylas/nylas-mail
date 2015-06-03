@@ -1,13 +1,12 @@
 Task = require '../src/task'
 
-describe "Task", ->
+xdescribe "Task", ->
   describe "@once(taskPath, args..., callback)", ->
     it "terminates the process after it completes", ->
       handlerResult = null
       task = Task.once require.resolve('./fixtures/task-spec-handler'), (result) ->
         handlerResult = result
 
-      processClosed = false
       processErrored = false
       childProcess = task.childProcess
       spyOn(childProcess, 'kill').andCallThrough()
