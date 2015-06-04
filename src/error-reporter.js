@@ -28,7 +28,7 @@ module.exports = ErrorReporter = (function() {
     var self = this;
 
     // Initialize the Sentry connector
-    this.client = new raven.Client('https://abd4b2a3435847db8fff445e396f2a6d:3df1cca30d7c42419b5a5d9369a794e6@app.getsentry.com/36030');
+    this.client = new raven.Client('https://7a32cb0189ff4595a55c98ffb7939c46:f791c3c402b343068bed056b8b504dd5@sentry.nylas.com/4');
     this.client.on('error', function(e) {
       console.log(e.reason);
       console.log(e.statusCode);
