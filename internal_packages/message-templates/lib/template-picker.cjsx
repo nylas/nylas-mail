@@ -37,7 +37,7 @@ class TemplatePicker extends React.Component
     ]
 
     footerComponents = [
-      <div className="item" key="new" onMouseDown={@_onNewTemplate}>Save as Template...</div>
+      <div className="item" key="new" onMouseDown={@_onNewTemplate}>Save Draft as Template...</div>
       <div className="item" key="manage" onMouseDown={@_onManageTemplates}>Open Templates Folder...</div>
     ]
 

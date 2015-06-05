@@ -18,6 +18,9 @@ stubTemplates = [
 describe "TemplateStore", ->
   beforeEach ->
     spyOn(fs, 'mkdir')
+    spyOn(shell, 'showItemInFolder').andCallFake ->
+    spyOn(fs, 'writeFile').andCallFake (path, contents, callback) ->
+      callback(null)
     spyOn(fs, 'readFile').andCallFake (path, callback) ->
       filename = path.split('/').pop()
       callback(null, stubTemplateFiles[filename])
@@ -71,9 +74,15 @@ describe "TemplateStore", ->
 
   describe "onCreateTemplate", ->
     beforeEach ->
-      spyOn(fs, 'readdir').andCallFake (path, callback) -> callback(null, [])
-      spyOn(fs, 'writeFile').andCallFake (path, contents, callback) -> callback(null)
       TemplateStore.init()
+      spyOn(DraftStore, 'sessionForLocalId').andCallFake (draftLocalId) ->
+        if draftLocalId is 'localid-nosubject'
+          d = new Message(subject: '', body: '<p>Body</p>')
+        else
+          d = new Message(subject: 'Subject', body: '<p>Body</p>')
+        session =
+          draft: -> d
+        Promise.resolve(session)
 
     it "should create a template with the given name and contents", ->
       TemplateStore._onCreateTemplate({name: '123', contents: 'bla'})
@@ -82,11 +91,15 @@ describe "TemplateStore", ->
       expect(item.name).toBe "123"
       expect(item.path.split("/").pop()).toBe "123.html"
 
-    it "should throw an exception if no name is provided", ->
-      expect( -> TemplateStore._onCreateTemplate({contents: 'bla'})).toThrow()
+    it "should display an error if no name is provided", ->
+      spyOn(TemplateStore, '_displayError')
+      TemplateStore._onCreateTemplate({contents: 'bla'})
+      expect(TemplateStore._displayError).toHaveBeenCalled()
 
-    it "should throw an exception if no content is provided", ->
-      expect( -> TemplateStore._onCreateTemplate({name: 'bla'})).toThrow()
+    it "should display an error if no content is provided", ->
+      spyOn(TemplateStore, '_displayError')
+      TemplateStore._onCreateTemplate({name: 'bla'})
+      expect(TemplateStore._displayError).toHaveBeenCalled()
 
     it "should save the template file to the templates folder", ->
       TemplateStore._onCreateTemplate({name: '123', contents: 'bla'})
@@ -95,17 +108,30 @@ describe "TemplateStore", ->
       expect(fs.writeFile.mostRecentCall.args[0]).toEqual(path)
       expect(fs.writeFile.mostRecentCall.args[1]).toEqual('bla')
 
+    it "should open the template so you can see it", ->
+      TemplateStore._onCreateTemplate({name: '123', contents: 'bla'})
+      path = "#{stubTemplatesDir}/123.html"
+      expect(shell.showItemInFolder).toHaveBeenCalled()
+
     describe "when given a draft id", ->
       it "should create a template from the name and contents of the given draft", ->
-        draft = new Message
-          subject: 'Subject'
-          body: '<p>Body</p>'
-        spyOn(DatabaseStore, 'findByLocalId').andReturn(Promise.resolve(draft))
-        TemplateStore._onCreateTemplate({draftLocalId: 'localid-b'})
-        expect(TemplateStore.items()).toEqual([])
+        runs ->
+          TemplateStore._onCreateTemplate({draftLocalId: 'localid-b'})
+        waitsFor ->
+          fs.writeFile.callCount > 0
+        runs ->
+          expect(TemplateStore.items().length).toEqual(1)
+
+      it "should display an error if the draft has no subject", ->
+        spyOn(TemplateStore, '_displayError')
+        runs ->
+          TemplateStore._onCreateTemplate({draftLocalId: 'localid-nosubject'})
+        waitsFor ->
+          TemplateStore._displayError.callCount > 0
+        runs ->
+          expect(TemplateStore._displayError).toHaveBeenCalled()
 
   describe "onShowTemplates", ->
     it "should open the templates folder in the Finder", ->
-      spyOn(shell, 'showItemInFolder')
       TemplateStore._onShowTemplates()
       expect(shell.showItemInFolder).toHaveBeenCalled()

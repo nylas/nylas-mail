@@ -17,9 +17,6 @@ class ParticipantsTextField extends React.Component
     # to modify the `participants` provided.
     field: React.PropTypes.string,
 
-    # Whether or not the field should be visible. Defaults to true.
-    visible: React.PropTypes.bool
-
     # An object containing arrays of participants. Typically, this is
     # {to: [], cc: [], bcc: []}. Each ParticipantsTextField needs all of
     # the values, because adding an element to one field may remove it
@@ -36,7 +33,7 @@ class ParticipantsTextField extends React.Component
   render: =>
     classSet = {}
     classSet[@props.field] = true
-    <div className="participants-text-field" style={zIndex: 1000-@props.tabIndex, display: @props.visible and 'inline' or 'none'}>
+    <div className="participants-text-field" style={zIndex: 1000-@props.tabIndex, display: 'inline'}>
       <TokenizingTextField
         ref="textField"
         tokens={@props.participants[@props.field]}

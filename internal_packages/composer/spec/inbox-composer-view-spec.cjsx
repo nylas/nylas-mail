@@ -182,7 +182,7 @@ describe "populated composer", ->
   describe "when focus() is called", ->
     describe "if a field name is provided", ->
       it "should focus that field", ->
-        useDraft.call(@)
+        useDraft.call(@, cc: [u2])
         makeComposer.call(@)
         spyOn(@composer.refs['textFieldCc'], 'focus')
         @composer.focus('textFieldCc')

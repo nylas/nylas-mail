@@ -43,12 +43,13 @@ class ContenteditableComponent extends React.Component
         range = @_getRangeInScope()
         for extension in DraftStore.extensions()
           extension.onFocusNext(editableNode, range, event) if extension.onFocusNext
+
       'core:focus-previous': (event) =>
         editableNode = @_editableNode()
         range = @_getRangeInScope()
         for extension in DraftStore.extensions()
           extension.onFocusPrevious(editableNode, range, event) if extension.onFocusPrevious
-    }
+      }
 
     @_cleanHTML()
 
