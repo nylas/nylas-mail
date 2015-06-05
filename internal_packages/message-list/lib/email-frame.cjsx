@@ -64,6 +64,6 @@ class EmailFrame extends React.Component
       email
     else
       Utils.stripQuotedText(email)
-
+      
 
 module.exports = EmailFrame

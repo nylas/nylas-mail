@@ -127,12 +127,13 @@ class WindowEventHandler
     event.preventDefault()
     event.stopPropagation()
 
-  openLink: ({target, currentTarget}) ->
-    location = target?.getAttribute('href') or currentTarget?.getAttribute('href')
-    if location?
-      schema = url.parse(location).protocol
+  openLink: ({href, target, currentTarget}) ->
+    if not href
+      href = target?.getAttribute('href') or currentTarget?.getAttribute('href')
+    if href?
+      schema = url.parse(href).protocol
       if schema? and schema in ['http:', 'https:', 'mailto:', 'tel:']
-        shell.openExternal(location)
+        shell.openExternal(href)
       false
 
   eachTabIndexedElement: (callback) ->
