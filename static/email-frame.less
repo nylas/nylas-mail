@@ -1,0 +1,80 @@
+@import 'variables/ui-variables';
+@import 'ui-variables';
+
+.ignore-in-parent-frame {
+
+  html, body {
+    font-family: "FaktPro", "Helvetica", "Lucidia Grande", sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+
+    color: @text-color;
+    background-color: transparent !important;
+    border: 0;
+    margin: 0;
+    padding: 0;
+
+    -webkit-text-size-adjust: auto;
+    word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;
+  }
+
+  strong, b, .bold {
+    font-weight: 600;
+  }
+
+  body {
+    padding: 0;
+    margin: auto;
+    max-width: 840px;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  pre {
+    white-space: normal;
+  }
+
+  a {
+    color: @text-color-link;
+  }
+
+  a:hover {
+    color: @text-color-link-hover;
+  }
+
+  a:visited {
+    color: darken(@text-color-link, 10%);
+  }
+  a img {
+    border-bottom: 0;
+  }
+
+  body.heightDetermined {
+    overflow-y: hidden;
+  }
+
+  div,pre {
+    max-width: 100%;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+    border: 0;
+  }
+
+  .gmail_extra,
+  .gmail_quote,
+  #divRplyFwdMsg,
+  blockquote {
+    display:none;
+  }
+
+  .show-quoted-text .gmail_extra,
+  .show-quoted-text .gmail_quote,
+  .show-quoted-text #divRplyFwdMsg,
+  .show-quoted-text blockquote {
+    display:inherit;
+  }
+
+}

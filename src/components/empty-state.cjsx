@@ -53,10 +53,10 @@ class EmptyState extends React.Component
             {@state.message?.byline}
           </div>
         </div>
-        <RetinaImg name="blank-bottom-left.png" className="bottom-left"/>
-        <RetinaImg name="blank-top-left.png" className="top-left"/>
-        <RetinaImg name="blank-bottom-right.png" className="bottom-right"/>
-        <RetinaImg name="blank-top-right.png" className="top-right"/>
+        <RetinaImg mode={RetinaImg.Mode.ContentLight} name="blank-bottom-left.png" className="bottom-left"/>
+        <RetinaImg mode={RetinaImg.Mode.ContentLight} name="blank-top-left.png" className="top-left"/>
+        <RetinaImg mode={RetinaImg.Mode.ContentLight} name="blank-bottom-right.png" className="bottom-right"/>
+        <RetinaImg mode={RetinaImg.Mode.ContentLight} name="blank-top-right.png" className="top-right"/>
       </div>
     </div>
 

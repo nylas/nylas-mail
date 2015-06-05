@@ -285,6 +285,7 @@ class ThemeManager
 
   reloadBaseStylesheets: ->
     @requireStylesheet('../static/index')
+    @requireStylesheet('../static/email-frame')
     if nativeStylesheetPath = fs.resolveOnLoadPath(process.platform, ['css', 'less'])
       @requireStylesheet(nativeStylesheetPath)
 

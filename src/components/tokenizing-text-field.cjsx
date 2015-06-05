@@ -35,7 +35,9 @@ Token = React.createClass
     <div {...@dragSourceFor('token')}
          className={classes}
          onClick={@_onSelect}>
-      <button className="action" onClick={@_onAction} style={marginTop: "2px"}><RetinaImg name="composer-caret.png" /></button>
+      <button className="action" onClick={@_onAction} style={marginTop: "2px"}>
+        <RetinaImg mode={RetinaImg.Mode.ContentIsMask} name="composer-caret.png" />
+      </button>
       {@props.children}
     </div>
 

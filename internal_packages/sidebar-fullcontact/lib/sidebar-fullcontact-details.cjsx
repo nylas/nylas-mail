@@ -34,7 +34,10 @@ class SidebarFullContactDetails extends React.Component
     profiles = @_profiles()
     return profiles.map (profile) =>
       <div className="social-profile">
-        <RetinaImg name="#{profile.typeId}-icon.png" className="social-icon" />
+        <RetinaImg
+          className="social-icon"
+          name="#{profile.typeId}-icon.png"
+          mode={RetinaImg.Mode.ContentIsMask} />
         <div className="social-link">
           <a href={profile.url}>{@_username(profile)}</a>
           {@_twitterBio(profile)}

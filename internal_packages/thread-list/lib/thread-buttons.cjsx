@@ -16,7 +16,7 @@ class ThreadBulkArchiveButton extends React.Component
             className="btn btn-toolbar"
             data-tooltip="Archive"
             onClick={@_onArchive}>
-      <RetinaImg name="toolbar-archive.png" />
+      <RetinaImg name="toolbar-archive.png" mode={RetinaImg.Mode.ContentIsMask} />
     </button>
 
   _onArchive: =>
@@ -55,11 +55,12 @@ DownButton = React.createClass
 
   render: ->
     <div className={@_classSet()} onClick={@_onClick}>
-      <RetinaImg name="toolbar-down-arrow.png"/>
+      <RetinaImg name="toolbar-down-arrow.png" mode={RetinaImg.Mode.ContentIsMask} />
     </div>
 
   _classSet: ->
     classNames
+      "btn-icon": true
       "message-toolbar-arrow": true
       "down": true
       "disabled": @state.disabled
@@ -77,11 +78,12 @@ UpButton = React.createClass
 
   render: ->
     <div className={@_classSet()} onClick={@_onClick}>
-      <RetinaImg name="toolbar-up-arrow.png"/>
+      <RetinaImg name="toolbar-up-arrow.png" mode={RetinaImg.Mode.ContentIsMask} />
     </div>
 
   _classSet: ->
     classNames
+      "btn-icon": true
       "message-toolbar-arrow": true
       "up": true
       "disabled": @state.disabled

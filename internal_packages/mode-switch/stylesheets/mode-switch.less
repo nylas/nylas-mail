@@ -1,19 +1,14 @@
 @import 'ui-variables';
 
-.mode-switch {
-    z-index: 1000;
-    position: relative;
-
-    .handle {
-      position:absolute;
-      transition: left .2s ease-out;
-    }
-}
 .mode-toggle {
     z-index: 1000;
     position: relative;
-
-    .colorfill {
-        background-color: @component-active-color;
+    .content-mask {
+      background-color: @text-color-subtle;
     }
+}
+.mode-toggle.mode-split {
+  .content-mask {
+    background-color: @component-active-color;
+  }
 }

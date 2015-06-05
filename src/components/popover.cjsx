@@ -102,8 +102,9 @@ class Popover extends React.Component
       pointerStyle =
         'position': 'absolute'
         'marginLeft': '50%'
-        'width': 22.5
-        'height': 11
+        'zoom': 0.5
+        'width': 45
+        'height': 21
         'zIndex': 0
 
       if @props.direction is 'up'

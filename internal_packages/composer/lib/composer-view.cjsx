@@ -155,7 +155,11 @@ class ComposerView extends React.Component
           <span className="header-action"
                 data-tooltip="Popout composer"
                 style={{display: ((@props.mode is "fullwindow") and 'none' or 'initial'), paddingLeft: "1.5em"}}
-                onClick={@_popoutComposer}><RetinaImg name="composer-popout.png" style={{position: "relative", top: "-2px"}}/></span>
+                onClick={@_popoutComposer}>
+            <RetinaImg name="composer-popout.png"
+              mode={RetinaImg.Mode.ContentIsMask}
+              style={{position: "relative", top: "-2px"}}/>
+          </span>
 
         </div>
 
@@ -260,18 +264,18 @@ class ComposerView extends React.Component
 
       <button className="btn btn-toolbar btn-trash" style={order: 100}
               data-tooltip="Delete draft"
-              onClick={@_destroyDraft}><RetinaImg name="toolbar-trash.png" /></button>
+              onClick={@_destroyDraft}><RetinaImg name="toolbar-trash.png" mode={RetinaImg.Mode.ContentIsMask} /></button>
 
       <button className="btn btn-toolbar btn-attach" style={order: 50}
               data-tooltip="Attach file"
-              onClick={@_attachFile}><RetinaImg name="toolbar-attach.png"/></button>
+              onClick={@_attachFile}><RetinaImg name="toolbar-attach.png" mode={RetinaImg.Mode.ContentIsMask} /></button>
 
       <div style={order: 0, flex: 1} />
 
       <button className="btn btn-toolbar btn-emphasis btn-send" style={order: -100}
               data-tooltip="Send message"
               ref="sendButton"
-              onClick={@_sendDraft}><RetinaImg name="toolbar-send.png" /> Send</button>
+              onClick={@_sendDraft}><RetinaImg name="toolbar-send.png" mode={RetinaImg.Mode.ContentIsMask} /> Send</button>
 
     </InjectedComponentSet>
 

@@ -10,7 +10,7 @@ class ArchiveButton extends React.Component
     <button className="btn btn-toolbar btn-archive"
             data-tooltip="Archive"
             onClick={@_onArchive}>
-      <RetinaImg name="toolbar-archive.png" />
+      <RetinaImg name="toolbar-archive.png" mode={RetinaImg.Mode.ContentIsMask}/>
     </button>
 
   _onArchive: (e) =>

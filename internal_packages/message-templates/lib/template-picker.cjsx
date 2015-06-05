@@ -23,8 +23,8 @@ class TemplatePicker extends React.Component
 
   render: =>
     button = <button className="btn btn-toolbar">
-      <RetinaImg name="toolbar-templates.png"/>
-      <RetinaImg name="toolbar-chevron.png"/>
+      <RetinaImg name="toolbar-templates.png" mode={RetinaImg.Mode.ContentIsMask}/>
+      <RetinaImg name="toolbar-chevron.png" mode={RetinaImg.Mode.ContentIsMask}/>
     </button>
 
     headerComponents = [

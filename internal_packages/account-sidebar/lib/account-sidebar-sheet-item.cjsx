@@ -17,10 +17,10 @@ class AccountSidebarSheetItem extends React.Component
       icon = <component selected={@props.select} />
 
     else if _.isString(@props.item.icon)
-      icon = <RetinaImg name={@props.item.icon} fallback="folder.png" colorfill={@props.select} />
+      icon = <RetinaImg name={@props.item.icon} fallback="folder.png" mode={RetinaImg.Mode.ContentIsMask} />
 
     else
-      icon = <RetinaImg name={"folder.png"} colorfill={@props.select} />
+      icon = <RetinaImg name={"folder.png"} mode={RetinaImg.Mode.ContentIsMask} />
 
     <div className={classSet} onClick={@_onClick}>
       {icon}

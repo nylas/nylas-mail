@@ -134,20 +134,20 @@ class MessageItem extends React.Component
   _renderMessageActions: =>
     <div className="message-actions-wrap">
       <div className="message-actions-ellipsis" onClick={@_onShowActionsMenu}>
-        <RetinaImg name={"message-actions-ellipsis.png"}/>
+        <RetinaImg name={"message-actions-ellipsis.png"} mode={RetinaImg.Mode.ContentIsMask}/>
       </div>
       <InjectedComponentSet className="message-actions"
                             inline={true}
                             matching={role:"MessageAction"}
                             exposedProps={thread:@props.thread, message: @props.message}>
         <button className="btn btn-icon" onClick={@_onReply}>
-          <RetinaImg name={"message-reply.png"}/>
+          <RetinaImg name={"message-reply.png"} mode={RetinaImg.Mode.ContentIsMask}/>
         </button>
         <button className="btn btn-icon" onClick={@_onReplyAll}>
-          <RetinaImg name={"message-reply-all.png"}/>
+          <RetinaImg name={"message-reply-all.png"} mode={RetinaImg.Mode.ContentIsMask}/>
         </button>
         <button className="btn btn-icon" onClick={@_onForward}>
-          <RetinaImg name={"message-forward.png"}/>
+          <RetinaImg name={"message-forward.png"} mode={RetinaImg.Mode.ContentIsMask}/>
         </button>
       </InjectedComponentSet>
     </div>
@@ -221,13 +221,13 @@ class MessageItem extends React.Component
       <div className="collapse-control"
            style={top: "4px", left: "-17px"}
            onClick={=> @setState detailedHeaders: false}>
-        <RetinaImg name={"message-disclosure-triangle-active.png"}/>
+        <RetinaImg name={"message-disclosure-triangle-active.png"} mode={RetinaImg.Mode.ContentIsMask}/>
       </div>
     else
       <div className="collapse-control inactive"
            style={top: "3px"}
            onClick={=> @setState detailedHeaders: true}>
-        <RetinaImg name={"message-disclosure-triangle.png"}/>
+        <RetinaImg name={"message-disclosure-triangle.png"} mode={RetinaImg.Mode.ContentIsMask}/>
       </div>
 
   # Eventually, _formatBody will run a series of registered body transformers.

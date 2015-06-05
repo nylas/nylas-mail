@@ -98,7 +98,8 @@ class MessageList extends React.Component
     if @_hasReplyArea()
       <div className="footer-reply-area-wrap" onClick={@_onClickReplyArea}>
         <div className="footer-reply-area">
-          <RetinaImg name="#{@_replyType()}-footer.png" /><span className="reply-text">Write a reply…</span>
+          <RetinaImg name="#{@_replyType()}-footer.png" mode={RetinaImg.Mode.ContentIsMask}/>
+          <span className="reply-text">Write a reply…</span>
         </div>
       </div>
     else return <div></div>
