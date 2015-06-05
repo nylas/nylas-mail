@@ -246,7 +246,7 @@ class ComposerView extends React.Component
           (@state.files ? []).map (file) =>
             <InjectedComponent matching={role:"Attachment"}
                                exposedProps={file: file, removable: true, messageLocalId: @props.localId}
-                               key={file.filename} />
+                               key={file.id} />
         }
         <FileUploads localId={@props.localId} />
       </div>

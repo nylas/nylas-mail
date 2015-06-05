@@ -47,6 +47,7 @@ class EventedIFrame extends React.Component
     doc.removeEventListener('mousedown', @_onIFrameMouseEvent)
     doc.removeEventListener('mousemove', @_onIFrameMouseEvent)
     doc.removeEventListener('mouseup', @_onIFrameMouseEvent)
+    doc.removeEventListener("contextmenu", @_onIFrameContextualMenu)
     if node.contentWindow
       node.contentWindow.removeEventListener('focus', @_onIFrameFocus)
       node.contentWindow.removeEventListener('blur', @_onIFrameBlur)
@@ -60,9 +61,17 @@ class EventedIFrame extends React.Component
       doc.addEventListener("mousedown", @_onIFrameMouseEvent)
       doc.addEventListener("mousemove", @_onIFrameMouseEvent)
       doc.addEventListener("mouseup", @_onIFrameMouseEvent)
+      doc.addEventListener("contextmenu", @_onIFrameContextualMenu)
       if node.contentWindow
         node.contentWindow.addEventListener("focus", @_onIFrameFocus)
         node.contentWindow.addEventListener("blur", @_onIFrameBlur)
+
+  _getContainingTarget: (event, options) =>
+    target = event.target
+    while target? and (target isnt document) and (target isnt window)
+      return target if target.getAttribute(options.with)?
+      target = target.parentElement
+    return null
 
   _onIFrameBlur: (event) =>
     node = React.findDOMNode(@)
@@ -78,15 +87,8 @@ class EventedIFrame extends React.Component
   _onIFrameClick: (e) =>
     e.preventDefault()
     e.stopPropagation()
-    target = e.target
-
-    # This lets us detect when we click an element inside of an <a> tag
-    while target? and (target isnt document) and (target isnt window)
-      if target.getAttribute('href')?
-        atom.windowEventHandler.openLink target: target
-        target = null
-      else
-        target = target.parentElement
+    target = @_getContainingTarget(e, {with: 'href'})
+    atom.windowEventHandler.openLink(target: target) if target
 
   _onIFrameMouseEvent: (event) =>
     node = React.findDOMNode(@)
@@ -102,5 +104,90 @@ class EventedIFrame extends React.Component
     return if event.metaKey or event.altKey or event.ctrlKey
     React.findDOMNode(@).dispatchEvent(new KeyboardEvent(event.type, event))
 
+  _onIFrameContextualMenu: (event) =>
+    # Build a standard-looking contextual menu with options like "Copy Link",
+    # "Copy Image" and "Search Google for 'Bla'"
+    event.preventDefault()
+
+    remote = require('remote')
+    clipboard = require('clipboard')
+    Menu = remote.require('menu')
+    MenuItem = remote.require('menu-item')
+    NativeImage = require('native-image')
+    shell = require('shell')
+    path = require('path')
+    fs = require('fs')
+    menu = new Menu()
+
+    # Menu actions for links
+    linkTarget = @_getContainingTarget(event, {with: 'href'})
+    if linkTarget
+      href = linkTarget.getAttribute('href')
+      menu.append(new MenuItem({ label: "Open Link", click:( -> atom.windowEventHandler.openLink({href}) )}))
+      menu.append(new MenuItem({ label: "Copy Link", click:( -> clipboard.writeText(href) )}))
+      menu.append(new MenuItem({ type: 'separator' }))
+
+    # Menu actions for images
+    imageTarget = @_getContainingTarget(event, {with: 'src'})
+    if imageTarget
+      src = imageTarget.getAttribute('src')
+      srcFilename = path.basename(src)
+      menu.append(new MenuItem({
+        label: "Save Image...",
+        click: ->
+          atom.showSaveDialog srcFilename, (path) ->
+            return unless path
+            oReq = new XMLHttpRequest()
+            oReq.open("GET", src, true)
+            oReq.responseType = "arraybuffer"
+            oReq.onload = ->
+              buffer = new Buffer(new Uint8Array(oReq.response))
+              fs.writeFile path, buffer, (err) ->
+                shell.showItemInFolder(path)
+            oReq.send()
+      }))
+      menu.append(new MenuItem({
+        label: "Copy Image",
+        click: ->
+          img = new Image()
+          img.addEventListener("load", ->
+            canvas = document.createElement("canvas")
+            canvas.width = img.width
+            canvas.height = img.height
+            canvas.getContext("2d").drawImage(imageTarget, 0, 0)
+            imageDataURL = canvas.toDataURL("image/png")
+            img = NativeImage.createFromDataUrl(imageDataURL)
+            clipboard.writeImage(img)
+          , false)
+          img.src = src
+      }))
+      menu.append(new MenuItem({ type: 'separator' }))
+
+    # Menu actions for text
+    text = ""
+    selection = React.findDOMNode(@).contentDocument.getSelection()
+    if selection.rangeCount > 0
+      range = selection.getRangeAt(0)
+      text = range.toString()
+    if not text or text.length is 0
+      text = (linkTarget ? event.target).innerText
+    text = text.trim()
+
+    if text.length > 0
+      if text.length > 45
+        textPreview = text.substr(0, 42) + "..."
+      else
+        textPreview = text
+      menu.append(new MenuItem({ label: "Copy", click:( -> clipboard.writeText(text) )}))
+      menu.append(new MenuItem({ label: "Search Google for '#{textPreview}'", click:( -> shell.openExternal("https://www.google.com/search?q=#{encodeURIComponent(text)}") )}))
+      if process.platform is 'darwin'
+        menu.append(new MenuItem({ label: "Look Up '#{textPreview}'", click:( -> atom.getCurrentWindow().showDefinitionForSelection() )}))
+
+
+    if process.platform is 'darwin'
+      menu.append(new MenuItem({ type: 'separator' }))
+      # Services menu appears here automatically
+
+    menu.popup(remote.getCurrentWindow())
 
 module.exports = EventedIFrame
