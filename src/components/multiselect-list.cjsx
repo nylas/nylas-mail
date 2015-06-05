@@ -32,6 +32,7 @@ class MultiselectList extends React.Component
     columns: React.PropTypes.array.isRequired
     dataStore: React.PropTypes.object.isRequired
     itemPropsProvider: React.PropTypes.func.isRequired
+    scrollTooltipComponent: React.PropTypes.func
 
   constructor: (@props) ->
     @state = @_getStateFromStores()
@@ -120,6 +121,7 @@ class MultiselectList extends React.Component
         <ListTabular
           ref="list"
           columns={@props.columns}
+          scrollTooltipComponent={@props.scrollTooltipComponent}
           dataView={@state.dataView}
           itemPropsProvider={@itemPropsProvider}
           onSelect={@_onClickItem}

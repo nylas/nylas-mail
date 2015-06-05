@@ -12,6 +12,32 @@ classNames = require 'classnames'
 ThreadListParticipants = require './thread-list-participants'
 ThreadListStore = require './thread-list-store'
 
+class ThreadListScrollTooltip extends React.Component
+  @displayName: 'ThreadListScrollTooltip'
+  @propTypes:
+    viewportCenter: React.PropTypes.number.isRequired
+    totalHeight: React.PropTypes.number.isRequired
+
+  componentWillMount: =>
+    @setupForProps(@props)
+
+  componentWillReceiveProps: (newProps) =>
+    @setupForProps(newProps)
+
+  shouldComponentUpdate: (newProps, newState) =>
+    @state?.idx isnt newState.idx
+
+  setupForProps: (props) ->
+    idx = Math.floor(ThreadListStore.view().count() / @props.totalHeight * @props.viewportCenter)
+    @setState
+      idx: idx
+      item: ThreadListStore.view().get(idx)
+
+  render: ->
+    <div className="scroll-tooltip">
+      {timestamp(@state.item?.lastMessageTimestamp)}
+    </div>
+
 class ThreadList extends React.Component
   @displayName: 'ThreadList'
 
@@ -99,6 +125,7 @@ class ThreadList extends React.Component
       commands={@commands}
       itemPropsProvider={@itemPropsProvider}
       className="thread-list"
+      scrollTooltipComponent={ThreadListScrollTooltip}
       collection="thread" />
 
   # Additional Commands

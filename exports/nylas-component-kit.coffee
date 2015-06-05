@@ -16,6 +16,7 @@ module.exports =
   MultiselectList: require '../src/components/multiselect-list'
   MultiselectActionBar: require '../src/components/multiselect-action-bar'
   ResizableRegion: require '../src/components/resizable-region'
+  ScrollRegion: require '../src/components/scroll-region'
   InjectedComponentSet: require '../src/components/injected-component-set'
   InjectedComponent: require '../src/components/injected-component'
   TokenizingTextField: require '../src/components/tokenizing-text-field'

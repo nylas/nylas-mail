@@ -4,10 +4,45 @@ classNames = require 'classnames'
 MessageItem = require "./message-item"
 {Utils, Actions, MessageStore, ComponentRegistry} = require("nylas-exports")
 {Spinner,
+ ScrollRegion,
  ResizableRegion,
  RetinaImg,
  InjectedComponentSet,
  InjectedComponent} = require('nylas-component-kit')
+
+class MessageListScrollTooltip extends React.Component
+  @displayName: 'MessageListScrollTooltip'
+  @propTypes:
+    viewportCenter: React.PropTypes.number.isRequired
+    totalHeight: React.PropTypes.number.isRequired
+
+  componentWillMount: =>
+    @setupForProps(@props)
+
+  componentWillReceiveProps: (newProps) =>
+    @setupForProps(newProps)
+
+  shouldComponentUpdate: (newProps, newState) =>
+    not _.isEqual(@state,newState)
+
+  setupForProps: (props) ->
+    # Technically, we could have MessageList provide the currently visible
+    # item index, but the DOM approach is simple and self-contained.
+    #
+    els = document.querySelectorAll('.message-item-wrap')
+    idx = _.findIndex els, (el) -> el.offsetTop > props.viewportCenter
+    if idx is -1
+      idx = els.length
+
+    @setState
+      idx: idx
+      count: els.length
+
+  render: ->
+    <div className="scroll-tooltip">
+      {@state.idx} of {@state.count}
+    </div>
+
 
 class MessageList extends React.Component
   @displayName: 'MessageList'
@@ -74,22 +109,23 @@ class MessageList extends React.Component
       "ready": @state.ready
 
     <div className="message-list" id="message-list">
-      <div tabIndex="-1"
+      <ScrollRegion tabIndex="-1"
            className={wrapClass}
+           scrollTooltipComponent={MessageListScrollTooltip}
            onScroll={_.debounce(@_cacheScrollPos, 100)}
            ref="messageWrap">
-
-        <InjectedComponentSet
-          className="message-list-notification-bars"
-          matching={role:"MessageListNotificationBar"}
-          exposedProps={thread: @state.currentThread}/>
-        <InjectedComponentSet
-          className="message-list-headers"
-          matching={role:"MessageListHeaders"}
-          exposedProps={thread: @state.currentThread}/>
-
+        <div className="headers" style={position:'relative'}>
+          <InjectedComponentSet
+            className="message-list-notification-bars"
+            matching={role:"MessageListNotificationBar"}
+            exposedProps={thread: @state.currentThread}/>
+          <InjectedComponentSet
+            className="message-list-headers"
+            matching={role:"MessageListHeaders"}
+            exposedProps={thread: @state.currentThread}/>
+        </div>
         {@_messageComponents()}
-      </div>
+      </ScrollRegion>
       {@_renderReplyArea()}
       <Spinner visible={!@state.ready} />
     </div>
