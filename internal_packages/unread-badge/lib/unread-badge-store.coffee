@@ -36,7 +36,7 @@ AppUnreadBadgeStore = Reflux.createStore
       AppUnreadCount = count
 
       if count > 999
-        app.dock?.setBadge?("\u221E")
+        app.dock?.setBadge?("999+")
       else if count > 0
         app.dock?.setBadge?("#{count}")
       else

@@ -23,7 +23,7 @@ class MessageTimestamp extends React.Component
 
   _timeFormat: =>
     if @props.isDetailed
-      return "DD / MM / YYYY h:mm a z"
+      return "MMMM D, YYYY [at] h:mm A"
     else
       today = moment(@_today())
       dayOfEra = today.dayOfYear() + today.year() * 365

@@ -28,15 +28,15 @@
     width: 100%;
     background: transparent;
     border-bottom: 0;
-    max-width: @compose-width;
-    margin: 0 auto;
 
     .composer-action-bar-content {
       display:flex;
+      margin: 0 auto;
       flex-direction:row;
-      margin-left: -@spacing-standard / 2;
-      margin-right: -@spacing-standard / 2;
-      padding: @spacing-standard @spacing-double;
+      max-width: @compose-width;
+      padding-left: @spacing-standard + @spacing-standard / 2;
+      padding-right: @spacing-standard + @spacing-standard / 2;
+      padding-top: @spacing-standard;
       padding-bottom: @spacing-standard*1.1;
 
       > * {
@@ -109,7 +109,7 @@
     margin: 0 @spacing-standard;
     border-bottom: 1px solid @border-color-divider;
     flex-shrink:0;
-    
+
     .subject-label {
       color: @text-color-very-subtle;
       float: left;

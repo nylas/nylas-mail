@@ -1,6 +1,7 @@
 Reflux = require 'reflux'
 _ = require 'underscore'
 {DatabaseStore, DraftStore, Actions, Message} = require 'nylas-exports'
+shell = require 'shell'
 path = require 'path'
 fs = require 'fs-plus'
 
@@ -59,21 +60,32 @@ TemplateStore = Reflux.createStore
         draft = session.draft()
         name ?= draft.subject
         contents ?= draft.body
+        if not name or name.length is 0
+          return @_displayError("Give your draft a subject to name your template.")
+        if not contents or contents.length is 0
+          return @_displayError("To create a template you need to fill the body of the current draft.")
         @_writeTemplate(name, contents)
+
     else
+      if not name or name.length is 0
+        return @_displayError("You must provide a name for your template.")
+      if not contents or contents.length is 0
+        return @_displayError("You must provide contents for your template.")
       @_writeTemplate(name, contents)
 
   _onShowTemplates: ->
-    # show in finder how?
-    shell = require 'shell'
     shell.showItemInFolder(@_items[0]?.path || @_templatesDir)
 
+  _displayError: (message) ->
+    dialog = require('remote').require('dialog')
+    dialog.showErrorBox('Template Creation Error', message)
+
   _writeTemplate: (name, contents) ->
-    throw new Error("You must provide a template name") unless name
-    throw new Error("You must provide template contents") unless contents
     filename = "#{name}.html"
     templatePath = path.join(@_templatesDir, filename)
     fs.writeFile templatePath, contents, (err) =>
+      @_displayError(err) if err
+      shell.showItemInFolder(templatePath)
       @_items.push
         id: filename,
         name: name,

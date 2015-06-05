@@ -159,44 +159,7 @@ class ComposerView extends React.Component
 
         </div>
 
-        <ParticipantsTextField
-          ref="textFieldTo"
-          field='to'
-          visible={true}
-          change={@_onChangeParticipants}
-          participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
-          tabIndex='102'/>
-
-        <ParticipantsTextField
-          ref="textFieldCc"
-          field='cc'
-          visible={@state.showcc}
-          change={@_onChangeParticipants}
-          onEmptied={=> @setState showcc: false}
-          participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
-          tabIndex='103'/>
-
-        <ParticipantsTextField
-          ref="textFieldBcc"
-          field='bcc'
-          visible={@state.showbcc}
-          change={@_onChangeParticipants}
-          onEmptied={=> @setState showbcc: false}
-          participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
-          tabIndex='104'/>
-
-        <div className="compose-subject-wrap"
-             style={display: @state.showsubject and 'initial' or 'none'}>
-          <input type="text"
-                 key="subject"
-                 name="subject"
-                 tabIndex="108"
-                 placeholder="Subject:"
-                 disabled={not @state.showsubject}
-                 className="compose-field compose-subject"
-                 value={@state.subject}
-                 onChange={@_onChangeSubject}/>
-        </div>
+        {@_renderFields()}
 
         <div className="compose-body">
           <ContenteditableComponent ref="contentBody"
@@ -217,6 +180,58 @@ class ComposerView extends React.Component
         {@_renderActionsRegion()}
       </div>
     </div>
+
+  _renderFields: =>
+    # Note: We need to physically add and remove these elements, not just hide them.
+    # If they're hidden, shift-tab between fields breaks.
+    fields = []
+    fields.push(
+      <ParticipantsTextField
+        ref="textFieldTo"
+        field='to'
+        change={@_onChangeParticipants}
+        participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
+        tabIndex='102'/>
+    )
+
+    if @state.showcc
+      fields.push(
+        <ParticipantsTextField
+          ref="textFieldCc"
+          field='cc'
+          change={@_onChangeParticipants}
+          onEmptied={=> @setState showcc: false}
+          participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
+          tabIndex='103'/>
+      )
+
+    if @state.showbcc
+      fields.push(
+        <ParticipantsTextField
+          ref="textFieldBcc"
+          field='bcc'
+          change={@_onChangeParticipants}
+          onEmptied={=> @setState showbcc: false}
+          participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
+          tabIndex='104'/>
+      )
+
+    if @state.showsubject
+      fields.push(
+        <div className="compose-subject-wrap">
+          <input type="text"
+                 key="subject"
+                 name="subject"
+                 tabIndex="108"
+                 placeholder="Subject:"
+                 disabled={not @state.showsubject}
+                 className="compose-field compose-subject"
+                 value={@state.subject}
+                 onChange={@_onChangeSubject}/>
+        </div>
+      )
+
+    fields
 
   _renderFooterRegions: =>
     return <div></div> unless @props.localId

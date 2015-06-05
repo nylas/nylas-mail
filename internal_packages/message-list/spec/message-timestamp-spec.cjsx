@@ -38,4 +38,4 @@ describe "MessageTimestamp", ->
       <MessageTimestamp date={testDate()} isDetailed={true} />
     )
     spyOn(itemDetailed, "_today").andCallFake -> testDate()
-    expect(itemDetailed._timeFormat()).toBe "DD / MM / YYYY h:mm a z"
+    expect(itemDetailed._timeFormat()).toBe "MMMM D, YYYY [at] h:mm A"
