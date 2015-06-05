@@ -18,7 +18,7 @@ Actions = require '../actions'
 
 TaskQueue = require './task-queue'
 
-{subjectWithPrefix} = require '../models/utils'
+{subjectWithPrefix, generateTempId} = require '../models/utils'
 
 {Listener, Publisher} = require '../modules/reflux-coffee'
 CoffeeHelpers = require '../coffee-helpers'
@@ -205,18 +205,30 @@ class DraftStore
     @_newMessageWithContext context, (thread, message) ->
       forwardMessage: message
 
-  _newMessageWithContext: ({threadId, messageId}, attributesCallback) =>
+  _newMessageWithContext: ({thread, threadId, message, messageId}, attributesCallback) =>
     return unless NamespaceStore.current()
 
+    # We accept all kinds of context. You can pass actual thread and message objects,
+    # or you can pass Ids and we'll look them up. Passing the object is preferable,
+    # and in most cases "the data is right there" anyway. Lookups add extra latency
+    # that feels bad.
     queries = {}
-    queries.thread = DatabaseStore.find(Thread, threadId)
-    if messageId?
+
+    if thread?
+      throw new Error("newMessageWithContext: `thread` present, expected a Model. Maybe you wanted to pass `threadId`?") unless thread instanceof Thread
+      queries.thread = thread
+    else
+      queries.thread = DatabaseStore.find(Thread, threadId)
+
+    if message?
+      throw new Error("newMessageWithContext: `message` present, expected a Model. Maybe you wanted to pass `messageId`?") unless message instanceof Message
+      queries.message = message
+    else if messageId?
       queries.message = DatabaseStore.find(Message, messageId)
+      queries.message.include(Message.attributes.body)
     else
       queries.message = DatabaseStore.findBy(Message, {threadId: threadId}).order(Message.attributes.date.descending()).limit(1)
-
-    # Make sure message body is included
-    queries.message.include(Message.attributes.body)
+      queries.message.include(Message.attributes.body)
 
     # Waits for the query promises to resolve and then resolve with a hash
     # of their resolved values. *swoon*
@@ -283,6 +295,15 @@ class DraftStore
         threadId: thread.id
         namespaceId: thread.namespaceId
 
+      # Normally we'd allow the DatabaseStore to create a localId, wait for it to
+      # commit a LocalLink and resolve, etc. but it's faster to create one now.
+      draftLocalId = generateTempId()
+
+      # Optimistically create a draft session and hand it the draft so that it
+      # doesn't need to do a query for it a second from now when the composer wants it.
+      @_draftSessions[draftLocalId] = new DraftStoreProxy(draftLocalId, draft)
+
+      DatabaseStore.bindToLocalId(draft, draftLocalId)
       DatabaseStore.persistModel(draft)
 
   # Eventually we'll want a nicer solution for inline attachments

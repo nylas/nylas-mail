@@ -74,18 +74,23 @@ class DraftStoreProxy
   @include Publisher
   @include Listener
 
-  constructor: (@draftLocalId) ->
+  constructor: (@draftLocalId, draft = null) ->
     DraftStore = require './draft-store'
 
     @listenTo DraftStore, @_onDraftChanged
     @listenTo Actions.didSwapModel, @_onDraftSwapped
 
-    @_draft = false
-    @_draftPromise = null
     @changes = new DraftChangeSet @draftLocalId, =>
       if !@_draft
         throw new Error("DraftChangeSet was modified before the draft was prepared.")
       @trigger()
+
+    if draft
+      @_draft = draft
+      @_draftPromise = Promise.resolve(@)
+    else
+      @_draft = false
+      @_draftPromise = null
 
     @prepare().catch (error) ->
       console.error(error)

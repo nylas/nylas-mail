@@ -153,16 +153,13 @@ class MessageItem extends React.Component
     </div>
 
   _onReply: =>
-    tId = @props.thread.id; mId = @props.message.id
-    Actions.composeReply(threadId: tId, messageId: mId) if (tId and mId)
+    Actions.composeReply(thread: @props.thread, message: @props.message)
 
   _onReplyAll: =>
-    tId = @props.thread.id; mId = @props.message.id
-    Actions.composeReplyAll(threadId: tId, messageId: mId) if (tId and mId)
+    Actions.composeReplyAll(thread: @props.thread, message: @props.message)
 
   _onForward: =>
-    tId = @props.thread.id; mId = @props.message.id
-    Actions.composeForward(threadId: tId, messageId: mId) if (tId and mId)
+    Actions.composeForward(thread: @props.thread, message: @props.message)
 
   _onReport: (issueType) =>
     {Contact, Message, DatabaseStore, NamespaceStore} = require 'nylas-exports'

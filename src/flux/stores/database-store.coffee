@@ -227,7 +227,7 @@ class DatabaseStore
     set = (change) =>
       clearTimeout(@_changeFireTimer) if @_changeFireTimer
       @_changeAccumulated = change
-      @_changeFireTimer = setTimeout(flush, 50)
+      @_changeFireTimer = setTimeout(flush, 20)
 
     concat = (change) =>
       @_changeAccumulated.objects.push(change.objects...)
@@ -490,7 +490,7 @@ class DatabaseStore
   #
   # Returns a {Promise} that resolves with the localId assigned to the model.
   #
-  bindToLocalId: (model, localId) =>
+  bindToLocalId: (model, localId = null) =>
     return Promise.reject(new Error("You must provide a model to bindToLocalId")) unless model
 
     new Promise (resolve, reject) =>
@@ -501,6 +501,8 @@ class DatabaseStore
           localId = generateTempId()
 
       link = new LocalLink({id: localId, objectId: model.id})
+      @_localIdLookupCache[model.id] = localId
+
       @persistModel(link).then ->
         resolve(localId)
       .catch(reject)
@@ -523,10 +525,7 @@ class DatabaseStore
           @_localIdLookupCache[model.id] = link.id
           resolve(link.id)
         else
-          @bindToLocalId(model).then (localId) =>
-            @_localIdLookupCache[model.id] = localId
-            resolve(localId)
-          .catch(reject)
+          @bindToLocalId(model).then(resolve).catch(reject)
 
   # Heavy Lifting
 
