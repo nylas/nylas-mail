@@ -223,27 +223,20 @@ describe "MessageList", ->
       expect(@message_list._focusDraft).toHaveBeenCalled()
       expect(@message_list._focusDraft.mostRecentCall.args[0].props.exposedProps.localId).toEqual(draftMessages[0].id)
 
-    it "doesn't focus if we're just navigating through messages", ->
-      spyOn(@message_list, "scrollToMessage")
-      @message_list.setState messages: draftMessages
-      items = TestUtils.scryRenderedComponentsWithTypeAndProps(@message_list, InjectedComponent, matching: {role:"Composer"})
-      expect(items.length).toBe 1
-      composer = items[0]
-      expect(@message_list.scrollToMessage).not.toHaveBeenCalled()
-
-
   describe "MessageList with draft", ->
     beforeEach ->
       MessageStore._items = testMessages.concat draftMessages
       MessageStore.trigger(MessageStore)
-      @message_list.setState currentThread: test_thread
+      spyOn(@message_list, "_focusDraft")
+      @message_list.setState(currentThread: test_thread)
 
     it "renders the composer", ->
       items = TestUtils.scryRenderedComponentsWithTypeAndProps(@message_list, InjectedComponent, matching: {role:"Composer"})
       expect(@message_list.state.messages.length).toBe 6
       expect(items.length).toBe 1
 
-      expect(items.length).toBe 1
+    it "doesn't focus on initial load", ->
+      expect(@message_list._focusDraft).not.toHaveBeenCalled()
 
   describe "reply type", ->
     it "prompts for a reply when there's only one participant", ->

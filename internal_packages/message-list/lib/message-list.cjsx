@@ -46,12 +46,12 @@ class MessageList extends React.Component
     else
       newDraftIds = @_newDraftIds(prevState)
       newMessageIds = @_newMessageIds(prevState)
-      if newDraftIds.length > 0
+      if newMessageIds.length > 0
+        @_prepareContentForDisplay()
+      else if newDraftIds.length > 0
         @_focusDraft(@refs["composerItem-#{newDraftIds[0]}"])
         @_prepareContentForDisplay()
-      else if newMessageIds.length > 0
-        @_prepareContentForDisplay()
-
+      
   _newDraftIds: (prevState) =>
     oldDraftIds = _.map(_.filter((prevState.messages ? []), (m) -> m.draft), (m) -> m.id)
     newDraftIds = _.map(_.filter((@state.messages ? []), (m) -> m.draft), (m) -> m.id)
@@ -63,12 +63,7 @@ class MessageList extends React.Component
     return _.difference(newMessageIds, oldMessageIds) ? []
 
   _focusDraft: (draftElement) =>
-    # We need a 100ms delay so the DOM can finish painting the elements on
-    # the page. The focus doesn't work for some reason while the paint is in
-    # process.
-    _.delay =>
-      draftElement.focus()
-    ,100
+    draftElement.focus()
 
   render: =>
     if not @state.currentThread?
@@ -114,16 +109,17 @@ class MessageList extends React.Component
   # Either returns "reply" or "reply-all"
   _replyType: =>
     lastMsg = _.last(_.filter((@state.messages ? []), (m) -> not m.draft))
-    if lastMsg?.cc.length is 0 and lastMsg?.to.length is 1
-      return "reply"
-    else return "reply-all"
+    return "reply" if lastMsg?.cc.length is 0 and lastMsg?.to.length is 1
+    return "reply-all"
 
   _onClickReplyArea: =>
     return unless @state.currentThread?.id
+    lastMsg = _.last(_.filter((@state.messages ? []), (m) -> not m.draft))
+
     if @_replyType() is "reply-all"
-      Actions.composeReplyAll(threadId: @state.currentThread.id)
+      Actions.composeReplyAll(thread: @state.currentThread, message: lastMsg)
     else
-      Actions.composeReply(threadId: @state.currentThread.id)
+      Actions.composeReply(thread: @state.currentThread,  message: lastMsg)
 
   # There may be a lot of iframes to load which may take an indeterminate
   # amount of time. As long as there is more content being painted onto
@@ -155,28 +151,29 @@ class MessageList extends React.Component
     scrollIfSettled()
 
   _messageComponents: =>
-    appliedInitialFocus = false
+    appliedInitialScroll = false
+    threadParticipants = @_threadParticipants()
     components = []
 
     @state.messages?.forEach (message, idx) =>
       collapsed = !@state.messagesExpandedState[message.id]
 
-      initialFocus = not appliedInitialFocus and not collapsed and
+      initialScroll = not appliedInitialScroll and not collapsed and
                     ((message.draft) or
                      (message.unread) or
                      (idx is @state.messages.length - 1 and idx > 0))
-      appliedInitialFocus ||= initialFocus
+      appliedInitialScroll ||= initialScroll
 
       className = classNames
         "message-item-wrap": true
-        "initial-focus": initialFocus
+        "initial-scroll": initialScroll
         "unread": message.unread
         "draft": message.draft
         "collapsed": collapsed
 
       if message.draft
         components.push <InjectedComponent matching={role:"Composer"}
-                         exposedProps={mode:"inline", localId:@state.messageLocalIds[message.id], onRequestScrollTo:@_onRequestScrollToComposer, threadId:@state.currentThread.id}
+                         exposedProps={ mode:"inline", localId:@state.messageLocalIds[message.id], onRequestScrollTo:@_onRequestScrollToComposer, threadId:@state.currentThread.id }
                          ref="composerItem-#{message.id}"
                          key={@state.messageLocalIds[message.id]}
                          className={className} />
@@ -186,7 +183,7 @@ class MessageList extends React.Component
                          message={message}
                          className={className}
                          collapsed={collapsed}
-                         thread_participants={@_threadParticipants()} />
+                         thread_participants={threadParticipants} />
 
       if idx < @state.messages.length - 1
         next = @state.messages[idx + 1]
@@ -198,7 +195,7 @@ class MessageList extends React.Component
 
     components
 
-  # Some child components (like the compser) might request that we scroll
+  # Some child components (like the composer) might request that we scroll
   # to a given location. If `selectionTop` is defined that means we should
   # scroll to that absolute position.
   #
@@ -234,14 +231,12 @@ class MessageList extends React.Component
     ready: if MessageStore.itemsLoading() then false else @state?.ready ? false
 
   _prepareContentForDisplay: =>
-    _.delay =>
-      node = React.findDOMNode(@)
-      return unless node
-      focusedMessage = node.querySelector(".initial-focus")
-      @scrollToMessage focusedMessage, =>
-        @setState(ready: true)
-      @_cacheScrollPos()
-    , 100
+    node = React.findDOMNode(@)
+    return unless node
+    initialScrollNode = node.querySelector(".initial-scroll")
+    @scrollToMessage initialScrollNode, =>
+      @setState(ready: true)
+    @_cacheScrollPos()
 
   _threadParticipants: =>
     # We calculate the list of participants instead of grabbing it from

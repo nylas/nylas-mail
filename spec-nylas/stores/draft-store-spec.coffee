@@ -86,6 +86,7 @@ describe "DraftStore", ->
         return Promise.resolve(fakeMessage2) if query._klass is Message
         return Promise.reject(new Error('Not Stubbed'))
       spyOn(DatabaseStore, 'persistModel')
+      spyOn(DatabaseStore, 'bindToLocalId')
 
     describe "onComposeReply", ->
       beforeEach ->
@@ -235,6 +236,22 @@ describe "DraftStore", ->
         , (model) ->
           expect(model.constructor).toBe(Message)
 
+      it "should assign and save a local Id for the new message", ->
+        @_callNewMessageWithContext {threadId: fakeThread.id}
+        , (thread, message) ->
+          {}
+        , (model) ->
+          expect(DatabaseStore.bindToLocalId).toHaveBeenCalled()
+
+      it "should setup a draft session for the draftLocalId, so that a subsequent request for the session's draft resolves immediately.", ->
+        @_callNewMessageWithContext {threadId: fakeThread.id}
+        , (thread, message) ->
+          {}
+        , (model) ->
+          [draft, localId] = DatabaseStore.bindToLocalId.mostRecentCall.args
+          session = DraftStore.sessionForLocalId(localId).value()
+          expect(session.draft()).toBe(draft)
+
       it "should set the subject of the new message automatically", ->
         @_callNewMessageWithContext {threadId: fakeThread.id}
         , (thread, message) ->
@@ -249,6 +266,38 @@ describe "DraftStore", ->
           to: [new Contact(email: 'weird@example.com')]
         , (model) ->
           expect(model.subject).toEqual("Fwd: Fake subject")
+
+      describe "context", ->
+        it "should accept `thread` or look up a thread when given `threadId`", ->
+          @_callNewMessageWithContext {thread: fakeThread}
+          , (thread, message) ->
+            expect(thread).toBe(fakeThread)
+            expect(DatabaseStore.find).not.toHaveBeenCalled()
+            {}
+          , (model) ->
+
+          @_callNewMessageWithContext {threadId: fakeThread.id}
+          , (thread, message) ->
+            expect(thread).toBe(fakeThread)
+            expect(DatabaseStore.find).toHaveBeenCalled()
+            {}
+          , (model) ->
+
+        it "should accept `message` or look up a message when given `messageId`", ->
+          @_callNewMessageWithContext {thread: fakeThread, message: fakeMessage1}
+          , (thread, message) ->
+            expect(message).toBe(fakeMessage1)
+            expect(DatabaseStore.find).not.toHaveBeenCalled()
+            {}
+          , (model) ->
+
+          @_callNewMessageWithContext {thread: fakeThread, messageId: fakeMessage1.id}
+          , (thread, message) ->
+            expect(message).toBe(fakeMessage1)
+            expect(DatabaseStore.find).toHaveBeenCalled()
+            {}
+          , (model) ->
+
 
       describe "when a reply-to message is provided by the attributesCallback", ->
         it "should include quoted text in the new message", ->
