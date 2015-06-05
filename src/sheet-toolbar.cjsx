@@ -21,7 +21,7 @@ class ToolbarBack extends React.Component
   @displayName: 'ToolbarBack'
   render: =>
     <div className="item-back" onClick={@_onClick}>
-      <RetinaImg name="sheet-back.png" />
+      <RetinaImg name="sheet-back.png" mode={RetinaImg.Mode.ContentIsMask} />
     </div>
 
   _onClick: =>

@@ -140,6 +140,11 @@
         border-radius: 2px;
       }
     }
+    &.focused {
+      .checkmark .inner {
+        border:1px solid @accent-primary;
+      }
+    }
 
     .checkmark {
       padding: 12px;
@@ -149,7 +154,7 @@
       .inner {
         width:14px;
         height:14px;
-        border:1px solid @table-border-color;
+        border:1px solid @list-border;
         border-radius: 2px;
         background: transparent;
         background-size: 12px 9px;

@@ -59,8 +59,8 @@ class ThreadTagsButton extends React.Component
 
   render: =>
     button = <button className="btn btn-toolbar">
-      <RetinaImg name="toolbar-tags.png"/>
-      <RetinaImg name="toolbar-chevron.png"/>
+      <RetinaImg name="toolbar-tags.png" mode={RetinaImg.Mode.ContentIsMask}/>
+      <RetinaImg name="toolbar-chevron.png" mode={RetinaImg.Mode.ContentIsMask}/>
     </button>
 
     headerComponents = [

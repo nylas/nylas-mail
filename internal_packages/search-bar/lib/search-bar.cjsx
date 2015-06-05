@@ -52,6 +52,7 @@ class SearchBar extends React.Component
       <RetinaImg className="search-accessory search"
                  name="searchloupe.png"
                  key="accessory"
+                 mode={RetinaImg.Mode.ContentDark}
                  onClick={@_doSearch} />
       <div className="search-accessory clear"
            key="clear"

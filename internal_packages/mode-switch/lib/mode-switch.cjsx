@@ -36,6 +36,7 @@ class ModeSwitch extends React.Component
       <RetinaImg
         data-mode={'list'}
         name="toolbar-icon-listmode.png"
+        mode={RetinaImg.Mode.ContentIsMask}
         active={@state.mode is 'list'}
         onClick={@_onSetMode}
         style={paddingRight:12} />
@@ -45,14 +46,15 @@ class ModeSwitch extends React.Component
         name="modeslider-knob.png"
         className="handle"
         style={top:4, left: knobX}/>
-      <RetinaImg 
+      <RetinaImg
         data-mode={'split'}
-        name="toolbar-icon-splitpanes.png" 
+        name="toolbar-icon-splitpanes.png"
+        mode={RetinaImg.Mode.ContentIsMask}
         active={@state.mode is 'split'}
         onClick={@_onSetMode}
         style={paddingLeft:12} />
     </div>
-  
+
   _onStateChanged: =>
     @setState(@_getStateFromStores())
 

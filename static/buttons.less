@@ -46,10 +46,12 @@ button, html input[type="button"] {
 
   color:      @btn-default-text-color;
   background: @btn-default-bg-color;
+  img.content-mask { background-color:@btn-default-text-color; }
 
   &.btn-action {
     color:      @btn-action-text-color;
     background: @btn-action-bg-color;
+    img.content-mask { background-color:@btn-action-text-color; }
   }
 
   &.btn-emphasis {
@@ -58,7 +60,7 @@ button, html input[type="button"] {
     color: @btn-emphasis-text-color;
     font-weight: @font-weight-medium;
 
-    img {-webkit-filter: brightness(100);}
+    img.content-mask { background-color:@btn-emphasis-text-color; }
   }
 
   &.btn-emphasis:active {
@@ -69,6 +71,7 @@ button, html input[type="button"] {
   &.btn-danger, .btn-destructive {
     color:      @btn-danger-text-color;
     background: @btn-danger-bg-color;
+    img.content-mask { background-color:@btn-danger-text-color; }
   }
 }
 
@@ -88,6 +91,7 @@ button, html input[type="button"] {
   border: 0;
   box-shadow: none;
   color: @text-color-subtle;
+  img.content-mask { background-color:@text-color-subtle; }
   margin-right: 10px;
   outline: none !important;
   font-size: 20px;
@@ -98,6 +102,7 @@ button, html input[type="button"] {
 
   &.inverse {
     color: @text-color-inverse;
+    img.content-mask { background-color:@text-color-inverse; }
 
     &:hover {
       color: white;
@@ -105,16 +110,19 @@ button, html input[type="button"] {
 
     &:active {
       color: @text-color-inverse;
+      img.content-mask { background-color:@text-color-inverse; }
     }
   }
 
   &:hover {
     cursor: default;
     color: @text-color-link;
+    img.content-mask { background-color:@text-color-link; }
     box-shadow: none;
   }
   &:active {
     color: @text-color-link-active;
+    img.content-mask { background-color:@text-color-link-active; }
     box-shadow: none;
   }
 }

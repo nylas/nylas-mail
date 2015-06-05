@@ -42,6 +42,7 @@
 
   .message-toolbar-arrow.down {
     order:101;
+    margin-right: 0;
     padding-top:6px;
   }
   .message-toolbar-arrow.up {
@@ -130,6 +131,7 @@
 
       .collapsed-from {
         font-weight: @font-weight-semi-bold;
+        color: @text-color;
         // min-width: 60px;
         margin-right: 1em;
       }
@@ -249,9 +251,11 @@
 
   .footer-reply-area-wrap {
     width: 100%;
-    color: @text-color-very-subtle;
     border-top: 1px solid @border-color-divider;
     background: @background-primary;
+
+    color: @text-color-very-subtle;
+    img.content-mask { background-color:@text-color-very-subtle; }
 
     &:hover {
       cursor: default;
@@ -371,7 +375,7 @@
 .column-MessageListSidebar {
   background-color: @background-off-primary;
   overflow: auto;
-  border-left: 1px solid #ddd;
+  border-left: 1px solid @border-color-divider;
   .flexbox-handle-horizontal div {
     border-right: 0;
     width: 1px;

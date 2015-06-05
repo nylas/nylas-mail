@@ -7,6 +7,10 @@
   flex-shrink: 0;
 
   .full-contact {
+    color: @text-color;
+    -webkit-user-select:text;
+    img.content-mask { background-color: @text-color; }
+
     h1.name {
       font-size: 20px;
       font-weight: @font-weight-normal;
@@ -41,7 +45,7 @@
   .social-profile {
     margin-top: 0.5em;
     .social-icon {
-      padding-top: 6px;
+      margin-top: 6px;
       float: left;
     }
     .social-link {

@@ -55,7 +55,9 @@ class ThreadList extends React.Component
         if hasDraft
           <div style={display: 'flex'}>
             <ThreadListParticipants thread={thread} />
-            <RetinaImg name="icon-draft-pencil.png" className="draft-icon" />
+            <RetinaImg name="icon-draft-pencil.png"
+                       className="draft-icon"
+                       mode={RetinaImg.Mode.ContentPreserve} />
           </div>
         else
           <ThreadListParticipants thread={thread} />

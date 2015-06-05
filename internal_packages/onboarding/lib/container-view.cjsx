@@ -69,12 +69,12 @@ class ContainerView extends React.Component
     if @state.page is 'welcome'
       <div className="page" key={@state.page}>
         <div className="quit" onClick={@_fireQuit}>
-          <RetinaImg name="onboarding-close.png"/>
+          <RetinaImg name="onboarding-close.png" mode={RetinaImg.Mode.ContentPreserve} />
         </div>
         <RetinaImg name="onboarding-logo.png" className="logo"/>
         <h2>Welcome to Nylas</h2>
 
-        <RetinaImg name="onboarding-divider.png" />
+        <RetinaImg name="onboarding-divider.png"  mode={RetinaImg.Mode.ContentPreserve} />
 
         <form role="form" className="thin-container">
           <div className="prompt">Enter your email address:</div>
@@ -95,12 +95,12 @@ class ContainerView extends React.Component
     else if @state.page == 'add-account'
       <div className="page" key={@state.page}>
         <div className="quit" onClick={@_fireDismiss}>
-          <RetinaImg name="onboarding-close.png"/>
+          <RetinaImg name="onboarding-close.png"  mode={RetinaImg.Mode.ContentPreserve} />
         </div>
-        <RetinaImg name="onboarding-logo.png" className="logo"/>
+        <RetinaImg name="onboarding-logo.png" className="logo"  mode={RetinaImg.Mode.ContentPreserve} />
         <h2>Connect an Account</h2>
 
-        <RetinaImg name="onboarding-divider.png" />
+        <RetinaImg name="onboarding-divider.png"  mode={RetinaImg.Mode.ContentPreserve} />
 
         <form role="form" className="thin-container">
           <div className="prompt">Link accounts from other services to supercharge your email.</div>
@@ -119,7 +119,7 @@ class ContainerView extends React.Component
           })
         }
         <div className="back" onClick={@_fireMoveToPrevPage}>
-          <RetinaImg name="onboarding-back.png"/>
+          <RetinaImg name="onboarding-back.png" mode={RetinaImg.Mode.ContentPreserve} />
         </div>
       </div>
 

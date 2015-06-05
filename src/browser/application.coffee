@@ -249,6 +249,14 @@ class Application
       @windowManager.devMode = true
       @windowManager.ensurePrimaryWindowOnscreen()
 
+    @on 'application:toggle-theme', =>
+      themes = @config.get('core.themes') ? []
+      if 'ui-dark' in themes
+        themes = _.without themes, 'ui-dark'
+      else
+        themes.push('ui-dark')
+      @config.set('core.themes', themes)
+
     if process.platform is 'darwin'
       @on 'application:about', -> Menu.sendActionToFirstResponder('orderFrontStandardAboutPanel:')
       @on 'application:bring-all-windows-to-front', -> Menu.sendActionToFirstResponder('arrangeInFront:')

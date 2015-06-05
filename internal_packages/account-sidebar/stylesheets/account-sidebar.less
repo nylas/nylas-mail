@@ -22,6 +22,7 @@
 
   .item {
     color: @text-color-subtle;
+    img.content-mask { background-color: @text-color-subtle; }
     font-size: @font-size-small;
     font-weight: 400;
     padding: 0 @spacing-standard;
@@ -47,9 +48,7 @@
     &.selected {
       background: @source-list-active-bg;
       color: @source-list-active-color;
-      img.colorfill {
-        background: @source-list-active-color;
-      }
+      img.content-mask { background-color: @source-list-active-color; }
     }
 
     &:hover {

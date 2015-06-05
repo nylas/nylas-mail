@@ -21,7 +21,7 @@ class AccountSidebarTagItem extends React.Component
       'selected': @props.select
 
     <div className={coontainerClass} onClick={@_onClick} id={@props.item.id}>
-      <RetinaImg name={"#{@props.item.id}.png"} fallback={'folder.png'} colorfill={@props.select} />
+      <RetinaImg name={"#{@props.item.id}.png"} fallback={'folder.png'} mode={RetinaImg.Mode.ContentIsMask} />
       <span className="name"> {@props.item.name}</span>
       {unread}
     </div>
