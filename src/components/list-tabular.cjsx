@@ -1,5 +1,6 @@
 _ = require 'underscore'
 React = require 'react/addons'
+ScrollRegion = require './scroll-region'
 
 RangeChunkSize = 10
 
@@ -85,14 +86,11 @@ class ListTabular extends React.Component
     # If our view has been swapped out for an entirely different one,
     # reset our scroll position to the top.
     if prevProps.dataView isnt @props.dataView
-      container = React.findDOMNode(@refs.container)
-      container.scrollTop = 0
+      @refs.container.scrollTop = 0
     @updateRangeState()
 
   updateScrollState: =>
     window.requestAnimationFrame =>
-      container = React.findDOMNode(@refs.container)
-
       # Create an event that fires when we stop receiving scroll events.
       # There is no "scrollend" event, but we really need one.
       clearTimeout(@_scrollTimer) if @_scrollTimer
@@ -104,7 +102,7 @@ class ListTabular extends React.Component
 
       # If we've shifted enough pixels from our previous scrollTop to require
       # new rows to be rendered, update our state!
-      if Math.abs(@state.scrollTop - container.scrollTop) >= @_rowHeight() * RangeChunkSize
+      if Math.abs(@state.scrollTop - @refs.container.scrollTop) >= @_rowHeight() * RangeChunkSize
         @updateRangeState()
 
   onDoneReceivingScrollEvents: =>
@@ -113,8 +111,7 @@ class ListTabular extends React.Component
     @updateRangeState()
 
   updateRangeState: =>
-    container = @refs.container
-    scrollTop = React.findDOMNode(container)?.scrollTop
+    scrollTop = @refs.container.scrollTop
 
     rowHeight = @_rowHeight()
 
@@ -159,12 +156,12 @@ class ListTabular extends React.Component
       height: @props.dataView.count() * @_rowHeight()
       pointerEvents: if @state.scrollInProgress then 'none' else 'auto'
 
-    <div ref="container" onScroll={@updateScrollState} tabIndex="-1" className="list-container list-tabular">
+    <ScrollRegion ref="container" onScroll={@updateScrollState} tabIndex="-1" className="list-container list-tabular" scrollTooltipComponent={@props.scrollTooltipComponent} >
       {@_headers()}
       <div className="list-rows" style={innerStyles}>
         {@_rows()}
       </div>
-    </div>
+    </ScrollRegion>
 
   _rowHeight: =>
     39

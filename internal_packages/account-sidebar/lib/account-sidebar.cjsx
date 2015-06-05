@@ -1,5 +1,6 @@
 React = require 'react'
 {Actions} = require("nylas-exports")
+{ScrollRegion} = require("nylas-component-kit")
 SidebarDividerItem = require("./account-sidebar-divider-item")
 SidebarTagItem = require("./account-sidebar-tag-item")
 SidebarSheetItem = require("./account-sidebar-sheet-item")
@@ -26,11 +27,11 @@ class AccountSidebar extends React.Component
     @unsubscribe() if @unsubscribe
 
   render: =>
-    <div id="account-sidebar" className="account-sidebar">
+    <ScrollRegion id="account-sidebar" className="account-sidebar">
       <div className="account-sidebar-sections">
         {@_sections()}
       </div>
-    </div>
+    </ScrollRegion>
 
   _sections: =>
     return @state.sections.map (section) =>
