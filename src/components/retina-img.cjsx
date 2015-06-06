@@ -125,6 +125,8 @@ class RetinaImg extends React.Component
     <img className={className} src={path} style={style} {...otherProps} />
 
   _pathFor: (name) ->
+    return null unless name and _.isString(name)
+
     [basename, ext] = name.split('.')
     if @props.active is true
       name = "#{basename}-active.#{ext}"
