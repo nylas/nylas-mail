@@ -115,10 +115,12 @@ describe "TemplateStore", ->
 
     describe "when given a draft id", ->
       it "should create a template from the name and contents of the given draft", ->
+        spyOn(TemplateStore, 'trigger')
+        spyOn(TemplateStore, '_populate')
         runs ->
           TemplateStore._onCreateTemplate({draftLocalId: 'localid-b'})
         waitsFor ->
-          fs.writeFile.callCount > 0
+          TemplateStore.trigger.callCount > 0
         runs ->
           expect(TemplateStore.items().length).toEqual(1)
 
