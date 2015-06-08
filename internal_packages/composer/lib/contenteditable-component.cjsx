@@ -16,6 +16,7 @@ class ContenteditableComponent extends React.Component
     tabIndex: React.PropTypes.string
     onChange: React.PropTypes.func.isRequired
     mode: React.PropTypes.object
+    onFilePaste: React.PropTypes.func
     onChangeMode: React.PropTypes.func
     initialSelectionSnapshot: React.PropTypes.object
 
@@ -894,18 +895,43 @@ class ContenteditableComponent extends React.Component
   ####### CLEAN PASTE #########
 
   _onPaste: (evt) =>
-    inputText = evt.clipboardData.getData("text/html") ? ""
-    type = "text/html"
-    if inputText.length is 0
-      inputText = evt.clipboardData.getData("text/plain") ? ""
-      type = "text/plain"
-
-    if inputText.length > 0
-      cleanHtml = @_sanitizeInput(inputText, type)
-      document.execCommand("insertHTML", false, cleanHtml)
-
-    @_selectionManuallyChanged = true
+    return if evt.clipboardData.items.length is 0
     evt.preventDefault()
+
+    # If the pasteboard has a file on it, stream it to a teporary
+    # file and fire our `onFilePaste` event.
+    item = evt.clipboardData.items[0]
+
+    if item.kind is 'file' and @props.onFilePaste
+      blob = item.getAsFile()
+      ext = {'image/png': '.png', 'image/jpg': '.jpg', 'image/tiff': '.tiff'}[item.type] ? ''
+      temp = require 'temp'
+      path = require 'path'
+      fs = require 'fs'
+
+      reader = new FileReader()
+      reader.addEventListener 'loadend', =>
+        buffer = new Buffer(new Uint8Array(reader.result))
+        tmpFolder = temp.path('-nylas-attachment')
+        tmpPath = path.join(tmpFolder, "Pasted File#{ext}")
+        fs.mkdir tmpFolder, =>
+          fs.writeFile tmpPath, buffer, (err) =>
+            @props.onFilePaste(tmpPath)
+      reader.readAsArrayBuffer(blob)
+
+    else
+      # Look for text/html in any of the clipboard items and fall
+      # back to text/plain.
+      inputText = evt.clipboardData.getData("text/html") ? ""
+      type = "text/html"
+      if inputText.length is 0
+        inputText = evt.clipboardData.getData("text/plain") ? ""
+        type = "text/plain"
+
+      if inputText.length > 0
+        cleanHtml = @_sanitizeInput(inputText, type)
+        document.execCommand("insertHTML", false, cleanHtml)
+        @_selectionManuallyChanged = true
 
   # This is used primarily when pasting text in
   _sanitizeInput: (inputText="", type="text/html") =>

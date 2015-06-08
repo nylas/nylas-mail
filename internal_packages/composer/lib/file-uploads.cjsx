@@ -53,7 +53,7 @@ class FileUploads extends React.Component
       <FileUpload key={@_key(uploadData)} uploadData={uploadData} />
 
   _key: (uploadData) =>
-    "#{uploadData.messageLocalId} #{uploadData.filePath}"
+    "#{uploadData.messageLocalId}-#{uploadData.filePath}"
 
   # fileUploads:
   #   "some_local_msg_id /some/full/path/name":
