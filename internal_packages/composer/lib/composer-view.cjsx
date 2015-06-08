@@ -169,6 +169,7 @@ class ComposerView extends React.Component
           <ContenteditableComponent ref="contentBody"
                                     html={@state.body}
                                     onChange={@_onChangeBody}
+                                    onFilePaste={@_onFilePaste}
                                     style={@_precalcComposerCss}
                                     initialSelectionSnapshot={@_recoveredSelection}
                                     mode={{showQuotedText: @state.showQuotedText}}
@@ -336,6 +337,9 @@ class ComposerView extends React.Component
     for file in e.dataTransfer.files
       Actions.attachFilePath({path: file.path, messageLocalId: @props.localId})
     true
+
+  _onFilePaste: (path) =>
+    Actions.attachFilePath({path: path, messageLocalId: @props.localId})
 
   _onChangeParticipants: (changes={}) => @_addToProxy(changes)
   _onChangeSubject: (event) => @_addToProxy(subject: event.target.value)

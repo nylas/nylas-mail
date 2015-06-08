@@ -3,6 +3,7 @@
 # related test files.
 #
 _ = require "underscore"
+fs = require 'fs'
 React = require "react/addons"
 ReactTestUtils = React.addons.TestUtils
 ContenteditableComponent = require "../lib/contenteditable-component",
@@ -44,7 +45,99 @@ describe "ContenteditableComponent", ->
       @performEdit(@changedHtmlWithoutQuote)
       expect(@onChange.callCount).toBe(2)
 
-  describe "pasting behavior", ->
+  describe "pasting", ->
+    beforeEach ->
+
+    describe "when a file item is present", ->
+      beforeEach ->
+        @mockEvent =
+          preventDefault: jasmine.createSpy('preventDefault')
+          clipboardData:
+            items: [{
+              kind: 'file'
+              type: 'image/png'
+              getAsFile: -> new Blob(['12341352312411'], {type : 'image/png'})
+            }]
+
+      it "should save the image to a temporary file and call `onFilePaste`", ->
+        onPaste = jasmine.createSpy('onPaste')
+        @component = ReactTestUtils.renderIntoDocument(
+          <ContenteditableComponent html={''} onChange={@onChange} onFilePaste={onPaste} />
+        )
+        @editableNode = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithAttr(@component, 'contentEditable'))
+        runs ->
+          ReactTestUtils.Simulate.paste(@editableNode, @mockEvent)
+        waitsFor ->
+          onPaste.callCount > 0
+        runs ->
+          path = require('path')
+          file = onPaste.mostRecentCall.args[0]
+          expect(path.basename(file)).toEqual('Pasted File.png')
+          contents = fs.readFileSync(file)
+          expect(contents.toString()).toEqual('12341352312411')
+
+    describe "when html and plain text parts are present", ->
+      beforeEach ->
+        @mockEvent =
+          preventDefault: jasmine.createSpy('preventDefault')
+          clipboardData:
+            getData: ->
+              return '<strong>This is text</strong>' if 'text/html'
+              return 'This is plain text' if 'text/plain'
+              return null
+            items: [{
+              kind: 'string'
+              type: 'text/html'
+              getAsString: -> '<strong>This is text</strong>'
+            },{
+              kind: 'string'
+              type: 'text/plain'
+              getAsString: -> 'This is plain text'
+            }]
+
+      it "should sanitize the HTML string and call insertHTML", ->
+        spyOn(document, 'execCommand')
+        spyOn(@component, '_sanitizeInput').andCallThrough()
+
+        runs ->
+          ReactTestUtils.Simulate.paste(@editableNode, @mockEvent)
+        waitsFor ->
+          document.execCommand.callCount > 0
+        runs ->
+          expect(@component._sanitizeInput).toHaveBeenCalledWith('<strong>This is text</strong>', 'text/html')
+          [command, a, html] = document.execCommand.mostRecentCall.args
+          expect(command).toEqual('insertHTML')
+          expect(html).toEqual('<strong>This is text</strong>')
+
+    describe "when html and plain text parts are present", ->
+      beforeEach ->
+        @mockEvent =
+          preventDefault: jasmine.createSpy('preventDefault')
+          clipboardData:
+            getData: ->
+              return 'This is plain text' if 'text/plain'
+              return null
+            items: [{
+              kind: 'string'
+              type: 'text/plain'
+              getAsString: -> 'This is plain text'
+            }]
+
+      it "should sanitize the plain text string and call insertHTML", ->
+        spyOn(document, 'execCommand')
+        spyOn(@component, '_sanitizeInput').andCallThrough()
+
+        runs ->
+          ReactTestUtils.Simulate.paste(@editableNode, @mockEvent)
+        waitsFor ->
+          document.execCommand.callCount > 0
+        runs ->
+          expect(@component._sanitizeInput).toHaveBeenCalledWith('This is plain text', 'text/html')
+          [command, a, html] = document.execCommand.mostRecentCall.args
+          expect(command).toEqual('insertHTML')
+          expect(html).toEqual('This is plain text')
+
+  describe "sanitization", ->
     tests = [
       {
         in: ""
