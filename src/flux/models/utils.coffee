@@ -268,7 +268,7 @@ Utils =
         return false
     return true
 
-  scrollNodeToVisibleInContainer: (node, container) ->
+  scrollAdjustmentToMakeNodeVisibleInContainer: (node, container) ->
     return unless node
 
     nodeRect = node.getBoundingClientRect()
@@ -276,11 +276,13 @@ Utils =
 
     distanceBelowBottom = (nodeRect.top + nodeRect.height) - (containerRect.top + containerRect.height)
     if distanceBelowBottom > 0
-      container.scrollTop += distanceBelowBottom
+      return distanceBelowBottom
 
     distanceAboveTop = containerRect.top - nodeRect.top
     if distanceAboveTop > 0
-      container.scrollTop -= distanceAboveTop
+      return -distanceAboveTop
+
+    return 0
 
   # True of all arguments have the same domains
   emailsHaveSameDomain: (args...) ->

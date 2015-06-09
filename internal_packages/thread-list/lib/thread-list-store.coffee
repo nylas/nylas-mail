@@ -31,6 +31,8 @@ ThreadListStore = Reflux.createStore
     @listenTo Actions.archiveSelection, @_onArchiveSelection
     @listenTo Actions.archive, @_onArchive
 
+    @listenTo Actions.toggleStarSelection, @_onToggleStarSelection
+
     @listenTo DatabaseStore, @_onDataChanged
     @listenTo FocusedTagStore, @_onTagChanged
     @listenTo NamespaceStore, @_onNamespaceChanged
@@ -96,6 +98,23 @@ ThreadListStore = Reflux.createStore
     if change.objectClass is Message.name
       threadIds = _.uniq _.map change.objects, (m) -> m.threadId
       @_view.invalidateMetadataFor(threadIds)
+
+  _onToggleStarSelection: ->
+    selected = @_view.selection.items()
+    focusedId = FocusedContentStore.focusedId('thread')
+    keyboardId = FocusedContentStore.keyboardCursorId('thread')
+
+    oneAlreadyStarred = false
+    for thread in selected
+      if thread.hasTagId('starred')
+        oneAlreadyStarred = true
+
+    for thread in selected
+      if oneAlreadyStarred
+        task = new AddRemoveTagsTask(thread, [], ['starred'])
+      else
+        task = new AddRemoveTagsTask(thread, ['starred'], [])
+      Actions.queueTask(task)
 
   _onArchive: ->
     @_archiveAndShiftBy('auto')

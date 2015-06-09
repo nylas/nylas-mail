@@ -65,6 +65,13 @@ class ScrollRegion extends React.Component
       </div>
     </div>
 
+  # Public: Scroll to the DOM Node provided.
+  #
+  scrollTo: (node) =>
+    container = React.findDOMNode(@)
+    adjustment = Utils.scrollAdjustmentToMakeNodeVisibleInContainer(node, container)
+    @scrollTop += adjustment if adjustment isnt 0
+
   _scrollbarWrapStyles: =>
     position:'absolute'
     top: 0

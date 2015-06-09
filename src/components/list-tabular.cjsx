@@ -1,6 +1,7 @@
 _ = require 'underscore'
 React = require 'react/addons'
 ScrollRegion = require './scroll-region'
+{Utils} = require 'nylas-exports'
 
 RangeChunkSize = 10
 
@@ -202,6 +203,12 @@ class ListTabular extends React.Component
                                onReorder={@props.onReorder}
                                onDoubleClick={@props.onDoubleClick} />
     rows
+
+  # Public: Scroll to the DOM node provided.
+  #
+  scrollTo: (node) =>
+    @refs.container.scrollTo(node)
+
 
 ListTabular.Item = ListTabularItem
 ListTabular.Column = ListColumn
