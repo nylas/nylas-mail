@@ -14,7 +14,7 @@
   -webkit-font-smoothing: subpixel-antialiased;
 
   .list-item {
-    background-color: darken(@background-primary, 3%);
+    background-color: darken(@background-primary, 2%);
   }
 
   .list-column {
@@ -128,14 +128,12 @@
   }
 
   .thread-icon {
-    display:inline-block;
     width:15px;
     height:15px;
-    background-size: 100%;
+    background-size: 15px;
     background-repeat: no-repeat;
-    position: relative;
-    top: 5px;
-    vertical-align: top;
+    background-position:center;
+    padding:12px;
   }
   .thread-icon-attachment {
     background-image:url(../static/images/thread-list/icon-attachment-@2x.png);
@@ -149,7 +147,10 @@
   .thread-icon-forwarded {
     background-image:url(../static/images/thread-list/icon-forwarded-@2x.png);
   }
-
+  .thread-icon-star {
+    background-size: 16px;
+    background-image:url(../static/images/thread-list/icon-star-@2x.png);
+  }
   .star-button {
     font-size: 16px;
     .fa-star {
@@ -167,4 +168,15 @@
       }
     }
   }
+}
+
+
+.thread-icon-star-on-hover:hover,
+.thread-list .list-item:hover .thread-icon-star-on-hover:hover {
+  background-image:url(../static/images/thread-list/icon-star-@2x.png);
+  background-size: 16px;
+}
+.thread-list .list-item:hover .thread-icon-star-on-hover {
+  background-image:url(../static/images/thread-list/icon-star-hover-@2x.png);
+  background-size: 16px;
 }

@@ -11,6 +11,7 @@ classNames = require 'classnames'
 
 ThreadListParticipants = require './thread-list-participants'
 ThreadListStore = require './thread-list-store'
+ThreadListIcon = require './thread-list-icon'
 
 class ThreadListScrollTooltip extends React.Component
   @displayName: 'ThreadListScrollTooltip'
@@ -49,29 +50,10 @@ class ThreadList extends React.Component
         LabelComponent = label.view
         <LabelComponent thread={thread} />
 
-    lastMessageType = (thread) ->
-      myEmail = NamespaceStore.current()?.emailAddress
-
-      msgs = thread.metadata
-      return 'unknown' unless msgs and msgs instanceof Array
-
-      msgs = _.filter msgs, (m) -> m.isSaved() and not m.draft
-      msg = msgs[msgs.length - 1]
-      return 'unknown' unless msgs.length > 0
-
-      if thread.unread
-        return 'unread'
-      else if msg.from[0]?.email isnt myEmail or msgs.length is 1
-        return 'other'
-      else if Utils.isForwardedMessage(msg)
-        return 'forwarded'
-      else
-        return 'replied'
-
     c1 = new ListTabular.Column
       name: "★"
       resolver: (thread) =>
-        <div className="thread-icon thread-icon-#{lastMessageType(thread)}"></div>
+        <ThreadListIcon thread={thread} />
 
     c2 = new ListTabular.Column
       name: "Name"

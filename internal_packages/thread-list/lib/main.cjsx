@@ -2,7 +2,7 @@ _ = require 'underscore'
 React = require "react"
 {ComponentRegistry, WorkspaceStore} = require "nylas-exports"
 
-{DownButton, UpButton, ThreadBulkArchiveButton} = require "./thread-buttons"
+{DownButton, UpButton, ThreadBulkArchiveButton, ThreadBulkStarButton} = require "./thread-buttons"
 ThreadSelectionBar = require './thread-selection-bar'
 ThreadList = require './thread-list'
 
@@ -32,6 +32,9 @@ module.exports =
       modes: ['list']
 
     ComponentRegistry.register ThreadBulkArchiveButton,
+      role: 'thread:BulkAction'
+
+    ComponentRegistry.register ThreadBulkStarButton,
       role: 'thread:BulkAction'
 
   deactivate: ->

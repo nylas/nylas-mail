@@ -23,6 +23,25 @@ class ThreadBulkArchiveButton extends React.Component
     Actions.archiveSelection()
 
 
+class ThreadBulkStarButton extends React.Component
+  @displayName: 'ThreadBulkStarButton'
+  @containerRequired: false
+
+  @propTypes:
+    selection: React.PropTypes.object.isRequired
+
+  render: ->
+    <button style={order:-100}
+            className="btn btn-toolbar"
+            data-tooltip="Star"
+            onClick={@_onStar}>
+      <RetinaImg name="toolbar-star.png" mode={RetinaImg.Mode.ContentIsMask} />
+    </button>
+
+  _onStar: =>
+    Actions.toggleStarSelection()
+
+
 ThreadNavButtonMixin =
   getInitialState: ->
     @_getStateFromStores()
@@ -98,4 +117,4 @@ UpButton = React.createClass
 UpButton.containerRequired = false
 DownButton.containerRequired = false
 
-module.exports = {DownButton, UpButton, ThreadBulkArchiveButton}
+module.exports = {DownButton, UpButton, ThreadBulkArchiveButton, ThreadBulkStarButton}

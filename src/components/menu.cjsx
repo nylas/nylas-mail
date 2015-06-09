@@ -184,7 +184,9 @@ class Menu extends React.Component
   componentDidUpdate: =>
     item = React.findDOMNode(@).querySelector(".selected")
     container = React.findDOMNode(@).querySelector(".content-container")
-    Utils.scrollNodeToVisibleInContainer(item, container)
+    adjustment = Utils.scrollAdjustmentToMakeNodeVisibleInContainer(item, container)
+    if adjustment isnt 0
+      container.scrollTop += adjustment
 
   componentWillUnmount: =>
     @subscriptions?.dispose()

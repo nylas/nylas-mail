@@ -75,7 +75,7 @@ AccountSidebarStore = Reflux.createStore
     # We ignore the trash tag because you can't trash anything
     tags = _.reject tags, (tag) -> tag.id is "trash"
 
-    mainTagIDs = ['inbox', 'drafts', 'sent', 'archive']
+    mainTagIDs = ['inbox', 'starred', 'drafts', 'sent', 'archive']
     mainTags = _.filter tags, (tag) -> _.contains(mainTagIDs, tag.id)
     userTags = _.reject tags, (tag) -> _.contains(mainTagIDs, tag.id)
 
