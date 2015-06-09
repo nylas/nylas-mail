@@ -14,23 +14,28 @@ class ThreadListIcon extends React.Component
   _iconType: =>
     myEmail = NamespaceStore.current()?.emailAddress
 
-    msgs = @props.thread.metadata
-    return '' unless msgs and msgs instanceof Array
-
-    msgs = _.filter msgs, (m) -> m.isSaved() and not m.draft
-    msg = msgs[msgs.length - 1]
-    return '' unless msgs.length > 0
-
     if @props.thread.hasTagId('starred')
       return 'thread-icon-star'
-    else if @props.thread.unread
+
+    if @props.thread.unread
       return 'thread-icon-unread thread-icon-star-on-hover'
-    else if msg.from[0]?.email isnt myEmail or msgs.length is 1
-      return 'thread-icon-star-on-hover'
-    else if Utils.isForwardedMessage(msg)
-      return 'thread-icon-forwarded thread-icon-star-on-hover'
-    else
-      return 'thread-icon-replied thread-icon-star-on-hover'
+
+    msgs = @_nonDraftMessages()
+    last = msgs[msgs.length - 1]
+
+    if msgs.length > 1 and last.from[0]?.email is myEmail
+      if Utils.isForwardedMessage(last)
+        return 'thread-icon-forwarded thread-icon-star-on-hover'
+      else
+        return 'thread-icon-replied thread-icon-star-on-hover'
+
+    return 'thread-icon-star-on-hover'
+
+  _nonDraftMessages: =>
+    msgs = @props.thread.metadata
+    return [] unless msgs and msgs instanceof Array
+    msgs = _.filter msgs, (m) -> m.isSaved() and not m.draft
+    return msgs
 
   render: =>
     <div className="thread-icon #{@_iconType()}" onClick={@_onToggleStar}></div>
