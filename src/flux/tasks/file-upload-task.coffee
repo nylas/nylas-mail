@@ -9,11 +9,19 @@ NamespaceStore = require '../stores/namespace-store'
 DatabaseStore = require '../stores/database-store'
 {isTempId} = require '../models/utils'
 NylasAPI = require '../nylas-api'
+Utils = require '../models/utils'
+
+idGen = 2
 
 class FileUploadTask extends Task
 
+  @idGen: -> idGen
+
   constructor: (@filePath, @messageLocalId) ->
     super
+    @_startedUploadingAt = Date.now()
+    @_uploadId = FileUploadTask.idGen()
+    idGen += 1
     @progress = null # The progress checking timer.
 
   performLocal: ->
@@ -89,7 +97,7 @@ class FileUploadTask extends Task
     @req = null
     @_attachFileToDraft(file).then =>
       Actions.uploadStateChanged @_uploadData("completed")
-      Actions.fileUploaded(uploadData: @_uploadData("completed"))
+      Actions.fileUploaded(file: file, uploadData: @_uploadData("completed"))
       resolve()
     .catch(reject)
 
@@ -98,7 +106,8 @@ class FileUploadTask extends Task
     DraftStore.sessionForLocalId(@messageLocalId).then (session) =>
       files = _.clone(session.draft().files) ? []
       files.push(file)
-      return session.changes.add({files}, true)
+      session.changes.add({files})
+      return session.changes.commit()
 
   _formData: ->
     file: # Must be named `file` as per the Nylas API spec
@@ -115,6 +124,8 @@ class FileUploadTask extends Task
   #   state - one of "pending" "started" "progress" "completed" "aborted" "failed"
   _uploadData: (state) ->
     @_memoUploadData ?=
+      uploadId: @_uploadId
+      startedUploadingAt: @_startedUploadingAt
       messageLocalId: @messageLocalId
       filePath: @filePath
       fileSize: @_getFileSize(@filePath)

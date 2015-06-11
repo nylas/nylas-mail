@@ -136,14 +136,13 @@
   .compose-body {
     flex: 1;
     z-index: 1;
-    display: flex;
     cursor: text;
     overflow: auto;
     position: relative;
 
     .quoted-text-control {
       position: absolute;
-      bottom: 10px;
+      bottom: -25px;
       left: 15px;
       margin: 0;
     }
@@ -155,42 +154,24 @@
       padding: @spacing-standard;
       padding-top: @spacing-standard;
       padding-bottom: 0;
-      margin-bottom: 37px;
+      margin-bottom: 30px;
     }
     .contenteditable-container {
       width: 100%;
+      position: relative;
+    }
+  }
+
+  .composer-footer-region {
+    cursor: default;
+    &:hover {
+      cursor: default;
     }
   }
 
   // TODO FIXME DRY From stylesheets/message-list.less
   .attachments-area {
     padding: 0 15px 0 15px;
-    .attachment-file-wrap {
-      padding-top: 5px;
-      &.pending, &.started, &.progress {
-        color: @text-color-subtle;
-        .attachment-file-actions { visibility: visible; }
-        .attachment-file-and-name:hover { cursor: default; color: @text-color-subtle; }
-      }
-
-      &.completed, &.success {
-        color: @text-color-success; // Success state
-        .attachment-file-actions { visibility: hidden; }
-        .attachment-file-and-name:hover { cursor: default; color: @text-color-success; }
-        .attachment-upload-progress { background: @background-color-success; }
-      }
-
-      &.aborted, &.failed {
-        color: @text-color-error;
-        .attachment-file-actions { visibility: hidden; }
-        .attachment-file-and-name:hover { cursor: default; color: @text-color-error; }
-        .attachment-upload-progress { background: @background-color-error; }
-      }
-    }
-
-    .attachment-file-actions {
-      margin-left: 0.4em;
-    }
   }
 
   .token {
@@ -250,6 +231,7 @@ body.is-blurred .composer-inner-wrap .tokenizing-field .token {
         display: flex;
         flex: 1;
         width: 100%;
+        position: relative;
 
         div[contenteditable] {
           height: auto;

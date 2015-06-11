@@ -4,6 +4,7 @@ ipc = require 'ipc'
 path = require 'path'
 shell = require 'shell'
 mkdirp = require 'mkdirp'
+Utils = require '../models/utils'
 Reflux = require 'reflux'
 _ = require 'underscore'
 Actions = require '../actions'
@@ -106,14 +107,16 @@ FileDownloadStore = Reflux.createStore
     path.join(@_downloadDirectory, "#{file.id}-#{file.filename}")
 
   downloadForFileId: (fileId) ->
-    _.find @_downloads, (d) -> d.fileId is fileId
+    return Utils.deepClone(_.find @_downloads, (d) -> d.fileId is fileId)
 
   downloadsForFileIds: (fileIds=[]) ->
     map = {}
     for fileId in fileIds
       download = @downloadForFileId(fileId)
-      map[fileId] = download if download
-    map
+      if download
+        map[fileId] = download
+    return Utils.deepClone(map)
+
 
   ########### PRIVATE ####################################################
 

@@ -44,6 +44,16 @@ Utils =
     set[item] = true for item in arr
     return set
 
+  # Given a File object or uploadData of an uploading file object,
+  # determine if it looks like an image
+  looksLikeImage: (file={}) ->
+    name = file.filename ? file.fileName ? file.name ? ""
+    size = file.size ? file.fileSize ? 0
+    ext = path.extname(name).toLowerCase()
+    extensions = ['.jpg', '.bmp', '.gif', '.png', '.jpeg']
+
+    return ext in extensions and size > 512 and size < 1024*1024*10
+
   # Escapes potentially dangerous html characters
   # This code is lifted from Angular.js
   # See their specs here:

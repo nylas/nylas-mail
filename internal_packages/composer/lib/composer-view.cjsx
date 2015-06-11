@@ -5,14 +5,16 @@ _ = require 'underscore'
  Actions,
  UndoManager,
  DraftStore,
- FileUploadStore} = require 'nylas-exports'
+ FileUploadStore,
+ FileDownloadStore} = require 'nylas-exports'
 
 {ResizableRegion,
  InjectedComponentSet,
  InjectedComponent,
  RetinaImg} = require 'nylas-component-kit'
 
-FileUploads = require './file-uploads'
+FileUpload = require './file-upload'
+ImageFileUpload = require './image-file-upload'
 ContenteditableComponent = require './contenteditable-component'
 ParticipantsTextField = require './participants-text-field'
 
@@ -47,18 +49,21 @@ class ComposerView extends React.Component
       cc: []
       bcc: []
       body: ""
+      files: []
       subject: ""
       showcc: false
       showbcc: false
       showsubject: false
       showQuotedText: false
       isSending: DraftStore.isSendingDraft(@props.localId)
+      uploads: FileUploadStore.uploadsForMessage(@props.localId) ? []
 
   componentWillMount: =>
     @_prepareForDraft(@props.localId)
 
   componentDidMount: =>
     @_draftStoreUnlisten = DraftStore.listen @_onSendingStateChanged
+    @_uploadUnlisten = FileUploadStore.listen @_onFileUploadStoreChange
     @_keymapUnlisten = atom.commands.add '.composer-outer-wrap', {
       'composer:show-and-focus-bcc': @_showAndFocusBcc
       'composer:show-and-focus-cc': @_showAndFocusCc
@@ -76,6 +81,7 @@ class ComposerView extends React.Component
   componentWillUnmount: =>
     @_unmounted = true # rarf
     @_teardownForDraft()
+    @_uploadUnlisten() if @_uploadUnlisten
     @_draftStoreUnlisten() if @_draftStoreUnlisten
     @_keymapUnlisten.dispose() if @_keymapUnlisten
 
@@ -107,8 +113,15 @@ class ComposerView extends React.Component
     return if @_unmounted
     return unless proxy.draftLocalId is @props.localId
     @_proxy = proxy
+    @_preloadImages(@_proxy.draft()?.files)
     @unlisteners.push @_proxy.listen(@_onDraftChanged)
     @_onDraftChanged()
+
+  _preloadImages: (files=[]) ->
+    files.forEach (file) ->
+      uploadData = FileUploadStore.linkedUpload(file)
+      if not uploadData? and Utils.looksLikeImage(file)
+        Actions.fetchFile(file)
 
   _teardownForDraft: =>
     unlisten() for unlisten in @unlisteners
@@ -176,9 +189,10 @@ class ComposerView extends React.Component
                                     onChangeMode={@_onChangeEditableMode}
                                     onRequestScrollTo={@props.onRequestScrollTo}
                                     tabIndex="109" />
-        </div>
 
-        {@_renderFooterRegions()}
+          {@_renderFooterRegions()}
+
+        </div>
       </div>
 
       <div className="composer-action-bar-wrap">
@@ -193,6 +207,7 @@ class ComposerView extends React.Component
     fields.push(
       <ParticipantsTextField
         ref="textFieldTo"
+        key="to"
         field='to'
         change={@_onChangeParticipants}
         participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
@@ -203,6 +218,7 @@ class ComposerView extends React.Component
       fields.push(
         <ParticipantsTextField
           ref="textFieldCc"
+          key="cc"
           field='cc'
           change={@_onChangeParticipants}
           onEmptied={=> @setState showcc: false}
@@ -214,6 +230,7 @@ class ComposerView extends React.Component
       fields.push(
         <ParticipantsTextField
           ref="textFieldBcc"
+          key="bcc"
           field='bcc'
           change={@_onChangeParticipants}
           onEmptied={=> @setState showbcc: false}
@@ -223,7 +240,7 @@ class ComposerView extends React.Component
 
     if @state.showsubject
       fields.push(
-        <div className="compose-subject-wrap">
+        <div key="subject" className="compose-subject-wrap">
           <input type="text"
                  key="subject"
                  name="subject"
@@ -241,20 +258,79 @@ class ComposerView extends React.Component
   _renderFooterRegions: =>
     return <div></div> unless @props.localId
 
-    <span>
+    <div className="composer-footer-region">
       <div className="attachments-area">
-        {
-          (@state.files ? []).map (file) =>
-            <InjectedComponent matching={role:"Attachment"}
-                               exposedProps={file: file, removable: true, messageLocalId: @props.localId}
-                               key={file.id} />
-        }
-        <FileUploads localId={@props.localId} />
+        {@_renderNonImageAttachmentsAndUploads()}
+        {@_renderImageAttachmentsAndUploads()}
       </div>
       <InjectedComponentSet
         matching={role: "Composer:Footer"}
         exposedProps={draftLocalId:@props.localId, threadId: @props.threadId}/>
-    </span>
+    </div>
+
+  _renderNonImageAttachmentsAndUploads: ->
+    @_nonImages().map (fileOrUpload) =>
+      if fileOrUpload.object is "file"
+        @_attachmentComponent(fileOrUpload)
+      else
+        <FileUpload key={fileOrUpload.uploadId}
+                    uploadData={fileOrUpload} />
+
+  _renderImageAttachmentsAndUploads: ->
+    @_images().map (fileOrUpload) =>
+      if fileOrUpload.object is "file"
+        @_attachmentComponent(fileOrUpload, "Attachment:Image")
+      else
+        <ImageFileUpload key={fileOrUpload.uploadId}
+                         uploadData={fileOrUpload} />
+
+  _attachmentComponent: (file, role="Attachment") =>
+    targetPath = FileUploadStore.linkedUpload(file)?.filePath
+    if not targetPath
+      targetPath = FileDownloadStore.pathForFile(file)
+
+    props =
+      file: file
+      removable: true
+      targetPath: targetPath
+      messageLocalId: @props.localId
+
+    if role is "Attachment" then className = "non-image-attachment attachment-file-wrap"
+    else className = "image-attachment-file-wrap"
+
+    <InjectedComponent key={file.id}
+                       matching={role: role}
+                       className={className}
+                       exposedProps={props} />
+
+  _fileSort: (fileOrUpload) ->
+    if fileOrUpload.object is "file"
+      # There will only be an entry in the `linkedUpload` if the file had
+      # finished uploading in this session. We may well have files that
+      # already existed on a draft that don't have any uploadData
+      # associated with them.
+      uploadData = FileUploadStore.linkedUpload(fileOrUpload)
+    else
+      uploadData = fileOrUpload
+
+    if not uploadData
+      sortOrder = 0
+    else
+      sortOrder = uploadData.startedUploadingAt + (1 / +uploadData.uploadId)
+
+    return sortOrder
+
+  _images: ->
+    _.sortBy _.filter(@_uploadsAndFiles(), Utils.looksLikeImage), @_fileSort
+
+  _nonImages: ->
+    _.sortBy _.reject(@_uploadsAndFiles(), Utils.looksLikeImage), @_fileSort
+
+  _uploadsAndFiles: ->
+    _.compact(@state.uploads.concat(@state.files))
+
+  _onFileUploadStoreChange: =>
+    @setState uploads: FileUploadStore.uploadsForMessage(@props.localId)
 
   _renderActionsRegion: =>
     return <div></div> unless @props.localId

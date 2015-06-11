@@ -1,6 +1,8 @@
+_ = require 'underscore'
 path = require 'path'
 React = require 'react'
-{Actions} = require 'nylas-exports'
+{RetinaImg} = require 'nylas-component-kit'
+{Actions, Utils} = require 'nylas-exports'
 
 # Passed in as props from MessageItem and FileDownloadStore
 # This is empty if the attachment isn't downloading.
@@ -13,41 +15,48 @@ class AttachmentComponent extends React.Component
   @propTypes:
     file: React.PropTypes.object.isRequired,
     download: React.PropTypes.object
+    removable: React.PropTypes.boolean
+    targetPath: React.PropTypes.string
+    messageLocalId: React.PropTypes.string
 
   constructor: (@props) ->
     @state = progressPercent: 0
 
   render: =>
-    <div className={"attachment-file-wrap " + (@props.download?.state() ? "")}>
+    <div className={"attachment-inner-wrap #{@props.download?.state() ? ""}"}>
       <span className="attachment-download-bar-wrap">
         <span className="attachment-bar-bg"></span>
         <span className="attachment-download-progress" style={@_downloadProgressStyle()}></span>
-      </span>
-
-      <span className="attachment-file-and-name" onClick={@_onClickView}>
-        <span className="attachment-file-icon"><i className="fa fa-file-o"></i>&nbsp;</span>
-        <span className="attachment-file-name">{@props.file.filename}</span>
       </span>
 
       <span className="attachment-file-actions">
         {@_fileActions()}
       </span>
 
+      <span className="attachment-file-and-name" onClick={@_onClickView}>
+        <span className="attachment-file-icon">
+          <RetinaImg className="file-icon"
+                     fallback="file-fallback.png"
+                     name="file-#{@_extension()}.png"/>
+        </span>
+        <span className="attachment-file-name">{@props.file.filename}</span>
+      </span>
+
     </div>
 
   _fileActions: =>
     if @props.removable
-      <button className="btn btn-icon attachment-icon" onClick={@_onClickRemove}>
-        <i className="fa fa-remove"></i>
-      </button>
+      <div className="attachment-icon" onClick={@_onClickRemove}>
+        <RetinaImg className="remove-icon" name="remove-attachment.png"/>
+      </div>
     else if @_isDownloading()
-      <button className="btn btn-icon attachment-icon" onClick={@_onClickAbort}>
-        <i className="fa fa-remove"></i>
-      </button>
+      <div className="attachment-icon" onClick={@_onClickRemove}>
+        <RetinaImg className="remove-icon" name="remove-attachment.png"/>
+      </div>
     else
-      <button className="btn btn-icon attachment-icon" onClick={@_onClickDownload}>
-        <i className="fa fa-download"></i>
-      </button>
+      <div className="attachment-icon" onClick={@_onClickDownload}>
+        <i className="fa fa-download" style={position: "relative", top: "2px"}></i>
+      </div>
 
   _downloadProgressStyle: =>
     width: @props.download?.percent ? 0
@@ -66,6 +75,8 @@ class AttachmentComponent extends React.Component
   _canClickToView: => not @props.removable and not @_isDownloading()
 
   _isDownloading: => @props.download?.state() is "downloading"
+
+  _extension: -> @props.file.filename.split('.').pop()
 
 
 module.exports = AttachmentComponent

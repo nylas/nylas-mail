@@ -2,6 +2,7 @@ Reflux = require "reflux"
 Actions = require "../actions"
 Message = require "../models/message"
 Thread = require "../models/thread"
+Utils = require '../models/utils'
 DatabaseStore = require "./database-store"
 NamespaceStore = require "./namespace-store"
 FocusedContentStore = require "./focused-content-store"
@@ -150,7 +151,8 @@ MessageStore = Reflux.createStore
         # is smart enough that calling this multiple times is not bad!
         for msg in items
           for file in msg.files
-            Actions.fetchFile(file) if file.contentId
+            if file.contentId or Utils.looksLikeImage(file)
+              Actions.fetchFile(file)
 
         # Normally, we would trigger often and let the view's
         # shouldComponentUpdate decide whether to re-render, but if we
