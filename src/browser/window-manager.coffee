@@ -268,9 +268,12 @@ class WindowManager
       return @newColdWindow(options)
 
     supportedHotWindowKeys = [
+      "x"
+      "y"
       "title"
       "width"
       "height"
+      "bounds"
       "windowType"
       "windowProps"
     ]
@@ -292,6 +295,23 @@ class WindowManager
       newLoadSettings = _.extend(win.loadSettings(), options)
       win.setLoadSettings(newLoadSettings)
       win.showWhenLoaded()
+
+      win.browserWindow.setTitle options.title ? ""
+
+      if options.x and options.y
+        win.browserWindow.setPosition options.x, options.w
+
+      if options.width or options.height
+        [w,h] = win.browserWindow.getSize()
+        w = options.width ? w
+        h = options.height ? h
+        win.browserWindow.setSize(w,h)
+
+      console.log JSON.stringify(options)
+      if options.bounds
+        console.log "------------- SETTING BOUNDS"
+        console.log JSON.stringify(options.bounds)
+        win.browserWindow.setBounds options.bounds
 
     @_replenishHotWindows()
 
