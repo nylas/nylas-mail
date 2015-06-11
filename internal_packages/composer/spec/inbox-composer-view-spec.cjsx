@@ -34,7 +34,7 @@ textFieldStub = (className) ->
     render: -> <div className={className}>{@props.children}</div>
     focus: ->
 
-passThroughStub = (props={})->
+passThroughStub = (props={}) ->
   React.createClass
     render: -> <div {...props}>{props.children}</div>
 

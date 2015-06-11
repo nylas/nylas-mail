@@ -77,7 +77,7 @@ class Application
 
     @databases = {}
     @windowManager = new WindowManager({@resourcePath, @config, @devMode, @safeMode})
-    @autoUpdateManager = new AutoUpdateManager(@version)
+    @autoUpdateManager = new AutoUpdateManager(@version, @config)
     @applicationMenu = new ApplicationMenu(@version)
     @nylasProtocolHandler = new NylasProtocolHandler(@resourcePath, @safeMode)
 

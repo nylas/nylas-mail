@@ -7,3 +7,4 @@
       "calendar-bar",
       "salesforce"
     ]
+  'updateLevel': 'patch'
