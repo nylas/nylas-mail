@@ -152,7 +152,8 @@ class TaskQueue
     toDequeue = @findTask(type, matching)
 
     if not toDequeue
-      console.warn("Could not find task: #{task?.object}", task)
+      console.warn("Could not find task: #{type}", matching)
+      return
 
     @dequeue(toDequeue, silent: true)
     @_update()

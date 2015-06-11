@@ -12,6 +12,7 @@ ReactTestUtils = React.addons.TestUtils
 EmailFrameStub = React.createClass({render: -> <div></div>})
 
 {InjectedComponent} = require 'nylas-component-kit'
+
 file = new File
   id: 'file_1_id'
   filename: 'a.png'

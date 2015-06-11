@@ -26,6 +26,7 @@ class DraftChangeSet
 
   reset: ->
     @_pending = {}
+    @_saving = {}
     clearTimeout(@_timer) if @_timer
     @_timer = null
 
@@ -48,11 +49,15 @@ class DraftChangeSet
       if not draft
         throw new Error("Tried to commit a draft that had already been removed from the database. DraftId: #{@localId}")
       draft = @applyToModel(draft)
+      @_saving = @_pending
+      @_pending = {}
       DatabaseStore.persistModel(draft).then =>
-        @_pending = {}
+        @_saving = {}
 
   applyToModel: (model) =>
-    model.fromJSON(@_pending) if model
+    if model
+      model.fromJSON(@_saving)
+      model.fromJSON(@_pending)
     model
 
 ###

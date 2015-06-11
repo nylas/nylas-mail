@@ -71,6 +71,7 @@ isCoreSpec = specDirectory == fs.realpathSync(__dirname)
 React = require "react/addons"
 ReactTestUtils = React.addons.TestUtils
 ReactTestUtils.scryRenderedComponentsWithTypeAndProps = (root, type, props) ->
+  if not root then throw new Error("Must supply a root to scryRenderedComponentsWithTypeAndProps")
   _.compact _.map ReactTestUtils.scryRenderedComponentsWithType(root, type), (el) ->
     if _.isEqual(_.pick(el.props, Object.keys(props)), props)
       return el

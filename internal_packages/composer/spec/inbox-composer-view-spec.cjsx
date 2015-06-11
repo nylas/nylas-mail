@@ -11,7 +11,11 @@ ReactTestUtils = React.addons.TestUtils
  DraftStore,
  DatabaseStore,
  NylasTestUtils,
- NamespaceStore} = require "nylas-exports"
+ NamespaceStore,
+ FileUploadStore,
+ ComponentRegistry} = require "nylas-exports"
+
+{InjectedComponent} = require 'nylas-component-kit'
 
 u1 = new Contact(name: "Christine Spang", email: "spang@nylas.com")
 u2 = new Contact(name: "Michael Grinich", email: "mg@nylas.com")
@@ -30,6 +34,10 @@ textFieldStub = (className) ->
     render: -> <div className={className}>{@props.children}</div>
     focus: ->
 
+passThroughStub = (props={})->
+  React.createClass
+    render: -> <div {...props}>{props.children}</div>
+
 draftStoreProxyStub = (localId, returnedDraft) ->
   listen: -> ->
   draft: -> (returnedDraft ? new Message(draft: true))
@@ -43,19 +51,19 @@ searchContactStub = (email) ->
   _.filter(users, (u) u.email.toLowerCase() is email.toLowerCase())
 
 ComposerView = proxyquire "../lib/composer-view",
-  "./file-uploads": reactStub("file-uploads")
+  "./file-upload": reactStub("file-upload")
+  "./image-file-upload": reactStub("image-file-upload")
   "./participants-text-field": textFieldStub("")
   "nylas-exports":
     ContactStore:
       searchContacts: (email) -> searchContactStub
-    ComponentRegistry:
-      listen: -> ->
-      findViewByName: (component) -> reactStub(component)
-      findAllViewsByRole: (role) -> [reactStub('a'),reactStub('b')]
-      findAllByRole: (role) -> [{view:reactStub('a'), name:'a'},{view:reactStub('b'),name:'b'}]
     DraftStore: DraftStore
 
 beforeEach ->
+  # spyOn(ComponentRegistry, "findComponentsMatching").andCallFake (matching) ->
+  #   return passThroughStub
+  # spyOn(ComponentRegistry, "showComponentRegions").andReturn true
+
   # The NamespaceStore isn't set yet in the new window, populate it first.
   NamespaceStore.populateItems().then ->
     new Promise (resolve, reject) ->
@@ -306,7 +314,7 @@ describe "populated composer", ->
         subject: "Subject"
         to: [u1]
         body: "Check out attached file"
-        files: [{filename:"abc"}]
+        files: [{id: "123", object: "file", filename:"abc"}]
       makeComposer.call(@); @composer._sendDraft()
       expect(Actions.sendDraft).toHaveBeenCalled()
       expect(@dialog.showMessageBox).not.toHaveBeenCalled()
@@ -411,3 +419,65 @@ describe "populated composer", ->
   describe "When forwarding a message", ->
 
   describe "When changing the subject of a message", ->
+
+  describe "A draft with files (attachments) and uploads", ->
+    beforeEach ->
+      @file1 =
+        id: "f_1"
+        object: "file"
+        filename: "f1.pdf"
+        size: 1230
+
+      @file2 =
+        id: "f_2"
+        object: "file"
+        filename: "f2.jpg"
+        size: 4560
+
+      @file3 =
+        id: "f_3"
+        object: "file"
+        filename: "f3.png"
+        size: 7890
+
+      @up1 =
+        uploadId: 4
+        messageLocalId: DRAFT_LOCAL_ID
+        filePath: "/foo/bar/f4.bmp"
+        fileName: "f4.bmp"
+        fileSize: 1024
+
+      @up2 =
+        uploadId: 5
+        messageLocalId: DRAFT_LOCAL_ID
+        filePath: "/foo/bar/f5.zip"
+        fileName: "f5.zip"
+        fileSize: 1024
+
+      spyOn(Actions, "fetchFile")
+      spyOn(FileUploadStore, "linkedUpload")
+      spyOn(FileUploadStore, "uploadsForMessage").andReturn [@up1, @up2]
+
+      useDraft.call @, files: [@file1, @file2]
+      makeComposer.call @
+
+    it 'preloads attached image files', ->
+      expect(Actions.fetchFile).toHaveBeenCalled()
+      expect(Actions.fetchFile.calls.length).toBe 1
+      expect(Actions.fetchFile.calls[0].args[0]).toBe @file2
+
+    it 'renders the non image file as an attachment', ->
+      els = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@composer, InjectedComponent, matching: role: "Attachment")
+      expect(els.length).toBe 1
+
+    it 'renders the image file as an attachment', ->
+      els = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@composer, InjectedComponent, matching: role: "Attachment:Image")
+      expect(els.length).toBe 1
+
+    it 'renders the non image upload as a FileUpload', ->
+      els = ReactTestUtils.scryRenderedDOMComponentsWithClass(@composer, "file-upload")
+      expect(els.length).toBe 1
+
+    it 'renders the image upload as an ImageFileUpload', ->
+      els = ReactTestUtils.scryRenderedDOMComponentsWithClass(@composer, "image-file-upload")
+      expect(els.length).toBe 1

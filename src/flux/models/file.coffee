@@ -48,5 +48,4 @@ class File extends Model
       modelKey: 'contentId'
       jsonKey: 'content_id'
 
-
 module.exports = File

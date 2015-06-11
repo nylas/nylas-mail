@@ -43,7 +43,6 @@ class MessageListScrollTooltip extends React.Component
       {@state.idx} of {@state.count}
     </div>
 
-
 class MessageList extends React.Component
   @displayName: 'MessageList'
   @containerRequired: false

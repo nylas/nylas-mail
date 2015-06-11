@@ -71,10 +71,10 @@ class MessageItem extends React.Component
     <div className={@props.className}>
       <div className="message-item-area">
         {@_renderHeader()}
-        {@_renderAttachments()}
         <EmailFrame showQuotedText={@state.showQuotedText}>
           {@_formatBody()}
         </EmailFrame>
+        {@_renderAttachments()}
         <a className={@_quotedTextClasses()} onClick={@_toggleQuotedText}></a>
       </div>
     </div>
@@ -282,18 +282,43 @@ class MessageItem extends React.Component
   _formatContacts: (contacts=[]) =>
 
   _attachmentComponents: =>
-    attachments = _.filter @props.message.files, (f) =>
-      # We ignore files with no name because they're actually mime-parts of the
-      # message being served by the API as files.
-      hasName = f.filename and f.filename.length > 0
-      hasCIDInBody = f.contentId? and @props.message.body?.indexOf(f.contentId) > 0
-      hasName and not hasCIDInBody
+    imageAttachments = []
+    otherAttachments = []
 
-    attachments.map (file) =>
+    for file in (@props.message.files ? [])
+      continue unless @_isRealFile(file)
+      if Utils.looksLikeImage(file)
+        imageAttachments.push(file)
+      else
+        otherAttachments.push(file)
+
+    otherAttachments = otherAttachments.map (file) =>
       <InjectedComponent
+        className="attachment-file-wrap"
         matching={role:"Attachment"}
         exposedProps={file:file, download: @state.downloads[file.id]}
         key={file.id}/>
+
+    imageAttachments = imageAttachments.map (file) =>
+      props =
+        file: file
+        download: @state.downloads[file.id]
+        targetPath: FileDownloadStore.pathForFile(file)
+
+      <InjectedComponent
+        className="image-attachment-file-wrap"
+        matching={role:"Attachment:Image"}
+        exposedProps={props}
+        key={file.id} />
+
+    return otherAttachments.concat(imageAttachments)
+
+  # We ignore files with no name because they're actually mime-parts of the
+  # message being served by the API as files.
+  _isRealFile: (file) ->
+    hasName = file.filename and file.filename.length > 0
+    hasCIDInBody = file.contentId? and @props.message.body?.indexOf(file.contentId) > 0
+    return hasName and not hasCIDInBody
 
   _isForwardedMessage: =>
     Utils.isForwardedMessage(@props.message)

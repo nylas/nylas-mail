@@ -21,6 +21,7 @@ FileUploadStore = Reflux.createStore
     # The key is the messageLocalId. The value is a hash of paths and
     # corresponding upload data.
     @_fileUploads = {}
+    @_linkedFiles = {}
 
 
   ######### PUBLIC #######################################################
@@ -29,6 +30,8 @@ FileUploadStore = Reflux.createStore
     if not messageLocalId? then return []
     _.filter @_fileUploads, (uploadData, uploadKey) ->
       uploadData.messageLocalId is messageLocalId
+
+  linkedUpload: (file) -> @_linkedFiles[file.id]
 
 
   ########### PRIVATE ####################################################
@@ -51,6 +54,7 @@ FileUploadStore = Reflux.createStore
 
   # Receives:
   #   uploadData:
+  #     uploadId - A unique id
   #     messageLocalId - The localId of the message (draft) we're uploading to
   #     filePath - The full absolute local system file path
   #     fileSize - The size in bytes
@@ -58,7 +62,7 @@ FileUploadStore = Reflux.createStore
   #     bytesUploaded - Current number of bytes uploaded
   #     state - one of "pending" "started" "progress" "completed" "aborted" "failed"
   _onUploadStateChanged: (uploadData) ->
-    @_fileUploads[@_uploadId(uploadData)] = uploadData
+    @_fileUploads[uploadData.uploadId] = uploadData
     @trigger()
 
   _onAbortUpload: (uploadData) ->
@@ -70,15 +74,13 @@ FileUploadStore = Reflux.createStore
     })
 
   _onFileUploaded: ({file, uploadData}) ->
-    delete @_fileUploads[@_uploadId(uploadData)]
+    @_linkedFiles[file.id] = uploadData
+    delete @_fileUploads[uploadData.uploadId]
     @trigger()
 
   _onFileAborted: (uploadData) ->
-    delete @_fileUploads[@_uploadId(uploadData)]
+    delete @_fileUploads[uploadData.uploadId]
     @trigger()
-
-  _uploadId: (uploadData) ->
-    "#{uploadData.messageLocalId} #{uploadData.filePath}"
 
   _verifyId: (messageLocalId) ->
     if messageLocalId.blank?
