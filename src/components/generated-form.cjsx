@@ -105,15 +105,18 @@ class FormItem extends React.Component
     if _.last(label) isnt ":"
       label = "#{label}:"
 
-    <div className={classes}>
-      <div className="label-area">
-        <label>{label}</label>
+    if @props.type is "hidden"
+      @_renderInput()
+    else
+      <div className={classes}>
+        <div className="label-area">
+          <label>{label}</label>
+        </div>
+        <div className="input-area">
+          {@_renderInput()}
+          {@_renderError()}
+        </div>
       </div>
-      <div className="input-area">
-        {@_renderInput()}
-        {@_renderError()}
-      </div>
-    </div>
 
   # Since the validity state is something we need to pull off of rendered
   # DOM nodes we need to bend the React rules a bit and do a
@@ -300,7 +303,9 @@ class GeneratedForm extends React.Component
   render: =>
     <form className="generated-form" ref="form">
       {@_renderHeaderFormError()}
-      {@_renderFieldsets()}
+      <div className="fieldsets">
+        {@_renderFieldsets()}
+      </div>
       {@_renderHeaderFormError()}
       <div className="form-footer">
         <button onClick={@props.onSubmit}>Submit</button>
