@@ -25,7 +25,7 @@ class APMWrapper
     args.push('--no-color')
     new BufferedProcess({command, args, stdout, stderr, exit, options})
 
-  runCommandReturningPackages: (args, callback) ->
+  runCommandReturningPackages: (args, errorMessage, callback) ->
     @runCommand args, (code, stdout, stderr) ->
       if code is 0
         try
@@ -43,7 +43,7 @@ class APMWrapper
   loadInstalled: (callback) ->
     args = ['ls', '--json']
     errorMessage = 'Fetching local packages failed.'
-    apmProcess = @runCommandReturningPackages(args, callback)
+    apmProcess = @runCommandReturningPackages(args, errorMessage, callback)
 
     handleProcessErrors(apmProcess, errorMessage, callback)
 
@@ -54,7 +54,7 @@ class APMWrapper
     args.push('--compatible', version) if semver.valid(version)
     errorMessage = 'Fetching featured packages failed.'
 
-    apmProcess = @runCommandReturningPackages(args, callback)
+    apmProcess = @runCommandReturningPackages(args, errorMessage, callback)
     handleProcessErrors(apmProcess, errorMessage, callback)
 
   loadOutdated: (callback) ->
@@ -63,21 +63,21 @@ class APMWrapper
     args.push('--compatible', version) if semver.valid(version)
     errorMessage = 'Fetching outdated packages and themes failed.'
 
-    apmProcess = @runCommandReturningPackages(args, callback)
+    apmProcess = @runCommandReturningPackages(args, errorMessage, callback)
     handleProcessErrors(apmProcess, errorMessage, callback)
 
   loadPackage: (packageName, callback) ->
     args = ['view', packageName, '--json']
     errorMessage = "Fetching package '#{packageName}' failed."
 
-    apmProcess = @runCommandReturningPackages(args, callback)
+    apmProcess = @runCommandReturningPackages(args, errorMessage, callback)
     handleProcessErrors(apmProcess, errorMessage, callback)
 
   loadCompatiblePackageVersion: (packageName, callback) ->
     args = ['view', packageName, '--json', '--compatible', @normalizeVersion(atom.getVersion())]
     errorMessage = "Fetching package '#{packageName}' failed."
 
-    apmProcess = @runCommandReturningPackages(args, callback)
+    apmProcess = @runCommandReturningPackages(args, errorMessage, callback)
     handleProcessErrors(apmProcess, errorMessage, callback)
 
   getInstalled: ->

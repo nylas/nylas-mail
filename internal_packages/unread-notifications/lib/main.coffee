@@ -58,7 +58,7 @@ module.exports =
           notif.onclick = ->
             atom.displayWindow()
             Actions.focusTag(new Tag(name: "inbox", id: "inbox"))
-            Actions.focusInCollection(collection: 'thread', item: threads[msg.threadId])
+            Actions.setFocus(collection: 'thread', item: threads[msg.threadId])
 
         if newUnreadInInbox.length > 1
           new Notification("#{newUnreadInInbox.length} Unread Messages", {

@@ -36,7 +36,7 @@ class SheetContainer extends React.Component
 
     <Flexbox direction="column">
       {@_toolbarContainerElement()}
-      
+
       <div name="Header" style={order:1, zIndex: 2}>
         <InjectedComponentSet matching={locations: [topSheet.Header, WorkspaceStore.Sheet.Global.Header]}
                               direction="column"
@@ -89,6 +89,7 @@ class SheetContainer extends React.Component
 
   _onColumnSizeChanged: (sheet) =>
     @refs["toolbar-#{sheet.props.depth}"]?.recomputeLayout()
+    window.dispatchEvent(new Event('resize'))
 
   _onStoreChange: =>
     _.defer => @setState(@_getStateFromStores())

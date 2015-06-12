@@ -180,3 +180,33 @@
   background-image:url(../static/images/thread-list/icon-star-hover-@2x.png);
   background-size: 16px;
 }
+
+.thread-list-narrow {
+  .timestamp {
+    flex: 1;
+    order: 100;
+  }
+  .participants {
+    font-size: @font-size-base;
+  }
+  .thread-icon {
+    margin-right:6px;
+  }
+  .subject {
+    font-size: @font-size-base;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+    padding-top:2px;
+    padding-bottom:2px;
+    margin-left:30px;
+  }
+  .snippet {
+    font-size: @font-size-small;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    opacity: 0.7;
+    text-align: left;
+    margin-left:30px;
+  }
+}

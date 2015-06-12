@@ -18,8 +18,8 @@ selection public so that you can observe focus changes and trigger your own chan
 to focus.
 
 Since {FocusedContentStore} is a Flux-compatible Store, you do not call setters
-on it directly. Instead, use {Actions::focusInCollection} or
-{Actions::focusKeyboardInCollection} to set focus. The FocusedContentStore observes
+on it directly. Instead, use {Actions::setFocus} or
+{Actions::setCursorPosition} to set focus. The FocusedContentStore observes
 these models, changes it's state, and broadcasts to it's observers.
 
 Note: The {FocusedContentStore} triggers when a focused model is changed, even if
@@ -62,8 +62,8 @@ class FocusedContentStore
     @listenTo NamespaceStore, @_onClear
     @listenTo WorkspaceStore, @_onWorkspaceChange
     @listenTo DatabaseStore, @_onDataChange
-    @listenTo Actions.focusInCollection, @_onFocus
-    @listenTo Actions.focusKeyboardInCollection, @_onFocusKeyboard
+    @listenTo Actions.setFocus, @_onFocus
+    @listenTo Actions.setCursorPosition, @_onFocusKeyboard
 
   _resetInstanceVars: =>
     @_focused = {}
