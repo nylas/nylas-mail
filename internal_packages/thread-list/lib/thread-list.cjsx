@@ -10,6 +10,7 @@ classNames = require 'classnames'
  NamespaceStore} = require 'nylas-exports'
 
 ThreadListParticipants = require './thread-list-participants'
+ThreadListQuickActions = require './thread-list-quick-actions'
 ThreadListStore = require './thread-list-store'
 ThreadListIcon = require './thread-list-icon'
 
@@ -92,7 +93,12 @@ class ThreadList extends React.Component
       resolver: (thread) =>
         <span className="timestamp">{timestamp(thread.lastMessageTimestamp)}</span>
 
-    @wideColumns = [c1, c2, c3, c4]
+    c5 = new ListTabular.Column
+      name: "HoverActions"
+      resolver: (thread) =>
+        <ThreadListQuickActions thread={thread}/>
+
+    @wideColumns = [c1, c2, c3, c4, c5]
 
     cNarrow = new ListTabular.Column
       name: "Item"

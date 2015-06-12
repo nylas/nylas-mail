@@ -13,6 +13,7 @@
   transform: translate(-15px, 0);
   position: relative;
   white-space:nowrap;
+  pointer-events: none;
 }
 .scroll-tooltip:after, .scroll-tooltip:before {
   left: 100%;
@@ -75,10 +76,12 @@
       border-radius:8px;
       .tooltip {
         opacity: 0;
+        display:none;
         transition: opacity 0.3s;
         top: 50%;
         transform: translate(-100%, -50%);
         position: absolute;
+        pointer-events: none;
       }
     }
   }
@@ -98,6 +101,7 @@
       border:1px solid lighten(@gray, 20%);
       .tooltip {
         opacity: 1;
+        display:block;
       }
     }
   }

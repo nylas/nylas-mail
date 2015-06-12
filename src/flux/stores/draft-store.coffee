@@ -205,7 +205,7 @@ class DraftStore
     @_newMessageWithContext context, (thread, message) ->
       forwardMessage: message
 
-  _newMessageWithContext: ({thread, threadId, message, messageId}, attributesCallback) =>
+  _newMessageWithContext: ({thread, threadId, message, messageId, popout}, attributesCallback) =>
     return unless NamespaceStore.current()
 
     # We accept all kinds of context. You can pass actual thread and message objects,
@@ -227,7 +227,7 @@ class DraftStore
       queries.message = DatabaseStore.find(Message, messageId)
       queries.message.include(Message.attributes.body)
     else
-      queries.message = DatabaseStore.findBy(Message, {threadId: threadId}).order(Message.attributes.date.descending()).limit(1)
+      queries.message = DatabaseStore.findBy(Message, {threadId: threadId ? thread.id}).order(Message.attributes.date.descending()).limit(1)
       queries.message.include(Message.attributes.body)
 
     # Waits for the query promises to resolve and then resolve with a hash
@@ -304,7 +304,9 @@ class DraftStore
       @_draftSessions[draftLocalId] = new DraftStoreProxy(draftLocalId, draft)
 
       DatabaseStore.bindToLocalId(draft, draftLocalId)
-      DatabaseStore.persistModel(draft)
+      DatabaseStore.persistModel(draft).then =>
+        Actions.composePopoutDraft(draftLocalId) if popout
+
 
   # Eventually we'll want a nicer solution for inline attachments
   _formatBodyForQuoting: (body="") =>

@@ -334,11 +334,11 @@
 //** Text color of active list items
 @list-selected-color:       inherit;
 //** Background color of active list items
-@list-selected-bg:          fade(@component-active-color, 17%);
+@list-selected-bg:          mix(@component-active-color, @list-bg, 17%);
 //** Border color of active list elements
-@list-selected-border:     fade(@component-active-color, 50%);
+@list-selected-border:      mix(@component-active-color, @list-bg, 50%);
 //** Text color for content within active list items
-@list-selected-color-muted:  lighten(@list-selected-bg, 40%);
+@list-selected-color-muted: lighten(@list-selected-bg, 40%);
 
 //** Text color of disabled list items
 @list-disabled-color:      @gray-light;
