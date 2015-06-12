@@ -49,6 +49,7 @@
       margin: 0;
       background-color: transparent;
       color: @text-color-very-subtle;
+      img { background-color: @text-color-very-subtle; }
       font-size: 10px;
     }
     &:hover {
@@ -61,7 +62,7 @@
       color: @text-color-inverse;
       .action {
         color: @text-color-inverse-subtle;
-        img { -webkit-filter: brightness(100); }
+        img { background-color: @text-color-inverse-subtle; }
       }
     }
     &.dragging {
