@@ -46,7 +46,7 @@ class ListTabularItem extends React.Component
       <div key={column.name}
            displayName={column.name}
            style={_.pick(column, ['flex', 'width'])}
-           className="list-column">
+           className="list-column list-column-#{column.name}">
         {column.resolver(@props.item, @)}
       </div>
 
@@ -66,11 +66,15 @@ class ListTabular extends React.Component
     columns: React.PropTypes.arrayOf(React.PropTypes.object).isRequired
     dataView: React.PropTypes.object
     itemPropsProvider: React.PropTypes.func
+    itemHeight: React.PropTypes.number
     onSelect: React.PropTypes.func
     onClick: React.PropTypes.func
     onDoubleClick: React.PropTypes.func
 
   constructor: (@props) ->
+    if not @props.itemHeight
+      throw new Error("ListTabular: You must provide an itemHeight - raising to avoid divide by zero errors.")
+
     @state =
       renderedRangeStart: -1
       renderedRangeEnd: -1
@@ -103,7 +107,7 @@ class ListTabular extends React.Component
 
       # If we've shifted enough pixels from our previous scrollTop to require
       # new rows to be rendered, update our state!
-      if Math.abs(@state.scrollTop - @refs.container.scrollTop) >= @_rowHeight() * RangeChunkSize
+      if Math.abs(@state.scrollTop - @refs.container.scrollTop) >= @props.itemHeight * RangeChunkSize
         @updateRangeState()
 
   onDoneReceivingScrollEvents: =>
@@ -114,11 +118,9 @@ class ListTabular extends React.Component
   updateRangeState: =>
     scrollTop = @refs.container.scrollTop
 
-    rowHeight = @_rowHeight()
-
     # Determine the exact range of rows we want onscreen
-    rangeStart = Math.floor(scrollTop / rowHeight)
-    rangeEnd = rangeStart + window.innerHeight / rowHeight
+    rangeStart = Math.floor(scrollTop / @props.itemHeight)
+    rangeEnd = rangeStart + window.innerHeight / @props.itemHeight
 
     # 1. Clip this range to the number of available items
     #
@@ -154,7 +156,7 @@ class ListTabular extends React.Component
 
   render: =>
     innerStyles =
-      height: @props.dataView.count() * @_rowHeight()
+      height: @props.dataView.count() * @props.itemHeight
       pointerEvents: if @state.scrollInProgress then 'none' else 'auto'
 
     <ScrollRegion ref="container" onScroll={@updateScrollState} tabIndex="-1" className="list-container list-tabular" scrollTooltipComponent={@props.scrollTooltipComponent} >
@@ -163,9 +165,6 @@ class ListTabular extends React.Component
         {@_rows()}
       </div>
     </ScrollRegion>
-
-  _rowHeight: =>
-    39
 
   _headers: =>
     return [] unless @props.displayHeaders
@@ -182,7 +181,6 @@ class ListTabular extends React.Component
     </div>
 
   _rows: =>
-    rowHeight = @_rowHeight()
     rows = []
 
     for idx in [@state.renderedRangeStart..@state.renderedRangeEnd-1]
@@ -196,7 +194,7 @@ class ListTabular extends React.Component
       rows.push <ListTabularItem key={item.id ? idx}
                                item={item}
                                itemProps={itemProps}
-                               metrics={top: idx * rowHeight, height: rowHeight}
+                               metrics={top: idx * @props.itemHeight, height: @props.itemHeight}
                                columns={@props.columns}
                                onSelect={@props.onSelect}
                                onClick={@props.onClick}

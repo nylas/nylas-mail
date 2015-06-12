@@ -17,6 +17,9 @@ class ModelViewSelection
   items: ->
     @_items
 
+  top: ->
+    @_items[@_items.length - 1]
+
   clear: ->
     @set([])
 
@@ -48,6 +51,16 @@ class ModelViewSelection
     else
       @_items.push(item)
     @trigger(@)
+
+  add: (item) ->
+    return unless item
+    throw new Error("add must be called with a Model") unless item instanceof Model
+
+    updated = _.reject @_items, (t) -> t.id is item.id
+    updated.push(item)
+    if updated.length isnt @_items.length
+      @_items = updated
+      @trigger(@)
 
   remove: (item) ->
     return unless item

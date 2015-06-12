@@ -185,7 +185,7 @@ class Actions
   Actions.selectLayoutMode(collection: 'thread', item: <Thread>)
   ```
   ###
-  @focusKeyboardInCollection: ActionScopeWindow
+  @setCursorPosition: ActionScopeWindow
 
   ###
   Public: Focus on an item in a collection. This action changes the selection
@@ -194,10 +194,10 @@ class Actions
   *Scope: Window*
 
   ```
-  Actions.focusInCollection(collection: 'thread', item: <Thread>)
+  Actions.setFocus(collection: 'thread', item: <Thread>)
   ```
   ###
-  @focusInCollection: ActionScopeWindow
+  @setFocus: ActionScopeWindow
 
   ###
   Public: Focus the interface on a specific {Tag}.
@@ -226,7 +226,7 @@ class Actions
   ###
   Public: Create a new reply to the provided threadId and messageId. Note that
   this action does not focus on the thread, so you may not be able to see the new draft
-  unless you also call {::focusInCollection}.
+  unless you also call {::setFocus}.
 
   *Scope: Window*
 
@@ -435,7 +435,7 @@ class Actions
   ###
   Public: Push a sheet of a specific type onto the Sheet stack maintained by the
   {WorkspaceStore}. Note that sheets have no state. To show a *specific* thread,
-  you should push a Thread sheet and call `focusInCollection` to select the thread.
+  you should push a Thread sheet and call `setFocus` to select the thread.
 
   *Scope: Window*
 

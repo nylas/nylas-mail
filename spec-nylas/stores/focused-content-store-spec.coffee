@@ -7,7 +7,7 @@ Actions = require '../../src/flux/actions'
 testThread = new Thread(id: '123')
 
 describe "FocusedContentStore", ->
-  describe "onFocusInCollection", ->
+  describe "onSetFocus", ->
     it "should not trigger if the thread is already focused", ->
       FocusedContentStore._onFocus({collection: 'thread', item: testThread})
       spyOn(FocusedContentStore, 'trigger')

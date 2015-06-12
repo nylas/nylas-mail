@@ -11,6 +11,9 @@ Spinner = require './spinner'
  NamespaceStore} = require 'nylas-exports'
 EventEmitter = require('events').EventEmitter
 
+MultiselectListInteractionHandler = require './multiselect-list-interaction-handler'
+MultiselectSplitInteractionHandler = require './multiselect-split-interaction-handler'
+
 ###
 Public: MultiselectList wraps {ListTabular} and makes it easy to present a
 {ModelView} with selection support. It adds a checkbox column to the columns
@@ -32,6 +35,7 @@ class MultiselectList extends React.Component
     columns: React.PropTypes.array.isRequired
     dataStore: React.PropTypes.object.isRequired
     itemPropsProvider: React.PropTypes.func.isRequired
+    itemHeight: React.PropTypes.number.isRequired
     scrollTooltipComponent: React.PropTypes.func
 
   constructor: (@props) ->
@@ -77,21 +81,9 @@ class MultiselectList extends React.Component
         context = {focusedId: @state.focusedId}
         props.commands[key](context)
 
-    unless props.columns[0].name is 'Check'
-      checkmarkColumn = new ListTabular.Column
-        name: "Check"
-        resolver: (thread) =>
-          toggle = (event) =>
-            if event.shiftKey
-              props.dataStore.view().selection.expandTo(thread)
-            else
-              props.dataStore.view().selection.toggle(thread)
-            event.stopPropagation()
-          <div className="checkmark" onClick={toggle}><div className="inner"></div></div>
-      props.columns.splice(0, 0, checkmarkColumn)
-
     @unsubscribers = []
     @unsubscribers.push props.dataStore.listen @_onChange
+    @unsubscribers.push WorkspaceStore.listen @_onChange
     @unsubscribers.push FocusedContentStore.listen @_onChange
     @command_unsubscriber = atom.commands.add('body', commands)
 
@@ -111,18 +103,19 @@ class MultiselectList extends React.Component
       props.className ?= ''
       props.className += " " + classNames
         'selected': item.id in @state.selectedIds
-        'focused': @state.showFocus and item.id is @state.focusedId
-        'keyboard-cursor': @state.showKeyboardCursor and item.id is @state.keyboardCursorId
+        'focused': @state.handler.shouldShowFocus() and item.id is @state.focusedId
+        'keyboard-cursor': @state.handler.shouldShowKeyboardCursor() and item.id is @state.keyboardCursorId
       props
 
     if @state.dataView
       <div className={className}>
         <ListTabular
           ref="list"
-          columns={@props.columns}
+          columns={@state.columns}
           scrollTooltipComponent={@props.scrollTooltipComponent}
           dataView={@state.dataView}
           itemPropsProvider={@itemPropsProvider}
+          itemHeight={@props.itemHeight}
           onSelect={@_onClickItem}
           onDoubleClick={@props.onDoubleClick} />
         <Spinner visible={!@state.ready} />
@@ -135,58 +128,24 @@ class MultiselectList extends React.Component
 
   _onClickItem: (item, event) =>
     if event.metaKey
-      @state.dataView.selection.toggle(item)
-      if @state.showKeyboardCursor
-        Actions.focusKeyboardInCollection({collection: @props.collection, item: item})
+      @state.handler.onMetaClick(item)
     else if event.shiftKey
-      @state.dataView.selection.expandTo(item)
-      if @state.showKeyboardCursor
-        Actions.focusKeyboardInCollection({collection: @props.collection, item: item})
+      @state.handler.onShiftClick(item)
     else
-      Actions.focusInCollection({collection: @props.collection, item: item})
+      @state.handler.onClick(item)
 
   _onEnter: =>
-    return unless @state.showKeyboardCursor
-    item = @state.dataView.getById(@state.keyboardCursorId)
-    if item
-      Actions.focusInCollection({collection: @props.collection, item: item})
+    @state.handler.onEnter()
 
   _onSelect: =>
-    if @state.showKeyboardCursor and @_visible()
-      id = @state.keyboardCursorId
-    else
-      id = @state.focusedId
-
-    return unless id
-    @state.dataView.selection.toggle(@state.dataView.getById(id))
+    @state.handler.onSelect()
 
   _onDeselect: =>
     return unless @_visible()
     @state.dataView.selection.clear()
 
   _onShift: (delta, options = {}) =>
-    if @state.showKeyboardCursor and @_visible()
-      id = @state.keyboardCursorId
-      action = Actions.focusKeyboardInCollection
-    else
-      id = @state.focusedId
-      action = Actions.focusInCollection
-
-    current = @state.dataView.getById(id)
-    index = @state.dataView.indexOfId(id)
-    index = Math.max(0, Math.min(index + delta, @state.dataView.count() - 1))
-    next = @state.dataView.get(index)
-
-    action({collection: @props.collection, item: next})
-
-    if options.select
-      @state.dataView.selection.walk({current, next})
-
-  _visible: =>
-    if WorkspaceStore.layoutMode() is "list"
-      WorkspaceStore.topSheet().root
-    else
-      true
+    @state.handler.onShift(delta, options)
 
   # This onChange handler can be called many times back to back and setState
   # sometimes triggers an immediate render. Ensure that we never render back-to-back,
@@ -198,19 +157,44 @@ class MultiselectList extends React.Component
     , 1
     @_onChangeDebounced()
 
+  _visible: =>
+    if WorkspaceStore.layoutMode() is "list"
+      WorkspaceStore.topSheet().root
+    else
+      true
+
+  _getCheckmarkColumn: =>
+    new ListTabular.Column
+      name: 'Check'
+      resolver: (item) =>
+        toggle = (event) =>
+          if event.shiftKey
+            @state.handler.onShiftClick(item)
+          else
+            @state.handler.onMetaClick(item)
+          event.stopPropagation()
+        <div className="checkmark" onClick={toggle}><div className="inner"></div></div>
+
   _getStateFromStores: (props) =>
     props ?= @props
 
     view = props.dataStore?.view()
     return {} unless view
 
+    columns = [].concat(props.columns)
+
+    if WorkspaceStore.layoutMode() is 'list'
+      handler = new MultiselectListInteractionHandler(view, props.collection)
+      columns.splice(0, 0, @_getCheckmarkColumn())
+    else
+      handler = new MultiselectSplitInteractionHandler(view, props.collection)
+
     dataView: view
+    columns: columns
+    handler: handler
     ready: view.loaded()
     selectedIds: view.selection.ids()
     focusedId: FocusedContentStore.focusedId(props.collection)
     keyboardCursorId: FocusedContentStore.keyboardCursorId(props.collection)
-    showFocus: !FocusedContentStore.keyboardCursorEnabled()
-    showKeyboardCursor: FocusedContentStore.keyboardCursorEnabled()
-
 
 module.exports = MultiselectList

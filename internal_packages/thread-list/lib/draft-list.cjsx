@@ -59,6 +59,7 @@ class DraftList extends React.Component
       commands={@commands}
       onDoubleClick={@_onDoubleClick}
       itemPropsProvider={ -> {} }
+      itemHeight={39}
       className="draft-list"
       collection="draft" />
 

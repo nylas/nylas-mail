@@ -73,7 +73,7 @@ ThreadListStore = Reflux.createStore
       @setView new DatabaseView Thread, {matchers}, (item) ->
         DatabaseStore.findAll(Message, {threadId: item.id})
 
-    Actions.focusInCollection(collection: 'thread', item: null)
+    Actions.setFocus(collection: 'thread', item: null)
 
   # Inbound Events
 
@@ -128,9 +128,9 @@ ThreadListStore = Reflux.createStore
       task = new AddRemoveTagsTask(thread, ['archive'], ['inbox'])
       Actions.queueTask(task)
       if thread.id is focusedId
-        Actions.focusInCollection(collection: 'thread', item: null)
+        Actions.setFocus(collection: 'thread', item: null)
       if thread.id is keyboardId
-        Actions.focusKeyboardInCollection(collection: 'thread', item: null)
+        Actions.setCursorPosition(collection: 'thread', item: null)
 
     @_view.selection.clear()
 
@@ -175,10 +175,13 @@ ThreadListStore = Reflux.createStore
       nextFocus = null
 
     @_afterViewUpdate.push ->
-      Actions.focusInCollection(collection: 'thread', item: nextFocus)
-      Actions.focusKeyboardInCollection(collection: 'thread', item: nextKeyboard)
+      Actions.setFocus(collection: 'thread', item: nextFocus)
+      Actions.setCursorPosition(collection: 'thread', item: nextKeyboard)
 
   _autofocusForLayoutMode: ->
-    focusedId = FocusedContentStore.focusedId('thread')
-    if WorkspaceStore.layoutMode() is "split" and not focusedId
-      _.defer => Actions.focusInCollection(collection: 'thread', item: @_view.get(0))
+    layoutMode = WorkspaceStore.layoutMode()
+    focused = FocusedContentStore.focused('thread')
+    if layoutMode is 'split' and not focused and @_view.selection.count() is 0
+      item = @_view.get(0)
+      _.defer =>
+        Actions.setFocus({collection: 'thread', item: item})

@@ -28,7 +28,7 @@ class WorkspaceStore
 
     @listenTo Actions.selectRootSheet, @_onSelectRootSheet
     @listenTo Actions.selectLayoutMode, @_onSelectLayoutMode
-    @listenTo Actions.focusInCollection, @_onFocusInCollection
+    @listenTo Actions.setFocus, @_onSetFocus
 
     @listenTo Actions.popSheet, @popSheet
     @listenTo Actions.searchQueryCommitted, @popToRootSheet
@@ -74,7 +74,7 @@ class WorkspaceStore
     @_preferredLayoutMode = mode
     @trigger(@)
 
-  _onFocusInCollection: ({collection, item}) =>
+  _onSetFocus: ({collection, item}) =>
     if collection is 'thread'
       if @layoutMode() is 'list'
         if item and @topSheet() isnt Sheet.Thread
@@ -182,7 +182,7 @@ class WorkspaceStore
       @trigger()
 
     if Sheet.Thread and sheet is Sheet.Thread
-      Actions.focusInCollection(collection: 'thread', item: null)
+      Actions.setFocus(collection: 'thread', item: null)
 
   # Return to the root sheet. This method triggers, allowing observers
   # to update.

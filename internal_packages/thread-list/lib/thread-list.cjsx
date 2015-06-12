@@ -44,6 +44,10 @@ class ThreadList extends React.Component
 
   @containerRequired: false
 
+  constructor: (@props) ->
+    @state =
+      style: 'unknown'
+
   componentWillMount: =>
     labelComponents = (thread) =>
       for label in @state.threadLabelComponents
@@ -88,7 +92,29 @@ class ThreadList extends React.Component
       resolver: (thread) =>
         <span className="timestamp">{timestamp(thread.lastMessageTimestamp)}</span>
 
-    @columns = [c1, c2, c3, c4]
+    @wideColumns = [c1, c2, c3, c4]
+
+    cNarrow = new ListTabular.Column
+      name: "Item"
+      resolver: (thread) =>
+        pencil = []
+        hasDraft = _.find (thread.metadata ? []), (m) -> m.draft
+        if hasDraft
+          pencil = <RetinaImg name="icon-draft-pencil.png" className="draft-icon" mode={RetinaImg.Mode.ContentPreserve} />
+
+        <div>
+          <div style={display: 'flex'}>
+            <ThreadListIcon thread={thread} />
+            <ThreadListParticipants thread={thread} />
+            <span className="timestamp">{timestamp(thread.lastMessageTimestamp)}</span>
+            {pencil}
+          </div>
+          <div className="subject">{subject(thread.subject)}</div>
+          <div className="snippet">{thread.snippet}</div>
+        </div>
+
+    @narrowColumns = [cNarrow]
+
     @commands =
       'core:remove-item': @_onArchive
       'core:remove-and-previous': -> Actions.archiveAndPrevious()
@@ -100,15 +126,42 @@ class ThreadList extends React.Component
       className: classNames
         'unread': item.isUnread()
 
+  componentDidMount: =>
+    window.addEventListener('resize', @_onResize, true)
+    @_onResize()
+
+  componentWillUnmount: =>
+    window.removeEventListener('resize', @_onResize)
+
   render: =>
-    <MultiselectList
-      dataStore={ThreadListStore}
-      columns={@columns}
-      commands={@commands}
-      itemPropsProvider={@itemPropsProvider}
-      className="thread-list"
-      scrollTooltipComponent={ThreadListScrollTooltip}
-      collection="thread" />
+    if @state.style is 'wide'
+      <MultiselectList
+        dataStore={ThreadListStore}
+        columns={@wideColumns}
+        commands={@commands}
+        itemPropsProvider={@itemPropsProvider}
+        itemHeight={39}
+        className="thread-list"
+        scrollTooltipComponent={ThreadListScrollTooltip}
+        collection="thread" />
+    else if @state.style is 'narrow'
+      <MultiselectList
+        dataStore={ThreadListStore}
+        columns={@narrowColumns}
+        commands={@commands}
+        itemPropsProvider={@itemPropsProvider}
+        itemHeight={90}
+        className="thread-list thread-list-narrow"
+        scrollTooltipComponent={ThreadListScrollTooltip}
+        collection="thread" />
+    else
+      <div></div>
+
+  _onResize: (event) =>
+    current = @state.style
+    desired = if React.findDOMNode(@).offsetWidth < 540 then 'narrow' else 'wide'
+    if current isnt desired
+      @setState(style: desired)
 
   # Additional Commands
 
