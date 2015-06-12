@@ -194,13 +194,15 @@ TokenizingTextField = React.createClass
     # resize the input field to fit.
     input = React.findDOMNode(@refs.input)
     measure = React.findDOMNode(@refs.measure)
-    measure.innerText = @state.inputValue
+    measure.innerHTML = @state.inputValue.replace(/\s/g, "&nbsp;")
     measure.style.top = input.offsetTop + "px"
     measure.style.left = input.offsetLeft + "px"
     if @_atMaxTokens()
       input.style.width = "4px"
     else
-      input.style.width = "calc(6px + #{measure.offsetWidth}px)"
+      # The 10px comes from the 7.5px left padding and 2.5px more of
+      # breathing room.
+      input.style.width = "#{measure.offsetWidth+10}px"
 
   render: ->
     {Menu} = require 'nylas-component-kit'
