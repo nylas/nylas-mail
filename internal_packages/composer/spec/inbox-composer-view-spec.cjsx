@@ -17,6 +17,8 @@ ReactTestUtils = React.addons.TestUtils
 
 {InjectedComponent} = require 'nylas-component-kit'
 
+ParticipantsTextField = require '../lib/participants-text-field'
+
 u1 = new Contact(name: "Christine Spang", email: "spang@nylas.com")
 u2 = new Contact(name: "Michael Grinich", email: "mg@nylas.com")
 u3 = new Contact(name: "Evan Morikawa",   email: "evan@nylas.com")
@@ -53,7 +55,6 @@ searchContactStub = (email) ->
 ComposerView = proxyquire "../lib/composer-view",
   "./file-upload": reactStub("file-upload")
   "./image-file-upload": reactStub("image-file-upload")
-  "./participants-text-field": textFieldStub("")
   "nylas-exports":
     ContactStore:
       searchContacts: (email) -> searchContactStub
@@ -214,6 +215,55 @@ describe "populated composer", ->
         @composer.focus()
         advanceClock(1000)
         expect(@composer.refs['contentBody'].focus).toHaveBeenCalled()
+
+  describe "when emptying cc fields", ->
+
+    it "focuses on to when bcc is emptied and there's no cc field", ->
+      useDraft.call(@, bcc: [u1])
+      makeComposer.call(@)
+      spyOn(@composer.refs['textFieldTo'], 'focus')
+      spyOn(@composer.refs['textFieldBcc'], 'focus')
+
+      bcc = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@composer, ParticipantsTextField, field: "bcc")[0]
+      bcc.props.onEmptied()
+
+      expect(@composer.state.showbcc).toBe false
+      advanceClock(1000)
+      expect(@composer.refs['textFieldTo'].focus).toHaveBeenCalled()
+      expect(@composer.refs['textFieldCc']).not.toBeDefined()
+      expect(@composer.refs['textFieldBcc']).not.toBeDefined()
+
+    it "focuses on cc when bcc is emptied and cc field is available", ->
+      useDraft.call(@, cc: [u2], bcc: [u1])
+      makeComposer.call(@)
+      spyOn(@composer.refs['textFieldTo'], 'focus')
+      spyOn(@composer.refs['textFieldCc'], 'focus')
+      spyOn(@composer.refs['textFieldBcc'], 'focus')
+
+      bcc = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@composer, ParticipantsTextField, field: "bcc")[0]
+
+      bcc.props.onEmptied()
+      expect(@composer.state.showbcc).toBe false
+      advanceClock(1000)
+      expect(@composer.refs['textFieldTo'].focus).not.toHaveBeenCalled()
+      expect(@composer.refs['textFieldCc'].focus).toHaveBeenCalled()
+      expect(@composer.refs['textFieldBcc']).not.toBeDefined()
+
+    it "focuses on to when cc is emptied", ->
+      useDraft.call(@, cc: [u1], bcc: [u2])
+      makeComposer.call(@)
+      spyOn(@composer.refs['textFieldTo'], 'focus')
+      spyOn(@composer.refs['textFieldCc'], 'focus')
+      spyOn(@composer.refs['textFieldBcc'], 'focus')
+
+      cc = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@composer, ParticipantsTextField, field: "cc")[0]
+      cc.props.onEmptied()
+
+      expect(@composer.state.showcc).toBe false
+      advanceClock(1000)
+      expect(@composer.refs['textFieldTo'].focus).toHaveBeenCalled()
+      expect(@composer.refs['textFieldCc']).not.toBeDefined()
+      expect(@composer.refs['textFieldBcc'].focus).not.toHaveBeenCalled()
 
   describe "When sending a message", ->
     beforeEach ->

@@ -221,7 +221,7 @@ class ComposerView extends React.Component
           key="cc"
           field='cc'
           change={@_onChangeParticipants}
-          onEmptied={=> @setState showcc: false}
+          onEmptied={@_onEmptyCc}
           participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
           tabIndex='103'/>
       )
@@ -233,7 +233,7 @@ class ComposerView extends React.Component
           key="bcc"
           field='bcc'
           change={@_onChangeParticipants}
-          onEmptied={=> @setState showbcc: false}
+          onEmptied={@_onEmptyBcc}
           participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
           tabIndex='104'/>
       )
@@ -365,9 +365,7 @@ class ComposerView extends React.Component
     else
       field ?= "contentBody"
 
-    _.delay =>
-      @refs[field]?.focus?()
-    , 150
+    @refs[field]?.focus?()
 
   isForwardedMessage: =>
     return false if not @_proxy
@@ -525,6 +523,16 @@ class ComposerView extends React.Component
   _onSendingStateChanged: =>
     @setState isSending: DraftStore.isSendingDraft(@props.localId)
 
+  _onEmptyCc: =>
+    @setState showcc: false
+    @focus "textFieldTo"
+
+  _onEmptyBcc: =>
+    @setState showbcc: false
+    if @state.showcc
+      @focus "textFieldCc"
+    else
+      @focus "textFieldTo"
 
   undo: (event) =>
     event.preventDefault()
