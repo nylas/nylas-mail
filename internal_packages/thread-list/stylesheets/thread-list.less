@@ -173,7 +173,7 @@
 
 // quick actions
 
-.thread-list .list-item .list-column:last-child {
+.thread-list .list-item .list-column-HoverActions {
   display:none;
   .action {
     margin:8px;
@@ -183,7 +183,7 @@
     margin-right:20px;
   }
 }
-.thread-list .list-item:hover .list-column:last-child {
+.thread-list .list-item:hover .list-column-HoverActions {
   width: 0;
   padding: 0;
   display:block;
@@ -198,15 +198,15 @@
   }
 }
 
-.thread-list .list-item:hover .list-column:last-child .inner {
+.thread-list .list-item:hover .list-column-HoverActions .inner {
   background-image: -webkit-linear-gradient(left, fade(darken(@list-bg, 5%), 0%) 0%, darken(@list-bg, 5%) 50%, darken(@list-bg, 5%) 100%);
 }
 
-.thread-list .list-item.selected:hover .list-column:last-child .inner {
+.thread-list .list-item.selected:hover .list-column-HoverActions .inner {
   background-image: -webkit-linear-gradient(left, fade(@list-selected-bg, 0%) 0%, @list-selected-bg 50%, @list-selected-bg 100%);
 }
 
-.thread-list .list-item.focused:hover .list-column:last-child .inner {
+.thread-list .list-item.focused:hover .list-column-HoverActions .inner {
   background-image: -webkit-linear-gradient(left, fade(@list-focused-bg, 0%) 0%, @list-focused-bg 50%, @list-focused-bg 100%);
 }
 
