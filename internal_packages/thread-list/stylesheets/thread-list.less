@@ -171,6 +171,48 @@
 }
 
 
+// quick actions
+
+.thread-list .list-item .list-column:last-child {
+  display:none;
+  .action {
+    margin:8px;
+    display:inline-block;
+  }
+  .action:last-child {
+    margin-right:20px;
+  }
+}
+.thread-list .list-item:hover .list-column:last-child {
+  width: 0;
+  padding: 0;
+  display:block;
+  overflow: visible;
+  height:100%;
+
+  .inner {
+    position:relative;
+    width:300px;
+    height:100%;
+    left: -300px;
+  }
+}
+
+.thread-list .list-item:hover .list-column:last-child .inner {
+  background-image: -webkit-linear-gradient(left, fade(darken(@list-bg, 5%), 0%) 0%, darken(@list-bg, 5%) 50%, darken(@list-bg, 5%) 100%);
+}
+
+.thread-list .list-item.selected:hover .list-column:last-child .inner {
+  background-image: -webkit-linear-gradient(left, fade(@list-selected-bg, 0%) 0%, @list-selected-bg 50%, @list-selected-bg 100%);
+}
+
+.thread-list .list-item.focused:hover .list-column:last-child .inner {
+  background-image: -webkit-linear-gradient(left, fade(@list-focused-bg, 0%) 0%, @list-focused-bg 50%, @list-focused-bg 100%);
+}
+
+
+// stars
+
 .thread-icon-star-on-hover:hover,
 .thread-list .list-item:hover .thread-icon-star-on-hover:hover {
   background-image:url(../static/images/thread-list/icon-star-@2x.png);

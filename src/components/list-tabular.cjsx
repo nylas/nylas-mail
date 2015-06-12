@@ -32,7 +32,7 @@ class ListTabularItem extends React.Component
     className = "list-item list-tabular-item #{@props.itemProps?.className}"
     props = _.omit(@props.itemProps ? {}, 'className')
 
-    <div {...props} className={className} onClick={@_onClick} style={position:'absolute', top: @props.metrics.top, width:'100%', height:@props.metrics.height}>
+    <div {...props} className={className} onClick={@_onClick} style={position:'absolute', top: @props.metrics.top, width:'100%', height:@props.metrics.height, overflow: 'hidden'}>
       {@_columns()}
     </div>
 

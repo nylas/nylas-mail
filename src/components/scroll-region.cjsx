@@ -136,16 +136,20 @@ class ScrollRegion extends React.Component
     @_onHandleMove(event)
 
   _onScroll: (event) =>
-    @_recomputeDimensions()
-    @props.onScroll?(event)
+    if not @_requestedAnimationFrame
+      @_requestedAnimationFrame = true
+      window.requestAnimationFrame =>
+        @_requestedAnimationFrame = false
+        @_recomputeDimensions()
+        @props.onScroll?(event)
 
-    if not @state.scrolling
-      @setState(scrolling: true)
+        if not @state.scrolling
+          @setState(scrolling: true)
 
-    @_onStoppedScroll ?= _.debounce =>
-      @setState(scrolling: false)
-    , 250
-    @_onStoppedScroll()
+        @_onStoppedScroll ?= _.debounce =>
+          @setState(scrolling: false)
+        , 250
+        @_onStoppedScroll()
 
 
 module.exports = ScrollRegion
