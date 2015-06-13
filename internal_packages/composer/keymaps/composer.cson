@@ -3,6 +3,7 @@ div[contenteditable]':
   'cmd-B' : 'composer:show-and-focus-bcc'
   'cmd-C' : 'composer:show-and-focus-cc'
   'cmd-enter' : 'composer:send-message'
+  'ctrl-enter' : 'composer:send-message'
 
 '.composer-outer-wrap div[contenteditable]':
   'escape' : 'composer:delete-empty-draft'
