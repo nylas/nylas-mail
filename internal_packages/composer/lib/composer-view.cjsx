@@ -360,6 +360,10 @@ class ComposerView extends React.Component
   # focused depending on the draft type, or you can pass a field as
   # the first parameter.
   focus: (field = null) =>
+    if not @_proxy
+      @_focusRequested = true
+      return
+
     if @isForwardedMessage()
       field ?= "textFieldTo"
     else
@@ -375,9 +379,15 @@ class ComposerView extends React.Component
   _onDraftChanged: =>
     return unless @_proxy
     draft = @_proxy.draft()
+
     if not @_initialHistorySave
       @_saveToHistory()
       @_initialHistorySave = true
+
+    if @_focusRequested
+      @_focusRequested = false
+      @focus()
+
     state =
       to: draft.to
       cc: draft.cc
