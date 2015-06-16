@@ -27,44 +27,62 @@ class SendDraftTask extends Task
     # When we send drafts, we don't update anything in the app until
     # it actually succeeds. We don't want users to think messages have
     # already sent when they haven't!
-    return Promise.reject("Attempt to call SendDraftTask.performLocal without @draftLocalId") unless @draftLocalId
-
+    if not @draftLocalId
+      return Promise.reject(new Error("Attempt to call SendDraftTask.performLocal without @draftLocalId."))
     Promise.resolve()
 
   performRemote: ->
+    # Fetch the latest draft data to make sure we make the request with the most
+    # recent draft version
+    DatabaseStore.findByLocalId(Message, @draftLocalId).then (draft) =>
+      # The draft may have been deleted by another task. Nothing we can do.
+      @draft = draft
+      if not draft
+        return Promise.reject(new Error("We couldn't find the saved draft."))
+
+      if draft.isSaved()
+        body =
+          draft_id: draft.id
+          version: draft.version
+      else
+        # Pass joined:true so the draft body is included
+        body = draft.toJSON(joined: true)
+
+      return @_performRemoteSend(body)
+
+  # Returns a promise which resolves when the draft is sent. There are several
+  # failure cases where this method may call itself, stripping bad fields out of
+  # the body. This promise only rejects when these changes have been tried.
+  _performRemoteSend: (body) ->
+    @_performRemoteAPIRequest(body)
+    .then (json) =>
+      message = (new Message).fromJSON(json)
+      atom.playSound('mail_sent.ogg')
+      Actions.sendDraftSuccess
+        draftLocalId: @draftLocalId
+        newMessage: message
+      return DatabaseStore.unpersistModel(@draft)
+
+    .catch (err) =>
+      if err.message?.indexOf('Invalid message public id') is 0
+        body.reply_to_message_id = null
+        return @_performRemoteSend(body)
+      else if err.message?.indexOf('Invalid thread') is 0
+        body.thread_id = null
+        body.reply_to_message_id = null
+        return @_performRemoteSend(body)
+      else
+        return Promise.reject(err)
+
+  _performRemoteAPIRequest: (body) ->
     new Promise (resolve, reject) =>
-      # Fetch the latest draft data to make sure we make the request with the most
-      # recent draft version
-      DatabaseStore.findByLocalId(Message, @draftLocalId).then (draft) =>
-        # The draft may have been deleted by another task. Nothing we can do.
-        return reject(new Error("We couldn't find the saved draft.")) unless draft
-
-        NylasAPI.makeRequest
-          path: "/n/#{draft.namespaceId}/send"
-          method: 'POST'
-          body: @_prepareBody(draft)
-          returnsModel: true
-          success: @_onSendDraftSuccess(draft, resolve, reject)
-          error: reject
-      .catch(reject)
-
-  _prepareBody: (draft) ->
-    if draft.isSaved()
-      body =
-        draft_id: draft.id
-        version: draft.version
-    else
-      # Pass joined:true so the draft body is included
-      body = draft.toJSON(joined: true)
-    return body
-
-  _onSendDraftSuccess: (draft, resolve, reject) => (newMessage) =>
-    newMessage = (new Message).fromJSON(newMessage)
-    atom.playSound('mail_sent.ogg')
-    Actions.sendDraftSuccess
-      draftLocalId: @draftLocalId
-      newMessage: newMessage
-    DatabaseStore.unpersistModel(draft).then(resolve).catch(reject)
+      NylasAPI.makeRequest
+        path: "/n/#{@draft.namespaceId}/send"
+        method: 'POST'
+        body: body
+        returnsModel: true
+        success: resolve
+        error: reject
 
   onAPIError: (apiError) ->
     msg = apiError.message ? "Our server is having problems. Your message has not been sent."

@@ -10,7 +10,7 @@ _ = require 'underscore'
 
 describe "SendDraftTask", ->
   describe "shouldWaitForTask", ->
-    it "should return any SyncbackDraftTasks for the same draft", ->
+    it "should return true if there are SyncbackDraftTasks for the same draft", ->
       @draftA = new Message
         version: '1'
         id: '1233123AEDF1'
@@ -190,13 +190,52 @@ describe "SendDraftTask", ->
         version: '1'
         id: '1233123AEDF1'
         namespaceId: 'A12ADE'
+        threadId: 'threadId'
+        replyToMessageId: 'replyToMessageId'
         subject: 'New Draft'
+        body: 'body'
         draft: true
         to:
           name: 'Dummy'
           email: 'dummy@nylas.com'
       @task = new SendDraftTask(@draft.id)
       spyOn(Actions, "dequeueTask")
+      spyOn(DatabaseStore, 'unpersistModel').andCallFake (draft) ->
+        Promise.resolve()
+
+    describe "when the server responds with `Invalid message public ID`", ->
+      it "should resend the draft without the reply_to_message_id key set", ->
+        @draft.id = generateTempId()
+        spyOn(DatabaseStore, 'findByLocalId').andCallFake => Promise.resolve(@draft)
+        spyOn(NylasAPI, 'makeRequest').andCallFake ({body, success, error}) ->
+          if body.reply_to_message_id
+            err = new Error("Invalid message public id")
+            error(err)
+          else
+            success(body)
+
+        waitsForPromise =>
+          @task.performRemote().then =>
+            expect(NylasAPI.makeRequest.calls.length).toBe(2)
+            expect(NylasAPI.makeRequest.calls[1].args[0].body.thread_id).toBe('threadId')
+            expect(NylasAPI.makeRequest.calls[1].args[0].body.reply_to_message_id).toBe(null)
+
+    describe "when the server responds with `Invalid thread ID`", ->
+      it "should resend the draft without the thread_id or reply_to_message_id keys set", ->
+        @draft.id = generateTempId()
+        spyOn(DatabaseStore, 'findByLocalId').andCallFake => Promise.resolve(@draft)
+        spyOn(NylasAPI, 'makeRequest').andCallFake ({body, success, error}) ->
+          if body.thread_id
+            err = new Error("Invalid thread public id")
+            error(err)
+          else
+            success(body)
+
+        waitsForPromise =>
+          @task.performRemote().then =>
+            expect(NylasAPI.makeRequest.calls.length).toBe(2)
+            expect(NylasAPI.makeRequest.calls[1].args[0].body.thread_id).toBe(null)
+            expect(NylasAPI.makeRequest.calls[1].args[0].body.reply_to_message_id).toBe(null)
 
     it "throws an error if the draft can't be found", ->
       spyOn(DatabaseStore, 'findByLocalId').andCallFake (klass, localId) ->
