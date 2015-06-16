@@ -1,7 +1,7 @@
 path = require 'path'
 React = require 'react'
 FileUpload = require './file-upload'
-{RetinaImg} = require 'nylas-component-kit'
+{RetinaImg, DraggableImg} = require 'nylas-component-kit'
 
 class ImageFileUpload extends FileUpload
   @displayName: 'ImageFileUpload'
@@ -18,7 +18,7 @@ class ImageFileUpload extends FileUpload
       </span>
 
       <div className="attachment-preview" >
-        <img src={@props.uploadData.filePath} />
+        <DraggableImg src={@props.uploadData.filePath} />
       </div>
 
       <span className="attachment-upload-progress" style={@_uploadProgressStyle()}></span>

@@ -6,6 +6,7 @@ Message = require '../models/message'
 Task = require './task'
 TaskQueue = require '../stores/task-queue'
 SyncbackDraftTask = require './syncback-draft'
+FileUploadTask = require './file-upload-task'
 NylasAPI = require '../nylas-api'
 
 module.exports =
@@ -21,7 +22,8 @@ class SendDraftTask extends Task
     other instanceof SendDraftTask and other.draftLocalId is @draftLocalId
 
   shouldWaitForTask: (other) ->
-    other instanceof SyncbackDraftTask and other.draftLocalId is @draftLocalId
+    (other instanceof SyncbackDraftTask and other.draftLocalId is @draftLocalId) or
+    (other instanceof FileUploadTask and other.messageLocalId is @draftLocalId)
 
   performLocal: ->
     # When we send drafts, we don't update anything in the app until
