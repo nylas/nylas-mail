@@ -15,7 +15,7 @@ class AttachmentComponent extends React.Component
   @propTypes:
     file: React.PropTypes.object.isRequired,
     download: React.PropTypes.object
-    removable: React.PropTypes.boolean
+    removable: React.PropTypes.bool
     targetPath: React.PropTypes.string
     messageLocalId: React.PropTypes.string
 
@@ -23,7 +23,7 @@ class AttachmentComponent extends React.Component
     @state = progressPercent: 0
 
   render: =>
-    <div className={"attachment-inner-wrap #{@props.download?.state() ? ""}"}>
+    <div className={"attachment-inner-wrap #{@props.download?.state ? ""}"}>
       <span className="attachment-download-bar-wrap">
         <span className="attachment-bar-bg"></span>
         <span className="attachment-download-progress" style={@_downloadProgressStyle()}></span>
@@ -49,8 +49,8 @@ class AttachmentComponent extends React.Component
       <div className="attachment-icon" onClick={@_onClickRemove}>
         <RetinaImg className="remove-icon" name="remove-attachment.png"/>
       </div>
-    else if @_isDownloading()
-      <div className="attachment-icon" onClick={@_onClickRemove}>
+    else if @_isDownloading() and @_canAbortDownload()
+      <div className="attachment-icon" onClick={@_onClickAbort}>
         <RetinaImg className="remove-icon" name="remove-attachment.png"/>
       </div>
     else
@@ -59,12 +59,14 @@ class AttachmentComponent extends React.Component
       </div>
 
   _downloadProgressStyle: =>
-    width: @props.download?.percent ? 0
+    width: "#{@props.download?.percent ? 0}%"
 
   _onClickRemove: =>
     Actions.removeFile
       file: @props.file
       messageLocalId: @props.messageLocalId
+
+  _canAbortDownload: -> true
 
   _onClickView: => Actions.fetchAndOpenFile(@props.file) if @_canClickToView()
 
@@ -74,7 +76,7 @@ class AttachmentComponent extends React.Component
 
   _canClickToView: => not @props.removable and not @_isDownloading()
 
-  _isDownloading: => @props.download?.state() is "downloading"
+  _isDownloading: => @props.download?.state is "downloading"
 
   _extension: -> @props.file.filename.split('.').pop()
 

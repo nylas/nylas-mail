@@ -32,7 +32,7 @@ class MessageItem extends React.Component
     @state =
       # Holds the downloadData (if any) for all of our files. It's a hash
       # keyed by a fileId. The value is the downloadData.
-      downloads: FileDownloadStore.downloadsForFileIds(@props.message.fileIds())
+      downloads: FileDownloadStore.downloadDataForFiles(@props.message.fileIds())
       showQuotedText: @_isForwardedMessage()
       detailedHeaders: false
 
@@ -74,8 +74,8 @@ class MessageItem extends React.Component
         <EmailFrame showQuotedText={@state.showQuotedText}>
           {@_formatBody()}
         </EmailFrame>
-        {@_renderAttachments()}
         <a className={@_quotedTextClasses()} onClick={@_toggleQuotedText}></a>
+        {@_renderAttachments()}
       </div>
     </div>
 
@@ -260,7 +260,7 @@ class MessageItem extends React.Component
 
     # Replace cid:// references with the paths to downloaded files
     for file in @props.message.files
-      continue if _.find @state.downloads, (d) -> d.fileId is file.id
+      continue if @state.downloads[file.id]
       cidLink = "cid:#{file.contentId}"
       fileLink = "#{FileDownloadStore.pathForFile(file)}"
       body = body.replace(cidLink, fileLink)
@@ -325,6 +325,6 @@ class MessageItem extends React.Component
 
   _onDownloadStoreChange: =>
     @setState
-      downloads: FileDownloadStore.downloadsForFileIds(@props.message.fileIds())
+      downloads: FileDownloadStore.downloadDataForFiles(@props.message.fileIds())
 
 module.exports = MessageItem

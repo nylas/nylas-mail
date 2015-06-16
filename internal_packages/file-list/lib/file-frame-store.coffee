@@ -33,7 +33,7 @@ FileFrameStore = Reflux.createStore
   _update: ->
 
   _onFileDownloadChange: ->
-    @_download = FileDownloadStore.downloadForFileId(@_file.id) if @_file
+    @_download = FileDownloadStore.downloadDataForFile(@_file.id) if @_file
     if @_file and @_ready is false and not @_download
       @_ready = true
       @trigger()
@@ -46,7 +46,7 @@ FileFrameStore = Reflux.createStore
       filepath = FileDownloadStore.pathForFile(@_file)
       fs.exists filepath, (exists) =>
         Actions.fetchFile(@_file) if not exists
-        @_download = FileDownloadStore.downloadForFileId(@_file.id)
+        @_download = FileDownloadStore.downloadDataForFile(@_file.id)
         @_ready = not @_download
         @trigger()
     else

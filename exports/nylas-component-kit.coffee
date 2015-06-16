@@ -13,6 +13,7 @@ module.exports =
   RetinaImg: require '../src/components/retina-img'
   EmptyState: require '../src/components/empty-state'
   ListTabular: require '../src/components/list-tabular'
+  DraggableImg: require '../src/components/draggable-img'
   MultiselectList: require '../src/components/multiselect-list'
   MultiselectActionBar: require '../src/components/multiselect-action-bar'
   ResizableRegion: require '../src/components/resizable-region'
