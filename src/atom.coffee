@@ -205,7 +205,8 @@ class Atom extends Model
       @actionBridge = new ActionBridge(ipc)
 
     @commands = new CommandRegistry
-    @packages = new PackageManager({devMode, configDirPath, resourcePath, safeMode})
+    specMode = @inSpecMode()
+    @packages = new PackageManager({devMode, configDirPath, resourcePath, safeMode, specMode})
     @styles = new StyleManager
     document.head.appendChild(new StylesElement)
     @themes = new ThemeManager({packageManager: @packages, configDirPath, resourcePath, safeMode})
@@ -229,7 +230,10 @@ class Atom extends Model
   # back through the sourcemap as necessary.
   setupErrorHandling: ->
     ErrorReporter = require './error-reporter'
-    @errorReporter = new ErrorReporter()
+    @errorReporter = new ErrorReporter
+      inSpecMode: @inSpecMode()
+      inDevMode: @inDevMode()
+
     sourceMapCache = {}
 
     window.onerror = =>

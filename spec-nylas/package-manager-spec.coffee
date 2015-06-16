@@ -1,3 +1,4 @@
+path = require 'path'
 {$, $$} = require '../src/space-pen-extensions'
 Package = require '../src/package'
 {Disposable} = require 'atom'
@@ -20,11 +21,14 @@ describe "PackageManager", ->
 
     it "returns the package if it has an invalid keymap", ->
       spyOn(console, 'warn')
+      spyOn(console, 'error')
       pack = atom.packages.loadPackage("package-with-broken-keymap")
       expect(pack instanceof Package).toBe true
       expect(pack.metadata.name).toBe "package-with-broken-keymap"
 
     it "returns the package if it has an invalid stylesheet", ->
+      spyOn(console, 'warn')
+      spyOn(console, 'error')
       pack = atom.packages.loadPackage("package-with-invalid-styles")
       expect(pack instanceof Package).toBe true
       expect(pack.metadata.name).toBe "package-with-invalid-styles"
@@ -32,12 +36,14 @@ describe "PackageManager", ->
 
     it "returns null if the package has an invalid package.json", ->
       spyOn(console, 'warn')
+      spyOn(console, 'error')
       expect(atom.packages.loadPackage("package-with-broken-package-json")).toBeNull()
       expect(console.warn.callCount).toBe(2)
       expect(console.warn.argsForCall[0][0]).toContain("Failed to load package.json")
 
     it "returns null if the package is not found in any package directory", ->
       spyOn(console, 'warn')
+      spyOn(console, 'error')
       expect(atom.packages.loadPackage("this-package-cannot-be-found")).toBeNull()
       expect(console.warn.callCount).toBe(1)
       expect(console.warn.argsForCall[0][0]).toContain("Could not resolve")
@@ -158,7 +164,7 @@ describe "PackageManager", ->
     describe "when the package has no main module", ->
       it "does not throw an exception", ->
         spyOn(console, "error")
-        spyOn(console, "warn").andCallThrough()
+        spyOn(console, "warn")
         expect(-> atom.packages.activatePackage('package-without-module')).not.toThrow()
         expect(console.error).not.toHaveBeenCalled()
         expect(console.warn).not.toHaveBeenCalled()
@@ -191,7 +197,9 @@ describe "PackageManager", ->
     describe "when the package throws an error while loading", ->
       it "logs a warning instead of throwing an exception", ->
         atom.config.set("core.disabledPackages", [])
+        spyOn(console, "log")
         spyOn(console, "warn")
+        spyOn(console, "error")
         expect(-> atom.packages.activatePackage("package-that-throws-an-exception")).not.toThrow()
         expect(console.warn).toHaveBeenCalled()
 
@@ -202,6 +210,7 @@ describe "PackageManager", ->
         onSuccess = jasmine.createSpy('onSuccess')
         onFailure = jasmine.createSpy('onFailure')
         spyOn(console, 'warn')
+        spyOn(console, "error")
 
         atom.packages.activatePackage("this-doesnt-exist").then(onSuccess, onFailure)
 
@@ -433,7 +442,9 @@ describe "PackageManager", ->
         expect(pack.mainModule.deactivate).toHaveBeenCalled()
         expect(atom.packages.isPackageActive("package-with-module")).toBeFalsy()
 
+        spyOn(console, 'log')
         spyOn(console, 'warn')
+        spyOn(console, "error")
 
       badPack = null
       waitsForPromise ->
@@ -448,7 +459,9 @@ describe "PackageManager", ->
         expect(atom.packages.isPackageActive("package-that-throws-on-activate")).toBeFalsy()
 
     it "does not serialize packages that have not been activated called on their main module", ->
+      spyOn(console, 'log')
       spyOn(console, 'warn')
+      spyOn(console, "error")
       badPack = null
       waitsForPromise ->
         atom.packages.activatePackage("package-that-throws-on-activate").then (p) -> badPack = p
@@ -529,6 +542,7 @@ describe "PackageManager", ->
     beforeEach ->
       jasmine.snapshotDeprecations()
       spyOn(console, 'warn')
+      spyOn(console, "error")
       atom.packages.loadPackages()
 
       loadedPackages = atom.packages.getLoadedPackages()
@@ -608,6 +622,7 @@ describe "PackageManager", ->
 
       it "returns null if the package cannot be loaded", ->
         spyOn(console, 'warn')
+        spyOn(console, "error")
         expect(atom.packages.enablePackage("this-doesnt-exist")).toBeNull()
         expect(console.warn.callCount).toBe 1
 
@@ -615,6 +630,8 @@ describe "PackageManager", ->
       didChangeActiveThemesHandler = null
 
       beforeEach ->
+        theme_dir = path.resolve(__dirname, '../internal_packages')
+        atom.packages.packageDirPaths.unshift(theme_dir)
         waitsForPromise ->
           atom.themes.activateThemes()
 

@@ -24,9 +24,25 @@ var logpath = path.join(tmpPath, 'edgehill-' + logpid + '.log');
 
 
 module.exports = ErrorReporter = (function() {
-  function ErrorReporter() {
+
+  function ErrorReporter(modes) {
     var self = this;
 
+    this.inSpecMode = modes.inSpecMode
+    this.inDevMode = modes.inDevMode
+
+    if (!this.inSpecMode) {
+      this._setupSentry();
+      this._cleanOldLogFiles();
+      this._setupNewLogFile();
+      this._hookProcessOutputs();
+      this._catchUncaughtErrors();
+    }
+
+    console.debug = _.bind(this.consoleDebug, this);
+  }
+
+  ErrorReporter.prototype._setupSentry = function() {
     // Initialize the Sentry connector
     this.client = new raven.Client('https://7a32cb0189ff4595a55c98ffb7939c46:f791c3c402b343068bed056b8b504dd5@sentry.nylas.com/4');
     this.client.on('error', function(e) {
@@ -34,10 +50,12 @@ module.exports = ErrorReporter = (function() {
       console.log(e.statusCode);
       return console.log(e.response);
     });
+  }
 
-    // If we're the browser process, remove log files that are more than
-    // two days old. These log files get pretty big because we're logging
-    // so verbosely.
+  // If we're the browser process, remove log files that are more than
+  // two days old. These log files get pretty big because we're logging
+  // so verbosely.
+  ErrorReporter.prototype._cleanOldLogFiles = function() {
     if (process.type === 'browser') {
       fs.readdir(tmpPath, function(err, files) {
         if (err) {
@@ -60,6 +78,11 @@ module.exports = ErrorReporter = (function() {
         });
       });
     }
+  }
+
+  ErrorReporter.prototype._setupNewLogFile = function() {
+    this.shipLogsQueued = false;
+    this.shipLogsTime = 0;
 
     // Open a file write stream to log output from this process
     console.log("Streaming log data to "+logpath);
@@ -71,7 +94,10 @@ module.exports = ErrorReporter = (function() {
       fd: null,
       mode: 0666
     });
+  }
 
+  ErrorReporter.prototype._hookProcessOutputs = function() {
+    var self = this;
     // Override stdout and stderr to pipe their output to the file
     // in addition to calling through to the existing implementation
     function hook_process_output(channel, callback) {
@@ -95,32 +121,13 @@ module.exports = ErrorReporter = (function() {
     hook_process_output('stderr', function(string, encoding, fd) {
       self.appendLog.apply(self, [string]);
     });
+  }
 
-    this.shipLogsQueued = false;
-    this.shipLogsTime = 0;
-
-    // Create a new console.debug option, which takes `true` (print)
-    // or `false`, don't print in console as the first parameter.
-    // This makes it easy for developers to turn on and off
-    // "verbose console" mode.
-    console.debug = function() {
-      var args = [];
-      var showIt = arguments[0];
-      for (var ii = 1; ii < arguments.length; ii++) {
-        args.push(arguments[ii]);
-      }
-      if ((self.dev === true) && (showIt === true)) {
-        console.log.apply(this, args);
-      }
-      self.appendLog.apply(self, [args]);
-    };
-
+  ErrorReporter.prototype._catchUncaughtErrors = function() {
+    var self = this;
     // Link to the appropriate error handlers for the browser
     // or renderer process
     if (process.type === 'renderer') {
-      this.spec = atom.inSpecMode();
-      this.dev = atom.inDevMode();
-
       atom.onDidThrowError(function(_arg) {
         return self.reportError(_arg.originalError, {
           'message': _arg.message
@@ -146,7 +153,25 @@ module.exports = ErrorReporter = (function() {
     }
   }
 
+  // Create a new console.debug option, which takes `true` (print)
+  // or `false`, don't print in console as the first parameter.
+  // This makes it easy for developers to turn on and off
+  // "verbose console" mode.
+  ErrorReporter.prototype.consoleDebug = function() {
+    var args = [];
+    var showIt = arguments[0];
+    for (var ii = 1; ii < arguments.length; ii++) {
+      args.push(arguments[ii]);
+    }
+    if ((this.dev === true) && (showIt === true)) {
+      console.log.apply(this, args);
+    }
+    this.appendLog.apply(this, [args]);
+  }
+
   ErrorReporter.prototype.appendLog = function(obj) {
+    if (this.inSpecMode) { return };
+
     try {
       var message = JSON.stringify({
         host: this.loghost,
@@ -170,6 +195,8 @@ module.exports = ErrorReporter = (function() {
   };
 
   ErrorReporter.prototype.shipLogs = function(reason) {
+    if (this.inSpecMode) { return };
+
     if (!this.shipLogsQueued) {
       var timeSinceLogShip = Date.now() - this.shipLogsTime;
       if (timeSinceLogShip > 20000) {
@@ -186,6 +213,8 @@ module.exports = ErrorReporter = (function() {
   };
 
   ErrorReporter.prototype.runShipLogsTask = function(reason) {
+    if (this.inSpecMode) { return };
+
     var self = this;
 
     this.shipLogsTime = Date.now();
@@ -216,12 +245,7 @@ module.exports = ErrorReporter = (function() {
   };
 
   ErrorReporter.prototype.reportError = function(err, metadata) {
-    if (this.spec) {
-      return;
-    }
-    if (this.dev) {
-      return;
-    }
+    if (this.inSpecMode || this.inDevMode) { return };
 
     this.client.captureError(err, {
       extra: metadata,

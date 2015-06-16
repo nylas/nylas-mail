@@ -13,6 +13,11 @@ describe "ThemeManager", ->
   configDirPath = atom.getConfigDirPath()
 
   beforeEach ->
+    spyOn(console, "log")
+    spyOn(console, "warn")
+    spyOn(console, "error")
+    theme_dir = path.resolve(__dirname, '../internal_packages')
+    atom.packages.packageDirPaths.unshift(theme_dir)
     themeManager = new ThemeManager({packageManager: atom.packages, resourcePath, configDirPath})
 
   afterEach ->
@@ -153,7 +158,6 @@ describe "ThemeManager", ->
 
   describe "when a theme fails to load", ->
     it "logs a warning", ->
-      spyOn(console, 'warn')
       atom.packages.activatePackage('a-theme-that-will-not-be-found')
       expect(console.warn.callCount).toBe 1
       expect(console.warn.argsForCall[0][0]).toContain "Could not resolve 'a-theme-that-will-not-be-found'"
@@ -381,7 +385,6 @@ describe "ThemeManager", ->
         themeManager.loadUserStylesheet()
         spyOn(themeManager.lessCache, 'cssForFile').andCallFake ->
           throw new Error('EACCES permission denied "styles.less"')
-        spyOn(console, 'error').andCallThrough()
 
       it "creates an error notification and does not add the stylesheet", ->
         themeManager.loadUserStylesheet()
@@ -397,7 +400,6 @@ describe "ThemeManager", ->
         spyOn(File::, 'onDidChange').andCallFake (event) ->
           throw new Error('Unable to watch path')
         spyOn(themeManager, 'loadStylesheet').andReturn ''
-        spyOn(console, 'error').andCallThrough()
 
       it "creates an error notification", ->
         themeManager.loadUserStylesheet()
@@ -407,7 +409,6 @@ describe "ThemeManager", ->
 
   describe "when a non-existent theme is present in the config", ->
     beforeEach ->
-      spyOn(console, 'warn')
       atom.config.set('core.themes', ['non-existent-dark-ui'])
 
       waitsForPromise ->
