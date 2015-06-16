@@ -27,8 +27,6 @@ atom.themes.loadBaseStylesheets()
 atom.themes.requireStylesheet '../static/jasmine'
 atom.themes.initialLoadComplete = true
 
-fixturePackagesPath = path.resolve(__dirname, '../spec-nylas/fixtures/packages')
-atom.packages.packageDirPaths.unshift(fixturePackagesPath)
 atom.keymaps.loadBundledKeymaps()
 keyBindingsToRestore = atom.keymaps.getKeyBindings()
 commandsToRestore = atom.commands.getSnapshot()
@@ -172,7 +170,20 @@ beforeEach ->
 
   addCustomMatchers(this)
 
+
+original_log = console.log
+original_warn = console.warn
+original_error = console.error
+
 afterEach ->
+
+  if console.log isnt original_log
+    console.log = original_log
+  if console.warn isnt original_warn
+    console.warn = original_warn
+  if console.error isnt original_error
+    console.error = original_error
+
   atom.packages.deactivatePackages()
   atom.menu.template = []
 

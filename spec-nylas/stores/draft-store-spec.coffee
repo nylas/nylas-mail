@@ -85,8 +85,14 @@ describe "DraftStore", ->
       spyOn(DatabaseStore, 'run').andCallFake (query) ->
         return Promise.resolve(fakeMessage2) if query._klass is Message
         return Promise.reject(new Error('Not Stubbed'))
-      spyOn(DatabaseStore, 'persistModel')
+      spyOn(DatabaseStore, 'persistModel').andCallFake -> Promise.resolve()
       spyOn(DatabaseStore, 'bindToLocalId')
+
+    afterEach ->
+      # Have to cleanup the DraftStoreProxy objects or we'll get a memory
+      # leak error
+      for id, session of DraftStore._draftSessions
+        DraftStore._doneWithSession(session)
 
     describe "onComposeReply", ->
       beforeEach ->

@@ -32,14 +32,17 @@ module.exports =
 class PackageManager
   EmitterMixin.includeInto(this)
 
-  constructor: ({configDirPath, @devMode, safeMode, @resourcePath}) ->
+  constructor: ({configDirPath, @devMode, safeMode, @resourcePath, @specMode}) ->
     @emitter = new Emitter
     @packageDirPaths = []
-    unless safeMode
-      if @devMode
-        @packageDirPaths.push(path.join(configDirPath, "dev", "packages"))
-      @packageDirPaths.push(path.join(configDirPath, "packages"))
+    if @specMode
+      @packageDirPaths.push(path.join(@resourcePath, "spec-nylas", "fixtures", "packages"))
+    else
       @packageDirPaths.push(path.join(@resourcePath, "internal_packages"))
+      if not safeMode
+        if @devMode
+          @packageDirPaths.push(path.join(configDirPath, "dev", "packages"))
+        @packageDirPaths.push(path.join(configDirPath, "packages"))
 
     @loadedPackages = {}
     @activePackages = {}

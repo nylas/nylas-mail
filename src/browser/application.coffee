@@ -65,7 +65,8 @@ class Application
   exit: (status) -> app.exit(status)
 
   constructor: (options) ->
-    {@resourcePath, @version, @devMode, @safeMode} = options
+    {@resourcePath, @version, @devMode, test, @safeMode} = options
+    @specMode = test
 
     # Normalize to make sure drive letter case is consistent on Windows
     @resourcePath = path.normalize(@resourcePath) if @resourcePath
@@ -77,7 +78,7 @@ class Application
 
     @databases = {}
     @windowManager = new WindowManager({@resourcePath, @config, @devMode, @safeMode})
-    @autoUpdateManager = new AutoUpdateManager(@version, @config)
+    @autoUpdateManager = new AutoUpdateManager(@version, @config, @specMode)
     @applicationMenu = new ApplicationMenu(@version)
     @nylasProtocolHandler = new NylasProtocolHandler(@resourcePath, @safeMode)
 

@@ -14,13 +14,13 @@ describe "BufferedProcess", ->
 
     describe "when there is an error handler specified", ->
       it "calls the error handler and does not throw an exception", ->
-        process = new BufferedProcess
+        p = new BufferedProcess
           command: 'bad-command-nope'
           args: ['nothing']
           options: {}
 
         errorSpy = jasmine.createSpy().andCallFake (error) -> error.handle()
-        process.onWillThrowError(errorSpy)
+        p.onWillThrowError(errorSpy)
 
         waitsFor -> errorSpy.callCount > 0
 
@@ -31,17 +31,17 @@ describe "BufferedProcess", ->
 
     describe "when there is not an error handler specified", ->
       it "calls the error handler and does not throw an exception", ->
-        process = new BufferedProcess
-          command: 'bad-command-nope'
-          args: ['nothing']
-          options: {}
+        spyOn(process, "nextTick").andCallFake (fn) -> fn()
 
-        waitsFor -> window.onerror.callCount > 0
+        try
+          p = new BufferedProcess
+            command: 'bad-command-nope'
+            args: ['nothing']
+            options: {stdout: 'ignore'}
 
-        runs ->
-          expect(window.onerror).toHaveBeenCalled()
-          expect(window.onerror.mostRecentCall.args[0]).toContain 'Failed to spawn command `bad-command-nope`'
-          expect(window.onerror.mostRecentCall.args[4].name).toBe 'BufferedProcessError'
+        catch error
+          expect(error.message).toContain 'Failed to spawn command `bad-command-nope`'
+          expect(error.name).toBe 'BufferedProcessError'
 
   describe "on Windows", ->
     originalPlatform = null

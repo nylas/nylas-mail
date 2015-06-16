@@ -933,6 +933,8 @@ class ContenteditableComponent extends React.Component
         document.execCommand("insertHTML", false, cleanHtml)
         @_selectionManuallyChanged = true
 
+    return
+
   # This is used primarily when pasting text in
   _sanitizeInput: (inputText="", type="text/html") =>
     if type is "text/plain"

@@ -16,7 +16,7 @@ module.exports =
 class AutoUpdateManager
   _.extend @prototype, EventEmitter.prototype
 
-  constructor: (@version, @config) ->
+  constructor: (@version, @config, @specMode) ->
     @state = IdleState
     if process.platform is 'win32'
       # Squirrel for Windows can't handle query params
@@ -26,7 +26,8 @@ class AutoUpdateManager
       upgradeLevel = @getUpgradeLevel()
       @feedUrl = "https://edgehill.nylas.com/update-check?version=#{@version}&level=#{upgradeLevel}"
 
-    process.nextTick => @setupAutoUpdater()
+    if not @specMode
+      process.nextTick => @setupAutoUpdater()
 
   getUpgradeLevel: ->
     lvl = @config.get("updateLevel") ? "patch"

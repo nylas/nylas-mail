@@ -201,6 +201,7 @@ describe "NylasSyncWorker", ->
       expect(@connection.end).toHaveBeenCalled()
 
     it "should stop trying to restart failed collection syncs", ->
+      spyOn(console, 'log')
       spyOn(@worker, 'resumeFetches').andCallThrough()
       @worker.cleanup()
       advanceClock(50000)

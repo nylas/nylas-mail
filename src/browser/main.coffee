@@ -1,19 +1,19 @@
 global.shellStartTime = Date.now()
 
-errorReporter = new (require '../error-reporter')
-
 app = require 'app'
 fs = require 'fs'
 path = require 'path'
 optimist = require 'optimist'
 
 start = ->
+  args = parseCommandLine()
+
+  global.errorReporter = setupErrorReporter(args)
+
   if process.platform is 'win32'
     SquirrelUpdate = require './squirrel-update'
     squirrelCommand = process.argv[1]
     return if SquirrelUpdate.handleStartupEvent(app, squirrelCommand)
-
-  args = parseCommandLine()
 
   addPathToOpen = (event, pathToOpen) ->
     event.preventDefault()
@@ -56,10 +56,14 @@ global.devResourcePath = process.env.EDGEHILL_PATH ? process.cwd()
 # Normalize to make sure drive letter case is consistent on Windows
 global.devResourcePath = path.normalize(global.devResourcePath) if global.devResourcePath
 
+setupErrorReporter = (args={}) ->
+  ErrorReporter = require '../error-reporter'
+  return new ErrorReporter({inSpecMode: args.test, inDevMode: args.devMode})
+
 setupCrashReporter = ->
   # In the future, we may want to collect actual native crash reports,
-  # but for now let's not send them to github.
-  # crashReporter.start(productName: 'Atom', companyName: 'GitHub')
+  # but for now let's not send them to GitHub
+  # crashReporter.start(productName: "Nylas Mail", companyName: "Nylas")
 
 setupCoffeeScript = ->
   CoffeeScript = null
