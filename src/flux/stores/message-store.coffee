@@ -133,8 +133,7 @@ MessageStore = Reflux.createStore
         # If no items were returned, attempt to load messages via the API. If items
         # are returned, this will trigger a refresh here.
         if @_items.length is 0
-          namespace = NamespaceStore.current()
-          NylasAPI.getCollection namespace.id, 'messages', {thread_id: @_thread.id}
+          @_fetchMessages()
           loaded = false
 
         @_expandItemsToDefault()
@@ -169,6 +168,10 @@ MessageStore = Reflux.createStore
       if item.unread or item.draft or idx is @_items.length - 1
         @_itemsExpanded[item.id] = true
 
+  _fetchMessages: ->
+    namespace = NamespaceStore.current()
+    NylasAPI.getCollection namespace.id, 'messages', {thread_id: @_thread.id}
+
   _fetchMessageIdFromAPI: (id) ->
     return if @_inflight[id]
 
@@ -178,6 +181,8 @@ MessageStore = Reflux.createStore
       path: "/n/#{namespace.id}/messages/#{id}"
       returnsModel: true
       success: =>
+        delete @_inflight[id]
+      error: =>
         delete @_inflight[id]
 
   _sortItemsForDisplay: (items) ->

@@ -114,7 +114,6 @@ class NylasAPI
     options.url ?= "#{@APIRoot}#{options.path}" if options.path
     options.json ?= true
     options.auth = {'user': @APIToken, 'pass': '', sendImmediately: true}
-    options.error ?= @_defaultErrorCallback
 
     unless options.method is 'GET' or options.formData
       options.body ?= {}
@@ -123,7 +122,10 @@ class NylasAPI
       PriorityUICoordinator.settle.then =>
         Actions.didMakeAPIRequest({request: options, response: response})
         if error? or response.statusCode > 299
-          options.error(new APIError({error, response, body}))
+          if options.returnsModel and response.statusCode is 404
+            @_handleModel404(options.url)
+          if options.error
+            options.error(new APIError({error, response, body}))
         else
           if options.json
             if _.isString(body)
@@ -133,8 +135,33 @@ class NylasAPI
                 options.error(new APIError({error, response, body}))
             if options.returnsModel
               @_handleModelResponse(body)
+
           if options.success
             options.success(body)
+
+  # If we make a request that `returnsModel` and we get a 404, we want to handle
+  # it intelligently and in a centralized way. This method identifies the object
+  # that could not be found and purges it from local cache.
+  #
+  # Handles:
+  #
+  # /namespace/<nid>/<collection>/<id>
+  # /namespace/<nid>/<collection>?thread_id=<id>
+  #
+  _handleModel404: (modelUrl) ->
+    url = require('url')
+    {pathname, query} = url.parse(modelUrl, true)
+    components = pathname.split('/')
+    klassMap = modelClassMap()
+
+    if components.length is 5
+      [root, ns, nsId, collection, klassId] = components
+      klass = klassMap[collection[0..-2]] # Warning: threads => thread
+
+    if klass and klassId and klassId.length > 0
+      console.warn("Deleting #{klass.name}:#{klassId} due to API 404")
+      DatabaseStore.find(klass, klassId).then (model) ->
+        DatabaseStore.unpersistModel(model) if model
 
   _handleDeltas: (deltas) ->
     Actions.longPollReceivedRawDeltas(deltas)
@@ -183,9 +210,6 @@ class NylasAPI
             return DatabaseStore.unpersistModel(model)
 
         Promise.settle(destroyPromises)
-
-  _defaultErrorCallback: (apiError) ->
-    console.error("Unhandled Nylas API Error:", apiError.message, apiError)
 
   _handleModelResponse: (json) ->
     new Promise (resolve, reject) =>

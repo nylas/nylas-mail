@@ -111,9 +111,9 @@ describe "DatabaseView", ->
 
       describe "when the shallow option is provided with specific changed items", ->
         it "should determine whether changes to these items make page(s) invalid", ->
-          spyOn(@view, 'invalidateIfItemsInconsistent').andCallFake ->
-          @view.invalidate({shallow: true, changed: ['a']})
-          expect(@view.invalidateIfItemsInconsistent).toHaveBeenCalled()
+          spyOn(@view, 'invalidateAfterDatabaseChange').andCallFake ->
+          @view.invalidate({shallow: true, change: {objects: ['a'], type: 'persist'}})
+          expect(@view.invalidateAfterDatabaseChange).toHaveBeenCalled()
 
     describe "invalidateMetadataFor", ->
       it "should clear cached metadata for just the items whose ids are provided", ->
@@ -129,7 +129,7 @@ describe "DatabaseView", ->
         expect(@view.retrievePageMetadata).toHaveBeenCalled()
         expect(@view.retrievePageMetadata.calls[0].args[0]).toEqual('1')
 
-    describe "invalidateIfItemsInconsistent", ->
+    describe "invalidateAfterDatabaseChange", ->
       beforeEach ->
         @inbox = new Tag(id: 'inbox', name: 'Inbox')
         @archive = new Tag(id: 'archive', name: 'archive')
@@ -154,40 +154,40 @@ describe "DatabaseView", ->
         spyOn(@view, 'invalidateRetainedRange')
 
       it "should invalidate the entire range if more than 5 items are provided", ->
-        @view.invalidateIfItemsInconsistent([@a, @b, @c, @d, @e, @f])
+        @view.invalidateAfterDatabaseChange({objects:[@a, @b, @c, @d, @e, @f], type:'persist'})
         expect(@view.invalidateRetainedRange).toHaveBeenCalled()
 
       it "should invalidate the entire range if a provided item is in the set but no longer matches the set", ->
         a = new Thread(@a)
         a.tags = [@archive]
-        @view.invalidateIfItemsInconsistent([a])
+        @view.invalidateAfterDatabaseChange({objects:[a], type:'persist'})
         expect(@view.invalidateRetainedRange).toHaveBeenCalled()
 
       it "should invalidate the entire range if a provided item is not in the set but matches the set", ->
         incoming = new Thread(id: 'a', subject: 'a', tags:[@inbox], lastMessageTimestamp: new Date())
-        @view.invalidateIfItemsInconsistent([incoming])
+        @view.invalidateAfterDatabaseChange({objects:[incoming], type:'persist'})
         expect(@view.invalidateRetainedRange).toHaveBeenCalled()
 
       it "should invalidate the entire range if a provided item matches the set and the value of it's sorting attribute has changed", ->
         a = new Thread(@a)
         a.lastMessageTimestamp = new Date(1428526909533)
-        @view.invalidateIfItemsInconsistent([a])
+        @view.invalidateAfterDatabaseChange({objects:[a], type:'persist'})
         expect(@view.invalidateRetainedRange).toHaveBeenCalled()
 
       it "should not do anything if no provided items are in the set or belong in the set", ->
         archived = new Thread(id: 'zz', tags: [@archive])
-        @view.invalidateIfItemsInconsistent([archived])
+        @view.invalidateAfterDatabaseChange({objects:[archived], type: 'persist'})
         expect(@view.invalidateRetainedRange).not.toHaveBeenCalled()
 
       it "should replace items in place otherwise", ->
         a = new Thread(@a)
         a.subject = 'Subject changed, nothing to see here!'
-        @view.invalidateIfItemsInconsistent([a])
+        @view.invalidateAfterDatabaseChange({objects:[a], type: 'persist'})
         expect(@view.invalidateRetainedRange).not.toHaveBeenCalled()
 
         a = new Thread(@a)
         a.tags = [@inbox, @archive] # not realistic, but doesn't change membership in set
-        @view.invalidateIfItemsInconsistent([a])
+        @view.invalidateAfterDatabaseChange({objects:[a], type: 'persist'})
         expect(@view.invalidateRetainedRange).not.toHaveBeenCalled()
 
       it "should attach the metadata field to replaced items", ->
@@ -196,7 +196,7 @@ describe "DatabaseView", ->
         runs ->
           e = new Thread(@e)
           e.subject = subject
-          @view.invalidateIfItemsInconsistent([e])
+          @view.invalidateAfterDatabaseChange({objects:[e], type: 'persist'})
         waitsFor ->
           @view._emitter.emit.callCount > 0
         runs ->
@@ -211,7 +211,24 @@ describe "DatabaseView", ->
           runs ->
             b = new Thread(@b)
             b.tags = []
-            @view.invalidateIfItemsInconsistent([b])
+            @view.invalidateAfterDatabaseChange({objects:[b], type: 'persist'})
+          waitsFor ->
+            @view._emitter.emit.callCount > 0
+
+        it "should optimistically remove them and shift result pages", ->
+          expect(@view._pages[0].items).toEqual([@a, @c, @d])
+          expect(@view._pages[1].items).toEqual([@e, @f])
+
+        it "should change the lastTouchTime date of changed pages so that refreshes started before the replacement do not revert it's changes", ->
+          expect(@view._pages[0].lastTouchTime isnt @start).toEqual(true)
+          expect(@view._pages[1].lastTouchTime isnt @start).toEqual(true)
+
+      describe "when items have been unpersisted but still match criteria", ->
+        beforeEach ->
+          spyOn(@view._emitter, 'emit')
+          @start = @view._pages[1].lastTouchTime
+          runs ->
+            @view.invalidateAfterDatabaseChange({objects:[@b], type: 'unpersist'})
           waitsFor ->
             @view._emitter.emit.callCount > 0
 

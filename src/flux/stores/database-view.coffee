@@ -90,9 +90,22 @@ class DatabaseView extends ModelView
   padRetainedRange: ({start, end}) ->
     {start: start - @_pageSize / 2, end: end + @_pageSize / 2}
 
-  invalidate: ({shallow, changed} = {}) ->
-    if shallow and changed
-      @invalidateIfItemsInconsistent(changed)
+  # Public: Call this method when the DatabaseStore triggers and will impact the
+  # data maintained by this DatabaseView. In the future, the DatabaseView will
+  # probably observe the DatabaseView directly.
+  #
+  # - `options` an Object with the following optional keys which can be used to
+  #   optimize the behavior of the DatabaseView:
+  #     - `change`: The change object provided by the DatabaseStore, with `items` and a `type`.
+  #     - `shallow`: True if this change will not invalidate item metadata, only items.
+  #
+  # TODO: In order for the DatabaseView to monitor the DatabaseStore directly,
+  # it needs to have some way of detatching it's listener when it's no longer needed!
+  # Need a destructor...
+  #
+  invalidate: ({shallow, change} = {}) ->
+    if shallow and change
+      @invalidateAfterDatabaseChange(change)
     else if shallow
       @invalidateCount()
       @invalidateRetainedRange()
@@ -103,12 +116,14 @@ class DatabaseView extends ModelView
       @invalidateCount()
       @invalidateRetainedRange()
 
-  invalidateIfItemsInconsistent: (items) ->
+  invalidateAfterDatabaseChange: (change) ->
+    items = change.objects
+
     if items.length is 0
       return
 
     if items.length > 5
-      @log('invalidateIfItemsInconsistent on '+items.length+'items would be expensive. Invalidating entire range.')
+      @log("invalidateAfterDatabaseChange on #{items.length} items would be expensive. Invalidating entire range.")
       @invalidateCount()
       @invalidateRetainedRange()
       return
@@ -147,15 +162,17 @@ class DatabaseView extends ModelView
 
     for item in items
       idx = @indexOfId(item.id)
+      itemIsInSet = idx isnt -1
+      itemShouldBeInSet = item.matches(@_matchers) and change.type isnt 'unpersist'
       indexes.push(idx)
 
       # The item matches our set but isn't in our items array
-      if item.matches(@_matchers) and idx is -1
+      if not itemIsInSet and itemShouldBeInSet
         @log("Item matches criteria but not found in cached set. Invalidating entire range.")
         pagesCouldHaveChanged = true
 
       # The item does not match our set, but is in our items array
-      else if idx isnt -1 and not item.matches(@_matchers)
+      else if itemIsInSet and not itemShouldBeInSet
         @log("Item does not match criteria but is in cached set. Invalidating entire range.")
         pagesCouldHaveChanged = true
 
@@ -166,7 +183,7 @@ class DatabaseView extends ModelView
 
       # The value of the item's sort attribute has changed, and we don't
       # know if it will be in the same position in a new page.
-      else if idx isnt -1 and sortAttribute
+      else if itemIsInSet and sortAttribute
         existing = @get(idx)
         existingSortValue = existing[sortAttribute.modelKey]
         itemSortValue = item[sortAttribute.modelKey]

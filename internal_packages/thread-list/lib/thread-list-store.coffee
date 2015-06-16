@@ -93,7 +93,7 @@ ThreadListStore = Reflux.createStore
 
   _onDataChanged: (change) ->
     if change.objectClass is Thread.name
-      @_view.invalidate({changed: change.objects, shallow: true})
+      @_view.invalidate({change: change, shallow: true})
 
     if change.objectClass is Message.name
       threadIds = _.uniq _.map change.objects, (m) -> m.threadId

@@ -116,7 +116,7 @@ describe "DatabaseStore", ->
       expect(DatabaseStore.triggerSoon).toHaveBeenCalled()
 
       change = DatabaseStore.triggerSoon.mostRecentCall.args[0]
-      expect(change).toEqual({objectClass: TestModel.name, objects: [testModelInstance]})
+      expect(change).toEqual({objectClass: TestModel.name, objects: [testModelInstance], type:'persist'})
 
     it "should call through to writeModels", ->
       spyOn(DatabaseStore, 'writeModels')
@@ -132,6 +132,7 @@ describe "DatabaseStore", ->
       expect(change).toEqual
         objectClass: TestModel.name,
         objects: [testModelInstanceA, testModelInstanceB]
+        type:'persist'
 
     it "should call through to writeModels after checking them", ->
       spyOn(DatabaseStore, 'writeModels')
@@ -158,7 +159,7 @@ describe "DatabaseStore", ->
       expect(DatabaseStore.triggerSoon).toHaveBeenCalled()
 
       change = DatabaseStore.triggerSoon.mostRecentCall.args[0]
-      expect(change).toEqual({objectClass: TestModel.name, objects: [testModelInstance]})
+      expect(change).toEqual({objectClass: TestModel.name, objects: [testModelInstance], type:'unpersist'})
 
     describe "when the model has collection attributes", ->
       it "should delete all of the elements in the join tables", ->
