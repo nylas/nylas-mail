@@ -122,7 +122,10 @@ class FocusedContentStore
         continue unless val and val.constructor.name is change.objectClass
         for obj in change.objects
           if val.id is obj.id
-            data[key] = obj
+            if change.type is 'unpersist'
+              data[key] = null
+            else
+              data[key] = obj
             touched.push(key)
 
     if touched.length > 0

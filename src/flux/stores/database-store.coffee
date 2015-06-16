@@ -234,7 +234,7 @@ class DatabaseStore
 
     if not @_changeAccumulated
       set(change)
-    else if @_changeAccumulated.objectClass is change.objectClass
+    else if @_changeAccumulated.objectClass is change.objectClass and @_changeAccumulated.type is change.type
       concat(change)
     else
       flush()
@@ -352,7 +352,7 @@ class DatabaseStore
       tx.execute('BEGIN TRANSACTION')
       @writeModels(tx, [model])
       tx.execute('COMMIT')
-      @triggerSoon({objectClass: model.constructor.name, objects: [model]})
+      @triggerSoon({objectClass: model.constructor.name, objects: [model], type: 'persist'})
 
   # Public: Asynchronously writes `models` to the cache and triggers a single change
   # event. Note: Models must be of the same class to be persisted in a batch operation.
@@ -373,7 +373,7 @@ class DatabaseStore
 
       @writeModels(tx, models)
       tx.execute('COMMIT')
-      @triggerSoon({objectClass: models[0].constructor.name, objects: models})
+      @triggerSoon({objectClass: models[0].constructor.name, objects: models, type: 'persist'})
 
   # Public: Asynchronously removes `model` from the cache and triggers a change event.
   #
@@ -384,7 +384,7 @@ class DatabaseStore
       tx.execute('BEGIN TRANSACTION')
       @deleteModel(tx, model)
       tx.execute('COMMIT')
-      @triggerSoon({objectClass: model.constructor.name, objects: [model]})
+      @triggerSoon({objectClass: model.constructor.name, objects: [model], type: 'unpersist'})
 
   swapModel: ({oldModel, newModel, localId}) =>
     @inTransaction {}, (tx) =>
@@ -393,7 +393,7 @@ class DatabaseStore
       @writeModels(tx, [newModel])
       @writeModels(tx, [new LocalLink(id: localId, objectId: newModel.id)]) if localId
       tx.execute('COMMIT')
-      @triggerSoon({objectClass: newModel.constructor.name, objects: [oldModel, newModel]})
+      @triggerSoon({objectClass: newModel.constructor.name, objects: [oldModel, newModel], type: 'swap'})
       Actions.didSwapModel({oldModel, newModel, localId})
 
   ###

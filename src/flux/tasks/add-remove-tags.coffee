@@ -66,10 +66,10 @@ class AddRemoveTagsTask extends Task
         error: reject
 
   onAPIError: (apiError) ->
-    if "archive" in @tagIdsToAdd
-      msg = "Failed to archive thread: '#{@thread.subject}'"
-      Actions.postNotification({message: msg, type: "error"})
-    @_rollbackLocal()
+    if apiError.response.statusCode is 404
+      # Do nothing - NylasAPI will destroy the object.
+    else
+      @_rollbackLocal()
     Promise.resolve()
 
   _rollbackLocal: ->
