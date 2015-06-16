@@ -1,6 +1,8 @@
 Reflux = require 'reflux'
 {Actions,
  Contact,
+ Thread,
+ DatabaseStore,
  ContactStore} = require 'nylas-exports'
 _ = require 'underscore'
 
@@ -11,9 +13,9 @@ _ = require 'underscore'
 
 SearchSuggestionStore = Reflux.createStore
   init: ->
-    @_suggestions = []
     @_query = ""
     @_committedQuery = ""
+    @_clearResults()
 
     @listenTo Actions.searchQueryChanged, @onSearchQueryChanged
     @listenTo Actions.searchQueryCommitted, @onSearchQueryCommitted
@@ -21,38 +23,69 @@ SearchSuggestionStore = Reflux.createStore
 
   onSearchQueryChanged: (query) ->
     @_query = query
-    @repopulate()
+    @_rebuildResults()
 
   onSearchQueryCommitted: (query) ->
     @_query = query
     @_committedQuery = query
-    @_suggestions = []
+    @_clearResults()
     @trigger()
 
   onSearchBlurred: ->
-    @_suggestions = []
+    @_clearResults()
     @trigger()
 
-  repopulate: ->
+  _clearResults: ->
+    @_threadResults = null
+    @_contactResults = null
     @_suggestions = []
-    term = @_query?[0]
-    return @trigger(@) unless term
 
-    key = Object.keys(term)[0]
-    val = term[key]
-    return @trigger(@) unless val
+  _rebuildResults: ->
+    {key, val} = @queryKeyAndVal()
+    return @trigger(@) unless key and val
 
-    contactResults = ContactStore.searchContacts(val, limit:10)
+    @_contactResults = ContactStore.searchContacts(val, limit:10)
+    @_rebuildThreadResults()
+    @_compileSuggestions()
 
+  _rebuildThreadResults: ->
+    {key, val} = @queryKeyAndVal()
+
+    # Don't update thread results if a previous query is still running, it'll
+    # just make performance even worse. When the old result comes in, re-run
+    return if @_threadQueryInFlight
+
+    @_threadQueryInFlight = true
+    DatabaseStore.findAll(Thread, [Thread.attributes.subject.like(val)])
+    .order(Thread.attributes.lastMessageTimestamp.descending())
+    .limit(4)
+    .then (results) =>
+      @_threadQueryInFlight = false
+      if val is @queryKeyAndVal().val
+        @_threadResults = results
+        @_compileSuggestions()
+      else
+        @_rebuildThreadResults()
+
+  _compileSuggestions: ->
+    {key, val} = @queryKeyAndVal()
+    return unless key and val
+
+    @_suggestions = []
     @_suggestions.push
       label: "Message Contains: #{val}"
       value: [{"all": val}]
 
-    if contactResults.length
+    if @_threadResults?.length
+      @_suggestions.push
+        divider: 'Threads'
+      _.each @_threadResults, (thread) =>
+        @_suggestions.push({thread: thread})
+
+    if @_contactResults?.length
       @_suggestions.push
         divider: 'People'
-
-      _.each contactResults, (contact) =>
+      _.each @_contactResults, (contact) =>
         @_suggestions.push
           contact: contact
           value: [{"participants": contact.email}]
@@ -62,6 +95,13 @@ SearchSuggestionStore = Reflux.createStore
   # Exposed Data
 
   query: -> @_query
+
+  queryKeyAndVal: ->
+    return {} unless @_query and @_query.length > 0
+    term = @_query[0]
+    key = Object.keys(term)[0]
+    val = term[key]
+    {key, val}
 
   committedQuery: -> @_committedQuery
 
