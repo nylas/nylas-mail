@@ -47,6 +47,7 @@ class Thread extends Model
       modelKey: 'snippet'
 
     'subject': Attributes.String
+      queryable: true
       modelKey: 'subject'
 
     'unread': Attributes.Boolean

@@ -64,6 +64,8 @@ class SearchBar extends React.Component
         <Menu.Item divider={item.divider} />
       else if item.contact
         <Menu.NameEmailItem name={item.contact.name} email={item.contact.email} />
+      else if item.thread
+        item.thread.subject
       else
         item.label
 
@@ -73,7 +75,7 @@ class SearchBar extends React.Component
         headerComponents={headerComponents}
         items={@state.suggestions}
         itemContent={itemContentFunc}
-        itemKey={ (item) -> item.label }
+        itemKey={ (item) -> item.id ? item.label }
         onSelect={@_onSelectSuggestion}
         />
     </div>
@@ -109,7 +111,11 @@ class SearchBar extends React.Component
       @_onClearSearch()
 
   _onSelectSuggestion: (item) =>
-    Actions.searchQueryCommitted(item.value)
+    if item.thread?
+      Actions.searchQueryCommitted(null)
+      Actions.setFocus({collection: 'thread', item: item.thread})
+    else
+      Actions.searchQueryCommitted(item.value)
 
   _onClearSearch: (event) =>
     Actions.searchQueryCommitted(null)
