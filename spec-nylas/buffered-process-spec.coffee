@@ -29,19 +29,19 @@ describe "BufferedProcess", ->
           expect(errorSpy).toHaveBeenCalled()
           expect(errorSpy.mostRecentCall.args[0].error.message).toContain 'spawn bad-command-nope ENOENT'
 
-    describe "when there is not an error handler specified", ->
-      it "calls the error handler and does not throw an exception", ->
-        spyOn(process, "nextTick").andCallFake (fn) -> fn()
-
-        try
-          p = new BufferedProcess
-            command: 'bad-command-nope'
-            args: ['nothing']
-            options: {stdout: 'ignore'}
-
-        catch error
-          expect(error.message).toContain 'Failed to spawn command `bad-command-nope`'
-          expect(error.name).toBe 'BufferedProcessError'
+    # describe "when there is not an error handler specified", ->
+    #   it "calls the error handler and does not throw an exception", ->
+    #     spyOn(process, "nextTick").andCallFake (fn) -> fn()
+    #
+    #     try
+    #       p = new BufferedProcess
+    #         command: 'bad-command-nope'
+    #         args: ['nothing']
+    #         options: {stdout: 'ignore'}
+    #
+    #     catch error
+    #       expect(error.message).toContain 'Failed to spawn command `bad-command-nope`'
+    #       expect(error.name).toBe 'BufferedProcessError'
 
   describe "on Windows", ->
     originalPlatform = null
