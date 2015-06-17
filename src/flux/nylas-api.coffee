@@ -126,15 +126,14 @@ class NylasAPI
             @_handleModel404(options.url)
           if response.statusCode is 401
             @_handle401(options.url)
-          if options.error
-            options.error(new APIError({error, response, body}))
+          options.error?(new APIError({error, response, body}))
         else
           if options.json
             if _.isString(body)
               try
                 body = JSON.parse(body)
               catch error
-                options.error(new APIError({error, response, body}))
+                options.error?(new APIError({error, response, body}))
             if options.returnsModel
               @_handleModelResponse(body)
 

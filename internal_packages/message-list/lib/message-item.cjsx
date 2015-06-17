@@ -196,7 +196,7 @@ class MessageItem extends React.Component
       headers:
         Accept: 'message/rfc822'
       path: "/n/#{@props.message.namespaceId}/messages/#{@props.message.id}"
-      json:null
+      json:false
       success: (body) =>
         fs.writeFile tmpfile, body, =>
           window = new BrowserWindow(width: 800, height: 600, title: "#{@props.message.subject} - RFC822")
