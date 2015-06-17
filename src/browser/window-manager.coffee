@@ -108,9 +108,9 @@ class WindowManager
       height: 550
       resizable: false
       windowType: 'onboarding'
-      windowPackages: ['onboarding']
       windowProps:
-        'uniqueId': 'onboarding'
+        page: "welcome"
+        uniqueId: 'onboarding'
 
   # Makes a new window appear of a certain `windowType`.
   #
@@ -188,7 +188,7 @@ class WindowManager
   #   - windowPackages - A list of additional packages to load into a
   #   window in addition to those declared in various `package.json`s
   #
-  registerHotWindow: ({windowType, replenishNum, windowPackages}={}) ->
+  registerHotWindow: ({windowType, replenishNum, windowPackages, windowOptions}={}) ->
     if not windowType
       throw new Error("registerHotWindow: please provide a windowType")
 
@@ -197,6 +197,7 @@ class WindowManager
     @_hotWindows[windowType].replenishNum ?= (replenishNum ? 1)
     @_hotWindows[windowType].loadedWindows ?= []
     @_hotWindows[windowType].windowPackages ?= (windowPackages ? [])
+    @_hotWindows[windowType].windowOptions ?= (windowOptions ? {})
 
     @_replenishHotWindows()
 
@@ -248,6 +249,8 @@ class WindowManager
   newColdWindow: (options={}) ->
     options = _.extend(@defaultWindowOptions(), options)
     win = new AtomWindow(options)
+    newLoadSettings = _.extend(win.loadSettings(), options)
+    win.setLoadSettings(newLoadSettings)
     win.showWhenLoaded()
     return win
 
@@ -262,9 +265,9 @@ class WindowManager
     win = null
 
     if not hotWindowParams?
-      console.log "WindowManager: Warning! The requested windowType '#{options.windowType}'
-                  has not been registered. Be sure to call `registerWindowType` first
-                  in your packages setup."
+      console.log "WindowManager: Warning! The requested windowType
+      '#{options.windowType}' has not been registered. Be sure to call
+      `registerWindowType` first in your packages setup."
       return @newColdWindow(options)
 
     supportedHotWindowKeys = [
@@ -279,22 +282,25 @@ class WindowManager
     ]
 
     unsupported =  _.difference(Object.keys(options), supportedHotWindowKeys)
+
     if unsupported.length > 0
-      console.log "WindowManager: Nylas will open a new hot window of type #{options.windowType},
-                   but you are passing options that can't be applied to the preloaded window
-                   (#{JSON.stringify(unsupported)}). Please change the options or pass the
-                   `coldStart:true` option to use a new window instead of a hot window. If
-                   it's just data for the window, please put them in the `windowProps` param."
+      console.log "WindowManager: For the winodw of type
+      #{options.windowType}, you are passing options that can't be
+      applied to the preloaded window (#{JSON.stringify(unsupported)}).
+      Please change the options or pass the `coldStart:true` option to use
+      a new window instead of a hot window. If it's just data for the
+      window, please put them in the `windowProps` param."
 
     if hotWindowParams.loadedWindows.length is 0
       # No windows ready
+      console.log "No windows ready. Loading a new coldWindow"
       options.windowPackages = hotWindowParams.windowPackages
       win = @newColdWindow(options)
     else
       [win] = hotWindowParams.loadedWindows.splice(0,1)
+
       newLoadSettings = _.extend(win.loadSettings(), options)
       win.setLoadSettings(newLoadSettings)
-      win.showWhenLoaded()
 
       win.browserWindow.setTitle options.title ? ""
 
@@ -307,11 +313,10 @@ class WindowManager
         h = options.height ? h
         win.browserWindow.setSize(w,h)
 
-      console.log JSON.stringify(options)
       if options.bounds
-        console.log "------------- SETTING BOUNDS"
-        console.log JSON.stringify(options.bounds)
         win.browserWindow.setBounds options.bounds
+
+      win.showWhenLoaded()
 
     @_replenishHotWindows()
 
@@ -340,7 +345,7 @@ class WindowManager
       numOfType = data.replenishNum - data.loadedWindows.length
       maxWin = Math.max(numOfType, maxWin)
       if numOfType > 0
-        options = @defaultWindowOptions()
+        options = _.extend {}, @defaultWindowOptions(), data.windowOptions
         options.windowType = windowType
         options.windowPackages = data.windowPackages
         queues[windowType] ?= []

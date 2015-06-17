@@ -607,16 +607,15 @@ class Atom extends Model
 
     @commands.add 'atom-workspace',
       'atom-workspace:add-account': =>
-        options =
+        @newWindow
           title: 'Add an Account'
-          page: 'add-account'
           width: 340
           height: 550
           toolbar: false
           resizable: false
           windowType: 'onboarding'
-          windowPackages: ['onboarding']
-        ipc.send('new-window', options)
+          windowProps:
+            page: 'add-account'
 
     # Make sure we can't be made so small that the interface looks like crap
     @getCurrentWindow().setMinimumSize(875, 500)

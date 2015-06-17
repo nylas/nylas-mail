@@ -1,13 +1,14 @@
 Reflux = require 'reflux'
 
-actions = [
-  "setEnvironment",
-  "authErrorOccurred",
-  "startConnect",
-  "finishedConnect",
-  "moveToPreviousPage",
+OnboardingActions = Reflux.createActions [
+  "changeAPIEnvironment"
+  "loadExternalAuthPage"
+
+  "moveToPreviousPage"
   "moveToPage"
 ]
 
-module.exports =
-Actions = Reflux.createActions(actions)
+for key, action of OnboardingActions
+  action.sync = true
+
+module.exports = OnboardingActions

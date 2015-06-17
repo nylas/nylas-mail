@@ -1,6 +1,6 @@
 _ = require 'underscore'
 
-module.exports =
+module.exports = CoffeeHelpers =
   # This copied out CoffeeScript
   includeModule: (mixin) ->
     if not mixin
