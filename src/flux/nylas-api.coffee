@@ -122,8 +122,10 @@ class NylasAPI
       PriorityUICoordinator.settle.then =>
         Actions.didMakeAPIRequest({request: options, response: response})
         if error? or response.statusCode > 299
-          if options.returnsModel and response.statusCode is 404
+          if response.statusCode is 404 and options.returnsModel
             @_handleModel404(options.url)
+          if response.statusCode is 401
+            @_handle401(options.url)
           if options.error
             options.error(new APIError({error, response, body}))
         else
@@ -162,6 +164,25 @@ class NylasAPI
       console.warn("Deleting #{klass.name}:#{klassId} due to API 404")
       DatabaseStore.find(klass, klassId).then (model) ->
         DatabaseStore.unpersistModel(model) if model
+
+  _handle401: (url) ->
+    # Throw up a notification indicating that the user should log out and log back in
+    Actions.postNotification
+      type: 'error'
+      tag: '401'
+      sticky: true
+      message: "Nylas can no longer authenticate with your mail provider. You will not be able to send or receive mail. Please log out and sign in again.",
+      icon: 'fa-sign-out'
+      actions: [{
+        label: 'Log Out'
+        id: '401:logout'
+      }]
+
+    unless @_notificationUnlisten
+      handler = ({notification, action}) ->
+        if action.id is '401:logout'
+          atom.logout()
+      @_notificationUnlisten = Actions.notificationActionTaken.listen(handler, @)
 
   _handleDeltas: (deltas) ->
     Actions.longPollReceivedRawDeltas(deltas)
