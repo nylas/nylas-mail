@@ -469,18 +469,24 @@ class ComposerView extends React.Component
       })
       return
 
-    warnings = []
-    if draft.subject.length is 0
-      warnings.push('without a subject line')
-    if (draft.files ? []).length is 0 and @_hasAttachment(draft.body)
-      warnings.push('without an attachment')
-
-    # Warn if the user tries to send a message with no body, or with a body that
-    # is only quoted text and not a forward.
     body = draft.body.toLowerCase().trim()
     forwarded = Utils.isForwardedMessage(draft)
     quotedTextIndex = Utils.quotedTextIndex(body)
-    if body.length is 0 or (0 <= quotedTextIndex <= 10 and not forwarded)
+    hasAttachment = (draft.files ? []).length > 0
+
+    # Note: In a completely empty reply, quotedTextIndex is 8
+    # due to opening elements.
+    bodyIsEmpty = body.length is 0 or 0 <= quotedTextIndex <= 8
+
+    warnings = []
+
+    if draft.subject.length is 0
+      warnings.push('without a subject line')
+
+    if @_mentionsAttachment(draft.body) and not hasAttachment
+      warnings.push('without an attachment')
+
+    if bodyIsEmpty and not forwarded and not hasAttachment
       warnings.push('without a body')
 
     # Check third party warnings added via DraftStore extensions
@@ -506,7 +512,7 @@ class ComposerView extends React.Component
 
     Actions.sendDraft(@props.localId)
 
-  _hasAttachment: (body) =>
+  _mentionsAttachment: (body) =>
     body = body.toLowerCase().trim()
     attachIndex = body.indexOf("attach")
     if attachIndex >= 0

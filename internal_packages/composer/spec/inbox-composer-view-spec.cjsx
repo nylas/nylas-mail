@@ -5,6 +5,7 @@ React = require "react/addons"
 ReactTestUtils = React.addons.TestUtils
 
 {Actions,
+ File,
  Contact,
  Message,
  Namespace,
@@ -24,6 +25,9 @@ u2 = new Contact(name: "Michael Grinich", email: "mg@nylas.com")
 u3 = new Contact(name: "Evan Morikawa",   email: "evan@nylas.com")
 u4 = new Contact(name: "Zoë Leiper",      email: "zip@nylas.com")
 u5 = new Contact(name: "Ben Gotow",       email: "ben@nylas.com")
+
+file = new File(id: 'file_1_id', filename: 'a.png', contentType: 'image/png', size: 10, object: "file")
+
 users = [u1, u2, u3, u4, u5]
 NamespaceStore._current = new Namespace(
   {name: u1.name, provider: "inbox", emailAddress: u1.email})
@@ -290,35 +294,57 @@ describe "populated composer", ->
       dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
       expect(dialogArgs.buttons).toEqual ['Edit Message']
 
-    it "shows a warning if the body of the email is empty", ->
-      useDraft.call @, to: [u1], body: ""
-      makeComposer.call(@)
-      @composer._sendDraft()
-      expect(Actions.sendDraft).not.toHaveBeenCalled()
-      expect(@dialog.showMessageBox).toHaveBeenCalled()
-      dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
-      expect(dialogArgs.buttons).toEqual ['Cancel', 'Send Anyway']
+    describe "empty body warning", ->
+      it "warns if the body of the email is empty", ->
+        useDraft.call @, to: [u1], body: ""
+        makeComposer.call(@)
+        @composer._sendDraft()
+        expect(Actions.sendDraft).not.toHaveBeenCalled()
+        expect(@dialog.showMessageBox).toHaveBeenCalled()
+        dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
+        expect(dialogArgs.buttons).toEqual ['Cancel', 'Send Anyway']
 
-    it "shows a warning if the body of the email is all quoted text", ->
-      useDraft.call @,
-        to: [u1]
-        subject: "Hello World"
-        body: "<br><br><blockquote class='gmail_quote'>This is my quoted text!</blockquote>"
-      makeComposer.call(@)
-      @composer._sendDraft()
-      expect(Actions.sendDraft).not.toHaveBeenCalled()
-      expect(@dialog.showMessageBox).toHaveBeenCalled()
-      dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
-      expect(dialogArgs.buttons).toEqual ['Cancel', 'Send Anyway']
+      it "warns if the body of the email is all quoted text", ->
+        useDraft.call @,
+          to: [u1]
+          subject: "Hello World"
+          body: "<br><br><blockquote class='gmail_quote'>This is my quoted text!</blockquote>"
+        makeComposer.call(@)
+        @composer._sendDraft()
+        expect(Actions.sendDraft).not.toHaveBeenCalled()
+        expect(@dialog.showMessageBox).toHaveBeenCalled()
+        dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
+        expect(dialogArgs.buttons).toEqual ['Cancel', 'Send Anyway']
 
-    it "does not show a warning if the body of the email is all quoted text, but the email is a forward", ->
-      useDraft.call @,
-        to: [u1]
-        subject: "Fwd: Hello World"
-        body: "<br><br><blockquote class='gmail_quote'>This is my quoted text!</blockquote>"
-      makeComposer.call(@)
-      @composer._sendDraft()
-      expect(Actions.sendDraft).toHaveBeenCalled()
+      it "does not warn if the body of the email is all quoted text, but the email is a forward", ->
+        useDraft.call @,
+          to: [u1]
+          subject: "Fwd: Hello World"
+          body: "<br><br><blockquote class='gmail_quote'>This is my quoted text!</blockquote>"
+        makeComposer.call(@)
+        @composer._sendDraft()
+        expect(Actions.sendDraft).toHaveBeenCalled()
+
+      it "does not warn if the user has typed a single character in their reply", ->
+        useDraft.call @,
+          to: [u1]
+          subject: "Hello World"
+          body: "1<br><br><blockquote class='gmail_quote'>This is my quoted text!</blockquote>"
+        makeComposer.call(@)
+        @composer._sendDraft()
+        expect(Actions.sendDraft).toHaveBeenCalled()
+        expect(@dialog.showMessageBox).not.toHaveBeenCalled()
+
+      it "does not warn if the user has attached a file", ->
+        useDraft.call @,
+          to: [u1]
+          subject: "Hello World"
+          body: ""
+          files: [file]
+        makeComposer.call(@)
+        @composer._sendDraft()
+        expect(Actions.sendDraft).toHaveBeenCalled()
+        expect(@dialog.showMessageBox).not.toHaveBeenCalled()
 
     it "shows a warning if there's no subject", ->
       useDraft.call @, to: [u1], subject: ""
@@ -364,7 +390,7 @@ describe "populated composer", ->
         subject: "Subject"
         to: [u1]
         body: "Check out attached file"
-        files: [{id: "123", object: "file", filename:"abc"}]
+        files: [file]
       makeComposer.call(@); @composer._sendDraft()
       expect(Actions.sendDraft).toHaveBeenCalled()
       expect(@dialog.showMessageBox).not.toHaveBeenCalled()
