@@ -11,7 +11,6 @@ module.exports =
   Popover: require '../src/components/popover'
   Flexbox: require '../src/components/flexbox'
   RetinaImg: require '../src/components/retina-img'
-  EmptyState: require '../src/components/empty-state'
   ListTabular: require '../src/components/list-tabular'
   DraggableImg: require '../src/components/draggable-img'
   MultiselectList: require '../src/components/multiselect-list'

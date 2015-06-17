@@ -13,10 +13,33 @@
   overflow:hidden;
 
   > div {
-    opacity:0;
+    opacity: 0;
     -webkit-transition: opacity @duration ease-out;
     width:100%;
     height: 100%;
+  }
+
+  // Generic Mode
+  .generic {
+    text-align: center;
+
+    .message {
+      color: @text-color-very-subtle;
+      font-size: 28px;
+      font-weight: @font-weight-blond;
+      text-align: center;
+      top:45%;
+      left:50%;
+      width:80%;
+      transform: translate(-50%, -50%);
+      position: absolute;
+      white-space: pre-line;
+    }
+  }
+
+  // Quotes Mode
+
+  .quotes {
     min-width: 840px;
     min-height: 650px;
     position: absolute;

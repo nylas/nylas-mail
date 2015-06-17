@@ -14,6 +14,8 @@ ThreadListQuickActions = require './thread-list-quick-actions'
 ThreadListStore = require './thread-list-store'
 ThreadListIcon = require './thread-list-icon'
 
+EmptyState = require './empty-state'
+
 class ThreadListScrollTooltip extends React.Component
   @displayName: 'ThreadListScrollTooltip'
   @propTypes:
@@ -128,6 +130,7 @@ class ThreadList extends React.Component
       'application:reply': @_onReply
       'application:reply-all': @_onReplyAll
       'application:forward': @_onForward
+
     @itemPropsProvider = (item) ->
       className: classNames
         'unread': item.isUnread()
@@ -149,6 +152,7 @@ class ThreadList extends React.Component
         itemHeight={39}
         className="thread-list"
         scrollTooltipComponent={ThreadListScrollTooltip}
+        emptyComponent={EmptyState}
         collection="thread" />
     else if @state.style is 'narrow'
       <MultiselectList
@@ -159,6 +163,7 @@ class ThreadList extends React.Component
         itemHeight={90}
         className="thread-list thread-list-narrow"
         scrollTooltipComponent={ThreadListScrollTooltip}
+        emptyComponent={EmptyState}
         collection="thread" />
     else
       <div></div>

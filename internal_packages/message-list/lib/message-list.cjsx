@@ -293,6 +293,7 @@ class MessageList extends React.Component
 
   _scrollToBottom: =>
     messageWrap = React.findDOMNode(@refs.messageWrap)
+    return unless messageWrap
     messageWrap.scrollTop = messageWrap.scrollHeight
 
   _cacheScrollPos: =>
