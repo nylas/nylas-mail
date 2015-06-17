@@ -34,7 +34,7 @@
       margin: 0 auto;
       flex-direction:row;
       max-width: @compose-width;
-      padding: @spacing-standard (@spacing-standard + @spacing-standard / 2) @spacing-standard*1.1;
+      padding: @spacing-standard;
 
       > * {
         margin-left: @spacing-standard / 2;
@@ -51,7 +51,7 @@
     max-width: @compose-width;
     margin: 0 auto;
     margin-top: @spacing-standard;
-    padding: 0 @spacing-standard;
+    padding: 0;
 
     flex: 1;
     display: flex;
@@ -79,7 +79,7 @@
   .composer-participant-actions {
     position: absolute;
     z-index: 900;
-    right: @spacing-double;
+    right: 23px;
     .header-action {
       position: relative;
       top: 1em;
@@ -104,8 +104,8 @@
   .compose-subject-wrap {
     position: relative;
     z-index: 2;
-    padding: 5px @spacing-standard 0 0;
-    margin: 0 @spacing-standard;
+    padding: 11px @spacing-standard 11px 0;
+    margin: 0 23px;
     border-bottom: 1px solid @border-color-divider;
     flex-shrink:0;
 
@@ -119,8 +119,8 @@
     input.compose-field {
       display: inline-block;
       width: calc(~"100% - 61px");
-      padding: 6px 0 2px 0;
-      margin: 0 0 5px 5px;
+      padding: 0;
+      margin: 0 0 0 5px;
       min-width: 5em;
       background-color: transparent;
       border: none;
@@ -139,10 +139,11 @@
     cursor: text;
     overflow: auto;
     position: relative;
+    padding: 0 8px;
 
     .quoted-text-control {
       position: absolute;
-      bottom: -25px;
+      bottom: 10px;
       left: 15px;
       margin: 0;
     }
@@ -152,11 +153,12 @@
       line-height: 1.4;
       min-height: @compose-min-height;
       padding: @spacing-standard;
-      padding-top: @spacing-standard;
+      padding-top: 20px;
       padding-bottom: 0;
       margin-bottom: 30px;
     }
     .contenteditable-container {
+      display: flex;
       width: 100%;
       position: relative;
     }
@@ -171,7 +173,7 @@
 
   // TODO FIXME DRY From stylesheets/message-list.less
   .attachments-area {
-    padding: 0 15px 0 15px;
+    padding: 0;
   }
 
   .token {
@@ -182,25 +184,7 @@
         color: @text-color-inverse-very-subtle;
       }
     }
-    // &:hover {
-    //   background: transparent;
-    // }
-    // &.selected,
-    // &.dragging {
-    //   background: transparent;
-    //   color: @text-color;
-    //
-    //   .action { color: @text-color-subtle; }
-    // }
   }
-
-  // .btn.btn-send {
-  //   font-weight: @font-weight-semi-bold;
-  //   color: @accent-primary-dark;
-  //   border-top: 1px solid fade(@accent-primary, 39%);
-  //   border-right: 1px solid fade(@accent-primary, 39%);
-  //   border-left: 1px solid fade(@accent-primary, 39%);
-  // }
 }
 body.is-blurred .composer-inner-wrap .tokenizing-field .token {
   background: transparent;
@@ -223,12 +207,15 @@ body.is-blurred .composer-inner-wrap .tokenizing-field .token {
       border-top:1px solid @border-color-divider;
     }
 
+    .composer-action-bar-content {
+      padding: 8px 0.5px;
+    }
+
     .compose-body {
       margin-bottom: 0;
       position: relative;
 
       .contenteditable-container {
-        display: flex;
         flex: 1;
         width: 100%;
         position: relative;
@@ -240,6 +227,12 @@ body.is-blurred .composer-inner-wrap .tokenizing-field .token {
       }
     }
 
+  }
+
+  .compose-body {
+    div[contenteditable] {
+      min-height: @line-height-computed;
+    }
   }
 }
 
@@ -262,6 +255,7 @@ body.is-blurred .composer-inner-wrap .tokenizing-field .token {
   position: relative;
   z-index: 2;
   padding: 5px @spacing-standard 0 @spacing-standard;
+  margin: 0 8px;
   flex-shrink: 0;
 
   .participant {

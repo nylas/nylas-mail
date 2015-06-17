@@ -30,7 +30,7 @@ class AttachmentComponent extends React.Component
       </span>
 
       <span className="attachment-file-actions">
-        {@_fileActions()}
+        {@_renderFileActions()}
       </span>
 
       <span className="attachment-file-and-name" onClick={@_onClickView}>
@@ -44,18 +44,18 @@ class AttachmentComponent extends React.Component
 
     </div>
 
-  _fileActions: =>
+  _renderFileActions: =>
     if @props.removable
       <div className="attachment-icon" onClick={@_onClickRemove}>
-        <RetinaImg className="remove-icon" name="remove-attachment.png"/>
+        {@_renderRemoveIcon()}
       </div>
     else if @_isDownloading() and @_canAbortDownload()
       <div className="attachment-icon" onClick={@_onClickAbort}>
-        <RetinaImg className="remove-icon" name="remove-attachment.png"/>
+        {@_renderRemoveIcon()}
       </div>
     else
       <div className="attachment-icon" onClick={@_onClickDownload}>
-        <i className="fa fa-download" style={position: "relative", top: "2px"}></i>
+        {@_renderDownloadButton()}
       </div>
 
   _downloadProgressStyle: =>
@@ -67,6 +67,12 @@ class AttachmentComponent extends React.Component
       messageLocalId: @props.messageLocalId
 
   _canAbortDownload: -> true
+
+  _renderRemoveIcon: ->
+    <RetinaImg className="remove-icon" name="remove-attachment.png"/>
+
+  _renderDownloadButton: ->
+    <RetinaImg className="download-icon" name="icon-attachment-download.png"/>
 
   _onClickView: => Actions.fetchAndOpenFile(@props.file) if @_canClickToView()
 

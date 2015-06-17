@@ -17,6 +17,21 @@ class ToolbarSpacer extends React.Component
   render: =>
     <div className="item-spacer" style={flex: 1, order:@props.order ? 0}></div>
 
+class WindowTitle extends React.Component
+  @displayName: "WindowTitle"
+
+  constructor: (@props) ->
+    @state = atom.getLoadSettings()
+
+  componentDidMount: ->
+    @unlisten = atom.onWindowPropsReceived (windowProps) =>
+      @setState atom.getLoadSettings()
+
+  componentWillUnmount: -> @unlisten()
+
+  render: ->
+    <div className="window-title">{@state.title}</div>
+
 class ToolbarBack extends React.Component
   @displayName: 'ToolbarBack'
   render: =>
@@ -153,6 +168,9 @@ class Toolbar extends React.Component
     for loc in [WorkspaceStore.Sheet.Global, @props.data]
       entries = ComponentRegistry.findComponentsMatching({location: loc.Toolbar.Right, mode: state.mode})
       state.columns[state.columns.length - 1]?.push(entries...)
+
+    if state.mode is "popout"
+      state.columns[0]?.push(WindowTitle)
 
     state
 

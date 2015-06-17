@@ -124,6 +124,22 @@ body.is-blurred {
 
 .sheet-toolbar-container {
   background: @toolbar-background-color;
+
+  &.mode-popout {
+    background: transparent;
+  }
+}
+
+.layout-mode-popout {
+  .sheet-toolbar {
+    background: @background-primary;
+    height: 35px;
+    min-height: 35px;
+    max-height: 35px;
+  }
+  .toolbar-window-controls {
+    margin-top: 7px;
+  }
 }
 
 .sheet-toolbar {
@@ -149,6 +165,20 @@ body.is-blurred {
   .item-spacer {
     -webkit-app-region: drag;
   }
+
+  .item-container {
+    .window-title {
+      flex: 2;
+      text-align: center;
+      margin-top: 6px;
+      margin-left: -80px; /* width of ToolbarWindowControls */
+      -webkit-app-region: drag;
+      &:hover {
+        cursor: default;
+      }
+    }
+  }
+
   .item-back {
     order:-999;
     padding-top: 5px;
@@ -265,3 +295,4 @@ body.platform-win32 {
     cursor:ew-resize;
   }
 }
+

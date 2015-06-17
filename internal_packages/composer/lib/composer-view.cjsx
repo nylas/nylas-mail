@@ -184,7 +184,9 @@ class ComposerView extends React.Component
 
         {@_renderFields()}
 
-        <div className="compose-body">
+        <div className="compose-body"
+             ref="composeBody"
+             onClick={@_onClickComposeBody}>
           <ContenteditableComponent ref="contentBody"
                                     html={@state.body}
                                     onChange={@_onChangeBody}
@@ -347,18 +349,18 @@ class ComposerView extends React.Component
 
       <button className="btn btn-toolbar btn-trash" style={order: 100}
               data-tooltip="Delete draft"
-              onClick={@_destroyDraft}><RetinaImg name="toolbar-trash.png" mode={RetinaImg.Mode.ContentIsMask} /></button>
+              onClick={@_destroyDraft}><RetinaImg name="icon-composer-trash.png" mode={RetinaImg.Mode.ContentIsMask} /></button>
 
       <button className="btn btn-toolbar btn-attach" style={order: 50}
               data-tooltip="Attach file"
-              onClick={@_attachFile}><RetinaImg name="toolbar-attach.png" mode={RetinaImg.Mode.ContentIsMask} /></button>
+              onClick={@_attachFile}><RetinaImg name="icon-composer-attachment.png" mode={RetinaImg.Mode.ContentIsMask} /></button>
 
       <div style={order: 0, flex: 1} />
 
-      <button className="btn btn-toolbar btn-emphasis btn-send" style={order: -100}
+      <button className="btn btn-toolbar btn-emphasis btn-text btn-send" style={order: -100}
               data-tooltip="Send message"
               ref="sendButton"
-              onClick={@_sendDraft}><RetinaImg name="toolbar-send.png" mode={RetinaImg.Mode.ContentIsMask} /> Send</button>
+              onClick={@_sendDraft}><RetinaImg name="icon-composer-send.png" mode={RetinaImg.Mode.ContentIsMask} /><span className="text">Send</span></button>
 
     </InjectedComponentSet>
 
@@ -385,6 +387,12 @@ class ComposerView extends React.Component
     return false if not @_proxy
     draft = @_proxy.draft()
     Utils.isForwardedMessage(draft)
+
+  # This lets us click outside of the `contenteditable`'s `contentBody`
+  # and still focus on the contenteditable
+  _onClickComposeBody: (event) =>
+    if event.target is React.findDOMNode(@refs.composeBody)
+      @focus("contentBody")
 
   _onDraftChanged: =>
     return unless @_proxy
