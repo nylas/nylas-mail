@@ -187,8 +187,9 @@ class WorkspaceStore
   # Return to the root sheet. This method triggers, allowing observers
   # to update.
   popToRootSheet: =>
-    @_sheetStack.length = 1
-    @trigger()
+    if @_sheetStack.length > 1
+      @_sheetStack.length = 1
+      @trigger()
 
   triggerDebounced: _.debounce(( -> @trigger(@)), 1)
 

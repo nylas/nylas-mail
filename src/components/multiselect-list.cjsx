@@ -2,7 +2,6 @@ _ = require 'underscore'
 React = require 'react'
 classNames = require 'classnames'
 ListTabular = require './list-tabular'
-EmptyState = require './empty-state'
 Spinner = require './spinner'
 {Actions,
  Utils,
@@ -37,6 +36,7 @@ class MultiselectList extends React.Component
     itemPropsProvider: React.PropTypes.func.isRequired
     itemHeight: React.PropTypes.number.isRequired
     scrollTooltipComponent: React.PropTypes.func
+    emptyComponent: React.PropTypes.func
 
   constructor: (@props) ->
     @state = @_getStateFromStores()
@@ -107,6 +107,12 @@ class MultiselectList extends React.Component
         'keyboard-cursor': @state.handler.shouldShowKeyboardCursor() and item.id is @state.keyboardCursorId
       props
 
+    emptyElement = []
+    if @props.emptyComponent
+      emptyElement = <@props.emptyComponent
+        visible={@state.ready && @state.dataView.count() is 0}
+        dataView={@state.dataView} />
+
     if @state.dataView
       <div className={className}>
         <ListTabular
@@ -119,7 +125,7 @@ class MultiselectList extends React.Component
           onSelect={@_onClickItem}
           onDoubleClick={@props.onDoubleClick} />
         <Spinner visible={!@state.ready} />
-        <EmptyState visible={@state.ready && @state.dataView.count() is 0} />
+        {emptyElement}
       </div>
     else
       <div className={className}>

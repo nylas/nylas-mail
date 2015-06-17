@@ -33,11 +33,17 @@ class NylasSyncWorker
   state: ->
     @_state
 
+  busy: ->
+    for key, state of @_state
+      if state.busy
+        return true
+    false
+
   start: ->
     @_resumeTimer = setInterval(@resumeFetches, 20000)
     @_connection.start()
     @resumeFetches()
-  
+
   cleanup: ->
     clearInterval(@_resumeTimer)
     @_connection.end()
@@ -64,7 +70,7 @@ class NylasSyncWorker
 
     @fetchCollectionCount(model)
     @fetchCollectionPage(model, {offset: 0, limit: PAGE_SIZE})
- 
+
   fetchCollectionCount: (model) ->
     @_api.makeRequest
       path: "/n/#{@_namespaceId}/#{model}"
