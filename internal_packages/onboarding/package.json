@@ -9,5 +9,8 @@
     "atom": "*"
   },
   "dependencies": {
+  },
+  "windowTypes": {
+    "onboarding": true
   }
 }
