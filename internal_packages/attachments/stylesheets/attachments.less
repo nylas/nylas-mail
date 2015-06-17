@@ -16,6 +16,14 @@
   width: calc(~"50% - 7.5px");
   border-radius: 4px;
 
+  &.non-image-attachment {
+    width: calc(~"50% - 23px");
+    margin-left: 15px;
+    &:nth-child(even) {
+      margin-left: 0;
+    }
+  }
+
   &.file-upload {
     border-radius: 4px;
     padding: 13px @spacing-standard 13px @spacing-standard;
@@ -53,6 +61,7 @@
   .attachment-file-name {
     font-weight: @font-weight-medium;
   }
+  margin-left: 15px;
   .attachment-file-and-name {
     position: relative;
     z-index: 2;
@@ -121,7 +130,7 @@
 
 .image-attachment-file-wrap, .image-file-upload {
   position: relative;
-  margin: @spacing-standard 0;
+  margin: 0 0 8px 0;
   text-align: center;
 
   .attachment-download-progress,
@@ -132,30 +141,56 @@
     bottom: -2px;
   }
 
+  .attachment-file-actions {
+    position: relative;
+    z-index: 2;
+  }
+
   &:hover {
-    .attachment-file-actions {
+    .attachment-file-actions, .attachment-name-bg, .attachment-name {
       display: block;
     }
   }
-  .attachment-file-actions {
+  .attachment-file-actions, .attachment-name-bg, .attachment-name {
     display: none;
   }
 
   .attachment-icon {
     position: absolute;
     z-index: 2;
-    right: 0;
-    top: 0;
-    background: @white;
+    right: -8px;
+    top: -8px;
     width: 26px;
     border-radius: 0 0 0 3px;
   }
 
-  .attachment-preview img {
+  .attachment-preview {
     position: relative;
     z-index: 1;
-    max-width: 100%;
-    background: @background-secondary;
+
+    .attachment-name-bg {
+      position: absolute;
+      bottom: 0;
+      top: 0;
+      z-index: 2;
+      width: 100%;
+      background: linear-gradient(to top, rgba(0,0,0,0.75) 0%,rgba(0,0,0,0) 23%)
+    }
+    .attachment-name {
+      color: @white;
+      left: 15px;
+      bottom: 13px;
+      position: absolute;
+      z-index: 3;
+    }
+
+    img {
+      position: relative;
+      z-index: 1;
+      max-width: 100%;
+      background: @background-secondary;
+    }
   }
+
 }
 

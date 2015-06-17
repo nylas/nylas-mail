@@ -327,8 +327,11 @@ class DraftStore
       draft: true
       pristine: true
       namespaceId: namespace.id
+
     DatabaseStore.persistModel(draft).then =>
-      DatabaseStore.localIdForModel(draft).then(@_onPopoutDraftLocalId)
+      DatabaseStore.localIdForModel(draft).then (draftLocalId, options={}) =>
+        options.newDraft = true
+        @_onPopoutDraftLocalId(draftLocalId, options)
 
   _onPopoutDraftLocalId: (draftLocalId, options = {}) =>
     return unless NamespaceStore.current()
@@ -337,9 +340,11 @@ class DraftStore
     if @_draftSessions[draftLocalId]
       save = @_draftSessions[draftLocalId].changes.commit()
 
+    title = if options.newDraft then "New Message" else "Message"
+
     save.then =>
       atom.newWindow
-        title: "Message"
+        title: title
         windowType: "composer"
         windowProps: _.extend(options, {draftLocalId})
 

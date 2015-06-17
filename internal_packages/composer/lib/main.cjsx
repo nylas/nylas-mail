@@ -55,9 +55,10 @@ module.exports =
       ComponentRegistry.register ComposeButton,
         location: WorkspaceStore.Location.RootSidebar.Toolbar
     else
-      atom.getCurrentWindow().setMinimumSize(600, 400)
+      atom.getCurrentWindow().setMinimumSize(480, 400)
       WorkspaceStore.defineSheet 'Main', {root: true},
-        list: ['Center']
+        popout: ['Center']
+
       ComponentRegistry.register ComposerWithWindowProps,
         location: WorkspaceStore.Location.Center
 

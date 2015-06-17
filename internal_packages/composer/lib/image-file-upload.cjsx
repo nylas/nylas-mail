@@ -11,13 +11,15 @@ class ImageFileUpload extends FileUpload
 
   render: =>
     <div className="image-file-upload #{@props.uploadData.state}">
-      <span className="attachment-file-actions">
+      <div className="attachment-file-actions">
         <div className="attachment-icon" onClick={@_onClickRemove}>
-          <RetinaImg className="remove-icon" name="remove-attachment.png"/>
+          <RetinaImg className="image-remove-icon" name="image-cancel-button.png"/>
         </div>
-      </span>
+      </div>
 
       <div className="attachment-preview" >
+        <div className="attachment-name-bg"></div>
+        <div className="attachment-name">{@props.uploadData.fileName}</div>
         <DraggableImg src={@props.uploadData.filePath} />
       </div>
 

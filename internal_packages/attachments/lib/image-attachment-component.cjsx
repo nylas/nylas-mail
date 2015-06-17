@@ -1,7 +1,7 @@
 path = require 'path'
 React = require 'react'
 AttachmentComponent = require './attachment-component'
-{Spinner, DraggableImg} = require 'nylas-component-kit'
+{RetinaImg, Spinner, DraggableImg} = require 'nylas-component-kit'
 
 class ImageAttachmentComponent extends AttachmentComponent
   @displayName: 'ImageAttachmentComponent'
@@ -13,17 +13,25 @@ class ImageAttachmentComponent extends AttachmentComponent
         <span className="attachment-download-progress" style={@_downloadProgressStyle()}></span>
       </span>
 
-      <span className="attachment-file-actions">
+      <div className="attachment-file-actions">
         {@_fileActions()}
-      </span>
+      </div>
 
       <div className="attachment-preview" onClick={@_onClickView}>
+        <div className="attachment-name-bg"></div>
+        <div className="attachment-name">{@props.file.filename}</div>
         {@_imgOrLoader()}
       </div>
 
     </div>
 
   _canAbortDownload: -> false
+
+  _renderRemoveIcon: ->
+    <RetinaImg className="image-remove-icon" name="image-cancel-button.png"/>
+
+  _renderDownloadButton: ->
+    <RetinaImg className="image-download-icon" name="image-download-button.png"/>
 
   _imgOrLoader: ->
     if @props.download

@@ -10,11 +10,12 @@ button, html input[type="button"] {
 
 .btn {
   padding: 0.33em 1em;
-  border:1px solid rgba(0,0,0,0.18);
+  border:1px solid rgba(0,0,0,0.15);
   border-radius: @border-radius-base;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.10);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
   cursor: default;
   display:inline-block;
+  background: linear-gradient(to top, rgba(241,241,241,0.75) 0%, rgba(253,253,253,0.75) 100%);
 
   height: auto;
   line-height: 1;
@@ -55,17 +56,42 @@ button, html input[type="button"] {
   }
 
   &.btn-emphasis {
-    background-image: -webkit-gradient(linear, left top, left bottom, from(lighten(@btn-emphasis-bg-color,10%)), to(@btn-emphasis-bg-color));
-    border:1px solid darken(@btn-emphasis-bg-color, 5%);
+    position: relative;
     color: @btn-emphasis-text-color;
     font-weight: @font-weight-medium;
 
     img.content-mask { background-color:@btn-emphasis-text-color; }
+
+    background: linear-gradient(to bottom, #6bb1f9 0%, #0a80ff 100%);
+
+    border: 0;
+    &:before {
+      content: ' ';
+      width: calc(~"100% + 2px");
+      height: calc(~"100% + 2px");
+      border-radius: 5px;
+      padding: 0;
+      top: -1px;
+      left: -1px;
+      position: absolute;
+      z-index: -1;
+      background: linear-gradient(to bottom, #4ca2f9 0%, #015cff 100%);
+    }
   }
 
   &.btn-emphasis:active {
     background-image: -webkit-gradient(linear, left top, left bottom, from(darken(@btn-emphasis-bg-color,10%)), to(darken(@btn-emphasis-bg-color, 4%)));
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.21);
+  }
+
+  &.btn-text {
+    font-size: 13px;
+    padding: 2px 14px 2px 7px;
+    .text {
+      position: relative;
+      top: 1px;
+      margin-left: 6px;
+    }
   }
 
   &.btn-danger, .btn-destructive {
@@ -76,7 +102,8 @@ button, html input[type="button"] {
 }
 
 .btn-toolbar {
-  min-height:34px;
+  min-height: 24px;
+  padding: 2px 13px;
 }
 
 .btn-gradient {

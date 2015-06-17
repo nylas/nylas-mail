@@ -109,6 +109,7 @@ class RetinaImg extends React.Component
 
     if @props.mode is Mode.ContentIsMask
       style.WebkitMaskImage = "url('#{path}')"
+      style.WebkitMaskRepeat = "no-repeat"
       style.objectPosition = "10000px"
       className += " content-mask"
     else if @props.mode is Mode.ContentDark
