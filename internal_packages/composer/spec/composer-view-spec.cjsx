@@ -220,6 +220,25 @@ describe "populated composer", ->
         advanceClock(1000)
         expect(@composer.refs['contentBody'].focus).toHaveBeenCalled()
 
+    describe "if the draft has not yet loaded", ->
+      it "should set _focusOnUpdate and focus after the next render", ->
+        useDraft.call(@)
+        makeComposer.call(@)
+
+        proxy = @composer._proxy
+        @composer._proxy = null
+
+        spyOn(@composer.refs['contentBody'], 'focus')
+        @composer.focus()
+        advanceClock(1000)
+        expect(@composer.refs['contentBody'].focus).not.toHaveBeenCalled()
+
+        @composer._proxy = proxy
+        @composer._onDraftChanged()
+
+        advanceClock(1000)
+        expect(@composer.refs['contentBody'].focus).toHaveBeenCalled()
+
   describe "when emptying cc fields", ->
 
     it "focuses on to when bcc is emptied and there's no cc field", ->

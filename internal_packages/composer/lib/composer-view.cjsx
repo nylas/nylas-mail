@@ -93,6 +93,12 @@ class ComposerView extends React.Component
     # re-rendering.
     @_recoveredSelection = null if @_recoveredSelection?
 
+    # We often can't focus until the component state has changed
+    # (so the desired field exists or we have a draft)
+    if @_focusOnUpdate and @_proxy
+      @focus(@_focusOnUpdate.field)
+      @_focusOnUpdate = false
+
   componentWillReceiveProps: (newProps) =>
     if newProps.localId isnt @props.localId
       # When we're given a new draft localId, we have to stop listening to our
@@ -361,15 +367,19 @@ class ComposerView extends React.Component
   # the first parameter.
   focus: (field = null) =>
     if not @_proxy
-      @_focusRequested = true
+      @_focusOnUpdate = {field}
       return
 
-    if @isForwardedMessage()
-      field ?= "textFieldTo"
-    else
-      field ?= "contentBody"
+    defaultField = "contentBody"
+    if @isForwardedMessage() # Note: requires _proxy
+      defaultField = "textFieldTo"
+    field ?= defaultField
 
-    @refs[field]?.focus?()
+    if not @refs[field]
+      @_focusOnUpdate = {field}
+      return
+
+    @refs[field].focus?()
 
   isForwardedMessage: =>
     return false if not @_proxy
@@ -383,10 +393,6 @@ class ComposerView extends React.Component
     if not @_initialHistorySave
       @_saveToHistory()
       @_initialHistorySave = true
-
-    if @_focusRequested
-      @_focusRequested = false
-      @focus()
 
     state =
       to: draft.to
@@ -530,25 +536,26 @@ class ComposerView extends React.Component
 
   _showAndFocusBcc: =>
     @setState {showbcc: true}
-    @focus "textFieldBcc"
+    @focus('textFieldBcc')
 
   _showAndFocusCc: =>
     @setState {showcc: true}
-    @focus "textFieldCc"
+    @focus('textFieldCc')
+
 
   _onSendingStateChanged: =>
     @setState isSending: DraftStore.isSendingDraft(@props.localId)
 
   _onEmptyCc: =>
     @setState showcc: false
-    @focus "textFieldTo"
+    @focus('textFieldTo')
 
   _onEmptyBcc: =>
     @setState showbcc: false
     if @state.showcc
-      @focus "textFieldCc"
+      @focus('textFieldCc')
     else
-      @focus "textFieldTo"
+      @focus('textFieldTo')
 
   undo: (event) =>
     event.preventDefault()
