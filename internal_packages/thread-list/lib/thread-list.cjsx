@@ -108,6 +108,7 @@ class ThreadList extends React.Component
 
     cNarrow = new ListTabular.Column
       name: "Item"
+      flex: 1
       resolver: (thread) =>
         pencil = []
         hasDraft = _.find (thread.metadata ? []), (m) -> m.draft
