@@ -185,11 +185,24 @@
 .thread-list .list-item .list-column-HoverActions {
   display:none;
   .action {
-    margin:8px;
     display:inline-block;
+    background-size: 100%;
+    zoom:0.5;
+    width:48px;
+    height:48px;
+    margin:16px;
   }
   .action:last-child {
-    margin-right:20px;
+    margin-right:40px;
+  }
+  .action.action-reply {
+    background: url(../static/images/toolbar/toolbar-reply@2x.png) top left no-repeat;
+  }
+  .action.action-forward {
+    background: url(../static/images/toolbar/toolbar-forward@2x.png) top left no-repeat;
+  }
+  .action.action-archive {
+    background: url(../static/images/toolbar/toolbar-archive@2x.png) top left no-repeat;
   }
 }
 .thread-list .list-item:hover .list-column-HoverActions {

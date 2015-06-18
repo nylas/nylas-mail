@@ -43,7 +43,7 @@ class DatabaseProxy
         duration: duration
         result_length: result?.length
 
-      console.debug(printToConsole, "DatabaseStore: #{query}", metadata)
+      console.debug(printToConsole, "DatabaseStore: (#{duration}) #{query}", metadata)
       if duration > 300
         atom.errorReporter.shipLogs("Poor Query Performance")
 
@@ -320,6 +320,12 @@ class DatabaseStore
         if model[attr.modelKey]?
           tx.execute("REPLACE INTO `#{attr.modelTable}` (`id`, `value`) VALUES (?, ?)", [model.id, model[attr.modelKey]])
 
+    # For each model, execute any other code the model wants to run.
+    # This allows model classes to do things like update a full-text table
+    # that holds a composite of several fields
+    if klass.additionalSQLiteConfig?.writeModel?
+      for model in models
+        klass.additionalSQLiteConfig.writeModel(tx, model)
 
   deleteModel: (tx, model) =>
     klass = model.constructor
@@ -342,6 +348,12 @@ class DatabaseStore
 
     joinedDataAttributes.forEach (attr) ->
       tx.execute("DELETE FROM `#{attr.modelTable}` WHERE `id` = ?", [model.id])
+
+    # Execute any other code the model wants to run.
+    # This allows model classes to do things like update a full-text table
+    # that holds a composite of several fields, or update entirely
+    # separate database systems
+    klass.additionalSQLiteConfig?.deleteModel?(tx, model)
 
   # Public: Asynchronously writes `model` to the cache and triggers a change event.
   #
@@ -553,9 +565,6 @@ class DatabaseStore
     columns = ['id TEXT PRIMARY KEY', 'data BLOB']
     columnAttributes.forEach (attr) ->
       columns.push(attr.columnSQL())
-      # TODO: These indexes are not effective because SQLite only uses one index-per-table
-      # and there will almost always be an additional `where namespaceId =` clause.
-      queries.push("CREATE INDEX IF NOT EXISTS `#{klass.name}_#{attr.jsonKey}` ON `#{klass.name}` (`#{attr.jsonKey}`)")
 
     columnsSQL = columns.join(',')
     queries.unshift("CREATE TABLE IF NOT EXISTS `#{klass.name}` (#{columnsSQL})")
@@ -576,6 +585,8 @@ class DatabaseStore
     joinedDataAttributes.forEach (attribute) ->
       queries.push("CREATE TABLE IF NOT EXISTS `#{attribute.modelTable}` (id TEXT PRIMARY KEY, `value` TEXT)")
 
+    if klass.additionalSQLiteConfig?.setup?
+      queries = queries.concat(klass.additionalSQLiteConfig.setup())
     queries
 
 

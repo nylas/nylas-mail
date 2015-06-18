@@ -5,7 +5,6 @@ React = require 'react'
  Thread,
  AddRemoveTagsTask,
  NamespaceStore} = require 'nylas-exports'
-{RetinaImg} = require 'nylas-component-kit'
 
 class ThreadListQuickActions extends React.Component
   @displayName: 'ThreadListQuickActions'
@@ -14,10 +13,10 @@ class ThreadListQuickActions extends React.Component
 
   render: =>
     actions = []
-    actions.push <div className="action" onClick={@_onReply}><RetinaImg name="toolbar-reply.png" mode={RetinaImg.Mode.ContentPreserve} /></div>
-    actions.push <div className="action" onClick={@_onForward}><RetinaImg name="toolbar-forward.png" mode={RetinaImg.Mode.ContentPreserve} /></div>
+    actions.push <div key="reply" className="action action-reply" onClick={@_onReply}></div>
+    actions.push <div key="fwd" className="action action-forward" onClick={@_onForward}></div>
     if not @props.thread.hasTagId('archive')
-      actions.push <div className="action" onClick={@_onArchive}><RetinaImg name="toolbar-archive.png" mode={RetinaImg.Mode.ContentPreserve} /></div>
+      actions.push <div key="archive" className="action action-archive" onClick={@_onArchive}></div>
 
     <div className="inner">
       {actions}

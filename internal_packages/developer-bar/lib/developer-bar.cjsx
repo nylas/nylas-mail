@@ -128,7 +128,11 @@ class DeveloperBar extends React.Component
       expandedDiv
 
   _onChange: =>
-    @setState(@_getStateFromStores())
+    # The developer bar is hidden almost all the time. Rather than render when
+    # API requests come in, etc., just ignore changes from our store and retrieve
+    # state when we open.
+    if @state.visible and @state.height > DeveloperBarClosedHeight
+      @setState(@_getStateFromStores())
 
   _onClear: =>
     Actions.clearDeveloperConsole()
@@ -144,9 +148,11 @@ class DeveloperBar extends React.Component
       height: DeveloperBarClosedHeight
 
   _onShow: =>
+    @setState(@_getStateFromStores())
     @setState(height: 200) if @state.height < 100
 
   _onExpandSection: (section) =>
+    @setState(@_getStateFromStores())
     @setState(section: section)
     @_onShow()
 

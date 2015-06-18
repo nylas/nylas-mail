@@ -70,8 +70,15 @@ ThreadListStore = Reflux.createStore
       matchers = []
       matchers.push Thread.attributes.namespaceId.equal(namespaceId)
       matchers.push Thread.attributes.tags.contains(tagId) if tagId isnt "*"
-      @setView new DatabaseView Thread, {matchers}, (item) ->
-        DatabaseStore.findAll(Message, {threadId: item.id})
+      view = new DatabaseView Thread, {matchers}, (ids) =>
+        DatabaseStore.findAll(Message).where(Message.attributes.threadId.in(ids)).then (messages) ->
+          messagesByThread = {}
+          for id in ids
+            messagesByThread[id] = []
+          for message in messages
+            messagesByThread[message.threadId].push message
+          messagesByThread
+      @setView(view)
 
     Actions.setFocus(collection: 'thread', item: null)
 
