@@ -15,6 +15,8 @@ button, html input[type="button"] {
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
   cursor: default;
   display:inline-block;
+  color:      @btn-default-text-color;
+  img.content-mask { background-color:@btn-default-text-color; }
   background: linear-gradient(to top, rgba(241,241,241,0.75) 0%, rgba(253,253,253,0.75) 100%);
 
   height: auto;
@@ -44,10 +46,6 @@ button, html input[type="button"] {
     font-size: @font-size-larger;
     padding: 0.66em 1.6em;
   }
-
-  color:      @btn-default-text-color;
-  background: @btn-default-bg-color;
-  img.content-mask { background-color:@btn-default-text-color; }
 
   &.btn-action {
     color:      @btn-action-text-color;
