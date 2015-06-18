@@ -150,16 +150,16 @@ describe "PackageManager", ->
         afterEach ->
           jasmine.restoreDeprecationsSnapshot()
 
-        it "still assigns configDefaults from the module though deprecated", ->
-
-          expect(atom.config.get('package-with-config-defaults.numbers.one')).toBeUndefined()
-
-          waitsForPromise ->
-            atom.packages.activatePackage('package-with-config-defaults')
-
-          runs ->
-            expect(atom.config.get('package-with-config-defaults.numbers.one')).toBe 1
-            expect(atom.config.get('package-with-config-defaults.numbers.two')).toBe 2
+        # it "still assigns configDefaults from the module though deprecated", ->
+        #
+        #   expect(atom.config.get('package-with-config-defaults.numbers.one')).toBeUndefined()
+        #
+        #   waitsForPromise ->
+        #     atom.packages.activatePackage('package-with-config-defaults')
+        #
+        #   runs ->
+        #     expect(atom.config.get('package-with-config-defaults.numbers.one')).toBe 1
+        #     expect(atom.config.get('package-with-config-defaults.numbers.two')).toBe 2
 
     describe "when the package has no main module", ->
       it "does not throw an exception", ->
