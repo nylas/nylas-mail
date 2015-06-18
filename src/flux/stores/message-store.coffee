@@ -100,15 +100,9 @@ MessageStore = Reflux.createStore
 
     @trigger()
 
-  _markAsReadIfNecessary: ->
-    if @_thread && @_thread.isUnread()
-      Actions.queueTask(new MarkThreadReadTask(@_thread))
-
   _fetchFromCache: (options = {}) ->
     return unless @_thread
     loadedThreadId = @_thread.id
-
-    @_markAsReadIfNecessary()
 
     query = DatabaseStore.findAll(Message, threadId: loadedThreadId)
     query.include(Message.attributes.body)
@@ -123,7 +117,7 @@ MessageStore = Reflux.createStore
       , =>
         # Check to make sure that our thread is still the thread we were
         # loading items for. Necessary because this takes a while.
-        return unless loadedThreadId == @_thread?.id
+        return unless loadedThreadId is @_thread?.id
 
         loaded = true
 
@@ -159,6 +153,15 @@ MessageStore = Reflux.createStore
         # and once when ready. Many third-party stores will observe
         # MessageStore and they'll be stupid and re-render constantly.
         if loaded
+          # Mark the thread as read if necessary. Wait 700msec so that flipping
+          # through threads doens't mark them all. Make sure it's still the
+          # current thread after the timeout.
+          if @_thread.isUnread()
+            setTimeout =>
+              return unless loadedThreadId is @_thread?.id
+              Actions.queueTask(new MarkThreadReadTask(@_thread))
+            ,700
+
           @_itemsLoading = false
           @trigger(@)
 

@@ -26,17 +26,6 @@ describe "FocusedContentStore", ->
       FocusedContentStore._onFocus({collection: 'thread', item: testThread})
       expect(FocusedContentStore.trigger).toHaveBeenCalled()
 
-    describe "when the thread is unread", ->
-      beforeEach ->
-        FocusedContentStore._onFocus({collection: 'thread', item: null})
-        spyOn(testThread, 'isUnread').andCallFake -> true
-
-      it "should queue a task to mark the thread as read", ->
-        spyOn(Actions, 'queueTask')
-        FocusedContentStore._onFocus({collection: 'thread', item: testThread})
-        expect(Actions.queueTask).toHaveBeenCalled()
-        expect(Actions.queueTask.mostRecentCall.args[0] instanceof MarkThreadReadTask).toBe(true)
-
   describe "threadId", ->
     it "should return the id of the focused thread", ->
       FocusedContentStore._onFocus({collection: 'thread', item: testThread})
