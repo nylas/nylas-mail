@@ -139,6 +139,7 @@ class Message extends Model
     @cc ||= []
     @bcc ||= []
     @replyTo ||= []
+    @files ||= []
     @
 
   toJSON: ->
