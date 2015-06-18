@@ -130,11 +130,20 @@ class WindowEventHandler
   openLink: ({href, target, currentTarget}) ->
     if not href
       href = target?.getAttribute('href') or currentTarget?.getAttribute('href')
-    if href?
-      schema = url.parse(href).protocol
-      if schema? and schema in ['http:', 'https:', 'mailto:', 'tel:']
-        shell.openExternal(href)
-      false
+
+    return unless href
+    schema = url.parse(href).protocol
+    return unless schema
+
+    if schema is 'mailto:'
+      # We sometimes get mailto URIs that are not escaped properly, or have been only partially escaped.
+      # (T1927) Be sure to escape them once, and completely, before we try to open them. This logic
+      # *might* apply to http/https as well but it's unclear.
+      shell.openExternal(encodeURI(decodeURI(href)))
+    else if schema in ['http:', 'https:', 'tel:']
+      shell.openExternal(href)
+
+    return
 
   eachTabIndexedElement: (callback) ->
     for element in $('[tabindex]')

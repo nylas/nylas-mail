@@ -352,11 +352,13 @@ class DraftStore
     namespace = NamespaceStore.current()
     return unless namespace
 
-    url = require 'url'
-    qs = require 'querystring'
-    parts = url.parse(urlString)
-    query = qs.parse(parts.query)
-    query.to = "#{parts.auth}@#{parts.host}"
+    try
+      urlString = decodeURI(urlString)
+
+    [whole, to, query] = /mailto:[//]?([^\?]*)[\?]?(.*)/.exec(urlString)
+
+    query = require('querystring').parse(query)
+    query.to = to
 
     draft = new Message
       body: query.body || ''
@@ -367,13 +369,9 @@ class DraftStore
       pristine: true
       namespaceId: namespace.id
 
-    contactForEmail = (email) ->
-      match = ContactStore.searchContacts(email, 1)
-      return match[0] if match[0]
-      return new Contact({email})
-
     for attr in ['to', 'cc', 'bcc']
-      draft[attr] = query[attr]?.split(',').map(contactForEmail) || []
+      if query[attr]
+        draft[attr] = ContactStore.parseContactsInString(query[attr])
 
     DatabaseStore.persistModel(draft).then =>
       DatabaseStore.localIdForModel(draft).then(@_onPopoutDraftLocalId)
