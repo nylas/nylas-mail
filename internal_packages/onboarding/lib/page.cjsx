@@ -30,7 +30,7 @@ class Page extends React.Component
 
     <RetinaImg ref="spinner"
                style={styles}
-               name="setup-spinner.gif"
+               name="Setup-Spinner.gif"
                mode={RetinaImg.Mode.ContentPreserve}/>
 
 module.exports = Page

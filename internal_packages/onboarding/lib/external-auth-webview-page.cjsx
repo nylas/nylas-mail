@@ -57,7 +57,7 @@ class ExternalAuthWebviewPage extends Page
     , 20
 
     @_listeners =
-     "new-window": (e) ->
+      "new-window": (e) ->
         require('shell').openExternal(e.url)
       "did-start-loading": (e) =>
         @_setUserAgent(e, webview)

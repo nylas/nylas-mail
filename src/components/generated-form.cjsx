@@ -171,8 +171,8 @@ class FormItem extends React.Component
       React.createElement("input", inputProps)
     else if @props.type is "select"
       options = (@props.selectOptions ? []).map (optionData) ->
-        <option {...optionData} key={optionData.value} >{optionData.label}</option>
-      options.unshift(<option key={"blank-option"}></option>)
+        <option {...optionData} key={"#{Utils.generateTempId()}-optionData.value"} >{optionData.label}</option>
+      options.unshift(<option key={"#{Utils.generateTempId()}-blank-option"}></option>)
       <select {...inputProps}>{options}</select>
     else if @props.type is "textarea"
       React.createElement("textarea", inputProps)

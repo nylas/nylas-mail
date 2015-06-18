@@ -226,6 +226,8 @@ TokenizingTextField = React.createClass
     <div key="field-component" onClick={@focus} {...@dropTargetFor('token')}>
       {@_renderPrompt()}
       <div className="tokenizing-field-input">
+        {@_placeholder()}
+
         {@_fieldTokenComponents()}
 
         {@_inputEl()}
@@ -262,6 +264,12 @@ TokenizingTextField = React.createClass
              disabled={@props.disabled}
              tabIndex={@props.tabIndex}
              value={@state.inputValue} />
+
+  _placeholder: ->
+    if not @state.focus and @props.placeholder?
+      return <div className="placeholder">{@props.placeholder}</div>
+    else
+      return <span></span>
 
   _atMaxTokens: ->
     if @props.maxTokens

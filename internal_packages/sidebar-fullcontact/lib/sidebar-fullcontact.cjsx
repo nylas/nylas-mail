@@ -28,6 +28,7 @@ class SidebarFullContact extends React.Component
       <SidebarFullContactDetails contact={@state.focusedContact ? {}}
                                  fullContact={@_fullContact()}/>
       <InjectedComponentSet matching={role: "sidebar:focusedContactInfo"}
+                            direction="column"
                             exposedProps={focusedContact: @state.focusedContact}/>
     </div>
 
