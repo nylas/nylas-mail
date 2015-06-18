@@ -163,8 +163,8 @@ module.exports = ErrorReporter = (function() {
     for (var ii = 1; ii < arguments.length; ii++) {
       args.push(arguments[ii]);
     }
-    if ((this.dev === true) && (showIt === true)) {
-      console.log.apply(this, args);
+    if ((this.inDevMode === true) && (showIt === true)) {
+      console.log.apply(console, args);
     }
     this.appendLog.apply(this, [args]);
   }

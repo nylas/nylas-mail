@@ -132,6 +132,10 @@ class Message extends Model
   @naturalSortOrder: ->
     Message.attributes.date.ascending()
 
+  @additionalSQLiteConfig:
+    setup: ->
+      ['CREATE INDEX IF NOT EXISTS MessageListIndex ON Message(thread_id, date ASC)']
+
   constructor: ->
     super
     @subject ||= ""

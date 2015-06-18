@@ -38,7 +38,7 @@ class Matcher
     @muid = Matcher.muid
     Matcher.muid = (Matcher.muid + 1) % 50
     @
- 
+
   attribute: ->
     @attr
 
@@ -53,6 +53,7 @@ class Matcher
       when '=' then return value == @val
       when '<' then return value < @val
       when '>' then return value > @val
+      when 'in' then return value in @val
       when 'contains'
         # You can provide an ID or an object, and an array of IDs or an array of objects
         # Assumes that `value` is an array of items
@@ -84,6 +85,10 @@ class Matcher
       escaped = 1
     else if val is false
       escaped = 0
+    else if val instanceof Array
+      escapedVals = []
+      escapedVals.push("'#{v.replace(/'/g, '\\\'')}'") for v in val
+      escaped = "(#{escapedVals.join(',')})"
     else
       escaped = val
 

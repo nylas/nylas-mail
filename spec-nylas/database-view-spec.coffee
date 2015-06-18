@@ -41,7 +41,7 @@ describe "DatabaseView", ->
     it "should optionally accept a metadata provider", ->
       provider = ->
       view = new DatabaseView(Message, {}, provider)
-      expect(view._itemMetadataProvider).toEqual(provider)
+      expect(view._metadataProvider).toEqual(provider)
 
     it "should initialize the row count to -1", ->
       view = new DatabaseView(Message)
@@ -73,9 +73,9 @@ describe "DatabaseView", ->
       @view._count = 1
       spyOn(@view, 'invalidateRetainedRange').andCallFake ->
 
-    describe "setItemMetadataProvider", ->
+    describe "setMetadataProvider", ->
       it "should empty the page cache and re-fetch all pages", ->
-        @view.setItemMetadataProvider( -> false)
+        @view.setMetadataProvider( -> false)
         expect(@view._pages).toEqual({})
         expect(@view.invalidateRetainedRange).toHaveBeenCalled()
 
@@ -317,8 +317,11 @@ describe "DatabaseView", ->
 
       describe "if an item metadata provider is configured", ->
         beforeEach ->
-          @view._itemMetadataProvider = (item) ->
-            Promise.resolve('metadata-for-'+item.id)
+          @view._metadataProvider = (ids) ->
+            results = {}
+            for id in ids
+              results[id] = "metadata-for-#{id}"
+            Promise.resolve(results)
 
         it "should set .metadata of each item", ->
           runs ->
@@ -342,9 +345,12 @@ describe "DatabaseView", ->
 
         it "should always wait for metadata promises to resolve", ->
           @resolves = []
-          @view._itemMetadataProvider = (item) =>
+          @view._metadataProvider = (ids) =>
             new Promise (resolve, reject) =>
-              @resolves.push -> resolve('metadata-for-'+item.id)
+              results = {}
+              for id in ids
+                results[id] = "metadata-for-#{id}"
+              @resolves.push -> resolve(results)
 
           runs ->
             @completeQuery()

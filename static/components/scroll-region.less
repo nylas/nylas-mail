@@ -51,6 +51,9 @@
     width: 100%;
     overflow-y: scroll;
   }
+  .scroll-region-content-inner {
+    transform:translate3d(0,0,0);
+  }
 
   .scrollbar-track {
     opacity: 0;
@@ -87,6 +90,11 @@
   }
 }
 .scroll-region.scrolling {
+
+  .scroll-region-content-inner {
+    pointer-events: none;
+  }
+
   .scrollbar-track {
     opacity: 1;
     transition-delay: 0s;

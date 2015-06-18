@@ -12,6 +12,7 @@ class TestModel extends Model
       modelKey: 'id'
 
 TestModel.configureWithAllAttributes = ->
+  TestModel.additionalSQLiteConfig = undefined
   TestModel.attributes =
     'datetime': Attributes.DateTime
       queryable: true
@@ -30,6 +31,7 @@ TestModel.configureWithAllAttributes = ->
       modelKey: 'other'
 
 TestModel.configureWithCollectionAttribute = ->
+  TestModel.additionalSQLiteConfig = undefined
   TestModel.attributes =
     'id': Attributes.String
       queryable: true
@@ -41,6 +43,7 @@ TestModel.configureWithCollectionAttribute = ->
 
 
 TestModel.configureWithJoinedDataAttribute = ->
+  TestModel.additionalSQLiteConfig = undefined
   TestModel.attributes =
     'id': Attributes.String
       queryable: true
@@ -48,6 +51,22 @@ TestModel.configureWithJoinedDataAttribute = ->
     'body': Attributes.JoinedData
       modelTable: 'TestModelBody'
       modelKey: 'body'
+
+
+TestModel.configureWithAdditionalSQLiteConfig = ->
+  TestModel.attributes =
+    'id': Attributes.String
+      queryable: true
+      modelKey: 'id'
+    'body': Attributes.JoinedData
+      modelTable: 'TestModelBody'
+      modelKey: 'body'
+  TestModel.additionalSQLiteConfig =
+    setup: ->
+      ['CREATE INDEX IF NOT EXISTS ThreadListIndex ON Thread(last_message_timestamp DESC, namespace_id, id)']
+    writeModel: jasmine.createSpy('additionalWriteModel')
+    deleteModel: jasmine.createSpy('additionalDeleteModel')
+
 
 
 testMatchers = {'id': 'b'}
@@ -161,6 +180,19 @@ describe "DatabaseStore", ->
       change = DatabaseStore.triggerSoon.mostRecentCall.args[0]
       expect(change).toEqual({objectClass: TestModel.name, objects: [testModelInstance], type:'unpersist'})
 
+    describe "when the model provides additional sqlite config", ->
+      beforeEach ->
+        TestModel.configureWithAdditionalSQLiteConfig()
+
+      it "should call the deleteModel method and provide the transaction and model", ->
+        DatabaseStore.unpersistModel(testModelInstance)
+        expect(TestModel.additionalSQLiteConfig.deleteModel).toHaveBeenCalled()
+        expect(TestModel.additionalSQLiteConfig.deleteModel.mostRecentCall.args[1]).toBe(testModelInstance)
+
+      it "should not fail if additional config is present, but deleteModel is not defined", ->
+        delete TestModel.additionalSQLiteConfig['deleteModel']
+        expect( => DatabaseStore.unpersistModel(testModelInstance)).not.toThrow()
+
     describe "when the model has collection attributes", ->
       it "should delete all of the elements in the join tables", ->
         TestModel.configureWithCollectionAttribute()
@@ -178,7 +210,7 @@ describe "DatabaseStore", ->
         expect(@performed[2].values[0]).toBe('1234')
 
   describe "queriesForTableSetup", ->
-    it "should return the queries for creating the table and indexes on queryable columns", ->
+    it "should return the queries for creating the table and the primary unique index", ->
       TestModel.attributes =
         'attrQueryable': Attributes.DateTime
           queryable: true
@@ -191,7 +223,6 @@ describe "DatabaseStore", ->
       queries = DatabaseStore.queriesForTableSetup(TestModel)
       expected = [
         'CREATE TABLE IF NOT EXISTS `TestModel` (id TEXT PRIMARY KEY,data BLOB,attr_queryable INTEGER)',
-        'CREATE INDEX IF NOT EXISTS `TestModel_attr_queryable` ON `TestModel` (`attr_queryable`)',
         'CREATE UNIQUE INDEX IF NOT EXISTS `TestModel_id` ON `TestModel` (`id`)'
       ]
       for query,i in queries
@@ -213,6 +244,19 @@ describe "DatabaseStore", ->
       TestModel.configureWithAllAttributes()
       queries = DatabaseStore.queriesForTableSetup(TestModel)
       expect(queries[0]).toBe('CREATE TABLE IF NOT EXISTS `TestModel` (id TEXT PRIMARY KEY,data BLOB,datetime INTEGER,string-json-key TEXT,boolean INTEGER,number INTEGER)')
+
+    describe "when the model provides additional sqlite config", ->
+      it "the setup method should return these queries", ->
+        TestModel.configureWithAdditionalSQLiteConfig()
+        spyOn(TestModel.additionalSQLiteConfig, 'setup').andCallThrough()
+        queries = DatabaseStore.queriesForTableSetup(TestModel)
+        expect(TestModel.additionalSQLiteConfig.setup).toHaveBeenCalledWith()
+        expect(queries.pop()).toBe('CREATE INDEX IF NOT EXISTS ThreadListIndex ON Thread(last_message_timestamp DESC, namespace_id, id)')
+
+      it "should not fail if additional config is present, but setup is undefined", ->
+        delete TestModel.additionalSQLiteConfig['setup']
+        @m = new TestModel(id: 'local-6806434c-b0cd', body: 'hello world')
+        expect( => DatabaseStore.queriesForTableSetup(TestModel)).not.toThrow()
 
   describe "writeModels", ->
     it "should compose a REPLACE INTO query to save the model", ->
@@ -276,3 +320,18 @@ describe "DatabaseStore", ->
         @m = new TestModel(id: 'local-6806434c-b0cd')
         DatabaseStore.writeModels(@spyTx(), [@m])
         expect(@performed.length).toBe(1)
+
+    describe "when the model provides additional sqlite config", ->
+      beforeEach ->
+        TestModel.configureWithAdditionalSQLiteConfig()
+
+      it "should call the writeModel method and provide the transaction and model", ->
+        tx = @spyTx()
+        @m = new TestModel(id: 'local-6806434c-b0cd', body: 'hello world')
+        DatabaseStore.writeModels(tx, [@m])
+        expect(TestModel.additionalSQLiteConfig.writeModel).toHaveBeenCalledWith(tx, @m)
+
+      it "should not fail if additional config is present, but writeModel is not defined", ->
+        delete TestModel.additionalSQLiteConfig['writeModel']
+        @m = new TestModel(id: 'local-6806434c-b0cd', body: 'hello world')
+        expect( => DatabaseStore.writeModels(@spyTx(), [@m])).not.toThrow()

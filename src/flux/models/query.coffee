@@ -173,16 +173,20 @@ class ModelQuery
     if @_count
       return result[0][0] / 1
     else
-      objects = []
-      for i in [0..result.length-1] by 1
-        row = result[i]
-        json = JSON.parse(row[0])
-        object = (new @_klass).fromJSON(json)
-        for attr, j in @_includeJoinedData
-          value = row[j+1]
-          value = null if value is AttributeJoinedData.NullPlaceholder
-          object[attr.modelKey] = value
-        objects.push(object)
+      row = null
+      try
+        objects = []
+        for i in [0..result.length-1] by 1
+          row = result[i]
+          json = JSON.parse(row[0])
+          object = (new @_klass).fromJSON(json)
+          for attr, j in @_includeJoinedData
+            value = row[j+1]
+            value = null if value is AttributeJoinedData.NullPlaceholder
+            object[attr.modelKey] = value
+          objects.push(object)
+      catch jsonError
+        throw new Error("Query could not parse the database result. Query: #{@sql()}, Row Data: #{row[0]}, Error: #{jsonError.toString()}")
       return objects[0] if @_singular
       return objects
 

@@ -3,8 +3,6 @@ React = require 'react/addons'
 ScrollRegion = require './scroll-region'
 {Utils} = require 'nylas-exports'
 
-RangeChunkSize = 10
-
 class ListColumn
   constructor: ({@name, @resolver, @flex, @width}) ->
 
@@ -15,7 +13,6 @@ class ListTabularItem extends React.Component
     columns: React.PropTypes.arrayOf(React.PropTypes.object).isRequired
     item: React.PropTypes.object.isRequired
     itemProps: React.PropTypes.object
-    displayHeaders: React.PropTypes.bool
     onSelect: React.PropTypes.func
     onClick: React.PropTypes.func
     onDoubleClick: React.PropTypes.func
@@ -78,41 +75,24 @@ class ListTabular extends React.Component
     @state =
       renderedRangeStart: -1
       renderedRangeEnd: -1
-      scrollTop: 0
-      scrollInProgress: false
 
   componentDidMount: =>
     @updateRangeState()
-
-  componentWillUnmount: =>
-    clearTimeout(@_scrollTimer) if @_scrollTimer
 
   componentDidUpdate: (prevProps, prevState) =>
     # If our view has been swapped out for an entirely different one,
     # reset our scroll position to the top.
     if prevProps.dataView isnt @props.dataView
       @refs.container.scrollTop = 0
-    @updateRangeState()
 
-  updateScrollState: =>
-    window.requestAnimationFrame =>
-      # Create an event that fires when we stop receiving scroll events.
-      # There is no "scrollend" event, but we really need one.
-      clearTimeout(@_scrollTimer) if @_scrollTimer
-      @_scrollTimer = setTimeout(@onDoneReceivingScrollEvents, 100)
+    unless @updateRangeStateFiring
+      @updateRangeState()
+    @updateRangeStateFiring = false
 
-      # If we just started scrolling, scrollInProgress changes our CSS styles
-      # and disables pointer events to our contents for rendering speed
-      @setState({scrollInProgress: true}) unless @state.scrollInProgress
 
-      # If we've shifted enough pixels from our previous scrollTop to require
-      # new rows to be rendered, update our state!
-      if Math.abs(@state.scrollTop - @refs.container.scrollTop) >= @props.itemHeight * RangeChunkSize
-        @updateRangeState()
-
-  onDoneReceivingScrollEvents: =>
-    return unless React.findDOMNode(@refs.container)
-    @setState({scrollInProgress: false})
+  onScroll: =>
+    # If we've shifted enough pixels from our previous scrollTop to require
+    # new rows to be rendered, update our state!
     @updateRangeState()
 
   updateRangeState: =>
@@ -120,65 +100,41 @@ class ListTabular extends React.Component
 
     # Determine the exact range of rows we want onscreen
     rangeStart = Math.floor(scrollTop / @props.itemHeight)
-    rangeEnd = rangeStart + window.innerHeight / @props.itemHeight
+    rangeSize = Math.ceil(window.innerHeight / @props.itemHeight)
+    rangeEnd = rangeStart + rangeSize
 
     # 1. Clip this range to the number of available items
     #
-    # 2. Expand the range by more than RangeChunkSize so that
-    #    the user can scroll through RangeChunkSize more items before
-    #    another render is required.
+    # 2. Expand the range by a bit so that we prepare items offscreen
+    #    before they're seen. This works because we force a compositor
+    #    layer using transform:translate3d(0,0,0)
     #
-    rangeStart = Math.max(0, rangeStart - RangeChunkSize * 1.5)
-    rangeEnd = Math.min(rangeEnd + RangeChunkSize * 1.5, @props.dataView.count())
-
-    if @state.scrollInProgress
-      # only extend the range while scrolling. If we remove the DOM node
-      # the user started scrolling over, the deceleration stops.
-      # https://code.google.com/p/chromium/issues/detail?id=312427
-      if @state.renderedRangeStart != -1
-        rangeStart = Math.min(@state.renderedRangeStart, rangeStart)
-      if @state.renderedRangeEnd != -1
-        rangeEnd = Math.max(@state.renderedRangeEnd, rangeEnd)
+    rangeStart = Math.max(0, rangeStart - rangeSize)
+    rangeEnd = Math.min(rangeEnd + rangeSize, @props.dataView.count())
 
     # Final sanity check to prevent needless work
     return if rangeStart is @state.renderedRangeStart and
-              rangeEnd is @state.renderedRangeEnd and
-              scrollTop is @state.scrollTop
+              rangeEnd is @state.renderedRangeEnd
+
+    @updateRangeStateFiring = true
 
     @props.dataView.setRetainedRange
       start: rangeStart
       end: rangeEnd
 
     @setState
-      scrollTop: scrollTop
       renderedRangeStart: rangeStart
       renderedRangeEnd: rangeEnd
 
   render: =>
     innerStyles =
       height: @props.dataView.count() * @props.itemHeight
-      pointerEvents: if @state.scrollInProgress then 'none' else 'auto'
 
-    <ScrollRegion ref="container" onScroll={@updateScrollState} tabIndex="-1" className="list-container list-tabular" scrollTooltipComponent={@props.scrollTooltipComponent} >
-      {@_headers()}
+    <ScrollRegion ref="container" onScroll={@onScroll} tabIndex="-1" className="list-container list-tabular" scrollTooltipComponent={@props.scrollTooltipComponent} >
       <div className="list-rows" style={innerStyles}>
         {@_rows()}
       </div>
     </ScrollRegion>
-
-  _headers: =>
-    return [] unless @props.displayHeaders
-
-    headerColumns = @props.columns.map (column) ->
-      <div className="list-header list-column"
-           key={"header-#{column.name}"}
-           style={flex: column.flex}>
-        {column.name}
-      </div>
-
-    <div className="list-headers">
-      {headerColumns}
-    </div>
 
   _rows: =>
     rows = []

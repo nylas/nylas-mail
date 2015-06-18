@@ -38,8 +38,12 @@ class ThreadListScrollTooltip extends React.Component
       item: ThreadListStore.view().get(idx)
 
   render: ->
+    if @state.item
+      content = timestamp(@state.item.lastMessageTimestamp)
+    else
+      content = "Loading..."
     <div className="scroll-tooltip">
-      {timestamp(@state.item?.lastMessageTimestamp)}
+      {content}
     </div>
 
 class ThreadList extends React.Component

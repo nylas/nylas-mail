@@ -12,14 +12,16 @@ class ScrollRegion extends React.Component
 
   @propTypes:
     onScroll: React.PropTypes.func
+    onScrollEnd: React.PropTypes.func
     className: React.PropTypes.string
     scrollTooltipComponent: React.PropTypes.func
+    children: React.PropTypes.oneOfType([React.PropTypes.element, React.PropTypes.array])
 
   constructor: (@props) ->
     @state =
       totalHeight:0
       viewportHeight: 0
-      viewportOffset: 0
+      viewportScrollTop: 0
       dragging: false
       scrolling: false
 
@@ -31,14 +33,14 @@ class ScrollRegion extends React.Component
   componentDidMount: =>
     @_recomputeDimensions()
 
-  componentDidUpdate: =>
-    @_recomputeDimensions()
-
   componentWillUnmount: =>
     @_onHandleUp()
 
   shouldComponentUpdate: (newProps, newState) =>
-    not Utils.isEqualReact(newProps, @props) or not Utils.isEqualReact(newState, @state)
+    # Because this component renders @props.children, it needs to update
+    # on props.children changes. Unfortunately, computing isEqual on the
+    # @props.children tree extremely expensive. Just let React's algorithm do it's work.
+    true
 
   render: =>
     containerClasses =  "#{@props.className ? ''} " + classNames
@@ -50,7 +52,7 @@ class ScrollRegion extends React.Component
 
     tooltip = []
     if @props.scrollTooltipComponent
-      tooltip = <@props.scrollTooltipComponent viewportCenter={@state.viewportOffset + @state.viewportHeight / 2} totalHeight={@state.totalHeight} />
+      tooltip = <@props.scrollTooltipComponent viewportCenter={@state.viewportScrollTop + @state.viewportHeight / 2} totalHeight={@state.totalHeight} />
 
     <div className={containerClasses} {...otherProps}>
       <div className="scrollbar-track" style={@_scrollbarWrapStyles()} onMouseEnter={@_recomputeDimensions}>
@@ -61,7 +63,9 @@ class ScrollRegion extends React.Component
         </div>
       </div>
       <div className="scroll-region-content" onScroll={@_onScroll} ref="content">
-        {@props.children}
+        <div className="scroll-region-content-inner">
+          {@props.children}
+        </div>
       </div>
     </div>
 
@@ -81,7 +85,7 @@ class ScrollRegion extends React.Component
 
   _scrollbarHandleStyles: =>
     handleHeight = @_getHandleHeight()
-    handleTop = (@state.viewportOffset / (@state.totalHeight - @state.viewportHeight)) * (@state.trackHeight - handleHeight)
+    handleTop = (@state.viewportScrollTop / (@state.totalHeight - @state.viewportHeight)) * (@state.trackHeight - handleHeight)
 
     position:'relative'
     height: handleHeight
@@ -90,22 +94,31 @@ class ScrollRegion extends React.Component
   _getHandleHeight: =>
     Math.min(@state.totalHeight, Math.max(40, (@state.trackHeight / @state.totalHeight) * @state.trackHeight))
 
-  _recomputeDimensions: =>
+  _recomputeDimensions: ({avoidForcingLayout} = {}) =>
     return unless @refs.content
 
     contentNode = React.findDOMNode(@refs.content)
     trackNode = React.findDOMNode(@refs.track)
+    viewportScrollTop = contentNode.scrollTop
 
-    totalHeight = contentNode.scrollHeight
-    trackHeight = trackNode.clientHeight
-    viewportHeight = contentNode.clientHeight
-    viewportOffset = contentNode.scrollTop
+    # While we're scrolling, calls to contentNode.scrollHeight / clientHeight
+    # force the browser to immediately flush any DOM changes and compute the
+    # height of the node. This hurts performance and also kind of unnecessary,
+    # since it's unlikely these values will change while scrolling.
+    if avoidForcingLayout
+      totalHeight = @state.totalHeight ? contentNode.scrollHeight
+      trackHeight = @state.trackHeight ? contentNode.scrollHeight
+      viewportHeight = @state.viewportHeight ? contentNode.clientHeight
+    else
+      totalHeight = contentNode.scrollHeight
+      trackHeight = trackNode.clientHeight
+      viewportHeight = contentNode.clientHeight
 
     if @state.totalHeight != totalHeight or
        @state.trackHeight != trackHeight or
-       @state.viewportOffset != viewportOffset or
-       @state.viewportHeight != viewportHeight
-      @setState({totalHeight, trackHeight, viewportOffset, viewportHeight})
+       @state.viewportHeight != viewportHeight or
+       @state.viewportScrollTop != viewportScrollTop
+      @setState({totalHeight, trackHeight, viewportScrollTop, viewportHeight})
 
   _onHandleDown: (event) =>
     handleNode = React.findDOMNode(@refs.handle)
@@ -132,24 +145,24 @@ class ScrollRegion extends React.Component
     event.stopPropagation()
 
   _onScrollJump: (event) =>
+    @_trackOffset = React.findDOMNode(@refs.track).getBoundingClientRect().top
     @_mouseOffsetWithinHandle = @_getHandleHeight() / 2
     @_onHandleMove(event)
 
   _onScroll: (event) =>
-    if not @_requestedAnimationFrame
-      @_requestedAnimationFrame = true
-      window.requestAnimationFrame =>
-        @_requestedAnimationFrame = false
-        @_recomputeDimensions()
-        @props.onScroll?(event)
+    if not @state.scrolling
+      @_recomputeDimensions()
+      @setState(scrolling: true)
+    else
+      @_recomputeDimensions({avoidForcingLayout: true})
 
-        if not @state.scrolling
-          @setState(scrolling: true)
+    @props.onScroll?(event)
 
-        @_onStoppedScroll ?= _.debounce =>
-          @setState(scrolling: false)
-        , 250
-        @_onStoppedScroll()
+    @_onScrollEnd ?= _.debounce =>
+      @setState(scrolling: false)
+      @props.onScrollEnd?(event)
+    , 250
+    @_onScrollEnd()
 
 
 module.exports = ScrollRegion

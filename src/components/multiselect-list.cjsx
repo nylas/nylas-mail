@@ -118,7 +118,7 @@ class MultiselectList extends React.Component
       <div className={className}>
         <ListTabular
           ref="list"
-          columns={@state.columns}
+          columns={@state.computedColumns}
           scrollTooltipComponent={@props.scrollTooltipComponent}
           dataView={@state.dataView}
           itemPropsProvider={@itemPropsProvider}
@@ -154,15 +154,8 @@ class MultiselectList extends React.Component
   _onShift: (delta, options = {}) =>
     @state.handler.onShift(delta, options)
 
-  # This onChange handler can be called many times back to back and setState
-  # sometimes triggers an immediate render. Ensure that we never render back-to-back,
-  # because rendering this view (even just to determine that there are no changes)
-  # is expensive.
   _onChange: =>
-    @_onChangeDebounced ?= _.debounce =>
-      @setState(@_getStateFromStores())
-    , 1
-    @_onChangeDebounced()
+    @setState(@_getStateFromStores())
 
   _visible: =>
     if WorkspaceStore.layoutMode() is "list"
@@ -184,22 +177,32 @@ class MultiselectList extends React.Component
 
   _getStateFromStores: (props) =>
     props ?= @props
+    state = @state ? {}
 
     view = props.dataStore?.view()
     return {} unless view
 
-    columns = [].concat(props.columns)
+    # Do we need to re-compute columns? Don't do this unless we really have to,
+    # it will cause a re-render of the entire ListTabular. To know whether our
+    # computed columns are still valid, we store the original columns in our state
+    # along with the computed ones.
+    if props.columns isnt state.columns
+      computedColumns = [].concat(props.columns)
+      if WorkspaceStore.layoutMode() is 'list'
+        computedColumns.splice(0, 0, @_getCheckmarkColumn())
+    else
+      computedColumns = state.computedColumns
 
     if WorkspaceStore.layoutMode() is 'list'
       handler = new MultiselectListInteractionHandler(view, props.collection)
-      columns.splice(0, 0, @_getCheckmarkColumn())
     else
       handler = new MultiselectSplitInteractionHandler(view, props.collection)
 
     dataView: view
-    columns: columns
     handler: handler
     ready: view.loaded()
+    columns: props.columns
+    computedColumns: computedColumns
     selectedIds: view.selection.ids()
     focusedId: FocusedContentStore.focusedId(props.collection)
     keyboardCursorId: FocusedContentStore.keyboardCursorId(props.collection)

@@ -22,6 +22,12 @@ class Attribute
     throw (new Error "this field cannot be queried against.") unless @queryable
     new Matcher(@, '=', val)
 
+  # Public: Returns a {Matcher} for objects `=` to the provided value.
+  in: (val) ->
+    throw (new Error "Attribute.in: you must pass an array of values.") unless val instanceof Array
+    throw (new Error "this field cannot be queried against.") unless @queryable
+    new Matcher(@, 'in', val)
+
   # Public: Returns a {Matcher} for objects `!=` to the provided value.
   not: (val) ->
     throw (new Error "this field cannot be queried against.") unless @queryable

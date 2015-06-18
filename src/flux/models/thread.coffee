@@ -76,6 +76,10 @@ class Thread extends Model
 
   @getter 'unread', -> @isUnread()
 
+  @additionalSQLiteConfig:
+    setup: ->
+      ['CREATE INDEX IF NOT EXISTS ThreadListIndex ON Thread(last_message_timestamp DESC, namespace_id, id)']
+
   # Public: Returns an {Array} of {Tag} IDs
   #
   tagIds: ->
@@ -86,7 +90,10 @@ class Thread extends Model
   # * `id` A {String} {Tag} ID
   #
   hasTagId: (id) ->
-    @tagIds().indexOf(id) != -1
+    return false unless id and @tags
+    for tag in @tags
+      return true if tag.id is id
+    return false
 
   # Public: Returns a {Boolean}, true if the thread is unread.
   isUnread: ->

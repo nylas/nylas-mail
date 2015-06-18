@@ -31,7 +31,7 @@ verbose = true
 #
 class DatabaseView extends ModelView
 
-  constructor: (@klass, config = {}, @_itemMetadataProvider) ->
+  constructor: (@klass, config = {}, @_metadataProvider) ->
     super
     @_pageSize = 100
     @_matchers = config.matchers ? []
@@ -49,11 +49,11 @@ class DatabaseView extends ModelView
       arguments[0] = "DatabaseView (#{@klass.name}): "+arguments[0]
     console.log(arguments...)
 
-  itemMetadataProvider: ->
-    @_itemMetadataProvider
+  metadataProvider: ->
+    @_metadataProvider
 
-  setItemMetadataProvider: (fn) ->
-    @_itemMetadataProvider = fn
+  setMetadataProvider: (fn) ->
+    @_metadataProvider = fn
     @_pages = {}
     @invalidate()
 
@@ -314,16 +314,16 @@ class DatabaseView extends ModelView
       @retrievePage(idx)
       return
 
-    metadataPromises = {}
+    idsMissingMetadata = []
     for item in items
-      if metadataPromises[item.id]
-        @log("Request for threads returned the same thread id (#{item.id}) multiple times.")
+      if not page.metadata[item.id]
+        idsMissingMetadata.push(item.id)
 
-      metadataPromises[item.id] ?= page.metadata[item.id]
-      if @_itemMetadataProvider
-        metadataPromises[item.id] ?= @_itemMetadataProvider(item)
+    metadataPromise = Promise.resolve({})
+    if idsMissingMetadata.length > 0 and @_metadataProvider
+      metadataPromise = @_metadataProvider(idsMissingMetadata)
 
-    Promise.props(metadataPromises).then (results) =>
+    metadataPromise.then (results) =>
       # If we've started reloading since we made our query, don't do any more work
       if page.lastTouchTime >= touchTime
         @log("Metadata version #{touchTime} fetched, but out of date (current is #{page.lastTouchTime})")
@@ -332,8 +332,8 @@ class DatabaseView extends ModelView
       for item, idx in items
         if Object.isFrozen(item)
           item = items[idx] = new @klass(item)
-        item.metadata = results[item.id]
-        page.metadata[item.id] = results[item.id]
+        metadata = results[item.id] ? page.metadata[item.id]
+        item.metadata = page.metadata[item.id] = metadata
 
         # Prevent anything from mutating these objects or their nested objects.
         # Accidentally modifying items somewhere downstream (in a component)
