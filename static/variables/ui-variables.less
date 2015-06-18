@@ -114,6 +114,16 @@
   src: url('fonts/Fakt/Nylas-FaktPro-SemiBold.otf'), local('Comic Sans MS');
 }
 
+// FaktPro-SemiBold doesn't render emoji properly. Override the emjoi unicode
+// block so that it uses the "Normal" weight even at font-weight:600.
+@font-face {
+  font-family: 'Nylas-FaktPro';
+  font-style: normal;
+  font-weight: 600;
+  src: url('fonts/Fakt/Nylas-FaktPro-Normal.otf'), local('Comic Sans MS');
+  unicode-range: U+1F300-1F5FF, U+1F600-1F64F, U+1F680-1F6FF, U+2600-26FF;
+}
+
 @font-family-sans-serif:  "Nylas-FaktPro", "Helvetica", 'Lucida Grande', 'Segoe UI', sans-serif;
 @font-family-smallcap:    "Proxima Nova Regular Small Cap", "sans-serif";
 @font-family-serif:       Georgia, "Times New Roman", Times, serif;
