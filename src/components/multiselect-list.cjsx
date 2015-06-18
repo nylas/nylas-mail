@@ -97,6 +97,7 @@ class MultiselectList extends React.Component
     #
     className = @props.className
     className += " ready" if @state.ready
+    className += " " + @state.handler.cssClass()
 
     @itemPropsProvider ?= (item) =>
       props = @props.itemPropsProvider(item)

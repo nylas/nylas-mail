@@ -7,6 +7,9 @@ module.exports =
 class MultiselectListInteractionHandler
   constructor: (@dataView, @collection) ->
 
+  cssClass: ->
+    'handler-list'
+
   shouldShowFocus: ->
     false
 

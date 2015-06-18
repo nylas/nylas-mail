@@ -7,6 +7,9 @@ module.exports =
 class MultiselectSplitInteractionHandler
   constructor: (@dataView, @collection) ->
 
+  cssClass: ->
+    'handler-split'
+
   shouldShowFocus: ->
     true
 
