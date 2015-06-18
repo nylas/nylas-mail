@@ -22,7 +22,7 @@ class TemplatePicker extends React.Component
     @unsubscribe() if @unsubscribe
 
   render: =>
-    button = <button className="btn btn-toolbar" style={padding: "2px 9px"}>
+    button = <button className="btn btn-toolbar narrow">
       <RetinaImg name="icon-composer-templates.png" mode={RetinaImg.Mode.ContentIsMask}/>
       &nbsp;
       <RetinaImg name="icon-composer-dropdown.png" mode={RetinaImg.Mode.ContentIsMask}/>
