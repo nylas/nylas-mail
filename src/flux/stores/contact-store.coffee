@@ -1,6 +1,7 @@
 Reflux = require 'reflux'
 Actions = require '../actions'
 Contact = require '../models/contact'
+Utils = require '../models/utils'
 DatabaseStore = require './database-store'
 NamespaceStore = require './namespace-store'
 _ = require 'underscore'
@@ -80,6 +81,34 @@ class ContactStore
           break
 
     matches
+
+  parseContactsInString: (str) =>
+    detected = []
+    while (match = Utils.emailRegex.exec(str))
+      email = match[0]
+      name = null
+
+      hasLeadingParen  = str[match.index-1] in ['(','<']
+      hasTrailingParen = str[match.index+email.length] in [')','>']
+
+      if hasLeadingParen and hasTrailingParen
+        nameStart = 0
+        for char in ['>', ')', ',', '\n', '\r']
+          i = str.lastIndexOf(char, match.index)
+          nameStart = i+1 if i+1 > nameStart
+        name = str.substr(nameStart, match.index - 1 - nameStart).trim()
+
+      if not name or name.length is 0
+        # Look to see if we can find a name for this email address in the ContactStore.
+        # Otherwise, just populate the name with the email address.
+        existing = @searchContacts(email, {limit:1})[0]
+        if existing and existing.name
+          name = existing.name
+        else
+          name = email
+
+      detected.push(new Contact({email, name}))
+    detected
 
   __refreshCache: =>
     new Promise (resolve, reject) =>
