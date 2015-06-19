@@ -6,6 +6,36 @@ EventEmitter = require('events').EventEmitter
 
 verbose = true
 
+# A small helper class that prevents the DatabaseView from making too many
+# queries. It tracks the number of jobs in flight via `increment` and allows
+# a callback to run "when there are fewer then N ongoing queries".
+# Sort of like _.throttle, but with a work threshold rather than a time threshold.
+class TaskThrottler
+  constructor: (@_maxConcurrent) ->
+    @_inflight = 0
+    @_whenReady = null
+
+  whenReady: (fn) ->
+    if @_inflight < @_maxConcurrent
+      fn()
+    else
+      @_whenReady = fn
+
+  increment: ->
+    decremented = false
+    @_inflight += 1
+
+    # Returns a function that can be called once and only once to
+    # decrement the counter.
+    return =>
+      if not decremented
+        @_inflight -= 1
+        if @_whenReady and @_inflight < @_maxConcurrent
+          @_whenReady()
+          @_whenReady = null
+      decremented = true
+
+
 # Public: DatabaseView abstracts away the process of paginating a query
 # and loading ranges of data. It's very smart about deciding when
 # results need to be refreshed. There are a few core concepts that
@@ -34,13 +64,15 @@ class DatabaseView extends ModelView
   constructor: (@klass, config = {}, @_metadataProvider) ->
     super
     @_pageSize = 100
+    @_throttler = new TaskThrottler(2)
+
     @_matchers = config.matchers ? []
     @_includes = config.includes ? []
     @_orders = config.orders ? []
 
     @_count = -1
     @invalidateCount()
-    @invalidateRetainedRangeImmediate()
+    @invalidateRetainedRange()
     @
 
   log: ->
@@ -251,18 +283,16 @@ class DatabaseView extends ModelView
       @_count = count
       @_emitter.emit('trigger')
 
-  invalidateRetainedRange: _.debounce ->
-    @invalidateRetainedRangeImmediate()
-  ,10
-
-  invalidateRetainedRangeImmediate: ->
-    for idx in @pagesRetained()
-      @retrievePage(idx)
+  invalidateRetainedRange: ->
+    @_throttler.whenReady =>
+      for idx in @pagesRetained()
+        @retrievePage(idx)
 
   retrieveDirtyInRetainedRange: ->
-    for idx in @pagesRetained()
-      if not @_pages[idx] or @_pages[idx].lastTouchTime > @_pages[idx].lastLoadTime
-        @retrievePage(idx)
+    @_throttler.whenReady =>
+      for idx in @pagesRetained()
+        if not @_pages[idx] or @_pages[idx].lastTouchTime > @_pages[idx].lastLoadTime
+          @retrievePage(idx)
 
   retrievePage: (idx) ->
     page = @_pages[idx] ? {
@@ -284,7 +314,8 @@ class DatabaseView extends ModelView
     query.include(attr) for attr in @_includes
     query.order(@_orders) if @_orders.length > 0
 
-    query.then (items) =>
+    decrement = @_throttler.increment()
+    query.run().finally(decrement).then (items) =>
       # If the page is no longer in the cache at all, it may have fallen out of the
       # retained range and been cleaned up.
       return unless @_pages[idx]
@@ -323,7 +354,8 @@ class DatabaseView extends ModelView
     if idsMissingMetadata.length > 0 and @_metadataProvider
       metadataPromise = @_metadataProvider(idsMissingMetadata)
 
-    metadataPromise.then (results) =>
+    decrement = @_throttler.increment()
+    metadataPromise.finally(decrement).then (results) =>
       # If we've started reloading since we made our query, don't do any more work
       if page.lastTouchTime >= touchTime
         @log("Metadata version #{touchTime} fetched, but out of date (current is #{page.lastTouchTime})")

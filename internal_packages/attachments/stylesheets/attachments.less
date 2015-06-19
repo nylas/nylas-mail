@@ -79,8 +79,11 @@
   }
 }
 
-.image-file-upload, .image-attachment-file-wrap, .attachment-file-wrap,
+.image-file-upload,
+.image-attachment-file-wrap,
+.attachment-file-wrap,
 .attachment-inner-wrap {
+
   .attachment-download-bar-wrap {
     display: none;
   }
@@ -128,10 +131,15 @@
   }
 }
 
-.image-attachment-file-wrap, .image-file-upload {
+.image-attachment-file-wrap,
+.image-file-upload {
+
   position: relative;
-  margin: 0 0 8px 0;
   text-align: center;
+  display:inline-block;
+  vertical-align: top;
+  margin-bottom: @spacing-standard;
+  margin-right: @spacing-standard;
 
   .attachment-download-progress,
   .attachment-upload-progress {
@@ -147,11 +155,11 @@
   }
 
   &:hover {
-    .attachment-file-actions, .attachment-name-bg, .attachment-name {
+    .attachment-file-actions, .attachment-name-container, .attachment-name {
       display: block;
     }
   }
-  .attachment-file-actions, .attachment-name-bg, .attachment-name {
+  .attachment-file-actions, .attachment-name-container, .attachment-name {
     display: none;
   }
 
@@ -167,30 +175,35 @@
   .attachment-preview {
     position: relative;
     z-index: 1;
+    overflow: hidden;
 
-    .attachment-name-bg {
+    .attachment-name-container {
       position: absolute;
       bottom: 0;
       top: 0;
       z-index: 2;
       width: 100%;
-      background: linear-gradient(to top, rgba(0,0,0,0.75) 0%,rgba(0,0,0,0) 23%)
-    }
-    .attachment-name {
-      color: @white;
-      left: 15px;
-      bottom: 13px;
-      position: absolute;
-      z-index: 3;
+      height:100%;
+      min-height:300px;
+      background: linear-gradient(to top, rgba(0,0,0,0.75) 0%,rgba(0,0,0,0) 23%);
+      vertical-align:bottom;
+
+      .attachment-name {
+        color: @white;
+        left: @spacing-standard;
+        bottom: @spacing-standard;
+        position: absolute;
+        z-index: 3;
+      }
     }
 
     img {
       position: relative;
       z-index: 1;
       max-width: 100%;
-      background: @background-secondary;
+      background: url(../static/images/attachments/transparency-background.png) top left repeat;
+      background-size:8px;
     }
   }
 
 }
-

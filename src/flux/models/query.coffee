@@ -159,13 +159,19 @@ class ModelQuery
   Query Execution
   ###
 
-  # Public: Starts query execution and returns a Promise.
+  # Public: Short-hand syntax that calls run().then(fn) with the provided function.
   #
   # Returns a {Promise} that resolves with the Models returned by the
   # query, or rejects with an error from the Database layer.
   #
   then: (next) ->
-    @_database.run(@).then(next)
+    @run(@).then(next)
+
+  # Public: Returns a {Promise} that resolves with the Models returned by the
+  # query, or rejects with an error from the Database layer.
+  #
+  run: ->
+    @_database.run(@)
 
   formatResult: (result) ->
     return null unless result
