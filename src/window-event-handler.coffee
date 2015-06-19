@@ -79,6 +79,13 @@ class WindowEventHandler
 
     document.addEventListener 'keydown', @onKeydown
 
+    # "Pinch to zoom" on the Mac gets translated by the system into a
+    # "scroll with ctrl key down". To prevent the page from zooming in,
+    # prevent default when the ctrlKey is detected.
+    document.addEventListener 'mousewheel', ->
+      if event.ctrlKey
+        event.preventDefault()
+
     document.addEventListener 'drop', @onDrop
     @subscribe new Disposable =>
       document.removeEventListener('drop', @onDrop)
