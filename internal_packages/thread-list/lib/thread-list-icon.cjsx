@@ -12,7 +12,8 @@ class ThreadListIcon extends React.Component
     thread: React.PropTypes.object
 
   _iconType: =>
-    myEmail = NamespaceStore.current()?.emailAddress
+    if !@props.thread
+      return 'thread-icon-star-on-hover'
 
     if @props.thread.hasTagId('starred')
       return 'thread-icon-star'
@@ -23,6 +24,7 @@ class ThreadListIcon extends React.Component
     msgs = @_nonDraftMessages()
     last = msgs[msgs.length - 1]
 
+    myEmail = NamespaceStore.current()?.emailAddress
     if msgs.length > 1 and last.from[0]?.email is myEmail
       if Utils.isForwardedMessage(last)
         return 'thread-icon-forwarded thread-icon-star-on-hover'

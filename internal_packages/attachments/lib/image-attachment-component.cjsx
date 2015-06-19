@@ -14,12 +14,13 @@ class ImageAttachmentComponent extends AttachmentComponent
       </span>
 
       <div className="attachment-file-actions">
-        {@_fileActions()}
+        {@_renderFileActions()}
       </div>
 
       <div className="attachment-preview" onClick={@_onClickView}>
-        <div className="attachment-name-bg"></div>
-        <div className="attachment-name">{@props.file.filename}</div>
+        <div className="attachment-name-container">
+          <div className="attachment-name">{@props.file.filename}</div>
+        </div>
         {@_imgOrLoader()}
       </div>
 

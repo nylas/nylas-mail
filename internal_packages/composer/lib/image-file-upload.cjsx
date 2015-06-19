@@ -18,8 +18,9 @@ class ImageFileUpload extends FileUpload
       </div>
 
       <div className="attachment-preview" >
-        <div className="attachment-name-bg"></div>
-        <div className="attachment-name">{@props.uploadData.fileName}</div>
+        <div className="attachment-name-container">
+          <div className="attachment-name">{@props.uploadData.fileName}</div>
+        </div>
         <DraggableImg src={@props.uploadData.filePath} />
       </div>
 
