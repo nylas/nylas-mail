@@ -97,24 +97,25 @@ class MultiselectList extends React.Component
     #
     className = @props.className
     className += " ready" if @state.ready
-    className += " " + @state.handler.cssClass()
 
-    @itemPropsProvider ?= (item) =>
-      props = @props.itemPropsProvider(item)
-      props.className ?= ''
-      props.className += " " + classNames
-        'selected': item.id in @state.selectedIds
-        'focused': @state.handler.shouldShowFocus() and item.id is @state.focusedId
-        'keyboard-cursor': @state.handler.shouldShowKeyboardCursor() and item.id is @state.keyboardCursorId
-      props
+    if @state.dataView and @state.handler
+      className += " " + @state.handler.cssClass()
 
-    emptyElement = []
-    if @props.emptyComponent
-      emptyElement = <@props.emptyComponent
-        visible={@state.ready && @state.dataView.count() is 0}
-        dataView={@state.dataView} />
+      @itemPropsProvider ?= (item) =>
+        props = @props.itemPropsProvider(item)
+        props.className ?= ''
+        props.className += " " + classNames
+          'selected': item.id in @state.selectedIds
+          'focused': @state.handler.shouldShowFocus() and item.id is @state.focusedId
+          'keyboard-cursor': @state.handler.shouldShowKeyboardCursor() and item.id is @state.keyboardCursorId
+        props
 
-    if @state.dataView
+      emptyElement = []
+      if @props.emptyComponent
+        emptyElement = <@props.emptyComponent
+          visible={@state.ready && @state.dataView.count() is 0}
+          dataView={@state.dataView} />
+
       <div className={className}>
         <ListTabular
           ref="list"
@@ -158,7 +159,7 @@ class MultiselectList extends React.Component
     @setState(@_getStateFromStores())
 
   _visible: =>
-    if WorkspaceStore.layoutMode() is "list"
+    if @state.layoutMode
       WorkspaceStore.topSheet().root
     else
       true
@@ -179,6 +180,7 @@ class MultiselectList extends React.Component
     props ?= @props
     state = @state ? {}
 
+    layoutMode = WorkspaceStore.layoutMode()
     view = props.dataStore?.view()
     return {} unless view
 
@@ -186,14 +188,14 @@ class MultiselectList extends React.Component
     # it will cause a re-render of the entire ListTabular. To know whether our
     # computed columns are still valid, we store the original columns in our state
     # along with the computed ones.
-    if props.columns isnt state.columns
+    if props.columns isnt state.columns or layoutMode isnt state.layoutMode
       computedColumns = [].concat(props.columns)
-      if WorkspaceStore.layoutMode() is 'list'
+      if layoutMode is 'list'
         computedColumns.splice(0, 0, @_getCheckmarkColumn())
     else
       computedColumns = state.computedColumns
 
-    if WorkspaceStore.layoutMode() is 'list'
+    if layoutMode is 'list'
       handler = new MultiselectListInteractionHandler(view, props.collection)
     else
       handler = new MultiselectSplitInteractionHandler(view, props.collection)
@@ -203,6 +205,7 @@ class MultiselectList extends React.Component
     ready: view.loaded()
     columns: props.columns
     computedColumns: computedColumns
+    layoutMode: layoutMode
     selectedIds: view.selection.ids()
     focusedId: FocusedContentStore.focusedId(props.collection)
     keyboardCursorId: FocusedContentStore.keyboardCursorId(props.collection)

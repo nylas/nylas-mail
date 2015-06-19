@@ -182,7 +182,7 @@ class ThreadList extends React.Component
   # Additional Commands
 
   _onArchive: =>
-    if @_viewingFocusedThread() or ThreadListStore.view().selection.count() is 0
+    if ThreadListStore.view().selection.count() is 0
       Actions.archive()
     else
       Actions.archiveSelection()

@@ -4,7 +4,7 @@
 // MIXINS
 
 .inverseContent() {
-  // Note: these styles are also applied below 
+  // Note: these styles are also applied below
   // subpixel antialiasing looks awful against dark background colors
   -webkit-font-smoothing: antialiased;
 
@@ -230,16 +230,19 @@
 
 .thread-list .list-item.focused:hover .list-column-HoverActions .inner {
   background-image: -webkit-linear-gradient(left, fade(@list-focused-bg, 0%) 0%, @list-focused-bg 50%, @list-focused-bg 100%);
+  .action {
+    -webkit-filter: invert(100%) brightness(300%);
+  }
 }
 
 
 // stars
 
-.thread-icon-star-on-hover:hover,
 .thread-list .list-item:hover .thread-icon-star-on-hover:hover {
-  background-image:url(../static/images/thread-list/icon-star-@2x.png);
+  background-image:url(../static/images/thread-list/icon-star-action-hover-@2x.png);
   background-size: 16px;
 }
+.thread-icon-star-on-hover:hover,
 .thread-list .list-item:hover .thread-icon-star-on-hover {
   background-image:url(../static/images/thread-list/icon-star-hover-@2x.png);
   background-size: 16px;
@@ -275,12 +278,20 @@
   }
 }
 
+// selection looks like focus in split mode
+
 .thread-list.handler-split {
   .list-item {
     &.selected {
       background: @list-focused-bg;
       color: @list-focused-color;
       .inverseContent;
+    }
+  }
+  .list-item.selected:hover .list-column-HoverActions .inner {
+    background-image: -webkit-linear-gradient(left, fade(@list-focused-bg, 0%) 0%, @list-focused-bg 50%, @list-focused-bg 100%);
+    .action {
+      -webkit-filter: invert(100%) brightness(300%);
     }
   }
 }
