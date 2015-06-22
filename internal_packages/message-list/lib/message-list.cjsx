@@ -52,6 +52,8 @@ class MessageList extends React.Component
 
   constructor: (@props) ->
     @state = @_getStateFromStores()
+    @state.minified = true
+    @MINIFY_THRESHOLD = 3
 
   componentDidMount: =>
     window.addEventListener("resize", @_onResize)
@@ -85,7 +87,7 @@ class MessageList extends React.Component
       else if newDraftIds.length > 0
         @_focusDraft(@refs["composerItem-#{newDraftIds[0]}"])
         @_prepareContentForDisplay()
-      
+
   _newDraftIds: (prevState) =>
     oldDraftIds = _.map(_.filter((prevState.messages ? []), (m) -> m.draft), (m) -> m.id)
     newDraftIds = _.map(_.filter((@state.messages ? []), (m) -> m.draft), (m) -> m.id)
@@ -113,6 +115,7 @@ class MessageList extends React.Component
            scrollTooltipComponent={MessageListScrollTooltip}
            onScroll={_.debounce(@_cacheScrollPos, 100)}
            ref="messageWrap">
+        {@_renderSubject()}
         <div className="headers" style={position:'relative'}>
           <InjectedComponentSet
             className="message-list-notification-bars"
@@ -125,19 +128,24 @@ class MessageList extends React.Component
         </div>
         {@_messageComponents()}
       </ScrollRegion>
-      {@_renderReplyArea()}
       <Spinner visible={!@state.ready} />
+    </div>
+
+  _renderSubject: ->
+    <div className="message-subject-wrap">
+      <div className="message-count">{@state.messages.length} {if @state.messages.length is 1 then "message" else "messages"}</div>
+      <div className="message-subject">{@state.currentThread?.subject}</div>
     </div>
 
   _renderReplyArea: =>
     if @_hasReplyArea()
-      <div className="footer-reply-area-wrap" onClick={@_onClickReplyArea}>
+      <div className="footer-reply-area-wrap" onClick={@_onClickReplyArea} key={Utils.generateTempId()}>
         <div className="footer-reply-area">
           <RetinaImg name="#{@_replyType()}-footer.png" mode={RetinaImg.Mode.ContentIsMask}/>
           <span className="reply-text">Write a reply…</span>
         </div>
       </div>
-    else return <div></div>
+    else return <div key={Utils.generateTempId()}></div>
 
   _hasReplyArea: =>
     not _.last(@state.messages)?.draft
@@ -191,7 +199,13 @@ class MessageList extends React.Component
     threadParticipants = @_threadParticipants()
     components = []
 
-    @state.messages?.forEach (message, idx) =>
+    messages = @_messagesWithMinification(@state.messages)
+    messages.forEach (message, idx) =>
+
+      if message.type is "minifiedBundle"
+        components.push(@_renderMinifiedBundle(message))
+        return
+
       collapsed = !@state.messagesExpandedState[message.id]
 
       initialScroll = not appliedInitialScroll and not collapsed and
@@ -202,6 +216,7 @@ class MessageList extends React.Component
 
       className = classNames
         "message-item-wrap": true
+        "before-reply-area": (messages.length - 1 is idx) and @_hasReplyArea()
         "initial-scroll": initialScroll
         "unread": message.unread
         "draft": message.draft
@@ -219,17 +234,70 @@ class MessageList extends React.Component
                          message={message}
                          className={className}
                          collapsed={collapsed}
+                         isLastMsg={(messages.length - 1 is idx)}
                          thread_participants={threadParticipants} />
 
-      if idx < @state.messages.length - 1
-        next = @state.messages[idx + 1]
-        nextCollapsed = next and !@state.messagesExpandedState[next.id]
-        if collapsed and nextCollapsed
-          components.push <hr key={idx} className="message-item-divider collapsed" />
-        else
-          components.push <hr key={idx} className="message-item-divider" />
+    components.push @_renderReplyArea()
 
-    components
+    return components
+
+  _renderMinifiedBundle: (bundle) ->
+
+    BUNDLE_HEIGHT = 36
+    lines = bundle.messages[0...10]
+    h = Math.round(BUNDLE_HEIGHT / lines.length)
+
+    <div className="minified-bundle"
+         onClick={ => @setState minified: false }
+         key={Utils.generateTempId()}>
+      <div className="num-messages">{bundle.messages.length} older messages</div>
+      <div className="msg-lines" style={height: h*lines.length}>
+        {lines.map (msg, i) ->
+          <div style={height: h*2, top: -h*i} className="msg-line"></div>}
+      </div>
+    </div>
+
+  _messagesWithMinification: (messages=[]) =>
+    return messages unless @state.minified
+
+    messages = _.clone(messages)
+    minifyRanges = []
+    consecutiveCollapsed = 0
+
+    messages.forEach (message, idx) =>
+      return if idx is 0 # Never minify the 1st message
+
+      expandState = @state.messagesExpandedState[message.id]
+
+      if not expandState
+        consecutiveCollapsed += 1
+      else
+        # We add a +1 because we don't minify the last collapsed message,
+        # but the MINIFY_THRESHOLD refers to the smallest N that can be in
+        # the "N older messages" minified block.
+        if expandState is "default"
+          minifyOffset = 1
+        else # if expandState is "explicit"
+          minifyOffset = 0
+
+        if consecutiveCollapsed >= @MINIFY_THRESHOLD + minifyOffset
+          minifyRanges.push
+            start: idx - consecutiveCollapsed
+            length: (consecutiveCollapsed - minifyOffset)
+        consecutiveCollapsed = 0
+
+    indexOffset = 0
+    for range in minifyRanges
+      start = range.start - indexOffset
+      minified =
+        type: "minifiedBundle"
+        messages: messages[start...(start+range.length)]
+      messages.splice(start, range.length, minified)
+
+      # While we removed `range.length` items, we also added 1 back in.
+      indexOffset += (range.length - 1)
+
+    return messages
 
   # Some child components (like the composer) might request that we scroll
   # to a given location. If `selectionTop` is defined that means we should
@@ -256,7 +324,10 @@ class MessageList extends React.Component
     messageWrap = React.findDOMNode(@refs.messageWrap)
 
   _onChange: =>
-    @setState(@_getStateFromStores())
+    newState = @_getStateFromStores()
+    if @state.currentThread isnt newState.currentThread
+      newState.minified = true
+    @setState(newState)
 
   _getStateFromStores: =>
     messages: (MessageStore.items() ? [])

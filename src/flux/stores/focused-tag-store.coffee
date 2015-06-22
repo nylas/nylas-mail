@@ -27,8 +27,8 @@ FocusedTagStore = Reflux.createStore
 
     @_setTag(tag)
 
-  _onSearchQueryCommitted: (query) ->
-    if query
+  _onSearchQueryCommitted: (_query) ->
+    if _query
       @_oldTag = @_tag
       @_setTag(null)
     else if @_oldTag
@@ -40,7 +40,7 @@ FocusedTagStore = Reflux.createStore
     @trigger()
 
   # Public Methods
-  
+
   tag: ->
     @_tag
 

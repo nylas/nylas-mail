@@ -4,6 +4,7 @@ _ = require 'underscore'
 EmailFrame = require './email-frame'
 MessageParticipants = require "./message-participants"
 MessageTimestamp = require "./message-timestamp"
+MessageControls = require './message-controls'
 {Utils,
  Actions,
  NylasAPI,
@@ -80,18 +81,18 @@ class MessageItem extends React.Component
     </div>
 
   _renderHeader: =>
-    <header className="message-header">
+    <header className="message-header" onClick={@_onClickHeader}>
 
       <div className="message-header-right">
         <MessageTimestamp className="message-time selectable"
                           isDetailed={@state.detailedHeaders}
                           date={@props.message.date} />
 
+        <MessageControls thread={@props.thread} message={@props.message}/>
+
         <InjectedComponentSet className="message-indicator"
                               matching={role: "MessageIndicator"}
                               exposedProps={message: @props.message}/>
-
-        {if @state.detailedHeaders then @_renderMessageActionsInline() else @_renderMessageActionsTooltip()}
       </div>
 
       <MessageParticipants to={@props.message.to}
@@ -99,14 +100,36 @@ class MessageItem extends React.Component
                            bcc={@props.message.bcc}
                            from={@props.message.from}
                            subject={@props.message.subject}
-                           onClick={=> @setState detailedHeaders: true}
+                           onClick={@_onClickParticipants}
                            thread_participants={@props.thread_participants}
                            isDetailed={@state.detailedHeaders}
                            message_participants={@props.message.participants()} />
 
-      {@_renderCollapseControl()}
+      {@_renderHeaderExpansionControl()}
 
     </header>
+
+  _onClickParticipants: (e) =>
+    el = e.target
+    while el isnt e.currentTarget
+      if "collapsed-participants" in el.classList
+        @setState detailedHeaders: true
+        e.stopPropagation()
+        return
+      el = el.parentElement
+    return
+
+  _onClickHeader: (e) =>
+    return if @state.detailedHeaders
+    el = e.target
+    while el isnt e.currentTarget
+      wl = ["message-header-right",
+            "collapsed-participants",
+            "header-toggle-control"]
+      if "message-header-right" in el.classList then return
+      if "collapsed-participants" in el.classList then return
+      el = el.parentElement
+    @_toggleCollapsed()
 
   _renderAttachments: =>
     attachments = @_attachmentComponents()
@@ -119,47 +142,6 @@ class MessageItem extends React.Component
     "quoted-text-control": true
     'no-quoted-text': (Utils.quotedTextIndex(@props.message.body) is -1)
     'show-quoted-text': @state.showQuotedText
-
-  _renderMessageActionsInline: =>
-    @_renderMessageActions()
-
-  _renderMessageActionsTooltip: =>
-    return <span></span>
-    ## TODO: For now leave blank. There may be an alternative UI in the
-    #future.
-    # <span className="msg-actions-tooltip"
-    #       onClick={=> @setState detailedHeaders: true}>
-    #   <RetinaImg name={"message-show-more.png"}/></span>
-
-  _renderMessageActions: =>
-    <div className="message-actions-wrap">
-      <div className="message-actions-ellipsis" onClick={@_onShowActionsMenu}>
-        <RetinaImg name={"message-actions-ellipsis.png"} mode={RetinaImg.Mode.ContentIsMask}/>
-      </div>
-      <InjectedComponentSet className="message-actions"
-                            inline={true}
-                            matching={role:"MessageAction"}
-                            exposedProps={thread:@props.thread, message: @props.message}>
-        <button className="btn btn-icon" onClick={@_onReply}>
-          <RetinaImg name={"message-reply.png"} mode={RetinaImg.Mode.ContentIsMask}/>
-        </button>
-        <button className="btn btn-icon" onClick={@_onReplyAll}>
-          <RetinaImg name={"message-reply-all.png"} mode={RetinaImg.Mode.ContentIsMask}/>
-        </button>
-        <button className="btn btn-icon" onClick={@_onForward}>
-          <RetinaImg name={"message-forward.png"} mode={RetinaImg.Mode.ContentIsMask}/>
-        </button>
-      </InjectedComponentSet>
-    </div>
-
-  _onReply: =>
-    Actions.composeReply(thread: @props.thread, message: @props.message)
-
-  _onReplyAll: =>
-    Actions.composeReplyAll(thread: @props.thread, message: @props.message)
-
-  _onForward: =>
-    Actions.composeForward(thread: @props.thread, message: @props.message)
 
   _onReport: (issueType) =>
     {Contact, Message, DatabaseStore, NamespaceStore} = require 'nylas-exports'
@@ -216,17 +198,17 @@ class MessageItem extends React.Component
     menu.append(new MenuItem({ label: 'Show Original', click: => @_onShowOriginal()}))
     menu.popup(remote.getCurrentWindow())
 
-  _renderCollapseControl: =>
+  _renderHeaderExpansionControl: =>
     if @state.detailedHeaders
-      <div className="collapse-control"
-           style={top: "4px", left: "-17px"}
-           onClick={=> @setState detailedHeaders: false}>
+      <div className="header-toggle-control"
+           style={top: "18px", left: "-14px"}
+           onClick={ (e) => @setState detailedHeaders: false; e.stopPropagation()}>
         <RetinaImg name={"message-disclosure-triangle-active.png"} mode={RetinaImg.Mode.ContentIsMask}/>
       </div>
     else
-      <div className="collapse-control inactive"
-           style={top: "3px"}
-           onClick={=> @setState detailedHeaders: true}>
+      <div className="header-toggle-control inactive"
+           style={top: "18px"}
+           onClick={ (e) => @setState detailedHeaders: true; e.stopPropagation()}>
         <RetinaImg name={"message-disclosure-triangle.png"} mode={RetinaImg.Mode.ContentIsMask}/>
       </div>
 
@@ -277,6 +259,7 @@ class MessageItem extends React.Component
       showQuotedText: !@state.showQuotedText
 
   _toggleCollapsed: =>
+    return if @props.isLastMsg
     Actions.toggleMessageIdExpanded(@props.message.id)
 
   _formatContacts: (contacts=[]) =>
