@@ -93,7 +93,7 @@ MessageStore = Reflux.createStore
     if @_itemsExpanded[id]
       delete @_itemsExpanded[id]
     else
-      @_itemsExpanded[id] = true
+      @_itemsExpanded[id] = "explicit"
       for item, idx in @_items
         if @_itemsExpanded[item.id] and not _.isString(item.body)
           @_fetchMessageIdFromAPI(item.id)
@@ -169,7 +169,7 @@ MessageStore = Reflux.createStore
   _expandItemsToDefault: ->
     for item, idx in @_items
       if item.unread or item.draft or idx is @_items.length - 1
-        @_itemsExpanded[item.id] = true
+        @_itemsExpanded[item.id] = "default"
 
   _fetchMessages: ->
     namespace = NamespaceStore.current()

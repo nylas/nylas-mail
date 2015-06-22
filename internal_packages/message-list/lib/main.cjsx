@@ -1,6 +1,6 @@
 MessageList = require "./message-list"
 MessageToolbarItems = require "./message-toolbar-items"
-MessageSubjectItem = require "./message-subject-item"
+MessageNavTitle = require "./message-nav-title"
 {ComponentRegistry,
  WorkspaceStore} = require 'nylas-exports'
 SidebarThreadParticipants = require "./sidebar-thread-participants"
@@ -16,15 +16,15 @@ module.exports =
     ComponentRegistry.register MessageToolbarItems,
       location: WorkspaceStore.Location.MessageList.Toolbar
 
-    ComponentRegistry.register MessageSubjectItem,
+    ComponentRegistry.register MessageNavTitle,
       location: WorkspaceStore.Location.MessageList.Toolbar
 
     ComponentRegistry.register SidebarThreadParticipants,
       location: WorkspaceStore.Location.MessageListSidebar
 
   deactivate: ->
-    ComponentRegistry.unregister MessageToolbarItems
-    ComponentRegistry.unregister MessageSubjectItem
     ComponentRegistry.unregister MessageList
+    ComponentRegistry.unregister MessageNavTitle
+    ComponentRegistry.unregister MessageToolbarItems
 
   serialize: -> @state

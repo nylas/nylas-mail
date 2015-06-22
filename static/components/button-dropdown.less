@@ -1,0 +1,36 @@
+@import "ui-variables";
+
+.button-dropdown {
+  position: relative;
+  display: inline-block;
+  .primary-item {
+    .btn();
+    height: 32px;
+    border-radius: 4px 0 0 4px;
+    padding-top: 7px;
+  }
+  .secondary-picker {
+    .btn();
+    height: 32px;
+    border-radius: 0 4px 4px 0;
+    border-left: 0;
+    padding: 7px 8px 3px 8px;
+  }
+  .secondary-items {
+    &:hover {
+      cursor: default;
+    }
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 4px 0 4px 4px;
+    padding: 4px 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.55);
+    z-index: 2;
+    background-color: @background-primary;;
+    position: absolute;
+    width: 110px;
+    right: 0;
+  }
+  img {
+    background-color: @text-color;
+  }
+}

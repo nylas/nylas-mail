@@ -175,15 +175,15 @@ describe "MessageList", ->
     spyOn(MessageStore, "itemsLoading").andCallFake ->
       false
 
-    @message_list = TestUtils.renderIntoDocument(<MessageList />)
-    @message_list_node = React.findDOMNode(@message_list)
+    @messageList = TestUtils.renderIntoDocument(<MessageList />)
+    @messageList_node = React.findDOMNode(@messageList)
 
   it "renders into the document", ->
-    expect(TestUtils.isCompositeComponentWithType(@message_list,
+    expect(TestUtils.isCompositeComponentWithType(@messageList,
            MessageList)).toBe true
 
   it "by default has zero children", ->
-    items = TestUtils.scryRenderedComponentsWithType(@message_list,
+    items = TestUtils.scryRenderedComponentsWithType(@messageList,
             MessageItem)
 
     expect(items.length).toBe 0
@@ -193,71 +193,240 @@ describe "MessageList", ->
       MessageStore._items = testMessages
       MessageStore._expandItemsToDefault()
       MessageStore.trigger(MessageStore)
-      @message_list.setState currentThread: test_thread
+      @messageList.setState currentThread: test_thread
 
     it "renders all the correct number of messages", ->
-      items = TestUtils.scryRenderedComponentsWithType(@message_list,
+      items = TestUtils.scryRenderedComponentsWithType(@messageList,
               MessageItem)
       expect(items.length).toBe 5
 
     it "renders the correct number of expanded messages", ->
-      msgs = TestUtils.scryRenderedDOMComponentsWithClass(@message_list, "message-item-wrap collapsed")
+      msgs = TestUtils.scryRenderedDOMComponentsWithClass(@messageList, "message-item-wrap collapsed")
       expect(msgs.length).toBe 4
 
     it "aggregates participants across all messages", ->
-      expect(@message_list._threadParticipants().length).toBe 4
-      expect(@message_list._threadParticipants()[0] instanceof Contact).toBe true
+      expect(@messageList._threadParticipants().length).toBe 4
+      expect(@messageList._threadParticipants()[0] instanceof Contact).toBe true
 
     it "displays lists of participants on the page", ->
-      items = TestUtils.scryRenderedComponentsWithType(@message_list,
+      items = TestUtils.scryRenderedComponentsWithType(@messageList,
               MessageParticipants)
       expect(items.length).toBe 1
 
     it "focuses new composers when a draft is added", ->
-      spyOn(@message_list, "_focusDraft")
-      msgs = @message_list.state.messages
+      spyOn(@messageList, "_focusDraft")
+      msgs = @messageList.state.messages
 
-      @message_list.setState
+      @messageList.setState
         messages: msgs.concat(draftMessages)
 
-      expect(@message_list._focusDraft).toHaveBeenCalled()
-      expect(@message_list._focusDraft.mostRecentCall.args[0].props.exposedProps.localId).toEqual(draftMessages[0].id)
+      expect(@messageList._focusDraft).toHaveBeenCalled()
+      expect(@messageList._focusDraft.mostRecentCall.args[0].props.exposedProps.localId).toEqual(draftMessages[0].id)
 
   describe "MessageList with draft", ->
     beforeEach ->
       MessageStore._items = testMessages.concat draftMessages
       MessageStore.trigger(MessageStore)
-      spyOn(@message_list, "_focusDraft")
-      @message_list.setState(currentThread: test_thread)
+      spyOn(@messageList, "_focusDraft")
+      @messageList.setState(currentThread: test_thread)
 
     it "renders the composer", ->
-      items = TestUtils.scryRenderedComponentsWithTypeAndProps(@message_list, InjectedComponent, matching: {role:"Composer"})
-      expect(@message_list.state.messages.length).toBe 6
+      items = TestUtils.scryRenderedComponentsWithTypeAndProps(@messageList, InjectedComponent, matching: {role:"Composer"})
+      expect(@messageList.state.messages.length).toBe 6
       expect(items.length).toBe 1
 
     it "doesn't focus on initial load", ->
-      expect(@message_list._focusDraft).not.toHaveBeenCalled()
+      expect(@messageList._focusDraft).not.toHaveBeenCalled()
 
   describe "reply type", ->
     it "prompts for a reply when there's only one participant", ->
       MessageStore._items = [m3, m5]
       MessageStore.trigger()
-      @message_list.setState currentThread: test_thread
-      expect(@message_list._replyType()).toBe "reply"
-      cs = TestUtils.scryRenderedDOMComponentsWithClass(@message_list, "footer-reply-area")
+      @messageList.setState currentThread: test_thread
+      expect(@messageList._replyType()).toBe "reply"
+      cs = TestUtils.scryRenderedDOMComponentsWithClass(@messageList, "footer-reply-area")
       expect(cs.length).toBe 1
 
     it "prompts for a reply-all when there's more then one participant", ->
       MessageStore._items = [m5, m3]
       MessageStore.trigger()
-      @message_list.setState currentThread: test_thread
-      expect(@message_list._replyType()).toBe "reply-all"
-      cs = TestUtils.scryRenderedDOMComponentsWithClass(@message_list, "footer-reply-area")
+      @messageList.setState currentThread: test_thread
+      expect(@messageList._replyType()).toBe "reply-all"
+      cs = TestUtils.scryRenderedDOMComponentsWithClass(@messageList, "footer-reply-area")
       expect(cs.length).toBe 1
 
     it "hides the reply type if the last message is a draft", ->
       MessageStore._items = [m5, m3, draftMessages[0]]
       MessageStore.trigger()
-      @message_list.setState currentThread: test_thread
-      cs = TestUtils.scryRenderedDOMComponentsWithClass(@message_list, "footer-reply-area")
+      @messageList.setState currentThread: test_thread
+      cs = TestUtils.scryRenderedDOMComponentsWithClass(@messageList, "footer-reply-area")
       expect(cs.length).toBe 0
+
+  describe "Message minification", ->
+    beforeEach ->
+      @messageList.MINIFY_THRESHOLD = 3
+      @messageList.setState minified: true
+      @messages = [
+        {id: 'a'}, {id: 'b'}, {id: 'c'}, {id: 'd'}, {id: 'e'}, {id: 'f'}, {id: 'g'}
+      ]
+
+    it "ignores the first message if it's collapsed", ->
+      @messageList.setState messagesExpandedState:
+        a: false, b: false, c: false, d: false, e: false, f: false, g: "default"
+
+      out = @messageList._messagesWithMinification(@messages)
+      expect(out).toEqual [
+        {id: 'a'},
+        {
+          type: "minifiedBundle"
+          messages: [{id: 'b'}, {id: 'c'}, {id: 'd'}, {id: 'e'}]
+        },
+        {id: 'f'},
+        {id: 'g'}
+      ]
+
+    it "ignores the first message if it's expanded", ->
+      @messageList.setState messagesExpandedState:
+        a: "default", b: false, c: false, d: false, e: false, f: false, g: "default"
+
+      out = @messageList._messagesWithMinification(@messages)
+      expect(out).toEqual [
+        {id: 'a'},
+        {
+          type: "minifiedBundle"
+          messages: [{id: 'b'}, {id: 'c'}, {id: 'd'}, {id: 'e'}]
+        },
+        {id: 'f'},
+        {id: 'g'}
+      ]
+
+    it "doesn't minify the last collapsed message", ->
+      @messageList.setState messagesExpandedState:
+        a: false, b: false, c: false, d: false, e: false, f: "default", g: "default"
+
+      out = @messageList._messagesWithMinification(@messages)
+      expect(out).toEqual [
+        {id: 'a'},
+        {
+          type: "minifiedBundle"
+          messages: [{id: 'b'}, {id: 'c'}, {id: 'd'}]
+        },
+        {id: 'e'},
+        {id: 'f'},
+        {id: 'g'}
+      ]
+
+    it "allows explicitly expanded messages", ->
+      @messageList.setState messagesExpandedState:
+        a: false, b: false, c: false, d: false, e: false, f: "explicit", g: "default"
+
+      out = @messageList._messagesWithMinification(@messages)
+      expect(out).toEqual [
+        {id: 'a'},
+        {
+          type: "minifiedBundle"
+          messages: [{id: 'b'}, {id: 'c'}, {id: 'd'}, {id: 'e'}]
+        },
+        {id: 'f'},
+        {id: 'g'}
+      ]
+
+    it "doesn't minify if the threshold isn't reached", ->
+      @messageList.setState messagesExpandedState:
+        a: false, b: "default", c: false, d: "default", e: false, f: "default", g: "default"
+
+      out = @messageList._messagesWithMinification(@messages)
+      expect(out).toEqual [
+        {id: 'a'},
+        {id: 'b'},
+        {id: 'c'},
+        {id: 'd'},
+        {id: 'e'},
+        {id: 'f'},
+        {id: 'g'}
+      ]
+
+    it "doesn't minify if the threshold isn't reached due to the rule about not minifying the last collapsed messages", ->
+      @messageList.setState messagesExpandedState:
+        a: false, b: false, c: false, d: false, e: "default", f: "default", g: "default"
+
+      out = @messageList._messagesWithMinification(@messages)
+      expect(out).toEqual [
+        {id: 'a'},
+        {id: 'b'},
+        {id: 'c'},
+        {id: 'd'},
+        {id: 'e'},
+        {id: 'f'},
+        {id: 'g'}
+      ]
+
+    it "minifies at the threshold if the message is explicitly expanded", ->
+      @messageList.setState messagesExpandedState:
+        a: false, b: false, c: false, d: false, e: "explicit", f: "default", g: "default"
+
+      out = @messageList._messagesWithMinification(@messages)
+      expect(out).toEqual [
+        {id: 'a'},
+        {
+          type: "minifiedBundle"
+          messages: [{id: 'b'}, {id: 'c'}, {id: 'd'}]
+        },
+        {id: 'e'},
+        {id: 'f'},
+        {id: 'g'}
+      ]
+
+    it "can have multiple minification blocks", ->
+      messages = [
+        {id: 'a'}, {id: 'b'}, {id: 'c'}, {id: 'd'}, {id: 'e'}, {id: 'f'},
+        {id: 'g'}, {id: 'h'}, {id: 'i'}, {id: 'j'}, {id: 'k'}, {id: 'l'}
+      ]
+
+      @messageList.setState messagesExpandedState:
+        a: false, b: false, c: false, d: false, e: false, f: "default",
+        g: false, h: false, i: false, j: false, k: false, l: "default"
+
+      out = @messageList._messagesWithMinification(messages)
+      expect(out).toEqual [
+        {id: 'a'},
+        {
+          type: "minifiedBundle"
+          messages: [{id: 'b'}, {id: 'c'}, {id: 'd'}]
+        },
+        {id: 'e'},
+        {id: 'f'},
+        {
+          type: "minifiedBundle"
+          messages: [{id: 'g'}, {id: 'h'}, {id: 'i'}, {id: 'j'}]
+        },
+        {id: 'k'},
+        {id: 'l'}
+      ]
+
+    it "can have multiple minification blocks next to explicitly expanded messages", ->
+      messages = [
+        {id: 'a'}, {id: 'b'}, {id: 'c'}, {id: 'd'}, {id: 'e'}, {id: 'f'},
+        {id: 'g'}, {id: 'h'}, {id: 'i'}, {id: 'j'}, {id: 'k'}, {id: 'l'}
+      ]
+
+      @messageList.setState messagesExpandedState:
+        a: false, b: false, c: false, d: false, e: "explicit", f: "default",
+        g: false, h: false, i: false, j: false, k: "explicit", l: "default"
+
+      out = @messageList._messagesWithMinification(messages)
+      expect(out).toEqual [
+        {id: 'a'},
+        {
+          type: "minifiedBundle"
+          messages: [{id: 'b'}, {id: 'c'}, {id: 'd'}]
+        },
+        {id: 'e'},
+        {id: 'f'},
+        {
+          type: "minifiedBundle"
+          messages: [{id: 'g'}, {id: 'h'}, {id: 'i'}, {id: 'j'}]
+        },
+        {id: 'k'},
+        {id: 'l'}
+      ]
