@@ -243,6 +243,7 @@ module.exports = (grunt) ->
         'unique-headings': false
         'universal-selector': false
         'vendor-prefix': false
+        'duplicate-properties': false # doesn't place nice with mixins
       src: [
         'static/**/*.css'
       ]

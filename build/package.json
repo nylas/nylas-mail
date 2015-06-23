@@ -42,7 +42,7 @@
     "rimraf": "~2.2.2",
     "runas": "~1.0.1",
     "s3": "^4.3",
-    "tello": "git+https://github.com/nylas/tello.git",
+    "tello": "git+https://github.com/nylas/tello.git#built",
     "temp": "~0.8.1",
     "underscore": "^1.8",
     "underscore.string": "^3.0",
