@@ -11,6 +11,7 @@ _ = require 'underscore'
 {ResizableRegion,
  InjectedComponentSet,
  InjectedComponent,
+ ScrollRegion,
  RetinaImg} = require 'nylas-component-kit'
 
 FileUpload = require './file-upload'
@@ -151,58 +152,46 @@ class ComposerView extends React.Component
 
   _renderComposer: =>
     <div className="composer-inner-wrap" onDragOver={@_onDragNoop} onDragLeave={@_onDragNoop} onDragEnd={@_onDragNoop} onDrop={@_onDrop}>
-
       <div className="composer-cover"
            style={display: (if @state.isSending then "block" else "none")}>
       </div>
 
       <div className="composer-content-wrap">
+        {@_renderBodyScrollbar()}
 
-        <div className="composer-participant-actions">
-          <span className="header-action"
-                style={display: @state.showcc and 'none' or 'inline'}
-                onClick={=> @_showAndFocusCc()}>Cc</span>
+        <div className="composer-centered">
+          <div className="composer-participant-actions">
+            <span className="header-action"
+                  style={display: @state.showcc and 'none' or 'inline'}
+                  onClick={=> @_showAndFocusCc()}>Cc</span>
 
-          <span className="header-action"
-                style={display: @state.showbcc and 'none' or 'inline'}
-                onClick={=> @_showAndFocusBcc()}>Bcc</span>
+            <span className="header-action"
+                  style={display: @state.showbcc and 'none' or 'inline'}
+                  onClick={=> @_showAndFocusBcc()}>Bcc</span>
 
-          <span className="header-action"
-                style={display: @state.showsubject and 'none' or 'initial'}
-                onClick={=> @setState {showsubject: true}}>Subject</span>
+            <span className="header-action"
+                  style={display: @state.showsubject and 'none' or 'initial'}
+                  onClick={=> @setState {showsubject: true}}>Subject</span>
 
-          <span className="header-action"
-                data-tooltip="Popout composer"
-                style={{display: ((@props.mode is "fullwindow") and 'none' or 'initial'), paddingLeft: "1.5em"}}
-                onClick={@_popoutComposer}>
-            <RetinaImg name="composer-popout.png"
-              mode={RetinaImg.Mode.ContentIsMask}
-              style={{position: "relative", top: "-2px"}}/>
-          </span>
+            <span className="header-action"
+                  data-tooltip="Popout composer"
+                  style={{display: ((@props.mode is "fullwindow") and 'none' or 'initial'), paddingLeft: "1.5em"}}
+                  onClick={@_popoutComposer}>
+              <RetinaImg name="composer-popout.png"
+                mode={RetinaImg.Mode.ContentIsMask}
+                style={{position: "relative", top: "-2px"}}/>
+            </span>
+          </div>
 
+          {@_renderFields()}
+
+          <div className="compose-body" ref="composeBody" onClick={@_onClickComposeBody}>
+            {@_renderBody()}
+            {@_renderFooterRegions()}
+          </div>
         </div>
 
-        {@_renderFields()}
-
-        <div className="compose-body"
-             ref="composeBody"
-             onClick={@_onClickComposeBody}>
-          <ContenteditableComponent ref="contentBody"
-                                    html={@state.body}
-                                    onChange={@_onChangeBody}
-                                    onFilePaste={@_onFilePaste}
-                                    style={@_precalcComposerCss}
-                                    initialSelectionSnapshot={@_recoveredSelection}
-                                    mode={{showQuotedText: @state.showQuotedText}}
-                                    onChangeMode={@_onChangeEditableMode}
-                                    onRequestScrollTo={@props.onRequestScrollTo}
-                                    tabIndex="109" />
-
-          {@_renderFooterRegions()}
-
-        </div>
       </div>
-
       <div className="composer-action-bar-wrap">
         {@_renderActionsRegion()}
       </div>
@@ -263,6 +252,31 @@ class ComposerView extends React.Component
 
     fields
 
+  _renderBodyScrollbar: =>
+    if @props.mode is "inline"
+      []
+    else
+      <ScrollRegion.Scrollbar ref="scrollbar" getScrollRegion={ => @refs.scrollregion } />
+
+  _renderBody: =>
+    if @props.mode is "inline"
+      @_renderBodyContenteditable()
+    else
+      <ScrollRegion className="compose-body-scroll" ref="scrollregion" getScrollbar={ => @refs.scrollbar }>
+        {@_renderBodyContenteditable()}
+      </ScrollRegion>
+
+  _renderBodyContenteditable: =>
+    <ContenteditableComponent ref="contentBody"
+                              html={@state.body}
+                              onChange={@_onChangeBody}
+                              onFilePaste={@_onFilePaste}
+                              style={@_precalcComposerCss}
+                              initialSelectionSnapshot={@_recoveredSelection}
+                              mode={{showQuotedText: @state.showQuotedText}}
+                              onChangeMode={@_onChangeEditableMode}
+                              onRequestScrollTo={@props.onRequestScrollTo}
+                              tabIndex="109" />
   _renderFooterRegions: =>
     return <div></div> unless @props.localId
 
@@ -389,10 +403,10 @@ class ComposerView extends React.Component
     Utils.isForwardedMessage(draft)
 
   # This lets us click outside of the `contenteditable`'s `contentBody`
-  # and still focus on the contenteditable
+  # and simulate what happens when you click beneath the text *in* the
+  # contentEditable.
   _onClickComposeBody: (event) =>
-    if event.target is React.findDOMNode(@refs.composeBody)
-      @focus("contentBody")
+    @refs.contentBody.selectEnd()
 
   _onDraftChanged: =>
     return unless @_proxy
