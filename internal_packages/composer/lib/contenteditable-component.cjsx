@@ -99,6 +99,7 @@ class ContenteditableComponent extends React.Component
            tabIndex={@props.tabIndex}
            style={@props.style ? {}}
            onBlur={@_onBlur}
+           onClick={@_onClick}
            onPaste={@_onPaste}
            onInput={@_onInput}
            dangerouslySetInnerHTML={@_dangerouslySetInnerHTML()}></div>
@@ -107,6 +108,21 @@ class ContenteditableComponent extends React.Component
 
   focus: =>
     @_editableNode().focus()
+
+  selectEnd: =>
+    range = document.createRange()
+    range.selectNodeContents(@_editableNode())
+    range.collapse(false)
+    @_editableNode().focus()
+    selection = window.getSelection()
+    selection.removeAllRanges()
+    selection.addRange(range)
+
+  _onClick: (event) ->
+    # We handle mouseDown, mouseMove, mouseUp, but we want to stop propagation
+    # of `click` to make it clear that we've handled the event.
+    # Note: Related to composer-view#_onClickComposeBody
+    event.stopPropagation()
 
   _onInput: (event) =>
     @_dragging = false
