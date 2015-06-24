@@ -25,6 +25,10 @@ module.exports = (grunt) ->
       cp(path.join(shellAppDir, 'Contents', 'MacOS', 'Electron'),
          path.join(shellAppDir, 'Contents', 'MacOS', 'Nylas'))
       rm path.join(shellAppDir, 'Contents', 'MacOS', 'Electron')
+    else if process.platform is 'win32'
+      cp 'electron', shellAppDir, filter: /default_app/
+      cp path.join(shellAppDir, 'electron.exe'), path.join(shellAppDir, 'nylas.exe')
+      rm path.join(shellAppDir, 'electron.exe')
     else
       cp 'electron', shellAppDir, filter: /default_app/
       cp path.join(shellAppDir, 'electron'), path.join(shellAppDir, 'nylas')
