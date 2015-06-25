@@ -53,11 +53,10 @@ file_cid_but_not_referenced_or_image = new File
   contentId: 'file_cid_but_not_referenced_or_image'
   contentType: 'text/plain'
   size: 300
-file_actually_a_mime_part = new File
-  id: 'file_actually_a_mime_part'
-  contentId: 'file_actually_a_mime_part'
-  contentType: 'text/html'
-  size: 300
+file_without_filename = new File
+  id: 'file_without_filename'
+  contentType: 'image/png'
+  size: 10
 
 download =
   fileId: 'file_1_id'
@@ -178,7 +177,7 @@ describe "MessageItem", ->
         file_inline,
         file_inline_downloading,
         file_inline_not_downloaded,
-        file_actually_a_mime_part
+        file_without_filename
       ]
       @message.body = """
         <img alt=\"A\" src=\"cid:#{file_inline.contentId}\"/>
@@ -198,16 +197,11 @@ describe "MessageItem", ->
 
     it "should list attachments that are not mentioned in the body via cid", ->
       attachments = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@component, InjectedComponent, matching: {role: 'Attachment'})
-      expect(attachments.length).toEqual(4)
+      expect(attachments.length).toEqual(5)
       expect(attachments[0].props.exposedProps.file).toBe(file)
       expect(attachments[1].props.exposedProps.file).toBe(file_not_downloaded)
       expect(attachments[2].props.exposedProps.file).toBe(file_cid_but_not_referenced)
       expect(attachments[3].props.exposedProps.file).toBe(file_cid_but_not_referenced_or_image)
-
-    it "should list attachments without a filename", ->
-      attachments = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@component, InjectedComponent, matching: {role: 'Attachment'})
-      for attachment in attachments
-        expect(attachment.props.exposedProps.file).not.toBe(file_actually_a_mime_part)
 
     it "should provide file download state to each InjectedComponent", ->
       attachments = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@component, InjectedComponent, matching: {role: 'Attachment'})
@@ -218,7 +212,7 @@ describe "MessageItem", ->
       @message.body = ""
       @createComponent()
       attachments = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@component, InjectedComponent, matching: {role: 'Attachment'})
-      expect(attachments.length).toEqual(7)
+      expect(attachments.length).toEqual(8)
 
     describe "inline", ->
       it "should never leave src=cid:// in the message body", ->
