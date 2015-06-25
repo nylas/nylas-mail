@@ -54,6 +54,10 @@ class MessageItem extends React.Component
       @_renderFull()
 
   _renderCollapsed: =>
+    attachmentIcon = []
+    if @props.message.files.length > 0
+      attachmentIcon = <div className="collapsed-attachment"></div>
+
     <div className={@props.className} onClick={@_toggleCollapsed}>
       <div className="message-item-area">
         <div className="collapsed-from">
@@ -65,6 +69,7 @@ class MessageItem extends React.Component
         <div className="collapsed-timestamp">
           <MessageTimestamp date={@props.message.date} />
         </div>
+        {attachmentIcon}
       </div>
     </div>
 
