@@ -17,7 +17,6 @@ InternalAdminStore = Reflux.createStore
 
   init: ->
     @_accountCache = null
-    @_applicationCache = null
     @_enabled = false
     @_error = null
 
@@ -32,13 +31,13 @@ InternalAdminStore = Reflux.createStore
 
 
   dataForFocusedContact: ->
-    return {loading: true} if @_accountCache is null or @_applicationCache is null
+    return {loading: true} if @_accountCache is null
     contact = FocusedContactsStore.focusedContact()
     return {} unless contact
 
     account = _.find @_accountCache, (account) -> account.email is contact.email
     apps = undefined
-    apps = @_applicationCache.accounts["#{account.id}"] if account
+    apps = account.applications if account
 
     # Coffeescript shorthand for {account: account, apps: apps}
     {account, apps}
@@ -67,7 +66,6 @@ InternalAdminStore = Reflux.createStore
       @_enabled = true
     else
       @_accountCache = null
-      @_applicationCache = null
       @_enabled = false
     @trigger(@)
 
@@ -86,17 +84,4 @@ InternalAdminStore = Reflux.createStore
           catch err
             @_error = err
             @_accountCache = null
-        @trigger(@)
-
-    request 'https://admin.nylas.com/api/status/accounts/applications', (err, resp, data) =>
-      PriorityUICoordinator.settle.then =>
-        if err
-          @_error = err
-        else
-          @_error = null
-          try
-            @_applicationCache = JSON.parse(data)
-          catch err
-            @_error = err
-            @_applicationCache = null
         @trigger(@)

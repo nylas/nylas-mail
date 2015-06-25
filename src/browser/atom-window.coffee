@@ -162,6 +162,12 @@ class AtomWindow
     @browserWindow.on 'closed', =>
       global.application.windowManager.removeWindow(this)
 
+    @browserWindow.webContents.on 'will-navigate', (event, url) =>
+      event.preventDefault()
+
+    @browserWindow.webContents.on 'new-window', (event, url, frameName, disposition) =>
+      event.preventDefault()
+
     @browserWindow.on 'unresponsive', =>
       return if @isSpec
 
