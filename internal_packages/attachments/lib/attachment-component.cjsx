@@ -39,7 +39,7 @@ class AttachmentComponent extends React.Component
                      fallback="file-fallback.png"
                      name="file-#{@_extension()}.png"/>
         </span>
-        <span className="attachment-file-name">{@props.file.filename}</span>
+        <span className="attachment-file-name">{@props.file.filename ? "Unnamed Attachment"}</span>
       </span>
 
     </div>

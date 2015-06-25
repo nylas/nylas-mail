@@ -296,12 +296,9 @@ class MessageItem extends React.Component
 
     return otherAttachments.concat(imageAttachments)
 
-  # We ignore files with no name because they're actually mime-parts of the
-  # message being served by the API as files.
   _isRealFile: (file) ->
-    hasName = file.filename and file.filename.length > 0
     hasCIDInBody = file.contentId? and @props.message.body?.indexOf(file.contentId) > 0
-    return hasName and not hasCIDInBody
+    return not hasCIDInBody
 
   _isForwardedMessage: =>
     Utils.isForwardedMessage(@props.message)
