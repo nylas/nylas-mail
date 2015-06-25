@@ -5,21 +5,23 @@ classNames = require 'classnames'
 {RetinaImg, Popover, Menu} = require 'nylas-component-kit'
 
 ThreadArchiveButton = require './thread-archive-button'
+ThreadStarButton = require './thread-star-button'
 
 class MessageToolbarItems extends React.Component
   @displayName: "MessageToolbarItems"
 
   constructor: (@props) ->
     @state =
-      threadIsSelected: FocusedContentStore.focusedId('thread')?
+      thread: FocusedContentStore.focused('thread')
 
   render: =>
     classes = classNames
       "message-toolbar-items": true
-      "hidden": !@state.threadIsSelected
+      "hidden": !@state.thread
 
     <div className={classes}>
       <ThreadArchiveButton />
+      <ThreadStarButton ref="starButton" thread={@state.thread} />
     </div>
 
   componentDidMount: =>
@@ -31,6 +33,6 @@ class MessageToolbarItems extends React.Component
 
   _onChange: =>
     @setState
-      threadIsSelected: FocusedContentStore.focusedId('thread')?
+      thread: FocusedContentStore.focused('thread')
 
 module.exports = MessageToolbarItems
