@@ -10,23 +10,14 @@ class DatabaseManager
 
   constructor: ({@resourcePath}) ->
     @_databases = {}
+    @_setupQueries = {}
     @_prepPromises = {}
 
-  _query: (db, query, values) ->
-    return new Promise (resolve, reject) ->
-      onQueryComplete = (err, result) ->
-        if err
-          reject(err)
-        else
-          runtime = db.lastQueryTime()
-          if runtime > 250
-            console.log("Query #{queryKey}: #{query} took #{runtime}msec")
-          resolve(result)
-
-      if query[0..5] is 'SELECT'
-        db.query(query, values, null, onQueryComplete)
-      else
-        db.query(query, values, onQueryComplete)
+  _query: (db, query, values, callback) ->
+    if query[0..5] is 'SELECT'
+      db.query(query, values, null, callback)
+    else
+      db.query(query, values, callback)
 
   # Public: Called by `DatabaseConnection` in each window to ensure the DB
   # is fully setup
@@ -40,10 +31,7 @@ class DatabaseManager
     if @_databases[databasePath]
       callback()
     else
-      @_prepPromises[databasePath] ?= @_createNewDatabase(databasePath).then (db) =>
-        @_databases[databasePath] = db
-        return Promise.resolve()
-
+      @_prepPromises[databasePath] ?= @_createNewDatabase(databasePath)
       @_prepPromises[databasePath].then(callback).catch (err) ->
         console.error "Error preparing the database"
         console.error err
@@ -55,7 +43,6 @@ class DatabaseManager
   # access them later. This also prevents us from adding an extra argument
   # to a bunch of functions in the chain.
   addSetupQueries: (databasePath, setupQueries=[]) =>
-    @_setupQueries ?= {}
     @_setupQueries[databasePath] = setupQueries
 
   closeDatabaseConnection: (databasePath) ->
@@ -83,11 +70,7 @@ class DatabaseManager
       event.sender.send('database-result', {queryKey, err, result})
       return
 
-    @_query(db, query, values).then (result) ->
-      err = null
-      event.sender.send('database-result', {queryKey, err, result})
-    .catch (err) ->
-      result = null
+    @_query db, query, values, (err, result) ->
       event.sender.send('database-result', {queryKey, err, result})
 
   # Resolves when a new database has been created and the initial setup
@@ -102,10 +85,15 @@ class DatabaseManager
       # still allow queries to be made.
       db.ignoreErrors = true
 
-      setupQueries = @_setupQueries?[databasePath] ? []
-
       # Resolves when the DB has been initalized
-      return @_runSetupQueries(db, setupQueries)
+      @_runSetupQueries(db, @_setupQueries[databasePath])
+      .then =>
+        @_databases[databasePath] = db
+        return Promise.resolve()
+      .catch (err) =>
+        console.error("DatabaseManager: Error running setup queries: #{err?.message}")
+        @emit("setup-error", err)
+        return Promise.reject(err)
 
   # Takes a set of queries to initialize the database with
   #
@@ -116,15 +104,10 @@ class DatabaseManager
   #   - resolves when all setup queries are complete
   #   - rejects if any query had an error
   _runSetupQueries: (db, setupQueries=[]) ->
-    setupPromise = Promise.all setupQueries.map (query) =>
-      @_query(db, query, [])
-
-    setupPromise.then ->
-      return Promise.resolve(db)
-    .catch (err) ->
-      @emit("setup-error", err)
-      console.error "!!!!!!!!!!! There was an error setting up the database #{err?.message}"
-      return Promise.reject(err)
+    Promise.all setupQueries.map (query) =>
+      new Promise (resolve, reject) =>
+        @_query db, query, [], (err, result) ->
+          if err then reject(err) else resolve()
 
   _getDBAdapter: ->
     # return a promise that resolves after we've configured dblite for our platform
