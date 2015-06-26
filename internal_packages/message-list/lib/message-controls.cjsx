@@ -11,25 +11,25 @@ class MessageControls extends React.Component
   constructor: (@props) ->
 
   render: =>
+    button = []
+
+    if @_replyType() is "reply"
+      button = <ButtonDropdown
+        primaryItem={<RetinaImg name="reply-footer.png" mode={RetinaImg.Mode.ContentIsMask}/>}
+        primaryClick={@_onReply}
+        secondaryItems={@_secondaryMessageActions()}/>
+    else
+      button = <ButtonDropdown
+        primaryItem={<RetinaImg name="reply-all-footer.png" mode={RetinaImg.Mode.ContentIsMask}/>}
+        primaryClick={@_onReplyAll}
+        secondaryItems={@_secondaryMessageActions()}/>
+
     <div className="message-actions-wrap">
       <div className="message-actions-ellipsis" onClick={@_onShowActionsMenu}>
         <RetinaImg name={"message-actions-ellipsis.png"} mode={RetinaImg.Mode.ContentIsMask}/>
       </div>
-
-      <ButtonDropdown
-        primaryItem={@_primaryMessageAction()}
-        secondaryItems={@_secondaryMessageActions()}/>
+      {button}
     </div>
-
-  _primaryMessageAction: =>
-    if @_replyType() is "reply"
-      <span onClick={@_onReply}>
-        <RetinaImg name="reply-footer.png" mode={RetinaImg.Mode.ContentIsMask}/>
-      </span>
-    else # if "reply-all"
-      <span onClick={@_onReplyAll}>
-        <RetinaImg name="reply-all-footer.png" mode={RetinaImg.Mode.ContentIsMask}/>
-      </span>
 
   _secondaryMessageActions: ->
     if @_replyType() is "reply"
