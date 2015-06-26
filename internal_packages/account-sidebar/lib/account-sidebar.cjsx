@@ -41,14 +41,14 @@ class AccountSidebar extends React.Component
       </section>
 
   _itemComponents: (section) =>
-    if section.type is 'tag'
-      itemClass = SidebarTagItem
-    else if section.type is 'sheet'
-      itemClass = SidebarSheetItem
-    else
-      throw new Error("Unsure how to render item type #{section.type}")
-
     section.items?.map (item) =>
+      if section.type is 'tag'
+        itemClass = SidebarTagItem
+      else if section.type is 'sheet'
+        itemClass = item.sidebarComponent ? SidebarSheetItem
+      else
+        throw new Error("Unsure how to render item type #{section.type}")
+
       <itemClass
         key={item.id ? item.type}
         item={item}

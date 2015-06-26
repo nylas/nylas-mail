@@ -48,6 +48,7 @@ Exports =
 
   # Stores
   DraftStore: require '../src/flux/stores/draft-store'
+  DraftCountStore: require '../src/flux/stores/draft-count-store'
   DraftStoreExtension: require '../src/flux/stores/draft-store-extension'
   MessageStore: require '../src/flux/stores/message-store'
   ContactStore: require '../src/flux/stores/contact-store'
@@ -60,6 +61,7 @@ Exports =
   FileUploadStore: require '../src/flux/stores/file-upload-store'
   FileDownloadStore: require '../src/flux/stores/file-download-store'
   FocusedContactsStore: require '../src/flux/stores/focused-contacts-store'
+  UnreadCountStore: require '../src/flux/stores/unread-count-store'
 
   # Errors
   APIError: APIError
