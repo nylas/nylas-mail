@@ -13,6 +13,7 @@ TestUtils = React.addons.TestUtils
  Namespace,
  MessageStore,
  NamespaceStore,
+ NylasTestUtils,
  ComponentRegistry} = require "nylas-exports"
 
 {InjectedComponent} = require 'nylas-component-kit'
@@ -195,6 +196,8 @@ describe "MessageList", ->
       MessageStore.trigger(MessageStore)
       @messageList.setState currentThread: test_thread
 
+      NylasTestUtils.loadKeymap("keymaps/base")
+
     it "renders all the correct number of messages", ->
       items = TestUtils.scryRenderedComponentsWithType(@messageList,
               MessageItem)
@@ -212,6 +215,11 @@ describe "MessageList", ->
       items = TestUtils.scryRenderedComponentsWithType(@messageList,
               MessageParticipants)
       expect(items.length).toBe 1
+
+    it "toggles star on a thread if 's' is pressed", ->
+      spyOn(@messageList, "_onStarItem")
+      NylasTestUtils.keyPress("s", document.body)
+      expect(@messageList._onStarItem).toHaveBeenCalled()
 
     it "focuses new composers when a draft is added", ->
       spyOn(@messageList, "_focusDraft")

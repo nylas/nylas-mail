@@ -130,6 +130,7 @@ class ThreadList extends React.Component
 
     @commands =
       'core:remove-item': @_onArchive
+      'core:star-item': @_onStarItem
       'core:remove-and-previous': -> Actions.archiveAndPrevious()
       'core:remove-and-next': -> Actions.archiveAndNext()
       'application:reply': @_onReply
@@ -146,6 +147,12 @@ class ThreadList extends React.Component
 
   componentWillUnmount: =>
     window.removeEventListener('resize', @_onResize)
+
+  _onStarItem: =>
+    if @state.style is 'wide' or ThreadListStore.view().selection.count() > 0
+      Actions.toggleStarSelection()
+    else
+      Actions.toggleStarFocused()
 
   render: =>
     if @state.style is 'wide'
