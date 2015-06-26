@@ -85,7 +85,9 @@ ThreadListStore = Reflux.createStore
 
   # Inbound Events
 
-  _onTagChanged: -> @createView()
+  _onTagChanged: ->
+    @createView()
+
   _onNamespaceChanged: ->
     namespaceId = NamespaceStore.current()?.id
     namespaceMatcher = (m) ->
