@@ -33,7 +33,7 @@ class MessageTimestamp extends React.Component
       if diff < 1
         return "h:mm a"
       if diff < 4
-        return "MMM D, h:mm a"
+        return "MMM D"
       else if diff > 1 and diff <= 365
         return "MMM D"
       else
