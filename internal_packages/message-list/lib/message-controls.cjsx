@@ -1,5 +1,5 @@
 React = require 'react'
-{Actions} = require 'nylas-exports'
+{Actions, NamespaceStore} = require 'nylas-exports'
 {RetinaImg, ButtonDropdown} = require 'nylas-component-kit'
 
 class MessageControls extends React.Component
@@ -31,6 +31,16 @@ class MessageControls extends React.Component
       {button}
     </div>
 
+  _primaryMessageAction: =>
+    if @_replyType() is "reply"
+      <div className="primary-message-action" onClick={@_onReply}>
+        <RetinaImg name="reply-footer.png" mode={RetinaImg.Mode.ContentIsMask}/>
+      </div>
+    else # if "reply-all"
+      <div className="primary-message-action" onClick={@_onReplyAll}>
+        <RetinaImg name="reply-all-footer.png" mode={RetinaImg.Mode.ContentIsMask}/>
+      </div>
+
   _secondaryMessageActions: ->
     if @_replyType() is "reply"
       return [@_replyAllAction(), @_forwardAction()]
@@ -60,7 +70,9 @@ class MessageControls extends React.Component
     Actions.composeForward(thread: @props.thread, message: @props.message)
 
   _replyType: =>
-    if @props.message.cc.length is 0 and @props.message.to.length is 1
+    emails = @props.message.to.map (item) -> item.email.toLowerCase().trim()
+    myEmail = NamespaceStore.current()?.me().email.toLowerCase().trim()
+    if @props.message.cc.length is 0 and @props.message.to.length is 1 and emails[0] is myEmail
       return "reply"
     else return "reply-all"
 
