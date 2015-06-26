@@ -20,8 +20,8 @@ class ModeToggle extends React.Component
   render: =>
     return <div></div> unless @state.visible
 
-    <div className="mode-toggle mode-#{@state.mode}"
-         style={order:51, marginTop:10, marginRight:14}
+    <div className="btn btn-toolbar mode-toggle mode-#{@state.mode}"
+         style={order:51}
          onClick={@_onToggleMode}>
       <RetinaImg
         name="toolbar-icon-toggle-pane.png"
