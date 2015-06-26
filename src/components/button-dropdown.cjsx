@@ -6,6 +6,7 @@ class ButtonDropdown extends React.Component
   @displayName: "MessageControls"
   @propTypes:
     primaryItem: React.PropTypes.element
+    primaryClick: React.PropTypes.func
     secondaryItems: React.PropTypes.arrayOf(React.PropTypes.element)
 
   constructor: (@props) ->
@@ -13,7 +14,7 @@ class ButtonDropdown extends React.Component
 
   render: =>
     <div ref="button" onBlur={@_onBlur} tabIndex={999} className="#{@props.className ? ''} button-dropdown" >
-      <div className="primary-item">
+      <div className="primary-item" onClick={@props.primaryClick}>
         {@props.primaryItem}
       </div>
       <div className="secondary-picker" onClick={@_toggleDropdown}>
