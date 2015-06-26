@@ -61,6 +61,8 @@ class MessageList extends React.Component
     @MINIFY_THRESHOLD = 3
 
   componentDidMount: =>
+    @_mounted = true
+
     window.addEventListener("resize", @_onResize)
     @_unsubscribers = []
     @_unsubscribers.push MessageStore.listen @_onChange
@@ -80,6 +82,7 @@ class MessageList extends React.Component
       @_prepareContentForDisplay()
 
   componentWillUnmount: =>
+    @_mounted = false
     unsubscribe() for unsubscribe in @_unsubscribers
     @command_unsubscriber.dispose()
 
@@ -210,6 +213,7 @@ class MessageList extends React.Component
     lastHeight = -1
     stableCount = 0
     scrollIfSettled = =>
+      return unless @_mounted
       messageWrapHeight = messageWrap.getBoundingClientRect().height
       if messageWrapHeight isnt lastHeight
         lastHeight = messageWrapHeight
