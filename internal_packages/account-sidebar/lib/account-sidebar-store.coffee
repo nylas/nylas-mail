@@ -3,6 +3,8 @@ _ = require 'underscore'
 {DatabaseStore,
  NamespaceStore,
  WorkspaceStore,
+ UnreadCountStore,
+ DraftCountStore,
  Actions,
  Tag,
  Message,
@@ -12,13 +14,11 @@ _ = require 'underscore'
 
 AccountSidebarStore = Reflux.createStore
   init: ->
-    @_inboxCount = null
     @_tags = []
 
     @_setStoreDefaults()
     @_registerListeners()
     @_populate()
-    @_populateInboxCount()
 
   ########### PUBLIC #####################################################
 
@@ -40,6 +40,8 @@ AccountSidebarStore = Reflux.createStore
     @listenTo DatabaseStore, @_onDataChanged
     @listenTo NamespaceStore, @_onNamespaceChanged
     @listenTo WorkspaceStore, @_onWorkspaceChanged
+    @listenTo UnreadCountStore, @_onCountChanged
+    @listenTo DraftCountStore, @_onCountChanged
     @listenTo FocusedTagStore, @_onFocusChange
 
   _populate: ->
@@ -49,19 +51,6 @@ AccountSidebarStore = Reflux.createStore
     DatabaseStore.findAll(Tag, namespaceId: namespace.id).then (tags) =>
       @_tags = tags
       @_build()
-
-  _populateInboxCount: ->
-    namespace = NamespaceStore.current()
-    return unless namespace
-
-    DatabaseStore.count(Thread, [
-      Thread.attributes.namespaceId.equal(namespace.id),
-      Thread.attributes.unread.equal(true),
-      Thread.attributes.tags.contains('inbox')
-    ]).then (count) =>
-      if count isnt @_inboxCount
-        @_inboxCount = count
-        @_build()
 
   _build: ->
     tags = @_tags
@@ -75,6 +64,10 @@ AccountSidebarStore = Reflux.createStore
     # We ignore the trash tag because you can't trash anything
     tags = _.reject tags, (tag) -> tag.id is "trash"
 
+    # Clone the tag objects so that components holding on to tags
+    # don't have identical object references with new data.
+    tags = _.map tags, (tag) -> new Tag(tag)
+
     mainTagIDs = ['inbox', 'starred', 'drafts', 'sent', 'archive']
     mainTags = _.filter tags, (tag) -> _.contains(mainTagIDs, tag.id)
     userTags = _.reject tags, (tag) -> _.contains(mainTagIDs, tag.id)
@@ -83,8 +76,9 @@ AccountSidebarStore = Reflux.createStore
     mainTags = _.sortBy mainTags, (tag) -> mainTagIDs.indexOf(tag.id)
     mainTags.push new Tag(name: 'All Mail', id: '*')
 
+    # Add the counts
     inboxTag = _.find tags, (tag) -> tag.id is 'inbox'
-    inboxTag?.unreadCount = @_inboxCount
+    inboxTag?.unreadCount = UnreadCountStore.count()
 
     # Sort user tags by name
     userTags = _.sortBy(userTags, 'name')
@@ -114,23 +108,19 @@ AccountSidebarStore = Reflux.createStore
 
   _onNamespaceChanged: ->
     @_refetchFromAPI()
-    @_populateInboxCount()
     @_populate()
 
   _onWorkspaceChanged: ->
     @_populate()
 
+  _onCountChanged: ->
+    @_build()
+
   _onFocusChange: ->
     @trigger(@)
 
   _onDataChanged: (change) ->
-    @populateInboxCountDebounced ?= _.debounce =>
-      @_populateInboxCount()
-    , 5000
-
     if change.objectClass is Tag.name
       @_populate()
-    if change.objectClass is Thread.name
-      @populateInboxCountDebounced()
 
 module.exports = AccountSidebarStore

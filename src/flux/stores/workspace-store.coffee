@@ -48,11 +48,8 @@ class WorkspaceStore
       @defineSheet 'Threads', {root: true},
         list: ['RootSidebar', 'ThreadList']
         split: ['RootSidebar', 'ThreadList', 'MessageList', 'MessageListSidebar']
-      @defineSheet 'Drafts', {root: true, name: 'Local Drafts'},
-        list: ['RootSidebar', 'DraftList']
       @defineSheet 'Thread', {},
         list: ['MessageList', 'MessageListSidebar']
-      @_onSelectRootSheet(Sheet.Threads)
     else
       @defineSheet 'Global'
 
@@ -146,6 +143,7 @@ class WorkspaceStore
       icon: options.icon
       name: options.name
       root: options.root
+      sidebarComponent: options.sidebarComponent
 
       Toolbar:
         Left: {id: "Sheet:#{id}:Toolbar:Left"}
