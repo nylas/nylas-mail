@@ -64,7 +64,7 @@ class DatabaseManager
 
   closeDatabaseConnections: ->
     for path, val of @_databases
-      @_closeDatabaseConnection(path)
+      @closeDatabaseConnection(path)
 
   deleteAllDatabases: ->
     Object.keys(@_databases).forEach (path) =>
