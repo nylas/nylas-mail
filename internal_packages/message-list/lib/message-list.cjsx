@@ -66,7 +66,10 @@ class MessageList extends React.Component
     @_unsubscribers.push MessageStore.listen @_onChange
 
     commands = _.extend {},
-      'core:star-item': => @_onStarItem()
+      'core:star-item': => @_onStar()
+      'application:reply': => @_onReply()
+      'application:reply-all': => @_onReplyAll()
+      'application:forward': => @_onForward()
 
     @command_unsubscriber = atom.commands.add('body', commands)
 
@@ -113,12 +116,25 @@ class MessageList extends React.Component
   _focusDraft: (draftElement) =>
     draftElement.focus()
 
-  _onStarItem: =>
+  _onStar: =>
+    return unless @state.currentThread
     if @state.currentThread.isStarred()
       task = new AddRemoveTagsTask(@state.currentThread, [], ['starred'])
     else
       task = new AddRemoveTagsTask(@state.currentThread, ['starred'], [])
     Actions.queueTask(task)
+
+  _onReply: =>
+    return unless @state.currentThread
+    Actions.composeReply(thread: @state.currentThread)
+
+  _onReplyAll: =>
+    return unless @state.currentThread
+    Actions.composeReplyAll(thread: @state.currentThread)
+
+  _onForward: =>
+    return unless @state.currentThread
+    Actions.composeForward(thread: @state.currentThread)
 
   render: =>
     if not @state.currentThread?
