@@ -177,7 +177,11 @@ Utils =
       files = fs.listTreeSync(imagesPath)
 
       Utils.images[resourcePath] ?= {}
-      Utils.images[resourcePath][path.basename(file)] = file for file in files
+      for file in files
+        # On Windows, we get paths like C:\images\compose.png, but Chromium doesn't
+        # accept the backward slashes. Convert to C:/images/compose.png
+        file = file.replace(/\\/g, '/')
+        Utils.images[resourcePath][path.basename(file)] = file
 
     if window.devicePixelRatio > 1
       return Utils.images[resourcePath]["#{name}@2x.#{ext}"] ? Utils.images[resourcePath][fullname] ? Utils.images[resourcePath]["#{name}@1x.#{ext}"]

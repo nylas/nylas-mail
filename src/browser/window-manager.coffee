@@ -404,10 +404,18 @@ class WindowManager
         window.browserWindow.removeListener('focus', focusHandler)
 
   windowClosedOrHidden: ->
+    # On Windows and Linux, we want to terminate the app after the last visible
+    # window is closed. However, there are brief moments where the app has no
+    # windows, like when you log out or finish logging in. Wait a while after
+    # the last window close event to see if we should quit.
     if process.platform in ['win32', 'linux']
-      if @visibleWindows().length is 0
-        # Quitting the app from within a window event handler causes
-        # an assertion error. Wait a moment.
-        _.defer -> app.quit()
+      @quitCheck ?= _.debounce =>
+        noVisibleWindows = @visibleWindows().length is 0
+        mainWindowLoading = @mainWindow and not @mainWindow.loaded
+        if noVisibleWindows and not mainWindowLoading
+          app.quit()
+      , 10000
+      @quitCheck()
+
 
 module.exports = WindowManager

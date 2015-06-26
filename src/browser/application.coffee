@@ -77,11 +77,13 @@ class Application
     @config = new Config({configDirPath, @resourcePath})
     @config.load()
 
-    @databaseManager = new DatabaseManager({@resourcePath})
     @windowManager = new WindowManager({@resourcePath, @config, @devMode, @safeMode})
     @autoUpdateManager = new AutoUpdateManager(@version, @config, @specMode)
     @applicationMenu = new ApplicationMenu(@version)
     @nylasProtocolHandler = new NylasProtocolHandler(@resourcePath, @safeMode)
+
+    @databaseManager = new DatabaseManager({@resourcePath})
+    @databaseManager.on "setup-error", @_logout
 
     @listenForArgumentsFromNewProcess()
     @setupJavaScriptArguments()
@@ -129,6 +131,7 @@ class Application
     app.commandLine.appendSwitch 'js-flags', '--harmony'
 
   _logout: =>
+    @databaseManager.deleteAllDatabases()
     @config.set('nylas', null)
     @config.set('edgehill', null)
 
@@ -282,8 +285,6 @@ class Application
     # configure a listener that watches for incoming queries over IPC,
     # executes them, and returns the responses to the remote renderer processes
     ipc.on 'database-query', @databaseManager.onIPCDatabaseQuery
-
-    @databaseManager.on "setup-error", @_logout
 
   # Public: Executes the given command.
   #

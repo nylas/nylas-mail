@@ -58,13 +58,20 @@ class DatabaseManager
     @_setupQueries ?= {}
     @_setupQueries[databasePath] = setupQueries
 
-  _closeDatabaseConnection: (databasePath) ->
+  closeDatabaseConnection: (databasePath) ->
     @_databases[databasePath]?.close()
     delete @_databases[databasePath]
 
   closeDatabaseConnections: ->
     for path, val of @_databases
       @_closeDatabaseConnection(path)
+
+  deleteAllDatabases: ->
+    Object.keys(@_databases).forEach (path) =>
+      db = @_databases[path]
+      db.on 'close', -> fs.unlinkSync(path)
+      db.close()
+      delete @_databases[path]
 
   onIPCDatabaseQuery: (event, {databasePath, queryKey, query, values}) =>
     db = @_databases[databasePath]
@@ -113,8 +120,7 @@ class DatabaseManager
     setupPromise.then ->
       return Promise.resolve(db)
     .catch (err) ->
-      @emit "setup-error", err
-      @_deleteAllDatabases()
+      @emit("setup-error", err)
       console.error "There was an error setting up the database #{err?.message}"
       return Promise.reject(err)
 
@@ -135,10 +141,5 @@ class DatabaseManager
       else if process.platform is 'darwin'
         dblite.bin = "#{vendor}/sqlite3-darwin"
         resolve(dblite)
-
-  _deleteAllDatabases: ->
-    for path, val of @_databases
-      @closeDatabaseConnection(path)
-      fs.unlinkSync(path)
 
 module.exports = DatabaseManager
