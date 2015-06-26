@@ -133,9 +133,6 @@ class ThreadList extends React.Component
       'core:star-item': @_onStarItem
       'core:remove-and-previous': -> Actions.archiveAndPrevious()
       'core:remove-and-next': -> Actions.archiveAndNext()
-      'application:reply': @_onReply
-      'application:reply-all': @_onReplyAll
-      'application:forward': @_onForward
 
     @itemPropsProvider = (item) ->
       className: classNames
@@ -147,12 +144,6 @@ class ThreadList extends React.Component
 
   componentWillUnmount: =>
     window.removeEventListener('resize', @_onResize)
-
-  _onStarItem: =>
-    if @state.style is 'wide' or ThreadListStore.view().selection.count() > 0
-      Actions.toggleStarSelection()
-    else
-      Actions.toggleStarFocused()
 
   render: =>
     if @state.style is 'wide'
@@ -188,31 +179,21 @@ class ThreadList extends React.Component
 
   # Additional Commands
 
+  _onStarItem: =>
+    if WorkspaceStore.layoutMode() is "list" and WorkspaceStore.topSheet() is WorkspaceStore.Sheet.Thread
+      Actions.toggleStarFocused()
+    else if ThreadListStore.view().selection.count() > 0
+      Actions.toggleStarSelection()
+    else
+      Actions.toggleStarFocused()
+
   _onArchive: =>
-    if ThreadListStore.view().selection.count() is 0
+    if WorkspaceStore.layoutMode() is "list" and WorkspaceStore.topSheet() is WorkspaceStore.Sheet.Thread
       Actions.archive()
-    else
+    else if ThreadListStore.view().selection.count() > 0
       Actions.archiveSelection()
-
-  _onReply: ({focusedId}) =>
-    return unless focusedId? and @_viewingFocusedThread()
-    Actions.composeReply(threadId: focusedId)
-
-  _onReplyAll: ({focusedId}) =>
-    return unless focusedId? and @_viewingFocusedThread()
-    Actions.composeReplyAll(threadId: focusedId)
-
-  _onForward: ({focusedId}) =>
-    return unless focusedId? and @_viewingFocusedThread()
-    Actions.composeForward(threadId: focusedId)
-
-  # Helpers
-
-  _viewingFocusedThread: =>
-    if WorkspaceStore.layoutMode() is "list"
-      WorkspaceStore.topSheet() is WorkspaceStore.Sheet.Thread
     else
-      true
+      Actions.archive()
 
 
 module.exports = ThreadList

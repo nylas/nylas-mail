@@ -217,9 +217,9 @@ describe "MessageList", ->
       expect(items.length).toBe 1
 
     it "toggles star on a thread if 's' is pressed", ->
-      spyOn(@messageList, "_onStarItem")
+      spyOn(@messageList, "_onStar")
       NylasTestUtils.keyPress("s", document.body)
-      expect(@messageList._onStarItem).toHaveBeenCalled()
+      expect(@messageList._onStar).toHaveBeenCalled()
 
     it "focuses new composers when a draft is added", ->
       spyOn(@messageList, "_focusDraft")

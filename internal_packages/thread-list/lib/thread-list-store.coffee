@@ -125,11 +125,13 @@ ThreadListStore = Reflux.createStore
       Actions.queueTask(task)
 
   _onToggleStarFocused: ->
-    focusedThread = FocusedContentStore.focused('thread')
-    if focusedThread.isStarred()
-      task = new AddRemoveTagsTask(focusedThread, [], ['starred'])
+    focused = FocusedContentStore.focused('thread')
+    return unless focused
+
+    if focused.isStarred()
+      task = new AddRemoveTagsTask(focused, [], ['starred'])
     else
-      task = new AddRemoveTagsTask(focusedThread, ['starred'], [])
+      task = new AddRemoveTagsTask(focused, ['starred'], [])
     Actions.queueTask(task)
 
   _onArchive: ->
