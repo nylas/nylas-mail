@@ -2,7 +2,12 @@ _ = require 'underscore'
 React = require 'react'
 classNames = require 'classnames'
 MessageItem = require "./message-item"
-{Utils, Actions, MessageStore, ComponentRegistry} = require("nylas-exports")
+{Utils,
+ Actions,
+ MessageStore,
+ ComponentRegistry,
+ AddRemoveTagsTask} = require("nylas-exports")
+
 {Spinner,
  ScrollRegion,
  ResizableRegion,
@@ -60,6 +65,11 @@ class MessageList extends React.Component
     @_unsubscribers = []
     @_unsubscribers.push MessageStore.listen @_onChange
 
+    commands = _.extend {},
+      'core:star-item': => @_onStarItem()
+
+    @command_unsubscriber = atom.commands.add('body', commands)
+
     # We don't need to listen to ThreadStore bcause MessageStore already
     # listens to thead selection changes
 
@@ -68,6 +78,8 @@ class MessageList extends React.Component
 
   componentWillUnmount: =>
     unsubscribe() for unsubscribe in @_unsubscribers
+    @command_unsubscriber.dispose()
+
     window.removeEventListener("resize", @_onResize)
 
   shouldComponentUpdate: (nextProps, nextState) =>
@@ -100,6 +112,13 @@ class MessageList extends React.Component
 
   _focusDraft: (draftElement) =>
     draftElement.focus()
+
+  _onStarItem: =>
+    if @state.currentThread.isStarred()
+      task = new AddRemoveTagsTask(@state.currentThread, [], ['starred'])
+    else
+      task = new AddRemoveTagsTask(@state.currentThread, ['starred'], [])
+    Actions.queueTask(task)
 
   render: =>
     if not @state.currentThread?

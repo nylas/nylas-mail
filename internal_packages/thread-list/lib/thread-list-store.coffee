@@ -32,6 +32,7 @@ ThreadListStore = Reflux.createStore
     @listenTo Actions.archive, @_onArchive
 
     @listenTo Actions.toggleStarSelection, @_onToggleStarSelection
+    @listenTo Actions.toggleStarFocused, @_onToggleStarFocused
 
     @listenTo DatabaseStore, @_onDataChanged
     @listenTo FocusedTagStore, @_onTagChanged
@@ -122,6 +123,14 @@ ThreadListStore = Reflux.createStore
       else
         task = new AddRemoveTagsTask(thread, ['starred'], [])
       Actions.queueTask(task)
+
+  _onToggleStarFocused: ->
+    focusedThread = FocusedContentStore.focused('thread')
+    if focusedThread.isStarred()
+      task = new AddRemoveTagsTask(focusedThread, [], ['starred'])
+    else
+      task = new AddRemoveTagsTask(focusedThread, ['starred'], [])
+    Actions.queueTask(task)
 
   _onArchive: ->
     @_archiveAndShiftBy('auto')

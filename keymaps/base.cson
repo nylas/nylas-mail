@@ -23,6 +23,9 @@
   ']'        : 'core:remove-and-previous' # Gmail
   '['        : 'core:remove-and-next' # Gmail
   'e'        : 'core:remove-item' # Gmail
+  's'        : 'core:star-item' #Gmail
+  'cmd-L'    : 'core:star-item' # Mac mail
+  'ctrl-G'   : 'core:star-item' # Outlook
   'delete'   : 'core:remove-item' # Mac mail
   'backspace': 'core:remove-item' # Outlook
   'enter'    : 'core:focus-item'
