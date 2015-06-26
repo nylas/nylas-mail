@@ -10,6 +10,8 @@ start = ->
 
   global.errorReporter = setupErrorReporter(args)
 
+  setupCoffeeScript()
+
   if process.platform is 'win32'
     SquirrelUpdate = require './squirrel-update'
     squirrelCommand = process.argv[1]
@@ -40,8 +42,6 @@ start = ->
         path.resolve(cwd, pathToOpen.toString())
       else
         path.resolve(pathToOpen.toString())
-
-    setupCoffeeScript()
 
     if args.devMode
       require(path.join(args.resourcePath, 'src', 'coffee-cache')).register()

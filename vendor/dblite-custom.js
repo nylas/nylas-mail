@@ -239,11 +239,8 @@ function dblite() {
   // when program is killed or closed for some reason
   // the dblite object needs to be notified too
   function close(code) {
-    if (self.listeners('close').length) {
-      self.emit('close', code);
-    } else {
-      log('bye bye');
-    }
+    self.emit('close', code);
+    log('bye bye');
   }
 
   // as long as there's something else to do ...
@@ -422,6 +419,7 @@ function dblite() {
     if (!closeRequested) {
       var kill = function() {
         closed = true;
+        close(); // other function defined above
         program.stdin.end();
         program.kill();
       }

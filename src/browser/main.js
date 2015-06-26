@@ -16,6 +16,7 @@
     var SquirrelUpdate, addPathToOpen, addUrlToOpen, args, squirrelCommand;
     args = parseCommandLine();
     global.errorReporter = setupErrorReporter(args);
+    setupCoffeeScript();
     if (process.platform === 'win32') {
       SquirrelUpdate = require('./squirrel-update');
       squirrelCommand = process.argv[1];
@@ -46,7 +47,6 @@
           return path.resolve(pathToOpen.toString());
         }
       });
-      setupCoffeeScript();
       if (args.devMode) {
         require(path.join(args.resourcePath, 'src', 'coffee-cache')).register();
         Application = require(path.join(args.resourcePath, 'src', 'browser', 'application'));
