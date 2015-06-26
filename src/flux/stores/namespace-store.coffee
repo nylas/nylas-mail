@@ -23,7 +23,7 @@ class NamespaceStore
   constructor: ->
     @_items = []
     @_current = null
-    
+
     saveState = atom.config.get(saveStateKey)
     if saveState and _.isObject(saveState)
       @_current = (new Namespace).fromJSON(saveState)

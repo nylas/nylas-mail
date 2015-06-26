@@ -14,6 +14,7 @@ FileUploadStore = Reflux.createStore
 
     # From Tasks
     @listenTo Actions.uploadStateChanged, @_onUploadStateChanged
+    @listenTo Actions.linkFileToUpload, @_onLinkFileToUpload
     @listenTo Actions.fileUploaded, @_onFileUploaded
     @listenTo Actions.fileAborted, @_onFileAborted
 
@@ -73,8 +74,11 @@ FileUploadStore = Reflux.createStore
       }
     })
 
-  _onFileUploaded: ({file, uploadData}) ->
+  _onLinkFileToUpload: ({file, uploadData}) ->
     @_linkedFiles[file.id] = uploadData
+    @trigger()
+
+  _onFileUploaded: ({file, uploadData}) ->
     delete @_fileUploads[uploadData.uploadId]
     @trigger()
 

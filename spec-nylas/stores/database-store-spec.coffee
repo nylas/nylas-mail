@@ -1,73 +1,10 @@
-DatabaseStore = require '../../src/flux/stores/database-store'
-Model = require '../../src/flux/models/model'
-ModelQuery = require '../../src/flux/models/query'
-Attributes = require '../../src/flux/attributes'
-Tag = require '../../src/flux/models/tag'
 _ = require 'underscore'
+ipc = require 'ipc'
 
-class TestModel extends Model
-  @attributes =
-    'id': Attributes.String
-      queryable: true
-      modelKey: 'id'
-
-TestModel.configureWithAllAttributes = ->
-  TestModel.additionalSQLiteConfig = undefined
-  TestModel.attributes =
-    'datetime': Attributes.DateTime
-      queryable: true
-      modelKey: 'datetime'
-    'string': Attributes.String
-      queryable: true
-      modelKey: 'string'
-      jsonKey: 'string-json-key'
-    'boolean': Attributes.Boolean
-      queryable: true
-      modelKey: 'boolean'
-    'number': Attributes.Number
-      queryable: true
-      modelKey: 'number'
-    'other': Attributes.String
-      modelKey: 'other'
-
-TestModel.configureWithCollectionAttribute = ->
-  TestModel.additionalSQLiteConfig = undefined
-  TestModel.attributes =
-    'id': Attributes.String
-      queryable: true
-      modelKey: 'id'
-    'tags': Attributes.Collection
-      queryable: true
-      modelKey: 'tags'
-      itemClass: Tag
-
-
-TestModel.configureWithJoinedDataAttribute = ->
-  TestModel.additionalSQLiteConfig = undefined
-  TestModel.attributes =
-    'id': Attributes.String
-      queryable: true
-      modelKey: 'id'
-    'body': Attributes.JoinedData
-      modelTable: 'TestModelBody'
-      modelKey: 'body'
-
-
-TestModel.configureWithAdditionalSQLiteConfig = ->
-  TestModel.attributes =
-    'id': Attributes.String
-      queryable: true
-      modelKey: 'id'
-    'body': Attributes.JoinedData
-      modelTable: 'TestModelBody'
-      modelKey: 'body'
-  TestModel.additionalSQLiteConfig =
-    setup: ->
-      ['CREATE INDEX IF NOT EXISTS ThreadListIndex ON Thread(last_message_timestamp DESC, namespace_id, id)']
-    writeModel: jasmine.createSpy('additionalWriteModel')
-    deleteModel: jasmine.createSpy('additionalDeleteModel')
-
-
+Tag = require '../../src/flux/models/tag'
+TestModel = require '../fixtures/db-test-model'
+ModelQuery = require '../../src/flux/models/query'
+DatabaseStore = require '../../src/flux/stores/database-store'
 
 testMatchers = {'id': 'b'}
 testModelInstance = new TestModel(id: '1234')
@@ -76,25 +13,23 @@ testModelInstanceB = new TestModel(id: 'BBB')
 
 describe "DatabaseStore", ->
   beforeEach ->
+    TestModel.configureBasic()
     spyOn(ModelQuery.prototype, 'where').andCallThrough()
-    spyOn(DatabaseStore, 'triggerSoon')
+    spyOn(DatabaseStore, '_triggerSoon').andCallFake -> Promise.resolve()
+
+    # Emulate a working DB
+    spyOn(ipc, 'send').andCallFake (messageType, {queryKey}) ->
+      return unless messageType is "database-query"
+      err = null
+      result = []
+      DatabaseStore._dbConnection._onDatabaseResult({queryKey, err, result})
+    spyOn(DatabaseStore._dbConnection, "_isConnected").andReturn true
 
     @performed = []
-    @transactionCount = 0
-
-    # Pass spyTx() to functions that take a tx reference to log
-    # performed queries to the @performed array.
-    @spyTx = ->
-      execute: (query, values, success) =>
-        @performed.push({query: query, values: values})
-        success() if success
-
-    # Spy on the DatabaseStore and return our use spyTx() to generate
-    # new transactions instead of using the real websql transaction.
-    spyOn(DatabaseStore, 'inTransaction').andCallFake (options, callback) =>
-      @transactionCount += 1
-      callback(@spyTx())
-      Promise.resolve()
+    oldQuery = DatabaseStore._query
+    spyOn(DatabaseStore, "_query").andCallFake (query, values=[], options={}) =>
+      @performed.push({query: query, values: values})
+      oldQuery(query, values, options)
 
   describe "find", ->
     it "should return a ModelQuery for retrieving a single item by Id", ->
@@ -131,63 +66,65 @@ describe "DatabaseStore", ->
 
   describe "persistModel", ->
     it "should cause the DatabaseStore to trigger with a change that contains the model", ->
-      DatabaseStore.persistModel(testModelInstance)
-      expect(DatabaseStore.triggerSoon).toHaveBeenCalled()
+      waitsForPromise ->
+        DatabaseStore.persistModel(testModelInstance).then ->
+          expect(DatabaseStore._triggerSoon).toHaveBeenCalled()
 
-      change = DatabaseStore.triggerSoon.mostRecentCall.args[0]
-      expect(change).toEqual({objectClass: TestModel.name, objects: [testModelInstance], type:'persist'})
+          change = DatabaseStore._triggerSoon.mostRecentCall.args[0]
+          expect(change).toEqual({objectClass: TestModel.name, objects: [testModelInstance], type:'persist'})
+        .catch (err) ->
+          console.log err
 
-    it "should call through to writeModels", ->
-      spyOn(DatabaseStore, 'writeModels')
+    it "should call through to _writeModels", ->
+      spyOn(DatabaseStore, '_writeModels')
       DatabaseStore.persistModel(testModelInstance)
-      expect(DatabaseStore.writeModels.callCount).toBe(1)
+      expect(DatabaseStore._writeModels.callCount).toBe(1)
 
   describe "persistModels", ->
     it "should cause the DatabaseStore to trigger with a change that contains the models", ->
-      DatabaseStore.persistModels([testModelInstanceA, testModelInstanceB])
-      expect(DatabaseStore.triggerSoon).toHaveBeenCalled()
+      waitsForPromise ->
+        DatabaseStore.persistModels([testModelInstanceA, testModelInstanceB]).then ->
+          expect(DatabaseStore._triggerSoon).toHaveBeenCalled()
 
-      change = DatabaseStore.triggerSoon.mostRecentCall.args[0]
-      expect(change).toEqual
-        objectClass: TestModel.name,
-        objects: [testModelInstanceA, testModelInstanceB]
-        type:'persist'
+          change = DatabaseStore._triggerSoon.mostRecentCall.args[0]
+          expect(change).toEqual
+            objectClass: TestModel.name,
+            objects: [testModelInstanceA, testModelInstanceB]
+            type:'persist'
 
-    it "should call through to writeModels after checking them", ->
-      spyOn(DatabaseStore, 'writeModels')
+    it "should call through to _writeModels after checking them", ->
+      spyOn(DatabaseStore, '_writeModels')
       DatabaseStore.persistModels([testModelInstanceA, testModelInstanceB])
-      expect(DatabaseStore.writeModels.callCount).toBe(1)
-
-    it "should only open one database transaction to write all the models", ->
-      DatabaseStore.persistModels([testModelInstanceA, testModelInstanceB])
-      expect(@transactionCount).toBe(1)
+      expect(DatabaseStore._writeModels.callCount).toBe(1)
 
     it "should throw an exception if the models are not the same class,\
         since it cannot be specified by the trigger payload", ->
       expect(-> DatabaseStore.persistModels([testModelInstanceA, new Tag()])).toThrow()
 
   describe "unpersistModel", ->
-    it "should delete the model by Id", ->
-      DatabaseStore.unpersistModel(testModelInstance)
-      expect(@performed.length).toBe(3)
-      expect(@performed[1].query).toBe("DELETE FROM `TestModel` WHERE `id` = ?")
-      expect(@performed[1].values[0]).toBe('1234')
+    it "should delete the model by Id", -> waitsForPromise =>
+      DatabaseStore.unpersistModel(testModelInstance).then =>
+        expect(@performed.length).toBe(3)
+        expect(@performed[1].query).toBe("DELETE FROM `TestModel` WHERE `id` = ?")
+        expect(@performed[1].values[0]).toBe('1234')
 
     it "should cause the DatabaseStore to trigger() with a change that contains the model", ->
-      DatabaseStore.unpersistModel(testModelInstance)
-      expect(DatabaseStore.triggerSoon).toHaveBeenCalled()
+      waitsForPromise ->
+        DatabaseStore.unpersistModel(testModelInstance).then ->
+          expect(DatabaseStore._triggerSoon).toHaveBeenCalled()
 
-      change = DatabaseStore.triggerSoon.mostRecentCall.args[0]
-      expect(change).toEqual({objectClass: TestModel.name, objects: [testModelInstance], type:'unpersist'})
+          change = DatabaseStore._triggerSoon.mostRecentCall.args[0]
+          expect(change).toEqual({objectClass: TestModel.name, objects: [testModelInstance], type:'unpersist'})
 
     describe "when the model provides additional sqlite config", ->
       beforeEach ->
         TestModel.configureWithAdditionalSQLiteConfig()
 
-      it "should call the deleteModel method and provide the transaction and model", ->
-        DatabaseStore.unpersistModel(testModelInstance)
-        expect(TestModel.additionalSQLiteConfig.deleteModel).toHaveBeenCalled()
-        expect(TestModel.additionalSQLiteConfig.deleteModel.mostRecentCall.args[1]).toBe(testModelInstance)
+      it "should call the deleteModel method and provide the model", ->
+        waitsForPromise ->
+          DatabaseStore.unpersistModel(testModelInstance).then ->
+            expect(TestModel.additionalSQLiteConfig.deleteModel).toHaveBeenCalled()
+            expect(TestModel.additionalSQLiteConfig.deleteModel.mostRecentCall.args[0]).toBe(testModelInstance)
 
       it "should not fail if additional config is present, but deleteModel is not defined", ->
         delete TestModel.additionalSQLiteConfig['deleteModel']
@@ -196,76 +133,29 @@ describe "DatabaseStore", ->
     describe "when the model has collection attributes", ->
       it "should delete all of the elements in the join tables", ->
         TestModel.configureWithCollectionAttribute()
-        DatabaseStore.unpersistModel(testModelInstance)
-        expect(@performed.length).toBe(4)
-        expect(@performed[2].query).toBe("DELETE FROM `TestModel-Tag` WHERE `id` = ?")
-        expect(@performed[2].values[0]).toBe('1234')
+        waitsForPromise =>
+          DatabaseStore.unpersistModel(testModelInstance).then =>
+            expect(@performed.length).toBe(4)
+            expect(@performed[2].query).toBe("DELETE FROM `TestModel-Tag` WHERE `id` = ?")
+            expect(@performed[2].values[0]).toBe('1234')
 
     describe "when the model has joined data attributes", ->
       it "should delete the element in the joined data table", ->
         TestModel.configureWithJoinedDataAttribute()
-        DatabaseStore.unpersistModel(testModelInstance)
-        expect(@performed.length).toBe(4)
-        expect(@performed[2].query).toBe("DELETE FROM `TestModelBody` WHERE `id` = ?")
-        expect(@performed[2].values[0]).toBe('1234')
+        waitsForPromise =>
+          DatabaseStore.unpersistModel(testModelInstance).then =>
+            expect(@performed.length).toBe(4)
+            expect(@performed[2].query).toBe("DELETE FROM `TestModelBody` WHERE `id` = ?")
+            expect(@performed[2].values[0]).toBe('1234')
 
-  describe "queriesForTableSetup", ->
-    it "should return the queries for creating the table and the primary unique index", ->
-      TestModel.attributes =
-        'attrQueryable': Attributes.DateTime
-          queryable: true
-          modelKey: 'attrQueryable'
-          jsonKey: 'attr_queryable'
-
-        'attrNonQueryable': Attributes.Collection
-          modelKey: 'attrNonQueryable'
-          jsonKey: 'attr_non_queryable'
-      queries = DatabaseStore.queriesForTableSetup(TestModel)
-      expected = [
-        'CREATE TABLE IF NOT EXISTS `TestModel` (id TEXT PRIMARY KEY,data BLOB,attr_queryable INTEGER)',
-        'CREATE UNIQUE INDEX IF NOT EXISTS `TestModel_id` ON `TestModel` (`id`)'
-      ]
-      for query,i in queries
-        expect(query).toBe(expected[i])
-
-    it "should correctly create join tables for models that have queryable collections", ->
-      TestModel.configureWithCollectionAttribute()
-      queries = DatabaseStore.queriesForTableSetup(TestModel)
-      expected = [
-        'CREATE TABLE IF NOT EXISTS `TestModel` (id TEXT PRIMARY KEY,data BLOB)',
-        'CREATE UNIQUE INDEX IF NOT EXISTS `TestModel_id` ON `TestModel` (`id`)',
-        'CREATE TABLE IF NOT EXISTS `TestModel-Tag` (id TEXT KEY, `value` TEXT)'
-        'CREATE UNIQUE INDEX IF NOT EXISTS `TestModel_Tag_id_val` ON `TestModel-Tag` (`id`,`value`)',
-      ]
-      for query,i in queries
-        expect(query).toBe(expected[i])
-
-    it "should use the correct column type for each attribute", ->
-      TestModel.configureWithAllAttributes()
-      queries = DatabaseStore.queriesForTableSetup(TestModel)
-      expect(queries[0]).toBe('CREATE TABLE IF NOT EXISTS `TestModel` (id TEXT PRIMARY KEY,data BLOB,datetime INTEGER,string-json-key TEXT,boolean INTEGER,number INTEGER)')
-
-    describe "when the model provides additional sqlite config", ->
-      it "the setup method should return these queries", ->
-        TestModel.configureWithAdditionalSQLiteConfig()
-        spyOn(TestModel.additionalSQLiteConfig, 'setup').andCallThrough()
-        queries = DatabaseStore.queriesForTableSetup(TestModel)
-        expect(TestModel.additionalSQLiteConfig.setup).toHaveBeenCalledWith()
-        expect(queries.pop()).toBe('CREATE INDEX IF NOT EXISTS ThreadListIndex ON Thread(last_message_timestamp DESC, namespace_id, id)')
-
-      it "should not fail if additional config is present, but setup is undefined", ->
-        delete TestModel.additionalSQLiteConfig['setup']
-        @m = new TestModel(id: 'local-6806434c-b0cd', body: 'hello world')
-        expect( => DatabaseStore.queriesForTableSetup(TestModel)).not.toThrow()
-
-  describe "writeModels", ->
+  describe "_writeModels", ->
     it "should compose a REPLACE INTO query to save the model", ->
       TestModel.configureWithCollectionAttribute()
-      DatabaseStore.writeModels(@spyTx(), [testModelInstance])
+      DatabaseStore._writeModels([testModelInstance])
       expect(@performed[0].query).toBe("REPLACE INTO `TestModel` (id,data) VALUES (?,?)")
 
     it "should save the model JSON into the data column", ->
-      DatabaseStore.writeModels(@spyTx(), [testModelInstance])
+      DatabaseStore._writeModels([testModelInstance])
       expect(@performed[0].values[1]).toEqual(JSON.stringify(testModelInstance))
 
     describe "when the model defines additional queryable attributes", ->
@@ -279,12 +169,12 @@ describe "DatabaseStore", ->
           number: 15
 
       it "should populate additional columns defined by the attributes", ->
-        DatabaseStore.writeModels(@spyTx(), [@m])
+        DatabaseStore._writeModels([@m])
         expect(@performed[0].query).toBe("REPLACE INTO `TestModel` (id,data,datetime,string-json-key,boolean,number) VALUES (?,?,?,?,?,?)")
 
       it "should use the JSON-form values of the queryable attributes", ->
         json = @m.toJSON()
-        DatabaseStore.writeModels(@spyTx(), [@m])
+        DatabaseStore._writeModels([@m])
 
         values = @performed[0].values
         expect(values[2]).toEqual(json['datetime'])
@@ -297,7 +187,7 @@ describe "DatabaseStore", ->
         TestModel.configureWithCollectionAttribute()
         @m = new TestModel(id: 'local-6806434c-b0cd')
         @m.tags = [new Tag(id: 'a'),new Tag(id: 'b')]
-        DatabaseStore.writeModels(@spyTx(), [@m])
+        DatabaseStore._writeModels([@m])
 
       it "should delete all association records for the model from join tables", ->
         expect(@performed[1].query).toBe('DELETE FROM `TestModel-Tag` WHERE `id` IN (\'local-6806434c-b0cd\')')
@@ -312,26 +202,27 @@ describe "DatabaseStore", ->
 
       it "should write the value to the joined table if it is defined", ->
         @m = new TestModel(id: 'local-6806434c-b0cd', body: 'hello world')
-        DatabaseStore.writeModels(@spyTx(), [@m])
+        DatabaseStore._writeModels([@m])
         expect(@performed[1].query).toBe('REPLACE INTO `TestModelBody` (`id`, `value`) VALUES (?, ?)')
         expect(@performed[1].values).toEqual([@m.id, @m.body])
 
       it "should not write the valeu to the joined table if it undefined", ->
         @m = new TestModel(id: 'local-6806434c-b0cd')
-        DatabaseStore.writeModels(@spyTx(), [@m])
+        DatabaseStore._writeModels([@m])
         expect(@performed.length).toBe(1)
 
     describe "when the model provides additional sqlite config", ->
       beforeEach ->
         TestModel.configureWithAdditionalSQLiteConfig()
 
-      it "should call the writeModel method and provide the transaction and model", ->
-        tx = @spyTx()
+      it "should call the writeModel method and provide the model", ->
         @m = new TestModel(id: 'local-6806434c-b0cd', body: 'hello world')
-        DatabaseStore.writeModels(tx, [@m])
-        expect(TestModel.additionalSQLiteConfig.writeModel).toHaveBeenCalledWith(tx, @m)
+        DatabaseStore._writeModels([@m])
+        expect(TestModel.additionalSQLiteConfig.writeModel).toHaveBeenCalledWith(@m)
 
       it "should not fail if additional config is present, but writeModel is not defined", ->
         delete TestModel.additionalSQLiteConfig['writeModel']
         @m = new TestModel(id: 'local-6806434c-b0cd', body: 'hello world')
-        expect( => DatabaseStore.writeModels(@spyTx(), [@m])).not.toThrow()
+        expect( => DatabaseStore._writeModels([@m])).not.toThrow()
+
+describe "DatabaseStore::_triggerSoon", ->

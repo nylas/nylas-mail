@@ -1,24 +1,25 @@
+Config = require '../config'
 AtomWindow = require './atom-window'
 BrowserWindow = require 'browser-window'
-ApplicationMenu = require './application-menu'
-NylasProtocolHandler = require './nylas-protocol-handler'
-AutoUpdateManager = require './auto-update-manager'
 WindowManager = require './window-manager'
-Config = require '../config'
-dialog = require 'dialog'
+DatabaseManager = require './database-manager'
+ApplicationMenu = require './application-menu'
+AutoUpdateManager = require './auto-update-manager'
+NylasProtocolHandler = require './nylas-protocol-handler'
 
+_ = require 'underscore'
 fs = require 'fs-plus'
-Menu = require 'menu'
+os = require 'os'
 app = require 'app'
 ipc = require 'ipc'
-path = require 'path'
-os = require 'os'
 net = require 'net'
 url = require 'url'
 exec = require('child_process').exec
+Menu = require 'menu'
+path = require 'path'
+dialog = require 'dialog'
 querystring = require 'querystring'
 {EventEmitter} = require 'events'
-_ = require 'underscore'
 
 socketPath =
   if process.platform is 'win32'
@@ -76,7 +77,7 @@ class Application
     @config = new Config({configDirPath, @resourcePath})
     @config.load()
 
-    @databases = {}
+    @databaseManager = new DatabaseManager({@resourcePath})
     @windowManager = new WindowManager({@resourcePath, @config, @devMode, @safeMode})
     @autoUpdateManager = new AutoUpdateManager(@version, @config, @specMode)
     @applicationMenu = new ApplicationMenu(@version)
@@ -96,72 +97,6 @@ class Application
       @windowManager.ensurePrimaryWindowOnscreen()
       for urlToOpen in (urlsToOpen || [])
         @openUrl(urlToOpen)
-
-  prepareDatabaseInterface: ->
-    return @dblitePromise if @dblitePromise
-
-    # configure a listener that watches for incoming queries over IPC,
-    # executes them, and returns the responses to the remote renderer processes
-    ipc.on 'database-query', (event, {databasePath, queryKey, query, values}) =>
-      db = @databases[databasePath]
-      done = (err, result) ->
-        unless err
-          runtime = db.lastQueryTime()
-          if runtime > 250
-            console.log("Query #{queryKey}: #{query} took #{runtime}msec")
-        event.sender.send('database-result', {queryKey, err, result})
-
-      return done(new Error("Database not prepared.")) unless db
-      if query[0..5] is 'SELECT'
-        db.query(query, values, null, done)
-      else
-        db.query(query, values, done)
-
-    # return a promise that resolves after we've configured dblite for our platform
-    return @dblitePromise = new Promise (resolve, reject) =>
-      dblite = require('../../vendor/dblite-custom').withSQLite('3.8.6+')
-      vendor = path.join(@resourcePath.replace('app.asar', 'app.asar.unpacked'), '/vendor')
-
-      if process.platform is 'win32'
-        dblite.bin = "#{vendor}/sqlite3-win32.exe"
-        resolve(dblite)
-      else if process.platform is 'linux'
-        exec "uname -a", (err, stdout, stderr) ->
-          arch = if stdout.toString().indexOf('x86_64') is -1 then "32" else "64"
-          dblite.bin = "#{vendor}/sqlite3-linux-#{arch}"
-          resolve(dblite)
-      else if process.platform is 'darwin'
-        dblite.bin = "#{vendor}/sqlite3-darwin"
-        resolve(dblite)
-
-  prepareDatabase: (databasePath, callback) ->
-    @prepareDatabaseInterface().then (dblite) =>
-      # Avoid opening a new connection to an existing database
-      return callback() if @databases[databasePath]
-
-      # Create a new database for the requested path
-      db = dblite(databasePath)
-
-      # By default, dblite stops all query execution when a query returns an error.
-      # We want to propogate those errors out, but still allow queries to be made.
-      db.ignoreErrors = true
-      @databases[databasePath] = db
-
-      # Tell the person who requested the database that they can begin making queries
-      callback()
-
-  closeDBConnection: (databasePath) ->
-    @databases[databasePath]?.close()
-    delete @databases[databasePath]
-
-  deleteAllDatabases: ->
-    for path, val of @databases
-      @closeDBConnection(path)
-      fs.unlinkSync(path)
-
-  closeDBConnections: ->
-    for path, val of @databases
-      @closeDBConnection(path)
 
   # Creates server to listen for additional atom application launches.
   #
@@ -192,6 +127,10 @@ class Application
   # Configures required javascript environment flags.
   setupJavaScriptArguments: ->
     app.commandLine.appendSwitch 'js-flags', '--harmony'
+
+  _logout: =>
+    @config.set('nylas', null)
+    @config.set('edgehill', null)
 
   # Registers basic application commands, non-idempotent.
   # Note: If these events are triggered while an application window is open, the window
@@ -227,10 +166,7 @@ class Application
     @on 'application:run-benchmarks', ->
       @runBenchmarks()
 
-    @on 'application:logout', =>
-      @deleteAllDatabases()
-      @config.set('nylas', null)
-      @config.set('edgehill', null)
+    @on 'application:logout', @_logout
 
     @on 'application:quit', => app.quit()
     @on 'application:inspect', ({x,y, atomWindow}) ->
@@ -283,11 +219,11 @@ class Application
 
     # Called after the app has closed all windows.
     app.on 'will-quit', =>
-      @closeDBConnections()
+      @databaseManager.closeDatabaseConnections()
       @deleteSocketFile()
 
     app.on 'will-exit', =>
-      @closeDBConnections()
+      @databaseManager.closeDatabaseConnections()
       @deleteSocketFile()
 
     app.on 'open-file', (event, pathToOpen) ->
@@ -342,6 +278,12 @@ class Application
     ipc.on 'write-text-to-selection-clipboard', (event, selectedText) ->
       clipboard ?= require 'clipboard'
       clipboard.writeText(selectedText, 'selection')
+
+    # configure a listener that watches for incoming queries over IPC,
+    # executes them, and returns the responses to the remote renderer processes
+    ipc.on 'database-query', @databaseManager.onIPCDatabaseQuery
+
+    @databaseManager.on "setup-error", @_logout
 
   # Public: Executes the given command.
   #

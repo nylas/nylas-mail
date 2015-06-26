@@ -6,22 +6,22 @@
   display: inline-block;
   position: relative;
   font-size: @font-size-small;
-  margin-bottom: @spacing-standard;
-  margin-right: @spacing-standard;
+  margin: 0 @spacing-standard @spacing-standard @spacing-standard;
   background: @background-off-primary;
   box-shadow: inset 0 0 1px 1px rgba(0,0,0,0.09);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: calc(~"50% - 7.5px");
+  width: calc(~"50% - 23px");
   border-radius: 4px;
 
   &.non-image-attachment {
     width: calc(~"50% - 23px");
-    margin-left: 15px;
-    &:nth-child(even) {
-      margin-left: 0;
-    }
+    margin-left: @spacing-standard;
+  }
+
+  &:nth-child(even) {
+    margin-left: 0;
   }
 
   &.file-upload {
@@ -44,9 +44,6 @@
     white-space: nowrap;
   }
 
-  &:nth-child(even) {
-    margin-right: 0;
-  }
   &:hover {
     cursor: default;
   }
@@ -61,7 +58,6 @@
   .attachment-file-name {
     font-weight: @font-weight-medium;
   }
-  margin-left: 15px;
   .attachment-file-and-name {
     position: relative;
     z-index: 2;

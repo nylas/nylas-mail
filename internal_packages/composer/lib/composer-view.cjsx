@@ -349,7 +349,18 @@ class ComposerView extends React.Component
     _.sortBy _.reject(@_uploadsAndFiles(), Utils.looksLikeImage), @_fileSort
 
   _uploadsAndFiles: ->
-    _.compact(@state.uploads.concat(@state.files))
+    # When uploads finish, they stay attached to the object at 100%
+    # completion. Eventually the DB trigger will make its way to a window
+    # and the files will appear on the draft.
+    #
+    # In this case we want to show the file instead of the upload
+    uploads = _.filter @state.uploads, (upload) =>
+      for file in @state.files
+        linkedUpload = FileUploadStore.linkedUpload(file)
+        return false if linkedUpload and linkedUpload.uploadId is upload.uploadId
+      return true
+
+    _.compact(uploads.concat(@state.files))
 
   _onFileUploadStoreChange: =>
     @setState uploads: FileUploadStore.uploadsForMessage(@props.localId)
