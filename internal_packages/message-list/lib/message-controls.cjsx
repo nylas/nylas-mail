@@ -39,15 +39,15 @@ class MessageControls extends React.Component
 
   _forwardAction: ->
     <span onClick={@_onForward}>
-      <RetinaImg name="forward-message-header.png" mode={RetinaImg.Mode.ContentIsMask}/>&nbsp;&nbsp;Forward
+      <RetinaImg name="icon-dropdown-forward.png" mode={RetinaImg.Mode.ContentIsMask}/>&nbsp;&nbsp;Forward
     </span>
   _replyAction: ->
     <span onClick={@_onReply}>
-      <RetinaImg name="reply-footer.png" mode={RetinaImg.Mode.ContentIsMask}/>&nbsp;&nbsp;Reply
+      <RetinaImg name="icon-dropdown-reply.png" mode={RetinaImg.Mode.ContentIsMask}/>&nbsp;&nbsp;Reply
     </span>
   _replyAllAction: ->
     <span onClick={@_onReplyAll}>
-      <RetinaImg name="reply-all-footer.png" mode={RetinaImg.Mode.ContentIsMask}/>&nbsp;&nbsp;Reply All
+      <RetinaImg name="icon-dropdown-replyall.png" mode={RetinaImg.Mode.ContentIsMask}/>&nbsp;&nbsp;Reply All
     </span>
 
   _onReply: =>
