@@ -61,6 +61,7 @@ class DatabaseManager
   closeDatabaseConnection: (databasePath) ->
     @_databases[databasePath]?.close()
     delete @_databases[databasePath]
+    delete @_prepPromises[databasePath]
 
   closeDatabaseConnections: ->
     for path, val of @_databases
@@ -72,6 +73,7 @@ class DatabaseManager
       db.on 'close', -> fs.unlinkSync(path)
       db.close()
       delete @_databases[path]
+      delete @_prepPromises[path]
 
   onIPCDatabaseQuery: (event, {databasePath, queryKey, query, values}) =>
     db = @_databases[databasePath]
@@ -121,7 +123,7 @@ class DatabaseManager
       return Promise.resolve(db)
     .catch (err) ->
       @emit("setup-error", err)
-      console.error "There was an error setting up the database #{err?.message}"
+      console.error "!!!!!!!!!!! There was an error setting up the database #{err?.message}"
       return Promise.reject(err)
 
   _getDBAdapter: ->
