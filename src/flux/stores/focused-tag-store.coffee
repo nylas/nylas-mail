@@ -3,6 +3,8 @@ NamespaceStore = require './namespace-store'
 Actions = require '../actions'
 Tag = require '../models/tag'
 
+InboxTag = new Tag(id: 'inbox', name: 'inbox')
+
 FocusedTagStore = Reflux.createStore
   init: ->
     @_resetInstanceVars()
@@ -12,12 +14,12 @@ FocusedTagStore = Reflux.createStore
     @listenTo Actions.searchQueryCommitted, @_onSearchQueryCommitted
 
   _resetInstanceVars: ->
-    @_tag = new Tag(id: 'inbox', name: 'inbox')
+    @_tag = InboxTag
 
   # Inbound Events
 
   _onClearTag: ->
-    @_setTag(new Tag(id: 'inbox', name: 'inbox'))
+    @_setTag(InboxTag)
 
   _onFocusTag: (tag) ->
     return if @_tag?.id is tag?.id
@@ -27,12 +29,12 @@ FocusedTagStore = Reflux.createStore
 
     @_setTag(tag)
 
-  _onSearchQueryCommitted: (_query) ->
-    if _query
-      @_oldTag = @_tag
+  _onSearchQueryCommitted: (query) ->
+    if query and @_tag
+      @_tagBeforeSearch = @_tag
       @_setTag(null)
-    else if @_oldTag
-      @_setTag(@_oldTag)
+    else if not query
+      @_setTag(@_tagBeforeSearch ? InboxTag)
 
   _setTag: (tag) ->
     return if @_tag?.id is tag?.id
