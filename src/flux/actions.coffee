@@ -92,6 +92,7 @@ class Actions
   @uploadStateChanged: ActionScopeGlobal
   @fileAborted: ActionScopeGlobal
   @downloadStateChanged: ActionScopeGlobal
+  @linkFileToUpload: ActionScopeGlobal
   @fileUploaded: ActionScopeGlobal
   @multiWindowNotification: ActionScopeGlobal
   @sendDraftSuccess: ActionScopeGlobal

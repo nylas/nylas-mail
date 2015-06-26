@@ -22,6 +22,7 @@ Section: Drafts
 ###
 class DraftChangeSet
   constructor: (@localId, @_onChange) ->
+    @_commitChain = Promise.resolve()
     @reset()
 
   reset: ->
@@ -41,18 +42,20 @@ class DraftChangeSet
       @_timer = setTimeout(@commit, 5000)
 
   commit: =>
-    if Object.keys(@_pending).length is 0
-      return Promise.resolve(true)
+    @_commitChain = @_commitChain.then =>
+      if Object.keys(@_pending).length is 0
+        return Promise.resolve(true)
 
-    DatabaseStore = require './database-store'
-    DatabaseStore.findByLocalId(Message, @localId).then (draft) =>
-      if not draft
-        throw new Error("Tried to commit a draft that had already been removed from the database. DraftId: #{@localId}")
-      draft = @applyToModel(draft)
-      @_saving = @_pending
-      @_pending = {}
-      DatabaseStore.persistModel(draft).then =>
-        @_saving = {}
+      DatabaseStore = require './database-store'
+      return DatabaseStore.findByLocalId(Message, @localId).then (draft) =>
+        if not draft
+          throw new Error("Tried to commit a draft that had already been removed from the database. DraftId: #{@localId}")
+        @_saving = @_pending
+        @_pending = {}
+        draft = @applyToModel(draft)
+        return DatabaseStore.persistModel(draft).then =>
+          @_saving = {}
+    return @_commitChain
 
   applyToModel: (model) =>
     if model
@@ -133,9 +136,10 @@ class DraftStoreProxy
     return unless @_draft
 
     # Is this change an update to our draft?
-    myDraft = _.find(change.objects, (obj) => obj.id == @_draft.id)
-    if myDraft
-      @_draft = _.extend @_draft, myDraft
+    myDrafts = _.filter(change.objects, (obj) => obj.id == @_draft.id)
+
+    if myDrafts.length > 0
+      @_draft = _.extend @_draft, _.last(myDrafts)
       @trigger()
 
   _onDraftSwapped: (change) ->

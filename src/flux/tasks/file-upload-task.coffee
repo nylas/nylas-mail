@@ -95,6 +95,21 @@ class FileUploadTask extends Task
   _onRemoteSuccess: (file, resolve, reject) =>
     clearInterval(@progress)
     @req = null
+
+    # The minute we know what file is associated with the upload, we need
+    # to fire an Action to notify a popout window's FileUploadStore that
+    # these two objects are linked. We unfortunately can't wait until
+    # `_attacheFileToDraft` resolves, because that will resolve after the
+    # DB transaction is completed AND all of the callbacks have fired.
+    # Unfortunately in the callback chain is a render method which means
+    # that the upload will be left on the page for a split second before
+    # we know the file has been uploaded.
+    #
+    # Associating the upload with the file ahead of time can let the
+    # Composer know which ones to ignore when de-duping the upload/file
+    # listing.
+    Actions.linkFileToUpload(file: file, uploadData: @_uploadData("completed"))
+
     @_attachFileToDraft(file).then =>
       Actions.uploadStateChanged @_uploadData("completed")
       Actions.fileUploaded(file: file, uploadData: @_uploadData("completed"))

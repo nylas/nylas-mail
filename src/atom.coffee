@@ -172,8 +172,9 @@ class Atom extends Model
     StyleManager = require './style-manager'
     ActionBridge = require './flux/action-bridge'
     MenuManager = require './menu-manager'
-    {devMode, safeMode, resourcePath} = @getLoadSettings()
     configDirPath = @getConfigDirPath()
+
+    {devMode, safeMode, resourcePath} = @getLoadSettings()
 
     # Add 'exports' to module search path.
     exportsPath = path.join(resourcePath, 'exports')

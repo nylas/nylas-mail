@@ -64,13 +64,19 @@ describe 'FileUploadStore', ->
       expect(FileUploadStore._fileUploads[123]).toBe @uploadData
 
   describe 'when a file has been uploaded', ->
-    it 'adds to the linked files and removes from uploads', ->
+    it 'adds removes from uploads', ->
       FileUploadStore._fileUploads[123] = @uploadData
       Actions.fileUploaded
         file: @file
         uploadData: @uploadData
-      expect(FileUploadStore._linkedFiles["id_123"]).toBe @uploadData
       expect(FileUploadStore._fileUploads[123]).not.toBeDefined()
+
+    it 'adds to the linked files', ->
+      FileUploadStore._fileUploads[123] = @uploadData
+      Actions.linkFileToUpload
+        file: @file
+        uploadData: @uploadData
+      expect(FileUploadStore._linkedFiles["id_123"]).toBe @uploadData
 
   describe 'when a file has been aborted', ->
     it 'removes it from the uploads', ->
