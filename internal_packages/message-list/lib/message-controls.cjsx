@@ -31,16 +31,6 @@ class MessageControls extends React.Component
       {button}
     </div>
 
-  _primaryMessageAction: =>
-    if @_replyType() is "reply"
-      <div className="primary-message-action" onClick={@_onReply}>
-        <RetinaImg name="reply-footer.png" mode={RetinaImg.Mode.ContentIsMask}/>
-      </div>
-    else # if "reply-all"
-      <div className="primary-message-action" onClick={@_onReplyAll}>
-        <RetinaImg name="reply-all-footer.png" mode={RetinaImg.Mode.ContentIsMask}/>
-      </div>
-
   _secondaryMessageActions: ->
     if @_replyType() is "reply"
       return [@_replyAllAction(), @_forwardAction()]
