@@ -8,7 +8,7 @@ describe "AutoUpdateManager", ->
   c5 = get: -> "commit"
   c6 = get: -> "foo"
 
-  base = "https://edgehill.nylas.com/update-check?version="
+  base = "https://edgehill.nylas.com/update-check?platform=#{process.platform}&version="
 
   beforeEach ->
     @feedUrl = (version, config) ->
