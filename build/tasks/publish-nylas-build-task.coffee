@@ -77,7 +77,7 @@ module.exports = (grunt) ->
     return version
 
   uploadDMGToS3 = (s3Client) ->
-    destName = "Edgehill_#{getVersion()}.dmg"
+    destName = "#{process.platform}/Edgehill_#{getVersion()}.dmg"
     dmgPath = path.join(grunt.config.get('atom.buildDir'), dmgName())
     new Promise (resolve, reject) ->
       uploadFile(s3Client, dmgPath, destName)
@@ -90,7 +90,7 @@ module.exports = (grunt) ->
       .catch(reject)
 
   uploadZipToS3 = (s3Client) ->
-    destName = "Edgehill_#{getVersion()}.zip"
+    destName = "#{process.platform}/Edgehill_#{getVersion()}.zip"
     buildDir = grunt.config.get('atom.buildDir')
 
     grunt.log.writeln ">> Creating zip file…"

@@ -18,13 +18,13 @@ class AutoUpdateManager
 
   constructor: (@version, @config, @specMode) ->
     @state = IdleState
+
     if process.platform is 'win32'
       # Squirrel for Windows can't handle query params
       # https://github.com/Squirrel/Squirrel.Windows/issues/132
-      @feedUrl = 'https://edgehill.nylas.com/update-check'
+      @feedUrl = "https://edgehill.nylas.com/update-check/win32/#{@getUpgradeLevel()}/#{@version}"
     else
-      upgradeLevel = @getUpgradeLevel()
-      @feedUrl = "https://edgehill.nylas.com/update-check?version=#{@version}&level=#{upgradeLevel}"
+      @feedUrl = "https://edgehill.nylas.com/update-check?platform=#{process.platform}&version=#{@version}&level=#{@getUpgradeLevel()}"
 
     if not @specMode
       process.nextTick => @setupAutoUpdater()
