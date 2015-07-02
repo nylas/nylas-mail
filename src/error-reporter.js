@@ -22,6 +22,21 @@ if (process.type === 'renderer') {
 }
 var logpath = path.join(tmpPath, 'edgehill-' + logpid + '.log');
 
+// globally define Error.toJSON. This allows us to pass errors via IPC
+// and through the Action Bridge. Note:they are not re-inflated into
+// Error objects automatically.
+Object.defineProperty(Error.prototype, 'toJSON', {
+    value: function () {
+        var alt = {};
+
+        Object.getOwnPropertyNames(this).forEach(function (key) {
+            alt[key] = this[key];
+        }, this);
+
+        return alt;
+    },
+    configurable: true
+});
 
 module.exports = ErrorReporter = (function() {
 
