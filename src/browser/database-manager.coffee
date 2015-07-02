@@ -121,6 +121,7 @@ class DatabaseManager
         dblite.bin = "#{vendor}/sqlite3-win32.exe"
         resolve(dblite)
       else if process.platform is 'linux'
+        {exec} = require 'child_process'
         exec "uname -a", (err, stdout, stderr) ->
           arch = if stdout.toString().indexOf('x86_64') is -1 then "32" else "64"
           dblite.bin = "#{vendor}/sqlite3-linux-#{arch}"
