@@ -66,12 +66,14 @@ class DatabaseManager
     db = @_databases[databasePath]
 
     if not db
-      err = new Error("Database not prepared"); result = null
-      event.sender.send('database-result', {queryKey, err, result})
+      result = null
+      errJSONString = JSON.stringify(new Error("Database not prepared"))
+      event.sender.send('database-result', {queryKey, errJSONString, result})
       return
 
     @_query db, query, values, (err, result) ->
-      event.sender.send('database-result', {queryKey, err, result})
+      errJSONString = JSON.stringify(err)
+      event.sender.send('database-result', {queryKey, errJSONString, result})
 
   # Resolves when a new database has been created and the initial setup
   # migration has run successfuly.

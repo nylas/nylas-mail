@@ -79,11 +79,20 @@ class DatabaseConnection
       databasePath = @_databasePath
       ipc.send('database-query', {databasePath, queryKey, query, values})
 
-  _onDatabaseResult: ({queryKey, err, result}) =>
+  _onDatabaseResult: ({queryKey, errJSONString, result}) =>
     record = @_queryRecords[queryKey]
     return unless record
 
     {query, start, values, reject, resolve, options} = record
+
+    if errJSONString
+      # Note: Error objects turn into JSON when went through the IPC bridge.
+      # In case downstream code checks instanceof Error, convert back into
+      # a real error objet.
+      errJSON = JSON.parse(errJSONString)
+      err = new Error()
+      for key, val of errJSON
+        err[key] = val
 
     @_logQuery(query, start, result)
 
