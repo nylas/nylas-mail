@@ -122,9 +122,9 @@ class NylasAPI
       PriorityUICoordinator.settle.then =>
         Actions.didMakeAPIRequest({request: options, response: response})
         if error? or response.statusCode > 299
-          if response.statusCode is 404 and options.returnsModel
+          if response and response.statusCode is 404 and options.returnsModel
             @_handleModel404(options.url)
-          if response.statusCode is 401
+          if response and response.statusCode is 401
             @_handle401(options.url)
           options.error?(new APIError({error, response, body}))
         else
