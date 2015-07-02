@@ -119,14 +119,22 @@ FileDownloadStore = Reflux.createStore
 
   ######### PUBLIC #######################################################
 
-  # Returns a hash of download objects keyed by fileId
-
+  # Returns a path on disk for saving the file. Note that we must account
+  # for files that don't have a name and avoid returning <downloads/dir/"">
+  # which causes operations to happen on the directory (badness!)
+  #
   pathForFile: (file) ->
     return undefined unless file
-    path.join(@_downloadDirectory, file.id, "#{file.filename}")
+    if file.filename and file.filename.length > 0
+      downloadFilename = file.filename
+    else
+      downloadFilename = file.id
+    path.join(@_downloadDirectory, file.id, downloadFilename)
 
   downloadDataForFile: (fileId) -> @_downloads[fileId]?.data()
 
+  # Returns a hash of download objects keyed by fileId
+  #
   downloadDataForFiles: (fileIds=[]) ->
     downloadData = {}
     fileIds.forEach (fileId) =>
