@@ -72,7 +72,7 @@ class DatabaseManager
       return
 
     @_query db, query, values, (err, result) ->
-      errJSONString = JSON.stringify(err)
+      errJSONString = if err then JSON.stringify(err) else null
       event.sender.send('database-result', {queryKey, errJSONString, result})
 
   # Resolves when a new database has been created and the initial setup
