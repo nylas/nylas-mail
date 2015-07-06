@@ -54,13 +54,14 @@
     submenu: [
       { label: 'Toggle Hacker Theme', command: 'application:toggle-theme' }
       { type: 'separator' }
-      { label: 'Open In Dev Mode...', command: 'application:open-dev' }
+      { label: 'Relaunch with Debug Flags...', command: 'application:open-dev' }
       { type: 'separator' }
       { label: 'Open Detailed Logs', command: 'window:open-errorreporter-logs' }
       { label: 'Ship Detailed Logs to Nylas', command: 'application:ship-logs' }
       { type: 'separator' }
+      { label: 'Create a Package...', command: 'application:create-package' }
+      { label: 'Run Package Specs...', command: 'application:run-package-specs' }
       { label: 'Run Nylas Mail Specs', command: 'application:run-all-specs' }
-      { label: 'Run Package Specs', command: 'application:run-package-specs' }
       { label: 'Toggle Developer Tools', command: 'window:toggle-dev-tools' }
     ]
   }

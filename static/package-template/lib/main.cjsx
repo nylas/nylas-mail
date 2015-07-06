@@ -1,29 +1,18 @@
-{Utils, React, ComponentRegistry} = require 'nylas-exports'
-{RetinaImg} = require 'nylas-component-kit'
+{ComponentRegistry} = require 'nylas-exports'
 
-class MyButton extends React.Component
-
-  # Adding a `displayName` makes debugging React easier
-  @displayName: 'MyButton'
-
-  render: =>
-    <div className="my-package">
-      <button className="btn btn-toolbar" onClick={@_onClick}>
-        Hello World
-      </button>
-    </div>
-  #
-  _onClick: =>
-    dialog = require('remote').require('dialog')
-    dialog.showErrorBox('Success!', 'Button was clicked.')
+MyComposerButton = require './my-composer-button'
+MyMessageSidebar = require './my-message-sidebar'
 
 module.exports =
   # Activate is called when the package is loaded. If your package previously
   # saved state using `serialize` it is provided.
   #
   activate: (@state) ->
-    ComponentRegistry.register MyButton,
+    ComponentRegistry.register MyComposerButton,
       role: 'Composer:ActionButton'
+
+    ComponentRegistry.register MyMessageSidebar,
+      role: 'sidebar:focusedContactInfo'
 
   # Serialize is called when your package is about to be unmounted.
   # You can return a state object that will be passed back to your package
@@ -37,4 +26,5 @@ module.exports =
   # subscribing to events, release them here.
   #
   deactivate: ->
-    ComponentRegistry.unregister(MyButton)
+    ComponentRegistry.unregister(MyComposerButton)
+    ComponentRegistry.unregister(MyMessageSidebar)

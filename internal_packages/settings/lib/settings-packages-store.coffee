@@ -25,6 +25,9 @@ SettingsPackagesStore = Reflux.createStore
     @listenTo SettingsActions.refreshFeaturedPackages, @_refreshFeatured
     @listenTo SettingsActions.refreshInstalledPackages, @_refreshInstalled
 
+    atom.commands.add 'body',
+      'application:create-package': => @_onCreatePackage()
+
     @listenTo SettingsActions.createPackage, @_onCreatePackage
     @listenTo SettingsActions.updatePackage, @_onUpdatePackage
     @listenTo SettingsActions.setGlobalSearchValue, @_onGlobalSearchChange
