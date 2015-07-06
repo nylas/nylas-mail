@@ -58,9 +58,9 @@ Exports =
   WorkspaceStore: require '../src/flux/stores/workspace-store'
   FocusedTagStore: require '../src/flux/stores/focused-tag-store'
   FocusedContentStore: require '../src/flux/stores/focused-content-store'
+  FocusedContactsStore: require '../src/flux/stores/focused-contacts-store'
   FileUploadStore: require '../src/flux/stores/file-upload-store'
   FileDownloadStore: require '../src/flux/stores/file-download-store'
-  FocusedContactsStore: require '../src/flux/stores/focused-contacts-store'
   UnreadCountStore: require '../src/flux/stores/unread-count-store'
 
   # Errors

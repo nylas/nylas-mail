@@ -1,12 +1,19 @@
-describe "AccountSidebarStore", ->
-  xit "should update it's selected ID when the focusTag action fires", ->
-    true
+{ComponentRegistry} = require 'nylas-exports'
+{activate, deactivate} = require '../lib/main'
 
-  xit "should update when the DatabaseStore emits changes to tags", ->
-    true
+MyMessageSidebar = require '../lib/my-message-sidebar'
+MyComposerButton = require '../lib/my-composer-button'
 
-  xit "should update when the NamespaceStore emits", ->
-    true
+describe "activate", ->
+  it "should register the composer button and sidebar", ->
+    spyOn(ComponentRegistry, 'register')
+    activate()
+    expect(ComponentRegistry.register).toHaveBeenCalledWith(MyComposerButton, {role: 'Composer:ActionButton'})
+    expect(ComponentRegistry.register).toHaveBeenCalledWith(MyMessageSidebar, {role: 'sidebar:focusedContactInfo'})
 
-  xit "should provide an array of sections to the sidebar view", ->
-    true
+describe "deactivate", ->
+  it "should unregister the composer button and sidebar", ->
+    spyOn(ComponentRegistry, 'unregister')
+    deactivate()
+    expect(ComponentRegistry.unregister).toHaveBeenCalledWith(MyComposerButton)
+    expect(ComponentRegistry.unregister).toHaveBeenCalledWith(MyMessageSidebar)
