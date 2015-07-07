@@ -79,7 +79,11 @@ class Contact extends Model
     @lastName()
 
   firstName: ->
-    @_nameParts()[0] ? ""
+    articles = ['a', 'the']
+    for part in @_nameParts()
+      if part.toLowerCase() not in articles
+        return part
+    return ""
 
   lastName: ->
     @_nameParts()[1..-1]?.join(" ") ? ""
