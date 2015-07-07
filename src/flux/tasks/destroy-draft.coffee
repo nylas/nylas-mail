@@ -1,4 +1,5 @@
 Task = require './task'
+{APIError} = require '../errors'
 Message = require '../models/message'
 DatabaseStore = require '../stores/database-store'
 Actions = require '../actions'
@@ -14,55 +15,47 @@ class DestroyDraftTask extends Task
   shouldDequeueOtherTask: (other) ->
     (other instanceof SyncbackDraftTask and other.draftLocalId is @draftLocalId) or
     (other instanceof SendDraftTask and other.draftLocalId is @draftLocalId) or
-    (other instanceof FileUploadTask and other.draftLocalId is @draftLocalId)
+    (other instanceof FileUploadTask and other.messageLocalId is @draftLocalId)
 
   shouldWaitForTask: (other) ->
     (other instanceof SyncbackDraftTask and other.draftLocalId is @draftLocalId)
 
   performLocal: ->
-    new Promise (resolve, reject) =>
-      unless @draftLocalId?
-        return reject(new Error("Attempt to call DestroyDraftTask.performLocal without @draftLocalId"))
+    unless @draftLocalId?
+      return Promise.reject(new Error("Attempt to call DestroyDraftTask.performLocal without @draftLocalId"))
 
-      DatabaseStore.findByLocalId(Message, @draftLocalId).then (draft) =>
-        return resolve() unless draft
-        @draft = draft
-        DatabaseStore.unpersistModel(draft).then(resolve)
+    DatabaseStore.findByLocalId(Message, @draftLocalId).then (draft) =>
+      return resolve() unless draft
+      @draft = draft
+      DatabaseStore.unpersistModel(draft)
 
   performRemote: ->
-    new Promise (resolve, reject) =>
-      # We don't need to do anything if we weren't able to find the draft
-      # when we performed locally, or if the draft has never been synced to
-      # the server (id is still self-assigned)
-      return resolve() unless @draft
-      return resolve() unless @draft.isSaved()
+    # We don't need to do anything if we weren't able to find the draft
+    # when we performed locally, or if the draft has never been synced to
+    # the server (id is still self-assigned)
+    return Promise.resolve() unless @draft
+    return Promise.resolve() unless @draft.isSaved()
 
-      atom.inbox.makeRequest
-        path: "/n/#{@draft.namespaceId}/drafts/#{@draft.id}"
-        method: "DELETE"
-        body:
-          version: @draft.version
-        returnsModel: false
-        success: resolve
-        error: reject
+    atom.inbox.makeRequest
+      path: "/n/#{@draft.namespaceId}/drafts/#{@draft.id}"
+      method: "DELETE"
+      body:
+        version: @draft.version
+      returnsModel: false
 
-  onAPIError: (apiError) ->
-    inboxMsg = apiError.body?.message ? ""
-    if apiError.statusCode is 404
-      # Draft has already been deleted, this is not really an error
-      return true
-    else if inboxMsg.indexOf("is not a draft") >= 0
-      # Draft has been sent, and can't be deleted. Not much we can
-      # do but finish
-      return true
-    else
-      @_rollbackLocal()
+  recoverFromRemoteAPIError: (err) ->
+    inboxMsg = err.body?.message ? ""
 
-  onOtherError: -> Promise.resolve()
-  onTimeoutError: -> Promise.resolve()
-  onOfflineError: -> Promise.resolve()
+    # Draft has already been deleted, this is not really an error
+    if err.statusCode is 404
+      return Promise.resolve(Task.Status.Finished)
 
-  _rollbackLocal: (msg) ->
-    msg ?= "Unable to delete this draft. Restoring..."
-    Actions.postNotification({message: msg, type: "error"})
-    DatabaseStore.persistModel(@draft) if @draft?
+    if err.statusCode in NylasAPI.PermanentErrorCodes
+      Actions.postNotification({message: "Unable to delete this draft. Restoring...", type: "error"})
+      return DatabaseStore.persistModel(@draft)
+
+    # Draft has been sent, and can't be deleted. Not much we can do but finish
+    if inboxMsg.indexOf("is not a draft") >= 0
+      return Promise.resolve(Task.Status.Finished)
+
+    Promise.resolve(Task.Status.Retry)

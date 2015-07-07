@@ -2,6 +2,7 @@ fs = require 'fs'
 _ = require 'underscore'
 pathUtils = require 'path'
 Task = require './task'
+{APIError} = require '../errors'
 File = require '../models/file'
 Message = require '../models/message'
 Actions = require '../actions'
@@ -15,14 +16,16 @@ idGen = 2
 
 class FileUploadTask extends Task
 
+  # Necessary so that tasks always get the same ID during specs
   @idGen: -> idGen
 
   constructor: (@filePath, @messageLocalId) ->
     super
     @_startedUploadingAt = Date.now()
+    @progress = null # The progress checking timer.
+
     @_uploadId = FileUploadTask.idGen()
     idGen += 1
-    @progress = null # The progress checking timer.
 
   performLocal: ->
     return Promise.reject(new Error("Must pass an absolute path to upload")) unless @filePath?.length
@@ -31,75 +34,55 @@ class FileUploadTask extends Task
     Promise.resolve()
 
   performRemote: ->
-    new Promise (resolve, reject) =>
-      Actions.uploadStateChanged @_uploadData("started")
+    Actions.uploadStateChanged @_uploadData("started")
 
-      @req = NylasAPI.makeRequest
-        path: "/n/#{@_namespaceId()}/files"
-        method: "POST"
-        json: false
-        formData: @_formData()
-        error: reject
-        success: (rawResponseString) =>
-          # The Nylas API returns the file json wrapped in an array.
-          #
-          # Since we requested `json:false` the response will come back as
-          # a raw string.
-          try
-            json = JSON.parse(rawResponseString)
-            file = (new File).fromJSON(json[0])
-          catch error
-            reject(error)
-          @_onRemoteSuccess(file, resolve, reject)
-
+    started = (req) =>
+      @req = req
       @progress = setInterval =>
         Actions.uploadStateChanged(@_uploadData("progress"))
       , 250
 
-  cleanup: ->
-    super
-
-    # If the request is still in progress, notify observers that
-    # we've failed.
-    if @req
-      @req.abort()
+    cleanup = =>
       clearInterval(@progress)
-      Actions.uploadStateChanged(@_uploadData("aborted"))
-      setTimeout =>
-        # To see the aborted state for a little bit
-        Actions.fileAborted(@_uploadData("aborted"))
-      , 1000
+      @req = null
 
-  onAPIError: (apiError) ->
-    @_rollbackLocal()
+    NylasAPI.makeRequest
+      path: "/n/#{@_namespaceId()}/files"
+      method: "POST"
+      json: false
+      formData: @_formData()
+      started: started
 
-  onOtherError: (otherError) ->
-    @_rollbackLocal()
+    .finally(cleanup)
+    .then(@performRemoteParseFile)
+    .then(@performRemoteAttachFile)
+    .then (file) =>
+      Actions.uploadStateChanged @_uploadData("completed")
+      Actions.fileUploaded(file: file, uploadData: @_uploadData("completed"))
+      return Promise.resolve(Task.Status.Finished)
 
-  onTimeoutError: ->
-    # Do nothing. It could take a while.
-    Promise.resolve()
+    .catch APIError, (err) =>
+      Actions.uploadStateChanged(@_uploadData("failed"))
+      if err.statusCode in NylasAPI.PermanentErrorCodes
+        msg = "There was a problem uploading this file. Please try again later."
+        Actions.postNotification({message: msg, type: "error"})
+        return Promise.reject(err)
+      else
+        return Promise.resolve(Task.Status.Retry)
 
-  onOfflineError: (offlineError) ->
-    msg = "You can't upload a file while you're offline."
-    @_rollbackLocal(msg)
+  performRemoteParseFile: (rawResponseString) =>
+    # The Nylas API returns the file json wrapped in an array.
+    # Since we requested `json:false` the response will come back as
+    # a raw string.
+    json = JSON.parse(rawResponseString)
+    file = (new File).fromJSON(json[0])
+    Promise.resolve(file)
 
-  _rollbackLocal: (msg) ->
-    clearInterval(@progress)
-    @req = null
-
-    msg ?= "There was a problem uploading this file. Please try again later."
-    Actions.postNotification({message: msg, type: "error"})
-    Actions.uploadStateChanged @_uploadData("failed")
-
-  _onRemoteSuccess: (file, resolve, reject) =>
-    clearInterval(@progress)
-    @req = null
-
+  performRemoteAttachFile: (file) =>
     # The minute we know what file is associated with the upload, we need
     # to fire an Action to notify a popout window's FileUploadStore that
     # these two objects are linked. We unfortunately can't wait until
-    # `_attacheFileToDraft` resolves, because that will resolve after the
+    # `_attachFileToDraft` resolves, because that will resolve after the
     # DB transaction is completed AND all of the callbacks have fired.
     # Unfortunately in the callback chain is a render method which means
     # that the upload will be left on the page for a split second before
@@ -110,19 +93,28 @@ class FileUploadTask extends Task
     # listing.
     Actions.linkFileToUpload(file: file, uploadData: @_uploadData("completed"))
 
-    @_attachFileToDraft(file).then =>
-      Actions.uploadStateChanged @_uploadData("completed")
-      Actions.fileUploaded(file: file, uploadData: @_uploadData("completed"))
-      resolve()
-    .catch(reject)
-
-  _attachFileToDraft: (file) ->
     DraftStore = require '../stores/draft-store'
     DraftStore.sessionForLocalId(@messageLocalId).then (session) =>
       files = _.clone(session.draft().files) ? []
       files.push(file)
       session.changes.add({files})
-      return session.changes.commit()
+      session.changes.commit().then ->
+        Promise.resolve(file)
+
+  cancel: ->
+    super
+
+    # Note: When you call cancel, we stop the request, which causes
+    # NylasAPI.makeRequest to reject with an error.
+    return unless @req
+    @req.abort()
+    clearInterval(@progress)
+
+    # To see the aborted state for a little bit
+    Actions.uploadStateChanged(@_uploadData("aborted"))
+    setTimeout(( =>  Actions.fileAborted(@_uploadData("aborted"))), 1000)
+
+  # Helper Methods
 
   _formData: ->
     file: # Must be named `file` as per the Nylas API spec
@@ -157,6 +149,7 @@ class FileUploadTask extends Task
     # http://stackoverflow.com/questions/12098713/upload-progress-request
     @req?.req?.connection?._bytesDispatched ? 0
 
-  _namespaceId: -> NamespaceStore.current()?.id
+  _namespaceId: ->
+    NamespaceStore.current()?.id
 
 module.exports = FileUploadTask

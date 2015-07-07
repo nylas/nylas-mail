@@ -4,6 +4,7 @@ SyncbackDraftTask = require '../../src/flux/tasks/syncback-draft'
 SendDraftTask = require '../../src/flux/tasks/send-draft'
 DatabaseStore = require '../../src/flux/stores/database-store'
 {generateTempId} = require '../../src/flux/models/utils'
+{APIError} = require '../../src/flux/errors'
 Message = require '../../src/flux/models/message'
 TaskQueue = require '../../src/flux/stores/task-queue'
 _ = require 'underscore'
@@ -36,47 +37,6 @@ describe "SendDraftTask", ->
       @sendA = new SendDraftTask('localid-A')
 
       expect(@sendA.shouldWaitForTask(@saveA)).toBe(true)
-
-  describe "When on the TaskQueue", ->
-    beforeEach ->
-      TaskQueue._queue = []
-      TaskQueue._completed = []
-      @saveTask = new SyncbackDraftTask('localid-A')
-      @saveTaskB = new SyncbackDraftTask('localid-B')
-      @sendTask = new SendDraftTask('localid-A')
-      @tasks = [@saveTask, @saveTaskB, @sendTask]
-
-    describe "when tasks succeed", ->
-      beforeEach ->
-        for task in @tasks
-          spyOn(task, "performLocal").andCallFake -> Promise.resolve()
-          spyOn(task, "performRemote").andCallFake -> Promise.resolve()
-        runs ->
-          TaskQueue.enqueue(@saveTask, silent: true)
-          TaskQueue.enqueue(@saveTaskB, silent: true)
-          TaskQueue.enqueue(@sendTask)
-        waitsFor ->
-          @sendTask.queueState.performedRemote isnt false
-
-      it "processes all of the items", ->
-        runs ->
-          expect(TaskQueue._queue.length).toBe 0
-          expect(TaskQueue._completed.length).toBe 3
-
-      it "all of the tasks", ->
-        runs ->
-          expect(@saveTask.performRemote).toHaveBeenCalled()
-          expect(@saveTaskB.performRemote).toHaveBeenCalled()
-          expect(@sendTask.performRemote).toHaveBeenCalled()
-
-      it "finishes the save before sending", ->
-        runs ->
-          save = @saveTask.queueState.performedRemote
-          send = @sendTask.queueState.performedRemote
-          expect(save).toBeGreaterThan 0
-          expect(send).toBeGreaterThan 0
-          expect(save <= send).toBe true
-
 
   describe "performLocal", ->
     it "should throw an exception if the first parameter is not a localId", ->
@@ -113,7 +73,8 @@ describe "SendDraftTask", ->
       @draftLocalId = "local-123"
       @task = new SendDraftTask(@draftLocalId)
       spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
-        options.success(@draft.toJSON()) if options.success
+        options.success?(@draft.toJSON())
+        Promise.resolve(@draft.toJSON())
       spyOn(DatabaseStore, 'findByLocalId').andCallFake (klass, localId) =>
         Promise.resolve(@draft)
       spyOn(DatabaseStore, 'unpersistModel').andCallFake (draft) ->
@@ -207,12 +168,14 @@ describe "SendDraftTask", ->
       it "should resend the draft without the reply_to_message_id key set", ->
         @draft.id = generateTempId()
         spyOn(DatabaseStore, 'findByLocalId').andCallFake => Promise.resolve(@draft)
-        spyOn(NylasAPI, 'makeRequest').andCallFake ({body, success, error}) ->
+        spyOn(NylasAPI, 'makeRequest').andCallFake ({body, success, error}) =>
           if body.reply_to_message_id
-            err = new Error("Invalid message public id")
-            error(err)
+            err = new APIError(body: "Invalid message public id", statusCode: 400)
+            error?(err)
+            return Promise.reject(err)
           else
-            success(body)
+            success?(body)
+            return Promise.resolve(body)
 
         waitsForPromise =>
           @task.performRemote().then =>
@@ -224,18 +187,23 @@ describe "SendDraftTask", ->
       it "should resend the draft without the thread_id or reply_to_message_id keys set", ->
         @draft.id = generateTempId()
         spyOn(DatabaseStore, 'findByLocalId').andCallFake => Promise.resolve(@draft)
-        spyOn(NylasAPI, 'makeRequest').andCallFake ({body, success, error}) ->
-          if body.thread_id
-            err = new Error("Invalid thread public id")
-            error(err)
-          else
-            success(body)
+        spyOn(NylasAPI, 'makeRequest').andCallFake ({body, success, error}) =>
+          new Promise (resolve, reject) =>
+            if body.thread_id
+              err = new APIError(body: "Invalid thread public id", statusCode: 400)
+              error?(err)
+              reject(err)
+            else
+              success?(body)
+              resolve(body)
 
         waitsForPromise =>
           @task.performRemote().then =>
             expect(NylasAPI.makeRequest.calls.length).toBe(2)
             expect(NylasAPI.makeRequest.calls[1].args[0].body.thread_id).toBe(null)
             expect(NylasAPI.makeRequest.calls[1].args[0].body.reply_to_message_id).toBe(null)
+          .catch (err) =>
+            console.log(err.trace)
 
     it "throws an error if the draft can't be found", ->
       spyOn(DatabaseStore, 'findByLocalId').andCallFake (klass, localId) ->
@@ -257,16 +225,3 @@ describe "SendDraftTask", ->
       waitsForPromise =>
         @task.performRemote().catch (error) ->
           expect(error).toBe "DB error"
-
-    it "onAPIError notifies of the error", ->
-      @task.onAPIError(message: "oh no")
-
-    it "onOtherError notifies of the error", ->
-      @task.onOtherError()
-
-    it "onTimeoutError notifies of the error", ->
-      @task.onTimeoutError()
-
-    it "onOfflineError notifies of the error and dequeues", ->
-      @task.onOfflineError()
-      expect(Actions.dequeueTask).toHaveBeenCalledWith(@task)

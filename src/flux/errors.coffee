@@ -13,9 +13,6 @@ class APIError extends Error
     @name = "APIError"
     @message = @body?.message ? @body ? @error?.toString?()
 
-  notifyConsole: ->
-    console.error("Edgehill API Error: #{@message}", @)
-
 class OfflineError extends Error
   constructor: ->
 

@@ -13,6 +13,7 @@ Exports =
   # The Task Queue
   Task: require '../src/flux/tasks/task'
   TaskQueue: require '../src/flux/stores/task-queue'
+  UndoRedoStore: require '../src/flux/stores/undo-redo-store'
 
   # Tasks
   CreateMetadataTask: require '../src/flux/tasks/create-metadata-task'

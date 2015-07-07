@@ -1,4 +1,5 @@
 Task = require './task'
+{APIError} = require '../errors'
 DatabaseStore = require '../stores/database-store'
 AddRemoveTagsTask = require './add-remove-tags'
 Message = require '../models/message'

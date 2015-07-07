@@ -1,4 +1,5 @@
 Task = require './task'
+{APIError} = require '../errors'
 DatabaseStore = require '../stores/database-store'
 Actions = require '../actions'
 NylasAPI = require '../nylas-api'
@@ -11,37 +12,28 @@ class MarkMessageReadTask extends Task
     super
 
   performLocal: ->
-    new Promise (resolve, reject) =>
-      # update the flag on the message
-      @_previousUnreadState = @message.unread
-      @message.unread = false
+    # update the flag on the message
+    @_previousUnreadState = @message.unread
+    @message.unread = false
 
-      # dispatch an action to persist it
-      DatabaseStore.persistModel(@message).then(resolve).catch(reject)
+    # dispatch an action to persist it
+    DatabaseStore.persistModel(@message)
 
   performRemote: ->
-    new Promise (resolve, reject) =>
-      # queue the operation to the server
-      NylasAPI.makeRequest {
-        path: "/n/#{@message.namespaceId}/messages/#{@message.id}"
-        method: 'PUT'
-        body: {
-          unread: false
-        }
-        returnsModel: true
-        success: resolve
-        error: reject
-      }
-
-  # We don't really care if this fails.
-  onAPIError: -> Promise.resolve()
-  onOtherError: -> Promise.resolve()
-  onTimeoutError: -> Promise.resolve()
-  onOfflineError: -> Promise.resolve()
-
-  _rollbackLocal: ->
-    new Promise (resolve, reject) =>
-      unless @_previousUnreadState?
-        reject(new Error("Cannot call rollbackLocal without previous call to performLocal"))
-      @message.unread = @_previousUnreadState
-      DatabaseStore.persistModel(@message).then(resolve).catch(reject)
+    # queue the operation to the server
+    NylasAPI.makeRequest
+      path: "/n/#{@message.namespaceId}/messages/#{@message.id}"
+      method: 'PUT'
+      body:
+        unread: false
+      returnsModel: true
+    .then =>
+      return Promise.resolve(Task.Status.Finished)
+    .catch APIError, (err) =>
+      if err.statusCode in NylasAPI.PermanentErrorCodes
+        # Run performLocal backwards to undo the tag changes
+        @message.unread = @_previousUnreadState
+        DatabaseStore.persistModel(@message).then =>
+          return Promise.resolve(Task.Status.Finished)
+      else
+        return Promise.resolve(Task.Status.Retry)

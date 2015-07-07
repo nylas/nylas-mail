@@ -26,7 +26,7 @@ describe "MessageToolbarItem starring", ->
     starButton = React.findDOMNode(messageToolbarItems.refs.starButton)
     TestUtils.Simulate.click starButton
 
-    expect(Actions.queueTask.mostRecentCall.args[0].thread).toBe(test_thread)
+    expect(Actions.queueTask.mostRecentCall.args[0].threadsOrIds).toEqual([test_thread])
     expect(Actions.queueTask.mostRecentCall.args[0].tagIdsToAdd).toEqual(['starred'])
     expect(Actions.queueTask.mostRecentCall.args[0].tagIdsToRemove).toEqual([])
 
@@ -39,6 +39,6 @@ describe "MessageToolbarItem starring", ->
     starButton = React.findDOMNode(messageToolbarItems.refs.starButton)
     TestUtils.Simulate.click starButton
 
-    expect(Actions.queueTask.mostRecentCall.args[0].thread).toBe(test_thread_starred)
+    expect(Actions.queueTask.mostRecentCall.args[0].threadsOrIds).toEqual([test_thread_starred])
     expect(Actions.queueTask.mostRecentCall.args[0].tagIdsToAdd).toEqual([])
     expect(Actions.queueTask.mostRecentCall.args[0].tagIdsToRemove).toEqual(['starred'])

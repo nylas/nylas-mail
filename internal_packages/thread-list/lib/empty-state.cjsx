@@ -87,7 +87,6 @@ class EmptyState extends React.Component
     @_worker = NylasAPI.workerForNamespace(namespace)
     @_workerUnlisten() if @_workerUnlisten
     @_workerUnlisten = @_worker.listen(@_onChange, @)
-    console.log(@_worker)
     @setState(syncing: @_worker.busy())
 
   componentWillUnmount: ->

@@ -5,92 +5,136 @@ Actions = require '../actions'
  OfflineError,
  TimeoutError} = require '../errors'
 
-# Tasks represent individual changes to the datastore that
+TaskStatus =
+  Finished: 'finished'
+  Retry: 'retry'
+
+# Public: Tasks represent individual changes to the datastore that
 # alter the local cache and need to be synced back to the server.
-
-# Tasks should optimistically modify local models and trigger
-# model update actions, and also make API calls which trigger
-# further model updates once they're complete.
-
-# Subclasses implement `performLocal` and `performRemote`.
 #
-# `performLocal` can be called directly by whoever has access to the
-# class. It can only be called once. If it is not called directly,
-# `performLocal` will be invoked as soon as the task is queued. Since
-# performLocal is frequently asynchronous, it is sometimes necessary to
-# wait for it to finish.
+# To create a new task, subclass Task and implement the following methods:
 #
-# `performRemote` may be called after a delay, depending on internet
-# connectivity and dependency resolution.
-
-# Tasks may be arbitrarily dependent on other tasks. To ensure that
-# performRemote is called at the right time, subclasses should implement
-# shouldWaitForTask(other). For example, the SendDraft task is dependent
-# on the draft's files' UploadFile tasks completing.
-
+# - performLocal:
+#   Return a {Promise} that does work immediately. Must resolve or the task
+#   will be thrown out. Generally, you should optimistically update
+#   the local cache here.
+#
+# - performRemote:
+#   Do work that requires dependencies to have resolved and may need to be
+#   tried multiple times to succeed in case of network issues.
+#
+#   performRemote must return a {Promise}, and it should always resolve with
+#   Task.Status.Finished or Task.Status.Retry. Rejections are considered
+#   exception cases and are logged to our server.
+#
+#   Returning Task.Status.Retry will cause the TaskQueue to leave your task
+#   on the queue and run it again later. You should only return Task.Status.Retry
+#   if your task encountered a transient error (for example, a `0` but not a `400`).
+#
+# - shouldWaitForTask:
+#   Tasks may be arbitrarily dependent on other tasks. To ensure that
+#   performRemote is called at the right time, subclasses should implement
+#   `shouldWaitForTask(other)`. For example, the `SendDraft` task is dependent
+#   on the draft's files' `UploadFile` tasks completing.
+#
 # Tasks may also implement shouldDequeueOtherTask(other). Returning true
 # will cause the other event to be removed from the queue. This is useful in
 # offline mode especially, when the user might Save,Save,Save,Save,Send.
 # Each newly queued Save can cancel the (unstarted) save task in the queue.
-
-# Because tasks may be queued and performed when internet is available,
-# they may need to be persisted to disk. Subclasses should implement
-# serialize / deserialize to convert to / from raw JSON.
-
+#
+# Tasks that need to support undo/redo should implement `canBeUndone`, `isUndo`,
+# `createUndoTask`, and `createIdenticalTask`.
+#
 class Task
-  ## These are commonly overridden ##
+
+  @Status: TaskStatus
+
   constructor: ->
+    @_performLocalCompletePromise = new Promise (resolve, reject) =>
+      @_performLocalComplete = resolve
+
     @id = generateTempId()
     @creationDate = new Date()
+    @queueState =
+      isProcessing: false
+      localError: null
+      localComplete: false
+      remoteError: null
+      remoteAttempts: 0
+      remoteComplete: false
+    @
 
-  performLocal: -> Promise.resolve()
+  runLocal: ->
+    if @queueState.localComplete
+      return Promise.resolve()
+    else
+      @performLocal()
+      .then =>
+        @_performLocalComplete()
+        @queueState.localComplete = true
+        @queueState.localError = null
+        return Promise.resolve()
+      .catch (err) =>
+        @queueState.localError = err
+        return Promise.reject(err)
 
-  performRemote: -> Promise.resolve()
+  runRemote: ->
+    if @queueState.localComplete is false
+      throw new Error("runRemote called before performLocal complete, this is an assertion failure.")
+
+    if @queueState.remoteComplete
+      return Promise.resolve(Task.Status.Finished)
+
+    @performRemote()
+    .catch (err) =>
+      @queueState.remoteAttempts += 1
+      @queueState.remoteError = err
+    .then (status) =>
+      if not (status in _.values(Task.Status))
+        throw new Error("performRemote returned #{status}, which is not a Task.Status")
+      @queueState.remoteAttempts += 1
+      @queueState.remoteComplete = status is Task.Status.Finished
+      @queueState.remoteError = null
+      return Promise.resolve(status)
+
+
+  ## Everything beneath here may be overridden in subclasses ##
+
+  # performLocal is called once when the task is queued. You must return
+  # a promise. If you resolve, the task is queued and performRemote will
+  # be called. If you reject, the task will not be queued.
+  #
+  performLocal: ->
+    Promise.resolve()
+
+  performRemote: ->
+    Promise.resolve(Task.Status.Finished)
+
+  waitForPerformLocal: ->
+    if not atom.isMainWindow()
+      throw new Error("waitForPerformLocal is only supported in the main window. In
+             secondary windows, tasks are serialized and sent to the main
+             window, and cannot be observed.")
+    @_performLocalCompletePromise
+
+  cancel: ->
+    # We ignore requests to cancel and carry on. Subclasses that want to support
+    # cancellation or dequeue requests while running should implement cancel.
+
+  canBeUndone: -> false
+
+  isUndo: -> false
+
+  createUndoTask: -> throw new Error("Unimplemented")
+
+  createIdenticalTask: ->
+    json = @toJSON()
+    delete json['queueState']
+    (new @.constructor).fromJSON(json)
 
   shouldDequeueOtherTask: (other) -> false
 
   shouldWaitForTask: (other) -> false
-
-  cleanup: -> true
-
-  abort: -> Promise.resolve()
-
-  onAPIError: (apiError) ->
-    msg = "We had a problem with the server. Your action was NOT completed."
-    Actions.postNotification({message: msg, type: "error"})
-    Promise.resolve()
-
-  onOtherError: (otherError) ->
-    msg = "Something went wrong. Please report this issue immediately."
-    Actions.postNotification({message: msg, type: "error"})
-    Promise.resolve()
-
-  onTimeoutError: (timeoutError) ->
-    msg = "This took too long. Check your internet connection. Your action was NOT completed."
-    Actions.postNotification({message: msg, type: "error"})
-    Promise.resolve()
-
-  onOfflineError: (offlineError) ->
-    msg = "WARNING: You are offline. This will complete when you come back online."
-    Actions.postNotification({message: msg, type: "error"})
-    Promise.resolve()
-
-  ## Only override if you know what you're doing ##
-  onError: (error) ->
-    if error instanceof APIError
-      @onAPIError(error)
-    else if error instanceof TimeoutError
-      @onTimeoutError(error)
-    else if error instanceof OfflineError
-      @onOfflineError(error)
-    else
-      if error instanceof Error
-        console.error "Task #{@constructor.name} threw an unknown error: #{error.message}"
-        console.error error.stack
-      @onOtherError(error)
-
-  notifyErrorMessage: (msg) ->
-    Actions.postNotification({message: msg, type: "error"})
 
   toJSON: ->
     json = _.clone(@)

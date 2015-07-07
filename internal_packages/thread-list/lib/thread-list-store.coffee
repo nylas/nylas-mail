@@ -21,7 +21,6 @@ module.exports =
 ThreadListStore = Reflux.createStore
   init: ->
     @_resetInstanceVars()
-    @_afterViewUpdate = []
 
     @listenTo Actions.searchQueryCommitted, @_onSearchCommitted
     @listenTo Actions.selectLayoutMode, @_autofocusForLayoutMode
@@ -53,8 +52,6 @@ ThreadListStore = Reflux.createStore
 
     @_viewUnlisten = view.listen ->
       @trigger(@)
-      fn() for fn in @_afterViewUpdate
-      @_afterViewUpdate = []
       @_autofocusForLayoutMode()
     ,@
 
@@ -110,21 +107,20 @@ ThreadListStore = Reflux.createStore
       @_view.invalidateMetadataFor(threadIds)
 
   _onToggleStarSelection: ->
-    selected = @_view.selection.items()
+    selectedThreads = @_view.selection.items()
     focusedId = FocusedContentStore.focusedId('thread')
     keyboardId = FocusedContentStore.keyboardCursorId('thread')
 
     oneAlreadyStarred = false
-    for thread in selected
+    for thread in selectedThreads
       if thread.hasTagId('starred')
         oneAlreadyStarred = true
 
-    for thread in selected
-      if oneAlreadyStarred
-        task = new AddRemoveTagsTask(thread, [], ['starred'])
-      else
-        task = new AddRemoveTagsTask(thread, ['starred'], [])
-      Actions.queueTask(task)
+    if oneAlreadyStarred
+      task = new AddRemoveTagsTask(selectedThreads, [], ['starred'])
+    else
+      task = new AddRemoveTagsTask(selectedThreads, ['starred'], [])
+    Actions.queueTask(task)
 
   _onToggleStarFocused: ->
     focused = FocusedContentStore.focused('thread')
@@ -140,18 +136,19 @@ ThreadListStore = Reflux.createStore
     @_archiveAndShiftBy('auto')
 
   _onArchiveSelection: ->
-    selected = @_view.selection.items()
+    selectedThreads = @_view.selection.items()
+    selectedThreadIds = selectedThreads.map (thread) -> thread.id
     focusedId = FocusedContentStore.focusedId('thread')
     keyboardId = FocusedContentStore.keyboardCursorId('thread')
 
-    for thread in selected
-      task = new AddRemoveTagsTask(thread, ['archive'], ['inbox'])
-      Actions.queueTask(task)
-      if thread.id is focusedId
+    task = new AddRemoveTagsTask(selectedThreads, ['archive'], ['inbox'])
+    task.waitForPerformLocal().then =>
+      if focusedId in selectedThreadIds
         Actions.setFocus(collection: 'thread', item: null)
-      if thread.id is keyboardId
+      if keyboardId in selectedThreadIds
         Actions.setCursorPosition(collection: 'thread', item: null)
 
+    Actions.queueTask(task)
     @_view.selection.clear()
 
   _onArchiveAndPrev: ->
@@ -181,10 +178,6 @@ ThreadListStore = Reflux.createStore
     index = Math.min(Math.max(index + offset, 0), @_view.count() - 1)
     nextKeyboard = nextFocus = @_view.get(index)
 
-    # Archive the current thread
-    task = new AddRemoveTagsTask(focused, ['archive'], ['inbox'])
-    Actions.queueTask(task)
-
     # Remove the current thread from selection
     @_view.selection.remove(focused)
 
@@ -194,9 +187,12 @@ ThreadListStore = Reflux.createStore
     if layoutMode is 'list' and not explicitOffset
       nextFocus = null
 
-    @_afterViewUpdate.push ->
+    # Archive the current thread
+    task = new AddRemoveTagsTask(focused, ['archive'], ['inbox'])
+    task.waitForPerformLocal().then ->
       Actions.setFocus(collection: 'thread', item: nextFocus)
       Actions.setCursorPosition(collection: 'thread', item: nextKeyboard)
+    Actions.queueTask(task)
 
   _autofocusForLayoutMode: ->
     layoutMode = WorkspaceStore.layoutMode()

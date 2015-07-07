@@ -1,5 +1,6 @@
 _ = require 'underscore'
 Task = require './task'
+{APIError} = require '../errors'
 Actions = require '../actions'
 Metadata = require '../models/metadata'
 EdgehillAPI = require '../edgehill-api'
@@ -54,30 +55,14 @@ class DestroyMetadataTask extends Task
       method: "DELETE"
       path: "/metadata/#{NamespaceStore.current().id}/#{@type}/#{@publicId}"
       body: body
-      success: (args...) =>
+      success: =>
         Actions.metadataDestroyed(@type)
-        resolve(args...)
-      error: (apiError) ->
-        apiError.notifyConsole()
+        resolve(Task.Status.Finished)
+      error: (apiError) =>
+        Actions.metadataError _.extend @_baseErrorData(),
+          errorType: "APIError"
+          error: apiError
         reject(apiError)
-
-  onAPIError: (apiError) ->
-    Actions.metadataError _.extend @_baseErrorData(),
-      errorType: "APIError"
-      error: apiError
-    Promise.resolve()
-
-  onOtherError: (otherError) ->
-    Actions.metadataError _.extend @_baseErrorData(),
-      errorType: "OtherError"
-      error: otherError
-    Promise.resolve()
-
-  onTimeoutError: (timeoutError) ->
-    Actions.metadataError _.extend @_baseErrorData(),
-      errorType: "TimeoutError"
-      error: timeoutError
-    Promise.resolve()
 
   _baseErrorData: ->
     action: "destroy"
@@ -85,6 +70,3 @@ class DestroyMetadataTask extends Task
     type: @type
     publicId: @publicId
     key: @key
-
-  onOfflineError: (offlineError) ->
-    Promise.resolve()

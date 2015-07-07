@@ -49,7 +49,7 @@ class DeveloperBarTask extends React.Component
       "task-local-error": qs.localError
       "task-remote-error": qs.remoteError
       "task-is-processing": qs.isProcessing
-      "task-success": qs.performedLocal and qs.performedRemote
+      "task-success": qs.localComplete and qs.remoteComplete
 
 
 module.exports = DeveloperBarTask

@@ -88,6 +88,9 @@ class CommandRegistry
         disposable.add @add(target, commandName, callback)
       return disposable
 
+    if not callback
+      throw new Error("CommandRegistry:add called without a callback")
+
     if typeof target is 'string'
       @addSelectorBasedListener(target, commandName, callback)
     else

@@ -50,7 +50,7 @@ describe "SyncbackDraftTask", ->
   describe "performRemote", ->
     beforeEach ->
       spyOn(NylasAPI, 'makeRequest').andCallFake (opts) ->
-        opts.success(remoteDraft.toJSON()) if opts.success
+        Promise.resolve(remoteDraft.toJSON())
 
     it "does nothing if no draft can be found in the db", ->
       task = new SyncbackDraftTask("missingDraftId")
@@ -108,16 +108,17 @@ describe "SyncbackDraftTask", ->
 
   describe "When the api throws a 404 error", ->
     beforeEach ->
-      spyOn(TaskQueue, "enqueue")
       spyOn(NylasAPI, "makeRequest").andCallFake (opts) ->
-        opts.error(testError(opts)) if opts.error
+        Promise.reject(testError(opts))
 
     it "resets the id", ->
       task = new SyncbackDraftTask("remoteDraftId")
-      task.onAPIError(testError({}))
+      taskStatus = null
+      task.performRemote().then (status) => taskStatus = status
+
       waitsFor ->
         DatabaseStore.swapModel.calls.length > 0
       runs ->
         newDraft = DatabaseStore.swapModel.mostRecentCall.args[0].newModel
         expect(isTempId(newDraft.id)).toBe true
-        expect(TaskQueue.enqueue).toHaveBeenCalled()
+        expect(taskStatus).toBe(Task.Status.Retry)

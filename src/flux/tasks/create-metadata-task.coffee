@@ -1,5 +1,6 @@
 _ = require 'underscore'
 Task = require './task'
+{APIError} = require '../errors'
 Actions = require '../actions'
 Metadata = require '../models/metadata'
 EdgehillAPI = require '../edgehill-api'
@@ -29,37 +30,22 @@ class CreateMetadataTask extends Task
     @metadatum = new Metadata({@type, @publicId, @key, @value})
     return DatabaseStore.persistModel(@metadatum)
 
-  performRemote: -> new Promise (resolve, reject) =>
-    EdgehillAPI.request
-      method: "POST"
-      path: "/metadata/#{NamespaceStore.current().id}/#{@type}/#{@publicId}"
-      body:
-        key: @key
-        value: @value
-      success: (args...) =>
-        Actions.metadataCreated @type, @metadatum
-        resolve(args...)
-      error: (apiError) ->
-        apiError.notifyConsole()
-        reject(apiError)
-
-  onAPIError: (apiError) ->
-    Actions.metadataError _.extend @_baseErrorData(),
-      errorType: "APIError"
-      error: apiError
-    Promise.resolve()
-
-  onOtherError: (otherError) ->
-    Actions.metadataError _.extend @_baseErrorData(),
-      errorType: "OtherError"
-      error: otherError
-    Promise.resolve()
-
-  onTimeoutError: (timeoutError) ->
-    Actions.metadataError _.extend @_baseErrorData(),
-      errorType: "TimeoutError"
-      error: timeoutError
-    Promise.resolve()
+  performRemote: ->
+    new Promise (resolve, reject) =>
+      EdgehillAPI.request
+        method: "POST"
+        path: "/metadata/#{NamespaceStore.current().id}/#{@type}/#{@publicId}"
+        body:
+          key: @key
+          value: @value
+        success: =>
+          Actions.metadataCreated @type, @metadatum
+          resolve(Task.Status.Finished)
+        error: (apiError) =>
+          Actions.metadataError _.extend @_baseErrorData(),
+            errorType: "APIError"
+            error: apiError
+          reject(apiError)
 
   _baseErrorData: ->
     action: "create"
@@ -68,6 +54,3 @@ class CreateMetadataTask extends Task
     publicId: @publicId
     key: @key
     value: @value
-
-  onOfflineError: (offlineError) ->
-    Promise.resolve()

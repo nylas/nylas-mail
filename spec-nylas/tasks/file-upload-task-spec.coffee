@@ -2,11 +2,16 @@ proxyquire = require 'proxyquire'
 _ = require 'underscore'
 NylasAPI = require '../../src/flux/nylas-api'
 File = require '../../src/flux/models/file'
+Task = require '../../src/flux/tasks/task'
 Message = require '../../src/flux/models/message'
 Actions = require '../../src/flux/actions'
 
 NamespaceStore = require "../../src/flux/stores/namespace-store"
 DraftStore = require "../../src/flux/stores/draft-store"
+
+{APIError,
+ OfflineError,
+ TimeoutError} = require '../../src/flux/errors'
 
 FileUploadTask = proxyquire "../../src/flux/tasks/file-upload-task",
   fs:
@@ -18,6 +23,8 @@ test_file_paths = [
   "/fake/file.txt",
   "/fake/file.jpg"
 ]
+
+noop = ->
 
 localId = "local-id_1234"
 
@@ -43,6 +50,7 @@ describe "FileUploadTask", ->
   beforeEach ->
     spyOn(Date, "now").andReturn DATE
     spyOn(FileUploadTask, "idGen").andReturn 3
+
     @uploadData =
       uploadId: 3
       startedUploadingAt: DATE
@@ -53,6 +61,23 @@ describe "FileUploadTask", ->
     bytesUploaded: 0
 
     @task = new FileUploadTask(test_file_paths[0], localId)
+
+    @req = jasmine.createSpyObj('req', ['abort'])
+    @simulateRequestSuccessImmediately = false
+    @simulateRequestSuccess = null
+    @simulateRequestFailure = null
+
+    spyOn(NylasAPI, 'makeRequest').andCallFake (reqParams) =>
+      new Promise (resolve, reject) =>
+        reqParams.started?(@req)
+        @simulateRequestSuccess = (data) =>
+          reqParams.success?(data)
+          resolve(data)
+        @simulateRequestFailure = (err) =>
+          reqParams.error?(err)
+          reject(err)
+        if @simulateRequestSuccessImmediately
+          @simulateRequestSuccess(testResponse)
 
   it "rejects if not initialized with a path name", (done) ->
     waitsForPromise ->
@@ -80,22 +105,29 @@ describe "FileUploadTask", ->
         data = _.extend @uploadData, state: "pending", bytesUploaded: 0
         expect(Actions.uploadStateChanged).toHaveBeenCalledWith data
 
-  it "notifies when the file upload fails", ->
-    spyOn(Actions, "uploadStateChanged")
-    spyOn(@task, "_getBytesUploaded").andReturn(0)
-    @task._rollbackLocal()
-    data = _.extend @uploadData, state: "failed", bytesUploaded: 0
-    expect(Actions.uploadStateChanged).toHaveBeenCalledWith(data)
+  describe "when the remote API request fails with an API Error", ->
+    it "broadcasts uploadStateChanged", ->
+      runs ->
+        @task.performRemote().catch (err) => console.log(err)
+      waitsFor ->
+        @simulateRequestFailure
+      runs ->
+        spyOn(@task, "_getBytesUploaded").andReturn(0)
+        spyOn(Actions, "uploadStateChanged")
+        @simulateRequestFailure(new APIError())
+      waitsFor ->
+        Actions.uploadStateChanged.callCount > 0
+      runs ->
+        data = _.extend(@uploadData, {state: "failed", bytesUploaded: 0})
+        expect(Actions.uploadStateChanged).toHaveBeenCalledWith(data)
 
-  describe "When successfully calling remote", ->
+  describe "when the remote API request succeeds", ->
     beforeEach ->
-      spyOn(Actions, "uploadStateChanged")
-      @req = jasmine.createSpyObj('req', ['abort'])
-      spyOn(NylasAPI, 'makeRequest').andCallFake (reqParams) =>
-        reqParams.success(testResponse) if reqParams.success
-        return @req
       @testFiles = []
       @changes = []
+      @simulateRequestSuccessImmediately = true
+
+      spyOn(Actions, "uploadStateChanged")
       spyOn(DraftStore, "sessionForLocalId").andCallFake =>
         Promise.resolve(
           draft: => files: @testFiles
@@ -122,23 +154,19 @@ describe "FileUploadTask", ->
         expect(@changes).toEqual [equivalentFile]
 
     describe "file upload notifications", ->
-      beforeEach ->
-        spyOn(Actions, "fileUploaded")
-        spyOn(@task, "_getBytesUploaded").andReturn(1000)
-
-        runs =>
-          @task.performRemote()
-          advanceClock(2000)
-        waitsFor ->
-          Actions.fileUploaded.calls.length > 0
-
       it "correctly fires the fileUploaded action", ->
-        runs =>
-          expect(Actions.fileUploaded).toHaveBeenCalledWith
-            file: equivalentFile
-            uploadData: _.extend {}, @uploadData,
-              state: "completed"
-              bytesUploaded: 1000
+        spyOn(@task, "_getBytesUploaded").andReturn(1000)
+        spyOn(Actions, "fileUploaded")
+        @task.performRemote()
+        advanceClock()
+        @simulateRequestSuccess()
+        advanceClock()
+        Actions.fileUploaded.calls.length > 0
+        expect(Actions.fileUploaded).toHaveBeenCalledWith
+          file: equivalentFile
+          uploadData: _.extend {}, @uploadData,
+            state: "completed"
+            bytesUploaded: 1000
 
     describe "when attaching a lot of files", ->
       it "attaches them all to the draft", ->
@@ -147,6 +175,7 @@ describe "FileUploadTask", ->
         t3 = new FileUploadTask("3.c", localId)
         t4 = new FileUploadTask("4.d", localId)
 
+        @simulateRequestSuccessImmediately = true
         waitsForPromise => Promise.all([
           t1.performRemote()
           t2.performRemote()
@@ -155,28 +184,29 @@ describe "FileUploadTask", ->
         ]).then =>
           expect(@changes.length).toBe 4
 
-  describe "cleanup", ->
+  describe "cancel", ->
     it "should not do anything if the request has finished", ->
-      req = jasmine.createSpyObj('req', ['abort'])
-      reqSuccess = null
-      spyOn(NylasAPI, 'makeRequest').andCallFake (reqParams) ->
-        reqSuccess = reqParams.success
-        req
-
-      @task.performRemote()
-      reqSuccess(testResponse)
-      @task.cleanup()
-      expect(req.abort).not.toHaveBeenCalled()
+      runs =>
+        @task.performRemote()
+      waitsFor =>
+        @simulateRequestSuccess
+      runs =>
+        @simulateRequestSuccess(testResponse)
+      waitsFor =>
+        @task.req is null
+      runs =>
+        @task.cancel()
+        expect(@req.abort).not.toHaveBeenCalled()
 
     it "should cancel the request if it's in flight", ->
-      req = jasmine.createSpyObj('req', ['abort'])
-      spyOn(NylasAPI, 'makeRequest').andCallFake (reqParams) -> req
       spyOn(Actions, "uploadStateChanged")
 
       @task.performRemote()
-      @task.cleanup()
+      advanceClock()
+      @task.cancel()
+      advanceClock()
 
-      expect(req.abort).toHaveBeenCalled()
+      expect(@req.abort).toHaveBeenCalled()
       data = _.extend @uploadData,
         state: "aborted"
         bytesUploaded: 0

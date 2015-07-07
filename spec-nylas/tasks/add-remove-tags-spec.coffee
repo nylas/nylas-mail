@@ -4,6 +4,7 @@ AddRemoveTagsTask = require '../../src/flux/tasks/add-remove-tags'
 DatabaseStore = require '../../src/flux/stores/database-store'
 Thread = require '../../src/flux/models/thread'
 Tag = require '../../src/flux/models/tag'
+{APIError} = require '../../src/flux/errors'
 _ = require 'underscore'
 
 testThread = null
@@ -19,20 +20,19 @@ describe "AddRemoveTagsTask", ->
       else
         throw new Error("Not stubbed!")
 
-  describe "rollbackLocal", ->
-    it "should perform the opposite changes to the thread", ->
-      testThread = new Thread
-        id: 'thread-id'
-        tags: [
-          new Tag({name: 'archive', id: 'archive'})
-        ]
-      task = new AddRemoveTagsTask(testThread, ['archive'], ['inbox'])
-      task._rollbackLocal()
-      waitsFor ->
-        DatabaseStore.persistModel.callCount > 0
-      runs ->
-        testThread = DatabaseStore.persistModel.mostRecentCall.args[0]
-        expect(testThread.tagIds()).toEqual(['inbox'])
+  describe "shouldWaitForTask", ->
+    it "should return true if another, older AddRemoveTagsTask involves the same threads", ->
+      a = new AddRemoveTagsTask(['t1', 't2', 't3'])
+      a.creationDate = new Date(1000)
+      b = new AddRemoveTagsTask(['t3', 't4', 't7'])
+      b.creationDate = new Date(2000)
+      c = new AddRemoveTagsTask(['t0', 't7'])
+      c.creationDate = new Date(3000)
+      expect(a.shouldWaitForTask(b)).toEqual(false)
+      expect(a.shouldWaitForTask(c)).toEqual(false)
+      expect(b.shouldWaitForTask(a)).toEqual(true)
+      expect(c.shouldWaitForTask(a)).toEqual(false)
+      expect(c.shouldWaitForTask(b)).toEqual(true)
 
   describe "performLocal", ->
     beforeEach ->
@@ -108,16 +108,15 @@ describe "AddRemoveTagsTask", ->
         expect(testThread.tagIds().length).toBe(1)
         expect(testThread.tagIds()[0]).toBe('archive')
 
-
   describe "performRemote", ->
     beforeEach ->
       testThread = new Thread
         id: '1233123AEDF1'
-        namespaceId: 'A12ADE'
+        namespaceId: 'nsid'
       @task = new AddRemoveTagsTask(testThread, ['archive'], ['inbox'])
 
     it "should start an API request with the Draft JSON", ->
-      spyOn(NylasAPI, 'makeRequest')
+      spyOn(NylasAPI, 'makeRequest').andCallFake -> Promise.resolve()
       @task.performLocal()
       waitsFor ->
         DatabaseStore.persistModel.callCount > 0
@@ -130,8 +129,27 @@ describe "AddRemoveTagsTask", ->
         expect(options.body.remove_tags[0]).toBe('inbox')
 
     it "should pass returnsModel:true so that the draft is saved to the data store when returned", ->
-      spyOn(NylasAPI, 'makeRequest')
+      spyOn(NylasAPI, 'makeRequest').andCallFake -> Promise.resolve()
       @task.performLocal()
       @task.performRemote()
       options = NylasAPI.makeRequest.mostRecentCall.args[0]
       expect(options.returnsModel).toBe(true)
+
+  describe "when the server responds with a permanentErrorCode", ->
+    beforeEach ->
+      spyOn(NylasAPI, 'makeRequest').andCallFake ->
+        Promise.reject(new APIError(statusCode: 400, message: ''))
+
+    it "should revert the changes to the thread", ->
+      runs ->
+        testThread = new Thread
+          id: 'thread-id'
+          tags: [new Tag(name: 'inbox', id: 'inbox')]
+
+        task = new AddRemoveTagsTask(testThread, ['archive'], ['inbox'])
+        task.performRemote()
+      waitsFor ->
+        DatabaseStore.persistModel.callCount is 1
+      runs ->
+        testThread = DatabaseStore.persistModel.calls[0].args[0]
+        expect(testThread.tagIds()).toEqual(['inbox'])
