@@ -6,6 +6,7 @@
   text-align: center;
   opacity: 1;
   -webkit-transition: opacity 0.2s linear; //transition
+  pointer-events: none;
 }
 
 .spinner.hidden {
@@ -57,10 +58,10 @@
 }
 
 @keyframes bouncedelay {
-  0%, 80%, 100% { 
+  0%, 80%, 100% {
     transform: scale(0.0);
     -webkit-transform: scale(0.0);
-  } 40% { 
+  } 40% {
     transform: scale(1.0);
     -webkit-transform: scale(1.0);
   }

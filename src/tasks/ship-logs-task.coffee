@@ -40,8 +40,6 @@ module.exports = (dir, regexPattern) ->
     else
       AWSModulePath = 'aws-sdk'
 
-    console.log("Load AWS module from #{AWSModulePath}")
-
     # Note: These credentials are only good for uploading to this
     # specific bucket and can't be used for anything else.
     AWS = require(AWSModulePath)

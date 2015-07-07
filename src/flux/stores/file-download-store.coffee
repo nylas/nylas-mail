@@ -80,26 +80,27 @@ class Download
       else
         finishedAction = action
 
-    @request = NylasAPI.makeRequest
+    NylasAPI.makeRequest
       json: false
       path: "/n/#{namespace}/files/#{@fileId}/download"
+      started: (req) =>
+        @request = req
+        progress(@request, {throtte: 250})
+        .on "progress", (progress) =>
+          @percent = progress.percent
+          @progressCallback()
+        .on "end", =>
+          # Wait for the file stream to finish writing before we resolve or reject
+          stream.end(streamEnded)
+        .pipe(stream)
+
       success: =>
         # At this point, the file stream has not finished writing to disk.
         # Don't resolve yet, or the browser will load only part of the image.
         onStreamEnded(resolve)
+
       error: =>
         onStreamEnded(reject)
-
-    progress(@request, {throtte: 250})
-    .on("progress", (progress) =>
-      @percent = progress.percent
-      @progressCallback()
-    )
-    .on("end", =>
-      # Wait for the file stream to finish writing before we resolve or reject
-      stream.end(streamEnded)
-    )
-    .pipe(stream)
 
   abort: ->
     @request?.abort()

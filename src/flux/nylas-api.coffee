@@ -10,11 +10,67 @@ NylasLongConnection = require './nylas-long-connection'
 {modelFromJSON, modelClassMap} = require './models/utils'
 async = require 'async'
 
+class NylasAPIOptimisticChangeTracker
+  constructor: ->
+    @_locks = {}
+
+  acceptRemoteChangesTo: (klass, id) ->
+    @_locks["#{klass.name}-#{id}"] is undefined
+
+  increment: (klass, id) ->
+    @_locks["#{klass.name}-#{id}"] ?= 0
+    @_locks["#{klass.name}-#{id}"] += 1
+
+  decrement: (klass, id) ->
+    @_locks["#{klass.name}-#{id}"] -= 1
+    if @_locks["#{klass.name}-#{id}"] is 0
+      delete @_locks["#{klass.name}-#{id}"]
+
+  print: ->
+    console.log("The following models are locked:")
+    console.log(@_locks)
+
+class NylasAPIRequest
+
+  constructor: (@api, @options) ->
+    @options.method ?= 'GET'
+    @options.url ?= "#{@api.APIRoot}#{@options.path}" if @options.path
+    @options.json ?= true
+    @options.auth = {'user': @api.APIToken, 'pass': '', sendImmediately: true}
+    unless @options.method is 'GET' or @options.formData
+      @options.body ?= {}
+    @
+
+  run: ->
+    if atom.getLoadSettings().isSpec
+      return Promise.resolve()
+
+    if not @api.APIToken
+      return Promise.reject(new Error('Cannot make Nylas request without auth token.'))
+
+    new Promise (resolve, reject) =>
+      req = request @options, (error, response, body) =>
+        PriorityUICoordinator.settle.then =>
+          Actions.didMakeAPIRequest({request: @options, response: response})
+
+          if error or response.statusCode > 299
+            apiError = new APIError({error, response, body, requestOptions: @options})
+            @options.error?(apiError)
+            reject(apiError)
+          else
+            @options.success?(body)
+            resolve(body)
+      req.on 'abort', ->
+        reject(new APIError({statusCode: 0, body: 'Request Aborted'}))
+      @options.started?(req)
 
 class NylasAPI
 
+  PermanentErrorCodes: [400, 404, 500]
+
   constructor: ->
     @_workers = []
+    @_optimisticChangeTracker = new NylasAPIOptimisticChangeTracker()
 
     atom.config.onDidChange('env', @_onConfigChanged)
     atom.config.onDidChange('nylas.token', @_onConfigChanged)
@@ -107,47 +163,41 @@ class NylasAPI
   #   success: (body) -> callback gets passed the returned json object
   #   error: (apiError) -> the error callback gets passed an Nylas
   #                        APIError object.
+  #
+  # Returns a Promise, which resolves or rejects in the success / error
+  # scenarios, respectively.
+  #
   makeRequest: (options={}) ->
-    return if atom.getLoadSettings().isSpec
-    return console.log('Cannot make Nylas request without auth token.') unless @APIToken
-    options.method ?= 'GET'
-    options.url ?= "#{@APIRoot}#{options.path}" if options.path
-    options.json ?= true
-    options.auth = {'user': @APIToken, 'pass': '', sendImmediately: true}
+    if atom.getLoadSettings().isSpec
+      return Promise.resolve()
 
-    unless options.method is 'GET' or options.formData
-      options.body ?= {}
+    if not @APIToken
+      console.log('Cannot make Nylas request without auth token.')
+      return Promise.reject()
 
-    request options, (error, response, body) =>
-      PriorityUICoordinator.settle.then =>
-        Actions.didMakeAPIRequest({request: options, response: response})
-        if error? or response.statusCode > 299
-          if response and response.statusCode is 404 and options.returnsModel
-            @_handleModel404(options.url)
-          if response and response.statusCode is 401
-            @_handle401(options.url)
-          options.error?(new APIError({error, response, body}))
-        else
-          if options.json
-            if _.isString(body)
-              try
-                body = JSON.parse(body)
-              catch error
-                options.error?(new APIError({error, response, body}))
-            if options.returnsModel
-              @_handleModelResponse(body)
+    success = (body) =>
+      if options.beforeProcessing
+        body = options.beforeProcessing(body)
+      if options.returnsModel
+        @_handleModelResponse(body)
+      Promise.resolve(body)
 
-          if options.success
-            options.success(body)
+    error = (err) =>
+      if err.response
+        if err.response.statusCode is 404 and options.returnsModel
+          @_handleModel404(options.url)
+        if err.response.statusCode is 401
+          @_handle401(options.url)
+      Promise.reject(err)
+
+    req = new NylasAPIRequest(@, options)
+    req.run().then(success, error)
 
   # If we make a request that `returnsModel` and we get a 404, we want to handle
   # it intelligently and in a centralized way. This method identifies the object
   # that could not be found and purges it from local cache.
   #
-  # Handles:
-  #
-  # /namespace/<nid>/<collection>/<id>
-  # /namespace/<nid>/<collection>?thread_id=<id>
+  # Handles: /namespace/<nid>/<collection>/<id>
   #
   _handleModel404: (modelUrl) ->
     url = require('url')
@@ -164,8 +214,7 @@ class NylasAPI
       DatabaseStore.find(klass, klassId).then (model) ->
         DatabaseStore.unpersistModel(model) if model
 
-  _handle401: (url) ->
-    # Throw up a notification indicating that the user should log out and log back in
+  _handle401: (modelUrl) ->
     Actions.postNotification
       type: 'error'
       tag: '401'
@@ -267,14 +316,16 @@ class NylasAPI
 
     Promise.resolve(true)
 
-  _shouldAcceptModelIfNewer: (klass, model = null) ->
-    new Promise (resolve, reject) ->
-      DatabaseStore = require './stores/database-store'
-      DatabaseStore.find(klass, model.id).then (existing) ->
-        if existing and existing.version >= model.version
-          resolve(false)
-        else
-          resolve(true)
+  _shouldAcceptModelIfNewer: (klass, model) ->
+    if @_optimisticChangeTracker.acceptRemoteChangesTo(klass, model.id) is false
+      return Promise.resolve(false)
+
+    DatabaseStore = require './stores/database-store'
+    DatabaseStore.find(klass, model.id).then (existing) ->
+      if existing and existing.version >= model.version
+        return Promise.resolve(false)
+      else
+        return Promise.resolve(true)
 
   getThreads: (namespaceId, params = {}, requestOptions = {}) ->
     requestSuccess = requestOptions.success
@@ -297,5 +348,11 @@ class NylasAPI
       path: "/n/#{namespaceId}/#{collection}"
       qs: params
       returnsModel: true
+
+  incrementOptimisticChangeCount: (klass, id) ->
+    @_optimisticChangeTracker.increment(klass, id)
+
+  decrementOptimisticChangeCount: (klass, id) ->
+    @_optimisticChangeTracker.decrement(klass, id)
 
 module.exports = new NylasAPI()

@@ -520,7 +520,7 @@ describe "DraftStore", ->
 
     it "sets the sending state when sending", ->
       spyOn(atom, "isMainWindow").andReturn true
-      spyOn(TaskQueue, "_update")
+      spyOn(TaskQueue, "_updateSoon")
       spyOn(Actions, "queueTask").andCallThrough()
       runs ->
         DraftStore._onSendDraft(draftLocalId)

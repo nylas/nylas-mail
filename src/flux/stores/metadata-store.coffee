@@ -85,7 +85,6 @@ MetadataStore = Reflux.createStore
           else
             DatabaseStore.persistModels(metadata).then(resolve).catch(reject)
         error: (apiError) ->
-          apiError.notifyConsole()
           reject(apiError)
 
   _onDBChanged: (change) ->

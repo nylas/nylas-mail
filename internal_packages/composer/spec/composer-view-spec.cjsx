@@ -222,19 +222,21 @@ describe "populated composer", ->
 
     describe "if the draft has not yet loaded", ->
       it "should set _focusOnUpdate and focus after the next render", ->
-        useDraft.call(@)
-        makeComposer.call(@)
+        @draft = new Message(draft: true, body: "")
+        proxy = draftStoreProxyStub(DRAFT_LOCAL_ID, @draft)
+        proxyResolve = null
+        spyOn(DraftStore, "sessionForLocalId").andCallFake ->
+          new Promise (resolve, reject) ->
+            proxyResolve = resolve
 
-        proxy = @composer._proxy
-        @composer._proxy = null
+        makeComposer.call(@)
 
         spyOn(@composer.refs['contentBody'], 'focus')
         @composer.focus()
         advanceClock(1000)
         expect(@composer.refs['contentBody'].focus).not.toHaveBeenCalled()
 
-        @composer._proxy = proxy
-        @composer._onDraftChanged()
+        proxyResolve(proxy)
 
         advanceClock(1000)
         expect(@composer.refs['contentBody'].focus).toHaveBeenCalled()
@@ -550,7 +552,7 @@ describe "populated composer", ->
         fileSize: 1024
 
       spyOn(Actions, "fetchFile")
-      spyOn(FileUploadStore, "linkedUpload")
+      spyOn(FileUploadStore, "linkedUpload").andReturn null
       spyOn(FileUploadStore, "uploadsForMessage").andReturn [@up1, @up2]
 
       useDraft.call @, files: [@file1, @file2]
@@ -569,10 +571,9 @@ describe "populated composer", ->
       els = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@composer, InjectedComponent, matching: role: "Attachment:Image")
       expect(els.length).toBe 1
 
-    it 'renders the non image upload as a FileUpload', ->
-      els = ReactTestUtils.scryRenderedDOMComponentsWithClass(@composer, "file-upload")
-      expect(els.length).toBe 1
+    it 'renders the uploads with the correct components', ->
+      el = ReactTestUtils.findRenderedDOMComponentWithClass(@composer, 'file-upload')
+      expect(el).toBeDefined()
 
-    it 'renders the image upload as an ImageFileUpload', ->
-      els = ReactTestUtils.scryRenderedDOMComponentsWithClass(@composer, "image-file-upload")
-      expect(els.length).toBe 1
+      el = ReactTestUtils.findRenderedDOMComponentWithClass(@composer, 'image-file-upload')
+      expect(el).toBeDefined()

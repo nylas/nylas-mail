@@ -3,6 +3,7 @@
 Actions = require '../actions'
 DatabaseStore = require '../stores/database-store'
 Message = require '../models/message'
+{APIError} = require '../errors'
 Task = require './task'
 TaskQueue = require '../stores/task-queue'
 SyncbackDraftTask = require './syncback-draft'
@@ -50,61 +51,38 @@ class SendDraftTask extends Task
         # Pass joined:true so the draft body is included
         body = draft.toJSON(joined: true)
 
-      return @_performRemoteSend(body)
+      return @_send(body)
 
   # Returns a promise which resolves when the draft is sent. There are several
   # failure cases where this method may call itself, stripping bad fields out of
   # the body. This promise only rejects when these changes have been tried.
-  _performRemoteSend: (body) ->
-    @_performRemoteAPIRequest(body)
+  _send: (body) ->
+    NylasAPI.makeRequest
+      path: "/n/#{@draft.namespaceId}/send"
+      method: 'POST'
+      body: body
+      returnsModel: true
+
     .then (json) =>
       message = (new Message).fromJSON(json)
       atom.playSound('mail_sent.ogg')
       Actions.sendDraftSuccess
         draftLocalId: @draftLocalId
         newMessage: message
-      return DatabaseStore.unpersistModel(@draft)
+      DatabaseStore.unpersistModel(@draft).then =>
+        return Promise.resolve(Task.Status.Finished)
 
-    .catch (err) =>
+    .catch APIError, (err) =>
       if err.message?.indexOf('Invalid message public id') is 0
         body.reply_to_message_id = null
-        return @_performRemoteSend(body)
+        return @_send(body)
       else if err.message?.indexOf('Invalid thread') is 0
         body.thread_id = null
         body.reply_to_message_id = null
-        return @_performRemoteSend(body)
+        return @_send(body)
+      else if err.statusCode in NylasAPI.PermanentErrorCodes
+        msg = err.message ? "Your draft could not be sent."
+        Actions.composePopoutDraft(@draftLocalId, {errorMessage: msg})
+        return Promise.resolve(Task.Status.Finished)
       else
-        return Promise.reject(err)
-
-  _performRemoteAPIRequest: (body) ->
-    new Promise (resolve, reject) =>
-      NylasAPI.makeRequest
-        path: "/n/#{@draft.namespaceId}/send"
-        method: 'POST'
-        body: body
-        returnsModel: true
-        success: resolve
-        error: reject
-
-  onAPIError: (apiError) ->
-    msg = apiError.message ? "Our server is having problems. Your message has not been sent."
-    @_notifyError(msg)
-
-  onOtherError: ->
-    msg = "We had a serious issue while sending. Your message has not been sent."
-    @_notifyError(msg)
-
-  onTimeoutError: ->
-    msg = "The server is taking an abnormally long time to respond. Your message has not been sent."
-    @_notifyError(msg)
-
-  onOfflineError: ->
-    msg = "You are offline. Your message has NOT been sent. Please send your message when you come back online."
-    @_notifyError(msg)
-    # For sending draft, we don't send when we come back online.
-    Actions.dequeueTask(@)
-
-  _notifyError: (msg) ->
-    @notifyErrorMessage(msg)
-    if @fromPopout
-      Actions.composePopoutDraft(@draftLocalId, {errorMessage: msg})
+        return Promise.resolve(Task.Status.Retry)

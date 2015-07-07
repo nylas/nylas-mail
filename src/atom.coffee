@@ -16,6 +16,7 @@ WindowEventHandler = require './window-event-handler'
 StylesElement = require './styles-element'
 
 Utils = require './flux/models/utils'
+{APIError} = require './flux/errors'
 
 # Essential: Atom global for dealing with packages, themes, menus, and the window.
 #
@@ -270,6 +271,11 @@ class Atom extends Model
     Promise.onPossiblyUnhandledRejection (error) =>
       error.stack = convertStackTrace(error.stack, sourceMapCache)
       eventObject = {message: error.message, originalError: error}
+
+      # API Errors are a normal part of life and are logged to the API
+      # history panel. We ignore these errors and do not report them to Sentry.
+      if error instanceof APIError
+        return
 
       if @inSpecMode()
         console.error(error.stack)

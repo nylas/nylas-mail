@@ -97,6 +97,13 @@ ReactTestUtils.unmountAll = ->
     React.unmountComponentAtNode(container)
   ReactElementContainers = []
 
+# Make Bluebird use setTimeout so that it hooks into our stubs, and you can
+# advance promises using `advanceClock()`. To avoid breaking any specs that
+# `dont` manually call advanceClock, call it automatically on the next tick.
+Promise.setScheduler (fn) ->
+  setTimeout(fn, 0)
+  process.nextTick -> advanceClock(1)
+
 beforeEach ->
   Grim.clearDeprecations() if isCoreSpec
   ComponentRegistry._clear()
@@ -251,6 +258,8 @@ jasmine.restoreDeprecationsSnapshot = ->
 jasmine.useRealClock = ->
   jasmine.unspy(window, 'setTimeout')
   jasmine.unspy(window, 'clearTimeout')
+  jasmine.unspy(window, 'setInterval')
+  jasmine.unspy(window, 'clearInterval')
   jasmine.unspy(_._, 'now')
 
 addCustomMatchers = (spec) ->

@@ -260,10 +260,14 @@ class ComposerView extends React.Component
 
   _renderBody: =>
     if @props.mode is "inline"
-      @_renderBodyContenteditable()
+      <span>
+        {@_renderBodyContenteditable()}
+        {@_renderAttachments()}
+      </span>
     else
       <ScrollRegion className="compose-body-scroll" ref="scrollregion" getScrollbar={ => @refs.scrollbar }>
         {@_renderBodyContenteditable()}
+        {@_renderAttachments()}
       </ScrollRegion>
 
   _renderBodyContenteditable: =>
@@ -281,30 +285,23 @@ class ComposerView extends React.Component
     return <div></div> unless @props.localId
 
     <div className="composer-footer-region">
-      <div className="attachments-area">
-        {@_renderNonImageAttachmentsAndUploads()}
-        {@_renderImageAttachmentsAndUploads()}
-      </div>
       <InjectedComponentSet
         matching={role: "Composer:Footer"}
         exposedProps={draftLocalId:@props.localId, threadId: @props.threadId}/>
     </div>
 
-  _renderNonImageAttachmentsAndUploads: ->
-    @_nonImages().map (fileOrUpload) =>
-      if fileOrUpload.object is "file"
-        @_attachmentComponent(fileOrUpload)
-      else
-        <FileUpload key={fileOrUpload.uploadId}
-                    uploadData={fileOrUpload} />
+  _renderAttachments: ->
+    renderSubset = (arr, attachmentRole, UploadComponent) =>
+      arr.map (fileOrUpload) =>
+        if fileOrUpload.object is "file"
+          @_attachmentComponent(fileOrUpload, attachmentRole)
+        else
+          <UploadComponent key={fileOrUpload.uploadId} uploadData={fileOrUpload} />
 
-  _renderImageAttachmentsAndUploads: ->
-    @_images().map (fileOrUpload) =>
-      if fileOrUpload.object is "file"
-        @_attachmentComponent(fileOrUpload, "Attachment:Image")
-      else
-        <ImageFileUpload key={fileOrUpload.uploadId}
-                         uploadData={fileOrUpload} />
+    <div className="attachments-area">
+      {renderSubset(@_nonImages(), 'Attachment', FileUpload)}
+      {renderSubset(@_images(), 'Attachment:Image', ImageFileUpload)}
+    </div>
 
   _attachmentComponent: (file, role="Attachment") =>
     targetPath = FileUploadStore.linkedUpload(file)?.filePath
@@ -317,8 +314,10 @@ class ComposerView extends React.Component
       targetPath: targetPath
       messageLocalId: @props.localId
 
-    if role is "Attachment" then className = "non-image-attachment attachment-file-wrap"
-    else className = "image-attachment-file-wrap"
+    if role is "Attachment"
+      className = "non-image-attachment attachment-file-wrap"
+    else
+      className = "image-attachment-file-wrap"
 
     <InjectedComponent key={file.id}
                        matching={role: role}
