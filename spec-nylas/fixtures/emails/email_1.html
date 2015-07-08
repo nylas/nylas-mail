@@ -1,0 +1,1730 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;">
+<div><span class="message_content">
+<pre class="special_formatting"><font face="Calibri"><span style="font-size: 15px;">Hi Jeff,
+
+Quick update on the event bugs:
+- I fixed the bug where events would be incorrectly marked as read-only.
+- We expose RRULEs as valid JSON now. 
+
+We're currently testing the fixes, they should ship early next week.
+
+Concerning timezones, an event should always be associated with a timezone. Having a NULL value instead is a bug on our end. I will be working on fixing this on Monday and will let you know when it's fixed.
+
+Thanks for your detailed bug reports,</span></font></pre>
+<pre class="special_formatting"><font face="Calibri"><span style="font-size: 15px;">
+Karim</span></font></pre>
+<pre class="special_formatting" style="color: rgb(0, 0, 0); font-family: Calibri, sans-serif; font-size: 14px;"><span style="font-family: Calibri; font-size: 11pt; font-weight: bold;">From: </span><span style="font-family: Calibri; font-size: 11pt;"> Kavya Joshi &lt;</span><a href="mailto:kavya@nylas.com" style="font-family: Calibri; font-size: 11pt;">kavya@nylas.com</a><span style="font-family: Calibri; font-size: 11pt;">&gt;</span></pre>
+</span></div>
+<span id="OLK_SRC_BODY_SECTION" style="color: rgb(0, 0, 0); font-family: Calibri, sans-serif; font-size: 14px;">
+<div style="font-family:Calibri; font-size:11pt; text-align:left; color:black; BORDER-BOTTOM: medium none; BORDER-LEFT: medium none; PADDING-BOTTOM: 0in; PADDING-LEFT: 0in; PADDING-RIGHT: 0in; BORDER-TOP: #b5c4df 1pt solid; BORDER-RIGHT: medium none; PADDING-TOP: 3pt">
+<span style="font-weight:bold">Date: </span>jeudi 28 mai 2015 20:21<br>
+<span style="font-weight:bold">To: </span>Jeff Meister &lt;<a href="mailto:jeff@esper.com">jeff@esper.com</a>&gt;<br>
+<span style="font-weight:bold">Cc: </span>Jennie Lees &lt;<a href="mailto:jennie@nylas.com">jennie@nylas.com</a>&gt;, Andrew Lee &lt;<a href="mailto:andrew@esper.com">andrew@esper.com</a>&gt;, Mackenzie Dallas &lt;<a href="mailto:mackenzie@esper.com">mackenzie@esper.com</a>&gt;,
+ support &lt;<a href="mailto:support@nylas.com">support@nylas.com</a>&gt;, Karim Hamidou &lt;<a href="mailto:karim@nylas.com">karim@nylas.com</a>&gt;, Christine Spang &lt;<a href="mailto:spang@nylas.com">spang@nylas.com</a>&gt;<br>
+<span style="font-weight:bold">Subject: </span>Re: Esper &lt;-&gt; Nilas<br>
+</div>
+<div><br>
+</div>
+<div><style type="text/css" style="display:none;"><!-- P {margin-top:0;margin-bottom:0;} --></style>
+<div dir="ltr">
+<div id="divtagdefaultwrapper" style="font-size:12pt; color:#000000; background-color:#FFFFFF; font-family:Calibri,Arial,Helvetica,sans-serif">
+<p>Hi Jeff,<br>
+</p>
+<p><br>
+</p>
+<p>The events are incorrectly marked as&nbsp;read&nbsp;only because of a&nbsp;bug in how we determine the organizer of an event; read-writable permissions are only granted to the organizer as per the&nbsp;<span style="font-size:12pt">Exchange ActiveSync protocol. Karim's working
+ on fixing the bug,&nbsp;it will be rolled out&nbsp;shortly and we'll keep you posted.</span></p>
+<p><span style="font-size:12pt"><br>
+</span></p>
+<p><span style="font-size:12pt">With respect to the rrule returned by the API - absolutely;&nbsp;we will change the representation and let you know when that's done too.</span></p>
+<p><span style="font-size:12pt"><br>
+</span></p>
+<p><span style="font-size:12pt">With respect to your question about when the&nbsp;timezone would be null for calendars&nbsp;- we're looking into it and will get back to you.</span></p>
+<p><span style="font-size:12pt"><br>
+</span></p>
+<p><span style="font-size:12pt">Thanks!</span></p>
+<p><span style="font-size:12pt">Kavya</span></p>
+<p><br>
+</p>
+<p><br>
+</p>
+<div style="color:rgb(0,0,0)">
+<hr tabindex="-1" style="display:inline-block; width:98%">
+<div id="divRplyFwdMsg" dir="ltr"><font face="Calibri,sans-serif" color="#000000" style="font-size:11pt"><b>From:</b> Jeff Meister &lt;<a href="mailto:jeff@esper.com">jeff@esper.com</a>&gt;<br>
+<b>Sent:</b> Wednesday, May 27, 2015 3:30 PM<br>
+<b>To:</b> Kavya Joshi<br>
+<b>Cc:</b> Jennie Lees; Andrew Lee; Mackenzie Dallas; support; Karim Hamidou; Christine Spang<br>
+<b>Subject:</b> Re: Esper &lt;-&gt; Nilas</font>
+<div>&nbsp;</div>
+</div>
+<div>
+<div dir="ltr">
+<div>
+<div>
+<div>
+<div>Hi Kavya,<br>
+<br>
+</div>
+I just did some more testing with the Meg account, and everything related to recurring events worked correctly for me. I was about to try with one of our real Formation 8 accounts, but I ran into an issue syncing data back to O365 through Nylas: even non-recurring
+ events that I create or modify on the O365 side become read only in Nylas, so I'm unable to update them through your API. I remember we had this problem before and you guys fixed it, so maybe this was reintroduced during your recurring event changes, since
+ those events should be read only? Hopefully this isn't a complicated fix, let me know if I can provide more info.<br>
+<br>
+</div>
+<div>The stuff below is not as important, just wanted to mention it:<br>
+</div>
+<div><br>
+</div>
+I noticed a couple things about the recurrence data in Nylas. First, the rrule is given as a single-quote-delimited string array packed inside a JSON string. We're currently dealing with this by taking the rrule string, replacing ' with &quot;, then parsing the
+ now-valid JSON array. This could fail if there are other quote characters in the rule... could your API return the rrule simply as a JSON array containing double-quoted JSON strings, or would that break existing things? Second, I see that a recurrence entry
+ comes with a timezone, which is great because Google needs one, but my Meg calendars are always showing null for the timezone. Christine explained in the past that there are difficulties in getting timezones for Exchange calendars... do you know in what cases
+ this field will be non-null? For now, we require our users to specify their calendar timezone during onboarding, and we just use that zone every time.<br>
+<br>
+</div>
+Thanks again,<br>
+</div>
+Jeff<br>
+</div>
+<div class="gmail_extra"><br>
+<div class="gmail_quote">On Wed, May 27, 2015 at 2:03 PM, Kavya Joshi <span dir="ltr">
+&lt;<a href="mailto:kavya@nylas.com" target="_blank">kavya@nylas.com</a>&gt;</span> wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">
+<div style="font-size:12pt; color:#000000; background-color:#ffffff; font-family:Calibri,Arial,Helvetica,sans-serif">
+<p>Hi Jeff,<br>
+</p>
+<p><br>
+</p>
+<p>We ran the script to back-fix recurring events created in the past (before last Friday) for the following accounts:<br>
+</p>
+<p><br>
+</p>
+<p><a href="mailto:meg@espertech.onmicrosoft.com" target="_blank">meg@espertech.onmicrosoft.com</a><br>
+</p>
+<p><a href="mailto:stewiegriffin@espertech.onmicrosoft.com" target="_blank">stewiegriffin@espertech.onmicrosoft.com</a><br>
+</p>
+<p><br>
+</p>
+<p>Please note that as a result, the event and&nbsp;calendar IDs returned by the API&nbsp;will be different for these accounts.<br>
+</p>
+<p><br>
+</p>
+<p>Let us know if any of the<span style="font-size:12pt">&nbsp;</span><span style="font-size:12pt">recurring events look incorrect, thanks!</span></p>
+<p>Kavya<br>
+</p>
+<p><br>
+</p>
+<p><br>
+</p>
+<div style="color:rgb(0,0,0)">
+<hr style="display:inline-block; width:98%">
+<div dir="ltr"><font face="Calibri,sans-serif" color="#000000" style="font-size:11pt"><b>From:</b> Christine Spang<br>
+<b>Sent:</b> Tuesday, May 26, 2015 4:32 PM<br>
+<b>To:</b> Jeff Meister<br>
+<b>Cc:</b> Kavya Joshi; Jennie Lees; Andrew Lee; Mackenzie Dallas; support; Karim Hamidou
+<div>
+<div class="h5"><br>
+<b>Subject:</b> Re: Esper &lt;-&gt; Nilas</div>
+</div>
+</font>
+<div>&nbsp;</div>
+</div>
+<div>
+<div class="h5">
+<div>Jeff, that's correct—read-only support for now.<br>
+<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+On May 26 2015, at 4:16 pm, Jeff Meister &lt;<a href="mailto:jeff@esper.com" target="_blank">jeff@esper.com</a>&gt; wrote:
+<br>
+<div dir="ltr">
+<div>
+<div>
+<div>
+<div>Hi Karim,<br>
+<br>
+</div>
+I just ran my tests from the previous email again, and it looks like they're all working correctly now! I see the overrides working too; I tried deleting a single instance of an event and got an EXDATE as expected. I'll hook things up to GCal on our end and
+ let you know if I see any more recurrence issues.<br>
+<br>
+</div>
+BTW, this is read-only support, correct? We shouldn't be attempting to make changes to recurring events through Nylas? (That's OK if so, just want to check and be sure.)<br>
+<br>
+</div>
+Thanks,<br>
+</div>
+Jeff<br>
+</div>
+<div class="gmail_extra"><br>
+<div class="gmail_quote">On Tue, May 26, 2015 at 12:49 PM, Karim Hamidou <span dir="ltr">
+&lt;<a href="mailto:karim@nylas.com" target="_blank">karim@nylas.com</a>&gt;</span> wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div style="word-wrap:break-word; color:rgb(0,0,0); font-size:14px; font-family:Calibri,sans-serif">
+<div><span>Hi Andrew, Jeff</span></div>
+<div><span><br>
+</span></div>
+<div><span>Sorry for the delay in getting back to you.&nbsp;</span><span>We just deployed the changes to production and the code now supports all documented Exchange recurrence rules and event overrides.<br>
+We will be running a script today to back-fix recurring events created before last Friday too.</span></div>
+<div><span><br>
+</span></div>
+<div><span>We’ve tested the code extensively but as always, do let us know if you run into problems.</span></div>
+<div><span><br>
+</span></div>
+<div><span>Karim &nbsp; &nbsp; &nbsp;&nbsp;</span></div>
+<div><br>
+</div>
+<span>
+<div style="font-family:Calibri; font-size:11pt; text-align:left; color:black; border-bottom:medium none; border-left:medium none; padding-bottom:0in; padding-left:0in; padding-right:0in; border-top:#b5c4df 1pt solid; border-right:medium none; padding-top:3pt">
+<span style="font-weight:bold">From: </span>Andrew Lee &lt;<a href="mailto:andrew@esper.com" target="_blank">andrew@esper.com</a>&gt;<br>
+<span style="font-weight:bold">Date: </span>mardi 26 mai 2015 20:24
+<div>
+<div><br>
+<span style="font-weight:bold">To: </span>Karim Hamidou &lt;<a href="mailto:karim@nylas.com" target="_blank">karim@nylas.com</a>&gt;, Christine Spang &lt;<a href="mailto:spang@nylas.com" target="_blank">spang@nylas.com</a>&gt;, Jeff Meister &lt;<a href="mailto:jeff@esper.com" target="_blank">jeff@esper.com</a>&gt;<br>
+<span style="font-weight:bold">Cc: </span>Kavya Joshi &lt;<a href="mailto:kavya@nylas.com" target="_blank">kavya@nylas.com</a>&gt;, support &lt;<a href="mailto:support@nylas.com" target="_blank">support@nylas.com</a>&gt;, Mackenzie Dallas &lt;<a href="mailto:mackenzie@esper.com" target="_blank">mackenzie@esper.com</a>&gt;,
+ Jennie Lees &lt;<a href="mailto:jennie@nylas.com" target="_blank">jennie@nylas.com</a>&gt;<br>
+<span style="font-weight:bold">Subject: </span>Re: Esper &lt;-&gt; Nilas<br>
+</div>
+</div>
+</div>
+<div>
+<div>
+<div><br>
+</div>
+<div>
+<div>
+<div dir="ltr">Hey Karim, just checking on this. Did you guys release to production?<br>
+</div>
+<br>
+<div class="gmail_quote">On Tue, May 19, 2015 at 11:59 AM Karim Hamidou &lt;<a href="mailto:karim@nylas.com" target="_blank">karim@nylas.com</a>&gt; wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div style="word-wrap:break-word; color:rgb(0,0,0); font-size:14px; font-family:Calibri,sans-serif">
+<div>
+<div style="font-family:Calibri">Hi Andrew &#43; Esper team,</div>
+<div style="font-family:Calibri"><br>
+</div>
+<div style="font-family:Calibri">Just a quick heads up: we're currently testing the fixes on our staging system. We're planning to ship them to production by the end of the week.</div>
+<div style="font-family:Calibri"><br>
+</div>
+<div style="font-family:Calibri">regards,</div>
+<div style="font-family:Calibri"><br>
+</div>
+<div style="font-family:Calibri">Karim</div>
+</div>
+<div><br>
+</div>
+<span>
+<div style="font-family:Calibri; font-size:11pt; text-align:left; color:black; border-bottom:medium none; border-left:medium none; padding-bottom:0in; padding-left:0in; padding-right:0in; border-top:#b5c4df 1pt solid; border-right:medium none; padding-top:3pt">
+<span style="font-weight:bold">From: </span>Andrew Lee &lt;<a href="mailto:andrew@esper.com" target="_blank">andrew@esper.com</a>&gt;<br>
+<span style="font-weight:bold">Date: </span>lundi 18 mai 2015 19:20<br>
+<span style="font-weight:bold">To: </span>Karim Hamidou &lt;<a href="mailto:karim@nylas.com" target="_blank">karim@nylas.com</a>&gt;, Christine Spang &lt;<a href="mailto:spang@nylas.com" target="_blank">spang@nylas.com</a>&gt;, Jeff Meister &lt;<a href="mailto:jeff@esper.com" target="_blank">jeff@esper.com</a>&gt;<br>
+<span style="font-weight:bold">Cc: </span>Kavya Joshi &lt;<a href="mailto:kavya@nylas.com" target="_blank">kavya@nylas.com</a>&gt;, support &lt;<a href="mailto:support@nylas.com" target="_blank">support@nylas.com</a>&gt;, Mackenzie Dallas &lt;<a href="mailto:mackenzie@esper.com" target="_blank">mackenzie@esper.com</a>&gt;,
+ Jennie Lees &lt;<a href="mailto:jennie@nylas.com" target="_blank">jennie@nylas.com</a>&gt;</div>
+</span></div>
+<div style="word-wrap:break-word; color:rgb(0,0,0); font-size:14px; font-family:Calibri,sans-serif">
+<span>
+<div style="font-family:Calibri; font-size:11pt; text-align:left; color:black; border-bottom:medium none; border-left:medium none; padding-bottom:0in; padding-left:0in; padding-right:0in; border-top:#b5c4df 1pt solid; border-right:medium none; padding-top:3pt">
+<br>
+<span style="font-weight:bold">Subject: </span>Re: Esper &lt;-&gt; Nilas<br>
+</div>
+</span></div>
+<div style="word-wrap:break-word; color:rgb(0,0,0); font-size:14px; font-family:Calibri,sans-serif">
+<span>
+<div><br>
+</div>
+<div>
+<div>
+<div dir="ltr">Thanks for the e-mail Karim! Just let us know when you guys ship to production. -A<br>
+</div>
+<br>
+<div class="gmail_quote">On Wed, May 13, 2015 at 12:08 PM Karim Hamidou &lt;<a href="mailto:karim@nylas.com" target="_blank">karim@nylas.com</a>&gt; wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div style="word-wrap:break-word; color:rgb(0,0,0); font-size:14px; font-family:Calibri,sans-serif">
+<div>
+<div>Hi Andrew,</div>
+<div><br>
+</div>
+<div><span>Sorry for the delay in getting back to you. I was actually drafting a reply to Jeff.&nbsp;</span></div>
+<div>We’ve taken an iterative approach to this, and the recurring event code we shipped to production only supported the basic cases. That’s why Jeff found so many bugs -- sorry for not making this clearer.</div>
+<div><br>
+</div>
+<div><span>However, I’ve been working on an updated version of the code which should support almost every recurrence rule. I also went through all the bugs you reported to make sure the new code fixes them.</span></div>
+<div>It’s currently under review, so it should be shipped to prod early next week.</div>
+<div><br>
+</div>
+<div><br>
+</div>
+<div><span>Sorry for the misunderstanding,</span></div>
+<div><br>
+</div>
+<div><span>regards</span></div>
+<div><br>
+</div>
+<div><span>ps @Jeff&nbsp; —here’s a short list of what the new code supports:</span></div>
+<div><span>- UNTIL and COUNT rules</span></div>
+<div><span>- events recurring on the nth day of every month (e.g: a meeting occurring on the third wednesday of the month, of the year, etc.)</span></div>
+<div><span>- complex recurrences (e.g: events occurring every three days but only on Wednesday and Fridays, etc.)</span></div>
+<div><br>
+</div>
+<div><span>HOWEVER —we’re not yet supporting EXRULES. This is coming soon.</span></div>
+<div><br>
+</div>
+</div>
+<div><br>
+</div>
+<span>
+<div style="font-family:Calibri; font-size:11pt; text-align:left; color:black; border-bottom:medium none; border-left:medium none; padding-bottom:0in; padding-left:0in; padding-right:0in; border-top:#b5c4df 1pt solid; border-right:medium none; padding-top:3pt">
+<span style="font-weight:bold">From: </span>Andrew Lee &lt;<a href="mailto:andrew@esper.com" target="_blank">andrew@esper.com</a>&gt;<br>
+<span style="font-weight:bold">Date: </span>mercredi 13 mai 2015 20:08<br>
+<span style="font-weight:bold">To: </span>Christine Spang &lt;<a href="mailto:spang@nylas.com" target="_blank">spang@nylas.com</a>&gt;, Jeff Meister &lt;<a href="mailto:jeff@esper.com" target="_blank">jeff@esper.com</a>&gt;<br>
+<span style="font-weight:bold">Cc: </span>Kavya Joshi &lt;<a href="mailto:kavya@nylas.com" target="_blank">kavya@nylas.com</a>&gt;, support &lt;<a href="mailto:support@nylas.com" target="_blank">support@nylas.com</a>&gt;, Mackenzie Dallas &lt;<a href="mailto:mackenzie@esper.com" target="_blank">mackenzie@esper.com</a>&gt;,
+ Karim Hamidou &lt;<a href="mailto:karim@nylas.com" target="_blank">karim@nylas.com</a>&gt;, Jennie Lees &lt;<a href="mailto:jennie@nylas.com" target="_blank">jennie@nylas.com</a>&gt;</div>
+</span></div>
+<div style="word-wrap:break-word; color:rgb(0,0,0); font-size:14px; font-family:Calibri,sans-serif">
+<span>
+<div style="font-family:Calibri; font-size:11pt; text-align:left; color:black; border-bottom:medium none; border-left:medium none; padding-bottom:0in; padding-left:0in; padding-right:0in; border-top:#b5c4df 1pt solid; border-right:medium none; padding-top:3pt">
+<br>
+<span style="font-weight:bold">Subject: </span>Re: Esper &lt;-&gt; Nilas<br>
+</div>
+</span></div>
+<div style="word-wrap:break-word; color:rgb(0,0,0); font-size:14px; font-family:Calibri,sans-serif">
+<span>
+<div><br>
+</div>
+<div>
+<div>
+<div dir="ltr">Hey guys, just checking in and want to make sure we're giving everything you need. Let us know what the status is!&nbsp;<br>
+</div>
+<br>
+<div class="gmail_quote">On Fri, May 8, 2015 at 10:16 AM Christine Spang &lt;<a href="mailto:spang@nylas.com" target="_blank">spang@nylas.com</a>&gt; wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">
+<div style="font-size:10pt; color:#000000; background-color:#ffffff; font-family:Arial,Helvetica,sans-serif">
+<p>Thanks for the info, Jeff! Karim's out today, but we'll take a look on Monday.<br>
+</p>
+<div style="color:rgb(0,0,0)">
+<hr style="display:inline-block; width:98%">
+<div dir="ltr"><font face="Calibri,sans-serif" color="#000000" style="font-size:11pt"><b>From:</b> Jeff Meister &lt;<a href="mailto:jeff@esper.com" target="_blank">jeff@esper.com</a>&gt;<br>
+<b>Sent:</b> Thursday, May 7, 2015 9:03 PM<br>
+<b>To:</b> Christine Spang<br>
+<b>Cc:</b> Andrew Lee; Kavya Joshi; support; Mackenzie Dallas; Karim Hamidou; Jennie Lees</font></div>
+</div>
+</div>
+</div>
+<div dir="ltr">
+<div style="font-size:10pt; color:#000000; background-color:#ffffff; font-family:Arial,Helvetica,sans-serif">
+<div style="color:rgb(0,0,0)">
+<div dir="ltr"><font face="Calibri,sans-serif" color="#000000" style="font-size:11pt"><br>
+<b>Subject:</b> Re: Esper &lt;-&gt; Nilas</font></div>
+</div>
+</div>
+</div>
+<div dir="ltr">
+<div style="font-size:10pt; color:#000000; background-color:#ffffff; font-family:Arial,Helvetica,sans-serif">
+<div style="color:rgb(0,0,0)">
+<div>
+<div dir="ltr">
+<div>
+<div>
+<div>
+<div>
+<div>
+<div>
+<div>
+<div>
+<div>
+<div>
+<div>
+<div>
+<div>
+<div>
+<div>
+<div>
+<div>
+<div>
+<div>
+<div>
+<div>Hi Christine,<br>
+<br>
+</div>
+I got delayed working on other things, but I finally found time to test this today. I went back to my O365 test accounts, meg@ and
+<a href="mailto:stewiegriffin@espertech.onmicrosoft.com" target="_blank">stewiegriffin@espertech.onmicrosoft.com</a>, so I could mess around with the calendars without affecting customers. I started with Meg and tested some cases successfully, creating events
+ with the following recurrence patterns through the Office 365 Web interface:<br>
+<br>
+</div>
+Pattern: Every day, no end<br>
+</div>
+Rule from Nylas: &quot;['RRULE:FREQ=DAILY']&quot;<br>
+</div>
+OK, as expected<br>
+<br>
+</div>
+Pattern: Every week, on the same day as the first occurrence, no end<br>
+</div>
+Rule from Nylas: &quot;['RRULE:FREQ=WEEKLY']&quot;<br>
+</div>
+OK, as expected<br>
+<br>
+</div>
+Pattern: Every other week, on the same day as the first occurrence, no end<br>
+</div>
+Rule from Nylas: &quot;['RRULE:FREQ=WEEKLY;INTERVAL=2']&quot;<br>
+</div>
+OK, as expected<br>
+<br>
+</div>
+Those were all good. Next, I tried some more complicated recurrences:<br>
+<br>
+</div>
+Pattern: Every week on Wednesday and Friday, no end<br>
+</div>
+Rule from Nylas: &quot;['RRULE:FREQ=WEEKLY']&quot;<br>
+</div>
+Expected BYDAY=TU,TH in RRULE<br>
+<br>
+</div>
+<div>Pattern: Every day for 4 days<br>
+</div>
+<div>Rule from Nylas: &quot;['RRULE:FREQ=DAILY']&quot;<br>
+</div>
+<div>Expected COUNT=4 or UNTIL in RRULE<br>
+</div>
+<div><br>
+</div>
+Those didn't give the rules I expected based on my reading of RFC 2445, but they're pretty close, so hopefully they are not so difficult to fix. I'm more worried about the next pattern I tried:<br>
+<br>
+</div>
+Pattern: Second Wednesday of every month, no end<br>
+</div>
+Rule from Nylas: None, event never synced<br>
+</div>
+Expected RRULE:FREQ=MONTHLY;BYDAY=2WE<br>
+<br>
+</div>
+In this case, the event never showed up in my Nylas delta sync. Additionally, no events on that calendar have shown up in the delta sync since then, including the ones that worked fine before (even non-recurring events).<br>
+<br>
+I wasn't sure about the source of the problem, so I switched to my other testing account, Stewie, which has three calendars. I was able to reproduce the same pattern: everything works fine, even some basic recurring events, but when I try the every-second-Wednesday
+ pattern, it stops sending me data for that calendar. I repeated the pattern for Stewie's second calendar and got the same result. Finally, on his third calendar, I tried a slight variation (every third Thursday) with the same result.<br>
+<br>
+Since this seems consistent to me, I suspect I've run into a corner case in the recurrence code. Maybe you can see more in your logs? Let me know if I can provide any further info to help debug this.<br>
+<br>
+</div>
+Thank you,<br>
+</div>
+Jeff<br>
+</div>
+<div class="gmail_extra"><br>
+<div class="gmail_quote">On Thu, May 7, 2015 at 3:11 PM, Christine Spang <span dir="ltr">
+&lt;<a href="mailto:spang@nylas.com" target="_blank">spang@nylas.com</a>&gt;</span> wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">
+<div style="font-size:10pt; color:#000000; background-color:#ffffff; font-family:Arial,Helvetica,sans-serif">
+<p>Hi Andrew &amp; co,<br>
+</p>
+<p><br>
+</p>
+<p>Just checking in here. Were you able to successfully test the new recurring event support for Exchange?<br>
+</p>
+<p><br>
+</p>
+<p>regards,<br>
+</p>
+<p>Christine</p>
+<div style="color:rgb(0,0,0)">
+<hr style="display:inline-block; width:98%">
+<div dir="ltr"><font face="Calibri,sans-serif" color="#000000" style="font-size:11pt"><b>From:</b> Andrew Lee &lt;<a href="mailto:andrew@esper.com" target="_blank">andrew@esper.com</a>&gt;<br>
+<b>Sent:</b> Sunday, May 3, 2015 5:05 PM<br>
+<b>To:</b> Kavya Joshi; Jeff Meister<br>
+<b>Cc:</b> support; Mackenzie Dallas; Karim Hamidou; Jennie Lees
+<div>
+<div><br>
+<b>Subject:</b> Re: Esper &lt;-&gt; Nilas</div>
+</div>
+</font>
+<div>&nbsp;</div>
+</div>
+<div>
+<div>
+<div>
+<div dir="ltr">Thanks so much for working round the clock on this Kavya &#43; Nylas team! This is a very big milestone for us and we're really excited to finally put this all into action. We'll get back to you as soon as possible.&nbsp;<br>
+</div>
+<br>
+<div class="gmail_quote">On Fri, May 1, 2015 at 11:45 AM Kavya Joshi &lt;<a href="mailto:kavya@nylas.com" target="_blank">kavya@nylas.com</a>&gt; wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">
+<div style="font-size:12pt; color:#000000; background-color:#ffffff; font-family:Calibri,Arial,Helvetica,sans-serif">
+<p></p>
+<p>Hi Jeff,</p>
+<p><em></em><br>
+</p>
+<p>We just shipped basic support for recurring events for Exchange.</p>
+<p><em></em><br>
+</p>
+<p>Specifically, we now sync recurring events from the Exchange server and the API returns these events with an additional &quot;recurrence&quot; object that contains the RRULE and EXDATE strings.</p>
+<p><em></em><br>
+</p>
+<p>For example, a recurring event would be returned as:</p>
+<p>{</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; …</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp;&quot;recurrence&quot;: {</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&quot;rrule&quot;: &quot;['RRULE:FREQ=WEEKLY', 'EXDATE:20150611T210000Z,20150618T210000Z']&quot;,</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&quot;timezone&quot;: null</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp;},</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp;&quot;when&quot;: {</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&quot;end_time&quot;: 1431034200,</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&quot;object&quot;: &quot;timespan&quot;,</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&quot;start_time&quot;: 1431032400</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp;}</p>
+<p>}</p>
+<p><em></em><br>
+</p>
+<p>You can also expand recurring events using:</p>
+<p><span>GET <a href="https://api.nylas.com/n/&amp;lt;namespace_id&amp;gt;/events?expand_recurring=true" target="_blank">
+<span>https://api.nylas.com/n/&lt;namespace_id&gt;/events?expand_recurring=true</span></a></span></p>
+<p><em></em><br>
+</p>
+<p>We don't support updating recurring events via the API yet, we'll be working on it in next week,&nbsp;but we wanted to get this out to you so you can get started!</p>
+<p><em></em><br>
+</p>
+<p>As always, let us know if you have any questions!<br>
+</p>
+<p><br>
+</p>
+<p>Cheers,</p>
+<p>Kavya<br>
+</p>
+<p><br>
+</p>
+<p><br>
+</p>
+<div style="color:rgb(0,0,0)">
+<hr style="display:inline-block; width:98%">
+<div dir="ltr"><font face="Calibri,sans-serif" color="#000000" style="font-size:11pt"><b>From:</b> Jeff Meister &lt;<a href="mailto:jeff@esper.com" target="_blank">jeff@esper.com</a>&gt;<br>
+<b>Sent:</b> Tuesday, April 28, 2015 3:34 PM<br>
+<b>To:</b> Jennie Lees<br>
+<b>Cc:</b> Andrew Lee; support; Mackenzie Dallas; Karim Hamidou</font></div>
+</div>
+</div>
+</div>
+<div dir="ltr">
+<div style="font-size:12pt; color:#000000; background-color:#ffffff; font-family:Calibri,Arial,Helvetica,sans-serif">
+<div style="color:rgb(0,0,0)">
+<div dir="ltr"><font face="Calibri,sans-serif" color="#000000" style="font-size:11pt"><br>
+<b>Subject:</b> Re: Esper &lt;-&gt; Nilas</font></div>
+</div>
+</div>
+</div>
+<div dir="ltr">
+<div style="font-size:12pt; color:#000000; background-color:#ffffff; font-family:Calibri,Arial,Helvetica,sans-serif">
+<div style="color:rgb(0,0,0)">
+<div>
+<div dir="ltr">
+<div>
+<div>
+<div>Hi Jennie,<br>
+<br>
+</div>
+Thank you for the update, it all sounds good to me! Having the recurrence info in standard RRULE format would be best for us, since that's what Google Calendar supports too. It would allow us to simply copy that data over to a Google event (unless you know
+ of recurrence features that we may get from Exchange events through Nylas that Google won't support). We may use the expansion feature as well, but I think an RRULE is what we'll want in most cases.<br>
+<br>
+</div>
+Thanks,<br>
+</div>
+Jeff<br>
+</div>
+<div class="gmail_extra"><br>
+<div class="gmail_quote">On Tue, Apr 28, 2015 at 11:00 AM, Jennie Lees <span dir="ltr">
+&lt;<a href="mailto:jennie@nylas.com" target="_blank">jennie@nylas.com</a>&gt;</span> wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">
+<div dir="ltr" style="font-size:12pt; color:rgb(0,0,0); font-family:Calibri,Arial,Helvetica,sans-serif,'Apple Color Emoji','Segoe UI Emoji',NotoColorEmoji,'Segoe UI Symbol','Android Emoji',EmojiSymbols; background-color:rgb(255,255,255)">
+<p><br>
+</p>
+Hey Jeff,
+<div><br>
+</div>
+<div>I wanted to give you a quick update on recurring events for Exchange while Christine's out.&nbsp;</div>
+<div><br>
+</div>
+<div>We're implementing them using the same approach we took for Google Calendar, including converting the Exchange recurrence info into a standard RRULE, which will be accessible on the event object via our API. However, we've found some nuances in the way
+ Exchange treats exceptions to the rule, so we're currently testing that thoroughly and making sure it lines up with our overall handling of events. You'll be able to access all individual instances of a recurring event without having to do the expansion yourselves,
+ and/or get the recurrence info from the parent.</div>
+<div><br>
+</div>
+<div>If this doesn't sound like it's going in the right direction for you, let me know!</div>
+<div><br>
+</div>
+<div>Jennie<br>
+<br>
+<div style="color:rgb(0,0,0)">
+<hr style="display:inline-block; width:98%">
+<div dir="ltr"><font face="Calibri,sans-serif" color="#000000" style="font-size:11pt"><b>From:</b> Christine Spang<br>
+<b>Sent:</b> Friday, April 24, 2015 3:52 PM
+<div>
+<div><br>
+<b>To:</b> Jeff Meister<br>
+<b>Cc:</b> Andrew Lee; Kavya Joshi; support; Mackenzie Dallas<br>
+<b>Subject:</b> Re: Esper &lt;-&gt; Nilas</div>
+</div>
+</font>
+<div>&nbsp;</div>
+</div>
+<div>
+<div>
+<div>
+<div style="font-size:10pt; color:#000000; background-color:#ffffff; font-family:Arial,Helvetica,sans-serif">
+<p>Good to hear things are working for you! :)<br>
+</p>
+<p><br>
+</p>
+<p>The &quot;cancelled events&quot; change was indeed intentional—we want the behaviour to match. This was part of some cleanups and bugfixing we did surrounding cancelled events.<br>
+</p>
+<p><br>
+</p>
+<p>We're going to&nbsp;work on implementing&nbsp;read-only&nbsp;Exchange support for recurring events next week. I think your use case is pretty straightforward, but we'll let you know if any questions come up that you folks could help us out with.<br>
+</p>
+<p><br>
+</p>
+<p>I'll be out of town next week&nbsp;but as long as you keep support@ in the loop someone from our side will keep you posted.<br>
+</p>
+<p><br>
+</p>
+<p>cheers,<br>
+</p>
+<p>Christine<br>
+</p>
+<p><br>
+</p>
+<div style="color:rgb(33,33,33)">
+<hr style="display:inline-block; width:98%">
+<div dir="ltr"><font face="Calibri,sans-serif" color="#000000" style="font-size:11pt"><b>From:</b> Jeff Meister &lt;<a href="mailto:jeff@esper.com" target="_blank">jeff@esper.com</a>&gt;<br>
+<b>Sent:</b> Friday, April 24, 2015 3:30 PM<br>
+<b>To:</b> Christine Spang<br>
+<b>Cc:</b> Andrew Lee; Kavya Joshi; support; Mackenzie Dallas<br>
+<b>Subject:</b> Re: Esper &lt;-&gt; Nilas</font>
+<div>&nbsp;</div>
+</div>
+<div>
+<div dir="ltr">
+<div>
+<div>
+<div>
+<div>
+<div>Hi Christine,<br>
+<br>
+</div>
+I reset the account on our end too and started the Nylas syncing again. Everything looks good so far! I haven't seen the duplicate issue today. Since it happened unpredictably before, I'll continue testing with this customer's account as well as others, just
+ to make sure it doesn't come back.<br>
+<br>
+</div>
+I noticed a difference in my Nylas delta that isn't a bug but I thought was worth pointing out. When I delete an event on the O365 calendar, I used to see a delete in the Nylas delta. But in today's testing, instead of deletes, I saw updates with the status
+ of the event set to &quot;cancelled&quot;. This is actually the same behavior as in Google's calendar API, and it's not a problem for us, just wanted to let you know about it and see if it was an intentional change on your end (or maybe O365 changed what they send you).<br>
+<br>
+</div>
+Let me know when you have some thoughts on recurring events. I'm happy to discuss our use case over the phone if that's better for you.<br>
+<br>
+</div>
+Thanks again,<br>
+</div>
+Jeff<br>
+</div>
+<div class="gmail_extra"><br>
+<div class="gmail_quote">On Thu, Apr 23, 2015 at 2:38 PM, Christine Spang <span dir="ltr">
+&lt;<a href="mailto:spang@nylas.com" target="_blank">spang@nylas.com</a>&gt;</span> wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">
+<div style="font-size:12pt; color:#000000; background-color:#ffffff; font-family:Calibri,Arial,Helvetica,sans-serif">
+<p>Hi again,<br>
+</p>
+<p><br>
+</p>
+<p>We just shipped this fix to production and reset the affected account. This particular bug only occurs when the Exchange server encounters a particular condition, which is why it was both different from the earlier issue and doesn't affect all accounts.<br>
+</p>
+<p><br>
+</p>
+<p>Can you confirm that events look good for this account now?<br>
+</p>
+<p><br>
+</p>
+<p>Hold tight on recurring events for Exchange. We're still figuring out our gameplan there.<br>
+</p>
+<p>--Christine<br>
+</p>
+<div dir="ltr" style="color:rgb(33,33,33)">
+<hr style="display:inline-block; width:98%">
+<div dir="ltr"><font face="Calibri,sans-serif" color="#000000" style="font-size:11pt"><b>From:</b> Christine Spang<br>
+<b>Sent:</b> Wednesday, April 22, 2015 4:17 PM<br>
+<b>To:</b> Jeff Meister
+<div>
+<div><br>
+<b>Cc:</b> Andrew Lee; Kavya Joshi; support; Mackenzie Dallas<br>
+<b>Subject:</b> Re: Esper &lt;-&gt; Nilas</div>
+</div>
+</font>
+<div>&nbsp;</div>
+</div>
+<div>
+<div>
+<div>
+<div style="font-size:12pt; color:#000000; background-color:#ffffff; font-family:Calibri,Arial,Helvetica,sans-serif">
+<p>Hi Jeff,<br>
+</p>
+<p><br>
+</p>
+<p>Sorry for the delay here.<br>
+</p>
+<p><br>
+</p>
+<p>We have a fix for this duplicate events issue on our staging environment right now. We're planning to ship it to production tomorrow morning. Will let you know when this is done.<br>
+</p>
+<p><br>
+</p>
+<p>We're figuring out the best gameplan for Exchange recurring events. I'll let you know when we have more details.<br>
+</p>
+<p>--Christine<br>
+</p>
+<div style="color:rgb(33,33,33)">
+<hr style="display:inline-block; width:98%">
+<div dir="ltr"><font face="Calibri,sans-serif" color="#000000" style="font-size:11pt"><b>From:</b> Jeff Meister &lt;<a href="mailto:jeff@esper.com" target="_blank">jeff@esper.com</a>&gt;<br>
+<b>Sent:</b> Monday, April 20, 2015 6:19 PM<br>
+<b>To:</b> Christine Spang<br>
+<b>Cc:</b> Andrew Lee; Kavya Joshi; support; Mackenzie Dallas<br>
+<b>Subject:</b> Re: Esper &lt;-&gt; Nilas</font>
+<div>&nbsp;</div>
+</div>
+<div>
+<div dir="ltr">
+<div>
+<div>Hi Christine,<br>
+<br>
+</div>
+<div>Glad you guys are back, hope you had a good retreat!<br>
+</div>
+<div><br>
+Regarding recurring events, we can try expanding but I'm not sure if that will work in our case, unless I can make some changes to avoid us syncing these expanded copies back to the Exchange calendar. What would be better is if we could see the recurrence rules
+ on Exchange events. I think we could deal with that being read-only to start with, we just need an RRULE (or something we can translate into one) for our mirrored calendar on Google. I wrote some more details in my April 6 reply to this thread, explaining
+ what we're doing here. Let me know if you have other questions about this.<br>
+<br>
+</div>
+Thanks,<br>
+</div>
+Jeff<br>
+</div>
+<div class="gmail_extra"><br>
+<div class="gmail_quote">On Mon, Apr 20, 2015 at 5:48 PM, Christine Spang <span dir="ltr">
+&lt;<a href="mailto:spang@nylas.com" target="_blank">spang@nylas.com</a>&gt;</span> wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">
+<div style="font-size:12pt; color:#000000; background-color:#ffffff; font-family:Calibri,Arial,Helvetica,sans-serif">
+<p>Hi Andrew,<br>
+</p>
+<p><br>
+</p>
+<p>We just got back from retreat today and looking into this was on hold last week while we did some longer-term planning.<br>
+</p>
+<p><br>
+</p>
+<p>Karim is going to dive back into resolving the duplicate events issue now. We have a hunch as to what is up and will keep you posted.<br>
+</p>
+<p><br>
+</p>
+<p>To be clear, the recurring events issue is that recurring events expansion isn't supported on Exchange yet?<br>
+</p>
+<p><br>
+Thanks a ton for your patience.<br>
+</p>
+<p>--Christine<br>
+</p>
+<div style="color:rgb(33,33,33)">
+<hr style="display:inline-block; width:98%">
+<div dir="ltr"><font face="Calibri,sans-serif" color="#000000" style="font-size:11pt"><b>From:</b> Andrew Lee &lt;<a href="mailto:andrew@esper.com" target="_blank">andrew@esper.com</a>&gt;<br>
+<b>Sent:</b> Monday, April 20, 2015 5:29 PM<br>
+<b>To:</b> Kavya Joshi; support<br>
+<b>Cc:</b> Jeff Meister; Mackenzie Dallas; Christine Spang<span><br>
+<b>Subject:</b> Re: Esper &lt;-&gt; Nilas</span></font>
+<div>&nbsp;</div>
+</div>
+<div>
+<div>
+<div>
+<div dir="ltr">Just realized that this isn't exactly the last issue, it's this duplicate events issue and the recurring events issue. But once we have those two - we have users chomping at the bit!
+<div><br>
+</div>
+<div>Please let us know if there is anything we can help with. -Andrew<br>
+<br>
+<div class="gmail_quote">On Mon, Apr 20, 2015 at 9:39 AM Andrew Lee &lt;<a href="mailto:andrew@esper.com" target="_blank">andrew@esper.com</a>&gt; wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">Hey Kavya, any update on this. This is the LAST issue for us and we're really excited to do a launch so please let us know where we are here.<br>
+</div>
+<br>
+<div class="gmail_quote">On Tue, Apr 14, 2015 at 9:35 PM Kavya Joshi &lt;<a href="mailto:kavya@nilas.com" target="_blank">kavya@nilas.com</a>&gt; wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">Hi Jeff, Andrew
+<div><br>
+</div>
+<div>We've identified the cause of the duplicate events - the sync engine uses&nbsp;</div>
+<div>Exchange server-assigned identifiers to identify events that were previously synced versus new events that need to be synced.</div>
+<div>In the case of the duplicated events, we received the same event with a different server-assigned ID. As a result, the sync engine created a new event object with a different Nilas API event ID.</div>
+<div>
+<p>We're currently looking into what causes the Exchange server to return different IDs for the same event so we can implement a fix - we'll keep you posted.</p>
+</div>
+<div>Thanks!</div>
+</div>
+<div dir="ltr">
+<div>Kavya</div>
+<div><br>
+</div>
+</div>
+<div class="gmail_extra"><br>
+<div class="gmail_quote">On Tue, Apr 14, 2015 at 11:30 AM, Andrew Lee <span dir="ltr">
+&lt;<a href="mailto:andrew@esper.com" target="_blank">andrew@esper.com</a>&gt;</span> wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">Hope you guys had a great retreat! Just wanted to check up on the status of this. Happy to jump on a call too! -Andrew
+<div>
+<div><br>
+<br>
+<div class="gmail_quote">On Tue, Apr 7, 2015 at 4:44 PM Jeff Meister &lt;<a href="mailto:jeff@esper.com" target="_blank">jeff@esper.com</a>&gt; wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">
+<div>
+<div>Hi again,<br>
+<br>
+</div>
+In testing today with a real customer's calendar, I ran into the duplicate events issue again. Not all events are affected, but a significant amount of them are. I'm not sure what, if anything, they all have in common... maybe they were modified at some point
+ after their creation on the Exchange side?<br>
+<br>
+</div>
+<div>In more detail: I noticed this when doing an initial copy of events from Nilas for this user. At this stage, we aren't using the delta sync API; we start out by making a request for the next 10 weeks' worth of events on the chosen calendar. This request
+ returned 69 events, and I noticed that some were very similar, so I ran a little script that checked for pairs of events that are identical except for their event ID. It found 16 such pairs.<br>
+<br>
+</div>
+<div>Since I hadn't yet hooked up the code to write changes on our end back to Nilas for this user, and I don't see any of these duplicates on his actual Exchange calendar, I suspect a Nilas issue... in the past you fixed a similar bug in the delta sync caused
+ by changing IDs in Exchange, maybe that's where the problem is?<br>
+<br>
+</div>
+<div>The Nilas namespace ID of this user is 2ncnab6pkwjmckn6i2niknkr4<br>
+</div>
+<div>The calendar ID for all these events is d6hg8h7c57bx926toavj6tc9q<br>
+<br>
+</div>
+<div>Here are the pairs of events that have identical data but different event IDs:<br>
+5rc0a29m3j8aw39uln228uyv and enn1w0w1x862t39upeqnhde1e <br>
+8e3axp1rtqon780xq3f2x242t and 6ov6kvsqswqrthru9ktnnvnlo <br>
+fw39ttmbnqfttppvh9au9m35 and dvhdce880pbbpw5e0xmrp7iai<br>
+d7pekrqot18ksbv76zjru0yzo and 2wqkb0ebzzzvmm5hl2dxuiymc <br>
+2wqkb0ebzzzvmm5hl2dxuiymc and d7pekrqot18ksbv76zjru0yzo <br>
+6jmiyxn5px913zw1havpfer7s and cft5si4ac6gsujouv87275qn0 <br>
+790x1c6omswe018o0om5uvtlh and 4apbs7rhfz7xjwkc5l0f2qxtn <br>
+ev25fsxy2mm6wvdyn8ool0fs2 and 6f92dcpaeh4aheygi0px7e259 <br>
+c1ktorpee2wtjowfn9ushwtci and 8uy25k4r7ug6qwmn29upx06qf <br>
+bf836ol0p8dbmq66pd342m3ij and co9aehxq3c8g1ugidfit76up4 <br>
+249ifo6pxjhdeqeqlknylfnkk and lcf6f4pjbhzrr11awkrjw6dn <br>
+6rys9s4ag4sanho5lazglcjw9 and 9j7i0t664rkp5lcwofcs9g55m <br>
+2u2sltush4ij0d4x502gz0zw8 and 6qw8hjuq2bxhxsv34w477p3r8 <br>
+47g1o8rpoejolplbqj9pyug9t and abpf9p2eeifrbksgy1432x82s <br>
+87dks93wfcnsdoha8c6kpykf4 and 5bjnykg45fajv6x1f75wuvhay <br>
+2oj9t3gz0wyz4ir4rjpm7ba2k and 67ruyrgk9iq9kiqshboh43j3h<br>
+<br>
+</div>
+<div>Let me know if I can provide anything else that would help.<br>
+<br>
+</div>
+<div>Thank you!<br>
+</div>
+</div>
+<div dir="ltr">
+<div>Jeff<br>
+</div>
+</div>
+<div class="gmail_extra"><br>
+<div class="gmail_quote">On Mon, Apr 6, 2015 at 2:42 PM, Jeff Meister <span dir="ltr">
+&lt;<a href="mailto:jeff@esper.com" target="_blank">jeff@esper.com</a>&gt;</span> wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">
+<div>
+<div>
+<div>Hi Christine,<br>
+<br>
+</div>
+I've been waiting for accounts to sync before using them with Esper due to the way we implemented things, which involves an initial sync of some calendar data and then uses your delta sync API thereafter. If we change it to use the delta for everything, and
+ Nilas sends us info as it comes in, that would probably work too. So I don't think this one is an issue on your end really, except that if I don't wait for the sync, there is significant delay before my actions on Nilas show up on the Exchange calendar. They
+ eventually do, so I figured the delay was due to the sync still running. But if I wait a while before using Nilas, then everything is fast.<br>
+<br>
+</div>
+I spoke with our assistants, and it sounds like recurring events are pretty common on our customers' calendars. The reason I brought up Google, even though we're talking about Exchange calendars here, is because of how our assistant software works. Basically,
+ our assistants schedule in Gmail and Google Calendar, with our software providing extra capabilities inside those interfaces. To manage an executive's Google calendar, he can simply share it with us directly. But for Exchange, the executive logs in to Nilas
+ which syncs his calendar, then our backend fetches the data from Nilas and populates a corresponding Google calendar for the assistant to interact with. Then we watch the Google and Nilas calendars for new data to sync between them. So, if our assistant creates
+ a recurring event, the RRULE will be specified in Google's format, and we must translate it to a format that Nilas can handle for an Exchange calendar. That's why I was wondering about compatibility. We're taking your sync and doing another sync with it!<br>
+<br>
+</div>
+<div>I think it's rare for an assistant to need to create a recurring event, and we could do that directly on Exchange for the time being... the main issue is how to present existing recurring Exchange events on Google. Without the recurrence info, we'd only
+ get a single event on our Google calendar, and the assistant wouldn't know that some open time on the calendar is actually taken up by the recurrences. I see in your API docs that there is an option to expand recurring events, which might work, but if our
+ assistant edits a recurring event, we will make an improper change to the Exchange calendar, probably creating a duplicate. (Our system assumes that anything on the Google calendar belongs on the corresponding Exchange calendar, and vice versa, so it will
+ try to propagate the expanded event back to Nilas, although perhaps we can special case this.)<br>
+<br>
+</div>
+<div>Let me know how long you think it would take to get recurrence support for Exchange, if possible in the RRULE format that Google and others use, or something translatable to it. If it helps, I think we'd be OK with read-only support for a while, but without
+ that I think this may be a blocker for us, unless I can figure something out with expanded events.<br>
+<br>
+</div>
+<div>As for timezone to fix all-day events, we do collect the timezone of our customers already, so we can supply that. For specifying the timezone, we use the IANA zone names (like America/Los_Angeles) as in the tz database. Users prefer the abbreviations,
+ but we've found this easier for machines, since abbreviations can be ambiguous and they require knowing about daylight savings (PST vs. PDT).<br>
+<br>
+</div>
+<div>Thanks again,<br>
+</div>
+<div>Jeff<br>
+</div>
+</div>
+<div>
+<div>
+<div class="gmail_extra"><br>
+<div class="gmail_quote">On Thu, Apr 2, 2015 at 6:41 PM, Christine Spang <span dir="ltr">
+&lt;<a href="mailto:spang@nilas.com" target="_blank">spang@nilas.com</a>&gt;</span> wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+For (2), we're also considering making a best guess on the user's timezone based on the timezone of the last event on the user's calendar, or a couple previous events. It requires a bit more thought. Let me know if you have any thoughts. (In general, we'd like
+ to avoid complicating the API with provider-specific parameters that make it so you can't specify the same event the same way across providers.)
+<div>
+<div><br>
+<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+On Apr 2 2015, at 6:03 pm, Christine Spang &lt;<a href="mailto:spang@nilas.com" target="_blank">spang@nilas.com</a>&gt; wrote:
+<br>
+Hi Jeff,
+<div><br>
+</div>
+<div>The state machine for our Exchange syncs isn't being interpreted correctly by our developer console dashboard—we've created a ticket in our bug tracker to make sure we fix this.</div>
+<div><br>
+</div>
+<div>Do you need an account to be fully synced before the user can start using Esper? Were you seeing problems before a day or so had passed? We've designed our sync algorithm to be usable from the time an account is connected, even if all data is not yet synced,
+ so I'm curious to hear if you were running into specific issues.</div>
+<div><br>
+</div>
+<div>Here are answers to your other questions:</div>
+<div>1. We have complete read-only support on Google calendars, but not for Exchange yet. Exchange uses a different format from RRULEs, and we haven't implemented the expansion yet. This is exposed via the `recurrence` property on events, but we haven't done
+ much testing so we're not sure if it's useful to end-users in its current state. (If you take a look at it at all, let us know what you find out.)</div>
+<div><br>
+</div>
+<div>Do you need this? If so, we can add it to our roadmap. We've planned to do it, but it hasn't been a blocker for anyone yet so we've been prioritizing other features.</div>
+<div><br>
+</div>
+<div>2. As Kavya explained previously, this is a fundamental limitation of how Exchange implements calendars that can only be solved by manually specifying the user's timezone correctly when creating an all-day event. We can't reliably determine this from a
+ user's account, so to fix this properly you'd have to be able to send our API the user's timezone. (On Exchange, &quot;all day&quot; events are treated as a 24-hour timespan, so if we send the event in UTC, and the user's calendar is set to display in PST... bam, display
+ issue.)</div>
+<div><br>
+</div>
+<div>If you can get this timezone information, would this API modification to how &quot;when&quot; blocks work for Exchange event creation solve your problem?</div>
+<div><span style="font-size:15.9px; line-height:1.4; background-color:inherit"><br>
+</span></div>
+<div><span style="font-size:15.9px; line-height:1.4; background-color:inherit">&quot;when&quot; : {</span><br>
+</div>
+<div>&nbsp; &nbsp; &quot;date&quot;: &quot;2015-04-15&quot;,</div>
+<div>&nbsp; &nbsp; &quot;timezone&quot;: &quot;PST&quot;<br>
+},</div>
+<div><br>
+</div>
+<div>(Still thinking about the best way to specify timezones, but you get the gist of it.)</div>
+<div><br>
+</div>
+<div>If so, this is not too difficult to implement on our end and we can have it to you by next week sometime. Let us know.</div>
+<div><br>
+</div>
+--Christine<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+On Apr 2 2015, at 3:46 pm, Jeff Meister &lt;<a href="mailto:jeff@esper.com" target="_blank">jeff@esper.com</a>&gt; wrote:
+<br>
+<div dir="ltr">
+<div>
+<div>
+<div>
+<div>
+<div>
+<div>
+<div>Hi everyone,<br>
+<br>
+</div>
+We decided to try one more testing account and have an assistant play with it before adding the real customer. This account sees daily use, so it's a more realistic test case than my fake accounts. The initial sync to Nilas took a while, but it seems to have
+ stabilized now, and events are syncing in both directions... looking good! We're going to have our real customer sign into Nilas and give his account some time to sync up (a day or so?) before using it. I noticed on my Nilas dashboard that our latest test
+ account sometimes says &quot;Sync Issue&quot; or &quot;Downloading&quot;, but eventually it goes back to &quot;Running&quot;.<br>
+<br>
+</div>
+A couple minor questions for you:<br>
+<br>
+</div>
+1. One thing I forgot to test was recurring events. It looks like you and Google use the same strategy for specifying recurring events: just embed the RRULE as a string in RFC format. I'm not too familiar with this part of iCalendar, so I'll have to read some
+ documentation, but I'm wondering if you think it will work to just copy RRULEs between Google and Nilas. Are you aware of any incompatibilities in how this spec is implemented? I'll keep looking into it myself, just wanted to know if there are any gotchas
+ I should be prepared for here. Recurrences get pretty complicated.<br>
+<br>
+</div>
+2. I tried specifying an all day event with just a single date field as Kavya explained, and Nilas accepted this, but I'm still seeing the event span two days in O365: my all day 4/10 event covers both 4/9 and 4/10. It's consistently going back one day for
+ me... maybe this is related to the timezone issue Kavya also mentioned? My Nilas API responses just have dates, but if 4/10 is being interpreted in PST, that might be subtracting some hours and getting us to 4/9. Not sure though.<br>
+<br>
+</div>
+I'll let you know if we run into problems with our customer's account, which is rather large. I'm optimistic, though!<br>
+<br>
+</div>
+Thanks,<br>
+</div>
+Jeff<br>
+</div>
+<div class="gmail_extra"><br>
+<div class="gmail_quote">On Tue, Mar 31, 2015 at 2:35 PM, Andrew Lee <span dir="ltr">
+&lt;<a href="mailto:andrew@esper.com" target="_blank">andrew@esper.com</a>&gt;</span> wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">Yep. By the end of the week (barring crazy things happening), we should be testing with some current O365 executives and we'll let you know if we experience any problems.&nbsp;<br>
+</div>
+<div>
+<div><br>
+<div class="gmail_quote">On Tue, Mar 31, 2015 at 2:07 PM Christine Spang &lt;<a href="mailto:spang@nilas.com" target="_blank">spang@nilas.com</a>&gt; wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">Per our conversation today:
+<div><br>
+</div>
+<div>You folks are going to start onboarding Exchange users, having them directly auth to Nilas instead of using Exchange shared calendars.</div>
+<div><br>
+</div>
+<div>We're going to scope&#43;spec application scopes (specifically for calendars vs mail) and work implementation into our roadmap. We have a big conference&#43;company offsite coming up in the next two weeks, so are not sure about the timing for the project right
+ now. In the meantime, you can get started without anything specific from us.</div>
+<div><br>
+</div>
+<div>As mentioned on the call, we're right in the middle of an improvement project for our Exchange auth flow, which includes providing better error messages when things go wrong and creating some better documentation about what each screen of the auth flow
+ looks like on our end. Let us know if you have any questions before that's live, and if you have any trouble with Exchange sign-ins, we're available to help figure out what's going wrong.</div>
+<div><br>
+</div>
+<div>cheers,</div>
+<div>Christine</div>
+</div>
+<div class="gmail_extra"><br>
+<div class="gmail_quote">On Mon, Mar 30, 2015 at 6:00 PM, Christine Spang <span dir="ltr">
+&lt;<a href="mailto:spang@nilas.com" target="_blank">spang@nilas.com</a>&gt;</span> wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<p dir="ltr">Great, talk to you tomorrow. :)</p>
+<div>
+<div>
+<div class="gmail_quote">On Mar 30, 2015 5:48 PM, &quot;Andrew Lee&quot; &lt;<a href="mailto:andrew@esper.com" target="_blank">andrew@esper.com</a>&gt; wrote:<br type="attribution">
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">Yeah, that's fine. Let's jump on the phone then. Blake will follow up with calendar invites etc.<br>
+<br>
+<div class="gmail_quote">On Mon, Mar 30, 2015 at 5:46 PM Christine Spang &lt;<a href="mailto:spang@nilas.com" target="_blank">spang@nilas.com</a>&gt; wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">Does 1pm tomorrow work for a call?</div>
+<div class="gmail_extra"><br>
+<div class="gmail_quote">On Mon, Mar 30, 2015 at 5:28 PM, Andrew Lee <span dir="ltr">
+&lt;<a href="mailto:andrew@esper.com" target="_blank">andrew@esper.com</a>&gt;</span> wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">Thanks so much for the e-mail! Christin, on Shared Calendars, we're happy to jump on the phone today or tomorrow to come up with a solution. This is very important to us and we'd like to get a resolution soon. -A<br>
+</div>
+<div>
+<div><br>
+<div class="gmail_quote">On Mon, Mar 30, 2015 at 12:48 PM Kavya Joshi &lt;<a href="mailto:kavya@nilas.com" target="_blank">kavya@nilas.com</a>&gt; wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">Hi Jeff,
+<div><br>
+</div>
+<div>Thanks for the detailed response!</div>
+<div><br>
+</div>
+<div>With respect to all-day event creation, there are a couple of issues:</div>
+<div><br>
+</div>
+1. The display of all-day events depends on the timezone the calendar is set to in O365 (Calendar settings &lt; Options &lt; General &lt; Region and timezone):
+<div><a href="http://support.microsoft.com/en-us/kb/262451" target="_blank">http://support.microsoft.com/en-us/kb/262451</a><br>
+</div>
+<div><br>
+<div>Since the `when` field for event creation using the Nilas API is specified in the UTC timezone and is sent to the Exchange server in this timezone too, if your O365 calendar is set to the UTC timezone, it will display as expected. However, if your calendar
+ is set to a different timezone (for e.g. UTC-8), the event will display incorrectly. The same behavior is observed if you create an all-day event in the O365 UI and then change the timezone in the options.</div>
+<div>
+<div><br>
+</div>
+<div>To overcome the timezone-dependency of the display, we plan to allow users to specify timezone information as well while creating events - we'll keep you updated on it.</div>
+<div>
+<div><br>
+</div>
+<div>2. There was a small error in the end-dates we were sending the server for all-day events, which caused the incorrect event durations. The fix for this is now live, so this should not be an issue anymore - please let us know if it is!</div>
+<div><br>
+</div>
+<div><br>
+</div>
+<div>To answer your question about date ranges for events -</div>
+<div>* to create an all-day event on a single day using the API, provide a date object for the `when` field.&nbsp;</div>
+<div>For example, to create an all-day event on 04/11/2015:</div>
+<div>
+<div>when = {</div>
+<div>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;date&quot;: &quot;2015-04-11&quot;</div>
+<div>}</div>
+</div>
+<div><br>
+</div>
+<div>* to create an all-day event spanning multiple days, provide a datespan object for the `when` field. In this case, the end-date is /inclusive/.</div>
+<div>For example, to create an event that runs all-day on the 11th, 12th, 13th and 14th (inclusive):&nbsp;</div>
+<div>
+<div>when = {</div>
+<div>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;start_date&quot;: &quot;2015-04-11&quot;,</div>
+<div>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;end_date&quot;: &quot;2015-04-14&quot;</div>
+<div>}</div>
+</div>
+<div><br>
+</div>
+<div>Does that help?</div>
+<div><br>
+</div>
+<div>With respect to shared calendars, Christine will be in touch.</div>
+<div><br>
+</div>
+<div>Thanks!</div>
+</div>
+</div>
+</div>
+</div>
+<div dir="ltr">
+<div>
+<div>
+<div>
+<div>Kavya</div>
+<div>
+<div><br>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="gmail_extra"><br>
+<div class="gmail_quote">On Thu, Mar 26, 2015 at 3:07 PM, Jeff Meister <span dir="ltr">
+&lt;<a href="mailto:jeff@esper.com" target="_blank">jeff@esper.com</a>&gt;</span> wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">
+<div>
+<div>
+<div>
+<div>
+<div>
+<div>On the topic of shared calendars, let me explain our use case. Esper employs some in-house assistants to handle scheduling for our customers, who are mostly busy executives. Our assistants use custom software that is built on top of Gmail and Google Calendar,
+ both frontend (browser extension to enhance the interface) and backend (server to automate various workflows using Google APIs). Each assistant logs into a Google account, and our customers share their calendars from their own private Google account to ours.
+ This lets our assistants see free/busy times for the executives and create appropriate events for them, without requiring the executive to give us his private login information.<br>
+<br>
+</div>
+We would like to support executives who use Exchange calendars, but we're trying to avoid replicating our frontend work on top of O365 or desktop Outlook, and we don't want to deal with the Exchange APIs either. Our plan was to have Exchange executives share
+ their calendars with our assistant's own Exchange account (often created by the executive's organization for our use). Then, we would authenticate our assistant's account with Nilas, and our backend would use your API instead of Microsoft's. For the frontend,
+ we have some custom code that mirrors the Nilas data over to a Google calendar where our assistant can use our software.<br>
+<br>
+</div>
+I tried checking my test O365 account that had some shared calendars with my iPhone like you suggested, and indeed I did not see the shared calendars... only the owned calendars showed up. Unless there's an undocumented part of EAS that Apple isn't aware of,
+ I guess we may not be able to access shared calendars through that protocol, as you said. The shared calendars do show up on the O365 interface, and everything works there as you'd expect, but since that's a cloud service I have no idea what (likely private)
+ API they are using. If I can get another non-O365 Exchange account, I'll try some sharing tests there too. However, the customer we would like to onboard first does use O365.<br>
+<br>
+</div>
+If we can't get shared calendars through EAS or another protocol, we may have to rethink how we're doing things. I thought of sharing the calendar in the other direction, where our assistant creates it on her account and shares it with the executive, but then
+ we still wouldn't be able to see free/busy times on the executive's other calendars, and they probably won't want to use our calendar exclusively. The only other thought I'm left with is to have the executive sign in to Nilas with his own account. But that
+ just pushes the privacy issue up the chain; while you could restrict our access through your API, our customers probably don't want a third party having access to all their email etc. Does Exchange have some access control capabilities that could help here?
+ Maybe there is a way for our customers to sign in to Nilas with their own accounts, but then choose only to share their calendars with Nilas, kind of like how Google's OAuth domains work?<br>
+<br>
+</div>
+Sorry for the long email, I'm just trying to be clear. I should have noticed this issue before, but I had been testing with owned calendars figuring that shared calendars would work the same, as they do in Google. That's what I get for assuming EAS would be
+ cooperative! If you can think of an alternative approach, we'd be very happy to hear it.<br>
+<br>
+</div>
+Thanks again, and let me know if you need any more info or clarification.<span><font color="#888888"><br>
+</font></span></div>
+<span><font color="#888888">- Jeff<br>
+</font></span></div>
+<div>
+<div>
+<div class="gmail_extra"><br>
+<div class="gmail_quote">On Thu, Mar 26, 2015 at 12:40 PM, Jeff Meister <span dir="ltr">
+&lt;<a href="mailto:jeff@esper.com" target="_blank">jeff@esper.com</a>&gt;</span> wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">
+<div>
+<div>
+<div>
+<div>Hi Kavya and others,<br>
+<br>
+</div>
+I just tested the all-day events again, and the problem of showing up at 4 or 5pm is gone, but I'm still having some issues that I think are related to whether the end date is exclusive or inclusive. When I request an all-day event through the Google Calendar
+ API, say on 4/2, I get back an event with a start date of 4/2 and end date of 4/3. I was assuming that Nilas worked the same way, with exclusive end times/dates (i.e., just beyond the end of the time range).<br>
+<br>
+</div>
+When I create an event on Nilas with a start date of 4/2 and end date of 4/3, it appears on the O365 calendar across two days: 4/1 and 4/2. Opening its details confirms that it has those start and end dates, even though my Nilas API response said 4/2 to 4/3.
+ Strangely, the sidebar of O365 says &quot;1 day&quot; for the event duration. To make it appear only across 4/2, I had to go into the event on O365 and set both start and end dates to 4/2.<br>
+<br>
+</div>
+So, I tried creating a Nilas event with start and end dates both set to 4/2. This did result in a single-day event in O365, but it was on 4/1 instead of 4/2. The sidebar also says &quot;0 minutes&quot;, even though everything looks fine on the calendar. I noticed that
+ my Nilas API response contained a when field with a single date 4/2 instead of a datespan, so I also tried creating my event this way, but the result on O365 was the same as the 4/2 to 4/2 datespan.<br>
+<br>
+</div>
+It seems like there is some confusion between me, Nilas, and O365 about whether an end time or date is part of the range. How should I be specifying my ranges to Nilas? And could this account for the off-by-one behavior I'm seeing on my O365 calendar?<br>
+<div>
+<div>
+<div>
+<div><br>
+</div>
+<div>I'll write a different response regarding shared calendars, because this email is already a bit long.<br>
+<br>
+</div>
+<div>Thank you,<br>
+</div>
+<div>Jeff<br>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div>
+<div>
+<div class="gmail_extra"><br>
+<div class="gmail_quote">On Wed, Mar 25, 2015 at 9:49 PM, Kavya Joshi <span dir="ltr">
+&lt;<a href="mailto:kavya@nilas.com" target="_blank">kavya@nilas.com</a>&gt;</span> wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">Hi Andrew, Jeff
+<div><br>
+</div>
+<div>At first glance, it seems like the ActiveSync protocol does not support syncing shared calendars. We're going to double check this with a mobile phone, since sometimes ActiveSync features are undocumented.&nbsp;</div>
+<div>In the meantime, could you please tell us how you plan to use synced shared calendars? We don't want this to be a blocker for you and might be able to suggest an alternative approach.</div>
+<div><br>
+</div>
+<div><span style="font-size:12.8000001907349px">W.r.t&nbsp;</span><span style="font-size:12.8000001907349px">creating all-day events through Nilas, d</span><span style="font-size:12.8000001907349px">id you have the chance to test it again?</span></div>
+<div><span style="font-size:12.8000001907349px">From the logs, it looks like your prior testing for the following accounts&nbsp;</span><span style="font-size:12.8000001907349px">might've occurred before the fix was deployed:</span></div>
+<div><span style="font-size:12.8000001907349px">meg@</span><span style="font-size:12.8000001907349px"><a href="http://espertech.onmicrosoft.com" target="_blank">espertech.onmicrosoft.com</a>,</span><span style="font-size:12.8000001907349px">&nbsp;</span></div>
+<div><span style="font-size:12.8000001907349px">stewiegriffin@</span><span style="font-size:12.8000001907349px"><a href="http://espertech.onmicrosoft.com" target="_blank">espertech.onmicrosoft.com</a></span></div>
+<div><span style="font-size:12.8000001907349px"><br>
+</span></div>
+<div><span style="font-size:12.8000001907349px">Thanks!</span></div>
+<span><font color="#888888">
+<div>Kavya</div>
+<div><br>
+</div>
+</font></span></div>
+<div>
+<div>
+<div class="gmail_extra"><br>
+<div class="gmail_quote">On Wed, Mar 25, 2015 at 4:26 PM, Christine Spang <span dir="ltr">
+&lt;<a href="mailto:spang@nilas.com" target="_blank">spang@nilas.com</a>&gt;</span> wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">Hi Andrew,
+<div><br>
+</div>
+<div>Kavya's taking a look at this today. We'll get back as soon as we have more info.</div>
+<span><font color="#888888">
+<div><br>
+</div>
+<div>--Christine</div>
+</font></span></div>
+<div>
+<div>
+<div class="gmail_extra"><br>
+<div class="gmail_quote">On Wed, Mar 25, 2015 at 9:35 AM, Andrew Lee <span dir="ltr">
+&lt;<a href="mailto:andrew@esper.com" target="_blank">andrew@esper.com</a>&gt;</span> wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">Hey guys, just wanted to check up on what you think about this issue. I'm really hoping it's a small issue because once this is fixed, we're gonna start on-boarding people.<br>
+</div>
+<div>
+<div><br>
+<div class="gmail_quote">On Mon, Mar 23, 2015 at 5:01 PM Jeff Meister &lt;<a href="mailto:jeff@esper.com" target="_blank">jeff@esper.com</a>&gt; wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">
+<div>
+<div>
+<div>Hello again,<br>
+<br>
+</div>
+Andrew brought another issue to my attention: some of the calendars we use are not actually owned by the account we log into. They are owned by a different account and shared with us. On the O365 interface, these calendars appear under &quot;Other calendars&quot; instead
+ of &quot;My calendars&quot;, similar to Google's behavior. I tried sharing a couple calendars between test accounts, and they show up in O365, but I haven't seen them appear in Nilas. I don't think it's a sync delay issue, because I created another owned calendar and
+ that one showed up in Nilas immediately. Are you folks able to access and sync shared O365 (or other Exchange) calendars? I'm hoping this is simply a matter of checking an extra data field.<br>
+<br>
+</div>
+Thanks,<br>
+</div>
+Jeff<br>
+</div>
+<div class="gmail_extra"><br>
+<div class="gmail_quote">On Mon, Mar 23, 2015 at 2:53 PM, Jeff Meister <span dir="ltr">
+&lt;<a href="mailto:jeff@esper.com" target="_blank">jeff@esper.com</a>&gt;</span> wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">
+<div>
+<div>
+<div>
+<div>Hi Christine,<br>
+<br>
+</div>
+I was just about to send an email with our latest results. From my testing this morning, I see that deletes and guests are working, so the issues (1) and (2) from my previous email are fixed! Things are looking pretty good today, I'm seeing creates/updates/deletes
+ sync in both directions.<br>
+<br>
+One thing maybe worth mentioning: when I began testing this morning, at first I thought Nilas wasn't syncing to O365, because my actions weren't going all the way through to the O365 side even though my Nilas API calls were successful. However, when I checked
+ back around 30min later, everything had showed up. I presume you have to queue up actions to send to the real Exchange server, but usually my Nilas interactions sync back within seconds (except deletes sometimes take a bit longer). Perhaps your reset of my
+ test accounts made them require a bit more background syncing to catch up to the point where my actions would go through? Anyway, it's working more quickly now, I'm just curious what we should expect when dealing with real customer calendars (which will be
+ larger than my testing ones). Should we give a new customer's Nilas account some time to sync up with their Exchange server before trying to use it further?<br>
+<br>
+As for all-day events, the ones I created through O365 are showing up properly on the Nilas side, but I'm still seeing all-day events show up at improper times on my O365 calendar when I add them through Nilas. Maybe your deploy happened after I tested that,
+ so I'll keep trying this afternoon and let you know how it goes.<br>
+<br>
+</div>
+Still no luck with Andrew's Exchange account, same error as before. I'm not sure what's up with it. If I can get another standalone Exchange account to test with, I'll report my findings there.<br>
+<br>
+</div>
+Thank you,<br>
+</div>
+Jeff<br>
+</div>
+<div>
+<div>
+<div class="gmail_extra"><br>
+<div class="gmail_quote">On Mon, Mar 23, 2015 at 2:34 PM, Christine Spang <span dir="ltr">
+&lt;<a href="mailto:spang@nilas.com" target="_blank">spang@nilas.com</a>&gt;</span> wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">Heya folks,
+<div><br>
+</div>
+<div>We hadn't implemented support for the &quot;All Day&quot; bit for Exchange events. We just shipped a patch this morning that implements this support. Does this fix your issue?</div>
+<div><br>
+</div>
+<div>Has anything else come up?</div>
+<div><br>
+</div>
+<div>Let us know.</div>
+<span><font color="#888888">
+<div>--Christine</div>
+</font></span></div>
+<div>
+<div>
+<div class="gmail_extra"><br>
+<div class="gmail_quote">On Fri, Mar 20, 2015 at 6:58 PM, Christine Spang <span dir="ltr">
+&lt;<a href="mailto:spang@nilas.com" target="_blank">spang@nilas.com</a>&gt;</span> wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">
+<div>Eben scrutinized our logs about the Exchange issue, and as far as we can tell, the Exchange server may have repeatedly encountered an internal server error trying to service the auth request. We haven't seen this before, but as best we can tell there's
+ not much we can do in this case, other than have you try again to auth later. Does it work for you now?</div>
+<div><br>
+</div>
+<div>We'll keep in mind that this can happen as we're working on improving the feedback in the Exchange auth flow.</div>
+<div><br>
+</div>
+<div>Karim's worked up a fix for all day events as well, which we'll ship to production as soon as it's not Friday night. :)</div>
+<div><br>
+</div>
+<div>Have a great weekend,</div>
+<div>Christine</div>
+</div>
+<div>
+<div>
+<div class="gmail_extra"><br>
+<div class="gmail_quote">On Fri, Mar 20, 2015 at 1:41 PM, Christine Spang <span dir="ltr">
+&lt;<a href="mailto:spang@nilas.com" target="_blank">spang@nilas.com</a>&gt;</span> wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+Hey Andrew,
+<div><br>
+</div>
+<div>He sure did. Shipped with a regression test this time, and I reset the calendar syncs for your Exchange accounts so this should be back-applied to existing events as well.<br>
+<br>
+</div>
+<div>Eben's going to trawl the logs to look at what happened with your attempt to reauth your college account today as well, and Karim reports that it's not too difficult to fix the issue with all day events and Exchange either, so hopefully we'll have that
+ fixed on production for you folks next week.</div>
+<div><br>
+</div>
+<div>Excited that you can start testing with a customer! Let us know what we can do to support.</div>
+<span><font color="#888888">
+<div>--Christine</div>
+</font></span>
+<div>
+<div>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+On Mar 20 2015, at 11:54 am, Andrew Lee &lt;<a href="mailto:andrew@esper.com" target="_blank">andrew@esper.com</a>&gt; wrote:
+<br>
+<div dir="ltr">Hi Christine,<br>
+<br>
+<div>Just wanted to check on whether Karim was able to come up with a fix for the second issue. We can begin testing if you guys have a sense as to what's happening there.</div>
+<div><br>
+</div>
+<div>-Andrew</div>
+</div>
+<br>
+<div class="gmail_quote">On Tue, Mar 17, 2015 at 2:06 PM Christine Spang &lt;<a href="mailto:spang@nilas.com" target="_blank">spang@nilas.com</a>&gt; wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">Hi Jeff,
+<div><br>
+</div>
+<div>1. The deletes issue was due to a bad code deploy yesterday, which we have already fixed. Sounds like you were testing right around the time of the deploy!</div>
+<div><br>
+</div>
+<div>2. Karim's going to take a look at this later today.</div>
+<div><br>
+</div>
+<div>re: Andrew's school Exchange account, we'll take a look at the logs. We also have a project planned to make the Exchange sign-in process less arcane, which will make whatever is going wrong in cases like this more apparent to the user signing in.</div>
+<div><br>
+</div>
+<div>I'll see if we can take a look at the all day events issue this week as well.</div>
+</div>
+<div dir="ltr">
+<div><br>
+</div>
+<div>--Christine</div>
+<div><br>
+</div>
+<div><br>
+</div>
+</div>
+<div class="gmail_extra"><br>
+<div class="gmail_quote">On Tue, Mar 17, 2015 at 1:01 PM, Jeff Meister <span dir="ltr">
+&lt;<a href="mailto:jeff@esper.com" target="_blank">jeff@esper.com</a>&gt;</span> wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">
+<div>
+<div>
+<div>
+<div>
+<div>
+<div>
+<div>
+<div>Hello Michael and other Nilas folks,<br>
+<br>
+</div>
+I've done some testing of your latest fixes, and I'm happy to report that the sync anomalies from before are no longer occurring! With two Office 365 test accounts, Nilas has been syncing consistently both ways, although I did run into a few bugs, listed below.
+ These things were all working in the past, so hopefully they are not huge issues to fix. These two are the most important for us:<br>
+<br>
+</div>
+1. Event deletions aren't propagating from Nilas to my O365 calendar anymore. The Nilas API call to delete the event succeeds (with a response of null), and I see my delete in the delta sync, but the event remains in O365. I waited a while to see if the deletion
+ was simply queued up, but it never went through.<br>
+<br>
+</div>
+2. When I add a guest on my O365 event that only has an email address (no name), the Nilas event I get has the email address in the participant name field and the email field set to null. This didn't happen in the past; I remember that guests were working both
+ ways in previous tests. A guest added to Nilas shows up fine on the O365 side.<br>
+<br>
+</div>
+<div>This one is less important, since the initial customer we'll be trying out is on O365:<br>
+</div>
+<div><br>
+</div>
+- I can't sign in with Andrew's school Exchange account anymore. Maybe I'm doing something wrong, but I think I used the same login procedure that worked last time... it just tells me &quot;Sorry, an error occurred.&quot; Can you see anything in your logs for account
+<a href="mailto:alee07@cmc.edu" target="_blank">alee07@cmc.edu</a> that might explain more?<br>
+<br>
+</div>
+And finally, this one is not a regression, it's an issue I've seen before that I just wanted to bring to your attention again:<br>
+<br>
+- All-day events show up on my O365 calendars at the wrong time. Here is what I said before:<br>
+&quot;If I create an <span>all</span>-<span>day</span> <span>event</span> through Nilas, say on Thursday, then I get the expected API response with a datespan of 2015-02-12 to 2015-02-13, but the
+<span>event</span> I see on O365 is actually from 2015-02-11 4:00pm to 2015-02-12 4:00pm. My calendar is in Pacific Time, if that helps. I've only seen this happen for
+<span>all</span>-<span>day</span> <span>events</span>.&quot;<br>
+</div>
+I'm repeating this because now I'm noticing that the event is from 5pm to 5pm, and we're in DST now but weren't when I reported 4pm to 4pm before. So, I suspect the bug is related to timezone handling for all-day events.<br>
+<br>
+</div>
+Let me know if you need any more details. Thanks again!<span><font color="#888888"><br>
+</font></span></div>
+<span><font color="#888888">Jeff<br>
+</font></span></div>
+<div>
+<div>
+<div class="gmail_extra"><br>
+<div class="gmail_quote">On Sun, Mar 15, 2015 at 9:30 PM, Michael Grinich <span dir="ltr">
+&lt;<a href="mailto:mg@nilas.com" target="_blank">mg@nilas.com</a>&gt;</span> wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">Hi Jeff,
+<div><br>
+</div>
+<div>Regarding the ActiveSync protocol, I usually invoke&nbsp;Hanlon's razor. :(</div>
+<div><br>
+</div>
+<div>We *definitely* want you to have a big success with this first account! Did you find any bugs or issues this weekend? What can we do to help you roll-it out?</div>
+<div><br>
+</div>
+<div>Exciting stuff!&nbsp;</div>
+<span><font color="#888888">
+<div><br>
+</div>
+<div>--Michael</div>
+<div><br>
+</div>
+<div><br>
+</div>
+<div><br>
+</div>
+</font></span></div>
+<div>
+<div>
+<div class="gmail_extra"><br>
+<div class="gmail_quote">On Fri, Mar 13, 2015 at 2:28 PM, Jeff Meister <span dir="ltr">
+&lt;<a href="mailto:jeff@esper.com" target="_blank">jeff@esper.com</a>&gt;</span> wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+<div dir="ltr">
+<div>
+<div>
+<div>Hi Christine, So the Exchange server sometimes decides to just change event IDs on you, and you have to detect this situation by comparing the data fields? Wow, that almost sounds like Microsoft is breaking compatibility for third parties intentionally.
+ I'm really glad you were able to figure it out!<br>
+<br>
+</div>
+I'll be doing some more testing this afternoon and over the weekend, so I'll let you know if I run into other issues, but I think this was the last major thing blocking us. A few weeks ago, I successfully demonstrated creation, modification, and deletion of
+ events being propagated both ways between Nilas and an O365 account. For whatever reason, the event ID changing didn't occur that time. And I suspect that my previous issues with occasional floods of sync data, which included duplicates of old events, were
+ due to the same ID-changing issue you just fixed.<br>
+<br>
+So, if everything looks fine with my test accounts over the weekend, I think our next step will be to try hooking up a real customer. We currently have an executive who we're serving separately with regular MS Exchange software, and our assistants would really
+ like to use our own software instead, which Nilas integration will enable. But I've been worried about the possibility of bugs either messing up the executive's live calendar or confusing the assistants on our end, which is why I've been using fake test accounts.
+ If the anomalies don't appear again, I'll feel more confident about hooking up this customer.<br>
+<br>
+</div>
+Thank you,<br>
+</div>
+Jeff<br>
+</div>
+<div>
+<div>
+<div class="gmail_extra"><br>
+<div class="gmail_quote">On Thu, Mar 12, 2015 at 5:40 PM, Christine Spang &lt;<a href="mailto:spang@nilas.com">spang@nilas.com</a>&gt; wrote:<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex; border-left:1px #ccc solid; padding-left:1ex">
+Hi Andrew and Jeff, I wanted to let you know that we shipped this fix to production this week as expected. If you see any more anomalies with event changes in delta sync responses, let us know. It's still possible that if you change every single part of an
+ event (title, location, start time, end time), the ID could change in the API response---but modifications to a subset of attributes should retain the same ID. What are your next testing steps? I'm curious how far along you folks are, and what else may be
+ blocking you. --Christine On Fri, Mar 6, 2015 at 8:30 PM, Andrew Lee &lt;<a href="mailto:andrew@esper.com">andrew@esper.com</a>&gt; wrote: Thanks so much for the update Christine! On Fri, Mar 6, 2015 at 7:51 PM Christine Spang &lt;<a href="mailto:spang@nilas.com">spang@nilas.com</a>&gt;
+ wrote: Hi Andrew, We shipped this fix to our staging environment today, and expect to ship it to production next week. Basically, there are some cases in Exchange ActiveSync where event IDs provided by the server may change, and we needed to implement extra
+ heuristics to match events in order to prevent our event IDs from changing as well. As you can imagine, this is pretty tricky to get right, so we've been taking some extra time to test it. I'll let you know when this is live. --Christine On Mar 5, 2015 3:12
+ PM, &quot;Christine Spang&quot; &lt;<a href="mailto:spang@nilas.com">spang@nilas.com</a>&gt; wrote: Hi Andrew, Apologies for the long delay here. Kavya has figured out what's going with the changing IDs for Exchange calendar, and has been working on a fix for a few days now.
+ We don't need any more information from you folks right now. You've been super helpful testing the calendar support. Thanks a ton. --Christine On Thu, Mar 5, 2015 at 1:27 PM, Andrew Lee &lt;<a href="mailto:andrew@esper.com">andrew@esper.com</a>&gt; wrote: Hey guys,&nbsp;
+ Just wanted to check up on the status of your changes related to Nilas/Esper. I took the liberty of creating a separate e-mail thread, since the last one was 61 messages long, kept just the latest two messages that mattered, and removed Tikhon, nilas support,
+ and removed all of your old inboxapp e-mails. Let us know how we can help! -Andrew On Tue, Feb 24, 2015 at 11:18 AM, Christine Spang &lt;<a href="mailto:spang@nilas.com">spang@nilas.com</a>&gt; wrote: Thanks for this report, Jeff. We're looking into it and should
+ have some more info for you soon. On Mon, Feb 23, 2015 at 2:42 PM, Jeff Meister &lt;<a href="mailto:jeff@esper.com">jeff@esper.com</a>&gt; wrote: Hi Christine, I was able to sign in with Andrew's Exchange account the way you explained, so I tried some testing with
+ it today. Event creation and update was working fine in both directions, but then a sync issue popped up again, and I think it might have been triggered by me doing a delete (not sure though). Some old events appeared in my Nilas delta sync, including one
+ duplicate. I went in our logs to investigate, and by searching for the details of the duplicate event, I found that it had been identified in previous syncs by ID &quot;1d2ex1lni3t89w3rxh8d0in9c&quot;... but after a certain point, I stopped seeing that ID, and instead
+ saw ID &quot;1zeaati82ubv706f0sraii380&quot; with the same event details. This ID first appeared in the abnormal sync I received, and I've attached the JSON data that I saw, but here's a summary with (C)reate/(M)odify/(D)elete, ID, and title: D, 4oerzc51uazhwsnb52jbwlrgn
+ C, dd438y3gd0xelvukq3lj6vhax, Lunch time!!! M, ah3q993oiyo3rwtieot25e5v, Wednesday event M, 7nrro21ez0cjsopbcftl0aggo, Friday morning M, 4pqygmkpyylqqvjffqx6gwbec, Friday night M, 2x130rv0h6ujkphj4s5xwwduk, Call with some dude M, 1zeaati82ubv706f0sraii380,
+ Short meeting M, 11kzbfgr3bes717kgv1bjwc02, Look out the window Some of these events are from my testing today, but &quot;Wednesday event&quot;, &quot;Friday morning&quot;, and &quot;Friday night&quot; are from a week or two ago, and I haven't touched them since then. This is what I mean
+ by old events suddenly appearing. Our current implementation actually ignores the data in the delta sync besides the ID, then it goes and looks up the event details using the endpoints based on ID. Looking at the logs, that appears to have worked fine at the
+ time, and the existence of two IDs with the &quot;Short meeting&quot; details explains why I saw a duplicate (our system assumes that new ID = new event). Now, some minutes later, after I tried looking up the details of ID &quot;1d2ex1lni3t89w3rxh8d0in9c&quot; and got &quot;Short
+ meeting&quot; as expected. But when I tried looking up &quot;1zeaati82ubv706f0sraii380&quot;, expecting the same &quot;Short meeting&quot; as I saw in the delta sync... instead I got a different event, &quot;Wednesday event&quot;! Confused, I went to look up the rest of the IDs above, and here's
+ what I got (ID, title): 4oerzc51uazhwsnb52jbwlrgn, N/A (event was deleted) dd438y3gd0xelvukq3lj6vhax, Look out the window ah3q993oiyo3rwtieot25e5v, Friday morning 7nrro21ez0cjsopbcftl0aggo, Friday night 4pqygmkpyylqqvjffqx6gwbec, Call with some dude 2x130rv0h6ujkphj4s5xwwduk,
+ Short meeting 1zeaati82ubv706f0sraii380, Wednesday event 11kzbfgr3bes717kgv1bjwc02, Look out the window It almost looks like an off-by-one pattern, but there are weird swaps too that don't seem to follow any rule. I have no idea what to make of this. I can't
+ find anything in our logs to suggest our side is causing this... the last appearance of e.g. &quot;1zeaati82ubv706f0sraii380&quot; in my log file associates it with &quot;Short meeting&quot;, and I see no API calls that could have put &quot;Wednesday event&quot; data in there. I wish I
+ could reproduce this better and more consistently... hopefully this detail is of some use. I've attached a pretty-printed JSON file containing the sync whose IDs I'm referring to above. Thanks again, Jeff
+</blockquote>
+</div>
+<br>
+</div>
+</div>
+</div>
+</blockquote>
+</div>
+<br>
+</div>
+</div>
+</div>
+</blockquote>
+</div>
+<br>
+</div>
+</div>
+</div>
+</blockquote>
+</div>
+<br>
+</div>
+</blockquote>
+</div>
+</blockquote>
+</div>
+</div>
+</blockquote>
+</div>
+<br>
+</div>
+</div>
+</div>
+</blockquote>
+</div>
+<br>
+</div>
+</div>
+</div>
+</blockquote>
+</div>
+<br>
+</div>
+</div>
+</div>
+</blockquote>
+</div>
+<br>
+</div>
+</blockquote>
+</div>
+</div>
+</div>
+</blockquote>
+</div>
+<br>
+</div>
+</div>
+</div>
+</blockquote>
+</div>
+<br>
+</div>
+</div>
+</div>
+</blockquote>
+</div>
+<br>
+</div>
+</div>
+</div>
+</blockquote>
+</div>
+<br>
+</div>
+</div>
+</div>
+</blockquote>
+</div>
+<br>
+</div>
+</blockquote>
+</div>
+</div>
+</div>
+</blockquote>
+</div>
+<br>
+</div>
+</blockquote>
+</div>
+</div>
+</blockquote>
+</div>
+</div>
+</div>
+</blockquote>
+</div>
+<br>
+</div>
+</blockquote>
+</div>
+</div>
+</div>
+</blockquote>
+</div>
+<br>
+</div>
+</blockquote>
+</blockquote>
+</div>
+</div>
+</blockquote>
+</div>
+<br>
+</div>
+</div>
+</div>
+</blockquote>
+</div>
+<br>
+</div>
+</blockquote>
+</div>
+</div>
+</div>
+</div>
+</blockquote>
+</div>
+<br>
+</div>
+</blockquote>
+</div>
+</blockquote>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</blockquote>
+</div>
+<br>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</blockquote>
+</div>
+<br>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</blockquote>
+</div>
+<br>
+</div>
+</div>
+</div>
+</div>
+</div>
+</blockquote>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</blockquote>
+</div>
+<br>
+</div>
+</div>
+</div>
+</div>
+</div>
+</blockquote>
+</div>
+</div>
+</div>
+</span></div>
+</blockquote>
+</div>
+</div>
+</div>
+</span></div>
+</blockquote>
+</div>
+</div>
+</div>
+</div>
+</div>
+</span></div>
+</blockquote>
+</div>
+<br>
+</div>
+</blockquote>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</blockquote>
+</div>
+<br>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</span>
+</body>
+</html>

@@ -2,7 +2,7 @@ _ = require 'underscore'
 React = require 'react'
 classNames = require 'classnames'
 sanitizeHtml = require 'sanitize-html'
-{Utils, DraftStore} = require 'nylas-exports'
+{Utils, QuotedHTMLParser, DraftStore} = require 'nylas-exports'
 FloatingToolbar = require './floating-toolbar'
 
 linkUUID = 0
@@ -252,14 +252,16 @@ class ContenteditableComponent extends React.Component
     __html: @_applyHTMLDisplayFilters(@props.html)
 
   _applyHTMLDisplayFilters: (html) =>
-    html = @_removeQuotedTextFromHTML(html) unless @props.mode?.showQuotedText
-    return html
+    if @props.mode?.showQuotedText
+      return html
+    else
+      return QuotedHTMLParser.hideQuotedHTML(html)
 
   _unapplyHTMLDisplayFilters: (html) =>
-    html = @_addQuotedTextToHTML(html) unless @props.mode?.showQuotedText
-    return html
-
-
+    if @props.mode?.showQuotedText
+      return html
+    else
+      return QuotedHTMLParser.restoreAnnotatedHTML(html)
 
 
   ######### SELECTION MANAGEMENT ##########
@@ -1003,21 +1005,7 @@ class ContenteditableComponent extends React.Component
 
   _quotedTextClasses: => classNames
     "quoted-text-control": true
-    "no-quoted-text": @_htmlQuotedTextStart() is -1
+    "no-quoted-text": not QuotedHTMLParser.hasQuotedHTML(@props.html)
     "show-quoted-text": @props.mode?.showQuotedText
-
-  _htmlQuotedTextStart: =>
-    @props.html.search(/(<br\/?>)?(<br\/?>)?<[^>]*gmail_quote/)
-
-  _removeQuotedTextFromHTML: (html) =>
-    quoteStart = @_htmlQuotedTextStart()
-    if quoteStart is -1 then return html
-    else return html.substr(0, quoteStart)
-
-  _addQuotedTextToHTML: (innerHTML) =>
-    quoteStart = @_htmlQuotedTextStart()
-    if quoteStart is -1 then return innerHTML
-    else return (innerHTML + @props.html.substr(quoteStart))
-
 
 module.exports = ContenteditableComponent

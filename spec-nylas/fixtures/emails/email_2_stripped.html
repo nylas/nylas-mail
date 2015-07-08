@@ -1,0 +1,68 @@
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
+<style type="text/css" style="display:none;"><!-- P {margin-top:0;margin-bottom:0;} --></style>
+</head>
+<body dir="ltr">
+<div id="divtagdefaultwrapper" style="font-size:10pt;color:#000000;background-color:#FFFFFF;font-family:Arial,Helvetica,sans-serif;">
+<p>It's be great to talk with Jonathan-- feel free to connect us. Thanks.<br>
+</p>
+<p><br>
+</p>
+<p>The bug I mentioned manifested itself like this:<br>
+</p>
+<p><br>
+</p>
+<div class="remarkup-code-block" data-code-lang="text" data-sigil="remarkup-code-block" style="margin: 0px 0px 12px; padding: 0px; border: 0px; white-space: pre; font-family: 'Segoe UI', 'Segoe UI Web Regular', 'Segoe UI Symbol', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; line-height: 18.8500003814697px; background-color: rgb(255, 255, 255);">
+<pre class="remarkup-code" style="margin-top: 0px; margin-bottom: 0px; padding: 8px; border: 1px solid rgb(233, 219, 205); overflow: auto; font-family: Menlo, Consolas, Monaco, monospace; font-stretch: normal; font-size: 10px; line-height: normal; background: rgb(253, 243, 218);">Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/gevent/greenlet.py", line 327, in run
+    result = self._run(*self.args, **self.kwargs)
+  File "/vagrant/inbox/mailsync/backends/imap/generic.py", line 190, in _run
+    fail_classes=self.retry_fail_classes)
+  File "/vagrant/inbox/util/concurrency.py", line 120, in retry_and_report_killed
+    **reset_params)()
+  File "/vagrant/inbox/util/concurrency.py", line 73, in wrapped
+    return func(*args, **kwargs)
+  File "/vagrant/inbox/mailsync/backends/imap/generic.py", line 217, in _run_impl
+    self.state = self.state_handlers[old_state]()
+  File "/vagrant/inbox/util/concurrency.py", line 73, in wrapped
+    return func(*args, **kwargs)
+  File "/vagrant/inbox/mailsync/backends/imap/generic.py", line 270, in initial_sync
+    self.initial_sync_impl(crispin_client)
+  File "/vagrant/inbox/mailsync/backends/imap/generic.py", line 293, in initial_sync_impl
+    remote_uids = crispin_client.all_uids()
+  File "/vagrant/inbox/crispin.py", line 489, in all_uids
+    fetch_result = self.conn.search(['ALL', 'UID'])
+  File "/usr/local/lib/python2.7/dist-packages/imapclient/imapclient.py", line 588, in search
+    return self._search(normalise_search_criteria(criteria), charset)
+  File "/usr/local/lib/python2.7/dist-packages/imapclient/imapclient.py", line 621, in _search
+    for item in parse_response(data):
+  File "/usr/local/lib/python2.7/dist-packages/imapclient/response_parser.py", line 46, in parse_response
+    return tuple(gen_parsed_response(data))
+  File "/usr/local/lib/python2.7/dist-packages/imapclient/response_parser.py", line 56, in gen_parsed_response
+    for token in src:
+  File "/usr/local/lib/python2.7/dist-packages/imapclient/response_lexer.py", line 118, in __iter__
+    for tok in self.read_token_stream(iter(source)):
+  File "/usr/local/lib/python2.7/dist-packages/imapclient/response_lexer.py", line 149, in __iter__
+    return PushableIterator(six.iterbytes(self.src_text))
+  File "/usr/local/lib/python2.7/dist-packages/imapclient/six.py", line 597, in iterbytes
+    return (ord(byte) for byte in buf)
+TypeError: 'NoneType' object is not iterable
+&lt;FolderSyncEngine at 0x5e4e550&gt; failed with TypeError</pre>
+<div><br>
+</div>
+</div>
+<p><br>
+</p>
+<p>But turns out Tom fixed it <a href="https://bitbucket.org/mjs0/imapclient/commits/1de7a0b63367d49587b0454804d4e29079f84f0b?at=default">
+here</a>.&nbsp;&nbsp;I don't think it's yet on PyPI.<br>
+</p>
+<p><br>
+</p>
+<p><br>
+</p>
+<p><br>
+</p>
+
+</div>
+
+</body>

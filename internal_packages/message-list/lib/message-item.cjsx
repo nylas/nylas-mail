@@ -7,15 +7,14 @@ MessageTimestamp = require "./message-timestamp"
 MessageControls = require './message-controls'
 {Utils,
  Actions,
- NylasAPI,
  MessageUtils,
+ QuotedHTMLParser,
  ComponentRegistry,
  FileDownloadStore} = require 'nylas-exports'
 {RetinaImg,
  InjectedComponentSet,
  InjectedComponent} = require 'nylas-component-kit'
 Autolinker = require 'autolinker'
-remote = require 'remote'
 
 TransparentPixel = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNikAQAACIAHF/uBd8AAAAASUVORK5CYII="
 MessageBodyWidth = 740
@@ -145,63 +144,8 @@ class MessageItem extends React.Component
 
   _quotedTextClasses: => classNames
     "quoted-text-control": true
-    'no-quoted-text': (Utils.quotedTextIndex(@props.message.body) is -1)
+    'no-quoted-text': not QuotedHTMLParser.hasQuotedHTML(@props.message.body)
     'show-quoted-text': @state.showQuotedText
-
-  _onReport: (issueType) =>
-    {Contact, Message, DatabaseStore, NamespaceStore} = require 'nylas-exports'
-
-    draft = new Message
-      from: [NamespaceStore.current().me()]
-      to: [new Contact(name: "Nylas Team", email: "feedback@nylas.com")]
-      date: (new Date)
-      draft: true
-      subject: "Feedback - Message Display Issue (#{issueType})"
-      namespaceId: NamespaceStore.current().id
-      body: @props.message.body
-
-    DatabaseStore.persistModel(draft).then =>
-      DatabaseStore.localIdForModel(draft).then (localId) =>
-        Actions.sendDraft(localId)
-
-        dialog = remote.require('dialog')
-        dialog.showMessageBox remote.getCurrentWindow(), {
-          type: 'warning'
-          buttons: ['OK'],
-          message: "Thank you."
-          detail: "The contents of this message have been sent to the Edgehill team and we added to a test suite."
-        }
-
-  _onShowOriginal: =>
-    fs = require 'fs'
-    path = require 'path'
-    BrowserWindow = remote.require('browser-window')
-    app = remote.require('app')
-    tmpfile = path.join(app.getPath('temp'), @props.message.id)
-
-    NylasAPI.makeRequest
-      headers:
-        Accept: 'message/rfc822'
-      path: "/n/#{@props.message.namespaceId}/messages/#{@props.message.id}"
-      json:false
-      success: (body) =>
-        fs.writeFile tmpfile, body, =>
-          window = new BrowserWindow(width: 800, height: 600, title: "#{@props.message.subject} - RFC822")
-          window.loadUrl('file://'+tmpfile)
-
-  _onShowActionsMenu: =>
-    remote = require('remote')
-    Menu = remote.require('menu')
-    MenuItem = remote.require('menu-item')
-
-    # Todo: refactor this so that message actions are provided
-    # dynamically. Waiting to see if this will be used often.
-    menu = new Menu()
-    menu.append(new MenuItem({ label: 'Report Issue: Quoted Text', click: => @_onReport('Quoted Text')}))
-    menu.append(new MenuItem({ label: 'Report Issue: Rendering', click: => @_onReport('Rendering')}))
-    menu.append(new MenuItem({ type: 'separator'}))
-    menu.append(new MenuItem({ label: 'Show Original', click: => @_onShowOriginal()}))
-    menu.popup(remote.getCurrentWindow())
 
   _renderHeaderExpansionControl: =>
     if @state.detailedHeaders

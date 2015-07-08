@@ -1,0 +1,25 @@
+Outlook with a reply
+
+
+ ------------------------------
+
+*From:* Google Apps Sync Team [mailto:mail-noreply@google.com]
+*Sent:* Thursday, February 09, 2012 1:36 PM
+*To:* jow@xxxx.com
+*Subject:* Google Apps Sync was updated!
+
+
+
+Dear Google Apps Sync user,
+
+Google Apps Sync for Microsoft Outlook® was recently updated. Your computer
+now has the latest version (version 2.5). This release includes bug fixes
+to improve product reliability. For more information about these and other
+changes, please see the help article here:
+
+http://www.google.com/support/a/bin/answer.py?answer=153463
+
+Sincerely,
+
+The Google Apps Sync Team.
+

@@ -217,37 +217,6 @@ Utils =
 
     return -1
 
-  stripQuotedText: (html) ->
-    return html if Utils.quotedTextIndex(html) is -1
-
-    # Split the email into lines and remove lines that begin with > or &gt;
-    lines = html.split(/(\n|<br[^>]*>)/)
-
-    # Remove lines that are newlines - we'll add them back in when we join.
-    # We had to break them out because we want to preserve <br> elements.
-    lines = _.reject lines, (line) -> line == '\n'
-
-    regexs = [
-      /\n[ ]*(>|&gt;)/, # Plaintext lines beginning with >
-      /<[br|p][ ]*>[\n]?[ ]*[>|&gt;]/i, # HTML lines beginning with >
-      /[\n|>]On .* wrote:[\n|<]/, #On ... wrote: on it's own line
-    ]
-    for ii in [lines.length-1..0] by -1
-      continue if not lines[ii]?
-      for regex in regexs
-        # Never remove a line with a blockquote start tag, because it
-        # quotes multiple lines, not just the current line!
-        if lines[ii].match("<blockquote")
-          break
-        if lines[ii].match(regex)
-          lines.splice(ii,1)
-          # Remove following line if its just a spacer-style element
-          lines.splice(ii,1) if lines[ii]?.match('<br[^>]*>')?[0] is lines[ii]
-          break
-
-    # Return remaining compacted email body
-    lines.join('\n')
-
   # Returns true if the message contains "Forwarded" or "Fwd" in the first
   # 250 characters.  A strong indicator that the quoted text should be
   # shown. Needs to be limited to first 250 to prevent replies to
