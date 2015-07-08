@@ -7,6 +7,7 @@ ReactTestUtils = React.addons.TestUtils
  File,
  Thread,
  Utils,
+ QuotedHTMLParser,
  FileDownloadStore} = require "nylas-exports"
 
 EmailFrameStub = React.createClass({render: -> <div></div>})
@@ -253,7 +254,7 @@ describe "MessageItem", ->
       expect(React.findDOMNode(toggle).className.indexOf('show-quoted-text')).toBe(-1)
 
     it "should have the `no quoted text` class if there is no quoted text in the message", ->
-      spyOn(Utils, 'quotedTextIndex').andCallFake -> -1
+      spyOn(QuotedHTMLParser, 'hasQuotedHTML').andReturn false
 
       @createComponent()
       toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@component, 'quoted-text-control')

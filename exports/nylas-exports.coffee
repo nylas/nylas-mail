@@ -75,6 +75,10 @@ Exports =
   SalesforceObject: require '../src/flux/models/salesforce-object'
   SalesforceSchema: require '../src/flux/models/salesforce-schema'
 
+  # Services
+  QuotedPlainTextParser: require '../src/services/quoted-plain-text-parser'
+  QuotedHTMLParser: require '../src/services/quoted-html-parser'
+
 # Also include all of the model classes
 for key, klass of Utils.modelClassMap()
   Exports[klass.name] = klass

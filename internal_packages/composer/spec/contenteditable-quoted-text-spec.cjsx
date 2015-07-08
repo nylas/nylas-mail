@@ -50,7 +50,7 @@ describe "ContenteditableComponent", ->
   describe "when showQuotedText is false", ->
     it "should only display HTML up to the beginning of the quoted text", ->
       @editDiv = ReactTestUtils.findRenderedDOMComponentWithAttr(@componentWithQuote, 'contentEditable')
-      expect(React.findDOMNode(@editDiv).innerHTML.indexOf('gmail_quote') >= 0).toBe(false)
+      expect(React.findDOMNode(@editDiv).innerHTML.indexOf('nylas-quoted-text-segment') >= 0).toBe(true)
 
   describe "when showQuotedText is true", ->
     beforeEach ->
@@ -71,7 +71,7 @@ describe "ContenteditableComponent", ->
 
   describe "when the html is changed", ->
     beforeEach ->
-      @changedHtmlWithoutQuote = 'Changed <strong>NEW 1 HTML</strong>'
+      @changedHtmlWithoutQuote = '<head></head><body>Changed <strong>NEW 1 HTML</strong><br><br></body>'
       @changedHtmlWithQuote = 'Changed <strong>NEW 1 HTML</strong><br><br><blockquote class="gmail_quote">QUOTE</blockquote>'
 
       @performEdit = (newHTML, component = @componentWithQuote) =>
@@ -105,10 +105,10 @@ describe "ContenteditableComponent", ->
         @componentWithQuote.setState(showQuotedText: false)
         @performEdit(@changedHtmlWithoutQuote)
         ev = @onChange.mostRecentCall.args[0]
-        expect(ev.target.value).toEqual(@changedHtmlWithQuote)
+        expect(ev.target.value).toEqual(@changedHtmlWithoutQuote)
 
       it "should work if the component does not contain quoted text", ->
-        changed = 'Hallooo! <strong>NEW 1 HTML HTML HTML</strong><br>'
+        changed = '<head></head><body>Hallooo! <strong>NEW 1 HTML HTML HTML</strong><br></body>'
         @component.setState(showQuotedText: true)
         @performEdit(changed, @component)
         ev = @onChange.mostRecentCall.args[0]

@@ -1,0 +1,49 @@
+<head></head><body>
+<div>
+  Hi,<br>
+  
+
+  <p>
+You can list the keys for the bucket and call delete for each. Or if you
+put the keys (and kept track of them in your test) you can delete them
+one at a time (without incurring the cost of calling list first.)
+  </p>
+  <p>
+Something like:
+<br>
+</p><pre>
+        String bucket = "my_bucket";
+        BucketResponse bucketResponse = riakClient.listBucket(bucket);
+        RiakBucketInfo bucketInfo = bucketResponse.getBucketInfo();
+        
+        for(String key : bucketInfo.getKeys()) {
+            riakClient.delete(bucket, key);
+        }
+</pre>
+  <p></p>
+
+  <p>
+would do it.
+<br>
+See also 
+<br>
+http://wiki.basho.com/REST-API.html#Bucket-operations
+<br>
+which says 
+<br>
+"At the moment there is no straightforward way to delete an entire
+Bucket. There is, however, an open ticket for the feature. To delete all
+the keys in a bucket, you’ll need to delete them all individually."
+  </p>
+
+
+<br>
+<br>
+<br>
+<br>
+_______________________________________________
+riak-users mailing list
+riak-users@lists.basho.com
+http://lists.basho.com/mailman/listinfo/riak-users_lists.basho.com
+
+</div></body>

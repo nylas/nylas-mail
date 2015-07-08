@@ -3,9 +3,10 @@ _ = require 'underscore'
 
 {Utils,
  Actions,
- UndoManager,
  DraftStore,
+ UndoManager,
  FileUploadStore,
+ QuotedHTMLParser,
  FileDownloadStore} = require 'nylas-exports'
 
 {ResizableRegion,
@@ -507,14 +508,15 @@ class ComposerView extends React.Component
       })
       return
 
-    body = draft.body.toLowerCase().trim()
+    body = QuotedHTMLParser.removeQuotedHTML(draft.body.toLowerCase().trim())
     forwarded = Utils.isForwardedMessage(draft)
-    quotedTextIndex = Utils.quotedTextIndex(body)
     hasAttachment = (draft.files ? []).length > 0
 
-    # Note: In a completely empty reply, quotedTextIndex is 8
-    # due to opening elements.
-    bodyIsEmpty = body.length is 0 or 0 <= quotedTextIndex <= 8
+    # We insert empty br tags before quoted text.
+    # Our quoted text parser adds additional document elements
+    onlyHasBr = (/^(<br[^>]*>)+$/gi).test(body)
+    onlyHasDoc = (/^<head><\/head><body><\/body>$/i).test(body)
+    bodyIsEmpty = body.length is 0 or onlyHasBr or onlyHasDoc
 
     warnings = []
 
@@ -551,14 +553,8 @@ class ComposerView extends React.Component
     Actions.sendDraft(@props.localId)
 
   _mentionsAttachment: (body) =>
-    body = body.toLowerCase().trim()
-    attachIndex = body.indexOf("attach")
-    if attachIndex >= 0
-      quotedTextIndex = Utils.quotedTextIndex(body)
-      if quotedTextIndex >= 0
-        return (attachIndex < quotedTextIndex)
-      else return true
-    else return false
+    body = QuotedHTMLParser.removeQuotedHTML(body.toLowerCase().trim())
+    return body.indexOf("attach") >= 0
 
   _destroyDraft: =>
     Actions.destroyDraft(@props.localId)

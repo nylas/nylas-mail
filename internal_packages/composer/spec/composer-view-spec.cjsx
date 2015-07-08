@@ -329,7 +329,7 @@ describe "populated composer", ->
         useDraft.call @,
           to: [u1]
           subject: "Hello World"
-          body: "<br><br><blockquote class='gmail_quote'>This is my quoted text!</blockquote>"
+          body: "<head></head><body></body>"
         makeComposer.call(@)
         @composer._sendDraft()
         expect(Actions.sendDraft).not.toHaveBeenCalled()
@@ -400,11 +400,11 @@ describe "populated composer", ->
       it "warns", -> warn.call(@, "Check out the attached file")
       it "warns", -> warn.call(@, "I've added an attachment")
       it "warns", -> warn.call(@, "I'm going to attach the file")
-      it "warns", -> warn.call(@, "Hey attach me <div class='gmail_quote'>sup</div>")
+      it "warns", -> warn.call(@, "Hey attach me <blockquote class='gmail_quote'>sup</blockquote>")
 
       it "doesn't warn", -> noWarn.call(@, "sup yo")
       it "doesn't warn", -> noWarn.call(@, "Look at the file")
-      it "doesn't warn", -> noWarn.call(@, "Hey there <div class='gmail_quote'>attach</div>")
+      it "doesn't warn", -> noWarn.call(@, "Hey there <blockquote class='gmail_quote'>attach</blockquote>")
 
     it "doesn't show a warning if you've attached a file", ->
       useDraft.call @,

@@ -1,0 +1,55 @@
+Oh thanks.
+
+Having the function would be great.
+
+-Abhishek Kona
+
+On 01/03/11 7:07 PM, Russell Brown wrote:
+> Hi,
+> On Tue, 2011-03-01 at 18:02 +0530, Abhishek Kona wrote:
+>> Hi folks
+>>
+>> What is the best way to clear a Riak bucket of all key, values after
+>> running a test?
+>> I am currently using the Java HTTP API.
+> You can list the keys for the bucket and call delete for each. Or if you
+> put the keys (and kept track of them in your test) you can delete them
+> one at a time (without incurring the cost of calling list first.)
+>
+> Something like:
+>
+>          String bucket = "my_bucket";
+>          BucketResponse bucketResponse = riakClient.listBucket(bucket);
+>          RiakBucketInfo bucketInfo = bucketResponse.getBucketInfo();
+>
+>          for(String key : bucketInfo.getKeys()) {
+>              riakClient.delete(bucket, key);
+>          }
+>
+>
+> would do it.
+>
+> See also
+>
+> http://wiki.basho.com/REST-API.html#Bucket-operations
+>
+> which says
+>
+> "At the moment there is no straightforward way to delete an entire
+> Bucket. There is, however, an open ticket for the feature. To delete all
+> the keys in a bucket, you’ll need to delete them all individually."
+>
+>> -Abhishek Kona
+>>
+>>
+>> _______________________________________________
+>> riak-users mailing list
+>> riak-users@lists.basho.com
+>> http://lists.basho.com/mailman/listinfo/riak-users_lists.basho.com
+>
+
+
+_______________________________________________
+riak-users mailing list
+riak-users@lists.basho.com
+http://lists.basho.com/mailman/listinfo/riak-users_lists.basho.com

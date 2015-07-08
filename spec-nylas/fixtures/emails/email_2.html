@@ -1,0 +1,148 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
+<style type="text/css" style="display:none;"><!-- P {margin-top:0;margin-bottom:0;} --></style>
+</head>
+<body dir="ltr">
+<div id="divtagdefaultwrapper" style="font-size:10pt;color:#000000;background-color:#FFFFFF;font-family:Arial,Helvetica,sans-serif;">
+<p>It's be great to talk with Jonathan-- feel free to connect us. Thanks.<br>
+</p>
+<p><br>
+</p>
+<p>The bug I mentioned manifested itself like this:<br>
+</p>
+<p><br>
+</p>
+<div class="remarkup-code-block" data-code-lang="text" data-sigil="remarkup-code-block" style="margin: 0px 0px 12px; padding: 0px; border: 0px; white-space: pre; font-family: 'Segoe UI', 'Segoe UI Web Regular', 'Segoe UI Symbol', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; line-height: 18.8500003814697px; background-color: rgb(255, 255, 255);">
+<pre class="remarkup-code" style="margin-top: 0px; margin-bottom: 0px; padding: 8px; border: 1px solid rgb(233, 219, 205); overflow: auto; font-family: Menlo, Consolas, Monaco, monospace; font-stretch: normal; font-size: 10px; line-height: normal; background: rgb(253, 243, 218);">Traceback (most recent call last):
+  File &quot;/usr/local/lib/python2.7/dist-packages/gevent/greenlet.py&quot;, line 327, in run
+    result = self._run(*self.args, **self.kwargs)
+  File &quot;/vagrant/inbox/mailsync/backends/imap/generic.py&quot;, line 190, in _run
+    fail_classes=self.retry_fail_classes)
+  File &quot;/vagrant/inbox/util/concurrency.py&quot;, line 120, in retry_and_report_killed
+    **reset_params)()
+  File &quot;/vagrant/inbox/util/concurrency.py&quot;, line 73, in wrapped
+    return func(*args, **kwargs)
+  File &quot;/vagrant/inbox/mailsync/backends/imap/generic.py&quot;, line 217, in _run_impl
+    self.state = self.state_handlers[old_state]()
+  File &quot;/vagrant/inbox/util/concurrency.py&quot;, line 73, in wrapped
+    return func(*args, **kwargs)
+  File &quot;/vagrant/inbox/mailsync/backends/imap/generic.py&quot;, line 270, in initial_sync
+    self.initial_sync_impl(crispin_client)
+  File &quot;/vagrant/inbox/mailsync/backends/imap/generic.py&quot;, line 293, in initial_sync_impl
+    remote_uids = crispin_client.all_uids()
+  File &quot;/vagrant/inbox/crispin.py&quot;, line 489, in all_uids
+    fetch_result = self.conn.search(['ALL', 'UID'])
+  File &quot;/usr/local/lib/python2.7/dist-packages/imapclient/imapclient.py&quot;, line 588, in search
+    return self._search(normalise_search_criteria(criteria), charset)
+  File &quot;/usr/local/lib/python2.7/dist-packages/imapclient/imapclient.py&quot;, line 621, in _search
+    for item in parse_response(data):
+  File &quot;/usr/local/lib/python2.7/dist-packages/imapclient/response_parser.py&quot;, line 46, in parse_response
+    return tuple(gen_parsed_response(data))
+  File &quot;/usr/local/lib/python2.7/dist-packages/imapclient/response_parser.py&quot;, line 56, in gen_parsed_response
+    for token in src:
+  File &quot;/usr/local/lib/python2.7/dist-packages/imapclient/response_lexer.py&quot;, line 118, in __iter__
+    for tok in self.read_token_stream(iter(source)):
+  File &quot;/usr/local/lib/python2.7/dist-packages/imapclient/response_lexer.py&quot;, line 149, in __iter__
+    return PushableIterator(six.iterbytes(self.src_text))
+  File &quot;/usr/local/lib/python2.7/dist-packages/imapclient/six.py&quot;, line 597, in iterbytes
+    return (ord(byte) for byte in buf)
+TypeError: 'NoneType' object is not iterable
+&lt;FolderSyncEngine at 0x5e4e550&gt; failed with TypeError</pre>
+<div><br>
+</div>
+</div>
+<p><br>
+</p>
+<p>But turns out Tom fixed it <a href="https://bitbucket.org/mjs0/imapclient/commits/1de7a0b63367d49587b0454804d4e29079f84f0b?at=default">
+here</a>.&nbsp;&nbsp;I don't think it's yet on PyPI.<br>
+</p>
+<p><br>
+</p>
+<p><br>
+</p>
+<p><br>
+</p>
+<div style="color: rgb(0, 0, 0);">
+<hr tabindex="-1" style="display:inline-block; width:98%">
+<div id="divRplyFwdMsg" dir="ltr"><font face="Calibri, sans-serif" color="#000000" style="font-size:11pt"><b>From:</b> Menno Smits &lt;menno@freshfoo.com&gt;<br>
+<b>Sent:</b> Wednesday, May 27, 2015 2:41 AM<br>
+<b>To:</b> Michael Grinich<br>
+<b>Cc:</b> Christine Spang<br>
+<b>Subject:</b> Re: Thoughts</font>
+<div>&nbsp;</div>
+</div>
+<div>
+<div>Hi Michael,<br>
+</div>
+<div>&nbsp;</div>
+<div>No problems about the delay. I know what it's like.<br>
+</div>
+<div>&nbsp;</div>
+<div>Another interesting development: after our call I put out my feelers to see if any of the developers that I know and trust would be interested in tackling this work, and I got a bite from a former colleague and good friend, Jonathan Hartley (<a href="http://tartley.com/">http://tartley.com/</a>).
+ He's one of the smartest developers I know - with huge amounts of experience with Python - and is highly disciplined about testing and code quality. On top of that, he's in the process of arranging a move to the US (his wife his American) so that could work
+ well too. He has no experience with IMAP or Go, but these are things I'm confident he could quickly pick up. Due to the pending move to the US, he currently on a short contract so could be available on fairly short notice.<br>
+</div>
+<div>&nbsp;</div>
+<div>Are you interested in talking to him? He could give you a full 5 days a week working on IMAPClient and related bits.<br>
+</div>
+<div>&nbsp;</div>
+<div>- Menno<br>
+</div>
+<div>&nbsp;</div>
+<div>p.s. Can you give me details on the bug that you found today?<br>
+</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<div>On Wed, 27 May 2015, at 06:59, Michael Grinich wrote:<br>
+</div>
+<blockquote type="cite">
+<div>Hi Menno,<br>
+</div>
+<div>&nbsp;</div>
+<div>Sorry for the delay.&nbsp;<br>
+</div>
+<div>&nbsp;</div>
+<div>Having you work dedicated 1 day a week for Nylas would be fantastic. We already have several low-hanging IMAPclient projects we need help with, and there are many places in our sync engine codebase that I think you could make huge contributions to.<br>
+</div>
+<div>&nbsp;</div>
+<div>So in short, yes. We'd be ready to get started immediately. (Already had a bug come up today where IMAPclient fails when folders have no items in them...)<br>
+</div>
+<div>&nbsp;</div>
+<div>--Michael<br>
+</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<blockquote style="margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0.8ex; border-left-width:1px; border-left-style:solid; border-left-color:rgb(204,204,204); padding-left:1ex">
+<div>On May 21 2015, at 7:44 pm, Menno Smits &lt;menno@freshfoo.com&gt; wrote: <br>
+</div>
+<p>Hi Michael,<br>
+</p>
+<p>It was great to talk to you and Christine earlier this week.<br>
+</p>
+<p>I've been thinking about ways that we could make this work. I'm really<br>
+not ready to leave my current position at Canonical but I'd be prepared<br>
+to consider dropping my hours to work for Nylas part-time. Would you<br>
+consider having me work for Nylas one full day a week if I could<br>
+negotiate my hours down to 4 days a week at Canonical? I think they<br>
+might be open to that (any less could be a struggle).</p>
+<p>I realise this is probably less of a commitment from me than you'd<br>
+probably like but one day a week would give me much more time to work on<br>
+IMAPClient than I have now. You'll get you the features you need much<br>
+sooner. If this seems workable to you I can start the conversation with<br>
+my managers.</p>
+<p>I'm also writing to a couple top notch developers that I trust about the<br>
+possibility of working with you on this (they're both in London). I<br>
+believe that one in particular could be thinking about leaving his<br>
+current role.</p>
+<p>Cheers,<br>
+Menno</p>
+</blockquote>
+</blockquote>
+<div>&nbsp;</div>
+</div>
+</div>
+</div>
+</body>
+</html>

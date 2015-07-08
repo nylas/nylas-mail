@@ -1,7 +1,7 @@
 React = require 'react'
 _ = require "underscore"
 {EventedIFrame} = require 'nylas-component-kit'
-{Utils} = require 'nylas-exports'
+{QuotedHTMLParser} = require 'nylas-exports'
 
 class EmailFrame extends React.Component
   @displayName = 'EmailFrame'
@@ -63,7 +63,7 @@ class EmailFrame extends React.Component
     if @props.showQuotedText
       email
     else
-      Utils.stripQuotedText(email)
-      
+      QuotedHTMLParser.hideQuotedHTML(email)
+
 
 module.exports = EmailFrame
