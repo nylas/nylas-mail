@@ -76,6 +76,7 @@ class LoginPage extends Page
     <div className="environment-selector">
       <select value={@state.environment} onChange={@_onEnvChange}>
         <option value="development">Development (edgehill-dev, api-staging)</option>
+        <option value="experimental">Experimental (edgehill-staging, api-experimental)</option>
         <option value="staging">Staging (edgehill-staging, api-staging)</option>
         <option value="production">Production (edgehill, api)</option>
       </select>

@@ -91,6 +91,9 @@ class NylasAPI
     else if env in ['staging', 'development']
       @AppID = '54miogmnotxuo5st254trcmb9'
       @APIRoot = 'https://api-staging.nylas.com'
+    else if env in ['experimental']
+      @AppID = 'c5dis00do2vki9ib6hngrjs18'
+      @APIRoot = 'https://api-experimental.nylas.com'
 
     current = {@APIToken, @AppID, @APIRoot}
 

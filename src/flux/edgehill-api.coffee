@@ -18,6 +18,8 @@ class EdgehillAPI
     if env is 'development'
       # @APIRoot = "http://localhost:5009"
       @APIRoot = "https://edgehill-dev.nylas.com"
+    else if env is 'experimental'
+      @APIRoot = "https://edgehill-staging.nylas.com"
     else if env is 'staging'
       @APIRoot = "https://edgehill-staging.nylas.com"
     else

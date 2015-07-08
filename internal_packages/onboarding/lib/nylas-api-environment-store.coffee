@@ -11,7 +11,7 @@ class NylasApiEnvironmentStore extends NylasStore
   getEnvironment: -> atom.config.get('env')
 
   _setEnvironment: (env) ->
-    throw new Error("Environment #{env} is not allowed") unless env in ['development', 'staging', 'production']
+    throw new Error("Environment #{env} is not allowed") unless env in ['development', 'experimental', 'staging', 'production']
     atom.config.set('env', env)
     @trigger()
 
