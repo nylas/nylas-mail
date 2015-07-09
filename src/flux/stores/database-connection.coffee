@@ -32,9 +32,11 @@ class DatabaseConnection
     @_isConnected = false
     databaseManager = remote.getGlobal('application').databaseManager
 
-    ## TODO Make this a nicer migration-based system
-    if atom.isMainWindow()
-      databaseManager.addSetupQueries(@_databasePath, @_setupQueries())
+    # TODO Make this a nicer migration-based system
+    # It's important these queries always get added. Don't worry, they'll
+    # only run if the DB doesn't exist yet, and even if they do run they
+    # all have `IF NOT EXISTS` clauses in them.
+    databaseManager.addSetupQueries(@_databasePath, @_setupQueries())
 
     databaseManager.prepare @_databasePath, =>
       @_isConnected = true
