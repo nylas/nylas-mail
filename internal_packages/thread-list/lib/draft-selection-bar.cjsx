@@ -11,5 +11,4 @@ class DraftSelectionBar extends React.Component
       className="draft-list"
       collection="draft" />
 
-
 module.exports = DraftSelectionBar

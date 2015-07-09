@@ -320,6 +320,7 @@ class Actions
   @archiveAndPrevious: ActionScopeWindow
   @toggleStarSelection: ActionScopeWindow
   @toggleStarFocused: ActionScopeWindow
+  @deleteSelection: ActionScopeWindow
 
   ###
   Public: Updates the search query in the app's main search bar with the provided query text.

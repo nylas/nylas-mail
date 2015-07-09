@@ -3,6 +3,7 @@ React = require "react"
 {ComponentRegistry, WorkspaceStore} = require "nylas-exports"
 
 {DownButton, UpButton, ThreadBulkArchiveButton, ThreadBulkStarButton} = require "./thread-buttons"
+{DraftDeleteButton} = require "./draft-buttons"
 ThreadSelectionBar = require './thread-selection-bar'
 ThreadList = require './thread-list'
 
@@ -41,6 +42,9 @@ module.exports =
     ComponentRegistry.register ThreadBulkStarButton,
       role: 'thread:BulkAction'
 
+    ComponentRegistry.register DraftDeleteButton,
+      role: 'draft:BulkAction'
+
   deactivate: ->
     ComponentRegistry.unregister DraftList
     ComponentRegistry.unregister DraftSelectionBar
@@ -49,3 +53,4 @@ module.exports =
     ComponentRegistry.unregister ThreadBulkArchiveButton
     ComponentRegistry.unregister DownButton
     ComponentRegistry.unregister UpButton
+    ComponentRegistry.unregister DraftDeleteButton
