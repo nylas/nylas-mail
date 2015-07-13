@@ -65,6 +65,22 @@ class DraftStore
     @_draftSessions = {}
     @_extensions = []
 
+    # We would ideally like to be able to calculate the sending state
+    # declaratively from the existence of the SendDraftTask on the
+    # TaskQueue.
+    #
+    # Unfortunately it takes a while for the Task to end up on the Queue.
+    # Before it's there, the Draft session is fetched, changes are
+    # applied, it's saved to the DB, and performLocal is run. In the
+    # meantime, several triggers from the DraftStore may fire (like when
+    # it's saved to the DB). At the time of those triggers, the task is
+    # not yet on the Queue and the DraftStore incorrectly says
+    # `isSendingDraft` is false.
+    #
+    # As a result, we keep track of the intermediate time between when we
+    # request to queue something, and when it appears on the queue.
+    @_pendingEnqueue = {}
+
     ipc.on 'mailto', @_onHandleMailtoLink
 
     # TODO: Doesn't work if we do window.addEventListener, but this is
@@ -99,8 +115,8 @@ class DraftStore
   isSendingDraft: (draftLocalId) ->
     if atom.isMainWindow()
       task = TaskQueue.findTask(SendDraftTask, {draftLocalId})
-      return task?
-    else return false
+      return task? or @_pendingEnqueue[draftLocalId]
+    else return @_pendingEnqueue[draftLocalId]
 
   ###
   Composer Extensions
@@ -394,6 +410,7 @@ class DraftStore
 
   # The user request to send the draft
   _onSendDraft: (draftLocalId) =>
+    @_pendingEnqueue[draftLocalId] = true
     @sessionForLocalId(draftLocalId).then (session) =>
       @_runExtensionsBeforeSend(session)
 
@@ -401,14 +418,22 @@ class DraftStore
       session.changes.commit().then =>
 
         task = new SendDraftTask draftLocalId, {fromPopout: @_isPopout()}
+
+        if atom.isMainWindow()
+          # We need to wait for performLocal to finish before `trigger`ing.
+          # Only when `performLocal` is done will the task be on the
+          # TaskQueue. When we `trigger` listeners should be able to call
+          # `isSendingDraft` and have it accurately return true.
+          task.waitForPerformLocal().then =>
+            # As far as this window is concerned, we're not making any more
+            # edits and are destroying the session. If there are errors down
+            # the line, we'll make a new session and handle them later
+            @_doneWithSession(session)
+            @_pendingEnqueue[draftLocalId] = false
+            @trigger()
+
         Actions.queueTask(task)
-
-        # As far as this window is concerned, we're not making any more
-        # edits and are destroying the session. If there are errors down
-        # the line, we'll make a new session and handle them later
         @_doneWithSession(session)
-        @trigger()
-
         atom.close() if @_isPopout()
 
   _isPopout: ->

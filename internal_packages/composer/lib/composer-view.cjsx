@@ -493,7 +493,11 @@ class ComposerView extends React.Component
   _sendDraft: (options = {}) =>
     return unless @_proxy
 
-    return if @state.isSending
+    # We need to check the `DraftStore` instead of `@state.isSending`
+    # because the `DraftStore` is immediately and synchronously updated as
+    # soon as this function fires. Since `setState` is asynchronous, if we
+    # used that as our only check, then we might get a false reading.
+    return if DraftStore.isSendingDraft(@props.localId)
 
     draft = @_proxy.draft()
     remote = require('remote')
@@ -569,7 +573,6 @@ class ComposerView extends React.Component
   _showAndFocusCc: =>
     @setState {showcc: true}
     @focus('textFieldCc')
-
 
   _onSendingStateChanged: =>
     @setState isSending: DraftStore.isSendingDraft(@props.localId)

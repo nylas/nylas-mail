@@ -48,9 +48,10 @@ draftStoreProxyStub = (localId, returnedDraft) ->
   listen: -> ->
   draft: -> (returnedDraft ? new Message(draft: true))
   draftLocalId: localId
+  cleanup: ->
   changes:
     add: ->
-    commit: ->
+    commit: -> Promise.resolve()
     applyToModel: ->
 
 searchContactStub = (email) ->
@@ -100,33 +101,37 @@ describe "A blank composer view", ->
 
     it "shows and focuses on bcc field when already open", ->
 
+# This will setup the mocks necessary to make the composer element (once
+# mounted) think it's attached to the given draft. This mocks out the
+# proxy system used by the composer.
+DRAFT_LOCAL_ID = "local-123"
+useDraft = (draftAttributes={}) ->
+  @draft = new Message _.extend({draft: true, body: ""}, draftAttributes)
+  draft = @draft
+  proxy = draftStoreProxyStub(DRAFT_LOCAL_ID, @draft)
+  spyOn(DraftStore, "sessionForLocalId").andCallFake -> new Promise (resolve, reject) -> resolve(proxy)
+  spyOn(ComposerView.prototype, "componentWillMount").andCallFake ->
+    @_prepareForDraft(DRAFT_LOCAL_ID)
+    @_setupSession(proxy)
+
+useFullDraft = ->
+  useDraft.call @,
+    from: [u1]
+    to: [u2]
+    cc: [u3, u4]
+    bcc: [u5]
+    subject: "Test Message 1"
+    body: "Hello <b>World</b><br/> This is a test"
+
+makeComposer = ->
+  @composer = ReactTestUtils.renderIntoDocument(
+    <ComposerView localId={DRAFT_LOCAL_ID} />
+  )
+
 describe "populated composer", ->
-  # This will setup the mocks necessary to make the composer element (once
-  # mounted) think it's attached to the given draft. This mocks out the
-  # proxy system used by the composer.
-  DRAFT_LOCAL_ID = "local-123"
-  useDraft = (draftAttributes={}) ->
-    @draft = new Message _.extend({draft: true, body: ""}, draftAttributes)
-    draft = @draft
-    proxy = draftStoreProxyStub(DRAFT_LOCAL_ID, @draft)
-    spyOn(DraftStore, "sessionForLocalId").andCallFake -> new Promise (resolve, reject) -> resolve(proxy)
-    spyOn(ComposerView.prototype, "componentWillMount").andCallFake ->
-      @_prepareForDraft(DRAFT_LOCAL_ID)
-      @_setupSession(proxy)
-
-  useFullDraft = ->
-    useDraft.call @,
-      from: [u1]
-      to: [u2]
-      cc: [u3, u4]
-      bcc: [u5]
-      subject: "Test Message 1"
-      body: "Hello <b>World</b><br/> This is a test"
-
-  makeComposer = ->
-    @composer = ReactTestUtils.renderIntoDocument(
-      <ComposerView localId={DRAFT_LOCAL_ID} />
-    )
+  beforeEach ->
+    @isSending = {state: false}
+    spyOn(DraftStore, "isSendingDraft").andCallFake => @isSending.state
 
   describe "When displaying info from a draft", ->
     beforeEach ->
@@ -299,13 +304,6 @@ describe "populated composer", ->
       spyOn(@dialog, "showMessageBox")
       spyOn(Actions, "sendDraft")
 
-    it "doesn't send twice", ->
-      useFullDraft.call(@)
-      makeComposer.call(@)
-      @composer._sendDraft()
-      @composer._sendDraft()
-      expect(Actions.sendDraft.calls.length).toBe 1
-
     it "shows a warning if there are no recipients", ->
       useDraft.call @, subject: "no recipients"
       makeComposer.call(@)
@@ -430,15 +428,12 @@ describe "populated composer", ->
       expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_LOCAL_ID)
       expect(Actions.sendDraft.calls.length).toBe 1
 
-    simulateDraftStore = ->
-      spyOn(DraftStore, "isSendingDraft").andReturn true
-      DraftStore.trigger()
-
     it "doesn't send twice if you double click", ->
       useFullDraft.apply(@); makeComposer.call(@)
       sendBtn = React.findDOMNode(@composer.refs.sendButton)
       ReactTestUtils.Simulate.click sendBtn
-      simulateDraftStore()
+      @isSending.state = true
+      DraftStore.trigger()
       ReactTestUtils.Simulate.click sendBtn
       expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_LOCAL_ID)
       expect(Actions.sendDraft.calls.length).toBe 1
@@ -449,23 +444,23 @@ describe "populated composer", ->
       cover = ReactTestUtils.findRenderedDOMComponentWithClass(@composer, "composer-cover")
       expect(React.findDOMNode(cover).style.display).toBe "none"
       ReactTestUtils.Simulate.click sendBtn
-      simulateDraftStore()
+      @isSending.state = true
+      DraftStore.trigger()
       expect(React.findDOMNode(cover).style.display).toBe "block"
       expect(@composer.state.isSending).toBe true
 
     it "re-enables the composer if sending threw an error", ->
-      sending = null
-      spyOn(DraftStore, "isSendingDraft").andCallFake => return sending
+      @isSending.state = null
       useFullDraft.apply(@); makeComposer.call(@)
       sendBtn = React.findDOMNode(@composer.refs.sendButton)
       ReactTestUtils.Simulate.click sendBtn
 
-      sending = true
+      @isSending.state = true
       DraftStore.trigger()
 
       expect(@composer.state.isSending).toBe true
 
-      sending = false
+      @isSending.state = false
       DraftStore.trigger()
 
       expect(@composer.state.isSending).toBe false
@@ -577,3 +572,26 @@ describe "populated composer", ->
 
       el = ReactTestUtils.findRenderedDOMComponentWithClass(@composer, 'image-file-upload')
       expect(el).toBeDefined()
+
+describe "when the DraftStore `isSending` isn't stubbed out", ->
+  beforeEach ->
+    DraftStore._pendingEnqueue = {}
+
+  it "doesn't send twice in a popout", ->
+    spyOn(Actions, "queueTask")
+    spyOn(Actions, "sendDraft").andCallThrough()
+    useFullDraft.call(@)
+    makeComposer.call(@)
+    @composer._sendDraft()
+    @composer._sendDraft()
+    expect(Actions.sendDraft.calls.length).toBe 1
+
+  it "doesn't send twice in the main window", ->
+    spyOn(Actions, "queueTask")
+    spyOn(Actions, "sendDraft").andCallThrough()
+    spyOn(atom, "isMainWindow").andReturn true
+    useFullDraft.call(@)
+    makeComposer.call(@)
+    @composer._sendDraft()
+    @composer._sendDraft()
+    expect(Actions.sendDraft.calls.length).toBe 1
