@@ -4,6 +4,7 @@ File = require './file'
 Model = require './model'
 Contact = require './contact'
 Attributes = require '../attributes'
+NamespaceStore = require '../stores/namespace-store'
 
 ###
 Public: The Message model represents a Message object served by the Nylas Platform API.
@@ -176,6 +177,40 @@ class Message extends Model
       if contact? and contact.email?.length > 0
         participants["#{(contact?.email ? "").toLowerCase().trim()} #{(contact?.name ? "").toLowerCase().trim()}"] = contact if contact?
     return _.values(participants)
+
+  # Returns a hash with `to` and `cc` keys for authoring a new draft in response
+  # to this message. Takes `replyTo` and other important state into account.
+  participantsForReplyAll: ->
+    to = []
+    cc = []
+
+    if @from[0].email is NamespaceStore.current().emailAddress
+      to = @to
+      cc = @cc
+    else
+      excluded = @from.map (c) -> c.email
+      excluded.push(NamespaceStore.current().emailAddress)
+      if @replyTo.length
+        to = @replyTo
+      else
+        to = @from
+      cc = [].concat(@cc, @to).filter (p) ->
+        !_.contains(excluded, p.email)
+
+    {to, cc}
+
+  participantsForReply: ->
+    to = []
+    cc = []
+
+    if @from[0].email is NamespaceStore.current().emailAddress
+      to = @to
+    else if @replyTo.length
+      to = @replyTo
+    else
+      to = @from
+
+    {to, cc}
 
   # Public: Returns an {Array} of {File} IDs
   fileIds: ->

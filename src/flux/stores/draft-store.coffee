@@ -179,18 +179,9 @@ class DraftStore
     return unless containsDraft
     @trigger(change)
 
-  _isMe: (contact={}) =>
-    contact.email is NamespaceStore.current().me().email
-
   _onComposeReply: (context) =>
     @_newMessageWithContext context, (thread, message) =>
-      if @_isMe(message.from[0])
-        to = message.to
-      else if message.replyTo.length
-        to = message.replyTo
-      else
-        to = message.from
-
+      {to, cc} = message.participantsForReply()
       return {
         replyToMessage: message
         to: to
@@ -198,19 +189,7 @@ class DraftStore
 
   _onComposeReplyAll: (context) =>
     @_newMessageWithContext context, (thread, message) =>
-      if @_isMe(message.from[0])
-        to = message.to
-        cc = message.cc
-      else
-        excluded = message.from.map (c) -> c.email
-        excluded.push(NamespaceStore.current().me().email)
-        if message.replyTo.length
-          to = message.replyTo
-        else
-          to = message.from
-        cc = [].concat(message.cc, message.to).filter (p) ->
-          !_.contains(excluded, p.email)
-
+      {to, cc} = message.participantsForReplyAll()
       return {
         replyToMessage: message
         to: to

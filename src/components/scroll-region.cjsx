@@ -199,7 +199,8 @@ class ScrollRegion extends React.Component
 
   _setSharedState: (state) ->
     scrollbar = @props.getScrollbar?() ? @refs.scrollbar
-    scrollbar.setStateFromScrollRegion(state)
+    if scrollbar
+      scrollbar.setStateFromScrollRegion(state)
     @setState(state)
 
   _onScroll: (event) =>
