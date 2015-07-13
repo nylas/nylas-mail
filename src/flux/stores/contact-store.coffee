@@ -82,23 +82,24 @@ class ContactStore
 
     matches
 
-  parseContactsInString: (str) =>
+  parseContactsInString: (contactString, {skipNameLookup}={}) =>
     detected = []
-    while (match = Utils.emailRegex.exec(str))
+    emailRegex = new RegExp(Utils.emailRegex())
+    while (match = emailRegex.exec(contactString))
       email = match[0]
       name = null
 
-      hasLeadingParen  = str[match.index-1] in ['(','<']
-      hasTrailingParen = str[match.index+email.length] in [')','>']
+      hasLeadingParen  = contactString[match.index-1] in ['(','<']
+      hasTrailingParen = contactString[match.index+email.length] in [')','>']
 
       if hasLeadingParen and hasTrailingParen
         nameStart = 0
         for char in ['>', ')', ',', '\n', '\r']
-          i = str.lastIndexOf(char, match.index)
+          i = contactString.lastIndexOf(char, match.index)
           nameStart = i+1 if i+1 > nameStart
-        name = str.substr(nameStart, match.index - 1 - nameStart).trim()
+        name = contactString.substr(nameStart, match.index - 1 - nameStart).trim()
 
-      if not name or name.length is 0
+      if (not name or name.length is 0) and not skipNameLookup
         # Look to see if we can find a name for this email address in the ContactStore.
         # Otherwise, just populate the name with the email address.
         existing = @searchContacts(email, {limit:1})[0]

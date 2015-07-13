@@ -2,7 +2,7 @@ React = require 'react/addons'
 classNames = require 'classnames'
 _ = require 'underscore'
 {CompositeDisposable} = require 'event-kit'
-{Contact, ContactStore} = require 'nylas-exports'
+{Utils, Contact, ContactStore} = require 'nylas-exports'
 RetinaImg = require './retina-img'
 
 {DragDropMixin} = require 'react-dnd'
@@ -303,7 +303,13 @@ TokenizingTextField = React.createClass
     @setState
       selectedTokenKey: null
       inputValue: val
-    @_refreshCompletions(val)
+
+    # If it looks like an email, and the last character entered was a
+    # space, then let's add the input value.
+    if Utils.emailRegex().test(val) and _.last(val) is " "
+      @_addInputValue(val[0...-1], skipNameLookup: true)
+    else
+      @_refreshCompletions(val)
 
   _onInputBlurred: ->
     if @props.clearOnBlur
@@ -324,10 +330,10 @@ TokenizingTextField = React.createClass
 
   # Managing Tokens
 
-  _addInputValue: (input) ->
+  _addInputValue: (input, options={}) ->
     return if @_atMaxTokens()
     input ?= @state.inputValue
-    @props.onAdd(input)
+    @props.onAdd(input, options)
     @_clearInput()
 
   _selectToken: (token) ->

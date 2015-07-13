@@ -12,10 +12,14 @@ progress = require 'request-progress'
 NamespaceStore = require '../stores/namespace-store'
 NylasAPI = require '../nylas-api'
 
+UNTITLED = "Untitled"
+
 class Download
   constructor: ({@fileId, @targetPath, @filename, @filesize, @progressCallback}) ->
     @percent = 0
     @promise = null
+    if (@filename ? "").trim().length is 0
+      @filename = UNTITLED
     @
 
   state: ->
@@ -222,4 +226,10 @@ FileDownloadStore = Reflux.createStore
     if not fs.existsSync(downloadDir)
       downloadDir = os.tmpdir()
 
-    path.join(downloadDir, file.filename)
+    path.join(downloadDir, @_filename(file.filename))
+
+  # Sometimes files can have no name.
+  _filename: (filename="") ->
+    if filename.trim().length is 0
+      return UNTITLED
+    else return filename
