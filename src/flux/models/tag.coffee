@@ -26,6 +26,8 @@ Section: Models
 ###
 class Tag extends Model
 
+  @AllMailID: '*'
+  
   @attributes: _.extend {}, Model.attributes,
     'name': Attributes.String
       queryable: true

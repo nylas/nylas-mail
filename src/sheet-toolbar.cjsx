@@ -2,7 +2,10 @@ React = require 'react/addons'
 Sheet = require './sheet'
 Flexbox = require './components/flexbox'
 RetinaImg = require './components/retina-img'
+FocusedTagStore = require './flux/stores/focused-tag-store'
 TimeoutTransitionGroup = require './components/timeout-transition-group'
+Tag = require './flux/models/tag'
+_str = require 'underscore.string'
 _ = require 'underscore'
 
 {Actions,
@@ -34,9 +37,29 @@ class WindowTitle extends React.Component
 
 class ToolbarBack extends React.Component
   @displayName: 'ToolbarBack'
+
+  constructor: (@props) ->
+    @state =
+      tagId: FocusedTagStore.tagId()
+
+  componentDidMount: =>
+    @_unsubscriber = FocusedTagStore.listen =>
+      @setState(tagId: FocusedTagStore.tagId())
+
+  componentWillUnmount: =>
+    @_unsubscriber() if @_unsubscriber
+
   render: =>
+    if @state.tagId is Tag.AllMailID
+      title = 'All Mail'
+    else if @state.tagId
+      title = _str.titleize(@state.tagId)
+    else
+      title = "Back"
+
     <div className="item-back" onClick={@_onClick}>
       <RetinaImg name="sheet-back.png" mode={RetinaImg.Mode.ContentIsMask} />
+      <div className="item-back-title">{title}</div>
     </div>
 
   _onClick: =>
