@@ -329,7 +329,7 @@ describe "populated composer", ->
         useDraft.call @,
           to: [u1]
           subject: "Hello World"
-          body: "<head></head><body></body>"
+          body: "<head></head><body><br><br></body>"
         makeComposer.call(@)
         @composer._sendDraft()
         expect(Actions.sendDraft).not.toHaveBeenCalled()

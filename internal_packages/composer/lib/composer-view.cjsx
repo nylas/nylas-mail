@@ -515,7 +515,7 @@ class ComposerView extends React.Component
     # We insert empty br tags before quoted text.
     # Our quoted text parser adds additional document elements
     onlyHasBr = (/^(<br[^>]*>)+$/gi).test(body)
-    onlyHasDoc = (/^<head><\/head><body><\/body>$/i).test(body)
+    onlyHasDoc = (/^<head><\/head><body><br><br><\/body>$/i).test(body)
     bodyIsEmpty = body.length is 0 or onlyHasBr or onlyHasDoc
 
     warnings = []
