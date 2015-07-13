@@ -77,13 +77,13 @@ class ParticipantsTextField extends React.Component
       false
     @props.change(updates)
 
-  _add: (values) =>
+  _add: (values, options={}) =>
     # If the input is a string, parse out email addresses and build
     # an array of contact objects. For each email address wrapped in
     # parentheses, look for a preceding name, if one exists.
 
     if _.isString(values)
-      values = ContactStore.parseContactsInString(values)
+      values = ContactStore.parseContactsInString(values, options)
 
     # Safety check: remove anything from the incoming values that isn't
     # a Contact. We should never receive anything else in the values array.

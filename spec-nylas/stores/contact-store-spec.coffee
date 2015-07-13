@@ -87,3 +87,22 @@ describe "ContactStore", ->
     it "can return more than 5 if requested", ->
       results = ContactStore.searchContacts("fi", limit: 6)
       expect(results.length).toBe 6
+
+  describe 'parseContactsInString', ->
+    testCases =
+      "evan@nylas.com": [new Contact(name: "evan@nylas.com", email: "evan@nylas.com")]
+      "Evan Morikawa": []
+      "Evan Morikawa <evan@nylas.com>": [new Contact(name: "Evan Morikawa", email: "evan@nylas.com")]
+      "Evan Morikawa (evan@nylas.com)": [new Contact(name: "Evan Morikawa", email: "evan@nylas.com")]
+      "Evan (evan@nylas.com)": [new Contact(name: "Evan", email: "evan@nylas.com")]
+      "Evan Morikawa <evan@nylas.com>, Ben <ben@nylas.com>": [
+        new Contact(name: "Evan Morikawa", email: "evan@nylas.com")
+        new Contact(name: "Ben", email: "ben@nylas.com")
+      ]
+
+    _.forEach testCases, (value, key) ->
+      it "works for #{key}", ->
+        testContacts = ContactStore.parseContactsInString(key).map (c) -> c.nameEmail()
+        expectedContacts = value.map (c) -> c.nameEmail()
+        expect(testContacts).toEqual expectedContacts
+

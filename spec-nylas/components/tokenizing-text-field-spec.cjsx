@@ -154,6 +154,27 @@ describe 'TokenizingTextField', ->
       ReactTestUtils.Simulate.mouseDown(React.findDOMNode(menuItem))
       expect(@propAdd).toHaveBeenCalledWith([participant4])
 
+    it "manually enters whatever's in the field when the user presses the space bar as long as it looks like an email", ->
+      ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'abc@foo.com '}})
+      advanceClock(10)
+      expect(@propAdd).toHaveBeenCalledWith("abc@foo.com", skipNameLookup: true)
+
+    it "doesn't sumbmit if it looks like an email but has no space at the end", ->
+      ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'abc@foo.com'}})
+      advanceClock(10)
+      expect(@propCompletionsForInput.calls[0].args[0]).toBe('abc@foo.com')
+      expect(@propAdd).not.toHaveBeenCalled()
+
+    it "allows spaces if what's currently being entered doesn't look like an email", ->
+      ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'ab'}})
+      advanceClock(10)
+      ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'ab '}})
+      advanceClock(10)
+      ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'ab c'}})
+      advanceClock(10)
+      expect(@propCompletionsForInput.calls[2].args[0]).toBe('ab c')
+      expect(@propAdd).not.toHaveBeenCalled()
+
   ['enter', ','].forEach (key) ->
     describe "when the user presses #{key}", ->
       describe "and there is an completion available", ->
@@ -168,7 +189,7 @@ describe 'TokenizingTextField', ->
           @completions = []
           ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'abc'}})
           NylasTestUtils.keyPress(key, @renderedInput)
-          expect(@propAdd).toHaveBeenCalledWith('abc')
+          expect(@propAdd).toHaveBeenCalledWith('abc', {})
 
   describe "when the user presses tab", ->
     describe "and there is an completion available", ->
@@ -183,7 +204,7 @@ describe 'TokenizingTextField', ->
       ReactTestUtils.Simulate.focus(@renderedInput)
       ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'text'}})
       ReactTestUtils.Simulate.blur(@renderedInput)
-      expect(@propAdd).toHaveBeenCalledWith('text')
+      expect(@propAdd).toHaveBeenCalledWith('text', {})
 
     it 'should clear the entered text', ->
       ReactTestUtils.Simulate.focus(@renderedInput)
