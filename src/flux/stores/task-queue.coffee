@@ -113,6 +113,13 @@ class TaskQueue
     @_dequeueObsoleteTasks(task)
     task.runLocal().then =>
       @_queue.push(task)
+
+      # We want to make sure the task has made it onto the queue before
+      # `performLocalComplete` runs. Code in the `performLocalComplete`
+      # callback might depend on knowing that the Task is present in the
+      # queue. For example, when we're sending a message I want to know if
+      # there's already a task on the queue so I don't double-send.
+      task.performLocalComplete()
       @_updateSoon()
 
   dequeue: (taskOrId) =>

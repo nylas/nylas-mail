@@ -51,7 +51,9 @@ class Task
 
   constructor: ->
     @_performLocalCompletePromise = new Promise (resolve, reject) =>
-      @_performLocalComplete = resolve
+      # This is called by the `TaskQueue` immeidately after `performLocal`
+      # has finished and the task has been added to the Queue.
+      @performLocalComplete = resolve
 
     @id = generateTempId()
     @creationDate = new Date()
@@ -70,7 +72,6 @@ class Task
     else
       @performLocal()
       .then =>
-        @_performLocalComplete()
         @queueState.localComplete = true
         @queueState.localError = null
         return Promise.resolve()

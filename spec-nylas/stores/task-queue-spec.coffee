@@ -72,6 +72,15 @@ describe "TaskQueue", ->
       TaskQueue.enqueue(@unstartedTask)
       expect(@unstartedTask.runLocal).toHaveBeenCalled()
 
+    it "add it to the queue after `performLocalComplete` has run", ->
+      task = new Task()
+      spyOn(atom, "isMainWindow").andReturn true
+      waitsForPromise ->
+        TaskQueue.enqueue(task)
+        task.waitForPerformLocal().then ->
+          expect(TaskQueue._queue.length).toBe 1
+          expect(TaskQueue._queue[0]).toBe task
+
     it "notifies the queue should be processed", ->
       spyOn(TaskQueue, "_processQueue").andCallThrough()
       spyOn(TaskQueue, "_processTask")
