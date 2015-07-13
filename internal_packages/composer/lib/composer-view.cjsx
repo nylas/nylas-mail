@@ -243,7 +243,7 @@ class ComposerView extends React.Component
                  key="subject"
                  name="subject"
                  tabIndex="108"
-                 placeholder="Subject:"
+                 placeholder="Subject"
                  disabled={not @state.showsubject}
                  className="compose-field compose-subject"
                  value={@state.subject}
