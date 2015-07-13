@@ -29,7 +29,7 @@ UnreadCountStore = Reflux.createStore
     @_onDataChanged()
 
   _onDataChanged: (change) ->
-    return app.dock?.setBadge?("") unless NamespaceStore.current()
+    return @_setBadge("") unless NamespaceStore.current()
 
     if change && change.objectClass is Thread.name
       @_fetchCountDebounced ?= _.debounce(@_fetchCount, 5000)
@@ -46,14 +46,21 @@ UnreadCountStore = Reflux.createStore
     ]).then (count) =>
       return if @_count is count
       @_count = count
-
-      if count > 999
-        app.dock?.setBadge?("999+")
-      else if count > 0
-        app.dock?.setBadge?("#{count}")
-      else
-        app.dock?.setBadge?("")
-
+      @_updateBadgeForCount(count)
       @trigger()
+    .catch (err) =>
+      console.warn("Failed to fetch unread count: #{err}")
+
+  _updateBadgeForCount: (count) ->
+    return unless atom.isMainWindow()
+    if count > 999
+      @_setBadge("999+")
+    else if count > 0
+      @_setBadge("#{count}")
+    else
+      @_setBadge("")
+
+  _setBadge: (val) ->
+    app.dock?.setBadge?(val)
 
 module.exports = UnreadCountStore

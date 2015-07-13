@@ -387,10 +387,10 @@ class DatabaseStore extends NylasStore
     # Avoid trying to write too many objects a time - sqlite can only handle
     # value sets `(?,?)...` of less than SQLITE_MAX_COMPOUND_SELECT (500),
     # and we don't know ahead of time whether we'll hit that or not.
-    if models.length > 100
+    if models.length > 50
       return Promise.all([
-        @_writeModels(models[0..99])
-        @_writeModels(models[100..models.length])
+        @_writeModels(models[0..49])
+        @_writeModels(models[50..models.length])
       ])
 
     klass = models[0].constructor
