@@ -3,24 +3,34 @@
 .quoted-text-control {
   color: @text-color-very-subtle;
   display: inline-block;
+  border: 1px solid fade(@text-color-very-subtle, 15%);
+  border-radius: 3px;
+  line-height: 10px;
+  padding: 6px 10px;
+  font-weight: 600;
+  font-size: @font-size-smaller;
 
   &.no-quoted-text {
     display:none;
   }
+
   &:hover {
     cursor: pointer;
-    color: @text-color;
+    color: @text-color-subtle;
+    border: 1px solid fade(@text-color-subtle, 35%);
   }
-  &.show-quoted-text:before {
-    font-size: @font-size-smaller;
-    color: @text-color-very-subtle;
-    content:'Hide Quoted Text';
-    &:hover { color: @text-color; }
-  }
+
   &:before {
-    font-size: 8px;
-    color: @text-color-very-subtle;
     content:'\2022\2022\2022';
-    &:hover { color: @text-color; }
+    font-size: @font-size-smaller * 0.8;
+    top:-1px;
+    position:relative;
+    padding-right:8px;
+  }
+  &.show-quoted-text:after {
+    content:'Hide previous';
+  }
+  &:after {
+    content:'Show previous';
   }
 }
