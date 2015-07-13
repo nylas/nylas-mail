@@ -74,7 +74,7 @@ AccountSidebarStore = Reflux.createStore
 
     # Sort the main tags so they always appear in a standard order
     mainTags = _.sortBy mainTags, (tag) -> mainTagIDs.indexOf(tag.id)
-    mainTags.push new Tag(name: 'All Mail', id: '*')
+    mainTags.push new Tag(name: 'All Mail', id: Tag.AllMailID)
 
     # Add the counts
     inboxTag = _.find tags, (tag) -> tag.id is 'inbox'

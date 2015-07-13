@@ -12,6 +12,7 @@ _ = require 'underscore'
  Actions,
  Utils,
  Thread,
+ Tag,
  Message} = require 'nylas-exports'
 
 # Public: A mutable text container with undo/redo support and the ability to
@@ -67,7 +68,7 @@ ThreadListStore = Reflux.createStore
     else if namespaceId and tagId
       matchers = []
       matchers.push Thread.attributes.namespaceId.equal(namespaceId)
-      matchers.push Thread.attributes.tags.contains(tagId) if tagId isnt "*"
+      matchers.push Thread.attributes.tags.contains(tagId) if tagId isnt Tag.AllMailID
       view = new DatabaseView Thread, {matchers}, (ids) =>
         DatabaseStore.findAll(Message).where(Message.attributes.threadId.in(ids)).then (messages) ->
           messagesByThread = {}
