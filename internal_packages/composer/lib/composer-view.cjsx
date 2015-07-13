@@ -443,6 +443,12 @@ class ComposerView extends React.Component
         showQuotedText: @isForwardedMessage()
         populated: true
 
+    # It's possible for another part of the application to manipulate the draft
+    # we're displaying. If they've added a CC or BCC, make sure we show those fields.
+    # We should never be hiding the field if it's populated.
+    state.showcc = true if not _.isEmpty(draft.cc)
+    state.showbcc = true if not _.isEmpty(draft.bcc)
+
     @setState(state)
 
   _shouldShowSubject: =>
@@ -575,7 +581,9 @@ class ComposerView extends React.Component
     @focus('textFieldCc')
 
   _onSendingStateChanged: =>
-    @setState isSending: DraftStore.isSendingDraft(@props.localId)
+    isSending = DraftStore.isSendingDraft(@props.localId)
+    if isSending isnt @state.isSending
+      @setState({isSending})
 
   _onEmptyCc: =>
     @setState showcc: false

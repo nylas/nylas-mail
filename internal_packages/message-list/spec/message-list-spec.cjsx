@@ -11,6 +11,7 @@ TestUtils = React.addons.TestUtils
  Actions,
  Message,
  Namespace,
+ DraftStore,
  MessageStore,
  NamespaceStore,
  NylasTestUtils,
@@ -28,31 +29,25 @@ MessageList = proxyquire("../lib/message-list", {
 
 MessageParticipants = require "../lib/message-participants"
 
-me = new Namespace(
-  "name": "User One",
-  "email": "user1@nylas.com"
-  "provider": "inbox"
-)
+me = new Namespace
+  name: "User One",
+  emailAddress: "user1@nylas.com"
+  provider: "inbox"
 NamespaceStore._current = me
 
-user_headers =
-  id: null
-  object: null
-  namespace_id: null
-
-user_1 = _.extend _.clone(user_headers),
+user_1 = new Contact
   name: "User One"
   email: "user1@nylas.com"
-user_2 = _.extend _.clone(user_headers),
+user_2 = new Contact
   name: "User Two"
   email: "user2@nylas.com"
-user_3 = _.extend _.clone(user_headers),
+user_3 = new Contact
   name: "User Three"
   email: "user3@nylas.com"
-user_4 = _.extend _.clone(user_headers),
+user_4 = new Contact
   name: "User Four"
   email: "user4@nylas.com"
-user_5 = _.extend _.clone(user_headers),
+user_5 = new Contact
   name: "User Five"
   email: "user5@nylas.com"
 
@@ -269,6 +264,102 @@ describe "MessageList", ->
       @messageList.setState currentThread: test_thread
       cs = TestUtils.scryRenderedDOMComponentsWithClass(@messageList, "footer-reply-area")
       expect(cs.length).toBe 0
+
+  describe "reply behavior (_createReplyOrUpdateExistingDraft)", ->
+    beforeEach ->
+      @messageList.setState(currentThread: test_thread)
+
+    it "should throw an exception unless you provide `reply` or `reply-all`", ->
+      expect( => @messageList._createReplyOrUpdateExistingDraft('lala')).toThrow()
+
+    describe "when there is already a draft at the bottom of the thread", ->
+      beforeEach ->
+        @replyToMessage = new Message
+          id: "reply-id",
+          threadId: test_thread.id
+          date: new Date()
+        @draft = new Message
+          id: "666",
+          draft: true,
+          date: new Date()
+          replyToMessage: @replyToMessage.id
+
+        spyOn(@messageList, '_focusDraft')
+        spyOn(@replyToMessage, 'participantsForReplyAll').andCallFake ->
+          {to: [user_3], cc: [user_2, user_4] }
+        spyOn(@replyToMessage, 'participantsForReply').andCallFake ->
+          {to: [user_3], cc: [] }
+
+        MessageStore._items = [@replyToMessage, @draft]
+        MessageStore.trigger()
+        @messageList.setState(currentThread: test_thread)
+
+        @sessionStub =
+          draft: => @draft
+          changes:
+            add: jasmine.createSpy('session.changes.add')
+        spyOn(DraftStore, 'sessionForLocalId').andCallFake =>
+          Promise.resolve(@sessionStub)
+
+      it "should not fire a composer action", ->
+        spyOn(Actions, 'composeReplyAll')
+        @messageList._createReplyOrUpdateExistingDraft('reply-all')
+        advanceClock()
+        expect(Actions.composeReplyAll).not.toHaveBeenCalled()
+
+      it "should focus the existing draft", ->
+        @messageList._createReplyOrUpdateExistingDraft('reply-all')
+        advanceClock()
+        expect(@messageList._focusDraft).toHaveBeenCalled()
+
+      describe "when reply-all is passed", ->
+        it "should add missing participants", ->
+          @draft.to = [ user_3 ]
+          @draft.cc = []
+          @messageList._createReplyOrUpdateExistingDraft('reply-all')
+          advanceClock()
+          expect(@sessionStub.changes.add).toHaveBeenCalledWith({to: [user_3], cc: [user_2, user_4]})
+
+        it "should not blow away other participants who have been added to the draft", ->
+          user_random_a = new Contact(email: 'other-guy-a@gmail.com')
+          user_random_b = new Contact(email: 'other-guy-b@gmail.com')
+          @draft.to = [ user_3, user_random_a ]
+          @draft.cc = [ user_random_b ]
+          @messageList._createReplyOrUpdateExistingDraft('reply-all')
+          advanceClock()
+          expect(@sessionStub.changes.add).toHaveBeenCalledWith({to: [user_3, user_random_a], cc: [user_random_b, user_2, user_4]})
+
+      describe "when reply is passed", ->
+        it "should remove participants present in the reply-all participant set and not in the reply set", ->
+          @draft.to = [ user_3 ]
+          @draft.cc = [ user_2, user_4 ]
+          @messageList._createReplyOrUpdateExistingDraft('reply')
+          advanceClock()
+          expect(@sessionStub.changes.add).toHaveBeenCalledWith({to: [user_3], cc: []})
+
+        it "should not blow away other participants who have been added to the draft", ->
+          user_random_a = new Contact(email: 'other-guy-a@gmail.com')
+          user_random_b = new Contact(email: 'other-guy-b@gmail.com')
+          @draft.to = [ user_3, user_random_a ]
+          @draft.cc = [ user_2, user_4, user_random_b ]
+          @messageList._createReplyOrUpdateExistingDraft('reply')
+          advanceClock()
+          expect(@sessionStub.changes.add).toHaveBeenCalledWith({to: [user_3, user_random_a], cc: [user_random_b]})
+
+    describe "when there is not an existing draft at the bottom of the thread", ->
+      beforeEach ->
+        MessageStore._items = [m5, m3]
+        MessageStore.trigger()
+        @messageList.setState(currentThread: test_thread)
+
+      it "should fire a composer action based on the reply type", ->
+        spyOn(Actions, 'composeReplyAll')
+        @messageList._createReplyOrUpdateExistingDraft('reply-all')
+        expect(Actions.composeReplyAll).toHaveBeenCalledWith(thread: test_thread, message: m3)
+
+        spyOn(Actions, 'composeReply')
+        @messageList._createReplyOrUpdateExistingDraft('reply')
+        expect(Actions.composeReply).toHaveBeenCalledWith(thread: test_thread, message: m3)
 
   describe "Message minification", ->
     beforeEach ->

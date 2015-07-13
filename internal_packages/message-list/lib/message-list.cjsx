@@ -4,7 +4,10 @@ classNames = require 'classnames'
 MessageItem = require "./message-item"
 {Utils,
  Actions,
+ Message,
+ DraftStore,
  MessageStore,
+ DatabaseStore,
  ComponentRegistry,
  AddRemoveTagsTask} = require("nylas-exports")
 
@@ -69,8 +72,8 @@ class MessageList extends React.Component
 
     commands = _.extend {},
       'core:star-item': => @_onStar()
-      'application:reply': => @_onReply()
-      'application:reply-all': => @_onReplyAll()
+      'application:reply': => @_createReplyOrUpdateExistingDraft('reply')
+      'application:reply-all': => @_createReplyOrUpdateExistingDraft('reply-all')
       'application:forward': => @_onForward()
 
     @command_unsubscriber = atom.commands.add('body', commands)
@@ -103,7 +106,7 @@ class MessageList extends React.Component
       if newMessageIds.length > 0
         @_prepareContentForDisplay()
       else if newDraftIds.length > 0
-        @_focusDraft(@refs["composerItem-#{newDraftIds[0]}"])
+        @_focusDraft(@_getDraftElement(newDraftIds[0]))
         @_prepareContentForDisplay()
 
   _newDraftIds: (prevState) =>
@@ -116,8 +119,67 @@ class MessageList extends React.Component
     newMessageIds = _.map(_.reject((@state.messages ? []), (m) -> m.draft), (m) -> m.id)
     return _.difference(newMessageIds, oldMessageIds) ? []
 
+  _getDraftElement: (draftId) =>
+    @refs["composerItem-#{draftId}"]
+
   _focusDraft: (draftElement) =>
     draftElement.focus()
+
+  _createReplyOrUpdateExistingDraft: (type) =>
+    unless type in ['reply', 'reply-all']
+      throw new Error("_createReplyOrUpdateExistingDraft called with #{type}, not reply or reply-all")
+    return unless @state.currentThread
+
+    last = _.last(@state.messages ? [])
+
+    # If the last message on the thread is already a draft, fetch the message it's
+    # in reply to and the draft session and change the participants.
+    if last.draft is true
+      data =
+        session: DraftStore.sessionForLocalId(@state.messageLocalIds[last.id])
+        replyToMessage: Promise.resolve(@state.messages[@state.messages.length - 2])
+
+      if last.replyToMessageId
+        msg = _.findWhere(@state.messages, {id: last.replyToMessageId})
+        if msg
+          data.replyToMessage = Promise.resolve(msg)
+        else
+          data.replyToMessage = DatabaseStore.find(Message, last.replyToMessageId)
+
+      Promise.props(data).then ({session, replyToMessage}) =>
+        return unless replyToMessage and session
+        draft = session.draft()
+        updated = {to: [].concat(draft.to), cc: [].concat(draft.cc)}
+
+        replySet = replyToMessage.participantsForReply()
+        replyAllSet = replyToMessage.participantsForReplyAll()
+
+        if type is 'reply'
+          targetSet = replySet
+
+          # Remove participants present in the reply-all set and not the reply set
+          for key in ['to', 'cc']
+            updated[key] = _.reject updated[key], (contact) ->
+              inReplySet = _.findWhere(replySet[key], {email: contact.email})
+              inReplyAllSet = _.findWhere(replyAllSet[key], {email: contact.email})
+              return inReplyAllSet and not inReplySet
+        else
+          # Add participants present in the reply-all set and not on the draft
+          # Switching to reply-all shouldn't really ever remove anyone.
+          targetSet = replyAllSet
+
+        for key in ['to', 'cc']
+          for contact in targetSet[key]
+            updated[key].push(contact) unless _.findWhere(updated[key], {email: contact.email})
+
+        session.changes.add(updated)
+        @_focusDraft(@_getDraftElement(last.id))
+
+    else
+      if type is 'reply'
+        Actions.composeReply(thread: @state.currentThread, message: last)
+      else
+        Actions.composeReplyAll(thread: @state.currentThread, message: last)
 
   _onStar: =>
     return unless @state.currentThread
@@ -126,14 +188,6 @@ class MessageList extends React.Component
     else
       task = new AddRemoveTagsTask(@state.currentThread, ['starred'], [])
     Actions.queueTask(task)
-
-  _onReply: =>
-    return unless @state.currentThread
-    Actions.composeReply(thread: @state.currentThread)
-
-  _onReplyAll: =>
-    return unless @state.currentThread
-    Actions.composeReplyAll(thread: @state.currentThread)
 
   _onForward: =>
     return unless @state.currentThread
@@ -191,17 +245,14 @@ class MessageList extends React.Component
   # Either returns "reply" or "reply-all"
   _replyType: =>
     lastMsg = _.last(_.filter((@state.messages ? []), (m) -> not m.draft))
-    return "reply" if lastMsg?.cc.length is 0 and lastMsg?.to.length is 1
-    return "reply-all"
+    if lastMsg?.cc.length is 0 and lastMsg?.to.length is 1
+      return "reply"
+    else
+      return "reply-all"
 
   _onClickReplyArea: =>
-    return unless @state.currentThread?.id
-    lastMsg = _.last(_.filter((@state.messages ? []), (m) -> not m.draft))
-
-    if @_replyType() is "reply-all"
-      Actions.composeReplyAll(thread: @state.currentThread, message: lastMsg)
-    else
-      Actions.composeReply(thread: @state.currentThread,  message: lastMsg)
+    return unless @state.currentThread
+    @_createReplyOrUpdateExistingDraft(@_replyType())
 
   # There may be a lot of iframes to load which may take an indeterminate
   # amount of time. As long as there is more content being painted onto
@@ -264,7 +315,7 @@ class MessageList extends React.Component
       if message.draft
         components.push <InjectedComponent matching={role:"Composer"}
                          exposedProps={ mode:"inline", localId:@state.messageLocalIds[message.id], onRequestScrollTo:@_onRequestScrollToComposer, threadId:@state.currentThread.id }
-                         ref="composerItem-#{message.id}"
+                         ref={"composerItem-#{message.id}"}
                          key={@state.messageLocalIds[message.id]}
                          className={className} />
       else
@@ -345,7 +396,7 @@ class MessageList extends React.Component
   # If messageId and location are defined, that means we want to scroll
   # smoothly to the top of a particular message.
   _onRequestScrollToComposer: ({messageId, location, selectionTop}={}) =>
-    composer = React.findDOMNode(@refs["composerItem-#{messageId}"])
+    composer = React.findDOMNode(@_getDraftElement(messageId))
     if selectionTop
       messageWrap = React.findDOMNode(@refs.messageWrap)
       wrapRect = messageWrap.getBoundingClientRect()
@@ -356,7 +407,6 @@ class MessageList extends React.Component
     else
       done = ->
       location ?= "bottom"
-      composer = React.findDOMNode(@refs["composerItem-#{messageId}"])
       @scrollToMessage(composer, done, location, 1)
 
   _makeRectVisible: (rect) ->

@@ -246,7 +246,7 @@ describe "populated composer", ->
         advanceClock(1000)
         expect(@composer.refs['contentBody'].focus).toHaveBeenCalled()
 
-  describe "when emptying cc fields", ->
+  describe "when emptying cc/bcc fields", ->
 
     it "focuses on to when bcc is emptied and there's no cc field", ->
       useDraft.call(@, bcc: [u1])
@@ -255,6 +255,7 @@ describe "populated composer", ->
       spyOn(@composer.refs['textFieldBcc'], 'focus')
 
       bcc = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@composer, ParticipantsTextField, field: "bcc")[0]
+      @draft.bcc = []
       bcc.props.onEmptied()
 
       expect(@composer.state.showbcc).toBe false
@@ -271,7 +272,7 @@ describe "populated composer", ->
       spyOn(@composer.refs['textFieldBcc'], 'focus')
 
       bcc = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@composer, ParticipantsTextField, field: "bcc")[0]
-
+      @draft.bcc = []
       bcc.props.onEmptied()
       expect(@composer.state.showbcc).toBe false
       advanceClock(1000)
@@ -287,13 +288,33 @@ describe "populated composer", ->
       spyOn(@composer.refs['textFieldBcc'], 'focus')
 
       cc = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@composer, ParticipantsTextField, field: "cc")[0]
+      @draft.cc = []
       cc.props.onEmptied()
-
       expect(@composer.state.showcc).toBe false
       advanceClock(1000)
       expect(@composer.refs['textFieldTo'].focus).toHaveBeenCalled()
       expect(@composer.refs['textFieldCc']).not.toBeDefined()
       expect(@composer.refs['textFieldBcc'].focus).not.toHaveBeenCalled()
+
+  describe "when participants are added during a draft update", ->
+    it "shows the cc fields and bcc fields to ensure participants are never hidden", ->
+      useDraft.call(@, cc: [], bcc: [])
+      makeComposer.call(@)
+      expect(@composer.state.showbcc).toBe(false)
+      expect(@composer.state.showcc).toBe(false)
+
+      # Simulate a change event fired by the DraftStoreProxy
+      @draft.cc = [u1]
+      @composer._onDraftChanged()
+
+      expect(@composer.state.showbcc).toBe(false)
+      expect(@composer.state.showcc).toBe(true)
+
+      # Simulate a change event fired by the DraftStoreProxy
+      @draft.bcc = [u2]
+      @composer._onDraftChanged()
+      expect(@composer.state.showbcc).toBe(true)
+      expect(@composer.state.showcc).toBe(true)
 
   describe "When sending a message", ->
     beforeEach ->
