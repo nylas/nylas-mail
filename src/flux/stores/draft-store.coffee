@@ -200,6 +200,26 @@ class DraftStore
     @_newMessageWithContext context, (thread, message) ->
       forwardMessage: message
 
+  _finalizeAndPersistNewMessage: (draft) =>
+    # Give extensions an opportunity to perform additional setup to the draft
+    for extension in @_extensions
+      continue unless extension.prepareNewDraft
+      extension.prepareNewDraft(draft)
+
+    # Normally we'd allow the DatabaseStore to create a localId, wait for it to
+    # commit a LocalLink and resolve, etc. but it's faster to create one now.
+    draftLocalId = generateTempId()
+
+    # Optimistically create a draft session and hand it the draft so that it
+    # doesn't need to do a query for it a second from now when the composer wants it.
+    @_draftSessions[draftLocalId] = new DraftStoreProxy(draftLocalId, draft)
+
+    Promise.all([
+      DatabaseStore.bindToLocalId(draft, draftLocalId)
+      DatabaseStore.persistModel(draft)
+    ]).then =>
+      return Promise.resolve({draftLocalId})
+
   _newMessageWithContext: ({thread, threadId, message, messageId, popout}, attributesCallback) =>
     return unless NamespaceStore.current()
 
@@ -290,16 +310,7 @@ class DraftStore
         threadId: thread.id
         namespaceId: thread.namespaceId
 
-      # Normally we'd allow the DatabaseStore to create a localId, wait for it to
-      # commit a LocalLink and resolve, etc. but it's faster to create one now.
-      draftLocalId = generateTempId()
-
-      # Optimistically create a draft session and hand it the draft so that it
-      # doesn't need to do a query for it a second from now when the composer wants it.
-      @_draftSessions[draftLocalId] = new DraftStoreProxy(draftLocalId, draft)
-
-      DatabaseStore.bindToLocalId(draft, draftLocalId)
-      DatabaseStore.persistModel(draft).then =>
+      @_finalizeAndPersistNewMessage(draft).then ({draftLocalId}) =>
         Actions.composePopoutDraft(draftLocalId) if popout
 
 
@@ -323,10 +334,8 @@ class DraftStore
       pristine: true
       namespaceId: namespace.id
 
-    DatabaseStore.persistModel(draft).then =>
-      DatabaseStore.localIdForModel(draft).then (draftLocalId, options={}) =>
-        options.newDraft = true
-        @_onPopoutDraftLocalId(draftLocalId, options)
+    @_finalizeAndPersistNewMessage(draft).then ({draftLocalId}) =>
+      @_onPopoutDraftLocalId(draftLocalId, {newDraft: true})
 
   _onPopoutDraftLocalId: (draftLocalId, options = {}) =>
     return unless NamespaceStore.current()
@@ -368,22 +377,19 @@ class DraftStore
       if query[attr]
         draft[attr] = ContactStore.parseContactsInString(query[attr])
 
-    DatabaseStore.persistModel(draft).then =>
-      DatabaseStore.localIdForModel(draft).then(@_onPopoutDraftLocalId)
+    @_finalizeAndPersistNewMessage(draft).then ({draftLocalId}) =>
+      @_onPopoutDraftLocalId(draftLocalId)
 
   _onDestroyDraft: (draftLocalId) =>
     session = @_draftSessions[draftLocalId]
 
-    if not session
-      throw new Error("Couldn't find the draft session in the current window")
-
     # Immediately reset any pending changes so no saves occur
-    session.changes.reset()
+    if session
+      session.changes.reset()
+      @_doneWithSession(session)
 
     # Queue the task to destroy the draft
     Actions.queueTask(new DestroyDraftTask(draftLocalId))
-
-    @_doneWithSession(session)
 
     atom.close() if @_isPopout()
 

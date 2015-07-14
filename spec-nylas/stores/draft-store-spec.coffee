@@ -5,6 +5,7 @@ ModelQuery = require '../../src/flux/models/query'
 NamespaceStore = require '../../src/flux/stores/namespace-store'
 DatabaseStore = require '../../src/flux/stores/database-store'
 DraftStore = require '../../src/flux/stores/draft-store'
+DraftStoreExtension = require '../../src/flux/stores/draft-store-extension'
 TaskQueue = require '../../src/flux/stores/task-queue'
 SendDraftTask = require '../../src/flux/tasks/send-draft'
 DestroyDraftTask = require '../../src/flux/tasks/destroy-draft'
@@ -19,7 +20,14 @@ msgFromMe = null
 msgWithReplyTo = null
 fakeMessages = null
 
+class TestExtension extends DraftStoreExtension
+  @prepareNewDraft: (draft) ->
+    draft.body = "Edited by TestExtension!" + draft.body
+
 describe "DraftStore", ->
+  beforeEach ->
+    spyOn(atom, 'newWindow').andCallFake ->
+
   describe "creating drafts", ->
     beforeEach ->
       fakeThread = new Thread
@@ -274,6 +282,19 @@ describe "DraftStore", ->
         , (model) ->
           expect(model.subject).toEqual("Fwd: Fake subject")
 
+      describe "extensions", ->
+        beforeEach ->
+          DraftStore.registerExtension(TestExtension)
+        afterEach ->
+          DraftStore.unregisterExtension(TestExtension)
+
+        it "should give extensions a chance to customize the draft via ext.prepareNewDraft", ->
+          @_callNewMessageWithContext {threadId: fakeThread.id}
+          , (thread, message) ->
+            {}
+          , (model) ->
+            expect(model.body.indexOf("Edited by TestExtension!")).toBe(0)
+
       describe "context", ->
         it "should accept `thread` or look up a thread when given `threadId`", ->
           @_callNewMessageWithContext {thread: fakeThread}
@@ -430,11 +451,10 @@ describe "DraftStore", ->
       DraftStore._onDestroyDraft('abc')
       expect(@draftReset).toHaveBeenCalled()
 
-    it "should throw if the draft session is not in the window", ->
+    it "should not throw if the draft session is not in the window", ->
       expect ->
         DraftStore._onDestroyDraft('other')
-      .toThrow()
-      expect(@draftReset).not.toHaveBeenCalled()
+      .not.toThrow()
 
     it "should queue a destroy draft task", ->
       DraftStore._onDestroyDraft('abc')
@@ -603,6 +623,20 @@ describe "DraftStore", ->
       expect(@draftCleanup).toHaveBeenCalled
 
   describe "mailto handling", ->
+    describe "extensions", ->
+      beforeEach ->
+        DraftStore.registerExtension(TestExtension)
+      afterEach ->
+        DraftStore.unregisterExtension(TestExtension)
+
+      it "should give extensions a chance to customize the draft via ext.prepareNewDraft", ->
+        received = null
+        spyOn(DatabaseStore, 'persistModel').andCallFake (draft) ->
+          received = draft
+          Promise.resolve()
+        DraftStore._onHandleMailtoLink('mailto:bengotow@gmail.com')
+        expect(received.body.indexOf("Edited by TestExtension!")).toBe(0)
+
     it "should correctly instantiate drafts for a wide range of mailto URLs", ->
       received = null
       spyOn(DatabaseStore, 'persistModel').andCallFake (draft) ->

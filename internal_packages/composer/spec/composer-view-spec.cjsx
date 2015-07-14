@@ -47,6 +47,7 @@ passThroughStub = (props={}) ->
 draftStoreProxyStub = (localId, returnedDraft) ->
   listen: -> ->
   draft: -> (returnedDraft ? new Message(draft: true))
+  draftPristineBody: -> null
   draftLocalId: localId
   cleanup: ->
   changes:
@@ -335,21 +336,17 @@ describe "populated composer", ->
       expect(dialogArgs.buttons).toEqual ['Edit Message']
 
     describe "empty body warning", ->
-      it "warns if the body of the email is empty", ->
-        useDraft.call @, to: [u1], body: ""
-        makeComposer.call(@)
-        @composer._sendDraft()
-        expect(Actions.sendDraft).not.toHaveBeenCalled()
-        expect(@dialog.showMessageBox).toHaveBeenCalled()
-        dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
-        expect(dialogArgs.buttons).toEqual ['Cancel', 'Send Anyway']
+      it "warns if the body of the email is still the pristine body", ->
+        pristineBody = "<head></head><body><br><br></body>"
 
-      it "warns if the body of the email is all quoted text", ->
         useDraft.call @,
           to: [u1]
           subject: "Hello World"
-          body: "<head></head><body><br><br></body>"
+          body: pristineBody
         makeComposer.call(@)
+
+        spyOn(@composer._proxy, 'draftPristineBody').andCallFake -> pristineBody
+
         @composer._sendDraft()
         expect(Actions.sendDraft).not.toHaveBeenCalled()
         expect(@dialog.showMessageBox).toHaveBeenCalled()
@@ -364,16 +361,6 @@ describe "populated composer", ->
         makeComposer.call(@)
         @composer._sendDraft()
         expect(Actions.sendDraft).toHaveBeenCalled()
-
-      it "does not warn if the user has typed a single character in their reply", ->
-        useDraft.call @,
-          to: [u1]
-          subject: "Hello World"
-          body: "1<br><br><blockquote class='gmail_quote'>This is my quoted text!</blockquote>"
-        makeComposer.call(@)
-        @composer._sendDraft()
-        expect(Actions.sendDraft).toHaveBeenCalled()
-        expect(@dialog.showMessageBox).not.toHaveBeenCalled()
 
       it "does not warn if the user has attached a file", ->
         useDraft.call @,

@@ -1,0 +1,16 @@
+{
+  "name": "composer-signature",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "A small extension to the draft store that implements signatures",
+  "license": "Proprietary",
+  "private": true,
+  "engines": {
+    "atom": "*"
+  },
+  "windowTypes": {
+    "composer": true
+  },
+  "dependencies": {
+  }
+}

@@ -88,26 +88,35 @@ class DraftStoreProxy
     @listenTo DraftStore, @_onDraftChanged
     @listenTo Actions.didSwapModel, @_onDraftSwapped
 
+    @_draft = false
+    @_draftPristineBody = null
+
     @changes = new DraftChangeSet @draftLocalId, =>
       if !@_draft
         throw new Error("DraftChangeSet was modified before the draft was prepared.")
       @trigger()
 
     if draft
-      @_draft = draft
+      @_setDraft(draft)
       @_draftPromise = Promise.resolve(@)
-    else
-      @_draft = false
-      @_draftPromise = null
 
     @prepare().catch (error) ->
       console.error(error)
       console.error(error.stack)
       throw new Error("DraftStoreProxy prepare() failed with error #{error.toString()}.")
 
+  # Public: Returns the draft object with the latest changes applied.
+  #
   draft: ->
     @changes.applyToModel(@_draft)
     @_draft
+
+  # Public: Returns the initial body of the draft when it was pristine, or null if the
+  # draft was never pristine in this editing session. Useful for determining if the
+  # body is still in an unchanged / empty state.
+  #
+  draftPristineBody: ->
+    @_draftPristineBody
 
   prepare: ->
     @_draftPromise ?= new Promise (resolve, reject) =>
@@ -127,6 +136,12 @@ class DraftStoreProxy
   _setDraft: (draft) ->
     if !draft.body?
       throw new Error("DraftStoreProxy._setDraft - new draft has no body!")
+
+    # We keep track of the draft's initial body if it's pristine when the editing
+    # session begins. This initial value powers things like "are you sure you want
+    # to send with an empty body?"
+    if draft.pristine
+      @_draftPristineBody = draft.body
     @_draft = draft
     @trigger()
 
