@@ -283,12 +283,18 @@ class NylasAPI
 
         Promise.settle(destroyPromises)
 
-  _handleModelResponse: (json) ->
+  _handleModelResponse: (jsons) ->
     new Promise (resolve, reject) =>
-      reject(new Error("handleModelResponse with no JSON provided")) unless json
+      reject(new Error("handleModelResponse with no JSON provided")) unless jsons
 
-      json = [json] unless json instanceof Array
-      async.filter json
+      jsons = [jsons] unless jsons instanceof Array
+
+      uniquedJSONs = _.uniq jsons, false, (model) -> model.id
+      if uniquedJSONs.length < jsons.length
+        console.warn("NylasAPI.handleModelResponse: called with non-unique object set.
+                     Maybe an API request returned the same object more than once?")
+
+      async.filter uniquedJSONs
       , (item, filterCallback) =>
         @_shouldAcceptModel(item.object, item).then (accept) ->
           filterCallback(accept)
