@@ -71,7 +71,7 @@ class ComposerView extends React.Component
       'composer:show-and-focus-cc': @_showAndFocusCc
       'composer:focus-to': => @focus "textFieldTo"
       'composer:send-message': => @_sendDraft()
-      'composer:delete-empty-draft': => @_deleteEmptyDraft()
+      'composer:delete-empty-draft': => @_deleteDraftIfEmpty()
       "core:undo": @undo
       "core:redo": @redo
     }
@@ -83,6 +83,7 @@ class ComposerView extends React.Component
   componentWillUnmount: =>
     @_unmounted = true # rarf
     @_teardownForDraft()
+    @_deleteDraftIfEmpty()
     @_uploadUnlisten() if @_uploadUnlisten
     @_draftStoreUnlisten() if @_draftStoreUnlisten
     @_keymapUnlisten.dispose() if @_keymapUnlisten
@@ -518,15 +519,10 @@ class ComposerView extends React.Component
       })
       return
 
+    bodyIsEmpty = draft.body is @_proxy.draftPristineBody()
     body = QuotedHTMLParser.removeQuotedHTML(draft.body.toLowerCase().trim())
     forwarded = Utils.isForwardedMessage(draft)
     hasAttachment = (draft.files ? []).length > 0
-
-    # We insert empty br tags before quoted text.
-    # Our quoted text parser adds additional document elements
-    onlyHasBr = (/^(<br[^>]*>)+$/gi).test(body)
-    onlyHasDoc = (/^<head><\/head><body><br><br><\/body>$/i).test(body)
-    bodyIsEmpty = body.length is 0 or onlyHasBr or onlyHasDoc
 
     warnings = []
 
@@ -642,7 +638,7 @@ class ComposerView extends React.Component
 
     @undoManager.saveToHistory(historyItem)
 
-  _deleteEmptyDraft: =>
+  _deleteDraftIfEmpty: =>
     return unless @_proxy
     if @_proxy.draft().pristine then Actions.destroyDraft(@props.localId)
 

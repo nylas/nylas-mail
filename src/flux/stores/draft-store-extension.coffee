@@ -44,7 +44,21 @@ class DraftStoreExtension
     []
 
   ###
-  Public: Override onMouseUp in your DraftStoreExtension subclass to transform
+  Public: Override prepareNewDraft to modify a brand new draft before it is displayed
+  in a composer. This is one of the only places in the application where it's safe
+  to modify the draft object you're given directly to add participants to the draft,
+  add a signature, etc.
+
+  By default, new drafts are considered `pristine`. If the user leaves the composer
+  without making any changes, the draft is discarded. If your extension populates
+  the draft in a way that makes it "populated" in a valuable way, you should set
+  `draft.pristine = false` so the draft saves, even if no further changes are made.
+  ###
+  @prepareNewDraft: (draft) ->
+    return
+
+  ###
+  Public: Override finalizeSessionBeforeSending in your DraftStoreExtension subclass to transform
   the {DraftStoreProxy} editing session just before the draft is sent. This method
   gives you an opportunity to make any final substitutions or changes after any
   {::warningsForSending} have been displayed.
