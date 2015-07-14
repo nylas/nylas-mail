@@ -168,11 +168,12 @@ body.is-blurred {
 
   .item-container {
     .window-title {
-      flex: 2;
+      position: absolute;
       text-align: center;
-      margin-top: 6px;
-      margin-left: -80px; /* width of ToolbarWindowControls */
+      left: 50%;
+      transform: translateX(-50%);
       -webkit-app-region: drag;
+      line-height: 36px;
       &:hover {
         cursor: default;
       }
