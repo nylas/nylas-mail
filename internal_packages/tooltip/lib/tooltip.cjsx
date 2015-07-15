@@ -26,8 +26,8 @@ class Tooltip extends React.Component
 
   componentWillMount: =>
     @CONTENT_PADDING = 15
-    @DEFAULT_DELAY = 1500
-    @KEEP_DELAY = 500
+    @DEFAULT_DELAY = 2000
+    @KEEP_DELAY = 300
     @_showDelay = @DEFAULT_DELAY
     @_showTimeout = null
     @_showDelayTimeout = null
@@ -102,6 +102,13 @@ class Tooltip extends React.Component
     if top + FLIP_THRESHOLD > @_windowHeight()
       tooltipPos = "above"
       top = dim.top - TOOLTIP_HEIGHT
+
+    # If for some reason the element was removed from underneath us, we
+    # won't know until we get here. The element's dimensions will return 0
+    # ,0, which we can use to filter out bad displays
+    if left < 5 and top < 5
+      @_hideTooltip()
+      return
 
     @setState
       top: top
