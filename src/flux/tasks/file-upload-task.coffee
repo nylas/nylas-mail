@@ -1,5 +1,6 @@
 fs = require 'fs'
 _ = require 'underscore'
+crypto = require 'crypto'
 pathUtils = require 'path'
 Task = require './task'
 {APIError} = require '../errors'
@@ -12,20 +13,17 @@ DatabaseStore = require '../stores/database-store'
 NylasAPI = require '../nylas-api'
 Utils = require '../models/utils'
 
-idGen = 2
+UploadCounter = 0
 
 class FileUploadTask extends Task
 
-  # Necessary so that tasks always get the same ID during specs
-  @idGen: -> idGen
-
   constructor: (@filePath, @messageLocalId) ->
     super
-    @_startedUploadingAt = Date.now()
-    @progress = null # The progress checking timer.
+    @_startDate = Date.now()
+    @_startId = UploadCounter
+    UploadCounter += 1
 
-    @_uploadId = FileUploadTask.idGen()
-    idGen += 1
+    @progress = null # The progress checking timer.
 
   performLocal: ->
     return Promise.reject(new Error("Must pass an absolute path to upload")) unless @filePath?.length
@@ -62,11 +60,15 @@ class FileUploadTask extends Task
       return Promise.resolve(Task.Status.Finished)
 
     .catch APIError, (err) =>
-      Actions.uploadStateChanged(@_uploadData("failed"))
       if err.statusCode in NylasAPI.PermanentErrorCodes
         msg = "There was a problem uploading this file. Please try again later."
+        Actions.uploadStateChanged(@_uploadData("failed"))
         Actions.postNotification({message: msg, type: "error"})
-        return Promise.reject(err)
+        return Promise.resolve(Task.Status.Finished)
+      else if err.statusCode is NylasAPI.CancelledErrorCode
+        Actions.uploadStateChanged(@_uploadData("aborted"))
+        Actions.fileAborted(@_uploadData("aborted"))
+        return Promise.resolve(Task.Status.Finished)
       else
         return Promise.resolve(Task.Status.Retry)
 
@@ -108,11 +110,6 @@ class FileUploadTask extends Task
     # NylasAPI.makeRequest to reject with an error.
     return unless @req
     @req.abort()
-    clearInterval(@progress)
-
-    # To see the aborted state for a little bit
-    Actions.uploadStateChanged(@_uploadData("aborted"))
-    setTimeout(( =>  Actions.fileAborted(@_uploadData("aborted"))), 1000)
 
   # Helper Methods
 
@@ -131,8 +128,9 @@ class FileUploadTask extends Task
   #   state - one of "pending" "started" "progress" "completed" "aborted" "failed"
   _uploadData: (state) ->
     @_memoUploadData ?=
-      uploadId: @_uploadId
-      startedUploadingAt: @_startedUploadingAt
+      uploadTaskId: @id
+      startDate: @_startDate
+      startId: @_startId
       messageLocalId: @messageLocalId
       filePath: @filePath
       fileSize: @_getFileSize(@filePath)

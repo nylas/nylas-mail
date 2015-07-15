@@ -538,14 +538,14 @@ describe "populated composer", ->
         size: 7890
 
       @up1 =
-        uploadId: 4
+        uploadTaskId: 4
         messageLocalId: DRAFT_LOCAL_ID
         filePath: "/foo/bar/f4.bmp"
         fileName: "f4.bmp"
         fileSize: 1024
 
       @up2 =
-        uploadId: 5
+        uploadTaskId: 5
         messageLocalId: DRAFT_LOCAL_ID
         filePath: "/foo/bar/f5.zip"
         fileName: "f5.zip"

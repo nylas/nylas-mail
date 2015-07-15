@@ -299,7 +299,7 @@ class ComposerView extends React.Component
         if fileOrUpload instanceof File
           @_attachmentComponent(fileOrUpload, attachmentRole)
         else
-          <UploadComponent key={fileOrUpload.uploadId} uploadData={fileOrUpload} />
+          <UploadComponent key={fileOrUpload.uploadTaskId} uploadData={fileOrUpload} />
 
     <div className="attachments-area">
       {renderSubset(@_nonImages(), 'Attachment', FileUpload)}
@@ -340,7 +340,7 @@ class ComposerView extends React.Component
     if not uploadData
       sortOrder = 0
     else
-      sortOrder = uploadData.startedUploadingAt + (1 / +uploadData.uploadId)
+      sortOrder = (uploadData.startDate / 1) + 1.0 / (uploadData.startId/1)
 
     return sortOrder
 
@@ -359,7 +359,7 @@ class ComposerView extends React.Component
     uploads = _.filter @state.uploads, (upload) =>
       for file in @state.files
         linkedUpload = FileUploadStore.linkedUpload(file)
-        return false if linkedUpload and linkedUpload.uploadId is upload.uploadId
+        return false if linkedUpload and linkedUpload.uploadTaskId is upload.uploadTaskId
       return true
 
     _.compact(uploads.concat(@state.files))

@@ -1,5 +1,6 @@
 _ = require 'underscore'
 ipc = require 'ipc'
+fs = require 'fs'
 Reflux = require 'reflux'
 Actions = require '../actions'
 FileUploadTask = require '../tasks/file-upload-task'
@@ -44,18 +45,32 @@ FileUploadStore = Reflux.createStore
     atom.showOpenDialog {properties: ['openFile', 'multiSelections']}, (pathsToOpen) ->
       return if not pathsToOpen?
       pathsToOpen = [pathsToOpen] if _.isString(pathsToOpen)
-      for path in pathsToOpen
-        # When this task runs, we expect to hear `uploadStateChanged` actions.
+
+      pathsToOpen.forEach (path) ->
         Actions.attachFilePath({messageLocalId, path})
+
+  _onAttachFileError: (message) ->
+    remote = require('remote')
+    dialog = remote.require('dialog')
+    dialog.showMessageBox
+      type: 'info',
+      buttons: ['OK'],
+      message: 'Cannot Attach File',
+      detail: message
 
   _onAttachFilePath: ({messageLocalId, path}) ->
     @_verifyId(messageLocalId)
-    @task = new FileUploadTask(path, messageLocalId)
-    Actions.queueTask(@task)
+    fs.stat path, (err, stats) =>
+      return if err
+      if stats.isDirectory()
+        filename = require('path').basename(path)
+        @_onAttachFileError("#{filename} is a directory. Try compressing it and attaching it again.")
+      else
+        Actions.queueTask(new FileUploadTask(path, messageLocalId))
 
   # Receives:
   #   uploadData:
-  #     uploadId - A unique id
+  #     uploadTaskId - A unique id
   #     messageLocalId - The localId of the message (draft) we're uploading to
   #     filePath - The full absolute local system file path
   #     fileSize - The size in bytes
@@ -63,27 +78,25 @@ FileUploadStore = Reflux.createStore
   #     bytesUploaded - Current number of bytes uploaded
   #     state - one of "pending" "started" "progress" "completed" "aborted" "failed"
   _onUploadStateChanged: (uploadData) ->
-    @_fileUploads[uploadData.uploadId] = uploadData
+    @_fileUploads[uploadData.uploadTaskId] = uploadData
     @trigger()
 
   _onAbortUpload: (uploadData) ->
-    Actions.dequeueMatchingTask({
+    Actions.dequeueMatchingTask
       type: 'FileUploadTask',
-      matching: {
-        filePath: uploadData.filePath
-      }
-    })
+      matching:
+        id: uploadData.uploadTaskId
 
   _onLinkFileToUpload: ({file, uploadData}) ->
     @_linkedFiles[file.id] = uploadData
     @trigger()
 
   _onFileUploaded: ({file, uploadData}) ->
-    delete @_fileUploads[uploadData.uploadId]
+    delete @_fileUploads[uploadData.uploadTaskId]
     @trigger()
 
   _onFileAborted: (uploadData) ->
-    delete @_fileUploads[uploadData.uploadId]
+    delete @_fileUploads[uploadData.uploadTaskId]
     @trigger()
 
   _verifyId: (messageLocalId) ->
