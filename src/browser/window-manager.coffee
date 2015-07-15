@@ -15,6 +15,7 @@ class WindowManager
       @ensurePrimaryWindowOnscreen()
 
   ensurePrimaryWindowOnscreen: ->
+    return if global.application.quitting
     hasToken = @config.get('nylas.token')
     if hasToken
       @showMainWindow()
