@@ -182,15 +182,18 @@ class AtomWindow
     @browserWindow.webContents.on 'crashed', =>
       global.application.exit(100) if @exitWhenDone
 
-      dialog = require 'dialog'
-      chosen = dialog.showMessageBox @browserWindow,
-        type: 'warning'
-        buttons: ['Close Window', 'Reload', 'Keep It Open']
-        message: 'Nylas Mail has crashed'
-        detail: 'Please report this issue to us at support@nylas.com.'
-      switch chosen
-        when 0 then @browserWindow.destroy()
-        when 1 then @browserWindow.restart()
+      if @mainWindow
+        @browserWindow.restart()
+      else
+        dialog = require 'dialog'
+        chosen = dialog.showMessageBox @browserWindow,
+          type: 'warning'
+          buttons: ['Close Window', 'Reload', 'Keep It Open']
+          message: 'Nylas Mail has crashed'
+          detail: 'Please report this issue to us at support@nylas.com.'
+        switch chosen
+          when 0 then @browserWindow.destroy()
+          when 1 then @browserWindow.restart()
 
     @setupContextMenu()
 

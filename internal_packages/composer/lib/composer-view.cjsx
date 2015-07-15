@@ -571,7 +571,7 @@ class ComposerView extends React.Component
     # There can be a delay between when the send request gets initiated
     # by a user and when the draft is prepared on on the TaskQueue, which
     # is how we detect that the draft is sending.
-    @setState isSending: true
+    @setState(isSending: true)
 
     Actions.sendDraft(@props.localId)
 
