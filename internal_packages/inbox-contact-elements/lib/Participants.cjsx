@@ -20,9 +20,9 @@ class Participants extends React.Component
     chips = @getParticipants().map (p) =>
       <ContactChip key={p.nameEmail()} clickable={@props.clickable} participant={p} />
 
-    <div displayName="div.participants" className="participants">
+    <span>
       {chips}
-    </div>
+    </span>
 
   getParticipants: =>
     myEmail = NamespaceStore.current().emailAddress
