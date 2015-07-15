@@ -10,6 +10,9 @@ NylasLongConnection = require './nylas-long-connection'
 {modelFromJSON, modelClassMap} = require './models/utils'
 async = require 'async'
 
+PermanentErrorCodes = [400, 404, 500]
+CancelledErrorCode = -123
+
 class NylasAPIOptimisticChangeTracker
   constructor: ->
     @_locks = {}
@@ -61,12 +64,18 @@ class NylasAPIRequest
             @options.success?(body)
             resolve(body)
       req.on 'abort', ->
-        reject(new APIError({statusCode: 0, body: 'Request Aborted'}))
+        cancelled = new APIError
+          statusCode: CancelledErrorCode,
+          body: 'Request Aborted'
+        reject(cancelled)
+
       @options.started?(req)
+
 
 class NylasAPI
 
-  PermanentErrorCodes: [400, 404, 500]
+  PermanentErrorCodes: PermanentErrorCodes
+  CancelledErrorCode: CancelledErrorCode
 
   constructor: ->
     @_workers = []

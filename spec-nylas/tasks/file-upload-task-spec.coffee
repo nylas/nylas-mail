@@ -49,11 +49,9 @@ DATE = 1433963615918
 describe "FileUploadTask", ->
   beforeEach ->
     spyOn(Date, "now").andReturn DATE
-    spyOn(FileUploadTask, "idGen").andReturn 3
 
     @uploadData =
-      uploadId: 3
-      startedUploadingAt: DATE
+      startDate: DATE
       messageLocalId: localId
       filePath: test_file_paths[0]
       fileSize: 1234
@@ -89,13 +87,9 @@ describe "FileUploadTask", ->
       (new FileUploadTask(test_file_paths[0])).performLocal().catch (err) ->
         expect(err instanceof Error).toBe true
 
-  it 'initializes an uploadId', ->
-    task = new FileUploadTask(test_file_paths[0], localId)
-    expect(task._uploadId).toBeGreaterThan 2
-
   it 'initializes the upload start', ->
     task = new FileUploadTask(test_file_paths[0], localId)
-    expect(task._startedUploadingAt).toBe DATE
+    expect(task._startDate).toBe DATE
 
   it "notifies when the task locally starts", ->
     spyOn(Actions, "uploadStateChanged")
@@ -103,23 +97,60 @@ describe "FileUploadTask", ->
     waitsForPromise =>
       @task.performLocal().then =>
         data = _.extend @uploadData, state: "pending", bytesUploaded: 0
-        expect(Actions.uploadStateChanged).toHaveBeenCalledWith data
+        dataReceived = Actions.uploadStateChanged.calls[0].args[0]
+        expect(_.isMatch(dataReceived, data)).toBe(true)
 
   describe "when the remote API request fails with an API Error", ->
-    it "broadcasts uploadStateChanged", ->
-      runs ->
-        @task.performRemote().catch (err) => console.log(err)
-      waitsFor ->
-        @simulateRequestFailure
-      runs ->
-        spyOn(@task, "_getBytesUploaded").andReturn(0)
-        spyOn(Actions, "uploadStateChanged")
-        @simulateRequestFailure(new APIError())
-      waitsFor ->
-        Actions.uploadStateChanged.callCount > 0
-      runs ->
-        data = _.extend(@uploadData, {state: "failed", bytesUploaded: 0})
-        expect(Actions.uploadStateChanged).toHaveBeenCalledWith(data)
+    beforeEach ->
+      @taskExitStatus = null
+      @runWithError = (simulatedError) =>
+        runs ->
+          @task.performRemote().catch (err) ->
+            console.log(err)
+          .then (status) =>
+            @taskExitStatus = status
+
+        waitsFor ->
+          @simulateRequestFailure
+        runs ->
+          spyOn(@task, "_getBytesUploaded").andReturn(0)
+          spyOn(Actions, "uploadStateChanged")
+          @simulateRequestFailure(simulatedError)
+        waitsFor ->
+          Actions.uploadStateChanged.callCount > 0
+          advanceClock(100)
+
+    describe "if the error is permanent", ->
+      beforeEach ->
+        @runWithError(new APIError(statusCode: 400))
+
+      it "should broadcast `failed` if the error is permanent", ->
+        runs ->
+          data = _.extend(@uploadData, {state: "failed", bytesUploaded: 0})
+          dataReceived = Actions.uploadStateChanged.calls[0].args[0]
+          expect(_.isMatch(dataReceived, data)).toBe(true)
+
+      it "should resolve with `finished`", ->
+        runs ->
+          expect(@taskExitStatus).toBe(Task.Status.Finished)
+
+    describe "if the error is temporary", ->
+      beforeEach ->
+        @runWithError(new APIError(statusCode: 0))
+
+      it "should resolve with `retry`", ->
+        runs ->
+          expect(@taskExitStatus).toBe(Task.Status.Retry)
+
+    describe "if the request was cancelled", ->
+      beforeEach ->
+        @runWithError(new APIError(statusCode: NylasAPI.CancelledErrorCode))
+
+      it "should broadcast `aborted` if the upload was cancelled", ->
+        runs ->
+          data = _.extend(@uploadData, {state: "aborted", bytesUploaded: 0})
+          dataReceived = Actions.uploadStateChanged.calls[0].args[0]
+          expect(_.isMatch(dataReceived, data)).toBe(true)
 
   describe "when the remote API request succeeds", ->
     beforeEach ->
@@ -140,7 +171,8 @@ describe "FileUploadTask", ->
       waitsForPromise =>
         @task.performLocal().then =>
           data = _.extend @uploadData, state: "pending", bytesUploaded: 0
-          expect(Actions.uploadStateChanged).toHaveBeenCalledWith data
+          dataReceived = Actions.uploadStateChanged.calls[0].args[0]
+          expect(_.isMatch(dataReceived, data)).toBe(true)
 
     it "should start an API request", ->
       waitsForPromise => @task.performRemote().then ->
@@ -162,11 +194,14 @@ describe "FileUploadTask", ->
         @simulateRequestSuccess()
         advanceClock()
         Actions.fileUploaded.calls.length > 0
-        expect(Actions.fileUploaded).toHaveBeenCalledWith
-          file: equivalentFile
-          uploadData: _.extend {}, @uploadData,
-            state: "completed"
-            bytesUploaded: 1000
+
+        uploadDataExpected = _.extend {}, @uploadData,
+          state: "completed"
+          bytesUploaded: 1000
+
+        [{file, uploadData}] = Actions.fileUploaded.calls[0].args
+        expect(file).toEqual(equivalentFile)
+        expect(_.isMatch(uploadData, uploadDataExpected)).toBe(true)
 
     describe "when attaching a lot of files", ->
       it "attaches them all to the draft", ->
@@ -207,7 +242,3 @@ describe "FileUploadTask", ->
       advanceClock()
 
       expect(@req.abort).toHaveBeenCalled()
-      data = _.extend @uploadData,
-        state: "aborted"
-        bytesUploaded: 0
-      expect(Actions.uploadStateChanged).toHaveBeenCalledWith(data)

@@ -1,6 +1,7 @@
 File = require '../../src/flux/models/file'
 Actions = require '../../src/flux/actions'
 FileUploadStore = require '../../src/flux/stores/file-upload-store'
+fs = require 'fs'
 
 msgId = "local-123"
 fpath = "/foo/bar/test123.jpg"
@@ -12,7 +13,7 @@ describe 'FileUploadStore', ->
       filename: "test123.jpg"
       size: 12345
     @uploadData =
-      uploadId: 123
+      uploadTaskId: 123
       messageLocalId: msgId
       filePath: fpath
       fileSize: 12345
@@ -22,7 +23,7 @@ describe 'FileUploadStore', ->
 
     spyOn(Actions, "queueTask")
 
-  describe 'when a user wants to attach a file', ->
+  describe 'attachFile', ->
     it "throws if the message id is blank", ->
       expect( -> Actions.attachFile()).toThrow()
 
@@ -35,11 +36,13 @@ describe 'FileUploadStore', ->
       expect(args.messageLocalId).toBe msgId
       expect(args.path).toBe fpath
 
-  describe 'when a user selected the file to attach', ->
+  describe 'attachFilePath', ->
     it "throws if the message id is blank", ->
       expect( -> Actions.attachFilePath()).toThrow()
 
     it 'Creates a new file upload task', ->
+      spyOn(fs, 'stat').andCallFake (path, callback) ->
+        callback(null, {isDirectory: -> false})
       Actions.attachFilePath
         messageLocalId: msgId
         path: fpath
@@ -47,6 +50,16 @@ describe 'FileUploadStore', ->
       t = Actions.queueTask.calls[0].args[0]
       expect(t.filePath).toBe fpath
       expect(t.messageLocalId).toBe msgId
+
+    it 'displays an error if the file path given is a directory', ->
+      spyOn(FileUploadStore, '_onAttachFileError')
+      spyOn(fs, 'stat').andCallFake (path, callback) ->
+        callback(null, {isDirectory: -> true})
+      Actions.attachFilePath
+        messageLocalId: msgId
+        path: fpath
+      expect(Actions.queueTask).not.toHaveBeenCalled()
+      expect(FileUploadStore._onAttachFileError).toHaveBeenCalled()
 
   describe 'when an uploading file is aborted', ->
     it "dequeues the matching task", ->
@@ -56,7 +69,7 @@ describe 'FileUploadStore', ->
       arg = Actions.dequeueMatchingTask.calls[0].args[0]
       expect(arg).toEqual
         type: "FileUploadTask"
-        matching: filePath: fpath
+        matching: id: @uploadData.uploadTaskId
 
   describe 'when upload state changes', ->
     it 'updates the uploadData', ->
