@@ -15,7 +15,7 @@ class ImageAttachmentComponent extends AttachmentComponent
 
       {@_renderFileActions()}
 
-      <div className="file-preview" onClick={@_onClickView}>
+      <div className="file-preview" onDoubleClick={@_onClickView}>
         <div className="file-name-container">
           <div className="file-name">{@props.file.displayName()}</div>
         </div>
