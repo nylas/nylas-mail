@@ -42,14 +42,15 @@ class DraftChangeSet
       @_timer = setTimeout(@commit, 5000)
 
   commit: =>
-    @_commitChain = @_commitChain.then =>
+    @_commitChain = @_commitChain.finally =>
       if Object.keys(@_pending).length is 0
         return Promise.resolve(true)
 
       DatabaseStore = require './database-store'
       return DatabaseStore.findByLocalId(Message, @localId).then (draft) =>
         if not draft
-          throw new Error("Tried to commit a draft that had already been removed from the database. DraftId: #{@localId}")
+          throw new Error("DraftChangeSet.commit: Assertion failure. Draft #{@localId} has already been removed from the database.")
+
         @_saving = @_pending
         @_pending = {}
         draft = @applyToModel(draft)
@@ -101,9 +102,8 @@ class DraftStoreProxy
       @_draftPromise = Promise.resolve(@)
 
     @prepare().catch (error) ->
-      console.error(error)
       console.error(error.stack)
-      throw new Error("DraftStoreProxy prepare() failed with error #{error.toString()}.")
+      throw new Error("DraftStoreProxy prepare() failed: #{error.toString()}.")
 
   # Public: Returns the draft object with the latest changes applied.
   #
@@ -123,7 +123,7 @@ class DraftStoreProxy
       DatabaseStore = require './database-store'
       DatabaseStore.findByLocalId(Message, @draftLocalId).then (draft) =>
         if not draft
-          reject(new Error("Can't prepare. Draft is null"))
+          reject(new Error("Assertion Failure: Draft #{@draftLocalId} not found."))
         else
           @_setDraft(draft)
           resolve(@)

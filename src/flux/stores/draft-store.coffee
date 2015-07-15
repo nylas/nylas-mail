@@ -401,8 +401,7 @@ class DraftStore
 
       # Immediately save any pending changes so we don't save after sending
       session.changes.commit().then =>
-
-        task = new SendDraftTask draftLocalId, {fromPopout: @_isPopout()}
+        task = new SendDraftTask(draftLocalId, {fromPopout: @_isPopout()})
 
         if atom.isMainWindow()
           # We need to wait for performLocal to finish before `trigger`ing.
