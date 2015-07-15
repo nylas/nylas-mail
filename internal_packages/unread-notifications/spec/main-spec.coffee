@@ -34,6 +34,24 @@ describe "UnreadNotifications", ->
       from: [new Contact(name: 'Mark', email: 'mark@example.com')]
       subject: "Hello World 2"
       threadId: "A"
+    @msg3 = new Message
+      unread: true
+      date: new Date()
+      from: [new Contact(name: 'Ben', email: 'ben@example.com')]
+      subject: "Hello World"
+      threadId: "A"
+    @msg4 = new Message
+      unread: true
+      date: new Date()
+      from: [new Contact(name: 'Ben', email: 'ben@example.com')]
+      subject: "Hello World"
+      threadId: "A"
+    @msg5 = new Message
+      unread: true
+      date: new Date()
+      from: [new Contact(name: 'Ben', email: 'ben@example.com')]
+      subject: "Hello World"
+      threadId: "A"
     @msgUnreadButArchived = new Message
       unread: true
       date: new Date()
@@ -81,15 +99,27 @@ describe "UnreadNotifications", ->
     waitsForPromise =>
       Main._onNewMailReceived({message: [@msgRead, @msg1]})
       .then ->
+        advanceClock(2000)
         expect(window.Notification).toHaveBeenCalled()
         expect(window.Notification.mostRecentCall.args).toEqual([ 'Ben', { body : 'Hello World', tag : 'unread-update' } ])
 
-  it "should create a Notification if there is more than one unread message", ->
+  it "should create multiple Notifications if there is more than one but less than five unread messages", ->
     waitsForPromise =>
-      Main._onNewMailReceived({message: [@msg1, @msg2, @msgRead]})
+      Main._onNewMailReceived({message: [@msg1, @msg2, @msg3]})
       .then ->
+        #Need to call advance clock twice because we call setTimeout twice
+        advanceClock(2000)
+        advanceClock(2000)
+        expect(window.Notification.callCount).toEqual(3)
+
+  it "should create a Notification if there are five or more unread messages", ->
+    waitsForPromise =>
+      Main._onNewMailReceived({
+        message: [@msg1, @msg2, @msg3, @msg4, @msg5]})
+      .then ->
+        advanceClock(2000)
         expect(window.Notification).toHaveBeenCalled()
-        expect(window.Notification.mostRecentCall.args).toEqual([ '2 Unread Messages', { tag : 'unread-update' } ])
+        expect(window.Notification.mostRecentCall.args).toEqual([ '5 Unread Messages', { tag : 'unread-update' } ])
 
   it "should create a Notification correctly, even if new mail has no sender", ->
     waitsForPromise =>
