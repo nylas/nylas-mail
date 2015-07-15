@@ -50,7 +50,7 @@ class AttachmentComponent extends React.Component
 
   render: =>
     <AttachmentDragContainer downloadUrl={@_getDragDownloadURL()}>
-      <div className="inner" onClick={@_onClickView}>
+      <div className="inner" onDoubleClick={@_onClickView}>
         <span className={"progress-bar-wrap state-#{@props.download?.state ? ""}"}>
           <span className="progress-background"></span>
           <span className="progress-foreground" style={@_downloadProgressStyle()}></span>
