@@ -10,22 +10,22 @@ class ImageFileUpload extends FileUpload
     uploadData: React.PropTypes.object
 
   render: =>
-    <div className="image-file-upload #{@props.uploadData.state}">
-      <div className="attachment-file-actions">
-        <div className="attachment-icon" onClick={@_onClickRemove}>
-          <RetinaImg className="image-remove-icon" name="image-cancel-button.png"/>
-        </div>
+    <div className="file-wrap file-image-wrap file-upload">
+      <div className="file-action-icon" onClick={@_onClickRemove}>
+        <RetinaImg name="image-cancel-button.png"/>
       </div>
 
-      <div className="attachment-preview" >
-        <div className="attachment-name-container">
-          <div className="attachment-name">{@props.uploadData.fileName}</div>
+      <div className="file-preview">
+        <div className="file-name-container">
+          <div className="file-name">{@props.uploadData.fileName}</div>
         </div>
+
         <DraggableImg src={@props.uploadData.filePath} />
       </div>
 
-      <span className="attachment-upload-progress" style={@_uploadProgressStyle()}></span>
-
+      <div className={"progress-bar-wrap state-#{@props.uploadData.state}"}>
+        <span className="progress-foreground" style={@_uploadProgressStyle()}></span>
+      </div>
     </div>
 
 module.exports = ImageFileUpload

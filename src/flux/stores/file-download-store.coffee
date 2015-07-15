@@ -12,22 +12,32 @@ progress = require 'request-progress'
 NamespaceStore = require '../stores/namespace-store'
 NylasAPI = require '../nylas-api'
 
-UNTITLED = "Untitled"
+Promise.promisifyAll(fs)
+
+mkdirpAsync = (folder) ->
+  new Promise (resolve, reject) ->
+    mkdirp folder, (err) ->
+      if err then reject(err) else resolve(folder)
 
 class Download
   constructor: ({@fileId, @targetPath, @filename, @filesize, @progressCallback}) ->
+    if not @filename or @filename.length is 0
+      throw new Error("Download.constructor: You must provide a non-empty filename.")
+    if not @fileId
+      throw new Error("Download.constructor: You must provide a fileID to download.")
+    if not @targetPath
+      throw new Error("Download.constructor: You must provide a target path to download.")
+
     @percent = 0
     @promise = null
-    if (@filename ? "").trim().length is 0
-      @filename = UNTITLED
     @
 
   state: ->
     if not @promise
       'unstarted'
-    if @promise.isFulfilled()
+    else if @promise.isFulfilled()
       'finished'
-    if @promise.isRejected()
+    else if @promise.isRejected()
       'failed'
     else
       'downloading'
@@ -49,62 +59,47 @@ class Download
     return @promise if @promise
 
     @promise = new Promise (resolve, reject) =>
-      return reject(new Error("Must pass a fileID to download")) unless @fileId?
-      return reject(new Error("Must have a target path to download")) unless @targetPath?
+      namespace = NamespaceStore.current()?.id
+      stream = fs.createWriteStream(@targetPath)
+      finished = false
+      finishedAction = null
 
-      fs.exists @targetPath, (exists) =>
-        # Does the file already exist on disk? If so, just resolve immediately.
-        if exists
-          fs.stat @targetPath, (err, stats) =>
-            if not err and stats.size >= @filesize
-              return resolve(@)
-            else
-              @_doDownload(resolve, reject)
+      # We need to watch the request for `success` or `error`, but not fire
+      # a callback until the stream has ended. These helper functions ensure
+      # that resolve or reject is only fired once regardless of the order
+      # these two events (stream end and `success`) happen in.
+      streamEnded = ->
+        finished = true
+        if finishedAction
+          finishedAction(@)
+
+      onStreamEnded = (action) ->
+        if finished
+          action(@)
         else
-          @_doDownload(resolve, reject)
+          finishedAction = action
 
-  _doDownload: (resolve, reject) =>
-    namespace = NamespaceStore.current()?.id
-    stream = fs.createWriteStream(@targetPath)
-    finished = false
-    finishedAction = null
+      NylasAPI.makeRequest
+        json: false
+        path: "/n/#{namespace}/files/#{@fileId}/download"
+        started: (req) =>
+          @request = req
+          progress(@request, {throtte: 250})
+          .on "progress", (progress) =>
+            @percent = progress.percent
+            @progressCallback()
+          .on "end", =>
+            # Wait for the file stream to finish writing before we resolve or reject
+            stream.end(streamEnded)
+          .pipe(stream)
 
-    # We need to watch the request for `success` or `error`, but not fire
-    # a callback until the stream has ended. These helper functions ensure
-    # that resolve or reject is only fired once regardless of the order
-    # these two events (stream end and `success`) happen in.
-    streamEnded = ->
-      finished = true
-      if finishedAction
-        finishedAction(@)
+        success: =>
+          # At this point, the file stream has not finished writing to disk.
+          # Don't resolve yet, or the browser will load only part of the image.
+          onStreamEnded(resolve)
 
-    onStreamEnded = (action) ->
-      if finished
-        action(@)
-      else
-        finishedAction = action
-
-    NylasAPI.makeRequest
-      json: false
-      path: "/n/#{namespace}/files/#{@fileId}/download"
-      started: (req) =>
-        @request = req
-        progress(@request, {throtte: 250})
-        .on "progress", (progress) =>
-          @percent = progress.percent
-          @progressCallback()
-        .on "end", =>
-          # Wait for the file stream to finish writing before we resolve or reject
-          stream.end(streamEnded)
-        .pipe(stream)
-
-      success: =>
-        # At this point, the file stream has not finished writing to disk.
-        # Don't resolve yet, or the browser will load only part of the image.
-        onStreamEnded(resolve)
-
-      error: =>
-        onStreamEnded(reject)
+        error: =>
+          onStreamEnded(reject)
 
   abort: ->
     @request?.abort()
@@ -130,11 +125,7 @@ FileDownloadStore = Reflux.createStore
   #
   pathForFile: (file) ->
     return undefined unless file
-    if file.filename and file.filename.length > 0
-      downloadFilename = file.filename
-    else
-      downloadFilename = file.id
-    path.join(@_downloadDirectory, file.id, downloadFilename)
+    path.join(@_downloadDirectory, file.id, file.displayName())
 
   downloadDataForFile: (fileId) -> @_downloads[fileId]?.data()
 
@@ -150,8 +141,8 @@ FileDownloadStore = Reflux.createStore
 
   ########### PRIVATE ####################################################
 
-  # Returns a promise allowing other actions to be daisy-chained
-  # to the end of the download operation
+  # Returns a promise with a Download object, allowing other actions to be
+  # daisy-chained to the end of the download operation.
   _startDownload: (file, options = {}) ->
     @_prepareFolder(file).then =>
       targetPath = @pathForFile(file)
@@ -161,31 +152,46 @@ FileDownloadStore = Reflux.createStore
       download = @_downloads[file.id]
       return download.run() if download
 
-      # create a new download for this file and add it to our queue
+      # create a new download for this file
       download = new Download
         fileId: file.id
         filesize: file.size
-        filename: file.filename
+        filename: file.displayName()
         targetPath: targetPath
         progressCallback: => @trigger()
 
-      cleanup = =>
-        @_cleanupDownload(download)
-        Promise.resolve(download)
-
-      @_downloads[file.id] = download
-      promise = download.run().catch(cleanup).then(cleanup)
-      @trigger()
-      return promise
-
-  _prepareFolder: (file) ->
-    new Promise (resolve, reject) =>
-      folder = path.join(@_downloadDirectory, file.id)
-      fs.exists folder, (exists) =>
-        if exists then resolve(folder)
+      # Do we actually need to queue and run the download? Queuing a download
+      # for an already-downloaded file has side-effects, like making the UI
+      # flicker briefly.
+      @_checkForDownloadedFile(file).then (downloaded) =>
+        if downloaded
+          # If we have the file, just resolve with a resolved download representing the file.
+          download.promise = Promise.resolve()
+          return Promise.resolve(download)
         else
-          mkdirp folder, (err) =>
-            if err then reject(err) else resolve(folder)
+          cleanup = =>
+            @_cleanupDownload(download)
+            Promise.resolve(download)
+          @_downloads[file.id] = download
+          @trigger()
+          return download.run().catch(cleanup).then(cleanup)
+
+  # Returns a promise that resolves with true or false. True if the file has
+  # been downloaded, false if it should be downloaded.
+  #
+  _checkForDownloadedFile: (file) ->
+    fs.statAsync(@pathForFile(file)).catch (err) =>
+      return Promise.resolve(false)
+    .then (stats) =>
+      return Promise.resolve(stats.size >= file.size)
+
+  # Checks that the folder for the download is ready. Returns a promise that
+  # resolves when the download directory for the file has been created.
+  #
+  _prepareFolder: (file) ->
+    targetFolder = path.join(@_downloadDirectory, file.id)
+    fs.statAsync(targetFolder).catch =>
+      mkdirpAsync(targetFolder)
 
   _fetch: (file) ->
     @_startDownload(file)
@@ -226,10 +232,4 @@ FileDownloadStore = Reflux.createStore
     if not fs.existsSync(downloadDir)
       downloadDir = os.tmpdir()
 
-    path.join(downloadDir, @_filename(file.filename))
-
-  # Sometimes files can have no name.
-  _filename: (filename="") ->
-    if filename.trim().length is 0
-      return UNTITLED
-    else return filename
+    path.join(downloadDir, file.displayName())

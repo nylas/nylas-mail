@@ -2,6 +2,7 @@ React = require 'react'
 _ = require 'underscore'
 
 {Utils,
+ File,
  Actions,
  DraftStore,
  UndoManager,
@@ -295,7 +296,7 @@ class ComposerView extends React.Component
   _renderAttachments: ->
     renderSubset = (arr, attachmentRole, UploadComponent) =>
       arr.map (fileOrUpload) =>
-        if fileOrUpload.object is "file"
+        if fileOrUpload instanceof File
           @_attachmentComponent(fileOrUpload, attachmentRole)
         else
           <UploadComponent key={fileOrUpload.uploadId} uploadData={fileOrUpload} />
@@ -317,9 +318,9 @@ class ComposerView extends React.Component
       messageLocalId: @props.localId
 
     if role is "Attachment"
-      className = "non-image-attachment attachment-file-wrap"
+      className = "file-wrap"
     else
-      className = "image-attachment-file-wrap"
+      className = "file-wrap file-image-wrap"
 
     <InjectedComponent key={file.id}
                        matching={role: role}
@@ -464,8 +465,24 @@ class ComposerView extends React.Component
 
   _onDrop: (e) =>
     e.preventDefault()
+
+    # Accept drops of real files from other applications
     for file in e.dataTransfer.files
       Actions.attachFilePath({path: file.path, messageLocalId: @props.localId})
+
+    # Accept drops from attachment components within the app
+    if "text/nylas-file-url" in event.dataTransfer.types
+      downloadURL = event.dataTransfer.getData("text/nylas-file-url")
+      downloadFilePath = downloadURL.split('file://')[1]
+      Actions.attachFilePath({path: downloadFilePath, messageLocalId: @props.localId})
+
+    # Accept drops of images from within the app
+    if "text/uri-list" in event.dataTransfer.types
+      uri = event.dataTransfer.getData('text/uri-list')
+      if uri.indexOf('file://') is 0
+        uri = uri.split('file://')[1]
+        Actions.attachFilePath({path: uri, messageLocalId: @props.localId})
+
     true
 
   _onFilePaste: (path) =>

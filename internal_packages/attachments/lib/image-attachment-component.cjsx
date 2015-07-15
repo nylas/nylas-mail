@@ -7,32 +7,29 @@ class ImageAttachmentComponent extends AttachmentComponent
   @displayName: 'ImageAttachmentComponent'
 
   render: =>
-    <div className={"attachment-inner-wrap " + @props.download?.state ? ""}>
-      <span className="attachment-download-bar-wrap">
-        <span className="attachment-bar-bg"></span>
-        <span className="attachment-download-progress" style={@_downloadProgressStyle()}></span>
+    <div>
+      <span className={"progress-bar-wrap state-#{@props.download?.state ? ""}"}>
+        <span className="progress-background"></span>
+        <span className="progress-foreground" style={@_downloadProgressStyle()}></span>
       </span>
 
-      <div className="attachment-file-actions">
-        {@_renderFileActions()}
-      </div>
+      {@_renderFileActions()}
 
-      <div className="attachment-preview" onClick={@_onClickView}>
-        <div className="attachment-name-container">
-          <div className="attachment-name">{@props.file.filename}</div>
+      <div className="file-preview" onClick={@_onClickView}>
+        <div className="file-name-container">
+          <div className="file-name">{@props.file.displayName()}</div>
         </div>
         {@_imgOrLoader()}
       </div>
-
     </div>
 
   _canAbortDownload: -> false
 
   _renderRemoveIcon: ->
-    <RetinaImg className="image-remove-icon" name="image-cancel-button.png"/>
+    <RetinaImg name="image-cancel-button.png"/>
 
   _renderDownloadButton: ->
-    <RetinaImg className="image-download-icon" name="image-download-button.png"/>
+    <RetinaImg name="image-download-button.png"/>
 
   _imgOrLoader: ->
     if @props.download

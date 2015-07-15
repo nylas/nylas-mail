@@ -1,33 +1,32 @@
 @import "ui-variables";
 @import "ui-mixins";
 
-.attachment-file-wrap {
+.file-wrap {
   cursor: default;
   display: inline-block;
   position: relative;
   font-size: @font-size-small;
-  margin: 0 @spacing-standard @spacing-standard @spacing-standard;
-  background: @background-off-primary;
-  box-shadow: inset 0 0 1px 1px rgba(0,0,0,0.09);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  margin: 0 0 @spacing-standard @spacing-standard;
   width: calc(~"50% - 23px");
-  border-radius: 4px;
+  -webkit-user-drag: element;
 
-  &.non-image-attachment {
-    width: calc(~"50% - 23px");
-    margin-left: @spacing-standard;
+  .inner {
+    border-radius: 4px;
+    background: @background-off-primary;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.09);
+    padding: 13px @spacing-standard 13px @spacing-standard;
+    height:54px;
   }
 
-  &:nth-child(even) {
-    margin-left: 0;
+  &:hover {
+    cursor: default;
+    .inner {
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.18);
+    }
   }
 
   &.file-upload {
-    border-radius: 4px;
-    padding: 13px @spacing-standard 13px @spacing-standard;
-    .attachment-file-name {
+    .file-name {
       color: @text-color-very-subtle;
       .uploading {
         color: @text-color;
@@ -35,101 +34,66 @@
     }
   }
 
-  .attachment-inner-wrap {
-    border-radius: 4px;
-    padding: 13px @spacing-standard 13px @spacing-standard;
-    position: relative;
+  .progress-bar-wrap {
+    display: none;
+
+    &.state-downloading, &.state-started, &.state-progress {
+      display: block;
+    }
+
+    &.state-completed, &.state-success {
+      display: block;
+      .progress-foreground { background: @background-color-success; }
+    }
+
+    &.state-aborted, &.state-failed {
+      display: block;
+      .progress-foreground { background: @background-color-error; }
+    }
+
+    .progress-foreground {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      height: 2px;
+      width: 0; // Changed by React
+      z-index: 3;
+      display: block;
+      background: @progress-bar-fill;
+      border-bottom-left-radius:4px;
+    }
+    .progress-background {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      height: 2px;
+      width: 100%;
+      z-index: 2;
+      display: block;
+      background: @progress-bar-background;
+      border-bottom-left-radius:4px;
+      border-bottom-right-radius:4px;
+    }
+  }
+
+  .file-icon {
+    margin-right: 10px;
+    flex-shrink:0;
+  }
+  .file-name {
+    font-weight: @font-weight-medium;
+    flex: 1;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-
-  &:hover {
-    cursor: default;
-  }
-
-  &.pending, &.started, &.progress, &.downloading {
-  }
-
-  .attachment-file-icon {
-    margin-right: 7px;
-  }
-
-  .attachment-file-name {
-    font-weight: @font-weight-medium;
-    vertical-align: middle;
-  }
-  .attachment-file-and-name {
-    position: relative;
-    z-index: 2;
-    vertical-align: middle;
-  }
-
-  .attachment-file-actions {
-    position: relative;
-    z-index: 3;
-    .attachment-icon {
-      float: right;
-      margin-left: 10px;
-    }
+  .file-action-icon {
+    margin-left: 10px;
+    flex-shrink:0;
   }
 }
 
-.image-file-upload,
-.image-attachment-file-wrap,
-.attachment-file-wrap,
-.attachment-inner-wrap {
-
-  .attachment-download-bar-wrap {
-    display: none;
-  }
-
-  &.downloading, &.started, &.progress {
-    .attachment-download-bar-wrap {
-      display: block;
-    }
-  }
-
-  &.completed, &.success {
-    .attachment-download-bar-wrap {
-      display: block;
-    }
-    .attachment-upload-progress { background: @background-color-success; }
-  }
-
-  &.aborted, &.failed {
-    .attachment-download-bar-wrap {
-      display: block;
-    }
-    .attachment-upload-progress { background: @background-color-error; }
-  }
-
-  .attachment-download-progress,
-  .attachment-upload-progress {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    height: 2px;
-    width: 0; // Changed by React
-    z-index: 3;
-    display: block;
-    background: @progress-bar-fill;
-  }
-  .attachment-bar-bg {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    height: 2px;
-    width: 100%;
-    z-index: 2;
-    display: block;
-    background: @progress-bar-background;
-  }
-}
-
-.image-attachment-file-wrap,
-.image-file-upload {
-
+.file-wrap.file-image-wrap {
   position: relative;
   text-align: center;
   display:inline-block;
@@ -137,30 +101,27 @@
   margin-bottom: @spacing-standard;
   margin-right: @spacing-standard;
   margin-left: @spacing-standard;
+  width: initial;
+  max-width: calc(~"100% - 30px");
 
-  .attachment-download-progress,
-  .attachment-upload-progress {
+  .progress-foreground,
+  .progress-foreground {
     bottom: -2px;
   }
-  .attachment-bar-bg {
+  .progress-background {
     bottom: -2px;
   }
 
-  .attachment-file-actions {
-    position: relative;
-    z-index: 2;
+  .file-action-icon, .file-name-container, .file-name {
+    display: none;
   }
-
   &:hover {
-    .attachment-file-actions, .attachment-name-container, .attachment-name {
+    .file-action-icon, .file-name-container, .file-name {
       display: block;
     }
   }
-  .attachment-file-actions, .attachment-name-container, .attachment-name {
-    display: none;
-  }
 
-  .attachment-icon {
+  .file-action-icon {
     position: absolute;
     z-index: 2;
     right: -8px;
@@ -169,12 +130,13 @@
     border-radius: 0 0 0 3px;
   }
 
-  .attachment-preview {
+  .file-preview {
     position: relative;
     z-index: 1;
     overflow: hidden;
 
-    .attachment-name-container {
+    .file-name-container {
+      cursor: default;
       position: absolute;
       bottom: 0;
       top: 0;
@@ -185,10 +147,15 @@
       background: linear-gradient(to top, rgba(0,0,0,0.75) 0%,rgba(0,0,0,0) 23%);
       vertical-align:bottom;
 
-      .attachment-name {
+      // Important! file-name-container is on top of the image and prevents you from dragging it.
+      pointer-events: none;
+
+      .file-name {
         color: @white;
         left: @spacing-standard;
+        right: @spacing-standard;
         bottom: @spacing-standard;
+        text-align:left;
         position: absolute;
         z-index: 3;
       }

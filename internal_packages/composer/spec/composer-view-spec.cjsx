@@ -522,21 +522,18 @@ describe "populated composer", ->
 
   describe "A draft with files (attachments) and uploads", ->
     beforeEach ->
-      @file1 =
+      @file1 = new File
         id: "f_1"
-        object: "file"
         filename: "f1.pdf"
         size: 1230
 
-      @file2 =
+      @file2 = new File
         id: "f_2"
-        object: "file"
         filename: "f2.jpg"
         size: 4560
 
-      @file3 =
+      @file3 = new File
         id: "f_3"
-        object: "file"
         filename: "f3.png"
         size: 7890
 
@@ -566,20 +563,13 @@ describe "populated composer", ->
       expect(Actions.fetchFile.calls.length).toBe 1
       expect(Actions.fetchFile.calls[0].args[0]).toBe @file2
 
-    it 'renders the non image file as an attachment', ->
-      els = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@composer, InjectedComponent, matching: role: "Attachment")
+    it 'injects an Attachment component for non image files', ->
+      els = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@composer, InjectedComponent, matching: {role: "Attachment"})
       expect(els.length).toBe 1
 
-    it 'renders the image file as an attachment', ->
-      els = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@composer, InjectedComponent, matching: role: "Attachment:Image")
+    it 'injects an Attachment:Image component for image files', ->
+      els = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@composer, InjectedComponent, matching: {role: "Attachment:Image"})
       expect(els.length).toBe 1
-
-    it 'renders the uploads with the correct components', ->
-      el = ReactTestUtils.findRenderedDOMComponentWithClass(@composer, 'file-upload')
-      expect(el).toBeDefined()
-
-      el = ReactTestUtils.findRenderedDOMComponentWithClass(@composer, 'image-file-upload')
-      expect(el).toBeDefined()
 
 describe "when the DraftStore `isSending` isn't stubbed out", ->
   beforeEach ->

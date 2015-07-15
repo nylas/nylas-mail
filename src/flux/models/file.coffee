@@ -48,4 +48,22 @@ class File extends Model
       modelKey: 'contentId'
       jsonKey: 'content_id'
 
+  # Public: Files can have empty names, or no name. `displayName` returns the file's
+  # name if one is present, and falls back to appropriate default name based on
+  # the contentType. It will always return a non-empty string.
+  #
+  displayName: ->
+    defaultNames = {
+      'text/calendar': "Event.ics",
+      'image/png': 'Unnamed Image.png'
+      'image/jpg': 'Unnamed Image.jpg'
+      'image/jpeg': 'Unnamed Image.jpg'
+    }
+    if @filename and @filename.length
+      return @filename
+    else if defaultNames[@contentType]
+      return defaultNames[@contentType]
+    else
+      return "Unnamed Attachment"
+
 module.exports = File

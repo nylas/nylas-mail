@@ -375,6 +375,13 @@
 }
 .attachments-area {
   padding-top: @spacing-standard;
+
+  // attachments are padded on both sides so that things like the remove "X" can
+  // overhang them. To make the attachments line up with the body, we need to outdent
+  margin-left: -@spacing-standard;
+  margin-right: -@spacing-standard;
+
+  cursor:default;
 }
 
 

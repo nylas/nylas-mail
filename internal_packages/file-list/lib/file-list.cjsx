@@ -25,7 +25,7 @@ class FileList extends React.Component
       name: "Name"
       flex: 1
       resolver: (file) =>
-        <div>{file.filename}</div>
+        <div>{file.displayName()}</div>
 
     c2 = new ListTabular.Column
       name: "Size"

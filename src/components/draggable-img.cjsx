@@ -11,7 +11,7 @@ class DraggableImg extends React.Component
   constructor: (@props) ->
 
   render: =>
-    <img ref="img" onDragStart={@_onDragStart} {...@props} />
+    <img ref="img" draggable="true" onDragStart={@_onDragStart} {...@props} />
 
   _onDragStart: (event) =>
     img = React.findDOMNode(@refs.img)

@@ -226,7 +226,7 @@ class MessageItem extends React.Component
 
     otherAttachments = otherAttachments.map (file) =>
       <InjectedComponent
-        className="attachment-file-wrap"
+        className="file-wrap"
         matching={role:"Attachment"}
         exposedProps={file:file, download: @state.downloads[file.id]}
         key={file.id}/>
@@ -238,7 +238,7 @@ class MessageItem extends React.Component
         targetPath: FileDownloadStore.pathForFile(file)
 
       <InjectedComponent
-        className="image-attachment-file-wrap"
+        className="file-wrap file-image-wrap"
         matching={role:"Attachment:Image"}
         exposedProps={props}
         key={file.id} />
