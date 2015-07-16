@@ -124,7 +124,7 @@ class ContenteditableComponent extends React.Component
     # Note: Related to composer-view#_onClickComposeBody
     event.stopPropagation()
 
-  _onInput: (event) =>
+  _onInput: =>
     @_dragging = false
 
     @_runExtensionFilters()

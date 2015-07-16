@@ -31,10 +31,10 @@ class DraftChangeSet
     clearTimeout(@_timer) if @_timer
     @_timer = null
 
-  add: (changes, immediate) =>
+  add: (changes, {immediate, silent}={}) =>
     @_pending = _.extend(@_pending, changes)
     @_pending['pristine'] = false
-    @_onChange()
+    @_onChange() unless silent
     if immediate
       @commit()
     else

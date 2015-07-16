@@ -64,6 +64,10 @@ class ComposerView extends React.Component
   componentWillMount: =>
     @_prepareForDraft(@props.localId)
 
+  shouldComponentUpdate: (nextProps, nextState) =>
+    not Utils.isEqualReact(nextProps, @props) or
+    not Utils.isEqualReact(nextState, @state)
+
   componentDidMount: =>
     @_draftStoreUnlisten = DraftStore.listen @_onSendingStateChanged
     @_uploadUnlisten = FileUploadStore.listen @_onFileUploadStoreChange
@@ -104,6 +108,7 @@ class ComposerView extends React.Component
       @_focusOnUpdate = false
 
   componentWillReceiveProps: (newProps) =>
+    @_ignoreNextTrigger = false
     if newProps.localId isnt @props.localId
       # When we're given a new draft localId, we have to stop listening to our
       # current DraftStoreProxy, create a new one and listen to that. The simplest
@@ -426,6 +431,7 @@ class ComposerView extends React.Component
     @refs.contentBody.selectEnd()
 
   _onDraftChanged: =>
+    return if @_ignoreNextTrigger
     return unless @_proxy
     draft = @_proxy.draft()
 
@@ -522,7 +528,24 @@ class ComposerView extends React.Component
     return unless @_proxy
     if @_getSelections().currentSelection?.atEndOfContent
       @props.onRequestScrollTo?(messageId: @_proxy.draft().id, location: "bottom")
-    @_addToProxy(body: event.target.value)
+
+    # The body changes extremely frequently (on every key stroke). To keep
+    # performance up, we don't want to trigger every single key stroke
+    # since that will cause an entire composer re-render. We, however,
+    # never want to lose any data, so we still add data to the proxy on
+    # every keystroke.
+    #
+    # We want to use debounce instead of throttle because we don't want ot
+    # trigger janky re-renders mid quick-type. Let's just do it at the end
+    # when you're done typing and about to move onto something else.
+    @_addToProxy({body: event.target.value}, {fromBodyChange: true})
+    @_throttledTrigger ?= _.debounce =>
+      @_ignoreNextTrigger = false
+      @_proxy.trigger()
+    , 100
+
+    @_throttledTrigger()
+    return
 
   _onChangeEditableMode: ({showQuotedText}) =>
     @setState showQuotedText: showQuotedText
@@ -534,6 +557,12 @@ class ComposerView extends React.Component
 
     oldDraft = @_proxy.draft()
     return if _.all changes, (change, key) -> _.isEqual(change, oldDraft[key])
+
+    # Other extensions might want to hear about changes immediately. We
+    # only need to prevent this view from re-rendering until we're done
+    # throttling body changes.
+    if source.fromBodyChange then @_ignoreNextTrigger = true
+
     @_proxy.changes.add(changes)
 
     @_saveToHistory(selections) unless source.fromUndoManager
