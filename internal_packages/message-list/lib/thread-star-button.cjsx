@@ -1,6 +1,6 @@
 _ = require 'underscore'
 React = require 'react'
-{Actions, Utils, AddRemoveTagsTask} = require 'nylas-exports'
+{Actions, Utils, UpdateThreadsTask} = require 'nylas-exports'
 {RetinaImg} = require 'nylas-component-kit'
 
 class StarButton extends React.Component
@@ -9,7 +9,7 @@ class StarButton extends React.Component
     thread: React.PropTypes.object
 
   render: =>
-    selected = @props.thread? and @props.thread.isStarred()
+    selected = @props.thread? and @props.thread.starred
     <button className="btn btn-toolbar"
             data-tooltip="Star"
             onClick={@_onStarToggle}>
@@ -17,11 +17,13 @@ class StarButton extends React.Component
     </button>
 
   _onStarToggle: (e) =>
-    if @props.thread.isStarred()
-      task = new AddRemoveTagsTask(@props.thread, [], ['starred'])
+    threads = [@props.thread]
+    if @props.thread.starred
+      values = starred: false
     else
-      task = new AddRemoveTagsTask(@props.thread, ['starred'], [])
+      values = starred: true
 
+    task = new UpdateThreadsTask(threads, values)
     Actions.queueTask(task)
     e.stopPropagation()
 

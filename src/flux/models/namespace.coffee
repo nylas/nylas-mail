@@ -19,6 +19,10 @@ For more information about Namespaces on the Nylas Platform, read the
 `emailAddress`: {AttributeString} The Namespace's email address
 (ie: `ben@nylas.com`). Queryable.
 
+`organizationUnit`: {AttributeString} Either "label" or "folder".
+Depending on the provider, the account may be organized by folders or
+labels.
+
 This class also inherits attributes from {Model}
 
 Section: Models
@@ -37,6 +41,10 @@ class Namespace extends Model
       modelKey: 'emailAddress'
       jsonKey: 'email_address'
 
+    'organizationUnit': Attributes.String
+      modelKey: 'organizationUnit'
+      jsonKey: 'organization_unit'
+
   # Returns a {Contact} model that represents the current user.
   me: ->
     Contact = require './contact'
@@ -44,5 +52,9 @@ class Namespace extends Model
       namespaceId: @id
       name: @name
       email: @emailAddress
+
+  # Public: The current organization_unit used by the namespace.
+  usesLabels: -> @organizationUnit is "label"
+  usesFolders: -> @organizationUnit is "folder"
 
 module.exports = Namespace

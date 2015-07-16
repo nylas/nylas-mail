@@ -23,10 +23,14 @@ class NamespaceStore
   constructor: ->
     @_items = []
     @_current = null
+    @_namespaces = []
 
     saveState = atom.config.get(saveStateKey)
     if saveState and _.isObject(saveState)
-      @_current = (new Namespace).fromJSON(saveState)
+      savedNamespace = (new Namespace).fromJSON(saveState)
+      if savedNamespace.usesLabels() or savedNamespace.usesFolders()
+        @_current = savedNamespace
+        @_namespaces = [@_current]
 
     @listenTo Actions.selectNamespaceId, @onSelectNamespaceId
     @listenTo DatabaseStore, @onDataChanged
@@ -37,14 +41,18 @@ class NamespaceStore
     DatabaseStore.findAll(Namespace).then (namespaces) =>
       current = _.find namespaces, (n) -> n.id is @_current?.id
       current = namespaces?[0] unless current
-      if current isnt @_current or not _.isEqual(namespaces, @_namespaces)
-        atom.config.set(saveStateKey, current)
-        @_current = current
-        @_namespaces = namespaces
-        @trigger(@)
 
+      if current and (current.usesLabels() or current.usesFolders())
+        if not _.isEqual(current, @_current) or not _.isEqual(namespaces, @_namespaces)
+          atom.config.set(saveStateKey, current)
+          @_current = current
+          @_namespaces = namespaces
+          @trigger(@)
+      else
+        DatabaseStore.unpersistModel(current) if current
+        atom.config.unset(saveStateKey)
     .catch (err) =>
-      console.warn("Request for Namespaces failed. #{err}")
+      console.warn("Request for Namespaces failed. #{err}", err.stack)
 
   # Inbound Events
 

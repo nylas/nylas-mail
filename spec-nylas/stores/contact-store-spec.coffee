@@ -7,12 +7,16 @@ NamespaceStore = require '../../src/flux/stores/namespace-store'
 
 describe "ContactStore", ->
   beforeEach ->
+    atom.testOrganizationUnit = "folder"
     ContactStore._contactCache = []
     ContactStore._fetchOffset = 0
     ContactStore._namespaceId = null
     ContactStore._lastNamespaceId = null
     NamespaceStore._current =
       id: "nsid"
+
+  afterEach ->
+    atom.testOrganizationUnit = null
 
   it "initializes the cache from the DB", ->
     spyOn(DatabaseStore, "findAll").andCallFake -> Promise.resolve([])

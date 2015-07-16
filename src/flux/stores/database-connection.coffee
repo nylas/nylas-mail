@@ -161,7 +161,8 @@ class DatabaseConnection
     queries.push("CREATE UNIQUE INDEX IF NOT EXISTS `#{klass.name}_id` ON `#{klass.name}` (`id`)")
 
     # Identify collection attributes that can be matched against. These require
-    # JOIN tables. (Right now the only one of these is Thread.tags)
+    # JOIN tables. (Right now the only one of these is Thread.folders or
+    # Thread.labels)
     collectionAttributes = _.filter attributes, (attr) ->
       attr.queryable && attr instanceof AttributeCollection
     collectionAttributes.forEach (attribute) ->

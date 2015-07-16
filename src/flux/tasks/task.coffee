@@ -50,6 +50,7 @@ class Task
   @Status: TaskStatus
 
   constructor: ->
+    @_rememberedToCallSuper = true
     @_performLocalCompletePromise = new Promise (resolve, reject) =>
       # This is called by the `TaskQueue` immeidately after `performLocal`
       # has finished and the task has been added to the Queue.
@@ -67,6 +68,9 @@ class Task
     @
 
   runLocal: ->
+    if not @_rememberedToCallSuper
+      throw new Error("Your must call `super` from your Task's constructors")
+
     if @queueState.localComplete
       return Promise.resolve()
     else
@@ -116,6 +120,8 @@ class Task
       throw new Error("waitForPerformLocal is only supported in the main window. In
              secondary windows, tasks are serialized and sent to the main
              window, and cannot be observed.")
+    if not @_performLocalCompletePromise
+      throw new Error("This #{@constructor.name} Task did not call `super` in it's constructor! You must call `super`")
     @_performLocalCompletePromise
 
   cancel: ->

@@ -34,6 +34,7 @@
     "git-utils": "^3.0.0",
     "grim": "1.1.0",
     "guid": "0.0.10",
+    "inflection": "^1.7",
     "jasmine-json": "~0.0",
     "jasmine-tagged": "^1.1.2",
     "jquery": "^2.1.1",

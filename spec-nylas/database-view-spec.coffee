@@ -1,7 +1,7 @@
 _ = require 'underscore'
 EventEmitter = require('events').EventEmitter
 proxyquire = require 'proxyquire'
-Tag = require '../src/flux/models/tag'
+Label = require '../src/flux/models/label'
 Thread = require '../src/flux/models/thread'
 Message = require '../src/flux/models/message'
 
@@ -131,17 +131,17 @@ describe "DatabaseView", ->
 
     describe "invalidateAfterDatabaseChange", ->
       beforeEach ->
-        @inbox = new Tag(id: 'inbox', name: 'Inbox')
-        @archive = new Tag(id: 'archive', name: 'archive')
-        @a = new Thread(id: 'a', subject: 'a', tags:[@inbox], lastMessageTimestamp: new Date(1428526885604))
-        @b = new Thread(id: 'b', subject: 'b', tags:[@inbox], lastMessageTimestamp: new Date(1428526885604))
-        @c = new Thread(id: 'c', subject: 'c', tags:[@inbox], lastMessageTimestamp: new Date(1428526885604))
-        @d = new Thread(id: 'd', subject: 'd', tags:[@inbox], lastMessageTimestamp: new Date(1428526885604))
-        @e = new Thread(id: 'e', subject: 'e', tags:[@inbox], lastMessageTimestamp: new Date(1428526885604))
-        @f = new Thread(id: 'f', subject: 'f', tags:[@inbox], lastMessageTimestamp: new Date(1428526885604))
+        @inbox = new Label(id: 'l-1', name: 'inbox', displayName: 'Inbox')
+        @archive = new Label(id: 'l-2', name: 'archive', displayName: 'archive')
+        @a = new Thread(id: 'a', subject: 'a', labels:[@inbox], lastMessageTimestamp: new Date(1428526885604))
+        @b = new Thread(id: 'b', subject: 'b', labels:[@inbox], lastMessageTimestamp: new Date(1428526885604))
+        @c = new Thread(id: 'c', subject: 'c', labels:[@inbox], lastMessageTimestamp: new Date(1428526885604))
+        @d = new Thread(id: 'd', subject: 'd', labels:[@inbox], lastMessageTimestamp: new Date(1428526885604))
+        @e = new Thread(id: 'e', subject: 'e', labels:[@inbox], lastMessageTimestamp: new Date(1428526885604))
+        @f = new Thread(id: 'f', subject: 'f', labels:[@inbox], lastMessageTimestamp: new Date(1428526885604))
 
         @view = new DatabaseView Thread,
-          matchers: [Thread.attributes.tags.contains('inbox')]
+          matchers: [Thread.attributes.labels.contains('l-1')]
         @view._pages =
           "0":
             items: [@a, @b, @c]
@@ -159,12 +159,12 @@ describe "DatabaseView", ->
 
       it "should invalidate the entire range if a provided item is in the set but no longer matches the set", ->
         a = new Thread(@a)
-        a.tags = [@archive]
+        a.labels = [@archive]
         @view.invalidateAfterDatabaseChange({objects:[a], type:'persist'})
         expect(@view.invalidateRetainedRange).toHaveBeenCalled()
 
       it "should invalidate the entire range if a provided item is not in the set but matches the set", ->
-        incoming = new Thread(id: 'a', subject: 'a', tags:[@inbox], lastMessageTimestamp: new Date())
+        incoming = new Thread(id: 'a', subject: 'a', labels:[@inbox], lastMessageTimestamp: new Date())
         @view.invalidateAfterDatabaseChange({objects:[incoming], type:'persist'})
         expect(@view.invalidateRetainedRange).toHaveBeenCalled()
 
@@ -175,7 +175,7 @@ describe "DatabaseView", ->
         expect(@view.invalidateRetainedRange).toHaveBeenCalled()
 
       it "should not do anything if no provided items are in the set or belong in the set", ->
-        archived = new Thread(id: 'zz', tags: [@archive])
+        archived = new Thread(id: 'zz', labels: [@archive])
         @view.invalidateAfterDatabaseChange({objects:[archived], type: 'persist'})
         expect(@view.invalidateRetainedRange).not.toHaveBeenCalled()
 
@@ -186,7 +186,7 @@ describe "DatabaseView", ->
         expect(@view.invalidateRetainedRange).not.toHaveBeenCalled()
 
         a = new Thread(@a)
-        a.tags = [@inbox, @archive] # not realistic, but doesn't change membership in set
+        a.labels = [@inbox, @archive] # not realistic, but doesn't change membership in set
         @view.invalidateAfterDatabaseChange({objects:[a], type: 'persist'})
         expect(@view.invalidateRetainedRange).not.toHaveBeenCalled()
 
@@ -210,7 +210,7 @@ describe "DatabaseView", ->
           @start = @view._pages[1].lastTouchTime
           runs ->
             b = new Thread(@b)
-            b.tags = []
+            b.labels = []
             @view.invalidateAfterDatabaseChange({objects:[b], type: 'persist'})
           waitsFor ->
             @view._emitter.emit.callCount > 0

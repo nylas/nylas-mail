@@ -2,9 +2,9 @@ React = require 'react'
 {Actions} = require("nylas-exports")
 {ScrollRegion} = require("nylas-component-kit")
 SidebarDividerItem = require("./account-sidebar-divider-item")
-SidebarTagItem = require("./account-sidebar-tag-item")
 SidebarSheetItem = require("./account-sidebar-sheet-item")
-SidebarStore = require ("./account-sidebar-store")
+AccountSidebarStore = require ("./account-sidebar-store")
+AccountSidebarCategoryItem = require("./account-sidebar-category-item")
 
 class AccountSidebar extends React.Component
   @displayName: 'AccountSidebar'
@@ -18,7 +18,7 @@ class AccountSidebar extends React.Component
     @state = @_getStateFromStores()
 
   componentDidMount: =>
-    @unsubscribe = SidebarStore.listen @_onStoreChange
+    @unsubscribe = AccountSidebarStore.listen @_onStoreChange
 
   # It's important that every React class explicitly stops listening to
   # atom events before it unmounts. Thank you event-kit
@@ -42,8 +42,8 @@ class AccountSidebar extends React.Component
 
   _itemComponents: (section) =>
     section.items?.map (item) =>
-      if section.type is 'tag'
-        itemClass = SidebarTagItem
+      if section.type is 'category'
+        itemClass = AccountSidebarCategoryItem
       else if section.type is 'sheet'
         itemClass = item.sidebarComponent ? SidebarSheetItem
       else
@@ -58,8 +58,8 @@ class AccountSidebar extends React.Component
     @setState @_getStateFromStores()
 
   _getStateFromStores: =>
-    sections: SidebarStore.sections()
-    selected: SidebarStore.selected()
+    sections: AccountSidebarStore.sections()
+    selected: AccountSidebarStore.selected()
 
 
 module.exports = AccountSidebar

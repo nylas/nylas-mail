@@ -105,6 +105,7 @@ Promise.setScheduler (fn) ->
   process.nextTick -> advanceClock(1)
 
 beforeEach ->
+  atom.testOrganizationUnit = null
   Grim.clearDeprecations() if isCoreSpec
   ComponentRegistry._clear()
   global.localStorage.clear()
@@ -148,6 +149,8 @@ beforeEach ->
   spyOn(NamespaceStore, 'current').andCallFake ->
     emailAddress: 'tester@nylas.com'
     id: 'nsid'
+    usesLabels: -> atom.testOrganizationUnit is "label"
+    usesFolders: -> atom.testOrganizationUnit is "folder"
     me: ->
       new Contact(email: 'tester@nylas.com', name: 'Ben Tester')
 

@@ -1,4 +1,4 @@
-Tag = require '../../src/flux/models/tag'
+Label = require '../../src/flux/models/label'
 Model = require '../../src/flux/models/model'
 Attributes = require '../../src/flux/attributes'
 
@@ -40,10 +40,10 @@ TestModel.configureWithCollectionAttribute = ->
     'id': Attributes.String
       queryable: true
       modelKey: 'id'
-    'tags': Attributes.Collection
+    'labels': Attributes.Collection
       queryable: true
-      modelKey: 'tags'
-      itemClass: Tag
+      modelKey: 'labels'
+      itemClass: Label
 
 
 TestModel.configureWithJoinedDataAttribute = ->

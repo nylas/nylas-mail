@@ -5,7 +5,6 @@ WorkspaceStore = require './workspace-store'
 DatabaseStore = require './database-store'
 Actions = require '../actions'
 Thread = require '../models/thread'
-AddRemoveTagsTask = require '../tasks/add-remove-tags'
 
 {Listener, Publisher} = require '../modules/reflux-coffee'
 CoffeeHelpers = require '../coffee-helpers'

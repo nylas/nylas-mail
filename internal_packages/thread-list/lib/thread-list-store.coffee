@@ -1,26 +1,23 @@
-Reflux = require 'reflux'
 _ = require 'underscore'
+NylasStore = require 'nylas-store'
 
-{DatabaseStore,
- DatabaseView,
+{Thread,
+ Message,
+ Actions,
  SearchView,
+ DatabaseView,
+ DatabaseStore,
  NamespaceStore,
  WorkspaceStore,
- AddRemoveTagsTask,
- FocusedTagStore,
+ UpdateThreadsTask,
  FocusedContentStore,
- Actions,
- Utils,
- Thread,
- Tag,
- Message} = require 'nylas-exports'
+ ArchiveThreadHelper,
+ FocusedCategoryStore} = require 'nylas-exports'
 
-# Public: A mutable text container with undo/redo support and the ability to
-# annotate logical regions in the text.
-#
-module.exports =
-ThreadListStore = Reflux.createStore
-  init: ->
+# Public: A mutable text container with undo/redo support and the ability
+# to annotate logical regions in the text.
+class ThreadListStore extends NylasStore
+  constructor: ->
     @_resetInstanceVars()
 
     @listenTo Actions.searchQueryCommitted, @_onSearchCommitted
@@ -35,10 +32,15 @@ ThreadListStore = Reflux.createStore
     @listenTo Actions.toggleStarFocused, @_onToggleStarFocused
 
     @listenTo DatabaseStore, @_onDataChanged
-    @listenTo FocusedTagStore, @_onTagChanged
     @listenTo NamespaceStore, @_onNamespaceChanged
+    @listenTo FocusedCategoryStore, @_onCategoryChanged
 
-    @createView()
+    # We can't create a @view on construction because the CategoryStore
+    # has hot yet been populated from the database with the list of
+    # categories and their corresponding ids. Once that is ready, the
+    # CategoryStore will trigger, which will update the
+    # FocusedCategoryStore, which will cause us to create a new
+    # @view.
 
   _resetInstanceVars: ->
     @_lastQuery = null
@@ -59,16 +61,23 @@ ThreadListStore = Reflux.createStore
     @trigger(@)
 
   createView: ->
-    tagId = FocusedTagStore.tagId()
-    namespaceId = NamespaceStore.current()?.id
+    categoryId = FocusedCategoryStore.categoryId()
+    namespace = NamespaceStore.current()
+    return unless namespace
 
     if @_searchQuery
-      @setView(new SearchView(@_searchQuery, namespaceId))
+      @setView(new SearchView(@_searchQuery, namespace.id))
 
-    else if namespaceId and tagId
+    else if namespace.id and categoryId
       matchers = []
-      matchers.push Thread.attributes.namespaceId.equal(namespaceId)
-      matchers.push Thread.attributes.tags.contains(tagId) if tagId isnt Tag.AllMailID
+      matchers.push Thread.attributes.namespaceId.equal(namespace.id)
+
+      if namespace.usesLabels()
+        matchers.push Thread.attributes.labels.contains(categoryId)
+      else if namespace.usesFolders()
+        matchers.push Thread.attributes.folders.contains(categoryId)
+      else
+        throw new Error("Invalid organizationUnit")
       view = new DatabaseView Thread, {matchers}, (ids) =>
         DatabaseStore.findAll(Message).where(Message.attributes.threadId.in(ids)).then (messages) ->
           messagesByThread = {}
@@ -83,7 +92,7 @@ ThreadListStore = Reflux.createStore
 
   # Inbound Events
 
-  _onTagChanged: ->
+  _onCategoryChanged: ->
     @createView()
 
   _onNamespaceChanged: ->
@@ -91,7 +100,7 @@ ThreadListStore = Reflux.createStore
     namespaceMatcher = (m) ->
       m.attribute() is Thread.attributes.namespaceId and m.value() is namespaceId
 
-    return if @view and _.find(@view.matchers, namespaceMatcher)
+    return if @_view and _.find(@_view.matchers, namespaceMatcher)
     @createView()
 
   _onSearchCommitted: (query) ->
@@ -100,6 +109,8 @@ ThreadListStore = Reflux.createStore
     @createView()
 
   _onDataChanged: (change) ->
+    return unless @_view
+
     if change.objectClass is Thread.name
       @_view.invalidate({change: change, shallow: true})
 
@@ -114,23 +125,19 @@ ThreadListStore = Reflux.createStore
 
     oneAlreadyStarred = false
     for thread in selectedThreads
-      if thread.hasTagId('starred')
+      if thread.starred
         oneAlreadyStarred = true
 
-    if oneAlreadyStarred
-      task = new AddRemoveTagsTask(selectedThreads, [], ['starred'])
-    else
-      task = new AddRemoveTagsTask(selectedThreads, ['starred'], [])
+    values = starred: (not oneAlreadyStarred)
+    task = new UpdateThreadsTask(selectedThreads, values)
     Actions.queueTask(task)
 
   _onToggleStarFocused: ->
     focused = FocusedContentStore.focused('thread')
     return unless focused
 
-    if focused.isStarred()
-      task = new AddRemoveTagsTask(focused, [], ['starred'])
-    else
-      task = new AddRemoveTagsTask(focused, ['starred'], [])
+    values = starred: (not focused.starred)
+    task = new UpdateThreadsTask([focused], values)
     Actions.queueTask(task)
 
   _onArchive: ->
@@ -142,7 +149,7 @@ ThreadListStore = Reflux.createStore
     focusedId = FocusedContentStore.focusedId('thread')
     keyboardId = FocusedContentStore.keyboardCursorId('thread')
 
-    task = new AddRemoveTagsTask(selectedThreads, ['archive'], ['inbox'])
+    task = ArchiveThreadHelper.getArchiveTask(selectedThreads)
     task.waitForPerformLocal().then =>
       if focusedId in selectedThreadIds
         Actions.setFocus(collection: 'thread', item: null)
@@ -171,7 +178,7 @@ ThreadListStore = Reflux.createStore
 
     # Determine the next index we want to move to
     if offset is 'auto'
-      if @_view.get(index - 1)?.isUnread()
+      if @_view.get(index - 1)?.unread
         offset = -1
       else
         offset = 1
@@ -189,7 +196,7 @@ ThreadListStore = Reflux.createStore
       nextFocus = null
 
     # Archive the current thread
-    task = new AddRemoveTagsTask(focused, ['archive'], ['inbox'])
+    task = ArchiveThreadHelper.getArchiveTask([focused])
     task.waitForPerformLocal().then ->
       Actions.setFocus(collection: 'thread', item: nextFocus)
       Actions.setCursorPosition(collection: 'thread', item: nextKeyboard)
@@ -202,3 +209,5 @@ ThreadListStore = Reflux.createStore
       item = @_view.get(0)
       _.defer =>
         Actions.setFocus({collection: 'thread', item: item})
+
+module.exports = new ThreadListStore()

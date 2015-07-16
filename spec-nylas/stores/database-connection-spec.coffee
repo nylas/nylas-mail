@@ -38,8 +38,8 @@ describe "DatabaseConnection", ->
       expected = [
         'CREATE TABLE IF NOT EXISTS `TestModel` (id TEXT PRIMARY KEY,data BLOB)',
         'CREATE UNIQUE INDEX IF NOT EXISTS `TestModel_id` ON `TestModel` (`id`)',
-        'CREATE TABLE IF NOT EXISTS `TestModel-Tag` (id TEXT KEY, `value` TEXT)'
-        'CREATE UNIQUE INDEX IF NOT EXISTS `TestModel_Tag_id_val` ON `TestModel-Tag` (`id`,`value`)',
+        'CREATE TABLE IF NOT EXISTS `TestModel-Label` (id TEXT KEY, `value` TEXT)'
+        'CREATE UNIQUE INDEX IF NOT EXISTS `TestModel_Label_id_val` ON `TestModel-Label` (`id`,`value`)',
       ]
       for query,i in queries
         expect(query).toBe(expected[i])

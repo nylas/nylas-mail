@@ -2,9 +2,9 @@ React = require 'react/addons'
 Sheet = require './sheet'
 Flexbox = require './components/flexbox'
 RetinaImg = require './components/retina-img'
-FocusedTagStore = require './flux/stores/focused-tag-store'
+CategoryStore = require './flux/stores/category-store'
+FocusedCategoryStore = require './flux/stores/focused-category-store'
 TimeoutTransitionGroup = require './components/timeout-transition-group'
-Tag = require './flux/models/tag'
 _str = require 'underscore.string'
 _ = require 'underscore'
 
@@ -40,20 +40,20 @@ class ToolbarBack extends React.Component
 
   constructor: (@props) ->
     @state =
-      tagId: FocusedTagStore.tagId()
+      categoryName: FocusedCategoryStore.categoryName()
 
   componentDidMount: =>
-    @_unsubscriber = FocusedTagStore.listen =>
-      @setState(tagId: FocusedTagStore.tagId())
+    @_unsubscriber = FocusedCategoryStore.listen =>
+      @setState(categoryName: FocusedCategoryStore.categoryName())
 
   componentWillUnmount: =>
     @_unsubscriber() if @_unsubscriber
 
   render: =>
-    if @state.tagId is Tag.AllMailID
+    if @state.categoryName is CategoryStore.AllMailName
       title = 'All Mail'
-    else if @state.tagId
-      title = _str.titleize(@state.tagId)
+    else if @state.categoryName
+      title = _str.titleize(@state.categoryName)
     else
       title = "Back"
 

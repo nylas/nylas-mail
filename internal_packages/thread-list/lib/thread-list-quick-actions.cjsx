@@ -3,7 +3,7 @@ React = require 'react'
 {Actions,
  Utils,
  Thread,
- AddRemoveTagsTask,
+ ArchiveThreadHelper,
  NamespaceStore} = require 'nylas-exports'
 
 class ThreadListQuickActions extends React.Component
@@ -15,7 +15,7 @@ class ThreadListQuickActions extends React.Component
     actions = []
     actions.push <div key="reply" className="action action-reply" onClick={@_onReply}></div>
     actions.push <div key="fwd" className="action action-forward" onClick={@_onForward}></div>
-    if not @props.thread.hasTagId('archive')
+    if not @props.thread.hasCategoryName('archive')
       actions.push <div key="archive" className="action action-archive" onClick={@_onArchive}></div>
 
     <div className="inner">
@@ -36,7 +36,8 @@ class ThreadListQuickActions extends React.Component
     event.stopPropagation()
 
   _onArchive: (event) =>
-    Actions.queueTask(new AddRemoveTagsTask(@props.thread, ['archive'], ['inbox']))
+    task = ArchiveThreadHelper.getArchiveTask([@props.thread])
+    Actions.queueTask(task)
 
     # Don't trigger the thread row click
     event.stopPropagation()

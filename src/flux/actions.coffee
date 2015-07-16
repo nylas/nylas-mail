@@ -34,7 +34,7 @@ how it propogates between windows.
 ```coffee
 Actions.postNotification({message: "Archived Thread", type: 'success'})
 
-Actions.queueTask(new MarkThreadReadTask(@_thread))
+Actions.queueTask(new UpdateThreadsTask([@_thread], starred: true))
 ```
 
 ## Listening for Actions
@@ -201,15 +201,15 @@ class Actions
   @setFocus: ActionScopeWindow
 
   ###
-  Public: Focus the interface on a specific {Tag}.
+  Public: Focus the interface on a specific {Category}.
 
   *Scope: Window*
 
   ```
-  Actions.focusTag(<Tag>)
+  Actions.focusCategory(<Category>)
   ```
   ###
-  @focusTag: ActionScopeWindow
+  @focusCategory: ActionScopeWindow
 
   ###
   Public: If the message with the provided id is currently beign displayed in the

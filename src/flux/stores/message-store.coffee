@@ -6,7 +6,7 @@ Utils = require '../models/utils'
 DatabaseStore = require "./database-store"
 NamespaceStore = require "./namespace-store"
 FocusedContentStore = require "./focused-content-store"
-MarkThreadReadTask = require '../tasks/mark-thread-read'
+UpdateThreadsTask = require '../tasks/update-threads-task'
 NylasAPI = require '../nylas-api'
 async = require 'async'
 _ = require 'underscore'
@@ -156,10 +156,11 @@ MessageStore = Reflux.createStore
           # Mark the thread as read if necessary. Wait 700msec so that flipping
           # through threads doens't mark them all. Make sure it's still the
           # current thread after the timeout.
-          if @_thread.isUnread()
+          if @_thread.unread
             setTimeout =>
               return unless loadedThreadId is @_thread?.id
-              Actions.queueTask(new MarkThreadReadTask(@_thread))
+              t = new UpdateThreadsTask([@_thread], unread: false)
+              Actions.queueTask(t)
             ,700
 
           @_itemsLoading = false

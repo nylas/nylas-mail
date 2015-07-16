@@ -1,24 +1,24 @@
-Reflux = require 'reflux'
+NylasStore = require 'nylas-store'
 _ = require 'underscore'
-{DatabaseStore,
+{CategoryStore,
+ DatabaseStore,
+ CategoryStore,
  NamespaceStore,
  WorkspaceStore,
- UnreadCountStore,
  DraftCountStore,
  Actions,
- Tag,
+ Label,
+ Folder,
  Message,
- FocusedTagStore,
+ FocusedCategoryStore,
  NylasAPI,
  Thread} = require 'nylas-exports'
 
-AccountSidebarStore = Reflux.createStore
-  init: ->
-    @_tags = []
-
-    @_setStoreDefaults()
+class AccountSidebarStore extends NylasStore
+  constructor: ->
+    @_sections = []
     @_registerListeners()
-    @_populate()
+    @_refreshSections()
 
   ########### PUBLIC #####################################################
 
@@ -27,61 +27,46 @@ AccountSidebarStore = Reflux.createStore
 
   selected: ->
     if WorkspaceStore.rootSheet() is WorkspaceStore.Sheet.Threads
-      FocusedTagStore.tag()
+      FocusedCategoryStore.category()
     else
       WorkspaceStore.rootSheet()
 
   ########### PRIVATE ####################################################
 
-  _setStoreDefaults: ->
-    @_sections = []
-
   _registerListeners: ->
-    @listenTo DatabaseStore, @_onDataChanged
-    @listenTo NamespaceStore, @_onNamespaceChanged
-    @listenTo WorkspaceStore, @_onWorkspaceChanged
-    @listenTo UnreadCountStore, @_onCountChanged
-    @listenTo DraftCountStore, @_onCountChanged
-    @listenTo FocusedTagStore, @_onFocusChange
+    @listenTo CategoryStore, @_refreshSections
+    @listenTo WorkspaceStore, @_refreshSections
+    @listenTo DraftCountStore, @_refreshSections
+    @listenTo FocusedCategoryStore, => @trigger()
 
-  _populate: ->
+  _refreshSections: =>
     namespace = NamespaceStore.current()
     return unless namespace
 
-    DatabaseStore.findAll(Tag, namespaceId: namespace.id).then (tags) =>
-      @_tags = tags
-      @_build()
+    categories = CategoryStore.categories()
 
-  _build: ->
-    tags = @_tags
-
-    # Collect the built-in tags we want to display, and the user tags
-    # (which can be identified by having non-hardcoded IDs)
+    # Categories need to be fetched from the DB, and if necessary the API.
+    # They might not be ready yet.
+    return unless categories.length > 0
 
     # We ignore the server drafts so we can use our own localDrafts
-    tags = _.reject tags, (tag) -> tag.id is "drafts"
+    #
+    # Our local drafts are displayed via the `DraftListSidebarItem` which
+    # is loading into the `Drafts` Sheet.
+    categories = _.reject categories, (category) =>
+      category.name is "drafts"
 
-    # We ignore the trash tag because you can't trash anything
-    tags = _.reject tags, (tag) -> tag.id is "trash"
+    # Collect the built-in categories we want to display, and the user
+    # categories (which can be identified by having non-hardcoded IDs)
+    standardCategories = _.filter categories, @_isStandardCategory
+    userCategories = _.reject categories, @_isStandardCategory
 
-    # Clone the tag objects so that components holding on to tags
-    # don't have identical object references with new data.
-    tags = _.map tags, (tag) -> new Tag(tag)
+    # Sort the standard categories so they always appear in the same order
+    standardCategories = _.sortBy standardCategories, (category) =>
+      CategoryStore.standardCategories.indexOf(category.name)
 
-    mainTagIDs = ['inbox', 'starred', 'drafts', 'sent', 'archive']
-    mainTags = _.filter tags, (tag) -> _.contains(mainTagIDs, tag.id)
-    userTags = _.reject tags, (tag) -> _.contains(mainTagIDs, tag.id)
-
-    # Sort the main tags so they always appear in a standard order
-    mainTags = _.sortBy mainTags, (tag) -> mainTagIDs.indexOf(tag.id)
-    mainTags.push new Tag(name: 'All Mail', id: Tag.AllMailID)
-
-    # Add the counts
-    inboxTag = _.find tags, (tag) -> tag.id is 'inbox'
-    inboxTag?.unreadCount = UnreadCountStore.count()
-
-    # Sort user tags by name
-    userTags = _.sortBy(userTags, 'name')
+    # Sort user categories by name
+    userCategories = _.sortBy(userCategories, 'displayName')
 
     # Find root views, add the Views section
     featureSheets = _.filter WorkspaceStore.Sheet, (sheet) ->
@@ -92,35 +77,14 @@ AccountSidebarStore = Reflux.createStore
     lastSections = @_sections
     @_sections = [
       { label: '', items: featureSheets, type: 'sheet' },
-      { label: 'Mailboxes', items: mainTags, type: 'tag' },
+      { label: 'Mailboxes', items: standardCategories, type: 'category' },
       { label: 'Views', items: extraSheets, type: 'sheet' },
-      { label: 'Tags', items: userTags, type: 'tag' },
+      { label: CategoryStore.categoryLabel(), items: userCategories, type: 'category' },
     ]
 
-    @trigger(@)
+    @trigger()
 
-  _refetchFromAPI: ->
-    namespace = NamespaceStore.current()
-    return unless namespace
-    NylasAPI.getCollection(namespace.id, 'tags')
+  _isStandardCategory: (category) =>
+    category.name and category.name in CategoryStore.standardCategories
 
-  # Inbound Events
-
-  _onNamespaceChanged: ->
-    @_refetchFromAPI()
-    @_populate()
-
-  _onWorkspaceChanged: ->
-    @_populate()
-
-  _onCountChanged: ->
-    @_build()
-
-  _onFocusChange: ->
-    @trigger(@)
-
-  _onDataChanged: (change) ->
-    if change.objectClass is Tag.name
-      @_populate()
-
-module.exports = AccountSidebarStore
+module.exports = new AccountSidebarStore()

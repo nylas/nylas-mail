@@ -10,6 +10,7 @@ describe "NamespaceStore", ->
       "id": "123",
       "email_address":"bengotow@gmail.com",
       "object":"namespace"
+      "organization_unit": "label"
 
     spyOn(atom.config, 'get').andCallFake -> state
     instance = new @constructor

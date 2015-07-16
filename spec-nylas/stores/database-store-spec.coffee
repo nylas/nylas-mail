@@ -1,7 +1,7 @@
 _ = require 'underscore'
 ipc = require 'ipc'
 
-Tag = require '../../src/flux/models/tag'
+Label = require '../../src/flux/models/label'
 TestModel = require '../fixtures/db-test-model'
 ModelQuery = require '../../src/flux/models/query'
 DatabaseStore = require '../../src/flux/stores/database-store'
@@ -99,7 +99,7 @@ describe "DatabaseStore", ->
 
     it "should throw an exception if the models are not the same class,\
         since it cannot be specified by the trigger payload", ->
-      expect(-> DatabaseStore.persistModels([testModelInstanceA, new Tag()])).toThrow()
+      expect(-> DatabaseStore.persistModels([testModelInstanceA, new Label()])).toThrow()
 
   describe "unpersistModel", ->
     it "should delete the model by Id", -> waitsForPromise =>
@@ -136,7 +136,7 @@ describe "DatabaseStore", ->
         waitsForPromise =>
           DatabaseStore.unpersistModel(testModelInstance).then =>
             expect(@performed.length).toBe(4)
-            expect(@performed[2].query).toBe("DELETE FROM `TestModel-Tag` WHERE `id` = ?")
+            expect(@performed[2].query).toBe("DELETE FROM `TestModel-Label` WHERE `id` = ?")
             expect(@performed[2].values[0]).toBe('1234')
 
     describe "when the model has joined data attributes", ->
@@ -186,14 +186,14 @@ describe "DatabaseStore", ->
       beforeEach ->
         TestModel.configureWithCollectionAttribute()
         @m = new TestModel(id: 'local-6806434c-b0cd')
-        @m.tags = [new Tag(id: 'a'),new Tag(id: 'b')]
+        @m.labels = [new Label(id: 'a'),new Label(id: 'b')]
         DatabaseStore._writeModels([@m])
 
       it "should delete all association records for the model from join tables", ->
-        expect(@performed[1].query).toBe('DELETE FROM `TestModel-Tag` WHERE `id` IN (\'local-6806434c-b0cd\')')
+        expect(@performed[1].query).toBe('DELETE FROM `TestModel-Label` WHERE `id` IN (\'local-6806434c-b0cd\')')
 
       it "should insert new association records into join tables in a single query", ->
-        expect(@performed[2].query).toBe('INSERT OR IGNORE INTO `TestModel-Tag` (`id`, `value`) VALUES (?,?),(?,?)')
+        expect(@performed[2].query).toBe('INSERT OR IGNORE INTO `TestModel-Label` (`id`, `value`) VALUES (?,?),(?,?)')
         expect(@performed[2].values).toEqual(['local-6806434c-b0cd', 'a','local-6806434c-b0cd', 'b'])
 
     describe "when the model has joined data attributes", ->

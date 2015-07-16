@@ -12,7 +12,7 @@ describe "ModelQuery", ->
     beforeEach ->
       @q = new ModelQuery(Thread, @db)
       @m1 = Thread.attributes.id.equal(4)
-      @m2 = Thread.attributes.tags.contains('inbox')
+      @m2 = Thread.attributes.labels.contains('label-id')
 
     it "should accept an array of Matcher objects", ->
       @q.where([@m1,@m2])
@@ -130,18 +130,18 @@ describe "ModelQuery", ->
 
     it "should correctly generate `contains` queries using JOINS", ->
       @runScenario Thread,
-        builder: (q) -> q.where(Thread.attributes.tags.contains('inbox')).where({id: '1234'})
+        builder: (q) -> q.where(Thread.attributes.labels.contains('label-id')).where({id: '1234'})
         sql: "SELECT `Thread`.`data` FROM `Thread` \
-              INNER JOIN `Thread-Tag` AS `M1` ON `M1`.`id` = `Thread`.`id` \
-              WHERE `M1`.`value` = 'inbox' AND `Thread`.`id` = '1234'  \
+              INNER JOIN `Thread-Label` AS `M1` ON `M1`.`id` = `Thread`.`id` \
+              WHERE `M1`.`value` = 'label-id' AND `Thread`.`id` = '1234'  \
               ORDER BY `Thread`.`last_message_timestamp` DESC"
 
       @runScenario Thread,
-        builder: (q) -> q.where([Thread.attributes.tags.contains('inbox'), Thread.attributes.tags.contains('unread')])
+        builder: (q) -> q.where([Thread.attributes.labels.contains('l-1'), Thread.attributes.labels.contains('l-2')])
         sql: "SELECT `Thread`.`data` FROM `Thread` \
-              INNER JOIN `Thread-Tag` AS `M1` ON `M1`.`id` = `Thread`.`id` \
-              INNER JOIN `Thread-Tag` AS `M2` ON `M2`.`id` = `Thread`.`id` \
-              WHERE `M1`.`value` = 'inbox' AND `M2`.`value` = 'unread'  \
+              INNER JOIN `Thread-Label` AS `M1` ON `M1`.`id` = `Thread`.`id` \
+              INNER JOIN `Thread-Label` AS `M2` ON `M2`.`id` = `Thread`.`id` \
+              WHERE `M1`.`value` = 'l-1' AND `M2`.`value` = 'l-2'  \
               ORDER BY `Thread`.`last_message_timestamp` DESC"
 
     it "should correctly generate queries with the class's naturalSortOrder when one is available and no other orders are provided", ->

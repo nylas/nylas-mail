@@ -5,7 +5,7 @@ Matcher = require './matcher'
 
 ###
 Public: Collection attributes provide basic support for one-to-many relationships.
-For example, Threads in N1 have a collection of Tags.
+For example, Threads in N1 have a collection of Labels or Folders.
 
 When Collection attributes are marked as `queryable`, the DatabaseStore
 automatically creates a join table and maintains it as you create, save,
@@ -16,14 +16,14 @@ collection.
 Collection attributes have an additional clause builder, `contains`:
 
 ```coffee
-DatabaseStore.findAll(Thread).where([Thread.attributes.tags.contains('inbox')])
+DatabaseStore.findAll(Thread).where([Thread.attributes.labels.contains('inbox')])
 ```
 
 This is equivalent to writing the following SQL:
 
 ```sql
 SELECT `Thread`.`data` FROM `Thread`
-INNER JOIN `Thread-Tag` AS `M1` ON `M1`.`id` = `Thread`.`id`
+INNER JOIN `Thread-Label` AS `M1` ON `M1`.`id` = `Thread`.`id`
 WHERE `M1`.`value` = 'inbox'
 ORDER BY `Thread`.`last_message_timestamp` DESC
 ```

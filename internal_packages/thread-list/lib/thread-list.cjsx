@@ -86,7 +86,7 @@ class ThreadList extends React.Component
       flex: 4
       resolver: (thread) =>
         attachments = []
-        if thread.hasTagId('attachment')
+        if thread.hasAttachments
           attachments = <div className="thread-icon thread-icon-attachment"></div>
         <span className="details">
           <span className="subject">{subject(thread.subject)}</span>
@@ -136,7 +136,7 @@ class ThreadList extends React.Component
 
     @itemPropsProvider = (item) ->
       className: classNames
-        'unread': item.isUnread()
+        'unread': item.unread
 
   componentDidMount: =>
     window.addEventListener('resize', @_onResize, true)
