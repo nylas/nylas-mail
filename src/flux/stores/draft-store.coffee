@@ -433,7 +433,7 @@ class DraftStore
     @sessionForLocalId(messageLocalId).then (session) ->
       files = _.clone(session.draft().files) ? []
       files = _.reject files, (f) -> f.id is file.id
-      session.changes.add({files}, true)
+      session.changes.add({files}, immediate: true)
 
 
 module.exports = new DraftStore()

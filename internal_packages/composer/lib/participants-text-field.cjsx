@@ -1,7 +1,7 @@
 React = require 'react'
 _ = require 'underscore'
 
-{Contact, ContactStore} = require 'nylas-exports'
+{Utils, Contact, ContactStore} = require 'nylas-exports'
 {TokenizingTextField, Menu} = require 'nylas-component-kit'
 
 class ParticipantsTextField extends React.Component
@@ -27,6 +27,10 @@ class ParticipantsTextField extends React.Component
 
   @defaultProps:
     visible: true
+
+  shouldComponentUpdate: (nextProps, nextState) =>
+    not Utils.isEqualReact(nextProps, @props) or
+    not Utils.isEqualReact(nextState, @state)
 
   render: =>
     classSet = {}
