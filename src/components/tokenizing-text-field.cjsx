@@ -5,12 +5,8 @@ _ = require 'underscore'
 {Utils, Contact, ContactStore} = require 'nylas-exports'
 RetinaImg = require './retina-img'
 
-{DragDropMixin} = require 'react-dnd'
-
 Token = React.createClass
   displayName: "Token"
-
-  mixins: [DragDropMixin]
 
   propTypes:
     selected: React.PropTypes.bool,
@@ -18,21 +14,16 @@ Token = React.createClass
     action: React.PropTypes.func,
     item: React.PropTypes.object,
 
-  statics:
-    configureDragDrop: (registerType) =>
-      registerType('token', {
-        dragSource:
-          beginDrag: (component) =>
-            item: component.props.item
-      })
+  getInitialState: ->
+    {}
 
   render: ->
     classes = classNames
       "token": true
-      "dragging": @getDragState('token').isDragging
+      "dragging": @state.dragging
       "selected": @props.selected
 
-    <div {...@dragSourceFor('token')}
+    <div onDragStart={@_onDragStart} onDragEnd={@_onDragEnd} draggable="true"
          className={classes}
          onClick={@_onSelect}>
       <button className="action" onClick={@_onAction} style={marginTop: "2px"}>
@@ -40,6 +31,15 @@ Token = React.createClass
       </button>
       {@props.children}
     </div>
+
+  _onDragStart: (event) ->
+    textValue = React.findDOMNode(@).innerText
+    event.dataTransfer.setData('nylas-token-item', JSON.stringify(@props.item))
+    event.dataTransfer.setData('text/plain', textValue)
+    @setState(dragging: true)
+
+  _onDragEnd: (event) ->
+    @setState(dragging: false)
 
   _onSelect: (event) ->
     @props.select(@props.item)
@@ -157,16 +157,6 @@ TokenizingTextField = React.createClass
     # A classSet hash applied to the Menu item
     menuClassSet: React.PropTypes.object
 
-  mixins: [DragDropMixin]
-
-  statics:
-    configureDragDrop: (registerType) =>
-      registerType('token', {
-        dropTarget:
-          acceptDrop: (component, token) =>
-            component._addToken(token)
-      })
-
   getInitialState: ->
     inputValue: ""
     completions: []
@@ -223,7 +213,7 @@ TokenizingTextField = React.createClass
           />
 
   _fieldComponent: ->
-    <div key="field-component" onClick={@focus} {...@dropTargetFor('token')}>
+    <div key="field-component" onClick={@focus} onDrop={@_onDrop}>
       {@_renderPrompt()}
       <div className="tokenizing-field-input">
         {@_placeholder()}
@@ -293,6 +283,18 @@ TokenizingTextField = React.createClass
       </Token>
 
   # Maintaining Input State
+
+  _onDrop: (event) ->
+    return unless 'nylas-token-item' in event.dataTransfer.types
+
+    try
+      data = event.dataTransfer.getData('nylas-token-item')
+      json = JSON.parse(data)
+      model = Utils.modelFromJSON(json)
+    catch
+      model = null
+    if model and model instanceof Contact
+      @_addToken(model)
 
   _onInputFocused: ({noCompletions}={}) ->
     @setState focus: true

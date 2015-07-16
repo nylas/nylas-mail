@@ -4,37 +4,6 @@ React = require 'react'
 {RetinaImg, Flexbox} = require 'nylas-component-kit'
 {Actions, Utils, FileDownloadStore} = require 'nylas-exports'
 
-# Passed in as props from MessageItem and FileDownloadStore
-# This is empty if the attachment isn't downloading.
-# @props.download is a FileDownloadStore.Download object
-# @props.file is a File object
-{DragDropMixin} = require 'react-dnd'
-
-AttachmentDragContainer = React.createClass
-  displayName: "AttachmentDragContainer"
-  mixins: [DragDropMixin]
-  statics:
-    configureDragDrop: (registerType) =>
-      registerType('attachment', {
-        dragSource:
-          beginDrag: (component) =>
-            # Why is event defined in this scope? Magic. We need to use react-dnd
-            # because otherwise it's global onDragStart listener will cancel the
-            # drag. We don't actually intend to do a react-dnd drag/drop, but we
-            # can use this hook to populate the event.dataTransfer
-            DownloadURL = component.props.downloadUrl
-            event.dataTransfer.setData("DownloadURL", DownloadURL)
-            event.dataTransfer.setData("text/nylas-file-url", DownloadURL)
-
-            # This is bogus we don't care about the rest of the react-dnd lifecycle.
-            return {item: {DownloadURL}}
-      })
-
-  render: ->
-    <div {...@dragSourceFor('attachment')} draggable="true">
-      {@props.children}
-    </div>
-
 class AttachmentComponent extends React.Component
   @displayName: 'AttachmentComponent'
 
@@ -49,22 +18,20 @@ class AttachmentComponent extends React.Component
     @state = progressPercent: 0
 
   render: =>
-    <AttachmentDragContainer downloadUrl={@_getDragDownloadURL()}>
-      <div className="inner" onDoubleClick={@_onClickView}>
-        <span className={"progress-bar-wrap state-#{@props.download?.state ? ""}"}>
-          <span className="progress-background"></span>
-          <span className="progress-foreground" style={@_downloadProgressStyle()}></span>
-        </span>
+    <div className="inner" onDoubleClick={@_onClickView} onDragStart={@_onDragStart} draggable="true">
+      <span className={"progress-bar-wrap state-#{@props.download?.state ? ""}"}>
+        <span className="progress-background"></span>
+        <span className="progress-foreground" style={@_downloadProgressStyle()}></span>
+      </span>
 
-        <Flexbox direction="row" style={alignItems: 'center'}>
-          <RetinaImg className="file-icon"
-                     fallback="file-fallback.png"
-                     name="file-#{@_extension()}.png"/>
-          <span className="file-name">{@props.file.displayName()}</span>
-          {@_renderFileActions()}
-        </Flexbox>
-      </div>
-    </AttachmentDragContainer>
+      <Flexbox direction="row" style={alignItems: 'center'}>
+        <RetinaImg className="file-icon"
+                   fallback="file-fallback.png"
+                   name="file-#{@_extension()}.png"/>
+        <span className="file-name">{@props.file.displayName()}</span>
+        {@_renderFileActions()}
+      </Flexbox>
+    </div>
 
   _renderFileActions: =>
     if @props.removable
@@ -95,9 +62,12 @@ class AttachmentComponent extends React.Component
   _renderDownloadButton: ->
     <RetinaImg name="icon-attachment-download.png"/>
 
-  _getDragDownloadURL: (event) =>
+  _onDragStart: (event) =>
     path = FileDownloadStore.pathForFile(@props.file)
-    return "#{@props.file.contentType}:#{@props.file.displayName()}:file://#{path}"
+    DownloadURL = "#{@props.file.contentType}:#{@props.file.displayName()}:file://#{path}"
+    event.dataTransfer.setData("DownloadURL", DownloadURL)
+    event.dataTransfer.setData("text/nylas-file-url", DownloadURL)
+    return
 
   _onClickView: => Actions.fetchAndOpenFile(@props.file) if @_canClickToView()
 

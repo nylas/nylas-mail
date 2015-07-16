@@ -154,9 +154,13 @@ class ComposerView extends React.Component
     "composer-outer-wrap #{@props.className ? ""}"
 
   _renderComposer: =>
-    <div className="composer-inner-wrap" onDragOver={@_onDragNoop} onDragLeave={@_onDragNoop} onDragEnd={@_onDragNoop} onDrop={@_onDrop}>
-      <div className="composer-cover"
-           style={display: (if @state.isSending then "block" else "none")}>
+    <div className="composer-inner-wrap" onDragEnter={@_onDragEnter} onDragLeave={@_onDragLeave} onDrop={@_onDrop}>
+      <div className="composer-cover" style={display: if @state.isSending then 'block' else 'none'}></div>
+      <div className="composer-drop-cover" style={display: if @state.isDropping then 'block' else 'none'}>
+        <div className="centered">
+          <RetinaImg name="composer-drop-to-attach.png" mode={RetinaImg.Mode.ContentIsMask}/>
+          Drop to attach
+        </div>
       </div>
 
       <div className="composer-content-wrap">
@@ -460,11 +464,34 @@ class ComposerView extends React.Component
     else if @isForwardedMessage() then return true
     else return false
 
-  _onDragNoop: (e) =>
-    e.preventDefault()
+  _shouldAcceptDrop: (event) ->
+    (event.dataTransfer.files.length or
+    "text/nylas-file-url" in event.dataTransfer.types or
+    "text/uri-list" in event.dataTransfer.types)
+
+  # We maintain a "dragCounter" because dragEnter and dragLeave events *stack*
+  # when the user moves the item in and out of DOM elements inside of our container.
+  # It's really awful and everyone hates it.
+  #
+  # Alternative solution *maybe* is to set pointer-events:none; during drag.
+
+  _onDragEnter: (e) =>
+    return unless @_shouldAcceptDrop(e)
+    @_dragCounter ?= 0
+    @_dragCounter += 1
+    if @_dragCounter is 1
+      @setState(isDropping: true)
+
+  _onDragLeave: (e) =>
+    return unless @_shouldAcceptDrop(e)
+    @_dragCounter -= 1
+    if @_dragCounter is 0
+      @setState(isDropping: false)
 
   _onDrop: (e) =>
-    e.preventDefault()
+    return unless @_shouldAcceptDrop(e)
+    @setState(isDropping: false)
+    @_dragCounter = 0
 
     # Accept drops of real files from other applications
     for file in e.dataTransfer.files
@@ -483,7 +510,7 @@ class ComposerView extends React.Component
         uri = uri.split('file://')[1]
         Actions.attachFilePath({path: uri, messageLocalId: @props.localId})
 
-    true
+    return
 
   _onFilePaste: (path) =>
     Actions.attachFilePath({path: path, messageLocalId: @props.localId})
