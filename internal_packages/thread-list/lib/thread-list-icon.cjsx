@@ -3,7 +3,7 @@ React = require 'react'
 {Actions,
  Utils,
  Thread,
- AddRemoveTagsTask,
+ UpdateThreadsTask,
  NamespaceStore} = require 'nylas-exports'
 
 class ThreadListIcon extends React.Component
@@ -15,7 +15,7 @@ class ThreadListIcon extends React.Component
     if !@props.thread
       return 'thread-icon-star-on-hover'
 
-    if @props.thread.hasTagId('starred')
+    if @props.thread.starred
       return 'thread-icon-star'
 
     if @props.thread.unread
@@ -43,11 +43,9 @@ class ThreadListIcon extends React.Component
     <div className="thread-icon #{@_iconType()}" onClick={@_onToggleStar}></div>
 
   _onToggleStar: (event) =>
-    if @props.thread.hasTagId('starred')
-      star = new AddRemoveTagsTask(@props.thread, [], ['starred'])
-    else
-      star = new AddRemoveTagsTask(@props.thread, ['starred'], [])
-    Actions.queueTask(star)
+    values = starred: (not @props.thread.starred)
+    task = new UpdateThreadsTask([@props.thread], values)
+    Actions.queueTask(task)
 
     # Don't trigger the thread row click
     event.stopPropagation()

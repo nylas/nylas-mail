@@ -1,7 +1,6 @@
 _ = require 'underscore'
 Thread = require '../../src/flux/models/thread'
 FocusedContentStore = require '../../src/flux/stores/focused-content-store'
-MarkThreadReadTask = require '../../src/flux/tasks/mark-thread-read'
 Actions = require '../../src/flux/actions'
 
 testThread = new Thread(id: '123')

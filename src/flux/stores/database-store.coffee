@@ -263,7 +263,8 @@ class DatabaseStore extends NylasStore
   #     database callbacks have finished
   #   - rejects if any databse query fails or one of the triggering
   #     callbacks failed
-  persistModels: (models) =>
+  persistModels: (models=[]) =>
+    return Promise.resolve() if models.length is 0
     klass = models[0].constructor
     ids = {}
     for model in models

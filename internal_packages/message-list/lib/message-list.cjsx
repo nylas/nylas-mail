@@ -9,7 +9,7 @@ MessageItem = require "./message-item"
  MessageStore,
  DatabaseStore,
  ComponentRegistry,
- AddRemoveTagsTask} = require("nylas-exports")
+ UpdateThreadsTask} = require("nylas-exports")
 
 {Spinner,
  ScrollRegion,
@@ -183,10 +183,9 @@ class MessageList extends React.Component
 
   _onStar: =>
     return unless @state.currentThread
-    if @state.currentThread.isStarred()
-      task = new AddRemoveTagsTask(@state.currentThread, [], ['starred'])
-    else
-      task = new AddRemoveTagsTask(@state.currentThread, ['starred'], [])
+    threads = [@state.currentThread]
+    values = starred: (not @state.currentThread.starred)
+    task = new UpdateThreadsTask(threads, values)
     Actions.queueTask(task)
 
   _onForward: =>

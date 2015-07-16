@@ -1,6 +1,7 @@
 _ = require 'underscore'
 
-Tag = require './tag'
+Label = require './label'
+Folder = require './folder'
 Model = require './model'
 Contact = require './contact'
 Actions = require '../actions'
@@ -23,11 +24,9 @@ For more information about Threads on the Nylas Platform, read the
 
 `unread`: {AttributeBoolean} True if the thread is unread. Queryable.
 
-`version`: {AttributeNumber} The version number of the thread. Thread versions increment
-   when tags are changed.
+`starred`: {AttributeBoolean} True if the thread is starred. Queryable.
 
-`tags`: {AttributeCollection} A set of {Tag} models representing
-   the tags on this thread. Queryable using the `contains` matcher.
+`version`: {AttributeNumber} The version number of the thread.
 
 `participants`: {AttributeCollection} A set of {Contact} models
    representing the participants in the thread.
@@ -54,13 +53,22 @@ class Thread extends Model
       queryable: true
       modelKey: 'unread'
 
+    'starred': Attributes.Boolean
+      queryable: true
+      modelKey: 'starred'
+
     'version': Attributes.Number
       modelKey: 'version'
 
-    'tags': Attributes.Collection
+    'folders': Attributes.Collection
       queryable: true
-      modelKey: 'tags'
-      itemClass: Tag
+      modelKey: 'folders'
+      itemClass: Folder
+
+    'labels': Attributes.Collection
+      queryable: true
+      modelKey: 'labels'
+      itemClass: Label
 
     'participants': Attributes.Collection
       modelKey: 'participants'
@@ -74,52 +82,40 @@ class Thread extends Model
   @naturalSortOrder: ->
     Thread.attributes.lastMessageTimestamp.descending()
 
-  @getter 'unread', -> @isUnread()
-
   @additionalSQLiteConfig:
     setup: ->
       ['CREATE INDEX IF NOT EXISTS ThreadListIndex ON Thread(last_message_timestamp DESC, namespace_id, id)']
 
-  # Public: Returns an {Array} of {Tag} IDs
+  # Public: Returns true if the thread has a {Category} with the given ID.
   #
-  tagIds: ->
-    _.map @tags, (tag) -> tag.id
-
-  # Public: Returns true if the thread has a {Tag} with the given ID.
+  # * `id` A {String} {Category} ID
   #
-  # * `id` A {String} {Tag} ID
-  #
-  hasTagId: (id) ->
-    return false unless id and @tags
-    for tag in @tags
-      return true if tag.id is id
+  hasCategoryId: (id) ->
+    return false unless id
+    for folder in (@folders ? [])
+      return true if folder.id is id
+    for label in (@labels ? [])
+      return true if label.id is id
     return false
+  hasLabelId: (id) -> @hasCategoryId(id)
+  hasFolderId: (id) -> @hasCategoryId(id)
 
-  # Public: Returns a {Boolean}, true if the thread is unread.
-  isUnread: ->
-    @hasTagId('unread')
+  # Public: Returns true if the thread has a {Category} with the given
+  # name. Note, only `CategoryStore::standardCategories` have valid
+  # `names`
+  #
+  # * `id` A {String} {Category} name
+  #
+  hasCategoryName: (name) ->
+    return false unless name
+    for folder in (@folders ? [])
+      return true if folder.name is name
+    for label in (@labels ? [])
+      return true if label.name is name
+    return false
+  hasLabelName: (name) -> @hasCategoryName(name)
+  hasFolderName: (name) -> @hasCategoryName(name)
 
-  # Public: Returns a {Boolean}, true if the thread is starred.
-  isStarred: ->
-    @hasTagId('starred')
-
-  star: ->
-    @addRemoveTags(['starred'], [])
-
-  unstar: ->
-    @addRemoveTags([], ['starred'])
-
-  toggleStar: ->
-    if @isStarred()
-      @unstar()
-    else
-      @star()
-
-  addRemoveTags: (tagIdsToAdd, tagIdsToRemove) ->
-    # start web change, which will dispatch more actions
-    AddRemoveTagsTask = require '../tasks/add-remove-tags'
-    task = new AddRemoveTagsTask(@id, tagIdsToAdd, tagIdsToRemove)
-    Actions.queueTask(task)
-
+  hasAttachments: null ## TODO
 
 module.exports = Thread

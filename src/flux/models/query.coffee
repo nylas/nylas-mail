@@ -23,7 +23,7 @@ query.then (thread) ->
 
 ```coffee
 query = DatabaseStore.findAll(Thread)
-query.where([Thread.attributes.tagIds.contains('inbox')])
+query.where([Thread.attributes.labels.contains('label-id')])
      .order([Thread.attributes.lastMessageTimestamp.descending()])
      .limit(100).offset(50)
      .then (threads) ->

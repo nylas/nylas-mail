@@ -4,7 +4,7 @@ Message = require '../../src/flux/models/message'
 FocusedContentStore = require '../../src/flux/stores/focused-content-store'
 MessageStore = require '../../src/flux/stores/message-store'
 DatabaseStore = require '../../src/flux/stores/database-store'
-MarkThreadReadTask = require '../../src/flux/tasks/mark-thread-read'
+UpdateThreadsTask = require '../../src/flux/tasks/update-threads-task'
 Actions = require '../../src/flux/actions'
 
 testThread = new Thread(id: '123')
@@ -42,7 +42,7 @@ describe "MessageStore", ->
       beforeEach ->
         @focus = null
         FocusedContentStore.trigger({impactsCollection: -> true})
-        spyOn(testThread, 'isUnread').andCallFake -> true
+        testThread.unread = true
         spyOn(Actions, 'queueTask')
 
       it "should queue a task to mark the thread as read", ->
@@ -52,7 +52,7 @@ describe "MessageStore", ->
         expect(Actions.queueTask).not.toHaveBeenCalled()
         advanceClock(500)
         expect(Actions.queueTask).toHaveBeenCalled()
-        expect(Actions.queueTask.mostRecentCall.args[0] instanceof MarkThreadReadTask).toBe(true)
+        expect(Actions.queueTask.mostRecentCall.args[0] instanceof UpdateThreadsTask).toBe(true)
 
       it "should not queue a task to mark the thread as read if the thread is no longer selected 500msec later", ->
         @focus = testThread

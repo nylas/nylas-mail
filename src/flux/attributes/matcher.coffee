@@ -13,7 +13,7 @@ attribute, a comparator and a value.
 
 isUnread = Thread.attributes.unread.equal(true)
 
-isInInbox = Thread.attributes.tags.contains('inbox')
+hasLabel = Thread.attributes.lables.contains('label-id-123')
 
 # Using Matchers in Database Queries
 

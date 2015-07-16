@@ -4,7 +4,6 @@ Reflux = require 'reflux'
 classNames = require 'classnames'
 {Actions,
  Utils,
- AddRemoveTagsTask,
  FocusedContentStore,
  FocusedContentStore,
  DatabaseStore,
@@ -95,7 +94,7 @@ class ThreadTagsButton extends React.Component
 
   _itemChecked: (tag) =>
     return false unless @state.thread
-    @state.thread.hasTagId(tag.id)
+    @state.thread.hasCategoryId(tag.id)
 
   _onShowTags: =>
     # Always reset search state when the popover is shown
@@ -105,7 +104,7 @@ class ThreadTagsButton extends React.Component
   _onToggleTag: (tag) =>
     return unless @state.thread
 
-    if @state.thread.hasTagId(tag.id)
+    if @state.thread.hasCategoryId(tag.id)
       task = new AddRemoveTagsTask(@state.thread, [], [tag.id])
     else
       task = new AddRemoveTagsTask(@state.thread, [tag.id], [])
@@ -141,7 +140,7 @@ class ThreadTagsButton extends React.Component
     active = []
     inactive = []
     for tag in tags
-      if thread.hasTagId(tag.id)
+      if thread.hasCategoryId(tag.id)
         active.push(tag)
       else
         inactive.push(tag)

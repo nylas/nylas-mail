@@ -1,6 +1,8 @@
 _ = require 'underscore'
 
 File = require './file'
+Label = require './label'
+Folder = require './folder'
 Model = require './model'
 Contact = require './contact'
 Attributes = require '../attributes'
@@ -35,6 +37,8 @@ All messages are part of a thread, even if that thread has only one message.
 `snippet`: {AttributeString} A short, 140-character plain-text summary of the message body.
 
 `unread`: {AttributeBoolean} True if the message is unread. Queryable.
+
+`starred`: {AttributeBoolean} True if the message is starred. Queryable.
 
 `draft`: {AttributeBoolean} True if the message is a draft. Queryable.
 
@@ -101,6 +105,10 @@ class Message extends Model
       queryable: true
       modelKey: 'unread'
 
+    'starred': Attributes.Boolean
+      queryable: true
+      modelKey: 'starred'
+
     'snippet': Attributes.String
       modelKey: 'snippet'
 
@@ -129,6 +137,16 @@ class Message extends Model
     'replyToMessageId': Attributes.String
       modelKey: 'replyToMessageId'
       jsonKey: 'reply_to_message_id'
+
+    'folder': Attributes.Object
+      modelKey: 'folder'
+      itemClass: Folder
+
+    'labels': Attributes.Collection
+      queryable: true
+      modelKey: 'labels'
+      itemClass: Label
+
 
   @naturalSortOrder: ->
     Message.attributes.date.ascending()

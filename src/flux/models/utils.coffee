@@ -82,7 +82,8 @@ Utils =
     Thread = require './thread'
     Message = require './message'
     Namespace = require './namespace'
-    Tag = require './tag'
+    Label = require './label'
+    Folder = require './folder'
     File = require './file'
     Contact = require './contact'
     LocalLink = require './local-link'
@@ -91,19 +92,20 @@ Utils =
     Metadata = require './metadata'
 
     ## TODO move to inside of individual Salesforce package. See https://trello.com/c/tLAGLyeb/246-move-salesforce-models-into-individual-package-db-models-for-packages-various-refactors
+    SalesforceTask = require './salesforce-task'
     SalesforceObject = require './salesforce-object'
     SalesforceSchema = require './salesforce-schema'
     SalesforceAssociation = require './salesforce-association'
     SalesforceSearchResult = require './salesforce-search-result'
-    SalesforceTask = require './salesforce-task'
 
     SyncbackDraftTask = require '../tasks/syncback-draft'
     SendDraftTask = require '../tasks/send-draft'
     DestroyDraftTask = require '../tasks/destroy-draft'
-    AddRemoveTagsTask = require '../tasks/add-remove-tags'
-    MarkThreadReadTask = require '../tasks/mark-thread-read'
-    MarkMessageReadTask = require '../tasks/mark-message-read'
+
     FileUploadTask = require '../tasks/file-upload-task'
+    ChangeLabelsTask = require '../tasks/change-labels-task'
+    ChangeFolderTask = require '../tasks/change-folder-task'
+    MarkMessageReadTask = require '../tasks/mark-message-read'
 
     Utils._modelClassMap = {
       'thread': Thread
@@ -112,7 +114,8 @@ Utils =
       'contact': Contact
       'namespace': Namespace
       'file': File
-      'tag': Tag
+      'label': Label
+      'folder': Folder
       'locallink': LocalLink
       'calendar': Calendar
       'event': Event
@@ -123,9 +126,9 @@ Utils =
       'salesforcesearchresult': SalesforceSearchResult
       'salesforcetask': SalesforceTask
 
-      'MarkThreadReadTask': MarkThreadReadTask
       'MarkMessageReadTask': MarkMessageReadTask
-      'AddRemoveTagsTask': AddRemoveTagsTask
+      'ChangeLabelsTask': ChangeLabelsTask
+      'ChangeFolderTask': ChangeFolderTask
       'SendDraftTask': SendDraftTask
       'SyncbackDraftTask': SyncbackDraftTask
       'DestroyDraftTask': DestroyDraftTask

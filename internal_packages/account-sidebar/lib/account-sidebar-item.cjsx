@@ -7,7 +7,7 @@ class AccountSidebarItem extends React.Component
   render: =>
     className = "item " + if @props.select then " selected" else ""
     <div className={className} onClick={@_onClick} id={@props.item.id}>
-      <span className="name"> {@props.item.name}</span>
+      <span className="name"> {@props.item.displayName}</span>
     </div>
 
   _onClick: (event) =>

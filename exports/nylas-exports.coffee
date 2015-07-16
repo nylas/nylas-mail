@@ -16,7 +16,11 @@ Exports =
   UndoRedoStore: require '../src/flux/stores/undo-redo-store'
 
   # Tasks
+  ChangeLabelsTask: require '../src/flux/tasks/change-labels-task'
+  ChangeFolderTask: require '../src/flux/tasks/change-folder-task'
+  UpdateThreadsTask: require '../src/flux/tasks/update-threads-task'
   CreateMetadataTask: require '../src/flux/tasks/create-metadata-task'
+  ArchiveThreadHelper: require '../src/flux/tasks/archive-thread-helper'
   DestroyMetadataTask: require '../src/flux/tasks/destroy-metadata-task'
 
   # The Database
@@ -48,6 +52,7 @@ Exports =
   PriorityUICoordinator: require '../src/priority-ui-coordinator'
 
   # Stores
+  CategoryStore: require '../src/flux/stores/category-store'
   DraftStore: require '../src/flux/stores/draft-store'
   DraftCountStore: require '../src/flux/stores/draft-count-store'
   DraftStoreExtension: require '../src/flux/stores/draft-store-extension'
@@ -57,7 +62,7 @@ Exports =
   NamespaceStore: require '../src/flux/stores/namespace-store'
   AnalyticsStore: require '../src/flux/stores/analytics-store'
   WorkspaceStore: require '../src/flux/stores/workspace-store'
-  FocusedTagStore: require '../src/flux/stores/focused-tag-store'
+  FocusedCategoryStore: require '../src/flux/stores/focused-category-store'
   FocusedContentStore: require '../src/flux/stores/focused-content-store'
   FocusedContactsStore: require '../src/flux/stores/focused-contacts-store'
   FileUploadStore: require '../src/flux/stores/file-upload-store'

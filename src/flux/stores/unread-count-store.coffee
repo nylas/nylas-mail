@@ -39,11 +39,18 @@ UnreadCountStore = Reflux.createStore
     namespace = NamespaceStore.current()
     return unless namespace
 
-    DatabaseStore.count(Thread, [
+    matchers = [
       Thread.attributes.namespaceId.equal(namespace.id),
       Thread.attributes.unread.equal(true),
-      Thread.attributes.tags.contains('inbox')
-    ]).then (count) =>
+    ]
+    if namespace.usesFolders()
+      matchers.push(Thread.attributes.folders.contains('inbox'))
+    else if namespace.usesLabels()
+      matchers.push(Thread.attributes.labels.contains('inbox'))
+    else
+      return
+
+    DatabaseStore.count(Thread, matchers).then (count) =>
       return if @_count is count
       @_count = count
       @_updateBadgeForCount(count)

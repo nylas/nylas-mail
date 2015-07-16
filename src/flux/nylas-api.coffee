@@ -293,34 +293,22 @@ class NylasAPI
         Promise.settle(destroyPromises)
 
   _handleModelResponse: (jsons) ->
-    new Promise (resolve, reject) =>
-      reject(new Error("handleModelResponse with no JSON provided")) unless jsons
+    if not jsons
+      return Promise.reject(new Error("handleModelResponse with no JSON provided"))
+    jsons = [jsons] unless jsons instanceof Array
+    uniquedJSONs = _.uniq jsons, false, (model) -> model.id
+    if uniquedJSONs.length < jsons.length
+      console.warn("NylasAPI.handleModelResponse: called with non-unique object set. Maybe an API request returned the same object more than once?")
 
-      jsons = [jsons] unless jsons instanceof Array
+    return Promise.filter(uniquedJSONs, @_shouldAcceptModel)
+                  .map(modelFromJSON)
+                  .then (objects) ->
+                    DatabaseStore.persistModels(objects)
+                    return Promise.resolve(objects)
 
-      uniquedJSONs = _.uniq jsons, false, (model) -> model.id
-      if uniquedJSONs.length < jsons.length
-        console.warn("NylasAPI.handleModelResponse: called with non-unique object set.
-                     Maybe an API request returned the same object more than once?")
-
-      async.filter uniquedJSONs
-      , (item, filterCallback) =>
-        @_shouldAcceptModel(item.object, item).then (accept) ->
-          filterCallback(accept)
-        .catch (e) ->
-          filterCallback(false)
-      , (json) ->
-        # Save changes to the database, which will generate actions
-        # that our views are observing.
-        objects = []
-        for objectJSON in json
-          objects.push(modelFromJSON(objectJSON))
-        if objects.length > 0
-          DatabaseStore.persistModels(objects)
-        resolve(objects)
-
-  _shouldAcceptModel: (classname, model = null) ->
+  _shouldAcceptModel: (model) =>
     return Promise.resolve(false) unless model
+    classname = model.object
 
     if classname is "thread"
       Thread = require './models/thread'

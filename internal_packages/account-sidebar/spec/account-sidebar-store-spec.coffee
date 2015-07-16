@@ -1,5 +1,5 @@
 describe "AccountSidebarStore", ->
-  xit "should update it's selected ID when the focusTag action fires", ->
+  xit "should update it's selected ID when the focusCategory action fires", ->
     true
 
   xit "should update when the DatabaseStore emits changes to tags", ->

@@ -28,7 +28,7 @@ class CalendarBarItem extends React.Component
 
   _onClick: (event) =>
     event.preventDefault()
-    Actions.focusTag(@props.tag)
+    Actions.focusCategory(@props.tag)
 
 
 module.exports = CalendarBarItem
