@@ -19,5 +19,6 @@ class DraggableImg extends React.Component
     y = event.clientY - rect.top
     x = event.clientX - rect.left
     event.dataTransfer.setDragImage(img, x, y)
+    return
 
 module.exports = DraggableImg

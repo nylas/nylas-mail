@@ -61,9 +61,10 @@ FileUploadStore = Reflux.createStore
   _onAttachFilePath: ({messageLocalId, path}) ->
     @_verifyId(messageLocalId)
     fs.stat path, (err, stats) =>
-      return if err
-      if stats.isDirectory()
-        filename = require('path').basename(path)
+      filename = require('path').basename(path)
+      if err
+        @_onAttachFileError("#{filename} could not be found, or has invalid file permissions.")
+      else if stats.isDirectory()
         @_onAttachFileError("#{filename} is a directory. Try compressing it and attaching it again.")
       else
         Actions.queueTask(new FileUploadTask(path, messageLocalId))

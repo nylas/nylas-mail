@@ -22,6 +22,28 @@
     background: rgba(255,255,255,0.7);
   }
 
+  .composer-drop-cover {
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    z-index: 1000;
+    background: rgba(255,255,255,0.7);
+    border-radius: @border-radius-base;
+    border: 4px dashed lighten(@gray, 30%);
+    text-align: center;
+    line-height:2.3em;
+
+    .centered {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      color: lighten(@gray, 20%);
+      font-weight: 500;
+      font-size:1.1em;
+      img { margin: auto; display:block; margin-bottom:20px; background-color: lighten(@gray, 20%); }
+    }
+  }
+
   .composer-action-bar-wrap {
     position: relative;
     z-index: 1;
