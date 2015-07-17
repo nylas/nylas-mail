@@ -83,7 +83,7 @@ class Application
     @nylasProtocolHandler = new NylasProtocolHandler(@resourcePath, @safeMode)
 
     @databaseManager = new DatabaseManager({@resourcePath})
-    @databaseManager.on "setup-error", @_logout
+    @databaseManager.on "setup-error", @_rebuildDatabase
 
     @listenForArgumentsFromNewProcess()
     @setupJavaScriptArguments()
@@ -131,9 +131,20 @@ class Application
     app.commandLine.appendSwitch 'js-flags', '--harmony'
 
   _logout: =>
-    @databaseManager.deleteAllDatabases()
-    @config.set('nylas', null)
-    @config.set('edgehill', null)
+    @databaseManager.deleteAllDatabases().then =>
+      @config.set('nylas', null)
+      @config.set('edgehill', null)
+
+  _rebuildDatabase: =>
+    @windowManager.closeMainWindow()
+    dialog.showMessageBox
+      type: 'info'
+      message: 'Uprading Nylas'
+      detail: 'Welcome back to Nylas! We need to rebuild your mailbox to support new features. Please wait a few moments while we re-sync your mail.'
+      buttons: ['OK']
+    @databaseManager.deleteAllDatabases().then =>
+      @config.set("nylas.sync-state", {})
+      @windowManager.showMainWindow()
 
   # Registers basic application commands, non-idempotent.
   # Note: If these events are triggered while an application window is open, the window

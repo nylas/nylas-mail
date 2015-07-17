@@ -1,6 +1,7 @@
 _ = require 'underscore'
 NylasLongConnection = require '../src/flux/nylas-long-connection'
 NylasSyncWorker = require '../src/flux/nylas-sync-worker'
+Namespace = require '../src/flux/models/namespace'
 Thread = require '../src/flux/models/thread'
 
 describe "NylasSyncWorker", ->
@@ -15,7 +16,7 @@ describe "NylasSyncWorker", ->
         @apiRequests.push({namespace, model:'threads', params, requestOptions})
 
     spyOn(atom.config, 'get').andCallFake (key) =>
-      expected = "nylas.namespace-id.worker-state"
+      expected = "nylas.sync-state.namespace-id"
       return throw new Error("Not stubbed! #{key}") unless key is expected
       return _.extend {}, {
         "contacts":
@@ -29,7 +30,8 @@ describe "NylasSyncWorker", ->
     spyOn(atom.config, 'set').andCallFake (key, val) =>
       return
 
-    @worker = new NylasSyncWorker(@api, 'namespace-id')
+    @namespace = new Namespace(id: 'namespace-id', organizationUnit: 'label')
+    @worker = new NylasSyncWorker(@api, @namespace)
     @connection = @worker.connection()
 
   it "should reset `busy` to false when reading state from disk", ->
@@ -44,29 +46,29 @@ describe "NylasSyncWorker", ->
 
     it "should start querying for model collections and counts that haven't been fully cached", ->
       @worker.start()
-      expect(@apiRequests.length).toBe(6)
+      expect(@apiRequests.length).toBe(8)
       modelsRequested = _.compact _.map @apiRequests, ({model}) -> model
-      expect(modelsRequested).toEqual(['threads', 'contacts', 'files'])
+      expect(modelsRequested).toEqual(['threads', 'contacts', 'files', 'labels'])
 
       countsRequested = _.compact _.map @apiRequests, ({requestOptions}) ->
         if requestOptions.qs?.view is 'count'
           return requestOptions.path
 
-      expect(modelsRequested).toEqual(['threads', 'contacts', 'files'])
-      expect(countsRequested).toEqual(['/n/namespace-id/threads', '/n/namespace-id/contacts', '/n/namespace-id/files'])
+      expect(modelsRequested).toEqual(['threads', 'contacts', 'files', 'labels'])
+      expect(countsRequested).toEqual(['/n/namespace-id/threads', '/n/namespace-id/contacts', '/n/namespace-id/files', '/n/namespace-id/labels'])
 
     it "should mark incomplete collections as `busy`", ->
       @worker.start()
       nextState = @worker.state()
 
-      for collection in ['contacts','threads','files']
+      for collection in ['contacts','threads','files', 'labels']
         expect(nextState[collection].busy).toEqual(true)
 
     it "should initialize count and fetched to 0", ->
       @worker.start()
       nextState = @worker.state()
 
-      for collection in ['contacts','threads','files']
+      for collection in ['contacts','threads','files', 'labels']
         expect(nextState[collection].fetched).toEqual(0)
         expect(nextState[collection].count).toEqual(0)
 
@@ -91,7 +93,7 @@ describe "NylasSyncWorker", ->
     it "should fetch collections", ->
       spyOn(@worker, 'fetchCollection')
       @worker.resumeFetches()
-      expect(@worker.fetchCollection.calls.map (call) -> call.args[0]).toEqual(['threads', 'calendars', 'contacts', 'files'])
+      expect(@worker.fetchCollection.calls.map (call) -> call.args[0]).toEqual(['threads', 'calendars', 'contacts', 'files', 'labels'])
 
   describe "fetchCollection", ->
     beforeEach ->

@@ -12,20 +12,20 @@ class NylasSyncWorker
   @include: CoffeeHelpers.includeModule
   @include Publisher
 
-  constructor: (api, namespaceId) ->
+  constructor: (api, namespace) ->
     @_api = api
-    @_namespaceId = namespaceId
+    @_namespace = namespace
 
     @_terminated = false
-    @_connection = new NylasLongConnection(api, namespaceId)
-    @_state = atom.config.get("nylas.#{namespaceId}.worker-state") ? {}
+    @_connection = new NylasLongConnection(api, namespace.id)
+    @_state = atom.config.get("nylas.sync-state.#{namespace.id}") ? {}
     for model, modelState of @_state
       modelState.busy = false
 
     @
 
-  namespaceId: ->
-    @_namespaceId
+  namespace: ->
+    @_namespace
 
   connection: ->
     @_connection
@@ -55,6 +55,10 @@ class NylasSyncWorker
     @fetchCollection('calendars')
     @fetchCollection('contacts')
     @fetchCollection('files')
+    if @_namespace.usesLabels()
+      @fetchCollection('labels')
+    if @_namespace.usesFolders()
+      @fetchCollection('folders')
 
   fetchCollection: (model, options = {}) ->
     return if @_state[model]?.complete and not options.force?
@@ -73,7 +77,7 @@ class NylasSyncWorker
 
   fetchCollectionCount: (model) ->
     @_api.makeRequest
-      path: "/n/#{@_namespaceId}/#{model}"
+      path: "/n/#{@_namespace.id}/#{model}"
       returnsModel: false
       qs:
         view: 'count'
@@ -99,9 +103,9 @@ class NylasSyncWorker
           @updateTransferState(model, {fetched: lastReceivedIndex, busy: false, complete: true})
 
     if model is 'threads'
-      @_api.getThreads(@_namespaceId, params, requestOptions)
+      @_api.getThreads(@_namespace.id, params, requestOptions)
     else
-      @_api.getCollection(@_namespaceId, model, params, requestOptions)
+      @_api.getCollection(@_namespace.id, model, params, requestOptions)
 
   updateTransferState: (model, {busy, error, complete, fetched, count}) ->
     @_state[model] = _.defaults({busy, error, complete, fetched, count}, @_state[model])
@@ -109,7 +113,7 @@ class NylasSyncWorker
 
   writeState: ->
     @_writeState ?= _.debounce =>
-      atom.config.set("nylas.#{@_namespaceId}.worker-state", @_state)
+      atom.config.set("nylas.sync-state.#{@_namespace.id}", @_state)
     ,100
     @_writeState()
     @trigger()

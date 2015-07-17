@@ -27,13 +27,13 @@ class DatabaseManager
   #    return a promise because they don't work across the IPC bridge.
   #
   # Returns nothing
-  prepare: (databasePath, callback) =>
+  prepare: (databasePath, databaseVersion, callback) =>
     if @_databases[databasePath]
       callback()
     else
-      @_prepPromises[databasePath] ?= @_createNewDatabase(databasePath)
+      @_prepPromises[databasePath] ?= @_createNewDatabase(databasePath, databaseVersion)
       @_prepPromises[databasePath].then(callback).catch (err) ->
-        console.error "Error preparing the database"
+        console.error "DatabaseManager: Error in prepare:"
         console.error err
 
     return
@@ -54,13 +54,19 @@ class DatabaseManager
     for path, val of @_databases
       @closeDatabaseConnection(path)
 
-  deleteAllDatabases: ->
-    Object.keys(@_databases).forEach (path) =>
-      db = @_databases[path]
-      db.on 'close', -> fs.unlinkSync(path)
-      db.close()
+  deleteDatabase: (db, path) =>
+    new Promise (resolve, reject) =>
       delete @_databases[path]
       delete @_prepPromises[path]
+      db.on 'close', ->
+        if fs.existsSync(path)
+          fs.unlinkSync(path)
+        resolve()
+      db.close()
+
+  deleteAllDatabases: ->
+    Promise.all(_.map(@_databases, @deleteDatabase)).catch (err) ->
+      console.error(err)
 
   onIPCDatabaseQuery: (event, {databasePath, queryKey, query, values}) =>
     db = @_databases[databasePath]
@@ -77,8 +83,12 @@ class DatabaseManager
 
   # Resolves when a new database has been created and the initial setup
   # migration has run successfuly.
-  _createNewDatabase: (databasePath) ->
+  # Rejects with an Error if setup fails or if the database is too old.
+  #
+  _createNewDatabase: (databasePath, databaseVersion) ->
     @_getDBAdapter().then (dbAdapter) =>
+      creating = not fs.existsSync(databasePath)
+
       # Create a new database for the requested path
       db = dbAdapter(databasePath)
 
@@ -87,15 +97,36 @@ class DatabaseManager
       # still allow queries to be made.
       db.ignoreErrors = true
 
-      # Resolves when the DB has been initalized
-      @_runSetupQueries(db, @_setupQueries[databasePath])
+      cleanupAfterError = (err) =>
+        @deleteDatabase(db, databasePath).then =>
+          @emit("setup-error", err)
+          return Promise.reject(err)
+
+      if creating
+        versionCheck = @_setDatabaseVersion(db, databaseVersion)
+      else
+        versionCheck = @_checkDatabaseVersion(db, databaseVersion)
+
+      versionCheck
+      .catch(cleanupAfterError)
       .then =>
-        @_databases[databasePath] = db
-        return Promise.resolve()
-      .catch (err) =>
-        console.error("DatabaseManager: Error running setup queries: #{err?.message}")
-        @emit("setup-error", err)
-        return Promise.reject(err)
+        @_runSetupQueries(db, @_setupQueries[databasePath])
+        .catch(cleanupAfterError)
+        .then =>
+          @_databases[databasePath] = db
+          return Promise.resolve()
+
+  _setDatabaseVersion: (db, databaseVersion) ->
+    new Promise (resolve, reject) =>
+      db.query("PRAGMA user_version=#{databaseVersion}", [], null, resolve)
+
+  _checkDatabaseVersion: (db, databaseVersion) ->
+    new Promise (resolve, reject) ->
+      db.query "PRAGMA user_version", [], null, (currentVersion) ->
+        if currentVersion/1 isnt databaseVersion/1
+          reject(new Error("Incorrect database schema version: #{currentVersion} not #{databaseVersion}"))
+        else
+          resolve()
 
   # Takes a set of queries to initialize the database with
   #

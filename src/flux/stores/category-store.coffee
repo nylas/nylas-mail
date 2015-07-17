@@ -10,10 +10,8 @@ class CategoryStore extends NylasStore
   constructor: ->
     @_categoryCache = {}
     @listenTo DatabaseStore, @_onDBChanged
-    @listenTo NamespaceStore, @_onNamespaceChanged
-
+    @listenTo NamespaceStore, @_refreshCacheFromDB
     @_refreshCacheFromDB()
-    @_onNamespaceChanged()
 
   # and labels: an extended version of [RFC-6154]
   # (http://tools.ietf.org/html/rfc6154), returned as the name of the
@@ -32,9 +30,28 @@ class CategoryStore extends NylasStore
   AllMailName: "all"
 
   byId: (id) -> @_categoryCache[id]
+
   categories: -> _.values @_categoryCache
 
-  categoryLabel: -> @_categoryLabel
+  categoryLabel: ->
+    namespace = NamespaceStore.current()
+    return "Unknown" unless namespace
+
+    if namespace.usesFolders()
+      return "Folders"
+    else if namespace.usesLabels()
+      return "Labels"
+    return "Unknown"
+
+  categoryClass: ->
+    namespace = NamespaceStore.current()
+    return null unless namespace
+
+    if namespace.usesFolders()
+      return Folder
+    else if namespace.usesLabels()
+      return Label
+    return null
 
   # It's possible for this to return `null`. For example, Gmail likely
   # doesn't have an `archive` label.
@@ -44,34 +61,19 @@ class CategoryStore extends NylasStore
     return _.findWhere @_categoryCache, {name}
 
   _onDBChanged: (change) ->
-    return unless @_klass and change?.objectClass == @_klass.name
-    @_refreshCacheFromDB()
+    categoryClass = @categoryClass()
+    return unless categoryClass
 
-  _refreshDBFromAPI: ->
-    NylasAPI.getCollection @_namespace.id, @_endpoint
+    if change and change.objectClass is categoryClass.name
+      @_refreshCacheFromDB()
 
   _refreshCacheFromDB: ->
-    return unless @_klass
-    DatabaseStore.findAll(@_klass).then (categories=[]) =>
+    categoryClass = @categoryClass()
+    return unless categoryClass
+
+    DatabaseStore.findAll(categoryClass).then (categories=[]) =>
       @_categoryCache = {}
       @_categoryCache[category.id] = category for category in categories
       @trigger()
-
-  _onNamespaceChanged: ->
-    @_namespace = NamespaceStore.current()
-    return unless @_namespace
-
-    if @_namespace.usesFolders()
-      @_klass = Folder
-      @_endpoint = "folders"
-      @_categoryLabel = "Folders"
-    else if @_namespace.usesLabels()
-      @_klass = Label
-      @_endpoint = "labels"
-      @_categoryLabel = "Labels"
-    else
-      throw new Error("Invalid organizationUnit")
-
-    @_refreshDBFromAPI()
 
 module.exports = new CategoryStore()
