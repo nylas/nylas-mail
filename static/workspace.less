@@ -120,14 +120,17 @@ body.is-blurred {
       background-position: 0 -36px;
     }
   }
+  .sheet-toolbar-container {
+    background-image: -webkit-linear-gradient(top, lighten(@toolbar-background-color, 12%), lighten(@toolbar-background-color, 12%));
+    .btn.btn-toolbar img {
+      opacity:0.5;
+    }
+  }
 }
 
 .sheet-toolbar-container {
-  background: @toolbar-background-color;
-
-  &.mode-popout {
-    background: transparent;
-  }
+  background-image: -webkit-linear-gradient(top, lighten(@toolbar-background-color, 10.5%), @toolbar-background-color);
+  box-shadow: inset 0 1px 0 lighten(@toolbar-background-color, 15%);
 }
 
 .layout-mode-popout {
@@ -145,8 +148,7 @@ body.is-blurred {
 .sheet-toolbar {
   position: relative;
   -webkit-app-region: drag;
-  background: @toolbar-background-color;
-  border-bottom: 1px solid @border-color-divider;
+  border-bottom: 1px solid darken(@toolbar-background-color, 9%);
   width:  100%;
   height: 50px;
 
