@@ -85,13 +85,14 @@ class ThreadList extends React.Component
       name: "Message"
       flex: 4
       resolver: (thread) =>
-        attachments = []
-        if thread.hasAttachments
-          attachments = <div className="thread-icon thread-icon-attachment"></div>
+        attachment = []
+        hasAttachments = _.find (thread.metadata ? []), (m) -> m.files.length > 0
+        if hasAttachments
+          attachment = <div className="thread-icon thread-icon-attachment"></div>
         <span className="details">
           <span className="subject">{subject(thread.subject)}</span>
           <span className="snippet">{thread.snippet}</span>
-          {attachments}
+          {attachment}
         </span>
 
     c4 = new ListTabular.Column
@@ -111,16 +112,23 @@ class ThreadList extends React.Component
       flex: 1
       resolver: (thread) =>
         pencil = []
+        attachment = []
         hasDraft = _.find (thread.metadata ? []), (m) -> m.draft
+        hasAttachments = _.find (thread.metadata ? []), (m) -> m.files.length > 0
         if hasDraft
           pencil = <RetinaImg name="icon-draft-pencil.png" className="draft-icon" mode={RetinaImg.Mode.ContentPreserve} />
+
+        if hasAttachments
+          attachment = <div className="thread-icon thread-icon-attachment"></div>
 
         <div>
           <div style={display: 'flex'}>
             <ThreadListIcon thread={thread} />
             <ThreadListParticipants thread={thread} />
-            <span className="timestamp">{timestamp(thread.lastMessageTimestamp)}</span>
             {pencil}
+            <span style={flex:1}></span>
+            {attachment}
+            <span className="timestamp">{timestamp(thread.lastMessageTimestamp)}</span>
           </div>
           <div className="subject">{subject(thread.subject)}</div>
           <div className="snippet">{thread.snippet}</div>

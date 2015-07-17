@@ -116,6 +116,4 @@ class Thread extends Model
   hasLabelName: (name) -> @hasCategoryName(name)
   hasFolderName: (name) -> @hasCategoryName(name)
 
-  hasAttachments: null ## TODO
-
 module.exports = Thread
