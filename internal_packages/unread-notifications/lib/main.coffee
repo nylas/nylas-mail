@@ -40,7 +40,7 @@ module.exports =
       Actions.setFocus(collection: 'thread', item: thread)
 
   _notifyMessages: ->
-    if @stack.length > 5
+    if @stack.length >= 5
       @_notifyAll()
     else if @stack.length > 0
       @_notifyOne(@stack.pop())
