@@ -32,6 +32,8 @@ class FocusedCategoryStore extends NylasStore
     @_setCategory(category)
 
   _onSearchQueryCommitted: (query="") ->
+    if typeof(query) != "string"
+      query = query[0].all
     if query.trim().length > 0 and @_category
       @_categoryBeforeSearch = @_category
       @_setCategory(null)
