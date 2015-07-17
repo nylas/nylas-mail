@@ -88,7 +88,7 @@ SearchSuggestionStore = Reflux.createStore
       _.each @_contactResults, (contact) =>
         @_suggestions.push
           contact: contact
-          value: [{"participants": contact.email}]
+          value: [{"all": contact.email}]
 
     @trigger(@)
 
