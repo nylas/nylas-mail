@@ -83,8 +83,10 @@
       position: relative;
       text-overflow: ellipsis;
       overflow: hidden;
-      flex-shrink:0;
       top:2px;
+
+      // Shrink, but only after snippet has shrunk
+      flex-shrink:0.1;
     }
     .snippet {
       font-size:   @font-size-small;
@@ -94,6 +96,7 @@
       text-overflow: ellipsis;
       overflow: hidden;
       top:2px;
+      flex: 1;
     }
     .thread-icon {
       flex-shrink:0;
@@ -146,6 +149,8 @@
   }
   .thread-icon-attachment {
     background-image:url(../static/images/thread-list/icon-attachment-@2x.png);
+    margin-right:-15px;
+    margin-left:0;
   }
   .thread-icon-unread {
     background-image:url(../static/images/thread-list/icon-unread-@2x.png);
@@ -250,7 +255,6 @@
 
 .thread-list-narrow {
   .timestamp {
-    flex: 1;
     order: 100;
   }
   .participants {
