@@ -159,13 +159,15 @@ class DraftStore
       if session.draft()?.pristine
         Actions.queueTask(new DestroyDraftTask(session.draftLocalId))
       else
-        promise = session.changes.commit()
-        promises.push(promise) unless promise.isFulfilled()
+        promises.push(session.changes.commit())
 
     if promises.length > 0
+      # Important: There are some scenarios where all the promises resolve instantly.
+      # Firing atom.close() does nothing if called within an existing beforeUnload
+      # handler, so we need to always defer by one tick before re-firing close.
       Promise.settle(promises).then =>
         @_draftSessions = {}
-        atom.close()
+        _.defer -> atom.close()
 
       # Stop and wait before closing
       return false
