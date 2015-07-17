@@ -16,7 +16,7 @@ DEBUG_TO_LOG = false
 # currently running and fires promise callbacks when complete.
 #
 class DatabaseConnection
-  constructor: (@_databasePath) ->
+  constructor: (@_databasePath, @_databaseVersion) ->
     @_queryId = 0
     @_windowId = remote.getCurrentWindow().id
     @_isConnected = false
@@ -38,7 +38,7 @@ class DatabaseConnection
     # all have `IF NOT EXISTS` clauses in them.
     databaseManager.addSetupQueries(@_databasePath, @_setupQueries())
 
-    databaseManager.prepare @_databasePath, =>
+    databaseManager.prepare @_databasePath, @_databaseVersion, =>
       @_isConnected = true
       @_flushPendingQueries()
 
@@ -50,7 +50,7 @@ class DatabaseConnection
   # handlers
   query: (query, values=[], options={}) =>
     if not query
-      throw new Error("no query")
+      throw new Error("DatabaseConnection: You need to provide a query string.")
 
     return new Promise (resolve, reject) =>
       @_queryId += 1
@@ -123,15 +123,6 @@ class DatabaseConnection
 
   _logQueryError: (message, query, values) ->
     console.error("DatabaseStore: Query #{query}, #{JSON.stringify(values)} failed #{message ? ""}")
-
-
-
-
-
-
-
-
-
 
 
   ## TODO: Make these a nicer migration-based system

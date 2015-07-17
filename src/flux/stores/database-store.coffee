@@ -14,6 +14,8 @@ DatabaseConnection = require './database-connection'
  generateTempId,
  isTempId} = require '../models/utils'
 
+DatabaseVersion = 4
+
 ###
 Public: Nylas Mail is built on top of a custom database layer modeled after
 ActiveRecord. For many parts of the application, the database is the source
@@ -69,7 +71,7 @@ class DatabaseStore extends NylasStore
     else
       @_databasePath = path.join(atom.getConfigDirPath(),'edgehill.db')
 
-    @_dbConnection = new DatabaseConnection(@_databasePath)
+    @_dbConnection = new DatabaseConnection(@_databasePath, DatabaseVersion)
 
     # It's important that this defer is here because we can't let queries
     # commence while the app is in its `require` phase. We'll queue all of

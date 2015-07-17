@@ -45,12 +45,6 @@ class NylasAPIRequest
     @
 
   run: ->
-    if atom.getLoadSettings().isSpec
-      return Promise.resolve()
-
-    if not @api.APIToken
-      return Promise.reject(new Error('Cannot make Nylas request without auth token.'))
-
     new Promise (resolve, reject) =>
       req = request @options, (error, response, body) =>
         PriorityUICoordinator.settle.then =>
@@ -134,10 +128,10 @@ class NylasAPI
     @_workers
 
   workerForNamespace: (namespace) =>
-    worker = _.find @_workers, (c) -> c.namespaceId() is namespace.id
+    worker = _.find @_workers, (c) -> c.namespace().id is namespace.id
     return worker if worker
 
-    worker = new NylasSyncWorker(@, namespace.id)
+    worker = new NylasSyncWorker(@, namespace)
     connection = worker.connection()
 
     connection.onStateChange (state) ->
@@ -184,8 +178,8 @@ class NylasAPI
       return Promise.resolve()
 
     if not @APIToken
-      console.log('Cannot make Nylas request without auth token.')
-      return Promise.reject()
+      err = new APIError(statusCode: 400, body: 'Cannot make Nylas request without auth token.')
+      return Promise.reject(err)
 
     success = (body) =>
       if options.beforeProcessing

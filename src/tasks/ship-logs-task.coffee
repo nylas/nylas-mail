@@ -2,13 +2,17 @@ fs = require 'fs'
 path = require 'path'
 request = require 'request'
 
+detailedLogging = false
+detailedLog = (msg) ->
+  console.log(msg) if detailedLogging
+
 module.exports = (dir, regexPattern) ->
   callback = @async()
 
   console.log("Running log ship: #{dir}, #{regexPattern}")
 
   fs.readdir dir, (err, files) ->
-    console.log("readdir error: #{err}") if err
+    log("readdir error: #{err}") if err
     logs = []
     logFilter = new RegExp(regexPattern)
     for file in files
@@ -24,12 +28,9 @@ module.exports = (dir, regexPattern) ->
         callback()
 
     if logs.length is 0
-      console.log("No logs found to upload.")
+      detailedLog("No logs found to upload.")
       callback()
-      console.log("Callback.")
       return
-
-    console.log("Uploading #{logs} to S3")
 
     # The AWS Module does some really interesting stuff - it loads it's configuration
     # from JSON files. Unfortunately, when the app is built into an ASAR bundle, child
@@ -57,8 +58,8 @@ module.exports = (dir, regexPattern) ->
       remaining += 1
       bucket.upload params, (err, data) ->
         if err
-          console.log("Error uploading #{key}: #{err.toString()}")
+          detailedLog("Error uploading #{key}: #{err.toString()}")
         else
-          console.log("Successfully uploaded #{key}")
+          detailedLog("Successfully uploaded #{key}")
         fs.truncate(log)
         finished()
