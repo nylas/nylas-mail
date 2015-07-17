@@ -471,9 +471,34 @@ class ComposerView extends React.Component
     else return false
 
   _shouldAcceptDrop: (event) ->
-    (event.dataTransfer.files.length or
-    "text/nylas-file-url" in event.dataTransfer.types or
-    "text/uri-list" in event.dataTransfer.types)
+    # Ensure that you can't pick up a file and drop it on the same draft
+    existingFilePaths = @state.files.map (f) ->
+      FileUploadStore.linkedUpload(f)?.filePath
+
+    nonNativeFilePath = @_nonNativeFilePathForDrop(event)
+    if nonNativeFilePath and nonNativeFilePath in existingFilePaths
+      return false
+
+    hasNativeFile = event.dataTransfer.files.length > 0
+    hasNonNativeFilePath = nonNativeFilePath isnt null
+
+    return hasNativeFile or hasNonNativeFilePath
+
+  _nonNativeFilePathForDrop: (event) ->
+    if "text/nylas-file-url" in event.dataTransfer.types
+      downloadURL = event.dataTransfer.getData("text/nylas-file-url")
+      downloadFilePath = downloadURL.split('file://')[1]
+      if downloadFilePath
+        return downloadFilePath
+
+    # Accept drops of images from within the app
+    if "text/uri-list" in event.dataTransfer.types
+      uri = event.dataTransfer.getData('text/uri-list')
+      if uri.indexOf('file://') is 0
+        uri = decodeURI(uri.split('file://')[1])
+        return uri
+
+    return null
 
   # We maintain a "dragCounter" because dragEnter and dragLeave events *stack*
   # when the user moves the item in and out of DOM elements inside of our container.
@@ -503,18 +528,9 @@ class ComposerView extends React.Component
     for file in e.dataTransfer.files
       Actions.attachFilePath({path: file.path, messageLocalId: @props.localId})
 
-    # Accept drops from attachment components within the app
-    if "text/nylas-file-url" in event.dataTransfer.types
-      downloadURL = event.dataTransfer.getData("text/nylas-file-url")
-      downloadFilePath = downloadURL.split('file://')[1]
-      Actions.attachFilePath({path: downloadFilePath, messageLocalId: @props.localId})
-
-    # Accept drops of images from within the app
-    if "text/uri-list" in event.dataTransfer.types
-      uri = event.dataTransfer.getData('text/uri-list')
-      if uri.indexOf('file://') is 0
-        uri = uri.split('file://')[1]
-        Actions.attachFilePath({path: uri, messageLocalId: @props.localId})
+    # Accept drops from attachment components / images within the app
+    if (uri = @_nonNativeFilePathForDrop(e))
+      Actions.attachFilePath({path: uri, messageLocalId: @props.localId})
 
     return
 

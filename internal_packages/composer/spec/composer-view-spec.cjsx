@@ -498,6 +498,95 @@ describe "populated composer", ->
         NylasTestUtils.keyPress("enter", React.findDOMNode(sendBtn))
         expect(@composer._sendDraft).toHaveBeenCalled()
 
+  describe "drag and drop", ->
+    beforeEach ->
+      useDraft.call @,
+        to: [u1]
+        subject: "Hello World"
+        body: ""
+        files: [file]
+      makeComposer.call(@)
+
+    describe "_shouldAcceptDrop", ->
+      it "should return true if the event is carrying native files", ->
+        event =
+          dataTransfer:
+            files:[{'pretend':'imafile'}]
+            types:[]
+        expect(@composer._shouldAcceptDrop(event)).toBe(true)
+
+      it "should return true if the event is carrying a non-native file URL not on the draft", ->
+        event =
+          dataTransfer:
+            files:[]
+            types:['text/uri-list']
+        spyOn(@composer, '_nonNativeFilePathForDrop').andReturn("file://one-file")
+        spyOn(FileUploadStore, 'linkedUpload').andReturn({filePath: "file://other-file"})
+
+        expect(@composer.state.files.length).toBe(1)
+        expect(@composer._shouldAcceptDrop(event)).toBe(true)
+
+      it "should return false if the event is carrying a non-native file URL already on the draft", ->
+        event =
+          dataTransfer:
+            files:[]
+            types:['text/uri-list']
+        spyOn(@composer, '_nonNativeFilePathForDrop').andReturn("file://one-file")
+        spyOn(FileUploadStore, 'linkedUpload').andReturn({filePath: "file://one-file"})
+
+        expect(@composer.state.files.length).toBe(1)
+        expect(@composer._shouldAcceptDrop(event)).toBe(false)
+
+      it "should return false otherwise", ->
+        event =
+          dataTransfer:
+            files:[]
+            types:['text/plain']
+        expect(@composer._shouldAcceptDrop(event)).toBe(false)
+
+    describe "_nonNativeFilePathForDrop", ->
+      it "should return a path in the text/nylas-file-url data", ->
+        event =
+          dataTransfer:
+            types: ['text/nylas-file-url']
+            getData: -> "image/png:test.png:file:///Users/bengotow/Desktop/test.png"
+        expect(@composer._nonNativeFilePathForDrop(event)).toBe("/Users/bengotow/Desktop/test.png")
+
+      it "should return a path in the text/uri-list data", ->
+        event =
+          dataTransfer:
+            types: ['text/uri-list']
+            getData: -> "file:///Users/bengotow/Desktop/test.png"
+        expect(@composer._nonNativeFilePathForDrop(event)).toBe("/Users/bengotow/Desktop/test.png")
+
+      it "should return null otherwise", ->
+        event =
+          dataTransfer:
+            types: ['text/plain']
+            getData: -> "Hello world"
+        expect(@composer._nonNativeFilePathForDrop(event)).toBe(null)
+
+      it "should urldecode the contents of the text/uri-list field", ->
+        event =
+          dataTransfer:
+            types: ['text/uri-list']
+            getData: -> "file:///Users/bengotow/Desktop/Screen%20shot.png"
+        expect(@composer._nonNativeFilePathForDrop(event)).toBe("/Users/bengotow/Desktop/Screen shot.png")
+
+      it "should return null if text/uri-list contains a non-file path", ->
+        event =
+          dataTransfer:
+            types: ['text/uri-list']
+            getData: -> "http://apple.com"
+        expect(@composer._nonNativeFilePathForDrop(event)).toBe(null)
+
+      it "should return null if text/nylas-file-url contains a non-file path", ->
+        event =
+          dataTransfer:
+            types: ['text/nylas-file-url']
+            getData: -> "application/json:filename.json:undefined"
+        expect(@composer._nonNativeFilePathForDrop(event)).toBe(null)
+
   describe "when scrolling to track your cursor", ->
     it "it tracks when you're at the end of the text", ->
 

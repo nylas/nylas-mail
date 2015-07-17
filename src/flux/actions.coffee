@@ -424,7 +424,7 @@ class Actions
   @fetchAndOpenFile: ActionScopeWindow
   @fetchAndSaveFile: ActionScopeWindow
   @fetchFile: ActionScopeWindow
-  @abortDownload: ActionScopeWindow
+  @abortFetchFile: ActionScopeWindow
   @fileDownloaded: ActionScopeWindow
 
   ###
