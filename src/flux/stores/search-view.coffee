@@ -1,6 +1,7 @@
 _ = require 'underscore'
 Utils = require '../models/utils'
 DatabaseStore = require './database-store'
+Thread = require '../models/thread'
 ModelView = require './model-view'
 NylasAPI = require '../nylas-api'
 
@@ -33,6 +34,14 @@ class SearchView extends ModelView
   count: ->
     @_queryResultTotal
 
+  invalidate: ({change}) ->
+    for key, page of @_pages
+      for item, idx in page.items
+        updated = _.find change.objects, (obj) -> obj.id is item.id
+        if updated
+          page.items[idx] = updated
+    @_emitter.emit('trigger')
+
   retrievePage: (idx) ->
     start = Date.now()
 
@@ -47,9 +56,8 @@ class SearchView extends ModelView
     @_pages[idx] = page
 
     NylasAPI.makeRequest
-      method: 'POST'
-      path: "/n/#{@_namespaceId}/threads/search?offset=#{idx * @_pageSize}&limit=#{@_pageSize}"
-      body: {"query": @_query, "sort": @_querySort}
+      method: 'GET'
+      path: "/n/#{@_namespaceId}/threads/search?q=#{@_query[0].all}"
       json: true
       returnsModel: false
       error: =>
@@ -58,11 +66,10 @@ class SearchView extends ModelView
       success: (json) =>
         objects = []
 
-        @_queryResultTotal = json.total
+        @_queryResultTotal = json.length
 
-        for resultJSON in json.results
-          obj = Utils.modelFromJSON(resultJSON.object)
-          obj.relevance = resultJSON.relevance
+        for resultJSON in json
+          obj = Utils.modelFromJSON(resultJSON)
           objects.push(obj)
 
         DatabaseStore.persistModels(objects) if objects.length > 0
