@@ -111,7 +111,7 @@ FileDownloadStore = Reflux.createStore
     @listenTo Actions.fetchFile, @_fetch
     @listenTo Actions.fetchAndOpenFile, @_fetchAndOpen
     @listenTo Actions.fetchAndSaveFile, @_fetchAndSave
-    @listenTo Actions.abortDownload, @_abortDownload
+    @listenTo Actions.abortFetchFile, @_abortFetchFile
 
     @_downloads = {}
     @_downloadDirectory = "#{atom.getConfigDirPath()}/downloads"
@@ -143,7 +143,7 @@ FileDownloadStore = Reflux.createStore
 
   # Returns a promise with a Download object, allowing other actions to be
   # daisy-chained to the end of the download operation.
-  _startDownload: (file, options = {}) ->
+  _startDownload: (file) ->
     @_prepareFolder(file).then =>
       targetPath = @pathForFile(file)
 
@@ -209,14 +209,14 @@ FileDownloadStore = Reflux.createStore
         stream.on 'end', ->
           shell.showItemInFolder(savePath)
 
-  _abortDownload: (downloadData) ->
-    download = @_downloads[downloadData.fileId]
+  _abortFetchFile: (file) ->
+    download = @_downloads[file.id]
     return unless download
     @_cleanupDownload(download)
-    p = @pathForFile
-      id: downloadData.fileId
-      filename: downloadData.filename
-    fs.unlinkSync(p)
+
+    downloadPath = @pathForFile(file)
+    fs.exists downloadPath, (exists) ->
+      fs.unlink(downloadPath) if exists
 
   _cleanupDownload: (download) ->
     download.abort()
@@ -233,3 +233,6 @@ FileDownloadStore = Reflux.createStore
       downloadDir = os.tmpdir()
 
     path.join(downloadDir, file.displayName())
+
+# Expose the Download class for our tests, and possibly for other things someday
+FileDownloadStore.Download = Download

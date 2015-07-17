@@ -90,14 +90,15 @@ MessageStore = Reflux.createStore
     @_fetchFromCache()
 
   _onToggleMessageIdExpanded: (id) ->
+    item = _.findWhere(@_items, {id})
+    return unless item
+
     if @_itemsExpanded[id]
       delete @_itemsExpanded[id]
     else
       @_itemsExpanded[id] = "explicit"
-      for item, idx in @_items
-        if @_itemsExpanded[item.id] and not _.isString(item.body)
-          @_fetchMessageIdFromAPI(item.id)
-
+      @_fetchExpandedBodies([item])
+      @_fetchExpandedAttachments([item])
     @trigger()
 
   _fetchFromCache: (options = {}) ->
@@ -132,20 +133,14 @@ MessageStore = Reflux.createStore
 
         @_expandItemsToDefault()
 
+        # Download the attachments on expanded messages.
+        @_fetchExpandedAttachments(@_items)
+
         # Check that expanded messages have bodies. We won't mark ourselves
         # as loaded until they're all available. Note that items can be manually
         # expanded so this logic must be separate from above.
-        for item, idx in @_items
-          if @_itemsExpanded[item.id] and not _.isString(item.body)
-            @_fetchMessageIdFromAPI(item.id)
-            loaded = false
-
-        # Start fetching inline image attachments. Note that the download store
-        # is smart enough that calling this multiple times is not bad!
-        for msg in items
-          for file in msg.files
-            if file.contentId or Utils.looksLikeImage(file)
-              Actions.fetchFile(file)
+        if @_fetchExpandedBodies(@_items)
+          loaded = false
 
         # Normally, we would trigger often and let the view's
         # shouldComponentUpdate decide whether to re-render, but if we
@@ -165,6 +160,21 @@ MessageStore = Reflux.createStore
 
           @_itemsLoading = false
           @trigger(@)
+
+  _fetchExpandedBodies: (items) ->
+    startedAFetch = false
+    for item in items
+      continue unless @_itemsExpanded[item.id]
+      if not _.isString(item.body)
+        @_fetchMessageIdFromAPI(item.id)
+        startedAFetch = true
+    startedAFetch
+
+  _fetchExpandedAttachments: (items) ->
+    for item in items
+      continue unless @_itemsExpanded[item.id]
+      for file in item.files
+        Actions.fetchFile(file)
 
   # Expand all unread messages, all drafts, and the last message
   _expandItemsToDefault: ->

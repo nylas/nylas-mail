@@ -502,23 +502,32 @@ describe "DraftStore", ->
         }}
 
       it "should return false and call window.close itself", ->
-        spyOn(atom, 'close')
+        spyOn(DraftStore, '_onBeforeUnloadComplete')
         expect(DraftStore._onBeforeUnload()).toBe(false)
-        runs ->
+        expect(DraftStore._onBeforeUnloadComplete).not.toHaveBeenCalled()
         @resolve()
-        waitsFor ->
-          atom.close.callCount > 0
-        runs ->
-          expect(atom.close).toHaveBeenCalled()
+        advanceClock(1000)
+        expect(DraftStore._onBeforeUnloadComplete).toHaveBeenCalled()
 
-    describe "when no drafts return unresolved commit promises", ->
+    describe "when drafts return immediately fulfilled commit promises", ->
       beforeEach ->
-        DraftStore._draftSessions = {"abc":{
+        DraftStore._draftSessions = {"abc": {
           changes:
-            commit: -> Promise.resolve()
+            commit: => Promise.resolve()
           draft: ->
             pristine: false
         }}
+
+      it "should still wait one tick before firing atom.close again", ->
+        spyOn(DraftStore, '_onBeforeUnloadComplete')
+        expect(DraftStore._onBeforeUnload()).toBe(false)
+        expect(DraftStore._onBeforeUnloadComplete).not.toHaveBeenCalled()
+        advanceClock()
+        expect(DraftStore._onBeforeUnloadComplete).toHaveBeenCalled()
+
+    describe "when there are no drafts", ->
+      beforeEach ->
+        DraftStore._draftSessions = {}
 
       it "should return true and allow the window to close", ->
         expect(DraftStore._onBeforeUnload()).toBe(true)

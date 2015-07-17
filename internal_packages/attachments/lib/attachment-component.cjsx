@@ -1,5 +1,6 @@
 _ = require 'underscore'
 path = require 'path'
+fs = require 'fs'
 React = require 'react'
 {RetinaImg, Flexbox} = require 'nylas-component-kit'
 {Actions, Utils, FileDownloadStore} = require 'nylas-exports'
@@ -64,9 +65,12 @@ class AttachmentComponent extends React.Component
 
   _onDragStart: (event) =>
     path = FileDownloadStore.pathForFile(@props.file)
-    DownloadURL = "#{@props.file.contentType}:#{@props.file.displayName()}:file://#{path}"
-    event.dataTransfer.setData("DownloadURL", DownloadURL)
-    event.dataTransfer.setData("text/nylas-file-url", DownloadURL)
+    if fs.existsSync(path)
+      DownloadURL = "#{@props.file.contentType}:#{@props.file.displayName()}:file://#{path}"
+      event.dataTransfer.setData("DownloadURL", DownloadURL)
+      event.dataTransfer.setData("text/nylas-file-url", DownloadURL)
+    else
+      event.preventDefault()
     return
 
   _onClickView: => Actions.fetchAndOpenFile(@props.file) if @_canClickToView()
@@ -82,7 +86,7 @@ class AttachmentComponent extends React.Component
     event.stopPropagation() # Prevent 'onClickView'
 
   _onClickAbort: (event) =>
-    Actions.abortDownload(@props.file, @props.download)
+    Actions.abortFetchFile(@props.file)
     event.stopPropagation() # Prevent 'onClickView'
 
   _extension: -> @props.file.filename.split('.').pop()

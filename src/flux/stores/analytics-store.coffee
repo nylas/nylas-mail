@@ -59,7 +59,7 @@ AnalyticsStore = Reflux.createStore
     searchQueryCommitted: (query) -> {}
     fetchAndOpenFile: -> {}
     fetchAndSaveFile: -> {}
-    abortDownload: -> {}
+    abortFetchFile: -> {}
     fileDownloaded: -> {}
 
   coreGlobalActions: ->
