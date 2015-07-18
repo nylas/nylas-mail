@@ -1,4 +1,5 @@
 CategoryStore = require '../stores/category-store'
+FocusedCategoryStore = require '../stores/focused-category-store'
 
 ChangeLabelsTask = require './change-labels-task'
 ChangeFolderTask = require './change-folder-task'
@@ -46,15 +47,16 @@ class ArchiveThreadHelper
           threadIds: threads.map (t) -> t.id
 
     else if namespace.usesLabels()
-      inboxLabel = CategoryStore.getStandardCategory("inbox")
+      currentLabel = FocusedCategoryStore.category()
+      currentLabel ?= CategoryStore.getStandardCategory("inbox")
 
       params =
         threadIds: threads.map (t) -> t.id
 
       if direction is "archive"
-        params.labelsToRemove = [inboxLabel]
+        params.labelsToRemove = [currentLabel]
       else if direction is "unarchive"
-        params.labelsToAdd = [inboxLabel]
+        params.labelsToAdd = [currentLabel]
 
       archiveLabel = CategoryStore.getStandardCategory("archive")
       if archiveLabel
