@@ -80,7 +80,14 @@ FileUploadStore = Reflux.createStore
   #     state - one of "pending" "started" "progress" "completed" "aborted" "failed"
   _onUploadStateChanged: (uploadData) ->
     @_fileUploads[uploadData.uploadTaskId] = uploadData
-    @trigger()
+    @_fileUploadTrigger ?= _.throttle =>
+      @trigger()
+    , 250
+
+    # Note: We throttle file upload updates, because they cause a significant refresh
+    # of the composer and when many uploads are running there can be a ton of state
+    # changes firing. (To test: drag and drop 20 files onto composer, watch performance.)
+    @_fileUploadTrigger()
 
   _onAbortUpload: (uploadData) ->
     Actions.dequeueMatchingTask
