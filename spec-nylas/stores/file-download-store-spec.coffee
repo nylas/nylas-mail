@@ -9,19 +9,20 @@ describe "FileDownloadStore", ->
     spyOn(shell, 'openItem')
     @testfile = new File(filename: '123.png', contentType: 'image/png', id: 'id', size: 100)
     FileDownloadStore._downloads = {}
+    FileDownloadStore._downloadDirectory = "/Users/testuser/.nylas/downloads"
 
   describe "pathForFile", ->
     it "should return path within the download directory with the file id and displayName", ->
       f = new File(filename: '123.png', contentType: 'image/png', id: 'id')
       spyOn(f, 'displayName').andCallThrough()
-      expect(FileDownloadStore.pathForFile(f)).toBe("/Users/bengotow/.nylas-spec/downloads/id/123.png")
+      expect(FileDownloadStore.pathForFile(f)).toBe("/Users/testuser/.nylas/downloads/id/123.png")
       expect(f.displayName).toHaveBeenCalled()
 
     it "should return unique paths for identical filenames with different IDs", ->
       f1 = new File(filename: '123.png', contentType: 'image/png', id: 'id1')
       f2 = new File(filename: '123.png', contentType: 'image/png', id: 'id2')
-      expect(FileDownloadStore.pathForFile(f1)).toBe("/Users/bengotow/.nylas-spec/downloads/id1/123.png")
-      expect(FileDownloadStore.pathForFile(f2)).toBe("/Users/bengotow/.nylas-spec/downloads/id2/123.png")
+      expect(FileDownloadStore.pathForFile(f1)).toBe("/Users/testuser/.nylas/downloads/id1/123.png")
+      expect(FileDownloadStore.pathForFile(f2)).toBe("/Users/testuser/.nylas/downloads/id2/123.png")
 
   describe "_checkForDownloadedFile", ->
     it "should return true if the file exists at the path and is the right size", ->
@@ -87,7 +88,7 @@ describe "FileDownloadStore", ->
               percent : 0,
               filename : '123.png',
               filesize : 100,
-              targetPath : '/Users/bengotow/.nylas-spec/downloads/id/123.png'
+              targetPath : '/Users/testuser/.nylas/downloads/id/123.png'
             })
 
     describe "when the downloaded file does not exist", ->
@@ -103,7 +104,7 @@ describe "FileDownloadStore", ->
           percent : 0,
           filename : '123.png',
           filesize : 100,
-          targetPath : '/Users/bengotow/.nylas-spec/downloads/id/123.png'
+          targetPath : '/Users/testuser/.nylas/downloads/id/123.png'
         })
 
       it "should call download.run", ->
@@ -122,7 +123,7 @@ describe "FileDownloadStore", ->
               percent : 0,
               filename : '123.png',
               filesize : 100,
-              targetPath : '/Users/bengotow/.nylas-spec/downloads/id/123.png'
+              targetPath : '/Users/testuser/.nylas/downloads/id/123.png'
             })
 
   describe "_fetch", ->
