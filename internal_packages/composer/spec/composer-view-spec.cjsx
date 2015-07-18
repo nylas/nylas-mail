@@ -647,10 +647,13 @@ describe "populated composer", ->
       useDraft.call @, files: [@file1, @file2]
       makeComposer.call @
 
-    it 'preloads attached image files', ->
-      expect(Actions.fetchFile).toHaveBeenCalled()
-      expect(Actions.fetchFile.calls.length).toBe 1
-      expect(Actions.fetchFile.calls[0].args[0]).toBe @file2
+    it 'starts fetching attached files', ->
+      waitsFor ->
+        Actions.fetchFile.callCount == 1
+      runs ->
+        expect(Actions.fetchFile).toHaveBeenCalled()
+        expect(Actions.fetchFile.calls.length).toBe(1)
+        expect(Actions.fetchFile.calls[0].args[0]).toBe @file2
 
     it 'injects an Attachment component for non image files', ->
       els = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@composer, InjectedComponent, matching: {role: "Attachment"})
