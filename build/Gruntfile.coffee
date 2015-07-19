@@ -199,6 +199,19 @@ module.exports = (grunt) ->
 
     peg: pegConfig
 
+    nylaslint:
+      src: [
+        'internal_packages/**/*.cjsx'
+        'internal_packages/**/*.coffee'
+        'dot-nylas/**/*.coffee'
+        'exports/**/*.coffee'
+        'src/**/*.coffee'
+        'src/**/*.cjsx'
+        'spec/*.coffee'
+        'spec-nylas/*.cjsx'
+        'spec-nylas/*.coffee'
+      ]
+
     coffeelint:
       options:
         configFile: 'coffeelint.json'
@@ -303,7 +316,7 @@ module.exports = (grunt) ->
           failOnError: false
 
   grunt.registerTask('compile', ['coffee', 'cjsx', 'prebuild-less', 'cson', 'peg'])
-  grunt.registerTask('lint', ['coffeelint', 'csslint', 'lesslint'])
+  grunt.registerTask('lint', ['coffeelint', 'csslint', 'lesslint', 'nylaslint'])
   grunt.registerTask('test', ['shell:kill-atom', 'run-edgehill-specs'])
   grunt.registerTask('docs', ['build-docs', 'render-docs'])
 
