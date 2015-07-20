@@ -43,30 +43,13 @@ class AccountSidebarStore extends NylasStore
     namespace = NamespaceStore.current()
     return unless namespace
 
-    categories = CategoryStore.categories()
+    userCategories = CategoryStore.getUserCategories()
 
-    # Categories need to be fetched from the DB, and if necessary the API.
-    # They might not be ready yet.
-    return unless categories.length > 0
-
-    # We ignore the server drafts so we can use our own localDrafts
-    #
-    # Our local drafts are displayed via the `DraftListSidebarItem` which
+    # Our drafts are displayed via the `DraftListSidebarItem` which
     # is loading into the `Drafts` Sheet.
-    categories = _.reject categories, (category) =>
+    standardCategories = CategoryStore.getStandardCategories()
+    standardCategories = _.reject standardCategories, (category) =>
       category.name is "drafts"
-
-    # Collect the built-in categories we want to display, and the user
-    # categories (which can be identified by having non-hardcoded IDs)
-    standardCategories = _.filter categories, @_isStandardCategory
-    userCategories = _.reject categories, @_isStandardCategory
-
-    # Sort the standard categories so they always appear in the same order
-    standardCategories = _.sortBy standardCategories, (category) =>
-      CategoryStore.standardCategories.indexOf(category.name)
-
-    # Sort user categories by name
-    userCategories = _.sortBy(userCategories, 'displayName')
 
     # Find root views, add the Views section
     featureSheets = _.filter WorkspaceStore.Sheet, (sheet) ->

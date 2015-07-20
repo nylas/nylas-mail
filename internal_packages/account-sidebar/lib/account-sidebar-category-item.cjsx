@@ -34,7 +34,7 @@ class AccountSidebarCategoryItem extends React.Component
 
     <div className={containerClass} onClick={@_onClick} id={@props.item.id}>
       {unread}
-      <RetinaImg name={"#{@props.item.id}.png"} fallback={'folder.png'} mode={RetinaImg.Mode.ContentIsMask} />
+      <RetinaImg name={"#{@props.item.name}.png"} fallback={'folder.png'} mode={RetinaImg.Mode.ContentIsMask} />
       <span className="name"> {@props.item.displayName}</span>
     </div>
 
