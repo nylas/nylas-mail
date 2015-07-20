@@ -13,25 +13,23 @@ class CategoryStore extends NylasStore
     @listenTo NamespaceStore, @_refreshCacheFromDB
     @_refreshCacheFromDB()
 
-  # and labels: an extended version of [RFC-6154]
-  # (http://tools.ietf.org/html/rfc6154), returned as the name of the
-  # folder or label
-  standardCategories: [
+  # We look for a few standard categories and display them in the Mailboxes
+  # portion of the left sidebar. Note that these may not all be present on
+  # a particular account.
+  StandardCategoryNames: [
     "inbox"
-    "all"
-    "trash"
-    "archive"
-    "drafts"
-    "sent"
-    "spam"
     "important"
+    "sent"
+    "drafts"
+    "all"
+    "spam"
+    "archive"
+    "trash"
   ]
 
   AllMailName: "all"
 
   byId: (id) -> @_categoryCache[id]
-
-  categories: -> _.values @_categoryCache
 
   categoryLabel: ->
     namespace = NamespaceStore.current()
@@ -53,12 +51,40 @@ class CategoryStore extends NylasStore
       return Label
     return null
 
-  # It's possible for this to return `null`. For example, Gmail likely
-  # doesn't have an `archive` label.
+  # Public: Returns an array of all the categories in the current namespace, both
+  # standard and user generated. The items returned by this function will be
+  # either {Folder} or {Label} objects.
+  #
+  getCategories: -> _.values @_categoryCache
+
+
+  # Public: Returns the Folder or Label object for a standard category name.
+  # ('inbox', 'drafts', etc.) It's possible for this to return `null`.
+  # For example, Gmail likely doesn't have an `archive` label.
+  #
   getStandardCategory: (name) ->
-    if not name in @standardCategories
+    if not name in @StandardCategoryNames
       throw new Error("'#{name}' is not a standard category")
     return _.findWhere @_categoryCache, {name}
+
+  # Public: Returns all of the standard categories for the current namespace.
+  #
+  getStandardCategories: ->
+    # Single pass to create lookup table, single pass to get ordered array
+    byStandardName = {}
+    for key, val of @_categoryCache
+      byStandardName[val.name] = val
+    _.compact @StandardCategoryNames.map (name) =>
+      byStandardName[name]
+
+  # Public: Returns all of the categories that are not part of the standard
+  # category set.
+  #
+  getUserCategories: ->
+    userCategories = _.reject _.values(@_categoryCache), (cat) =>
+      cat.name in @StandardCategoryNames
+    userCategories = _.sortBy(userCategories, 'displayName')
+    userCategories
 
   _onDBChanged: (change) ->
     categoryClass = @categoryClass()
