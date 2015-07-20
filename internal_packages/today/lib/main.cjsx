@@ -6,12 +6,12 @@ TodayIcon = require "./today-icon"
 module.exports =
 
   activate: (@state={}) ->
-    WorkspaceStore.defineSheet 'Today', {root: true, supportedModes: ['list'], name: 'Today', icon: 'today.png'},
-      list: ['RootSidebar', 'Today']
-
-    ComponentRegistry.register TodayView,
-      location: WorkspaceStore.Location.Today
+    # WorkspaceStore.defineSheet 'Today', {root: true, supportedModes: ['list'], name: 'Today', icon: 'today.png'},
+    #   list: ['RootSidebar', 'Today']
+    #
+    # ComponentRegistry.register TodayView,
+    #   location: WorkspaceStore.Location.Today
 
   deactivate: ->
-    ComponentRegistry.unregister(TodayView)
-    WorkspaceStore.undefineSheet('Today')
+    # ComponentRegistry.unregister(TodayView)
+    # WorkspaceStore.undefineSheet('Today')

@@ -74,13 +74,12 @@ class AccountSidebarStore extends NylasStore
     extraSheets = _.filter WorkspaceStore.Sheet, (sheet) ->
       sheet.root and sheet.name and not (sheet in featureSheets)
 
-    lastSections = @_sections
-    @_sections = [
-      { label: '', items: featureSheets, type: 'sheet' },
-      { label: 'Mailboxes', items: standardCategories, type: 'category' },
-      { label: 'Views', items: extraSheets, type: 'sheet' },
-      { label: CategoryStore.categoryLabel(), items: userCategories, type: 'category' },
-    ]
+    @_sections = []
+    if featureSheets.length > 0
+      @_sections.push { label: '', items: featureSheets, type: 'sheet' }
+    @_sections.push { label: 'Mailboxes', items: standardCategories, type: 'category' }
+    @_sections.push { label: 'Views', items: extraSheets, type: 'sheet' }
+    @_sections.push { label: CategoryStore.categoryLabel(), items: userCategories, type: 'category' }
 
     @trigger()
 
