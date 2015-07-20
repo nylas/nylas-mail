@@ -196,6 +196,45 @@ describe "DatabaseStore", ->
         expect(@performed[2].query).toBe('INSERT OR IGNORE INTO `TestModel-Label` (`id`, `value`) VALUES (?,?),(?,?)')
         expect(@performed[2].values).toEqual(['local-6806434c-b0cd', 'a','local-6806434c-b0cd', 'b'])
 
+    describe "model collection attributes query building", ->
+      beforeEach ->
+        TestModel.configureWithCollectionAttribute()
+        @m = new TestModel(id: 'local-6806434c-b0cd')
+        @m.labels = []
+
+      it "should page association records into multiple queries correctly", ->
+        @m.labels.push(new Label(id: "id-#{i}")) for i in [0..199]
+        DatabaseStore._writeModels([@m])
+
+        collectionAttributeQueries = _.filter @performed, (i) ->
+          i.query.indexOf('INSERT OR IGNORE INTO `TestModel-Label`') == 0
+
+        expect(collectionAttributeQueries.length).toBe(1)
+        expect(collectionAttributeQueries[0].values[399]).toEqual('id-199')
+
+      it "should page association records into multiple queries correctly", ->
+        @m.labels.push(new Label(id: "id-#{i}")) for i in [0..200]
+        DatabaseStore._writeModels([@m])
+
+        collectionAttributeQueries = _.filter @performed, (i) ->
+          i.query.indexOf('INSERT OR IGNORE INTO `TestModel-Label`') == 0
+
+        expect(collectionAttributeQueries.length).toBe(2)
+        expect(collectionAttributeQueries[0].values[399]).toEqual('id-199')
+        expect(collectionAttributeQueries[1].values[1]).toEqual('id-200')
+
+      it "should page association records into multiple queries correctly", ->
+        @m.labels.push(new Label(id: "id-#{i}")) for i in [0..201]
+        DatabaseStore._writeModels([@m])
+
+        collectionAttributeQueries = _.filter @performed, (i) ->
+          i.query.indexOf('INSERT OR IGNORE INTO `TestModel-Label`') == 0
+
+        expect(collectionAttributeQueries.length).toBe(2)
+        expect(collectionAttributeQueries[0].values[399]).toEqual('id-199')
+        expect(collectionAttributeQueries[1].values[1]).toEqual('id-200')
+        expect(collectionAttributeQueries[1].values[3]).toEqual('id-201')
+
     describe "when the model has joined data attributes", ->
       beforeEach ->
         TestModel.configureWithJoinedDataAttribute()

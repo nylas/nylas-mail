@@ -448,7 +448,11 @@ class DatabaseStore extends NylasStore
 
       unless joinedValues.length is 0
         # Write no more than 200 items (400 values) at once to avoid sqlite limits
-        for slice in [0..Math.floor(joinedValues.length / 400)] by 1
+        # 399 values: slices:[0..0]
+        # 400 values: slices:[0..0]
+        # 401 values: slices:[0..1]
+        slicePageCount = Math.ceil(joinedValues.length / 400) - 1
+        for slice in [0..slicePageCount] by 1
           [ms, me] = [slice*200, slice*200 + 199]
           [vs, ve] = [slice*400, slice*400 + 399]
           promises.push @_query("INSERT OR IGNORE INTO `#{joinTable}` (`id`, `value`) VALUES #{joinMarks[ms..me].join(',')}", joinedValues[vs..ve])
