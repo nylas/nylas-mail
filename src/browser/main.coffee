@@ -130,6 +130,7 @@ parseCommandLine = ->
     devMode = true
     resourcePath = args['resource-path']
   else
+    specsOnCommandLine = true
     # Set resourcePath based on the specDirectory if running specs on atom core
     if specDirectory?
       packageDirectoryPath = path.resolve(specDirectory, '..')
@@ -144,6 +145,9 @@ parseCommandLine = ->
       if test and toString.call(test) is "[object String]"
         if test is "core"
           specDirectory = path.join(global.devResourcePath, "spec-nylas")
+        else if test is "window"
+          specDirectory = path.join(global.devResourcePath, "spec-nylas")
+          specsOnCommandLine = false
         else
           specDirectory = path.resolve(path.join(global.devResourcePath, "internal_packages", test))
 
@@ -157,6 +161,6 @@ parseCommandLine = ->
   # explicitly pass it by command line, see http://git.io/YC8_Ew.
   process.env.PATH = args['path-environment'] if args['path-environment']
 
-  {resourcePath, pathsToOpen, executedFrom, test, version, pidToKillWhenClosed, devMode, safeMode, newWindow, specDirectory, logFile, specFilePattern}
+  {resourcePath, pathsToOpen, executedFrom, test, version, pidToKillWhenClosed, devMode, safeMode, newWindow, specDirectory, specsOnCommandLine, logFile, specFilePattern}
 
 start()

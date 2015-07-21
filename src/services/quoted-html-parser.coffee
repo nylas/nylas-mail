@@ -1,4 +1,6 @@
 _ = require 'underscore'
+crypto = require 'crypto'
+DOMUtils = require '../dom-utils'
 
 class QuotedHTMLParser
 
@@ -17,10 +19,29 @@ class QuotedHTMLParser
     quoteElements = @_findQuoteLikeElements(doc)
     return quoteElements.length > 0
 
-  removeQuotedHTML: (html) ->
+  # Public: Removes quoted text from an HTML string
+  #
+  # If we find a quoted text region that is "inline" with the root level
+  # message, meaning it has non quoted text before and after it, then we
+  # leave it in the message. If you set the `includeInline` option to true,
+  # then all inline blocks will also be removed.
+  #
+  # - `html` The string full of quoted text areas
+  # - `options`
+  #   - `includeInline` Defaults false. If true, inline quotes are removed
+  #   too
+  #
+  # Returns HTML without quoted text
+  removeQuotedHTML: (html, options={}) ->
     doc = @_parseHTML(html)
-    quoteElements = @_findQuoteLikeElements(doc)
-    @_removeQuoteElements(quoteElements)
+    quoteElements = @_findQuoteLikeElements(doc, options)
+    DOMUtils.removeElements(quoteElements, options)
+    return doc.children[0].innerHTML
+
+  appendQuotedHTML: (htmlWithoutQuotes, originalHTML) ->
+    quoteElements = @_findQuoteLikeElements(@_parseHTML(originalHTML))
+    doc = @_parseHTML(htmlWithoutQuotes)
+    doc.body.appendChild(node) for node in quoteElements
     return doc.children[0].innerHTML
 
   restoreAnnotatedHTML: (html) ->
@@ -30,16 +51,16 @@ class QuotedHTMLParser
     return doc.children[0].innerHTML
 
   _parseHTML: (text) ->
-    # The `DOMParser` is VERY fast. Some benchmarks on MacBook Pro 2.3GHz
-    # i7:
-    #
-    # On an 1k email it took 0.13ms
-    # On an 88k real-world large-email it takes ~4ms
-    # On a million-character wikipedia page on Barack Obama it takes ~30ms
     domParser = new DOMParser()
     doc = domParser.parseFromString(text, "text/html")
+    return doc
 
-  _findQuoteLikeElements: (doc) ->
+    # We used to have a scheme where we cached the `doc` object, keyed by
+    # the md5 of the text. Unfortunately we can't do this because the
+    # `doc` is mutated in place. Returning clones of the DOM is just as
+    # bad as re-parsing from string, which is very fast anyway.
+
+  _findQuoteLikeElements: (doc, {includeInline}={}) ->
     parsers = [
       @_findGmailQuotes
       @_findOffice365Quotes
@@ -49,7 +70,57 @@ class QuotedHTMLParser
     quoteElements = []
     for parser in parsers
       quoteElements = quoteElements.concat(parser(doc) ? [])
+
+    if not includeInline and quoteElements.length > 0
+      # This means we only want to remove quoted text that shows up at the
+      # end of a message. If there were non quoted content after, it'd be
+      # inline.
+
+      # We first need to find the common ancestor of the quoteElements.
+      # This tells us what depth to look at to determine if there's real
+      # content after us.
+      ancestor = DOMUtils.commonAncestor(quoteElements)
+
+      trailingQuotes = @_findTrailingQuotes(ancestor, quoteElements)
+
+      # Only keep the trailing quotes so we can delete them.
+      quoteElements = _.intersection(quoteElements, trailingQuotes)
+
     return _.compact(_.uniq(quoteElements))
+
+  # This will recursievly move through the DOM, bottom to top, and pick
+  # out quoted text blocks. It will stop when it reaches a visible
+  # non-quote text region.
+  _findTrailingQuotes: (scopeElement, quoteElements=[]) ->
+    trailingQuotes = []
+
+    # We need to find only the child nodes that have content in them. We
+    # determine if it's an inline quote based on if there's VISIBLE
+    # content after a piece of quoted text
+    nodesWithContent = DOMUtils.nodesWithContent(scopeElement)
+
+    # There may be multiple quote blocks that are sibilings of each
+    # other at the end of the message. We want to include all of these
+    # trailing quote elements.
+    for nodeWithContent in nodesWithContent by -1
+      if nodeWithContent in quoteElements
+        # This is a valid quote. Let's keep it!
+        #
+        # This quote block may have many more quote blocks inside of it.
+        # Luckily we don't need to explicitly find all of those because
+        # one this block gets removed from the DOM, we'll delete all
+        # sub-quotes as well.
+        trailingQuotes.push(nodeWithContent)
+        continue
+      else
+        moreTrailing = @_findTrailingQuotes(nodeWithContent, quoteElements)
+        trailingQuotes = trailingQuotes.concat(moreTrailing)
+        break
+
+    return trailingQuotes
+
+  _contains: (node, quoteElement) ->
+    node is quoteElement or node.contains(quoteElement)
 
   _findAnnotatedElements: (doc) ->
     Array::slice.call(doc.getElementsByClassName(@annotationClass))
@@ -67,15 +138,6 @@ class QuotedHTMLParser
       originalDisplay = el.getAttribute("data-nylas-quoted-text-original-display")
       el.style.display = originalDisplay
       el.removeAttribute("data-nylas-quoted-text-original-display")
-
-  _removeQuoteElements: (elements=[]) ->
-    for el in elements
-      try
-        if el.parentNode then el.parentNode.removeChild(el)
-      catch
-        # This can happen if we've already removed ourselves from the node
-        # or it no longer exists
-        continue
 
   _findGmailQuotes: (doc) ->
     # There can sometimes be `div.gmail_quote` that are false positives.

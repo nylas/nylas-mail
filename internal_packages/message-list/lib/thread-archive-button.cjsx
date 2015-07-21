@@ -1,6 +1,6 @@
 _ = require 'underscore'
 React = require 'react'
-{Actions, Utils} = require 'nylas-exports'
+{Actions, DOMUtils} = require 'nylas-exports'
 {RetinaImg} = require 'nylas-component-kit'
 
 class ArchiveButton extends React.Component
@@ -14,7 +14,7 @@ class ArchiveButton extends React.Component
     </button>
 
   _onArchive: (e) =>
-    return unless Utils.nodeIsVisible(e.currentTarget)
+    return unless DOMUtils.nodeIsVisible(e.currentTarget)
     Actions.archive()
     e.stopPropagation()
 

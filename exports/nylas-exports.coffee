@@ -44,6 +44,7 @@ Exports =
 
   # Utils
   Utils: Utils
+  DOMUtils: require '../src/dom-utils'
   MessageUtils: require '../src/flux/models/message-utils'
 
   # Mixins

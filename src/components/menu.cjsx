@@ -1,7 +1,7 @@
 React = require 'react/addons'
 classNames = require 'classnames'
 _ = require 'underscore'
-{Utils} = require 'nylas-exports'
+{DOMUtils} = require 'nylas-exports'
 {CompositeDisposable} = require 'event-kit'
 
 ###
@@ -184,7 +184,7 @@ class Menu extends React.Component
   componentDidUpdate: =>
     item = React.findDOMNode(@).querySelector(".selected")
     container = React.findDOMNode(@).querySelector(".content-container")
-    adjustment = Utils.scrollAdjustmentToMakeNodeVisibleInContainer(item, container)
+    adjustment = DOMUtils.scrollAdjustmentToMakeNodeVisibleInContainer(item, container)
     if adjustment isnt 0
       container.scrollTop += adjustment
 

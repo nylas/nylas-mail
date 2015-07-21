@@ -609,7 +609,6 @@ class ComposerView extends React.Component
       return
 
     bodyIsEmpty = draft.body is @_proxy.draftPristineBody()
-    body = QuotedHTMLParser.removeQuotedHTML(draft.body.toLowerCase().trim())
     forwarded = Utils.isForwardedMessage(draft)
     hasAttachment = (draft.files ? []).length > 0
 
