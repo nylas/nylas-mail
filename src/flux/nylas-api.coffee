@@ -187,17 +187,20 @@ class NylasAPI
     success = (body) =>
       if options.beforeProcessing
         body = options.beforeProcessing(body)
+        return Promise.resolve(body)
       if options.returnsModel
-        @_handleModelResponse(body)
-      Promise.resolve(body)
+        @_handleModelResponse(body).then (objects) ->
+          return Promise.resolve(body)
 
     error = (err) =>
       if err.response
+        handlePromise = Promise.resolve()
         if err.response.statusCode is 404 and options.returnsModel
-          @_handleModel404(options.url)
+          handlePromise = @_handleModel404(options.url)
         if err.response.statusCode is 401
-          @_handle401(options.url)
-      Promise.reject(err)
+          handlePromise = @_handle401(options.url)
+        handlePromise.then ->
+          Promise.reject(err)
 
     req = new NylasAPIRequest(@, options)
     req.run().then(success, error)
@@ -221,7 +224,11 @@ class NylasAPI
     if klass and klassId and klassId.length > 0
       console.warn("Deleting #{klass.name}:#{klassId} due to API 404")
       DatabaseStore.find(klass, klassId).then (model) ->
-        DatabaseStore.unpersistModel(model) if model
+        if model
+          return DatabaseStore.unpersistModel(model)
+        else return Promise.resolve()
+    else
+      return Promise.resolve()
 
   _handle401: (modelUrl) ->
     Actions.postNotification
@@ -240,6 +247,8 @@ class NylasAPI
         if action.id is '401:logout'
           atom.logout()
       @_notificationUnlisten = Actions.notificationActionTaken.listen(handler, @)
+
+    return Promise.resolve()
 
   _handleDeltas: (deltas) ->
     Actions.longPollReceivedRawDeltas(deltas)
@@ -289,6 +298,8 @@ class NylasAPI
 
         Promise.settle(destroyPromises)
 
+  # Returns a Promsie that resolves when any parsed out models (if any)
+  # have been created and persisted to the database.
   _handleModelResponse: (jsons) ->
     if not jsons
       return Promise.reject(new Error("handleModelResponse with no JSON provided"))
@@ -297,11 +308,11 @@ class NylasAPI
     if uniquedJSONs.length < jsons.length
       console.warn("NylasAPI.handleModelResponse: called with non-unique object set. Maybe an API request returned the same object more than once?")
 
-    return Promise.filter(uniquedJSONs, @_shouldAcceptModel)
-                  .map(modelFromJSON)
-                  .then (objects) ->
-                    DatabaseStore.persistModels(objects)
-                    return Promise.resolve(objects)
+    Promise.filter(uniquedJSONs, @_shouldAcceptModel)
+      .map(modelFromJSON)
+      .then (objects) ->
+        DatabaseStore.persistModels(objects).then ->
+          return Promise.resolve(objects)
 
   _shouldAcceptModel: (model) =>
     return Promise.resolve(false) unless model
