@@ -70,6 +70,10 @@ class Contact extends Model
     return "You" if @email is NamespaceStore.current()?.emailAddress
     @_nameParts().join(' ')
 
+  # Full Name <email@address.com>
+  messageName: ->
+    if @name then "#{@name} &lt;#{@email}&gt;" else @email
+
   displayFirstName: ->
     return "You" if @email is NamespaceStore.current()?.emailAddress
     @firstName()

@@ -1,4 +1,5 @@
 _ = require 'underscore'
+moment = require 'moment'
 
 File = require './file'
 Label = require './label'
@@ -233,5 +234,17 @@ class Message extends Model
   # Public: Returns an {Array} of {File} IDs
   fileIds: ->
     _.map @files, (file) -> file.id
+
+  plainTextBody: ->
+    if (@body ? "").trim().length is 0 then return ""
+    (new DOMParser()).parseFromString(@body, "text/html").body.innerText
+
+  fromContact: ->
+    @from?[0] ? new Contact(name: 'Unknown', email: 'Unknown')
+
+  replyAttributionLine: ->
+    "On #{@formattedDate()}, #{@fromContact().messageName()} wrote:"
+
+  formattedDate: -> moment(@date).format("MMM D YYYY, [at] h:mm a")
 
 module.exports = Message

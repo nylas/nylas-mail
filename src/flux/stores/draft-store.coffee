@@ -258,25 +258,17 @@ class DraftStore
       attributes.subject ?= subjectWithPrefix(thread.subject, 'Re:')
       attributes.body ?= ""
 
-      # A few helpers for formatting
-      contactString = (c) ->
-        if c.name then "#{c.name} &lt;#{c.email}&gt;" else c.email
-      contactStrings = (cs) ->
-        _.map(cs, contactString).join(", ")
-      messageDate = (d) ->
-        moment(d).format("MMM D YYYY, [at] h:mm a")
+      contactStrings = (cs) -> _.invoke(cs, "messageName").join(", ")
 
       if attributes.replyToMessage
         msg = attributes.replyToMessage
-        contact = msg.from[0] ? new Contact(name: 'Unknown', email:'Unknown')
-        attribution = "On #{messageDate(msg.date)}, #{contactString(contact)} wrote:"
 
         attributes.subject = subjectWithPrefix(msg.subject, 'Re:')
         attributes.replyToMessageId = msg.id
         attributes.body = """
           <br><br><blockquote class="gmail_quote"
             style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
-            #{attribution}
+            #{msg.replyAttributionLine()}
             <br>
             #{@_formatBodyForQuoting(msg.body)}
           </blockquote>"""
@@ -287,7 +279,7 @@ class DraftStore
         fields = []
         fields.push("From: #{contactStrings(msg.from)}") if msg.from.length > 0
         fields.push("Subject: #{msg.subject}")
-        fields.push("Date: #{messageDate(msg.date)}")
+        fields.push("Date: #{msg.formattedDate()}")
         fields.push("To: #{contactStrings(msg.to)}") if msg.to.length > 0
         fields.push("CC: #{contactStrings(msg.cc)}") if msg.cc.length > 0
         fields.push("BCC: #{contactStrings(msg.bcc)}") if msg.bcc.length > 0
