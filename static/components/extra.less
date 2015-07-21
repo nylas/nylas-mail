@@ -34,3 +34,39 @@
     content:'Show previous';
   }
 }
+
+.mail-label {
+  font-size: 0.9em;
+  padding: 2px 8px;
+  margin-right: 6px;
+  flex-shrink: 0;
+  border-radius: 3px;
+  display: inline-block;
+  cursor:default;
+  line-height: 22px;
+}
+.mail-label.removable {
+  padding-left:12px;
+  padding-right:4px;
+  .inner {
+    position: relative;
+    left:0;
+    transition: left 0.05s linear;
+  }
+  .x {
+    opacity: 0;
+    left:-4px;
+    top:-3px;
+    position: relative;
+    display:inline-block;
+    transition: opacity 0.05s ease-in;
+  }
+}
+.mail-label.removable:hover {
+  .inner {
+    left:-6px;
+  }
+  .x {
+    opacity: 1;
+  }
+}

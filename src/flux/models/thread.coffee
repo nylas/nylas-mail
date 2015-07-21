@@ -116,4 +116,8 @@ class Thread extends Model
   hasLabelName: (name) -> @hasCategoryName(name)
   hasFolderName: (name) -> @hasCategoryName(name)
 
+  sortedLabels: ->
+    return null unless @labels
+    _.sortBy @labels, (label) -> label.displayName
+
 module.exports = Thread
