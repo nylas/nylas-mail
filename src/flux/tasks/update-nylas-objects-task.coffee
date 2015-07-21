@@ -54,7 +54,8 @@ class UpdateNylasObjectsTask extends Task
       return Promise.resolve(Task.Status.Finished)
     .catch APIError, (err) =>
       if err.statusCode in NylasAPI.PermanentErrorCodes
-        return @performLocal(reverting: true)
+        @performLocal(reverting: true).then =>
+          return Promise.resolve(Task.Status.Finished)
       else
         return Promise.resolve(Task.Status.Retry)
 
