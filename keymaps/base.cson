@@ -12,6 +12,7 @@
   'R'     : 'application:reply-all' # Nylas Mail
   'a'     : 'application:reply-all' # Gmail
   'f'     : 'application:forward' # Gmail
+  'l'     : 'application:change-category' # Gmail
 
   'escape': 'application:pop-sheet'
   'u'     : 'application:pop-sheet' # Gmail

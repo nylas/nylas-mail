@@ -1,0 +1,11 @@
+{
+  "name": "category-picker",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Label & Folder Picker",
+  "license": "Proprietary",
+  "private": true,
+  "engines": {
+    "atom": "*"
+  }
+}

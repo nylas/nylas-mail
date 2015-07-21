@@ -110,10 +110,19 @@ useDraft = (draftAttributes={}) ->
   @draft = new Message _.extend({draft: true, body: ""}, draftAttributes)
   draft = @draft
   proxy = draftStoreProxyStub(DRAFT_LOCAL_ID, @draft)
-  spyOn(DraftStore, "sessionForLocalId").andCallFake -> new Promise (resolve, reject) -> resolve(proxy)
+
+
   spyOn(ComposerView.prototype, "componentWillMount").andCallFake ->
     @_prepareForDraft(DRAFT_LOCAL_ID)
     @_setupSession(proxy)
+
+  # Normally when sessionForLocalId resolves, it will call `_setupSession`
+  # and pass the new session proxy. However, in our faked
+  # `componentWillMount`, we manually call sessionForLocalId to make this
+  # part of the test synchronous. We need to make the `then` block of the
+  # sessionForLocalId do nothing so `_setupSession` is not called twice!
+  spyOn(DraftStore, "sessionForLocalId").andCallFake ->
+    then: ->
 
 useFullDraft = ->
   useDraft.call @,

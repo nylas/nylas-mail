@@ -29,7 +29,7 @@ class ChangeFolderTask extends ChangeCategoryTask
         folder: Promise.resolve(@folderOrId)
     else
       return Promise.props
-        folder: DatabaseStore.find(Folder, @folderOrId.id)
+        folder: DatabaseStore.find(Folder, @folderOrId)
 
   # Called from super-class's `performRemote`
   rollbackLocal: ->
