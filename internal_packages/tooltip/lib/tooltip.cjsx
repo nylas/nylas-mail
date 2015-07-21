@@ -51,9 +51,12 @@ class Tooltip extends React.Component
   # This are public methods so they can be bound to the window event
   # listeners.
   onMouseOver: (e) =>
-    target = @_elementWithTooltip(e.target)
-    if target and DOMUtils.nodeIsVisible(target) then @_onTooltipEnter(target)
-    else if @state.display then @_hideTooltip()
+    elWithTooltip = @_elementWithTooltip(e.target)
+    if elWithTooltip and DOMUtils.nodeIsVisible(elWithTooltip)
+      if elWithTooltip isnt @_lastTarget
+        @_onTooltipEnter(elWithTooltip)
+    else
+      @_hideTooltip() if @state.display
 
   onMouseOut: (e) =>
     if @_elementWithTooltip(e.fromElement) and not @_elementWithTooltip(e.toElement)
@@ -69,6 +72,7 @@ class Tooltip extends React.Component
     return target
 
   _onTooltipEnter: (target) =>
+    @_lastTarget = target
     @_enteredTooltip = true
     clearTimeout(@_showTimeout)
     clearTimeout(@_showDelayTimeout)
@@ -91,6 +95,8 @@ class Tooltip extends React.Component
   _showTooltip: (target) =>
     return unless DOMUtils.nodeIsVisible(target)
     content = target.dataset.tooltip
+    return if (content ? "").trim().toLowerCase().length is 0
+
     guessedWidth = @_guessWidth(content)
     dim = target.getBoundingClientRect()
     left = dim.left + dim.width / 2
@@ -146,6 +152,7 @@ class Tooltip extends React.Component
     document.getElementsByTagName('body')[0].getBoundingClientRect().height
 
   _hideTooltip: =>
+    @_lastTarget = null
     @setState
       top: 0
       left: 0

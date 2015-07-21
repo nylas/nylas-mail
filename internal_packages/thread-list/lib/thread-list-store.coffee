@@ -25,8 +25,12 @@ class ThreadListStore extends NylasStore
 
     @listenTo Actions.archiveAndPrevious, @_onArchiveAndPrev
     @listenTo Actions.archiveAndNext, @_onArchiveAndNext
+
     @listenTo Actions.archiveSelection, @_onArchiveSelection
+    @listenTo Actions.moveThreads, @_onMoveThreads
+
     @listenTo Actions.archive, @_onArchive
+    @listenTo Actions.moveThread, @_onMoveThread
 
     @listenTo Actions.toggleStarSelection, @_onToggleStarSelection
     @listenTo Actions.toggleStarFocused, @_onToggleStarFocused
@@ -143,13 +147,26 @@ class ThreadListStore extends NylasStore
   _onArchive: ->
     @_archiveAndShiftBy('auto')
 
-  _onArchiveSelection: ->
-    selectedThreads = @_view.selection.items()
-    selectedThreadIds = selectedThreads.map (thread) -> thread.id
+  _onArchiveAndPrev: ->
+    @_archiveAndShiftBy(-1)
+
+  _onArchiveAndNext: ->
+    @_archiveAndShiftBy(1)
+
+  _archiveAndShiftBy: (offset) ->
+    focused = FocusedContentStore.focused('thread')
+    return unless focused
+    task = ArchiveThreadHelper.getArchiveTask([focused])
+    @_moveAndShiftBy(offset, task)
+
+  _onMoveThread: (thread, task) ->
+    @_moveAndShiftBy('auto', task)
+
+  _onMoveThreads: (threads, task) ->
+    selectedThreadIds = threads.map (thread) -> thread.id
     focusedId = FocusedContentStore.focusedId('thread')
     keyboardId = FocusedContentStore.keyboardCursorId('thread')
 
-    task = ArchiveThreadHelper.getArchiveTask(selectedThreads)
     task.waitForPerformLocal().then =>
       if focusedId in selectedThreadIds
         Actions.setFocus(collection: 'thread', item: null)
@@ -159,13 +176,12 @@ class ThreadListStore extends NylasStore
     Actions.queueTask(task)
     @_view.selection.clear()
 
-  _onArchiveAndPrev: ->
-    @_archiveAndShiftBy(-1)
+  _onArchiveSelection: ->
+    selectedThreads = @_view.selection.items()
+    task = ArchiveThreadHelper.getArchiveTask(selectedThreads)
+    @_onMoveThreads(selectedThreads, task)
 
-  _onArchiveAndNext: ->
-    @_archiveAndShiftBy(1)
-
-  _archiveAndShiftBy: (offset) ->
+  _moveAndShiftBy: (offset, task) ->
     layoutMode = WorkspaceStore.layoutMode()
     focused = FocusedContentStore.focused('thread')
     explicitOffset = if offset is "auto" then false else true
@@ -196,7 +212,6 @@ class ThreadListStore extends NylasStore
       nextFocus = null
 
     # Archive the current thread
-    task = ArchiveThreadHelper.getArchiveTask([focused])
     task.waitForPerformLocal().then ->
       Actions.setFocus(collection: 'thread', item: nextFocus)
       Actions.setCursorPosition(collection: 'thread', item: nextKeyboard)

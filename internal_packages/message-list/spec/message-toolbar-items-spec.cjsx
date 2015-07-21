@@ -1,9 +1,9 @@
 React = require "react/addons"
+ReactTestUtils = React.addons.TestUtils
 TestUtils = React.addons.TestUtils
 {Thread, FocusedContentStore, Actions} = require "nylas-exports"
 
-
-MessageToolbarItems = require '../lib/message-toolbar-items'
+StarButton = require '../lib/thread-star-button'
 
 test_thread = (new Thread).fromJSON({
   "id" : "thread_12345"
@@ -19,25 +19,19 @@ test_thread_starred = (new Thread).fromJSON({
 
 describe "MessageToolbarItem starring", ->
   it "stars a thread if the star button is clicked and thread is unstarred", ->
-    spyOn(FocusedContentStore, "focused").andCallFake ->
-      test_thread
     spyOn(Actions, 'queueTask')
-    messageToolbarItems = TestUtils.renderIntoDocument(<MessageToolbarItems />)
+    starButton = TestUtils.renderIntoDocument(<StarButton thread={test_thread}/>)
 
-    starButton = React.findDOMNode(messageToolbarItems.refs.starButton)
-    TestUtils.Simulate.click starButton
+    TestUtils.Simulate.click React.findDOMNode(starButton)
 
     expect(Actions.queueTask.mostRecentCall.args[0].objects).toEqual([test_thread])
     expect(Actions.queueTask.mostRecentCall.args[0].newValues).toEqual(starred: true)
 
   it "unstars a thread if the star button is clicked and thread is starred", ->
-    spyOn(FocusedContentStore, "focused").andCallFake ->
-      test_thread_starred
     spyOn(Actions, 'queueTask')
-    messageToolbarItems = TestUtils.renderIntoDocument(<MessageToolbarItems />)
+    starButton = TestUtils.renderIntoDocument(<StarButton thread={test_thread_starred}/>)
 
-    starButton = React.findDOMNode(messageToolbarItems.refs.starButton)
-    TestUtils.Simulate.click starButton
+    TestUtils.Simulate.click React.findDOMNode(starButton)
 
     expect(Actions.queueTask.mostRecentCall.args[0].objects).toEqual([test_thread_starred])
     expect(Actions.queueTask.mostRecentCall.args[0].newValues).toEqual(starred: false)

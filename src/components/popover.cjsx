@@ -78,7 +78,13 @@ class Popover extends React.Component
   componentWillUnmount: =>
     @subscriptions?.dispose()
 
+  componentDidUpdate: ->
+    if @_focusOnOpen
+      @_focusImportantElement()
+      @_focusOnOpen = false
+
   open: =>
+    @_focusOnOpen = true
     @setState
       showing: true
     if @props.onOpened?
@@ -87,6 +93,19 @@ class Popover extends React.Component
   close: =>
     @setState
       showing: false
+
+  _focusImportantElement: =>
+    # Automatically focus the element inside us with the lowest tab index
+    node = React.findDOMNode(@refs.popover)
+
+    # _.sortBy ranks in ascending numerical order.
+    matches = _.sortBy node.querySelectorAll("[tabIndex], input"), (node) ->
+      if node.tabIndex > 0
+        return node.tabIndex
+      else if node.nodeName is "INPUT"
+        return 1000000
+      else return 1000001
+    matches[0]?.focus()
 
   render: =>
     wrappedButtonComponent = []
@@ -137,18 +156,6 @@ class Popover extends React.Component
   _onClick: =>
     if not @state.showing
       @open()
-      setTimeout =>
-        # Automatically focus the element inside us with the lowest tab index
-        node = React.findDOMNode(@refs.popover)
-
-        # _.sortBy ranks in ascending numerical order.
-        matches = _.sortBy node.querySelectorAll("[tabIndex], input"), (node) ->
-          if node.tabIndex > 0
-            return node.tabIndex
-          else if node.nodeName is "INPUT"
-            return 1000000
-          else return 1000001
-        matches[0]?.focus()
     else
       @close()
 

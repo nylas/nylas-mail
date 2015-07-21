@@ -1,11 +1,15 @@
 _ = require 'underscore'
 React = require 'react'
 classNames = require 'classnames'
-{Actions, Utils, FocusedContentStore, WorkspaceStore} = require 'nylas-exports'
-{RetinaImg, Popover, Menu} = require 'nylas-component-kit'
 
-ThreadArchiveButton = require './thread-archive-button'
-ThreadStarButton = require './thread-star-button'
+{Actions,
+ WorkspaceStore,
+ FocusedContentStore} = require 'nylas-exports'
+
+{Menu,
+ Popover,
+ RetinaImg,
+ InjectedComponentSet} = require 'nylas-component-kit'
 
 class MessageToolbarItems extends React.Component
   @displayName: "MessageToolbarItems"
@@ -20,8 +24,8 @@ class MessageToolbarItems extends React.Component
       "hidden": !@state.thread
 
     <div className={classes}>
-      <ThreadArchiveButton />
-      <ThreadStarButton ref="starButton" thread={@state.thread} />
+      <InjectedComponentSet matching={role: "message:Toolbar"}
+                            exposedProps={thread: @state.thread}/>
     </div>
 
   componentDidMount: =>

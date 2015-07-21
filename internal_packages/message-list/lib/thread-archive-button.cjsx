@@ -3,8 +3,8 @@ React = require 'react'
 {Actions, DOMUtils} = require 'nylas-exports'
 {RetinaImg} = require 'nylas-component-kit'
 
-class ArchiveButton extends React.Component
-  @displayName: "ArchiveButton"
+class ThreadArchiveButton extends React.Component
+  @displayName: "ThreadArchiveButton"
 
   render: =>
     <button className="btn btn-toolbar btn-archive"
@@ -19,4 +19,4 @@ class ArchiveButton extends React.Component
     e.stopPropagation()
 
 
-module.exports = ArchiveButton
+module.exports = ThreadArchiveButton
