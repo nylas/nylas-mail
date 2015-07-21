@@ -9,6 +9,7 @@ MessageItem = require "./message-item"
  MessageStore,
  DatabaseStore,
  ComponentRegistry,
+ ChangeLabelsTask,
  UpdateThreadsTask} = require("nylas-exports")
 
 {Spinner,
@@ -16,6 +17,7 @@ MessageItem = require "./message-item"
  ResizableRegion,
  RetinaImg,
  InjectedComponentSet,
+ MailLabel,
  InjectedComponent} = require('nylas-component-kit')
 
 class MessageListScrollTooltip extends React.Component
@@ -225,8 +227,14 @@ class MessageList extends React.Component
   _renderSubject: ->
     <div className="message-subject-wrap">
       <div className="message-count">{@state.messages.length} {if @state.messages.length is 1 then "message" else "messages"}</div>
-      <div className="message-subject">{@state.currentThread?.subject}</div>
+      <span className="message-subject">{@state.currentThread?.subject}</span>
+      {@_renderLabels()}
     </div>
+
+  _renderLabels: =>
+    labels = @state.currentThread.sortedLabels() ? []
+    labels.map (label) =>
+      <MailLabel label={label} key={label.id} onRemove={ => @_onRemoveLabel(label) }/>
 
   _renderReplyArea: =>
     if @_hasReplyArea()
@@ -248,6 +256,10 @@ class MessageList extends React.Component
       return "reply"
     else
       return "reply-all"
+
+  _onRemoveLabel: (label) =>
+    task = new ChangeLabelsTask(threadIds: [@state.currentThread.id], labelsToRemove: [label])
+    Actions.queueTask(task)
 
   _onClickReplyArea: =>
     return unless @state.currentThread

@@ -1,13 +1,15 @@
 _ = require 'underscore'
 React = require 'react'
 classNames = require 'classnames'
-{ListTabular, MultiselectList, RetinaImg} = require 'nylas-component-kit'
+{ListTabular, MultiselectList, RetinaImg, MailLabel} = require 'nylas-component-kit'
 {timestamp, subject} = require './formatting-utils'
 {Actions,
  Utils,
  Thread,
  WorkspaceStore,
- NamespaceStore} = require 'nylas-exports'
+ NamespaceStore,
+ CategoryStore,
+ FocusedCategoryStore} = require 'nylas-exports'
 
 ThreadListParticipants = require './thread-list-participants'
 ThreadListQuickActions = require './thread-list-quick-actions'
@@ -56,18 +58,13 @@ class ThreadList extends React.Component
       style: 'unknown'
 
   componentWillMount: =>
-    labelComponents = (thread) =>
-      for label in @state.threadLabelComponents
-        LabelComponent = label.view
-        <LabelComponent thread={thread} />
-
     c1 = new ListTabular.Column
       name: "★"
       resolver: (thread) =>
         <ThreadListIcon thread={thread} />
 
     c2 = new ListTabular.Column
-      name: "Name"
+      name: "Participants"
       width: 200
       resolver: (thread) =>
         hasDraft = _.find (thread.metadata ? []), (m) -> m.draft
@@ -86,10 +83,20 @@ class ThreadList extends React.Component
       flex: 4
       resolver: (thread) =>
         attachment = []
+        labels = []
         hasAttachments = _.find (thread.metadata ? []), (m) -> m.files.length > 0
         if hasAttachments
           attachment = <div className="thread-icon thread-icon-attachment"></div>
+
+        currentCategoryId = FocusedCategoryStore.categoryId()
+        allCategoryId = CategoryStore.getStandardCategory('all')?.id
+        ignoredIds = [currentCategoryId, allCategoryId]
+        for label in (thread.sortedLabels() ? [])
+          continue if label.id in ignoredIds
+          labels.push <MailLabel label={label} key={label.id} />
+
         <span className="details">
+          {labels}
           <span className="subject">{subject(thread.subject)}</span>
           <span className="snippet">{thread.snippet}</span>
           {attachment}

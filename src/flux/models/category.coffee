@@ -32,5 +32,12 @@ class Category extends Model
       modelKey: 'displayName'
       jsonKey: 'display_name'
 
-module.exports = Category
+  hue: ->
+    return 0 unless @displayName
+    hue = 0
+    for i in [0..(@displayName.length - 1)]
+      hue += @displayName.charCodeAt(i)
+    hue = hue * (396.0/512.0)
+    hue
 
+module.exports = Category

@@ -92,8 +92,7 @@ class ChangeLabelsTask extends ChangeCategoryTask
     objLabels = _.reject objLabels, (label) ->
       contains(labelsToRemove, label)
 
-    return _.map _.uniq(objLabels, false, (obj) -> obj.id), (labelData) ->
-      new Label().fromJSON(labelData)
+    return _.uniq(objLabels, false, (obj) -> obj.id)
 
   verifyArgs: ->
     @labelsToAdd ?= []
