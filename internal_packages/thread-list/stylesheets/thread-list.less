@@ -25,6 +25,15 @@
   .thread-icon, .draft-icon {
     -webkit-filter: brightness(600%) grayscale(100%);
   }
+
+  .mail-label {
+    // Note - these !important styles override values set by a style tag
+    // since the color of the label is detemined programatically.
+    background: none !important;
+    box-shadow: 0 0.5px 0 @text-color-inverse, 0 -0.5px 0 @text-color-inverse, 0.5px 0 0 @text-color-inverse, -0.5px 0 0 @text-color-inverse !important;
+    -webkit-filter: brightness(600%) grayscale(100%);
+  }
+
 }
 
 // STYLES
@@ -193,21 +202,21 @@
     display:inline-block;
     background-size: 100%;
     zoom:0.5;
-    width:48px;
-    height:48px;
+    width:42px;
+    height:42px;
     margin:16px;
   }
   .action:last-child {
     margin-right:40px;
   }
   .action.action-reply {
-    background: url(../static/images/toolbar/toolbar-reply@2x.png) top left no-repeat;
+    background: url(../static/images/thread-list-quick-actions/ic-quick-button-reply@2x.png) top left no-repeat;
   }
   .action.action-forward {
-    background: url(../static/images/toolbar/toolbar-forward@2x.png) top left no-repeat;
+    background: url(../static/images/thread-list-quick-actions/ic-quick-button-forward@2x.png) top left no-repeat;
   }
   .action.action-archive {
-    background: url(../static/images/toolbar/toolbar-archive@2x.png) top left no-repeat;
+    background: url(../static/images/thread-list-quick-actions/ic-quick-button-archive@2x.png) top left no-repeat;
   }
 }
 .thread-list .list-item:hover .list-column-HoverActions {

@@ -1,7 +1,7 @@
 remote = require 'remote'
 React = require 'react'
 {Actions, NylasAPI, NamespaceStore} = require 'nylas-exports'
-{RetinaImg, ButtonDropdown} = require 'nylas-component-kit'
+{RetinaImg, ButtonDropdown, Menu} = require 'nylas-component-kit'
 
 class MessageControls extends React.Component
   @displayName: "MessageControls"
@@ -12,44 +12,38 @@ class MessageControls extends React.Component
   constructor: (@props) ->
 
   render: =>
-    button = []
-
-    if @_replyType() is "reply"
-      button = <ButtonDropdown
-        primaryItem={<RetinaImg name="reply-footer.png" mode={RetinaImg.Mode.ContentIsMask}/>}
-        primaryClick={@_onReply}
-        secondaryItems={@_secondaryMessageActions()}/>
-    else
-      button = <ButtonDropdown
-        primaryItem={<RetinaImg name="reply-all-footer.png" mode={RetinaImg.Mode.ContentIsMask}/>}
-        primaryClick={@_onReplyAll}
-        secondaryItems={@_secondaryMessageActions()}/>
-
     <div className="message-actions-wrap">
       <div className="message-actions-ellipsis" onClick={@_onShowActionsMenu}>
         <RetinaImg name={"message-actions-ellipsis.png"} mode={RetinaImg.Mode.ContentIsMask}/>
       </div>
-      {button}
+      <ButtonDropdown
+        primaryItem={<RetinaImg name="ic-message-button-reply.png" mode={RetinaImg.Mode.ContentIsMask}/>}
+        primaryClick={@_onReply}
+        menu={@_dropdownMenu()}/>
     </div>
 
-  _secondaryMessageActions: ->
-    if @_replyType() is "reply"
-      return [@_replyAllAction(), @_forwardAction()]
-    else #if "reply-all"
-      return [@_replyAction(), @_forwardAction()]
+  _dropdownMenu: ->
+    items = [{
+      name: 'Reply All',
+      image: 'ic-dropdown-replyall.png'
+      select: @_onReplyAll
+    },{
+      name: 'Forward',
+      image: 'ic-dropdown-forward.png'
+      select: @_onForward
+    }]
 
-  _forwardAction: ->
-    <span onClick={@_onForward}>
-      <RetinaImg name="icon-dropdown-forward.png" mode={RetinaImg.Mode.ContentIsMask}/>&nbsp;&nbsp;Forward
-    </span>
-  _replyAction: ->
-    <span onClick={@_onReply}>
-      <RetinaImg name="icon-dropdown-reply.png" mode={RetinaImg.Mode.ContentIsMask}/>&nbsp;&nbsp;Reply
-    </span>
-  _replyAllAction: ->
-    <span onClick={@_onReplyAll}>
-      <RetinaImg name="icon-dropdown-replyall.png" mode={RetinaImg.Mode.ContentIsMask}/>&nbsp;&nbsp;Reply All
-    </span>
+    itemContent = (item) ->
+      <span>
+        <RetinaImg name={item.image} mode={RetinaImg.Mode.ContentIsMask}/>
+        &nbsp;&nbsp;{item.name}
+      </span>
+
+    <Menu items={items}
+          itemKey={ (item) -> item.name }
+          itemContent={itemContent}
+          onSelect={ (item) => item.select() }
+          />
 
   _onReply: =>
     Actions.composeReply(thread: @props.thread, message: @props.message)
@@ -124,18 +118,3 @@ class MessageControls extends React.Component
 
 
 module.exports = MessageControls
-
-      # <InjectedComponentSet className="message-actions"
-      #                       inline={true}
-      #                       matching={role:"MessageAction"}
-      #                       exposedProps={thread:@props.thread, message: @props.message}>
-      #   <button className="btn btn-icon" onClick={@_onReply}>
-      #     <RetinaImg name={"message-reply.png"} mode={RetinaImg.Mode.ContentIsMask}/>
-      #   </button>
-      #   <button className="btn btn-icon" onClick={@_onReplyAll}>
-      #     <RetinaImg name={"message-reply-all.png"} mode={RetinaImg.Mode.ContentIsMask}/>
-      #   </button>
-      #   <button className="btn btn-icon" onClick={@_onForward}>
-      #     <RetinaImg name={"message-forward.png"} mode={RetinaImg.Mode.ContentIsMask}/>
-      #   </button>
-      # </InjectedComponentSet>

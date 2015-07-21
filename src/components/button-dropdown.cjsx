@@ -7,23 +7,24 @@ class ButtonDropdown extends React.Component
   @propTypes:
     primaryItem: React.PropTypes.element
     primaryClick: React.PropTypes.func
-    secondaryItems: React.PropTypes.arrayOf(React.PropTypes.element)
+    menu: React.PropTypes.element
 
   constructor: (@props) ->
     @state = showing: false
 
   render: =>
-    <div ref="button" onBlur={@_onBlur} tabIndex={999} className="#{@props.className ? ''} button-dropdown" >
+    classnames = "button-dropdown #{@props.className ? ''}"
+    classnames += "open" if @state.showing
+
+    <div ref="button" onBlur={@_onBlur} tabIndex={999} className={classnames}>
       <div className="primary-item" onClick={@props.primaryClick}>
         {@props.primaryItem}
       </div>
       <div className="secondary-picker" onClick={@_toggleDropdown}>
         <RetinaImg name={"icon-thread-disclosure.png"} mode={RetinaImg.Mode.ContentIsMask}/>
       </div>
-      <div className="secondary-items" style={display: if @state.showing then "block" else "none"}>
-        {@props.secondaryItems.map (item) ->
-          <div key={Utils.generateTempId()} className="secondary-item">{item}</div>
-        }
+      <div className="secondary-items">
+        {@props.menu}
       </div>
     </div>
 
