@@ -23,6 +23,225 @@ describe "QuotedHTMLParser", ->
     it "properly parses email_#{n}", ->
       expect(removeQuotedHTML("email_#{n}.html")).toEqual readFile("email_#{n}_stripped.html")
 
+  describe 'manual quote detection tests', ->
+
+    clean = (str) ->
+      str.replace(/[\n\r]/g, "").replace(/\s{2,}/g, " ")
+
+    # The key is the inHTML. The value is the outHTML
+    tests = []
+
+    # Test 1
+    tests.push
+      before: """
+        <div>
+          Some text
+
+          <p>More text</p>
+
+          <blockquote id="inline-parent-quote">
+            Parent
+            <blockquote id="inline-sub-quote">
+              Sub
+              <blockquote id="inline-sub-sub-quote">Sub Sub</blockquote>
+              Sub
+            </blockquote>
+          </blockquote>
+
+          <div>Text at end</div>
+
+          <blockquote id="last-quote">
+            <blockquote>
+              The last quote!
+            </blockquote>
+          </blockquote>
+
+
+        </div>
+        """
+      after: """<head></head><body>
+        <div>
+          Some text
+
+          <p>More text</p>
+
+          <blockquote id="inline-parent-quote">
+            Parent
+            <blockquote id="inline-sub-quote">
+              Sub
+              <blockquote id="inline-sub-sub-quote">Sub Sub</blockquote>
+              Sub
+            </blockquote>
+          </blockquote>
+
+          <div>Text at end</div>
+         </div></body>
+        """
+
+    # Test 2
+    tests.push
+      before: """
+        <br>
+        <blockquote>Nothing but quotes</blockquote>
+        <br>
+        <br>
+        """
+      after: """<head></head><body>
+        <br>
+        <br>
+        <br></body>
+        """
+
+    # Test 3: It found the blockquote in another div
+    tests.push
+      before: """
+        <div>Hello World</div>
+        <br>
+        <div>
+          <blockquote>Nothing but quotes</blockquote>
+        </div>
+        <br>
+        <br>
+        """
+      after: """<head></head><body>
+        <div>Hello World</div>
+        <br>
+        <div>
+         </div>
+        <br>
+        <br></body>
+        """
+
+      # Test 4: It works inside of a wrapped div
+    tests.push
+      before: """
+        <div>
+          <br>
+          <blockquote>Nothing but quotes</blockquote>
+          <br>
+          <br>
+        </div>
+        """
+      after: """<head></head><body>
+        <div>
+          <br>
+          <br>
+          <br>
+        </div></body>
+        """
+
+    # Test 5: Inline quotes and text
+    tests.push
+      before: """
+        Hello
+        <blockquote>Inline quote</blockquote>
+        World
+        """
+      after: """<head></head><body>
+        Hello
+        <blockquote>Inline quote</blockquote>
+        World</body>
+        """
+
+    # Test 6: No quoted elements at all
+    tests.push
+      before: """
+        Hello World
+        """
+      after: """<head></head><body>
+        Hello World</body>
+        """
+
+    # Test 7: Common ancestor is a quoted node
+    tests.push
+      before: """
+        <div>Content</div>
+        <blockquote>
+          Some content
+          <blockquote>More content</blockquote>
+          Other content
+        </blockquote>
+        """
+      after: """<head></head><body>
+        <div>Content</div></body>
+        """
+
+    # Test 8: All of our quote blocks we want to remove are at the end…
+    # sortof… but nested in a bunch of stuff
+    #
+    # Note that "content" is burried deep in the middle of a div
+    tests.push
+      before: """
+        <div>Content</div>
+        <blockquote>
+          Some content
+          <blockquote>More content</blockquote>
+          Other content
+        </blockquote>
+        <div>
+          <blockquote>Some text quote</blockquote>
+          Some text
+          <div>
+            More text
+            <blockquote>A quote</blockquote>
+            <br>
+          </div>
+          <br>
+          <blockquote>Another quote</blockquote>
+          <br>
+        </div>
+        <br>
+        <blockquote>More quotes!</blockquote>
+        """
+      after: """<head></head><body>
+        <div>Content</div>
+        <blockquote>
+          Some content
+          <blockquote>More content</blockquote>
+          Other content
+        </blockquote>
+        <div>
+          <blockquote>Some text quote</blockquote>
+          Some text
+          <div>
+            More text
+            <br>
+          </div>
+          <br>
+          <br>
+        </div>
+        <br>
+        </body>
+        """
+
+    # Test 9: Last several tags are blockquotes. Note the 3 blockquote
+    # at the end, the interstital div, and the blockquote inside of the
+    # first div
+    tests.push
+      before: """
+        <div>
+          <blockquote>I'm inline</blockquote>
+          Content
+          <blockquote>Remove me</blockquote>
+        </div>
+        <blockquote>Foo</blockquote>
+        <div></div>
+        <blockquote>Bar</blockquote>
+        <blockquote>Baz</blockquote>
+        """
+      after: """<head></head><body>
+        <div>
+          <blockquote>I'm inline</blockquote>
+          Content
+         </div>
+        <div></div></body>
+        """
+
+    it 'works with these manual test cases', ->
+      for {before, after} in tests
+        test = clean(QuotedHTMLParser.removeQuotedHTML(before))
+        expect(test).toEqual clean(after)
+
 
 
   # We have a little utility method that you can manually uncomment to
@@ -41,3 +260,4 @@ describe "QuotedHTMLParser", ->
       newHTML = QuotedHTMLParser.removeQuotedHTML(readFile("email_#{n}.html"))
       outPath = path.resolve(__dirname, 'fixtures', 'emails', "email_#{n}_raw_stripped.html")
       fs.writeFileSync(outPath, newHTML)
+

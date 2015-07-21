@@ -199,27 +199,6 @@ Utils =
     else
       return "#{prefix} #{subject}"
 
-  # A wrapper around String#search(). Returns the index of the first match
-  # or returns -1 if there are no matches
-  quotedTextIndex: (html) ->
-    # I know this is gross - one day we'll replace it with a nice system.
-    return -1 unless html
-
-    regexs = [
-      /<blockquote/i, # blockquote element
-      /\n[ ]*(>|&gt;)/, # Plaintext lines beginning with >
-      /<[br|p][ ]*>[\n]?[ ]*&gt;/i, # HTML lines beginning with >
-      /[\n|>]On .* wrote:[\n|<]/, #On ... wrote: on it's own line
-      /.gmail_quote/ # gmail quote class class
-      /divRplyFwdMsg/ # outlook?
-    ]
-
-    for regex in regexs
-      foundIndex = html.search(regex)
-      if foundIndex >= 0 then return foundIndex
-
-    return -1
-
   # Returns true if the message contains "Forwarded" or "Fwd" in the first
   # 250 characters.  A strong indicator that the quoted text should be
   # shown. Needs to be limited to first 250 to prevent replies to
@@ -238,37 +217,6 @@ Utils =
       subjectFwd = subject[0...3].toLowerCase() is "fwd"
 
     return bodyForwarded or bodyFwd or subjectFwd
-
-  # Checks to see if a particular node is visible and any of its parents
-  # are visible.
-  #
-  # WARNING. This is a fairly expensive operation and should be used
-  # sparingly.
-  nodeIsVisible: (node) ->
-    while node and node isnt window.document
-      style = window.getComputedStyle(node)
-      node = node.parentNode
-      continue unless style?
-      # NOTE: opacity must be soft ==
-      if style.opacity is 0 or style.opacity is "0" or style.visibility is "hidden" or style.display is "none"
-        return false
-    return true
-
-  scrollAdjustmentToMakeNodeVisibleInContainer: (node, container) ->
-    return unless node
-
-    nodeRect = node.getBoundingClientRect()
-    containerRect = container.getBoundingClientRect()
-
-    distanceBelowBottom = (nodeRect.top + nodeRect.height) - (containerRect.top + containerRect.height)
-    if distanceBelowBottom > 0
-      return distanceBelowBottom
-
-    distanceAboveTop = containerRect.top - nodeRect.top
-    if distanceAboveTop > 0
-      return -distanceAboveTop
-
-    return 0
 
   # True of all arguments have the same domains
   emailsHaveSameDomain: (args...) ->

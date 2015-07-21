@@ -11,9 +11,9 @@ ContenteditableComponent = require "../lib/contenteditable-component",
 describe "ContenteditableComponent", ->
   beforeEach ->
     @onChange = jasmine.createSpy('onChange')
-    html = 'Test <strong>HTML</strong>'
+    @html = 'Test <strong>HTML</strong><br><br>'
     @component = ReactTestUtils.renderIntoDocument(
-      <ContenteditableComponent html={html} onChange={@onChange}/>
+      <ContenteditableComponent html={@html} onChange={@onChange}/>
     )
 
     @htmlWithQuote = 'Test <strong>HTML</strong><br><br><blockquote class="gmail_quote">QUOTE</blockquote>'
@@ -48,9 +48,9 @@ describe "ContenteditableComponent", ->
       expect(@toggle.props.className.indexOf('no-quoted-text') >= 0).toBe(true)
 
   describe "when showQuotedText is false", ->
-    it "should only display HTML up to the beginning of the quoted text", ->
+    it "should not display quoted text", ->
       @editDiv = ReactTestUtils.findRenderedDOMComponentWithAttr(@componentWithQuote, 'contentEditable')
-      expect(React.findDOMNode(@editDiv).innerHTML.indexOf('nylas-quoted-text-segment') >= 0).toBe(true)
+      expect(React.findDOMNode(@editDiv).innerHTML).toEqual @html
 
   describe "when showQuotedText is true", ->
     beforeEach ->
@@ -101,11 +101,12 @@ describe "ContenteditableComponent", ->
         expect(ev.target.value).toEqual(changed)
 
     describe "when showQuotedText is false", ->
-      it "should call `props.onChange` with the entire HTML string, even though the div being edited only contains some of it", ->
+      it "should let you change the text, and then append the quoted text part to the end before firing `onChange`", ->
         @componentWithQuote.setState(showQuotedText: false)
         @performEdit(@changedHtmlWithoutQuote)
         ev = @onChange.mostRecentCall.args[0]
-        expect(ev.target.value).toEqual(@changedHtmlWithoutQuote)
+        withQuote = "<head></head><body>#{@changedHtmlWithQuote}</body>"
+        expect(ev.target.value).toEqual(withQuote)
 
       it "should work if the component does not contain quoted text", ->
         changed = '<head></head><body>Hallooo! <strong>NEW 1 HTML HTML HTML</strong><br></body>'

@@ -1,6 +1,6 @@
 _ = require 'underscore'
 React = require 'react/addons'
-{Utils} = require 'nylas-exports'
+{DOMUtils} = require 'nylas-exports'
 classNames = require 'classnames'
 
 class Scrollbar extends React.Component
@@ -166,7 +166,7 @@ class ScrollRegion extends React.Component
   #
   scrollTo: (node) =>
     container = React.findDOMNode(@)
-    adjustment = Utils.scrollAdjustmentToMakeNodeVisibleInContainer(node, container)
+    adjustment = DOMUtils.scrollAdjustmentToMakeNodeVisibleInContainer(node, container)
     @scrollTop += adjustment if adjustment isnt 0
 
   recomputeDimensions: (options = {}) =>

@@ -1,6 +1,6 @@
 _ = require 'underscore'
 React = require 'react/addons'
-{Utils} = require 'nylas-exports'
+{DOMUtils} = require 'nylas-exports'
 
 ###
 The Tooltip component displays a consistent hovering tooltip for use when
@@ -52,7 +52,7 @@ class Tooltip extends React.Component
   # listeners.
   onMouseOver: (e) =>
     target = @_elementWithTooltip(e.target)
-    if target and Utils.nodeIsVisible(target) then @_onTooltipEnter(target)
+    if target and DOMUtils.nodeIsVisible(target) then @_onTooltipEnter(target)
     else if @state.display then @_hideTooltip()
 
   onMouseOut: (e) =>
@@ -89,7 +89,7 @@ class Tooltip extends React.Component
     , @KEEP_DELAY
 
   _showTooltip: (target) =>
-    return unless Utils.nodeIsVisible(target)
+    return unless DOMUtils.nodeIsVisible(target)
     content = target.dataset.tooltip
     guessedWidth = @_guessWidth(content)
     dim = target.getBoundingClientRect()

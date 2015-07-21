@@ -255,13 +255,13 @@ class ContenteditableComponent extends React.Component
     if @props.mode?.showQuotedText
       return html
     else
-      return QuotedHTMLParser.hideQuotedHTML(html)
+      return QuotedHTMLParser.removeQuotedHTML(html)
 
   _unapplyHTMLDisplayFilters: (html) =>
     if @props.mode?.showQuotedText
       return html
     else
-      return QuotedHTMLParser.restoreAnnotatedHTML(html)
+      return QuotedHTMLParser.appendQuotedHTML(html, @props.html)
 
 
   ######### SELECTION MANAGEMENT ##########

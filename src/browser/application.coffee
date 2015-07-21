@@ -92,9 +92,9 @@ class Application
     @launchWithOptions(options)
 
   # Opens a new window based on the options provided.
-  launchWithOptions: ({urlsToOpen, test, devMode, safeMode, specDirectory, specFilePattern, logFile}) ->
+  launchWithOptions: ({urlsToOpen, test, devMode, safeMode, specDirectory, specFilePattern, logFile, specsOnCommandLine}) ->
     if test
-      @runSpecs({exitWhenDone: true, @resourcePath, specDirectory, specFilePattern, logFile})
+      @runSpecs({exitWhenDone: specsOnCommandLine, @resourcePath, specDirectory, specFilePattern, logFile})
     else
       @windowManager.ensurePrimaryWindowOnscreen()
       for urlToOpen in (urlsToOpen || [])
