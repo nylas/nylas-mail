@@ -41,6 +41,9 @@ class Model
     @id ||= generateTempId()
     @
 
+  clone: ->
+    (new @constructor).fromJSON(@toJSON())
+
   # Public: Returns an {Array} of {Attribute} objects defined on the Model's constructor
   #
   attributes: ->
@@ -67,8 +70,8 @@ class Model
   # Public: Deflates the model to a plain JSON object. Only attributes defined
   # on the model are included in the JSON.
   #
-  # - `options` (optional) An {Object} with additional options. To include joined
-  #    data attributes in the toJSON representation, pass the `joined:true`
+  # - `options` (optional) An {Object} with additional options. To skip joined
+  #    data attributes in the toJSON representation, pass the `joined:false`
   #
   # Returns an {Object} with the JSON representation of the model.
   #
@@ -76,11 +79,8 @@ class Model
     json = {}
     for key, attr of @attributes()
       value = attr.toJSON(@[key])
-      if attr instanceof Attributes.AttributeJoinedData
-        if options.joined
-          throw new Error("toJSON called with {joined:true} but joined value not loaded.") unless value?
-        else
-          continue
+      if attr instanceof Attributes.AttributeJoinedData and options.joined is false
+        continue
       json[attr.jsonKey] = value
     json['object'] = @constructor.name.toLowerCase()
     json

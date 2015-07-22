@@ -136,7 +136,14 @@ describe "SendDraftTask", ->
           @task.performRemote().then =>
             expect(NylasAPI.makeRequest.calls.length).toBe(1)
             options = NylasAPI.makeRequest.mostRecentCall.args[0]
-            expect(options.body).toEqual(@draft.toJSON(joined: true))
+            expect(options.body).toEqual(@draft.toJSON())
+
+      it "should always send the draft body in the request body (joined attribute check)", ->
+        waitsForPromise =>
+          @task.performRemote().then =>
+            expect(NylasAPI.makeRequest.calls.length).toBe(1)
+            options = NylasAPI.makeRequest.mostRecentCall.args[0]
+            expect(options.body.body).toBe('hello world')
 
     it "should pass returnsModel:true so that the draft is saved to the data store when returned", ->
       waitsForPromise =>

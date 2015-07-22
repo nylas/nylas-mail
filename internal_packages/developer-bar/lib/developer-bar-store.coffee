@@ -16,7 +16,10 @@ DeveloperBarStore = Reflux.createStore
 
   longPollState: -> @_longPollState
 
-  longPollHistory: -> @_longPollHistory
+  longPollHistory: ->
+    # We can't use Utils.deepClone because the deltas contain circular references
+    # See delta.attributes._delta = delta
+    JSON.parse(JSON.stringify(@_longPollHistory))
 
   visible: -> @_visible
 
@@ -35,6 +38,7 @@ DeveloperBarStore = Reflux.createStore
   _registerListeners: ->
     @listenTo Actions.didMakeAPIRequest, @_onAPIRequest
     @listenTo Actions.longPollReceivedRawDeltas, @_onLongPollDeltas
+    @listenTo Actions.longPollProcessedDeltas, @_onLongPollProcessedDeltas
     @listenTo Actions.longPollStateChanged, @_onLongPollStateChange
     @listenTo Actions.clearDeveloperConsole, @_onClear
     @listenTo Actions.showDeveloperConsole, @_onShow
@@ -57,8 +61,11 @@ DeveloperBarStore = Reflux.createStore
     # Incoming deltas are [oldest...newest]. Append them to the beginning
     # of our internal history which is [newest...oldest]
     @_longPollHistory.unshift(deltas.reverse()...)
-    if @_longPollHistory.length > 1000
-      @_longPollHistory.splice(1000, @_longPollHistory.length - 1000)
+    if @_longPollHistory.length > 200
+      @_longPollHistory.length = 200
+    @triggerThrottled(@)
+
+  _onLongPollProcessedDeltas: ->
     @triggerThrottled(@)
 
   _onLongPollStateChange: (state) ->

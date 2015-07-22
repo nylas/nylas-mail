@@ -2,6 +2,7 @@ Message = require '../models/message'
 Actions = require '../actions'
 
 {Listener, Publisher} = require '../modules/reflux-coffee'
+SyncbackDraftTask = require '../tasks/syncback-draft'
 CoffeeHelpers = require '../coffee-helpers'
 
 _ = require 'underscore'
@@ -49,13 +50,17 @@ class DraftChangeSet
       DatabaseStore = require './database-store'
       return DatabaseStore.findByLocalId(Message, @localId).then (draft) =>
         if not draft
-          throw new Error("DraftChangeSet.commit: Assertion failure. Draft #{@localId} has already been removed from the database.")
+          throw new Error("DraftChangeSet.commit: Assertion failure. Draft #{@localId} is not in the database.")
 
         @_saving = @_pending
         @_pending = {}
         draft = @applyToModel(draft)
+
         return DatabaseStore.persistModel(draft).then =>
+          syncback = new SyncbackDraftTask(@localId)
+          Actions.queueTask(syncback)
           @_saving = {}
+
     return @_commitChain
 
   applyToModel: (model) =>

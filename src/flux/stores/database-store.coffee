@@ -318,7 +318,6 @@ class DatabaseStore extends NylasStore
   #   - rejects if any databse query fails or one of the triggering
   #     callbacks failed
   swapModel: ({oldModel, newModel, localId}) =>
-
     queryPromise = Promise.all([
       @_query('BEGIN TRANSACTION')
       @_deleteModel(oldModel)
@@ -328,7 +327,11 @@ class DatabaseStore extends NylasStore
     ])
 
     swapPromise = new Promise (resolve, reject) ->
-      Actions.didSwapModel({oldModel, newModel, localId})
+      Actions.didSwapModel({
+        oldModel: oldModel,
+        newModel: newModel,
+        localId: localId
+      })
       resolve()
 
     triggerPromise = @_triggerSoon({objectClass: newModel.constructor.name, objects: [oldModel, newModel], type: 'swap'})
@@ -417,7 +420,7 @@ class DatabaseStore extends NylasStore
     values = []
     marks = []
     for model in models
-      json = model.toJSON()
+      json = model.toJSON(joined: false)
       ids.push(model.id)
       values.push(model.id, JSON.stringify(json))
       columnAttributes.forEach (attr) ->

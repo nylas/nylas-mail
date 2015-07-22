@@ -30,6 +30,7 @@ testData =
   draft: true
   subject: "Test"
   namespaceId: "abc123"
+  body: '<body>123</body>'
 
 localDraft = new Message _.extend {}, testData, {id: "local-id"}
 remoteDraft = new Message _.extend {}, testData, {id: "remoteid1234"}
@@ -65,6 +66,7 @@ describe "SyncbackDraftTask", ->
           expect(NylasAPI.makeRequest).toHaveBeenCalled()
           reqBody = NylasAPI.makeRequest.mostRecentCall.args[0].body
           expect(reqBody.subject).toEqual testData.subject
+          expect(reqBody.body).toEqual testData.body
 
     it "should do a PUT when the draft has already been saved", ->
       task = new SyncbackDraftTask("remoteDraftId")

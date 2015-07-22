@@ -252,7 +252,13 @@ class NylasAPI
 
   _handleDeltas: (deltas) ->
     Actions.longPollReceivedRawDeltas(deltas)
-    console.log("Processing Deltas")
+
+    # Create a (non-enumerable) reference from the attributes which we carry forward
+    # back to their original deltas. This allows us to mark the deltas that the
+    # app ignores later in the process.
+    for delta in deltas
+      if delta.attributes
+        Object.defineProperty(delta.attributes, '_delta', { get: -> delta })
 
     # Group deltas by object type so we can mutate the cache efficiently.
     # NOTE: This code must not just accumulate creates, modifies and destroys
@@ -296,47 +302,52 @@ class NylasAPI
             return Promise.resolve() unless model
             return DatabaseStore.unpersistModel(model)
 
-        Promise.settle(destroyPromises)
+        Promise.settle(destroyPromises).then =>
+          Actions.longPollProcessedDeltas()
 
   # Returns a Promsie that resolves when any parsed out models (if any)
   # have been created and persisted to the database.
   _handleModelResponse: (jsons) ->
     if not jsons
       return Promise.reject(new Error("handleModelResponse with no JSON provided"))
+
     jsons = [jsons] unless jsons instanceof Array
+
     uniquedJSONs = _.uniq jsons, false, (model) -> model.id
     if uniquedJSONs.length < jsons.length
       console.warn("NylasAPI.handleModelResponse: called with non-unique object set. Maybe an API request returned the same object more than once?")
 
-    Promise.filter(uniquedJSONs, @_shouldAcceptModel)
+    Promise.filter(uniquedJSONs, @_shouldAcceptModelJSON)
       .map(modelFromJSON)
       .then (objects) ->
         DatabaseStore.persistModels(objects).then ->
           return Promise.resolve(objects)
 
-  _shouldAcceptModel: (model) =>
-    return Promise.resolve(false) unless model
-    classname = model.object
+  _shouldAcceptModelJSON: (json) =>
+    return Promise.resolve(false) unless json
 
-    if classname is "thread"
+    if json.object is "thread"
       Thread = require './models/thread'
-      return @_shouldAcceptModelIfNewer(Thread, model)
+      return @_shouldAcceptModelJSONIfNewer(Thread, json)
 
     # For the time being, we never accept drafts from the server. This single
     # change ensures that all drafts in the system are authored locally. To
     # revert, change back to use _shouldAcceptModelIfNewer
-    if classname is "draft" or model?.object is "draft"
-      return Promise.resolve(false)
+    if json.object is "draft"
+      Message = require './models/message'
+      return @_shouldAcceptModelJSONIfNewer(Message, json)
 
     Promise.resolve(true)
 
-  _shouldAcceptModelIfNewer: (klass, model) ->
-    if @_optimisticChangeTracker.acceptRemoteChangesTo(klass, model.id) is false
+  _shouldAcceptModelJSONIfNewer: (klass, json) ->
+    if @_optimisticChangeTracker.acceptRemoteChangesTo(klass, json.id) is false
+      json._delta?.ignoredBecause = "This model is locked by the optimistic change tracker"
       return Promise.resolve(false)
 
     DatabaseStore = require './stores/database-store'
-    DatabaseStore.find(klass, model.id).then (existing) ->
-      if existing and existing.version >= model.version
+    DatabaseStore.find(klass, json.id).then (existing) ->
+      if existing and existing.version >= json.version
+        json._delta?.ignoredBecause = "This version (#{json.version}) is not newer. Already have (#{existing.version})"
         return Promise.resolve(false)
       else
         return Promise.resolve(true)
