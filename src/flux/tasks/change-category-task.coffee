@@ -44,10 +44,6 @@ class ChangeCategoryTask extends Task
         if @threadIds.length > 0 then Klass = Thread
         else if @messageIds.length > 0 then Klass = Message
         DatabaseStore.find(Klass, objectId).then (object) =>
-          # Always apply our changes to a new copy of the thread.
-          # In some scenarios it may actually be frozen
-          object = new Klass(object)
-
           # Mark that we are optimistically changing this model. This will prevent
           # inbound delta syncs from changing it back to it's old state. Only the
           # operation that changes `optimisticChangeCount` back to zero will

@@ -187,20 +187,20 @@ class NylasAPI
     success = (body) =>
       if options.beforeProcessing
         body = options.beforeProcessing(body)
-        return Promise.resolve(body)
       if options.returnsModel
         @_handleModelResponse(body).then (objects) ->
           return Promise.resolve(body)
+      Promise.resolve(body)
 
     error = (err) =>
+      handlePromise = Promise.resolve()
       if err.response
-        handlePromise = Promise.resolve()
         if err.response.statusCode is 404 and options.returnsModel
           handlePromise = @_handleModel404(options.url)
         if err.response.statusCode is 401
           handlePromise = @_handle401(options.url)
-        handlePromise.then ->
-          Promise.reject(err)
+      handlePromise.finally ->
+        Promise.reject(err)
 
     req = new NylasAPIRequest(@, options)
     req.run().then(success, error)
