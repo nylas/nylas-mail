@@ -34,7 +34,7 @@ class UpdateThreadsTask extends UpdateNylasObjectsTask
               msg[key] isnt val
 
             if shouldSave
-              msgClone = new Message().fromJSON(msg.toJSON())
+              msgClone = msg.clone()
               for key, val of values
                 if key of msgClone and msgClone[key] isnt val
                   msgClone[key] = val
@@ -42,7 +42,7 @@ class UpdateThreadsTask extends UpdateNylasObjectsTask
               messagesToSave.push(msgClone)
 
           oldThreadValues = @oldValues[obj.id]
-          threadClone = new Thread().fromJSON(obj.toJSON())
+          threadClone = obj.clone()
           return Promise.resolve(_.extend(threadClone, oldThreadValues))
         .then (updatedObjects) ->
           DatabaseStore.persistModels(updatedObjects)
@@ -59,14 +59,14 @@ class UpdateThreadsTask extends UpdateNylasObjectsTask
               msg[key] isnt val
 
             if shouldSave
-              msgClone = new Message().fromJSON(msg.toJSON())
+              msgClone = msg.clone()
               for key, val of @newValues
                 if key of msgClone and msgClone[key] isnt val
                   msgClone[key] = val
 
               messagesToSave.push(msgClone)
 
-          threadClone = new Thread().fromJSON(obj.toJSON())
+          threadClone = obj.clone()
           return _.extend(threadClone, @newValues)
         .then (updatedObjects) ->
           DatabaseStore.persistModels(updatedObjects)

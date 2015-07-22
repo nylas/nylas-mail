@@ -166,8 +166,8 @@ class Message extends Model
     @files ||= []
     @
 
-  toJSON: ->
-    json = super
+  toJSON: (options) ->
+    json = super(options)
     json.file_ids = @fileIds()
     json.object = 'draft' if @draft
     json

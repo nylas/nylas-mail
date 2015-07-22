@@ -23,8 +23,15 @@ class DeveloperBarLongPollItem extends React.Component
 
     timestamp = moment(@props.item.timestamp).format("h:mm:ss")
 
-    <div className={"item"} onClick={ => @setState expanded: not @state?.expanded}>
-      <div className="cursor">{@props.item.cursor}</div>
+    classname = "item"
+    right = @props.item.cursor
+
+    if @props.item.ignoredBecause
+      classname += " ignored"
+      right = @props.item.ignoredBecause + " - " + right
+
+    <div className={classname} onClick={ => @setState expanded: not @state?.expanded}>
+      <div className="cursor">{right}</div>
       {" #{timestamp}: #{@props.item.event} #{@props.item.object} #{itemId}"}
       <div className="payload" onClick={ (e) -> e.stopPropagation() }>
         {payload}

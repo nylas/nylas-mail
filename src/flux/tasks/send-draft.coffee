@@ -48,8 +48,7 @@ class SendDraftTask extends Task
           draft_id: draft.id
           version: draft.version
       else
-        # Pass joined:true so the draft body is included
-        body = draft.toJSON(joined: true)
+        body = draft.toJSON()
 
       return @_send(body)
 

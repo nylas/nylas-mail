@@ -239,6 +239,11 @@ describe "DatabaseStore", ->
       beforeEach ->
         TestModel.configureWithJoinedDataAttribute()
 
+      it "should not include the value to the joined attribute in the JSON written to the main model table", ->
+        @m = new TestModel(id: 'local-6806434c-b0cd', body: 'hello world')
+        DatabaseStore._writeModels([@m])
+        expect(@performed[0].values).toEqual(['local-6806434c-b0cd', '{"id":"local-6806434c-b0cd","object":"testmodel"}'])
+
       it "should write the value to the joined table if it is defined", ->
         @m = new TestModel(id: 'local-6806434c-b0cd', body: 'hello world')
         DatabaseStore._writeModels([@m])

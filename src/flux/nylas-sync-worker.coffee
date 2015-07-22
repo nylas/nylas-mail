@@ -54,7 +54,7 @@ class NylasSyncWorker
     @fetchCollection('threads')
     @fetchCollection('calendars')
     @fetchCollection('contacts')
-    @fetchCollection('files')
+    @fetchCollection('drafts')
     if @_namespace.usesLabels()
       @fetchCollection('labels')
     if @_namespace.usesFolders()

@@ -48,27 +48,27 @@ describe "NylasSyncWorker", ->
       @worker.start()
       expect(@apiRequests.length).toBe(8)
       modelsRequested = _.compact _.map @apiRequests, ({model}) -> model
-      expect(modelsRequested).toEqual(['threads', 'contacts', 'files', 'labels'])
+      expect(modelsRequested).toEqual(['threads', 'contacts', 'drafts', 'labels'])
 
       countsRequested = _.compact _.map @apiRequests, ({requestOptions}) ->
         if requestOptions.qs?.view is 'count'
           return requestOptions.path
 
-      expect(modelsRequested).toEqual(['threads', 'contacts', 'files', 'labels'])
-      expect(countsRequested).toEqual(['/n/namespace-id/threads', '/n/namespace-id/contacts', '/n/namespace-id/files', '/n/namespace-id/labels'])
+      expect(modelsRequested).toEqual(['threads', 'contacts', 'drafts', 'labels'])
+      expect(countsRequested).toEqual(['/n/namespace-id/threads', '/n/namespace-id/contacts', '/n/namespace-id/drafts', '/n/namespace-id/labels'])
 
     it "should mark incomplete collections as `busy`", ->
       @worker.start()
       nextState = @worker.state()
 
-      for collection in ['contacts','threads','files', 'labels']
+      for collection in ['contacts','threads','drafts', 'labels']
         expect(nextState[collection].busy).toEqual(true)
 
     it "should initialize count and fetched to 0", ->
       @worker.start()
       nextState = @worker.state()
 
-      for collection in ['contacts','threads','files', 'labels']
+      for collection in ['contacts','threads','drafts', 'labels']
         expect(nextState[collection].fetched).toEqual(0)
         expect(nextState[collection].count).toEqual(0)
 
@@ -93,7 +93,7 @@ describe "NylasSyncWorker", ->
     it "should fetch collections", ->
       spyOn(@worker, 'fetchCollection')
       @worker.resumeFetches()
-      expect(@worker.fetchCollection.calls.map (call) -> call.args[0]).toEqual(['threads', 'calendars', 'contacts', 'files', 'labels'])
+      expect(@worker.fetchCollection.calls.map (call) -> call.args[0]).toEqual(['threads', 'calendars', 'contacts', 'drafts', 'labels'])
 
   describe "fetchCollection", ->
     beforeEach ->

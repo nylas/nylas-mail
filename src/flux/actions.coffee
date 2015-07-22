@@ -122,6 +122,7 @@ class Actions
 
   @longPollStateChanged: ActionScopeMainWindow
   @longPollReceivedRawDeltas: ActionScopeMainWindow
+  @longPollProcessedDeltas: ActionScopeMainWindow
   @longPollConnected: ActionScopeMainWindow
   @longPollOffline: ActionScopeMainWindow
   @didMakeAPIRequest: ActionScopeMainWindow

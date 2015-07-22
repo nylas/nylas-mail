@@ -30,6 +30,36 @@ describe "Model", ->
       b = new Model({id: "b"})
       expect(b.isSaved()).toBe(true)
 
+  describe "clone", ->
+    it "should return a deep copy of the object", ->
+      class SubSubmodel extends Model
+        @attributes: _.extend {}, Model.attributes,
+          'value': Attributes.Number
+            modelKey: 'value'
+            jsonKey: 'value'
+
+      class Submodel extends Model
+        @attributes: _.extend {}, Model.attributes,
+          'testNumber': Attributes.Number
+            modelKey: 'testNumber'
+            jsonKey: 'test_number'
+          'testArray': Attributes.Collection
+            itemClass: SubSubmodel
+            modelKey: 'testArray'
+            jsonKey: 'test_array'
+
+      old = new Submodel(testNumber: 4, testArray: [new SubSubmodel(value: 2), new SubSubmodel(value: 6)])
+      clone = old.clone()
+
+      # Check entire trees are equivalent
+      expect(old.toJSON()).toEqual(clone.toJSON())
+      # Check object identity has changed
+      expect(old.constructor.name).toEqual(clone.constructor.name)
+      expect(old.testArray).not.toBe(clone.testArray)
+      # Check classes
+      expect(old.testArray[0]).not.toBe(clone.testArray[0])
+      expect(old.testArray[0].constructor.name).toEqual(clone.testArray[0].constructor.name)
+
   describe "fromJSON", ->
     beforeEach ->
       class Submodel extends Model
@@ -146,4 +176,3 @@ describe "Model", ->
       spyOn(@truthyMatcher, 'evaluate').andCallFake (param) =>
         expect(param).toBe(@model)
       @model.matches([@truthyMatcher])
-
