@@ -1,4 +1,5 @@
 _ = require 'underscore'
+Task = require './task'
 Label = require '../models/label'
 Thread = require '../models/thread'
 Message = require '../models/message'
