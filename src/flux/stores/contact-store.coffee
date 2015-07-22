@@ -62,6 +62,9 @@ class ContactStore
     search = search.toLowerCase()
 
     matchFunction = (contact) ->
+      # For the time being, we never return contacts that are missing
+      # email addresses
+      return false unless contact.email
       # - email (bengotow@gmail.com)
       # - name parts (Ben, Go)
       # - name full (Ben Gotow)
