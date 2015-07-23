@@ -206,13 +206,12 @@
   'tab': 'native!'
   'shift-tab': 'native!'
 
-
-
 # For menus
 'body .menu, body .menu, body .menu input':
-  'up': 'menu:move-up'
-  'down': 'menu:move-down'
-  'enter': 'menu:enter'
+  # and by "native!" I actually mean for it to just let React deal with
+  # it.
+  'tab': 'native!'
+  'shift-tab': 'native!'
 
 # For Popover Component
 'body .popover-container, body .popover-container input':

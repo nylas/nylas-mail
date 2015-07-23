@@ -11,6 +11,17 @@ Utils =
   isHash: (object) ->
     _.isObject(object) and not _.isFunction(object) and not _.isArray(object)
 
+  escapeRegExp: (str) ->
+    str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")
+
+  # Generates a new RegExp that is great for basic search fields. It
+  # checks if the test string is at the start of words
+  #
+  # See regex explanation and test here:
+  # https://regex101.com/r/zG7aW4/2
+  wordSearchRegExp: (str="") ->
+    new RegExp("((?:^|\\W|$)#{Utils.escapeRegExp(str.trim())})", "ig")
+
   # Takes an optional customizer. The customizer is passed the key and the
   # new cloned value for that key. The customizer is expected to either
   # modify the value and return it or simply be the identity function.

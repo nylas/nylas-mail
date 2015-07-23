@@ -5,6 +5,7 @@ React = require 'react'
 
 class StarButton extends React.Component
   @displayName: "StarButton"
+  @containerRequired: false
   @propTypes:
     thread: React.PropTypes.object
 

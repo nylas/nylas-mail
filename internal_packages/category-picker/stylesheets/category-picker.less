@@ -1,4 +1,72 @@
 @import "ui-variables";
 
 .category-picker {
+  .popover {
+  }
+
+  .menu {
+
+    background: @background-secondary;
+
+    .header-container {
+      border-bottom: 0;
+    }
+
+    .item.selected:hover {
+      background-color: @accent-primary;
+      color: @text-color-inverse;
+    }
+
+    .item:hover {
+      background-color: transparent;
+      color: inherit;
+      .primary, .secondary {
+        color: inherit;
+      }
+    }
+
+    .item.divider {
+      background-color: #e0e0e0;
+      margin: 4px 0;
+      height: 2px;
+      padding: 0;
+    }
+
+  }
+
+  .btn.btn-toolbar {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .check-wrap {
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    display: inline-block;
+    position: relative;
+    top: 2px;
+  }
+
+  img.content-mask {
+    background-color: @text-color-subtle;
+    position: relative;
+    top: -1px;
+  }
+  .item.selected img.content-mask {
+    background-color: @text-color-inverse;
+  }
+
+  img.check-img {
+    position: absolute;
+  }
+
+  .category-item {
+    font-size: 14px;
+  }
+
+  .category-display-name {
+    display: inline-block;
+    margin-left: 10px;
+  }
 }

@@ -84,6 +84,11 @@ class Toolbar extends React.Component
     data: React.PropTypes.object
     depth: React.PropTypes.number
 
+  @childContextTypes:
+    sheetDepth: React.PropTypes.number
+  getChildContext: =>
+    sheetDepth: @props.depth
+
   constructor: (@props) ->
     @state = @_getStateFromStores()
 

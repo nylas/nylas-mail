@@ -121,7 +121,6 @@ class WindowEventHandler
 
   onKeydown: (event) ->
     atom.keymaps.handleKeyboardEvent(event)
-    event.stopImmediatePropagation()
 
   # Important: even though we don't do anything here, we need to catch the
   # drop event to prevent the browser from navigating the to the "url" of the

@@ -1,28 +1,39 @@
 @import "ui-variables";
 
 .menu {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+
   .header-container {
+    flex-shrink: 0; // Don't squish the header! There may be a search box here
     background-color: @background-color-secondary;
-    border-bottom:1px solid @base-border-color;
-    padding:8px;
+    border-bottom: 1px solid @base-border-color;
+    padding: 3px;
     position: relative;
     input.search {
-      border:1px solid darken(@background-color-secondary, 10%);
+      border: 1px solid darken(@background-color-secondary, 10%);
+      border-radius: 3px;
+      padding-left: 0;
       background-color: white;
-      border-radius:12px;
-      padding-left: 10px;
+      background-repeat: no-repeat;
+      background-image: url("../static/images/search/searchloupe@2x.png");
+      background-size: 15px 15px;
+      background-position: 7px 4px;
+      text-indent: 31px;
+      box-shadow: inset 0 1px 0 rgba(0,0,0,0.05), 0 1px 0 rgba(0,0,0,0.05)
     }
   }
 
   .footer-container {
     position: relative;
-    border-top:1px solid @base-border-color;
   }
 
   .content-container {
     background: @background-color-secondary;
     width: 100%;
     margin-top: -1px;
+    overflow: auto;
   }
 
   .item {
@@ -30,7 +41,7 @@
     padding-left: @padding-base-horizontal;
     padding-top: @padding-base-vertical;
     padding-bottom: @padding-base-vertical;
-    cursor: pointer;
+    cursor: default;
     color: @text-color;
     width: 100%;
     overflow: hidden;
@@ -74,7 +85,7 @@
     background-image:url(./images/menu/checked-selected@2x.png);
   }
 
-  .item.selected, .item:hover {
+  .item.selected, .item:hover, .item:active {
     text-decoration: none;
     background-color: @accent-primary;
     color: @text-color-inverse;

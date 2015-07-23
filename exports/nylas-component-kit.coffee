@@ -4,6 +4,8 @@
  GeneratedForm,
  GeneratedFieldset} = require ('../src/components/generated-form')
 
+{MailLabel, LabelColorizer} = require '../src/components/mail-label'
+
 module.exports =
   # Models
   Menu: require '../src/components/menu'
@@ -23,7 +25,8 @@ module.exports =
   InjectedComponent: require '../src/components/injected-component'
   TokenizingTextField: require '../src/components/tokenizing-text-field'
   TimeoutTransitionGroup: require '../src/components/timeout-transition-group'
-  MailLabel: require '../src/components/mail-label'
+  MailLabel: MailLabel
+  LabelColorizer: LabelColorizer
   FormItem: FormItem
   GeneratedForm: GeneratedForm
   GeneratedFieldset: GeneratedFieldset
