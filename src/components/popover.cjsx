@@ -156,7 +156,7 @@ class Popover extends React.Component
         <div className="popover-pointer" style={pointerStyle}></div>
       </div>
 
-    <div className={"popover-container "+@props.className} onBlur={@_onBlur} ref="container">
+    <div className={"popover-container "+@props.className} onBlur={@_onBlur} ref="container" style={(@props.style ? {})}>
       {wrappedButtonComponent}
       {popoverComponent}
     </div>
