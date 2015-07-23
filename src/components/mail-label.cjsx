@@ -1,5 +1,6 @@
 React = require 'react'
 RetinaImg = require './retina-img'
+CategoryStore = require '../flux/stores/category-store'
 
 class MailLabel extends React.Component
   @propTypes:
@@ -18,7 +19,7 @@ class MailLabel extends React.Component
     content = @props.label.displayName
 
     x = null
-    if @props.onRemove
+    if @_removable()
       classname += ' removable'
       content = <span className="inner">{content}</span>
       x = <RetinaImg
@@ -30,6 +31,8 @@ class MailLabel extends React.Component
 
     <div className={classname} style={style}>{content}{x}</div>
 
-  _renderX: ->
+  _removable: ->
+    isLockedLabel = @props.label.name in CategoryStore.LockedCategoryNames
+    return @props.onRemove and not isLockedLabel
 
 module.exports = MailLabel

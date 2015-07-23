@@ -30,6 +30,8 @@ class WorkspaceStore
     @listenTo Actions.selectLayoutMode, @_onSelectLayoutMode
     @listenTo Actions.setFocus, @_onSetFocus
 
+    @listenTo Actions.toggleWorkspaceLocationHidden, @_onToggleLocationHidden
+
     @listenTo Actions.popSheet, @popSheet
     @listenTo Actions.searchQueryCommitted, @popToRootSheet
 
@@ -41,6 +43,7 @@ class WorkspaceStore
     @Sheet = Sheet = {}
 
     @_preferredLayoutMode = 'list'
+    @_hiddenLocations = {}
     @_sheetStack = []
 
     if atom.isMainWindow()
@@ -69,6 +72,16 @@ class WorkspaceStore
 
   _onSelectLayoutMode: (mode) =>
     @_preferredLayoutMode = mode
+    @trigger(@)
+
+  _onToggleLocationHidden: (location) =>
+    if not location.id
+      throw new Error("Actions.toggleWorkspaceLocationHidden - pass a WorkspaceStore.Location")
+
+    if @_hiddenLocations[location.id]
+      delete @_hiddenLocations[location.id]
+    else
+      @_hiddenLocations[location.id] = location
     @trigger(@)
 
   _onSetFocus: ({collection, item}) =>
@@ -101,21 +114,31 @@ class WorkspaceStore
     else
       root.supportedModes[0]
 
-  # Returns The top {Sheet} in the current stack. Use this method to determine
+  # Public: Returns The top {Sheet} in the current stack. Use this method to determine
   # the sheet the user is looking at.
   #
   topSheet: =>
     @_sheetStack[@_sheetStack.length - 1]
 
-  # Returns The {Sheet} at the root of the current stack.
+  # Public: Returns The {Sheet} at the root of the current stack.
   #
   rootSheet: =>
     @_sheetStack[0]
 
-  # Returns an {Array<Sheet>} The stack of sheets
+  # Public: Returns an {Array<Sheet>} The stack of sheets
   #
   sheetStack: =>
     @_sheetStack
+
+  # Public: Returns an {Array} of locations that have been hidden.
+  #
+  hiddenLocations: =>
+    _.values(@_hiddenLocations)
+
+  # Public: Returns a {Boolean} indicating whether the location provided is hidden.
+  # You should provide one of the WorkspaceStore.Location constant values.
+  isLocationHidden: (loc) =>
+    @_hiddenLocations[loc.id]
 
   ###
   Managing Sheets

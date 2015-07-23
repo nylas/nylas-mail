@@ -8,6 +8,7 @@ MessageItem = require "./message-item"
  DraftStore,
  MessageStore,
  DatabaseStore,
+ WorkspaceStore,
  ComponentRegistry,
  ChangeLabelsTask,
  UpdateThreadsTask} = require("nylas-exports")
@@ -19,6 +20,34 @@ MessageItem = require "./message-item"
  InjectedComponentSet,
  MailLabel,
  InjectedComponent} = require('nylas-component-kit')
+
+class HideSidebarButton extends React.Component
+  constructor: (@props) ->
+    @column = WorkspaceStore.Location.MessageListSidebar
+    @state = @getStateFromStores()
+
+  componentDidMount: =>
+    @unlisten = WorkspaceStore.listen => @setState(@getStateFromStores())
+
+  componentWillUnmount: =>
+    @unlisten()
+
+  render: =>
+    if @state.hidden
+      contents = {label: 'Show Sidebar', name: 'icon-thread-showsidebar.png'}
+    else
+      contents = {label: 'Hide Sidebar', name: 'icon-thread-hidesidebar.png'}
+
+    <div className="hide-sidebar-button" style={@props.style} onClick={@_onClick}>
+      <span className="img-wrap"><RetinaImg name={contents.name} mode={RetinaImg.Mode.ContentIsMask}/></span>
+      {contents.label}
+    </div>
+
+  _onClick: =>
+    Actions.toggleWorkspaceLocationHidden(@column)
+
+  getStateFromStores: =>
+    {hidden: WorkspaceStore.isLocationHidden(@column)}
 
 class MessageListScrollTooltip extends React.Component
   @displayName: 'MessageListScrollTooltip'
@@ -226,7 +255,7 @@ class MessageList extends React.Component
 
   _renderSubject: ->
     <div className="message-subject-wrap">
-      <div className="message-count">{@state.messages.length} {if @state.messages.length is 1 then "message" else "messages"}</div>
+      <HideSidebarButton style={float:'right'}/>
       <span className="message-subject">{@state.currentThread?.subject}</span>
       {@_renderLabels()}
     </div>
