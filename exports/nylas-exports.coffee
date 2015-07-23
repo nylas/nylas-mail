@@ -45,6 +45,7 @@ Exports =
   # Utils
   Utils: Utils
   DOMUtils: require '../src/dom-utils'
+  CanvasUtils: require '../src/canvas-utils'
   RegExpUtils: require '../src/regexp-utils'
   MessageUtils: require '../src/flux/models/message-utils'
 

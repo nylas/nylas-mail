@@ -1,7 +1,15 @@
 React = require 'react'
 classNames = require 'classnames'
-{Actions, Utils, UnreadCountStore, WorkspaceStore} = require 'nylas-exports'
-{RetinaImg} = require 'nylas-component-kit'
+{Actions,
+ Utils,
+ UnreadCountStore,
+ WorkspaceStore,
+ NamespaceStore,
+ FocusedCategoryStore,
+ ChangeLabelsTask,
+ ChangeFolderTask,
+ CategoryStore} = require 'nylas-exports'
+{RetinaImg, DropZone} = require 'nylas-component-kit'
 
 class AccountSidebarCategoryItem extends React.Component
   @displayName: 'AccountSidebarCategoryItem'
@@ -19,9 +27,8 @@ class AccountSidebarCategoryItem extends React.Component
   _onUnreadCountChange: =>
     @setState unreadCount: UnreadCountStore.count()
 
-  shouldComponentUpdate: (nextProps) =>
-    @props?.item.name isnt nextProps.item.name or
-    @props?.select isnt nextProps.select
+  shouldComponentUpdate: (nextProps, nextState) =>
+    !Utils.isEqualReact(@props, nextProps) or !Utils.isEqualReact(@state, nextState)
 
   render: =>
     unread = []
@@ -31,12 +38,47 @@ class AccountSidebarCategoryItem extends React.Component
     containerClass = classNames
       'item': true
       'selected': @props.select
+      'dropping': @state.isDropping
 
-    <div className={containerClass} onClick={@_onClick} id={@props.item.id}>
+    <DropZone className={containerClass}
+         onClick={@_onClick}
+         id={@props.item.id}
+         shouldAcceptDrop={@_shouldAcceptDrop}
+         onDragStateChange={ ({isDropping}) => @setState({isDropping}) }
+         onDrop={@_onDrop}>
       {unread}
       <RetinaImg name={"#{@props.item.name}.png"} fallback={'folder.png'} mode={RetinaImg.Mode.ContentIsMask} />
       <span className="name"> {@props.item.displayName}</span>
-    </div>
+    </DropZone>
+
+  _shouldAcceptDrop: (e) =>
+    return false if @props.item.name in CategoryStore.LockedCategoryNames
+    return false if @props.item.name is FocusedCategoryStore.categoryName()
+    'nylas-thread-ids' in e.dataTransfer.types
+
+  _onDrop: (e) =>
+    jsonString = e.dataTransfer.getData('nylas-thread-ids')
+    try
+      ids = JSON.parse(jsonString)
+    catch err
+      console.error("AccountSidebarCategoryItem onDrop: JSON parse #{err}")
+    return unless ids
+
+    if NamespaceStore.current().usesLabels()
+      currentLabel = FocusedCategoryStore.category()
+      if currentLabel and not (currentLabel in CategoryStore.LockedCategoryNames)
+        labelsToRemove = [currentLabel]
+
+      task = new ChangeLabelsTask
+        threadIds: ids,
+        labelsToAdd: [@props.item],
+        labelsToRemove: labelsToRemove
+    else
+      task = new ChangeFolderTask
+        folderOrId: @props.item,
+        threadIds: ids
+
+    Actions.queueTask(task)
 
   _onClick: (event) =>
     event.preventDefault()

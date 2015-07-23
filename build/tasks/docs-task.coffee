@@ -199,8 +199,6 @@ module.exports = (grunt) ->
     sidebarPath = path.join(docsOutputDir, '_sidebar.json')
     grunt.file.write(sidebarPath, sidebarJson)
 
-
-
     # Prepare to render by loading handlebars partials
 
     templatesPath = path.resolve(__dirname, '..', '..', 'docs-templates')
@@ -214,40 +212,6 @@ module.exports = (grunt) ->
     for classname, val of apiJSON.classes
       knownClassnames[classname.toLowerCase()] = val
 
-    expandTypeReferences = (val) ->
-      refRegex = /{([\w.]*)}/g
-      while (match = refRegex.exec(val)) isnt null
-        term = match[1].toLowerCase()
-        label = match[1]
-        url = false
-        if term in standardClasses
-          url = standardClassURLRoot+term
-        else if thirdPartyClasses[term]
-          url = thirdPartyClasses[term]
-        else if knownClassnames[term]
-          url = relativePathForClass(term)
-        else
-          console.warn("Cannot find class named #{term}")
-
-        if url
-          val = val.replace(match[0], "<a href='#{url}'>#{label}</a>")
-      val
-
-    expandFuncReferences = (val) ->
-      refRegex = /{([\w]*)?::([\w]*)}/g
-      while (match = refRegex.exec(val)) isnt null
-        [text, a, b] = match
-        url = false
-        if a and b
-          url = "#{relativePathForClass(a)}##{b}"
-          label = "#{a}::#{b}"
-        else
-          url = "##{b}"
-          label = "#{b}"
-        if url
-          val = val.replace(text, "<a href='#{url}'>#{label}</a>")
-      val
-
     # Render Class Pages
 
     classTemplatePath = path.join(templatesPath, 'class.html')
@@ -256,8 +220,9 @@ module.exports = (grunt) ->
     for {name, documentation, section} in classes
       # Recursively process `description` and `type` fields to process markdown,
       # expand references to types, functions and other files.
-      processFields(documentation, ['description'], [marked.noMeta, expandTypeReferences, expandFuncReferences])
-      processFields(documentation, ['type'], [expandTypeReferences])
+      processFields(documentation, ['description'], [marked.noMeta])
+      processFields(documentation, ['type'], [])
 
       result = classTemplate({name, documentation, section})
+      console.log(outputPathFor(relativePathForClass(name)))
       grunt.file.write(outputPathFor(relativePathForClass(name)), result)

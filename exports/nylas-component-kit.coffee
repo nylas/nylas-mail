@@ -7,6 +7,7 @@
 module.exports =
   # Models
   Menu: require '../src/components/menu'
+  DropZone: require '../src/components/drop-zone'
   Spinner: require '../src/components/spinner'
   Popover: require '../src/components/popover'
   Flexbox: require '../src/components/flexbox'
