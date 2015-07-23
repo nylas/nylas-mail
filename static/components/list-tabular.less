@@ -1,5 +1,33 @@
 @import "ui-variables";
 
+.selection-bar-absolute-enter {
+  opacity: 0;
+  .inner {
+    top: -100%;
+  }
+}
+
+.selection-bar-absolute-enter.selection-bar-absolute-enter-active {
+  opacity: 1;
+  .inner {
+    top:0;
+  }
+}
+
+.selection-bar-absolute-leave {
+  opacity: 1;
+  .inner {
+    top:0;
+  }
+}
+
+.selection-bar-absolute-leave.selection-bar-absolute-leave-active {
+  opacity: 0;
+  .inner {
+    top: -100%;
+  }
+}
+
 .sheet-toolbar .selection-bar {
   // This item sits in the toolbar and takes up all the remaining
   // space from the toolbar-spacer divs, but flex-shrink means that
@@ -24,17 +52,14 @@
     border-left:1px solid @border-color-divider;
     border-right:1px solid @border-color-divider;
     background-color: @background-primary;
-    opacity:0;
     transition: opacity 0.2s ease-in-out;
-    pointer-events: none;
 
     .inner {
-      top: -100%;
       position: absolute;
       width: 100%;
       display:flex;
-      transition: top 0.2s ease-in-out;
       -webkit-app-region: no-drag;
+      transition: top 0.2s ease-in-out;
 
       .centered {
         flex: 1;
@@ -45,25 +70,7 @@
         text-overflow: ellipsis;
         overflow: hidden;
         white-space: nowrap;
-      }
-    }
-  }
-
-  // .absolute is positioned full-width over all the other items in the toolbar.
-  // when .enabled, it transitions to opacity:1, hiding other items beneath it.
-
-  // .inner contains the actual buttons and animates *down* while the opacity animation
-  // is running. This means the items beneath fade out as the new ones slide in.
-
-  &.enabled {
-    .absolute {
-      opacity: 1;
-      pointer-events: initial;
-      .inner {
-        top:0;
-        .centered {
-          -webkit-app-region: drag;
-        }
+        -webkit-app-region: drag;
       }
     }
   }
