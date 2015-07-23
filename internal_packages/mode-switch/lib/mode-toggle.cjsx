@@ -20,14 +20,14 @@ class ModeToggle extends React.Component
   render: =>
     return <div></div> unless @state.visible
 
-    <div className="btn btn-toolbar mode-toggle mode-#{@state.mode}"
+    <button className="btn btn-toolbar mode-toggle mode-#{@state.mode}"
          style={order:500}
          onClick={@_onToggleMode}>
       <RetinaImg
         name="toolbar-icon-toggle-pane.png"
         mode={RetinaImg.Mode.ContentIsMask}
         onClick={@_onToggleMode}  />
-    </div>
+    </button>
 
   _onStateChanged: =>
     @setState(@_getStateFromStores())

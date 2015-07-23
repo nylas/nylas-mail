@@ -9,6 +9,7 @@ class ThreadArchiveButton extends React.Component
 
   render: =>
     <button className="btn btn-toolbar btn-archive"
+            style={order: -105}
             data-tooltip="Archive"
             onClick={@_onArchive}>
       <RetinaImg name="toolbar-archive.png" mode={RetinaImg.Mode.ContentIsMask}/>

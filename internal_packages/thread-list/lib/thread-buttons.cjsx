@@ -12,7 +12,7 @@ class ThreadBulkArchiveButton extends React.Component
     selection: React.PropTypes.object.isRequired
 
   render: ->
-    <button style={order:-100}
+    <button style={order:-105}
             className="btn btn-toolbar"
             data-tooltip="Archive"
             onClick={@_onArchive}>
@@ -31,7 +31,7 @@ class ThreadBulkStarButton extends React.Component
     selection: React.PropTypes.object.isRequired
 
   render: ->
-    <button style={order:-100}
+    <button style={order:-104}
             className="btn btn-toolbar"
             data-tooltip="Star"
             onClick={@_onStar}>

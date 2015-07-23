@@ -88,6 +88,7 @@ class CategoryPicker extends React.Component
              onOpened={@_onPopoverOpened}
              onClosed={@_onPopoverClosed}
              direction="down-align-left"
+             style={order: -103}
              buttonComponent={button}>
       <Menu ref="menu"
             headerComponents={headerComponents}
