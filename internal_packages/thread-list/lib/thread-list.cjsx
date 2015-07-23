@@ -5,6 +5,7 @@ classNames = require 'classnames'
 {timestamp, subject} = require './formatting-utils'
 {Actions,
  Utils,
+ CanvasUtils,
  Thread,
  WorkspaceStore,
  NamespaceStore,
@@ -152,6 +153,7 @@ class ThreadList extends React.Component
     @itemPropsProvider = (item) ->
       className: classNames
         'unread': item.unread
+      'data-thread-id': item.id
 
   componentDidMount: =>
     window.addEventListener('resize', @_onResize, true)
@@ -171,6 +173,9 @@ class ThreadList extends React.Component
         className="thread-list"
         scrollTooltipComponent={ThreadListScrollTooltip}
         emptyComponent={EmptyState}
+        onDragStart={@_onDragStart}
+        onDragEnd={@_onDragEnd}
+        draggable="true"
         collection="thread" />
     else if @state.style is 'narrow'
       <MultiselectList
@@ -185,6 +190,32 @@ class ThreadList extends React.Component
         collection="thread" />
     else
       <div></div>
+
+  _threadIdAtPoint: (x, y) ->
+    item = document.elementFromPoint(event.clientX, event.clientY).closest('.list-item')
+    return null unless item
+    return item.dataset.threadId
+
+  _onDragStart: (event) =>
+    itemThreadId = @_threadIdAtPoint(event.clientX, event.clientY)
+    unless itemThreadId
+      event.preventDefault()
+      return
+
+    if itemThreadId in ThreadListStore.view().selection.ids()
+      dragThreadIds = ThreadListStore.view().selection.ids()
+    else
+      dragThreadIds = [itemThreadId]
+
+    event.dataTransfer.effectAllowed = "move"
+    event.dataTransfer.dragEffect = "move"
+
+    canvas = CanvasUtils.canvasWithThreadDragImage(dragThreadIds.length)
+    event.dataTransfer.setDragImage(canvas, 10, 10)
+    event.dataTransfer.setData('nylas-thread-ids', JSON.stringify(dragThreadIds))
+    return
+
+  _onDragEnd: (event) =>
 
   _onResize: (event) =>
     current = @state.style

@@ -14,6 +14,7 @@ _ = require 'underscore'
  InjectedComponentSet,
  InjectedComponent,
  ScrollRegion,
+ DropZone,
  RetinaImg} = require 'nylas-component-kit'
 
 FileUpload = require './file-upload'
@@ -159,7 +160,10 @@ class ComposerView extends React.Component
     "composer-outer-wrap #{@props.className ? ""}"
 
   _renderComposer: =>
-    <div className="composer-inner-wrap" onDragEnter={@_onDragEnter} onDragLeave={@_onDragLeave} onDrop={@_onDrop}>
+    <DropZone className="composer-inner-wrap"
+              shouldAcceptDrop={@_shouldAcceptDrop}
+              onDragStateChange={ ({isDropping}) => @setState({isDropping}) }
+              onDrop={@_onDrop}>
       <div className="composer-cover" style={display: if @state.isSending then 'block' else 'none'}></div>
       <div className="composer-drop-cover" style={display: if @state.isDropping then 'block' else 'none'}>
         <div className="centered">
@@ -207,7 +211,7 @@ class ComposerView extends React.Component
       <div className="composer-action-bar-wrap">
         {@_renderActionsRegion()}
       </div>
-    </div>
+    </DropZone>
 
   _renderFields: =>
     # Note: We need to physically add and remove these elements, not just hide them.
@@ -470,7 +474,7 @@ class ComposerView extends React.Component
     else if @isForwardedMessage() then return true
     else return false
 
-  _shouldAcceptDrop: (event) ->
+  _shouldAcceptDrop: (event) =>
     # Ensure that you can't pick up a file and drop it on the same draft
     existingFilePaths = @state.files.map (f) ->
       FileUploadStore.linkedUpload(f)?.filePath
@@ -484,7 +488,7 @@ class ComposerView extends React.Component
 
     return hasNativeFile or hasNonNativeFilePath
 
-  _nonNativeFilePathForDrop: (event) ->
+  _nonNativeFilePathForDrop: (event) =>
     if "text/nylas-file-url" in event.dataTransfer.types
       downloadURL = event.dataTransfer.getData("text/nylas-file-url")
       downloadFilePath = downloadURL.split('file://')[1]
@@ -500,30 +504,7 @@ class ComposerView extends React.Component
 
     return null
 
-  # We maintain a "dragCounter" because dragEnter and dragLeave events *stack*
-  # when the user moves the item in and out of DOM elements inside of our container.
-  # It's really awful and everyone hates it.
-  #
-  # Alternative solution *maybe* is to set pointer-events:none; during drag.
-
-  _onDragEnter: (e) =>
-    return unless @_shouldAcceptDrop(e)
-    @_dragCounter ?= 0
-    @_dragCounter += 1
-    if @_dragCounter is 1
-      @setState(isDropping: true)
-
-  _onDragLeave: (e) =>
-    return unless @_shouldAcceptDrop(e)
-    @_dragCounter -= 1
-    if @_dragCounter is 0
-      @setState(isDropping: false)
-
   _onDrop: (e) =>
-    return unless @_shouldAcceptDrop(e)
-    @setState(isDropping: false)
-    @_dragCounter = 0
-
     # Accept drops of real files from other applications
     for file in e.dataTransfer.files
       Actions.attachFilePath({path: file.path, messageLocalId: @props.localId})
@@ -531,8 +512,6 @@ class ComposerView extends React.Component
     # Accept drops from attachment components / images within the app
     if (uri = @_nonNativeFilePathForDrop(e))
       Actions.attachFilePath({path: uri, messageLocalId: @props.localId})
-
-    return
 
   _onFilePaste: (path) =>
     Actions.attachFilePath({path: path, messageLocalId: @props.localId})

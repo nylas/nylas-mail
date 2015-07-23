@@ -88,6 +88,7 @@ class Toolbar extends React.Component
     @state = @_getStateFromStores()
 
   componentDidMount: =>
+    @mounted = true
     @unlisteners = []
     @unlisteners.push WorkspaceStore.listen (event) =>
       @setState(@_getStateFromStores())
@@ -97,6 +98,7 @@ class Toolbar extends React.Component
     window.requestAnimationFrame => @recomputeLayout()
 
   componentWillUnmount: =>
+    @mounted = false
     window.removeEventListener("resize", @_onWindowResize)
     unlistener() for unlistener in @unlisteners
 
@@ -105,7 +107,6 @@ class Toolbar extends React.Component
 
   componentDidUpdate: =>
     # Wait for other components that are dirty (the actual columns in the sheet)
-    # to update as well.
     window.requestAnimationFrame => @recomputeLayout()
 
   shouldComponentUpdate: (nextProps, nextState) =>
@@ -148,6 +149,9 @@ class Toolbar extends React.Component
     </TimeoutTransitionGroup>
 
   recomputeLayout: =>
+    # Yes this really happens - do not remove!
+    return unless @mounted
+
     # Find our item containers that are tied to specific columns
     columnToolbarEls = React.findDOMNode(@).querySelectorAll('[data-column]')
 

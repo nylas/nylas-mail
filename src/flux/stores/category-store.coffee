@@ -27,6 +27,10 @@ class CategoryStore extends NylasStore
     "trash"
   ]
 
+  LockedCategoryNames: [
+    "sent"
+  ]
+
   AllMailName: "all"
 
   byId: (id) -> @_categoryCache[id]

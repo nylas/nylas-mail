@@ -98,6 +98,8 @@ class MultiselectList extends React.Component
     className = @props.className
     className += " ready" if @state.ready
 
+    otherProps = _.omit(@props, _.keys(@constructor.propTypes))
+
     if @state.dataView and @state.handler
       className += " " + @state.handler.cssClass()
 
@@ -116,7 +118,7 @@ class MultiselectList extends React.Component
           visible={@state.ready && @state.dataView.count() is 0}
           dataView={@state.dataView} />
 
-      <div className={className}>
+      <div className={className} {...otherProps}>
         <ListTabular
           ref="list"
           columns={@state.computedColumns}
@@ -130,7 +132,7 @@ class MultiselectList extends React.Component
         {emptyElement}
       </div>
     else
-      <div className={className}>
+      <div className={className} {...otherProps}>
         <Spinner visible={@state.ready is false} />
       </div>
 
