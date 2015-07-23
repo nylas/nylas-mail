@@ -159,7 +159,7 @@ module.exports = (grunt) ->
         done()
       else
         testOutput = testOutput.replace(/\x1b\[[^m]+m/g, '')
-        url = "https://hooks.slack.com/services/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"
+        url = "https://hooks.slack.com/services/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"
         request.post
           url: url
           json:
