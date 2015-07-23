@@ -52,7 +52,6 @@ MessageStore = Reflux.createStore
   # - `ext` A {MessageStoreExtension} instance.
   #
   registerExtension: (ext) =>
-    @_extensions ?= []
     @_extensions.push(ext)
 
   # Public: Unregisters the extension provided from the MessageStore.
@@ -65,12 +64,13 @@ MessageStore = Reflux.createStore
 
   ########### PRIVATE ####################################################
 
-  _setStoreDefaults: ->
+  _setStoreDefaults: =>
     @_items = []
     @_itemsExpanded = {}
     @_itemsLocalIds = {}
     @_itemsLoading = false
     @_thread = null
+    @_extensions = []
     @_inflight = {}
 
   _registerListeners: ->

@@ -3,6 +3,7 @@ Reflux = require 'reflux'
 
 MessageStoreStub = Reflux.createStore
   items: -> []
+  extensions: -> []
   threadId: -> null
 
 NamespaceStoreStub = Reflux.createStore

@@ -203,7 +203,7 @@ class MessageItem extends React.Component
     # throw "unknown ERR_UNKNOWN_URL_SCHEME". Show a transparent pixel so that there's
     # no "missing image" region shown, just a space.
     body = body.replace(MessageUtils.cidRegex, "src=\"#{TransparentPixel}\"")
-
+    
     body
 
   _toggleQuotedText: =>
