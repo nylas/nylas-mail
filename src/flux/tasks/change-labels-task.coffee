@@ -18,7 +18,7 @@ class ChangeLabelsTask extends ChangeCategoryTask
   constructor: ({@labelsToAdd, @labelsToRemove, @threadIds, @messageIds}={}) ->
     @threadIds ?= []; @messageIds ?= []
     @objectIds = @threadIds.concat(@messageIds)
-    @_newLabels = []
+    @_newLabels = {}
     super
 
   label: -> "Applying labels…"
@@ -46,7 +46,7 @@ class ChangeLabelsTask extends ChangeCategoryTask
       return Promise.resolve(Task.Status.Finished)
 
   requestBody: (id) ->
-    labels: @_newLabels.map (l) -> l.id
+    labels: @_newLabels[id].map (l) -> l.id
 
   createUndoTask: ->
     labelsToAdd = @labelsToRemove
@@ -59,7 +59,7 @@ class ChangeLabelsTask extends ChangeCategoryTask
   # Called from super-class's `performLocal`
   localUpdateThread: (thread, categories) ->
     newLabels = @_newLabelSet(thread, categories)
-    @_newLabels = newLabels
+    @_newLabels[thread.id] = newLabels
 
     messageQuery = DatabaseStore.findAll(Message, threadId: thread.id)
     childSavePromise = messageQuery.then (messages) ->
@@ -79,7 +79,7 @@ class ChangeLabelsTask extends ChangeCategoryTask
   # Called from super-class's `performLocal`
   localUpdateMessage: (message, categories) ->
     message.labels = @_newLabelSet(message, categories)
-    @_newLabels = message.labels
+    @_newLabels[message.id] = message.labels
     return DatabaseStore.persistModel(message)
 
   # Returns a new set of {Label} objects that incoprates the existing,

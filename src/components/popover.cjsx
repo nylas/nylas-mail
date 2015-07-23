@@ -87,12 +87,12 @@ class Popover extends React.Component
     @_focusOnOpen = true
     @setState
       showing: true
-    if @props.onOpened?
-      @props.onOpened()
+    @props.onOpened?()
 
   close: =>
     @setState
       showing: false
+    @props.onClosed?()
 
   _focusImportantElement: =>
     # Automatically focus the element inside us with the lowest tab index
@@ -142,6 +142,14 @@ class Popover extends React.Component
           'transform': 'rotateX(180deg)'
           'top': -10
           'left':-12
+
+      if @props.direction is "down-align-left"
+        popoverStyle = _.extend popoverStyle,
+          'transform': 'translate(0, 2px)'
+          'top': '100%'
+          'left': 0
+        pointerStyle = _.extend pointerStyle,
+          'display': 'none'
 
       popoverComponent = <div ref="popover" className={"popover popover-"+@props.direction} style={popoverStyle}>
         {@props.children}

@@ -5,6 +5,7 @@ React = require 'react'
 
 class ThreadArchiveButton extends React.Component
   @displayName: "ThreadArchiveButton"
+  @containerRequired: false
 
   render: =>
     <button className="btn btn-toolbar btn-archive"

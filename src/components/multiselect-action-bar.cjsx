@@ -2,7 +2,8 @@ React = require "react/addons"
 classNames = require 'classnames'
 _ = require 'underscore'
 
-{Actions,
+{Utils,
+ Actions,
  WorkspaceStore} = require "nylas-exports"
 InjectedComponentSet = require './injected-component-set'
 RetinaImg = require './retina-img'
@@ -75,10 +76,8 @@ class MultiselectActionBar extends React.Component
     @unsubscribers.push WorkspaceStore.listen @_onChange
 
   shouldComponentUpdate: (nextProps, nextState) =>
-    @props.collection isnt nextProps.collection or
-    @state.count isnt nextState.count or
-    @state.view isnt nextState.view or
-    @state.type isnt nextState.type
+    not Utils.isEqualReact(nextProps, @props) or
+    not Utils.isEqualReact(nextState, @state)
 
   render: =>
     <div className={@_classSet()}><div className="absolute"><div className="inner">
@@ -98,27 +97,30 @@ class MultiselectActionBar extends React.Component
   _renderActions: =>
     return <div></div> unless @state.view
     <InjectedComponentSet matching={role:"#{@props.collection}:BulkAction"}
-                          exposedProps={selection: @state.view.selection} />
+                          exposedProps={selection: @state.view.selection, items: @state.items} />
 
   _label: =>
-    if @state.count > 1
-      "#{@state.count} #{@props.collection}s selected"
-    else if @state.count is 1
-      "#{@state.count} #{@props.collection} selected"
+    if @state.items.length > 1
+      "#{@state.items.length} #{@props.collection}s selected"
+    else if @state.items.length is 1
+      "#{@state.items.length} #{@props.collection} selected"
     else
       ""
 
   _classSet: =>
     classNames
       "selection-bar": true
-      "enabled": @state.count > 0
+      "enabled": @state.items.length > 0
 
   _getStateFromStores: (props) =>
     props ?= @props
     view = props.dataStore.view()
+    items = view?.selection.items() ? []
 
-    view: view
-    count: view?.selection.items().length
+    return {
+      view: view
+      items: items
+    }
 
   _onChange: =>
     @setState(@_getStateFromStores())

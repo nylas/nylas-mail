@@ -16,6 +16,11 @@ class Sheet extends React.Component
     depth: React.PropTypes.number.isRequired
     onColumnSizeChanged: React.PropTypes.func
 
+  @childContextTypes:
+    sheetDepth: React.PropTypes.number
+  getChildContext: =>
+    sheetDepth: @props.depth
+
   constructor: (@props) ->
     @state = @_getStateFromStores()
 

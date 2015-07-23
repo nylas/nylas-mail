@@ -14,8 +14,7 @@ class ModelViewSelection
   ids: ->
     _.pluck(@_items, 'id')
 
-  items: ->
-    @_items
+  items: -> _.clone(@_items)
 
   top: ->
     @_items[@_items.length - 1]

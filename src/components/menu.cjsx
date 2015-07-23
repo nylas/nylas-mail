@@ -126,6 +126,10 @@ class Menu extends React.Component
    - `onSelect` A {Function} called with the selected item when the user clicks
      an item in the menu or confirms their selection with the Enter key.
 
+   - `defaultSelectedIndex` The index of the item first selected if there
+   was no other previous index. Defaults to 0. Set to -1 if you want
+   nothing selected.
+
   ###
   @propTypes:
     className: React.PropTypes.string,
@@ -139,9 +143,11 @@ class Menu extends React.Component
 
     onSelect: React.PropTypes.func.isRequired,
 
+    defaultSelectedIndex: React.PropTypes.number
+
   constructor: (@props) ->
     @state =
-      selectedIndex: 0
+      selectedIndex: @props.defaultSelectedIndex ? 0
 
   # Public: Returns the currently selected item.
   #
@@ -152,16 +158,7 @@ class Menu extends React.Component
   # null to remove the selection
   #
   setSelectedItem: (item) =>
-    @setState
-      selectedIndex: @props.items.indexOf(item)
-
-  componentDidMount: =>
-    @subscriptions = new CompositeDisposable()
-    @subscriptions.add atom.commands.add '.menu', {
-      'menu:move-up': => @_onShiftSelectedIndex(-1)
-      'menu:move-down': => @_onShiftSelectedIndex(1)
-      'menu:enter': => @_onEnter()
-    }
+    @setState selectedIndex: @props.items.indexOf(item)
 
   componentWillReceiveProps: (newProps) =>
     # Attempt to preserve selection across props.items changes by
@@ -171,7 +168,7 @@ class Menu extends React.Component
       selection = @props.items[@state.selectedIndex]
       newSelectionIndex = 0
     else
-      newSelectionIndex = -1
+      newSelectionIndex = newProps.defaultSelectedIndex ? -1
 
     if selection?
       selectionKey = @props.itemKey(selection)
@@ -188,15 +185,14 @@ class Menu extends React.Component
     if adjustment isnt 0
       container.scrollTop += adjustment
 
-  componentWillUnmount: =>
-    @subscriptions?.dispose()
-
   render: =>
     hc = @props.headerComponents ? []
     if hc.length is 0 then hc = <span></span>
     fc = @props.footerComponents ? []
     if fc.length is 0 then fc = <span></span>
-    <div className={"menu " + @props.className} tabIndex="-1">
+    <div onKeyDown={@_onKeyDown}
+         className={"native-key-bindings menu " + @props.className}
+         tabIndex="-1">
       <div className="header-container">
         {hc}
       </div>
@@ -205,6 +201,18 @@ class Menu extends React.Component
         {fc}
       </div>
     </div>
+
+  _onKeyDown: (event) =>
+    if event.key is "Enter"
+      @_onEnter()
+    else if event.key is "ArrowUp" or (event.key is "Tab" and event.shiftKey)
+      @_onShiftSelectedIndex(-1)
+      event.preventDefault()
+    else if event.key is "ArrowDown" or event.key is "Tab"
+      @_onShiftSelectedIndex(1)
+      event.preventDefault()
+
+    return
 
   _contentContainer: =>
     items = @props.items.map(@_itemComponentForItem) ? []
@@ -234,18 +242,22 @@ class Menu extends React.Component
 
   _onShiftSelectedIndex: (delta) =>
     return if @props.items.length is 0
+
     index = @state.selectedIndex + delta
+
+    isDivider = true
+    while isDivider
+      item = @props.items[index]
+      break unless item
+      if @props.itemContent(item).props?.divider
+        if delta > 0 then index += 1
+        else if delta < 0 then index -= 1
+      else isDivider = false
+
     index = Math.max(0, Math.min(@props.items.length-1, index))
 
     # Update the selected index
-    @setState
-      selectedIndex: index
-
-    # Fire the shift method again to move selection past the divider
-    # if the new selected item is a divider.
-    itemContent = @props.itemContent(@props.items[index])
-    isDivider = itemContent.props?.divider
-    @_onShiftSelectedIndex(delta) if isDivider
+    @setState selectedIndex: index
 
   _onEnter: =>
     item = @props.items[@state.selectedIndex]
