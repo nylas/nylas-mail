@@ -182,6 +182,7 @@ class Toolbar extends React.Component
     # Add items registered to Regions in the current sheet
     if @props.data?.columns[state.mode]?
       for loc in @props.data.columns[state.mode]
+        continue if WorkspaceStore.isLocationHidden(loc)
         entries = ComponentRegistry.findComponentsMatching({location: loc.Toolbar, mode: state.mode})
         state.columns.push(entries)
 

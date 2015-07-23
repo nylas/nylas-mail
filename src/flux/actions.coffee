@@ -175,6 +175,15 @@ class Actions
   ###
   @selectLayoutMode: ActionScopeWindow
 
+  ###
+  Public: Toggle whether a particular column is visible. Call this action
+  with one of the Sheet location constants:
+
+  ```
+  Actions.toggleWorkspaceLocationHidden(WorkspaceStore.Location.MessageListSidebar)
+  ```
+  ###
+  @toggleWorkspaceLocationHidden: ActionScopeWindow
 
   ###
   Public: Focus the keyboard on an item in a collection. This action moves the

@@ -90,6 +90,7 @@ class Sheet extends React.Component
 
     if @props.data?.columns[state.mode]?
       for location, idx in @props.data.columns[state.mode]
+        continue if WorkspaceStore.isLocationHidden(location)
         entries = ComponentRegistry.findComponentsMatching({location: location, mode: state.mode})
         maxWidth = _.reduce entries, ((m,component) -> Math.min(component.containerStyles?.maxWidth ? 10000, m)), 10000
         minWidth = _.reduce entries, ((m,component) -> Math.max(component.containerStyles?.minWidth ? 0, m)), 0
