@@ -107,15 +107,24 @@ class MessageItem extends React.Component
                            isDetailed={@state.detailedHeaders}
                            message_participants={@props.message.participants()} />
 
+      {@_renderFolder()}
       {@_renderHeaderExpansionControl()}
 
     </header>
+
+  _renderFolder: =>
+    return [] unless @state.detailedHeaders and @props.message.folder
+    <div className="header-row">
+      <div className="header-label">Folder:&nbsp;</div>
+      <div className="header-name">{@props.message.folder.displayName}</div>
+    </div>
+
 
   _onClickParticipants: (e) =>
     el = e.target
     while el isnt e.currentTarget
       if "collapsed-participants" in el.classList
-        @setState detailedHeaders: true
+        @setState(detailedHeaders: true)
         e.stopPropagation()
         return
       el = el.parentElement
@@ -149,13 +158,13 @@ class MessageItem extends React.Component
     if @state.detailedHeaders
       <div className="header-toggle-control"
            style={top: "18px", left: "-14px"}
-           onClick={ (e) => @setState detailedHeaders: false; e.stopPropagation()}>
+           onClick={ (e) => @setState(detailedHeaders: false); e.stopPropagation()}>
         <RetinaImg name={"message-disclosure-triangle-active.png"} mode={RetinaImg.Mode.ContentIsMask}/>
       </div>
     else
       <div className="header-toggle-control inactive"
            style={top: "18px"}
-           onClick={ (e) => @setState detailedHeaders: true; e.stopPropagation()}>
+           onClick={ (e) => @setState(detailedHeaders: true); e.stopPropagation()}>
         <RetinaImg name={"message-disclosure-triangle.png"} mode={RetinaImg.Mode.ContentIsMask}/>
       </div>
 
@@ -203,7 +212,7 @@ class MessageItem extends React.Component
     # throw "unknown ERR_UNKNOWN_URL_SCHEME". Show a transparent pixel so that there's
     # no "missing image" region shown, just a space.
     body = body.replace(MessageUtils.cidRegex, "src=\"#{TransparentPixel}\"")
-    
+
     body
 
   _toggleQuotedText: =>
