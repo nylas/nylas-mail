@@ -138,6 +138,7 @@ class WorkspaceStore
   # Public: Returns a {Boolean} indicating whether the location provided is hidden.
   # You should provide one of the WorkspaceStore.Location constant values.
   isLocationHidden: (loc) =>
+    return false unless loc
     @_hiddenLocations[loc.id]
 
   ###
