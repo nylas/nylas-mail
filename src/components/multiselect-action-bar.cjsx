@@ -1,12 +1,13 @@
 React = require "react/addons"
-classNames = require 'classnames'
 _ = require 'underscore'
 
 {Utils,
  Actions,
  WorkspaceStore} = require "nylas-exports"
 InjectedComponentSet = require './injected-component-set'
+TimeoutTransitionGroup = require './timeout-transition-group'
 RetinaImg = require './retina-img'
+Flexbox = require './flexbox'
 
 ###
 Public: MultiselectActionBar is a simple component that can be placed in a {Sheet} Toolbar.
@@ -80,19 +81,31 @@ class MultiselectActionBar extends React.Component
     not Utils.isEqualReact(nextState, @state)
 
   render: =>
-    <div className={@_classSet()}><div className="absolute"><div className="inner">
-      {@_renderActions()}
+    <TimeoutTransitionGroup
+      className={"selection-bar"}
+      transitionName="selection-bar-absolute"
+      component="div"
+      leaveTimeout={200}
+      enterTimeout={200}>
+      { if @state.items.length > 0 then @_renderBar() else [] }
+    </TimeoutTransitionGroup>
 
-      <div className="centered">
-        {@_label()}
+  _renderBar: =>
+    <div className="absolute" key="absolute">
+      <div className="inner">
+        {@_renderActions()}
+
+        <div className="centered">
+          {@_label()}
+        </div>
+
+        <button style={order:100}
+                className="btn btn-toolbar"
+                onClick={@_onClearSelection}>
+          Clear Selection
+        </button>
       </div>
-
-      <button style={order:100}
-              className="btn btn-toolbar"
-              onClick={@_onClearSelection}>
-        Clear Selection
-      </button>
-    </div></div></div>
+    </div>
 
   _renderActions: =>
     return <div></div> unless @state.view
@@ -106,11 +119,6 @@ class MultiselectActionBar extends React.Component
       "#{@state.items.length} #{@props.collection} selected"
     else
       ""
-
-  _classSet: =>
-    classNames
-      "selection-bar": true
-      "enabled": @state.items.length > 0
 
   _getStateFromStores: (props) =>
     props ?= @props

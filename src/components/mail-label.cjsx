@@ -20,6 +20,10 @@ class MailLabel extends React.Component
     label: React.PropTypes.object.isRequired
     onRemove: React.PropTypes.function
 
+  shouldComponentUpdate: (nextProps, nextState) ->
+    return false if nextProps.label.id is @props.label.id
+    true
+
   render: ->
     classname = 'mail-label'
     content = @props.label.displayName
