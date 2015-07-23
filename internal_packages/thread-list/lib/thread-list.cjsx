@@ -79,6 +79,8 @@ class ThreadList extends React.Component
         else
           <ThreadListParticipants thread={thread} />
 
+    c3LabelComponentCache = {}
+
     c3 = new ListTabular.Column
       name: "Message"
       flex: 4
@@ -92,9 +94,12 @@ class ThreadList extends React.Component
         currentCategoryId = FocusedCategoryStore.categoryId()
         allCategoryId = CategoryStore.getStandardCategory('all')?.id
         ignoredIds = [currentCategoryId, allCategoryId]
+
         for label in (thread.sortedLabels() ? [])
           continue if label.id in ignoredIds
-          labels.push <MailLabel label={label} key={label.id} />
+          if not c3LabelComponentCache[label.id]
+            c3LabelComponentCache[label.id] = <MailLabel label={label} key={label.id} />
+          labels.push c3LabelComponentCache[label.id]
 
         <span className="details">
           {labels}
