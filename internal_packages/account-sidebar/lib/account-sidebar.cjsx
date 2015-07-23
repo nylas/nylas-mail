@@ -42,7 +42,7 @@ class AccountSidebar extends React.Component
 
   _itemComponents: (section) =>
     section.items?.map (item) =>
-      if section.type is 'category'
+      if section.type is 'mailboxes' or section.type is 'category'
         itemClass = AccountSidebarCategoryItem
       else if section.type is 'sheet'
         itemClass = item.sidebarComponent ? SidebarSheetItem
@@ -52,6 +52,7 @@ class AccountSidebar extends React.Component
       <itemClass
         key={item.id ? item.type}
         item={item}
+        sectionType={section.type}
         select={item.id is @state.selected?.id }/>
 
   _onStoreChange: =>

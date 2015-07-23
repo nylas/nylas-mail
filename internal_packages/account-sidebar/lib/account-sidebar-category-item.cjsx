@@ -47,9 +47,19 @@ class AccountSidebarCategoryItem extends React.Component
          onDragStateChange={ ({isDropping}) => @setState({isDropping}) }
          onDrop={@_onDrop}>
       {unread}
-      <RetinaImg name={"#{@props.item.name}.png"} fallback={'folder.png'} mode={RetinaImg.Mode.ContentIsMask} />
+
+      {@_renderIcon()}
       <span className="name"> {@props.item.displayName}</span>
     </DropZone>
+
+  _renderIcon: ->
+    if @props.sectionType is "category" and NamespaceStore.current()
+      if NamespaceStore.current().usesLabels()
+        <RetinaImg name={"tag.png"} mode={RetinaImg.Mode.ContentIsMask} />
+      else
+        <RetinaImg name={"folder.png"} mode={RetinaImg.Mode.ContentIsMask} />
+    else if @props.sectionType is "mailboxes"
+      <RetinaImg name={"#{@props.item.name}.png"} fallback={'folder.png'} mode={RetinaImg.Mode.ContentIsMask} />
 
   _shouldAcceptDrop: (e) =>
     return false if @props.item.name in CategoryStore.LockedCategoryNames

@@ -60,7 +60,7 @@ class AccountSidebarStore extends NylasStore
     @_sections = []
     if featureSheets.length > 0
       @_sections.push { label: '', items: featureSheets, type: 'sheet' }
-    @_sections.push { label: 'Mailboxes', items: standardCategories, type: 'category' }
+    @_sections.push { label: 'Mailboxes', items: standardCategories, type: 'mailboxes' }
     @_sections.push { label: 'Views', items: extraSheets, type: 'sheet' }
     @_sections.push { label: CategoryStore.categoryLabel(), items: userCategories, type: 'category' }
 
