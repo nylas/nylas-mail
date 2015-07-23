@@ -1,4 +1,4 @@
-Reflux = require "reflux"
+NylasStore = require "nylas-store"
 Actions = require "../actions"
 Message = require "../models/message"
 Thread = require "../models/thread"
@@ -11,11 +11,11 @@ NylasAPI = require '../nylas-api'
 async = require 'async'
 _ = require 'underscore'
 
-MessageStore = Reflux.createStore
-  init: ->
+class MessageStore extends NylasStore
+
+  constructor: ->
     @_setStoreDefaults()
     @_registerListeners()
-
 
   ########### PUBLIC #####################################################
 
@@ -26,12 +26,12 @@ MessageStore = Reflux.createStore
 
   thread: -> @_thread
 
-  itemsExpandedState: ->
+  itemsExpandedState: =>
     # ensure that we're always serving up immutable objects.
     # this.state == nextState is always true if we modify objects in place.
     _.clone @_itemsExpanded
 
-  itemLocalIds: ->
+  itemLocalIds: =>
     _.clone @_itemsLocalIds
 
   itemsLoading: ->
@@ -78,7 +78,7 @@ MessageStore = Reflux.createStore
     @listenTo FocusedContentStore, @_onFocusChanged
     @listenTo Actions.toggleMessageIdExpanded, @_onToggleMessageIdExpanded
 
-  _onDataChanged: (change) ->
+  _onDataChanged: (change) =>
     return unless @_thread
 
     if change.objectClass is Message.name
@@ -103,7 +103,7 @@ MessageStore = Reflux.createStore
         @_thread = updatedThread
         @_fetchFromCache()
 
-  _onFocusChanged: (change) ->
+  _onFocusChanged: (change) =>
     focused = FocusedContentStore.focused('thread')
     return if @_thread?.id is focused?.id
 
@@ -115,7 +115,7 @@ MessageStore = Reflux.createStore
 
     @_fetchFromCache()
 
-  _onToggleMessageIdExpanded: (id) ->
+  _onToggleMessageIdExpanded: (id) =>
     item = _.findWhere(@_items, {id})
     return unless item
 
@@ -248,4 +248,4 @@ MessageStore = Reflux.createStore
 
     items
 
-module.exports = MessageStore
+module.exports = new MessageStore()
