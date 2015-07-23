@@ -17,7 +17,6 @@
     "6to5-core": "^3.5",
     "async": "^0.9",
     "atom-keymap": "^5.1",
-    "autolinker": "0.15.2",
     "bluebird": "^2.9",
     "clear-cut": "0.4.0",
     "coffee-react": "^2.0.0",

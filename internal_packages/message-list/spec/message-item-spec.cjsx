@@ -127,8 +127,7 @@ describe "MessageItem", ->
         <MessageItem key={@message.id}
                      message={@message}
                      thread={@thread}
-                     collapsed={collapsed}
-                     thread_participants={@threadParticipants} />
+                     collapsed={collapsed} />
       )
 
   # TODO: We currently don't support collapsed messages

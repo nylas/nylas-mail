@@ -2,7 +2,7 @@ React = require 'react/addons'
 classNames = require 'classnames'
 _ = require 'underscore'
 {CompositeDisposable} = require 'event-kit'
-{Utils, Contact, ContactStore} = require 'nylas-exports'
+{Utils, RegExpUtils, Contact, ContactStore} = require 'nylas-exports'
 RetinaImg = require './retina-img'
 
 Token = React.createClass
@@ -308,7 +308,7 @@ TokenizingTextField = React.createClass
 
     # If it looks like an email, and the last character entered was a
     # space, then let's add the input value.
-    if Utils.emailRegex().test(val) and _.last(val) is " "
+    if RegExpUtils.emailRegex().test(val) and _.last(val) is " "
       @_addInputValue(val[0...-1], skipNameLookup: true)
     else
       @_refreshCompletions(val)

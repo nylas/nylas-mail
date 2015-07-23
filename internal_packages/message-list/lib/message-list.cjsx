@@ -297,7 +297,6 @@ class MessageList extends React.Component
 
   _messageComponents: =>
     appliedInitialScroll = false
-    threadParticipants = @_threadParticipants()
     components = []
 
     messages = @_messagesWithMinification(@state.messages)
@@ -335,8 +334,7 @@ class MessageList extends React.Component
                          message={message}
                          className={className}
                          collapsed={collapsed}
-                         isLastMsg={(messages.length - 1 is idx)}
-                         thread_participants={threadParticipants} />
+                         isLastMsg={(messages.length - 1 is idx)} />
 
     components.push @_renderReplyArea()
 
@@ -444,19 +442,6 @@ class MessageList extends React.Component
     @scrollToMessage initialScrollNode, =>
       @setState(ready: true)
     @_cacheScrollPos()
-
-  _threadParticipants: =>
-    # We calculate the list of participants instead of grabbing it from
-    # `@state.currentThread.participants` because it makes it easier to
-    # test, is a better source of ground truth, and saves us from more
-    # dependencies.
-    participants = {}
-    for msg in (@state.messages ? [])
-      contacts = msg.participants()
-      for contact in contacts
-        if contact? and contact.email?.length > 0
-          participants[contact.email] = contact
-    return _.values(participants)
 
   _onResize: (event) =>
     @_scrollToBottom() if @_wasAtBottom()

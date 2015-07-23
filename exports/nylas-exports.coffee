@@ -45,6 +45,7 @@ Exports =
   # Utils
   Utils: Utils
   DOMUtils: require '../src/dom-utils'
+  RegExpUtils: require '../src/regexp-utils'
   MessageUtils: require '../src/flux/models/message-utils'
 
   # Mixins
@@ -58,6 +59,7 @@ Exports =
   DraftCountStore: require '../src/flux/stores/draft-count-store'
   DraftStoreExtension: require '../src/flux/stores/draft-store-extension'
   MessageStore: require '../src/flux/stores/message-store'
+  MessageStoreExtension: require '../src/flux/stores/message-store-extension'
   ContactStore: require '../src/flux/stores/contact-store'
   MetadataStore: require '../src/flux/stores/metadata-store'
   NamespaceStore: require '../src/flux/stores/namespace-store'
