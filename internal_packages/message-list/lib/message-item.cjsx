@@ -8,13 +8,13 @@ MessageControls = require './message-controls'
 {Utils,
  Actions,
  MessageUtils,
+ MessageStore,
  QuotedHTMLParser,
  ComponentRegistry,
  FileDownloadStore} = require 'nylas-exports'
 {RetinaImg,
  InjectedComponentSet,
  InjectedComponent} = require 'nylas-component-kit'
-Autolinker = require 'autolinker'
 
 TransparentPixel = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNikAQAACIAHF/uBd8AAAAASUVORK5CYII="
 MessageBodyWidth = 740
@@ -25,7 +25,6 @@ class MessageItem extends React.Component
   @propTypes =
     thread: React.PropTypes.object.isRequired
     message: React.PropTypes.object.isRequired
-    thread_participants: React.PropTypes.arrayOf(React.PropTypes.object)
     collapsed: React.PropTypes.bool
 
   constructor: (@props) ->
@@ -105,7 +104,6 @@ class MessageItem extends React.Component
                            from={@props.message.from}
                            subject={@props.message.subject}
                            onClick={@_onClickParticipants}
-                           thread_participants={@props.thread_participants}
                            isDetailed={@state.detailedHeaders}
                            message_participants={@props.message.participants()} />
 
@@ -166,10 +164,15 @@ class MessageItem extends React.Component
   _formatBody: =>
     return "" unless @props.message and @props.message.body
 
+    # Give each extension the message object to process the body, but don't
+    # allow them to modify anything but the body for the time being.
     body = @props.message.body
-
-    # Apply the autolinker pass to make emails and links clickable
-    body = Autolinker.link(body, {twitter: false})
+    for extension in MessageStore.extensions()
+      continue unless extension.formatMessageBody
+      virtual = @props.message.clone()
+      virtual.body = body
+      extension.formatMessageBody(virtual)
+      body = virtual.body
 
     # Find inline images and give them a calculated CSS height based on
     # html width and height, when available. This means nothing changes size

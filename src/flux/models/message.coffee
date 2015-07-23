@@ -186,9 +186,8 @@ class Message extends Model
       file.namespaceId = @namespaceId
     return @
 
-  # We calculate the list of participants instead of grabbing it from
-  # a parent because it is a better source of ground truth, and saves us
-  # from more dependencies.
+  # Public: Returns a set of uniqued message participants by combining the
+  # `to`, `cc`, and `from` fields.
   participants: ->
     participants = {}
     contacts = _.union((@to ? []), (@cc ? []), (@from ? []))
@@ -197,13 +196,14 @@ class Message extends Model
         participants["#{(contact?.email ? "").toLowerCase().trim()} #{(contact?.name ? "").toLowerCase().trim()}"] = contact if contact?
     return _.values(participants)
 
-  # Returns a hash with `to` and `cc` keys for authoring a new draft in response
-  # to this message. Takes `replyTo` and other important state into account.
+  # Public: Returns a hash with `to` and `cc` keys for authoring a new draft in
+  # "reply all" to this message. This method takes into account whether the
+  # message is from the current user, and also looks at the replyTo field.
   participantsForReplyAll: ->
     to = []
     cc = []
 
-    if @from[0].email is NamespaceStore.current().emailAddress
+    if @isFromMe()
       to = @to
       cc = @cc
     else
@@ -218,11 +218,14 @@ class Message extends Model
 
     {to, cc}
 
+  # Public: Returns a hash with `to` and `cc` keys for authoring a new draft in
+  # "reply" to this message. This method takes into account whether the
+  # message is from the current user, and also looks at the replyTo field.
   participantsForReply: ->
     to = []
     cc = []
 
-    if @from[0].email is NamespaceStore.current().emailAddress
+    if @isFromMe()
       to = @to
     else if @replyTo.length
       to = @replyTo
@@ -235,6 +238,14 @@ class Message extends Model
   fileIds: ->
     _.map @files, (file) -> file.id
 
+  # Public: Returns true if this message is from the current user's email
+  # address. In the future, this method will take into account all of the
+  # user's email addresses and namespaces.
+  isFromMe: ->
+    @from[0].email is NamespaceStore.current().emailAddress
+
+  # Public: Returns a plaintext version of the message body using Chromium's
+  # DOMParser. Use with care.
   plainTextBody: ->
     if (@body ? "").trim().length is 0 then return ""
     (new DOMParser()).parseFromString(@body, "text/html").body.innerText
@@ -242,6 +253,9 @@ class Message extends Model
   fromContact: ->
     @from?[0] ? new Contact(name: 'Unknown', email: 'Unknown')
 
+  # Public: Returns the standard attribution line for this message,
+  # localized for the current user.
+  # ie "On Dec. 12th, 2015 at 4:00PM, Ben Gotow wrote:"
   replyAttributionLine: ->
     "On #{@formattedDate()}, #{@fromContact().messageName()} wrote:"
 

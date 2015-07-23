@@ -2,6 +2,7 @@ Reflux = require 'reflux'
 Actions = require '../actions'
 Contact = require '../models/contact'
 Utils = require '../models/utils'
+RegExpUtils = require '../../regexp-utils'
 DatabaseStore = require './database-store'
 NamespaceStore = require './namespace-store'
 _ = require 'underscore'
@@ -87,7 +88,7 @@ class ContactStore
 
   parseContactsInString: (contactString, {skipNameLookup}={}) =>
     detected = []
-    emailRegex = new RegExp(Utils.emailRegex())
+    emailRegex = RegExpUtils.emailRegex()
     while (match = emailRegex.exec(contactString))
       email = match[0]
       name = null

@@ -37,6 +37,32 @@ MessageStore = Reflux.createStore
   itemsLoading: ->
     @_itemsLoading
 
+  ###
+  Message Store Extensions
+  ###
+
+  # Public: Returns the extensions registered with the MessageStore.
+  extensions: =>
+    @_extensions
+
+  # Public: Registers a new extension with the MessageStore. MessageStore extensions
+  # make it possible to customize message body parsing, and will do more in
+  # the future.
+  #
+  # - `ext` A {MessageStoreExtension} instance.
+  #
+  registerExtension: (ext) =>
+    @_extensions ?= []
+    @_extensions.push(ext)
+
+  # Public: Unregisters the extension provided from the MessageStore.
+  #
+  # - `ext` A {MessageStoreExtension} instance.
+  #
+  unregisterExtension: (ext) =>
+    @_extensions = _.without(@_extensions, ext)
+
+
   ########### PRIVATE ####################################################
 
   _setStoreDefaults: ->

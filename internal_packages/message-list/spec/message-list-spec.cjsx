@@ -202,10 +202,6 @@ describe "MessageList", ->
       msgs = TestUtils.scryRenderedDOMComponentsWithClass(@messageList, "message-item-wrap collapsed")
       expect(msgs.length).toBe 4
 
-    it "aggregates participants across all messages", ->
-      expect(@messageList._threadParticipants().length).toBe 4
-      expect(@messageList._threadParticipants()[0] instanceof Contact).toBe true
-
     it "displays lists of participants on the page", ->
       items = TestUtils.scryRenderedComponentsWithType(@messageList,
               MessageParticipants)

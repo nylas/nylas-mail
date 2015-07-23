@@ -39,21 +39,6 @@ big_test_message = (new Message).fromJSON({
 
 many_thread_users = [user_1].concat(many_users)
 
-thread_participants = [
-  (new Contact(user_1)),
-  (new Contact(user_2)),
-  (new Contact(user_3)),
-  (new Contact(user_4))
-]
-
-thread2_participants = [
-  (new Contact(user_1)),
-  (new Contact(user_2)),
-  (new Contact(user_3)),
-  (new Contact(user_4)),
-  (new Contact(user_5))
-]
-
 describe "MessageParticipants", ->
   describe "when collapsed", ->
     beforeEach ->
@@ -61,7 +46,6 @@ describe "MessageParticipants", ->
         <MessageParticipants to={test_message.to}
                              cc={test_message.cc}
                              from={test_message.from}
-                             thread_participants={many_thread_users}
                              message_participants={test_message.participants()} />
       )
 
@@ -79,7 +63,6 @@ describe "MessageParticipants", ->
         <MessageParticipants to={test_message.to}
                              cc={test_message.cc}
                              from={test_message.from}
-                             thread_participants={many_thread_users}
                              isDetailed={true}
                              message_participants={test_message.participants()} />
       )
@@ -100,7 +83,6 @@ describe "MessageParticipants", ->
   #     <MessageParticipants to={big_test_message.to}
   #                          cc={big_test_message.cc}
   #                          from={big_test_message.from}
-  #                          thread_participants={many_thread_users}
   #                          message_participants={big_test_message.participants()} />
   #   )
   #   expect(p1._isToEveryone()).toBe true
@@ -110,7 +92,6 @@ describe "MessageParticipants", ->
   #     <MessageParticipants to={test_message.to}
   #                          cc={test_message.cc}
   #                          from={test_message.from}
-  #                          thread_participants={thread2_participants}
   #                          message_participants={test_message.participants()} />
   #   )
   #   # this should be false because we don't count bccs
@@ -121,7 +102,6 @@ describe "MessageParticipants", ->
   #     <MessageParticipants to={test_message.to}
   #                          cc={test_message.cc}
   #                          from={test_message.from}
-  #                          thread_participants={thread_participants}
   #                          message_participants={test_message.participants()} />
   #   )
   #   # this should be false because we don't count bccs

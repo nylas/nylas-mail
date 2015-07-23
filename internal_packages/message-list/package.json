@@ -9,5 +9,6 @@
     "atom": "*"
   },
   "dependencies": {
+    "autolinker": "0.18.1"
   }
 }

@@ -123,7 +123,7 @@ class DraftStore
   ###
 
   # Public: Returns the extensions registered with the DraftStore.
-  extensions: (ext) =>
+  extensions: =>
     @_extensions
 
   # Public: Registers a new extension with the DraftStore. DraftStore extensions
