@@ -79,8 +79,8 @@ class UpdateNylasObjectsTask extends Task
     otherIds = @objects.map (obj) -> obj.id
 
     sameClass = other instanceof UpdateNylasObjectsTask
-    sameValues = Utils.isEqual(@newValues, other.newValues)
-    sameObjects = Utils.isEqual(myIds, otherIds)
+    sameValues = _.isEqual(@newValues, other.newValues)
+    sameObjects = _.isEqual(myIds, otherIds)
 
     return sameClass and sameValues and sameObjects
 
