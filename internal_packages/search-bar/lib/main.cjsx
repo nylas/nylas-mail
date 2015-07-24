@@ -1,7 +1,5 @@
 path = require 'path'
-require 'coffee-react/register'
-React = require 'react'
-{ComponentRegistry, WorkspaceStore} = require 'nylas-exports'
+{ComponentRegistry, WorkspaceStore, React} = require 'nylas-exports'
 SearchBar = require './search-bar'
 
 module.exports =
