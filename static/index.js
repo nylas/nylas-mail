@@ -3,11 +3,17 @@
 // global scope. We need to do it here before React loads.
 window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = {}
 
-function registerRuntimeTranspilers() {
+function registerRuntimeTranspilers(hotreload) {
   // This sets require.extensions['.coffee'].
   require('coffee-script').register();
-  require('coffee-react/register');
 
+  // This sets require.extensions['.cjsx']
+  if (hotreload) {
+    // This is custom built to look at window.devMode and enable hot-reloading
+    require('../src/cjsx').register();
+  } else {
+    require('coffee-react/register');
+  }
   // This redefines require.extensions['.js'].
   require('../src/6to5').register();
 }
@@ -32,11 +38,12 @@ window.onload = function() {
     // Normalize to make sure drive letter case is consistent on Windows
     process.resourcesPath = path.normalize(process.resourcesPath);
 
-    var devMode = loadSettings.devMode || !loadSettings.resourcePath.startsWith(process.resourcesPath + path.sep);
+    var registerBeforeModuleCache = loadSettings.devMode || !loadSettings.resourcePath.startsWith(process.resourcesPath + path.sep);
+    var hotreload = loadSettings.devMode && !loadSettings.isSpec;
 
     // Require before the module cache in dev mode
-    if (devMode) {
-      registerRuntimeTranspilers();
+    if (registerBeforeModuleCache) {
+      registerRuntimeTranspilers(hotreload);
     }
 
     ModuleCache = require('../src/module-cache');
@@ -54,8 +61,8 @@ window.onload = function() {
 
     require('vm-compatibility-layer');
 
-    if (!devMode) {
-      registerRuntimeTranspilers();
+    if (!registerBeforeModuleCache) {
+      registerRuntimeTranspilers(hotreload);
     }
 
     require('../src/coffee-cache').register();
