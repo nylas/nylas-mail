@@ -9,5 +9,5 @@ module.exports = (grunt) ->
     helperPlistPath = path.join(contentsDir, 'Frameworks/Atom Helper.app/Contents/Info.plist')
 
     # Copy custom plist files
-    cp 'resources/mac/nylas-Info.plist', plistPath
-    cp 'resources/mac/helper-Info.plist',  helperPlistPath
+    cp 'build/resources/mac/nylas-Info.plist', plistPath
+    cp 'build/resources/mac/helper-Info.plist',  helperPlistPath

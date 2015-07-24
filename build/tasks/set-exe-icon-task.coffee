@@ -6,7 +6,7 @@ module.exports = (grunt) ->
 
     shellAppDir = grunt.config.get('atom.shellAppDir')
     shellExePath = path.join(shellAppDir, 'edgehill.exe')
-    iconPath = path.resolve('resources', 'win', 'edgehill.ico')
+    iconPath = path.resolve('build', 'resources', 'win', 'edgehill.ico')
 
     rcedit = require('rcedit')
     rcedit(shellExePath, {'icon': iconPath}, done)

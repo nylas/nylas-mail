@@ -35,8 +35,8 @@ module.exports = (grunt) ->
     iconName = path.join(shareDir, 'resources', 'app', 'resources', 'nylas.png')
 
     data = {name, version, description, installDir, iconName}
-    specFilePath = fillTemplate(path.join('resources', 'linux', 'redhat', 'nylas.spec'), data)
-    desktopFilePath = fillTemplate(path.join('resources', 'linux', 'nylas.desktop'), data)
+    specFilePath = fillTemplate(path.join('build', 'resources', 'linux', 'redhat', 'nylas.spec'), data)
+    desktopFilePath = fillTemplate(path.join('build', 'resources', 'linux', 'nylas.desktop'), data)
 
     cmd = path.join('script', 'mkrpm')
     args = [specFilePath, desktopFilePath, buildDir]

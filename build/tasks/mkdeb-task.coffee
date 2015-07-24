@@ -38,9 +38,9 @@ module.exports = (grunt) ->
     iconName = 'nylas'
     getInstalledSize buildDir, (error, installedSize) ->
       data = {name, version, description, section, arch, maintainer, installDir, iconName, installedSize}
-      controlFilePath = fillTemplate(path.join('resources', 'linux', 'debian', 'control'), data)
-      desktopFilePath = fillTemplate(path.join('resources', 'linux', 'nylas.desktop'), data)
-      icon = path.join('resources', 'nylas.png')
+      controlFilePath = fillTemplate(path.join('build', 'resources', 'linux', 'debian', 'control'), data)
+      desktopFilePath = fillTemplate(path.join('build', 'resources', 'linux', 'nylas.desktop'), data)
+      icon = path.join('build', 'resources', 'nylas.png')
 
       cmd = path.join('script', 'mkdeb')
       args = [version, arch, controlFilePath, desktopFilePath, icon, buildDir]
