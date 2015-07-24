@@ -40,7 +40,7 @@ module.exports = (grunt) ->
       cp 'atom.sh', path.resolve(appDir, '..', 'new-app', 'atom.sh')
 
     cp 'package.json', path.join(appDir, 'package.json')
-    cp path.join('resources', 'nylas.png'), path.join(appDir, 'nylas.png')
+    cp path.join('build', 'resources', 'nylas.png'), path.join(appDir, 'nylas.png')
 
     packageNames = []
     packageDirectories = []
@@ -48,7 +48,6 @@ module.exports = (grunt) ->
       'benchmark'
       'dot-nylas'
       'vendor'
-      'resources'
     ]
 
     {devDependencies} = grunt.file.readJSON('package.json')
@@ -84,10 +83,11 @@ module.exports = (grunt) ->
       path.join('build', 'Release', 'obj.target')
       path.join('build', 'Release', 'obj')
       path.join('build', 'Release', '.deps')
+      path.join('build', 'resources')
+      path.join('build', 'resources', 'linux')
+      path.join('build', 'resources', 'mac')
+      path.join('build', 'resources', 'win')
       path.join('vendor', 'apm')
-      path.join('resources', 'linux')
-      path.join('resources', 'mac')
-      path.join('resources', 'win')
 
       # These are only require in dev mode when the grammar isn't precompiled
       path.join('snippets', 'node_modules', 'loophole')
@@ -170,18 +170,18 @@ module.exports = (grunt) ->
       fs.symlinkSync(path.join('..', '..', 'bin', 'apm'), path.resolve(appDir, '..', 'new-app', 'apm', 'node_modules', '.bin', 'apm'))
 
     if process.platform is 'darwin'
-      grunt.file.recurse path.join('resources', 'mac'), (sourcePath, rootDirectory, subDirectory='', filename) ->
+      grunt.file.recurse path.join('build', 'resources', 'mac'), (sourcePath, rootDirectory, subDirectory='', filename) ->
         unless /.+\.plist/.test(sourcePath)
           grunt.file.copy(sourcePath, path.resolve(appDir, '..', subDirectory, filename))
 
     if process.platform is 'win32'
-      cp path.join('resources', 'win', 'atom.cmd'), path.join(shellAppDir, 'resources', 'cli', 'atom.cmd')
-      cp path.join('resources', 'win', 'atom.sh'), path.join(shellAppDir, 'resources', 'cli', 'atom.sh')
-      cp path.join('resources', 'win', 'atom.js'), path.join(shellAppDir, 'resources', 'cli', 'atom.js')
-      cp path.join('resources', 'win', 'apm.sh'), path.join(shellAppDir, 'resources', 'cli', 'apm.sh')
+      cp path.join('build', 'resources', 'win', 'atom.cmd'), path.join(shellAppDir, 'resources', 'cli', 'atom.cmd')
+      cp path.join('build', 'resources', 'win', 'atom.sh'), path.join(shellAppDir, 'resources', 'cli', 'atom.sh')
+      cp path.join('build', 'resources', 'win', 'atom.js'), path.join(shellAppDir, 'resources', 'cli', 'atom.js')
+      cp path.join('build', 'resources', 'win', 'apm.sh'), path.join(shellAppDir, 'resources', 'cli', 'apm.sh')
 
     if process.platform is 'linux'
-      cp path.join('resources', 'linux', 'icons'), path.join(buildDir, 'icons')
+      cp path.join('build', 'resources', 'linux', 'icons'), path.join(buildDir, 'icons')
 
     dependencies = ['compile', 'generate-license:save', 'generate-module-cache', 'compile-packages-slug']
     dependencies.push('copy-info-plist') if process.platform is 'darwin'

@@ -303,9 +303,9 @@ module.exports = (grunt) ->
       appDirectory: shellAppDir
       outputDirectory: path.join(buildDir, 'installer')
       authors: 'Nylas Inc.'
-      loadingGif: path.resolve(__dirname, '..', 'resources', 'win', 'loading.gif')
+      loadingGif: path.resolve(__dirname, 'resources', 'win', 'loading.gif')
       iconUrl: 'https://raw.githubusercontent.com/atom/atom/master/resources/win/atom.ico'
-      setupIcon: path.resolve(__dirname, '..', 'resources', 'win', 'nylas.ico')
+      setupIcon: path.resolve(__dirname, 'resources', 'win', 'nylas.ico')
 
     shell:
       'kill-atom':

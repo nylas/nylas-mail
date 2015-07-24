@@ -35,7 +35,7 @@ module.exports = (grunt) ->
         cmd: dmgExecutable
         args: [
           "--volname", "Nylas Installer",
-          "--volicon", path.join("resources", "nylas.png"),
+          "--volicon", path.join("build", "resources", "nylas.png"),
           "--window-pos", "200", "120",
           "--window-size", "800", "400",
           "--icon-size", "100",

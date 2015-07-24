@@ -31,7 +31,7 @@ module.exports = (grunt) ->
       binDir = path.join(installDir, 'bin')
       shareDir = path.join(installDir, 'share', 'nylas')
 
-      iconName = path.join(shareDir,'resources', 'app', 'resources', 'nylas.png')
+      iconName = path.join(shareDir, 'resources', 'app', 'resources', 'nylas.png')
 
       mkdir binDir
       # Note that `atom.sh` can't be renamed `nylas.sh` because `apm`
@@ -44,7 +44,7 @@ module.exports = (grunt) ->
       # Create nylas.desktop if installation not in temporary folder
       tmpDir = if process.env.TMPDIR? then process.env.TMPDIR else '/tmp'
       if installDir.indexOf(tmpDir) isnt 0
-        desktopFile = path.join('resources', 'linux', 'nylas.desktop.in')
+        desktopFile = path.join('build', 'resources', 'linux', 'nylas.desktop.in')
         desktopInstallFile = path.join(installDir, 'share', 'applications', 'nylas.desktop')
 
         {description} = grunt.file.readJSON('package.json')
