@@ -68,20 +68,21 @@ class Popover extends React.Component
   constructor: (@props) ->
     @state =
       showing: false
+      offset: 0
+      dimensions: {}
 
   componentDidMount: =>
-    @subscriptions = new CompositeDisposable()
-    @subscriptions.add atom.commands.add '.popover-container', {
-      'popover:close': => @close()
-    }
+    window.addEventListener("resize", @_resetPositionState)
+    @_resetPositionState()
 
   componentWillUnmount: =>
-    @subscriptions?.dispose()
+    window.removeEventListener("resize", @_resetPositionState)
 
   componentDidUpdate: ->
     if @_focusOnOpen
       @_focusImportantElement()
       @_focusOnOpen = false
+    @_resetPositionState()
 
   open: =>
     @_focusOnOpen = true
@@ -93,6 +94,26 @@ class Popover extends React.Component
     @setState
       showing: false
     @props.onClosed?()
+
+  # We need to make sure that we're not rendered off the edge of the
+  # browser window.
+  _resetPositionState: ->
+    return unless @state.showing
+    rect = React.findDOMNode(@refs.popover).getBoundingClientRect()
+    dimensions =
+      left: rect.left
+      right: rect.right
+      docWidth: document.body.clientWidth
+
+    return if _.isEqual dimensions, @state.dimensions
+
+    padding = 11.25
+
+    origRight = dimensions.right - @state.offset
+    origLeft = dimensions.left - @state.offset
+
+    offset = Math.min((dimensions.docWidth - padding - origRight), 0) - Math.min(origLeft - padding, 0)
+    @setState {offset, dimensions}
 
   _focusImportantElement: =>
     # Automatically focus the element inside us with the lowest tab index
@@ -113,10 +134,12 @@ class Popover extends React.Component
       wrappedButtonComponent = <div onClick={@_onClick}>{@props.buttonComponent}</div>
 
     popoverComponent = []
+
     if @state.showing
       popoverStyle =
         'position': 'absolute'
-        'left': '50%'
+        'left': "calc(50% + #{@state.offset})"
+        'width': '250px'
         'zIndex': 40
       pointerStyle =
         'position': 'absolute'
@@ -147,7 +170,7 @@ class Popover extends React.Component
         popoverStyle = _.extend popoverStyle,
           'transform': 'translate(0, 2px)'
           'top': '100%'
-          'left': 0
+          'left': 0 + @state.offset
         pointerStyle = _.extend pointerStyle,
           'display': 'none'
 
@@ -156,10 +179,17 @@ class Popover extends React.Component
         <div className="popover-pointer" style={pointerStyle}></div>
       </div>
 
-    <div className={"popover-container "+@props.className} onBlur={@_onBlur} ref="container" style={(@props.style ? {})}>
+    <div className={"popover-container "+@props.className}
+         onBlur={@_onBlur}
+         onKeyDown={@_onKeyDown}
+         style={(@props.style ? {})} ref="popoverContainer">
       {wrappedButtonComponent}
       {popoverComponent}
     </div>
+
+  _onKeyDown: (event) =>
+    if event.key is "Escape"
+      @close()
 
   _onClick: =>
     if not @state.showing
@@ -169,7 +199,7 @@ class Popover extends React.Component
 
   _onBlur: (event) =>
     target = event.nativeEvent.relatedTarget
-    if target? and React.findDOMNode(@refs.container).contains(target)
+    if target? and React.findDOMNode(@refs.popoverContainer).contains(target)
       return
     @setState
       showing:false

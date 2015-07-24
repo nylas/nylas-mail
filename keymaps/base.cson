@@ -213,10 +213,6 @@
   'tab': 'native!'
   'shift-tab': 'native!'
 
-# For Popover Component
-'body .popover-container, body .popover-container input':
-  'escape': 'popover:close'
-
 # Tokenizing Text fields
 
 # The default state. There's no input in the text field and there are no
