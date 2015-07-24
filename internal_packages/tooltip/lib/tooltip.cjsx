@@ -153,10 +153,10 @@ class Tooltip extends React.Component
     return left
 
   _windowWidth: =>
-    document.getElementsByTagName('body')[0].getBoundingClientRect().width
+    document.body.offsetWidth
 
   _windowHeight: =>
-    document.getElementsByTagName('body')[0].getBoundingClientRect().height
+    document.body.offsetHeight
 
   _hideTooltip: =>
     @_lastTarget = null
