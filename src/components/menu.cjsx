@@ -203,6 +203,7 @@ class Menu extends React.Component
     </div>
 
   _onKeyDown: (event) =>
+    return if @props.items.length is 0
     if event.key is "Enter"
       @_onEnter()
     else if event.key is "ArrowUp" or (event.key is "Tab" and event.shiftKey)
