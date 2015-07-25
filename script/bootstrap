@@ -130,7 +130,7 @@ function bootstrap() {
     }
   });
 
-  commands.concat [
+  commands = commands.concat([
     {
       command: moduleInstallCommand,
       message: m4
@@ -148,7 +148,7 @@ function bootstrap() {
       command: downloadElectronCmd,
       message: m7
     }
-  ];
+  ]);
 
   process.chdir(path.dirname(__dirname));
   executeCommands(commands, process.exit);
