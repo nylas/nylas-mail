@@ -18,7 +18,7 @@ LabelColorizer =
 class MailLabel extends React.Component
   @propTypes:
     label: React.PropTypes.object.isRequired
-    onRemove: React.PropTypes.function
+    onRemove: React.PropTypes.func
 
   shouldComponentUpdate: (nextProps, nextState) ->
     return false if nextProps.label.id is @props.label.id

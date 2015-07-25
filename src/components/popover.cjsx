@@ -78,7 +78,7 @@ class Popover extends React.Component
   componentWillUnmount: =>
     window.removeEventListener("resize", @_resetPositionState)
 
-  componentDidUpdate: ->
+  componentDidUpdate: =>
     if @_focusOnOpen
       @_focusImportantElement()
       @_focusOnOpen = false
@@ -97,7 +97,7 @@ class Popover extends React.Component
 
   # We need to make sure that we're not rendered off the edge of the
   # browser window.
-  _resetPositionState: ->
+  _resetPositionState: =>
     return unless @state.showing
     rect = React.findDOMNode(@refs.popover).getBoundingClientRect()
     dimensions =
@@ -120,7 +120,7 @@ class Popover extends React.Component
     node = React.findDOMNode(@refs.popover)
 
     # _.sortBy ranks in ascending numerical order.
-    matches = _.sortBy node.querySelectorAll("[tabIndex], input"), (node) ->
+    matches = _.sortBy node.querySelectorAll("[tabIndex], input"), (node) =>
       if node.tabIndex > 0
         return node.tabIndex
       else if node.nodeName is "INPUT"
