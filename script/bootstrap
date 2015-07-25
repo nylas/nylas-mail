@@ -113,7 +113,24 @@ function bootstrap() {
     {
       command: apmPath + ' clean' + apmFlags,
       message: m3
-    },
+    }
+  ];
+
+  // we need this because we don't put our modules in node_modules and npm
+  // install doesn't find them. Run APM install on each package directory manually.
+  internalPackagesDir = path.resolve(__dirname, '..', 'internal_packages');
+  internalPackages = fs.readdirSync('internal_packages');
+  internalPackages.forEach(function(dir) {
+    if (fs.existsSync(path.join(internalPackagesDir, dir, 'package.json'))) {
+      commands.push({
+        command: moduleInstallCommand,
+        message: "Installing dependencies for "+dir,
+        options: {cwd: path.join(internalPackagesDir, dir) }
+      });
+    }
+  });
+
+  commands.concat [
     {
       command: moduleInstallCommand,
       message: m4
