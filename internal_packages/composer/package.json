@@ -6,7 +6,6 @@
   "license": "Proprietary",
   "private": true,
   "scripts": {
-    "postinstall": "./node_modules/.bin/bower install; node node_modules/.bin/r.js -o build.js"
   },
   "engines": {
     "atom": "*"
