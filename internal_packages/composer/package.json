@@ -12,8 +12,6 @@
     "atom": "*"
   },
   "dependencies": {
-    "bower": "^1.3",
-    "requirejs": "~2.1.15"
   },
   "windowTypes": {
     "composer": true
