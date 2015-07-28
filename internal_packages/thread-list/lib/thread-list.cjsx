@@ -42,7 +42,7 @@ class ThreadListScrollTooltip extends React.Component
 
   render: ->
     if @state.item
-      content = timestamp(@state.item.lastMessageTimestamp)
+      content = timestamp(@state.item.lastMessageReceivedTimestamp)
     else
       content = "Loading..."
     <div className="scroll-tooltip">
@@ -111,7 +111,7 @@ class ThreadList extends React.Component
     c4 = new ListTabular.Column
       name: "Date"
       resolver: (thread) =>
-        <span className="timestamp">{timestamp(thread.lastMessageTimestamp)}</span>
+        <span className="timestamp">{timestamp(thread.lastMessageReceivedTimestamp)}</span>
 
     c5 = new ListTabular.Column
       name: "HoverActions"
@@ -141,7 +141,7 @@ class ThreadList extends React.Component
             {pencil}
             <span style={flex:1}></span>
             {attachment}
-            <span className="timestamp">{timestamp(thread.lastMessageTimestamp)}</span>
+            <span className="timestamp">{timestamp(thread.lastMessageReceivedTimestamp)}</span>
           </div>
           <div className="subject">{subject(thread.subject)}</div>
           <div className="snippet">{thread.snippet}</div>

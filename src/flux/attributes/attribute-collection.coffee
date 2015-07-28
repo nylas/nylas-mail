@@ -25,7 +25,7 @@ This is equivalent to writing the following SQL:
 SELECT `Thread`.`data` FROM `Thread`
 INNER JOIN `Thread-Label` AS `M1` ON `M1`.`id` = `Thread`.`id`
 WHERE `M1`.`value` = 'inbox'
-ORDER BY `Thread`.`last_message_timestamp` DESC
+ORDER BY `Thread`.`last_message_received_timestamp` DESC
 ```
 
 The value of this attribute is always an array of ff other model objects. To use

@@ -33,7 +33,7 @@ describe "ModelQuery", ->
       expect(@q._matchers[1]).toBe(@m2)
 
     it "should accept a shorthand format", ->
-      @q.where({id: 4, lastMessageTimestamp: 1234})
+      @q.where({id: 4, lastMessageReceivedTimestamp: 1234})
       expect(@q._matchers.length).toBe(2)
       expect(@q._matchers[0].attr.modelKey).toBe('id')
       expect(@q._matchers[0].comparator).toBe('=')
@@ -51,7 +51,7 @@ describe "ModelQuery", ->
   describe "order", ->
     beforeEach ->
       @q = new ModelQuery(Thread, @db)
-      @o1 = Thread.attributes.lastMessageTimestamp.descending()
+      @o1 = Thread.attributes.lastMessageReceivedTimestamp.descending()
       @o2 = Thread.attributes.subject.descending()
 
     it "should accept an array of SortOrders", ->
@@ -126,7 +126,7 @@ describe "ModelQuery", ->
         builder: (q) -> q.where({namespaceId: 'abcd'}).one()
         sql: "SELECT `Thread`.`data` FROM `Thread`  \
               WHERE `Thread`.`namespace_id` = 'abcd'  \
-              ORDER BY `Thread`.`last_message_timestamp` DESC LIMIT 1"
+              ORDER BY `Thread`.`last_message_received_timestamp` DESC LIMIT 1"
 
     it "should correctly generate `contains` queries using JOINS", ->
       @runScenario Thread,
@@ -134,7 +134,7 @@ describe "ModelQuery", ->
         sql: "SELECT `Thread`.`data` FROM `Thread` \
               INNER JOIN `Thread-Label` AS `M1` ON `M1`.`id` = `Thread`.`id` \
               WHERE `M1`.`value` = 'label-id' AND `Thread`.`id` = '1234'  \
-              ORDER BY `Thread`.`last_message_timestamp` DESC"
+              ORDER BY `Thread`.`last_message_received_timestamp` DESC"
 
       @runScenario Thread,
         builder: (q) -> q.where([Thread.attributes.labels.contains('l-1'), Thread.attributes.labels.contains('l-2')])
@@ -142,20 +142,20 @@ describe "ModelQuery", ->
               INNER JOIN `Thread-Label` AS `M1` ON `M1`.`id` = `Thread`.`id` \
               INNER JOIN `Thread-Label` AS `M2` ON `M2`.`id` = `Thread`.`id` \
               WHERE `M1`.`value` = 'l-1' AND `M2`.`value` = 'l-2'  \
-              ORDER BY `Thread`.`last_message_timestamp` DESC"
+              ORDER BY `Thread`.`last_message_received_timestamp` DESC"
 
     it "should correctly generate queries with the class's naturalSortOrder when one is available and no other orders are provided", ->
       @runScenario Thread,
         builder: (q) -> q.where({namespaceId: 'abcd'})
         sql: "SELECT `Thread`.`data` FROM `Thread`  \
               WHERE `Thread`.`namespace_id` = 'abcd'  \
-              ORDER BY `Thread`.`last_message_timestamp` DESC"
+              ORDER BY `Thread`.`last_message_received_timestamp` DESC"
 
       @runScenario Thread,
-        builder: (q) -> q.where({namespaceId: 'abcd'}).order(Thread.attributes.lastMessageTimestamp.ascending())
+        builder: (q) -> q.where({namespaceId: 'abcd'}).order(Thread.attributes.lastMessageReceivedTimestamp.ascending())
         sql: "SELECT `Thread`.`data` FROM `Thread`  \
               WHERE `Thread`.`namespace_id` = 'abcd'  \
-              ORDER BY `Thread`.`last_message_timestamp` ASC"
+              ORDER BY `Thread`.`last_message_received_timestamp` ASC"
 
       @runScenario Namespace,
         builder: (q) -> q.where({id: 'abcd'})
