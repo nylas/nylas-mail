@@ -14,7 +14,7 @@ DatabaseConnection = require './database-connection'
  generateTempId,
  isTempId} = require '../models/utils'
 
-DatabaseVersion = 4
+DatabaseVersion = 5
 
 ###
 Public: Nylas Mail is built on top of a custom database layer modeled after
