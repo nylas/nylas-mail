@@ -139,7 +139,7 @@ class Application
     @windowManager.closeMainWindow()
     dialog.showMessageBox
       type: 'info'
-      message: 'Uprading Nylas'
+      message: 'Upgrading Nylas'
       detail: 'Welcome back to Nylas! We need to rebuild your mailbox to support new features. Please wait a few moments while we re-sync your mail.'
       buttons: ['OK']
     @databaseManager.deleteAllDatabases().then =>
