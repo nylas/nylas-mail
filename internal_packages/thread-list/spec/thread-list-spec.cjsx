@@ -96,7 +96,7 @@ test_threads = -> [
         "email": "user2@nylas.com"
       }
     ],
-    "last_message_timestamp": 1415742036
+    "last_message_received_timestamp": 1415742036
   }),
   (new Thread).fromJSON({
     "id": "222",
@@ -146,7 +146,7 @@ test_threads = -> [
         "email": "user3@nylas.com"
       }
     ],
-    "last_message_timestamp": 1415741913
+    "last_message_received_timestamp": 1415741913
   }),
   (new Thread).fromJSON({
     "id": "333",
@@ -190,7 +190,7 @@ test_threads = -> [
         "email": "user4@nylas.com"
       }
     ],
-    "last_message_timestamp": 1415741837
+    "last_message_received_timestamp": 1415741837
   })
 ]
 

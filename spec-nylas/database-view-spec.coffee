@@ -133,12 +133,12 @@ describe "DatabaseView", ->
       beforeEach ->
         @inbox = new Label(id: 'l-1', name: 'inbox', displayName: 'Inbox')
         @archive = new Label(id: 'l-2', name: 'archive', displayName: 'archive')
-        @a = new Thread(id: 'a', subject: 'a', labels:[@inbox], lastMessageTimestamp: new Date(1428526885604))
-        @b = new Thread(id: 'b', subject: 'b', labels:[@inbox], lastMessageTimestamp: new Date(1428526885604))
-        @c = new Thread(id: 'c', subject: 'c', labels:[@inbox], lastMessageTimestamp: new Date(1428526885604))
-        @d = new Thread(id: 'd', subject: 'd', labels:[@inbox], lastMessageTimestamp: new Date(1428526885604))
-        @e = new Thread(id: 'e', subject: 'e', labels:[@inbox], lastMessageTimestamp: new Date(1428526885604))
-        @f = new Thread(id: 'f', subject: 'f', labels:[@inbox], lastMessageTimestamp: new Date(1428526885604))
+        @a = new Thread(id: 'a', subject: 'a', labels:[@inbox], lastMessageReceivedTimestamp: new Date(1428526885604))
+        @b = new Thread(id: 'b', subject: 'b', labels:[@inbox], lastMessageReceivedTimestamp: new Date(1428526885604))
+        @c = new Thread(id: 'c', subject: 'c', labels:[@inbox], lastMessageReceivedTimestamp: new Date(1428526885604))
+        @d = new Thread(id: 'd', subject: 'd', labels:[@inbox], lastMessageReceivedTimestamp: new Date(1428526885604))
+        @e = new Thread(id: 'e', subject: 'e', labels:[@inbox], lastMessageReceivedTimestamp: new Date(1428526885604))
+        @f = new Thread(id: 'f', subject: 'f', labels:[@inbox], lastMessageReceivedTimestamp: new Date(1428526885604))
 
         @view = new DatabaseView Thread,
           matchers: [Thread.attributes.labels.contains('l-1')]
@@ -164,13 +164,13 @@ describe "DatabaseView", ->
         expect(@view.invalidateRetainedRange).toHaveBeenCalled()
 
       it "should invalidate the entire range if a provided item is not in the set but matches the set", ->
-        incoming = new Thread(id: 'a', subject: 'a', labels:[@inbox], lastMessageTimestamp: new Date())
+        incoming = new Thread(id: 'a', subject: 'a', labels:[@inbox], lastMessageReceivedTimestamp: new Date())
         @view.invalidateAfterDatabaseChange({objects:[incoming], type:'persist'})
         expect(@view.invalidateRetainedRange).toHaveBeenCalled()
 
       it "should invalidate the entire range if a provided item matches the set and the value of it's sorting attribute has changed", ->
         a = new Thread(@a)
-        a.lastMessageTimestamp = new Date(1428526909533)
+        a.lastMessageReceivedTimestamp = new Date(1428526909533)
         @view.invalidateAfterDatabaseChange({objects:[a], type:'persist'})
         expect(@view.invalidateRetainedRange).toHaveBeenCalled()
 

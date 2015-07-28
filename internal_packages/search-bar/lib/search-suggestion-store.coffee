@@ -57,7 +57,7 @@ SearchSuggestionStore = Reflux.createStore
 
     @_threadQueryInFlight = true
     DatabaseStore.findAll(Thread, [Thread.attributes.subject.like(val)])
-    .order(Thread.attributes.lastMessageTimestamp.descending())
+    .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
     .limit(4)
     .then (results) =>
       @_threadQueryInFlight = false

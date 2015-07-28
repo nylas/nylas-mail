@@ -32,7 +32,7 @@ For more information about Threads on the Nylas Platform, read the
    representing the participants in the thread.
    Note: Contacts on Threads do not have IDs.
 
-`lastMessageTimestamp`: {AttributeDateTime} The timestamp of the
+`lastMessageReceivedTimestamp`: {AttributeDateTime} The timestamp of the
    last message on the thread.
 
 This class also inherits attributes from {Model}
@@ -74,17 +74,17 @@ class Thread extends Model
       modelKey: 'participants'
       itemClass: Contact
 
-    'lastMessageTimestamp': Attributes.DateTime
+    'lastMessageReceivedTimestamp': Attributes.DateTime
       queryable: true
-      modelKey: 'lastMessageTimestamp'
-      jsonKey: 'last_message_timestamp'
+      modelKey: 'lastMessageReceivedTimestamp'
+      jsonKey: 'last_message_received_timestamp'
 
   @naturalSortOrder: ->
-    Thread.attributes.lastMessageTimestamp.descending()
+    Thread.attributes.lastMessageReceivedTimestamp.descending()
 
   @additionalSQLiteConfig:
     setup: ->
-      ['CREATE INDEX IF NOT EXISTS ThreadListIndex ON Thread(last_message_timestamp DESC, namespace_id, id)']
+      ['CREATE INDEX IF NOT EXISTS ThreadListIndex ON Thread(last_message_received_timestamp DESC, namespace_id, id)']
 
   # Public: Returns true if the thread has a {Category} with the given ID.
   #
