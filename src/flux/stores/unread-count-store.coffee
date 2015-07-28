@@ -2,10 +2,13 @@ Reflux = require 'reflux'
 _ = require 'underscore'
 remote = require 'remote'
 app = remote.require 'app'
+CategoryStore = require './category-store'
 NamespaceStore = require './namespace-store'
 DatabaseStore = require './database-store'
 Actions = require '../actions'
 Thread = require '../models/thread'
+Folder = require '../models/folder'
+Label = require '../models/label'
 
 ###
 Public: The UnreadCountStore exposes a simple API for getting the number of
@@ -39,24 +42,31 @@ UnreadCountStore = Reflux.createStore
     namespace = NamespaceStore.current()
     return unless namespace
 
-    matchers = [
-      Thread.attributes.namespaceId.equal(namespace.id),
-      Thread.attributes.unread.equal(true),
-    ]
     if namespace.usesFolders()
-      matchers.push(Thread.attributes.folders.contains('inbox'))
+      [CategoryClass, CategoryAttribute] = [Folder, Thread.attributes.folders]
     else if namespace.usesLabels()
-      matchers.push(Thread.attributes.labels.contains('inbox'))
+      [CategoryClass, CategoryAttribute] = [Label, Thread.attributes.labels]
     else
       return
 
-    DatabaseStore.count(Thread, matchers).then (count) =>
-      return if @_count is count
-      @_count = count
-      @_updateBadgeForCount(count)
-      @trigger()
-    .catch (err) =>
-      console.warn("Failed to fetch unread count: #{err}")
+    # Note: We can't use the convenience methods on CategoryStore to fetch the
+    # category because it may not have been loaded yet
+    DatabaseStore.findBy(CategoryClass, {name: 'inbox'}).then (category) =>
+      return unless category
+
+      matchers = [
+        Thread.attributes.namespaceId.equal(namespace.id),
+        Thread.attributes.unread.equal(true),
+        CategoryAttribute.contains(category.id)
+      ]
+
+      DatabaseStore.count(Thread, matchers).then (count) =>
+        return if @_count is count
+        @_count = count
+        @_updateBadgeForCount(count)
+        @trigger()
+      .catch (err) =>
+        console.warn("Failed to fetch unread count: #{err}")
 
   _updateBadgeForCount: (count) ->
     return unless atom.isMainWindow()
