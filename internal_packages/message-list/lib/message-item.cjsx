@@ -8,6 +8,7 @@ MessageControls = require './message-controls'
 {Utils,
  Actions,
  MessageUtils,
+ NamespaceStore,
  MessageStore,
  QuotedHTMLParser,
  ComponentRegistry,
@@ -79,6 +80,7 @@ class MessageItem extends React.Component
           {@_formatBody()}
         </EmailFrame>
         <a className={@_quotedTextClasses()} onClick={@_toggleQuotedText}></a>
+        {@_renderEvents()}
         {@_renderAttachments()}
       </div>
     </div>
@@ -146,6 +148,13 @@ class MessageItem extends React.Component
     attachments = @_attachmentComponents()
     if attachments.length > 0
       <div className="attachments-area">{attachments}</div>
+    else
+      <div></div>
+
+  _renderEvents: =>
+    events = @_eventComponents()
+    if events.length > 0 and Utils.looksLikeGmailInvite(@props.message)
+      <div className="events-area">{events}</div>
     else
       <div></div>
 
@@ -256,6 +265,16 @@ class MessageItem extends React.Component
         key={file.id} />
 
     return otherAttachments.concat(imageAttachments)
+
+  _eventComponents: =>
+    events = @props.message.events.map (e) =>
+      <InjectedComponent
+        className="event-wrap"
+        matching={role:"Event"}
+        exposedProps={event:e}
+        key={e.id}/>
+
+    return events
 
   _isRealFile: (file) ->
     hasCIDInBody = file.contentId? and @props.message.body?.indexOf(file.contentId) > 0

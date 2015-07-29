@@ -1,18 +1,35 @@
 Model = require './model'
+Contact = require './contact'
 Attributes = require '../attributes'
 _ = require 'underscore'
 
 class Event extends Model
 
   @attributes: _.extend {}, Model.attributes,
+    'id': Attributes.String
+      queryable: true
+      modelKey: 'id'
+      jsonKey: 'id'
+
+    'namespaceId': Attributes.String
+      modelKey: 'namespaceId'
+      jsonKey: 'namespaceId'
+
     'title': Attributes.String
       modelKey: 'title'
+      jsonKey: 'title'
 
     'description': Attributes.String
       modelKey: 'description'
+      jsonKey: 'description'
 
     'location': Attributes.String
       modelKey: 'location'
+      jsonKey: 'location'
+
+    'participants': Attributes.Object
+      modelKey: 'participants'
+      jsonKey: 'participants'
 
     'when': Attributes.Object
       modelKey: 'when'

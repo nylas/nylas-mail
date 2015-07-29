@@ -361,6 +361,13 @@ class Actions
   @searchBlurred: ActionScopeWindow
 
   ###
+  Public: Submits the user's response to an RSVP event.
+
+  *Scope: Window*
+  ###
+  @RSVPEvent: ActionScopeWindow
+
+  ###
   Public: Fire to display an in-window notification to the user in the app's standard
   notification interface.
 

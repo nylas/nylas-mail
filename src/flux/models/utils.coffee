@@ -65,6 +65,12 @@ Utils =
 
     return ext in extensions and size > 512 and size < 1024*1024*10
 
+
+  looksLikeGmailInvite: (message={}) ->
+    if 'PRODID:-//Google Inc//Google Calendar' in message.body
+      return true
+
+
   # Escapes potentially dangerous html characters
   # This code is lifted from Angular.js
   # See their specs here:
@@ -114,6 +120,7 @@ Utils =
     DestroyDraftTask = require '../tasks/destroy-draft'
 
     FileUploadTask = require '../tasks/file-upload-task'
+    EventRSVP = require '../tasks/event-rsvp'
     ChangeLabelsTask = require '../tasks/change-labels-task'
     ChangeFolderTask = require '../tasks/change-folder-task'
     MarkMessageReadTask = require '../tasks/mark-message-read'
@@ -144,6 +151,7 @@ Utils =
       'SyncbackDraftTask': SyncbackDraftTask
       'DestroyDraftTask': DestroyDraftTask
       'FileUploadTask': FileUploadTask
+      'EventRSVP': EventRSVP
     }
     Utils._modelClassMap
 
