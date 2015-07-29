@@ -5,6 +5,7 @@ File = require './file'
 Label = require './label'
 Folder = require './folder'
 Model = require './model'
+Event = require './event'
 Contact = require './contact'
 Attributes = require '../attributes'
 NamespaceStore = require '../stores/namespace-store'
@@ -106,6 +107,10 @@ class Message extends Model
       queryable: true
       modelKey: 'unread'
 
+    'events': Attributes.Collection
+      modelKey: 'events'
+      itemClass: Event
+
     'starred': Attributes.Boolean
       queryable: true
       modelKey: 'starred'
@@ -164,6 +169,7 @@ class Message extends Model
     @bcc ||= []
     @replyTo ||= []
     @files ||= []
+    @events ||= []
     @
 
   toJSON: (options) ->

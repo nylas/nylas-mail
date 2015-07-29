@@ -2,6 +2,7 @@ Reflux = require 'reflux'
 Actions = require '../actions'
 Contact = require '../models/contact'
 Utils = require '../models/utils'
+NylasStore = require 'nylas-store'
 RegExpUtils = require '../../regexp-utils'
 DatabaseStore = require './database-store'
 NamespaceStore = require './namespace-store'
@@ -30,11 +31,7 @@ _onContactsChanged: ->
 
 Section: Stores
 ###
-class ContactStore
-  @include: CoffeeHelpers.includeModule
-
-  @include Publisher
-  @include Listener
+class ContactStore extends NylasStore
 
   constructor: ->
     @_contactCache = []

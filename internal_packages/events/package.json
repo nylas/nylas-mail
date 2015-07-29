@@ -1,0 +1,13 @@
+{
+  "name": "events",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "View events on message",
+  "license": "Proprietary",
+  "private": true,
+  "engines": {
+    "atom": "*"
+  },
+  "dependencies": {
+  }
+}
