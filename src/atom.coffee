@@ -808,14 +808,12 @@ class Atom extends Model
     remote.process.exit(status)
 
   showOpenDialog: (options, callback) ->
-    parentWindow = if process.platform is 'darwin' then null else @getCurrentWindow()
     dialog = remote.require('dialog')
-    dialog.showOpenDialog(parentWindow, options, callback)
+    dialog.showOpenDialog(@getCurrentWindow(), options, callback)
 
   showSaveDialog: (defaultPath, callback) ->
-    parentWindow = if process.platform is 'darwin' then null else @getCurrentWindow()
     dialog = remote.require('dialog')
-    dialog.showSaveDialog(parentWindow, {title: 'Save File', defaultPath}, callback)
+    dialog.showSaveDialog(@getCurrentWindow(), {title: 'Save File', defaultPath}, callback)
 
   saveSync: ->
     stateString = JSON.stringify(@savedState)
