@@ -120,6 +120,9 @@
     color: @text-color-very-subtle;
     position: relative;
     top:2px;
+    text-align: right;
+    min-width:70px;
+    display:inline-block;
   }
 
   .unread:not(.focused):not(.selected) {
@@ -155,24 +158,25 @@
     background-repeat: no-repeat;
     background-position:center;
     padding:12px;
-  }
-  .thread-icon-attachment {
-    background-image:url(../static/images/thread-list/icon-attachment-@2x.png);
-    margin-right:-15px;
-    margin-left:0;
-  }
-  .thread-icon-unread {
-    background-image:url(../static/images/thread-list/icon-unread-@2x.png);
-  }
-  .thread-icon-replied {
-    background-image:url(../static/images/thread-list/icon-replied-@2x.png);
-  }
-  .thread-icon-forwarded {
-    background-image:url(../static/images/thread-list/icon-forwarded-@2x.png);
-  }
-  .thread-icon-star {
-    background-size: 16px;
-    background-image:url(../static/images/thread-list/icon-star-@2x.png);
+
+    &.thread-icon-attachment {
+      background-image:url(../static/images/thread-list/icon-attachment-@2x.png);
+      margin-right:0;
+      margin-left:0;
+    }
+    &.thread-icon-unread {
+      background-image:url(../static/images/thread-list/icon-unread-@2x.png);
+    }
+    &.thread-icon-replied {
+      background-image:url(../static/images/thread-list/icon-replied-@2x.png);
+    }
+    &.thread-icon-forwarded {
+      background-image:url(../static/images/thread-list/icon-forwarded-@2x.png);
+    }
+    &.thread-icon-star {
+      background-size: 16px;
+      background-image:url(../static/images/thread-list/icon-star-@2x.png);
+    }
   }
   .star-button {
     font-size: 16px;
