@@ -23,6 +23,12 @@ class ChangeLabelsTask extends ChangeCategoryTask
 
   label: -> "Applying labels…"
 
+  description: ->
+    addingMessage = "Adding " + @labelsToAdd.length + " labels"
+    removingMessage = "Removing " + @labelsToRemove.length + " labels"
+
+    return addingMessage + " " + removingMessage
+
   collectCategories: ->
     labelOrIdPromiseMapper = (labelOrId) ->
       if labelOrId instanceof Label
