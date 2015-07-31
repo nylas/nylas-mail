@@ -130,32 +130,12 @@ class AtomWindow
       slashes: true
       query: {loadSettings: JSON.stringify(loadSettings)}
 
-  hasProjectPath: -> @projectPath?.length > 0
-
-  getInitialPath: ->
-    @browserWindow.loadSettings.initialPath
-
   setupContextMenu: ->
     ContextMenu = null
 
     @browserWindow.on 'context-menu', (menuTemplate) =>
       ContextMenu ?= require './context-menu'
       new ContextMenu(menuTemplate, this)
-
-  containsPath: (pathToCheck) ->
-    initialPath = @getInitialPath()
-    if not initialPath
-      false
-    else if not pathToCheck
-      false
-    else if pathToCheck is initialPath
-      true
-    else if fs.statSyncNoException(pathToCheck).isDirectory?()
-      false
-    else if pathToCheck.indexOf(path.join(initialPath, path.sep)) is 0
-      true
-    else
-      false
 
   handleEvents: ->
     @browserWindow.on 'close', (event) =>
@@ -266,9 +246,6 @@ class AtomWindow
   maximize: -> @browserWindow.maximize()
 
   restore: -> @browserWindow.restore()
-
-  handlesAtomCommands: ->
-    not @isSpecWindow() and @isWebViewFocused()
 
   isFocused: -> @browserWindow.isFocused()
 
