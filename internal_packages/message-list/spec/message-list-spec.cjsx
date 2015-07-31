@@ -225,9 +225,9 @@ describe "MessageList", ->
   describe "MessageList with draft", ->
     beforeEach ->
       MessageStore._items = testMessages.concat draftMessages
+      MessageStore._thread = test_thread
       MessageStore.trigger(MessageStore)
       spyOn(@messageList, "_focusDraft")
-      @messageList.setState(currentThread: test_thread)
 
     it "renders the composer", ->
       items = TestUtils.scryRenderedComponentsWithTypeAndProps(@messageList, InjectedComponent, matching: {role:"Composer"})
@@ -240,24 +240,24 @@ describe "MessageList", ->
   describe "reply type", ->
     it "prompts for a reply when there's only one participant", ->
       MessageStore._items = [m3, m5]
+      MessageStore._thread = test_thread
       MessageStore.trigger()
-      @messageList.setState currentThread: test_thread
       expect(@messageList._replyType()).toBe "reply"
       cs = TestUtils.scryRenderedDOMComponentsWithClass(@messageList, "footer-reply-area")
       expect(cs.length).toBe 1
 
     it "prompts for a reply-all when there's more then one participant", ->
       MessageStore._items = [m5, m3]
+      MessageStore._thread = test_thread
       MessageStore.trigger()
-      @messageList.setState currentThread: test_thread
       expect(@messageList._replyType()).toBe "reply-all"
       cs = TestUtils.scryRenderedDOMComponentsWithClass(@messageList, "footer-reply-area")
       expect(cs.length).toBe 1
 
     it "hides the reply type if the last message is a draft", ->
       MessageStore._items = [m5, m3, draftMessages[0]]
+      MessageStore._thread = test_thread
       MessageStore.trigger()
-      @messageList.setState currentThread: test_thread
       cs = TestUtils.scryRenderedDOMComponentsWithClass(@messageList, "footer-reply-area")
       expect(cs.length).toBe 0
 
@@ -287,8 +287,8 @@ describe "MessageList", ->
           {to: [user_3], cc: [] }
 
         MessageStore._items = [@replyToMessage, @draft]
+        MessageStore._thread = test_thread
         MessageStore.trigger()
-        @messageList.setState(currentThread: test_thread)
 
         @sessionStub =
           draft: => @draft
@@ -345,8 +345,8 @@ describe "MessageList", ->
     describe "when there is not an existing draft at the bottom of the thread", ->
       beforeEach ->
         MessageStore._items = [m5, m3]
+        MessageStore._thread = test_thread
         MessageStore.trigger()
-        @messageList.setState(currentThread: test_thread)
 
       it "should fire a composer action based on the reply type", ->
         spyOn(Actions, 'composeReplyAll')

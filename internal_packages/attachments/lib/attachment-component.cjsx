@@ -28,7 +28,7 @@ class AttachmentComponent extends React.Component
       <Flexbox direction="row" style={alignItems: 'center'}>
         <RetinaImg className="file-icon"
                    fallback="file-fallback.png"
-                   name="file-#{@_extension()}.png"/>
+                   name="file-#{@props.file.displayExtension()}.png"/>
         <span className="file-name">{@props.file.displayName()}</span>
         {@_renderFileActions()}
       </Flexbox>
@@ -88,8 +88,6 @@ class AttachmentComponent extends React.Component
   _onClickAbort: (event) =>
     Actions.abortFetchFile(@props.file)
     event.stopPropagation() # Prevent 'onClickView'
-
-  _extension: -> @props.file.filename.split('.').pop()
 
 
 module.exports = AttachmentComponent

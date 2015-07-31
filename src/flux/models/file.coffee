@@ -1,3 +1,4 @@
+path = require 'path'
 Model = require './model'
 Actions = require '../actions'
 Attributes = require '../attributes'
@@ -65,5 +66,14 @@ class File extends Model
       return defaultNames[@contentType]
     else
       return "Unnamed Attachment"
+
+  # Public: Returns the file extension that should be used for this file.
+  # Note that asking for the displayExtension is more accurate than trying to read
+  # the extension directly off the filename, and may be based on contentType.
+  #
+  # Returns the extension without the leading '.' (ex: 'png', 'pdf')
+  #
+  displayExtension: ->
+    path.extname(@displayName())[1..-1]
 
 module.exports = File

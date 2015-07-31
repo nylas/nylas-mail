@@ -37,6 +37,7 @@ class MultiselectList extends React.Component
     itemHeight: React.PropTypes.number.isRequired
     scrollTooltipComponent: React.PropTypes.func
     emptyComponent: React.PropTypes.func
+    onDoubleClick: React.PropTypes.func
 
   constructor: (@props) ->
     @state = @_getStateFromStores()

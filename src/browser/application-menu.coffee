@@ -3,6 +3,7 @@ ipc = require 'ipc'
 Menu = require 'menu'
 _ = require 'underscore'
 Utils = require '../flux/models/utils'
+BrowserWindow = require 'browser-window'
 
 # Used to manage the global application menu.
 #
@@ -126,7 +127,7 @@ class ApplicationMenu
     ]
 
   focusedWindow: ->
-    global.application.windowManager.focusedWindow()
+    BrowserWindow.getFocusedWindow()
 
   # Combines a menu template with the appropriate keystroke.
   #

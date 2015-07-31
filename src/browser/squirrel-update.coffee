@@ -17,9 +17,6 @@ else
   setxPath = 'setx.exe'
 
 # Registry keys used for context menu
-fileKeyPath = 'HKCU\\Software\\Classes\\*\\shell\\Atom'
-directoryKeyPath = 'HKCU\\Software\\Classes\\directory\\shell\\Atom'
-backgroundKeyPath = 'HKCU\\Software\\Classes\\directory\\background\\shell\\Atom'
 environmentKeyPath = 'HKCU\\Environment'
 
 # Spawn a command and invoke the callback when it completes with an error
@@ -57,25 +54,6 @@ spawnSetx = (args, callback) ->
 spawnUpdate = (args, callback) ->
   spawn(updateDotExe, args, callback)
 
-# Install the Open with Atom explorer context menu items via the registry.
-installContextMenu = (callback) ->
-  addToRegistry = (args, callback) ->
-    args.unshift('add')
-    args.push('/f')
-    spawnReg(args, callback)
-
-  installMenu = (keyPath, arg, callback) ->
-    args = [keyPath, '/ve', '/d', 'Open with Atom']
-    addToRegistry args, ->
-      args = [keyPath, '/v', 'Icon', '/d', process.execPath]
-      addToRegistry args, ->
-        args = ["#{keyPath}\\command", '/ve', '/d', "#{process.execPath} \"#{arg}\""]
-        addToRegistry(args, callback)
-
-  installMenu fileKeyPath, '%1', ->
-    installMenu directoryKeyPath, '%1', ->
-      installMenu(backgroundKeyPath, '%V', callback)
-
 # Get the user's PATH environment variable registry value.
 getPath = (callback) ->
   spawnReg ['query', environmentKeyPath, '/v', 'Path'], (error, stdout) ->
@@ -100,14 +78,6 @@ getPath = (callback) ->
     else
       callback(new Error('Registry query for PATH failed'))
 
-# Uninstall the Open with Atom explorer context menu items via the registry.
-uninstallContextMenu = (callback) ->
-  deleteFromRegistry = (keyPath, callback) ->
-    spawnReg(['delete', keyPath, '/f'], callback)
-
-  deleteFromRegistry fileKeyPath, ->
-    deleteFromRegistry directoryKeyPath, ->
-      deleteFromRegistry(backgroundKeyPath, callback)
 
 # Add atom and apm to the PATH
 #
@@ -214,21 +184,18 @@ exports.handleStartupEvent = (app, squirrelCommand) ->
   switch squirrelCommand
     when '--squirrel-install'
       createShortcuts ->
-        installContextMenu ->
-          addCommandsToPath ->
-            app.quit()
+        addCommandsToPath ->
+          app.quit()
       true
     when '--squirrel-updated'
       updateShortcuts ->
-        installContextMenu ->
-          addCommandsToPath ->
-            app.quit()
+        addCommandsToPath ->
+          app.quit()
       true
     when '--squirrel-uninstall'
       removeShortcuts ->
-        uninstallContextMenu ->
-          removeCommandsFromPath ->
-            app.quit()
+        removeCommandsFromPath ->
+          app.quit()
       true
     when '--squirrel-obsolete'
       app.quit()

@@ -95,9 +95,6 @@ class MessageList extends React.Component
     @MINIFY_THRESHOLD = 3
 
   componentDidMount: =>
-    @_mounted = true
-
-    window.addEventListener("resize", @_onResize)
     @_unsubscribers = []
     @_unsubscribers.push MessageStore.listen @_onChange
 
@@ -109,18 +106,9 @@ class MessageList extends React.Component
 
     @command_unsubscriber = atom.commands.add('body', commands)
 
-    # We don't need to listen to ThreadStore bcause MessageStore already
-    # listens to thead selection changes
-
-    if not @state.loading
-      @_prepareContentForDisplay()
-
   componentWillUnmount: =>
-    @_mounted = false
     unsubscribe() for unsubscribe in @_unsubscribers
     @command_unsubscriber.dispose()
-
-    window.removeEventListener("resize", @_onResize)
 
   shouldComponentUpdate: (nextProps, nextState) =>
     not Utils.isEqualReact(nextProps, @props) or
@@ -129,32 +117,24 @@ class MessageList extends React.Component
   componentDidUpdate: (prevProps, prevState) =>
     return if @state.loading
 
-    if prevState.loading
-      @_prepareContentForDisplay()
-    else
-      newDraftIds = @_newDraftIds(prevState)
-      newMessageIds = @_newMessageIds(prevState)
-      if newMessageIds.length > 0
-        @_prepareContentForDisplay()
-      else if newDraftIds.length > 0
-        @_focusDraft(@_getDraftElement(newDraftIds[0]))
-        @_prepareContentForDisplay()
+    newDraftIds = @_newDraftIds(prevState)
+    if newDraftIds.length > 0
+      @_focusDraft(@_getMessageElement(newDraftIds[0]))
 
   _newDraftIds: (prevState) =>
     oldDraftIds = _.map(_.filter((prevState.messages ? []), (m) -> m.draft), (m) -> m.id)
     newDraftIds = _.map(_.filter((@state.messages ? []), (m) -> m.draft), (m) -> m.id)
     return _.difference(newDraftIds, oldDraftIds) ? []
 
-  _newMessageIds: (prevState) =>
-    oldMessageIds = _.map(_.reject((prevState.messages ? []), (m) -> m.draft), (m) -> m.id)
-    newMessageIds = _.map(_.reject((@state.messages ? []), (m) -> m.draft), (m) -> m.id)
-    return _.difference(newMessageIds, oldMessageIds) ? []
-
-  _getDraftElement: (draftId) =>
-    @refs["composerItem-#{draftId}"]
+  _getMessageElement: (id) =>
+    @refs["message-#{id}"]
 
   _focusDraft: (draftElement) =>
     draftElement.focus()
+    @refs.messageWrap.scrollTo(draftElement, {
+      position: ScrollRegion.ScrollPosition.Bottom,
+      settle: true
+    })
 
   _createReplyOrUpdateExistingDraft: (type) =>
     unless type in ['reply', 'reply-all']
@@ -204,7 +184,7 @@ class MessageList extends React.Component
             updated[key].push(contact) unless _.findWhere(updated[key], {email: contact.email})
 
         session.changes.add(updated)
-        @_focusDraft(@_getDraftElement(last.id))
+        @_focusDraft(@_getMessageElement(last.id))
 
     else
       if type is 'reply'
@@ -229,13 +209,12 @@ class MessageList extends React.Component
 
     wrapClass = classNames
       "messages-wrap": true
-      "ready": @state.ready
+      "ready": not @state.loading
 
     <div className="message-list" id="message-list">
       <ScrollRegion tabIndex="-1"
            className={wrapClass}
            scrollTooltipComponent={MessageListScrollTooltip}
-           onScroll={_.debounce(@_cacheScrollPos, 100)}
            ref="messageWrap">
         {@_renderSubject()}
         <div className="headers" style={position:'relative'}>
@@ -250,7 +229,7 @@ class MessageList extends React.Component
         </div>
         {@_messageComponents()}
       </ScrollRegion>
-      <Spinner visible={!@state.ready} />
+      <Spinner visible={@state.loading} />
     </div>
 
   _renderSubject: ->
@@ -273,7 +252,8 @@ class MessageList extends React.Component
           <span className="reply-text">Write a reply…</span>
         </div>
       </div>
-    else return <div key={Utils.generateTempId()}></div>
+    else
+      <div key={Utils.generateTempId()}></div>
 
   _hasReplyArea: =>
     not _.last(@state.messages)?.draft
@@ -294,38 +274,7 @@ class MessageList extends React.Component
     return unless @state.currentThread
     @_createReplyOrUpdateExistingDraft(@_replyType())
 
-  # There may be a lot of iframes to load which may take an indeterminate
-  # amount of time. As long as there is more content being painted onto
-  # the page and our height is changing, keep waiting. Then scroll to message.
-  scrollToMessage: (msgDOMNode, done, location="top", stability=5) =>
-    return done() unless msgDOMNode?
-
-    messageWrap = React.findDOMNode(@refs.messageWrap)
-    lastHeight = -1
-    stableCount = 0
-    scrollIfSettled = =>
-      return unless @_mounted
-      messageWrapHeight = messageWrap.getBoundingClientRect().height
-      if messageWrapHeight isnt lastHeight
-        lastHeight = messageWrapHeight
-        stableCount = 0
-      else
-        stableCount += 1
-        if stableCount is stability
-          if location is "top"
-            messageWrap.scrollTop = msgDOMNode.offsetTop
-          else if location is "bottom"
-            offsetTop = msgDOMNode.offsetTop
-            messageHeight = msgDOMNode.getBoundingClientRect().height
-            messageWrap.scrollTop = offsetTop - (messageWrapHeight - messageHeight)
-          return done()
-
-      window.requestAnimationFrame -> scrollIfSettled(msgDOMNode, done)
-
-    scrollIfSettled()
-
   _messageComponents: =>
-    appliedInitialScroll = false
     components = []
 
     messages = @_messagesWithMinification(@state.messages)
@@ -337,29 +286,23 @@ class MessageList extends React.Component
 
       collapsed = !@state.messagesExpandedState[message.id]
 
-      initialScroll = not appliedInitialScroll and not collapsed and
-                    ((message.draft) or
-                     (message.unread) or
-                     (idx is @state.messages.length - 1 and idx > 0))
-      appliedInitialScroll ||= initialScroll
-
       className = classNames
         "message-item-wrap": true
         "before-reply-area": (messages.length - 1 is idx) and @_hasReplyArea()
-        "initial-scroll": initialScroll
         "unread": message.unread
         "draft": message.draft
         "collapsed": collapsed
 
       if message.draft
         components.push <InjectedComponent matching={role:"Composer"}
-                         exposedProps={ mode:"inline", localId:@state.messageLocalIds[message.id], onRequestScrollTo:@_onRequestScrollToComposer, threadId:@state.currentThread.id }
-                         ref={"composerItem-#{message.id}"}
+                         exposedProps={ mode:"inline", localId:@state.messageLocalIds[message.id], onRequestScrollTo:@_onChildScrollRequest, threadId:@state.currentThread.id }
+                         ref={"message-#{message.id}"}
                          key={@state.messageLocalIds[message.id]}
                          className={className} />
       else
         components.push <MessageItem key={message.id}
                          thread={@state.currentThread}
+                         ref={"message-#{message.id}"}
                          message={message}
                          className={className}
                          collapsed={collapsed}
@@ -370,7 +313,6 @@ class MessageList extends React.Component
     return components
 
   _renderMinifiedBundle: (bundle) ->
-
     BUNDLE_HEIGHT = 36
     lines = bundle.messages[0...10]
     h = Math.round(BUNDLE_HEIGHT / lines.length)
@@ -433,22 +375,17 @@ class MessageList extends React.Component
   #
   # If messageId and location are defined, that means we want to scroll
   # smoothly to the top of a particular message.
-  _onRequestScrollToComposer: ({messageId, location, selectionTop}={}) =>
-    composer = React.findDOMNode(@_getDraftElement(messageId))
-    if selectionTop
-      messageWrap = React.findDOMNode(@refs.messageWrap)
-      wrapRect = messageWrap.getBoundingClientRect()
-      if selectionTop < wrapRect.top or selectionTop > wrapRect.bottom
-        wrapMid = wrapRect.top + Math.abs(wrapRect.top - wrapRect.bottom) / 2
-        diff = selectionTop - wrapMid
-        messageWrap.scrollTop += diff
+  _onChildScrollRequest: ({messageId, rect}={}) =>
+    if messageId
+      @refs.messageWrap.scrollTo(@_getMessageElement(messageId), {
+        position: ScrollRegion.ScrollPosition.Visible
+      })
+    else if rect
+      @refs.messageWrap.scrollToRect(rect, {
+        position: ScrollRegion.ScrollPosition.CenterIfInvisible
+      })
     else
-      done = ->
-      location ?= "bottom"
-      @scrollToMessage(composer, done, location, 1)
-
-  _makeRectVisible: (rect) ->
-    messageWrap = React.findDOMNode(@refs.messageWrap)
+      throw new Error("onChildScrollRequest: expected messageId or rect")
 
   _onChange: =>
     newState = @_getStateFromStores()
@@ -462,34 +399,5 @@ class MessageList extends React.Component
     messagesExpandedState: MessageStore.itemsExpandedState()
     currentThread: MessageStore.thread()
     loading: MessageStore.itemsLoading()
-    ready: if MessageStore.itemsLoading() then false else @state?.ready ? false
-
-  _prepareContentForDisplay: =>
-    node = React.findDOMNode(@)
-    return unless node
-    initialScrollNode = node.querySelector(".initial-scroll")
-    @scrollToMessage initialScrollNode, =>
-      @setState(ready: true)
-    @_cacheScrollPos()
-
-  _onResize: (event) =>
-    @_scrollToBottom() if @_wasAtBottom()
-    @_cacheScrollPos()
-
-  _scrollToBottom: =>
-    messageWrap = React.findDOMNode(@refs.messageWrap)
-    return unless messageWrap
-    messageWrap.scrollTop = messageWrap.scrollHeight
-
-  _cacheScrollPos: =>
-    messageWrap = React.findDOMNode(@refs.messageWrap)
-    return unless messageWrap
-    @_lastScrollTop = messageWrap.scrollTop
-    @_lastHeight = messageWrap.getBoundingClientRect().height
-    @_lastScrollHeight = messageWrap.scrollHeight
-
-  _wasAtBottom: =>
-    (@_lastScrollTop + @_lastHeight) >= @_lastScrollHeight
-
 
 module.exports = MessageList

@@ -17,19 +17,13 @@ describe "DatabaseStore", ->
     spyOn(ModelQuery.prototype, 'where').andCallThrough()
     spyOn(DatabaseStore, '_triggerSoon').andCallFake -> Promise.resolve()
 
-    # Emulate a working DB
-    spyOn(ipc, 'send').andCallFake (messageType, {queryKey}) ->
-      return unless messageType is "database-query"
-      err = null
-      result = []
-      DatabaseStore._dbConnection._onDatabaseResult({queryKey, err, result})
-    spyOn(DatabaseStore._dbConnection, "_isConnected").andReturn true
-
     @performed = []
-    oldQuery = DatabaseStore._query
+
+    # Note: We spy on _query and test all of the convenience methods that sit above
+    # it. None of these tests evaluate whether _query works!
     spyOn(DatabaseStore, "_query").andCallFake (query, values=[], options={}) =>
       @performed.push({query: query, values: values})
-      oldQuery(query, values, options)
+      return Promise.resolve([])
 
   describe "find", ->
     it "should return a ModelQuery for retrieving a single item by Id", ->
