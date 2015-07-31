@@ -41,7 +41,7 @@ class EventStore extends NylasStore
     # From Views
     @listenTo Actions.RSVPEvent, @_onRSVPEvent
 
-    @_refreshCache()
+    @__refreshCache()
 
   _onRSVPEvent: (calendar_event, RSVPStatus) ->
     task = new EventRSVP(calendar_event, RSVPStatus)

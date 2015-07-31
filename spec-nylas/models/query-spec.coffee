@@ -71,7 +71,7 @@ describe "ModelQuery", ->
 
     it "should return the query so it can be chained", ->
       expect(@q.order(@o2)).toBe(@q)
-  
+
   describe "include", ->
     beforeEach ->
       @q = new ModelQuery(Message, @db)
@@ -99,7 +99,7 @@ describe "ModelQuery", ->
     it "should always return a Number for counts", ->
       q = new ModelQuery(Message, @db)
       q.where({namespaceId: 'abcd'}).count()
-      expect(q.formatResult([["12"]])).toBe(12)
+      expect(q.formatResult([{count:"12"}])).toBe(12)
 
   describe "sql", ->
     beforeEach ->

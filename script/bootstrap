@@ -31,6 +31,21 @@ function printArgs(args) {
   return out;
 }
 
+function makeSqlite3Command() {
+  var npmPath = path.resolve(__dirname, '..', 'build', 'node_modules', '.bin', 'npm');
+  var nodeGypPath = path.resolve(__dirname, '..', 'build', 'node_modules', '.bin', 'node-gyp');
+  var appPackageJSON = JSON.parse(fs.readFileSync(path.resolve(__dirname, '..', 'package.json')));
+  var targetVersion = appPackageJSON['electronVersion'];
+  var targetPlatform = require('os').platform();
+  var targetArch = require('os').arch();
+
+  if ((targetPlatform == 'win32') && (targetArch != 'ia32')) {
+    // Unless electron for windows goes 64bit, this should stay
+    throw new Error("Building for win32 with architecture "+targetArch+". Are you sure you meant to do this?");
+  }
+  return npmPath+" install https://github.com/bengotow/node-sqlite3/archive/master.tar.gz --ignore-scripts && cd node_modules/sqlite3 && "+npmPath+" run prepublish && "+nodeGypPath+" configure --module_name=node_sqlite3 --module_path=../lib/binding/node-v44-"+targetPlatform+"-"+targetArch+" && "+nodeGypPath+" rebuild --target="+targetVersion+" --arch="+targetArch+" --target_platform="+targetPlatform+" --dist-url=https://atom.io/download/atom-shell --module_name=node_sqlite3 --module_path=../lib/binding/node-v44-"+targetPlatform+"-"+targetArch
+}
+
 function bootstrap() {
   var apmInstallPath = path.resolve(__dirname, '..', 'apm');
   if (!fs.existsSync(apmInstallPath))
@@ -53,6 +68,9 @@ function bootstrap() {
   var buildInstallOptions = {cwd: path.resolve(__dirname, '..', 'build')};
   var apmInstallCommand = npmPath + npmFlags + 'install';
   var apmInstallOptions = {cwd: apmInstallPath};
+
+  var rebuildSqlite3Command = makeSqlite3Command();
+
   var moduleInstallCommand = apmPath + ' install' + apmFlags;
   var dedupeApmCommand = apmPath + ' dedupe' + apmFlags;
   var semverOptions = {cwd: path.resolve(__dirname, '..', 'apm', 'node_modules', 'atom-package-manager')};
@@ -121,12 +139,18 @@ function bootstrap() {
   internalPackagesDir = path.resolve(__dirname, '..', 'internal_packages');
   internalPackages = fs.readdirSync('internal_packages');
   internalPackages.forEach(function(dir) {
-    if (fs.existsSync(path.join(internalPackagesDir, dir, 'package.json'))) {
-      commands.push({
-        command: moduleInstallCommand,
-        message: "Installing dependencies for "+dir,
-        options: {cwd: path.join(internalPackagesDir, dir) }
-      });
+    var dirPackageJSONPath = path.join(internalPackagesDir, dir, 'package.json');
+    // On windows and linux, invoking the apm command is very slow even when there are no
+    // dependencies. Make it faster by not calling unless we find there are deps.
+    if (fs.existsSync(dirPackageJSONPath)) {
+      var dirPackageJSON = JSON.parse(fs.readFileSync(dirPackageJSONPath));
+      if (dirPackageJSON.dependencies && (Object.keys(dirPackageJSON.dependencies).length > 0)) {
+        commands.push({
+          command: moduleInstallCommand,
+          message: "Installing dependencies for "+dir,
+          options: {cwd: path.join(internalPackagesDir, dir) }
+        });
+      }
     }
   });
 
@@ -147,6 +171,10 @@ function bootstrap() {
     {
       command: downloadElectronCmd,
       message: m7
+    },
+    {
+      command: rebuildSqlite3Command,
+      message: "Building sqlite3 with command: "+rebuildSqlite3Command
     }
   ]);
 

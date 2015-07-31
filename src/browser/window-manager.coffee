@@ -395,14 +395,10 @@ class WindowManager
       global.application.autoUpdateManager.emitUpdateAvailableEvent(window)
 
     unless window.isSpec
-      focusHandler = => @lastFocusedWindow = window
       closePreventedHandler = => @windowClosedOrHidden()
       window.on 'window:close-prevented', closePreventedHandler
-      window.browserWindow.on 'focus', focusHandler
       window.browserWindow.once 'closed', =>
-        @lastFocusedWindow = null if window is @lastFocusedWindow
         window.removeListener('window:close-prevented', closePreventedHandler)
-        window.browserWindow.removeListener('focus', focusHandler)
 
   windowClosedOrHidden: ->
     # On Windows and Linux, we want to terminate the app after the last visible
