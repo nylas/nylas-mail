@@ -20,6 +20,10 @@ class UpdateNylasObjectsTask extends Task
   endpoint: (obj) ->
     inflection.pluralize(obj.constructor.name.toLowerCase())
 
+  # OVERRIDE ME
+  description: ->
+    'Updating Nylas object'
+
   performLocal: ({reverting}={}) ->
     if reverting or @isUndo()
       Promise.map @objects, (obj) =>

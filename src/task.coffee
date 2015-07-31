@@ -134,6 +134,11 @@ class Task
       throw new Error('Cannot send message to terminated process')
     undefined
 
+  # Public: Describe the function of the task. Each task should override this
+  # to explain its individual function
+  description: ->
+    ''
+
   # Public: Call a function when an event is emitted by the child process
   #
   # * `eventName` The {String} name of the event to handle.

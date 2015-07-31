@@ -23,6 +23,19 @@ class ChangeFolderTask extends ChangeCategoryTask
 
   label: -> "Moving to folder…"
 
+  description: ->
+    folderName = @folderOrId.displayName
+    if @threadIds.length > 0
+      if @threadIds.length > 1
+        return "Moving " + @threadIds.length + " threads to \"" + folderName + "\""
+      return "Moving 1 thread to \"" + folderName + "\""
+    else if @messageIds.length > 0
+      if @messageIds.length > 1
+        return "Moving " + @messageIds.length + "messages to \"" + folderName + "\""
+      return "Moving 1 message to \"" + folderName + "\""
+    else
+      return "Moving objects to \"" + folderName + "\""
+
   collectCategories: ->
     if @folderOrId instanceof Folder
       return Promise.props
