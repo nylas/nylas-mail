@@ -43,7 +43,7 @@ function makeSqlite3Command() {
     // Unless electron for windows goes 64bit, this should stay
     throw new Error("Building for win32 with architecture "+targetArch+". Are you sure you meant to do this?");
   }
-  return npmPath+" install sqlite3@3.0.9 --ignore-scripts && cd node_modules/sqlite3 && "+npmPath+" run prepublish && "+nodeGypPath+" configure --module_name=node_sqlite3 --module_path=../lib/binding/node-v44-"+targetPlatform+"-"+targetArch+" && "+nodeGypPath+" rebuild --target="+targetVersion+" --arch="+targetArch+" --target_platform="+targetPlatform+" --dist-url=https://atom.io/download/atom-shell --module_name=node_sqlite3 --module_path=../lib/binding/node-v44-"+targetPlatform+"-"+targetArch
+  return npmPath+" install https://github.com/bengotow/node-sqlite3/archive/master.tar.gz --ignore-scripts && cd node_modules/sqlite3 && "+npmPath+" run prepublish && "+nodeGypPath+" configure --module_name=node_sqlite3 --module_path=../lib/binding/node-v44-"+targetPlatform+"-"+targetArch+" && "+nodeGypPath+" rebuild --target="+targetVersion+" --arch="+targetArch+" --target_platform="+targetPlatform+" --dist-url=https://atom.io/download/atom-shell --module_name=node_sqlite3 --module_path=../lib/binding/node-v44-"+targetPlatform+"-"+targetArch
 }
 
 function bootstrap() {
@@ -160,10 +160,6 @@ function bootstrap() {
       message: m4
     },
     {
-      command: rebuildSqlite3Command,
-      message: "Building sqlite3 with command: "+rebuildSqlite3Command
-    },
-    {
       command: dedupeApmCommand + ' ' + packagesToDedupe.join(' '),
       message: m5
     },
@@ -175,6 +171,10 @@ function bootstrap() {
     {
       command: downloadElectronCmd,
       message: m7
+    },
+    {
+      command: rebuildSqlite3Command,
+      message: "Building sqlite3 with command: "+rebuildSqlite3Command
     }
   ]);
 
