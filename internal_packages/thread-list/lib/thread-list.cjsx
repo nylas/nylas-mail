@@ -57,7 +57,6 @@ class ThreadList extends React.Component
   constructor: (@props) ->
     @state =
       style: 'unknown'
-      task: null
 
   componentWillMount: =>
     c1 = new ListTabular.Column
@@ -170,7 +169,6 @@ class ThreadList extends React.Component
 
   render: =>
     if @state.style is 'wide'
-      <div>
         <MultiselectList
           dataStore={ThreadListStore}
           columns={@wideColumns}
@@ -184,9 +182,7 @@ class ThreadList extends React.Component
           onDragEnd={@_onDragEnd}
           draggable="true"
           collection="thread" />
-      </div>
     else if @state.style is 'narrow'
-      <div>
         <MultiselectList
           dataStore={ThreadListStore}
           columns={@narrowColumns}
@@ -197,14 +193,8 @@ class ThreadList extends React.Component
           scrollTooltipComponent={ThreadListScrollTooltip}
           emptyComponent={EmptyState}
           collection="thread" />
-      </div>
     else
       <div></div>
-
-  # _renderUndoRedo: =>
-  #   if @state.task
-  #     <UndoRedoComponent task:{null}
-  #                        show:{false} />
 
   _threadIdAtPoint: (x, y) ->
     item = document.elementFromPoint(event.clientX, event.clientY).closest('.list-item')
