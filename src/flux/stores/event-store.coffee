@@ -48,7 +48,6 @@ class EventStore extends NylasStore
     Actions.queueTask(task)
 
   __refreshCache: =>
-    console.log('here')
     new Promise (resolve, reject) =>
       DatabaseStore.findAll(Event)
       .then (events=[]) =>
