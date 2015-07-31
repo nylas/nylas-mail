@@ -309,10 +309,19 @@ class Application
   sendCommand: (command, args...) ->
     unless @emit(command, args...)
       focusedWindow = @windowManager.focusedWindow()
+      focusedBrowserWindow = BrowserWindow.getFocusedWindow()
       mainWindow = @windowManager.mainWindow()
 
       if focusedWindow?
         focusedWindow.sendCommand(command, args...)
+      else if focusedBrowserWindow?
+        # Note: We sometimes display non-"AtomWindow" windows, for things like
+        # raw message contents. Ensure that these also get to run window commands
+        unless global.application.sendCommandToFirstResponder(command)
+          switch command
+            when 'window:reload' then focusedBrowserWindow.reload()
+            when 'window:toggle-dev-tools' then focusedBrowserWindow.toggleDevTools()
+            when 'window:close' then focusedBrowserWindow.close()
       else if mainWindow?
         mainWindow.sendCommand(command, args...)
       else
