@@ -2,7 +2,6 @@ Config = require '../config'
 AtomWindow = require './atom-window'
 BrowserWindow = require 'browser-window'
 WindowManager = require './window-manager'
-DatabaseManager = require './database-manager'
 ApplicationMenu = require './application-menu'
 AutoUpdateManager = require './auto-update-manager'
 NylasProtocolHandler = require './nylas-protocol-handler'
@@ -81,9 +80,7 @@ class Application
     @autoUpdateManager = new AutoUpdateManager(@version, @config, @specMode)
     @applicationMenu = new ApplicationMenu(@version)
     @nylasProtocolHandler = new NylasProtocolHandler(@resourcePath, @safeMode)
-
-    @databaseManager = new DatabaseManager({@resourcePath})
-    @databaseManager.on "setup-error", @_rebuildDatabase
+    @_databasePhase = 'setup'
 
     @listenForArgumentsFromNewProcess()
     @setupJavaScriptArguments()
@@ -131,18 +128,36 @@ class Application
     app.commandLine.appendSwitch 'js-flags', '--harmony'
 
   _logout: =>
-    @databaseManager.deleteAllDatabases().then =>
-      @config.set('nylas', null)
-      @config.set('edgehill', null)
+    @setDatabasePhase('close')
+    @windowManager.closeMainWindow()
+    @windowManager.unregisterAllHotWindows()
+    @config.set('nylas', null)
+    @config.set('edgehill', null)
+    fs.unlink(path.join(configDirPath,'edgehill.db'))
+    @setDatabasePhase('setup')
 
-  _rebuildDatabase: =>
+  databasePhase: ->
+    @_databasePhase
+
+  setDatabasePhase: (phase) ->
+    unless phase in ['setup', 'ready', 'close']
+      throw new Error("setDatabasePhase: #{phase} is invalid.")
+
+    @_databasePhase = phase
+    @windowManager.windows().forEach (atomWindow) ->
+      return unless atomWindow.browserWindow.webContents
+      atomWindow.browserWindow.webContents.send('database-phase-change', phase)
+
+  rebuildDatabase: =>
+    @setDatabasePhase('close')
     @windowManager.closeMainWindow()
     dialog.showMessageBox
       type: 'info'
       message: 'Upgrading Nylas'
       detail: 'Welcome back to Nylas! We need to rebuild your mailbox to support new features. Please wait a few moments while we re-sync your mail.'
       buttons: ['OK']
-    @databaseManager.deleteAllDatabases().then =>
+    fs.unlink path.join(configDirPath,'edgehill.db'), (err) =>
+      @setDatabasePhase('setup')
       @config.set("nylas.sync-state", {})
       @windowManager.showMainWindow()
 
@@ -233,11 +248,11 @@ class Application
 
     # Called after the app has closed all windows.
     app.on 'will-quit', =>
-      @databaseManager.closeDatabaseConnections()
+      @setDatabasePhase('close')
       @deleteSocketFile()
 
     app.on 'will-exit', =>
-      @databaseManager.closeDatabaseConnections()
+      @setDatabasePhase('close')
       @deleteSocketFile()
 
     app.on 'open-file', (event, pathToOpen) ->
@@ -292,10 +307,6 @@ class Application
     ipc.on 'write-text-to-selection-clipboard', (event, selectedText) ->
       clipboard ?= require 'clipboard'
       clipboard.writeText(selectedText, 'selection')
-
-    # configure a listener that watches for incoming queries over IPC,
-    # executes them, and returns the responses to the remote renderer processes
-    ipc.on 'database-query', @databaseManager.onIPCDatabaseQuery
 
   # Public: Executes the given command.
   #

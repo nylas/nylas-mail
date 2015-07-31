@@ -1,12 +1,15 @@
 _ = require 'underscore'
+ipc = require 'ipc'
+async = require 'async'
 path = require 'path'
-
+sqlite3 = require 'sqlite3'
 Model = require '../models/model'
 Actions = require '../actions'
 LocalLink = require '../models/local-link'
 ModelQuery = require '../models/query'
 NylasStore = require '../../../exports/nylas-store'
-DatabaseConnection = require './database-connection'
+DatabaseSetupQueryBuilder = require './database-setup-query-builder'
+PriorityUICoordinator = require '../../priority-ui-coordinator'
 
 {AttributeCollection, AttributeJoinedData} = require '../attributes'
 
@@ -15,6 +18,16 @@ DatabaseConnection = require './database-connection'
  isTempId} = require '../models/utils'
 
 DatabaseVersion = 5
+
+DatabasePhase =
+  Setup: 'setup'
+  Ready: 'ready'
+  Close: 'close'
+
+DEBUG_TO_LOG = false
+
+BEGIN_TRANSACTION = 'BEGIN TRANSACTION'
+COMMIT = 'COMMIT'
 
 ###
 Public: Nylas Mail is built on top of a custom database layer modeled after
@@ -65,19 +78,81 @@ class DatabaseStore extends NylasStore
   constructor: ->
     @_triggerPromise = null
     @_localIdLookupCache = {}
+    @_inflightTransactions = 0
+    @_open = false
+    @_waiting = []
 
     if atom.inSpecMode()
       @_databasePath = path.join(atom.getConfigDirPath(),'edgehill.test.db')
     else
       @_databasePath = path.join(atom.getConfigDirPath(),'edgehill.db')
 
-    @_dbConnection = new DatabaseConnection(@_databasePath, DatabaseVersion)
+    # Listen to events from the application telling us when the database is ready,
+    # should be closed so it can be deleted, etc.
+    ipc.on('database-phase-change', @_onPhaseChange)
+    _.defer => @_onPhaseChange()
 
-    # It's important that this defer is here because we can't let queries
-    # commence while the app is in its `require` phase. We'll queue all of
-    # the reqeusts before the DB is setup and handle them properly later
-    _.defer =>
-      @_dbConnection.connect() unless atom.inSpecMode()
+  _onPhaseChange: (event) =>
+    return if atom.inSpecMode()
+
+    app = require('remote').getGlobal('application')
+    phase = app.databasePhase()
+
+    if phase is DatabasePhase.Setup and atom.isMainWindow()
+      @_openDatabase =>
+        @_runDatabaseSetup =>
+          @_checkDatabaseVersion =>
+            app.setDatabasePhase(DatabasePhase.Ready)
+
+    else if phase is DatabasePhase.Ready
+      @_openDatabase =>
+        @_checkDatabaseVersion =>
+          @_open = true
+          w() for w in @_waiting
+          @_waiting = []
+
+    else if phase is DatabasePhase.Close
+      @_open = false
+      @_db?.close()
+      @_db = null
+
+  _openDatabase: (ready) =>
+    return ready() if @_db
+
+    if atom.isMainWindow()
+      # Since only the main window calls `_runDatabaseSetup`, it's important that
+      # it is also the only window with permission to create the file on disk
+      mode = sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE
+    else
+      mode = sqlite3.OPEN_READWRITE
+
+    @_db = new sqlite3.Database @_databasePath, mode, (err) =>
+      return @_handleSetupError(err) if err
+      ready()
+
+  _checkDatabaseVersion: (ready) =>
+    @_db.get 'PRAGMA user_version', (err, {user_version}) =>
+      return @_handleSetupError(err) if err
+      if user_version/1 isnt DatabaseVersion
+        return @_handleSetupError(new Error("Incorrect database schema version: #{user_version} not #{DatabaseVersion}"))
+      ready()
+
+  _runDatabaseSetup: (ready) =>
+    builder = new DatabaseSetupQueryBuilder()
+
+    @_db.serialize =>
+      async.each builder.setupQueries(), (query, callback) =>
+        @_db.run(query, [], callback)
+      , (err) =>
+        return @_handleSetupError(err) if err
+        @_db.run "PRAGMA user_version=#{DatabaseVersion}", (err) ->
+          return @_handleSetupError(err) if err
+          ready()
+
+  _handleSetupError: (err) =>
+    console.error(err)
+    app = require('remote').getGlobal('application')
+    app.rebuildDatabase()
 
   # Returns a promise that resolves when the query has been completed and
   # rejects when the query has failed.
@@ -85,8 +160,44 @@ class DatabaseStore extends NylasStore
   # If a query is made while the connection is being setup, the
   # DatabaseConnection will queue the queries and fire them after it has
   # been setup. The Promise returned here wont resolve until that happens
-  _query: (query, values=[], options={}) =>
-    return @_dbConnection.query(query, values, options)
+  _query: (query, values=[]) =>
+    new Promise (resolve, reject) =>
+      if not @_open
+        @_waiting.push => @_query(query, values).then(resolve, reject)
+        return
+
+      if query.indexOf("SELECT ") is 0
+        fn = 'all'
+      else
+        fn = 'run'
+
+      # Important: once the user begins a transaction, queries need to run in serial.
+      # This ensures that the subsequent "COMMIT" call actually runs after the other
+      # queries in the transaction, and that no other code can execute "BEGIN TRANS."
+      # until the previously queued BEGIN/COMMIT have been processed.
+
+      # We don't exit serial execution mode until the last pending transaction has
+      # finished executing.
+
+      if query is BEGIN_TRANSACTION
+        @_db.serialize() if @_inflightTransactions is 0
+        @_inflightTransactions += 1
+
+      start = Date.now()
+      @_db[fn] query, values, (err, results) =>
+        if err
+          console.error("DatabaseStore: Query #{query}, #{JSON.stringify(values)} failed #{err.toString()}")
+        else
+          duration = Date.now() - start
+          metadata = {duration: duration, resultLength: result?.length}
+          console.debug(DEBUG_TO_LOG, "DatabaseStore: (#{duration}) #{query}", metadata)
+
+        if query is COMMIT
+          @_inflightTransactions -= 1
+          @_db.parallelize() if @_inflightTransactions is 0
+
+        return reject(err) if err
+        return resolve(results)
 
   ########################################################################
   ########################### PUBLIC METHODS #############################
@@ -232,9 +343,15 @@ class DatabaseStore extends NylasStore
   # Returns a {Promise} that
   #   - resolves with the result of the database query.
   run: (modelQuery) =>
-    @_query(modelQuery.sql(), [], null, null, modelQuery.executeOptions())
-    .then (result) ->
-      Promise.resolve(modelQuery.formatResult(result))
+    {evaluateImmediately} = modelQuery.executeOptions()
+
+    @_query(modelQuery.sql(), []).then (result) =>
+      if evaluateImmediately
+        uiBusyPromise = Promise.resolve()
+      else
+        uiBusyPromise = PriorityUICoordinator.settle
+      uiBusyPromise.then =>
+        Promise.resolve(modelQuery.formatResult(result))
 
   # Public: Asynchronously writes `model` to the cache and triggers a change event.
   #
@@ -246,14 +363,12 @@ class DatabaseStore extends NylasStore
   #   - rejects if any databse query fails or one of the triggering
   #     callbacks failed
   persistModel: (model) =>
-    return Promise.all([
-      Promise.all([
-        @_query('BEGIN TRANSACTION')
-        @_writeModels([model])
-        @_query('COMMIT')
-      ]),
+    Promise.all([
+      @_query(BEGIN_TRANSACTION)
+      @_writeModels([model])
+      @_query(COMMIT)
+    ]).then =>
       @_triggerSoon({objectClass: model.constructor.name, objects: [model], type: 'persist'})
-    ])
 
   # Public: Asynchronously writes `models` to the cache and triggers a single change
   # event. Note: Models must be of the same class to be persisted in a batch operation.
@@ -276,14 +391,12 @@ class DatabaseStore extends NylasStore
         throw new Error("persistModels(): You must pass an array of models with different ids. ID #{model.id} is in the set multiple times.")
       ids[model.id] = true
 
-    return Promise.all([
-      Promise.all([
-        @_query('BEGIN TRANSACTION')
-        @_writeModels(models)
-        @_query('COMMIT')
-      ]),
+    Promise.all([
+      @_query(BEGIN_TRANSACTION)
+      @_writeModels(models)
+      @_query(COMMIT)
+    ]).then =>
       @_triggerSoon({objectClass: models[0].constructor.name, objects: models, type: 'persist'})
-    ])
 
   # Public: Asynchronously removes `model` from the cache and triggers a change event.
   #
@@ -295,14 +408,12 @@ class DatabaseStore extends NylasStore
   #   - rejects if any databse query fails or one of the triggering
   #     callbacks failed
   unpersistModel: (model) =>
-    return Promise.all([
-      Promise.all([
-        @_query('BEGIN TRANSACTION')
-        @_deleteModel(model)
-        @_query('COMMIT')
-      ]),
+    Promise.all([
+      @_query(BEGIN_TRANSACTION)
+      @_deleteModel(model)
+      @_query(COMMIT)
+    ]).then =>
       @_triggerSoon({objectClass: model.constructor.name, objects: [model], type: 'unpersist'})
-    ])
 
   # Public: Given an `oldModel` with a unique `localId`, it will swap the
   # item out in the database.
@@ -319,25 +430,18 @@ class DatabaseStore extends NylasStore
   #     callbacks failed
   swapModel: ({oldModel, newModel, localId}) =>
     queryPromise = Promise.all([
-      @_query('BEGIN TRANSACTION')
+      @_query(BEGIN_TRANSACTION)
       @_deleteModel(oldModel)
       @_writeModels([newModel])
       @_writeModels([new LocalLink(id: localId, objectId: newModel.id)]) if localId
-      @_query('COMMIT')
-    ])
-
-    swapPromise = new Promise (resolve, reject) ->
+      @_query(COMMIT)
+    ]).then =>
       Actions.didSwapModel({
         oldModel: oldModel,
         newModel: newModel,
         localId: localId
       })
-      resolve()
-
-    triggerPromise = @_triggerSoon({objectClass: newModel.constructor.name, objects: [oldModel, newModel], type: 'swap'})
-
-    return Promise.all([queryPromise, swapPromise, triggerPromise])
-
+      @_triggerSoon({objectClass: newModel.constructor.name, objects: [oldModel, newModel], type: 'swap'})
 
   ########################################################################
   ########################### PRIVATE METHODS ############################

@@ -17,8 +17,10 @@ module.exports = (grunt) ->
       if runas('cmd', ['/c', copyFolder, shellAppDir, installDir], admin: true) isnt 0
         grunt.log.error("Failed to copy #{shellAppDir} to #{installDir}")
 
-      createShortcut = path.resolve 'script', 'create-shortcut.cmd'
-      runas('cmd', ['/c', createShortcut, path.join(installDir, 'nylas.exe'), 'Nylas'])
+      createShortcut = path.resolve('script', 'create-shortcut.cmd')
+      shortcutIconPath = path.resolve('script', 'build', 'resources', 'win', 'nylas.ico')
+      runas('cmd', ['/c', createShortcut, path.join(installDir, 'nylas.exe'), 'Nylas', shortcutIconPath])
+
     else if process.platform is 'darwin'
       rm installDir
       mkdir path.dirname(installDir)
@@ -27,10 +29,10 @@ module.exports = (grunt) ->
       mkdir tempFolder
       cp shellAppDir, tempFolder
       fs.renameSync(tempFolder, installDir)
+
     else
       binDir = path.join(installDir, 'bin')
       shareDir = path.join(installDir, 'share', 'nylas')
-
       iconName = path.join(shareDir, 'resources', 'app', 'resources', 'nylas.png')
 
       mkdir binDir
