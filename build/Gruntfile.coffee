@@ -304,7 +304,7 @@ module.exports = (grunt) ->
       outputDirectory: path.join(buildDir, 'installer')
       authors: 'Nylas Inc.'
       loadingGif: path.resolve(__dirname, 'resources', 'win', 'loading.gif')
-      iconUrl: 'https://raw.githubusercontent.com/atom/atom/master/resources/win/atom.ico'
+      iconUrl: 'http://edgehill.s3.amazonaws.com/static/nylas.ico'
       setupIcon: path.resolve(__dirname, 'resources', 'win', 'nylas.ico')
 
     shell:

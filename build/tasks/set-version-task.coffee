@@ -39,9 +39,10 @@ module.exports = (grunt) ->
         cmd = 'script/set-version'
         args = [grunt.config.get('atom.buildDir'), version]
         spawn {cmd, args}, (error, result, code) -> done(error)
+
       else if process.platform is 'win32'
         shellAppDir = grunt.config.get('atom.shellAppDir')
-        shellExePath = path.join(shellAppDir, 'edgehill.exe')
+        shellExePath = path.join(shellAppDir, 'nylas.exe')
 
         strings =
           CompanyName: 'Nylas, Inc.'
