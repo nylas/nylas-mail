@@ -19,6 +19,7 @@ describe "EventStore", ->
 
   it "initializes the cache from the DB", ->
     spyOn(DatabaseStore, "findAll").andCallFake -> Promise.resolve([])
+    advanceClock(30)
     EventStore.constructor()
     advanceClock(30)
     expect(Object.keys(EventStore._eventCache).length).toBe 0
