@@ -21,7 +21,8 @@ class ContenteditableComponent extends React.Component
     initialSelectionSnapshot: React.PropTypes.object
 
     # Passes an absolute top coordinate to scroll to.
-    onRequestScrollTo: React.PropTypes.func
+    onScrollTo: React.PropTypes.func
+    onScrollToBottom: React.PropTypes.func
 
   constructor: (@props) ->
     @state =
@@ -304,11 +305,10 @@ class ContenteditableComponent extends React.Component
 
   # http://www.w3.org/TR/selection-api/#selectstart-event
   _setupSelectionListeners: =>
-    @_onSelectionChange = => @_saveSelectionState()
-    document.addEventListener "selectionchange", @_onSelectionChange
+    document.addEventListener("selectionchange", @_saveSelectionState)
 
   _teardownSelectionListeners: =>
-    document.removeEventListener("selectionchange", @_onSelectionChange)
+    document.removeEventListener("selectionchange", @_saveSelectionState)
 
   getCurrentSelection: => _.clone(@_selection ? {})
   getPreviousSelection: => _.clone(@_previousSelection ? {})
@@ -378,8 +378,8 @@ class ContenteditableComponent extends React.Component
       endOffset: selection.focusOffset
       endNodeIndex: @_getNodeIndex(selection.focusNode)
       isCollapsed: selection.isCollapsed
-      atEndOfContent: @_atEndOfContent(selection)
 
+    @_ensureSelectionVisible(selection)
     @_refreshToolbarState()
     return @_selection
 
@@ -464,9 +464,6 @@ class ContenteditableComponent extends React.Component
     @_previousSelection = @_selection
     @_selection = selection
 
-    # We need to use a boolean flag here because this runs before anything
-    # might be rendered yet.
-    @_selectionManuallyChanged = true
 
   # When the selectionState gets set by a parent (e.g. undo-ing and
   # redo-ing) we need to make sure it's visible to the user.
@@ -478,28 +475,34 @@ class ContenteditableComponent extends React.Component
   # container is a direct parent of the requested element. In this case
   # the scroll container may be many levels up.
   _ensureSelectionVisible: (selection) ->
-    rect = @_getRangeInScope().getBoundingClientRect()
-    return if @_isEmptyBoudingRect(rect)
-    top = @_getSelectionTop(selection, rect)
-    @props.onRequestScrollTo?(selectionTop: top)
+    # If our parent supports scroll to bottom, check for that
+    if @props.onScrollToBottom and @_atEndOfContent(selection)
+      @props.onScrollToBottom()
+
+    # Don't bother computing client rects if no scroll method has been provided
+    else if @props.onScrollTo
+      rect = @_getRangeInScope().getBoundingClientRect()
+      if @_isEmptyBoudingRect(rect)
+        rect = @_getSelectionRectFromDOM(selection)
+
+      if rect
+        @props.onScrollTo({rect})
+
     @_refreshToolbarState()
 
   _isEmptyBoudingRect: (rect) ->
     rect.top is 0 and rect.bottom is 0 and rect.left is 0 and rect.right is 0
 
-  _getSelectionTop: (selection, rect) ->
-    if rect then return rect.top + (Math.abs(rect.top - rect.bottom) / 2)
+  _getSelectionRectFromDOM: (selection) ->
     node = selection.anchorNode
     if node.nodeType is Node.TEXT_NODE
       r = document.createRange()
       r.selectNodeContents(node)
-      rect = r.getBoundingClientRect()
+      return r.getBoundingClientRect()
     else if node.nodeType is Node.ELEMENT_NODE
-      rect = node.getBoundingClientRect()
+      return node.getBoundingClientRect()
     else
-      rect = {top: 0, bottom: 0}
-
-    return rect.top + Math.abs(rect.top - rect.bottom) / 2
+      return null
 
   # We use global listeners to determine whether or not dragging is
   # happening. This is because dragging may stop outside the scope of
@@ -666,9 +669,8 @@ class ContenteditableComponent extends React.Component
                                @_selection.startOffset,
                                newEndNode,
                                @_selection.endOffset)
-    if @_selectionManuallyChanged
-      @_ensureSelectionVisible(selection)
-      @_selectionManuallyChanged = false
+
+    @_ensureSelectionVisible(selection)
     @_setupSelectionListeners()
 
   # We need to break each node apart and cache since the `selection`
@@ -949,7 +951,6 @@ class ContenteditableComponent extends React.Component
       if inputText.length > 0
         cleanHtml = @_sanitizeInput(inputText, type)
         document.execCommand("insertHTML", false, cleanHtml)
-        @_selectionManuallyChanged = true
 
     return
 

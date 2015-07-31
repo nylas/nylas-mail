@@ -100,16 +100,17 @@ DOMUtils =
 
   scrollAdjustmentToMakeNodeVisibleInContainer: (node, container) ->
     return unless node
-
     nodeRect = node.getBoundingClientRect()
     containerRect = container.getBoundingClientRect()
+    return @scrollAdjustmentToMakeRectVisibleInRect(nodeRect, containerRect)
 
+  scrollAdjustmentToMakeRectVisibleInRect: (nodeRect, containerRect) ->
     distanceBelowBottom = (nodeRect.top + nodeRect.height) - (containerRect.top + containerRect.height)
-    if distanceBelowBottom > 0
+    if distanceBelowBottom >= 0
       return distanceBelowBottom
 
     distanceAboveTop = containerRect.top - nodeRect.top
-    if distanceAboveTop > 0
+    if distanceAboveTop >= 0
       return -distanceAboveTop
 
     return 0

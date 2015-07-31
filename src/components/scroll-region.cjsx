@@ -1,6 +1,6 @@
 _ = require 'underscore'
 React = require 'react/addons'
-{DOMUtils} = require 'nylas-exports'
+{Utils} = require 'nylas-exports'
 classNames = require 'classnames'
 
 class Scrollbar extends React.Component
@@ -117,7 +117,25 @@ class ScrollRegion extends React.Component
     children: React.PropTypes.oneOfType([React.PropTypes.element, React.PropTypes.array])
     getScrollbar: React.PropTypes.func
 
+  # Concept from https://developer.apple.com/library/prerelease/ios/documentation/UIKit/Reference/UITableView_Class/#//apple_ref/c/tdef/UITableViewScrollPosition
+
+  @ScrollPosition:
+    # Scroll so that the desired region is at the top of the viewport
+    Top: 'Top'
+    # Scroll so that the desired region is at the bottom of the viewport
+    Bottom: 'Bottom'
+    # Scroll so that the desired region is visible in the viewport, with the
+    # least movement possible.
+    Visible: 'Visible'
+    # Scroll so that the desired region is centered in the viewport
+    Center: 'Center'
+    # Scroll so that the desired region is centered in the viewport, only if it
+    # is currently not visible
+    CenterIfInvisible: 'CenterIfInvisible'
+
   constructor: (@props) ->
+    @_scrollToTaskId = 0
+    @_scrollbarComponent = null
     @state =
       totalHeight:0
       viewportHeight: 0
@@ -130,7 +148,15 @@ class ScrollRegion extends React.Component
     })
 
   componentDidMount: =>
+    @_mounted = true
     @recomputeDimensions()
+
+  componentWillReceiveProps: (props) =>
+    if @shouldInvalidateScrollbarComponent(props)
+      @_scrollbarComponent = null
+
+  componentWillUnmount: =>
+    @_mounted = false
 
   shouldComponentUpdate: (newProps, newState) =>
     # Because this component renders @props.children, it needs to update
@@ -138,15 +164,19 @@ class ScrollRegion extends React.Component
     # @props.children tree extremely expensive. Just let React's algorithm do it's work.
     true
 
+  shouldInvalidateScrollbarComponent: (newProps) =>
+    return true if newProps.scrollTooltipComponent isnt @props.scrollTooltipComponent
+    return true if newProps.getScrollbar isnt @props.getScrollbar
+    return false
+
   render: =>
     containerClasses =  "#{@props.className ? ''} " + classNames
       'scroll-region': true
       'dragging': @state.dragging
       'scrolling': @state.scrolling
 
-    scrollbar = []
     if not @props.getScrollbar
-      scrollbar = <Scrollbar
+      @_scrollbarComponent ?= <Scrollbar
         ref="scrollbar"
         scrollTooltipComponent={@props.scrollTooltipComponent}
         getScrollRegion={@_getSelf} />
@@ -154,7 +184,7 @@ class ScrollRegion extends React.Component
     otherProps = _.omit(@props, _.keys(@constructor.propTypes))
 
     <div className={containerClasses} {...otherProps}>
-      {scrollbar}
+      {@_scrollbarComponent}
       <div className="scroll-region-content" onScroll={@_onScroll} ref="content">
         <div className="scroll-region-content-inner">
           {@props.children}
@@ -164,10 +194,88 @@ class ScrollRegion extends React.Component
 
   # Public: Scroll to the DOM Node provided.
   #
-  scrollTo: (node) =>
-    container = React.findDOMNode(@)
-    adjustment = DOMUtils.scrollAdjustmentToMakeNodeVisibleInContainer(node, container)
-    @scrollTop += adjustment if adjustment isnt 0
+  scrollTo: (node, {position, settle} = {}) =>
+    if node instanceof React.Component
+      node = React.findDOMNode(node)
+    unless node instanceof Node
+      throw new Error("ScrollRegion.scrollTo: requires a DOM node or React element. Maybe you meant scrollToRect?")
+    @_scroll {position, settle}, =>
+      node.getBoundingClientRect()
+
+  # Public: Scroll to the client rectangle provided. Note: This method expects
+  # a ClientRect or similar object with top, left, width, height relative to the
+  # window, not the scroll region. This is designed to make it easy to use with
+  # node.getBoundingClientRect()
+  scrollToRect: (rect, {position, settle} = {}) ->
+    if rect instanceof Node
+      throw new Error("ScrollRegion.scrollToRect: requires a rect. Maybe you meant scrollTo?")
+    if not rect.top or not rect.height
+      throw new Error("ScrollRegion.scrollToRect: requires a rect with `top` and `height` attributes.")
+    @_scroll {position, settle}, => rect
+
+  _scroll: ({position, settle}, clientRectProviderCallback) ->
+    contentNode = React.findDOMNode(@refs.content)
+    position ?= ScrollRegion.ScrollPosition.Visible
+
+    if settle is true
+      settleFn = @_settleHeight
+    else
+      settleFn = (callback) -> callback()
+
+    @_scrollToTaskId += 1
+    taskId = @_scrollToTaskId
+
+    settleFn =>
+      # If another scroll call has been made since ours, don't do anything.
+      return unless @_scrollToTaskId is taskId
+
+      contentClientRect = contentNode.getBoundingClientRect()
+      rect = _.clone(clientRectProviderCallback())
+
+      # For sanity's sake, convert the client rectangle we get into a rect
+      # relative to the contentRect of our scroll region.
+      rect.top = rect.top - contentClientRect.top + contentNode.scrollTop
+      rect.bottom = rect.bottom - contentClientRect.top + contentNode.scrollTop
+
+      # Also give ourselves a representation of the visible region, in the same
+      # coordinate space as `rect`
+      contentVisibleRect = _.clone(contentClientRect)
+      contentVisibleRect.top += contentNode.scrollTop
+      contentVisibleRect.bottom += contentNode.scrollTop
+
+      if position is ScrollRegion.ScrollPosition.Top
+        @scrollTop = rect.top
+      else if position is ScrollRegion.ScrollPosition.Bottom
+        @scrollTop = (rect.top + rect.height) - contentClientRect.height
+      else if position is ScrollRegion.ScrollPosition.Center
+        @scrollTop = rect.top - (contentClientRect.height - rect.height) / 2
+      else if position is ScrollRegion.ScrollPosition.CenterIfInvisible
+        if not Utils.rectVisibleInRect(rect, contentVisibleRect)
+          @scrollTop = rect.top - (contentClientRect.height - rect.height) / 2
+      else if position is ScrollRegion.ScrollPosition.Visible
+        distanceBelowBottom = (rect.top + rect.height) - (contentClientRect.height + contentNode.scrollTop)
+        distanceAboveTop = @scrollTop - rect.top
+        if distanceBelowBottom >= 0
+          @scrollTop += distanceBelowBottom
+        else if distanceAboveTop >= 0
+          @scrollTop -= distanceAboveTop
+
+  _settleHeight: (callback) =>
+    contentNode = React.findDOMNode(@refs.content)
+    lastContentHeight = -1
+    stableCount = 0
+    scrollIfSettled = =>
+      return unless @_mounted
+      contentRect = contentNode.getBoundingClientRect()
+      if contentRect.height isnt lastContentHeight
+        lastContentHeight = contentRect.height
+        stableCount = 0
+      else
+        stableCount += 1
+        if stableCount is 5
+          return callback()
+      window.requestAnimationFrame(scrollIfSettled)
+    scrollIfSettled()
 
   recomputeDimensions: (options = {}) =>
     scrollbar = @props.getScrollbar?() ? @refs.scrollbar
