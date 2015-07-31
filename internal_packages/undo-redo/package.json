@@ -1,0 +1,13 @@
+{
+  "name": "undo-redo",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Undo modal button",
+  "license": "Proprietary",
+  "private": true,
+  "engines": {
+    "atom": "*"
+  },
+  "dependencies": {
+  }
+}

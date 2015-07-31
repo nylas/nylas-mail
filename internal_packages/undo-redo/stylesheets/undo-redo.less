@@ -1,0 +1,53 @@
+@import "ui-variables";
+@import "ui-mixins";
+
+.undo-redo{
+  position: absolute;
+  height: 45px;
+  bottom: 10px;
+  left: 39%;
+  padding-top: 12px;
+  opacity: 0.9;
+  border-radius: @border-radius-base;
+  background: @gray-darker;
+
+  .undo-redo-message-wrapper{
+    display: inline-block;
+    margin-left: 15px;
+    margin-right: 30px;
+
+    .undo-redo-message{
+      color: lighten(@gray-base, 70%);;
+    }
+  }
+
+  .undo-redo-action-wrapper{
+    float: right;
+    display: inline-block;
+    margin-right: 15px;
+
+    .undo-redo-action-text{
+      margin-left: 5px;
+      display: inline-block;
+      color: @white;
+    }
+  }
+}
+
+.undo-redo-item-enter {
+  opacity: 0.01;
+  transition: all .3s ease-out;
+}
+
+.undo-redo-item-enter.undo-redo-item-enter-active {
+  opacity: 1;
+}
+
+.undo-redo-item-leave {
+  opacity: 1;
+  transition: all .3s ease-in;
+}
+
+.undo-redo-item-leave.undo-redo-item-leave-active {
+  opacity: 0.01;
+}
