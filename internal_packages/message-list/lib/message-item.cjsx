@@ -58,30 +58,34 @@ class MessageItem extends React.Component
       attachmentIcon = <div className="collapsed-attachment"></div>
 
     <div className={@props.className} onClick={@_toggleCollapsed}>
-      <div className="message-item-area">
-        <div className="collapsed-from">
-          {@props.message.from?[0]?.displayFirstName()}
+      <div className="message-item-white-wrap">
+        <div className="message-item-area">
+          <div className="collapsed-from">
+            {@props.message.from?[0]?.displayFirstName()}
+          </div>
+          <div className="collapsed-snippet">
+            {@props.message.snippet}
+          </div>
+          <div className="collapsed-timestamp">
+            <MessageTimestamp date={@props.message.date} />
+          </div>
+          {attachmentIcon}
         </div>
-        <div className="collapsed-snippet">
-          {@props.message.snippet}
-        </div>
-        <div className="collapsed-timestamp">
-          <MessageTimestamp date={@props.message.date} />
-        </div>
-        {attachmentIcon}
       </div>
     </div>
 
   _renderFull: =>
     <div className={@props.className}>
-      <div className="message-item-area">
-        {@_renderHeader()}
-        <EmailFrame showQuotedText={@state.showQuotedText}>
-          {@_formatBody()}
-        </EmailFrame>
-        <a className={@_quotedTextClasses()} onClick={@_toggleQuotedText}></a>
-        {@_renderEvents()}
-        {@_renderAttachments()}
+      <div className="message-item-white-wrap">
+        <div className="message-item-area">
+          {@_renderHeader()}
+          <EmailFrame showQuotedText={@state.showQuotedText}>
+            {@_formatBody()}
+          </EmailFrame>
+          <a className={@_quotedTextClasses()} onClick={@_toggleQuotedText}></a>
+          {@_renderEvents()}
+          {@_renderAttachments()}
+        </div>
       </div>
     </div>
 

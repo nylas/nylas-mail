@@ -157,7 +157,7 @@ class ComposerView extends React.Component
       </div>
 
   _wrapClasses: =>
-    "composer-outer-wrap #{@props.className ? ""}"
+    "message-item-white-wrap composer-outer-wrap #{@props.className ? ""}"
 
   _renderComposer: =>
     <DropZone className="composer-inner-wrap"
@@ -287,6 +287,11 @@ class ComposerView extends React.Component
       </ScrollRegion>
 
   _renderBodyContenteditable: =>
+    onScrollToBottom = null
+    if @props.onRequestScrollTo
+      onScrollToBottom = =>
+        @props.onRequestScrollTo({messageId: @_proxy.draft().id})
+
     <ContenteditableComponent ref="contentBody"
                               html={@state.body}
                               onChange={@_onChangeBody}
@@ -295,7 +300,8 @@ class ComposerView extends React.Component
                               initialSelectionSnapshot={@_recoveredSelection}
                               mode={{showQuotedText: @state.showQuotedText}}
                               onChangeMode={@_onChangeEditableMode}
-                              onRequestScrollTo={@props.onRequestScrollTo}
+                              onScrollTo={@props.onRequestScrollTo}
+                              onScrollToBottom={onScrollToBottom}
                               tabIndex="109" />
   _renderFooterRegions: =>
     return <div></div> unless @props.localId
@@ -521,8 +527,6 @@ class ComposerView extends React.Component
 
   _onChangeBody: (event) =>
     return unless @_proxy
-    if @_getSelections().currentSelection?.atEndOfContent
-      @props.onRequestScrollTo?(messageId: @_proxy.draft().id, location: "bottom")
 
     # The body changes extremely frequently (on every key stroke). To keep
     # performance up, we don't want to trigger every single key stroke

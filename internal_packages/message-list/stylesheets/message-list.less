@@ -120,30 +120,33 @@
   }
 
   .message-item-wrap {
-
     transition: height 0.1s;
     position: relative;
 
     max-width: @message-max-width;
     width: calc(~"100% - 12px");
 
-    margin: @message-spacing auto;
-    padding: 0;
+    margin: 0 auto;
+    padding: @message-spacing 0;
+    &:last-child {
+      padding-bottom: @message-spacing * 2;
+    }
+    .message-item-white-wrap {
+      background: @background-primary;
+      border: 0;
+      box-shadow: 0 0 0.5px rgba(0, 0, 0, 0.28), 0 1px 1.5px rgba(0, 0, 0, 0.08);
+      border-radius: 4px;
+    }
 
-    background: @background-primary;
-    border: 0;
-    box-shadow: 0 0 0.5px rgba(0, 0, 0, 0.28), 0 1px 1.5px rgba(0, 0, 0, 0.08);
-    border-radius: 4px;
-
-    &:first-child { padding-top: 0; }
-
-    &.before-reply-area { margin-bottom: 0; }
+    &.before-reply-area { padding-bottom: 0; }
 
     &.collapsed {
-      background-color: darken(@background-primary, 2%);
-      padding-top: 19px;
-      padding-bottom: 8px;
-      margin-bottom: 0;
+      .message-item-white-wrap {
+        background-color: darken(@background-primary, 2%);
+        padding-top: 19px;
+        padding-bottom: 8px;
+        margin-bottom: 0;
+      }
 
       &+.minified-bundle {
         margin-top: -@message-spacing
