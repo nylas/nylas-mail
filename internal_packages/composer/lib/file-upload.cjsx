@@ -43,6 +43,7 @@ class FileUpload extends React.Component
   _basename: =>
     path.basename(@props.uploadData.filePath)
 
-  _extension: -> path.extname(@_basename()).split('.').pop()
+  _extension: =>
+    path.extname(@_basename())[1..-1]
 
 module.exports = FileUpload
