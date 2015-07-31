@@ -153,7 +153,7 @@ class MessageItem extends React.Component
 
   _renderEvents: =>
     events = @_eventComponents()
-    if events.length > 0 and Utils.looksLikeGmailInvite(@props.message)
+    if events.length > 0 and not Utils.looksLikeGmailInvite(@props.message)
       <div className="events-area">{events}</div>
     else
       <div></div>

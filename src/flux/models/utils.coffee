@@ -67,8 +67,10 @@ Utils =
 
 
   looksLikeGmailInvite: (message={}) ->
-    if 'PRODID:-//Google Inc//Google Calendar' in message.body
-      return true
+    idx = message.body.search('itemtype="http://schema.org/Event"')
+    if idx == -1
+      return false
+    return true
 
 
   # Escapes potentially dangerous html characters
