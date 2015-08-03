@@ -142,7 +142,7 @@ class ChangeFolderTask extends ChangeCategoryTask
     if not @folderOrId
       return Promise.reject(new Error("Must specify a `folder`"))
 
-    if @_isUndoTask and not @undoData
+    if @_isUndoTask and (not @undoData or Object.keys(@undoData).length is 0)
       return Promise.reject(new Error("Must pass an `undoData` to rollback folder changes"))
 
     return super()

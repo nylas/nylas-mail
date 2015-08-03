@@ -72,8 +72,10 @@ class ChangeLabelsTask extends ChangeCategoryTask
       messagesToSave = []
       newIds = newLabels.map (l) -> l.id
       for message in messages
-        existing = (message.labels ? []).map (l) -> l.id
-        if _.intersection(existing, newIds).length isnt existing.length
+        existingIds = (message.labels ? []).map (l) -> l.id
+        if _.isEqual(existingIds, newIds)
+          continue
+        else
           message.labels = newLabels
           messagesToSave.push(message)
       DatabaseStore.persistModels(messagesToSave)
