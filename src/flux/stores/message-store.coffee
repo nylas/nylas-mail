@@ -177,10 +177,14 @@ class MessageStore extends NylasStore
           # Mark the thread as read if necessary. Wait 700msec so that flipping
           # through threads doens't mark them all. Make sure it's still the
           # current thread after the timeout.
+
+          # Override canBeUndone to return false so that we don't see undo prompts
+          # (since this is a passive action vs. a user-triggered action.)
           if @_thread.unread
             setTimeout =>
               return unless loadedThreadId is @_thread?.id
               t = new UpdateThreadsTask([@_thread], unread: false)
+              t.canBeUndone = => false
               Actions.queueTask(t)
             ,700
 

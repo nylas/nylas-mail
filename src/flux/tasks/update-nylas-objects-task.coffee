@@ -22,7 +22,17 @@ class UpdateNylasObjectsTask extends Task
 
   # OVERRIDE ME
   description: ->
-    'Updating Nylas object'
+    type = 'object'
+    count = @objects.length
+
+    if count > 0
+      type = @objects[0].constructor.name.toLowerCase()
+      type = inflection.pluralize(type) if count > 1
+
+    if Object.keys(@oldValues).length > 0
+      return "Undoing changes to #{count} #{type}"
+
+    "Updated #{count} #{type}"
 
   performLocal: ({reverting}={}) ->
     if reverting or @isUndo()

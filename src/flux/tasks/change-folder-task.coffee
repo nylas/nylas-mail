@@ -24,17 +24,20 @@ class ChangeFolderTask extends ChangeCategoryTask
   label: -> "Moving to folder…"
 
   description: ->
-    folderName = @folderOrId.displayName
+    folderText = ""
+    if @folderOrId instanceof Folder
+      folderText = " to #{@folderOrId.displayName}"
+
     if @threadIds.length > 0
       if @threadIds.length > 1
-        return "Moving " + @threadIds.length + " threads to \"" + folderName + "\""
-      return "Moving 1 thread to \"" + folderName + "\""
+        return "Moved " + @threadIds.length + " threads#{folderText}"
+      return "Moved 1 thread#{folderText}"
     else if @messageIds.length > 0
       if @messageIds.length > 1
-        return "Moving " + @messageIds.length + "messages to \"" + folderName + "\""
-      return "Moving 1 message to \"" + folderName + "\""
+        return "Moved " + @messageIds.length + "messages#{folderText}"
+      return "Moved 1 message#{folderText}"
     else
-      return "Moving objects to \"" + folderName + "\""
+      return "Moved objects#{folderText}"
 
   collectCategories: ->
     if @folderOrId instanceof Folder

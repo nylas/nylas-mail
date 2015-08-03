@@ -35,12 +35,12 @@ class UndoRedoComponent extends React.Component
     ), 3000
 
   _getStateFromStores: ->
-    t = UndoRedoStore.getMostRecentTask()
-    s = false
-    if t
-      s = true
+    task = UndoRedoStore.getMostRecentTask()
+    show = false
+    if task
+      show = true
 
-    return {show: s, task: t}
+    return {show, task}
 
   componentWillMount: ->
     @_unsubscribe = UndoRedoStore.listen(@_onChange)
@@ -67,12 +67,12 @@ class UndoRedoComponent extends React.Component
     if @state.show
       <div className="undo-redo" onMouseEnter={@_clearTimeout} onMouseLeave={@_setNewTimeout}>
         <div className="undo-redo-message-wrapper">
-          <p className="undo-redo-message">{@_formatMessage()}</p>
+          {@state.task.description()}
         </div>
         <div className="undo-redo-action-wrapper" onClick={@_undoTask}>
           <RetinaImg name="undo-icon@2x.png"
                      mode={RetinaImg.Mode.ContentPreserve}/>
-          <p className="undo-redo-action-text">Undo</p>
+          <span className="undo-redo-action-text">Undo</span>
         </div>
       </div>
     else
@@ -81,9 +81,6 @@ class UndoRedoComponent extends React.Component
   _undoTask: =>
     atom.commands.dispatch(document.querySelector('body'), 'core:undo')
     @_hide()
-
-  _formatMessage: =>
-    return @state.task.description()
 
   _hide: =>
     @setState({show: false, task: null})

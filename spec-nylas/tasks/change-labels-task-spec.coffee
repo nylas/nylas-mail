@@ -63,6 +63,27 @@ describe "ChangeLabelsTask", ->
       labelsToRemove: ["l3"]
       messageIds: ['m1']
 
+  describe "description", ->
+    it "should include the name of the added label if it's the only mutation and it was provided as an object", ->
+      task = new ChangeLabelsTask(labelsToAdd: ["l1"], labelsToRemove: [], threadIds: ['t1'])
+      expect(task.description()).toEqual("Changed labels on 1 thread")
+      task = new ChangeLabelsTask(labelsToAdd: [new Label(id: 'l1', displayName: 'LABEL')], labelsToRemove: [], threadIds: ['t1'])
+      expect(task.description()).toEqual("Added LABEL to 1 thread")
+      task = new ChangeLabelsTask(labelsToAdd: [new Label(id: 'l1', displayName: 'LABEL')], labelsToRemove: ['l2'], threadIds: ['t1'])
+      expect(task.description()).toEqual("Changed labels on 1 thread")
+
+    it "should include the name of the removed label if it's the only mutation and it was provided as an object", ->
+      task = new ChangeLabelsTask(labelsToAdd: [], labelsToRemove: ["l1"], threadIds: ['t1'])
+      expect(task.description()).toEqual("Changed labels on 1 thread")
+      task = new ChangeLabelsTask(labelsToAdd: [], labelsToRemove: [new Label(id: 'l1', displayName: 'LABEL')], threadIds: ['t1'])
+      expect(task.description()).toEqual("Removed LABEL from 1 thread")
+      task = new ChangeLabelsTask(labelsToAdd: ['l2'], labelsToRemove: [new Label(id: 'l1', displayName: 'LABEL')], threadIds: ['t1'])
+      expect(task.description()).toEqual("Changed labels on 1 thread")
+
+    it "should pluralize properly", ->
+      task = new ChangeLabelsTask(labelsToAdd: ["l2"], labelsToRemove: ["l1"], threadIds: ['t1', 't2', 't3'])
+      expect(task.description()).toEqual("Changed labels on 3 threads")
+
   describe "shouldWaitForTask", ->
     it "should return true if another, older ChangeLabelsTask involves the same threads", ->
       a = new ChangeLabelsTask(threadIds: ['t1', 't2', 't3'])

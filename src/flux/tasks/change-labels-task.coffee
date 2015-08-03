@@ -24,10 +24,14 @@ class ChangeLabelsTask extends ChangeCategoryTask
   label: -> "Applying labels…"
 
   description: ->
-    addingMessage = "Adding " + @labelsToAdd.length + " labels"
-    removingMessage = "Removing " + @labelsToRemove.length + " labels"
-
-    return addingMessage + " " + removingMessage
+    type = "thread"
+    if @threadIds.length > 1
+      type = "threads"
+    if @labelsToAdd.length is 1 and @labelsToRemove.length is 0 and @labelsToAdd[0] instanceof Label
+      return "Added #{@labelsToAdd[0].displayName} to #{@threadIds.length} #{type}"
+    if @labelsToAdd.length is 0 and @labelsToRemove.length is 1 and @labelsToRemove[0] instanceof Label
+      return "Removed #{@labelsToRemove[0].displayName} from #{@threadIds.length} #{type}"
+    return "Changed labels on #{@threadIds.length} #{type}"
 
   collectCategories: ->
     labelOrIdPromiseMapper = (labelOrId) ->
