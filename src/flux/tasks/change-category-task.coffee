@@ -47,6 +47,14 @@ class ChangeCategoryTask extends Task
     @collectCategories().then (categories) =>
       promises = @objectIds.map (objectId) =>
         DatabaseStore.find(@_klass(), objectId).then (object) =>
+          # If we weren't able to find this object, remove it from the objectIds
+          # and carry on. This can happen pretty easily if you undo an action
+          # and other things have happened.
+          if not object
+            idx = @objectIds.indexOf(objectId)
+            @objectIds.splice(idx, 1) unless idx is -1
+            return Promise.resolve()
+
           # Mark that we are optimistically changing this model. This will prevent
           # inbound delta syncs from changing it back to it's old state. Only the
           # operation that changes `optimisticChangeCount` back to zero will
