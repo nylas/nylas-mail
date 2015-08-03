@@ -16,9 +16,7 @@ testMessages = {}
 
 describe "ChangeFolderTask", ->
   beforeEach ->
-    spyOn(DatabaseStore, 'persistModel').andCallFake -> Promise.resolve()
-    spyOn(DatabaseStore, 'persistModels').andCallFake -> Promise.resolve()
-    spyOn(DatabaseStore, 'find').andCallFake (klass, id) =>
+    @_findFunction = (klass, id) =>
       if klass is Thread
         Promise.resolve(testThreads[id])
       else if klass is Message
@@ -27,6 +25,11 @@ describe "ChangeFolderTask", ->
         Promise.resolve(testFolders[id])
       else
         throw new Error("Not stubbed!")
+
+    spyOn(DatabaseStore, 'persistModel').andCallFake -> Promise.resolve()
+    spyOn(DatabaseStore, 'persistModels').andCallFake -> Promise.resolve()
+    spyOn(DatabaseStore, 'find').andCallFake (klass, id) =>
+      @_findFunction(klass, id)
 
     spyOn(DatabaseStore, 'findAll').andCallFake (klass, finder) =>
       if klass is Message
@@ -115,7 +118,8 @@ describe "ChangeFolderTask", ->
       waitsForPromise ->
         t.performLocal().catch (error) ->
           expect(error.message).toBe "Must pass an `undoData` to rollback folder changes"
-    it "throws an error if an undo task isn't passed undo data", ->
+
+    it "throws an error if an undo task is passed an empty hash of undo data", ->
       t = new ChangeFolderTask
         folderOrId: 'f1'
         undoData: {}
@@ -138,16 +142,31 @@ describe "ChangeFolderTask", ->
     it 'increments optimistic changes', ->
       spyOn(@basicThreadTask, "localUpdateThread").andReturn Promise.resolve()
       spyOn(NylasAPI, "incrementOptimisticChangeCount")
-      @basicThreadTask.performLocal().then ->
-        expect(NylasAPI.incrementOptimisticChangeCount)
-          .toHaveBeenCalledWith(Thread, 't1')
+      waitsForPromise =>
+        @basicThreadTask.performLocal().then ->
+          expect(NylasAPI.incrementOptimisticChangeCount)
+            .toHaveBeenCalledWith(Thread, 't1')
+
+    it 'removes the objectId from the set if the object cannot be found', ->
+      spyOn(@basicThreadTask, "localUpdateThread").andReturn Promise.resolve()
+      spyOn(NylasAPI, "incrementOptimisticChangeCount")
+      @_findFunction = (klass, id) =>
+        if klass is Thread
+          Promise.resolve(null)
+
+      expect(@basicThreadTask.objectIds).toEqual(['t1'])
+      waitsForPromise =>
+        @basicThreadTask.performLocal().then =>
+          expect(NylasAPI.incrementOptimisticChangeCount).not.toHaveBeenCalled()
+          expect(@basicThreadTask.objectIds).toEqual([])
 
     it 'decrements optimistic changes if reverting', ->
       spyOn(@basicThreadTask, "localUpdateThread").andReturn Promise.resolve()
       spyOn(NylasAPI, "decrementOptimisticChangeCount")
-      @basicThreadTask.performLocal(reverting: true).then ->
-        expect(NylasAPI.decrementOptimisticChangeCount)
-          .toHaveBeenCalledWith(Thread, 't1')
+      waitsForPromise =>
+        @basicThreadTask.performLocal(reverting: true).then ->
+          expect(NylasAPI.decrementOptimisticChangeCount)
+            .toHaveBeenCalledWith(Thread, 't1')
 
     describe "When it's a Regular Task", ->
       it 'sets undo data and ignores messages that already have the folder we want', ->
@@ -161,22 +180,24 @@ describe "ChangeFolderTask", ->
           expect(expectedData).toEqual @basicThreadTask.undoData
 
     it 'updates a thread with the new folder', ->
-      @basicThreadTask.performLocal().then =>
-        thread = DatabaseStore.persistModel.calls[0].args[0]
-        expect(thread.folders).toEqual [@testFolders['f1']]
+      waitsForPromise =>
+        @basicThreadTask.performLocal().then =>
+          thread = DatabaseStore.persistModel.calls[0].args[0]
+          expect(thread.folders).toEqual [@testFolders['f1']]
 
     it "updates a thread's messages with the new folder and ignores messages that already have the same folder", ->
       # Our stub of DatabaseStore.findAll ignores the scoping parameter.
       # We simply return all messages.
 
       expectedFolder = @testFolders['f1']
-      @basicThreadTask.performLocal().then ->
-        messages = DatabaseStore.persistModels.calls[0].args[0]
-        # We expect 2 because 1 of our 3 messages already has the folder
-        # we want.
-        expect(messages.length).toBe 2
-        for message in messages
-          expect(message.folder).toEqual expectedFolder
+      waitsForPromise =>
+        @basicThreadTask.performLocal().then ->
+          messages = DatabaseStore.persistModels.calls[0].args[0]
+          # We expect 2 because 1 of our 3 messages already has the folder
+          # we want.
+          expect(messages.length).toBe 2
+          for message in messages
+            expect(message.folder).toEqual expectedFolder
 
     ## MORE TESTS COMING SOON
 
