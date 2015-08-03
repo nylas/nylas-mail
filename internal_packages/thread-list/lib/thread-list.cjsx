@@ -165,7 +165,7 @@ class ThreadList extends React.Component
     @_onResize()
 
   componentWillUnmount: =>
-    window.removeEventListener('resize', @_onResize)
+    window.removeEventListener('resize', @_onResize, true)
 
   render: =>
     if @state.style is 'wide'
