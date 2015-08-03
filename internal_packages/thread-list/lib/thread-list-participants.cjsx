@@ -8,6 +8,10 @@ class ThreadListParticipants extends React.Component
   @propTypes:
     thread: React.PropTypes.object.isRequired
 
+  shouldComponentUpdate: (nextProps) =>
+    return false if nextProps.thread is @props.thread
+    true
+
   render: =>
     items = @getParticipants()
 

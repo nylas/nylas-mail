@@ -82,6 +82,12 @@ class EmptyState extends React.Component
     @_unlisteners.push NamespaceStore.listen(@_onNamespacesChanged, @)
     @_onNamespacesChanged()
 
+  shouldComponentUpdate: (nextProps, nextState) ->
+    # Avoid deep comparison of dataView, which is a very complex object
+    return true if nextProps.visible isnt @props.visible
+    return true if nextProps.dataView isnt @props.dataView
+    return not _.isEqual(nextState, @state)
+
   _onNamespacesChanged: ->
     namespace = NamespaceStore.current()
     @_worker = NylasAPI.workerForNamespace(namespace)

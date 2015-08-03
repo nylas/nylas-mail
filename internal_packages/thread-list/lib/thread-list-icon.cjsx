@@ -39,6 +39,10 @@ class ThreadListIcon extends React.Component
     msgs = _.filter msgs, (m) -> m.isSaved() and not m.draft
     return msgs
 
+  shouldComponentUpdate: (nextProps) =>
+    return false if nextProps.thread is @props.thread
+    true
+
   render: =>
     <div className="thread-icon #{@_iconType()}" onClick={@_onToggleStar}></div>
 
