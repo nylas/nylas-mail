@@ -19,7 +19,8 @@ class AttributeString extends Attribute
   columnSQL: -> "#{@jsonKey} TEXT"
 
   like: (val) ->
-    throw (new Error "this field cannot be queried against.") unless @queryable
+    throw (new Error "AttributeString::like (#{@modelKey}) - you must provide a value") unless val?
+    throw (new Error "AttributeString::like (#{@modelKey}) - this field cannot be queried against") unless @queryable
     new Matcher(@, 'like', val)
 
 module.exports = AttributeString

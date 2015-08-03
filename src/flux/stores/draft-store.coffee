@@ -105,8 +105,7 @@ class DraftStore
   # draft once it has been prepared:
   sessionForLocalId: (localId) =>
     if not localId
-      console.log((new Error).stack)
-      throw new Error("sessionForLocalId requires a localId")
+      throw new Error("DraftStore::sessionForLocalId requires a localId")
     @_draftSessions[localId] ?= new DraftStoreProxy(localId)
     @_draftSessions[localId].prepare()
 
@@ -338,6 +337,9 @@ class DraftStore
 
   _onPopoutDraftLocalId: (draftLocalId, options = {}) =>
     return unless NamespaceStore.current()
+
+    if not draftLocalId?
+      throw new Error("DraftStore::onPopoutDraftLocalId - You must provide a draftLocalId")
 
     save = Promise.resolve()
     if @_draftSessions[draftLocalId]
