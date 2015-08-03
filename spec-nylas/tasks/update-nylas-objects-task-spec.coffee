@@ -101,8 +101,19 @@ describe 'UpdateNylasObjectsTask', ->
           expect(status).toBe Task.Status.Retry
           expect(@task.performLocal).not.toHaveBeenCalled()
 
-  describe 'when undoing', ->
+  describe 'description', ->
+    it 'should default to "Updated `count` `type``"', ->
+      objects = [
+        new TestModel(@origValues["id-1"])
+        new TestModel(@origValues["id-2"])
+        new TestModel(@origValues["id-3"])
+      ]
+      task = new UpdateNylasObjectsTask(objects, {bla: true})
+      expect(task.description()).toEqual("Updated 3 testmodels")
+      task = new UpdateNylasObjectsTask([objects[0]], {bla: true})
+      expect(task.description()).toEqual("Updated 1 testmodel")
 
+  describe 'when undoing', ->
     beforeEach ->
       @undoTask = new UpdateNylasObjectsTask(@objects, {}, @origValues)
       @undoTask._isUndoTask = true

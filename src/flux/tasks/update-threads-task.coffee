@@ -1,4 +1,5 @@
 _ = require 'underscore'
+inflection = require 'inflection'
 Thread = require '../models/thread'
 Message = require '../models/message'
 NylasAPI = require '../nylas-api'
@@ -7,6 +8,31 @@ UpdateNylasObjectsTask = require './update-nylas-objects-task'
 
 class UpdateThreadsTask extends UpdateNylasObjectsTask
   endpoint: -> "threads"
+
+  description: ->
+    type = 'thread'
+    count = @objects.length
+    if count > 1
+      type = inflection.pluralize(type)
+
+    if Object.keys(@oldValues).length > 0
+      return "Undoing changes to #{count} #{type}"
+
+    if @newValues.unread?
+      newState = if @newValues.unread is true then "unread" else "read"
+      if count > 1
+        return "Marked #{count} #{type} as #{newState}"
+      else
+        return "Marked as #{newState}"
+
+    if @newValues.starred?
+      verb = if @newValues.starred is true then "Starred" else "Unstarred"
+      if count > 1
+        return "#{verb} #{count} #{type}"
+      else
+        return "#{verb}"
+
+    "Updated #{count} #{type}"
 
   performLocal: ({reverting}={}) ->
     threadIds = @objects.map (obj) -> obj.id

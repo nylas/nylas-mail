@@ -64,6 +64,27 @@ describe "ChangeFolderTask", ->
       folderOrId: @testFolders['f2']
       messageIds: ['m1']
 
+  describe "description", ->
+    it "should include the folder name if folderOrId is a folder", ->
+      taskWithFolderId = new ChangeFolderTask
+        folderOrId: 'f2'
+        messageIds: ['m1']
+      expect(taskWithFolderId.description()).toEqual("Moved 1 message")
+      taskWithFolder = new ChangeFolderTask
+        folderOrId: @testFolders['f2']
+        messageIds: ['m1']
+      expect(taskWithFolder.description()).toEqual("Moved 1 message to MyDrafts")
+
+    it "should correctly mention threads and messages", ->
+      taskWithFolderId = new ChangeFolderTask
+        folderOrId: 'f2'
+        messageIds: ['m1']
+      expect(@basicThreadTask.description()).toEqual("Moved 1 thread")
+      taskWithFolder = new ChangeFolderTask
+        folderOrId: @testFolders['f2']
+        messageIds: ['m1']
+      expect(@basicMessageTask.description()).toEqual("Moved 1 message to MyDrafts")
+
   describe "shouldWaitForTask", ->
     it "should return true if another, older ChangeFolderTask involves the same threads", ->
       a = new ChangeFolderTask(threadIds: ['t1', 't2', 't3'])
