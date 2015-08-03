@@ -40,11 +40,13 @@ class ParticipantsTextField extends React.Component
         ref="textField"
         tokens={@props.participants[@props.field]}
         tokenKey={ (p) -> p.email }
+        tokenIsValid={ (p) -> ContactStore.isValidContact(p) }
         tokenNode={@_tokenNode}
         onRequestCompletions={ (input) -> ContactStore.searchContacts(input) }
         completionNode={@_completionNode}
         onAdd={@_add}
         onRemove={@_remove}
+        onEdit={@_edit}
         onEmptied={@props.onEmptied}
         onTokenAction={@_showContextMenu}
         tabIndex={@props.tabIndex}
@@ -71,6 +73,20 @@ class ParticipantsTextField extends React.Component
         <span className="participant-primary">{p.email}</span>
       </div>
 
+  _tokensForString: (string, options = {}) =>
+    # If the input is a string, parse out email addresses and build
+    # an array of contact objects. For each email address wrapped in
+    # parentheses, look for a preceding name, if one exists.
+    if string.length is 0
+      return []
+
+    contacts = ContactStore.parseContactsInString(string, options)
+    if contacts.length > 0
+      return contacts
+    else
+      # If no contacts are returned, treat the entire string as a single
+      # (malformed) contact object.
+      return [new Contact(email: string, name: null)]
 
   _remove: (values) =>
     field = @props.field
@@ -81,22 +97,26 @@ class ParticipantsTextField extends React.Component
       false
     @props.change(updates)
 
+  _edit: (token, replacementString) =>
+    field = @props.field
+    tokenIndex = @props.participants[field].indexOf(token)
+    replacements = @_tokensForString(replacementString)
+
+    updates = {}
+    updates[field] = [].concat(@props.participants[field])
+    updates[field].splice(tokenIndex, 1, replacements...)
+    @props.change(updates)
+
   _add: (values, options={}) =>
     # If the input is a string, parse out email addresses and build
     # an array of contact objects. For each email address wrapped in
     # parentheses, look for a preceding name, if one exists.
-
     if _.isString(values)
-      values = ContactStore.parseContactsInString(values, options)
+      values = @_tokensForString(values, options)
 
     # Safety check: remove anything from the incoming values that isn't
     # a Contact. We should never receive anything else in the values array.
-
-    values = _.compact _.map values, (value) ->
-      if value instanceof Contact
-        return value
-      else
-        return null
+    values = _.filter values, (value) -> value instanceof Contact
 
     updates = {}
     for field in Object.keys(@props.participants)

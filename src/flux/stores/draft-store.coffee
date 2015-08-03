@@ -19,9 +19,9 @@ Actions = require '../actions'
 TaskQueue = require './task-queue'
 
 {subjectWithPrefix, generateTempId} = require '../models/utils'
-
 {Listener, Publisher} = require '../modules/reflux-coffee'
 CoffeeHelpers = require '../coffee-helpers'
+DOMUtils = require '../../dom-utils'
 
 ###
 Public: DraftStore responds to Actions that interact with Drafts and exposes
@@ -258,7 +258,8 @@ class DraftStore
       attributes.subject ?= subjectWithPrefix(thread.subject, 'Re:')
       attributes.body ?= ""
 
-      contactStrings = (cs) -> _.invoke(cs, "messageName").join(", ")
+      contactsAsHtml = (cs) ->
+        DOMUtils.escapeHTMLCharacters(_.invoke(cs, "toString").join(", "))
 
       if attributes.replyToMessage
         msg = attributes.replyToMessage
@@ -268,7 +269,7 @@ class DraftStore
         attributes.body = """
           <br><br><blockquote class="gmail_quote"
             style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
-            #{msg.replyAttributionLine()}
+            #{DOMUtils.escapeHTMLCharacters(msg.replyAttributionLine())}
             <br>
             #{@_formatBodyForQuoting(msg.body)}
           </blockquote>"""
@@ -277,12 +278,12 @@ class DraftStore
       if attributes.forwardMessage
         msg = attributes.forwardMessage
         fields = []
-        fields.push("From: #{contactStrings(msg.from)}") if msg.from.length > 0
+        fields.push("From: #{contactsAsHtml(msg.from)}") if msg.from.length > 0
         fields.push("Subject: #{msg.subject}")
         fields.push("Date: #{msg.formattedDate()}")
-        fields.push("To: #{contactStrings(msg.to)}") if msg.to.length > 0
-        fields.push("CC: #{contactStrings(msg.cc)}") if msg.cc.length > 0
-        fields.push("BCC: #{contactStrings(msg.bcc)}") if msg.bcc.length > 0
+        fields.push("To: #{contactsAsHtml(msg.to)}") if msg.to.length > 0
+        fields.push("CC: #{contactsAsHtml(msg.cc)}") if msg.cc.length > 0
+        fields.push("BCC: #{contactsAsHtml(msg.bcc)}") if msg.bcc.length > 0
 
         if msg.files?.length > 0
           attributes.files ?= []

@@ -94,19 +94,30 @@ describe "ContactStore", ->
 
   describe 'parseContactsInString', ->
     testCases =
+      # Single contact test cases
       "evan@nylas.com": [new Contact(name: "evan@nylas.com", email: "evan@nylas.com")]
       "Evan Morikawa": []
       "Evan Morikawa <evan@nylas.com>": [new Contact(name: "Evan Morikawa", email: "evan@nylas.com")]
       "Evan Morikawa (evan@nylas.com)": [new Contact(name: "Evan Morikawa", email: "evan@nylas.com")]
+      "spang (Christine Spang) <noreply+phabricator@nilas.com>": [new Contact(name: "spang (Christine Spang)", email: "noreply+phabricator@nilas.com")]
+      "spang 'Christine Spang' <noreply+phabricator@nilas.com>": [new Contact(name: "spang 'Christine Spang'", email: "noreply+phabricator@nilas.com")]
+      "spang \"Christine Spang\" <noreply+phabricator@nilas.com>": [new Contact(name: "spang \"Christine Spang\"", email: "noreply+phabricator@nilas.com")]
       "Evan (evan@nylas.com)": [new Contact(name: "Evan", email: "evan@nylas.com")]
+
+      # Multiple contact test cases
       "Evan Morikawa <evan@nylas.com>, Ben <ben@nylas.com>": [
         new Contact(name: "Evan Morikawa", email: "evan@nylas.com")
         new Contact(name: "Ben", email: "ben@nylas.com")
       ]
+      "mark@nylas.com\nGleb (gleb@nylas.com)\rEvan Morikawa <evan@nylas.com>, spang (Christine Spang) <noreply+phabricator@nilas.com>": [
+        new Contact(name: "", email: "mark@nylas.com")
+        new Contact(name: "Gleb", email: "gleb@nylas.com")
+        new Contact(name: "Evan Morikawa", email: "evan@nylas.com")
+        new Contact(name: "spang (Christine Spang)", email: "noreply+phabricator@nilas.com")
+      ]
 
     _.forEach testCases, (value, key) ->
       it "works for #{key}", ->
-        testContacts = ContactStore.parseContactsInString(key).map (c) -> c.nameEmail()
-        expectedContacts = value.map (c) -> c.nameEmail()
+        testContacts = ContactStore.parseContactsInString(key).map (c) -> c.toString()
+        expectedContacts = value.map (c) -> c.toString()
         expect(testContacts).toEqual expectedContacts
-

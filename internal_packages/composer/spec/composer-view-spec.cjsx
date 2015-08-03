@@ -14,6 +14,7 @@ ReactTestUtils = React.addons.TestUtils
  NylasTestUtils,
  NamespaceStore,
  FileUploadStore,
+ ContactStore,
  ComponentRegistry} = require "nylas-exports"
 
 {InjectedComponent} = require 'nylas-component-kit'
@@ -58,12 +59,16 @@ draftStoreProxyStub = (localId, returnedDraft) ->
 searchContactStub = (email) ->
   _.filter(users, (u) u.email.toLowerCase() is email.toLowerCase())
 
+isValidContactStub = (contact) ->
+  contact.email.indexOf('@') > 0
+
 ComposerView = proxyquire "../lib/composer-view",
   "./file-upload": reactStub("file-upload")
   "./image-file-upload": reactStub("image-file-upload")
   "nylas-exports":
     ContactStore:
-      searchContacts: (email) -> searchContactStub
+      searchContacts: searchContactStub
+      isValidContact: isValidContactStub
     DraftStore: DraftStore
 
 beforeEach ->
@@ -335,13 +340,26 @@ describe "populated composer", ->
       spyOn(@dialog, "showMessageBox")
       spyOn(Actions, "sendDraft")
 
-    it "shows a warning if there are no recipients", ->
+    it "shows an error if there are no recipients", ->
       useDraft.call @, subject: "no recipients"
       makeComposer.call(@)
       @composer._sendDraft()
       expect(Actions.sendDraft).not.toHaveBeenCalled()
       expect(@dialog.showMessageBox).toHaveBeenCalled()
       dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
+      expect(dialogArgs.detail).toEqual("You need to provide one or more recipients before sending the message.")
+      expect(dialogArgs.buttons).toEqual ['Edit Message']
+
+    it "shows an error if a recipient is invalid", ->
+      useDraft.call @,
+        subject: 'hello world!'
+        to: [new Contact(email: 'lol', name: 'lol')]
+      makeComposer.call(@)
+      @composer._sendDraft()
+      expect(Actions.sendDraft).not.toHaveBeenCalled()
+      expect(@dialog.showMessageBox).toHaveBeenCalled()
+      dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
+      expect(dialogArgs.detail).toEqual("lol is not a valid email address - please remove or edit it before sending.")
       expect(dialogArgs.buttons).toEqual ['Edit Message']
 
     describe "empty body warning", ->
