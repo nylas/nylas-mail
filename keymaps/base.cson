@@ -214,29 +214,3 @@
   'shift-tab': 'native!'
 
 # Tokenizing Text fields
-
-# The default state. There's no input in the text field and there are no
-# autocomplete suggestions
-'.tokenizing-field input':
-  'backspace': 'native!'
-  'delete': 'native!'
-  'tab': 'native!'
-  ',': 'native!'
-
-'.tokenizing-field.empty input':
-  'backspace': 'tokenizing-field:remove'
-  'delete': 'tokenizing-field:remove'
-
-# When we found a name to suggest
-'.tokenizing-field.has-suggestions input':
-  ',': 'tokenizing-field:add-suggestion'
-  'tab': 'tokenizing-field:add-suggestion'
-  'enter': 'tokenizing-field:add-suggestion'
-  'escape': 'tokenizing-field:cancel'
-
-# When there is some text in the input field, but we have no suggestion
-'.tokenizing-field:not(.has-suggestions) input':
-  'tab': 'native!'
-  ',': 'tokenizing-field:add-input-value'
-  'enter': 'tokenizing-field:add-input-value'
-  'escape': 'tokenizing-field:cancel'

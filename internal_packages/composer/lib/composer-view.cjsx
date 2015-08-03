@@ -5,6 +5,7 @@ _ = require 'underscore'
  File,
  Actions,
  DraftStore,
+ ContactStore,
  UndoManager,
  FileUploadStore,
  QuotedHTMLParser,
@@ -582,12 +583,19 @@ class ComposerView extends React.Component
     remote = require('remote')
     dialog = remote.require('dialog')
 
-    if [].concat(draft.to, draft.cc, draft.bcc).length is 0
+    allRecipients = [].concat(draft.to, draft.cc, draft.bcc)
+    for contact in allRecipients
+      if not ContactStore.isValidContact(contact)
+        dealbreaker = "#{contact.email} is not a valid email address - please remove or edit it before sending."
+    if allRecipients.length is 0
+      dealbreaker = 'You need to provide one or more recipients before sending the message.'
+
+    if dealbreaker
       dialog.showMessageBox(remote.getCurrentWindow(), {
         type: 'warning',
         buttons: ['Edit Message'],
         message: 'Cannot Send',
-        detail: 'You need to provide one or more recipients before sending the message.'
+        detail: dealbreaker
       })
       return
 

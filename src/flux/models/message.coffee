@@ -263,7 +263,7 @@ class Message extends Model
   # localized for the current user.
   # ie "On Dec. 12th, 2015 at 4:00PM, Ben Gotow wrote:"
   replyAttributionLine: ->
-    "On #{@formattedDate()}, #{@fromContact().messageName()} wrote:"
+    "On #{@formattedDate()}, #{@fromContact().toString()} wrote:"
 
   formattedDate: -> moment(@date).format("MMM D YYYY, [at] h:mm a")
 

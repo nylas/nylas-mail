@@ -1,5 +1,17 @@
 @import "ui-variables";
 
+@token-top:lighten(@background-secondary,0.6%);
+@token-bottom:darken(@background-secondary, 2.5%);
+
+@token-hover-top: mix(@token-top, @component-active-color, 92%);
+@token-hover-bottom: mix(@token-bottom, @component-active-color, 90%);
+
+@token-selected-top: mix(@token-top, @component-active-color, 15%);
+@token-selected-bottom: mix(@token-bottom, @component-active-color, 0%);
+
+@token-invalid-selected-top: mix(@token-top, red, 60%);
+@token-invalid-selected-bottom: mix(@token-bottom, red, 55%);
+
 .tokenizing-field {
   display: block;
   margin: 0;
@@ -28,41 +40,82 @@
     border:0;
   }
 
+  .token-editing-input {
+    max-width: 100%;
+    font-size: 15px;
+    line-height: 17px;
+    padding: 2em;//0.5em @spacing-three-quarters 0.5em @spacing-three-quarters;
+    padding-right: 1.5em;
+    margin: 3px 6px 6px 1px;
+  }
+
   .token {
     display: inline-block;
     position: relative;
     color: @text-color;
-    padding: 0.4em @spacing-half 0.4em @spacing-half;
+    padding: 0.5em @spacing-three-quarters 0.5em @spacing-three-quarters;
     padding-right: 1.5em;
-    margin: 2px 5px 3px 0;
-    border-radius: @border-radius-base;
-    font-size: 15px;
-    background-color: @background-secondary;
+    margin: 3px 6px 6px 1px;
+    border-radius: @border-radius-base * 0.8;
     max-width: 100%;
+    font-size: 15px;
+    line-height: 17px;
+
+    background: linear-gradient(to bottom, @token-top 0%, @token-bottom 100%);
+    box-shadow: 0 0.5px 0 rgba(0,0,0,0.17), 0 -0.5px 0 rgba(0,0,0,0.17), 0.5px 0 0 rgba(0,0,0,0.17), -0.5px 0 0 rgba(0,0,0,0.17), 0 1px 1px rgba(0, 0, 0, 0.1);
 
     .action {
       position:absolute;
       padding: 0;
-      padding-top: 1px;
-      right: 7px;
       border: 0;
       margin: 0;
+      right: 7px;
       background-color: transparent;
       color: @text-color-very-subtle;
       img { background-color: @text-color-very-subtle; }
       font-size: 10px;
     }
     &:hover {
-      background-color: darken(@background-secondary, 5%);
+      background: linear-gradient(to bottom, @token-hover-top 0%, @token-hover-bottom 100%);
+      box-shadow: 0 0.5px 0 darken(@token-hover-bottom, 35%), 0 -0.5px 0 darken(@token-hover-top, 25%), 0.5px 0 0 darken(@token-hover-bottom, 25%), -0.5px 0 0 darken(@token-hover-bottom, 25%), 0 1px 1px rgba(0, 0, 0, 0.07);
       cursor: default;
     }
+    &.invalid {
+      border-bottom:1px dashed red;
+      margin-bottom: -1px;
+      background: transparent;
+      &:hover {
+        box-shadow: 0 -0.5px 0 @token-invalid-selected-top, 0.5px 0 0 @token-invalid-selected-bottom, -0.5px 0 0 @token-invalid-selected-bottom, 0 1px 1px rgba(0, 0, 0, 0.07);
+      }
+    }
+    &.invalid.selected, &.invalid.dragging {
+      background: linear-gradient(to bottom, @token-invalid-selected-top 0%, @token-invalid-selected-bottom 100%);
+      box-shadow: inset 0 1.5px 0 rgba(255,255,255,0.3), 0 1px 1px rgba(0, 0, 0, 0.1);
+      border: 1px solid darken(@token-invalid-selected-bottom, 8%);
+      border-top: 1px solid darken(@token-invalid-selected-top, 10%);
+    }
+
     &.selected,
     &.dragging {
-      background-color: @background-tertiary;
+      background: linear-gradient(to bottom, @token-selected-top 0%, @token-selected-bottom 100%);
+      box-shadow: inset 0 1.5px 0 rgba(255,255,255,0.3), 0 1px 1px rgba(0, 0, 0, 0.1);
+      border: 1px solid darken(@token-selected-bottom, 8%);
+      border-top: 1px solid darken(@token-selected-top, 10%);
+      border-radius: @border-radius-base;
+
+      // Note: we switch from 0.5px borders with box shadows to a real border,
+      // because the 0.5px shadows can't be as dark as we want. This means
+      // margins / border radius change by 1px.
+      margin: 2px 5px 5px 0;
+
       color: @text-color-inverse;
       .action {
         color: @text-color-inverse-subtle;
         img { background-color: @text-color-inverse-subtle; }
+      }
+      .secondary,
+      .participant-secondary {
+        color: @text-color-inverse-subtle;
       }
     }
     &.dragging {
@@ -127,6 +180,6 @@
   }
 }
 
-body.is-blurred .tokenizing-field .token {
-  background-color: @background-secondary;
+body.is-blurred .tokenizing-field .token:not(.invalid) {
+  background: @background-secondary;
 }

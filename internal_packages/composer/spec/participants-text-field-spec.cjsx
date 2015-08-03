@@ -30,8 +30,6 @@ participant5 = new Contact
   name: 'EVAN'
 
 describe 'ParticipantsTextField', ->
-  NylasTestUtils.loadKeymap()
-
   beforeEach ->
     @propChange = jasmine.createSpy('change')
 
@@ -54,7 +52,7 @@ describe 'ParticipantsTextField', ->
 
     @expectInputToYield = (input, expected) ->
       ReactTestUtils.Simulate.change(@renderedInput, {target: {value: input}})
-      NylasTestUtils.keyPress('enter', @renderedInput)
+      ReactTestUtils.Simulate.keyDown(@renderedInput, {key: 'Enter', keyCode: 9})
 
       reviver = (k,v) ->
         return undefined if k in ["id", "object"]

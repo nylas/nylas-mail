@@ -53,9 +53,13 @@ class Contact extends Model
     'phone': Attributes.String(modelKey: 'phone')
     'company': Attributes.String(modelKey: 'company')
 
-  # Used to uniquely identify a contact
-  nameEmail: ->
-    "#{(@name ? "").toLowerCase().trim()} #{@email.toLowerCase().trim()}"
+  # Public: Returns a string of the format `Full Name <email@address.com>` if
+  # the contact has a populated name, just the email address otherwise.
+  toString: ->
+    # Note: This is used as the drag-drop text of a Contact token, in the
+    # creation of message bylines "From Ben Gotow <ben@nylas>", and several other
+    # places. Change with care.
+    if @name and @name isnt @email then "#{@name} <#{@email}>" else @email
 
   toJSON: ->
     json = super
@@ -69,10 +73,6 @@ class Contact extends Model
   displayName: ->
     return "You" if @email is NamespaceStore.current()?.emailAddress
     @_nameParts().join(' ')
-
-  # Full Name <email@address.com>
-  messageName: ->
-    if @name then "#{@name} &lt;#{@email}&gt;" else @email
 
   displayFirstName: ->
     return "You" if @email is NamespaceStore.current()?.emailAddress

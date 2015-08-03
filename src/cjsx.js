@@ -33,6 +33,7 @@ var hotCompile = (function () {
       clearTimeout(timeout);
       timeout = setTimeout(function () {
         hotCompile(module, module.filename, true);
+        console.log('hot reloaded '+module.filename);
       }, 100);
     });
   }

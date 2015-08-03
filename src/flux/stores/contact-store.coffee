@@ -207,9 +207,18 @@ class ContactStore extends NylasStore
 
     matches
 
+  # Public: Returns true if the contact provided is a {Contact} instance and
+  # contains a properly formatted email address.
+  #
+  isValidContact: (contact) =>
+    return false unless contact instanceof Contact
+    return contact.email and RegExpUtils.emailRegex().test(contact.email)
+
   parseContactsInString: (contactString, {skipNameLookup}={}) =>
     detected = []
     emailRegex = RegExpUtils.emailRegex()
+    lastMatchEnd = 0
+
     while (match = emailRegex.exec(contactString))
       email = match[0]
       name = null
@@ -218,8 +227,8 @@ class ContactStore extends NylasStore
       hasTrailingParen = contactString[match.index+email.length] in [')','>']
 
       if hasLeadingParen and hasTrailingParen
-        nameStart = 0
-        for char in ['>', ')', ',', '\n', '\r']
+        nameStart = lastMatchEnd
+        for char in [',', '\n', '\r']
           i = contactString.lastIndexOf(char, match.index)
           nameStart = i+1 if i+1 > nameStart
         name = contactString.substr(nameStart, match.index - 1 - nameStart).trim()
@@ -233,7 +242,13 @@ class ContactStore extends NylasStore
         else
           name = email
 
+      # The "nameStart" for the next match must begin after lastMatchEnd
+      lastMatchEnd = match.index+email.length
+      if hasTrailingParen
+        lastMatchEnd += 1
+
       detected.push(new Contact({email, name}))
+
     detected
 
   __refreshCache: =>

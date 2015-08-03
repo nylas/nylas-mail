@@ -18,7 +18,7 @@ class Participants extends React.Component
 
   render: =>
     chips = @getParticipants().map (p) =>
-      <ContactChip key={p.nameEmail()} clickable={@props.clickable} participant={p} />
+      <ContactChip key={p.toString()} clickable={@props.clickable} participant={p} />
 
     <span>
       {chips}

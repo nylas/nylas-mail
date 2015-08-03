@@ -86,11 +86,11 @@ FocusedContactsStore = Reflux.createStore
   _assignScore: (contact, score=0) ->
     return unless contact?.email
     return if contact.email.trim().length is 0
-    return if @_contactScores[contact.nameEmail()]? # only assign the first time
+    return if @_contactScores[contact.toString()]? # only assign the first time
 
     penalties = @_calculatePenalties(contact, score)
 
-    @_contactScores[contact.nameEmail()] =
+    @_contactScores[contact.toString()] =
       contact: contact
       score: score - penalties
 
