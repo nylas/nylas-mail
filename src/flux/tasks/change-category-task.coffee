@@ -34,6 +34,11 @@ class ChangeCategoryTask extends Task
     if @threadIds.length > 0 then return "threads"
     else if @messageIds.length > 0 then return "messages"
 
+  _klass: ->
+    if @threadIds.length > 0 then Klass = Thread
+    else if @messageIds.length > 0 then Klass = Message
+    return Klass
+
   performLocal: ({reverting} = {}) ->
     @_isReverting = reverting
     err = @verifyArgs()
@@ -41,17 +46,15 @@ class ChangeCategoryTask extends Task
 
     @collectCategories().then (categories) =>
       promises = @objectIds.map (objectId) =>
-        if @threadIds.length > 0 then Klass = Thread
-        else if @messageIds.length > 0 then Klass = Message
-        DatabaseStore.find(Klass, objectId).then (object) =>
+        DatabaseStore.find(@_klass(), objectId).then (object) =>
           # Mark that we are optimistically changing this model. This will prevent
           # inbound delta syncs from changing it back to it's old state. Only the
           # operation that changes `optimisticChangeCount` back to zero will
           # apply the server's version of the model to our cache.
           if reverting is true
-            NylasAPI.decrementOptimisticChangeCount(Klass, object.id)
+            NylasAPI.decrementOptimisticChangeCount(@_klass(), object.id)
           else
-            NylasAPI.incrementOptimisticChangeCount(Klass, object.id)
+            NylasAPI.incrementOptimisticChangeCount(@_klass(), object.id)
 
           if @threadIds.length > 0
             return @localUpdateThread(object, categories)
@@ -68,8 +71,8 @@ class ChangeCategoryTask extends Task
         method: 'PUT'
         body: @requestBody(id)
         returnsModel: true
-        beforeProcessing: (body) ->
-          NylasAPI.decrementOptimisticChangeCount(Thread, id)
+        beforeProcessing: (body) =>
+          NylasAPI.decrementOptimisticChangeCount(@_klass(), id)
           body
 
     Promise.all(promises)
