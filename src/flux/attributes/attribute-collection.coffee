@@ -45,7 +45,7 @@ class AttributeCollection extends Attribute
     json = []
     for val in vals
       unless val instanceof @itemClass
-        msg = "AttributeCollection.toJSON: Value `#{val}` in #{@modelKey} is not an #{@itemClass.name}"
+        msg = "AttributeCollection::toJSON: Value `#{val}` in #{@modelKey} is not an #{@itemClass.name}"
         throw new Error msg
       if val.toJSON?
         json.push(val.toJSON())
@@ -68,7 +68,8 @@ class AttributeCollection extends Attribute
 
   # Public: Returns a {Matcher} for objects containing the provided value.
   contains: (val) ->
-    throw (new Error "this field cannot be queried against.") unless @queryable
+    throw (new Error "AttributeCollection::contains (#{@modelKey}) - you must provide a value") unless val?
+    throw (new Error "AttributeCollection::contains (#{@modelKey}) - this field cannot be queried against.") unless @queryable
     new Matcher(@, 'contains', val)
 
 module.exports = AttributeCollection
