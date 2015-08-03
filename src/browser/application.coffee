@@ -328,7 +328,7 @@ class Application
       else if focusedBrowserWindow?
         # Note: We sometimes display non-"AtomWindow" windows, for things like
         # raw message contents. Ensure that these also get to run window commands
-        unless global.application.sendCommandToFirstResponder(command)
+        unless @sendCommandToFirstResponder(command)
           switch command
             when 'window:reload' then focusedBrowserWindow.reload()
             when 'window:toggle-dev-tools' then focusedBrowserWindow.toggleDevTools()
