@@ -88,7 +88,6 @@ class Tooltip extends React.Component
 
   _onTooltipLeave: =>
     return unless @_enteredTooltip
-    @_mutationObserver?.disconnect()
     @_enteredTooltip = false
     clearTimeout(@_showTimeout)
     @_hideTooltip()
@@ -117,9 +116,12 @@ class Tooltip extends React.Component
       top = dim.top - TOOLTIP_HEIGHT
 
     # If for some reason the element was removed from underneath us, we
-    # won't know until we get here. The element's dimensions will return 0
-    # ,0, which we can use to filter out bad displays
-    if left < 5 and top < 5
+    # won't know until we get here. The element's dimensions will return
+    # (0, 14), which we can use to filter out bad displays. This can
+    # happen if our mutation observer misses the event. In some cases
+    # (like the multi-select toolbar), the button's great-grandparent is
+    # removed from the DOM and no mutation observer event is fired.
+    if left < 20 and top < 20
       @_hideTooltip()
       return
 
@@ -159,6 +161,7 @@ class Tooltip extends React.Component
     document.body.offsetHeight
 
   _hideTooltip: =>
+    @_mutationObserver?.disconnect()
     @_lastTarget = null
     @setState
       top: 0
