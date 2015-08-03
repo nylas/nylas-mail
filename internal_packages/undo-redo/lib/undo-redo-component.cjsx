@@ -28,7 +28,7 @@ class UndoRedoComponent extends React.Component
     clearTimeout(@_timeout)
 
   _setNewTimeout: =>
-    clearTimeout(@_timeout)
+    @_clearTimeout()
     @_timeout = setTimeout (=>
       @_hide()
       return
@@ -43,10 +43,11 @@ class UndoRedoComponent extends React.Component
     return {show: s, task: t}
 
   componentWillMount: ->
-    @unsub = UndoRedoStore.listen(@_onChange)
+    @_unsubscribe = UndoRedoStore.listen(@_onChange)
 
   componentWillUnmount: ->
-    @unsub()
+    @_clearTimeout()
+    @_unsubscribe()
 
   render: =>
     items = [].concat(@_renderUndoRedoManager())
