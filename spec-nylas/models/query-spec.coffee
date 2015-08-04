@@ -115,6 +115,16 @@ describe "ModelQuery", ->
         sql: "SELECT `Namespace`.`data` FROM `Namespace`  \
               WHERE `Namespace`.`email_address` = 'ben@nylas.com' AND `Namespace`.`id` = 2"
 
+    it "should correctly escape single quotes with more double single quotes (LIKE)", ->
+      @runScenario Namespace,
+        builder: (q) -> q.where(Namespace.attributes.emailAddress.like("you're"))
+        sql: "SELECT `Namespace`.`data` FROM `Namespace`  WHERE `Namespace`.`email_address` like '%you''re%'"
+
+    it "should correctly escape single quotes with more double single quotes (equal)", ->
+      @runScenario Namespace,
+        builder: (q) -> q.where(Namespace.attributes.emailAddress.equal("you're"))
+        sql: "SELECT `Namespace`.`data` FROM `Namespace`  WHERE `Namespace`.`email_address` = 'you''re'"
+
     it "should correctly generate COUNT queries", ->
       @runScenario Thread,
         builder: (q) -> q.where({namespaceId: 'abcd'}).count()

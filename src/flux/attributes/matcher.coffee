@@ -73,14 +73,13 @@ class Matcher
         return false
 
   whereSQL: (klass) ->
-
     if @comparator is "like"
       val = "%#{@val}%"
     else
       val = @val
 
     if _.isString(val)
-      escaped = "'#{val.replace(/'/g, '\\\'')}'"
+      escaped = "'#{val.replace(/'/g, "''")}'"
     else if val is true
       escaped = 1
     else if val is false
