@@ -473,33 +473,6 @@ describe "populated composer", ->
       expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_LOCAL_ID)
       expect(Actions.sendDraft.calls.length).toBe 1
 
-    it "disables the composer once sending has started", ->
-      useFullDraft.apply(@); makeComposer.call(@)
-      sendBtn = React.findDOMNode(@composer.refs.sendButton)
-      cover = ReactTestUtils.findRenderedDOMComponentWithClass(@composer, "composer-cover")
-      expect(React.findDOMNode(cover).style.display).toBe "none"
-      ReactTestUtils.Simulate.click sendBtn
-      @isSending.state = true
-      DraftStore.trigger()
-      expect(React.findDOMNode(cover).style.display).toBe "block"
-      expect(@composer.state.isSending).toBe true
-
-    it "re-enables the composer if sending threw an error", ->
-      @isSending.state = null
-      useFullDraft.apply(@); makeComposer.call(@)
-      sendBtn = React.findDOMNode(@composer.refs.sendButton)
-      ReactTestUtils.Simulate.click sendBtn
-
-      @isSending.state = true
-      DraftStore.trigger()
-
-      expect(@composer.state.isSending).toBe true
-
-      @isSending.state = false
-      DraftStore.trigger()
-
-      expect(@composer.state.isSending).toBe false
-
     describe "when sending a message with keyboard inputs", ->
       beforeEach ->
         useFullDraft.apply(@)

@@ -39,6 +39,7 @@ class SendDraftTask extends Task
     # recent draft version
     DatabaseStore.findByLocalId(Message, @draftLocalId).then (draft) =>
       # The draft may have been deleted by another task. Nothing we can do.
+      NylasAPI.incrementOptimisticChangeCount(Message, draft.id)
       @draft = draft
       if not draft
         return Promise.reject(new Error("We couldn't find the saved draft."))
@@ -72,6 +73,7 @@ class SendDraftTask extends Task
         return Promise.resolve(Task.Status.Finished)
 
     .catch APIError, (err) =>
+      NylasAPI.decrementOptimisticChangeCount(Message, @draft.id)
       if err.message?.indexOf('Invalid message public id') is 0
         body.reply_to_message_id = null
         return @_send(body)
