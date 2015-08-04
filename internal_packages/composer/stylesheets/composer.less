@@ -134,7 +134,6 @@
   .compose-subject-wrap {
     position: relative;
     z-index: 2;
-    padding: 11px @spacing-standard 11px 0;
     margin: 0 23px;
     border-bottom: 1px solid @border-color-divider;
     flex-shrink:0;
@@ -146,16 +145,15 @@
       display: block;
     }
 
-    input.compose-field {
+    input {
       display: inline-block;
-      width: calc(~"100% - 61px");
-      padding: 0;
+      padding: 13px 0 9px 0;
       margin: 0 0 0 5px;
       min-width: 5em;
       background-color: transparent;
       border: none;
     }
-    input.compose-field.compose-subject {
+    input {
       &::-webkit-input-placeholder {
         color: @text-color-very-subtle;
       }

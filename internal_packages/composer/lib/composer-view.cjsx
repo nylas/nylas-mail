@@ -261,7 +261,6 @@ class ComposerView extends React.Component
                  tabIndex="108"
                  placeholder="Subject"
                  disabled={not @state.showsubject}
-                 className="compose-field compose-subject"
                  value={@state.subject}
                  onChange={@_onChangeSubject}/>
         </div>
