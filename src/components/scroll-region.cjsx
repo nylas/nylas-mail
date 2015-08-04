@@ -194,26 +194,26 @@ class ScrollRegion extends React.Component
 
   # Public: Scroll to the DOM Node provided.
   #
-  scrollTo: (node, {position, settle} = {}) =>
+  scrollTo: (node, {position, settle, done} = {}) =>
     if node instanceof React.Component
       node = React.findDOMNode(node)
     unless node instanceof Node
       throw new Error("ScrollRegion.scrollTo: requires a DOM node or React element. Maybe you meant scrollToRect?")
-    @_scroll {position, settle}, =>
+    @_scroll {position, settle, done}, =>
       node.getBoundingClientRect()
 
   # Public: Scroll to the client rectangle provided. Note: This method expects
   # a ClientRect or similar object with top, left, width, height relative to the
   # window, not the scroll region. This is designed to make it easy to use with
   # node.getBoundingClientRect()
-  scrollToRect: (rect, {position, settle} = {}) ->
+  scrollToRect: (rect, {position, settle, done} = {}) ->
     if rect instanceof Node
       throw new Error("ScrollRegion.scrollToRect: requires a rect. Maybe you meant scrollTo?")
     if not rect.top or not rect.height
       throw new Error("ScrollRegion.scrollToRect: requires a rect with `top` and `height` attributes.")
-    @_scroll {position, settle}, => rect
+    @_scroll {position, settle, done}, => rect
 
-  _scroll: ({position, settle}, clientRectProviderCallback) ->
+  _scroll: ({position, settle, done}, clientRectProviderCallback) ->
     contentNode = React.findDOMNode(@refs.content)
     position ?= ScrollRegion.ScrollPosition.Visible
 
@@ -227,7 +227,7 @@ class ScrollRegion extends React.Component
 
     settleFn =>
       # If another scroll call has been made since ours, don't do anything.
-      return unless @_scrollToTaskId is taskId
+      return done?(false) unless @_scrollToTaskId is taskId
 
       contentClientRect = contentNode.getBoundingClientRect()
       rect = _.clone(clientRectProviderCallback())
@@ -260,20 +260,18 @@ class ScrollRegion extends React.Component
         else if distanceAboveTop >= 0
           @scrollTop -= distanceAboveTop
 
+      done?(true)
+
   _settleHeight: (callback) =>
     contentNode = React.findDOMNode(@refs.content)
     lastContentHeight = -1
-    stableCount = 0
     scrollIfSettled = =>
       return unless @_mounted
       contentRect = contentNode.getBoundingClientRect()
       if contentRect.height isnt lastContentHeight
         lastContentHeight = contentRect.height
-        stableCount = 0
       else
-        stableCount += 1
-        if stableCount is 5
-          return callback()
+        return callback()
       window.requestAnimationFrame(scrollIfSettled)
     scrollIfSettled()
 
