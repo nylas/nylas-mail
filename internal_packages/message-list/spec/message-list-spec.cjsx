@@ -1,6 +1,6 @@
 _ = require "underscore"
 moment = require "moment"
-proxyquire = require "proxyquire"
+proxyquire = require("proxyquire").noPreserveCache()
 
 CSON = require "season"
 React = require "react/addons"
@@ -19,15 +19,19 @@ TestUtils = React.addons.TestUtils
 
 {InjectedComponent} = require 'nylas-component-kit'
 
+MessageParticipants = require "../lib/message-participants"
+
 MessageItem = proxyquire("../lib/message-item", {
   "./email-frame": React.createClass({render: -> <div></div>})
 })
 
-MessageList = proxyquire("../lib/message-list", {
+MessageItemContainer = proxyquire("../lib/message-item-container", {
   "./message-item": MessageItem
+  "./pending-message-item": MessageItem
 })
 
-MessageParticipants = require "../lib/message-participants"
+MessageList = proxyquire '../lib/message-list',
+  "./message-item-container": MessageItemContainer
 
 me = new Namespace
   name: "User One",
@@ -180,7 +184,7 @@ describe "MessageList", ->
 
   it "by default has zero children", ->
     items = TestUtils.scryRenderedComponentsWithType(@messageList,
-            MessageItem)
+            MessageItemContainer)
 
     expect(items.length).toBe 0
 
@@ -195,11 +199,11 @@ describe "MessageList", ->
 
     it "renders all the correct number of messages", ->
       items = TestUtils.scryRenderedComponentsWithType(@messageList,
-              MessageItem)
+              MessageItemContainer)
       expect(items.length).toBe 5
 
     it "renders the correct number of expanded messages", ->
-      msgs = TestUtils.scryRenderedDOMComponentsWithClass(@messageList, "message-item-wrap collapsed")
+      msgs = TestUtils.scryRenderedDOMComponentsWithClass(@messageList, "collapsed message-item-wrap")
       expect(msgs.length).toBe 4
 
     it "displays lists of participants on the page", ->
@@ -220,7 +224,15 @@ describe "MessageList", ->
         messages: msgs.concat(draftMessages)
 
       expect(@messageList._focusDraft).toHaveBeenCalled()
-      expect(@messageList._focusDraft.mostRecentCall.args[0].props.exposedProps.localId).toEqual(draftMessages[0].id)
+      expect(@messageList._focusDraft.mostRecentCall.args[0].props.messageId).toEqual(draftMessages[0].id)
+
+    it "includes drafts as message item containers", ->
+      msgs = @messageList.state.messages
+      @messageList.setState
+        messages: msgs.concat(draftMessages)
+      items = TestUtils.scryRenderedComponentsWithType(@messageList,
+              MessageItemContainer)
+      expect(items.length).toBe 6
 
   describe "MessageList with draft", ->
     beforeEach ->

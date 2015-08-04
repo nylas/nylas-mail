@@ -397,6 +397,7 @@ class DraftStore
   # The user request to send the draft
   _onSendDraft: (draftLocalId) =>
     @_pendingEnqueue[draftLocalId] = true
+    @trigger(draftLocalId)
     @sessionForLocalId(draftLocalId).then (session) =>
       @_runExtensionsBeforeSend(session)
 
@@ -415,7 +416,7 @@ class DraftStore
             # the line, we'll make a new session and handle them later
             @_doneWithSession(session)
             @_pendingEnqueue[draftLocalId] = false
-            @trigger()
+            @trigger(draftLocalId)
 
         Actions.queueTask(task)
         @_doneWithSession(session)

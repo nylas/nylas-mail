@@ -60,7 +60,6 @@ class ComposerView extends React.Component
       showbcc: false
       showsubject: false
       showQuotedText: false
-      isSending: DraftStore.isSendingDraft(@props.localId)
       uploads: FileUploadStore.uploadsForMessage(@props.localId) ? []
 
   componentWillMount: =>
@@ -71,7 +70,6 @@ class ComposerView extends React.Component
     not Utils.isEqualReact(nextState, @state)
 
   componentDidMount: =>
-    @_draftStoreUnlisten = DraftStore.listen @_onSendingStateChanged
     @_uploadUnlisten = FileUploadStore.listen @_onFileUploadStoreChange
     @_keymapUnlisten = atom.commands.add '.composer-outer-wrap', {
       'composer:show-and-focus-bcc': @_showAndFocusBcc
@@ -92,7 +90,6 @@ class ComposerView extends React.Component
     @_teardownForDraft()
     @_deleteDraftIfEmpty()
     @_uploadUnlisten() if @_uploadUnlisten
-    @_draftStoreUnlisten() if @_draftStoreUnlisten
     @_keymapUnlisten.dispose() if @_keymapUnlisten
 
   componentDidUpdate: =>
@@ -165,7 +162,6 @@ class ComposerView extends React.Component
               shouldAcceptDrop={@_shouldAcceptDrop}
               onDragStateChange={ ({isDropping}) => @setState({isDropping}) }
               onDrop={@_onDrop}>
-      <div className="composer-cover" style={display: if @state.isSending then 'block' else 'none'}></div>
       <div className="composer-drop-cover" style={display: if @state.isDropping then 'block' else 'none'}>
         <div className="centered">
           <RetinaImg name="composer-drop-to-attach.png" mode={RetinaImg.Mode.ContentIsMask}/>
@@ -572,10 +568,10 @@ class ComposerView extends React.Component
   _sendDraft: (options = {}) =>
     return unless @_proxy
 
-    # We need to check the `DraftStore` instead of `@state.isSending`
-    # because the `DraftStore` is immediately and synchronously updated as
-    # soon as this function fires. Since `setState` is asynchronous, if we
-    # used that as our only check, then we might get a false reading.
+    # We need to check the `DraftStore` because the `DraftStore` is
+    # immediately and synchronously updated as soon as this function
+    # fires. Since `setState` is asynchronous, if we used that as our only
+    # check, then we might get a false reading.
     return if DraftStore.isSendingDraft(@props.localId)
 
     draft = @_proxy.draft()
@@ -629,11 +625,6 @@ class ComposerView extends React.Component
           @_sendDraft({force: true})
       return
 
-    # There can be a delay between when the send request gets initiated
-    # by a user and when the draft is prepared on on the TaskQueue, which
-    # is how we detect that the draft is sending.
-    @setState(isSending: true)
-
     Actions.sendDraft(@props.localId)
 
   _mentionsAttachment: (body) =>
@@ -653,11 +644,6 @@ class ComposerView extends React.Component
   _showAndFocusCc: =>
     @setState {showcc: true}
     @focus('textFieldCc')
-
-  _onSendingStateChanged: =>
-    isSending = DraftStore.isSendingDraft(@props.localId)
-    if isSending isnt @state.isSending
-      @setState({isSending})
 
   _onEmptyCc: =>
     @setState showcc: false

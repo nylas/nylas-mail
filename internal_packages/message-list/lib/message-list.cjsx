@@ -1,7 +1,8 @@
 _ = require 'underscore'
 React = require 'react'
 classNames = require 'classnames'
-MessageItem = require "./message-item"
+MessageItemContainer = require './message-item-container'
+
 {Utils,
  Actions,
  Message,
@@ -119,15 +120,15 @@ class MessageList extends React.Component
 
     newDraftIds = @_newDraftIds(prevState)
     if newDraftIds.length > 0
-      @_focusDraft(@_getMessageElement(newDraftIds[0]))
+      @_focusDraft(@_getMessageContainer(newDraftIds[0]))
 
   _newDraftIds: (prevState) =>
     oldDraftIds = _.map(_.filter((prevState.messages ? []), (m) -> m.draft), (m) -> m.id)
     newDraftIds = _.map(_.filter((@state.messages ? []), (m) -> m.draft), (m) -> m.id)
     return _.difference(newDraftIds, oldDraftIds) ? []
 
-  _getMessageElement: (id) =>
-    @refs["message-#{id}"]
+  _getMessageContainer: (id) =>
+    @refs["message-container-#{id}"]
 
   _focusDraft: (draftElement) =>
     draftElement.focus()
@@ -184,7 +185,7 @@ class MessageList extends React.Component
             updated[key].push(contact) unless _.findWhere(updated[key], {email: contact.email})
 
         session.changes.add(updated)
-        @_focusDraft(@_getMessageElement(last.id))
+        @_focusDraft(@_getMessageContainer(last.id))
 
     else
       if type is 'reply'
@@ -227,7 +228,7 @@ class MessageList extends React.Component
             matching={role:"MessageListHeaders"}
             exposedProps={thread: @state.currentThread}/>
         </div>
-        {@_messageComponents()}
+        {@_messageElements()}
       </ScrollRegion>
       <Spinner visible={@state.loading} />
     </div>
@@ -271,44 +272,39 @@ class MessageList extends React.Component
     return unless @state.currentThread
     @_createReplyOrUpdateExistingDraft(@_replyType())
 
-  _messageComponents: =>
-    components = []
+  _messageElements: =>
+    elements = []
 
     messages = @_messagesWithMinification(@state.messages)
     messages.forEach (message, idx) =>
 
       if message.type is "minifiedBundle"
-        components.push(@_renderMinifiedBundle(message))
+        elements.push(@_renderMinifiedBundle(message))
         return
 
       collapsed = !@state.messagesExpandedState[message.id]
+      isLastMsg = (messages.length - 1 is idx)
+      isBeforeReplyArea = isLastMsg and @_hasReplyArea()
 
-      className = classNames
-        "message-item-wrap": true
-        "before-reply-area": (messages.length - 1 is idx) and @_hasReplyArea()
-        "unread": message.unread
-        "draft": message.draft
-        "collapsed": collapsed
+      messageId = @state.messageLocalIds[message.id]
+      messageId ?= message.id
 
-      if message.draft
-        components.push <InjectedComponent matching={role:"Composer"}
-                         exposedProps={ mode:"inline", localId:@state.messageLocalIds[message.id], onRequestScrollTo:@_onChildScrollRequest, threadId:@state.currentThread.id }
-                         ref={"message-#{message.id}"}
-                         key={@state.messageLocalIds[message.id]}
-                         className={className} />
-      else
-        components.push <MessageItem key={message.id}
-                         thread={@state.currentThread}
-                         ref={"message-#{message.id}"}
-                         message={message}
-                         className={className}
-                         collapsed={collapsed}
-                         isLastMsg={(messages.length - 1 is idx)} />
+      elements.push(
+        <MessageItemContainer key={idx}
+                              ref={"message-container-#{message.id}"}
+                              thread={@state.currentThread}
+                              message={message}
+                              messageId={messageId}
+                              collapsed={collapsed}
+                              isLastMsg={isLastMsg}
+                              isBeforeReplyArea={isBeforeReplyArea}
+                              onRequestScrollTo={@_onChildScrollRequest} />
+      )
 
     if @_hasReplyArea()
       components.push @_renderReplyArea()
 
-    return components
+    return elements
 
   _renderMinifiedBundle: (bundle) ->
     BUNDLE_HEIGHT = 36
@@ -375,7 +371,7 @@ class MessageList extends React.Component
   # smoothly to the top of a particular message.
   _onChildScrollRequest: ({messageId, rect}={}) =>
     if messageId
-      @refs.messageWrap.scrollTo(@_getMessageElement(messageId), {
+      @refs.messageWrap.scrollTo(@_getMessageContainer(messageId), {
         position: ScrollRegion.ScrollPosition.Visible
       })
     else if rect

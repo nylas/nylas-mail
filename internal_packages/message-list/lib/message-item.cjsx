@@ -92,12 +92,14 @@ class MessageItem extends React.Component
   _renderHeader: =>
     <header className="message-header" onClick={@_onClickHeader}>
 
+      {@_renderHeaderSideItems()}
+
       <div className="message-header-right">
         <MessageTimestamp className="message-time selectable"
                           isDetailed={@state.detailedHeaders}
                           date={@props.message.date} />
 
-        <MessageControls thread={@props.thread} message={@props.message}/>
+        {@_renderMessageControls()}
 
         <InjectedComponentSet className="message-indicator"
                               matching={role: "MessageIndicator"}
@@ -114,9 +116,12 @@ class MessageItem extends React.Component
                            message_participants={@props.message.participants()} />
 
       {@_renderFolder()}
-      {@_renderHeaderExpansionControl()}
+      {@_renderHeaderDetailToggle()}
 
     </header>
+
+  _renderMessageControls: ->
+    <MessageControls thread={@props.thread} message={@props.message}/>
 
   _renderFolder: =>
     return [] unless @state.detailedHeaders and @props.message.folder
@@ -124,7 +129,6 @@ class MessageItem extends React.Component
       <div className="header-label">Folder:&nbsp;</div>
       <div className="header-name">{@props.message.folder.displayName}</div>
     </div>
-
 
   _onClickParticipants: (e) =>
     el = e.target
@@ -167,7 +171,11 @@ class MessageItem extends React.Component
     'no-quoted-text': not QuotedHTMLParser.hasQuotedHTML(@props.message.body)
     'show-quoted-text': @state.showQuotedText
 
-  _renderHeaderExpansionControl: =>
+  # This is used by subclasses of MessageItem.
+  # See {PendingMessageItem}
+  _renderHeaderSideItems: -> []
+
+  _renderHeaderDetailToggle: =>
     if @state.detailedHeaders
       <div className="header-toggle-control"
            style={top: "18px", left: "-14px"}
