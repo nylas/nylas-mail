@@ -58,12 +58,20 @@ class ChangeFolderTask extends ChangeCategoryTask
   requestBody: (objectId) ->
     if @threadIds.length > 0
       if @_isUndoTask or @_isReverting
-        return folder: @undoData.originalThreadFolders[objectId][0].id
+        # The API only accepts a single folder id at the endpoint.
+        # However, the original Thread may have had multiple folders
+        # assigned to it. For now we simply pick the first folder object
+        # available to us.
+        oldFolder = @undoData.originalThreadFolders[objectId]?[0]?.id
+        return null unless oldFolder
+        return folder: oldFolder
       else
         return folder: @_folderObj.id
     else if @messageIds.length > 0
       if @_isUndoTask or @_isReverting
-        return folder: @undoData.originalMessageFolder[objectId].id
+        oldFolder = @undoData.originalMessageFolder[objectId]?.id
+        return null unless oldFolder
+        return folder: oldFolder
       else
         return folder: @_folderObj.id
 
@@ -118,7 +126,7 @@ class ChangeFolderTask extends ChangeCategoryTask
       messagesToSave = []
       for message in messages
         origFolder = @undoData.originalMessageFolder[message.id]
-        if message.folder?.id isnt origFolder?.id
+        if origFolder and message.folder?.id isnt origFolder.id
           message.folder = origFolder
           messagesToSave.push(message)
       DatabaseStore.persistModels(messagesToSave)
@@ -129,7 +137,9 @@ class ChangeFolderTask extends ChangeCategoryTask
     return Promise.all([parentSavePromise, childSavePromise])
 
   _undoLocalUpdateMessage: (message) ->
-    message.folder = @undoData.originalMessageFolder[message.id]
+    origFolder = @undoData.originalMessageFolder[message.id]
+    return Promise.resolve() unless origFolder
+    message.folder = origFolder
     return DatabaseStore.persistModel(message)
 
   # Since we override with a single folder assignment, we need to keep
