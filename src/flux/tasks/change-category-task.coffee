@@ -74,10 +74,16 @@ class ChangeCategoryTask extends Task
   performRemote: ->
     nsid = NamespaceStore.current()?.id
     promises = @objectIds.map (id) =>
+      body = @requestBody(id)
+      if not body
+        # This can happen in undo tasks when we either don't know what to
+        # revert to, or don't need to revert since nothing changed.
+        return Promise.resolve()
+
       NylasAPI.makeRequest
         path: "/n/#{nsid}/#{@_endpoint()}/#{id}"
         method: 'PUT'
-        body: @requestBody(id)
+        body: body
         returnsModel: true
         beforeProcessing: (body) =>
           NylasAPI.decrementOptimisticChangeCount(@_klass(), id)
