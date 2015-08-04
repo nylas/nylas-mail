@@ -93,6 +93,7 @@ class MessageList extends React.Component
   constructor: (@props) ->
     @state = @_getStateFromStores()
     @state.minified = true
+    @_draftScrollInProgress = false
     @MINIFY_THRESHOLD = 3
 
   componentDidMount: =>
@@ -131,10 +132,17 @@ class MessageList extends React.Component
     @refs["message-container-#{id}"]
 
   _focusDraft: (draftElement) =>
+    # Note: We don't want the contenteditable view competing for scroll offset,
+    # so we block incoming childScrollRequests while we scroll to the new draft.
+    @_draftScrollInProgress = true
     draftElement.focus()
     @refs.messageWrap.scrollTo(draftElement, {
       position: ScrollRegion.ScrollPosition.Bottom,
       settle: true
+      position: ScrollRegion.ScrollPosition.Top,
+      settle: true,
+      done: =>
+        @_draftScrollInProgress = false
     })
 
   _createReplyOrUpdateExistingDraft: (type) =>
@@ -369,6 +377,7 @@ class MessageList extends React.Component
   # If messageId and location are defined, that means we want to scroll
   # smoothly to the top of a particular message.
   _onChildScrollRequest: ({messageId, rect}={}) =>
+    return if @_draftScrollInProgress
     if messageId
       @refs.messageWrap.scrollTo(@_getMessageContainer(messageId), {
         position: ScrollRegion.ScrollPosition.Visible
