@@ -85,10 +85,11 @@ class EventedIFrame extends React.Component
   # iFrame, the mouseup never fires in the parent window.
 
   _onIFrameClick: (e) =>
-    e.preventDefault()
     e.stopPropagation()
     target = @_getContainingTarget(e, {with: 'href'})
-    atom.windowEventHandler.openLink(target: target) if target
+    if target
+      e.preventDefault()
+      atom.windowEventHandler.openLink(target: target)
 
   _onIFrameMouseEvent: (event) =>
     node = React.findDOMNode(@)
