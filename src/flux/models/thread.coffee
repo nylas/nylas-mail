@@ -86,6 +86,13 @@ class Thread extends Model
     setup: ->
       ['CREATE INDEX IF NOT EXISTS ThreadListIndex ON Thread(last_message_received_timestamp DESC, namespace_id, id)']
 
+  fromJSON: (json) ->
+    super(json)
+
+    # TODO: This is temporary, waiting on a migration on the backend
+    @lastMessageReceivedTimestamp ||= new Date(json['last_message_timestamp'] * 1000)
+    @
+
   # Public: Returns true if the thread has a {Category} with the given ID.
   #
   # * `id` A {String} {Category} ID
