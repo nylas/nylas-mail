@@ -10,7 +10,6 @@ React = require 'react'
  WorkspaceStore,
  ChangeLabelsTask,
  ChangeFolderTask,
- FocusedContentStore,
  FocusedCategoryStore} = require 'nylas-exports'
 
 {Menu,
@@ -33,8 +32,6 @@ class CategoryPicker extends React.Component
     @unsubscribers = []
     @unsubscribers.push CategoryStore.listen @_onStoreChanged
     @unsubscribers.push NamespaceStore.listen @_onStoreChanged
-    @unsubscribers.push FocusedContentStore.listen @_onStoreChanged
-    @unsubscribers.push FocusedCategoryStore.listen @_onStoreChanged
 
     @_commandUnsubscriber = atom.commands.add 'body',
       "application:change-category": @_onOpenCategoryPopover
@@ -94,7 +91,7 @@ class CategoryPicker extends React.Component
             headerComponents={headerComponents}
             footerComponents={[]}
             items={@state.categoryData}
-            itemKey={ (categoryDatum) -> categoryDatum.id }
+            itemKey={ (item) -> item.id }
             itemContent={@_renderItemContent}
             onSelect={@_onSelectCategory}
             defaultSelectedIndex={if @state.searchValue is "" then -1 else 0}
@@ -107,55 +104,55 @@ class CategoryPicker extends React.Component
     @refs.popover.open()
     return
 
-  _renderItemContent: (categoryDatum) =>
-    if categoryDatum.divider
-      return <Menu.Item divider={categoryDatum.divider} />
+  _renderItemContent: (item) =>
+    if item.divider
+      return <Menu.Item divider={item.divider} />
     if @_namespace?.usesLabels()
-      icon = @_renderCheckbox(categoryDatum)
+      icon = @_renderCheckbox(item)
     else if @_namespace?.usesFolders()
-      icon = @_renderFolderIcon(categoryDatum)
+      icon = @_renderFolderIcon(item)
     else return <span></span>
 
     <div className="category-item">
       {icon}
       <div className="category-display-name">
-        {@_renderBoldedSearchResults(categoryDatum)}
+        {@_renderBoldedSearchResults(item)}
       </div>
     </div>
 
-  _renderCheckbox: (categoryDatum) ->
+  _renderCheckbox: (item) ->
     styles = {}
-    styles.backgroundColor = categoryDatum.backgroundColor
+    styles.backgroundColor = item.backgroundColor
 
-    if categoryDatum.usage is 0
+    if item.usage is 0
       checkStatus = <span></span>
-    else if categoryDatum.usage < categoryDatum.numThreads
+    else if item.usage < item.numThreads
       checkStatus = <RetinaImg
         className="check-img dash"
         name="tagging-conflicted.png"
         mode={RetinaImg.Mode.ContentPreserve}
-        onClick={=> @_onSelectCategory(categoryDatum)}/>
+        onClick={=> @_onSelectCategory(item)}/>
     else
       checkStatus = <RetinaImg
         className="check-img check"
         name="tagging-checkmark.png"
         mode={RetinaImg.Mode.ContentPreserve}
-        onClick={=> @_onSelectCategory(categoryDatum)}/>
+        onClick={=> @_onSelectCategory(item)}/>
 
     <div className="check-wrap" style={styles}>
       <RetinaImg
         className="check-img check"
         name="tagging-checkbox.png"
         mode={RetinaImg.Mode.ContentPreserve}
-        onClick={=> @_onSelectCategory(categoryDatum)}/>
+        onClick={=> @_onSelectCategory(item)}/>
       {checkStatus}
     </div>
 
-  _renderFolderIcon: (categoryDatum) ->
-    <RetinaImg name={"#{categoryDatum.name}.png"} fallback={'folder.png'} mode={RetinaImg.Mode.ContentIsMask} />
+  _renderFolderIcon: (item) ->
+    <RetinaImg name={"#{item.name}.png"} fallback={'folder.png'} mode={RetinaImg.Mode.ContentIsMask} />
 
-  _renderBoldedSearchResults: (categoryDatum) ->
-    name = categoryDatum.display_name
+  _renderBoldedSearchResults: (item) ->
+    name = item.display_name
     searchTerm = (@state.searchValue ? "").trim()
 
     return name if searchTerm.length is 0
@@ -173,33 +170,35 @@ class CategoryPicker extends React.Component
       else return part
     return <span>{parts}</span>
 
-  _onSelectCategory: (categoryDatum) =>
+  _onSelectCategory: (item) =>
     return unless @_threads().length > 0
     return unless @_namespace
     @refs.menu.setSelectedItem(null)
 
     if @_namespace.usesLabels()
-      if categoryDatum.usage > 0
+      if item.usage > 0
         task = new ChangeLabelsTask
-          labelsToRemove: [categoryDatum.id]
+          labelsToRemove: [item.category]
           threadIds: @_threadIds()
       else
         task = new ChangeLabelsTask
-          labelsToAdd: [categoryDatum.id]
+          labelsToAdd: [item.category]
           threadIds: @_threadIds()
+      Actions.queueTask(task)
+
     else if @_namespace.usesFolders()
       task = new ChangeFolderTask
-        folderOrId: categoryDatum.id
+        folderOrId: item.category
         threadIds: @_threadIds()
       if @props.thread
         Actions.moveThread(@props.thread, task)
       else if @props.items
         Actions.moveThreads(@_threads(), task)
 
-    else throw new Error("Invalid organizationUnit")
+    else
+      throw new Error("Invalid organizationUnit")
 
     @refs.popover.close()
-    TaskQueue.enqueue(task)
 
   _onStoreChanged: =>
     @setState @_recalculateState(@props)
@@ -219,6 +218,7 @@ class CategoryPicker extends React.Component
     numThreads = @_threads(props).length
     if numThreads is 0
       return {categoryData: [], searchValue}
+
     @_namespace = NamespaceStore.current()
     return unless @_namespace
 
@@ -235,7 +235,7 @@ class CategoryPicker extends React.Component
     categoryData = _.chain(categories)
       .filter(_.partial(@_isUserFacing, allInInbox))
       .filter(_.partial(@_isInSearch, searchValue))
-      .map(_.partial(@_extendCategoryWithDisplayData, displayData))
+      .map(_.partial(@_itemForCategory, displayData))
       .value()
 
     return {categoryData, searchValue}
@@ -267,14 +267,15 @@ class CategoryPicker extends React.Component
     inbox = CategoryStore.getStandardCategory("inbox")
     return usageCount[inbox.id] is numThreads
 
-  _extendCategoryWithDisplayData: ({usageCount, numThreads}, category) ->
+  _itemForCategory: ({usageCount, numThreads}, category) ->
     return category if category.divider
-    cat = category.toJSON()
-    usage = usageCount[cat.id] ? 0
-    cat.backgroundColor = LabelColorizer.backgroundColorDark(category)
-    cat.usage = usage
-    cat.numThreads = numThreads
-    return cat
+
+    item = category.toJSON()
+    item.category = category
+    item.backgroundColor = LabelColorizer.backgroundColorDark(category)
+    item.usage = usageCount[category.id] ? 0
+    item.numThreads = numThreads
+    item
 
   _threadCategories: (thread) =>
     if @_namespace.usesLabels()
@@ -283,7 +284,7 @@ class CategoryPicker extends React.Component
       return (thread.folders ? [])
     else throw new Error("Invalid organizationUnit")
 
-  _threads: (props=@props) =>
+  _threads: (props = @props) =>
     if props.items then return (props.items ? [])
     else if props.thread then return [props.thread]
     else return []

@@ -98,7 +98,10 @@ class RetinaImg extends React.Component
     active: React.PropTypes.bool
     resourcePath: React.PropTypes.string
 
-  render: ->
+  shouldComponentUpdate: (nextProps) =>
+    not _.isEqual(@props, nextProps)
+
+  render: =>
     path = @props.url ? @_pathFor(@props.name) ? @_pathFor(@props.fallback) ? ''
     pathIsRetina = path.indexOf('@2x') > 0
     className = @props.className ? ''
@@ -125,7 +128,7 @@ class RetinaImg extends React.Component
     otherProps = _.omit(@props, _.keys(@constructor.propTypes))
     <img className={className} src={path} style={style} {...otherProps} />
 
-  _pathFor: (name) ->
+  _pathFor: (name) =>
     return null unless name and _.isString(name)
 
     [basename, ext] = name.split('.')

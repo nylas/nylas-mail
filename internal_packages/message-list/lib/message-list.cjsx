@@ -245,15 +245,12 @@ class MessageList extends React.Component
       <MailLabel label={label} key={label.id} onRemove={ => @_onRemoveLabel(label) }/>
 
   _renderReplyArea: =>
-    if @_hasReplyArea()
-      <div className="footer-reply-area-wrap" onClick={@_onClickReplyArea} key={Utils.generateTempId()}>
-        <div className="footer-reply-area">
-          <RetinaImg name="#{@_replyType()}-footer.png" mode={RetinaImg.Mode.ContentIsMask}/>
-          <span className="reply-text">Write a reply…</span>
-        </div>
+    <div className="footer-reply-area-wrap" onClick={@_onClickReplyArea} key='reply-area'>
+      <div className="footer-reply-area">
+        <RetinaImg name="#{@_replyType()}-footer.png" mode={RetinaImg.Mode.ContentIsMask}/>
+        <span className="reply-text">Write a reply…</span>
       </div>
-    else
-      <div key={Utils.generateTempId()}></div>
+    </div>
 
   _hasReplyArea: =>
     not _.last(@state.messages)?.draft
@@ -308,7 +305,8 @@ class MessageList extends React.Component
                          collapsed={collapsed}
                          isLastMsg={(messages.length - 1 is idx)} />
 
-    components.push @_renderReplyArea()
+    if @_hasReplyArea()
+      components.push @_renderReplyArea()
 
     return components
 

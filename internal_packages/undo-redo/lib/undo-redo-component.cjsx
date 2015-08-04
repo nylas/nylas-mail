@@ -12,10 +12,6 @@ NamespaceStore} = require 'nylas-exports'
 class UndoRedoComponent extends React.Component
   @displayName: 'UndoRedoComponent'
 
-  @propTypes:
-    task: React.PropTypes.object.isRequired
-    show: React.PropTypes.bool
-
   constructor: (@props) ->
     @state = @_getStateFromStores()
     @_timeout = null
