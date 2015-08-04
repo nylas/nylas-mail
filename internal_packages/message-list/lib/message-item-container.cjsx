@@ -16,9 +16,9 @@ class MessageItemContainer extends React.Component
     thread: React.PropTypes.object.isRequired
     message: React.PropTypes.object.isRequired
 
-    # The messageId (in the case of draft's local ID) is a derived
+    # The localId (in the case of draft's local ID) is a derived
     # property that only the parent MessageList knows about.
-    messageId: React.PropTypes.string
+    localId: React.PropTypes.string
 
     collapsed: React.PropTypes.bool
     isLastMsg: React.PropTypes.bool
@@ -60,7 +60,7 @@ class MessageItemContainer extends React.Component
   _renderComposer: =>
     props =
       mode: "inline"
-      localId: @props.messageId
+      localId: @props.localId
       threadId: @props.thread.id
       onRequestScrollTo: @props.onRequestScrollTo
 
@@ -77,9 +77,9 @@ class MessageItemContainer extends React.Component
     "before-reply-area": @props.isBeforeReplyArea
 
   _onSendingStateChanged: (draftLocalId) =>
-    @setState(@_getStateFromStores()) if draftLocalId is @props.messageId
+    @setState(@_getStateFromStores()) if draftLocalId is @props.localId
 
   _getStateFromStores: ->
-    isSending: DraftStore.isSendingDraft(@props.messageId)
+    isSending: DraftStore.isSendingDraft(@props.localId)
 
 module.exports = MessageItemContainer

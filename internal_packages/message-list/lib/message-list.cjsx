@@ -286,15 +286,14 @@ class MessageList extends React.Component
       isLastMsg = (messages.length - 1 is idx)
       isBeforeReplyArea = isLastMsg and @_hasReplyArea()
 
-      messageId = @state.messageLocalIds[message.id]
-      messageId ?= message.id
+      localId = @state.messageLocalIds[message.id]
 
       elements.push(
         <MessageItemContainer key={idx}
                               ref={"message-container-#{message.id}"}
                               thread={@state.currentThread}
                               message={message}
-                              messageId={messageId}
+                              localId={localId}
                               collapsed={collapsed}
                               isLastMsg={isLastMsg}
                               isBeforeReplyArea={isBeforeReplyArea}
@@ -302,7 +301,7 @@ class MessageList extends React.Component
       )
 
     if @_hasReplyArea()
-      components.push @_renderReplyArea()
+      elements.push @_renderReplyArea()
 
     return elements
 
