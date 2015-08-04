@@ -224,7 +224,7 @@ describe "MessageList", ->
         messages: msgs.concat(draftMessages)
 
       expect(@messageList._focusDraft).toHaveBeenCalled()
-      expect(@messageList._focusDraft.mostRecentCall.args[0].props.messageId).toEqual(draftMessages[0].id)
+      expect(@messageList._focusDraft.mostRecentCall.args[0].props.localId).toEqual(draftMessages[0].id)
 
     it "includes drafts as message item containers", ->
       msgs = @messageList.state.messages
