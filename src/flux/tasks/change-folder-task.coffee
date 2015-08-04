@@ -1,3 +1,4 @@
+Task = require './task'
 Folder = require '../models/folder'
 Thread = require '../models/thread'
 Message = require '../models/message'
