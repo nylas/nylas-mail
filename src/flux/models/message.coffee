@@ -219,9 +219,12 @@ class Message extends Model
         to = @replyTo
       else
         to = @from
-      cc = [].concat(@cc, @to).filter (p) ->
-        !_.contains(excluded, p.email)
 
+      cc = [].concat(@cc, @to)
+      cc = _.filter cc, (p) -> !_.contains(excluded, p.email)
+
+    to = _.uniq to, (p) -> p.email.toLowerCase().trim()
+    cc = _.uniq cc, (p) -> p.email.toLowerCase().trim()
     {to, cc}
 
   # Public: Returns a hash with `to` and `cc` keys for authoring a new draft in
@@ -238,6 +241,7 @@ class Message extends Model
     else
       to = @from
 
+    to = _.uniq to, (p) -> p.email.toLowerCase().trim()
     {to, cc}
 
   # Public: Returns an {Array} of {File} IDs

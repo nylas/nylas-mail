@@ -18,6 +18,7 @@ fakeMessage1 = null
 fakeMessage2 = null
 msgFromMe = null
 msgWithReplyTo = null
+msgWithReplyToDuplicates = null
 fakeMessages = null
 
 class TestExtension extends DraftStoreExtension
@@ -77,11 +78,23 @@ describe "DraftStore", ->
         subject: 'Re: Fake Subject'
         date: new Date(1415814587)
 
+      msgWithReplyToDuplicates = new Message
+        id: 'fake-message-reply-to-duplicates'
+        to: [new Contact(email: '1@1.com'), new Contact(email: '2@2.com')]
+        cc: [new Contact(email: '1@1.com'), new Contact(email: '4@4.com')]
+        from: [new Contact(email: 'reply-to@5.com')]
+        replyTo: [new Contact(email: 'reply-to@5.com')]
+        threadId: 'fake-thread-id'
+        body: 'Fake Message Duplicates'
+        subject: 'Re: Fake Subject'
+        date: new Date(1415814587)
+
       fakeMessages =
         'fake-message-1': fakeMessage1
         'fake-message-3': msgFromMe
         'fake-message-2': fakeMessage2
         'fake-message-reply-to': msgWithReplyTo
+        'fake-message-reply-to-duplicates': msgWithReplyToDuplicates
 
       spyOn(DatabaseStore, 'find').andCallFake (klass, id) ->
         query = new ModelQuery(klass, {id})
@@ -196,6 +209,20 @@ describe "DraftStore", ->
           all = [].concat(@model.to, @model.cc, @model.bcc)
           match = _.find all, (c) -> c.email is msgWithReplyTo.from[0].email
           expect(match).toEqual(undefined)
+
+    describe "onComposeReplyAll", ->
+      describe "when the message provided has one or more 'ReplyTo' recipients and duplicates in the To/Cc fields", ->
+        it "should unique the to/cc fields", ->
+          runs ->
+            DraftStore._onComposeReplyAll({threadId: fakeThread.id, messageId: msgWithReplyToDuplicates.id})
+          waitsFor ->
+            DatabaseStore.persistModel.callCount > 0
+          runs ->
+            model = DatabaseStore.persistModel.mostRecentCall.args[0]
+            ccEmails = model.cc.map (cc) -> cc.email
+            expect(ccEmails.sort()).toEqual(['1@1.com', '2@2.com', '4@4.com'])
+            toEmails = model.to.map (to) -> to.email
+            expect(toEmails.sort()).toEqual(['reply-to@5.com'])
 
     describe "onComposeReplyAll", ->
       describe "when the message provided as context was sent by the current user", ->
