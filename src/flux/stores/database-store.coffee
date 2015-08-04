@@ -17,7 +17,7 @@ PriorityUICoordinator = require '../../priority-ui-coordinator'
  generateTempId,
  isTempId} = require '../models/utils'
 
-DatabaseVersion = 5
+DatabaseVersion = 6
 
 DatabasePhase =
   Setup: 'setup'
@@ -100,13 +100,13 @@ class DatabaseStore extends NylasStore
 
     if phase is DatabasePhase.Setup and atom.isMainWindow()
       @_openDatabase =>
-        @_runDatabaseSetup =>
-          @_checkDatabaseVersion =>
+        @_checkDatabaseVersion {allowNotSet: true}, =>
+          @_runDatabaseSetup =>
             app.setDatabasePhase(DatabasePhase.Ready)
 
     else if phase is DatabasePhase.Ready
       @_openDatabase =>
-        @_checkDatabaseVersion =>
+        @_checkDatabaseVersion {}, =>
           @_open = true
           w() for w in @_waiting
           @_waiting = []
@@ -130,10 +130,12 @@ class DatabaseStore extends NylasStore
       return @_handleSetupError(err) if err
       ready()
 
-  _checkDatabaseVersion: (ready) =>
+  _checkDatabaseVersion: ({allowNotSet} = {}, ready) =>
     @_db.get 'PRAGMA user_version', (err, {user_version}) =>
       return @_handleSetupError(err) if err
-      if user_version/1 isnt DatabaseVersion
+      emptyVersion = user_version is 0
+      wrongVersion = user_version/1 isnt DatabaseVersion
+      if wrongVersion and not (emptyVersion and allowNotSet)
         return @_handleSetupError(new Error("Incorrect database schema version: #{user_version} not #{DatabaseVersion}"))
       ready()
 
