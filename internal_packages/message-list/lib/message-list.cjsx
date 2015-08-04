@@ -137,8 +137,6 @@ class MessageList extends React.Component
     @_draftScrollInProgress = true
     draftElement.focus()
     @refs.messageWrap.scrollTo(draftElement, {
-      position: ScrollRegion.ScrollPosition.Bottom,
-      settle: true
       position: ScrollRegion.ScrollPosition.Top,
       settle: true,
       done: =>
