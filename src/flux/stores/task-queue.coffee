@@ -37,7 +37,7 @@ main window via IPC.
 
 ```coffee
 if @_thread && @_thread.unread
-  Actions.queueTask(new UpdateThreadsTask([@_thread], starred: true))
+  Actions.queueTask(new ChangeStarredTask(thread: @_thread, starred: true))
 ```
 
 ## Dequeueing a Task

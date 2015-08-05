@@ -179,17 +179,17 @@ class CategoryPicker extends React.Component
       if item.usage > 0
         task = new ChangeLabelsTask
           labelsToRemove: [item.category]
-          threadIds: @_threadIds()
+          threads: @_threads()
       else
         task = new ChangeLabelsTask
           labelsToAdd: [item.category]
-          threadIds: @_threadIds()
+          threads: @_threads()
       Actions.queueTask(task)
 
     else if @_namespace.usesFolders()
       task = new ChangeFolderTask
-        folderOrId: item.category
-        threadIds: @_threadIds()
+        folder: item.category
+        threads: @_threads()
       if @props.thread
         Actions.moveThread(@props.thread, task)
       else if @props.items
@@ -288,8 +288,5 @@ class CategoryPicker extends React.Component
     if props.items then return (props.items ? [])
     else if props.thread then return [props.thread]
     else return []
-
-  _threadIds: =>
-    @_threads().map (thread) -> thread.id
 
 module.exports = CategoryPicker

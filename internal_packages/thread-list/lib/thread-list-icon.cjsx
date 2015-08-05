@@ -3,7 +3,7 @@ React = require 'react'
 {Actions,
  Utils,
  Thread,
- UpdateThreadsTask,
+ ChangeStarredTask,
  NamespaceStore} = require 'nylas-exports'
 
 class ThreadListIcon extends React.Component
@@ -47,8 +47,7 @@ class ThreadListIcon extends React.Component
     <div className="thread-icon #{@_iconType()}" onClick={@_onToggleStar}></div>
 
   _onToggleStar: (event) =>
-    values = starred: (not @props.thread.starred)
-    task = new UpdateThreadsTask([@props.thread], values)
+    task = new ChangeStarredTask(thread: @props.thread, starred: !@props.thread.starred)
     Actions.queueTask(task)
 
     # Don't trigger the thread row click

@@ -24,8 +24,8 @@ class ArchiveThreadHelper
         archiveFolder = CategoryStore.getStandardCategory("archive")
         if archiveFolder
           return new ChangeFolderTask
-            folderOrId: archiveFolder
-            threadIds: threads.map (t) -> t.id
+            folder: archiveFolder
+            threads: threads
         else
           # TODO: Implement some sort of UI for people to pick the folder
           # they want to use as the Archive. Or better yet, automatically
@@ -43,16 +43,14 @@ class ArchiveThreadHelper
       else if direction is "unarchive"
         inboxFolder = CategoryStore.getStandardCategory("inbox")
         return new ChangeFolderTask
-          folderOrId: inboxFolder
-          threadIds: threads.map (t) -> t.id
+          folder: inboxFolder
+          threads: threads
 
     else if namespace.usesLabels()
       currentLabel = FocusedCategoryStore.category()
       currentLabel ?= CategoryStore.getStandardCategory("inbox")
 
-      params =
-        threadIds: threads.map (t) -> t.id
-
+      params = {threads}
       if direction is "archive"
         params.labelsToRemove = [currentLabel]
       else if direction is "unarchive"

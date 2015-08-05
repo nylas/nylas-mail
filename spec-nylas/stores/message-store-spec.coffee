@@ -4,7 +4,7 @@ Message = require '../../src/flux/models/message'
 FocusedContentStore = require '../../src/flux/stores/focused-content-store'
 MessageStore = require '../../src/flux/stores/message-store'
 DatabaseStore = require '../../src/flux/stores/database-store'
-UpdateThreadsTask = require '../../src/flux/tasks/update-threads-task'
+ChangeUnreadTask = require '../../src/flux/tasks/change-unread-task'
 Actions = require '../../src/flux/actions'
 
 testThread = new Thread(id: '123')
@@ -29,7 +29,7 @@ describe "MessageStore", ->
 
       spyOn(DatabaseStore, 'findAll').andCallFake ->
         include: -> @
-        evaluateImmediately: -> @
+        waitForAnimations: -> @
         then: (callback) -> callback([testMessage1, testMessage2])
 
     it "should retrieve the focused thread", ->
@@ -52,7 +52,7 @@ describe "MessageStore", ->
         expect(Actions.queueTask).not.toHaveBeenCalled()
         advanceClock(500)
         expect(Actions.queueTask).toHaveBeenCalled()
-        expect(Actions.queueTask.mostRecentCall.args[0] instanceof UpdateThreadsTask).toBe(true)
+        expect(Actions.queueTask.mostRecentCall.args[0] instanceof ChangeUnreadTask).toBe(true)
 
       it "should not queue a task to mark the thread as read if the thread is no longer selected 500msec later", ->
         @focus = testThread

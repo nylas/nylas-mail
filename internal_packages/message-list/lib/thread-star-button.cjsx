@@ -1,6 +1,6 @@
 _ = require 'underscore'
 React = require 'react'
-{Actions, Utils, UpdateThreadsTask} = require 'nylas-exports'
+{Actions, Utils, ChangeStarredTask} = require 'nylas-exports'
 {RetinaImg} = require 'nylas-component-kit'
 
 class StarButton extends React.Component
@@ -19,13 +19,10 @@ class StarButton extends React.Component
     </button>
 
   _onStarToggle: (e) =>
-    threads = [@props.thread]
-    if @props.thread.starred
-      values = starred: false
-    else
-      values = starred: true
-
-    task = new UpdateThreadsTask(threads, values)
+    task = new ChangeStarredTask({
+      thread: @props.thread
+      starred: !@props.thread.starred
+    })
     Actions.queueTask(task)
     e.stopPropagation()
 

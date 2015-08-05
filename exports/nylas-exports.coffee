@@ -18,7 +18,8 @@ Exports =
   # Tasks
   ChangeLabelsTask: require '../src/flux/tasks/change-labels-task'
   ChangeFolderTask: require '../src/flux/tasks/change-folder-task'
-  UpdateThreadsTask: require '../src/flux/tasks/update-threads-task'
+  ChangeUnreadTask: require '../src/flux/tasks/change-unread-task'
+  ChangeStarredTask: require '../src/flux/tasks/change-starred-task'
   CreateMetadataTask: require '../src/flux/tasks/create-metadata-task'
   ArchiveThreadHelper: require '../src/flux/tasks/archive-thread-helper'
   DestroyMetadataTask: require '../src/flux/tasks/destroy-metadata-task'

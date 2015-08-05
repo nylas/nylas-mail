@@ -9,7 +9,7 @@ NylasStore = require 'nylas-store'
  DatabaseStore,
  NamespaceStore,
  WorkspaceStore,
- UpdateThreadsTask,
+ ChangeStarredTask,
  FocusedContentStore,
  ArchiveThreadHelper,
  FocusedCategoryStore} = require 'nylas-exports'
@@ -123,25 +123,24 @@ class ThreadListStore extends NylasStore
       @_view.invalidateMetadataFor(threadIds)
 
   _onToggleStarSelection: ->
-    selectedThreads = @_view.selection.items()
+    threads = @_view.selection.items()
     focusedId = FocusedContentStore.focusedId('thread')
     keyboardId = FocusedContentStore.keyboardCursorId('thread')
 
     oneAlreadyStarred = false
-    for thread in selectedThreads
+    for thread in threads
       if thread.starred
         oneAlreadyStarred = true
 
-    values = starred: (not oneAlreadyStarred)
-    task = new UpdateThreadsTask(selectedThreads, values)
+    starred = not oneAlreadyStarred
+    task = new ChangeStarredTask({threads, starred})
     Actions.queueTask(task)
 
   _onToggleStarFocused: ->
     focused = FocusedContentStore.focused('thread')
     return unless focused
 
-    values = starred: (not focused.starred)
-    task = new UpdateThreadsTask([focused], values)
+    task = new ChangeStarredTask(thread: focused, starred: !focused.starred)
     Actions.queueTask(task)
 
   _onArchive: ->

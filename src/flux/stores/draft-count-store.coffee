@@ -11,7 +11,12 @@ Public: The DraftCountStore exposes a simple API for getting the number of
 drafts in the user's account. If you plugin needs the number of drafts,
 it's more efficient to observe the DraftCountStore than retrieve the value
 yourself from the database.
+
+The DraftCountStore is only available in the main window.
 ###
+
+if not atom.isMainWindow() and not atom.inSpecMode() then return
+
 DraftCountStore = Reflux.createStore
   init: ->
     @listenTo NamespaceStore, @_onNamespaceChanged

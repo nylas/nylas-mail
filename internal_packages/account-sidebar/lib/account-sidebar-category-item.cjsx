@@ -80,13 +80,13 @@ class AccountSidebarCategoryItem extends React.Component
         labelsToRemove = [currentLabel]
 
       task = new ChangeLabelsTask
-        threadIds: ids,
+        threads: ids,
         labelsToAdd: [@props.item],
         labelsToRemove: labelsToRemove
     else
       task = new ChangeFolderTask
-        folderOrId: @props.item,
-        threadIds: ids
+        folder: @props.item,
+        threads: ids
 
     Actions.queueTask(task)
 

@@ -53,6 +53,11 @@ class Contact extends Model
     'phone': Attributes.String(modelKey: 'phone')
     'company': Attributes.String(modelKey: 'company')
 
+
+  @additionalSQLiteConfig:
+    setup: ->
+      ['CREATE INDEX IF NOT EXISTS ContactEmailIndex ON Contact(email)']
+
   # Public: Returns a string of the format `Full Name <email@address.com>` if
   # the contact has a populated name, just the email address otherwise.
   toString: ->
