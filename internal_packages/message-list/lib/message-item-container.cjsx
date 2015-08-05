@@ -2,9 +2,9 @@ React = require 'react'
 classNames = require 'classnames'
 
 MessageItem = require './message-item'
-PendingMessageItem = require './pending-message-item'
 
-{DraftStore,
+{Utils,
+ DraftStore,
  MessageStore} = require 'nylas-exports'
 
 {InjectedComponent} = require 'nylas-component-kit'
@@ -35,6 +35,10 @@ class MessageItemContainer extends React.Component
     if @props.message?.draft
       @unlisten = DraftStore.listen @_onSendingStateChanged
 
+  shouldComponentUpdate: (nextProps, nextState) =>
+    not Utils.isEqualReact(nextProps, @props) or
+    not Utils.isEqualReact(nextState, @state)
+
   componentWillUnmount: =>
     @unlisten() if @unlisten
 
@@ -43,19 +47,20 @@ class MessageItemContainer extends React.Component
   render: =>
     if @props.message.draft
       if @state.isSending
-        @_renderMessage(PendingMessageItem)
+        @_renderMessage(pending: true)
       else
         @_renderComposer()
     else
-      @_renderMessage(MessageItem)
+      @_renderMessage(pending: false)
 
-  _renderMessage: (component) =>
-    <component ref="message"
-               thread={@props.thread}
-               message={@props.message}
-               className={@_classNames()}
-               collapsed={@props.collapsed}
-               isLastMsg={@props.isLastMsg} />
+  _renderMessage: ({pending}) =>
+    <MessageItem ref="message"
+                 pending={pending}
+                 thread={@props.thread}
+                 message={@props.message}
+                 className={@_classNames()}
+                 collapsed={@props.collapsed}
+                 isLastMsg={@props.isLastMsg} />
 
   _renderComposer: =>
     props =

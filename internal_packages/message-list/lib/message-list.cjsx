@@ -251,8 +251,19 @@ class MessageList extends React.Component
     labels.map (label) =>
       <MailLabel label={label} key={label.id} onRemove={ => @_onRemoveLabel(label) }/>
 
-  _renderReplyArea: =>
-    <div className="footer-reply-area-wrap" onClick={@_onClickReplyArea} key='reply-area'>
+  _renderReplyArea: ({noTransition}={}) =>
+    if @_hasReplyArea()
+      styles =
+        "height": 63
+        "borderTop": "1px dashed #ddd"
+    else
+      styles =
+        "height": 0
+        "border": 0
+    unless noTransition
+      styles["transition"] = "height 150ms"
+
+    <div className="footer-reply-area-wrap" style={styles} onClick={@_onClickReplyArea} key='reply-area'>
       <div className="footer-reply-area">
         <RetinaImg name="#{@_replyType()}-footer.png" mode={RetinaImg.Mode.ContentIsMask}/>
         <span className="reply-text">Write a reply…</span>
@@ -306,8 +317,7 @@ class MessageList extends React.Component
                               onRequestScrollTo={@_onChildScrollRequest} />
       )
 
-    if @_hasReplyArea()
-      elements.push @_renderReplyArea()
+    elements.push @_renderReplyArea(noTransition: _.last(messages)?.draft)
 
     return elements
 
