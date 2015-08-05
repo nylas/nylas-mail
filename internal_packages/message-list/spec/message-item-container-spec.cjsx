@@ -10,11 +10,8 @@ class MessageItem extends React.Component
   @displayName: "StubMessageItem"
   render: -> <span></span>
 
-class PendingMessageItem extends MessageItem
-
 MessageItemContainer = proxyquire '../lib/message-item-container',
   "./message-item": MessageItem
-  "./pending-message-item": PendingMessageItem
 
 {InjectedComponent} = require 'nylas-component-kit'
 
@@ -47,8 +44,9 @@ describe 'MessageItemContainer', ->
     @isSendingDraft = true
     doc = renderContainer(testDraft)
     items = ReactTestUtils.scryRenderedComponentsWithType(doc,
-            PendingMessageItem)
+            MessageItem)
     expect(items.length).toBe 1
+    expect(items[0].props.pending).toBe true
 
   it "renders a message if it's not a draft", ->
     @isSendingDraft = false
