@@ -41,4 +41,9 @@ Section: Models
 ###
 class Folder extends Category
 
+
+  @additionalSQLiteConfig:
+    setup: ->
+      ['CREATE INDEX IF NOT EXISTS FolderNameIndex ON Folder(name)']
+
 module.exports = Folder

@@ -4,114 +4,72 @@ Label = require '../models/label'
 Thread = require '../models/thread'
 Message = require '../models/message'
 DatabaseStore = require '../stores/database-store'
-ChangeCategoryTask = require './change-category-task'
+ChangeMailTask = require './change-mail-task'
 
 # Public: Create a new task to apply labels to a message or thread.
 #
 # Takes an options array of the form:
 #   - `labelsToAdd` An {Array} of {Label}s or {Label} ids to add
 #   - `labelsToRemove` An {Array} of {Label}s or {Label} ids to remove
-#   - `threadIds` Ether an arry of {Thread} ids…
-#   - `messageIds` OR an arry of {Message} ids.
-class ChangeLabelsTask extends ChangeCategoryTask
+#   - `threads` An {Array} of {Thread}s or {Thread} ids
+#   - `messages` An {Array} of {Message}s or {Message} ids
+class ChangeLabelsTask extends ChangeMailTask
 
-  constructor: ({@labelsToAdd, @labelsToRemove, @threadIds, @messageIds}={}) ->
-    @threadIds ?= []; @messageIds ?= []
-    @objectIds = @threadIds.concat(@messageIds)
-    @_newLabels = {}
+  constructor: ({@labelsToAdd, @labelsToRemove}={}) ->
+    @labelsToAdd ?= []
+    @labelsToRemove ?= []
     super
 
   label: -> "Applying labels…"
 
   description: ->
     type = "thread"
-    if @threadIds.length > 1
+    if @threads.length > 1
       type = "threads"
     if @labelsToAdd.length is 1 and @labelsToRemove.length is 0 and @labelsToAdd[0] instanceof Label
-      return "Added #{@labelsToAdd[0].displayName} to #{@threadIds.length} #{type}"
+      return "Added #{@labelsToAdd[0].displayName} to #{@threads.length} #{type}"
     if @labelsToAdd.length is 0 and @labelsToRemove.length is 1 and @labelsToRemove[0] instanceof Label
-      return "Removed #{@labelsToRemove[0].displayName} from #{@threadIds.length} #{type}"
-    return "Changed labels on #{@threadIds.length} #{type}"
+      return "Removed #{@labelsToRemove[0].displayName} from #{@threads.length} #{type}"
+    return "Changed labels on #{@threads.length} #{type}"
 
-  collectCategories: ->
-    labelOrIdPromiseMapper = (labelOrId) ->
-      if labelOrId instanceof Label
-        return Promise.resolve(labelOrId)
-      else
-        return DatabaseStore.find(Label, labelOrId)
+  performLocal: ->
+    if @labelsToAdd.length is 0 and @labelsToRemove.length is 0
+      return Promise.reject(new Error("ChangeLabelsTask: Must specify `labelsToAdd` or `labelsToRemove`"))
+    if @threads.length > 0 and @messages.length > 0
+      return Promise.reject(new Error("ChangeLabelsTask: You can move `threads` or `messages` but not both"))
+    if @threads.length is 0 and @messages.length is 0
+      return Promise.reject(new Error("ChangeLabelsTask: You must provide a `threads` or `messages` Array of models or IDs."))
 
-    labelsToAdd = Promise.all @labelsToAdd.map(labelOrIdPromiseMapper)
-    labelsToRemove = Promise.all @labelsToRemove.map(labelOrIdPromiseMapper)
+    # Convert arrays of IDs or models to models.
+    # modelify returns immediately if no work is required
+    Promise.props(
+      labelsToAdd: DatabaseStore.modelify(Label, @labelsToAdd)
+      labelsToRemove: DatabaseStore.modelify(Label, @labelsToRemove)
+      threads: DatabaseStore.modelify(Thread, @threads)
+      messages: DatabaseStore.modelify(Message, @messages)
 
-    categories = Promise.props
-      labelsToAdd: Promise.all(labelsToAdd ? [])
-      labelsToRemove: Promise.all(labelsToRemove ? [])
+    ).then ({labelsToAdd, labelsToRemove, threads, messages}) =>
+      # Remove any objects we weren't able to find. This can happen pretty easily
+      # if you undo an action and other things have happened.
+      @labelsToAdd = _.compact(labelsToAdd)
+      @labelsToRemove = _.compact(labelsToRemove)
+      @threads = _.compact(threads)
+      @messages = _.compact(messages)
 
-    return categories
-
-  # Called from super-class's `performRemote`
-  rollbackLocal: ->
-    [@labelsToAdd, @labelsToRemove] = [@labelsToRemove, @labelsToAdd]
-    @performLocal({reverting: true}).then =>
-      return Promise.resolve(Task.Status.Finished)
-
-  requestBody: (id) ->
-    labels: @_newLabels[id].map (l) -> l.id
-
-  createUndoTask: ->
-    labelsToAdd = @labelsToRemove
-    labelsToRemove = @labelsToAdd
-    args = {labelsToAdd, labelsToRemove, @threadIds, @messageIds}
-    task = new ChangeLabelsTask(args)
-    task._isUndoTask = true
-    return task
-
-  # Called from super-class's `performLocal`
-  localUpdateThread: (thread, categories) ->
-    newLabels = @_newLabelSet(thread, categories)
-    @_newLabels[thread.id] = newLabels
-
-    messageQuery = DatabaseStore.findAll(Message, threadId: thread.id)
-    childSavePromise = messageQuery.then (messages) ->
-      messagesToSave = []
-      newIds = newLabels.map (l) -> l.id
-      for message in messages
-        existingIds = (message.labels ? []).map (l) -> l.id
-        if _.isEqual(existingIds, newIds)
-          continue
-        else
-          message.labels = newLabels
-          messagesToSave.push(message)
-      DatabaseStore.persistModels(messagesToSave)
-
-    thread.labels = newLabels
-    parentSavePromise = DatabaseStore.persistModel(thread)
-    return Promise.all([parentSavePromise, childSavePromise])
-
-  # Called from super-class's `performLocal`
-  localUpdateMessage: (message, categories) ->
-    message.labels = @_newLabelSet(message, categories)
-    @_newLabels[message.id] = message.labels
-    return DatabaseStore.persistModel(message)
+      # The base class does the heavy lifting and calls _changesToModel
+      return super
 
   # Returns a new set of {Label} objects that incoprates the existing,
   # new, and removed labels.
-  _newLabelSet: (object, {labelsToAdd, labelsToRemove}) ->
-    contains = (list, val) -> val?.id? and (val.id in list.map((l) -> l.id))
-    objLabels = object.labels ? []; labelsToAdd ?= []; labelsToRemove ?= []
+  _changesToModel: (model) ->
+    labelsToRemoveIds = _.pluck(@labelsToRemove, 'id')
 
-    objLabels = objLabels.concat(labelsToAdd)
+    labels = [].concat(model.labels, @labelsToAdd)
+    labels = _.reject labels, (label) -> label.id in labelsToRemoveIds
+    labels = _.uniq labels, false, (label) -> label.id
+    {labels}
 
-    objLabels = _.reject objLabels, (label) ->
-      contains(labelsToRemove, label)
-
-    return _.uniq(objLabels, false, (obj) -> obj.id)
-
-  verifyArgs: ->
-    @labelsToAdd ?= []
-    @labelsToRemove ?= []
-    if @labelsToAdd.length is 0 and @labelsToRemove.length is 0
-      return Promise.reject(new Error("Must specify `labelsToAdd` or `labelsToRemove`"))
-    return super()
+  _requestBodyForModel: (model) ->
+    labels: model.labels.map (l) -> l.id
 
 module.exports = ChangeLabelsTask

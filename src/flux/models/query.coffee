@@ -44,7 +44,7 @@ class ModelQuery
     @_matchers = []
     @_orders = []
     @_singular = false
-    @_evaluateImmediately = false
+    @_waitForAnimations = false
     @_includeJoinedData = []
     @_count = false
     @
@@ -145,14 +145,14 @@ class ModelQuery
     @
 
   ##
-  # Public: Set the `evaluateImmediately` flag - instead of waiting for animations and other important user
+  # Public: Set the `waitForAnimations` flag - instead of waiting for animations and other important user
   # interactions to complete, the query result will be processed immediately. Use with care: forcing
   # immediate evaluation can cause glitches in animations.
   #
   # This method is chainable.
   #
-  evaluateImmediately: ->
-    @_evaluateImmediately = true
+  waitForAnimations: ->
+    @_waitForAnimations = true
     @
 
   ###
@@ -217,7 +217,7 @@ class ModelQuery
     "SELECT #{result} FROM `#{@_klass.name}` #{@_whereClause()} #{order} #{limit}"
 
   executeOptions: ->
-    evaluateImmediately: @_evaluateImmediately
+    waitForAnimations: @_waitForAnimations
 
   _whereClause: ->
     joins = []

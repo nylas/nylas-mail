@@ -58,6 +58,7 @@ class Thread extends Model
       modelKey: 'starred'
 
     'version': Attributes.Number
+      queryable: true
       modelKey: 'version'
 
     'folders': Attributes.Collection

@@ -12,7 +12,7 @@ MessageItemContainer = require './message-item-container'
  WorkspaceStore,
  ComponentRegistry,
  ChangeLabelsTask,
- UpdateThreadsTask} = require("nylas-exports")
+ ChangeStarredTask} = require("nylas-exports")
 
 {Spinner,
  ScrollRegion,
@@ -202,8 +202,8 @@ class MessageList extends React.Component
   _onStar: =>
     return unless @state.currentThread
     threads = [@state.currentThread]
-    values = starred: (not @state.currentThread.starred)
-    task = new UpdateThreadsTask(threads, values)
+    starred = not @state.currentThread.starred
+    task = new ChangeStarredTask({threads, starred})
     Actions.queueTask(task)
 
   _onForward: =>
@@ -282,7 +282,7 @@ class MessageList extends React.Component
       return "reply-all"
 
   _onRemoveLabel: (label) =>
-    task = new ChangeLabelsTask(threadIds: [@state.currentThread.id], labelsToRemove: [label])
+    task = new ChangeLabelsTask(thread: @state.currentThread, labelsToRemove: [label])
     Actions.queueTask(task)
 
   _onClickReplyArea: =>

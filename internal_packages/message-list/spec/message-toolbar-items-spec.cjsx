@@ -24,8 +24,8 @@ describe "MessageToolbarItem starring", ->
 
     TestUtils.Simulate.click React.findDOMNode(starButton)
 
-    expect(Actions.queueTask.mostRecentCall.args[0].objects).toEqual([test_thread])
-    expect(Actions.queueTask.mostRecentCall.args[0].newValues).toEqual(starred: true)
+    expect(Actions.queueTask.mostRecentCall.args[0].threads).toEqual([test_thread])
+    expect(Actions.queueTask.mostRecentCall.args[0].starred).toEqual(true)
 
   it "unstars a thread if the star button is clicked and thread is starred", ->
     spyOn(Actions, 'queueTask')
@@ -33,5 +33,5 @@ describe "MessageToolbarItem starring", ->
 
     TestUtils.Simulate.click React.findDOMNode(starButton)
 
-    expect(Actions.queueTask.mostRecentCall.args[0].objects).toEqual([test_thread_starred])
-    expect(Actions.queueTask.mostRecentCall.args[0].newValues).toEqual(starred: false)
+    expect(Actions.queueTask.mostRecentCall.args[0].threads).toEqual([test_thread_starred])
+    expect(Actions.queueTask.mostRecentCall.args[0].starred).toEqual(false)

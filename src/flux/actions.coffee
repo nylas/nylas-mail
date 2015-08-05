@@ -34,7 +34,7 @@ how it propogates between windows.
 ```coffee
 Actions.postNotification({message: "Archived Thread", type: 'success'})
 
-Actions.queueTask(new UpdateThreadsTask([@_thread], starred: true))
+Actions.queueTask(new ChangeStarredTask(thread: @_thread, starred: true))
 ```
 
 ## Listening for Actions

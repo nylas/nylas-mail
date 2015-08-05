@@ -159,7 +159,8 @@ class Message extends Model
 
   @additionalSQLiteConfig:
     setup: ->
-      ['CREATE INDEX IF NOT EXISTS MessageListIndex ON Message(thread_id, date ASC)']
+      ['CREATE INDEX IF NOT EXISTS MessageListIndex ON Message(thread_id, date ASC)',
+       'CREATE UNIQUE INDEX IF NOT EXISTS MessageBodyIndex ON MessageBody(id)']
 
   constructor: ->
     super

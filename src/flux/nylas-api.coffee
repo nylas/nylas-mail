@@ -18,16 +18,20 @@ class NylasAPIOptimisticChangeTracker
     @_locks = {}
 
   acceptRemoteChangesTo: (klass, id) ->
-    @_locks["#{klass.name}-#{id}"] is undefined
+    key = "#{klass.name}-#{id}"
+    @_locks[key] is undefined
 
   increment: (klass, id) ->
-    @_locks["#{klass.name}-#{id}"] ?= 0
-    @_locks["#{klass.name}-#{id}"] += 1
+    key = "#{klass.name}-#{id}"
+    @_locks[key] ?= 0
+    @_locks[key] += 1
 
   decrement: (klass, id) ->
-    @_locks["#{klass.name}-#{id}"] -= 1
-    if @_locks["#{klass.name}-#{id}"] is 0
-      delete @_locks["#{klass.name}-#{id}"]
+    key = "#{klass.name}-#{id}"
+    return unless @_locks[key]?
+    @_locks[key] -= 1
+    if @_locks[key] <= 0
+      delete @_locks[key]
 
   print: ->
     console.log("The following models are locked:")
@@ -312,45 +316,45 @@ class NylasAPI
       return Promise.reject(new Error("handleModelResponse with no JSON provided"))
 
     jsons = [jsons] unless jsons instanceof Array
+    if jsons.length is 0
+      return Promise.resolve([])
 
+    # Run a few assertions to make sure we're not going to run into problems
     uniquedJSONs = _.uniq jsons, false, (model) -> model.id
     if uniquedJSONs.length < jsons.length
       console.warn("NylasAPI.handleModelResponse: called with non-unique object set. Maybe an API request returned the same object more than once?")
 
-    Promise.filter(uniquedJSONs, @_shouldAcceptModelJSON)
-      .map(modelFromJSON)
-      .then (objects) ->
-        DatabaseStore.persistModels(objects).then ->
-          return Promise.resolve(objects)
-
-  _shouldAcceptModelJSON: (json) =>
-    return Promise.resolve(false) unless json
-
-    if json.object is "thread"
+    type = jsons[0].object
+    accepted = Promise.resolve(uniquedJSONs)
+    if type is "thread"
       Thread = require './models/thread'
-      return @_shouldAcceptModelJSONIfNewer(Thread, json)
-
-    # For the time being, we never accept drafts from the server. This single
-    # change ensures that all drafts in the system are authored locally. To
-    # revert, change back to use _shouldAcceptModelIfNewer
-    if json.object is "draft"
+      accepted = @_acceptableModelsInResponse(Thread, uniquedJSONs)
+    else if type is "draft"
       Message = require './models/message'
-      return @_shouldAcceptModelJSONIfNewer(Message, json)
+      accepted = @_acceptableModelsInResponse(Message, uniquedJSONs)
 
-    Promise.resolve(true)
+    accepted.map(modelFromJSON).then (objects) ->
+      DatabaseStore.persistModels(objects).then ->
+        return Promise.resolve(objects)
 
-  _shouldAcceptModelJSONIfNewer: (klass, json) ->
-    if @_optimisticChangeTracker.acceptRemoteChangesTo(klass, json.id) is false
-      json._delta?.ignoredBecause = "This model is locked by the optimistic change tracker"
-      return Promise.resolve(false)
+  _acceptableModelsInResponse: (klass, jsons) ->
+    # Filter out models that are locked by pending optimistic changes
+    accepted = jsons.filter (json) =>
+      if @_optimisticChangeTracker.acceptRemoteChangesTo(klass, json.id) is false
+        json._delta?.ignoredBecause = "This model is locked by the optimistic change tracker"
+        return false
+      return true
 
+    # Filter out models that already have newer versions in the local cache
+    ids = _.pluck(accepted, 'id')
     DatabaseStore = require './stores/database-store'
-    DatabaseStore.find(klass, json.id).then (existing) ->
-      if existing and existing.version >= json.version
-        json._delta?.ignoredBecause = "This version (#{json.version}) is not newer. Already have (#{existing.version})"
-        return Promise.resolve(false)
-      else
-        return Promise.resolve(true)
+    DatabaseStore.findVersions(klass, ids).then (versions) ->
+      accepted = accepted.filter (json) ->
+        if versions[json.id] >= json.version
+          json._delta?.ignoredBecause = "This version (#{json.version}) is not newer. Already have (#{versions[json.id]})"
+          return false
+        return true
+      Promise.resolve(accepted)
 
   getThreads: (namespaceId, params = {}, requestOptions = {}) ->
     requestSuccess = requestOptions.success

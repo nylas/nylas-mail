@@ -4,6 +4,7 @@ Thread = require '../../src/flux/models/thread'
 Message = require '../../src/flux/models/message'
 Actions = require '../../src/flux/actions'
 NylasAPI = require '../../src/flux/nylas-api'
+Query = require '../../src/flux/models/query'
 DatabaseStore = require '../../src/flux/stores/database-store'
 ChangeFolderTask = require '../../src/flux/tasks/change-folder-task'
 
@@ -16,30 +17,17 @@ testMessages = {}
 
 describe "ChangeFolderTask", ->
   beforeEach ->
-    @_findFunction = (klass, id) =>
-      if klass is Thread
-        Promise.resolve(testThreads[id])
-      else if klass is Message
-        Promise.resolve(testMessages[id])
-      else if klass is Folder
-        Promise.resolve(testFolders[id])
-      else
-        throw new Error("Not stubbed!")
+    # IMPORTANT: These specs do not run the performLocal logic of their superclass!
+    # Tests for that logic are in change-mail-task-spec.
+    spyOn(ChangeFolderTask.__super__, 'performLocal').andCallFake =>
+      Promise.resolve()
 
-    spyOn(DatabaseStore, 'persistModel').andCallFake -> Promise.resolve()
-    spyOn(DatabaseStore, 'persistModels').andCallFake -> Promise.resolve()
-    spyOn(DatabaseStore, 'find').andCallFake (klass, id) =>
-      @_findFunction(klass, id)
-
-    spyOn(DatabaseStore, 'findAll').andCallFake (klass, finder) =>
-      if klass is Message
-        Promise.resolve(_.values(testMessages))
-      else if klass is Thread
-        Promise.resolve(_.values(testThreads))
-      else if klass is Folder
-        Promise.resolve(_.values(testFolders))
-      else
-        throw new Error("Not stubbed!")
+    spyOn(DatabaseStore, 'modelify').andCallFake (klass, items) =>
+      Promise.resolve items.map (item) =>
+        return testFolders[item] if testFolders[item]
+        return testThreads[item] if testThreads[item]
+        return testMessages[item] if testMessages[item]
+        item
 
     testFolders = @testFolders =
       "f1": new Folder({name: 'inbox', id: 'f1', displayName: "INBOX"}),
@@ -56,65 +44,43 @@ describe "ChangeFolderTask", ->
       'm2': new Message(id: 'm2', folder: @testFolders['f2'])
       'm3': new Message(id: 'm3', folder: @testFolders['f3'])
 
-    @basicThreadTask = new ChangeFolderTask
-      folderOrId: "f1"
-      threadIds: ['t1']
-
-    @basicMessageTask = new ChangeFolderTask
-      folderOrId: @testFolders['f2']
-      messageIds: ['m1']
-
   describe "description", ->
-    it "should include the folder name if folderOrId is a folder", ->
+    it "should include the folder name if folder is a folder", ->
       taskWithFolderId = new ChangeFolderTask
-        folderOrId: 'f2'
-        messageIds: ['m1']
+        folder: 'f2'
+        messages: ['m1']
       expect(taskWithFolderId.description()).toEqual("Moved 1 message")
       taskWithFolder = new ChangeFolderTask
-        folderOrId: @testFolders['f2']
-        messageIds: ['m1']
+        folder: @testFolders['f2']
+        messages: ['m1']
       expect(taskWithFolder.description()).toEqual("Moved 1 message to MyDrafts")
 
     it "should correctly mention threads and messages", ->
       taskWithFolderId = new ChangeFolderTask
-        folderOrId: 'f2'
-        messageIds: ['m1']
-      expect(@basicThreadTask.description()).toEqual("Moved 1 thread")
+        folder: 'f2'
+        threads: ['t1']
+      expect(taskWithFolderId.description()).toEqual("Moved 1 thread")
       taskWithFolder = new ChangeFolderTask
-        folderOrId: @testFolders['f2']
-        messageIds: ['m1']
-      expect(@basicMessageTask.description()).toEqual("Moved 1 message to MyDrafts")
-
-  describe "shouldWaitForTask", ->
-    it "should return true if another, older ChangeFolderTask involves the same threads", ->
-      a = new ChangeFolderTask(threadIds: ['t1', 't2', 't3'])
-      a.creationDate = new Date(1000)
-      b = new ChangeFolderTask(threadIds: ['t3', 't4', 't7'])
-      b.creationDate = new Date(2000)
-      c = new ChangeFolderTask(threadIds: ['t0', 't7'])
-      c.creationDate = new Date(3000)
-      expect(a.shouldWaitForTask(b)).toEqual(false)
-      expect(a.shouldWaitForTask(c)).toEqual(false)
-      expect(b.shouldWaitForTask(a)).toEqual(true)
-      expect(c.shouldWaitForTask(a)).toEqual(false)
-      expect(c.shouldWaitForTask(b)).toEqual(true)
+        folder: @testFolders['f2']
+        messages: ['m1']
+      expect(taskWithFolder.description()).toEqual("Moved 1 message to MyDrafts")
 
   describe "performLocal", ->
-    it "should throw an exception if task has not been given a folder", ->
+    it "should check that a single folder is provided, and that we have threads or messages", ->
       badTasks = [
         new ChangeFolderTask(),
-        new ChangeFolderTask(threadIds: [123]),
-        new ChangeFolderTask(threadIds: [123], messageIds: ["foo"]),
-        new ChangeFolderTask(threadIds: "Thread"),
+        new ChangeFolderTask(threads: [123]),
+        new ChangeFolderTask(threads: [123], messages: ["foo"]),
+        new ChangeFolderTask(threads: "Thread"),
       ]
       goodTasks = [
         new ChangeFolderTask(
-          folderOrId: 'f2'
-          threadIds: ['t1', 't2']
+          folder: 'f2'
+          threads: ['t1', 't2']
         )
         new ChangeFolderTask(
-          folderOrId: @testFolders['f2']
-          messageIds: ['m1']
+          folder: @testFolders['f2']
+          messages: ['m1']
         )
       ]
       caught = []
@@ -131,387 +97,62 @@ describe "ChangeFolderTask", ->
         expect(caught.length).toEqual(badTasks.length)
         expect(succeeded.length).toEqual(goodTasks.length)
 
-    it "throws an error if an undo task isn't passed undo data", ->
-      t = new ChangeFolderTask
-        folderOrId: 'f1'
-        threadIds: ['t1', 't2']
-      t._isUndoTask = true
-      waitsForPromise ->
-        t.performLocal().catch (error) ->
-          expect(error.message).toBe "Must pass an `undoData` to rollback folder changes"
-
-    it "throws an error if an undo task is passed an empty hash of undo data", ->
-      t = new ChangeFolderTask
-        folderOrId: 'f1'
-        undoData: {}
-        threadIds: ['t1', 't2']
-      t._isUndoTask = true
-      waitsForPromise ->
-        t.performLocal().catch (error) ->
-          expect(error.message).toBe "Must pass an `undoData` to rollback folder changes"
-
-    it 'finds the folder to add by id', ->
+    it 'calls through to super performLocal', ->
+      task = new ChangeFolderTask
+        folder: "f1"
+        threads: ['t1']
       waitsForPromise =>
-        @basicThreadTask.collectCategories().then (categories) =>
-          expect(categories.folder).toEqual @testFolders['f1']
+        task.performLocal().then =>
+          expect(task.constructor.__super__.performLocal).toHaveBeenCalled()
 
-    it 'finds the folder to add by folder object', ->
-      waitsForPromise =>
-        @basicMessageTask.collectCategories().then (categories) =>
-          expect(categories.folder).toEqual @testFolders['f2']
-
-    it 'increments optimistic changes', ->
-      spyOn(@basicThreadTask, "localUpdateThread").andReturn Promise.resolve()
-      spyOn(NylasAPI, "incrementOptimisticChangeCount")
-      waitsForPromise =>
-        @basicThreadTask.performLocal().then ->
-          expect(NylasAPI.incrementOptimisticChangeCount)
-            .toHaveBeenCalledWith(Thread, 't1')
-
-    it 'removes the objectId from the set if the object cannot be found', ->
-      spyOn(@basicThreadTask, "localUpdateThread").andReturn Promise.resolve()
-      spyOn(NylasAPI, "incrementOptimisticChangeCount")
-      @_findFunction = (klass, id) =>
-        if klass is Thread
-          Promise.resolve(null)
-
-      expect(@basicThreadTask.objectIds).toEqual(['t1'])
-      waitsForPromise =>
-        @basicThreadTask.performLocal().then =>
-          expect(NylasAPI.incrementOptimisticChangeCount).not.toHaveBeenCalled()
-          expect(@basicThreadTask.objectIds).toEqual([])
-
-    it 'decrements optimistic changes if reverting', ->
-      spyOn(@basicThreadTask, "localUpdateThread").andReturn Promise.resolve()
-      spyOn(NylasAPI, "decrementOptimisticChangeCount")
-      waitsForPromise =>
-        @basicThreadTask.performLocal(reverting: true).then ->
-          expect(NylasAPI.decrementOptimisticChangeCount)
-            .toHaveBeenCalledWith(Thread, 't1')
-
-    describe "When it's a Regular Task", ->
-      it 'sets undo data and ignores messages that already have the folder we want', ->
-        waitsForPromise =>
-          @basicThreadTask.performLocal().then =>
-            expectedData =
-              originalMessageFolder:
-                m2: @testFolders['f2']
-                m3: @testFolders['f3']
-              originalThreadFolders:
-                t1: [@testFolders['f1']]
-            expect(expectedData).toEqual @basicThreadTask.undoData
-
-    it 'updates a thread with the new folder', ->
-      waitsForPromise =>
-        @basicThreadTask.performLocal().then =>
-          thread = DatabaseStore.persistModel.calls[0].args[0]
-          expect(thread.folders).toEqual [@testFolders['f1']]
-
-    it "updates a thread's messages with the new folder and ignores messages that already have the same folder", ->
-      # Our stub of DatabaseStore.findAll ignores the scoping parameter.
-      # We simply return all messages.
-
-      expectedFolder = @testFolders['f1']
-      waitsForPromise =>
-        @basicThreadTask.performLocal().then ->
-          messages = DatabaseStore.persistModels.calls[0].args[0]
-          # We expect 2 because 1 of our 3 messages already has the folder
-          # we want.
-          expect(messages.length).toBe 2
-          for message in messages
-            expect(message.folder).toEqual expectedFolder
-
-    describe "When it's an Undo Folder task", ->
+    describe "when object IDs are provided", ->
       beforeEach ->
-        @undoData =
-          originalMessageFolder:
-            m2: @testFolders['f2']
-            m3: @testFolders['f3']
-          originalThreadFolders:
-            t1: [@testFolders['f1']]
+        @task = new ChangeFolderTask(folder: "f1", threads: ['t1'])
 
-        testMessages.m2.folder = @testFolders['f1']
-        testMessages.m3.folder = @testFolders['f1']
-
-        @undoThreadTask = new ChangeFolderTask
-          folderOrId: "f1"
-          threadIds: ['t1']
-          undoData: @undoData
-        @undoThreadTask._isUndoTask = true
-
-      afterEach ->
-        testMessages.m2.folder = @testFolders['f2']
-        testMessages.m3.folder = @testFolders['f3']
-
-      it "Calls undoLocalUpdateThread with the thread", ->
-        spyOn(@undoThreadTask, "_undoLocalUpdateThread").andCallThrough()
+      it 'resolves the objects before calling super', ->
         waitsForPromise =>
-          @undoThreadTask.performLocal().then =>
-            expect(@undoThreadTask._undoLocalUpdateThread).toHaveBeenCalled()
-            arg = @undoThreadTask._undoLocalUpdateThread.calls[0].args[0]
-            expect(arg).toBe @testThreads['t1']
+          @task.performLocal().then =>
+            expect(@task.folder).toEqual(testFolders['f1'])
+            expect(@task.threads).toEqual([testThreads['t1']])
 
-      it "updates the correct number of messages", ->
-        waitsForPromise =>
-          @undoThreadTask.performLocal().then =>
-            messages = DatabaseStore.persistModels.calls[0].args[0]
-            # It should be 2 since we only had original folder data for 2
-            # of the 3 messages. The third was never changed.
-            expect(messages.length).toBe 2
-
-      it "updates the thread's messages with the original folders", ->
-        waitsForPromise =>
-          @undoThreadTask.performLocal().then =>
-            messages = DatabaseStore.persistModels.calls[0].args[0]
-            m2 = _.findWhere(messages, id: "m2")
-            m3 = _.findWhere(messages, id: "m3")
-
-            # If the task didn't work, the folders would be `f1` since
-            # that's what we set in the describe block setup.
-            expect(m2.folder).toBe @testFolders['f2']
-            expect(m3.folder).toBe @testFolders['f3']
-
-      it "updates the thread's folder list with the original data", ->
-        waitsForPromise =>
-          @undoThreadTask.performLocal().then =>
-            thread = DatabaseStore.persistModel.calls[0].args[0]
-            expect(thread.folders).toEqual [@testFolders['f1']]
-
-    describe "When it's an Undo Message task", ->
+    describe "when objects are provided", ->
       beforeEach ->
-        @undoData =
-          originalMessageFolder:
-            m2: @testFolders['f2']
+        @task = new ChangeFolderTask(folder: testFolders['f1'], threads: [testThreads['t1'], testThreads['t2']])
 
-        testMessages.m1.folder = @testFolders['f1']
-        testMessages.m2.folder = @testFolders['f1']
-
-        @undoMessageTask = new ChangeFolderTask
-          folderOrId: "f1"
-          messageIds: ['m1', 'm2']
-          undoData: @undoData
-        @undoMessageTask._isUndoTask = true
-
-      afterEach ->
-        testMessages.m1.folder = @testFolders['f1']
-        testMessages.m2.folder = @testFolders['f1']
-
-      it "Calls undoLocalUpdateThread with the message", ->
-        spyOn(@undoMessageTask, "_undoLocalUpdateMessage").andCallThrough()
+      it 'still has the objects when calling super', ->
         waitsForPromise =>
-          @undoMessageTask.performLocal().then =>
-            expect(@undoMessageTask._undoLocalUpdateMessage).toHaveBeenCalled()
-            arg1 = @undoMessageTask._undoLocalUpdateMessage.calls[0].args[0]
-            expect(arg1).toBe @testMessages['m1']
+          @task.performLocal().then =>
+            expect(@task.folder).toEqual(testFolders['f1'])
+            expect(@task.threads).toEqual([testThreads['t1'],testThreads['t2']])
 
-            arg2 = @undoMessageTask._undoLocalUpdateMessage.calls[1].args[0]
-            expect(arg2).toBe @testMessages['m2']
+    describe "change methods", ->
+      beforeEach ->
+        @message = testMessages['m1']
+        @thread = testThreads['t1']
+        @task = new ChangeFolderTask(folder: testFolders['f1'], threads: [testThreads['t1'], testThreads['t2']])
 
-      it "updates the correct number of messages", ->
-        waitsForPromise =>
-          @undoMessageTask.performLocal().then =>
-            calls = DatabaseStore.persistModel.calls
-            # It only gets called once because m1 already has the correct
-            # folder.
-            expect(calls.length).toBe 1
+      describe "_changesToModel", ->
+        describe "if the model is a Thread", ->
+          it "returns an object with a folders key, and an array with the folder", ->
+            expect(@task._changesToModel(@thread)).toEqual({folders: [testFolders['f1']]})
 
-      it "updates the thread's messages with the original folders", ->
-        waitsForPromise =>
-          @undoMessageTask.performLocal().then =>
-            m2 = DatabaseStore.persistModel.calls[0].args[0]
+        describe "if the model is a Message", ->
+          it "returns an object with a folder key, and the folder", ->
+            expect(@task._changesToModel(@message)).toEqual({folder: testFolders['f1']})
 
-            expect(@testMessages.m1.folder).toBe @testFolders['f1']
-            expect(m2.folder).toBe @testFolders['f2']
+      describe "_requestBodyForModel", ->
+        describe "if the model is a Thread", ->
+          it "returns folder: <id>, using the first available folder", ->
+            @thread.folders = []
+            expect(@task._requestBodyForModel(@thread)).toEqual(folder: null)
+            @thread.folders = [testFolders['f1']]
+            expect(@task._requestBodyForModel(@thread)).toEqual(folder: 'f1')
+            @thread.folders = [testFolders['f2'], testFolders['f1']]
+            expect(@task._requestBodyForModel(@thread)).toEqual(folder: 'f2')
 
-  describe 'performRemote', ->
-    beforeEach ->
-      spyOn(NylasAPI, "makeRequest").andCallFake (options) ->
-        options.beforeProcessing?(options.body)
-        return Promise.resolve()
-
-    describe "when it's a regular task", ->
-      describe 'when change folders on threads', ->
-        beforeEach ->
-          @multiThreadTask = new ChangeFolderTask
-            folderOrId: "f1"
-            threadIds: ['t1', 't2']
-          @multiThreadTask._folderObj = @testFolders['f1']
-
-        it 'makes a new request object for each object', ->
-          waitsForPromise =>
-            @multiThreadTask.performRemote().then ->
-              expect(NylasAPI.makeRequest.calls.length).toBe 2
-
-        it 'decrements the optimistic change count on each request', ->
-          spyOn(NylasAPI, "decrementOptimisticChangeCount")
-          waitsForPromise =>
-            @multiThreadTask.performRemote().then ->
-              klass = NylasAPI.decrementOptimisticChangeCount.calls[0].args[0]
-              expect(NylasAPI.decrementOptimisticChangeCount.calls.length).toBe 2
-              expect(klass).toBe Thread
-
-        it 'properly passes the folder ID to the body', ->
-          waitsForPromise =>
-            @multiThreadTask.performRemote().then ->
-              opts = NylasAPI.makeRequest.calls[0].args[0]
-              expect(opts.body).toEqual folder: 'f1'
-
-        it 'gets the correct endpoint for the thread tasks', ->
-          waitsForPromise =>
-            @multiThreadTask.performRemote().then ->
-              opts = NylasAPI.makeRequest.calls[0].args[0]
-              expect(opts.path).toEqual "/n/nsid/threads/t1"
-
-      describe 'when change folders on messages', ->
-        beforeEach ->
-          @multiMessageTask = new ChangeFolderTask
-            folderOrId: "f1"
-            messageIds: ['m1', 'm2']
-          @multiMessageTask._folderObj = @testFolders['f1']
-
-        it 'decrements the optimistic change for messages too', ->
-          spyOn(NylasAPI, "decrementOptimisticChangeCount")
-          waitsForPromise =>
-            @multiMessageTask.performRemote().then ->
-              klass = NylasAPI.decrementOptimisticChangeCount.calls[0].args[0]
-              expect(NylasAPI.decrementOptimisticChangeCount.calls.length).toBe 2
-              expect(klass).toBe Message
-
-        it 'gets the correct endpoint for the thread tasks', ->
-          waitsForPromise =>
-            @multiMessageTask.performRemote().then ->
-              opts = NylasAPI.makeRequest.calls[0].args[0]
-              expect(opts.path).toEqual "/n/nsid/messages/m1"
-
-    describe "when it's an undo task", ->
-      describe 'when change folders on threads', ->
-        beforeEach ->
-          @undoData =
-            originalMessageFolder:
-              m2: @testFolders['f2']
-              m3: @testFolders['f3']
-            originalThreadFolders:
-              t1: [@testFolders['f1']]
-              t2: [@testFolders['f1'], @testFolders['f2'], @testFolders['f3']]
-
-          @multiThreadTask = new ChangeFolderTask
-            folderOrId: "f1"
-            threadIds: ['t1', 't2']
-            undoData: @undoData
-          @multiThreadTask._folderObj = @testFolders['f1']
-          @multiThreadTask._isUndoTask = true
-
-        it 'decrements the optimistic change count on each request', ->
-          spyOn(NylasAPI, "decrementOptimisticChangeCount")
-          waitsForPromise =>
-            @multiThreadTask.performRemote().then ->
-              klass = NylasAPI.decrementOptimisticChangeCount.calls[0].args[0]
-              expect(NylasAPI.decrementOptimisticChangeCount.calls.length).toBe 2
-              expect(klass).toBe Thread
-
-        it 'properly passes the folder ID to the body', ->
-          waitsForPromise =>
-            @multiThreadTask.performRemote().then ->
-              opts = NylasAPI.makeRequest.calls[0].args[0]
-              expect(opts.body).toEqual folder: 'f1'
-
-        it 'passes the id of the first folder if there used to be multiple folders that we tried to revert to', ->
-          waitsForPromise =>
-            @multiThreadTask.performRemote().then ->
-              opts = NylasAPI.makeRequest.calls[1].args[0]
-              expect(opts.body).toEqual folder: 'f1'
-
-        it 'gets the correct endpoint for the thread tasks', ->
-          waitsForPromise =>
-            @multiThreadTask.performRemote().then ->
-              opts = NylasAPI.makeRequest.calls[0].args[0]
-              expect(opts.path).toEqual "/n/nsid/threads/t1"
-
-      describe 'when change folders on messages', ->
-        beforeEach ->
-          @undoData =
-            originalMessageFolder:
-              m2: @testFolders['f2']
-
-          @multiMessageTask = new ChangeFolderTask
-            folderOrId: "f1"
-            messageIds: ['m1', 'm2']
-            undoData: @undoData
-          @multiMessageTask._folderObj = @testFolders['f1']
-          @multiMessageTask._isUndoTask = true
-
-        it 'decrements the optimistic change for messages too', ->
-          spyOn(NylasAPI, "decrementOptimisticChangeCount")
-          waitsForPromise =>
-            @multiMessageTask.performRemote().then ->
-              klass = NylasAPI.decrementOptimisticChangeCount.calls[0].args[0]
-              # It's 1 instead of 2 since we only update message 2
-              expect(NylasAPI.decrementOptimisticChangeCount.calls.length).toBe 1
-              expect(klass).toBe Message
-
-        it 'properly passes the folder ID to first message', ->
-          waitsForPromise =>
-            @multiMessageTask.performRemote().then ->
-              opts = NylasAPI.makeRequest.calls[0].args[0]
-              expect(opts.body).toEqual folder: 'f2'
-
-        it 'gets the correct endpoint for the thread tasks', ->
-          waitsForPromise =>
-            @multiMessageTask.performRemote().then ->
-              opts = NylasAPI.makeRequest.calls[0].args[0]
-              expect(opts.path).toEqual "/n/nsid/messages/m2"
-
-  xdescribe 'performRemote', ->
-    beforeEach ->
-      spyOn(NylasAPI, "makeRequest").andCallFake (options) ->
-        options.beforeProcessing?(options.body)
-        return Promise.resolve()
-
-      @multiThreadTask = new ChangeFolderTask
-        folderOrId: ["f1", "f2"]
-        folderToRemove: ["f3"]
-        threadIds: ['t1', 't2']
-
-      @multiMessageTask = new ChangeFolderTask
-        folderOrId: ["f1", "f2"]
-        folderToRemove: ["f3"]
-        messageIds: ['m1', 'm2']
-
-      expectedFolder = [@testFolders['f1'], @testFolders['f2']]
-      @multiThreadTask._newFolder['t1'] = expectedFolder
-      @multiThreadTask._newFolder['t2'] = expectedFolder
-      @multiMessageTask._newFolder['m1'] = expectedFolder
-      @multiMessageTask._newFolder['m2'] = expectedFolder
-
-    it 'makes a new request object for each object', ->
-      @multiThreadTask.performRemote().then ->
-        expect(NylasAPI.makeRequest.calls.length).toBe 2
-
-    it 'decrements the optimistic change count on each request', ->
-      spyOn(NylasAPI, "decrementOptimisticChangeCount")
-      @multiThreadTask.performRemote().then ->
-        klass = NylasAPI.decrementOptimisticChangeCount.calls[0].args[0]
-        expect(NylasAPI.decrementOptimisticChangeCount.calls.length).toBe 2
-        expect(klass).toBe Thread
-
-    it 'decrements the optimistic change for messages too', ->
-      spyOn(NylasAPI, "decrementOptimisticChangeCount")
-      @multiMessageTask.performRemote().then ->
-        klass = NylasAPI.decrementOptimisticChangeCount.calls[0].args[0]
-        expect(NylasAPI.decrementOptimisticChangeCount.calls.length).toBe 2
-        expect(klass).toBe Message
-
-    it 'properly passes the folder IDs to the body', ->
-      @multiThreadTask.performRemote().then ->
-        opts = NylasAPI.makeRequest.calls[0].args[0]
-        expect(opts.body).toEqual folder: ['f1', 'f2']
-
-    it 'gets the correct endpoint for the thread tasks', ->
-      @multiThreadTask.performRemote().then ->
-        opts = NylasAPI.makeRequest.calls[0].args[0]
-        expect(opts.path).toEqual "/n/nsid/threads/t1"
-
-    it 'gets the correct endpoint for the message tasks', ->
-      @multiMessageTask.performRemote().then ->
-        opts = NylasAPI.makeRequest.calls[0].args[0]
-        expect(opts.path).toEqual "/n/nsid/messages/m1"
+        describe "if the model is a Message", ->
+          it "returns folder: <id>, using the message folder", ->
+            @message.folder = null
+            expect(@task._requestBodyForModel(@message)).toEqual(folder: null)
+            @message.folder = testFolders['f1']
+            expect(@task._requestBodyForModel(@message)).toEqual(folder: 'f1')

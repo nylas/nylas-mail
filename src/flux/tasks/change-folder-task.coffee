@@ -1,164 +1,80 @@
+_ = require 'underscore'
 Task = require './task'
 Folder = require '../models/folder'
 Thread = require '../models/thread'
 Message = require '../models/message'
 DatabaseStore = require '../stores/database-store'
-ChangeCategoryTask = require './change-category-task'
+ChangeMailTask = require './change-mail-task'
 
 # Public: Create a new task to apply labels to a message or thread.
 #
 # Takes an options array of the form:
 #   - `folder` The {Folder} or {Folder} id to move to
-#   - `threadIds` Ether an arry of {Thread} ids…
-#   - `messageIds` XOR an arry of {Message} ids.
+#   - `threads` An array of {Thread}s or {Thread} IDs
+#   - `threads` An array of {Message}s or {Message} IDs
 #   - `undoData` Since changing the folder is a destructive action,
 #   undo tasks need to store the configuration of what folders messages
 #   were in. When creating an undo task, we fill this parameter with
 #   that configuration
-class ChangeFolderTask extends ChangeCategoryTask
+#
+class ChangeFolderTask extends ChangeMailTask
 
-  constructor: ({@folderOrId, @threadIds, @messageIds, @undoData}={}) ->
-    @threadIds ?= []; @messageIds ?= []
-    @objectIds = @threadIds.concat(@messageIds)
+  constructor: ({@folder}={}) ->
     super
 
   label: -> "Moving to folder…"
 
   description: ->
     folderText = ""
-    if @folderOrId instanceof Folder
-      folderText = " to #{@folderOrId.displayName}"
+    if @folder instanceof Folder
+      folderText = " to #{@folder.displayName}"
 
-    if @threadIds.length > 0
-      if @threadIds.length > 1
-        return "Moved " + @threadIds.length + " threads#{folderText}"
+    if @threads.length > 0
+      if @threads.length > 1
+        return "Moved " + @threads.length + " threads#{folderText}"
       return "Moved 1 thread#{folderText}"
-    else if @messageIds.length > 0
-      if @messageIds.length > 1
-        return "Moved " + @messageIds.length + "messages#{folderText}"
+    else if @messages.length > 0
+      if @messages.length > 1
+        return "Moved " + @messages.length + "messages#{folderText}"
       return "Moved 1 message#{folderText}"
     else
       return "Moved objects#{folderText}"
 
-  collectCategories: ->
-    if @folderOrId instanceof Folder
-      return Promise.props
-        folder: Promise.resolve(@folderOrId)
-    else
-      return Promise.props
-        folder: DatabaseStore.find(Folder, @folderOrId)
-
-  # Called from super-class's `performRemote`
-  rollbackLocal: ->
-    # When rolling folders back, we just need to make sure that the
-    # `reverting:true` bit is set. This will cause the `localUpdate` logic
-    # to correctly use the `undoData` when setting elements
-    @performLocal({reverting: true}).then =>
-      return Promise.resolve(Task.Status.Finished)
-
-  requestBody: (objectId) ->
-    if @threadIds.length > 0
-      if @_isUndoTask or @_isReverting
-        # The API only accepts a single folder id at the endpoint.
-        # However, the original Thread may have had multiple folders
-        # assigned to it. For now we simply pick the first folder object
-        # available to us.
-        oldFolder = @undoData.originalThreadFolders[objectId]?[0]?.id
-        return null unless oldFolder
-        return folder: oldFolder
-      else
-        return folder: @_folderObj.id
-    else if @messageIds.length > 0
-      if @_isUndoTask or @_isReverting
-        oldFolder = @undoData.originalMessageFolder[objectId]?.id
-        return null unless oldFolder
-        return folder: oldFolder
-      else
-        return folder: @_folderObj.id
-
-  createUndoTask: ->
-    task = new ChangeFolderTask({@folderOrId, @threadIds, @messageIds, @undoData})
-    task._isUndoTask = true
-    return task
-
-  # Note that a thread has a collection of folders which represents where
-  # each message is. If we're updating a thread, we need to update the
-  # messages as well.
-  # Called from super-class's `performLocal`
-  localUpdateThread: (thread, {folder}) ->
-    # We set this here so `performRemote` can access it later
-    @_folderObj = folder
-
-    if @_isUndoTask or @_isReverting
-      return @_undoLocalUpdateThread(thread)
-    else
-      @_initUndoData()
-      messageQuery = DatabaseStore.findAll(Message, threadId: thread.id)
-      childSavePromise = messageQuery.then (messages) =>
-        messagesToSave = []
-        for message in messages
-          if message.folder?.id isnt @_folderObj.id
-            @undoData.originalMessageFolder[message.id] = message.folder
-            message.folder = @_folderObj
-            messagesToSave.push(message)
-
-        DatabaseStore.persistModels(messagesToSave)
-
-      @undoData.originalThreadFolders[thread.id] = thread.folders
-      thread.folders = [@_folderObj]
-      parentSavePromise = DatabaseStore.persistModel(thread)
-
-      return Promise.all([parentSavePromise, childSavePromise])
-
-  # Called from super-class's `performLocal`
-  localUpdateMessage: (message, {folder}) ->
-    if @_isUndoTask or @_isReverting
-      return @_undoLocalUpdateMessage(message)
-    else
-      @_folderObj = folder
-      @_initUndoData()
-      @undoData.originalMessageFolder[message.id] = message.folder
-      message.folder = @_folderObj
-      return DatabaseStore.persistModel(message)
-
-  _undoLocalUpdateThread: (thread) ->
-    messageQuery = DatabaseStore.findAll(Message, threadId: thread.id)
-    childSavePromise = messageQuery.then (messages) =>
-      messagesToSave = []
-      for message in messages
-        origFolder = @undoData.originalMessageFolder[message.id]
-        if origFolder and message.folder?.id isnt origFolder.id
-          message.folder = origFolder
-          messagesToSave.push(message)
-      DatabaseStore.persistModels(messagesToSave)
-
-    thread.folders = @undoData.originalThreadFolders[thread.id]
-    parentSavePromise = DatabaseStore.persistModel(thread)
-
-    return Promise.all([parentSavePromise, childSavePromise])
-
-  _undoLocalUpdateMessage: (message) ->
-    origFolder = @undoData.originalMessageFolder[message.id]
-    return Promise.resolve() unless origFolder
-    message.folder = origFolder
-    return DatabaseStore.persistModel(message)
-
-  # Since we override with a single folder assignment, we need to keep
-  # track of the previous folders applied to various messages.
-  # This is keyed by a messageId
-  _initUndoData: ->
-    @undoData ?= {
-      originalMessageFolder: {}
-      originalThreadFolders: {}
-    }
-
-  verifyArgs: ->
-    if not @folderOrId
+  performLocal: ->
+    if not @folder
       return Promise.reject(new Error("Must specify a `folder`"))
+    if @threads.length > 0 and @messages.length > 0
+      return Promise.reject(new Error("ChangeLabelsTask: You can move `threads` or `messages` but not both"))
+    if @threads.length is 0 and @messages.length is 0
+      return Promise.reject(new Error("ChangeLabelsTask: You must provide a `threads` or `messages` Array of models or IDs."))
 
-    if @_isUndoTask and (not @undoData or Object.keys(@undoData).length is 0)
-      return Promise.reject(new Error("Must pass an `undoData` to rollback folder changes"))
+    # Convert arrays of IDs or models to models.
+    # modelify returns immediately if no work is required
+    Promise.props(
+      folder: DatabaseStore.modelify(Folder, [@folder])
+      threads: DatabaseStore.modelify(Thread, @threads)
+      messages: DatabaseStore.modelify(Message, @messages)
 
-    return super()
+    ).then ({folder, threads, messages}) =>
+      # Remove any objects we weren't able to find. This can happen pretty easily
+      # if you undo an action and other things have happened.
+      @folder = folder[0]
+      @threads = _.compact(threads)
+      @messages = _.compact(messages)
+
+      # The base class does the heavy lifting and calls _changesToModel
+      return super
+
+  _changesToModel: (model) ->
+    if model instanceof Thread
+      {folders: [@folder]}
+    else
+      {folder: @folder}
+
+  _requestBodyForModel: (model) ->
+    if model instanceof Thread
+      folder: model.folders[0]?.id || null
+    else
+      folder: model.folder?.id || null
 
 module.exports = ChangeFolderTask

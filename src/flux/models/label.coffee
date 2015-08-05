@@ -41,5 +41,10 @@ Section: Models
 ###
 class Label extends Category
 
+  @additionalSQLiteConfig:
+    setup: ->
+      ['CREATE INDEX IF NOT EXISTS LabelNameIndex ON Label(name)']
+
+
 module.exports = Label
 

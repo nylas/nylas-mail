@@ -6,7 +6,7 @@ Utils = require '../models/utils'
 DatabaseStore = require "./database-store"
 NamespaceStore = require "./namespace-store"
 FocusedContentStore = require "./focused-content-store"
-UpdateThreadsTask = require '../tasks/update-threads-task'
+ChangeUnreadTask = require '../tasks/change-unread-task'
 NylasAPI = require '../nylas-api'
 async = require 'async'
 _ = require 'underscore'
@@ -133,7 +133,6 @@ class MessageStore extends NylasStore
 
     query = DatabaseStore.findAll(Message, threadId: loadedThreadId)
     query.include(Message.attributes.body)
-    query.evaluateImmediately()
     query.then (items) =>
       localIds = {}
       async.each items, (item, callback) ->
@@ -183,7 +182,7 @@ class MessageStore extends NylasStore
           if @_thread.unread
             setTimeout =>
               return unless loadedThreadId is @_thread?.id
-              t = new UpdateThreadsTask([@_thread], unread: false)
+              t = new ChangeUnreadTask(thread: @_thread, unread: false)
               t.canBeUndone = => false
               Actions.queueTask(t)
             ,700

@@ -24,7 +24,8 @@ DatabasePhase =
   Ready: 'ready'
   Close: 'close'
 
-DEBUG_TO_LOG = false
+DEBUG_TO_LOG = true
+DEBUG_QUERY_PLANS = false
 
 BEGIN_TRANSACTION = 'BEGIN TRANSACTION'
 COMMIT = 'COMMIT'
@@ -173,6 +174,10 @@ class DatabaseStore extends NylasStore
       else
         fn = 'run'
 
+      if DEBUG_QUERY_PLANS and query.indexOf("SELECT ") is 0
+        @_db.all "EXPLAIN QUERY PLAN #{query}", values, (err, results) =>
+          console.log(results.map((row) -> row.detail).join('\n') + " for " + query)
+
       # Important: once the user begins a transaction, queries need to run in serial.
       # This ensures that the subsequent "COMMIT" call actually runs after the other
       # queries in the transaction, and that no other code can execute "BEGIN TRANS."
@@ -186,18 +191,20 @@ class DatabaseStore extends NylasStore
         @_inflightTransactions += 1
 
       start = Date.now()
+      console.log("DatabaseStore: START #{query}")
       @_db[fn] query, values, (err, results) =>
         if err
           console.error("DatabaseStore: Query #{query}, #{JSON.stringify(values)} failed #{err.toString()}")
         else
           duration = Date.now() - start
           metadata = {duration: duration, resultLength: result?.length}
-          console.debug(DEBUG_TO_LOG, "DatabaseStore: (#{duration}) #{query}", metadata)
+          console.debug(DEBUG_TO_LOG, "DatabaseStore: END (#{duration}) #{query}", metadata)
 
         if query is COMMIT
           @_inflightTransactions -= 1
           @_db.parallelize() if @_inflightTransactions is 0
 
+        console.log("DatabaseStore: Resolving...")
         return reject(err) if err
         return resolve(results)
 
@@ -266,6 +273,44 @@ class DatabaseStore extends NylasStore
   count: (klass, predicates = []) =>
     throw new Error("DatabaseStore::count - You must provide a class") unless klass
     new ModelQuery(klass, @).where(predicates).count()
+
+  # Public: Modelify converts the provided array of IDs or models (or a mix of
+  # IDs and models) into an array of models of the `klass` provided by querying
+  # for the missing items.
+  #
+  # Modelify is efficient and uses a single database query. It resolves Immediately
+  # if no query is necessary.
+  #
+  # - `class` The {Model} class desired.
+  # - 'arr' An {Array} with a mix of string model IDs and/or models.
+  #
+  modelify: (klass, arr) =>
+    if not _.isArray(arr) or arr.length is 0
+      return Promise.resolve([])
+
+    ids = []
+    for item in arr
+      if item instanceof klass
+        continue
+      else if _.isString(item)
+        ids.push(item)
+      else
+        throw new Error("modelify: Not sure how to convert #{item} into a #{klass.name}")
+
+    if ids.length is 0
+      return Promise.resolve(arr)
+
+    @findAll(klass).where(klass.attributes.id.in(ids)).then (models) =>
+      modelsById = {}
+      modelsById[model.id] = model for model in models
+
+      arr = arr.map (item) ->
+        if item instanceof klass
+          return item
+        else
+          return modelsById[item]
+
+      return Promise.resolve(arr)
 
   ###
   Support for Local IDs
@@ -339,6 +384,22 @@ class DatabaseStore extends NylasStore
         else
           @bindToLocalId(model).then(resolve).catch(reject)
 
+  # Private: Returns an {Object} with id-version key value pairs for models in
+  # the ID set provided. Does not retrieve or inflate object JSON from the database.
+  #
+  # Using this method requires that the klass has declared the version field queryable.
+  #
+  findVersions: (klass, ids) =>
+    return Promise.reject(new Error("DatabaseStore::findVersions - You must provide a class")) unless klass
+    return Promise.reject(new Error("DatabaseStore::findVersions - version field must be queryable")) unless klass.attributes.version.queryable
+
+    marks = new Array(ids.length)
+    marks[idx] = '?' for m, idx in marks
+    @_query("SELECT id, version FROM `#{klass.name}` WHERE id IN (#{marks.join(",")})", ids).then (results) ->
+      map = {}
+      map[id] = version  for {id, version} in results
+      Promise.resolve(map)
+
   # Public: Executes a {ModelQuery} on the local database.
   #
   # - `modelQuery` A {ModelQuery} to execute.
@@ -346,14 +407,12 @@ class DatabaseStore extends NylasStore
   # Returns a {Promise} that
   #   - resolves with the result of the database query.
   run: (modelQuery) =>
-    {evaluateImmediately} = modelQuery.executeOptions()
-
+    {waitForAnimations} = modelQuery.executeOptions()
     @_query(modelQuery.sql(), []).then (result) =>
-      if evaluateImmediately
-        uiBusyPromise = Promise.resolve()
+      if waitForAnimations
+        PriorityUICoordinator.settle.then =>
+          Promise.resolve(modelQuery.formatResult(result))
       else
-        uiBusyPromise = PriorityUICoordinator.settle
-      uiBusyPromise.then =>
         Promise.resolve(modelQuery.formatResult(result))
 
   # Public: Asynchronously writes `model` to the cache and triggers a change event.
