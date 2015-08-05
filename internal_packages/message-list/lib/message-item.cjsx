@@ -90,7 +90,11 @@ class MessageItem extends React.Component
     </div>
 
   _renderHeader: =>
-    <header className="message-header" onClick={@_onClickHeader}>
+    classes = classNames
+      "message-header": true
+      "pending": @props.pending
+
+    <header className={classes} onClick={@_onClickHeader}>
 
       {@_renderHeaderSideItems()}
 
@@ -171,11 +175,19 @@ class MessageItem extends React.Component
     'no-quoted-text': not QuotedHTMLParser.hasQuotedHTML(@props.message.body)
     'show-quoted-text': @state.showQuotedText
 
-  # This is used by subclasses of MessageItem.
-  # See {PendingMessageItem}
-  _renderHeaderSideItems: -> []
+  _renderHeaderSideItems: ->
+    styles =
+      position: "absolute"
+      marginTop: -2
+
+    <div className="pending-spinner" style={styles}>
+      <RetinaImg ref="spinner"
+                 name="sending-spinner.gif"
+                 mode={RetinaImg.Mode.ContentPreserve}/>
+    </div>
 
   _renderHeaderDetailToggle: =>
+    return null if @props.pending
     if @state.detailedHeaders
       <div className="header-toggle-control"
            style={top: "18px", left: "-14px"}

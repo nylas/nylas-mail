@@ -13,13 +13,13 @@ class MessageControls extends React.Component
 
   render: =>
     <div className="message-actions-wrap">
-      <div className="message-actions-ellipsis" onClick={@_onShowActionsMenu}>
-        <RetinaImg name={"message-actions-ellipsis.png"} mode={RetinaImg.Mode.ContentIsMask}/>
-      </div>
       <ButtonDropdown
         primaryItem={<RetinaImg name="ic-message-button-reply.png" mode={RetinaImg.Mode.ContentIsMask}/>}
         primaryClick={@_onReply}
         menu={@_dropdownMenu()}/>
+      <div className="message-actions-ellipsis" onClick={@_onShowActionsMenu}>
+        <RetinaImg name={"message-actions-ellipsis.png"} mode={RetinaImg.Mode.ContentIsMask}/>
+      </div>
     </div>
 
   _dropdownMenu: ->

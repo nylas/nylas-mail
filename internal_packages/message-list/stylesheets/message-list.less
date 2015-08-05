@@ -257,6 +257,23 @@
     padding-bottom: @spacing-standard;
     padding-top: 19px;
 
+    &.pending {
+      .message-actions-wrap {
+        width: 0;
+        opacity: 0;
+      }
+      .pending-spinner {
+        opacity: 1;
+      }
+    }
+
+    .pending-spinner {
+      transition: opacity 100ms;
+      transition-delay: 50ms, 0ms;
+      transition-timing-function: ease-in;
+      opacity: 0;
+    }
+
     .header-row {
       margin-top: 0.5em;
       color: @text-color-very-subtle;
@@ -273,11 +290,22 @@
     }
 
     .message-actions-wrap {
+      transition: opacity 100ms, width 150ms;
+      transition-delay: 50ms, 0ms;
+      transition-timing-function: ease-in-out;
+      width: 98px;
+      height: 32px;
+      opacity: 1;
       text-align: right;
+
+      .button-dropdown {
+        width: 76px;
+      }
     }
 
     .message-actions-ellipsis {
-      display: inline-block;
+      display: block;
+      float: left;
     }
 
     .message-actions {
@@ -365,6 +393,8 @@
   }
 
   .footer-reply-area-wrap {
+    overflow: hidden;
+
     width: calc(~"100% - 12px");
     max-width: @message-max-width;
     margin: -3px auto @spacing-double auto;
@@ -415,7 +445,15 @@
 ///////////////////////////////
 // message-participants.cjsx //
 ///////////////////////////////
+.pending {
+  .message-participants {
+    padding-left: 34px;
+  }
+}
 .message-participants {
+
+  transition: padding-left 150ms;
+  transition-timing-function: ease-in-out;
 
   &.collapsed:hover {cursor: default;}
 
