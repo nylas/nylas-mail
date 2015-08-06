@@ -24,11 +24,14 @@ Section: Drafts
 class DraftChangeSet
   constructor: (@localId, @_onChange) ->
     @_commitChain = Promise.resolve()
-    @reset()
-
-  reset: ->
     @_pending = {}
     @_saving = {}
+    @_timer = null
+
+  teardown: ->
+    @_pending = {}
+    @_saving = {}
+    @_destroyed = true
     clearTimeout(@_timer) if @_timer
     @_timer = null
 
@@ -44,11 +47,14 @@ class DraftChangeSet
 
   commit: =>
     @_commitChain = @_commitChain.finally =>
-      if Object.keys(@_pending).length is 0
+      if Object.keys(@_pending).length is 0 or @_destroyed
         return Promise.resolve(true)
 
       DatabaseStore = require './database-store'
       return DatabaseStore.findByLocalId(Message, @localId).then (draft) =>
+        if @_destroyed
+          return Promise.resolve(true)
+
         if not draft
           throw new Error("DraftChangeSet.commit: Assertion failure. Draft #{@localId} is not in the database.")
 
@@ -96,8 +102,10 @@ class DraftStoreProxy
 
     @_draft = false
     @_draftPristineBody = null
+    @_destroyed = false
 
     @changes = new DraftChangeSet @draftLocalId, =>
+      return if @_destroyed
       if !@_draft
         throw new Error("DraftChangeSet was modified before the draft was prepared.")
       @trigger()
@@ -106,10 +114,8 @@ class DraftStoreProxy
       @_setDraft(draft)
       @_draftPromise = Promise.resolve(@)
 
-    @prepare().catch (error) ->
-      console.error(error.stack)
-      throw new Error("DraftStoreProxy prepare() failed: #{error.toString()}.")
-
+    @prepare()
+    
   # Public: Returns the draft object with the latest changes applied.
   #
   draft: ->
@@ -124,19 +130,18 @@ class DraftStoreProxy
     @_draftPristineBody
 
   prepare: ->
-    @_draftPromise ?= new Promise (resolve, reject) =>
-      DatabaseStore = require './database-store'
-      DatabaseStore.findByLocalId(Message, @draftLocalId).then (draft) =>
-        if not draft
-          reject(new Error("Assertion Failure: Draft #{@draftLocalId} not found."))
-        else
-          @_setDraft(draft)
-          resolve(@)
-      .catch(reject)
+    DatabaseStore = require './database-store'
+    @_draftPromise ?= DatabaseStore.findByLocalId(Message, @draftLocalId).then (draft) =>
+      return Promise.reject(new Error("Draft has been destroyed.")) if @_destroyed
+      return Promise.reject(new Error("Assertion Failure: Draft #{@draftLocalId} not found.")) if not draft
+      @_setDraft(draft)
+      Promise.resolve(@)
     @_draftPromise
 
-  cleanup: ->
+  teardown: ->
     @stopListeningToAll()
+    @changes.teardown()
+    @_destroyed = true
 
   _setDraft: (draft) ->
     if !draft.body?

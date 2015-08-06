@@ -24,7 +24,7 @@ DatabasePhase =
   Ready: 'ready'
   Close: 'close'
 
-DEBUG_TO_LOG = true
+DEBUG_TO_LOG = false
 DEBUG_QUERY_PLANS = false
 
 BEGIN_TRANSACTION = 'BEGIN TRANSACTION'
@@ -191,7 +191,6 @@ class DatabaseStore extends NylasStore
         @_inflightTransactions += 1
 
       start = Date.now()
-      console.log("DatabaseStore: START #{query}")
       @_db[fn] query, values, (err, results) =>
         if err
           console.error("DatabaseStore: Query #{query}, #{JSON.stringify(values)} failed #{err.toString()}")
@@ -204,7 +203,6 @@ class DatabaseStore extends NylasStore
           @_inflightTransactions -= 1
           @_db.parallelize() if @_inflightTransactions is 0
 
-        console.log("DatabaseStore: Resolving...")
         return reject(err) if err
         return resolve(results)
 

@@ -156,6 +156,7 @@ class MessageList extends React.Component
       data =
         session: DraftStore.sessionForLocalId(@state.messageLocalIds[last.id])
         replyToMessage: Promise.resolve(@state.messages[@state.messages.length - 2])
+        type: type
 
       if last.replyToMessageId
         msg = _.findWhere(@state.messages, {id: last.replyToMessageId})
@@ -164,40 +165,44 @@ class MessageList extends React.Component
         else
           data.replyToMessage = DatabaseStore.find(Message, last.replyToMessageId)
 
-      Promise.props(data).then ({session, replyToMessage}) =>
-        return unless replyToMessage and session
-        draft = session.draft()
-        updated = {to: [].concat(draft.to), cc: [].concat(draft.cc)}
-
-        replySet = replyToMessage.participantsForReply()
-        replyAllSet = replyToMessage.participantsForReplyAll()
-
-        if type is 'reply'
-          targetSet = replySet
-
-          # Remove participants present in the reply-all set and not the reply set
-          for key in ['to', 'cc']
-            updated[key] = _.reject updated[key], (contact) ->
-              inReplySet = _.findWhere(replySet[key], {email: contact.email})
-              inReplyAllSet = _.findWhere(replyAllSet[key], {email: contact.email})
-              return inReplyAllSet and not inReplySet
-        else
-          # Add participants present in the reply-all set and not on the draft
-          # Switching to reply-all shouldn't really ever remove anyone.
-          targetSet = replyAllSet
-
-        for key in ['to', 'cc']
-          for contact in targetSet[key]
-            updated[key].push(contact) unless _.findWhere(updated[key], {email: contact.email})
-
-        session.changes.add(updated)
-        @_focusDraft(@_getMessageContainer(last.id))
-
+      Promise.props(data).then @_updateExistingDraft, (err) =>
+        # This can happen if the draft was deleted and the update hadn't reached
+        # our component yet, but it's very rare. This is here to silence the error.
+        Promise.resolve()
     else
       if type is 'reply'
         Actions.composeReply(thread: @state.currentThread, message: last)
       else
         Actions.composeReplyAll(thread: @state.currentThread, message: last)
+
+  _updateExistingDraft: ({type, session, replyToMessage}) =>
+    return unless replyToMessage and session
+    draft = session.draft()
+    updated = {to: [].concat(draft.to), cc: [].concat(draft.cc)}
+
+    replySet = replyToMessage.participantsForReply()
+    replyAllSet = replyToMessage.participantsForReplyAll()
+
+    if type is 'reply'
+      targetSet = replySet
+
+      # Remove participants present in the reply-all set and not the reply set
+      for key in ['to', 'cc']
+        updated[key] = _.reject updated[key], (contact) ->
+          inReplySet = _.findWhere(replySet[key], {email: contact.email})
+          inReplyAllSet = _.findWhere(replyAllSet[key], {email: contact.email})
+          return inReplyAllSet and not inReplySet
+    else
+      # Add participants present in the reply-all set and not on the draft
+      # Switching to reply-all shouldn't really ever remove anyone.
+      targetSet = replyAllSet
+
+    for key in ['to', 'cc']
+      for contact in targetSet[key]
+        updated[key].push(contact) unless _.findWhere(updated[key], {email: contact.email})
+
+    session.changes.add(updated)
+    @_focusDraft(@_getMessageContainer(draft.id))
 
   _onStar: =>
     return unless @state.currentThread
