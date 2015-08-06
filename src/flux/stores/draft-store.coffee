@@ -144,9 +144,9 @@ class DraftStore
   ########### PRIVATE ####################################################
 
   _doneWithSession: (session) ->
-    session.cleanup()
+    session.teardown()
     delete @_draftSessions[session.draftLocalId]
-
+    
   _onBeforeUnload: =>
     promises = []
 
@@ -386,7 +386,6 @@ class DraftStore
 
     # Immediately reset any pending changes so no saves occur
     if session
-      session.changes.reset()
       @_doneWithSession(session)
 
     # Queue the task to destroy the draft

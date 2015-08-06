@@ -46,7 +46,7 @@ class UndoRedoComponent extends React.Component
     @_unsubscribe()
 
   render: =>
-    items = [].concat(@_renderUndoRedoManager())
+    inner = @_renderUndoRedoManager()
 
     names = classNames
       "undo-redo-manager": true
@@ -56,7 +56,7 @@ class UndoRedoComponent extends React.Component
       leaveTimeout={450}
       enterTimeout={250}
       transitionName="undo-redo-item">
-      {items}
+      {inner}
     </TimeoutTransitionGroup>
 
   _renderUndoRedoManager: =>
