@@ -103,6 +103,7 @@ describe "ContactStore", ->
       "spang 'Christine Spang' <noreply+phabricator@nilas.com>": [new Contact(name: "spang 'Christine Spang'", email: "noreply+phabricator@nilas.com")]
       "spang \"Christine Spang\" <noreply+phabricator@nilas.com>": [new Contact(name: "spang \"Christine Spang\"", email: "noreply+phabricator@nilas.com")]
       "Evan (evan@nylas.com)": [new Contact(name: "Evan", email: "evan@nylas.com")]
+      "\"Michael\" (mg@nylas.com)": [new Contact(name: "Michael", email: "mg@nylas.com")]
 
       # Multiple contact test cases
       "Evan Morikawa <evan@nylas.com>, Ben <ben@nylas.com>": [
