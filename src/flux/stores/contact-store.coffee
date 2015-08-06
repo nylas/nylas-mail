@@ -32,7 +32,7 @@ If you do not wish to refresh the value, do not call the callback.
 
 When you create an instance of a JSONCache, you need to provide several settings:
 
-- `localPath`: path on disk to keep the cache
+- `key`: A unique key identifying this object.
 
 - `version`: a version number. If the local cache has a different version number
   it will be thrown out. Useful if you want to change the format of the data
@@ -43,55 +43,30 @@ When you create an instance of a JSONCache, you need to provide several settings
 ###
 class JSONCache
   @include: CoffeeHelpers.includeModule
-
   @include Publisher
 
-  constructor: ({@localPath, @version, @maxAge}) ->
+  constructor: ({@key, @version, @maxAge}) ->
     @_value = null
-    @readLocal()
+    DatabaseStore.findJSONObject(@key).then (json) =>
+      return @refresh() unless json
+      return @refresh() unless json.version is @version
+      @_value = json.value
+      @trigger()
 
-  detatch: =>
-    clearInterval(@_interval) if @_interval
+      age = (new Date).getTime() - json.time
+      if age > @maxAge
+        @refresh()
+      else
+        setTimeout(@refresh, @maxAge - age)
 
   value: ->
     @_value
 
   reset: ->
-    fs.unlink @localPath, (err) ->
-      console.error(err)
+    DatabaseStore.persistJSONObject(@key, {})
+    clearInterval(@_interval) if @_interval
+    @_interval = null
     @_value = null
-
-  readLocal: =>
-    fs.exists @localPath, (exists) =>
-      return @refresh() unless exists
-      fs.readFile @localPath, (err, contents) =>
-        return @refresh() unless contents and not err
-        try
-          json = JSON.parse(contents)
-          if json.version isnt @version
-            throw new Error("Outdated schema")
-          if not json.time
-            throw new Error("No fetch time present")
-          @_value = json.value
-          @trigger()
-
-          age = (new Date).getTime() - json.time
-          if age > @maxAge
-            @refresh()
-          else
-            setTimeout(@refresh, @maxAge - age)
-
-        catch err
-          console.error(err)
-          @reset()
-          @refresh()
-
-  writeLocal: =>
-    json =
-      version: @version
-      time: (new Date).getTime()
-      value: @_value
-    fs.writeFile(@localPath, JSON.stringify(json))
 
   refresh: =>
     clearInterval(@_interval) if @_interval
@@ -99,7 +74,11 @@ class JSONCache
 
     @refreshValue (newValue) =>
       @_value = newValue
-      @writeLocal()
+      DatabaseStore.persistJSONObject(@key, {
+        version: @version
+        time: (new Date).getTime()
+        value: @_value
+      })
       @trigger()
 
   refreshValue: (callback) =>
@@ -107,6 +86,9 @@ class JSONCache
 
 
 class RankingsJSONCache extends JSONCache
+
+  constructor: ->
+    super(key: 'RankingsJSONCache', version: 1, maxAge: 60 * 60 * 1000 * 24)
 
   refreshValue: (callback) =>
     return unless atom.isMainWindow()
@@ -154,11 +136,7 @@ class ContactStore extends NylasStore
     @_contactCache = []
     @_namespaceId = null
 
-    @_rankingsCache = new RankingsJSONCache
-      localPath: path.join(atom.getConfigDirPath(), 'contact-rankings.json')
-      maxAge: 60 * 60 * 1000 * 24 # one day
-      version: 1
-
+    @_rankingsCache = new RankingsJSONCache()
     @listenTo DatabaseStore, @_onDatabaseChanged
     @listenTo NamespaceStore, @_onNamespaceChanged
     @listenTo @_rankingsCache, @_sortContactsCacheWithRankings

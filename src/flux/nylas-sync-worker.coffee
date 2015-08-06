@@ -1,6 +1,6 @@
 _ = require 'underscore'
 NylasLongConnection = require './nylas-long-connection'
-
+DatabaseStore = require './stores/database-store'
 {Publisher} = require './modules/reflux-coffee'
 CoffeeHelpers = require './coffee-helpers'
 
@@ -18,9 +18,13 @@ class NylasSyncWorker
 
     @_terminated = false
     @_connection = new NylasLongConnection(api, namespace.id)
-    @_state = atom.config.get("nylas.sync-state.#{namespace.id}") ? {}
-    for model, modelState of @_state
-      modelState.busy = false
+
+    @_state = null
+    DatabaseStore.findJSONObject("NylasSyncWorker:#{@_namespace.id}").then (json) =>
+      @_state = json ? {}
+      for model, modelState of @_state
+        modelState.busy = false
+      @resumeFetches()
 
     @
 
@@ -34,6 +38,7 @@ class NylasSyncWorker
     @_state
 
   busy: ->
+    return false unless @_state
     for key, state of @_state
       if state.busy
         return true
@@ -51,6 +56,7 @@ class NylasSyncWorker
     @
 
   resumeFetches: =>
+    return unless @_state
     @fetchCollection('threads')
     @fetchCollection('calendars')
     @fetchCollection('contacts')
@@ -61,6 +67,7 @@ class NylasSyncWorker
       @fetchCollection('folders')
 
   fetchCollection: (model, options = {}) ->
+    return unless @_state
     return if @_state[model]?.complete and not options.force?
     return if @_state[model]?.busy
 
@@ -113,7 +120,7 @@ class NylasSyncWorker
 
   writeState: ->
     @_writeState ?= _.debounce =>
-      atom.config.set("nylas.sync-state.#{@_namespace.id}", @_state)
+      DatabaseStore.persistJSONObject("NylasSyncWorker:#{@_namespace.id}", @_state)
     ,100
     @_writeState()
     @trigger()

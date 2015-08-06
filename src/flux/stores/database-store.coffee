@@ -503,6 +503,17 @@ class DatabaseStore extends NylasStore
       })
       @_triggerSoon({objectClass: newModel.constructor.name, objects: [oldModel, newModel], type: 'swap'})
 
+  persistJSONObject: (key, json) ->
+    @_query(BEGIN_TRANSACTION)
+    @_query("REPLACE INTO `JSONObject` (`key`,`data`) VALUES (?,?)", [key, JSON.stringify(json)])
+    @_query(COMMIT)
+
+  findJSONObject: (key) ->
+    @_query("SELECT `data` FROM `JSONObject` WHERE key = ? LIMIT 1", [key]).then (results) =>
+      return Promise.resolve(null) unless results[0]
+      data = JSON.parse(results[0].data)
+      Promise.resolve(data)
+
   ########################################################################
   ########################### PRIVATE METHODS ############################
   ########################################################################
