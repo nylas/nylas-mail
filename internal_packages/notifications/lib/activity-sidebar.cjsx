@@ -65,13 +65,13 @@ class ActivitySidebar extends React.Component
     if incomplete is 0
       return []
     else if error
-      <div className="item">
+      <div className="item" key="initial-sync">
         <div className="inner">Initial sync encountered an error. Waiting to retry...
           <div className="btn btn-emphasis" onClick={@_onTryAgain}>Try Again</div>
         </div>
       </div>
     else
-      <div className="item">
+      <div className="item" key="initial-sync">
         <div className="progress-track">
           <div className="progress" style={width: "#{progress}%"}></div>
         </div>

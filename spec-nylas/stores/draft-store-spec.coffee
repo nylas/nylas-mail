@@ -463,20 +463,20 @@ describe "DraftStore", ->
 
   describe "onDestroyDraft", ->
     beforeEach ->
-      @draftReset = jasmine.createSpy('draft reset')
+      @draftSessionTeardown = jasmine.createSpy('draft teardown')
       @session =
         draft: ->
           pristine: false
         changes:
           commit: -> Promise.resolve()
-          reset: @draftReset
-        cleanup: ->
+          teardown: ->
+        teardown: @draftSessionTeardown
       DraftStore._draftSessions = {"abc": @session}
       spyOn(Actions, 'queueTask')
 
-    it "should reset the draft session, ensuring no more saves are made", ->
+    it "should teardown the draft session, ensuring no more saves are made", ->
       DraftStore._onDestroyDraft('abc')
-      expect(@draftReset).toHaveBeenCalled()
+      expect(@draftSessionTeardown).toHaveBeenCalled()
 
     it "should not throw if the draft session is not in the window", ->
       expect ->
@@ -565,7 +565,7 @@ describe "DraftStore", ->
       DraftStore._draftSessions = {}
       proxy =
         prepare: -> Promise.resolve(proxy)
-        cleanup: ->
+        teardown: ->
         draft: -> {}
         changes:
           commit: -> Promise.resolve()
@@ -638,9 +638,9 @@ describe "DraftStore", ->
         task = Actions.queueTask.calls[0].args[0]
         expect(task.fromPopout).toBe true
 
-  describe "session cleanup", ->
+  describe "session teardown", ->
     beforeEach ->
-      @draftCleanup = jasmine.createSpy('draft cleanup')
+      @draftTeardown = jasmine.createSpy('draft teardown')
       @session =
         draftLocalId: "abc"
         draft: ->
@@ -648,15 +648,15 @@ describe "DraftStore", ->
         changes:
           commit: -> Promise.resolve()
           reset: ->
-        cleanup: @draftCleanup
+        teardown: @draftTeardown
       DraftStore._draftSessions = {"abc": @session}
       DraftStore._doneWithSession(@session)
 
     it "removes from the list of draftSessions", ->
       expect(DraftStore._draftSessions["abc"]).toBeUndefined()
 
-    it "Calls cleanup on the session", ->
-      expect(@draftCleanup).toHaveBeenCalled
+    it "Calls teardown on the session", ->
+      expect(@draftTeardown).toHaveBeenCalled
 
   describe "mailto handling", ->
     describe "extensions", ->

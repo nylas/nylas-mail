@@ -28,6 +28,7 @@ class AttachmentComponent extends React.Component
       <Flexbox direction="row" style={alignItems: 'center'}>
         <RetinaImg className="file-icon"
                    fallback="file-fallback.png"
+                   mode={RetinaImg.Mode.ContentPreserve}
                    name="file-#{@props.file.displayExtension()}.png"/>
         <span className="file-name">{@props.file.displayName()}</span>
         {@_renderFileActions()}
@@ -58,10 +59,10 @@ class AttachmentComponent extends React.Component
   _isDownloading: => @props.download?.state is "downloading"
 
   _renderRemoveIcon: ->
-    <RetinaImg name="remove-attachment.png"/>
+    <RetinaImg name="remove-attachment.png" mode={RetinaImg.Mode.ContentPreserve} />
 
   _renderDownloadButton: ->
-    <RetinaImg name="icon-attachment-download.png"/>
+    <RetinaImg name="icon-attachment-download.png" mode={RetinaImg.Mode.ContentPreserve} />
 
   _onDragStart: (event) =>
     path = FileDownloadStore.pathForFile(@props.file)

@@ -108,7 +108,7 @@ class SidebarInternal extends React.Component
       value = "True" if value is true
       value = "False" if value is false
       value = moment.unix(value).format("DD / MM / YYYY h:mm a z") if key.indexOf("_time") > 0
-      cjsx.push <div style={textAlign:'right'}><span style={float:'left'}>{displayName}:</span>{value}</div>
+      cjsx.push <div style={textAlign:'right'} key={key}><span style={float:'left'}>{displayName}:</span>{value}</div>
     cjsx
 
   _appUrl: (app) =>

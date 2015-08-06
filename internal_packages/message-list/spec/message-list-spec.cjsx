@@ -270,17 +270,8 @@ describe "MessageList", ->
       MessageStore._items = [m5, m3, draftMessages[0]]
       MessageStore._thread = test_thread
       MessageStore.trigger()
-      cs = TestUtils.scryRenderedDOMComponentsWithClass(@messageList, "footer-reply-area-wrap")
-      expect(cs.length).toBe 1
-      expect(React.findDOMNode(cs[0]).style.height).toBe "0px"
-
-    it "shows the reply type if the last message isnt a draft", ->
-      MessageStore._items = [m5, m3]
-      MessageStore._thread = test_thread
-      MessageStore.trigger()
-      cs = TestUtils.scryRenderedDOMComponentsWithClass(@messageList, "footer-reply-area-wrap")
-      expect(cs.length).toBe 1
-      expect(parseInt(React.findDOMNode(cs[0]).style.height)).toBeGreaterThan 0
+      cs = TestUtils.scryRenderedDOMComponentsWithClass(@messageList, "footer-reply-area")
+      expect(cs.length).toBe 0
 
   describe "reply behavior (_createReplyOrUpdateExistingDraft)", ->
     beforeEach ->
