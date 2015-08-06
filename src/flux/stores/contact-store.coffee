@@ -230,6 +230,12 @@ class ContactStore extends NylasStore
       if hasTrailingParen
         lastMatchEnd += 1
 
+      if name
+        # If the first and last character of the name are quotation marks, remove them
+        [first,...,last] = name
+        if first in ['"', "'"] and last in ['"', "'"]
+          name = name[1...-1]
+
       detected.push(new Contact({email, name}))
 
     detected
