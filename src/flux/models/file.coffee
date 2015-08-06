@@ -69,11 +69,12 @@ class File extends Model
 
   # Public: Returns the file extension that should be used for this file.
   # Note that asking for the displayExtension is more accurate than trying to read
-  # the extension directly off the filename, and may be based on contentType.
+  # the extension directly off the filename. The returned extension may be based
+  # on contentType and is always lowercase.
   #
   # Returns the extension without the leading '.' (ex: 'png', 'pdf')
   #
   displayExtension: ->
-    path.extname(@displayName())[1..-1]
+    path.extname(@displayName().toLowerCase())[1..-1]
 
 module.exports = File
