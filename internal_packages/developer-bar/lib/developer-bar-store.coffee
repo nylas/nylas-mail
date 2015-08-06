@@ -84,7 +84,7 @@ DeveloperBarStore = Reflux.createStore
     data = "-d '#{postBody}'" unless request.method == 'GET'
 
     item =
-      id: curlItemId
+      id: "curlitemId:#{curlItemId}"
       command: "curl -X #{request.method} #{data} #{url}"
       statusCode: response?.statusCode || 0
 

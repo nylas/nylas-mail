@@ -76,9 +76,6 @@
     font-size:   @font-size-small;
     text-overflow: ellipsis;
     overflow: hidden;
-    .unread-true {
-      font-weight: @font-weight-semi-bold;
-    }
     position: relative;
     top:2px;
   }
@@ -132,6 +129,11 @@
     }
     .list-column {
       border-bottom: 1px solid @list-border;
+    }
+    .participants {
+      .unread-true {
+        font-weight: @font-weight-semi-bold;
+      }
     }
   }
 
