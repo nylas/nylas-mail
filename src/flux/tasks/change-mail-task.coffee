@@ -18,12 +18,7 @@ NamespaceStore = require '../stores/namespace-store'
 # ChangeMailTask stores the previous values of all models it changes into @_restoreValues
 # and handles undo/redo. When undoing, it restores previous values and calls
 # `_requestBodyForModel` to make undo API requests. It does not call `_changesToModel`.
-#
-# Generally, you cannot provide both messages and threads at the same time. However,
-# ChangeMailTask runs for provided `threads` first, so your subclass can populate
-# @messages with the messages of those threads to make adjustments to them.
-# API requests are only made for threads if threads are present.
-#
+##
 class ChangeMailTask extends Task
 
   constructor: ({@threads, thread, @messages, message} = {}) ->
@@ -47,6 +42,17 @@ class ChangeMailTask extends Task
   #
   _requestBodyForModel: (model) ->
     throw new Error("You must override this method.")
+
+  # Generally, you cannot provide both messages and threads at the same time. However,
+  # ChangeMailTask runs for provided threads first and then messages. Override
+  # and return true, and you will receive `_changesToModel` for messages in
+  # changed threads, and any changes you make will be written to the database
+  # and undone during undo.
+  #
+  # Note that API requests are only made for threads if threads are present.
+  #
+  _processesNestedMessages: ->
+    false
 
   # Perform Local
 
@@ -72,8 +78,11 @@ class ChangeMailTask extends Task
     changedIds = _.pluck(changed, 'id')
 
     DatabaseStore.persistModels(changed).then =>
-      DatabaseStore.findAll(Message).where(Message.attributes.threadId.in(changedIds)).then (messages) =>
-        @messages = [].concat(messages, @messages)
+      if @_processesNestedMessages()
+        DatabaseStore.findAll(Message).where(Message.attributes.threadId.in(changedIds)).then (messages) =>
+          @messages = [].concat(messages, @messages)
+          Promise.resolve()
+      else
         Promise.resolve()
 
   _performLocalMessages: ->
