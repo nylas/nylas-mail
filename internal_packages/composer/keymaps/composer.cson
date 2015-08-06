@@ -5,7 +5,10 @@ div[contenteditable]':
   'cmd-enter' : 'composer:send-message'
   'ctrl-enter' : 'composer:send-message'
 
-'.composer-outer-wrap div[contenteditable]':
+'.composer-outer-wrap':
+  'delete' : 'composer:no-op'
+
+'.composer-outer-wrap, .composer-outer-wrap div[contenteditable]':
   'escape' : 'composer:delete-empty-draft'
 
 '.composer-outer-wrap .btn.btn-send':

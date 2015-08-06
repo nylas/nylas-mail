@@ -23,6 +23,54 @@ ImageFileUpload = require './image-file-upload'
 ContenteditableComponent = require './contenteditable-component'
 ParticipantsTextField = require './participants-text-field'
 
+# Public: FocusTrackingRegion is a small wrap component that renders it's children
+# and any props it's provided. Whenever the document's focus is inside the
+# FocusTrackingRegion, it has an additional CSS class: `focused`
+#
+class FocusTrackingRegion extends React.Component
+  @displayName: 'FocusTrackingRegion'
+
+  @propTypes:
+    className: React.PropTypes.string
+    children: React.PropTypes.any
+
+  constructor: (@props) ->
+    @state = {focused: false}
+    @_goingout = false
+
+    @_in = =>
+      @_goingout = false
+      @setState(focused: true)
+
+    @_out = =>
+      @_goingout = true
+      setTimeout =>
+        return unless @_goingout
+        # This prevents the strange effect of an input appearing to have focus
+        # when the element receiving focus does not support selection (like a
+        # div with tabIndex=-1)
+        document.getSelection().empty()
+        @setState(focused: false)
+        @_goingout = false
+      , 100
+
+  componentDidMount: ->
+    el = React.findDOMNode(@)
+    el.addEventListener('focusin', @_in)
+    el.addEventListener('focusout', @_out)
+
+  componentWillUnmount: ->
+    el = React.findDOMNode(@)
+    el.removeEventListener('focusin', @_in)
+    el.removeEventListener('focusout', @_out)
+    @_goingout = false
+
+  render: ->
+    className = @props.className
+    className += " focused" if @state.focused
+    otherProps = _.omit(@props, _.keys(@constructor.propTypes))
+    <div className={className} {...otherProps}>{@props.children}</div>
+
 # The ComposerView is a unique React component because it (currently) is a
 # singleton. Normally, the React way to do things would be to re-render the
 # Composer with new props.
@@ -144,11 +192,11 @@ class ComposerView extends React.Component
 
   render: =>
     if @props.mode is "inline"
-      <div className={@_wrapClasses()}>
+      <FocusTrackingRegion className={@_wrapClasses()} onFocus={@focus} tabIndex="-1">
         <ResizableRegion handle={ResizableRegion.Handle.Bottom}>
           {@_renderComposer()}
         </ResizableRegion>
-      </div>
+      </FocusTrackingRegion>
     else
       <div className={@_wrapClasses()}>
         {@_renderComposer()}
@@ -176,15 +224,15 @@ class ComposerView extends React.Component
           <div className="composer-participant-actions">
             <span className="header-action"
                   style={display: @state.showcc and 'none' or 'inline'}
-                  onClick={=> @_showAndFocusCc()}>Cc</span>
+                  onClick={@_showAndFocusCc}>Cc</span>
 
             <span className="header-action"
                   style={display: @state.showbcc and 'none' or 'inline'}
-                  onClick={=> @_showAndFocusBcc()}>Bcc</span>
+                  onClick={@_showAndFocusBcc}>Bcc</span>
 
             <span className="header-action"
                   style={display: @state.showsubject and 'none' or 'initial'}
-                  onClick={=> @setState {showsubject: true}}>Subject</span>
+                  onClick={@_showAndFocusSubject}>Subject</span>
 
             <span className="header-action"
                   data-tooltip="Popout composer"
@@ -255,8 +303,8 @@ class ComposerView extends React.Component
                  key="subject"
                  name="subject"
                  tabIndex="108"
+                 ref="textFieldSubject"
                  placeholder="Subject"
-                 disabled={not @state.showsubject}
                  value={@state.subject}
                  onChange={@_onChangeSubject}/>
         </div>
@@ -299,6 +347,7 @@ class ComposerView extends React.Component
                               onScrollTo={@props.onRequestScrollTo}
                               onScrollToBottom={onScrollToBottom}
                               tabIndex="109" />
+
   _renderFooterRegions: =>
     return <div></div> unless @props.localId
 
@@ -423,7 +472,11 @@ class ComposerView extends React.Component
       @_focusOnUpdate = {field}
       return
 
-    @refs[field].focus?()
+    if @refs[field].focus
+      @refs[field].focus()
+    else
+      node = React.findDOMNode(@refs[field])
+      node.focus?()
 
   isForwardedMessage: =>
     return false if not @_proxy
@@ -518,8 +571,11 @@ class ComposerView extends React.Component
   _onFilePaste: (path) =>
     Actions.attachFilePath({path: path, messageLocalId: @props.localId})
 
-  _onChangeParticipants: (changes={}) => @_addToProxy(changes)
-  _onChangeSubject: (event) => @_addToProxy(subject: event.target.value)
+  _onChangeParticipants: (changes={}) =>
+    @_addToProxy(changes)
+
+  _onChangeSubject: (event) =>
+    @_addToProxy(subject: event.target.value)
 
   _onChangeBody: (event) =>
     return unless @_proxy
@@ -644,6 +700,10 @@ class ComposerView extends React.Component
   _showAndFocusCc: =>
     @setState {showcc: true}
     @focus('textFieldCc')
+
+  _showAndFocusSubject: =>
+    @setState {showsubject: true}
+    @focus('textFieldSubject')
 
   _onEmptyCc: =>
     @setState showcc: false
