@@ -188,11 +188,16 @@ class ContactStore extends NylasStore
       # email addresses
       return false unless contact.email
       # - email (bengotow@gmail.com)
+      # - email domain (test@bengotow.com)
       # - name parts (Ben, Go)
       # - name full (Ben Gotow)
       #   (necessary so user can type more than first name ie: "Ben Go")
-      return true if contact.email?.toLowerCase().indexOf(search) is 0
-      return true if contact.name?.toLowerCase().indexOf(search) is 0
+      if contact.email
+        i = contact.email.toLowerCase().indexOf(search)
+        return true if i is 0 or i is contact.email.indexOf('@') + 1
+      if contact.name
+        return true if contact.name.toLowerCase().indexOf(search) is 0
+
       name = contact.name?.toLowerCase() ? ""
       for namePart in name.split(/\s/)
         return true if namePart.indexOf(search) is 0
