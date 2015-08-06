@@ -31,16 +31,19 @@ class WindowEventHandler
       Actions = require './flux/actions'
       Actions.sendFeedback()
 
+    @subscribe ipc, 'browser-window-focus', ->
+      document.body.classList.remove('is-blurred')
+
+    @subscribe ipc, 'browser-window-blur', ->
+      document.body.classList.add('is-blurred')
+      atom.storeDefaultWindowDimensions()
+
     @subscribe ipc, 'command', (command, args...) ->
       activeElement = document.activeElement
       # Use the workspace element view if body has focus
       if activeElement is document.body and workspaceElement = document.getElementById("atom-workspace")
         activeElement = workspaceElement
       atom.commands.dispatch(activeElement, command, args[0])
-
-    @subscribe $(window), 'focus', -> document.body.classList.remove('is-blurred')
-
-    @subscribe $(window), 'blur', -> document.body.classList.add('is-blurred')
 
     @subscribe $(window), 'beforeunload', =>
       confirmed = atom.workspace?.confirmClose()
@@ -52,8 +55,6 @@ class WindowEventHandler
       atom.unloadEditorWindow() if confirmed
 
       confirmed
-
-    @subscribe $(window), 'blur', -> atom.storeDefaultWindowDimensions()
 
     @subscribe $(window), 'unload', -> atom.removeEditorWindow()
 

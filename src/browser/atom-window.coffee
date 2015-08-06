@@ -147,6 +147,12 @@ class AtomWindow
     @browserWindow.on 'closed', =>
       global.application.windowManager.removeWindow(this)
 
+    @browserWindow.on 'focus', =>
+      @browserWindow.webContents.send('browser-window-focus')
+
+    @browserWindow.on 'blur', =>
+      @browserWindow.webContents.send('browser-window-blur')
+
     @browserWindow.webContents.on 'will-navigate', (event, url) =>
       event.preventDefault()
 
