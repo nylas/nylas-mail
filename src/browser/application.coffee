@@ -158,7 +158,6 @@ class Application
       buttons: ['OK']
     fs.unlink path.join(configDirPath,'edgehill.db'), (err) =>
       @setDatabasePhase('setup')
-      @config.set("nylas.sync-state", {})
       @windowManager.showMainWindow()
 
   # Registers basic application commands, non-idempotent.

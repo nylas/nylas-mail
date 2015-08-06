@@ -22,6 +22,10 @@ class DatabaseSetupQueryBuilder
     attributes = _.values(klass.attributes)
     queries = []
 
+    # Add table for storing generic JSON blobs
+    queries.push("CREATE TABLE IF NOT EXISTS `JSONObject` (key TEXT PRIMARY KEY, data BLOB)")
+    queries.push("CREATE UNIQUE INDEX IF NOT EXISTS `JSONObject_id` ON `JSONObject` (`key`)")
+
     # Identify attributes of this class that can be matched against. These
     # attributes need their own columns in the table
     columnAttributes = _.filter attributes, (attr) ->
