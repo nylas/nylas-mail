@@ -260,7 +260,7 @@ class NylasAPI
     # Create a (non-enumerable) reference from the attributes which we carry forward
     # back to their original deltas. This allows us to mark the deltas that the
     # app ignores later in the process.
-    for delta in deltas
+    deltas.forEach (delta) ->
       if delta.attributes
         Object.defineProperty(delta.attributes, '_delta', { get: -> delta })
 
@@ -350,7 +350,7 @@ class NylasAPI
     DatabaseStore = require './stores/database-store'
     DatabaseStore.findVersions(klass, ids).then (versions) ->
       accepted = accepted.filter (json) ->
-        if versions[json.id] >= json.version
+        if json.version and versions[json.id] >= json.version
           json._delta?.ignoredBecause = "This version (#{json.version}) is not newer. Already have (#{versions[json.id]})"
           return false
         return true
