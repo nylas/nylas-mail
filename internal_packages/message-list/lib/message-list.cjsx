@@ -256,27 +256,13 @@ class MessageList extends React.Component
     labels.map (label) =>
       <MailLabel label={label} key={label.id} onRemove={ => @_onRemoveLabel(label) }/>
 
-  _renderReplyArea: ({noTransition}={}) =>
-    if @_hasReplyArea()
-      styles =
-        "height": 63
-        "borderTop": "1px dashed #ddd"
-    else
-      styles =
-        "height": 0
-        "border": 0
-    unless noTransition
-      styles["transition"] = "height 150ms"
-
-    <div className="footer-reply-area-wrap" style={styles} onClick={@_onClickReplyArea} key='reply-area'>
+  _renderReplyArea: =>
+    <div className="footer-reply-area-wrap" onClick={@_onClickReplyArea} key='reply-area'>
       <div className="footer-reply-area">
         <RetinaImg name="#{@_replyType()}-footer.png" mode={RetinaImg.Mode.ContentIsMask}/>
         <span className="reply-text">Write a reply…</span>
       </div>
     </div>
-
-  _hasReplyArea: =>
-    not _.last(@state.messages)?.draft
 
   # Either returns "reply" or "reply-all"
   _replyType: =>
@@ -297,6 +283,7 @@ class MessageList extends React.Component
   _messageElements: =>
     elements = []
 
+    hasReplyArea = not _.last(@state.messages)?.draft
     messages = @_messagesWithMinification(@state.messages)
     messages.forEach (message, idx) =>
 
@@ -306,7 +293,7 @@ class MessageList extends React.Component
 
       collapsed = !@state.messagesExpandedState[message.id]
       isLastMsg = (messages.length - 1 is idx)
-      isBeforeReplyArea = isLastMsg and @_hasReplyArea()
+      isBeforeReplyArea = isLastMsg and hasReplyArea
 
       localId = @state.messageLocalIds[message.id]
 
@@ -322,7 +309,8 @@ class MessageList extends React.Component
                               onRequestScrollTo={@_onChildScrollRequest} />
       )
 
-    elements.push @_renderReplyArea(noTransition: _.last(messages)?.draft)
+    if hasReplyArea
+      elements.push(@_renderReplyArea())
 
     return elements
 
