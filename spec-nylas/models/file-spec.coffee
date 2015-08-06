@@ -36,6 +36,14 @@ describe "File", ->
       f = new File(filename: 'a', contentType: 'image/jpg')
       expect(f.displayExtension()).toBe('')
 
+    it "should ignore the case of the extension i nthe filename", ->
+      f = new File(filename: 'Hello world.JPG', contentType: 'image/jpg')
+      expect(f.displayExtension()).toBe('jpg')
+      f = new File(filename: 'Hello world.Jpg', contentType: 'image/jpg')
+      expect(f.displayExtension()).toBe('jpg')
+      f = new File(filename: 'Hello world.jpg', contentType: 'image/jpg')
+      expect(f.displayExtension()).toBe('jpg')
+
     it "should return an extension based on the default filename otherwise", ->
       f = new File(filename: '', contentType: 'image/jpg')
       expect(f.displayExtension()).toBe('jpg')
