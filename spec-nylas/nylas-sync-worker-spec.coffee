@@ -1,4 +1,5 @@
 _ = require 'underscore'
+DatabaseStore = require '../src/flux/stores/database-store'
 NylasLongConnection = require '../src/flux/nylas-long-connection'
 NylasSyncWorker = require '../src/flux/nylas-sync-worker'
 Namespace = require '../src/flux/models/namespace'
@@ -15,10 +16,11 @@ describe "NylasSyncWorker", ->
       getThreads: (namespace, params, requestOptions) =>
         @apiRequests.push({namespace, model:'threads', params, requestOptions})
 
-    spyOn(atom.config, 'get').andCallFake (key) =>
-      expected = "nylas.sync-state.namespace-id"
+    spyOn(DatabaseStore, 'persistJSONObject').andReturn(Promise.resolve())
+    spyOn(DatabaseStore, 'findJSONObject').andCallFake (key) =>
+      expected = "NylasSyncWorker:namespace-id"
       return throw new Error("Not stubbed! #{key}") unless key is expected
-      return _.extend {}, {
+      Promise.resolve _.extend {}, {
         "contacts":
           busy: true
           complete: false
@@ -27,25 +29,27 @@ describe "NylasSyncWorker", ->
           complete: true
       }
 
-    spyOn(atom.config, 'set').andCallFake (key, val) =>
-      return
-
     @namespace = new Namespace(id: 'namespace-id', organizationUnit: 'label')
     @worker = new NylasSyncWorker(@api, @namespace)
     @connection = @worker.connection()
+    advanceClock()
 
   it "should reset `busy` to false when reading state from disk", ->
-    state = @worker.state()
-    expect(state.contacts.busy).toEqual(false)
+    @worker = new NylasSyncWorker(@api, @namespace)
+    spyOn(@worker, 'resumeFetches')
+    advanceClock()
+    expect(@worker.state().contacts.busy).toEqual(false)
 
   describe "start", ->
     it "should open the long polling connection", ->
       spyOn(@connection, 'start')
       @worker.start()
+      advanceClock()
       expect(@connection.start).toHaveBeenCalled()
 
     it "should start querying for model collections and counts that haven't been fully cached", ->
       @worker.start()
+      advanceClock()
       expect(@apiRequests.length).toBe(8)
       modelsRequested = _.compact _.map @apiRequests, ({model}) -> model
       expect(modelsRequested).toEqual(['threads', 'contacts', 'drafts', 'labels'])
@@ -59,6 +63,7 @@ describe "NylasSyncWorker", ->
 
     it "should mark incomplete collections as `busy`", ->
       @worker.start()
+      advanceClock()
       nextState = @worker.state()
 
       for collection in ['contacts','threads','drafts', 'labels']
@@ -66,6 +71,7 @@ describe "NylasSyncWorker", ->
 
     it "should initialize count and fetched to 0", ->
       @worker.start()
+      advanceClock()
       nextState = @worker.state()
 
       for collection in ['contacts','threads','drafts', 'labels']
@@ -81,6 +87,7 @@ describe "NylasSyncWorker", ->
   describe "when a count request completes", ->
     beforeEach ->
       @worker.start()
+      advanceClock()
       @request = @apiRequests[0]
       @apiRequests = []
 
@@ -136,6 +143,7 @@ describe "NylasSyncWorker", ->
   describe "when an API request completes", ->
     beforeEach ->
       @worker.start()
+      advanceClock()
       @request = @apiRequests[1]
       @apiRequests = []
 

@@ -12,7 +12,16 @@ class DatabaseSetupQueryBuilder
 
   setupQueries: ->
     queries = []
+
+    # https://www.sqlite.org/wal.html
+    # WAL provides more concurrency as readers do not block writers and a writer
+    # does not block readers. Reading and writing can proceed concurrently.
     queries.push "PRAGMA journal_mode=WAL;"
+
+    # Add table for storing generic JSON blobs
+    queries.push("CREATE TABLE IF NOT EXISTS `JSONObject` (key TEXT PRIMARY KEY, data BLOB)")
+    queries.push("CREATE UNIQUE INDEX IF NOT EXISTS `JSONObject_id` ON `JSONObject` (`key`)")
+
     for key, klass of modelClassMap()
       continue unless klass.attributes
       queries = queries.concat @setupQueriesForTable(klass)
@@ -21,10 +30,6 @@ class DatabaseSetupQueryBuilder
   setupQueriesForTable: (klass) =>
     attributes = _.values(klass.attributes)
     queries = []
-
-    # Add table for storing generic JSON blobs
-    queries.push("CREATE TABLE IF NOT EXISTS `JSONObject` (key TEXT PRIMARY KEY, data BLOB)")
-    queries.push("CREATE UNIQUE INDEX IF NOT EXISTS `JSONObject_id` ON `JSONObject` (`key`)")
 
     # Identify attributes of this class that can be matched against. These
     # attributes need their own columns in the table
