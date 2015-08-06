@@ -32,6 +32,8 @@ describe "ThreadListParticipants", ->
       @evanAgain = new Contact(email: 'evan@nylas.com', name: 'evan')
       @michael = new Contact(email: 'michael@nylas.com', name: 'michael')
       @kavya = new Contact(email: 'kavya@nylas.com', name: 'kavya')
+      @phab1 = new Contact(email: 'no-reply@phab.nylas.com', name: 'Ben')
+      @phab2 = new Contact(email: 'no-reply@phab.nylas.com', name: 'MG')
 
     describe "when thread.messages is available", ->
       it "correctly produces items for display in a wide range of scenarios", ->
@@ -143,6 +145,14 @@ describe "ThreadListParticipants", ->
                 {spacer: true},
                 {contact: @michael, unread: false},
                 {contact: @ben, unread: false}]
+        },{
+          name: 'thread with different participants with the same email address'
+          in: [
+            new Message(unread: false, from: [@phab1]),
+            new Message(unread: false, from: [@phab2])
+          ]
+          out: [{contact: @phab1, unread: false},
+                {contact: @phab2, unread: false}]
         }]
 
         for scenario in scenarios
