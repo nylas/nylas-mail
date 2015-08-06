@@ -65,6 +65,9 @@ class ChangeFolderTask extends ChangeMailTask
       # The base class does the heavy lifting and calls _changesToModel
       return super
 
+  _processesNestedMessages: ->
+    false
+
   _changesToModel: (model) ->
     if model instanceof Thread
       {folders: [@folder]}

@@ -59,8 +59,9 @@ class ChangeLabelsTask extends ChangeMailTask
       # The base class does the heavy lifting and calls _changesToModel
       return super
 
-  # Returns a new set of {Label} objects that incoprates the existing,
-  # new, and removed labels.
+  _processesNestedMessages: ->
+    false
+
   _changesToModel: (model) ->
     labelsToRemoveIds = _.pluck(@labelsToRemove, 'id')
 

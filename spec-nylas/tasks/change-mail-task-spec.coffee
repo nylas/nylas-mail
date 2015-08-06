@@ -103,11 +103,13 @@ describe "ChangeMailTask", ->
           expect(@task._applyChanges).toHaveBeenCalledWith(@task.threads)
           expect(DatabaseStore.persistModels).toHaveBeenCalledWith([@threadAChanged])
 
-    it "fetches messages on changed threads and appends them to the messages to update", ->
-      waitsForPromise =>
-        @task._performLocalThreads().then =>
-          expect(@task._applyChanges).toHaveBeenCalledWith(@task.threads)
-          expect(@task.messages).toEqual([@threadAMesage1, @threadAMesage2])
+    describe "when _processesNestedMessages is overridden to return true", ->
+      it "fetches messages on changed threads and appends them to the messages to update", ->
+        waitsForPromise =>
+          @task._processesNestedMessages = => true
+          @task._performLocalThreads().then =>
+            expect(@task._applyChanges).toHaveBeenCalledWith(@task.threads)
+            expect(@task.messages).toEqual([@threadAMesage1, @threadAMesage2])
 
   describe "_performLocalMessages", ->
     beforeEach ->
