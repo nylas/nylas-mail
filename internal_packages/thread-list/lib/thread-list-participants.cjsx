@@ -61,16 +61,17 @@ class ThreadListParticipants extends React.Component
   getParticipants: =>
     if @props.thread.metadata
       list = []
-      last = null
+      last = {}
       for msg in @props.thread.metadata
         continue if msg.draft
         from = msg.from[0]
-        if from and from.email isnt last
+        continue unless from
+        if from.email isnt last.email or from.name isnt last.name
           list.push({
             contact: msg.from[0]
             unread: msg.unread
           })
-          last = from.email
+          last = from
 
     else
       list = @props.thread.participants
