@@ -378,7 +378,7 @@ describe "populated composer", ->
         expect(Actions.sendDraft).not.toHaveBeenCalled()
         expect(@dialog.showMessageBox).toHaveBeenCalled()
         dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
-        expect(dialogArgs.buttons).toEqual ['Cancel', 'Send Anyway']
+        expect(dialogArgs.buttons).toEqual ['Send Anyway', 'Cancel']
 
       it "does not warn if the body of the email is all quoted text, but the email is a forward", ->
         useDraft.call @,
@@ -407,7 +407,7 @@ describe "populated composer", ->
       expect(Actions.sendDraft).not.toHaveBeenCalled()
       expect(@dialog.showMessageBox).toHaveBeenCalled()
       dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
-      expect(dialogArgs.buttons).toEqual ['Cancel', 'Send Anyway']
+      expect(dialogArgs.buttons).toEqual ['Send Anyway', 'Cancel']
 
     it "doesn't show a warning if requirements are satisfied", ->
       useFullDraft.apply(@); makeComposer.call(@)
@@ -422,7 +422,7 @@ describe "populated composer", ->
         expect(Actions.sendDraft).not.toHaveBeenCalled()
         expect(@dialog.showMessageBox).toHaveBeenCalled()
         dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
-        expect(dialogArgs.buttons).toEqual ['Cancel', 'Send Anyway']
+        expect(dialogArgs.buttons).toEqual ['Send Anyway', 'Cancel']
 
       noWarn = (body) ->
         useDraft.call @, subject: "Subject", to: [u1], body: body
