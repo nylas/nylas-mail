@@ -97,11 +97,9 @@ class MultiselectList extends React.Component
     # BAD:   onSelect={ (item) -> Actions.focusThread(item) }
     # GOOD:  onSelect={@_onSelectItem}
     #
-    className = @props.className
-    className += " ready" if @state.ready
-
     otherProps = _.omit(@props, _.keys(@constructor.propTypes))
 
+    className = @props.className
     if @state.dataView and @state.handler
       className += " " + @state.handler.cssClass()
 
@@ -117,8 +115,10 @@ class MultiselectList extends React.Component
       emptyElement = []
       if @props.emptyComponent
         emptyElement = <@props.emptyComponent
-          visible={@state.ready && @state.dataView.count() is 0}
+          visible={@state.loaded and @state.empty}
           dataView={@state.dataView} />
+
+      spinnerElement = <Spinner visible={!@state.loaded and @state.empty} />
 
       <div className={className} {...otherProps}>
         <ListTabular
@@ -130,12 +130,12 @@ class MultiselectList extends React.Component
           itemHeight={@props.itemHeight}
           onSelect={@_onClickItem}
           onDoubleClick={@props.onDoubleClick} />
-        <Spinner visible={!@state.ready} />
+        {spinnerElement}
         {emptyElement}
       </div>
     else
       <div className={className} {...otherProps}>
-        <Spinner visible={@state.ready is false} />
+        <Spinner visible={true} />
       </div>
 
   _onClickItem: (item, event) =>
@@ -210,12 +210,13 @@ class MultiselectList extends React.Component
 
     dataView: view
     handler: handler
-    ready: view.loaded()
     columns: props.columns
     computedColumns: computedColumns
     layoutMode: layoutMode
     selectedIds: view.selection.ids()
     focusedId: FocusedContentStore.focusedId(props.collection)
     keyboardCursorId: FocusedContentStore.keyboardCursorId(props.collection)
+    loaded: view.loaded()
+    empty: view.empty()
 
 module.exports = MultiselectList

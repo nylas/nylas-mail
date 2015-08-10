@@ -30,6 +30,9 @@ class ModelView
         return false
     true
 
+  empty: ->
+    @count() <= 0
+    
   get: (idx) ->
     unless _.isNumber(idx)
       throw new Error("ModelView.get() takes a numeric index. Maybe you meant getById()?")
