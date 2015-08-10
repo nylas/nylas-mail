@@ -82,6 +82,7 @@ class Download
       NylasAPI.makeRequest
         json: false
         path: "/n/#{namespace}/files/#{@fileId}/download"
+        encoding: null # Tell `request` not to parse the response data
         started: (req) =>
           @request = req
           progress(@request, {throtte: 250})

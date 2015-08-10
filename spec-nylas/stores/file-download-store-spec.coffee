@@ -1,7 +1,41 @@
 fs = require 'fs'
 shell = require 'shell'
+NylasAPI = require '../../src/flux/nylas-api'
 File = require '../../src/flux/models/file'
 FileDownloadStore = require '../../src/flux/stores/file-download-store'
+Download = FileDownloadStore.Download
+
+describe "FileDownloadStore.Download", ->
+  beforeEach ->
+    spyOn(fs, 'createWriteStream')
+    spyOn(NylasAPI, 'makeRequest')
+
+  describe "constructor", ->
+    it "should require a non-empty filename", ->
+      expect(-> new Download(fileId: '123', targetPath: 'test.png')).toThrow()
+      expect(-> new Download(filename: null, fileId: '123', targetPath: 'test.png')).toThrow()
+      expect(-> new Download(filename: '', fileId: '123', targetPath: 'test.png')).toThrow()
+
+    it "should require a non-empty fileId", ->
+      expect(-> new Download(filename: 'test.png', fileId: null, targetPath: 'test.png')).toThrow()
+      expect(-> new Download(filename: 'test.png', fileId: '', targetPath: 'test.png')).toThrow()
+
+    it "should require a download path", ->
+      expect(-> new Download(filename: 'test.png', fileId: '123')).toThrow()
+      expect(-> new Download(filename: 'test.png', fileId: '123', targetPath: '')).toThrow()
+
+  describe "run", ->
+    beforeEach ->
+      @download = new Download(fileId: '123', targetPath: 'test.png', filename: 'test.png')
+      @download.run()
+      expect(NylasAPI.makeRequest).toHaveBeenCalled()
+
+    it "should create a request with a null encoding to prevent the request library from attempting to parse the (potentially very large) response", ->
+      expect(NylasAPI.makeRequest.mostRecentCall.args[0].json).toBe(false)
+      expect(NylasAPI.makeRequest.mostRecentCall.args[0].encoding).toBe(null)
+
+    it "should create a request for /n/nsid/files/123/download", ->
+      expect(NylasAPI.makeRequest.mostRecentCall.args[0].path).toBe("/n/nsid/files/123/download")
 
 describe "FileDownloadStore", ->
   beforeEach ->
