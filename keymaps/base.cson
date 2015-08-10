@@ -7,6 +7,7 @@
 'body':
   'c'        : 'application:new-message' # Gmail
   '/'        : 'application:focus-search' # Gmail
+  'cmd-alt-f': 'application:focus-search'
 
   'r'     : 'application:reply' # Gmail
   'R'     : 'application:reply-all' # Nylas Mail
