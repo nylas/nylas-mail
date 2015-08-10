@@ -221,29 +221,6 @@ class ComposerView extends React.Component
         {@_renderBodyScrollbar()}
 
         <div className="composer-centered">
-          <div className="composer-participant-actions">
-            <span className="header-action"
-                  style={display: @state.showcc and 'none' or 'inline'}
-                  onClick={@_showAndFocusCc}>Cc</span>
-
-            <span className="header-action"
-                  style={display: @state.showbcc and 'none' or 'inline'}
-                  onClick={@_showAndFocusBcc}>Bcc</span>
-
-            <span className="header-action"
-                  style={display: @state.showsubject and 'none' or 'initial'}
-                  onClick={@_showAndFocusSubject}>Subject</span>
-
-            <span className="header-action"
-                  data-tooltip="Popout composer"
-                  style={{display: ((@props.mode is "fullwindow") and 'none' or 'initial'), paddingLeft: "1.5em"}}
-                  onClick={@_popoutComposer}>
-              <RetinaImg name="composer-popout.png"
-                mode={RetinaImg.Mode.ContentIsMask}
-                style={{position: "relative", top: "-2px"}}/>
-            </span>
-          </div>
-
           {@_renderFields()}
 
           <div className="compose-body" ref="composeBody" onClick={@_onClickComposeBody}>
@@ -263,13 +240,37 @@ class ComposerView extends React.Component
     # If they're hidden, shift-tab between fields breaks.
     fields = []
     fields.push(
-      <ParticipantsTextField
-        ref="textFieldTo"
-        key="to"
-        field='to'
-        change={@_onChangeParticipants}
-        participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
-        tabIndex='102'/>
+      <div>
+        <div className="composer-participant-actions">
+          <span className="header-action"
+                style={display: @state.showcc and 'none' or 'inline'}
+                onClick={@_showAndFocusCc}>Cc</span>
+
+          <span className="header-action"
+                style={display: @state.showbcc and 'none' or 'inline'}
+                onClick={@_showAndFocusBcc}>Bcc</span>
+
+          <span className="header-action"
+                style={display: @state.showsubject and 'none' or 'initial'}
+                onClick={@_showAndFocusSubject}>Subject</span>
+
+          <span className="header-action"
+                data-tooltip="Popout composer"
+                style={{display: ((@props.mode is "fullwindow") and 'none' or 'initial'), paddingLeft: "1.5em"}}
+                onClick={@_popoutComposer}>
+            <RetinaImg name="composer-popout.png"
+              mode={RetinaImg.Mode.ContentIsMask}
+              style={{position: "relative", top: "-2px"}}/>
+          </span>
+        </div>
+        <ParticipantsTextField
+          ref="textFieldTo"
+          key="to"
+          field='to'
+          change={@_onChangeParticipants}
+          participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
+          tabIndex='102'/>
+      </div>
     )
 
     if @state.showcc

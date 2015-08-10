@@ -39,7 +39,6 @@
 
   .composer-action-bar-wrap {
     position: relative;
-    z-index: 1;
     width: 100%;
     background: transparent;
     border-bottom: 0;
@@ -63,7 +62,6 @@
   }
 
   .composer-content-wrap {
-    z-index: 1;
     padding: 0;
     flex: 1;
     display: flex;
@@ -95,28 +93,24 @@
     padding-left: 1em;
     &:hover {
       color: @text-color-link;
-      cursor: pointer;
+      img.content-mask { background-color: @text-color-link; }
+      cursor: default;
     }
   }
 
   .composer-participant-actions {
-    position: absolute;
-    z-index: 900;
-    right: 23px;
-    .header-action {
-      position: relative;
-      top: 1em;
-    }
-  }
-
-  .tokenizing-field.to {
-    padding-right: 160px;
+    position: relative;
+    float: right;
+    z-index: 2;
+    cursor: default;
+    padding-right: @spacing-standard + @spacing-half;
+    padding-left: @spacing-standard;
+    padding-top: 12px;
   }
 
   input, textarea, div[contenteditable] {
     color: @text-color;
     position: relative;
-    z-index: 1;
     display: block;
     background: inherit;
     width: 100%;
@@ -126,7 +120,6 @@
 
   .compose-subject-wrap {
     position: relative;
-    z-index: 2;
     margin: 0 23px;
     border-bottom: 1px solid @border-color-divider;
     flex-shrink:0;
@@ -160,7 +153,6 @@
 
   .compose-body {
     flex: 1;
-    z-index: 1;
     cursor: text;
     overflow: auto;
     position: relative;
@@ -263,7 +255,6 @@
 //////////////////////////////////
 .participants-text-field {
   position: relative;
-  z-index: 2;
   padding: 5px @spacing-standard 0 @spacing-standard;
   margin: 0 8px;
   flex-shrink: 0;
