@@ -35,7 +35,7 @@ class ParticipantsTextField extends React.Component
   render: =>
     classSet = {}
     classSet[@props.field] = true
-    <div className="participants-text-field" style={zIndex: 1000-@props.tabIndex, display: 'inline'}>
+    <div className="participants-text-field">
       <TokenizingTextField
         ref="textField"
         tokens={@props.participants[@props.field]}
