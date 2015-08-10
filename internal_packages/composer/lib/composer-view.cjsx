@@ -673,11 +673,11 @@ class ComposerView extends React.Component
     if warnings.length > 0 and not options.force
       dialog.showMessageBox remote.getCurrentWindow(), {
         type: 'warning',
-        buttons: ['Cancel', 'Send Anyway'],
+        buttons: ['Send Anyway', 'Cancel'],
         message: 'Are you sure?',
         detail: "Send #{warnings.join(' and ')}?"
       }, (response) =>
-        if response is 1 # button array index 1
+        if response is 0 # response is button array index
           @_sendDraft({force: true})
       return
 
