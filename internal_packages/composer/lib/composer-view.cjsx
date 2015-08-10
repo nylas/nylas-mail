@@ -240,7 +240,7 @@ class ComposerView extends React.Component
     # If they're hidden, shift-tab between fields breaks.
     fields = []
     fields.push(
-      <div>
+      <div key="to">
         <div className="composer-participant-actions">
           <span className="header-action"
                 style={display: @state.showcc and 'none' or 'inline'}
@@ -265,7 +265,6 @@ class ComposerView extends React.Component
         </div>
         <ParticipantsTextField
           ref="textFieldTo"
-          key="to"
           field='to'
           change={@_onChangeParticipants}
           participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
