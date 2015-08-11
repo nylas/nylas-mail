@@ -6,6 +6,34 @@ CoffeeHelpers = require './coffee-helpers'
 
 PAGE_SIZE = 250
 
+# BackoffTimer is a small helper class that wraps setTimeout. It fires the function
+# you provide at a regular interval, but backs off each time you call `backoff`.
+#
+class BackoffTimer
+  constructor: (@fn) ->
+    @reset()
+    @start()
+
+  cancel: =>
+    clearTimeout(@_timeout) if @_timeout
+    @_timeout = null
+
+  reset: =>
+    @cancel()
+    @_delay = 20 * 1000
+
+  backoff: =>
+    @_delay = Math.min(@_delay * 1.4, 5 * 1000 * 60) # Cap at 5 minutes
+    console.log("Backing off after sync failure. Will retry in #{Math.floor(@_delay / 1000)} seconds.")
+
+  start: =>
+    clearTimeout(@_timeout) if @_timeout
+    @_timeout = setTimeout =>
+      @_timeout = null
+      @fn()
+    , @_delay
+
+
 module.exports =
 class NylasSyncWorker
 
@@ -45,18 +73,23 @@ class NylasSyncWorker
     false
 
   start: ->
-    @_resumeTimer = setInterval(@resumeFetches, 20000)
+    @_resumeTimer = new BackoffTimer(@resumeFetches)
     @_connection.start()
     @resumeFetches()
 
   cleanup: ->
-    clearInterval(@_resumeTimer)
+    @_resumeTimer.cancel()
     @_connection.end()
     @_terminated = true
     @
 
   resumeFetches: =>
     return unless @_state
+
+    # Stop the timer. If one or more network requests fails during the fetch process
+    # we'll backoff and restart the timer.
+    @_resumeTimer.cancel()
+
     @fetchCollection('threads')
     @fetchCollection('calendars')
     @fetchCollection('contacts')
@@ -93,11 +126,15 @@ class NylasSyncWorker
         @updateTransferState(model, count: response.count)
       error: (err) =>
         return if @_terminated
+        @_resumeTimer.backoff()
+        @_resumeTimer.start()
 
   fetchCollectionPage: (model, params = {}) ->
     requestOptions =
       error: (err) =>
         return if @_terminated
+        @_resumeTimer.backoff()
+        @_resumeTimer.start()
         @updateTransferState(model, {busy: false, complete: false, error: err.toString()})
       success: (json) =>
         return if @_terminated
@@ -124,3 +161,5 @@ class NylasSyncWorker
     ,100
     @_writeState()
     @trigger()
+
+NylasSyncWorker.BackoffTimer = BackoffTimer
