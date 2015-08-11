@@ -17,7 +17,7 @@ PriorityUICoordinator = require '../../priority-ui-coordinator'
  generateTempId,
  isTempId} = require '../models/utils'
 
-DatabaseVersion = 6
+DatabaseVersion = 7
 
 DatabasePhase =
   Setup: 'setup'
