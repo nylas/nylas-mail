@@ -242,6 +242,16 @@ describe "QuotedHTMLParser", ->
         test = clean(QuotedHTMLParser.removeQuotedHTML(before))
         expect(test).toEqual clean(after)
 
+    it 'removes all trailing <br> tags except one', ->
+      input0 = "hello world<br><br><blockquote>foolololol</blockquote>"
+      expect0 = "<head></head><body>hello world<br></body>"
+      expect(QuotedHTMLParser.removeQuotedHTML(input0)).toEqual expect0
+
+    it 'preserves <br> tags in the middle and only chops off tail', ->
+      input0 = "hello<br><br>world<br><br><blockquote>foolololol</blockquote>"
+      expect0 = "<head></head><body>hello<br><br>world<br></body>"
+      expect(QuotedHTMLParser.removeQuotedHTML(input0)).toEqual expect0
+
 
 
   # We have a little utility method that you can manually uncomment to

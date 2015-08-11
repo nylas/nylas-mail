@@ -11,7 +11,7 @@ ContenteditableComponent = require "../lib/contenteditable-component",
 describe "ContenteditableComponent", ->
   beforeEach ->
     @onChange = jasmine.createSpy('onChange')
-    @html = 'Test <strong>HTML</strong><br><br>'
+    @html = 'Test <strong>HTML</strong><br>'
     @component = ReactTestUtils.renderIntoDocument(
       <ContenteditableComponent html={@html} onChange={@onChange}/>
     )
