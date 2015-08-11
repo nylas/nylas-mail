@@ -365,6 +365,9 @@ class DraftStore
     query = require('querystring').parse(query)
     query.to = to
 
+    for key, val of query
+      query[key.toLowerCase()] = val
+
     draft = new Message
       body: query.body || ''
       subject: query.subject || '',
