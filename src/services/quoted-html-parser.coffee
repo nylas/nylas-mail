@@ -36,6 +36,18 @@ class QuotedHTMLParser
     doc = @_parseHTML(html)
     quoteElements = @_findQuoteLikeElements(doc, options)
     DOMUtils.removeElements(quoteElements, options)
+    childNodes = doc.body.childNodes
+
+    extraTailBrTags = []
+    for i in [(childNodes.length - 1)..0] by -1
+      curr = childNodes[i]
+      next = childNodes[i - 1]
+      if curr and curr.nodeName == 'BR' and next and next.nodeName == 'BR'
+        extraTailBrTags.push(curr)
+      else
+        break
+
+    DOMUtils.removeElements(extraTailBrTags)
     return doc.children[0].innerHTML
 
   appendQuotedHTML: (htmlWithoutQuotes, originalHTML) ->
