@@ -19,7 +19,7 @@ class ThreadListIcon extends React.Component
       return 'thread-icon-star'
 
     if @props.thread.unread
-      return 'thread-icon-unread thread-icon-star-on-hover'
+      return 'thread-icon-unread'
 
     msgs = @_nonDraftMessages()
     last = msgs[msgs.length - 1]
@@ -27,9 +27,9 @@ class ThreadListIcon extends React.Component
     myEmail = NamespaceStore.current()?.emailAddress
     if msgs.length > 1 and last.from[0]?.email is myEmail
       if Utils.isForwardedMessage(last)
-        return 'thread-icon-forwarded thread-icon-star-on-hover'
+        return 'thread-icon-forwarded'
       else
-        return 'thread-icon-replied thread-icon-star-on-hover'
+        return 'thread-icon-replied'
 
     return 'thread-icon-star-on-hover'
 
