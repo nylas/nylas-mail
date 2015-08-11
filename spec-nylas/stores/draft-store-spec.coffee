@@ -673,6 +673,22 @@ describe "DraftStore", ->
         DraftStore._onHandleMailtoLink('mailto:bengotow@gmail.com')
         expect(received.body.indexOf("Edited by TestExtension!")).toBe(0)
 
+    it "should be case-insensitive towards subject keys", ->
+      received = null
+      spyOn(DraftStore, '_finalizeAndPersistNewMessage').andCallFake (draft) ->
+        received = draft
+        Promise.resolve({draftLocalId: 123})
+
+      expected = "EmailSubjectLOLOL"
+      DraftStore._onHandleMailtoLink('mailto:asdf@asdf.com?subject=' + expected)
+      expect(received.subject).toBe(expected)
+
+      DraftStore._onHandleMailtoLink('mailto:asdf@asdf.com?Subject=' + expected)
+      expect(received.subject).toBe(expected)
+
+      DraftStore._onHandleMailtoLink('mailto:asdf@asdf.com?SUBJECT=' + expected)
+      expect(received.subject).toBe(expected)
+
     it "should correctly instantiate drafts for a wide range of mailto URLs", ->
       received = null
       spyOn(DatabaseStore, 'persistModel').andCallFake (draft) ->
