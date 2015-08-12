@@ -138,10 +138,14 @@ class ThreadListStore extends NylasStore
 
   _onToggleStarFocused: ->
     focused = FocusedContentStore.focused('thread')
-    return unless focused
+    cursor = FocusedContentStore.keyboardCursor('thread')
+    if focused
+      task = new ChangeStarredTask(thread: focused, starred: !focused.starred)
+    else if cursor
+      task = new ChangeStarredTask(thread: cursor, starred: !cursor.starred)
 
-    task = new ChangeStarredTask(thread: focused, starred: !focused.starred)
-    Actions.queueTask(task)
+    if task
+      Actions.queueTask(task)
 
   _onArchive: ->
     @_archiveAndShiftBy('auto')
