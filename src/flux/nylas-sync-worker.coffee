@@ -12,7 +12,6 @@ PAGE_SIZE = 250
 class BackoffTimer
   constructor: (@fn) ->
     @reset()
-    @start()
 
   cancel: =>
     clearTimeout(@_timeout) if @_timeout
@@ -24,7 +23,8 @@ class BackoffTimer
 
   backoff: =>
     @_delay = Math.min(@_delay * 1.4, 5 * 1000 * 60) # Cap at 5 minutes
-    console.log("Backing off after sync failure. Will retry in #{Math.floor(@_delay / 1000)} seconds.")
+    if not atom.inSpecMode()
+      console.log("Backing off after sync failure. Will retry in #{Math.floor(@_delay / 1000)} seconds.")
 
   start: =>
     clearTimeout(@_timeout) if @_timeout
@@ -46,6 +46,9 @@ class NylasSyncWorker
 
     @_terminated = false
     @_connection = new NylasLongConnection(api, namespace.id)
+    @_resumeTimer = new BackoffTimer =>
+      # indirection needed so resumeFetches can be spied on
+      @resumeFetches()
 
     @_state = null
     DatabaseStore.findJSONObject("NylasSyncWorker:#{@_namespace.id}").then (json) =>
@@ -73,7 +76,7 @@ class NylasSyncWorker
     false
 
   start: ->
-    @_resumeTimer = new BackoffTimer(@resumeFetches)
+    @_resumeTimer.start()
     @_connection.start()
     @resumeFetches()
 

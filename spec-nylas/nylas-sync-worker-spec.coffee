@@ -78,11 +78,27 @@ describe "NylasSyncWorker", ->
         expect(nextState[collection].fetched).toEqual(0)
         expect(nextState[collection].count).toEqual(0)
 
-    it "should periodically try to restart failed collection syncs", ->
+    it "after failures, it should attempt to resume periodically but back off as failures continue", ->
+      simulateNetworkFailure = =>
+        @apiRequests[1].requestOptions.error({statusCode: 400})
+        @apiRequests = []
+
       spyOn(@worker, 'resumeFetches').andCallThrough()
       @worker.start()
-      advanceClock(50000)
-      expect(@worker.resumeFetches.callCount).toBe(2)
+
+      expect(@worker.resumeFetches.callCount).toBe(1)
+      simulateNetworkFailure(); expect(@worker.resumeFetches.callCount).toBe(1)
+      advanceClock(30000); expect(@worker.resumeFetches.callCount).toBe(2)
+      simulateNetworkFailure(); expect(@worker.resumeFetches.callCount).toBe(2)
+      advanceClock(30000); expect(@worker.resumeFetches.callCount).toBe(2)
+      advanceClock(30000); expect(@worker.resumeFetches.callCount).toBe(3)
+      simulateNetworkFailure(); expect(@worker.resumeFetches.callCount).toBe(3)
+      advanceClock(30000); expect(@worker.resumeFetches.callCount).toBe(3)
+      advanceClock(30000); expect(@worker.resumeFetches.callCount).toBe(4)
+      simulateNetworkFailure(); expect(@worker.resumeFetches.callCount).toBe(4)
+      advanceClock(30000); expect(@worker.resumeFetches.callCount).toBe(4)
+      advanceClock(30000); expect(@worker.resumeFetches.callCount).toBe(4)
+      advanceClock(30000); expect(@worker.resumeFetches.callCount).toBe(5)
 
   describe "when a count request completes", ->
     beforeEach ->
