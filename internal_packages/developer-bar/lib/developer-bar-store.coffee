@@ -85,7 +85,7 @@ DeveloperBarStore = Reflux.createStore
 
     item =
       id: "curlitemId:#{curlItemId}"
-      command: "curl -X #{request.method} #{data} #{url}"
+      command: "curl -X #{request.method} #{data} \"#{url}\""
       statusCode: response?.statusCode || 0
 
     @_curlHistory.unshift(item)
