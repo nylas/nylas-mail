@@ -116,7 +116,8 @@ class ThreadList extends React.Component
     c5 = new ListTabular.Column
       name: "HoverActions"
       resolver: (thread) =>
-        <ThreadListQuickActions thread={thread}/>
+        currentCategoryId = FocusedCategoryStore.categoryId()
+        <ThreadListQuickActions thread={thread} categoryId={currentCategoryId}/>
 
     @wideColumns = [c1, c2, c3, c4, c5]
 
