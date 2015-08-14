@@ -168,6 +168,52 @@ describe "ThreadListParticipants", ->
           if (!_.isEqual(participants.getParticipants(), scenario.out))
             expect(scenario.name).toBe('correct')
 
+    describe "when getParticipants() called and current user is only sender", ->
+      beforeEach ->
+        @me = NamespaceStore.current().me()
+        @ben = new Contact(email: 'ben@nylas.com', name: 'ben')
+        @evan = new Contact(email: 'evan@nylas.com', name: 'evan')
+        @michael = new Contact(email: 'michael@nylas.com', name: 'michael')
+        @kavya = new Contact(email: 'kavya@nylas.com', name: 'kavya')
+
+      getParticipants = (threadMetadata) ->
+        thread = new Thread()
+        thread.metadata = threadMetadata
+        participants = ReactTestUtils.renderIntoDocument(
+          <ThreadListParticipants thread={thread}/>
+        )
+        participants.getParticipants()
+
+      it "shows only recipients for emails sent from me to different recipients", ->
+        input = [new Message(unread: false, from: [@me], to: [@ben])
+                 new Message(unread: false, from: [@me], to: [@evan])
+                 new Message(unread: false, from: [@me], to: [@ben])]
+        actualOut = getParticipants input
+        expectedOut = [{contact: @ben, unread: false}
+                       {contact: @evan, unread: false}
+                       {contact: @ben, unread: false}]
+        expect(actualOut).toEqual expectedOut
+
+      it "shows only first, spacer, second to last, and last recipients if recipients count > 3", ->
+        input = [new Message(unread: false, from: [@me], to: [@ben])
+                 new Message(unread: false, from: [@me], to: [@evan])
+                 new Message(unread: false, from: [@me], to: [@michael])
+                 new Message(unread: false, from: [@me], to: [@kavya])]
+        actualOut = getParticipants input
+        expectedOut = [{contact: @ben, unread: false}
+                       {spacer: true}
+                       {contact: @michael, unread: false}
+                       {contact: @kavya, unread: false}]
+        expect(actualOut).toEqual expectedOut
+
+      it "shows correct recipients even if only one email", ->
+        input = [new Message(unread: false, from: [@me], to: [@ben, @evan, @michael, @kavya])]
+        actualOut = getParticipants input
+        expectedOut = [{contact: @ben, unread: false}
+                       {spacer: true}
+                       {contact: @michael, unread: false}
+                       {contact: @kavya, unread: false}]
+        expect(actualOut).toEqual expectedOut
 
     describe "when thread.messages is not available", ->
       it "correctly produces items for display in a wide range of scenarios", ->
