@@ -56,7 +56,7 @@ class ArchiveThreadHelper
       else if direction is "unarchive"
         params.labelsToAdd = [currentLabel]
 
-      archiveLabel = CategoryStore.getStandardCategory("archive")
+      archiveLabel = CategoryStore.getStandardCategory("all")
       if archiveLabel
         if direction is "archive"
           params.labelsToAdd = [archiveLabel]
