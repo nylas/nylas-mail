@@ -42,8 +42,7 @@ class PreferencesKeymaps extends React.Component
   _getStateFromKeymaps: =>
     bindings = {}
     for [command, label] in DisplayedKeybindings
-      [found] = atom.keymaps.findKeyBindings(command: command, target: document.body) || []
-      bindings[command] = found
+      bindings[command] = atom.keymaps.findKeyBindings(command: command, target: document.body) || []
     bindings
 
   render: =>
@@ -69,18 +68,31 @@ class PreferencesKeymaps extends React.Component
     </div>
 
   _renderBindingFor: ([command, label]) =>
-    description = "None"
+    descriptions = []
     if @state.bindings[command]
-      {keystrokes} = @state.bindings[command]
-      description = keystrokes.replace(/-/gi,'').replace(/cmd/gi, '⌘').replace(/alt/gi, '⌥').replace(/shift/gi, '⇧').replace(/ctrl/gi, '^').toUpperCase()
+      for binding in @state.bindings[command]
+        descriptions.push(@_formatKeystrokes(binding.keystrokes))
+
+    if descriptions.length is 0
+      value = 'None'
+    else
+      value = _.uniq(descriptions).join(', ')
 
     <Flexbox className="shortcut" key={command}>
       <div className="shortcut-name">{label}</div>
-      <div className="shortcut-value">{description}</div>
+      <div className="shortcut-value">{value}</div>
     </Flexbox>
 
   _renderBindings: =>
     DisplayedKeybindings.map(@_renderBindingFor)
+
+  _formatKeystrokes: (keystrokes) ->
+    if process.platform is 'win32'
+      # On Windows, display cmd-shift-c
+      return keystrokes
+    else
+      # On Mac and Linux, display ⌘⇧C
+      return keystrokes.replace(/-/gi,'').replace(/cmd/gi, '⌘').replace(/alt/gi, '⌥').replace(/shift/gi, '⇧').replace(/ctrl/gi, '^').toUpperCase()
 
   _onShowUserKeymaps: =>
     require('shell').openItem(atom.keymaps.getUserKeymapPath())
