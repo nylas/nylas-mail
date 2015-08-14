@@ -4,6 +4,7 @@
     submenu: [
       { label: '&New Message', command: 'application:new-message' }
       { type: 'separator' }
+      { label: 'Preferences', command: 'application:open-preferences' }
       { label: 'Link External Account', command: 'atom-workspace:add-account' }
       { label: 'Log Out', command: 'application:logout' }
       { label: 'Clos&e Window', command: 'window:close' }

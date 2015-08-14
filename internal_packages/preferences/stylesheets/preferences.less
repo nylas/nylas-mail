@@ -1,24 +1,15 @@
 @import "ui-variables";
 @import "ui-mixins";
 
-body.is-blurred {
-  .preference-header {
-    background-image: -webkit-linear-gradient(top, lighten(@toolbar-background-color, 12%), lighten(@toolbar-background-color, 15%));
-  }
-}
-
-body.platform-darwin {
-  .preferences-wrap .platform-darwin-only {
-    display: inherit;
-  }
-}
-
 body.window-type-react-remote {
+  margin:0;
+
   .sheet-toolbar {
     border-bottom: none;
     height:30px;
     min-height:30px;
     max-height:30px;
+    display: none;
 
     .toolbar-window-controls {
       margin-top:3px;
@@ -30,6 +21,26 @@ body.window-type-react-remote {
   }
   .sheet {
     background: @background-secondary;
+  }
+}
+
+body.platform-darwin.window-type-react-remote {
+  .sheet-toolbar {
+    display:inherit;
+  }
+}
+
+// Preferences Specific
+
+body.is-blurred {
+  .preference-header {
+    background-image: -webkit-linear-gradient(top, lighten(@toolbar-background-color, 12%), lighten(@toolbar-background-color, 15%));
+  }
+}
+
+body.platform-darwin {
+  .preferences-wrap .platform-darwin-only {
+    display: inherit;
   }
 }
 
@@ -225,20 +236,17 @@ body.window-type-react-remote {
     -webkit-user-select: none;
     -webkit-app-region: drag;
 
-    .preference-header-item-spacer {
-      flex: 1;
-    }
     .preference-header-item {
       margin-left:3px;
       margin-right:3px;
       padding-left:3px;
       padding-right:3px;
       -webkit-app-region: no-drag;
-      display: block;
+      display: inline-block;
 
       .phi-container {
-        padding-left:5%;
-        padding-right:5%;
+        padding-left:5px;
+        padding-right:5px;
         padding-top: 3px;
         text-align: center;
         height:58px;

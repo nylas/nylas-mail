@@ -254,6 +254,8 @@ class AtomWindow
 
   isVisible: -> @browserWindow.isVisible()
 
+  isLoaded: -> @loaded
+
   isWebViewFocused: -> @browserWindow.isWebViewFocused()
 
   isSpecWindow: -> @isSpec
