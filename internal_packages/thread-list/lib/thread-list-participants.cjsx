@@ -59,49 +59,62 @@ class ThreadListParticipants extends React.Component
     </div>
 
   getParticipants: =>
+    makeMetadataFilterer = (toOrFrom) ->
+      (msg, i, msgs) ->
+        isFirstMsg = i is 0
+        if msg.draft
+          false
+        else if isFirstMsg
+          true
+        else # check adjacent email uniqueness
+          last = msgs[i - 1][toOrFrom][0]
+          curr = msgs[i][toOrFrom][0]
+          isUniqueEmail = last.email isnt curr.email
+          isUniqueName = last.name isnt curr.name
+          isUniqueEmail or isUniqueName
+
+    makeMetadataMapper = (toOrFrom) ->
+      (msg) ->
+        msg[toOrFrom].map (contact) ->
+          { contact: contact, unread: msg.unread }
+
     if @props.thread.metadata
-      list = []
-      last = {}
-      for msg in @props.thread.metadata
-        continue if msg.draft
-        from = msg.from[0]
-        continue unless from
-        if from.email isnt last.email or from.name isnt last.name
-          list.push({
-            contact: msg.from[0]
-            unread: msg.unread
-          })
-          last = from
-
+      shouldOnlyShowRecipients = @props.thread.metadata.every (msg) ->
+        sender = msg.from[0]
+        sender.email is NamespaceStore.current().emailAddress
+      input = @props.thread.metadata
+      toOrFrom = if shouldOnlyShowRecipients then "to" else "from"
+      filterer = makeMetadataFilterer toOrFrom
+      mapper = makeMetadataMapper toOrFrom
     else
-      list = @props.thread.participants
-      return [] unless list and list instanceof Array
-      me = NamespaceStore.current().emailAddress
-      list = _.reject list, (p) -> p.email is me
+      input = @props.thread.participants
+      return [] unless input and input instanceof Array
+      currentUserEmail = NamespaceStore.current().emailAddress
+      filterer = (msg) -> msg.email isnt currentUserEmail
+      mapper = (contact) -> { contact: contact, unread: false }
 
-      # Removing "Me" may remove "Me" several times due to the way
-      # participants is created. If we're left with an empty array,
-      # put one a "Me" back in.
-      if list.length is 0 and @props.thread.participants.length > 0
-        list.push(@props.thread.participants[0])
+    list = _.chain(input)
+            .filter(filterer)
+            .map(mapper)
+            .reduce(((prevContacts, next) -> prevContacts.concat(next)), [])
+            .value()
 
-      # Change the list to have the appropriate output format
-      list = list.map (contact) ->
-        contact: contact
-        unread: false # We don't have the data.
+    # If no participants, we should at least add current user as sole participant
+    if list.length is 0 and @props.thread.participants.length > 0
+      list.push({ contact: @props.thread.participants[0], unread: false })
 
     # We only ever want to show three. Ben...Kevin... Marty
     # But we want the *right* three.
     if list.length > 3
-      listTrimmed = []
+      listTrimmed = [
+        # Always include the first item
+        list[0],
+        { spacer: true },
 
-      # Always include the first item
-      listTrimmed.push(list[0])
-      listTrimmed.push({spacer: true})
-
-      # Always include the last two item
-      listTrimmed.push(list[list.length - 2])
-      listTrimmed.push(list[list.length - 1])
+        # Always include last two items
+        list[list.length - 2],
+        list[list.length - 1]
+      ]
       list = listTrimmed
 
     list
