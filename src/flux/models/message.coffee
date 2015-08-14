@@ -193,6 +193,9 @@ class Message extends Model
       file.namespaceId = @namespaceId
     return @
 
+  canReplyAll: ->
+    @cc.length > 0 or @to.length > 1
+
   # Public: Returns a set of uniqued message participants by combining the
   # `to`, `cc`, and `from` fields.
   participants: ->

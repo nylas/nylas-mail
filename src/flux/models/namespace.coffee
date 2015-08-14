@@ -57,4 +57,13 @@ class Namespace extends Model
   usesLabels: -> @organizationUnit is "label"
   usesFolders: -> @organizationUnit is "folder"
 
+  # Public: Returns the localized, properly capitalized provider name,
+  # like Gmail, Exchange, or Outlook 365
+  displayProvider: ->
+    if @provider is 'eas'
+      return 'Exchange'
+    if @provider is 'gmail'
+      return 'Gmail'
+    return @provider
+
 module.exports = Namespace

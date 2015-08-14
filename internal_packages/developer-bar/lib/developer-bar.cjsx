@@ -68,6 +68,9 @@ class DeveloperBar extends React.Component
         <div className="btn-container pull-right">
           <div className="btn" onClick={@_onToggleRegions}>Component Regions</div>
         </div>
+        <div className="btn-container pull-right">
+          <div className="btn" onClick={@_onToggleReactRemoteContainer}>React Remote Container</div>
+        </div>
       </div>
       {@_sectionContent()}
       <div className="footer">
@@ -159,6 +162,10 @@ class DeveloperBar extends React.Component
   _onToggleRegions: =>
     Actions.toggleComponentRegions()
 
+  _onToggleReactRemoteContainer: =>
+    {ReactRemote} = require('nylas-exports')
+    ReactRemote.toggleContainerVisible()
+    
   _getStateFromStores: =>
     visible: DeveloperBarStore.visible()
     queue: TaskQueue._queue

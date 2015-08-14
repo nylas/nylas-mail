@@ -125,6 +125,9 @@ class ComponentRegistry
 
     {locations, modes, roles} = @_pluralizeDescriptor(descriptor)
 
+    if not locations and not modes and not roles
+      throw new Error("ComponentRegistry.findComponentsMatching called with an empty descriptor")
+
     # Made into a convenience function because default
     # values (`[]`) are necessary and it was getting messy.
     overlaps = (entry = [], search = []) ->

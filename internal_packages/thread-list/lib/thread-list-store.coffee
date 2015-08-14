@@ -21,7 +21,6 @@ class ThreadListStore extends NylasStore
     @_resetInstanceVars()
 
     @listenTo Actions.searchQueryCommitted, @_onSearchCommitted
-    @listenTo Actions.selectLayoutMode, @_autofocusForLayoutMode
 
     @listenTo Actions.archiveAndPrevious, @_onArchiveAndPrev
     @listenTo Actions.archiveAndNext, @_onArchiveAndNext
@@ -38,6 +37,8 @@ class ThreadListStore extends NylasStore
     @listenTo DatabaseStore, @_onDataChanged
     @listenTo NamespaceStore, @_onNamespaceChanged
     @listenTo FocusedCategoryStore, @_onCategoryChanged
+
+    atom.config.observe 'core.workspace.mode', => @_autofocusForLayoutMode()
 
     # We can't create a @view on construction because the CategoryStore
     # has hot yet been populated from the database with the list of
@@ -221,6 +222,7 @@ class ThreadListStore extends NylasStore
     Actions.queueTask(task)
 
   _autofocusForLayoutMode: ->
+    return unless @_view
     layoutMode = WorkspaceStore.layoutMode()
     focused = FocusedContentStore.focused('thread')
     if layoutMode is 'split' and not focused and @_view.selection.count() is 0

@@ -242,8 +242,12 @@
 // Overrides for the composer in a message-list
 #message-list {
   .message-item-wrap {
+    .message-item-white-wrap.composer-outer-wrap {
+      background: mix(@background-primary, #ffbb00, 96%);
+    }
     .message-item-white-wrap.composer-outer-wrap.focused {
       box-shadow: 0 0 0.5px rgba(0, 0, 0, 0.28), 0 1px 1.5px rgba(0, 0, 0, 0.08), 0 0 3px @accent-primary;
+      background-color: @background-primary;
     }
   }
 }

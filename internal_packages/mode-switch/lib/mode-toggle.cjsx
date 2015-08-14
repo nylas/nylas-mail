@@ -12,10 +12,12 @@ class ModeToggle extends React.Component
     @state = @_getStateFromStores()
 
   componentDidMount: =>
-    @unsubscribe = WorkspaceStore.listen(@_onStateChanged, @)
+    @_unsubscriber = WorkspaceStore.listen(@_onStateChanged)
+    @_mounted = true
 
   componentWillUnmount: =>
-    @unsubscribe?()
+    @_mounted = false
+    @_unsubscriber?()
 
   render: =>
     return <div></div> unless @state.visible
@@ -30,20 +32,29 @@ class ModeToggle extends React.Component
     </button>
 
   _onStateChanged: =>
+    # We need to keep track of this because our parent unmounts us in the same
+    # event listener cycle that we receive the event in. ie:
+    #
+    #   for listener in listeners
+    #      # 1. workspaceView remove left column
+    #      # ---- Mode toggle unmounts, listeners array mutated in place
+    #      # 2. ModeToggle update
+    return unless @_mounted
     @setState(@_getStateFromStores())
 
   _getStateFromStores: =>
     rootModes = WorkspaceStore.rootSheet().supportedModes
     rootVisible = WorkspaceStore.rootSheet() is WorkspaceStore.topSheet()
 
-    mode: WorkspaceStore.layoutMode()
+    mode: WorkspaceStore.preferredLayoutMode()
     visible: rootVisible and rootModes and rootModes.length > 1
 
   _onToggleMode: =>
     if @state.mode is 'list'
-      Actions.selectLayoutMode('split')
+      atom.config.set('core.workspace.mode', 'split')
     else
-      Actions.selectLayoutMode('list')
+      atom.config.set('core.workspace.mode', 'list')
+    return
 
 
 module.exports = ModeToggle

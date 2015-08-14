@@ -21,6 +21,12 @@ UnreadCountStore = Reflux.createStore
     @listenTo NamespaceStore, @_onNamespaceChanged
     @listenTo DatabaseStore, @_onDataChanged
 
+    atom.config.observe 'core.showUnreadBadge', (val) =>
+      if val is true
+        @_updateBadgeForCount()
+      else
+        @_setBadge("")
+
     @_count = null
     _.defer => @_fetchCount()
 
@@ -70,6 +76,7 @@ UnreadCountStore = Reflux.createStore
 
   _updateBadgeForCount: (count) ->
     return unless atom.isMainWindow()
+    return if atom.config.get('core.showUnreadBadge') is false
     if count > 999
       @_setBadge("999+")
     else if count > 0

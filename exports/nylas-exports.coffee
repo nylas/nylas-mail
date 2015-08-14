@@ -7,6 +7,7 @@ Utils = require '../src/flux/models/utils'
 Exports =
 
   React: require 'react'
+  ReactRemote: require '../src/react-remote/react-remote-parent'
   BufferedProcess: require '../src/buffered-process'
   BufferedNodeProcess: require '../src/buffered-node-process'
 
@@ -89,6 +90,8 @@ Exports =
   # Services
   QuotedPlainTextParser: require '../src/services/quoted-plain-text-parser'
   QuotedHTMLParser: require '../src/services/quoted-html-parser'
+
+  LaunchServices: require '../src/launch-services'
 
 # Also include all of the model classes
 for key, klass of Utils.modelClassMap()

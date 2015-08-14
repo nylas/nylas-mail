@@ -3,6 +3,9 @@
     label: 'Nylas'
     submenu: [
       { label: 'About Nylas', command: 'application:about' }
+      { type: 'separator' }
+      { label: 'Preferences', command: 'application:open-preferences' }
+      { type: 'separator' }
       { label: 'Link External Account', command: 'atom-workspace:add-account' }
       { label: 'Log Out', command: 'application:logout' }
       { label: 'VERSION', enabled: false }

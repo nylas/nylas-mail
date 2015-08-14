@@ -1,0 +1,25 @@
+# Email-specific core key-mappings
+#
+# There are additional mappings in <platform>.cson files that bind
+# menu items. In the future, we should break these into files like:
+# darwin-gmail.cson, darwin-macmail.cson, win32-gmail.cson...
+
+'body':
+  'c'        : 'application:new-message' # Gmail
+  '/'        : 'application:focus-search' # Gmail
+
+  'r'        : 'application:reply' # Gmail
+  'R'        : 'application:reply-all' # Nylas Mail
+  'a'        : 'application:reply-all' # Gmail
+  'f'        : 'application:forward' # Gmail
+  'l'        : 'application:change-category' # Gmail
+  'u'        : 'application:pop-sheet' # Gmail
+  'delete'   : 'application:pop-sheet'
+
+  'k'        : 'core:previous-item' # Gmail
+  'j'        : 'core:next-item' # Gmail
+  ']'        : 'core:remove-and-previous' # Gmail
+  '['        : 'core:remove-and-next' # Gmail
+  'e'        : 'core:remove-item' # Gmail
+  's'        : 'core:star-item' #Gmail
+  'x'        : 'core:select-item'

@@ -5,19 +5,29 @@ CSON = require 'season'
 {jQuery} = require 'space-pen'
 Grim = require 'grim'
 
-bundledKeymaps = require('../package.json')?._atomKeymaps
-
 KeymapManager::onDidLoadBundledKeymaps = (callback) ->
   @emitter.on 'did-load-bundled-keymaps', callback
 
 KeymapManager::loadBundledKeymaps = ->
-  keymapsPath = path.join(@resourcePath, 'keymaps')
-  if bundledKeymaps?
-    for keymapName, keymap of bundledKeymaps
-      keymapPath = path.join(keymapsPath, keymapName)
-      @add(keymapPath, keymap)
-  else
-    @loadKeymap(keymapsPath)
+  # Load the base keymap and the base.platform keymap
+  baseKeymap = path.join(@resourcePath, 'keymaps', 'base.cson')
+  basePlatformKeymap = path.join(@resourcePath, 'keymaps', "base.#{process.platform}.cson")
+  @loadKeymap(baseKeymap)
+  @loadKeymap(basePlatformKeymap)
+
+  # Load the template keymap (Gmail, Mail.app, etc.) the user has chosen
+  templateConfigKey = 'core.keymapTemplate'
+  templateKeymapPath = null
+  reloadTemplateKeymap = =>
+    @removeBindingsFromSource(templateKeymapPath) if templateKeymapPath
+    templateFile = atom.config.get(templateConfigKey)
+    if templateFile
+      templateKeymapPath = path.join(@resourcePath, 'keymaps', 'templates', templateFile)
+      @loadKeymap(templateKeymapPath)
+      @emitter.emit('did-reload-keymap', {path: templateKeymapPath})
+
+  atom.config.observe(templateConfigKey, reloadTemplateKeymap)
+  reloadTemplateKeymap()
 
   @emit 'bundled-keymaps-loaded' if Grim.includeDeprecatedAPIs
   @emitter.emit 'did-load-bundled-keymaps'

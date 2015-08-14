@@ -66,6 +66,14 @@ class LaunchServices
           return callback(def.LSHandlerRoleAll is bundleIdentifier)
       callback(false)
 
+  resetURLScheme: (scheme, callback) ->
+    @readDefaults (defaults) =>
+      # Remove anything already registered for the scheme
+      for ii in [defaults.length-1..0] by -1
+        if defaults[ii].LSHandlerURLScheme is scheme
+          defaults.splice(ii, 1)
+      @writeDefaults(defaults, callback)
+
   registerForURLScheme: (scheme, callback) ->
     @readDefaults (defaults) =>
       # Remove anything already registered for the scheme

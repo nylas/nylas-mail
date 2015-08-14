@@ -131,10 +131,10 @@ class Application
     @setDatabasePhase('close')
     @windowManager.closeMainWindow()
     @windowManager.unregisterAllHotWindows()
-    @config.set('nylas', null)
-    @config.set('edgehill', null)
-    fs.unlink(path.join(configDirPath,'edgehill.db'))
-    @setDatabasePhase('setup')
+    fs.unlink path.join(configDirPath,'edgehill.db'), =>
+      @config.set('nylas', null)
+      @config.set('edgehill', null)
+      @setDatabasePhase('setup')
 
   databasePhase: ->
     @_databasePhase
@@ -202,6 +202,7 @@ class Application
       atomWindow?.browserWindow.inspectElement(x, y)
 
     @on 'application:send-feedback', => @windowManager.sendToMainWindow('send-feedback')
+    @on 'application:open-preferences', => @windowManager.sendToMainWindow('open-preferences')
     @on 'application:show-main-window', => @windowManager.ensurePrimaryWindowOnscreen()
     @on 'application:check-for-update', => @autoUpdateManager.check()
     @on 'application:install-update', =>
@@ -269,6 +270,9 @@ class Application
 
     ipc.on 'unregister-hot-window', (event, windowType) =>
       @windowManager.unregisterHotWindow(windowType)
+
+    ipc.on 'from-react-remote-window', (event, json) =>
+      @windowManager.sendToMainWindow('from-react-remote-window', json)
 
     app.on 'activate-with-no-open-windows', (event) =>
       @windowManager.ensurePrimaryWindowOnscreen()

@@ -2,14 +2,6 @@
 # to be listed in this file.
 
 'body':
-  # Mac email-specific menu items
-  'cmd-n' : 'application:new-message' # Mac mail
-  'cmd-r' : 'application:reply' # Mac mail
-  'cmd-R' : 'application:reply-all' # Mac mail
-  'cmd-F' : 'application:forward' # Mac mail
-  'cmd-alt-f': 'application:focus-search' # Mac mail
-  'cmd-D': 'application:send-message' # Mac mail
-
   # Mac application keys
   'cmd-q': 'application:quit'
   'cmd-h': 'application:hide'

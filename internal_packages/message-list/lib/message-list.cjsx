@@ -264,13 +264,16 @@ class MessageList extends React.Component
       </div>
     </div>
 
-  # Either returns "reply" or "reply-all"
+  # Returns either "reply" or "reply-all"
   _replyType: =>
+    defaultReplyType = atom.config.get('core.sending.defaultReplyType')
     lastMsg = _.last(_.filter((@state.messages ? []), (m) -> not m.draft))
-    if lastMsg?.cc.length is 0 and lastMsg?.to.length is 1
-      return "reply"
+    return 'reply' unless lastMsg
+
+    if lastMsg.canReplyAll() and defaultReplyType is 'reply-all'
+      return 'reply-all'
     else
-      return "reply-all"
+      return 'reply'
 
   _onRemoveLabel: (label) =>
     task = new ChangeLabelsTask(thread: @state.currentThread, labelsToRemove: [label])

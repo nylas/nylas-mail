@@ -1,5 +1,4 @@
-{Actions} = require 'nylas-exports'
-LaunchServices = require './launch-services'
+{Actions, LaunchServices} = require 'nylas-exports'
 
 NOTIF_ACTION_YES = 'mailto:set-default-yes'
 NOTIF_ACTION_NO = 'mailto:set-default-no'
