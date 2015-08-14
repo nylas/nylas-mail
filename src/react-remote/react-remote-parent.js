@@ -208,13 +208,16 @@ var openWindowForComponent = function(Component, options) {
     slashes: true
   });
   var thinWindow = new BrowserWindow({
-    frame: false,
+    frame: process.platform !== 'darwin',
     width: options.width || 800,
     height: options.height || 600,
     resizable: options.resizable,
     show: false
   });
   thinWindow.loadUrl(thinWindowUrl);
+  if (process.platform !== 'darwin') {
+    thinWindow.setMenu(null);
+  }
 
   // Add a container to our local document to hold the root component of the window
   var container = document.createElement('div');

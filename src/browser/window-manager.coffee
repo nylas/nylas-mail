@@ -212,7 +212,7 @@ class WindowManager
     destroyedLoadingWindow = false
     {loadedWindows} = @_hotWindows[windowType]
     for win in loadedWindows
-      destroyedLoadingWindow = true if not win.loaded
+      destroyedLoadingWindow = true if not win.isLoaded()
       win.browserWindow.destroy()
 
     # Delete the hot window configuration
@@ -408,7 +408,7 @@ class WindowManager
     if process.platform in ['win32', 'linux']
       @quitCheck ?= _.debounce =>
         noVisibleWindows = @visibleWindows().length is 0
-        mainWindowLoading = @mainWindow and not @mainWindow.loaded
+        mainWindowLoading = @mainWindow() and not @mainWindow().isLoaded()
         if noVisibleWindows and not mainWindowLoading
           app.quit()
       , 10000

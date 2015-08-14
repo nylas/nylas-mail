@@ -11,7 +11,7 @@ class PreferencesHeader extends React.Component
     activeTab: React.PropTypes.object
 
   render: =>
-    <Flexbox className="preference-header" direction="row" style={alignItems: "center"}>
+    <div className="preference-header">
       { @props.tabs.map (tab) =>
         classname = "preference-header-item"
         classname += " active" if tab is @props.activeTab
@@ -27,8 +27,7 @@ class PreferencesHeader extends React.Component
           </div>
         </div>
       }
-      <div key="space" className="preference-header-item-spacer"></div>
-    </Flexbox>
+    </div>
 
 
 module.exports = PreferencesHeader
