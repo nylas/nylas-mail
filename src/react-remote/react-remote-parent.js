@@ -196,7 +196,7 @@ var openWindowForComponent = function(Component, options) {
     if (!styleNode.sourcePath) {
       continue;
     }
-    if ((styleNode.sourcePath.indexOf("static/index") > 0) || (options.stylesheetRegex && options.stylesheetRegex.test(styleNode.sourcePath))) {
+    if ((styleNode.sourcePath.indexOf('index') > 0) || (options.stylesheetRegex && options.stylesheetRegex.test(styleNode.sourcePath))) {
       thinStyles = thinStyles + styleNode.innerText;
     }
   }
