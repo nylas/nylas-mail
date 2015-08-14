@@ -1,0 +1,16 @@
+{
+  "name": "preferences",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Nylas Preferences Window Component",
+  "license": "Proprietary",
+  "private": true,
+  "engines": {
+    "atom": "*"
+  },
+  "dependencies": {
+  },
+  "windowTypes": {
+    "preferences": true
+  }
+}

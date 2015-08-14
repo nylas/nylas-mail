@@ -1,0 +1,34 @@
+# Note: For a menu item to have a keyboard equiavalent, it needs
+# to be listed in this file.
+
+'body.platform-darwin':
+  # Windows email-specific menu items
+  'cmd-shift-v': 'application:change-category' # Outlook
+  'F3':           'application:focus-search'
+  'cmd-e':       'application:focus-search'
+  'cmd-f':       'application:forward'
+  'cmd-shift-v': 'application:change-category'
+  'cmd-d':       'core:remove-item'
+  'alt-backspace':'core:undo'
+  'alt-s':        'application:send-message'
+  'cmd-r':       'application:reply'
+  'cmd-shift-r': 'application:reply-all'
+  'cmd-n' :      'application:new-message'
+  'cmd-shift-m': 'application:new-message'
+  'cmd-enter':   'send'
+
+'body.platform-linux, body.platform-win32':
+  # Windows email-specific menu items
+  'ctrl-shift-v': 'application:change-category' # Outlook
+  'F3':           'application:focus-search'
+  'ctrl-e':       'application:focus-search'
+  'ctrl-f':       'application:forward'
+  'ctrl-shift-v': 'application:change-category'
+  'ctrl-d':       'core:remove-item'
+  'alt-backspace':'core:undo'
+  'alt-s':        'application:send-message'
+  'ctrl-r':       'application:reply'
+  'ctrl-shift-r': 'application:reply-all'
+  'ctrl-n' :      'application:new-message'
+  'ctrl-shift-m': 'application:new-message'
+  'ctrl-enter':   'send'

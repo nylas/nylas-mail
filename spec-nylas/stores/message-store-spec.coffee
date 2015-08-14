@@ -44,6 +44,9 @@ describe "MessageStore", ->
         FocusedContentStore.trigger({impactsCollection: -> true})
         testThread.unread = true
         spyOn(Actions, 'queueTask')
+        spyOn(atom.config, 'get').andCallFake (key) =>
+          if key is 'core.reading.markAsReadDelay'
+            return 600
 
       it "should queue a task to mark the thread as read", ->
         @focus = testThread

@@ -160,7 +160,6 @@ class Atom extends Model
     @setupErrorHandling()
 
     @unsubscribe()
-    @setBodyPlatformClass()
 
     @loadTime = null
 
@@ -175,7 +174,10 @@ class Atom extends Model
     MenuManager = require './menu-manager'
     configDirPath = @getConfigDirPath()
 
-    {devMode, safeMode, resourcePath} = @getLoadSettings()
+    {devMode, safeMode, resourcePath, windowType} = @getLoadSettings()
+
+    document.body.classList.add("platform-#{process.platform}")
+    document.body.classList.add("window-type-#{windowType}")
 
     # Add 'exports' to module search path.
     exportsPath = path.join(resourcePath, 'exports')
@@ -643,16 +645,14 @@ class Atom extends Model
 
     @keymaps.loadBundledKeymaps()
     @themes.loadBaseStylesheets()
-    @keymaps.loadUserKeymap()
 
     @packages.loadPackages(windowType)
     @packages.loadPackage(pack) for pack in (windowPackages ? [])
     @deserializeSheetContainer()
     @packages.activate()
+    @keymaps.loadUserKeymap()
 
     ipc.on("load-settings-changed", @loadSettingsChanged)
-
-    @keymaps.loadUserKeymap()
 
     @setWindowDimensions({width, height}) if width and height
 
@@ -865,9 +865,6 @@ class Atom extends Model
 
   updateAvailable: (details) ->
     @emitter.emit 'update-available', details
-
-  setBodyPlatformClass: ->
-    document.body.classList.add("platform-#{process.platform}")
 
   setAutoHideMenuBar: (autoHide) ->
     ipc.send('call-window-method', 'setAutoHideMenuBar', autoHide)

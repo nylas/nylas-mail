@@ -6,6 +6,12 @@ _ = require 'underscore'
  NamespaceStore} = require 'nylas-exports'
 
 module.exports =
+
+  config:
+    enabled:
+      type: 'boolean'
+      default: true
+
   activate: ->
     @unlisteners = []
     @unlisteners.push Actions.didPassivelyReceiveNewModels.listen(@_onNewMailReceived, @)
@@ -51,6 +57,8 @@ module.exports =
 
   _onNewMailReceived: (incoming) ->
     new Promise (resolve, reject) =>
+      return resolve() if atom.config.get('unread-notifications.enabled') is false
+
       incomingMessages = incoming['message'] ? []
       incomingThreads = incoming['thread'] ? []
 

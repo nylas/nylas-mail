@@ -21,7 +21,7 @@ fs =
   unlink: (path, callback) ->
     callback(null) if callback
 
-LaunchServices = proxyquire "../lib/launch-services",
+LaunchServices = proxyquire "../src/launch-services",
   "child_process": ChildProcess
   "fs": fs
 

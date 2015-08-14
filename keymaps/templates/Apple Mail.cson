@@ -1,0 +1,22 @@
+# Note: For a menu item to have a keyboard equiavalent, it needs
+# to be listed in this file.
+
+'body.platform-darwin':
+  'cmd-n' : 'application:new-message'
+  'cmd-r' : 'application:reply'
+  'cmd-R' : 'application:reply-all'
+  'cmd-F' : 'application:forward'
+  'cmd-alt-f': 'application:focus-search'
+  'cmd-D': 'application:send-message'
+  'cmd-V': 'application:change-category'
+  'delete'   : 'core:remove-item'
+
+'body.platform-linux, body.platform-win32':
+  'ctrl-n' : 'application:new-message'
+  'ctrl-r' : 'application:reply'
+  'ctrl-R' : 'application:reply-all'
+  'ctrl-F' : 'application:forward'
+  'ctrl-alt-f': 'application:focus-search'
+  'ctrl-D': 'application:send-message'
+  'ctrl-shift-v': 'application:change-category'
+  'delete'   : 'core:remove-item'

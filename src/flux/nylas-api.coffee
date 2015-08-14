@@ -100,7 +100,7 @@ class NylasAPI
       @APIRoot = 'https://api-staging.nylas.com'
     else if env in ['experimental']
       @AppID = 'c5dis00do2vki9ib6hngrjs18'
-      @APIRoot = 'https://api-experimental.nylas.com'
+      @APIRoot = 'https://api-staging-experimental.nylas.com'
     else if env in ['local']
       @AppID = 'n/a'
       @APIRoot = 'http://localhost:5555'

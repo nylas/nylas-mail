@@ -3,12 +3,6 @@
 
 # Linux email-specific menu items
 'body':
-  'ctrl-n': 'application:new-message' # Outlook
-  'ctrl-r': 'application:reply' # Outlook
-  'ctrl-R': 'application:reply-all' # Outlook
-  'ctrl-F': 'application:forward' # Outlook
-  'ctrl-shift-v': 'application:change-category' # Outlook
-
   # Linux application keys
   'ctrl-q': 'application:quit'
 

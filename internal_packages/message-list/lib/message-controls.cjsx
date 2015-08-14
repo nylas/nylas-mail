@@ -12,27 +12,39 @@ class MessageControls extends React.Component
   constructor: (@props) ->
 
   render: =>
+    items = @_items()
+
     <div className="message-actions-wrap">
       <ButtonDropdown
-        primaryItem={<RetinaImg name="ic-message-button-reply.png" mode={RetinaImg.Mode.ContentIsMask}/>}
-        primaryClick={@_onReply}
-        menu={@_dropdownMenu()}/>
+        primaryItem={<RetinaImg name={items[0].image} mode={RetinaImg.Mode.ContentIsMask}/>}
+        primaryClick={items[0].select}
+        menu={@_dropdownMenu(items[1..-1])}/>
       <div className="message-actions-ellipsis" onClick={@_onShowActionsMenu}>
         <RetinaImg name={"message-actions-ellipsis.png"} mode={RetinaImg.Mode.ContentIsMask}/>
       </div>
     </div>
 
-  _dropdownMenu: ->
-    items = [{
+  _items: ->
+    reply =
+      name: 'Reply',
+      image: 'ic-dropdown-reply.png'
+      select: @_onReply
+    replyAll =
       name: 'Reply All',
       image: 'ic-dropdown-replyall.png'
       select: @_onReplyAll
-    },{
+    forward =
       name: 'Forward',
       image: 'ic-dropdown-forward.png'
       select: @_onForward
-    }]
 
+    defaultReplyType = atom.config.get('core.sending.defaultReplyType')
+    if @props.message.canReplyAll() and defaultReplyType is 'reply-all'
+      return [replyAll, reply, forward]
+    else
+      return [reply, replyAll, forward]
+
+  _dropdownMenu: (items) ->
     itemContent = (item) ->
       <span>
         <RetinaImg name={item.image} mode={RetinaImg.Mode.ContentIsMask}/>

@@ -27,13 +27,18 @@ class WorkspaceStore
     @_resetInstanceVars()
 
     @listenTo Actions.selectRootSheet, @_onSelectRootSheet
-    @listenTo Actions.selectLayoutMode, @_onSelectLayoutMode
     @listenTo Actions.setFocus, @_onSetFocus
 
     @listenTo Actions.toggleWorkspaceLocationHidden, @_onToggleLocationHidden
 
     @listenTo Actions.popSheet, @popSheet
     @listenTo Actions.searchQueryCommitted, @popToRootSheet
+
+    @_preferredLayoutMode = atom.config.get('core.workspace.mode')
+    atom.config.observe 'core.workspace.mode', (mode) =>
+      return if mode is @_preferredLayoutMode
+      @_preferredLayoutMode = mode
+      @trigger()
 
     atom.commands.add 'body',
       'application:pop-sheet': => @popSheet()
@@ -42,7 +47,6 @@ class WorkspaceStore
     @Location = Location = {}
     @Sheet = Sheet = {}
 
-    @_preferredLayoutMode = 'list'
     @_hiddenLocations = {}
     @_sheetStack = []
 
@@ -68,10 +72,6 @@ class WorkspaceStore
 
     @_sheetStack = []
     @_sheetStack.push(sheet)
-    @trigger(@)
-
-  _onSelectLayoutMode: (mode) =>
-    @_preferredLayoutMode = mode
     @trigger(@)
 
   _onToggleLocationHidden: (location) =>
@@ -113,6 +113,9 @@ class WorkspaceStore
       @_preferredLayoutMode
     else
       root.supportedModes[0]
+
+  preferredLayoutMode: =>
+    @_preferredLayoutMode
 
   # Public: Returns The top {Sheet} in the current stack. Use this method to determine
   # the sheet the user is looking at.

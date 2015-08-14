@@ -173,19 +173,19 @@ class MessageStore extends NylasStore
         # and once when ready. Many third-party stores will observe
         # MessageStore and they'll be stupid and re-render constantly.
         if loaded
-          # Mark the thread as read if necessary. Wait 700msec so that flipping
-          # through threads doens't mark them all. Make sure it's still the
+          # Mark the thread as read if necessary. Make sure it's still the
           # current thread after the timeout.
 
           # Override canBeUndone to return false so that we don't see undo prompts
           # (since this is a passive action vs. a user-triggered action.)
           if @_thread.unread
+            markAsReadDelay = atom.config.get('core.reading.markAsReadDelay')
             setTimeout =>
               return unless loadedThreadId is @_thread?.id
               t = new ChangeUnreadTask(thread: @_thread, unread: false)
               t.canBeUndone = => false
               Actions.queueTask(t)
-            ,700
+            , markAsReadDelay
 
           @_itemsLoading = false
           @trigger(@)
@@ -200,6 +200,7 @@ class MessageStore extends NylasStore
     startedAFetch
 
   _fetchExpandedAttachments: (items) ->
+    return unless atom.config.get('core.attachments.downloadPolicy') is 'on-read'
     for item in items
       continue unless @_itemsExpanded[item.id]
       for file in item.files

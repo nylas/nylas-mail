@@ -137,6 +137,13 @@ class Actions
   @showDeveloperConsole: ActionScopeWindow
 
   ###
+  Public: Register a preferences tab, usually applied in Preferences window
+
+  *Scope: Window*
+  ###
+  @registerPreferencesTab: ActionScopeWindow
+
+  ###
   Public: Clear the developer console for the current window.
 
   *Scope: Window*
@@ -165,17 +172,6 @@ class Actions
   @selectRootSheet: ActionScopeWindow
 
   ###
-  Public: Select the desired layout mode.
-
-  *Scope: Window*
-
-  ```
-  Actions.selectLayoutMode('list')
-  ```
-  ###
-  @selectLayoutMode: ActionScopeWindow
-
-  ###
   Public: Toggle whether a particular column is visible. Call this action
   with one of the Sheet location constants:
 
@@ -193,7 +189,7 @@ class Actions
   *Scope: Window*
 
   ```
-  Actions.selectLayoutMode(collection: 'thread', item: <Thread>)
+  Actions.setCursorPosition(collection: 'thread', item: <Thread>)
   ```
   ###
   @setCursorPosition: ActionScopeWindow

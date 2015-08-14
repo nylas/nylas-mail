@@ -5,33 +5,12 @@
 # darwin-gmail.cson, darwin-macmail.cson, win32-gmail.cson...
 
 'body':
-  'c'        : 'application:new-message' # Gmail
-  '/'        : 'application:focus-search' # Gmail
-  'cmd-alt-f': 'application:focus-search'
-
-  'r'     : 'application:reply' # Gmail
-  'R'     : 'application:reply-all' # Nylas Mail
-  'a'     : 'application:reply-all' # Gmail
-  'f'     : 'application:forward' # Gmail
-  'l'     : 'application:change-category' # Gmail
-
-  'escape': 'application:pop-sheet'
-  'u'     : 'application:pop-sheet' # Gmail
-
-  'k'        : 'core:previous-item' # Gmail
-  'up'       : 'core:previous-item' # Mac mail
-  'j'        : 'core:next-item' # Gmail
-  'down'     : 'core:next-item' # Mac mail
-  ']'        : 'core:remove-and-previous' # Gmail
-  '['        : 'core:remove-and-next' # Gmail
-  'e'        : 'core:remove-item' # Gmail
-  's'        : 'core:star-item' #Gmail
-  'cmd-L'    : 'core:star-item' # Mac mail
-  'ctrl-G'   : 'core:star-item' # Outlook
-  'delete'   : 'core:remove-item' # Mac mail
-  'backspace': 'core:remove-item' # Outlook
+  'escape'   : 'application:pop-sheet'
+  'cmd-,'    : 'application:open-preferences'
+  'up'       : 'core:previous-item'
+  'down'     : 'core:next-item'
+  'backspace': 'core:remove-item'
   'enter'    : 'core:focus-item'
-  'x'        : 'core:select-item'
 
   # Default cross-platform core behaviors
   'left': 'core:move-left'
@@ -213,5 +192,3 @@
   # it.
   'tab': 'native!'
   'shift-tab': 'native!'
-
-# Tokenizing Text fields

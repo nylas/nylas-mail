@@ -104,10 +104,8 @@ class AtomWindow
       if @browserWindow.loadSettingsChangedSinceGetURL
         @browserWindow.webContents.send('load-settings-changed', @browserWindow.loadSettings)
 
-    @browserWindow.loadUrl @getUrl(loadSettings)
+    @browserWindow.loadUrl(@getUrl(loadSettings))
     @browserWindow.focusOnWebView() if @isSpec
-
-    @openPath(pathToOpen) unless @isSpecWindow()
 
   loadSettings: -> @browserWindow.loadSettings
 
@@ -198,9 +196,6 @@ class AtomWindow
       # Spec window's web view should always have focus
       @browserWindow.on 'blur', =>
         @browserWindow.focusOnWebView() unless @isWindowClosing
-
-  openPath: (pathToOpen) ->
-    @sendMessage 'open-path', pathToOpen
 
   sendMessage: (message, detail) ->
     if @loaded

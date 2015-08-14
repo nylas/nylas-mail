@@ -113,6 +113,7 @@ FileDownloadStore = Reflux.createStore
     @listenTo Actions.fetchAndOpenFile, @_fetchAndOpen
     @listenTo Actions.fetchAndSaveFile, @_fetchAndSave
     @listenTo Actions.abortFetchFile, @_abortFetchFile
+    @listenTo Actions.didPassivelyReceiveNewModels, @_newMailReceived
 
     @_downloads = {}
     @_downloadDirectory = "#{atom.getConfigDirPath()}/downloads"
@@ -141,6 +142,12 @@ FileDownloadStore = Reflux.createStore
     return downloadData
 
   ########### PRIVATE ####################################################
+
+  _newMailReceived: (incoming) =>
+    return unless atom.config.get('core.attachments.downloadPolicy') is 'on-receive'
+    for message in incoming
+      for file in message.files
+        @_fetch(file)
 
   # Returns a promise with a Download object, allowing other actions to be
   # daisy-chained to the end of the download operation.
