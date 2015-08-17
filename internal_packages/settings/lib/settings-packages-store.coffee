@@ -65,21 +65,19 @@ SettingsPackagesStore = Reflux.createStore
       unless atom.packages.isPackageDisabled(pkg.name)
         atom.packages.disablePackage(pkg.name)
 
-    atom.packages.onDidActivatePackage(=> @_onPackagesChangedDebounced())
-    atom.packages.onDidDeactivatePackage(=> @_onPackagesChangedDebounced())
-    atom.packages.onDidLoadPackage(=> @_onPackagesChangedDebounced())
-    atom.packages.onDidUnloadPackage(=> @_onPackagesChangedDebounced())
-    @_onPackagesChanged()
+    @_hasPrepared = false
 
   # Getters
 
   installed: ->
+    @_prepareIfFresh()
     @_addPackageStates(@_filter(@_installed, @_installedSearch))
 
   installedSearchValue: ->
     @_installedSearch
 
   featured: ->
+    @_prepareIfFresh()
     @_addPackageStates(@_featured)
 
   searchResults: ->
@@ -89,6 +87,15 @@ SettingsPackagesStore = Reflux.createStore
     @_globalSearch
 
   # Action Handlers
+
+  _prepareIfFresh: ->
+    return if @_hasPrepared
+    atom.packages.onDidActivatePackage(=> @_onPackagesChangedDebounced())
+    atom.packages.onDidDeactivatePackage(=> @_onPackagesChangedDebounced())
+    atom.packages.onDidLoadPackage(=> @_onPackagesChangedDebounced())
+    atom.packages.onDidUnloadPackage(=> @_onPackagesChangedDebounced())
+    @_onPackagesChanged()
+    @_hasPrepared = true
 
   _filter: (hash, search) ->
     result = {}
