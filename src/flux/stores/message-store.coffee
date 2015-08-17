@@ -53,6 +53,8 @@ class MessageStore extends NylasStore
   #
   registerExtension: (ext) =>
     @_extensions.push(ext)
+    MessageBodyProcessor = require './message-body-processor'
+    MessageBodyProcessor.resetCache()
 
   # Public: Unregisters the extension provided from the MessageStore.
   #
@@ -60,6 +62,8 @@ class MessageStore extends NylasStore
   #
   unregisterExtension: (ext) =>
     @_extensions = _.without(@_extensions, ext)
+    MessageBodyProcessor = require './message-body-processor'
+    MessageBodyProcessor.resetCache()
 
 
   ########### PRIVATE ####################################################
@@ -84,18 +88,23 @@ class MessageStore extends NylasStore
     if change.objectClass is Message.name
       inDisplayedThread = _.some change.objects, (obj) => obj.threadId is @_thread.id
       if inDisplayedThread
-        @_fetchFromCache()
 
         # Are we most likely adding a new draft? If the item is a draft and we don't
         # have it's local Id, optimistically add it to the set, resort, and trigger.
         # Note: this can avoid 100msec+ of delay from "Reply" => composer onscreen,
         item = change.objects[0]
-        if change.objects.length is 1 and item.draft is true and @_itemsLocalIds[item.id] is null
+        itemAlreadyExists = _.some @_items, (msg) -> msg.id is item.id
+        if change.objects.length is 1 and item.draft is true and not itemAlreadyExists
           DatabaseStore.localIdForModel(item).then (localId) =>
             @_itemsLocalIds[item.id] = localId
-            @_items.push(item)
+            # We need to create a new copy of the items array so that the message-list
+            # can compare new state to previous state.
+            @_items = [].concat(@_items, [item])
             @_items = @_sortItemsForDisplay(@_items)
+            @_expandItemsToDefault()
             @trigger()
+        else
+          @_fetchFromCache()
 
     if change.objectClass is Thread.name
       updatedThread = _.find change.objects, (obj) => obj.id is @_thread.id

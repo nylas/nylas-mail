@@ -35,7 +35,7 @@ class DestroyDraftTask extends Task
     # when we performed locally, or if the draft has never been synced to
     # the server (id is still self-assigned)
     return Promise.resolve(Task.Status.Finished) unless @draft
-    return Promise.resolve(Task.Status.Finished) unless @draft.isSaved()
+    return Promise.resolve(Task.Status.Finished) unless @draft.isSaved() and @draft.version
 
     NylasAPI.makeRequest
       path: "/n/#{@draft.namespaceId}/drafts/#{@draft.id}"

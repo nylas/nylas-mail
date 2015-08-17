@@ -196,7 +196,7 @@ class DatabaseStore extends NylasStore
           console.error("DatabaseStore: Query #{query}, #{JSON.stringify(values)} failed #{err.toString()}")
         else
           duration = Date.now() - start
-          metadata = {duration: duration, resultLength: result?.length}
+          metadata = {duration: duration, resultLength: results?.length}
           console.debug(DEBUG_TO_LOG, "DatabaseStore: END (#{duration}) #{query}", metadata)
 
         if query is COMMIT

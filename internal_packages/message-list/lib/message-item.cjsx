@@ -10,6 +10,7 @@ MessageControls = require './message-controls'
  MessageUtils,
  NamespaceStore,
  MessageStore,
+ MessageBodyProcessor,
  QuotedHTMLParser,
  ComponentRegistry,
  FileDownloadStore} = require 'nylas-exports'
@@ -18,7 +19,6 @@ MessageControls = require './message-controls'
  InjectedComponent} = require 'nylas-component-kit'
 
 TransparentPixel = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNikAQAACIAHF/uBd8AAAAASUVORK5CYII="
-MessageBodyWidth = 740
 
 class MessageItem extends React.Component
   @displayName = 'MessageItem'
@@ -79,9 +79,7 @@ class MessageItem extends React.Component
       <div className="message-item-white-wrap">
         <div className="message-item-area">
           {@_renderHeader()}
-          <EmailFrame showQuotedText={@state.showQuotedText}>
-            {@_formatBody()}
-          </EmailFrame>
+          <EmailFrame showQuotedText={@state.showQuotedText} content={@_formatBody()}/>
           <a className={@_quotedTextClasses()} onClick={@_toggleQuotedText}></a>
           {@_renderEvents()}
           {@_renderAttachments()}
@@ -206,33 +204,8 @@ class MessageItem extends React.Component
   _formatBody: =>
     return "" unless @props.message and @props.message.body
 
-    # Give each extension the message object to process the body, but don't
-    # allow them to modify anything but the body for the time being.
-    body = @props.message.body
-    for extension in MessageStore.extensions()
-      continue unless extension.formatMessageBody
-      virtual = @props.message.clone()
-      virtual.body = body
-      extension.formatMessageBody(virtual)
-      body = virtual.body
-
-    # Find inline images and give them a calculated CSS height based on
-    # html width and height, when available. This means nothing changes size
-    # as the image is loaded, and we can estimate final height correctly.
-    # Note that MessageBodyWidth must be updated if the UI is changed!
-
-    while (result = MessageUtils.cidRegex.exec(body)) isnt null
-      imgstart = body.lastIndexOf('<', result.index)
-      imgend = body.indexOf('/>', result.index)
-
-      if imgstart != -1 and imgend > imgstart
-        imgtag = body.substr(imgstart, imgend - imgstart)
-        width = imgtag.match(/width[ ]?=[ ]?['"]?(\d*)['"]?/)?[1]
-        height = imgtag.match(/height[ ]?=[ ]?['"]?(\d*)['"]?/)?[1]
-        if width and height
-          scale = Math.min(1, MessageBodyWidth / width)
-          style = " style=\"height:#{height * scale}px;\" "
-          body = body.substr(0, imgend) + style + body.substr(imgend)
+    # Runs extensions, potentially asynchronous soon
+    body = MessageBodyProcessor.process(@props.message.id, @props.message)
 
     # Replace cid:// references with the paths to downloaded files
     for file in @props.message.files

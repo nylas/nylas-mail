@@ -6,6 +6,9 @@ _ = require "underscore"
 class EmailFrame extends React.Component
   @displayName = 'EmailFrame'
 
+  @propTypes:
+    content: React.PropTypes.string.isRequired
+
   render: =>
     <EventedIFrame ref="iframe" seamless="seamless" />
 
@@ -57,13 +60,11 @@ class EmailFrame extends React.Component
         @_setFrameHeight()
 
   _emailContent: =>
-    email = @props.children
-
     # When showing quoted text, always return the pure content
     if @props.showQuotedText
-      email
+      @props.content
     else
-      QuotedHTMLParser.hideQuotedHTML(email)
+      QuotedHTMLParser.hideQuotedHTML(@props.content)
 
 
 module.exports = EmailFrame
