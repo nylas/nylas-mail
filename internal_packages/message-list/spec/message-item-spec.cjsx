@@ -8,7 +8,8 @@ ReactTestUtils = React.addons.TestUtils
  Thread,
  Utils,
  QuotedHTMLParser,
- FileDownloadStore} = require "nylas-exports"
+ FileDownloadStore,
+ MessageBodyProcessor} = require "nylas-exports"
 
 EmailFrameStub = React.createClass({render: -> <div></div>})
 
@@ -96,6 +97,8 @@ describe "MessageItem", ->
       return null
     spyOn(FileDownloadStore, 'downloadDataForFiles').andCallFake (ids) ->
       return {'file_1_id': download, 'file_inline_downloading_id': download_inline}
+
+    spyOn(MessageBodyProcessor, 'addToCache').andCallFake ->
 
     @message = new Message
       id: "111"

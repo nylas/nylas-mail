@@ -13,7 +13,7 @@ class ThreadListQuickActions extends React.Component
   @displayName: 'ThreadListQuickActions'
   @propTypes:
     thread: React.PropTypes.object
-    categoryId: React.PropTypes.integer
+    categoryId: React.PropTypes.string
 
   render: =>
     actions = []

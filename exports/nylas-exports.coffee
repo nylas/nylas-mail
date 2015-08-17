@@ -62,6 +62,7 @@ Exports =
   DraftCountStore: require '../src/flux/stores/draft-count-store'
   DraftStoreExtension: require '../src/flux/stores/draft-store-extension'
   MessageStore: require '../src/flux/stores/message-store'
+  MessageBodyProcessor: require '../src/flux/stores/message-body-processor'
   EventStore: require '../src/flux/stores/event-store'
   MessageStoreExtension: require '../src/flux/stores/message-store-extension'
   ContactStore: require '../src/flux/stores/contact-store'

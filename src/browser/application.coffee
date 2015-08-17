@@ -123,6 +123,28 @@ class Application
         # which is why this check is here.
         throw error unless error.code is 'ENOENT'
 
+  # On Windows, removing a file can fail if a process still has it open. When
+  # we close windows and log out, we need to wait for these processes to completely
+  # exit and then delete the file. It's hard to tell when this happens, so we just
+  # retry the deletion a few times.
+  deleteFileWithRetry: (filePath, callback, retries = 5) ->
+    callbackWithRetry = (err) =>
+      if err
+        console.log("File Error: #{err.message} - retrying in 150msec")
+        setTimeout =>
+          @deleteFileWithRetry(filePath, callback, retries - 1)
+        , 150
+      else
+        callback(null)
+
+    if not fs.existsSync(filePath)
+      callback(null)
+
+    if retries > 0
+      fs.unlink(filePath, callbackWithRetry)
+    else
+      fs.unlink(filePath, callback)
+
   # Configures required javascript environment flags.
   setupJavaScriptArguments: ->
     app.commandLine.appendSwitch 'js-flags', '--harmony'
@@ -131,7 +153,7 @@ class Application
     @setDatabasePhase('close')
     @windowManager.closeMainWindow()
     @windowManager.unregisterAllHotWindows()
-    fs.unlink path.join(configDirPath,'edgehill.db'), =>
+    @deleteFileWithRetry path.join(configDirPath,'edgehill.db'), =>
       @config.set('nylas', null)
       @config.set('edgehill', null)
       @setDatabasePhase('setup')
@@ -156,7 +178,7 @@ class Application
       message: 'Upgrading Nylas'
       detail: 'Welcome back to Nylas! We need to rebuild your mailbox to support new features. Please wait a few moments while we re-sync your mail.'
       buttons: ['OK']
-    fs.unlink path.join(configDirPath,'edgehill.db'), (err) =>
+    @deleteFileWithRetry path.join(configDirPath,'edgehill.db'), =>
       @setDatabasePhase('setup')
       @windowManager.showMainWindow()
 
