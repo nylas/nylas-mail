@@ -3,6 +3,7 @@ FocusedCategoryStore = require '../stores/focused-category-store'
 
 ChangeLabelsTask = require './change-labels-task'
 ChangeFolderTask = require './change-folder-task'
+Actions = require '../actions'
 
 NamespaceStore = require '../stores/namespace-store'
 

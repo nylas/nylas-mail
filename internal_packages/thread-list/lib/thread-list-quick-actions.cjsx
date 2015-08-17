@@ -44,11 +44,10 @@ class ThreadListQuickActions extends React.Component
     return false
 
   _onTrash: (event) =>
-    params = {
-        thread: @props.thread,
-        labelsToRemove: [CategoryStore.byId(@props.categoryId)],
-        labelsToAdd: [CategoryStore.getStandardCategory("trash")]
-    }
+    params =
+      thread: @props.thread,
+      labelsToRemove: [CategoryStore.byId(@props.categoryId)],
+      labelsToAdd: [CategoryStore.getStandardCategory("trash")]
     Actions.queueTask(new ChangeLabelsTask(params))
     # Don't trigger the thread row click
     event.stopPropagation()
