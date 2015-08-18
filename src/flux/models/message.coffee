@@ -256,7 +256,7 @@ class Message extends Model
   # address. In the future, this method will take into account all of the
   # user's email addresses and namespaces.
   isFromMe: ->
-    @from[0].email is NamespaceStore.current().emailAddress
+    @from[0]?.isMe()
 
   # Public: Returns a plaintext version of the message body using Chromium's
   # DOMParser. Use with care.

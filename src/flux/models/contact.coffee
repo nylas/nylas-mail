@@ -71,20 +71,26 @@ class Contact extends Model
     json['name'] ||= json['email']
     json
 
+  # Public: Returns true if the contact is the current user, false otherwise.
+  # You should use this method instead of comparing the user's email address to
+  # the namespace email, since it is case-insensitive and future-proof.
+  isMe: ->
+    @email.toLowerCase() is NamespaceStore.current()?.emailAddress.toLowerCase()
+
   # Returns a {String} display name.
   # - "You" if the contact is the current user
   # - `name` if the contact has a populated name value
   # - `email` in all other cases.
   displayName: ->
-    return "You" if @email is NamespaceStore.current()?.emailAddress
+    return "You" if @isMe()
     @_nameParts().join(' ')
 
   displayFirstName: ->
-    return "You" if @email is NamespaceStore.current()?.emailAddress
+    return "You" if @isMe()
     @firstName()
 
   displayLastName: ->
-    return "" if @email is NamespaceStore.current()?.emailAddress
+    return "" if @isMe()
     @lastName()
 
   firstName: ->

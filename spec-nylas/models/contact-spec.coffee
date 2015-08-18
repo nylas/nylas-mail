@@ -81,3 +81,14 @@ describe "Contact", ->
     expect(c1.displayName()).toBe "You"
     expect(c1.displayFirstName()).toBe "You"
     expect(c1.displayLastName()).toBe ""
+
+  describe "isMe", ->
+    it "returns true if the contact name matches the namespace email address", ->
+      c1 = new Contact {email: NamespaceStore.current().emailAddress}
+      expect(c1.isMe()).toBe(true)
+      c1 = new Contact {email: 'ben@nylas.com'}
+      expect(c1.isMe()).toBe(false)
+
+    it "is case insensitive", ->
+      c1 = new Contact {email: NamespaceStore.current().emailAddress.toUpperCase()}
+      expect(c1.isMe()).toBe(true)

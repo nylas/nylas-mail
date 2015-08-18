@@ -1,6 +1,5 @@
 React = require 'react'
 _ = require 'underscore'
-{NamespaceStore} = require 'nylas-exports'
 
 class ThreadListParticipants extends React.Component
   @displayName: 'ThreadListParticipants'
@@ -69,7 +68,7 @@ class ThreadListParticipants extends React.Component
         else # check adjacent email uniqueness
           last = msgs[i - 1][toOrFrom][0]
           curr = msgs[i][toOrFrom][0]
-          isUniqueEmail = last.email isnt curr.email
+          isUniqueEmail = last.email.toLowerCase() isnt curr.email.toLowerCase()
           isUniqueName = last.name isnt curr.name
           isUniqueEmail or isUniqueName
 
@@ -80,8 +79,7 @@ class ThreadListParticipants extends React.Component
 
     if @props.thread.metadata
       shouldOnlyShowRecipients = @props.thread.metadata.every (msg) ->
-        sender = msg.from[0]
-        sender.email is NamespaceStore.current().emailAddress
+        msg.from[0]?.isMe()
       input = @props.thread.metadata
       toOrFrom = if shouldOnlyShowRecipients then "to" else "from"
       filterer = makeMetadataFilterer toOrFrom
@@ -89,8 +87,7 @@ class ThreadListParticipants extends React.Component
     else
       input = @props.thread.participants
       return [] unless input and input instanceof Array
-      currentUserEmail = NamespaceStore.current().emailAddress
-      filterer = (msg) -> msg.email isnt currentUserEmail
+      filterer = (contact) -> not contact.isMe()
       mapper = (contact) -> { contact: contact, unread: false }
 
     list = _.chain(input)
