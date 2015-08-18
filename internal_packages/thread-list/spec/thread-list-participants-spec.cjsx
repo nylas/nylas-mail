@@ -173,6 +173,7 @@ describe "ThreadListParticipants", ->
         @me = NamespaceStore.current().me()
         @ben = new Contact(email: 'ben@nylas.com', name: 'ben')
         @evan = new Contact(email: 'evan@nylas.com', name: 'evan')
+        @evanCapitalized = new Contact(email: 'EVAN@nylas.com', name: 'evan')
         @michael = new Contact(email: 'michael@nylas.com', name: 'michael')
         @kavya = new Contact(email: 'kavya@nylas.com', name: 'kavya')
 
@@ -194,6 +195,13 @@ describe "ThreadListParticipants", ->
                        {contact: @ben, unread: false}]
         expect(actualOut).toEqual expectedOut
 
+      it "is case insensitive", ->
+        input = [new Message(unread: false, from: [@me], to: [@evan])
+                 new Message(unread: false, from: [@me], to: [@evanCapitalized])]
+        actualOut = getParticipants input
+        expectedOut = [{contact: @evan, unread: false}]
+        expect(actualOut).toEqual expectedOut
+
       it "shows only first, spacer, second to last, and last recipients if recipients count > 3", ->
         input = [new Message(unread: false, from: [@me], to: [@ben])
                  new Message(unread: false, from: [@me], to: [@evan])
@@ -213,6 +221,33 @@ describe "ThreadListParticipants", ->
                        {spacer: true}
                        {contact: @michael, unread: false}
                        {contact: @kavya, unread: false}]
+        expect(actualOut).toEqual expectedOut
+
+      it "shows only one recipient if the sender only sent to one recipient", ->
+        input = [new Message(unread: false, from: [@me], to: [@evan])
+                 new Message(unread: false, from: [@me], to: [@evan])
+                 new Message(unread: false, from: [@me], to: [@evan])
+                 new Message(unread: false, from: [@me], to: [@evan])]
+        actualOut = getParticipants input
+        expectedOut = [{contact: @evan, unread: false}]
+        expect(actualOut).toEqual expectedOut
+
+      it "shows only the recipient for one sent email", ->
+        input = [new Message(unread: false, from: [@me], to: [@evan])]
+        actualOut = getParticipants input
+        expectedOut = [{contact: @evan, unread: false}]
+        expect(actualOut).toEqual expectedOut
+
+      it "shows unread email as well", ->
+        input = [new Message(unread: false, from: [@me], to: [@evan])
+                 new Message(unread: false, from: [@me], to: [@ben])
+                 new Message(unread: true, from: [@me], to: [@kavya])
+                 new Message(unread: true, from: [@me], to: [@michael])]
+        actualOut = getParticipants input
+        expectedOut = [{contact: @evan, unread: false},
+                       {spacer: true},
+                       {contact: @kavya, unread: true},
+                       {contact: @michael, unread: true}]
         expect(actualOut).toEqual expectedOut
 
     describe "when thread.messages is not available", ->

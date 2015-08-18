@@ -24,8 +24,7 @@ class ThreadListIcon extends React.Component
     msgs = @_nonDraftMessages()
     last = msgs[msgs.length - 1]
 
-    myEmail = NamespaceStore.current()?.emailAddress
-    if msgs.length > 1 and last.from[0]?.email is myEmail
+    if msgs.length > 1 and last.from[0].isMe()
       if Utils.isForwardedMessage(last)
         return 'thread-icon-forwarded'
       else
