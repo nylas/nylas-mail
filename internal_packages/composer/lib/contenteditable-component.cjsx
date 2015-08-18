@@ -481,7 +481,10 @@ class ContenteditableComponent extends React.Component
 
     # Don't bother computing client rects if no scroll method has been provided
     else if @props.onScrollTo
-      rect = @_getRangeInScope().getBoundingClientRect()
+      rangeInScope = @_getRangeInScope()
+      return unless rangeInScope
+
+      rect = rangeInScope.getBoundingClientRect()
       if @_isEmptyBoudingRect(rect)
         rect = @_getSelectionRectFromDOM(selection)
 
@@ -763,31 +766,24 @@ class ContenteditableComponent extends React.Component
         toolbarPos: toolbarPos
         linkToModify: @_linkHoveringOver
         editAreaWidth: editAreaWidth
+
+    else if not @_selection? or @_selection.isCollapsed
+      @_hideToolbar()
+
     else
-      if not @_selection? or @_selection.isCollapsed
+      rect = @_getRangeInScope()?.getBoundingClientRect()
+      if not rect or @_isEmptyBoudingRect(rect)
         @_hideToolbar()
       else
-        if @_selection.isCollapsed
-          linkRect = linksInside[0].getBoundingClientRect()
-          isEmptyRect = @_isEmptyBoudingRect(linkRect)
-          [left, top, editAreaWidth, toolbarPos] = @_getToolbarPos(linkRect)
-        else
-          selectionRect = @_getRangeInScope().getBoundingClientRect()
-          isEmptyRect = @_isEmptyBoudingRect(selectionRect)
-          [left, top, editAreaWidth, toolbarPos] = @_getToolbarPos(selectionRect)
-
-        if isEmptyRect
-          @setState
-            toolbarVisible: false
-        else
-          @setState
-            toolbarVisible: true
-            toolbarMode: "buttons"
-            toolbarTop: top
-            toolbarLeft: left
-            toolbarPos: toolbarPos
-            linkToModify: null
-            editAreaWidth: editAreaWidth
+        [left, top, editAreaWidth, toolbarPos] = @_getToolbarPos(rect)
+        @setState
+          toolbarVisible: true
+          toolbarMode: "buttons"
+          toolbarTop: top
+          toolbarLeft: left
+          toolbarPos: toolbarPos
+          linkToModify: null
+          editAreaWidth: editAreaWidth
 
   _selectionInScope: (selection) =>
     return false if not selection?

@@ -232,6 +232,8 @@ class ThreadList extends React.Component
   # Additional Commands
 
   _onStarItem: =>
+    return unless ThreadListStore.view()
+
     if WorkspaceStore.layoutMode() is "list" and WorkspaceStore.topSheet() is WorkspaceStore.Sheet.Thread
       Actions.toggleStarFocused()
     else if ThreadListStore.view().selection.count() > 0
@@ -240,6 +242,8 @@ class ThreadList extends React.Component
       Actions.toggleStarFocused()
 
   _onArchive: =>
+    return unless ThreadListStore.view()
+
     if WorkspaceStore.layoutMode() is "list" and WorkspaceStore.topSheet() is WorkspaceStore.Sheet.Thread
       Actions.archive()
     else if ThreadListStore.view().selection.count() > 0
