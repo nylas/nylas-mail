@@ -383,7 +383,9 @@ class MessageList extends React.Component
   _onChildScrollRequest: ({messageId, rect}={}) =>
     return if @_draftScrollInProgress
     if messageId
-      @refs.messageWrap.scrollTo(@_getMessageContainer(messageId), {
+      messageElement = @_getMessageContainer(messageId)
+      return unless messageElement
+      @refs.messageWrap.scrollTo(messageElement, {
         position: ScrollRegion.ScrollPosition.Visible
       })
     else if rect
