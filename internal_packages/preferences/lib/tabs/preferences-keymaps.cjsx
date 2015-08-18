@@ -36,7 +36,9 @@ class PreferencesKeymaps extends React.Component
     fs.readdir templatesDir, (err, files) =>
       return unless files and files instanceof Array
       templates = files.filter (filename) =>
-        path.extname(filename) is '.cson'
+        path.extname(filename) is '.cson' or  path.extname(filename) is '.json'
+      templates = templates.map (filename) =>
+        path.parse(filename).name
       @setState(templates: templates)
 
   _getStateFromKeymaps: =>
@@ -55,7 +57,7 @@ class PreferencesKeymaps extends React.Component
             value={@props.config.get('core.keymapTemplate')}
             onChange={ (event) => @props.config.set('core.keymapTemplate', event.target.value) }>
           { @state.templates.map (template) =>
-            <option key={template} value={template}>{path.basename(template, '.cson')}</option>
+            <option key={template} value={template}>{template}</option>
           }
           </select>
         </div>

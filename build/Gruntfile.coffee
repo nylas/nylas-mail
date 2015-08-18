@@ -146,7 +146,7 @@ module.exports = (grunt) ->
 
   csonConfig =
     options:
-      rootObject: true
+      rootObject: false
       cachePath: path.join(home, '.nylas', 'compile-cache', 'grunt-cson')
 
     glob_to_multiple:
@@ -154,6 +154,7 @@ module.exports = (grunt) ->
       src: [
         'menus/*.cson'
         'keymaps/*.cson'
+        'keymaps/templates/*.cson'
         'static/**/*.cson'
       ]
       dest: appDir

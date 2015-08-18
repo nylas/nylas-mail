@@ -22,7 +22,7 @@ module.exports =
           type: 'string'
       keymapTemplate:
         type: 'string'
-        default: 'Gmail.cson'
+        default: 'Gmail'
       attachments:
         type: 'object'
         properties:
