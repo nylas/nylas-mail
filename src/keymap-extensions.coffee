@@ -10,8 +10,8 @@ KeymapManager::onDidLoadBundledKeymaps = (callback) ->
 
 KeymapManager::loadBundledKeymaps = ->
   # Load the base keymap and the base.platform keymap
-  baseKeymap = path.join(@resourcePath, 'keymaps', 'base.cson')
-  basePlatformKeymap = path.join(@resourcePath, 'keymaps', "base.#{process.platform}.cson")
+  baseKeymap = fs.resolve(path.join(@resourcePath, 'keymaps'), 'base', ['cson', 'json'])
+  basePlatformKeymap = fs.resolve(path.join(@resourcePath, 'keymaps'), "base-#{process.platform}", ['cson', 'json'])
   @loadKeymap(baseKeymap)
   @loadKeymap(basePlatformKeymap)
 
@@ -22,9 +22,12 @@ KeymapManager::loadBundledKeymaps = ->
     @removeBindingsFromSource(templateKeymapPath) if templateKeymapPath
     templateFile = atom.config.get(templateConfigKey)
     if templateFile
-      templateKeymapPath = path.join(@resourcePath, 'keymaps', 'templates', templateFile)
-      @loadKeymap(templateKeymapPath)
-      @emitter.emit('did-reload-keymap', {path: templateKeymapPath})
+      templateKeymapPath = fs.resolve(path.join(@resourcePath, 'keymaps', 'templates'), templateFile, ['cson', 'json'])
+      if fs.existsSync(templateKeymapPath)
+        @loadKeymap(templateKeymapPath)
+        @emitter.emit('did-reload-keymap', {path: templateKeymapPath})
+      else
+        console.warn("Could not find #{templateKeymapPath}")
 
   atom.config.observe(templateConfigKey, reloadTemplateKeymap)
   reloadTemplateKeymap()
