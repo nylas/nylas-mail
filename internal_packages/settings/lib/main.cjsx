@@ -7,7 +7,7 @@ SettingsTabsView = require "./settings-tabs-view"
 module.exports =
 
   activate: (@state={}) ->
-    WorkspaceStore.defineSheet 'Settings', {root: true, supportedModes: ['list'], name: 'Settings'},
+    WorkspaceStore.defineSheet 'Settings', {root: true, supportedModes: ['list'], name: 'Plugins'},
       list: ['RootSidebar', 'SettingsSidebar', 'Settings']
 
     ComponentRegistry.register SettingsTabsView,
