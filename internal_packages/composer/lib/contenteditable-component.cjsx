@@ -191,7 +191,7 @@ class ContenteditableComponent extends React.Component
   _textContentAtCursor: ->
     selection = document.getSelection()
     if selection.isCollapsed
-      return selection.anchorNode.textContent
+      return selection.anchorNode?.textContent
     else return null
 
   _runExtensionFilters: ->
