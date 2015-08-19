@@ -1,4 +1,6 @@
 React = require 'react'
+{RegExpUtils}= require 'nylas-exports'
+url = require 'url'
 _ = require "underscore"
 
 ###
@@ -83,13 +85,33 @@ class EventedIFrame extends React.Component
   # The iFrame captures events that take place over it, which causes some
   # interesting behaviors. For example, when you drag and release over the
   # iFrame, the mouseup never fires in the parent window.
-
   _onIFrameClick: (e) =>
     e.stopPropagation()
     target = @_getContainingTarget(e, {with: 'href'})
     if target
+
+      # Sometimes urls can have relative, malformed, or malicious href
+      # targets. We test the existence of a valid RFC 3986 scheme and make
+      # sure the protocol isn't blacklisted. We never allow `file:` links
+      # through.
+      rawHref = target.getAttribute('href')
+
+      if @_isBlacklistedHref(rawHref)
+        e.preventDefault()
+        return
+
+      if not url.parse(rawHref).protocol
+        # Check for protocol-relative uri's
+        if (new RegExp(/^\/\//)).test(rawHref)
+          target.setAttribute('href', "https:#{rawHref}")
+        else
+          target.setAttribute('href', "http://#{rawHref}")
+
       e.preventDefault()
       atom.windowEventHandler.openLink(target: target)
+
+  _isBlacklistedHref: (href) ->
+    return (new RegExp(/^file:/i)).test(href)
 
   _onIFrameMouseEvent: (event) =>
     node = React.findDOMNode(@)
