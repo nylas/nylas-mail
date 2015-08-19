@@ -103,6 +103,7 @@ class ContenteditableComponent extends React.Component
            onClick={@_onClick}
            onPaste={@_onPaste}
            onInput={@_onInput}
+           onKeyDown={@_onKeyDown}
            dangerouslySetInnerHTML={@_dangerouslySetInnerHTML()}></div>
       <a className={@_quotedTextClasses()} onClick={@_onToggleQuotedText}></a>
     </div>
@@ -125,8 +126,17 @@ class ContenteditableComponent extends React.Component
     # Note: Related to composer-view#_onClickComposeBody
     event.stopPropagation()
 
+  _onKeyDown: (event) =>
+    if event.key is "Tab"
+      @_onTabDown(event)
+    return
+
   _onInput: =>
+    return if @_ignoreInputChanges
+    @_ignoreInputChanges = true
     @_dragging = false
+
+    @_runCoreFilters()
 
     @_runExtensionFilters()
 
@@ -136,6 +146,53 @@ class ContenteditableComponent extends React.Component
 
     html = @_unapplyHTMLDisplayFilters(@_editableNode().innerHTML)
     @props.onChange(target: {value: html})
+    @_ignoreInputChanges = false
+    return
+
+  _runCoreFilters: ->
+    @_createLists()
+
+  # Determines if the user wants to add an ordered or unordered list.
+  _createLists: ->
+    # The `execCommand` will update the DOM and move the cursor. Since
+    # this is happening in the middle of an `_onInput` callback, we want
+    # the whole operation to look "atomic". As such we'll do any necessary
+    # DOM cleanup and fire the `exec` command with the listeners off, then
+    # re-enable at the end.
+    updateDOM = (command) =>
+      @_teardownSelectionListeners()
+      @_ignoreInputChanges = true
+      document.execCommand(command)
+      selection = document.getSelection()
+      selection.anchorNode.parentElement.innerHTML = ""
+      @_ignoreInputChanges = false
+      @_setupSelectionListeners()
+
+    text = @_textContentAtCursor()
+    if (/^\d\.\s$/).test text
+      updateDOM("insertOrderedList")
+    else if (/^-\s$/).test text
+      updateDOM("insertUnorderedList")
+
+  _onTabDown: (event) ->
+    event.preventDefault()
+    selection = document.getSelection()
+    if selection?.isCollapsed
+      # https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
+      # Some nodes anchorNodes might not have a `closest` method.
+      if selection.anchorNode?.closest?("li")
+        if event.shiftKey
+          document.execCommand("outdent")
+        else
+          document.execCommand("indent")
+        return
+    document.execCommand("insertText", false, "\t")
+
+  _textContentAtCursor: ->
+    selection = document.getSelection()
+    if selection.isCollapsed
+      return selection.anchorNode.textContent
+    else return null
 
   _runExtensionFilters: ->
     for extension in DraftStore.extensions()
