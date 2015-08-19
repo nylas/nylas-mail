@@ -183,6 +183,7 @@ describe "FileUploadTask", ->
 
     it "attaches the file to the draft", ->
       waitsForPromise => @task.performRemote().then =>
+        delete @changes[0].__constructorName
         expect(@changes).toEqual [equivalentFile]
 
     describe "file upload notifications", ->
@@ -200,6 +201,7 @@ describe "FileUploadTask", ->
           bytesUploaded: 1000
 
         [{file, uploadData}] = Actions.fileUploaded.calls[0].args
+        delete file.__constructorName
         expect(file).toEqual(equivalentFile)
         expect(_.isMatch(uploadData, uploadDataExpected)).toBe(true)
 

@@ -1,6 +1,7 @@
 path = require 'path'
 {$, $$} = require '../src/space-pen-extensions'
 Package = require '../src/package'
+DatabaseStore = require '../src/flux/stores/database-store'
 {Disposable} = require 'atom'
 
 describe "PackageManager", ->
@@ -568,6 +569,13 @@ describe "PackageManager", ->
       themes = themeActivator.mostRecentCall.args[0]
       expect(['theme']).toContain(theme.getType()) for theme in themes
 
+    it "refreshes the database after activating packages with models", ->
+      spyOn(DatabaseStore, "refreshDatabaseSchema")
+      package2 = atom.packages.loadPackage('package-with-models')
+      atom.packages.activatePackages([package2])
+      expect(DatabaseStore.refreshDatabaseSchema).toHaveBeenCalled()
+      expect(DatabaseStore.refreshDatabaseSchema.calls.length).toBe 1
+
     it "calls callbacks registered with ::onDidActivateInitialPackages", ->
       package1 = atom.packages.loadPackage('package-with-main')
       package2 = atom.packages.loadPackage('package-with-index')
@@ -588,6 +596,7 @@ describe "PackageManager", ->
   describe "::enablePackage(id) and ::disablePackage(id)", ->
     describe "with packages", ->
       it "enables a disabled package", ->
+        spyOn(DatabaseStore, "refreshDatabaseSchema")
         packageName = 'package-with-main'
         atom.config.pushAtKeyPath('core.disabledPackages', packageName)
         atom.packages.observeDisabledPackages()
@@ -603,7 +612,17 @@ describe "PackageManager", ->
         runs ->
           expect(loadedPackages).toContain(pack)
           expect(activatedPackages).toContain(pack)
+          expect(DatabaseStore.refreshDatabaseSchema).not.toHaveBeenCalled()
           expect(atom.config.get('core.disabledPackages')).not.toContain packageName
+
+      it 'refreshes the DB when loading a package with models', ->
+        spyOn(DatabaseStore, "refreshDatabaseSchema")
+        packageName = "package-with-models"
+        atom.config.pushAtKeyPath('core.disabledPackages', packageName)
+        atom.packages.observeDisabledPackages()
+        atom.config.removeAtKeyPath("core.disabledPackages", packageName)
+        expect(DatabaseStore.refreshDatabaseSchema).toHaveBeenCalled()
+        expect(DatabaseStore.refreshDatabaseSchema.calls.length).toBe 1
 
       it "disables an enabled package", ->
         packageName = 'package-with-main'
@@ -668,3 +687,16 @@ describe "PackageManager", ->
           expect(atom.config.get('core.themes')).not.toContain packageName
           expect(atom.config.get('core.themes')).not.toContain packageName
           expect(atom.config.get('core.disabledPackages')).not.toContain packageName
+
+  describe 'packages with models and tasks', ->
+    beforeEach ->
+      atom.packages.deactivatePackages()
+      atom.packages.unloadPackages()
+
+    it 'registers objects on load', ->
+      withModels = atom.packages.loadPackage("package-with-models")
+      withoutModels = atom.packages.loadPackage("package-with-main")
+      expect(withModels.declaresNewDatabaseObjects).toBe true
+      expect(withoutModels.declaresNewDatabaseObjects).toBe false
+      expect(atom.packages.packagesWithDatabaseObjects.length).toBe 1
+      expect(atom.packages.packagesWithDatabaseObjects[0]).toBe withModels

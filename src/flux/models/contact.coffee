@@ -1,7 +1,10 @@
 Model = require './model'
 Attributes = require '../attributes'
-NamespaceStore = require '../stores/namespace-store'
 _ = require 'underscore'
+
+# Only load the NamespaceStore the first time we actually need it. This
+# lets us safely require a `Contact` object without side effects.
+NamespaceStore = null
 
 name_prefixes = {}
 name_suffixes = {}
@@ -30,6 +33,9 @@ This class also inherits attributes from {Model}
 Section: Models
 ###
 class Contact extends Model
+  constructor: ->
+    NamespaceStore ?= require '../stores/namespace-store'
+    super
 
   @attributes: _.extend {}, Model.attributes,
     'name': Attributes.String

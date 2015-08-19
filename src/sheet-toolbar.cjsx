@@ -2,8 +2,6 @@ React = require 'react/addons'
 Sheet = require './sheet'
 Flexbox = require './components/flexbox'
 RetinaImg = require './components/retina-img'
-CategoryStore = require './flux/stores/category-store'
-FocusedCategoryStore = require './flux/stores/focused-category-store'
 TimeoutTransitionGroup = require './components/timeout-transition-group'
 _str = require 'underscore.string'
 _ = require 'underscore'
@@ -35,10 +33,16 @@ class WindowTitle extends React.Component
   render: ->
     <div className="window-title">{@state.title}</div>
 
+CategoryStore = null
+FocusedCategoryStore = null
 class ToolbarBack extends React.Component
   @displayName: 'ToolbarBack'
 
+  # These stores are only required when this Toolbar is actually needed.
+  # This is because loading these stores has database side effects.
   constructor: (@props) ->
+    CategoryStore ?= require './flux/stores/category-store'
+    FocusedCategoryStore ?= require './flux/stores/focused-category-store'
     @state =
       categoryName: FocusedCategoryStore.categoryName()
 

@@ -1,13 +1,9 @@
-Reflux = require 'reflux'
-NamespaceStore = require './namespace-store'
-Actions = require '../actions'
 _ = require 'underscore'
+Actions = require '../actions'
+NylasStore = require 'nylas-store'
 
-{Listener, Publisher} = require '../modules/reflux-coffee'
-CoffeeHelpers = require '../coffee-helpers'
-
-Location = {}
 Sheet = {}
+Location = {}
 
 ###
 Public: The WorkspaceStore manages Sheets and layout modes in the application.
@@ -17,12 +13,7 @@ documentation.
 
 Section: Stores
 ###
-class WorkspaceStore
-  @include: CoffeeHelpers.includeModule
-
-  @include Publisher
-  @include Listener
-
+class WorkspaceStore extends NylasStore
   constructor: ->
     @_resetInstanceVars()
 

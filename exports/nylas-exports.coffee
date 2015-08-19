@@ -1,101 +1,147 @@
-Utils = require '../src/flux/models/utils'
+Task = null
+Model = null
+TaskRegistry = null
+DatabaseObjectRegistry = null
 
-{APIError,
- OfflineError,
- TimeoutError} = require '../src/flux/errors'
+class NylasExports
+  @registerSerializable = (exported) ->
+    if exported.prototype
+      Task ?= require '../src/flux/tasks/task'
+      Model ?= require '../src/flux/models/model'
+      if exported.prototype instanceof Model
+        DatabaseObjectRegistry ?= require '../src/database-object-registry'
+        DatabaseObjectRegistry.register(exported)
+      else if exported.prototype instanceof Task
+        TaskRegistry ?= require '../src/task-registry'
+        TaskRegistry.register(exported)
 
-Exports =
+  @get = (prop, get) ->
+    Object.defineProperty @, prop, {get, enumerable: true}
 
-  React: require 'react'
-  ReactRemote: require '../src/react-remote/react-remote-parent'
-  BufferedProcess: require '../src/buffered-process'
-  BufferedNodeProcess: require '../src/buffered-node-process'
+  # Will lazy load when requested
+  @load = (prop, path) ->
+    Object.defineProperty @, prop,
+      get: ->
+        exported = require "../src/#{path}"
+        NylasExports.registerSerializable(exported)
+        return exported
+      enumerable: true
 
-  # The Task Queue
-  Task: require '../src/flux/tasks/task'
-  TaskQueue: require '../src/flux/stores/task-queue'
-  UndoRedoStore: require '../src/flux/stores/undo-redo-store'
-
-  # Tasks
-  ChangeLabelsTask: require '../src/flux/tasks/change-labels-task'
-  ChangeFolderTask: require '../src/flux/tasks/change-folder-task'
-  ChangeUnreadTask: require '../src/flux/tasks/change-unread-task'
-  ChangeStarredTask: require '../src/flux/tasks/change-starred-task'
-  CreateMetadataTask: require '../src/flux/tasks/create-metadata-task'
-  ArchiveThreadHelper: require '../src/flux/tasks/archive-thread-helper'
-  DestroyMetadataTask: require '../src/flux/tasks/destroy-metadata-task'
-
-  # The Database
-  DatabaseStore: require '../src/flux/stores/database-store'
-  ModelView: require '../src/flux/stores/model-view'
-  DatabaseView: require '../src/flux/stores/database-view'
-  SearchView: require '../src/flux/stores/search-view'
+  # Will require immediately
+  @require = (prop, path) ->
+    exported = require "../src/#{path}"
+    NylasExports.registerSerializable(exported)
+    @[prop] = exported
 
   # Actions
-  Actions: require '../src/flux/actions'
+  @load "Actions", 'flux/actions'
 
   # API Endpoints
-  NylasAPI: require '../src/flux/nylas-api'
-  EdgehillAPI: require '../src/flux/edgehill-api'
+  @load "NylasAPI", 'flux/nylas-api'
+  @load "EdgehillAPI", 'flux/edgehill-api'
 
-  # Testing
-  NylasTestUtils: require '../spec-nylas/test_utils'
+  # The Database
+  @load "ModelView", 'flux/stores/model-view'
+  @load "SearchView", 'flux/stores/search-view'
+  @load "DatabaseView", 'flux/stores/database-view'
+  @load "DatabaseStore", 'flux/stores/database-store'
 
-  # Component Registry
-  ComponentRegistry: require '../src/component-registry'
+  # Database Objects
+  # These need to be required immeidatley to populated the
+  # DatabaseObjectRegistry so we know what Database Tables to construct
+  @require "File", 'flux/models/file'
+  @require "Event", 'flux/models/event'
+  @require "Label", 'flux/models/label'
+  @require "Folder", 'flux/models/folder'
+  @require "Thread", 'flux/models/thread'
+  @require "Message", 'flux/models/message'
+  @require "Contact", 'flux/models/contact'
+  @require "Calendar", 'flux/models/calendar'
+  @require "Metadata", 'flux/models/metadata'
+  @require "Namespace", 'flux/models/namespace'
+  @require "LocalLink", 'flux/models/local-link'
+  @require "DatabaseObjectRegistry", "database-object-registry"
 
-  # Utils
-  Utils: Utils
-  DOMUtils: require '../src/dom-utils'
-  CanvasUtils: require '../src/canvas-utils'
-  RegExpUtils: require '../src/regexp-utils'
-  MessageUtils: require '../src/flux/models/message-utils'
+  # Exported so 3rd party packages can subclass Model
+  @load "Model", 'flux/models/model'
+  @load "Attributes", 'flux/attributes'
 
-  # Mixins
-  UndoManager: require '../src/flux/undo-manager'
+  # The Task Queue
+  @require "Task", 'flux/tasks/task'
+  @require "TaskQueue", 'flux/stores/task-queue'
+  @require "TaskRegistry", "task-registry"
+  @require "UndoRedoStore", 'flux/stores/undo-redo-store'
 
-  PriorityUICoordinator: require '../src/priority-ui-coordinator'
+  # Tasks
+  # These need to be required immediately to populate the TaskRegistry so
+  # we know how to deserialized saved or IPC-sent tasks.
+  @require "EventRSVP", 'flux/tasks/event-rsvp'
+  @require "SendDraftTask", 'flux/tasks/send-draft'
+  @require "FileUploadTask", 'flux/tasks/file-upload-task'
+  @require "DestroyDraftTask", 'flux/tasks/destroy-draft'
+  @require "ChangeLabelsTask", 'flux/tasks/change-labels-task'
+  @require "ChangeFolderTask", 'flux/tasks/change-folder-task'
+  @require "ChangeUnreadTask", 'flux/tasks/change-unread-task'
+  @require "SyncbackDraftTask", 'flux/tasks/syncback-draft'
+  @require "ChangeStarredTask", 'flux/tasks/change-starred-task'
+  @require "CreateMetadataTask", 'flux/tasks/create-metadata-task'
+  @require "MarkMessageReadTask", 'flux/tasks/mark-message-read'
+  @require "ArchiveThreadHelper", 'flux/tasks/archive-thread-helper'
+  @require "DestroyMetadataTask", 'flux/tasks/destroy-metadata-task'
 
   # Stores
-  CategoryStore: require '../src/flux/stores/category-store'
-  DraftStore: require '../src/flux/stores/draft-store'
-  DraftCountStore: require '../src/flux/stores/draft-count-store'
-  DraftStoreExtension: require '../src/flux/stores/draft-store-extension'
-  MessageStore: require '../src/flux/stores/message-store'
-  MessageBodyProcessor: require '../src/flux/stores/message-body-processor'
-  EventStore: require '../src/flux/stores/event-store'
-  MessageStoreExtension: require '../src/flux/stores/message-store-extension'
-  ContactStore: require '../src/flux/stores/contact-store'
-  MetadataStore: require '../src/flux/stores/metadata-store'
-  NamespaceStore: require '../src/flux/stores/namespace-store'
-  AnalyticsStore: require '../src/flux/stores/analytics-store'
-  WorkspaceStore: require '../src/flux/stores/workspace-store'
-  FocusedCategoryStore: require '../src/flux/stores/focused-category-store'
-  FocusedContentStore: require '../src/flux/stores/focused-content-store'
-  FocusedContactsStore: require '../src/flux/stores/focused-contacts-store'
-  FileUploadStore: require '../src/flux/stores/file-upload-store'
-  FileDownloadStore: require '../src/flux/stores/file-download-store'
-  UnreadCountStore: require '../src/flux/stores/unread-count-store'
+  # These need to be required immediately since some Stores are
+  # listen-only and not explicitly required from anywhere. Stores
+  # currently set themselves up on require.
+  @require "EventStore", 'flux/stores/event-store'
+  @require "DraftStore", 'flux/stores/draft-store'
+  @require "MessageStore", 'flux/stores/message-store'
+  @require "ContactStore", 'flux/stores/contact-store'
+  @require "CategoryStore", 'flux/stores/category-store'
+  @require "MetadataStore", 'flux/stores/metadata-store'
+  @require "NamespaceStore", 'flux/stores/namespace-store'
+  @require "AnalyticsStore", 'flux/stores/analytics-store'
+  @require "WorkspaceStore", 'flux/stores/workspace-store'
+  @require "DraftCountStore", 'flux/stores/draft-count-store'
+  @require "FileUploadStore", 'flux/stores/file-upload-store'
+  @require "UnreadCountStore", 'flux/stores/unread-count-store'
+  @require "FileDownloadStore", 'flux/stores/file-download-store'
+  @require "DraftStoreExtension", 'flux/stores/draft-store-extension'
+  @require "FocusedContentStore", 'flux/stores/focused-content-store'
+  @require "FocusedCategoryStore", 'flux/stores/focused-category-store'
+  @require "FocusedContactsStore", 'flux/stores/focused-contacts-store'
+  @require "MessageBodyProcessor", 'flux/stores/message-body-processor'
+  @require "MessageStoreExtension", 'flux/stores/message-store-extension'
 
-  # Errors
-  APIError: APIError
-  OfflineError: OfflineError
-  TimeoutError: TimeoutError
+  # React Components
+  @get "React", -> require 'react' # Our version of React for 3rd party use
+  @load "ReactRemote", 'react-remote/react-remote-parent'
+  @load "ComponentRegistry", 'component-registry'
+  @load "PriorityUICoordinator", 'priority-ui-coordinator'
 
-  ## TODO move to inside of individual Salesforce package. See https://trello.com/c/tLAGLyeb/246-move-salesforce-models-into-individual-package-db-models-for-packages-various-refactors
-  SalesforceAssociation: require '../src/flux/models/salesforce-association'
-  SalesforceSearchResult: require '../src/flux/models/salesforce-search-result'
-  SalesforceObject: require '../src/flux/models/salesforce-object'
-  SalesforceSchema: require '../src/flux/models/salesforce-schema'
+  # Utils
+  @load "Utils", 'flux/models/utils'
+  @load "DOMUtils", 'dom-utils'
+  @load "CanvasUtils", 'canvas-utils'
+  @load "RegExpUtils", 'regexp-utils'
+  @load "MessageUtils", 'flux/models/message-utils'
 
   # Services
-  QuotedPlainTextParser: require '../src/services/quoted-plain-text-parser'
-  QuotedHTMLParser: require '../src/services/quoted-html-parser'
+  @load "UndoManager", 'flux/undo-manager'
+  @load "QuotedHTMLParser", 'services/quoted-html-parser'
+  @load "QuotedPlainTextParser", 'services/quoted-plain-text-parser'
 
-  LaunchServices: require '../src/launch-services'
+  # Errors
+  @get "APIError", -> require('../src/flux/errors').APIError
+  @get "OfflineError", -> require('../src/flux/errors').OfflineError
+  @get "TimeoutError", -> require('../src/flux/errors').TimeoutError
 
-# Also include all of the model classes
-for key, klass of Utils.modelClassMap()
-  Exports[klass.name] = klass
+  # Process Internals
+  @load "LaunchServices", 'launch-services'
+  @load "BufferedProcess", 'buffered-process'
+  @load "BufferedNodeProcess", 'buffered-node-process'
 
-module.exports = Exports
+  # Testing
+  @get "NylasTestUtils", -> require '../spec-nylas/test_utils'
+
+module.exports = NylasExports

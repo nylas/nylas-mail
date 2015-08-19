@@ -1,8 +1,8 @@
 _ = require 'underscore'
 {AttributeCollection, AttributeJoinedData} = require '../attributes'
 
-{modelClassMap,
- tableNameForJoin} = require '../models/utils'
+DatabaseObjectRegistry = require '../../database-object-registry'
+{tableNameForJoin} = require '../models/utils'
 
 # The DatabaseConnection dispatches queries to the Browser process via IPC and listens
 # for results. It maintains a hash of `_queryRecords` representing queries that are
@@ -22,8 +22,7 @@ class DatabaseSetupQueryBuilder
     queries.push("CREATE TABLE IF NOT EXISTS `JSONObject` (key TEXT PRIMARY KEY, data BLOB)")
     queries.push("CREATE UNIQUE INDEX IF NOT EXISTS `JSONObject_id` ON `JSONObject` (`key`)")
 
-    for key, klass of modelClassMap()
-      continue unless klass.attributes
+    for key, klass of DatabaseObjectRegistry.classMap()
       queries = queries.concat @setupQueriesForTable(klass)
     return queries
 

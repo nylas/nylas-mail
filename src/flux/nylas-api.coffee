@@ -4,10 +4,9 @@ Actions = require './actions'
 {APIError} = require './errors'
 PriorityUICoordinator = require '../priority-ui-coordinator'
 DatabaseStore = require './stores/database-store'
-NamespaceStore = require './stores/namespace-store'
 NylasSyncWorker = require './nylas-sync-worker'
 NylasLongConnection = require './nylas-long-connection'
-{modelFromJSON, modelClassMap} = require './models/utils'
+DatabaseObjectRegistry = require '../database-object-registry'
 async = require 'async'
 
 PermanentErrorCodes = [400, 404, 500]
@@ -70,6 +69,8 @@ class NylasAPIRequest
       @options.started?(req)
 
 
+# This is lazy-loaded
+NamespaceStore = null
 class NylasAPI
 
   PermanentErrorCodes: PermanentErrorCodes
@@ -83,9 +84,10 @@ class NylasAPI
     atom.config.onDidChange('nylas.token', @_onConfigChanged)
     @_onConfigChanged()
 
-    NamespaceStore.listen(@_onNamespacesChanged, @)
-    @_onNamespacesChanged()
-    @
+    if atom.isMainWindow()
+      NamespaceStore ?= require './stores/namespace-store'
+      NamespaceStore.listen(@_onNamespacesChanged, @)
+      @_onNamespacesChanged()
 
   _onConfigChanged: =>
     prev = {@APIToken, @AppID, @APIRoot}
@@ -118,8 +120,8 @@ class NylasAPI
 
   _onNamespacesChanged: ->
     return if atom.inSpecMode()
-    return if not atom.isMainWindow()
 
+    NamespaceStore ?= require './stores/namespace-store'
     namespaces = NamespaceStore.items()
     workers = _.map(namespaces, @workerForNamespace)
 
@@ -219,11 +221,10 @@ class NylasAPI
     url = require('url')
     {pathname, query} = url.parse(modelUrl, true)
     components = pathname.split('/')
-    klassMap = modelClassMap()
 
     if components.length is 5
       [root, ns, nsId, collection, klassId] = components
-      klass = klassMap[collection[0..-2]] # Warning: threads => thread
+      klass = DatabaseObjectRegistry.get(collection[0..-2]) # Warning: threads => thread
 
     if klass and klassId and klassId.length > 0
       console.warn("Deleting #{klass.name}:#{klassId} due to API 404")
@@ -300,7 +301,7 @@ class NylasAPI
         # Apply all of the deletions
         destroyPromises = destroy.map (delta) ->
           console.log(" - 1 #{delta.object} (#{delta.id})")
-          klass = modelClassMap()[delta.object]
+          klass = DatabaseObjectRegistry.get(delta.object)
           return unless klass
           DatabaseStore.find(klass, delta.id).then (model) ->
             return Promise.resolve() unless model
@@ -325,6 +326,11 @@ class NylasAPI
       console.warn("NylasAPI.handleModelResponse: called with non-unique object set. Maybe an API request returned the same object more than once?")
 
     type = jsons[0].object
+    name = @_apiObjectToClassnameMap[type]
+    if not name
+      console.error("Unrecoganized API object type: #{type}")
+      return Promise.resolve([])
+
     accepted = Promise.resolve(uniquedJSONs)
     if type is "thread"
       Thread = require './models/thread'
@@ -333,9 +339,25 @@ class NylasAPI
       Message = require './models/message'
       accepted = @_acceptableModelsInResponse(Message, uniquedJSONs)
 
-    accepted.map(modelFromJSON).then (objects) ->
+    mapper = (json) ->
+      return DatabaseObjectRegistry.deserialize(name, json)
+
+    accepted.map(mapper).then (objects) ->
       DatabaseStore.persistModels(objects).then ->
         return Promise.resolve(objects)
+
+  _apiObjectToClassnameMap:
+    "file": "File"
+    "event": "Event"
+    "label": "Label"
+    "folder": "Folder"
+    "thread": "Thread"
+    "draft": "Message"
+    "message": "Message"
+    "contact": "Contact"
+    "calendar": "Calendar"
+    "metadata": "Metadata"
+    "namespace": "Namespace"
 
   _acceptableModelsInResponse: (klass, jsons) ->
     # Filter out models that are locked by pending optimistic changes

@@ -5,7 +5,6 @@ Attributes = require '../attributes'
 Function::getter = (prop, get) ->
   Object.defineProperty @prototype, prop, {get, configurable: yes}
 
-module.exports =
 class Metadata extends Model
   @attributes:
     'type': Attributes.String
@@ -32,3 +31,5 @@ class Metadata extends Model
       @id = "#{@type}/#{@publicId}/#{@key}"
     else
       @id = generateTempId()
+
+module.exports = Metadata

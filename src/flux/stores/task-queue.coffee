@@ -7,8 +7,10 @@ path = require 'path'
 CoffeeHelpers = require '../coffee-helpers'
 
 Task = require "../tasks/task"
+Utils = require "../models/utils"
 Reflux = require 'reflux'
 Actions = require '../actions'
+TaskRegistry = require '../../task-registry'
 
 {APIError,
  TimeoutError} = require '../errors'
@@ -202,10 +204,10 @@ class TaskQueue
       return _.findWhere(@_queue, id: taskOrId)
 
   _restoreQueueFromDisk: =>
-    {modelReviver} = require '../models/utils'
     try
       queueFile = path.join(atom.getConfigDirPath(), 'task-queue.json')
-      queue = JSON.parse(fs.readFileSync(queueFile), modelReviver)
+      queue = Utils.deserializeJSON(fs.readFileSync(queueFile))
+
       # We need to set the processing bit back to false so it gets
       # re-retried upon inflation
       for task in queue
@@ -222,7 +224,7 @@ class TaskQueue
     # save 1000 times! (Do not remove debounce without a plan!)
     @_saveDebounced ?= _.debounce =>
       queueFile = path.join(atom.getConfigDirPath(), 'task-queue.json')
-      queueJSON = JSON.stringify((@_queue ? []))
+      queueJSON = Utils.serializeToJSON((@_queue ? []))
       fs.writeFile(queueFile, queueJSON)
     , 150
     @_saveDebounced()

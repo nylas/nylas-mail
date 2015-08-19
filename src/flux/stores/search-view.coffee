@@ -1,5 +1,4 @@
 _ = require 'underscore'
-Utils = require '../models/utils'
 DatabaseStore = require './database-store'
 Thread = require '../models/thread'
 ModelView = require './model-view'
@@ -69,7 +68,7 @@ class SearchView extends ModelView
         @_queryResultTotal = json.length
 
         for resultJSON in json
-          obj = Utils.modelFromJSON(resultJSON)
+          obj = (new Thread).fromJSON(resultJSON)
           objects.push(obj)
 
         DatabaseStore.persistModels(objects) if objects.length > 0

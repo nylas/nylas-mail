@@ -1,9 +1,5 @@
 _ = require 'underscore'
 {generateTempId} = require '../models/utils'
-Actions = require '../actions'
-{APIError,
- OfflineError,
- TimeoutError} = require '../errors'
 
 TaskStatus =
   Finished: 'finished'

@@ -12,6 +12,9 @@ Q = require 'q'
 ModuleCache = require './module-cache'
 ScopedProperties = require './scoped-properties'
 
+TaskRegistry = require './task-registry'
+DatabaseObjectRegistry = require './database-object-registry'
+
 try
   packagesCache = require('../package.json')?._atomPackages ? {}
 catch error
@@ -74,6 +77,7 @@ class Package
     @name = @metadata?.name ? path.basename(@path)
     ModuleCache.add(@path, @metadata)
     @reset()
+    @declaresNewDatabaseObjects = false
 
   ###
   Section: Event Subscription
@@ -121,17 +125,32 @@ class Package
   load: ->
     @measure 'loadTime', =>
       try
+        @declaresNewDatabaseObjects = false
         @loadKeymaps()
         @loadMenus()
         @loadStylesheets()
         @settingsPromise = @loadSettings()
-        @requireMainModule() unless @hasActivationCommands()
+        if not @hasActivationCommands()
+          mainModule = @requireMainModule()
+          return unless mainModule
+          @registerModelConstructors(mainModule.modelConstructors)
+          @registerTaskConstructors(mainModule.taskConstructors)
 
       catch error
         console.warn "Failed to load package named '#{@name}'"
         console.warn error.stack ? error
         console.error(error.message, error)
     this
+
+  registerModelConstructors: (constructors=[]) ->
+    if constructors.length > 0
+      @declaresNewDatabaseObjects = true
+      for constructor in constructors
+        DatabaseObjectRegistry.register(constructor)
+
+  registerTaskConstructors: (constructors=[]) ->
+    for constructor in constructors
+      TaskRegistry.register(constructor)
 
   reset: ->
     @stylesheets = []

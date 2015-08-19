@@ -1,11 +1,53 @@
 _ = require 'underscore'
 fs = require('fs-plus')
 path = require('path')
-
 tz = Intl.DateTimeFormat().resolvedOptions().timeZone
+
+TaskRegistry = null
+DatabaseObjectRegistry = null
 
 module.exports =
 Utils =
+
+  # To deserialize a string serialized with the `Utils.serializeToJSON`
+  # method. This will convert anything that has a known class to its
+  # appropriate object type.
+  deserializeJSON: (json) ->
+    TaskRegistry ?= require '../../task-registry'
+    DatabaseObjectRegistry ?= require '../../database-object-registry'
+    JSON.parse json, (k,v) ->
+      return v if k is ""
+
+      type = v?.__constructorName
+      return v unless type
+
+      if DatabaseObjectRegistry.isInRegistry(type)
+        return DatabaseObjectRegistry.deserialize(type, v, ignoreError: true)
+
+      if TaskRegistry.isInRegistry(type)
+        return TaskRegistry.deserialize(type, v, ignoreError: true)
+
+      return v
+
+  serializeToJSON: (object) ->
+    object = Utils.annotateObjectConstructors(object)
+    return JSON.stringify(object)
+
+  annotateObjectConstructors: (object, seenObjects={}) ->
+    if _.isObject(object) and not _.isFunction(object) and not seenObjects[object]
+      seenObjects[object] = true
+      if Utils.inAnySerializableRegistry(object.constructor?.name)
+        constructorName = object.constructor.name
+        object.__constructorName = constructorName
+      for key in Object.keys(object)
+        object[key] = Utils.annotateObjectConstructors(object[key])
+    return object
+
+  inAnySerializableRegistry: (type) ->
+    TaskRegistry ?= require '../../task-registry'
+    DatabaseObjectRegistry ?= require '../../database-object-registry'
+    return DatabaseObjectRegistry.isInRegistry(type) or TaskRegistry.isInRegistry(type)
+
   timeZone: tz
 
   isHash: (object) ->
@@ -95,78 +137,6 @@ Utils =
           replace(/</g, '&lt;').
           replace(/>/g, '&gt;')
 
-  modelClassMap: ->
-    return Utils._modelClassMap if Utils._modelClassMap
-
-    Thread = require './thread'
-    Message = require './message'
-    Namespace = require './namespace'
-    Label = require './label'
-    Folder = require './folder'
-    File = require './file'
-    Contact = require './contact'
-    LocalLink = require './local-link'
-    Event = require './event'
-    Calendar = require './calendar'
-    Metadata = require './metadata'
-
-    ## TODO move to inside of individual Salesforce package. See https://trello.com/c/tLAGLyeb/246-move-salesforce-models-into-individual-package-db-models-for-packages-various-refactors
-    SalesforceTask = require './salesforce-task'
-    SalesforceObject = require './salesforce-object'
-    SalesforceSchema = require './salesforce-schema'
-    SalesforceAssociation = require './salesforce-association'
-    SalesforceSearchResult = require './salesforce-search-result'
-
-    SyncbackDraftTask = require '../tasks/syncback-draft'
-    SendDraftTask = require '../tasks/send-draft'
-    DestroyDraftTask = require '../tasks/destroy-draft'
-
-    FileUploadTask = require '../tasks/file-upload-task'
-    EventRSVP = require '../tasks/event-rsvp'
-    ChangeLabelsTask = require '../tasks/change-labels-task'
-    ChangeFolderTask = require '../tasks/change-folder-task'
-    MarkMessageReadTask = require '../tasks/mark-message-read'
-
-    Utils._modelClassMap = {
-      'thread': Thread
-      'message': Message
-      'draft': Message
-      'contact': Contact
-      'namespace': Namespace
-      'file': File
-      'label': Label
-      'folder': Folder
-      'locallink': LocalLink
-      'calendar': Calendar
-      'event': Event
-      'metadata': Metadata
-      'salesforceschema': SalesforceSchema
-      'salesforceobject': SalesforceObject
-      'salesforceassociation': SalesforceAssociation
-      'salesforcesearchresult': SalesforceSearchResult
-      'salesforcetask': SalesforceTask
-
-      'MarkMessageReadTask': MarkMessageReadTask
-      'ChangeLabelsTask': ChangeLabelsTask
-      'ChangeFolderTask': ChangeFolderTask
-      'SendDraftTask': SendDraftTask
-      'SyncbackDraftTask': SyncbackDraftTask
-      'DestroyDraftTask': DestroyDraftTask
-      'FileUploadTask': FileUploadTask
-      'EventRSVP': EventRSVP
-    }
-    Utils._modelClassMap
-
-  modelFromJSON: (json) ->
-    # These imports can't go at the top of the file
-    # because they cause circular requires
-    klass = Utils.modelClassMap()[json.object]
-    throw (new Error "Unsure of how to inflate #{JSON.stringify(json)}") unless klass
-    throw (new Error "Cannot inflate #{json.object}, require did not return constructor") unless klass instanceof Function
-    object = new klass()
-    object.fromJSON(json)
-    object
-
   modelFreeze: (o) ->
     Object.freeze(o)
     for key, prop of o
@@ -174,11 +144,6 @@ Utils =
       continue unless typeof prop is 'object' and prop isnt null
       continue if Object.isFrozen(prop)
       Utils.modelFreeze(prop)
-
-  modelReviver: (k, v) ->
-    return v if k == ""
-    v = Utils.modelFromJSON(v) if (v instanceof Object && v['object'])
-    v
 
   generateTempId: ->
     s4 = ->
