@@ -17,7 +17,7 @@ class MessageTimestamp extends React.Component
   render: =>
     msgDate = moment.tz(@props.date, Utils.timeZone)
     nowDate = @_today()
-    formattedDate = @_formattedDate(nowDate, msgDate, @props.isDetailed)
+    formattedDate = @_formattedDate(msgDate, nowDate, @props.isDetailed)
     <div className={@props.className}
          onClick={@props.onClick}>{formattedDate}</div>
 
