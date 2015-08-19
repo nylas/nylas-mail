@@ -10,6 +10,7 @@ Grim = require 'grim'
 ServiceHub = require 'service-hub'
 Package = require './package'
 ThemePackage = require './theme-package'
+DatabaseStore = require './flux/stores/database-store'
 
 # Extended: Package manager for coordinating the lifecycle of Atom packages.
 #
@@ -45,6 +46,7 @@ class PackageManager
         @packageDirPaths.push(path.join(configDirPath, "packages"))
 
     @loadedPackages = {}
+    @packagesWithDatabaseObjects = []
     @activePackages = {}
     @packageStates = {}
     @serviceHub = new ServiceHub
@@ -343,7 +345,15 @@ class PackageManager
       packagesToDisable = _.difference(newValue, oldValue)
 
       @deactivatePackage(packageName) for packageName in packagesToDisable when @getActivePackage(packageName)
-      @activatePackage(packageName) for packageName in packagesToEnable
+
+      for packageName in packagesToEnable
+        @loadPackage(packageName)
+
+      @refreshDatabaseSchema()
+
+      for packageName in packagesToEnable
+        @activatePackage(packageName)
+
       null
 
   # If a windowType is passed, we'll only load packages who declare that
@@ -378,6 +388,8 @@ class PackageManager
         else
           pack = new Package(packagePath, metadata)
         pack.load()
+        if pack.declaresNewDatabaseObjects
+          @packagesWithDatabaseObjects.push pack
         @loadedPackages[pack.name] = pack
         @emitter.emit 'did-load-package', pack
         return pack
@@ -421,10 +433,27 @@ class PackageManager
     promises = []
     atom.config.transact =>
       for pack in packages
+        @loadPackage(pack.name)
+
+      @refreshDatabaseSchema()
+
+      for pack in packages
         promise = @activatePackage(pack.name)
         promises.push(promise) unless pack.hasActivationCommands()
     @observeDisabledPackages()
     promises
+
+  # When packages load they can declare new DatabaseObjects that need to
+  # be setup in the Database. It's important that the Database starts
+  # getting setup before packages activate so any DB queries in the
+  # `activate` methods get properly queued then executed.
+  #
+  # When a package with database-altering changes loads, it will put an
+  # entry in `packagesWithDatabaseObjects`.
+  refreshDatabaseSchema: ->
+    if @packagesWithDatabaseObjects.length > 0
+      DatabaseStore.refreshDatabaseSchema()
+      @packagesWithDatabaseObjects = []
 
   # Activate a single package by name
   activatePackage: (name) ->

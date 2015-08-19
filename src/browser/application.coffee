@@ -165,6 +165,8 @@ class Application
     unless phase in ['setup', 'ready', 'close']
       throw new Error("setDatabasePhase: #{phase} is invalid.")
 
+    return if phase is @_databasePhase
+
     @_databasePhase = phase
     @windowManager.windows().forEach (atomWindow) ->
       return unless atomWindow.browserWindow.webContents

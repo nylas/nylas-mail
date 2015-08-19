@@ -2,7 +2,10 @@ React = require 'react/addons'
 classNames = require 'classnames'
 _ = require 'underscore'
 {CompositeDisposable} = require 'event-kit'
-{Utils, RegExpUtils, Contact, ContactStore} = require 'nylas-exports'
+{Contact,
+ RegExpUtils,
+ ContactStore,
+ DatabaseObjectRegistry} = require 'nylas-exports'
 RetinaImg = require './retina-img'
 
 class SizeToFitInput extends React.Component
@@ -357,7 +360,7 @@ class TokenizingTextField extends React.Component
     try
       data = event.dataTransfer.getData('nylas-token-item')
       json = JSON.parse(data)
-      model = Utils.modelFromJSON(json)
+      model = DatabaseObjectRegistry.deserialize(json.object, json)
     catch
       model = null
     if model and model instanceof Contact

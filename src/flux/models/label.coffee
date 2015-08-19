@@ -45,6 +45,4 @@ class Label extends Category
     setup: ->
       ['CREATE INDEX IF NOT EXISTS LabelNameIndex ON Label(name)']
 
-
 module.exports = Label
-

@@ -1,7 +1,10 @@
 Actions = require './actions'
 Model = require './models/model'
-{modelReviver} = require './models/utils'
 DatabaseStore = require './stores/database-store'
+
+Utils = require './models/utils'
+TaskRegistry = require '../task-registry'
+DatabaseObjectRegistry = require '../database-object-registry'
 
 Role =
   ROOT: 'root',
@@ -62,16 +65,10 @@ class ActionBridge
         callback = => @onRebroadcast(TargetWindows.MAIN, name, arguments)
         Actions[name].listen(callback, @)
 
-
   onIPCMessage: (initiatorId, name, json) =>
     console.debug(printToConsole, "ActionBridge: #{@initiatorId} Action Bridge Received: #{name}")
 
-    # Inflate the arguments using the modelReviver to get actual
-    # Models, tasks, etc. out of the JSON
-    try
-      args = JSON.parse(json, modelReviver)
-    catch e
-      console.error(e)
+    args = Utils.deserializeJSON(json)
 
     if name == Message.DATABASE_STORE_TRIGGER
       DatabaseStore.triggeringFromActionBridge = true
@@ -84,7 +81,6 @@ class ActionBridge
     else
       throw new Error("#{@initiatorId} received unknown action-bridge event: #{name}")
 
-
   onRebroadcast: (target, name, args...) =>
     if Actions[name]?.firing
       Actions[name].firing = false
@@ -95,7 +91,7 @@ class ActionBridge
       if arg instanceof Function
         throw new Error("ActionBridge cannot forward action argument of type `function` to main window.")
       params.push(arg[0])
-    json = JSON.stringify(params)
+    json = Utils.serializeToJSON(params)
 
     console.debug(printToConsole, "ActionBridge: #{@initiatorId} Action Bridge Broadcasting: #{name}")
     @ipc.send("action-bridge-rebroadcast-to-#{target}", @initiatorId, name, json)

@@ -117,6 +117,16 @@ class DatabaseStore extends NylasStore
       @_db?.close()
       @_db = null
 
+  # When 3rd party components register new models, we need to refresh the
+  # database schema to prepare those tables. This method may be called
+  # extremely frequently as new models are added when packages load.
+  refreshDatabaseSchema: ->
+    return unless atom.isMainWindow()
+    app = require('remote').getGlobal('application')
+    phase = app.databasePhase()
+    if phase isnt DatabasePhase.Setup
+      app.setDatabasePhase(DatabasePhase.Setup)
+
   _openDatabase: (ready) =>
     return ready() if @_db
 
@@ -145,6 +155,7 @@ class DatabaseStore extends NylasStore
 
     @_db.serialize =>
       async.each builder.setupQueries(), (query, callback) =>
+        console.debug(DEBUG_TO_LOG, "DatabaseStore: #{query}")
         @_db.run(query, [], callback)
       , (err) =>
         return @_handleSetupError(err) if err

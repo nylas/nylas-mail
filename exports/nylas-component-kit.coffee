@@ -1,33 +1,39 @@
 # Publically exposed Nylas UI Components
+class NylasComponentKit
+  @load = (prop, path) ->
+    Object.defineProperty @prototype, prop,
+      get: -> require "../src/components/#{path}"
 
-{FormItem,
- GeneratedForm,
- GeneratedFieldset} = require ('../src/components/generated-form')
+  @loadFrom = (prop, path) ->
+    Object.defineProperty @prototype, prop,
+      get: ->
+        exported = require "../src/components/#{path}"
+        return exported[prop]
 
-{MailLabel, LabelColorizer} = require '../src/components/mail-label'
+  @load "Menu", 'menu'
+  @load "DropZone", 'drop-zone'
+  @load "Spinner", 'spinner'
+  @load "Popover", 'popover'
+  @load "Flexbox", 'flexbox'
+  @load "RetinaImg", 'retina-img'
+  @load "ListTabular", 'list-tabular'
+  @load "ScrollRegion", 'scroll-region'
+  @load "DraggableImg", 'draggable-img'
+  @load "EventedIFrame", 'evented-iframe'
+  @load "ButtonDropdown", 'button-dropdown'
+  @load "ResizableRegion", 'resizable-region'
+  @load "MultiselectList", 'multiselect-list'
+  @load "InjectedComponent", 'injected-component'
+  @load "TokenizingTextField", 'tokenizing-text-field'
+  @load "MultiselectActionBar", 'multiselect-action-bar'
+  @load "InjectedComponentSet", 'injected-component-set'
+  @load "TimeoutTransitionGroup", 'timeout-transition-group'
 
-module.exports =
-  # Models
-  Menu: require '../src/components/menu'
-  DropZone: require '../src/components/drop-zone'
-  Spinner: require '../src/components/spinner'
-  Popover: require '../src/components/popover'
-  Flexbox: require '../src/components/flexbox'
-  RetinaImg: require '../src/components/retina-img'
-  ListTabular: require '../src/components/list-tabular'
-  DraggableImg: require '../src/components/draggable-img'
-  ButtonDropdown: require '../src/components/button-dropdown'
-  MultiselectList: require '../src/components/multiselect-list'
-  MultiselectActionBar: require '../src/components/multiselect-action-bar'
-  ResizableRegion: require '../src/components/resizable-region'
-  ScrollRegion: require '../src/components/scroll-region'
-  InjectedComponentSet: require '../src/components/injected-component-set'
-  InjectedComponent: require '../src/components/injected-component'
-  TokenizingTextField: require '../src/components/tokenizing-text-field'
-  TimeoutTransitionGroup: require '../src/components/timeout-transition-group'
-  MailLabel: MailLabel
-  LabelColorizer: LabelColorizer
-  FormItem: FormItem
-  GeneratedForm: GeneratedForm
-  GeneratedFieldset: GeneratedFieldset
-  EventedIFrame: require '../src/components/evented-iframe'
+  @loadFrom "MailLabel", "mail-label"
+  @loadFrom "LabelColorizer", "mail-label"
+
+  @loadFrom "FormItem", "generated-form"
+  @loadFrom "GeneratedForm", "generated-form"
+  @loadFrom "GeneratedFieldset", "generated-form"
+
+module.exports = new NylasComponentKit()

@@ -3,7 +3,6 @@ Actions = require './actions'
 {APIError} = require './errors'
 DatabaseStore = require './stores/database-store'
 PriorityUICoordinator = require '../priority-ui-coordinator'
-{modelFromJSON} = require './models/utils'
 async = require 'async'
 
 class EdgehillAPI
