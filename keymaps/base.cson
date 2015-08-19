@@ -178,11 +178,16 @@
   '?': 'native!'
   '/': 'native!'
 
-'body input, body textarea, body *[contenteditable]':
+'body input, body textarea':
   'tab': 'core:focus-next'
   'shift-tab': 'core:focus-previous'
 
 'body webview':
+  'tab': 'native!'
+  'shift-tab': 'native!'
+
+# So our contenteditable control can do its own thing
+'body *[contenteditable]':
   'tab': 'native!'
   'shift-tab': 'native!'
 
