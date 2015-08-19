@@ -12,4 +12,15 @@ RegExpUtils =
   # https://regex101.com/r/zG7aW4/3
   imageTagRegex: -> /<img\s+[^>]*src="([^"]*)"[^>]*>/g
 
+  # This tests for valid schemes as per RFC 3986
+  # We need both http: https: and mailto: and a variety of other schemes.
+  # This does not check for invalid usage of the http: scheme. For
+  # example, http:bad.com would pass. We do not check for
+  # protocol-relative uri's.
+  #
+  # Regex explanation here: https://regex101.com/r/nR2yL6/2
+  # See RFC here: https://tools.ietf.org/html/rfc3986#section-3.1
+  # SO discussion: http://stackoverflow.com/questions/10687099/how-to-test-if-a-url-string-is-absolute-or-relative/31991870#31991870
+  hasValidSchemeRegex: -> new RegExp('^[a-z][a-z0-9+.-]*:', 'i')
+
 module.exports = RegExpUtils
