@@ -13,7 +13,11 @@ class ThreadListParticipants extends React.Component
 
   render: =>
     items = @getParticipants()
+    <div className="participants">
+      {@getSpans(items)}
+    </div>
 
+  getSpans: (items) =>
     spans = []
     accumulated = null
     accumulatedUnread = false
@@ -53,9 +57,7 @@ class ThreadListParticipants extends React.Component
 
     flush()
 
-    <div className="participants">
-      {spans}
-    </div>
+    return spans
 
   getParticipants: =>
     makeMetadataFilterer = (toOrFrom) ->

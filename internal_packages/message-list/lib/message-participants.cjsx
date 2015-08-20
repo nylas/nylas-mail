@@ -16,18 +16,30 @@ class MessageParticipants extends React.Component
     </div>
 
   _renderCollapsed: =>
+    childSpans = [
+      <span className="participant-name from-contact" key="from">{@_shortNames(@props.from)}</span>
+    ]
+
+    if @props.to?.length > 0
+      childSpans.push(
+        <span className="participant-label to-label" key="to-label">To:&nbsp;</span>
+        <span className="participant-name to-contact" key="to-value">{@_shortNames(@props.to)}</span>
+      )
+
+    if @props.cc?.length > 0
+      childSpans.push(
+        <span className="participant-label cc-label" key="cc-label">Cc:&nbsp;</span>
+        <span className="participant-name cc-contact" key="cc-value">{@_shortNames(@props.cc)}</span>
+      )
+
+    if @props.bcc?.length > 0
+      childSpans.push(
+        <span className="participant-label bcc-label" key="bcc-label">Bcc:&nbsp;</span>
+        <span className="participant-name bcc-contact" key="bcc-value">{@_shortNames(@props.bcc)}</span>
+      )
+
     <span className="collapsed-participants">
-      <span className="participant-name from-contact">{@_shortNames(@props.from)}</span>
-      <span className="participant-label to-label">To:&nbsp;</span>
-      <span className="participant-name to-contact">{@_shortNames(@props.to)}</span>
-      <span style={if @props.cc?.length > 0 then display:"inline" else display:"none"}>
-        <span className="participant-label cc-label">Cc:&nbsp;</span>
-        <span className="participant-name cc-contact">{@_shortNames(@props.cc)}</span>
-      </span>
-      <span style={if @props.bcc?.length > 0 then display:"inline" else display:"none"}>
-        <span className="participant-label bcc-label">Bcc:&nbsp;</span>
-        <span className="participant-name cc-contact">{@_shortNames(@props.bcc)}</span>
-      </span>
+      {childSpans}
     </span>
 
   _renderExpanded: =>
