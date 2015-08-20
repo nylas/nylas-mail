@@ -205,7 +205,7 @@ class MessageItem extends React.Component
     return "" unless @props.message and @props.message.body
 
     # Runs extensions, potentially asynchronous soon
-    body = MessageBodyProcessor.process(@props.message.id, @props.message)
+    body = MessageBodyProcessor.process(@props.message)
 
     # Replace cid:// references with the paths to downloaded files
     for file in @props.message.files

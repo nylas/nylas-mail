@@ -14,8 +14,12 @@ class MessageBodyProcessor
     @_recentlyProcessedA = []
     @_recentlyProcessedD = {}
 
-  process: (key, message) ->
+  _key: (message) ->
+    return message.id + message.version
+
+  process: (message) ->
     body = message.body
+    key = @_key(message)
     if @_recentlyProcessedD[key]
       return @_recentlyProcessedD[key].body
 
