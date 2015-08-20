@@ -2,7 +2,7 @@ _ = require 'underscore'
 React = require "react/addons"
 ReactTestUtils = React.addons.TestUtils
 TestUtils = React.addons.TestUtils
-{Contact, Message} = require "nylas-exports"
+{Contact, Message, DOMUtils} = require "nylas-exports"
 MessageParticipants = require "../lib/message-participants"
 
 user_1 =
@@ -41,21 +41,38 @@ many_thread_users = [user_1].concat(many_users)
 
 describe "MessageParticipants", ->
   describe "when collapsed", ->
-    beforeEach ->
-      @participants = TestUtils.renderIntoDocument(
-        <MessageParticipants to={test_message.to}
-                             cc={test_message.cc}
-                             from={test_message.from}
-                             message_participants={test_message.participants()} />
+    makeParticipants = (props) ->
+      TestUtils.renderIntoDocument(
+        <MessageParticipants {...props} />
       )
 
     it "renders into the document", ->
-      participants = ReactTestUtils.findRenderedDOMComponentWithClass(@participants, "collapsed-participants")
+      participants = makeParticipants(to: test_message.to, cc: test_message.cc,
+                                      from: test_message.from, message_participants: test_message.participants())
       expect(participants).toBeDefined()
 
     it "uses short names", ->
-      to = ReactTestUtils.findRenderedDOMComponentWithClass(@participants, "to-contact")
+      actualOut = makeParticipants(to: test_message.to)
+      to = ReactTestUtils.findRenderedDOMComponentWithClass(actualOut, "to-contact")
       expect(React.findDOMNode(to).innerHTML).toBe "User"
+
+    it "doesn't render any To nodes if To array is empty", ->
+      actualOut = makeParticipants(to: [])
+      findToField = ->
+        ReactTestUtils.findRenderedDOMComponentWithClass(actualOut, "to-contact")
+      expect(findToField).toThrow()
+
+    it "doesn't render any Cc nodes if Cc array is empty", ->
+      actualOut = makeParticipants(cc: [])
+      findCcField = ->
+        ReactTestUtils.findRenderedDOMComponentWithClass(actualOut, "cc-contact")
+      expect(findCcField).toThrow()
+
+    it "doesn't render any Bcc nodes if Bcc array is empty", ->
+      actualOut = makeParticipants(bcc: [])
+      findBccField = ->
+        ReactTestUtils.findRenderedDOMComponentWithClass(actualOut, "bcc-contact")
+      expect(findBccField).toThrow()
 
   describe "when expanded", ->
     beforeEach ->
