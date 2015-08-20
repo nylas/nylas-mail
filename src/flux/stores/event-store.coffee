@@ -7,7 +7,7 @@ DatabaseStore = require './database-store'
 NamespaceStore = require './namespace-store'
 _ = require 'underscore'
 
-EventRSVP = require '../tasks/event-rsvp'
+EventRSVPTask = require '../tasks/event-rsvp'
 
 {Listener, Publisher} = require '../modules/reflux-coffee'
 CoffeeHelpers = require '../coffee-helpers'
@@ -44,7 +44,7 @@ class EventStore extends NylasStore
     @__refreshCache()
 
   _onRSVPEvent: (calendar_event, RSVPStatus) ->
-    task = new EventRSVP(calendar_event, RSVPStatus)
+    task = new EventRSVPTask(calendar_event, RSVPStatus)
     Actions.queueTask(task)
 
   __refreshCache: =>

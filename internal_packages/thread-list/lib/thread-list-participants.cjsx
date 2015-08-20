@@ -70,9 +70,12 @@ class ThreadListParticipants extends React.Component
         else # check adjacent email uniqueness
           last = msgs[i - 1][toOrFrom][0]
           curr = msgs[i][toOrFrom][0]
-          isUniqueEmail = last.email.toLowerCase() isnt curr.email.toLowerCase()
-          isUniqueName = last.name isnt curr.name
-          isUniqueEmail or isUniqueName
+          if last and curr
+            isUniqueEmail = last.email.toLowerCase() isnt curr.email.toLowerCase()
+            isUniqueName = last.name isnt curr.name
+            isUniqueEmail or isUniqueName
+          else
+            return false
 
     makeMetadataMapper = (toOrFrom) ->
       (msg) ->
