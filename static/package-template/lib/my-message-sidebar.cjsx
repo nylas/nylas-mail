@@ -52,7 +52,7 @@ class MyMessageSidebar extends React.Component
     #    mode={RetinaImg.Mode.ContentIsMask}/>
     #
     <div className="header">
-      <h1>Hi there {@state.contact.name}!</h1>
+      <h1>{@state.contact.displayName()} is the focused contact.</h1>
     </div>
 
   _renderPlaceholder: =>
