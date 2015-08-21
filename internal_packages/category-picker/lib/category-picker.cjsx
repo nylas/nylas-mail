@@ -6,7 +6,7 @@ React = require 'react'
  Actions,
  TaskQueue,
  CategoryStore,
- NamespaceStore,
+ AccountStore,
  WorkspaceStore,
  ChangeLabelsTask,
  ChangeFolderTask,
@@ -31,7 +31,7 @@ class CategoryPicker extends React.Component
   componentDidMount: =>
     @unsubscribers = []
     @unsubscribers.push CategoryStore.listen @_onStoreChanged
-    @unsubscribers.push NamespaceStore.listen @_onStoreChanged
+    @unsubscribers.push AccountStore.listen @_onStoreChanged
 
     @_commandUnsubscriber = atom.commands.add 'body',
       "application:change-category": @_onOpenCategoryPopover
@@ -49,13 +49,13 @@ class CategoryPicker extends React.Component
     @_commandUnsubscriber.dispose()
 
   render: =>
-    return <span></span> unless @_namespace
+    return <span></span> unless @_account
 
-    if @_namespace?.usesLabels()
+    if @_account?.usesLabels()
       img = "ic-toolbar-tag.png"
       tooltip = "Apply Labels"
       placeholder = "Label as"
-    else if @_namespace?.usesFolders()
+    else if @_account?.usesFolders()
       img = "ic-toolbar-movetofolder.png"
       tooltip = "Move to Folder"
       placeholder = "Move to folder"
@@ -107,9 +107,9 @@ class CategoryPicker extends React.Component
   _renderItemContent: (item) =>
     if item.divider
       return <Menu.Item divider={item.divider} />
-    if @_namespace?.usesLabels()
+    if @_account?.usesLabels()
       icon = @_renderCheckbox(item)
-    else if @_namespace?.usesFolders()
+    else if @_account?.usesFolders()
       icon = @_renderFolderIcon(item)
     else return <span></span>
 
@@ -172,10 +172,10 @@ class CategoryPicker extends React.Component
 
   _onSelectCategory: (item) =>
     return unless @_threads().length > 0
-    return unless @_namespace
+    return unless @_account
     @refs.menu.setSelectedItem(null)
 
-    if @_namespace.usesLabels()
+    if @_account.usesLabels()
       if item.usage > 0
         task = new ChangeLabelsTask
           labelsToRemove: [item.category]
@@ -186,7 +186,7 @@ class CategoryPicker extends React.Component
           threads: @_threads()
       Actions.queueTask(task)
 
-    else if @_namespace.usesFolders()
+    else if @_account.usesFolders()
       task = new ChangeFolderTask
         folder: item.category
         threads: @_threads()
@@ -219,8 +219,8 @@ class CategoryPicker extends React.Component
     if numThreads is 0
       return {categoryData: [], searchValue}
 
-    @_namespace = NamespaceStore.current()
-    return unless @_namespace
+    @_account = AccountStore.current()
+    return unless @_account
 
     categories = [].concat(CategoryStore.getStandardCategories())
       .concat([{divider: true}])
@@ -253,12 +253,12 @@ class CategoryPicker extends React.Component
   _isUserFacing: (allInInbox, category) =>
     hiddenCategories = []
     currentCategoryId = FocusedCategoryStore.categoryId()
-    if @_namespace?.usesLabels()
+    if @_account?.usesLabels()
       hiddenCategories = ["all", "spam", "trash", "drafts", "sent"]
       if allInInbox
         hiddenCategories.push("inbox")
       return false if category.divider
-    else if @_namespace?.usesFolders()
+    else if @_account?.usesFolders()
       hiddenCategories = ["drafts", "sent"]
 
     return (category.name not in hiddenCategories) and (category.id isnt currentCategoryId)
@@ -278,9 +278,9 @@ class CategoryPicker extends React.Component
     item
 
   _threadCategories: (thread) =>
-    if @_namespace.usesLabels()
+    if @_account.usesLabels()
       return (thread.labels ? [])
-    else if @_namespace.usesFolders()
+    else if @_account.usesFolders()
       return (thread.folders ? [])
     else throw new Error("Invalid organizationUnit")
 

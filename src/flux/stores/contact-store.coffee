@@ -7,7 +7,7 @@ Utils = require '../models/utils'
 NylasStore = require 'nylas-store'
 RegExpUtils = require '../../regexp-utils'
 DatabaseStore = require './database-store'
-NamespaceStore = require './namespace-store'
+AccountStore = require './account-store'
 _ = require 'underscore'
 
 NylasAPI = require '../nylas-api'
@@ -93,14 +93,16 @@ class RankingsJSONCache extends JSONCache
   refreshValue: (callback) =>
     return unless atom.isMainWindow()
 
-    nsid = NamespaceStore.current()?.id
-    return unless nsid
+    accountId = AccountStore.current()?.id
+    return unless accountId
+
     NylasAPI.makeRequest
-      path: "/n/#{nsid}/contacts/rankings"
+      accountId: accountId
+      path: "/contacts/rankings"
       returnsModel: false
     .then (json) =>
-      # Check that the current namespace is still the one we requested data for
-      return unless nsid is NamespaceStore.current()?.id
+      # Check that the current account is still the one we requested data for
+      return unless accountId is AccountStore.current()?.id
       # Convert rankings into the format needed for quick lookup
       rankings = {}
       for [email, rank] in json
@@ -134,13 +136,14 @@ class ContactStore extends NylasStore
 
   constructor: ->
     @_contactCache = []
-    @_namespaceId = null
+    @_accountId = null
 
     @_rankingsCache = new RankingsJSONCache()
     @listenTo DatabaseStore, @_onDatabaseChanged
-    @listenTo NamespaceStore, @_onNamespaceChanged
+    @listenTo AccountStore, @_onAccountChanged
     @listenTo @_rankingsCache, @_sortContactsCacheWithRankings
 
+    @_accountId = AccountStore.current()?.id
     @_refreshCache()
 
   # Public: Search the user's contact list for the given search term.
@@ -241,7 +244,9 @@ class ContactStore extends NylasStore
     detected
 
   __refreshCache: =>
-    DatabaseStore.findAll(Contact).then (contacts=[]) =>
+    return unless @_accountId
+
+    DatabaseStore.findAll(Contact).where(Contact.attributes.accountId.equal(@_accountId)).then (contacts=[]) =>
       @_contactCache = contacts
       @_sortContactsCacheWithRankings()
       @trigger()
@@ -264,11 +269,11 @@ class ContactStore extends NylasStore
     @_rankingsCache.reset()
     @trigger(@)
 
-  _onNamespaceChanged: =>
-    return if @_namespaceId is NamespaceStore.current()?.id
-    @_namespaceId = NamespaceStore.current()?.id
+  _onAccountChanged: =>
+    return if @_accountId is AccountStore.current()?.id
+    @_accountId = AccountStore.current()?.id
 
-    if @_namespaceId
+    if @_accountId
       @_rankingsCache.refresh()
       @_refreshCache()
     else

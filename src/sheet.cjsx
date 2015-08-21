@@ -77,12 +77,18 @@ class Sheet extends React.Component
           <InjectedComponentSet direction="column" matching={location: location, mode: @state.mode}/>
         </ResizableRegion>
       else
+        style =
+          height: '100%'
+        if maxWidth < FLEX
+          style.width = maxWidth
+        else
+          style.flex = 1
         <InjectedComponentSet direction="column"
                               key={"#{@props.data.id}:#{idx}"}
                               name={"#{@props.data.id}:#{idx}"}
                               className={"column-#{location.id}"}
                               data-column={idx}
-                              style={flex: 1, height:'100%'}
+                              style={style}
                               matching={location: location, mode: @state.mode}/>
 
   _getStateFromStores: =>

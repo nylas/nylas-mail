@@ -2,7 +2,7 @@ ModelQuery = require '../../src/flux/models/query'
 {Matcher} = require '../../src/flux/attributes'
 Message = require '../../src/flux/models/message'
 Thread = require '../../src/flux/models/thread'
-Namespace = require '../../src/flux/models/namespace'
+Account = require '../../src/flux/models/account'
 
 describe "ModelQuery", ->
   beforeEach ->
@@ -98,7 +98,7 @@ describe "ModelQuery", ->
   describe "formatResult", ->
     it "should always return a Number for counts", ->
       q = new ModelQuery(Message, @db)
-      q.where({namespaceId: 'abcd'}).count()
+      q.where({accountId: 'abcd'}).count()
       expect(q.formatResult([{count:"12"}])).toBe(12)
 
   describe "sql", ->
@@ -110,32 +110,32 @@ describe "ModelQuery", ->
         expect(q.sql().trim()).toBe(scenario.sql.trim())
 
     it "should correctly generate queries with multiple where clauses", ->
-      @runScenario Namespace,
+      @runScenario Account,
         builder: (q) -> q.where({emailAddress: 'ben@nylas.com'}).where({id: 2})
-        sql: "SELECT `Namespace`.`data` FROM `Namespace`  \
-              WHERE `Namespace`.`email_address` = 'ben@nylas.com' AND `Namespace`.`id` = 2"
+        sql: "SELECT `Account`.`data` FROM `Account`  \
+              WHERE `Account`.`email_address` = 'ben@nylas.com' AND `Account`.`id` = 2"
 
     it "should correctly escape single quotes with more double single quotes (LIKE)", ->
-      @runScenario Namespace,
-        builder: (q) -> q.where(Namespace.attributes.emailAddress.like("you're"))
-        sql: "SELECT `Namespace`.`data` FROM `Namespace`  WHERE `Namespace`.`email_address` like '%you''re%'"
+      @runScenario Account,
+        builder: (q) -> q.where(Account.attributes.emailAddress.like("you're"))
+        sql: "SELECT `Account`.`data` FROM `Account`  WHERE `Account`.`email_address` like '%you''re%'"
 
     it "should correctly escape single quotes with more double single quotes (equal)", ->
-      @runScenario Namespace,
-        builder: (q) -> q.where(Namespace.attributes.emailAddress.equal("you're"))
-        sql: "SELECT `Namespace`.`data` FROM `Namespace`  WHERE `Namespace`.`email_address` = 'you''re'"
+      @runScenario Account,
+        builder: (q) -> q.where(Account.attributes.emailAddress.equal("you're"))
+        sql: "SELECT `Account`.`data` FROM `Account`  WHERE `Account`.`email_address` = 'you''re'"
 
     it "should correctly generate COUNT queries", ->
       @runScenario Thread,
-        builder: (q) -> q.where({namespaceId: 'abcd'}).count()
+        builder: (q) -> q.where({accountId: 'abcd'}).count()
         sql: "SELECT COUNT(*) as count FROM `Thread`  \
-              WHERE `Thread`.`namespace_id` = 'abcd'  "
+              WHERE `Thread`.`account_id` = 'abcd'  "
 
     it "should correctly generate LIMIT 1 queries for single items", ->
       @runScenario Thread,
-        builder: (q) -> q.where({namespaceId: 'abcd'}).one()
+        builder: (q) -> q.where({accountId: 'abcd'}).one()
         sql: "SELECT `Thread`.`data` FROM `Thread`  \
-              WHERE `Thread`.`namespace_id` = 'abcd'  \
+              WHERE `Thread`.`account_id` = 'abcd'  \
               ORDER BY `Thread`.`last_message_received_timestamp` DESC LIMIT 1"
 
     it "should correctly generate `contains` queries using JOINS", ->
@@ -156,21 +156,21 @@ describe "ModelQuery", ->
 
     it "should correctly generate queries with the class's naturalSortOrder when one is available and no other orders are provided", ->
       @runScenario Thread,
-        builder: (q) -> q.where({namespaceId: 'abcd'})
+        builder: (q) -> q.where({accountId: 'abcd'})
         sql: "SELECT `Thread`.`data` FROM `Thread`  \
-              WHERE `Thread`.`namespace_id` = 'abcd'  \
+              WHERE `Thread`.`account_id` = 'abcd'  \
               ORDER BY `Thread`.`last_message_received_timestamp` DESC"
 
       @runScenario Thread,
-        builder: (q) -> q.where({namespaceId: 'abcd'}).order(Thread.attributes.lastMessageReceivedTimestamp.ascending())
+        builder: (q) -> q.where({accountId: 'abcd'}).order(Thread.attributes.lastMessageReceivedTimestamp.ascending())
         sql: "SELECT `Thread`.`data` FROM `Thread`  \
-              WHERE `Thread`.`namespace_id` = 'abcd'  \
+              WHERE `Thread`.`account_id` = 'abcd'  \
               ORDER BY `Thread`.`last_message_received_timestamp` ASC"
 
-      @runScenario Namespace,
+      @runScenario Account,
         builder: (q) -> q.where({id: 'abcd'})
-        sql: "SELECT `Namespace`.`data` FROM `Namespace`  \
-              WHERE `Namespace`.`id` = 'abcd'  "
+        sql: "SELECT `Account`.`data` FROM `Account`  \
+              WHERE `Account`.`id` = 'abcd'  "
 
     it "should correctly generate queries requesting joined data attributes", ->
       @runScenario Message,

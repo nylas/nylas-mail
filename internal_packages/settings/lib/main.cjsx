@@ -8,7 +8,7 @@ module.exports =
 
   activate: (@state={}) ->
     WorkspaceStore.defineSheet 'Settings', {root: true, supportedModes: ['list'], name: 'Plugins'},
-      list: ['RootSidebar', 'SettingsSidebar', 'Settings']
+      list: ['RootSwitcher', 'RootSidebar', 'SettingsSidebar', 'Settings']
 
     ComponentRegistry.register SettingsTabsView,
       location: WorkspaceStore.Location.SettingsSidebar

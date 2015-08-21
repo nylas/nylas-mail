@@ -1,6 +1,6 @@
 React = require 'react'
 _ = require 'underscore'
-{NamespaceStore} = require 'nylas-exports'
+{AccountStore, DatabaseStore, EdgehillAPI} = require 'nylas-exports'
 {RetinaImg, Flexbox} = require 'nylas-component-kit'
 
 class PreferencesAccounts extends React.Component
@@ -13,83 +13,110 @@ class PreferencesAccounts extends React.Component
     @state = @getStateFromStores()
 
   componentDidMount: =>
-    @unsubscribe = NamespaceStore.listen @_onNamespaceChange
+    @unsubscribe = AccountStore.listen @_onAccountChange
 
   componentWillUnmount: =>
     @unsubscribe?()
 
   render: =>
     <div className="container-accounts">
-      <div className="section-header">
-        Account:
-      </div>
-      <div className="well large">
-        {@_renderNamespace()}
+      {@_renderAccounts()}
+      <div style={textAlign:"right", marginTop: '20'}>
+        <button className="btn btn-large" onClick={@_onAddAccount}>Add Account...</button>
       </div>
 
       {@_renderLinkedAccounts()}
+
+      <div style={textAlign:"left", marginTop: '20'}>
+        <button className="btn btn-large" onClick={@_onLogout}>Log out</button>
+      </div>
     </div>
 
-  _renderNamespace: =>
-    return false unless @state.namespace
+  _renderAccounts: =>
+    return false unless @state.accounts
 
-    <Flexbox direction="row" style={alignItems: 'middle'}>
-      <div style={textAlign: "center"}>
-        <RetinaImg name={"ic-settings-account-#{@state.namespace.provider}.png"}
-                   fallback="ic-settings-account-imap.png"
-                   mode={RetinaImg.Mode.ContentPreserve} />
-      </div>
-      <div style={flex: 1, marginLeft: 10}>
-        <div className="account-name">{@state.namespace.emailAddress}</div>
-        <div className="account-subtext">{@state.namespace.name || "No name provided."} ({@state.namespace.displayProvider()})</div>
-      </div>
-      <div style={textAlign:"right"}>
-        <button className="btn btn-larger" onClick={@_onLogout}>Log out</button>
-      </div>
-    </Flexbox>
+    allowUnlinking = @state.accounts.length > 1
 
-  _renderLinkedAccounts: =>
-    accounts = @getLinkedAccounts()
-    return false unless accounts.length > 0
     <div>
       <div className="section-header">
-        Linked Accounts:
+        Accounts:
       </div>
-      { accounts.map (name) =>
-        <div className="well small" key={name}>
-          {@_renderLinkedAccount(name)}
+      { @state.accounts.map (account) =>
+        <div className="well large" style={marginBottom:10} key={account.id}>
+          <Flexbox direction="row" style={alignItems: 'middle'}>
+            <div style={textAlign: "center"}>
+              <RetinaImg name={"ic-settings-account-#{account.provider}.png"}
+                         fallback="ic-settings-account-imap.png"
+                         mode={RetinaImg.Mode.ContentPreserve} />
+            </div>
+            <div style={flex: 1, marginLeft: 10}>
+              <div className="account-name">{account.emailAddress}</div>
+              <div className="account-subtext">{account.name || "No name provided."} ({account.displayProvider()})</div>
+            </div>
+            <div style={textAlign:"right", marginTop:10, display: if allowUnlinking then 'inline-block' else 'none'}>
+              <button className="btn btn-large" onClick={ => @_onUnlinkAccount(account) }>Unlink</button>
+            </div>
+          </Flexbox>
         </div>
       }
     </div>
 
-  _renderLinkedAccount: (name) =>
+  _renderLinkedAccounts: =>
+    tokens = @getSecondaryTokens()
+    return false unless tokens.length > 0
+    <div>
+      <div className="section-header">
+        Linked Accounts:
+      </div>
+      { tokens.map (token) =>
+        <div className="well small" key={token.id}>
+          {@_renderLinkedAccount(token)}
+        </div>
+      }
+    </div>
+
+  _renderLinkedAccount: (token) =>
     <Flexbox direction="row" style={alignItems: "center"}>
       <div>
-        <RetinaImg name={"ic-settings-account-#{name}.png"} fallback="ic-settings-account-imap.png" />
+        <RetinaImg name={"ic-settings-account-#{token.provider}.png"} fallback="ic-settings-account-imap.png" />
       </div>
       <div style={flex: 1, marginLeft: 10}>
-        <div className="account-name">{name}</div>
+        <div className="account-name">{token.provider}</div>
       </div>
       <div style={textAlign:"right"}>
-        <button onClick={ => @_onUnlinkAccount(name) } className="btn btn-large">Unlink</button>
+        <button onClick={ => @_onUnlinkToken(token) } className="btn btn-large">Unlink</button>
       </div>
     </Flexbox>
 
   getStateFromStores: =>
-    namespace: NamespaceStore.current()
+    accounts: AccountStore.items()
 
-  getLinkedAccounts: =>
+  getSecondaryTokens: =>
     return [] unless @props.config
-    accounts = []
-    for key in ['salesforce']
-      accounts.push(key) if @props.config[key]
-    accounts
+    tokens = @props.config.get('tokens') || []
+    tokens = tokens.filter (token) -> token.provider isnt 'nylas'
+    tokens
 
-  _onNamespaceChange: =>
+  _onAddAccount: =>
+    require('remote').getGlobal('application').windowManager.newOnboardingWindow()
+
+  _onAccountChange: =>
     @setState(@getStateFromStores())
 
-  _onUnlinkAccount: (name) =>
-    atom.config.unset(name)
+  _onUnlinkAccount: (account) =>
+    return [] unless @props.config
+
+    tokens = @props.config.get('tokens') || []
+    token = _.find tokens, (token) ->
+      token.provider is 'nylas' and token.identifier is account.emailAddress
+    tokens = _.without(tokens, token)
+
+    DatabaseStore.unpersistModel(account).then =>
+      # TODO: Delete other mail data
+      EdgehillAPI.unlinkToken(token)
+
+  _onUnlinkToken: (token) =>
+    EdgehillAPI.unlinkToken(token)
     return
 
   _onLogout: =>

@@ -118,18 +118,18 @@
     border: none;
   }
 
+  .composer-field-label {
+    color: @text-color-very-subtle;
+    float: left;
+    padding-top: 6px;
+    display: block;
+  }
+
   .compose-subject-wrap {
     position: relative;
     margin: 0 23px;
     border-bottom: 1px solid @border-color-divider;
     flex-shrink:0;
-
-    .subject-label {
-      color: @text-color-very-subtle;
-      float: left;
-      padding-top: 6px;
-      display: block;
-    }
 
     input {
       display: inline-block;
@@ -257,11 +257,17 @@
 //////////////////////////////////
 // participants-text-field.cjsx //
 //////////////////////////////////
-.participants-text-field {
+.composer-participant-field {
   position: relative;
-  padding: 5px @spacing-standard 0 @spacing-standard;
-  margin: 0 8px;
+  padding: 7px 0 0 0;
+  margin: 0 8+@spacing-standard;
   flex-shrink: 0;
+  border-bottom: 1px solid @border-color-divider;
+  min-height: 48px;
+
+  .button-dropdown {
+    margin-left: 10px;
+  }
 
   .participant {
     white-space: nowrap;
@@ -306,7 +312,7 @@
     position: absolute;
     width: 22.5px;
     height: 10px;
-    background: transparent url('images/tooltip/tooltip-bg-pointer@2x.png') no-repeat;
+    // background: transparent url('images/tooltip/tooltip-bg-pointer@2x.png') no-repeat;
     background-size: 22.5px 10.5px;
     margin-left: -11.2px;
   }
@@ -380,19 +386,19 @@
     background: no-repeat;
     background-size: 12.5px 12.5px;
     background-position: @padding-left @padding-top;
-    &.btn-bold { background-image: url("images/composer/tooltip-bold-black@2x.png") }
-    &.btn-italic { background-image: url("images/composer/tooltip-italic-black@2x.png") }
-    &.btn-underline { background-image: url("images/composer/tooltip-underline-black@2x.png") }
-    &.btn-link { background-image: url("images/composer/tooltip-link-black@2x.png") }
+    // &.btn-bold { background-image: url("images/composer/tooltip-bold-black@2x.png") }
+    // &.btn-italic { background-image: url("images/composer/tooltip-italic-black@2x.png") }
+    // &.btn-underline { background-image: url("images/composer/tooltip-underline-black@2x.png") }
+    // &.btn-link { background-image: url("images/composer/tooltip-link-black@2x.png") }
     &:hover {
       cursor: pointer;
       background: no-repeat;
       background-size: 12.5px 12.5px;
       background-position: @padding-left @padding-top;
-      &.btn-bold { background-image: url("images/composer/tooltip-bold-blue@2x.png") }
-      &.btn-italic { background-image: url("images/composer/tooltip-italic-blue@2x.png") }
-      &.btn-underline { background-image: url("images/composer/tooltip-underline-blue@2x.png") }
-      &.btn-link { background-image: url("images/composer/tooltip-link-blue@2x.png") }
+      // &.btn-bold { background-image: url("images/composer/tooltip-bold-blue@2x.png") }
+      // &.btn-italic { background-image: url("images/composer/tooltip-italic-blue@2x.png") }
+      // &.btn-underline { background-image: url("images/composer/tooltip-underline-blue@2x.png") }
+      // &.btn-link { background-image: url("images/composer/tooltip-link-blue@2x.png") }
     }
   }
 }

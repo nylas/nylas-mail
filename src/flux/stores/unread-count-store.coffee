@@ -3,7 +3,7 @@ _ = require 'underscore'
 remote = require 'remote'
 app = remote.require 'app'
 CategoryStore = require './category-store'
-NamespaceStore = require './namespace-store'
+AccountStore = require './account-store'
 DatabaseStore = require './database-store'
 Actions = require '../actions'
 Thread = require '../models/thread'
@@ -18,7 +18,7 @@ yourself from the database.
 ###
 UnreadCountStore = Reflux.createStore
   init: ->
-    @listenTo NamespaceStore, @_onNamespaceChanged
+    @listenTo AccountStore, @_onAccountChanged
     @listenTo DatabaseStore, @_onDataChanged
 
     atom.config.observe 'core.showUnreadBadge', (val) =>
@@ -28,29 +28,30 @@ UnreadCountStore = Reflux.createStore
         @_setBadge("")
 
     @_count = null
+    @_fetchCountDebounced ?= _.debounce(@_fetchCount, 5000)
     _.defer => @_fetchCount()
 
   # Public: Returns the number of unread threads in the user's mailbox
   count: ->
     @_count
 
-  _onNamespaceChanged: ->
-    @_onDataChanged()
+  _onAccountChanged: ->
+    @_count = 0
+    @_updateBadgeForCount(0)
+    @trigger()
+    @_fetchCount()
 
   _onDataChanged: (change) ->
-    return @_setBadge("") unless NamespaceStore.current()
-
     if change && change.objectClass is Thread.name
-      @_fetchCountDebounced ?= _.debounce(@_fetchCount, 5000)
       @_fetchCountDebounced()
 
   _fetchCount: ->
-    namespace = NamespaceStore.current()
-    return unless namespace
+    account = AccountStore.current()
+    return @_setBadge("") unless account
 
-    if namespace.usesFolders()
+    if account.usesFolders()
       [CategoryClass, CategoryAttribute] = [Folder, Thread.attributes.folders]
-    else if namespace.usesLabels()
+    else if account.usesLabels()
       [CategoryClass, CategoryAttribute] = [Label, Thread.attributes.labels]
     else
       return
@@ -61,7 +62,7 @@ UnreadCountStore = Reflux.createStore
       return unless category
 
       matchers = [
-        Thread.attributes.namespaceId.equal(namespace.id),
+        Thread.attributes.accountId.equal(account.id),
         Thread.attributes.unread.equal(true),
         CategoryAttribute.contains(category.id)
       ]
@@ -85,6 +86,8 @@ UnreadCountStore = Reflux.createStore
       @_setBadge("")
 
   _setBadge: (val) ->
-    app.dock?.setBadge?(val)
+    # NOTE: Do not underestimate how long this can take. It's a synchronous
+    # remote call and can take ~50+msec.
+    _.defer => app.dock?.setBadge?(val)
 
 module.exports = UnreadCountStore

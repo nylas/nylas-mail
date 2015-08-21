@@ -7,7 +7,7 @@ Spinner = require './spinner'
  Utils,
  WorkspaceStore,
  FocusedContentStore,
- NamespaceStore} = require 'nylas-exports'
+ AccountStore} = require 'nylas-exports'
 EventEmitter = require('events').EventEmitter
 
 MultiselectListInteractionHandler = require './multiselect-list-interaction-handler'

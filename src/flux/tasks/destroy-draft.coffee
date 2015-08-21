@@ -11,21 +11,32 @@ FileUploadTask = require './file-upload-task'
 
 module.exports =
 class DestroyDraftTask extends Task
-  constructor: (@draftLocalId) -> super
+  constructor: ({@draftLocalId, @draftId} = {}) -> super
 
   shouldDequeueOtherTask: (other) ->
-    (other instanceof SyncbackDraftTask and other.draftLocalId is @draftLocalId) or
-    (other instanceof SendDraftTask and other.draftLocalId is @draftLocalId) or
-    (other instanceof FileUploadTask and other.messageLocalId is @draftLocalId)
+    if @draftLocalId
+      (other instanceof DestroyDraftTask and other.draftLocalId is @draftLocalId) or
+      (other instanceof SyncbackDraftTask and other.draftLocalId is @draftLocalId) or
+      (other instanceof SendDraftTask and other.draftLocalId is @draftLocalId) or
+      (other instanceof FileUploadTask and other.messageLocalId is @draftLocalId)
+    else if @draftId
+      (other instanceof DestroyDraftTask and other.draftLocalId is @draftLocalId)
+    else
+      false
 
   shouldWaitForTask: (other) ->
     (other instanceof SyncbackDraftTask and other.draftLocalId is @draftLocalId)
 
   performLocal: ->
-    unless @draftLocalId?
-      return Promise.reject(new Error("Attempt to call DestroyDraftTask.performLocal without @draftLocalId"))
+    if @draftLocalId
+      find = DatabaseStore.findByLocalId(Message, @draftLocalId)
+    else if @draftId
+      find = DatabaseStore.find(Message, @draftId)
+    else
+      return Promise.reject(new Error("Attempt to call DestroyDraftTask.performLocal without draftLocalId or draftId"))
 
-    DatabaseStore.findByLocalId(Message, @draftLocalId).then (draft) =>
+    find.then (draft) =>
+      console.log("Found draft: ", draft)
       return Promise.resolve() unless draft
       @draft = draft
       DatabaseStore.unpersistModel(draft)
@@ -35,10 +46,11 @@ class DestroyDraftTask extends Task
     # when we performed locally, or if the draft has never been synced to
     # the server (id is still self-assigned)
     return Promise.resolve(Task.Status.Finished) unless @draft
-    return Promise.resolve(Task.Status.Finished) unless @draft.isSaved() and @draft.version
+    return Promise.resolve(Task.Status.Finished) unless @draft.isSaved() and @draft.version?
 
     NylasAPI.makeRequest
-      path: "/n/#{@draft.namespaceId}/drafts/#{@draft.id}"
+      path: "/drafts/#{@draft.id}"
+      accountId: @draft.accountId
       method: "DELETE"
       body:
         version: @draft.version

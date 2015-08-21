@@ -5,7 +5,7 @@ describe "AccountSidebarStore", ->
   xit "should update when the DatabaseStore emits changes to tags", ->
     true
 
-  xit "should update when the NamespaceStore emits", ->
+  xit "should update when the AccountStore emits", ->
     true
 
   xit "should provide an array of sections to the sidebar view", ->

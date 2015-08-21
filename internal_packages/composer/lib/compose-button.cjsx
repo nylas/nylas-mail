@@ -1,5 +1,5 @@
 React = require 'react'
-{Message, Actions, NamespaceStore} = require 'nylas-exports'
+{Message, Actions, AccountStore} = require 'nylas-exports'
 {RetinaImg} = require 'nylas-component-kit'
 
 class ComposeButton extends React.Component

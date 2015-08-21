@@ -3,7 +3,7 @@ Reflux = require 'reflux'
 Mixpanel = require 'mixpanel'
 
 Actions = require '../actions'
-NamespaceStore = require './namespace-store'
+AccountStore = require './account-store'
 
 printToConsole = false
 
@@ -15,7 +15,7 @@ AnalyticsStore = Reflux.createStore
         @track(action, callback(args...))
 
     @analytics = Mixpanel.init("625e2300ef07cb4eb70a69b3638ca579")
-    @listenTo NamespaceStore, => @identify()
+    @listenTo AccountStore, => @identify()
     @identify()
 
     @_listenToCoreActions()
@@ -68,21 +68,22 @@ AnalyticsStore = Reflux.createStore
     sendDraftSuccess: ({draftLocalId}) -> {draftLocalId: draftLocalId}
 
   track: (action, data={}) ->
-    # send to the analytics service
-    @analytics.track(action, _.extend(data, namespaceId: NamespaceStore.current()?.id))
+    _.defer =>
+      # send to the analytics service
+      @analytics.track(action, _.extend(data, accountId: AccountStore.current()?.id))
 
-    # send to the logs that we ship to LogStash
-    console.debug(printToConsole, {action, data})
+      # send to the logs that we ship to LogStash
+      console.debug(printToConsole, {action, data})
 
   identify: ->
-    namespace = NamespaceStore.current()
-    if namespace
-      @analytics.alias("distinct_id", namespace.id)
-      @analytics.people.set namespace.id,
-        "$email": namespace.me().email
-        "$first_name": namespace.me().firstName()
-        "$last_name": namespace.me().lastName()
-        "namespaceId": namespace.id
+    account = AccountStore.current()
+    if account
+      @analytics.alias("distinct_id", account.id)
+      @analytics.people.set account.id,
+        "$email": account.me().email
+        "$first_name": account.me().firstName()
+        "$last_name": account.me().lastName()
+        "accountId": account.id
 
   _listenToCoreActions: ->
     _.each @coreWindowActions(), @listenAndTrack()

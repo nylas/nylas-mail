@@ -2,9 +2,9 @@ Model = require './model'
 Attributes = require '../attributes'
 _ = require 'underscore'
 
-# Only load the NamespaceStore the first time we actually need it. This
+# Only load the AccountStore the first time we actually need it. This
 # lets us safely require a `Contact` object without side effects.
-NamespaceStore = null
+AccountStore = null
 
 name_prefixes = {}
 name_suffixes = {}
@@ -34,7 +34,6 @@ Section: Models
 ###
 class Contact extends Model
   constructor: ->
-    NamespaceStore ?= require '../stores/namespace-store'
     super
 
   @attributes: _.extend {}, Model.attributes,
@@ -62,7 +61,7 @@ class Contact extends Model
 
   @additionalSQLiteConfig:
     setup: ->
-      ['CREATE INDEX IF NOT EXISTS ContactEmailIndex ON Contact(email)']
+      ['CREATE INDEX IF NOT EXISTS ContactEmailIndex ON Contact(account_id,email)']
 
   # Public: Returns a string of the format `Full Name <email@address.com>` if
   # the contact has a populated name, just the email address otherwise.
@@ -79,9 +78,10 @@ class Contact extends Model
 
   # Public: Returns true if the contact is the current user, false otherwise.
   # You should use this method instead of comparing the user's email address to
-  # the namespace email, since it is case-insensitive and future-proof.
+  # the account email, since it is case-insensitive and future-proof.
   isMe: ->
-    @email.toLowerCase() is NamespaceStore.current()?.emailAddress.toLowerCase()
+    AccountStore = require '../stores/account-store'
+    @email.toLowerCase() is AccountStore.current()?.emailAddress.toLowerCase()
 
   # Returns a {String} display name.
   # - "You" if the contact is the current user

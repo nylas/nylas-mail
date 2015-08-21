@@ -7,7 +7,7 @@ React = require 'react'
  CategoryStore,
  ChangeFolderTask,
  ChangeLabelsTask,
- NamespaceStore} = require 'nylas-exports'
+ AccountStore} = require 'nylas-exports'
 
 class ThreadListQuickActions extends React.Component
   @displayName: 'ThreadListQuickActions'
@@ -21,7 +21,7 @@ class ThreadListQuickActions extends React.Component
     actions.push <div key="fwd" className="action action-forward" onClick={@_onForward}></div>
     if @_shouldDisplayArchiveButton()
       actions.push <div key="archive" className="action action-archive" onClick={@_onArchive}></div>
-    else if NamespaceStore.current().usesLabels() and @props.categoryId == CategoryStore.getStandardCategory('all').id
+    else if AccountStore.current().usesLabels() and @props.categoryId == CategoryStore.getStandardCategory('all').id
       actions.push <div key="trash" className="action action-trash" onClick={@_onTrash}></div>
 
     <div className="inner">
@@ -33,7 +33,7 @@ class ThreadListQuickActions extends React.Component
 
   _shouldDisplayArchiveButton: =>
     if @props.categoryId != CategoryStore.getStandardCategory('archive')?.id and @props.categoryId != CategoryStore.getStandardCategory('trash')?.id
-      if NamespaceStore.current().usesLabels()
+      if AccountStore.current().usesLabels()
         if @props.thread.labels.length == 1 and (@props.thread.labels[0].name == "archive" or @props.thread.labels[0].name == "all")
           return false
         return true

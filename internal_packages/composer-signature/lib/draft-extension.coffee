@@ -1,9 +1,9 @@
-{DraftStoreExtension, NamespaceStore} = require 'nylas-exports'
+{DraftStoreExtension, AccountStore} = require 'nylas-exports'
 
 class SignatureDraftStoreExtension extends DraftStoreExtension
   @prepareNewDraft: (draft) ->
-    namespaceId = NamespaceStore.current().id
-    signature = atom.config.get("signatures.#{namespaceId}")
+    accountId = AccountStore.current().id
+    signature = atom.config.get("signatures.#{accountId}")
     return unless signature
 
     insertionPoint = draft.body.indexOf('<blockquote')

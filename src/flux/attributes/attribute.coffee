@@ -3,7 +3,7 @@ Matcher = require './matcher'
 SortOrder = require './sort-order'
 
 ###
-Public: The Attribute class represents a single model attribute, like 'namespace_id'.
+Public: The Attribute class represents a single model attribute, like 'account_id'.
 Subclasses of {Attribute} like {AttributeDateTime} know how to covert between
 the JSON representation of that type and the javascript representation.
 The Attribute class also exposes convenience methods for generating {Matcher} objects.

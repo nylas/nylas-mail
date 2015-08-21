@@ -1,7 +1,7 @@
 Reflux = require 'reflux'
 _ = require 'underscore'
 {DatabaseStore,
- NamespaceStore,
+ AccountStore,
  Actions,
  Event,
  Calendar,
@@ -30,17 +30,17 @@ CalendarBarEventStore = Reflux.createStore
 
   _registerListeners: ->
     @listenTo DatabaseStore, @_onDataChanged
-    @listenTo NamespaceStore, @_onNamespaceChanged
+    @listenTo AccountStore, @_onAccountChanged
 
   _populate: ->
     @_range =
       start: moment({hour: 0, milliseconds: -1}).valueOf() / 1000.0
       end: moment({hour: 24, milliseconds: 1}).valueOf() / 1000.0
 
-    namespace = NamespaceStore.current()
-    return unless namespace
+    account = AccountStore.current()
+    return unless account
 
-    DatabaseStore.findAll(Event, namespaceId: namespace.id).where([
+    DatabaseStore.findAll(Event, accountId: account.id).where([
       Event.attributes.end.greaterThan(@_range.start),
       Event.attributes.start.lessThan(@_range.end)
     ]).order(Event.attributes.start.ascending()).then (events) =>
@@ -48,18 +48,18 @@ CalendarBarEventStore = Reflux.createStore
       @trigger(@)
 
   _refetchFromAPI: ->
-    namespace = NamespaceStore.current()
-    return unless namespace
+    account = AccountStore.current()
+    return unless account
 
     # Trigger a request to the API
     oneDayAgo = Math.round(moment({hour: 0, milliseconds: -1}).valueOf() / 1000.0)
-    DatabaseStore.findAll(Calendar, namespaceId: namespace.id).then (calendars) ->
+    DatabaseStore.findAll(Calendar, accountId: account.id).then (calendars) ->
       calendars.forEach (calendar) ->
-        NylasAPI.getCollection(namespace.id, 'events', {calendar_id: calendar.id, ends_after: oneDayAgo})
+        NylasAPI.getCollection(account.id, 'events', {calendar_id: calendar.id, ends_after: oneDayAgo})
 
   # Inbound Events
 
-  _onNamespaceChanged: ->
+  _onAccountChanged: ->
     @_refetchFromAPI()
     @_populate()
 

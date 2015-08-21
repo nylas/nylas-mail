@@ -8,7 +8,7 @@ classNames = require 'classnames'
  CanvasUtils,
  Thread,
  WorkspaceStore,
- NamespaceStore,
+ AccountStore,
  CategoryStore,
  FocusedCategoryStore} = require 'nylas-exports'
 

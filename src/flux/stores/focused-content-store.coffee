@@ -1,6 +1,6 @@
 _ = require 'underscore'
 Reflux = require 'reflux'
-NamespaceStore = require './namespace-store'
+AccountStore = require './account-store'
 WorkspaceStore = require './workspace-store'
 DatabaseStore = require './database-store'
 Actions = require '../actions'
@@ -58,7 +58,7 @@ class FocusedContentStore
 
   constructor: ->
     @_resetInstanceVars()
-    @listenTo NamespaceStore, @_onClear
+    @listenTo AccountStore, @_onClear
     @listenTo WorkspaceStore, @_onWorkspaceChange
     @listenTo DatabaseStore, @_onDataChange
     @listenTo Actions.setFocus, @_onFocus

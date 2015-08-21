@@ -47,8 +47,8 @@ module.exports =
       ReactRemote.openWindowForComponent(Preferences, {
         tag: 'preferences'
         width: 520
-        height: 400
         resizable: false
+        autosize: true
         stylesheetRegex: /preferences/
       })
 

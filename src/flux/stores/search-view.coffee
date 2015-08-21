@@ -6,7 +6,7 @@ NylasAPI = require '../nylas-api'
 
 class SearchView extends ModelView
 
-  constructor: (@_query, @_namespaceId) ->
+  constructor: (@_query, @_accountId) ->
     super
     @_queryResultTotal = -1
     @_querySort = 'datetime'
@@ -56,7 +56,8 @@ class SearchView extends ModelView
 
     NylasAPI.makeRequest
       method: 'GET'
-      path: "/n/#{@_namespaceId}/threads/search?q=#{@_query[0].all}"
+      path: "/threads/search?q=#{@_query[0].all}"
+      accountId: @_accountId
       json: true
       returnsModel: false
       error: =>

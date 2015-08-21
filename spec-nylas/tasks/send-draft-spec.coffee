@@ -15,7 +15,7 @@ describe "SendDraftTask", ->
       @draftA = new Message
         version: '1'
         id: '1233123AEDF1'
-        namespaceId: 'A12ADE'
+        accountId: 'A12ADE'
         subject: 'New Draft'
         draft: true
         to:
@@ -25,7 +25,7 @@ describe "SendDraftTask", ->
       @draftB = new Message
         version: '1'
         id: '1233OTHERDRAFT'
-        namespaceId: 'A12ADE'
+        accountId: 'A12ADE'
         subject: 'New Draft'
         draft: true
         to:
@@ -63,7 +63,7 @@ describe "SendDraftTask", ->
       @draft = new Message
         version: '1'
         id: '1233123AEDF1'
-        namespaceId: 'A12ADE'
+        accountId: 'A12ADE'
         subject: 'New Draft'
         draft: true
         body: 'hello world'
@@ -106,7 +106,8 @@ describe "SendDraftTask", ->
         @task.performRemote().then =>
           expect(NylasAPI.makeRequest.calls.length).toBe(1)
           options = NylasAPI.makeRequest.mostRecentCall.args[0]
-          expect(options.path).toBe("/n/#{@draft.namespaceId}/send")
+          expect(options.path).toBe("/send")
+          expect(options.accountId).toBe(@draft.accountId)
           expect(options.method).toBe('POST')
 
     describe "when the draft has been saved", ->
@@ -122,7 +123,7 @@ describe "SendDraftTask", ->
       beforeEach ->
         @draft = new Message
           id: generateTempId()
-          namespaceId: 'A12ADE'
+          accountId: 'A12ADE'
           subject: 'New Draft'
           draft: true
           body: 'hello world'
@@ -157,7 +158,7 @@ describe "SendDraftTask", ->
       @draft = new Message
         version: '1'
         id: '1233123AEDF1'
-        namespaceId: 'A12ADE'
+        accountId: 'A12ADE'
         threadId: 'threadId'
         replyToMessageId: 'replyToMessageId'
         subject: 'New Draft'

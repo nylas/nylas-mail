@@ -6,6 +6,7 @@ _ = require 'underscore'
  Actions,
  DraftStore,
  ContactStore,
+ AccountStore,
  UndoManager,
  FileUploadStore,
  QuotedHTMLParser,
@@ -14,62 +15,18 @@ _ = require 'underscore'
 {ResizableRegion,
  InjectedComponentSet,
  InjectedComponent,
+ FocusTrackingRegion,
  ScrollRegion,
+ ButtonDropdown,
  DropZone,
+ Menu,
  RetinaImg} = require 'nylas-component-kit'
 
 FileUpload = require './file-upload'
 ImageFileUpload = require './image-file-upload'
 ContenteditableComponent = require './contenteditable-component'
 ParticipantsTextField = require './participants-text-field'
-
-# Public: FocusTrackingRegion is a small wrap component that renders it's children
-# and any props it's provided. Whenever the document's focus is inside the
-# FocusTrackingRegion, it has an additional CSS class: `focused`
-#
-class FocusTrackingRegion extends React.Component
-  @displayName: 'FocusTrackingRegion'
-
-  @propTypes:
-    className: React.PropTypes.string
-    children: React.PropTypes.any
-
-  constructor: (@props) ->
-    @state = {focused: false}
-    @_goingout = false
-
-    @_in = =>
-      @_goingout = false
-      @setState(focused: true)
-
-    @_out = =>
-      @_goingout = true
-      setTimeout =>
-        return unless @_goingout
-        # This prevents the strange effect of an input appearing to have focus
-        # when the element receiving focus does not support selection (like a
-        # div with tabIndex=-1)
-        document.getSelection().empty()
-        @setState(focused: false)
-        @_goingout = false
-      , 100
-
-  componentDidMount: ->
-    el = React.findDOMNode(@)
-    el.addEventListener('focusin', @_in)
-    el.addEventListener('focusout', @_out)
-
-  componentWillUnmount: ->
-    el = React.findDOMNode(@)
-    el.removeEventListener('focusin', @_in)
-    el.removeEventListener('focusout', @_out)
-    @_goingout = false
-
-  render: ->
-    className = @props.className
-    className += " focused" if @state.focused
-    otherProps = _.omit(@props, _.keys(@constructor.propTypes))
-    <div className={className} {...otherProps}>{@props.children}</div>
+AccountContactField = require './account-contact-field'
 
 # The ComposerView is a unique React component because it (currently) is a
 # singleton. Normally, the React way to do things would be to re-render the
@@ -267,6 +224,7 @@ class ComposerView extends React.Component
           ref="textFieldTo"
           field='to'
           change={@_onChangeParticipants}
+          className="composer-participant-field"
           participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
           tabIndex='102'/>
       </div>
@@ -280,6 +238,7 @@ class ComposerView extends React.Component
           field='cc'
           change={@_onChangeParticipants}
           onEmptied={@_onEmptyCc}
+          className="composer-participant-field"
           participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
           tabIndex='103'/>
       )
@@ -292,6 +251,7 @@ class ComposerView extends React.Component
           field='bcc'
           change={@_onChangeParticipants}
           onEmptied={@_onEmptyBcc}
+          className="composer-participant-field"
           participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
           tabIndex='104'/>
       )
@@ -308,6 +268,14 @@ class ComposerView extends React.Component
                  value={@state.subject}
                  onChange={@_onChangeSubject}/>
         </div>
+      )
+
+    if @state.showfrom
+      fields.push(
+        <AccountContactField
+          key="from"
+          onChange={ (me) => @_onChangeParticipants(from: [me]) }
+          value={@state.from?[0]} />
       )
 
     fields
@@ -502,6 +470,7 @@ class ComposerView extends React.Component
       to: draft.to
       cc: draft.cc
       bcc: draft.bcc
+      from: draft.from
       files: draft.files
       subject: draft.subject
       body: draft.body
@@ -511,6 +480,7 @@ class ComposerView extends React.Component
         showcc: not _.isEmpty(draft.cc)
         showbcc: not _.isEmpty(draft.bcc)
         showsubject: @_shouldShowSubject()
+        showfrom: not draft.replyToMessageId?
         showQuotedText: @isForwardedMessage()
         populated: true
 

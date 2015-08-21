@@ -58,7 +58,8 @@ class SendDraftTask extends Task
   # the body. This promise only rejects when these changes have been tried.
   _send: (body) ->
     NylasAPI.makeRequest
-      path: "/n/#{@draft.namespaceId}/send"
+      path: "/send"
+      accountId: @draft.accountId
       method: 'POST'
       body: body
       returnsModel: true

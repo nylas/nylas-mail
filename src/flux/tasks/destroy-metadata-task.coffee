@@ -5,7 +5,7 @@ Actions = require '../actions'
 Metadata = require '../models/metadata'
 EdgehillAPI = require '../edgehill-api'
 DatabaseStore = require '../stores/database-store'
-NamespaceStore = require '../stores/namespace-store'
+AccountStore = require '../stores/account-store'
 
 module.exports =
 class DestroyMetadataTask extends Task
@@ -53,7 +53,7 @@ class DestroyMetadataTask extends Task
 
     EdgehillAPI.request
       method: "DELETE"
-      path: "/metadata/#{NamespaceStore.current().id}/#{@type}/#{@publicId}"
+      path: "/metadata/#{AccountStore.current().id}/#{@type}/#{@publicId}"
       body: body
       success: =>
         Actions.metadataDestroyed(@type)

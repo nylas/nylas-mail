@@ -118,7 +118,10 @@ class SearchBar extends React.Component
       Actions.searchQueryCommitted(item.value)
 
   _onClearSearch: (event) =>
-    Actions.searchQueryCommitted(null)
+    if @state.committedQuery
+      Actions.searchQueryCommitted(null)
+    else
+      Actions.searchQueryChanged(null)
 
   _clearAndBlur: =>
     @_onClearSearch()

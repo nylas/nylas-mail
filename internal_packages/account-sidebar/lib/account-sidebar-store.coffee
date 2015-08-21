@@ -3,7 +3,7 @@ _ = require 'underscore'
 {CategoryStore,
  DatabaseStore,
  CategoryStore,
- NamespaceStore,
+ AccountStore,
  WorkspaceStore,
  DraftCountStore,
  Actions,
@@ -40,8 +40,8 @@ class AccountSidebarStore extends NylasStore
     @listenTo FocusedCategoryStore, => @trigger()
 
   _refreshSections: =>
-    namespace = NamespaceStore.current()
-    return unless namespace
+    account = AccountStore.current()
+    return unless account
 
     userCategories = CategoryStore.getUserCategories()
 

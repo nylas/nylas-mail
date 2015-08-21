@@ -1,10 +1,10 @@
 _ = require 'underscore'
-NamespaceStore = require '../../src/flux/stores/namespace-store'
+AccountStore = require '../../src/flux/stores/account-store'
 
-describe "NamespaceStore", ->
+describe "AccountStore", ->
   beforeEach ->
     @instance = null
-    @constructor = NamespaceStore.constructor
+    @constructor = AccountStore.constructor
 
   afterEach ->
     @instance.stopListeningToAll()
@@ -13,7 +13,7 @@ describe "NamespaceStore", ->
     state =
       "id": "123",
       "email_address":"bengotow@gmail.com",
-      "object":"namespace"
+      "object":"account"
       "organization_unit": "label"
 
     spyOn(atom.config, 'get').andCallFake -> state

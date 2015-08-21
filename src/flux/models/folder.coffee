@@ -9,7 +9,7 @@ Documentation](https://nylas.com/docs/api#folders)
 
 NOTE: This is different from a `Label`. A `Folder` is used for generic
 IMAP and Exchange, while `Label`s are used for Gmail. The `Namespace` has
-the filed `organizationUnit` which specifies if the current namespace uses
+the filed `organizationUnit` which specifies if the current account uses
 either "folder" or "label".
 
 While the two appear fairly similar, they have different behavioral
@@ -44,6 +44,6 @@ class Folder extends Category
 
   @additionalSQLiteConfig:
     setup: ->
-      ['CREATE INDEX IF NOT EXISTS FolderNameIndex ON Folder(name)']
+      ['CREATE INDEX IF NOT EXISTS FolderNameIndex ON Folder(account_id,name)']
 
 module.exports = Folder

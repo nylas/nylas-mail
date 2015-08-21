@@ -4,7 +4,7 @@ classNames = require 'classnames'
  Utils,
  UnreadCountStore,
  WorkspaceStore,
- NamespaceStore,
+ AccountStore,
  FocusedCategoryStore,
  ChangeLabelsTask,
  ChangeFolderTask,
@@ -53,8 +53,8 @@ class AccountSidebarCategoryItem extends React.Component
     </DropZone>
 
   _renderIcon: ->
-    if @props.sectionType is "category" and NamespaceStore.current()
-      if NamespaceStore.current().usesLabels()
+    if @props.sectionType is "category" and AccountStore.current()
+      if AccountStore.current().usesLabels()
         <RetinaImg name={"tag.png"} mode={RetinaImg.Mode.ContentIsMask} />
       else
         <RetinaImg name={"folder.png"} mode={RetinaImg.Mode.ContentIsMask} />
@@ -74,7 +74,7 @@ class AccountSidebarCategoryItem extends React.Component
       console.error("AccountSidebarCategoryItem onDrop: JSON parse #{err}")
     return unless ids
 
-    if NamespaceStore.current().usesLabels()
+    if AccountStore.current().usesLabels()
       currentLabel = FocusedCategoryStore.category()
       if currentLabel and not (currentLabel in CategoryStore.LockedCategoryNames)
         labelsToRemove = [currentLabel]

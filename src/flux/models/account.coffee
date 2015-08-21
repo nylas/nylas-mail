@@ -3,20 +3,20 @@ Attributes = require '../attributes'
 _ = require 'underscore'
 
 ###
-Public: The Namespace model represents a Namespace served by the Nylas Platform API.
-Every object on the Nylas platform exists within a Namespace, which typically represents
+Public: The Account model represents a Account served by the Nylas Platform API.
+Every object on the Nylas platform exists within a Account, which typically represents
 an email account.
 
-For more information about Namespaces on the Nylas Platform, read the
-[Namespace API Documentation](https://nylas.com/docs/api#namespace)
+For more information about Accounts on the Nylas Platform, read the
+[Account API Documentation](https://nylas.com/docs/api#Account)
 
 ## Attributes
 
-`name`: {AttributeString} The name of the Namespace.
+`name`: {AttributeString} The name of the Account.
 
-`provider`: {AttributeString} The Namespace's mail provider  (ie: `gmail`)
+`provider`: {AttributeString} The Account's mail provider  (ie: `gmail`)
 
-`emailAddress`: {AttributeString} The Namespace's email address
+`emailAddress`: {AttributeString} The Account's email address
 (ie: `ben@nylas.com`). Queryable.
 
 `organizationUnit`: {AttributeString} Either "label" or "folder".
@@ -27,7 +27,7 @@ This class also inherits attributes from {Model}
 
 Section: Models
 ###
-class Namespace extends Model
+class Account extends Model
 
   @attributes: _.extend {}, Model.attributes,
     'name': Attributes.String
@@ -49,11 +49,11 @@ class Namespace extends Model
   me: ->
     Contact = require './contact'
     return new Contact
-      namespaceId: @id
+      accountId: @id
       name: @name
       email: @emailAddress
 
-  # Public: The current organization_unit used by the namespace.
+  # Public: The current organization_unit used by the account.
   usesLabels: -> @organizationUnit is "label"
   usesFolders: -> @organizationUnit is "folder"
 
@@ -66,4 +66,4 @@ class Namespace extends Model
       return 'Gmail'
     return @provider
 
-module.exports = Namespace
+module.exports = Account

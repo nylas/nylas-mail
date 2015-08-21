@@ -6,12 +6,12 @@ MessageStoreStub = Reflux.createStore
   extensions: -> []
   threadId: -> null
 
-NamespaceStoreStub = Reflux.createStore
+AccountStoreStub = Reflux.createStore
   current: -> null
 
 FocusedContactsStore = proxyquire '../../src/flux/stores/focused-contacts-store',
   "./message-store": MessageStoreStub
-  "./namespace-store": NamespaceStoreStub
+  "./account-store": AccountStoreStub
 
 describe "FocusedContactsStore", ->
   beforeEach ->

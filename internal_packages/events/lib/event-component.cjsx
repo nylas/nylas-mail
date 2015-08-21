@@ -6,7 +6,7 @@ React = require 'react'
 Utils,
 ComponentRegistry,
 EventStore,
-NamespaceStore} = require 'nylas-exports'
+AccountStore} = require 'nylas-exports'
 moment = require 'moment-timezone'
 
 class EventComponent extends React.Component
@@ -32,7 +32,7 @@ class EventComponent extends React.Component
     @unsub()
 
   _myStatus: =>
-    myEmail = NamespaceStore.current()?.me().email
+    myEmail = AccountStore.current()?.me().email
     for p in @state.participants
       if p['email'] == myEmail
         return p['status']

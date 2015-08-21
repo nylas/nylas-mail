@@ -10,10 +10,10 @@ TestUtils = React.addons.TestUtils
  Contact,
  Actions,
  Message,
- Namespace,
+ Account,
  DraftStore,
  MessageStore,
- NamespaceStore,
+ AccountStore,
  NylasTestUtils,
  ComponentRegistry} = require "nylas-exports"
 
@@ -33,11 +33,11 @@ MessageItemContainer = proxyquire("../lib/message-item-container", {
 MessageList = proxyquire '../lib/message-list',
   "./message-item-container": MessageItemContainer
 
-me = new Namespace
+me = new Account
   name: "User One",
   emailAddress: "user1@nylas.com"
   provider: "inbox"
-NamespaceStore._current = me
+AccountStore._current = me
 
 user_1 = new Contact
   name: "User One"
@@ -70,7 +70,7 @@ m1 = (new Message).fromJSON({
   "snippet"   : "snippet one...",
   "subject"   : "Subject One",
   "thread_id" : "thread_12345",
-  "namespace_id" : "nsid"
+  "account_id" : "test_account_id"
 })
 m2 = (new Message).fromJSON({
   "id"   : "222",
@@ -87,7 +87,7 @@ m2 = (new Message).fromJSON({
   "snippet"   : "snippet Two...",
   "subject"   : "Subject Two",
   "thread_id" : "thread_12345",
-  "namespace_id" : "nsid"
+  "account_id" : "test_account_id"
 })
 m3 = (new Message).fromJSON({
   "id"   : "333",
@@ -104,7 +104,7 @@ m3 = (new Message).fromJSON({
   "snippet"   : "snippet Three...",
   "subject"   : "Subject Three",
   "thread_id" : "thread_12345",
-  "namespace_id" : "nsid"
+  "account_id" : "test_account_id"
 })
 m4 = (new Message).fromJSON({
   "id"   : "444",
@@ -121,7 +121,7 @@ m4 = (new Message).fromJSON({
   "snippet"   : "snippet Four...",
   "subject"   : "Subject Four",
   "thread_id" : "thread_12345",
-  "namespace_id" : "nsid"
+  "account_id" : "test_account_id"
 })
 m5 = (new Message).fromJSON({
   "id"   : "555",
@@ -138,7 +138,7 @@ m5 = (new Message).fromJSON({
   "snippet"   : "snippet Five...",
   "subject"   : "Subject Five",
   "thread_id" : "thread_12345",
-  "namespace_id" : "nsid"
+  "account_id" : "test_account_id"
 })
 testMessages = [m1, m2, m3, m4, m5]
 draftMessages = [
@@ -157,7 +157,7 @@ draftMessages = [
     "snippet"   : "draft snippet one...",
     "subject"   : "Draft One",
     "thread_id" : "thread_12345",
-    "namespace_id" : "nsid"
+    "account_id" : "test_account_id"
   }),
 ]
 

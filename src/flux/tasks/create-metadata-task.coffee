@@ -5,7 +5,7 @@ Actions = require '../actions'
 Metadata = require '../models/metadata'
 EdgehillAPI = require '../edgehill-api'
 DatabaseStore = require '../stores/database-store'
-NamespaceStore = require '../stores/namespace-store'
+AccountStore = require '../stores/account-store'
 
 module.exports =
 class CreateMetadataTask extends Task
@@ -34,7 +34,7 @@ class CreateMetadataTask extends Task
     new Promise (resolve, reject) =>
       EdgehillAPI.request
         method: "POST"
-        path: "/metadata/#{NamespaceStore.current().id}/#{@type}/#{@publicId}"
+        path: "/metadata/#{AccountStore.current().id}/#{@type}/#{@publicId}"
         body:
           key: @key
           value: @value

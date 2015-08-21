@@ -17,17 +17,19 @@ class NylasComponentKit
   @load "Flexbox", 'flexbox'
   @load "RetinaImg", 'retina-img'
   @load "ListTabular", 'list-tabular'
-  @load "ScrollRegion", 'scroll-region'
   @load "DraggableImg", 'draggable-img'
   @load "EventedIFrame", 'evented-iframe'
   @load "ButtonDropdown", 'button-dropdown'
-  @load "ResizableRegion", 'resizable-region'
   @load "MultiselectList", 'multiselect-list'
   @load "InjectedComponent", 'injected-component'
   @load "TokenizingTextField", 'tokenizing-text-field'
   @load "MultiselectActionBar", 'multiselect-action-bar'
   @load "InjectedComponentSet", 'injected-component-set'
   @load "TimeoutTransitionGroup", 'timeout-transition-group'
+
+  @load "ScrollRegion", 'scroll-region'
+  @load "ResizableRegion", 'resizable-region'
+  @load "FocusTrackingRegion", 'focus-tracking-region'
 
   @loadFrom "MailLabel", "mail-label"
   @loadFrom "LabelColorizer", "mail-label"

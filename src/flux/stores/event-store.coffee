@@ -4,7 +4,7 @@ Event = require '../models/event'
 Utils = require '../models/utils'
 NylasStore = require 'nylas-store'
 DatabaseStore = require './database-store'
-NamespaceStore = require './namespace-store'
+AccountStore = require './account-store'
 _ = require 'underscore'
 
 EventRSVPTask = require '../tasks/event-rsvp'
@@ -34,9 +34,9 @@ class EventStore extends NylasStore
 
   constructor: ->
     @_eventCache = {}
-    @_namespaceId = null
+    @_accountId = null
     @listenTo DatabaseStore, @_onDatabaseChanged
-    @listenTo NamespaceStore, @_onNamespaceChanged
+    @listenTo AccountStore, @_onAccountChanged
 
     # From Views
     @listenTo Actions.RSVPEvent, @_onRSVPEvent
@@ -70,11 +70,11 @@ class EventStore extends NylasStore
   getEvent: (id) =>
     @_eventCache[id]
 
-  _onNamespaceChanged: =>
-    return if @_namespaceId is NamespaceStore.current()?.id
-    @_namespaceId = NamespaceStore.current()?.id
+  _onAccountChanged: =>
+    return if @_accountId is AccountStore.current()?.id
+    @_accountId = AccountStore.current()?.id
 
-    if @_namespaceId
+    if @_accountId
       @_refreshCache()
     else
       @_resetCache()

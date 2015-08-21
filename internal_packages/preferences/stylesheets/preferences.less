@@ -34,7 +34,7 @@ body.platform-darwin.window-type-react-remote {
 
 body.is-blurred {
   .preference-header {
-    background-image: -webkit-linear-gradient(top, lighten(@toolbar-background-color, 12%), lighten(@toolbar-background-color, 15%));
+    background-image: -webkit-linear-gradient(top, lighten(@toolbar-background-color, 9.6%), lighten(@toolbar-background-color, 12%));
   }
 }
 
@@ -48,6 +48,8 @@ body.platform-darwin {
   input[type=checkbox] {margin: 0 7px 0 0; position: relative; top: -1px; }
   input[type=radio] {margin: 0 7px 0 0; position: relative; top: -1px; }
   select { margin:10px; margin-top:4px; }
+
+  padding-bottom:50px;
 
   .platform-darwin-only {
     display: none;
@@ -221,9 +223,11 @@ body.platform-darwin {
 
     .account-name {
         font-size: @font-size-larger;
+        cursor:default;
     }
     .account-subtext {
         font-size: @font-size-small;
+        cursor:default;
     }
   }
 

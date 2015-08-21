@@ -34,8 +34,8 @@ describe "FileDownloadStore.Download", ->
       expect(NylasAPI.makeRequest.mostRecentCall.args[0].json).toBe(false)
       expect(NylasAPI.makeRequest.mostRecentCall.args[0].encoding).toBe(null)
 
-    it "should create a request for /n/nsid/files/123/download", ->
-      expect(NylasAPI.makeRequest.mostRecentCall.args[0].path).toBe("/n/nsid/files/123/download")
+    it "should create a request for /files/123/download", ->
+      expect(NylasAPI.makeRequest.mostRecentCall.args[0].path).toBe("/files/123/download")
 
 describe "FileDownloadStore", ->
   beforeEach ->

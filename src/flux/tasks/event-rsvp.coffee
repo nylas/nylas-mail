@@ -3,14 +3,14 @@ Event = require '../models/event'
 {APIError} = require '../errors'
 Utils = require '../models/utils'
 DatabaseStore = require '../stores/database-store'
-NamespaceStore = require '../stores/namespace-store'
+AccountStore = require '../stores/account-store'
 Actions = require '../actions'
 NylasAPI = require '../nylas-api'
 
 module.exports =
 class EventRSVPTask extends Task
   constructor: (calendar_event, @RSVPResponse) ->
-    @myEmail = NamespaceStore.current()?.me().email.toLowerCase().trim()
+    @myEmail = AccountStore.current()?.me().email.toLowerCase().trim()
     @event = calendar_event
     super
 
@@ -30,7 +30,8 @@ class EventRSVPTask extends Task
   performRemote: ->
     new Promise (resolve, reject) =>
       NylasAPI.makeRequest
-        path: "/n/#{NamespaceStore.current()?.id}/send-rsvp"
+        path: "/send-rsvp"
+        accountId: @event.accountId
         method: "POST"
         body: {
           event_id: @event.id,

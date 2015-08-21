@@ -7,7 +7,7 @@ classNames = require 'classnames'
 Utils,
 ComponentRegistry,
 UndoRedoStore,
-NamespaceStore} = require 'nylas-exports'
+AccountStore} = require 'nylas-exports'
 
 class UndoRedoComponent extends React.Component
   @displayName: 'UndoRedoComponent'

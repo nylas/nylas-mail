@@ -11,10 +11,10 @@ class NylasLongConnection
     Connected: 'connected'
     Retrying: 'retrying'
 
-  constructor: (api, namespaceId) ->
+  constructor: (api, accountId) ->
     @_api = api
-    @_namespaceId = namespaceId
-    @_cursorKey = "nylas.#{@_namespaceId}.cursor"
+    @_accountId = accountId
+    @_cursorKey = "nylas.#{@_accountId}.cursor"
     @_emitter = new Emitter
     @_state = 'idle'
     @_req = null
@@ -29,8 +29,8 @@ class NylasLongConnection
 
     @
 
-  namespaceId: ->
-    @_namespaceId
+  accountId: ->
+    @_accountId
 
   hasCursor: ->
     !!atom.config.get(@_cursorKey)
@@ -41,7 +41,8 @@ class NylasLongConnection
 
     stamp = Math.round(new Date().getTime() / 1000.0)
     @_api.makeRequest
-      path: "/n/#{@_namespaceId}/delta/generate_cursor"
+      path: "/delta/generate_cursor"
+      accountId: @_accountId
       method: 'POST'
       body: { "start": stamp }
       success: (json) =>
@@ -93,15 +94,16 @@ class NylasLongConnection
       @setCursor(bufferCursor)
 
   start: ->
-    return if not @_api.APIToken?
+    token = @_api.accessTokenForAccountId(@_accountId)
+    return if not token?
     return if @_state is NylasLongConnection.State.Ended
     return if @_req
 
     @withCursor (cursor) =>
       return if @state is NylasLongConnection.State.Ended
-      console.log("Long Polling Connection: Starting for namespace #{@_namespaceId}, token #{@_api.APIToken}, with cursor #{cursor}")
-      options = url.parse("#{@_api.APIRoot}/n/#{@_namespaceId}/delta/streaming?cursor=#{cursor}&exclude_types=event&exclude_folders=false")
-      options.auth = "#{@_api.APIToken}:"
+      console.log("Long Polling Connection: Starting for account #{@_accountId}, token #{token}, with cursor #{cursor}")
+      options = url.parse("#{@_api.APIRoot}/delta/streaming?cursor=#{cursor}&exclude_types=event&exclude_folders=false")
+      options.auth = "#{token}:"
 
       if @_api.APIRoot.indexOf('https') is -1
         lib = require 'http'
@@ -142,7 +144,7 @@ class NylasLongConnection
       @_req = req
 
       # Currently we have trouble identifying when the connection has closed.
-      # Instead of trying to fix that, just reconnect every 30 seconds.
+      # Instead of trying to fix that, just reconnect every 120 seconds.
       @_reqForceReconnectInterval = setInterval =>
         @retry(true)
       ,30000

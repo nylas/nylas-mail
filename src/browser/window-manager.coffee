@@ -11,12 +11,12 @@ class WindowManager
     @_mainWindow = null
     @_hotWindows = {}
 
-    @config.onDidChange 'nylas.token', =>
+    @config.onDidChange 'edgehill.credentials', =>
       @ensurePrimaryWindowOnscreen()
 
   ensurePrimaryWindowOnscreen: ->
     return if global.application.quitting
-    hasToken = @config.get('nylas.token')
+    hasToken = @config.get('edgehill.credentials')
     if hasToken
       @showMainWindow()
     else

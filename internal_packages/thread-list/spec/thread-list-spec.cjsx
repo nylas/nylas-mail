@@ -19,11 +19,11 @@ ReactTestUtils = _.extend ReactTestUtils, require "jasmine-react-helpers"
 
 {Thread,
  Actions,
- Namespace,
+ Account,
  DatabaseStore,
  WorkspaceStore,
  NylasTestUtils,
- NamespaceStore,
+ AccountStore,
  ComponentRegistry} = require "nylas-exports"
 {ListTabular} = require 'nylas-component-kit'
 
@@ -34,12 +34,12 @@ ThreadList = require "../lib/thread-list"
 ParticipantsItem = React.createClass
   render: -> <div></div>
 
-me = new Namespace(
+me = new Account(
   "name": "User One",
   "email": "user1@nylas.com"
   "provider": "inbox"
 )
-NamespaceStore._current = me
+AccountStore._current = me
 
 test_threads = -> [
   (new Thread).fromJSON({
@@ -47,7 +47,7 @@ test_threads = -> [
     "object": "thread",
     "created_at": null,
     "updated_at": null,
-    "namespace_id": "nsid",
+    "account_id": "test_account_id",
     "snippet": "snippet 111",
     "subject": "Subject 111",
     "tags": [
@@ -103,7 +103,7 @@ test_threads = -> [
     "object": "thread",
     "created_at": null,
     "updated_at": null,
-    "namespace_id": "nsid",
+    "account_id": "test_account_id",
     "snippet": "snippet 222",
     "subject": "Subject 222",
     "tags": [
@@ -153,7 +153,7 @@ test_threads = -> [
     "object": "thread",
     "created_at": null,
     "updated_at": null,
-    "namespace_id": "nsid",
+    "account_id": "test_account_id",
     "snippet": "snippet 333",
     "subject": "Subject 333",
     "tags": [
@@ -220,7 +220,7 @@ describe "ThreadList", ->
 
   beforeEach ->
     NylasTestUtils.loadKeymap("internal_packages/thread-list/keymaps/thread-list")
-    spyOn(ThreadStore, "_onNamespaceChanged")
+    spyOn(ThreadStore, "_onAccountChanged")
     spyOn(DatabaseStore, "findAll").andCallFake ->
       new Promise (resolve, reject) -> resolve(test_threads())
     spyOn(Actions, "archive")

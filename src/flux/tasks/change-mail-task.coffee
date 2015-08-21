@@ -4,7 +4,7 @@ Thread = require '../models/thread'
 Message = require '../models/message'
 NylasAPI = require '../nylas-api'
 DatabaseStore = require '../stores/database-store'
-NamespaceStore = require '../stores/namespace-store'
+AccountStore = require '../stores/account-store'
 {APIError} = require '../errors'
 
 # The ChangeMailTask is a base class for all tasks that modify sets of threads or
@@ -99,11 +99,11 @@ class ChangeMailTask extends Task
           modelArray[idx] = model
           changed.push(model)
     else
+      @_restoreValues ?= {}
       for model, idx in modelArray
         fieldsNew = @_changesToModel(model)
         fieldsCurrent = _.pick(model, Object.keys(fieldsNew))
         if not _.isEqual(fieldsCurrent, fieldsNew)
-          @_restoreValues ?= {}
           @_restoreValues[model.id] = fieldsCurrent
           model = _.extend(model.clone(), fieldsNew)
           modelArray[idx] = model
@@ -140,7 +140,8 @@ class ChangeMailTask extends Task
         endpoint = 'messages'
 
       NylasAPI.makeRequest
-        path: "/n/#{model.namespaceId}/#{endpoint}/#{model.id}"
+        path: "/#{endpoint}/#{model.id}"
+        accountId: model.accountId
         method: 'PUT'
         body: @_requestBodyForModel(model)
         returnsModel: true

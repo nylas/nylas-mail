@@ -4,7 +4,7 @@ React = require 'react'
  Utils,
  Thread,
  ChangeStarredTask,
- NamespaceStore} = require 'nylas-exports'
+ AccountStore} = require 'nylas-exports'
 
 class ThreadListIcon extends React.Component
   @displayName: 'ThreadListIcon'

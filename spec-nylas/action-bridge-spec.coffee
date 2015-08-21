@@ -2,7 +2,7 @@ Reflux = require 'reflux'
 Actions = require '../src/flux/actions'
 Message = require '../src/flux/models/message'
 DatabaseStore = require '../src/flux/stores/database-store'
-NamespaceStore = require '../src/flux/stores/namespace-store'
+AccountStore = require '../src/flux/stores/account-store'
 ActionBridge = require '../src/flux/action-bridge',
 _ = require 'underscore'
 
@@ -51,7 +51,7 @@ describe "ActionBridge", ->
       @bridge = new ActionBridge(ipc)
       @message = new Message
         id: 'test-id'
-        namespaceId: 'test-namespace-id'
+        accountId: 'test-account-id'
 
     it "should have the role Role.SECONDARY", ->
       expect(@bridge.role).toBe(ActionBridge.Role.SECONDARY)

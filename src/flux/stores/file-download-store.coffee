@@ -9,7 +9,7 @@ Reflux = require 'reflux'
 _ = require 'underscore'
 Actions = require '../actions'
 progress = require 'request-progress'
-NamespaceStore = require '../stores/namespace-store'
+AccountStore = require '../stores/account-store'
 NylasAPI = require '../nylas-api'
 
 Promise.promisifyAll(fs)
@@ -59,7 +59,7 @@ class Download
     return @promise if @promise
 
     @promise = new Promise (resolve, reject) =>
-      namespace = NamespaceStore.current()?.id
+      account = AccountStore.current()?.id
       stream = fs.createWriteStream(@targetPath)
       finished = false
       finishedAction = null
@@ -81,7 +81,8 @@ class Download
 
       NylasAPI.makeRequest
         json: false
-        path: "/n/#{namespace}/files/#{@fileId}/download"
+        path: "/files/#{@fileId}/download"
+        accountId: account
         encoding: null # Tell `request` not to parse the response data
         started: (req) =>
           @request = req

@@ -5,11 +5,6 @@ Page = require './page'
 class SuccessPage extends Page
   @displayName: "SuccessPage"
 
-  componentDidMount: ->
-    setTimeout ->
-      atom.close()
-    , 2500
-
   render: =>
     # http://codepen.io/stevenfabre/pen/NPWeVb
     <div className="page">

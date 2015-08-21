@@ -4,7 +4,7 @@ Thread = require '../../src/flux/models/thread'
 _ = require 'underscore'
 
 mockThread =
-  namespaceId: "abc"
+  accountId: "abc"
   participants: ["zip@example.com"]
   subject: "blah"
   id: "asdf"

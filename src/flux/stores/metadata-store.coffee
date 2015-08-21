@@ -7,7 +7,7 @@ Metadata = require '../models/metadata'
 EdgehillAPI = require '../edgehill-api'
 
 DatabaseStore = require '../stores/database-store'
-NamespaceStore = require '../stores/namespace-store'
+AccountStore = require '../stores/account-store'
 
 
 CreateMetadataTask = require '../tasks/create-metadata-task'
@@ -25,7 +25,7 @@ module.exports =
 MetadataStore = Reflux.createStore
   init: ->
     @listenTo DatabaseStore, @_onDBChanged
-    @listenTo NamespaceStore, @_onNamespaceChanged
+    @listenTo AccountStore, @_onAccountChanged
 
     refreshDBFromAPI = _.debounce(_.bind(@_refreshDBFromAPI, @), MAX_API_RATE)
     @_typesToRefresh = {}
@@ -41,7 +41,7 @@ MetadataStore = Reflux.createStore
       @_typesToRefresh[type] = true
       refreshDBFromAPI()
 
-    @_namespaceId = NamespaceStore.current()?.id
+    @_accountId = AccountStore.current()?.id
     @_metadata = {}
 
     @_fullRefreshFromAPI()
@@ -61,7 +61,7 @@ MetadataStore = Reflux.createStore
 
   _fullRefreshFromAPI: ->
     return if not atom.isMainWindow() or atom.inSpecMode()
-    return unless @_namespaceId
+    return unless @_accountId
     @_apiRequest() # The lack of type will request everything!
 
   _refreshDBFromAPI: ->
@@ -75,7 +75,7 @@ MetadataStore = Reflux.createStore
     typePath = if type then "/#{type}/" else "/"
     new Promise (resolve, reject) =>
       EdgehillAPI.request
-        path: "/metadata/#{@_namespaceId}#{typePath}"
+        path: "/metadata/#{@_accountId}#{typePath}"
         success: (metadata) ->
           metadata = metadata?.results ? []
           metadata = metadata.map (metadatum) ->
@@ -105,8 +105,8 @@ MetadataStore = Reflux.createStore
       .catch (err) ->
         console.warn("Request for Metadata failed. #{err}")
 
-  _onNamespaceChanged: ->
-    @_namespaceId = NamespaceStore.current()?.id
+  _onAccountChanged: ->
+    @_accountId = AccountStore.current()?.id
     @_fullRefreshFromAPI()
 
   _deleteAllMetadata: ->

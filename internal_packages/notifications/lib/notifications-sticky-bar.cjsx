@@ -9,7 +9,7 @@ class NotificationStickyItem extends React.Component
     notif = @props.notification
     iconClass = if notif.icon then "fa #{notif.icon}" else ""
     actionComponents = notif.actions?.map (action) =>
-      <a className="action" onClick={=> @_fireItemAction(notif, action)}>{action.label}</a>
+      <a className="action" key={action.label} onClick={=> @_fireItemAction(notif, action)}>{action.label}</a>
 
     <div className={"notifications-sticky-item notification-#{notif.type}"}>
       <i className={iconClass}></i><span>{notif.message}</span>{actionComponents}
@@ -51,7 +51,7 @@ class NotificationStickyBar extends React.Component
 
   _notificationComponents: =>
     @state.items.map (notif) ->
-      <NotificationStickyItem notification={notif} />
+      <NotificationStickyItem notification={notif} key={notif.message} />
 
 
 module.exports = NotificationStickyBar

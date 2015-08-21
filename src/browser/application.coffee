@@ -154,6 +154,7 @@ class Application
     @windowManager.closeMainWindow()
     @windowManager.unregisterAllHotWindows()
     @deleteFileWithRetry path.join(configDirPath,'edgehill.db'), =>
+      @config.set('tokens', null)
       @config.set('nylas', null)
       @config.set('edgehill', null)
       @setDatabasePhase('setup')

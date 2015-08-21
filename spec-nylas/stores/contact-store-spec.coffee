@@ -3,17 +3,16 @@ proxyquire = require 'proxyquire'
 Contact = require '../../src/flux/models/contact'
 ContactStore = require '../../src/flux/stores/contact-store'
 DatabaseStore = require '../../src/flux/stores/database-store'
-NamespaceStore = require '../../src/flux/stores/namespace-store'
+AccountStore = require '../../src/flux/stores/account-store'
 
 describe "ContactStore", ->
   beforeEach ->
     atom.testOrganizationUnit = "folder"
     ContactStore._contactCache = []
     ContactStore._fetchOffset = 0
-    ContactStore._namespaceId = null
-    ContactStore._lastNamespaceId = null
-    NamespaceStore._current =
-      id: "nsid"
+    ContactStore._accountId = null
+    AccountStore._current =
+      id: "test_account_id"
 
   afterEach ->
     atom.testOrganizationUnit = null
@@ -24,24 +23,23 @@ describe "ContactStore", ->
     expect(ContactStore._contactCache.length).toBe 0
     expect(ContactStore._fetchOffset).toBe 0
 
-  describe "when the Namespace updates from null to valid", ->
+  describe "when the Account updates from null to valid", ->
     beforeEach ->
       spyOn(ContactStore, "_refreshCache")
-      NamespaceStore.trigger()
+      AccountStore.trigger()
 
     it "triggers a database fetch", ->
       expect(ContactStore._refreshCache.calls.length).toBe 1
 
-  describe "when the Namespace updates but the ID doesn't change", ->
+  describe "when the Account updates but the ID doesn't change", ->
     it "does nothing", ->
       spyOn(ContactStore, "_refreshCache")
       ContactStore._contactCache = [1,2,3]
       ContactStore._fetchOffset = 3
-      ContactStore._namespaceId = "nsid"
-      ContactStore._lastNamespaceId = "nsid"
-      NamespaceStore._current =
-        id: "nsid"
-      NamespaceStore.trigger()
+      ContactStore._accountId = "test_account_id"
+      AccountStore._current =
+        id: "test_account_id"
+      AccountStore.trigger()
       expect(ContactStore._contactCache).toEqual [1,2,3]
       expect(ContactStore._fetchOffset).toBe 3
       expect(ContactStore._refreshCache).not.toHaveBeenCalled()

@@ -1,7 +1,7 @@
 _ = require 'underscore'
 React = require 'react/addons'
 {DatabaseStore,
- NamespaceStore,
+ AccountStore,
  TaskQueue,
  Actions,
  Contact,
@@ -53,8 +53,10 @@ class DeveloperBar extends React.Component
         </div>
         <div className="btn-container pull-left">
           <div className="btn" onClick={ => @_onExpandSection('long-polling')}>
-            <div className={"activity-status-bubble state-" + @state.longPollState}></div>
-            <span>Long Polling: {@state.longPollState}</span>
+            { _.map @state.longPollState, (val, key) =>
+              <div title={"Account ID #{key} - State: #{val}"} key={key} className={"activity-status-bubble state-" + val}></div>
+            }
+            <span>Long Polling</span>
           </div>
         </div>
         <div className="btn-container pull-left">
@@ -165,7 +167,7 @@ class DeveloperBar extends React.Component
   _onToggleReactRemoteContainer: =>
     {ReactRemote} = require('nylas-exports')
     ReactRemote.toggleContainerVisible()
-    
+
   _getStateFromStores: =>
     visible: DeveloperBarStore.visible()
     queue: TaskQueue._queue
