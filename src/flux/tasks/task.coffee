@@ -140,9 +140,7 @@ class Task
   shouldWaitForTask: (other) -> false
 
   toJSON: ->
-    json = _.clone(@)
-    json['object'] = @constructor.name
-    json
+    @
 
   fromJSON: (json) ->
     for key,val of json

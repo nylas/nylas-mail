@@ -9,12 +9,13 @@ DatabaseObjectRegistry = null
 module.exports =
 Utils =
 
-  # To deserialize a string serialized with the `Utils.serializeToJSON`
+  # To deserialize a string serialized with the `Utils.serializeRegisteredObjects`
   # method. This will convert anything that has a known class to its
   # appropriate object type.
-  deserializeJSON: (json) ->
+  deserializeRegisteredObjects: (json) ->
     TaskRegistry ?= require '../../task-registry'
     DatabaseObjectRegistry ?= require '../../database-object-registry'
+
     JSON.parse json, (k,v) ->
       return v if k is ""
 
@@ -22,31 +23,23 @@ Utils =
       return v unless type
 
       if DatabaseObjectRegistry.isInRegistry(type)
-        return DatabaseObjectRegistry.deserialize(type, v, ignoreError: true)
+        return DatabaseObjectRegistry.deserialize(type, v)
 
       if TaskRegistry.isInRegistry(type)
-        return TaskRegistry.deserialize(type, v, ignoreError: true)
+        return TaskRegistry.deserialize(type, v)
 
       return v
 
-  serializeToJSON: (object) ->
-    object = Utils.annotateObjectConstructors(object)
-    return JSON.stringify(object)
-
-  annotateObjectConstructors: (object, seenObjects={}) ->
-    if _.isObject(object) and not _.isFunction(object) and not seenObjects[object]
-      seenObjects[object] = true
-      if Utils.inAnySerializableRegistry(object.constructor?.name)
-        constructorName = object.constructor.name
-        object.__constructorName = constructorName
-      for key in Object.keys(object)
-        object[key] = Utils.annotateObjectConstructors(object[key])
-    return object
-
-  inAnySerializableRegistry: (type) ->
+  serializeRegisteredObjects: (object) ->
     TaskRegistry ?= require '../../task-registry'
     DatabaseObjectRegistry ?= require '../../database-object-registry'
-    return DatabaseObjectRegistry.isInRegistry(type) or TaskRegistry.isInRegistry(type)
+
+    JSON.stringify object, (k, v) ->
+      if _.isObject(v)
+        type = this[k].constructor.name
+        if DatabaseObjectRegistry.isInRegistry(type) or TaskRegistry.isInRegistry(type)
+          v.__constructorName = type
+      return v
 
   timeZone: tz
 

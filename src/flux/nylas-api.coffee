@@ -342,7 +342,7 @@ class NylasAPI
     type = jsons[0].object
     name = @_apiObjectToClassnameMap[type]
     if not name
-      console.error("Unrecoganized API object type: #{type}")
+      console.warning("NylasAPI::handleModelResponse: Received unknown API object type: #{type}")
       return Promise.resolve([])
 
     accepted = Promise.resolve(uniquedJSONs)
@@ -367,11 +367,11 @@ class NylasAPI
     "folder": "Folder"
     "thread": "Thread"
     "draft": "Message"
+    "account": "Account"
     "message": "Message"
     "contact": "Contact"
     "calendar": "Calendar"
     "metadata": "Metadata"
-    "namespace": "Namespace"
 
   _acceptableModelsInResponse: (klass, jsons) ->
     # Filter out models that are locked by pending optimistic changes
