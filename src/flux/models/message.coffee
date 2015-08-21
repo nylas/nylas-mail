@@ -8,7 +8,7 @@ Model = require './model'
 Event = require './event'
 Contact = require './contact'
 Attributes = require '../attributes'
-NamespaceStore = require '../stores/namespace-store'
+AccountStore = require '../stores/account-store'
 
 ###
 Public: The Message model represents a Message object served by the Nylas Platform API.
@@ -159,7 +159,7 @@ class Message extends Model
 
   @additionalSQLiteConfig:
     setup: ->
-      ['CREATE INDEX IF NOT EXISTS MessageListIndex ON Message(thread_id, date ASC)',
+      ['CREATE INDEX IF NOT EXISTS MessageListIndex ON Message(account_id, thread_id, date ASC)',
        'CREATE UNIQUE INDEX IF NOT EXISTS MessageBodyIndex ON MessageBody(id)']
 
   constructor: ->
@@ -190,7 +190,7 @@ class Message extends Model
       @draft = (json.object is 'draft')
 
     for file in (@files ? [])
-      file.namespaceId = @namespaceId
+      file.accountId = @accountId
     return @
 
   canReplyAll: ->
@@ -218,7 +218,7 @@ class Message extends Model
       cc = @cc
     else
       excluded = @from.map (c) -> c.email
-      excluded.push(NamespaceStore.current().emailAddress)
+      excluded.push(AccountStore.current().emailAddress)
       if @replyTo.length
         to = @replyTo
       else
@@ -254,7 +254,7 @@ class Message extends Model
 
   # Public: Returns true if this message is from the current user's email
   # address. In the future, this method will take into account all of the
-  # user's email addresses and namespaces.
+  # user's email addresses and accounts.
   isFromMe: ->
     @from[0]?.isMe()
 

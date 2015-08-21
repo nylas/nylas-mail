@@ -4,8 +4,7 @@ ReactTestUtils = React.addons.TestUtils
 proxyquire = require 'proxyquire'
 
 {NylasTestUtils,
- Namespace,
- NamespaceStore,
+ AccountStore,
  ContactStore,
  Contact,
  Utils,

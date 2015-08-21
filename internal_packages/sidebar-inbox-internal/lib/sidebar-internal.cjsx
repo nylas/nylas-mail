@@ -14,7 +14,7 @@ AccountKeys =
   "healthy": "Healthy"
   "initial_sync": "Initial Sync"
   "is_enabled": "Enabled"
-  "namespace_id": "Namespace Id"
+  "account_id": "Account Id"
   "provider": "Provider"
   "remote_count": "Remote Count"
   "state": "State"

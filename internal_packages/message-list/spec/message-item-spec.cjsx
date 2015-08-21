@@ -114,7 +114,7 @@ describe "MessageItem", ->
       snippet: "snippet one..."
       subject: "Subject One"
       threadId: "thread_12345"
-      namespaceId: "nsid"
+      accountId: "test_account_id"
 
     @thread = new Thread
       id: 'thread-111'

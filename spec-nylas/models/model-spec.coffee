@@ -8,10 +8,10 @@ describe "Model", ->
     it "should accept a hash of attributes and assign them to the new Model", ->
       attrs =
         id: "A",
-        namespaceId: "B"
+        accountId: "B"
       m = new Model(attrs)
       expect(m.id).toBe(attrs.id)
-      expect(m.namespaceId).toBe(attrs.namespaceId)
+      expect(m.accountId).toBe(attrs.accountId)
 
     it "should assign a local- ID to the model if no ID is provided", ->
       m = new Model
@@ -76,15 +76,15 @@ describe "Model", ->
         'test_number': 4
         'test_boolean': true
         'daysOld': 4
-        'namespace_id': 'bla'
+        'account_id': 'bla'
       @m = new Submodel
 
     it "should assign attribute values by calling through to attribute fromJSON functions", ->
-      spyOn(Model.attributes.namespaceId, 'fromJSON').andCallFake (json) ->
+      spyOn(Model.attributes.accountId, 'fromJSON').andCallFake (json) ->
         'inflated value!'
       @m.fromJSON(@json)
-      expect(Model.attributes.namespaceId.fromJSON.callCount).toBe 1
-      expect(@m.namespaceId).toBe('inflated value!')
+      expect(Model.attributes.accountId.fromJSON.callCount).toBe 1
+      expect(@m.accountId).toBe('inflated value!')
 
     it "should not touch attributes that are missing in the json", ->
       @m.fromJSON(@json)
@@ -140,19 +140,19 @@ describe "Model", ->
     beforeEach ->
       @model = new Model
         id: "1234",
-        namespaceId: "ACD"
+        accountId: "ACD"
 
     it "should return a JSON object and call attribute toJSON functions to map values", ->
-      spyOn(Model.attributes.namespaceId, 'toJSON').andCallFake (json) ->
+      spyOn(Model.attributes.accountId, 'toJSON').andCallFake (json) ->
         'inflated value!'
 
       json = @model.toJSON()
       expect(json instanceof Object).toBe(true)
       expect(json.id).toBe('1234')
-      expect(json.namespace_id).toBe('inflated value!')
+      expect(json.account_id).toBe('inflated value!')
 
     it "should surface any exception one of the attribute toJSON functions raises", ->
-      spyOn(Model.attributes.namespaceId, 'toJSON').andCallFake (json) ->
+      spyOn(Model.attributes.accountId, 'toJSON').andCallFake (json) ->
         throw new Error("Can't convert value into JSON format")
       expect(-> @model.toJSON()).toThrow()
 
@@ -160,7 +160,7 @@ describe "Model", ->
     beforeEach ->
       @model = new Model
         id: "1234",
-        namespaceId: "ACD"
+        accountId: "ACD"
 
       @truthyMatcher =
         evaluate: (model) -> true

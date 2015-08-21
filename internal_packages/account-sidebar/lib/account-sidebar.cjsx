@@ -12,22 +12,23 @@ class AccountSidebar extends React.Component
   @containerRequired: false
   @containerStyles:
     minWidth: 165
-    maxWidth: 207
+    maxWidth: 210
 
   constructor: (@props) ->
     @state = @_getStateFromStores()
 
   componentDidMount: =>
-    @unsubscribe = AccountSidebarStore.listen @_onStoreChange
+    @unsubscribers = []
+    @unsubscribers.push AccountSidebarStore.listen @_onStoreChange
 
   # It's important that every React class explicitly stops listening to
   # atom events before it unmounts. Thank you event-kit
   # This can be fixed via a Reflux mixin
   componentWillUnmount: =>
-    @unsubscribe() if @unsubscribe
+    unsubscribe() for unsubscribe in @unsubscribers
 
   render: =>
-    <ScrollRegion id="account-sidebar" className="account-sidebar">
+    <ScrollRegion style={flex:1} id="account-sidebar">
       <div className="account-sidebar-sections">
         {@_sections()}
       </div>
@@ -57,6 +58,9 @@ class AccountSidebar extends React.Component
 
   _onStoreChange: =>
     @setState @_getStateFromStores()
+
+  _onSwitchAccount: (account) =>
+    Actions.selectAccountId(account.id)
 
   _getStateFromStores: =>
     sections: AccountSidebarStore.sections()

@@ -1,6 +1,6 @@
 Reflux = require 'reflux'
 _ = require 'underscore'
-NamespaceStore = require './namespace-store'
+AccountStore = require './account-store'
 DatabaseStore = require './database-store'
 DraftStore = require './draft-store'
 Actions = require '../actions'
@@ -19,7 +19,7 @@ if not atom.isMainWindow() and not atom.inSpecMode() then return
 
 DraftCountStore = Reflux.createStore
   init: ->
-    @listenTo NamespaceStore, @_onNamespaceChanged
+    @listenTo AccountStore, @_onAccountChanged
     @listenTo DraftStore, @_onDraftChanged
     @_count = null
     _.defer => @_fetchCount()
@@ -28,7 +28,7 @@ DraftCountStore = Reflux.createStore
   count: ->
     @_count
 
-  _onNamespaceChanged: ->
+  _onAccountChanged: ->
     @_onDraftChanged()
 
   _onDraftChanged: ->
@@ -36,11 +36,12 @@ DraftCountStore = Reflux.createStore
     @_fetchCountDebounced()
 
   _fetchCount: ->
-    namespace = NamespaceStore.current()
-    return unless namespace
+    account = AccountStore.current()
+    return unless account
 
     DatabaseStore.count(Message, [
       Message.attributes.draft.equal(true)
+      Message.attributes.accountId.equal(account.id)
     ]).then (count) =>
       return if @_count is count
       @_count = count

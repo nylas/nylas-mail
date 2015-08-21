@@ -6,7 +6,7 @@ Task = require '../../src/flux/tasks/task'
 Message = require '../../src/flux/models/message'
 Actions = require '../../src/flux/actions'
 
-NamespaceStore = require "../../src/flux/stores/namespace-store"
+AccountStore = require "../../src/flux/stores/account-store"
 DraftStore = require "../../src/flux/stores/draft-store"
 
 {APIError,
@@ -37,7 +37,7 @@ testResponse = '[
         "content_type": "image/jpeg",
         "filename": "TestFilename.jpg",
         "id": "nylas_id_123",
-        "namespace_id": "ns-id",
+        "account_id": "ns-id",
         "object": "file",
         "size": 19013
     }
@@ -177,7 +177,8 @@ describe "FileUploadTask", ->
     it "should start an API request", ->
       waitsForPromise => @task.performRemote().then ->
         options = NylasAPI.makeRequest.mostRecentCall.args[0]
-        expect(options.path).toBe("/n/nsid/files")
+        expect(options.path).toBe("/files")
+        expect(options.accountId).toBe("test_account_id")
         expect(options.method).toBe('POST')
         expect(options.formData.file.value).toBe("Read Stream")
 

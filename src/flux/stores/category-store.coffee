@@ -4,13 +4,13 @@ Folder = require '../models/folder'
 NylasAPI = require '../nylas-api'
 NylasStore = require 'nylas-store'
 DatabaseStore = require './database-store'
-NamespaceStore = require './namespace-store'
+AccountStore = require './account-store'
 
 class CategoryStore extends NylasStore
   constructor: ->
     @_categoryCache = {}
     @listenTo DatabaseStore, @_onDBChanged
-    @listenTo NamespaceStore, @_refreshCacheFromDB
+    @listenTo AccountStore, @_refreshCacheFromDB
     @_refreshCacheFromDB()
 
   # We look for a few standard categories and display them in the Mailboxes
@@ -36,26 +36,26 @@ class CategoryStore extends NylasStore
   byId: (id) -> @_categoryCache[id]
 
   categoryLabel: ->
-    namespace = NamespaceStore.current()
-    return "Unknown" unless namespace
+    account = AccountStore.current()
+    return "Unknown" unless account
 
-    if namespace.usesFolders()
+    if account.usesFolders()
       return "Folders"
-    else if namespace.usesLabels()
+    else if account.usesLabels()
       return "Labels"
     return "Unknown"
 
   categoryClass: ->
-    namespace = NamespaceStore.current()
-    return null unless namespace
+    account = AccountStore.current()
+    return null unless account
 
-    if namespace.usesFolders()
+    if account.usesFolders()
       return Folder
-    else if namespace.usesLabels()
+    else if account.usesLabels()
       return Label
     return null
 
-  # Public: Returns an array of all the categories in the current namespace, both
+  # Public: Returns an array of all the categories in the current account, both
   # standard and user generated. The items returned by this function will be
   # either {Folder} or {Label} objects.
   #
@@ -71,7 +71,7 @@ class CategoryStore extends NylasStore
       throw new Error("'#{name}' is not a standard category")
     return _.findWhere @_categoryCache, {name}
 
-  # Public: Returns all of the standard categories for the current namespace.
+  # Public: Returns all of the standard categories for the current account.
   #
   getStandardCategories: ->
     # Single pass to create lookup table, single pass to get ordered array
@@ -99,9 +99,10 @@ class CategoryStore extends NylasStore
 
   _refreshCacheFromDB: ->
     categoryClass = @categoryClass()
+    account = AccountStore.current()
     return unless categoryClass
 
-    DatabaseStore.findAll(categoryClass).then (categories=[]) =>
+    DatabaseStore.findAll(categoryClass).where(categoryClass.attributes.accountId.equal(account.id)).then (categories=[]) =>
       @_categoryCache = {}
       @_categoryCache[category.id] = category for category in categories
       @trigger()

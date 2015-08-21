@@ -25,6 +25,8 @@ class ParticipantsTextField extends React.Component
     # changes are made.
     change: React.PropTypes.func.isRequired,
 
+    className: React.PropTypes.string
+
   @defaultProps:
     visible: true
 
@@ -35,7 +37,7 @@ class ParticipantsTextField extends React.Component
   render: =>
     classSet = {}
     classSet[@props.field] = true
-    <div className="participants-text-field">
+    <div className={@props.className}>
       <TokenizingTextField
         ref="textField"
         tokens={@props.participants[@props.field]}

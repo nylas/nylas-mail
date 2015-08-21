@@ -5,6 +5,7 @@ NylasAPI = require '../../src/flux/nylas-api'
 Task = require '../../src/flux/tasks/task'
 Actions = require '../../src/flux/actions'
 Message = require '../../src/flux/models/message'
+Account = require '../../src/flux/models/account'
 Contact = require '../../src/flux/models/contact'
 {APIError} = require '../../src/flux/errors'
 DatabaseStore = require '../../src/flux/stores/database-store'
@@ -24,12 +25,12 @@ testError = (opts) ->
     requestOptions: opts
 
 testData =
-  to: new Contact(name: "Ben Gotow", email: "ben@nylas.com")
-  from: new Contact(name: "Evan Morikawa", email: "evan@nylas.com")
+  to: [new Contact(name: "Ben Gotow", email: "ben@nylas.com")]
+  from: [new Contact(name: "Evan Morikawa", email: "evan@nylas.com")]
   date: new Date
   draft: true
   subject: "Test"
-  namespaceId: "abc123"
+  accountId: "abc123"
   body: '<body>123</body>'
 
 localDraft = new Message _.extend {}, testData, {id: "local-id"}
@@ -41,6 +42,10 @@ describe "SyncbackDraftTask", ->
       if localId is "localDraftId" then Promise.resolve(localDraft)
       else if localId is "remoteDraftId" then Promise.resolve(remoteDraft)
       else if localId is "missingDraftId" then Promise.resolve()
+
+    spyOn(DatabaseStore, 'findBy').andCallFake (klass, matchers) ->
+      if klass is Account
+        Promise.resolve(new Account(id: 'abc123'))
 
     spyOn(DatabaseStore, "persistModel").andCallFake ->
       Promise.resolve()
@@ -74,7 +79,8 @@ describe "SyncbackDraftTask", ->
         task.performRemote().then ->
           expect(NylasAPI.makeRequest).toHaveBeenCalled()
           options = NylasAPI.makeRequest.mostRecentCall.args[0]
-          expect(options.path).toBe("/n/abc123/drafts/remoteid1234")
+          expect(options.path).toBe("/drafts/remoteid1234")
+          expect(options.accountId).toBe("abc123")
           expect(options.method).toBe('PUT')
 
     it "should do a POST when the draft is unsaved", ->
@@ -83,7 +89,8 @@ describe "SyncbackDraftTask", ->
         task.performRemote().then ->
           expect(NylasAPI.makeRequest).toHaveBeenCalled()
           options = NylasAPI.makeRequest.mostRecentCall.args[0]
-          expect(options.path).toBe("/n/abc123/drafts")
+          expect(options.path).toBe("/drafts")
+          expect(options.accountId).toBe("abc123")
           expect(options.method).toBe('POST')
 
     it "should pass returnsModel:false so that the draft can be manually removed/added to the database, accounting for its ID change", ->

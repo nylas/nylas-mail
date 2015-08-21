@@ -1,5 +1,5 @@
 Contact = require "../../src/flux/models/contact"
-NamespaceStore = require "../../src/flux/stores/namespace-store"
+AccountStore = require "../../src/flux/stores/account-store"
 
 contact_1 =
   name: "Evan Morikawa"
@@ -77,18 +77,18 @@ describe "Contact", ->
     expect(c3.displayLastName()).toBe ""
 
   it "should properly return `You` as the display name for the current user", ->
-    c1 = new Contact {name: " Test Monkey", email: NamespaceStore.current().emailAddress}
+    c1 = new Contact {name: " Test Monkey", email: AccountStore.current().emailAddress}
     expect(c1.displayName()).toBe "You"
     expect(c1.displayFirstName()).toBe "You"
     expect(c1.displayLastName()).toBe ""
 
   describe "isMe", ->
-    it "returns true if the contact name matches the namespace email address", ->
-      c1 = new Contact {email: NamespaceStore.current().emailAddress}
+    it "returns true if the contact name matches the account email address", ->
+      c1 = new Contact {email: AccountStore.current().emailAddress}
       expect(c1.isMe()).toBe(true)
       c1 = new Contact {email: 'ben@nylas.com'}
       expect(c1.isMe()).toBe(false)
 
     it "is case insensitive", ->
-      c1 = new Contact {email: NamespaceStore.current().emailAddress.toUpperCase()}
+      c1 = new Contact {email: AccountStore.current().emailAddress.toUpperCase()}
       expect(c1.isMe()).toBe(true)

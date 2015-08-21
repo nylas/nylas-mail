@@ -32,7 +32,7 @@ DeveloperBarStore = Reflux.createStore
   _setStoreDefaults: ->
     @_curlHistory = []
     @_longPollHistory = []
-    @_longPollState = 'Unknown'
+    @_longPollState = {}
     @_visible = atom.inDevMode()
 
   _registerListeners: ->
@@ -68,8 +68,8 @@ DeveloperBarStore = Reflux.createStore
   _onLongPollProcessedDeltas: ->
     @triggerThrottled(@)
 
-  _onLongPollStateChange: (state) ->
-    @_longPollState = state
+  _onLongPollStateChange: ({accountId, state}) ->
+    @_longPollState[accountId] = state
     @triggerThrottled(@)
 
   _onAPIRequest: ({request, response}) ->
@@ -94,12 +94,12 @@ DeveloperBarStore = Reflux.createStore
     @triggerThrottled(@)
 
   _onSendFeedback: ->
-    {NamespaceStore,
+    {AccountStore,
      Contact,
      Message,
      DatabaseStore} = require 'nylas-exports'
 
-    user = NamespaceStore.current().name
+    user = AccountStore.current().name
 
     debugData = JSON.stringify({
       queries: @_curlHistory
@@ -110,7 +110,7 @@ DeveloperBarStore = Reflux.createStore
     debugData = debugData.replace(/:\/\/(\w)*:(\w)?@/g, '://')
 
     draft = new Message
-      from: [NamespaceStore.current().me()]
+      from: [AccountStore.current().me()]
       to: [
         new Contact
           name: "Nylas Team"
@@ -119,7 +119,7 @@ DeveloperBarStore = Reflux.createStore
       date: (new Date)
       draft: true
       subject: "Feedback"
-      namespaceId: NamespaceStore.current().id
+      accountId: AccountStore.current().id
       body: """
         Hi, Nylas team! I have some feedback for you.<br/>
         <br/>

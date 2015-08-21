@@ -1,7 +1,7 @@
 _ = require 'underscore'
 React = require 'react'
 
-{NamespaceStore,
+{AccountStore,
  DatabaseStore,
  Message,
  ComponentRegistry,

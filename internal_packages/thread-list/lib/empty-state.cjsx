@@ -3,7 +3,7 @@ React = require 'react'
 classNames = require 'classnames'
 {RetinaImg} = require 'nylas-component-kit'
 {DatabaseView,
- NamespaceStore,
+ AccountStore,
  NylasAPI,
  WorkspaceStore} = require 'nylas-exports'
 
@@ -79,8 +79,8 @@ class EmptyState extends React.Component
   componentDidMount: ->
     @_unlisteners = []
     @_unlisteners.push WorkspaceStore.listen(@_onChange, @)
-    @_unlisteners.push NamespaceStore.listen(@_onNamespacesChanged, @)
-    @_onNamespacesChanged()
+    @_unlisteners.push AccountStore.listen(@_onAccountsChanged, @)
+    @_onAccountsChanged()
 
   shouldComponentUpdate: (nextProps, nextState) ->
     # Avoid deep comparison of dataView, which is a very complex object
@@ -88,9 +88,9 @@ class EmptyState extends React.Component
     return true if nextProps.dataView isnt @props.dataView
     return not _.isEqual(nextState, @state)
 
-  _onNamespacesChanged: ->
-    namespace = NamespaceStore.current()
-    @_worker = NylasAPI.workerForNamespace(namespace)
+  _onAccountsChanged: ->
+    account = AccountStore.current()
+    @_worker = NylasAPI.workerForAccount(account)
     @_workerUnlisten() if @_workerUnlisten
     @_workerUnlisten = @_worker.listen(@_onChange, @)
     @setState(syncing: @_worker.busy())

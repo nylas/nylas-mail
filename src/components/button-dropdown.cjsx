@@ -3,10 +3,11 @@ RetinaImg = require './retina-img'
 
 React = require 'react'
 class ButtonDropdown extends React.Component
-  @displayName: "MessageControls"
+  @displayName: "ButtonDropdown"
   @propTypes:
     primaryItem: React.PropTypes.element
     primaryClick: React.PropTypes.func
+    bordered: React.PropTypes.bool
     menu: React.PropTypes.element
 
   constructor: (@props) ->
@@ -14,27 +15,39 @@ class ButtonDropdown extends React.Component
 
   render: =>
     classnames = "button-dropdown #{@props.className ? ''}"
-    classnames += "open" if @state.showing
+    classnames += " open" if @state.showing
+    classnames += " bordered" if @props.bordered isnt false
 
-    <div ref="button" onBlur={@_onBlur} tabIndex={999} className={classnames}>
-      <div className="primary-item" onClick={@props.primaryClick}>
-        {@props.primaryItem}
+    if @props.primaryClick
+      <div ref="button" onBlur={@_onBlur} tabIndex={999} className={classnames}>
+        <div className="primary-item" onClick={@props.primaryClick}>
+          {@props.primaryItem}
+        </div>
+        <div className="secondary-picker" onClick={@toggleDropdown}>
+          <RetinaImg name={"icon-thread-disclosure.png"} mode={RetinaImg.Mode.ContentIsMask}/>
+        </div>
+        <div className="secondary-items">
+          {@props.menu}
+        </div>
       </div>
-      <div className="secondary-picker" onClick={@_toggleDropdown}>
-        <RetinaImg name={"icon-thread-disclosure.png"} mode={RetinaImg.Mode.ContentIsMask}/>
+    else
+      <div ref="button" onBlur={@_onBlur} tabIndex={999} className={classnames}>
+        <div className="only-item" onClick={@toggleDropdown}>
+          {@props.primaryItem}
+          <RetinaImg name={"icon-thread-disclosure.png"} style={marginLeft:12} mode={RetinaImg.Mode.ContentIsMask}/>
+        </div>
+        <div className="secondary-items left">
+          {@props.menu}
+        </div>
       </div>
-      <div className="secondary-items">
-        {@props.menu}
-      </div>
-    </div>
 
-  _toggleDropdown: =>
-    @setState showing: !@state.showing
+  toggleDropdown: =>
+    @setState(showing: !@state.showing)
 
   _onBlur: (event) =>
     target = event.nativeEvent.relatedTarget
     if target? and React.findDOMNode(@refs.button).contains(target)
       return
-    @setState showing: false
+    @setState(showing: false)
 
 module.exports = ButtonDropdown

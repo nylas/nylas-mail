@@ -54,11 +54,11 @@ class NylasExports
   @require "Label", 'flux/models/label'
   @require "Folder", 'flux/models/folder'
   @require "Thread", 'flux/models/thread'
+  @require "Account", 'flux/models/account'
   @require "Message", 'flux/models/message'
   @require "Contact", 'flux/models/contact'
   @require "Calendar", 'flux/models/calendar'
   @require "Metadata", 'flux/models/metadata'
-  @require "Namespace", 'flux/models/namespace'
   @require "LocalLink", 'flux/models/local-link'
   @require "DatabaseObjectRegistry", "database-object-registry"
 
@@ -95,11 +95,11 @@ class NylasExports
   # currently set themselves up on require.
   @require "EventStore", 'flux/stores/event-store'
   @require "DraftStore", 'flux/stores/draft-store'
+  @require "AccountStore", 'flux/stores/account-store'
   @require "MessageStore", 'flux/stores/message-store'
   @require "ContactStore", 'flux/stores/contact-store'
   @require "CategoryStore", 'flux/stores/category-store'
   @require "MetadataStore", 'flux/stores/metadata-store'
-  @require "NamespaceStore", 'flux/stores/namespace-store'
   @require "AnalyticsStore", 'flux/stores/analytics-store'
   @require "WorkspaceStore", 'flux/stores/workspace-store'
   @require "DraftCountStore", 'flux/stores/draft-count-store'

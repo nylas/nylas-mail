@@ -153,11 +153,11 @@ class Actions
   @toggleComponentRegions: ActionScopeWindow
 
   ###
-  Public: Select the provided namespace ID in the current window.
+  Public: Select the provided account ID in the current window.
 
   *Scope: Window*
   ###
-  @selectNamespaceId: ActionScopeWindow
+  @selectAccountId: ActionScopeWindow
 
   ###
   Public: Select the provided sheet in the current window. This action changes

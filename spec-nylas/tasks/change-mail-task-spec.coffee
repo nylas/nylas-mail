@@ -315,8 +315,9 @@ describe "ChangeMailTask", ->
         waitsFor ->
           NylasAPI.makeRequest.callCount is 2
         runs ->
-          path = "/n/#{@threadA.namespaceId}/threads/#{@threadA.id}"
+          path = "/threads/#{@threadA.id}"
           expect(NylasAPI.makeRequest.calls[0].args[0].path).toBe(path)
+          expect(NylasAPI.makeRequest.calls[0].args[0].accountId).toBe(@threadA.accountId)
 
       it "should use /messages when the klass provided is Message", ->
         spyOn(NylasAPI, 'makeRequest')
@@ -325,8 +326,9 @@ describe "ChangeMailTask", ->
         waitsFor ->
           NylasAPI.makeRequest.callCount is 1
         runs ->
-          path = "/n/#{@threadAMesage1.namespaceId}/messages/#{@threadAMesage1.id}"
+          path = "/messages/#{@threadAMesage1.id}"
           expect(NylasAPI.makeRequest.calls[0].args[0].path).toBe(path)
+          expect(NylasAPI.makeRequest.calls[0].args[0].accountId).toBe(@threadAMesage1.accountId)
 
       it "should decrement change counts as requests complete", ->
         spyOn(NylasAPI, 'makeRequest')

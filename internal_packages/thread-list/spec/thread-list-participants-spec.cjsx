@@ -2,7 +2,7 @@ React = require "react/addons"
 ReactTestUtils = React.addons.TestUtils
 
 _ = require 'underscore'
-{NamespaceStore, Thread, Contact, Message} = require 'nylas-exports'
+{AccountStore, Thread, Contact, Message} = require 'nylas-exports'
 ThreadListParticipants = require '../lib/thread-list-participants'
 
 describe "ThreadListParticipants", ->
@@ -170,7 +170,7 @@ describe "ThreadListParticipants", ->
 
     describe "when getParticipants() called and current user is only sender", ->
       beforeEach ->
-        @me = NamespaceStore.current().me()
+        @me = AccountStore.current().me()
         @ben = new Contact(email: 'ben@nylas.com', name: 'ben')
         @evan = new Contact(email: 'evan@nylas.com', name: 'evan')
         @evanCapitalized = new Contact(email: 'EVAN@nylas.com', name: 'evan')
@@ -252,7 +252,7 @@ describe "ThreadListParticipants", ->
 
     describe "when thread.messages is not available", ->
       it "correctly produces items for display in a wide range of scenarios", ->
-        me = NamespaceStore.current().me()
+        me = AccountStore.current().me()
         scenarios = [{
           name: 'one participant'
           in: [@ben]

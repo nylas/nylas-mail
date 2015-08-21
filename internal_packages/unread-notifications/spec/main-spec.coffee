@@ -5,7 +5,7 @@ Thread = require '../../../src/flux/models/thread'
 Label = require '../../../src/flux/models/label'
 CategoryStore = require '../../../src/flux/stores/category-store'
 DatabaseStore = require '../../../src/flux/stores/database-store'
-NamespaceStore = require '../../../src/flux/stores/namespace-store'
+AccountStore = require '../../../src/flux/stores/account-store'
 Main = require '../lib/main'
 
 describe "UnreadNotifications", ->
@@ -79,7 +79,7 @@ describe "UnreadNotifications", ->
     @msgFromMe = new Message
       unread: true
       date: new Date()
-      from: [NamespaceStore.current().me()]
+      from: [AccountStore.current().me()]
       subject: "A Sent Mail!"
       threadId: "A"
 

@@ -4,7 +4,7 @@ classNames = require 'classnames'
 NotificationStore = require './notifications-store'
 {Actions,
  TaskQueue,
- NamespaceStore,
+ AccountStore,
  NylasAPI} = require 'nylas-exports'
 {TimeoutTransitionGroup} = require 'nylas-component-kit'
 
@@ -14,17 +14,17 @@ class ActivitySidebar extends React.Component
   @containerRequired: false
   @containerStyles:
     minWidth: 165
-    maxWidth: 207
+    maxWidth: 400
 
   constructor: (@props) ->
     @state = @_getStateFromStores()
 
   componentDidMount: =>
     @_unlisteners = []
-    @_unlisteners.push NamespaceStore.listen @_onNamespacesChanged
+    @_unlisteners.push AccountStore.listen @_onAccountsChanged
     @_unlisteners.push TaskQueue.listen @_onDataChanged
     @_unlisteners.push NotificationStore.listen @_onDataChanged
-    @_onNamespacesChanged()
+    @_onAccountsChanged()
 
   componentWillUnmount: =>
     unlisten() for unlisten in @_unlisteners
@@ -102,10 +102,10 @@ class ActivitySidebar extends React.Component
         </div>
       </div>
 
-  _onNamespacesChanged: =>
-    namespace = NamespaceStore.current()
-    return unless namespace
-    @_worker = NylasAPI.workerForNamespace(namespace)
+  _onAccountsChanged: =>
+    account = AccountStore.current()
+    return unless account
+    @_worker = NylasAPI.workerForAccount(account)
     @_workerUnlisten() if @_workerUnlisten
     @_workerUnlisten = @_worker.listen(@_onDataChanged, @)
     @_onDataChanged()

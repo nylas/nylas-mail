@@ -65,6 +65,7 @@ class Preferences extends React.Component
                          activeTab={@state.activeTab}
                          changeActiveTab={@_onChangeActiveTab}/>
       {bodyElement}
+      <div style={clear:'both'}></div>
     </div>
 
   _onChangeActiveTab: (tab) =>

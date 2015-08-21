@@ -7,7 +7,7 @@ NylasStore = require 'nylas-store'
  SearchView,
  DatabaseView,
  DatabaseStore,
- NamespaceStore,
+ AccountStore,
  WorkspaceStore,
  ChangeStarredTask,
  FocusedContentStore,
@@ -35,7 +35,7 @@ class ThreadListStore extends NylasStore
     @listenTo Actions.toggleStarFocused, @_onToggleStarFocused
 
     @listenTo DatabaseStore, @_onDataChanged
-    @listenTo NamespaceStore, @_onNamespaceChanged
+    @listenTo AccountStore, @_onAccountChanged
     @listenTo FocusedCategoryStore, @_onCategoryChanged
 
     atom.config.observe 'core.workspace.mode', => @_autofocusForLayoutMode()
@@ -67,19 +67,19 @@ class ThreadListStore extends NylasStore
 
   createView: ->
     categoryId = FocusedCategoryStore.categoryId()
-    namespace = NamespaceStore.current()
-    return unless namespace
+    account = AccountStore.current()
+    return unless account
 
     if @_searchQuery
-      @setView(new SearchView(@_searchQuery, namespace.id))
+      @setView(new SearchView(@_searchQuery, account.id))
 
-    else if namespace.id and categoryId
+    else if account.id and categoryId
       matchers = []
-      matchers.push Thread.attributes.namespaceId.equal(namespace.id)
+      matchers.push Thread.attributes.accountId.equal(account.id)
 
-      if namespace.usesLabels()
+      if account.usesLabels()
         matchers.push Thread.attributes.labels.contains(categoryId)
-      else if namespace.usesFolders()
+      else if account.usesFolders()
         matchers.push Thread.attributes.folders.contains(categoryId)
       else
         throw new Error("Invalid organizationUnit")
@@ -100,12 +100,12 @@ class ThreadListStore extends NylasStore
   _onCategoryChanged: ->
     @createView()
 
-  _onNamespaceChanged: ->
-    namespaceId = NamespaceStore.current()?.id
-    namespaceMatcher = (m) ->
-      m.attribute() is Thread.attributes.namespaceId and m.value() is namespaceId
+  _onAccountChanged: ->
+    accountId = AccountStore.current()?.id
+    accountMatcher = (m) ->
+      m.attribute() is Thread.attributes.accountId and m.value() is accountId
 
-    return if @_view and _.find(@_view.matchers, namespaceMatcher)
+    return if @_view and _.find(@_view.matchers, accountMatcher)
     @createView()
 
   _onSearchCommitted: (query) ->
@@ -120,8 +120,11 @@ class ThreadListStore extends NylasStore
       @_view.invalidate({change: change, shallow: true})
 
     if change.objectClass is Message.name
-      threadIds = _.uniq _.map change.objects, (m) -> m.threadId
-      @_view.invalidateMetadataFor(threadIds)
+      # Important: Until we optimize this so that it detects the set change
+      # and avoids a query, this should be debounced since it's very unimportant
+      _.defer =>
+        threadIds = _.uniq _.map change.objects, (m) -> m.threadId
+        @_view.invalidateMetadataFor(threadIds)
 
   _onToggleStarSelection: ->
     threads = @_view.selection.items()

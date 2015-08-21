@@ -1,27 +1,21 @@
 NylasStore = require 'nylas-store'
 CategoryStore = require './category-store'
-NamespaceStore = require './namespace-store'
+AccountStore = require './account-store'
 Actions = require '../actions'
 
 class FocusedCategoryStore extends NylasStore
   constructor: ->
     @listenTo CategoryStore, @_onCategoryStoreChanged
-    @listenTo NamespaceStore, @_setDefaultCategory
     @listenTo Actions.focusCategory, @_onFocusCategory
     @listenTo Actions.searchQueryCommitted, @_onSearchQueryCommitted
-    @_setDefaultCategory()
+    @_onCategoryStoreChanged()
 
   # Inbound Events
   _onCategoryStoreChanged: ->
     if @_category?.id
       category = CategoryStore.byId(@_category.id)
-      @_setCategory(category)
-    else
-      @_setDefaultCategory()
-
-  _setDefaultCategory: ->
-    @_category = null
-    @_setCategory(CategoryStore.getStandardCategory('inbox'))
+    category ?= @_defaultCategory()
+    @_setCategory(category)
 
   _onFocusCategory: (category) ->
     return if @_category?.id is category?.id
@@ -41,7 +35,10 @@ class FocusedCategoryStore extends NylasStore
       if @_categoryBeforeSearch
         @_setCategory(@_categoryBeforeSearch)
       else
-        @_setDefaultCategory()
+        @_setCategory(@_defaultCategory())
+
+  _defaultCategory: ->
+    CategoryStore.getStandardCategory('inbox')
 
   _setCategory: (category) ->
     return if @_category?.id is category?.id

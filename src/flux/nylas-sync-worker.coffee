@@ -40,18 +40,18 @@ class NylasSyncWorker
   @include: CoffeeHelpers.includeModule
   @include Publisher
 
-  constructor: (api, namespace) ->
+  constructor: (api, account) ->
     @_api = api
-    @_namespace = namespace
+    @_account = account
 
     @_terminated = false
-    @_connection = new NylasLongConnection(api, namespace.id)
+    @_connection = new NylasLongConnection(api, account.id)
     @_resumeTimer = new BackoffTimer =>
       # indirection needed so resumeFetches can be spied on
       @resumeFetches()
 
     @_state = null
-    DatabaseStore.findJSONObject("NylasSyncWorker:#{@_namespace.id}").then (json) =>
+    DatabaseStore.findJSONObject("NylasSyncWorker:#{@_account.id}").then (json) =>
       @_state = json ? {}
       for model, modelState of @_state
         modelState.busy = false
@@ -59,8 +59,8 @@ class NylasSyncWorker
 
     @
 
-  namespace: ->
-    @_namespace
+  account: ->
+    @_account
 
   connection: ->
     @_connection
@@ -97,9 +97,9 @@ class NylasSyncWorker
     @fetchCollection('calendars')
     @fetchCollection('contacts')
     @fetchCollection('drafts')
-    if @_namespace.usesLabels()
+    if @_account.usesLabels()
       @fetchCollection('labels')
-    if @_namespace.usesFolders()
+    if @_account.usesFolders()
       @fetchCollection('folders')
 
   fetchCollection: (model, options = {}) ->
@@ -120,7 +120,8 @@ class NylasSyncWorker
 
   fetchCollectionCount: (model) ->
     @_api.makeRequest
-      path: "/n/#{@_namespace.id}/#{model}"
+      accountId: @_account.id
+      path: "/#{model}"
       returnsModel: false
       qs:
         view: 'count'
@@ -150,9 +151,9 @@ class NylasSyncWorker
           @updateTransferState(model, {fetched: lastReceivedIndex, busy: false, complete: true})
 
     if model is 'threads'
-      @_api.getThreads(@_namespace.id, params, requestOptions)
+      @_api.getThreads(@_account.id, params, requestOptions)
     else
-      @_api.getCollection(@_namespace.id, model, params, requestOptions)
+      @_api.getCollection(@_account.id, model, params, requestOptions)
 
   updateTransferState: (model, {busy, error, complete, fetched, count}) ->
     @_state[model] = _.defaults({busy, error, complete, fetched, count}, @_state[model])
@@ -160,7 +161,7 @@ class NylasSyncWorker
 
   writeState: ->
     @_writeState ?= _.debounce =>
-      DatabaseStore.persistJSONObject("NylasSyncWorker:#{@_namespace.id}", @_state)
+      DatabaseStore.persistJSONObject("NylasSyncWorker:#{@_account.id}", @_state)
     ,100
     @_writeState()
     @trigger()

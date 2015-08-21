@@ -19,7 +19,7 @@ ServiceHub = require 'service-hub'
 pathwatcher = require 'pathwatcher'
 clipboard = require 'clipboard'
 
-NamespaceStore = require "../src/flux/stores/namespace-store"
+AccountStore = require "../src/flux/stores/account-store"
 Contact = require '../src/flux/models/contact'
 {TaskQueue, ComponentRegistry} = require "nylas-exports"
 
@@ -146,9 +146,9 @@ beforeEach ->
   spyOn(atom.menu, 'sendToBrowserProcess')
 
   # Log in a fake user
-  spyOn(NamespaceStore, 'current').andCallFake ->
+  spyOn(AccountStore, 'current').andCallFake ->
     emailAddress: 'tester@nylas.com'
-    id: 'nsid'
+    id: 'test_account_id'
     usesLabels: -> atom.testOrganizationUnit is "label"
     usesFolders: -> atom.testOrganizationUnit is "folder"
     me: ->

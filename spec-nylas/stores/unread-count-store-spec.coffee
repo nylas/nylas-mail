@@ -1,5 +1,5 @@
 UnreadCountStore = require '../../src/flux/stores/unread-count-store'
-NamespaceStore = require '../../src/flux/stores/namespace-store'
+AccountStore = require '../../src/flux/stores/account-store'
 DatabaseStore = require '../../src/flux/stores/database-store'
 Folder = require '../../src/flux/models/folder'
 Label = require '../../src/flux/models/label'
@@ -23,7 +23,7 @@ describe "UnreadCountStore", ->
 
       [Model, Matchers] = DatabaseStore.count.calls[0].args
       expect(Model).toBe(Thread)
-      expect(Matchers[0].attr.modelKey).toBe('namespaceId')
+      expect(Matchers[0].attr.modelKey).toBe('accountId')
       expect(Matchers[1].attr.modelKey).toBe('unread')
       expect(Matchers[1].val).toBe(true)
       expect(Matchers[2].attr.modelKey).toBe('folders')
@@ -36,7 +36,7 @@ describe "UnreadCountStore", ->
       expect(DatabaseStore.findBy).toHaveBeenCalledWith(Label, {name: 'inbox'})
 
       [Model, Matchers] = DatabaseStore.count.calls[0].args
-      expect(Matchers[0].attr.modelKey).toBe('namespaceId')
+      expect(Matchers[0].attr.modelKey).toBe('accountId')
       expect(Matchers[1].attr.modelKey).toBe('unread')
       expect(Matchers[1].val).toBe(true)
       expect(Matchers[2].attr.modelKey).toBe('labels')

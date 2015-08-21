@@ -1,5 +1,6 @@
 var ipc = require("ipc");
 var React = require('react');
+var _ = require('underscore');
 var LinkedValueUtils = require('react/lib/LinkedValueUtils');
 var ReactDOMComponent = require('react/lib/ReactDOMComponent');
 var methods = Object.keys(ReactDOMComponent.BackendIDOperations);
@@ -98,6 +99,7 @@ var observeMethodAndBroadcast = function(parent, sel) {
        arguments: args,
        firstArgType: firstArgType
      });
+     target.sendSizingInformation();
    }
  });
 };
@@ -158,7 +160,7 @@ ipc.on('from-react-remote-window', function(json) {
 
 var parentListenersAttached = false;
 var reactRemoteContainer = document.createElement('div');
-reactRemoteContainer.style.display = 'none';
+reactRemoteContainer.style.left = '-10000px';
 reactRemoteContainer.style.backgroundColor = 'white';
 reactRemoteContainer.style.position = 'absolute';
 reactRemoteContainer.style.zIndex = 10000;
@@ -166,10 +168,10 @@ reactRemoteContainer.style.border = '5px solid orange';
 document.body.appendChild(reactRemoteContainer);
 
 var toggleContainerVisible = function() {
-  if (reactRemoteContainer.style.display === 'none') {
-    reactRemoteContainer.style.display = 'inherit';
+  if (reactRemoteContainer.style.left === '-10000px') {
+    reactRemoteContainer.style.left = 0;
   } else {
-    reactRemoteContainer.style.display = 'none';
+    reactRemoteContainer.style.left = '-10000px';
   }
 };
 
@@ -224,9 +226,13 @@ var openWindowForComponent = function(Component, options) {
   container.id = 'react-remote-window-container-'+thinWindow.id;
   if (options.width) {
     container.style.width = options.width+'px';
+  } else {
+    container.style.height = 'auto';
   }
   if (options.height) {
     container.style.height = options.height+'px';
+  } else {
+    container.style.height = 'auto';
   }
   reactRemoteContainer.appendChild(container);
 
@@ -248,6 +254,30 @@ var openWindowForComponent = function(Component, options) {
 
   var sendWaiting = [];
 
+  var sendSizingInformation = function() {
+    if (!options.autosize) {
+      return;
+    }
+    // Weirdly, this returns an array of [width, height] and not a hash
+    var size = thinWindow.getContentSize();
+    var containerSize = container.getBoundingClientRect();
+    var changed = false;
+    if ((!options.height) && (size[1] != containerSize.height)) {
+      size[1] = containerSize.height;
+      changed = true;
+    }
+    if ((!options.width) && (size[0] != containerSize.width)) {
+      size[0] = containerSize.width;
+      changed = true;
+    }
+    if (containerSize.height == 0) {
+      debugger;
+    }
+    if (changed) {
+      thinWindow.setContentSize(size[0], size[1]);
+    }
+  };
+
   // Create a "Target" object that we'll use to store information about the
   // remote window, it's reactId, etc.
   var target = {
@@ -265,8 +295,14 @@ var openWindowForComponent = function(Component, options) {
         sendWaiting.push(args);
       }
     },
+    sendSizingInformation: _.debounce(function() {
+      if (target.containerReady && target.windowReady) {
+        sendSizingInformation();
+      }
+    }, 20),
     sendHTMLIfReady: function() {
       if (target.containerReady && target.windowReady) {
+        sendSizingInformation();
         thinWindow.webContents.send('to-react-remote-window', {
           html: container.innerHTML,
           style: thinStyles,

@@ -4,18 +4,18 @@ Actions = require '../../src/flux/actions'
 EventRSVPTask = require '../../src/flux/tasks/event-rsvp'
 DatabaseStore = require '../../src/flux/stores/database-store'
 Event = require '../../src/flux/models/event'
-NamespaceStore = require '../../src/flux/stores/namespace-store'
+AccountStore = require '../../src/flux/stores/account-store'
 _ = require 'underscore'
 
 describe "EventRSVPTask", ->
   beforeEach ->
     spyOn(DatabaseStore, 'find').andCallFake => Promise.resolve(@event)
     spyOn(DatabaseStore, 'persistModel').andCallFake -> Promise.resolve()
-    @myId = 'nsid'
     @myName = "Ben Tester"
     @myEmail = "tester@nylas.com"
     @event = new Event
       id: '12233AEDF5'
+      accountId: 'test_account_id'
       title: 'Meeting with Ben Bitdiddle'
       description: ''
       location: ''
@@ -50,8 +50,9 @@ describe "EventRSVPTask", ->
       spyOn(NylasAPI, 'makeRequest').andCallFake => new Promise (resolve,reject) ->
       @task.performRemote()
       options = NylasAPI.makeRequest.mostRecentCall.args[0]
-      expect(options.path).toBe("/n/#{@myId}/send-rsvp")
+      expect(options.path).toBe("/send-rsvp")
       expect(options.method).toBe('POST')
+      expect(options.accountId).toBe(@event.accountId)
       expect(options.body.event_id).toBe(@event.id)
       expect(options.body.status).toBe("no")
 

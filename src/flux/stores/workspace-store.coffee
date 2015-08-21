@@ -1,5 +1,6 @@
 _ = require 'underscore'
 Actions = require '../actions'
+AccountStore = require './account-store'
 NylasStore = require 'nylas-store'
 
 Sheet = {}
@@ -44,8 +45,8 @@ class WorkspaceStore extends NylasStore
     if atom.isMainWindow()
       @defineSheet 'Global'
       @defineSheet 'Threads', {root: true},
-        list: ['RootSidebar', 'ThreadList']
-        split: ['RootSidebar', 'ThreadList', 'MessageList', 'MessageListSidebar']
+        list: ['RootSwitcher', 'RootSidebar', 'ThreadList']
+        split: ['RootSwitcher', 'RootSidebar', 'ThreadList', 'MessageList', 'MessageListSidebar']
       @defineSheet 'Thread', {},
         list: ['MessageList', 'MessageListSidebar']
     else

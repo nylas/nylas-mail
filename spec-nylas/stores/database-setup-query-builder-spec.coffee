@@ -49,7 +49,7 @@ describe "DatabaseSetupQueryBuilder", ->
         spyOn(TestModel.additionalSQLiteConfig, 'setup').andCallThrough()
         queries = @builder.setupQueriesForTable(TestModel)
         expect(TestModel.additionalSQLiteConfig.setup).toHaveBeenCalledWith()
-        expect(queries.pop()).toBe('CREATE INDEX IF NOT EXISTS ThreadListIndex ON Thread(last_message_received_timestamp DESC, namespace_id, id)')
+        expect(queries.pop()).toBe('CREATE INDEX IF NOT EXISTS ThreadListIndex ON Thread(last_message_received_timestamp DESC, account_id, id)')
 
       it "should not fail if additional config is present, but setup is undefined", ->
         delete TestModel.additionalSQLiteConfig['setup']

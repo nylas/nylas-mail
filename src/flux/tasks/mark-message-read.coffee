@@ -22,7 +22,8 @@ class MarkMessageReadTask extends Task
   performRemote: ->
     # queue the operation to the server
     NylasAPI.makeRequest
-      path: "/n/#{@message.namespaceId}/messages/#{@message.id}"
+      path: "/messages/#{@message.id}"
+      accountId: @message.accountId
       method: 'PUT'
       body:
         unread: false

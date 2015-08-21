@@ -26,7 +26,7 @@ describe "DatabaseView", ->
 
     it "should optionally populate matchers and includes", ->
       config =
-        matchers: [Message.attributes.namespaceId.equal('asd')]
+        matchers: [Message.attributes.accountId.equal('asd')]
         includes: [Message.attributes.body]
       view = new DatabaseView(Message, config)
       expect(view._matchers).toEqual(config.matchers)
@@ -49,7 +49,7 @@ describe "DatabaseView", ->
 
     it "should immediately start fetching a row count", ->
       config =
-        matchers: [Message.attributes.namespaceId.equal('asd')]
+        matchers: [Message.attributes.accountId.equal('asd')]
       view = new DatabaseView(Message, config)
 
       # Count query
@@ -59,7 +59,7 @@ describe "DatabaseView", ->
   describe "instance methods", ->
     beforeEach ->
       config =
-        matchers: [Message.attributes.namespaceId.equal('asd')]
+        matchers: [Message.attributes.accountId.equal('asd')]
       @view = new DatabaseView(Message, config)
       @view._pages =
         0:
@@ -265,7 +265,7 @@ describe "DatabaseView", ->
   describe "retrievePage", ->
     beforeEach ->
       @config =
-        matchers: [Message.attributes.namespaceId.equal('asd')]
+        matchers: [Message.attributes.accountId.equal('asd')]
         orders: [Message.attributes.date.descending()]
       @view = new DatabaseView(Message, @config)
       @queries = []

@@ -14,7 +14,7 @@ serialization and deserialization, matching by attributes, and ID-based equality
 `object`: {AttributeString} The model's type. This field is used by the JSON
  deserializer to create an instance of the correct class when inflating the object.
 
-`namespaceId`: {AttributeString} The string Namespace Id this model belongs to.
+`accountId`: {AttributeString} The string Namespace Id this model belongs to.
 
 Section: Models
 ###
@@ -28,10 +28,10 @@ class Model
     'object': Attributes.String
       modelKey: 'object'
 
-    'namespaceId': Attributes.String
+    'accountId': Attributes.String
       queryable: true
-      modelKey: 'namespaceId'
-      jsonKey: 'namespace_id'
+      modelKey: 'accountId'
+      jsonKey: 'account_id'
 
   @naturalSortOrder: -> null
 

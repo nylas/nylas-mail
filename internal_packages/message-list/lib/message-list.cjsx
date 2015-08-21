@@ -146,9 +146,10 @@ class MessageList extends React.Component
   _createReplyOrUpdateExistingDraft: (type) =>
     unless type in ['reply', 'reply-all']
       throw new Error("_createReplyOrUpdateExistingDraft called with #{type}, not reply or reply-all")
-    return unless @state.currentThread
 
     last = _.last(@state.messages ? [])
+
+    return unless @state.currentThread and last
 
     # If the last message on the thread is already a draft, fetch the message it's
     # in reply to and the draft session and change the participants.

@@ -4,7 +4,7 @@ Reflux = require 'reflux'
 Utils = require '../models/utils'
 Actions = require '../actions'
 MessageStore = require './message-store'
-NamespaceStore = require './namespace-store'
+AccountStore = require './account-store'
 FocusedContentStore = require './focused-content-store'
 
 # A store that handles the focuses collections of and individual contacts
@@ -13,13 +13,13 @@ FocusedContactsStore = Reflux.createStore
   init: ->
     @listenTo Actions.focusContact, @_focusContact
     @listenTo MessageStore, => @_onMessageStoreChanged()
-    @listenTo NamespaceStore, => @_onNamespaceChanged()
+    @listenTo AccountStore, => @_onAccountChanged()
     @listenTo FocusedContentStore, @_onFocusChanged
 
     @_currentThread = null
     @_clearCurrentParticipants(silent: true)
 
-    @_onNamespaceChanged()
+    @_onAccountChanged()
 
   sortedContacts: -> @_currentContacts
 
@@ -48,8 +48,8 @@ FocusedContactsStore = Reflux.createStore
     else
       @_clearCurrentParticipants()
 
-  _onNamespaceChanged: ->
-    @_myEmail = (NamespaceStore.current()?.me().email ? "").toLowerCase().trim()
+  _onAccountChanged: ->
+    @_myEmail = (AccountStore.current()?.me().email ? "").toLowerCase().trim()
 
   # For now we take the last message
   _setCurrentParticipants: ->

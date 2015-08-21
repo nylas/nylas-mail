@@ -5,7 +5,7 @@ ChangeLabelsTask = require './change-labels-task'
 ChangeFolderTask = require './change-folder-task'
 Actions = require '../actions'
 
-NamespaceStore = require '../stores/namespace-store'
+AccountStore = require '../stores/account-store'
 
 class ArchiveThreadHelper
 
@@ -17,10 +17,10 @@ class ArchiveThreadHelper
 
   _getTask: (threads=[], direction) ->
     threads = [threads] unless threads instanceof Array
-    namespace = NamespaceStore.current()
-    return null unless namespace
+    account = AccountStore.current()
+    return null unless account
 
-    if namespace.usesFolders()
+    if account.usesFolders()
       if direction is "archive"
         archiveFolder = CategoryStore.getStandardCategory("archive")
         if archiveFolder
@@ -47,7 +47,7 @@ class ArchiveThreadHelper
           folder: inboxFolder
           threads: threads
 
-    else if namespace.usesLabels()
+    else if account.usesLabels()
       currentLabel = FocusedCategoryStore.category()
       currentLabel ?= CategoryStore.getStandardCategory("inbox")
 

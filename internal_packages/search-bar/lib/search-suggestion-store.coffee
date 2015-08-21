@@ -42,7 +42,10 @@ SearchSuggestionStore = Reflux.createStore
 
   _rebuildResults: ->
     {key, val} = @queryKeyAndVal()
-    return @trigger(@) unless key and val
+    unless key and val
+      @_clearResults()
+      @trigger(@)
+      return
 
     @_contactResults = ContactStore.searchContacts(val, limit:10)
     @_rebuildThreadResults()
@@ -50,6 +53,7 @@ SearchSuggestionStore = Reflux.createStore
 
   _rebuildThreadResults: ->
     {key, val} = @queryKeyAndVal()
+    return @_threadResults = [] unless val
 
     # Don't update thread results if a previous query is still running, it'll
     # just make performance even worse. When the old result comes in, re-run

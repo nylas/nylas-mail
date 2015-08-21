@@ -4,7 +4,7 @@ Message = require "../models/message"
 Thread = require "../models/thread"
 Utils = require '../models/utils'
 DatabaseStore = require "./database-store"
-NamespaceStore = require "./namespace-store"
+AccountStore = require "./account-store"
 FocusedContentStore = require "./focused-content-store"
 ChangeUnreadTask = require '../tasks/change-unread-task'
 NylasAPI = require '../nylas-api'
@@ -222,16 +222,17 @@ class MessageStore extends NylasStore
         @_itemsExpanded[item.id] = "default"
 
   _fetchMessages: ->
-    namespace = NamespaceStore.current()
-    NylasAPI.getCollection namespace.id, 'messages', {thread_id: @_thread.id}
+    account = AccountStore.current()
+    NylasAPI.getCollection account.id, 'messages', {thread_id: @_thread.id}
 
   _fetchMessageIdFromAPI: (id) ->
     return if @_inflight[id]
 
     @_inflight[id] = true
-    namespace = NamespaceStore.current()
+    account = AccountStore.current()
     NylasAPI.makeRequest
-      path: "/n/#{namespace.id}/messages/#{id}"
+      path: "/messages/#{id}"
+      accountId: account.id
       returnsModel: true
       success: =>
         delete @_inflight[id]

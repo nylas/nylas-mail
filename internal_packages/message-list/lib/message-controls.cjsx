@@ -1,6 +1,6 @@
 remote = require 'remote'
 React = require 'react'
-{Actions, NylasAPI, NamespaceStore} = require 'nylas-exports'
+{Actions, NylasAPI, AccountStore} = require 'nylas-exports'
 {RetinaImg, ButtonDropdown, Menu} = require 'nylas-component-kit'
 
 class MessageControls extends React.Component
@@ -68,7 +68,7 @@ class MessageControls extends React.Component
 
   _replyType: =>
     emails = @props.message.to.map (item) -> item.email.toLowerCase().trim()
-    myEmail = NamespaceStore.current()?.me().email.toLowerCase().trim()
+    myEmail = AccountStore.current()?.me().email.toLowerCase().trim()
     if @props.message.cc.length is 0 and @props.message.to.length is 1 and emails[0] is myEmail
       return "reply"
     else return "reply-all"
@@ -88,15 +88,15 @@ class MessageControls extends React.Component
     menu.popup(remote.getCurrentWindow())
 
   _onReport: (issueType) =>
-    {Contact, Message, DatabaseStore, NamespaceStore} = require 'nylas-exports'
+    {Contact, Message, DatabaseStore, AccountStore} = require 'nylas-exports'
 
     draft = new Message
-      from: [NamespaceStore.current().me()]
+      from: [AccountStore.current().me()]
       to: [new Contact(name: "Nylas Team", email: "feedback@nylas.com")]
       date: (new Date)
       draft: true
       subject: "Feedback - Message Display Issue (#{issueType})"
-      namespaceId: NamespaceStore.current().id
+      accountId: AccountStore.current().id
       body: @props.message.body
 
     DatabaseStore.persistModel(draft).then =>
@@ -121,7 +121,8 @@ class MessageControls extends React.Component
     NylasAPI.makeRequest
       headers:
         Accept: 'message/rfc822'
-      path: "/n/#{@props.message.namespaceId}/messages/#{@props.message.id}"
+      path: "/messages/#{@props.message.id}"
+      accountId: @props.message.accountId
       json:false
       success: (body) =>
         fs.writeFile tmpfile, body, =>

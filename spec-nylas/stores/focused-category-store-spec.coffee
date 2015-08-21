@@ -4,7 +4,7 @@ Label = require '../../src/flux/models/label'
 Folder = require '../../src/flux/models/folder'
 
 CategoryStore = require '../../src/flux/stores/category-store'
-NamespaceStore = require '../../src/flux/stores/namespace-store'
+AccountStore = require '../../src/flux/stores/account-store'
 FocusedCategoryStore = require '../../src/flux/stores/focused-category-store'
 
 describe "FocusedCategoryStore", ->
@@ -16,38 +16,49 @@ describe "FocusedCategoryStore", ->
     atom.testOrganizationUnit = null
 
   testStore = ->
-    it "should change the focused category to Inbox and trigger when the namespace changes", ->
-      FocusedCategoryStore._onFocusCategory(@userCategory)
-      FocusedCategoryStore._setDefaultCategory()
-      expect(FocusedCategoryStore.trigger).toHaveBeenCalled()
-      expect(FocusedCategoryStore.categoryName()).toBe('inbox')
+    describe "_onCategoryStoreChanged", ->
+      it "should set the current category to Inbox when it is unset", ->
+        FocusedCategoryStore._category = null
+        FocusedCategoryStore._onCategoryStoreChanged()
+        expect(FocusedCategoryStore.category().id).toEqual(@inboxCategory.id)
 
-    it "should clear the focused category and trigger when a search query is committed", ->
-      FocusedCategoryStore._onSearchQueryCommitted('bla')
-      expect(FocusedCategoryStore.trigger).toHaveBeenCalled()
-      expect(FocusedCategoryStore.category()).toBe(null)
-      expect(FocusedCategoryStore.categoryName()).toBe(null)
+      it "should set the current category to Inbox when the current category no longer exists in the CategoryStore", ->
+        otherAccountInbox = @inboxCategory.clone()
+        otherAccountInbox.id = 'other-id'
+        FocusedCategoryStore._category = otherAccountInbox
+        FocusedCategoryStore._onCategoryStoreChanged()
+        expect(FocusedCategoryStore.category().id).toEqual(@inboxCategory.id)
 
-    it "should restore the category that was previously focused and trigger when a search query is cleared", ->
-      FocusedCategoryStore._onFocusCategory(@userCategory)
-      FocusedCategoryStore._onSearchQueryCommitted('bla')
-      expect(FocusedCategoryStore.category()).toEqual(null)
-      expect(FocusedCategoryStore.categoryName()).toEqual(null)
-      FocusedCategoryStore._onSearchQueryCommitted('')
-      expect(FocusedCategoryStore.trigger).toHaveBeenCalled()
-      expect(FocusedCategoryStore.category().id).toEqual(@userCategory.id)
-      expect(FocusedCategoryStore.categoryName()).toEqual(null)
+    describe "_onSearchQueryCommitted", ->
+      it "should clear the focused category and trigger when a search query is committed", ->
+        FocusedCategoryStore._onFocusCategory(@userCategory)
+        FocusedCategoryStore._onSearchQueryCommitted('bla')
+        expect(FocusedCategoryStore.trigger).toHaveBeenCalled()
+        expect(FocusedCategoryStore.category()).toBe(null)
+        expect(FocusedCategoryStore.categoryName()).toBe(null)
 
-    it "should focus the category and trigger when Actions.focusCategory is called", ->
-      FocusedCategoryStore._onFocusCategory(@userCategory)
-      expect(FocusedCategoryStore.trigger).toHaveBeenCalled()
-      expect(FocusedCategoryStore.categoryName()).toBe(null)
-      expect(FocusedCategoryStore.category()).toEqual(@userCategory)
+      it "should restore the category that was previously focused and trigger when a search query is cleared", ->
+        FocusedCategoryStore._onFocusCategory(@userCategory)
+        FocusedCategoryStore._onSearchQueryCommitted('bla')
+        expect(FocusedCategoryStore.category()).toEqual(null)
+        expect(FocusedCategoryStore.categoryName()).toEqual(null)
+        FocusedCategoryStore._onSearchQueryCommitted('')
+        expect(FocusedCategoryStore.trigger).toHaveBeenCalled()
+        expect(FocusedCategoryStore.category().id).toEqual(@userCategory.id)
+        expect(FocusedCategoryStore.categoryName()).toEqual(null)
 
-    it "should do nothing if the category is already focused", ->
-      FocusedCategoryStore._onFocusCategory(@inboxCategory)
-      spyOn(FocusedCategoryStore, '_setCategory')
-      expect(FocusedCategoryStore._setCategory).not.toHaveBeenCalled()
+    describe "_onFocusCategory", ->
+      it "should focus the category and trigger when Actions.focusCategory is called", ->
+        FocusedCategoryStore._onFocusCategory(@userCategory)
+        expect(FocusedCategoryStore.trigger).toHaveBeenCalled()
+        expect(FocusedCategoryStore.categoryName()).toBe(null)
+        expect(FocusedCategoryStore.category().id).toEqual(@userCategory.id)
+
+      it "should do nothing if the category is already focused", ->
+        FocusedCategoryStore._onFocusCategory(@inboxCategory)
+        spyOn(FocusedCategoryStore, '_setCategory')
+        FocusedCategoryStore._onFocusCategory(@inboxCategory)
+        expect(FocusedCategoryStore._setCategory).not.toHaveBeenCalled()
 
   describe 'when using labels', ->
     beforeEach ->
@@ -57,7 +68,10 @@ describe "FocusedCategoryStore", ->
       @userCategory = new Label(id: 'id-456', name: null, displayName: "MyCategory")
 
       spyOn(CategoryStore, "getStandardCategory").andReturn @inboxCategory
-      FocusedCategoryStore._setDefaultCategory()
+      spyOn(CategoryStore, "byId").andCallFake (id) =>
+        return @inboxCategory if id is @inboxCategory.id
+        return @userCategory if id is @userCategory.id
+        return null
 
     testStore()
 
@@ -69,7 +83,5 @@ describe "FocusedCategoryStore", ->
       @userCategory = new Folder(id: 'id-456', name: null, displayName: "MyCategory")
 
       spyOn(CategoryStore, "getStandardCategory").andReturn @inboxCategory
-      FocusedCategoryStore._setDefaultCategory()
 
     testStore()
-

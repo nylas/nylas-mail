@@ -7,7 +7,7 @@ Task = require './task'
 File = require '../models/file'
 Message = require '../models/message'
 Actions = require '../actions'
-NamespaceStore = require '../stores/namespace-store'
+AccountStore = require '../stores/account-store'
 DatabaseStore = require '../stores/database-store'
 {isTempId} = require '../models/utils'
 NylasAPI = require '../nylas-api'
@@ -45,7 +45,8 @@ class FileUploadTask extends Task
       @req = null
 
     NylasAPI.makeRequest
-      path: "/n/#{@_namespaceId()}/files"
+      path: "/files"
+      accountId: @_accountId()
       method: "POST"
       json: false
       formData: @_formData()
@@ -147,7 +148,7 @@ class FileUploadTask extends Task
     # http://stackoverflow.com/questions/12098713/upload-progress-request
     @req?.req?.connection?._bytesDispatched ? 0
 
-  _namespaceId: ->
-    NamespaceStore.current()?.id
+  _accountId: ->
+    AccountStore.current()?.id
 
 module.exports = FileUploadTask

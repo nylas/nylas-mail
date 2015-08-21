@@ -4,7 +4,7 @@ ipc = require 'ipc'
 
 DraftStoreProxy = require './draft-store-proxy'
 DatabaseStore = require './database-store'
-NamespaceStore = require './namespace-store'
+AccountStore = require './account-store'
 ContactStore = require './contact-store'
 
 SendDraftTask = require '../tasks/send-draft'
@@ -146,7 +146,7 @@ class DraftStore
   _doneWithSession: (session) ->
     session.teardown()
     delete @_draftSessions[session.draftLocalId]
-    
+
   _onBeforeUnload: =>
     promises = []
 
@@ -156,7 +156,7 @@ class DraftStore
     # window.close() within on onbeforeunload could do weird things.
     for key, session of @_draftSessions
       if session.draft()?.pristine
-        Actions.queueTask(new DestroyDraftTask(session.draftLocalId))
+        Actions.queueTask(new DestroyDraftTask(draftLocalId: session.draftLocalId))
       else
         promises.push(session.changes.commit())
 
@@ -226,7 +226,7 @@ class DraftStore
       return Promise.resolve({draftLocalId})
 
   _newMessageWithContext: ({thread, threadId, message, messageId, popout}, attributesCallback) =>
-    return unless NamespaceStore.current()
+    return unless AccountStore.current()
 
     # We accept all kinds of context. You can pass actual thread and message objects,
     # or you can pass Ids and we'll look them up. Passing the object is preferable,
@@ -301,12 +301,12 @@ class DraftStore
         delete attributes.forwardedMessage
 
       draft = new Message _.extend {}, attributes,
-        from: [NamespaceStore.current().me()]
+        from: [AccountStore.current().me()]
         date: (new Date)
         draft: true
         pristine: true
         threadId: thread.id
-        namespaceId: thread.namespaceId
+        accountId: thread.accountId
 
       @_finalizeAndPersistNewMessage(draft).then ({draftLocalId}) =>
         Actions.composePopoutDraft(draftLocalId) if popout
@@ -321,22 +321,22 @@ class DraftStore
     body.replace(re, "")
 
   _onPopoutBlankDraft: =>
-    namespace = NamespaceStore.current()
-    return unless namespace
+    account = AccountStore.current()
+    return unless account
 
     draft = new Message
       body: ""
-      from: [namespace.me()]
+      from: [account.me()]
       date: (new Date)
       draft: true
       pristine: true
-      namespaceId: namespace.id
+      accountId: account.id
 
     @_finalizeAndPersistNewMessage(draft).then ({draftLocalId}) =>
       @_onPopoutDraftLocalId(draftLocalId, {newDraft: true})
 
   _onPopoutDraftLocalId: (draftLocalId, options = {}) =>
-    return unless NamespaceStore.current()
+    return unless AccountStore.current()
 
     if not draftLocalId?
       throw new Error("DraftStore::onPopoutDraftLocalId - You must provide a draftLocalId")
@@ -354,8 +354,8 @@ class DraftStore
         windowProps: _.extend(options, {draftLocalId})
 
   _onHandleMailtoLink: (urlString) =>
-    namespace = NamespaceStore.current()
-    return unless namespace
+    account = AccountStore.current()
+    return unless account
 
     try
       urlString = decodeURI(urlString)
@@ -371,11 +371,11 @@ class DraftStore
     draft = new Message
       body: query.body || ''
       subject: query.subject || '',
-      from: [namespace.me()]
+      from: [account.me()]
       date: (new Date)
       draft: true
       pristine: true
-      namespaceId: namespace.id
+      accountId: account.id
 
     for attr in ['to', 'cc', 'bcc']
       if query[attr]
@@ -392,7 +392,7 @@ class DraftStore
       @_doneWithSession(session)
 
     # Queue the task to destroy the draft
-    Actions.queueTask(new DestroyDraftTask(draftLocalId))
+    Actions.queueTask(new DestroyDraftTask(draftLocalId: draftLocalId))
 
     atom.close() if @_isPopout()
 

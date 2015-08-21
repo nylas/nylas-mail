@@ -12,6 +12,10 @@ async = require 'async'
 PermanentErrorCodes = [400, 404, 500]
 CancelledErrorCode = -123
 
+# This is lazy-loaded
+AccountStore = null
+
+
 class NylasAPIOptimisticChangeTracker
   constructor: ->
     @_locks = {}
@@ -42,12 +46,27 @@ class NylasAPIRequest
     @options.method ?= 'GET'
     @options.url ?= "#{@api.APIRoot}#{@options.path}" if @options.path
     @options.json ?= true
-    @options.auth = {'user': @api.APIToken, 'pass': '', sendImmediately: true}
+
     unless @options.method is 'GET' or @options.formData
       @options.body ?= {}
     @
 
   run: ->
+    if not @options.auth
+      if not @options.accountId
+        err = new APIError(statusCode: 400, body: "Cannot make Nylas request without specifying `auth` or an `accountId`.")
+        return Promise.reject(err)
+
+      token = @api.accessTokenForAccountId(@options.accountId)
+      if not token
+        err = new APIError(statusCode: 400, body: "Cannot make Nylas request for account #{@options.accountId} auth token.")
+        return Promise.reject(err)
+
+      @options.auth =
+        user: token
+        pass: ''
+        sendImmediately: true
+
     new Promise (resolve, reject) =>
       req = request @options, (error, response, body) =>
         PriorityUICoordinator.settle.then =>
@@ -69,8 +88,6 @@ class NylasAPIRequest
       @options.started?(req)
 
 
-# This is lazy-loaded
-NamespaceStore = null
 class NylasAPI
 
   PermanentErrorCodes: PermanentErrorCodes
@@ -81,18 +98,21 @@ class NylasAPI
     @_optimisticChangeTracker = new NylasAPIOptimisticChangeTracker()
 
     atom.config.onDidChange('env', @_onConfigChanged)
-    atom.config.onDidChange('nylas.token', @_onConfigChanged)
+    atom.config.onDidChange('tokens', @_onConfigChanged)
     @_onConfigChanged()
 
     if atom.isMainWindow()
-      NamespaceStore ?= require './stores/namespace-store'
-      NamespaceStore.listen(@_onNamespacesChanged, @)
-      @_onNamespacesChanged()
+      AccountStore = require './stores/account-store'
+      AccountStore.listen(@_onAccountsChanged, @)
+      @_onAccountsChanged()
 
   _onConfigChanged: =>
-    prev = {@APIToken, @AppID, @APIRoot}
+    prev = {@AppID, @APIRoot, @APITokens}
 
-    @APIToken = atom.config.get('nylas.token')
+    tokens = atom.config.get('tokens') || []
+    tokens = tokens.filter (t) -> t.provider is 'nylas'
+    @APITokens = tokens.map (t) -> t.access_token
+
     env = atom.config.get('env')
     if env in ['production']
       @AppID = 'c96gge1jo29pl2rebcb7utsbp'
@@ -107,26 +127,24 @@ class NylasAPI
       @AppID = 'n/a'
       @APIRoot = 'http://localhost:5555'
 
-    current = {@APIToken, @AppID, @APIRoot}
+    current = {@AppID, @APIRoot, @APITokens}
 
-    if atom.isMainWindow()
-      if not @APIToken?
-        @_cleanupNamespaceWorkers()
-
-      if not _.isEqual(prev, current)
+    if atom.isMainWindow() and not _.isEqual(prev, current)
+      @APITokens.forEach (token) =>
         @makeRequest
-          path: "/n"
+          path: "/account"
+          auth: {'user': token, 'pass': '', sendImmediately: true}
           returnsModel: true
 
-  _onNamespacesChanged: ->
+  _onAccountsChanged: ->
     return if atom.inSpecMode()
 
-    NamespaceStore ?= require './stores/namespace-store'
-    namespaces = NamespaceStore.items()
-    workers = _.map(namespaces, @workerForNamespace)
+    AccountStore = require './stores/account-store'
+    accounts = AccountStore.items()
+    workers = _.map(accounts, @workerForAccount)
 
     # Stop the workers that are not in the new workers list.
-    # These namespaces are no longer in our database, so we shouldn't
+    # These accounts are no longer in our database, so we shouldn't
     # be listening.
     old = _.without(@_workers, workers...)
     worker.cleanup() for worker in old
@@ -136,15 +154,15 @@ class NylasAPI
   workers: =>
     @_workers
 
-  workerForNamespace: (namespace) =>
-    worker = _.find @_workers, (c) -> c.namespace().id is namespace.id
+  workerForAccount: (account) =>
+    worker = _.find @_workers, (c) -> c.account().id is account.id
     return worker if worker
 
-    worker = new NylasSyncWorker(@, namespace)
+    worker = new NylasSyncWorker(@, account)
     connection = worker.connection()
 
     connection.onStateChange (state) ->
-      Actions.longPollStateChanged(state)
+      Actions.longPollStateChanged({accountId: account.id, state: state})
       if state == NylasLongConnection.State.Connected
         ## TODO use OfflineStatusStore
         Actions.longPollConnected()
@@ -160,7 +178,7 @@ class NylasAPI
     worker.start()
     worker
 
-  _cleanupNamespaceWorkers: ->
+  _cleanupAccountWorkers: ->
     for worker in @_workers
       worker.cleanup()
     @_workers = []
@@ -185,10 +203,6 @@ class NylasAPI
   makeRequest: (options={}) ->
     if atom.getLoadSettings().isSpec
       return Promise.resolve()
-
-    if not @APIToken
-      err = new APIError(statusCode: 400, body: 'Cannot make Nylas request without auth token.')
-      return Promise.reject(err)
 
     success = (body) =>
       if options.beforeProcessing
@@ -215,7 +229,7 @@ class NylasAPI
   # it intelligently and in a centralized way. This method identifies the object
   # that could not be found and purges it from local cache.
   #
-  # Handles: /namespace/<nid>/<collection>/<id>
+  # Handles: /account/<nid>/<collection>/<id>
   #
   _handleModel404: (modelUrl) ->
     url = require('url')
@@ -378,7 +392,7 @@ class NylasAPI
         return true
       Promise.resolve(accepted)
 
-  getThreads: (namespaceId, params = {}, requestOptions = {}) ->
+  getThreads: (accountId, params = {}, requestOptions = {}) ->
     requestSuccess = requestOptions.success
     requestOptions.success = (json) =>
       messages = []
@@ -391,12 +405,13 @@ class NylasAPI
         requestSuccess(json)
 
     params.view = 'expanded'
-    @getCollection(namespaceId, 'threads', params, requestOptions)
+    @getCollection(accountId, 'threads', params, requestOptions)
 
-  getCollection: (namespaceId, collection, params={}, requestOptions={}) ->
-    throw (new Error "getCollection requires namespaceId") unless namespaceId
+  getCollection: (accountId, collection, params={}, requestOptions={}) ->
+    throw (new Error "getCollection requires accountId") unless accountId
     @makeRequest _.extend requestOptions,
-      path: "/n/#{namespaceId}/#{collection}"
+      path: "/#{collection}"
+      accountId: accountId
       qs: params
       returnsModel: true
 
@@ -405,5 +420,18 @@ class NylasAPI
 
   decrementOptimisticChangeCount: (klass, id) ->
     @_optimisticChangeTracker.decrement(klass, id)
+
+  tokenObjectForAccountId: (aid) ->
+    AccountStore = require './stores/account-store'
+    accounts = AccountStore.items() || []
+    account = _.find accounts, (acct) -> acct.id is aid
+    return null unless account
+
+    tokens = atom.config.get('tokens') || []
+    token = _.find tokens, (t) -> t.provider is 'nylas' and t.identifier is account.emailAddress
+    return token
+
+  accessTokenForAccountId: (aid) ->
+    @tokenObjectForAccountId(aid)?.access_token
 
 module.exports = new NylasAPI()

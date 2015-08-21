@@ -3,6 +3,7 @@ _ = require 'underscore'
 {Message,
  Actions,
  DatabaseStore,
+ AccountStore,
  FocusedContentStore,
  DestroyDraftTask,
  DatabaseView} = require 'nylas-exports'
@@ -11,17 +12,34 @@ module.exports =
 DraftListStore = Reflux.createStore
   init: ->
     @listenTo DatabaseStore, @_onDataChanged
+    @listenTo AccountStore, @_onAccountChanged
     @listenTo Actions.deleteSelection, @_onDeleteSelection
-
-    @_view = new DatabaseView Message,
-      matchers: [Message.attributes.draft.equal(true)],
-      includes: [Message.attributes.body]
-      orders: [Message.attributes.date.descending()]
-
-    @listenTo @_view, => @trigger({})
+    @_createView()
 
   view: ->
     @_view
+
+  _createView: ->
+    account = AccountStore.current()
+
+    if @unlisten
+      @unlisten()
+      @_view = null
+
+    return unless account
+
+    @_view = new DatabaseView Message,
+      matchers: [
+        Message.attributes.accountId.equal(account.id)
+        Message.attributes.draft.equal(true)
+      ],
+      includes: [Message.attributes.body]
+      orders: [Message.attributes.date.descending()]
+
+    @unlisten = @_view.listen => @trigger({})
+
+  _onAccountChanged: ->
+    @_createView()
 
   _onDataChanged: (change) ->
     return unless change.objectClass is Message.name
@@ -34,7 +52,7 @@ DraftListStore = Reflux.createStore
 
     for item in selected
       DatabaseStore.localIdForModel(item).then (localId) =>
-        Actions.queueTask(new DestroyDraftTask(localId))
+        Actions.queueTask(new DestroyDraftTask(draftLocalId: localId))
         # if thread.id is focusedId
         #   Actions.setFocus(collection: 'thread', item: null)
         # if thread.id is keyboardId

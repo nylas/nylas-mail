@@ -85,7 +85,7 @@ class ExternalAuthWebviewPage extends Page
       query = query[0..-2] if query[query.length - 1] is '#'
       token = querystring.decode(query)
 
-      EdgehillAPI.addTokens([token])
+      EdgehillAPI.setUserIdentifierAndRetrieveTokens(token.user_identifier)
       OnboardingActions.moveToPage('add-account-success')
     else if url.indexOf('cancelled') != -1
       OnboardingActions.moveToPreviousPage()

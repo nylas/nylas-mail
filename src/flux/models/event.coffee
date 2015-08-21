@@ -11,9 +11,9 @@ class Event extends Model
       modelKey: 'id'
       jsonKey: 'id'
 
-    'namespaceId': Attributes.String
-      modelKey: 'namespaceId'
-      jsonKey: 'namespaceId'
+    'accountId': Attributes.String
+      modelKey: 'accountId'
+      jsonKey: 'accountId'
 
     'title': Attributes.String
       modelKey: 'title'

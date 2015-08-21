@@ -10,7 +10,7 @@ describe "MarkMessageReadTask", ->
   beforeEach ->
     @message = new Message
       id: '1233123AEDF1'
-      namespaceId: 'A12ADE'
+      accountId: 'A12ADE'
       subject: 'New Message'
       unread: true
       to:
@@ -33,7 +33,8 @@ describe "MarkMessageReadTask", ->
       spyOn(NylasAPI, 'makeRequest').andCallFake => new Promise (resolve,reject) ->
       @task.performRemote()
       options = NylasAPI.makeRequest.mostRecentCall.args[0]
-      expect(options.path).toBe("/n/#{@message.namespaceId}/messages/#{@message.id}")
+      expect(options.path).toBe("/messages/#{@message.id}")
+      expect(options.accountId).toBe(@message.accountId)
       expect(options.method).toBe('PUT')
       expect(options.body.unread).toBe(false)
 
@@ -45,7 +46,7 @@ describe "MarkMessageReadTask", ->
     it "should not mark the message as unread if it was not unread initially", ->
       message = new Message
         id: '1233123AEDF1'
-        namespaceId: 'A12ADE'
+        accountId: 'A12ADE'
         subject: 'New Message'
         unread: false
         to:

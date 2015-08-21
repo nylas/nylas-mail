@@ -3,16 +3,15 @@ proxyquire = require 'proxyquire'
 Event = require '../../src/flux/models/event'
 EventStore = require '../../src/flux/stores/event-store'
 DatabaseStore = require '../../src/flux/stores/database-store'
-NamespaceStore = require '../../src/flux/stores/namespace-store'
+AccountStore = require '../../src/flux/stores/account-store'
 
 describe "EventStore", ->
   beforeEach ->
     atom.testOrganizationUnit = "folder"
     EventStore._eventCache = {}
-    EventStore._namespaceId = null
-    EventStore._lastNamespaceId = null
-    NamespaceStore._current =
-      id: "nsid"
+    EventStore._accountId = null
+    AccountStore._current =
+      id: "test_account_id"
 
   afterEach ->
     atom.testOrganizationUnit = null
@@ -25,23 +24,22 @@ describe "EventStore", ->
     expect(Object.keys(EventStore._eventCache).length).toBe 0
     expect(DatabaseStore.findAll).toHaveBeenCalled()
 
-  describe "when the Namespace updates from null to valid", ->
+  describe "when the Account updates from null to valid", ->
     beforeEach ->
       spyOn(EventStore, "_refreshCache")
-      NamespaceStore.trigger()
+      AccountStore.trigger()
 
     it "triggers a database fetch", ->
       expect(EventStore._refreshCache.calls.length).toBe 1
 
-  describe "when the Namespace updates but the ID doesn't change", ->
+  describe "when the Account updates but the ID doesn't change", ->
     it "does nothing", ->
       spyOn(EventStore, "_refreshCache")
       EventStore._eventCache = {1: '', 2: '', 3: ''}
-      EventStore._namespaceId = "nsid"
-      EventStore._lastNamespaceId = "nsid"
-      NamespaceStore._current =
-        id: "nsid"
-      NamespaceStore.trigger()
+      EventStore._accountId = "test_account_id"
+      AccountStore._current =
+        id: "test_account_id"
+      AccountStore.trigger()
       expect(EventStore._eventCache).toEqual {1: '', 2: '', 3: ''}
       expect(EventStore._refreshCache).not.toHaveBeenCalled()
 

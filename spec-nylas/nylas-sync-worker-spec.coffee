@@ -2,23 +2,25 @@ _ = require 'underscore'
 DatabaseStore = require '../src/flux/stores/database-store'
 NylasLongConnection = require '../src/flux/nylas-long-connection'
 NylasSyncWorker = require '../src/flux/nylas-sync-worker'
-Namespace = require '../src/flux/models/namespace'
+Account = require '../src/flux/models/account'
 Thread = require '../src/flux/models/thread'
 
 describe "NylasSyncWorker", ->
   beforeEach ->
     @apiRequests = []
     @api =
+      accessTokenForAccountId: =>
+        '123'
       makeRequest: (requestOptions) =>
         @apiRequests.push({requestOptions})
-      getCollection: (namespace, model, params, requestOptions) =>
-        @apiRequests.push({namespace, model, params, requestOptions})
-      getThreads: (namespace, params, requestOptions) =>
-        @apiRequests.push({namespace, model:'threads', params, requestOptions})
+      getCollection: (account, model, params, requestOptions) =>
+        @apiRequests.push({account, model, params, requestOptions})
+      getThreads: (account, params, requestOptions) =>
+        @apiRequests.push({account, model:'threads', params, requestOptions})
 
     spyOn(DatabaseStore, 'persistJSONObject').andReturn(Promise.resolve())
     spyOn(DatabaseStore, 'findJSONObject').andCallFake (key) =>
-      expected = "NylasSyncWorker:namespace-id"
+      expected = "NylasSyncWorker:account-id"
       return throw new Error("Not stubbed! #{key}") unless key is expected
       Promise.resolve _.extend {}, {
         "contacts":
@@ -29,13 +31,13 @@ describe "NylasSyncWorker", ->
           complete: true
       }
 
-    @namespace = new Namespace(id: 'namespace-id', organizationUnit: 'label')
-    @worker = new NylasSyncWorker(@api, @namespace)
+    @account = new Account(id: 'account-id', organizationUnit: 'label')
+    @worker = new NylasSyncWorker(@api, @account)
     @connection = @worker.connection()
     advanceClock()
 
   it "should reset `busy` to false when reading state from disk", ->
-    @worker = new NylasSyncWorker(@api, @namespace)
+    @worker = new NylasSyncWorker(@api, @account)
     spyOn(@worker, 'resumeFetches')
     advanceClock()
     expect(@worker.state().contacts.busy).toEqual(false)
@@ -48,6 +50,7 @@ describe "NylasSyncWorker", ->
       expect(@connection.start).toHaveBeenCalled()
 
     it "should start querying for model collections and counts that haven't been fully cached", ->
+      spyOn(@connection, 'start')
       @worker.start()
       advanceClock()
       expect(@apiRequests.length).toBe(8)
@@ -59,7 +62,7 @@ describe "NylasSyncWorker", ->
           return requestOptions.path
 
       expect(modelsRequested).toEqual(['threads', 'contacts', 'drafts', 'labels'])
-      expect(countsRequested).toEqual(['/n/namespace-id/threads', '/n/namespace-id/contacts', '/n/namespace-id/drafts', '/n/namespace-id/labels'])
+      expect(countsRequested).toEqual(['/threads', '/contacts', '/drafts', '/labels'])
 
     it "should mark incomplete collections as `busy`", ->
       @worker.start()
@@ -144,7 +147,7 @@ describe "NylasSyncWorker", ->
         'complete': false
       }
       @worker.fetchCollection('threads')
-      expect(@apiRequests[0].requestOptions.path).toBe('/n/namespace-id/threads')
+      expect(@apiRequests[0].requestOptions.path).toBe('/threads')
       expect(@apiRequests[0].requestOptions.qs.view).toBe('count')
 
     it "should start the first request for models", ->

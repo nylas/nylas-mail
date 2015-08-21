@@ -2,7 +2,7 @@ _ = require 'underscore'
 Reflux = require 'reflux'
 request = require 'request'
 {FocusedContactsStore,
- NamespaceStore,
+ AccountStore,
  PriorityUICoordinator} = require 'nylas-exports'
 
 module.exports =
@@ -23,11 +23,11 @@ InternalAdminStore = Reflux.createStore
     # Stores often listen to other stores to vend correct data to their views.
     # Since we serve information about a contact we listen for changes to the
     # focused contact. Since we only want to be enabled for @nylas.com emails,
-    # we listen for changes to available Namespaces.
+    # we listen for changes to available Accounts.
     @listenTo FocusedContactsStore, @_onFocusedContacts
-    @listenTo NamespaceStore, @_onNamespaceChanged
+    @listenTo AccountStore, @_onAccountChanged
 
-    @_onNamespaceChanged()
+    @_onAccountChanged()
 
 
   dataForFocusedContact: ->
@@ -54,12 +54,12 @@ InternalAdminStore = Reflux.createStore
     # `dataForFocusedContact`.
     @trigger(@)
 
-  _onNamespaceChanged: ->
+  _onAccountChanged: ->
     clearInterval(@_fetchInterval) if @_fetchInterval
     @_fetchInterval = null
 
     # We only want to enable this package for users with nylas.com email addresses.
-    n = NamespaceStore.current()
+    n = AccountStore.current()
     if n and n.emailAddress.indexOf('@nylas.com') > 0
       @_fetchInterval = setInterval(( => @_fetchAPIData()), 5 * 60 * 1000)
       @_fetchAPIData()

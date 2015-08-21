@@ -109,6 +109,8 @@ class RetinaImg extends React.Component
     style = @props.style ? {}
     style.WebkitUserDrag = 'none'
     style.zoom = if pathIsRetina then 0.5 else 1
+    style.width = style.width / style.zoom if style.width
+    style.height = style.height / style.zoom if style.height
 
     if @props.mode is Mode.ContentIsMask
       style.WebkitMaskImage = "url('#{path}')"

@@ -3,17 +3,17 @@ React = require 'react/addons'
 ReactTestUtils = React.addons.TestUtils
 
 {NylasTestUtils,
- Namespace,
- NamespaceStore,
+ Account,
+ AccountStore,
  Contact,
 } = require 'nylas-exports'
 {TokenizingTextField, Menu} = require 'nylas-component-kit'
 
-me = new Namespace
+me = new Account
   name: 'Test User'
   email: 'test@example.com'
   provider: 'inbox'
-NamespaceStore._current = me
+AccountStore._current = me
 
 CustomToken = React.createClass
   render: ->

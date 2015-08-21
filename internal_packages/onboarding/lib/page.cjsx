@@ -24,9 +24,7 @@ class Page extends React.Component
       zIndex: 10
       top: "50%"
       left: "50%"
-      width: "256px"
-      marginLeft: "-128px"
-      marginTop: "-128px"
+      transform: 'translate(-50%, -50%)'
 
     <RetinaImg ref="spinner"
                style={styles}

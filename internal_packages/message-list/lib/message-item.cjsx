@@ -8,7 +8,7 @@ MessageControls = require './message-controls'
 {Utils,
  Actions,
  MessageUtils,
- NamespaceStore,
+ AccountStore,
  MessageStore,
  MessageBodyProcessor,
  QuotedHTMLParser,

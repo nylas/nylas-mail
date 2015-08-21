@@ -8,11 +8,11 @@ ReactTestUtils = React.addons.TestUtils
  File,
  Contact,
  Message,
- Namespace,
+ Account,
  DraftStore,
  DatabaseStore,
  NylasTestUtils,
- NamespaceStore,
+ AccountStore,
  FileUploadStore,
  ContactStore,
  ComponentRegistry} = require "nylas-exports"
@@ -30,7 +30,7 @@ u5 = new Contact(name: "Ben Gotow",       email: "ben@nylas.com")
 file = new File(id: 'file_1_id', filename: 'a.png', contentType: 'image/png', size: 10, object: "file")
 
 users = [u1, u2, u3, u4, u5]
-NamespaceStore._current = new Namespace(
+AccountStore._current = new Account(
   {name: u1.name, provider: "inbox", emailAddress: u1.email})
 
 reactStub = (className) ->
@@ -76,14 +76,14 @@ beforeEach ->
   #   return passThroughStub
   # spyOn(ComponentRegistry, "showComponentRegions").andReturn true
 
-  # The NamespaceStore isn't set yet in the new window, populate it first.
-  NamespaceStore.populateItems().then ->
+  # The AccountStore isn't set yet in the new window, populate it first.
+  AccountStore.populateItems().then ->
     new Promise (resolve, reject) ->
       draft = new Message
-        from: [NamespaceStore.current().me()]
+        from: [AccountStore.current().me()]
         date: (new Date)
         draft: true
-        namespaceId: NamespaceStore.current().id
+        accountId: AccountStore.current().id
 
       DatabaseStore.persistModel(draft).then ->
         DatabaseStore.localIdForModel(draft).then(resolve).catch(reject)
@@ -137,6 +137,7 @@ useFullDraft = ->
     bcc: [u5]
     subject: "Test Message 1"
     body: "Hello <b>World</b><br/> This is a test"
+    replyToMessageId: null
 
 makeComposer = ->
   @composer = ReactTestUtils.renderIntoDocument(
@@ -158,7 +159,8 @@ describe "populated composer", ->
       expect(@composer._proxy.draft()).toBe @draft
 
     it "set the state based on the draft", ->
-      expect(@composer.state.from).toBeUndefined()
+      expect(@composer.state.from).toEqual [u1]
+      expect(@composer.state.showfrom).toEqual true
       expect(@composer.state.to).toEqual [u2]
       expect(@composer.state.cc).toEqual [u3, u4]
       expect(@composer.state.bcc).toEqual [u5]

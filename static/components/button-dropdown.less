@@ -13,13 +13,31 @@
     }
   }
 
-  .primary-item {
-    .btn();
+  &.bordered,
+  &:hover {
+    .primary-item,
+    .only-item {
+      .btn();
+      height: 32px;
+      padding-top: 7px;
+      line-height: 18px;
+    }
+  }
+
+  .primary-item,
+  .only-item {
+    padding: 0.33em 1em;
+    cursor: default;
+    color: @btn-default-text-color;
     height: 32px;
-    border-radius: 4px 0 0 4px;
     padding-top: 7px;
+    line-height: 18px;
     vertical-align:top;
   }
+  .primary-item {
+    border-radius: 4px 0 0 4px;
+  }
+
   .secondary-picker {
     .btn();
     height: 32px;
@@ -33,6 +51,12 @@
     &:hover {
       cursor: default;
     }
+    &.left {
+      width:auto;
+      left:-1px;
+      right:auto;
+      white-space:nowrap;
+    }
     border: 1px solid rgba(0, 0, 0, 0.15);
     border-radius: 4px 0 4px 4px;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.20);
@@ -40,7 +64,6 @@
     background-color: @background-primary;
     line-height: 14px;
     position: absolute;
-    width: 110px;
     right: -1px; // -1, because of the border above
 
     display:none;

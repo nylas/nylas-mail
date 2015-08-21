@@ -1,12 +1,12 @@
 Event = require "../../src/flux/models/event"
-NamespaceStore = require "../../src/flux/stores/namespace-store"
+AccountStore = require "../../src/flux/stores/account-store"
 
 json_event =
   {
     "object": "event",
     "id": "4ee4xbnx7pxdb9g7c2f8ncyto",
     "calendar_id": "ci0k1wfyv533ccgox4t7uri4h",
-    "namespace_id": "14e5bn96uizyuhidhcw5rfrb0",
+    "account_id": "14e5bn96uizyuhidhcw5rfrb0",
     "description": null,
     "location": null,
     "participants": [

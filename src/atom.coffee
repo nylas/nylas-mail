@@ -335,6 +335,20 @@ class Atom extends Model
   onDidThrowError: (callback) ->
     @emitter.on 'did-throw-error', callback
 
+  # Extended: Run the Chromium content-tracing module for five seconds, and save
+  # the output to a file which is printed to the command-line output of the app.
+  # You can take the file exported by this function and load it into Chrome's
+  # content trace visualizer (chrome://tracing). It's like Chromium Developer
+  # Tools Profiler, but for all processes and threads.
+  trace: ->
+    tracing = require('remote').require('content-tracing')
+    tracing.startRecording '*', 'record-until-full,enable-sampling,enable-systrace', ->
+      console.log('Tracing started')
+      setTimeout ->
+        tracing.stopRecording '', (path) ->
+          console.log('Tracing data recorded to ' + path)
+      , 5000
+
   ###
   Section: Atom Details
   ###
@@ -365,9 +379,6 @@ class Atom extends Model
   # Public: Determine whether the current version is an official release.
   isReleasedVersion: ->
     not /\w{7}/.test(@getVersion()) # Check if the release is a 7-character SHA prefix
-
-  isLoggedIn: ->
-    atom.config.get('nylas.token')
 
   logout: ->
     ipc.send('command', 'application:logout')

@@ -61,7 +61,7 @@ class ModelQuery
     else if matchers instanceof Array
       @_matchers = @_matchers.concat(matchers)
     else if matchers instanceof Object
-      # Support a shorthand format of {id: '123', namespaceId: '123'}
+      # Support a shorthand format of {id: '123', accountId: '123'}
       for key, value of matchers
         attr = @_klass.attributes[key]
         if !attr

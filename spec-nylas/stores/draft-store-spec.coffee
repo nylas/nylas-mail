@@ -2,7 +2,7 @@ Thread = require '../../src/flux/models/thread'
 Message = require '../../src/flux/models/message'
 Contact = require '../../src/flux/models/contact'
 ModelQuery = require '../../src/flux/models/query'
-NamespaceStore = require '../../src/flux/stores/namespace-store'
+AccountStore = require '../../src/flux/stores/account-store'
 DatabaseStore = require '../../src/flux/stores/database-store'
 DraftStore = require '../../src/flux/stores/draft-store'
 DraftStoreExtension = require '../../src/flux/stores/draft-store-extension'
@@ -38,7 +38,7 @@ describe "DraftStore", ->
       fakeMessage1 = new Message
         id: 'fake-message-1'
         to: [new Contact(email: 'ben@nylas.com'), new Contact(email: 'evan@nylas.com')]
-        cc: [new Contact(email: 'mg@nylas.com'), new Contact(email: NamespaceStore.current().me().email)]
+        cc: [new Contact(email: 'mg@nylas.com'), new Contact(email: AccountStore.current().me().email)]
         bcc: [new Contact(email: 'recruiting@nylas.com')]
         from: [new Contact(email: 'customer@example.com', name: 'Customer')]
         threadId: 'fake-thread-id'
@@ -60,7 +60,7 @@ describe "DraftStore", ->
         to: [new Contact(email: '1@1.com'), new Contact(email: '2@2.com')]
         cc: [new Contact(email: '3@3.com'), new Contact(email: '4@4.com')]
         bcc: [new Contact(email: '5@5.com'), new Contact(email: '6@6.com')]
-        from: [new Contact(email: NamespaceStore.current().me().email)]
+        from: [new Contact(email: AccountStore.current().me().email)]
         threadId: 'fake-thread-id'
         body: 'Fake Message 2'
         subject: 'Re: Fake Subject'
@@ -187,7 +187,7 @@ describe "DraftStore", ->
 
       it "should not include you when you were cc'd on the previous message", ->
         ccEmails = @model.cc.map (cc) -> cc.email
-        expect(ccEmails.indexOf(NamespaceStore.current().me().email)).toEqual(-1)
+        expect(ccEmails.indexOf(AccountStore.current().me().email)).toEqual(-1)
 
       it "should set the replyToMessageId to the previous message's ids", ->
         expect(@model.replyToMessageId).toEqual(fakeMessage1.id)

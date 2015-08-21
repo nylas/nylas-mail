@@ -1,6 +1,45 @@
 @import "ui-variables";
 @import "ui-mixins";
 
+#account-switcher {
+  background-color: #212831;
+  flex: 1;
+  .account {
+    position: relative;
+    margin:15px 10px;
+    margin-bottom: 0;
+    display:block;
+    border-radius: 8px;
+    opacity: 0.7;
+    img {
+      -webkit-filter: saturate(0%);
+    }
+    img.gravatar {
+      width: 44px;
+      height: 44px;
+      position: absolute;
+      z-index: 2;
+      border-radius: 7px;
+    }
+  }
+  .account.active {
+    opacity: 1.0;
+    img {
+      -webkit-filter: saturate(100%);
+    }
+  }
+  .account.active::after {
+    box-shadow: inset 0 0 1px 2px @source-list-active-color;
+    border-radius: 7px;
+    width:100%;
+    height:100%;
+    content: ' ';
+    left: 0;
+    position:absolute;
+    z-index: 3;
+  }
+}
+
 #account-sidebar {
   order: 1;
   height: 100%;
