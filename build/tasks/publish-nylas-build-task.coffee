@@ -8,6 +8,10 @@ Promise = require 'bluebird'
 module.exports = (grunt) ->
   {cp, spawn, rm} = require('./task-helpers')(grunt)
 
+  getVersion = ->
+    {version} = require(path.join(grunt.config.get('atom.appDir'), 'package.json'))
+    return version
+
   appName = -> grunt.config.get('atom.appName')
   dmgName = -> "#{appName().split('.')[0]}.dmg"
   zipName = -> "#{appName().split('.')[0]}.zip"
@@ -19,12 +23,13 @@ module.exports = (grunt) ->
 
   runEmailIntegrationTest = (s3Client) ->
     buildDir = grunt.config.get('atom.buildDir')
+    buildVersion = getVersion()
     new Promise (resolve, reject) ->
       appToRun = path.join(buildDir, appName())
       scriptToRun = "./build/run-build-and-send-screenshot.scpt"
       spawn
         cmd: "osascript"
-        args: [scriptToRun, appToRun, getVersion()]
+        args: [scriptToRun, appToRun, buildVersion]
       , (error) ->
         if error
           reject(error)
@@ -84,10 +89,6 @@ module.exports = (grunt) ->
           write(">> Uploading #{destName} #{pc}%")
       uploader.on "end", (data) ->
         resolve(data)
-
-  getVersion = ->
-    {version} = require(path.join(grunt.config.get('atom.appDir'), 'package.json'))
-    return version
 
   uploadDMGToS3 = (s3Client) ->
     destName = "#{process.platform}/Edgehill_#{getVersion()}.dmg"
@@ -150,11 +151,12 @@ module.exports = (grunt) ->
 
     s3Client = prepareS3()
     if s3Client
-      Promise.all([runEmailIntegrationTest(), uploadDMGToS3(s3Client), uploadZipToS3(s3Client)])
-      .then ->
-        done()
-      .catch (err) ->
-        grunt.log.error(err)
-        return false
+      runEmailIntegrationTest().then ->
+        Promise.all([uploadDMGToS3(s3Client), uploadZipToS3(s3Client)])
+        .then ->
+          done()
+        .catch (err) ->
+          grunt.log.error(err)
+          return false
     else
       return false
