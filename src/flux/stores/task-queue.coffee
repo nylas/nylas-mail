@@ -206,7 +206,7 @@ class TaskQueue
   _restoreQueueFromDisk: =>
     try
       queueFile = path.join(atom.getConfigDirPath(), 'task-queue.json')
-      queue = Utils.deserializeJSON(fs.readFileSync(queueFile))
+      queue = Utils.deserializeRegisteredObjects(fs.readFileSync(queueFile))
 
       # We need to set the processing bit back to false so it gets
       # re-retried upon inflation
@@ -224,7 +224,7 @@ class TaskQueue
     # save 1000 times! (Do not remove debounce without a plan!)
     @_saveDebounced ?= _.debounce =>
       queueFile = path.join(atom.getConfigDirPath(), 'task-queue.json')
-      queueJSON = Utils.serializeToJSON((@_queue ? []))
+      queueJSON = Utils.serializeRegisteredObjects((@_queue ? []))
       fs.writeFile(queueFile, queueJSON)
     , 150
     @_saveDebounced()

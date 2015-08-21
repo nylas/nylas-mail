@@ -16,16 +16,14 @@ class SerializableRegistry
 
   isInRegistry: (name) -> @_constructors[name]?
 
-  deserialize: (name, data, {ignoreError}={}) ->
-    if _.isString(data) then data = JSON.parse(data)
+  deserialize: (name, data) ->
+    if _.isString(data)
+      data = JSON.parse(data)
 
     constructor = @get(name)
 
     if not _.isFunction(constructor)
-      if ignoreError
-        return data
-      else
-        throw new Error "Unsure of how to inflate #{JSON.stringify(data)}"
+      throw new Error "Unsure of how to inflate #{JSON.stringify(data)}"
 
     object = new constructor()
     object.fromJSON(data)

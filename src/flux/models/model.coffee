@@ -82,8 +82,6 @@ class Model
       if attr instanceof Attributes.AttributeJoinedData and options.joined is false
         continue
       json[attr.jsonKey] = value
-    json['object'] = @constructor.name.toLowerCase()
-    json['__constructorName'] = @__constructorName
     json
 
   toString: ->

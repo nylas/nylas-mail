@@ -40,7 +40,3 @@ describe 'DatabaseObjectRegistry', ->
 
   it "throws an error if the object can't be deserialized", ->
     expect( -> DatabaseObjectRegistry.deserialize("GoodTest", foo: "bar")).toThrow()
-
-  it "returns the original object in deserialization failure if option is passed", ->
-    json = DatabaseObjectRegistry.deserialize("GoodTest", {foo: "bar"}, {ignoreError: true})
-    expect(json).toEqual foo: "bar"

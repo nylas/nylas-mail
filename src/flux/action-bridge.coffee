@@ -68,7 +68,7 @@ class ActionBridge
   onIPCMessage: (initiatorId, name, json) =>
     console.debug(printToConsole, "ActionBridge: #{@initiatorId} Action Bridge Received: #{name}")
 
-    args = Utils.deserializeJSON(json)
+    args = Utils.deserializeRegisteredObjects(json)
 
     if name == Message.DATABASE_STORE_TRIGGER
       DatabaseStore.triggeringFromActionBridge = true
@@ -91,7 +91,7 @@ class ActionBridge
       if arg instanceof Function
         throw new Error("ActionBridge cannot forward action argument of type `function` to main window.")
       params.push(arg[0])
-    json = Utils.serializeToJSON(params)
+    json = Utils.serializeRegisteredObjects(params)
 
     console.debug(printToConsole, "ActionBridge: #{@initiatorId} Action Bridge Broadcasting: #{name}")
     @ipc.send("action-bridge-rebroadcast-to-#{target}", @initiatorId, name, json)
