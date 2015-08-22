@@ -112,7 +112,8 @@ class AtomWindow
   setLoadSettings: (loadSettings) ->
     @browserWindow.loadSettings = loadSettings
     @browserWindow.loadSettingsChangedSinceGetURL = true
-    @browserWindow.webContents.send('load-settings-changed', loadSettings) if @loaded
+    if @loaded
+      @browserWindow.webContents.send('load-settings-changed', loadSettings)
 
   getUrl: (loadSettingsObj) ->
     # Ignore the windowState when passing loadSettings via URL, since it could
