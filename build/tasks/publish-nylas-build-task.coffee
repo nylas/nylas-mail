@@ -139,24 +139,25 @@ module.exports = (grunt) ->
 
   grunt.registerTask "publish-nylas-build", "Publish Nylas build", ->
     done = @async()
-    dmgPath = path.join(grunt.config.get('atom.buildDir'), dmgName())
 
-    if not fs.existsSync dmgPath
-      grunt.log.error "DMG does not exist at #{dmgPath}. Run script/grunt build first."
-    cp dmgPath, path.join(publishPath(), dmgName())
+    runEmailIntegrationTest().then ->
+      dmgPath = path.join(grunt.config.get('atom.buildDir'), dmgName())
 
-    grunt.log.ok "Copied DMG to #{publishPath()}"
-    if publishPath() is defaultPublishPath()
-      grunt.log.ok "Set the PUBLISH_PATH environment variable to change where Edgehill copies the built file to."
+      if not fs.existsSync dmgPath
+        grunt.log.error "DMG does not exist at #{dmgPath}. Run script/grunt build first."
+      cp dmgPath, path.join(publishPath(), dmgName())
 
-    s3Client = prepareS3()
-    if s3Client
-      runEmailIntegrationTest().then ->
+      grunt.log.ok "Copied DMG to #{publishPath()}"
+      if publishPath() is defaultPublishPath()
+        grunt.log.ok "Set the PUBLISH_PATH environment variable to change where Edgehill copies the built file to."
+
+      s3Client = prepareS3()
+      if s3Client
         Promise.all([uploadDMGToS3(s3Client), uploadZipToS3(s3Client)])
         .then ->
           done()
         .catch (err) ->
           grunt.log.error(err)
           return false
-    else
-      return false
+      else
+        return false
