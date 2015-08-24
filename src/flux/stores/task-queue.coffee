@@ -205,7 +205,7 @@ class TaskQueue
 
   _restoreQueueFromDisk: =>
     try
-      queueFile = path.join(atom.getConfigDirPath(), 'task-queue.json')
+      queueFile = path.join(atom.getConfigDirPath(), 'pending-tasks.json')
       queue = Utils.deserializeRegisteredObjects(fs.readFileSync(queueFile))
 
       # We need to set the processing bit back to false so it gets
@@ -223,7 +223,7 @@ class TaskQueue
     # items, they can easily process 1000 tasks at the same moment. We can't try to
     # save 1000 times! (Do not remove debounce without a plan!)
     @_saveDebounced ?= _.debounce =>
-      queueFile = path.join(atom.getConfigDirPath(), 'task-queue.json')
+      queueFile = path.join(atom.getConfigDirPath(), 'pending-tasks.json')
       queueJSON = Utils.serializeRegisteredObjects((@_queue ? []))
       fs.writeFile(queueFile, queueJSON)
     , 150
