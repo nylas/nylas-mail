@@ -398,16 +398,28 @@ class DatabaseStore extends NylasStore
   #
   # Using this method requires that the klass has declared the version field queryable.
   #
-  findVersions: (klass, ids) =>
+  findVersions: (klass, allIds) =>
     return Promise.reject(new Error("DatabaseStore::findVersions - You must provide a class")) unless klass
     return Promise.reject(new Error("DatabaseStore::findVersions - version field must be queryable")) unless klass.attributes.version.queryable
 
-    marks = new Array(ids.length)
-    marks[idx] = '?' for m, idx in marks
-    @_query("SELECT id, version FROM `#{klass.name}` WHERE id IN (#{marks.join(",")})", ids).then (results) ->
-      map = {}
-      map[id] = version  for {id, version} in results
-      Promise.resolve(map)
+    _findVersionsFor = (ids) =>
+      marks = new Array(ids.length)
+      marks[idx] = '?' for m, idx in marks
+      @_query("SELECT id, version FROM `#{klass.name}` WHERE id IN (#{marks.join(",")})", ids).then (results) ->
+        map = {}
+        map[id] = version  for {id, version} in results
+        Promise.resolve(map)
+
+    promises = []
+    while allIds.length > 0
+      promises.push(_findVersionsFor(allIds.splice(0, 100)))
+
+    # We can only use WHERE IN for up to ~250 items at a time. Run a query for
+    # every 100 items and then combine the results before returning.
+    Promise.all(promises).then (results) =>
+      all = {};
+      all = _.extend(all, result) for result in results
+      Promise.resolve(all)
 
   # Public: Executes a {ModelQuery} on the local database.
   #
