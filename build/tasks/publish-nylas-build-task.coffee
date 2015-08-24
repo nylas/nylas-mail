@@ -34,6 +34,7 @@ module.exports = (grunt) ->
         if error
           reject(error)
           return
+        resolve()
 
   postToSlack = (msg) ->
     new Promise (resolve, reject) ->
