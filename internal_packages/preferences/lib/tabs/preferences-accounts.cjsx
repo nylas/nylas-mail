@@ -107,9 +107,13 @@ class PreferencesAccounts extends React.Component
     return [] unless @props.config
 
     tokens = @props.config.get('tokens') || []
-    token = _.find tokens, (token) ->
-      token.provider is 'nylas' and token.identifier is account.emailAddress
+    token = _.find tokens, (t) ->
+      t.provider is 'nylas' and t.identifier is account.emailAddress
     tokens = _.without(tokens, token)
+
+    if not token
+      console.warn("Could not find nylas token for email address #{account.emailAddress}")
+      return
 
     DatabaseStore.unpersistModel(account).then =>
       # TODO: Delete other mail data
