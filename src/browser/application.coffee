@@ -1,10 +1,10 @@
-Config = require '../config'
 AtomWindow = require './atom-window'
 BrowserWindow = require 'browser-window'
 WindowManager = require './window-manager'
 ApplicationMenu = require './application-menu'
 AutoUpdateManager = require './auto-update-manager'
 NylasProtocolHandler = require './nylas-protocol-handler'
+SharedFileManager = require './shared-file-manager'
 
 _ = require 'underscore'
 fs = require 'fs-plus'
@@ -73,13 +73,16 @@ class Application
 
     global.application = this
 
+    @sharedFileManager = new SharedFileManager()
+    @nylasProtocolHandler = new NylasProtocolHandler(@resourcePath, @safeMode)
+
+    Config = require '../config'
     @config = new Config({configDirPath, @resourcePath})
     @config.load()
 
     @windowManager = new WindowManager({@resourcePath, @config, @devMode, @safeMode})
     @autoUpdateManager = new AutoUpdateManager(@version, @config, @specMode)
     @applicationMenu = new ApplicationMenu(@version)
-    @nylasProtocolHandler = new NylasProtocolHandler(@resourcePath, @safeMode)
     @_databasePhase = 'setup'
 
     @listenForArgumentsFromNewProcess()

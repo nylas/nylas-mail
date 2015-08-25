@@ -13,6 +13,11 @@ Color = require './color'
 ScopedPropertyStore = require 'scoped-property-store'
 ScopeDescriptor = require './scope-descriptor'
 
+if global.application
+  app = global.application
+else
+  app = require('remote').getGlobal('application')
+
 # Essential: Used to access all of Atom's configuration details.
 #
 # An instance of this class is always available as the `atom.config` global.
@@ -334,9 +339,17 @@ class Config
     @configFilePath = fs.resolve(@configDirPath, 'config', ['json', 'cson'])
     @configFilePath ?= path.join(@configDirPath, 'config.cson')
     @transactDepth = 0
+    @savePending = false
 
-    @debouncedSave = _.debounce(@save, 100)
+    @requestLoad = _.debounce(@loadUserConfig, 100)
     @debouncedLoad = _.debounce(@loadUserConfig, 100)
+    @requestSave = =>
+      @savePending = true
+      debouncedSave.call(this)
+    save = =>
+      @savePending = false
+      @save()
+    debouncedSave = _.debounce(save, 100)
 
   ###
   Section: Config Subscription
@@ -607,7 +620,7 @@ class Config
     else
       @setRawValue(keyPath, value)
 
-    @debouncedSave() if source is @getUserConfigPath() and shouldSave and not @configFileHasErrors
+    @requestSave() if source is @getUserConfigPath() and shouldSave and not @configFileHasErrors
     true
 
   # Essential: Restore the setting at `keyPath` to its default value.
@@ -637,7 +650,7 @@ class Config
           _.setValueForKeyPath(settings, keyPath, undefined)
           settings = withoutEmptyObjects(settings)
           @set(null, settings, {scopeSelector, source, priority: @priorityForSource(source)}) if settings?
-          @debouncedSave()
+          @requestSave()
       else
         @scopedSettingsStore.removePropertiesForSourceAndSelector(source, scopeSelector)
         @emitChangeEvent()
@@ -816,14 +829,20 @@ class Config
     fs.copySync(templateConfigDirPath, @configDirPath)
 
   loadUserConfig: ->
+    manager = app.sharedFileManager
+    if not manager.processCanReadFile(@configFilePath)
+      @requestLoad()
+      return
+
     unless fs.existsSync(@configFilePath)
       fs.makeTreeSync(path.dirname(@configFilePath))
       CSON.writeFileSync(@configFilePath, {})
 
     try
-      userConfig = CSON.readFileSync(@configFilePath)
-      @resetUserSettings(userConfig)
-      @configFileHasErrors = false
+      unless @savePending
+        userConfig = CSON.readFileSync(@configFilePath)
+        @resetUserSettings(userConfig)
+        @configFileHasErrors = false
     catch error
       @configFileHasErrors = true
       message = "Failed to load `#{path.basename(@configFilePath)}`"
@@ -840,7 +859,7 @@ class Config
   observeUserConfig: ->
     try
       @watchSubscription ?= pathWatcher.watch @configFilePath, (eventType) =>
-        @debouncedLoad() if eventType is 'change' and @watchSubscription?
+        @requestLoad() if eventType is 'change' and @watchSubscription?
     catch error
       @notifyFailure """
         Unable to watch path: `#{path.basename(@configFilePath)}`. Make sure you have permissions to
@@ -857,9 +876,12 @@ class Config
     console.log(errorMessage, detail)
 
   save: ->
+    manager = app.sharedFileManager
+    manager.processWillWriteFile(@configFilePath)
     allSettings = {'*': @settings}
     allSettings = _.extend allSettings, @scopedSettingsStore.propertiesForSource(@getUserConfigPath())
     CSON.writeFileSync(@configFilePath, allSettings)
+    manager.processDidWriteFile(@configFilePath)
 
   ###
   Section: Private methods managing global settings
