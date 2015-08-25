@@ -70,7 +70,10 @@ AnalyticsStore = Reflux.createStore
   track: (action, data={}) ->
     _.defer =>
       # send to the analytics service
-      @analytics.track(action, _.extend(data, accountId: AccountStore.current()?.id))
+      @analytics.track(action, _.extend(data, {
+        accountId: AccountStore.current()?.id
+        distinct_id: AccountStore.current()?.id
+      }))
 
       # send to the logs that we ship to LogStash
       console.debug(printToConsole, {action, data})
