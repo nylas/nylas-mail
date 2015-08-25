@@ -116,5 +116,9 @@ class SyncbackDraftTask extends Task
     newDraft = new Message(draft)
     newDraft.id = generateTempId()
     newDraft.accountId = newAccountId if newAccountId
+
+    delete newDraft.threadId
+    delete newDraft.replyToMessageId
+
     DatabaseStore.swapModel(oldModel: draft, newModel: newDraft, localId: @draftLocalId).then =>
       Promise.resolve(newDraft)
