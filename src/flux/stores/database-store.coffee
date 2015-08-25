@@ -417,7 +417,7 @@ class DatabaseStore extends NylasStore
     # We can only use WHERE IN for up to ~250 items at a time. Run a query for
     # every 100 items and then combine the results before returning.
     Promise.all(promises).then (results) =>
-      all = {};
+      all = {}
       all = _.extend(all, result) for result in results
       Promise.resolve(all)
 
