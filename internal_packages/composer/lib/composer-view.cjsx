@@ -474,13 +474,13 @@ class ComposerView extends React.Component
       files: draft.files
       subject: draft.subject
       body: draft.body
+      showfrom: not draft.replyToMessageId? and draft.files.length is 0
 
     if !@state.populated
       _.extend state,
         showcc: not _.isEmpty(draft.cc)
         showbcc: not _.isEmpty(draft.bcc)
         showsubject: @_shouldShowSubject()
-        showfrom: not draft.replyToMessageId?
         showQuotedText: @isForwardedMessage()
         populated: true
 
