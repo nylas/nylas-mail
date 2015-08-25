@@ -474,7 +474,7 @@ class ComposerView extends React.Component
       files: draft.files
       subject: draft.subject
       body: draft.body
-      showfrom: not draft.replyToMessageId? and draft.files.length is 0
+      showfrom: not draft.replyToMessageId and draft.files.length is 0
 
     if !@state.populated
       _.extend state,
