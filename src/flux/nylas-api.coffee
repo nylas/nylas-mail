@@ -342,7 +342,7 @@ class NylasAPI
     type = jsons[0].object
     name = @_apiObjectToClassnameMap[type]
     if not name
-      console.warning("NylasAPI::handleModelResponse: Received unknown API object type: #{type}")
+      console.warn("NylasAPI::handleModelResponse: Received unknown API object type: #{type}")
       return Promise.resolve([])
 
     accepted = Promise.resolve(uniquedJSONs)
