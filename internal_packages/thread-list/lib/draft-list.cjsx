@@ -16,9 +16,9 @@ class DraftList extends React.Component
   componentWillMount: =>
     snippet = (html) =>
       @draftSanitizer ?= document.createElement('div')
-      @draftSanitizer.innerHTML = html
+      @draftSanitizer.innerHTML = html[0..400]
       text = @draftSanitizer.innerText
-      text[0..140]
+      text[0..200]
 
     c1 = new ListTabular.Column
       name: "Name"
