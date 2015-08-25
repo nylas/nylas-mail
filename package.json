@@ -11,7 +11,7 @@
   "bugs": {
     "url": "https://github.com/nylas/edgehill/issues"
   },
-  "electronVersion": "0.30.4",
+  "electronVersion": "0.29.2",
   "dependencies": {
     "asar": "^0.5.0",
     "6to5-core": "^3.5",
