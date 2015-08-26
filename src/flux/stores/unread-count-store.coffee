@@ -58,7 +58,7 @@ UnreadCountStore = Reflux.createStore
 
     # Note: We can't use the convenience methods on CategoryStore to fetch the
     # category because it may not have been loaded yet
-    DatabaseStore.findBy(CategoryClass, {name: 'inbox'}).then (category) =>
+    DatabaseStore.findBy(CategoryClass, {name: 'inbox', accountId: account.id}).then (category) =>
       return unless category
 
       matchers = [

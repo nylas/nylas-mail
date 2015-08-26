@@ -17,7 +17,7 @@ PriorityUICoordinator = require '../../priority-ui-coordinator'
  generateTempId,
  isTempId} = require '../models/utils'
 
-DatabaseVersion = 9
+DatabaseVersion = 10
 
 DatabasePhase =
   Setup: 'setup'
@@ -25,7 +25,8 @@ DatabasePhase =
   Close: 'close'
 
 DEBUG_TO_LOG = false
-DEBUG_QUERY_PLANS = false
+DEBUG_QUERY_PLANS = atom.inDevMode()
+DEBUG_MISSING_ACCOUNT_ID = false
 
 BEGIN_TRANSACTION = 'BEGIN TRANSACTION'
 COMMIT = 'COMMIT'
@@ -168,6 +169,30 @@ class DatabaseStore extends NylasStore
     app = require('remote').getGlobal('application')
     app.rebuildDatabase()
 
+  _prettyConsoleLog: (q) =>
+    q = "color:black |||%c " + q
+    q = q.replace(/`(\w+)`/g, "||| color:purple |||%c$&||| color:black |||%c")
+
+    colorRules =
+      'color:green': ['SELECT', 'INSERT INTO', 'VALUES', 'WHERE', 'FROM', 'JOIN', 'ORDER BY', 'DESC', 'ASC', 'INNER', 'OUTER', 'LIMIT', 'OFFSET', 'IN']
+      'color:red; background-color:#ffdddd;': ['SCAN TABLE']
+
+    for style, keywords of colorRules
+      for keyword in keywords
+        q = q.replace(new RegExp("\\b#{keyword}\\b", 'g'), "||| #{style} |||%c#{keyword}||| color:black |||%c")
+
+    q = q.split('|||')
+    colors = []
+    msg = []
+    for i in [0...q.length]
+      if i % 2 is 0
+        colors.push(q[i])
+      else
+        msg.push(q[i])
+
+    console.log(msg.join(''), colors...)
+
+
   # Returns a promise that resolves when the query has been completed and
   # rejects when the query has failed.
   #
@@ -185,9 +210,13 @@ class DatabaseStore extends NylasStore
       else
         fn = 'run'
 
-      if DEBUG_QUERY_PLANS and query.indexOf("SELECT ") is 0
-        @_db.all "EXPLAIN QUERY PLAN #{query}", values, (err, results) =>
-          console.log(results.map((row) -> row.detail).join('\n') + " for " + query)
+      if query.indexOf("SELECT ") is 0
+        if DEBUG_MISSING_ACCOUNT_ID and query.indexOf("`account_id`") is -1
+          @_prettyConsoleLog("QUERY does not specify accountId: #{query}")
+        if DEBUG_QUERY_PLANS
+          @_db.all "EXPLAIN QUERY PLAN #{query}", values, (err, results) =>
+            str = results.map((row) -> row.detail).join('\n') + " for " + query
+            @_prettyConsoleLog(str) if str.indexOf("SCAN") isnt -1
 
       # Important: once the user begins a transaction, queries need to run in serial.
       # This ensures that the subsequent "COMMIT" call actually runs after the other

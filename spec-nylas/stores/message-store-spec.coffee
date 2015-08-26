@@ -30,6 +30,7 @@ describe "MessageStore", ->
       spyOn(DatabaseStore, 'findAll').andCallFake ->
         include: -> @
         waitForAnimations: -> @
+        where: -> @
         then: (callback) -> callback([testMessage1, testMessage2])
 
     it "should retrieve the focused thread", ->

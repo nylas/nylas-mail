@@ -3,6 +3,7 @@ Reflux = require 'reflux'
  Contact,
  Thread,
  DatabaseStore,
+ AccountStore,
  ContactStore} = require 'nylas-exports'
 _ = require 'underscore'
 
@@ -60,7 +61,9 @@ SearchSuggestionStore = Reflux.createStore
     return if @_threadQueryInFlight
 
     @_threadQueryInFlight = true
-    DatabaseStore.findAll(Thread, [Thread.attributes.subject.like(val)])
+    DatabaseStore.findAll(Thread)
+    .where(Thread.attributes.subject.like(val))
+    .where(Thread.attributes.accountId.equal(AccountStore.current().id))
     .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
     .limit(4)
     .then (results) =>

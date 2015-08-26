@@ -84,7 +84,10 @@ class ThreadListStore extends NylasStore
       else
         throw new Error("Invalid organizationUnit")
       view = new DatabaseView Thread, {matchers}, (ids) =>
-        DatabaseStore.findAll(Message).where(Message.attributes.threadId.in(ids)).then (messages) ->
+        DatabaseStore.findAll(Message)
+        .where(Message.attributes.threadId.in(ids))
+        .where(Message.attributes.accountId.equal(account.id))
+        .then (messages) ->
           messagesByThread = {}
           for id in ids
             messagesByThread[id] = []

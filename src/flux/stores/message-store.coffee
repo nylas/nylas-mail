@@ -140,7 +140,8 @@ class MessageStore extends NylasStore
     return unless @_thread
     loadedThreadId = @_thread.id
 
-    query = DatabaseStore.findAll(Message, threadId: loadedThreadId)
+    query = DatabaseStore.findAll(Message)
+    query.where(threadId: loadedThreadId, accountId: @_thread.accountId)
     query.include(Message.attributes.body)
     query.then (items) =>
       localIds = {}
