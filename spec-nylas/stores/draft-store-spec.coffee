@@ -529,12 +529,12 @@ describe "DraftStore", ->
         }}
 
       it "should return false and call window.close itself", ->
-        spyOn(DraftStore, '_onBeforeUnloadComplete')
+        spyOn(atom, 'finishUnload')
         expect(DraftStore._onBeforeUnload()).toBe(false)
-        expect(DraftStore._onBeforeUnloadComplete).not.toHaveBeenCalled()
+        expect(atom.finishUnload).not.toHaveBeenCalled()
         @resolve()
         advanceClock(1000)
-        expect(DraftStore._onBeforeUnloadComplete).toHaveBeenCalled()
+        expect(atom.finishUnload).toHaveBeenCalled()
 
     describe "when drafts return immediately fulfilled commit promises", ->
       beforeEach ->
@@ -546,11 +546,11 @@ describe "DraftStore", ->
         }}
 
       it "should still wait one tick before firing atom.close again", ->
-        spyOn(DraftStore, '_onBeforeUnloadComplete')
+        spyOn(atom, 'finishUnload')
         expect(DraftStore._onBeforeUnload()).toBe(false)
-        expect(DraftStore._onBeforeUnloadComplete).not.toHaveBeenCalled()
+        expect(atom.finishUnload).not.toHaveBeenCalled()
         advanceClock()
-        expect(DraftStore._onBeforeUnloadComplete).toHaveBeenCalled()
+        expect(atom.finishUnload).toHaveBeenCalled()
 
     describe "when there are no drafts", ->
       beforeEach ->

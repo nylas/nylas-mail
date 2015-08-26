@@ -268,11 +268,11 @@ class Application
 
     # Called before the app tries to close any windows.
     app.on 'before-quit', =>
+      # Allow the main window to be closed.
+      @quitting = true
       # Destroy hot windows so that they can't block the app from quitting.
       # (Electron will wait for them to finish loading before quitting.)
       @windowManager.unregisterAllHotWindows()
-      # Allow the main window to be closed.
-      @quitting = true
 
     # Called after the app has closed all windows.
     app.on 'will-quit', =>
@@ -330,7 +330,7 @@ class Application
 
     ipc.on 'action-bridge-rebroadcast-to-main', (event, args...) =>
       mainWindow = @windowManager.mainWindow()
-      return if not mainWindow
+      return if not mainWindow or not mainWindow.browserWindow.webContents
       return if BrowserWindow.fromWebContents(event.sender) is mainWindow
       mainWindow.browserWindow.webContents.send('action-bridge-message', args...)
 

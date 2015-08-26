@@ -341,7 +341,7 @@ class Atom extends Model
   # content trace visualizer (chrome://tracing). It's like Chromium Developer
   # Tools Profiler, but for all processes and threads.
   trace: ->
-    tracing = require('remote').require('content-tracing')
+    tracing = remote.require('content-tracing')
     tracing.startRecording '*', 'record-until-full,enable-sampling,enable-systrace', ->
       console.log('Tracing started')
       setTimeout ->
@@ -588,7 +588,7 @@ class Atom extends Model
     if @isValidDimensions(dimensions)
       dimensions
     else
-      screen = remote.require 'screen'
+      screen = remote.require('screen')
       {width, height} = screen.getPrimaryDisplay().workAreaSize
       {x: 0, y: 0, width, height}
 
@@ -881,8 +881,13 @@ class Atom extends Model
     ipc.send('call-window-method', 'setAutoHideMenuBar', autoHide)
     ipc.send('call-window-method', 'setMenuBarVisibility', !autoHide)
 
-  # Lets multiple components register callbacks.
-  # The callbacks are expected to return either true or false
+  # Lets multiple components register beforeUnload callbacks.
+  # The callbacks are expected to return either true or false.
+  #
+  # Note: If you return false to cancel the window close, you /must/ perform
+  # work and then call finishUnload. We do not support cancelling quit!
+  # https://phab.nylas.com/D1932#inline-11722
+  #
   onBeforeUnload: (callback) -> @_unloadCallbacks.push(callback)
 
   _unloading: ->
@@ -896,3 +901,13 @@ class Atom extends Model
       else
         console.warn "You registered an `onBeforeUnload` callback that does not return either exactly `true` or `false`. It returned #{returnValue}", callback
     return continueUnload
+
+  # Call this method to resume the close / quit process if you returned
+  # false from a onBeforeUnload handler.
+  #
+  finishUnload: ->
+    _.defer =>
+      if remote.getGlobal('application').quitting
+        remote.quit()
+      else
+        @close()

@@ -166,17 +166,13 @@ class DraftStore
       # handler, so we need to always defer by one tick before re-firing close.
       Promise.settle(promises).then =>
         @_draftSessions = {}
-        @_onBeforeUnloadComplete()
+        atom.finishUnload()
 
       # Stop and wait before closing
       return false
     else
       # Continue closing
       return true
-
-  # For better specs
-  _onBeforeUnloadComplete: =>
-    _.defer -> atom.close()
 
   _onDataChanged: (change) =>
     return unless change.objectClass is Message.name
