@@ -1,8 +1,8 @@
-FileFrame = require "./file-frame"
-FileList = require './file-list'
-FileSelectionBar = require './file-selection-bar'
-{ComponentRegistry,
- WorkspaceStore} = require 'nylas-exports'
+# FileFrame = require "./file-frame"
+# FileList = require './file-list'
+# FileSelectionBar = require './file-selection-bar'
+# {ComponentRegistry,
+#  WorkspaceStore} = require 'nylas-exports'
 
 module.exports =
 

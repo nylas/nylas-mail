@@ -34,7 +34,8 @@ class EventStore extends NylasStore
 
   constructor: ->
     @_eventCache = {}
-    @_accountId = null
+    @_accountId = AccountStore.current()?.id
+
     @listenTo DatabaseStore, @_onDatabaseChanged
     @listenTo AccountStore, @_onAccountChanged
 
@@ -48,9 +49,10 @@ class EventStore extends NylasStore
     Actions.queueTask(task)
 
   __refreshCache: =>
+    return unless @_accountId
+
     new Promise (resolve, reject) =>
-      DatabaseStore.findAll(Event)
-      .then (events=[]) =>
+      DatabaseStore.findAll(Event, {accountId: @_accountId}).then (events=[]) =>
         @_eventCache[e.id] = e for e in events
         @trigger()
         resolve()

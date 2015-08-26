@@ -1,7 +1,11 @@
 _ = require 'underscore'
 Reflux = require 'reflux'
 request = require 'request'
-{Contact, ContactStore, DatabaseStore, FocusedContactsStore} = require 'nylas-exports'
+{Contact,
+ AccountStore
+ ContactStore,
+ DatabaseStore,
+ FocusedContactsStore} = require 'nylas-exports'
 
 module.exports =
 FullContactStore = Reflux.createStore
@@ -22,9 +26,10 @@ FullContactStore = Reflux.createStore
   # for the contact, we get it anew.
   _loadFocusedContact: ->
     contact = FocusedContactsStore.focusedContact()
+    account = AccountStore.current()
     if contact
       @_resolvedFocusedContact = contact
-      DatabaseStore.findBy(Contact, email: contact.email).then (contact) =>
+      DatabaseStore.findBy(Contact, {email: contact.email, accountId: account.id}).then (contact) =>
         @_resolvedFocusedContact = contact
         if contact and not contact.thirdPartyData?["FullContact"]?
           @_loadContactDataFromAPI(contact)
