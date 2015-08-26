@@ -6,7 +6,6 @@ PriorityUICoordinator = require '../priority-ui-coordinator'
 DatabaseStore = require './stores/database-store'
 NylasSyncWorker = require './nylas-sync-worker'
 NylasLongConnection = require './nylas-long-connection'
-DatabaseObjectRegistry = require '../database-object-registry'
 async = require 'async'
 
 PermanentErrorCodes = [400, 404, 500]
@@ -236,12 +235,13 @@ class NylasAPI
     {pathname, query} = url.parse(modelUrl, true)
     components = pathname.split('/')
 
-    if components.length is 5
-      [root, ns, nsId, collection, klassId] = components
-      klass = DatabaseObjectRegistry.get(collection[0..-2]) # Warning: threads => thread
+    if components.length is 3
+      [root, collection, klassId] = components
+      klass = @_apiObjectToClassMap[collection[0..-2]] # Warning: threads => thread
 
     if klass and klassId and klassId.length > 0
-      console.warn("Deleting #{klass.name}:#{klassId} due to API 404")
+      unless atom.inSpecMode()
+        console.warn("Deleting #{klass.name}:#{klassId} due to API 404")
       DatabaseStore.find(klass, klassId).then (model) ->
         if model
           return DatabaseStore.unpersistModel(model)
@@ -279,6 +279,29 @@ class NylasAPI
       if delta.attributes
         Object.defineProperty(delta.attributes, '_delta', { get: -> delta })
 
+    {create, modify, destroy} = @_clusterDeltas(deltas)
+
+    # Apply all the deltas to create objects. Gets promises for handling
+    # each type of model in the `create` hash, waits for them all to resolve.
+    create[type] = @_handleModelResponse(_.values(dict)) for type, dict of create
+    Promise.props(create).then (created) =>
+      # Apply all the deltas to modify objects. Gets promises for handling
+      # each type of model in the `modify` hash, waits for them all to resolve.
+      modify[type] = @_handleModelResponse(_.values(dict)) for type, dict of modify
+      Promise.props(modify).then (modified) =>
+
+        # Now that we've persisted creates/updates, fire an action
+        # that allows other parts of the app to update based on new models
+        # (notifications)
+        if _.flatten(_.values(created)).length > 0
+          Actions.didPassivelyReceiveNewModels(created)
+
+        # Apply all of the deletions
+        destroyPromises = destroy.map(@_handleDeltaDeletion)
+        Promise.settle(destroyPromises).then =>
+          Actions.longPollProcessedDeltas()
+
+  _clusterDeltas: (deltas) ->
     # Group deltas by object type so we can mutate the cache efficiently.
     # NOTE: This code must not just accumulate creates, modifies and destroys
     # but also de-dupe them. We cannot call "persistModels(itemA, itemA, itemB)"
@@ -297,32 +320,14 @@ class NylasAPI
       else if delta.event is 'delete'
         destroy.push(delta)
 
-    # Apply all the deltas to create objects. Gets promises for handling
-    # each type of model in the `create` hash, waits for them all to resolve.
-    create[type] = @_handleModelResponse(_.values(dict)) for type, dict of create
-    Promise.props(create).then (created) =>
-      # Apply all the deltas to modify objects. Gets promises for handling
-      # each type of model in the `modify` hash, waits for them all to resolve.
-      modify[type] = @_handleModelResponse(_.values(dict)) for type, dict of modify
-      Promise.props(modify).then (modified) ->
+    {create, modify, destroy}
 
-        # Now that we've persisted creates/updates, fire an action
-        # that allows other parts of the app to update based on new models
-        # (notifications)
-        if _.flatten(_.values(created)).length > 0
-          Actions.didPassivelyReceiveNewModels(created)
-
-        # Apply all of the deletions
-        destroyPromises = destroy.map (delta) ->
-          console.log(" - 1 #{delta.object} (#{delta.id})")
-          klass = DatabaseObjectRegistry.get(delta.object)
-          return unless klass
-          DatabaseStore.find(klass, delta.id).then (model) ->
-            return Promise.resolve() unless model
-            return DatabaseStore.unpersistModel(model)
-
-        Promise.settle(destroyPromises).then =>
-          Actions.longPollProcessedDeltas()
+  _handleDeltaDeletion: (delta) ->
+    klass = @_apiObjectToClassMap[delta.object]
+    return unless klass
+    DatabaseStore.find(klass, delta.id).then (model) ->
+      return Promise.resolve() unless model
+      return DatabaseStore.unpersistModel(model)
 
   # Returns a Promsie that resolves when any parsed out models (if any)
   # have been created and persisted to the database.
@@ -340,38 +345,33 @@ class NylasAPI
       console.warn("NylasAPI.handleModelResponse: called with non-unique object set. Maybe an API request returned the same object more than once?")
 
     type = jsons[0].object
-    name = @_apiObjectToClassnameMap[type]
-    if not name
+    klass = @_apiObjectToClassMap[type]
+    if not klass
       console.warn("NylasAPI::handleModelResponse: Received unknown API object type: #{type}")
       return Promise.resolve([])
 
     accepted = Promise.resolve(uniquedJSONs)
-    if type is "thread"
-      Thread = require './models/thread'
-      accepted = @_acceptableModelsInResponse(Thread, uniquedJSONs)
-    else if type is "draft"
-      Message = require './models/message'
-      accepted = @_acceptableModelsInResponse(Message, uniquedJSONs)
+    if type is "thread" or type is "draft"
+      accepted = @_acceptableModelsInResponse(klass, uniquedJSONs)
 
-    mapper = (json) ->
-      return DatabaseObjectRegistry.deserialize(name, json)
+    mapper = (json) -> (new klass).fromJSON(json)
 
     accepted.map(mapper).then (objects) ->
       DatabaseStore.persistModels(objects).then ->
         return Promise.resolve(objects)
 
-  _apiObjectToClassnameMap:
-    "file": "File"
-    "event": "Event"
-    "label": "Label"
-    "folder": "Folder"
-    "thread": "Thread"
-    "draft": "Message"
-    "account": "Account"
-    "message": "Message"
-    "contact": "Contact"
-    "calendar": "Calendar"
-    "metadata": "Metadata"
+  _apiObjectToClassMap:
+    "file": require('./models/file')
+    "event": require('./models/event')
+    "label": require('./models/label')
+    "folder": require('./models/folder')
+    "thread": require('./models/thread')
+    "draft": require('./models/message')
+    "account": require('./models/account')
+    "message": require('./models/message')
+    "contact": require('./models/contact')
+    "calendar": require('./models/calendar')
+    "metadata": require('./models/metadata')
 
   _acceptableModelsInResponse: (klass, jsons) ->
     # Filter out models that are locked by pending optimistic changes
