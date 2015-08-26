@@ -322,7 +322,7 @@ class NylasAPI
 
     {create, modify, destroy}
 
-  _handleDeltaDeletion: (delta) ->
+  _handleDeltaDeletion: (delta) =>
     klass = @_apiObjectToClassMap[delta.object]
     return unless klass
     DatabaseStore.find(klass, delta.id).then (model) ->
