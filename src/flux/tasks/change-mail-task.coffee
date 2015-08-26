@@ -148,6 +148,10 @@ class ChangeMailTask extends Task
         beforeProcessing: (body) =>
           @_removeLock(model)
           body
+      .catch (err) =>
+        if err instanceof APIError and err.statusCode is 404
+          return Promise.resolve()
+        Promise.reject(err)
 
   # Task lifecycle
 
