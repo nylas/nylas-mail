@@ -1,0 +1,510 @@
+[
+    {
+        "cursor": "9w3el67207f8vvbkv89os5ay6",
+        "attributes": {
+            "body": "<<BODY>>",
+            "files": [],
+            "from": [
+                {
+                    "name": "Karen Rustad Tölva",
+                    "email": "karen.rustad@gmail.com"
+                }
+            ],
+            "account_id": "9jx3zd30wqx04p26vh09ptox1",
+            "thread_id": "62ehtebypazlgokcjvo8o9yak",
+            "cc": [],
+            "object": "message",
+            "bcc": [],
+            "snippet": "<<SNIPPET>>",
+            "to": [
+                {
+                    "name": "",
+                    "email": "ben@nylas.com"
+                }
+            ],
+            "folder": {
+                "display_name": "Inbox",
+                "id": "bn7z083ho0mqfhqd68tio5a70",
+                "name": "inbox"
+            },
+            "date": 1440610192,
+            "reply_to": [],
+            "events": [],
+            "starred": false,
+            "unread": true,
+            "id": "9p571g0ie63rg0ekec699ol5e",
+            "subject": "This is an email following up on the Electron meetup."
+        },
+        "object": "message",
+        "event": "create",
+        "id": "9p571g0ie63rg0ekec699ol5e",
+        "timestamp": "2015-08-26T17:35:16.506Z"
+    },
+    {
+        "cursor": "bqw8x58pghty4fw828tezb0va",
+        "attributes": {
+            "folders": [
+                {
+                    "display_name": "Inbox",
+                    "id": "bn7z083ho0mqfhqd68tio5a70",
+                    "name": "inbox"
+                }
+            ],
+            "object": "thread",
+            "account_id": "9jx3zd30wqx04p26vh09ptox1",
+            "tags": [
+                {
+                    "name": "Inbox",
+                    "id": "inbox"
+                },
+                {
+                    "name": "unread",
+                    "id": "unread"
+                }
+            ],
+            "last_message_timestamp": 1440610192,
+            "has_attachments": false,
+            "first_message_timestamp": 1440610192,
+            "id": "62ehtebypazlgokcjvo8o9yak",
+            "subject": "This is an email following up on the Electron meetup.",
+            "last_message_received_timestamp": 1440610192,
+            "message_ids": [
+                "9p571g0ie63rg0ekec699ol5e"
+            ],
+            "snippet": "<<SNIPPET>>",
+            "participants": [
+                {
+                    "name": "",
+                    "email": "ben@nylas.com"
+                },
+                {
+                    "name": "Karen Rustad Tölva",
+                    "email": "karen.rustad@gmail.com"
+                }
+            ],
+            "version": 0,
+            "starred": false,
+            "unread": true,
+            "draft_ids": []
+        },
+        "object": "thread",
+        "event": "create",
+        "id": "62ehtebypazlgokcjvo8o9yak",
+        "timestamp": "2015-08-26T17:35:16.506Z"
+    },
+    {
+        "cursor": "ewa1rr5nczdvrwpu11d3454ee",
+        "attributes": {
+            "email": "karen.rustad@gmail.com",
+            "object": "contact",
+            "id": "1faoqpnn2rhf6mstmyc0ve71u",
+            "name": "Karen Rustad Tölva",
+            "account_id": "9jx3zd30wqx04p26vh09ptox1"
+        },
+        "object": "contact",
+        "event": "create",
+        "id": "1faoqpnn2rhf6mstmyc0ve71u",
+        "timestamp": "2015-08-26T17:35:16.506Z"
+    },
+    {
+        "cursor": "756iwtaiufb6vxbtp4lt57cx0",
+        "attributes": {
+            "folders": [
+                {
+                    "display_name": "Inbox",
+                    "id": "bn7z083ho0mqfhqd68tio5a70",
+                    "name": "inbox"
+                }
+            ],
+            "object": "thread",
+            "account_id": "9jx3zd30wqx04p26vh09ptox1",
+            "tags": [
+                {
+                    "name": "Inbox",
+                    "id": "inbox"
+                },
+                {
+                    "name": "unread",
+                    "id": "unread"
+                }
+            ],
+            "last_message_timestamp": 1440609916,
+            "has_attachments": false,
+            "first_message_timestamp": 1440543552,
+            "id": "cungn0trv89l19mf08a2blyuh",
+            "subject": "[Differential] [Request, 1,621 lines] D1936: feat(work): Create the \"Work\" window, move TaskQueue, Nylas sync workers",
+            "last_message_received_timestamp": 1440609916,
+            "message_ids": [
+                "9uznoal93shahahlkesxkmfkr",
+                "4rv7upa3gzuf1hal48b15lxrx"
+            ],
+            "snippet": "<<SNIPPET>>",
+            "participants": [
+                {
+                    "name": "",
+                    "email": "ben@inboxapp.com"
+                },
+                {
+                    "name": "evan (Evan Morikawa)",
+                    "email": "noreply+phabricator@nilas.com"
+                },
+                {
+                    "name": "bengotow (Ben Gotow)",
+                    "email": "noreply+phabricator@nilas.com"
+                }
+            ],
+            "version": 1,
+            "starred": false,
+            "unread": true,
+            "draft_ids": []
+        },
+        "object": "thread",
+        "event": "modify",
+        "id": "cungn0trv89l19mf08a2blyuh",
+        "timestamp": "2015-08-26T17:35:16.506Z"
+    },
+    {
+        "cursor": "ev9ewky31ps7deaf0dm90f4qa",
+        "attributes": {
+            "body": "<<BODY>>",
+            "files": [],
+            "from": [
+                {
+                    "name": "evan (Evan Morikawa)",
+                    "email": "noreply+phabricator@nilas.com"
+                }
+            ],
+            "account_id": "9jx3zd30wqx04p26vh09ptox1",
+            "thread_id": "cungn0trv89l19mf08a2blyuh",
+            "cc": [],
+            "object": "message",
+            "bcc": [],
+            "snippet": "<<SNIPPET>>",
+            "to": [
+                {
+                    "name": "",
+                    "email": "ben@inboxapp.com"
+                }
+            ],
+            "folder": {
+                "display_name": "Inbox",
+                "id": "bn7z083ho0mqfhqd68tio5a70",
+                "name": "inbox"
+            },
+            "date": 1440609916,
+            "reply_to": [],
+            "events": [],
+            "starred": false,
+            "unread": true,
+            "id": "4rv7upa3gzuf1hal48b15lxrx",
+            "subject": "[Differential] [Accepted] D1936: feat(work): Create the \"Work\" window, move TaskQueue, Nylas sync workers"
+        },
+        "object": "message",
+        "event": "create",
+        "id": "4rv7upa3gzuf1hal48b15lxrx",
+        "timestamp": "2015-08-26T17:35:16.506Z"
+    },
+    {
+        "cursor": "3gynk12o31m2199ppja76nkve",
+        "attributes": {
+            "folders": [
+                {
+                    "display_name": "Inbox",
+                    "id": "bn7z083ho0mqfhqd68tio5a70",
+                    "name": "inbox"
+                }
+            ],
+            "object": "thread",
+            "account_id": "9jx3zd30wqx04p26vh09ptox1",
+            "tags": [
+                {
+                    "name": "Inbox",
+                    "id": "inbox"
+                },
+                {
+                    "name": "unread",
+                    "id": "unread"
+                }
+            ],
+            "last_message_timestamp": 1440609839,
+            "has_attachments": false,
+            "first_message_timestamp": 1440594160,
+            "id": "8qesqxoftrd3nqiig3cz6gu49",
+            "subject": "Incoming webhook POST body empty",
+            "last_message_received_timestamp": 1440609839,
+            "message_ids": [
+                "b2dq8u1kbambwor2vy5nz619n",
+                "tt4i92q8rtpgrbxaq6viqlf4"
+            ],
+            "snippet": "<<SNIPPET>>",
+            "participants": [
+                {
+                    "name": "",
+                    "email": "support@nylas.com"
+                },
+                {
+                    "name": "Ismail Pelaseyed",
+                    "email": "ismail@sendcase.com"
+                }
+            ],
+            "version": 1,
+            "starred": false,
+            "unread": true,
+            "draft_ids": []
+        },
+        "object": "thread",
+        "event": "modify",
+        "id": "8qesqxoftrd3nqiig3cz6gu49",
+        "timestamp": "2015-08-26T17:35:16.506Z"
+    },
+    {
+        "cursor": "e8wnx217l8v1qx205d4hxvlk1",
+        "attributes": {
+            "body": "<<BODY>>",
+            "files": [],
+            "from": [
+                {
+                    "name": "Ismail Pelaseyed",
+                    "email": "ismail@sendcase.com"
+                }
+            ],
+            "account_id": "9jx3zd30wqx04p26vh09ptox1",
+            "thread_id": "8qesqxoftrd3nqiig3cz6gu49",
+            "cc": [],
+            "object": "message",
+            "bcc": [],
+            "snippet": "<<SNIPPET>>",
+            "to": [
+                {
+                    "name": "",
+                    "email": "support@nylas.com"
+                }
+            ],
+            "folder": {
+                "display_name": "Inbox",
+                "id": "bn7z083ho0mqfhqd68tio5a70",
+                "name": "inbox"
+            },
+            "date": 1440609839,
+            "reply_to": [],
+            "events": [],
+            "starred": false,
+            "unread": true,
+            "id": "tt4i92q8rtpgrbxaq6viqlf4",
+            "subject": "Re: Incoming webhook POST body empty"
+        },
+        "object": "message",
+        "event": "create",
+        "id": "tt4i92q8rtpgrbxaq6viqlf4",
+        "timestamp": "2015-08-26T17:35:16.506Z"
+    },
+    {
+        "cursor": "asyt17hyf9shing0tbdc1s5n9",
+        "attributes": {
+            "folders": [
+                {
+                    "display_name": "Deleted Items",
+                    "id": "b5t18ldx25xibwq5ctuh10u8h",
+                    "name": "trash"
+                }
+            ],
+            "object": "thread",
+            "account_id": "9jx3zd30wqx04p26vh09ptox1",
+            "tags": [
+                {
+                    "name": "Deleted Items",
+                    "id": "trash"
+                },
+                {
+                    "name": "unread",
+                    "id": "unread"
+                }
+            ],
+            "last_message_timestamp": 1440609839,
+            "has_attachments": false,
+            "first_message_timestamp": 1440594160,
+            "id": "auro0q0gn0eawfrmqgzbi4f53",
+            "subject": "Incoming webhook POST body empty",
+            "last_message_received_timestamp": 1440609839,
+            "message_ids": [
+                "4oesh7fhsbd45t7dx30p03vz1",
+                "7q4wtqzj3nxb42y6ysbl5l73t"
+            ],
+            "snippet": "<<SNIPPET>>",
+            "participants": [
+                {
+                    "name": "",
+                    "email": "support@nylas.com"
+                },
+                {
+                    "name": "Ismail Pelaseyed",
+                    "email": "ismail@sendcase.com"
+                }
+            ],
+            "version": 1,
+            "starred": false,
+            "unread": true,
+            "draft_ids": []
+        },
+        "object": "thread",
+        "event": "modify",
+        "id": "auro0q0gn0eawfrmqgzbi4f53",
+        "timestamp": "2015-08-26T17:36:45.297Z"
+    },
+    {
+        "cursor": "2r2f2indqv6fc9zptw9y49h97",
+        "attributes": {
+            "body": "<<BODY>>",
+            "files": [],
+            "from": [
+                {
+                    "name": "Ismail Pelaseyed",
+                    "email": "ismail@sendcase.com"
+                }
+            ],
+            "account_id": "9jx3zd30wqx04p26vh09ptox1",
+            "thread_id": "auro0q0gn0eawfrmqgzbi4f53",
+            "cc": [],
+            "object": "message",
+            "bcc": [],
+            "snippet": "<<SNIPPET>>",
+            "to": [
+                {
+                    "name": "",
+                    "email": "support@nylas.com"
+                }
+            ],
+            "folder": {
+                "display_name": "Deleted Items",
+                "id": "b5t18ldx25xibwq5ctuh10u8h",
+                "name": "trash"
+            },
+            "date": 1440609839,
+            "reply_to": [],
+            "events": [],
+            "starred": false,
+            "unread": true,
+            "id": "7q4wtqzj3nxb42y6ysbl5l73t",
+            "subject": "Re: Incoming webhook POST body empty"
+        },
+        "object": "message",
+        "event": "create",
+        "id": "7q4wtqzj3nxb42y6ysbl5l73t",
+        "timestamp": "2015-08-26T17:36:45.297Z"
+    },
+    {
+        "cursor": "ahvjhhsorjc0qe0snhwqydvui",
+        "attributes": {
+            "folders": [
+                {
+                    "display_name": "Deleted Items",
+                    "id": "b5t18ldx25xibwq5ctuh10u8h",
+                    "name": "trash"
+                }
+            ],
+            "object": "thread",
+            "account_id": "9jx3zd30wqx04p26vh09ptox1",
+            "tags": [
+                {
+                    "name": "Deleted Items",
+                    "id": "trash"
+                },
+                {
+                    "name": "unread",
+                    "id": "unread"
+                }
+            ],
+            "last_message_timestamp": 1440609839,
+            "has_attachments": false,
+            "first_message_timestamp": 1440594160,
+            "id": "auro0q0gn0eawfrmqgzbi4f53",
+            "subject": "Incoming webhook POST body empty",
+            "last_message_received_timestamp": 1440609839,
+            "message_ids": [
+                "4oesh7fhsbd45t7dx30p03vz1",
+                "7q4wtqzj3nxb42y6ysbl5l73t"
+            ],
+            "snippet": "<<SNIPPET>>",
+            "participants": [
+                {
+                    "name": "",
+                    "email": "support@nylas.com"
+                },
+                {
+                    "name": "Ismail Pelaseyed",
+                    "email": "ismail@sendcase.com"
+                }
+            ],
+            "version": 1,
+            "starred": false,
+            "unread": true,
+            "draft_ids": []
+        },
+        "object": "thread",
+        "event": "create",
+        "id": "auro0q0gn0eawfrmqgzbi4f53",
+        "timestamp": "2015-08-26T17:36:45.297Z"
+    },
+    {
+        "cursor": "2e35c6lcfvsx165kuu5534zng",
+        "attributes": {
+            "body": "<<BODY>>",
+            "files": [],
+            "from": [
+                {
+                    "name": "Ismail Pelaseyed",
+                    "email": "ismail@sendcase.com"
+                }
+            ],
+            "account_id": "9jx3zd30wqx04p26vh09ptox1",
+            "thread_id": "auro0q0gn0eawfrmqgzbi4f53",
+            "cc": [],
+            "object": "message",
+            "bcc": [],
+            "snippet": "<<SNIPPET>>",
+            "to": [
+                {
+                    "name": "",
+                    "email": "support@nylas.com"
+                }
+            ],
+            "folder": {
+                "display_name": "Deleted Items",
+                "id": "b5t18ldx25xibwq5ctuh10u8h",
+                "name": "trash"
+            },
+            "date": 1440594160,
+            "reply_to": [],
+            "events": [],
+            "starred": false,
+            "unread": true,
+            "id": "4oesh7fhsbd45t7dx30p03vz1",
+            "subject": "Incoming webhook POST body empty"
+        },
+        "object": "message",
+        "event": "create",
+        "id": "4oesh7fhsbd45t7dx30p03vz1",
+        "timestamp": "2015-08-26T17:36:45.297Z"
+    },
+    {
+        "cursor": "bb95ddzqtr2gpmvgrng73t6ih",
+        "object": "thread",
+        "event": "delete",
+        "id": "8qesqxoftrd3nqiig3cz6gu49",
+        "timestamp": "2015-08-26T17:36:45.297Z"
+    },
+    {
+        "cursor": "f1pw0buzv336n5xbuod7579cv",
+        "object": "message",
+        "event": "delete",
+        "id": "tt4i92q8rtpgrbxaq6viqlf4",
+        "timestamp": "2015-08-26T17:36:45.297Z"
+    },
+    {
+        "cursor": "du99szyqlrujornwr5fgrzxeg",
+        "object": "message",
+        "event": "delete",
+        "id": "b2dq8u1kbambwor2vy5nz619n",
+        "timestamp": "2015-08-26T17:36:45.297Z"
+    }
+]
