@@ -2,10 +2,10 @@ React = require 'react/addons'
 classNames = require 'classnames'
 _ = require 'underscore'
 {CompositeDisposable} = require 'event-kit'
-{Contact,
+{Utils,
+ Contact,
  RegExpUtils,
- ContactStore,
- DatabaseObjectRegistry} = require 'nylas-exports'
+ ContactStore} = require 'nylas-exports'
 RetinaImg = require './retina-img'
 
 class SizeToFitInput extends React.Component
@@ -103,7 +103,8 @@ class Token extends React.Component
     </div>
 
   _onDragStart: (event) =>
-    event.dataTransfer.setData('nylas-token-item', JSON.stringify(@props.item))
+    json = Utils.serializeRegisteredObjects(@props.item)
+    event.dataTransfer.setData('nylas-token-item', json)
     event.dataTransfer.setData('text/plain', @props.item.toString())
     @setState(dragging: true)
 
@@ -278,7 +279,7 @@ class TokenizingTextField extends React.Component
           />
 
   _fieldComponent: =>
-    <div key="field-component" onClick={@_onClick} onDrop={@_onDrop}>
+    <div key="field-component" ref="field-drop-target" onClick={@_onClick} onDrop={@_onDrop}>
       {@_renderPrompt()}
       <div className="tokenizing-field-input">
         {@_placeholder()}
@@ -359,12 +360,13 @@ class TokenizingTextField extends React.Component
 
     try
       data = event.dataTransfer.getData('nylas-token-item')
-      json = JSON.parse(data)
-      model = DatabaseObjectRegistry.deserialize(json.object, json)
-    catch
-      model = null
-    if model and model instanceof Contact
-      @_addToken(model)
+      item = Utils.deserializeRegisteredObjects(data)
+    catch err
+      console.error(err)
+      item = null
+
+    if item
+      @_addToken(item)
 
   _onInputFocused: ({noCompletions}={}) =>
     @setState(focus: true)

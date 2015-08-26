@@ -24,17 +24,22 @@ CustomSuggestion = React.createClass
     <span>{@props.item.email}</span>
 
 participant1 = new Contact
+  id: '1'
   email: 'ben@nylas.com'
 participant2 = new Contact
+  id: '2'
   email: 'burgers@nylas.com'
   name: 'Nylas Burger Basket'
 participant3 = new Contact
+  id: '3'
   email: 'evan@nylas.com'
   name: 'Evan'
 participant4 = new Contact
+  id: '4'
   email: 'tester@elsewhere.com',
   name: 'Tester'
 participant5 = new Contact
+  id: '5'
   email: 'michael@elsewhere.com',
   name: 'Michael'
 
@@ -58,7 +63,8 @@ describe 'TokenizingTextField', ->
     @tabIndex = 100
     @tokens = [participant1, participant2, participant3]
 
-    @rebuildRenderedField = =>
+    @rebuildRenderedField = (tokens) =>
+      tokens ?= @tokens
       @renderedField = ReactTestUtils.renderIntoDocument(
         <TokenizingTextField
           tokens={@tokens}
@@ -76,6 +82,8 @@ describe 'TokenizingTextField', ->
           />
       )
       @renderedInput = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithTag(@renderedField, 'input'))
+      return @renderedField
+
     @rebuildRenderedField()
 
   it 'renders into the document', ->
@@ -114,6 +122,37 @@ describe 'TokenizingTextField', ->
       expect(@tokens[0].props.valid).toBe(true)
       expect(@tokens[1].props.valid).toBe(true)
       expect(@tokens[2].props.valid).toBe(true)
+
+  describe "when the user drags and drops a token between two fields", ->
+    it "should work properly", ->
+      tokensA = [participant1, participant2, participant3]
+      fieldA = @rebuildRenderedField(tokensA)
+
+      tokensB = []
+      fieldB = @rebuildRenderedField(tokensB)
+
+      tokenIndexToDrag = 1
+      token = ReactTestUtils.scryRenderedDOMComponentsWithClass(fieldA, 'token')[tokenIndexToDrag]
+
+      dragStartEventData = {}
+      dragStartEvent =
+        dataTransfer:
+          setData: (type, val) ->
+            dragStartEventData[type] = val
+      ReactTestUtils.Simulate.dragStart(token, dragStartEvent)
+
+      expect(dragStartEventData).toEqual({
+        'nylas-token-item': '{"id":"2","name":"Nylas Burger Basket","email":"burgers@nylas.com","__constructorName":"Contact"}'
+        'text/plain': 'Nylas Burger Basket <burgers@nylas.com>'
+      })
+
+      dropEvent =
+        dataTransfer:
+          types: Object.keys(dragStartEventData)
+          getData: (type) -> dragStartEventData[type]
+      ReactTestUtils.Simulate.drop(fieldB.refs['field-drop-target'], dropEvent)
+
+      expect(@propAdd).toHaveBeenCalledWith([tokensA[tokenIndexToDrag]])
 
   describe "When the user selects a token", ->
     beforeEach ->

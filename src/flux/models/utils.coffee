@@ -17,8 +17,6 @@ Utils =
     DatabaseObjectRegistry ?= require '../../database-object-registry'
 
     JSON.parse json, (k,v) ->
-      return v if k is ""
-
       type = v?.__constructorName
       return v unless type
 
