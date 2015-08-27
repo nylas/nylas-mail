@@ -1,8 +1,6 @@
 _ = require 'underscore'
+{DatabaseStore} = require 'nylas-exports'
 NylasLongConnection = require './nylas-long-connection'
-DatabaseStore = require './stores/database-store'
-{Publisher} = require './modules/reflux-coffee'
-CoffeeHelpers = require './coffee-helpers'
 
 PAGE_SIZE = 250
 
@@ -36,9 +34,6 @@ class BackoffTimer
 
 module.exports =
 class NylasSyncWorker
-
-  @include: CoffeeHelpers.includeModule
-  @include Publisher
 
   constructor: (api, account) ->
     @_api = api
@@ -164,6 +159,5 @@ class NylasSyncWorker
       DatabaseStore.persistJSONObject("NylasSyncWorker:#{@_account.id}", @_state)
     ,100
     @_writeState()
-    @trigger()
 
 NylasSyncWorker.BackoffTimer = BackoffTimer

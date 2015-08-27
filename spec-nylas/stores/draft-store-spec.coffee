@@ -6,7 +6,6 @@ AccountStore = require '../../src/flux/stores/account-store'
 DatabaseStore = require '../../src/flux/stores/database-store'
 DraftStore = require '../../src/flux/stores/draft-store'
 DraftStoreExtension = require '../../src/flux/stores/draft-store-extension'
-TaskQueue = require '../../src/flux/stores/task-queue'
 SendDraftTask = require '../../src/flux/tasks/send-draft'
 DestroyDraftTask = require '../../src/flux/tasks/destroy-draft'
 Actions = require '../../src/flux/actions'
@@ -563,6 +562,7 @@ describe "DraftStore", ->
     draftLocalId = "local-123"
     beforeEach ->
       DraftStore._draftSessions = {}
+      DraftStore._draftsSending = {}
       proxy =
         prepare: -> Promise.resolve(proxy)
         teardown: ->
@@ -572,11 +572,9 @@ describe "DraftStore", ->
       DraftStore._draftSessions[draftLocalId] = proxy
       spyOn(DraftStore, "_doneWithSession").andCallThrough()
       spyOn(DraftStore, "trigger")
-      TaskQueue._queue = []
 
     it "sets the sending state when sending", ->
       spyOn(atom, "isMainWindow").andReturn true
-      spyOn(TaskQueue, "_updateSoon")
       spyOn(Actions, "queueTask").andCallThrough()
       runs ->
         DraftStore._onSendDraft(draftLocalId)

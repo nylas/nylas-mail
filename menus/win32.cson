@@ -38,7 +38,8 @@
   {
     label: 'Developer'
     submenu: [
-      { label: 'Toggle Hacker Theme', command: 'application:toggle-theme' }
+      { label: 'Toggle Component Regions', command: 'window:toggle-component-regions' }
+      { label: 'Toggle React Remote', command: 'window:toggle-react-remote' }
       { type: 'separator' }
       { label: 'Relaunch with &Debug Flags...', command: 'application:open-dev' }
       { type: 'separator' }

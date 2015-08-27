@@ -355,6 +355,9 @@ class Atom extends Model
   isMainWindow: ->
     !!@getLoadSettings().mainWindow
 
+  isWorkWindow: ->
+    @getWindowType() is 'work'
+
   getWindowType: ->
     @getLoadSettings().windowType
 
@@ -520,16 +523,6 @@ class Atom extends Model
   toggleFullScreen: ->
     @setFullScreen(!@isFullScreen())
 
-  # Schedule the window to be shown and focused on the next tick.
-  #
-  # This is done in a next tick to prevent a white flicker from occurring
-  # if called synchronously.
-  displayWindow: ({maximize}={}) ->
-    setImmediate =>
-      @show()
-      @focus()
-      @maximize() if maximize
-
   # Get the dimensions of this window.
   #
   # Returns an {Object} with the following keys:
@@ -605,7 +598,7 @@ class Atom extends Model
 
   # Call this method when establishing a real application window.
   startRootWindow: ->
-    {resourcePath, safeMode} = @getLoadSettings()
+    {resourcePath, safeMode, windowType} = @getLoadSettings()
 
     CommandInstaller = require './command-installer'
     CommandInstaller.installAtomCommand resourcePath, false, (error) ->
@@ -614,34 +607,44 @@ class Atom extends Model
       console.warn error.message if error?
 
     dimensions = @restoreWindowDimensions()
-
-    @loadConfig()
-    @keymaps.loadBundledKeymaps()
-    @themes.loadBaseStylesheets()
-    @packages.loadPackages()
-    @deserializeRootWindow()
-    @packages.activate()
-    @keymaps.loadUserKeymap()
-    @requireUserInitScript() unless safeMode
-    @menu.update()
-
-    @commands.add 'atom-workspace',
-      'atom-workspace:add-account': =>
-        @newWindow
-          title: 'Add an Account'
-          width: 340
-          height: 550
-          toolbar: false
-          resizable: false
-          windowType: 'onboarding'
-          windowProps:
-            page: 'add-account'
-
-    # Make sure we can't be made so small that the interface looks like crap
-    @getCurrentWindow().setMinimumSize(875, 500)
-
     maximize = dimensions?.maximized and process.platform isnt 'darwin'
-    @displayWindow({maximize})
+    @show()
+    @focus()
+    @maximize() if maximize
+
+    cover = document.getElementById("application-loading-cover")
+    wait = (time, fn) -> setTimeout(fn, time)
+
+    wait 1, =>
+      cover.classList.add("showing")
+
+      wait 220, =>
+        @loadConfig()
+        @keymaps.loadBundledKeymaps()
+        @themes.loadBaseStylesheets()
+        @packages.loadPackages(windowType)
+        @deserializeRootWindow()
+        @packages.activate()
+        @keymaps.loadUserKeymap()
+        @requireUserInitScript() unless safeMode
+        @menu.update()
+
+        @commands.add 'atom-workspace',
+          'atom-workspace:add-account': =>
+            @newWindow
+              title: 'Add an Account'
+              width: 340
+              height: 550
+              toolbar: false
+              resizable: false
+              windowType: 'onboarding'
+              windowProps:
+                page: 'add-account'
+
+        # Make sure we can't be made so small that the interface looks like crap
+        @getCurrentWindow().setMinimumSize(875, 500)
+        wait 20, =>
+          cover.classList.add('visible')
 
   # Call this method when establishing a secondary application window
   # displaying a specific set of packages.
@@ -651,6 +654,9 @@ class Atom extends Model
      height,
      windowType,
      windowPackages} = @getLoadSettings()
+
+    cover = document.getElementById("application-loading-cover")
+    cover.remove()
 
     @loadConfig()
 
@@ -908,6 +914,6 @@ class Atom extends Model
   finishUnload: ->
     _.defer =>
       if remote.getGlobal('application').quitting
-        remote.quit()
+        remote.require('app').quit()
       else
         @close()

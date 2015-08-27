@@ -38,6 +38,7 @@ class NylasExports
 
   # API Endpoints
   @load "NylasAPI", 'flux/nylas-api'
+  @load "NylasSyncStatusStore", 'flux/stores/nylas-sync-status-store'
   @load "EdgehillAPI", 'flux/edgehill-api'
 
   # The Database
@@ -68,8 +69,9 @@ class NylasExports
 
   # The Task Queue
   @require "Task", 'flux/tasks/task'
-  @require "TaskQueue", 'flux/stores/task-queue'
   @require "TaskRegistry", "task-registry"
+  @require "TaskQueue", 'flux/stores/task-queue'
+  @load "TaskQueueStatusStore", 'flux/stores/task-queue-status-store'
   @require "UndoRedoStore", 'flux/stores/undo-redo-store'
 
   # Tasks

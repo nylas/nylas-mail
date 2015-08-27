@@ -3,6 +3,7 @@ _ = require 'underscore'
 
 Actions = require '../actions'
 DatabaseStore = require '../stores/database-store'
+TaskQueueStatusStore = require '../stores/task-queue-status-store'
 NylasAPI = require '../nylas-api'
 
 Task = require './task'
@@ -104,7 +105,7 @@ class SyncbackDraftTask extends Task
       if existingAccountDraft.accountId isnt acct.id
         DestroyDraftTask = require './destroy-draft'
         destroy = new DestroyDraftTask(draftId: existingAccountDraft.id)
-        promise = destroy.waitForPerformLocal().then =>
+        promise = TaskQueueStatusStore.waitForPerformLocal(destroy).then =>
           @detatchFromRemoteID(existingAccountDraft, acct.id).then (newAccountDraft) =>
             Promise.resolve(newAccountDraft)
         Actions.queueTask(destroy)

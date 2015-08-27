@@ -10,12 +10,16 @@ Task = require "../tasks/task"
 Utils = require "../models/utils"
 Reflux = require 'reflux'
 Actions = require '../actions'
-TaskRegistry = require '../../task-registry'
+DatabaseStore = require './database-store'
 
 {APIError,
  TimeoutError} = require '../errors'
 
-if not atom.isMainWindow() and not atom.inSpecMode() then return
+JSONObjectStorageKey = 'task-queue'
+
+if not atom.isWorkWindow() and not atom.inSpecMode()
+  module.exports = {JSONObjectStorageKey}
+  return
 
 ###
 Public: The TaskQueue is a Flux-compatible Store that manages a queue of {Task}
@@ -71,9 +75,10 @@ class TaskQueue
     @_queue = []
     @_completed = []
 
-    @_restoreQueueFromDisk()
+    @_restoreQueue()
 
     @listenTo(Actions.queueTask,              @enqueue)
+    @listenTo(Actions.undoTaskId,             @enqueueUndoOfTaskId)
     @listenTo(Actions.dequeueTask,            @dequeue)
     @listenTo(Actions.dequeueAllTasks,        @dequeueAll)
     @listenTo(Actions.dequeueMatchingTask,    @dequeueMatching)
@@ -115,14 +120,13 @@ class TaskQueue
     @_dequeueObsoleteTasks(task)
     task.runLocal().then =>
       @_queue.push(task)
-
-      # We want to make sure the task has made it onto the queue before
-      # `performLocalComplete` runs. Code in the `performLocalComplete`
-      # callback might depend on knowing that the Task is present in the
-      # queue. For example, when we're sending a message I want to know if
-      # there's already a task on the queue so I don't double-send.
-      task.performLocalComplete()
       @_updateSoon()
+
+  enqueueUndoOfTaskId: (taskId) =>
+    task = _.findWhere(@_queue, {id: taskId})
+    task ?= _.findWhere(@_completed, {id: taskId})
+    if task
+      @enqueue(task.createUndoTask())
 
   dequeue: (taskOrId) =>
     task = @_resolveTaskArgument(taskOrId)
@@ -190,7 +194,6 @@ class TaskQueue
     for otherTask in obsolete
       @dequeue(otherTask)
 
-
   _taskIsBlocked: (task) =>
     _.any @_queue, (otherTask) ->
       task.shouldWaitForTask(otherTask) and task isnt otherTask
@@ -203,38 +206,22 @@ class TaskQueue
     else
       return _.findWhere(@_queue, id: taskOrId)
 
-  _restoreQueueFromDisk: =>
-    try
-      queueFile = path.join(atom.getConfigDirPath(), 'pending-tasks.json')
-      queue = Utils.deserializeRegisteredObjects(fs.readFileSync(queueFile))
-
+  _restoreQueue: =>
+    DatabaseStore.findJSONObject(JSONObjectStorageKey).then (queue = []) =>
       # We need to set the processing bit back to false so it gets
       # re-retried upon inflation
       for task in queue
         task.queueState ?= {}
         task.queueState.isProcessing = false
       @_queue = queue
-    catch e
-      if not atom.inSpecMode()
-        console.log("Queue deserialization failed with error: #{e.toString()}")
-
-  _saveQueueToDisk: =>
-    # It's very important that we debounce saving here. When the user bulk-archives
-    # items, they can easily process 1000 tasks at the same moment. We can't try to
-    # save 1000 times! (Do not remove debounce without a plan!)
-    @_saveDebounced ?= _.debounce =>
-      queueFile = path.join(atom.getConfigDirPath(), 'pending-tasks.json')
-      queueJSON = Utils.serializeRegisteredObjects((@_queue ? []))
-      fs.writeFile(queueFile, queueJSON)
-    , 150
-    @_saveDebounced()
 
   _updateSoon: =>
     @_updateSoonThrottled ?= _.throttle =>
-      @_processQueue()
-      @_saveQueueToDisk()
-      @trigger()
-    , 10, {leading: false}
+      DatabaseStore.persistJSONObject(JSONObjectStorageKey, @_queue ? [])
+      _.defer =>
+        @_processQueue()
+        @trigger()
+    , 10
     @_updateSoonThrottled()
 
 module.exports = new TaskQueue()

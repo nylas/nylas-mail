@@ -1,9 +1,7 @@
 _ = require 'underscore'
-DatabaseStore = require '../src/flux/stores/database-store'
-NylasLongConnection = require '../src/flux/nylas-long-connection'
-NylasSyncWorker = require '../src/flux/nylas-sync-worker'
-Account = require '../src/flux/models/account'
-Thread = require '../src/flux/models/thread'
+{DatabaseStore, Account, Thread} = require 'nylas-exports'
+NylasLongConnection = require '../lib/nylas-long-connection'
+NylasSyncWorker = require '../lib/nylas-sync-worker'
 
 describe "NylasSyncWorker", ->
   beforeEach ->

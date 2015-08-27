@@ -9,6 +9,7 @@
     "atom": "*"
   },
   "windowTypes": {
+    "default": true,
     "composer": true
   },
   "dependencies": {

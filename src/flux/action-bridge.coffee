@@ -7,12 +7,12 @@ TaskRegistry = require '../task-registry'
 DatabaseObjectRegistry = require '../database-object-registry'
 
 Role =
-  ROOT: 'root',
+  WORK: 'work',
   SECONDARY: 'secondary'
 
 TargetWindows =
   ALL: 'all',
-  MAIN: 'main'
+  WORK: 'work'
 
 Message =
   DATABASE_STORE_TRIGGER: 'db-store-trigger'
@@ -41,7 +41,7 @@ class ActionBridge
   constructor: (ipc) ->
     @ipc = ipc
     @initiatorId = atom.getWindowType()
-    @role = if atom.isMainWindow() then Role.ROOT else Role.SECONDARY
+    @role = if atom.isWorkWindow() then Role.WORK else Role.SECONDARY
 
     # Listen for action bridge messages from other windows
     @ipc.on('action-bridge-message', @onIPCMessage)
@@ -58,11 +58,11 @@ class ActionBridge
       @onRebroadcast(TargetWindows.ALL, Message.DATABASE_STORE_TRIGGER, [change])
     DatabaseStore.listen(databaseCallback, @)
 
-    if @role isnt Role.ROOT
+    if @role isnt Role.WORK
       # Observe all mainWindow actions fired in this window and re-broadcast
       # them to other windows so the central application stores can take action
-      Actions.mainWindowActions.forEach (name) =>
-        callback = => @onRebroadcast(TargetWindows.MAIN, name, arguments)
+      Actions.workWindowActions.forEach (name) =>
+        callback = => @onRebroadcast(TargetWindows.WORK, name, arguments)
         Actions[name].listen(callback, @)
 
   onIPCMessage: (initiatorId, name, json) =>
@@ -89,7 +89,7 @@ class ActionBridge
     params = []
     args.forEach (arg) ->
       if arg instanceof Function
-        throw new Error("ActionBridge cannot forward action argument of type `function` to main window.")
+        throw new Error("ActionBridge cannot forward action argument of type `function` to work window.")
       params.push(arg[0])
     json = Utils.serializeRegisteredObjects(params)
 

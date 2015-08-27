@@ -12,6 +12,7 @@ NylasStore = require 'nylas-store'
  ChangeStarredTask,
  FocusedContentStore,
  ArchiveThreadHelper,
+ TaskQueueStatusStore,
  FocusedCategoryStore} = require 'nylas-exports'
 
 # Public: A mutable text container with undo/redo support and the ability
@@ -177,7 +178,7 @@ class ThreadListStore extends NylasStore
     focusedId = FocusedContentStore.focusedId('thread')
     keyboardId = FocusedContentStore.keyboardCursorId('thread')
 
-    task.waitForPerformLocal().then =>
+    TaskQueueStatusStore.waitForPerformLocal(task).then =>
       if focusedId in selectedThreadIds
         Actions.setFocus(collection: 'thread', item: null)
       if keyboardId in selectedThreadIds
@@ -222,7 +223,7 @@ class ThreadListStore extends NylasStore
       nextFocus = null
 
     # Archive the current thread
-    task.waitForPerformLocal().then ->
+    TaskQueueStatusStore.waitForPerformLocal(task).then =>
       Actions.setFocus(collection: 'thread', item: nextFocus)
       Actions.setCursorPosition(collection: 'thread', item: nextKeyboard)
     Actions.queueTask(task)

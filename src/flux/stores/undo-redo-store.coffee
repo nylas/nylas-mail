@@ -22,7 +22,7 @@ class UndoRedoStore
     atom.commands.add('body', {'core:redo': => @redo() })
 
   _onTaskQueued: (task) =>
-    if task.canBeUndone() and not task.isUndo()
+    if task.canBeUndone()
       @_redo = []
       @_undo.push(task)
       @trigger() unless task._isReverting
@@ -31,7 +31,7 @@ class UndoRedoStore
     topTask = @_undo.pop()
     return unless topTask
     @trigger()
-    Actions.queueTask(topTask.createUndoTask())
+    Actions.undoTaskId(topTask.id)
     @_redo.push(topTask.createIdenticalTask())
 
   redo: =>

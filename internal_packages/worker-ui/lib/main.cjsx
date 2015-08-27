@@ -6,8 +6,11 @@ module.exports =
   item: null
 
   activate: (@state={}) ->
+    WorkspaceStore.defineSheet 'Main', {root: true},
+      popout: ['Center']
+
     ComponentRegistry.register DeveloperBar,
-      location: WorkspaceStore.Sheet.Global.Footer
+      location: WorkspaceStore.Location.Center
 
   deactivate: ->
     ComponentRegistry.unregister DeveloperBar

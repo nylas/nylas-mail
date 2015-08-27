@@ -11,6 +11,7 @@
   "dependencies": {
   },
   "windowTypes": {
+    "default": true,
     "composer": true
   }
 }

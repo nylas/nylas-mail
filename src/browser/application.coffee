@@ -96,7 +96,7 @@ class Application
     if test
       @runSpecs({exitWhenDone: specsOnCommandLine, @resourcePath, specDirectory, specFilePattern, logFile})
     else
-      @windowManager.ensurePrimaryWindowOnscreen()
+      @openWindowsForTokenState()
       for urlToOpen in (urlsToOpen || [])
         @openUrl(urlToOpen)
 
@@ -132,7 +132,7 @@ class Application
   # retry the deletion a few times.
   deleteFileWithRetry: (filePath, callback, retries = 5) ->
     callbackWithRetry = (err) =>
-      if err
+      if err and err.message.indexOf('no such file') is -1
         console.log("File Error: #{err.message} - retrying in 150msec")
         setTimeout =>
           @deleteFileWithRetry(filePath, callback, retries - 1)
@@ -141,7 +141,7 @@ class Application
         callback(null)
 
     if not fs.existsSync(filePath)
-      callback(null)
+      return callback(null)
 
     if retries > 0
       fs.unlink(filePath, callbackWithRetry)
@@ -152,15 +152,28 @@ class Application
   setupJavaScriptArguments: ->
     app.commandLine.appendSwitch 'js-flags', '--harmony'
 
+  openWindowsForTokenState: =>
+    hasToken = @config.get('edgehill.credentials')
+    if hasToken
+      @windowManager.showMainWindow()
+      @windowManager.ensureWorkWindow()
+    else
+      @windowManager.newOnboardingWindow().showWhenLoaded()
+
   _logout: =>
     @setDatabasePhase('close')
-    @windowManager.closeMainWindow()
-    @windowManager.unregisterAllHotWindows()
+    @windowManager.closeAllWindows()
     @deleteFileWithRetry path.join(configDirPath,'edgehill.db'), =>
       @config.set('tokens', null)
       @config.set('nylas', null)
       @config.set('edgehill', null)
       @setDatabasePhase('setup')
+      @openWindowsForTokenState()
+
+  _loginSuccessful: =>
+    @openWindowsForTokenState()
+    @windowManager.mainWindow().once 'window:loaded', =>
+      @windowManager.onboardingWindow()?.close()
 
   databasePhase: ->
     @_databasePhase
@@ -177,16 +190,22 @@ class Application
       atomWindow.browserWindow.webContents.send('database-phase-change', phase)
 
   rebuildDatabase: =>
+    return if @_databasePhase is 'close'
     @setDatabasePhase('close')
-    @windowManager.closeMainWindow()
-    dialog.showMessageBox
-      type: 'info'
-      message: 'Upgrading Nylas'
-      detail: 'Welcome back to Nylas! We need to rebuild your mailbox to support new features. Please wait a few moments while we re-sync your mail.'
-      buttons: ['OK']
-    @deleteFileWithRetry path.join(configDirPath,'edgehill.db'), =>
-      @setDatabasePhase('setup')
-      @windowManager.showMainWindow()
+    @windowManager.closeAllWindows()
+
+    # Return immediately so that the client window which called this
+    # method via remote is not blocked.
+    _.defer =>
+      dialog.showMessageBox
+        type: 'info'
+        message: 'Upgrading Nylas'
+        detail: 'Welcome back to Nylas! We need to rebuild your mailbox to support new features. Please wait a few moments while we re-sync your mail.'
+        buttons: ['OK']
+
+      @deleteFileWithRetry path.join(configDirPath,'edgehill.db'), =>
+        @setDatabasePhase('setup')
+        @openWindowsForTokenState()
 
   # Registers basic application commands, non-idempotent.
   # Note: If these events are triggered while an application window is open, the window
@@ -232,6 +251,7 @@ class Application
     @on 'application:send-feedback', => @windowManager.sendToMainWindow('send-feedback')
     @on 'application:open-preferences', => @windowManager.sendToMainWindow('open-preferences')
     @on 'application:show-main-window', => @windowManager.ensurePrimaryWindowOnscreen()
+    @on 'application:show-work-window', => @windowManager.showWorkWindow()
     @on 'application:check-for-update', => @autoUpdateManager.check()
     @on 'application:install-update', =>
       @quitting = true
@@ -290,6 +310,9 @@ class Application
       @openUrl(urlToOpen)
       event.preventDefault()
 
+    ipc.on 'set-badge-value', (event, value) =>
+      app.dock?.setBadge?(value)
+
     ipc.on 'new-window', (event, options) =>
       @windowManager.newWindow(options)
 
@@ -328,16 +351,19 @@ class Application
         return unless atomWindow.browserWindow.webContents
         atomWindow.browserWindow.webContents.send('action-bridge-message', args...)
 
-    ipc.on 'action-bridge-rebroadcast-to-main', (event, args...) =>
-      mainWindow = @windowManager.mainWindow()
-      return if not mainWindow or not mainWindow.browserWindow.webContents
-      return if BrowserWindow.fromWebContents(event.sender) is mainWindow
-      mainWindow.browserWindow.webContents.send('action-bridge-message', args...)
+    ipc.on 'action-bridge-rebroadcast-to-work', (event, args...) =>
+      workWindow = @windowManager.workWindow()
+      return if not workWindow or not workWindow.browserWindow.webContents
+      return if BrowserWindow.fromWebContents(event.sender) is workWindow
+      workWindow.browserWindow.webContents.send('action-bridge-message', args...)
 
     clipboard = null
     ipc.on 'write-text-to-selection-clipboard', (event, selectedText) ->
       clipboard ?= require 'clipboard'
       clipboard.writeText(selectedText, 'selection')
+
+    ipc.on 'login-successful', (event) =>
+      @_loginSuccessful()
 
   # Public: Executes the given command.
   #

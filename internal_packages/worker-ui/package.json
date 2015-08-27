@@ -1,19 +1,16 @@
 {
-  "name": "composer",
+  "name": "worker-ui",
   "version": "0.1.0",
   "main": "./lib/main",
-  "description": "Nylas Composer Component",
+  "description": "Interface for the worker window",
   "license": "Proprietary",
   "private": true,
-  "scripts": {
-  },
   "engines": {
     "atom": "*"
   },
   "dependencies": {
   },
   "windowTypes": {
-    "default": true,
-    "composer": true
+    "work": true
   }
 }
