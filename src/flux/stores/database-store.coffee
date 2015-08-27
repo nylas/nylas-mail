@@ -15,9 +15,11 @@ PriorityUICoordinator = require '../../priority-ui-coordinator'
 
 {tableNameForJoin,
  generateTempId,
+ serializeRegisteredObjects,
+ deserializeRegisteredObjects,
  isTempId} = require '../models/utils'
 
-DatabaseVersion = 10
+DatabaseVersion = 59
 
 DatabasePhase =
   Setup: 'setup'
@@ -100,7 +102,7 @@ class DatabaseStore extends NylasStore
     app = require('remote').getGlobal('application')
     phase = app.databasePhase()
 
-    if phase is DatabasePhase.Setup and atom.isMainWindow()
+    if phase is DatabasePhase.Setup and atom.isWorkWindow()
       @_openDatabase =>
         @_checkDatabaseVersion {allowNotSet: true}, =>
           @_runDatabaseSetup =>
@@ -122,7 +124,7 @@ class DatabaseStore extends NylasStore
   # database schema to prepare those tables. This method may be called
   # extremely frequently as new models are added when packages load.
   refreshDatabaseSchema: ->
-    return unless atom.isMainWindow()
+    return unless atom.isWorkWindow()
     app = require('remote').getGlobal('application')
     phase = app.databasePhase()
     if phase isnt DatabasePhase.Setup
@@ -131,7 +133,7 @@ class DatabaseStore extends NylasStore
   _openDatabase: (ready) =>
     return ready() if @_db
 
-    if atom.isMainWindow()
+    if atom.isWorkWindow()
       # Since only the main window calls `_runDatabaseSetup`, it's important that
       # it is also the only window with permission to create the file on disk
       mode = sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE
@@ -166,6 +168,7 @@ class DatabaseStore extends NylasStore
 
   _handleSetupError: (err) =>
     console.error(err)
+    console.log(atom.getWindowType())
     app = require('remote').getGlobal('application')
     app.rebuildDatabase()
 
@@ -556,14 +559,16 @@ class DatabaseStore extends NylasStore
       @_triggerSoon({objectClass: newModel.constructor.name, objects: [oldModel, newModel], type: 'swap'})
 
   persistJSONObject: (key, json) ->
+    jsonString = serializeRegisteredObjects(json)
     @_query(BEGIN_TRANSACTION)
-    @_query("REPLACE INTO `JSONObject` (`key`,`data`) VALUES (?,?)", [key, JSON.stringify(json)])
+    @_query("REPLACE INTO `JSONObject` (`key`,`data`) VALUES (?,?)", [key, jsonString])
     @_query(COMMIT)
+    @trigger({objectClass: 'JSONObject', objects: [{key: key, json: json}], type: 'persist'})
 
   findJSONObject: (key) ->
     @_query("SELECT `data` FROM `JSONObject` WHERE key = ? LIMIT 1", [key]).then (results) =>
       return Promise.resolve(null) unless results[0]
-      data = JSON.parse(results[0].data)
+      data = deserializeRegisteredObjects(results[0].data)
       Promise.resolve(data)
 
   ########################################################################

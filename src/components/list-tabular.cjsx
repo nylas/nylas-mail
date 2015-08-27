@@ -101,16 +101,7 @@ class ListTabular extends React.Component
     # Determine the exact range of rows we want onscreen
     rangeStart = Math.floor(scrollTop / @props.itemHeight)
     rangeSize = Math.ceil(window.innerHeight / @props.itemHeight)
-    rangeEnd = rangeStart + rangeSize
-
-    # 1. Clip this range to the number of available items
-    #
-    # 2. Expand the range by a bit so that we prepare items offscreen
-    #    before they're seen. This works because we force a compositor
-    #    layer using transform:translate3d(0,0,0)
-    #
-    rangeStart = Math.max(0, rangeStart - rangeSize)
-    rangeEnd = Math.min(rangeEnd + rangeSize, @props.dataView.count())
+    rangeEnd = Math.min(rangeStart + rangeSize, @props.dataView.count())
 
     # Final sanity check to prevent needless work
     return if rangeStart is @state.renderedRangeStart and

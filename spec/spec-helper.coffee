@@ -384,6 +384,7 @@ window.fakeSetTimeout = (callback, ms) ->
   id
 
 window.fakeClearTimeout = (idToClear) ->
+  window.timeouts ?= []
   window.timeouts = window.timeouts.filter ([id]) -> id != idToClear
 
 window.fakeSetInterval = (callback, ms) ->
@@ -401,6 +402,7 @@ window.advanceClock = (delta=1) ->
   window.now += delta
   callbacks = []
 
+  window.timeouts ?= []
   window.timeouts = window.timeouts.filter ([id, strikeTime, callback]) ->
     if strikeTime <= window.now
       callbacks.push(callback)

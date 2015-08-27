@@ -3,6 +3,7 @@
 // global scope. We need to do it here before React loads.
 window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = {}
 
+
 function registerRuntimeTranspilers(hotreload) {
   // This sets require.extensions['.coffee'].
   require('coffee-script').register();

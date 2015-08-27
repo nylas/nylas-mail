@@ -22,8 +22,6 @@ class ComponentRegistry
     @_registry = {}
     @_showComponentRegions = false
 
-    @listenTo Actions.toggleComponentRegions, @_onToggleComponentRegions
-
 
   # Public: Register a new component with the Component Registry.
   # Typically, packages call this method from their main `activate` method
@@ -160,7 +158,7 @@ class ComponentRegistry
 
   # Showing Component Regions
 
-  _onToggleComponentRegions: ->
+  toggleComponentRegions: ->
     @_showComponentRegions = !@_showComponentRegions
     @trigger(@)
 

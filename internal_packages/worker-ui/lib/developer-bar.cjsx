@@ -6,14 +6,12 @@ React = require 'react/addons'
  Actions,
  Contact,
  Message} = require 'nylas-exports'
-{ResizableRegion} = require 'nylas-component-kit'
 
 DeveloperBarStore = require './developer-bar-store'
 DeveloperBarTask = require './developer-bar-task'
 DeveloperBarCurlItem = require './developer-bar-curl-item'
 DeveloperBarLongPollItem = require './developer-bar-long-poll-item'
 
-DeveloperBarClosedHeight = 30
 
 class DeveloperBar extends React.Component
   @displayName: "DeveloperBar"
@@ -22,7 +20,6 @@ class DeveloperBar extends React.Component
 
   constructor: (@props) ->
     @state = _.extend @_getStateFromStores(),
-      height: DeveloperBarClosedHeight
       section: 'curl'
       filter: ''
 
@@ -35,17 +32,8 @@ class DeveloperBar extends React.Component
     @activityStoreUnsubscribe() if @activityStoreUnsubscribe
 
   render: =>
-    # TODO WARNING: This 1px height is necessary to fix a redraw issue in the thread
-    # list in Chrome 42 (Electron 0.26.0). Do not remove unless you've verified that
-    # scrolling works fine now and repaints aren't visible.
-    return <div style={height:1}></div> unless @state.visible
-
-    <ResizableRegion className="developer-bar"
-                     initialHeight={@state.height}
-                     minHeight={DeveloperBarClosedHeight}
-                     handle={ResizableRegion.Handle.Top}>
+    <div className="developer-bar">
       <div className="controls">
-        {@_caret()}
         <div className="btn-container pull-left">
           <div className="btn" onClick={ => @_onExpandSection('queue')}>
             <span>Queue Length: {@state.queue?.length}</span>
@@ -67,25 +55,13 @@ class DeveloperBar extends React.Component
         <div className="btn-container pull-right">
           <div className="btn" onClick={Actions.sendFeedback}>Feedback</div>
         </div>
-        <div className="btn-container pull-right">
-          <div className="btn" onClick={@_onToggleRegions}>Component Regions</div>
-        </div>
-        <div className="btn-container pull-right">
-          <div className="btn" onClick={@_onToggleReactRemoteContainer}>React Remote Container</div>
-        </div>
       </div>
       {@_sectionContent()}
       <div className="footer">
         <div className="btn" onClick={@_onClear}>Clear</div>
         <input className="filter" placeholder="Filter..." value={@state.filter} onChange={@_onFilter} />
       </div>
-    </ResizableRegion>
-
-  _caret: =>
-    if @state.height > DeveloperBarClosedHeight
-      <i className="fa fa-caret-square-o-down" onClick={@_onHide}></i>
-    else
-      <i className="fa fa-caret-square-o-up" onClick={@_onShow}></i>
+    </div>
 
   _sectionContent: =>
     expandedDiv = <div></div>
@@ -133,11 +109,7 @@ class DeveloperBar extends React.Component
       expandedDiv
 
   _onChange: =>
-    # The developer bar is hidden almost all the time. Rather than render when
-    # API requests come in, etc., just ignore changes from our store and retrieve
-    # state when we open.
-    if @state.visible and @state.height > DeveloperBarClosedHeight
-      @setState(@_getStateFromStores())
+    @setState(@_getStateFromStores())
 
   _onClear: =>
     Actions.clearDeveloperConsole()
@@ -148,28 +120,11 @@ class DeveloperBar extends React.Component
   _onDequeueAll: =>
     Actions.dequeueAllTasks()
 
-  _onHide: =>
-    @setState
-      height: DeveloperBarClosedHeight
-
-  _onShow: =>
-    @setState(@_getStateFromStores())
-    @setState(height: 200) if @state.height < 100
-
   _onExpandSection: (section) =>
     @setState(@_getStateFromStores())
     @setState(section: section)
-    @_onShow()
-
-  _onToggleRegions: =>
-    Actions.toggleComponentRegions()
-
-  _onToggleReactRemoteContainer: =>
-    {ReactRemote} = require('nylas-exports')
-    ReactRemote.toggleContainerVisible()
 
   _getStateFromStores: =>
-    visible: DeveloperBarStore.visible()
     queue: TaskQueue._queue
     completed: TaskQueue._completed
     curlHistory: DeveloperBarStore.curlHistory()

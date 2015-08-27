@@ -3,8 +3,8 @@ React = require 'react'
 classNames = require 'classnames'
 {RetinaImg} = require 'nylas-component-kit'
 {DatabaseView,
- AccountStore,
  NylasAPI,
+ NylasSyncStatusStore,
  WorkspaceStore} = require 'nylas-exports'
 
 EmptyMessages = [{
@@ -73,14 +73,13 @@ class EmptyState extends React.Component
   constructor: (@props) ->
     @state =
       layoutMode: WorkspaceStore.layoutMode()
-      syncing: false
+      syncing: NylasSyncStatusStore.busy()
       active: false
 
   componentDidMount: ->
     @_unlisteners = []
     @_unlisteners.push WorkspaceStore.listen(@_onChange, @)
-    @_unlisteners.push AccountStore.listen(@_onAccountsChanged, @)
-    @_onAccountsChanged()
+    @_unlisteners.push NylasSyncStatusStore.listen(@_onChange, @)
 
   shouldComponentUpdate: (nextProps, nextState) ->
     # Avoid deep comparison of dataView, which is a very complex object
@@ -88,16 +87,8 @@ class EmptyState extends React.Component
     return true if nextProps.dataView isnt @props.dataView
     return not _.isEqual(nextState, @state)
 
-  _onAccountsChanged: ->
-    account = AccountStore.current()
-    @_worker = NylasAPI.workerForAccount(account)
-    @_workerUnlisten() if @_workerUnlisten
-    @_workerUnlisten = @_worker.listen(@_onChange, @)
-    @setState(syncing: @_worker.busy())
-
   componentWillUnmount: ->
     unlisten() for unlisten in @_unlisteners
-    @_workerUnlisten() if @_workerUnlisten
 
   componentDidUpdate: ->
     if @props.visible and not @state.active
@@ -129,7 +120,6 @@ class EmptyState extends React.Component
   _onChange: ->
     @setState
       layoutMode: WorkspaceStore.layoutMode()
-      syncing: @_worker.busy()
-
+      syncing: NylasSyncStatusStore.busy()
 
 module.exports = EmptyState

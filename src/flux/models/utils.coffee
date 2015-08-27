@@ -130,11 +130,10 @@ Utils =
 
   modelFreeze: (o) ->
     Object.freeze(o)
-    for key, prop of o
-      continue unless o.hasOwnProperty(key)
-      continue unless typeof prop is 'object' and prop isnt null
-      continue if Object.isFrozen(prop)
-      Utils.modelFreeze(prop)
+    Object.getOwnPropertyNames(o).forEach (key) ->
+      val = o[key]
+      if typeof val is 'object' and val isnt null and not Object.isFrozen(val)
+        Utils.modelFreeze(val)
 
   generateTempId: ->
     s4 = ->

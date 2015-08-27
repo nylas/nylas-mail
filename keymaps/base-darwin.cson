@@ -6,6 +6,7 @@
   'cmd-q': 'application:quit'
   'cmd-h': 'application:hide'
   'cmd-1': 'application:show-main-window'
+  'cmd-2': 'application:show-work-window'
   'cmd-m': 'application:minimize'
   'cmd-alt-h': 'application:hide-other-applications'
   'alt-cmd-ctrl-m': 'application:zoom'

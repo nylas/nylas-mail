@@ -276,6 +276,8 @@ class PackageManager
   getAvailablePackagePaths: (windowType) ->
     packagePaths = []
 
+    loadPackagesWhenNoTypesSpecified = windowType is 'default'
+
     for packageDirPath in @packageDirPaths
       for packagePath in fs.listSync(packageDirPath)
         # Ignore files in package directory
@@ -288,7 +290,11 @@ class PackageManager
       packagePaths = _.filter packagePaths, (packagePath) ->
         try
           {windowTypes} = Package.loadMetadata(packagePath) ? {}
-          return windowType of (windowTypes ? {})
+          if windowTypes
+            return windowTypes[windowType]?
+          else if loadPackagesWhenNoTypesSpecified
+            return true
+          return false
         catch
           return false
 
@@ -369,10 +375,7 @@ class PackageManager
     packagePaths = _.uniq packagePaths, (packagePath) -> path.basename(packagePath)
     @loadPackage(packagePath) for packagePath in packagePaths
     @emit 'loaded'
-    if windowType
-      @emitter.emit 'did-load-window-packages', windowType
-    else
-      @emitter.emit 'did-load-initial-packages'
+    @emitter.emit 'did-load-initial-packages'
 
   loadPackage: (nameOrPath) ->
     return pack if pack = @getLoadedPackage(nameOrPath)

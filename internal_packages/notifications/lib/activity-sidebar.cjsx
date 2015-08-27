@@ -5,6 +5,8 @@ NotificationStore = require './notifications-store'
 {Actions,
  TaskQueue,
  AccountStore,
+ NylasSyncStatusStore,
+ TaskQueueStatusStore,
  NylasAPI} = require 'nylas-exports'
 {TimeoutTransitionGroup} = require 'nylas-component-kit'
 
@@ -21,10 +23,9 @@ class ActivitySidebar extends React.Component
 
   componentDidMount: =>
     @_unlisteners = []
-    @_unlisteners.push AccountStore.listen @_onAccountsChanged
-    @_unlisteners.push TaskQueue.listen @_onDataChanged
+    @_unlisteners.push TaskQueueStatusStore.listen @_onDataChanged
+    @_unlisteners.push NylasSyncStatusStore.listen @_onDataChanged
     @_unlisteners.push NotificationStore.listen @_onDataChanged
-    @_onAccountsChanged()
 
   componentWillUnmount: =>
     unlisten() for unlisten in @_unlisteners
@@ -53,12 +54,13 @@ class ActivitySidebar extends React.Component
     incomplete = 0
     error = null
 
-    for model, modelState of @state.sync
-      incomplete += 1 unless modelState.complete
-      error ?= modelState.error
-      if modelState.count
-        count += modelState.count / 1
-        fetched += modelState.fetched / 1
+    for acctId, state of @state.sync
+      for model, modelState of state
+        incomplete += 1 unless modelState.complete
+        error ?= modelState.error
+        if modelState.count
+          count += modelState.count / 1
+          fetched += modelState.fetched / 1
 
     progress = (fetched / count) * 100 if count > 0
 
@@ -102,24 +104,16 @@ class ActivitySidebar extends React.Component
         </div>
       </div>
 
-  _onAccountsChanged: =>
-    account = AccountStore.current()
-    return unless account
-    @_worker = NylasAPI.workerForAccount(account)
-    @_workerUnlisten() if @_workerUnlisten
-    @_workerUnlisten = @_worker.listen(@_onDataChanged, @)
-    @_onDataChanged()
-
   _onTryAgain: =>
-    @_worker.resumeFetches()
+    # TODO
 
   _onDataChanged: =>
     @setState(@_getStateFromStores())
 
   _getStateFromStores: =>
-    tasks: TaskQueue.queue()
     notifications: NotificationStore.notifications()
-    sync: @_worker?.state()
+    tasks: TaskQueueStatusStore.queue()
+    sync: NylasSyncStatusStore.state()
 
 
 module.exports = ActivitySidebar

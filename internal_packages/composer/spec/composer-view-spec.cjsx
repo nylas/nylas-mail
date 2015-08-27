@@ -667,7 +667,7 @@ describe "populated composer", ->
 
 describe "when the DraftStore `isSending` isn't stubbed out", ->
   beforeEach ->
-    DraftStore._pendingEnqueue = {}
+    DraftStore._draftsSending = {}
 
   it "doesn't send twice in a popout", ->
     spyOn(Actions, "queueTask")

@@ -14,7 +14,7 @@ class EdgehillAPI
 
     # Always ask Edgehill Server for our tokens at launch. This way accounts
     # added elsewhere will appear, and we'll also handle the 0.2.5=>0.3.0 upgrade.
-    if atom.isMainWindow()
+    if atom.isWorkWindow()
       existing = @_getCredentials()
       if existing and existing.username
         @setUserIdentifierAndRetrieveTokens(existing.username)
@@ -70,9 +70,8 @@ class EdgehillAPI
       success: (userData={}) =>
         @setTokens(userData.tokens)
         if atom.getWindowType() is 'onboarding'
-          setTimeout ->
-            atom.close()
-          , 2500
+          ipc = require 'ipc'
+          ipc.send('login-successful')
       error: (apiError) =>
         console.error apiError
 

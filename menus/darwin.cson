@@ -55,7 +55,8 @@
   {
     label: 'Developer'
     submenu: [
-      { label: 'Toggle Hacker Theme', command: 'application:toggle-theme' }
+      { label: 'Toggle Component Regions', command: 'window:toggle-component-regions' }
+      { label: 'Toggle React Remote', command: 'window:toggle-react-remote' }
       { type: 'separator' }
       { label: 'Relaunch with Debug Flags...', command: 'application:open-dev' }
       { type: 'separator' }
@@ -75,6 +76,7 @@
       { label: 'Zoom', command: 'application:zoom' }
       { type: 'separator' }
       { label: 'Message Viewer', command: 'application:show-main-window' }
+      { label: 'Activity', command: 'application:show-work-window' }
       { type: 'separator' }
       { label: 'Bring All to Front', command: 'application:bring-all-windows-to-front' }
     ]

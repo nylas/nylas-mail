@@ -91,7 +91,7 @@ class RankingsJSONCache extends JSONCache
     super(key: 'RankingsJSONCache', version: 1, maxAge: 60 * 60 * 1000 * 24)
 
   refreshValue: (callback) =>
-    return unless atom.isMainWindow()
+    return unless atom.isWorkWindow()
 
     accountId = AccountStore.current()?.id
     return unless accountId

@@ -161,6 +161,7 @@ ipc.on('from-react-remote-window', function(json) {
 var parentListenersAttached = false;
 var reactRemoteContainer = document.createElement('div');
 reactRemoteContainer.style.left = '-10000px';
+reactRemoteContainer.style.top = '40px';
 reactRemoteContainer.style.backgroundColor = 'white';
 reactRemoteContainer.style.position = 'absolute';
 reactRemoteContainer.style.zIndex = 10000;

@@ -9,24 +9,15 @@ class WindowManager
   constructor: ({@devMode, @safeMode, @resourcePath, @config}) ->
     @_windows = []
     @_mainWindow = null
+    @_workWindow = null
     @_hotWindows = {}
 
-    @config.onDidChange 'edgehill.credentials', =>
-      @ensurePrimaryWindowOnscreen()
-
-  ensurePrimaryWindowOnscreen: ->
-    return if global.application.quitting
-    hasToken = @config.get('edgehill.credentials')
-    if hasToken
-      @showMainWindow()
-    else
-      onboarding = @onboardingWindow() ? @newOnboardingWindow()
-      onboarding.showWhenLoaded()
-
-      @closeMainWindow()
-      @unregisterAllHotWindows()
-      for win in @_windows
-        win.close() unless win is onboarding
+  closeAllWindows: ->
+    @closeMainWindow()
+    @closeWorkWindow()
+    @unregisterAllHotWindows()
+    for win in @_windows
+      win.close()
 
   windows: ->
     @_windows
@@ -71,6 +62,8 @@ class WindowManager
         @_mainWindow.focus()
       else if !@_mainWindow.isVisible()
         @_mainWindow.showWhenLoaded()
+      else
+        @_mainWindow.focus()
 
     else
       if @devMode
@@ -88,6 +81,39 @@ class WindowManager
         neverClose: true
         mainWindow: true
 
+  ###
+  Work Window
+  ###
+
+  workWindow: ->
+    @_workWindow
+
+  closeWorkWindow: ->
+    return unless @_workWindow
+    @_workWindow.neverClose = false
+    @_workWindow.close()
+    @_workWindow = null
+
+  ensureWorkWindow: ->
+    console.log('ensureWorkWindow')
+    @_workWindow ?= @newWindow
+      windowType: 'work'
+      title: 'Activity'
+      toolbar: false
+      neverClose: true
+      width: 800
+      height: 400
+      hidden: true
+
+  showWorkWindow: ->
+    return unless @_workWindow
+    if @_workWindow.isMinimized()
+      @_workWindow.restore()
+      @_workWindow.focus()
+    else if !@_workWindow.isVisible()
+      @_workWindow.showWhenLoaded()
+    else
+      @_workWindow.focus()
 
   ###
   Onboarding Window
@@ -252,7 +278,7 @@ class WindowManager
     win = new AtomWindow(options)
     newLoadSettings = _.extend(win.loadSettings(), options)
     win.setLoadSettings(newLoadSettings)
-    win.showWhenLoaded()
+    win.showWhenLoaded() unless options.hidden
     return win
 
   # Tries to create a new hot window. Since we're updating an existing
@@ -409,7 +435,8 @@ class WindowManager
       @quitCheck ?= _.debounce =>
         noVisibleWindows = @visibleWindows().length is 0
         mainWindowLoading = @mainWindow() and not @mainWindow().isLoaded()
-        if noVisibleWindows and not mainWindowLoading
+        workWindowLoading = @workWindow() and not @workWindow().isLoaded()
+        if noVisibleWindows and not mainWindowLoading and not workWindowLoading
           app.quit()
       , 10000
       @quitCheck()

@@ -6,24 +6,19 @@
   border-top:1px solid rgba(0,0,0,0.7);
   color:white;
   font-size:12px;
-  order:1000;
   display:flex;
   flex-direction:column;
-
-  .resizable {
-    display: flex;
-    width:100%;
-    flex-direction: column;
-    .resizeBar {
-      z-index:10;
-    }
-  }
+  height:100%;
 
   .controls {
     z-index:2;
     background-color: rgba(80,80,80,1);
     position: relative;
     min-height:30px;
+    -webkit-app-region: drag;
+    .btn-container {
+      -webkit-app-region: no-drag;
+    }
   }
 
   .footer {

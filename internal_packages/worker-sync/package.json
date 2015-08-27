@@ -1,13 +1,16 @@
 {
-  "name": "developer-bar",
+  "name": "worker-sync",
   "version": "0.1.0",
   "main": "./lib/main",
-  "description": "Developer bar at the very bottom of the window",
+  "description": "Mail sync classes for the worker window",
   "license": "Proprietary",
   "private": true,
   "engines": {
     "atom": "*"
   },
   "dependencies": {
+  },
+  "windowTypes": {
+    "work": true
   }
 }

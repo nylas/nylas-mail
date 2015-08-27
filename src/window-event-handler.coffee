@@ -58,17 +58,29 @@ class WindowEventHandler
 
     @subscribe $(window), 'unload', -> atom.removeEditorWindow()
 
-    @subscribeToCommand $(window), 'window:toggle-full-screen', -> atom.toggleFullScreen()
+    @subscribeToCommand $(window), 'window:toggle-full-screen', ->
+      atom.toggleFullScreen()
 
-    @subscribeToCommand $(window), 'window:close', -> atom.close()
+    @subscribeToCommand $(window), 'window:close', ->
+      atom.close()
 
     @subscribeToCommand $(window), 'window:reload', =>
       @reloadRequested = true
       atom.reload()
 
-    @subscribeToCommand $(window), 'window:toggle-dev-tools', -> atom.toggleDevTools()
+    @subscribeToCommand $(window), 'window:toggle-dev-tools', ->
+      atom.toggleDevTools()
 
-    @subscribeToCommand $(window), 'window:open-errorreporter-logs', -> atom.errorReporter.openLogs()
+    @subscribeToCommand $(window), 'window:open-errorreporter-logs', ->
+      atom.errorReporter.openLogs()
+
+    @subscribeToCommand $(window), 'window:toggle-component-regions', ->
+      ComponentRegistry = require './component-registry'
+      ComponentRegistry.toggleComponentRegions()
+
+    @subscribeToCommand $(window), 'window:toggle-react-remote', ->
+      ReactRemote = require './react-remote/react-remote-parent'
+      ReactRemote.toggleContainerVisible()
 
     if process.platform in ['win32', 'linux']
       @subscribeToCommand $(window), 'window:toggle-menu-bar', ->

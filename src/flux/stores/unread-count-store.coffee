@@ -1,7 +1,5 @@
 Reflux = require 'reflux'
 _ = require 'underscore'
-remote = require 'remote'
-app = remote.require 'app'
 CategoryStore = require './category-store'
 AccountStore = require './account-store'
 DatabaseStore = require './database-store'
@@ -88,6 +86,7 @@ UnreadCountStore = Reflux.createStore
   _setBadge: (val) ->
     # NOTE: Do not underestimate how long this can take. It's a synchronous
     # remote call and can take ~50+msec.
-    _.defer => app.dock?.setBadge?(val)
+    ipc = require 'ipc'
+    ipc.send('set-badge-value', val)
 
 module.exports = UnreadCountStore

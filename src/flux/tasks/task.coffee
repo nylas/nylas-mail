@@ -47,10 +47,6 @@ class Task
 
   constructor: ->
     @_rememberedToCallSuper = true
-    @_performLocalCompletePromise = new Promise (resolve, reject) =>
-      # This is called by the `TaskQueue` immeidately after `performLocal`
-      # has finished and the task has been added to the Queue.
-      @performLocalComplete = resolve
 
     @id = generateTempId()
     @creationDate = new Date()
@@ -110,15 +106,6 @@ class Task
 
   performRemote: ->
     Promise.resolve(Task.Status.Finished)
-
-  waitForPerformLocal: ->
-    if not atom.isMainWindow()
-      throw new Error("waitForPerformLocal is only supported in the main window. In
-             secondary windows, tasks are serialized and sent to the main
-             window, and cannot be observed.")
-    if not @_performLocalCompletePromise
-      throw new Error("This #{@constructor.name} Task did not call `super` in it's constructor! You must call `super`")
-    @_performLocalCompletePromise
 
   cancel: ->
     # We ignore requests to cancel and carry on. Subclasses that want to support

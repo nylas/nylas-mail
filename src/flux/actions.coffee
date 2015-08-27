@@ -2,7 +2,7 @@ Reflux = require 'reflux'
 
 ActionScopeWindow = 'window'
 ActionScopeGlobal = 'global'
-ActionScopeMainWindow = 'main'
+ActionScopeWorkWindow = 'work'
 
 ###
 Public: In the Flux {Architecture.md}, almost every user action
@@ -103,30 +103,32 @@ class Actions
 
   *Scope: Main Window*
   ###
-  @queueTask: ActionScopeMainWindow
+  @queueTask: ActionScopeWorkWindow
+
+  @undoTaskId: ActionScopeWorkWindow
 
   ###
   Public: Dequeue all {Task}s from the {TaskQueue}. Use with care.
 
   *Scope: Main Window*
   ###
-  @dequeueAllTasks: ActionScopeMainWindow
-  @dequeueTask: ActionScopeMainWindow
+  @dequeueAllTasks: ActionScopeWorkWindow
+  @dequeueTask: ActionScopeWorkWindow
 
   ###
   Public: Dequeue a {Task} matching the description provided.
 
   *Scope: Main Window*
   ###
-  @dequeueMatchingTask: ActionScopeMainWindow
+  @dequeueMatchingTask: ActionScopeWorkWindow
 
-  @longPollStateChanged: ActionScopeMainWindow
-  @longPollReceivedRawDeltas: ActionScopeMainWindow
-  @longPollProcessedDeltas: ActionScopeMainWindow
-  @longPollConnected: ActionScopeMainWindow
-  @longPollOffline: ActionScopeMainWindow
-  @didMakeAPIRequest: ActionScopeMainWindow
-  @sendFeedback: ActionScopeMainWindow
+  @longPollStateChanged: ActionScopeWorkWindow
+  @longPollReceivedRawDeltas: ActionScopeWorkWindow
+  @longPollProcessedDeltas: ActionScopeWorkWindow
+  @longPollConnected: ActionScopeWorkWindow
+  @longPollOffline: ActionScopeWorkWindow
+  @didMakeAPIRequest: ActionScopeWorkWindow
+  @sendFeedback: ActionScopeWorkWindow
 
 
   ###
@@ -149,8 +151,6 @@ class Actions
   *Scope: Window*
   ###
   @clearDeveloperConsole: ActionScopeWindow
-
-  @toggleComponentRegions: ActionScopeWindow
 
   ###
   Public: Select the provided account ID in the current window.
@@ -484,17 +484,17 @@ create = (obj, name, scope) ->
   obj[name].scope = scope
   obj[name].sync = true
 
-scopes = {'window': [], 'global': [], 'main': []}
+scopes = {'window': [], 'global': [], 'work': []}
 
 for name in Object.getOwnPropertyNames(Actions)
   continue if name in ['length', 'name', 'arguments', 'caller', 'prototype']
-  continue unless Actions[name] in ['window', 'global', 'main']
+  continue unless Actions[name] in ['window', 'global', 'work']
   scope = Actions[name]
   scopes[scope].push(name)
   create(Actions, name, scope)
 
 Actions.windowActions = scopes['window']
-Actions.mainWindowActions = scopes['main']
+Actions.workWindowActions = scopes['work']
 Actions.globalActions = scopes['global']
 
 module.exports = Actions

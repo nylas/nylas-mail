@@ -12,14 +12,14 @@ ipc =
 
 describe "ActionBridge", ->
 
-  describe "in the editor window", ->
+  describe "in the work window", ->
     beforeEach ->
       spyOn(atom, "getWindowType").andReturn "default"
-      spyOn(atom, "isMainWindow").andReturn true
+      spyOn(atom, "isWorkWindow").andReturn true
       @bridge = new ActionBridge(ipc)
 
-    it "should have the role Role.ROOT", ->
-      expect(@bridge.role).toBe(ActionBridge.Role.ROOT)
+    it "should have the role Role.WORK", ->
+      expect(@bridge.role).toBe(ActionBridge.Role.WORK)
 
     it "should rebroadcast global actions", ->
       spyOn(@bridge, 'onRebroadcast')
@@ -44,10 +44,10 @@ describe "ActionBridge", ->
       testAction('bla')
       expect(@bridge.onRebroadcast).not.toHaveBeenCalled()
 
-  describe "in a secondary window", ->
+  describe "in another window", ->
     beforeEach ->
       spyOn(atom, "getWindowType").andReturn "popout"
-      spyOn(atom, "isMainWindow").andReturn false
+      spyOn(atom, "isWorkWindow").andReturn false
       @bridge = new ActionBridge(ipc)
       @message = new Message
         id: 'test-id'
@@ -87,12 +87,12 @@ describe "ActionBridge", ->
         @bridge.onRebroadcast(ActionBridge.TargetWindows.ALL, 'didSwapModel', [{oldModel: '1', newModel: 2}])
         expect(ipc.send).toHaveBeenCalledWith('action-bridge-rebroadcast-to-all', 'popout', 'didSwapModel', '[{"oldModel":"1","newModel":2}]')
 
-    describe "when called with TargetWindows.MAIN", ->
+    describe "when called with TargetWindows.WORK", ->
       it "should broadcast the action over IPC to the main window only", ->
         spyOn(ipc, 'send')
         Actions.didSwapModel.firing = false
-        @bridge.onRebroadcast(ActionBridge.TargetWindows.MAIN, 'didSwapModel', [{oldModel: '1', newModel: 2}])
-        expect(ipc.send).toHaveBeenCalledWith('action-bridge-rebroadcast-to-main', 'popout', 'didSwapModel', '[{"oldModel":"1","newModel":2}]')
+        @bridge.onRebroadcast(ActionBridge.TargetWindows.WORK, 'didSwapModel', [{oldModel: '1', newModel: 2}])
+        expect(ipc.send).toHaveBeenCalledWith('action-bridge-rebroadcast-to-work', 'popout', 'didSwapModel', '[{"oldModel":"1","newModel":2}]')
 
     it "should not do anything if the current invocation of the Action was triggered by itself", ->
       spyOn(ipc, 'send')

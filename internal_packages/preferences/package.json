@@ -9,8 +9,5 @@
     "atom": "*"
   },
   "dependencies": {
-  },
-  "windowTypes": {
-    "preferences": true
   }
 }
