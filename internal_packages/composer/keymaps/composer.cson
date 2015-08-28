@@ -2,6 +2,8 @@
 div[contenteditable]':
   'cmd-B' : 'composer:show-and-focus-bcc'
   'cmd-C' : 'composer:show-and-focus-cc'
+  'ctrl-B' : 'composer:show-and-focus-bcc'
+  'ctrl-C' : 'composer:show-and-focus-cc'
   'cmd-enter' : 'composer:send-message'
   'ctrl-enter' : 'composer:send-message'
 
@@ -15,3 +17,18 @@ div[contenteditable]':
   'enter' : 'composer:send-message'
   'tab' : 'composer:focus-to'
   'shift-tab' : 'native!'
+
+'body.platform-win32 .composer-outer-wrap *[contenteditable], body.platform-win32 .composer-outer-wrap input':
+  'ctrl-z': 'composer:undo'
+  'ctrl-Z': 'composer:redo'
+  'ctrl-y': 'composer:redo'
+
+'body.platform-linux .composer-outer-wrap *[contenteditable], body.platform-linux .composer-outer-wrap input':
+  'ctrl-z': 'composer:undo'
+  'ctrl-Z': 'composer:redo'
+  'ctrl-y': 'composer:redo'
+
+'body.platform-darwin .composer-outer-wrap *[contenteditable], body.platform-darwin .composer-outer-wrap input':
+  'cmd-z': 'composer:undo'
+  'cmd-Z': 'composer:redo'
+  'cmd-y': 'composer:redo'

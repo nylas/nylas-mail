@@ -30,7 +30,7 @@
   'ctrl-alt-s': 'application:run-all-specs'
   'F11': 'window:toggle-full-screen'
 
-'body div *[contenteditable]':
-  'ctrl-z': 'core:undo'
-  'ctrl-Z': 'core:redo'
-  'ctrl-y': 'core:redo'
+'body *[contenteditable]':
+  'ctrl-z': 'native!'
+  'ctrl-Z': 'native!'
+  'ctrl-y': 'native!'
