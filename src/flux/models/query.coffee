@@ -251,5 +251,12 @@ class ModelQuery
       sql += sort.orderBySQL(@_klass)
     sql
 
+  # Introspection
+  # (These are here to make specs easy)
+
+  matcherValueForModelKey: (key) ->
+    matcher = _.find @_matchers, (m) -> m.attr.modelKey = key
+    matcher?.val
+
 
 module.exports = ModelQuery

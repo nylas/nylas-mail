@@ -37,10 +37,11 @@ remoteDraft = -> new Message _.extend {}, testData, {clientId: "local-id", serve
 
 describe "SyncbackDraftTask", ->
   beforeEach ->
-    spyOn(DatabaseStore, "findBy").andCallFake (klass, {clientId}) ->
-      if klass is Account
+    spyOn(DatabaseStore, "run").andCallFake (query) ->
+      if query._klass is Account
         return Promise.resolve(new Account(clientId: 'local-abc123', serverId: 'abc123'))
 
+      clientId = query.matcherValueForModelKey('clientId')
       if clientId is "localDraftId" then Promise.resolve(localDraft())
       else if clientId is "remoteDraftId" then Promise.resolve(remoteDraft())
       else if clientId is "missingDraftId" then Promise.resolve()
