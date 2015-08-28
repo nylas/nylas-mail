@@ -61,9 +61,9 @@ describe "SendDraftTask", ->
     beforeEach ->
       @draftClientId = "local-123"
       @draft = new Message
-        version: '1'
+        version: 1
         clientId: @draftClientId
-        id: '1233123AEDF1'
+        serverId: '1233123AEDF1'
         accountId: 'A12ADE'
         subject: 'New Draft'
         draft: true
@@ -71,12 +71,23 @@ describe "SendDraftTask", ->
         to:
           name: 'Dummy'
           email: 'dummy@nylas.com'
+
+      response =
+        version: 2
+        id: '1233123AEDF1'
+        account_id: 'A12ADE'
+        subject: 'New Draft'
+        body: 'hello world'
+        to:
+          name: 'Dummy'
+          email: 'dummy@nylas.com'
+
       @task = new SendDraftTask(@draftClientId)
 
 
       spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
-        options.success?(@draft.toJSON())
-        Promise.resolve(@draft.toJSON())
+        options.success?(response)
+        Promise.resolve(response)
       spyOn(DatabaseStore, 'run').andCallFake (klass, id) =>
         Promise.resolve(@draft)
       spyOn(DatabaseStore, 'unpersistModel').andCallFake (draft) ->
@@ -114,13 +125,14 @@ describe "SendDraftTask", ->
           @task.performRemote().then =>
             expect(NylasAPI.makeRequest.calls.length).toBe(1)
             options = NylasAPI.makeRequest.mostRecentCall.args[0]
-            expect(options.body.version).toBe(@draft.version)
+            expect(options.body.version/1).toBe(1)
             expect(options.body.draft_id).toBe(@draft.serverId)
 
     describe "when the draft has not been saved", ->
       beforeEach ->
         @draft = new Message
-          id: "local-12345"
+          serverId: null
+          clientId: @draftClientId
           accountId: 'A12ADE'
           subject: 'New Draft'
           draft: true
@@ -132,10 +144,11 @@ describe "SendDraftTask", ->
 
       it "should send the draft JSON", ->
         waitsForPromise =>
+          expectedJSON = @draft.toJSON()
           @task.performRemote().then =>
             expect(NylasAPI.makeRequest.calls.length).toBe(1)
             options = NylasAPI.makeRequest.mostRecentCall.args[0]
-            expect(options.body).toEqual(@draft.toJSON())
+            expect(options.body).toEqual(expectedJSON)
 
       it "should always send the draft body in the request body (joined attribute check)", ->
         waitsForPromise =>
@@ -144,18 +157,27 @@ describe "SendDraftTask", ->
             options = NylasAPI.makeRequest.mostRecentCall.args[0]
             expect(options.body.body).toBe('hello world')
 
-    it "should pass returnsModel:true so that the draft is saved to the data store when returned", ->
+    it "should pass returnsModel:false", ->
       waitsForPromise =>
         @task.performRemote().then ->
           expect(NylasAPI.makeRequest.calls.length).toBe(1)
           options = NylasAPI.makeRequest.mostRecentCall.args[0]
-          expect(options.returnsModel).toBe(true)
+          expect(options.returnsModel).toBe(false)
+
+    it "should write the saved message to the database with the same client ID", ->
+      spyOn(DatabaseStore, 'persistModel')
+      waitsForPromise =>
+        @task.performRemote().then =>
+          expect(DatabaseStore.persistModel).toHaveBeenCalled()
+          expect(DatabaseStore.persistModel.mostRecentCall.args[0].clientId).toEqual(@draftClientId)
+          expect(DatabaseStore.persistModel.mostRecentCall.args[0].serverId).toEqual('1233123AEDF1')
+          expect(DatabaseStore.persistModel.mostRecentCall.args[0].draft).toEqual(false)
 
   describe "failing performRemote", ->
     beforeEach ->
       @draft = new Message
         version: '1'
-        clientId: 'local-1234'
+        clientId: @draftClientId
         accountId: 'A12ADE'
         threadId: 'threadId'
         replyToMessageId: 'replyToMessageId'
