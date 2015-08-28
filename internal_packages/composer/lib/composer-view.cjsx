@@ -302,7 +302,7 @@ class ComposerView extends React.Component
     onScrollToBottom = null
     if @props.onRequestScrollTo
       onScrollToBottom = =>
-        @props.onRequestScrollTo({messageId: @_proxy.draft().id})
+        @props.onRequestScrollTo({clientId: @_proxy.draft().clientId})
 
     <ContenteditableComponent ref="contentBody"
                               html={@state.body}

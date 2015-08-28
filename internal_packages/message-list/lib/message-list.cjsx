@@ -119,17 +119,17 @@ class MessageList extends React.Component
   componentDidUpdate: (prevProps, prevState) =>
     return if @state.loading
 
-    newDraftIds = @_newDraftIds(prevState)
-    if newDraftIds.length > 0
-      @_focusDraft(@_getMessageContainer(newDraftIds[0]))
+    newDraftClientIds = @_newDraftClientIds(prevState)
+    if newDraftClientIds.length > 0
+      @_focusDraft(@_getMessageContainer(newDraftClientIds[0]))
 
-  _newDraftIds: (prevState) =>
-    oldDraftIds = _.map(_.filter((prevState.messages ? []), (m) -> m.draft), (m) -> m.id)
-    newDraftIds = _.map(_.filter((@state.messages ? []), (m) -> m.draft), (m) -> m.id)
+  _newDraftClientIds: (prevState) =>
+    oldDraftIds = _.map(_.filter((prevState.messages ? []), (m) -> m.draft), (m) -> m.clientId)
+    newDraftIds = _.map(_.filter((@state.messages ? []), (m) -> m.draft), (m) -> m.clientId)
     return _.difference(newDraftIds, oldDraftIds) ? []
 
-  _getMessageContainer: (messageId) =>
-    @refs["message-container-#{messageId}"]
+  _getMessageContainer: (clientId) =>
+    @refs["message-container-#{clientId}"]
 
   _focusDraft: (draftElement) =>
     # Note: We don't want the contenteditable view competing for scroll offset,
@@ -203,7 +203,7 @@ class MessageList extends React.Component
         updated[key].push(contact) unless _.findWhere(updated[key], {email: contact.email})
 
     session.changes.add(updated)
-    @_focusDraft(@_getMessageContainer(draft.id))
+    @_focusDraft(@_getMessageContainer(draft.clientId))
 
   _onStar: =>
     return unless @state.currentThread
@@ -301,7 +301,7 @@ class MessageList extends React.Component
 
       elements.push(
         <MessageItemContainer key={idx}
-                              ref={"message-container-#{message.id}"}
+                              ref={"message-container-#{message.clientId}"}
                               thread={@state.currentThread}
                               message={message}
                               collapsed={collapsed}
@@ -378,10 +378,10 @@ class MessageList extends React.Component
   #
   # If messageId and location are defined, that means we want to scroll
   # smoothly to the top of a particular message.
-  _onChildScrollRequest: ({messageId, rect}={}) =>
+  _onChildScrollRequest: ({clientId, rect}={}) =>
     return if @_draftScrollInProgress
-    if messageId
-      messageElement = @_getMessageContainer(messageId)
+    if clientId
+      messageElement = @_getMessageContainer(clientId)
       return unless messageElement
       @refs.messageWrap.scrollTo(messageElement, {
         position: ScrollRegion.ScrollPosition.Visible
@@ -391,7 +391,7 @@ class MessageList extends React.Component
         position: ScrollRegion.ScrollPosition.CenterIfInvisible
       })
     else
-      throw new Error("onChildScrollRequest: expected messageId or rect")
+      throw new Error("onChildScrollRequest: expected clientId or rect")
 
   _onChange: =>
     newState = @_getStateFromStores()
