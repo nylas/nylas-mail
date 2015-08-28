@@ -59,14 +59,23 @@ class SendDraftTask extends Task
       accountId: @draft.accountId
       method: 'POST'
       body: body
-      returnsModel: true
+      returnsModel: false
 
     .then (json) =>
-      message = (new Message).fromJSON(json)
+      # If the draft we're sending wasn't previously given a server id, NylasAPI
+      # doesn't know to merge the two and keep the clientId, so we need to Handle
+      # the raw JSON ourselves.
+
+      # TODO: Refactor this into an optional clientId param on makeRequest?
+      @draft = @draft.clone().fromJSON(json)
+      @draft.draft = false
+      DatabaseStore.persistModel(@draft)
+
       atom.playSound('mail_sent.ogg')
       Actions.sendDraftSuccess
         draftClientId: @draftClientId
-        newMessage: message
+        newMessage: @draft
+
       return Promise.resolve(Task.Status.Finished)
 
     .catch APIError, (err) =>
