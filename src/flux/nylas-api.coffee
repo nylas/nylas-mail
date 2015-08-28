@@ -257,7 +257,11 @@ class NylasAPI
       # skipping changes when we already have the given version
       unlockedJSONs.forEach (json) =>
         model = existingModels[json.id]
-        unless model and model.version? and json.version? and model.version is json.version
+
+        isSameOrNewerVersion = model and model.version? and json.version? and model.version >= json.version
+        isAlreadySent = model and model.draft is false and json.draft is true
+
+        unless isSameOrNewerVersion or isAlreadySent
           model ?= new klass()
           model.fromJSON(json)
           changedModels.push(model)
