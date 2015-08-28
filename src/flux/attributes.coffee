@@ -8,6 +8,7 @@ AttributeBoolean = require './attributes/attribute-boolean'
 AttributeDateTime = require './attributes/attribute-datetime'
 AttributeCollection = require './attributes/attribute-collection'
 AttributeJoinedData = require './attributes/attribute-joined-data'
+AttributeServerId = require './attributes/attribute-serverid'
 
 module.exports =
   Matcher: Matcher
@@ -20,6 +21,7 @@ module.exports =
   DateTime: -> new AttributeDateTime(arguments...)
   Collection: -> new AttributeCollection(arguments...)
   JoinedData: -> new AttributeJoinedData(arguments...)
+  ServerId: -> new AttributeServerId(arguments...)
 
   AttributeNumber: AttributeNumber
   AttributeString: AttributeString
@@ -28,3 +30,4 @@ module.exports =
   AttributeDateTime: AttributeDateTime
   AttributeCollection: AttributeCollection
   AttributeJoinedData: AttributeJoinedData
+  AttributeServerId: AttributeServerId

@@ -18,7 +18,7 @@ describe "NylasSyncWorker", ->
 
     spyOn(DatabaseStore, 'persistJSONObject').andReturn(Promise.resolve())
     spyOn(DatabaseStore, 'findJSONObject').andCallFake (key) =>
-      expected = "NylasSyncWorker:account-id"
+      expected = "NylasSyncWorker:#{TEST_ACCOUNT_ID}"
       return throw new Error("Not stubbed! #{key}") unless key is expected
       Promise.resolve _.extend {}, {
         "contacts":
@@ -29,7 +29,7 @@ describe "NylasSyncWorker", ->
           complete: true
       }
 
-    @account = new Account(id: 'account-id', organizationUnit: 'label')
+    @account = new Account(clientId: TEST_ACCOUNT_CLIENT_ID, serverId: TEST_ACCOUNT_ID, organizationUnit: 'label')
     @worker = new NylasSyncWorker(@api, @account)
     @connection = @worker.connection()
     advanceClock()

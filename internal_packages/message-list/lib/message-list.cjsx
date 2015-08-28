@@ -128,8 +128,8 @@ class MessageList extends React.Component
     newDraftIds = _.map(_.filter((@state.messages ? []), (m) -> m.draft), (m) -> m.id)
     return _.difference(newDraftIds, oldDraftIds) ? []
 
-  _getMessageContainer: (id) =>
-    @refs["message-container-#{id}"]
+  _getMessageContainer: (messageId) =>
+    @refs["message-container-#{messageId}"]
 
   _focusDraft: (draftElement) =>
     # Note: We don't want the contenteditable view competing for scroll offset,
@@ -155,7 +155,7 @@ class MessageList extends React.Component
     # in reply to and the draft session and change the participants.
     if last.draft is true
       data =
-        session: DraftStore.sessionForLocalId(@state.messageLocalIds[last.id])
+        session: DraftStore.sessionForClientId(last.clientId)
         replyToMessage: Promise.resolve(@state.messages[@state.messages.length - 2])
         type: type
 
@@ -299,14 +299,11 @@ class MessageList extends React.Component
       isLastMsg = (messages.length - 1 is idx)
       isBeforeReplyArea = isLastMsg and hasReplyArea
 
-      localId = @state.messageLocalIds[message.id]
-
       elements.push(
         <MessageItemContainer key={idx}
                               ref={"message-container-#{message.id}"}
                               thread={@state.currentThread}
                               message={message}
-                              localId={localId}
                               collapsed={collapsed}
                               isLastMsg={isLastMsg}
                               isBeforeReplyArea={isBeforeReplyArea}
@@ -404,7 +401,6 @@ class MessageList extends React.Component
 
   _getStateFromStores: =>
     messages: (MessageStore.items() ? [])
-    messageLocalIds: MessageStore.itemLocalIds()
     messagesExpandedState: MessageStore.itemsExpandedState()
     currentThread: MessageStore.thread()
     loading: MessageStore.itemsLoading()

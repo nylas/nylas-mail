@@ -11,15 +11,15 @@ class TemplateStatusBar extends React.Component
     margin:'auto'
 
   @propTypes:
-    draftLocalId: React.PropTypes.string
+    draftClientId: React.PropTypes.string
 
   constructor: (@props) ->
     @state = draft: null
 
   componentDidMount: =>
-    DraftStore.sessionForLocalId(@props.draftLocalId).then (_proxy) =>
+    DraftStore.sessionForClientId(@props.draftClientId).then (_proxy) =>
       return if @_unmounted
-      return unless _proxy.draftLocalId is @props.draftLocalId
+      return unless _proxy.draftClientId is @props.draftClientId
       @_proxy = _proxy
       @unsubscribe = @_proxy.listen(@_onDraftChange, @)
       @_onDraftChange()

@@ -19,7 +19,7 @@ describe "UnreadCountStore", ->
       atom.testOrganizationUnit = 'folder'
       UnreadCountStore._fetchCount()
       advanceClock()
-      expect(DatabaseStore.findBy).toHaveBeenCalledWith(Folder, {name: 'inbox', accountId: 'test_account_id'})
+      expect(DatabaseStore.findBy).toHaveBeenCalledWith(Folder, {name: 'inbox', accountId: TEST_ACCOUNT_ID})
 
       [Model, Matchers] = DatabaseStore.count.calls[0].args
       expect(Model).toBe(Thread)
@@ -33,7 +33,7 @@ describe "UnreadCountStore", ->
       atom.testOrganizationUnit = 'label'
       UnreadCountStore._fetchCount()
       advanceClock()
-      expect(DatabaseStore.findBy).toHaveBeenCalledWith(Label, {name: 'inbox', accountId: 'test_account_id'})
+      expect(DatabaseStore.findBy).toHaveBeenCalledWith(Label, {name: 'inbox', accountId: TEST_ACCOUNT_ID})
 
       [Model, Matchers] = DatabaseStore.count.calls[0].args
       expect(Matchers[0].attr.modelKey).toBe('accountId')

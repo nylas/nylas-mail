@@ -52,10 +52,10 @@ AnalyticsStore = Reflux.createStore
     composeReply: ({threadId, messageId}) -> {threadId, messageId}
     composeForward: ({threadId, messageId}) -> {threadId, messageId}
     composeReplyAll: ({threadId, messageId}) -> {threadId, messageId}
-    composePopoutDraft: (draftLocalId) -> {draftLocalId: draftLocalId}
+    composePopoutDraft: (draftClientId) -> {draftClientId: draftClientId}
     composeNewBlankDraft: -> {}
-    sendDraft: (draftLocalId) -> {draftLocalId: draftLocalId}
-    destroyDraft: (draftLocalId) -> {draftLocalId: draftLocalId}
+    sendDraft: (draftClientId) -> {draftClientId}
+    destroyDraft: (draftClientId) -> {draftClientId}
     searchQueryCommitted: (query) -> {}
     fetchAndOpenFile: -> {}
     fetchAndSaveFile: -> {}
@@ -65,7 +65,7 @@ AnalyticsStore = Reflux.createStore
   coreGlobalActions: ->
     fileAborted: (uploadData={}) -> {fileSize: uploadData.fileSize}
     fileUploaded: (uploadData={}) -> {fileSize: uploadData.fileSize}
-    sendDraftSuccess: ({draftLocalId}) -> {draftLocalId: draftLocalId}
+    sendDraftSuccess: ({draftClientId}) -> {draftClientId}
 
   track: (action, data={}) ->
     _.defer =>

@@ -51,11 +51,6 @@ DraftListStore = Reflux.createStore
     selected = @_view.selection.items()
 
     for item in selected
-      DatabaseStore.localIdForModel(item).then (localId) =>
-        Actions.queueTask(new DestroyDraftTask(draftLocalId: localId))
-        # if thread.id is focusedId
-        #   Actions.setFocus(collection: 'thread', item: null)
-        # if thread.id is keyboardId
-        #   Actions.setCursorPosition(collection: 'thread', item: null)
+      Actions.queueTask(new DestroyDraftTask(draftClientId: item.clientId))
 
     @_view.selection.clear()

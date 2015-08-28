@@ -4,8 +4,8 @@ async = require 'async'
 path = require 'path'
 sqlite3 = require 'sqlite3'
 Model = require '../models/model'
+Utils = require '../models/utils'
 Actions = require '../actions'
-LocalLink = require '../models/local-link'
 ModelQuery = require '../models/query'
 NylasStore = require '../../../exports/nylas-store'
 DatabaseSetupQueryBuilder = require './database-setup-query-builder'
@@ -14,12 +14,10 @@ PriorityUICoordinator = require '../../priority-ui-coordinator'
 {AttributeCollection, AttributeJoinedData} = require '../attributes'
 
 {tableNameForJoin,
- generateTempId,
  serializeRegisteredObjects,
- deserializeRegisteredObjects,
- isTempId} = require '../models/utils'
+ deserializeRegisteredObjects} = require '../models/utils'
 
-DatabaseVersion = 59
+DatabaseVersion = 12
 
 DatabasePhase =
   Setup: 'setup'
@@ -81,7 +79,6 @@ class DatabaseStore extends NylasStore
 
   constructor: ->
     @_triggerPromise = null
-    @_localIdLookupCache = {}
     @_inflightTransactions = 0
     @_open = false
     @_waiting = []
@@ -221,10 +218,11 @@ class DatabaseStore extends NylasStore
             str = results.map((row) -> row.detail).join('\n') + " for " + query
             @_prettyConsoleLog(str) if str.indexOf("SCAN") isnt -1
 
-      # Important: once the user begins a transaction, queries need to run in serial.
-      # This ensures that the subsequent "COMMIT" call actually runs after the other
-      # queries in the transaction, and that no other code can execute "BEGIN TRANS."
-      # until the previously queued BEGIN/COMMIT have been processed.
+      # Important: once the user begins a transaction, queries need to run
+      # in serial.  This ensures that the subsequent "COMMIT" call
+      # actually runs after the other queries in the transaction, and that
+      # no other code can execute "BEGIN TRANS." until the previously
+      # queued BEGIN/COMMIT have been processed.
 
       # We don't exit serial execution mode until the last pending transaction has
       # finished executing.
@@ -316,8 +314,7 @@ class DatabaseStore extends NylasStore
     new ModelQuery(klass, @).where(predicates).count()
 
   # Public: Modelify converts the provided array of IDs or models (or a mix of
-  # IDs and models) into an array of models of the `klass` provided by querying
-  # for the missing items.
+  # IDs and models) into an array of models of the `klass` provided by querying for the missing items.
   #
   # Modelify is efficient and uses a single database query. It resolves Immediately
   # if no query is necessary.
@@ -352,106 +349,6 @@ class DatabaseStore extends NylasStore
           return modelsById[item]
 
       return Promise.resolve(arr)
-
-  ###
-  Support for Local IDs
-  ###
-
-  # Public: Retrieve a Model given a localId.
-  #
-  # - `class` The class of the {Model} you're trying to retrieve.
-  # - `localId` The {String} localId of the object.
-  #
-  # Returns a {Promise} that:
-  #   - resolves with the Model associated with the localId
-  #   - rejects if no matching object is found
-  #
-  # Note: When fetching an object by local Id, joined attributes
-  # (like body, stored in a separate table) are always included.
-  #
-  findByLocalId: (klass, localId) =>
-    return Promise.reject(new Error("DatabaseStore::findByLocalId - You must provide a class")) unless klass
-    return Promise.reject(new Error("DatabaseStore::findByLocalId - You must provide a localId")) unless localId
-
-    new Promise (resolve, reject) =>
-      @find(LocalLink, localId).then (link) =>
-        return reject(new Error("DatabaseStore::findByLocalId - no LocalLink found")) unless link
-        query = @find(klass, link.objectId).includeAll().then(resolve)
-
-  # Public: Give a Model a localId.
-  #
-  # - `model` A {Model} object to assign a localId.
-  # - `localId` (optional) The {String} localId. If you don't pass a LocalId, one
-  #    will be automatically assigned.
-  #
-  # Returns a {Promise} that:
-  #   - resolves with the localId assigned to the model
-  bindToLocalId: (model, localId = null) =>
-    return Promise.reject(new Error("DatabaseStore::bindToLocalId - You must provide a model")) unless model
-    return Promise.reject(new Error("DatabaseStore::bindToLocalId - Recieved a model with no ID")) unless model.id?
-
-    new Promise (resolve, reject) =>
-      unless localId
-        if isTempId(model.id)
-          localId = model.id
-        else
-          localId = generateTempId()
-
-      link = new LocalLink({id: localId, objectId: model.id})
-      @_localIdLookupCache[model.id] = localId
-
-      @persistModel(link).then ->
-        resolve(localId)
-      .catch(reject)
-
-  # Public: Look up the localId assigned to the model. If no localId has been
-  # assigned to the model yet, it assigns a new one and persists it to the database.
-  #
-  # - `model` A {Model} object to assign a localId.
-  #
-  # Returns a {Promise} that:
-  #   - resolves with the {String} localId.
-  localIdForModel: (model) =>
-    return Promise.reject(new Error("DatabaseStore::localIdForModel - You must provide a model")) unless model
-
-    new Promise (resolve, reject) =>
-      if @_localIdLookupCache[model.id]
-        return resolve(@_localIdLookupCache[model.id])
-
-      @findBy(LocalLink, {objectId: model.id}).then (link) =>
-        if link
-          @_localIdLookupCache[model.id] = link.id
-          resolve(link.id)
-        else
-          @bindToLocalId(model).then(resolve).catch(reject)
-
-  # Private: Returns an {Object} with id-version key value pairs for models in
-  # the ID set provided. Does not retrieve or inflate object JSON from the database.
-  #
-  # Using this method requires that the klass has declared the version field queryable.
-  #
-  findVersions: (klass, allIds) =>
-    return Promise.reject(new Error("DatabaseStore::findVersions - You must provide a class")) unless klass
-    return Promise.reject(new Error("DatabaseStore::findVersions - version field must be queryable")) unless klass.attributes.version.queryable
-
-    _findVersionsFor = (ids) =>
-      marks = new Array(ids.length)
-      marks[idx] = '?' for m, idx in marks
-      @_query("SELECT id, version FROM `#{klass.name}` WHERE id IN (#{marks.join(",")})", ids).then (results) ->
-        map = {}
-        map[id] = version  for {id, version} in results
-        Promise.resolve(map)
-
-    promises = []
-    while allIds.length > 0
-      promises.push(_findVersionsFor(allIds.splice(0, 100)))
-
-    # We can only use WHERE IN for up to ~250 items at a time. Run a query for
-    # every 100 items and then combine the results before returning.
-    Promise.all(promises).then (results) =>
-      all = {}
-      all = _.extend(all, result) for result in results
-      Promise.resolve(all)
 
   # Public: Executes a {ModelQuery} on the local database.
   #
@@ -529,34 +426,6 @@ class DatabaseStore extends NylasStore
       @_query(COMMIT)
     ]).then =>
       @_triggerSoon({objectClass: model.constructor.name, objects: [model], type: 'unpersist'})
-
-  # Public: Given an `oldModel` with a unique `localId`, it will swap the
-  # item out in the database.
-  #
-  # - `args` An arguments hash with:
-  #   - `oldModel` The old model
-  #   - `newModel` The new model
-  #   - `localId` The localId to reference
-  #
-  # Returns a {Promise} that
-  #   - resolves after the database queries are complete and any listening
-  #     database callbacks have finished
-  #   - rejects if any databse query fails or one of the triggering
-  #     callbacks failed
-  swapModel: ({oldModel, newModel, localId}) =>
-    queryPromise = Promise.all([
-      @_query(BEGIN_TRANSACTION)
-      @_deleteModel(oldModel)
-      @_writeModels([newModel])
-      @_writeModels([new LocalLink(id: localId, objectId: newModel.id)]) if localId
-      @_query(COMMIT)
-    ]).then =>
-      Actions.didSwapModel({
-        oldModel: oldModel,
-        newModel: newModel,
-        localId: localId
-      })
-      @_triggerSoon({objectClass: newModel.constructor.name, objects: [oldModel, newModel], type: 'swap'})
 
   persistJSONObject: (key, json) ->
     jsonString = serializeRegisteredObjects(json)

@@ -1,5 +1,3 @@
-{isTempId} = require '../models/utils'
-
 Actions = require '../actions'
 DatabaseStore = require '../stores/database-store'
 Message = require '../models/message'
@@ -13,40 +11,39 @@ NylasAPI = require '../nylas-api'
 module.exports =
 class SendDraftTask extends Task
 
-  constructor: (@draftLocalId, {@fromPopout}={}) ->
+  constructor: (@draftClientId, {@fromPopout}={}) ->
     super
 
   label: ->
     "Sending draft..."
 
   shouldDequeueOtherTask: (other) ->
-    other instanceof SendDraftTask and other.draftLocalId is @draftLocalId
+    other instanceof SendDraftTask and other.draftClientId is @draftClientId
 
   shouldWaitForTask: (other) ->
-    (other instanceof SyncbackDraftTask and other.draftLocalId is @draftLocalId) or
-    (other instanceof FileUploadTask and other.messageLocalId is @draftLocalId)
+    (other instanceof SyncbackDraftTask and other.draftClientId is @draftClientId) or
+    (other instanceof FileUploadTask and other.messageClientId is @draftClientId)
 
   performLocal: ->
     # When we send drafts, we don't update anything in the app until
     # it actually succeeds. We don't want users to think messages have
     # already sent when they haven't!
-    if not @draftLocalId
-      return Promise.reject(new Error("Attempt to call SendDraftTask.performLocal without @draftLocalId."))
+    if not @draftClientId
+      return Promise.reject(new Error("Attempt to call SendDraftTask.performLocal without @draftClientId."))
     Promise.resolve()
 
   performRemote: ->
     # Fetch the latest draft data to make sure we make the request with the most
     # recent draft version
-    DatabaseStore.findByLocalId(Message, @draftLocalId).then (draft) =>
+    DatabaseStore.findBy(Message, clientId: @draftClientId).then (draft) =>
       # The draft may have been deleted by another task. Nothing we can do.
-      NylasAPI.incrementOptimisticChangeCount(Message, draft.id)
       @draft = draft
       if not draft
         return Promise.reject(new Error("We couldn't find the saved draft."))
 
-      if draft.isSaved()
+      if draft.serverId
         body =
-          draft_id: draft.id
+          draft_id: draft.serverId
           version: draft.version
       else
         body = draft.toJSON()
@@ -68,13 +65,14 @@ class SendDraftTask extends Task
       message = (new Message).fromJSON(json)
       atom.playSound('mail_sent.ogg')
       Actions.sendDraftSuccess
-        draftLocalId: @draftLocalId
+        draftClientId: @draftClientId
         newMessage: message
-      DatabaseStore.unpersistModel(@draft).then =>
-        return Promise.resolve(Task.Status.Finished)
+      DestroyDraftTask = require './destroy-draft'
+      task = new DestroyDraftTask(draftClientId: @draftClientId)
+      Actions.queueTask(task)
+      return Promise.resolve(Task.Status.Finished)
 
     .catch APIError, (err) =>
-      NylasAPI.decrementOptimisticChangeCount(Message, @draft.id)
       if err.message?.indexOf('Invalid message public id') is 0
         body.reply_to_message_id = null
         return @_send(body)
@@ -84,7 +82,7 @@ class SendDraftTask extends Task
         return @_send(body)
       else if err.statusCode in NylasAPI.PermanentErrorCodes
         msg = err.message ? "Your draft could not be sent."
-        Actions.composePopoutDraft(@draftLocalId, {errorMessage: msg})
+        Actions.composePopoutDraft(@draftClientId, {errorMessage: msg})
         return Promise.resolve(Task.Status.Finished)
       else
         return Promise.resolve(Task.Status.Retry)

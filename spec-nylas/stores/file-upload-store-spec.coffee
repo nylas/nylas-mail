@@ -14,7 +14,7 @@ describe 'FileUploadStore', ->
       size: 12345
     @uploadData =
       uploadTaskId: 123
-      messageLocalId: msgId
+      messageClientId: msgId
       filePath: fpath
       fileSize: 12345
 
@@ -29,11 +29,11 @@ describe 'FileUploadStore', ->
 
     it "throws if the message id is blank", ->
       spyOn(Actions, "attachFilePath")
-      Actions.attachFile messageLocalId: msgId
+      Actions.attachFile messageClientId: msgId
       expect(atom.showOpenDialog).toHaveBeenCalled()
       expect(Actions.attachFilePath).toHaveBeenCalled()
       args = Actions.attachFilePath.calls[0].args[0]
-      expect(args.messageLocalId).toBe msgId
+      expect(args.messageClientId).toBe msgId
       expect(args.path).toBe fpath
 
   describe 'attachFilePath', ->
@@ -44,19 +44,19 @@ describe 'FileUploadStore', ->
       spyOn(fs, 'stat').andCallFake (path, callback) ->
         callback(null, {isDirectory: -> false})
       Actions.attachFilePath
-        messageLocalId: msgId
+        messageClientId: msgId
         path: fpath
       expect(Actions.queueTask).toHaveBeenCalled()
       t = Actions.queueTask.calls[0].args[0]
       expect(t.filePath).toBe fpath
-      expect(t.messageLocalId).toBe msgId
+      expect(t.messageClientId).toBe msgId
 
     it 'displays an error if the file path given is a directory', ->
       spyOn(FileUploadStore, '_onAttachFileError')
       spyOn(fs, 'stat').andCallFake (path, callback) ->
         callback(null, {isDirectory: -> true})
       Actions.attachFilePath
-        messageLocalId: msgId
+        messageClientId: msgId
         path: fpath
       expect(Actions.queueTask).not.toHaveBeenCalled()
       expect(FileUploadStore._onAttachFileError).toHaveBeenCalled()

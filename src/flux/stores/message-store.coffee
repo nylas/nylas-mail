@@ -31,8 +31,8 @@ class MessageStore extends NylasStore
     # this.state == nextState is always true if we modify objects in place.
     _.clone @_itemsExpanded
 
-  itemLocalIds: =>
-    _.clone @_itemsLocalIds
+  itemClientIds: ->
+    _.pluck(@_items, "clientId")
 
   itemsLoading: ->
     @_itemsLoading
@@ -71,7 +71,6 @@ class MessageStore extends NylasStore
   _setStoreDefaults: =>
     @_items = []
     @_itemsExpanded = {}
-    @_itemsLocalIds = {}
     @_itemsLoading = false
     @_thread = null
     @_extensions = []
@@ -89,20 +88,13 @@ class MessageStore extends NylasStore
       inDisplayedThread = _.some change.objects, (obj) => obj.threadId is @_thread.id
       if inDisplayedThread
 
-        # Are we most likely adding a new draft? If the item is a draft and we don't
-        # have it's local Id, optimistically add it to the set, resort, and trigger.
-        # Note: this can avoid 100msec+ of delay from "Reply" => composer onscreen,
         item = change.objects[0]
         itemAlreadyExists = _.some @_items, (msg) -> msg.id is item.id
         if change.objects.length is 1 and item.draft is true and not itemAlreadyExists
-          DatabaseStore.localIdForModel(item).then (localId) =>
-            @_itemsLocalIds[item.id] = localId
-            # We need to create a new copy of the items array so that the message-list
-            # can compare new state to previous state.
-            @_items = [].concat(@_items, [item])
-            @_items = @_sortItemsForDisplay(@_items)
-            @_expandItemsToDefault()
-            @trigger()
+          @_items = [].concat(@_items, [item])
+          @_items = @_sortItemsForDisplay(@_items)
+          @_expandItemsToDefault()
+          @trigger()
         else
           @_fetchFromCache()
 
@@ -144,61 +136,53 @@ class MessageStore extends NylasStore
     query.where(threadId: loadedThreadId, accountId: @_thread.accountId)
     query.include(Message.attributes.body)
     query.then (items) =>
-      localIds = {}
-      async.each items, (item, callback) ->
-        return callback() unless item.draft
-        DatabaseStore.localIdForModel(item).then (localId) ->
-          localIds[item.id] = localId
-          callback()
-      , =>
-        # Check to make sure that our thread is still the thread we were
-        # loading items for. Necessary because this takes a while.
-        return unless loadedThreadId is @_thread?.id
+      # Check to make sure that our thread is still the thread we were
+      # loading items for. Necessary because this takes a while.
+      return unless loadedThreadId is @_thread?.id
 
-        loaded = true
+      loaded = true
 
-        @_items = @_sortItemsForDisplay(items)
-        @_itemsLocalIds = localIds
+      @_items = @_sortItemsForDisplay(items)
 
-        # If no items were returned, attempt to load messages via the API. If items
-        # are returned, this will trigger a refresh here.
-        if @_items.length is 0
-          @_fetchMessages()
-          loaded = false
+      # If no items were returned, attempt to load messages via the API. If items
+      # are returned, this will trigger a refresh here.
+      if @_items.length is 0
+        @_fetchMessages()
+        loaded = false
 
-        @_expandItemsToDefault()
+      @_expandItemsToDefault()
 
-        # Download the attachments on expanded messages.
-        @_fetchExpandedAttachments(@_items)
+      # Download the attachments on expanded messages.
+      @_fetchExpandedAttachments(@_items)
 
-        # Check that expanded messages have bodies. We won't mark ourselves
-        # as loaded until they're all available. Note that items can be manually
-        # expanded so this logic must be separate from above.
-        if @_fetchExpandedBodies(@_items)
-          loaded = false
+      # Check that expanded messages have bodies. We won't mark ourselves
+      # as loaded until they're all available. Note that items can be manually
+      # expanded so this logic must be separate from above.
+      if @_fetchExpandedBodies(@_items)
+        loaded = false
 
-        # Normally, we would trigger often and let the view's
-        # shouldComponentUpdate decide whether to re-render, but if we
-        # know we're not ready, don't even bother.  Trigger once at start
-        # and once when ready. Many third-party stores will observe
-        # MessageStore and they'll be stupid and re-render constantly.
-        if loaded
-          # Mark the thread as read if necessary. Make sure it's still the
-          # current thread after the timeout.
+      # Normally, we would trigger often and let the view's
+      # shouldComponentUpdate decide whether to re-render, but if we
+      # know we're not ready, don't even bother.  Trigger once at start
+      # and once when ready. Many third-party stores will observe
+      # MessageStore and they'll be stupid and re-render constantly.
+      if loaded
+        # Mark the thread as read if necessary. Make sure it's still the
+        # current thread after the timeout.
 
-          # Override canBeUndone to return false so that we don't see undo prompts
-          # (since this is a passive action vs. a user-triggered action.)
-          if @_thread.unread
-            markAsReadDelay = atom.config.get('core.reading.markAsReadDelay')
-            setTimeout =>
-              return unless loadedThreadId is @_thread?.id
-              t = new ChangeUnreadTask(thread: @_thread, unread: false)
-              t.canBeUndone = => false
-              Actions.queueTask(t)
-            , markAsReadDelay
+        # Override canBeUndone to return false so that we don't see undo prompts
+        # (since this is a passive action vs. a user-triggered action.)
+        if @_thread.unread
+          markAsReadDelay = atom.config.get('core.reading.markAsReadDelay')
+          setTimeout =>
+            return unless loadedThreadId is @_thread?.id
+            t = new ChangeUnreadTask(thread: @_thread, unread: false)
+            t.canBeUndone = => false
+            Actions.queueTask(t)
+          , markAsReadDelay
 
-          @_itemsLoading = false
-          @trigger(@)
+        @_itemsLoading = false
+        @trigger(@)
 
   _fetchExpandedBodies: (items) ->
     startedAFetch = false

@@ -41,7 +41,7 @@ describe "FileDownloadStore", ->
   beforeEach ->
     spyOn(shell, 'showItemInFolder')
     spyOn(shell, 'openItem')
-    @testfile = new File(filename: '123.png', contentType: 'image/png', id: 'id', size: 100)
+    @testfile = new File(filename: '123.png', contentType: 'image/png', id: "id", size: 100)
     FileDownloadStore._downloads = {}
     FileDownloadStore._downloadDirectory = "/Users/testuser/.nylas/downloads"
 
@@ -60,7 +60,7 @@ describe "FileDownloadStore", ->
 
   describe "_checkForDownloadedFile", ->
     it "should return true if the file exists at the path and is the right size", ->
-      f = new File(filename: '123.png', contentType: 'image/png', id: 'id', size: 100)
+      f = new File(filename: '123.png', contentType: 'image/png', id: "id", size: 100)
       spyOn(fs, 'stat').andCallFake (path, callback) ->
         callback(null, {size: 100})
       waitsForPromise ->
@@ -68,7 +68,7 @@ describe "FileDownloadStore", ->
           expect(downloaded).toBe(true)
 
     it "should return false if the file does not exist", ->
-      f = new File(filename: '123.png', contentType: 'image/png', id: 'id', size: 100)
+      f = new File(filename: '123.png', contentType: 'image/png', id: "id", size: 100)
       spyOn(fs, 'stat').andCallFake (path, callback) ->
         callback(new Error("File does not exist"))
       waitsForPromise ->
@@ -76,7 +76,7 @@ describe "FileDownloadStore", ->
           expect(downloaded).toBe(false)
 
     it "should return false if the file is too small", ->
-      f = new File(filename: '123.png', contentType: 'image/png', id: 'id', size: 100)
+      f = new File(filename: '123.png', contentType: 'image/png', id: "id", size: 100)
       spyOn(fs, 'stat').andCallFake (path, callback) ->
         callback(null, {size: 50})
       waitsForPromise ->

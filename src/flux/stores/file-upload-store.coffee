@@ -20,7 +20,7 @@ FileUploadStore = Reflux.createStore
     @listenTo Actions.fileAborted, @_onFileAborted
 
     # We don't save uploads to the DB, we keep it in memory in the store.
-    # The key is the messageLocalId. The value is a hash of paths and
+    # The key is the messageClientId. The value is a hash of paths and
     # corresponding upload data.
     @_fileUploads = {}
     @_linkedFiles = {}
@@ -28,18 +28,18 @@ FileUploadStore = Reflux.createStore
 
   ######### PUBLIC #######################################################
 
-  uploadsForMessage: (messageLocalId) ->
-    if not messageLocalId? then return []
+  uploadsForMessage: (messageClientId) ->
+    if not messageClientId? then return []
     _.filter @_fileUploads, (uploadData, uploadKey) ->
-      uploadData.messageLocalId is messageLocalId
+      uploadData.messageClientId is messageClientId
 
   linkedUpload: (file) -> @_linkedFiles[file.id]
 
 
   ########### PRIVATE ####################################################
 
-  _onAttachFile: ({messageLocalId}) ->
-    @_verifyId(messageLocalId)
+  _onAttachFile: ({messageClientId}) ->
+    @_verifyId(messageClientId)
 
     # When the dialog closes, it triggers `Actions.pathsToOpen`
     atom.showOpenDialog {properties: ['openFile', 'multiSelections']}, (pathsToOpen) ->
@@ -47,7 +47,7 @@ FileUploadStore = Reflux.createStore
       pathsToOpen = [pathsToOpen] if _.isString(pathsToOpen)
 
       pathsToOpen.forEach (path) ->
-        Actions.attachFilePath({messageLocalId, path})
+        Actions.attachFilePath({messageClientId, path})
 
   _onAttachFileError: (message) ->
     remote = require('remote')
@@ -58,8 +58,8 @@ FileUploadStore = Reflux.createStore
       message: 'Cannot Attach File',
       detail: message
 
-  _onAttachFilePath: ({messageLocalId, path}) ->
-    @_verifyId(messageLocalId)
+  _onAttachFilePath: ({messageClientId, path}) ->
+    @_verifyId(messageClientId)
     fs.stat path, (err, stats) =>
       filename = require('path').basename(path)
       if err
@@ -67,12 +67,12 @@ FileUploadStore = Reflux.createStore
       else if stats.isDirectory()
         @_onAttachFileError("#{filename} is a directory. Try compressing it and attaching it again.")
       else
-        Actions.queueTask(new FileUploadTask(path, messageLocalId))
+        Actions.queueTask(new FileUploadTask(path, messageClientId))
 
   # Receives:
   #   uploadData:
   #     uploadTaskId - A unique id
-  #     messageLocalId - The localId of the message (draft) we're uploading to
+  #     messageClientId - The clientId of the message (draft) we're uploading to
   #     filePath - The full absolute local system file path
   #     fileSize - The size in bytes
   #     fileName - The basename of the file
@@ -107,6 +107,6 @@ FileUploadStore = Reflux.createStore
     delete @_fileUploads[uploadData.uploadTaskId]
     @trigger()
 
-  _verifyId: (messageLocalId) ->
-    if messageLocalId.blank?
+  _verifyId: (messageClientId) ->
+    if messageClientId.blank?
       throw new Error "You need to pass the ID of the message (draft) this Action refers to"

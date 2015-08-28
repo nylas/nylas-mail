@@ -11,8 +11,6 @@ describe "ContactStore", ->
     ContactStore._contactCache = []
     ContactStore._fetchOffset = 0
     ContactStore._accountId = null
-    AccountStore._current =
-      id: "test_account_id"
 
   afterEach ->
     atom.testOrganizationUnit = null
@@ -36,9 +34,7 @@ describe "ContactStore", ->
       spyOn(ContactStore, "_refreshCache")
       ContactStore._contactCache = [1,2,3]
       ContactStore._fetchOffset = 3
-      ContactStore._accountId = "test_account_id"
-      AccountStore._current =
-        id: "test_account_id"
+      ContactStore._accountId = TEST_ACCOUNT_ID
       AccountStore.trigger()
       expect(ContactStore._contactCache).toEqual [1,2,3]
       expect(ContactStore._fetchOffset).toBe 3

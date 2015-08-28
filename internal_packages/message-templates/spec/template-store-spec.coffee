@@ -59,13 +59,13 @@ describe "TemplateStore", ->
     it "should insert the template with the given id into the draft with the given id", ->
 
       add = jasmine.createSpy('add')
-      spyOn(DraftStore, 'sessionForLocalId').andCallFake ->
+      spyOn(DraftStore, 'sessionForClientId').andCallFake ->
         Promise.resolve(changes: {add})
 
       runs ->
         TemplateStore._onInsertTemplateId
           templateId: 'template1.html',
-          draftLocalId: 'localid-draft'
+          draftClientId: 'localid-draft'
       waitsFor ->
         add.calls.length > 0
       runs ->
@@ -75,8 +75,8 @@ describe "TemplateStore", ->
   describe "onCreateTemplate", ->
     beforeEach ->
       TemplateStore.init()
-      spyOn(DraftStore, 'sessionForLocalId').andCallFake (draftLocalId) ->
-        if draftLocalId is 'localid-nosubject'
+      spyOn(DraftStore, 'sessionForClientId').andCallFake (draftClientId) ->
+        if draftClientId is 'localid-nosubject'
           d = new Message(subject: '', body: '<p>Body</p>')
         else
           d = new Message(subject: 'Subject', body: '<p>Body</p>')
@@ -118,7 +118,7 @@ describe "TemplateStore", ->
         spyOn(TemplateStore, 'trigger')
         spyOn(TemplateStore, '_populate')
         runs ->
-          TemplateStore._onCreateTemplate({draftLocalId: 'localid-b'})
+          TemplateStore._onCreateTemplate({draftClientId: 'localid-b'})
         waitsFor ->
           TemplateStore.trigger.callCount > 0
         runs ->
@@ -127,7 +127,7 @@ describe "TemplateStore", ->
       it "should display an error if the draft has no subject", ->
         spyOn(TemplateStore, '_displayError')
         runs ->
-          TemplateStore._onCreateTemplate({draftLocalId: 'localid-nosubject'})
+          TemplateStore._onCreateTemplate({draftClientId: 'localid-nosubject'})
         waitsFor ->
           TemplateStore._displayError.callCount > 0
         runs ->

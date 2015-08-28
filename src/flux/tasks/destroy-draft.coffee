@@ -11,29 +11,29 @@ FileUploadTask = require './file-upload-task'
 
 module.exports =
 class DestroyDraftTask extends Task
-  constructor: ({@draftLocalId, @draftId} = {}) -> super
+  constructor: ({@draftClientId, @draftId} = {}) -> super
 
   shouldDequeueOtherTask: (other) ->
-    if @draftLocalId
-      (other instanceof DestroyDraftTask and other.draftLocalId is @draftLocalId) or
-      (other instanceof SyncbackDraftTask and other.draftLocalId is @draftLocalId) or
-      (other instanceof SendDraftTask and other.draftLocalId is @draftLocalId) or
-      (other instanceof FileUploadTask and other.messageLocalId is @draftLocalId)
+    if @draftClientId
+      (other instanceof DestroyDraftTask and other.draftClientId is @draftClientId) or
+      (other instanceof SyncbackDraftTask and other.draftClientId is @draftClientId) or
+      (other instanceof SendDraftTask and other.draftClientId is @draftClientId) or
+      (other instanceof FileUploadTask and other.messageClientId is @draftClientId)
     else if @draftId
-      (other instanceof DestroyDraftTask and other.draftLocalId is @draftLocalId)
+      (other instanceof DestroyDraftTask and other.draftClientId is @draftClientId)
     else
       false
 
   shouldWaitForTask: (other) ->
-    (other instanceof SyncbackDraftTask and other.draftLocalId is @draftLocalId)
+    (other instanceof SyncbackDraftTask and other.draftClientId is @draftClientId)
 
   performLocal: ->
-    if @draftLocalId
-      find = DatabaseStore.findByLocalId(Message, @draftLocalId)
+    if @draftClientId
+      find = DatabaseStore.findBy(Message, clientId: @draftClientId)
     else if @draftId
       find = DatabaseStore.find(Message, @draftId)
     else
-      return Promise.reject(new Error("Attempt to call DestroyDraftTask.performLocal without draftLocalId or draftId"))
+      return Promise.reject(new Error("Attempt to call DestroyDraftTask.performLocal without draftClientId"))
 
     find.then (draft) =>
       return Promise.resolve() unless draft
@@ -45,10 +45,10 @@ class DestroyDraftTask extends Task
     # when we performed locally, or if the draft has never been synced to
     # the server (id is still self-assigned)
     return Promise.resolve(Task.Status.Finished) unless @draft
-    return Promise.resolve(Task.Status.Finished) unless @draft.isSaved() and @draft.version?
+    return Promise.resolve(Task.Status.Finished) unless @draft.serverId and @draft.version?
 
     NylasAPI.makeRequest
-      path: "/drafts/#{@draft.id}"
+      path: "/drafts/#{@draft.serverId}"
       accountId: @draft.accountId
       method: "DELETE"
       body:

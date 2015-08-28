@@ -59,13 +59,6 @@ Section: General
 class Actions
 
   ###
-  Public: Fired when the {DatabaseStore} has changed the ID of a {Model}.
-
-  *Scope: Global*
-  ###
-  @didSwapModel: ActionScopeGlobal
-
-  ###
   Public: Fired when the Nylas API Connector receives new data from the API.
 
   *Scope: Global*
@@ -427,7 +420,7 @@ class Actions
   ```
   Actions.removeFile
     file: fileObject
-    messageLocalId: draftLocalId
+    messageClientId: draftClientId
   ```
   ###
   @removeFile: ActionScopeWindow

@@ -30,8 +30,6 @@ u5 = new Contact(name: "Ben Gotow",       email: "ben@nylas.com")
 file = new File(id: 'file_1_id', filename: 'a.png', contentType: 'image/png', size: 10, object: "file")
 
 users = [u1, u2, u3, u4, u5]
-AccountStore._current = new Account(
-  {name: u1.name, provider: "inbox", emailAddress: u1.email})
 
 reactStub = (className) ->
   React.createClass({render: -> <div className={className}>{@props.children}</div>})
@@ -45,11 +43,11 @@ passThroughStub = (props={}) ->
   React.createClass
     render: -> <div {...props}>{props.children}</div>
 
-draftStoreProxyStub = (localId, returnedDraft) ->
+draftStoreProxyStub = (draftClientId, returnedDraft) ->
   listen: -> ->
   draft: -> (returnedDraft ? new Message(draft: true))
   draftPristineBody: -> null
-  draftLocalId: localId
+  draftClientId: draftClientId
   cleanup: ->
   changes:
     add: ->
@@ -72,27 +70,21 @@ ComposerView = proxyquire "../lib/composer-view",
     DraftStore: DraftStore
 
 beforeEach ->
-  # spyOn(ComponentRegistry, "findComponentsMatching").andCallFake (matching) ->
-  #   return passThroughStub
-  # spyOn(ComponentRegistry, "showComponentRegions").andReturn true
-
   # The AccountStore isn't set yet in the new window, populate it first.
   AccountStore.populateItems().then ->
-    new Promise (resolve, reject) ->
-      draft = new Message
-        from: [AccountStore.current().me()]
-        date: (new Date)
-        draft: true
-        accountId: AccountStore.current().id
+    draft = new Message
+      from: [AccountStore.current().me()]
+      date: (new Date)
+      draft: true
+      accountId: AccountStore.current().id
 
-      DatabaseStore.persistModel(draft).then ->
-        DatabaseStore.localIdForModel(draft).then(resolve).catch(reject)
-      .catch(reject)
+    DatabaseStore.persistModel(draft).then ->
+      return draft
 
 describe "A blank composer view", ->
   beforeEach ->
     @composer = ReactTestUtils.renderIntoDocument(
-      <ComposerView localId="test123" />
+      <ComposerView draftClientId="test123" />
     )
     @composer.setState
       body: ""
@@ -110,23 +102,23 @@ describe "A blank composer view", ->
 # This will setup the mocks necessary to make the composer element (once
 # mounted) think it's attached to the given draft. This mocks out the
 # proxy system used by the composer.
-DRAFT_LOCAL_ID = "local-123"
+DRAFT_CLIENT_ID = "local-123"
 useDraft = (draftAttributes={}) ->
   @draft = new Message _.extend({draft: true, body: ""}, draftAttributes)
   draft = @draft
-  proxy = draftStoreProxyStub(DRAFT_LOCAL_ID, @draft)
+  proxy = draftStoreProxyStub(DRAFT_CLIENT_ID, @draft)
 
 
   spyOn(ComposerView.prototype, "componentWillMount").andCallFake ->
-    @_prepareForDraft(DRAFT_LOCAL_ID)
+    @_prepareForDraft(DRAFT_CLIENT_ID)
     @_setupSession(proxy)
 
-  # Normally when sessionForLocalId resolves, it will call `_setupSession`
+  # Normally when sessionForClientId resolves, it will call `_setupSession`
   # and pass the new session proxy. However, in our faked
-  # `componentWillMount`, we manually call sessionForLocalId to make this
+  # `componentWillMount`, we manually call sessionForClientId to make this
   # part of the test synchronous. We need to make the `then` block of the
-  # sessionForLocalId do nothing so `_setupSession` is not called twice!
-  spyOn(DraftStore, "sessionForLocalId").andCallFake ->
+  # sessionForClientId do nothing so `_setupSession` is not called twice!
+  spyOn(DraftStore, "sessionForClientId").andCallFake ->
     then: ->
 
 useFullDraft = ->
@@ -141,7 +133,7 @@ useFullDraft = ->
 
 makeComposer = ->
   @composer = ReactTestUtils.renderIntoDocument(
-    <ComposerView localId={DRAFT_LOCAL_ID} />
+    <ComposerView draftClientId={DRAFT_CLIENT_ID} />
   )
 
 describe "populated composer", ->
@@ -245,9 +237,9 @@ describe "populated composer", ->
     describe "if the draft has not yet loaded", ->
       it "should set _focusOnUpdate and focus after the next render", ->
         @draft = new Message(draft: true, body: "")
-        proxy = draftStoreProxyStub(DRAFT_LOCAL_ID, @draft)
+        proxy = draftStoreProxyStub(DRAFT_CLIENT_ID, @draft)
         proxyResolve = null
-        spyOn(DraftStore, "sessionForLocalId").andCallFake ->
+        spyOn(DraftStore, "sessionForClientId").andCallFake ->
           new Promise (resolve, reject) ->
             proxyResolve = resolve
 
@@ -462,7 +454,7 @@ describe "populated composer", ->
       useFullDraft.apply(@); makeComposer.call(@)
       sendBtn = React.findDOMNode(@composer.refs.sendButton)
       ReactTestUtils.Simulate.click sendBtn
-      expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_LOCAL_ID)
+      expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_CLIENT_ID)
       expect(Actions.sendDraft.calls.length).toBe 1
 
     it "doesn't send twice if you double click", ->
@@ -472,7 +464,7 @@ describe "populated composer", ->
       @isSending.state = true
       DraftStore.trigger()
       ReactTestUtils.Simulate.click sendBtn
-      expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_LOCAL_ID)
+      expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_CLIENT_ID)
       expect(Actions.sendDraft.calls.length).toBe 1
 
     describe "when sending a message with keyboard inputs", ->
@@ -630,14 +622,14 @@ describe "populated composer", ->
 
       @up1 =
         uploadTaskId: 4
-        messageLocalId: DRAFT_LOCAL_ID
+        messageClientId: DRAFT_CLIENT_ID
         filePath: "/foo/bar/f4.bmp"
         fileName: "f4.bmp"
         fileSize: 1024
 
       @up2 =
         uploadTaskId: 5
-        messageLocalId: DRAFT_LOCAL_ID
+        messageClientId: DRAFT_CLIENT_ID
         filePath: "/foo/bar/f5.zip"
         fileName: "f5.zip"
         fileSize: 1024

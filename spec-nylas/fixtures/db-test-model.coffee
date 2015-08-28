@@ -8,12 +8,30 @@ class TestModel extends Model
       queryable: true
       modelKey: 'id'
 
+    'clientId': Attributes.String
+      queryable: true
+      modelKey: 'clientId'
+      jsonKey: 'client_id'
+
+    'serverId': Attributes.ServerId
+      queryable: true
+      modelKey: 'serverId'
+      jsonKey: 'server_id'
+
 TestModel.configureBasic = ->
   TestModel.additionalSQLiteConfig = undefined
   TestModel.attributes =
     'id': Attributes.String
       queryable: true
       modelKey: 'id'
+    'clientId': Attributes.String
+      queryable: true
+      modelKey: 'clientId'
+      jsonKey: 'client_id'
+    'serverId': Attributes.ServerId
+      queryable: true
+      modelKey: 'serverId'
+      jsonKey: 'server_id'
 
 TestModel.configureWithAllAttributes = ->
   TestModel.additionalSQLiteConfig = undefined
@@ -40,6 +58,14 @@ TestModel.configureWithCollectionAttribute = ->
     'id': Attributes.String
       queryable: true
       modelKey: 'id'
+    'clientId': Attributes.String
+      queryable: true
+      modelKey: 'clientId'
+      jsonKey: 'client_id'
+    'serverId': Attributes.ServerId
+      queryable: true
+      modelKey: 'serverId'
+      jsonKey: 'server_id'
     'labels': Attributes.Collection
       queryable: true
       modelKey: 'labels'
@@ -52,6 +78,14 @@ TestModel.configureWithJoinedDataAttribute = ->
     'id': Attributes.String
       queryable: true
       modelKey: 'id'
+    'clientId': Attributes.String
+      queryable: true
+      modelKey: 'clientId'
+      jsonKey: 'client_id'
+    'serverId': Attributes.ServerId
+      queryable: true
+      modelKey: 'serverId'
+      jsonKey: 'server_id'
     'body': Attributes.JoinedData
       modelTable: 'TestModelBody'
       modelKey: 'body'
@@ -62,6 +96,12 @@ TestModel.configureWithAdditionalSQLiteConfig = ->
     'id': Attributes.String
       queryable: true
       modelKey: 'id'
+    'clientId': Attributes.String
+      modelKey: 'clientId'
+      jsonKey: 'client_id'
+    'serverId': Attributes.ServerId
+      modelKey: 'serverId'
+      jsonKey: 'server_id'
     'body': Attributes.JoinedData
       modelTable: 'TestModelBody'
       modelKey: 'body'

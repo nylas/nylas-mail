@@ -1,5 +1,4 @@
 _ = require 'underscore'
-{generateTempId, isTempId} = require '../../src/flux/models/utils'
 
 NylasAPI = require '../../src/flux/nylas-api'
 Task = require '../../src/flux/tasks/task'
@@ -33,30 +32,27 @@ testData =
   accountId: "abc123"
   body: '<body>123</body>'
 
-localDraft = new Message _.extend {}, testData, {id: "local-id"}
-remoteDraft = new Message _.extend {}, testData, {id: "remoteid1234"}
+localDraft = -> new Message _.extend {}, testData, {clientId: "local-id"}
+remoteDraft = -> new Message _.extend {}, testData, {clientId: "local-id", serverId: "remoteid1234"}
 
 describe "SyncbackDraftTask", ->
   beforeEach ->
-    spyOn(DatabaseStore, "findByLocalId").andCallFake (klass, localId) ->
-      if localId is "localDraftId" then Promise.resolve(localDraft)
-      else if localId is "remoteDraftId" then Promise.resolve(remoteDraft)
-      else if localId is "missingDraftId" then Promise.resolve()
-
-    spyOn(DatabaseStore, 'findBy').andCallFake (klass, matchers) ->
+    spyOn(DatabaseStore, "findBy").andCallFake (klass, {clientId}) ->
       if klass is Account
-        Promise.resolve(new Account(id: 'abc123'))
+        return Promise.resolve(new Account(clientId: 'local-abc123', serverId: 'abc123'))
+
+      if clientId is "localDraftId" then Promise.resolve(localDraft())
+      else if clientId is "remoteDraftId" then Promise.resolve(remoteDraft())
+      else if clientId is "missingDraftId" then Promise.resolve()
+      else return Promise.resolve()
 
     spyOn(DatabaseStore, "persistModel").andCallFake ->
-      Promise.resolve()
-
-    spyOn(DatabaseStore, "swapModel").andCallFake ->
       Promise.resolve()
 
   describe "performRemote", ->
     beforeEach ->
       spyOn(NylasAPI, 'makeRequest').andCallFake (opts) ->
-        Promise.resolve(remoteDraft.toJSON())
+        Promise.resolve(remoteDraft().toJSON())
 
     it "does nothing if no draft can be found in the db", ->
       task = new SyncbackDraftTask("missingDraftId")
@@ -101,33 +97,7 @@ describe "SyncbackDraftTask", ->
           options = NylasAPI.makeRequest.mostRecentCall.args[0]
           expect(options.returnsModel).toBe(false)
 
-    it "should swap the ids if we got a new one from the DB", ->
-      task = new SyncbackDraftTask("localDraftId")
-      waitsForPromise =>
-        task.performRemote().then ->
-          expect(DatabaseStore.swapModel).toHaveBeenCalled()
-          expect(DatabaseStore.persistModel).not.toHaveBeenCalled()
-
-    it "should not swap the ids if we're using a persisted one", ->
-      task = new SyncbackDraftTask("remoteDraftId")
-      waitsForPromise =>
-        task.performRemote().then ->
-          expect(DatabaseStore.swapModel).not.toHaveBeenCalled()
-          expect(DatabaseStore.persistModel).toHaveBeenCalled()
-
   describe "When the api throws a 404 error", ->
     beforeEach ->
       spyOn(NylasAPI, "makeRequest").andCallFake (opts) ->
         Promise.reject(testError(opts))
-
-    it "resets the id", ->
-      task = new SyncbackDraftTask("remoteDraftId")
-      taskStatus = null
-      task.performRemote().then (status) => taskStatus = status
-
-      waitsFor ->
-        DatabaseStore.swapModel.calls.length > 0
-      runs ->
-        newDraft = DatabaseStore.swapModel.mostRecentCall.args[0].newModel
-        expect(isTempId(newDraft.id)).toBe true
-        expect(taskStatus).toBe(Task.Status.Retry)

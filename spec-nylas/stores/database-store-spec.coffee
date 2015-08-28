@@ -7,9 +7,9 @@ ModelQuery = require '../../src/flux/models/query'
 DatabaseStore = require '../../src/flux/stores/database-store'
 
 testMatchers = {'id': 'b'}
-testModelInstance = new TestModel(id: '1234')
-testModelInstanceA = new TestModel(id: 'AAA')
-testModelInstanceB = new TestModel(id: 'BBB')
+testModelInstance = new TestModel(id: "1234")
+testModelInstanceA = new TestModel(id: "AAA")
+testModelInstanceB = new TestModel(id: "BBB")
 
 describe "DatabaseStore", ->
   beforeEach ->
@@ -146,7 +146,7 @@ describe "DatabaseStore", ->
     it "should compose a REPLACE INTO query to save the model", ->
       TestModel.configureWithCollectionAttribute()
       DatabaseStore._writeModels([testModelInstance])
-      expect(@performed[0].query).toBe("REPLACE INTO `TestModel` (id,data) VALUES (?,?)")
+      expect(@performed[0].query).toBe("REPLACE INTO `TestModel` (id,data,client_id,server_id) VALUES (?,?,?,?)")
 
     it "should save the model JSON into the data column", ->
       DatabaseStore._writeModels([testModelInstance])
@@ -234,9 +234,9 @@ describe "DatabaseStore", ->
         TestModel.configureWithJoinedDataAttribute()
 
       it "should not include the value to the joined attribute in the JSON written to the main model table", ->
-        @m = new TestModel(id: 'local-6806434c-b0cd', body: 'hello world')
+        @m = new TestModel(clientId: 'local-6806434c-b0cd', serverId: 'server-1', body: 'hello world')
         DatabaseStore._writeModels([@m])
-        expect(@performed[0].values).toEqual(['local-6806434c-b0cd', '{"id":"local-6806434c-b0cd"}'])
+        expect(@performed[0].values).toEqual(['server-1', '{"client_id":"local-6806434c-b0cd","server_id":"server-1","id":"server-1"}', 'local-6806434c-b0cd', 'server-1'])
 
       it "should write the value to the joined table if it is defined", ->
         @m = new TestModel(id: 'local-6806434c-b0cd', body: 'hello world')
@@ -244,7 +244,7 @@ describe "DatabaseStore", ->
         expect(@performed[1].query).toBe('REPLACE INTO `TestModelBody` (`id`, `value`) VALUES (?, ?)')
         expect(@performed[1].values).toEqual([@m.id, @m.body])
 
-      it "should not write the valeu to the joined table if it undefined", ->
+      it "should not write the value to the joined table if it undefined", ->
         @m = new TestModel(id: 'local-6806434c-b0cd')
         DatabaseStore._writeModels([@m])
         expect(@performed.length).toBe(1)

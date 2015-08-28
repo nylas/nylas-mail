@@ -1,4 +1,5 @@
 Model = require '../../src/flux/models/model'
+Utils = require '../../src/flux/models/utils'
 Attributes = require '../../src/flux/attributes'
 {isTempId} = require '../../src/flux/models/utils'
 _ = require 'underscore'
@@ -13,22 +14,43 @@ describe "Model", ->
       expect(m.id).toBe(attrs.id)
       expect(m.accountId).toBe(attrs.accountId)
 
-    it "should assign a local- ID to the model if no ID is provided", ->
+    it "by default assigns things passed into the id constructor to the serverId", ->
+      attrs =
+        id: "A",
+      m = new Model(attrs)
+      expect(m.serverId).toBe(attrs.id)
+
+    it "by default assigns values passed into the id constructor that look like localIds to be a localID", ->
+      attrs =
+        id: "A",
+      m = new Model(attrs)
+      expect(m.serverId).toBe(attrs.id)
+
+    it "assigns serverIds and clientIds", ->
+      attrs =
+        clientId: "local-A",
+        serverId: "A",
+      m = new Model(attrs)
+      expect(m.serverId).toBe(attrs.serverId)
+      expect(m.clientId).toBe(attrs.clientId)
+      expect(m.id).toBe(attrs.serverId)
+
+    it "throws an error if you attempt to manually assign the id", ->
+      m = new Model(id: "foo")
+      expect( -> m.id = "bar" ).toThrow()
+
+    it "automatically assigns a clientId (and id) to the model if no id is provided", ->
       m = new Model
-      expect(isTempId(m.id)).toBe(true)
+      expect(Utils.isTempId(m.id)).toBe true
+      expect(Utils.isTempId(m.clientId)).toBe true
+      expect(m.serverId).toBeUndefined()
 
   describe "attributes", ->
-    it "should return the attributes of the class", ->
+    it "should return the attributes of the class EXCEPT the id field", ->
       m = new Model()
-      expect(m.attributes()).toBe(m.constructor.attributes)
-
-  describe "isSaved", ->
-    it "should return false if the object has a temp ID", ->
-      a = new Model()
-      expect(a.isSaved()).toBe(false)
-
-      b = new Model({id: "b"})
-      expect(b.isSaved()).toBe(true)
+      retAttrs = _.clone(m.constructor.attributes)
+      delete retAttrs["id"]
+      expect(m.attributes()).toEqual(retAttrs)
 
   describe "clone", ->
     it "should return a deep copy of the object", ->

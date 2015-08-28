@@ -54,9 +54,9 @@ TemplateStore = Reflux.createStore
           path: path.join(@_templatesDir, filename)
       @trigger(@)
 
-  _onCreateTemplate: ({draftLocalId, name, contents} = {}) ->
-    if draftLocalId
-      DraftStore.sessionForLocalId(draftLocalId).then (session) =>
+  _onCreateTemplate: ({draftClientId, name, contents} = {}) ->
+    if draftClientId
+      DraftStore.sessionForClientId(draftClientId).then (session) =>
         draft = session.draft()
         name ?= draft.subject
         contents ?= draft.body
@@ -92,13 +92,13 @@ TemplateStore = Reflux.createStore
         path: templatePath
       @trigger(@)
 
-  _onInsertTemplateId: ({templateId, draftLocalId} = {}) ->
+  _onInsertTemplateId: ({templateId, draftClientId} = {}) ->
     template = _.find @_items, (item) -> item.id is templateId
     return unless template
 
     fs.readFile template.path, (err, data) ->
       body = data.toString()
-      DraftStore.sessionForLocalId(draftLocalId).then (session) ->
+      DraftStore.sessionForClientId(draftClientId).then (session) ->
         session.changes.add(body: body)
 
 module.exports = TemplateStore

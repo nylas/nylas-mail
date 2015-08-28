@@ -33,12 +33,6 @@ MessageItemContainer = proxyquire("../lib/message-item-container", {
 MessageList = proxyquire '../lib/message-list',
   "./message-item-container": MessageItemContainer
 
-me = new Account
-  name: "User One",
-  emailAddress: "user1@nylas.com"
-  provider: "inbox"
-AccountStore._current = me
-
 user_1 = new Contact
   name: "User One"
   email: "user1@nylas.com"
@@ -70,7 +64,7 @@ m1 = (new Message).fromJSON({
   "snippet"   : "snippet one...",
   "subject"   : "Subject One",
   "thread_id" : "thread_12345",
-  "account_id" : "test_account_id"
+  "account_id" : TEST_ACCOUNT_ID
 })
 m2 = (new Message).fromJSON({
   "id"   : "222",
@@ -87,7 +81,7 @@ m2 = (new Message).fromJSON({
   "snippet"   : "snippet Two...",
   "subject"   : "Subject Two",
   "thread_id" : "thread_12345",
-  "account_id" : "test_account_id"
+  "account_id" : TEST_ACCOUNT_ID
 })
 m3 = (new Message).fromJSON({
   "id"   : "333",
@@ -104,7 +98,7 @@ m3 = (new Message).fromJSON({
   "snippet"   : "snippet Three...",
   "subject"   : "Subject Three",
   "thread_id" : "thread_12345",
-  "account_id" : "test_account_id"
+  "account_id" : TEST_ACCOUNT_ID
 })
 m4 = (new Message).fromJSON({
   "id"   : "444",
@@ -121,7 +115,7 @@ m4 = (new Message).fromJSON({
   "snippet"   : "snippet Four...",
   "subject"   : "Subject Four",
   "thread_id" : "thread_12345",
-  "account_id" : "test_account_id"
+  "account_id" : TEST_ACCOUNT_ID
 })
 m5 = (new Message).fromJSON({
   "id"   : "555",
@@ -138,7 +132,7 @@ m5 = (new Message).fromJSON({
   "snippet"   : "snippet Five...",
   "subject"   : "Subject Five",
   "thread_id" : "thread_12345",
-  "account_id" : "test_account_id"
+  "account_id" : TEST_ACCOUNT_ID
 })
 testMessages = [m1, m2, m3, m4, m5]
 draftMessages = [
@@ -157,11 +151,12 @@ draftMessages = [
     "snippet"   : "draft snippet one...",
     "subject"   : "Draft One",
     "thread_id" : "thread_12345",
-    "account_id" : "test_account_id"
+    "account_id" : TEST_ACCOUNT_ID
   }),
 ]
 
 test_thread = (new Thread).fromJSON({
+  "id": "12345"
   "id" : "thread_12345"
   "subject" : "Subject 12345"
 })
@@ -170,8 +165,6 @@ describe "MessageList", ->
   beforeEach ->
     MessageStore._items = []
     MessageStore._threadId = null
-    spyOn(MessageStore, "itemLocalIds").andCallFake ->
-      {"666": "666"}
     spyOn(MessageStore, "itemsLoading").andCallFake ->
       false
 
@@ -224,7 +217,7 @@ describe "MessageList", ->
         messages: msgs.concat(draftMessages)
 
       expect(@messageList._focusDraft).toHaveBeenCalled()
-      expect(@messageList._focusDraft.mostRecentCall.args[0].props.localId).toEqual(draftMessages[0].id)
+      expect(@messageList._focusDraft.mostRecentCall.args[0].props.draftClientId).toEqual(draftMessages[0].draftClientId)
 
     it "includes drafts as message item containers", ->
       msgs = @messageList.state.messages
@@ -306,7 +299,7 @@ describe "MessageList", ->
           draft: => @draft
           changes:
             add: jasmine.createSpy('session.changes.add')
-        spyOn(DraftStore, 'sessionForLocalId').andCallFake =>
+        spyOn(DraftStore, 'sessionForClientId').andCallFake =>
           Promise.resolve(@sessionStub)
 
       it "should not fire a composer action", ->

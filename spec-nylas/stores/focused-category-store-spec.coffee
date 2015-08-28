@@ -24,7 +24,7 @@ describe "FocusedCategoryStore", ->
 
       it "should set the current category to Inbox when the current category no longer exists in the CategoryStore", ->
         otherAccountInbox = @inboxCategory.clone()
-        otherAccountInbox.id = 'other-id'
+        otherAccountInbox.serverId = 'other-id'
         FocusedCategoryStore._category = otherAccountInbox
         FocusedCategoryStore._onCategoryStoreChanged()
         expect(FocusedCategoryStore.category().id).toEqual(@inboxCategory.id)

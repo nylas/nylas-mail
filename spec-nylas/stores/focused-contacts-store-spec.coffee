@@ -1,17 +1,7 @@
 proxyquire = require 'proxyquire'
 Reflux = require 'reflux'
 
-MessageStoreStub = Reflux.createStore
-  items: -> []
-  extensions: -> []
-  threadId: -> null
-
-AccountStoreStub = Reflux.createStore
-  current: -> null
-
-FocusedContactsStore = proxyquire '../../src/flux/stores/focused-contacts-store',
-  "./message-store": MessageStoreStub
-  "./account-store": AccountStoreStub
+FocusedContactsStore = require '../../src/flux/stores/focused-contacts-store'
 
 describe "FocusedContactsStore", ->
   beforeEach ->

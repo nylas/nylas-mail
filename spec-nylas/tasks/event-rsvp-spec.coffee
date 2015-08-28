@@ -15,7 +15,7 @@ describe "EventRSVPTask", ->
     @myEmail = "tester@nylas.com"
     @event = new Event
       id: '12233AEDF5'
-      accountId: 'test_account_id'
+      accountId: TEST_ACCOUNT_ID
       title: 'Meeting with Ben Bitdiddle'
       description: ''
       location: ''

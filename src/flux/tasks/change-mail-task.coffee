@@ -60,7 +60,7 @@ class ChangeMailTask extends Task
   # prepared the data they need and verified that requirements are met.
   #
   # Note: Currently, *ALL* subclasses must use `DatabaseStore.modelify`
-  # to convert `threads` and `messages` from models/ids to models.
+  # to convert `threads` and `messages` from models or ids to models.
   #
   performLocal: ->
     if @_isUndoTask and not @_restoreValues

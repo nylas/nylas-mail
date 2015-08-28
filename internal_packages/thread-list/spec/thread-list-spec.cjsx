@@ -34,20 +34,13 @@ ThreadList = require "../lib/thread-list"
 ParticipantsItem = React.createClass
   render: -> <div></div>
 
-me = new Account(
-  "name": "User One",
-  "email": "user1@nylas.com"
-  "provider": "inbox"
-)
-AccountStore._current = me
-
 test_threads = -> [
   (new Thread).fromJSON({
     "id": "111",
     "object": "thread",
     "created_at": null,
     "updated_at": null,
-    "account_id": "test_account_id",
+    "account_id": TEST_ACCOUNT_ID,
     "snippet": "snippet 111",
     "subject": "Subject 111",
     "tags": [
@@ -103,7 +96,7 @@ test_threads = -> [
     "object": "thread",
     "created_at": null,
     "updated_at": null,
-    "account_id": "test_account_id",
+    "account_id": TEST_ACCOUNT_ID,
     "snippet": "snippet 222",
     "subject": "Subject 222",
     "tags": [
@@ -153,7 +146,7 @@ test_threads = -> [
     "object": "thread",
     "created_at": null,
     "updated_at": null,
-    "account_id": "test_account_id",
+    "account_id": TEST_ACCOUNT_ID,
     "snippet": "snippet 333",
     "subject": "Subject 333",
     "tags": [

@@ -3,7 +3,6 @@ Actions = require '../../src/flux/actions'
 SyncbackDraftTask = require '../../src/flux/tasks/syncback-draft'
 SendDraftTask = require '../../src/flux/tasks/send-draft'
 DatabaseStore = require '../../src/flux/stores/database-store'
-{generateTempId} = require '../../src/flux/models/utils'
 {APIError} = require '../../src/flux/errors'
 Message = require '../../src/flux/models/message'
 TaskQueue = require '../../src/flux/stores/task-queue'
@@ -39,7 +38,7 @@ describe "SendDraftTask", ->
       expect(@sendA.shouldWaitForTask(@saveA)).toBe(true)
 
   describe "performLocal", ->
-    it "should throw an exception if the first parameter is not a localId", ->
+    it "should throw an exception if the first parameter is not a clientId", ->
       badTasks = [new SendDraftTask()]
       goodTasks = [new SendDraftTask('localid-a')]
       caught = []
@@ -60,8 +59,10 @@ describe "SendDraftTask", ->
 
   describe "performRemote", ->
     beforeEach ->
+      @draftClientId = "local-123"
       @draft = new Message
         version: '1'
+        clientId: @draftClientId
         id: '1233123AEDF1'
         accountId: 'A12ADE'
         subject: 'New Draft'
@@ -70,12 +71,13 @@ describe "SendDraftTask", ->
         to:
           name: 'Dummy'
           email: 'dummy@nylas.com'
-      @draftLocalId = "local-123"
-      @task = new SendDraftTask(@draftLocalId)
+      @task = new SendDraftTask(@draftClientId)
       spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
         options.success?(@draft.toJSON())
         Promise.resolve(@draft.toJSON())
-      spyOn(DatabaseStore, 'findByLocalId').andCallFake (klass, localId) =>
+      spyOn(DatabaseStore, 'findBy').andCallFake (klass, id) =>
+        Promise.resolve(@draft)
+      spyOn(DatabaseStore, 'find').andCallFake (klass, id) =>
         Promise.resolve(@draft)
       spyOn(DatabaseStore, 'unpersistModel').andCallFake (draft) ->
         Promise.resolve()
@@ -90,7 +92,7 @@ describe "SendDraftTask", ->
     it "should notify the draft was sent", ->
       waitsForPromise => @task.performRemote().then =>
         args = Actions.sendDraftSuccess.calls[0].args[0]
-        expect(args.draftLocalId).toBe @draftLocalId
+        expect(args.draftClientId).toBe @draftClientId
 
     it "get an object back on success", ->
       waitsForPromise => @task.performRemote().then =>
@@ -117,12 +119,12 @@ describe "SendDraftTask", ->
             expect(NylasAPI.makeRequest.calls.length).toBe(1)
             options = NylasAPI.makeRequest.mostRecentCall.args[0]
             expect(options.body.version).toBe(@draft.version)
-            expect(options.body.draft_id).toBe(@draft.id)
+            expect(options.body.draft_id).toBe(@draft.serverId)
 
     describe "when the draft has not been saved", ->
       beforeEach ->
         @draft = new Message
-          id: generateTempId()
+          id: "local-12345"
           accountId: 'A12ADE'
           subject: 'New Draft'
           draft: true
@@ -130,7 +132,7 @@ describe "SendDraftTask", ->
           to:
             name: 'Dummy'
             email: 'dummy@nylas.com'
-        @task = new SendDraftTask(@draftLocalId)
+        @task = new SendDraftTask(@draftClientId)
 
       it "should send the draft JSON", ->
         waitsForPromise =>
@@ -157,7 +159,7 @@ describe "SendDraftTask", ->
     beforeEach ->
       @draft = new Message
         version: '1'
-        id: '1233123AEDF1'
+        clientId: 'local-1234'
         accountId: 'A12ADE'
         threadId: 'threadId'
         replyToMessageId: 'replyToMessageId'
@@ -167,15 +169,15 @@ describe "SendDraftTask", ->
         to:
           name: 'Dummy'
           email: 'dummy@nylas.com'
-      @task = new SendDraftTask(@draft.id)
+      @task = new SendDraftTask("local-1234")
       spyOn(Actions, "dequeueTask")
       spyOn(DatabaseStore, 'unpersistModel').andCallFake (draft) ->
         Promise.resolve()
 
     describe "when the server responds with `Invalid message public ID`", ->
       it "should resend the draft without the reply_to_message_id key set", ->
-        @draft.id = generateTempId()
-        spyOn(DatabaseStore, 'findByLocalId').andCallFake => Promise.resolve(@draft)
+        spyOn(DatabaseStore, 'findBy').andCallFake =>
+          Promise.resolve(@draft)
         spyOn(NylasAPI, 'makeRequest').andCallFake ({body, success, error}) =>
           if body.reply_to_message_id
             err = new APIError(body: "Invalid message public id", statusCode: 400)
@@ -193,8 +195,7 @@ describe "SendDraftTask", ->
 
     describe "when the server responds with `Invalid thread ID`", ->
       it "should resend the draft without the thread_id or reply_to_message_id keys set", ->
-        @draft.id = generateTempId()
-        spyOn(DatabaseStore, 'findByLocalId').andCallFake => Promise.resolve(@draft)
+        spyOn(DatabaseStore, 'findBy').andCallFake => Promise.resolve(@draft)
         spyOn(NylasAPI, 'makeRequest').andCallFake ({body, success, error}) =>
           new Promise (resolve, reject) =>
             if body.thread_id
@@ -214,21 +215,21 @@ describe "SendDraftTask", ->
             console.log(err.trace)
 
     it "throws an error if the draft can't be found", ->
-      spyOn(DatabaseStore, 'findByLocalId').andCallFake (klass, localId) ->
+      spyOn(DatabaseStore, 'findBy').andCallFake (klass, clientId) ->
         Promise.resolve()
       waitsForPromise =>
         @task.performRemote().catch (error) ->
           expect(error.message).toBeDefined()
 
     it "throws an error if the draft isn't saved", ->
-      spyOn(DatabaseStore, 'findByLocalId').andCallFake (klass, localId) ->
-        Promise.resolve(isSaved: false)
+      spyOn(DatabaseStore, 'findBy').andCallFake (klass, clientId) ->
+        Promise.resolve(serverId: null)
       waitsForPromise =>
         @task.performRemote().catch (error) ->
           expect(error.message).toBeDefined()
 
     it "throws an error if the DB store has issues", ->
-      spyOn(DatabaseStore, 'findByLocalId').andCallFake (klass, localId) ->
+      spyOn(DatabaseStore, 'findBy').andCallFake (klass, clientId) ->
         Promise.reject("DB error")
       waitsForPromise =>
         @task.performRemote().catch (error) ->

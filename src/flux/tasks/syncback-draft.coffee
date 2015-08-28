@@ -1,5 +1,4 @@
 _ = require 'underscore'
-{isTempId, generateTempId} = require '../models/utils'
 
 Actions = require '../actions'
 DatabaseStore = require '../stores/database-store'
@@ -18,21 +17,21 @@ FileUploadTask = require './file-upload-task'
 module.exports =
 class SyncbackDraftTask extends Task
 
-  constructor: (@draftLocalId) ->
+  constructor: (@draftClientId) ->
     super
 
   shouldDequeueOtherTask: (other) ->
-    other instanceof SyncbackDraftTask and other.draftLocalId is @draftLocalId and other.creationDate < @creationDate
+    other instanceof SyncbackDraftTask and other.draftClientId is @draftClientId and other.creationDate < @creationDate
 
   shouldWaitForTask: (other) ->
-    other instanceof SyncbackDraftTask and other.draftLocalId is @draftLocalId and other.creationDate < @creationDate
+    other instanceof SyncbackDraftTask and other.draftClientId is @draftClientId and other.creationDate < @creationDate
 
   performLocal: ->
     # SyncbackDraftTask does not do anything locally. You should persist your changes
     # to the local database directly or using a DraftStoreProxy, and then queue a
     # SyncbackDraftTask to send those changes to the server.
-    if not @draftLocalId
-      errMsg = "Attempt to call SyncbackDraftTask.performLocal without @draftLocalId"
+    if not @draftClientId
+      errMsg = "Attempt to call SyncbackDraftTask.performLocal without @draftClientId"
       return Promise.reject(new Error(errMsg))
     Promise.resolve()
 
@@ -42,8 +41,8 @@ class SyncbackDraftTask extends Task
       return Promise.resolve() unless draft
       @checkDraftFromMatchesAccount(draft).then (draft) =>
 
-        if draft.isSaved()
-          path = "/drafts/#{draft.id}"
+        if draft.serverId
+          path = "/drafts/#{draft.serverId}"
           method = 'PUT'
         else
           path = "/drafts"
@@ -71,38 +70,31 @@ class SyncbackDraftTask extends Task
           # below. We currently have no way of locking between processes. Maybe a
           # log-style data structure would be better suited for drafts.
           #
-          @getLatestLocalDraft().then (draft) =>
-            updatedDraft = draft.clone()
-            updatedDraft.version = json.version
-            updatedDraft.id = json.id
-
-            if updatedDraft.id != draft.id
-              DatabaseStore.swapModel(oldModel: draft, newModel: updatedDraft, localId: @draftLocalId)
-            else
-              DatabaseStore.persistModel(updatedDraft)
+          @getLatestLocalDraft().then (draft) ->
+            draft.version = json.version
+            draft.serverId = json.id
+            DatabaseStore.persistModel(draft)
 
         .then =>
           return Promise.resolve(Task.Status.Finished)
 
         .catch APIError, (err) =>
           if err.statusCode in [400, 404, 409] and err.requestOptions.method is 'PUT'
-            return @getLatestLocalDraft().then (draft) =>
-              @detatchFromRemoteID(draft).then =>
-                Promise.resolve(Task.Status.Retry)
+            return Promise.resolve(Task.Status.Retry)
 
           if err.statusCode in NylasAPI.PermanentErrorCodes
             return Promise.resolve(Task.Status.Finished)
 
           return Promise.resolve(Task.Status.Retry)
 
-  getLatestLocalDraft: ->
-    DatabaseStore.findByLocalId(Message, @draftLocalId)
+  getLatestLocalDraft: =>
+    DatabaseStore.findBy(Message, clientId: @draftClientId)
 
-  checkDraftFromMatchesAccount: (existingAccountDraft) ->
-    DatabaseStore.findBy(Account, [Account.attributes.emailAddress.equal(existingAccountDraft.from[0].email)]).then (acct) =>
-      promise = Promise.resolve(existingAccountDraft)
+  checkDraftFromMatchesAccount: (draft) ->
+    DatabaseStore.findBy(Account, [Account.attributes.emailAddress.equal(draft.from[0].email)]).then (account) =>
+      promise = Promise.resolve(draft)
 
-      if existingAccountDraft.accountId isnt acct.id
+      if draft.accountId isnt account.id
         DestroyDraftTask = require './destroy-draft'
         destroy = new DestroyDraftTask(draftId: existingAccountDraft.id)
         promise = TaskQueueStatusStore.waitForPerformLocal(destroy).then =>
@@ -115,11 +107,11 @@ class SyncbackDraftTask extends Task
   detatchFromRemoteID: (draft, newAccountId = null) ->
     return Promise.resolve() unless draft
     newDraft = new Message(draft)
-    newDraft.id = generateTempId()
     newDraft.accountId = newAccountId if newAccountId
 
+    delete newDraft.serverId
+    delete newDraft.version
     delete newDraft.threadId
     delete newDraft.replyToMessageId
 
-    DatabaseStore.swapModel(oldModel: draft, newModel: newDraft, localId: @draftLocalId).then =>
-      Promise.resolve(newDraft)
+    DatabaseStore.persistModel(newDraft)

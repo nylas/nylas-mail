@@ -250,7 +250,7 @@ class Application
 
     @on 'application:send-feedback', => @windowManager.sendToMainWindow('send-feedback')
     @on 'application:open-preferences', => @windowManager.sendToMainWindow('open-preferences')
-    @on 'application:show-main-window', => @windowManager.ensurePrimaryWindowOnscreen()
+    @on 'application:show-main-window', => @windowManager.openWindowsForTokenState()
     @on 'application:show-work-window', => @windowManager.showWorkWindow()
     @on 'application:check-for-update', => @autoUpdateManager.check()
     @on 'application:install-update', =>
@@ -259,9 +259,9 @@ class Application
       @autoUpdateManager.install()
     @on 'application:open-dev', =>
       @devMode = true
-      @windowManager.closeMainWindow()
+      @windowManager.closeAllWindows()
       @windowManager.devMode = true
-      @windowManager.ensurePrimaryWindowOnscreen()
+      @windowManager.openWindowsForTokenState()
 
     @on 'application:toggle-theme', =>
       themes = @config.get('core.themes') ? []
@@ -326,7 +326,7 @@ class Application
       @windowManager.sendToMainWindow('from-react-remote-window', json)
 
     app.on 'activate-with-no-open-windows', (event) =>
-      @windowManager.ensurePrimaryWindowOnscreen()
+      @windowManager.openWindowsForTokenState()
       event.preventDefault()
 
     ipc.on 'update-application-menu', (event, template, keystrokesByCommand) =>

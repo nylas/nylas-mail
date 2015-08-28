@@ -22,7 +22,7 @@ DraftChangeSet associated with the store proxy. The DraftChangeSet does two thin
 Section: Drafts
 ###
 class DraftChangeSet
-  constructor: (@localId, @_onChange) ->
+  constructor: (@clientId, @_onChange) ->
     @_commitChain = Promise.resolve()
     @_pending = {}
     @_saving = {}
@@ -51,19 +51,19 @@ class DraftChangeSet
         return Promise.resolve(true)
 
       DatabaseStore = require './database-store'
-      return DatabaseStore.findByLocalId(Message, @localId).then (draft) =>
+      DatabaseStore.findBy(Message, clientId: @clientId).then (draft) =>
         if @_destroyed
           return Promise.resolve(true)
 
         if not draft
-          throw new Error("DraftChangeSet.commit: Assertion failure. Draft #{@localId} is not in the database.")
+          throw new Error("DraftChangeSet.commit: Assertion failure. Draft #{@clientId} is not in the database.")
 
         @_saving = @_pending
         @_pending = {}
         draft = @applyToModel(draft)
 
         return DatabaseStore.persistModel(draft).then =>
-          syncback = new SyncbackDraftTask(@localId)
+          syncback = new SyncbackDraftTask(@clientId)
           Actions.queueTask(syncback)
           @_saving = {}
 
@@ -94,17 +94,16 @@ class DraftStoreProxy
   @include Publisher
   @include Listener
 
-  constructor: (@draftLocalId, draft = null) ->
+  constructor: (@draftClientId, draft = null) ->
     DraftStore = require './draft-store'
 
     @listenTo DraftStore, @_onDraftChanged
-    @listenTo Actions.didSwapModel, @_onDraftSwapped
 
     @_draft = false
     @_draftPristineBody = null
     @_destroyed = false
 
-    @changes = new DraftChangeSet @draftLocalId, =>
+    @changes = new DraftChangeSet @draftClientId, =>
       return if @_destroyed
       if !@_draft
         throw new Error("DraftChangeSet was modified before the draft was prepared.")
@@ -115,7 +114,7 @@ class DraftStoreProxy
       @_draftPromise = Promise.resolve(@)
 
     @prepare()
-    
+
   # Public: Returns the draft object with the latest changes applied.
   #
   draft: ->
@@ -131,9 +130,9 @@ class DraftStoreProxy
 
   prepare: ->
     DatabaseStore = require './database-store'
-    @_draftPromise ?= DatabaseStore.findByLocalId(Message, @draftLocalId).then (draft) =>
+    @_draftPromise ?= DatabaseStore.findBy(Message, clientId: @draftClientId).then (draft) =>
       return Promise.reject(new Error("Draft has been destroyed.")) if @_destroyed
-      return Promise.reject(new Error("Assertion Failure: Draft #{@draftLocalId} not found.")) if not draft
+      return Promise.reject(new Error("Assertion Failure: Draft #{@draftClientId} not found.")) if not draft
       @_setDraft(draft)
       Promise.resolve(@)
     @_draftPromise
@@ -166,13 +165,5 @@ class DraftStoreProxy
     if myDrafts.length > 0
       @_draft = _.extend @_draft, _.last(myDrafts)
       @trigger()
-
-  _onDraftSwapped: (change) ->
-    # A draft was saved with a new ID. Since we use the draft ID to
-    # watch for changes to our draft, we need to pull again using our
-    # localId.
-    if change.oldModel.id is @_draft.id
-      @_setDraft(change.newModel)
-
 
 module.exports = DraftStoreProxy

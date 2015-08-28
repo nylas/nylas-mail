@@ -11,7 +11,7 @@ class MyComposerButton extends React.Component
   # reference to the draft, and you can look it up to perform
   # actions and retrieve data.
   @propTypes:
-    draftLocalId: React.PropTypes.string.isRequired
+    draftClientId: React.PropTypes.string.isRequired
 
   render: =>
     <div className="my-package">
@@ -24,7 +24,7 @@ class MyComposerButton extends React.Component
     # To retrieve information about the draft, we fetch the current editing
     # session from the draft store. We can access attributes of the draft
     # and add changes to the session which will be appear immediately.
-    DraftStore.sessionForLocalId(@props.draftLocalId).then (session) =>
+    DraftStore.sessionForClientId(@props.draftClientId).then (session) =>
       newSubject = "#{session.draft().subject} - It Worked!"
 
       dialog = @_getDialog()

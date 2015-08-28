@@ -213,8 +213,9 @@ class NylasAPI
 
     return Promise.resolve()
 
-  # Returns a Promsie that resolves when any parsed out models (if any)
+  # Returns a Promise that resolves when any parsed out models (if any)
   # have been created and persisted to the database.
+  #
   _handleModelResponse: (jsons) ->
     if not jsons
       return Promise.reject(new Error("handleModelResponse with no JSON provided"))
@@ -223,26 +224,49 @@ class NylasAPI
     if jsons.length is 0
       return Promise.resolve([])
 
-    # Run a few assertions to make sure we're not going to run into problems
-    uniquedJSONs = _.uniq jsons, false, (model) -> model.id
-    if uniquedJSONs.length < jsons.length
-      console.warn("NylasAPI.handleModelResponse: called with non-unique object set. Maybe an API request returned the same object more than once?")
-
     type = jsons[0].object
     klass = @_apiObjectToClassMap[type]
     if not klass
       console.warn("NylasAPI::handleModelResponse: Received unknown API object type: #{type}")
       return Promise.resolve([])
 
-    accepted = Promise.resolve(uniquedJSONs)
-    if type is "thread" or type is "draft"
-      accepted = @_acceptableModelsInResponse(klass, uniquedJSONs)
+    # Step 1: Make sure the list of objects contains no duplicates, which cause
+    # problems downstream when we try to write to the database.
+    uniquedJSONs = _.uniq jsons, false, (model) -> model.id
+    if uniquedJSONs.length < jsons.length
+      console.warn("NylasAPI.handleModelResponse: called with non-unique object set. Maybe an API request returned the same object more than once?")
 
-    mapper = (json) -> (new klass).fromJSON(json)
+    # Step 2: Filter out any objects locked by the optimistic change tracker.
+    unlockedJSONs = _.filter uniquedJSONs, (json) =>
+      if @_optimisticChangeTracker.acceptRemoteChangesTo(klass, json.id) is false
+        json._delta?.ignoredBecause = "This model is locked by the optimistic change tracker"
+        return false
+      return true
 
-    accepted.map(mapper).then (objects) ->
-      DatabaseStore.persistModels(objects).then ->
-        return Promise.resolve(objects)
+    # Step 3: Retrieve any existing models from the database for the given IDs.
+    ids = _.pluck(unlockedJSONs, 'id')
+    DatabaseStore = require './stores/database-store'
+    DatabaseStore.findAll(klass).where(klass.attributes.id.in(ids)).then (models) ->
+      existingModels = {}
+      existingModels[model.id] = model for model in models
+
+      responseModels = []
+      changedModels = []
+
+      # Step 4: Merge the response data into the existing data for each model,
+      # skipping changes when we already have the given version
+      unlockedJSONs.forEach (json) =>
+        model = existingModels[json.id]
+        unless model and model.version? and json.version? and model.version is json.version
+          model ?= new klass()
+          model.fromJSON(json)
+          changedModels.push(model)
+        responseModels.push(model)
+
+      # Step 5: Save models that have changed, and then return all of the models
+      # that were in the response body.
+      DatabaseStore.persistModels(changedModels).then ->
+        return Promise.resolve(responseModels)
 
   _apiObjectToClassMap:
     "file": require('./models/file')
@@ -256,25 +280,6 @@ class NylasAPI
     "contact": require('./models/contact')
     "calendar": require('./models/calendar')
     "metadata": require('./models/metadata')
-
-  _acceptableModelsInResponse: (klass, jsons) ->
-    # Filter out models that are locked by pending optimistic changes
-    accepted = jsons.filter (json) =>
-      if @_optimisticChangeTracker.acceptRemoteChangesTo(klass, json.id) is false
-        json._delta?.ignoredBecause = "This model is locked by the optimistic change tracker"
-        return false
-      return true
-
-    # Filter out models that already have newer versions in the local cache
-    ids = _.pluck(accepted, 'id')
-    DatabaseStore = require './stores/database-store'
-    DatabaseStore.findVersions(klass, ids).then (versions) ->
-      accepted = accepted.filter (json) ->
-        if json.version and versions[json.id] >= json.version
-          json._delta?.ignoredBecause = "This version (#{json.version}) is not newer. Already have (#{versions[json.id]})"
-          return false
-        return true
-      Promise.resolve(accepted)
 
   getThreads: (accountId, params = {}, requestOptions = {}) ->
     requestSuccess = requestOptions.success

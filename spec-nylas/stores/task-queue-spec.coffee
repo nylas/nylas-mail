@@ -2,8 +2,6 @@ Actions = require '../../src/flux/actions'
 TaskQueue = require '../../src/flux/stores/task-queue'
 Task = require '../../src/flux/tasks/task'
 
-{isTempId} = require '../../src/flux/models/utils'
-
 {APIError,
  OfflineError,
  TimeoutError} = require '../../src/flux/errors'
