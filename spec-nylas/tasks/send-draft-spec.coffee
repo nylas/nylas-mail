@@ -72,22 +72,18 @@ describe "SendDraftTask", ->
           name: 'Dummy'
           email: 'dummy@nylas.com'
       @task = new SendDraftTask(@draftClientId)
+
+
       spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
         options.success?(@draft.toJSON())
         Promise.resolve(@draft.toJSON())
-      spyOn(DatabaseStore, 'findBy').andCallFake (klass, id) =>
-        Promise.resolve(@draft)
-      spyOn(DatabaseStore, 'find').andCallFake (klass, id) =>
+      spyOn(DatabaseStore, 'run').andCallFake (klass, id) =>
         Promise.resolve(@draft)
       spyOn(DatabaseStore, 'unpersistModel').andCallFake (draft) ->
         Promise.resolve()
       spyOn(atom, "playSound")
       spyOn(Actions, "postNotification")
       spyOn(Actions, "sendDraftSuccess")
-
-    it "should unpersist when successfully sent", ->
-      waitsForPromise => @task.performRemote().then =>
-        expect(DatabaseStore.unpersistModel).toHaveBeenCalledWith(@draft)
 
     it "should notify the draft was sent", ->
       waitsForPromise => @task.performRemote().then =>
@@ -176,7 +172,7 @@ describe "SendDraftTask", ->
 
     describe "when the server responds with `Invalid message public ID`", ->
       it "should resend the draft without the reply_to_message_id key set", ->
-        spyOn(DatabaseStore, 'findBy').andCallFake =>
+        spyOn(DatabaseStore, 'run').andCallFake =>
           Promise.resolve(@draft)
         spyOn(NylasAPI, 'makeRequest').andCallFake ({body, success, error}) =>
           if body.reply_to_message_id
@@ -195,7 +191,7 @@ describe "SendDraftTask", ->
 
     describe "when the server responds with `Invalid thread ID`", ->
       it "should resend the draft without the thread_id or reply_to_message_id keys set", ->
-        spyOn(DatabaseStore, 'findBy').andCallFake => Promise.resolve(@draft)
+        spyOn(DatabaseStore, 'run').andCallFake => Promise.resolve(@draft)
         spyOn(NylasAPI, 'makeRequest').andCallFake ({body, success, error}) =>
           new Promise (resolve, reject) =>
             if body.thread_id
@@ -215,21 +211,21 @@ describe "SendDraftTask", ->
             console.log(err.trace)
 
     it "throws an error if the draft can't be found", ->
-      spyOn(DatabaseStore, 'findBy').andCallFake (klass, clientId) ->
+      spyOn(DatabaseStore, 'run').andCallFake (klass, clientId) ->
         Promise.resolve()
       waitsForPromise =>
         @task.performRemote().catch (error) ->
           expect(error.message).toBeDefined()
 
     it "throws an error if the draft isn't saved", ->
-      spyOn(DatabaseStore, 'findBy').andCallFake (klass, clientId) ->
+      spyOn(DatabaseStore, 'run').andCallFake (klass, clientId) ->
         Promise.resolve(serverId: null)
       waitsForPromise =>
         @task.performRemote().catch (error) ->
           expect(error.message).toBeDefined()
 
     it "throws an error if the DB store has issues", ->
-      spyOn(DatabaseStore, 'findBy').andCallFake (klass, clientId) ->
+      spyOn(DatabaseStore, 'run').andCallFake (klass, clientId) ->
         Promise.reject("DB error")
       waitsForPromise =>
         @task.performRemote().catch (error) ->
