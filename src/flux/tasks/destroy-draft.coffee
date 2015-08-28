@@ -35,7 +35,7 @@ class DestroyDraftTask extends Task
     else
       return Promise.reject(new Error("Attempt to call DestroyDraftTask.performLocal without draftClientId"))
 
-    find.then (draft) =>
+    find.include(Message.attributes.body).then (draft) =>
       return Promise.resolve() unless draft
       @draft = draft
       DatabaseStore.unpersistModel(draft)

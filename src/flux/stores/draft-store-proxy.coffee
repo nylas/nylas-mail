@@ -51,7 +51,7 @@ class DraftChangeSet
         return Promise.resolve(true)
 
       DatabaseStore = require './database-store'
-      DatabaseStore.findBy(Message, clientId: @clientId).then (draft) =>
+      DatabaseStore.findBy(Message, clientId: @clientId).include(Message.attributes.body).then (draft) =>
         if @_destroyed
           return Promise.resolve(true)
 
@@ -130,7 +130,7 @@ class DraftStoreProxy
 
   prepare: ->
     DatabaseStore = require './database-store'
-    @_draftPromise ?= DatabaseStore.findBy(Message, clientId: @draftClientId).then (draft) =>
+    @_draftPromise ?= DatabaseStore.findBy(Message, clientId: @draftClientId).include(Message.attributes.body).then (draft) =>
       return Promise.reject(new Error("Draft has been destroyed.")) if @_destroyed
       return Promise.reject(new Error("Assertion Failure: Draft #{@draftClientId} not found.")) if not draft
       @_setDraft(draft)

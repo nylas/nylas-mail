@@ -88,7 +88,7 @@ class SyncbackDraftTask extends Task
           return Promise.resolve(Task.Status.Retry)
 
   getLatestLocalDraft: =>
-    DatabaseStore.findBy(Message, clientId: @draftClientId)
+    DatabaseStore.findBy(Message, clientId: @draftClientId).include(Message.attributes.body)
 
   checkDraftFromMatchesAccount: (draft) ->
     DatabaseStore.findBy(Account, [Account.attributes.emailAddress.equal(draft.from[0].email)]).then (account) =>

@@ -35,7 +35,7 @@ class SendDraftTask extends Task
   performRemote: ->
     # Fetch the latest draft data to make sure we make the request with the most
     # recent draft version
-    DatabaseStore.findBy(Message, clientId: @draftClientId).then (draft) =>
+    DatabaseStore.findBy(Message, clientId: @draftClientId).include(Message.attributes.body).then (draft) =>
       # The draft may have been deleted by another task. Nothing we can do.
       @draft = draft
       if not draft
