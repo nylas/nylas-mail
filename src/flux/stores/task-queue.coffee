@@ -1,7 +1,6 @@
 _ = require 'underscore'
 fs = require 'fs-plus'
 path = require 'path'
-{generateTempId} = require '../models/utils'
 
 {Listener, Publisher} = require '../modules/reflux-coffee'
 CoffeeHelpers = require '../coffee-helpers'
@@ -100,7 +99,7 @@ class TaskQueue
     {SaveDraftTask} or 'SaveDraftTask')
 
   - `matching`: Optional An {Object} with criteria to pass to _.isMatch. For a
-     SaveDraftTask, this could be {draftLocalId: "123123"}
+     SaveDraftTask, this could be {draftClientId: "123123"}
 
   Returns a matching {Task}, or null.
   ###

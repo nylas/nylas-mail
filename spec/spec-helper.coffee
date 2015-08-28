@@ -19,6 +19,7 @@ ServiceHub = require 'service-hub'
 pathwatcher = require 'pathwatcher'
 clipboard = require 'clipboard'
 
+Account = require "../src/flux/models/account"
 AccountStore = require "../src/flux/stores/account-store"
 Contact = require '../src/flux/models/contact'
 {TaskQueue, ComponentRegistry} = require "nylas-exports"
@@ -104,6 +105,10 @@ Promise.setScheduler (fn) ->
   setTimeout(fn, 0)
   process.nextTick -> advanceClock(1)
 
+# So it passes the Utils.isTempId test
+window.TEST_ACCOUNT_CLIENT_ID = "local-test-account-client-id"
+window.TEST_ACCOUNT_ID = "test-account-server-id"
+
 beforeEach ->
   atom.testOrganizationUnit = null
   Grim.clearDeprecations() if isCoreSpec
@@ -146,9 +151,13 @@ beforeEach ->
   spyOn(atom.menu, 'sendToBrowserProcess')
 
   # Log in a fake user
-  spyOn(AccountStore, 'current').andCallFake ->
+  spyOn(AccountStore, 'current').andCallFake -> new Account
+    name: "Nylas Test"
+    provider: "gmail"
     emailAddress: 'tester@nylas.com'
-    id: 'test_account_id'
+    organizationUnit: atom.testOrganizationUnit
+    clientId: TEST_ACCOUNT_CLIENT_ID
+    serverId: TEST_ACCOUNT_ID
     usesLabels: -> atom.testOrganizationUnit is "label"
     usesFolders: -> atom.testOrganizationUnit is "folder"
     me: ->

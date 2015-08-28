@@ -16,7 +16,7 @@ MessageItemContainer = proxyquire '../lib/message-item-container',
 {InjectedComponent} = require 'nylas-component-kit'
 
 testThread = new Thread(id: "t1")
-testLocalId = "local-id"
+testClientId = "local-id"
 testMessage = new Message(id: "m1", draft: false, unread: true)
 testDraft = new Message(id: "d1", draft: true, unread: true)
 
@@ -30,7 +30,7 @@ describe 'MessageItemContainer', ->
     ReactTestUtils.renderIntoDocument(
       <MessageItemContainer thread={testThread}
                             message={message}
-                            localId={testLocalId} />
+                            draftClientId={testClientId} />
     )
 
   it "shows composer if it's a draft", ->

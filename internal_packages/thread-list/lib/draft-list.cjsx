@@ -64,16 +64,14 @@ class DraftList extends React.Component
       collection="draft" />
 
   _onDoubleClick: (item) =>
-    DatabaseStore.localIdForModel(item).then (localId) ->
-      Actions.composePopoutDraft(localId)
+    Actions.composePopoutDraft(item.clientId)
 
   # Additional Commands
 
   _onDelete: ({focusedId}) =>
     item = DraftListStore.view().getById(focusedId)
     return unless item
-    DatabaseStore.localIdForModel(item).then (localId) ->
-      Actions.destroyDraft(localId)
+    Actions.destroyDraft(item.clientId)
 
 
 module.exports = DraftList

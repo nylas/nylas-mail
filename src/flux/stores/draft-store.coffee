@@ -18,7 +18,7 @@ Actions = require '../actions'
 
 TaskQueue = require './task-queue'
 
-{subjectWithPrefix, generateTempId} = require '../models/utils'
+{subjectWithPrefix} = require '../models/utils'
 {Listener, Publisher} = require '../modules/reflux-coffee'
 CoffeeHelpers = require '../coffee-helpers'
 DOMUtils = require '../../dom-utils'
@@ -46,7 +46,7 @@ class DraftStore
     @listenTo Actions.composeReply, @_onComposeReply
     @listenTo Actions.composeForward, @_onComposeForward
     @listenTo Actions.composeReplyAll, @_onComposeReplyAll
-    @listenTo Actions.composePopoutDraft, @_onPopoutDraftLocalId
+    @listenTo Actions.composePopoutDraft, @_onPopoutDraftClientId
     @listenTo Actions.composeNewBlankDraft, @_onPopoutBlankDraft
 
     atom.commands.add 'body',
@@ -89,30 +89,30 @@ class DraftStore
   ######### PUBLIC #######################################################
 
   # Public: Fetch a {DraftStoreProxy} for displaying and/or editing the
-  # draft with `localId`.
+  # draft with `clientId`.
   #
   # Example:
   #
   # ```coffee
-  # session = DraftStore.sessionForLocalId(localId)
+  # session = DraftStore.sessionForClientId(clientId)
   # session.prepare().then ->
   #    # session.draft() is now ready
   # ```
   #
-  # - `localId` The {String} local ID of the draft.
+  # - `clientId` The {String} clientId of the draft.
   #
   # Returns a {Promise} that resolves to an {DraftStoreProxy} for the
   # draft once it has been prepared:
-  sessionForLocalId: (localId) =>
-    if not localId
-      throw new Error("DraftStore::sessionForLocalId requires a localId")
-    @_draftSessions[localId] ?= new DraftStoreProxy(localId)
-    @_draftSessions[localId].prepare()
+  sessionForClientId: (clientId) =>
+    if not clientId
+      throw new Error("DraftStore::sessionForClientId requires a clientId")
+    @_draftSessions[clientId] ?= new DraftStoreProxy(clientId)
+    @_draftSessions[clientId].prepare()
 
-  # Public: Look up the sending state of the given draft Id.
+  # Public: Look up the sending state of the given draftClientId.
   # In popout windows the existance of the window is the sending state.
-  isSendingDraft: (draftLocalId) ->
-    return @_draftsSending[draftLocalId]?
+  isSendingDraft: (draftClientId) ->
+    return @_draftsSending[draftClientId]?
 
   ###
   Composer Extensions
@@ -142,7 +142,7 @@ class DraftStore
 
   _doneWithSession: (session) ->
     session.teardown()
-    delete @_draftSessions[session.draftLocalId]
+    delete @_draftSessions[session.draftClientId]
 
   _onBeforeUnload: =>
     promises = []
@@ -153,7 +153,7 @@ class DraftStore
     # window.close() within on onbeforeunload could do weird things.
     for key, session of @_draftSessions
       if session.draft()?.pristine
-        Actions.queueTask(new DestroyDraftTask(draftLocalId: session.draftLocalId))
+        Actions.queueTask(new DestroyDraftTask(draftClientId: session.draftClientId))
       else
         promises.push(session.changes.commit())
 
@@ -204,19 +204,12 @@ class DraftStore
       continue unless extension.prepareNewDraft
       extension.prepareNewDraft(draft)
 
-    # Normally we'd allow the DatabaseStore to create a localId, wait for it to
-    # commit a LocalLink and resolve, etc. but it's faster to create one now.
-    draftLocalId = generateTempId()
-
     # Optimistically create a draft session and hand it the draft so that it
     # doesn't need to do a query for it a second from now when the composer wants it.
-    @_draftSessions[draftLocalId] = new DraftStoreProxy(draftLocalId, draft)
+    @_draftSessions[draft.clientId] = new DraftStoreProxy(draft.clientId, draft)
 
-    Promise.all([
-      DatabaseStore.bindToLocalId(draft, draftLocalId)
-      DatabaseStore.persistModel(draft)
-    ]).then =>
-      return Promise.resolve({draftLocalId})
+    DatabaseStore.persistModel(draft).then =>
+      Promise.resolve(draftClientId: draft.clientId)
 
   _newMessageWithContext: ({thread, threadId, message, messageId, popout}, attributesCallback) =>
     return unless AccountStore.current()
@@ -254,34 +247,34 @@ class DraftStore
         DOMUtils.escapeHTMLCharacters(_.invoke(cs, "toString").join(", "))
 
       if attributes.replyToMessage
-        msg = attributes.replyToMessage
+        replyToMessage = attributes.replyToMessage
 
-        attributes.subject = subjectWithPrefix(msg.subject, 'Re:')
-        attributes.replyToMessageId = msg.id
+        attributes.subject = subjectWithPrefix(replyToMessage.subject, 'Re:')
+        attributes.replyToMessageId = replyToMessage.id
         attributes.body = """
           <br><br><blockquote class="gmail_quote"
             style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
-            #{DOMUtils.escapeHTMLCharacters(msg.replyAttributionLine())}
+            #{DOMUtils.escapeHTMLCharacters(replyToMessage.replyAttributionLine())}
             <br>
-            #{@_formatBodyForQuoting(msg.body)}
+            #{@_formatBodyForQuoting(replyToMessage.body)}
           </blockquote>"""
         delete attributes.quotedMessage
 
       if attributes.forwardMessage
-        msg = attributes.forwardMessage
+        forwardMessage = attributes.forwardMessage
         fields = []
-        fields.push("From: #{contactsAsHtml(msg.from)}") if msg.from.length > 0
-        fields.push("Subject: #{msg.subject}")
-        fields.push("Date: #{msg.formattedDate()}")
-        fields.push("To: #{contactsAsHtml(msg.to)}") if msg.to.length > 0
-        fields.push("CC: #{contactsAsHtml(msg.cc)}") if msg.cc.length > 0
-        fields.push("BCC: #{contactsAsHtml(msg.bcc)}") if msg.bcc.length > 0
+        fields.push("From: #{contactsAsHtml(forwardMessage.from)}") if forwardMessage.from.length > 0
+        fields.push("Subject: #{forwardMessage.subject}")
+        fields.push("Date: #{forwardMessage.formattedDate()}")
+        fields.push("To: #{contactsAsHtml(forwardMessage.to)}") if forwardMessage.to.length > 0
+        fields.push("CC: #{contactsAsHtml(forwardMessage.cc)}") if forwardMessage.cc.length > 0
+        fields.push("BCC: #{contactsAsHtml(forwardMessage.bcc)}") if forwardMessage.bcc.length > 0
 
-        if msg.files?.length > 0
+        if forwardMessage.files?.length > 0
           attributes.files ?= []
-          attributes.files = attributes.files.concat(msg.files)
+          attributes.files = attributes.files.concat(forwardMessage.files)
 
-        attributes.subject = subjectWithPrefix(msg.subject, 'Fwd:')
+        attributes.subject = subjectWithPrefix(forwardMessage.subject, 'Fwd:')
         attributes.body = """
           <br><br><blockquote class="gmail_quote"
             style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
@@ -289,7 +282,7 @@ class DraftStore
             <br><br>
             #{fields.join('<br>')}
             <br><br>
-            #{@_formatBodyForQuoting(msg.body)}
+            #{@_formatBodyForQuoting(forwardMessage.body)}
           </blockquote>"""
         delete attributes.forwardedMessage
 
@@ -301,8 +294,8 @@ class DraftStore
         threadId: thread.id
         accountId: thread.accountId
 
-      @_finalizeAndPersistNewMessage(draft).then ({draftLocalId}) =>
-        Actions.composePopoutDraft(draftLocalId) if popout
+      @_finalizeAndPersistNewMessage(draft).then ({draftClientId}) =>
+        Actions.composePopoutDraft(draftClientId) if popout
 
 
   # Eventually we'll want a nicer solution for inline attachments
@@ -325,18 +318,18 @@ class DraftStore
       pristine: true
       accountId: account.id
 
-    @_finalizeAndPersistNewMessage(draft).then ({draftLocalId}) =>
-      @_onPopoutDraftLocalId(draftLocalId, {newDraft: true})
+    @_finalizeAndPersistNewMessage(draft).then ({draftClientId}) =>
+      @_onPopoutDraftClientId(draftClientId, {newDraft: true})
 
-  _onPopoutDraftLocalId: (draftLocalId, options = {}) =>
+  _onPopoutDraftClientId: (draftClientId, options = {}) =>
     return unless AccountStore.current()
 
-    if not draftLocalId?
-      throw new Error("DraftStore::onPopoutDraftLocalId - You must provide a draftLocalId")
+    if not draftClientId?
+      throw new Error("DraftStore::onPopoutDraftId - You must provide a draftClientId")
 
     save = Promise.resolve()
-    if @_draftSessions[draftLocalId]
-      save = @_draftSessions[draftLocalId].changes.commit()
+    if @_draftSessions[draftClientId]
+      save = @_draftSessions[draftClientId].changes.commit()
 
     title = if options.newDraft then "New Message" else "Message"
 
@@ -344,7 +337,7 @@ class DraftStore
       atom.newWindow
         title: title
         windowType: "composer"
-        windowProps: _.extend(options, {draftLocalId})
+        windowProps: _.extend(options, {draftClientId})
 
   _onHandleMailtoLink: (urlString) =>
     account = AccountStore.current()
@@ -374,32 +367,32 @@ class DraftStore
       if query[attr]
         draft[attr] = ContactStore.parseContactsInString(query[attr])
 
-    @_finalizeAndPersistNewMessage(draft).then ({draftLocalId}) =>
-      @_onPopoutDraftLocalId(draftLocalId)
+    @_finalizeAndPersistNewMessage(draft).then ({draftClientId}) =>
+      @_onPopoutDraftClientId({draftClientId})
 
-  _onDestroyDraft: (draftLocalId) =>
-    session = @_draftSessions[draftLocalId]
+  _onDestroyDraft: (draftClientId) =>
+    session = @_draftSessions[draftClientId]
 
     # Immediately reset any pending changes so no saves occur
     if session
       @_doneWithSession(session)
 
     # Queue the task to destroy the draft
-    Actions.queueTask(new DestroyDraftTask(draftLocalId: draftLocalId))
+    Actions.queueTask(new DestroyDraftTask(draftClientId: draftClientId))
 
     atom.close() if @_isPopout()
 
   # The user request to send the draft
-  _onSendDraft: (draftLocalId) =>
-    @_draftsSending[draftLocalId] = true
-    @trigger(draftLocalId)
+  _onSendDraft: (draftClientId) =>
+    @_draftsSending[draftClientId] = true
+    @trigger(draftClientId)
 
-    @sessionForLocalId(draftLocalId).then (session) =>
+    @sessionForClientId(draftClientId).then (session) =>
       @_runExtensionsBeforeSend(session)
 
       # Immediately save any pending changes so we don't save after sending
       session.changes.commit().then =>
-        task = new SendDraftTask(draftLocalId, {fromPopout: @_isPopout()})
+        task = new SendDraftTask(draftClientId, {fromPopout: @_isPopout()})
         Actions.queueTask(task)
         @_doneWithSession(session)
         atom.close() if @_isPopout()
@@ -413,8 +406,8 @@ class DraftStore
       continue unless extension.finalizeSessionBeforeSending
       extension.finalizeSessionBeforeSending(session)
 
-  _onRemoveFile: ({file, messageLocalId}) =>
-    @sessionForLocalId(messageLocalId).then (session) ->
+  _onRemoveFile: ({file, messageClientId}) =>
+    @sessionForClientId(messageClientId).then (session) ->
       files = _.clone(session.draft().files) ? []
       files = _.reject files, (f) -> f.id is file.id
       session.changes.add({files}, immediate: true)

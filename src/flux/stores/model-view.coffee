@@ -92,7 +92,7 @@ class ModelView
     # "Total Refresh" - in a subclass, do something smarter
     @invalidateRetainedRange()
 
-  invalidateMetadataFor: (ids = []) ->
+  invalidateMetadataFor: ->
     # "Total Refresh" - in a subclass, do something smarter
     @invalidateRetainedRange()
 

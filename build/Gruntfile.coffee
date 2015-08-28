@@ -208,9 +208,9 @@ module.exports = (grunt) ->
         'exports/**/*.coffee'
         'src/**/*.coffee'
         'src/**/*.cjsx'
-        'spec/*.coffee'
-        'spec-nylas/*.cjsx'
-        'spec-nylas/*.coffee'
+        'spec/**/*.coffee'
+        'spec-nylas/**/*.cjsx'
+        'spec-nylas/**/*.coffee'
       ]
 
     coffeelint:
@@ -229,9 +229,13 @@ module.exports = (grunt) ->
         'build/Gruntfile.coffee'
       ]
       test: [
-        'spec/*.coffee'
-        'spec-nylas/*.cjsx'
-        'spec-nylas/*.coffee'
+        'spec/**/*.coffee'
+        'spec-nylas/**/*.cjsx'
+        'spec-nylas/**/*.coffee'
+      ]
+      static: [
+        'static/**/*.coffee'
+        'static/**/*.cjsx'
       ]
       target:
         grunt.option("target")?.split(" ") or []

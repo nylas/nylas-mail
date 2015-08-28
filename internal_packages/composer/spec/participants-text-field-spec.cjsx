@@ -14,17 +14,22 @@ ParticipantsTextField = proxyquire '../lib/participants-text-field',
   'nylas-exports': {Contact, ContactStore}
 
 participant1 = new Contact
+  id: 'local-1'
   email: 'ben@nylas.com'
 participant2 = new Contact
+  id: 'local-2'
   email: 'ben@example.com'
   name: 'Ben Gotow'
 participant3 = new Contact
+  id: 'local-3'
   email: 'evan@nylas.com'
   name: 'Evan Morikawa'
 participant4 = new Contact
+  id: 'local-4',
   email: 'ben@elsewhere.com',
   name: 'ben Again'
 participant5 = new Contact
+  id: 'local-5',
   email: 'evan@elsewhere.com',
   name: 'EVAN'
 
@@ -54,7 +59,7 @@ describe 'ParticipantsTextField', ->
       ReactTestUtils.Simulate.keyDown(@renderedInput, {key: 'Enter', keyCode: 9})
 
       reviver = (k,v) ->
-        return undefined if k in ["id", "object"]
+        return undefined if k in ["id", "client_id", "server_id", "object"]
         return v
       found = @propChange.mostRecentCall.args[0]
       found = JSON.parse(JSON.stringify(found), reviver)
@@ -102,7 +107,7 @@ describe 'ParticipantsTextField', ->
 
     describe "when text contains Name (Email) formatted data", ->
       it "should correctly parse it into named Contact objects", ->
-        newContact1 = new Contact(name:'Ben Imposter', email:'imposter@nylas.com')
+        newContact1 = new Contact(id: "b1", name:'Ben Imposter', email:'imposter@nylas.com')
         newContact2 = new Contact(name:'Nylas Team', email:'feedback@nylas.com')
 
         inputs = [
@@ -120,8 +125,8 @@ describe 'ParticipantsTextField', ->
 
     describe "when text contains emails mixed with garbage text", ->
       it "should still parse out emails into Contact objects", ->
-        newContact1 = new Contact(name:'garbage-man@nylas.com', email:'garbage-man@nylas.com')
-        newContact2 = new Contact(name:'recycling-guy@nylas.com', email:'recycling-guy@nylas.com')
+        newContact1 = new Contact(id: 'gm', name:'garbage-man@nylas.com', email:'garbage-man@nylas.com')
+        newContact2 = new Contact(id: 'rm', name:'recycling-guy@nylas.com', email:'recycling-guy@nylas.com')
 
         inputs = [
           "Hello world I real. \n asd. garbage-man@nylas.com—he's cool Also 'recycling-guy@nylas.com'!",

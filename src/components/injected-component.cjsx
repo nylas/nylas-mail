@@ -13,11 +13,11 @@ components inside of your React render method. Rather than explicitly render
 a component, such as a `<Composer>`, you can use InjectedComponent:
 
 ```coffee
-<InjectedComponent matching={role:"Composer"} exposedProps={draftId:123} />
+<InjectedComponent matching={role:"Composer"} exposedProps={draftClientId:123} />
 ```
 
 InjectedComponent will look up the component registered with that role in the
-{ComponentRegistry} and render it, passing the exposedProps (`draftId={123}`) along.
+{ComponentRegistry} and render it, passing the exposedProps (`draftClientId={123}`) along.
 
 InjectedComponent monitors the ComponentRegistry for changes. If a new component
 is registered that matches the descriptor you provide, InjectedComponent will refresh.

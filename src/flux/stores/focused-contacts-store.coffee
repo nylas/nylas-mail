@@ -1,19 +1,18 @@
 _ = require 'underscore'
-Reflux = require 'reflux'
 
 Utils = require '../models/utils'
 Actions = require '../actions'
+NylasStore = require 'nylas-store'
 MessageStore = require './message-store'
 AccountStore = require './account-store'
 FocusedContentStore = require './focused-content-store'
 
 # A store that handles the focuses collections of and individual contacts
-module.exports =
-FocusedContactsStore = Reflux.createStore
-  init: ->
+class FocusedContactsStore extends NylasStore
+  constructor: ->
     @listenTo Actions.focusContact, @_focusContact
-    @listenTo MessageStore, => @_onMessageStoreChanged()
-    @listenTo AccountStore, => @_onAccountChanged()
+    @listenTo MessageStore, @_onMessageStoreChanged
+    @listenTo AccountStore, @_onAccountChanged
     @listenTo FocusedContentStore, @_onFocusChanged
 
     @_currentThread = null
@@ -31,7 +30,7 @@ FocusedContactsStore = Reflux.createStore
     @_currentFocusedContact = null
     @trigger() unless silent
 
-  _onFocusChanged: (change) ->
+  _onFocusChanged: (change) =>
     return unless change.impactsCollection('thread')
     item = FocusedContentStore.focused('thread')
     return if @_currentThread?.id is item?.id
@@ -42,13 +41,13 @@ FocusedContactsStore = Reflux.createStore
     # We need to wait now for the MessageStore to grab all of the
     # appropriate messages for the given thread.
 
-  _onMessageStoreChanged: -> _.defer =>
+  _onMessageStoreChanged: =>
     if MessageStore.threadId() is @_currentThread?.id
       @_setCurrentParticipants()
     else
       @_clearCurrentParticipants()
 
-  _onAccountChanged: ->
+  _onAccountChanged: =>
     @_myEmail = (AccountStore.current()?.me().email ? "").toLowerCase().trim()
 
   # For now we take the last message
@@ -59,7 +58,7 @@ FocusedContactsStore = Reflux.createStore
     @_focusContact(@_currentContacts[0], silent: true)
     @trigger()
 
-  _focusContact: (contact, {silent}={}) ->
+  _focusContact: (contact, {silent}={}) =>
     return unless contact
     @_currentFocusedContact = contact
     @trigger() unless silent
@@ -113,3 +112,4 @@ FocusedContactsStore = Reflux.createStore
     theirDomain = _.last(email.split("@"))
     return myDomain.length > 0 and theirDomain.length > 0 and myDomain is theirDomain
 
+module.exports = new FocusedContactsStore

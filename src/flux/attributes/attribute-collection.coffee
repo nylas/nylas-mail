@@ -10,8 +10,7 @@ For example, Threads in N1 have a collection of Labels or Folders.
 When Collection attributes are marked as `queryable`, the DatabaseStore
 automatically creates a join table and maintains it as you create, save,
 and delete models. When you call `persistModel`, entries are added to the
-join table associating the ID of the model with the IDs of models in the
-collection.
+join table associating the ID of the model with the IDs of models in the collection.
 
 Collection attributes have an additional clause builder, `contains`:
 
@@ -28,9 +27,7 @@ WHERE `M1`.`value` = 'inbox'
 ORDER BY `Thread`.`last_message_received_timestamp` DESC
 ```
 
-The value of this attribute is always an array of ff other model objects. To use
-a Collection attribute, the JSON for the parent object must contain the nested
-objects, complete with their `object` field.
+The value of this attribute is always an array of other model objects.
 
 Section: Database
 ###
@@ -58,10 +55,11 @@ class AttributeCollection extends Attribute
     objs = []
     for objJSON in json
       obj = new @itemClass(objJSON)
-      # Important: if no ids are in the JSON, don't make them up randomly.
-      # This causes an object to be "different" each time it's de-serialized
-      # even if it's actually the same, makes React components re-render!
-      obj.id = undefined
+      # Important: if no ids are in the JSON, don't make them up
+      # randomly.  This causes an object to be "different" each time it's
+      # de-serialized even if it's actually the same, makes React
+      # components re-render!
+      obj.clientId = undefined
       obj.fromJSON(objJSON) if obj.fromJSON?
       objs.push(obj)
     objs

@@ -37,7 +37,7 @@ class ComposerView extends React.Component
   @containerRequired: false
 
   @propTypes:
-    localId: React.PropTypes.string.isRequired
+    draftClientId: React.PropTypes.string.isRequired
 
     # Either "inline" or "fullwindow"
     mode: React.PropTypes.string
@@ -65,10 +65,10 @@ class ComposerView extends React.Component
       showbcc: false
       showsubject: false
       showQuotedText: false
-      uploads: FileUploadStore.uploadsForMessage(@props.localId) ? []
+      uploads: FileUploadStore.uploadsForMessage(@props.draftClientId) ? []
 
   componentWillMount: =>
-    @_prepareForDraft(@props.localId)
+    @_prepareForDraft(@props.draftClientId)
 
   shouldComponentUpdate: (nextProps, nextState) =>
     not Utils.isEqualReact(nextProps, @props) or
@@ -113,24 +113,24 @@ class ComposerView extends React.Component
 
   componentWillReceiveProps: (newProps) =>
     @_ignoreNextTrigger = false
-    if newProps.localId isnt @props.localId
-      # When we're given a new draft localId, we have to stop listening to our
+    if newProps.draftClientId isnt @props.draftClientId
+      # When we're given a new draft draftClientId, we have to stop listening to our
       # current DraftStoreProxy, create a new one and listen to that. The simplest
       # way to do this is to just re-call registerListeners.
       @_teardownForDraft()
-      @_prepareForDraft(newProps.localId)
+      @_prepareForDraft(newProps.draftClientId)
 
-  _prepareForDraft: (localId) =>
+  _prepareForDraft: (draftClientId) =>
     @unlisteners = []
-    return unless localId
+    return unless draftClientId
 
     # UndoManager must be ready before we call _onDraftChanged for the first time
     @undoManager = new UndoManager
-    DraftStore.sessionForLocalId(localId).then(@_setupSession)
+    DraftStore.sessionForClientId(draftClientId).then(@_setupSession)
 
   _setupSession: (proxy) =>
     return if @_unmounted
-    return unless proxy.draftLocalId is @props.localId
+    return unless proxy.draftClientId is @props.draftClientId
     @_proxy = proxy
     @_preloadImages(@_proxy.draft()?.files)
     @unlisteners.push @_proxy.listen(@_onDraftChanged)
@@ -317,12 +317,12 @@ class ComposerView extends React.Component
                               tabIndex="109" />
 
   _renderFooterRegions: =>
-    return <div></div> unless @props.localId
+    return <div></div> unless @props.draftClientId
 
     <div className="composer-footer-region">
       <InjectedComponentSet
         matching={role: "Composer:Footer"}
-        exposedProps={draftLocalId:@props.localId, threadId: @props.threadId}/>
+        exposedProps={draftClientId:@props.draftClientId, threadId: @props.threadId}/>
     </div>
 
   _renderAttachments: ->
@@ -347,7 +347,7 @@ class ComposerView extends React.Component
       file: file
       removable: true
       targetPath: targetPath
-      messageLocalId: @props.localId
+      messageClientId: @props.draftClientId
 
     if role is "Attachment"
       className = "file-wrap"
@@ -397,14 +397,14 @@ class ComposerView extends React.Component
     _.compact(uploads.concat(@state.files))
 
   _onFileUploadStoreChange: =>
-    @setState uploads: FileUploadStore.uploadsForMessage(@props.localId)
+    @setState uploads: FileUploadStore.uploadsForMessage(@props.draftClientId)
 
   _renderActionsRegion: =>
-    return <div></div> unless @props.localId
+    return <div></div> unless @props.draftClientId
 
     <InjectedComponentSet className="composer-action-bar-content"
                       matching={role: "Composer:ActionButton"}
-                      exposedProps={draftLocalId:@props.localId, threadId: @props.threadId}>
+                      exposedProps={draftClientId:@props.draftClientId, threadId: @props.threadId}>
 
       <button className="btn btn-toolbar btn-trash" style={order: 100}
               data-tooltip="Delete draft"
@@ -532,14 +532,14 @@ class ComposerView extends React.Component
   _onDrop: (e) =>
     # Accept drops of real files from other applications
     for file in e.dataTransfer.files
-      Actions.attachFilePath({path: file.path, messageLocalId: @props.localId})
+      Actions.attachFilePath({path: file.path, messageClientId: @props.draftClientId})
 
     # Accept drops from attachment components / images within the app
     if (uri = @_nonNativeFilePathForDrop(e))
-      Actions.attachFilePath({path: uri, messageLocalId: @props.localId})
+      Actions.attachFilePath({path: uri, messageClientId: @props.draftClientId})
 
   _onFilePaste: (path) =>
-    Actions.attachFilePath({path: path, messageLocalId: @props.localId})
+    Actions.attachFilePath({path: path, messageClientId: @props.draftClientId})
 
   _onChangeParticipants: (changes={}) =>
     @_addToProxy(changes)
@@ -589,7 +589,7 @@ class ComposerView extends React.Component
     @_saveToHistory(selections) unless source.fromUndoManager
 
   _popoutComposer: =>
-    Actions.composePopoutDraft @props.localId
+    Actions.composePopoutDraft @props.draftClientId
 
   _sendDraft: (options = {}) =>
     return unless @_proxy
@@ -598,7 +598,7 @@ class ComposerView extends React.Component
     # immediately and synchronously updated as soon as this function
     # fires. Since `setState` is asynchronous, if we used that as our only
     # check, then we might get a false reading.
-    return if DraftStore.isSendingDraft(@props.localId)
+    return if DraftStore.isSendingDraft(@props.draftClientId)
 
     draft = @_proxy.draft()
     remote = require('remote')
@@ -651,17 +651,17 @@ class ComposerView extends React.Component
           @_sendDraft({force: true})
       return
 
-    Actions.sendDraft(@props.localId)
+    Actions.sendDraft(@props.draftClientId)
 
   _mentionsAttachment: (body) =>
     body = QuotedHTMLParser.removeQuotedHTML(body.toLowerCase().trim())
     return body.indexOf("attach") >= 0
 
   _destroyDraft: =>
-    Actions.destroyDraft(@props.localId)
+    Actions.destroyDraft(@props.draftClientId)
 
   _attachFile: =>
-    Actions.attachFile({messageLocalId: @props.localId})
+    Actions.attachFile({messageClientId: @props.draftClientId})
 
   _showAndFocusBcc: =>
     @setState {showbcc: true}
@@ -734,7 +734,7 @@ class ComposerView extends React.Component
 
   _deleteDraftIfEmpty: =>
     return unless @_proxy
-    if @_proxy.draft().pristine then Actions.destroyDraft(@props.localId)
+    if @_proxy.draft().pristine then Actions.destroyDraft(@props.draftClientId)
 
 
 module.exports = ComposerView

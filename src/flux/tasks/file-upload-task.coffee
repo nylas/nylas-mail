@@ -17,7 +17,7 @@ UploadCounter = 0
 
 class FileUploadTask extends Task
 
-  constructor: (@filePath, @messageLocalId) ->
+  constructor: (@filePath, @messageClientId) ->
     super
     @_startDate = Date.now()
     @_startId = UploadCounter
@@ -27,7 +27,7 @@ class FileUploadTask extends Task
 
   performLocal: ->
     return Promise.reject(new Error("Must pass an absolute path to upload")) unless @filePath?.length
-    return Promise.reject(new Error("Must be attached to a messageLocalId")) unless isTempId(@messageLocalId)
+    return Promise.reject(new Error("Must be attached to a messageClientId")) unless isTempId(@messageClientId)
     Actions.uploadStateChanged @_uploadData("pending")
     Promise.resolve()
 
@@ -97,7 +97,7 @@ class FileUploadTask extends Task
     Actions.linkFileToUpload(file: file, uploadData: @_uploadData("completed"))
 
     DraftStore = require '../stores/draft-store'
-    DraftStore.sessionForLocalId(@messageLocalId).then (session) =>
+    DraftStore.sessionForClientId(@messageClientId).then (session) =>
       files = _.clone(session.draft().files) ? []
       files.push(file)
       session.changes.add({files})
@@ -121,7 +121,7 @@ class FileUploadTask extends Task
         filename: @_uploadData().fileName
 
   # returns:
-  #   messageLocalId - The localId of the message (draft) we're uploading to
+  #   messageClientId - The clientId of the message (draft) we're uploading to
   #   filePath - The full absolute local system file path
   #   fileSize - The size in bytes
   #   fileName - The basename of the file
@@ -132,7 +132,7 @@ class FileUploadTask extends Task
       uploadTaskId: @id
       startDate: @_startDate
       startId: @_startId
-      messageLocalId: @messageLocalId
+      messageClientId: @messageClientId
       filePath: @filePath
       fileSize: @_getFileSize(@filePath)
       fileName: pathUtils.basename(@filePath)

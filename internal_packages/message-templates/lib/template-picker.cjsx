@@ -74,14 +74,14 @@ class TemplatePicker extends React.Component
       templates: @_filteredTemplates(newSearch)
 
   _onChooseTemplate: (template) =>
-    Actions.insertTemplateId({templateId:template.id, draftLocalId: @props.draftLocalId})
+    Actions.insertTemplateId({templateId:template.id, draftClientId: @props.draftClientId})
     @refs.popover.close()
 
   _onManageTemplates: =>
     Actions.showTemplates()
 
   _onNewTemplate: =>
-    Actions.createTemplate({draftLocalId: @props.draftLocalId})
+    Actions.createTemplate({draftClientId: @props.draftClientId})
 
 
 module.exports = TemplatePicker

@@ -211,7 +211,7 @@ Utils =
 
   isEqualReact: (a, b, options={}) ->
     options.functionsAreEqual = true
-    options.ignoreKeys = (options.ignoreKeys ? []).push("localId")
+    options.ignoreKeys = (options.ignoreKeys ? []).push("clientId")
     Utils.isEqual(a, b, options)
 
   # Customized version of Underscore 1.8.2's isEqual function

@@ -9,7 +9,7 @@ dialogStub =
 describe "MyComposerButton", ->
   beforeEach ->
     @component = ReactTestUtils.renderIntoDocument(
-      <MyComposerButton draftLocalId="test" />
+      <MyComposerButton draftClientId="test" />
     )
 
   it "should render into the page", ->

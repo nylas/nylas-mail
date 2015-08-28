@@ -23,7 +23,7 @@ class AttributeObject extends Attribute
       # Important: if no ids are in the JSON, don't make them up randomly.
       # This causes an object to be "different" each time it's de-serialized
       # even if it's actually the same, makes React components re-render!
-      obj.id = undefined
+      obj.clientId = undefined
       # Warning: typeof(null) is object
       if obj.fromJSON and val and typeof(val) is 'object'
         obj.fromJSON(val)

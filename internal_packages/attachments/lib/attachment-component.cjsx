@@ -13,7 +13,7 @@ class AttachmentComponent extends React.Component
     download: React.PropTypes.object
     removable: React.PropTypes.bool
     targetPath: React.PropTypes.string
-    messageLocalId: React.PropTypes.string
+    messageClientId: React.PropTypes.string
 
   constructor: (@props) ->
     @state = progressPercent: 0
@@ -79,7 +79,7 @@ class AttachmentComponent extends React.Component
   _onClickRemove: (event) =>
     Actions.removeFile
       file: @props.file
-      messageLocalId: @props.messageLocalId
+      messageClientId: @props.messageClientId
     event.stopPropagation() # Prevent 'onClickView'
 
   _onClickDownload: (event) =>

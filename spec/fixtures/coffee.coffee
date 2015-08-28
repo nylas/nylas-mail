@@ -1,4 +1,4 @@
-class quicksort
+class Quicksort
   sort: (items) ->
     return items if items.length <= 1
 
@@ -20,4 +20,4 @@ class quicksort
   noop: ->
     # just a noop
 
-exports.modules = quicksort
+exports.modules = Quicksort

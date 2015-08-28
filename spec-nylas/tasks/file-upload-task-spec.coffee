@@ -26,7 +26,7 @@ test_file_paths = [
 
 noop = ->
 
-localId = "local-id_1234"
+messageClientId = "local-id_1234"
 
 fake_draft = new Message
   id: "draft-id_1234"
@@ -52,13 +52,13 @@ describe "FileUploadTask", ->
 
     @uploadData =
       startDate: DATE
-      messageLocalId: localId
+      messageClientId: messageClientId
       filePath: test_file_paths[0]
       fileSize: 1234
       fileName: "file.txt"
     bytesUploaded: 0
 
-    @task = new FileUploadTask(test_file_paths[0], localId)
+    @task = new FileUploadTask(test_file_paths[0], messageClientId)
 
     @req = jasmine.createSpyObj('req', ['abort'])
     @simulateRequestSuccessImmediately = false
@@ -82,13 +82,13 @@ describe "FileUploadTask", ->
       (new FileUploadTask).performLocal().catch (err) ->
         expect(err instanceof Error).toBe true
 
-  it "rejects if not initialized with a messageLocalId", ->
+  it "rejects if not initialized with a messageClientId", ->
     waitsForPromise ->
       (new FileUploadTask(test_file_paths[0])).performLocal().catch (err) ->
         expect(err instanceof Error).toBe true
 
   it 'initializes the upload start', ->
-    task = new FileUploadTask(test_file_paths[0], localId)
+    task = new FileUploadTask(test_file_paths[0], messageClientId)
     expect(task._startDate).toBe DATE
 
   it "notifies when the task locally starts", ->
@@ -159,7 +159,7 @@ describe "FileUploadTask", ->
       @simulateRequestSuccessImmediately = true
 
       spyOn(Actions, "uploadStateChanged")
-      spyOn(DraftStore, "sessionForLocalId").andCallFake =>
+      spyOn(DraftStore, "sessionForClientId").andCallFake =>
         Promise.resolve(
           draft: => files: @testFiles
           changes:
@@ -178,12 +178,14 @@ describe "FileUploadTask", ->
       waitsForPromise => @task.performRemote().then ->
         options = NylasAPI.makeRequest.mostRecentCall.args[0]
         expect(options.path).toBe("/files")
-        expect(options.accountId).toBe("test_account_id")
+        expect(options.accountId).toBe(TEST_ACCOUNT_ID)
         expect(options.method).toBe('POST')
         expect(options.formData.file.value).toBe("Read Stream")
 
     it "attaches the file to the draft", ->
       waitsForPromise => @task.performRemote().then =>
+        delete @changes[0].clientId
+        delete equivalentFile.clientId
         expect(@changes).toEqual [equivalentFile]
 
     describe "file upload notifications", ->
@@ -201,15 +203,17 @@ describe "FileUploadTask", ->
           bytesUploaded: 1000
 
         [{file, uploadData}] = Actions.fileUploaded.calls[0].args
+        delete file.clientId
+        delete equivalentFile.clientId
         expect(file).toEqual(equivalentFile)
         expect(_.isMatch(uploadData, uploadDataExpected)).toBe(true)
 
     describe "when attaching a lot of files", ->
       it "attaches them all to the draft", ->
-        t1 = new FileUploadTask("1.a", localId)
-        t2 = new FileUploadTask("2.b", localId)
-        t3 = new FileUploadTask("3.c", localId)
-        t4 = new FileUploadTask("4.d", localId)
+        t1 = new FileUploadTask("1.a", messageClientId)
+        t2 = new FileUploadTask("2.b", messageClientId)
+        t3 = new FileUploadTask("3.c", messageClientId)
+        t4 = new FileUploadTask("4.d", messageClientId)
 
         @simulateRequestSuccessImmediately = true
         waitsForPromise => Promise.all([

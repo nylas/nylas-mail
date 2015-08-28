@@ -118,7 +118,7 @@ class Message extends Model
     'snippet': Attributes.String
       modelKey: 'snippet'
 
-    'threadId': Attributes.String
+    'threadId': Attributes.ServerId
       queryable: true
       modelKey: 'threadId'
       jsonKey: 'thread_id'
@@ -140,7 +140,7 @@ class Message extends Model
       modelKey: 'version'
       queryable: true
 
-    'replyToMessageId': Attributes.String
+    'replyToMessageId': Attributes.ServerId
       modelKey: 'replyToMessageId'
       jsonKey: 'reply_to_message_id'
 
@@ -160,6 +160,7 @@ class Message extends Model
   @additionalSQLiteConfig:
     setup: ->
       ['CREATE INDEX IF NOT EXISTS MessageListIndex ON Message(account_id, thread_id, date ASC)',
+       'CREATE UNIQUE INDEX IF NOT EXISTS MessageDraftIndex ON Message(client_id)',
        'CREATE UNIQUE INDEX IF NOT EXISTS MessageBodyIndex ON MessageBody(id)']
 
   constructor: ->

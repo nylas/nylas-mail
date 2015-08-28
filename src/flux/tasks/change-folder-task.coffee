@@ -9,7 +9,7 @@ ChangeMailTask = require './change-mail-task'
 # Public: Create a new task to apply labels to a message or thread.
 #
 # Takes an options array of the form:
-#   - `folder` The {Folder} or {Folder} id to move to
+#   - `folder` The {Folder} or {Folder} IDs to move to
 #   - `threads` An array of {Thread}s or {Thread} IDs
 #   - `threads` An array of {Message}s or {Message} IDs
 #   - `undoData` Since changing the folder is a destructive action,

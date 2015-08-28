@@ -1,7 +1,6 @@
-Attributes = require '../attributes'
-ModelQuery = require './query'
-{isTempId, generateTempId} = require './utils'
 _ = require 'underscore'
+Utils = require './utils'
+Attributes = require '../attributes'
 
 ###
 Public: A base class for API objects that provides abstract support for
@@ -9,7 +8,19 @@ serialization and deserialization, matching by attributes, and ID-based equality
 
 ## Attributes
 
-`id`: {AttributeString} The ID of the model. Queryable.
+`id`: {AttributeString} The resolved canonical ID of the model used in the
+database and generally throughout the app. The id property is a custom
+getter that resolves to the serverId first, and then the clientId.
+
+`clientId`: {AttributeString} An ID created at object construction and
+persists throughout the lifetime of the object. This is extremely useful
+for optimistically creating objects (like drafts and categories) and
+having a constant reference to it. In all other cases, use the resolved
+`id` field.
+
+`serverId`: {AttributeServerId} The server ID of the model. In most cases,
+except optimistic creation, this will also be the canonical id of the
+object.
 
 `object`: {AttributeString} The model's type. This field is used by the JSON
  deserializer to create an instance of the correct class when inflating the object.
@@ -20,15 +31,31 @@ Section: Models
 ###
 class Model
 
+  Object.defineProperty @prototype, "id",
+    enumerable: false
+    get: -> @serverId ? @clientId
+    set: ->
+      throw new Error("You may not directly set the ID of an object. Set either the `clientId` or the `serverId` instead.")
+
   @attributes:
+    # Lookups will go through the custom getter.
     'id': Attributes.String
       queryable: true
       modelKey: 'id'
 
+    'clientId': Attributes.String
+      queryable: true
+      modelKey: 'clientId'
+      jsonKey: 'client_id'
+
+    'serverId': Attributes.ServerId
+      modelKey: 'serverId'
+      jsonKey: 'server_id'
+
     'object': Attributes.String
       modelKey: 'object'
 
-    'accountId': Attributes.String
+    'accountId': Attributes.ServerId
       queryable: true
       modelKey: 'accountId'
       jsonKey: 'account_id'
@@ -36,9 +63,13 @@ class Model
   @naturalSortOrder: -> null
 
   constructor: (values = {}) ->
+    if values["id"] and Utils.isTempId(values["id"])
+      values["clientId"] ?= values["id"]
+    else
+      values["serverId"] ?= values["id"]
     for key, definition of @attributes()
       @[key] = values[key] if values[key]?
-    @id ||= generateTempId()
+    @clientId ?= Utils.generateTempId()
     @
 
   clone: ->
@@ -47,12 +78,9 @@ class Model
   # Public: Returns an {Array} of {Attribute} objects defined on the Model's constructor
   #
   attributes: ->
-    @constructor.attributes
-
-  # Public Returns true if the object has a server-provided ID, false otherwise.
-  #
-  isSaved: ->
-    !isTempId(@id)
+    attrs = _.clone(@constructor.attributes)
+    delete attrs["id"]
+    return attrs
 
   ##
   # Public: Inflates the model object from JSON, using the defined attributes to
@@ -63,6 +91,8 @@ class Model
   # This method is chainable.
   #
   fromJSON: (json) ->
+    if json["id"] and not Utils.isTempId(json["id"])
+      @serverId = json["id"]
     for key, attr of @attributes()
       @[key] = attr.fromJSON(json[attr.jsonKey]) unless json[attr.jsonKey] is undefined
     @
@@ -82,6 +112,7 @@ class Model
       if attr instanceof Attributes.AttributeJoinedData and options.joined is false
         continue
       json[attr.jsonKey] = value
+    json["id"] = @id
     json
 
   toString: ->

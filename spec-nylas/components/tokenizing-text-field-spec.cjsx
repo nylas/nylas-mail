@@ -9,12 +9,6 @@ ReactTestUtils = React.addons.TestUtils
 } = require 'nylas-exports'
 {TokenizingTextField, Menu} = require 'nylas-component-kit'
 
-me = new Account
-  name: 'Test User'
-  email: 'test@example.com'
-  provider: 'inbox'
-AccountStore._current = me
-
 CustomToken = React.createClass
   render: ->
     <span>{@props.item.email}</span>
@@ -125,6 +119,8 @@ describe 'TokenizingTextField', ->
 
   describe "when the user drags and drops a token between two fields", ->
     it "should work properly", ->
+      participant2.clientId = '123'
+
       tokensA = [participant1, participant2, participant3]
       fieldA = @rebuildRenderedField(tokensA)
 
@@ -142,7 +138,7 @@ describe 'TokenizingTextField', ->
       ReactTestUtils.Simulate.dragStart(token, dragStartEvent)
 
       expect(dragStartEventData).toEqual({
-        'nylas-token-item': '{"id":"2","name":"Nylas Burger Basket","email":"burgers@nylas.com","__constructorName":"Contact"}'
+        'nylas-token-item': '{"client_id":"123","server_id":"2","name":"Nylas Burger Basket","email":"burgers@nylas.com","id":"2","__constructorName":"Contact"}'
         'text/plain': 'Nylas Burger Basket <burgers@nylas.com>'
       })
 

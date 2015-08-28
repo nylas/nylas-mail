@@ -107,7 +107,6 @@ describe "DraftStore", ->
         return Promise.resolve(fakeMessage2) if query._klass is Message
         return Promise.reject(new Error('Not Stubbed'))
       spyOn(DatabaseStore, 'persistModel').andCallFake -> Promise.resolve()
-      spyOn(DatabaseStore, 'bindToLocalId')
 
     afterEach ->
       # Have to cleanup the DraftStoreProxy objects or we'll get a memory
@@ -277,21 +276,13 @@ describe "DraftStore", ->
         , (model) ->
           expect(model.constructor).toBe(Message)
 
-      it "should assign and save a local Id for the new message", ->
+      it "should setup a draft session for the draftClientId, so that a subsequent request for the session's draft resolves immediately.", ->
         @_callNewMessageWithContext {threadId: fakeThread.id}
         , (thread, message) ->
           {}
         , (model) ->
-          expect(DatabaseStore.bindToLocalId).toHaveBeenCalled()
-
-      it "should setup a draft session for the draftLocalId, so that a subsequent request for the session's draft resolves immediately.", ->
-        @_callNewMessageWithContext {threadId: fakeThread.id}
-        , (thread, message) ->
-          {}
-        , (model) ->
-          [draft, localId] = DatabaseStore.bindToLocalId.mostRecentCall.args
-          session = DraftStore.sessionForLocalId(localId).value()
-          expect(session.draft()).toBe(draft)
+          session = DraftStore.sessionForClientId(model.id).value()
+          expect(session.draft()).toBe(model)
 
       it "should set the subject of the new message automatically", ->
         @_callNewMessageWithContext {threadId: fakeThread.id}
@@ -559,7 +550,7 @@ describe "DraftStore", ->
         expect(DraftStore._onBeforeUnload()).toBe(true)
 
   describe "sending a draft", ->
-    draftLocalId = "local-123"
+    draftClientId = "local-123"
     beforeEach ->
       DraftStore._draftSessions = {}
       DraftStore._draftsSending = {}
@@ -569,7 +560,7 @@ describe "DraftStore", ->
         draft: -> {}
         changes:
           commit: -> Promise.resolve()
-      DraftStore._draftSessions[draftLocalId] = proxy
+      DraftStore._draftSessions[draftClientId] = proxy
       spyOn(DraftStore, "_doneWithSession").andCallThrough()
       spyOn(DraftStore, "trigger")
 
@@ -577,23 +568,23 @@ describe "DraftStore", ->
       spyOn(atom, "isMainWindow").andReturn true
       spyOn(Actions, "queueTask").andCallThrough()
       runs ->
-        DraftStore._onSendDraft(draftLocalId)
+        DraftStore._onSendDraft(draftClientId)
       waitsFor ->
         Actions.queueTask.calls.length > 0
       runs ->
-        expect(DraftStore.isSendingDraft(draftLocalId)).toBe true
+        expect(DraftStore.isSendingDraft(draftClientId)).toBe true
         expect(DraftStore.trigger).toHaveBeenCalled()
 
     it "returns false if the draft hasn't been seen", ->
       spyOn(atom, "isMainWindow").andReturn true
-      expect(DraftStore.isSendingDraft(draftLocalId)).toBe false
+      expect(DraftStore.isSendingDraft(draftClientId)).toBe false
 
     it "closes the window if it's a popout", ->
       spyOn(atom, "getWindowType").andReturn "composer"
       spyOn(atom, "isMainWindow").andReturn false
       spyOn(atom, "close")
       runs ->
-        DraftStore._onSendDraft(draftLocalId)
+        DraftStore._onSendDraft(draftClientId)
       waitsFor "Atom to close", ->
         atom.close.calls.length > 0
 
@@ -603,7 +594,7 @@ describe "DraftStore", ->
       spyOn(atom, "close")
       spyOn(DraftStore, "_isPopout").andCallThrough()
       runs ->
-        DraftStore._onSendDraft(draftLocalId)
+        DraftStore._onSendDraft(draftClientId)
       waitsFor ->
         DraftStore._isPopout.calls.length > 0
       runs ->
@@ -612,14 +603,14 @@ describe "DraftStore", ->
     it "queues a SendDraftTask", ->
       spyOn(Actions, "queueTask")
       runs ->
-        DraftStore._onSendDraft(draftLocalId)
+        DraftStore._onSendDraft(draftClientId)
       waitsFor ->
         DraftStore._doneWithSession.calls.length > 0
       runs ->
         expect(Actions.queueTask).toHaveBeenCalled()
         task = Actions.queueTask.calls[0].args[0]
         expect(task instanceof SendDraftTask).toBe true
-        expect(task.draftLocalId).toBe draftLocalId
+        expect(task.draftClientId).toBe draftClientId
         expect(task.fromPopout).toBe false
 
     it "queues a SendDraftTask with popout info", ->
@@ -628,7 +619,7 @@ describe "DraftStore", ->
       spyOn(atom, "close")
       spyOn(Actions, "queueTask")
       runs ->
-        DraftStore._onSendDraft(draftLocalId)
+        DraftStore._onSendDraft(draftClientId)
       waitsFor ->
         DraftStore._doneWithSession.calls.length > 0
       runs ->
@@ -640,7 +631,7 @@ describe "DraftStore", ->
     beforeEach ->
       @draftTeardown = jasmine.createSpy('draft teardown')
       @session =
-        draftLocalId: "abc"
+        draftClientId: "abc"
         draft: ->
           pristine: false
         changes:
@@ -675,7 +666,7 @@ describe "DraftStore", ->
       received = null
       spyOn(DraftStore, '_finalizeAndPersistNewMessage').andCallFake (draft) ->
         received = draft
-        Promise.resolve({draftLocalId: 123})
+        Promise.resolve({draftClientId: 123})
 
       expected = "EmailSubjectLOLOL"
       DraftStore._onHandleMailtoLink('mailto:asdf@asdf.com?subject=' + expected)

@@ -94,20 +94,6 @@ class Thread extends Model
     @lastMessageReceivedTimestamp ||= new Date(json['last_message_timestamp'] * 1000)
     @
 
-  # Public: Returns true if the thread has a {Category} with the given ID.
-  #
-  # * `id` A {String} {Category} ID
-  #
-  hasCategoryId: (id) ->
-    return false unless id
-    for folder in (@folders ? [])
-      return true if folder.id is id
-    for label in (@labels ? [])
-      return true if label.id is id
-    return false
-  hasLabelId: (id) -> @hasCategoryId(id)
-  hasFolderId: (id) -> @hasCategoryId(id)
-
   # Public: Returns true if the thread has a {Category} with the given
   # name. Note, only `CategoryStore::standardCategories` have valid
   # `names`

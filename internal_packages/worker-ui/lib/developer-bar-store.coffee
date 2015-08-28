@@ -140,7 +140,6 @@ DeveloperBarStore = Reflux.createStore
         #{debugData}
       """
     DatabaseStore.persistModel(draft).then ->
-      DatabaseStore.localIdForModel(draft).then (localId) ->
-        Actions.composePopoutDraft(localId)
+      Actions.composePopoutDraft(draft.clientId)
 
 module.exports = DeveloperBarStore

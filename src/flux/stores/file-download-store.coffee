@@ -59,7 +59,7 @@ class Download
     return @promise if @promise
 
     @promise = new Promise (resolve, reject) =>
-      account = AccountStore.current()?.id
+      accountId = AccountStore.current()?.id
       stream = fs.createWriteStream(@targetPath)
       finished = false
       finishedAction = null
@@ -82,7 +82,7 @@ class Download
       NylasAPI.makeRequest
         json: false
         path: "/files/#{@fileId}/download"
-        accountId: account
+        accountId: accountId
         encoding: null # Tell `request` not to parse the response data
         started: (req) =>
           @request = req

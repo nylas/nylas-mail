@@ -6,11 +6,6 @@ _ = require 'underscore'
 class Event extends Model
 
   @attributes: _.extend {}, Model.attributes,
-    'id': Attributes.String
-      queryable: true
-      modelKey: 'id'
-      jsonKey: 'id'
-
     'title': Attributes.String
       modelKey: 'title'
       jsonKey: 'title'

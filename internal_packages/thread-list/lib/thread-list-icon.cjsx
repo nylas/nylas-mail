@@ -35,7 +35,7 @@ class ThreadListIcon extends React.Component
   _nonDraftMessages: =>
     msgs = @props.thread.metadata
     return [] unless msgs and msgs instanceof Array
-    msgs = _.filter msgs, (m) -> m.isSaved() and not m.draft
+    msgs = _.filter msgs, (m) -> m.serverId and not m.draft
     return msgs
 
   shouldComponentUpdate: (nextProps) =>

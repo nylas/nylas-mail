@@ -60,7 +60,6 @@ class NylasExports
   @require "Contact", 'flux/models/contact'
   @require "Calendar", 'flux/models/calendar'
   @require "Metadata", 'flux/models/metadata'
-  @require "LocalLink", 'flux/models/local-link'
   @require "DatabaseObjectRegistry", "database-object-registry"
 
   # Exported so 3rd party packages can subclass Model
