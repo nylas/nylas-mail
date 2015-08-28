@@ -4,7 +4,6 @@
       'ui-light'
     ]
     'disabledPackages': [
-      "calendar-bar",
-      "salesforce"
+      "calendar-bar"
     ]
   'updateLevel': 'patch'
