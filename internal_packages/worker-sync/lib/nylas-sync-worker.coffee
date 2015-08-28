@@ -1,5 +1,5 @@
 _ = require 'underscore'
-{DatabaseStore} = require 'nylas-exports'
+{Actions, DatabaseStore} = require 'nylas-exports'
 NylasLongConnection = require './nylas-long-connection'
 
 PAGE_SIZE = 250
@@ -45,6 +45,8 @@ class NylasSyncWorker
       # indirection needed so resumeFetches can be spied on
       @resumeFetches()
 
+    @_unlisten = Actions.retryInitialSync.listen(@_onRetryInitialSync, @)
+
     @_state = null
     DatabaseStore.findJSONObject("NylasSyncWorker:#{@_account.id}").then (json) =>
       @_state = json ? {}
@@ -76,6 +78,7 @@ class NylasSyncWorker
     @resumeFetches()
 
   cleanup: ->
+    @_unlisten?()
     @_resumeTimer.cancel()
     @_connection.end()
     @_terminated = true
@@ -159,5 +162,8 @@ class NylasSyncWorker
       DatabaseStore.persistJSONObject("NylasSyncWorker:#{@_account.id}", @_state)
     ,100
     @_writeState()
+
+  _onRetryInitialSync: =>
+    @resumeFetches()
 
 NylasSyncWorker.BackoffTimer = BackoffTimer
