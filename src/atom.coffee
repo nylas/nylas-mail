@@ -608,9 +608,7 @@ class Atom extends Model
 
     dimensions = @restoreWindowDimensions()
     maximize = dimensions?.maximized and process.platform isnt 'darwin'
-    @show()
-    @focus()
-    @maximize() if maximize
+    @displayWindow({maximize})
 
     cover = document.getElementById("application-loading-cover")
     wait = (time, fn) -> setTimeout(fn, time)
@@ -704,6 +702,11 @@ class Atom extends Model
   ###
   Section: Messaging the User
   ###
+
+  displayWindow: ({maximize} = {}) ->
+    @show()
+    @focus()
+    @maximize() if maximize
 
   # Essential: Visually and audibly trigger a beep.
   beep: ->
