@@ -94,7 +94,7 @@ class Actions
   ###
   Public: Queue a {Task} object to the {TaskQueue}.
 
-  *Scope: Main Window*
+  *Scope: Work Window*
   ###
   @queueTask: ActionScopeWorkWindow
 
@@ -103,7 +103,7 @@ class Actions
   ###
   Public: Dequeue all {Task}s from the {TaskQueue}. Use with care.
 
-  *Scope: Main Window*
+  *Scope: Work Window*
   ###
   @dequeueAllTasks: ActionScopeWorkWindow
   @dequeueTask: ActionScopeWorkWindow
@@ -111,7 +111,7 @@ class Actions
   ###
   Public: Dequeue a {Task} matching the description provided.
 
-  *Scope: Main Window*
+  *Scope: Work Window*
   ###
   @dequeueMatchingTask: ActionScopeWorkWindow
 
@@ -122,6 +122,13 @@ class Actions
   @longPollOffline: ActionScopeWorkWindow
   @didMakeAPIRequest: ActionScopeWorkWindow
   @sendFeedback: ActionScopeWorkWindow
+
+  ###
+  Public: Retry the initial sync
+
+  *Scope: Work Window*
+  ###
+  @retryInitialSync: ActionScopeWorkWindow
 
 
   ###

@@ -1,5 +1,5 @@
 _ = require 'underscore'
-{DatabaseStore, Account, Thread} = require 'nylas-exports'
+{Actions, DatabaseStore, Account, Thread} = require 'nylas-exports'
 NylasLongConnection = require '../lib/nylas-long-connection'
 NylasSyncWorker = require '../lib/nylas-sync-worker'
 
@@ -220,6 +220,18 @@ describe "NylasSyncWorker", ->
       it "should not request another page", ->
         @request.requestOptions.error(new Error("Oh no a network error"))
         expect(@apiRequests.length).toBe(0)
+
+    it "resumes when a action forces it to", ->
+      err = new Error("Oh no a network error")
+      @request.requestOptions.error(err)
+      expect(@worker.state().threads.busy).toEqual(false)
+      expect(@worker.state().threads.complete).toEqual(false)
+      spyOn(@worker, 'resumeFetches').andCallThrough()
+      Actions.retryInitialSync()
+      expect(@worker.resumeFetches).toHaveBeenCalled()
+      expect(@worker.resumeFetches.calls.length).toBe 1
+      expect(@worker.state().threads.busy).toEqual(true)
+      expect(@worker.state().threads.error).toBe(null)
 
   describe "cleanup", ->
     it "should termiate the long polling connection", ->

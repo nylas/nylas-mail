@@ -105,7 +105,7 @@ class ActivitySidebar extends React.Component
       </div>
 
   _onTryAgain: =>
-    # TODO
+    Actions.retryInitialSync()
 
   _onDataChanged: =>
     @setState(@_getStateFromStores())
