@@ -67,9 +67,6 @@ class SendDraftTask extends Task
       Actions.sendDraftSuccess
         draftClientId: @draftClientId
         newMessage: message
-      DestroyDraftTask = require './destroy-draft'
-      task = new DestroyDraftTask(draftClientId: @draftClientId)
-      Actions.queueTask(task)
       return Promise.resolve(Task.Status.Finished)
 
     .catch APIError, (err) =>
