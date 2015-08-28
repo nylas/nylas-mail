@@ -101,7 +101,12 @@ class ListTabular extends React.Component
     # Determine the exact range of rows we want onscreen
     rangeStart = Math.floor(scrollTop / @props.itemHeight)
     rangeSize = Math.ceil(window.innerHeight / @props.itemHeight)
-    rangeEnd = Math.min(rangeStart + rangeSize, @props.dataView.count())
+    rangeEnd = rangeStart + rangeSize
+
+    # Expand the start/end so that you can advance the keyboard cursor fast and
+    # we have items to move to and then scroll to.
+    rangeStart = Math.max(0, rangeStart - 5)
+    rangeEnd = Math.min(rangeEnd + 5, @props.dataView.count())
 
     # Final sanity check to prevent needless work
     return if rangeStart is @state.renderedRangeStart and
