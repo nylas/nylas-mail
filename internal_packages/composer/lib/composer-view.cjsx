@@ -82,8 +82,8 @@ class ComposerView extends React.Component
       'composer:focus-to': => @focus "textFieldTo"
       'composer:send-message': => @_sendDraft()
       'composer:delete-empty-draft': => @_deleteDraftIfEmpty()
-      "core:undo": @undo
-      "core:redo": @redo
+      "composer:undo": @undo
+      "composer:redo": @redo
     }
     if @props.mode is "fullwindow"
       # Need to delay so the component can be fully painted. Focus doesn't
@@ -735,6 +735,5 @@ class ComposerView extends React.Component
   _deleteDraftIfEmpty: =>
     return unless @_proxy
     if @_proxy.draft().pristine then Actions.destroyDraft(@props.draftClientId)
-
 
 module.exports = ComposerView
