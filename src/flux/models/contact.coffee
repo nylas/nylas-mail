@@ -21,9 +21,9 @@ For more information about Contacts on the Nylas Platform, read the
 `email`: {AttributeString} The email address of the contact. Queryable.
 
 `thirdPartyData`: {AttributeObject} Extra data that we find out about a
-contact.  The data is keyed by the service that dumped the data there e.g.
-"salesforce" or "fullcontact". The value is an object of raw data in the
-form that the service provides
+contact.  The data is keyed by the 3rd party service that dumped the data
+there. The value is an object of raw data in the form that the service
+provides
 
 We also have "normalized" optional data for each contact. This list may
 grow as the needs of a contact become more complex.

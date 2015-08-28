@@ -19,7 +19,7 @@ class ConnectAccountPage extends Page
 
       <div className="thin-container">
         <div className="prompt">Link accounts from other services to supercharge your email.</div>
-        <button className="btn btn-larger btn-gradient" onClick={=> @_fireAuthAccount('salesforce')}>Salesforce</button>
+        <p>No more external accounts to link. Add additional features with plugins to Nylas Mail.</p>
       </div>
 
     </div>

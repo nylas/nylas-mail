@@ -13,11 +13,9 @@ AccountStore = require '../stores/account-store'
 CreateMetadataTask = require '../tasks/create-metadata-task'
 DestroyMetadataTask = require '../tasks/destroy-metadata-task'
 
-# TODO: This Store is like many other stores (like the
-# SalesforceObjectStore or the SalesforceThreadAssociationStore) in that it has
-# to double cache data from the API and the DB with minor variation.
-# There's a task to refactor these stores into something like an
-# `APIBackedStore` to abstract some of the complex logic out.
+# TODO: This Store has to double cache data from the API and the DB with
+# minor variation.  There's a task to refactor these stores into something
+# like an `APIBackedStore` to abstract some of the complex logic out.
 
 MAX_API_RATE = 1000
 

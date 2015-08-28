@@ -151,11 +151,10 @@ class TokenizingTextField extends React.Component
   @propTypes:
     # An array of current tokens.
     #
-    # A token is usually an object type like a
-    # `Contact` or a `SalesforceObject`. The set of tokens is stored as a
-    # prop instead of `state`. This means that when the set of tokens
-    # needs to be changed, it is the parent's responsibility to make that
-    # change.
+    # A token is usually an object type like a `Contact`. The set of
+    # tokens is stored as a prop instead of `state`. This means that when
+    # the set of tokens needs to be changed, it is the parent's
+    # responsibility to make that change.
     tokens: React.PropTypes.arrayOf(React.PropTypes.object)
 
     # The maximum number of tokens allowed. When null (the default) and
