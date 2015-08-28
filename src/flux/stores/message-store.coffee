@@ -89,7 +89,7 @@ class MessageStore extends NylasStore
       if inDisplayedThread
 
         item = change.objects[0]
-        itemAlreadyExists = _.some @_items, (msg) -> msg.id is item.id
+        itemAlreadyExists = _.some @_items, (msg) -> msg.id is item.id or msg.clientId is item.clientId
         if change.objects.length is 1 and item.draft is true and not itemAlreadyExists
           @_items = [].concat(@_items, [item])
           @_items = @_sortItemsForDisplay(@_items)

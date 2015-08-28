@@ -160,7 +160,7 @@ class DraftStoreProxy
     return unless @_draft
 
     # Is this change an update to our draft?
-    myDrafts = _.filter(change.objects, (obj) => obj.id == @_draft.id)
+    myDrafts = _.filter(change.objects, (obj) => obj.clientId is @_draft.clientId)
 
     if myDrafts.length > 0
       @_draft = _.extend @_draft, _.last(myDrafts)
