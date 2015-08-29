@@ -27,22 +27,28 @@ class AccountContactField extends React.Component
   render: =>
     return <span></span> unless @state.accounts.length > 1
 
+    <div className="composer-participant-field">
+      <div className="composer-field-label">{"From:"}</div>
+      {@_renderFromPicker()}
+    </div>
+
+  _renderFromPicker: ->
     current = _.find @state.accounts, (acct) =>
       acct.emailAddress is @props.value?.email
 
     if current
       currentLabel = current.me().toString()
     else
-      currentLabel = "Choose an account..."
+      currentLabel = "Please select one of your accounts"
+      # currentLabel = "Choose an account..."
 
-    <div className="composer-participant-field">
-      <div className="composer-field-label">{"From:"}</div>
-      <ButtonDropdown
-        ref="dropdown"
-        bordered={false}
-        primaryItem={<span>{currentLabel}</span>}
-        menu={@_renderMenu()}/>
-    </div>
+    return <span className="from-picker" style={position: "relative", top: "5px", left: "0.5em"}>{currentLabel}</span>
+
+    # <ButtonDropdown
+    #   ref="dropdown"
+    #   bordered={false}
+    #   primaryItem={<span>{currentLabel}</span>}
+    #   menu={@_renderMenu()}/>
 
   _renderMenu: =>
     others = _.reject @state.accounts, (acct) =>

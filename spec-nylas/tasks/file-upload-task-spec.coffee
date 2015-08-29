@@ -77,6 +77,18 @@ describe "FileUploadTask", ->
         if @simulateRequestSuccessImmediately
           @simulateRequestSuccess(testResponse)
 
+    @testFiles = []
+    @changes = []
+    spyOn(DraftStore, "sessionForClientId").andCallFake =>
+      Promise.resolve(
+        draft: =>
+          accountId: "account-id-of-draft"
+          files: @testFiles
+        changes:
+          add: ({files}) => @changes = @changes.concat(files)
+          commit: -> Promise.resolve()
+      )
+
   it "rejects if not initialized with a path name", (done) ->
     waitsForPromise ->
       (new FileUploadTask).performLocal().catch (err) ->
@@ -154,18 +166,8 @@ describe "FileUploadTask", ->
 
   describe "when the remote API request succeeds", ->
     beforeEach ->
-      @testFiles = []
-      @changes = []
       @simulateRequestSuccessImmediately = true
-
       spyOn(Actions, "uploadStateChanged")
-      spyOn(DraftStore, "sessionForClientId").andCallFake =>
-        Promise.resolve(
-          draft: => files: @testFiles
-          changes:
-            add: ({files}) => @changes = @changes.concat(files)
-            commit: -> Promise.resolve()
-        )
 
     it "notifies when the task starts remote", ->
       waitsForPromise =>
@@ -178,9 +180,13 @@ describe "FileUploadTask", ->
       waitsForPromise => @task.performRemote().then ->
         options = NylasAPI.makeRequest.mostRecentCall.args[0]
         expect(options.path).toBe("/files")
-        expect(options.accountId).toBe(TEST_ACCOUNT_ID)
         expect(options.method).toBe('POST')
         expect(options.formData.file.value).toBe("Read Stream")
+
+    it "should use the accountID of the draft", ->
+      waitsForPromise => @task.performRemote().then ->
+        options = NylasAPI.makeRequest.mostRecentCall.args[0]
+        expect(options.accountId).toBe("account-id-of-draft")
 
     it "attaches the file to the draft", ->
       waitsForPromise => @task.performRemote().then =>
