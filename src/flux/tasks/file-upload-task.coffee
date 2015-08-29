@@ -34,32 +34,14 @@ class FileUploadTask extends Task
   performRemote: ->
     Actions.uploadStateChanged @_uploadData("started")
 
-    started = (req) =>
-      @req = req
-      @progress = setInterval =>
-        Actions.uploadStateChanged(@_uploadData("progress"))
-      , 250
-
-    cleanup = =>
-      clearInterval(@progress)
-      @req = null
-
-    NylasAPI.makeRequest
-      path: "/files"
-      accountId: @_accountId()
-      method: "POST"
-      json: false
-      formData: @_formData()
-      started: started
-
-    .finally(cleanup)
-    .then(@performRemoteParseFile)
-    .then(@performRemoteAttachFile)
+    @_loadRelatedDraft()
+    .then @_makeRequest
+    .then @_performRemoteParseFile
+    .then @_performRemoteAttachFile
     .then (file) =>
       Actions.uploadStateChanged @_uploadData("completed")
       Actions.fileUploaded(file: file, uploadData: @_uploadData("completed"))
       return Promise.resolve(Task.Status.Finished)
-
     .catch APIError, (err) =>
       if err.statusCode in NylasAPI.PermanentErrorCodes
         msg = "There was a problem uploading this file. Please try again later."
@@ -73,7 +55,34 @@ class FileUploadTask extends Task
       else
         return Promise.resolve(Task.Status.Retry)
 
-  performRemoteParseFile: (rawResponseString) =>
+  _loadRelatedDraft: =>
+    DraftStore = require '../stores/draft-store'
+    DraftStore.sessionForClientId(@messageClientId).then (session) =>
+      @draftSession = session
+      @draft = session.draft()
+      return @draft
+
+  _makeRequest: =>
+    started = (req) =>
+      @req = req
+      @progress = setInterval =>
+        Actions.uploadStateChanged(@_uploadData("progress"))
+      , 250
+
+    cleanup = =>
+      clearInterval(@progress)
+      @req = null
+
+    NylasAPI.makeRequest
+      path: "/files"
+      accountId: @draft.accountId
+      method: "POST"
+      json: false
+      formData: @_formData()
+      started: started
+    .finally(cleanup)
+
+  _performRemoteParseFile: (rawResponseString) =>
     # The Nylas API returns the file json wrapped in an array.
     # Since we requested `json:false` the response will come back as
     # a raw string.
@@ -81,7 +90,7 @@ class FileUploadTask extends Task
     file = (new File).fromJSON(json[0])
     Promise.resolve(file)
 
-  performRemoteAttachFile: (file) =>
+  _performRemoteAttachFile: (file) =>
     # The minute we know what file is associated with the upload, we need
     # to fire an Action to notify a popout window's FileUploadStore that
     # these two objects are linked. We unfortunately can't wait until
@@ -96,13 +105,11 @@ class FileUploadTask extends Task
     # listing.
     Actions.linkFileToUpload(file: file, uploadData: @_uploadData("completed"))
 
-    DraftStore = require '../stores/draft-store'
-    DraftStore.sessionForClientId(@messageClientId).then (session) =>
-      files = _.clone(session.draft().files) ? []
-      files.push(file)
-      session.changes.add({files})
-      session.changes.commit().then ->
-        Promise.resolve(file)
+    files = _.clone(@draft.files) ? []
+    files.push(file)
+    @draftSession.changes.add({files})
+    @draftSession.changes.commit().then ->
+      return file
 
   cancel: ->
     super
