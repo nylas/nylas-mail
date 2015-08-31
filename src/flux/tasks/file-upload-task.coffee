@@ -34,33 +34,29 @@ class FileUploadTask extends Task
   performRemote: ->
     Actions.uploadStateChanged @_uploadData("started")
 
-    @_loadRelatedDraft()
-    .then @_makeRequest
-    .then @_performRemoteParseFile
-    .then @_performRemoteAttachFile
-    .then (file) =>
-      Actions.uploadStateChanged @_uploadData("completed")
-      Actions.fileUploaded(file: file, uploadData: @_uploadData("completed"))
-      return Promise.resolve(Task.Status.Finished)
-    .catch APIError, (err) =>
-      if err.statusCode in NylasAPI.PermanentErrorCodes
-        msg = "There was a problem uploading this file. Please try again later."
-        Actions.uploadStateChanged(@_uploadData("failed"))
-        Actions.postNotification({message: msg, type: "error"})
-        return Promise.resolve(Task.Status.Finished)
-      else if err.statusCode is NylasAPI.CancelledErrorCode
-        Actions.uploadStateChanged(@_uploadData("aborted"))
-        Actions.fileAborted(@_uploadData("aborted"))
-        return Promise.resolve(Task.Status.Finished)
-      else
-        return Promise.resolve(Task.Status.Retry)
+    DatabaseStore.findBy(Message, {clientId: @messageClientId}).then (draft) =>
+      return Promise.resolve(Task.Status.Finished) unless draft
+      @_accountId = draft.accountId
 
-  _loadRelatedDraft: =>
-    DraftStore = require '../stores/draft-store'
-    DraftStore.sessionForClientId(@messageClientId).then (session) =>
-      @draftSession = session
-      @draft = session.draft()
-      return @draft
+      @_makeRequest()
+      .then @_performRemoteParseFile
+      .then @_performRemoteAttachFile
+      .then (file) =>
+        Actions.uploadStateChanged @_uploadData("completed")
+        Actions.fileUploaded(file: file, uploadData: @_uploadData("completed"))
+        return Promise.resolve(Task.Status.Finished)
+      .catch APIError, (err) =>
+        if err.statusCode in NylasAPI.PermanentErrorCodes
+          msg = "There was a problem uploading this file. Please try again later."
+          Actions.uploadStateChanged(@_uploadData("failed"))
+          Actions.postNotification({message: msg, type: "error"})
+          return Promise.resolve(Task.Status.Finished)
+        else if err.statusCode is NylasAPI.CancelledErrorCode
+          Actions.uploadStateChanged(@_uploadData("aborted"))
+          Actions.fileAborted(@_uploadData("aborted"))
+          return Promise.resolve(Task.Status.Finished)
+        else
+          return Promise.resolve(Task.Status.Retry)
 
   _makeRequest: =>
     started = (req) =>
@@ -75,7 +71,7 @@ class FileUploadTask extends Task
 
     NylasAPI.makeRequest
       path: "/files"
-      accountId: @draft.accountId
+      accountId: @_accountId
       method: "POST"
       json: false
       formData: @_formData()
@@ -105,11 +101,14 @@ class FileUploadTask extends Task
     # listing.
     Actions.linkFileToUpload(file: file, uploadData: @_uploadData("completed"))
 
-    files = _.clone(@draft.files) ? []
-    files.push(file)
-    @draftSession.changes.add({files})
-    @draftSession.changes.commit().then ->
-      return file
+
+    DraftStore = require '../stores/draft-store'
+    DraftStore.sessionForClientId(@messageClientId).then (session) =>
+      files = _.clone(session.draft.files) ? []
+      files.push(file)
+      session.changes.add({files})
+      session.changes.commit().then ->
+        return file
 
   cancel: ->
     super
