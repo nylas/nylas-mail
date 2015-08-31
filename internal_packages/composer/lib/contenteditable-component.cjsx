@@ -161,17 +161,15 @@ class ContenteditableComponent extends React.Component
     # re-enable at the end.
     updateDOM = (command) =>
       @_teardownSelectionListeners()
-      @_ignoreInputChanges = true
       document.execCommand(command)
       selection = document.getSelection()
       selection.anchorNode.parentElement.innerHTML = ""
-      @_ignoreInputChanges = false
       @_setupSelectionListeners()
 
     text = @_textContentAtCursor()
     if (/^\d\.\s$/).test text
       updateDOM("insertOrderedList")
-    else if (/^-\s$/).test text
+    else if (/^[*-]\s$/).test text
       updateDOM("insertUnorderedList")
 
   _onTabDown: (event) ->
@@ -179,14 +177,47 @@ class ContenteditableComponent extends React.Component
     selection = document.getSelection()
     if selection?.isCollapsed
       # https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
-      # Some nodes anchorNodes might not have a `closest` method.
-      if selection.anchorNode?.closest?("li")
+      if selection.anchorNode instanceof HTMLElement
+        anchorElement = selection.anchorNode
+      else
+        anchorElement = selection.anchorNode.parentElement
+
+      # Only Elements (not Text nodes) have the `closest` method
+      if anchorElement.closest("li")
         if event.shiftKey
           document.execCommand("outdent")
         else
           document.execCommand("indent")
         return
-    document.execCommand("insertText", false, "\t")
+      else if event.shiftKey
+        if @_atTabChar() then @_removeLastCharacter()
+      else
+        document.execCommand("insertText", false, "\t")
+    else
+      if event.shiftKey
+        document.execCommand("insertText", false, "")
+      else
+        document.execCommand("insertText", false, "\t")
+
+  _selectionInText: (selection) ->
+    return false unless selection
+    return selection.isCollapsed and selection.anchorNode.nodeType is Node.TEXT_NODE and selection.anchorOffset > 0
+
+  _atTabChar: ->
+    selection = document.getSelection()
+    if @_selectionInText(selection)
+      return selection.anchorNode.textContent[selection.anchorOffset - 1] is "\t"
+    else return false
+
+  _removeLastCharacter: ->
+    selection = document.getSelection()
+    if @_selectionInText(selection)
+      node = selection.anchorNode
+      offset = selection.anchorOffset
+      @_teardownSelectionListeners()
+      selection.setBaseAndExtent(node, offset - 1, node, offset)
+      document.execCommand("delete")
+      @_setupSelectionListeners()
 
   _textContentAtCursor: ->
     selection = document.getSelection()
@@ -362,10 +393,12 @@ class ContenteditableComponent extends React.Component
 
   # http://www.w3.org/TR/selection-api/#selectstart-event
   _setupSelectionListeners: =>
+    @_ignoreInputChanges = false
     document.addEventListener("selectionchange", @_saveSelectionState)
 
   _teardownSelectionListeners: =>
     document.removeEventListener("selectionchange", @_saveSelectionState)
+    @_ignoreInputChanges = true
 
   getCurrentSelection: => _.clone(@_selection ? {})
   getPreviousSelection: => _.clone(@_previousSelection ? {})
