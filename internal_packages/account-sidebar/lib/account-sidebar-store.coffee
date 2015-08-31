@@ -51,17 +51,19 @@ class AccountSidebarStore extends NylasStore
     standardCategories = _.reject standardCategories, (category) =>
       category.name is "drafts"
 
+    standardCategories.push(WorkspaceStore.Sheet["Drafts"])
+
     # Find root views, add the Views section
-    featureSheets = _.filter WorkspaceStore.Sheet, (sheet) ->
-      sheet.name in ['Today']
-    extraSheets = _.filter WorkspaceStore.Sheet, (sheet) ->
-      sheet.root and sheet.name and not (sheet in featureSheets)
+    # featureSheets = _.filter WorkspaceStore.Sheet, (sheet) ->
+    #   sheet.name in ['Today']
+    # extraSheets = _.filter WorkspaceStore.Sheet, (sheet) ->
+    #   sheet.root and sheet.name and not (sheet in featureSheets)
 
     @_sections = []
-    if featureSheets.length > 0
-      @_sections.push { label: '', items: featureSheets, type: 'sheet' }
+    # if featureSheets.length > 0
+    #   @_sections.push { label: '', items: featureSheets, type: 'sheet' }
     @_sections.push { label: 'Mailboxes', items: standardCategories, type: 'mailboxes' }
-    @_sections.push { label: 'Views', items: extraSheets, type: 'sheet' }
+    # @_sections.push { label: 'Views', items: extraSheets, type: 'sheet' }
     @_sections.push { label: CategoryStore.categoryLabel(), items: userCategories, type: 'category' }
 
     @trigger()

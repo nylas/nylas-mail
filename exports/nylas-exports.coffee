@@ -58,6 +58,7 @@ class NylasExports
   @require "Account", 'flux/models/account'
   @require "Message", 'flux/models/message'
   @require "Contact", 'flux/models/contact'
+  @require "Category", 'flux/models/category'
   @require "Calendar", 'flux/models/calendar'
   @require "Metadata", 'flux/models/metadata'
   @require "DatabaseObjectRegistry", "database-object-registry"

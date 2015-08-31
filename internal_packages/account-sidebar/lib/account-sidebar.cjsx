@@ -1,5 +1,5 @@
 React = require 'react'
-{Actions} = require("nylas-exports")
+{Actions, Category} = require("nylas-exports")
 {ScrollRegion} = require("nylas-component-kit")
 SidebarDividerItem = require("./account-sidebar-divider-item")
 SidebarSheetItem = require("./account-sidebar-sheet-item")
@@ -43,12 +43,12 @@ class AccountSidebar extends React.Component
 
   _itemComponents: (section) =>
     section.items?.map (item) =>
-      if section.type is 'mailboxes' or section.type is 'category'
+      if item instanceof Category
         itemClass = AccountSidebarCategoryItem
-      else if section.type is 'sheet'
-        itemClass = item.sidebarComponent ? SidebarSheetItem
+      else if item.sidebarComponent
+        itemClass = item.sidebarComponent
       else
-        throw new Error("Unsure how to render item type #{section.type}")
+        itemClass = SidebarSheetItem
 
       <itemClass
         key={item.id ? item.type}
