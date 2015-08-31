@@ -104,7 +104,7 @@ class FileUploadTask extends Task
 
     DraftStore = require '../stores/draft-store'
     DraftStore.sessionForClientId(@messageClientId).then (session) =>
-      files = _.clone(session.draft.files) ? []
+      files = _.clone(session.draft().files) ? []
       files.push(file)
       session.changes.add({files})
       session.changes.commit().then ->
