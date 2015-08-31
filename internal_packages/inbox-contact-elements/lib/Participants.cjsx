@@ -30,7 +30,7 @@ class Participants extends React.Component
       list = _.reject list, (contact) -> contact.isMe()
 
     list.forEach (p) ->
-      p.id = p.name+p.email
+      p.serverId ?= p.name+p.email
 
     list
 
