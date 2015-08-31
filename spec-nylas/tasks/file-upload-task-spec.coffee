@@ -6,6 +6,7 @@ Task = require '../../src/flux/tasks/task'
 Message = require '../../src/flux/models/message'
 Actions = require '../../src/flux/actions'
 
+DatabaseStore = require "../../src/flux/stores/database-store"
 AccountStore = require "../../src/flux/stores/account-store"
 DraftStore = require "../../src/flux/stores/draft-store"
 
@@ -59,6 +60,7 @@ describe "FileUploadTask", ->
     bytesUploaded: 0
 
     @task = new FileUploadTask(test_file_paths[0], messageClientId)
+    @draft = new Message(accountId: "account-id-of-draft", files: @testFiles)
 
     @req = jasmine.createSpyObj('req', ['abort'])
     @simulateRequestSuccessImmediately = false
@@ -79,11 +81,11 @@ describe "FileUploadTask", ->
 
     @testFiles = []
     @changes = []
+    spyOn(DatabaseStore, 'run').andCallFake (query) =>
+      Promise.resolve(@draft)
     spyOn(DraftStore, "sessionForClientId").andCallFake =>
       Promise.resolve(
-        draft: =>
-          accountId: "account-id-of-draft"
-          files: @testFiles
+        draft: @draft
         changes:
           add: ({files}) => @changes = @changes.concat(files)
           commit: -> Promise.resolve()
