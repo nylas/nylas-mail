@@ -95,11 +95,10 @@ class WindowManager
     @_workWindow = null
 
   ensureWorkWindow: ->
-    console.log('ensureWorkWindow')
     @_workWindow ?= @newWindow
       windowType: 'work'
       title: 'Activity'
-      toolbar: false
+      toolbar: true
       neverClose: true
       width: 800
       height: 400
