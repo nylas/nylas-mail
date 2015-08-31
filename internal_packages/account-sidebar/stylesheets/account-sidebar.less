@@ -67,9 +67,7 @@
     font-weight: 400;
     padding: 0 @spacing-standard;
     line-height: @line-height-large * 1.1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    clear: both;
 
     .unread {
       font-weight: @font-weight-medium;
@@ -77,11 +75,17 @@
       background: @source-list-active-color;
       margin-left:@padding-small-horizontal;
     }
+    .icon {
+      float: left;
+    }
     .name {
       text-transform: capitalize;
-      margin-left: @padding-xs-horizontal;
+      padding-left: @padding-small-horizontal;
       position:relative;
       top:1px;
+      overflow: hidden;
+      padding-top: @padding-small-vertical;
+      line-height: @line-height-small;
     }
     &.selected {
       background: @source-list-active-bg;

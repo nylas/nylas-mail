@@ -48,8 +48,8 @@ class AccountSidebarCategoryItem extends React.Component
          onDrop={@_onDrop}>
       {unread}
 
-      {@_renderIcon()}
-      <span className="name"> {@props.item.displayName}</span>
+      <div className="icon">{@_renderIcon()}</div>
+      <div className="name">{@props.item.displayName}</div>
     </DropZone>
 
   _renderIcon: ->

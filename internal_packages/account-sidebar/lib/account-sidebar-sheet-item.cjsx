@@ -23,8 +23,8 @@ class AccountSidebarSheetItem extends React.Component
       icon = <RetinaImg name={"folder.png"} mode={RetinaImg.Mode.ContentIsMask} />
 
     <div className={classSet} onClick={@_onClick}>
-      {icon}
-      <span className="name"> {@props.item.name}</span>
+      <div className="icon">{icon}</div>
+      <div className="name">{@props.item.name}</div>
     </div>
 
   _onClick: (event) =>
