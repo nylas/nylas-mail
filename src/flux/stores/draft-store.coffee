@@ -368,7 +368,7 @@ class DraftStore
         draft[attr] = ContactStore.parseContactsInString(query[attr])
 
     @_finalizeAndPersistNewMessage(draft).then ({draftClientId}) =>
-      @_onPopoutDraftClientId({draftClientId})
+      @_onPopoutDraftClientId(draftClientId)
 
   _onDestroyDraft: (draftClientId) =>
     session = @_draftSessions[draftClientId]
