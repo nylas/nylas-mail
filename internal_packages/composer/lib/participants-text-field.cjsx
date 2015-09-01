@@ -68,7 +68,6 @@ class ParticipantsTextField extends React.Component
     if p.name?.length > 0 and p.name isnt p.email
       <div className="participant">
         <span className="participant-primary">{p.name}</span>&nbsp;&nbsp;
-        <span className="participant-secondary">({p.email})</span>
       </div>
     else
       <div className="participant">
