@@ -53,6 +53,7 @@ class EventedIFrame extends React.Component
     if node.contentWindow
       node.contentWindow.removeEventListener('focus', @_onIFrameFocus)
       node.contentWindow.removeEventListener('blur', @_onIFrameBlur)
+      node.contentWindow.removeEventListener('resize', @_onIFrameResize)
 
   _subscribeToIFrameEvents: =>
     node = React.findDOMNode(@)
@@ -67,6 +68,7 @@ class EventedIFrame extends React.Component
       if node.contentWindow
         node.contentWindow.addEventListener("focus", @_onIFrameFocus)
         node.contentWindow.addEventListener("blur", @_onIFrameBlur)
+        node.contentWindow.addEventListener('resize', @_onIFrameResize) if @props.onResize
 
   _getContainingTarget: (event, options) =>
     target = event.target
@@ -81,6 +83,9 @@ class EventedIFrame extends React.Component
 
   _onIFrameFocus: (event) =>
     window.getSelection().empty()
+
+  _onIFrameResize: (event) =>
+    @props.onResize?(event)
 
   # The iFrame captures events that take place over it, which causes some
   # interesting behaviors. For example, when you drag and release over the
