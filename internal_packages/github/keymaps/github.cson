@@ -1,0 +1,8 @@
+'body.platform-darwin':
+  'cmd-G': 'github:open'
+
+'body.platform-linux':
+  'ctrl-G': 'github:open'
+
+'body.platform-win32':
+  'ctrl-G': 'github:open'
