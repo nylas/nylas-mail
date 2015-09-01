@@ -36,6 +36,13 @@ class EmailFrame extends React.Component
     doc = React.findDOMNode(@).contentDocument
     doc.open()
 
+    # NOTE: The iframe must have a modern DOCTYPE. The lack of this line
+    # will cause some bizzare non-standards compliant rendering with the
+    # message bodies. This is particularly felt with <table> elements use
+    # the `border-collapse: collapse` css property while setting a
+    # `padding`.
+    doc.write("<!DOCTYPE html>")
+
     EmailFixingStyles = document.querySelector('[source-path*="email-frame.less"]')?.innerText
     EmailFixingStyles = EmailFixingStyles.replace(/.ignore-in-parent-frame/g, '')
     if (EmailFixingStyles)
