@@ -160,6 +160,7 @@ class Message extends Model
   @additionalSQLiteConfig:
     setup: ->
       ['CREATE INDEX IF NOT EXISTS MessageListIndex ON Message(account_id, thread_id, date ASC)',
+       'CREATE INDEX IF NOT EXISTS MessageListDraftIndex ON Message(account_id, draft)',
        'CREATE UNIQUE INDEX IF NOT EXISTS MessageDraftIndex ON Message(client_id)',
        'CREATE UNIQUE INDEX IF NOT EXISTS MessageBodyIndex ON MessageBody(id)']
 

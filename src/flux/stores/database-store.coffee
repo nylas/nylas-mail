@@ -140,6 +140,12 @@ class DatabaseStore extends NylasStore
     @_db = new sqlite3.Database @_databasePath, mode, (err) =>
       return @_handleSetupError(err) if err
       ready()
+    @_db.on 'profile', (query, msec) =>
+      if msec > 100
+        @_prettyConsoleLog("#{msec}msec: #{query}")
+      else
+        console.debug(DEBUG_TO_LOG, "#{msec}: #{query}")
+
 
   _checkDatabaseVersion: ({allowNotSet} = {}, ready) =>
     @_db.get 'PRAGMA user_version', (err, {user_version}) =>
@@ -232,14 +238,9 @@ class DatabaseStore extends NylasStore
         @_db.serialize() if @_inflightTransactions is 0
         @_inflightTransactions += 1
 
-      start = Date.now()
       @_db[fn] query, values, (err, results) =>
         if err
           console.error("DatabaseStore: Query #{query}, #{JSON.stringify(values)} failed #{err.toString()}")
-        else
-          duration = Date.now() - start
-          metadata = {duration: duration, resultLength: results?.length}
-          console.debug(DEBUG_TO_LOG, "DatabaseStore: END (#{duration}) #{query}", metadata)
 
         if query is COMMIT
           @_inflightTransactions -= 1
