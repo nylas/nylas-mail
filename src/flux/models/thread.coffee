@@ -6,7 +6,6 @@ Model = require './model'
 Contact = require './contact'
 Actions = require '../actions'
 Attributes = require '../attributes'
-CategoryStore = require '../stores/category-store'
 
 Function::getter = (prop, get) ->
   Object.defineProperty @prototype, prop, {get, configurable: yes}
@@ -113,8 +112,10 @@ class Thread extends Model
 
   sortedLabels: ->
     return [] unless @labels
-
     out = []
+
+    CategoryStore = require '../stores/category-store'
+
     isImportant = (l) -> l.name is 'important'
     isStandardCategory = (l) -> l.name in CategoryStore.StandardCategoryNames
     isUnhiddenStandardLabel = (l) ->
