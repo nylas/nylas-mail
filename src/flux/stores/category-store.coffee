@@ -31,6 +31,13 @@ class CategoryStore extends NylasStore
     "sent"
   ]
 
+  HiddenCategoryNames: [
+    "sent"
+    "drafts"
+    "all"
+    "archive"
+  ]
+
   AllMailName: "all"
 
   byId: (id) -> @_categoryCache[id]
@@ -80,6 +87,10 @@ class CategoryStore extends NylasStore
       byStandardName[val.name] = val
     _.compact @StandardCategoryNames.map (name) =>
       byStandardName[name]
+
+  getUnhiddenStandardCategories: ->
+    @getStandardCategories().filter (c) ->
+      not _.contains @HiddenCategoryNames, c.name
 
   # Public: Returns all of the categories that are not part of the standard
   # category set.
