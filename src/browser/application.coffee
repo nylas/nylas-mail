@@ -250,7 +250,7 @@ class Application
 
     @on 'application:send-feedback', => @windowManager.sendToMainWindow('send-feedback')
     @on 'application:open-preferences', => @windowManager.sendToMainWindow('open-preferences')
-    @on 'application:show-main-window', => @windowManager.openWindowsForTokenState()
+    @on 'application:show-main-window', => @openWindowsForTokenState()
     @on 'application:show-work-window', => @windowManager.showWorkWindow()
     @on 'application:check-for-update', => @autoUpdateManager.check()
     @on 'application:install-update', =>
@@ -261,7 +261,7 @@ class Application
       @devMode = true
       @windowManager.closeAllWindows()
       @windowManager.devMode = true
-      @windowManager.openWindowsForTokenState()
+      @openWindowsForTokenState()
 
     @on 'application:toggle-theme', =>
       themes = @config.get('core.themes') ? []
@@ -332,7 +332,7 @@ class Application
       event.sender.send('inline-styles-result', {body, clientId})
 
     app.on 'activate-with-no-open-windows', (event) =>
-      @windowManager.openWindowsForTokenState()
+      @openWindowsForTokenState()
       event.preventDefault()
 
     ipc.on 'update-application-menu', (event, template, keystrokesByCommand) =>
