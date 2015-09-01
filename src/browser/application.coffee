@@ -325,6 +325,12 @@ class Application
     ipc.on 'from-react-remote-window', (event, json) =>
       @windowManager.sendToMainWindow('from-react-remote-window', json)
 
+    ipc.on 'inline-style-parse', (event, {body, clientId}) =>
+      juice = require 'juice'
+      body = juice(body)
+      # win = BrowserWindow.fromWebContents(event.sender)
+      event.sender.send('inline-styles-result', {body, clientId})
+
     app.on 'activate-with-no-open-windows', (event) =>
       @windowManager.openWindowsForTokenState()
       event.preventDefault()

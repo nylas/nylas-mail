@@ -23,4 +23,6 @@ RegExpUtils =
   # SO discussion: http://stackoverflow.com/questions/10687099/how-to-test-if-a-url-string-is-absolute-or-relative/31991870#31991870
   hasValidSchemeRegex: -> new RegExp('^[a-z][a-z0-9+.-]*:', 'i')
 
+  looseStyleTag: -> /<style/gim
+
 module.exports = RegExpUtils
