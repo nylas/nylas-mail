@@ -1,0 +1,13 @@
+{
+  "name": "github",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Github integration in Nylas",
+  "license": "Proprietary",
+  "private": true,
+  "engines": {
+    "atom": "*"
+  },
+  "dependencies": {
+  }
+}
