@@ -32,9 +32,9 @@ class DraftListSidebarItem extends React.Component
       unread = <div className="unread item-count-box">{@state.count}</div>
 
     <div className={classSet} onClick={@_onClick}>
+      {unread}
       <div className="icon"><RetinaImg name={'drafts.png'} mode={RetinaImg.Mode.ContentIsMask} /></div>
       <div className="name"> {@props.item.name}</div>
-      {unread}
     </div>
 
   _onClick: (event) =>
