@@ -175,7 +175,7 @@ class MessageStore extends NylasStore
         if @_thread.unread
           markAsReadDelay = atom.config.get('core.reading.markAsReadDelay')
           setTimeout =>
-            return unless loadedThreadId is @_thread?.id
+            return unless loadedThreadId is @_thread?.id and @_thread.unread
             t = new ChangeUnreadTask(thread: @_thread, unread: false)
             t.canBeUndone = => false
             Actions.queueTask(t)
