@@ -10,6 +10,7 @@ SendDraftTask = require '../../src/flux/tasks/send-draft'
 DestroyDraftTask = require '../../src/flux/tasks/destroy-draft'
 Actions = require '../../src/flux/actions'
 Utils = require '../../src/flux/models/utils'
+ipc = require 'ipc'
 _ = require 'underscore'
 
 fakeThread = null
@@ -18,6 +19,7 @@ fakeMessage2 = null
 msgFromMe = null
 msgWithReplyTo = null
 msgWithReplyToDuplicates = null
+messageWithStyleTags = null
 fakeMessages = null
 
 class TestExtension extends DraftStoreExtension
@@ -30,6 +32,18 @@ describe "DraftStore", ->
 
   describe "creating drafts", ->
     beforeEach ->
+      spyOn(DraftStore, "_sanitizeBody").andCallThrough()
+      spyOn(DraftStore, "_onInlineStylesResult").andCallThrough()
+      spyOn(DraftStore, "_convertToInlineStyles").andCallThrough()
+      spyOn(ipc, "send").andCallFake (message, body) ->
+        if message is "inline-style-parse"
+          # There needs to be a defer block in here so the promise
+          # responsible for handling the `inline-style-parse` can be
+          # properly set. If the whole path is synchronous instead of
+          # asynchrounous, the promise is not cleared properly. Doing this
+          # requires us to add `advanceClock` blocks.
+          _.defer -> DraftStore._onInlineStylesResult(body)
+
       fakeThread = new Thread
         id: 'fake-thread-id'
         subject: 'Fake Subject'
@@ -88,12 +102,24 @@ describe "DraftStore", ->
         subject: 'Re: Fake Subject'
         date: new Date(1415814587)
 
+      messageWithStyleTags = new Message
+        id: 'message-with-style-tags'
+        to: [new Contact(email: 'ben@nylas.com'), new Contact(email: 'evan@nylas.com')]
+        cc: [new Contact(email: 'mg@nylas.com'), new Contact(email: AccountStore.current().me().email)]
+        bcc: [new Contact(email: 'recruiting@nylas.com')]
+        from: [new Contact(email: 'customer@example.com', name: 'Customer')]
+        threadId: 'fake-thread-id'
+        body: '<style>div {color: red;}</style><div>Fake Message 1</div>'
+        subject: 'Fake Subject'
+        date: new Date(1415814587)
+
       fakeMessages =
         'fake-message-1': fakeMessage1
         'fake-message-3': msgFromMe
         'fake-message-2': fakeMessage2
         'fake-message-reply-to': msgWithReplyTo
         'fake-message-reply-to-duplicates': msgWithReplyToDuplicates
+        'message-with-style-tags': messageWithStyleTags
 
       spyOn(DatabaseStore, 'find').andCallFake (klass, id) ->
         query = new ModelQuery(klass, {id})
@@ -132,6 +158,13 @@ describe "DraftStore", ->
 
       it "should set the replyToMessageId to the previous message's ids", ->
         expect(@model.replyToMessageId).toEqual(fakeMessage1.id)
+
+      it "should sanitize the HTML", ->
+        expect(DraftStore._sanitizeBody).toHaveBeenCalled()
+
+      it "should not call the style inliner when there are no style tags", ->
+        expect(DraftStore._convertToInlineStyles).not.toHaveBeenCalled()
+        expect(DraftStore._onInlineStylesResult).not.toHaveBeenCalled()
 
     describe "onComposeReply", ->
       describe "when the message provided as context has one or more 'ReplyTo' recipients", ->
@@ -189,6 +222,13 @@ describe "DraftStore", ->
 
       it "should set the replyToMessageId to the previous message's ids", ->
         expect(@model.replyToMessageId).toEqual(fakeMessage1.id)
+
+      it "should sanitize the HTML", ->
+        expect(DraftStore._sanitizeBody).toHaveBeenCalled()
+
+      it "should not call the style inliner when there are no style tags", ->
+        expect(DraftStore._convertToInlineStyles).not.toHaveBeenCalled()
+        expect(DraftStore._onInlineStylesResult).not.toHaveBeenCalled()
 
     describe "onComposeReplyAll", ->
       describe "when the message provided as context has one or more 'ReplyTo' recipients", ->
@@ -255,6 +295,47 @@ describe "DraftStore", ->
 
       it "should not set the replyToMessageId", ->
         expect(@model.replyToMessageId).toEqual(undefined)
+
+      it "should sanitize the HTML", ->
+        expect(DraftStore._sanitizeBody).toHaveBeenCalled()
+
+      it "should not call the style inliner when there are no style tags", ->
+        expect(DraftStore._convertToInlineStyles).not.toHaveBeenCalled()
+        expect(DraftStore._onInlineStylesResult).not.toHaveBeenCalled()
+
+    describe "inlining <style> tags", ->
+      it "inlines styles when replying", ->
+        runs ->
+          DraftStore._onComposeReply({threadId: fakeThread.id, messageId: messageWithStyleTags.id})
+          advanceClock(100)
+        waitsFor ->
+          DatabaseStore.persistModel.callCount > 0
+        runs ->
+          model = DatabaseStore.persistModel.mostRecentCall.args[0]
+          expect(DraftStore._convertToInlineStyles).toHaveBeenCalled()
+          expect(DraftStore._onInlineStylesResult).toHaveBeenCalled()
+
+      it "inlines styles when replying all", ->
+        runs ->
+          DraftStore._onComposeReplyAll({threadId: fakeThread.id, messageId: messageWithStyleTags.id})
+          advanceClock(100)
+        waitsFor ->
+          DatabaseStore.persistModel.callCount > 0
+        runs ->
+          model = DatabaseStore.persistModel.mostRecentCall.args[0]
+          expect(DraftStore._convertToInlineStyles).toHaveBeenCalled()
+          expect(DraftStore._onInlineStylesResult).toHaveBeenCalled()
+
+      it "inlines styles when forwarding", ->
+        runs ->
+          DraftStore._onComposeForward({threadId: fakeThread.id, messageId: messageWithStyleTags.id})
+          advanceClock(100)
+        waitsFor ->
+          DatabaseStore.persistModel.callCount > 0
+        runs ->
+          model = DatabaseStore.persistModel.mostRecentCall.args[0]
+          expect(DraftStore._convertToInlineStyles).toHaveBeenCalled()
+          expect(DraftStore._onInlineStylesResult).toHaveBeenCalled()
 
     describe "_newMessageWithContext", ->
       beforeEach ->

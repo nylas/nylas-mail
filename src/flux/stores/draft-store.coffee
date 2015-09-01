@@ -1,6 +1,8 @@
 _ = require 'underscore'
-moment = require 'moment'
 ipc = require 'ipc'
+crypto = require 'crypto'
+moment = require 'moment'
+sanitizeHtml = require 'sanitize-html'
 
 DraftStoreProxy = require './draft-store-proxy'
 DatabaseStore = require './database-store'
@@ -13,6 +15,7 @@ DestroyDraftTask = require '../tasks/destroy-draft'
 Thread = require '../models/thread'
 Contact = require '../models/contact'
 Message = require '../models/message'
+Utils = require '../models/utils'
 MessageUtils = require '../models/message-utils'
 Actions = require '../actions'
 
@@ -22,6 +25,7 @@ TaskQueue = require './task-queue'
 {Listener, Publisher} = require '../modules/reflux-coffee'
 CoffeeHelpers = require '../coffee-helpers'
 DOMUtils = require '../../dom-utils'
+RegExpUtils = require '../../regexp-utils'
 
 ###
 Public: DraftStore responds to Actions that interact with Drafts and exposes
@@ -65,6 +69,9 @@ class DraftStore
     @_draftSessions = {}
     @_extensions = []
 
+    @_inlineStylePromises = {}
+    @_inlineStyleResolvers = {}
+
     # We would ideally like to be able to calculate the sending state
     # declaratively from the existence of the SendDraftTask on the
     # TaskQueue.
@@ -82,6 +89,9 @@ class DraftStore
     @_draftsSending = {}
 
     ipc.on 'mailto', @_onHandleMailtoLink
+
+
+    ipc.on 'inline-styles-result', @_onInlineStylesResult
 
     # TODO: Doesn't work if we do window.addEventListener, but this is
     # fragile. Pending an Atom fix perhaps?
@@ -211,15 +221,27 @@ class DraftStore
     DatabaseStore.persistModel(draft).then =>
       Promise.resolve(draftClientId: draft.clientId)
 
-  _newMessageWithContext: ({thread, threadId, message, messageId, popout}, attributesCallback) =>
+  _newMessageWithContext: (args, attributesCallback) =>
     return unless AccountStore.current()
 
     # We accept all kinds of context. You can pass actual thread and message objects,
     # or you can pass Ids and we'll look them up. Passing the object is preferable,
     # and in most cases "the data is right there" anyway. Lookups add extra latency
     # that feels bad.
-    queries = {}
+    queries = @_buildModelResolvers(args)
+    queries.attributesCallback = attributesCallback
 
+    # Waits for the query promises to resolve and then resolve with a hash
+    # of their resolved values. *swoon*
+    Promise.props(queries)
+    .then @_prepareNewMessageAttributes
+    .then @_constructDraft
+    .then @_finalizeAndPersistNewMessage
+    .then ({draftLocalId}) =>
+      Actions.composePopoutDraft(draftLocalId) if args.popout
+
+  _buildModelResolvers: ({thread, threadId, message, messageId}) ->
+    queries = {}
     if thread?
       throw new Error("newMessageWithContext: `thread` present, expected a Model. Maybe you wanted to pass `threadId`?") unless thread instanceof Thread
       queries.thread = thread
@@ -235,76 +257,125 @@ class DraftStore
     else
       queries.message = DatabaseStore.findBy(Message, {threadId: threadId ? thread.id}).order(Message.attributes.date.descending()).limit(1)
       queries.message.include(Message.attributes.body)
+    return queries
 
-    # Waits for the query promises to resolve and then resolve with a hash
-    # of their resolved values. *swoon*
-    Promise.props(queries).then ({thread, message}) =>
-      attributes = attributesCallback(thread, message)
-      attributes.subject ?= subjectWithPrefix(thread.subject, 'Re:')
-      attributes.body ?= ""
+  _constructDraft: ({attributes, thread}) =>
+    return new Message _.extend {}, attributes,
+      from: [AccountStore.current().me()]
+      date: (new Date)
+      draft: true
+      pristine: true
+      threadId: thread.id
+      accountId: thread.accountId
 
-      contactsAsHtml = (cs) ->
-        DOMUtils.escapeHTMLCharacters(_.invoke(cs, "toString").join(", "))
+  _prepareNewMessageAttributes: ({thread, message, attributesCallback}) =>
+    attributes = attributesCallback(thread, message)
+    attributes.subject ?= subjectWithPrefix(thread.subject, 'Re:')
+
+    # We set the clientID here so we have a unique id to use for shipping
+    # the body to the browser process.
+    attributes.clientId = Utils.generateTempId()
+
+    @_prepareAttributesBody(attributes).then (body) ->
+      attributes.body = body
 
       if attributes.replyToMessage
-        replyToMessage = attributes.replyToMessage
+        msg = attributes.replyToMessage
+        attributes.subject = subjectWithPrefix(msg.subject, 'Re:')
+        attributes.replyToMessageId = msg.id
+        delete attributes.quotedMessage
 
-        attributes.subject = subjectWithPrefix(replyToMessage.subject, 'Re:')
-        attributes.replyToMessageId = replyToMessage.id
-        attributes.body = """
+      else if attributes.forwardMessage
+        msg = attributes.forwardMessage
+
+        if msg.files?.length > 0
+          attributes.files ?= []
+          attributes.files = attributes.files.concat(forwardMessage.files)
+
+        attributes.subject = subjectWithPrefix(msg.subject, 'Fwd:')
+        delete attributes.forwardedMessage
+
+      return {attributes, thread}
+
+  _prepareAttributesBody: (attributes) ->
+    if attributes.replyToMessage
+      replyToMessage = attributes.replyToMessage
+      @_prepareBodyForQuoting(replyToMessage.body, attributes.clientId).then (body) ->
+        return """
           <br><br><blockquote class="gmail_quote"
             style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
             #{DOMUtils.escapeHTMLCharacters(replyToMessage.replyAttributionLine())}
             <br>
-            #{@_formatBodyForQuoting(replyToMessage.body)}
+            #{body}
           </blockquote>"""
-        delete attributes.quotedMessage
-
-      if attributes.forwardMessage
-        forwardMessage = attributes.forwardMessage
-        fields = []
-        fields.push("From: #{contactsAsHtml(forwardMessage.from)}") if forwardMessage.from.length > 0
-        fields.push("Subject: #{forwardMessage.subject}")
-        fields.push("Date: #{forwardMessage.formattedDate()}")
-        fields.push("To: #{contactsAsHtml(forwardMessage.to)}") if forwardMessage.to.length > 0
-        fields.push("CC: #{contactsAsHtml(forwardMessage.cc)}") if forwardMessage.cc.length > 0
-        fields.push("BCC: #{contactsAsHtml(forwardMessage.bcc)}") if forwardMessage.bcc.length > 0
-
-        if forwardMessage.files?.length > 0
-          attributes.files ?= []
-          attributes.files = attributes.files.concat(forwardMessage.files)
-
-        attributes.subject = subjectWithPrefix(forwardMessage.subject, 'Fwd:')
-        attributes.body = """
+    else if attributes.forwardMessage
+      forwardMessage = attributes.forwardMessage
+      contactsAsHtml = (cs) ->
+        DOMUtils.escapeHTMLCharacters(_.invoke(cs, "toString").join(", "))
+      fields = []
+      fields.push("From: #{contactsAsHtml(forwardMessage.from)}") if forwardMessage.from.length > 0
+      fields.push("Subject: #{forwardMessage.subject}")
+      fields.push("Date: #{forwardMessage.formattedDate()}")
+      fields.push("To: #{contactsAsHtml(forwardMessage.to)}") if forwardMessage.to.length > 0
+      fields.push("CC: #{contactsAsHtml(forwardMessage.cc)}") if forwardMessage.cc.length > 0
+      fields.push("BCC: #{contactsAsHtml(forwardMessage.bcc)}") if forwardMessage.bcc.length > 0
+      @_prepareBodyForQuoting(forwardMessage.body, attributes.clientId).then (body) ->
+        return """
           <br><br><blockquote class="gmail_quote"
             style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
             Begin forwarded message:
             <br><br>
             #{fields.join('<br>')}
             <br><br>
-            #{@_formatBodyForQuoting(forwardMessage.body)}
+            #{body}
           </blockquote>"""
-        delete attributes.forwardedMessage
-
-      draft = new Message _.extend {}, attributes,
-        from: [AccountStore.current().me()]
-        date: (new Date)
-        draft: true
-        pristine: true
-        threadId: thread.id
-        accountId: thread.accountId
-
-      @_finalizeAndPersistNewMessage(draft).then ({draftClientId}) =>
-        Actions.composePopoutDraft(draftClientId) if popout
-
+    else return Promise.resolve("")
 
   # Eventually we'll want a nicer solution for inline attachments
-  _formatBodyForQuoting: (body="") =>
+  _prepareBodyForQuoting: (body="", clientId) =>
+    ## Fix inline images
     cidRE = MessageUtils.cidRegexString
     # Be sure to match over multiple lines with [\s\S]*
     # Regex explanation here: https://regex101.com/r/vO6eN2/1
     re = new RegExp("<img.*#{cidRE}[\\s\\S]*?>", "igm")
     body.replace(re, "")
+
+    ## Remove style tags and inline styles
+    # This prevents styles from leaking emails.
+    # https://github.com/Automattic/juice
+    if (RegExpUtils.looseStyleTag()).test(body)
+      @_convertToInlineStyles(body, clientId).then (body) =>
+        return @_sanitizeBody(body)
+    else
+      return Promise.resolve(@_sanitizeBody(body))
+
+  _convertToInlineStyles: (body, clientId) ->
+    body = @_injectUserAgentStyles(body)
+    @_inlineStylePromises[clientId] ?= new Promise (resolve, reject) =>
+      @_inlineStyleResolvers[clientId] = resolve
+      ipc.send('inline-style-parse', {body, clientId})
+    return @_inlineStylePromises[clientId]
+
+  # This will prepend the user agent stylesheet so we can apply it to the
+  # styles properly.
+  _injectUserAgentStyles: (body) ->
+    # No DOM parsing! Just find the first <style> tag and prepend there.
+    i = body.search(RegExpUtils.looseStyleTag())
+    return body if i is -1
+    userAgentDefault = require '../../chrome-user-agent-stylesheet-string'
+    return "#{body[0...i]}<style>#{userAgentDefault}</style>#{body[i..-1]}"
+
+  _onInlineStylesResult: ({body, clientId}) =>
+    delete @_inlineStylePromises[clientId]
+    @_inlineStyleResolvers[clientId](body)
+    delete @_inlineStyleResolvers[clientId]
+    return
+
+  _sanitizeBody: (body) ->
+    return sanitizeHtml body,
+      allowedTags: DOMUtils.permissiveTags()
+      allowedAttributes: DOMUtils.permissiveAttributes()
+      allowedSchemes: [ 'http', 'https', 'ftp', 'mailto', 'data' ]
 
   _onPopoutBlankDraft: =>
     account = AccountStore.current()
