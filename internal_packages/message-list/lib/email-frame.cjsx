@@ -9,8 +9,11 @@ class EmailFrame extends React.Component
   @propTypes:
     content: React.PropTypes.string.isRequired
 
+  constructor: (@props) ->
+    @_lastComputedHeight = 0
+
   render: =>
-    <EventedIFrame ref="iframe" seamless="seamless" />
+    <EventedIFrame ref="iframe" seamless="seamless" onResize={@_setFrameHeight}/>
 
   componentDidMount: =>
     @_mounted = true
@@ -55,16 +58,22 @@ class EmailFrame extends React.Component
     @refs.iframe.documentWasReplaced()
 
   _setFrameHeight: =>
-    _.defer =>
-      return unless @_mounted
-      domNode = React.findDOMNode(@)
-      doc = domNode.contentDocument
-      height = doc.getElementById("inbox-html-wrapper").scrollHeight
-      if domNode.height != "#{height}px"
-        domNode.height = "#{height}px"
+    return unless @_mounted
 
-      unless domNode?.contentDocument?.readyState is 'complete'
-        @_setFrameHeight()
+    domNode = React.findDOMNode(@)
+    wrapper = domNode.contentDocument.getElementById("inbox-html-wrapper")
+    height = wrapper.scrollHeight
+
+    # Why 5px? Some emails have elements with a height of 100%, and then put
+    # tracking pixels beneath that. In these scenarios, the scrollHeight of the
+    # message is always <100% + 1px>, which leads us to resize them constantly.
+    # This is a hack, but I'm not sure of a better solution.
+    if Math.abs(height - @_lastComputedHeight) > 5
+      domNode.height = "#{height}px"
+      @_lastComputedHeight = height
+
+    unless domNode?.contentDocument?.readyState is 'complete'
+      _.defer => @_setFrameHeight()
 
   _emailContent: =>
     # When showing quoted text, always return the pure content
