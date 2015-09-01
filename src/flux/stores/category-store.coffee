@@ -88,7 +88,7 @@ class CategoryStore extends NylasStore
     userCategories = _.reject _.values(@_categoryCache), (cat) =>
       cat.name in @StandardCategoryNames
     userCategories = _.sortBy(userCategories, 'displayName')
-    userCategories
+    return _.compact(userCategories)
 
   _onDBChanged: (change) ->
     categoryClass = @categoryClass()

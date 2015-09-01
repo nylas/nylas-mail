@@ -43,6 +43,7 @@ class AccountSidebar extends React.Component
 
   _itemComponents: (section) =>
     section.items?.map (item) =>
+      return unless item
       if item instanceof Category
         itemClass = AccountSidebarCategoryItem
       else if item.sidebarComponent
