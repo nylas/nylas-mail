@@ -46,6 +46,7 @@ module.exports =
     ipc.on 'open-preferences', (detail) ->
       ReactRemote.openWindowForComponent(Preferences, {
         tag: 'preferences'
+        title: "Preferences"
         width: 520
         resizable: false
         autosize: true

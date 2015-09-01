@@ -211,6 +211,7 @@ var openWindowForComponent = function(Component, options) {
     slashes: true
   });
   var thinWindow = new BrowserWindow({
+    title: options.title || "",
     frame: process.platform !== 'darwin',
     width: options.width || 800,
     height: options.height || 600,
