@@ -29,10 +29,6 @@ noop = ->
 
 messageClientId = "local-id_1234"
 
-fake_draft = new Message
-  id: "draft-id_1234"
-  draft: true
-
 testResponse = '[
     {
         "content_type": "image/jpeg",
@@ -85,7 +81,7 @@ describe "FileUploadTask", ->
       Promise.resolve(@draft)
     spyOn(DraftStore, "sessionForClientId").andCallFake =>
       Promise.resolve(
-        draft: @draft
+        draft: => @draft
         changes:
           add: ({files}) => @changes = @changes.concat(files)
           commit: -> Promise.resolve()
