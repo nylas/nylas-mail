@@ -253,7 +253,7 @@ class MessageList extends React.Component
     </div>
 
   _renderLabels: =>
-    labels = @state.currentThread.sortedLabels() ? []
+    labels = @state.currentThread.sortedLabels()
     labels.map (label) =>
       <MailLabel label={label} key={label.id} onRemove={ => @_onRemoveLabel(label) }/>
 

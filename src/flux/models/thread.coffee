@@ -6,6 +6,7 @@ Model = require './model'
 Contact = require './contact'
 Actions = require '../actions'
 Attributes = require '../attributes'
+CategoryStore = require '../stores/category-store'
 
 Function::getter = (prop, get) ->
   Object.defineProperty @prototype, prop, {get, configurable: yes}
@@ -111,7 +112,26 @@ class Thread extends Model
   hasFolderName: (name) -> @hasCategoryName(name)
 
   sortedLabels: ->
-    return null unless @labels
-    _.sortBy @labels, (label) -> label.displayName
+    return [] unless @labels
+
+    out = []
+    isImportant = (l) -> l.name is 'important'
+    isStandardCategory = (l) -> l.name in CategoryStore.StandardCategoryNames
+    isUnhiddenStandardLabel = (l) ->
+      not isImportant(l) and \
+      isStandardCategory(l) and\
+      l.name not in CategoryStore.HiddenCategoryNames
+
+    importantLabel = _.find @labels, isImportant
+    out = out.concat importantLabel if importantLabel
+
+    standardLabels = _.filter @labels, isUnhiddenStandardLabel
+    out = out.concat standardLabels if standardLabels.length
+
+    userLabels = _.filter @labels, (l) ->
+      not isImportant(l) and not isStandardCategory(l)
+    out = out.concat _.sortBy(userLabels, 'displayName') if userLabels.length
+
+    out
 
 module.exports = Thread

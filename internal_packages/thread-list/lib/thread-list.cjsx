@@ -95,7 +95,7 @@ class ThreadList extends React.Component
         allCategoryId = CategoryStore.getStandardCategory('all')?.id
         ignoredIds = [currentCategoryId, allCategoryId]
 
-        for label in (thread.sortedLabels() ? [])
+        for label in (thread.sortedLabels())
           continue if label.id in ignoredIds
           if not c3LabelComponentCache[label.id]
             c3LabelComponentCache[label.id] = <MailLabel label={label} key={label.id} />
