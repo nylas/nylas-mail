@@ -139,13 +139,28 @@ class DatabaseStore extends NylasStore
 
     @_db = new sqlite3.Database @_databasePath, mode, (err) =>
       return @_handleSetupError(err) if err
-      ready()
-    @_db.on 'profile', (query, msec) =>
-      if msec > 100
-        @_prettyConsoleLog("#{msec}msec: #{query}")
-      else
-        console.debug(DEBUG_TO_LOG, "#{msec}: #{query}")
 
+      # https://www.sqlite.org/wal.html
+      # WAL provides more concurrency as readers do not block writers and a writer
+      # does not block readers. Reading and writing can proceed concurrently.
+      @_db.run("PRAGMA journal_mode = WAL;")
+
+      # Note: These are properties of the connection, so they must be set regardless
+      # of whether the database setup queries are run.
+
+      # https://www.sqlite.org/intern-v-extern-blob.html
+      # A database page size of 8192 or 16384 gives the best performance for large BLOB I/O.
+      @_db.run("PRAGMA main.page_size = 8192;")
+      @_db.run("PRAGMA main.cache_size = 20000;")
+      @_db.run("PRAGMA main.synchronous = NORMAL;")
+      @_db.configure('busyTimeout', 5000)
+      @_db.on 'profile', (query, msec) =>
+        if msec > 100
+          @_prettyConsoleLog("#{msec}msec: #{query}")
+        else
+          console.debug(DEBUG_TO_LOG, "#{msec}: #{query}")
+
+      ready()
 
   _checkDatabaseVersion: ({allowNotSet} = {}, ready) =>
     @_db.get 'PRAGMA user_version', (err, {user_version}) =>

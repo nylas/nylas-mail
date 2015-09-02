@@ -13,16 +13,6 @@ class DatabaseSetupQueryBuilder
   setupQueries: ->
     queries = []
 
-    # https://www.sqlite.org/wal.html
-    # WAL provides more concurrency as readers do not block writers and a writer
-    # does not block readers. Reading and writing can proceed concurrently.
-    queries.push "PRAGMA journal_mode = WAL;"
-    # https://www.sqlite.org/intern-v-extern-blob.html
-    # A database page size of 8192 or 16384 gives the best performance for large BLOB I/O.
-    queries.push "PRAGMA main.page_size = 8192;"
-    queries.push "PRAGMA main.cache_size = 20000;"
-    queries.push "PRAGMA main.synchronous = NORMAL;"
-
     # Add table for storing generic JSON blobs
     queries.push("CREATE TABLE IF NOT EXISTS `JSONObject` (key TEXT PRIMARY KEY, data BLOB)")
     queries.push("CREATE UNIQUE INDEX IF NOT EXISTS `JSONObject_id` ON `JSONObject` (`key`)")
