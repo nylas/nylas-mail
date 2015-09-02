@@ -100,15 +100,15 @@ class Thread extends Model
   #
   # * `id` A {String} {Category} name
   #
-  hasCategoryName: (name) ->
-    return false unless name
+  categoryNamed: (name) ->
+    return null unless name
     for folder in (@folders ? [])
-      return true if folder.name is name
+      return folder if folder.name is name
     for label in (@labels ? [])
-      return true if label.name is name
-    return false
-  hasLabelName: (name) -> @hasCategoryName(name)
-  hasFolderName: (name) -> @hasCategoryName(name)
+      return label if label.name is name
+    return null
+  labelNamed: (name) -> @categoryNamed(name)?
+  folderNamed: (name) -> @categoryNamed(name)?
 
   sortedLabels: ->
     return [] unless @labels

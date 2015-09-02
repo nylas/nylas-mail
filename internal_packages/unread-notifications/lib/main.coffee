@@ -1,6 +1,7 @@
 _ = require 'underscore'
 {Thread,
  Actions,
+ AccountStore,
  CategoryStore,
  DatabaseStore} = require 'nylas-exports'
 
@@ -41,7 +42,9 @@ module.exports =
     })
     notif.onclick = =>
       atom.displayWindow()
-      Actions.focusCategory(CategoryStore.getStandardCategory("inbox"))
+      if AccountStore.current().id isnt thread.accountId
+        Actions.selectAccountId(thread.accountId)
+      Actions.focusCategory(thread.categoryNamed('inbox'))
       Actions.setFocus(collection: 'thread', item: thread)
 
   _notifyMessages: ->
@@ -85,7 +88,7 @@ module.exports =
       Promise.props(threads).then (threads) =>
         # Filter new unread messages to just the ones in the inbox
         newUnreadInInbox = _.filter newUnread, (msg) ->
-          threads[msg.threadId]?.hasCategoryName('inbox')
+          threads[msg.threadId]?.categoryNamed('inbox') isnt null
 
         return resolve() if newUnreadInInbox.length is 0
         atom.playSound('new_mail.ogg')
