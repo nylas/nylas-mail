@@ -61,7 +61,7 @@ class EmailFrame extends React.Component
     return unless @_mounted
 
     domNode = React.findDOMNode(@)
-    wrapper = domNode.contentDocument.getElementById("inbox-html-wrapper")
+    wrapper = domNode.contentDocument.getElementsByTagName('html')[0]
     height = wrapper.scrollHeight
 
     # Why 5px? Some emails have elements with a height of 100%, and then put

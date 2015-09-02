@@ -97,6 +97,7 @@ class ContenteditableComponent extends React.Component
       <div id="contenteditable"
            ref="contenteditable"
            contentEditable
+           spellCheck={false}
            tabIndex={@props.tabIndex}
            style={@props.style ? {}}
            onBlur={@_onBlur}
@@ -633,6 +634,9 @@ class ContenteditableComponent extends React.Component
       range.selectNode(node)
       selection.removeAllRanges()
       selection.addRange(range)
+      for extension in DraftStore.extensions()
+        if extension.onSubstitutionPerformed
+          extension.onSubstitutionPerformed(@_editableNode())
 
     cut = =>
       clipboard.writeText(text)
