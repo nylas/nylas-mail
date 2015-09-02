@@ -642,6 +642,7 @@ class Atom extends Model
         # Make sure we can't be made so small that the interface looks like crap
         @getCurrentWindow().setMinimumSize(875, 500)
         wait 20, =>
+          ipc.sendChannel('window-command', 'window:loaded')
           cover.classList.add('visible')
 
   # Call this method when establishing a secondary application window
@@ -675,6 +676,8 @@ class Atom extends Model
     @subscribe @config.onDidChange 'core.autoHideMenuBar', ({newValue}) =>
       @setAutoHideMenuBar(newValue)
     @setAutoHideMenuBar(true) if @config.get('core.autoHideMenuBar')
+
+    ipc.sendChannel('window-command', 'window:loaded')
 
   # Requests that the backend browser bootup a new window with the given
   # options.
