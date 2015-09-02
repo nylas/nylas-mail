@@ -199,11 +199,8 @@ class AtomWindow
         @browserWindow.focusOnWebView() unless @isWindowClosing
 
   sendMessage: (message, detail) ->
-    if @loaded
+    @waitForLoad =>
       @browserWindow.webContents.send(message, detail)
-    else
-      @browserWindow.once 'window:loaded', =>
-        @browserWindow.webContents.send(message, detail)
 
   sendCommand: (command, args...) ->
     if @isSpecWindow()
@@ -233,13 +230,15 @@ class AtomWindow
   show: -> @browserWindow.show()
 
   showWhenLoaded: ->
-    if @loaded
+    @waitForLoad =>
       @show()
       @focus()
+
+  waitForLoad: (fn) ->
+    if @loaded
+      fn()
     else
-      @once 'window:loaded', =>
-        @show()
-        @focus()
+      @once('window:loaded', fn)
 
   focus: -> @browserWindow.focus()
 

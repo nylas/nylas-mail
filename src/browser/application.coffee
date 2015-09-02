@@ -172,7 +172,7 @@ class Application
 
   _loginSuccessful: =>
     @openWindowsForTokenState()
-    @windowManager.mainWindow().once 'window:loaded', =>
+    @windowManager.mainWindow().waitForLoad =>
       @windowManager.onboardingWindow()?.close()
 
   databasePhase: ->

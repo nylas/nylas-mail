@@ -81,6 +81,7 @@ class EdgehillAPI
       if token.provider is 'inbox'
         token.provider = 'nylas'
     atom.config.set('tokens', incoming)
+    atom.config.save()
 
   unlinkToken: (token) ->
     @request
