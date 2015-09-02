@@ -116,25 +116,5 @@ describe "NylasSyncWorkerPool", ->
         expect(DatabaseStore.find).toHaveBeenCalledWith(Thread, 'idhere')
         expect(DatabaseStore.unpersistModel).toHaveBeenCalledWith(@thread)
 
-  # These specs are on hold because this function is changing very soon
-
-  xdescribe "handleModelResponse", ->
-    it "should reject if no JSON is provided", ->
-    it "should resolve if an empty JSON array is provided", ->
-
-    describe "if JSON contains the same object more than once", ->
-      it "should warn", ->
-      it "should omit duplicates", ->
-
-    describe "if JSON contains objects which are of unknown types", ->
-      it "should warn and resolve", ->
-
-    describe "when the object type is `thread`", ->
-      it "should check that models are acceptable", ->
-
-    describe "when the object type is `draft`", ->
-      it "should check that models are acceptable", ->
-
-    it "should call persistModels to save all of the received objects", ->
-
-    it "should resolve with the objects", ->
+  describe "handleModelResponse", ->
+    # SEE spec-nylas/nylas-api-spec.coffee
