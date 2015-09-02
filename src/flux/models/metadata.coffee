@@ -26,8 +26,8 @@ class Metadata extends Model
   Object.defineProperty @prototype, "id",
     enumerable: false
     get: ->
-      if @type and @publicid and @key
-        return "#{@type}/#{@publicid}/#{@key}"
+      if @type and @publicId and @key
+        return "#{@type}/#{@publicId}/#{@key}"
       else
         return @serverId ? @clientId
     set: ->
