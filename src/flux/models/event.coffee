@@ -38,6 +38,8 @@ class Event extends Model
   fromJSON: (json) ->
     super(json)
 
+    return @ unless @when
+
     # For indexing and querying purposes, we flatten the start and end of the different
     # "when" formats into two timestamps we can use for range querying. Note that for
     # all-day events, we use first second of start date and last second of end date.

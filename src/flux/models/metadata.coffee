@@ -1,12 +1,9 @@
+_ = require 'underscore'
 Model = require './model'
 Attributes = require '../attributes'
-{generateTempId} = require './utils'
-
-Function::getter = (prop, get) ->
-  Object.defineProperty @prototype, prop, {get, configurable: yes}
 
 class Metadata extends Model
-  @attributes:
+  @attributes: _.extend {}, Model.attributes,
     'type': Attributes.String
       queryable: true
       modelKey: 'type'
@@ -26,10 +23,14 @@ class Metadata extends Model
       modelKey: 'value'
       jsonKey: 'value'
 
-  @getter 'id', ->
-    if @type and @publicId and @key
-      @id = "#{@type}/#{@publicId}/#{@key}"
-    else
-      @id = generateTempId()
+  Object.defineProperty @prototype, "id",
+    enumerable: false
+    get: ->
+      if @type and @publicid and @key
+        return "#{@type}/#{@publicid}/#{@key}"
+      else
+        return @serverId ? @clientId
+    set: ->
+      throw new Error("You may not directly set the ID of an object. Set either the `clientId` or the `serverId` instead.")
 
 module.exports = Metadata
