@@ -52,6 +52,7 @@ class DraftStore
     @listenTo Actions.composeReplyAll, @_onComposeReplyAll
     @listenTo Actions.composePopoutDraft, @_onPopoutDraftClientId
     @listenTo Actions.composeNewBlankDraft, @_onPopoutBlankDraft
+    @listenTo Actions.draftSendingFailed, @_onDraftSendingFailed
 
     atom.commands.add 'body',
       'application:new-message': => @_onPopoutBlankDraft()
@@ -122,7 +123,7 @@ class DraftStore
   # Public: Look up the sending state of the given draftClientId.
   # In popout windows the existance of the window is the sending state.
   isSendingDraft: (draftClientId) ->
-    return @_draftsSending[draftClientId]?
+    return @_draftsSending[draftClientId] ? false
 
   ###
   Composer Extensions
@@ -483,5 +484,18 @@ class DraftStore
       files = _.reject files, (f) -> f.id is file.id
       session.changes.add({files}, immediate: true)
 
+  _onDraftSendingFailed: ({draftClientId, errorMessage}) ->
+    @_draftsSending[draftClientId] = false
+    @trigger(draftClientId)
+    if atom.isMainWindow()
+      _.defer ->
+        remote = require('remote')
+        dialog = remote.require('dialog')
+        dialog.showMessageBox remote.getCurrentWindow(), {
+          type: 'warning'
+          buttons: ['Okay'],
+          message: "Error"
+          detail: errorMessage
+        }
 
 module.exports = new DraftStore()

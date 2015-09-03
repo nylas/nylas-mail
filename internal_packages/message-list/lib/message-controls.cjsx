@@ -75,17 +75,17 @@ class MessageControls extends React.Component
 
   _onShowActionsMenu: =>
     remote = require('remote')
-    Menu = remote.require('menu')
-    MenuItem = remote.require('menu-item')
+    SystemMenu = remote.require('menu')
+    SystemMenuItem = remote.require('menu-item')
 
     # Todo: refactor this so that message actions are provided
     # dynamically. Waiting to see if this will be used often.
-    menu = new Menu()
-    menu.append(new MenuItem({ label: 'Report Issue: Quoted Text', click: => @_onReport('Quoted Text')}))
-    menu.append(new MenuItem({ label: 'Report Issue: Rendering', click: => @_onReport('Rendering')}))
-    menu.append(new MenuItem({ type: 'separator'}))
-    menu.append(new MenuItem({ label: 'Show Original', click: => @_onShowOriginal()}))
-    menu.append(new MenuItem({ label: 'Log Data', click: => @_onLogData()}))
+    menu = new SystemMenu()
+    menu.append(new SystemMenuItem({ label: 'Report Issue: Quoted Text', click: => @_onReport('Quoted Text')}))
+    menu.append(new SystemMenuItem({ label: 'Report Issue: Rendering', click: => @_onReport('Rendering')}))
+    menu.append(new SystemMenuItem({ type: 'separator'}))
+    menu.append(new SystemMenuItem({ label: 'Show Original', click: => @_onShowOriginal()}))
+    menu.append(new SystemMenuItem({ label: 'Log Data', click: => @_onLogData()}))
     menu.popup(remote.getCurrentWindow())
 
   _onReport: (issueType) =>

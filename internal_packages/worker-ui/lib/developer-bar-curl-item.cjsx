@@ -6,6 +6,7 @@ class DeveloperBarCurlItem extends React.Component
   render: =>
     <div className={"item status-code-#{@props.item.statusCode}"}>
       <div className="code">{@props.item.statusCode}</div>
+      <span className="timestamp">{@props.item.startMoment.format("HH:mm:ss")}&nbsp;&nbsp;</span>
       <a onClick={@_onRunCommand}>Run</a>
       <a onClick={@_onCopyCommand}>Copy</a>
       {@props.item.command}
