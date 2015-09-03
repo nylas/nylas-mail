@@ -19,7 +19,7 @@ describe "QuotedHTMLParser", ->
     re = new RegExp(QuotedHTMLParser.annotationClass, 'g')
     html.match(re)?.length ? 0
 
-  [1..15].forEach (n) ->
+  [1..16].forEach (n) ->
     it "properly parses email_#{n}", ->
       expect(removeQuotedHTML("email_#{n}.html")).toEqual readFile("email_#{n}_stripped.html")
 
@@ -78,16 +78,18 @@ describe "QuotedHTMLParser", ->
          </div></body>
         """
 
-    # Test 2
+    # Test 2: Basic quote removal
     tests.push
       before: """
         <br>
+        Yo
         <blockquote>Nothing but quotes</blockquote>
         <br>
         <br>
         """
       after: """<head></head><body>
         <br>
+        Yo
         <br>
         <br></body>
         """
@@ -237,6 +239,23 @@ describe "QuotedHTMLParser", ->
         <div></div></body>
         """
 
+    # Test 10: If it's only a quote and no other text, then just show the
+    # quote
+    tests.push
+      before: """
+        <br>
+        <blockquote>Nothing but quotes</blockquote>
+        <br>
+        <br>
+        """
+      after: """<head></head><body>
+        <br>
+        <blockquote>Nothing but quotes</blockquote>
+        <br>
+        <br></body>
+        """
+
+
     it 'works with these manual test cases', ->
       for {before, after} in tests
         test = clean(QuotedHTMLParser.removeQuotedHTML(before))
@@ -266,7 +285,7 @@ describe "QuotedHTMLParser", ->
   # `QuotedHTMLParser` needs Electron booted up in order to work because
   # of the DOMParser.
   xit "Run this simple funciton to generate output files", ->
-    [1..15].forEach (n) ->
+    [16].forEach (n) ->
       newHTML = QuotedHTMLParser.removeQuotedHTML(readFile("email_#{n}.html"))
       outPath = path.resolve(__dirname, 'fixtures', 'emails', "email_#{n}_raw_stripped.html")
       fs.writeFileSync(outPath, newHTML)

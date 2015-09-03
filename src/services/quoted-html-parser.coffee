@@ -11,13 +11,17 @@ class QuotedHTMLParser
   hideQuotedHTML: (html) ->
     doc = @_parseHTML(html)
     quoteElements = @_findQuoteLikeElements(doc)
-    @_annotateElements(quoteElements)
+    if not @_wholeBodyIsQuote(doc, quoteElements)
+      @_annotateElements(quoteElements)
     return doc.children[0].innerHTML
 
   hasQuotedHTML: (html) ->
     doc = @_parseHTML(html)
     quoteElements = @_findQuoteLikeElements(doc)
-    return quoteElements.length > 0
+    if @_wholeBodyIsQuote(doc, quoteElements)
+      return false
+    else
+      return quoteElements.length > 0
 
   # Public: Removes quoted text from an HTML string
   #
@@ -35,25 +39,28 @@ class QuotedHTMLParser
   removeQuotedHTML: (html, options={}) ->
     doc = @_parseHTML(html)
     quoteElements = @_findQuoteLikeElements(doc, options)
-    DOMUtils.removeElements(quoteElements, options)
-    childNodes = doc.body.childNodes
+    if not @_wholeBodyIsQuote(doc, quoteElements)
+      DOMUtils.removeElements(quoteElements, options)
+      childNodes = doc.body.childNodes
 
-    extraTailBrTags = []
-    for i in [(childNodes.length - 1)..0] by -1
-      curr = childNodes[i]
-      next = childNodes[i - 1]
-      if curr and curr.nodeName == 'BR' and next and next.nodeName == 'BR'
-        extraTailBrTags.push(curr)
-      else
-        break
+      extraTailBrTags = []
+      for i in [(childNodes.length - 1)..0] by -1
+        curr = childNodes[i]
+        next = childNodes[i - 1]
+        if curr and curr.nodeName == 'BR' and next and next.nodeName == 'BR'
+          extraTailBrTags.push(curr)
+        else
+          break
 
-    DOMUtils.removeElements(extraTailBrTags)
+      DOMUtils.removeElements(extraTailBrTags)
     return doc.children[0].innerHTML
 
   appendQuotedHTML: (htmlWithoutQuotes, originalHTML) ->
-    quoteElements = @_findQuoteLikeElements(@_parseHTML(originalHTML))
-    doc = @_parseHTML(htmlWithoutQuotes)
-    doc.body.appendChild(node) for node in quoteElements
+    doc = @_parseHTML(originalHTML)
+    quoteElements = @_findQuoteLikeElements(doc)
+    if not @_wholeBodyIsQuote(doc, quoteElements)
+      doc = @_parseHTML(htmlWithoutQuotes)
+      doc.body.appendChild(node) for node in quoteElements
     return doc.children[0].innerHTML
 
   restoreAnnotatedHTML: (html) ->
@@ -66,6 +73,17 @@ class QuotedHTMLParser
     domParser = new DOMParser()
     doc = domParser.parseFromString(text, "text/html")
     return doc
+
+  _wholeBodyIsQuote: (doc, quoteElements) ->
+    nonBlankChildElements = []
+    for child in doc.body.childNodes
+      if child.textContent.trim() is ""
+        continue
+      else nonBlankChildElements.push(child)
+
+    if nonBlankChildElements.length is 1
+      return nonBlankChildElements[0] in quoteElements
+    else return false
 
     # We used to have a scheme where we cached the `doc` object, keyed by
     # the md5 of the text. Unfortunately we can't do this because the

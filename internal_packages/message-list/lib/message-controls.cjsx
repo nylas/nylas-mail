@@ -85,6 +85,7 @@ class MessageControls extends React.Component
     menu.append(new MenuItem({ label: 'Report Issue: Rendering', click: => @_onReport('Rendering')}))
     menu.append(new MenuItem({ type: 'separator'}))
     menu.append(new MenuItem({ label: 'Show Original', click: => @_onShowOriginal()}))
+    menu.append(new MenuItem({ label: 'Log Data', click: => @_onLogData()}))
     menu.popup(remote.getCurrentWindow())
 
   _onReport: (issueType) =>
@@ -128,5 +129,10 @@ class MessageControls extends React.Component
           window = new BrowserWindow(width: 800, height: 600, title: "#{@props.message.subject} - RFC822")
           window.loadUrl('file://'+tmpfile)
 
+  _onLogData: =>
+    console.log @props.message
+    window.__message = @props.message
+    window.__thread = @props.thread
+    console.log "Also now available in window.__message and window.__thread"
 
 module.exports = MessageControls
