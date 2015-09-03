@@ -226,7 +226,7 @@ describe "ChangeMailTask", ->
     describe "if performRequests rejects with a temporary network error", ->
       beforeEach ->
         @task = new ChangeMailTask()
-        spyOn(@task, 'performRequests').andReturn(Promise.reject(new APIError(statusCode: 0)))
+        spyOn(@task, 'performRequests').andReturn(Promise.reject(new APIError(statusCode: NylasAPI.SampleTemporaryErrorCode)))
         spyOn(@task, 'performLocal').andReturn(Promise.resolve())
 
       it "should not revert", ->
@@ -320,7 +320,7 @@ describe "ChangeMailTask", ->
           promises[0].resolve()
           advanceClock()
           expect(err).toBe(null)
-          apiError = new APIError(statusCode: 0)
+          apiError = new APIError(statusCode: NylasAPI.SampleTemporaryErrorCode)
           promises[1].reject(apiError)
           advanceClock()
           expect(err).toBe(apiError)
@@ -405,7 +405,7 @@ describe "ChangeMailTask", ->
 
     describe "when performRemote is returning Task.Status.Retry", ->
       it "should not clean up locks", ->
-        spyOn(@task, 'performRequests').andReturn(Promise.reject(new APIError(statusCode: 0)))
+        spyOn(@task, 'performRequests').andReturn(Promise.reject(new APIError(statusCode: NylasAPI.SampleTemporaryErrorCode)))
         spyOn(@task, '_ensureLocksRemoved')
         waitsForPromise =>
           @task.performRemote().then =>

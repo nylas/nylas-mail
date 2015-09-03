@@ -1,18 +1,18 @@
-Reflux = require 'reflux'
+NylasStore = require 'nylas-store'
 {Actions} = require 'nylas-exports'
 qs = require 'querystring'
 _ = require 'underscore'
+moment = require 'moment'
 
-curlItemId = 0
-
-DeveloperBarStore = Reflux.createStore
-  init: ->
+class DeveloperBarStore extends NylasStore
+  constructor: ->
     @_setStoreDefaults()
     @_registerListeners()
 
   ########### PUBLIC #####################################################
 
-  curlHistory: -> @_curlHistory
+  curlHistory: -> _.sortBy _.values(@_curlHistory), (item) ->
+    item.startMoment.valueOf()
 
   longPollState: -> @_longPollState
 
@@ -30,13 +30,14 @@ DeveloperBarStore = Reflux.createStore
     @_triggerThrottled()
 
   _setStoreDefaults: ->
-    @_curlHistory = []
+    @_curlHistory = {}
     @_longPollHistory = []
     @_longPollState = {}
     @_visible = atom.inDevMode()
 
   _registerListeners: ->
-    @listenTo Actions.didMakeAPIRequest, @_onAPIRequest
+    @listenTo Actions.willMakeAPIRequest, @_onWillMakeAPIRequest
+    @listenTo Actions.didMakeAPIRequest, @_onDidMakeAPIRequest
     @listenTo Actions.longPollReceivedRawDeltas, @_onLongPollDeltas
     @listenTo Actions.longPollProcessedDeltas, @_onLongPollProcessedDeltas
     @listenTo Actions.longPollStateChanged, @_onLongPollStateChange
@@ -49,7 +50,7 @@ DeveloperBarStore = Reflux.createStore
     @trigger(@)
 
   _onClear: ->
-    @_curlHistory = []
+    @_curlHistory = {}
     @_longPollHistory = []
     @trigger(@)
 
@@ -72,7 +73,17 @@ DeveloperBarStore = Reflux.createStore
     @_longPollState[accountId] = state
     @triggerThrottled(@)
 
-  _onAPIRequest: ({request, response}) ->
+  _onWillMakeAPIRequest: ({requestId, request}) =>
+    item = @_generateCurlItem({requestId, request})
+    @_curlHistory[requestId] = item
+    @triggerThrottled(@)
+
+  _onDidMakeAPIRequest: ({requestId, request, response, error}) =>
+    item = @_generateCurlItem({requestId, request, response, error})
+    @_curlHistory[requestId] = item
+    @triggerThrottled(@)
+
+  _generateCurlItem: ({requestId, request, response, error}) ->
     url = request.url
     if request.auth
       url = url.replace('://', "://#{request.auth.user}:#{request.auth.pass}@")
@@ -83,15 +94,20 @@ DeveloperBarStore = Reflux.createStore
     data = ""
     data = "-d '#{postBody}'" unless request.method == 'GET'
 
+    headers = ""
+    if request.headers
+      for k,v of request.headers
+        headers += "-H \"#{k}: #{v}\" "
+
+    statusCode = response?.statusCode ? error?.code ? "pending"
+
     item =
-      id: "curlitemId:#{curlItemId}"
-      command: "curl -X #{request.method} #{data} \"#{url}\""
-      statusCode: response?.statusCode || 0
+      id: "curlitemId:#{requestId}"
+      command: "curl -X #{request.method} #{headers}#{data} \"#{url}\""
+      statusCode: statusCode
+      startMoment: moment(request.startTime)
 
-    @_curlHistory.unshift(item)
-    curlItemId += 1
-
-    @triggerThrottled(@)
+    return item
 
   _onSendFeedback: ->
     {AccountStore,
@@ -102,7 +118,7 @@ DeveloperBarStore = Reflux.createStore
     user = AccountStore.current().name
 
     debugData = JSON.stringify({
-      queries: @_curlHistory
+      queries: _.values(@curlHistory())
     }, null, '\t')
 
     # Remove API tokens from URLs included in the debug data
@@ -142,4 +158,4 @@ DeveloperBarStore = Reflux.createStore
     DatabaseStore.persistModel(draft).then ->
       Actions.composePopoutDraft(draft.clientId)
 
-module.exports = DeveloperBarStore
+module.exports = new DeveloperBarStore()

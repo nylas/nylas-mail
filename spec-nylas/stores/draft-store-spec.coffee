@@ -708,6 +708,27 @@ describe "DraftStore", ->
         task = Actions.queueTask.calls[0].args[0]
         expect(task.fromPopout).toBe true
 
+    it "resets the sending state if there's an error", ->
+      spyOn(atom, "isMainWindow").andReturn false
+      DraftStore._draftsSending[draftClientId] = true
+      Actions.draftSendingFailed({errorMessage: "boohoo", draftClientId})
+      expect(DraftStore.isSendingDraft(draftClientId)).toBe false
+      expect(DraftStore.trigger).toHaveBeenCalledWith(draftClientId)
+
+    it "displays a popup in the main window if there's an error", ->
+      spyOn(atom, "isMainWindow").andReturn true
+      remote = require('remote')
+      dialog = remote.require('dialog')
+      spyOn(dialog, "showMessageBox")
+      DraftStore._draftsSending[draftClientId] = true
+      Actions.draftSendingFailed({errorMessage: "boohoo", draftClientId})
+      advanceClock(10)
+      expect(DraftStore.isSendingDraft(draftClientId)).toBe false
+      expect(DraftStore.trigger).toHaveBeenCalledWith(draftClientId)
+      expect(dialog.showMessageBox).toHaveBeenCalled()
+      dialogArgs = dialog.showMessageBox.mostRecentCall.args[1]
+      expect(dialogArgs.detail).toEqual("boohoo")
+
   describe "session teardown", ->
     beforeEach ->
       @draftTeardown = jasmine.createSpy('draft teardown')

@@ -1,13 +1,18 @@
 _ = require 'underscore'
 request = require 'request'
+Utils = require './models/utils'
 Actions = require './actions'
 {APIError} = require './errors'
 PriorityUICoordinator = require '../priority-ui-coordinator'
 DatabaseStore = require './stores/database-store'
 async = require 'async'
 
-PermanentErrorCodes = [400, 404, 500]
+# A 0 code is when an error returns without a status code. These are
+# things like "ESOCKETTIMEDOUT"
+TimeoutErrorCode = 0
+PermanentErrorCodes = [400, 404, 500, TimeoutErrorCode]
 CancelledErrorCode = -123
+SampleTemporaryErrorCode = 504
 
 # This is lazy-loaded
 AccountStore = null
@@ -43,6 +48,8 @@ class NylasAPIRequest
     @options.url ?= "#{@api.APIRoot}#{@options.path}" if @options.path
     @options.json ?= true
 
+    @options.timeout ?= 15000
+
     unless @options.method is 'GET' or @options.formData
       @options.body ?= {}
     @
@@ -63,12 +70,22 @@ class NylasAPIRequest
         pass: ''
         sendImmediately: true
 
+    requestId = Utils.generateTempId()
     new Promise (resolve, reject) =>
+      @options.startTime = Date.now()
+      Actions.willMakeAPIRequest({request: @options, requestId: requestId})
       req = request @options, (error, response, body) =>
+        Actions.didMakeAPIRequest({request: @options, response: response, error: error, requestId: requestId})
         PriorityUICoordinator.settle.then =>
-          Actions.didMakeAPIRequest({request: @options, response: response})
-
           if error or response.statusCode > 299
+            # Some errors (like socket errors and some types of offline
+            # errors) return with a valid `error` object but no `response`
+            # object (and therefore no `statusCode`. To normalize all of
+            # this, we inject our own offline status code so people down
+            # the line can have a more consistent interface.
+            if not response?.statusCode
+              response ?= {}
+              response.statusCode = TimeoutErrorCode
             apiError = new APIError({error, response, body, requestOptions: @options})
             @options.error?(apiError)
             reject(apiError)
@@ -86,8 +103,10 @@ class NylasAPIRequest
 
 class NylasAPI
 
+  TimeoutErrorCode: TimeoutErrorCode
   PermanentErrorCodes: PermanentErrorCodes
   CancelledErrorCode: CancelledErrorCode
+  SampleTemporaryErrorCode: SampleTemporaryErrorCode
 
   constructor: ->
     @_workers = []

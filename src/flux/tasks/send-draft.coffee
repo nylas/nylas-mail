@@ -87,8 +87,11 @@ class SendDraftTask extends Task
         body.reply_to_message_id = null
         return @_send(body)
       else if err.statusCode in NylasAPI.PermanentErrorCodes
-        msg = err.message ? "Your draft could not be sent."
-        Actions.composePopoutDraft(@draftClientId, {errorMessage: msg})
+        msg = "Your draft could not be sent. Please check your network connection and try again."
+        if @fromPopout
+          Actions.composePopoutDraft(@draftClientId, {errorMessage: msg})
+        else
+          Actions.draftSendingFailed({draftClientId: @draftClientId, errorMessage: msg})
         return Promise.resolve(Task.Status.Finished)
       else
         return Promise.resolve(Task.Status.Retry)

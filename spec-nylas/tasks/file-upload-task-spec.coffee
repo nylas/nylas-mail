@@ -146,7 +146,7 @@ describe "FileUploadTask", ->
 
     describe "if the error is temporary", ->
       beforeEach ->
-        @runWithError(new APIError(statusCode: 0))
+        @runWithError(new APIError(statusCode: NylasAPI.SampleTemporaryErrorCode))
 
       it "should resolve with `retry`", ->
         runs ->

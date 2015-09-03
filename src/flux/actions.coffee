@@ -90,6 +90,7 @@ class Actions
   @multiWindowNotification: ActionScopeGlobal
   @sendDraftSuccess: ActionScopeGlobal
   @sendToAllWindows: ActionScopeGlobal
+  @draftSendingFailed: ActionScopeGlobal
 
   ###
   Public: Queue a {Task} object to the {TaskQueue}.
@@ -120,6 +121,7 @@ class Actions
   @longPollProcessedDeltas: ActionScopeWorkWindow
   @longPollConnected: ActionScopeWorkWindow
   @longPollOffline: ActionScopeWorkWindow
+  @willMakeAPIRequest: ActionScopeWorkWindow
   @didMakeAPIRequest: ActionScopeWorkWindow
   @sendFeedback: ActionScopeWorkWindow
 

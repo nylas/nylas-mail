@@ -1,5 +1,6 @@
 _ = require 'underscore'
 nodeRequest = require 'request'
+Utils = require './models/utils'
 Actions = require './actions'
 {APIError} = require './errors'
 DatabaseStore = require './stores/database-store'
@@ -49,13 +50,18 @@ class EdgehillAPI
 
     options.error ?= @_defaultErrorCallback
 
-    nodeRequest options, (error, response, body) ->
-      PriorityUICoordinator.settle.then ->
-        Actions.didMakeAPIRequest({request: options, response: response})
-        if error? or response.statusCode > 299
-          options.error(new APIError({error:error, response:response, body:body, requestOptions: options}))
-        else
-          options.success(body) if options.success
+    # This is to provide functional closure for the variable.
+    rid = Utils.generateTempId()
+    [rid].forEach (requestId) ->
+      options.startTime = Date.now()
+      Actions.willMakeAPIRequest({request: options, requestId: requestId})
+      nodeRequest options, (error, response, body) ->
+        Actions.didMakeAPIRequest({request: options, response: response, error: error, requestId: requestId})
+        PriorityUICoordinator.settle.then ->
+          if error? or response.statusCode > 299
+            options.error(new APIError({error:error, response:response, body:body, requestOptions: options}))
+          else
+            options.success(body) if options.success
 
   urlForConnecting: (provider, email_address = '') ->
     auth = @_getCredentials()
