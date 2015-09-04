@@ -134,7 +134,7 @@ class WorkspaceStore extends NylasStore
   # You should provide one of the WorkspaceStore.Location constant values.
   isLocationHidden: (loc) =>
     return false unless loc
-    @_hiddenLocations[loc.id]
+    @_hiddenLocations[loc.id]?
 
   ###
   Managing Sheets
