@@ -22,6 +22,27 @@ describe "the `atom` global", ->
         atom.setSize(100, 400)
         expect(atom.getSize()).toEqual width: 100, height: 400
 
+    describe '::setMinimumWidth', ->
+      win = atom.getCurrentWindow()
+
+      it "sets the minimum width", ->
+        inputMinWidth = 500
+        win.setMinimumSize(1000, 1000)
+
+        atom.setMinimumWidth(inputMinWidth)
+
+        [actualMinWidth, h] = win.getMinimumSize()
+        expect(actualMinWidth).toBe inputMinWidth
+
+      it "sets the current size if minWidth > current width", ->
+        inputMinWidth = 1000
+        win.setSize(500, 500)
+
+        atom.setMinimumWidth(inputMinWidth)
+
+        [actualWidth, h] = win.getMinimumSize()
+        expect(actualWidth).toBe inputMinWidth
+
   describe ".isReleasedVersion()", ->
     it "returns false if the version is a SHA and true otherwise", ->
       version = '0.1.0'
@@ -30,7 +51,7 @@ describe "the `atom` global", ->
       version = '36b5518'
       expect(atom.isReleasedVersion()).toBe false
 
-  describe "when an update becomes available", ->
+  xdescribe "when an update becomes available", ->
     subscription = null
 
     afterEach ->
@@ -51,13 +72,13 @@ describe "the `atom` global", ->
         expect(releaseVersion).toBe 'version'
         expect(releaseNotes).toBe 'notes'
 
-  describe "loading default config", ->
+  xdescribe "loading default config", ->
     it 'loads the default core config', ->
       expect(atom.config.get('core.excludeVcsIgnoredPaths')).toBe true
       expect(atom.config.get('core.followSymlinks')).toBe false
       expect(atom.config.get('editor.showInvisibles')).toBe false
 
-  describe "window onerror handler", ->
+  xdescribe "window onerror handler", ->
     beforeEach ->
       spyOn atom, 'openDevTools'
       spyOn atom, 'executeJavaScriptInDevTools'
