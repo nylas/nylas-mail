@@ -8,20 +8,19 @@ class QuotedHTMLParser
 
   # Given an html string, it will add the `annotationClass` to the DOM
   # element
-  hideQuotedHTML: (html) ->
+  hideQuotedHTML: (html, {keepIfWholeBodyIsQuote}={}) ->
     doc = @_parseHTML(html)
     quoteElements = @_findQuoteLikeElements(doc)
-    if not @_wholeBodyIsQuote(doc, quoteElements)
+    if keepIfWholeBodyIsQuote and @_wholeBodyIsQuote(doc, quoteElements)
+      return doc.children[0].innerHTML
+    else
       @_annotateElements(quoteElements)
-    return doc.children[0].innerHTML
+      return doc.children[0].innerHTML
 
   hasQuotedHTML: (html) ->
     doc = @_parseHTML(html)
     quoteElements = @_findQuoteLikeElements(doc)
-    if @_wholeBodyIsQuote(doc, quoteElements)
-      return false
-    else
-      return quoteElements.length > 0
+    return quoteElements.length > 0
 
   # Public: Removes quoted text from an HTML string
   #
@@ -34,12 +33,17 @@ class QuotedHTMLParser
   # - `options`
   #   - `includeInline` Defaults false. If true, inline quotes are removed
   #   too
+  #   - `keepIfWholeBodyIsQuote` Defaults false. If true, then it will
+  #   check to see if the whole html body is a giant quote. If so, it will
+  #   preserve it.
   #
   # Returns HTML without quoted text
   removeQuotedHTML: (html, options={}) ->
     doc = @_parseHTML(html)
     quoteElements = @_findQuoteLikeElements(doc, options)
-    if not @_wholeBodyIsQuote(doc, quoteElements)
+    if options.keepIfWholeBodyIsQuote and @_wholeBodyIsQuote(doc, quoteElements)
+      return doc.children[0].innerHTML
+    else
       DOMUtils.removeElements(quoteElements, options)
       childNodes = doc.body.childNodes
 
@@ -53,14 +57,13 @@ class QuotedHTMLParser
           break
 
       DOMUtils.removeElements(extraTailBrTags)
-    return doc.children[0].innerHTML
+      return doc.children[0].innerHTML
 
   appendQuotedHTML: (htmlWithoutQuotes, originalHTML) ->
     doc = @_parseHTML(originalHTML)
     quoteElements = @_findQuoteLikeElements(doc)
-    if not @_wholeBodyIsQuote(doc, quoteElements)
-      doc = @_parseHTML(htmlWithoutQuotes)
-      doc.body.appendChild(node) for node in quoteElements
+    doc = @_parseHTML(htmlWithoutQuotes)
+    doc.body.appendChild(node) for node in quoteElements
     return doc.children[0].innerHTML
 
   restoreAnnotatedHTML: (html) ->

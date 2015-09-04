@@ -106,8 +106,16 @@ class ContenteditableComponent extends React.Component
            onInput={@_onInput}
            onKeyDown={@_onKeyDown}
            dangerouslySetInnerHTML={@_dangerouslySetInnerHTML()}></div>
-      <a className={@_quotedTextClasses()} onClick={@_onToggleQuotedText}></a>
+      {@_renderQuotedTextControl()}
     </div>
+
+  _renderQuotedTextControl: ->
+    if QuotedHTMLParser.hasQuotedHTML(@props.html)
+      text = if @props.mode?.showQuotedText then "Hide" else "Show"
+      <a className="quoted-text-control" onClick={@_onToggleQuotedText}>
+        <span className="dots">&bull;&bull;&bull;</span>{text} previous
+      </a>
+    else return null
 
   focus: =>
     @_editableNode().focus()
@@ -1096,7 +1104,5 @@ class ContenteditableComponent extends React.Component
 
   _quotedTextClasses: => classNames
     "quoted-text-control": true
-    "no-quoted-text": not QuotedHTMLParser.hasQuotedHTML(@props.html)
-    "show-quoted-text": @props.mode?.showQuotedText
 
 module.exports = ContenteditableComponent
