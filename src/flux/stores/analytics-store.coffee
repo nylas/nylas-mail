@@ -82,4 +82,6 @@ AnalyticsStore = Reflux.createStore
         "$first_name": account.me().firstName()
         "$last_name": account.me().lastName()
         "accountId": account.id
+        "platform": process.platform
+        "version": atom.getVersion()
       })
