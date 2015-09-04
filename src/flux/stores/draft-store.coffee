@@ -291,7 +291,7 @@ class DraftStore
 
         if msg.files?.length > 0
           attributes.files ?= []
-          attributes.files = attributes.files.concat(forwardMessage.files)
+          attributes.files = attributes.files.concat(msg.files)
 
         attributes.subject = subjectWithPrefix(msg.subject, 'Fwd:')
         delete attributes.forwardedMessage
