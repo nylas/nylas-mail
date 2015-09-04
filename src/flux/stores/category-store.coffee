@@ -36,6 +36,7 @@ class CategoryStore extends NylasStore
     "drafts"
     "all"
     "archive"
+    "starred"
   ]
 
   AllMailName: "all"
@@ -97,7 +98,7 @@ class CategoryStore extends NylasStore
   #
   getUserCategories: ->
     userCategories = _.reject _.values(@_categoryCache), (cat) =>
-      cat.name in @StandardCategoryNames
+      cat.name in @StandardCategoryNames or cat.name in @HiddenCategoryNames
     userCategories = _.sortBy(userCategories, 'displayName')
     return _.compact(userCategories)
 

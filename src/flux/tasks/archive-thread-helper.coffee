@@ -1,5 +1,5 @@
 CategoryStore = require '../stores/category-store'
-FocusedCategoryStore = require '../stores/focused-category-store'
+FocusedMailViewStore = require '../stores/focused-mail-view-store'
 
 ChangeLabelsTask = require './change-labels-task'
 ChangeFolderTask = require './change-folder-task'
@@ -48,7 +48,8 @@ class ArchiveThreadHelper
           threads: threads
 
     else if account.usesLabels()
-      currentLabel = FocusedCategoryStore.category()
+      viewCategoryId = FocusedMailViewStore.mailView().categoryId()
+      currentLabel = CategoryStore.byId(viewCategoryId)
       currentLabel ?= CategoryStore.getStandardCategory("inbox")
 
       params = {threads}

@@ -10,7 +10,7 @@ classNames = require 'classnames'
  WorkspaceStore,
  AccountStore,
  CategoryStore,
- FocusedCategoryStore} = require 'nylas-exports'
+ FocusedMailViewStore} = require 'nylas-exports'
 
 ThreadListParticipants = require './thread-list-participants'
 ThreadListQuickActions = require './thread-list-quick-actions'
@@ -91,7 +91,7 @@ class ThreadList extends React.Component
         if hasAttachments
           attachment = <div className="thread-icon thread-icon-attachment"></div>
 
-        currentCategoryId = FocusedCategoryStore.categoryId()
+        currentCategoryId = FocusedMailViewStore.mailView()?.categoryId()
         allCategoryId = CategoryStore.getStandardCategory('all')?.id
         ignoredIds = [currentCategoryId, allCategoryId]
 
@@ -116,7 +116,7 @@ class ThreadList extends React.Component
     c5 = new ListTabular.Column
       name: "HoverActions"
       resolver: (thread) =>
-        currentCategoryId = FocusedCategoryStore.categoryId()
+        currentCategoryId = FocusedMailViewStore.mailView()?.categoryId()
         <ThreadListQuickActions thread={thread} categoryId={currentCategoryId}/>
 
     @wideColumns = [c1, c2, c3, c4, c5]

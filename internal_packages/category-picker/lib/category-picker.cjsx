@@ -10,7 +10,7 @@ React = require 'react'
  WorkspaceStore,
  ChangeLabelsTask,
  ChangeFolderTask,
- FocusedCategoryStore} = require 'nylas-exports'
+ FocusedMailViewStore} = require 'nylas-exports'
 
 {Menu,
  Popover,
@@ -252,7 +252,7 @@ class CategoryPicker extends React.Component
 
   _isUserFacing: (allInInbox, category) =>
     hiddenCategories = []
-    currentCategoryId = FocusedCategoryStore.categoryId()
+    currentCategoryId = FocusedMailViewStore.mailView().categoryId()
     if @_account?.usesLabels()
       hiddenCategories = ["all", "spam", "trash", "drafts", "sent"]
       if allInInbox

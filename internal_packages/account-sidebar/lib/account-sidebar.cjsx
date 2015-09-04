@@ -1,10 +1,10 @@
 React = require 'react'
-{Actions, Category} = require("nylas-exports")
+{Actions, MailViewFilter} = require("nylas-exports")
 {ScrollRegion} = require("nylas-component-kit")
 SidebarDividerItem = require("./account-sidebar-divider-item")
 SidebarSheetItem = require("./account-sidebar-sheet-item")
 AccountSidebarStore = require ("./account-sidebar-store")
-AccountSidebarCategoryItem = require("./account-sidebar-category-item")
+AccountSidebarMailViewItem = require("./account-sidebar-mail-view-item")
 
 class AccountSidebar extends React.Component
   @displayName: 'AccountSidebar'
@@ -44,18 +44,22 @@ class AccountSidebar extends React.Component
   _itemComponents: (section) =>
     section.items?.map (item) =>
       return unless item
-      if item instanceof Category
-        itemClass = AccountSidebarCategoryItem
-      else if item.sidebarComponent
-        itemClass = item.sidebarComponent
+      if item instanceof MailViewFilter
+        <AccountSidebarMailViewItem
+          key={item.id ? item.type}
+          mailView={item}
+          select={ item.isEqual(@state.selected) }/>
       else
-        itemClass = SidebarSheetItem
+        if item.sidebarComponent
+          itemClass = item.sidebarComponent
+        else
+          itemClass = SidebarSheetItem
 
-      <itemClass
-        key={item.id ? item.type}
-        item={item}
-        sectionType={section.type}
-        select={item.id is @state.selected?.id }/>
+        <itemClass
+          key={item.id ? item.type}
+          item={item}
+          sectionType={section.type}
+          select={item.id is @state.selected?.id }/>
 
   _onStoreChange: =>
     @setState @_getStateFromStores()
