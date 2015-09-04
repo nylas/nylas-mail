@@ -18,6 +18,9 @@ class MailViewFilter
   @forStarred: ->
     new StarredMailViewFilter()
 
+  @forSearch: (query) ->
+    new SearchMailViewFilter(query)
+
   # Instance Methods
 
   constructor: ->
@@ -26,8 +29,8 @@ class MailViewFilter
     return false unless other and @constructor.name is other.constructor.name
     return false if other.name isnt @name
 
-    matchers = @matchers()
-    otherMatchers = other.matchers()
+    matchers = @matchers() ? []
+    otherMatchers = other.matchers() ? []
     return false if otherMatchers.length isnt matchers.length
 
     for idx in [0...matchers.length]
@@ -47,6 +50,23 @@ class MailViewFilter
 
   applyToThreads: (threadsOrIds) ->
     throw new Error("applyToThreads: Not implemented in base class.")
+
+
+class SearchMailViewFilter extends MailViewFilter
+  constructor: (@searchQuery) ->
+    @
+
+  isEqual: (other) ->
+    super(other) and other.searchQuery is @searchQuery
+
+  matchers: ->
+    null
+
+  canApplyToThreads: ->
+    false
+
+  categoryId: ->
+    null
 
 
 class StarredMailViewFilter extends MailViewFilter

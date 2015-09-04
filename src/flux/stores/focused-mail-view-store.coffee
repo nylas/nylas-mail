@@ -15,9 +15,8 @@ class FocusedMailViewStore extends NylasStore
   _onCategoryStoreChanged: ->
     if not @_mailView
       @_setMailView(@_defaultMailView())
-    else
-      if not CategoryStore.byId(@_mailView.categoryId())
-        @_setMailView(@_defaultMailView())
+    else if not CategoryStore.byId(@_mailView.categoryId())
+      @_setMailView(@_defaultMailView())
 
   _onFocusMailView: (filter) ->
     return if filter.isEqual(@_mailView)
@@ -28,14 +27,14 @@ class FocusedMailViewStore extends NylasStore
   _onSearchQueryCommitted: (query="") ->
     if typeof(query) != "string"
       query = query[0].all
-    if query.trim().length > 0 and @_mailView
-      @_mailViewBeforeSearch = @_mailView
-      @_setMailView(null)
+
+    if query.trim().length > 0
+      @_mailViewBeforeSearch ?= @_mailView
+      @_setMailView(MailViewFilter.forSearch(query))
     else if query.trim().length is 0
-      if @_mailViewBeforeSearch
-        @_setMailView(@_mailViewBeforeSearch)
-      else
-        @_setMailView(@_defaultMailView())
+      @_mailViewBeforeSearch ?= @_defaultMailView()
+      @_setMailView(@_mailViewBeforeSearch)
+      @_mailViewBeforeSearch = null
 
   _defaultMailView: ->
     category = CategoryStore.getStandardCategory('inbox')
