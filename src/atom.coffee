@@ -430,6 +430,14 @@ class Atom extends Model
   setSize: (width, height) ->
     @getCurrentWindow().setSize(width, height)
 
+  setMinimumWidth: (minWidth) ->
+    win = @getCurrentWindow()
+    minHeight = win.getMinimumSize()[1]
+    win.setMinimumSize(minWidth, minHeight)
+
+    [currWidth, currHeight] = win.getSize()
+    win.setSize(minWidth, currHeight) if minWidth > currWidth
+
   # Essential: Get the position of current window.
   #
   # Returns an {Object} in the format `{x: 10, y: 20}`

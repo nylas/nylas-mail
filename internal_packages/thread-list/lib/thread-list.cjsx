@@ -53,6 +53,9 @@ class ThreadList extends React.Component
   @displayName: 'ThreadList'
 
   @containerRequired: false
+  @containerStyles:
+    minWidth: 300
+    maxWidth: 999999
 
   constructor: (@props) ->
     @state =

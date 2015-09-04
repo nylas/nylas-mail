@@ -33,6 +33,10 @@ class Sheet extends React.Component
 
   componentDidUpdate: =>
     @props.onColumnSizeChanged(@) if @props.onColumnSizeChanged
+    minWidth = @state.columns
+      .map((c) -> c.minWidth)
+      .reduce((total, next) -> total + next)
+    atom.setMinimumWidth(minWidth)
 
   shouldComponentUpdate: (nextProps, nextState) =>
     not _.isEqual(nextProps, @props) or not _.isEqual(nextState, @state)
@@ -79,6 +83,7 @@ class Sheet extends React.Component
       else
         style =
           height: '100%'
+          minWidth: minWidth
         if maxWidth < FLEX
           style.width = maxWidth
         else
