@@ -1,3 +1,4 @@
+File = require '../../src/flux/models/file'
 Thread = require '../../src/flux/models/thread'
 Message = require '../../src/flux/models/message'
 Contact = require '../../src/flux/models/contact'
@@ -21,6 +22,7 @@ msgWithReplyTo = null
 msgWithReplyToDuplicates = null
 messageWithStyleTags = null
 fakeMessages = null
+fakeMessageWithFiles = null
 
 class TestExtension extends DraftStoreExtension
   @prepareNewDraft: (draft) ->
@@ -66,6 +68,18 @@ describe "DraftStore", ->
         threadId: 'fake-thread-id'
         body: 'Fake Message 2'
         subject: 'Re: Fake Subject'
+        date: new Date(1415814587)
+
+      fakeMessageWithFiles = new Message
+        id: 'fake-message-with-files'
+        to: [new Contact(email: 'ben@nylas.com'), new Contact(email: 'evan@nylas.com')]
+        cc: [new Contact(email: 'mg@nylas.com'), new Contact(email: AccountStore.current().me().email)]
+        bcc: [new Contact(email: 'recruiting@nylas.com')]
+        from: [new Contact(email: 'customer@example.com', name: 'Customer')]
+        files: [new File(filename: "test.jpg"), new File(filename: "test.pdj")]
+        threadId: 'fake-thread-id'
+        body: 'Fake Message 1'
+        subject: 'Fake Subject'
         date: new Date(1415814587)
 
       msgFromMe = new Message
@@ -118,6 +132,7 @@ describe "DraftStore", ->
         'fake-message-3': msgFromMe
         'fake-message-2': fakeMessage2
         'fake-message-reply-to': msgWithReplyTo
+        'fake-message-with-files': fakeMessageWithFiles
         'fake-message-reply-to-duplicates': msgWithReplyToDuplicates
         'message-with-style-tags': messageWithStyleTags
 
@@ -274,6 +289,17 @@ describe "DraftStore", ->
             expect(@model.to).toEqual(msgFromMe.to)
             expect(@model.cc).toEqual(msgFromMe.cc)
             expect(@model.bcc.length).toBe 0
+
+    describe "forwarding with attachments", ->
+      it "should include the attached files", ->
+        runs ->
+          DraftStore._onComposeForward({threadId: fakeThread.id, messageId: fakeMessageWithFiles.id})
+        waitsFor ->
+          DatabaseStore.persistModel.callCount > 0
+        runs ->
+          @model = DatabaseStore.persistModel.mostRecentCall.args[0]
+          expect(@model.files.length).toBe 2
+          expect(@model.files[0].filename).toBe "test.jpg"
 
     describe "onComposeForward", ->
       beforeEach ->
