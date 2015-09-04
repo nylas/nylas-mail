@@ -10,28 +10,18 @@
   font-weight: 600;
   font-size: @font-size-smaller;
 
-  &.no-quoted-text {
-    display:none;
-  }
-
   &:hover {
     cursor: pointer;
     color: @text-color-subtle;
     border: 1px solid fade(@text-color-subtle, 35%);
   }
 
-  &:before {
-    content:'\2022\2022\2022';
+  .dots {
+    display: inline-block;
     font-size: @font-size-smaller * 0.8;
     top:-1px;
     position:relative;
     padding-right:8px;
-  }
-  &.show-quoted-text:after {
-    content:'Hide previous';
-  }
-  &:after {
-    content:'Show previous';
   }
 }
 

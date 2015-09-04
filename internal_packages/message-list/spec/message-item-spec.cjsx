@@ -246,21 +246,33 @@ describe "MessageItem", ->
 
 
   describe "showQuotedText", ->
+
     it "should be initialized to false", ->
       @createComponent()
       expect(@component.state.showQuotedText).toBe(false)
 
-    it "should show the `show quoted text` toggle in the off state", ->
+    it "shouldn't render the quoted text control if there's no quoted text", ->
+      @message.body = "no quotes here!"
       @createComponent()
-      toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@component, 'quoted-text-control')
-      expect(React.findDOMNode(toggle).className.indexOf('show-quoted-text')).toBe(-1)
+      toggles = ReactTestUtils.scryRenderedDOMComponentsWithClass(@component, 'quoted-text-control')
+      expect(toggles.length).toBe 0
 
-    it "should have the `no quoted text` class if there is no quoted text in the message", ->
-      spyOn(QuotedHTMLParser, 'hasQuotedHTML').andReturn false
+    describe 'quoted text control toggle button', ->
+      beforeEach ->
+        @message.body = """
+          Message
+          <blockquote class="gmail_quote">
+            Quoted message
+          </blockquote>
+          """
+        @createComponent()
+        @toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@component, 'quoted-text-control')
 
-      @createComponent()
-      toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@component, 'quoted-text-control')
-      expect(React.findDOMNode(toggle).className.indexOf('no-quoted-text')).not.toBe(-1)
+      it 'should be rendered', ->
+        expect(@toggle).toBeDefined()
+
+      it 'prompts to hide the quote', ->
+        expect(React.findDOMNode(@toggle).textContent).toEqual "•••Show previous"
 
     it "should be initialized to true if the message contains `Forwarded`...", ->
       @message.body = """
@@ -294,14 +306,26 @@ describe "MessageItem", ->
       @createComponent()
       expect(@component.state.showQuotedText).toBe(false)
 
-    describe "when true", ->
+    describe "when showQuotedText is true", ->
       beforeEach ->
+        @message.body = """
+          Message
+          <blockquote class="gmail_quote">
+            Quoted message
+          </blockquote>
+          """
         @createComponent()
         @component.setState(showQuotedText: true)
 
-      it "should show the `show quoted text` toggle in the on state", ->
-        toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@component, 'quoted-text-control')
-        expect(React.findDOMNode(toggle).className.indexOf('show-quoted-text') > 0).toBe(true)
+      describe 'quoted text control toggle button', ->
+        beforeEach ->
+          @toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@component, 'quoted-text-control')
+
+        it 'should be rendered', ->
+          expect(@toggle).toBeDefined()
+
+        it 'prompts to hide the quote', ->
+          expect(React.findDOMNode(@toggle).textContent).toEqual "•••Hide previous"
 
       it "should pass the value into the EmailFrame", ->
         frame = ReactTestUtils.findRenderedComponentWithType(@component, EmailFrameStub)

@@ -80,12 +80,20 @@ class MessageItem extends React.Component
         <div className="message-item-area">
           {@_renderHeader()}
           <EmailFrame showQuotedText={@state.showQuotedText} content={@_formatBody()}/>
-          <a className={@_quotedTextClasses()} onClick={@_toggleQuotedText}></a>
+          {@_renderQuotedTextControl()}
           {@_renderEvents()}
           {@_renderAttachments()}
         </div>
       </div>
     </div>
+
+  _renderQuotedTextControl: ->
+    if QuotedHTMLParser.hasQuotedHTML(@props.message.body)
+      text = if @state.showQuotedText then "Hide" else "Show"
+      <a className="quoted-text-control" onClick={@_toggleQuotedText}>
+        <span className="dots">&bull;&bull;&bull;</span>{text} previous
+      </a>
+    else return null
 
   _renderHeader: =>
     classes = classNames
@@ -167,11 +175,6 @@ class MessageItem extends React.Component
       <div className="events-area">{events}</div>
     else
       <div></div>
-
-  _quotedTextClasses: => classNames
-    "quoted-text-control": true
-    'no-quoted-text': not QuotedHTMLParser.hasQuotedHTML(@props.message.body)
-    'show-quoted-text': @state.showQuotedText
 
   _renderHeaderSideItems: ->
     styles =

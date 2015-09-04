@@ -107,9 +107,11 @@ useDraft = (draftAttributes={}) ->
   @draft = new Message _.extend({draft: true, body: ""}, draftAttributes)
   draft = @draft
   proxy = draftStoreProxyStub(DRAFT_CLIENT_ID, @draft)
+  @proxy = proxy
 
 
   spyOn(ComposerView.prototype, "componentWillMount").andCallFake ->
+    # NOTE: This is called in the context of the component.
     @_prepareForDraft(DRAFT_CLIENT_ID)
     @_setupSession(proxy)
 
@@ -118,8 +120,7 @@ useDraft = (draftAttributes={}) ->
   # `componentWillMount`, we manually call sessionForClientId to make this
   # part of the test synchronous. We need to make the `then` block of the
   # sessionForClientId do nothing so `_setupSession` is not called twice!
-  spyOn(DraftStore, "sessionForClientId").andCallFake ->
-    then: ->
+  spyOn(DraftStore, "sessionForClientId").andCallFake -> then: ->
 
 useFullDraft = ->
   useDraft.call @,
@@ -140,6 +141,76 @@ describe "populated composer", ->
   beforeEach ->
     @isSending = {state: false}
     spyOn(DraftStore, "isSendingDraft").andCallFake => @isSending.state
+
+  describe "when sending a new message", ->
+    it 'makes a request with the message contents', ->
+      useDraft.call @
+      makeComposer.call @
+      editableNode = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithAttr(@composer, 'contentEditable'))
+      spyOn(@proxy.changes, "add")
+      editableNode.innerHTML = "Hello <strong>world</strong>"
+      ReactTestUtils.Simulate.input(editableNode)
+      expect(@proxy.changes.add).toHaveBeenCalled()
+      expect(@proxy.changes.add.calls.length).toBe 1
+      body = @proxy.changes.add.calls[0].args[0].body
+      expect(body).toBe "<head></head><body>Hello <strong>world</strong></body>"
+
+  describe "when sending a reply-to message", ->
+    beforeEach ->
+      @replyBody = """<blockquote class="gmail_quote">On Sep 3 2015, at 12:14 pm, Evan Morikawa &lt;evan@evanmorikawa.com&gt; wrote:<br>This is a test!</blockquote>"""
+
+      useDraft.call @,
+        from: [u1]
+        to: [u2]
+        subject: "Test Reply Message 1"
+        body: @replyBody
+
+      makeComposer.call @
+      @editableNode = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithAttr(@composer, 'contentEditable'))
+      spyOn(@proxy.changes, "add")
+
+    it 'begins with the replying message collapsed', ->
+      expect(@editableNode.innerHTML).toBe ""
+
+    it 'saves the full new body, plus quoted text', ->
+      @editableNode.innerHTML = "Hello <strong>world</strong>"
+      ReactTestUtils.Simulate.input(@editableNode)
+      expect(@proxy.changes.add).toHaveBeenCalled()
+      expect(@proxy.changes.add.calls.length).toBe 1
+      body = @proxy.changes.add.calls[0].args[0].body
+      expect(body).toBe """<head></head><body>Hello <strong>world</strong>#{@replyBody}</body>"""
+
+  describe "when sending a forwarded message message", ->
+    beforeEach ->
+      @fwdBody = """<br><br><blockquote class="gmail_quote" style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
+      Begin forwarded message:
+      <br><br>
+      From: Evan Morikawa &lt;evan@evanmorikawa.com&gt;<br>Subject: Test Forward Message 1<br>Date: Sep 3 2015, at 12:14 pm<br>To: Evan Morikawa &lt;evan@nylas.com&gt;
+      <br><br>
+
+    <meta content="text/html; charset=us-ascii">This is a test!
+    </blockquote>"""
+
+      useDraft.call @,
+        from: [u1]
+        to: [u2]
+        subject: "Fwd: Test Forward Message 1"
+        body: @fwdBody
+
+      makeComposer.call @
+      @editableNode = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithAttr(@composer, 'contentEditable'))
+      spyOn(@proxy.changes, "add")
+
+    it 'begins with the forwarded message expanded', ->
+      expect(@editableNode.innerHTML).toBe @fwdBody
+
+    it 'saves the full new body, plus forwarded text', ->
+      @editableNode.innerHTML = "Hello <strong>world</strong>#{@fwdBody}"
+      ReactTestUtils.Simulate.input(@editableNode)
+      expect(@proxy.changes.add).toHaveBeenCalled()
+      expect(@proxy.changes.add.calls.length).toBe 1
+      body = @proxy.changes.add.calls[0].args[0].body
+      expect(body).toBe """Hello <strong>world</strong>#{@fwdBody}"""
 
   describe "When displaying info from a draft", ->
     beforeEach ->

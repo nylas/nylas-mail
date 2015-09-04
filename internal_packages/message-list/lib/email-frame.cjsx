@@ -35,7 +35,6 @@ class EmailFrame extends React.Component
     !_.isEqual(newProps, @props)
 
   _writeContent: =>
-    wrapperClass = if @props.showQuotedText then "show-quoted-text" else ""
     doc = React.findDOMNode(@).contentDocument
     doc.open()
 
@@ -50,7 +49,7 @@ class EmailFrame extends React.Component
     EmailFixingStyles = EmailFixingStyles.replace(/.ignore-in-parent-frame/g, '')
     if (EmailFixingStyles)
       doc.write("<style>#{EmailFixingStyles}</style>")
-    doc.write("<div id='inbox-html-wrapper' class='#{wrapperClass}'>#{@_emailContent()}</div>")
+    doc.write("<div id='inbox-html-wrapper'>#{@_emailContent()}</div>")
     doc.close()
 
     # Notify the EventedIFrame that we've replaced it's document (with `open`)
@@ -80,7 +79,7 @@ class EmailFrame extends React.Component
     if @props.showQuotedText
       @props.content
     else
-      QuotedHTMLParser.hideQuotedHTML(@props.content)
+      QuotedHTMLParser.removeQuotedHTML(@props.content, keepIfWholeBodyIsQuote: true)
 
 
 module.exports = EmailFrame

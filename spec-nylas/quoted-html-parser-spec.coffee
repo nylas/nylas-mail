@@ -12,8 +12,8 @@ describe "QuotedHTMLParser", ->
   hideQuotedHTML = (fname) ->
     return QuotedHTMLParser.hideQuotedHTML(readFile(fname))
 
-  removeQuotedHTML = (fname) ->
-    return QuotedHTMLParser.removeQuotedHTML(readFile(fname))
+  removeQuotedHTML = (fname, opts={}) ->
+    return QuotedHTMLParser.removeQuotedHTML(readFile(fname), opts)
 
   numQuotes = (html) ->
     re = new RegExp(QuotedHTMLParser.annotationClass, 'g')
@@ -21,7 +21,8 @@ describe "QuotedHTMLParser", ->
 
   [1..16].forEach (n) ->
     it "properly parses email_#{n}", ->
-      expect(removeQuotedHTML("email_#{n}.html")).toEqual readFile("email_#{n}_stripped.html")
+      opts = keepIfWholeBodyIsQuote: true
+      expect(removeQuotedHTML("email_#{n}.html", opts)).toEqual readFile("email_#{n}_stripped.html")
 
   describe 'manual quote detection tests', ->
 
@@ -258,7 +259,8 @@ describe "QuotedHTMLParser", ->
 
     it 'works with these manual test cases', ->
       for {before, after} in tests
-        test = clean(QuotedHTMLParser.removeQuotedHTML(before))
+        opts = keepIfWholeBodyIsQuote: true
+        test = clean(QuotedHTMLParser.removeQuotedHTML(before, opts))
         expect(test).toEqual clean(after)
 
     it 'removes all trailing <br> tags except one', ->
