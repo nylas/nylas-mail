@@ -131,6 +131,7 @@ class Application
   # exit and then delete the file. It's hard to tell when this happens, so we just
   # retry the deletion a few times.
   deleteFileWithRetry: (filePath, callback, retries = 5) ->
+    callback ?= ->
     callbackWithRetry = (err) =>
       if err and err.message.indexOf('no such file') is -1
         console.log("File Error: #{err.message} - retrying in 150msec")
@@ -163,12 +164,17 @@ class Application
   _logout: =>
     @setDatabasePhase('close')
     @windowManager.closeAllWindows()
-    @deleteFileWithRetry path.join(configDirPath,'edgehill.db'), =>
+    @_deleteDatabase =>
       @config.set('tokens', null)
       @config.set('nylas', null)
       @config.set('edgehill', null)
       @setDatabasePhase('setup')
       @openWindowsForTokenState()
+
+  _deleteDatabase: (callback) ->
+    @deleteFileWithRetry path.join(configDirPath,'edgehill.db'), callback
+    @deleteFileWithRetry path.join(configDirPath,'edgehill.db-wal')
+    @deleteFileWithRetry path.join(configDirPath,'edgehill.db-shm')
 
   _loginSuccessful: =>
     @openWindowsForTokenState()
@@ -203,7 +209,7 @@ class Application
         detail: 'Welcome back to Nylas! We need to rebuild your mailbox to support new features. Please wait a few moments while we re-sync your mail.'
         buttons: ['OK']
 
-      @deleteFileWithRetry path.join(configDirPath,'edgehill.db'), =>
+      @_deleteDatabase =>
         @setDatabasePhase('setup')
         @openWindowsForTokenState()
 
