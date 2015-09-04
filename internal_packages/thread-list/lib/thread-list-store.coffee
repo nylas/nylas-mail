@@ -21,8 +21,6 @@ class ThreadListStore extends NylasStore
   constructor: ->
     @_resetInstanceVars()
 
-    @listenTo Actions.searchQueryCommitted, @_onSearchCommitted
-
     @listenTo Actions.archiveAndPrevious, @_onArchiveAndPrev
     @listenTo Actions.archiveAndNext, @_onArchiveAndNext
 
@@ -50,7 +48,6 @@ class ThreadListStore extends NylasStore
 
   _resetInstanceVars: ->
     @_lastQuery = null
-    @_searchQuery = null
 
   view: ->
     @_view
@@ -69,12 +66,11 @@ class ThreadListStore extends NylasStore
   createView: ->
     mailViewFilter = FocusedMailViewStore.mailView()
     account = AccountStore.current()
-    return unless account
+    return unless account and mailViewFilter
 
-    if @_searchQuery
-      @setView(new SearchView(@_searchQuery, account.id))
-
-    else if account.id and mailViewFilter
+    if mailViewFilter.searchQuery
+      @setView(new SearchView(mailViewFilter.searchQuery, account.id))
+    else
       matchers = []
       matchers.push Thread.attributes.accountId.equal(account.id)
       matchers = matchers.concat(mailViewFilter.matchers())
@@ -105,11 +101,6 @@ class ThreadListStore extends NylasStore
       m.attribute() is Thread.attributes.accountId and m.value() is accountId
 
     return if @_view and _.find(@_view.matchers, accountMatcher)
-    @createView()
-
-  _onSearchCommitted: (query) ->
-    return if @_searchQuery is query
-    @_searchQuery = query
     @createView()
 
   _onDataChanged: (change) ->

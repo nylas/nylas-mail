@@ -32,16 +32,16 @@ describe "FocusedMailViewStore", ->
         expect(FocusedMailViewStore.mailView().categoryId()).toEqual(@inboxCategory.id)
 
     describe "_onSearchQueryCommitted", ->
-      it "should clear the focused category and trigger when a search query is committed", ->
+      it "should change to a search mail view when a search query is committed", ->
         FocusedMailViewStore._onFocusMailView(@userFilter)
         FocusedMailViewStore._onSearchQueryCommitted('bla')
         expect(FocusedMailViewStore.trigger).toHaveBeenCalled()
-        expect(FocusedMailViewStore.mailView()).toBe(null)
+        expect(FocusedMailViewStore.mailView().isEqual(MailViewFilter.forSearch('bla'))).toBe(true)
 
       it "should restore the category that was previously focused and trigger when a search query is cleared", ->
         FocusedMailViewStore._onFocusMailView(@userFilter)
         FocusedMailViewStore._onSearchQueryCommitted('bla')
-        expect(FocusedMailViewStore.mailView()).toEqual(null)
+        expect(FocusedMailViewStore.mailView().isEqual(MailViewFilter.forSearch('bla'))).toBe(true)
         FocusedMailViewStore._onSearchQueryCommitted('')
         expect(FocusedMailViewStore.trigger).toHaveBeenCalled()
         expect(FocusedMailViewStore.mailView().categoryId()).toEqual(@userCategory.id)
