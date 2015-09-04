@@ -9,6 +9,7 @@ class ModeToggle extends React.Component
   @displayName: 'ModeToggle'
 
   constructor: (@props) ->
+    @column = WorkspaceStore.Location.MessageListSidebar
     @state = @_getStateFromStores()
 
   componentDidMount: =>
@@ -20,15 +21,12 @@ class ModeToggle extends React.Component
     @_unsubscriber?()
 
   render: =>
-    return <div></div> unless @state.visible
-
-    <button className="btn btn-toolbar mode-toggle mode-#{@state.mode}"
+    <button className="btn btn-toolbar mode-toggle mode-#{@state.hidden}"
          style={order:500}
          onClick={@_onToggleMode}>
       <RetinaImg
         name="toolbar-icon-toggle-pane.png"
-        mode={RetinaImg.Mode.ContentIsMask}
-        onClick={@_onToggleMode}  />
+        mode={RetinaImg.Mode.ContentIsMask} />
     </button>
 
   _onStateChanged: =>
@@ -43,18 +41,10 @@ class ModeToggle extends React.Component
     @setState(@_getStateFromStores())
 
   _getStateFromStores: =>
-    rootModes = WorkspaceStore.rootSheet().supportedModes
-    rootVisible = WorkspaceStore.rootSheet() is WorkspaceStore.topSheet()
-
-    mode: WorkspaceStore.preferredLayoutMode()
-    visible: rootVisible and rootModes and rootModes.length > 1
+    {hidden: WorkspaceStore.isLocationHidden(@column)}
 
   _onToggleMode: =>
-    if @state.mode is 'list'
-      atom.config.set('core.workspace.mode', 'split')
-    else
-      atom.config.set('core.workspace.mode', 'list')
-    return
+    Actions.toggleWorkspaceLocationHidden(@column)
 
 
 module.exports = ModeToggle
