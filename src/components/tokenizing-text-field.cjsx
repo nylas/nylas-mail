@@ -106,6 +106,8 @@ class Token extends React.Component
     json = Utils.serializeRegisteredObjects(@props.item)
     event.dataTransfer.setData('nylas-token-item', json)
     event.dataTransfer.setData('text/plain', @props.item.toString())
+    event.dataTransfer.dropEffect = "move"
+    event.dataTransfer.effectAllowed = "move"
     @setState(dragging: true)
 
   _onDragEnd: (event) =>
