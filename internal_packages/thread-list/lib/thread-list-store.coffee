@@ -13,7 +13,7 @@ NylasStore = require 'nylas-store'
  FocusedContentStore,
  ArchiveThreadHelper,
  TaskQueueStatusStore,
- FocusedCategoryStore} = require 'nylas-exports'
+ FocusedMailViewStore} = require 'nylas-exports'
 
 # Public: A mutable text container with undo/redo support and the ability
 # to annotate logical regions in the text.
@@ -37,7 +37,7 @@ class ThreadListStore extends NylasStore
 
     @listenTo DatabaseStore, @_onDataChanged
     @listenTo AccountStore, @_onAccountChanged
-    @listenTo FocusedCategoryStore, @_onCategoryChanged
+    @listenTo FocusedMailViewStore, @_onMailViewChanged
 
     atom.config.observe 'core.workspace.mode', => @_autofocusForLayoutMode()
 
@@ -45,7 +45,7 @@ class ThreadListStore extends NylasStore
     # has hot yet been populated from the database with the list of
     # categories and their corresponding ids. Once that is ready, the
     # CategoryStore will trigger, which will update the
-    # FocusedCategoryStore, which will cause us to create a new
+    # FocusedMailViewStore, which will cause us to create a new
     # @view.
 
   _resetInstanceVars: ->
@@ -67,23 +67,18 @@ class ThreadListStore extends NylasStore
     @trigger(@)
 
   createView: ->
-    categoryId = FocusedCategoryStore.categoryId()
+    mailViewFilter = FocusedMailViewStore.mailView()
     account = AccountStore.current()
     return unless account
 
     if @_searchQuery
       @setView(new SearchView(@_searchQuery, account.id))
 
-    else if account.id and categoryId
+    else if account.id and mailViewFilter
       matchers = []
       matchers.push Thread.attributes.accountId.equal(account.id)
+      matchers = matchers.concat(mailViewFilter.matchers())
 
-      if account.usesLabels()
-        matchers.push Thread.attributes.labels.contains(categoryId)
-      else if account.usesFolders()
-        matchers.push Thread.attributes.folders.contains(categoryId)
-      else
-        throw new Error("Invalid organizationUnit")
       view = new DatabaseView Thread, {matchers}, (ids) =>
         DatabaseStore.findAll(Message)
         .where(Message.attributes.threadId.in(ids))
@@ -101,7 +96,7 @@ class ThreadListStore extends NylasStore
 
   # Inbound Events
 
-  _onCategoryChanged: ->
+  _onMailViewChanged: ->
     @createView()
 
   _onAccountChanged: ->

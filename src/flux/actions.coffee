@@ -214,10 +214,10 @@ class Actions
   *Scope: Window*
 
   ```
-  Actions.focusCategory(<Category>)
+  Actions.focusMailView(<Category>)
   ```
   ###
-  @focusCategory: ActionScopeWindow
+  @focusMailView: ActionScopeWindow
 
   ###
   Public: If the message with the provided id is currently beign displayed in the

@@ -62,6 +62,7 @@ class NylasExports
   @require "Calendar", 'flux/models/calendar'
   @require "Metadata", 'flux/models/metadata'
   @require "DatabaseObjectRegistry", "database-object-registry"
+  @require "MailViewFilter", 'mail-view-filter'
 
   # Exported so 3rd party packages can subclass Model
   @load "Model", 'flux/models/model'
@@ -110,7 +111,7 @@ class NylasExports
   @require "FileDownloadStore", 'flux/stores/file-download-store'
   @require "DraftStoreExtension", 'flux/stores/draft-store-extension'
   @require "FocusedContentStore", 'flux/stores/focused-content-store'
-  @require "FocusedCategoryStore", 'flux/stores/focused-category-store'
+  @require "FocusedMailViewStore", 'flux/stores/focused-mail-view-store'
   @require "FocusedContactsStore", 'flux/stores/focused-contacts-store'
   @require "MessageBodyProcessor", 'flux/stores/message-body-processor'
   @require "MessageStoreExtension", 'flux/stores/message-store-extension'

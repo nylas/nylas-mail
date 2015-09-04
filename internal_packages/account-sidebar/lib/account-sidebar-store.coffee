@@ -10,7 +10,8 @@ _ = require 'underscore'
  Label,
  Folder,
  Message,
- FocusedCategoryStore,
+ MailViewFilter,
+ FocusedMailViewStore,
  NylasAPI,
  Thread} = require 'nylas-exports'
 
@@ -27,7 +28,7 @@ class AccountSidebarStore extends NylasStore
 
   selected: ->
     if WorkspaceStore.rootSheet() is WorkspaceStore.Sheet.Threads
-      FocusedCategoryStore.category()
+      FocusedMailViewStore.mailView()
     else
       WorkspaceStore.rootSheet()
 
@@ -37,13 +38,17 @@ class AccountSidebarStore extends NylasStore
     @listenTo CategoryStore, @_refreshSections
     @listenTo WorkspaceStore, @_refreshSections
     @listenTo DraftCountStore, @_refreshSections
-    @listenTo FocusedCategoryStore, => @trigger()
+    @listenTo FocusedMailViewStore, => @trigger()
 
   _refreshSections: =>
     account = AccountStore.current()
     return unless account
 
+    viewFilterForCategory = (cat) ->
+      return MailViewFilter.forCategory(cat)
+
     userCategories = CategoryStore.getUserCategories()
+    userCategoryViews = _.map(userCategories, viewFilterForCategory)
 
     # Our drafts are displayed via the `DraftListSidebarItem` which
     # is loading into the `Drafts` Sheet.
@@ -51,7 +56,11 @@ class AccountSidebarStore extends NylasStore
     standardCategories = _.reject standardCategories, (category) =>
       category.name is "drafts"
 
-    standardCategories.push(WorkspaceStore.Sheet["Drafts"])
+    standardViews = _.map(standardCategories, viewFilterForCategory)
+    standardViews.push(WorkspaceStore.Sheet["Drafts"])
+
+    starredView = MailViewFilter.forStarred()
+    standardViews.splice(1, 0, starredView)
 
     # Find root views, add the Views section
     # featureSheets = _.filter WorkspaceStore.Sheet, (sheet) ->
@@ -62,9 +71,15 @@ class AccountSidebarStore extends NylasStore
     @_sections = []
     # if featureSheets.length > 0
     #   @_sections.push { label: '', items: featureSheets, type: 'sheet' }
-    @_sections.push { label: 'Mailboxes', items: standardCategories, type: 'mailboxes' }
+    @_sections.push
+      label: 'Mailboxes'
+      items: standardViews
+      type: 'mailboxes'
     # @_sections.push { label: 'Views', items: extraSheets, type: 'sheet' }
-    @_sections.push { label: CategoryStore.categoryLabel(), items: userCategories, type: 'category' }
+    @_sections.push
+      label: CategoryStore.categoryLabel()
+      items: userCategoryViews
+      type: 'category'
 
     @trigger()
 

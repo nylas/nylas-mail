@@ -5,14 +5,18 @@ classNames = require 'classnames'
  UnreadCountStore,
  WorkspaceStore,
  AccountStore,
- FocusedCategoryStore,
+ FocusedMailViewStore,
  ChangeLabelsTask,
  ChangeFolderTask,
  CategoryStore} = require 'nylas-exports'
 {RetinaImg, DropZone} = require 'nylas-component-kit'
 
-class AccountSidebarCategoryItem extends React.Component
-  @displayName: 'AccountSidebarCategoryItem'
+class AccountSidebarMailViewItem extends React.Component
+  @displayName: 'AccountSidebarMailViewItem'
+
+  @propTypes:
+    select: React.PropTypes.bool
+    mailView: React.PropTypes.object.isRequired
 
   constructor: (@props) ->
     @state =
@@ -32,7 +36,7 @@ class AccountSidebarCategoryItem extends React.Component
 
   render: =>
     unread = []
-    if @props.item.name is "inbox" and @state.unreadCount > 0
+    if @props.mailView.category?.name is "inbox" and @state.unreadCount > 0
       unread = <div className="unread item-count-box">{@state.unreadCount}</div>
 
     containerClass = classNames
@@ -42,28 +46,22 @@ class AccountSidebarCategoryItem extends React.Component
 
     <DropZone className={containerClass}
          onClick={@_onClick}
-         id={@props.item.id}
+         id={@props.mailView.id}
          shouldAcceptDrop={@_shouldAcceptDrop}
          onDragStateChange={ ({isDropping}) => @setState({isDropping}) }
          onDrop={@_onDrop}>
       {unread}
 
       <div className="icon">{@_renderIcon()}</div>
-      <div className="name">{@props.item.displayName}</div>
+      <div className="name">{@props.mailView.name}</div>
     </DropZone>
 
   _renderIcon: ->
-    if @props.sectionType is "category" and AccountStore.current()
-      if AccountStore.current().usesLabels()
-        <RetinaImg name={"tag.png"} mode={RetinaImg.Mode.ContentIsMask} />
-      else
-        <RetinaImg name={"folder.png"} mode={RetinaImg.Mode.ContentIsMask} />
-    else if @props.sectionType is "mailboxes"
-      <RetinaImg name={"#{@props.item.name}.png"} fallback={'folder.png'} mode={RetinaImg.Mode.ContentIsMask} />
+    <RetinaImg name={@props.mailView.iconName} fallback={'folder.png'} mode={RetinaImg.Mode.ContentIsMask} />
 
   _shouldAcceptDrop: (e) =>
-    return false if @props.item.name in CategoryStore.LockedCategoryNames
-    return false if @props.item.name is FocusedCategoryStore.categoryName()
+    return false if @props.mailView.isEqual(FocusedMailViewStore.mailView())
+    return false unless @props.mailView.canApplyToThreads()
     'nylas-thread-ids' in e.dataTransfer.types
 
   _onDrop: (e) =>
@@ -71,28 +69,14 @@ class AccountSidebarCategoryItem extends React.Component
     try
       ids = JSON.parse(jsonString)
     catch err
-      console.error("AccountSidebarCategoryItem onDrop: JSON parse #{err}")
+      console.error("AccountSidebarMailViewItem onDrop: JSON parse #{err}")
     return unless ids
 
-    if AccountStore.current().usesLabels()
-      currentLabel = FocusedCategoryStore.category()
-      if currentLabel and not (currentLabel in CategoryStore.LockedCategoryNames)
-        labelsToRemove = [currentLabel]
-
-      task = new ChangeLabelsTask
-        threads: ids,
-        labelsToAdd: [@props.item],
-        labelsToRemove: labelsToRemove
-    else
-      task = new ChangeFolderTask
-        folder: @props.item,
-        threads: ids
-
-    Actions.queueTask(task)
+    @props.mailView.applyToThreads(ids)
 
   _onClick: (event) =>
     event.preventDefault()
     Actions.selectRootSheet(WorkspaceStore.Sheet.Threads)
-    Actions.focusCategory(@props.item)
+    Actions.focusMailView(@props.mailView)
 
-module.exports = AccountSidebarCategoryItem
+module.exports = AccountSidebarMailViewItem

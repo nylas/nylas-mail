@@ -2,6 +2,9 @@ React = require 'react'
 {Actions} = require("nylas-exports")
 moment = require 'moment'
 
+# TODO: This file is out of date!
+return
+
 class CalendarBarItem extends React.Component
   render: =>
     style =
@@ -28,7 +31,7 @@ class CalendarBarItem extends React.Component
 
   _onClick: (event) =>
     event.preventDefault()
-    Actions.focusCategory(@props.tag)
+    Actions.focusMailView(@props.tag)
 
 
 module.exports = CalendarBarItem

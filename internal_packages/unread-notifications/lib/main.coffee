@@ -1,6 +1,7 @@
 _ = require 'underscore'
 {Thread,
  Actions,
+ MailViewFilter,
  AccountStore,
  CategoryStore,
  DatabaseStore} = require 'nylas-exports'
@@ -44,7 +45,9 @@ module.exports =
       atom.displayWindow()
       if AccountStore.current().id isnt thread.accountId
         Actions.selectAccountId(thread.accountId)
-      Actions.focusCategory(thread.categoryNamed('inbox'))
+
+      MailViewFilter filter = MailViewFilter.forCategory(thread.categoryNamed('inbox'))
+      Actions.focusMailView(filter)
       Actions.setFocus(collection: 'thread', item: thread)
 
   _notifyMessages: ->
