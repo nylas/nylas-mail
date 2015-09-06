@@ -238,8 +238,8 @@ class DraftStore
     .then @_prepareNewMessageAttributes
     .then @_constructDraft
     .then @_finalizeAndPersistNewMessage
-    .then ({draftLocalId}) =>
-      Actions.composePopoutDraft(draftLocalId) if args.popout
+    .then ({draftClientId}) =>
+      Actions.composePopoutDraft(draftClientId) if args.popout
 
   _buildModelResolvers: ({thread, threadId, message, messageId}) ->
     queries = {}
