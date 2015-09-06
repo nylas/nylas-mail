@@ -363,6 +363,28 @@ describe "DraftStore", ->
           expect(DraftStore._convertToInlineStyles).toHaveBeenCalled()
           expect(DraftStore._onInlineStylesResult).toHaveBeenCalled()
 
+    describe "popout drafts", ->
+      beforeEach ->
+        spyOn(Actions, "composePopoutDraft")
+
+      it "can popout a reply", ->
+        runs ->
+          DraftStore._onComposeReply({threadId: fakeThread.id, messageId: fakeMessage1.id, popout: true}).catch (error) -> throw new Error (error)
+        waitsFor ->
+          DatabaseStore.persistModel.callCount > 0
+        runs ->
+          @model = DatabaseStore.persistModel.mostRecentCall.args[0]
+          expect(Actions.composePopoutDraft).toHaveBeenCalledWith(@model.clientId)
+
+      it "can popout a forward", ->
+        runs ->
+          DraftStore._onComposeForward({threadId: fakeThread.id, messageId: fakeMessage1.id, popout: true}).catch (error) -> throw new Error (error)
+        waitsFor ->
+          DatabaseStore.persistModel.callCount > 0
+        runs ->
+          @model = DatabaseStore.persistModel.mostRecentCall.args[0]
+          expect(Actions.composePopoutDraft).toHaveBeenCalledWith(@model.clientId)
+
     describe "_newMessageWithContext", ->
       beforeEach ->
         # A helper method that makes it easy to test _newMessageWithContext, which
