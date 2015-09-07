@@ -67,16 +67,27 @@ class SendDraftTask extends Task
       # the raw JSON ourselves.
 
       # TODO: Refactor this into an optional clientId param on makeRequest?
+      oldDraft = @draft
       @draft = @draft.clone().fromJSON(json)
       @draft.draft = false
-      DatabaseStore.persistModel(@draft)
 
-      atom.playSound('mail_sent.ogg')
-      Actions.sendDraftSuccess
-        draftClientId: @draftClientId
-        newMessage: @draft
+      # The updated draft now has a new `serverId`. Unfortunately, the
+      # draft currently saved in the database only has a `clientId`. When
+      # we go to save our new draft, the computed `id` will equal the new
+      # `serverId` and not our old `clientId. This means that we'll
+      # create a whole second copy of a Draft obejct instead of updating
+      # our old one. It's an outstanding TODO to come up with a longer
+      # term solution to this problem. For now, we can fix this by simply
+      # explicitly removing the old draft before saving the new one.
+      DatabaseStore.unpersistModel(oldDraft)
+      .then => DatabaseStore.persistModel(@draft)
+      .then =>
+        atom.playSound('mail_sent.ogg')
+        Actions.sendDraftSuccess
+          draftClientId: @draftClientId
+          newMessage: @draft
 
-      return Promise.resolve(Task.Status.Finished)
+        return Promise.resolve(Task.Status.Finished)
 
     .catch APIError, (err) =>
       if err.message?.indexOf('Invalid message public id') is 0
