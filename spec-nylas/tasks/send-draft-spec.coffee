@@ -92,6 +92,8 @@ describe "SendDraftTask", ->
         Promise.resolve(@draft)
       spyOn(DatabaseStore, 'unpersistModel').andCallFake (draft) ->
         Promise.resolve()
+      spyOn(DatabaseStore, 'persistModel').andCallFake (draft) ->
+        Promise.resolve()
       spyOn(atom, "playSound")
       spyOn(Actions, "postNotification")
       spyOn(Actions, "sendDraftSuccess")
@@ -165,7 +167,6 @@ describe "SendDraftTask", ->
           expect(options.returnsModel).toBe(false)
 
     it "should write the saved message to the database with the same client ID", ->
-      spyOn(DatabaseStore, 'persistModel')
       waitsForPromise =>
         @task.performRemote().then =>
           expect(DatabaseStore.persistModel).toHaveBeenCalled()
@@ -190,6 +191,8 @@ describe "SendDraftTask", ->
       @task = new SendDraftTask("local-1234")
       spyOn(Actions, "dequeueTask")
       spyOn(DatabaseStore, 'unpersistModel').andCallFake (draft) ->
+        Promise.resolve()
+      spyOn(DatabaseStore, 'persistModel').andCallFake (draft) ->
         Promise.resolve()
 
     describe "when the server responds with `Invalid message public ID`", ->
