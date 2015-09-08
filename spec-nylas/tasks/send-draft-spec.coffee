@@ -60,10 +60,10 @@ describe "SendDraftTask", ->
   describe "performRemote", ->
     beforeEach ->
       @draftClientId = "local-123"
+      @serverMessageId = '1233123AEDF1'
       @draft = new Message
         version: 1
         clientId: @draftClientId
-        serverId: '1233123AEDF1'
         accountId: 'A12ADE'
         subject: 'New Draft'
         draft: true
@@ -74,7 +74,7 @@ describe "SendDraftTask", ->
 
       response =
         version: 2
-        id: '1233123AEDF1'
+        id: @serverMessageId
         account_id: 'A12ADE'
         subject: 'New Draft'
         body: 'hello world'
@@ -106,7 +106,7 @@ describe "SendDraftTask", ->
     it "get an object back on success", ->
       waitsForPromise => @task.performRemote().then =>
         args = Actions.sendDraftSuccess.calls[0].args[0]
-        expect(args.newMessage.id).toBe @draft.id
+        expect(args.newMessage.id).toBe @serverMessageId
 
     it "should play a sound", ->
       waitsForPromise => @task.performRemote().then ->
@@ -120,6 +120,17 @@ describe "SendDraftTask", ->
           expect(options.path).toBe("/send")
           expect(options.accountId).toBe(@draft.accountId)
           expect(options.method).toBe('POST')
+
+    it "should locally convert the draft to a message on send", ->
+      expect(@draft.clientId).toBe @draftClientId
+      expect(@draft.serverId).toBeUndefined()
+      waitsForPromise =>
+        @task.performRemote().then =>
+          expect(DatabaseStore.persistModel).toHaveBeenCalled()
+          model = DatabaseStore.persistModel.calls[0].args[0]
+          expect(model.clientId).toBe @draftClientId
+          expect(model.serverId).toBe @serverMessageId
+          expect(model.draft).toBe false
 
     describe "when the draft has been saved", ->
       it "should send the draft ID and version", ->

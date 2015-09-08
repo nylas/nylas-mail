@@ -62,32 +62,24 @@ class SendDraftTask extends Task
       returnsModel: false
 
     .then (json) =>
-      # If the draft we're sending wasn't previously given a server id, NylasAPI
-      # doesn't know to merge the two and keep the clientId, so we need to Handle
-      # the raw JSON ourselves.
-
-      # TODO: Refactor this into an optional clientId param on makeRequest?
-      oldDraft = @draft
+      # The JSON returned from the server will be the new Message.
+      #
+      # Our old draft may or may not have a serverId. We update the draft
+      # with whatever the server returned (which includes a serverId).
+      #
+      # We then save the model again (keyed by its clientId) to indicate
+      # that it is no longer a draft, but rather a Message (draft: false)
+      # with a valid serverId.
       @draft = @draft.clone().fromJSON(json)
       @draft.draft = false
-
-      # The updated draft now has a new `serverId`. Unfortunately, the
-      # draft currently saved in the database only has a `clientId`. When
-      # we go to save our new draft, the computed `id` will equal the new
-      # `serverId` and not our old `clientId. This means that we'll
-      # create a whole second copy of a Draft obejct instead of updating
-      # our old one. It's an outstanding TODO to come up with a longer
-      # term solution to this problem. For now, we can fix this by simply
-      # explicitly removing the old draft before saving the new one.
-      DatabaseStore.unpersistModel(oldDraft)
-      .then => DatabaseStore.persistModel(@draft)
-      .then =>
+      DatabaseStore.persistModel(@draft).then =>
         atom.playSound('mail_sent.ogg')
         Actions.sendDraftSuccess
           draftClientId: @draftClientId
           newMessage: @draft
 
         return Promise.resolve(Task.Status.Finished)
+      .catch @_permanentError
 
     .catch APIError, (err) =>
       if err.message?.indexOf('Invalid message public id') is 0
@@ -98,11 +90,14 @@ class SendDraftTask extends Task
         body.reply_to_message_id = null
         return @_send(body)
       else if err.statusCode in NylasAPI.PermanentErrorCodes
-        msg = "Your draft could not be sent. Please check your network connection and try again."
-        if @fromPopout
-          Actions.composePopoutDraft(@draftClientId, {errorMessage: msg})
-        else
-          Actions.draftSendingFailed({draftClientId: @draftClientId, errorMessage: msg})
-        return Promise.resolve(Task.Status.Finished)
+        @_permanentError()
       else
         return Promise.resolve(Task.Status.Retry)
+
+  _permanentError: =>
+    msg = "Your draft could not be sent. Please check your network connection and try again."
+    if @fromPopout
+      Actions.composePopoutDraft(@draftClientId, {errorMessage: msg})
+    else
+      Actions.draftSendingFailed({draftClientId: @draftClientId, errorMessage: msg})
+    return Promise.resolve(Task.Status.Finished)
