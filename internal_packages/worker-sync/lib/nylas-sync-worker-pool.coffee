@@ -122,4 +122,6 @@ class NylasSyncWorkerPool
       return Promise.resolve() unless model
       return DatabaseStore.unpersistModel(model)
 
-module.exports = new NylasSyncWorkerPool()
+pool = new NylasSyncWorkerPool()
+window.NylasSyncWorkerPool = pool
+module.exports = pool

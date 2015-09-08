@@ -1,6 +1,5 @@
 React = require "react/addons"
 classNames = require 'classnames'
-DraftListStore = require './draft-list-store'
 {RetinaImg} = require 'nylas-component-kit'
 {Actions, FocusedContentStore} = require "nylas-exports"
 

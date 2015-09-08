@@ -14,6 +14,11 @@ DraftListStore = Reflux.createStore
     @listenTo DatabaseStore, @_onDataChanged
     @listenTo AccountStore, @_onAccountChanged
     @listenTo Actions.deleteSelection, @_onDeleteSelection
+
+    # It's important to listen to sendDraftSuccess because the
+    # _onDataChanged method will ignore our newly created draft because it
+    # has its draft bit set to false (since it's now a message)!
+    @listenTo Actions.sendDraftSuccess, => @_view.invalidate()
     @_createView()
 
   view: ->
