@@ -32,7 +32,9 @@ class MailImportantIcon extends React.Component
   render: =>
     return false unless @state.showing
 
-    importantId = CategoryStore.getStandardCategory('important').id
+    importantId = CategoryStore.getStandardCategory('important')?.id
+    return false unless importantId
+
     isImportant = _.findWhere(@props.thread.labels, {id: importantId})?
 
     activeClassname = if isImportant then "active" else ""
