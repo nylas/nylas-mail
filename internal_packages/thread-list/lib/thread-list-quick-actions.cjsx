@@ -32,7 +32,7 @@ class ThreadListQuickActions extends React.Component
     newProps.thread.id isnt @props?.thread.id
 
   _shouldDisplayArchiveButton: =>
-    if @props.categoryId != CategoryStore.getStandardCategory('archive')?.id and @props.categoryId != CategoryStore.getStandardCategory('trash')?.id
+    if @props.categoryId not in [CategoryStore.getStandardCategory('archive')?.id, CategoryStore.getStandardCategory('trash')?.id, CategoryStore.getStandardCategory('sent')?.id]
       if AccountStore.current().usesLabels()
         if @props.thread.labels.length == 1 and (@props.thread.labels[0].name == "archive" or @props.thread.labels[0].name == "all")
           return false
