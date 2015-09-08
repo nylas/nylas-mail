@@ -168,6 +168,12 @@ reactRemoteContainer.style.zIndex = 10000;
 reactRemoteContainer.style.border = '5px solid orange';
 document.body.appendChild(reactRemoteContainer);
 
+var reactRemoteContainerTitle = document.createElement('div');
+reactRemoteContainerTitle.style.color = 'white';
+reactRemoteContainerTitle.style.backgroundColor = 'orange';
+reactRemoteContainerTitle.innerText = 'React Remote Container';
+reactRemoteContainer.appendChild(reactRemoteContainerTitle);
+
 var toggleContainerVisible = function() {
   if (reactRemoteContainer.style.left === '-10000px') {
     reactRemoteContainer.style.left = 0;
