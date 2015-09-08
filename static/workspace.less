@@ -98,13 +98,27 @@ atom-workspace {
     }
   }
   .close {
-    background-image: url("images/application-frame/close@2x.png");
+    background-image: url("images/application-frame/close@1x.png");
   }
   .minimize {
-    background-image: url("images/application-frame/minimize@2x.png");
+    background-image: url("images/application-frame/minimize@1x.png");
   }
   .maximize {
-    background-image: url("images/application-frame/maximize@2x.png");
+    background-image: url("images/application-frame/maximize@1x.png");
+  }
+}
+
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .toolbar-window-controls {
+    .close {
+      background-image: url("images/application-frame/close@2x.png");
+    }
+    .minimize {
+      background-image: url("images/application-frame/minimize@2x.png");
+    }
+    .maximize {
+      background-image: url("images/application-frame/maximize@2x.png");
+    }
   }
 }
 
