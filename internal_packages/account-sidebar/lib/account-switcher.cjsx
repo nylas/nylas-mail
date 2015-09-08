@@ -42,8 +42,10 @@ class AccountSwitcher extends React.Component
         'account': true
         'active': account is @state.account
 
+      gravatarUrl = "http://www.gravatar.com/avatar/#{hash}?d=blank&s=44"
+
       <div title={account.emailAddress} className={classnames} key={account.id} onClick={ => @_onSwitchAccount(account) }>
-        <img src="http://www.gravatar.com/avatar/#{hash}?d=blank&s=88" className="gravatar" />
+        <div style={backgroundImage: "url(#{gravatarUrl})"} className="gravatar"></div>
         <RetinaImg name={"ic-settings-account-#{account.provider}.png"}
                    style={width: 44, height: 44}
                    fallback="ic-settings-account-imap.png"
