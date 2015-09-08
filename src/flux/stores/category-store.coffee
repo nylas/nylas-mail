@@ -9,8 +9,14 @@ AccountStore = require './account-store'
 class CategoryStore extends NylasStore
   constructor: ->
     @_categoryCache = {}
+    @_standardCategories = []
+    @_userCategories = []
+    @_hiddenCategories = []
+
     @listenTo DatabaseStore, @_onDBChanged
     @listenTo AccountStore, @_refreshCacheFromDB
+    atom.config.observe 'core.showImportant', => @_refreshCacheFromDB()
+
     @_refreshCacheFromDB()
 
   # We look for a few standard categories and display them in the Mailboxes
@@ -37,6 +43,7 @@ class CategoryStore extends NylasStore
     "all"
     "archive"
     "starred"
+    "important"
   ]
 
   AllMailName: "all"
@@ -69,7 +76,6 @@ class CategoryStore extends NylasStore
   #
   getCategories: -> _.values @_categoryCache
 
-
   # Public: Returns the Folder or Label object for a standard category name.
   # ('inbox', 'drafts', etc.) It's possible for this to return `null`.
   # For example, Gmail likely doesn't have an `archive` label.
@@ -82,25 +88,20 @@ class CategoryStore extends NylasStore
   # Public: Returns all of the standard categories for the current account.
   #
   getStandardCategories: ->
-    # Single pass to create lookup table, single pass to get ordered array
-    byStandardName = {}
-    for key, val of @_categoryCache
-      byStandardName[val.name] = val
-    _.compact @StandardCategoryNames.map (name) =>
-      byStandardName[name]
+    @_standardCategories
 
   getUnhiddenStandardCategories: ->
     @getStandardCategories().filter (c) ->
       not _.contains @HiddenCategoryNames, c.name
 
+  getHiddenCategories: ->
+    @_hiddenCategories
+
   # Public: Returns all of the categories that are not part of the standard
   # category set.
   #
   getUserCategories: ->
-    userCategories = _.reject _.values(@_categoryCache), (cat) =>
-      cat.name in @StandardCategoryNames or cat.name in @HiddenCategoryNames
-    userCategories = _.sortBy(userCategories, 'displayName')
-    return _.compact(userCategories)
+    @_userCategories
 
   _onDBChanged: (change) ->
     categoryClass = @categoryClass()
@@ -117,6 +118,29 @@ class CategoryStore extends NylasStore
     DatabaseStore.findAll(categoryClass).where(categoryClass.attributes.accountId.equal(account.id)).then (categories=[]) =>
       @_categoryCache = {}
       @_categoryCache[category.id] = category for category in categories
+
+      # Compute user categories
+      userCategories = _.reject _.values(@_categoryCache), (cat) =>
+        cat.name in @StandardCategoryNames or cat.name in @HiddenCategoryNames
+      userCategories = _.sortBy(userCategories, 'displayName')
+      @_userCategories =  _.compact(userCategories)
+
+      # Compute hidden categories
+      @_hiddenCategories = _.filter _.values(@_categoryCache), (cat) =>
+        cat.name in @HiddenCategoryNames
+
+      # Compute standard categories
+      # Single pass to create lookup table, single pass to get ordered array
+      byStandardName = {}
+      for key, val of @_categoryCache
+        byStandardName[val.name] = val
+
+      if not atom.config.get('core.showImportant')
+        delete byStandardName['important']
+
+      @_standardCategories = _.compact @StandardCategoryNames.map (name) =>
+        byStandardName[name]
+
       @trigger()
 
 module.exports = new CategoryStore()

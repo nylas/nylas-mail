@@ -10,6 +10,9 @@ module.exports =
       showUnreadBadge:
         type: 'boolean'
         default: true
+      showImportant:
+        type: 'boolean'
+        default: true
       disabledPackages:
         type: 'array'
         default: []

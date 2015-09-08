@@ -66,4 +66,7 @@ class Account extends Model
       return 'Gmail'
     return @provider
 
+  usesImportantFlag: ->
+    @provider is 'gmail'
+
 module.exports = Account

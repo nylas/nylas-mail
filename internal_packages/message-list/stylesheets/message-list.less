@@ -68,6 +68,7 @@
   display: flex;
   flex-direction: column;
   position: relative;
+  background: @background-secondary;
 
   width: 100%;
   height: 100%;
@@ -82,6 +83,10 @@
     padding-left: 20px;
     -webkit-user-select: text;
     line-height: @font-size-large * 1.8;
+  }
+  .mail-important-icon {
+    margin-right:@spacing-half;
+    margin-bottom:2px;
   }
   .message-subject {
     font-size: @font-size-large;
@@ -109,7 +114,6 @@
     flex: 1;
     opacity:0;
     transition: opacity 0s;
-    background: @background-secondary;
   }
   .messages-wrap.ready {
     opacity:1;
