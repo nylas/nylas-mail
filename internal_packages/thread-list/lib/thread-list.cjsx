@@ -18,6 +18,7 @@ ThreadListStore = require './thread-list-store'
 ThreadListIcon = require './thread-list-icon'
 
 EmptyState = require './empty-state'
+{MailImportantIcon} = require 'nylas-component-kit'
 
 class ThreadListScrollTooltip extends React.Component
   @displayName: 'ThreadListScrollTooltip'
@@ -65,7 +66,10 @@ class ThreadList extends React.Component
     c1 = new ListTabular.Column
       name: "★"
       resolver: (thread) =>
-        <ThreadListIcon thread={thread} />
+        <span>
+          <ThreadListIcon thread={thread} />
+          <MailImportantIcon thread={thread} />
+        </span>
 
     c2 = new ListTabular.Column
       name: "Participants"
@@ -96,12 +100,13 @@ class ThreadList extends React.Component
 
         currentCategoryId = FocusedMailViewStore.mailView()?.categoryId()
         allCategoryId = CategoryStore.getStandardCategory('all')?.id
-        ignoredIds = [currentCategoryId, allCategoryId]
+
+        ignoredIds = [currentCategoryId]
+        ignoredIds.push(cat.id) for cat in CategoryStore.getHiddenCategories()
 
         for label in (thread.sortedLabels())
           continue if label.id in ignoredIds
-          if not c3LabelComponentCache[label.id]
-            c3LabelComponentCache[label.id] = <MailLabel label={label} key={label.id} />
+          c3LabelComponentCache[label.id] ?= <MailLabel label={label} key={label.id} />
           labels.push c3LabelComponentCache[label.id]
 
         <span className="details">
@@ -147,6 +152,7 @@ class ThreadList extends React.Component
             {attachment}
             <span className="timestamp">{timestamp(thread.lastMessageReceivedTimestamp)}</span>
           </div>
+          <MailImportantIcon thread={thread} />
           <div className="subject">{subject(thread.subject)}</div>
           <div className="snippet">{thread.snippet}</div>
         </div>

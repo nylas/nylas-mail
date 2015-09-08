@@ -30,7 +30,7 @@ class ThreadListIcon extends React.Component
       else
         return 'thread-icon-replied thread-icon-star-on-hover'
 
-    return 'thread-icon-star-on-hover'
+    return 'thread-icon-none thread-icon-star-on-hover'
 
   _nonDraftMessages: =>
     msgs = @props.thread.metadata

@@ -22,7 +22,7 @@
     color: @text-color-inverse-subtle;
   }
 
-  .thread-icon, .draft-icon {
+  .thread-icon, .draft-icon, .mail-important-icon {
     -webkit-filter: brightness(600%) grayscale(100%);
   }
 
@@ -56,6 +56,16 @@
 
   .list-column {
     border-bottom: 1px solid fade(@list-border, 60%);
+  }
+
+  .mail-important-icon {
+    margin-top:1px;
+    margin-left:6px;
+    padding: 12px;
+    vertical-align: initial;
+    &:not(.active) {
+      visibility: hidden;
+    }
   }
 
   .message-count {
@@ -157,6 +167,7 @@
     width:15px;
     height:15px;
     background-size: 15px;
+    display:inline-block;
     background-repeat: no-repeat;
     background-position:center;
     padding:12px;
@@ -261,9 +272,17 @@
 
 // stars
 
-.thread-list .thread-icon-star:hover {
+.thread-list .thread-icon-star:hover,
+.thread-list .list-item:hover .thread-icon-none:hover {
   background-image:url(../static/images/thread-list/icon-star-action-hover-@2x.png);
   background-size: 16px;
+}
+.thread-list .list-item:hover .thread-icon-none {
+  background-image:url(../static/images/thread-list/icon-star-hover-@2x.png);
+  background-size: 16px;
+}
+.thread-list .list-item:hover .mail-important-icon {
+  visibility: inherit;
 }
 .thread-list .thread-icon-star-on-hover:hover {
   background-image:url(../static/images/thread-list/icon-star-hover-@2x.png);
@@ -280,6 +299,15 @@
   .thread-icon {
     margin-right:6px;
   }
+
+  .mail-important-icon {
+    margin-top:1px;
+    margin-left:1px;
+    float:left;
+    padding: 12px;
+    vertical-align: initial;
+  }
+
   .subject {
     font-size: @font-size-base;
     overflow: hidden;

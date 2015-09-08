@@ -20,6 +20,7 @@ MessageItemContainer = require './message-item-container'
  RetinaImg,
  InjectedComponentSet,
  MailLabel,
+ MailImportantIcon,
  InjectedComponent} = require('nylas-component-kit')
 
 class MessageListScrollTooltip extends React.Component
@@ -218,13 +219,18 @@ class MessageList extends React.Component
     </div>
 
   _renderSubject: ->
+    subject = @state.currentThread?.subject
+    subject = "(No Subject)" if not subject or subject.length is 0
+
     <div className="message-subject-wrap">
-      <span className="message-subject">{@state.currentThread?.subject}</span>
+      <MailImportantIcon thread={@state.currentThread} />
+      <span className="message-subject">{subject}</span>
       {@_renderLabels()}
     </div>
 
   _renderLabels: =>
     labels = @state.currentThread.sortedLabels()
+    labels = _.reject labels, (l) -> l.name is 'important'
     labels.map (label) =>
       <MailLabel label={label} key={label.id} onRemove={ => @_onRemoveLabel(label) }/>
 

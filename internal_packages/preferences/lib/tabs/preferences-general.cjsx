@@ -1,7 +1,7 @@
 React = require 'react'
 _ = require 'underscore'
 {RetinaImg, Flexbox} = require 'nylas-component-kit'
-{LaunchServices} = require 'nylas-exports'
+{LaunchServices, AccountStore} = require 'nylas-exports'
 
 class PreferencesGeneral extends React.Component
   @displayName: 'PreferencesGeneral'
@@ -22,15 +22,30 @@ class PreferencesGeneral extends React.Component
       @setState(defaultClient: true)
       @_services.registerForURLScheme('mailto')
 
+  toggleShowImportant: (event) =>
+    @props.config.toggle('core.showImportant')
+    event.preventDefault()
+
+  _renderImportanceOptionElement: =>
+    return false unless AccountStore.current().usesImportantFlag()
+    importanceOptionElement = <div className="section-header">
+      <input type="checkbox" id="show-important"
+             checked={@props.config.get('core.showImportant')}
+             onChange={@toggleShowImportant}/>
+      <label htmlFor="show-important">Show Gmail-style important markers</label>
+    </div>
+
   render: =>
     <div className="container-notifications">
       <div className="section">
-        <div className="section-header platform-darwin-only" style={marginBottom:30}>
+        <div className="section-header platform-darwin-only">
           <input type="checkbox" id="default-client" checked={@state.defaultClient} onChange={@toggleDefaultMailClient}/>
           <label htmlFor="default-client">Use Nylas as my default mail client</label>
         </div>
 
-        <div className="section-header">
+        {@_renderImportanceOptionElement()}
+
+        <div className="section-header" style={marginTop:30}>
           Delay for marking messages as read:
           <select value={@props.config.get('core.reading.markAsReadDelay')}
                   onChange={ (event) => @props.config.set('core.reading.markAsReadDelay', event.target.value) }>
