@@ -497,7 +497,8 @@ class ComposerView extends React.Component
     draft = @_proxy.draft()
     if _.isEmpty(draft.subject ? "") then return true
     else if @isForwardedMessage() then return true
-    else return false
+    else if draft.replyToMessageId then return false
+    else return true
 
   _shouldAcceptDrop: (event) =>
     # Ensure that you can't pick up a file and drop it on the same draft

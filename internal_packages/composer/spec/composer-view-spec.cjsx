@@ -246,15 +246,15 @@ describe "populated composer", ->
       makeComposer.call @
       expect(@composer._shouldShowSubject()).toBe true
 
-    it "doesn't show subject when subject has fwd text in it", ->
-      useDraft.call @, subject: "Trick fwd"
+    it "doesn't show subject when replyToMessageId exists", ->
+      useDraft.call @, subject: "should hide", replyToMessageId: "some-id"
       makeComposer.call @
       expect(@composer._shouldShowSubject()).toBe false
 
-    it "doesn't show the subject otherwise", ->
+    it "shows the subject otherwise", ->
       useDraft.call @, subject: "Foo bar baz"
       makeComposer.call @
-      expect(@composer._shouldShowSubject()).toBe false
+      expect(@composer._shouldShowSubject()).toBe true
 
   describe "when deciding whether or not to show cc and bcc", ->
     it "doesn't show cc when there's no one to cc", ->
