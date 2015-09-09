@@ -27,7 +27,8 @@ class DeveloperBarStore extends NylasStore
 
   triggerThrottled: ->
     @_triggerThrottled ?= _.throttle(@trigger, 100)
-    @_triggerThrottled()
+    if atom.getCurrentWindow().isVisible()
+      @_triggerThrottled()
 
   _setStoreDefaults: ->
     @_curlHistory = {}
