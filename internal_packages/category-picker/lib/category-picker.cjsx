@@ -265,6 +265,7 @@ class CategoryPicker extends React.Component
 
   _allInInbox: (usageCount, numThreads) ->
     inbox = CategoryStore.getStandardCategory("inbox")
+    return false unless inbox
     return usageCount[inbox.id] is numThreads
 
   _itemForCategory: ({usageCount, numThreads}, category) ->
