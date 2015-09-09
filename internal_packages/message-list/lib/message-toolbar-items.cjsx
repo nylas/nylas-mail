@@ -33,6 +33,7 @@ class MessageToolbarItems extends React.Component
     @_unsubscribers.push FocusedContentStore.listen @_onChange
 
   componentWillUnmount: =>
+    return unless @_unsubscribers
     unsubscribe() for unsubscribe in @_unsubscribers
 
   _onChange: =>
