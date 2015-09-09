@@ -646,6 +646,12 @@ class ContenteditableComponent extends React.Component
         if extension.onSubstitutionPerformed
           extension.onSubstitutionPerformed(@_editableNode())
 
+    learnSpelling = =>
+      spellchecker.add(text)
+      for extension in DraftStore.extensions()
+        if extension.onLearnSpelling
+          extension.onLearnSpelling(@_editableNode(), text)
+
     cut = =>
       clipboard.writeText(text)
       apply('')
@@ -663,9 +669,12 @@ class ContenteditableComponent extends React.Component
       if corrections.length > 0
         corrections.forEach (correction) ->
           menu.append(new MenuItem({ label: correction, click:( -> apply(correction))}))
-        menu.append(new MenuItem({ type: 'separator' }))
-        menu.append(new MenuItem({ label: 'Learn Spelling', click:( -> spellchecker.add(text))}))
-        menu.append(new MenuItem({ type: 'separator' }))
+      else
+        menu.append(new MenuItem({ label: 'No Guesses Found', enabled: false}))
+
+      menu.append(new MenuItem({ type: 'separator' }))
+      menu.append(new MenuItem({ label: 'Learn Spelling', click: learnSpelling}))
+      menu.append(new MenuItem({ type: 'separator' }))
 
     menu.append(new MenuItem({ label: 'Cut', click:cut}))
     menu.append(new MenuItem({ label: 'Copy', click:copy}))
