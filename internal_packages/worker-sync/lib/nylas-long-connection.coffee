@@ -23,8 +23,15 @@ class NylasLongConnection
 
     @_deltas = []
     @_flushDeltasDebounced = _.debounce =>
+
+      return if @_deltas.length is 0
+      last = @_deltas[@_deltas.length - 1]
+
       @_emitter.emit('deltas-stopped-arriving', @_deltas)
       @_deltas = []
+
+      # Note: setCursor is slow and saves to disk, so we do it once at the end
+      @setCursor(last.cursor)
     , 1000
 
     @
@@ -69,7 +76,6 @@ class NylasLongConnection
 
   onProcessBuffer: =>
     bufferJSONs = @_buffer.split('\n')
-    bufferCursor = null
 
     # We can't parse the last block - we don't know whether we've
     # received the entire delta or only part of it. Wait
@@ -87,11 +93,6 @@ class NylasLongConnection
         throw (new Error 'Received delta with no cursor!') unless delta.cursor
         @_deltas.push(delta)
         @_flushDeltasDebounced()
-        bufferCursor = delta.cursor
-
-    # Note: setCursor is slow and saves to disk, so we do it once at the end
-    if bufferCursor
-      @setCursor(bufferCursor)
 
   start: ->
     token = @_api.accessTokenForAccountId(@_accountId)
