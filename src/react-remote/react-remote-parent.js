@@ -250,6 +250,8 @@ var openWindowForComponent = function(Component, options) {
     }
     for (var ii = 0; ii < invocationTargets.length; ii++) {
       if (invocationTargets[ii].container === container) {
+        invocationTargets[ii].windowReady = false
+        invocationTargets[ii].window = null
         invocationTargets.splice(ii, 1);
         break;
       }
@@ -264,6 +266,9 @@ var openWindowForComponent = function(Component, options) {
 
   var sendSizingInformation = function() {
     if (!options.autosize) {
+      return;
+    }
+    if (!thinWindow) {
       return;
     }
     // Weirdly, this returns an array of [width, height] and not a hash
