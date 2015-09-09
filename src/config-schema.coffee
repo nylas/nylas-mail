@@ -7,6 +7,13 @@ module.exports =
   core:
     type: 'object'
     properties:
+      workspace:
+        type: 'object'
+        properties:
+          mode:
+            type: 'string'
+            default: 'list'
+            enum: ['split', 'list']
       showUnreadBadge:
         type: 'boolean'
         default: true
