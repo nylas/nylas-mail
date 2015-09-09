@@ -19,6 +19,12 @@ class SpellcheckDraftStoreExtension extends DraftStoreExtension
     @walkTreeNodes.push(editableNode)
     @walkTreesDebounced()
 
+  @onLearnSpelling: (editableNode, word) ->
+    delete SpellcheckCache[word]
+    @ensureSetup()
+    @walkTreeNodes.push(editableNode)
+    @walkTreesDebounced()
+
   @onSubstitutionPerformed: (editableNode) ->
     @ensureSetup()
     @walkTreeNodes.push(editableNode)
