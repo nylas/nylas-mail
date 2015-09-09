@@ -30,7 +30,6 @@
   {
     label: '&View'
     submenu: [
-      { label: '&Reload', command: 'window:reload' }
       { label: 'Toggle &Full Screen', command: 'window:toggle-full-screen' }
       { label: 'Toggle Menu Bar', command: 'window:toggle-menu-bar' }
     ]
@@ -41,10 +40,13 @@
       { label: 'Toggle Component Regions', command: 'window:toggle-component-regions' }
       { label: 'Toggle React Remote', command: 'window:toggle-react-remote' }
       { type: 'separator' }
-      { label: 'Relaunch with &Debug Flags...', command: 'application:open-dev' }
+      { label: 'Open Activity Window', command: 'application:show-work-window' }
       { type: 'separator' }
       { label: 'Open Detailed Logs', command: 'window:open-errorreporter-logs' }
       { label: 'Ship Detailed Logs to Nylas', command: 'application:ship-logs' }
+      { type: 'separator' }
+      { label: '&Reload', command: 'window:reload' }
+      { label: 'Relaunch with &Debug Flags...', command: 'application:open-dev' }
       { type: 'separator' }
       { label: 'Create a Package...', command: 'application:create-package' }
       { label: 'Run Package &Specs...', command: 'application:run-package-specs' }
