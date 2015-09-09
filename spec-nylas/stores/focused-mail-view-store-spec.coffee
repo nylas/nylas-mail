@@ -1,5 +1,6 @@
 _ = require 'underscore'
 
+Actions = require '../../src/flux/actions'
 Label = require '../../src/flux/models/label'
 Folder = require '../../src/flux/models/folder'
 MailViewFilter = require '../../src/mail-view-filter'
@@ -57,6 +58,12 @@ describe "FocusedMailViewStore", ->
         spyOn(FocusedMailViewStore, '_setMailView')
         FocusedMailViewStore._onFocusMailView(@inboxFilter)
         expect(FocusedMailViewStore._setMailView).not.toHaveBeenCalled()
+
+      it "should clear existing searches if any other category is focused", ->
+        spyOn(Actions, 'searchQueryCommitted')
+        FocusedMailViewStore._onSearchQueryCommitted('bla')
+        FocusedMailViewStore._onFocusMailView(@userFilter)
+        expect(Actions.searchQueryCommitted).toHaveBeenCalledWith('')
 
   describe 'when using labels', ->
     beforeEach ->

@@ -1,6 +1,6 @@
 React = require 'react/addons'
 classNames = require 'classnames'
-{Actions} = require 'nylas-exports'
+{Actions, WorkspaceStore} = require 'nylas-exports'
 {Menu, RetinaImg} = require 'nylas-component-kit'
 SearchSuggestionStore = require './search-suggestion-store'
 _ = require 'underscore'
@@ -16,7 +16,10 @@ class SearchBar extends React.Component
       committedQuery: null
 
   componentDidMount: =>
-    @unsubscribe = SearchSuggestionStore.listen @_onChange
+    @usub = []
+    @usub.push SearchSuggestionStore.listen @_onChange
+    @usub.push WorkspaceStore.listen =>
+      @setState(focused: false) if @state.focused
     @body_unsubscriber = atom.commands.add 'body', {
       'application:focus-search': @_onFocusSearch
     }
@@ -28,7 +31,7 @@ class SearchBar extends React.Component
   # atom events before it unmounts. Thank you event-kit
   # This can be fixed via a Reflux mixin
   componentWillUnmount: =>
-    @unsubscribe()
+    usub() for usub in @usub
     @body_unsubscriber.dispose()
     @search_unsubscriber.dispose()
 
