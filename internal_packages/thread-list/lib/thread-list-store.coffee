@@ -37,8 +37,6 @@ class ThreadListStore extends NylasStore
     @listenTo AccountStore, @_onAccountChanged
     @listenTo FocusedMailViewStore, @_onMailViewChanged
 
-    atom.config.observe 'core.workspace.mode', => @_autofocusForLayoutMode()
-
     # We can't create a @view on construction because the CategoryStore
     # has hot yet been populated from the database with the list of
     # categories and their corresponding ids. Once that is ready, the
@@ -58,7 +56,6 @@ class ThreadListStore extends NylasStore
 
     @_viewUnlisten = view.listen ->
       @trigger(@)
-      @_autofocusForLayoutMode()
     ,@
 
     @trigger(@)
@@ -86,6 +83,14 @@ class ThreadListStore extends NylasStore
           for message in messages
             messagesByThread[message.threadId].push message
           messagesByThread
+
+      if WorkspaceStore.layoutMode() is 'split'
+          # Set up a one-time listener to focus an item in the new view
+        unlisten = view.listen ->
+          if view.loaded()
+            Actions.setFocus(collection: 'thread', item: view.get(0))
+            unlisten()
+
       @setView(view)
 
     Actions.setFocus(collection: 'thread', item: null)
@@ -156,27 +161,41 @@ class ThreadListStore extends NylasStore
     task = ArchiveThreadHelper.getArchiveTask([focused])
     @_moveAndShiftBy(offset, task)
 
-  _onMoveThread: (thread, task) ->
-    @_moveAndShiftBy('auto', task)
-
-  _onMoveThreads: (threads, task) ->
-    selectedThreadIds = threads.map (thread) -> thread.id
-    focusedId = FocusedContentStore.focusedId('thread')
-    keyboardId = FocusedContentStore.keyboardCursorId('thread')
-
-    TaskQueueStatusStore.waitForPerformLocal(task).then =>
-      if focusedId in selectedThreadIds
-        Actions.setFocus(collection: 'thread', item: null)
-      if keyboardId in selectedThreadIds
-        Actions.setCursorPosition(collection: 'thread', item: null)
-
-    Actions.queueTask(task)
-    @_view.selection.clear()
-
   _onArchiveSelection: ->
     selectedThreads = @_view.selection.items()
     task = ArchiveThreadHelper.getArchiveTask(selectedThreads)
     @_onMoveThreads(selectedThreads, task)
+
+  _onMoveThread: (thread, task) ->
+    @_moveAndShiftBy('auto', task)
+
+  _onMoveThreads: (threads, task) ->
+    threadIds = threads.map (thread) -> thread.id
+    focusedId = FocusedContentStore.focusedId('thread')
+    keyboardId = FocusedContentStore.keyboardCursorId('thread')
+
+    if focusedId in threadIds
+      changeFocused = true
+    if keyboardId in threadIds
+      changeKeyboardCursor = true
+
+    if changeFocused or changeKeyboardCursor
+      newFocusIndex = Number.MAX_VALUE
+      for thread in threads
+        newFocusIndex = Math.min(newFocusIndex, @_view.indexOfId(thread.id))
+
+    TaskQueueStatusStore.waitForPerformLocal(task).then =>
+      layoutMode = WorkspaceStore.layoutMode()
+      if changeFocused
+        item = @_view.get(newFocusIndex)
+        Actions.setFocus(collection: 'thread', item: item)
+      if changeKeyboardCursor
+        item = @_view.get(newFocusIndex)
+        Actions.setCursorPosition(collection: 'thread', item: item)
+        Actions.setFocus(collection: 'thread', item: item) if layoutMode is 'split'
+
+    Actions.queueTask(task)
+    @_view.selection.clear()
 
   _moveAndShiftBy: (offset, task) ->
     layoutMode = WorkspaceStore.layoutMode()
@@ -196,7 +215,7 @@ class ThreadListStore extends NylasStore
       else
         offset = 1
 
-    index = Math.min(Math.max(index + offset, 0), @_view.count() - 1)
+    index = Math.min(Math.max(index + offset, 0), @_view.count() - 2)
     nextKeyboard = nextFocus = @_view.get(index)
 
     # Remove the current thread from selection
@@ -213,14 +232,5 @@ class ThreadListStore extends NylasStore
       Actions.setFocus(collection: 'thread', item: nextFocus)
       Actions.setCursorPosition(collection: 'thread', item: nextKeyboard)
     Actions.queueTask(task)
-
-  _autofocusForLayoutMode: ->
-    return unless @_view
-    layoutMode = WorkspaceStore.layoutMode()
-    focused = FocusedContentStore.focused('thread')
-    if layoutMode is 'split' and not focused and @_view.selection.count() is 0
-      item = @_view.get(0)
-      _.defer =>
-        Actions.setFocus({collection: 'thread', item: item})
 
 module.exports = new ThreadListStore()
