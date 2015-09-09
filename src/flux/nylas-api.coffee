@@ -181,6 +181,8 @@ class NylasAPI
           handlePromise = @_handleModel404(options.url)
         if err.response.statusCode is 401
           handlePromise = @_handle401(options.url)
+        if err.response.statusCode is 400
+          atom.emitError(err)
       handlePromise.finally ->
         Promise.reject(err)
 

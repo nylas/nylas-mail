@@ -272,10 +272,9 @@ class Atom extends Model
 
     Promise.onPossiblyUnhandledRejection (error) =>
       error.stack = convertStackTrace(error.stack, sourceMapCache)
-      eventObject = {message: error.message, originalError: error}
 
-      # API Errors are a normal part of life and are logged to the API
-      # history panel. We ignore these errors and do not report them to Sentry.
+      # API Errors are logged to Sentry only under certain circumstances,
+      # and are logged directly from the NylasAPI class.
       if error instanceof APIError
         return
 
@@ -289,9 +288,13 @@ class Atom extends Model
         console.warn(error)
         console.warn(error.stack)
 
-      @emitter.emit('will-throw-error', eventObject)
-      @emit('uncaught-error', error.message, null, null, null, error)
-      @emitter.emit('did-throw-error', eventObject)
+      @emitError(error)
+
+  emitError: (error) ->
+    eventObject = {message: error.message, originalError: error}
+    @emitter.emit('will-throw-error', eventObject)
+    @emit('uncaught-error', error.message, null, null, null, error)
+    @emitter.emit('did-throw-error', eventObject)
 
   ###
   Section: Event Subscription
