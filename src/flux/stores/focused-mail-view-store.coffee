@@ -20,8 +20,7 @@ class FocusedMailViewStore extends NylasStore
 
   _onFocusMailView: (filter) ->
     return if filter.isEqual(@_mailView)
-    if @_mailView is null and filter
-      Actions.searchQueryCommitted('')
+    Actions.searchQueryCommitted('')
     @_setMailView(filter)
 
   _onSearchQueryCommitted: (query="") ->

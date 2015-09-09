@@ -60,25 +60,27 @@ class SearchView extends ModelView
       accountId: @_accountId
       json: true
       returnsModel: false
-      error: =>
-        page.loading = false
-        @_emitter.emit('trigger')
-      success: (json) =>
-        objects = []
+    .then (json) =>
+      objects = []
 
-        @_queryResultTotal = json.length
+      @_queryResultTotal = json.length
 
-        for resultJSON in json
-          obj = (new Thread).fromJSON(resultJSON)
-          objects.push(obj)
+      for resultJSON in json
+        obj = (new Thread).fromJSON(resultJSON)
+        objects.push(obj)
 
-        DatabaseStore.persistModels(objects) if objects.length > 0
+      DatabaseStore.persistModels(objects) if objects.length > 0
 
-        page.items = objects
-        page.loading = false
-        @_emitter.emit('trigger')
+      page.items = objects
+      page.loading = false
+      @_emitter.emit('trigger')
 
-        console.log("Search view fetched #{idx} in #{Date.now() - start} msec.")
+      console.log("Search view fetched #{idx} in #{Date.now() - start} msec.")
+    .catch (error) =>
+      @_queryResultTotal = 0
+      page.items = []
+      page.loading = false
+      @_emitter.emit('trigger')
 
 
 module.exports = SearchView
