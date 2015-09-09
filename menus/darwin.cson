@@ -48,7 +48,8 @@
   {
     label: 'View'
     submenu: [
-      { label: 'Toggle Full Screen', command: 'window:toggle-full-screen' }
+      { label: 'Enter Full Screen', command: 'window:toggle-full-screen' }
+      { label: 'Exit Full Screen', command: 'window:toggle-full-screen', visible: false }
     ]
   }
   {

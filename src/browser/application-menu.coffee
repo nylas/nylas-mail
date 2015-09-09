@@ -36,6 +36,7 @@ class ApplicationMenu
       Menu.setApplicationMenu(@menu)
 
     @showUpdateMenuItem(global.application.autoUpdateManager.getState())
+    @showFullscreenMenuItem(@lastFocusedWindow?.isFullScreen())
 
   # Register a BrowserWindow with this application menu.
   addWindow: (window) ->
@@ -47,10 +48,14 @@ class ApplicationMenu
         @setActiveTemplate(template)
 
     window.on 'focus', focusHandler
+    window.on 'enter-full-screen', focusHandler
+    window.on 'leave-full-screen', focusHandler
     window.once 'closed', =>
       @lastFocusedWindow = null if window is @lastFocusedWindow
       @windowTemplates.delete(window)
       window.removeListener 'focus', focusHandler
+      window.removeListener 'enter-full-screen', focusHandler
+      window.removeListener 'leave-full-screen', focusHandler
 
     @enableWindowSpecificItems(true)
 
@@ -110,6 +115,13 @@ class ApplicationMenu
         downloadingUpdateItem.visible = true
       when 'update-available'
         installUpdateItem.visible = true
+
+  showFullscreenMenuItem: (fullscreen) ->
+    enterItem = _.find(@flattenMenuItems(@menu), ({label}) -> label == 'Enter Full Screen')
+    exitItem = _.find(@flattenMenuItems(@menu), ({label}) -> label == 'Exit Full Screen')
+    return unless enterItem and exitItem
+    enterItem.visible = !fullscreen
+    exitItem.visible = fullscreen
 
   # Default list of menu items.
   #
