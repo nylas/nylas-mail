@@ -262,6 +262,16 @@ module.exports = ErrorReporter = (function() {
   ErrorReporter.prototype.reportError = function(err, metadata) {
     if (this.inSpecMode || this.inDevMode) { return };
 
+    // Never send user auth tokens
+    if (err.requestOptions && err.requestOptions.auth) {
+      delete err.requestOptions['auth'];
+    }
+
+    // Never send message bodies
+    if (err.requestOptions && err.requestOptions.body && err.requestOptions.body.body) {
+      delete err.requestOptions.body['body'];
+    }
+
     this.client.captureError(err, {
       extra: metadata,
       tags: {
