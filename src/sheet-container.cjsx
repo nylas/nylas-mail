@@ -92,7 +92,7 @@ class SheetContainer extends React.Component
     window.dispatchEvent(new Event('resize'))
 
   _onStoreChange: =>
-    _.defer => @setState(@_getStateFromStores())
+    @setState(@_getStateFromStores())
 
   _getStateFromStores: =>
     stack: WorkspaceStore.sheetStack()
