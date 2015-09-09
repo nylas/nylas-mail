@@ -333,6 +333,7 @@ module.exports = (grunt) ->
   ciTasks.push('codesign')
   ciTasks.push('mkdmg') if process.platform is 'darwin'
   ciTasks.push('create-windows-installer') if process.platform is 'win32'
+  # ciTasks.push('publish-docs') if process.platform is 'darwin'
   ciTasks.push('publish-nylas-build') if process.platform is 'darwin'
   grunt.registerTask('ci', ciTasks)
 

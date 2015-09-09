@@ -52,6 +52,9 @@ module.exports = (grunt) ->
 
   {cp, mkdir, rm} = require('./task-helpers')(grunt)
 
+  relativePathForArticle = (filename) ->
+    filename[0..-4]+'.html'
+
   relativePathForClass = (classname) ->
     classname+'.html'
 
@@ -96,6 +99,38 @@ module.exports = (grunt) ->
         if _.isObject(val)
           processFields(val, fields, tasks)
 
+  grunt.registerTask 'publish-docs', 'Publish the API docs to gh-pages', ->
+    done = @async()
+
+    docsOutputDir = grunt.config.get('docsOutputDir')
+    docsRepoDir = process.env.DOCS_REPO_DIR
+    if not docsRepoDir
+      console.log("DOCS_REPO_DIR is not set.")
+      return done()
+
+    exec = (require 'child_process').exec
+    execAll = (arr, callback) ->
+      console.log(arr[0])
+      exec arr[0], {cwd: docsRepoDir}, (err, stdout, stderr) ->
+        return callback(err) if callback and err
+        arr.splice(0, 1)
+        if arr.length > 0
+          execAll(arr, callback)
+        else
+          callback(null)
+
+    execAll [
+      "git fetch"
+      "git reset --hard origin/gh-pages"
+      "git clean -Xdf"
+    ], (err) ->
+      return done(err) if err
+      cp(docsOutputDir, docsRepoDir)
+      execAll [
+        "git commit -am 'Jenkins updating docs'"
+        "git push --force origin/gh-pages"
+      ], (err) ->
+        return done(err)
 
   grunt.registerTask 'build-docs', 'Builds the API docs in src', ->
     done = @async()
@@ -167,8 +202,51 @@ module.exports = (grunt) ->
 
     # Parse Article Markdown
 
+    articles = []
+    articlesPath = path.resolve(__dirname, '..', '..', 'docs')
+    fs.traverseTreeSync articlesPath, (file) ->
+      if path.extname(file) is '.md'
+        {html, meta} = marked(grunt.file.read(file))
+
+        filename = path.basename(file)
+        meta ||= {title: filename}
+        for key, val of meta
+          meta[key.toLowerCase()] = val
+
+        articles.push({
+          html: html
+          meta: meta
+          name: meta.title
+          filename: filename
+          link: relativePathForArticle(filename)
+        })
+
+    # Sort articles by the `Order` flag when present. Lower order, higher in list.
+    articles.sort (a, b) ->
+      (a.meta?.order ? 1000)/1 - (b.meta?.order ? 1000)/1
+
     # Build Sidebar metadata we can hand off to each of the templates to
     # generate the sidebar
+    sidebar = {sections: []}
+    sidebar.sections.push
+      name: 'Getting Started'
+      items: articles.filter ({meta}) -> meta.section is 'Getting Started'
+
+    sidebar.sections.push
+      name: 'Guides'
+      items: articles.filter ({meta}) -> meta.section is 'Guides'
+
+    sidebar.sections.push
+      name: 'Sample Code'
+      items: [{
+        name: 'Composer Translation'
+        link: 'https://github.com/nylas/edgehill-plugins/tree/master/translate'
+        external: true
+        },{
+        name: 'Github Sidebar'
+        link: 'https://github.com/nylas/edgehill-plugins/tree/master/sidebar-github-profile'
+        external: true
+        }]
 
     referenceSections = {}
     for klass in classes
@@ -187,17 +265,11 @@ module.exports = (grunt) ->
     for key, val of referenceSections
       sorted.push(val)
 
-    api_sidebar_meta = sorted.map ({name, classes}) ->
-      name: name
-      items: classes.map ({name}) -> {name: name, link: relativePathForClass(name), slug: name.toLowerCase() }
-
-    console.log("Here's the sidebar info:")
-    console.log(api_sidebar_meta.toString())
-
-    docsOutputDir = grunt.config.get('docsOutputDir')
-    sidebarJson = JSON.stringify(api_sidebar_meta, null, 2)
-    sidebarPath = path.join(docsOutputDir, '_sidebar.json')
-    grunt.file.write(sidebarPath, sidebarJson)
+    sidebar.sections.push
+      name: 'API Reference'
+      items: sorted.map ({name, classes}) ->
+        name: name
+        items: classes.map ({name}) -> {name: name, link: relativePathForClass(name) }
 
     # Prepare to render by loading handlebars partials
 
@@ -212,6 +284,47 @@ module.exports = (grunt) ->
     for classname, val of apiJSON.classes
       knownClassnames[classname.toLowerCase()] = val
 
+    knownArticles = {}
+    for article in articles
+      knownArticles[article.filename.toLowerCase()] = article
+
+    expandTypeReferences = (val) ->
+      refRegex = /{([\w.]*)}/g
+      while (match = refRegex.exec(val)) isnt null
+        term = match[1].toLowerCase()
+        label = match[1]
+        url = false
+        if term in standardClasses
+          url = standardClassURLRoot+term
+        else if thirdPartyClasses[term]
+          url = thirdPartyClasses[term]
+        else if knownClassnames[term]
+          url = relativePathForClass(term)
+        else if knownArticles[term]
+          label = knownArticles[term].meta.title
+          url = relativePathForArticle(knownArticles[term].filename)
+        else
+          console.warn("Cannot find class named #{term}")
+
+        if url
+          val = val.replace(match[0], "<a href='#{url}'>#{label}</a>")
+      val
+
+    expandFuncReferences = (val) ->
+      refRegex = /{([\w]*)?::([\w]*)}/g
+      while (match = refRegex.exec(val)) isnt null
+        [text, a, b] = match
+        url = false
+        if a and b
+          url = "#{relativePathForClass(a)}##{b}"
+          label = "#{a}::#{b}"
+        else
+          url = "##{b}"
+          label = "#{b}"
+        if url
+          val = val.replace(text, "<a href='#{url}'>#{label}</a>")
+      val
+
     # Render Class Pages
 
     classTemplatePath = path.join(templatesPath, 'class.html')
@@ -220,9 +333,28 @@ module.exports = (grunt) ->
     for {name, documentation, section} in classes
       # Recursively process `description` and `type` fields to process markdown,
       # expand references to types, functions and other files.
-      processFields(documentation, ['description'], [marked.noMeta])
-      processFields(documentation, ['type'], [])
+      processFields(documentation, ['description'], [marked.noMeta, expandTypeReferences, expandFuncReferences])
+      processFields(documentation, ['type'], [expandTypeReferences])
 
-      result = classTemplate({name, documentation, section})
-      console.log(outputPathFor(relativePathForClass(name)))
+      result = classTemplate({name, documentation, section, sidebar})
       grunt.file.write(outputPathFor(relativePathForClass(name)), result)
+
+    # Render Article Pages
+
+    articleTemplatePath = path.join(templatesPath, 'article.html')
+    articleTemplate = Handlebars.compile(grunt.file.read(articleTemplatePath))
+
+    for {name, meta, html, filename} in articles
+      # Process the article content to expand references to types, functions
+      for task in [expandTypeReferences, expandFuncReferences]
+        html = task(html)
+
+      result = articleTemplate({name, meta, html, sidebar})
+      grunt.file.write(outputPathFor(relativePathForArticle(filename)), result)
+
+    # Copy styles and images
+
+    imagesPath = path.resolve(__dirname, '..', '..', 'docs', 'images')
+    cssPath = path.resolve(__dirname, '..', '..', 'docs', 'css')
+    cp imagesPath, path.join(docsOutputDir, "images")
+    cp cssPath, path.join(docsOutputDir, "css")
