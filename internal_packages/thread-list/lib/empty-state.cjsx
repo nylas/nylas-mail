@@ -12,7 +12,7 @@ EmptyMessages = [{
   "byline": "- William Arthur Ward"
 },{
   "body":"The best and most beautiful things in the world cannot be seen or even touched - they must be felt with the heart."
-  "byline": "- Hellen Keller"
+  "byline": "- Helen Keller"
 },{
   "body":"Believe you can and you're halfway there."
   "byline": "- Theodore Roosevelt"
