@@ -30,6 +30,7 @@ class WorkspaceStore extends NylasStore
     atom.config.observe 'core.workspace.mode', (mode) =>
       return if mode is @_preferredLayoutMode
       @_preferredLayoutMode = mode
+      @popToRootSheet()
       @trigger()
 
     atom.commands.add 'body',
