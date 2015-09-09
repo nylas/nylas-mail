@@ -10,6 +10,7 @@
 class APIError extends Error
   constructor: ({@error, @response, @body, @requestOptions, @statusCode} = {}) ->
     @statusCode ?= @response?.statusCode
+    @requestOptions ?= @response?.requestOptions
     @name = "APIError"
     @message = @body?.message ? @body ? @error?.toString?()
 

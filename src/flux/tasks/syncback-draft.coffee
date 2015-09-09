@@ -79,13 +79,16 @@ class SyncbackDraftTask extends Task
           return Promise.resolve(Task.Status.Finished)
 
         .catch APIError, (err) =>
-          if err.statusCode in [400, 404, 409] and err.requestOptions.method is 'PUT'
-            return Promise.resolve(Task.Status.Retry)
+          if err.statusCode in [400, 404, 409] and err.requestOptions?.method is 'PUT'
+            @getLatestLocalDraft().then (draft) =>
+              @detatchFromRemoteID(draft).then ->
+                return Promise.resolve(Task.Status.Retry)
 
-          if err.statusCode in NylasAPI.PermanentErrorCodes
+          else if err.statusCode in NylasAPI.PermanentErrorCodes
             return Promise.resolve(Task.Status.Finished)
 
-          return Promise.resolve(Task.Status.Retry)
+          else
+            return Promise.resolve(Task.Status.Finished)
 
   getLatestLocalDraft: =>
     DatabaseStore.findBy(Message, clientId: @draftClientId).include(Message.attributes.body)
