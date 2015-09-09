@@ -333,7 +333,14 @@ class Application
 
     ipc.on 'inline-style-parse', (event, {body, clientId}) =>
       juice = require 'juice'
-      body = juice(body)
+      try
+        body = juice(body)
+      catch
+        # If the juicer fails (because of malformed CSS or some other
+        # reason), then just return the body. We will still push it
+        # through the HTML sanitizer which will strip the style tags. Oh
+        # well.
+        body = body
       # win = BrowserWindow.fromWebContents(event.sender)
       event.sender.send('inline-styles-result', {body, clientId})
 
