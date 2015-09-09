@@ -50,6 +50,7 @@ class DraftStore
     @listenTo Actions.composeReply, @_onComposeReply
     @listenTo Actions.composeForward, @_onComposeForward
     @listenTo Actions.composeReplyAll, @_onComposeReplyAll
+    @listenTo Actions.sendDraftSuccess, => @trigger()
     @listenTo Actions.composePopoutDraft, @_onPopoutDraftClientId
     @listenTo Actions.composeNewBlankDraft, @_onPopoutBlankDraft
     @listenTo Actions.draftSendingFailed, @_onDraftSendingFailed
