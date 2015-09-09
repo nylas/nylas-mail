@@ -1,3 +1,4 @@
+NylasStore = require 'nylas-store'
 Reflux = require 'reflux'
 _ = require 'underscore'
 {Message,
@@ -8,9 +9,8 @@ _ = require 'underscore'
  DestroyDraftTask,
  DatabaseView} = require 'nylas-exports'
 
-module.exports =
-DraftListStore = Reflux.createStore
-  init: ->
+class DraftListStore extends NylasStore
+  constructor: ->
     @listenTo DatabaseStore, @_onDataChanged
     @listenTo AccountStore, @_onAccountChanged
     @listenTo Actions.deleteSelection, @_onDeleteSelection
@@ -21,10 +21,10 @@ DraftListStore = Reflux.createStore
     @listenTo Actions.sendDraftSuccess, => @_view.invalidate()
     @_createView()
 
-  view: ->
+  view: =>
     @_view
 
-  _createView: ->
+  _createView: =>
     account = AccountStore.current()
 
     if @unlisten
@@ -43,19 +43,21 @@ DraftListStore = Reflux.createStore
 
     @unlisten = @_view.listen => @trigger({})
 
-  _onAccountChanged: ->
+  _onAccountChanged: =>
     @_createView()
 
-  _onDataChanged: (change) ->
+  _onDataChanged: (change) =>
     return unless change.objectClass is Message.name
     containsDraft = _.some(change.objects, (msg) -> msg.draft)
-    return unless containsDraft
+    return unless containsDraft and @_view
     @_view.invalidate()
 
-  _onDeleteSelection: ->
+  _onDeleteSelection: =>
     selected = @_view.selection.items()
 
     for item in selected
       Actions.queueTask(new DestroyDraftTask(draftClientId: item.clientId))
 
     @_view.selection.clear()
+
+module.exports = new DraftListStore()
