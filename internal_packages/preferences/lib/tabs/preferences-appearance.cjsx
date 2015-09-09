@@ -47,14 +47,6 @@ class PreferencesAppearance extends React.Component
                    />
             <label htmlFor="dark">Use dark color scheme</label>
           </div>
-
-          <div className="section-header">
-            Set font size:
-            <select>
-              <option>12</option>
-            </select>
-            Points
-          </div>
         </div>
       </div>
     </div>
