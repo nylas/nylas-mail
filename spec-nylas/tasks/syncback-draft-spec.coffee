@@ -16,13 +16,6 @@ inboxError =
   message: "No draft with public id bvn4aydxuyqlbmzowh4wraysg",
   type: "invalid_request_error"
 
-testError = (opts) ->
-  new APIError
-    error:null
-    response:{statusCode: 404}
-    body:inboxError
-    requestOptions: opts
-
 testData =
   to: [new Contact(name: "Ben Gotow", email: "ben@nylas.com")]
   from: [new Contact(name: "Evan Morikawa", email: "evan@nylas.com")]
@@ -98,7 +91,64 @@ describe "SyncbackDraftTask", ->
           options = NylasAPI.makeRequest.mostRecentCall.args[0]
           expect(options.returnsModel).toBe(false)
 
-  describe "When the api throws a 404 error", ->
-    beforeEach ->
+  describe "When the api throws errors", ->
+    stubAPI = (code, method) ->
       spyOn(NylasAPI, "makeRequest").andCallFake (opts) ->
-        Promise.reject(testError(opts))
+        Promise.reject(
+          new APIError
+            error: inboxError
+            response:{statusCode: code}
+            body: inboxError
+            requestOptions: method: method
+        )
+    describe 'when PUT-ing', ->
+      beforeEach ->
+        @task = new SyncbackDraftTask("removeDraftId")
+        spyOn(@task, "getLatestLocalDraft").andCallFake -> Promise.resolve(remoteDraft())
+        spyOn(@task, "detatchFromRemoteID").andCallFake -> Promise.resolve(remoteDraft())
+
+      [400, 404, 409].forEach (code) ->
+        it "Retries on #{code} errors when we're PUT-ing", ->
+          stubAPI(code, "PUT")
+          waitsForPromise =>
+            @task.performRemote().then (status) =>
+              expect(@task.getLatestLocalDraft).toHaveBeenCalled()
+              expect(@task.getLatestLocalDraft.calls.length).toBe 2
+              expect(@task.detatchFromRemoteID).toHaveBeenCalled()
+              expect(@task.detatchFromRemoteID.calls.length).toBe 1
+              expect(status).toBe Task.Status.Retry
+
+      [500, 0].forEach (code) ->
+        it "Aborts on #{code} errors when we're PUT-ing", ->
+          stubAPI(code, "PUT")
+          waitsForPromise =>
+            @task.performRemote().then (status) =>
+              expect(@task.getLatestLocalDraft).toHaveBeenCalled()
+              expect(@task.getLatestLocalDraft.calls.length).toBe 1
+              expect(@task.detatchFromRemoteID).not.toHaveBeenCalled()
+              expect(status).toBe Task.Status.Finished
+
+    describe 'when POST-ing', ->
+      beforeEach ->
+        @task = new SyncbackDraftTask("removeDraftId")
+        spyOn(@task, "getLatestLocalDraft").andCallFake -> Promise.resolve(localDraft())
+        spyOn(@task, "detatchFromRemoteID").andCallFake -> Promise.resolve(localDraft())
+
+      [400, 404, 409, 500, 0].forEach (code) ->
+        it "Aborts on #{code} errors when we're POST-ing", ->
+          stubAPI(code, "POST")
+          waitsForPromise =>
+            @task.performRemote().then (status) =>
+              expect(@task.getLatestLocalDraft).toHaveBeenCalled()
+              expect(@task.getLatestLocalDraft.calls.length).toBe 1
+              expect(@task.detatchFromRemoteID).not.toHaveBeenCalled()
+              expect(status).toBe Task.Status.Finished
+
+      it "Aborts on unknown errors", ->
+        spyOn(NylasAPI, "makeRequest").andCallFake -> Promise.reject(new APIError())
+        waitsForPromise =>
+          @task.performRemote().then (status) =>
+            expect(@task.getLatestLocalDraft).toHaveBeenCalled()
+            expect(@task.getLatestLocalDraft.calls.length).toBe 1
+            expect(@task.detatchFromRemoteID).not.toHaveBeenCalled()
+            expect(status).toBe Task.Status.Finished
