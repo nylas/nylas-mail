@@ -55,8 +55,8 @@ class DraftStore
     @listenTo Actions.composeNewBlankDraft, @_onPopoutBlankDraft
     @listenTo Actions.draftSendingFailed, @_onDraftSendingFailed
 
-    atom.commands.add 'body',
-      'application:new-message': => @_onPopoutBlankDraft()
+    if atom.isMainWindow()
+      ipc.on 'new-message', => @_onPopoutBlankDraft()
 
     # Remember that these two actions only fire in the current window and
     # are picked up by the instance of the DraftStore in the current
@@ -91,7 +91,6 @@ class DraftStore
     @_draftsSending = {}
 
     ipc.on 'mailto', @_onHandleMailtoLink
-
 
     ipc.on 'inline-styles-result', @_onInlineStylesResult
 

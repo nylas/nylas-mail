@@ -202,7 +202,7 @@ class Atom extends Model
       # up into the browser process. This prevents us from needing this crap, which has to be
       # updated every time a new application: command is added:
       # https://github.com/atom/atom/blob/master/src/workspace-element.coffee#L119
-      if event.binding.command.indexOf('application:') is 0 and event.binding.selector is "body"
+      if event.binding.command.indexOf('application:') is 0 and event.binding.selector.indexOf("body") is 0
         ipc.send('command', event.binding.command)
 
     unless @inSpecMode()

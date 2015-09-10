@@ -254,6 +254,7 @@ class Application
       atomWindow ?= @windowManager.focusedWindow()
       atomWindow?.browserWindow.inspectElement(x, y)
 
+    @on 'application:new-message', => @windowManager.sendToMainWindow('new-message')
     @on 'application:send-feedback', => @windowManager.sendToMainWindow('send-feedback')
     @on 'application:open-preferences', => @windowManager.sendToMainWindow('open-preferences')
     @on 'application:show-main-window', => @openWindowsForTokenState()
