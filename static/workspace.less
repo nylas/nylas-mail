@@ -122,12 +122,6 @@ atom-workspace {
   }
 }
 
-body.platform-win32, body.platform-linux {
-  .toolbar-window-controls {
-    display:none;
-  }
-}
-
 body.is-blurred {
   .toolbar-window-controls {
     button {
@@ -312,11 +306,37 @@ body.is-blurred {
   }
 }
 
+
+// WINDOWS
+
 body.platform-win32 {
   .flexbox-handle-vertical {
     cursor:ns-resize;
   }
   .flexbox-handle-horizontal {
     cursor:ew-resize;
+  }
+
+  .toolbar-window-controls {
+    display:none;
+  }
+
+  .sheet-toolbar-container {
+    background-image: none;
+    background: @background-primary;
+  }
+}
+body.platform-win32.is-blurred {
+  .sheet-toolbar-container {
+    background-image: none;
+    background: @background-primary;
+  }
+}
+
+// LINUX
+
+body.platform-linux {
+  .toolbar-window-controls {
+    display:none;
   }
 }
