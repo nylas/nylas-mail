@@ -1,4 +1,5 @@
 _ = require 'underscore'
+_s = require 'underscore.string'
 
 DOMUtils =
 
@@ -84,6 +85,29 @@ DOMUtils =
     nodes = []
     nodes.unshift(node) while node = node.parentNode
     return nodes
+
+  # This method finds the bounding points of the word that the range
+  # is currently within and selects that word.
+  selectWordContainingRange: (range) ->
+    selection = document.getSelection()
+    node = selection.focusNode
+    text = node.textContent
+    wordStart = _s.reverse(text.substring(0, selection.focusOffset)).search(/\s/)
+    if wordStart is -1
+      wordStart = 0
+    else
+      wordStart = selection.focusOffset - wordStart
+    wordEnd = text.substring(selection.focusOffset).search(/\s/)
+    if wordEnd is -1
+      wordEnd = text.length
+    else
+      wordEnd += selection.focusOffset
+
+    selection.removeAllRanges()
+    range = new Range()
+    range.setStart(node, wordStart)
+    range.setEnd(node, wordEnd)
+    selection.addRange(range)
 
   commonAncestor: (nodes=[]) ->
     nodes = Array::slice.call(nodes)
