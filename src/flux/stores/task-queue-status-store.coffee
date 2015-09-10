@@ -11,7 +11,8 @@ class TaskQueueStatusStore extends NylasStore
 
   constructor: ->
     @_queue = []
-    @_waiting = []
+    @_waitingLocals = []
+    @_waitingRemotes = []
     @listenTo DatabaseStore, @_onChange
 
     DatabaseStore.findJSONObject(TaskQueue.JSONObjectStorageKey).then (json) =>
@@ -21,9 +22,15 @@ class TaskQueueStatusStore extends NylasStore
   _onChange: (change) =>
     if change.objectClass is 'JSONObject' and change.objects[0].key is 'task-queue'
       @_queue = change.objects[0].json
-      @_waiting = @_waiting.filter ({taskId, resolve}) =>
+      @_waitingLocals = @_waitingLocals.filter ({taskId, resolve}) =>
         task = _.findWhere(@_queue, {id: taskId})
         if not task or task.queueState.localComplete
+          resolve()
+          return false
+        return true
+      @_waitingRemotes = @_waitingRemotes.filter ({taskId, resolve}) =>
+        task = _.findWhere(@_queue, {id: taskId})
+        if not task
           resolve()
           return false
         return true
@@ -34,6 +41,10 @@ class TaskQueueStatusStore extends NylasStore
 
   waitForPerformLocal: (task) ->
     new Promise (resolve, reject) =>
-      @_waiting.push({taskId: task.id, resolve: resolve})
+      @_waitingLocals.push({taskId: task.id, resolve: resolve})
+
+  waitForPerformRemote: (task) ->
+    new Promise (resolve, reject) =>
+      @_waitingRemotes.push({taskId: task.id, resolve: resolve})
 
 module.exports = new TaskQueueStatusStore()

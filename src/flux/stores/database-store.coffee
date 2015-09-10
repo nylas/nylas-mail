@@ -17,7 +17,7 @@ PriorityUICoordinator = require '../../priority-ui-coordinator'
  serializeRegisteredObjects,
  deserializeRegisteredObjects} = require '../models/utils'
 
-DatabaseVersion = 14
+DatabaseVersion = 15
 
 DatabasePhase =
   Setup: 'setup'
@@ -344,9 +344,13 @@ class DatabaseStore extends NylasStore
       return Promise.resolve([])
 
     ids = []
+    clientIds = []
     for item in arr
       if item instanceof klass
-        continue
+        if not item.serverId
+          clientIds.push(item.clientId)
+        else
+          continue
       else if _.isString(item)
         ids.push(item)
       else
@@ -355,9 +359,20 @@ class DatabaseStore extends NylasStore
     if ids.length is 0
       return Promise.resolve(arr)
 
-    @findAll(klass).where(klass.attributes.id.in(ids)).then (models) =>
+    whereId = =>
+      klass.attributes.id.in(ids)
+
+    whereClientId = =>
+      klass.attributes.clientId.in(clientIds)
+
+    queries = {}
+    queries.modelsFromIds = @findAll(klass).where(whereId) if ids.length
+    queries.modelsFromClientIds = @findAll(klass).where(whereClientId) if clientIds.length
+
+    Promise.props(queries).then ({modelsFromIds, modelsFromClientIds}) =>
       modelsById = {}
-      modelsById[model.id] = model for model in models
+      modelsById[model.id] = model for model in modelsFromIds
+      modelsById[model.id] = model for model in modelsFromClientIds
 
       arr = arr.map (item) ->
         if item instanceof klass

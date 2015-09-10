@@ -84,6 +84,7 @@ class NylasExports
   @require "DestroyDraftTask", 'flux/tasks/destroy-draft'
   @require "ChangeLabelsTask", 'flux/tasks/change-labels-task'
   @require "ChangeFolderTask", 'flux/tasks/change-folder-task'
+  @require "SyncbackCategoryTask", 'flux/tasks/syncback-category-task'
   @require "ChangeUnreadTask", 'flux/tasks/change-unread-task'
   @require "SyncbackDraftTask", 'flux/tasks/syncback-draft'
   @require "ChangeStarredTask", 'flux/tasks/change-starred-task'

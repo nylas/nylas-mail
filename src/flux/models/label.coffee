@@ -43,6 +43,7 @@ class Label extends Category
 
   @additionalSQLiteConfig:
     setup: ->
-      ['CREATE INDEX IF NOT EXISTS LabelNameIndex ON Label(account_id,name)']
+      ['CREATE INDEX IF NOT EXISTS LabelNameIndex ON Label(account_id,name)',
+       'CREATE UNIQUE INDEX IF NOT EXISTS LabelClientIndex ON Label(client_id)']
 
 module.exports = Label

@@ -44,6 +44,7 @@ class Folder extends Category
 
   @additionalSQLiteConfig:
     setup: ->
-      ['CREATE INDEX IF NOT EXISTS FolderNameIndex ON Folder(account_id,name)']
+      ['CREATE INDEX IF NOT EXISTS FolderNameIndex ON Folder(account_id,name)',
+       'CREATE UNIQUE INDEX IF NOT EXISTS FolderClientIndex ON Folder(client_id)']
 
 module.exports = Folder

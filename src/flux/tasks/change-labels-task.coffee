@@ -5,6 +5,7 @@ Thread = require '../models/thread'
 Message = require '../models/message'
 DatabaseStore = require '../stores/database-store'
 ChangeMailTask = require './change-mail-task'
+SyncbackCategoryTask = require './syncback-category-task'
 
 # Public: Create a new task to apply labels to a message or thread.
 #
@@ -31,6 +32,8 @@ class ChangeLabelsTask extends ChangeMailTask
     if @labelsToAdd.length is 0 and @labelsToRemove.length is 1 and @labelsToRemove[0] instanceof Label
       return "Removed #{@labelsToRemove[0].displayName} from #{@threads.length} #{type}"
     return "Changed labels on #{@threads.length} #{type}"
+
+  shouldWaitForTask: (other) -> other instanceof SyncbackCategoryTask
 
   performLocal: ->
     if @labelsToAdd.length is 0 and @labelsToRemove.length is 0
