@@ -5,6 +5,7 @@ Thread = require '../models/thread'
 Message = require '../models/message'
 DatabaseStore = require '../stores/database-store'
 ChangeMailTask = require './change-mail-task'
+SyncbackCategoryTask = require './syncback-category-task'
 
 # Public: Create a new task to apply labels to a message or thread.
 #
@@ -39,6 +40,8 @@ class ChangeFolderTask extends ChangeMailTask
       return "Moved 1 message#{folderText}"
     else
       return "Moved objects#{folderText}"
+
+  shouldWaitForTask: (other) -> other instanceof SyncbackCategoryTask
 
   performLocal: ->
     if not @folder

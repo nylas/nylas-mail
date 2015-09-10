@@ -2,14 +2,19 @@ _ = require 'underscore'
 React = require 'react'
 
 {Utils,
+ Label,
+ Folder,
  Thread,
  Actions,
  TaskQueue,
- CategoryStore,
  AccountStore,
+ CategoryStore,
+ DatabaseStore,
  WorkspaceStore,
  ChangeLabelsTask,
  ChangeFolderTask,
+ SyncbackCategoryTask,
+ TaskQueueStatusStore,
  FocusedMailViewStore} = require 'nylas-exports'
 
 {Menu,
@@ -106,7 +111,10 @@ class CategoryPicker extends React.Component
 
   _renderItemContent: (item) =>
     if item.divider
-      return <Menu.Item divider={item.divider} />
+      return <Menu.Item key={item.id} divider={item.divider} />
+    else if item.newCategoryItem
+      return @_renderCreateNewItem(item)
+
     if @_account?.usesLabels()
       icon = @_renderCheckbox(item)
     else if @_account?.usesFolders()
@@ -117,6 +125,21 @@ class CategoryPicker extends React.Component
       {icon}
       <div className="category-display-name">
         {@_renderBoldedSearchResults(item)}
+      </div>
+    </div>
+
+  _renderCreateNewItem: ({searchValue, name}) =>
+    if @_account?.usesLabels()
+      picName = "tag"
+    else if @_account?.usesFolders()
+      picName = "folder"
+
+    <div className="category-item category-create-new">
+      <RetinaImg className={"category-create-new-#{picName}"}
+                 name={"#{picName}.png"}
+                 mode={RetinaImg.Mode.ContentIsMask} />
+      <div className="category-display-name">
+        <strong>&ldquo;{searchValue}&rdquo;</strong> (create new)
       </div>
     </div>
 
@@ -176,24 +199,64 @@ class CategoryPicker extends React.Component
     @refs.menu.setSelectedItem(null)
 
     if @_account.usesLabels()
-      if item.usage > 0
+      if item.newCategoryItem
+        cat = new Label
+          displayName: @state.searchValue,
+          accountId: AccountStore.current().id
+        task = new SyncbackCategoryTask
+          category: cat
+          organizationUnit: "label"
+
+        TaskQueueStatusStore.waitForPerformRemote(task).then =>
+          DatabaseStore.findBy Label, clientId: cat.clientId
+        .then (cat) =>
+          changeLabelsTask = new ChangeLabelsTask
+            labelsToAdd: [cat]
+            threads: @_threads()
+          Actions.queueTask(changeLabelsTask)
+
+        Actions.queueTask(task)
+      else if item.usage > 0
         task = new ChangeLabelsTask
           labelsToRemove: [item.category]
           threads: @_threads()
+        Actions.queueTask(task)
       else
         task = new ChangeLabelsTask
           labelsToAdd: [item.category]
           threads: @_threads()
-      Actions.queueTask(task)
+        Actions.queueTask(task)
 
     else if @_account.usesFolders()
-      task = new ChangeFolderTask
-        folder: item.category
-        threads: @_threads()
-      if @props.thread
-        Actions.moveThread(@props.thread, task)
-      else if @props.items
-        Actions.moveThreads(@_threads(), task)
+      if item.newCategoryItem?
+        cat = new Folder
+          displayName: @state?.searchValue,
+          accountId: AccountStore.current().id
+        task = new SyncbackCategoryTask
+          category: cat
+          organizationUnit: "folder"
+
+        TaskQueueStatusStore.waitForPerformRemote(task).then =>
+          DatabaseStore.findBy Folder, clientId: cat.clientId
+        .then (cat) =>
+          return if not cat?.serverId
+
+          changeFolderTask = new ChangeFolderTask
+            folder: cat
+            threads: @_threads()
+          if @props.thread
+            Actions.moveThread(@props.thread, changeFolderTask)
+          else if @props.items
+            Actions.moveThreads(@_threads(), changeFolderTask)
+        Actions.queueTask(task)
+      else
+        task = new ChangeFolderTask
+          folder: item.category
+          threads: @_threads()
+        if @props.thread
+          Actions.moveThread(@props.thread, task)
+        else if @props.items
+          Actions.moveThreads(@_threads(), task)
 
     else
       throw new Error("Invalid organizationUnit")
@@ -222,8 +285,8 @@ class CategoryPicker extends React.Component
     @_account = AccountStore.current()
     return unless @_account
 
-    categories = [].concat(CategoryStore.getStandardCategories())
-      .concat([{divider: true}])
+    categories = CategoryStore.getStandardCategories()
+      .concat([{divider: true, id: "category-divider"}])
       .concat(CategoryStore.getUserCategories())
 
     usageCount = @_categoryUsageCount(props, categories)
@@ -237,6 +300,13 @@ class CategoryPicker extends React.Component
       .filter(_.partial(@_isInSearch, searchValue))
       .map(_.partial(@_itemForCategory, displayData))
       .value()
+
+    if searchValue.length > 0
+      newItemData =
+        searchValue: searchValue
+        newCategoryItem: true
+        id: "category-create-new"
+      categoryData.push(newItemData)
 
     return {categoryData, searchValue}
 
