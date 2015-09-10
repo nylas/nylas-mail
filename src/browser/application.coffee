@@ -238,7 +238,7 @@ class Application
         defaultPath: configDirPath,
         properties: ['openDirectory']
       }, (filenames) =>
-        return if filenames.length is 0
+        return if not filenames or filenames.length is 0
         @runSpecs
           exitWhenDone: false
           resourcePath: @resourcePath
