@@ -50,6 +50,7 @@ class Scrollbar extends React.Component
   _recomputeDimensions: ({avoidForcingLayout}) =>
     if not avoidForcingLayout
       trackNode = React.findDOMNode(@refs.track)
+      return unless trackNode
       trackHeight = trackNode.clientHeight
       if trackHeight isnt @state.trackHeight
         @setState({trackHeight})
@@ -282,8 +283,9 @@ class ScrollRegion extends React.Component
 
   _recomputeDimensions: ({avoidForcingLayout}) =>
     return unless @refs.content
-
     contentNode = React.findDOMNode(@refs.content)
+    return unless contentNode
+
     viewportScrollTop = contentNode.scrollTop
 
     # While we're scrolling, calls to contentNode.scrollHeight / clientHeight
