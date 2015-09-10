@@ -2,7 +2,7 @@ _ = require 'underscore'
 React = require 'react'
 classNames = require 'classnames'
 sanitizeHtml = require 'sanitize-html'
-{Utils, QuotedHTMLParser, DraftStore} = require 'nylas-exports'
+{DOMUtils, Utils, QuotedHTMLParser, DraftStore} = require 'nylas-exports'
 FloatingToolbar = require './floating-toolbar'
 
 linkUUID = 0
@@ -627,6 +627,13 @@ class ContenteditableComponent extends React.Component
 
     selection = document.getSelection()
     range = selection.getRangeAt(0)
+
+    # On Windows, right-clicking a word does not select it at the OS-level.
+    # We need to implement this behavior locally for the rest of the logic here.
+    if range.collapsed
+      DOMUtils.selectWordContainingRange(range)
+      range = selection.getRangeAt(0)
+
     text = range.toString()
 
     remote = require('remote')
