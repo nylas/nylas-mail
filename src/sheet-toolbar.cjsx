@@ -2,6 +2,7 @@ React = require 'react/addons'
 Sheet = require './sheet'
 Flexbox = require './components/flexbox'
 RetinaImg = require './components/retina-img'
+Utils = require './flux/models/utils'
 TimeoutTransitionGroup = require './components/timeout-transition-group'
 _str = require 'underscore.string'
 _ = require 'underscore'
@@ -78,8 +79,26 @@ class ToolbarWindowControls extends React.Component
       <button className="maximize" onClick={ -> atom.maximize()}></button>
     </div>
 
+class ToolbarMenuControl extends React.Component
+  @displayName: 'ToolbarMenuControl'
+  render: =>
+    <div className="toolbar-menu-control">
+      <div className="btn btn-toolbar" onClick={@_openMenu}>
+        <RetinaImg name="windows-menu-icon.png" mode={RetinaImg.Mode.ContentIsMask} />
+      </div>
+    </div>
+
+  _openMenu: =>
+    applicationMenu = require('remote').getGlobal('application').applicationMenu
+    activeTemplate = Utils.deepClone(applicationMenu.activeTemplate)
+    menu = require('remote').require('menu').buildFromTemplate(activeTemplate)
+    menu.popup(atom.getCurrentWindow())
+
 ComponentRegistry.register ToolbarWindowControls,
   location: WorkspaceStore.Sheet.Global.Toolbar.Left
+
+ComponentRegistry.register ToolbarMenuControl,
+  location: WorkspaceStore.Sheet.Global.Toolbar.Right
 
 class Toolbar extends React.Component
   @displayName: 'Toolbar'
