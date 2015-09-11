@@ -36,6 +36,7 @@ class Tooltip extends React.Component
     clearTimeout @_showTimeout
     clearTimeout @_showDelayTimeout
     @_mutationObserver?.disconnect()
+    @_enteredTooltip = false
 
   render: =>
     <div className="tooltip-wrap #{@state.pos}" style={@_positionStyles()}>
@@ -56,15 +57,16 @@ class Tooltip extends React.Component
     if elWithTooltip and DOMUtils.nodeIsVisible(elWithTooltip)
       if elWithTooltip isnt @_lastTarget
         @_onTooltipEnter(elWithTooltip)
-    else
-      @_hideTooltip() if @state.display
+    else if @state.display
+      @_hideTooltip()
 
   onMouseOut: (e) =>
     if @_elementWithTooltip(e.fromElement) and not @_elementWithTooltip(e.toElement)
       @_onTooltipLeave()
 
   onMouseDown: (e) =>
-    if @state.display then @_hideTooltip()
+    if @state.display
+      @_hideTooltip()
 
   _elementWithTooltip: (target) =>
     while target
@@ -75,7 +77,7 @@ class Tooltip extends React.Component
   _onTooltipEnter: (target) =>
     # https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
     @_mutationObserver?.disconnect()
-    @_mutationObserver = new MutationObserver @_onTooltipLeave
+    @_mutationObserver = new MutationObserver(@_onTooltipLeave)
     @_mutationObserver.observe(target.parentNode, attributes: true, subtree: true, childList: true)
 
     @_lastTarget = target
