@@ -118,10 +118,11 @@ class WindowEventHandler
   # `.override-key-bindings` class.
   handleNativeKeybindings: ->
     menu = null
+    webContents = atom.getCurrentWindow().webContents
     bindCommandToAction = (command, action) =>
       @subscribe $(document), command, (event) ->
         unless event.target.webkitMatchesSelector('.override-key-bindings')
-          atom.getCurrentWindow().webContents[action]()
+          webContents[action]()
         true
 
     bindCommandToAction('core:copy', 'copy')

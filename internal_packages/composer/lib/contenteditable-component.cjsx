@@ -79,6 +79,10 @@ class ContenteditableComponent extends React.Component
     @_setupLinkHoverListeners()
     @_restoreSelection()
 
+    editableNode = @_editableNode()
+    for extension in DraftStore.extensions()
+      extension.onComponentDidUpdate(editableNode) if extension.onComponentDidUpdate
+
   render: =>
     <div className="contenteditable-container">
       <FloatingToolbar ref="floatingToolbar"
@@ -147,7 +151,8 @@ class ContenteditableComponent extends React.Component
 
     @_runCoreFilters()
 
-    @_runExtensionFilters()
+    for extension in DraftStore.extensions()
+      extension.onInput(@_editableNode(), event) if extension.onInput
 
     @_prepareForReactContenteditable()
 
@@ -234,14 +239,10 @@ class ContenteditableComponent extends React.Component
       return selection.anchorNode?.textContent
     else return null
 
-  _runExtensionFilters: ->
-    for extension in DraftStore.extensions()
-      extension.onInput(@_editableNode(), event) if extension.onInput
-
   # This component works by re-rendering on every change and restoring the
   # selection. This is also how standard React controlled inputs work too.
   #
-  # Since the contets of the contenteditable are complex, nested DOM
+  # Since the contents of the contenteditable are complex, nested DOM
   # structures, a simple replacement of the DOM is not easy. There are a
   # variety of edge cases that we need to correct for and prepare both the
   # HTML and the selection to be serialized without error.

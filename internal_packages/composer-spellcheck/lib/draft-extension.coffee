@@ -10,28 +10,13 @@ class SpellcheckDraftStoreExtension extends DraftStoreExtension
     SpellcheckCache[word] ?= @spellchecker.isMisspelled(word)
     SpellcheckCache[word]
 
-  @ensureSetup: ->
-    @walkTreeNodes ?= []
-    @walkTreesDebounced ?= _.debounce(@walkTrees, 200)
-
-  @onInput: (editableNode, event) ->
-    @ensureSetup()
-    @walkTreeNodes.push(editableNode)
-    @walkTreesDebounced()
+  @onComponentDidUpdate: (editableNode) ->
+    @walkTree(editableNode)
 
   @onLearnSpelling: (editableNode, word) ->
     delete SpellcheckCache[word]
     @ensureSetup()
-    @walkTreeNodes.push(editableNode)
-    @walkTreesDebounced()
-
-  @onSubstitutionPerformed: (editableNode) ->
-    @ensureSetup()
-    @walkTreeNodes.push(editableNode)
-    @walkTreesDebounced()
-
-  @walkTrees: (nodes) =>
-    _.each(_.uniq(@walkTreeNodes), @walkTree)
+    @walkTree(editableNode)
 
   @walkTree: (editableNode) =>
     treeWalker = document.createTreeWalker(editableNode, NodeFilter.SHOW_TEXT)
@@ -66,6 +51,11 @@ class SpellcheckDraftStoreExtension extends DraftStoreExtension
         markedAsMisspelled = spellingSpan?.classList.contains('misspelled')
 
         if misspelled and not markedAsMisspelled
+          # The insertion point is currently at the end of this misspelled word.
+          # Do not mark it until the user types a space or leaves.
+          if selectionSnapshot.focusNode is node and selectionSnapshot.focusOffset is match.index + match[0].length
+            continue
+          
           if spellingSpan
             spellingSpan.classList.add('misspelled')
           else
