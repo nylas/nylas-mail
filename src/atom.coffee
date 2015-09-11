@@ -641,6 +641,7 @@ class Atom extends Model
         @requireUserInitScript() unless safeMode
         @menu.update()
 
+
         @commands.add 'atom-workspace',
           'atom-workspace:add-account': =>
             @newWindow
@@ -687,9 +688,6 @@ class Atom extends Model
     @setWindowDimensions({width, height}) if width and height
 
     @menu.update()
-    @subscribe @config.onDidChange 'core.autoHideMenuBar', ({newValue}) =>
-      @setAutoHideMenuBar(newValue)
-    @setAutoHideMenuBar(true) if @config.get('core.autoHideMenuBar')
 
     ipc.sendChannel('window-command', 'window:loaded')
 
@@ -902,10 +900,6 @@ class Atom extends Model
 
   updateAvailable: (details) ->
     @emitter.emit 'update-available', details
-
-  setAutoHideMenuBar: (autoHide) ->
-    ipc.send('call-window-method', 'setAutoHideMenuBar', autoHide)
-    ipc.send('call-window-method', 'setMenuBarVisibility', !autoHide)
 
   # Lets multiple components register beforeUnload callbacks.
   # The callbacks are expected to return either true or false.

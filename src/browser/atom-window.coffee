@@ -24,7 +24,6 @@ class AtomWindow
      toolbar,
      resizable,
      pathToOpen,
-     hideMenuBar,
      @isSpec,
      @devMode,
      @safeMode,
@@ -57,7 +56,6 @@ class AtomWindow
       height: height
       resizable: resizable ? true
       icon: @constructor.iconPath
-      'auto-hide-menu-bar': hideMenuBar
       'web-preferences':
         'direct-write': true
         'subpixel-font-scaling': true
