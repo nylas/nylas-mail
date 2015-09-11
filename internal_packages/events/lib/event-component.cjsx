@@ -53,7 +53,7 @@ class EventComponent extends React.Component
           </div>
           <div>
             <div className="event-time">
-              {moment(@state.when['start_time']*1000).tz(Utils.timeZone).format("H:mm a z")}
+              {moment(@state.when['start_time']*1000).tz(Utils.timeZone).format("h:mm a z")}
             </div>
             {@_renderEventActions()}
           </div>
