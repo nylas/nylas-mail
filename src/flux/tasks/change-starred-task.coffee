@@ -10,6 +10,12 @@ class ChangeStarredTask extends ChangeMailTask
   constructor: ({@starred}={}) ->
     super
 
+  label: ->
+    if @starred
+      "Starring…"
+    else
+      "Unstarring…"
+
   description: ->
     count = @threads.length
     type = 'thread'

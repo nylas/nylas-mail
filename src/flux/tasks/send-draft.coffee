@@ -89,7 +89,8 @@ class SendDraftTask extends Task
         body.thread_id = null
         body.reply_to_message_id = null
         return @_send(body)
-      else if err.statusCode in NylasAPI.PermanentErrorCodes
+      else if (err.statusCode in NylasAPI.PermanentErrorCodes or
+               err.statusCode is NylasAPI.TimeoutErrorCode)
         @_permanentError()
       else
         return Promise.resolve(Task.Status.Retry)

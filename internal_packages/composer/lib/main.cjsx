@@ -20,8 +20,9 @@ class ComposerWithWindowProps extends React.Component
   componentDidMount: ->
     @unlisten = atom.onWindowPropsReceived (windowProps) =>
       {errorMessage} = windowProps
-      @_showInitialErrorDialog(errorMessage) if errorMessage
       @setState(windowProps)
+      if errorMessage
+        @_showInitialErrorDialog(errorMessage)
 
   componentWillUnmount: ->
     @unlisten()
