@@ -266,7 +266,6 @@ class WindowManager
     devMode: @devMode
     safeMode: @safeMode
     windowType: 'popout'
-    hideMenuBar: true
     resourcePath: @resourcePath
     bootstrapScript: require.resolve("../window-secondary-bootstrap")
 
