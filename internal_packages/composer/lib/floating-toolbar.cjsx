@@ -87,11 +87,12 @@ class FloatingToolbar extends React.Component
     <div className="toolbar-new-link"
          onMouseEnter={@_onMouseEnter}
          onMouseLeave={@_onMouseLeave}>
-      <i className="fa fa-link preview-btn-icon"></i>
+      <i className="fa fa-link preview-btn-icon" onClick={@_onPreventToolbarClose}></i>
       <input type="text"
              ref="urlInput"
              value={@state.urlInputValue}
              onBlur={@_saveUrl}
+             onClick={@_onPreventToolbarClose}
              onKeyPress={@_saveUrlOnEnter}
              onChange={@_onInputChange}
              className="floating-toolbar-input #{withRemove}"
@@ -101,6 +102,9 @@ class FloatingToolbar extends React.Component
               onMouseDown={@_saveUrl}><i className="fa fa-check"></i></button>
       {removeBtn}
     </div>
+
+  _onPreventToolbarClose: (event) =>
+    event.stopPropagation()
 
   _onMouseEnter: =>
     @isHovering = true
