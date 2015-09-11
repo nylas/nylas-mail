@@ -214,8 +214,11 @@ class Atom extends Model
     @styles = new StyleManager
     document.head.appendChild(new StylesElement)
     @themes = new ThemeManager({packageManager: @packages, configDirPath, resourcePath, safeMode})
-    @menu = new MenuManager({resourcePath})
     @clipboard = new Clipboard()
+
+    @menu = new MenuManager({resourcePath})
+    if process.platform is 'win32'
+      @getCurrentWindow().setMenuBarVisibility(false)
 
     # initialize spell checking
     require('web-frame').setSpellCheckProvider("en-US", false, {

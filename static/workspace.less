@@ -65,6 +65,10 @@ atom-workspace {
   opacity: 0;
 }
 
+.toolbar-menu-control {
+  display:none;
+}
+
 .toolbar-window-controls {
   margin-top:14px;
   margin-left:@spacing-half;
@@ -176,6 +180,10 @@ body.is-blurred {
     -webkit-app-region: drag;
   }
 
+  .item-compose {
+    order: 101;
+  }
+
   .item-container {
     .window-title {
       position: absolute;
@@ -207,6 +215,13 @@ body.is-blurred {
       vertical-align: middle;
       display:inline-block;
     }
+  }
+
+  .toolbar-menu-control {
+    order:10000;
+    padding-top: 5px;
+    .btn { margin-left: 0; }
+    img.content-mask { background-color: @text-color-heading; }
   }
 
   .btn-toolbar {
@@ -310,6 +325,16 @@ body.is-blurred {
 // WINDOWS
 
 body.platform-win32 {
+  &.window-type-default {
+    .toolbar-menu-control {
+      display:inherit;
+    }
+  }
+
+  .item-compose {
+    order: -101;
+  }
+
   .flexbox-handle-vertical {
     cursor:ns-resize;
   }
@@ -324,8 +349,14 @@ body.platform-win32 {
   .sheet-toolbar-container {
     background-image: none;
     background: @background-primary;
+    .btn-toolbar {
+      border: 0;
+      box-shadow: none;
+      background: none;
+    }
   }
 }
+
 body.platform-win32.is-blurred {
   .sheet-toolbar-container {
     background-image: none;
@@ -339,4 +370,8 @@ body.platform-linux {
   .toolbar-window-controls {
     display:none;
   }
+  .item-compose {
+    order: -101;
+  }
+
 }

@@ -6,8 +6,7 @@ class ComposeButton extends React.Component
   @displayName: 'ComposeButton'
 
   render: =>
-    <button style={order: 101}
-            className="btn btn-toolbar"
+    <button className="btn btn-toolbar item-compose"
             data-tooltip="Compose new message"
             onClick={@_onNewCompose}>
       <RetinaImg name="toolbar-compose.png" mode={RetinaImg.Mode.ContentIsMask}/>

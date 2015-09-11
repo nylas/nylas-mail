@@ -1,19 +1,7 @@
 'menu': [
-  {
-    label: '&File'
-    submenu: [
-      { label: '&New Message', command: 'application:new-message' }
-      { type: 'separator' }
-      { label: 'Link External Account', command: 'atom-workspace:add-account' }
-      { label: 'Clos&e Window', command: 'window:close' }
-      { type: 'separator' }
-      { label: 'Preferences', command: 'application:open-preferences' }
-      { label: 'Log Out', command: 'application:logout' }
-      { type: 'separator' }
-      { label: 'E&xit', command: 'application:quit' }
-    ]
-  }
-
+  { label: '&New Message', command: 'application:new-message' }
+  { type: 'separator' }
+  { label: 'Link External Account', command: 'atom-workspace:add-account' }
   {
     label: '&Edit'
     submenu: [
@@ -65,6 +53,11 @@
       { label: 'Send Feedback to Nylas', command: 'application:send-feedback' }
     ]
   }
+  { type: 'separator' }
+  { label: 'Preferences', command: 'application:open-preferences' }
+  { label: 'Log Out', command: 'application:logout' }
+  { type: 'separator' }
+  { label: 'E&xit', command: 'application:quit' }
 ]
 
 'context-menu':[
