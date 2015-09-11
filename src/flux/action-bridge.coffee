@@ -66,20 +66,28 @@ class ActionBridge
         Actions[name].listen(callback, @)
 
   onIPCMessage: (initiatorId, name, json) =>
-    console.debug(printToConsole, "ActionBridge: #{@initiatorId} Action Bridge Received: #{name}")
+    # There's something very strange about IPC event handlers. The ReactRemoteParent
+    # threw React exceptions when calling setState from an IPC callback, and the debugger
+    # often refuses to stop at breakpoints immediately inside IPC callbacks.
 
-    args = Utils.deserializeRegisteredObjects(json)
+    # These issues go away when you add a process.nextTick. So here's that.
+    # I believe this resolves issues like https://sentry.nylas.com/sentry/edgehill/group/2735/,
+    # which are React exceptions in a direct stack (no next ticks) from an IPC event.
+    process.nextTick =>
+      console.debug(printToConsole, "ActionBridge: #{@initiatorId} Action Bridge Received: #{name}")
 
-    if name == Message.DATABASE_STORE_TRIGGER
-      DatabaseStore.triggeringFromActionBridge = true
-      DatabaseStore.trigger(args...)
-      DatabaseStore.triggeringFromActionBridge = false
+      args = Utils.deserializeRegisteredObjects(json)
 
-    else if Actions[name]
-      Actions[name].firing = true
-      Actions[name](args...)
-    else
-      throw new Error("#{@initiatorId} received unknown action-bridge event: #{name}")
+      if name == Message.DATABASE_STORE_TRIGGER
+        DatabaseStore.triggeringFromActionBridge = true
+        DatabaseStore.trigger(args...)
+        DatabaseStore.triggeringFromActionBridge = false
+
+      else if Actions[name]
+        Actions[name].firing = true
+        Actions[name](args...)
+      else
+        throw new Error("#{@initiatorId} received unknown action-bridge event: #{name}")
 
   onRebroadcast: (target, name, args...) =>
     if Actions[name]?.firing
