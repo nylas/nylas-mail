@@ -50,7 +50,7 @@ jasmine.getEnv().addEqualityTester(_.isEqual) # Use underscore's definition of e
 if process.env.JANKY_SHA1 and process.platform is 'win32'
   jasmine.getEnv().defaultTimeoutInterval = 60000
 else
-  jasmine.getEnv().defaultTimeoutInterval = 500
+  jasmine.getEnv().defaultTimeoutInterval = 1000
 
 specPackageName = null
 specPackagePath = null
