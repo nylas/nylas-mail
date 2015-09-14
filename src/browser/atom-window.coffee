@@ -170,7 +170,7 @@ class AtomWindow
     @browserWindow.webContents.on 'crashed', =>
       global.application.exit(100) if @exitWhenDone
 
-      if @mainWindow
+      if @neverClose
         @browserWindow.restart()
       else
         dialog = require 'dialog'
