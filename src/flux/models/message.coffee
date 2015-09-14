@@ -3,6 +3,7 @@ moment = require 'moment'
 
 File = require './file'
 Label = require './label'
+Utils = require './utils'
 Folder = require './folder'
 Model = require './model'
 Event = require './event'
@@ -196,7 +197,8 @@ class Message extends Model
     return @
 
   canReplyAll: ->
-    @cc.length > 0 or @to.length > 1
+    {to, cc} = @participantsForReplyAll()
+    to.length > 1 or cc.length > 0
 
   # Public: Returns a set of uniqued message participants by combining the
   # `to`, `cc`, and `from` fields.
@@ -215,22 +217,27 @@ class Message extends Model
     to = []
     cc = []
 
+    excluded = @from.map (c) -> Utils.toEquivalentEmailForm(c.email)
+    excluded.push(Utils.toEquivalentEmailForm(AccountStore.current().emailAddress))
+
+    filterCc = (cc) ->
+      return _.filter cc, (p) ->
+        !_.contains(excluded, Utils.toEquivalentEmailForm(p.email))
+
     if @isFromMe()
       to = @to
-      cc = @cc
+      cc = filterCc(@cc)
     else
-      excluded = @from.map (c) -> c.email
-      excluded.push(AccountStore.current().emailAddress)
       if @replyTo.length
         to = @replyTo
       else
         to = @from
 
-      cc = [].concat(@cc, @to)
-      cc = _.filter cc, (p) -> !_.contains(excluded, p.email)
+      cc = [].concat(@to, @cc)
+      cc = filterCc(cc)
 
-    to = _.uniq to, (p) -> p.email.toLowerCase().trim()
-    cc = _.uniq cc, (p) -> p.email.toLowerCase().trim()
+    to = _.uniq to, (p) -> Utils.toEquivalentEmailForm(p.email)
+    cc = _.uniq cc, (p) -> Utils.toEquivalentEmailForm(p.email)
     {to, cc}
 
   # Public: Returns a hash with `to` and `cc` keys for authoring a new draft in
@@ -247,7 +254,7 @@ class Message extends Model
     else
       to = @from
 
-    to = _.uniq to, (p) -> p.email.toLowerCase().trim()
+    to = _.uniq to, (p) -> Utils.toEquivalentEmailForm(p.email)
     {to, cc}
 
   # Public: Returns an {Array} of {File} IDs

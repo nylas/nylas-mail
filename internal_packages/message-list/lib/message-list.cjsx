@@ -248,8 +248,11 @@ class MessageList extends React.Component
     lastMsg = _.last(_.filter((@state.messages ? []), (m) -> not m.draft))
     return 'reply' unless lastMsg
 
-    if lastMsg.canReplyAll() and defaultReplyType is 'reply-all'
-      return 'reply-all'
+    if lastMsg.canReplyAll()
+      if defaultReplyType is 'reply-all'
+        return 'reply-all'
+      else
+        return 'reply'
     else
       return 'reply'
 

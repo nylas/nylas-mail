@@ -1,4 +1,5 @@
 Model = require './model'
+Utils = require './utils'
 Attributes = require '../attributes'
 _ = require 'underscore'
 
@@ -81,7 +82,7 @@ class Contact extends Model
   # the account email, since it is case-insensitive and future-proof.
   isMe: ->
     AccountStore = require '../stores/account-store'
-    @email.toLowerCase() is AccountStore.current()?.emailAddress.toLowerCase()
+    Utils.emailIsEquivalent(@email, AccountStore.current()?.emailAddress)
 
   # Returns a {String} display name.
   # - "You" if the contact is the current user

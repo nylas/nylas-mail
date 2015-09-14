@@ -206,6 +206,23 @@ Utils =
     domain = _.last(email.toLowerCase().trim().split("@"))
     return (Utils.commonDomains[domain] ? false)
 
+  # This looks for and removes plus-ing, it taks a VERY liberal approach
+  # to match an email address. We'd rather let false positives through.
+  toEquivalentEmailForm: (email) ->
+    # https://regex101.com/r/iS7kD5/1
+    localPart1 = /([^+]+?)[+@].*/gi.exec(email)?[1] ? ""
+
+    # https://regex101.com/r/iS7kD5/2
+    domainPart1 = /@(.+)/gi.exec(email)?[1] ? ""
+
+    email = "#{localPart1}#{domainPart1}".trim().toLowerCase()
+    return email
+
+  emailIsEquivalent: (email1="", email2="") ->
+    email1 = Utils.toEquivalentEmailForm(email1)
+    email2 = Utils.toEquivalentEmailForm(email2)
+    return email1 is email2
+
   rectVisibleInRect: (r1, r2) ->
     return !(r2.left > r1.right ||  r2.right < r1.left ||  r2.top > r1.bottom || r2.bottom < r1.top)
 

@@ -33,9 +33,11 @@ MessageItemContainer = proxyquire("../lib/message-item-container", {
 MessageList = proxyquire '../lib/message-list',
   "./message-item-container": MessageItemContainer
 
+# User_1 needs to be "me" so that when we calculate who we should reply
+# to, it properly matches the AccountStore
 user_1 = new Contact
-  name: "User One"
-  email: "user1@nylas.com"
+  name: TEST_ACCOUNT_NAME
+  email: TEST_ACCOUNT_EMAIL
 user_2 = new Contact
   name: "User Two"
   email: "user2@nylas.com"
@@ -251,11 +253,21 @@ describe "MessageList", ->
       cs = TestUtils.scryRenderedDOMComponentsWithClass(@messageList, "footer-reply-area")
       expect(cs.length).toBe 1
 
-    it "prompts for a reply-all when there's more then one participant", ->
+    it "prompts for a reply-all when there's more than one participant and the default is reply-all", ->
+      spyOn(atom.config, "get").andReturn "reply-all"
       MessageStore._items = [m5, m3]
       MessageStore._thread = test_thread
       MessageStore.trigger()
       expect(@messageList._replyType()).toBe "reply-all"
+      cs = TestUtils.scryRenderedDOMComponentsWithClass(@messageList, "footer-reply-area")
+      expect(cs.length).toBe 1
+
+    it "prompts for a reply-all when there's more than one participant and the default is reply", ->
+      spyOn(atom.config, "get").andReturn "reply"
+      MessageStore._items = [m5, m3]
+      MessageStore._thread = test_thread
+      MessageStore.trigger()
+      expect(@messageList._replyType()).toBe "reply"
       cs = TestUtils.scryRenderedDOMComponentsWithClass(@messageList, "footer-reply-area")
       expect(cs.length).toBe 1
 

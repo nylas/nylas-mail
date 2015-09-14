@@ -38,11 +38,14 @@ class MessageControls extends React.Component
       image: 'ic-dropdown-forward.png'
       select: @_onForward
 
-    defaultReplyType = atom.config.get('core.sending.defaultReplyType')
-    if @props.message.canReplyAll() and defaultReplyType is 'reply-all'
-      return [replyAll, reply, forward]
+    if @props.message.canReplyAll()
+      defaultReplyType = atom.config.get('core.sending.defaultReplyType')
+      if defaultReplyType is 'reply-all'
+        return [replyAll, reply, forward]
+      else
+        return [reply, replyAll, forward]
     else
-      return [reply, replyAll, forward]
+      return [reply, forward]
 
   _dropdownMenu: (items) ->
     itemContent = (item) ->
