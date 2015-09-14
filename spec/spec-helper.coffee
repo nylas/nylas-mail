@@ -108,6 +108,8 @@ Promise.setScheduler (fn) ->
 # So it passes the Utils.isTempId test
 window.TEST_ACCOUNT_CLIENT_ID = "local-test-account-client-id"
 window.TEST_ACCOUNT_ID = "test-account-server-id"
+window.TEST_ACCOUNT_EMAIL = "tester@nylas.com"
+window.TEST_ACCOUNT_NAME = "Nylas Test"
 
 beforeEach ->
   atom.testOrganizationUnit = null
@@ -152,16 +154,16 @@ beforeEach ->
 
   # Log in a fake user
   spyOn(AccountStore, 'current').andCallFake -> new Account
-    name: "Nylas Test"
+    name: TEST_ACCOUNT_NAME
     provider: "gmail"
-    emailAddress: 'tester@nylas.com'
+    emailAddress: TEST_ACCOUNT_EMAIL
     organizationUnit: atom.testOrganizationUnit
     clientId: TEST_ACCOUNT_CLIENT_ID
     serverId: TEST_ACCOUNT_ID
     usesLabels: -> atom.testOrganizationUnit is "label"
     usesFolders: -> atom.testOrganizationUnit is "folder"
     me: ->
-      new Contact(email: 'tester@nylas.com', name: 'Ben Tester')
+      new Contact(email: TEST_ACCOUNT_EMAIL, name: TEST_ACCOUNT_NAME)
 
   # reset config before each spec; don't load or save from/to `config.json`
   spyOn(Config::, 'load')
