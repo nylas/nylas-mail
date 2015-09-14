@@ -105,6 +105,7 @@ class ContenteditableComponent extends React.Component
            tabIndex={@props.tabIndex}
            style={@props.style ? {}}
            onBlur={@_onBlur}
+           onFocus={@_onFocus}
            onClick={@_onClick}
            onPaste={@_onPaste}
            onInput={@_onInput}
@@ -204,7 +205,10 @@ class ContenteditableComponent extends React.Component
           document.execCommand("indent")
         return
       else if event.shiftKey
-        if @_atTabChar() then @_removeLastCharacter()
+        if @_atTabChar()
+          @_removeLastCharacter()
+        else if @_atBeginning()
+          return # Don't stop propagation
       else
         document.execCommand("insertText", false, "\t")
     else
@@ -212,6 +216,7 @@ class ContenteditableComponent extends React.Component
         document.execCommand("insertText", false, "")
       else
         document.execCommand("insertText", false, "\t")
+    event.stopPropagation()
 
   _selectionInText: (selection) ->
     return false unless selection
@@ -222,6 +227,16 @@ class ContenteditableComponent extends React.Component
     if @_selectionInText(selection)
       return selection.anchorNode.textContent[selection.anchorOffset - 1] is "\t"
     else return false
+
+  _atBeginning: ->
+    selection = document.getSelection()
+    return false if not selection.isCollapsed
+    return false if selection.anchorOffset > 0
+    el = @_editableNode()
+    return true if el.childNodes.length is 0
+    return true if selection.anchorNode is el
+    firstChild = el.childNodes[0]
+    return selection.anchorNode is firstChild
 
   _removeLastCharacter: ->
     selection = document.getSelection()
@@ -340,6 +355,9 @@ class ContenteditableComponent extends React.Component
     _.delay =>
       @_hideToolbar()
     , 50
+
+  _onFocus: (event) =>
+    @props.onFocus?(event)
 
   _editableNode: =>
     React.findDOMNode(@refs.contenteditable)

@@ -20,6 +20,7 @@ ReactTestUtils = React.addons.TestUtils
 {InjectedComponent} = require 'nylas-component-kit'
 
 ParticipantsTextField = require '../lib/participants-text-field'
+Fields = require '../lib/fields'
 
 u1 = new Contact(name: "Christine Spang", email: "spang@nylas.com")
 u2 = new Contact(name: "Michael Grinich", email: "mg@nylas.com")
@@ -27,7 +28,8 @@ u3 = new Contact(name: "Evan Morikawa",   email: "evan@nylas.com")
 u4 = new Contact(name: "Zoë Leiper",      email: "zip@nylas.com")
 u5 = new Contact(name: "Ben Gotow",       email: "ben@nylas.com")
 
-file = new File(id: 'file_1_id', filename: 'a.png', contentType: 'image/png', size: 10, object: "file")
+f1 = new File(id: 'file_1_id', filename: 'a.png', contentType: 'image/png', size: 10, object: "file")
+f2 = new File(id: 'file_2_id', filename: 'b.pdf', contentType: '', size: 999999, object: "file")
 
 users = [u1, u2, u3, u4, u5]
 
@@ -68,18 +70,6 @@ ComposerView = proxyquire "../lib/composer-view",
       searchContacts: searchContactStub
       isValidContact: isValidContactStub
     DraftStore: DraftStore
-
-beforeEach ->
-  # The AccountStore isn't set yet in the new window, populate it first.
-  AccountStore.populateItems().then ->
-    draft = new Message
-      from: [AccountStore.current().me()]
-      date: (new Date)
-      draft: true
-      accountId: AccountStore.current().id
-
-    DatabaseStore.persistModel(draft).then ->
-      return draft
 
 describe "A blank composer view", ->
   beforeEach ->
@@ -128,6 +118,7 @@ useFullDraft = ->
     to: [u2]
     cc: [u3, u4]
     bcc: [u5]
+    files: [f1, f2]
     subject: "Test Message 1"
     body: "Hello <b>World</b><br/> This is a test"
     replyToMessageId: null
@@ -221,180 +212,174 @@ describe "populated composer", ->
       expect(@draft).toBeDefined()
       expect(@composer._proxy.draft()).toBe @draft
 
-    it "set the state based on the draft", ->
+    it "sets the basic draft state", ->
       expect(@composer.state.from).toEqual [u1]
-      expect(@composer.state.showfrom).toEqual true
       expect(@composer.state.to).toEqual [u2]
       expect(@composer.state.cc).toEqual [u3, u4]
       expect(@composer.state.bcc).toEqual [u5]
       expect(@composer.state.subject).toEqual "Test Message 1"
+      expect(@composer.state.files).toEqual [f1, f2]
       expect(@composer.state.body).toEqual "Hello <b>World</b><br/> This is a test"
 
-  describe "when deciding whether or not to show the subject", ->
-    it "shows the subject when the subject is empty", ->
+    it "sets first-time initial state about focused fields", ->
+      expect(@composer.state.populated).toBe true
+      expect(@composer.state.focusedField).toBeDefined()
+      expect(@composer.state.enabledFields).toBeDefined()
+
+    it "sets first-time initial state about showing quoted text", ->
+      expect(@composer.state.showQuotedText).toBe false
+
+  describe "deciding which field is initially focused", ->
+    it "focuses the To field if there's nobody in the 'to' field", ->
+      useDraft.call @
+      makeComposer.call @
+      expect(@composer.state.focusedField).toBe Fields.To
+
+    it "focuses the subject if there's no subject already", ->
+      useDraft.call @, to: [u1]
+      makeComposer.call @
+      expect(@composer.state.focusedField).toBe Fields.Subject
+
+    it "focuses the body otherwise", ->
+      useDraft.call @, to: [u1], subject: "Yo"
+      makeComposer.call @
+      expect(@composer.state.focusedField).toBe Fields.Body
+
+  describe "when deciding whether or not to enable the subject", ->
+    it "enables the subject when the subject is empty", ->
       useDraft.call @, subject: ""
       makeComposer.call @
-      expect(@composer._shouldShowSubject()).toBe true
+      expect(@composer._shouldEnableSubject()).toBe true
 
-    it "shows the subject when the subject looks like a fwd", ->
+    it "enables the subject when the subject looks like a fwd", ->
       useDraft.call @, subject: "Fwd: This is the message"
       makeComposer.call @
-      expect(@composer._shouldShowSubject()).toBe true
+      expect(@composer._shouldEnableSubject()).toBe true
 
-    it "shows the subject when the subject looks like a fwd", ->
+    it "enables the subject when the subject looks like a fwd", ->
       useDraft.call @, subject: "fwd foo"
       makeComposer.call @
-      expect(@composer._shouldShowSubject()).toBe true
+      expect(@composer._shouldEnableSubject()).toBe true
 
-    it "doesn't show subject when replyToMessageId exists", ->
+    it "doesn't enable subject when replyToMessageId exists", ->
       useDraft.call @, subject: "should hide", replyToMessageId: "some-id"
       makeComposer.call @
-      expect(@composer._shouldShowSubject()).toBe false
+      expect(@composer._shouldEnableSubject()).toBe false
 
-    it "shows the subject otherwise", ->
+    it "enables the subject otherwise", ->
       useDraft.call @, subject: "Foo bar baz"
       makeComposer.call @
-      expect(@composer._shouldShowSubject()).toBe true
+      expect(@composer._shouldEnableSubject()).toBe true
 
-  describe "when deciding whether or not to show cc and bcc", ->
-    it "doesn't show cc when there's no one to cc", ->
+  describe "when deciding whether or not to enable cc and bcc", ->
+    it "doesn't enable cc when there's no one to cc", ->
       useDraft.call @, cc: []
       makeComposer.call @
-      expect(@composer.state.showcc).toBe false
+      expect(@composer.state.enabledFields).not.toContain Fields.Cc
 
-    it "shows cc when populated", ->
+    it "enables cc when populated", ->
       useDraft.call @, cc: [u1,u2]
       makeComposer.call @
-      expect(@composer.state.showcc).toBe true
+      expect(@composer.state.enabledFields).toContain Fields.Cc
 
-    it "doesn't show bcc when there's no one to bcc", ->
+    it "doesn't enable bcc when there's no one to bcc", ->
       useDraft.call @, bcc: []
       makeComposer.call @
-      expect(@composer.state.showbcc).toBe false
+      expect(@composer.state.enabledFields).not.toContain Fields.Bcc
 
-    it "shows bcc when populated", ->
+    it "enables bcc when populated", ->
       useDraft.call @, bcc: [u2,u3]
       makeComposer.call @
-      expect(@composer.state.showbcc).toBe true
+      expect(@composer.state.enabledFields).toContain Fields.Bcc
 
-  describe "when focus() is called", ->
-    describe "if a field name is provided", ->
-      it "should focus that field", ->
-        useDraft.call(@, cc: [u2])
-        makeComposer.call(@)
-        spyOn(@composer.refs['textFieldCc'], 'focus')
-        @composer.focus('textFieldCc')
-        advanceClock(1000)
-        expect(@composer.refs['textFieldCc'].focus).toHaveBeenCalled()
+  describe "when deciding whether or not to enable the from field", ->
+    it "disables if there's no draft", ->
+      useDraft.call @
+      makeComposer.call @
+      expect(@composer._shouldShowFromField()).toBe false
 
-    describe "if the draft is a forward", ->
-      it "should focus the to field", ->
-        useDraft.call(@, {subject: 'Fwd: This is a test'})
-        makeComposer.call(@)
-        spyOn(@composer.refs['textFieldTo'], 'focus')
-        @composer.focus()
-        advanceClock(1000)
-        expect(@composer.refs['textFieldTo'].focus).toHaveBeenCalled()
+    it "disables if there's 1 account item", ->
+      spyOn(AccountStore, 'items').andCallFake -> [{id: 1}]
+      useDraft.call @, replyToMessageId: null, files: []
+      makeComposer.call @
+      expect(@composer.state.enabledFields).not.toContain Fields.From
 
-    describe "if the draft is a normal message", ->
-      it "should focus on the body", ->
-        useDraft.call(@)
-        makeComposer.call(@)
-        spyOn(@composer.refs['contentBody'], 'focus')
-        @composer.focus()
-        advanceClock(1000)
-        expect(@composer.refs['contentBody'].focus).toHaveBeenCalled()
+    it "disables if it's a reply-to message", ->
+      spyOn(AccountStore, 'items').andCallFake -> [{id: 1}, {id: 2}]
+      useDraft.call @, replyToMessageId: "local-123", files: []
+      makeComposer.call @
+      expect(@composer.state.enabledFields).not.toContain Fields.From
 
-    describe "if the draft has not yet loaded", ->
-      it "should set _focusOnUpdate and focus after the next render", ->
-        @draft = new Message(draft: true, body: "")
-        proxy = draftStoreProxyStub(DRAFT_CLIENT_ID, @draft)
-        proxyResolve = null
-        spyOn(DraftStore, "sessionForClientId").andCallFake ->
-          new Promise (resolve, reject) ->
-            proxyResolve = resolve
+    it "disables if there are attached files", ->
+      spyOn(AccountStore, 'items').andCallFake -> [{id: 1}, {id: 2}]
+      useDraft.call @, replyToMessageId: null, files: [f1]
+      makeComposer.call @
+      expect(@composer.state.enabledFields).not.toContain Fields.From
 
-        makeComposer.call(@)
+    it "enables if requirements are met", ->
+      a1 = new Account()
+      a2 = new Account()
+      spyOn(AccountStore, 'items').andCallFake -> [a1, a2]
+      useDraft.call @, replyToMessageId: null, files: []
+      makeComposer.call @
+      expect(@composer.state.enabledFields).toContain Fields.From
 
-        spyOn(@composer.refs['contentBody'], 'focus')
-        @composer.focus()
-        advanceClock(1000)
-        expect(@composer.refs['contentBody'].focus).not.toHaveBeenCalled()
-
-        proxyResolve(proxy)
-
-        advanceClock(1000)
-        expect(@composer.refs['contentBody'].focus).toHaveBeenCalled()
-
-  describe "when emptying cc/bcc fields", ->
-
-    it "focuses on to when bcc is emptied and there's no cc field", ->
-      useDraft.call(@, bcc: [u1])
+  describe "when enabling fields", ->
+    it "always enables the To and Body fields on empty composers", ->
+      useDraft.apply @
       makeComposer.call(@)
-      spyOn(@composer.refs['textFieldTo'], 'focus')
-      spyOn(@composer.refs['textFieldBcc'], 'focus')
+      expect(@composer.state.enabledFields).toContain Fields.To
+      expect(@composer.state.enabledFields).toContain Fields.Body
 
-      bcc = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@composer, ParticipantsTextField, field: "bcc")[0]
-      @draft.bcc = []
-      bcc.props.onEmptied()
-
-      expect(@composer.state.showbcc).toBe false
-      advanceClock(1000)
-      expect(@composer.refs['textFieldTo'].focus).toHaveBeenCalled()
-      expect(@composer.refs['textFieldCc']).not.toBeDefined()
-      expect(@composer.refs['textFieldBcc']).not.toBeDefined()
-
-    it "focuses on cc when bcc is emptied and cc field is available", ->
-      useDraft.call(@, cc: [u2], bcc: [u1])
+    it "always enables the To and Body fields on full composers", ->
+      useFullDraft.apply(@)
       makeComposer.call(@)
-      spyOn(@composer.refs['textFieldTo'], 'focus')
-      spyOn(@composer.refs['textFieldCc'], 'focus')
-      spyOn(@composer.refs['textFieldBcc'], 'focus')
+      expect(@composer.state.enabledFields).toContain Fields.To
+      expect(@composer.state.enabledFields).toContain Fields.Body
 
-      bcc = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@composer, ParticipantsTextField, field: "bcc")[0]
-      @draft.bcc = []
-      bcc.props.onEmptied()
-      expect(@composer.state.showbcc).toBe false
-      advanceClock(1000)
-      expect(@composer.refs['textFieldTo'].focus).not.toHaveBeenCalled()
-      expect(@composer.refs['textFieldCc'].focus).toHaveBeenCalled()
-      expect(@composer.refs['textFieldBcc']).not.toBeDefined()
-
-    it "focuses on to when cc is emptied", ->
-      useDraft.call(@, cc: [u1], bcc: [u2])
+  describe "applying the focused field", ->
+    beforeEach ->
+      useFullDraft.apply(@)
       makeComposer.call(@)
-      spyOn(@composer.refs['textFieldTo'], 'focus')
-      spyOn(@composer.refs['textFieldCc'], 'focus')
-      spyOn(@composer.refs['textFieldBcc'], 'focus')
+      @composer.setState focusedField: Fields.Cc
+      @body = @composer.refs[Fields.Body]
+      spyOn(@body, "focus")
+      spyOn(React, "findDOMNode").andCallThrough()
 
-      cc = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@composer, ParticipantsTextField, field: "cc")[0]
-      @draft.cc = []
-      cc.props.onEmptied()
-      expect(@composer.state.showcc).toBe false
-      advanceClock(1000)
-      expect(@composer.refs['textFieldTo'].focus).toHaveBeenCalled()
-      expect(@composer.refs['textFieldCc']).not.toBeDefined()
-      expect(@composer.refs['textFieldBcc'].focus).not.toHaveBeenCalled()
+    it "can focus on the subject", ->
+      @composer.setState focusedField: Fields.Subject
+      expect(React.findDOMNode).toHaveBeenCalled()
+      expect(React.findDOMNode.calls.length).toBe 3
+
+    it "can focus on the body", ->
+      @composer.setState focusedField: Fields.Body
+      expect(@body.focus).toHaveBeenCalled()
+      expect(@body.focus.calls.length).toBe 1
+
+    it "ignores focuses to participant fields", ->
+      @composer.setState focusedField: Fields.To
+      expect(@body.focus).not.toHaveBeenCalled()
+      expect(React.findDOMNode.calls.length).toBe 1
 
   describe "when participants are added during a draft update", ->
     it "shows the cc fields and bcc fields to ensure participants are never hidden", ->
       useDraft.call(@, cc: [], bcc: [])
       makeComposer.call(@)
-      expect(@composer.state.showbcc).toBe(false)
-      expect(@composer.state.showcc).toBe(false)
+      expect(@composer.state.enabledFields).not.toContain Fields.Bcc
+      expect(@composer.state.enabledFields).not.toContain Fields.Cc
 
       # Simulate a change event fired by the DraftStoreProxy
       @draft.cc = [u1]
       @composer._onDraftChanged()
 
-      expect(@composer.state.showbcc).toBe(false)
-      expect(@composer.state.showcc).toBe(true)
+      expect(@composer.state.enabledFields).not.toContain Fields.Bcc
+      expect(@composer.state.enabledFields).toContain Fields.Cc
 
       # Simulate a change event fired by the DraftStoreProxy
       @draft.bcc = [u2]
       @composer._onDraftChanged()
-      expect(@composer.state.showbcc).toBe(true)
-      expect(@composer.state.showcc).toBe(true)
+      expect(@composer.state.enabledFields).toContain Fields.Bcc
+      expect(@composer.state.enabledFields).toContain Fields.Cc
 
   describe "When sending a message", ->
     beforeEach ->
@@ -459,7 +444,7 @@ describe "populated composer", ->
           to: [u1]
           subject: "Hello World"
           body: ""
-          files: [file]
+          files: [f1]
         makeComposer.call(@)
         @composer._sendDraft()
         expect(Actions.sendDraft).toHaveBeenCalled()
@@ -509,7 +494,7 @@ describe "populated composer", ->
         subject: "Subject"
         to: [u1]
         body: "Check out attached file"
-        files: [file]
+        files: [f1]
       makeComposer.call(@); @composer._sendDraft()
       expect(Actions.sendDraft).toHaveBeenCalled()
       expect(@dialog.showMessageBox).not.toHaveBeenCalled()
@@ -542,26 +527,23 @@ describe "populated composer", ->
       beforeEach ->
         useFullDraft.apply(@)
         makeComposer.call(@)
-        spyOn(@composer, "_sendDraft")
         NylasTestUtils.loadKeymap("internal_packages/composer/keymaps/composer")
 
       it "sends the draft on cmd-enter", ->
         NylasTestUtils.keyPress("cmd-enter", React.findDOMNode(@composer))
-        expect(@composer._sendDraft).toHaveBeenCalled()
+        expect(Actions.sendDraft).toHaveBeenCalled()
 
       it "does not send the draft on enter if the button isn't in focus", ->
         NylasTestUtils.keyPress("enter", React.findDOMNode(@composer))
-        expect(@composer._sendDraft).not.toHaveBeenCalled()
-
-      it "sends the draft on enter when the button is in focus", ->
-        sendBtn = ReactTestUtils.findRenderedDOMComponentWithClass(@composer, "btn-send")
-        NylasTestUtils.keyPress("enter", React.findDOMNode(sendBtn))
-        expect(@composer._sendDraft).toHaveBeenCalled()
+        expect(Actions.sendDraft).not.toHaveBeenCalled()
 
       it "doesn't let you send twice", ->
-        sendBtn = ReactTestUtils.findRenderedDOMComponentWithClass(@composer, "btn-send")
-        NylasTestUtils.keyPress("enter", React.findDOMNode(sendBtn))
-        expect(@composer._sendDraft).toHaveBeenCalled()
+        NylasTestUtils.keyPress("cmd-enter", React.findDOMNode(@composer))
+        @isSending.state = true
+        DraftStore.trigger()
+        NylasTestUtils.keyPress("cmd-enter", React.findDOMNode(@composer))
+        expect(Actions.sendDraft).toHaveBeenCalled()
+        expect(Actions.sendDraft.calls.length).toBe 1
 
   describe "drag and drop", ->
     beforeEach ->
@@ -569,7 +551,7 @@ describe "populated composer", ->
         to: [u1]
         subject: "Hello World"
         body: ""
-        files: [file]
+        files: [f1]
       makeComposer.call(@)
 
     describe "_shouldAcceptDrop", ->

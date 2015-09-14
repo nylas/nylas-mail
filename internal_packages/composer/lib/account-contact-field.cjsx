@@ -25,8 +25,6 @@ class AccountContactField extends React.Component
     accounts: AccountStore.items()
 
   render: =>
-    return <span></span> unless @state.accounts.length > 1
-
     <div className="composer-participant-field">
       <div className="composer-field-label">{"From:"}</div>
       {@_renderFromPicker()}
