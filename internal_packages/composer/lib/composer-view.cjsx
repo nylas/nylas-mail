@@ -1,32 +1,33 @@
-React = require 'react'
 _ = require 'underscore'
+React = require 'react'
 
-{Utils,
- File,
+{File,
+ Utils,
  Actions,
  DraftStore,
+ UndoManager,
  ContactStore,
  AccountStore,
- UndoManager,
  FileUploadStore,
  QuotedHTMLParser,
  FileDownloadStore} = require 'nylas-exports'
 
-{ResizableRegion,
- InjectedComponentSet,
+{DropZone,
+ RetinaImg,
+ ScrollRegion,
  InjectedComponent,
  FocusTrackingRegion,
- ScrollRegion,
- ButtonDropdown,
- DropZone,
- Menu,
- RetinaImg} = require 'nylas-component-kit'
+ InjectedComponentSet} = require 'nylas-component-kit'
 
 FileUpload = require './file-upload'
 ImageFileUpload = require './image-file-upload'
+
+ExpandedParticipants = require './expanded-participants'
+CollapsedParticipants = require './collapsed-participants'
+
 ContenteditableComponent = require './contenteditable-component'
-ParticipantsTextField = require './participants-text-field'
-AccountContactField = require './account-contact-field'
+
+Fields = require './fields'
 
 # The ComposerView is a unique React component because it (currently) is a
 # singleton. Normally, the React way to do things would be to re-render the
@@ -61,9 +62,8 @@ class ComposerView extends React.Component
       body: ""
       files: []
       subject: ""
-      showcc: false
-      showbcc: false
-      showsubject: false
+      focusedField: Fields.To # Gets updated in @_initiallyFocusedField
+      enabledFields: [] # Gets updated in @_initiallyEnabledFields
       showQuotedText: false
       uploads: FileUploadStore.uploadsForMessage(@props.draftClientId) ? []
 
@@ -75,26 +75,25 @@ class ComposerView extends React.Component
     not Utils.isEqualReact(nextState, @state)
 
   componentDidMount: =>
-    @_uploadUnlisten = FileUploadStore.listen @_onFileUploadStoreChange
+    @_usubs = []
+    @_usubs.push FileUploadStore.listen @_onFileUploadStoreChange
+    @_usubs.push AccountStore.listen @_onAccountStoreChanged
     @_keymapUnlisten = atom.commands.add '.composer-outer-wrap', {
-      'composer:show-and-focus-bcc': @_showAndFocusBcc
-      'composer:show-and-focus-cc': @_showAndFocusCc
-      'composer:focus-to': => @focus "textFieldTo"
       'composer:send-message': => @_sendDraft()
       'composer:delete-empty-draft': => @_deleteDraftIfEmpty()
+      'composer:show-and-focus-bcc': => @_onChangeEnabledFields(show: [Fields.Bcc], focus: Fields.Bcc)
+      'composer:show-and-focus-cc': => @_onChangeEnabledFields(show: [Fields.Cc], focus: Fields.Cc)
+      'composer:focus-to': => @_onChangeEnabledFields(show: [Fields.To], focus: Fields.To)
       "composer:undo": @undo
       "composer:redo": @redo
     }
-    if @props.mode is "fullwindow"
-      # Need to delay so the component can be fully painted. Focus doesn't
-      # work unless the element is on the page.
-      @focus "textFieldTo"
+    @_applyFocusedField()
 
   componentWillUnmount: =>
     @_unmounted = true # rarf
     @_teardownForDraft()
     @_deleteDraftIfEmpty()
-    @_uploadUnlisten() if @_uploadUnlisten
+    usub() for usub in @_usubs
     @_keymapUnlisten.dispose() if @_keymapUnlisten
 
   componentDidUpdate: =>
@@ -105,11 +104,15 @@ class ComposerView extends React.Component
     # re-rendering.
     @_recoveredSelection = null if @_recoveredSelection?
 
-    # We often can't focus until the component state has changed
-    # (so the desired field exists or we have a draft)
-    if @_focusOnUpdate and @_proxy
-      @focus(@_focusOnUpdate.field)
-      @_focusOnUpdate = false
+    @_applyFocusedField()
+
+  _applyFocusedField: ->
+    if @state.focusedField
+      return unless @refs[@state.focusedField]
+      if @refs[@state.focusedField].focus
+        @refs[@state.focusedField].focus()
+      else
+        React.findDOMNode(@refs[@state.focusedField]).focus()
 
   componentWillReceiveProps: (newProps) =>
     @_ignoreNextTrigger = false
@@ -150,9 +153,7 @@ class ComposerView extends React.Component
   render: =>
     if @props.mode is "inline"
       <FocusTrackingRegion className={@_wrapClasses()} onFocus={@focus} tabIndex="-1">
-        <ResizableRegion handle={ResizableRegion.Handle.Bottom}>
-          {@_renderComposer()}
-        </ResizableRegion>
+        {@_renderComposer()}
       </FocusTrackingRegion>
     else
       <div className={@_wrapClasses()}>
@@ -174,17 +175,8 @@ class ComposerView extends React.Component
         </div>
       </div>
 
-      <div className="composer-content-wrap">
-        {@_renderBodyScrollbar()}
-
-        <div className="composer-centered">
-          {@_renderFields()}
-
-          <div className="compose-body" ref="composeBody" onClick={@_onClickComposeBody}>
-            {@_renderBody()}
-            {@_renderFooterRegions()}
-          </div>
-        </div>
+      <div className="composer-content-wrap" onKeyDown={@_onKeyDown}>
+        {@_renderScrollRegion()}
 
       </div>
       <div className="composer-action-bar-wrap">
@@ -192,111 +184,89 @@ class ComposerView extends React.Component
       </div>
     </DropZone>
 
-  _renderFields: =>
-    # Note: We need to physically add and remove these elements, not just hide them.
-    # If they're hidden, shift-tab between fields breaks.
-    fields = []
-    fields.push(
-      <div key="to">
-        <div className="composer-participant-actions">
-          <span className="header-action"
-                style={display: @state.showcc and 'none' or 'inline'}
-                onClick={@_showAndFocusCc}>Cc</span>
-
-          <span className="header-action"
-                style={display: @state.showbcc and 'none' or 'inline'}
-                onClick={@_showAndFocusBcc}>Bcc</span>
-
-          <span className="header-action"
-                style={display: @state.showsubject and 'none' or 'initial'}
-                onClick={@_showAndFocusSubject}>Subject</span>
-
-          <span className="header-action"
-                data-tooltip="Popout composer"
-                style={{display: ((@props.mode is "fullwindow") and 'none' or 'initial'), paddingLeft: "1.5em"}}
-                onClick={@_popoutComposer}>
-            <RetinaImg name="composer-popout.png"
-              mode={RetinaImg.Mode.ContentIsMask}
-              style={{position: "relative", top: "-2px"}}/>
-          </span>
-        </div>
-        <ParticipantsTextField
-          ref="textFieldTo"
-          field='to'
-          change={@_onChangeParticipants}
-          className="composer-participant-field"
-          participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
-          tabIndex='102'/>
-      </div>
-    )
-
-    if @state.showcc
-      fields.push(
-        <ParticipantsTextField
-          ref="textFieldCc"
-          key="cc"
-          field='cc'
-          change={@_onChangeParticipants}
-          onEmptied={@_onEmptyCc}
-          className="composer-participant-field"
-          participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
-          tabIndex='103'/>
-      )
-
-    if @state.showbcc
-      fields.push(
-        <ParticipantsTextField
-          ref="textFieldBcc"
-          key="bcc"
-          field='bcc'
-          change={@_onChangeParticipants}
-          onEmptied={@_onEmptyBcc}
-          className="composer-participant-field"
-          participants={to: @state['to'], cc: @state['cc'], bcc: @state['bcc']}
-          tabIndex='104'/>
-      )
-
-    if @state.showsubject
-      fields.push(
-        <div key="subject" className="compose-subject-wrap">
-          <input type="text"
-                 key="subject"
-                 name="subject"
-                 tabIndex="108"
-                 ref="textFieldSubject"
-                 placeholder="Subject"
-                 value={@state.subject}
-                 onChange={@_onChangeSubject}/>
-        </div>
-      )
-
-    if @state.showfrom
-      fields.push(
-        <AccountContactField
-          key="from"
-          onChange={ (me) => @_onChangeParticipants(from: [me]) }
-          value={@state.from?[0]} />
-      )
-
-    fields
-
-  _renderBodyScrollbar: =>
+  _renderScrollRegion: ->
     if @props.mode is "inline"
-      []
+      @_renderContent()
     else
-      <ScrollRegion.Scrollbar ref="scrollbar" getScrollRegion={ => @refs.scrollregion } />
+      <ScrollRegion className="compose-body-scroll" ref="scrollregion">
+        {@_renderContent()}
+      </ScrollRegion>
+
+  _renderContent: ->
+    <div className="composer-centered">
+      {if @state.focusedField in Fields.ParticipantFields
+        <ExpandedParticipants to={@state.to} cc={@state.cc}
+                              bcc={@state.bcc}
+                              from={@state.from}
+                              ref="expandedParticipants"
+                              mode={@props.mode}
+                              focusedField={@state.focusedField}
+                              enabledFields={@state.enabledFields}
+                              onChangeParticipants={@_onChangeParticipants}
+                              onChangeEnabledFields={@_onChangeEnabledFields}
+                              />
+      else
+        <CollapsedParticipants to={@state.to} cc={@state.cc}
+                               bcc={@state.bcc}
+                               onClick={@_focusParticipantField} />
+      }
+
+      {@_renderSubject()}
+
+      <div className="compose-body" ref="composeBody" onClick={@_onClickComposeBody}>
+        {@_renderBody()}
+        {@_renderFooterRegions()}
+      </div>
+    </div>
+
+  _onKeyDown: (event) =>
+    if event.key is "Tab"
+      @_onTabDown(event)
+    return
+
+  _onTabDown: (event) =>
+    event.preventDefault()
+    enabledFields = _.filter @state.enabledFields, (field) ->
+      Fields.Order[field] >= 0
+    enabledFields = _.sortBy enabledFields, (field) ->
+      Fields.Order[field]
+    i = enabledFields.indexOf @state.focusedField
+    dir = if event.shiftKey then -1 else 1
+    newI = Math.min(Math.max(i + dir, 0), enabledFields.length - 1)
+    @setState focusedField: enabledFields[newI]
+    event.stopPropagation()
+
+  _onChangeParticipantField: (focusedField) =>
+    @setState {focusedField}
+    @_lastFocusedParticipantField = focusedField
+
+  _focusParticipantField: =>
+    @setState focusedField: @_lastFocusedParticipantField ? Fields.To
+
+  _onChangeEnabledFields: ({show, hide, focus}={}) =>
+    show = show ? []; hide = hide ? []
+    newFields = _.difference(@state.enabledFields.concat(show), hide)
+    @setState
+      enabledFields: newFields
+      focusedField: (focus ? @state.focusedField)
+
+  _renderSubject: ->
+    if Fields.Subject in @state.enabledFields
+      <div key="subject-wrap" className="compose-subject-wrap">
+        <input type="text"
+               name="subject"
+               ref={Fields.Subject}
+               placeholder="Subject"
+               value={@state.subject}
+               onFocus={ => @setState focusedField: Fields.Subject}
+               onChange={@_onChangeSubject}/>
+      </div>
 
   _renderBody: =>
-    if @props.mode is "inline"
-      <span>
-        {@_renderBodyContenteditable()}
-        {@_renderAttachments()}
-      </span>
-    else
-      <ScrollRegion className="compose-body-scroll" ref="scrollregion" getScrollbar={ => @refs.scrollbar }>
-        {@_renderBodyContenteditable()}
-        {@_renderAttachments()}
-      </ScrollRegion>
+    <span>
+      {@_renderBodyContenteditable()}
+      {@_renderAttachments()}
+    </span>
 
   _renderBodyContenteditable: =>
     onScrollToBottom = null
@@ -304,8 +274,9 @@ class ComposerView extends React.Component
       onScrollToBottom = =>
         @props.onRequestScrollTo({clientId: @_proxy.draft().clientId})
 
-    <ContenteditableComponent ref="contentBody"
+    <ContenteditableComponent ref={Fields.Body}
                               html={@state.body}
+                              onFocus={ => @setState focusedField: Fields.Body}
                               onChange={@_onChangeBody}
                               onFilePaste={@_onFilePaste}
                               style={@_precalcComposerCss}
@@ -313,8 +284,7 @@ class ComposerView extends React.Component
                               mode={{showQuotedText: @state.showQuotedText}}
                               onChangeMode={@_onChangeEditableMode}
                               onScrollTo={@props.onRequestScrollTo}
-                              onScrollToBottom={onScrollToBottom}
-                              tabIndex="109" />
+                              onScrollToBottom={onScrollToBottom} />
 
   _renderFooterRegions: =>
     return <div></div> unless @props.draftClientId
@@ -423,29 +393,6 @@ class ComposerView extends React.Component
 
     </InjectedComponentSet>
 
-  # Focus the composer view. Chooses the appropriate field to start
-  # focused depending on the draft type, or you can pass a field as
-  # the first parameter.
-  focus: (field = null) =>
-    if not @_proxy
-      @_focusOnUpdate = {field}
-      return
-
-    defaultField = "contentBody"
-    if @isForwardedMessage() # Note: requires _proxy
-      defaultField = "textFieldTo"
-    field ?= defaultField
-
-    if not @refs[field]
-      @_focusOnUpdate = {field}
-      return
-
-    if @refs[field].focus
-      @refs[field].focus()
-    else
-      node = React.findDOMNode(@refs[field])
-      node.focus?()
-
   isForwardedMessage: =>
     return false if not @_proxy
     draft = @_proxy.draft()
@@ -455,7 +402,7 @@ class ComposerView extends React.Component
   # and simulate what happens when you click beneath the text *in* the
   # contentEditable.
   _onClickComposeBody: (event) =>
-    @refs.contentBody.selectEnd()
+    @refs[Fields.Body].selectEnd()
 
   _onDraftChanged: =>
     return if @_ignoreNextTrigger
@@ -471,28 +418,67 @@ class ComposerView extends React.Component
       cc: draft.cc
       bcc: draft.bcc
       from: draft.from
+      body: draft.body
       files: draft.files
       subject: draft.subject
-      body: draft.body
-      showfrom: not draft.replyToMessageId and draft.files.length is 0
 
     if !@state.populated
       _.extend state,
-        showcc: not _.isEmpty(draft.cc)
-        showbcc: not _.isEmpty(draft.bcc)
-        showsubject: @_shouldShowSubject()
-        showQuotedText: @isForwardedMessage()
         populated: true
+        focusedField: @_initiallyFocusedField(draft)
+        enabledFields: @_initiallyEnabledFields(draft)
+        showQuotedText: @isForwardedMessage()
 
-    # It's possible for another part of the application to manipulate the draft
-    # we're displaying. If they've added a CC or BCC, make sure we show those fields.
-    # We should never be hiding the field if it's populated.
-    state.showcc = true if not _.isEmpty(draft.cc)
-    state.showbcc = true if not _.isEmpty(draft.bcc)
+    state = @_verifyEnabledFields(draft, state)
 
     @setState(state)
 
-  _shouldShowSubject: =>
+  _initiallyFocusedField: (draft) ->
+    return Fields.To if draft.to.length is 0
+    return Fields.Subject if (draft.subject ? "").trim().length is 0
+    return Fields.Body
+
+  _verifyEnabledFields: (draft, state) ->
+    enabledFields = @state.enabledFields.concat(state.enabledFields)
+    updated = false
+    if draft.cc.length > 0
+      updated = true
+      enabledFields.push(Fields.Cc)
+
+    if draft.bcc.length > 0
+      updated = true
+      enabledFields.push(Fields.Bcc)
+
+    if updated
+      state.enabledFields = _.uniq(enabledFields)
+
+    return state
+
+  _initiallyEnabledFields: (draft) ->
+    enabledFields = [Fields.To]
+    enabledFields.push Fields.Cc if not _.isEmpty(draft.cc)
+    enabledFields.push Fields.Bcc if not _.isEmpty(draft.bcc)
+    enabledFields.push Fields.From if @_shouldShowFromField(draft)
+    enabledFields.push Fields.Subject if @_shouldEnableSubject()
+    enabledFields.push Fields.Body
+    return enabledFields
+
+  # When the account store changes, the From field may or may not still
+  # be in scope. We need to make sure to update our enabled fields.
+  _onAccountStoreChanged: =>
+    if @_shouldShowFromField(@_proxy?.draft())
+      enabledFields = @state.enabledFields.concat [Fields.From]
+    else
+      enabledFields = _.without(@state.enabledFields, Fields.From)
+    @setState {enabledFields}
+
+  _shouldShowFromField: (draft) ->
+    return false unless draft
+    return AccountStore.items().length > 1 and
+           not draft.replyToMessageId and
+           draft.files.length is 0
+
+  _shouldEnableSubject: =>
     return false unless @_proxy
     draft = @_proxy.draft()
     if _.isEmpty(draft.subject ? "") then return true
@@ -664,29 +650,6 @@ class ComposerView extends React.Component
   _attachFile: =>
     Actions.attachFile({messageClientId: @props.draftClientId})
 
-  _showAndFocusBcc: =>
-    @setState {showbcc: true}
-    @focus('textFieldBcc')
-
-  _showAndFocusCc: =>
-    @setState {showcc: true}
-    @focus('textFieldCc')
-
-  _showAndFocusSubject: =>
-    @setState {showsubject: true}
-    @focus('textFieldSubject')
-
-  _onEmptyCc: =>
-    @setState showcc: false
-    @focus('textFieldTo')
-
-  _onEmptyBcc: =>
-    @setState showbcc: false
-    if @state.showcc
-      @focus('textFieldCc')
-    else
-      @focus('textFieldTo')
-
   undo: (event) =>
     event.preventDefault()
     event.stopPropagation()
@@ -708,8 +671,8 @@ class ComposerView extends React.Component
     @_recoveredSelection = null
 
   _getSelections: =>
-    currentSelection: @refs.contentBody?.getCurrentSelection?()
-    previousSelection: @refs.contentBody?.getPreviousSelection?()
+    currentSelection: @refs[Fields.Body]?.getCurrentSelection?()
+    previousSelection: @refs[Fields.Body]?.getPreviousSelection?()
 
   _saveToHistory: (selections) =>
     return unless @_proxy
