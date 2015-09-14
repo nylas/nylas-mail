@@ -83,5 +83,11 @@ AnalyticsStore = Reflux.createStore
         "$last_name": account.me().lastName()
         "accountId": account.id
         "platform": process.platform
+        "provider": account.displayProvider()
+        "organizational_unit": account.organizationUnit
+        "version_primary": atom.getVersion().split('-')[0]
         "version": atom.getVersion()
+      })
+      @analytics.people.set_once(account.id, {
+        "First Seen": (new Date()).toISOString()
       })
