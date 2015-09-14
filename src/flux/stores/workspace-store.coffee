@@ -46,8 +46,8 @@ class WorkspaceStore extends NylasStore
     if atom.isMainWindow()
       @defineSheet 'Global'
       @defineSheet 'Threads', {root: true},
-        list: ['RootSwitcher', 'RootSidebar', 'ThreadList']
-        split: ['RootSwitcher', 'RootSidebar', 'ThreadList', 'MessageList', 'MessageListSidebar']
+        list: ['RootSidebar', 'ThreadList']
+        split: ['RootSidebar', 'ThreadList', 'MessageList', 'MessageListSidebar']
       @defineSheet 'Thread', {},
         list: ['MessageList', 'MessageListSidebar']
     else
