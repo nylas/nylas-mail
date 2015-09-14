@@ -1,5 +1,6 @@
 Message = require '../models/message'
 Actions = require '../actions'
+DatabaseStore = require './database-store'
 
 {Listener, Publisher} = require '../modules/reflux-coffee'
 SyncbackDraftTask = require '../tasks/syncback-draft'
@@ -22,7 +23,7 @@ DraftChangeSet associated with the store proxy. The DraftChangeSet does two thin
 Section: Drafts
 ###
 class DraftChangeSet
-  constructor: (@clientId, @_onChange) ->
+  constructor: (@_onTrigger, @_onCommit) ->
     @_commitChain = Promise.resolve()
     @_pending = {}
     @_saving = {}
@@ -31,14 +32,14 @@ class DraftChangeSet
   teardown: ->
     @_pending = {}
     @_saving = {}
-    @_destroyed = true
-    clearTimeout(@_timer) if @_timer
-    @_timer = null
+    if @_timer
+      clearTimeout(@_timer)
+      @_timer = null
 
   add: (changes, {immediate, silent}={}) =>
     @_pending = _.extend(@_pending, changes)
     @_pending['pristine'] = false
-    @_onChange() unless silent
+    @_onTrigger() unless silent
     if immediate
       @commit()
     else
@@ -47,25 +48,13 @@ class DraftChangeSet
 
   commit: =>
     @_commitChain = @_commitChain.finally =>
-      if Object.keys(@_pending).length is 0 or @_destroyed
+      if Object.keys(@_pending).length is 0
         return Promise.resolve(true)
 
-      DatabaseStore = require './database-store'
-      DatabaseStore.findBy(Message, clientId: @clientId).include(Message.attributes.body).then (draft) =>
-        if @_destroyed
-          return Promise.resolve(true)
-
-        if not draft
-          throw new Error("DraftChangeSet.commit: Assertion failure. Draft #{@clientId} is not in the database.")
-
-        @_saving = @_pending
-        @_pending = {}
-        draft = @applyToModel(draft)
-
-        return DatabaseStore.persistModel(draft).then =>
-          syncback = new SyncbackDraftTask(@clientId)
-          Actions.queueTask(syncback)
-          @_saving = {}
+      @_saving = @_pending
+      @_pending = {}
+      return @_onCommit().then =>
+        @_saving = {}
 
     return @_commitChain
 
@@ -96,18 +85,13 @@ class DraftStoreProxy
 
   constructor: (@draftClientId, draft = null) ->
     DraftStore = require './draft-store'
-
     @listenTo DraftStore, @_onDraftChanged
 
     @_draft = false
     @_draftPristineBody = null
     @_destroyed = false
 
-    @changes = new DraftChangeSet @draftClientId, =>
-      return if @_destroyed
-      if !@_draft
-        throw new Error("DraftChangeSet was modified before the draft was prepared.")
-      @trigger()
+    @changes = new DraftChangeSet(@_changeSetTrigger, @_changeSetCommit)
 
     if draft
       @_setDraft(draft)
@@ -129,7 +113,6 @@ class DraftStoreProxy
     @_draftPristineBody
 
   prepare: ->
-    DatabaseStore = require './database-store'
     @_draftPromise ?= DatabaseStore.findBy(Message, clientId: @draftClientId).include(Message.attributes.body).then (draft) =>
       return Promise.reject(new Error("Draft has been destroyed.")) if @_destroyed
       return Promise.reject(new Error("Assertion Failure: Draft #{@draftClientId} not found.")) if not draft
@@ -161,9 +144,26 @@ class DraftStoreProxy
 
     # Is this change an update to our draft?
     myDrafts = _.filter(change.objects, (obj) => obj.clientId is @_draft.clientId)
-
     if myDrafts.length > 0
       @_draft = _.extend @_draft, _.last(myDrafts)
       @trigger()
+
+  _changeSetTrigger: =>
+    return if @_destroyed
+    if !@_draft
+      throw new Error("DraftChangeSet was modified before the draft was prepared.")
+    @trigger()
+
+  _changeSetCommit: =>
+    if @_destroyed or not @_draft
+      return Promise.resolve(true)
+
+    updated = @changes.applyToModel(@_draft)
+    return DatabaseStore.persistModel(updated).then =>
+      Actions.queueTask(new SyncbackDraftTask(@draftClientId))
+
+
+
+DraftStoreProxy.DraftChangeSet = DraftChangeSet
 
 module.exports = DraftStoreProxy
