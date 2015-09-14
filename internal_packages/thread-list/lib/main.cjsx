@@ -14,7 +14,7 @@ DraftList = require './draft-list'
 module.exports =
   activate: (@state={}) ->
     WorkspaceStore.defineSheet 'Drafts', {root: true, name: 'Drafts', sidebarComponent: DraftListSidebarItem},
-      list: ['RootSwitcher', 'RootSidebar', 'DraftList']
+      list: ['RootSidebar', 'DraftList']
 
     ComponentRegistry.register ThreadList,
       location: WorkspaceStore.Location.ThreadList
