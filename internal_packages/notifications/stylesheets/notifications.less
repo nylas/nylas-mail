@@ -1,10 +1,20 @@
 @import "ui-variables";
 @import "ui-mixins";
 
+.sidebar-activity-transition-wrapper {
+  order: 2;
+
+  &.sidebar-activity-empty {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+  }
+}
+
 .sidebar-activity {
+  display: block;
   width: 100%;
   bottom: 0;
-  order:2;
   background: @background-off-primary;
   font-size: @font-size-small;
   color: @text-color-subtle;
@@ -41,7 +51,7 @@
         background-color: @background-color-info;
       }
     }
-    // TODO: Necessary for Chromium 42 to render `activity-item-leave` animation
+    // TODO: Necessary for Chromium 42 to render `activity-opacity-leave` animation
     // properly. Removing position relative causes the div to remain visible
     position:relative;
     opacity: 1;
@@ -56,22 +66,22 @@
   }
 }
 
-.activity-item-enter {
+.activity-opacity-enter {
   opacity:0;
   transition: opacity .125s ease-out;
 }
 
-.activity-item-enter.activity-item-enter-active {
+.activity-opacity-enter.activity-opacity-enter-active {
   opacity:1;
 }
 
-.activity-item-leave {
+.activity-opacity-leave {
   opacity:1;
   transition: opacity .125s ease-in;
   transition-delay: 0.5s;
 }
 
-.activity-item-leave.activity-item-leave-active {
+.activity-opacity-leave.activity-opacity-leave-active {
   transition-delay: 0.5s;
   opacity:0;
 }

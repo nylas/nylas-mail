@@ -36,15 +36,27 @@ class ActivitySidebar extends React.Component
 
     names = classNames
       "sidebar-activity": true
-      "sidebar-activity-empty": items.length is 0
       "sidebar-activity-error": error?
 
+    wrapperClass = "sidebar-activity-transition-wrapper "
+
+    if items.length is 0
+      wrapperClass += "sidebar-activity-empty"
+    else
+      inside = <TimeoutTransitionGroup
+        className={names}
+        leaveTimeout={625}
+        enterTimeout={125}
+        transitionName="activity-opacity">
+        {items}
+      </TimeoutTransitionGroup>
+
     <TimeoutTransitionGroup
-      className={names}
+      className={wrapperClass}
       leaveTimeout={625}
       enterTimeout={125}
-      transitionName="activity-item">
-      {items}
+      transitionName="activity-opacity">
+        {inside}
     </TimeoutTransitionGroup>
 
   _renderSyncActivityItem: =>
