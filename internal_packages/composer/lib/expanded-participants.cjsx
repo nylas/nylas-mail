@@ -2,6 +2,7 @@ _ = require 'underscore'
 React = require 'react'
 AccountContactField = require './account-contact-field'
 ParticipantsTextField = require './participants-text-field'
+{Actions} = require 'nylas-exports'
 {RetinaImg} = require 'nylas-component-kit'
 
 Fields = require './fields'
@@ -159,6 +160,9 @@ class ExpandedParticipants extends React.Component
     @props.onChangeEnabledFields
       hide: [Fields.Cc]
       focus: Fields.To
+
+  _popoutComposer: =>
+    Actions.composePopoutDraft @props.draftClientId
 
   _onEmptyBcc: =>
     if Fields.Cc in @props.enabledFields

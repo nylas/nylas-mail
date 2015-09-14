@@ -4,6 +4,7 @@ Fields = require '../lib/fields'
 ReactTestUtils = React.addons.TestUtils
 AccountContactField = require '../lib/account-contact-field'
 ExpandedParticipants = require '../lib/expanded-participants'
+{Actions} = require 'nylas-exports'
 
 describe "ExpandedParticipants", ->
   makeField = (props={}) ->
@@ -68,6 +69,14 @@ describe "ExpandedParticipants", ->
     makeField.call(@, mode: "fullwindow")
     els = ReactTestUtils.scryRenderedDOMComponentsWithClass(@fields, "show-popout")
     expect(els.length).toBe 0
+
+  it "pops out the composer when clicked", ->
+    spyOn(Actions, "composePopoutDraft")
+    makeField.call(@, mode: "inline")
+    el = ReactTestUtils.findRenderedDOMComponentWithClass(@fields, "show-popout")
+    ReactTestUtils.Simulate.click(React.findDOMNode(el))
+    expect(Actions.composePopoutDraft).toHaveBeenCalled()
+    expect(Actions.composePopoutDraft.calls.length).toBe 1
 
   it "shows and focuses cc when clicked", ->
     makeField.call(@)
