@@ -132,6 +132,7 @@ class NylasSyncWorker
         @_resumeTimer.start()
 
   fetchCollectionPage: (model, params = {}) ->
+    requestStartTime = Date.now()
     requestOptions =
       error: (err) =>
         return if @_terminated
@@ -143,7 +144,8 @@ class NylasSyncWorker
         lastReceivedIndex = params.offset + json.length
         if json.length is params.limit
           nextParams = _.extend({}, params, {offset: lastReceivedIndex})
-          @fetchCollectionPage(model, nextParams)
+          nextDelay = Math.max(0, 1500 - (Date.now() - requestStartTime))
+          setTimeout(( => @fetchCollectionPage(model, nextParams)), nextDelay)
           @updateTransferState(model, {fetched: lastReceivedIndex})
         else
           @updateTransferState(model, {fetched: lastReceivedIndex, busy: false, complete: true})

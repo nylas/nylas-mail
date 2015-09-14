@@ -170,6 +170,7 @@ describe "NylasSyncWorker", ->
         models = []
         models.push(new Thread) for i in [0..(pageSize-1)]
         @request.requestOptions.success(models)
+        advanceClock(2000)
         expect(@apiRequests.length).toBe(1)
         expect(@apiRequests[0].params).toEqual
           limit: pageSize,
