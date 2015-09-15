@@ -120,11 +120,10 @@ describe "LaunchServices", ->
     ]
 
 
-  describe "when the platform is darwin", ->
+  describe "LaunchServicesMac", ->
     beforeEach ->
       execHitory = []
-      @services = new LaunchServices()
-      @services.getPlatform = -> 'darwin'
+      @services = new LaunchServices.LaunchServicesMac()
 
     describe "available", ->
       it "should return true", ->
@@ -215,11 +214,18 @@ describe "LaunchServices", ->
         @services.registerForURLScheme('mailto')
         expect(@services.writeDefaults).toHaveBeenCalled()
 
-  describe "on other platforms", ->
+  describe "LaunchServicesLinux", ->
     describe "available", ->
       beforeEach ->
-        @services = new LaunchServices()
-        @services.getPlatform = -> 'win32'
+        @services = new LaunchServices.LaunchServicesLinux()
+
+      it "should return true", ->
+        expect(@services.available()).toEqual(true)
+
+  describe "LaunchServicesUnavailable", ->
+    describe "available", ->
+      beforeEach ->
+        @services = new LaunchServices.LaunchServicesUnavailable()
 
       it "should return false", ->
         expect(@services.available()).toEqual(false)
