@@ -3,17 +3,46 @@ fs = require('fs')
 
 bundleIdentifier = 'com.nylas.nylas-mail'
 
-module.exports =
-class LaunchServices
+class LaunchServicesUnavailable
+  available: ->
+    false
 
+  isRegisteredForURLScheme: (scheme, callback) ->
+    throw new Error "isRegisteredForURLScheme is not available"
+
+  resetURLScheme: (scheme, callback) ->
+    throw new Error "resetURLScheme is not available"
+
+  registerForURLScheme: (scheme, callback) ->
+    throw new Error "registerForURLScheme is not available"
+
+class LaunchServicesLinux
+
+  available: ->
+    true
+
+  isRegisteredForURLScheme: (scheme, callback) ->
+    throw new Error "isRegisteredForURLScheme is async, provide a callback" unless callback
+    exec "xdg-mime query default x-scheme-handler/#{scheme}", (err, stdout, stderr) ->
+      return callback(err) if callback and err
+      callback(null, stdout is 'nylas.desktop')
+
+  resetURLScheme: (scheme, callback) ->
+    exec "xdg-mime default thunderbird.desktop x-scheme-handler/#{scheme}", (err, stdout, stderr) ->
+      return callback(err) if callback and err
+      callback(null, null)
+
+  registerForURLScheme: (scheme, callback) ->
+    exec "xdg-mime default nylas.desktop x-scheme-handler/#{scheme}", (err, stdout, stderr) ->
+      return callback(err) if callback and err
+      callback(null, null)
+
+class LaunchServicesMac
   constructor: ->
     @secure = false
 
-  getPlatform: ->
-    process.platform
-
   available: ->
-    @getPlatform() is 'darwin'
+    true
 
   getLaunchServicesPlistPath: (callback) ->
     secure = "#{process.env.HOME}/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist"
@@ -87,3 +116,14 @@ class LaunchServices
         LSHandlerRoleAll: bundleIdentifier
 
       @writeDefaults(defaults, callback)
+
+
+module.exports = LaunchServicesUnavailable
+if process.platform is 'darwin'
+  module.exports = LaunchServicesMac
+else if process.platform is 'linux'
+  module.exports = LaunchServicesLinux
+
+module.exports.LaunchServicesMac = LaunchServicesMac
+module.exports.LaunchServicesLinux = LaunchServicesLinux
+module.exports.LaunchServicesUnavailable = LaunchServicesUnavailable

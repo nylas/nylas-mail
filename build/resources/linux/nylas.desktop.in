@@ -7,4 +7,4 @@ Icon=<%= iconName %>
 Type=Application
 StartupNotify=true
 Categories=GNOME;GTK;Utility;EmailClient;Development;
-MimeType=text/plain;
+MimeType=text/plain;x-scheme-handler/mailto;x-scheme-handler/nylas;
