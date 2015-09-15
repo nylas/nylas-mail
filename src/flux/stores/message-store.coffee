@@ -86,17 +86,27 @@ class MessageStore extends NylasStore
 
     if change.objectClass is Message.name
       inDisplayedThread = _.some change.objects, (obj) => obj.threadId is @_thread.id
-      if inDisplayedThread
+      return unless inDisplayedThread
 
+      if change.objects.length is 1 and change.objects[0].draft is true
         item = change.objects[0]
-        itemAlreadyExists = _.some @_items, (msg) -> msg.id is item.id or msg.clientId is item.clientId
-        if change.objects.length is 1 and item.draft is true and not itemAlreadyExists
+        itemIndex = _.findIndex @_items, (msg) -> msg.id is item.id or msg.clientId is item.clientId
+
+        if change.type is 'persist' and itemIndex is -1
           @_items = [].concat(@_items, [item])
           @_items = @_sortItemsForDisplay(@_items)
           @_expandItemsToDefault()
           @trigger()
-        else
-          @_fetchFromCache()
+          return
+
+        if change.type is 'unpersist' and itemIndex isnt -1
+          @_items = [].concat(@_items)
+          @_items.splice(itemIndex, 1)
+          @_expandItemsToDefault()
+          @trigger()
+          return
+
+      @_fetchFromCache()
 
     if change.objectClass is Thread.name
       updatedThread = _.find change.objects, (obj) => obj.id is @_thread.id
