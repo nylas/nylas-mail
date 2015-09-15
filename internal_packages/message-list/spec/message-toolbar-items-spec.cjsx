@@ -1,9 +1,10 @@
 React = require "react/addons"
 ReactTestUtils = React.addons.TestUtils
 TestUtils = React.addons.TestUtils
-{Thread, FocusedContentStore, Actions} = require "nylas-exports"
+{Thread, FocusedContentStore, Actions, ChangeUnreadTask} = require "nylas-exports"
 
 StarButton = require '../lib/thread-star-button'
+ThreadToggleUnreadButton = require '../lib/thread-toggle-unread-button'
 
 test_thread = (new Thread).fromJSON({
   "id" : "thread_12345"
@@ -35,3 +36,28 @@ describe "MessageToolbarItem starring", ->
 
     expect(Actions.queueTask.mostRecentCall.args[0].threads).toEqual([test_thread_starred])
     expect(Actions.queueTask.mostRecentCall.args[0].starred).toEqual(false)
+
+describe "MessageToolbarItem marking as unread", ->
+  thread = null
+  markUnreadBtn = null
+
+  beforeEach ->
+    thread = new Thread(id: "thread-id-lol-123")
+    markUnreadBtn = ReactTestUtils.renderIntoDocument(
+      <ThreadToggleUnreadButton thread={thread} />
+    )
+
+  it "queues a task to change unread status to true", ->
+    spyOn Actions, "queueTask"
+    ReactTestUtils.Simulate.click React.findDOMNode(markUnreadBtn)
+
+    changeUnreadTask = Actions.queueTask.calls[0].args[0]
+    expect(changeUnreadTask instanceof ChangeUnreadTask).toBe true
+    expect(changeUnreadTask.unread).toBe true
+    expect(changeUnreadTask.threads[0].id).toBe thread.id
+
+  it "returns to the thread list", ->
+    spyOn Actions, "popSheet"
+    ReactTestUtils.Simulate.click React.findDOMNode(markUnreadBtn)
+
+    expect(Actions.popSheet).toHaveBeenCalled()

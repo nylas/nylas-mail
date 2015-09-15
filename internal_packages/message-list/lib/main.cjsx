@@ -7,6 +7,7 @@ SidebarThreadParticipants = require "./sidebar-thread-participants"
 
 ThreadStarButton = require './thread-star-button'
 ThreadArchiveButton = require './thread-archive-button'
+ThreadToggleUnreadButton = require './thread-toggle-unread-button'
 
 AutolinkerExtension = require './plugins/autolinker-extension'
 TrackingPixelsExtension = require './plugins/tracking-pixels-extension'
@@ -31,6 +32,9 @@ module.exports =
     ComponentRegistry.register ThreadArchiveButton,
       role: 'message:Toolbar'
 
+    ComponentRegistry.register ThreadToggleUnreadButton,
+      role: 'message:Toolbar'
+
     MessageStore.registerExtension(AutolinkerExtension)
     MessageStore.registerExtension(TrackingPixelsExtension)
 
@@ -38,6 +42,7 @@ module.exports =
     ComponentRegistry.unregister MessageList
     ComponentRegistry.unregister ThreadStarButton
     ComponentRegistry.unregister ThreadArchiveButton
+    ComponentRegistry.unregister ThreadToggleUnreadButton
     ComponentRegistry.unregister MessageToolbarItems
     ComponentRegistry.unregister SidebarThreadParticipants
     MessageStore.unregisterExtension(AutolinkerExtension)

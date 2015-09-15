@@ -11,7 +11,7 @@ class StarButton extends React.Component
 
   render: =>
     selected = @props.thread? and @props.thread.starred
-    <button className="btn btn-toolbar btn-star"
+    <button className="btn btn-toolbar"
             style={order: -104}
             data-tooltip="Star"
             onClick={@_onStarToggle}>
