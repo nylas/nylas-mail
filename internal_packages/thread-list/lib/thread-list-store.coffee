@@ -9,6 +9,7 @@ NylasStore = require 'nylas-store'
  DatabaseStore,
  AccountStore,
  WorkspaceStore,
+ ChangeUnreadTask,
  ChangeStarredTask,
  FocusedContentStore,
  ArchiveThreadHelper,
@@ -32,6 +33,8 @@ class ThreadListStore extends NylasStore
 
     @listenTo Actions.toggleStarSelection, @_onToggleStarSelection
     @listenTo Actions.toggleStarFocused, @_onToggleStarFocused
+
+    @listenTo Actions.toggleUnreadSelection, @_onToggleUnreadSelection
 
     @listenTo DatabaseStore, @_onDataChanged
     @listenTo AccountStore, @_onAccountChanged
@@ -145,6 +148,15 @@ class ThreadListStore extends NylasStore
 
     if task
       Actions.queueTask(task)
+
+  _onToggleUnreadSelection: ->
+    threads = @_view.selection.items()
+    allUnread = threads.every (t) ->
+      t.unread is true
+    unread = not allUnread
+
+    task = new ChangeUnreadTask {threads, unread}
+    Actions.queueTask task
 
   _onArchive: ->
     @_archiveAndShiftBy('auto')

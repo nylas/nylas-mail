@@ -42,6 +42,47 @@ class ThreadBulkStarButton extends React.Component
     Actions.toggleStarSelection()
 
 
+class ThreadBulkToggleUnreadButton extends React.Component
+  @displayName: 'ThreadBulkToggleUnreadButton'
+  @containerRequired: false
+
+  @propTypes:
+    selection: React.PropTypes.object.isRequired
+
+  constructor: ->
+    @state = @_getStateFromStores()
+    super
+
+  componentDidMount: =>
+    @unsubscribers = []
+    @unsubscribers.push ThreadListStore.listen @_onStoreChange
+
+  componentWillUnmount: =>
+    unsubscribe() for unsubscribe in @unsubscribers
+
+  render: =>
+    fragment = if @state.canMarkUnread then "unread" else "read"
+
+    <button style={order:-106}
+            className="btn btn-toolbar"
+            data-tooltip="Mark as #{fragment}"
+            onClick={@_onClick}>
+      <RetinaImg name="icon-toolbar-markas#{fragment}@2x.png"
+                 mode={RetinaImg.Mode.ContentIsMask} />
+    </button>
+
+  _onClick: =>
+    Actions.toggleUnreadSelection()
+
+  _onStoreChange: =>
+    @setState @_getStateFromStores()
+
+  _getStateFromStores: =>
+    selections = ThreadListStore.view().selection.items()
+    canMarkUnread: not selections.every (s) -> s.unread is true
+
+
+
 ThreadNavButtonMixin =
   getInitialState: ->
     @_getStateFromStores()
@@ -117,4 +158,4 @@ UpButton = React.createClass
 UpButton.containerRequired = false
 DownButton.containerRequired = false
 
-module.exports = {DownButton, UpButton, ThreadBulkArchiveButton, ThreadBulkStarButton}
+module.exports = {DownButton, UpButton, ThreadBulkArchiveButton, ThreadBulkStarButton, ThreadBulkToggleUnreadButton}

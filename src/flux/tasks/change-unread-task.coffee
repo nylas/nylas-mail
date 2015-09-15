@@ -36,6 +36,9 @@ class ChangeUnreadTask extends ChangeMailTask
       @threads = _.compact(threads)
       return super
 
+  _processesNestedMessages: ->
+    true
+
   _changesToModel: (model) ->
     {unread: @unread}
 

@@ -2,7 +2,7 @@ _ = require 'underscore'
 React = require "react"
 {ComponentRegistry, WorkspaceStore} = require "nylas-exports"
 
-{DownButton, UpButton, ThreadBulkArchiveButton, ThreadBulkStarButton} = require "./thread-buttons"
+{DownButton, UpButton, ThreadBulkArchiveButton, ThreadBulkStarButton, ThreadBulkToggleUnreadButton} = require "./thread-buttons"
 {DraftDeleteButton} = require "./draft-buttons"
 ThreadSelectionBar = require './thread-selection-bar'
 ThreadList = require './thread-list'
@@ -42,6 +42,9 @@ module.exports =
     ComponentRegistry.register ThreadBulkStarButton,
       role: 'thread:BulkAction'
 
+    ComponentRegistry.register ThreadBulkToggleUnreadButton,
+      role: 'thread:BulkAction'
+
     ComponentRegistry.register DraftDeleteButton,
       role: 'draft:BulkAction'
 
@@ -51,6 +54,7 @@ module.exports =
     ComponentRegistry.unregister ThreadList
     ComponentRegistry.unregister ThreadSelectionBar
     ComponentRegistry.unregister ThreadBulkArchiveButton
+    ComponentRegistry.unregister ThreadBulkToggleUnreadButton
     ComponentRegistry.unregister DownButton
     ComponentRegistry.unregister UpButton
     ComponentRegistry.unregister DraftDeleteButton

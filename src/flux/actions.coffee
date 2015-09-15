@@ -328,6 +328,7 @@ class Actions
   @archiveAndPrevious: ActionScopeWindow
   @toggleStarSelection: ActionScopeWindow
   @toggleStarFocused: ActionScopeWindow
+  @toggleUnreadSelection: ActionScopeWindow
   @deleteSelection: ActionScopeWindow
 
   @moveThread: ActionScopeWindow
