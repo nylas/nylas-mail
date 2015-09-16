@@ -2,6 +2,7 @@ _ = require 'underscore'
 ipc = require 'ipc'
 
 Label = require '../../src/flux/models/label'
+Thread = require '../../src/flux/models/thread'
 TestModel = require '../fixtures/db-test-model'
 ModelQuery = require '../../src/flux/models/query'
 DatabaseStore = require '../../src/flux/stores/database-store'
@@ -48,6 +49,65 @@ describe "DatabaseStore", ->
     it "should return a ModelQuery ready to be executed", ->
       q = DatabaseStore.findAll(TestModel, testMatchers)
       expect(q.sql()).toBe("SELECT `TestModel`.`data` FROM `TestModel`  WHERE `TestModel`.`id` = 'b'  ")
+
+  describe "modelify", ->
+    beforeEach ->
+      @models = [
+        new Thread(clientId: 'local-A'),
+        new Thread(clientId: 'local-B'),
+        new Thread(clientId: 'local-C'),
+        new Thread(clientId: 'local-D', serverId: 'SERVER:D'),
+        new Thread(clientId: 'local-E', serverId: 'SERVER:E'),
+        new Thread(clientId: 'local-F', serverId: 'SERVER:F'),
+        new Thread(clientId: 'local-G', serverId: 'SERVER:G')
+      ]
+      # Actually returns correct sets for queries, since matchers can evaluate
+      # themselves against models in memory
+      spyOn(DatabaseStore, 'run').andCallFake (query) =>
+        results = []
+        for model in @models
+          found = _.every query._matchers, (matcher) ->
+            matcher.evaluate(model)
+          results.push(model) if found
+        Promise.resolve(results)
+
+    describe "when given an array or input that is not an array", ->
+      it "resolves immediately with an empty array", ->
+        waitsForPromise =>
+          DatabaseStore.modelify(Thread, null).then (output) =>
+            expect(output).toEqual([])
+
+    describe "when given an array of mixed IDs, clientIDs, and models", ->
+      it "resolves with an array of models", ->
+        input = ['SERVER:F', 'local-B', 'local-C', 'SERVER:D', @models[6]]
+        expectedOutput = [@models[5], @models[1], @models[2], @models[3], @models[6]]
+        waitsForPromise =>
+          DatabaseStore.modelify(Thread, input).then (output) =>
+            expect(output).toEqual(expectedOutput)
+
+    describe "when the input is only IDs", ->
+      it "resolves with an array of models", ->
+        input = ['SERVER:D', 'SERVER:F', 'SERVER:G']
+        expectedOutput = [@models[3], @models[5], @models[6]]
+        waitsForPromise =>
+          DatabaseStore.modelify(Thread, input).then (output) =>
+            expect(output).toEqual(expectedOutput)
+
+    describe "when the input is only clientIDs", ->
+      it "resolves with an array of models", ->
+        input = ['local-A', 'local-B', 'local-C', 'local-D']
+        expectedOutput = [@models[0], @models[1], @models[2], @models[3]]
+        waitsForPromise =>
+          DatabaseStore.modelify(Thread, input).then (output) =>
+            expect(output).toEqual(expectedOutput)
+
+    describe "when the input is all models", ->
+      it "resolves with an array of models", ->
+        input = [@models[0], @models[1], @models[2], @models[3]]
+        expectedOutput = [@models[0], @models[1], @models[2], @models[3]]
+        waitsForPromise =>
+          DatabaseStore.modelify(Thread, input).then (output) =>
+            expect(output).toEqual(expectedOutput)
 
   describe "count", ->
     it "should pass the provided predicates on to the ModelQuery", ->
