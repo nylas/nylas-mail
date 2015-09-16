@@ -60,7 +60,7 @@ class DestroyDraftTask extends Task
       inboxMsg = err.body?.message ? ""
 
       # Draft has already been deleted, this is not really an error
-      if err.statusCode is 404
+      if err.statusCode in [404, 409]
         return Promise.resolve(Task.Status.Finished)
 
       # Draft has been sent, and can't be deleted. Not much we can do but finish

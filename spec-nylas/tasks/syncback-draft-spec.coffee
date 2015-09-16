@@ -43,6 +43,10 @@ describe "SyncbackDraftTask", ->
     spyOn(DatabaseStore, "persistModel").andCallFake ->
       Promise.resolve()
 
+    spyOn(DatabaseStore, "_atomically").andCallFake (fn) ->
+      fn()
+      return Promise.resolve()
+
   describe "performRemote", ->
     beforeEach ->
       spyOn(NylasAPI, 'makeRequest').andCallFake (opts) ->

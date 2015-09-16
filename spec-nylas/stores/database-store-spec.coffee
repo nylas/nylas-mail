@@ -70,7 +70,7 @@ describe "DatabaseStore", ->
           console.log err
 
     it "should call through to _writeModels", ->
-      spyOn(DatabaseStore, '_writeModels')
+      spyOn(DatabaseStore, '_writeModels').andReturn Promise.resolve()
       DatabaseStore.persistModel(testModelInstance)
       expect(DatabaseStore._writeModels.callCount).toBe(1)
 
@@ -87,7 +87,7 @@ describe "DatabaseStore", ->
             type:'persist'
 
     it "should call through to _writeModels after checking them", ->
-      spyOn(DatabaseStore, '_writeModels')
+      spyOn(DatabaseStore, '_writeModels').andReturn Promise.resolve()
       DatabaseStore.persistModels([testModelInstanceA, testModelInstanceB])
       expect(DatabaseStore._writeModels.callCount).toBe(1)
 
@@ -98,9 +98,9 @@ describe "DatabaseStore", ->
   describe "unpersistModel", ->
     it "should delete the model by Id", -> waitsForPromise =>
       DatabaseStore.unpersistModel(testModelInstance).then =>
-        expect(@performed.length).toBe(3)
-        expect(@performed[1].query).toBe("DELETE FROM `TestModel` WHERE `id` = ?")
-        expect(@performed[1].values[0]).toBe('1234')
+        expect(@performed.length).toBe(1)
+        expect(@performed[0].query).toBe("DELETE FROM `TestModel` WHERE `id` = ?")
+        expect(@performed[0].values[0]).toBe('1234')
 
     it "should cause the DatabaseStore to trigger() with a change that contains the model", ->
       waitsForPromise ->
@@ -129,18 +129,18 @@ describe "DatabaseStore", ->
         TestModel.configureWithCollectionAttribute()
         waitsForPromise =>
           DatabaseStore.unpersistModel(testModelInstance).then =>
-            expect(@performed.length).toBe(4)
-            expect(@performed[2].query).toBe("DELETE FROM `TestModel-Label` WHERE `id` = ?")
-            expect(@performed[2].values[0]).toBe('1234')
+            expect(@performed.length).toBe(2)
+            expect(@performed[1].query).toBe("DELETE FROM `TestModel-Label` WHERE `id` = ?")
+            expect(@performed[1].values[0]).toBe('1234')
 
     describe "when the model has joined data attributes", ->
       it "should delete the element in the joined data table", ->
         TestModel.configureWithJoinedDataAttribute()
         waitsForPromise =>
           DatabaseStore.unpersistModel(testModelInstance).then =>
-            expect(@performed.length).toBe(4)
-            expect(@performed[2].query).toBe("DELETE FROM `TestModelBody` WHERE `id` = ?")
-            expect(@performed[2].values[0]).toBe('1234')
+            expect(@performed.length).toBe(2)
+            expect(@performed[1].query).toBe("DELETE FROM `TestModelBody` WHERE `id` = ?")
+            expect(@performed[1].values[0]).toBe('1234')
 
   describe "_writeModels", ->
     it "should compose a REPLACE INTO query to save the model", ->
@@ -262,5 +262,56 @@ describe "DatabaseStore", ->
         delete TestModel.additionalSQLiteConfig['writeModel']
         @m = new TestModel(id: 'local-6806434c-b0cd', body: 'hello world')
         expect( => DatabaseStore._writeModels([@m])).not.toThrow()
+
+  describe "atomically", ->
+    beforeEach ->
+      DatabaseStore._atomicPromise = null
+
+    it "sets up an exclusive transaction", ->
+      waitsForPromise =>
+        DatabaseStore.atomically( =>
+          DatabaseStore._query("TEST")
+        ).then =>
+          expect(@performed.length).toBe 3
+          expect(@performed[0].query).toBe "BEGIN EXCLUSIVE TRANSACTION"
+          expect(@performed[1].query).toBe "TEST"
+          expect(@performed[2].query).toBe "COMMIT"
+
+    it "resolves, but doesn't fire a commit on failure", ->
+      waitsForPromise =>
+        DatabaseStore.atomically( =>
+          throw new Error("BOOO")
+        ).catch =>
+          expect(@performed.length).toBe 1
+          expect(@performed[0].query).toBe "BEGIN EXCLUSIVE TRANSACTION"
+
+    it "can be called multiple times and get queued", ->
+      waitsForPromise =>
+        Promise.all([
+          DatabaseStore.atomically( -> )
+          DatabaseStore.atomically( -> )
+          DatabaseStore.atomically( -> )
+        ]).then =>
+          expect(@performed.length).toBe 6
+          expect(@performed[0].query).toBe "BEGIN EXCLUSIVE TRANSACTION"
+          expect(@performed[1].query).toBe "COMMIT"
+          expect(@performed[2].query).toBe "BEGIN EXCLUSIVE TRANSACTION"
+          expect(@performed[3].query).toBe "COMMIT"
+          expect(@performed[4].query).toBe "BEGIN EXCLUSIVE TRANSACTION"
+          expect(@performed[5].query).toBe "COMMIT"
+
+    it "can be called multiple times and get queued", ->
+      waitsForPromise =>
+        DatabaseStore.atomically( -> )
+        .then -> DatabaseStore.atomically( -> )
+        .then -> DatabaseStore.atomically( -> )
+        .then =>
+          expect(@performed.length).toBe 6
+          expect(@performed[0].query).toBe "BEGIN EXCLUSIVE TRANSACTION"
+          expect(@performed[1].query).toBe "COMMIT"
+          expect(@performed[2].query).toBe "BEGIN EXCLUSIVE TRANSACTION"
+          expect(@performed[3].query).toBe "COMMIT"
+          expect(@performed[4].query).toBe "BEGIN EXCLUSIVE TRANSACTION"
+          expect(@performed[5].query).toBe "COMMIT"
 
 describe "DatabaseStore::_triggerSoon", ->

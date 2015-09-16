@@ -77,7 +77,7 @@ class DeveloperBar extends React.Component
 
     else if @state.section == 'long-polling'
       itemDivs = @state.longPollHistory.filter(matchingFilter).map (item) ->
-        <DeveloperBarLongPollItem item={item} key={item.cursor}/>
+        <DeveloperBarLongPollItem item={item} key={"#{item.cursor}-#{item.timestamp}"}/>
       expandedDiv = <div className="expanded-section long-polling">{itemDivs}</div>
 
     else if @state.section == 'queue'

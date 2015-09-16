@@ -158,9 +158,11 @@ class DraftStoreProxy
     if @_destroyed or not @_draft
       return Promise.resolve(true)
 
-    updated = @changes.applyToModel(@_draft)
-    return DatabaseStore.persistModel(updated).then =>
-      Actions.queueTask(new SyncbackDraftTask(@draftClientId))
+    DatabaseStore.atomically =>
+      DatabaseStore.findBy(Message, clientId: @_draft.clientId).then (draft) =>
+        updatedDraft = @changes.applyToModel(draft)
+        return DatabaseStore.persistModel(updatedDraft).then =>
+          Actions.queueTask(new SyncbackDraftTask(@draftClientId))
 
 
 
