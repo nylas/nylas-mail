@@ -352,33 +352,35 @@ class DatabaseStore extends NylasStore
         else
           continue
       else if _.isString(item)
-        ids.push(item)
+        if Utils.isTempId(item)
+          clientIds.push(item)
+        else
+          ids.push(item)
       else
         throw new Error("modelify: Not sure how to convert #{item} into a #{klass.name}")
 
-    if ids.length is 0
+    if ids.length is 0 and clientIds.length is 0
       return Promise.resolve(arr)
 
-    whereId = =>
-      klass.attributes.id.in(ids)
+    queries =
+      modelsFromIds: []
+      modelsFromClientIds: []
 
-    whereClientId = =>
-      klass.attributes.clientId.in(clientIds)
-
-    queries = {}
-    queries.modelsFromIds = @findAll(klass).where(whereId) if ids.length
-    queries.modelsFromClientIds = @findAll(klass).where(whereClientId) if clientIds.length
+    if ids.length
+      queries.modelsFromIds = @findAll(klass).where(klass.attributes.id.in(ids))
+    if clientIds.length
+      queries.modelsFromClientIds = @findAll(klass).where(klass.attributes.clientId.in(clientIds))
 
     Promise.props(queries).then ({modelsFromIds, modelsFromClientIds}) =>
-      modelsById = {}
-      modelsById[model.id] = model for model in modelsFromIds
-      modelsById[model.id] = model for model in modelsFromClientIds
+      modelsByString = {}
+      modelsByString[model.id] = model for model in modelsFromIds
+      modelsByString[model.clientId] = model for model in modelsFromClientIds
 
       arr = arr.map (item) ->
         if item instanceof klass
           return item
         else
-          return modelsById[item]
+          return modelsByString[item]
 
       return Promise.resolve(arr)
 
