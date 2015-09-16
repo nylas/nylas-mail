@@ -6,6 +6,9 @@ Thread = require '../src/flux/models/thread'
 DatabaseStore = require '../src/flux/stores/database-store'
 
 describe "NylasAPI", ->
+  beforeEach ->
+    spyOn(DatabaseStore, "atomically").andCallFake (fn) -> fn()
+
   describe "handleModel404", ->
     it "should unpersist the model from the cache that was requested", ->
       model = new Thread(id: 'threadidhere')

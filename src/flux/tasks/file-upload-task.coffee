@@ -103,6 +103,8 @@ class FileUploadTask extends Task
 
 
     DraftStore = require '../stores/draft-store'
+    # We have a `DatabaseStore.atomically` block surrounding the object
+    # right before we persist changes
     DraftStore.sessionForClientId(@messageClientId).then (session) =>
       files = _.clone(session.draft().files) ? []
       files.push(file)

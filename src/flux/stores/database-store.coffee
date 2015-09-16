@@ -236,7 +236,7 @@ class DatabaseStore extends NylasStore
         if DEBUG_MISSING_ACCOUNT_ID and query.indexOf("`account_id`") is -1
           @_prettyConsoleLog("QUERY does not specify accountId: #{query}")
         if DEBUG_QUERY_PLANS
-          @_db.all "EXPLAIN QUERY PLAN #{query}", values, (err, results) =>
+          @_db.all "EXPLAIN QUERY PLAN #{query}", values, (err, results=[]) =>
             str = results.map((row) -> row.detail).join('\n') + " for " + query
             @_prettyConsoleLog(str) if str.indexOf("SCAN") isnt -1
 
@@ -249,7 +249,7 @@ class DatabaseStore extends NylasStore
       # We don't exit serial execution mode until the last pending transaction has
       # finished executing.
 
-      if query is BEGIN_TRANSACTION
+      if query.indexOf "BEGIN" is 0
         @_db.serialize() if @_inflightTransactions is 0
         @_inflightTransactions += 1
 
@@ -407,11 +407,7 @@ class DatabaseStore extends NylasStore
   #   - rejects if any databse query fails or one of the triggering
   #     callbacks failed
   persistModel: (model) =>
-    Promise.all([
-      @_query(BEGIN_TRANSACTION)
-      @_writeModels([model])
-      @_query(COMMIT)
-    ]).then =>
+    @_writeModels([model]).then =>
       @_triggerSoon({objectClass: model.constructor.name, objects: [model], type: 'persist'})
 
   # Public: Asynchronously writes `models` to the cache and triggers a single change
@@ -435,11 +431,7 @@ class DatabaseStore extends NylasStore
         throw new Error("DatabaseStore::persistModels - You must pass an array of models with different ids. ID #{model.id} is in the set multiple times.")
       ids[model.id] = true
 
-    Promise.all([
-      @_query(BEGIN_TRANSACTION)
-      @_writeModels(models)
-      @_query(COMMIT)
-    ]).then =>
+    @_writeModels(models).then =>
       @_triggerSoon({objectClass: models[0].constructor.name, objects: models, type: 'persist'})
 
   # Public: Asynchronously removes `model` from the cache and triggers a change event.
@@ -452,25 +444,31 @@ class DatabaseStore extends NylasStore
   #   - rejects if any databse query fails or one of the triggering
   #     callbacks failed
   unpersistModel: (model) =>
-    Promise.all([
-      @_query(BEGIN_TRANSACTION)
-      @_deleteModel(model)
-      @_query(COMMIT)
-    ]).then =>
+    @_deleteModel(model).then =>
       @_triggerSoon({objectClass: model.constructor.name, objects: [model], type: 'unpersist'})
 
   persistJSONObject: (key, json) ->
     jsonString = serializeRegisteredObjects(json)
-    @_query(BEGIN_TRANSACTION)
-    @_query("REPLACE INTO `JSONObject` (`key`,`data`) VALUES (?,?)", [key, jsonString])
-    @_query(COMMIT)
-    @trigger({objectClass: 'JSONObject', objects: [{key: key, json: json}], type: 'persist'})
+    @_query("REPLACE INTO `JSONObject` (`key`,`data`) VALUES (?,?)", [key, jsonString]).then =>
+      @trigger({objectClass: 'JSONObject', objects: [{key: key, json: json}], type: 'persist'})
 
   findJSONObject: (key) ->
     @_query("SELECT `data` FROM `JSONObject` WHERE key = ? LIMIT 1", [key]).then (results) =>
       return Promise.resolve(null) unless results[0]
       data = deserializeRegisteredObjects(results[0].data)
       Promise.resolve(data)
+
+  atomically: (fn) =>
+    @_atomicPromise ?= Promise.resolve()
+    @_atomicPromise = @_atomicPromise.finally =>
+      @_atomically(fn)
+    return @_atomicPromise
+
+  _atomically: (fn) ->
+    @_query("BEGIN EXCLUSIVE TRANSACTION")
+    .then => fn()
+    .then => @_query("COMMIT")
+    .then => Promise.resolve()
 
   ########################################################################
   ########################### PRIVATE METHODS ############################
