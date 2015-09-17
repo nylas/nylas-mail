@@ -10,7 +10,7 @@ class ThreadToggleUnreadButton extends React.Component
     fragment = if @props.thread?.unread then "read" else "unread"
 
     <button className="btn btn-toolbar"
-            style={order: -106}
+            style={order: -105}
             data-tooltip="Mark as #{fragment}"
             onClick={@_onClick}>
       <RetinaImg name="icon-toolbar-markas#{fragment}@2x.png"

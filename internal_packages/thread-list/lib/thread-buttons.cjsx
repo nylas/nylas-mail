@@ -12,7 +12,7 @@ class ThreadBulkArchiveButton extends React.Component
     selection: React.PropTypes.object.isRequired
 
   render: ->
-    <button style={order:-105}
+    <button style={order:-106}
             className="btn btn-toolbar"
             data-tooltip="Archive"
             onClick={@_onArchive}>
@@ -63,7 +63,7 @@ class ThreadBulkToggleUnreadButton extends React.Component
   render: =>
     fragment = if @state.canMarkUnread then "unread" else "read"
 
-    <button style={order:-106}
+    <button style={order:-105}
             className="btn btn-toolbar"
             data-tooltip="Mark as #{fragment}"
             onClick={@_onClick}>
