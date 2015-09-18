@@ -9,11 +9,11 @@ SyncbackCategoryTask = require './syncback-category-task'
 
 # Public: Create a new task to apply labels to a message or thread.
 #
-# Takes an options array of the form:
-#   - `labelsToAdd` An {Array} of {Label}s or {Label} ids to add
-#   - `labelsToRemove` An {Array} of {Label}s or {Label} ids to remove
-#   - `threads` An {Array} of {Thread}s or {Thread} ids
-#   - `messages` An {Array} of {Message}s or {Message} ids
+# Takes an options object of the form:
+# - labelsToAdd: An {Array} of {Label}s or {Label} ids to add
+# - labelsToRemove: An {Array} of {Label}s or {Label} ids to remove
+# - threads: An {Array} of {Thread}s or {Thread} ids
+# - messages: An {Array} of {Message}s or {Message} ids
 class ChangeLabelsTask extends ChangeMailTask
 
   constructor: ({@labelsToAdd, @labelsToRemove}={}) ->

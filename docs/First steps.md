@@ -44,7 +44,7 @@ Order:       2
   <div class="col-md-6" style="padding-right:30px;">
     <h4><div class="letter">A</div> Explore the source</h4>
     <img src="/static/img/Illu-ExploreTheSource@2x.png" width="121" height="96" style="margin:auto; margin-bottom:35px; display:block;"/>
-    <p>Nylas is built on the modern web - packages are written in Coffeescript or Javascript. Packages are a lot like node modules, with their own source, assets, and tests. Check out yours in <span class="instruction-literal">~/.nylas/dev/packages</span>.</p>
+    <p>Nylas is built on the modern web - packages are written in CoffeeScript or JavaScript. Packages are a lot like node modules, with their own source, assets, and tests. Check out yours in <span class="instruction-literal">~/.nylas/dev/packages</span>.</p>
   </div>
   <div class="col-md-6" style="padding-left:30px;">
     <h4><div class="letter">B</div> Run the specs</h4>
@@ -136,13 +136,13 @@ class MyMessageSidebar extends React.Component
 
   ...
 
-  _renderContent =>
+  _renderContent: =>
     <div className="header">
       {md5(@state.contact.email)}
     </div>
 ```
 
-> JSX Tip: The `{..}` syntax is used for JavaScript expressions inside HTML elements. [Learn more](https://facebook.github.io/react/docs/jsx-in-depth.html)
+> JSX Tip: The `{..}` syntax is used for JavaScript expressions inside HTML elements. [Learn more](https://facebook.github.io/react/docs/jsx-in-depth.html).
 
 You should see the MD5 hash appear in the sidebar (after you reload Nylas Mail):
 

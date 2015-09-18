@@ -20,23 +20,23 @@ TaskStatus =
 #   tried multiple times to succeed in case of network issues.
 #
 #   performRemote must return a {Promise}, and it should always resolve with
-#   Task.Status.Finished or Task.Status.Retry. Rejections are considered
+#   `Task.Status.Finished` or `Task.Status.Retry`. Rejections are considered
 #   exception cases and are logged to our server.
 #
-#   Returning Task.Status.Retry will cause the TaskQueue to leave your task
-#   on the queue and run it again later. You should only return Task.Status.Retry
+#   Returning `Task.Status.Retry` will cause the `TaskQueue` to leave your task
+#   on the queue and run it again later. You should only return `Task.Status.Retry`
 #   if your task encountered a transient error (for example, a `0` but not a `400`).
 #
 # - shouldWaitForTask:
 #   Tasks may be arbitrarily dependent on other tasks. To ensure that
-#   performRemote is called at the right time, subclasses should implement
+#   `performRemote` is called at the right time, subclasses should implement
 #   `shouldWaitForTask(other)`. For example, the `SendDraft` task is dependent
 #   on the draft's files' `UploadFile` tasks completing.
 #
-# Tasks may also implement shouldDequeueOtherTask(other). Returning true
+# Tasks may also implement `shouldDequeueOtherTask(other)`. Returning true
 # will cause the other event to be removed from the queue. This is useful in
-# offline mode especially, when the user might Save,Save,Save,Save,Send.
-# Each newly queued Save can cancel the (unstarted) save task in the queue.
+# offline mode especially, when the user might `Save`,`Save`,`Save`,`Save`,`Send`.
+# Each newly queued `Save` can cancel the (unstarted) save task in the queue.
 #
 # Tasks that need to support undo/redo should implement `canBeUndone`, `isUndo`,
 # `createUndoTask`, and `createIdenticalTask`.

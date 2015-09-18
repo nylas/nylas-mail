@@ -20,7 +20,7 @@ Utils = require './flux/models/utils'
 
 # Essential: Atom global for dealing with packages, themes, menus, and the window.
 #
-# An instance of this class is always available as the `atom` global.
+# The singleton of this class is always available as the `atom` global.
 module.exports =
 class Atom extends Model
   @version: 1  # Increment this when the serialization format changes
@@ -514,7 +514,7 @@ class Atom extends Model
   onWindowPropsReceived: (callback) ->
     @emitter.on('window-props-received', callback)
 
-  # Extended: Returns a {Boolean} true when the current window is maximized.
+  # Extended: Is the current window maximized?
   isMaximixed: ->
     @getCurrentWindow().isMaximized()
 
