@@ -118,6 +118,7 @@ class Actions
 
   @longPollStateChanged: ActionScopeWorkWindow
   @longPollReceivedRawDeltas: ActionScopeWorkWindow
+  @longPollReceivedRawDeltasPing: ActionScopeGlobal
   @longPollProcessedDeltas: ActionScopeWorkWindow
   @longPollConnected: ActionScopeWorkWindow
   @longPollOffline: ActionScopeWorkWindow

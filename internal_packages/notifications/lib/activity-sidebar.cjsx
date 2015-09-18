@@ -8,7 +8,8 @@ NotificationStore = require './notifications-store'
  NylasSyncStatusStore,
  TaskQueueStatusStore,
  NylasAPI} = require 'nylas-exports'
-{TimeoutTransitionGroup} = require 'nylas-component-kit'
+ActivitySidebarLongPollStore = require './activity-sidebar-long-poll-store'
+{TimeoutTransitionGroup, RetinaImg} = require 'nylas-component-kit'
 
 class ActivitySidebar extends React.Component
   @displayName: 'ActivitySidebar'
@@ -26,6 +27,7 @@ class ActivitySidebar extends React.Component
     @_unlisteners.push TaskQueueStatusStore.listen @_onDataChanged
     @_unlisteners.push NylasSyncStatusStore.listen @_onDataChanged
     @_unlisteners.push NotificationStore.listen @_onDataChanged
+    @_unlisteners.push ActivitySidebarLongPollStore.listen @_onDeltaReceived
 
   componentWillUnmount: =>
     unlisten() for unlisten in @_unlisteners
@@ -33,6 +35,9 @@ class ActivitySidebar extends React.Component
 
   render: =>
     items = [].concat(@_renderSyncActivityItem(), @_renderNotificationActivityItems(), @_renderTaskActivityItems())
+
+    if @state.receivingDelta
+      items.push @_renderDeltaSyncActivityItem()
 
     names = classNames
       "sidebar-activity": true
@@ -108,6 +113,16 @@ class ActivitySidebar extends React.Component
         </div>
       </div>
 
+  _renderDeltaSyncActivityItem: =>
+    <div className="item" key="delta-sync-item">
+      <div style={padding: "14px 7px 0 10px", float: "left"}>
+        <RetinaImg name="sending-spinner.gif" mode={RetinaImg.Mode.ContentPreserve} />
+      </div>
+      <div className="inner">
+        Getting your mail&hellip;this might take a while
+      </div>
+    </div>
+
   _renderNotificationActivityItems: =>
     @state.notifications.map (notification) ->
       <div className="item" key={notification.id}>
@@ -126,6 +141,17 @@ class ActivitySidebar extends React.Component
     notifications: NotificationStore.notifications()
     tasks: TaskQueueStatusStore.queue()
     sync: NylasSyncStatusStore.state()
+
+  _onDeltaReceived: =>
+    if @_timeoutId
+      clearTimeout @_timeoutId
+
+    @_timeoutId = setTimeout(( =>
+      delete @_timeoutId
+      @setState receivingDelta: false
+    ), 15000)
+
+    @setState receivingDelta: true
 
 
 module.exports = ActivitySidebar
