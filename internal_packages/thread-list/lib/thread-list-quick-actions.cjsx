@@ -17,13 +17,12 @@ class ThreadListQuickActions extends React.Component
 
   render: =>
     actions = []
-    actions.push <div key="reply" className="action action-reply" onClick={@_onReply}></div>
-    actions.push <div key="fwd" className="action action-forward" onClick={@_onForward}></div>
     if @_shouldDisplayArchiveButton()
-      actions.push <div key="archive" className="action action-archive" onClick={@_onArchive}></div>
+      actions.push <div key="archive" className="btn action action-archive" onClick={@_onArchive}></div>
     else if AccountStore.current().usesLabels() and @props.categoryId == CategoryStore.getStandardCategory('all').id
-      actions.push <div key="trash" className="action action-trash" onClick={@_onTrash}></div>
+      actions.push <div key="trash" className="btn action action-trash" onClick={@_onTrash}></div>
 
+    return [] if actions.length is 0
     <div className="inner">
       {actions}
     </div>

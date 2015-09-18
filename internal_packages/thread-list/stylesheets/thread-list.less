@@ -219,24 +219,24 @@
     display:inline-block;
     background-size: 100%;
     zoom:0.5;
-    width:42px;
-    height:42px;
-    margin:16px;
+    width: 81px;
+    height: 57px;
+    margin: 9px 16px 0 16px;
   }
   .action:last-child {
     margin-right:40px;
   }
   .action.action-reply {
-    background: url(../static/images/thread-list-quick-actions/ic-quick-button-reply@2x.png) top left no-repeat;
+    background: url(../static/images/thread-list-quick-actions/ic-quick-button-reply@2x.png) top left no-repeat, @background-gradient;
   }
   .action.action-forward {
-    background: url(../static/images/thread-list-quick-actions/ic-quick-button-forward@2x.png) top left no-repeat;
+    background: url(../static/images/thread-list-quick-actions/ic-quick-button-forward@2x.png) top left no-repeat, @background-gradient;
   }
   .action.action-archive {
-    background: url(../static/images/thread-list-quick-actions/ic-quick-button-archive@2x.png) top left no-repeat;
+    background: url(../static/images/thread-list-quick-actions/ic-quick-button-archive@2x.png) center no-repeat, @background-gradient;
   }
   .action.action-trash {
-    background: url(../static/images/thread-list-quick-actions/ic-quick-button-trash@2x.png) top left no-repeat;
+    background: url(../static/images/thread-list-quick-actions/ic-quick-button-trash@2x.png) center no-repeat, @background-gradient;
   }
 }
 .thread-list .list-item:hover .list-column-HoverActions {
