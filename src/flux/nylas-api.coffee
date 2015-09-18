@@ -73,9 +73,19 @@ class NylasAPIRequest
     requestId = Utils.generateTempId()
     new Promise (resolve, reject) =>
       @options.startTime = Date.now()
-      Actions.willMakeAPIRequest({request: @options, requestId: requestId})
+      Actions.willMakeAPIRequest({
+        request: @options,
+        requestId: requestId
+      })
+
       req = request @options, (error, response, body) =>
-        Actions.didMakeAPIRequest({request: @options, response: response, error: error, requestId: requestId})
+        Actions.didMakeAPIRequest({
+          request: @options,
+          statusCode: response?.statusCode,
+          error: error,
+          requestId: requestId
+        })
+
         PriorityUICoordinator.settle.then =>
           if error or response.statusCode > 299
             # Some errors (like socket errors and some types of offline
