@@ -8,7 +8,7 @@ information about Folder on the Nylas Platform, read the [Folder API
 Documentation](https://nylas.com/docs/api#folders)
 
 NOTE: This is different from a `Label`. A `Folder` is used for generic
-IMAP and Exchange, while `Label`s are used for Gmail. The `Namespace` has
+IMAP and Exchange, while `Label`s are used for Gmail. The `Account` has
 the filed `organizationUnit` which specifies if the current account uses
 either "folder" or "label".
 

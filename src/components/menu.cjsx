@@ -17,9 +17,9 @@ class MenuItem extends React.Component
   Public: React `props` supported by MenuItem:
 
    - `divider` (optional) Pass a {Boolean} to render the menu item as a section divider.
-   - `key` (optional)
-   - `selected` (optional)
-   - `checked` (optional)
+   - `key` (optional) Pass a {String} to be the React key to optimize rendering lists of items.
+   - `selected` (optional) Pass a {Boolean} to specify whether the item is selected.
+   - `checked` (optional) Pass a {Boolean} to specify whether the item is checked.
   ###
   @propTypes:
     divider: React.PropTypes.bool

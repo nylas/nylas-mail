@@ -77,7 +77,7 @@ module.exports =
 ```
 
 
-> Nylas Mail uses CJSX, a Coffeescript version of JSX, which makes it easy to express Virtual DOM in React `render` methods! You may want to add the [Babel](https://github.com/babel/babel-sublime) plugin to Sublime Text, or the [CJSX Language](https://atom.io/packages/language-cjsx) for syntax highlighting.
+> Nylas Mail uses CJSX, a CoffeeScript version of JSX, which makes it easy to express Virtual DOM in React `render` methods! You may want to add the [Babel](https://github.com/babel/babel-sublime) plugin to Sublime Text, or the [CJSX Language](https://atom.io/packages/language-cjsx) for syntax highlighting.
 
 
 ### Package Stylesheets
@@ -102,7 +102,7 @@ a.src = "nylas://my-package-name/sounds/bloop.mp3"
 a.play()
 ```
 
-###Installing a Package
+### Installing a Package
 
 Nylas Mail ships with many packages already bundled with the application. When the application launches, it looks for additional packages in `~/.nylas/dev/packages`. Each package you create belongs in its own directory inside this folder.
 

@@ -13,7 +13,7 @@ For more information about the Flux pattern, check out [this diagram](https://fa
 
 There are several core stores in the application:
 
-- **{NamespaceStore}**: When the user signs in to Nylas Mail, their auth token provides one or more namespaces. The NamespaceStore manages the available Namespaces, exposes the current Namespace, and allows you to observe changes to the current namespace.
+- **{AccountStore}**: When the user signs in to Nylas Mail, their auth token provides one or more accounts. The AccountStore manages the available Accounts, exposes the current Account, and allows you to observe changes to the current Account.
 
 - **{TaskQueue}**: Manages Tasks, operations queued for processing on the backend. Task objects represent individual API actions and are persisted to disk, ensuring that they are performed eventually. Each Task may depend on other tasks, and Tasks are executed in order.
 
@@ -26,7 +26,7 @@ There are several core stores in the application:
 Most packages declare additional stores that subscribe to these Stores, as well as user Actions, and vend data to the package's React components.
 
 
-###Actions
+### Actions
 
 In Flux applications, views fire {Actions}, which anyone in the application can subscribe to. Typically, `Stores` listen to actions to perform business logic and trigger updates to their corresponding views. For example, when you click "Compose" in the top left corner of Nylas Mail, the React component for the button fires {Actions::composeNewBlankDraft}. The {DraftStore} listens to this action and opens a new composer window.
 

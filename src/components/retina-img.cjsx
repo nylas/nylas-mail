@@ -41,25 +41,25 @@ RetinaImg also introduces the concept of image `modes`. Specifying an image mode
 is important for theming: it describes the content of your image, allowing theme
 developers to properly adjust it. The four modes are described below:
 
-- `ContentPreserve`: Your image contains color or should not be adjusted by any theme.
+- ContentPreserve: Your image contains color or should not be adjusted by any theme.
 
-- `ContentLight`: Your image is a grayscale image with light colors, intended to be shown
-   against a dark background. If a theme developer changes the background to be light, they
-   can safely apply CSS filters to invert or darken this image. This mode adds the
-   `content-light` CSS class to the image.
+- ContentLight: Your image is a grayscale image with light colors, intended to be shown
+  against a dark background. If a theme developer changes the background to be light, they
+  can safely apply CSS filters to invert or darken this image. This mode adds the
+  `content-light` CSS class to the image.
 
-- `ContentDark`: Your image is a grayscale image with dark colors, intended to be shown
-   against a light background. If a theme developer changes the background to be dark, they
-   can safely apply CSS filters to invert or brighten this image. This mode adds the
-   `content-dark` CSS class to the image.
+- ContentDark: Your image is a grayscale image with dark colors, intended to be shown
+  against a light background. If a theme developer changes the background to be dark, they
+  can safely apply CSS filters to invert or brighten this image. This mode adds the
+  `content-dark` CSS class to the image.
 
-- `ContentIsMask`: This image provides alpha information only, and color should
-   be based on the `background-color` of the RetinaImg. This mode adds the
-   `content-mask` CSS class to the image, and leverages `-webkit-mask-image`.
+- ContentIsMask: This image provides alpha information only, and color should
+  be based on the `background-color` of the RetinaImg. This mode adds the
+  `content-mask` CSS class to the image, and leverages `-webkit-mask-image`.
 
-   Example: Icons displayed within buttons specify ContentIsMask, and their
-   color is declared via CSS to be the same as the button text color. Changing
-   `@text-color-subtle` in a theme changes both button text and button icons!
+  Example: Icons displayed within buttons specify ContentIsMask, and their
+  color is declared via CSS to be the same as the button text color. Changing
+  `@text-color-subtle` in a theme changes both button text and button icons!
 
    ```css
    .btn-icon {

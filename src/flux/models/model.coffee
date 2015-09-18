@@ -25,7 +25,7 @@ object.
 `object`: {AttributeString} The model's type. This field is used by the JSON
  deserializer to create an instance of the correct class when inflating the object.
 
-`accountId`: {AttributeString} The string Namespace Id this model belongs to.
+`accountId`: {AttributeString} The string Account Id this model belongs to.
 
 Section: Models
 ###

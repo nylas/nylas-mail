@@ -96,9 +96,9 @@ Drafts in Nylas Mail presented us with a unique challenge. The same draft may be
 
 The {DatabaseStore} exposes a single method, `unpersistModel`, that allows you to purge an object from the cache. You cannot remove a model by ID alone - you must load it first.
 
-####Advanced Model Attributes
+#### Advanced Model Attributes
 
-## Attribute.JoinedData
+##### Attribute.JoinedData
 
 Joined Data attributes allow you to store certain attributes of an object in a separate table in the database. We use this attribute type for Message bodies. Storing message bodies, which can be very large, in a separate table allows us to make queries on message metadata extremely fast, and inflate Message objects without their bodies to build the thread list.
 
@@ -116,7 +116,7 @@ When you call `persistModel`, JoinedData attributes are automatically written to
 
 JoinedData attributes cannot be `queryable`.
 
-## Attribute.Collection
+##### Attribute.Collection
 
 Collection attributes provide basic support for one-to-many relationships. For example, {Thread}s in Nylas Mail have a collection of {Tag}s.
 

@@ -9,11 +9,11 @@ SyncbackCategoryTask = require './syncback-category-task'
 
 # Public: Create a new task to apply labels to a message or thread.
 #
-# Takes an options array of the form:
-#   - `folder` The {Folder} or {Folder} IDs to move to
-#   - `threads` An array of {Thread}s or {Thread} IDs
-#   - `threads` An array of {Message}s or {Message} IDs
-#   - `undoData` Since changing the folder is a destructive action,
+# Takes an options object of the form:
+#   - folder: The {Folder} or {Folder} IDs to move to
+#   - threads: An array of {Thread}s or {Thread} IDs
+#   - threads: An array of {Message}s or {Message} IDs
+#   - undoData: Since changing the folder is a destructive action,
 #   undo tasks need to store the configuration of what folders messages
 #   were in. When creating an undo task, we fill this parameter with
 #   that configuration

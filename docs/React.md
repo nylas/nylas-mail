@@ -4,7 +4,7 @@ Section: Guides
 Order:   2
 ---
 
-Nylas Mail uses [React](https://facebook.github.io/react/) to create a fast, responsive UI. Packages that want to extend the Nylas Mail interface should use React. Using React's [JSX](https://facebook.github.io/react/jsx-in-depth.html) syntax is optional, but both [JSX](https://facebook.github.io/react/jsx-in-depth.html) and [CJSX](https://github.com/jsdf/coffee-react) (Coffeescript) are available.
+Nylas Mail uses [React](https://facebook.github.io/react/) to create a fast, responsive UI. Packages that want to extend the Nylas Mail interface should use React. Using React's [JSX](https://facebook.github.io/react/jsx-in-depth.html) syntax is optional, but both [JSX](https://facebook.github.io/react/jsx-in-depth.html) and [CJSX](https://github.com/jsdf/coffee-react) (CoffeeScript) are available.
 
 For a quick introduction to React, take a look at Facebook's [Getting Started with React](https://facebook.github.io/react/getting-started.html).
 
