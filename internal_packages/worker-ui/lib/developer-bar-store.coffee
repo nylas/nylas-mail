@@ -79,12 +79,12 @@ class DeveloperBarStore extends NylasStore
     @_curlHistory[requestId] = item
     @triggerThrottled(@)
 
-  _onDidMakeAPIRequest: ({requestId, request, response, error}) =>
-    item = @_generateCurlItem({requestId, request, response, error})
+  _onDidMakeAPIRequest: ({requestId, request, statusCode, error}) =>
+    item = @_generateCurlItem({requestId, request, statusCode, error})
     @_curlHistory[requestId] = item
     @triggerThrottled(@)
 
-  _generateCurlItem: ({requestId, request, response, error}) ->
+  _generateCurlItem: ({requestId, request, statusCode, error}) ->
     url = request.url
     if request.auth
       url = url.replace('://', "://#{request.auth.user}:#{request.auth.pass}@")
@@ -100,7 +100,7 @@ class DeveloperBarStore extends NylasStore
       for k,v of request.headers
         headers += "-H \"#{k}: #{v}\" "
 
-    statusCode = response?.statusCode ? error?.code ? "pending"
+    statusCode = statusCode ? error?.code ? "pending"
 
     item =
       id: "curlitemId:#{requestId}"

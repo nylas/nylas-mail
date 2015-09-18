@@ -7,6 +7,7 @@ DatabaseStore = require './stores/database-store'
 PriorityUICoordinator = require '../priority-ui-coordinator'
 async = require 'async'
 
+# TODO: Fold this code into NylasAPI or create a base class
 class EdgehillAPI
 
   constructor: ->
@@ -54,9 +55,17 @@ class EdgehillAPI
     rid = Utils.generateTempId()
     [rid].forEach (requestId) ->
       options.startTime = Date.now()
-      Actions.willMakeAPIRequest({request: options, requestId: requestId})
+      Actions.willMakeAPIRequest({
+        request: options,
+        requestId: requestId
+      })
       nodeRequest options, (error, response, body) ->
-        Actions.didMakeAPIRequest({request: options, response: response, error: error, requestId: requestId})
+        Actions.didMakeAPIRequest({
+          request: options,
+          statusCode: response?.statusCode,
+          error: error,
+          requestId: requestId
+        })
         PriorityUICoordinator.settle.then ->
           if error? or response.statusCode > 299
             options.error(new APIError({error:error, response:response, body:body, requestOptions: options}))
