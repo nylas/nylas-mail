@@ -1,0 +1,21 @@
+{
+  "name": "translate",
+  "version": "0.2.0",
+  "main": "./lib/main",
+  "description": "An example package for Nylas Mail that translates drafts into other languages using the Yandex API.",
+  "license": "Proprietary",
+  "engines": {
+    "atom": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nylas/translate"
+  },
+  "windowTypes": {
+    "default": true,
+    "composer": true
+  },
+  "dependencies": {
+    "request": "^2.53"
+  }
+}

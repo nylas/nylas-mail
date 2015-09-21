@@ -1,0 +1,19 @@
+{
+  "name": "sidebar-github-profile",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "View github user data in the sidebar!",
+  "license": "MIT",
+  "engines": {
+    "atom": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bengotow/nylas-sidebar-github-profile"
+  },
+  "dependencies": {
+    "reflux": "0.1.13",
+    "request": "^2.53",
+    "underscore-plus": "^1.6"
+  }
+}

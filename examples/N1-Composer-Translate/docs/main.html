@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Translation Plugin</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h1 id="translation-plugin">Translation Plugin</h1>
+<p>Last Revised: April 23, 2015 by Ben Gotow</p>
+<p>TranslateButton is a simple React component that allows you to select
+a language from a popup menu and translates draft text into that language.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
+request = <span class="hljs-built_in">require</span> <span class="hljs-string">'request'</span>
+
+{Utils,
+ React,
+ ComponentRegistry,
+ DraftStore} = <span class="hljs-built_in">require</span> <span class="hljs-string">'nylas-exports'</span>
+{Menu,
+ RetinaImg,
+ Popover} = <span class="hljs-built_in">require</span> <span class="hljs-string">'nylas-component-kit'</span>
+
+YandexTranslationURL = <span class="hljs-string">'https://translate.yandex.net/api/v1.5/tr.json/translate'</span>
+YandexTranslationKey = <span class="hljs-string">'trnsl.1.1.20150415T044616Z.24814c314120d022.0a339e2bc2d2337461a98d5ec9863fc46e42735e'</span>
+YandexLanguages =
+  <span class="hljs-string">'English'</span>: <span class="hljs-string">'en'</span>
+  <span class="hljs-string">'Spanish'</span>: <span class="hljs-string">'es'</span>
+  <span class="hljs-string">'Russian'</span>: <span class="hljs-string">'ru'</span>
+  <span class="hljs-string">'Chinese'</span>: <span class="hljs-string">'zh'</span>
+  <span class="hljs-string">'French'</span>: <span class="hljs-string">'fr'</span>
+  <span class="hljs-string">'German'</span>: <span class="hljs-string">'de'</span>
+  <span class="hljs-string">'Italian'</span>: <span class="hljs-string">'it'</span>
+  <span class="hljs-string">'Japanese'</span>: <span class="hljs-string">'ja'</span>
+  <span class="hljs-string">'Portuguese'</span>: <span class="hljs-string">'pt'</span>
+  <span class="hljs-string">'Korean'</span>: <span class="hljs-string">'ko'</span>
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TranslateButton</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span></span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Adding a <code>displayName</code> makes debugging React easier</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-property">@displayName</span>: <span class="hljs-string">'TranslateButton'</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Since our button is being injected into the Composer Footer,
+we receive the local id of the current draft as a <code>prop</code> (a read-only
+property). Since our code depends on this prop, we mark it as a requirement.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-property">@propTypes</span>:
+    <span class="hljs-attribute">draftLocalId</span>: React.PropTypes.string.isRequired</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>The <code>render</code> method returns a React Virtual DOM element. This code looks
+like HTML, but don’t be fooled. The CJSX preprocessor converts</p>
+<p><code>&lt;a href=&quot;http://facebook.github.io/react/&quot;&gt;Hello!&lt;/a&gt;</code></p>
+<p>into Javascript objects which describe the HTML you want:</p>
+<p><code>React.createElement(&#39;a&#39;, {href: &#39;http://facebook.github.io/react/&#39;}, &#39;Hello!&#39;)</code></p>
+<p>We’re rendering a <code>Popover</code> with a <code>Menu</code> inside. These components are part
+of Edgehill’s standard <code>nylas-component-kit</code> library, and make it easy to build
+interfaces that match the rest of Edgehill’s UI.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">render</span>: <span class="hljs-function">=&gt;</span>
+    React.createElement(Popover, {<span class="hljs-string">"ref"</span>: <span class="hljs-string">"popover"</span>,  \
+             <span class="hljs-string">"className"</span>: <span class="hljs-string">"translate-language-picker pull-right"</span>,  \
+             <span class="hljs-string">"buttonComponent"</span>: (<span class="hljs-property">@_renderButton</span>())},
+      React.createElement(Menu, {<span class="hljs-string">"items"</span>: ( Object.keys(YandexLanguages) ),  \
+            <span class="hljs-string">"itemKey"</span>: <span class="hljs-function"><span class="hljs-params">( (item) -&gt; item )</span>,  \
+            "itemContent": <span class="hljs-params">( (item) -&gt; item )</span>,  \
+            "onSelect": <span class="hljs-params">(<span class="hljs-property">@_onTranslate</span>)</span>
+            })
+    )
+
+</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>Helper method to render the button that will activate the popover. Using the
+<code>RetinaImg</code> component makes it easy to display an image from our package.
+<code>RetinaImg</code> will automatically chose the best image format for our display.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">_renderButton</span>: <span class="hljs-function">=&gt;</span>
+    React.createElement(<span class="hljs-string">"button"</span>, {<span class="hljs-string">"className"</span>: <span class="hljs-string">"btn btn-toolbar"</span>}, <span class="hljs-string">"""
+      Translate
+"""</span>, React.createElement(RetinaImg, {<span class="hljs-string">"name"</span>: <span class="hljs-string">"toolbar-chevron.png"</span>})
+    )
+
+  <span class="hljs-attribute">_onTranslate</span>: <span class="hljs-function"><span class="hljs-params">(lang)</span> =&gt;</span>
+    <span class="hljs-property">@refs</span>.popover.close()</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>Obtain the session for the current draft. The draft session provides us
+the draft object and also manages saving changes to the local cache and
+Nilas API as multiple parts of the application touch the draft.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    session = DraftStore.sessionForLocalId(<span class="hljs-property">@props</span>.draftLocalId)
+    session.prepare().<span class="hljs-keyword">then</span> =&gt;
+      body = session.draft().body
+      bodyQuoteStart = Utils.quotedTextIndex(body)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>Identify the text we want to translate. We need to make sure we
+don’t translate quoted text.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">if</span> bodyQuoteStart &gt; <span class="hljs-number">0</span>
+        text = body.substr(<span class="hljs-number">0</span>, bodyQuoteStart)
+      <span class="hljs-keyword">else</span>
+        text = body
+
+      query =
+        <span class="hljs-attribute">key</span>: YandexTranslationKey
+        <span class="hljs-attribute">lang</span>: YandexLanguages[lang]
+        <span class="hljs-attribute">text</span>: text
+        <span class="hljs-attribute">format</span>: <span class="hljs-string">'html'</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>Use Node’s <code>request</code> library to perform the translation using the Yandex API.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      request {<span class="hljs-attribute">url</span>: YandexTranslationURL, <span class="hljs-attribute">qs</span>: query}, <span class="hljs-function"><span class="hljs-params">(error, resp, data)</span> =&gt;</span>
+        <span class="hljs-keyword">return</span> <span class="hljs-property">@_onError</span>(error) <span class="hljs-keyword">unless</span> resp.statusCode <span class="hljs-keyword">is</span> <span class="hljs-number">200</span>
+        json = JSON.parse(data)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>The new text of the draft is our translated response, plus any quoted text
+that we didn’t process.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        translated = json.text.join(<span class="hljs-string">''</span>)
+        translated += body.substr(bodyQuoteStart) <span class="hljs-keyword">if</span> bodyQuoteStart &gt; <span class="hljs-number">0</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>To update the draft, we add the new body to it’s session. The session object
+automatically marshalls changes to the database and ensures that others accessing
+the same draft are notified of changes.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        session.changes.add(<span class="hljs-attribute">body</span>: translated)
+        session.changes.commit()
+
+  <span class="hljs-attribute">_onError</span>: <span class="hljs-function"><span class="hljs-params">(error)</span> =&gt;</span>
+    <span class="hljs-property">@refs</span>.popover.close()
+    dialog = <span class="hljs-built_in">require</span>(<span class="hljs-string">'remote'</span>).<span class="hljs-built_in">require</span>(<span class="hljs-string">'dialog'</span>)
+    dialog.showErrorBox(<span class="hljs-string">'Geolocation Failed'</span>, error.toString())
+
+
+<span class="hljs-built_in">module</span>.exports =</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>Activate is called when the package is loaded. If your package previously
+saved state using <code>serialize</code> it is provided.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">activate</span>: <span class="hljs-function"><span class="hljs-params">(<span class="hljs-property">@state</span>)</span> -&gt;</span>
+    ComponentRegistry.register TranslateButton,
+      <span class="hljs-attribute">role</span>: <span class="hljs-string">'Composer:ActionButton'</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>Serialize is called when your package is about to be unmounted.
+You can return a state object that will be passed back to your package
+when it is re-activated.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">serialize</span>: <span class="hljs-function">-&gt;</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>This <strong>optional</strong> method is called when the window is shutting down,
+or when your package is being updated or disabled. If your package is
+watching any files, holding external resources, providing commands or
+subscribing to events, release them here.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">deactivate</span>: <span class="hljs-function">-&gt;</span>
+    ComponentRegistry.unregister(TranslateButton)</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>
