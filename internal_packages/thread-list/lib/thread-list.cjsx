@@ -1,7 +1,11 @@
 _ = require 'underscore'
 React = require 'react'
 classNames = require 'classnames'
-{ListTabular, MultiselectList, RetinaImg, MailLabel} = require 'nylas-component-kit'
+{ListTabular,
+ MultiselectList,
+ RetinaImg,
+ MailLabel,
+ InjectedComponentSet} = require 'nylas-component-kit'
 {timestamp, subject} = require './formatting-utils'
 {Actions,
  Utils,
@@ -69,6 +73,11 @@ class ThreadList extends React.Component
         <span>
           <ThreadListIcon thread={thread} />
           <MailImportantIcon thread={thread} />
+          <InjectedComponentSet
+            inline={true}
+            containersRequired={false}
+            matching={role: "ThreadListIcon"}
+            exposedProps={thread: thread}/>
         </span>
 
     c2 = new ListTabular.Column
