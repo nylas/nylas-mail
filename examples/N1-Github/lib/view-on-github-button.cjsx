@@ -1,6 +1,6 @@
 shell = require 'shell'
-React = require 'react'
 GithubStore = require './github-store'
+{React} = require 'nylas-exports'
 {RetinaImg} = require 'nylas-component-kit'
 
 ###
