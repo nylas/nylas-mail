@@ -45,6 +45,8 @@ class InjectedComponentSet extends React.Component
       will always be displayed.
    - `exposedProps` (optional) An {Object} with props that will be passed to each
       item rendered into the set.
+   - `containersRequired` (optional). Pass false to optionally remove the containers
+      placed around injected components to isolate them from the rest of the app.
 
    -  Any other props you provide, such as `direction`, `data-column`, etc.
       will be applied to the {Flexbox} rendered by the InjectedComponentSet.
@@ -54,9 +56,11 @@ class InjectedComponentSet extends React.Component
     children: React.PropTypes.array
     className: React.PropTypes.string
     exposedProps: React.PropTypes.object
+    containersRequired: React.PropTypes.bool
 
   @defaultProps:
     direction: 'row'
+    containersRequired: true
 
   constructor: (@props) ->
     @state = @_getStateFromStores()
@@ -77,8 +81,8 @@ class InjectedComponentSet extends React.Component
     flexboxClassName = @props.className ? ""
     exposedProps = @props.exposedProps ? {}
 
-    elements = @state.components.map (component) ->
-      if component.containerRequired is false
+    elements = @state.components.map (component) =>
+      if @props.containersRequired is false or component.containerRequired is false
         <component key={component.displayName} {...exposedProps} />
       else
         <UnsafeComponent component={component} key={component.displayName} {...exposedProps} />
