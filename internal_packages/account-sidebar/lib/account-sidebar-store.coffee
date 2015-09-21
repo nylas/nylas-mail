@@ -57,25 +57,21 @@ class AccountSidebarStore extends NylasStore
       category.name is "drafts"
 
     standardViews = _.map(standardCategories, viewFilterForCategory)
-    standardViews.push(WorkspaceStore.Sheet["Drafts"])
 
     starredView = MailViewFilter.forStarred()
     standardViews.splice(1, 0, starredView)
 
-    # Find root views, add the Views section
-    # featureSheets = _.filter WorkspaceStore.Sheet, (sheet) ->
-    #   sheet.name in ['Today']
-    # extraSheets = _.filter WorkspaceStore.Sheet, (sheet) ->
-    #   sheet.root and sheet.name and not (sheet in featureSheets)
+    # Find root views and add them to the bottom of the list (Drafts, etc.)
+    _.each WorkspaceStore.Sheet, (sheet) ->
+      if sheet.root and sheet.name
+        standardViews.push(sheet)
 
     @_sections = []
-    # if featureSheets.length > 0
-    #   @_sections.push { label: '', items: featureSheets, type: 'sheet' }
     @_sections.push
       label: 'Mailboxes'
       items: standardViews
       type: 'mailboxes'
-    # @_sections.push { label: 'Views', items: extraSheets, type: 'sheet' }
+
     @_sections.push
       label: CategoryStore.categoryLabel()
       items: userCategoryViews
