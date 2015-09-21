@@ -22,7 +22,8 @@ class ThreadListQuickActions extends React.Component
     else if AccountStore.current().usesLabels() and @props.categoryId == CategoryStore.getStandardCategory('all').id
       actions.push <div key="trash" className="btn action action-trash" onClick={@_onTrash}></div>
 
-    return [] if actions.length is 0
+    return false if actions.length is 0
+
     <div className="inner">
       {actions}
     </div>
