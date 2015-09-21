@@ -1,0 +1,819 @@
+<html>
+<head>
+<meta charset="utf-8">
+<title>Nylas Mail — Config</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<link rel="stylesheet" type="text/css" href="css/main.css"/>
+<link rel="stylesheet" type="text/css" href="css/tomorrow.css">
+</head>
+<body>
+<div id="header">
+  <div class="container">
+    <img src="images/edgehill.png" class="logo" />
+    <div class="title">Nylas Mail<div class="small">Developer Preview</div></div>
+  </div>
+</div>
+
+<div class="container">
+
+<div class="page-title">
+  Config
+</div>
+
+<div id="sidebar">
+  <div class="heading">Getting Started</div>
+  <ul>
+        <li><a href="Index.html" >Welcome</a></li>
+        <li><a href="First steps.html" >First Steps</a></li>
+  </ul>
+  <div class="heading">Guides</div>
+  <ul>
+        <li><a href="PackageOverview.html" >Building a Package</a></li>
+        <li><a href="InterfaceConcepts.html" >Interface Concepts</a></li>
+        <li><a href="React.html" >Interface Components</a></li>
+        <li><a href="Architecture.html" >Application Architecture</a></li>
+        <li><a href="Debugging.html" >Debugging N1</a></li>
+        <li><a href="Database.html" >Accessing the Database</a></li>
+        <li><a href="DraftStoreExtensions.html" >Extending the Composer</a></li>
+        <li><a href="WritingSpecs.html" >Writing Specs</a></li>
+        <li><a href="FAQ.html" >FAQ</a></li>
+  </ul>
+  <div class="heading">Sample Code</div>
+  <ul>
+        <li><a href="https://github.com/nylas/edgehill-plugins/tree/master/translate" target="_blank">Composer Translation</a></li>
+        <li><a href="https://github.com/nylas/edgehill-plugins/tree/master/sidebar-github-profile" target="_blank">Github Sidebar</a></li>
+  </ul>
+  <div class="heading">API Reference</div>
+  <ul>
+        <div class="heading">General</div>
+        <ul>
+              <li><a href="Actions.html" >Actions</a></li>
+              <li><a href="Atom.html" >Atom</a></li>
+              <li><a href="BufferedNodeProcess.html" >BufferedNodeProcess</a></li>
+              <li><a href="BufferedProcess.html" >BufferedProcess</a></li>
+              <li><a href="ChangeFolderTask.html" >ChangeFolderTask</a></li>
+              <li><a href="ChangeLabelsTask.html" >ChangeLabelsTask</a></li>
+              <li><a href="Config.html" >Config</a></li>
+              <li><a href="DraggableImg.html" >DraggableImg</a></li>
+              <li><a href="FocusTrackingRegion.html" >FocusTrackingRegion</a></li>
+              <li><a href="Task.html" >Task</a></li>
+              <li><a href="TaskQueueStatusStore.html" >TaskQueueStatusStore</a></li>
+        </ul>
+        <div class="heading">Component Kit</div>
+        <ul>
+              <li><a href="EventedIFrame.html" >EventedIFrame</a></li>
+              <li><a href="Flexbox.html" >Flexbox</a></li>
+              <li><a href="InjectedComponent.html" >InjectedComponent</a></li>
+              <li><a href="InjectedComponentSet.html" >InjectedComponentSet</a></li>
+              <li><a href="Menu.html" >Menu</a></li>
+              <li><a href="MenuItem.html" >MenuItem</a></li>
+              <li><a href="MenuNameEmailItem.html" >MenuNameEmailItem</a></li>
+              <li><a href="MultiselectActionBar.html" >MultiselectActionBar</a></li>
+              <li><a href="MultiselectList.html" >MultiselectList</a></li>
+              <li><a href="Popover.html" >Popover</a></li>
+              <li><a href="ResizableRegion.html" >ResizableRegion</a></li>
+              <li><a href="RetinaImg.html" >RetinaImg</a></li>
+              <li><a href="Spinner.html" >Spinner</a></li>
+              <li><a href="TimeoutTransitionGroupChild.html" >TimeoutTransitionGroupChild</a></li>
+              <li><a href="UnsafeComponent.html" >UnsafeComponent</a></li>
+        </ul>
+        <div class="heading">Models</div>
+        <ul>
+              <li><a href="Account.html" >Account</a></li>
+              <li><a href="Calendar.html" >Calendar</a></li>
+              <li><a href="Contact.html" >Contact</a></li>
+              <li><a href="File.html" >File</a></li>
+              <li><a href="Folder.html" >Folder</a></li>
+              <li><a href="Label.html" >Label</a></li>
+              <li><a href="Message.html" >Message</a></li>
+              <li><a href="Model.html" >Model</a></li>
+              <li><a href="Thread.html" >Thread</a></li>
+        </ul>
+        <div class="heading">Stores</div>
+        <ul>
+              <li><a href="AccountStore.html" >AccountStore</a></li>
+              <li><a href="ComponentRegistry.html" >ComponentRegistry</a></li>
+              <li><a href="ContactStore.html" >ContactStore</a></li>
+              <li><a href="EventStore.html" >EventStore</a></li>
+              <li><a href="FocusedContentStore.html" >FocusedContentStore</a></li>
+              <li><a href="MessageStoreExtension.html" >MessageStoreExtension</a></li>
+              <li><a href="TaskQueue.html" >TaskQueue</a></li>
+              <li><a href="WorkspaceStore.html" >WorkspaceStore</a></li>
+        </ul>
+        <div class="heading">Database</div>
+        <ul>
+              <li><a href="Attribute.html" >Attribute</a></li>
+              <li><a href="AttributeBoolean.html" >AttributeBoolean</a></li>
+              <li><a href="AttributeCollection.html" >AttributeCollection</a></li>
+              <li><a href="AttributeDateTime.html" >AttributeDateTime</a></li>
+              <li><a href="AttributeJoinedData.html" >AttributeJoinedData</a></li>
+              <li><a href="AttributeNumber.html" >AttributeNumber</a></li>
+              <li><a href="AttributeObject.html" >AttributeObject</a></li>
+              <li><a href="AttributeServerId.html" >AttributeServerId</a></li>
+              <li><a href="AttributeString.html" >AttributeString</a></li>
+              <li><a href="DatabaseStore.html" >DatabaseStore</a></li>
+              <li><a href="DatabaseView.html" >DatabaseView</a></li>
+              <li><a href="Matcher.html" >Matcher</a></li>
+              <li><a href="ModelQuery.html" >ModelQuery</a></li>
+              <li><a href="SortOrder.html" >SortOrder</a></li>
+        </ul>
+        <div class="heading">Drafts</div>
+        <ul>
+              <li><a href="DraftChangeSet.html" >DraftChangeSet</a></li>
+              <li><a href="DraftStore.html" >DraftStore</a></li>
+              <li><a href="DraftStoreExtension.html" >DraftStoreExtension</a></li>
+              <li><a href="DraftStoreProxy.html" >DraftStoreProxy</a></li>
+        </ul>
+        <div class="heading">Atom</div>
+        <ul>
+              <li><a href="Clipboard.html" >Clipboard</a></li>
+              <li><a href="Color.html" >Color</a></li>
+              <li><a href="CommandRegistry.html" >CommandRegistry</a></li>
+              <li><a href="DeserializerManager.html" >DeserializerManager</a></li>
+              <li><a href="MenuManager.html" >MenuManager</a></li>
+              <li><a href="PackageManager.html" >PackageManager</a></li>
+              <li><a href="ScopeDescriptor.html" >ScopeDescriptor</a></li>
+              <li><a href="StyleManager.html" >StyleManager</a></li>
+              <li><a href="ThemeManager.html" >ThemeManager</a></li>
+        </ul>
+  </ul>
+</div>
+
+<div id="main">
+  <h2>Summary</h2>
+
+  <div class="markdown-from-sourecode">
+    <p><p>Used to access all of Atom&#39;s configuration details.</p>
+<p>An instance of this class is always available as the <code>atom.config</code> global.</p>
+<h2 id="getting-and-setting-config-settings-">Getting and setting config settings.</h2>
+<pre><code class="lang-coffee"># <span class="hljs-type">Note</span> that <span class="hljs-keyword">with</span> no <span class="hljs-keyword">value</span> set, ::get returns the setting's default <span class="hljs-keyword">value</span>.
+atom.config.get(<span class="hljs-symbol">'my</span>-package.myKey') # -&gt; <span class="hljs-symbol">'defaultValue'</span>
+
+atom.config.set(<span class="hljs-symbol">'my</span>-package.myKey', <span class="hljs-symbol">'value'</span>)
+atom.config.get(<span class="hljs-symbol">'my</span>-package.myKey') # -&gt; <span class="hljs-symbol">'value'</span>
+</code></pre>
+<p>You may want to watch for changes. Use <a href='#observe'>observe</a> to catch changes to the setting.</p>
+<pre><code class="lang-coffee">atom.config.set(<span class="hljs-string">'my-package.myKey'</span>, <span class="hljs-string">'value'</span>)
+atom.config.observe <span class="hljs-string">'my-package.myKey'</span>, <span class="hljs-function"><span class="hljs-params">(newValue)</span> -&gt;</span>
+  <span class="hljs-comment"># `observe` calls immediately and every time the value is changed</span>
+  <span class="hljs-built_in">console</span>.log <span class="hljs-string">'My configuration changed:'</span>, newValue
+</code></pre>
+<p>If you want a notification only when the value changes, use <a href='#onDidChange'>onDidChange</a>.</p>
+<pre><code class="lang-coffee">atom.config.onDidChange <span class="hljs-string">'my-package.myKey'</span>, <span class="hljs-function"><span class="hljs-params">({newValue, oldValue})</span> -&gt;</span>
+  <span class="hljs-built_in">console</span>.log <span class="hljs-string">'My configuration changed:'</span>, newValue, oldValue
+</code></pre>
+<h3 id="value-coercion">Value Coercion</h3>
+<p>Config settings each have a type specified by way of a
+<a href="json-schema.org">schema</a>. For example we might an integer setting that only
+allows integers greater than <code>0</code>:</p>
+<pre><code class="lang-coffee"><span class="hljs-comment"># When no value has been set, `::get` returns the setting's default value</span>
+atom.config.<span class="hljs-built_in">get</span>(<span class="hljs-string">'my-package.anInt'</span>) <span class="hljs-comment"># -&gt; 12</span>
+
+<span class="hljs-comment"># The string will be coerced to the integer 123</span>
+atom.config.<span class="hljs-built_in">set</span>(<span class="hljs-string">'my-package.anInt'</span>, <span class="hljs-string">'123'</span>)
+atom.config.<span class="hljs-built_in">get</span>(<span class="hljs-string">'my-package.anInt'</span>) <span class="hljs-comment"># -&gt; 123</span>
+
+<span class="hljs-comment"># The string will be coerced to an integer, but it must be greater than 0, so is set to 1</span>
+atom.config.<span class="hljs-built_in">set</span>(<span class="hljs-string">'my-package.anInt'</span>, <span class="hljs-string">'-20'</span>)
+atom.config.<span class="hljs-built_in">get</span>(<span class="hljs-string">'my-package.anInt'</span>) <span class="hljs-comment"># -&gt; 1</span>
+</code></pre>
+<h2 id="defining-settings-for-your-package">Defining settings for your package</h2>
+<p>Define a schema under a <code>config</code> key in your package main.</p>
+<pre><code class="lang-coffee">module.exports =
+  <span class="hljs-comment"># Your config schema</span>
+  config:
+    someInt:
+      type: 'integer'
+      <span class="hljs-keyword">default</span>: <span class="hljs-number">23</span>
+      minimum: <span class="hljs-number">1</span>
+
+  activate: (<span class="hljs-keyword">state</span>) -&gt; <span class="hljs-comment"># ...</span>
+  <span class="hljs-comment"># ...</span>
+</code></pre>
+<p>See <a href="https://atom.io/docs/latest/creating-a-package">Creating a Package</a> for
+more info.</p>
+<h2 id="config-schemas">Config Schemas</h2>
+<p>We use <a href="http://json-schema.org">json schema</a> which allows you to define your value&#39;s
+default, the type it should be, etc. A simple example:</p>
+<pre><code class="lang-coffee"><span class="hljs-comment"># We want to provide an `enableThing`, and a `thingVolume`</span>
+config:
+  enableThing:
+    <span class="hljs-built_in">type</span>: <span class="hljs-string">'boolean'</span>
+    <span class="hljs-keyword">default</span>: <span class="hljs-keyword">false</span>
+  thingVolume:
+    <span class="hljs-built_in">type</span>: <span class="hljs-string">'integer'</span>
+    <span class="hljs-keyword">default</span>: <span class="hljs-number">5</span>
+    minimum: <span class="hljs-number">1</span>
+    maximum: <span class="hljs-number">11</span>
+</code></pre>
+<p>The type keyword allows for type coercion and validation. If a <code>thingVolume</code> is
+set to a string <code>&#39;10&#39;</code>, it will be coerced into an integer.</p>
+<pre><code class="lang-coffee">atom.config.<span class="hljs-built_in">set</span>(<span class="hljs-string">'my-package.thingVolume'</span>, <span class="hljs-string">'10'</span>)
+atom.config.<span class="hljs-built_in">get</span>(<span class="hljs-string">'my-package.thingVolume'</span>) <span class="hljs-comment"># -&gt; 10</span>
+
+<span class="hljs-comment"># It respects the min / max</span>
+atom.config.<span class="hljs-built_in">set</span>(<span class="hljs-string">'my-package.thingVolume'</span>, <span class="hljs-string">'400'</span>)
+atom.config.<span class="hljs-built_in">get</span>(<span class="hljs-string">'my-package.thingVolume'</span>) <span class="hljs-comment"># -&gt; 11</span>
+
+<span class="hljs-comment"># If it cannot be coerced, the value will not be set</span>
+atom.config.<span class="hljs-built_in">set</span>(<span class="hljs-string">'my-package.thingVolume'</span>, <span class="hljs-string">'cats'</span>)
+atom.config.<span class="hljs-built_in">get</span>(<span class="hljs-string">'my-package.thingVolume'</span>) <span class="hljs-comment"># -&gt; 11</span>
+</code></pre>
+<h3 id="supported-types">Supported Types</h3>
+<p>The <code>type</code> keyword can be a string with any one of the following. You can also
+chain them by specifying multiple in an an array. For example</p>
+<pre><code class="lang-coffee">config:
+  someSetting:
+    type: [<span class="hljs-string">'boolean'</span>, <span class="hljs-string">'integer'</span>]
+    <span class="hljs-keyword">default</span>: <span class="hljs-number">5</span>
+
+<span class="hljs-preprocessor"># Then</span>
+atom.config.<span class="hljs-keyword">set</span>(<span class="hljs-string">'my-package.someSetting'</span>, <span class="hljs-string">'true'</span>)
+atom.config.<span class="hljs-keyword">get</span>(<span class="hljs-string">'my-package.someSetting'</span>) <span class="hljs-preprocessor"># -&gt; true</span>
+
+atom.config.<span class="hljs-keyword">set</span>(<span class="hljs-string">'my-package.someSetting'</span>, <span class="hljs-string">'12'</span>)
+atom.config.<span class="hljs-keyword">get</span>(<span class="hljs-string">'my-package.someSetting'</span>) <span class="hljs-preprocessor"># -&gt; 12</span>
+</code></pre>
+<h4 id="string">string</h4>
+<p>Values must be a string.</p>
+<pre><code class="lang-coffee"><span class="hljs-attribute">config</span>:
+  <span class="hljs-attribute">someSetting</span>:
+    <span class="hljs-attribute">type</span>: <span class="hljs-string">'string'</span>
+    <span class="hljs-attribute">default</span>: <span class="hljs-string">'hello'</span>
+</code></pre>
+<h4 id="integer">integer</h4>
+<p>Values will be coerced into integer. Supports the (optional) <code>minimum</code> and
+<code>maximum</code> keys.</p>
+<pre><code class="lang-coffee">  <span class="hljs-attribute">config</span>:
+    <span class="hljs-attribute">someSetting</span>:
+      <span class="hljs-attribute">type</span>: <span class="hljs-string">'integer'</span>
+      <span class="hljs-attribute">default</span>: <span class="hljs-number">5</span>
+      <span class="hljs-attribute">minimum</span>: <span class="hljs-number">1</span>
+      <span class="hljs-attribute">maximum</span>: <span class="hljs-number">11</span>
+</code></pre>
+<h4 id="number">number</h4>
+<p>Values will be coerced into a number, including real numbers. Supports the
+(optional) <code>minimum</code> and <code>maximum</code> keys.</p>
+<pre><code class="lang-coffee"><span class="hljs-attribute">config</span>:
+  <span class="hljs-attribute">someSetting</span>:
+    <span class="hljs-attribute">type</span>: <span class="hljs-string">'number'</span>
+    <span class="hljs-attribute">default</span>: <span class="hljs-number">5.3</span>
+    <span class="hljs-attribute">minimum</span>: <span class="hljs-number">1.5</span>
+    <span class="hljs-attribute">maximum</span>: <span class="hljs-number">11.5</span>
+</code></pre>
+<h4 id="boolean">boolean</h4>
+<p>Values will be coerced into a Boolean. <code>&#39;true&#39;</code> and <code>&#39;false&#39;</code> will be coerced into
+a boolean. Numbers, arrays, objects, and anything else will not be coerced.</p>
+<pre><code class="lang-coffee"><span class="hljs-attribute">config</span>:
+  <span class="hljs-attribute">someSetting</span>:
+    <span class="hljs-attribute">type</span>: <span class="hljs-string">'boolean'</span>
+    <span class="hljs-attribute">default</span>: false
+</code></pre>
+<h4 id="array">array</h4>
+<p>Value must be an Array. The types of the values can be specified by a
+subschema in the <code>items</code> key.</p>
+<pre><code class="lang-coffee"><span class="hljs-attribute">config</span>:
+  <span class="hljs-attribute">someSetting</span>:
+    <span class="hljs-attribute">type</span>: <span class="hljs-string">'array'</span>
+    <span class="hljs-attribute">default</span>: [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>]
+    <span class="hljs-attribute">items</span>:
+      <span class="hljs-attribute">type</span>: <span class="hljs-string">'integer'</span>
+      <span class="hljs-attribute">minimum</span>: <span class="hljs-number">1.5</span>
+      <span class="hljs-attribute">maximum</span>: <span class="hljs-number">11.5</span>
+</code></pre>
+<h4 id="object">object</h4>
+<p>Value must be an object. This allows you to nest config options. Sub options
+must be under a <code>properties key</code></p>
+<pre><code class="lang-coffee"><span class="hljs-attribute">config</span>:
+  <span class="hljs-attribute">someSetting</span>:
+    <span class="hljs-attribute">type</span>: <span class="hljs-string">'object'</span>
+    <span class="hljs-attribute">properties</span>:
+      <span class="hljs-attribute">myChildIntOption</span>:
+        <span class="hljs-attribute">type</span>: <span class="hljs-string">'integer'</span>
+        <span class="hljs-attribute">minimum</span>: <span class="hljs-number">1.5</span>
+        <span class="hljs-attribute">maximum</span>: <span class="hljs-number">11.5</span>
+</code></pre>
+<h4 id="color">color</h4>
+<p>Values will be coerced into a <a href='color.html'>Color</a> with <code>red</code>, <code>green</code>, <code>blue</code>, and <code>alpha</code>
+properties that all have numeric values. <code>red</code>, <code>green</code>, <code>blue</code> will be in
+the range 0 to 255 and <code>value</code> will be in the range 0 to 1. Values can be any
+valid CSS color format such as <code>#abc</code>, <code>#abcdef</code>, <code>white</code>,
+<code>rgb(50, 100, 150)</code>, and <code>rgba(25, 75, 125, .75)</code>.</p>
+<pre><code class="lang-coffee"><span class="hljs-attribute">config</span>:
+  <span class="hljs-attribute">someSetting</span>:
+    <span class="hljs-attribute">type</span>: <span class="hljs-string">'color'</span>
+    <span class="hljs-attribute">default</span>: <span class="hljs-string">'white'</span>
+</code></pre>
+<h3 id="other-supported-keys">Other Supported Keys</h3>
+<h4 id="enum">enum</h4>
+<p>All types support an <code>enum</code> key. The enum key lets you specify all values
+that the config setting can possibly be. <code>enum</code> <em>must</em> be an array of values
+of your specified type. Schema:</p>
+<pre><code class="lang-coffee"><span class="hljs-attribute">config</span>:
+  <span class="hljs-attribute">someSetting</span>:
+    <span class="hljs-attribute">type</span>: <span class="hljs-string">'integer'</span>
+    <span class="hljs-attribute">default</span>: <span class="hljs-number">4</span>
+    <span class="hljs-attribute">enum</span>: [<span class="hljs-number">2</span>, <span class="hljs-number">4</span>, <span class="hljs-number">6</span>, <span class="hljs-number">8</span>]
+</code></pre>
+<p>Usage:</p>
+<pre><code class="lang-coffee">atom.config.<span class="hljs-built_in">set</span>(<span class="hljs-string">'my-package.someSetting'</span>, <span class="hljs-string">'2'</span>)
+atom.config.<span class="hljs-built_in">get</span>(<span class="hljs-string">'my-package.someSetting'</span>) <span class="hljs-comment"># -&gt; 2</span>
+
+<span class="hljs-comment"># will not set values outside of the enum values</span>
+atom.config.<span class="hljs-built_in">set</span>(<span class="hljs-string">'my-package.someSetting'</span>, <span class="hljs-string">'3'</span>)
+atom.config.<span class="hljs-built_in">get</span>(<span class="hljs-string">'my-package.someSetting'</span>) <span class="hljs-comment"># -&gt; 2</span>
+
+<span class="hljs-comment"># If it cannot be coerced, the value will not be set</span>
+atom.config.<span class="hljs-built_in">set</span>(<span class="hljs-string">'my-package.someSetting'</span>, <span class="hljs-string">'4'</span>)
+atom.config.<span class="hljs-built_in">get</span>(<span class="hljs-string">'my-package.someSetting'</span>) <span class="hljs-comment"># -&gt; 4</span>
+</code></pre>
+<h4 id="title-and-description">title and description</h4>
+<p>The settings view will use the <code>title</code> and <code>description</code> keys to display your
+config setting in a readable way. By default the settings view humanizes your
+config key, so <code>someSetting</code> becomes <code>Some Setting</code>. In some cases, this is
+confusing for users, and a more descriptive title is useful.</p>
+<p>Descriptions will be displayed below the title in the settings view.</p>
+<pre><code class="lang-coffee"><span class="hljs-attribute">config</span>:
+  <span class="hljs-attribute">someSetting</span>:
+    <span class="hljs-attribute">title</span>: <span class="hljs-string">'Setting Magnitude'</span>
+    <span class="hljs-attribute">description</span>: <span class="hljs-string">'This will affect the blah and the other blah'</span>
+    <span class="hljs-attribute">type</span>: <span class="hljs-string">'integer'</span>
+    <span class="hljs-attribute">default</span>: <span class="hljs-number">4</span>
+</code></pre>
+<p><strong>Note</strong>: You should strive to be so clear in your naming of the setting that
+you do not need to specify a title or description!</p>
+<h2 id="best-practices">Best practices</h2>
+<ul>
+<li>Don&#39;t depend on (or write to) configuration keys outside of your keypath.</li>
+</ul>
+</p>
+  </div>
+
+  <ul>
+      <li><a href="#Config Subscription">Config Subscription</a></li>
+      <li><a href="#Managing Settings">Managing Settings</a></li>
+  </ul>
+
+
+
+
+
+      <h3>Instance Methods</h3>
+
+      <h4 id=observe class="function-name">
+        observe(<span class="args"><span class="arg">keyPath</span><span class="arg">options</span><span class="arg">callback</span></span>) <a href="#observe" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Add a listener for changes to a given key path. This is different
+      than <a href='#onDidChange'>onDidChange</a> in that it will immediately call your callback with the
+      current value of the config entry.</p>
+      <h3 id="examples">Examples</h3>
+      <p>You might want to be notified when the themes change. We&#39;ll watch
+      <code>core.themes</code> for changes</p>
+      <pre><code class="lang-coffee">atom.config.observe <span class="hljs-symbol">'core</span>.themes', (<span class="hljs-keyword">value</span>) -&gt;
+        # <span class="hljs-keyword">do</span> stuff <span class="hljs-keyword">with</span> <span class="hljs-keyword">value</span>
+      </code></pre>
+      </p>
+      </div>
+      
+          <strong>Parameters</strong>
+          <table class="arguments">
+              <tr>
+                <th>Argument</th>
+                <th>Description</th>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>keyPath</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  
+                  <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> name of the key to observe</p>
+      
+                </td>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>options</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  
+                  <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a></p>
+      
+                </td>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>callback</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  
+                  <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function'>Function</a> to call when the value of the key changes.</p>
+      
+                </td>
+              </tr>
+          </table>
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns a {Disposable} with the following keys on which you can call
+      <code>.dispose()</code> to unsubscribe.</p>
+      </td></tr>
+          </table>
+      <h4 id=onDidChange class="function-name">
+        onDidChange(<span class="args"><span class="arg">[keyPath]</span><span class="arg">[optional]</span><span class="arg">callback</span></span>) <a href="#onDidChange" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Add a listener for changes to a given key path. If <code>keyPath</code> is
+      not specified, your callback will be called on changes to any key.</p>
+      </p>
+      </div>
+      
+          <strong>Parameters</strong>
+          <table class="arguments">
+              <tr>
+                <th>Argument</th>
+                <th>Description</th>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>keyPath</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  <span class="optional">Optional</span>
+                  <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> name of the key to observe. Must be specified if <code>scopeDescriptor</code> is specified.</p>
+      
+                </td>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>optional</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  <span class="optional">Optional</span>
+                  <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a></p>
+      
+                </td>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>callback</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  
+                  <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function'>Function</a> to call when the value of the key changes.</p>
+      
+                </td>
+              </tr>
+          </table>
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns a {Disposable} with the following keys on which you can call
+      <code>.dispose()</code> to unsubscribe.</p>
+      </td></tr>
+          </table>
+      <h4 id=get class="function-name">
+        get(<span class="args"><span class="arg">keyPath</span><span class="arg">[options]</span></span>) <a href="#get" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Retrieves the setting for the given key.</p>
+      <h3 id="examples">Examples</h3>
+      <p>You might want to know what themes are enabled, so check <code>core.themes</code></p>
+      <pre><code class="lang-coffee">atom<span class="hljs-class">.config</span><span class="hljs-class">.get</span>(<span class="hljs-string">'core.themes'</span>)
+      </code></pre>
+      <p>With scope descriptors you can get settings within a specific editor
+      scope. For example, you might want to know <code>editor.tabLength</code> for ruby
+      files.</p>
+      <pre><code class="lang-coffee">atom.config.get(<span class="hljs-symbol">'editor</span>.tabLength', scope: [<span class="hljs-symbol">'source</span>.ruby']) # =&gt; <span class="hljs-number">2</span>
+      </code></pre>
+      <p>This setting in ruby files might be different than the global tabLength setting</p>
+      <pre><code class="lang-coffee">atom.config.get(<span class="hljs-symbol">'editor</span>.tabLength') # =&gt; <span class="hljs-number">4</span>
+      atom.config.get(<span class="hljs-symbol">'editor</span>.tabLength', scope: [<span class="hljs-symbol">'source</span>.ruby']) # =&gt; <span class="hljs-number">2</span>
+      </code></pre>
+      <p>You can get the language scope descriptor via
+      <a href='TextEditor.html#getRootScopeDescriptor'>TextEditor::getRootScopeDescriptor</a>. This will get the setting specifically
+      for the editor&#39;s language.</p>
+      <pre><code class="lang-coffee">atom.config.<span class="hljs-literal">get</span>(<span class="hljs-string">'editor.tabLength'</span>, scope: <span class="hljs-annotation">@editor</span>.getRootScopeDescriptor()) # =&gt; <span class="hljs-number">2</span>
+      </code></pre>
+      <p>Additionally, you can get the setting at the specific cursor position.</p>
+      <pre><code class="lang-coffee">scopeDescriptor = @editor.getLastCursor<span class="hljs-literal">()</span>.getScopeDescriptor<span class="hljs-literal">()</span>
+      atom.config.get(<span class="hljs-symbol">'editor</span>.tabLength', scope: scopeDescriptor) # =&gt; <span class="hljs-number">2</span>
+      </code></pre>
+      </p>
+      </div>
+      
+          <strong>Parameters</strong>
+          <table class="arguments">
+              <tr>
+                <th>Argument</th>
+                <th>Description</th>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>keyPath</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  
+                  <p>The <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> name of the key to retrieve.</p>
+      
+                </td>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>options</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  <span class="optional">Optional</span>
+                  <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a></p>
+      
+                </td>
+              </tr>
+          </table>
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns the value from Atom&#39;s default settings, the user&#39;s configuration
+      file in the type specified by the configuration schema.</p>
+      </td></tr>
+          </table>
+      <h4 id=getAll class="function-name">
+        getAll(<span class="args"><span class="arg">keyPath</span><span class="arg">[options]</span></span>) <a href="#getAll" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Get all of the values for the given key-path, along with their
+      associated scope selector.</p>
+      </p>
+      </div>
+      
+          <strong>Parameters</strong>
+          <table class="arguments">
+              <tr>
+                <th>Argument</th>
+                <th>Description</th>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>keyPath</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  
+                  <p>The <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> name of the key to retrieve</p>
+      
+                </td>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>options</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  <span class="optional">Optional</span>
+                  <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a> see the <code>options</code> argument to <a href='#get'>get</a></p>
+      
+                </td>
+              </tr>
+          </table>
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a>s with the following keys:</p>
+      <ul>
+      <li><code>scopeDescriptor</code> The <a href='scopedescriptor.html'>ScopeDescriptor</a> with which the value is associated</li>
+      <li><code>value</code> The value for the key-path</li>
+      </ul>
+      </td></tr>
+          </table>
+      <h4 id=set class="function-name">
+        set(<span class="args"><span class="arg">keyPath</span><span class="arg">value</span><span class="arg">[options]</span></span>) <a href="#set" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Sets the value for a configuration setting.</p>
+      <p>This value is stored in Atom&#39;s internal configuration file.</p>
+      <h3 id="examples">Examples</h3>
+      <p>You might want to change the themes programmatically:</p>
+      <pre><code class="lang-coffee">atom.config.set(<span class="hljs-symbol">'core</span>.themes', [<span class="hljs-symbol">'ui</span>-light', <span class="hljs-symbol">'atom</span>-light-syntax'])
+      </code></pre>
+      <p>You can also set scoped settings. For example, you might want change the
+      <code>editor.tabLength</code> only for ruby files.</p>
+      <pre><code class="lang-coffee">atom.config.get(<span class="hljs-symbol">'editor</span>.tabLength') # =&gt; <span class="hljs-number">4</span>
+      atom.config.get(<span class="hljs-symbol">'editor</span>.tabLength', scope: [<span class="hljs-symbol">'source</span>.ruby']) # =&gt; <span class="hljs-number">4</span>
+      atom.config.get(<span class="hljs-symbol">'editor</span>.tabLength', scope: [<span class="hljs-symbol">'source</span>.js']) # =&gt; <span class="hljs-number">4</span>
+      
+      # <span class="hljs-type">Set</span> ruby <span class="hljs-keyword">to</span> <span class="hljs-number">2</span>
+      atom.config.set(<span class="hljs-symbol">'editor</span>.tabLength', <span class="hljs-number">2</span>, scopeSelector: <span class="hljs-symbol">'source</span>.ruby') # =&gt; <span class="hljs-literal">true</span>
+      
+      # <span class="hljs-type">Notice</span> it's only set <span class="hljs-keyword">to</span> <span class="hljs-number">2</span> <span class="hljs-keyword">in</span> the case <span class="hljs-keyword">of</span> ruby
+      atom.config.get(<span class="hljs-symbol">'editor</span>.tabLength') # =&gt; <span class="hljs-number">4</span>
+      atom.config.get(<span class="hljs-symbol">'editor</span>.tabLength', scope: [<span class="hljs-symbol">'source</span>.ruby']) # =&gt; <span class="hljs-number">2</span>
+      atom.config.get(<span class="hljs-symbol">'editor</span>.tabLength', scope: [<span class="hljs-symbol">'source</span>.js']) # =&gt; <span class="hljs-number">4</span>
+      </code></pre>
+      </p>
+      </div>
+      
+          <strong>Parameters</strong>
+          <table class="arguments">
+              <tr>
+                <th>Argument</th>
+                <th>Description</th>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>keyPath</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  
+                  <p>The <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> name of the key.</p>
+      
+                </td>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>value</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  
+                  <p>The value of the setting. Passing <code>undefined</code> will revert the setting to the default value.</p>
+      
+                </td>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>options</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  <span class="optional">Optional</span>
+                  <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a></p>
+      
+                </td>
+              </tr>
+          </table>
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns a <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean'>Boolean</a></p>
+      <ul>
+      <li><code>true</code> if the value was set.</li>
+      <li><code>false</code> if the value was not able to be coerced to the type specified in the setting&#39;s schema.</li>
+      </ul>
+      </td></tr>
+          </table>
+      <h4 id=unset class="function-name">
+        unset(<span class="args"><span class="arg">keyPath</span><span class="arg">[options]</span></span>) <a href="#unset" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Restore the setting at <code>keyPath</code> to its default value.</p>
+      </p>
+      </div>
+      
+          <strong>Parameters</strong>
+          <table class="arguments">
+              <tr>
+                <th>Argument</th>
+                <th>Description</th>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>keyPath</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  
+                  <p>The <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> name of the key.</p>
+      
+                </td>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>options</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  <span class="optional">Optional</span>
+                  <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a></p>
+      
+                </td>
+              </tr>
+          </table>
+      
+      <h4 id=getSources class="function-name">
+        getSources(<span class="args"></span>) <a href="#getSources" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Get an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of all of the <code>source</code> <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a>s with which
+      settings have been added via <a href='#set'>set</a>. </p>
+      </p>
+      </div>
+      
+      
+      <h4 id=getSchema class="function-name">
+        getSchema(<span class="args"><span class="arg">keyPath</span></span>) <a href="#getSchema" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Retrieve the schema for a specific key path. The schema will tell
+      you what type the keyPath expects, and other metadata about the config
+      option.</p>
+      </p>
+      </div>
+      
+          <strong>Parameters</strong>
+          <table class="arguments">
+              <tr>
+                <th>Argument</th>
+                <th>Description</th>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>keyPath</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  
+                  <p>The <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> name of the key.</p>
+      
+                </td>
+              </tr>
+          </table>
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a> eg. <code>{type: &#39;integer&#39;, default: 23, minimum: 1}</code>.</p>
+      </td></tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns <code>null</code> when the keyPath has no schema specified.</p>
+      </td></tr>
+          </table>
+      <h4 id=getUserConfigPath class="function-name">
+        getUserConfigPath(<span class="args"></span>) <a href="#getUserConfigPath" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Get the <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> path to the config file being used. </p>
+      </p>
+      </div>
+      
+      
+      <h4 id=transact class="function-name">
+        transact(<span class="args"><span class="arg">callback</span></span>) <a href="#transact" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Suppress calls to handler functions registered with <a href='#onDidChange'>onDidChange</a>
+      and <a href='#observe'>observe</a> for the duration of <code>callback</code>. After <code>callback</code> executes,
+      handlers will be called once if the value for their key-path has changed.</p>
+      </p>
+      </div>
+      
+          <strong>Parameters</strong>
+          <table class="arguments">
+              <tr>
+                <th>Argument</th>
+                <th>Description</th>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>callback</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  
+                  <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function'>Function</a> to execute while suppressing calls to handlers. </p>
+      
+                </td>
+              </tr>
+          </table>
+      
+
+</div>
+
+</div>
+
+<div id="footer">
+  <div class="container">
+    <img src="images/edgehill.png" class="logo" />
+    <div class="small">Nylas Mail Developer Preview<br><em>© 2014-2015 Nylas, Inc.</em></div>
+  </div>
+</div>
+
+</body>
+</html>

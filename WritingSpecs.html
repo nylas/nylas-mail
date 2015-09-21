@@ -1,0 +1,237 @@
+<html>
+<head>
+<meta charset="utf-8">
+<title>Nylas Mail — Writing Specs</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<link rel="stylesheet" type="text/css" href="css/main.css"/>
+<link rel="stylesheet" type="text/css" href="css/tomorrow.css">
+</head>
+<body>
+<div id="header">
+  <div class="container">
+    <img src="images/edgehill.png" class="logo" />
+    <div class="title">Nylas Mail<div class="small">Developer Preview</div></div>
+  </div>
+</div>
+
+<div class="container">
+
+
+<div id="sidebar">
+  <div class="heading">Getting Started</div>
+  <ul>
+        <li><a href="Index.html" >Welcome</a></li>
+        <li><a href="First steps.html" >First Steps</a></li>
+  </ul>
+  <div class="heading">Guides</div>
+  <ul>
+        <li><a href="PackageOverview.html" >Building a Package</a></li>
+        <li><a href="InterfaceConcepts.html" >Interface Concepts</a></li>
+        <li><a href="React.html" >Interface Components</a></li>
+        <li><a href="Architecture.html" >Application Architecture</a></li>
+        <li><a href="Debugging.html" >Debugging N1</a></li>
+        <li><a href="Database.html" >Accessing the Database</a></li>
+        <li><a href="DraftStoreExtensions.html" >Extending the Composer</a></li>
+        <li><a href="WritingSpecs.html" >Writing Specs</a></li>
+        <li><a href="FAQ.html" >FAQ</a></li>
+  </ul>
+  <div class="heading">Sample Code</div>
+  <ul>
+        <li><a href="https://github.com/nylas/edgehill-plugins/tree/master/translate" target="_blank">Composer Translation</a></li>
+        <li><a href="https://github.com/nylas/edgehill-plugins/tree/master/sidebar-github-profile" target="_blank">Github Sidebar</a></li>
+  </ul>
+  <div class="heading">API Reference</div>
+  <ul>
+        <div class="heading">General</div>
+        <ul>
+              <li><a href="Actions.html" >Actions</a></li>
+              <li><a href="Atom.html" >Atom</a></li>
+              <li><a href="BufferedNodeProcess.html" >BufferedNodeProcess</a></li>
+              <li><a href="BufferedProcess.html" >BufferedProcess</a></li>
+              <li><a href="ChangeFolderTask.html" >ChangeFolderTask</a></li>
+              <li><a href="ChangeLabelsTask.html" >ChangeLabelsTask</a></li>
+              <li><a href="Config.html" >Config</a></li>
+              <li><a href="DraggableImg.html" >DraggableImg</a></li>
+              <li><a href="FocusTrackingRegion.html" >FocusTrackingRegion</a></li>
+              <li><a href="Task.html" >Task</a></li>
+              <li><a href="TaskQueueStatusStore.html" >TaskQueueStatusStore</a></li>
+        </ul>
+        <div class="heading">Component Kit</div>
+        <ul>
+              <li><a href="EventedIFrame.html" >EventedIFrame</a></li>
+              <li><a href="Flexbox.html" >Flexbox</a></li>
+              <li><a href="InjectedComponent.html" >InjectedComponent</a></li>
+              <li><a href="InjectedComponentSet.html" >InjectedComponentSet</a></li>
+              <li><a href="Menu.html" >Menu</a></li>
+              <li><a href="MenuItem.html" >MenuItem</a></li>
+              <li><a href="MenuNameEmailItem.html" >MenuNameEmailItem</a></li>
+              <li><a href="MultiselectActionBar.html" >MultiselectActionBar</a></li>
+              <li><a href="MultiselectList.html" >MultiselectList</a></li>
+              <li><a href="Popover.html" >Popover</a></li>
+              <li><a href="ResizableRegion.html" >ResizableRegion</a></li>
+              <li><a href="RetinaImg.html" >RetinaImg</a></li>
+              <li><a href="Spinner.html" >Spinner</a></li>
+              <li><a href="TimeoutTransitionGroupChild.html" >TimeoutTransitionGroupChild</a></li>
+              <li><a href="UnsafeComponent.html" >UnsafeComponent</a></li>
+        </ul>
+        <div class="heading">Models</div>
+        <ul>
+              <li><a href="Account.html" >Account</a></li>
+              <li><a href="Calendar.html" >Calendar</a></li>
+              <li><a href="Contact.html" >Contact</a></li>
+              <li><a href="File.html" >File</a></li>
+              <li><a href="Folder.html" >Folder</a></li>
+              <li><a href="Label.html" >Label</a></li>
+              <li><a href="Message.html" >Message</a></li>
+              <li><a href="Model.html" >Model</a></li>
+              <li><a href="Thread.html" >Thread</a></li>
+        </ul>
+        <div class="heading">Stores</div>
+        <ul>
+              <li><a href="AccountStore.html" >AccountStore</a></li>
+              <li><a href="ComponentRegistry.html" >ComponentRegistry</a></li>
+              <li><a href="ContactStore.html" >ContactStore</a></li>
+              <li><a href="EventStore.html" >EventStore</a></li>
+              <li><a href="FocusedContentStore.html" >FocusedContentStore</a></li>
+              <li><a href="MessageStoreExtension.html" >MessageStoreExtension</a></li>
+              <li><a href="TaskQueue.html" >TaskQueue</a></li>
+              <li><a href="WorkspaceStore.html" >WorkspaceStore</a></li>
+        </ul>
+        <div class="heading">Database</div>
+        <ul>
+              <li><a href="Attribute.html" >Attribute</a></li>
+              <li><a href="AttributeBoolean.html" >AttributeBoolean</a></li>
+              <li><a href="AttributeCollection.html" >AttributeCollection</a></li>
+              <li><a href="AttributeDateTime.html" >AttributeDateTime</a></li>
+              <li><a href="AttributeJoinedData.html" >AttributeJoinedData</a></li>
+              <li><a href="AttributeNumber.html" >AttributeNumber</a></li>
+              <li><a href="AttributeObject.html" >AttributeObject</a></li>
+              <li><a href="AttributeServerId.html" >AttributeServerId</a></li>
+              <li><a href="AttributeString.html" >AttributeString</a></li>
+              <li><a href="DatabaseStore.html" >DatabaseStore</a></li>
+              <li><a href="DatabaseView.html" >DatabaseView</a></li>
+              <li><a href="Matcher.html" >Matcher</a></li>
+              <li><a href="ModelQuery.html" >ModelQuery</a></li>
+              <li><a href="SortOrder.html" >SortOrder</a></li>
+        </ul>
+        <div class="heading">Drafts</div>
+        <ul>
+              <li><a href="DraftChangeSet.html" >DraftChangeSet</a></li>
+              <li><a href="DraftStore.html" >DraftStore</a></li>
+              <li><a href="DraftStoreExtension.html" >DraftStoreExtension</a></li>
+              <li><a href="DraftStoreProxy.html" >DraftStoreProxy</a></li>
+        </ul>
+        <div class="heading">Atom</div>
+        <ul>
+              <li><a href="Clipboard.html" >Clipboard</a></li>
+              <li><a href="Color.html" >Color</a></li>
+              <li><a href="CommandRegistry.html" >CommandRegistry</a></li>
+              <li><a href="DeserializerManager.html" >DeserializerManager</a></li>
+              <li><a href="MenuManager.html" >MenuManager</a></li>
+              <li><a href="PackageManager.html" >PackageManager</a></li>
+              <li><a href="ScopeDescriptor.html" >ScopeDescriptor</a></li>
+              <li><a href="StyleManager.html" >StyleManager</a></li>
+              <li><a href="ThemeManager.html" >ThemeManager</a></li>
+        </ul>
+  </ul>
+</div>
+<div id="main" class="article">
+<h1 id="writing-specs">Writing specs</h1>
+<p>Nylas uses <a href="http://jasmine.github.io/1.3/introduction.html">Jasmine</a> as its spec framework. As a package developer, you can write specs using Jasmine 1.3 and get some quick wins. Jasmine specs can be run in Nylas Mail directly from the Developer menu, and the test environment provides you with helpful stubs. You can also require your own test framework, or use Jasmine for integration tests and your own framework for your existing business logic.</p>
+<p>This documentation describes using <a href="http://jasmine.github.io/1.3/introduction.html">Jasmine 1.3</a> to write specs for a Nylas package.</p>
+<h4 id="running-specs">Running Specs</h4>
+<p>You can run your package specs from <code>Developer &gt; Run Package Specs...</code>. Once you&#39;ve opened the spec window, you can see output and re-run your specs by clicking <code>Reload Specs</code>.</p>
+<h4 id="writing-specs">Writing Specs</h4>
+<p>To create specs, place <code>js</code>, <code>coffee</code>, or <code>cjsx</code> files in the <code>spec</code> directory of your package. Spec files must end with the <code>-spec</code> suffix.</p>
+<p>Here&#39;s an annotated look at a typical Jasmine spec:</p>
+<pre><code class="lang-coffee"><span class="hljs-comment"># The `describe` method takes two arguments, a description and a function. If the description</span>
+<span class="hljs-comment"># explains a behavior it typically begins with `when`; if it is more like a unit test it begins</span>
+<span class="hljs-comment"># with the method name.</span>
+describe <span class="hljs-string">"when a test is written"</span>,<span class="hljs-function"> -&gt;</span>
+
+  <span class="hljs-comment"># The `it` method also takes two arguments, a description and a function. Try and make the</span>
+  <span class="hljs-comment"># description flow with the `it` method. For example, a description of `this should work`</span>
+  <span class="hljs-comment"># doesn't read well as `it this should work`. But a description of `should work` sounds</span>
+  <span class="hljs-comment"># great as `it should work`.</span>
+  <span class="hljs-literal">it</span> <span class="hljs-string">"has some expectations that should pass"</span>,<span class="hljs-function"> -&gt;</span>
+
+    <span class="hljs-comment"># The best way to learn about expectations is to read the Jasmine documentation:</span>
+    <span class="hljs-comment"># http://jasmine.github.io/1.3/introduction.html#section-Expectations</span>
+    <span class="hljs-comment"># Below is a simple example.</span>
+
+    expect(<span class="hljs-string">"apples"</span>).toEqual(<span class="hljs-string">"apples"</span>)
+    expect(<span class="hljs-string">"oranges"</span>).<span class="hljs-keyword">not</span>.toEqual(<span class="hljs-string">"apples"</span>)
+
+describe <span class="hljs-string">"Editor::moveUp"</span>,<span class="hljs-function"> -&gt;</span>
+    ...
+</code></pre>
+<h4 id="asynchronous-spcs">Asynchronous Spcs</h4>
+<p>Writing Asynchronous specs can be tricky at first, but a combination of spec helpers can make things easy. Here are a few quick examples:</p>
+<h5 id="promises">Promises</h5>
+<p>You can use the global <code>waitsForPromise</code> function to make sure that the test does not complete until the returned promise has finished, and run your expectations in a chained promise.</p>
+<pre><code class="lang-coffee">  describe <span class="hljs-string">"when requesting a Draft Session"</span>, -&gt;
+    it <span class="hljs-string">"a session with the correct ID is returned"</span>, -&gt;
+      waitsForPromise -&gt;
+        DraftStore.<span class="hljs-function"><span class="hljs-title">sessionForLocalId</span><span class="hljs-params">(<span class="hljs-string">'123'</span>)</span></span><span class="hljs-class">.then</span> (session) -&gt;
+          <span class="hljs-function"><span class="hljs-title">expect</span><span class="hljs-params">(session.id)</span></span>.<span class="hljs-function"><span class="hljs-title">toBe</span><span class="hljs-params">(<span class="hljs-string">'123'</span>)</span></span>
+</code></pre>
+<p>This method can be used in the <code>describe</code>, <code>it</code>, <code>beforeEach</code> and <code>afterEach</code> functions.</p>
+<pre><code class="lang-coffee">describe <span class="hljs-string">"when we open a file"</span>, -&gt;
+  beforeEach -&gt;
+    waitsForPromise -&gt;
+      atom<span class="hljs-class">.workspace</span><span class="hljs-class">.open</span> <span class="hljs-string">'c.coffee'</span>
+
+  it <span class="hljs-string">"should be opened in an editor"</span>, -&gt;
+    <span class="hljs-function"><span class="hljs-title">expect</span><span class="hljs-params">(atom.workspace.getActiveTextEditor()</span></span>.<span class="hljs-function"><span class="hljs-title">getPath</span><span class="hljs-params">()</span></span>)<span class="hljs-class">.toContain</span> <span class="hljs-string">'c.coffee'</span>
+</code></pre>
+<p>If you need to wait for multiple promises use a new <code>waitsForPromise</code> function for each promise. (Caution: Without <code>beforeEach</code> this example will fail!)</p>
+<pre><code class="lang-coffee">describe <span class="hljs-string">"waiting for the packages to load"</span>, -&gt;
+
+  beforeEach -&gt;
+    waitsForPromise -&gt;
+      atom<span class="hljs-class">.workspace</span><span class="hljs-class">.open</span>(<span class="hljs-string">'sample.js'</span>)
+    waitsForPromise -&gt;
+      atom<span class="hljs-class">.packages</span><span class="hljs-class">.activatePackage</span>(<span class="hljs-string">'tabs'</span>)
+    waitsForPromise -&gt;
+      atom<span class="hljs-class">.packages</span><span class="hljs-class">.activatePackage</span>(<span class="hljs-string">'tree-view'</span>)
+
+  it <span class="hljs-string">'should have waited long enough'</span>, -&gt;
+    <span class="hljs-function"><span class="hljs-title">expect</span><span class="hljs-params">(atom.packages.isPackageActive(<span class="hljs-string">'tabs'</span>)</span></span>)<span class="hljs-class">.toBe</span> true
+    <span class="hljs-function"><span class="hljs-title">expect</span><span class="hljs-params">(atom.packages.isPackageActive(<span class="hljs-string">'tree-view'</span>)</span></span>)<span class="hljs-class">.toBe</span> true
+</code></pre>
+<h4 id="asynchronous-functions-with-callbacks">Asynchronous functions with callbacks</h4>
+<p>Specs for asynchronous functions can be done using the <code>waitsFor</code> and <code>runs</code> functions. A simple example.</p>
+<pre><code class="lang-coffee">describe <span class="hljs-string">"fs.readdir(path, cb)"</span>, -&gt;
+  it <span class="hljs-string">"is async"</span>, -&gt;
+    spy = jasmine.<span class="hljs-function"><span class="hljs-title">createSpy</span><span class="hljs-params">(<span class="hljs-string">'fs.readdirSpy'</span>)</span></span>
+
+    fs.<span class="hljs-function"><span class="hljs-title">readdir</span><span class="hljs-params">(<span class="hljs-string">'/tmp/example'</span>, spy)</span></span>
+    waitsFor -&gt;
+      spy<span class="hljs-class">.callCount</span> &gt; <span class="hljs-number">0</span>
+    runs -&gt;
+      exp = [null, [<span class="hljs-string">'example.coffee'</span>]]
+      <span class="hljs-function"><span class="hljs-title">expect</span><span class="hljs-params">(spy.mostRecentCall.args)</span></span><span class="hljs-class">.toEqual</span> exp
+      <span class="hljs-function"><span class="hljs-title">expect</span><span class="hljs-params">(spy)</span></span>.<span class="hljs-function"><span class="hljs-title">toHaveBeenCalledWith</span><span class="hljs-params">(null, [<span class="hljs-string">'example.coffee'</span>])</span></span>
+</code></pre>
+<p>For a more detailed documentation on asynchronous tests please visit the <a href="http://jasmine.github.io/1.3/introduction.html#section-Asynchronous_Support)[Jasmine">http://jasmine.github.io/1.3/introduction.html#section-Asynchronous_Support)[Jasmine</a> documentation].</p>
+<h4 id="tips-for-debugging-specs">Tips for Debugging Specs</h4>
+<p>To run a limited subset of specs use the <code>fdescribe</code> or <code>fit</code> methods. You can use those to focus a single spec or several specs. In the example above, focusing an individual spec looks like this:</p>
+<pre><code class="lang-coffee">describe <span class="hljs-string">"when a test is written"</span>, -&gt;
+  fit <span class="hljs-string">"has some expectations that should pass"</span>, -&gt;
+    <span class="hljs-function"><span class="hljs-title">expect</span><span class="hljs-params">(<span class="hljs-string">"apples"</span>)</span></span>.<span class="hljs-function"><span class="hljs-title">toEqual</span><span class="hljs-params">(<span class="hljs-string">"apples"</span>)</span></span>
+    <span class="hljs-function"><span class="hljs-title">expect</span><span class="hljs-params">(<span class="hljs-string">"oranges"</span>)</span></span><span class="hljs-class">.not</span><span class="hljs-class">.toEqual</span>(<span class="hljs-string">"apples"</span>)
+</code></pre>
+
+</div>
+
+</div>
+
+<div id="footer">
+  <div class="container">
+    <img src="images/edgehill.png" class="logo" />
+    <div class="small">Nylas Mail Developer Preview<br><em>© 2014-2015 Nylas, Inc.</em></div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,757 @@
+<html>
+<head>
+<meta charset="utf-8">
+<title>Nylas Mail — PackageManager</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<link rel="stylesheet" type="text/css" href="css/main.css"/>
+<link rel="stylesheet" type="text/css" href="css/tomorrow.css">
+</head>
+<body>
+<div id="header">
+  <div class="container">
+    <img src="images/edgehill.png" class="logo" />
+    <div class="title">Nylas Mail<div class="small">Developer Preview</div></div>
+  </div>
+</div>
+
+<div class="container">
+
+<div class="page-title">
+  PackageManager
+</div>
+
+<div id="sidebar">
+  <div class="heading">Getting Started</div>
+  <ul>
+        <li><a href="Index.html" >Welcome</a></li>
+        <li><a href="First steps.html" >First Steps</a></li>
+  </ul>
+  <div class="heading">Guides</div>
+  <ul>
+        <li><a href="PackageOverview.html" >Building a Package</a></li>
+        <li><a href="InterfaceConcepts.html" >Interface Concepts</a></li>
+        <li><a href="React.html" >Interface Components</a></li>
+        <li><a href="Architecture.html" >Application Architecture</a></li>
+        <li><a href="Debugging.html" >Debugging N1</a></li>
+        <li><a href="Database.html" >Accessing the Database</a></li>
+        <li><a href="DraftStoreExtensions.html" >Extending the Composer</a></li>
+        <li><a href="WritingSpecs.html" >Writing Specs</a></li>
+        <li><a href="FAQ.html" >FAQ</a></li>
+  </ul>
+  <div class="heading">Sample Code</div>
+  <ul>
+        <li><a href="https://github.com/nylas/edgehill-plugins/tree/master/translate" target="_blank">Composer Translation</a></li>
+        <li><a href="https://github.com/nylas/edgehill-plugins/tree/master/sidebar-github-profile" target="_blank">Github Sidebar</a></li>
+  </ul>
+  <div class="heading">API Reference</div>
+  <ul>
+        <div class="heading">General</div>
+        <ul>
+              <li><a href="Actions.html" >Actions</a></li>
+              <li><a href="Atom.html" >Atom</a></li>
+              <li><a href="BufferedNodeProcess.html" >BufferedNodeProcess</a></li>
+              <li><a href="BufferedProcess.html" >BufferedProcess</a></li>
+              <li><a href="ChangeFolderTask.html" >ChangeFolderTask</a></li>
+              <li><a href="ChangeLabelsTask.html" >ChangeLabelsTask</a></li>
+              <li><a href="Config.html" >Config</a></li>
+              <li><a href="DraggableImg.html" >DraggableImg</a></li>
+              <li><a href="FocusTrackingRegion.html" >FocusTrackingRegion</a></li>
+              <li><a href="Task.html" >Task</a></li>
+              <li><a href="TaskQueueStatusStore.html" >TaskQueueStatusStore</a></li>
+        </ul>
+        <div class="heading">Component Kit</div>
+        <ul>
+              <li><a href="EventedIFrame.html" >EventedIFrame</a></li>
+              <li><a href="Flexbox.html" >Flexbox</a></li>
+              <li><a href="InjectedComponent.html" >InjectedComponent</a></li>
+              <li><a href="InjectedComponentSet.html" >InjectedComponentSet</a></li>
+              <li><a href="Menu.html" >Menu</a></li>
+              <li><a href="MenuItem.html" >MenuItem</a></li>
+              <li><a href="MenuNameEmailItem.html" >MenuNameEmailItem</a></li>
+              <li><a href="MultiselectActionBar.html" >MultiselectActionBar</a></li>
+              <li><a href="MultiselectList.html" >MultiselectList</a></li>
+              <li><a href="Popover.html" >Popover</a></li>
+              <li><a href="ResizableRegion.html" >ResizableRegion</a></li>
+              <li><a href="RetinaImg.html" >RetinaImg</a></li>
+              <li><a href="Spinner.html" >Spinner</a></li>
+              <li><a href="TimeoutTransitionGroupChild.html" >TimeoutTransitionGroupChild</a></li>
+              <li><a href="UnsafeComponent.html" >UnsafeComponent</a></li>
+        </ul>
+        <div class="heading">Models</div>
+        <ul>
+              <li><a href="Account.html" >Account</a></li>
+              <li><a href="Calendar.html" >Calendar</a></li>
+              <li><a href="Contact.html" >Contact</a></li>
+              <li><a href="File.html" >File</a></li>
+              <li><a href="Folder.html" >Folder</a></li>
+              <li><a href="Label.html" >Label</a></li>
+              <li><a href="Message.html" >Message</a></li>
+              <li><a href="Model.html" >Model</a></li>
+              <li><a href="Thread.html" >Thread</a></li>
+        </ul>
+        <div class="heading">Stores</div>
+        <ul>
+              <li><a href="AccountStore.html" >AccountStore</a></li>
+              <li><a href="ComponentRegistry.html" >ComponentRegistry</a></li>
+              <li><a href="ContactStore.html" >ContactStore</a></li>
+              <li><a href="EventStore.html" >EventStore</a></li>
+              <li><a href="FocusedContentStore.html" >FocusedContentStore</a></li>
+              <li><a href="MessageStoreExtension.html" >MessageStoreExtension</a></li>
+              <li><a href="TaskQueue.html" >TaskQueue</a></li>
+              <li><a href="WorkspaceStore.html" >WorkspaceStore</a></li>
+        </ul>
+        <div class="heading">Database</div>
+        <ul>
+              <li><a href="Attribute.html" >Attribute</a></li>
+              <li><a href="AttributeBoolean.html" >AttributeBoolean</a></li>
+              <li><a href="AttributeCollection.html" >AttributeCollection</a></li>
+              <li><a href="AttributeDateTime.html" >AttributeDateTime</a></li>
+              <li><a href="AttributeJoinedData.html" >AttributeJoinedData</a></li>
+              <li><a href="AttributeNumber.html" >AttributeNumber</a></li>
+              <li><a href="AttributeObject.html" >AttributeObject</a></li>
+              <li><a href="AttributeServerId.html" >AttributeServerId</a></li>
+              <li><a href="AttributeString.html" >AttributeString</a></li>
+              <li><a href="DatabaseStore.html" >DatabaseStore</a></li>
+              <li><a href="DatabaseView.html" >DatabaseView</a></li>
+              <li><a href="Matcher.html" >Matcher</a></li>
+              <li><a href="ModelQuery.html" >ModelQuery</a></li>
+              <li><a href="SortOrder.html" >SortOrder</a></li>
+        </ul>
+        <div class="heading">Drafts</div>
+        <ul>
+              <li><a href="DraftChangeSet.html" >DraftChangeSet</a></li>
+              <li><a href="DraftStore.html" >DraftStore</a></li>
+              <li><a href="DraftStoreExtension.html" >DraftStoreExtension</a></li>
+              <li><a href="DraftStoreProxy.html" >DraftStoreProxy</a></li>
+        </ul>
+        <div class="heading">Atom</div>
+        <ul>
+              <li><a href="Clipboard.html" >Clipboard</a></li>
+              <li><a href="Color.html" >Color</a></li>
+              <li><a href="CommandRegistry.html" >CommandRegistry</a></li>
+              <li><a href="DeserializerManager.html" >DeserializerManager</a></li>
+              <li><a href="MenuManager.html" >MenuManager</a></li>
+              <li><a href="PackageManager.html" >PackageManager</a></li>
+              <li><a href="ScopeDescriptor.html" >ScopeDescriptor</a></li>
+              <li><a href="StyleManager.html" >StyleManager</a></li>
+              <li><a href="ThemeManager.html" >ThemeManager</a></li>
+        </ul>
+  </ul>
+</div>
+
+<div id="main">
+  <h2>Summary</h2>
+
+  <div class="markdown-from-sourecode">
+    <p><p>Package manager for coordinating the lifecycle of Atom packages.</p>
+<p>An instance of this class is always available as the <code>atom.packages</code> global.</p>
+<p>Packages can be loaded, activated, and deactivated, and unloaded:</p>
+<ul>
+<li>Loading a package reads and parses the package&#39;s metadata and resources
+such as keymaps, menus, stylesheets, etc.</li>
+<li>Activating a package registers the loaded resources and calls <code>activate()</code>
+on the package&#39;s main module.</li>
+<li>Deactivating a package unregisters the package&#39;s resources  and calls
+<code>deactivate()</code> on the package&#39;s main module.</li>
+<li>Unloading a package removes it completely from the package manager.</li>
+</ul>
+<p>Packages can be enabled/disabled via the <code>core.disabledPackages</code> config
+settings and also by calling <code>enablePackage()/disablePackage()</code>.</p>
+</p>
+  </div>
+
+  <ul>
+      <li><a href="#Event Subscription">Event Subscription</a></li>
+      <li><a href="#Package system data">Package system data</a></li>
+      <li><a href="#General package data">General package data</a></li>
+      <li><a href="#Enabling and disabling packages">Enabling and disabling packages</a></li>
+      <li><a href="#Accessing active packages">Accessing active packages</a></li>
+      <li><a href="#Accessing loaded packages">Accessing loaded packages</a></li>
+      <li><a href="#Accessing available packages">Accessing available packages</a></li>
+  </ul>
+
+
+
+
+
+      <h3>Instance Methods</h3>
+
+      <h4 id=onDidLoadInitialPackages class="function-name">
+        onDidLoadInitialPackages(<span class="args"><span class="arg">callback</span></span>) <a href="#onDidLoadInitialPackages" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Invoke the given callback when all packages have been loaded.</p>
+      </p>
+      </div>
+      
+          <strong>Parameters</strong>
+          <table class="arguments">
+              <tr>
+                <th>Argument</th>
+                <th>Description</th>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>callback</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  
+                  <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function'>Function</a></p>
+      
+                </td>
+              </tr>
+          </table>
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns a {Disposable} on which <code>.dispose()</code> can be called to unsubscribe.</p>
+      </td></tr>
+          </table>
+      <h4 id=onDidActivateInitialPackages class="function-name">
+        onDidActivateInitialPackages(<span class="args"><span class="arg">callback</span></span>) <a href="#onDidActivateInitialPackages" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Invoke the given callback when all packages have been activated.</p>
+      </p>
+      </div>
+      
+          <strong>Parameters</strong>
+          <table class="arguments">
+              <tr>
+                <th>Argument</th>
+                <th>Description</th>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>callback</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  
+                  <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function'>Function</a></p>
+      
+                </td>
+              </tr>
+          </table>
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns a {Disposable} on which <code>.dispose()</code> can be called to unsubscribe.</p>
+      </td></tr>
+          </table>
+      <h4 id=onDidActivatePackage class="function-name">
+        onDidActivatePackage(<span class="args"><span class="arg">callback</span></span>) <a href="#onDidActivatePackage" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Invoke the given callback when a package is activated.</p>
+      </p>
+      </div>
+      
+          <strong>Parameters</strong>
+          <table class="arguments">
+              <tr>
+                <th>Argument</th>
+                <th>Description</th>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>callback</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  
+                  <p>A <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function'>Function</a> to be invoked when a package is activated.</p>
+      
+                </td>
+              </tr>
+          </table>
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns a {Disposable} on which <code>.dispose()</code> can be called to unsubscribe.</p>
+      </td></tr>
+          </table>
+      <h4 id=onDidDeactivatePackage class="function-name">
+        onDidDeactivatePackage(<span class="args"><span class="arg">callback</span></span>) <a href="#onDidDeactivatePackage" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Invoke the given callback when a package is deactivated.</p>
+      </p>
+      </div>
+      
+          <strong>Parameters</strong>
+          <table class="arguments">
+              <tr>
+                <th>Argument</th>
+                <th>Description</th>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>callback</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  
+                  <p>A <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function'>Function</a> to be invoked when a package is deactivated.</p>
+      
+                </td>
+              </tr>
+          </table>
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns a {Disposable} on which <code>.dispose()</code> can be called to unsubscribe.</p>
+      </td></tr>
+          </table>
+      <h4 id=onDidLoadPackage class="function-name">
+        onDidLoadPackage(<span class="args"><span class="arg">callback</span></span>) <a href="#onDidLoadPackage" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Invoke the given callback when a package is loaded.</p>
+      </p>
+      </div>
+      
+          <strong>Parameters</strong>
+          <table class="arguments">
+              <tr>
+                <th>Argument</th>
+                <th>Description</th>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>callback</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  
+                  <p>A <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function'>Function</a> to be invoked when a package is loaded.</p>
+      
+                </td>
+              </tr>
+          </table>
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns a {Disposable} on which <code>.dispose()</code> can be called to unsubscribe.</p>
+      </td></tr>
+          </table>
+      <h4 id=onDidUnloadPackage class="function-name">
+        onDidUnloadPackage(<span class="args"><span class="arg">callback</span></span>) <a href="#onDidUnloadPackage" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Invoke the given callback when a package is unloaded.</p>
+      </p>
+      </div>
+      
+          <strong>Parameters</strong>
+          <table class="arguments">
+              <tr>
+                <th>Argument</th>
+                <th>Description</th>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>callback</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  
+                  <p>A <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function'>Function</a> to be invoked when a package is unloaded.</p>
+      
+                </td>
+              </tr>
+          </table>
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns a {Disposable} on which <code>.dispose()</code> can be called to unsubscribe.</p>
+      </td></tr>
+          </table>
+      <h4 id=getApmPath class="function-name">
+        getApmPath(<span class="args"></span>) <a href="#getApmPath" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Get the path to the apm command.</p>
+      <p>Return a <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> file path to apm. </p>
+      </p>
+      </div>
+      
+      
+      <h4 id=getPackageDirPaths class="function-name">
+        getPackageDirPaths(<span class="args"></span>) <a href="#getPackageDirPaths" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Get the paths being used to look for packages.</p>
+      </p>
+      </div>
+      
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> directory paths.</p>
+      </td></tr>
+          </table>
+      <h4 id=resolvePackagePath class="function-name">
+        resolvePackagePath(<span class="args"><span class="arg">name</span></span>) <a href="#resolvePackagePath" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Resolve the given package name to a path on disk.</p>
+      <p>Return a <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> folder path or undefined if it could not be resolved. </p>
+      </p>
+      </div>
+      
+          <strong>Parameters</strong>
+          <table class="arguments">
+              <tr>
+                <th>Argument</th>
+                <th>Description</th>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>name</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  
+                  <p>The <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> package name.</p>
+      
+                </td>
+              </tr>
+          </table>
+      
+      <h4 id=isBundledPackage class="function-name">
+        isBundledPackage(<span class="args"><span class="arg">name</span></span>) <a href="#isBundledPackage" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Is the package with the given name bundled with Atom?</p>
+      </p>
+      </div>
+      
+          <strong>Parameters</strong>
+          <table class="arguments">
+              <tr>
+                <th>Argument</th>
+                <th>Description</th>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>name</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  
+                  <p>The <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> package name.</p>
+      
+                </td>
+              </tr>
+          </table>
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns a <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean'>Boolean</a>.</p>
+      </td></tr>
+          </table>
+      <h4 id=enablePackage class="function-name">
+        enablePackage(<span class="args"></span>) <a href="#enablePackage" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Enable the package with the given name.</p>
+      </p>
+      </div>
+      
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns the {Package} that was enabled or null if it isn&#39;t loaded.</p>
+      </td></tr>
+          </table>
+      <h4 id=disablePackage class="function-name">
+        disablePackage(<span class="args"></span>) <a href="#disablePackage" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Disable the package with the given name.</p>
+      </p>
+      </div>
+      
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns the {Package} that was disabled or null if it isn&#39;t loaded.</p>
+      </td></tr>
+          </table>
+      <h4 id=isPackageDisabled class="function-name">
+        isPackageDisabled(<span class="args"><span class="arg">name</span></span>) <a href="#isPackageDisabled" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Is the package with the given name disabled?</p>
+      </p>
+      </div>
+      
+          <strong>Parameters</strong>
+          <table class="arguments">
+              <tr>
+                <th>Argument</th>
+                <th>Description</th>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>name</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  
+                  <p>The <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> package name.</p>
+      
+                </td>
+              </tr>
+          </table>
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns a <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean'>Boolean</a>.</p>
+      </td></tr>
+          </table>
+      <h4 id=getActivePackages class="function-name">
+        getActivePackages(<span class="args"></span>) <a href="#getActivePackages" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Get an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of all the active {Package}s. </p>
+      </p>
+      </div>
+      
+      
+      <h4 id=getActivePackage class="function-name">
+        getActivePackage(<span class="args"><span class="arg">name</span></span>) <a href="#getActivePackage" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Get the active {Package} with the given name.</p>
+      </p>
+      </div>
+      
+          <strong>Parameters</strong>
+          <table class="arguments">
+              <tr>
+                <th>Argument</th>
+                <th>Description</th>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>name</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  
+                  <p>The <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> package name.</p>
+      
+                </td>
+              </tr>
+          </table>
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns a {Package} or .</p>
+      </td></tr>
+          </table>
+      <h4 id=isPackageActive class="function-name">
+        isPackageActive(<span class="args"><span class="arg">name</span></span>) <a href="#isPackageActive" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Is the {Package} with the given name active?</p>
+      </p>
+      </div>
+      
+          <strong>Parameters</strong>
+          <table class="arguments">
+              <tr>
+                <th>Argument</th>
+                <th>Description</th>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>name</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  
+                  <p>The <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> package name.</p>
+      
+                </td>
+              </tr>
+          </table>
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns a <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean'>Boolean</a>.</p>
+      </td></tr>
+          </table>
+      <h4 id=getLoadedPackages class="function-name">
+        getLoadedPackages(<span class="args"></span>) <a href="#getLoadedPackages" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Get an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of all the loaded {Package}s </p>
+      </p>
+      </div>
+      
+      
+      <h4 id=getLoadedPackage class="function-name">
+        getLoadedPackage(<span class="args"><span class="arg">name</span></span>) <a href="#getLoadedPackage" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Get the loaded {Package} with the given name.</p>
+      </p>
+      </div>
+      
+          <strong>Parameters</strong>
+          <table class="arguments">
+              <tr>
+                <th>Argument</th>
+                <th>Description</th>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>name</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  
+                  <p>The <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> package name.</p>
+      
+                </td>
+              </tr>
+          </table>
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns a {Package} or .</p>
+      </td></tr>
+          </table>
+      <h4 id=isPackageLoaded class="function-name">
+        isPackageLoaded(<span class="args"><span class="arg">name</span></span>) <a href="#isPackageLoaded" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Is the package with the given name loaded?</p>
+      </p>
+      </div>
+      
+          <strong>Parameters</strong>
+          <table class="arguments">
+              <tr>
+                <th>Argument</th>
+                <th>Description</th>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>name</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  
+                  <p>The <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> package name.</p>
+      
+                </td>
+              </tr>
+          </table>
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns a <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean'>Boolean</a>.</p>
+      </td></tr>
+          </table>
+      <h4 id=getAvailablePackagePaths class="function-name">
+        getAvailablePackagePaths(<span class="args"></span>) <a href="#getAvailablePackagePaths" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Get an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a>s of all the available package paths.</p>
+      <p>If the optional windowType is passed, it will only load packages
+      that declare that windowType in their package.json </p>
+      </p>
+      </div>
+      
+      
+      <h4 id=getAvailablePackageNames class="function-name">
+        getAvailablePackageNames(<span class="args"></span>) <a href="#getAvailablePackageNames" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Get an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a>s of all the available package names. </p>
+      </p>
+      </div>
+      
+      
+      <h4 id=getAvailablePackageMetadata class="function-name">
+        getAvailablePackageMetadata(<span class="args"></span>) <a href="#getAvailablePackageMetadata" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Get an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a>s of all the available package metadata. </p>
+      </p>
+      </div>
+      
+      
+
+</div>
+
+</div>
+
+<div id="footer">
+  <div class="container">
+    <img src="images/edgehill.png" class="logo" />
+    <div class="small">Nylas Mail Developer Preview<br><em>© 2014-2015 Nylas, Inc.</em></div>
+  </div>
+</div>
+
+</body>
+</html>

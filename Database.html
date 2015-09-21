@@ -1,0 +1,263 @@
+<html>
+<head>
+<meta charset="utf-8">
+<title>Nylas Mail — Accessing the Database</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<link rel="stylesheet" type="text/css" href="css/main.css"/>
+<link rel="stylesheet" type="text/css" href="css/tomorrow.css">
+</head>
+<body>
+<div id="header">
+  <div class="container">
+    <img src="images/edgehill.png" class="logo" />
+    <div class="title">Nylas Mail<div class="small">Developer Preview</div></div>
+  </div>
+</div>
+
+<div class="container">
+
+<div class="page-title">Accessing the Database</div>
+
+<div id="sidebar">
+  <div class="heading">Getting Started</div>
+  <ul>
+        <li><a href="Index.html" >Welcome</a></li>
+        <li><a href="First steps.html" >First Steps</a></li>
+  </ul>
+  <div class="heading">Guides</div>
+  <ul>
+        <li><a href="PackageOverview.html" >Building a Package</a></li>
+        <li><a href="InterfaceConcepts.html" >Interface Concepts</a></li>
+        <li><a href="React.html" >Interface Components</a></li>
+        <li><a href="Architecture.html" >Application Architecture</a></li>
+        <li><a href="Debugging.html" >Debugging N1</a></li>
+        <li><a href="Database.html" >Accessing the Database</a></li>
+        <li><a href="DraftStoreExtensions.html" >Extending the Composer</a></li>
+        <li><a href="WritingSpecs.html" >Writing Specs</a></li>
+        <li><a href="FAQ.html" >FAQ</a></li>
+  </ul>
+  <div class="heading">Sample Code</div>
+  <ul>
+        <li><a href="https://github.com/nylas/edgehill-plugins/tree/master/translate" target="_blank">Composer Translation</a></li>
+        <li><a href="https://github.com/nylas/edgehill-plugins/tree/master/sidebar-github-profile" target="_blank">Github Sidebar</a></li>
+  </ul>
+  <div class="heading">API Reference</div>
+  <ul>
+        <div class="heading">General</div>
+        <ul>
+              <li><a href="Actions.html" >Actions</a></li>
+              <li><a href="Atom.html" >Atom</a></li>
+              <li><a href="BufferedNodeProcess.html" >BufferedNodeProcess</a></li>
+              <li><a href="BufferedProcess.html" >BufferedProcess</a></li>
+              <li><a href="ChangeFolderTask.html" >ChangeFolderTask</a></li>
+              <li><a href="ChangeLabelsTask.html" >ChangeLabelsTask</a></li>
+              <li><a href="Config.html" >Config</a></li>
+              <li><a href="DraggableImg.html" >DraggableImg</a></li>
+              <li><a href="FocusTrackingRegion.html" >FocusTrackingRegion</a></li>
+              <li><a href="Task.html" >Task</a></li>
+              <li><a href="TaskQueueStatusStore.html" >TaskQueueStatusStore</a></li>
+        </ul>
+        <div class="heading">Component Kit</div>
+        <ul>
+              <li><a href="EventedIFrame.html" >EventedIFrame</a></li>
+              <li><a href="Flexbox.html" >Flexbox</a></li>
+              <li><a href="InjectedComponent.html" >InjectedComponent</a></li>
+              <li><a href="InjectedComponentSet.html" >InjectedComponentSet</a></li>
+              <li><a href="Menu.html" >Menu</a></li>
+              <li><a href="MenuItem.html" >MenuItem</a></li>
+              <li><a href="MenuNameEmailItem.html" >MenuNameEmailItem</a></li>
+              <li><a href="MultiselectActionBar.html" >MultiselectActionBar</a></li>
+              <li><a href="MultiselectList.html" >MultiselectList</a></li>
+              <li><a href="Popover.html" >Popover</a></li>
+              <li><a href="ResizableRegion.html" >ResizableRegion</a></li>
+              <li><a href="RetinaImg.html" >RetinaImg</a></li>
+              <li><a href="Spinner.html" >Spinner</a></li>
+              <li><a href="TimeoutTransitionGroupChild.html" >TimeoutTransitionGroupChild</a></li>
+              <li><a href="UnsafeComponent.html" >UnsafeComponent</a></li>
+        </ul>
+        <div class="heading">Models</div>
+        <ul>
+              <li><a href="Account.html" >Account</a></li>
+              <li><a href="Calendar.html" >Calendar</a></li>
+              <li><a href="Contact.html" >Contact</a></li>
+              <li><a href="File.html" >File</a></li>
+              <li><a href="Folder.html" >Folder</a></li>
+              <li><a href="Label.html" >Label</a></li>
+              <li><a href="Message.html" >Message</a></li>
+              <li><a href="Model.html" >Model</a></li>
+              <li><a href="Thread.html" >Thread</a></li>
+        </ul>
+        <div class="heading">Stores</div>
+        <ul>
+              <li><a href="AccountStore.html" >AccountStore</a></li>
+              <li><a href="ComponentRegistry.html" >ComponentRegistry</a></li>
+              <li><a href="ContactStore.html" >ContactStore</a></li>
+              <li><a href="EventStore.html" >EventStore</a></li>
+              <li><a href="FocusedContentStore.html" >FocusedContentStore</a></li>
+              <li><a href="MessageStoreExtension.html" >MessageStoreExtension</a></li>
+              <li><a href="TaskQueue.html" >TaskQueue</a></li>
+              <li><a href="WorkspaceStore.html" >WorkspaceStore</a></li>
+        </ul>
+        <div class="heading">Database</div>
+        <ul>
+              <li><a href="Attribute.html" >Attribute</a></li>
+              <li><a href="AttributeBoolean.html" >AttributeBoolean</a></li>
+              <li><a href="AttributeCollection.html" >AttributeCollection</a></li>
+              <li><a href="AttributeDateTime.html" >AttributeDateTime</a></li>
+              <li><a href="AttributeJoinedData.html" >AttributeJoinedData</a></li>
+              <li><a href="AttributeNumber.html" >AttributeNumber</a></li>
+              <li><a href="AttributeObject.html" >AttributeObject</a></li>
+              <li><a href="AttributeServerId.html" >AttributeServerId</a></li>
+              <li><a href="AttributeString.html" >AttributeString</a></li>
+              <li><a href="DatabaseStore.html" >DatabaseStore</a></li>
+              <li><a href="DatabaseView.html" >DatabaseView</a></li>
+              <li><a href="Matcher.html" >Matcher</a></li>
+              <li><a href="ModelQuery.html" >ModelQuery</a></li>
+              <li><a href="SortOrder.html" >SortOrder</a></li>
+        </ul>
+        <div class="heading">Drafts</div>
+        <ul>
+              <li><a href="DraftChangeSet.html" >DraftChangeSet</a></li>
+              <li><a href="DraftStore.html" >DraftStore</a></li>
+              <li><a href="DraftStoreExtension.html" >DraftStoreExtension</a></li>
+              <li><a href="DraftStoreProxy.html" >DraftStoreProxy</a></li>
+        </ul>
+        <div class="heading">Atom</div>
+        <ul>
+              <li><a href="Clipboard.html" >Clipboard</a></li>
+              <li><a href="Color.html" >Color</a></li>
+              <li><a href="CommandRegistry.html" >CommandRegistry</a></li>
+              <li><a href="DeserializerManager.html" >DeserializerManager</a></li>
+              <li><a href="MenuManager.html" >MenuManager</a></li>
+              <li><a href="PackageManager.html" >PackageManager</a></li>
+              <li><a href="ScopeDescriptor.html" >ScopeDescriptor</a></li>
+              <li><a href="StyleManager.html" >StyleManager</a></li>
+              <li><a href="ThemeManager.html" >ThemeManager</a></li>
+        </ul>
+  </ul>
+</div>
+<div id="main" class="article">
+<p>Nylas Mail is built on top of a custom database layer modeled after ActiveRecord. For many parts of the application, the database is the source of truth. Data is retrieved from the API, written to the database, and changes to the database trigger Stores and components to refresh their contents. The illustration below shows this flow of data:</p>
+<p><img src="./images/database-flow.png"></p>
+<p>The Database connection is managed by the <a href='databasestore.html'>DatabaseStore</a>, a singleton object that exists in every window. All Database requests are asynchronous. Queries are forwarded to the application&#39;s <code>Browser</code> process via IPC and run in SQLite.</p>
+<h2 id="declaring-models">Declaring Models</h2>
+<p>In Nylas Mail, Models are thin wrappers around data with a particular schema. Each <a href='model.html'>Model</a> class declares a set of attributes that define the object&#39;s data. For example:</p>
+<pre><code class="lang-coffee"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Example</span> <span class="hljs-keyword"><span class="hljs-keyword">extends</span></span> <span class="hljs-title">Model</span>
+</span>
+  <span class="hljs-annotation">@attributes</span>:
+    <span class="hljs-symbol">'i</span>d': <span class="hljs-type">Attributes</span>.<span class="hljs-type">String</span>
+      queryable: <span class="hljs-literal">true</span>
+      modelKey: <span class="hljs-symbol">'i</span>d'
+
+    <span class="hljs-symbol">'objec</span>t': <span class="hljs-type">Attributes</span>.<span class="hljs-type">String</span>
+      modelKey: <span class="hljs-symbol">'objec</span>t'
+
+    <span class="hljs-symbol">'namespaceI</span>d': <span class="hljs-type">Attributes</span>.<span class="hljs-type">String</span>
+      queryable: <span class="hljs-literal">true</span>
+      modelKey: <span class="hljs-symbol">'namespaceI</span>d'
+      jsonKey: <span class="hljs-symbol">'namespace_i</span>d'
+
+    <span class="hljs-symbol">'bod</span>y': <span class="hljs-type">Attributes</span>.<span class="hljs-type">JoinedData</span>
+      modelTable: <span class="hljs-symbol">'MessageBod</span>y'
+      modelKey: <span class="hljs-symbol">'bod</span>y'
+
+    <span class="hljs-symbol">'file</span>s': <span class="hljs-type">Attributes</span>.<span class="hljs-type">Collection</span>
+      modelKey: <span class="hljs-symbol">'file</span>s'
+      itemClass: <span class="hljs-type">File</span>
+
+    <span class="hljs-symbol">'unrea</span>d': <span class="hljs-type">Attributes</span>.<span class="hljs-type">Boolean</span>
+      queryable: <span class="hljs-literal">true</span>
+      modelKey: <span class="hljs-symbol">'unrea</span>d'
+</code></pre>
+<p>When models are inflated from JSON using <code>fromJSON</code> or converted to JSON using <code>toJSON</code>, only the attributes declared on the model are copied. The <code>modelKey</code> and <code>jsonKey</code> options allow you to specify where a particular key should be found. Attributes are also coerced to the proper types: String attributes will always be strings, Boolean attributes will always be <code>true</code> or <code>false</code>, etc. <code>null</code> is a valid value for all types.</p>
+<p>The <a href='databasestore.html'>DatabaseStore</a> automatically maintains cache tables for storing Model objects. By default, models are stored in the cache as JSON blobs and basic attributes are not queryable. When the <code>queryable</code> option is specified on an attribute, it is given a separate column and index in the SQLite table for the model, and you can construct queries using the attribute:</p>
+<pre><code class="lang-coffee">Thread<span class="hljs-class">.attributes</span><span class="hljs-class">.namespaceId</span><span class="hljs-class">.equals</span>(<span class="hljs-string">"123"</span>)
+<span class="hljs-comment">// where namespace_id = '123'</span>
+
+Thread<span class="hljs-class">.attributes</span><span class="hljs-class">.lastMessageTimestamp</span><span class="hljs-class">.greaterThan</span>(<span class="hljs-number">123</span>)
+<span class="hljs-comment">// where last_message_timestamp &gt; 123</span>
+
+Thread<span class="hljs-class">.attributes</span><span class="hljs-class">.lastMessageTimestamp</span><span class="hljs-class">.descending</span>()
+<span class="hljs-comment">// order by last_message_timestamp DESC</span>
+</code></pre>
+<h2 id="retrieving-models">Retrieving Models</h2>
+<p>You can make queries for models stored in SQLite using a <a href='https://github.com/petkaantonov/bluebird/blob/master/API.md'>Promise</a>-based ActiveRecord-style syntax. There is no way to make raw SQL queries against the local data store.</p>
+<pre><code class="lang-coffee">DatabaseStore.find<span class="hljs-function"><span class="hljs-params">(Thread, <span class="hljs-string">'123'</span>)</span>.<span class="hljs-title">then</span> <span class="hljs-params">(thread)</span> -&gt;</span>
+    <span class="hljs-comment"># thread is a thread object</span>
+
+DatabaseStore.findBy<span class="hljs-function"><span class="hljs-params">(Thread, {subject: <span class="hljs-string">'Hello World'</span>})</span>.<span class="hljs-title">then</span> <span class="hljs-params">(thread)</span> -&gt;</span>
+    <span class="hljs-comment"># find a single thread by subject</span>
+
+DatabaseStore.findAll<span class="hljs-function"><span class="hljs-params">(Thread)</span>.<span class="hljs-title">where</span><span class="hljs-params">([Thread.attributes.tags.contains(<span class="hljs-string">'inbox'</span>)])</span>.<span class="hljs-title">then</span> <span class="hljs-params">(threads)</span> -&gt;</span>
+    <span class="hljs-comment"># find threads with the inbox tag</span>
+
+DatabaseStore.count<span class="hljs-function"><span class="hljs-params">(Thread)</span>.<span class="hljs-title">where</span><span class="hljs-params">([Thread.attributes.lastMessageTimestamp.greaterThan(<span class="hljs-number">120315123</span>)])</span>.<span class="hljs-title">then</span> <span class="hljs-params">(results)</span> -&gt;</span>
+    <span class="hljs-comment"># count threads where last message received since 120315123.</span>
+</code></pre>
+<h2 id="retrieving-pages-of-models">Retrieving Pages of Models</h2>
+<p>If you need to paginate through a view of data, you should use a <code>DatabaseView</code>. Database views can be configured with a sort order and a set of where clauses. After the view is configured, it maintains a cache of models in memory in a highly efficient manner and makes it easy to implement pagination. <code>DatabaseView</code> also performs deep inspection of it&#39;s cache when models are changed and can avoid costly SQL queries.</p>
+<h2 id="saving-and-updating-models">Saving and Updating Models</h2>
+<p>The <a href='databasestore.html'>DatabaseStore</a> exposes two methods for creating and updating models: <code>persistModel</code> and <code>persistModels</code>. When you call <code>persistModel</code>, queries are automatically executed to update the object in the cache and the <a href='databasestore.html'>DatabaseStore</a> triggers, broadcasting an update to the rest of the application so that views dependent on these kind of models can refresh.</p>
+<p>When possible, you should accumulate the objects you want to save and call <code>persistModels</code>. The <a href='databasestore.html'>DatabaseStore</a> will generate batch insert statements, and a single notification will be broadcast throughout the application. Since saving objects can result in objects being re-fetched by many stores and components, you should be mindful of database insertions.</p>
+<h2 id="saving-drafts">Saving Drafts</h2>
+<p>Drafts in Nylas Mail presented us with a unique challenge. The same draft may be edited rapidly by unrelated parts of the application, causing race scenarios. (For example, when the user is typing and attachments finish uploading at the same time.) This problem could be solved by object locking, but we chose to marshall draft changes through a central DraftStore that debounces database queries and adds other helpful features. See the <a href='draftstore.html'>DraftStore</a> documentation for more information.</p>
+<h2 id="removing-models">Removing Models</h2>
+<p>The <a href='databasestore.html'>DatabaseStore</a> exposes a single method, <code>unpersistModel</code>, that allows you to purge an object from the cache. You cannot remove a model by ID alone - you must load it first.</p>
+<h4 id="advanced-model-attributes">Advanced Model Attributes</h4>
+<h5 id="attribute-joineddata">Attribute.JoinedData</h5>
+<p>Joined Data attributes allow you to store certain attributes of an object in a separate table in the database. We use this attribute type for Message bodies. Storing message bodies, which can be very large, in a separate table allows us to make queries on message metadata extremely fast, and inflate Message objects without their bodies to build the thread list.</p>
+<p>When building a <a href='modelquery.html'>ModelQuery</a> on a model with a {JoinedDataAttribute}, you need to call <code>include</code> to explicitly load the joined data attribute. The query builder will automatically perform a <code>LEFT OUTER JOIN</code> with the secondary table to retrieve the attribute:</p>
+<pre><code class="lang-coffee">DatabaseStore.<span class="hljs-function"><span class="hljs-title">find</span><span class="hljs-params">(Message, <span class="hljs-string">'123'</span>)</span></span><span class="hljs-class">.then</span> (message) -&gt;
+    <span class="hljs-comment">// message.body is undefined</span>
+
+DatabaseStore.<span class="hljs-function"><span class="hljs-title">find</span><span class="hljs-params">(Message, <span class="hljs-string">'123'</span>)</span></span>.<span class="hljs-function"><span class="hljs-title">include</span><span class="hljs-params">(Message.attributes.body)</span></span><span class="hljs-class">.then</span> (message) -&gt;
+    <span class="hljs-comment">// message.body is defined</span>
+</code></pre>
+<p>When you call <code>persistModel</code>, JoinedData attributes are automatically written to the secondary table.</p>
+<p>JoinedData attributes cannot be <code>queryable</code>.</p>
+<h5 id="attribute-collection">Attribute.Collection</h5>
+<p>Collection attributes provide basic support for one-to-many relationships. For example, <a href='thread.html'>Thread</a>s in Nylas Mail have a collection of {Tag}s.</p>
+<p>When Collection attributes are marked as <code>queryable</code>, the <a href='databasestore.html'>DatabaseStore</a> automatically creates a join table and maintains it as you create, save, and delete models. When you call <code>persistModel</code>, entries are added to the join table associating the ID of the model with the IDs of models in the collection.</p>
+<p>Collection attributes have an additional clause builder, <code>contains</code>:</p>
+<pre><code class="lang-coffee">DatabaseStore.<span class="hljs-function"><span class="hljs-title">findAll</span><span class="hljs-params">(Thread)</span></span>.<span class="hljs-function"><span class="hljs-title">where</span><span class="hljs-params">([Thread.attributes.tags.contains(<span class="hljs-string">'inbox'</span>)</span></span>])
+</code></pre>
+<p>This is equivalent to writing the following SQL:</p>
+<pre><code class="lang-sql">SELECT <span class="hljs-escape">`T</span>hread<span class="hljs-escape">`.</span><span class="hljs-escape">`d</span>ata<span class="hljs-escape">` </span>FROM <span class="hljs-escape">`T</span>hread<span class="hljs-escape">` </span>INNER JOIN <span class="hljs-escape">`T</span>hread-Tag<span class="hljs-escape">` </span>AS <span class="hljs-escape">`M</span>1<span class="hljs-escape">` </span>ON <span class="hljs-escape">`M</span>1<span class="hljs-escape">`.</span><span class="hljs-escape">`i</span>d<span class="hljs-escape">` </span>= <span class="hljs-escape">`T</span>hread<span class="hljs-escape">`.</span><span class="hljs-escape">`i</span>d<span class="hljs-escape">` </span>WHERE <span class="hljs-escape">`M</span>1<span class="hljs-escape">`.</span><span class="hljs-escape">`v</span>alue<span class="hljs-escape">` </span>= 'inbox' ORDER BY <span class="hljs-escape">`T</span>hread<span class="hljs-escape">`.</span><span class="hljs-escape">`l</span>ast_message_timestamp<span class="hljs-escape">` </span>DESC
+</code></pre>
+<h4 id="listening-for-changes">Listening for Changes</h4>
+<p>For many parts of the application, the Database is the source of truth. Funneling changes through the database ensures that they are available to the entire application. Basing your packages on the Database, and listening to it for changes, ensures that your views never fall out of sync.</p>
+<p>Within Reflux Stores, you can listen to the <a href='databasestore.html'>DatabaseStore</a> using the <code>listenTo</code> helper method:</p>
+<pre><code class="lang-coffee"><span class="hljs-variable">@listenTo</span>(DatabaseStore, <span class="hljs-variable">@_onDataChanged</span>)
+</code></pre>
+<p>Within generic code, you can listen to the <a href='databasestore.html'>DatabaseStore</a> using this syntax:</p>
+<pre><code class="lang-coffee"><span class="hljs-variable">@unlisten</span> = DatabaseStore.<span class="hljs-function">listen</span>(<span class="hljs-variable">@_onDataChanged</span>, @)
+</code></pre>
+<p>When a model is persisted or unpersisted from the database, your listener method will fire. It&#39;s very important to inspect the change payload before making queries to refresh your data. The change payload is a simple object with the following keys:</p>
+<pre><code>{
+    <span class="hljs-string">"objectClass"</span>: <span class="hljs-comment">// string: the name of the class that was changed. ie: "Thread"</span>
+    <span class="hljs-string">"objects"</span>: <span class="hljs-comment">// array: the objects that were persisted or removed</span>
+}
+</code></pre><h2 id="but-why-can-t-i-">But why can&#39;t I...?</h2>
+<p>Nylas Mail exposes a minimal Database API that exposes high-level methods for saving and retrieving objects. The API was designed with several goals in mind, which will help us create a healthy ecosystem of third-party packages:</p>
+<ul>
+<li><p>Package code should not be tightly coupled to SQLite</p>
+</li>
+<li><p>Queries should be composed in a way that makes invalid queries impossible</p>
+</li>
+<li><p>All changes to the local database must be observable</p>
+</li>
+</ul>
+
+</div>
+
+</div>
+
+<div id="footer">
+  <div class="container">
+    <img src="images/edgehill.png" class="logo" />
+    <div class="small">Nylas Mail Developer Preview<br><em>© 2014-2015 Nylas, Inc.</em></div>
+  </div>
+</div>
+
+</body>
+</html>
