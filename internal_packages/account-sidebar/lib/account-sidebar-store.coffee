@@ -44,11 +44,8 @@ class AccountSidebarStore extends NylasStore
     account = AccountStore.current()
     return unless account
 
-    viewFilterForCategory = (cat) ->
-      return MailViewFilter.forCategory(cat)
-
     userCategories = CategoryStore.getUserCategories()
-    userCategoryViews = _.map(userCategories, viewFilterForCategory)
+    userCategoryItems = _.map(userCategories, @_sidebarItemForCategory)
 
     # Our drafts are displayed via the `DraftListSidebarItem` which
     # is loading into the `Drafts` Sheet.
@@ -56,30 +53,33 @@ class AccountSidebarStore extends NylasStore
     standardCategories = _.reject standardCategories, (category) =>
       category.name is "drafts"
 
-    standardViews = _.map(standardCategories, viewFilterForCategory)
-
-    starredView = MailViewFilter.forStarred()
-    standardViews.splice(1, 0, starredView)
+    standardCategoryItems = _.map(standardCategories, @_sidebarItemForCategory)
+    starredItem = @_sidebarItemForMailView('starred', MailViewFilter.forStarred())
 
     # Find root views and add them to the bottom of the list (Drafts, etc.)
-    _.each WorkspaceStore.Sheet, (sheet) ->
-      if sheet.root and sheet.name
-        standardViews.push(sheet)
+    standardItems = standardCategoryItems
+    standardItems.splice(1, 0, starredItem)
+    standardItems.push(WorkspaceStore.sidebarItems()...)
 
     @_sections = []
     @_sections.push
       label: 'Mailboxes'
-      items: standardViews
+      items: standardItems
       type: 'mailboxes'
 
     @_sections.push
       label: CategoryStore.categoryLabel()
-      items: userCategoryViews
+      items: userCategoryItems
       type: 'category'
 
     @trigger()
 
-  _isStandardCategory: (category) =>
-    category.name and category.name in CategoryStore.standardCategories
+  _sidebarItemForMailView: (id, filter) =>
+    new WorkspaceStore.SidebarItem({id: id, name: filter.name, mailViewFilter: filter})
+
+  _sidebarItemForCategory: (category) =>
+    filter = MailViewFilter.forCategory(category)
+    @_sidebarItemForMailView(category.id, filter)
+
 
 module.exports = new AccountSidebarStore()

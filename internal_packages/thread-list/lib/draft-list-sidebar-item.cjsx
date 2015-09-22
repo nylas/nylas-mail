@@ -34,11 +34,11 @@ class DraftListSidebarItem extends React.Component
     <div className={classSet} onClick={@_onClick}>
       {unread}
       <div className="icon"><RetinaImg name={'drafts.png'} mode={RetinaImg.Mode.ContentIsMask} /></div>
-      <div className="name"> {@props.item.name}</div>
+      <div className="name"> Drafts</div>
     </div>
 
   _onClick: (event) =>
     event.preventDefault()
-    Actions.selectRootSheet(@props.item)
+    Actions.selectRootSheet(WorkspaceStore.Sheet.Drafts)
 
 module.exports = DraftListSidebarItem
