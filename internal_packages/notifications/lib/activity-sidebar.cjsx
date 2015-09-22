@@ -94,7 +94,7 @@ class ActivitySidebar extends React.Component
         <div className="progress-track">
           <div className="progress" style={width: "#{progress}%"}></div>
         </div>
-        <div className="inner">Syncing mail data...</div>
+        <div className="inner">Syncing mail data&hellip;</div>
       </div>
 
   _renderTaskActivityItems: =>
@@ -115,11 +115,11 @@ class ActivitySidebar extends React.Component
 
   _renderDeltaSyncActivityItem: =>
     <div className="item" key="delta-sync-item">
-      <div style={padding: "14px 7px 0 10px", float: "left"}>
+      <div style={padding: "8px 7px 0 10px", float: "left"}>
         <RetinaImg name="sending-spinner.gif" mode={RetinaImg.Mode.ContentPreserve} />
       </div>
       <div className="inner">
-        Getting your mail&hellip;this might take a while
+        Syncing mail data&hellip;
       </div>
     </div>
 
@@ -142,14 +142,17 @@ class ActivitySidebar extends React.Component
     tasks: TaskQueueStatusStore.queue()
     sync: NylasSyncStatusStore.state()
 
-  _onDeltaReceived: =>
+  _onDeltaReceived: (countDeltas) =>
+    tooSmallForNotification = countDeltas <= 10
+    return if tooSmallForNotification
+
     if @_timeoutId
       clearTimeout @_timeoutId
 
     @_timeoutId = setTimeout(( =>
       delete @_timeoutId
       @setState receivingDelta: false
-    ), 15000)
+    ), 30000)
 
     @setState receivingDelta: true
 

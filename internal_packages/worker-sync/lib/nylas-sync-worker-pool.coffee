@@ -64,7 +64,7 @@ class NylasSyncWorkerPool
 
   _handleDeltas: (deltas) ->
     Actions.longPollReceivedRawDeltas(deltas)
-    Actions.longPollReceivedRawDeltasPing()
+    Actions.longPollReceivedRawDeltasPing(deltas.length)
 
     # Create a (non-enumerable) reference from the attributes which we carry forward
     # back to their original deltas. This allows us to mark the deltas that the
