@@ -4,8 +4,7 @@ _ = require 'underscore'
 {CompositeDisposable} = require 'event-kit'
 {Utils,
  Contact,
- RegExpUtils,
- ContactStore} = require 'nylas-exports'
+ RegExpUtils} = require 'nylas-exports'
 RetinaImg = require './retina-img'
 
 class SizeToFitInput extends React.Component
@@ -260,6 +259,9 @@ class TokenizingTextField extends React.Component
       completions: []
       selectedTokenKey: null
 
+  componentDidMount: -> @_mounted = true
+  componentWillUnmount: -> @_mounted = false
+
   render: =>
     {Menu} = require 'nylas-component-kit'
 
@@ -503,7 +505,7 @@ class TokenizingTextField extends React.Component
       @setState completions: filterTokens(tokensOrPromise)
     else if tokensOrPromise instanceof Promise
       tokensOrPromise.then (tokens) =>
-        return unless @isMounted()
+        return unless @_mounted
         @setState completions: filterTokens(tokens)
     else
       console.warn "onRequestCompletions returned an invalid type. It must return an Array of tokens or a Promise that resolves to an array of tokens"

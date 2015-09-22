@@ -48,9 +48,10 @@ SearchSuggestionStore = Reflux.createStore
       @trigger(@)
       return
 
-    @_contactResults = ContactStore.searchContacts(val, limit:10)
-    @_rebuildThreadResults()
-    @_compileSuggestions()
+    ContactStore.searchContacts(val, limit:10).then (results) =>
+      @_contactResults = results
+      @_rebuildThreadResults()
+      @_compileSuggestions()
 
   _rebuildThreadResults: ->
     {key, val} = @queryKeyAndVal()
