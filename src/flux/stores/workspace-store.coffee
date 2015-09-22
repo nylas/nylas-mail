@@ -5,6 +5,13 @@ NylasStore = require 'nylas-store'
 
 Sheet = {}
 Location = {}
+SidebarItems = {}
+
+class WorkspaceSidebarItem
+  constructor: ({@id, @component, @name, @sheet, @mailViewFilter}) ->
+    if not @sheet and not @mailViewFilter and not @component
+      throw new Error("WorkspaceSidebarItem: You must provide either a sheet \
+                       component, or a mailViewFilter for the sidebar item named #{@name}")
 
 ###
 Public: The WorkspaceStore manages Sheets and layout modes in the application.
@@ -39,6 +46,9 @@ class WorkspaceStore extends NylasStore
   _resetInstanceVars: =>
     @Location = Location = {}
     @Sheet = Sheet = {}
+
+    @SidebarItem = WorkspaceSidebarItem
+    @SidebarItems = SidebarItems = {}
 
     @_hiddenLocations = {}
     @_sheetStack = []
@@ -136,6 +146,20 @@ class WorkspaceStore extends NylasStore
   isLocationHidden: (loc) =>
     return false unless loc
     @_hiddenLocations[loc.id]?
+
+
+  sidebarItems: =>
+    _.values(@SidebarItems)
+
+  addSidebarItem: (item) =>
+    unless item instanceof WorkspaceSidebarItem
+      throw new Error("WorkspaceStore::addSidebarItem requires a `WorkspaceSidebarItem`")
+    @SidebarItems[item.id] = item
+    @triggerDebounced()
+
+  removeSidebarItem: (item) =>
+    delete @SidebarItems[item.id]
+    @triggerDebounced()
 
   ###
   Managing Sheets

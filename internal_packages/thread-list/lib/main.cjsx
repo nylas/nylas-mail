@@ -1,6 +1,6 @@
 _ = require 'underscore'
 React = require "react"
-{ComponentRegistry, WorkspaceStore} = require "nylas-exports"
+{MailViewFilter, ComponentRegistry, WorkspaceStore} = require "nylas-exports"
 
 {DownButton, UpButton, ThreadBulkArchiveButton, ThreadBulkStarButton, ThreadBulkToggleUnreadButton} = require "./thread-buttons"
 {DraftDeleteButton} = require "./draft-buttons"
@@ -13,8 +13,16 @@ DraftList = require './draft-list'
 
 module.exports =
   activate: (@state={}) ->
-    WorkspaceStore.defineSheet 'Drafts', {root: true, name: 'Drafts', sidebarComponent: DraftListSidebarItem},
+    WorkspaceStore.defineSheet 'Drafts', {root: true},
       list: ['RootSidebar', 'DraftList']
+
+    @sidebarItem = new WorkspaceStore.SidebarItem
+      component: DraftListSidebarItem
+      sheet: WorkspaceStore.Sheet.Drafts
+      id: 'Drafts'
+      name: 'Drafts'
+
+    WorkspaceStore.addSidebarItem(@sidebarItem)
 
     ComponentRegistry.register ThreadList,
       location: WorkspaceStore.Location.ThreadList
