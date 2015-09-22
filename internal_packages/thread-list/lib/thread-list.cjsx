@@ -70,15 +70,16 @@ class ThreadList extends React.Component
     c1 = new ListTabular.Column
       name: "★"
       resolver: (thread) =>
-        <span>
+        [
           <ThreadListIcon thread={thread} />
           <MailImportantIcon thread={thread} />
           <InjectedComponentSet
             inline={true}
             containersRequired={false}
             matching={role: "ThreadListIcon"}
+            className="thread-injected-icons"
             exposedProps={thread: thread}/>
-        </span>
+        ]
 
     c2 = new ListTabular.Column
       name: "Participants"
