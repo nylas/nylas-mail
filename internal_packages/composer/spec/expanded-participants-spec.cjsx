@@ -72,11 +72,12 @@ describe "ExpandedParticipants", ->
 
   it "pops out the composer when clicked", ->
     spyOn(Actions, "composePopoutDraft")
-    makeField.call(@, mode: "inline")
+    onPopoutComposer = jasmine.createSpy('onPopoutComposer')
+    makeField.call(@, mode: "inline", onPopoutComposer: onPopoutComposer)
     el = ReactTestUtils.findRenderedDOMComponentWithClass(@fields, "show-popout")
     ReactTestUtils.Simulate.click(React.findDOMNode(el))
-    expect(Actions.composePopoutDraft).toHaveBeenCalled()
-    expect(Actions.composePopoutDraft.calls.length).toBe 1
+    expect(onPopoutComposer).toHaveBeenCalled()
+    expect(onPopoutComposer.calls.length).toBe 1
 
   it "shows and focuses cc when clicked", ->
     makeField.call(@)

@@ -7,6 +7,7 @@ AccountStore = require '../../src/flux/stores/account-store'
 
 describe "ContactStore", ->
   beforeEach ->
+    spyOn(atom, "isMainWindow").andReturn true
     atom.testOrganizationUnit = "folder"
     ContactStore._contactCache = []
     ContactStore._fetchOffset = 0
@@ -52,38 +53,38 @@ describe "ContactStore", ->
       ContactStore._contactCache = [@c1,@c2,@c3,@c4,@c5,@c6,@c7]
 
     it "can find by first name", ->
-      results = ContactStore.searchContacts("First")
+      results = ContactStore.searchContacts("First", noPromise: true)
       expect(results.length).toBe 2
       expect(results[0]).toBe @c2
       expect(results[1]).toBe @c3
 
     it "can find by last name", ->
-      results = ContactStore.searchContacts("Last")
+      results = ContactStore.searchContacts("Last", noPromise: true)
       expect(results.length).toBe 1
       expect(results[0]).toBe @c3
 
     it "can find by email", ->
-      results = ContactStore.searchContacts("1test")
+      results = ContactStore.searchContacts("1test", noPromise: true)
       expect(results.length).toBe 1
       expect(results[0]).toBe @c1
 
     it "is case insensitive", ->
-      results = ContactStore.searchContacts("FIrsT")
+      results = ContactStore.searchContacts("FIrsT", noPromise: true)
       expect(results.length).toBe 2
       expect(results[0]).toBe @c2
       expect(results[1]).toBe @c3
 
     it "only returns the number requested", ->
-      results = ContactStore.searchContacts("FIrsT", limit: 1)
+      results = ContactStore.searchContacts("FIrsT", limit: 1, noPromise: true)
       expect(results.length).toBe 1
       expect(results[0]).toBe @c2
 
     it "returns no more than 5 by default", ->
-      results = ContactStore.searchContacts("fi")
+      results = ContactStore.searchContacts("fi", noPromise: true)
       expect(results.length).toBe 5
 
     it "can return more than 5 if requested", ->
-      results = ContactStore.searchContacts("fi", limit: 6)
+      results = ContactStore.searchContacts("fi", limit: 6, noPromise: true)
       expect(results.length).toBe 6
 
   describe 'parseContactsInString', ->
@@ -114,6 +115,8 @@ describe "ContactStore", ->
 
     _.forEach testCases, (value, key) ->
       it "works for #{key}", ->
-        testContacts = ContactStore.parseContactsInString(key).map (c) -> c.toString()
-        expectedContacts = value.map (c) -> c.toString()
-        expect(testContacts).toEqual expectedContacts
+        waitsForPromise ->
+          ContactStore.parseContactsInString(key).then (contacts) ->
+            contacts = contacts.map (c) -> c.toString()
+            expectedContacts = value.map (c) -> c.toString()
+            expect(contacts).toEqual expectedContacts

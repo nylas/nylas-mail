@@ -390,13 +390,10 @@ describe "DraftStore", ->
         # A helper method that makes it easy to test _newMessageWithContext, which
         # is asynchronous and whose output is a model persisted to the database.
         @_callNewMessageWithContext = (context, attributesCallback, modelCallback) ->
-          runs ->
-            DraftStore._newMessageWithContext(context, attributesCallback)
-          waitsFor ->
-            DatabaseStore.persistModel.callCount > 0
-          runs ->
-            model = DatabaseStore.persistModel.mostRecentCall.args[0]
-            modelCallback(model) if modelCallback
+          waitsForPromise ->
+            DraftStore._newMessageWithContext(context, attributesCallback).then ->
+              model = DatabaseStore.persistModel.mostRecentCall.args[0]
+              modelCallback(model) if modelCallback
 
       it "should create a new message", ->
         @_callNewMessageWithContext {threadId: fakeThread.id}
@@ -779,6 +776,7 @@ describe "DraftStore", ->
 
   describe "session teardown", ->
     beforeEach ->
+      spyOn(atom, 'isMainWindow').andReturn true
       @draftTeardown = jasmine.createSpy('draft teardown')
       @session =
         draftClientId: "abc"
@@ -798,6 +796,9 @@ describe "DraftStore", ->
       expect(@draftTeardown).toHaveBeenCalled
 
   describe "mailto handling", ->
+    beforeEach ->
+      spyOn(atom, 'isMainWindow').andReturn true
+
     describe "extensions", ->
       beforeEach ->
         DraftStore.registerExtension(TestExtension)
@@ -809,30 +810,39 @@ describe "DraftStore", ->
         spyOn(DatabaseStore, 'persistModel').andCallFake (draft) ->
           received = draft
           Promise.resolve()
-        DraftStore._onHandleMailtoLink('mailto:bengotow@gmail.com')
-        expect(received.body.indexOf("Edited by TestExtension!")).toBe(0)
+        waitsForPromise ->
+          DraftStore._onHandleMailtoLink('mailto:bengotow@gmail.com').then ->
+            expect(received.body.indexOf("Edited by TestExtension!")).toBe(0)
 
-    it "should be case-insensitive towards subject keys", ->
-      received = null
-      spyOn(DraftStore, '_finalizeAndPersistNewMessage').andCallFake (draft) ->
-        received = draft
-        Promise.resolve({draftClientId: 123})
+    describe "when testing subject keys", ->
+      beforeEach ->
+        spyOn(DraftStore, '_finalizeAndPersistNewMessage').andCallFake (draft) ->
+          Promise.resolve({draftClientId: 123})
 
-      expected = "EmailSubjectLOLOL"
-      DraftStore._onHandleMailtoLink('mailto:asdf@asdf.com?subject=' + expected)
-      expect(received.subject).toBe(expected)
+        @expected = "EmailSubjectLOLOL"
 
-      DraftStore._onHandleMailtoLink('mailto:asdf@asdf.com?Subject=' + expected)
-      expect(received.subject).toBe(expected)
+      it "works for lowercase", ->
+        waitsForPromise =>
+          DraftStore._onHandleMailtoLink('mailto:asdf@asdf.com?subject=' + @expected).then =>
+            received = DraftStore._finalizeAndPersistNewMessage.mostRecentCall.args[0]
+            expect(received.subject).toBe(@expected)
 
-      DraftStore._onHandleMailtoLink('mailto:asdf@asdf.com?SUBJECT=' + expected)
-      expect(received.subject).toBe(expected)
+      it "works for title case", ->
+        waitsForPromise =>
+          DraftStore._onHandleMailtoLink('mailto:asdf@asdf.com?Subject=' + @expected).then =>
+            received = DraftStore._finalizeAndPersistNewMessage.mostRecentCall.args[0]
+            expect(received.subject).toBe(@expected)
 
-    it "should correctly instantiate drafts for a wide range of mailto URLs", ->
-      received = null
-      spyOn(DatabaseStore, 'persistModel').andCallFake (draft) ->
-        received = draft
-        Promise.resolve()
+      it "works for uppercase", ->
+        waitsForPromise =>
+          DraftStore._onHandleMailtoLink('mailto:asdf@asdf.com?SUBJECT=' + @expected).then =>
+            received = DraftStore._finalizeAndPersistNewMessage.mostRecentCall.args[0]
+            expect(received.subject).toBe(@expected)
+
+    describe "should correctly instantiate drafts for a wide range of mailto URLs", ->
+      beforeEach ->
+        spyOn(DatabaseStore, 'persistModel').andCallFake (draft) ->
+          Promise.resolve()
 
       links = [
         'mailto:'
@@ -895,12 +905,15 @@ describe "DraftStore", ->
         )
       ]
 
-      for link, idx in links
-        DraftStore._onHandleMailtoLink(link)
-        expectedDraft = expected[idx]
-        expect(received['subject']).toEqual(expectedDraft['subject'])
-        for attr in ['to', 'cc', 'bcc', 'subject']
-          for contact, jdx in received[attr]
-            expectedContact = expectedDraft[attr][jdx]
-            expect(contact.email).toEqual(expectedContact.email)
-            expect(contact.name).toEqual(expectedContact.name)
+      links.forEach (link, idx) ->
+        it "works for #{link}", ->
+          waitsForPromise ->
+            DraftStore._onHandleMailtoLink(link).then ->
+              expectedDraft = expected[idx]
+              received = DatabaseStore.persistModel.mostRecentCall.args[0]
+              expect(received['subject']).toEqual(expectedDraft['subject'])
+              for attr in ['to', 'cc', 'bcc', 'subject']
+                for contact, jdx in received[attr]
+                  expectedContact = expectedDraft[attr][jdx]
+                  expect(contact.email).toEqual(expectedContact.email)
+                  expect(contact.name).toEqual(expectedContact.name)
