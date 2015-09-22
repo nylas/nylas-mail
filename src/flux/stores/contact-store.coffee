@@ -14,6 +14,8 @@ NylasAPI = require '../nylas-api'
 {Listener, Publisher} = require '../modules/reflux-coffee'
 CoffeeHelpers = require '../coffee-helpers'
 
+WindowBridge = require '../../window-bridge'
+
 ###
 The JSONCache class exposes a simple API for maintaining a local cache of data
 in a JSON file that needs to be refreshed periodically. Using JSONCache is a good
@@ -135,16 +137,17 @@ Section: Stores
 class ContactStore extends NylasStore
 
   constructor: ->
-    @_contactCache = []
-    @_accountId = null
+    if atom.isMainWindow() or atom.inSpecMode()
+      @_contactCache = []
+      @_accountId = null
 
-    @_rankingsCache = new RankingsJSONCache()
-    @listenTo DatabaseStore, @_onDatabaseChanged
-    @listenTo AccountStore, @_onAccountChanged
-    @listenTo @_rankingsCache, @_sortContactsCacheWithRankings
+      @_rankingsCache = new RankingsJSONCache()
+      @listenTo DatabaseStore, @_onDatabaseChanged
+      @listenTo AccountStore, @_onAccountChanged
+      @listenTo @_rankingsCache, @_sortContactsCacheWithRankings
 
-    @_accountId = AccountStore.current()?.id
-    @_refreshCache()
+      @_accountId = AccountStore.current()?.id
+      @_refreshCache()
 
   # Public: Search the user's contact list for the given search term.
   # This method compares the `search` string against each Contact's
@@ -157,8 +160,19 @@ class ContactStore extends NylasStore
   #
   # Returns an {Array} of matching {Contact} models
   #
-  searchContacts: (search, {limit}={}) =>
-    return [] if not search or search.length is 0
+  searchContacts: (search, options={}) =>
+    {limit, noPromise} = options
+    if not atom.isMainWindow()
+      if noPromise
+        throw new Error("We search Contacts in the Main window, which makes it impossible for this to be a noPromise method from this window")
+      # Returns a promise that resolves to the value of searchContacts
+      return WindowBridge.runInMainWindow("ContactStore", "searchContacts", [search, options])
+
+    if not search or search.length is 0
+      if noPromise
+        return []
+      else
+        return Promise.resolve([])
 
     limit ?= 5
     limit = Math.max(limit, 0)
@@ -191,7 +205,10 @@ class ContactStore extends NylasStore
         if matches.length is limit
           break
 
-    matches
+    if noPromise
+      return matches
+    else
+      return Promise.resolve(matches)
 
   # Public: Returns true if the contact provided is a {Contact} instance and
   # contains a properly formatted email address.
@@ -200,7 +217,11 @@ class ContactStore extends NylasStore
     return false unless contact instanceof Contact
     return contact.email and RegExpUtils.emailRegex().test(contact.email)
 
-  parseContactsInString: (contactString, {skipNameLookup}={}) =>
+  parseContactsInString: (contactString, options={}) =>
+    {skipNameLookup} = options
+    if not atom.isMainWindow()
+      # Returns a promise that resolves to the value of searchContacts
+      return WindowBridge.runInMainWindow("ContactStore", "parseContactsInString", [contactString, options])
     detected = []
     emailRegex = RegExpUtils.emailRegex()
     lastMatchEnd = 0
@@ -222,7 +243,7 @@ class ContactStore extends NylasStore
       if (not name or name.length is 0) and not skipNameLookup
         # Look to see if we can find a name for this email address in the ContactStore.
         # Otherwise, just populate the name with the email address.
-        existing = @searchContacts(email, {limit:1})[0]
+        existing = @searchContacts(email, {limit:1, noPromise: true})[0]
         if existing and existing.name
           name = existing.name
         else
@@ -241,7 +262,7 @@ class ContactStore extends NylasStore
 
       detected.push(new Contact({email, name}))
 
-    detected
+    return Promise.resolve(detected)
 
   __refreshCache: =>
     return unless @_accountId

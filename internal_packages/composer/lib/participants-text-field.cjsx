@@ -79,15 +79,15 @@ class ParticipantsTextField extends React.Component
     # an array of contact objects. For each email address wrapped in
     # parentheses, look for a preceding name, if one exists.
     if string.length is 0
-      return []
+      return Promise.resolve([])
 
-    contacts = ContactStore.parseContactsInString(string, options)
-    if contacts.length > 0
-      return contacts
-    else
-      # If no contacts are returned, treat the entire string as a single
-      # (malformed) contact object.
-      return [new Contact(email: string, name: null)]
+    ContactStore.parseContactsInString(string, options).then (contacts) =>
+      if contacts.length > 0
+        return Promise.resolve(contacts)
+      else
+        # If no contacts are returned, treat the entire string as a single
+        # (malformed) contact object.
+        return [new Contact(email: string, name: null)]
 
   _remove: (values) =>
     field = @props.field
@@ -101,41 +101,43 @@ class ParticipantsTextField extends React.Component
   _edit: (token, replacementString) =>
     field = @props.field
     tokenIndex = @props.participants[field].indexOf(token)
-    replacements = @_tokensForString(replacementString)
-
-    updates = {}
-    updates[field] = [].concat(@props.participants[field])
-    updates[field].splice(tokenIndex, 1, replacements...)
-    @props.change(updates)
+    @_tokensForString(replacementString).then (replacemehts) =>
+      updates = {}
+      updates[field] = [].concat(@props.participants[field])
+      updates[field].splice(tokenIndex, 1, replacements...)
+      @props.change(updates)
 
   _add: (values, options={}) =>
     # If the input is a string, parse out email addresses and build
     # an array of contact objects. For each email address wrapped in
     # parentheses, look for a preceding name, if one exists.
     if _.isString(values)
-      values = @_tokensForString(values, options)
+      tokensPromise = @_tokensForString(values, options)
+    else
+      tokensPromise = Promise.resolve(values)
 
-    # Safety check: remove anything from the incoming values that isn't
-    # a Contact. We should never receive anything else in the values array.
-    values = _.filter values, (value) -> value instanceof Contact
+    tokensPromise.then (tokens) =>
+      # Safety check: remove anything from the incoming tokens that isn't
+      # a Contact. We should never receive anything else in the tokens array.
+      tokens = _.filter tokens, (value) -> value instanceof Contact
 
-    updates = {}
-    for field in Object.keys(@props.participants)
-      updates[field] = [].concat(@props.participants[field])
-
-    for value in values
-      # first remove the participant from all the fields. This ensures
-      # that drag and drop isn't "drag and copy." and you can't have the
-      # same recipient in multiple places.
+      updates = {}
       for field in Object.keys(@props.participants)
-        updates[field] = _.reject updates[field], (p) ->
-          p.email is value.email
+        updates[field] = [].concat(@props.participants[field])
 
-      # add the participant to field
-      updates[@props.field] = _.union(updates[@props.field], [value])
+      for token in tokens
+        # first remove the participant from all the fields. This ensures
+        # that drag and drop isn't "drag and copy." and you can't have the
+        # same recipient in multiple places.
+        for field in Object.keys(@props.participants)
+          updates[field] = _.reject updates[field], (p) ->
+            p.email is token.email
 
-    @props.change(updates)
-    ""
+        # add the participant to field
+        updates[@props.field] = _.union(updates[@props.field], [token])
+
+      @props.change(updates)
+    return ""
 
   _showContextMenu: (participant) =>
     remote = require('remote')

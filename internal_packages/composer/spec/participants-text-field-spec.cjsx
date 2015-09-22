@@ -35,6 +35,7 @@ participant5 = new Contact
 
 describe 'ParticipantsTextField', ->
   beforeEach ->
+    spyOn(atom, "isMainWindow").andReturn true
     @propChange = jasmine.createSpy('change')
 
     @fieldName = 'to'
@@ -55,16 +56,27 @@ describe 'ParticipantsTextField', ->
     @renderedInput = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithTag(@renderedField, 'input'))
 
     @expectInputToYield = (input, expected) ->
-      ReactTestUtils.Simulate.change(@renderedInput, {target: {value: input}})
-      ReactTestUtils.Simulate.keyDown(@renderedInput, {key: 'Enter', keyCode: 9})
-
       reviver = (k,v) ->
         return undefined if k in ["id", "client_id", "server_id", "object"]
         return v
-      found = @propChange.mostRecentCall.args[0]
-      found = JSON.parse(JSON.stringify(found), reviver)
-      expected = JSON.parse(JSON.stringify(expected), reviver)
-      expect(found).toEqual(expected)
+      runs =>
+        ReactTestUtils.Simulate.change(@renderedInput, {target: {value: input}})
+        advanceClock(100)
+        ReactTestUtils.Simulate.keyDown(@renderedInput, {key: 'Enter', keyCode: 9})
+      waitsFor =>
+        @propChange.calls.length > 0
+      runs =>
+        found = @propChange.mostRecentCall.args[0]
+        found = JSON.parse(JSON.stringify(found), reviver)
+        expected = JSON.parse(JSON.stringify(expected), reviver)
+        expect(found).toEqual(expected)
+
+        # This advance clock needs to be here because our waitsFor latch
+        # catches the first time that propChange gets called. More stuff
+        # may happen after this and we need to advance the clock to
+        # "clear" all of that. If we don't do this it throws errors about
+        # `setState` being called on unmounted components :(
+        advanceClock(100)
 
   it 'renders into the document', ->
     expect(ReactTestUtils.isCompositeComponentWithType @renderedField, ParticipantsTextField).toBe(true)
@@ -86,9 +98,13 @@ describe 'ParticipantsTextField', ->
         bcc: []
 
     it "should use the name of an existing contact in the ContactStore if possible", ->
-      spyOn(ContactStore, 'searchContacts').andCallFake (val, options) ->
-        return [participant3] if val is participant3.email
-        return []
+      spyOn(ContactStore, 'searchContacts').andCallFake (val, options={}) ->
+        if options.noPromise
+          return [participant3] if val is participant3.email
+          return []
+        else
+          return Promise.resolve([participant3]) if val is participant3.email
+          return Promise.resolve([])
 
       @expectInputToYield participant3.email,
         to: [participant1, participant2, participant3]
@@ -96,9 +112,13 @@ describe 'ParticipantsTextField', ->
         bcc: []
 
     it "should not allow the same contact to appear multiple times", ->
-      spyOn(ContactStore, 'searchContacts').andCallFake (val, options) ->
-        return [participant2] if val is participant2.email
-        return []
+      spyOn(ContactStore, 'searchContacts').andCallFake (val, options={}) ->
+        if options.noPromise
+          return [participant2] if val is participant2.email
+          return []
+        else
+          return Promise.resolve([participant2]) if val is participant2.email
+          return Promise.resolve([])
 
       @expectInputToYield participant2.email,
         to: [participant1, participant2]

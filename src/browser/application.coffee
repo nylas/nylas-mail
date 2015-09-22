@@ -385,6 +385,23 @@ class Application
     ipc.on 'login-successful', (event) =>
       @_loginSuccessful()
 
+    ipc.on 'run-in-window', (event, params) =>
+      @_sourceWindows ?= {}
+      sourceWindow = BrowserWindow.fromWebContents(event.sender)
+      @_sourceWindows[params.taskId] = sourceWindow
+      if params.window is "work"
+        targetWindow = @windowManager.workWindow()
+      else if params.window is "main"
+        targetWindow = @windowManager.mainWindow()
+      else throw new Error("We don't support running in that window")
+      return if not targetWindow or not targetWindow.browserWindow.webContents
+      targetWindow.browserWindow.webContents.send('run-in-window', params)
+
+    ipc.on 'remote-run-results', (event, params) =>
+      sourceWindow = @_sourceWindows[params.taskId]
+      sourceWindow.webContents.send('remote-run-results', params)
+      delete @_sourceWindows[params.taskId]
+
   # Public: Executes the given command.
   #
   # If it isn't handled globally, delegate to the currently focused window.

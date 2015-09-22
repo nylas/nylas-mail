@@ -435,12 +435,15 @@ class DraftStore
       pristine: true
       accountId: account.id
 
+    contacts = {}
     for attr in ['to', 'cc', 'bcc']
       if query[attr]
-        draft[attr] = ContactStore.parseContactsInString(query[attr])
+        contacts[attr] = ContactStore.parseContactsInString(query[attr])
 
-    @_finalizeAndPersistNewMessage(draft).then ({draftClientId}) =>
-      @_onPopoutDraftClientId(draftClientId)
+    Promise.props(contacts).then (contacts) =>
+      draft = _.extend(draft, contacts)
+      @_finalizeAndPersistNewMessage(draft).then ({draftClientId}) =>
+        @_onPopoutDraftClientId(draftClientId)
 
   _onDestroyDraft: (draftClientId) =>
     session = @_draftSessions[draftClientId]
@@ -498,4 +501,4 @@ class DraftStore
           detail: errorMessage
         }
 
-module.exports = new DraftStore()
+ module.exports = new DraftStore()
