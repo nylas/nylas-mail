@@ -25,6 +25,7 @@ ImageFileUpload = require './image-file-upload'
 ExpandedParticipants = require './expanded-participants'
 CollapsedParticipants = require './collapsed-participants'
 
+ContenteditableFilter = require './contenteditable-filter'
 ContenteditableComponent = require './contenteditable-component'
 
 Fields = require './fields'
@@ -195,20 +196,20 @@ class ComposerView extends React.Component
   _renderContent: ->
     <div className="composer-centered">
       {if @state.focusedField in Fields.ParticipantFields
-        <ExpandedParticipants to={@state.to} cc={@state.cc}
-                              bcc={@state.bcc}
-                              from={@state.from}
-                              ref="expandedParticipants"
-                              mode={@props.mode}
-                              focusedField={@state.focusedField}
-                              enabledFields={@state.enabledFields}
-                              onChangeParticipants={@_onChangeParticipants}
-                              onChangeEnabledFields={@_onChangeEnabledFields}
-                              />
+        <ExpandedParticipants
+          to={@state.to} cc={@state.cc} bcc={@state.bcc}
+          from={@state.from}
+          ref="expandedParticipants"
+          mode={@props.mode}
+          focusedField={@state.focusedField}
+          enabledFields={@state.enabledFields}
+          onPopoutComposer={@_onPopoutComposer}
+          onChangeParticipants={@_onChangeParticipants}
+          onChangeEnabledFields={@_onChangeEnabledFields} />
       else
-        <CollapsedParticipants to={@state.to} cc={@state.cc}
-                               bcc={@state.bcc}
-                               onClick={@_focusParticipantField} />
+        <CollapsedParticipants
+          to={@state.to} cc={@state.cc} bcc={@state.bcc}
+          onClick={@_focusParticipantField} />
       }
 
       {@_renderSubject()}
@@ -218,6 +219,9 @@ class ComposerView extends React.Component
         {@_renderFooterRegions()}
       </div>
     </div>
+
+  _onPopoutComposer: =>
+    Actions.composePopoutDraft @props.draftClientId
 
   _onKeyDown: (event) =>
     if event.key is "Tab"
@@ -268,23 +272,55 @@ class ComposerView extends React.Component
       {@_renderAttachments()}
     </span>
 
-  _renderBodyContenteditable: =>
-    onScrollToBottom = null
-    if @props.onRequestScrollTo
-      onScrollToBottom = =>
-        @props.onRequestScrollTo({clientId: @_proxy.draft().clientId})
+  _renderBodyContenteditable: ->
+    <ContenteditableComponent
+      ref={Fields.Body}
+      html={@state.body}
+      onFocus={ => @setState focusedField: Fields.Body}
+      filters={@_editableFilters()}
+      onChange={@_onChangeBody}
+      onScrollTo={@props.onRequestScrollTo}
+      onFilePaste={@_onFilePaste}
+      footerElements={@_editableFooterElements()}
+      onScrollToBottom={@_onScrollToBottom()}
+      initialSelectionSnapshot={@_recoveredSelection} />
 
-    <ContenteditableComponent ref={Fields.Body}
-                              html={@state.body}
-                              onFocus={ => @setState focusedField: Fields.Body}
-                              onChange={@_onChangeBody}
-                              onFilePaste={@_onFilePaste}
-                              style={@_precalcComposerCss}
-                              initialSelectionSnapshot={@_recoveredSelection}
-                              mode={{showQuotedText: @state.showQuotedText}}
-                              onChangeMode={@_onChangeEditableMode}
-                              onScrollTo={@props.onRequestScrollTo}
-                              onScrollToBottom={onScrollToBottom} />
+  _onScrollToBottom: ->
+    if @props.onRequestScrollTo
+      return =>
+        @props.onRequestScrollTo({clientId: @_proxy.draft().clientId})
+    else return null
+
+  _editableFilters: ->
+    return [@_quotedTextFilter()]
+
+  _quotedTextFilter: ->
+    filter = new ContenteditableFilter
+    filter.beforeDisplay = @_removeQuotedText
+    filter.afterDisplay = @_showQuotedText
+    return filter
+
+  _editableFooterElements: ->
+    @_renderQuotedTextControl()
+
+  _removeQuotedText: (html) =>
+    if @state.showQuotedText then return html
+    else return QuotedHTMLParser.removeQuotedHTML(html)
+
+  _showQuotedText: (html) =>
+    if @state.showQuotedText then return html
+    else return QuotedHTMLParser.appendQuotedHTML(html, @state.body)
+
+  _renderQuotedTextControl: ->
+    if QuotedHTMLParser.hasQuotedHTML(@state.body)
+      text = if @state.showQuotedText then "Hide" else "Show"
+      <a className="quoted-text-control" onClick={@_onToggleQuotedText}>
+        <span className="dots">&bull;&bull;&bull;</span>{text} previous
+      </a>
+    else return []
+
+  _onToggleQuotedText: =>
+    @setState showQuotedText: not @state.showQuotedText
 
   _renderFooterRegions: =>
     return <div></div> unless @props.draftClientId
@@ -554,9 +590,6 @@ class ComposerView extends React.Component
 
     @_throttledTrigger()
     return
-
-  _onChangeEditableMode: ({showQuotedText}) =>
-    @setState showQuotedText: showQuotedText
 
   _addToProxy: (changes={}, source={}) =>
     return unless @_proxy

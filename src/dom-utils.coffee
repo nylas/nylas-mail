@@ -3,6 +3,212 @@ _s = require 'underscore.string'
 
 DOMUtils =
 
+  # Given a bunch of elements, it will go through and find all elements
+  # that are adjacent to that one of the same type. For each set of
+  # adjacent elements, it will put all children of those elements into the
+  # first one and delete the remaining elements.
+  #
+  # WARNING: This mutates the DOM in place!
+  collapseAdjacentElements: (els=[]) ->
+    return if els.length is 0
+    els = Array::slice.call(els)
+
+    seenEls = []
+    toMerge = []
+
+    for el in els
+      continue if el in seenEls
+      adjacent = DOMUtils.collectAdjacent(el)
+      seenEls = seenEls.concat(adjacent)
+      continue if adjacent.length <= 1
+      toMerge.push(adjacent)
+
+    anchors = []
+    for mergeSet in toMerge
+      anchor = mergeSet[0]
+      remaining = mergeSet[1..-1]
+      for el in remaining
+        while (el.childNodes.length > 0)
+          anchor.appendChild(el.childNodes[0])
+      DOMUtils.removeElements(remaining)
+      anchors.push(anchor)
+
+    return anchors
+
+  # Returns an array of all immediately adjacent nodes of a particular
+  # nodeName relative to the root. Includes the root if it has the correct
+  # nodeName.
+  #
+  # nodName is optional. if left blank it'll be the nodeName of the root
+  collectAdjacent: (root, nodeName) ->
+    nodeName ?= root.nodeName
+    adjacent = []
+
+    node = root
+    while node.nextSibling?.nodeName is nodeName
+      adjacent.push(node.nextSibling)
+      node = node.nextSibling
+
+    if root.nodeName is nodeName
+      adjacent.unshift(root)
+
+    node = root
+    while node.previousSibling?.nodeName is nodeName
+      adjacent.unshift(node.previousSibling)
+      node = node.previousSibling
+
+    return adjacent
+
+  getNodeIndex: (context, nodeToFind) =>
+    DOMUtils.findSimilarNodes(context, nodeToFind).indexOf nodeToFind
+
+  # We need to break each node apart and cache since the `selection`
+  # object will mutate underneath us.
+  isSameSelection: (newSelection, oldSelection, context) =>
+    return true if not newSelection?
+    return false if not oldSelection
+    return false if not newSelection.anchorNode? or not newSelection.focusNode?
+
+    anchorIndex = DOMUtils.getNodeIndex(context, newSelection.anchorNode)
+    focusIndex = DOMUtils.getNodeIndex(context, newSelection.focusNode)
+
+    anchorEqual = newSelection.anchorNode.isEqualNode oldSelection.startNode
+    anchorIndexEqual = anchorIndex is oldSelection.startNodeIndex
+    focusEqual = newSelection.focusNode.isEqualNode oldSelection.endNode
+    focusIndexEqual = focusIndex is oldSelection.endNodeIndex
+    if not anchorEqual and not focusEqual
+      # This means the newSelection is the same, but just from the opposite
+      # direction. We don't care in this case, so check the reciprocal as
+      # well.
+      anchorEqual = newSelection.anchorNode.isEqualNode oldSelection.endNode
+      anchorIndexEqual = anchorIndex is oldSelection.endNodeIndex
+      focusEqual = newSelection.focusNode.isEqualNode oldSelection.startNode
+      focusIndexEqual = focusIndex is oldSelection.startndNodeIndex
+
+    anchorOffsetEqual = newSelection.anchorOffset == oldSelection.startOffset
+    focusOffsetEqual = newSelection.focusOffset == oldSelection.endOffset
+    if not anchorOffsetEqual and not focusOffsetEqual
+      # This means the newSelection is the same, but just from the opposite
+      # direction. We don't care in this case, so check the reciprocal as
+      # well.
+      anchorOffsetEqual = newSelection.anchorOffset == oldSelection.focusOffset
+      focusOffsetEqual = newSelection.focusOffset == oldSelection.anchorOffset
+
+    if (anchorEqual and
+        anchorIndexEqual and
+        anchorOffsetEqual and
+        focusEqual and
+        focusIndexEqual and
+        focusOffsetEqual)
+      return true
+    else
+      return false
+
+
+  getRangeInScope: (scope) =>
+    selection = document.getSelection()
+    return null if not DOMUtils.selectionInScope(selection, scope)
+    try
+      range = selection.getRangeAt(0)
+    catch
+      console.warn "Selection is not returning a range"
+      return document.createRange()
+    range
+
+  selectionInScope: (selection, scope) ->
+    return false if not selection?
+    return false if not scope?
+    return (scope.contains(selection.anchorNode) and
+            scope.contains(selection.focusNode))
+
+  isEmptyBoudingRect: (rect) ->
+    rect.top is 0 and rect.bottom is 0 and rect.left is 0 and rect.right is 0
+
+  atEndOfContent: (selection, rootScope, containerScope) ->
+    containerScope ?= rootScope
+    if selection.isCollapsed
+
+      # We need to use `lastChild` instead of `lastElementChild` because
+      # we need to eventually check if the `selection.focusNode`, which is
+      # usually a TEXT node, is equal to the returned `lastChild`.
+      # `lastElementChild` will not return TEXT nodes.
+      #
+      # Unfortunately, `lastChild` can sometime return COMMENT nodes and
+      # other blank TEXT nodes that we don't want to compare to.
+      #
+      # For example, if you have the structure:
+      # <div>
+      #   <p>Foo</p>
+      # </div>
+      #
+      # The div may have 2 childNodes and 1 childElementNode. The 2nd
+      # hidden childNode is a TEXT node with a data of "\n". I actually
+      # want to return the <p></p>.
+      #
+      # However, The <p> element may have 1 childNode and 0
+      # childElementNodes. In that case I DO want to return the TEXT node
+      # that has the data of "foo"
+      lastChild = DOMUtils.lastNonBlankChildNode(containerScope)
+
+      # Special case for a completely empty contenteditable.
+      # In this case `lastChild` will be null, but we are definitely at
+      # the end of the content.
+      if containerScope is rootScope
+        return true if containerScope.childNodes.length is 0
+
+      return false unless lastChild
+
+      # NOTE: `.contains` returns true if `lastChild` is equal to
+      # `selection.focusNode`
+      #
+      # See: http://ejohn.org/blog/comparing-document-position/
+      inLastChild = lastChild.contains(selection.focusNode)
+
+      # We should do true object identity here instead of `.isEqualNode`
+      isLastChild = lastChild is selection.focusNode
+
+      if isLastChild
+        if selection.focusNode?.length
+          atEndIndex = selection.focusOffset is selection.focusNode.length
+        else
+          atEndIndex = selection.focusOffset is 0
+        return atEndIndex
+      else if inLastChild
+        DOMUtils.atEndOfContent(selection, rootScope, lastChild)
+      else return false
+
+    else return false
+
+  lastNonBlankChildNode: (node) ->
+    lastNode = null
+    for childNode in node.childNodes by -1
+      if childNode.nodeType is Node.TEXT_NODE
+        if DOMUtils.isBlankTextNode(childNode)
+          continue
+        else
+          return childNode
+      else if childNode.nodeType is Node.ELEMENT_NODE
+        return childNode
+      else continue
+    return lastNode
+
+  isBlankTextNode: (node) ->
+    return if not node?.data
+    # \u00a0 is &nbsp;
+    node.data.replace(/\u00a0/g, "x").trim().length is 0
+
+  findSimilarNodes: (context, nodeToFind) ->
+    nodeList = []
+    if nodeToFind.isEqualNode(context)
+      nodeList.push(context)
+      return nodeList
+    treeWalker = document.createTreeWalker context
+    while treeWalker.nextNode()
+      if treeWalker.currentNode.isEqualNode nodeToFind
+        nodeList.push(treeWalker.currentNode)
+
+    return nodeList
+
   escapeHTMLCharacters: (text) ->
     map =
       '&': '&amp;',
@@ -85,6 +291,15 @@ DOMUtils =
     nodes = []
     nodes.unshift(node) while node = node.parentNode
     return nodes
+
+  # Returns true if the node is the first child of the root, is the root,
+  # or is the first child of the first child of the root, etc.
+  isFirstChild: (root, node) ->
+    return false unless root and node
+    return true if root is node
+    return false unless root.childNodes[0]
+    return true if root.childNodes[0] is node
+    return DOMUtils.isFirstChild(root.childNodes[0], node)
 
   # This method finds the bounding points of the word that the range
   # is currently within and selects that word.
