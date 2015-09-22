@@ -3,31 +3,45 @@ React = require 'react/addons'
 classNames = require 'classnames'
 {CompositeDisposable} = require 'event-kit'
 {RetinaImg} = require 'nylas-component-kit'
+{DraftStore} = require 'nylas-exports'
 
 class FloatingToolbar extends React.Component
   @displayName = "FloatingToolbar"
 
+  @propTypes:
+    top: React.PropTypes.number
+    left: React.PropTypes.number
+    mode: React.PropTypes.string
+    onMouseEnter: React.PropTypes.func
+    onMouseLeave: React.PropTypes.func
+
+    # When an extension wants to mutate the DOM, it passes `onDomMutator`
+    # a mutator function. That mutator is expecting to be passed the
+    # latest DOM object and may modify it in place.
+    onDomMutator: React.PropTypes.func
+
+  @defaultProps:
+    mode: "buttons"
+    onMouseEnter: ->
+    onMouseLeave: ->
+
   constructor: (@props) ->
     @state =
-      mode: "buttons"
       urlInputValue: @_initialUrl() ? ""
+      componentWidth: 0
 
   componentDidMount: =>
-    @isHovering = false
     @subscriptions = new CompositeDisposable()
-    @_saveUrl = _.debounce @__saveUrl, 10
 
   componentWillReceiveProps: (nextProps) =>
     @setState
-      mode: nextProps.initialMode
       urlInputValue: @_initialUrl(nextProps)
 
   componentWillUnmount: =>
     @subscriptions?.dispose()
-    @isHovering = false
 
   componentDidUpdate: =>
-    if @state.mode is "edit-link" and not @props.linkToModify
+    if @props.mode is "edit-link" and not @props.linkToModify
       # Note, it's important that we're focused on the urlInput because
       # the parent of this component needs to know to not hide us on their
       # onBlur method.
@@ -56,8 +70,8 @@ class FloatingToolbar extends React.Component
     return styles
 
   _toolbarType: =>
-    if @state.mode is "buttons" then @_renderButtons()
-    else if @state.mode is "edit-link" then @_renderLink()
+    if @props.mode is "buttons" then @_renderButtons()
+    else if @props.mode is "edit-link" then @_renderLink()
     else return <div></div>
 
   _renderButtons: =>
@@ -74,7 +88,22 @@ class FloatingToolbar extends React.Component
       <button className="btn btn-link toolbar-btn"
               onClick={@_showLink}
               data-command-name="link"></button>
+      {@_toolbarExtensions()}
     </div>
+
+  _toolbarExtensions: ->
+    buttons = []
+    for extension in DraftStore.extensions()
+      toolbarItem = extension.composerToolbar?()
+      if toolbarItem
+        buttons.push(
+          <button className="btn btn-extension"
+                onClick={ => @_extensionMutateDom(toolbarItem.mutator)}
+                data-tooltip="#{toolbarItem.tooltip}"><RetinaImg mode={RetinaImg.Mode.ContentIsMask} url="#{toolbarItem.iconUrl}" /></button>)
+    return buttons
+
+  _extensionMutateDom: (mutator) =>
+    @props.onDomMutator(mutator)
 
   _renderLink: =>
     removeBtn = ""
@@ -82,6 +111,7 @@ class FloatingToolbar extends React.Component
     if @_initialUrl()
       withRemove = "with-remove"
       removeBtn = <button className="btn btn-icon"
+                          ref="removeBtn"
                           onMouseDown={@_removeUrl}><i className="fa fa-times"></i></button>
 
     <div className="toolbar-new-link"
@@ -91,13 +121,15 @@ class FloatingToolbar extends React.Component
       <input type="text"
              ref="urlInput"
              value={@state.urlInputValue}
-             onBlur={@_saveUrl}
+             onBlur={@_onBlur}
+             onFocus={@_onFocus}
              onClick={@_onPreventToolbarClose}
              onKeyPress={@_saveUrlOnEnter}
              onChange={@_onInputChange}
              className="floating-toolbar-input #{withRemove}"
              placeholder="Paste or type a link" />
       <button className="btn btn-icon"
+              ref="saveBtn"
               onKeyPress={@_saveUrlOnEnter}
               onMouseDown={@_saveUrl}><i className="fa fa-check"></i></button>
       {removeBtn}
@@ -107,14 +139,11 @@ class FloatingToolbar extends React.Component
     event.stopPropagation()
 
   _onMouseEnter: =>
-    @isHovering = true
     @props.onMouseEnter?()
 
   _onMouseLeave: =>
-    @isHovering = false
     if @props.linkToModify and document.activeElement isnt React.findDOMNode(@refs.urlInput)
       @props.onMouseLeave?()
-
 
   _initialUrl: (props=@props) =>
     props.linkToModify?.getAttribute?('href')
@@ -123,8 +152,11 @@ class FloatingToolbar extends React.Component
     @setState urlInputValue: event.target.value
 
   _saveUrlOnEnter: (event) =>
-    if event.key is "Enter" and @state.urlInputValue.trim().length > 0
-      @_saveUrl()
+    if event.key is "Enter"
+      if (@state.urlInputValue ? "").trim().length > 0
+        @_saveUrl()
+      else
+        @_removeUrl()
 
   # We signify the removal of a url with an empty string. This protects us
   # from the case where people delete the url text and hit save. In that
@@ -132,10 +164,31 @@ class FloatingToolbar extends React.Component
   _removeUrl: =>
     @setState urlInputValue: ""
     @props.onSaveUrl "", @props.linkToModify
+    @props.onChangeMode("buttons")
 
-  __saveUrl: =>
-    return unless @state.urlInputValue?
-    @props.onSaveUrl @state.urlInputValue, @props.linkToModify
+  _onFocus: =>
+    @props.onChangeFocus(true)
+
+  # Clicking the save or remove buttons will take precendent over simply
+  # bluring the field.
+  _onBlur: (event) =>
+    targets = []
+    if @refs["saveBtn"]
+      targets.push React.findDOMNode(@refs["saveBtn"])
+    if @refs["removeBtn"]
+      targets.push React.findDOMNode(@refs["removeBtn"])
+
+    if event.relatedTarget in targets
+      event.preventDefault()
+      return
+    else
+      @_saveUrl()
+      @props.onChangeFocus(false)
+
+  _saveUrl: =>
+    if (@state.urlInputValue ? "").trim().length > 0
+      @props.onSaveUrl @state.urlInputValue, @props.linkToModify
+    @props.onChangeMode("buttons")
 
   _execCommand: (event) =>
     cmd = event.currentTarget.getAttribute 'data-command-name'
@@ -174,9 +227,9 @@ class FloatingToolbar extends React.Component
     WIDTH_PER_CHAR = 11
     max = @props.editAreaWidth - (@props.contentPadding ? 15)*2
 
-    if @state.mode is "buttons"
+    if @props.mode is "buttons"
       return TOOLBAR_BUTTONS_WIDTH
-    else if @state.mode is "edit-link"
+    else if @props.mode is "edit-link"
       url = @_initialUrl()
       if url?.length > 0
         fullWidth = Math.max(Math.min(url.length * WIDTH_PER_CHAR, max), TOOLBAR_URL_WIDTH)
@@ -187,6 +240,6 @@ class FloatingToolbar extends React.Component
       return TOOLBAR_BUTTONS_WIDTH
 
   _showLink: =>
-    @setState mode: "edit-link"
+    @props.onChangeMode("edit-link")
 
 module.exports = FloatingToolbar

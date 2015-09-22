@@ -90,7 +90,7 @@ class ExpandedParticipants extends React.Component
             <span className="header-action show-popout"
                   data-tooltip="Popout composer"
                   style={paddingLeft: "1.5em"}
-                  onClick={@_popoutComposer}>
+                  onClick={@props.onPopoutComposer}>
               <RetinaImg name="composer-popout.png"
                 mode={RetinaImg.Mode.ContentIsMask}
                 style={{position: "relative", top: "-2px"}}/>
@@ -160,9 +160,6 @@ class ExpandedParticipants extends React.Component
     @props.onChangeEnabledFields
       hide: [Fields.Cc]
       focus: Fields.To
-
-  _popoutComposer: =>
-    Actions.composePopoutDraft @props.draftClientId
 
   _onEmptyBcc: =>
     if Fields.Cc in @props.enabledFields
