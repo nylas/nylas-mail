@@ -14,7 +14,7 @@ class ContenteditableComponent extends React.Component
     html: React.PropTypes.string
     initialSelectionSnapshot: React.PropTypes.object
 
-    filters: React.PropTypes.object
+    filters: React.PropTypes.array
     footerElements: React.PropTypes.node
 
     # Passes an absolute top coordinate to scroll to.
