@@ -462,15 +462,17 @@ class DatabaseStore extends NylasStore
 
   atomically: (fn) =>
     @_atomicPromise ?= Promise.resolve()
-    @_atomicPromise = @_atomicPromise.finally =>
+    @_atomicPromise = @_atomicPromise.then =>
       @_atomically(fn)
     return @_atomicPromise
 
   _atomically: (fn) ->
     @_query("BEGIN EXCLUSIVE TRANSACTION")
-    .then => fn()
-    .then => @_query("COMMIT")
-    .then => Promise.resolve()
+    .then =>
+      fn()
+    .then (val) =>
+      @_query("COMMIT").then =>
+        Promise.resolve(val)
 
   ########################################################################
   ########################### PRIVATE METHODS ############################
