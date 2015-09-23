@@ -83,7 +83,7 @@ class FloatingToolbarContainer extends React.Component
       left={@state.toolbarLeft}
       pos={@state.toolbarPos}
       mode={@state.toolbarMode}
-      visible={true}
+      visible={@state.toolbarVisible}
       onSaveUrl={@props.onSaveUrl}
       onMouseEnter={@_onEnterToolbar}
       onChangeMode={@_onChangeMode}
