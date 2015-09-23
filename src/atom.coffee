@@ -679,7 +679,7 @@ class Atom extends Model
         # Make sure we can't be made so small that the interface looks like crap
         @getCurrentWindow().setMinimumSize(875, 500)
         wait 20, =>
-          ipc.sendChannel('window-command', 'window:loaded')
+          ipc.sendChannel('window-command', 'window:main-window-content-loaded')
           cover.classList.add('visible')
 
   # Call this method when establishing a secondary application window
