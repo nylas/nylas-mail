@@ -104,8 +104,7 @@ class ThreadList extends React.Component
       resolver: (thread) =>
         attachment = []
         labels = []
-        hasAttachments = _.find (thread.metadata ? []), (m) -> m.files.length > 0
-        if hasAttachments
+        if thread.hasAttachments
           attachment = <div className="thread-icon thread-icon-attachment"></div>
 
         currentCategoryId = FocusedMailViewStore.mailView()?.categoryId()
@@ -146,12 +145,10 @@ class ThreadList extends React.Component
         pencil = []
         attachment = []
         hasDraft = _.find (thread.metadata ? []), (m) -> m.draft
-        hasAttachments = _.find (thread.metadata ? []), (m) -> m.files.length > 0
+        if thread.hasAttachments
+          attachment = <div className="thread-icon thread-icon-attachment"></div>
         if hasDraft
           pencil = <RetinaImg name="icon-draft-pencil.png" className="draft-icon" mode={RetinaImg.Mode.ContentPreserve} />
-
-        if hasAttachments
-          attachment = <div className="thread-icon thread-icon-attachment"></div>
 
         <div>
           <div style={display: 'flex'}>

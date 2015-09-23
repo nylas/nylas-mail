@@ -22,7 +22,7 @@ class MenuItem extends React.Component
    - `checked` (optional) Pass a {Boolean} to specify whether the item is checked.
   ###
   @propTypes:
-    divider: React.PropTypes.bool
+    divider: React.PropTypes.string
     key: React.PropTypes.string
     selected: React.PropTypes.bool
     checked: React.PropTypes.bool
