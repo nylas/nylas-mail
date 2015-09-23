@@ -194,7 +194,7 @@ SettingsPackagesStore = Reflux.createStore
           engines:
             atom: ">=#{atom.getVersion()}"
           description: "Enter a description of your package!"
-          dependencies: []
+          dependencies: {}
           license: "MIT"
 
         fs.copySync(packageTemplatePath, packageDir)
