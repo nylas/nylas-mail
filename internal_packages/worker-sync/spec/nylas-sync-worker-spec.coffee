@@ -101,6 +101,28 @@ describe "NylasSyncWorker", ->
       advanceClock(30000); expect(@worker.resumeFetches.callCount).toBe(4)
       advanceClock(30000); expect(@worker.resumeFetches.callCount).toBe(5)
 
+    it "handles the request as a failure if we try and grab labels or folders without an 'inbox'", ->
+
+      spyOn(@worker, 'resumeFetches').andCallThrough()
+      @worker.start()
+      expect(@worker.resumeFetches.callCount).toBe(1)
+      request = _.findWhere(@apiRequests, model: 'labels')
+      request.requestOptions.success([])
+      expect(@worker.resumeFetches.callCount).toBe(1)
+      advanceClock(30000)
+      expect(@worker.resumeFetches.callCount).toBe(2)
+
+    it "handles the request as a success if we try and grab labels or folders and it includes the 'inbox'", ->
+
+      spyOn(@worker, 'resumeFetches').andCallThrough()
+      @worker.start()
+      expect(@worker.resumeFetches.callCount).toBe(1)
+      request = _.findWhere(@apiRequests, model: 'labels')
+      request.requestOptions.success([{name: "inbox"}, {name: "archive"}])
+      expect(@worker.resumeFetches.callCount).toBe(1)
+      advanceClock(30000)
+      expect(@worker.resumeFetches.callCount).toBe(1)
+
   describe "when a count request completes", ->
     beforeEach ->
       @worker.start()
