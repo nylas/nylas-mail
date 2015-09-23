@@ -137,11 +137,14 @@ class NylasSyncWorker
     requestOptions =
       error: (err) =>
         return if @_terminated
-        @_resumeTimer.backoff()
-        @_resumeTimer.start()
-        @updateTransferState(model, {busy: false, complete: false, error: err.toString()})
+        @_fetchCollectionPageError(model, err)
       success: (json) =>
         return if @_terminated
+
+        if model in ["labels", "folders"] and @_hasNoInbox(json)
+          @_fetchCollectionPageError(model, "No inbox in #{model}")
+          return
+
         lastReceivedIndex = params.offset + json.length
         if json.length is params.limit
           nextParams = _.extend({}, params, {offset: lastReceivedIndex})
@@ -155,6 +158,18 @@ class NylasSyncWorker
       @_api.getThreads(@_account.id, params, requestOptions)
     else
       @_api.getCollection(@_account.id, model, params, requestOptions)
+
+  # It's occasionally possible for the NylasAPI's labels or folders
+  # endpoint to not return an "inbox" label. Since that's a core part of
+  # the app and it doesn't function without it, keep retrying until we see
+  # it.
+  _hasNoInbox: (json) ->
+    return not _.any(json, (obj) -> obj.name is "inbox")
+
+  _fetchCollectionPageError: (model, err) ->
+    @_resumeTimer.backoff()
+    @_resumeTimer.start()
+    @updateTransferState(model, {busy: false, complete: false, error: err.toString()})
 
   updateTransferState: (model, {busy, error, complete, fetched, count}) ->
     @_state[model] = _.defaults({busy, error, complete, fetched, count}, @_state[model])
