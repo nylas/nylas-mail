@@ -1,6 +1,6 @@
 _ = require 'underscore'
 React = require "react"
-{MailViewFilter, ComponentRegistry, WorkspaceStore} = require "nylas-exports"
+{ComponentRegistry, WorkspaceStore} = require "nylas-exports"
 
 {DownButton, UpButton, ThreadBulkArchiveButton, ThreadBulkStarButton, ThreadBulkToggleUnreadButton} = require "./thread-buttons"
 {DraftDeleteButton} = require "./draft-buttons"
