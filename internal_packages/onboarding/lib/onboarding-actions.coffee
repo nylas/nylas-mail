@@ -6,6 +6,7 @@ OnboardingActions = Reflux.createActions [
 
   "moveToPreviousPage"
   "moveToPage"
+  "nylasAccountReceived"
 ]
 
 for key, action of OnboardingActions

@@ -29,13 +29,16 @@ var hotCompile = (function () {
     watchedModules.add(module);
 
     var timeout;
-    fs.watch(module.filename, {persistent: true}, function () {
-      clearTimeout(timeout);
-      timeout = setTimeout(function () {
-        hotCompile(module, module.filename, true);
-        console.log('hot reloaded '+module.filename);
-      }, 100);
-    });
+    setTimeout(function(){
+      var pathwatcher = require('pathwatcher');
+      pathwatcher.watch(module.filename, /*{persistent: true},*/ function () {
+        clearTimeout(timeout);
+        timeout = setTimeout(function () {
+          hotCompile(module, module.filename, true);
+          console.log('hot reloaded '+module.filename);
+        }, 100);
+      });
+    },100);
   }
 
   function isReactComponent(module) {
