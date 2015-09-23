@@ -17,7 +17,7 @@ PriorityUICoordinator = require '../../priority-ui-coordinator'
  serializeRegisteredObjects,
  deserializeRegisteredObjects} = require '../models/utils'
 
-DatabaseVersion = 15
+DatabaseVersion = 16
 
 DatabasePhase =
   Setup: 'setup'
