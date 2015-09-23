@@ -448,13 +448,11 @@ class ContenteditableComponent extends React.Component
     else return false
 
   _onBlur: (event) =>
-    # console.log "On Blur Contenteditable"
     @setInnerState dragging: false
     # The delay here is necessary to see if the blur was caused by us
     # navigating to the toolbar and focusing on the set-url input.
-    _.delay =>
-      @setInnerState editableFocused: false
-    , 50
+    return if @_editableNode().parentElement.contains event.relatedTarget
+    @setInnerState editableFocused: false
 
   _onFocus: (event) =>
     @setInnerState editableFocused: true
