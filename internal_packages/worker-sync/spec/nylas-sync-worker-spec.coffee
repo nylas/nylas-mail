@@ -51,16 +51,16 @@ describe "NylasSyncWorker", ->
       spyOn(@connection, 'start')
       @worker.start()
       advanceClock()
-      expect(@apiRequests.length).toBe(8)
+      expect(@apiRequests.length).toBe(10)
       modelsRequested = _.compact _.map @apiRequests, ({model}) -> model
-      expect(modelsRequested).toEqual(['threads', 'contacts', 'drafts', 'labels'])
+      expect(modelsRequested).toEqual(['threads', 'events', 'contacts', 'drafts', 'labels'])
 
       countsRequested = _.compact _.map @apiRequests, ({requestOptions}) ->
         if requestOptions.qs?.view is 'count'
           return requestOptions.path
 
-      expect(modelsRequested).toEqual(['threads', 'contacts', 'drafts', 'labels'])
-      expect(countsRequested).toEqual(['/threads', '/contacts', '/drafts', '/labels'])
+      expect(modelsRequested).toEqual(['threads', 'events', 'contacts', 'drafts', 'labels'])
+      expect(countsRequested).toEqual(['/threads', '/events', '/contacts', '/drafts', '/labels'])
 
     it "should mark incomplete collections as `busy`", ->
       @worker.start()
@@ -117,7 +117,7 @@ describe "NylasSyncWorker", ->
     it "should fetch collections", ->
       spyOn(@worker, 'fetchCollection')
       @worker.resumeFetches()
-      expect(@worker.fetchCollection.calls.map (call) -> call.args[0]).toEqual(['threads', 'calendars', 'contacts', 'drafts', 'labels'])
+      expect(@worker.fetchCollection.calls.map (call) -> call.args[0]).toEqual(['threads', 'calendars', 'events', 'contacts', 'drafts', 'labels'])
 
   describe "fetchCollection", ->
     beforeEach ->

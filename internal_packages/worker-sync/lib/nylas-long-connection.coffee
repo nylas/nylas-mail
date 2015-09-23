@@ -103,7 +103,7 @@ class NylasLongConnection
     @withCursor (cursor) =>
       return if @state is NylasLongConnection.State.Ended
       console.log("Long Polling Connection: Starting for account #{@_accountId}, token #{token}, with cursor #{cursor}")
-      options = url.parse("#{@_api.APIRoot}/delta/streaming?cursor=#{cursor}&exclude_types=event&exclude_folders=false")
+      options = url.parse("#{@_api.APIRoot}/delta/streaming?cursor=#{cursor}&exclude_folders=false")
       options.auth = "#{token}:"
 
       if @_api.APIRoot.indexOf('https') is -1
