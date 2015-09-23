@@ -22,17 +22,18 @@ class PageRouter extends React.Component
     pageData: PageRouterStore.pageData()
 
   componentDidMount: =>
-    atom.setSize(667,482)
     @unsubscribe = PageRouterStore.listen(@_onStateChanged, @)
+    {width, height} = React.findDOMNode(@refs.activePage).getBoundingClientRect()
+    atom.center()
+    atom.setSizeAnimated(width, height, 0)
+    atom.show()
 
   componentDidUpdate: =>
-    setTimeout( =>
-      @_resizePage()
-    ,10)
+    setTimeout(@_resizePage, 10)
 
   _resizePage: =>
-    {width,height} = React.findDOMNode(@refs.container).getBoundingClientRect()
-    atom.setSizeAnimated(width,height)
+    {width, height} = React.findDOMNode(@refs.activePage).getBoundingClientRect()
+    atom.setSizeAnimated(width, height)
 
   _onStateChanged: => @setState(@_getStateFromStore())
 
@@ -41,20 +42,17 @@ class PageRouter extends React.Component
   render: =>
     <div className="page-frame">
       {@_renderDragRegion()}
-      <div
-        className="page-container"
-        ref="container"
+      <ReactCSSTransitionGroup
         transitionName="page"
         leaveTimeout={150}
         enterTimeout={150}>
         {@_renderCurrentPage()}
-      </div>
-      {@_renderGradients()}
-
-    <div className="page-background" style={background: "#f6f7f8"}/>
+        {@_renderCurrentPageGradient()}
+      </ReactCSSTransitionGroup>
+      <div className="page-background" style={background: "#f6f7f8"}/>
     </div>
 
-  _renderGradients: =>
+  _renderCurrentPageGradient: =>
     gradient = @state.pageData?.provider?.color
     if gradient
       background = "linear-gradient(to top, #f6f7f8, #{gradient})"
@@ -62,22 +60,20 @@ class PageRouter extends React.Component
       background = "linear-gradient(to top, #f6f7f8 0%,  rgba(255,255,255,0) 100%),
                     linear-gradient(to right, #e1e58f 0%, #a8d29e 50%, #8bc9c9 100%)"
 
-    <div className="page-gradient" style={background: background}/>
+    <div className="page-gradient" key={"#{@state.page}-gradient"} style={background: background}/>
 
   _renderCurrentPage: =>
-    switch @state.page
-      when "welcome"
-        <WelcomePage key="welcome" pageData={@state.pageData} />
-      when "account-choose"
-        <AccountChoosePage key="account-choose" pageData={@state.pageData} />
-      when "account-settings"
-        <AccountSettingsPage key="account-settings" pageData={@state.pageData} onResize={@_resizePage} />
-      when "initial-preferences"
-        <InitialPreferencesPage key="initial-preferences" pageData={@state.pageData} />
-      when "initial-packages"
-        <InitialPackagesPage key="initial-packages" pageData={@state.pageData} />
-      else
-        <div></div>
+    Component = {
+      "welcome": WelcomePage
+      "account-choose": AccountChoosePage
+      "account-settings": AccountSettingsPage
+      "initial-preferences": InitialPreferencesPage
+      "initial-packages": InitialPackagesPage
+    }[@state.page]
+
+    <div key={@state.page} className="page-container">
+      <Component pageData={@state.pageData} ref="activePage" onResize={@_resizePage}/>
+    </div>
 
   _renderDragRegion: ->
     styles =

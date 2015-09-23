@@ -83,19 +83,19 @@ describe "ActionBridge", ->
     describe "when called with TargetWindows.ALL", ->
       it "should broadcast the action over IPC to all windows", ->
         spyOn(ipc, 'send')
-        Actions.logout.firing = false
-        @bridge.onRebroadcast(ActionBridge.TargetWindows.ALL, 'logout', [{oldModel: '1', newModel: 2}])
-        expect(ipc.send).toHaveBeenCalledWith('action-bridge-rebroadcast-to-all', 'popout', 'logout', '[{"oldModel":"1","newModel":2}]')
+        Actions.didPassivelyReceiveNewModels.firing = false
+        @bridge.onRebroadcast(ActionBridge.TargetWindows.ALL, 'didPassivelyReceiveNewModels', [{oldModel: '1', newModel: 2}])
+        expect(ipc.send).toHaveBeenCalledWith('action-bridge-rebroadcast-to-all', 'popout', 'didPassivelyReceiveNewModels', '[{"oldModel":"1","newModel":2}]')
 
     describe "when called with TargetWindows.WORK", ->
       it "should broadcast the action over IPC to the main window only", ->
         spyOn(ipc, 'send')
-        Actions.logout.firing = false
-        @bridge.onRebroadcast(ActionBridge.TargetWindows.WORK, 'logout', [{oldModel: '1', newModel: 2}])
-        expect(ipc.send).toHaveBeenCalledWith('action-bridge-rebroadcast-to-work', 'popout', 'logout', '[{"oldModel":"1","newModel":2}]')
+        Actions.didPassivelyReceiveNewModels.firing = false
+        @bridge.onRebroadcast(ActionBridge.TargetWindows.WORK, 'didPassivelyReceiveNewModels', [{oldModel: '1', newModel: 2}])
+        expect(ipc.send).toHaveBeenCalledWith('action-bridge-rebroadcast-to-work', 'popout', 'didPassivelyReceiveNewModels', '[{"oldModel":"1","newModel":2}]')
 
     it "should not do anything if the current invocation of the Action was triggered by itself", ->
       spyOn(ipc, 'send')
-      Actions.logout.firing = true
-      @bridge.onRebroadcast(ActionBridge.TargetWindows.ALL, 'logout', [{oldModel: '1', newModel: 2}])
+      Actions.didPassivelyReceiveNewModels.firing = true
+      @bridge.onRebroadcast(ActionBridge.TargetWindows.ALL, 'didPassivelyReceiveNewModels', [{oldModel: '1', newModel: 2}])
       expect(ipc.send).not.toHaveBeenCalled()

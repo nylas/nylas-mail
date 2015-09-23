@@ -134,8 +134,13 @@ class NylasAPI
     @APITokens = tokens.map (t) -> t.access_token
 
     env = atom.config.get('env')
+    if not env
+      env = 'production'
+      console.error("NylasAPI: config.cson does not contain an environment \
+                     value. Defaulting to `production`.")
+
     if env in ['production']
-      @AppID = 'c96gge1jo29pl2rebcb7utsbp'
+      @AppID = 'eco3rpsghu81xdc48t5qugwq7'
       @APIRoot = 'https://api.nylas.com'
     else if env in ['staging', 'development']
       @AppID = '54miogmnotxuo5st254trcmb9'
@@ -229,17 +234,18 @@ class NylasAPI
       type: 'error'
       tag: '401'
       sticky: true
-      message: "Nylas can no longer authenticate with your mail provider. You will not be able to send or receive mail. Please log out and sign in again.",
+      message: "Nylas can no longer authenticate with your mail provider. You will not be able to send or receive mail. Please unlink your account and sign in again.",
       icon: 'fa-sign-out'
       actions: [{
-        label: 'Log Out'
-        id: '401:logout'
+        label: 'Unlink'
+        id: '401:unlink'
       }]
 
     unless @_notificationUnlisten
       handler = ({notification, action}) ->
-        if action.id is '401:logout'
-          atom.logout()
+        if action.id is '401:unlink'
+          ipc = require 'ipc'
+          ipc.send('command', 'application:reset-config-and-relaunch')
       @_notificationUnlisten = Actions.notificationActionTaken.listen(handler, @)
 
     return Promise.resolve()

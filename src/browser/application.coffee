@@ -159,9 +159,10 @@ class Application
       @windowManager.showMainWindow()
       @windowManager.ensureWorkWindow()
     else
-      @windowManager.newOnboardingWindow().showWhenLoaded()
-
-  _logout: =>
+      @windowManager.newOnboardingWindow()
+      # The onboarding window automatically shows when it's ready
+      
+  _resetConfigAndRelaunch: =>
     @setDatabasePhase('close')
     @windowManager.closeAllWindows()
     @_deleteDatabase =>
@@ -247,7 +248,7 @@ class Application
     @on 'application:run-benchmarks', ->
       @runBenchmarks()
 
-    @on 'application:logout', @_logout
+    @on 'application:reset-config-and-relaunch', @_resetConfigAndRelaunch
 
     @on 'application:quit', => app.quit()
     @on 'application:inspect', ({x,y, atomWindow}) ->

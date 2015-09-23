@@ -52,7 +52,7 @@ describe "NylasAPI", ->
       spyOn(Actions, 'postNotification')
       NylasAPI._handle401('/threads/1234')
       expect(Actions.postNotification).toHaveBeenCalled()
-      expect(Actions.postNotification.mostRecentCall.args[0].message).toEqual("Nylas can no longer authenticate with your mail provider. You will not be able to send or receive mail. Please log out and sign in again.")
+      expect(Actions.postNotification.mostRecentCall.args[0].message).toEqual("Nylas can no longer authenticate with your mail provider. You will not be able to send or receive mail. Please unlink your account and sign in again.")
 
   describe "handleModelResponse", ->
 

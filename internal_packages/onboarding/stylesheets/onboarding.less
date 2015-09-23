@@ -86,17 +86,15 @@
 
   .page-container {
     z-index: 10;
-    display: inline-block;
-    position: relative;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
   }
 
   .page {
-    //position: absolute;
-    //top: 0;
-    //width: 100%;
-    //height: 100%;
+    margin:auto;
     padding-top: 10%;
-    z-index: 10;
     &.no-top {
       padding-top: 0;
     }
@@ -169,24 +167,20 @@
     position:absolute;
   }
   .welcome-image-enter {
-    transform: translate(10%, 0);
     opacity: 0;
-    transition: all .3s linear;
+    transition: opacity .3s linear;
   }
 
   .welcome-image-enter.welcome-image-enter-active {
     opacity: 1;
-    transform: translate(0%, 0);
   }
   .welcome-image-leave {
     opacity: 1;
-    transform: translate(0%, 0);
-    transition: all .3s linear;
+    transition: opacity .3s linear;
   }
 
   .welcome-image-leave.welcome-image-leave-active {
     opacity: 0;
-    transform: translate(-10%, 0);
   }
 
   .check {

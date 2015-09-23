@@ -74,14 +74,6 @@ class Actions
   ###
   @didPassivelyReceiveNewModels: ActionScopeGlobal
 
-  ###
-  Public: Log out the current user. Closes the main application window and takes
-  the user back to the sign-in window.
-
-  *Scope: Global*
-  ###
-  @logout: ActionScopeGlobal
-
   @uploadStateChanged: ActionScopeGlobal
   @fileAborted: ActionScopeGlobal
   @downloadStateChanged: ActionScopeGlobal
@@ -371,7 +363,7 @@ class Actions
   Public: Fire to display an in-window notification to the user in the app's standard
   notification interface.
 
-  *Scope: Window*
+  *Scope: Global*
 
   ```
   # A simple notification
@@ -396,13 +388,13 @@ class Actions
 
   ```
   ###
-  @postNotification: ActionScopeWindow
+  @postNotification: ActionScopeGlobal
 
   ###
   Public: Listen to this action to handle user interaction with notifications you
   published via `postNotification`.
 
-  *Scope: Window*
+  *Scope: Global*
 
   ```
   @_unlisten = Actions.notificationActionTaken.listen(@_onActionTaken, @)
@@ -412,7 +404,7 @@ class Actions
       # perform action
   ```
   ###
-  @notificationActionTaken: ActionScopeWindow
+  @notificationActionTaken: ActionScopeGlobal
 
   # FullContact Sidebar
   @getFullContactDetails: ActionScopeWindow

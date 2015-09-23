@@ -1,5 +1,5 @@
 'menu': [
-  { label: 'Link External Account', command: 'atom-workspace:add-account' }
+  { label: 'Add Account...', command: 'atom-workspace:add-account' }
   {
     label: '&Edit'
     submenu: [
@@ -55,7 +55,6 @@
   }
   { type: 'separator' }
   { label: 'Preferences', command: 'application:open-preferences' }
-  { label: 'Log Out', command: 'application:logout' }
   { type: 'separator' }
   { label: 'E&xit', command: 'application:quit' }
 ]

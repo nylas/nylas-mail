@@ -1,5 +1,5 @@
 React = require 'react'
-
+_ = require 'underscore'
 {RetinaImg} = require 'nylas-component-kit'
 {EdgehillAPI, Utils} = require 'nylas-exports'
 
@@ -61,26 +61,32 @@ class AccountChoosePage extends Page
 
   _onChooseProvider: (provider) =>
     if provider.name is 'gmail'
-      provider.clientKey = Utils.generateTempId()[6..]+'-'+Utils.generateTempId()[6..]
-      shell = require 'shell'
-      googleUrl = url.format({
-        protocol: 'https'
-        host: 'accounts.google.com/o/oauth2/auth'
-        query:
-          response_type: 'code'
-          state: provider.clientKey
-          client_id: '372024217839-cdsnrrqfr4d6b4gmlqepd7v0n0l0ip9q.apps.googleusercontent.com'
-          redirect_uri: 'http://localhost:5009/oauth/google/callback'
-          access_type: 'offline'
-          scope: 'https://www.googleapis.com/auth/userinfo.email \
-              https://www.googleapis.com/auth/userinfo.profile \
-              https://mail.google.com/ \
-              https://www.google.com/m8/feeds \
-              https://www.googleapis.com/auth/calendar'
-      })
-      shell.openExternal(googleUrl)
+      # Show the "Sign in to Gmail" prompt for a moment before actually bouncing
+      # to Gmail. (400msec animation + 200msec to read)
+      _.delay =>
+        @_onBounceToGmail(provider)
+      , 600
     OnboardingActions.moveToPage("account-settings", {provider})
 
+  _onBounceToGmail: (provider) =>
+    provider.clientKey = Utils.generateTempId()[6..]+'-'+Utils.generateTempId()[6..]
+    shell = require 'shell'
+    googleUrl = url.format({
+      protocol: 'https'
+      host: 'accounts.google.com/o/oauth2/auth'
+      query:
+        response_type: 'code'
+        state: provider.clientKey
+        client_id: '372024217839-cdsnrrqfr4d6b4gmlqepd7v0n0l0ip9q.apps.googleusercontent.com'
+        redirect_uri: "#{EdgehillAPI.APIRoot}/oauth/google/callback"
+        access_type: 'offline'
+        scope: 'https://www.googleapis.com/auth/userinfo.email \
+            https://www.googleapis.com/auth/userinfo.profile \
+            https://mail.google.com/ \
+            https://www.google.com/m8/feeds \
+            https://www.googleapis.com/auth/calendar'
+    })
+    shell.openExternal(googleUrl)
 
   _onSubmit: (e) =>
     valid = React.findDOMNode(@refs.form).reportValidity()
