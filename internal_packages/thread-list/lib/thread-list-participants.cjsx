@@ -1,4 +1,5 @@
 React = require 'react'
+{Utils} = require 'nylas-exports'
 _ = require 'underscore'
 
 class ThreadListParticipants extends React.Component
@@ -12,12 +13,12 @@ class ThreadListParticipants extends React.Component
     true
 
   render: =>
-    items = @getParticipants()
+    items = @getTokens()
     <div className="participants">
-      {@getSpans(items)}
+      {@renderSpans(items)}
     </div>
 
-  getSpans: (items) =>
+  renderSpans: (items) =>
     spans = []
     accumulated = null
     accumulatedUnread = false
@@ -59,50 +60,47 @@ class ThreadListParticipants extends React.Component
 
     return spans
 
-  getParticipants: =>
-    makeMetadataFilterer = (toOrFrom) ->
-      (msg, i, msgs) ->
-        isFirstMsg = i is 0
-        if msg.draft
-          false
-        else if isFirstMsg
-          true
-        else # check adjacent email uniqueness
-          last = msgs[i - 1][toOrFrom][0]
-          curr = msgs[i][toOrFrom][0]
-          if last and curr
-            isUniqueEmail = last.email.toLowerCase() isnt curr.email.toLowerCase()
-            isUniqueName = last.name isnt curr.name
-            isUniqueEmail or isUniqueName
+  getTokensFromMetadata: =>
+    messages = @props.thread.metadata
+    tokens = []
+
+    field = 'from'
+    if (messages.every (message) -> message.isFromMe())
+      field = 'to'
+
+    for message, idx in messages
+      if message.draft
+        continue
+
+      for contact in message[field]
+        if tokens.length is 0
+          tokens.push({ contact: contact, unread: message.unread })
+        else
+          lastToken = tokens[tokens.length - 1]
+          lastContact = lastToken.contact
+
+          sameEmail = Utils.emailIsEquivalent(lastContact.email, contact.email)
+          sameName = lastContact.name is contact.name
+          if sameEmail and sameName
+            lastToken.unread ||= message.unread
           else
-            return false
+            tokens.push({ contact: contact, unread: message.unread })
 
-    makeMetadataMapper = (toOrFrom) ->
-      (msg) ->
-        msg[toOrFrom].map (contact) ->
-          { contact: contact, unread: msg.unread }
+    tokens
 
-    if @props.thread.metadata
-      shouldOnlyShowRecipients = @props.thread.metadata.every (msg) ->
-        msg.from[0]?.isMe()
-      input = @props.thread.metadata
-      toOrFrom = if shouldOnlyShowRecipients then "to" else "from"
-      filterer = makeMetadataFilterer toOrFrom
-      mapper = makeMetadataMapper toOrFrom
+  getTokensFromParticipants: =>
+    contacts = @props.thread.participants ? []
+    contacts = contacts.filter (contact) -> not contact.isMe()
+    contacts.map (contact) -> { contact: contact, unread: false }
+
+  getTokens: =>
+    if @props.thread.metadata instanceof Array
+      list = @getTokensFromMetadata()
     else
-      input = @props.thread.participants
-      return [] unless input and input instanceof Array
-      filterer = (contact) -> not contact.isMe()
-      mapper = (contact) -> { contact: contact, unread: false }
-
-    list = _.chain(input)
-            .filter(filterer)
-            .map(mapper)
-            .reduce(((prevContacts, next) -> prevContacts.concat(next)), [])
-            .value()
+      list = @getTokensFromParticipants()
 
     # If no participants, we should at least add current user as sole participant
-    if list.length is 0 and @props.thread.participants.length > 0
+    if list.length is 0 and @props.thread.participants?.length > 0
       list.push({ contact: @props.thread.participants[0], unread: false })
 
     # We only ever want to show three. Ben...Kevin... Marty

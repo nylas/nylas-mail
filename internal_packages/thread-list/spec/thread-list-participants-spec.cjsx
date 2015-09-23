@@ -25,7 +25,7 @@ describe "ThreadListParticipants", ->
     unread = ReactTestUtils.scryRenderedDOMComponentsWithClass(@participants, 'unread-true')
     expect(unread.length).toBe(1)
 
-  describe "getParticipants", ->
+  describe "getTokens", ->
     beforeEach ->
       @ben = new Contact(email: 'ben@nylas.com', name: 'ben')
       @evan = new Contact(email: 'evan@nylas.com', name: 'evan')
@@ -106,6 +106,17 @@ describe "ThreadListParticipants", ->
                 {contact: @michael, unread: true},
                 {contact: @kavya, unread: true}]
         },{
+          name: 'ends with two emails from the same person, second one is unread'
+          in: [
+            new Message(unread: false, from: [@ben]),
+            new Message(unread: false, from: [@evan]),
+            new Message(unread: false, from: [@kavya]),
+            new Message(unread: true, from: [@kavya]),
+          ]
+          out: [{contact: @ben, unread: false},
+                {contact: @evan, unread: false},
+                {contact: @kavya, unread: true}]
+        },{
           name: 'three unread responses to long thread'
           in: [
             new Message(unread: false, from: [@ben]),
@@ -162,13 +173,13 @@ describe "ThreadListParticipants", ->
             <ThreadListParticipants thread={thread}/>
           )
 
-          expect(participants.getParticipants()).toEqual(scenario.out)
+          expect(participants.getTokens()).toEqual(scenario.out)
 
           # Slightly misuse jasmine to get the output we want to show
-          if (!_.isEqual(participants.getParticipants(), scenario.out))
+          if (!_.isEqual(participants.getTokens(), scenario.out))
             expect(scenario.name).toBe('correct')
 
-    describe "when getParticipants() called and current user is only sender", ->
+    describe "when getTokens() called and current user is only sender", ->
       beforeEach ->
         @me = AccountStore.current().me()
         @ben = new Contact(email: 'ben@nylas.com', name: 'ben')
@@ -177,19 +188,19 @@ describe "ThreadListParticipants", ->
         @michael = new Contact(email: 'michael@nylas.com', name: 'michael')
         @kavya = new Contact(email: 'kavya@nylas.com', name: 'kavya')
 
-      getParticipants = (threadMetadata) ->
+      getTokens = (threadMetadata) ->
         thread = new Thread()
         thread.metadata = threadMetadata
         participants = ReactTestUtils.renderIntoDocument(
           <ThreadListParticipants thread={thread}/>
         )
-        participants.getParticipants()
+        participants.getTokens()
 
       it "shows only recipients for emails sent from me to different recipients", ->
         input = [new Message(unread: false, from: [@me], to: [@ben])
                  new Message(unread: false, from: [@me], to: [@evan])
                  new Message(unread: false, from: [@me], to: [@ben])]
-        actualOut = getParticipants input
+        actualOut = getTokens(input)
         expectedOut = [{contact: @ben, unread: false}
                        {contact: @evan, unread: false}
                        {contact: @ben, unread: false}]
@@ -198,7 +209,7 @@ describe "ThreadListParticipants", ->
       it "is case insensitive", ->
         input = [new Message(unread: false, from: [@me], to: [@evan])
                  new Message(unread: false, from: [@me], to: [@evanCapitalized])]
-        actualOut = getParticipants input
+        actualOut = getTokens(input)
         expectedOut = [{contact: @evan, unread: false}]
         expect(actualOut).toEqual expectedOut
 
@@ -207,7 +218,7 @@ describe "ThreadListParticipants", ->
                  new Message(unread: false, from: [@me], to: [@evan])
                  new Message(unread: false, from: [@me], to: [@michael])
                  new Message(unread: false, from: [@me], to: [@kavya])]
-        actualOut = getParticipants input
+        actualOut = getTokens(input)
         expectedOut = [{contact: @ben, unread: false}
                        {spacer: true}
                        {contact: @michael, unread: false}
@@ -216,7 +227,7 @@ describe "ThreadListParticipants", ->
 
       it "shows correct recipients even if only one email", ->
         input = [new Message(unread: false, from: [@me], to: [@ben, @evan, @michael, @kavya])]
-        actualOut = getParticipants input
+        actualOut = getTokens(input)
         expectedOut = [{contact: @ben, unread: false}
                        {spacer: true}
                        {contact: @michael, unread: false}
@@ -228,13 +239,13 @@ describe "ThreadListParticipants", ->
                  new Message(unread: false, from: [@me], to: [@evan])
                  new Message(unread: false, from: [@me], to: [@evan])
                  new Message(unread: false, from: [@me], to: [@evan])]
-        actualOut = getParticipants input
+        actualOut = getTokens(input)
         expectedOut = [{contact: @evan, unread: false}]
         expect(actualOut).toEqual expectedOut
 
       it "shows only the recipient for one sent email", ->
         input = [new Message(unread: false, from: [@me], to: [@evan])]
-        actualOut = getParticipants input
+        actualOut = getTokens(input)
         expectedOut = [{contact: @evan, unread: false}]
         expect(actualOut).toEqual expectedOut
 
@@ -243,7 +254,7 @@ describe "ThreadListParticipants", ->
                  new Message(unread: false, from: [@me], to: [@ben])
                  new Message(unread: true, from: [@me], to: [@kavya])
                  new Message(unread: true, from: [@me], to: [@michael])]
-        actualOut = getParticipants input
+        actualOut = getTokens(input)
         expectedOut = [{contact: @evan, unread: false},
                        {spacer: true},
                        {contact: @kavya, unread: true},
@@ -285,8 +296,8 @@ describe "ThreadListParticipants", ->
             <ThreadListParticipants thread={thread}/>
           )
 
-          expect(participants.getParticipants()).toEqual(scenario.out)
+          expect(participants.getTokens()).toEqual(scenario.out)
 
           # Slightly misuse jasmine to get the output we want to show
-          if (!_.isEqual(participants.getParticipants(), scenario.out))
+          if (!_.isEqual(participants.getTokens(), scenario.out))
             expect(scenario.name).toBe('correct')
