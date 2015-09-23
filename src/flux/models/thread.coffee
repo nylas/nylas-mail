@@ -75,6 +75,9 @@ class Thread extends Model
       modelKey: 'participants'
       itemClass: Contact
 
+    'hasAttachments': Attributes.Boolean
+      modelKey: 'has_attachments'
+
     'lastMessageReceivedTimestamp': Attributes.DateTime
       queryable: true
       modelKey: 'lastMessageReceivedTimestamp'
