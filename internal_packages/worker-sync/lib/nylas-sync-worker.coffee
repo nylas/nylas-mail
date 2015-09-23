@@ -93,6 +93,7 @@ class NylasSyncWorker
 
     @fetchCollection('threads')
     @fetchCollection('calendars')
+    @fetchCollection('events')
     @fetchCollection('contacts')
     @fetchCollection('drafts')
     if @_account.usesLabels()
