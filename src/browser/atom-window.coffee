@@ -102,6 +102,12 @@ class AtomWindow
       if @browserWindow.loadSettingsChangedSinceGetURL
         @browserWindow.webContents.send('load-settings-changed', @browserWindow.loadSettings)
 
+    @browserWindow.once 'window:main-window-content-loaded', =>
+      @emit 'window:main-window-content-loaded'
+      @mainWindowContentLoaded = true
+      if @browserWindow.loadSettingsChangedSinceGetURL
+        @browserWindow.webContents.send('load-settings-changed', @browserWindow.loadSettings)
+
     @browserWindow.loadUrl(@getUrl(loadSettings))
     @browserWindow.focusOnWebView() if @isSpec
 
@@ -158,6 +164,7 @@ class AtomWindow
 
     @browserWindow.on 'unresponsive', =>
       return if @isSpec
+      return if (not @mainWindowContentLoaded) and @mainWindow
 
       dialog = require 'dialog'
       chosen = dialog.showMessageBox @browserWindow,
