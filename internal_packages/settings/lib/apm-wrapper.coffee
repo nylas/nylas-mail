@@ -9,7 +9,7 @@ class APMWrapper
   constructor: ->
     @packagePromises = []
 
-  runCommand: (args, callback) ->
+  runCommand: (args, options, callback) ->
     command = atom.packages.getApmPath()
     outputLines = []
     stdout = (lines) -> outputLines.push(lines)
@@ -17,16 +17,17 @@ class APMWrapper
     stderr = (lines) -> errorLines.push(lines)
     exit = (code) ->
       callback(code, outputLines.join('\n'), errorLines.join('\n'))
-    options =
-      env:
-        ATOM_API_URL: 'https://edgehill-packages.nylas.com/api'
-        ATOM_HOME: atom.getConfigDirPath()
+
+    options ||= {}
+    options.env =
+      ATOM_API_URL: 'https://edgehill-packages.nylas.com/api'
+      ATOM_HOME: atom.getConfigDirPath()
 
     args.push('--no-color')
     new BufferedProcess({command, args, stdout, stderr, exit, options})
 
   runCommandReturningPackages: (args, errorMessage, callback) ->
-    @runCommand args, (code, stdout, stderr) ->
+    @runCommand args, null, (code, stdout, stderr) ->
       if code is 0
         try
           packages = JSON.parse(stdout) ? []
@@ -111,7 +112,7 @@ class APMWrapper
       args.push '--packages'
     errorMessage = "Searching for \u201C#{query}\u201D failed."
 
-    apmProcess = @runCommand args, (code, stdout, stderr) ->
+    apmProcess = @runCommand args, null, (code, stdout, stderr) ->
       if code is 0
         try
           packages = JSON.parse(stdout) ? []
@@ -162,7 +163,7 @@ class APMWrapper
         error.stderr = stderr
         onError(error)
 
-    apmProcess = @runCommand(args, exit)
+    apmProcess = @runCommand(args, null, exit)
     handleProcessErrors(apmProcess, errorMessage, onError)
 
   unload: (packageName) ->
@@ -198,8 +199,24 @@ class APMWrapper
         error.stderr = stderr
         onError(error)
 
-    apmProcess = @runCommand(args, exit)
+    apmProcess = @runCommand(args, null, exit)
     handleProcessErrors(apmProcess, errorMessage, onError)
+
+  installDependenciesInPackageDirectory: (dir, callback) ->
+    errorMessage = "Running apm install failed to install package dependencies."
+
+    exit = (code, stdout, stderr) =>
+      if code is 0
+        callback?()
+      else
+        atom.packages.activatePackage(name) if activateOnFailure
+        error = new Error(errorMessage)
+        error.stdout = stdout
+        error.stderr = stderr
+        callback(error)
+
+    apmProcess = @runCommand(['install'], {cwd: dir}, exit)
+    handleProcessErrors(apmProcess, errorMessage, callback)
 
   uninstall: (pack, callback) ->
     {name} = pack
@@ -210,7 +227,7 @@ class APMWrapper
     onError = (error) =>
       callback(error)
 
-    apmProcess = @runCommand ['uninstall', '--hard', name], (code, stdout, stderr) =>
+    apmProcess = @runCommand ['uninstall', '--hard', name], null, (code, stdout, stderr) =>
       if code is 0
         @unload(name)
         callback?()
@@ -233,7 +250,7 @@ class APMWrapper
 
   checkNativeBuildTools: ->
     deferred = Promise.defer()
-    apmProcess = @runCommand ['install', '--check'], (code, stdout, stderr) ->
+    apmProcess = @runCommand ['install', '--check'], null, (code, stdout, stderr) ->
       if code is 0
         deferred.resolve()
       else
