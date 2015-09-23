@@ -1,6 +1,8 @@
 @import "ui-variables";
 @import "ui-mixins";
 
+@scrollbar-margin: 8px;
+
 // MIXINS
 
 .inverseContent() {
@@ -129,6 +131,7 @@
     top:2px;
     text-align: right;
     min-width:70px;
+    margin-right:@scrollbar-margin;
     display:inline-block;
   }
 
@@ -324,6 +327,7 @@
     padding-top:2px;
     padding-bottom:2px;
     margin-left:30px;
+    margin-right:@scrollbar-margin;
   }
   .snippet {
     font-size: @font-size-small;
@@ -332,6 +336,7 @@
     opacity: 0.7;
     text-align: left;
     margin-left:30px;
+    margin-right:@scrollbar-margin;
   }
 }
 
