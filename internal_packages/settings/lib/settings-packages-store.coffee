@@ -28,6 +28,9 @@ SettingsPackagesStore = Reflux.createStore
     atom.commands.add 'body',
       'application:create-package': => @_onCreatePackage()
 
+    atom.commands.add 'body',
+      'application:install-package': => @_onInstallPackage()
+
     @listenTo SettingsActions.createPackage, @_onCreatePackage
     @listenTo SettingsActions.updatePackage, @_onUpdatePackage
     @listenTo SettingsActions.setGlobalSearchValue, @_onGlobalSearchChange
@@ -158,8 +161,43 @@ SettingsPackagesStore = Reflux.createStore
   _onUpdatePackage: (pkg) ->
     @_apm.update(pkg, pkg.newerVersion)
 
+  _onInstallPackage: ->
+    dialog.showOpenDialog
+      title: "Choose a Package Directory"
+      properties: ['openDirectory']
+    , (filenames) =>
+      return if not filenames or filenames.length is 0
+      packagesDir = path.join(atom.getConfigDirPath(), 'packages')
+      fs.makeTreeSync(packagesDir)
+
+      packageSourceDir = filenames[0]
+      packageName = path.basename(packageSourceDir)
+      packageTargetDir = path.join(packagesDir, packageName)
+
+      if fs.existsSync(packageTargetDir)
+        msg = "A package named '#{packageName}' is already installed in \
+               ~/.nylas/packages. Remove it before trying to install another \
+               package of the same name."
+        dialog.showErrorBox('Package already installed', msg)
+        return
+
+      fs.copySync(packageSourceDir, packageTargetDir)
+
+      @_apm.installDependenciesInPackageDirectory packageTargetDir, (err) =>
+        shell.showItemInFolder(packageTargetDir)
+        if err
+          dialog.showErrorBox('Package installation failed', err.toString())
+          return
+        else
+          atom.packages.enablePackage(packageTargetDir)
+          atom.packages.activatePackage(packageName)
+          msg = "#{packageName} has been installed and enabled. No need to \
+                 restart! If you don't see the package loaded, check the \
+                 console for errors."
+          dialog.showErrorBox('Package installed', msg)
+
   _onCreatePackage: ->
-    packagesDir = path.join(atom.getConfigDirPath(), 'dev', 'packages')
+    packagesDir = path.join(atom.getConfigDirPath(), 'packages')
     fs.makeTreeSync(packagesDir)
 
     dialog.showSaveDialog
