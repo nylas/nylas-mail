@@ -26,10 +26,6 @@ class PreferencesAccounts extends React.Component
       </div>
 
       {@_renderLinkedAccounts()}
-
-      <div style={textAlign:"left", marginTop: '20'}>
-        <button className="btn btn-large" onClick={@_onLogout}>Log out</button>
-      </div>
     </div>
 
   _renderAccounts: =>
@@ -122,9 +118,5 @@ class PreferencesAccounts extends React.Component
   _onUnlinkToken: (token) =>
     EdgehillAPI.unlinkToken(token)
     return
-
-  _onLogout: =>
-    atom.logout()
-
 
 module.exports = PreferencesAccounts

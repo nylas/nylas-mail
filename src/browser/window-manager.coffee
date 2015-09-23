@@ -128,9 +128,8 @@ class WindowManager
     @newWindow
       title: 'Welcome to Nylas'
       toolbar: false
-      width: 340
-      height: 550
       resizable: false
+      hidden: true
       windowType: 'onboarding'
       windowProps:
         page: "welcome"
