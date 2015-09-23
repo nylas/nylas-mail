@@ -20,11 +20,20 @@
 }
 
 .page-frame {
-  width:100%;
-  height:100%;
   background-color: @gray-lighter;
   -webkit-animation: fadein 0.8s;
   text-align: center;
+  display: inline-block;
+
+  h1 {
+    font-weight: 100;
+    font-size: 40pt;
+  }
+
+  h4 {
+    font-weight: 400;
+    font-size: 20pt;
+  }
 
   iframe, webview {
     position: absolute;
@@ -35,13 +44,12 @@
     border:0;
   }
 
-  .logo {
-    padding-top:40px;
-  }
-
-  h2 {
-    margin-top: 27px;
-    margin-bottom: 90px;
+  .logo-container {
+    width: 117px;
+    height: 117px;
+    display: inline-block;
+    padding-top: 30px;
+    box-sizing: content-box;
   }
 
   .prompt {
@@ -76,15 +84,51 @@
     }
   }
 
+  .page-container {
+    z-index: 10;
+    display: inline-block;
+    position: relative;
+  }
+
   .page {
-    position:absolute;
-    top:0;
-    width:100%;
-    height:100%;
-    padding-top:15%;
+    //position: absolute;
+    //top: 0;
+    //width: 100%;
+    //height: 100%;
+    padding-top: 10%;
+    z-index: 10;
     &.no-top {
       padding-top: 0;
     }
+    &.account-setup {
+      padding: 0 15px;
+      width: 300px
+    }
+    &.account-choose {
+      width: 300px;
+    }
+    &.opaque {
+      background-color: @gray-lighter;
+    }
+  }
+
+  .page-gradient {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 200px;
+    z-index: 5;
+    transition: background 0.3s ease-in-out;
+    &.under {
+      z-index: 0;
+    }
+  }
+
+  .page-background {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
   }
 
   .quit {
@@ -102,7 +146,7 @@
 
   .page-enter {
     opacity: 0.01;
-    transition: all .3s ease-out;
+    transition: all .15s ease-out;
   }
 
   .page-enter.page-enter-active {
@@ -110,11 +154,39 @@
   }
   .page-leave {
     opacity: 1;
-    transition: all .3s ease-in;
+    transition: all .15s ease-in;
   }
 
   .page-leave.page-leave-active {
     opacity: 0.01;
+  }
+
+  .welcome-image-container {
+    height:391px;
+    display:block;
+  }
+  .welcome-image {
+    position:absolute;
+  }
+  .welcome-image-enter {
+    transform: translate(10%, 0);
+    opacity: 0;
+    transition: all .3s linear;
+  }
+
+  .welcome-image-enter.welcome-image-enter-active {
+    opacity: 1;
+    transform: translate(0%, 0);
+  }
+  .welcome-image-leave {
+    opacity: 1;
+    transform: translate(0%, 0);
+    transition: all .3s linear;
+  }
+
+  .welcome-image-leave.welcome-image-leave-active {
+    opacity: 0;
+    transform: translate(-10%, 0);
   }
 
   .check {
@@ -166,5 +238,119 @@
       -webkit-animation: bounce 0.4s forwards;
       -webkit-animation-delay: 1.9s;
     }
+  }
+
+  .provider {
+    text-align: left;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    cursor: default;
+
+    img.icon {
+    }
+    .icon-container {
+      width: 50px;
+      height: 50px;
+      display: inline-block;
+      box-sizing: content-box;
+      padding: 5px 15px;
+    }
+  }
+  .provider:hover{
+    background: rgba(255,255,255,0.7);
+  }
+
+  .errormsg {
+    color: #A33
+  }
+
+  form.settings {
+    padding: 0 20px;
+    padding-bottom: 40px;
+
+    input {
+      padding: 8px;
+      display: inline-block;
+      width: 100%;
+      margin-bottom: 10px;
+      background: #FFF;
+      color: #333;
+      text-align: left;
+
+      &::-webkit-input-placeholder {
+        color: #C6C6C6;
+      }
+    }
+    input[type=checkbox] {
+      width: initial;
+      margin-right: 5px;
+    }
+
+    input.error {
+      border: 1px solid #A33;
+    }
+
+    label {
+      display: inline-block;
+      width: 100%;
+      color: #888;
+      text-align: left;
+    }
+
+    label.half {
+      width: 50%;
+    }
+
+    label.checkbox {
+      text-align: center;
+    }
+  }
+
+  .appearance-mode {
+    background-color:#f7f9f9;
+    border-radius: 10px;
+    border: 1px solid #c6c7c7;
+    text-align: center;
+    flex: 1;
+    padding:9px;
+    padding-top:10px;
+    margin:10px;
+    margin-top:0;
+    img {
+      background-color: #c6c7c7;
+    }
+    div {
+      margin-top: 10px;
+      text-transform: capitalize;
+      cursor: default;
+    }
+  }
+  .appearance-mode.active {
+    border:1px solid @component-active-color;
+    color: @component-active-color;
+    img { background-color: @component-active-color; }
+  }
+}
+
+.initial-package {
+  display:block;
+  margin:auto;
+  margin-top:10px;
+  margin-bottom:10px;
+  width:550px;
+  padding:15px;
+  border:1px solid #eee;
+  text-align:left;
+  img {
+    float:left;
+    margin-right:20px;
+    margin-top:30px;
+    margin-bottom:30px;
+  }
+  .name {
+    font-size:20px;
+  }
+  .description {
+    font-size:14px;
+    max-width:500px;
   }
 }

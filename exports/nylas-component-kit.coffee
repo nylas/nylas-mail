@@ -26,6 +26,7 @@ class NylasComponentKit
   @load "MultiselectActionBar", 'multiselect-action-bar'
   @load "InjectedComponentSet", 'injected-component-set'
   @load "TimeoutTransitionGroup", 'timeout-transition-group'
+  @load "ConfigPropContainer", "config-prop-container"
 
   @load "ScrollRegion", 'scroll-region'
   @load "ResizableRegion", 'resizable-region'

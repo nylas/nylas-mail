@@ -154,7 +154,7 @@ class Application
     app.commandLine.appendSwitch 'js-flags', '--harmony'
 
   openWindowsForTokenState: =>
-    hasToken = @config.get('edgehill.credentials')
+    hasToken = @config.get('tokens')?.length > 0
     if hasToken
       @windowManager.showMainWindow()
       @windowManager.ensureWorkWindow()

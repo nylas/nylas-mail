@@ -436,6 +436,24 @@ class Atom extends Model
   setSize: (width, height) ->
     @getCurrentWindow().setSize(width, height)
 
+  # Essential: Transition and set the size of the current window.
+  #
+  # * `width` The {Number} of pixels.
+  # * `height` The {Number} of pixels.
+  # * `duration` The {Number} of pixels.
+  setSizeAnimated: (width, height, duration=400) ->
+    cubicInOut = (t) -> if t<.5 then 4*t**3 else (t-1)*(2*t-2)**2+1
+    {width:startWidth,height:startHeight} = @getSize()
+    startTime = Date.now()
+    while (t = (Date.now() - startTime) / (duration)) < 1
+      i = cubicInOut(t)
+      @setSize(
+        Math.round(startWidth + (width-startWidth) * i),
+        Math.round(startHeight + (height-startHeight) * i))
+    @setSize(width, height)
+
+
+
   setMinimumWidth: (minWidth) ->
     win = @getCurrentWindow()
     minHeight = win.getMinimumSize()[1]
