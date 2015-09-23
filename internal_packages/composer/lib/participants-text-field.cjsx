@@ -101,7 +101,7 @@ class ParticipantsTextField extends React.Component
   _edit: (token, replacementString) =>
     field = @props.field
     tokenIndex = @props.participants[field].indexOf(token)
-    @_tokensForString(replacementString).then (replacemehts) =>
+    @_tokensForString(replacementString).then (replacements) =>
       updates = {}
       updates[field] = [].concat(@props.participants[field])
       updates[field].splice(tokenIndex, 1, replacements...)
