@@ -1,10 +1,10 @@
 {ComponentRegistry} = require 'nylas-exports'
 
+AttachmentComponent = require "./attachment-component"
+ImageAttachmentComponent = require "./image-attachment-component"
+
 module.exports =
   activate: (@state={}) ->
-    AttachmentComponent = require "./attachment-component"
-    ImageAttachmentComponent = require "./image-attachment-component"
-
     ComponentRegistry.register AttachmentComponent,
       role: 'Attachment'
 
@@ -12,7 +12,7 @@ module.exports =
       role: 'Attachment:Image'
 
   deactivate: ->
-    ComponentRegistry.unregister AttachmentComponent
-    ComponentRegistry.unregister ImageAttachmentComponent
+    ComponentRegistry.unregister(AttachmentComponent)
+    ComponentRegistry.unregister(ImageAttachmentComponent)
 
   serialize: -> @state

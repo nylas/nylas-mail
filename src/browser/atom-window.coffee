@@ -99,20 +99,16 @@ class AtomWindow
     @browserWindow.once 'window:loaded', =>
       @emit 'window:loaded'
       @loaded = true
-      if @browserWindow.loadSettingsChangedSinceGetURL
-        @browserWindow.webContents.send('load-settings-changed', @browserWindow.loadSettings)
-
-    @browserWindow.once 'window:main-window-content-loaded', =>
-      @emit 'window:main-window-content-loaded'
-      @mainWindowContentLoaded = true
-      @browserWindow.setResizable(true)
+      if @mainWindow
+        @browserWindow.setResizable(true)
       if @browserWindow.loadSettingsChangedSinceGetURL
         @browserWindow.webContents.send('load-settings-changed', @browserWindow.loadSettings)
 
     @browserWindow.loadUrl(@getUrl(loadSettings))
     @browserWindow.focusOnWebView() if @isSpec
 
-  loadSettings: -> @browserWindow.loadSettings
+  loadSettings: ->
+    @browserWindow.loadSettings
 
   setLoadSettings: (loadSettings) ->
     @browserWindow.loadSettings = loadSettings
@@ -165,7 +161,7 @@ class AtomWindow
 
     @browserWindow.on 'unresponsive', =>
       return if @isSpec
-      return if (not @mainWindowContentLoaded) and @mainWindow
+      return if not @loaded
 
       dialog = require 'dialog'
       chosen = dialog.showMessageBox @browserWindow,

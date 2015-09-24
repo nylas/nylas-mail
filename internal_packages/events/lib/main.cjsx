@@ -1,13 +1,13 @@
 {ComponentRegistry, WorkspaceStore} = require 'nylas-exports'
 
+EventComponent = require "./event-component"
+
 module.exports =
   activate: (@state={}) ->
-    EventComponent = require "./event-component"
-
     ComponentRegistry.register EventComponent,
       role: 'Event'
 
   deactivate: ->
-    ComponentRegistry.unregister EventComponent
+    ComponentRegistry.unregister(EventComponent)
 
   serialize: -> @state

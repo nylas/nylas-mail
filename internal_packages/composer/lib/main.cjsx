@@ -25,7 +25,7 @@ class ComposerWithWindowProps extends React.Component
         @_showInitialErrorDialog(errorMessage)
 
   componentWillUnmount: ->
-    @unlisten()
+    @unlisten?()
 
   render: ->
     <div className="composer-full-window">

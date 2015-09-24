@@ -36,7 +36,6 @@ class Atom extends Model
     else
       app = new this({@version})
 
-    app.deserializeTimings.app = Date.now() -  startTime
     return app
 
   # Loads and returns the serialized state corresponding to this window
@@ -60,16 +59,11 @@ class Atom extends Model
   # Returns the path where the state for the current window will be
   # located if it exists.
   @getStatePath: ->
-    if @getLoadSettings().isSpec
+    {isSpec, mainWindow} = @getLoadSettings()
+    if isSpec
       filename = 'spec'
-    else
-      {initialPath} = @getLoadSettings()
-      if initialPath
-        sha1 = crypto.createHash('sha1').update(initialPath).digest('hex')
-        filename = "application-#{sha1}"
-
-    if filename
-      path.join(@getStorageDirPath(), filename)
+    else if mainWindow
+      path.join(@getConfigDirPath(), 'main-window-state.json')
     else
       null
 
@@ -78,12 +72,6 @@ class Atom extends Model
   # Returns the absolute path to ~/.nylas
   @getConfigDirPath: ->
     @configDirPath ?= fs.absolute('~/.nylas')
-
-  # Get the path to Atom's storage directory.
-  #
-  # Returns the absolute path to ~/.nylas/storage
-  @getStorageDirPath: ->
-    @storageDirPath ?= path.join(@getConfigDirPath(), 'storage')
 
   # Returns the load settings hash associated with the current window.
   @getLoadSettings: ->
@@ -131,9 +119,6 @@ class Atom extends Model
   # Public: A {StyleManager} instance
   styles: null
 
-  # Public: A {DeserializerManager} instance
-  deserializers: null
-
   ###
   Section: Construction and Destruction
   ###
@@ -142,9 +127,6 @@ class Atom extends Model
   constructor: (@savedState={}) ->
     {@version} = @savedState
     @emitter = new Emitter
-    DeserializerManager = require './deserializer-manager'
-    @deserializers = new DeserializerManager()
-    @deserializeTimings = {}
 
   # Sets up the basic services that should be available in all modes
   # (both spec and application).
@@ -568,8 +550,7 @@ class Atom extends Model
   #   * `height` The window's height {Number}.
   getWindowDimensions: ->
     browserWindow = @getCurrentWindow()
-    [x, y] = browserWindow.getPosition()
-    [width, height] = browserWindow.getSize()
+    {x, y, width, height} = browserWindow.getBounds()
     maximized = browserWindow.isMaximized()
     {x, y, width, height, maximized}
 
@@ -585,9 +566,11 @@ class Atom extends Model
   #   * `width` The new width.
   #   * `height` The new height.
   setWindowDimensions: ({x, y, width, height}) ->
-    if width? and height?
+    if x? and y? and width? and height?
+      @getCurrentWindow().setBounds({x, y, width, height})
+    else if width? and height?
       @setSize(width, height)
-    if x? and y?
+    else if x? and y?
       @setPosition(x, y)
     else
       @center()
@@ -597,36 +580,17 @@ class Atom extends Model
   isValidDimensions: ({x, y, width, height}={}) ->
     width > 0 and height > 0 and x + width > 0 and y + height > 0
 
-  storeDefaultWindowDimensions: ->
-    return unless @isMainWindow()
-    dimensions = @getWindowDimensions()
-    if @isValidDimensions(dimensions)
-      localStorage.setItem("defaultWindowDimensions", JSON.stringify(dimensions))
-
   getDefaultWindowDimensions: ->
-    {windowDimensions} = @getLoadSettings()
-    return windowDimensions if windowDimensions?
-
-    dimensions = null
-    try
-      dimensions = JSON.parse(localStorage.getItem("defaultWindowDimensions"))
-    catch error
-      console.warn "Error parsing default window dimensions", error
-      localStorage.removeItem("defaultWindowDimensions")
-
-    if @isValidDimensions(dimensions)
-      dimensions
-    else
-      screen = remote.require('screen')
-      {width, height} = screen.getPrimaryDisplay().workAreaSize
-      {x: 0, y: 0, width, height}
+    screen = remote.require('screen')
+    {width, height} = screen.getPrimaryDisplay().workAreaSize
+    {x: 0, y: 0, width, height}
 
   restoreWindowDimensions: ->
     dimensions = @savedState.windowDimensions
     unless @isValidDimensions(dimensions)
       dimensions = @getDefaultWindowDimensions()
     @setWindowDimensions(dimensions)
-    dimensions
+    @maximize() if dimensions.maximized and process.platform isnt 'darwin'
 
   storeWindowDimensions: ->
     dimensions = @getWindowDimensions()
@@ -642,7 +606,8 @@ class Atom extends Model
     @keymaps.loadBundledKeymaps()
     @themes.loadBaseStylesheets()
     @packages.loadPackages(windowType)
-    @deserializeRootWindow()
+    @deserializePackageStates()
+    @deserializeSheetContainer()
     @packages.activate()
     @keymaps.loadUserKeymap()
     @requireUserInitScript() unless safeMode
@@ -650,16 +615,13 @@ class Atom extends Model
 
     @showRootWindow()
 
-    ipc.sendChannel('window-command', 'window:main-window-content-loaded')
+    ipc.sendChannel('window-command', 'window:loaded')
 
   showRootWindow: ->
-    dimensions = @restoreWindowDimensions()
-    @getCurrentWindow().setMinimumSize(875, 500)
-    maximize = dimensions?.maximized and process.platform isnt 'darwin'
-    @maximize() if maximize
-    @center()
     cover = document.getElementById("application-loading-cover")
     cover.classList.add('visible')
+    @restoreWindowDimensions()
+    @getCurrentWindow().setMinimumSize(875, 500)
 
   registerCommands: ->
     {resourcePath} = @getLoadSettings()
@@ -727,14 +689,11 @@ class Atom extends Model
   # Unregisters a hot window with the given windowType
   unregisterHotWindow: (windowType) -> ipc.send('unregister-hot-window', windowType)
 
-  unloadEditorWindow: ->
+  saveStateAndUnloadWindow: ->
     @packages.deactivatePackages()
     @savedState.packageStates = @packages.packageStates
     @saveSync()
     @windowState = null
-
-  removeEditorWindow: ->
-    @windowEventHandler?.unsubscribe()
 
   ###
   Section: Messaging the User
@@ -825,8 +784,6 @@ class Atom extends Model
   deserializeSheetContainer: ->
     startTime = Date.now()
     # Put state back into sheet-container? Restore app state here
-    @deserializeTimings.workspace = Date.now() - startTime
-
     @item = document.createElement("atom-workspace")
     @item.setAttribute("id", "sheet-container")
     @item.setAttribute("class", "sheet-container")
@@ -840,10 +797,6 @@ class Atom extends Model
   deserializePackageStates: ->
     @packages.packageStates = @savedState.packageStates ? {}
     delete @savedState.packageStates
-
-  deserializeRootWindow: ->
-    @deserializePackageStates()
-    @deserializeSheetContainer()
 
   loadThemes: ->
     @themes.load()

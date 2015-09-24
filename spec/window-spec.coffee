@@ -92,13 +92,13 @@ describe "Window", ->
           $(window).trigger(beforeUnloadEvent)
           expect(atom.confirm).toHaveBeenCalled()
 
-  describe ".unloadEditorWindow()", ->
+  describe ".saveStateAndUnloadWindow()", ->
     it "saves the serialized state of the window so it can be deserialized after reload", ->
       workspaceState = atom.workspace.serialize()
       syntaxState = atom.grammars.serialize()
       projectState = atom.project.serialize()
 
-      atom.unloadEditorWindow()
+      atom.saveStateAndUnloadWindow()
 
       expect(atom.state.workspace).toEqual workspaceState
       expect(atom.state.grammars).toEqual syntaxState

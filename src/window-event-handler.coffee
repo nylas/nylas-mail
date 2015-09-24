@@ -36,7 +36,6 @@ class WindowEventHandler
 
     @subscribe ipc, 'browser-window-blur', ->
       document.body.classList.add('is-blurred')
-      atom.storeDefaultWindowDimensions()
 
     @subscribe ipc, 'command', (command, args...) ->
       activeElement = document.activeElement
@@ -46,17 +45,15 @@ class WindowEventHandler
       atom.commands.dispatch(activeElement, command, args[0])
 
     @subscribe $(window), 'beforeunload', =>
-      confirmed = atom.workspace?.confirmClose()
-      atom.hide() if confirmed and not @reloadRequested and atom.getCurrentWindow().isWebViewFocused()
+      if atom.getCurrentWindow().isWebViewFocused() and not @reloadRequested
+        atom.hide()
       @reloadRequested = false
-
-      atom.storeDefaultWindowDimensions()
       atom.storeWindowDimensions()
-      atom.unloadEditorWindow() if confirmed
+      atom.saveStateAndUnloadWindow()
+      true
 
-      confirmed
-
-    @subscribe $(window), 'unload', -> atom.removeEditorWindow()
+    @subscribe $(window), 'unload', =>
+      atom.windowEventHandler?.unsubscribe()
 
     @subscribeToCommand $(window), 'window:toggle-full-screen', ->
       atom.toggleFullScreen()
