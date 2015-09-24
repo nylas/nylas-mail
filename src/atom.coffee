@@ -634,53 +634,53 @@ class Atom extends Model
 
   # Call this method when establishing a real application window.
   startRootWindow: ->
-    {resourcePath, safeMode, windowType} = @getLoadSettings()
+    @displayWindow()
 
+    {safeMode, windowType} = @getLoadSettings()
+    @registerCommands()
+    @loadConfig()
+    @keymaps.loadBundledKeymaps()
+    @themes.loadBaseStylesheets()
+    @packages.loadPackages(windowType)
+    @deserializeRootWindow()
+    @packages.activate()
+    @keymaps.loadUserKeymap()
+    @requireUserInitScript() unless safeMode
+    @menu.update()
+
+    @showRootWindow()
+
+    ipc.sendChannel('window-command', 'window:main-window-content-loaded')
+
+  showRootWindow: ->
+    dimensions = @restoreWindowDimensions()
+    @getCurrentWindow().setMinimumSize(875, 500)
+    maximize = dimensions?.maximized and process.platform isnt 'darwin'
+    @maximize() if maximize
+    @center()
+    cover = document.getElementById("application-loading-cover")
+    cover.classList.add('visible')
+
+  registerCommands: ->
+    {resourcePath} = @getLoadSettings()
     CommandInstaller = require './command-installer'
     CommandInstaller.installAtomCommand resourcePath, false, (error) ->
       console.warn error.message if error?
     CommandInstaller.installApmCommand resourcePath, false, (error) ->
       console.warn error.message if error?
+    @commands.add 'atom-workspace',
+      'atom-workspace:add-account': @onAddAccount
 
-    dimensions = @restoreWindowDimensions()
-    maximize = dimensions?.maximized and process.platform isnt 'darwin'
-    @displayWindow({maximize})
-
-    cover = document.getElementById("application-loading-cover")
-    wait = (time, fn) -> setTimeout(fn, time)
-
-    wait 1, =>
-      cover.classList.add("showing")
-
-      wait 220, =>
-        @loadConfig()
-        @keymaps.loadBundledKeymaps()
-        @themes.loadBaseStylesheets()
-        @packages.loadPackages(windowType)
-        @deserializeRootWindow()
-        @packages.activate()
-        @keymaps.loadUserKeymap()
-        @requireUserInitScript() unless safeMode
-        @menu.update()
-
-
-        @commands.add 'atom-workspace',
-          'atom-workspace:add-account': =>
-            @newWindow
-              title: 'Add an Account'
-              width: 340
-              height: 550
-              toolbar: false
-              resizable: false
-              windowType: 'onboarding'
-              windowProps:
-                page: 'add-account'
-
-        # Make sure we can't be made so small that the interface looks like crap
-        @getCurrentWindow().setMinimumSize(875, 500)
-        wait 20, =>
-          ipc.sendChannel('window-command', 'window:main-window-content-loaded')
-          cover.classList.add('visible')
+  onAddAccount: =>
+    @newWindow
+      title: 'Add an Account'
+      width: 340
+      height: 550
+      toolbar: false
+      resizable: false
+      windowType: 'onboarding'
+      windowProps:
+        page: 'add-account'
 
   # Call this method when establishing a secondary application window
   # displaying a specific set of packages.
