@@ -161,7 +161,7 @@ class Application
     else
       @windowManager.newOnboardingWindow()
       # The onboarding window automatically shows when it's ready
-      
+
   _resetConfigAndRelaunch: =>
     @setDatabasePhase('close')
     @windowManager.closeAllWindows()

@@ -33,7 +33,7 @@ module.exports =
           }]
 
   deactivate: ->
-    @_unlisten()
+    @_unlisten?()
 
   serialize: -> @state
 

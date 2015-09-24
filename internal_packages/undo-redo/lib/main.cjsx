@@ -1,13 +1,13 @@
 {ComponentRegistry, WorkspaceStore} = require 'nylas-exports'
 
+UndoRedoComponent = require "./undo-redo-component"
+
 module.exports =
   activate: (@state={}) ->
-    UndoRedoComponent = require "./undo-redo-component"
-
     ComponentRegistry.register UndoRedoComponent,
       location: WorkspaceStore.Location.ThreadList
 
   deactivate: ->
-    ComponentRegistry.unregister UndoRedoComponent
+    ComponentRegistry.unregister(UndoRedoComponent)
 
   serialize: -> @state
