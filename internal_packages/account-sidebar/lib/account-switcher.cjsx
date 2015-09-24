@@ -20,8 +20,7 @@ class AccountSwitcher extends React.Component
     unsubscribe() for unsubscribe in @unsubscribers
 
   render: =>
-    return undefined if @state.accounts.length < 1
-
+    return false unless @state.account
     <div id="account-switcher" tabIndex={-1} onBlur={@_onBlur} ref="button">
       {@_renderAccount(@state.account, true)}
       {@_renderDropdown()}
@@ -125,8 +124,9 @@ class AccountSwitcher extends React.Component
     @setState(showing: false)
 
   _onAddAccount: =>
-    require('remote').getGlobal('application').windowManager.newOnboardingWindow()
-    @setState showing: false
+    ipc = require('ipc')
+    ipc.send('command', 'application:add-account')
+    @setState(showing: false)
 
   _getStateFromStores: =>
     accounts: AccountStore.items()

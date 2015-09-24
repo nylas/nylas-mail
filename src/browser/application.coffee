@@ -154,31 +154,31 @@ class Application
     app.commandLine.appendSwitch 'js-flags', '--harmony'
 
   openWindowsForTokenState: (loadingMessage) =>
-    hasToken = @config.get('tokens')?.length > 0
-    if hasToken
+    hasAccount = @config.get('nylas.accounts')?.length > 0
+    if hasAccount
       @windowManager.showMainWindow(loadingMessage)
       @windowManager.ensureWorkWindow()
     else
-      @windowManager.newOnboardingWindow()
+      @windowManager.newOnboardingWindow({welcome: true})
       # The onboarding window automatically shows when it's ready
 
   _resetConfigAndRelaunch: =>
     @setDatabasePhase('close')
     @windowManager.closeAllWindows()
     @_deleteDatabase =>
-      @config.set('tokens', null)
       @config.set('nylas', null)
       @config.set('edgehill', null)
       @setDatabasePhase('setup')
-      @openWindowsForTokenState()
+      @windowManager.newOnboardingWindow({welcome: true})
 
   _deleteDatabase: (callback) ->
     @deleteFileWithRetry path.join(configDirPath,'edgehill.db'), callback
     @deleteFileWithRetry path.join(configDirPath,'edgehill.db-wal')
     @deleteFileWithRetry path.join(configDirPath,'edgehill.db-shm')
 
-  _loginSuccessful: =>
-    @openWindowsForTokenState()
+  _accountSetupSuccessful: =>
+    @windowManager.showMainWindow()
+    @windowManager.ensureWorkWindow()
     @windowManager.mainWindow().waitForLoad =>
       @windowManager.onboardingWindow()?.close()
 
@@ -247,6 +247,7 @@ class Application
       atomWindow ?= @windowManager.focusedWindow()
       atomWindow?.browserWindow.inspectElement(x, y)
 
+    @on 'application:add-account', => @windowManager.newOnboardingWindow()
     @on 'application:new-message', => @windowManager.sendToMainWindow('new-message')
     @on 'application:send-feedback', => @windowManager.sendToMainWindow('send-feedback')
     @on 'application:open-preferences', => @windowManager.sendToMainWindow('open-preferences')
@@ -257,6 +258,7 @@ class Application
       @quitting = true
       @windowManager.unregisterAllHotWindows()
       @autoUpdateManager.install()
+
     @on 'application:open-dev', =>
       @devMode = true
       @windowManager.closeAllWindows()
@@ -375,8 +377,8 @@ class Application
       clipboard ?= require 'clipboard'
       clipboard.writeText(selectedText, 'selection')
 
-    ipc.on 'login-successful', (event) =>
-      @_loginSuccessful()
+    ipc.on 'account-setup-successful', (event) =>
+      @_accountSetupSuccessful()
 
     ipc.on 'run-in-window', (event, params) =>
       @_sourceWindows ?= {}

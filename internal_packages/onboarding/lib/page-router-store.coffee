@@ -1,5 +1,6 @@
 Reflux = require 'reflux'
 OnboardingActions = require './onboarding-actions'
+{AccountStore} = require 'nylas-exports'
 NylasStore = require 'nylas-store'
 ipc = require 'ipc'
 url = require 'url'
@@ -8,7 +9,7 @@ return unless atom.getWindowType() is "onboarding"
 
 class PageRouterStore extends NylasStore
   constructor: ->
-    atom.onWindowPropsReceived @_onWindowPropsChagned
+    atom.onWindowPropsReceived @_onWindowPropsChanged
 
     @_page = atom.getWindowProps().page ? ''
     @_pageData = atom.getWindowProps().pageData ? {}
@@ -17,20 +18,18 @@ class PageRouterStore extends NylasStore
 
     @listenTo OnboardingActions.moveToPreviousPage, @_onMoveToPreviousPage
     @listenTo OnboardingActions.moveToPage, @_onMoveToPage
-    @listenTo OnboardingActions.nylasAccountReceived, @_onNylasAccountReceived
+    @listenTo OnboardingActions.accountJSONReceived, @_onAccountJSONReceived
 
-  _onNylasAccountReceived: (account) =>
-    tokens = atom.config.get('tokens') || []
-    tokens.push({
-      provider: 'nylas'
-      identifier: account.email_address
-      access_token: account.auth_token
-    })
-    atom.config.set('tokens', tokens)
-    atom.config.save()
-    @_onMoveToPage('initial-preferences', {account})
+  _onAccountJSONReceived: (json) =>
+    isFirstAccount = AccountStore.items().length is 0
+    AccountStore.addAccountFromJSON(json)
+    atom.displayWindow()
+    if isFirstAccount
+      @_onMoveToPage('initial-preferences', {account: json})
+    else
+      ipc.send('account-setup-successful')
 
-  _onWindowPropsChagned: ({page, pageData}={}) =>
+  _onWindowPropsChanged: ({page, pageData}={}) =>
     @_onMoveToPage(page, pageData)
 
   page: -> @_page

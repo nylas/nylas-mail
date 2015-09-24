@@ -30,6 +30,10 @@
     font-size: 40pt;
   }
 
+  h2 {
+    line-height: 1.3em;
+  }
+
   h4 {
     font-weight: 400;
     font-size: 20pt;
@@ -52,6 +56,9 @@
     box-sizing: content-box;
   }
 
+  .btn-setup-spinning {
+    img { vertical-align: top; margin-right: 5px; }
+  }
   .prompt {
     color:#5D5D5D;
     font-size:1.07em;
@@ -100,10 +107,11 @@
     }
     &.account-setup {
       padding: 0 15px;
-      width: 300px
+      width: 330px
     }
     &.account-choose {
-      width: 300px;
+      width: 330px;
+      padding-bottom:10px;
     }
     &.opaque {
       background-color: @gray-lighter;
@@ -254,7 +262,8 @@
   }
 
   .errormsg {
-    color: #A33
+    color: #A33;
+    margin-bottom:5px;
   }
 
   form.settings {
@@ -296,6 +305,10 @@
 
     label.checkbox {
       text-align: center;
+    }
+
+    .btn {
+      margin-top:8px;
     }
   }
 

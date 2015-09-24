@@ -1,9 +1,8 @@
 React = require 'react'
-Page = require './page'
 {RetinaImg, TimeoutTransitionGroup} = require 'nylas-component-kit'
 OnboardingActions = require './onboarding-actions'
 
-class WelcomePage extends Page
+class WelcomePage extends React.Component
   @displayName: "WelcomePage"
 
   constructor: (@props) ->
@@ -17,7 +16,10 @@ class WelcomePage extends Page
     buttons.push <button key="next" className="btn btn-large" onClick={@_onContinue}>Continue</button>
 
     <div className="page no-top opaque" style={width: 667, display: "inline-block"}>
-      {@_renderClose("close")}
+      <div className="quit" onClick={ => atom.close() }>
+        <RetinaImg name="onboarding-close.png" mode={RetinaImg.Mode.ContentPreserve}/>
+      </div>
+
       <TimeoutTransitionGroup leaveTimeout={300}
                               enterTimeout={300}
                               className="welcome-image-container"

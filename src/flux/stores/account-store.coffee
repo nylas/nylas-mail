@@ -6,7 +6,9 @@ _ = require 'underscore'
 {Listener, Publisher} = require '../modules/reflux-coffee'
 CoffeeHelpers = require '../coffee-helpers'
 
-saveStateKey = "nylas.current_account"
+saveObjectsKey = "nylas.accounts"
+saveTokensKey = "nylas.accountTokens"
+saveIndexKey = "nylas.currentAccountIndex"
 
 ###
 Public: The AccountStore listens to changes to the available accounts in
@@ -21,49 +23,63 @@ class AccountStore
   @include Listener
 
   constructor: ->
-    @_items = []
-    @_current = null
-    @_accounts = []
-
-    saveState = atom.config.get(saveStateKey)
-    if saveState and _.isObject(saveState)
-      savedAccount = (new Account).fromJSON(saveState)
-      if savedAccount.usesLabels() or savedAccount.usesFolders()
-        @_setCurrent(savedAccount)
-        @_accounts = [@_current]
-
+    @_load()
     @listenTo Actions.selectAccountId, @onSelectAccountId
-    @listenTo DatabaseStore, @onDataChanged
+    atom.config.observe saveTokensKey, (updatedTokens) =>
+      return if _.isEqual(updatedTokens, @_tokens)
+      newAccountIds = _.keys(_.omit(updatedTokens, _.keys(@_tokens)))
+      if newAccountIds.length > 0
+        Actions.selectAccountId(newAccountIds[0])
+      @_load()
 
-    @populateItems()
+  _load: =>
+    @_accounts = []
+    for json in atom.config.get(saveObjectsKey) || []
+      @_accounts.push((new Account).fromJSON(json))
 
-  populateItems: =>
-    DatabaseStore.findAll(Account).order(Account.attributes.emailAddress.descending()).then (accounts) =>
-      current = _.find accounts, (a) -> a.id is @_current?.id
-      current = accounts?[0] unless current
+    index = atom.config.get(saveIndexKey) || 0
+    @_index = Math.min(@_accounts.length - 1, Math.max(0, index))
 
-      if not _.isEqual(current, @_current) or not _.isEqual(accounts, @_accounts)
-        @_setCurrent(current)
-        @_accounts = accounts
-        @trigger()
+    @_tokens = atom.config.get(saveTokensKey) || {}
+    @trigger()
 
-    .catch (err) =>
-      console.warn("Request for accounts failed. #{err}", err.stack)
-
-  _setCurrent: (current) =>
-    atom.config.set(saveStateKey, current)
-    @_current = current
+  _save: =>
+    atom.config.set(saveObjectsKey, @_accounts)
+    atom.config.set(saveIndexKey, @_index)
+    atom.config.set(saveTokensKey, @_tokens)
+    atom.config.save()
 
   # Inbound Events
 
-  onDataChanged: (change) =>
-    return unless change && change.objectClass is Account.name
-    @populateItems()
-
   onSelectAccountId: (id) =>
-    return if @_current?.id is id
-    @_current = _.find @_accounts, (a) -> a.id is id
-    @trigger(@)
+    idx = _.findIndex @_accounts, (a) -> a.id is id
+    return if idx is -1
+    atom.config.set(saveIndexKey, idx)
+    @_index = idx
+    @trigger()
+
+  removeAccountId: (id) =>
+    idx = _.findIndex @_accounts, (a) -> a.id is id
+    return if idx is -1
+
+    delete @_tokens[id]
+    @_accounts.splice(idx, 1)
+    @_save()
+
+    if @_accounts.length is 0
+      ipc = require('ipc')
+      ipc.send('command', 'application:reset-config-and-relaunch')
+    else
+      if @_index is idx
+        Actions.selectAccountId(@_accounts[0].id)
+      @trigger()
+
+  addAccountFromJSON: (json) =>
+    return if @_tokens[json.id]
+    @_tokens[json.id] = json.auth_token
+    @_accounts.push((new Account).fromJSON(json))
+    @_save()
+    @trigger()
 
   # Exposed Data
 
@@ -73,6 +89,11 @@ class AccountStore
 
   # Public: Returns the currently active {Account}.
   current: =>
-    @_current
+    @_accounts[@_index] || null
+
+  # Private: This method is going away soon, do not rely on it.
+  #
+  tokenForAccountId: (id) =>
+    @_tokens[id]
 
 module.exports = new AccountStore()

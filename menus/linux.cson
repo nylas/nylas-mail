@@ -5,7 +5,7 @@
       { label: '&New Message', command: 'application:new-message' }
       { type: 'separator' }
       { label: 'Preferences', command: 'application:open-preferences' }
-      { label: 'Add Account...', command: 'atom-workspace:add-account' }
+      { label: 'Add Account...', command: 'application:add-account' }
       { label: 'Clos&e Window', command: 'window:close' }
       { label: 'Quit', command: 'application:quit' }
     ]

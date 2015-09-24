@@ -6,9 +6,6 @@ _ = require 'underscore'
 class PreferencesAccounts extends React.Component
   @displayName: 'PreferencesAccounts'
 
-  @propTypes:
-    config: React.PropTypes.object.isRequired
-
   constructor: (@props) ->
     @state = @getStateFromStores()
 
@@ -31,8 +28,6 @@ class PreferencesAccounts extends React.Component
   _renderAccounts: =>
     return false unless @state.accounts
 
-    allowUnlinking = @state.accounts.length > 1
-
     <div>
       <div className="section-header">
         Accounts:
@@ -49,7 +44,7 @@ class PreferencesAccounts extends React.Component
               <div className="account-name">{account.emailAddress}</div>
               <div className="account-subtext">{account.name || "No name provided."} ({account.displayProvider()})</div>
             </div>
-            <div style={textAlign:"right", marginTop:10, display: if allowUnlinking then 'inline-block' else 'none'}>
+            <div style={textAlign:"right", marginTop:10, display:'inline-block'}>
               <button className="btn btn-large" onClick={ => @_onUnlinkAccount(account) }>Unlink</button>
             </div>
           </Flexbox>
@@ -94,29 +89,15 @@ class PreferencesAccounts extends React.Component
     tokens
 
   _onAddAccount: =>
-    require('remote').getGlobal('application').windowManager.newOnboardingWindow()
+    ipc = require('ipc')
+    ipc.send('command', 'application:add-account')
 
   _onAccountChange: =>
     @setState(@getStateFromStores())
 
   _onUnlinkAccount: (account) =>
-    return [] unless @props.config
-
-    tokens = @props.config.get('tokens') || []
-    token = _.find tokens, (t) ->
-      t.provider is 'nylas' and t.identifier is account.emailAddress
-    tokens = _.without(tokens, token)
-
-    if not token
-      console.warn("Could not find nylas token for email address #{account.emailAddress}")
-      return
-
-    DatabaseStore.unpersistModel(account).then =>
-      # TODO: Delete other mail data
-      EdgehillAPI.unlinkToken(token)
+    AccountStore.removeAccountId(account.id)
 
   _onUnlinkToken: (token) =>
-    EdgehillAPI.unlinkToken(token)
-    return
 
 module.exports = PreferencesAccounts

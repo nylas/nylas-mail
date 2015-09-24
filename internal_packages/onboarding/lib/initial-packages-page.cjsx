@@ -1,5 +1,4 @@
 React = require 'react'
-Page = require './page'
 {RetinaImg, ConfigPropContainer} = require 'nylas-component-kit'
 {EdgehillAPI} = require 'nylas-exports'
 OnboardingActions = require './onboarding-actions'
@@ -58,7 +57,7 @@ class InitialPackagesList extends React.Component
     else
       atom.packages.disablePackage(packageName)
 
-class InitialPackagesPage extends Page
+class InitialPackagesPage extends React.Component
   @displayName: "InitialPackagesPage"
 
   render: =>
@@ -84,6 +83,6 @@ class InitialPackagesPage extends Page
 
   _onGetStarted: =>
     ipc = require 'ipc'
-    ipc.send('login-successful')
+    ipc.send('account-setup-successful')
 
 module.exports = InitialPackagesPage

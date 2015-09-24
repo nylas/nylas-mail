@@ -4,12 +4,11 @@ ipc = require 'ipc'
 {RetinaImg} = require 'nylas-component-kit'
 {EdgehillAPI, NylasAPI, APIError} = require 'nylas-exports'
 
-Page = require './page'
 OnboardingActions = require './onboarding-actions'
 NylasApiEnvironmentStore = require './nylas-api-environment-store'
 Providers = require './account-types'
 
-class AccountSettingsPage extends Page
+class AccountSettingsPage extends React.Component
   @displayName: "AccountSettingsPage"
 
   constructor: (@props) ->
@@ -18,6 +17,8 @@ class AccountSettingsPage extends Page
       settings: {}
       fields: {}
       pageNumber: 0
+      errorFieldNames: []
+      errorMessage: null
       show_advanced: false
 
     @props.pageData.provider.settings.forEach (field) =>
@@ -36,7 +37,7 @@ class AccountSettingsPage extends Page
           @_pollForGmailAccount((account) ->
             if account?
               done = true
-              OnboardingActions.nylasAccountReceived(account)
+              OnboardingActions.accountJSONReceived(account)
             else if tries < 10 and id is poll_attempt_id
               setTimeout(_retry, delay)
               delay *= 1.5 # exponential backoff
@@ -106,8 +107,8 @@ class AccountSettingsPage extends Page
       </h2>
 
   _renderErrorMessage: =>
-    if @state.error
-      <div className="errormsg">{@state.error.message ? ""}</div>
+    if @state.errorMessage
+      <div className="errormsg">{@state.errorMessage ? ""}</div>
 
   _fieldOnCurrentPage: (field) =>
     !@state.provider.pages || field.page is @state.pageNumber
@@ -115,7 +116,7 @@ class AccountSettingsPage extends Page
   _renderFields: =>
     @state.provider.fields?.filter(@_fieldOnCurrentPage)
     .map (field, idx) =>
-      errclass = if field.name in (@state.error?.invalid_fields ? []) then "error " else ""
+      errclass = if field.name in @state.errorFieldNames then "error " else ""
       <label className={(field.className || "")} key={field.name}>
         {field.label}
         <input type={field.type}
@@ -141,7 +142,7 @@ class AccountSettingsPage extends Page
           {field.label}
         </label>
       else
-        errclass = if field.name in (@state.error?.invalid_settings ? []) then "error " else ""
+        errclass = if field.name in @state.errorFieldNames then "error " else ""
         <label className={field.className ? ""}
            style={if field.advanced and not @state.show_advanced then {display:'none'} else {}}
            key={field.name}>
@@ -157,16 +158,21 @@ class AccountSettingsPage extends Page
 
   _renderButton: =>
     pages = @state.provider.pages || []
-    if pages.length > @state.pageNumber+1
+    if pages.length > @state.pageNumber + 1
       <button className="btn btn-large btn-gradient" type="button" onClick={@_onNextButton}>Next</button>
     else if @state.provider.name isnt 'gmail'
-      <button className="btn btn-large btn-gradient" type="button" onClick={@_submit}>Set up account</button>
+      if @state.tryingToAuthenticate
+        <button className="btn btn-large btn-gradient btn-setup-spinning" type="button">
+          <RetinaImg name="sending-spinner.gif" width={15} height={15} mode={RetinaImg.Mode.ContentPreserve} /> Setting up&hellip;
+        </button>
+      else
+        <button className="btn btn-large btn-gradient" type="button" onClick={@_onSubmit}>Set up account</button>
 
   _onNextButton: (event) =>
-    @setState(pageNumber: @state.pageNumber+1)
+    @setState(pageNumber: @state.pageNumber + 1)
     @_resize()
 
-  _submit: (event) =>
+  _onSubmit: (event) =>
     data = settings: {}
     for own k,v of @state.fields when v isnt ''
       data[k] = v
@@ -178,6 +184,8 @@ class AccountSettingsPage extends Page
     if data.provider in ['exchange','outlook'] and not data.settings.username?.trim().length
       data.settings.username = data.email
 
+    @setState(tryingToAuthenticate: true)
+
     # Send the form data directly to Nylas to get code
     # If this succeeds, send the received code to Edgehill server to register the account
     # Otherwise process the error message from the server and highlight UI as needed
@@ -186,6 +194,7 @@ class AccountSettingsPage extends Page
       method: 'POST'
       body: data
       returnsModel: false
+      timeout: 30000
       auth:
         user: ''
         pass: ''
@@ -196,51 +205,50 @@ class AccountSettingsPage extends Page
         method: "POST"
         body: json
         success: (json) =>
-          OnboardingActions.nylasAccountReceived(json)
-        error: (err) =>
-          throw err
-    .catch APIError, (err) =>
-      err_page_numbers = [@state.pageNumber]
+          OnboardingActions.accountJSONReceived(json)
+        error: @_onNetworkError
+    .catch(@_onNetworkError)
 
-      if err.body.missing_fields?
-        err.body.invalid_fields = err.body.missing_fields
+  _onNetworkError: (err) =>
+    errorMessage = err.message
+    pageNumber = @state.pageNumber
+    errorFieldNames = err.body?.missing_fields || err.body?.missing_settings
 
-        missing_fields = []
-        for missing in err.body.missing_fields
-          for f in @state.provider.fields when f.name is missing
-            missing_fields.push(f.label.toLowerCase())
-            if f.page isnt undefined
-              err_page_numbers.push(f.page)
+    if errorFieldNames
+      {pageNumber, errorMessage} = @_stateForMissingFieldNames(errorFieldNames)
+    if err.statusCode is -123 # timeout
+      errorMessage = "Request timed out. Please try again."
 
-        err.body.message = @_missing_fields_message(missing_fields)
+    @setState
+      pageNumber: pageNumber
+      errorMessage: errorMessage
+      errorFieldNames: errorFieldNames || []
+      tryingToAuthenticate: false
+    @_resize()
 
-      else if err.body.missing_settings?
-        err.body.invalid_settings = err.body.missing_settings
+  _stateForMissingFieldNames: (fieldNames) ->
+    fieldLabels = []
+    fields = [].concat(@state.provider.settings, @state.provider.fields)
+    pageNumbers = [@state.pageNumber]
 
-        missing_settings = []
-        for missing in err.body.missing_settings
-          for s in @state.provider.settings when s.name is missing
-            missing_settings.push(s.label.toLowerCase())
-            if s.page isnt undefined
-              err_page_numbers.push(s.page)
+    for fieldName in fieldNames
+      for s in fields when s.name is fieldName
+        fieldLabels.push(s.label.toLowerCase())
+        if s.page isnt undefined
+          pageNumbers.push(s.page)
 
-        err.body.message = @_missing_fields_message(missing_settings)
+    pageNumber = Math.min.apply(null, pageNumbers)
+    errorMessage = @_messageForFieldLabels(fieldLabels)
 
-      console.log(Math.min.apply(err_page_numbers), err_page_numbers)
-      @setState(error: err.body, pageNumber: Math.min.apply(null,err_page_numbers))
-      @_resize()
-      console.log(err)
+    {pageNumber, errorMessage}
 
-  _missing_fields_message: (missing_settings) ->
-    if missing_settings.length > 2
+  _messageForFieldLabels: (labels) ->
+    if labels.length > 2
       return "Please fix the highlighted fields."
-    else if missing_settings.length is 2
-      first = missing_settings[0]
-      last = missing_settings[1]
-      return "Please provide your #{first} and #{last}."
+    else if labels.length is 2
+      return "Please provide your #{labels[0]} and #{labels[1]}."
     else
-      setting = missing_settings[0]
-      return "Please provide your #{setting}."
+      return "Please provide your #{labels[0]}."
 
   _pollForGmailAccount: (callback) =>
     EdgehillAPI.request
