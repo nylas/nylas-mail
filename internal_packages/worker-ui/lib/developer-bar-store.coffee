@@ -118,14 +118,6 @@ class DeveloperBarStore extends NylasStore
 
     user = AccountStore.current().name
 
-    debugData = JSON.stringify({
-      queries: _.values(@curlHistory())
-    }, null, '\t')
-
-    # Remove API tokens from URLs included in the debug data
-    # This regex detects ://user:pass@ and removes it.
-    debugData = debugData.replace(/:\/\/(\w)*:(\w)?@/g, '://')
-
     draft = new Message
       from: [AccountStore.current().me()]
       to: [
@@ -153,8 +145,6 @@ class DeveloperBarStore extends NylasStore
         I'm using Nylas Mail #{atom.getVersion()} and my platform is #{process.platform}-#{process.arch}.<br/>
         --<br/>
         #{user}<br/>
-        -- Extra Debugging Data --<br/>
-        #{debugData}
       """
     DatabaseStore.persistModel(draft).then ->
       Actions.composePopoutDraft(draft.clientId)
