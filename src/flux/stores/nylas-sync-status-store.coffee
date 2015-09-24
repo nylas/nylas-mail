@@ -30,6 +30,12 @@ class NylasSyncStatusStore extends NylasStore
   state: =>
     @_statesByAccount
 
+  isComplete: ->
+    for acctId, state of @_statesByAccount
+      for model, modelState of state
+        return false if not modelState.complete
+    return true
+
   busy: =>
     for accountId, states of @_statesByAccount
       for key, state of states
