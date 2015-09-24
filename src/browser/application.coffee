@@ -153,10 +153,10 @@ class Application
   setupJavaScriptArguments: ->
     app.commandLine.appendSwitch 'js-flags', '--harmony'
 
-  openWindowsForTokenState: =>
+  openWindowsForTokenState: (loadingMessage) =>
     hasToken = @config.get('tokens')?.length > 0
     if hasToken
-      @windowManager.showMainWindow()
+      @windowManager.showMainWindow(loadingMessage)
       @windowManager.ensureWorkWindow()
     else
       @windowManager.newOnboardingWindow()
@@ -201,18 +201,10 @@ class Application
     @setDatabasePhase('close')
     @windowManager.closeAllWindows()
 
-    # Return immediately so that the client window which called this
-    # method via remote is not blocked.
-    _.defer =>
-      dialog.showMessageBox
-        type: 'info'
-        message: 'Upgrading Nylas'
-        detail: 'Welcome back to Nylas! We need to rebuild your mailbox to support new features. Please wait a few moments while we re-sync your mail.'
-        buttons: ['OK']
-
-      @_deleteDatabase =>
-        @setDatabasePhase('setup')
-        @openWindowsForTokenState()
+    loadingMessage = "We need to rebuild your mailbox to support new features.<br/>Please wait a few moments while we re-sync your mail."
+    @_deleteDatabase =>
+      @setDatabasePhase('setup')
+      @openWindowsForTokenState(loadingMessage)
 
   # Registers basic application commands, non-idempotent.
   # Note: If these events are triggered while an application window is open, the window

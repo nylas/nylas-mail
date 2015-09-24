@@ -55,7 +55,7 @@ class WindowManager
     @_mainWindow.close()
     @_mainWindow = null
 
-  showMainWindow: ->
+  showMainWindow: (loadingMessage) ->
     if @_mainWindow
       if @_mainWindow.isMinimized()
         @_mainWindow.restore()
@@ -72,12 +72,20 @@ class WindowManager
       resourcePath ?= @resourcePath
 
       @_mainWindow = new AtomWindow
+        loadingMessage: loadingMessage
         bootstrapScript: bootstrapScript
         resourcePath: resourcePath
         devMode: @devMode
         safeMode: @safeMode
         neverClose: true
         mainWindow: true
+        # The position and resizable bit gets reset when the window
+        # finishes loading. This represents the state of our "loading"
+        # window.
+        center: true
+        width: 640
+        height: 396
+        resizable: false
 
   ###
   Work Window

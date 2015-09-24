@@ -105,6 +105,7 @@ class AtomWindow
     @browserWindow.once 'window:main-window-content-loaded', =>
       @emit 'window:main-window-content-loaded'
       @mainWindowContentLoaded = true
+      @browserWindow.setResizable(true)
       if @browserWindow.loadSettingsChangedSinceGetURL
         @browserWindow.webContents.send('load-settings-changed', @browserWindow.loadSettings)
 

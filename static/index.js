@@ -36,6 +36,10 @@ window.onload = function() {
       throw error;
     }
 
+    if (loadSettings.loadingMessage) {
+      document.getElementById("application-loading-text-supplement").innerHTML = loadSettings.loadingMessage
+    }
+
     // Normalize to make sure drive letter case is consistent on Windows
     process.resourcesPath = path.normalize(process.resourcesPath);
 
