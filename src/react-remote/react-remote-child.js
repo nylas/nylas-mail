@@ -95,6 +95,8 @@ events.forEach(function(type) {
 
     var remote = require('remote');
     ipc.send("from-react-remote-window", {windowId: remote.getCurrentWindow().id, event: representation});
-    event.preventDefault();
+    if ((event.type != 'keydown') && (event.type != 'keypress') && (event.type != 'keyup')) {
+      event.preventDefault();
+    }
   }, true);
 });

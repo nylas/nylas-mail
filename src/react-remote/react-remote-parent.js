@@ -273,20 +273,31 @@ var openWindowForComponent = function(Component, options) {
     }
     // Weirdly, this returns an array of [width, height] and not a hash
     var size = thinWindow.getContentSize();
-    var containerSize = container.getBoundingClientRect();
     var changed = false;
-    if ((!options.height) && (size[1] != containerSize.height)) {
-      size[1] = containerSize.height;
-      changed = true;
-    }
-    if ((!options.width) && (size[0] != containerSize.width)) {
-      size[0] = containerSize.width;
-      changed = true;
-    }
-    if (containerSize.height == 0) {
+
+    var containerSize = container.getBoundingClientRect();
+    var containerWidth = Math.ceil(containerSize.width);
+    var containerHeight = Math.ceil(containerSize.height);
+
+    if (containerHeight == 0) {
+      containerHeight = 100;
       debugger;
     }
+    if (containerWidth == 0) {
+      containerWidth = 400;
+      debugger;
+    }
+
+    if ((!options.height) && (size[1] != containerHeight)) {
+      size[1] = containerHeight;
+      changed = true;
+    }
+    if ((!options.width) && (size[0] != containerWidth)) {
+      size[0] = containerWidth;
+      changed = true;
+    }
     if (changed) {
+      console.log(size[0], size[1]);
       thinWindow.setContentSize(size[0], size[1]);
     }
   };
