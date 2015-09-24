@@ -1,5 +1,4 @@
 React = require 'react'
-Page = require './page'
 path = require 'path'
 fs = require 'fs'
 {RetinaImg, Flexbox, ConfigPropContainer} = require 'nylas-component-kit'
@@ -77,7 +76,7 @@ class InitialPreferencesOptions extends React.Component
     </div>
 
 
-class InitialPreferencesPage extends Page
+class InitialPreferencesPage extends React.Component
   @displayName: "InitialPreferencesPage"
 
   render: =>

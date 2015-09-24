@@ -3,13 +3,12 @@ _ = require 'underscore'
 {RetinaImg} = require 'nylas-component-kit'
 {EdgehillAPI, Utils} = require 'nylas-exports'
 
-Page = require './page'
 OnboardingActions = require './onboarding-actions'
 NylasApiEnvironmentStore = require './nylas-api-environment-store'
 Providers = require './account-types'
 url = require 'url'
 
-class AccountChoosePage extends Page
+class AccountChoosePage extends React.Component
   @displayName: "AccountChoosePage"
 
   constructor: (@props) ->
@@ -27,7 +26,9 @@ class AccountChoosePage extends Page
 
   render: =>
     <div className="page account-choose">
-      {@_renderClose("quit")}
+      <div className="quit" onClick={ => atom.close() }>
+        <RetinaImg name="onboarding-close.png" mode={RetinaImg.Mode.ContentPreserve}/>
+      </div>
 
       <div className="logo-container">
         <RetinaImg name="onboarding-logo.png" mode={RetinaImg.Mode.ContentPreserve} className="logo"/>
@@ -87,14 +88,6 @@ class AccountChoosePage extends Page
             https://www.googleapis.com/auth/calendar'
     })
     shell.openExternal(googleUrl)
-
-  _onSubmit: (e) =>
-    valid = React.findDOMNode(@refs.form).reportValidity()
-    if valid
-      url = EdgehillAPI.urlForConnecting("inbox", @state.email)
-      OnboardingActions.moveToPage("add-account-auth", {url})
-    else
-    e.preventDefault()
 
   _environmentComponent: =>
     return <div></div> unless atom.inDevMode()

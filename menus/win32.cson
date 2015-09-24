@@ -1,5 +1,5 @@
 'menu': [
-  { label: 'Add Account...', command: 'atom-workspace:add-account' }
+  { label: 'Add Account...', command: 'application:add-account' }
   {
     label: '&Edit'
     submenu: [

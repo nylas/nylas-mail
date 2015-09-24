@@ -23,21 +23,29 @@ class PageRouter extends React.Component
 
   componentDidMount: =>
     @unsubscribe = PageRouterStore.listen(@_onStateChanged, @)
+    setTimeout(@_initializeWindowSize, 10)
+
+  componentDidUpdate: =>
+    setTimeout(@_updateWindowSize, 10)
+
+  _initializeWindowSize: =>
+    return if @_unmounted
     {width, height} = React.findDOMNode(@refs.activePage).getBoundingClientRect()
     atom.center()
     atom.setSizeAnimated(width, height, 0)
     atom.show()
 
-  componentDidUpdate: =>
-    setTimeout(@_resizePage, 10)
-
-  _resizePage: =>
+  _updateWindowSize: =>
+    return if @_unmounted
     {width, height} = React.findDOMNode(@refs.activePage).getBoundingClientRect()
     atom.setSizeAnimated(width, height)
 
-  _onStateChanged: => @setState(@_getStateFromStore())
+  _onStateChanged: =>
+    @setState(@_getStateFromStore())
 
-  componentWillUnmount: => @unsubscribe?()
+  componentWillUnmount: =>
+    @_unmounted = true
+    @unsubscribe?()
 
   render: =>
     <div className="page-frame">
@@ -72,7 +80,7 @@ class PageRouter extends React.Component
     }[@state.page]
 
     <div key={@state.page} className="page-container">
-      <Component pageData={@state.pageData} ref="activePage" onResize={@_resizePage}/>
+      <Component pageData={@state.pageData} ref="activePage" onResize={@_updateWindowSize}/>
     </div>
 
   _renderDragRegion: ->

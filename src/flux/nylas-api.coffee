@@ -123,15 +123,10 @@ class NylasAPI
     @_optimisticChangeTracker = new NylasAPIOptimisticChangeTracker()
 
     atom.config.onDidChange('env', @_onConfigChanged)
-    atom.config.onDidChange('tokens', @_onConfigChanged)
     @_onConfigChanged()
 
   _onConfigChanged: =>
     prev = {@AppID, @APIRoot, @APITokens}
-
-    tokens = atom.config.get('tokens') || []
-    tokens = tokens.filter (t) -> t.provider is 'nylas'
-    @APITokens = tokens.map (t) -> t.access_token
 
     env = atom.config.get('env')
     if not env
@@ -153,13 +148,6 @@ class NylasAPI
       @APIRoot = 'http://localhost:5555'
 
     current = {@AppID, @APIRoot, @APITokens}
-
-    if atom.isWorkWindow() and not _.isEqual(prev, current)
-      @APITokens.forEach (token) =>
-        @makeRequest
-          path: "/account"
-          auth: {'user': token, 'pass': '', sendImmediately: true}
-          returnsModel: true
 
   # Delegates to node's request object.
   # On success, it will call the passed in success callback with options.
@@ -356,17 +344,8 @@ class NylasAPI
   decrementOptimisticChangeCount: (klass, id) ->
     @_optimisticChangeTracker.decrement(klass, id)
 
-  tokenObjectForAccountId: (aid) ->
-    AccountStore = require './stores/account-store'
-    accounts = AccountStore.items() || []
-    account = _.find accounts, (acct) -> acct.id is aid
-    return null unless account
-
-    tokens = atom.config.get('tokens') || []
-    token = _.find tokens, (t) -> t.provider is 'nylas' and t.identifier is account.emailAddress
-    return token
-
   accessTokenForAccountId: (aid) ->
-    @tokenObjectForAccountId(aid)?.access_token
+    AccountStore = require './stores/account-store'
+    AccountStore.tokenForAccountId(aid)
 
 module.exports = new NylasAPI()

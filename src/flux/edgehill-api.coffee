@@ -13,14 +13,6 @@ class EdgehillAPI
   constructor: ->
     atom.config.onDidChange('env', @_onConfigChanged)
     @_onConfigChanged()
-
-    # Always ask Edgehill Server for our tokens at launch. This way accounts
-    # added elsewhere will appear, and we'll also handle the 0.2.5=>0.3.0 upgrade.
-    if atom.isWorkWindow()
-      existing = @_getCredentials()
-      if existing and existing.username
-        @setUserIdentifierAndRetrieveTokens(existing.username)
-
     @
 
   _onConfigChanged: =>
@@ -71,48 +63,6 @@ class EdgehillAPI
             options.error(new APIError({error:error, response:response, body:body, requestOptions: options}))
           else
             options.success(body) if options.success
-
-  urlForConnecting: (provider, email_address = '') ->
-    auth = @_getCredentials()
-    root = @APIRoot
-    token = auth?.username
-    "#{root}/connect/#{provider}?login_hint=#{email_address}&token=#{token}"
-
-  setUserIdentifierAndRetrieveTokens: (user_identifier) ->
-    @_setCredentials(username: user_identifier, password: '')
-    @request
-      path: "/users/me"
-      success: (userData={}) =>
-        @setTokens(userData.tokens)
-        if atom.getWindowType() is 'onboarding'
-          ipc = require 'ipc'
-          ipc.send('login-successful')
-      error: (apiError) =>
-        console.error apiError
-
-  setTokens: (incoming) ->
-    # todo: remove once the edgehill-server inbox service is called `nylas`
-    for token in incoming
-      if token.provider is 'inbox'
-        token.provider = 'nylas'
-    atom.config.set('tokens', incoming)
-    atom.config.save()
-
-  unlinkToken: (token) ->
-    @request
-      path: "/users/token/#{token.id}"
-      method: 'DELETE'
-      success: =>
-        tokens = atom.config.get('tokens') || []
-        tokens = _.reject tokens, (t) -> t.id is token.id
-        atom.config.set('tokens', tokens)
-
-  accessTokenForProvider: (provider) ->
-    tokens = atom.config.get('tokens') || []
-    for token in tokens
-      if token.provider is provider
-        return token.access_token
-    return null
 
   _getCredentials: ->
     atom.config.get('edgehill.credentials')
