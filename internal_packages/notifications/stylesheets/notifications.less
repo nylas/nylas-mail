@@ -67,31 +67,33 @@
       .account-detail-area {
         max-height: 1000px;
       }
+      .account.inner {
+        border-top: 1px solid rgba(0,0,0,0.1)
+      }
     }
-
-    .account.inner {
-      border-top: 1px solid rgba(0,0,0,0.1)
-    }
-    .account h2 {
+    h2 {
       font-size: 14px;
       margin: 0;
       overflow: hidden;
       text-overflow: ellipsis;
       font-weight: 500;
     }
-    .account h3 {
+    h3 {
       font-size: 14px;
-      margin: 1em 0 4px 0;
+      margin: 10px 0 4px 0;
     }
-    .acccount .amount {
+    .amount {
       margin-top: 2px;
-    }
-    .complete .progress-track .progress {
-      background-color: @nylas-green;
+      font-size: 12px;
+      color: @text-color-subtle;
     }
     .close-expanded {
       display: block;
       margin: 0 @padding-base-horizontal @padding-large-vertical @padding-base-horizontal;
+    }
+
+    .complete .progress-track .progress {
+      background-color: @nylas-green;
     }
   }
 
