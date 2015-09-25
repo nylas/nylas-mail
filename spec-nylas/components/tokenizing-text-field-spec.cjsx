@@ -138,7 +138,7 @@ describe 'TokenizingTextField', ->
       ReactTestUtils.Simulate.dragStart(token, dragStartEvent)
 
       expect(dragStartEventData).toEqual({
-        'nylas-token-item': '{"client_id":"123","server_id":"2","name":"Nylas Burger Basket","email":"burgers@nylas.com","id":"2","__constructorName":"Contact"}'
+        'nylas-token-item': '{"client_id":"123","server_id":"2","name":"Nylas Burger Basket","email":"burgers@nylas.com","thirdPartyData":{},"id":"2","__constructorName":"Contact"}'
         'text/plain': 'Nylas Burger Basket <burgers@nylas.com>'
       })
 

@@ -22,39 +22,30 @@ describe "AccountSidebar", ->
       )
 
     it "doesn't render the dropdown if nothing clicked", ->
-      dropdown = TestUtils.findRenderedDOMComponentWithClass sidebar, "dropdown"
-      dropdownNode = React.findDOMNode dropdown, "account-switcher-dropdown"
+      openDropdown = TestUtils.scryRenderedDOMComponentsWithClass sidebar, 'open'
+      expect(openDropdown.length).toBe 0
 
-      expect(dropdownNode.style.display).toBe "none"
-
-    it "renders the dropdown if clicking the arrow btn", ->
+    it "shows the dropdown on click", ->
       toggler = TestUtils.findRenderedDOMComponentWithClass sidebar, 'primary-item'
       TestUtils.Simulate.click toggler
-      dropdown = TestUtils.findRenderedDOMComponentWithClass sidebar, "dropdown"
-      dropdownNode = React.findDOMNode dropdown, "account-switcher-dropdown"
+      openDropdown = TestUtils.scryRenderedDOMComponentsWithClass sidebar, 'open'
+      expect(openDropdown.length).toBe 1
 
-      expect(dropdownNode.style.display).toBe "block"
-
-    it "removes the dropdown when clicking elsewhere", ->
+    it "hides the dropdown on blur", ->
+      toggler = TestUtils.findRenderedDOMComponentWithClass sidebar, 'primary-item'
+      TestUtils.Simulate.click toggler
       toggler = TestUtils.findRenderedDOMComponentWithClass sidebar, 'primary-item'
       TestUtils.Simulate.blur toggler
-      dropdown = TestUtils.findRenderedDOMComponentWithClass sidebar, "dropdown"
-      dropdownNode = React.findDOMNode dropdown, "account-switcher-dropdown"
+      openDropdown = TestUtils.scryRenderedDOMComponentsWithClass sidebar, 'open'
+      expect(openDropdown.length).toBe 0
 
-      expect(dropdownNode.style.display).toBe "none"
-
-    it "shows all the accounts in the dropdown", ->
+    it "shows other accounts and the 'Add Account' button", ->
       toggler = TestUtils.findRenderedDOMComponentWithClass sidebar, 'primary-item'
       TestUtils.Simulate.click toggler
+
       dropdown = TestUtils.findRenderedDOMComponentWithClass sidebar, "dropdown"
-      accounts = TestUtils.scryRenderedDOMComponentsWithClass dropdown, "account-option"
+      items = TestUtils.scryRenderedDOMComponentsWithClass dropdown, "secondary-item"
+      newAccountButton = TestUtils.scryRenderedDOMComponentsWithClass dropdown, "new-account-option"
 
-      expect(accounts.length).toBe 2
-
-    it "shows the 'Add Account' button too", ->
-      toggler = TestUtils.findRenderedDOMComponentWithClass sidebar, 'primary-item'
-      TestUtils.Simulate.click toggler
-      dropdown = TestUtils.findRenderedDOMComponentWithClass sidebar, "dropdown"
-      accounts = TestUtils.scryRenderedDOMComponentsWithClass dropdown, "new-account-option"
-
-      expect(accounts.length).toBe 1
+      expect(items.length).toBe 3
+      expect(newAccountButton.length).toBe 1
