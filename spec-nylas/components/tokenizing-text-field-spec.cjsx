@@ -252,12 +252,39 @@ describe 'TokenizingTextField', ->
           expect(@propAdd).toHaveBeenCalledWith('abc', {})
 
   describe "when the user presses tab", ->
+    beforeEach ->
+      @tabDownEvent =
+        key: "Tab"
+        keyCode: 9
+        preventDefault: jasmine.createSpy('preventDefault')
+        stopPropagation: jasmine.createSpy('stopPropagation')
+
     describe "and there is an completion available", ->
       it "should call add with the first completion", ->
         @completions = [participant4]
         ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'abc'}})
-        ReactTestUtils.Simulate.keyDown(@renderedInput, {key: 'Tab', keyCode: 9})
+        ReactTestUtils.Simulate.keyDown(@renderedInput, @tabDownEvent)
         expect(@propAdd).toHaveBeenCalledWith([participant4])
+        expect(@tabDownEvent.preventDefault).toHaveBeenCalled()
+        expect(@tabDownEvent.stopPropagation).toHaveBeenCalled()
+
+    it "shouldn't handle the event in the input is empty", ->
+      # We ignore on empty input values
+      ReactTestUtils.Simulate.change(@renderedInput, {target: {value: ' '}})
+      ReactTestUtils.Simulate.keyDown(@renderedInput, @tabDownEvent)
+      expect(@propAdd).not.toHaveBeenCalled()
+      expect(@tabDownEvent.preventDefault).not.toHaveBeenCalled()
+      expect(@tabDownEvent.stopPropagation).not.toHaveBeenCalled()
+
+    it "should add the raw input value if there are no completions", ->
+      @completions = []
+      spyOn(@renderedField, "_addInputValue").andCallThrough()
+      ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'abc'}})
+      ReactTestUtils.Simulate.keyDown(@renderedInput, @tabDownEvent)
+      expect(@renderedField._addInputValue).toHaveBeenCalled()
+      expect(@propAdd).toHaveBeenCalledWith('abc', {})
+      expect(@tabDownEvent.preventDefault).toHaveBeenCalled()
+      expect(@tabDownEvent.stopPropagation).toHaveBeenCalled()
 
   describe "when blurred", ->
     it 'should call add, allowing the parent component to (optionally) turn the entered text into a token', ->

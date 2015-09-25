@@ -383,6 +383,9 @@ class TokenizingTextField extends React.Component
       @_refreshCompletions("", clear: true)
 
     else if event.key in ["Tab", "Enter"] or event.keyCode is 188 # comma
+      event.preventDefault()
+      event.stopPropagation()
+      return if (@state.inputValue ? "").trim().length is 0
       if @state.completions.length > 0
         @_addToken(@refs.completions.getSelectedItem() || @state.completions[0])
       else
