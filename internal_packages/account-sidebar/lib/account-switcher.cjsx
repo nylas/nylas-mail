@@ -21,59 +21,48 @@ class AccountSwitcher extends React.Component
 
   render: =>
     return false unless @state.account
-    <div id="account-switcher" tabIndex={-1} onBlur={@_onBlur} ref="button">
-      {@_renderAccount(@state.account, true)}
+
+    classnames = ""
+    classnames += "open" if @state.showing
+
+    <div id="account-switcher"
+         tabIndex={-1}
+         onBlur={@_onBlur}
+         ref="button"
+         className={classnames}>
+      {@_renderPrimaryItem()}
       {@_renderDropdown()}
     </div>
 
-  _renderAccount: (account, isPrimaryItem) =>
-    classes = classNames
-      "account": true
-      "item": true
-      "dropdown-item-padding": not isPrimaryItem
-      "active": account is @state.account
-      "bg-color-hover": not isPrimaryItem
-      "primary-item": isPrimaryItem
-      "account-option": not isPrimaryItem
-
-    email = account.emailAddress.trim().toLowerCase()
-
-    if isPrimaryItem
-      dropdownClasses = classNames
-        "account-switcher-dropdown": true,
-        "account-switcher-dropdown-hidden": @state.showing
-
-      dropdownArrow = <div style={float: 'right', marginTop: -2}>
-        <RetinaImg className={dropdownClasses} name="account-switcher-dropdown.png"
-        mode={RetinaImg.Mode.ContentPreserve} />
-      </div>
-
-      onClick = @_toggleDropdown
-
-    else
-      onClick = =>
-        @_onSwitchAccount account
-
-    <div className={classes}
-         onClick={onClick}
-         key={email}>
-      <div style={float: 'left'}>
-        <div className="gravatar" style={backgroundImage: @_gravatarUrl(email)}></div>
-        <RetinaImg name={"ic-settings-account-#{account.provider}@2x.png"}
-                   style={width: 28, height: 28, marginTop: -10}
-                   fallback="ic-settings-account-imap.png"
+  _renderPrimaryItem: =>
+    <div className="item primary-item" onClick={@_toggleDropdown}>
+      {@_renderGravatarForAccount(@state.account)}
+      <div style={float: 'right', marginTop: -2}>
+        <RetinaImg className="toggle"
+                   name="account-switcher-dropdown.png"
                    mode={RetinaImg.Mode.ContentPreserve} />
       </div>
-      {dropdownArrow}
       <div className="name" style={lineHeight: "110%"}>
-        {email}
+        {@state.account.emailAddress.trim().toLowerCase()}
       </div>
-      <div style={clear: "both"}>
-      </div>
+      <div style={clear: "both"}></div>
+    </div>
+
+  _renderAccount: (account) =>
+    email = account.emailAddress.trim().toLowerCase()
+    classes = classNames
+      "active": account is @state.account
+      "item": true
+      "secondary-item": true
+
+    <div className={classes} onClick={ => @_onSwitchAccount(account)} key={email}>
+      {@_renderGravatarForAccount(account)}
+      <div className="name" style={lineHeight: "110%"}>{email}</div>
+      <div style={clear: "both"}></div>
     </div>
 
   _renderNewAccountOption: =>
-    <div className="account item dropdown-item-padding bg-color-hover new-account-option"
+    <div className="item secondary-item new-account-option"
          onClick={@_onAddAccount}
          tabIndex={999}>
       <div style={float: 'left'}>
@@ -85,30 +74,32 @@ class AccountSwitcher extends React.Component
       <div className="name" style={lineHeight: "110%", textTransform: 'none'}>
         Add account&hellip;
       </div>
-      <div style={clear: "both"}>
-      </div>
+      <div style={clear: "both"}></div>
     </div>
 
   _renderDropdown: =>
-    display = if @state.showing then "block" else "none"
-    # display = "block"
+    <div className="dropdown">
+      <div className="inner">
+        {@state.accounts.map(@_renderAccount)}
+        {@_renderNewAccountOption()}
+      </div>
+    </div>
 
-    accounts = @state.accounts.map (a) =>
-      @_renderAccount(a)
+  _renderGravatarForAccount: (account) =>
+    email = account.emailAddress.trim().toLowerCase()
+    hash = crypto.createHash('md5').update(email, 'utf8').digest('hex')
+    url = "url(http://www.gravatar.com/avatar/#{hash}?d=blank&s=56)"
 
-    <div style={display: display}
-         ref="account-switcher-dropdown"
-         className="dropdown dropdown-positioning dropdown-colors">
-      {accounts}
-      {@_renderNewAccountOption()}
+    <div style={float: 'left'}>
+      <div className="gravatar" style={backgroundImage:url}></div>
+      <RetinaImg name={"ic-settings-account-#{account.provider}@2x.png"}
+                 style={width: 28, height: 28, marginTop: -10}
+                 fallback="ic-settings-account-imap.png"
+                 mode={RetinaImg.Mode.ContentPreserve} />
     </div>
 
   _toggleDropdown: =>
     @setState showing: !@state.showing
-
-  _gravatarUrl: (email) =>
-    hash = crypto.createHash('md5').update(email, 'utf8').digest('hex')
-    "url(http://www.gravatar.com/avatar/#{hash}?d=blank&s=56)"
 
   _onStoreChange: =>
     @setState @_getStateFromStores()
@@ -131,6 +122,5 @@ class AccountSwitcher extends React.Component
   _getStateFromStores: =>
     accounts: AccountStore.items()
     account:  AccountStore.current()
-
 
 module.exports = AccountSwitcher
