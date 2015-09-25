@@ -65,8 +65,9 @@ button, html input[type="button"] {
     img.content-mask { background-color:@btn-emphasis-text-color; }
 
     background: linear-gradient(to bottom, #6bb1f9 0%, #0a80ff 100%);
+    box-shadow: none;
+    border: 1px solid darken(@btn-emphasis-bg-color, 7%);
 
-    border: 0;
     &:before {
       content: ' ';
       width: calc(~"100% + 2px");
