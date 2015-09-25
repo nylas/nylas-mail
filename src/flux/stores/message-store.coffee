@@ -140,6 +140,7 @@ class MessageStore extends NylasStore
 
   _fetchFromCache: (options = {}) ->
     return unless @_thread
+
     loadedThreadId = @_thread.id
 
     query = DatabaseStore.findAll(Message)

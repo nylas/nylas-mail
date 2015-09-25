@@ -9,7 +9,7 @@ describe "activate", ->
     spyOn(ComponentRegistry, 'register')
     activate()
     expect(ComponentRegistry.register).toHaveBeenCalledWith(MyComposerButton, {role: 'Composer:ActionButton'})
-    expect(ComponentRegistry.register).toHaveBeenCalledWith(MyMessageSidebar, {role: 'sidebar:focusedContactInfo'})
+    expect(ComponentRegistry.register).toHaveBeenCalledWith(MyMessageSidebar, {role: 'MessageListSidebar:ContactCard'})
 
 describe "deactivate", ->
   it "should unregister the composer button and sidebar", ->

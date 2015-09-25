@@ -39,17 +39,8 @@ class GithubProfile extends React.Component
     </div>
 
 module.exports =
-class GithubSidebar extends React.Component
-  @displayName: 'GithubSidebar'
-
-  # We're registering this component to appear in one of the app's primary
-  # columns, the MessageListSidebar. Each React Component in a column can
-  # specify a min and max width which limit the resizing behavior of the column.
-  @containerStyles:
-    maxWidth: 300
-    minWidth: 200
-    order: 2
-    flexShrink: 0
+class GithubContactCardSection extends React.Component
+  @displayName: 'GithubContactCardSection'
 
   constructor: (@props) ->
     @state = @_getStateFromStores()

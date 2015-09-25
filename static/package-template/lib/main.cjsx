@@ -12,7 +12,7 @@ module.exports =
       role: 'Composer:ActionButton'
 
     ComponentRegistry.register MyMessageSidebar,
-      role: 'sidebar:focusedContactInfo'
+      role: 'MessageListSidebar:ContactCard'
 
   # Serialize is called when your package is about to be unmounted.
   # You can return a state object that will be passed back to your package

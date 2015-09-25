@@ -523,22 +523,18 @@
 }
 
 ///////////////////////////////
-// sidebar-thread-participants.cjsx //
+// sidebar-contact-card.cjsx //
 ///////////////////////////////
-.sidebar-thread-participants {
+.sidebar-section {
+  opacity: 0;
   padding: @spacing-standard;
   cursor: default;
-
-  .other-contact {
-    color: @text-color-subtle;
-    font-size: @font-size-smaller;
-    &.selected {
-      font-weight: @font-weight-semi-bold;
-    }
+  &.visible {
+    transition: opacity 0.1s ease-out;
+    opacity: 1;
   }
 
-  // TODO: DRY
-  h2.sidebar-h2 {
+  h2 {
     font-size: 11px;
     font-weight: @font-weight-semi-bold;
     text-transform: uppercase;
@@ -546,7 +542,22 @@
     border-bottom: 1px solid @border-color-divider;
     margin: 2em 0 1em 0;
   }
+
+  .sidebar-contact-card {
+  }
+  .sidebar-contact-list {
+    min-height:120px;
+
+    .contact {
+      color: @text-color-subtle;
+      font-size: @font-size-smaller;
+      &.selected {
+        font-weight: @font-weight-semi-bold;
+      }
+    }
+  }
 }
+
 
 .column-MessageListSidebar {
   background-color: @background-off-primary;

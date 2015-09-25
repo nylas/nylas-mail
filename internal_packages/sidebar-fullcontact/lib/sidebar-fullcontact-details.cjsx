@@ -9,10 +9,10 @@ class SidebarFullContactDetails extends React.Component
 
   @propTypes:
     contact: React.PropTypes.object
-    fullContact: React.PropTypes.object
+    fullContactData: React.PropTypes.object
 
   render: =>
-    <div className="full-contact">
+    <div className="contact-card-fullcontact">
       <div className="header">
         {@_profilePhoto()}
         <h1 className="name">{@_name()}</h1>
@@ -45,7 +45,7 @@ class SidebarFullContactDetails extends React.Component
       </div>
 
   _profiles: =>
-    profiles = @props.fullContact.socialProfiles ? []
+    profiles = @props.fullContactData.socialProfiles ? []
     profiles = _.filter profiles, (p) => @_supportedProfileTypes[p.typeId]
 
   _supportedProfileTypes:
@@ -85,7 +85,7 @@ class SidebarFullContactDetails extends React.Component
     @_title().length > 0 or @_company().length > 0
 
   _name: =>
-    (@props.fullContact.contactInfo?.fullName) ? @props.contact?.name ? ""
+    (@props.fullContactData.contactInfo?.fullName) ? @props.contact?.name ? ""
 
   _email: =>
     email = @props.contact.email ? ""
@@ -103,7 +103,7 @@ class SidebarFullContactDetails extends React.Component
     else return ""
 
   _company: =>
-    location = @props.fullContact.demographics?.locationGeneral ? ""
+    location = @props.fullContactData.demographics?.locationGeneral ? ""
     name = @_primaryOrg()?.name ? ""
     if name.length > 0 and location.length > 0
       return "#{name} (#{location})"
@@ -114,13 +114,13 @@ class SidebarFullContactDetails extends React.Component
     else return ""
 
   _primaryOrg: =>
-    orgs = @props.fullContact.organizations ? []
+    orgs = @props.fullContactData.organizations ? []
     org = _.findWhere orgs, isPrimary: true
     if not org? then org = orgs[0]
     return org
 
   _profilePhoto: =>
-    photos = @props.fullContact.photos ? []
+    photos = @props.fullContactData.photos ? []
     photo = _.findWhere photo, isPrimary: true
     if not photo? then photo = _.findWhere photo, typeId: "linkedin"
     if not photo? then photo = photos[0]

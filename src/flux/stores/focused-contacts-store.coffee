@@ -3,65 +3,78 @@ _ = require 'underscore'
 Utils = require '../models/utils'
 Actions = require '../actions'
 NylasStore = require 'nylas-store'
+Contact = require '../models/contact'
 MessageStore = require './message-store'
 AccountStore = require './account-store'
+DatabaseStore = require './database-store'
 FocusedContentStore = require './focused-content-store'
 
 # A store that handles the focuses collections of and individual contacts
 class FocusedContactsStore extends NylasStore
   constructor: ->
-    @listenTo Actions.focusContact, @_focusContact
+    @listenTo DatabaseStore, @_onDatabaseChanged
     @listenTo MessageStore, @_onMessageStoreChanged
-    @listenTo AccountStore, @_onAccountChanged
-    @listenTo FocusedContentStore, @_onFocusChanged
-
-    @_currentThread = null
-    @_clearCurrentParticipants(silent: true)
-
-    @_onAccountChanged()
+    @listenTo Actions.focusContact, @_onFocusContact
+    @_clearCurrentParticipants()
 
   sortedContacts: -> @_currentContacts
 
   focusedContact: -> @_currentFocusedContact
 
-  _clearCurrentParticipants: ({silent}={}) ->
-    @_contactScores = {}
-    @_currentContacts = []
-    @_currentFocusedContact = null
-    @trigger() unless silent
+  # We need to wait now for the MessageStore to grab all of the
+  # appropriate messages for the given thread.
 
-  _onFocusChanged: (change) =>
-    return unless change.impactsCollection('thread')
-    item = FocusedContentStore.focused('thread')
-    return if @_currentThread?.id is item?.id
-    @_currentThread = item
-    @_clearCurrentParticipants()
-    @_onMessageStoreChanged()
-
-    # We need to wait now for the MessageStore to grab all of the
-    # appropriate messages for the given thread.
+  _onDatabaseChanged: (change) =>
+    return unless @_currentFocusedContact
+    return unless change and change.objectClass is 'contact'
+    current = _.find change.objects, (c) => c.email is @_currentFocusedContact.email
+    if current
+      @_currentFocusedContact = current
+      @trigger()
 
   _onMessageStoreChanged: =>
-    if MessageStore.threadId() is @_currentThread?.id
-      @_setCurrentParticipants()
-    else
-      @_clearCurrentParticipants()
+    threadId = if MessageStore.itemsLoading() then null else MessageStore.threadId()
 
-  _onAccountChanged: =>
-    @_myEmail = (AccountStore.current()?.me().email ? "").toLowerCase().trim()
+    # Always clear data immediately when we're showing the wrong thread
+    if @_currentThread and @_currentThread.id isnt threadId
+      @_clearCurrentParticipants()
+      @trigger()
+
+    # Wait to populate until the user has stopped moving through threads. This is
+    # important because the FocusedContactStore powers tons of third-party extensions,
+    # which could do /horrible/ things when we trigger.
+    @_onMessageStoreChangeThrottled ?= _.debounce =>
+      thread = if MessageStore.itemsLoading() then null else MessageStore.thread()
+      if thread and thread.id isnt @_currentThread?.id
+        @_currentThread = thread
+        @_popuateCurrentParticipants()
+    , 250
+    @_onMessageStoreChangeThrottled()
 
   # For now we take the last message
-  _setCurrentParticipants: ->
+  _popuateCurrentParticipants: ->
     @_scoreAllParticipants()
     sorted = _.sortBy(_.values(@_contactScores), "score").reverse()
     @_currentContacts = _.map(sorted, (obj) -> obj.contact)
-    @_focusContact(@_currentContacts[0], silent: true)
-    @trigger()
+    @_onFocusContact(@_currentContacts[0])
 
-  _focusContact: (contact, {silent}={}) =>
-    return unless contact
-    @_currentFocusedContact = contact
-    @trigger() unless silent
+  _clearCurrentParticipants: ->
+    @_contactScores = {}
+    @_currentContacts = []
+    @_currentFocusedContact = null
+    @_currentThread = null
+
+  _onFocusContact: (contact) =>
+    if not contact
+      @_currentFocusedContact = null
+      @trigger()
+    else
+      DatabaseStore.findBy(Contact, {
+        email: contact.email,
+        accountId: @_currentThread.accountId
+      }).then (match) =>
+        @_currentFocusedContact = match ? contact
+        @trigger()
 
   # We score everyone to determine who's the most relevant to display in
   # the sidebar.
@@ -79,37 +92,34 @@ class FocusedContactsStore extends NylasStore
         score(message, msgNum, "from", 100)
         score(message, msgNum, "to",   10)
         score(message, msgNum, "cc",   1)
+
     return @_contactScores
 
   # Self always gets a score of 0
   _assignScore: (contact, score=0) ->
-    return unless contact?.email
+    return unless contact and contact.email
     return if contact.email.trim().length is 0
-    return if @_contactScores[contact.toString()]? # only assign the first time
 
-    penalties = @_calculatePenalties(contact, score)
+    key = Utils.toEquivalentEmailForm(contact.email)
 
-    @_contactScores[contact.toString()] =
+    @_contactScores[key] ?=
       contact: contact
-      score: score - penalties
+      score: score - @_calculatePenalties(contact, score)
 
   _calculatePenalties: (contact, score) ->
     penalties = 0
     email = contact.email.toLowerCase().trim()
+    myEmail = AccountStore.current().emailAddress
 
-    if email is @_myEmail
-      penalties += score # The whole thing which will penalize to zero
+    if email is myEmail
+      # The whole thing which will penalize to zero
+      penalties += score
 
-    notCommonDomain = not Utils.emailHasCommonDomain(@_myEmail)
-    sameDomain = Utils.emailsHaveSameDomain(@_myEmail, email)
+    notCommonDomain = not Utils.emailHasCommonDomain(myEmail)
+    sameDomain = Utils.emailsHaveSameDomain(myEmail, email)
     if notCommonDomain and sameDomain
       penalties += score * 0.9
 
     return Math.max(penalties, 0)
-
-  _matchesDomain: (myEmail, email) ->
-    myDomain = _.last(myEmail.split("@"))
-    theirDomain = _.last(email.split("@"))
-    return myDomain.length > 0 and theirDomain.length > 0 and myDomain is theirDomain
 
 module.exports = new FocusedContactsStore
