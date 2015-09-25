@@ -90,7 +90,7 @@ class AccountSwitcher extends React.Component
     hash = crypto.createHash('md5').update(email, 'utf8').digest('hex')
     url = "url(http://www.gravatar.com/avatar/#{hash}?d=blank&s=56)"
 
-    <div style={float: 'left'}>
+    <div style={float: 'left', position: "relative"}>
       <div className="gravatar" style={backgroundImage:url}></div>
       <RetinaImg name={"ic-settings-account-#{account.provider}@2x.png"}
                  style={width: 28, height: 28, marginTop: -10}
