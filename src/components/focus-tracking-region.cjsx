@@ -24,6 +24,19 @@ class FocusTrackingRegion extends React.Component
       @_goingout = true
       setTimeout =>
         return unless @_goingout
+
+        # If we're unmounted the `@_goingout` flag will catch the unmount
+        # @_goingout is set to true when we umount
+        #
+        # It's posible for a focusout event to fire from within a region
+        # that we're actually focsued on.
+        #
+        # This happens when component that used to have the focus is
+        # unmounted. An example is the url input field of the
+        # FloatingToolbar in the Composer's Contenteditable
+        el = React.findDOMNode(@)
+        return if el.contains document.activeElement
+
         # This prevents the strange effect of an input appearing to have focus
         # when the element receiving focus does not support selection (like a
         # div with tabIndex=-1)

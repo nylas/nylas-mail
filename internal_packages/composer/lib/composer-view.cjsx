@@ -153,7 +153,7 @@ class ComposerView extends React.Component
 
   render: =>
     if @props.mode is "inline"
-      <FocusTrackingRegion className={@_wrapClasses()} onFocus={@focus} tabIndex="-1">
+      <FocusTrackingRegion className={@_wrapClasses()} tabIndex="-1">
         {@_renderComposer()}
       </FocusTrackingRegion>
     else

@@ -230,14 +230,23 @@ class ContenteditableComponent extends React.Component
         else
           document.execCommand("outdent")
 
+  # The native document.execCommand('outdent')
+  _outdent: ->
+
   _closestAtCursor: (selector) ->
     selection = document.getSelection()
     return unless selection?.isCollapsed
-    return selection.anchorNode?.closest(selector)
+    return @_closest(selection.anchorNode, selector)
+
+  # https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
+  # Only Elements (not Text nodes) have the `closest` method
+  _closest: (node, selector) ->
+    el = if node instanceof HTMLElement then node else node.parentElement
+    return el.closest(selector)
 
   _replaceFirstListItem: (li, replaceWith) ->
     @_teardownSelectionListeners()
-    list = li.closest("ul, ol")
+    list = @_closest(li, "ul, ol")
 
     if replaceWith.length is 0
       replaceWith = replaceWith.replace /\s/g, "&nbsp;"
@@ -269,19 +278,19 @@ class ContenteditableComponent extends React.Component
     event.preventDefault()
     selection = document.getSelection()
     if selection?.isCollapsed
-      # https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
-      if selection.anchorNode instanceof HTMLElement
-        anchorElement = selection.anchorNode
-      else
-        anchorElement = selection.anchorNode.parentElement
-
       # Only Elements (not Text nodes) have the `closest` method
-      if anchorElement.closest("li")
+      li = @_closestAtCursor("li")
+      if li
         if event.shiftKey
-          document.execCommand("outdent")
+          list = @_closestAtCursor("ul, ol")
+          # BUG: As of 9/25/15 if you outdent the first item in a list, it
+          # doesn't work :(
+          if list.querySelectorAll('li')?[0] is li # We're in first li
+            @_replaceFirstListItem(li, li.innerHTML)
+          else
+            document.execCommand("outdent")
         else
           document.execCommand("indent")
-        return
       else if event.shiftKey
         if @_atTabChar()
           @_removeLastCharacter()
@@ -312,7 +321,7 @@ class ContenteditableComponent extends React.Component
     return false if not selection.isCollapsed
     return true if anchor?.nodeName is "LI"
     return false if selection.anchorOffset > 0
-    li = anchor.closest("li")
+    li = @_closest(anchor, "li")
     return unless li
     return DOMUtils.isFirstChild(li, anchor)
 
@@ -449,8 +458,6 @@ class ContenteditableComponent extends React.Component
 
   _onBlur: (event) =>
     @setInnerState dragging: false
-    # The delay here is necessary to see if the blur was caused by us
-    # navigating to the toolbar and focusing on the set-url input.
     return if @_editableNode().parentElement.contains event.relatedTarget
     @setInnerState editableFocused: false
 
@@ -847,6 +854,8 @@ class ContenteditableComponent extends React.Component
           @_execCommand ["unlink", false]
         else @_execCommand ["createLink", false, url]
         @_restoreSelection(force: true, collapse: "end")
+
+    return
 
   _execCommand: (commandArgs=[], selectionRange={}) =>
     {anchorNode, anchorOffset, focusNode, focusOffset} = selectionRange
