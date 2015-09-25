@@ -35,6 +35,7 @@ Section: Models
 ###
 class Contact extends Model
   constructor: ->
+    @thirdPartyData ?= {}
     super
 
   @attributes: _.extend {}, Model.attributes,

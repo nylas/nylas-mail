@@ -8,7 +8,7 @@ module.exports =
 
   activate: (@state={}) ->
     ComponentRegistry.register SidebarFullContact,
-      location: WorkspaceStore.Location.MessageListSidebar
+      role: "MessageListSidebar:ContactCard"
 
   deactivate: ->
     ComponentRegistry.unregister(SidebarFullContact)

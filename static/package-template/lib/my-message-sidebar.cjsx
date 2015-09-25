@@ -12,8 +12,6 @@ class MyMessageSidebar extends React.Component
   # these values.
   @containerStyles:
     order: 1
-    maxWidth: 300
-    minWidth: 200
     flexShrink: 0
 
   # This sidebar component listens to the FocusedContactStore,

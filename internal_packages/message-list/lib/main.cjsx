@@ -3,7 +3,10 @@ MessageToolbarItems = require "./message-toolbar-items"
 {ComponentRegistry,
  MessageStore,
  WorkspaceStore} = require 'nylas-exports'
-SidebarThreadParticipants = require "./sidebar-thread-participants"
+
+{SidebarContactCard,
+ SidebarSpacer,
+ SidebarContactList} = require "./sidebar-components"
 
 ThreadStarButton = require './thread-star-button'
 ThreadArchiveButton = require './thread-archive-button'
@@ -23,7 +26,11 @@ module.exports =
     ComponentRegistry.register MessageToolbarItems,
       location: WorkspaceStore.Location.MessageList.Toolbar
 
-    ComponentRegistry.register SidebarThreadParticipants,
+    ComponentRegistry.register SidebarContactCard,
+      location: WorkspaceStore.Location.MessageListSidebar
+    ComponentRegistry.register SidebarSpacer,
+      location: WorkspaceStore.Location.MessageListSidebar
+    ComponentRegistry.register SidebarContactList,
       location: WorkspaceStore.Location.MessageListSidebar
 
     ComponentRegistry.register ThreadStarButton,
@@ -44,7 +51,9 @@ module.exports =
     ComponentRegistry.unregister ThreadArchiveButton
     ComponentRegistry.unregister ThreadToggleUnreadButton
     ComponentRegistry.unregister MessageToolbarItems
-    ComponentRegistry.unregister SidebarThreadParticipants
+    ComponentRegistry.unregister SidebarContactCard
+    ComponentRegistry.unregister SidebarSpacer
+    ComponentRegistry.unregister SidebarContactList
     MessageStore.unregisterExtension(AutolinkerExtension)
     MessageStore.unregisterExtension(TrackingPixelsExtension)
 

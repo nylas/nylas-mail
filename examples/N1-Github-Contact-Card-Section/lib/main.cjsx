@@ -1,5 +1,5 @@
 _ = require 'underscore-plus'
-GithubSidebar = require "./github-sidebar"
+GithubContactCardSection = require "./github-contact-card-section"
 {ComponentRegistry,
  WorkspaceStore} = require "nylas-exports"
 
@@ -11,8 +11,8 @@ module.exports =
     # Register our sidebar so that it appears in the Message List sidebar.
     # This sidebar is to the right of the Message List in both split pane mode
     # and list mode.
-    ComponentRegistry.register GithubSidebar,
-      location: WorkspaceStore.Location.MessageListSidebar
+    ComponentRegistry.register GithubContactCardSection,
+      role: "MessageListSidebar:ContactCard"
 
   # Serialize is called when your package is about to be unmounted.
   # You can return a state object that will be passed back to your package
@@ -27,4 +27,4 @@ module.exports =
   #
   deactivate: ->
     # Unregister our component
-    ComponentRegistry.unregister(GithubSidebar)
+    ComponentRegistry.unregister(GithubContactCardSection)
