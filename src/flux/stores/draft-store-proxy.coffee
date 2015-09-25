@@ -158,8 +158,21 @@ class DraftStoreProxy
     if @_destroyed or not @_draft
       return Promise.resolve(true)
 
+    # Set a variable here to protect againg @_draft getting set from
+    # underneath us
+    inMemoryDraft = @_draft
+
     DatabaseStore.atomically =>
-      DatabaseStore.findBy(Message, clientId: @_draft.clientId).then (draft) =>
+      DatabaseStore.findBy(Message, clientId: inMemoryDraft.clientId).then (draft) =>
+        # This can happen if we get a "delete" delta, or something else
+        # strange happens. In this case, we'll use the @_draft we have in
+        # memory to apply the changes to. On the `persistModel` in the
+        # next line it will save the correct changes. The
+        # `SyncbackDraftTask` may then fail due to differing Ids not
+        # existing, but if this happens it'll 404 and recover gracefully
+        # by creating a new draft
+        if not draft then draft = inMemoryDraft
+
         updatedDraft = @changes.applyToModel(draft)
         return DatabaseStore.persistModel(updatedDraft).then =>
           Actions.queueTask(new SyncbackDraftTask(@draftClientId))

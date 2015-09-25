@@ -1,4 +1,5 @@
 Message = require '../../src/flux/models/message'
+Actions = require '../../src/flux/actions'
 DatabaseStore = require '../../src/flux/stores/database-store'
 DraftStoreProxy = require '../../src/flux/stores/draft-store-proxy'
 DraftChangeSet = DraftStoreProxy.DraftChangeSet
@@ -170,6 +171,11 @@ describe "DraftStoreProxy", ->
       @draft = new Message(draft: true, clientId: 'client-id', body: 'A', subject: 'initial')
       @proxy = new DraftStoreProxy('client-id', @draft)
 
+      spyOn(DatabaseStore, "atomically").andCallFake (fn) ->
+        return Promise.resolve(fn())
+      spyOn(DatabaseStore, "persistModel").andReturn Promise.resolve()
+      spyOn(Actions, "queueTask").andReturn Promise.resolve()
+
     it "should ignore the update unless it applies to the current draft", ->
       spyOn(@proxy, 'trigger')
       @proxy._onDraftChanged(objectClass: 'message', objects: [new Message()])
@@ -183,6 +189,48 @@ describe "DraftStoreProxy", ->
 
       @proxy._onDraftChanged(objectClass: 'message', objects: [updatedDraft])
       expect(@proxy.draft().subject).toEqual(updatedDraft.subject)
+
+    it "atomically commits changes", ->
+      spyOn(DatabaseStore, "findBy").andReturn(Promise.resolve(@draft))
+      waitsForPromise =>
+        @proxy.changes.add({body: "123"}, {immediate: true}).then =>
+          expect(DatabaseStore.atomically).toHaveBeenCalled()
+          expect(DatabaseStore.atomically.calls.length).toBe 1
+
+    it "persist the applied changes", ->
+      spyOn(DatabaseStore, "findBy").andReturn(Promise.resolve(@draft))
+      waitsForPromise =>
+        @proxy.changes.add({body: "123"}, {immediate: true}).then =>
+          expect(DatabaseStore.persistModel).toHaveBeenCalled()
+          updated = DatabaseStore.persistModel.calls[0].args[0]
+          expect(updated.body).toBe "123"
+
+    it "queues a SyncbackDraftTask", ->
+      spyOn(DatabaseStore, "findBy").andReturn(Promise.resolve(@draft))
+      waitsForPromise =>
+        @proxy.changes.add({body: "123"}, {immediate: true}).then =>
+          expect(Actions.queueTask).toHaveBeenCalled()
+          task = Actions.queueTask.calls[0].args[0]
+          expect(task.draftClientId).toBe "client-id"
+
+    describe "when findBy does not return a draft", ->
+      it "continues and persists it's local draft reference, so it is resaved and draft editing can continue", ->
+        spyOn(DatabaseStore, "findBy").andReturn(Promise.resolve(null))
+        waitsForPromise =>
+          @proxy.changes.add({body: "123"}, {immediate: true}).then =>
+            expect(DatabaseStore.persistModel).toHaveBeenCalled()
+            updated = DatabaseStore.persistModel.calls[0].args[0]
+            expect(updated.body).toBe "123"
+            expect(Actions.queueTask).toHaveBeenCalled()
+            task = Actions.queueTask.calls[0].args[0]
+            expect(task.draftClientId).toBe "client-id"
+
+    it "does nothing if the draft is marked as destroyed", ->
+      spyOn(DatabaseStore, "findBy").andReturn(Promise.resolve(@draft))
+      waitsForPromise =>
+        @proxy._destroyed = true
+        @proxy.changes.add({body: "123"}, {immediate: true}).then =>
+          expect(DatabaseStore.atomically).not.toHaveBeenCalled()
 
   describe "draft pristine body", ->
     describe "when the draft given to the session is pristine", ->
