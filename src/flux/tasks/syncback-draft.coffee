@@ -52,6 +52,11 @@ class SyncbackDraftTask extends Task
         @submittedBody = payload.body
         delete payload['from']
 
+        # We keep this in memory as a fallback in case
+        # `getLatestLocalDraft` returns null after we make our API
+        # request.
+        oldDraft = draft
+
         NylasAPI.makeRequest
           accountId: draft.accountId
           path: path
@@ -72,6 +77,7 @@ class SyncbackDraftTask extends Task
           #
           DatabaseStore.atomically =>
             @getLatestLocalDraft().then (draft) ->
+              if not draft then draft = oldDraft
               draft.version = json.version
               draft.serverId = json.id
               DatabaseStore.persistModel(draft)
@@ -82,6 +88,7 @@ class SyncbackDraftTask extends Task
         .catch APIError, (err) =>
           if err.statusCode in [400, 404, 409] and err.requestOptions?.method is 'PUT'
             @getLatestLocalDraft().then (draft) =>
+              if not draft then draft = oldDraft
               @detatchFromRemoteID(draft).then ->
                 return Promise.resolve(Task.Status.Retry)
 
