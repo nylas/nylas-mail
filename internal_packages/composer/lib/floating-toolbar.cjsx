@@ -86,7 +86,7 @@ class FloatingToolbar extends React.Component
               onClick={@_execCommand}
               data-command-name="underline"></button>
       <button className="btn btn-link toolbar-btn"
-              onClick={@_showLink}
+              onClick={@props.onClickLinkEditBtn}
               data-command-name="link"></button>
       {@_toolbarExtensions()}
     </div>
@@ -164,7 +164,7 @@ class FloatingToolbar extends React.Component
   _removeUrl: =>
     @setState urlInputValue: ""
     @props.onSaveUrl "", @props.linkToModify
-    @props.onChangeMode("buttons")
+    @props.onDoneWithLink()
 
   _onFocus: =>
     @props.onChangeFocus(true)
@@ -188,7 +188,7 @@ class FloatingToolbar extends React.Component
   _saveUrl: =>
     if (@state.urlInputValue ? "").trim().length > 0
       @props.onSaveUrl @state.urlInputValue, @props.linkToModify
-    @props.onChangeMode("buttons")
+    @props.onDoneWithLink()
 
   _execCommand: (event) =>
     cmd = event.currentTarget.getAttribute 'data-command-name'
@@ -238,8 +238,5 @@ class FloatingToolbar extends React.Component
         return TOOLBAR_URL_WIDTH
     else
       return TOOLBAR_BUTTONS_WIDTH
-
-  _showLink: =>
-    @props.onChangeMode("edit-link")
 
 module.exports = FloatingToolbar

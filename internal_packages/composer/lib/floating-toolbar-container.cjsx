@@ -91,20 +91,30 @@ class FloatingToolbarContainer extends React.Component
       onDomMutator={@props.onDomMutator}
       linkToModify={@state.linkToModify}
       onChangeFocus={@_onChangeFocus}
+      editAreaWidth={@state.editAreaWidth}
       contentPadding={@CONTENT_PADDING}
-      editAreaWidth={@state.editAreaWidth} />
+      onDoneWithLink={@_onDoneWithLink}
+      onClickLinkEditBtn={@_onClickLinkEditBtn} />
 
+  # Called when a user clicks the "link" icon on the FloatingToolbar
+  _onClickLinkEditBtn: =>
+    @setState toolbarMode: "edit-link"
+
+  # A user could be done with a link because they're setting a new one, or
+  # clearing one, or just canceling.
+  _onDoneWithLink: =>
+    @componentWillReceiveInnerProps linkHoveringOver: null
+    @setState
+      toolbarMode: "buttons"
+      toolbarVisible: false
+    return
+
+  # We explicitly control the focus of the FloatingToolbar because we can
+  # do things like switch from "buttons" mode to "edit-link" mode (which
+  # natively fires focus change events) but not want to signify a "focus"
+  # change
   _onChangeFocus: (focus) =>
     @componentWillReceiveInnerProps toolbarFocus: focus
-
-  _onChangeMode: (mode) =>
-    if mode is "buttons"
-      @componentWillReceiveInnerProps linkHoveringOver: null
-      @setState
-        toolbarMode: mode
-        toolbarVisible: false
-    else
-      @setState toolbarMode: mode
 
   # We want the toolbar's state to be declaratively defined from other
   # states.
