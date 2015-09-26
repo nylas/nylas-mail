@@ -61,7 +61,11 @@ class InitialPackagesPage extends React.Component
   @displayName: "InitialPackagesPage"
 
   render: =>
+    closeType = if @props.pageData.addingAccount then "close" else "quit"
     <div className="page no-top opaque" style={width:900, height:650}>
+      <div className="quit" onClick={ => atom[closeType]() }>
+        <RetinaImg name="onboarding-close.png" mode={RetinaImg.Mode.ContentPreserve}/>
+      </div>
       <div className="back" onClick={@_onPrevPage}>
         <RetinaImg name="onboarding-back.png" mode={RetinaImg.Mode.ContentPreserve}/>
       </div>

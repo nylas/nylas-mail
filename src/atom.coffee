@@ -401,6 +401,9 @@ class Atom extends Model
   close: ->
     @getCurrentWindow().close()
 
+  quit: ->
+    remote.require('app').quit()
+
   # Essential: Get the size of current window.
   #
   # Returns an {Object} in the format `{width: 1000, height: 700}`
@@ -631,7 +634,10 @@ class Atom extends Model
     CommandInstaller.installApmCommand resourcePath, false, (error) ->
       console.warn error.message if error?
     @commands.add 'atom-workspace',
-      'atom-workspace:add-account': @addAccount
+      'atom-workspace:add-account': @onAddAccount
+
+  onAddAccount: =>
+    require('remote').getGlobal('application').windowManager.newOnboardingWindow(addingAccount: true)
 
   # Call this method when establishing a secondary application window
   # displaying a specific set of packages.
@@ -765,17 +771,6 @@ class Atom extends Model
   # Extended: Execute code in dev tools.
   executeJavaScriptInDevTools: (code) ->
     ipc.send('call-window-method', 'executeJavaScriptInDevTools', code)
-
-  addAccount: =>
-    @newWindow
-      title: 'Add an Account'
-      width: 340
-      height: 550
-      toolbar: false
-      resizable: false
-      windowType: 'onboarding'
-      windowProps:
-        page: 'add-account'
 
   ###
   Section: Private

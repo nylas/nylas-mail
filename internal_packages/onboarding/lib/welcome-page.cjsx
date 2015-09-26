@@ -1,4 +1,6 @@
 React = require 'react'
+shell = require 'shell'
+classnames = require 'classnames'
 {RetinaImg, TimeoutTransitionGroup} = require 'nylas-component-kit'
 OnboardingActions = require './onboarding-actions'
 
@@ -8,44 +10,107 @@ class WelcomePage extends React.Component
   constructor: (@props) ->
     @state =
       step: 0
+      lastStep: 0
 
-  render: =>
-    buttons = []
-    if @state.step > 0
-      buttons.push <button key="back" className="btn btn-large" style={marginRight: 10}  onClick={@_onBack}>Back</button>
-    buttons.push <button key="next" className="btn btn-large" onClick={@_onContinue}>Continue</button>
-
-    <div className="page no-top opaque" style={width: 667, display: "inline-block"}>
-      <div className="quit" onClick={ => atom.close() }>
+  render: ->
+    closeType = if @props.pageData.addingAccount then "close" else "quit"
+    <div className="welcome-page page no-top opaque">
+      <div className="quit" onClick={ => atom[closeType]() }>
         <RetinaImg name="onboarding-close.png" mode={RetinaImg.Mode.ContentPreserve}/>
       </div>
-
-      <TimeoutTransitionGroup leaveTimeout={300}
-                              enterTimeout={300}
-                              className="welcome-image-container"
-                              transitionName="welcome-image">
-        {@_renderStep()}
-      </TimeoutTransitionGroup>
-
-      <div style={textAlign:'center', paddingTop:30, paddingBottom:30}>
-        {buttons}
-      </div>
+      <div className="steps-container">{@_renderSteps()}</div>
+      <div className="footer">{@_renderButtons()}</div>
     </div>
 
-  _renderStep: =>
-    if @state.step is 0
-      <div className="welcome-image" key="step-0">
-        <RetinaImg name="welcome1bg.png" mode={RetinaImg.Mode.ContentPreserve} />
-        <RetinaImg name="welcome1icon.png" mode={RetinaImg.Mode.ContentPreserve} style={position:'absolute', top:'50%', left:'50%', transform:'translate(-50%, -50%)'}/>
+  _renderButtons: ->
+    buttons = []
+    # if @state.step > 0
+    #   buttons.push <span key="back" className="btn-back" onClick={@_onBack}>Back</span>
+    btnText = if @state.step is 2 then "Get Started" else "Continue"
+    buttons.push <button key="next" className="btn btn-large btn-continue" onClick={@_onContinue}>{btnText}</button>
+    return buttons
+
+  _renderSteps: -> [
+    @_renderStep0()
+    @_renderStep1()
+    @_renderStep2()
+  ]
+
+  _stepClass: (n) ->
+    obj =
+      "step-wrap": true
+      "active": @state.step is n
+    obj["step-#{n}-wrap"] = true
+    className = classnames(obj)
+    return className
+
+  _renderStep0: ->
+    <div className={@_stepClass(0)} key="step-0">
+      <p className="hero-text" style={marginTop: 25}>N1 is a new email app that is fast,<br/>friendly, and easy to use.</p>
+      <RetinaImg className="logo" style={zoom: 0.35, marginTop: 13} url="nylas://onboarding/assets/nylas-pictograph@2x.png" mode={RetinaImg.Mode.ContentIsMask} />
+      <RetinaImg className="icons" style={position: "absolute", left: -45, top: 130} url="nylas://onboarding/assets/shapes-left@2x.png" mode={RetinaImg.Mode.ContentIsMask} />
+      <RetinaImg className="icons" style={position: "absolute", right: -40, top: 130} url="nylas://onboarding/assets/shapes-right@2x.png" mode={RetinaImg.Mode.ContentIsMask} />
+      <p className="sub-text" style={marginTop: 17}>It is the foundation for a highly extensible email experience</p>
+      {@_renderNavBubble(0)}
+    </div>
+
+  _renderStep1: ->
+    <div className={@_stepClass(1)} key="step-1">
+      <p className="hero-text" style={marginTop: 40}>Under the hood, N1 is built for developers.</p>
+      <div className="gear-outer-container"><div className="gear-container">
+        {@_gears()}
+      </div></div>
+      <RetinaImg className="gear-small" mode={RetinaImg.Mode.ContentPreserve}
+                 url="nylas://onboarding/assets/gear-small@2x.png" />
+      <RetinaImg className="wrench" mode={RetinaImg.Mode.ContentPreserve}
+                 url="nylas://onboarding/assets/wrench@2x.png" />
+
+      <p className="sub-text">You can extend it using packages and build your own components.</p>
+      {@_renderNavBubble(1)}
+    </div>
+
+  _gears: ->
+    gears = []
+    for i in [0..3]
+      gears.push <RetinaImg className="gear-large gear-large-#{i}"
+                             mode={RetinaImg.Mode.ContentPreserve}
+                             url="nylas://onboarding/assets/gear-large@2x.png" />
+    return gears
+
+  _renderStep2: ->
+    <div className={@_stepClass(2)} key="step-2">
+      <p className="hero-text" style={marginTop: 40}>N1 is secured and enhanced by the Nylas Sync Engine</p>
+      <div className="cell-wrap">
+        <div className="cell" style={float: "left"}>
+          <RetinaImg mode={RetinaImg.Mode.ContentPreserve}
+                     url="nylas://onboarding/assets/lock@2x.png" />
+          <p>Secured using<br/>bank-grade encryption</p>
+          <a onClick={=> @_open("https://nylas.com/security/")}>more info</a>
+        </div>
+        <div className="cell" style={float: "right"}>
+          <RetinaImg mode={RetinaImg.Mode.ContentPreserve}
+                     style={paddingTop: 4, paddingBottom: 4}
+                     url="nylas://onboarding/assets/cloud@2x.png" />
+          <p>Synced by Nylas to be<br/>faster and more extensible</p>
+          <a onClick={=> @_open("https://github.com/nylas/sync-engine")}>more info</a>
+        </div>
       </div>
-    else if @state.step is 1
-      <div className="welcome-image" key="step-1">
-        <RetinaImg name="welcome2bg.png" mode={RetinaImg.Mode.ContentPreserve} />
-      </div>
-    else if @state.step is 2
-      <div className="welcome-image" key="step-2">
-        <RetinaImg name="welcome3bg.png" mode={RetinaImg.Mode.ContentPreserve} />
-      </div>
+      {@_renderNavBubble(2)}
+    </div>
+
+  _open: (link) ->
+    shell.openExternal(link)
+    return
+
+  _renderNavBubble: (step=0) ->
+    bubbles = [0..2].map (n) =>
+      active = if n is step then "active" else ""
+      <div className="nav-bubble #{active}"
+           onClick={ => @setState step: n }></div>
+
+    <div className="nav-bubbles">
+      {bubbles}
+    </div>
 
   _onBack: =>
     @setState(step: @state.step - 1)

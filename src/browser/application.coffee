@@ -159,7 +159,7 @@ class Application
       @windowManager.showMainWindow(loadingMessage)
       @windowManager.ensureWorkWindow()
     else
-      @windowManager.newOnboardingWindow({welcome: true})
+      @windowManager.newOnboardingWindow()
       # The onboarding window automatically shows when it's ready
 
   _resetConfigAndRelaunch: =>
@@ -169,7 +169,7 @@ class Application
       @config.set('nylas', null)
       @config.set('edgehill', null)
       @setDatabasePhase('setup')
-      @windowManager.newOnboardingWindow({welcome: true})
+      @windowManager.newOnboardingWindow()
 
   _deleteDatabase: (callback) ->
     @deleteFileWithRetry path.join(configDirPath,'edgehill.db'), callback

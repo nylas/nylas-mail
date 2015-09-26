@@ -25,16 +25,15 @@ class AccountChoosePage extends React.Component
     @_usub?()
 
   render: =>
+    closeType = if @props.pageData.addingAccount then "close" else "quit"
     <div className="page account-choose">
-      <div className="quit" onClick={ => atom.close() }>
+      <div className="quit" onClick={ => atom[closeType]() }>
         <RetinaImg name="onboarding-close.png" mode={RetinaImg.Mode.ContentPreserve}/>
       </div>
 
-      <div className="logo-container">
-        <RetinaImg name="onboarding-logo.png" mode={RetinaImg.Mode.ContentPreserve} className="logo"/>
-      </div>
+      <RetinaImg url="nylas://onboarding/assets/nylas-pictograph@2x.png" mode={RetinaImg.Mode.ContentIsMask} style={zoom: 0.29} className="logo"/>
 
-      <div className="caption" style={marginBottom:20}>Select your email provider</div>
+      <div className="caption" style={marginTop: 15, marginBottom:20}>Select your email provider</div>
 
       {@_renderProviders()}
 
@@ -47,7 +46,7 @@ class AccountChoosePage extends React.Component
         <div className="icon-container">
           <RetinaImg name={provider.icon} mode={RetinaImg.Mode.ContentPreserve} className="icon"/>
         </div>
-        {provider.displayName}
+        <span className="provider-name">{provider.displayName}</span>
       </div>
 
   _renderError: ->

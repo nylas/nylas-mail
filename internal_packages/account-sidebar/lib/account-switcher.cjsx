@@ -115,9 +115,8 @@ class AccountSwitcher extends React.Component
     @setState(showing: false)
 
   _onAddAccount: =>
-    ipc = require('ipc')
-    ipc.send('command', 'application:add-account')
-    @setState(showing: false)
+    require('remote').getGlobal('application').windowManager.newOnboardingWindow(addingAccount: true)
+    @setState showing: false
 
   _getStateFromStores: =>
     accounts: AccountStore.items()
