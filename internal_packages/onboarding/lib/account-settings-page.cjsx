@@ -158,15 +158,15 @@ class AccountSettingsPage extends React.Component
 
   _renderButton: =>
     pages = @state.provider.pages || []
-    if pages.length > @state.pageNumber + 1
-      <button className="btn btn-large btn-gradient" type="button" onClick={@_onNextButton}>Next</button>
+    if pages.length > @state.pageNumber+1
+      <button className="btn btn-large btn-gradient" type="button" onClick={@_onNextButton}>Continue</button>
     else if @state.provider.name isnt 'gmail'
       if @state.tryingToAuthenticate
         <button className="btn btn-large btn-gradient btn-setup-spinning" type="button">
-          <RetinaImg name="sending-spinner.gif" width={15} height={15} mode={RetinaImg.Mode.ContentPreserve} /> Setting up&hellip;
+          <RetinaImg name="sending-spinner.gif" width={15} height={15} mode={RetinaImg.Mode.ContentPreserve} /> Adding account&hellip;
         </button>
       else
-        <button className="btn btn-large btn-gradient" type="button" onClick={@_onSubmit}>Set up account</button>
+        <button className="btn btn-large btn-gradient" type="button" onClick={@_onSubmit}>Add account</button>
 
   _onNextButton: (event) =>
     @setState(pageNumber: @state.pageNumber + 1)

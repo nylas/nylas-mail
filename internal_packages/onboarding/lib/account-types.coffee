@@ -2,6 +2,13 @@
 
 Providers = [
   {
+    name: 'gmail'
+    displayName: 'Gmail'
+    icon: 'ic-settings-account-gmail.png'
+    header_icon: 'setup-icon-provider-gmail.png'
+    color: '#e99999'
+    settings: []
+  }, {
     name: 'exchange'
     displayName: 'Microsoft Exchange / Live'
     icon: 'ic-settings-account-eas.png'
@@ -34,38 +41,6 @@ Providers = [
       }
     ]
   }, {
-#    name: 'outlook'
-#    displayName: 'Outlook / Hotmail'
-#    icon: 'ic-settings-account-eas.png'
-#    header_icon: 'setup-icon-provider-hotmail.png'
-#    color: '#308acd'
-#    fields: [
-#      {
-#        name: 'name'
-#        type: 'text'
-#        placeholder: 'Ashton Letterman'
-#        label: 'Name'
-#      }, {
-#        name: 'email'
-#        type: 'text'
-#        placeholder: 'you@hotmail.com'
-#        label: 'Email'
-#      }
-#    ]
-#    settings: [
-#      {
-#        name: 'username'
-#        type: 'text'
-#        placeholder: 'MYCORP\\bob (if known)'
-#        label: 'Username (optional)'
-#      },{
-#        name: 'password'
-#        type: 'password'
-#        placeholder: 'Password'
-#        label: 'Password'
-#      }
-#    ]
-#  }, {
     name: 'icloud'
     displayName: 'iCloud'
     icon: 'ic-settings-account-icloud.png'
@@ -90,13 +65,6 @@ Providers = [
       placeholder: 'Password'
       label: 'Password'
     }]
-  }, {
-    name: 'gmail'
-    displayName: 'Gmail'
-    icon: 'ic-settings-account-gmail.png'
-    header_icon: 'setup-icon-provider-gmail.png'
-    color: '#e99999'
-    settings: []
   }, {
     name: 'yahoo'
     displayName: 'Yahoo'

@@ -132,22 +132,19 @@ class WindowManager
 
   # Returns a new onboarding window
   #
-  newOnboardingWindow: ({welcome} = {}) ->
-    options =
+  newOnboardingWindow: ({addingAccount}={}) ->
+    page = if addingAccount then "account-choose" else "welcome"
+    title = if addingAccount then "Add an Account" else "Welcome to N1"
+    win = @newWindow
+      title: title
       toolbar: false
       resizable: false
-      hidden: true
-      title: 'Add an Account'
+      hidden: true # The `PageRouter` will center and show on load
       windowType: 'onboarding'
       windowProps:
-        page: 'account-choose'
+        page: page
+        pageData: {addingAccount}
         uniqueId: 'onboarding'
-
-    if welcome
-      options.title = "Welcome to N1"
-      options.windowProps.page = "welcome"
-
-    @newWindow(options)
 
   # Makes a new window appear of a certain `windowType`.
   #

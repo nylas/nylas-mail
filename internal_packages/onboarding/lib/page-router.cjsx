@@ -64,11 +64,11 @@ class PageRouter extends React.Component
     gradient = @state.pageData?.provider?.color
     if gradient
       background = "linear-gradient(to top, #f6f7f8, #{gradient})"
+      height = 200
     else
-      background = "linear-gradient(to top, #f6f7f8 0%,  rgba(255,255,255,0) 100%),
-                    linear-gradient(to right, #e1e58f 0%, #a8d29e 50%, #8bc9c9 100%)"
-
-    <div className="page-gradient" key={"#{@state.page}-gradient"} style={background: background}/>
+      background = "linear-gradient(to top, #f6f7f8 0%,  rgba(255,255,255,0) 100%), linear-gradient(to right, #e1e58f 0%, #a8d29e 50%, #8bc9c9 100%)"
+      height = 330
+    <div className="page-gradient" key={"#{@state.page}-gradient"} style={background: background, height: height}/>
 
   _renderCurrentPage: =>
     Component = {
@@ -86,9 +86,9 @@ class PageRouter extends React.Component
   _renderDragRegion: ->
     styles =
       top:0
-      left:40
+      left: 26
       right:0
-      height: 20
+      height: 27
       zIndex:100
       position: 'absolute'
       "WebkitAppRegion": "drag"
