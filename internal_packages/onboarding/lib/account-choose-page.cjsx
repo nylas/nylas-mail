@@ -85,6 +85,7 @@ class AccountChoosePage extends React.Component
             https://mail.google.com/ \
             https://www.google.com/m8/feeds \
             https://www.googleapis.com/auth/calendar'
+        approval_prompt: 'force'
     })
     shell.openExternal(googleUrl)
 
