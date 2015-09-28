@@ -4,6 +4,30 @@ qs = require 'querystring'
 _ = require 'underscore'
 moment = require 'moment'
 
+class DeveloperBarCurlRequest
+  constructor: ({@id, request, statusCode, error}) ->
+    url = request.url
+    if request.auth
+      url = url.replace('://', "://#{request.auth.user}:#{request.auth.pass}@")
+    if request.qs
+      url += "?#{qs.stringify(request.qs)}"
+
+    postBody = ""
+    postBody = JSON.stringify(request.body).replace(/'/g, '\\u0027') if request.body
+
+    data = ""
+    data = "-d '#{postBody}'" unless request.method == 'GET'
+
+    headers = ""
+    if request.headers
+      for k,v of request.headers
+        headers += "-H \"#{k}: #{v}\" "
+
+    @command = "curl -X #{request.method} #{headers}#{data} \"#{url}\""
+    @statusCode = statusCode ? error?.code ? "pending"
+    @startMoment = moment(request.startTime)
+    @
+
 class DeveloperBarStore extends NylasStore
   constructor: ->
     @_setStoreDefaults()
@@ -11,8 +35,7 @@ class DeveloperBarStore extends NylasStore
 
   ########### PUBLIC #####################################################
 
-  curlHistory: -> _.sortBy _.values(@_curlHistory), (item) ->
-    item.startMoment.valueOf()
+  curlHistory: -> @_curlHistory
 
   longPollState: -> @_longPollState
 
@@ -31,7 +54,8 @@ class DeveloperBarStore extends NylasStore
       @_triggerThrottled()
 
   _setStoreDefaults: ->
-    @_curlHistory = {}
+    @_curlHistoryIds = []
+    @_curlHistory = []
     @_longPollHistory = []
     @_longPollState = {}
     @_visible = atom.inDevMode()
@@ -51,7 +75,8 @@ class DeveloperBarStore extends NylasStore
     @trigger(@)
 
   _onClear: ->
-    @_curlHistory = {}
+    @_curlHistoryIds = []
+    @_curlHistory = []
     @_longPollHistory = []
     @trigger(@)
 
@@ -75,40 +100,23 @@ class DeveloperBarStore extends NylasStore
     @triggerThrottled(@)
 
   _onWillMakeAPIRequest: ({requestId, request}) =>
-    item = @_generateCurlItem({requestId, request})
-    @_curlHistory[requestId] = item
+    item = new DeveloperBarCurlRequest({id: requestId, request})
+
+    @_curlHistory.unshift(item)
+    @_curlHistoryIds.unshift(requestId)
+    if @_curlHistory.length > 200
+      @_curlHistory.pop()
+      @_curlHistoryIds.pop()
+
     @triggerThrottled(@)
 
   _onDidMakeAPIRequest: ({requestId, request, statusCode, error}) =>
-    item = @_generateCurlItem({requestId, request, statusCode, error})
-    @_curlHistory[requestId] = item
+    idx = @_curlHistoryIds.indexOf(requestId)
+    return if idx is -1 # Could be more than 200 requests ago
+
+    item = new DeveloperBarCurlRequest({id: requestId, request, statusCode, error})
+    @_curlHistory[idx] = item
     @triggerThrottled(@)
-
-  _generateCurlItem: ({requestId, request, statusCode, error}) ->
-    url = request.url
-    if request.auth
-      url = url.replace('://', "://#{request.auth.user}:#{request.auth.pass}@")
-    if request.qs
-      url += "?#{qs.stringify(request.qs)}"
-    postBody = ""
-    postBody = JSON.stringify(request.body).replace(/'/g, '\\u0027') if request.body
-    data = ""
-    data = "-d '#{postBody}'" unless request.method == 'GET'
-
-    headers = ""
-    if request.headers
-      for k,v of request.headers
-        headers += "-H \"#{k}: #{v}\" "
-
-    statusCode = statusCode ? error?.code ? "pending"
-
-    item =
-      id: "curlitemId:#{requestId}"
-      command: "curl -X #{request.method} #{headers}#{data} \"#{url}\""
-      statusCode: statusCode
-      startMoment: moment(request.startTime)
-
-    return item
 
   _onSendFeedback: ->
     {AccountStore,
