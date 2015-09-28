@@ -54,6 +54,8 @@ GithubUserStore = Reflux.createStore
   _githubFetchProfile: (email) ->
     @_loading = true
     @_githubRequest "https://api.github.com/search/users?q=#{email}", (err, resp, data) =>
+      return if err or not data
+
       console.warn(data.message) if data.message?
 
       # Sometimes we get rate limit errors, etc., so we need to check and make

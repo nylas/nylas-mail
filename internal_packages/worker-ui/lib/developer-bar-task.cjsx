@@ -7,16 +7,21 @@ class DeveloperBarTask extends React.Component
   @displayName: 'DeveloperBarTask'
 
   constructor: (@props) ->
-    @state = expanded: false
+    @state =
+      expanded: false
 
   render: =>
-    <div className={@_classNames()} onClick={=> @setState expanded: not @state.expanded}>
+    details = false
+    if @state.expanded
+      # This could be a potentially large amount of JSON.
+      # Do not render unless it's actually being displayed!
+      details = <div className="task-details">{JSON.stringify(@props.task.toJSON())}</div>
+
+    <div className={@_classNames()} onClick={=> @setState(expanded: not @state.expanded)}>
       <div className="task-summary">
         {@_taskSummary()}
       </div>
-      <div className="task-details">
-        {JSON.stringify(@props.task.toJSON())}
-      </div>
+      {details}
     </div>
 
   shouldComponentUpdate: (nextProps, nextState) =>

@@ -127,7 +127,7 @@ class DeveloperBar extends React.Component
   _getStateFromStores: =>
     queue: TaskQueue._queue
     completed: TaskQueue._completed
-    curlHistory: DeveloperBarStore.curlHistory().reverse()
+    curlHistory: DeveloperBarStore.curlHistory()
     longPollHistory: DeveloperBarStore.longPollHistory()
     longPollState: DeveloperBarStore.longPollState()
 
