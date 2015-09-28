@@ -61,7 +61,7 @@ class MessageList extends React.Component
   @containerRequired: false
   @containerStyles:
     minWidth: 500
-    maxWidth: 900
+    maxWidth: 999999
 
   constructor: (@props) ->
     @state = @_getStateFromStores()

@@ -60,7 +60,7 @@ class ThreadList extends React.Component
   @containerRequired: false
   @containerStyles:
     minWidth: 300
-    maxWidth: 999999
+    maxWidth: 3000
 
   constructor: (@props) ->
     @state =
