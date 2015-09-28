@@ -86,8 +86,8 @@ class ActivitySidebar extends React.Component
 
   _renderDeltaSyncActivityItem: =>
     <div className="item" key="delta-sync-item">
-      <div style={padding: "8px 7px 0 10px", float: "left"}>
-        <RetinaImg name="sending-spinner.gif" mode={RetinaImg.Mode.ContentPreserve} />
+      <div style={padding: "9px 9px 0 12px", float: "left"}>
+        <RetinaImg name="sending-spinner.gif" width={18} mode={RetinaImg.Mode.ContentPreserve} />
       </div>
       <div className="inner">
         Syncing mail data&hellip;
