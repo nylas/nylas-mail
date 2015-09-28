@@ -9,21 +9,21 @@ describe "FocusedContentStore", ->
   describe "onSetFocus", ->
     it "should not trigger if the thread is already focused", ->
       FocusedContentStore._onFocus({collection: 'thread', item: testThread})
-      spyOn(FocusedContentStore, 'trigger')
+      spyOn(FocusedContentStore, 'triggerAfterAnimationFrame')
       FocusedContentStore._onFocus({collection: 'thread', item: testThread})
-      expect(FocusedContentStore.trigger).not.toHaveBeenCalled()
+      expect(FocusedContentStore.triggerAfterAnimationFrame).not.toHaveBeenCalled()
 
     it "should not trigger if the focus is already null", ->
       FocusedContentStore._onFocus({collection: 'thread', item: null})
-      spyOn(FocusedContentStore, 'trigger')
+      spyOn(FocusedContentStore, 'triggerAfterAnimationFrame')
       FocusedContentStore._onFocus({collection: 'thread', item: null})
-      expect(FocusedContentStore.trigger).not.toHaveBeenCalled()
+      expect(FocusedContentStore.triggerAfterAnimationFrame).not.toHaveBeenCalled()
 
     it "should trigger otherwise", ->
       FocusedContentStore._onFocus({collection: 'thread', item: null})
-      spyOn(FocusedContentStore, 'trigger')
+      spyOn(FocusedContentStore, 'triggerAfterAnimationFrame')
       FocusedContentStore._onFocus({collection: 'thread', item: testThread})
-      expect(FocusedContentStore.trigger).toHaveBeenCalled()
+      expect(FocusedContentStore.triggerAfterAnimationFrame).toHaveBeenCalled()
 
   describe "threadId", ->
     it "should return the id of the focused thread", ->
