@@ -106,6 +106,28 @@
   }
 }
 
+body.is-blurred {
+  .list-container {
+    .list-item {
+      &.selected {
+        background: fadeout(desaturate(@list-selected-bg, 100%), 65%);
+        color: @text-color;
+        .list-column {
+          border-bottom: 1px solid fadeout(desaturate(@list-selected-border, 100%), 65%);
+        }
+      }
+
+      &.focused {
+        background: fadeout(desaturate(@list-focused-bg, 100%), 65%);
+        color: @text-color;
+        .list-column {
+          border-bottom: 1px solid fadeout(desaturate(@list-focused-border, 100%), 65%);
+        }
+      }
+    }
+  }
+}
+
 .list-tabular {
   flex: 1;
   width: 100%;

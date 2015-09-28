@@ -10,18 +10,15 @@
   // subpixel antialiasing looks awful against dark background colors
   -webkit-font-smoothing: antialiased;
 
+  color: @text-color-inverse;
+
   .participants {
-    color: @text-color-inverse;
     .unread-true {
       font-weight: @font-weight-normal;
     }
   }
   .subject {
-    color: @text-color-inverse;
     font-weight: @font-weight-normal;
-  }
-  .snippet, .timestamp {
-    color: @text-color-inverse-subtle;
   }
 
   .thread-icon, .draft-icon, .mail-important-icon {
@@ -109,10 +106,10 @@
     .snippet {
       font-size:   @font-size-small;
       font-weight: @font-weight-normal;
-      color: @text-color-very-subtle;
       position: relative;
       text-overflow: ellipsis;
       overflow: hidden;
+      opacity: 0.62;
       top:2px;
       flex: 1;
     }
@@ -126,13 +123,13 @@
   .timestamp {
     font-size:   @font-size-small;
     font-weight: @font-weight-normal;
-    color: @text-color-very-subtle;
     position: relative;
     top:2px;
     text-align: right;
     min-width:70px;
     margin-right:@scrollbar-margin;
     display:inline-block;
+    opacity: 0.62;
   }
 
   .unread:not(.focused):not(.selected) {
@@ -354,6 +351,19 @@
     background-image: -webkit-linear-gradient(left, fade(@list-focused-bg, 0%) 0%, @list-focused-bg 50%, @list-focused-bg 100%);
     .action {
       -webkit-filter: invert(100%) brightness(300%);
+    }
+  }
+}
+body.is-blurred {
+  .thread-list.handler-split {
+    .list-item {
+      &.selected {
+        background: fadeout(desaturate(@list-focused-bg, 100%), 65%);
+        color: @text-color;
+        .list-column {
+          border-bottom: 1px solid fadeout(desaturate(@list-focused-border, 100%), 65%);
+        }
+      }
     }
   }
 }
