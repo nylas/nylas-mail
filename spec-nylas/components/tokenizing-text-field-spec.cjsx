@@ -270,10 +270,18 @@ describe 'TokenizingTextField', ->
 
     it "shouldn't handle the event in the input is empty", ->
       # We ignore on empty input values
+      # NOTE, we still preventDefault
       ReactTestUtils.Simulate.change(@renderedInput, {target: {value: ' '}})
       ReactTestUtils.Simulate.keyDown(@renderedInput, @tabDownEvent)
       expect(@propAdd).not.toHaveBeenCalled()
-      expect(@tabDownEvent.preventDefault).not.toHaveBeenCalled()
+      expect(@tabDownEvent.preventDefault).toHaveBeenCalled()
+
+    it "should NOT stop the propagation if the input is empty.", ->
+      # This is to allow tabs to propagate up to controls that might want
+      # to change the focus later.
+      ReactTestUtils.Simulate.change(@renderedInput, {target: {value: ' '}})
+      ReactTestUtils.Simulate.keyDown(@renderedInput, @tabDownEvent)
+      expect(@propAdd).not.toHaveBeenCalled()
       expect(@tabDownEvent.stopPropagation).not.toHaveBeenCalled()
 
     it "should add the raw input value if there are no completions", ->
