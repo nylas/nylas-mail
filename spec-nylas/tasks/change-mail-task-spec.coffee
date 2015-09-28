@@ -354,12 +354,66 @@ describe "ChangeMailTask", ->
           new Promise (resolve, reject) -> #noop
         spyOn(@task, '_removeLock')
         runs ->
-          @task.performRequests(Message, [@threadAMesage1])
+          @task.performRequests(Thread, [@threadAMesage1])
         waitsFor ->
           NylasAPI.makeRequest.callCount is 1
         runs ->
           NylasAPI.makeRequest.calls[0].args[0].beforeProcessing({})
           expect(@task._removeLock).toHaveBeenCalledWith(@threadAMesage1)
+
+      it "should make no more than 10 requests at once", ->
+        resolves = []
+        spyOn(@task, '_removeLock')
+        spyOn(NylasAPI, 'makeRequest').andCallFake ->
+          new Promise (resolve, reject) -> resolves.push(resolve)
+
+        threads = []
+        threads.push new Thread(id: "#{idx}", subject: idx) for idx in [0..100]
+        @task._restoreValues = _.map threads, (t) -> {some: 'data'}
+        @task.performRequests(Thread, threads)
+        advanceClock()
+        expect(resolves.length).toEqual(5)
+        advanceClock()
+        expect(resolves.length).toEqual(5)
+        resolves[0]()
+        resolves[1]()
+        advanceClock()
+        expect(resolves.length).toEqual(7)
+        resolves[idx]() for idx in [2...7]
+        advanceClock()
+        expect(resolves.length).toEqual(12)
+
+
+      it "should stop making requests after non-404 network errors", ->
+        resolves = []
+        rejects = []
+        spyOn(@task, '_removeLock')
+        spyOn(NylasAPI, 'makeRequest').andCallFake ->
+          new Promise (resolve, reject) ->
+            resolves.push(resolve)
+            rejects.push(reject)
+
+        threads = []
+        threads.push new Thread(id: "#{idx}", subject: idx) for idx in [0..100]
+        @task._restoreValues = _.map threads, (t) -> {some: 'data'}
+        @task.performRequests(Thread, threads)
+        advanceClock()
+        expect(resolves.length).toEqual(5)
+        resolves[idx]() for idx in [0...4]
+        advanceClock()
+        expect(resolves.length).toEqual(9)
+
+        # simulate request failure
+        reject = rejects[rejects.length - 1]
+        reject(new APIError(statusCode: 400))
+        advanceClock()
+
+        # simulate more requests succeeding
+        resolves[idx]() for idx in [5...9]
+        advanceClock()
+
+        # check that no more requests have been queued
+        expect(resolves.length).toEqual(9)
 
   describe "optimistic object locking", ->
     beforeEach ->

@@ -7,6 +7,40 @@ DatabaseStore = require '../stores/database-store'
 AccountStore = require '../stores/account-store'
 {APIError} = require '../errors'
 
+# MapLimit is a small helper method that implements a promise version of
+# Async.mapLimit. It runs the provided fn on each item in the `input` array,
+# but only runs `numberInParallel` copies of `fn` at a time, resolving
+# with an output array, or rejecting with an error if any execution of
+# `fn` returns an error.
+mapLimit = (input, numberInParallel, fn) ->
+  new Promise (resolve, reject) ->
+    idx = 0
+    inflight = 0
+    output = []
+    outputError = null
+
+    startNext = ->
+      startIdx = idx
+      idx += 1
+      inflight += 1
+      fn(input[startIdx])
+      .then (result) =>
+        output[startIdx] = result
+        return if outputError
+
+        inflight -= 1
+        if idx < input.length
+          startNext()
+        else if inflight is 0
+          resolve(output)
+
+      .catch (err) =>
+        outputError = err
+        reject(outputError)
+
+    numberInParallel = Math.min(numberInParallel, input.length)
+    startNext() for n in [0...numberInParallel]
+
 # The ChangeMailTask is a base class for all tasks that modify sets of threads or
 # messages. Subclasses implement `_changesToModel` and `_requestBodyForModel` to
 # define the specific transforms they provide, and override `performLocal` to
@@ -130,7 +164,7 @@ class ChangeMailTask extends Task
         return Promise.resolve(Task.Status.Retry)
 
   performRequests: (klass, models) ->
-    Promise.map models, (model) =>
+    mapLimit models, 5, (model) =>
       # Don't bother making a web request if performLocal didn't modify this model
       return Promise.resolve() unless @_restoreValues[model.id]
 
