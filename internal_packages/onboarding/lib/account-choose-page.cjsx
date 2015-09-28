@@ -25,9 +25,8 @@ class AccountChoosePage extends React.Component
     @_usub?()
 
   render: =>
-    closeType = if @props.pageData.addingAccount then "close" else "quit"
     <div className="page account-choose">
-      <div className="quit" onClick={ => atom[closeType]() }>
+      <div className="quit" onClick={ -> OnboardingActions.closeWindow() }>
         <RetinaImg name="onboarding-close.png" mode={RetinaImg.Mode.ContentPreserve}/>
       </div>
 
