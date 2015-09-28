@@ -95,8 +95,18 @@
     z-index: 10;
     position: absolute;
     top: 0;
-    left: 0;
-    width: 100%;
+
+    // Before you `git blame`, hear me out. We want the .page to be
+    // centered in the window, even if the window is transitioning to a smaller
+    // size to show a smaller page. transform:translateX(-50%) would be perfect,
+    // but can result in text aliasing, so we need margin:auto. But that won't
+    // work if the necessary margin is less than zero. So we pad the container
+    // out, such that the .page inside can be centered with positive margin.
+
+    // (Please don't break, it looks bad when our logo goes to the top left
+    // when the user chooses a sign-in method.)
+    left: -50%;
+    width: 200%;
   }
 
   .page {
@@ -142,7 +152,7 @@
 
   .back,
   .dismiss {
-    position: absolute;
+    position: fixed;
     top:25px;
     left:25px;
   }
