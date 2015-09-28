@@ -22,20 +22,25 @@ class MenuItem extends React.Component
    - `checked` (optional) Pass a {Boolean} to specify whether the item is checked.
   ###
   @propTypes:
-    divider: React.PropTypes.string
+    divider: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.bool])
     key: React.PropTypes.string
     selected: React.PropTypes.bool
     checked: React.PropTypes.bool
 
   render: =>
-    if @props.divider?
-      <div className="item divider">{@props.divider}</div>
+    if @props.divider
+      dividerLabel = if _.isString(@props.divider) then @props.divider else ''
+      <div className="item divider">
+        {dividerLabel}
+      </div>
     else
       className = classNames
         "item": true
         "selected": @props.selected
         "checked": @props.checked
-      <div className={className} key={@props.key} onMouseDown={@props.onMouseDown}>{@props.content}</div>
+      <div className={className} key={@props.key} onMouseDown={@props.onMouseDown}>
+        {@props.content}
+      </div>
 
 ###
 Public: React component for a {Menu} item that displays a name and email address.

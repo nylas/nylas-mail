@@ -35,9 +35,17 @@ describe "MessageStore", ->
 
     it "should retrieve the focused thread", ->
       @focus = testThread
+      MessageStore._thread = null
       FocusedContentStore.trigger({impactsCollection: -> true})
       expect(DatabaseStore.findAll).toHaveBeenCalled()
       expect(DatabaseStore.findAll.mostRecentCall.args[0]).toBe(Message)
+
+    describe "when the thread is already focused", ->
+      it "should do nothing", ->
+        @focus = testThread
+        MessageStore._thread = @focus
+        FocusedContentStore.trigger({impactsCollection: -> true})
+        expect(DatabaseStore.findAll).not.toHaveBeenCalled()
 
     describe "when the thread is unread", ->
       beforeEach ->
