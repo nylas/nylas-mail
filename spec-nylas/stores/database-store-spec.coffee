@@ -134,6 +134,9 @@ describe "DatabaseStore", ->
       DatabaseStore.persistModel(testModelInstance)
       expect(DatabaseStore._writeModels.callCount).toBe(1)
 
+    it "should throw an exception if the model is not a subclass of Model", ->
+      expect(-> DatabaseStore.persistModel({id: 'asd', subject: 'bla'})).toThrow()
+
   describe "persistModels", ->
     it "should cause the DatabaseStore to trigger with a change that contains the models", ->
       waitsForPromise ->
@@ -154,6 +157,9 @@ describe "DatabaseStore", ->
     it "should throw an exception if the models are not the same class,\
         since it cannot be specified by the trigger payload", ->
       expect(-> DatabaseStore.persistModels([testModelInstanceA, new Label()])).toThrow()
+
+    it "should throw an exception if the models are not a subclass of Model", ->
+      expect(-> DatabaseStore.persistModels([{id: 'asd', subject: 'bla'}])).toThrow()
 
   describe "unpersistModel", ->
     it "should delete the model by Id", -> waitsForPromise =>

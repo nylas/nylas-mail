@@ -409,6 +409,9 @@ class DatabaseStore extends NylasStore
   #   - rejects if any databse query fails or one of the triggering
   #     callbacks failed
   persistModel: (model) =>
+    unless model and model instanceof Model
+      throw new Error("DatabaseStore::persistModel - You must pass an instance of the Model class.")
+
     @_writeModels([model]).then =>
       @_triggerSoon({objectClass: model.constructor.name, objects: [model], type: 'persist'})
 
@@ -426,8 +429,12 @@ class DatabaseStore extends NylasStore
     return Promise.resolve() if models.length is 0
     klass = models[0].constructor
     ids = {}
+
+    if not models[0] instanceof Model
+      throw new Error("DatabaseStore::persistModels - You must pass an array of items which descend from the Model class.")
+
     for model in models
-      unless model.constructor == klass
+      unless model and model.constructor is klass
         throw new Error("DatabaseStore::persistModels - When you batch persist objects, they must be of the same type")
       if ids[model.id]
         throw new Error("DatabaseStore::persistModels - You must pass an array of models with different ids. ID #{model.id} is in the set multiple times.")
