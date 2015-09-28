@@ -13,9 +13,8 @@ class WelcomePage extends React.Component
       lastStep: 0
 
   render: ->
-    closeType = if @props.pageData.addingAccount then "close" else "quit"
-    <div className="welcome-page page no-top opaque">
-      <div className="quit" onClick={ => atom[closeType]() }>
+    <div className="welcome-page page opaque">
+      <div className="quit" onClick={ -> OnboardingActions.closeWindow() }>
         <RetinaImg name="onboarding-close.png" mode={RetinaImg.Mode.ContentPreserve}/>
       </div>
       <div className="steps-container">{@_renderSteps()}</div>

@@ -633,11 +633,6 @@ class Atom extends Model
       console.warn error.message if error?
     CommandInstaller.installApmCommand resourcePath, false, (error) ->
       console.warn error.message if error?
-    @commands.add 'atom-workspace',
-      'atom-workspace:add-account': @onAddAccount
-
-  onAddAccount: =>
-    require('remote').getGlobal('application').windowManager.newOnboardingWindow(addingAccount: true)
 
   # Call this method when establishing a secondary application window
   # displaying a specific set of packages.

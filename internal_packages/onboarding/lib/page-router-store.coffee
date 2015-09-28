@@ -18,6 +18,7 @@ class PageRouterStore extends NylasStore
 
     @listenTo OnboardingActions.moveToPreviousPage, @_onMoveToPreviousPage
     @listenTo OnboardingActions.moveToPage, @_onMoveToPage
+    @listenTo OnboardingActions.closeWindow, @_onCloseWindow
     @listenTo OnboardingActions.accountJSONReceived, @_onAccountJSONReceived
 
   _onAccountJSONReceived: (json) =>
@@ -49,5 +50,12 @@ class PageRouterStore extends NylasStore
     @_page = page
     @_pageData = pageData
     @trigger()
+
+  _onCloseWindow: ->
+    isFirstAccount = AccountStore.items().length is 0
+    if isFirstAccount
+      atom.quit()
+    else
+      atom.close()
 
 module.exports = new PageRouterStore()

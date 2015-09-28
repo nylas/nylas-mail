@@ -111,9 +111,9 @@
 
   .page {
     margin:auto;
-    padding-top: 10%;
-    &.no-top {
-      padding-top: 0;
+
+    &.account-choose {
+      padding-top: 45px;
     }
     &.account-setup {
       padding: 0 15px;
@@ -144,7 +144,7 @@
   }
 
   .quit {
-    position: absolute;
+    position: fixed;
     z-index: 100;
     top: 1px;
     left: 6px;
@@ -242,7 +242,8 @@
       background: #FFF;
       color: #333;
       text-align: left;
-
+      border: 1px solid #AAA;
+      
       &::-webkit-input-placeholder {
         color: #C6C6C6;
       }

@@ -80,9 +80,8 @@ class InitialPreferencesPage extends React.Component
   @displayName: "InitialPreferencesPage"
 
   render: =>
-    closeType = if @props.pageData.addingAccount then "close" else "quit"
-    <div className="page no-top opaque" style={width:900, height:620}>
-      <div className="quit" onClick={ => atom[closeType]() }>
+    <div className="page opaque" style={width:900, height:620}>
+      <div className="quit" onClick={ -> OnboardingActions.closeWindow() }>
         <RetinaImg name="onboarding-close.png" mode={RetinaImg.Mode.ContentPreserve}/>
       </div>
       <h1 style={paddingTop: 100}>Welcome to N1</h1>
