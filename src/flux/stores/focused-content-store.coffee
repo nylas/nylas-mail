@@ -81,7 +81,8 @@ class FocusedContentStore
     return if @_keyboardCursor[collection]?.id is item?.id
 
     @_keyboardCursor[collection] = item
-    @trigger({ impactsCollection: (c) -> c is collection })
+    window.requestAnimationFrame =>
+      @trigger({ impactsCollection: (c) -> c is collection })
 
   _onFocus: ({collection, item}) =>
     throw new Error("focus() requires a collection") unless collection
@@ -89,8 +90,8 @@ class FocusedContentStore
 
     @_focused[collection] = item
     @_keyboardCursor[collection] = item if item
-
-    @trigger({ impactsCollection: (c) -> c is collection })
+    window.requestAnimationFrame =>
+      @trigger({ impactsCollection: (c) -> c is collection })
 
   _onWorkspaceChange: =>
     keyboardCursorEnabled = WorkspaceStore.layoutMode() is 'list'
