@@ -138,7 +138,7 @@ class Popover extends React.Component
     if @state.showing
       popoverStyle =
         'position': 'absolute'
-        'left': "calc(50% + #{@state.offset})"
+        'left': "calc(50% + #{@state.offset}px)"
         'width': '250px'
         'zIndex': 40
       pointerStyle =
