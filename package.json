@@ -1,7 +1,7 @@
 {
   "name": "nylas",
   "productName": "Nylas",
-  "version": "0.3.8",
+  "version": "0.3.9",
   "description": "An email OS",
   "main": "./src/browser/main.js",
   "repository": {
