@@ -1,15 +1,15 @@
 <img src="/static/img/nylas-sdk-cuub@2x.png" class="center-logo"/>
 <h2 style="text-align:center; margin-top:-20px;">Nylas SDK</h2>
-<p style="text-align:center; margin:auto; margin-bottom:60px;">The Nylas SDK allows you to create powerful extensions to Nylas Mail, a mail client for Mac OS X, Windows, and Linux. Building on Nylas Mail saves time and allows you to build innovative new experiences fast.<br>
+<p style="text-align:center; margin:auto; margin-bottom:60px;">The Nylas SDK allows you to create powerful extensions to N1, a mail client for Mac OS X, Windows, and Linux. Building on N1 saves time and allows you to build innovative new experiences fast.<br>
 <a href="/sdk/getting-started" class="btn btn-redwood btn-sm btn-light btn-shadowed">Get Started</a>
 </p>
 
 <table class="no-border">
 <tr><td style="width:50%;">
 
-<h4>Installing Nylas Mail</h4>
+<h4>Installing N1</h4>
 <p>
-Nylas Mail is available for Mac, Windows, and Linux. Download the latest build for your platform below:
+N1 is available for Mac, Windows, and Linux. Download the latest build for your platform below:
 </p>
 <ul>
 <li><a href="https://edgehill.nylas.com/download?platform=darwin">Mac OS X</a></li>
@@ -21,7 +21,7 @@ Nylas Mail is available for Mac, Windows, and Linux. Download the latest build f
 
 <h4>Package Architecture</h4>
 <p>
-Packages lie at the heart of Nylas Mail. Each part of the core experience is a separate package that uses the Nylas Package API to add functionality to the client. Learn more about packages and create your first package.
+Packages lie at the heart of N1. Each part of the core experience is a separate package that uses the Nylas Package API to add functionality to the client. Learn more about packages and create your first package.
 </p>
 <ul>
 <li><a href="/sdk/getting-started">Create a Package</a></li>
@@ -45,7 +45,7 @@ Packages lie at the heart of Nylas Mail. Each part of the core experience is a s
 
 <h4>Debugging Packages</h4>
 <p>
-Nylas Mail is built on top of Electron, which runs the latest version of Chromium. Learn how to access debug tools in Electron and use our Developer Tools Extensions:
+N1 is built on top of Electron, which runs the latest version of Chromium. Learn how to access debug tools in Electron and use our Developer Tools Extensions:
 </p>
 <ul>
 <li><a href="/sdk/debugging">Debugging in Nylas</a></li>

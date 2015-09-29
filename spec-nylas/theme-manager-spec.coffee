@@ -424,7 +424,7 @@ describe "ThemeManager", ->
     beforeEach ->
       themeManager = new ThemeManager({packageManager: atom.packages, resourcePath, configDirPath, safeMode: true})
 
-    describe 'when the enabled UI theme is bundled with Nylas Mail', ->
+    describe 'when the enabled UI theme is bundled with N1', ->
       beforeEach ->
         atom.config.set('core.themes', ['ui-light'])
 
@@ -436,7 +436,7 @@ describe "ThemeManager", ->
         expect(activeThemeNames.length).toBe(1)
         expect(activeThemeNames).toContain('ui-light')
 
-    describe 'when the enabled UI theme is not bundled with Nylas Mail', ->
+    describe 'when the enabled UI theme is not bundled with N1', ->
       beforeEach ->
         atom.config.set('core.themes', ['installed-dark-ui'])
 
@@ -448,7 +448,7 @@ describe "ThemeManager", ->
         expect(activeThemeNames.length).toBe(1)
         expect(activeThemeNames).toContain('ui-light')
 
-    describe 'when the enabled UI theme is not bundled with Nylas Mail', ->
+    describe 'when the enabled UI theme is not bundled with N1', ->
       beforeEach ->
         atom.config.set('core.themes', ['installed-dark-ui'])
 

@@ -16,7 +16,7 @@ class WorkspaceSidebarItem
 ###
 Public: The WorkspaceStore manages Sheets and layout modes in the application.
 Observing the WorkspaceStore makes it easy to monitor the sheet stack. To learn
-more about sheets and layout in Nylas Mail, see the {InterfaceConcepts.md}
+more about sheets and layout in N1, see the {InterfaceConcepts.md}
 documentation.
 
 Section: Stores

@@ -4,7 +4,7 @@ Section: Guides
 Order:   5
 ---
 
-Nylas Mail is built on top of a custom database layer modeled after ActiveRecord. For many parts of the application, the database is the source of truth. Data is retrieved from the API, written to the database, and changes to the database trigger Stores and components to refresh their contents. The illustration below shows this flow of data:
+N1 is built on top of a custom database layer modeled after ActiveRecord. For many parts of the application, the database is the source of truth. Data is retrieved from the API, written to the database, and changes to the database trigger Stores and components to refresh their contents. The illustration below shows this flow of data:
 
 <img src="./images/database-flow.png">
 
@@ -12,7 +12,7 @@ The Database connection is managed by the {DatabaseStore}, a singleton object th
 
 ## Declaring Models
 
-In Nylas Mail, Models are thin wrappers around data with a particular schema. Each {Model} class declares a set of attributes that define the object's data. For example:
+In N1, Models are thin wrappers around data with a particular schema. Each {Model} class declares a set of attributes that define the object's data. For example:
 
 ```coffee
 class Example extends Model
@@ -90,7 +90,7 @@ When possible, you should accumulate the objects you want to save and call `pers
 
 ## Saving Drafts
 
-Drafts in Nylas Mail presented us with a unique challenge. The same draft may be edited rapidly by unrelated parts of the application, causing race scenarios. (For example, when the user is typing and attachments finish uploading at the same time.) This problem could be solved by object locking, but we chose to marshall draft changes through a central DraftStore that debounces database queries and adds other helpful features. See the {DraftStore} documentation for more information.
+Drafts in N1 presented us with a unique challenge. The same draft may be edited rapidly by unrelated parts of the application, causing race scenarios. (For example, when the user is typing and attachments finish uploading at the same time.) This problem could be solved by object locking, but we chose to marshall draft changes through a central DraftStore that debounces database queries and adds other helpful features. See the {DraftStore} documentation for more information.
 
 ## Removing Models
 
@@ -118,7 +118,7 @@ JoinedData attributes cannot be `queryable`.
 
 ##### Attribute.Collection
 
-Collection attributes provide basic support for one-to-many relationships. For example, {Thread}s in Nylas Mail have a collection of {Tag}s.
+Collection attributes provide basic support for one-to-many relationships. For example, {Thread}s in N1 have a collection of {Tag}s.
 
 When Collection attributes are marked as `queryable`, the {DatabaseStore} automatically creates a join table and maintains it as you create, save, and delete models. When you call `persistModel`, entries are added to the join table associating the ID of the model with the IDs of models in the collection.
 
@@ -162,7 +162,7 @@ When a model is persisted or unpersisted from the database, your listener method
 
 ##  But why can't I...?
 
-Nylas Mail exposes a minimal Database API that exposes high-level methods for saving and retrieving objects. The API was designed with several goals in mind, which will help us create a healthy ecosystem of third-party packages:
+N1 exposes a minimal Database API that exposes high-level methods for saving and retrieving objects. The API was designed with several goals in mind, which will help us create a healthy ecosystem of third-party packages:
 
 - Package code should not be tightly coupled to SQLite
 

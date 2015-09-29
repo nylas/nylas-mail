@@ -1,5 +1,5 @@
 # Start the crash reporter before anything else.
-require('crash-reporter').start(productName: 'Nylas Mail', companyName: 'Nylas')
+require('crash-reporter').start(productName: 'N1', companyName: 'Nylas')
 
 
 path = require 'path'

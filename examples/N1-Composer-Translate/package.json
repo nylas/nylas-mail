@@ -2,7 +2,7 @@
   "name": "translate",
   "version": "0.2.0",
   "main": "./lib/main",
-  "description": "An example package for Nylas Mail that translates drafts into other languages using the Yandex API.",
+  "description": "An example package for N1 that translates drafts into other languages using the Yandex API.",
   "license": "Proprietary",
   "engines": {
     "atom": "*"

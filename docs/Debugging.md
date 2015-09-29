@@ -6,7 +6,7 @@ Order:   4
 
 ### Chromium DevTools
 
-Nylas Mail is built on top of Electron, which runs the latest version of Chromium (at the time of writing, Chromium 43). You can access the standard [Chrome DevTools](https://developer.chrome.com/devtools) using the `Command-Option-I` (`Ctrl-Shift-I` on Windows/Linux) keyboard shortcut, including the Debugger, Profiler, and Console. You can find extensive information about the Chromium DevTools on [developer.chrome.com](https://developer.chrome.com/devtools).
+N1 is built on top of Electron, which runs the latest version of Chromium (at the time of writing, Chromium 43). You can access the standard [Chrome DevTools](https://developer.chrome.com/devtools) using the `Command-Option-I` (`Ctrl-Shift-I` on Windows/Linux) keyboard shortcut, including the Debugger, Profiler, and Console. You can find extensive information about the Chromium DevTools on [developer.chrome.com](https://developer.chrome.com/devtools).
 
 Here are a few hidden tricks for getting the most out of the Chromium DevTools:
 
@@ -35,12 +35,12 @@ The Developer Panel also allows you to toggle "View Component Regions". Turning 
 
 ### The Development Workflow
 
-If you're debugging a package, you'll be modifying your code and re-running Nylas Mail over and over again. There are a few things you can do to make this development workflow less time consuming:
+If you're debugging a package, you'll be modifying your code and re-running N1 over and over again. There are a few things you can do to make this development workflow less time consuming:
 
-- **Inline Changes**: Using the Chromium DevTools, you can change the contents of your coffeescript and javascript source files, type `Command-S` to save, and hot-swap the code. This makes it easy to test small adjustments to your code without re-launching Nylas Mail.
+- **Inline Changes**: Using the Chromium DevTools, you can change the contents of your coffeescript and javascript source files, type `Command-S` to save, and hot-swap the code. This makes it easy to test small adjustments to your code without re-launching N1.
 
-- **View > Refresh**: From the View menu, choose "Refresh" to reload the Nylas Mail window just like a page in your browser. Refreshing is faster than restarting the app and allows you to iterate more quickly.
+- **View > Refresh**: From the View menu, choose "Refresh" to reload the N1 window just like a page in your browser. Refreshing is faster than restarting the app and allows you to iterate more quickly.
 
- > Note: A bug in Electron causes the Chromium DevTools to become detatched if you refresh the app often. If you find that Chromium is not stopping at your breakpoints, quit Nylas Mail and re-launch it.
+ > Note: A bug in Electron causes the Chromium DevTools to become detatched if you refresh the app often. If you find that Chromium is not stopping at your breakpoints, quit N1 and re-launch it.
 
 In the future, we'll support much richer hot-reloading of plugin components and code. Stay tuned!

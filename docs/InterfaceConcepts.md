@@ -4,7 +4,7 @@ Section: Guides
 Order:   1
 ---
 
-The Nylas Mail user interface is conceptually organized into Sheets. Each Sheet represents a window of content. For example, the `Threads` sheet lies at the heart of the application. When the user chooses the "Files" tab, a separate `Files` sheet is displayed in place of `Threads`. When the user clicks a thread in single-pane mode, a `Thread` sheet is pushed on to the workspace and appears after a brief transition.
+The N1 user interface is conceptually organized into Sheets. Each Sheet represents a window of content. For example, the `Threads` sheet lies at the heart of the application. When the user chooses the "Files" tab, a separate `Files` sheet is displayed in place of `Threads`. When the user clicks a thread in single-pane mode, a `Thread` sheet is pushed on to the workspace and appears after a brief transition.
 
 <img src="./images/sheets.png">
 
@@ -42,7 +42,7 @@ Each column is laid out as a CSS Flexbox, making them extremely flexible. For mo
 
 ###Toolbars
 
-Toolbars in Nylas Mail are also powered by the {ComponentRegistry}. Though toolbars appear to be a single unit at the top of a sheet, they are divided into columns with the same widths as the columns in the sheet beneath them.
+Toolbars in N1 are also powered by the {ComponentRegistry}. Though toolbars appear to be a single unit at the top of a sheet, they are divided into columns with the same widths as the columns in the sheet beneath them.
 
 <img src="./images/toolbar.png">
 

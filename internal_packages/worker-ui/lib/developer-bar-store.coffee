@@ -150,7 +150,7 @@ class DeveloperBarStore extends NylasStore
         <br/>
         <br/>
         <b>Environment:</b><br/>
-        I'm using Nylas Mail #{atom.getVersion()} and my platform is #{process.platform}-#{process.arch}.<br/>
+        I'm using N1 #{atom.getVersion()} and my platform is #{process.platform}-#{process.arch}.<br/>
         --<br/>
         #{user}<br/>
       """

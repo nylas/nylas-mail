@@ -28,7 +28,7 @@ ResizableHandle =
 
 ###
 Public: ResizableRegion wraps it's `children` in a div with a fixed width or height, and a
-draggable edge. It is used throughout Nylas Mail to implement resizable columns, trays, etc.
+draggable edge. It is used throughout N1 to implement resizable columns, trays, etc.
 
 Section: Component Kit
 ###

@@ -27,11 +27,11 @@ or marking a thread as "read". Tasks optimistically make changes to the app's
 local cache and encapsulate logic for performing changes on the server, rolling
 back in case of failure, and waiting on dependent tasks.
 
-The TaskQueue is essential to offline mode in Nylas Mail. It automatically pauses
+The TaskQueue is essential to offline mode in N1. It automatically pauses
 when the user's internet connection is unavailable and resumes when online.
 
 The task queue is persisted to disk, ensuring that tasks are executed later,
-even if the user quits Nylas Mail.
+even if the user quits N1.
 
 The TaskQueue is only available in the app's main window. Rather than directly
 queuing tasks, you should use the {Actions} to interact with the {TaskQueue}.

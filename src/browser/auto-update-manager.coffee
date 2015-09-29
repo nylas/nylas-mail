@@ -107,7 +107,7 @@ class AutoUpdateManager
       icon: @iconURL()
       message: 'No update available.'
       title: 'No Update Available'
-      detail: "You're running the latest version of Nylas Mail (#{@version})."
+      detail: "You're running the latest version of N1 (#{@version})."
 
   onUpdateError: (event, message) =>
     autoUpdater.removeListener 'update-not-available', @onUpdateNotAvailable

@@ -32,7 +32,7 @@ BEGIN_TRANSACTION = 'BEGIN TRANSACTION'
 COMMIT = 'COMMIT'
 
 ###
-Public: Nylas Mail is built on top of a custom database layer modeled after
+Public: N1 is built on top of a custom database layer modeled after
 ActiveRecord. For many parts of the application, the database is the source
 of truth. Data is retrieved from the API, written to the database, and changes
 to the database trigger Stores and components to refresh their contents.
