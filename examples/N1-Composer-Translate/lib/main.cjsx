@@ -51,8 +51,8 @@ class TranslateButton extends React.Component
   # `React.createElement('a', {href: 'http://facebook.github.io/react/'}, 'Hello!')`
   #
   # We're rendering a `Popover` with a `Menu` inside. These components are part
-  # of Edgehill's standard `nylas-component-kit` library, and make it easy to build
-  # interfaces that match the rest of Edgehill's UI.
+  # of N1's standard `nylas-component-kit` library, and make it easy to build
+  # interfaces that match the rest of N1's UI.
   #
   render: =>
     <Popover ref="popover"

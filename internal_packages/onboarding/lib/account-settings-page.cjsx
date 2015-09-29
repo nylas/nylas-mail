@@ -187,7 +187,7 @@ class AccountSettingsPage extends React.Component
     @setState(tryingToAuthenticate: true)
 
     # Send the form data directly to Nylas to get code
-    # If this succeeds, send the received code to Edgehill server to register the account
+    # If this succeeds, send the received code to N1 server to register the account
     # Otherwise process the error message from the server and highlight UI as needed
     NylasAPI.makeRequest
       path: "/auth?client_id=#{NylasAPI.AppID}"

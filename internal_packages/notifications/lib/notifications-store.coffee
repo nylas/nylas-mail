@@ -10,7 +10,7 @@ uuid_count = 0
 class Notification
   constructor: ({@message, @type, @tag, @sticky, @actions, @icon} = {}) ->
     # Check to make sure the provided data is a valid notificaiton, since
-    # notifications may be constructed by anyone developing on Edgehill
+    # notifications may be constructed by anyone developing on N1
     throw new Error "No `new` keyword when constructing Notification" unless @ instanceof Notification
     throw new Error "Type must be `info`,`error`, or `success`" unless @type in ['info', 'error', 'success']
     throw new Error "Message must be provided for notification" unless @message

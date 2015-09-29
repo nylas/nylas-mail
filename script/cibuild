@@ -1,5 +1,5 @@
 #!/bin/sh
-# Edgehill Jenkins must run a shell script.
+# N1 Jenkins must run a shell script.
 #
 # We also set the Keychain credentials inside of Jenkins Credentials
 # instead of plain text files.

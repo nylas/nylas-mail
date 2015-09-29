@@ -5,7 +5,7 @@ protocol = require 'protocol'
 
 # Handles requests with 'nylas' protocol.
 #
-# It's created by {EdgehillApplication} upon instantiation and is used to create a
+# It's created by {N1Application} upon instantiation and is used to create a
 # custom resource loader for 'nylas://' URLs.
 #
 # The following directories are searched in order:

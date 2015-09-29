@@ -111,7 +111,7 @@ class MessageControls extends React.Component
         type: 'warning'
         buttons: ['OK'],
         message: "Thank you."
-        detail: "The contents of this message have been sent to the Edgehill team and we added to a test suite."
+        detail: "The contents of this message have been sent to the N1 team and we added to a test suite."
       }
 
   _onShowOriginal: =>
