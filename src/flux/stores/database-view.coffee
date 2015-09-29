@@ -4,7 +4,7 @@ DatabaseStore = require './database-store'
 ModelView = require './model-view'
 EventEmitter = require('events').EventEmitter
 
-verbose = true
+verbose = false
 
 # A small helper class that prevents the DatabaseView from making too many
 # queries. It tracks the number of jobs in flight via `increment` and allows
