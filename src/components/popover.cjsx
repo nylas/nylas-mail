@@ -4,7 +4,7 @@ _ = require 'underscore'
 
 ###
 Public: The Popover component makes it easy to display a sheet or popup menu when the
-user clicks the React element provided as `buttonComponent`. In Edgehill, the Popover
+user clicks the React element provided as `buttonComponent`. In N1, the Popover
 component is used to create rich dropdown menus, detail popups, etc. with consistent
 look and feel and behavior.
 

@@ -74,7 +74,7 @@ Public: React component for multi-section Menus with key binding
 
 The Menu component allows you to display a list of items. Menu takes care of
 several important things, ensuring that your menu is consistent with the rest
-of the Edgehill application and offers a near-native experience:
+of the N1 application and offers a near-native experience:
 
 - Keyboard Interaction with the Up and Down arrow keys, Enter to select
 - Maintaining selection across content changes

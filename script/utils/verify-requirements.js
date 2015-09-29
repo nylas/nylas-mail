@@ -31,7 +31,7 @@ function verifyNode(cb) {
   var nodeMajorVersion = +versionArray[0];
   var nodeMinorVersion = +versionArray[1];
   if (nodeMajorVersion === 0 && nodeMinorVersion < 10) {
-    error = "node v0.10 is required to build Edgehill, node " + nodeVersion + " is installed.";
+    error = "node v0.10 is required to build N1, node " + nodeVersion + " is installed.";
     cb(error);
   }
   else {
@@ -50,14 +50,14 @@ function verifyNpm(cb) {
 
   childProcess.execFile(npmCommand, ['-v'], { env: process.env }, function(err, stdout) {
     if (err)
-      return cb("npm 1.4 is required to build Edgehill. An error (" + err + ") occured when checking the version.");
+      return cb("npm 1.4 is required to build N1. An error (" + err + ") occured when checking the version.");
 
     var npmVersion = stdout ? stdout.trim() : '';
     var versionArray = npmVersion.split('.');
     var npmMajorVersion = +versionArray[0] || 0;
     var npmMinorVersion = +versionArray[1] || 0;
     if (npmMajorVersion === 1 && npmMinorVersion < 4)
-      cb("npm v1.4+ is required to build Edgehill.");
+      cb("npm v1.4+ is required to build N1.");
     else
       cb(null, "npm: v" + npmVersion);
   });
@@ -87,7 +87,7 @@ function checkPythonVersion (python, cb) {
 
   childProcess.execFile(python, ['-c', 'import platform; print(platform.python_version());'], { env: process.env }, function (err, stdout) {
     if (err) {
-      error = "Python 2.7 is required to build Edgehill. An error (" + err + ") occured when checking the version of '" + python + "'. ";
+      error = "Python 2.7 is required to build N1. An error (" + err + ") occured when checking the version of '" + python + "'. ";
       error += pythonHelpMessage;
       cb(error);
       return;
@@ -101,11 +101,11 @@ function checkPythonVersion (python, cb) {
       version = version.replace(/rc(.*)$/ig, '');
     }
 
-    // Edgehill requires python 2.7 or higher (but not python 3) for node-gyp
+    // N1 requires python 2.7 or higher (but not python 3) for node-gyp
     var versionArray = version.split('.').map(function(num) { return +num; });
     var goodPythonVersion = (versionArray[0] === 2 && versionArray[1] >= 7);
     if (!goodPythonVersion) {
-      error = "Python 2.7 is required to build Edgehill. '" + python + "' returns version " + version + ". ";
+      error = "Python 2.7 is required to build N1. '" + python + "' returns version " + version + ". ";
       error += pythonHelpMessage;
       cb(error);
       return;
