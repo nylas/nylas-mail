@@ -7,6 +7,7 @@ Message = require '../../src/flux/models/message'
 Account = require '../../src/flux/models/account'
 Contact = require '../../src/flux/models/contact'
 {APIError} = require '../../src/flux/errors'
+AccountStore = require '../../src/flux/stores/account-store'
 DatabaseStore = require '../../src/flux/stores/database-store'
 TaskQueue = require '../../src/flux/stores/task-queue'
 
@@ -30,10 +31,10 @@ remoteDraft = -> new Message _.extend {}, testData, {clientId: "local-id", serve
 
 describe "SyncbackDraftTask", ->
   beforeEach ->
-    spyOn(DatabaseStore, "run").andCallFake (query) ->
-      if query._klass is Account
-        return Promise.resolve(new Account(clientId: 'local-abc123', serverId: 'abc123'))
+    spyOn(AccountStore, "itemWithEmailAddress").andCallFake (email) ->
+      return new Account(clientId: 'local-abc123', serverId: 'abc123')
 
+    spyOn(DatabaseStore, "run").andCallFake (query) ->
       clientId = query.matcherValueForModelKey('clientId')
       if clientId is "localDraftId" then Promise.resolve(localDraft())
       else if clientId is "remoteDraftId" then Promise.resolve(remoteDraft())

@@ -1,5 +1,6 @@
 Actions = require '../actions'
 Account = require '../models/account'
+Utils = require '../models/utils'
 DatabaseStore = require './database-store'
 _ = require 'underscore'
 
@@ -86,6 +87,11 @@ class AccountStore
   # Public: Returns an {Array} of {Account} objects
   items: =>
     @_accounts
+
+  # Public: Returns the {Account} for the given email address, or null.
+  itemWithEmailAddress: (email) =>
+    _.find @_accounts, (account) ->
+      Utils.emailIsEquivalent(email, account.emailAddress)
 
   # Public: Returns the currently active {Account}.
   current: =>
