@@ -44,15 +44,15 @@ class ComposerWithWindowProps extends React.Component
 
 module.exports =
   activate: (@state={}) ->
-    atom.registerHotWindow
-      windowType: 'composer'
-      replenishNum: 2
-
-    # Register our composer as the app-wide Composer
+    # Register our composer as the window-wide Composer
     ComponentRegistry.register ComposerView,
       role: 'Composer'
 
     if atom.isMainWindow()
+      atom.registerHotWindow
+        windowType: 'composer'
+        replenishNum: 2
+
       ComponentRegistry.register ComposeButton,
         location: WorkspaceStore.Location.RootSidebar.Toolbar
     else
@@ -64,7 +64,8 @@ module.exports =
         location: WorkspaceStore.Location.Center
 
   deactivate: ->
-    atom.unregisterHotWindow('composer')
+    if atom.isMainWindow()
+      atom.unregisterHotWindow('composer')
     ComponentRegistry.unregister(ComposerView)
     ComponentRegistry.unregister(ComposeButton)
     ComponentRegistry.unregister(ComposerWithWindowProps)
