@@ -167,8 +167,8 @@ class AtomWindow
       chosen = dialog.showMessageBox @browserWindow,
         type: 'warning'
         buttons: ['Close', 'Keep Waiting']
-        message: 'Editor is not responding'
-        detail: 'The editor is not responding. Would you like to force close it or just keep waiting?'
+        message: 'N1 is not responding'
+        detail: 'Would you like to force close it or keep waiting?'
       @browserWindow.destroy() if chosen is 0
 
     @browserWindow.webContents.on 'crashed', =>
@@ -181,7 +181,7 @@ class AtomWindow
         chosen = dialog.showMessageBox @browserWindow,
           type: 'warning'
           buttons: ['Close Window', 'Reload', 'Keep It Open']
-          message: 'Nylas Mail has crashed'
+          message: 'N1 has crashed'
           detail: 'Please report this issue to us at support@nylas.com.'
         switch chosen
           when 0 then @browserWindow.destroy()

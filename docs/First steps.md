@@ -8,7 +8,7 @@ Order:       2
 <div class="row">
   <div class="col-md-12">
     <h2>Start building on top of Nylas in minutes:</h2>
-    <h3 class="first padded"><div class="number">1</div> Install Nylas Mail</h3>
+    <h3 class="first padded"><div class="number">1</div> Install N1</h3>
     <p>Download and install Nylas for <span id="platforms"></span>. Open it and sign in to your email account.</p>
   </div>
 </div>
@@ -16,7 +16,7 @@ Order:       2
 <div class="row">
   <div class="col-md-8">
     <h3 class="second padded"><div class="number">2</div> Start a Package</h3>
-    <p>Packages lie at the heart of Nylas Mail. The thread list, composer and other core parts of the app are packages bundled with the app, and you have access to the same set of APIs. From the Developer Menu, choose <span class="instruction-literal">Create a Package...</span> and name your new package.</p>
+    <p>Packages lie at the heart of N1. The thread list, composer and other core parts of the app are packages bundled with the app, and you have access to the same set of APIs. From the Developer Menu, choose <span class="instruction-literal">Create a Package...</span> and name your new package.</p>
   </div>
   <div class="col-md-4">
     <img src="/static/img/Step2-Menu@2x.png" width="203" height="194" style="margin-top:88px;"/>
@@ -26,7 +26,7 @@ Order:       2
 <div class="row">
   <div class="col-md-12">
     <h3 class="third padded"><div class="number">3</div> See it in Action</h3>
-    <p>Your new package comes with some basic code that adds a section to the message sidebar, and it's already enabled! View a message to see it in action. If you make changes to the source, choose <span class="instruction-literal">View > Refresh</span> to see your changes in Nylas Mail.</p>
+    <p>Your new package comes with some basic code that adds a section to the message sidebar, and it's already enabled! View a message to see it in action. If you make changes to the source, choose <span class="instruction-literal">View > Refresh</span> to see your changes in N1.</p>
   </div>
 </div>
 
@@ -49,7 +49,7 @@ Order:       2
   <div class="col-md-6" style="padding-left:30px;">
     <h4><div class="letter">B</div> Run the specs</h4>
     <img src="/static/img/illu-RunTheSpecs@2x.png" width="139" height="96" style="margin:auto; margin-bottom:35px; display:block;"/>
-    <p>In Nylas Mail, select <span class="instruction-literal">Developer > Run Package Specs...</span> from the menu to run your package's new specs. Nylas and its packages use the Jasmine testing framework.</p>
+    <p>In N1, select <span class="instruction-literal">Developer > Run Package Specs...</span> from the menu to run your package's new specs. Nylas and its packages use the Jasmine testing framework.</p>
   </div>
 </div>
 
@@ -112,7 +112,7 @@ _renderContent: =>
   </div>
 ```
 
-After making changes to the package, reload Nylas Mail by going to `View > Reload`.
+After making changes to the package, reload N1 by going to `View > Reload`.
 
 ### Installing a dependency
 
@@ -144,7 +144,7 @@ class MyMessageSidebar extends React.Component
 
 > JSX Tip: The `{..}` syntax is used for JavaScript expressions inside HTML elements. [Learn more](https://facebook.github.io/react/docs/jsx-in-depth.html).
 
-You should see the MD5 hash appear in the sidebar (after you reload Nylas Mail):
+You should see the MD5 hash appear in the sidebar (after you reload N1):
 
 <img class="gsg-center" src="images/sidebar-md5.png"/>
 
@@ -192,7 +192,7 @@ You'll see these styles reflected in your sidebar.
 
 <img class="gsg-center" src="images/sidebar-style.png"/>
 
-If you're a fan of using the Chrome Developer Tools to tinker with styles, no fear; they work in Nylas Mail, too. Open them by going to `Developer > Toggle Developer Tools`. You'll also find them helpful for debugging in the event that your package isn't behaving as expected.
+If you're a fan of using the Chrome Developer Tools to tinker with styles, no fear; they work in N1, too. Open them by going to `Developer > Toggle Developer Tools`. You'll also find them helpful for debugging in the event that your package isn't behaving as expected.
 
 <hr/>
 

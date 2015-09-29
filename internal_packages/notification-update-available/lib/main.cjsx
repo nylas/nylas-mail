@@ -21,7 +21,7 @@ module.exports =
       type: 'info'
       tag: 'app-update'
       sticky: true
-      message: "An update to Nylas Mail is available #{version} - Restart now to update!",
+      message: "An update to N1 is available #{version} - Restart now to update!",
       icon: 'fa-flag'
       actions: [{
         label: 'Install'

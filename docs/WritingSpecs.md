@@ -7,7 +7,7 @@ Order:   7
 
 # Writing specs
 
-Nylas uses [Jasmine](http://jasmine.github.io/1.3/introduction.html) as its spec framework. As a package developer, you can write specs using Jasmine 1.3 and get some quick wins. Jasmine specs can be run in Nylas Mail directly from the Developer menu, and the test environment provides you with helpful stubs. You can also require your own test framework, or use Jasmine for integration tests and your own framework for your existing business logic.
+Nylas uses [Jasmine](http://jasmine.github.io/1.3/introduction.html) as its spec framework. As a package developer, you can write specs using Jasmine 1.3 and get some quick wins. Jasmine specs can be run in N1 directly from the Developer menu, and the test environment provides you with helpful stubs. You can also require your own test framework, or use Jasmine for integration tests and your own framework for your existing business logic.
 
 This documentation describes using [Jasmine 1.3](http://jasmine.github.io/1.3/introduction.html) to write specs for a Nylas package.
 

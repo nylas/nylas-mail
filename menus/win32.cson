@@ -36,7 +36,7 @@
       { label: 'Install a Package Manually...', command: 'application:install-package' }
       { type: 'separator' }
       { label: 'Run Package &Specs...', command: 'application:run-package-specs' }
-      { label: 'Run &Nylas Mail Specs', command: 'application:run-all-specs' }
+      { label: 'Run &N1 Specs', command: 'application:run-all-specs' }
       { type: 'separator' }
       { label: 'Open Detailed Logs', command: 'window:open-errorreporter-logs' }
       { label: 'Ship Detailed Logs to Nylas', command: 'application:ship-logs' }

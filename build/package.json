@@ -1,6 +1,6 @@
 {
   "name": "nylas-build",
-  "description": "Nylas Mail build",
+  "description": "N1 build",
   "repository": {
     "type": "git",
     "url": "https://github.com/nylas/edgehill.git"

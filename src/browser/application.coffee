@@ -37,7 +37,7 @@ module.exports =
 class Application
   _.extend @prototype, EventEmitter.prototype
 
-  # Public: The entry point into the Nylas Mail application.
+  # Public: The entry point into the N1 application.
   @open: (options) ->
     createApplication = -> new Application(options)
 
@@ -222,7 +222,7 @@ class Application
       dialog.showMessageBox
         type: 'warning'
         buttons: ['OK']
-        message: 'Your local Nylas Mail logs have been sent to LogStash.'
+        message: 'Your local N1 logs have been sent to LogStash.'
         title: 'Logs Shipped'
 
     @on 'application:run-package-specs', ->

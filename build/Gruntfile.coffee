@@ -2,7 +2,7 @@ fs = require 'fs'
 path = require 'path'
 os = require 'os'
 
-# This is the main Gruntfile that manages building Nylas Mail distributions.
+# This is the main Gruntfile that manages building N1 distributions.
 # The reason it's inisde of the build/ folder is so everything can be
 # compiled against Node's v8 headers instead of Atom's v8 headers. All
 # packages in the root-level node_modules are compiled against Atom's v8

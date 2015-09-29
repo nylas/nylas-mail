@@ -63,7 +63,7 @@ setupErrorReporter = (args={}) ->
 setupCrashReporter = ->
   # In the future, we may want to collect actual native crash reports,
   # but for now let's not send them to GitHub
-  # crashReporter.start(productName: "Nylas Mail", companyName: "Nylas")
+  # crashReporter.start(productName: "N1", companyName: "Nylas")
 
 setupCoffeeScript = ->
   CoffeeScript = null

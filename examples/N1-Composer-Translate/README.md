@@ -1,7 +1,7 @@
 
 ## Translate
 
-A sample package for Nylas Mail that is translates draft text to other languages using the Yandex Translation API.
+A sample package for N1 that is translates draft text to other languages using the Yandex Translation API.
 
 #### To build documentation (the manual way):
 

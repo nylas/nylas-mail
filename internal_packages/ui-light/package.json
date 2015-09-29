@@ -2,7 +2,7 @@
   "name": "ui-light",
   "theme": "ui",
   "version": "0.1.0",
-  "description": "The Nylas Mail Client Theme",
+  "description": "The N1 Client Theme",
   "license": "Proprietary",
   "engines": {
     "atom": "*"

@@ -4,13 +4,13 @@ Section: Guides
 Order:   2
 ---
 
-Nylas Mail uses [React](https://facebook.github.io/react/) to create a fast, responsive UI. Packages that want to extend the Nylas Mail interface should use React. Using React's [JSX](https://facebook.github.io/react/jsx-in-depth.html) syntax is optional, but both [JSX](https://facebook.github.io/react/jsx-in-depth.html) and [CJSX](https://github.com/jsdf/coffee-react) (CoffeeScript) are available.
+N1 uses [React](https://facebook.github.io/react/) to create a fast, responsive UI. Packages that want to extend the N1 interface should use React. Using React's [JSX](https://facebook.github.io/react/jsx-in-depth.html) syntax is optional, but both [JSX](https://facebook.github.io/react/jsx-in-depth.html) and [CJSX](https://github.com/jsdf/coffee-react) (CoffeeScript) are available.
 
 For a quick introduction to React, take a look at Facebook's [Getting Started with React](https://facebook.github.io/react/getting-started.html).
 
 #### React Components
 
-Nylas Mail provides a set of core React components you can use in your packages. Many of the standard components listen for key events, include considerations for different platforms, and have extensive CSS. Wrapping standard components makes it easy to build rich interfaces that are consistent with the rest of the Nylas Mail platform.
+N1 provides a set of core React components you can use in your packages. Many of the standard components listen for key events, include considerations for different platforms, and have extensive CSS. Wrapping standard components makes it easy to build rich interfaces that are consistent with the rest of the N1 platform.
 
 To use a standard component, require it from `nylas-component-kit` and use it in your component's `render` method.
 
@@ -19,7 +19,7 @@ To use a standard component, require it from `nylas-component-kit` and use it in
 
 Here's a quick look at standard components you can require from `nylas-component-kit`:
 
-- **{Menu}**: Allows you to display a list of items consistent with the rest of the Nylas Mail user experience.
+- **{Menu}**: Allows you to display a list of items consistent with the rest of the N1 user experience.
 
 - **{Spinner}**: Displays an indeterminate progress indicator centered within it's container.
 
@@ -43,21 +43,21 @@ Here's a quick look at standard components you can require from `nylas-component
 
 ## React Component Injection
 
-The Nylas Mail interface is composed at runtime from components added by different packages. The app's left sidebar contains components from the composer package, the source list package, the activity package, and more. You can leverage the flexiblity of this system to extend almost any part of Nylas Mail's interface.
+The N1 interface is composed at runtime from components added by different packages. The app's left sidebar contains components from the composer package, the source list package, the activity package, and more. You can leverage the flexiblity of this system to extend almost any part of N1's interface.
 
 ### Registering Components
 
-After you've created React components in your package, you should register them with the {ComponentRegistry}. The Component Registry manages the dynamic injection of components that makes Nylas Mail so extensible. You can request that your components appear in a specific `Location` defined by the {WorkspaceStore}, or register your component for a `Role` that another package has declared.
+After you've created React components in your package, you should register them with the {ComponentRegistry}. The Component Registry manages the dynamic injection of components that makes N1 so extensible. You can request that your components appear in a specific `Location` defined by the {WorkspaceStore}, or register your component for a `Role` that another package has declared.
 
 > The Component Registry allows you to insert your custom component without hacking up the DOM. Register for a `Location` or `Role` and your Component will be rendered into that part of the interface.
 
-It's easy to see where registered components are displayed in Nylas Mail. Enable the Developer bar at the bottom of the app by opening the Inspector panel, and then click "**Component Regions**":
+It's easy to see where registered components are displayed in N1. Enable the Developer bar at the bottom of the app by opening the Inspector panel, and then click "**Component Regions**":
 
 <img src="./images/injected-components.png">
 
 Each region outlined in red is filled dynamically by looking up a React component or set of components from the Component Registry. You can see the role or location you'd need to register for, and the `props` that your component will receive in those locations.
 
-Here are a few examples of how to use it to extend Nylas Mail. Typically, packages register components in their main `activate` method, and unregister them in `deactivate`:
+Here are a few examples of how to use it to extend N1. Typically, packages register components in their main `activate` method, and unregister them in `deactivate`:
 
 1. Add a component to the Thread List column:
 
@@ -73,7 +73,7 @@ Here are a few examples of how to use it to extend Nylas Mail. Typically, packag
 	      role: 'Composer:ActionButton'
 	```
 
-3. Replace the `Participants` component that ships with Nylas Mail to display thread participants on your own:
+3. Replace the `Participants` component that ships with N1 to display thread participants on your own:
 
 	```coffee
 	    ComponentRegistry.register ParticipantsWithStatusDots,
@@ -108,8 +108,8 @@ There are also several convenience components that make it easy to dynamically i
 
 ### Unsafe Components
 
-Nylas Mail considers all injected components "unsafe". When you render them using {InjectedComponent} or {InjectedComponentSet}, they will be wrapped in a component that prevents exceptions in their React render and lifecycle methods from impacting your component. Instead of your component triggering a React Invariant exception in the application, an exception notice will be rendered in place of the unsafe component.
+N1 considers all injected components "unsafe". When you render them using {InjectedComponent} or {InjectedComponentSet}, they will be wrapped in a component that prevents exceptions in their React render and lifecycle methods from impacting your component. Instead of your component triggering a React Invariant exception in the application, an exception notice will be rendered in place of the unsafe component.
 
 <img src="./images/unsafe-component-exception.png">
 
-In the future, Nylas Mail may automatically disable packages when their React components throw exceptions.
+In the future, N1 may automatically disable packages when their React components throw exceptions.

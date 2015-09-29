@@ -16,7 +16,7 @@ You can listen to an Action, or invoke it as a function to fire it.
 
 ## Action Scopes
 
-Nylas Mail is a multi-window application. The `scope` of an Action dictates
+N1 is a multi-window application. The `scope` of an Action dictates
 how it propogates between windows.
 
 - **Global**: These actions can be listened to from any window and fired from any
@@ -376,7 +376,7 @@ class Actions
   Actions.postNotification
     type: 'info',
     sticky: true
-    message: "Thanks for trying out Nylas Mail! Would you like to make it your default mail client?",
+    message: "Thanks for trying out N1! Would you like to make it your default mail client?",
     icon: 'fa-inbox',
     actions: [{
       label: 'Yes'

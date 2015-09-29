@@ -39,7 +39,7 @@ class ArchiveThreadHelper
             type: 'error'
             tag: 'noArchive'
             sticky: true
-            message: "You have not created an Archive folder. Please create a folder called 'Archive' with your email provider, restart Nylas Mail, then try again.",
+            message: "You have not created an Archive folder. Please create a folder called 'Archive' with your email provider, restart N1, then try again.",
           return null
       else if direction is "unarchive"
         inboxFolder = CategoryStore.getStandardCategory("inbox")

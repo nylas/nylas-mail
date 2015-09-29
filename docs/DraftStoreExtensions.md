@@ -4,7 +4,7 @@ Section: Guides
 Order:   6
 ---
 
-The composer lies at the heart of Nylas Mail, and many improvements to the mail experience require deep integration with the composer. To enable these sort of plugins, the {DraftStore} exposes an extension API.
+The composer lies at the heart of N1, and many improvements to the mail experience require deep integration with the composer. To enable these sort of plugins, the {DraftStore} exposes an extension API.
 
 This API allows your package to:
 
