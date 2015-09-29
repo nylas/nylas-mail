@@ -1,6 +1,7 @@
 _ = require 'underscore'
 
 Actions = require '../actions'
+AccountStore = require '../stores/account-store'
 DatabaseStore = require '../stores/database-store'
 TaskQueueStatusStore = require '../stores/task-queue-status-store'
 NylasAPI = require '../nylas-api'
@@ -102,18 +103,17 @@ class SyncbackDraftTask extends Task
     DatabaseStore.findBy(Message, clientId: @draftClientId).include(Message.attributes.body)
 
   checkDraftFromMatchesAccount: (draft) ->
-    DatabaseStore.findBy(Account, [Account.attributes.emailAddress.equal(draft.from[0].email)]).then (account) =>
-      promise = Promise.resolve(draft)
-
-      if draft.accountId isnt account.id
-        DestroyDraftTask = require './destroy-draft'
-        destroy = new DestroyDraftTask(draftId: existingAccountDraft.id)
-        promise = TaskQueueStatusStore.waitForPerformLocal(destroy).then =>
-          @detatchFromRemoteID(existingAccountDraft, acct.id).then (newAccountDraft) =>
-            Promise.resolve(newAccountDraft)
-        Actions.queueTask(destroy)
-
-      promise
+    account = AccountStore.itemWithEmailAddress(draft.from[0].email)
+    if draft.accountId is account.id
+      return Promise.resolve(draft)
+    else
+      DestroyDraftTask = require './destroy-draft'
+      destroy = new DestroyDraftTask(draftId: existingAccountDraft.id)
+      promise = TaskQueueStatusStore.waitForPerformLocal(destroy).then =>
+        @detatchFromRemoteID(existingAccountDraft, acct.id).then (newAccountDraft) =>
+          Promise.resolve(newAccountDraft)
+      Actions.queueTask(destroy)
+      return promise
 
   detatchFromRemoteID: (draft, newAccountId = null) ->
     return Promise.resolve() unless draft
