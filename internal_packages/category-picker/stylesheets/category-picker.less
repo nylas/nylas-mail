@@ -18,14 +18,6 @@
       color: @text-color-inverse;
     }
 
-    .item:hover {
-      background-color: transparent;
-      color: inherit;
-      .primary, .secondary {
-        color: inherit;
-      }
-    }
-
     .item.divider {
       background-color: #e0e0e0;
       margin: 4px 0;
@@ -46,6 +38,7 @@
     border-radius: 2px;
     display: inline-block;
     position: relative;
+    flex-shrink: 0;
     top: 2px;
   }
 
@@ -64,10 +57,17 @@
 
   .category-item {
     font-size: 14px;
+    display: flex;
+  }
+
+  .category-create-new-tag {
+    flex-shrink: 0;
   }
 
   .category-display-name {
     display: inline-block;
     margin-left: 10px;
+    margin-right: 5px;
+    word-break: break-word;
   }
 }
