@@ -1,5 +1,5 @@
 {
-  "name": "github",
+  "name": "N1-Message-View-on-Github",
   "version": "0.1.0",
   "main": "./lib/main",
   "description": "Github integration in Nylas",

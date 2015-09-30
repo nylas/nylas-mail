@@ -159,7 +159,7 @@ class Application
       @windowManager.showMainWindow(loadingMessage)
       @windowManager.ensureWorkWindow()
     else
-      @windowManager.newOnboardingWindow()
+      @windowManager.ensureOnboardingWindow(welcome: true)
       # The onboarding window automatically shows when it's ready
 
   _resetConfigAndRelaunch: =>
@@ -169,18 +169,12 @@ class Application
       @config.set('nylas', null)
       @config.set('edgehill', null)
       @setDatabasePhase('setup')
-      @windowManager.newOnboardingWindow()
+      @windowManager.ensureOnboardingWindow(welcome: true)
 
   _deleteDatabase: (callback) ->
     @deleteFileWithRetry path.join(configDirPath,'edgehill.db'), callback
     @deleteFileWithRetry path.join(configDirPath,'edgehill.db-wal')
     @deleteFileWithRetry path.join(configDirPath,'edgehill.db-shm')
-
-  _accountSetupSuccessful: =>
-    @windowManager.showMainWindow()
-    @windowManager.ensureWorkWindow()
-    @windowManager.mainWindow().waitForLoad =>
-      @windowManager.onboardingWindow()?.close()
 
   databasePhase: ->
     @_databasePhase
@@ -247,7 +241,7 @@ class Application
       atomWindow ?= @windowManager.focusedWindow()
       atomWindow?.browserWindow.inspectElement(x, y)
 
-    @on 'application:add-account', => @windowManager.newOnboardingWindow()
+    @on 'application:add-account', => @windowManager.ensureOnboardingWindow()
     @on 'application:new-message', => @windowManager.sendToMainWindow('new-message')
     @on 'application:send-feedback', => @windowManager.sendToMainWindow('send-feedback')
     @on 'application:open-preferences', => @windowManager.sendToMainWindow('open-preferences')
@@ -378,7 +372,9 @@ class Application
       clipboard.writeText(selectedText, 'selection')
 
     ipc.on 'account-setup-successful', (event) =>
-      @_accountSetupSuccessful()
+      @windowManager.showMainWindow()
+      @windowManager.ensureWorkWindow()
+      @windowManager.onboardingWindow()?.close()
 
     ipc.on 'run-in-window', (event, params) =>
       @_sourceWindows ?= {}

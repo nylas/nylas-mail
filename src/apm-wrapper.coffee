@@ -1,7 +1,8 @@
 _ = require 'underscore'
-{BufferedProcess} = require 'nylas-exports'
 Q = require 'q'
 semver = require 'semver'
+
+BufferedProcess = require './buffered-process'
 
 module.exports =
 class APMWrapper

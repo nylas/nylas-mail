@@ -33,7 +33,7 @@ class GithubProfile extends React.Component
     # Coffeescript at transpile-time. We're actually creating a nested tree of Javascript
     # objects here that *represent* the DOM we want.
     <div className="profile">
-      <img className="logo" src="nylas://sidebar-github-profile/assets/github.png"/>
+      <img className="logo" src="nylas://N1-Github-Contact-Card-Section/assets/github.png"/>
       <a href={@props.profile.html_url}>{@props.profile.login}</a>
       <div>{repoElements}</div>
     </div>
