@@ -122,6 +122,9 @@ class Task
     delete json['queueState']
     (new @.constructor).fromJSON(json)
 
+  numberOfImpactedItems: ->
+    1
+
   shouldDequeueOtherTask: (other) -> false
 
   shouldWaitForTask: (other) -> false
