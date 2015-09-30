@@ -53,7 +53,7 @@ class DeveloperBar extends React.Component
           </div>
         </div>
         <div className="btn-container pull-right">
-          <div className="btn" onClick={Actions.sendFeedback}>Feedback</div>
+          <div className="btn" onClick={ => Actions.sendFeedback() }>Feedback</div>
         </div>
       </div>
       {@_sectionContent()}

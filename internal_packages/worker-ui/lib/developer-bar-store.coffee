@@ -44,8 +44,6 @@ class DeveloperBarStore extends NylasStore
     # See delta.attributes._delta = delta
     JSON.parse(JSON.stringify(@_longPollHistory))
 
-  visible: -> @_visible
-
   ########### PRIVATE ####################################################
 
   triggerThrottled: ->
@@ -58,7 +56,6 @@ class DeveloperBarStore extends NylasStore
     @_curlHistory = []
     @_longPollHistory = []
     @_longPollState = {}
-    @_visible = atom.inDevMode()
 
   _registerListeners: ->
     @listenTo Actions.willMakeAPIRequest, @_onWillMakeAPIRequest
@@ -67,12 +64,7 @@ class DeveloperBarStore extends NylasStore
     @listenTo Actions.longPollProcessedDeltas, @_onLongPollProcessedDeltas
     @listenTo Actions.longPollStateChanged, @_onLongPollStateChange
     @listenTo Actions.clearDeveloperConsole, @_onClear
-    @listenTo Actions.showDeveloperConsole, @_onShow
     @listenTo Actions.sendFeedback, @_onSendFeedback
-
-  _onShow: ->
-    @_visible = true
-    @trigger(@)
 
   _onClear: ->
     @_curlHistoryIds = []

@@ -322,6 +322,30 @@ body.is-blurred {
   }
 }
 
+.btn-feedback {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  background: linear-gradient(to bottom, @blue 0%,darken(@blue, 10%) 100%);
+  width:50px;
+  height:50px;
+  border-radius:25px;
+  display: inline-block;
+  font-size: 30px;
+  text-align: center;
+  line-height:50px;
+  color:rgba(255,255,255,0.9);
+  border: 1px solid darken(@blue, 20%);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  cursor: default;
+}
+.btn-feedback:hover {
+  color:rgba(255,255,255,1);
+  background: linear-gradient(to bottom, lighten(@blue,5%) 0%, darken(@blue, 5%) 100%);
+}
+.btn-feedback:active {
+  background: linear-gradient(to bottom, darken(@blue,20%) 0%, darken(@blue, 10%) 100%);
+}
 
 // WINDOWS
 
@@ -339,7 +363,7 @@ body.platform-win32 {
   .btn {
     border-radius: 0;
   }
-  
+
   .flexbox-handle-vertical {
     cursor:ns-resize;
   }
