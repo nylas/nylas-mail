@@ -213,6 +213,7 @@ class TaskQueue
         task.queueState ?= {}
         task.queueState.isProcessing = false
       @_queue = queue
+      @_processQueue()
 
   _updateSoon: =>
     @_updateSoonThrottled ?= _.throttle =>
