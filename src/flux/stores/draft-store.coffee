@@ -418,7 +418,7 @@ class DraftStore
     try
       urlString = decodeURI(urlString)
 
-    [whole, to, query] = /mailto:[//]?([^\?]*)[\?]?(.*)/.exec(urlString)
+    [whole, to, query] = /mailto:[//]?([^\?\&]*)[\?\&]?(.*)/.exec(urlString)
 
     query = require('querystring').parse(query)
     query.to = to

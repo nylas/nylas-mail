@@ -852,6 +852,7 @@ describe "DraftStore", ->
         'mailto:?subject=%52z2a', # passes uriDecode
         'mailto:?subject=Martha Stewart',
         'mailto:?subject=Martha Stewart&cc=cc@nylas.com',
+        'mailto:bengotow@gmail.com&subject=Martha Stewart&cc=cc@nylas.com',
         'mailto:bengotow@gmail.com?subject=Martha%20Stewart&cc=cc@nylas.com&bcc=bcc@nylas.com',
         'mailto:bengotow@gmail.com?subject=Martha%20Stewart&cc=cc@nylas.com&bcc=Ben <bcc@nylas.com>',
         'mailto:Ben Gotow <bengotow@gmail.com>,Shawn <shawn@nylas.com>?subject=Yes this is really valid'
@@ -876,6 +877,11 @@ describe "DraftStore", ->
           subject: 'Martha Stewart'
         ),
         new Message(
+          cc: [new Contact(name: 'cc@nylas.com', email: 'cc@nylas.com')],
+          subject: 'Martha Stewart'
+        ),
+        new Message(
+          to: [new Contact(name: 'bengotow@gmail.com', email: 'bengotow@gmail.com')],
           cc: [new Contact(name: 'cc@nylas.com', email: 'cc@nylas.com')],
           subject: 'Martha Stewart'
         ),
