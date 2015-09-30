@@ -2,7 +2,12 @@
   "name": "N1-Composer-Translate",
   "version": "0.2.0",
   "main": "./lib/main",
+
+  "isStarterPackage": true,
+  "title": "Translation",
   "description": "An example package for N1 that translates drafts into other languages using the Yandex API.",
+  "icon": "./icon.png",
+
   "license": "Proprietary",
   "engines": {
     "atom": "*"

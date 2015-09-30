@@ -11,6 +11,7 @@ module.exports = (grunt) ->
     unpack = [
       '*.node'
       '**/vendor/**'
+      '**/examples/**'
       '**/src/tasks/**'
       '**/node_modules/aws-sdk/**'
       '**/node_modules/spellchecker/**'
