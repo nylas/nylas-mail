@@ -10,5 +10,6 @@ module.exports =
 
     WorkspaceStore.defineSheet 'Main', {root: true},
       list: ['Center']
+
     ComponentRegistry.register PageRouter,
       location: WorkspaceStore.Location.Center

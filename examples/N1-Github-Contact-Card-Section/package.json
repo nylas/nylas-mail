@@ -2,7 +2,12 @@
   "name": "N1-Github-Contact-Card-Section",
   "version": "0.1.0",
   "main": "./lib/main",
-  "description": "View github user data in the sidebar!",
+
+  "isStarterPackage": true,
+  "title": "Github",
+  "description": "Adds Github quick actions to many emails, and allows you to see the Github profiles of the people you email.",
+  "icon": "./icon.png",
+
   "license": "MIT",
   "engines": {
     "atom": "*"

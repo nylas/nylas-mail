@@ -9,6 +9,7 @@
     "atom": "*"
   },
   "dependencies": {
+    "async": "^0.9"
   },
   "windowTypes": {
     "onboarding": true
