@@ -75,7 +75,7 @@ class ActivitySidebar extends React.Component
       label = task.label?()
       return unless label
       summary[label] ?= 0
-      summary[label] += 1
+      summary[label] += task.numberOfImpactedItems()
 
     _.pairs(summary).map ([label, count]) ->
       <div className="item" key={label}>

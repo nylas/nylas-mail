@@ -229,6 +229,9 @@ class ChangeMailTask extends Task
     else
       return @messages
 
+  numberOfImpactedItems: ->
+    @objectArray().length
+
   # To ensure that complex offline actions are synced correctly, label/folder additions
   # and removals need to be applied in order. (For example, star many threads,
   # and then unstar one.)
