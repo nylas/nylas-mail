@@ -52,3 +52,40 @@ describe "AccountStore", ->
     spyOn(atom.config, 'get').andCallFake -> "this isn't an object"
     @instance = new @constructor
     expect(@instance.current()).toEqual(null)
+
+  describe "adding account from json", ->
+    beforeEach ->
+      spyOn(atom.config, "set")
+      @json =
+        "id": "1234",
+        "client_id" : 'local-4f9d476a-c175',
+        "server_id" : '1234',
+        "email_address":"ben@nylas.com",
+        "object":"account"
+        "auth_token": "auth-123"
+        "organization_unit": "label"
+      @instance = new @constructor
+      spyOn(@instance, "onSelectAccountId").andCallThrough()
+      spyOn(@instance, "trigger")
+      @instance.addAccountFromJSON(@json)
+
+    it "sets the tokens", ->
+      expect(@instance._tokens["1234"]).toBe "auth-123"
+
+    it "sets the accounts", ->
+      account = (new Account).fromJSON(@json)
+      expect(@instance._accounts.length).toBe 1
+      expect(@instance._accounts[0]).toEqual account
+
+    it "saves the config", ->
+      expect(atom.config.save).toHaveBeenCalled()
+      expect(atom.config.set.calls.length).toBe 4
+
+    it "selects the account", ->
+      expect(@instance._index).toBe 0
+      expect(@instance.onSelectAccountId).toHaveBeenCalledWith("1234")
+      expect(@instance.onSelectAccountId.calls.length).toBe 1
+
+    it "triggers", ->
+      expect(@instance.trigger).toHaveBeenCalled()
+      expect(@instance.trigger.calls.length).toBe 1

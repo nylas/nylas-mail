@@ -62,6 +62,7 @@ class TimeoutTransitionGroupChild extends React.Component
 
   transition: (animationType, finishCallback) =>
     node = React.findDOMNode(@)
+    return unless node
     className = @props.name + '-' + animationType
     activeClassName = className + '-active'
 

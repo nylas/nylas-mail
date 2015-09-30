@@ -29,9 +29,9 @@ class AccountStore
     atom.config.observe saveTokensKey, (updatedTokens) =>
       return if _.isEqual(updatedTokens, @_tokens)
       newAccountIds = _.keys(_.omit(updatedTokens, _.keys(@_tokens)))
+      @_load()
       if newAccountIds.length > 0
         Actions.selectAccountId(newAccountIds[0])
-      @_load()
 
   _load: =>
     @_accounts = []
@@ -80,7 +80,7 @@ class AccountStore
     @_tokens[json.id] = json.auth_token
     @_accounts.push((new Account).fromJSON(json))
     @_save()
-    @trigger()
+    @onSelectAccountId(json.id)
 
   # Exposed Data
 
