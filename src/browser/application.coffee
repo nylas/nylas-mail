@@ -376,6 +376,9 @@ class Application
       @windowManager.ensureWorkWindow()
       @windowManager.onboardingWindow()?.close()
 
+    ipc.on 'new-account-added', (event) =>
+      @windowManager.ensureWorkWindow()
+
     ipc.on 'run-in-window', (event, params) =>
       @_sourceWindows ?= {}
       sourceWindow = BrowserWindow.fromWebContents(event.sender)
