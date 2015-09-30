@@ -21,16 +21,23 @@ class ListTabularItem extends React.Component
   # React.Perf.wasted-time from ~300msec to 20msec by doing a deep
   # comparison of props before triggering a re-render.
   shouldComponentUpdate: (nextProps, nextState) =>
-    # Quick check to avoid running isEqual if our item === existing item
-    return false if _.isEqual(@props, nextProps)
-    true
+    if not Utils.isEqualReact(@props.item, nextProps.item)
+      @_columnCache = null
+      return true
+    if not Utils.isEqualReact(_.omit(@props, 'item'), _.omit(nextProps, 'item'))
+      return true
+    false
 
   render: =>
     className = "list-item list-tabular-item #{@props.itemProps?.className}"
     props = _.omit(@props.itemProps ? {}, 'className')
 
+    # It's expensive to compute the contents of columns (format timestamps, etc.)
+    # We only do it if the item prop has changed.
+    @_columnCache ?= @_columns()
+
     <div {...props} className={className} onClick={@_onClick} style={position:'absolute', top: @props.metrics.top, width:'100%', height:@props.metrics.height, overflow: 'hidden'}>
-      {@_columns()}
+      {@_columnCache}
     </div>
 
   _columns: =>
@@ -105,8 +112,8 @@ class ListTabular extends React.Component
 
     # Expand the start/end so that you can advance the keyboard cursor fast and
     # we have items to move to and then scroll to.
-    rangeStart = Math.max(0, rangeStart - 5)
-    rangeEnd = Math.min(rangeEnd + 5, @props.dataView.count())
+    rangeStart = Math.max(0, rangeStart - 2)
+    rangeEnd = Math.min(rangeEnd + 2, @props.dataView.count())
 
     # Final sanity check to prevent needless work
     return if rangeStart is @state.renderedRangeStart and
