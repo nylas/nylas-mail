@@ -71,6 +71,7 @@ module.exports = (grunt) ->
     grunt.log.writeln ">> Uploading #{localSource} to S3…"
 
     write = grunt.log.writeln
+    ext = path.extname(destName)
     lastPc = 0
 
     new Promise (resolve, reject) ->
@@ -80,6 +81,7 @@ module.exports = (grunt) ->
           Key: destName
           ACL: "public-read"
           Bucket: "edgehill"
+          'Content-Disposition':"attachment; filename=\"N1#{ext}\""
 
       uploader.on "error", (err) ->
         reject(err)
