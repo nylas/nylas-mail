@@ -198,6 +198,15 @@ describe "ChangeMailTask", ->
             expect(@task.performRequests).toHaveBeenCalledWith(Message, @task.messages)
             expect(@task.performRequests.callCount).toBe(1)
 
+    describe "if somehow there are no threads or messages", ->
+      it "should resolve", ->
+        @task = new ChangeMailTask()
+        @task.threads = []
+        @task.messages = []
+        waitsForPromise =>
+          @task.performRemote().then (code) =>
+            expect(code).toEqual(Task.Status.Finished)
+
     describe "if performRequests resolves", ->
       it "should resolve with Task.Status.Finished", ->
         @task = new ChangeMailTask()
