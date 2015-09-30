@@ -40,7 +40,7 @@ class ActivitySidebar extends React.Component
       if @state.receivingDelta
         items.push @_renderDeltaSyncActivityItem()
     else
-      items.push <InitialSyncActivity />
+      items.push <InitialSyncActivity key="initial-sync" />
 
 
     names = classNames

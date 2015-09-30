@@ -64,16 +64,20 @@ class InitialSyncActivity extends React.Component
     for acctId, state of @state.sync
       account = _.findWhere(AccountStore.items(), id: acctId)
       continue unless account
+
       modelStates = _.map state, (modelState, model) =>
         @_renderModelProgress(model, modelState, 100)
 
-      accounts.push <div className="account inner" key={acctId}>
-        <h2>{account.emailAddress}</h2>
-        {modelStates}
-      </div>
-    accounts.push <a className="close-expanded" onClick={@_hideExpandedState}>Hide</a>
+      accounts.push(
+        <div className="account inner" key={acctId}>
+          <h2>{account.emailAddress}</h2>
+          {modelStates}
+        </div>
+      )
+
     <div className="account-detail-area">
       {accounts}
+      <a className="close-expanded" onClick={@_hideExpandedState}>Hide</a>
     </div>
 
   _hideExpandedState: (event) =>
