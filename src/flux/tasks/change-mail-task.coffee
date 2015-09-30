@@ -38,8 +38,11 @@ mapLimit = (input, numberInParallel, fn) ->
         outputError = err
         reject(outputError)
 
-    numberInParallel = Math.min(numberInParallel, input.length)
-    startNext() for n in [0...numberInParallel]
+    if input.length > 0
+      numberInParallel = Math.min(numberInParallel, input.length)
+      startNext() for n in [0...numberInParallel]
+    else
+      resolve([])
 
 # The ChangeMailTask is a base class for all tasks that modify sets of threads or
 # messages. Subclasses implement `_changesToModel` and `_requestBodyForModel` to
