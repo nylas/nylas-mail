@@ -19,11 +19,8 @@ class MessageToolbarItems extends React.Component
       thread: FocusedContentStore.focused('thread')
 
   render: =>
-    classes = classNames
-      "message-toolbar-items": true
-      "hidden": !@state.thread
-
-    <div className={classes}>
+    return false unless @state.thread
+    <div className="message-toolbar-items">
       <InjectedComponentSet matching={role: "message:Toolbar"}
                             exposedProps={thread: @state.thread}/>
     </div>
