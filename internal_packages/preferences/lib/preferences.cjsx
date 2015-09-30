@@ -9,8 +9,12 @@ class Preferences extends React.Component
   @displayName: 'Preferences'
 
   constructor: (@props) ->
-    @state = _.extend @getStateFromStores(),
-      activeTab: PreferencesStore.tabs()[0]
+    tabs = PreferencesStore.tabs()
+    if @props.initialTab
+      activeTab = _.find tabs, (t) => t.name is @props.initialTab
+    activeTab ||= tabs[0]
+
+    @state = _.extend(@getStateFromStores(), {activeTab})
 
   componentDidMount: =>
     @unlisteners = []

@@ -63,7 +63,7 @@ class AccountSwitcher extends React.Component
 
   _renderNewAccountOption: =>
     <div className="item secondary-item new-account-option"
-         onClick={@_onAddAccount}
+         onClick={@_onManageAccounts}
          tabIndex={999}>
       <div style={float: 'left'}>
         <RetinaImg name="icon-accounts-addnew.png"
@@ -72,7 +72,7 @@ class AccountSwitcher extends React.Component
                    style={width: 28, height: 28, marginTop: -10} />
       </div>
       <div className="name" style={lineHeight: "110%", textTransform: 'none'}>
-        Add account&hellip;
+        Manage accounts&hellip;
       </div>
       <div style={clear: "both"}></div>
     </div>
@@ -114,8 +114,8 @@ class AccountSwitcher extends React.Component
     Actions.selectAccountId(account.id)
     @setState(showing: false)
 
-  _onAddAccount: =>
-    require('ipc').send('command', 'application:add-account')
+  _onManageAccounts: =>
+    Actions.openPreferences({tab: 'Accounts'})
     @setState(showing: false)
 
   _getStateFromStores: =>

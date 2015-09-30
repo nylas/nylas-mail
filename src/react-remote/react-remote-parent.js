@@ -340,7 +340,7 @@ var openWindowForComponent = function(Component, options) {
   // the browser window. When both of these things finish, we send the html
   // css, and any observed method invocations that occurred during the first
   // React cycle (componentDidMount).
-  React.render(React.createElement(Component), container, function() {
+  React.render(React.createElement(Component, options.props), container, function() {
     target.reactid = container.firstChild.dataset.reactid,
     target.containerReady = true;
     target.sendHTMLIfReady();
