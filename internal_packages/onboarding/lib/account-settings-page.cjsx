@@ -92,6 +92,10 @@ class AccountSettingsPage extends React.Component
     fields[field] = event.target.value
     @setState({fields})
 
+  _onFieldKeyPress: (event) =>
+    if event.key in ['Enter', 'Return']
+      @_onSubmit()
+
   _renderTitle: =>
     if @state.provider.name is 'gmail'
       <h2>
@@ -123,6 +127,7 @@ class AccountSettingsPage extends React.Component
            tabIndex={idx + 1}
            value={@state.fields[field.name]}
            onChange={@_onValueChanged}
+           onKeyPress={@_onFieldKeyPress}
            data-field={field.name}
            className={errclass}
            placeholder={field.placeholder} />
@@ -137,6 +142,7 @@ class AccountSettingsPage extends React.Component
              tabIndex={idx + 5}
              checked={@state.settings[field.name]}
              onChange={@_onSettingsChanged}
+             onKeyPress={@_onFieldKeyPress}
              data-field={field.name}
              className={field.className ? ""} />
           {field.label}
@@ -151,6 +157,7 @@ class AccountSettingsPage extends React.Component
              tabIndex={idx + 5}
              value={@state.settings[field.name]}
              onChange={@_onSettingsChanged}
+             onKeyPress={@_onFieldKeyPress}
              data-field={field.name}
              className={errclass+(field.className ? "")}
              placeholder={field.placeholder} />
@@ -162,17 +169,19 @@ class AccountSettingsPage extends React.Component
       <button className="btn btn-large btn-gradient" type="button" onClick={@_onNextButton}>Continue</button>
     else if @state.provider.name isnt 'gmail'
       if @state.tryingToAuthenticate
-        <button className="btn btn-large btn-gradient btn-setup-spinning" type="button">
+        <button className="btn btn-large btn-gradient btn-add-account-spinning" type="button">
           <RetinaImg name="sending-spinner.gif" width={15} height={15} mode={RetinaImg.Mode.ContentPreserve} /> Adding account&hellip;
         </button>
       else
-        <button className="btn btn-large btn-gradient" type="button" onClick={@_onSubmit}>Add account</button>
+        <button className="btn btn-large btn-gradient btn-add-account" type="button" onClick={@_onSubmit}>Add account</button>
 
   _onNextButton: (event) =>
     @setState(pageNumber: @state.pageNumber + 1)
     @_resize()
 
   _onSubmit: (event) =>
+    return if @state.tryingToAuthenticate
+
     data = settings: {}
     for own k,v of @state.fields when v isnt ''
       data[k] = v
