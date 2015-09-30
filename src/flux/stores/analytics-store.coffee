@@ -19,7 +19,6 @@ printToConsole = false
 # Only completely anonymous data essential to future metrics or
 # debugging may be sent.
 coreWindowActions =
-  showDeveloperConsole: -> {}
   composeReply: -> ['Compose Draft', {'type': 'reply'}]
   composeForward: -> ['Compose Draft', {'type': 'forward'}]
   composeReplyAll: -> ['Compose Draft', {'type': 'reply-all'}]

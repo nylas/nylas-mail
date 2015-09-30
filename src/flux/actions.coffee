@@ -125,14 +125,6 @@ class Actions
   ###
   @retryInitialSync: ActionScopeWorkWindow
 
-
-  ###
-  Public: Show the developer console for the current window.
-
-  *Scope: Window*
-  ###
-  @showDeveloperConsole: ActionScopeWindow
-
   ###
   Public: Register a preferences tab, usually applied in Preferences window
 
