@@ -24,6 +24,7 @@ class PageRouterStore extends NylasStore
   _onAccountJSONReceived: (json) =>
     isFirstAccount = AccountStore.items().length is 0
     AccountStore.addAccountFromJSON(json)
+    ipc.send('new-account-added')
     atom.displayWindow()
     if isFirstAccount
       @_onMoveToPage('initial-preferences', {account: json})

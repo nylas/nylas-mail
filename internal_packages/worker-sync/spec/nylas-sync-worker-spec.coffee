@@ -53,14 +53,14 @@ describe "NylasSyncWorker", ->
       advanceClock()
       expect(@apiRequests.length).toBe(10)
       modelsRequested = _.compact _.map @apiRequests, ({model}) -> model
-      expect(modelsRequested).toEqual(['threads', 'events', 'contacts', 'drafts', 'labels'])
+      expect(modelsRequested).toEqual(['threads', 'labels', 'drafts', 'contacts', 'events'])
 
       countsRequested = _.compact _.map @apiRequests, ({requestOptions}) ->
         if requestOptions.qs?.view is 'count'
           return requestOptions.path
 
-      expect(modelsRequested).toEqual(['threads', 'events', 'contacts', 'drafts', 'labels'])
-      expect(countsRequested).toEqual(['/threads', '/events', '/contacts', '/drafts', '/labels'])
+      expect(modelsRequested).toEqual(['threads', 'labels', 'drafts', 'contacts', 'events'])
+      expect(countsRequested).toEqual(['/threads', '/labels', '/drafts', '/contacts', '/events'])
 
     it "should mark incomplete collections as `busy`", ->
       @worker.start()
@@ -139,7 +139,7 @@ describe "NylasSyncWorker", ->
     it "should fetch collections", ->
       spyOn(@worker, 'fetchCollection')
       @worker.resumeFetches()
-      expect(@worker.fetchCollection.calls.map (call) -> call.args[0]).toEqual(['threads', 'calendars', 'events', 'contacts', 'drafts', 'labels'])
+      expect(@worker.fetchCollection.calls.map (call) -> call.args[0]).toEqual(['threads', 'labels', 'drafts', 'contacts', 'calendars', 'events'])
 
   describe "fetchCollection", ->
     beforeEach ->
@@ -187,6 +187,9 @@ describe "NylasSyncWorker", ->
       @apiRequests = []
 
     describe "successfully, with models", ->
+      it "should start out by requesting a small number of items", ->
+        expect(@request.params.limit).toBe NylasSyncWorker.INITIAL_PAGE_SIZE
+
       it "should request the next page", ->
         pageSize = @request.params.limit
         models = []
@@ -194,9 +197,25 @@ describe "NylasSyncWorker", ->
         @request.requestOptions.success(models)
         advanceClock(2000)
         expect(@apiRequests.length).toBe(1)
-        expect(@apiRequests[0].params).toEqual
-          limit: pageSize,
-          offset: @request.params.offset + pageSize
+        expect(@apiRequests[0].params.offset).toEqual @request.params.offset + pageSize
+
+      it "increase the limit on the next page load by 50%", ->
+        pageSize = @request.params.limit
+        models = []
+        models.push(new Thread) for i in [0..(pageSize-1)]
+        @request.requestOptions.success(models)
+        advanceClock(2000)
+        expect(@apiRequests.length).toBe(1)
+        expect(@apiRequests[0].params.limit).toEqual pageSize * 1.5,
+
+      it "never requests more then MAX_PAGE_SIZE", ->
+        pageSize = @request.params.limit = NylasSyncWorker.MAX_PAGE_SIZE
+        models = []
+        models.push(new Thread) for i in [0..(pageSize-1)]
+        @request.requestOptions.success(models)
+        advanceClock(2000)
+        expect(@apiRequests.length).toBe(1)
+        expect(@apiRequests[0].params.limit).toEqual NylasSyncWorker.MAX_PAGE_SIZE
 
       it "should update the fetched count on the collection", ->
         expect(@worker.state().threads.fetched).toEqual(0)

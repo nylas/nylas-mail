@@ -2,7 +2,8 @@ _ = require 'underscore'
 {Actions, DatabaseStore} = require 'nylas-exports'
 NylasLongConnection = require './nylas-long-connection'
 
-PAGE_SIZE = 250
+INITIAL_PAGE_SIZE = 30
+MAX_PAGE_SIZE = 250
 
 # BackoffTimer is a small helper class that wraps setTimeout. It fires the function
 # you provide at a regular interval, but backs off each time you call `backoff`.
@@ -92,14 +93,14 @@ class NylasSyncWorker
     @_resumeTimer.cancel()
 
     @fetchCollection('threads')
-    @fetchCollection('calendars')
-    @fetchCollection('events')
-    @fetchCollection('contacts')
-    @fetchCollection('drafts')
     if @_account.usesLabels()
       @fetchCollection('labels')
     if @_account.usesFolders()
       @fetchCollection('folders')
+    @fetchCollection('drafts')
+    @fetchCollection('contacts')
+    @fetchCollection('calendars')
+    @fetchCollection('events')
 
   fetchCollection: (model, options = {}) ->
     return unless @_state
@@ -115,7 +116,7 @@ class NylasSyncWorker
     @writeState()
 
     @fetchCollectionCount(model)
-    @fetchCollectionPage(model, {offset: 0, limit: PAGE_SIZE})
+    @fetchCollectionPage(model, {offset: 0, limit: INITIAL_PAGE_SIZE})
 
   fetchCollectionCount: (model) ->
     @_api.makeRequest
@@ -148,7 +149,8 @@ class NylasSyncWorker
         lastReceivedIndex = params.offset + json.length
         if json.length is params.limit
           nextParams = _.extend({}, params, {offset: lastReceivedIndex})
-          nextDelay = Math.max(0, 1500 - (Date.now() - requestStartTime))
+          nextParams.limit = Math.min(Math.round(params.limit * 1.5), MAX_PAGE_SIZE)
+          nextDelay = Math.max(0, 1000 - (Date.now() - requestStartTime))
           setTimeout(( => @fetchCollectionPage(model, nextParams)), nextDelay)
           @updateTransferState(model, {fetched: lastReceivedIndex})
         else
@@ -185,3 +187,5 @@ class NylasSyncWorker
     @resumeFetches()
 
 NylasSyncWorker.BackoffTimer = BackoffTimer
+NylasSyncWorker.INITIAL_PAGE_SIZE = INITIAL_PAGE_SIZE
+NylasSyncWorker.MAX_PAGE_SIZE = MAX_PAGE_SIZE
