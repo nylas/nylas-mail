@@ -1,11 +1,10 @@
+PreferencesStore = require './preferences-store'
+
 module.exports =
   activate: (@state={}) ->
     ipc = require 'ipc'
     React = require 'react'
-    Preferences = require('./preferences')
-
-    {ReactRemote,
-     Actions} = require('nylas-exports')
+    {Actions} = require('nylas-exports')
 
     Actions.registerPreferencesTab({
       icon: 'ic-settings-general.png'
@@ -37,21 +36,30 @@ module.exports =
       name: 'Appearance'
       component: require './tabs/preferences-appearance'
     })
+
     # Actions.registerPreferencesTab({
     #   icon: 'ic-settings-signatures.png'
     #   name: 'Signatures'
     #   component: require './tabs/preferences-signatures'
     # })
 
-    ipc.on 'open-preferences', (detail) ->
-      ReactRemote.openWindowForComponent(Preferences, {
-        tag: 'preferences'
-        title: "Preferences"
-        width: 520
-        resizable: false
-        autosize: true
-        stylesheetRegex: /preferences/
-      })
+    Actions.openPreferences.listen(@_openPreferences)
+    ipc.on 'open-preferences', => @_openPreferences()
+
+  _openPreferences: ({tab} = {}) ->
+    {ReactRemote} = require('nylas-exports')
+    Preferences = require('./preferences')
+    ReactRemote.openWindowForComponent(Preferences, {
+      tag: 'preferences'
+      title: "Preferences"
+      width: 520
+      resizable: false
+      autosize: true
+      stylesheetRegex: /preferences/
+      props: {
+        initialTab: tab
+      }
+    })
 
   deactivate: ->
 
