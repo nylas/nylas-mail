@@ -81,7 +81,7 @@ module.exports = (grunt) ->
           Key: destName
           ACL: "public-read"
           Bucket: "edgehill"
-          'Content-Disposition':"attachment; filename=\"N1#{ext}\""
+          ContentDisposition:"attachment; filename=\"N1#{ext}\""
 
       uploader.on "error", (err) ->
         reject(err)
