@@ -13,6 +13,7 @@ class NylasComponentKit
   @load "Menu", 'menu'
   @load "DropZone", 'drop-zone'
   @load "Spinner", 'spinner'
+  @load "Switch", 'switch'
   @load "Popover", 'popover'
   @load "Flexbox", 'flexbox'
   @load "RetinaImg", 'retina-img'

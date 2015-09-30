@@ -28,6 +28,7 @@
   h1 {
     font-weight: 100;
     font-size: 40pt;
+    margin:0;
   }
 
   h2 {
@@ -325,15 +326,15 @@
     text-align: left;
     border-top: 1px solid rgba(0,0,0,0.05);
     cursor: default;
+    line-height: 70px;
 
-    img.icon {
-    }
     .icon-container {
       width: 50px;
       height: 50px;
       display: inline-block;
       box-sizing: content-box;
-      padding: 10px 25px 12px 25px;
+      padding: 0 25px 0 25px;
+      vertical-align: top;
     }
   }
   .provider:hover{
@@ -348,13 +349,14 @@
   margin-bottom:10px;
   width:550px;
   padding:15px;
-  border:1px solid #eee;
+  border:1px solid #e1e1e1;
   text-align:left;
+  cursor: default;
   img {
     float:left;
-    margin-right:20px;
-    margin-top:30px;
-    margin-bottom:30px;
+    margin: 20px;
+    margin-left: 0;
+    margin-right: 30px;
   }
   .name {
     font-size:20px;
@@ -362,6 +364,45 @@
   .description {
     font-size:14px;
     max-width:500px;
+  }
+
+  .install-container {
+    width: 90px;
+    float: right;
+    text-align: right;
+  }
+  .btn-install {
+    display:inline-block;
+    width: 70px;
+    margin: 24px;
+    margin-right: 7px;
+    margin-left: 14px;
+    height: 24px;
+    color: @text-color;
+    transition: width 150ms ease-in-out, color 150ms ease-in-out;
+  }
+  .btn-install:after {
+    content: "Install";
+  }
+  .btn-install.installing {
+    width: 32px;
+    color: transparent;
+    background: url('nylas://onboarding/assets/installing-spinner.gif') center no-repeat;
+    background-size: 18px;
+    box-shadow: none;
+  }
+  .btn-install.installed {
+    width: 32px;
+    height: 32px;
+    margin-top: 20px;
+    color: transparent;
+    background: url('nylas://onboarding/assets/green_check@2x.png') center no-repeat;
+    background-size: 27px;
+    box-shadow: none;
+  }
+  .btn-install.installed:after,
+  .btn-install.installing:after {
+    content: "";
   }
 }
 
@@ -479,7 +520,7 @@
     .nylas-static-wash-bg;
 
     .hero-text {
-      font-size: 36px;
+      font-size: 34px;
       line-height: 41px;
     }
 

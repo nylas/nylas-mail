@@ -371,9 +371,9 @@ class Atom extends Model
   isReleasedVersion: ->
     not /\w{7}/.test(@getVersion()) # Check if the release is a 7-character SHA prefix
 
-  # Public: Get the directory path to Atom's configuration area.
+  # Public: Get the directory path to N1's configuration area.
   #
-  # Returns the absolute path to `~/.atom`.
+  # Returns the absolute path to `~/.nylas`.
   getConfigDirPath: ->
     @constructor.getConfigDirPath()
 

@@ -1,6 +1,7 @@
 React = require 'react'
 path = require 'path'
 fs = require 'fs'
+_ = require 'underscore'
 {RetinaImg, Flexbox, ConfigPropContainer} = require 'nylas-component-kit'
 {EdgehillAPI} = require 'nylas-exports'
 OnboardingActions = require './onboarding-actions'
@@ -34,10 +35,30 @@ class InitialPreferencesOptions extends React.Component
     fs.readdir templatesDir, (err, files) =>
       return unless files and files instanceof Array
       templates = files.filter (filename) =>
-        path.extname(filename) is '.cson' or  path.extname(filename) is '.json'
+        path.extname(filename) is '.cson' or path.extname(filename) is '.json'
       templates = templates.map (filename) =>
         path.parse(filename).name
       @setState(templates: templates)
+      @_setConfigDefaultsForAccount(templates)
+
+  _setConfigDefaultsForAccount: (templates) =>
+    return unless @props.account
+
+    templateWithBasename = (name) =>
+      _.find templates, (t) -> t.indexOf(name) is 0
+
+    if @props.account.provider is 'gmail'
+      @props.config.set('core.workspace.mode', 'list')
+      @props.config.set('core.keymapTemplate', templateWithBasename('Gmail'))
+    else if @props.account.provider is 'eas'
+      @props.config.set('core.workspace.mode', 'split')
+      @props.config.set('core.keymapTemplate', templateWithBasename('Outlook'))
+    else
+      @props.config.set('core.workspace.mode', 'split')
+      if process.platform is 'darwin'
+        @props.config.set('core.keymapTemplate', templateWithBasename('Apple Mail'))
+      else
+        @props.config.set('core.keymapTemplate', templateWithBasename('Outlook'))
 
   render: =>
     return false unless @props.config
@@ -60,8 +81,8 @@ class InitialPreferencesOptions extends React.Component
       <div key="divider" style={marginLeft:20, marginRight:20, borderLeft:'1px solid #ccc'}></div>
       <div style={flex:1}>
         <p>
-          We see you're a Gmail user, so N1 is set up to use
-          Gmail keyboard shortcuts. You can also pick another set:
+          We've picked a set of keyboard shortcuts based on your email
+          account and platform. You can also pick another set:
         </p>
         <select
           style={margin:0}
@@ -81,13 +102,10 @@ class InitialPreferencesPage extends React.Component
 
   render: =>
     <div className="page opaque" style={width:900, height:620}>
-      <div className="quit" onClick={ -> OnboardingActions.closeWindow() }>
-        <RetinaImg name="onboarding-close.png" mode={RetinaImg.Mode.ContentPreserve}/>
-      </div>
       <h1 style={paddingTop: 100}>Welcome to N1</h1>
       <h4 style={marginBottom: 70}>Let's set things up to your liking.</h4>
       <ConfigPropContainer>
-        <InitialPreferencesOptions />
+        <InitialPreferencesOptions account={@props.pageData.account} />
       </ConfigPropContainer>
       <button className="btn btn-large" style={marginBottom:60} onClick={@_onNextPage}>Looks Good!</button>
     </div>

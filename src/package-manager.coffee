@@ -11,6 +11,7 @@ ServiceHub = require 'service-hub'
 Package = require './package'
 ThemePackage = require './theme-package'
 DatabaseStore = require './flux/stores/database-store'
+APMWrapper = require './apm-wrapper'
 
 # Extended: Package manager for coordinating the lifecycle of Atom packages.
 #
@@ -148,7 +149,6 @@ class PackageManager
       @apmPath = path.join(@resourcePath, 'apm', 'bin', commandName)
     if not fs.isFileSync(@apmPath)
       @apmPath = path.join(@resourcePath, 'apm', 'node_modules', 'atom-package-manager', 'bin', commandName)
-    console.log(@apmPath)
     @apmPath
 
   # Public: Get the paths being used to look for packages.
@@ -317,6 +317,49 @@ class PackageManager
       metadata = @getLoadedPackage(name)?.metadata ? Package.loadMetadata(packagePath, true)
       packages.push(metadata)
     packages
+
+  installPackageFromPath: (packageSourceDir, callback) ->
+    dialog = require('remote').require('dialog')
+    shell = require('shell')
+
+    packagesDir = path.join(atom.getConfigDirPath(), 'packages')
+    packageName = path.basename(packageSourceDir)
+    packageTargetDir = path.join(packagesDir, packageName)
+
+    fs.makeTree packagesDir, (err) =>
+      return callback(err) if err
+
+      fs.exists packageTargetDir, (packageAlreadyExists) =>
+        if packageAlreadyExists
+          message = "A package named '#{packageName}' is already installed
+                 in ~/.nylas/packages."
+          dialog.showMessageBox({
+            type: 'warning'
+            buttons: ['OK']
+            title: 'Package already installed'
+            detail: 'Remove it before trying to install another package of the same name.'
+            message: message
+          })
+          callback(new Error(message))
+          return
+
+        fs.copySync(packageSourceDir, packageTargetDir)
+
+        apm = new APMWrapper()
+        apm.installDependenciesInPackageDirectory packageTargetDir, (err) =>
+          shell.showItemInFolder(packageTargetDir)
+          if err
+            dialog.showMessageBox({
+              type: 'warning'
+              buttons: ['OK']
+              title: 'Package installation failed'
+              message: err.toString()
+            })
+            callback(err)
+          else
+            @enablePackage(packageTargetDir)
+            @activatePackage(packageName)
+            callback(null)
 
   ###
   Section: Private

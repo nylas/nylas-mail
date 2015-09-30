@@ -45,17 +45,18 @@ class WelcomePage extends React.Component
 
   _renderStep0: ->
     <div className={@_stepClass(0)} key="step-0">
-      <p className="hero-text" style={marginTop: 25}>N1 is a new email app that is fast,<br/>friendly, and easy to use.</p>
-      <RetinaImg className="logo" style={zoom: 0.35, marginTop: 13} url="nylas://onboarding/assets/nylas-pictograph@2x.png" mode={RetinaImg.Mode.ContentIsMask} />
+      <RetinaImg className="logo" style={zoom: 0.20, marginTop: 60} url="nylas://onboarding/assets/nylas-pictograph@2x.png" mode={RetinaImg.Mode.ContentIsMask} />
+      <p className="hero-text" style={marginTop: 30, fontSize: 44}>Say hello to N1.</p>
+      <p className="sub-text" style={marginTop: 0, fontSize: 24}>The next-generation email platform.</p>
+      <div style={fontSize:17, marginTop: 45}>Built with ❤︎ by Nylas</div>
       <RetinaImg className="icons" style={position: "absolute", left: -45, top: 130} url="nylas://onboarding/assets/shapes-left@2x.png" mode={RetinaImg.Mode.ContentIsMask} />
       <RetinaImg className="icons" style={position: "absolute", right: -40, top: 130} url="nylas://onboarding/assets/shapes-right@2x.png" mode={RetinaImg.Mode.ContentIsMask} />
-      <p className="sub-text" style={marginTop: 17}>It is the foundation for a highly extensible email experience</p>
       {@_renderNavBubble(0)}
     </div>
 
   _renderStep1: ->
     <div className={@_stepClass(1)} key="step-1">
-      <p className="hero-text" style={marginTop: 40}>Under the hood, N1 is built for developers.</p>
+      <p className="hero-text" style={marginTop: 40}>Developers welcome.</p>
       <div className="gear-outer-container"><div className="gear-container">
         {@_gears()}
       </div></div>
@@ -64,7 +65,7 @@ class WelcomePage extends React.Component
       <RetinaImg className="wrench" mode={RetinaImg.Mode.ContentPreserve}
                  url="nylas://onboarding/assets/wrench@2x.png" />
 
-      <p className="sub-text">You can extend it using packages and build your own components.</p>
+      <p className="sub-text">N1 is built with modern web technologies and easy to extend with JavaScript.</p>
       {@_renderNavBubble(1)}
     </div>
 
@@ -78,20 +79,20 @@ class WelcomePage extends React.Component
 
   _renderStep2: ->
     <div className={@_stepClass(2)} key="step-2">
-      <p className="hero-text" style={marginTop: 40}>N1 is secured and enhanced by the Nylas Sync Engine</p>
+      <p className="hero-text" style={marginTop: 40}>N1 is made possible by the Nylas Sync Engine</p>
       <div className="cell-wrap">
         <div className="cell" style={float: "left"}>
+          <RetinaImg mode={RetinaImg.Mode.ContentPreserve}
+                     style={paddingTop: 4, paddingBottom: 4}
+                     url="nylas://onboarding/assets/cloud@2x.png" />
+          <p>A modern API layer for<br/>email, contacts &amp; calendar</p>
+          <a onClick={=> @_open("https://github.com/nylas/sync-engine")}>more info</a>
+        </div>
+        <div className="cell" style={float: "right"}>
           <RetinaImg mode={RetinaImg.Mode.ContentPreserve}
                      url="nylas://onboarding/assets/lock@2x.png" />
           <p>Secured using<br/>bank-grade encryption</p>
           <a onClick={=> @_open("https://nylas.com/security/")}>more info</a>
-        </div>
-        <div className="cell" style={float: "right"}>
-          <RetinaImg mode={RetinaImg.Mode.ContentPreserve}
-                     style={paddingTop: 4, paddingBottom: 4}
-                     url="nylas://onboarding/assets/cloud@2x.png" />
-          <p>Synced by Nylas to be<br/>faster and more extensible</p>
-          <a onClick={=> @_open("https://github.com/nylas/sync-engine")}>more info</a>
         </div>
       </div>
       {@_renderNavBubble(2)}

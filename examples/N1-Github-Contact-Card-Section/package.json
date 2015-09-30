@@ -1,5 +1,5 @@
 {
-  "name": "sidebar-github-profile",
+  "name": "N1-Github-Contact-Card-Section",
   "version": "0.1.0",
   "main": "./lib/main",
   "description": "View github user data in the sidebar!",

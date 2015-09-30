@@ -144,6 +144,7 @@ class NylasExports
   @load "LaunchServices", 'launch-services'
   @load "BufferedProcess", 'buffered-process'
   @load "BufferedNodeProcess", 'buffered-node-process'
+  @get "APMWrapper", -> require('../src/apm-wrapper')
 
   # Testing
   @get "NylasTestUtils", -> require '../spec-nylas/test_utils'

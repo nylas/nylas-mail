@@ -5,7 +5,7 @@ path = require 'path'
 fs = require 'fs-plus'
 shell = require 'shell'
 SettingsActions = require './settings-actions'
-APMWrapper = require './apm-wrapper'
+{APMWrapper} = require 'nylas-exports'
 dialog = require('remote').require('dialog')
 
 module.exports =
@@ -46,7 +46,7 @@ SettingsPackagesStore = Reflux.createStore
       @_apm.install pkg, (err) =>
         if err
           delete @_installing[pkg.name]
-          @_displayError(err)
+          @_displayMessage("Sorry, an error occurred", err.toString())
         else
           if atom.packages.isPackageDisabled(pkg.name)
             atom.packages.enablePackage(pkg.name)
@@ -57,7 +57,7 @@ SettingsPackagesStore = Reflux.createStore
         atom.packages.disablePackage(pkg.name)
         atom.packages.unloadPackage(pkg.name)
       @_apm.uninstall pkg, (err) =>
-        @_displayError(err) if err
+        @_displayMessage("Sorry, an error occurred", err.toString()) if err
         @_onPackagesChanged()
 
     @listenTo SettingsActions.enablePackage, (pkg) ->
@@ -167,34 +167,13 @@ SettingsPackagesStore = Reflux.createStore
       properties: ['openDirectory']
     , (filenames) =>
       return if not filenames or filenames.length is 0
-      packagesDir = path.join(atom.getConfigDirPath(), 'packages')
-      fs.makeTreeSync(packagesDir)
-
-      packageSourceDir = filenames[0]
-      packageName = path.basename(packageSourceDir)
-      packageTargetDir = path.join(packagesDir, packageName)
-
-      if fs.existsSync(packageTargetDir)
-        msg = "A package named '#{packageName}' is already installed in \
-               ~/.nylas/packages. Remove it before trying to install another \
-               package of the same name."
-        dialog.showErrorBox('Package already installed', msg)
-        return
-
-      fs.copySync(packageSourceDir, packageTargetDir)
-
-      @_apm.installDependenciesInPackageDirectory packageTargetDir, (err) =>
-        shell.showItemInFolder(packageTargetDir)
-        if err
-          dialog.showErrorBox('Package installation failed', err.toString())
-          return
-        else
-          atom.packages.enablePackage(packageTargetDir)
-          atom.packages.activatePackage(packageName)
-          msg = "#{packageName} has been installed and enabled. No need to \
-                 restart! If you don't see the package loaded, check the \
-                 console for errors."
-          dialog.showErrorBox('Package installed', msg)
+      atom.packages.installPackageFromPath filenames[0], (err) =>
+        return if err
+        packageName = path.basename(filenames[0])
+        msg = "#{packageName} has been installed and enabled. No need to \
+               restart! If you don't see the package loaded, check the \
+               console for errors."
+        @_displayMessage("Package installed", msg)
 
   _onCreatePackage: ->
     packagesDir = path.join(atom.getConfigDirPath(), 'packages')
@@ -210,15 +189,19 @@ SettingsPackagesStore = Reflux.createStore
       packageName = path.basename(packageDir)
 
       if not packageDir.startsWith(packagesDir)
-        return dialog.showErrorBox('Invalid package location', 'Sorry, you must \
-                                    create packages in the dev packages folder.')
+        return @_displayMessage('Invalid package location', 'Sorry, you must
+                                    create packages in the packages folder.')
 
       if atom.packages.resolvePackagePath(packageName)
-        return dialog.showErrorBox('Invalid package name', 'Sorry, you must \
+        return @_displayMessage('Invalid package name', 'Sorry, you must
                                     give your package a unqiue name.')
 
+      if packageName.indexOf(' ') isnt -1
+        return @_displayMessage('Invalid package name', 'Sorry, package names
+                                 cannot contain spaces.')
+
       fs.mkdir packageDir, (err) =>
-        return dialog.showErrorBox('Could not create package', err.toString()) if err
+        return @_displayMessage('Could not create package', err.toString()) if err
 
         {resourcePath} = atom.getLoadSettings()
         packageTemplatePath = path.join(resourcePath, 'static', 'package-template')
@@ -264,10 +247,9 @@ SettingsPackagesStore = Reflux.createStore
 
     pkgs
 
-  _displayError: (err) ->
-    console.error(err)
+  _displayMessage: (title, message) ->
     chosen = dialog.showMessageBox
       type: 'warning'
-      message: "Sorry, an error occurred."
-      detail: err.toString()
+      message: title
+      detail: message
       buttons: ["OK"]

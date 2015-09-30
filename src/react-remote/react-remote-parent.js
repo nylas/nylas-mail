@@ -297,7 +297,6 @@ var openWindowForComponent = function(Component, options) {
       changed = true;
     }
     if (changed) {
-      console.log(size[0], size[1]);
       thinWindow.setContentSize(size[0], size[1]);
     }
   };

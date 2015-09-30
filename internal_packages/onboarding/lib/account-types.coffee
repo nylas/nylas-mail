@@ -10,7 +10,7 @@ Providers = [
     settings: []
   }, {
     name: 'exchange'
-    displayName: 'Microsoft Exchange / Live'
+    displayName: 'Microsoft Exchange'
     icon: 'ic-settings-account-eas.png'
     header_icon: 'setup-icon-provider-exchange.png'
     color: '#1ea2a3'
@@ -92,7 +92,7 @@ Providers = [
     }]
   }, {
     name: 'imap'
-    displayName: 'Other / Manual setup'
+    displayName: 'IMAP / SMTP Setup'
     icon: 'ic-settings-account-imap.png'
     header_icon: 'setup-icon-provider-imap.png'
     pages: ['Set up your email account','Configure incoming mail','Configure outgoing mail']
