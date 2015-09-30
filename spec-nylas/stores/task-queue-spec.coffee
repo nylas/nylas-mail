@@ -1,4 +1,5 @@
 Actions = require '../../src/flux/actions'
+DatabaseStore = require '../../src/flux/stores/database-store'
 TaskQueue = require '../../src/flux/stores/task-queue'
 Task = require '../../src/flux/tasks/task'
 
@@ -29,6 +30,18 @@ describe "TaskQueue", ->
   afterEach ->
     # Flush any throttled or debounced updates
     advanceClock(1000)
+
+  describe "restoreQueue", ->
+    it "should fetch the queue from the database, reset flags and start processing", ->
+      queue = [@processingTask, @unstartedTask]
+      spyOn(DatabaseStore, 'findJSONObject').andCallFake => Promise.resolve(queue)
+      spyOn(TaskQueue, '_processQueue')
+
+      waitsForPromise =>
+        TaskQueue._restoreQueue().then =>
+          expect(TaskQueue._queue).toEqual(queue)
+          expect(@processingTask.queueState.isProcessing).toEqual(false)
+          expect(TaskQueue._processQueue).toHaveBeenCalled()
 
   describe "findTask", ->
     beforeEach ->
