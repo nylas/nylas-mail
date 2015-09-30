@@ -506,7 +506,7 @@ class DatabaseStore extends NylasStore
     set = (change) =>
       clearTimeout(@_changeFireTimer) if @_changeFireTimer
       @_changeAccumulated = change
-      @_changeFireTimer = setTimeout(flush, 20)
+      @_changeFireTimer = setTimeout(flush, 10)
 
     concat = (change) =>
       @_changeAccumulated.objects.push(change.objects...)
