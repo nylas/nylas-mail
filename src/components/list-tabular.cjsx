@@ -21,7 +21,7 @@ class ListTabularItem extends React.Component
   # React.Perf.wasted-time from ~300msec to 20msec by doing a deep
   # comparison of props before triggering a re-render.
   shouldComponentUpdate: (nextProps, nextState) =>
-    if not Utils.isEqualReact(@props.item, nextProps.item)
+    if not Utils.isEqualReact(@props.item, nextProps.item) or @props.columns isnt nextProps.columns
       @_columnCache = null
       return true
     if not Utils.isEqualReact(_.omit(@props, 'item'), _.omit(nextProps, 'item'))
@@ -84,7 +84,11 @@ class ListTabular extends React.Component
       renderedRangeEnd: -1
 
   componentDidMount: =>
+    window.addEventListener('resize', @onWindowResize, true)
     @updateRangeState()
+
+  componentWillUnmount: =>
+    window.removeEventListener('resize', @onWindowResize, true)
 
   componentDidUpdate: (prevProps, prevState) =>
     # If our view has been swapped out for an entirely different one,
@@ -96,6 +100,9 @@ class ListTabular extends React.Component
       @updateRangeState()
     @updateRangeStateFiring = false
 
+  onWindowResize: =>
+    @_onWindowResize ?= _.debounce(@updateRangeState, 50)
+    @_onWindowResize()
 
   onScroll: =>
     # If we've shifted enough pixels from our previous scrollTop to require
