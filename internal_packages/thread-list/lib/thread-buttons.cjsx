@@ -2,25 +2,38 @@ React = require "react/addons"
 classNames = require 'classnames'
 ThreadListStore = require './thread-list-store'
 {RetinaImg} = require 'nylas-component-kit'
-{Actions, FocusedContentStore} = require "nylas-exports"
+{Actions,
+ RemoveThreadHelper,
+ FocusedContentStore,
+ FocusedMailViewStore} = require "nylas-exports"
 
-class ThreadBulkArchiveButton extends React.Component
-  @displayName: 'ThreadBulkArchiveButton'
+class ThreadBulkRemoveButton extends React.Component
+  @displayName: 'ThreadBulkRemoveButton'
   @containerRequired: false
 
   @propTypes:
     selection: React.PropTypes.object.isRequired
 
   render: ->
+    focusedMailViewFilter = FocusedMailViewStore.mailView()
+    return false unless focusedMailViewFilter?.canRemoveThreads()
+
+    if RemoveThreadHelper.removeType() is RemoveThreadHelper.Type.Archive
+      tooltip = "Archive"
+      imgName = "toolbar-archive.png"
+    else if RemoveThreadHelper.removeType() is RemoveThreadHelper.Type.Trash
+      tooltip = "Trash"
+      imgName = "toolbar-trash.png"
+
     <button style={order:-106}
             className="btn btn-toolbar"
-            data-tooltip="Archive"
-            onClick={@_onArchive}>
-      <RetinaImg name="toolbar-archive.png" mode={RetinaImg.Mode.ContentIsMask} />
+            data-tooltip={tooltip}
+            onClick={@_onRemove}>
+      <RetinaImg name={imgName} mode={RetinaImg.Mode.ContentIsMask} />
     </button>
 
-  _onArchive: =>
-    Actions.archiveSelection()
+  _onRemove: =>
+    Actions.removeSelection()
 
 
 class ThreadBulkStarButton extends React.Component
@@ -158,4 +171,4 @@ UpButton = React.createClass
 UpButton.containerRequired = false
 DownButton.containerRequired = false
 
-module.exports = {DownButton, UpButton, ThreadBulkArchiveButton, ThreadBulkStarButton, ThreadBulkToggleUnreadButton}
+module.exports = {DownButton, UpButton, ThreadBulkRemoveButton, ThreadBulkStarButton, ThreadBulkToggleUnreadButton}

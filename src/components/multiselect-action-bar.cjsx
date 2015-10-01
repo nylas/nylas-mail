@@ -31,7 +31,7 @@ The MultiselectActionBar uses the `ComponentRegistry` to find items to display f
 collection name. To add an item to the bar created in the example above, register it like this:
 
 ```coffee
-ComponentRegistry.register ThreadBulkArchiveButton,
+ComponentRegistry.register ThreadBulkRemoveButton,
   role: 'thread:BulkAction'
 ```
 
