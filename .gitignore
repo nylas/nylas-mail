@@ -1,2 +1,4 @@
 temp-cjsx
 node_modules
+*.DS_Store
+api.json
