@@ -1,11 +1,11 @@
 _ = require 'underscore'
-CategoryStore = require '../stores/category-store'
+CategoryStore = require '../flux/stores/category-store'
 
-ChangeLabelsTask = require './change-labels-task'
-ChangeFolderTask = require './change-folder-task'
-Actions = require '../actions'
+ChangeLabelsTask = require '../flux/tasks/change-labels-task'
+ChangeFolderTask = require '../flux/tasks/change-folder-task'
+Actions = require '../flux/actions'
 
-AccountStore = require '../stores/account-store'
+AccountStore = require '../flux/stores/account-store'
 
 class RemoveThreadHelper
 

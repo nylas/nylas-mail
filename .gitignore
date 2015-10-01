@@ -1,3 +1,6 @@
+.arcconfig
+.arclint
+arclib
 *.swp
 *~
 .DS_Store

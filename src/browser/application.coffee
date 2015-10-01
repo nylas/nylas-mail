@@ -231,9 +231,6 @@ class Application
           resourcePath: @resourcePath
           specDirectory: filenames[0]
 
-    @on 'application:run-benchmarks', ->
-      @runBenchmarks()
-
     @on 'application:reset-config-and-relaunch', @_resetConfigAndRelaunch
 
     @on 'application:quit', => app.quit()
@@ -484,15 +481,3 @@ class Application
     devMode = true
     safeMode ?= false
     new AtomWindow({bootstrapScript, resourcePath, exitWhenDone, isSpec, devMode, specDirectory, specFilePattern, logFile, safeMode})
-
-  runBenchmarks: ({exitWhenDone, specDirectory}={}) ->
-    try
-      bootstrapScript = require.resolve(path.resolve(global.devResourcePath, 'benchmark', 'benchmark-bootstrap'))
-    catch error
-      bootstrapScript = require.resolve(path.resolve(__dirname, '..', '..', 'benchmark', 'benchmark-bootstrap'))
-
-    specDirectory ?= path.dirname(bootstrapScript)
-
-    isSpec = true
-    devMode = true
-    new AtomWindow({bootstrapScript, @resourcePath, exitWhenDone, isSpec, specDirectory, devMode})
