@@ -1,18 +1,8 @@
 path = require 'path'
 Handlebars = require 'handlebars'
 marked = require 'meta-marked'
-cjsxtransform = require 'coffee-react-transform'
-rimraf = require 'rimraf'
-
 fs = require 'fs-plus'
 _ = require 'underscore'
-
-donna = require 'donna'
-tello = require 'tello'
-
-moduleBlacklist = [
-  'space-pen'
-]
 
 marked.setOptions
   highlight: (code) ->
@@ -52,39 +42,15 @@ module.exports = (grunt) ->
 
   {cp, mkdir, rm} = require('./task-helpers')(grunt)
 
-  relativePathForArticle = (filename) ->
-    filename[0..-4]+'.html'
+  relativePathForGuide = (filename) ->
+    '/guides/'+filename[0..-4]+'.html'
 
   relativePathForClass = (classname) ->
-    classname+'.html'
+    '/docs/'+classname+'.html'
 
   outputPathFor = (relativePath) ->
     docsOutputDir = grunt.config.get('docsOutputDir')
     path.join(docsOutputDir, relativePath)
-
-  getClassesToInclude = ->
-    modulesPath = path.resolve(__dirname, '..', '..', 'internal_packages')
-    classes = {}
-    fs.traverseTreeSync modulesPath, (modulePath) ->
-      # Don't traverse inside dependencies
-      return false if modulePath.match(/node_modules/g)
-
-      # Don't traverse blacklisted packages (that have docs, but we don't want to include)
-      return false if path.basename(modulePath) in moduleBlacklist
-      return true unless path.basename(modulePath) is 'package.json'
-      return true unless fs.isFileSync(modulePath)
-
-      apiPath = path.join(path.dirname(modulePath), 'api.json')
-      if fs.isFileSync(apiPath)
-        _.extend(classes, grunt.file.readJSON(apiPath).classes)
-      true
-    classes
-
-  sortClasses = (classes) ->
-    sortedClasses = {}
-    for className in Object.keys(classes).sort()
-      sortedClasses[className] = classes[className]
-    sortedClasses
 
   processFields = (json, fields = [], tasks = []) ->
     if json instanceof Array
@@ -99,77 +65,6 @@ module.exports = (grunt) ->
         if _.isObject(val)
           processFields(val, fields, tasks)
 
-  grunt.registerTask 'publish-docs', 'Publish the API docs to gh-pages', ->
-    done = @async()
-
-    docsOutputDir = grunt.config.get('docsOutputDir')
-    docsRepoDir = process.env.DOCS_REPO_DIR
-    if not docsRepoDir
-      console.log("DOCS_REPO_DIR is not set.")
-      return done()
-
-    exec = (require 'child_process').exec
-    execAll = (arr, callback) ->
-      console.log(arr[0])
-      exec arr[0], {cwd: docsRepoDir}, (err, stdout, stderr) ->
-        return callback(err) if callback and err
-        arr.splice(0, 1)
-        if arr.length > 0
-          execAll(arr, callback)
-        else
-          callback(null)
-
-    execAll [
-      "git fetch"
-      "git reset --hard origin/gh-pages"
-      "git clean -Xdf"
-    ], (err) ->
-      return done(err) if err
-      cp(docsOutputDir, docsRepoDir)
-      execAll [
-        "git commit -am 'Jenkins updating docs'"
-        "git push --force origin/gh-pages"
-      ], (err) ->
-        return done(err)
-
-  grunt.registerTask 'build-docs', 'Builds the API docs in src', ->
-    done = @async()
-
-    # Convert CJSX into coffeescript that can be read by Donna
-
-    docsOutputDir = grunt.config.get('docsOutputDir')
-    cjsxOutputDir = path.join(docsOutputDir, 'temp-cjsx')
-    rimraf cjsxOutputDir, ->
-      fs.mkdir(cjsxOutputDir)
-      srcPath = path.resolve(__dirname, '..', '..', 'src')
-      fs.traverseTreeSync srcPath, (file) ->
-        if path.extname(file) is '.cjsx'
-          transformed = cjsxtransform(grunt.file.read(file))
-          # Only attempt to parse this file as documentation if it contains
-          # real Coffeescript classes.
-          if transformed.indexOf('\nclass ') > 0
-            grunt.file.write(path.join(cjsxOutputDir, path.basename(file)[0..-5]+'coffee'), transformed)
-        true
-
-      # Process coffeescript source
-
-      metadata = donna.generateMetadata(['.', cjsxOutputDir])
-      console.log('---- Done with Donna ----')
-
-      try
-        api = tello.digest(metadata)
-      catch e
-        console.log(e.stack)
-
-      console.log('---- Done with Tello ----')
-      _.extend(api.classes, getClassesToInclude())
-      api.classes = sortClasses(api.classes)
-
-      apiJson = JSON.stringify(api, null, 2)
-      apiJsonPath = path.join(docsOutputDir, 'api.json')
-      grunt.file.write(apiJsonPath, apiJson)
-      done()
-
   grunt.registerTask 'render-docs', 'Builds html from the API docs', ->
     docsOutputDir = grunt.config.get('docsOutputDir')
 
@@ -183,7 +78,7 @@ module.exports = (grunt) ->
       # Parse a "@Section" out of the description if one is present
       sectionRegex = /Section: ?([\w ]*)(?:$|\n)/
       section = 'General'
-      console.log(contents.description)
+
       match = sectionRegex.exec(contents.description)
       if match
         contents.description = contents.description.replace(match[0], '')
@@ -200,11 +95,11 @@ module.exports = (grunt) ->
         section: section
       })
 
-    # Parse Article Markdown
+    # Parse guide Markdown
 
-    articles = []
-    articlesPath = path.resolve(__dirname, '..', '..', 'docs')
-    fs.traverseTreeSync articlesPath, (file) ->
+    guides = []
+    guidesPath = path.resolve(__dirname, '..', '..', 'docs', 'guides')
+    fs.traverseTreeSync guidesPath, (file) ->
       if path.extname(file) is '.md'
         {html, meta} = marked(grunt.file.read(file))
 
@@ -213,16 +108,16 @@ module.exports = (grunt) ->
         for key, val of meta
           meta[key.toLowerCase()] = val
 
-        articles.push({
+        guides.push({
           html: html
           meta: meta
           name: meta.title
           filename: filename
-          link: relativePathForArticle(filename)
+          link: relativePathForGuide(filename)
         })
 
-    # Sort articles by the `Order` flag when present. Lower order, higher in list.
-    articles.sort (a, b) ->
+    # Sort guides by the `Order` flag when present. Lower order, higher in list.
+    guides.sort (a, b) ->
       (a.meta?.order ? 1000)/1 - (b.meta?.order ? 1000)/1
 
     # Build Sidebar metadata we can hand off to each of the templates to
@@ -230,11 +125,11 @@ module.exports = (grunt) ->
     sidebar = {sections: []}
     sidebar.sections.push
       name: 'Getting Started'
-      items: articles.filter ({meta}) -> meta.section is 'Getting Started'
+      items: guides.filter ({meta}) -> meta.section is 'Getting Started'
 
     sidebar.sections.push
       name: 'Guides'
-      items: articles.filter ({meta}) -> meta.section is 'Guides'
+      items: guides.filter ({meta}) -> meta.section is 'Guides'
 
     sidebar.sections.push
       name: 'Sample Code'
@@ -273,7 +168,7 @@ module.exports = (grunt) ->
 
     # Prepare to render by loading handlebars partials
 
-    templatesPath = path.resolve(__dirname, '..', '..', 'docs', 'docs-templates')
+    templatesPath = path.resolve(__dirname, '..', '..', 'docs', 'templates')
     grunt.file.recurse templatesPath, (abspath, root, subdir, filename) ->
       if filename[0] is '_' and path.extname(filename) is '.html'
         Handlebars.registerPartial(filename[0..-6], grunt.file.read(abspath))
@@ -284,9 +179,9 @@ module.exports = (grunt) ->
     for classname, val of apiJSON.classes
       knownClassnames[classname.toLowerCase()] = val
 
-    knownArticles = {}
-    for article in articles
-      knownArticles[article.filename.toLowerCase()] = article
+    knownGuides = {}
+    for guide in guides
+      knownGuides[guide.filename.toLowerCase()] = guide
 
     expandTypeReferences = (val) ->
       refRegex = /{([\w.]*)}/g
@@ -300,9 +195,9 @@ module.exports = (grunt) ->
           url = thirdPartyClasses[term]
         else if knownClassnames[term]
           url = relativePathForClass(term)
-        else if knownArticles[term]
-          label = knownArticles[term].meta.title
-          url = relativePathForArticle(knownArticles[term].filename)
+        else if knownGuides[term]
+          label = knownGuides[term].meta.title
+          url = relativePathForGuide(knownGuides[term].filename)
         else
           console.warn("Cannot find class named #{term}")
 
@@ -325,6 +220,29 @@ module.exports = (grunt) ->
           val = val.replace(text, "<a href='#{url}'>#{label}</a>")
       val
 
+    # Copy non-documentation assets
+
+    docsPath = path.resolve(__dirname, '..', '..', 'docs')
+    assets = []
+    grunt.file.recurse docsPath, (abspath, root, subdir = "", filename) ->
+      if path.extname(filename) in ['.png', '.jpg', '.ico', '.css']
+        return if abspath.indexOf('/output/') isnt -1
+        return if abspath.indexOf('/templates/') isnt -1
+        destpath = path.join(docsOutputDir, subdir, filename)
+        assets.push({abspath, destpath})
+
+    for asset in assets
+      cp(asset.abspath, asset.destpath)
+
+    pages = []
+    grunt.file.recurse docsPath, (abspath, root, subdir = "", filename) ->
+      if path.extname(filename) in ['.html']
+        return if abspath.indexOf('/output/') isnt -1
+        return if abspath.indexOf('/templates/') isnt -1
+        html = fs.readFileSync(abspath)
+        destpath = path.join(docsOutputDir, subdir, filename)
+        pages.push({html, destpath})
+
     # Render Class Pages
 
     classTemplatePath = path.join(templatesPath, 'class.html')
@@ -339,22 +257,25 @@ module.exports = (grunt) ->
       result = classTemplate({name, documentation, section, sidebar})
       grunt.file.write(outputPathFor(relativePathForClass(name)), result)
 
-    # Render Article Pages
+    # Render Guide Pages
 
-    articleTemplatePath = path.join(templatesPath, 'article.html')
-    articleTemplate = Handlebars.compile(grunt.file.read(articleTemplatePath))
+    guideTemplatePath = path.join(templatesPath, 'guide.html')
+    guideTemplate = Handlebars.compile(grunt.file.read(guideTemplatePath))
 
-    for {name, meta, html, filename} in articles
-      # Process the article content to expand references to types, functions
+    for {name, meta, html, filename} in guides
+      # Process the guide content to expand references to types, functions
       for task in [expandTypeReferences, expandFuncReferences]
         html = task(html)
 
-      result = articleTemplate({name, meta, html, sidebar})
-      grunt.file.write(outputPathFor(relativePathForArticle(filename)), result)
+      result = guideTemplate({name, meta, html, sidebar})
+      grunt.file.write(outputPathFor(relativePathForGuide(filename)), result)
 
-    # Copy styles and images
+    # Render main pages
 
-    imagesPath = path.resolve(__dirname, '..', '..', 'docs', 'images')
-    cssPath = path.resolve(__dirname, '..', '..', 'docs', 'css')
-    cp imagesPath, path.join(docsOutputDir, "images")
-    cp cssPath, path.join(docsOutputDir, "css")
+    pageTemplatePath = path.join(templatesPath, 'page.html')
+    pageTemplate = Handlebars.compile(grunt.file.read(pageTemplatePath))
+    for {html, destpath} in pages
+      grunt.file.write(destpath, pageTemplate({html}))
+
+    # Remove temp cjsx output
+    rm(outputPathFor("temp-cjsx"))

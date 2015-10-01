@@ -78,8 +78,10 @@
     "vm-compatibility-layer": "0.1.0"
   },
   "devDependencies": {
-    "proxyquire": "git+https://github.com/bengotow/proxyquire",
-    "jasmine-react-helpers": "^0.2"
+    "grunt": "^0.4.5",
+    "grunt-serve": "^0.1.6",
+    "jasmine-react-helpers": "^0.2",
+    "proxyquire": "git+https://github.com/bengotow/proxyquire"
   },
   "packageDependencies": {},
   "private": true,
