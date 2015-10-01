@@ -273,7 +273,7 @@ module.exports = (grunt) ->
 
     # Prepare to render by loading handlebars partials
 
-    templatesPath = path.resolve(__dirname, '..', '..', 'docs-templates')
+    templatesPath = path.resolve(__dirname, '..', '..', 'docs', 'docs-templates')
     grunt.file.recurse templatesPath, (abspath, root, subdir, filename) ->
       if filename[0] is '_' and path.extname(filename) is '.html'
         Handlebars.registerPartial(filename[0..-6], grunt.file.read(abspath))
