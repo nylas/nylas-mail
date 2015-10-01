@@ -32,7 +32,7 @@ how it propogates between windows.
 ## Firing Actions
 
 ```coffee
-Actions.postNotification({message: "Archived Thread", type: 'success'})
+Actions.postNotification({message: "Removed Thread", type: 'success'})
 
 Actions.queueTask(new ChangeStarredTask(thread: @_thread, starred: true))
 ```
@@ -305,20 +305,20 @@ class Actions
   @destroyDraft: ActionScopeWindow
 
   ###
-  Public: Archive the currently focused {Thread}.
+  Public: Remove the currently focused {Thread}.
 
   *Scope: Window*
   ###
-  @archive: ActionScopeWindow
+  @removeCurrentlyFocusedThread: ActionScopeWindow
 
   ###
-  Public: Archives the Thread objects currently selected in the app's main thread list.
+  Public: Removes the Thread objects currently selected in the app's main thread list.
 
   *Scope: Window*
   ###
-  @archiveSelection: ActionScopeWindow
-  @archiveAndNext: ActionScopeWindow
-  @archiveAndPrevious: ActionScopeWindow
+  @removeSelection: ActionScopeWindow
+  @removeAndNext: ActionScopeWindow
+  @removeAndPrevious: ActionScopeWindow
   @toggleStarSelection: ActionScopeWindow
   @toggleStarFocused: ActionScopeWindow
   @toggleUnreadSelection: ActionScopeWindow
@@ -367,7 +367,7 @@ class Actions
 
   ```
   # A simple notification
-  Actions.postNotification({message: "Archived Thread", type: 'success'})
+  Actions.postNotification({message: "Removed Thread", type: 'success'})
 
   # A sticky notification with actions
   NOTIF_ACTION_YES = 'YES'

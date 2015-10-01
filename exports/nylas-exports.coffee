@@ -90,7 +90,6 @@ class NylasExports
   @require "ChangeStarredTask", 'flux/tasks/change-starred-task'
   @require "CreateMetadataTask", 'flux/tasks/create-metadata-task'
   @require "MarkMessageReadTask", 'flux/tasks/mark-message-read'
-  @require "ArchiveThreadHelper", 'flux/tasks/archive-thread-helper'
   @require "DestroyMetadataTask", 'flux/tasks/destroy-metadata-task'
 
   # Stores
@@ -134,6 +133,7 @@ class NylasExports
   @load "UndoManager", 'flux/undo-manager'
   @load "QuotedHTMLParser", 'services/quoted-html-parser'
   @load "QuotedPlainTextParser", 'services/quoted-plain-text-parser'
+  @require "RemoveThreadHelper", 'services/remove-thread-helper'
 
   # Errors
   @get "APIError", -> require('../src/flux/errors').APIError

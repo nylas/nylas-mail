@@ -133,8 +133,7 @@ class ThreadList extends React.Component
     c5 = new ListTabular.Column
       name: "HoverActions"
       resolver: (thread) =>
-        currentCategoryId = FocusedMailViewStore.mailView()?.categoryId()
-        <ThreadListQuickActions thread={thread} categoryId={currentCategoryId}/>
+        <ThreadListQuickActions thread={thread} />
 
     @wideColumns = [c1, c2, c3, c4, c5]
 
@@ -167,10 +166,10 @@ class ThreadList extends React.Component
     @narrowColumns = [cNarrow]
 
     @commands =
-      'core:remove-item': @_onArchive
+      'core:remove-item': @_onRemoveItem
       'core:star-item': @_onStarItem
-      'core:remove-and-previous': -> Actions.archiveAndPrevious()
-      'core:remove-and-next': -> Actions.archiveAndNext()
+      'core:remove-and-previous': -> Actions.removeAndPrevious()
+      'core:remove-and-next': -> Actions.removeAndNext()
 
     @itemPropsProvider = (item) ->
       className: classNames
@@ -257,15 +256,15 @@ class ThreadList extends React.Component
     else
       Actions.toggleStarFocused()
 
-  _onArchive: =>
+  _onRemoveItem: =>
     return unless ThreadListStore.view()
 
     if WorkspaceStore.layoutMode() is "list" and WorkspaceStore.topSheet() is WorkspaceStore.Sheet.Thread
-      Actions.archive()
+      Actions.removeCurrentlyFocusedThread()
     else if ThreadListStore.view().selection.count() > 0
-      Actions.archiveSelection()
+      Actions.removeSelection()
     else
-      Actions.archive()
+      Actions.removeCurrentlyFocusedThread()
 
 
 module.exports = ThreadList

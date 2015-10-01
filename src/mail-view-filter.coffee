@@ -48,9 +48,12 @@ class MailViewFilter
   canApplyToThreads: ->
     throw new Error("canApplyToThreads: Not implemented in base class.")
 
+  # Whether or not the current MailViewFilter can "archive" or "trash"
+  canRemoveThreads: ->
+    throw new Error("canRemoveThreads: Not implemented in base class.")
+
   applyToThreads: (threadsOrIds) ->
     throw new Error("applyToThreads: Not implemented in base class.")
-
 
 class SearchMailViewFilter extends MailViewFilter
   constructor: (@searchQuery) ->
@@ -63,6 +66,9 @@ class SearchMailViewFilter extends MailViewFilter
     null
 
   canApplyToThreads: ->
+    false
+
+  canRemoveThreads: ->
     false
 
   categoryId: ->
@@ -82,6 +88,9 @@ class StarredMailViewFilter extends MailViewFilter
     null
 
   canApplyToThreads: ->
+    true
+
+  canRemoveThreads: ->
     true
 
   applyToThreads: (threadsOrIds) ->
@@ -118,6 +127,11 @@ class CategoryMailViewFilter extends MailViewFilter
 
   canApplyToThreads: ->
     not (@category.name in CategoryStore.LockedCategoryNames)
+
+  canRemoveThreads: ->
+    return false if @category.name in ["archive", "trash", "sent", "all"]
+    return false if @category.displayName is atom.config.get("core.archiveFolder")
+    return true
 
   applyToThreads: (threadsOrIds) ->
     if AccountStore.current().usesLabels()

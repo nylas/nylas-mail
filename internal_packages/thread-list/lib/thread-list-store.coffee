@@ -12,7 +12,7 @@ NylasStore = require 'nylas-store'
  ChangeUnreadTask,
  ChangeStarredTask,
  FocusedContentStore,
- ArchiveThreadHelper,
+ RemoveThreadHelper,
  TaskQueueStatusStore,
  FocusedMailViewStore} = require 'nylas-exports'
 
@@ -22,14 +22,14 @@ class ThreadListStore extends NylasStore
   constructor: ->
     @_resetInstanceVars()
 
-    @listenTo Actions.archiveAndPrevious, @_onArchiveAndPrev
-    @listenTo Actions.archiveAndNext, @_onArchiveAndNext
+    @listenTo Actions.removeSelection, @_onRemoveSelection
 
-    @listenTo Actions.archiveSelection, @_onArchiveSelection
-    @listenTo Actions.moveThreads, @_onMoveThreads
+    @listenTo Actions.removeCurrentlyFocusedThread, @_onRemoveAndAuto
+    @listenTo Actions.removeAndNext, @_onRemoveAndNext
+    @listenTo Actions.removeAndPrevious, @_onRemoveAndPrev
 
-    @listenTo Actions.archive, @_onArchive
     @listenTo Actions.moveThread, @_onMoveThread
+    @listenTo Actions.moveThreads, @_onMoveThreads
 
     @listenTo Actions.toggleStarSelection, @_onToggleStarSelection
     @listenTo Actions.toggleStarFocused, @_onToggleStarFocused
@@ -158,24 +158,29 @@ class ThreadListStore extends NylasStore
     task = new ChangeUnreadTask {threads, unread}
     Actions.queueTask task
 
-  _onArchive: ->
-    @_archiveAndShiftBy('auto')
+  _onRemoveAndAuto: ->
+    @_removeAndShiftBy('auto')
 
-  _onArchiveAndPrev: ->
-    @_archiveAndShiftBy(-1)
+  _onRemoveAndPrev: ->
+    @_removeAndShiftBy(-1)
 
-  _onArchiveAndNext: ->
-    @_archiveAndShiftBy(1)
+  _onRemoveAndNext: ->
+    @_removeAndShiftBy(1)
 
-  _archiveAndShiftBy: (offset) ->
+  _removeAndShiftBy: (offset) ->
+    mailViewFilter = FocusedMailViewStore.mailView()
+    return unless mailViewFilter.canApplyToThreads()
     focused = FocusedContentStore.focused('thread')
     return unless focused
-    task = ArchiveThreadHelper.getArchiveTask([focused])
+    task = RemoveThreadHelper.getRemovalTask([focused], mailViewFilter)
     @_moveAndShiftBy(offset, task)
 
-  _onArchiveSelection: ->
+  _onRemoveSelection: ->
+    mailViewFilter = FocusedMailViewStore.mailView()
+    return unless mailViewFilter.canApplyToThreads()
     selectedThreads = @_view.selection.items()
-    task = ArchiveThreadHelper.getArchiveTask(selectedThreads)
+    return unless selectedThreads.length > 0
+    task = RemoveThreadHelper.getRemovalTask(selectedThreads, mailViewFilter)
     @_onMoveThreads(selectedThreads, task)
 
   _onMoveThread: (thread, task) ->
@@ -233,13 +238,13 @@ class ThreadListStore extends NylasStore
     # Remove the current thread from selection
     @_view.selection.remove(focused)
 
-    # If the user is in list mode and archived without specifically saying
-    # "archive and next" or "archive and prev", return to the thread list
+    # If the user is in list mode and removed without specifically saying
+    # "remove and next" or "remove and prev", return to the thread list
     # instead of focusing on the next message.
     if layoutMode is 'list' and not explicitOffset
       nextFocus = null
 
-    # Archive the current thread
+    # Remove the current thread
     TaskQueueStatusStore.waitForPerformLocal(task).then =>
       Actions.setFocus(collection: 'thread', item: nextFocus)
       Actions.setCursorPosition(collection: 'thread', item: nextKeyboard)
