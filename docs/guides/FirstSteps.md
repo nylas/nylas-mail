@@ -5,6 +5,70 @@ Section:     Getting Started
 Order:       2
 ---
 
+<style>
+h3 {
+  line-height: 40px;
+  color:#00B883;
+}
+h3.padded {
+  padding-top: 80px;
+  padding-bottom: 25px;
+}
+h3 .number {
+  width:40px;
+  height:40px;
+  margin-right:20px;
+  border-radius:50%;
+  border:1px solid #00B883;
+  float:left;
+  color:#00B883;
+  text-align: center;
+}
+h3.first {
+  padding-top:40px;
+}
+h3.second {
+  color: #00A180;
+}
+h3.second .number {
+  border:1px solid #00A180;
+  color: #00A180;
+}
+h3.third {
+  color: #009899;
+}
+h3.third .number {
+  border:1px solid #009899;
+  color: #009899;
+}
+h4 {
+  line-height: 26px;
+  font-size: 16px;
+  color:#89C9C8;
+  margin-top: 30px;
+  margin-bottom: 45px;
+}
+h4 .letter {
+  width:22px;
+  height:22px;
+  margin-right:15px;
+  font-size: 14px;
+  background-color: #89C9C8;
+  float:left;
+  color:white;
+  text-align: center;
+}
+p {
+  font-size:1.1em;
+  line-height: 1.6em;
+  color:rgba(0,0,0,0.5);
+}
+blockquote p {
+  font-size: 15px;
+}
+</style>
+
+
 <div class="row">
   <div class="col-md-12">
     <h2>Start building on top of Nylas in minutes:</h2>
@@ -19,7 +83,7 @@ Order:       2
     <p>Packages lie at the heart of N1. The thread list, composer and other core parts of the app are packages bundled with the app, and you have access to the same set of APIs. From the Developer Menu, choose <span class="instruction-literal">Create a Package...</span> and name your new package.</p>
   </div>
   <div class="col-md-4">
-    <img src="/static/img/Step2-Menu@2x.png" width="203" height="194" style="margin-top:88px;"/>
+    <img src="./images/Step2-Menu@2x.png" width="203" height="194" style="margin-top:88px;"/>
   </div>
 </div>
 
@@ -43,42 +107,15 @@ Order:       2
 <div class="row">
   <div class="col-md-6" style="padding-right:30px;">
     <h4><div class="letter">A</div> Explore the source</h4>
-    <img src="/static/img/Illu-ExploreTheSource@2x.png" width="121" height="96" style="margin:auto; margin-bottom:35px; display:block;"/>
+    <img src="./images/Illu-ExploreTheSource@2x.png" width="121" height="96" style="margin:auto; margin-bottom:35px; display:block;"/>
     <p>Nylas is built on the modern web - packages are written in CoffeeScript or JavaScript. Packages are a lot like node modules, with their own source, assets, and tests. Check out yours in <span class="instruction-literal">~/.nylas/dev/packages</span>.</p>
   </div>
   <div class="col-md-6" style="padding-left:30px;">
     <h4><div class="letter">B</div> Run the specs</h4>
-    <img src="/static/img/illu-RunTheSpecs@2x.png" width="139" height="96" style="margin:auto; margin-bottom:35px; display:block;"/>
+    <img src="./images/illu-RunTheSpecs@2x.png" width="139" height="96" style="margin:auto; margin-bottom:35px; display:block;"/>
     <p>In N1, select <span class="instruction-literal">Developer > Run Package Specs...</span> from the menu to run your package's new specs. Nylas and its packages use the Jasmine testing framework.</p>
   </div>
 </div>
-
-
-
-<script>
-var platforms = document.getElementById('platforms');
-var mac = '<a href="https://edgehill.nylas.com/download?platform=darwin">Mac OS X</a>'
-var windows = '<a href="https://edgehill.nylas.com/download?platform=win32">Windows</a>'
-var linux = '<a href="https://edgehill.nylas.com/download?platform=linux">Linux</a>'
-var OSName="Unknown OS";
-
-if (navigator.appVersion.indexOf("Win")!=-1) OSName="Windows";
-if (navigator.appVersion.indexOf("Mac")!=-1) OSName="MacOS";
-if (navigator.appVersion.indexOf("X11")!=-1) OSName="UNIX";
-if (navigator.appVersion.indexOf("Linux")!=-1) OSName="Linux";
-
-if (OSName == 'MacOS') {
-  platforms.innerHTML = mac + " (or "+windows+", "+linux+")";
-} else if (OSName == 'Windows') {
-  platforms.innerHTML = windows + " (or "+mac+", "+linux+")";
-} else if (OSName == 'Linux') {
-  platforms.innerHTML = linux + " (or "+mac+", "+windows+")";
-} else {
-  platforms.innerHTML = mac + ", "+windows+", or "+linux;
-}
-
-
-</script>
 
 <h2 class="gsg-header">Step 2: Building your first package</h2>
 
