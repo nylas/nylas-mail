@@ -423,7 +423,6 @@ class ComposerView extends React.Component
       <div style={order: 0, flex: 1} />
 
       <button className="btn btn-toolbar btn-emphasis btn-text btn-send" style={order: -100}
-              data-tooltip="Send message"
               ref="sendButton"
               onClick={@_sendDraft}><RetinaImg name="icon-composer-send.png" mode={RetinaImg.Mode.ContentIsMask} /><span className="text">Send</span></button>
 
