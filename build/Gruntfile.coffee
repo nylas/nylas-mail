@@ -215,7 +215,7 @@ module.exports = (grunt) ->
 
     coffeelint:
       options:
-        configFile: 'coffeelint.json'
+        configFile: 'build/config/coffeelint.json'
       src: [
         'internal_packages/**/*.cjsx'
         'internal_packages/**/*.coffee'

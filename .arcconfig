@@ -1,8 +1,0 @@
-{
-  "project_id" : "edgehill",
-  "conduit_uri" : "https://phab.nylas.com/",
-  "load" : [
-    "arclib"
-  ],
-  "lint.engine": "ArcanistConfigurationDrivenLintEngine"
-}

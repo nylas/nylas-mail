@@ -45,7 +45,6 @@ module.exports = (grunt) ->
     packageNames = []
     packageDirectories = []
     nonPackageDirectories = [
-      'benchmark'
       'dot-nylas'
       'vendor'
     ]
