@@ -1,0 +1,312 @@
+<html>
+<head>
+<meta charset="utf-8">
+<title>N1 — CommandRegistry</title>
+<meta property="og:title" content="An extensible mail client built on the modern web | N1">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://nylas.github.io/n1/images/meta_share.png">
+<link rel="shortcut icon" href="/images/favicon.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<link rel="stylesheet" type="text/css" href="/css/main.css"/>
+<link rel="stylesheet" type="text/css" href="/css/tomorrow.css">
+</head>
+<body>
+<div id="header">
+  <div class="container">
+    <img src="/images/edgehill.png" class="logo" />
+    <div class="title">N1<div class="small">Developer Preview</div></div>
+  </div>
+</div>
+
+<div class="container">
+
+<div class="page-title">
+  CommandRegistry
+</div>
+
+<div id="sidebar">
+  <div class="heading">Getting Started</div>
+  <ul>
+        <li><a href="/guides/FirstSteps.html" >First Steps</a></li>
+  </ul>
+  <div class="heading">Guides</div>
+  <ul>
+        <li><a href="/guides/InterfaceConcepts.html" >Interface Concepts</a></li>
+        <li><a href="/guides/PackageOverview.html" >Building a Package</a></li>
+        <li><a href="/guides/React.html" >Interface Components</a></li>
+        <li><a href="/guides/Architecture.html" >Application Architecture</a></li>
+        <li><a href="/guides/Debugging.html" >Debugging N1</a></li>
+        <li><a href="/guides/Database.html" >Accessing the Database</a></li>
+        <li><a href="/guides/DraftStoreExtensions.html" >Extending the Composer</a></li>
+        <li><a href="/guides/WritingSpecs.html" >Writing Specs</a></li>
+  </ul>
+  <div class="heading">Sample Code</div>
+  <ul>
+        <li><a href="https://github.com/nylas/edgehill-plugins/tree/master/translate" target="_blank">Composer Translation</a></li>
+        <li><a href="https://github.com/nylas/edgehill-plugins/tree/master/sidebar-github-profile" target="_blank">Github Sidebar</a></li>
+  </ul>
+  <div class="heading">API Reference</div>
+  <ul>
+        <div class="heading">General</div>
+        <ul>
+              <li><a href="/docs/Actions.html" >Actions</a></li>
+              <li><a href="/docs/Atom.html" >Atom</a></li>
+              <li><a href="/docs/BufferedNodeProcess.html" >BufferedNodeProcess</a></li>
+              <li><a href="/docs/BufferedProcess.html" >BufferedProcess</a></li>
+              <li><a href="/docs/ChangeFolderTask.html" >ChangeFolderTask</a></li>
+              <li><a href="/docs/ChangeLabelsTask.html" >ChangeLabelsTask</a></li>
+              <li><a href="/docs/Config.html" >Config</a></li>
+              <li><a href="/docs/DraggableImg.html" >DraggableImg</a></li>
+              <li><a href="/docs/FocusTrackingRegion.html" >FocusTrackingRegion</a></li>
+              <li><a href="/docs/Switch.html" >Switch</a></li>
+              <li><a href="/docs/Task.html" >Task</a></li>
+              <li><a href="/docs/TaskQueueStatusStore.html" >TaskQueueStatusStore</a></li>
+        </ul>
+        <div class="heading">Component Kit</div>
+        <ul>
+              <li><a href="/docs/EventedIFrame.html" >EventedIFrame</a></li>
+              <li><a href="/docs/Flexbox.html" >Flexbox</a></li>
+              <li><a href="/docs/InjectedComponent.html" >InjectedComponent</a></li>
+              <li><a href="/docs/InjectedComponentSet.html" >InjectedComponentSet</a></li>
+              <li><a href="/docs/Menu.html" >Menu</a></li>
+              <li><a href="/docs/MenuItem.html" >MenuItem</a></li>
+              <li><a href="/docs/MenuNameEmailItem.html" >MenuNameEmailItem</a></li>
+              <li><a href="/docs/MultiselectActionBar.html" >MultiselectActionBar</a></li>
+              <li><a href="/docs/MultiselectList.html" >MultiselectList</a></li>
+              <li><a href="/docs/Popover.html" >Popover</a></li>
+              <li><a href="/docs/ResizableRegion.html" >ResizableRegion</a></li>
+              <li><a href="/docs/RetinaImg.html" >RetinaImg</a></li>
+              <li><a href="/docs/Spinner.html" >Spinner</a></li>
+              <li><a href="/docs/TimeoutTransitionGroupChild.html" >TimeoutTransitionGroupChild</a></li>
+              <li><a href="/docs/UnsafeComponent.html" >UnsafeComponent</a></li>
+        </ul>
+        <div class="heading">Models</div>
+        <ul>
+              <li><a href="/docs/Account.html" >Account</a></li>
+              <li><a href="/docs/Calendar.html" >Calendar</a></li>
+              <li><a href="/docs/Contact.html" >Contact</a></li>
+              <li><a href="/docs/File.html" >File</a></li>
+              <li><a href="/docs/Folder.html" >Folder</a></li>
+              <li><a href="/docs/Label.html" >Label</a></li>
+              <li><a href="/docs/Message.html" >Message</a></li>
+              <li><a href="/docs/Model.html" >Model</a></li>
+              <li><a href="/docs/Thread.html" >Thread</a></li>
+        </ul>
+        <div class="heading">Stores</div>
+        <ul>
+              <li><a href="/docs/AccountStore.html" >AccountStore</a></li>
+              <li><a href="/docs/ComponentRegistry.html" >ComponentRegistry</a></li>
+              <li><a href="/docs/ContactStore.html" >ContactStore</a></li>
+              <li><a href="/docs/EventStore.html" >EventStore</a></li>
+              <li><a href="/docs/FocusedContentStore.html" >FocusedContentStore</a></li>
+              <li><a href="/docs/MessageStoreExtension.html" >MessageStoreExtension</a></li>
+              <li><a href="/docs/TaskQueue.html" >TaskQueue</a></li>
+              <li><a href="/docs/WorkspaceStore.html" >WorkspaceStore</a></li>
+        </ul>
+        <div class="heading">Database</div>
+        <ul>
+              <li><a href="/docs/Attribute.html" >Attribute</a></li>
+              <li><a href="/docs/AttributeBoolean.html" >AttributeBoolean</a></li>
+              <li><a href="/docs/AttributeCollection.html" >AttributeCollection</a></li>
+              <li><a href="/docs/AttributeDateTime.html" >AttributeDateTime</a></li>
+              <li><a href="/docs/AttributeJoinedData.html" >AttributeJoinedData</a></li>
+              <li><a href="/docs/AttributeNumber.html" >AttributeNumber</a></li>
+              <li><a href="/docs/AttributeObject.html" >AttributeObject</a></li>
+              <li><a href="/docs/AttributeServerId.html" >AttributeServerId</a></li>
+              <li><a href="/docs/AttributeString.html" >AttributeString</a></li>
+              <li><a href="/docs/DatabaseStore.html" >DatabaseStore</a></li>
+              <li><a href="/docs/DatabaseView.html" >DatabaseView</a></li>
+              <li><a href="/docs/Matcher.html" >Matcher</a></li>
+              <li><a href="/docs/ModelQuery.html" >ModelQuery</a></li>
+              <li><a href="/docs/SortOrder.html" >SortOrder</a></li>
+        </ul>
+        <div class="heading">Drafts</div>
+        <ul>
+              <li><a href="/docs/DraftChangeSet.html" >DraftChangeSet</a></li>
+              <li><a href="/docs/DraftStore.html" >DraftStore</a></li>
+              <li><a href="/docs/DraftStoreExtension.html" >DraftStoreExtension</a></li>
+              <li><a href="/docs/DraftStoreProxy.html" >DraftStoreProxy</a></li>
+        </ul>
+        <div class="heading">Atom</div>
+        <ul>
+              <li><a href="/docs/Clipboard.html" >Clipboard</a></li>
+              <li><a href="/docs/Color.html" >Color</a></li>
+              <li><a href="/docs/CommandRegistry.html" >CommandRegistry</a></li>
+              <li><a href="/docs/MenuManager.html" >MenuManager</a></li>
+              <li><a href="/docs/PackageManager.html" >PackageManager</a></li>
+              <li><a href="/docs/ScopeDescriptor.html" >ScopeDescriptor</a></li>
+              <li><a href="/docs/StyleManager.html" >StyleManager</a></li>
+              <li><a href="/docs/ThemeManager.html" >ThemeManager</a></li>
+        </ul>
+  </ul>
+</div>
+
+<div id="main">
+  <h2>Summary</h2>
+
+  <div class="markdown-from-sourecode">
+    <p><p>Associates listener functions with commands in a
+context-sensitive way using CSS selectors. You can access a global instance of
+this class via <code>atom.commands</code>, and commands registered there will be
+presented in the command palette.</p>
+<p>The global command registry facilitates a style of event handling known as
+<em>event delegation</em> that was popularized by jQuery. Atom commands are expressed
+as custom DOM events that can be invoked on the currently focused element via
+a key binding or manually via the command palette. Rather than binding
+listeners for command events directly to DOM nodes, you instead register
+command event listeners globally on <code>atom.commands</code> and constrain them to
+specific kinds of elements with CSS selectors.</p>
+<p>As the event bubbles upward through the DOM, all registered event listeners
+with matching selectors are invoked in order of specificity. In the event of a
+specificity tie, the most recently registered listener is invoked first. This
+mirrors the &quot;cascade&quot; semantics of CSS. Event listeners are invoked in the
+context of the current DOM node, meaning <code>this</code> always points at
+<code>event.currentTarget</code>. As is normally the case with DOM events,
+<code>stopPropagation</code> and <code>stopImmediatePropagation</code> can be used to terminate the
+bubbling process and prevent invocation of additional listeners.</p>
+<h2 id="example">Example</h2>
+<p>Here is a command that inserts the current date in an editor:</p>
+<pre><code class="lang-coffee">atom<span class="hljs-class">.commands</span><span class="hljs-class">.add</span> <span class="hljs-string">'atom-text-editor'</span>,
+  <span class="hljs-string">'user:insert-date'</span>: (event) -&gt;
+    editor = @<span class="hljs-function"><span class="hljs-title">getModel</span><span class="hljs-params">()</span></span>
+    editor.<span class="hljs-function"><span class="hljs-title">insertText</span><span class="hljs-params">(new Date()</span></span>.<span class="hljs-function"><span class="hljs-title">toLocaleString</span><span class="hljs-params">()</span></span>)
+</code></pre>
+</p>
+  </div>
+
+  <ul>
+  </ul>
+
+
+
+
+
+      <h3>Instance Methods</h3>
+
+      <h4 id=add class="function-name">
+        add(<span class="args"></span>) <a href="#add" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Add one or more command listeners associated with a selector.</p>
+      </p>
+      </div>
+      
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns a {Disposable} on which <code>.dispose()</code> can be called to remove the
+      added command handler(s).</p>
+      </td></tr>
+          </table>
+      <h4 id=findCommands class="function-name">
+        findCommands(<span class="args"><span class="arg">params</span></span>) <a href="#findCommands" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Find all registered commands matching a query.</p>
+      </p>
+      </div>
+      
+          <strong>Parameters</strong>
+          <table class="arguments">
+              <tr>
+                <th>Argument</th>
+                <th>Description</th>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>params</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  
+                  <p>An <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a> containing one or more of the following keys:</p>
+      
+                </td>
+              </tr>
+          </table>
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a>s containing the following keys:</p>
+      <ul>
+      <li><code>name</code> The name of the command. For example, <code>user:insert-date</code>.</li>
+      <li><code>displayName</code> The display name of the command. For example,
+      <code>User: Insert Date</code>.</li>
+      <li><code>jQuery</code> Present if the command was registered with the legacy
+      <code>$::command</code> method.</li>
+      </ul>
+      </td></tr>
+          </table>
+      <h4 id=dispatch class="function-name">
+        dispatch(<span class="args"><span class="arg">target</span><span class="arg">commandName</span></span>) <a href="#dispatch" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p><p>Simulate the dispatch of a command on a DOM node.</p>
+      <p>This can be useful for testing when you want to simulate the invocation of a
+      command on a detached DOM node. Otherwise, the DOM node in question needs to
+      be attached to the document so the event bubbles up to the root node to be
+      processed.</p>
+      </p>
+      </div>
+      
+          <strong>Parameters</strong>
+          <table class="arguments">
+              <tr>
+                <th>Argument</th>
+                <th>Description</th>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>target</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  
+                  <p>The DOM node at which to start bubbling the command event.</p>
+      
+                </td>
+              </tr>
+              <tr>
+                <td style="width:15%;">
+                  <em>commandName</em>
+                </td>
+                <td class="markdown-from-sourecode">
+                  
+                  <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> indicating the name of the command to dispatch. </p>
+      
+                </td>
+              </tr>
+          </table>
+      
+
+</div>
+
+</div>
+
+<div id="footer">
+  <div class="container">
+    <img src="images/edgehill.png" class="logo" />
+    <div class="small">N1 Developer Preview<br><em>© 2014-2015 Nylas, Inc.</em></div>
+  </div>
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-60022049-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+</body>
+</html>

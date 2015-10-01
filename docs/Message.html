@@ -1,0 +1,346 @@
+<html>
+<head>
+<meta charset="utf-8">
+<title>N1 — Message</title>
+<meta property="og:title" content="An extensible mail client built on the modern web | N1">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://nylas.github.io/n1/images/meta_share.png">
+<link rel="shortcut icon" href="/images/favicon.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<link rel="stylesheet" type="text/css" href="/css/main.css"/>
+<link rel="stylesheet" type="text/css" href="/css/tomorrow.css">
+</head>
+<body>
+<div id="header">
+  <div class="container">
+    <img src="/images/edgehill.png" class="logo" />
+    <div class="title">N1<div class="small">Developer Preview</div></div>
+  </div>
+</div>
+
+<div class="container">
+
+<div class="page-title">
+  Message
+    <span class="extends">extends Model</span>
+</div>
+
+<div id="sidebar">
+  <div class="heading">Getting Started</div>
+  <ul>
+        <li><a href="/guides/FirstSteps.html" >First Steps</a></li>
+  </ul>
+  <div class="heading">Guides</div>
+  <ul>
+        <li><a href="/guides/InterfaceConcepts.html" >Interface Concepts</a></li>
+        <li><a href="/guides/PackageOverview.html" >Building a Package</a></li>
+        <li><a href="/guides/React.html" >Interface Components</a></li>
+        <li><a href="/guides/Architecture.html" >Application Architecture</a></li>
+        <li><a href="/guides/Debugging.html" >Debugging N1</a></li>
+        <li><a href="/guides/Database.html" >Accessing the Database</a></li>
+        <li><a href="/guides/DraftStoreExtensions.html" >Extending the Composer</a></li>
+        <li><a href="/guides/WritingSpecs.html" >Writing Specs</a></li>
+  </ul>
+  <div class="heading">Sample Code</div>
+  <ul>
+        <li><a href="https://github.com/nylas/edgehill-plugins/tree/master/translate" target="_blank">Composer Translation</a></li>
+        <li><a href="https://github.com/nylas/edgehill-plugins/tree/master/sidebar-github-profile" target="_blank">Github Sidebar</a></li>
+  </ul>
+  <div class="heading">API Reference</div>
+  <ul>
+        <div class="heading">General</div>
+        <ul>
+              <li><a href="/docs/Actions.html" >Actions</a></li>
+              <li><a href="/docs/Atom.html" >Atom</a></li>
+              <li><a href="/docs/BufferedNodeProcess.html" >BufferedNodeProcess</a></li>
+              <li><a href="/docs/BufferedProcess.html" >BufferedProcess</a></li>
+              <li><a href="/docs/ChangeFolderTask.html" >ChangeFolderTask</a></li>
+              <li><a href="/docs/ChangeLabelsTask.html" >ChangeLabelsTask</a></li>
+              <li><a href="/docs/Config.html" >Config</a></li>
+              <li><a href="/docs/DraggableImg.html" >DraggableImg</a></li>
+              <li><a href="/docs/FocusTrackingRegion.html" >FocusTrackingRegion</a></li>
+              <li><a href="/docs/Switch.html" >Switch</a></li>
+              <li><a href="/docs/Task.html" >Task</a></li>
+              <li><a href="/docs/TaskQueueStatusStore.html" >TaskQueueStatusStore</a></li>
+        </ul>
+        <div class="heading">Component Kit</div>
+        <ul>
+              <li><a href="/docs/EventedIFrame.html" >EventedIFrame</a></li>
+              <li><a href="/docs/Flexbox.html" >Flexbox</a></li>
+              <li><a href="/docs/InjectedComponent.html" >InjectedComponent</a></li>
+              <li><a href="/docs/InjectedComponentSet.html" >InjectedComponentSet</a></li>
+              <li><a href="/docs/Menu.html" >Menu</a></li>
+              <li><a href="/docs/MenuItem.html" >MenuItem</a></li>
+              <li><a href="/docs/MenuNameEmailItem.html" >MenuNameEmailItem</a></li>
+              <li><a href="/docs/MultiselectActionBar.html" >MultiselectActionBar</a></li>
+              <li><a href="/docs/MultiselectList.html" >MultiselectList</a></li>
+              <li><a href="/docs/Popover.html" >Popover</a></li>
+              <li><a href="/docs/ResizableRegion.html" >ResizableRegion</a></li>
+              <li><a href="/docs/RetinaImg.html" >RetinaImg</a></li>
+              <li><a href="/docs/Spinner.html" >Spinner</a></li>
+              <li><a href="/docs/TimeoutTransitionGroupChild.html" >TimeoutTransitionGroupChild</a></li>
+              <li><a href="/docs/UnsafeComponent.html" >UnsafeComponent</a></li>
+        </ul>
+        <div class="heading">Models</div>
+        <ul>
+              <li><a href="/docs/Account.html" >Account</a></li>
+              <li><a href="/docs/Calendar.html" >Calendar</a></li>
+              <li><a href="/docs/Contact.html" >Contact</a></li>
+              <li><a href="/docs/File.html" >File</a></li>
+              <li><a href="/docs/Folder.html" >Folder</a></li>
+              <li><a href="/docs/Label.html" >Label</a></li>
+              <li><a href="/docs/Message.html" >Message</a></li>
+              <li><a href="/docs/Model.html" >Model</a></li>
+              <li><a href="/docs/Thread.html" >Thread</a></li>
+        </ul>
+        <div class="heading">Stores</div>
+        <ul>
+              <li><a href="/docs/AccountStore.html" >AccountStore</a></li>
+              <li><a href="/docs/ComponentRegistry.html" >ComponentRegistry</a></li>
+              <li><a href="/docs/ContactStore.html" >ContactStore</a></li>
+              <li><a href="/docs/EventStore.html" >EventStore</a></li>
+              <li><a href="/docs/FocusedContentStore.html" >FocusedContentStore</a></li>
+              <li><a href="/docs/MessageStoreExtension.html" >MessageStoreExtension</a></li>
+              <li><a href="/docs/TaskQueue.html" >TaskQueue</a></li>
+              <li><a href="/docs/WorkspaceStore.html" >WorkspaceStore</a></li>
+        </ul>
+        <div class="heading">Database</div>
+        <ul>
+              <li><a href="/docs/Attribute.html" >Attribute</a></li>
+              <li><a href="/docs/AttributeBoolean.html" >AttributeBoolean</a></li>
+              <li><a href="/docs/AttributeCollection.html" >AttributeCollection</a></li>
+              <li><a href="/docs/AttributeDateTime.html" >AttributeDateTime</a></li>
+              <li><a href="/docs/AttributeJoinedData.html" >AttributeJoinedData</a></li>
+              <li><a href="/docs/AttributeNumber.html" >AttributeNumber</a></li>
+              <li><a href="/docs/AttributeObject.html" >AttributeObject</a></li>
+              <li><a href="/docs/AttributeServerId.html" >AttributeServerId</a></li>
+              <li><a href="/docs/AttributeString.html" >AttributeString</a></li>
+              <li><a href="/docs/DatabaseStore.html" >DatabaseStore</a></li>
+              <li><a href="/docs/DatabaseView.html" >DatabaseView</a></li>
+              <li><a href="/docs/Matcher.html" >Matcher</a></li>
+              <li><a href="/docs/ModelQuery.html" >ModelQuery</a></li>
+              <li><a href="/docs/SortOrder.html" >SortOrder</a></li>
+        </ul>
+        <div class="heading">Drafts</div>
+        <ul>
+              <li><a href="/docs/DraftChangeSet.html" >DraftChangeSet</a></li>
+              <li><a href="/docs/DraftStore.html" >DraftStore</a></li>
+              <li><a href="/docs/DraftStoreExtension.html" >DraftStoreExtension</a></li>
+              <li><a href="/docs/DraftStoreProxy.html" >DraftStoreProxy</a></li>
+        </ul>
+        <div class="heading">Atom</div>
+        <ul>
+              <li><a href="/docs/Clipboard.html" >Clipboard</a></li>
+              <li><a href="/docs/Color.html" >Color</a></li>
+              <li><a href="/docs/CommandRegistry.html" >CommandRegistry</a></li>
+              <li><a href="/docs/MenuManager.html" >MenuManager</a></li>
+              <li><a href="/docs/PackageManager.html" >PackageManager</a></li>
+              <li><a href="/docs/ScopeDescriptor.html" >ScopeDescriptor</a></li>
+              <li><a href="/docs/StyleManager.html" >StyleManager</a></li>
+              <li><a href="/docs/ThemeManager.html" >ThemeManager</a></li>
+        </ul>
+  </ul>
+</div>
+
+<div id="main">
+  <h2>Summary</h2>
+
+  <div class="markdown-from-sourecode">
+    <p><p>The Message model represents a Message object served by the Nylas Platform API.
+For more information about Messages on the Nylas Platform, read the
+<a href="https://nylas.com/docs/api#messages">Messages API Documentation</a></p>
+<p>Messages are a sub-object of threads. The content of a message is immutable (with the
+exception being drafts). Nylas does not support operations such as move or delete on
+individual messages; those operations should be performed on the message’s thread.
+All messages are part of a thread, even if that thread has only one message.</p>
+<h2 id="attributes">Attributes</h2>
+<p><code>to</code>: <a href='/docs/attributecollection.html'>AttributeCollection</a> A collection of <a href='/docs/contact.html'>Contact</a> objects</p>
+<p><code>cc</code>: <a href='/docs/attributecollection.html'>AttributeCollection</a> A collection of <a href='/docs/contact.html'>Contact</a> objects</p>
+<p><code>bcc</code>: <a href='/docs/attributecollection.html'>AttributeCollection</a> A collection of <a href='/docs/contact.html'>Contact</a> objects</p>
+<p><code>from</code>: <a href='/docs/attributecollection.html'>AttributeCollection</a> A collection of <a href='/docs/contact.html'>Contact</a> objects.</p>
+<p><code>replyTo</code>: <a href='/docs/attributecollection.html'>AttributeCollection</a> A collection of <a href='/docs/contact.html'>Contact</a> objects.</p>
+<p><code>date</code>: <a href='/docs/attributedatetime.html'>AttributeDateTime</a> When the message was delivered. Queryable.</p>
+<p><code>subject</code>: <a href='/docs/attributestring.html'>AttributeString</a> The subject of the thread. Queryable.</p>
+<p><code>snippet</code>: <a href='/docs/attributestring.html'>AttributeString</a> A short, 140-character plain-text summary of the message body.</p>
+<p><code>unread</code>: <a href='/docs/attributeboolean.html'>AttributeBoolean</a> True if the message is unread. Queryable.</p>
+<p><code>starred</code>: <a href='/docs/attributeboolean.html'>AttributeBoolean</a> True if the message is starred. Queryable.</p>
+<p><code>draft</code>: <a href='/docs/attributeboolean.html'>AttributeBoolean</a> True if the message is a draft. Queryable.</p>
+<p><code>version</code>: <a href='/docs/attributenumber.html'>AttributeNumber</a> The version number of the message. Message
+   versions are used for drafts, and increment when attributes are changed.</p>
+<p><code>files</code>: <a href='/docs/attributecollection.html'>AttributeCollection</a> A set of <a href='/docs/file.html'>File</a> models representing
+   the attachments on this thread.</p>
+<p><code>body</code>: <a href='/docs/attributejoineddata.html'>AttributeJoinedData</a> The HTML body of the message. You must specifically
+ request this attribute when querying for a Message using the {<a href='/docs/AttributeJoinedData.html#include'>AttributeJoinedData::include</a>}
+ method.</p>
+<p><code>pristine</code>: <a href='/docs/attributeboolean.html'>AttributeBoolean</a> True if the message is a draft which has not been
+ edited since it was created.</p>
+<p><code>threadId</code>: <a href='/docs/attributestring.html'>AttributeString</a> The ID of the Message&#39;s parent <a href='/docs/thread.html'>Thread</a>. Queryable.</p>
+<p><code>replyToMessageId</code>: <a href='/docs/attributestring.html'>AttributeString</a> The ID of a <a href='/docs/message.html'>Message</a> that this message
+ is in reply to.</p>
+<p>This class also inherits attributes from <a href='/docs/model.html'>Model</a></p>
+</p>
+  </div>
+
+  <ul>
+  </ul>
+
+
+
+
+
+      <h3>Instance Methods</h3>
+
+      <h4 id=participants class="function-name">
+        participants(<span class="args"></span>) <a href="#participants" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p></p>
+      </div>
+      
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns a set of uniqued message participants by combining the
+      <code>to</code>, <code>cc</code>, and <code>from</code> fields.</p>
+      </td></tr>
+          </table>
+      <h4 id=participantsForReplyAll class="function-name">
+        participantsForReplyAll(<span class="args"></span>) <a href="#participantsForReplyAll" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p></p>
+      </div>
+      
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns a hash with <code>to</code> and <code>cc</code> keys for authoring a new draft in
+      &quot;reply all&quot; to this message. This method takes into account whether the
+      message is from the current user, and also looks at the replyTo field.</p>
+      </td></tr>
+          </table>
+      <h4 id=participantsForReply class="function-name">
+        participantsForReply(<span class="args"></span>) <a href="#participantsForReply" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p></p>
+      </div>
+      
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns a hash with <code>to</code> and <code>cc</code> keys for authoring a new draft in
+      &quot;reply&quot; to this message. This method takes into account whether the
+      message is from the current user, and also looks at the replyTo field.</p>
+      </td></tr>
+          </table>
+      <h4 id=fileIds class="function-name">
+        fileIds(<span class="args"></span>) <a href="#fileIds" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p></p>
+      </div>
+      
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of <a href='/docs/file.html'>File</a> IDs</p>
+      </td></tr>
+          </table>
+      <h4 id=isFromMe class="function-name">
+        isFromMe(<span class="args"></span>) <a href="#isFromMe" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p></p>
+      </div>
+      
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns true if this message is from the current user&#39;s email
+      address. In the future, this method will take into account all of the
+      user&#39;s email addresses and accounts.</p>
+      </td></tr>
+          </table>
+      <h4 id=plainTextBody class="function-name">
+        plainTextBody(<span class="args"></span>) <a href="#plainTextBody" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p></p>
+      </div>
+      
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns a plaintext version of the message body using Chromium&#39;s
+      DOMParser. Use with care.</p>
+      </td></tr>
+          </table>
+      <h4 id=replyAttributionLine class="function-name">
+        replyAttributionLine(<span class="args"></span>) <a href="#replyAttributionLine" class="link"></a>
+      </h4>
+      
+      <div class="function-description markdown-from-sourecode">
+        <p></p>
+      </div>
+      
+      
+          <strong>Returns</strong>
+          <table class="arguments">
+            <tr>
+              <th>Return Values</th>
+            </tr>
+            <tr><td class="markdown-from-sourecode"><p>Returns the standard attribution line for this message,
+      localized for the current user.
+      ie &quot;On Dec. 12th, 2015 at 4:00PM, Ben Gotow wrote:&quot;</p>
+      </td></tr>
+          </table>
+
+</div>
+
+</div>
+
+<div id="footer">
+  <div class="container">
+    <img src="images/edgehill.png" class="logo" />
+    <div class="small">N1 Developer Preview<br><em>© 2014-2015 Nylas, Inc.</em></div>
+  </div>
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-60022049-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+</body>
+</html>

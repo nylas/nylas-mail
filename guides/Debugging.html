@@ -1,0 +1,203 @@
+<html>
+<head>
+<meta charset="utf-8">
+<title>N1 — Debugging N1</title>
+<meta property="og:title" content="An extensible mail client built on the modern web | N1">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://nylas.github.io/n1/images/meta_share.png">
+<link rel="shortcut icon" href="/images/favicon.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<link rel="stylesheet" type="text/css" href="/css/main.css"/>
+<link rel="stylesheet" type="text/css" href="/css/tomorrow.css">
+</head>
+<body>
+<div id="header">
+  <div class="container">
+    <img src="/images/edgehill.png" class="logo" />
+    <div class="title">N1<div class="small">Developer Preview</div></div>
+  </div>
+</div>
+
+<div class="container">
+
+<div class="page-title">Debugging N1</div>
+
+<div id="sidebar">
+  <div class="heading">Getting Started</div>
+  <ul>
+        <li><a href="/guides/FirstSteps.html" >First Steps</a></li>
+  </ul>
+  <div class="heading">Guides</div>
+  <ul>
+        <li><a href="/guides/InterfaceConcepts.html" >Interface Concepts</a></li>
+        <li><a href="/guides/PackageOverview.html" >Building a Package</a></li>
+        <li><a href="/guides/React.html" >Interface Components</a></li>
+        <li><a href="/guides/Architecture.html" >Application Architecture</a></li>
+        <li><a href="/guides/Debugging.html" >Debugging N1</a></li>
+        <li><a href="/guides/Database.html" >Accessing the Database</a></li>
+        <li><a href="/guides/DraftStoreExtensions.html" >Extending the Composer</a></li>
+        <li><a href="/guides/WritingSpecs.html" >Writing Specs</a></li>
+  </ul>
+  <div class="heading">Sample Code</div>
+  <ul>
+        <li><a href="https://github.com/nylas/edgehill-plugins/tree/master/translate" target="_blank">Composer Translation</a></li>
+        <li><a href="https://github.com/nylas/edgehill-plugins/tree/master/sidebar-github-profile" target="_blank">Github Sidebar</a></li>
+  </ul>
+  <div class="heading">API Reference</div>
+  <ul>
+        <div class="heading">General</div>
+        <ul>
+              <li><a href="/docs/Actions.html" >Actions</a></li>
+              <li><a href="/docs/Atom.html" >Atom</a></li>
+              <li><a href="/docs/BufferedNodeProcess.html" >BufferedNodeProcess</a></li>
+              <li><a href="/docs/BufferedProcess.html" >BufferedProcess</a></li>
+              <li><a href="/docs/ChangeFolderTask.html" >ChangeFolderTask</a></li>
+              <li><a href="/docs/ChangeLabelsTask.html" >ChangeLabelsTask</a></li>
+              <li><a href="/docs/Config.html" >Config</a></li>
+              <li><a href="/docs/DraggableImg.html" >DraggableImg</a></li>
+              <li><a href="/docs/FocusTrackingRegion.html" >FocusTrackingRegion</a></li>
+              <li><a href="/docs/Switch.html" >Switch</a></li>
+              <li><a href="/docs/Task.html" >Task</a></li>
+              <li><a href="/docs/TaskQueueStatusStore.html" >TaskQueueStatusStore</a></li>
+        </ul>
+        <div class="heading">Component Kit</div>
+        <ul>
+              <li><a href="/docs/EventedIFrame.html" >EventedIFrame</a></li>
+              <li><a href="/docs/Flexbox.html" >Flexbox</a></li>
+              <li><a href="/docs/InjectedComponent.html" >InjectedComponent</a></li>
+              <li><a href="/docs/InjectedComponentSet.html" >InjectedComponentSet</a></li>
+              <li><a href="/docs/Menu.html" >Menu</a></li>
+              <li><a href="/docs/MenuItem.html" >MenuItem</a></li>
+              <li><a href="/docs/MenuNameEmailItem.html" >MenuNameEmailItem</a></li>
+              <li><a href="/docs/MultiselectActionBar.html" >MultiselectActionBar</a></li>
+              <li><a href="/docs/MultiselectList.html" >MultiselectList</a></li>
+              <li><a href="/docs/Popover.html" >Popover</a></li>
+              <li><a href="/docs/ResizableRegion.html" >ResizableRegion</a></li>
+              <li><a href="/docs/RetinaImg.html" >RetinaImg</a></li>
+              <li><a href="/docs/Spinner.html" >Spinner</a></li>
+              <li><a href="/docs/TimeoutTransitionGroupChild.html" >TimeoutTransitionGroupChild</a></li>
+              <li><a href="/docs/UnsafeComponent.html" >UnsafeComponent</a></li>
+        </ul>
+        <div class="heading">Models</div>
+        <ul>
+              <li><a href="/docs/Account.html" >Account</a></li>
+              <li><a href="/docs/Calendar.html" >Calendar</a></li>
+              <li><a href="/docs/Contact.html" >Contact</a></li>
+              <li><a href="/docs/File.html" >File</a></li>
+              <li><a href="/docs/Folder.html" >Folder</a></li>
+              <li><a href="/docs/Label.html" >Label</a></li>
+              <li><a href="/docs/Message.html" >Message</a></li>
+              <li><a href="/docs/Model.html" >Model</a></li>
+              <li><a href="/docs/Thread.html" >Thread</a></li>
+        </ul>
+        <div class="heading">Stores</div>
+        <ul>
+              <li><a href="/docs/AccountStore.html" >AccountStore</a></li>
+              <li><a href="/docs/ComponentRegistry.html" >ComponentRegistry</a></li>
+              <li><a href="/docs/ContactStore.html" >ContactStore</a></li>
+              <li><a href="/docs/EventStore.html" >EventStore</a></li>
+              <li><a href="/docs/FocusedContentStore.html" >FocusedContentStore</a></li>
+              <li><a href="/docs/MessageStoreExtension.html" >MessageStoreExtension</a></li>
+              <li><a href="/docs/TaskQueue.html" >TaskQueue</a></li>
+              <li><a href="/docs/WorkspaceStore.html" >WorkspaceStore</a></li>
+        </ul>
+        <div class="heading">Database</div>
+        <ul>
+              <li><a href="/docs/Attribute.html" >Attribute</a></li>
+              <li><a href="/docs/AttributeBoolean.html" >AttributeBoolean</a></li>
+              <li><a href="/docs/AttributeCollection.html" >AttributeCollection</a></li>
+              <li><a href="/docs/AttributeDateTime.html" >AttributeDateTime</a></li>
+              <li><a href="/docs/AttributeJoinedData.html" >AttributeJoinedData</a></li>
+              <li><a href="/docs/AttributeNumber.html" >AttributeNumber</a></li>
+              <li><a href="/docs/AttributeObject.html" >AttributeObject</a></li>
+              <li><a href="/docs/AttributeServerId.html" >AttributeServerId</a></li>
+              <li><a href="/docs/AttributeString.html" >AttributeString</a></li>
+              <li><a href="/docs/DatabaseStore.html" >DatabaseStore</a></li>
+              <li><a href="/docs/DatabaseView.html" >DatabaseView</a></li>
+              <li><a href="/docs/Matcher.html" >Matcher</a></li>
+              <li><a href="/docs/ModelQuery.html" >ModelQuery</a></li>
+              <li><a href="/docs/SortOrder.html" >SortOrder</a></li>
+        </ul>
+        <div class="heading">Drafts</div>
+        <ul>
+              <li><a href="/docs/DraftChangeSet.html" >DraftChangeSet</a></li>
+              <li><a href="/docs/DraftStore.html" >DraftStore</a></li>
+              <li><a href="/docs/DraftStoreExtension.html" >DraftStoreExtension</a></li>
+              <li><a href="/docs/DraftStoreProxy.html" >DraftStoreProxy</a></li>
+        </ul>
+        <div class="heading">Atom</div>
+        <ul>
+              <li><a href="/docs/Clipboard.html" >Clipboard</a></li>
+              <li><a href="/docs/Color.html" >Color</a></li>
+              <li><a href="/docs/CommandRegistry.html" >CommandRegistry</a></li>
+              <li><a href="/docs/MenuManager.html" >MenuManager</a></li>
+              <li><a href="/docs/PackageManager.html" >PackageManager</a></li>
+              <li><a href="/docs/ScopeDescriptor.html" >ScopeDescriptor</a></li>
+              <li><a href="/docs/StyleManager.html" >StyleManager</a></li>
+              <li><a href="/docs/ThemeManager.html" >ThemeManager</a></li>
+        </ul>
+  </ul>
+</div>
+<div id="main" class="article">
+<h3 id="chromium-devtools">Chromium DevTools</h3>
+<p>N1 is built on top of Electron, which runs the latest version of Chromium (at the time of writing, Chromium 43). You can access the standard <a href="https://developer.chrome.com/devtools">Chrome DevTools</a> using the <code>Command-Option-I</code> (<code>Ctrl-Shift-I</code> on Windows/Linux) keyboard shortcut, including the Debugger, Profiler, and Console. You can find extensive information about the Chromium DevTools on <a href="https://developer.chrome.com/devtools">developer.chrome.com</a>.</p>
+<p>Here are a few hidden tricks for getting the most out of the Chromium DevTools:</p>
+<ul>
+<li><p>You can use <code>Command-P</code> to &quot;Open Quickly&quot;, jumping to a particular source file from any tab.</p>
+</li>
+<li><p>You can set breakpoints by clicking the line number gutter while viewing a source file.</p>
+</li>
+<li><p>While on a breakpoint, you can toggle the console panel by pressing <code>Esc</code> and type commands which are executed in the current scope.</p>
+</li>
+<li><p>While viewing the DOM in the <code>Elements</code> panel, typing <code>$0</code> on the console refers to the currently selected DOM node.</p>
+</li>
+</ul>
+<h3 id="nylas-developer-panel">Nylas Developer Panel</h3>
+<p>If you choose <code>Developer &gt; Relaunch with Debug Flags...</code> from the menu, you can enable the Nylas Developer Panel at the bottom of the main window.</p>
+<p>The Developer Panel provides three views which you can click to activate:</p>
+<ul>
+<li><p><code>Tasks</code>: This view allows you to inspect the <a href='/docs/taskqueue.html'>TaskQueue</a> and see the what tasks are pending and complete. Click a task to see its JSON representation and inspect it&#39;s values, including the last error it encountered.</p>
+</li>
+<li><p><code>Delta Stream</code>: This view allows you to see the streaming updates from the Nylas API that the app has received. You can click individual updates to see the exact JSON that was consumed by the app, and search in the lower left for updates pertaining to an object ID or type.</p>
+</li>
+<li><p><code>Requests</code>: This view shows the requests the app has made to the Nylas API in <code>curl</code>-equivalent form. (The app does not actually make <code>curl</code> requests). You can click &quot;Copy&quot; to copy a <code>curl</code> command to the clipboard, or &quot;Run&quot; to execute it in a new Terminal window.</p>
+</li>
+</ul>
+<p>The Developer Panel also allows you to toggle &quot;View Component Regions&quot;. Turning on component regions adds a red border to areas of the app that render dynamically injected components, and shows the props passed to React components in each one. See {react} for more information.</p>
+<h3 id="the-development-workflow">The Development Workflow</h3>
+<p>If you&#39;re debugging a package, you&#39;ll be modifying your code and re-running N1 over and over again. There are a few things you can do to make this development workflow less time consuming:</p>
+<ul>
+<li><p><strong>Inline Changes</strong>: Using the Chromium DevTools, you can change the contents of your coffeescript and javascript source files, type <code>Command-S</code> to save, and hot-swap the code. This makes it easy to test small adjustments to your code without re-launching N1.</p>
+</li>
+<li><p><strong>View &gt; Refresh</strong>: From the View menu, choose &quot;Refresh&quot; to reload the N1 window just like a page in your browser. Refreshing is faster than restarting the app and allows you to iterate more quickly.</p>
+<blockquote>
+<p>Note: A bug in Electron causes the Chromium DevTools to become detatched if you refresh the app often. If you find that Chromium is not stopping at your breakpoints, quit N1 and re-launch it.</p>
+</blockquote>
+</li>
+</ul>
+<p>In the future, we&#39;ll support much richer hot-reloading of plugin components and code. Stay tuned!</p>
+
+</div>
+
+</div>
+
+<div id="footer">
+  <div class="container">
+    <img src="images/edgehill.png" class="logo" />
+    <div class="small">N1 Developer Preview<br><em>© 2014-2015 Nylas, Inc.</em></div>
+  </div>
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-60022049-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+</body>
+</html>

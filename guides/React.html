@@ -1,0 +1,250 @@
+<html>
+<head>
+<meta charset="utf-8">
+<title>N1 — Interface Components</title>
+<meta property="og:title" content="An extensible mail client built on the modern web | N1">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://nylas.github.io/n1/images/meta_share.png">
+<link rel="shortcut icon" href="/images/favicon.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<link rel="stylesheet" type="text/css" href="/css/main.css"/>
+<link rel="stylesheet" type="text/css" href="/css/tomorrow.css">
+</head>
+<body>
+<div id="header">
+  <div class="container">
+    <img src="/images/edgehill.png" class="logo" />
+    <div class="title">N1<div class="small">Developer Preview</div></div>
+  </div>
+</div>
+
+<div class="container">
+
+<div class="page-title">Interface Components</div>
+
+<div id="sidebar">
+  <div class="heading">Getting Started</div>
+  <ul>
+        <li><a href="/guides/FirstSteps.html" >First Steps</a></li>
+  </ul>
+  <div class="heading">Guides</div>
+  <ul>
+        <li><a href="/guides/InterfaceConcepts.html" >Interface Concepts</a></li>
+        <li><a href="/guides/PackageOverview.html" >Building a Package</a></li>
+        <li><a href="/guides/React.html" >Interface Components</a></li>
+        <li><a href="/guides/Architecture.html" >Application Architecture</a></li>
+        <li><a href="/guides/Debugging.html" >Debugging N1</a></li>
+        <li><a href="/guides/Database.html" >Accessing the Database</a></li>
+        <li><a href="/guides/DraftStoreExtensions.html" >Extending the Composer</a></li>
+        <li><a href="/guides/WritingSpecs.html" >Writing Specs</a></li>
+  </ul>
+  <div class="heading">Sample Code</div>
+  <ul>
+        <li><a href="https://github.com/nylas/edgehill-plugins/tree/master/translate" target="_blank">Composer Translation</a></li>
+        <li><a href="https://github.com/nylas/edgehill-plugins/tree/master/sidebar-github-profile" target="_blank">Github Sidebar</a></li>
+  </ul>
+  <div class="heading">API Reference</div>
+  <ul>
+        <div class="heading">General</div>
+        <ul>
+              <li><a href="/docs/Actions.html" >Actions</a></li>
+              <li><a href="/docs/Atom.html" >Atom</a></li>
+              <li><a href="/docs/BufferedNodeProcess.html" >BufferedNodeProcess</a></li>
+              <li><a href="/docs/BufferedProcess.html" >BufferedProcess</a></li>
+              <li><a href="/docs/ChangeFolderTask.html" >ChangeFolderTask</a></li>
+              <li><a href="/docs/ChangeLabelsTask.html" >ChangeLabelsTask</a></li>
+              <li><a href="/docs/Config.html" >Config</a></li>
+              <li><a href="/docs/DraggableImg.html" >DraggableImg</a></li>
+              <li><a href="/docs/FocusTrackingRegion.html" >FocusTrackingRegion</a></li>
+              <li><a href="/docs/Switch.html" >Switch</a></li>
+              <li><a href="/docs/Task.html" >Task</a></li>
+              <li><a href="/docs/TaskQueueStatusStore.html" >TaskQueueStatusStore</a></li>
+        </ul>
+        <div class="heading">Component Kit</div>
+        <ul>
+              <li><a href="/docs/EventedIFrame.html" >EventedIFrame</a></li>
+              <li><a href="/docs/Flexbox.html" >Flexbox</a></li>
+              <li><a href="/docs/InjectedComponent.html" >InjectedComponent</a></li>
+              <li><a href="/docs/InjectedComponentSet.html" >InjectedComponentSet</a></li>
+              <li><a href="/docs/Menu.html" >Menu</a></li>
+              <li><a href="/docs/MenuItem.html" >MenuItem</a></li>
+              <li><a href="/docs/MenuNameEmailItem.html" >MenuNameEmailItem</a></li>
+              <li><a href="/docs/MultiselectActionBar.html" >MultiselectActionBar</a></li>
+              <li><a href="/docs/MultiselectList.html" >MultiselectList</a></li>
+              <li><a href="/docs/Popover.html" >Popover</a></li>
+              <li><a href="/docs/ResizableRegion.html" >ResizableRegion</a></li>
+              <li><a href="/docs/RetinaImg.html" >RetinaImg</a></li>
+              <li><a href="/docs/Spinner.html" >Spinner</a></li>
+              <li><a href="/docs/TimeoutTransitionGroupChild.html" >TimeoutTransitionGroupChild</a></li>
+              <li><a href="/docs/UnsafeComponent.html" >UnsafeComponent</a></li>
+        </ul>
+        <div class="heading">Models</div>
+        <ul>
+              <li><a href="/docs/Account.html" >Account</a></li>
+              <li><a href="/docs/Calendar.html" >Calendar</a></li>
+              <li><a href="/docs/Contact.html" >Contact</a></li>
+              <li><a href="/docs/File.html" >File</a></li>
+              <li><a href="/docs/Folder.html" >Folder</a></li>
+              <li><a href="/docs/Label.html" >Label</a></li>
+              <li><a href="/docs/Message.html" >Message</a></li>
+              <li><a href="/docs/Model.html" >Model</a></li>
+              <li><a href="/docs/Thread.html" >Thread</a></li>
+        </ul>
+        <div class="heading">Stores</div>
+        <ul>
+              <li><a href="/docs/AccountStore.html" >AccountStore</a></li>
+              <li><a href="/docs/ComponentRegistry.html" >ComponentRegistry</a></li>
+              <li><a href="/docs/ContactStore.html" >ContactStore</a></li>
+              <li><a href="/docs/EventStore.html" >EventStore</a></li>
+              <li><a href="/docs/FocusedContentStore.html" >FocusedContentStore</a></li>
+              <li><a href="/docs/MessageStoreExtension.html" >MessageStoreExtension</a></li>
+              <li><a href="/docs/TaskQueue.html" >TaskQueue</a></li>
+              <li><a href="/docs/WorkspaceStore.html" >WorkspaceStore</a></li>
+        </ul>
+        <div class="heading">Database</div>
+        <ul>
+              <li><a href="/docs/Attribute.html" >Attribute</a></li>
+              <li><a href="/docs/AttributeBoolean.html" >AttributeBoolean</a></li>
+              <li><a href="/docs/AttributeCollection.html" >AttributeCollection</a></li>
+              <li><a href="/docs/AttributeDateTime.html" >AttributeDateTime</a></li>
+              <li><a href="/docs/AttributeJoinedData.html" >AttributeJoinedData</a></li>
+              <li><a href="/docs/AttributeNumber.html" >AttributeNumber</a></li>
+              <li><a href="/docs/AttributeObject.html" >AttributeObject</a></li>
+              <li><a href="/docs/AttributeServerId.html" >AttributeServerId</a></li>
+              <li><a href="/docs/AttributeString.html" >AttributeString</a></li>
+              <li><a href="/docs/DatabaseStore.html" >DatabaseStore</a></li>
+              <li><a href="/docs/DatabaseView.html" >DatabaseView</a></li>
+              <li><a href="/docs/Matcher.html" >Matcher</a></li>
+              <li><a href="/docs/ModelQuery.html" >ModelQuery</a></li>
+              <li><a href="/docs/SortOrder.html" >SortOrder</a></li>
+        </ul>
+        <div class="heading">Drafts</div>
+        <ul>
+              <li><a href="/docs/DraftChangeSet.html" >DraftChangeSet</a></li>
+              <li><a href="/docs/DraftStore.html" >DraftStore</a></li>
+              <li><a href="/docs/DraftStoreExtension.html" >DraftStoreExtension</a></li>
+              <li><a href="/docs/DraftStoreProxy.html" >DraftStoreProxy</a></li>
+        </ul>
+        <div class="heading">Atom</div>
+        <ul>
+              <li><a href="/docs/Clipboard.html" >Clipboard</a></li>
+              <li><a href="/docs/Color.html" >Color</a></li>
+              <li><a href="/docs/CommandRegistry.html" >CommandRegistry</a></li>
+              <li><a href="/docs/MenuManager.html" >MenuManager</a></li>
+              <li><a href="/docs/PackageManager.html" >PackageManager</a></li>
+              <li><a href="/docs/ScopeDescriptor.html" >ScopeDescriptor</a></li>
+              <li><a href="/docs/StyleManager.html" >StyleManager</a></li>
+              <li><a href="/docs/ThemeManager.html" >ThemeManager</a></li>
+        </ul>
+  </ul>
+</div>
+<div id="main" class="article">
+<p>N1 uses <a href="https://facebook.github.io/react/">React</a> to create a fast, responsive UI. Packages that want to extend the N1 interface should use React. Using React&#39;s <a href="https://facebook.github.io/react/jsx-in-depth.html">JSX</a> syntax is optional, but both <a href="https://facebook.github.io/react/jsx-in-depth.html">JSX</a> and <a href="https://github.com/jsdf/coffee-react">CJSX</a> (CoffeeScript) are available.</p>
+<p>For a quick introduction to React, take a look at Facebook&#39;s <a href="https://facebook.github.io/react/getting-started.html">Getting Started with React</a>.</p>
+<h4 id="react-components">React Components</h4>
+<p>N1 provides a set of core React components you can use in your packages. Many of the standard components listen for key events, include considerations for different platforms, and have extensive CSS. Wrapping standard components makes it easy to build rich interfaces that are consistent with the rest of the N1 platform.</p>
+<p>To use a standard component, require it from <code>nylas-component-kit</code> and use it in your component&#39;s <code>render</code> method.</p>
+<p class="well">Keep in mind that React&#39;s Component model is based on composition rather than inheritance. On other platforms, you might subclass <a href='/docs/popover.html'>Popover</a> to create your own custom Popover. In React, you should wrap the standard Popover component in your own component, which provides the Popover with <code>props</code> and children to customize its behavior.</p>
+
+
+<p>Here&#39;s a quick look at standard components you can require from <code>nylas-component-kit</code>:</p>
+<ul>
+<li><p><strong><a href='/docs/menu.html'>Menu</a></strong>: Allows you to display a list of items consistent with the rest of the N1 user experience.</p>
+</li>
+<li><p><strong><a href='/docs/spinner.html'>Spinner</a></strong>: Displays an indeterminate progress indicator centered within it&#39;s container.</p>
+</li>
+<li><p><strong><a href='/docs/popover.html'>Popover</a></strong>: Component for creating menus and popovers that appear in response to a click and stay open until the user clicks outside them.</p>
+</li>
+<li><p><strong><a href='/docs/flexbox.html'>Flexbox</a></strong>: Component for creating a Flexbox layout.</p>
+</li>
+<li><p><strong><a href='/docs/retinaimg.html'>RetinaImg</a></strong>: Replacement for standard <code>&lt;img&gt;</code> tags which automatically resolves the best version of the image for the user&#39;s display and can apply many image transforms.</p>
+</li>
+<li><p><strong>{ListTabular}</strong>: Component for creating a list of items backed by a paginating ModelView.</p>
+</li>
+<li><p><strong><a href='/docs/multiselectlist.html'>MultiselectList</a></strong>: Component for creating a list that supports multi-selection. (Internally wraps ListTabular)</p>
+</li>
+<li><p><strong><a href='/docs/multiselectactionbar.html'>MultiselectActionBar</a></strong>: Component for creating a contextual toolbar that is activated when the user makes a selection on a ModelView.</p>
+</li>
+<li><p><strong><a href='/docs/resizableregion.html'>ResizableRegion</a></strong>: Component that renders it&#39;s children inside a resizable region with a draggable handle.</p>
+</li>
+<li><p><strong>{TokenizingTextField}</strong>: Wraps a standard <code>&lt;input&gt;</code> and takes function props for tokenizing input values and displaying autocompletion suggestions.</p>
+</li>
+<li><p><strong><a href='/docs/eventediframe.html'>EventedIFrame</a></strong>: Replacement for the standard <code>&lt;iframe&gt;</code> tag which handles events directed at the iFrame to ensure a consistent user experience.</p>
+</li>
+</ul>
+<h2 id="react-component-injection">React Component Injection</h2>
+<p>The N1 interface is composed at runtime from components added by different packages. The app&#39;s left sidebar contains components from the composer package, the source list package, the activity package, and more. You can leverage the flexiblity of this system to extend almost any part of N1&#39;s interface.</p>
+<h3 id="registering-components">Registering Components</h3>
+<p>After you&#39;ve created React components in your package, you should register them with the <a href='/docs/componentregistry.html'>ComponentRegistry</a>. The Component Registry manages the dynamic injection of components that makes N1 so extensible. You can request that your components appear in a specific <code>Location</code> defined by the <a href='/docs/workspacestore.html'>WorkspaceStore</a>, or register your component for a <code>Role</code> that another package has declared.</p>
+<blockquote>
+<p>The Component Registry allows you to insert your custom component without hacking up the DOM. Register for a <code>Location</code> or <code>Role</code> and your Component will be rendered into that part of the interface.</p>
+</blockquote>
+<p>It&#39;s easy to see where registered components are displayed in N1. Enable the Developer bar at the bottom of the app by opening the Inspector panel, and then click &quot;<strong>Component Regions</strong>&quot;:</p>
+<p><img src="./images/injected-components.png"></p>
+<p>Each region outlined in red is filled dynamically by looking up a React component or set of components from the Component Registry. You can see the role or location you&#39;d need to register for, and the <code>props</code> that your component will receive in those locations.</p>
+<p>Here are a few examples of how to use it to extend N1. Typically, packages register components in their main <code>activate</code> method, and unregister them in <code>deactivate</code>:</p>
+<ol>
+<li><p>Add a component to the Thread List column:</p>
+<pre><code class="lang-coffee">     ComponentRegistry<span class="hljs-class">.register</span> ThreadList,
+       location: WorkspaceStore<span class="hljs-class">.Location</span><span class="hljs-class">.ThreadList</span>
+</code></pre>
+</li>
+<li><p>Add a component to the action bar at the bottom of the Composer:</p>
+<pre><code class="lang-coffee">     ComponentRegistry<span class="hljs-class">.register</span> TemplatePicker,
+       role: <span class="hljs-string">'Composer:ActionButton'</span>
+</code></pre>
+</li>
+<li><p>Replace the <code>Participants</code> component that ships with N1 to display thread participants on your own:</p>
+<pre><code class="lang-coffee">     ComponentRegistry<span class="hljs-class">.register</span> ParticipantsWithStatusDots,
+         role: <span class="hljs-string">'Participants'</span>
+</code></pre>
+</li>
+</ol>
+<p><em>Tip: Remember to unregister components in the <code>deactivate</code> method of your package.</em></p>
+<h3 id="using-registered-components">Using Registered Components</h3>
+<p>It&#39;s easy to build packages that use the Component Registry to display components vended by other parts of the application. You can query the Component Registry and display the components it returns. The Component Registry is a Reflux-compatible Store, so you can listen to it and update your state as the registry changes.</p>
+<p>There are also several convenience components that make it easy to dynamically inject components into your Virtual DOM. These are the preferred way of using injected components.</p>
+<ul>
+<li><a href='/docs/injectedcomponent.html'>InjectedComponent</a>: Renders the first component for the <code>matching</code> criteria you provide, and passes it the props in <code>externalProps</code>. See the API reference for more information.</li>
+</ul>
+<pre><code class="lang-coffee">&lt;InjectedComponent
+    matching={<span class="hljs-string">role:</span><span class="hljs-string">"Attachment"</span>}
+    exposedProps={<span class="hljs-string">file:</span> file, <span class="hljs-string">messageLocalId:</span> <span class="hljs-annotation">@props</span>.localId}/&gt;
+</code></pre>
+<ul>
+<li><a href='/docs/injectedcomponentset.html'>InjectedComponentSet</a>: Renders all of the components <code>matching</code> criteria you provide inside a <a href='/docs/flexbox.html'>Flexbox</a>, and passes it the props in <code>externalProps</code>. See the API reference for more information.</li>
+</ul>
+<pre><code class="lang-coffee">&lt;InjectedComponentSet
+    className=<span class="hljs-string">"message-actions"</span>
+    matching={<span class="hljs-string">role:</span><span class="hljs-string">"MessageAction"</span>}
+    exposedProps={<span class="hljs-string">thread:</span><span class="hljs-annotation">@props</span>.thread, <span class="hljs-string">message:</span> <span class="hljs-annotation">@props</span>.message}&gt;
+</code></pre>
+<h3 id="unsafe-components">Unsafe Components</h3>
+<p>N1 considers all injected components &quot;unsafe&quot;. When you render them using <a href='/docs/injectedcomponent.html'>InjectedComponent</a> or <a href='/docs/injectedcomponentset.html'>InjectedComponentSet</a>, they will be wrapped in a component that prevents exceptions in their React render and lifecycle methods from impacting your component. Instead of your component triggering a React Invariant exception in the application, an exception notice will be rendered in place of the unsafe component.</p>
+<p><img src="./images/unsafe-component-exception.png"></p>
+<p>In the future, N1 may automatically disable packages when their React components throw exceptions.</p>
+
+</div>
+
+</div>
+
+<div id="footer">
+  <div class="container">
+    <img src="images/edgehill.png" class="logo" />
+    <div class="small">N1 Developer Preview<br><em>© 2014-2015 Nylas, Inc.</em></div>
+  </div>
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-60022049-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+</body>
+</html>

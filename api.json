@@ -4,14 +4,14 @@
       "name": "Account",
       "superClass": "Model",
       "filename": "src/flux/models/account.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/account.coffee#L30",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/account.coffee#L30",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [
         {
           "name": "usesLabels",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/account.coffee#L57",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/account.coffee#L57",
           "visibility": "Public",
           "summary": "The current organization_unit used by the account. ",
           "description": "The current organization_unit used by the account. "
@@ -19,7 +19,7 @@
         {
           "name": "displayProvider",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/account.coffee#L62",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/account.coffee#L62",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -40,14 +40,14 @@
     "AccountStore": {
       "name": "AccountStore",
       "filename": "src/flux/stores/account-store.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/account-store.coffee#L17",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/account-store.coffee#L20",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [
         {
           "name": "items",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/account-store.coffee#L71",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/account-store.coffee#L88",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -59,9 +59,23 @@
           ]
         },
         {
+          "name": "itemWithEmailAddress",
+          "sectionName": null,
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/account-store.coffee#L92",
+          "visibility": "Public",
+          "summary": "",
+          "description": "",
+          "returnValues": [
+            {
+              "type": "Account",
+              "description": "Returns the {Account} for the given email address, or null."
+            }
+          ]
+        },
+        {
           "name": "current",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/account-store.coffee#L75",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/account-store.coffee#L97",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -82,7 +96,7 @@
     "Actions": {
       "name": "Actions",
       "filename": "src/flux/actions.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L59",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L59",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [],
@@ -90,23 +104,15 @@
         {
           "name": "didPassivelyReceiveNewModels",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L75",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L75",
           "visibility": "Public",
           "summary": "Fired when the Nylas API Connector receives new data from the API.",
           "description": "Fired when the Nylas API Connector receives new data from the API.\n\n*Scope: Global*\n\nReceives an {Object} of {Array}s of {Model}s, for example:\n\n```json\n{\n  'thread': [<Thread>, <Thread>]\n  'contact': [<Contact>]\n}\n```"
         },
         {
-          "name": "logout",
-          "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L83",
-          "visibility": "Public",
-          "summary": "Log out the current user. Closes the main application window and takes\nthe user back to the sign-in window.",
-          "description": "Log out the current user. Closes the main application window and takes\nthe user back to the sign-in window.\n\n*Scope: Global*"
-        },
-        {
           "name": "queueTask",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L100",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L92",
           "visibility": "Public",
           "summary": "Queue a {Task} object to the {TaskQueue}.",
           "description": "Queue a {Task} object to the {TaskQueue}.\n\n*Scope: Work Window*"
@@ -114,7 +120,7 @@
         {
           "name": "dequeueAllTasks",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L109",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L101",
           "visibility": "Public",
           "summary": "Dequeue all {Task}s from the {TaskQueue}. Use with care.",
           "description": "Dequeue all {Task}s from the {TaskQueue}. Use with care.\n\n*Scope: Work Window*"
@@ -122,7 +128,7 @@
         {
           "name": "dequeueMatchingTask",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L117",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L109",
           "visibility": "Public",
           "summary": "Dequeue a {Task} matching the description provided.",
           "description": "Dequeue a {Task} matching the description provided.\n\n*Scope: Work Window*"
@@ -130,23 +136,23 @@
         {
           "name": "retryInitialSync",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L134",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L126",
           "visibility": "Public",
           "summary": "Retry the initial sync",
           "description": "Retry the initial sync\n\n*Scope: Work Window*"
         },
         {
-          "name": "showDeveloperConsole",
+          "name": "openPreferences",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L142",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L134",
           "visibility": "Public",
-          "summary": "Show the developer console for the current window.",
-          "description": "Show the developer console for the current window.\n\n*Scope: Window*"
+          "summary": "Open the preferences window. Pass an object with a tab name\n(ie: `{tab: 'Accounts'}`) to open a specific panel.",
+          "description": "Open the preferences window. Pass an object with a tab name\n(ie: `{tab: 'Accounts'}`) to open a specific panel.\n\n*Scope: Window*"
         },
         {
           "name": "registerPreferencesTab",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L149",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L141",
           "visibility": "Public",
           "summary": "Register a preferences tab, usually applied in Preferences window",
           "description": "Register a preferences tab, usually applied in Preferences window\n\n*Scope: Window*"
@@ -154,7 +160,7 @@
         {
           "name": "clearDeveloperConsole",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L156",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L148",
           "visibility": "Public",
           "summary": "Clear the developer console for the current window.",
           "description": "Clear the developer console for the current window.\n\n*Scope: Window*"
@@ -162,7 +168,7 @@
         {
           "name": "selectAccountId",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L163",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L155",
           "visibility": "Public",
           "summary": "Select the provided account ID in the current window.",
           "description": "Select the provided account ID in the current window.\n\n*Scope: Window*"
@@ -170,7 +176,7 @@
         {
           "name": "selectRootSheet",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L175",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L167",
           "visibility": "Public",
           "summary": "Select the provided sheet in the current window. This action changes\nthe top level sheet.",
           "description": "Select the provided sheet in the current window. This action changes\nthe top level sheet.\n\n*Scope: Window*\n\n```\nActions.selectRootSheet(WorkspaceStore.Sheet.Threads)\n```"
@@ -178,7 +184,7 @@
         {
           "name": "toggleWorkspaceLocationHidden",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L185",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L177",
           "visibility": "Public",
           "summary": "Toggle whether a particular column is visible. Call this action\nwith one of the Sheet location constants:",
           "description": "Toggle whether a particular column is visible. Call this action\nwith one of the Sheet location constants:\n\n```\nActions.toggleWorkspaceLocationHidden(WorkspaceStore.Location.MessageListSidebar)\n```"
@@ -186,7 +192,7 @@
         {
           "name": "setCursorPosition",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L198",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L190",
           "visibility": "Public",
           "summary": "Focus the keyboard on an item in a collection. This action moves the\n`keyboard focus` element in lists and other components,  but does not change\nthe focused DOM element.",
           "description": "Focus the keyboard on an item in a collection. This action moves the\n`keyboard focus` element in lists and other components,  but does not change\nthe focused DOM element.\n\n*Scope: Window*\n\n```\nActions.setCursorPosition(collection: 'thread', item: <Thread>)\n```"
@@ -194,7 +200,7 @@
         {
           "name": "setFocus",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L210",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L202",
           "visibility": "Public",
           "summary": "Focus on an item in a collection. This action changes the selection\nin lists and other components, but does not change the focused DOM element.",
           "description": "Focus on an item in a collection. This action changes the selection\nin lists and other components, but does not change the focused DOM element.\n\n*Scope: Window*\n\n```\nActions.setFocus(collection: 'thread', item: <Thread>)\n```"
@@ -202,7 +208,7 @@
         {
           "name": "focusMailView",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L221",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L213",
           "visibility": "Public",
           "summary": "Focus the interface on a specific {Category}.",
           "description": "Focus the interface on a specific {Category}.\n\n*Scope: Window*\n\n```\nActions.focusMailView(<Category>)\n```"
@@ -210,7 +216,7 @@
         {
           "name": "toggleMessageIdExpanded",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L234",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L226",
           "visibility": "Public",
           "summary": "If the message with the provided id is currently beign displayed in the\nthread view, this action toggles whether it's full content or snippet is shown.",
           "description": "If the message with the provided id is currently beign displayed in the\nthread view, this action toggles whether it's full content or snippet is shown.\n\n*Scope: Window*\n\n```\nmessage = <Message>\nActions.toggleMessageIdExpanded(message.id)\n```"
@@ -218,7 +224,7 @@
         {
           "name": "composeReply",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L251",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L243",
           "visibility": "Public",
           "summary": "Create a new reply to the provided threadId and messageId. Note that\nthis action does not focus on the thread, so you may not be able to see the new draft\nunless you also call {::setFocus}.",
           "description": "Create a new reply to the provided threadId and messageId. Note that\nthis action does not focus on the thread, so you may not be able to see the new draft\nunless you also call {::setFocus}.\n\n*Scope: Window*\n\n```\n# Compose a reply to the last message in the thread\nActions.composeReply({threadId: '123'})\n\n# Compose a reply to a specific message in the thread\nActions.composeReply({threadId: '123', messageId: '123'})\n```"
@@ -226,7 +232,7 @@
         {
           "name": "composeForward",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L259",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L251",
           "visibility": "Public",
           "summary": "Create a new draft for forwarding the provided threadId and messageId. See\n{::composeReply} for parameters and behavior.",
           "description": "Create a new draft for forwarding the provided threadId and messageId. See\n{::composeReply} for parameters and behavior.\n\n*Scope: Window*"
@@ -234,7 +240,7 @@
         {
           "name": "composeReplyAll",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L267",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L259",
           "visibility": "Public",
           "summary": "Create a new draft and \"reply all\" to the provided threadId and messageId. See\n{::composeReply} for parameters and behavior.",
           "description": "Create a new draft and \"reply all\" to the provided threadId and messageId. See\n{::composeReply} for parameters and behavior.\n\n*Scope: Window*"
@@ -242,7 +248,7 @@
         {
           "name": "composePopoutDraft",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L280",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L272",
           "visibility": "Public",
           "summary": "Pop out the draft with the provided ID so the user can edit it in another\nwindow.",
           "description": "Pop out the draft with the provided ID so the user can edit it in another\nwindow.\n\n*Scope: Window*\n\n```\nmessageId = '123'\nActions.composePopoutDraft(messageId)\n```"
@@ -250,7 +256,7 @@
         {
           "name": "composeNewBlankDraft",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L291",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L283",
           "visibility": "Public",
           "summary": "Open a new composer window for creating a new draft from scratch.",
           "description": "Open a new composer window for creating a new draft from scratch.\n\n*Scope: Window*\n\n```\nActions.composeNewBlankDraft()\n```"
@@ -258,7 +264,7 @@
         {
           "name": "sendDraft",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L305",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L297",
           "visibility": "Public",
           "summary": "Send the draft with the given ID. This Action is handled by the {DraftStore},\nwhich finalizes the {DraftChangeSet} and allows {DraftStoreExtension}s to display\nwarnings and do post-processing. To change send behavior, you should consider using\none of these objects rather than listening for the {sendDraft} action.",
           "description": "Send the draft with the given ID. This Action is handled by the {DraftStore},\nwhich finalizes the {DraftChangeSet} and allows {DraftStoreExtension}s to display\nwarnings and do post-processing. To change send behavior, you should consider using\none of these objects rather than listening for the {sendDraft} action.\n\n*Scope: Window*\n\n```\nActions.sendDraft('123')\n```"
@@ -266,31 +272,31 @@
         {
           "name": "destroyDraft",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L313",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L305",
           "visibility": "Public",
           "summary": "Destroys the draft with the given ID. This Action is handled by the {DraftStore},\nand does not display any confirmation UI.",
           "description": "Destroys the draft with the given ID. This Action is handled by the {DraftStore},\nand does not display any confirmation UI.\n\n*Scope: Window*"
         },
         {
-          "name": "archive",
+          "name": "removeCurrentlyFocusedThread",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L320",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L312",
           "visibility": "Public",
-          "summary": "Archive the currently focused {Thread}.",
-          "description": "Archive the currently focused {Thread}.\n\n*Scope: Window*"
+          "summary": "Remove the currently focused {Thread}.",
+          "description": "Remove the currently focused {Thread}.\n\n*Scope: Window*"
         },
         {
-          "name": "archiveSelection",
+          "name": "removeSelection",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L327",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L319",
           "visibility": "Public",
-          "summary": "Archives the Thread objects currently selected in the app's main thread list.",
-          "description": "Archives the Thread objects currently selected in the app's main thread list.\n\n*Scope: Window*"
+          "summary": "Removes the Thread objects currently selected in the app's main thread list.",
+          "description": "Removes the Thread objects currently selected in the app's main thread list.\n\n*Scope: Window*"
         },
         {
           "name": "searchQueryChanged",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L347",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L339",
           "visibility": "Public",
           "summary": "Updates the search query in the app's main search bar with the provided query text.",
           "description": "Updates the search query in the app's main search bar with the provided query text.\n\n*Scope: Window*\n\n```\nActions.searchQueryChanged(\"New Search Query\")\n```"
@@ -298,7 +304,7 @@
         {
           "name": "searchQueryCommitted",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L359",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L351",
           "visibility": "Public",
           "summary": "Submits a search with the provided query text. Unlike `searchQueryChanged`, this\naction immediately performs a search.",
           "description": "Submits a search with the provided query text. Unlike `searchQueryChanged`, this\naction immediately performs a search.\n\n*Scope: Window*\n\n```\nActions.searchQueryCommitted(\"New Search Query\")\n```"
@@ -306,7 +312,7 @@
         {
           "name": "RSVPEvent",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L368",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L360",
           "visibility": "Public",
           "summary": "Submits the user's response to an RSVP event.",
           "description": "Submits the user's response to an RSVP event.\n\n*Scope: Window*"
@@ -314,23 +320,23 @@
         {
           "name": "postNotification",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L399",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L391",
           "visibility": "Public",
           "summary": "Fire to display an in-window notification to the user in the app's standard\nnotification interface.",
-          "description": "Fire to display an in-window notification to the user in the app's standard\nnotification interface.\n\n*Scope: Window*\n\n```\n# A simple notification\nActions.postNotification({message: \"Archived Thread\", type: 'success'})\n\n# A sticky notification with actions\nNOTIF_ACTION_YES = 'YES'\nNOTIF_ACTION_NO = 'NO'\n\nActions.postNotification\n  type: 'info',\n  sticky: true\n  message: \"Thanks for trying out Nylas Mail! Would you like to make it your default mail client?\",\n  icon: 'fa-inbox',\n  actions: [{\n    label: 'Yes'\n    id: NOTIF_ACTION_YES\n  },{\n    label: 'Not Now'\n    id: NOTIF_ACTION_NO\n  }]\n```"
+          "description": "Fire to display an in-window notification to the user in the app's standard\nnotification interface.\n\n*Scope: Global*\n\n```\n# A simple notification\nActions.postNotification({message: \"Removed Thread\", type: 'success'})\n\n# A sticky notification with actions\nNOTIF_ACTION_YES = 'YES'\nNOTIF_ACTION_NO = 'NO'\n\nActions.postNotification\n  type: 'info',\n  sticky: true\n  message: \"Thanks for trying out N1! Would you like to make it your default mail client?\",\n  icon: 'fa-inbox',\n  actions: [{\n    label: 'Yes'\n    id: NOTIF_ACTION_YES\n  },{\n    label: 'Not Now'\n    id: NOTIF_ACTION_NO\n  }]\n```"
         },
         {
           "name": "notificationActionTaken",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L415",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L407",
           "visibility": "Public",
           "summary": "Listen to this action to handle user interaction with notifications you\npublished via `postNotification`.",
-          "description": "Listen to this action to handle user interaction with notifications you\npublished via `postNotification`.\n\n*Scope: Window*\n\n```\n@_unlisten = Actions.notificationActionTaken.listen(@_onActionTaken, @)\n\n_onActionTaken: ({notification, action}) ->\n  if action.id is NOTIF_ACTION_YES\n    # perform action\n```"
+          "description": "Listen to this action to handle user interaction with notifications you\npublished via `postNotification`.\n\n*Scope: Global*\n\n```\n@_unlisten = Actions.notificationActionTaken.listen(@_onActionTaken, @)\n\n_onActionTaken: ({notification, action}) ->\n  if action.id is NOTIF_ACTION_YES\n    # perform action\n```"
         },
         {
           "name": "removeFile",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L437",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L429",
           "visibility": "Public",
           "summary": "Remove a file from a draft.",
           "description": "Remove a file from a draft.\n\n*Scope: Window*\n\n```\nActions.removeFile\n  file: fileObject\n  messageClientId: draftClientId\n```"
@@ -338,7 +344,7 @@
         {
           "name": "popSheet",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L456",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L448",
           "visibility": "Public",
           "summary": "Pop the current sheet off the Sheet stack maintained by the {WorkspaceStore}.\nThis action has no effect if the window is currently showing a root sheet.",
           "description": "Pop the current sheet off the Sheet stack maintained by the {WorkspaceStore}.\nThis action has no effect if the window is currently showing a root sheet.\n\n*Scope: Window*"
@@ -346,7 +352,7 @@
         {
           "name": "pushSheet",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/actions.coffee#L474",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/actions.coffee#L466",
           "visibility": "Public",
           "summary": "Push a sheet of a specific type onto the Sheet stack maintained by the\n{WorkspaceStore}. Note that sheets have no state. To show a *specific* thread,\nyou should push a Thread sheet and call `setFocus` to select the thread.",
           "description": "Push a sheet of a specific type onto the Sheet stack maintained by the\n{WorkspaceStore}. Note that sheets have no state. To show a *specific* thread,\nyou should push a Thread sheet and call `setFocus` to select the thread.\n\n*Scope: Window*\n\n```\nWorkspaceStore.defineSheet 'Thread', {},\n    list: ['MessageList', 'MessageListSidebar']\n\n...\n\n@pushSheet(WorkspaceStore.Sheet.Thread)\n```"
@@ -355,13 +361,13 @@
       "instanceProperties": [],
       "visibility": "Public",
       "summary": "In the Flux {Architecture.md}, almost every user action\nis translated into an Action object and fired globally. Stores in the app observe\nthese actions and perform business logic. This loose coupling means that your\npackages can observe actions and perform additional logic, or fire actions which\nthe rest of the app will handle.",
-      "description": "In the Flux {Architecture.md}, almost every user action\nis translated into an Action object and fired globally. Stores in the app observe\nthese actions and perform business logic. This loose coupling means that your\npackages can observe actions and perform additional logic, or fire actions which\nthe rest of the app will handle.\n\nIn Reflux, each {Action} is an independent object that acts as an event emitter.\nYou can listen to an Action, or invoke it as a function to fire it.\n\n## Action Scopes\n\nNylas Mail is a multi-window application. The `scope` of an Action dictates\nhow it propogates between windows.\n\n* **Global**: These actions can be listened to from any window and fired from any\n  window. The action is sent from the originating window to all other windows via\n  IPC, so they should be used with care. Firing this action from anywhere will\n  cause all listeners in all windows to fire.\n* **Main Window**: You can fire these actions in any window. They'll be sent\n  to the main window and triggered there.\n* **Window**: These actions only trigger listeners in the window they're fired in.\n\n## Firing Actions\n\n```coffee\nActions.postNotification({message: \"Archived Thread\", type: 'success'})\n\nActions.queueTask(new ChangeStarredTask(thread: @_thread, starred: true))\n```\n\n## Listening for Actions\n\nIf you're using Reflux to create your own Store, you can use the `listenTo`\nconvenience method to listen for an Action. If you're creating your own class\nthat is not a Store, you can still use the `listen` method provided by Reflux:\n\n```coffee\nsetup: ->\n  @unlisten = Actions.didPassivelyReceiveNewModels.listen(@onNewMailReceived, @)\n\nonNewMailReceived: (data) ->\n  console.log(\"You've got mail!\", data)\n\nteardown: ->\n  @unlisten()\n```\n\nSection: General"
+      "description": "In the Flux {Architecture.md}, almost every user action\nis translated into an Action object and fired globally. Stores in the app observe\nthese actions and perform business logic. This loose coupling means that your\npackages can observe actions and perform additional logic, or fire actions which\nthe rest of the app will handle.\n\nIn Reflux, each {Action} is an independent object that acts as an event emitter.\nYou can listen to an Action, or invoke it as a function to fire it.\n\n## Action Scopes\n\nN1 is a multi-window application. The `scope` of an Action dictates\nhow it propogates between windows.\n\n* **Global**: These actions can be listened to from any window and fired from any\n  window. The action is sent from the originating window to all other windows via\n  IPC, so they should be used with care. Firing this action from anywhere will\n  cause all listeners in all windows to fire.\n* **Main Window**: You can fire these actions in any window. They'll be sent\n  to the main window and triggered there.\n* **Window**: These actions only trigger listeners in the window they're fired in.\n\n## Firing Actions\n\n```coffee\nActions.postNotification({message: \"Removed Thread\", type: 'success'})\n\nActions.queueTask(new ChangeStarredTask(thread: @_thread, starred: true))\n```\n\n## Listening for Actions\n\nIf you're using Reflux to create your own Store, you can use the `listenTo`\nconvenience method to listen for an Action. If you're creating your own class\nthat is not a Store, you can still use the `listen` method provided by Reflux:\n\n```coffee\nsetup: ->\n  @unlisten = Actions.didPassivelyReceiveNewModels.listen(@onNewMailReceived, @)\n\nonNewMailReceived: (data) ->\n  console.log(\"You've got mail!\", data)\n\nteardown: ->\n  @unlisten()\n```\n\nSection: General"
     },
     "Atom": {
       "name": "Atom",
       "superClass": "Model",
       "filename": "src/atom.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L25",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L25",
       "sections": [
         {
           "name": "Properties",
@@ -393,7 +399,7 @@
         {
           "name": "onDidBeep",
           "sectionName": "Event Subscription",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L311",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L293",
           "visibility": "Extended",
           "summary": "Invoke the given callback whenever {::beep} is called.",
           "description": "Invoke the given callback whenever {::beep} is called.",
@@ -415,7 +421,7 @@
         {
           "name": "onWillThrowError",
           "sectionName": "Event Subscription",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L327",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L309",
           "visibility": "Extended",
           "summary": "Invoke the given callback when there is an unhandled error, but\nbefore the devtools pop open",
           "description": "Invoke the given callback when there is an unhandled error, but\nbefore the devtools pop open",
@@ -483,7 +489,7 @@
         {
           "name": "onDidThrowError",
           "sectionName": "Event Subscription",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L341",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L323",
           "visibility": "Extended",
           "summary": "Invoke the given callback whenever there is an unhandled error.",
           "description": "Invoke the given callback whenever there is an unhandled error.",
@@ -545,7 +551,7 @@
         {
           "name": "trace",
           "sectionName": "Event Subscription",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L349",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L331",
           "visibility": "Extended",
           "summary": "Run the Chromium content-tracing module for five seconds, and save\nthe output to a file which is printed to the command-line output of the app.\nYou can take the file exported by this function and load it into Chrome's\ncontent trace visualizer (chrome://tracing). It's like Chromium Developer\nTools Profiler, but for all processes and threads. ",
           "description": "Run the Chromium content-tracing module for five seconds, and save\nthe output to a file which is printed to the command-line output of the app.\nYou can take the file exported by this function and load it into Chrome's\ncontent trace visualizer (chrome://tracing). It's like Chromium Developer\nTools Profiler, but for all processes and threads. "
@@ -553,7 +559,7 @@
         {
           "name": "inDevMode",
           "sectionName": "Atom Details",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L371",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L353",
           "visibility": "Public",
           "summary": "Is the current window in development mode? ",
           "description": "Is the current window in development mode? "
@@ -561,7 +567,7 @@
         {
           "name": "inSafeMode",
           "sectionName": "Atom Details",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L375",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L357",
           "visibility": "Public",
           "summary": "Is the current window in safe mode? ",
           "description": "Is the current window in safe mode? "
@@ -569,7 +575,7 @@
         {
           "name": "inSpecMode",
           "sectionName": "Atom Details",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L379",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L361",
           "visibility": "Public",
           "summary": "Is the current window running specs? ",
           "description": "Is the current window running specs? "
@@ -577,7 +583,7 @@
         {
           "name": "getVersion",
           "sectionName": "Atom Details",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L385",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L367",
           "visibility": "Public",
           "summary": "Get the version of the Atom application.",
           "description": "Get the version of the Atom application.",
@@ -591,7 +597,7 @@
         {
           "name": "isReleasedVersion",
           "sectionName": "Atom Details",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L389",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L371",
           "visibility": "Public",
           "summary": "Determine whether the current version is an official release. ",
           "description": "Determine whether the current version is an official release. "
@@ -599,7 +605,7 @@
         {
           "name": "getWindowLoadTime",
           "sectionName": "Atom Details",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L408",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L387",
           "visibility": "Public",
           "summary": "Get the time taken to completely load the current window.",
           "description": "Get the time taken to completely load the current window.\n\nThis time include things like loading and activating packages, creating\nDOM elements for the editor, and reading the config.",
@@ -613,7 +619,7 @@
         {
           "name": "close",
           "sectionName": "Managing The Atom Window",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L422",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L401",
           "visibility": "Essential",
           "summary": "Close the current window. ",
           "description": "Close the current window. "
@@ -621,7 +627,7 @@
         {
           "name": "getSize",
           "sectionName": "Managing The Atom Window",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L428",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L410",
           "visibility": "Essential",
           "summary": "Get the size of current window.",
           "description": "Get the size of current window.",
@@ -635,7 +641,7 @@
         {
           "name": "setSize",
           "sectionName": "Managing The Atom Window",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L436",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L418",
           "visibility": "Essential",
           "summary": "Set the size of current window.",
           "description": "Set the size of current window.",
@@ -655,9 +661,37 @@
           ]
         },
         {
+          "name": "setSizeAnimated",
+          "sectionName": "Managing The Atom Window",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L426",
+          "visibility": "Essential",
+          "summary": "Transition and set the size of the current window.",
+          "description": "Transition and set the size of the current window.",
+          "arguments": [
+            {
+              "name": "width",
+              "description": "The {Number} of pixels.",
+              "type": "Number",
+              "isOptional": false
+            },
+            {
+              "name": "height",
+              "description": "The {Number} of pixels.",
+              "type": "Number",
+              "isOptional": false
+            },
+            {
+              "name": "duration",
+              "description": "The {Number} of pixels. ",
+              "type": "Number",
+              "isOptional": false
+            }
+          ]
+        },
+        {
           "name": "getPosition",
           "sectionName": "Managing The Atom Window",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L450",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L457",
           "visibility": "Essential",
           "summary": "Get the position of current window.",
           "description": "Get the position of current window.",
@@ -671,7 +705,7 @@
         {
           "name": "setPosition",
           "sectionName": "Managing The Atom Window",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L458",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L465",
           "visibility": "Essential",
           "summary": "Set the position of current window.",
           "description": "Set the position of current window.",
@@ -693,7 +727,7 @@
         {
           "name": "center",
           "sectionName": "Managing The Atom Window",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L466",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L473",
           "visibility": "Extended",
           "summary": "Move current window to the center of the screen. ",
           "description": "Move current window to the center of the screen. "
@@ -701,7 +735,7 @@
         {
           "name": "focus",
           "sectionName": "Managing The Atom Window",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L470",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L477",
           "visibility": "Extended",
           "summary": "Focus the current window. ",
           "description": "Focus the current window. "
@@ -709,7 +743,7 @@
         {
           "name": "show",
           "sectionName": "Managing The Atom Window",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L475",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L482",
           "visibility": "Extended",
           "summary": "Show the current window. ",
           "description": "Show the current window. "
@@ -717,7 +751,7 @@
         {
           "name": "hide",
           "sectionName": "Managing The Atom Window",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L482",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L489",
           "visibility": "Extended",
           "summary": "Hide the current window. ",
           "description": "Hide the current window. "
@@ -725,7 +759,7 @@
         {
           "name": "reload",
           "sectionName": "Managing The Atom Window",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L486",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L493",
           "visibility": "Extended",
           "summary": "Reload the current window. ",
           "description": "Reload the current window. "
@@ -733,7 +767,7 @@
         {
           "name": "getWindowProps",
           "sectionName": "Managing The Atom Window",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L504",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L511",
           "visibility": "Public",
           "summary": "The windowProps passed when creating the window via `newWindow`.",
           "description": "The windowProps passed when creating the window via `newWindow`."
@@ -741,7 +775,7 @@
         {
           "name": "onWindowPropsReceived",
           "sectionName": "Managing The Atom Window",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L514",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L521",
           "visibility": "Public",
           "summary": "If your package declares hot-loaded window types, `onWindowPropsReceived`\nfires when your hot-loaded window is about to be shown so you can update\ncomponents to reflect the new window props.",
           "description": "If your package declares hot-loaded window types, `onWindowPropsReceived`\nfires when your hot-loaded window is about to be shown so you can update\ncomponents to reflect the new window props.\n\n* callback: A function to call when window props are received, just before\n  the hot window is shown. The first parameter is the new windowProps."
@@ -749,7 +783,7 @@
         {
           "name": "isMaximixed",
           "sectionName": "Managing The Atom Window",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L518",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L525",
           "visibility": "Extended",
           "summary": "Is the current window maximized? ",
           "description": "Is the current window maximized? "
@@ -757,7 +791,7 @@
         {
           "name": "isFullScreen",
           "sectionName": "Managing The Atom Window",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L528",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L535",
           "visibility": "Extended",
           "summary": "Is the current window in full screen mode? ",
           "description": "Is the current window in full screen mode? "
@@ -765,7 +799,7 @@
         {
           "name": "setFullScreen",
           "sectionName": "Managing The Atom Window",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L532",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L539",
           "visibility": "Extended",
           "summary": "Set the full screen state of the current window. ",
           "description": "Set the full screen state of the current window. "
@@ -773,7 +807,7 @@
         {
           "name": "toggleFullScreen",
           "sectionName": "Managing The Atom Window",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L537",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L544",
           "visibility": "Extended",
           "summary": "Toggle the full screen state of the current window. ",
           "description": "Toggle the full screen state of the current window. "
@@ -781,7 +815,7 @@
         {
           "name": "beep",
           "sectionName": "Messaging the User",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L727",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L698",
           "visibility": "Essential",
           "summary": "Visually and audibly trigger a beep. ",
           "description": "Visually and audibly trigger a beep. "
@@ -789,7 +823,7 @@
         {
           "name": "confirm",
           "sectionName": "Messaging the User",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L759",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L730",
           "visibility": "Essential",
           "summary": "A flexible way to open a dialog akin to an alert dialog.",
           "description": "A flexible way to open a dialog akin to an alert dialog.",
@@ -839,7 +873,7 @@
         {
           "name": "openDevTools",
           "sectionName": "Managing the Dev Tools",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L784",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L755",
           "visibility": "Extended",
           "summary": "Open the dev tools for the current window. ",
           "description": "Open the dev tools for the current window. "
@@ -847,7 +881,7 @@
         {
           "name": "toggleDevTools",
           "sectionName": "Managing the Dev Tools",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L790",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L759",
           "visibility": "Extended",
           "summary": "Toggle the visibility of the dev tools for the current window. ",
           "description": "Toggle the visibility of the dev tools for the current window. "
@@ -855,7 +889,7 @@
         {
           "name": "executeJavaScriptInDevTools",
           "sectionName": "Managing the Dev Tools",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L796",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L763",
           "visibility": "Extended",
           "summary": "Execute code in dev tools. ",
           "description": "Execute code in dev tools. "
@@ -866,7 +900,7 @@
         {
           "name": "commands",
           "sectionName": "Properties",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L111",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L99",
           "visibility": "Public",
           "summary": "A {CommandRegistry} instance ",
           "description": "A {CommandRegistry} instance "
@@ -874,7 +908,7 @@
         {
           "name": "config",
           "sectionName": "Properties",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L114",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L102",
           "visibility": "Public",
           "summary": "A {Config} instance ",
           "description": "A {Config} instance "
@@ -882,7 +916,7 @@
         {
           "name": "clipboard",
           "sectionName": "Properties",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L117",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L105",
           "visibility": "Public",
           "summary": "A {Clipboard} instance ",
           "description": "A {Clipboard} instance "
@@ -890,7 +924,7 @@
         {
           "name": "menu",
           "sectionName": "Properties",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L120",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L108",
           "visibility": "Public",
           "summary": "A {MenuManager} instance ",
           "description": "A {MenuManager} instance "
@@ -898,7 +932,7 @@
         {
           "name": "keymaps",
           "sectionName": "Properties",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L123",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L111",
           "visibility": "Public",
           "summary": "A {KeymapManager} instance ",
           "description": "A {KeymapManager} instance "
@@ -906,7 +940,7 @@
         {
           "name": "packages",
           "sectionName": "Properties",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L126",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L114",
           "visibility": "Public",
           "summary": "A {PackageManager} instance ",
           "description": "A {PackageManager} instance "
@@ -914,7 +948,7 @@
         {
           "name": "themes",
           "sectionName": "Properties",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L129",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L117",
           "visibility": "Public",
           "summary": "A {ThemeManager} instance ",
           "description": "A {ThemeManager} instance "
@@ -922,18 +956,10 @@
         {
           "name": "styles",
           "sectionName": "Properties",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L132",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/atom.coffee#L120",
           "visibility": "Public",
           "summary": "A {StyleManager} instance ",
           "description": "A {StyleManager} instance "
-        },
-        {
-          "name": "deserializers",
-          "sectionName": "Properties",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/atom.coffee#L135",
-          "visibility": "Public",
-          "summary": "A {DeserializerManager} instance ",
-          "description": "A {DeserializerManager} instance "
         }
       ],
       "visibility": "Essential",
@@ -943,14 +969,14 @@
     "Attribute": {
       "name": "Attribute",
       "filename": "src/flux/attributes/attribute.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/attributes/attribute.coffee#L13",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/attributes/attribute.coffee#L13",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [
         {
           "name": "equal",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/attributes/attribute.coffee#L21",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/attributes/attribute.coffee#L21",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -964,7 +990,7 @@
         {
           "name": "in",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/attributes/attribute.coffee#L27",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/attributes/attribute.coffee#L27",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -978,7 +1004,7 @@
         {
           "name": "not",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/attributes/attribute.coffee#L34",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/attributes/attribute.coffee#L34",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -992,7 +1018,7 @@
         {
           "name": "descending",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/attributes/attribute.coffee#L40",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/attributes/attribute.coffee#L40",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -1006,7 +1032,7 @@
         {
           "name": "ascending",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/attributes/attribute.coffee#L44",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/attributes/attribute.coffee#L44",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -1028,7 +1054,7 @@
       "name": "AttributeBoolean",
       "superClass": "Attribute",
       "filename": "src/flux/attributes/attribute-boolean.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/attributes/attribute-boolean.coffee#L13",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/attributes/attribute-boolean.coffee#L13",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [],
@@ -1042,14 +1068,14 @@
       "name": "AttributeCollection",
       "superClass": "Attribute",
       "filename": "src/flux/attributes/attribute-collection.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/attributes/attribute-collection.coffee#L34",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/attributes/attribute-collection.coffee#L34",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [
         {
           "name": "contains",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/attributes/attribute-collection.coffee#L68",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/attributes/attribute-collection.coffee#L68",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -1071,14 +1097,14 @@
       "name": "AttributeDateTime",
       "superClass": "Attribute",
       "filename": "src/flux/attributes/attribute-datetime.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/attributes/attribute-datetime.coffee#L10",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/attributes/attribute-datetime.coffee#L10",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [
         {
           "name": "greaterThan",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/attributes/attribute-datetime.coffee#L24",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/attributes/attribute-datetime.coffee#L24",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -1092,7 +1118,7 @@
         {
           "name": "lessThan",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/attributes/attribute-datetime.coffee#L30",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/attributes/attribute-datetime.coffee#L30",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -1114,7 +1140,7 @@
       "name": "AttributeJoinedData",
       "superClass": "Attribute",
       "filename": "src/flux/attributes/attribute-joined-data.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/attributes/attribute-joined-data.coffee#L35",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/attributes/attribute-joined-data.coffee#L35",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [],
@@ -1128,14 +1154,14 @@
       "name": "AttributeNumber",
       "superClass": "Attribute",
       "filename": "src/flux/attributes/attribute-number.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/attributes/attribute-number.coffee#L10",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/attributes/attribute-number.coffee#L10",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [
         {
           "name": "greaterThan",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/attributes/attribute-number.coffee#L16",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/attributes/attribute-number.coffee#L16",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -1149,7 +1175,7 @@
         {
           "name": "lessThan",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/attributes/attribute-number.coffee#L22",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/attributes/attribute-number.coffee#L22",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -1171,7 +1197,7 @@
       "name": "AttributeObject",
       "superClass": "Attribute",
       "filename": "src/flux/attributes/attribute-object.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/attributes/attribute-object.coffee#L8",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/attributes/attribute-object.coffee#L8",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [],
@@ -1185,7 +1211,7 @@
       "name": "AttributeServerId",
       "superClass": "AttributeString",
       "filename": "src/flux/attributes/attribute-serverid.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/attributes/attribute-serverid.coffee#L12",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/attributes/attribute-serverid.coffee#L12",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [],
@@ -1199,14 +1225,14 @@
       "name": "AttributeString",
       "superClass": "Attribute",
       "filename": "src/flux/attributes/attribute-string.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/attributes/attribute-string.coffee#L12",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/attributes/attribute-string.coffee#L12",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [
         {
           "name": "startsWith",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/attributes/attribute-string.coffee#L17",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/attributes/attribute-string.coffee#L17",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -1228,14 +1254,14 @@
       "name": "BufferedNodeProcess",
       "superClass": "BufferedProcess",
       "filename": "src/buffered-node-process.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/buffered-node-process.coffee#L15",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/buffered-node-process.coffee#L15",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [
         {
           "name": "constructor",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/buffered-node-process.coffee#L38",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/buffered-node-process.coffee#L38",
           "visibility": "Public",
           "summary": "Runs the given Node script by spawning a new child process.",
           "description": "Runs the given Node script by spawning a new child process.",
@@ -1304,7 +1330,7 @@
     "BufferedProcess": {
       "name": "BufferedProcess",
       "filename": "src/buffered-process.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/buffered-process.coffee#L21",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/buffered-process.coffee#L21",
       "sections": [
         {
           "name": "Construction",
@@ -1324,7 +1350,7 @@
         {
           "name": "constructor",
           "sectionName": "Construction",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/buffered-process.coffee#L48",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/buffered-process.coffee#L48",
           "visibility": "Public",
           "summary": "Runs the given command by spawning a new child process.",
           "description": "Runs the given command by spawning a new child process.",
@@ -1402,7 +1428,7 @@
         {
           "name": "onWillThrowError",
           "sectionName": "Event Subscription",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/buffered-process.coffee#L96",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/buffered-process.coffee#L96",
           "visibility": "Public",
           "summary": "Will call your callback when an error will be raised by the process.\nUsually this is due to the command not being available or not on the PATH.\nYou can call `handle()` on the object passed to your callback to indicate\nthat you have handled this error.",
           "description": "Will call your callback when an error will be raised by the process.\nUsually this is due to the command not being available or not on the PATH.\nYou can call `handle()` on the object passed to your callback to indicate\nthat you have handled this error.",
@@ -1446,7 +1472,7 @@
         {
           "name": "kill",
           "sectionName": "Helper Methods",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/buffered-process.coffee#L183",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/buffered-process.coffee#L183",
           "visibility": "Public",
           "summary": "Terminate the process. ",
           "description": "Terminate the process. "
@@ -1470,7 +1496,7 @@
       "name": "Calendar",
       "superClass": "Model",
       "filename": "src/flux/models/calendar.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/calendar.coffee#L20",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/calendar.coffee#L20",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [],
@@ -1484,7 +1510,7 @@
       "name": "ChangeFolderTask",
       "superClass": "ChangeMailTask",
       "filename": "src/flux/tasks/change-folder-task.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/tasks/change-folder-task.coffee#L21",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/tasks/change-folder-task.coffee#L21",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [],
@@ -1498,7 +1524,7 @@
       "name": "ChangeLabelsTask",
       "superClass": "ChangeMailTask",
       "filename": "src/flux/tasks/change-labels-task.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/tasks/change-labels-task.coffee#L17",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/tasks/change-labels-task.coffee#L17",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [],
@@ -1511,14 +1537,14 @@
     "Clipboard": {
       "name": "Clipboard",
       "filename": "src/clipboard.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/clipboard.coffee#L18",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/clipboard.coffee#L18",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [
         {
           "name": "write",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/clipboard.coffee#L37",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/clipboard.coffee#L37",
           "visibility": "Public",
           "summary": "Write the given text to the clipboard.",
           "description": "Write the given text to the clipboard.\n\nThe metadata associated with the text is available by calling\n{::readWithMetadata}.",
@@ -1540,7 +1566,7 @@
         {
           "name": "read",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/clipboard.coffee#L45",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/clipboard.coffee#L45",
           "visibility": "Public",
           "summary": "Read the text from the clipboard.",
           "description": "Read the text from the clipboard.",
@@ -1554,7 +1580,7 @@
         {
           "name": "readWithMetadata",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/clipboard.coffee#L54",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/clipboard.coffee#L54",
           "visibility": "Public",
           "summary": "Read the text from the clipboard and return both the text and the\nassociated metadata.",
           "description": "Read the text from the clipboard and return both the text and the\nassociated metadata.",
@@ -1583,13 +1609,13 @@
     "Color": {
       "name": "Color",
       "filename": "src/color.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/color.coffee#L10",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/color.coffee#L10",
       "sections": [],
       "classMethods": [
         {
           "name": "parse",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/color.coffee#L18",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/color.coffee#L18",
           "visibility": "Essential",
           "summary": "Parse a {String} or {Object} into a {Color}.",
           "description": "Parse a {String} or {Object} into a {Color}.",
@@ -1613,7 +1639,7 @@
         {
           "name": "toHexString",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/color.coffee#L60",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/color.coffee#L60",
           "visibility": "Essential",
           "summary": "",
           "description": "",
@@ -1627,7 +1653,7 @@
         {
           "name": "toRGBAString",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/color.coffee#L64",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/color.coffee#L64",
           "visibility": "Essential",
           "summary": "",
           "description": "",
@@ -1648,14 +1674,14 @@
     "CommandRegistry": {
       "name": "CommandRegistry",
       "filename": "src/command-registry.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/command-registry.coffee#L44",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/command-registry.coffee#L44",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [
         {
           "name": "add",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/command-registry.coffee#L83",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/command-registry.coffee#L83",
           "visibility": "Public",
           "summary": "Add one or more command listeners associated with a selector.",
           "description": "Add one or more command listeners associated with a selector.",
@@ -1721,7 +1747,7 @@
         {
           "name": "findCommands",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/command-registry.coffee#L138",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/command-registry.coffee#L138",
           "visibility": "Public",
           "summary": "Find all registered commands matching a query.",
           "description": "Find all registered commands matching a query.",
@@ -1751,7 +1777,7 @@
         {
           "name": "dispatch",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/command-registry.coffee#L171",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/command-registry.coffee#L171",
           "visibility": "Public",
           "summary": "Simulate the dispatch of a command on a DOM node.",
           "description": "Simulate the dispatch of a command on a DOM node.\n\nThis can be useful for testing when you want to simulate the invocation of a\ncommand on a detached DOM node. Otherwise, the DOM node in question needs to\nbe attached to the document so the event bubbles up to the root node to be\nprocessed.",
@@ -1780,14 +1806,14 @@
     "ComponentRegistry": {
       "name": "ComponentRegistry",
       "filename": "src/component-registry.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/component-registry.coffee#L15",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/component-registry.coffee#L15",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [
         {
           "name": "register",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/component-registry.coffee#L50",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/component-registry.coffee#L50",
           "visibility": "Public",
           "summary": "Register a new component with the Component Registry.\nTypically, packages call this method from their main `activate` method\nto extend the Nylas user interface, and call the corresponding `unregister`\nmethod in `deactivate`.",
           "description": "Register a new component with the Component Registry.\nTypically, packages call this method from their main `activate` method\nto extend the Nylas user interface, and call the corresponding `unregister`\nmethod in `deactivate`.\n\nThis method is chainable.",
@@ -1829,7 +1855,7 @@
         {
           "name": "findComponentByName",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/component-registry.coffee#L87",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/component-registry.coffee#L87",
           "visibility": "Public",
           "summary": "Retrieve the registry entry for a given name.",
           "description": "Retrieve the registry entry for a given name.",
@@ -1851,7 +1877,7 @@
         {
           "name": "findComponentsMatching",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/component-registry.coffee#L120",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/component-registry.coffee#L120",
           "visibility": "Public",
           "summary": "Retrieve all of the registry entries matching a given descriptor.",
           "description": "Retrieve all of the registry entries matching a given descriptor.\n\n```coffee\n  ComponentRegistry.findComponentsMatching({\n    role: 'Composer:ActionButton'\n  })\n\n  ComponentRegistry.findComponentsMatching({\n    location: WorkspaceStore.Location.RootSidebar.Toolbar\n  })\n```",
@@ -1900,7 +1926,7 @@
     "Config": {
       "name": "Config",
       "filename": "src/config.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/config.coffee#L298",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/config.coffee#L298",
       "sections": [
         {
           "name": "Config Subscription",
@@ -1916,7 +1942,7 @@
         {
           "name": "observe",
           "sectionName": "Config Subscription",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/config.coffee#L384",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/config.coffee#L384",
           "visibility": "Essential",
           "summary": "Add a listener for changes to a given key path. This is different\nthan {::onDidChange} in that it will immediately call your callback with the\ncurrent value of the config entry.",
           "description": "Add a listener for changes to a given key path. This is different\nthan {::onDidChange} in that it will immediately call your callback with the\ncurrent value of the config entry.\n\n### Examples\n\nYou might want to be notified when the themes change. We'll watch\n`core.themes` for changes\n\n```coffee\natom.config.observe 'core.themes', (value) ->\n  # do stuff with value\n```",
@@ -1966,7 +1992,7 @@
         {
           "name": "onDidChange",
           "sectionName": "Config Subscription",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/config.coffee#L430",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/config.coffee#L430",
           "visibility": "Essential",
           "summary": "Add a listener for changes to a given key path. If `keyPath` is\nnot specified, your callback will be called on changes to any key.",
           "description": "Add a listener for changes to a given key path. If `keyPath` is\nnot specified, your callback will be called on changes to any key.",
@@ -2036,7 +2062,7 @@
         {
           "name": "get",
           "sectionName": "Managing Settings",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/config.coffee#L509",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/config.coffee#L509",
           "visibility": "Essential",
           "summary": "Retrieves the setting for the given key.",
           "description": "Retrieves the setting for the given key.\n\n### Examples\n\nYou might want to know what themes are enabled, so check `core.themes`\n\n```coffee\natom.config.get('core.themes')\n```\n\nWith scope descriptors you can get settings within a specific editor\nscope. For example, you might want to know `editor.tabLength` for ruby\nfiles.\n\n```coffee\natom.config.get('editor.tabLength', scope: ['source.ruby']) # => 2\n```\n\nThis setting in ruby files might be different than the global tabLength setting\n\n```coffee\natom.config.get('editor.tabLength') # => 4\natom.config.get('editor.tabLength', scope: ['source.ruby']) # => 2\n```\n\nYou can get the language scope descriptor via\n{TextEditor::getRootScopeDescriptor}. This will get the setting specifically\nfor the editor's language.\n\n```coffee\natom.config.get('editor.tabLength', scope: @editor.getRootScopeDescriptor()) # => 2\n```\n\nAdditionally, you can get the setting at the specific cursor position.\n\n```coffee\nscopeDescriptor = @editor.getLastCursor().getScopeDescriptor()\natom.config.get('editor.tabLength', scope: scopeDescriptor) # => 2\n```",
@@ -2084,7 +2110,7 @@
         {
           "name": "getAll",
           "sectionName": "Managing Settings",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/config.coffee#L538",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/config.coffee#L538",
           "visibility": "Extended",
           "summary": "Get all of the values for the given key-path, along with their\nassociated scope selector.",
           "description": "Get all of the values for the given key-path, along with their\nassociated scope selector.",
@@ -2112,7 +2138,7 @@
         {
           "name": "set",
           "sectionName": "Managing Settings",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/config.coffee#L593",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/config.coffee#L593",
           "visibility": "Essential",
           "summary": "Sets the value for a configuration setting.",
           "description": "Sets the value for a configuration setting.\n\nThis value is stored in Atom's internal configuration file.\n\n### Examples\n\nYou might want to change the themes programmatically:\n\n```coffee\natom.config.set('core.themes', ['ui-light', 'atom-light-syntax'])\n```\n\nYou can also set scoped settings. For example, you might want change the\n`editor.tabLength` only for ruby files.\n\n```coffee\natom.config.get('editor.tabLength') # => 4\natom.config.get('editor.tabLength', scope: ['source.ruby']) # => 4\natom.config.get('editor.tabLength', scope: ['source.js']) # => 4\n\n# Set ruby to 2\natom.config.set('editor.tabLength', 2, scopeSelector: 'source.ruby') # => true\n\n# Notice it's only set to 2 in the case of ruby\natom.config.get('editor.tabLength') # => 4\natom.config.get('editor.tabLength', scope: ['source.ruby']) # => 2\natom.config.get('editor.tabLength', scope: ['source.js']) # => 4\n```",
@@ -2160,7 +2186,7 @@
         {
           "name": "unset",
           "sectionName": "Managing Settings",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/config.coffee#L632",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/config.coffee#L632",
           "visibility": "Essential",
           "summary": "Restore the setting at `keyPath` to its default value.",
           "description": "Restore the setting at `keyPath` to its default value.",
@@ -2196,7 +2222,7 @@
         {
           "name": "getSources",
           "sectionName": "Managing Settings",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/config.coffee#L665",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/config.coffee#L665",
           "visibility": "Extended",
           "summary": "Get an {Array} of all of the `source` {String}s with which\nsettings have been added via {::set}. ",
           "description": "Get an {Array} of all of the `source` {String}s with which\nsettings have been added via {::set}. "
@@ -2204,7 +2230,7 @@
         {
           "name": "getSchema",
           "sectionName": "Managing Settings",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/config.coffee#L717",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/config.coffee#L717",
           "visibility": "Extended",
           "summary": "Retrieve the schema for a specific key path. The schema will tell\nyou what type the keyPath expects, and other metadata about the config\noption.",
           "description": "Retrieve the schema for a specific key path. The schema will tell\nyou what type the keyPath expects, and other metadata about the config\noption.",
@@ -2230,7 +2256,7 @@
         {
           "name": "getUserConfigPath",
           "sectionName": "Managing Settings",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/config.coffee#L732",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/config.coffee#L732",
           "visibility": "Extended",
           "summary": "Get the {String} path to the config file being used. ",
           "description": "Get the {String} path to the config file being used. "
@@ -2238,7 +2264,7 @@
         {
           "name": "transact",
           "sectionName": "Managing Settings",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/config.coffee#L740",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/config.coffee#L740",
           "visibility": "Extended",
           "summary": "Suppress calls to handler functions registered with {::onDidChange}\nand {::observe} for the duration of `callback`. After `callback` executes,\nhandlers will be called once if the value for their key-path has changed.",
           "description": "Suppress calls to handler functions registered with {::onDidChange}\nand {::observe} for the duration of `callback`. After `callback` executes,\nhandlers will be called once if the value for their key-path has changed.",
@@ -2262,14 +2288,14 @@
       "name": "Contact",
       "superClass": "Model",
       "filename": "src/flux/models/contact.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/contact.coffee#L36",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/contact.coffee#L36",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [
         {
           "name": "toString",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/contact.coffee#L69",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/contact.coffee#L70",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -2283,7 +2309,7 @@
         {
           "name": "isMe",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/contact.coffee#L83",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/contact.coffee#L84",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -2305,14 +2331,14 @@
       "name": "ContactStore",
       "superClass": "NylasStore",
       "filename": "src/flux/stores/contact-store.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/contact-store.coffee#L135",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/contact-store.coffee#L137",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [
         {
           "name": "searchContacts",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/contact-store.coffee#L160",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/contact-store.coffee#L163",
           "visibility": "Public",
           "summary": "Search the user's contact list for the given search term.\nThis method compares the `search` string against each Contact's\n`name` and `email`.",
           "description": "Search the user's contact list for the given search term.\nThis method compares the `search` string against each Contact's\n`name` and `email`.",
@@ -2340,7 +2366,7 @@
         {
           "name": "isValidContact",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/contact-store.coffee#L199",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/contact-store.coffee#L216",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -2362,14 +2388,14 @@
       "name": "DatabaseStore",
       "superClass": "NylasStore",
       "filename": "src/flux/stores/database-store.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/database-store.coffee#L78",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/database-store.coffee#L78",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [
         {
           "name": "find",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/database-store.coffee#L289",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/database-store.coffee#L289",
           "visibility": "Public",
           "summary": "Creates a new Model Query for retrieving a single model specified by\nthe class and id.",
           "description": "Creates a new Model Query for retrieving a single model specified by\nthe class and id.\n\nExample:\n\n```coffee\nDatabaseStore.find(Thread, 'id-123').then (thread) ->\n  # thread is a Thread object, or null if no match was found.\n```",
@@ -2397,7 +2423,7 @@
         {
           "name": "findBy",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/database-store.coffee#L303",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/database-store.coffee#L303",
           "visibility": "Public",
           "summary": "Creates a new Model Query for retrieving a single model matching the\npredicates provided.",
           "description": "Creates a new Model Query for retrieving a single model matching the\npredicates provided.",
@@ -2425,7 +2451,7 @@
         {
           "name": "findAll",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/database-store.coffee#L316",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/database-store.coffee#L316",
           "visibility": "Public",
           "summary": "Creates a new Model Query for retrieving all models matching the\npredicates provided.",
           "description": "Creates a new Model Query for retrieving all models matching the\npredicates provided.",
@@ -2453,7 +2479,7 @@
         {
           "name": "count",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/database-store.coffee#L329",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/database-store.coffee#L329",
           "visibility": "Public",
           "summary": "Creates a new Model Query that returns the {Number} of models matching\nthe predicates provided.",
           "description": "Creates a new Model Query that returns the {Number} of models matching\nthe predicates provided.",
@@ -2481,7 +2507,7 @@
         {
           "name": "modelify",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/database-store.coffee#L342",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/database-store.coffee#L342",
           "visibility": "Public",
           "summary": "Modelify converts the provided array of IDs or models (or a mix of\nIDs and models) into an array of models of the `klass` provided by querying for the missing items.",
           "description": "Modelify converts the provided array of IDs or models (or a mix of\nIDs and models) into an array of models of the `klass` provided by querying for the missing items.\n\nModelify is efficient and uses a single database query. It resolves Immediately\nif no query is necessary.",
@@ -2502,7 +2528,7 @@
         {
           "name": "run",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/database-store.coffee#L393",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/database-store.coffee#L393",
           "visibility": "Public",
           "summary": "Executes a {ModelQuery} on the local database.",
           "description": "Executes a {ModelQuery} on the local database.",
@@ -2524,7 +2550,7 @@
         {
           "name": "persistModel",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/database-store.coffee#L411",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/database-store.coffee#L411",
           "visibility": "Public",
           "summary": "Asynchronously writes `model` to the cache and triggers a change event.",
           "description": "Asynchronously writes `model` to the cache and triggers a change event.",
@@ -2546,7 +2572,7 @@
         {
           "name": "persistModels",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/database-store.coffee#L425",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/database-store.coffee#L428",
           "visibility": "Public",
           "summary": "Asynchronously writes `models` to the cache and triggers a single change\nevent. Note: Models must be of the same class to be persisted in a batch operation.",
           "description": "Asynchronously writes `models` to the cache and triggers a single change\nevent. Note: Models must be of the same class to be persisted in a batch operation.",
@@ -2568,7 +2594,7 @@
         {
           "name": "unpersistModel",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/database-store.coffee#L448",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/database-store.coffee#L455",
           "visibility": "Public",
           "summary": "Asynchronously removes `model` from the cache and triggers a change event.",
           "description": "Asynchronously removes `model` from the cache and triggers a change event.",
@@ -2591,21 +2617,21 @@
       "classProperties": [],
       "instanceProperties": [],
       "visibility": "Public",
-      "summary": "Nylas Mail is built on top of a custom database layer modeled after\nActiveRecord. For many parts of the application, the database is the source\nof truth. Data is retrieved from the API, written to the database, and changes\nto the database trigger Stores and components to refresh their contents.",
-      "description": "Nylas Mail is built on top of a custom database layer modeled after\nActiveRecord. For many parts of the application, the database is the source\nof truth. Data is retrieved from the API, written to the database, and changes\nto the database trigger Stores and components to refresh their contents.\n\nThe DatabaseStore is available in every application window and allows you to\nmake queries against the local cache. Every change to the local cache is\nbroadcast as a change event, and listening to the DatabaseStore keeps the\nrest of the application in sync.\n\n## Listening for Changes\n\nTo listen for changes to the local cache, subscribe to the DatabaseStore and\ninspect the changes that are sent to your listener method.\n\n```coffeescript\n@unsubscribe = DatabaseStore.listen(@_onDataChanged, @)\n\n...\n\n_onDataChanged: (change) ->\n  return unless change.objectClass is Message\n  return unless @_myMessageID in _.map change.objects, (m) -> m.id\n\n  # Refresh Data\n```\n\nThe local cache changes very frequently, and your stores and components should\ncarefully choose when to refresh their data. The `change` object passed to your\nevent handler allows you to decide whether to refresh your data and exposes\nthe following keys:\n\n`objectClass`: The {Model} class that has been changed. If multiple types of models\nwere saved to the database, you will receive multiple change events.\n\n`objects`: An {Array} of {Model} instances that were either created, updated or\ndeleted from the local cache. If your component or store presents a single object\nor a small collection of objects, you should look to see if any of the objects\nare in your displayed set before refreshing.\n\nSection: Database"
+      "summary": "N1 is built on top of a custom database layer modeled after\nActiveRecord. For many parts of the application, the database is the source\nof truth. Data is retrieved from the API, written to the database, and changes\nto the database trigger Stores and components to refresh their contents.",
+      "description": "N1 is built on top of a custom database layer modeled after\nActiveRecord. For many parts of the application, the database is the source\nof truth. Data is retrieved from the API, written to the database, and changes\nto the database trigger Stores and components to refresh their contents.\n\nThe DatabaseStore is available in every application window and allows you to\nmake queries against the local cache. Every change to the local cache is\nbroadcast as a change event, and listening to the DatabaseStore keeps the\nrest of the application in sync.\n\n## Listening for Changes\n\nTo listen for changes to the local cache, subscribe to the DatabaseStore and\ninspect the changes that are sent to your listener method.\n\n```coffeescript\n@unsubscribe = DatabaseStore.listen(@_onDataChanged, @)\n\n...\n\n_onDataChanged: (change) ->\n  return unless change.objectClass is Message\n  return unless @_myMessageID in _.map change.objects, (m) -> m.id\n\n  # Refresh Data\n```\n\nThe local cache changes very frequently, and your stores and components should\ncarefully choose when to refresh their data. The `change` object passed to your\nevent handler allows you to decide whether to refresh your data and exposes\nthe following keys:\n\n`objectClass`: The {Model} class that has been changed. If multiple types of models\nwere saved to the database, you will receive multiple change events.\n\n`objects`: An {Array} of {Model} instances that were either created, updated or\ndeleted from the local cache. If your component or store presents a single object\nor a small collection of objects, you should look to see if any of the objects\nare in your displayed set before refreshing.\n\nSection: Database"
     },
     "DatabaseView": {
       "name": "DatabaseView",
       "superClass": "ModelView",
       "filename": "src/flux/stores/database-view.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/database-view.coffee#L62",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/database-view.coffee#L62",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [
         {
           "name": "invalidate",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/database-view.coffee#L138",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/database-view.coffee#L138",
           "visibility": "Public",
           "summary": "Call this method when the DatabaseStore triggers and will impact the\ndata maintained by this DatabaseView. In the future, the DatabaseView will\nprobably observe the DatabaseView directly.",
           "description": "Call this method when the DatabaseStore triggers and will impact the\ndata maintained by this DatabaseView. In the future, the DatabaseView will\nprobably observe the DatabaseView directly.\n\nTODO: In order for the DatabaseView to monitor the DatabaseStore directly,\nit needs to have some way of detatching it's listener when it's no longer needed!\nNeed a destructor...",
@@ -2639,70 +2665,10 @@
       "summary": "DatabaseView abstracts away the process of paginating a query\nand loading ranges of data. It's very smart about deciding when\nresults need to be refreshed. There are a few core concepts that\nmake it flexible:",
       "description": "DatabaseView abstracts away the process of paginating a query\nand loading ranges of data. It's very smart about deciding when\nresults need to be refreshed. There are a few core concepts that\nmake it flexible:\n\nmetadataProvider: For each item loaded, you can provide a promise\nthat resolves with additional data for that item. The DatabaseView\nwill not consider the page of data \"loaded\" until all the metadata\npromises have resolved.  (Used for message metadata on threads)\n\nretainedRange: The retained range ({start, end}) represents the\nobjects currently being displayed. React components displaying the\nview can alter the retained range as the user scrolls.\n\nNote: Do not make the retainedRange larger than you need. The\nDatabaseView may internally keep a larger set of items loaded\nfor performance.\n\nSection: Database"
     },
-    "DeserializerManager": {
-      "name": "DeserializerManager",
-      "filename": "src/deserializer-manager.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/deserializer-manager.coffee#L26",
-      "sections": [],
-      "classMethods": [],
-      "instanceMethods": [
-        {
-          "name": "add",
-          "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/deserializer-manager.coffee#L36",
-          "visibility": "Public",
-          "summary": "Register the given class(es) as deserializers.",
-          "description": "Register the given class(es) as deserializers.",
-          "arguments": [
-            {
-              "name": "deserializers",
-              "description": "One or more deserializers to register. A deserializer can be any object with a `.name` property and a `.deserialize()` method. A common approach is to register a *constructor* as the deserializer for its instances by adding a `.deserialize()` class method. ",
-              "type": null,
-              "isOptional": false
-            }
-          ]
-        },
-        {
-          "name": "deserialize",
-          "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/deserializer-manager.coffee#L50",
-          "visibility": "Public",
-          "summary": "Deserialize the state and params.",
-          "description": "Deserialize the state and params.",
-          "arguments": [
-            {
-              "name": "state",
-              "description": "The state {Object} to deserialize.",
-              "type": "Object",
-              "isOptional": false
-            },
-            {
-              "name": "params",
-              "description": "The params {Object} to pass as the second arguments to the deserialize method of the deserializer. ",
-              "type": "Object",
-              "isOptional": false
-            }
-          ]
-        }
-      ],
-      "classProperties": [],
-      "instanceProperties": [],
-      "visibility": "Extended",
-      "summary": "Manages the deserializers used for serialized state",
-      "description": "Manages the deserializers used for serialized state\n\nAn instance of this class is always available as the `atom.deserializers`\nglobal.\n\nSection: Atom",
-      "examples": [
-        {
-          "description": "",
-          "lang": "coffee",
-          "code": "class MyPackageView extends View\n  atom.deserializers.add(this)\n\n  @deserialize: (state) ->\n    new MyPackageView(state)\n\n  constructor: (@state) ->\n\n  serialize: ->\n    @state",
-          "raw": "```coffee\nclass MyPackageView extends View\n  atom.deserializers.add(this)\n\n  @deserialize: (state) ->\n    new MyPackageView(state)\n\n  constructor: (@state) ->\n\n  serialize: ->\n    @state\n```"
-        }
-      ]
-    },
     "DraftChangeSet": {
       "name": "DraftChangeSet",
       "filename": "src/flux/stores/draft-store-proxy.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/draft-store-proxy.coffee#L25",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/draft-store-proxy.coffee#L25",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [],
@@ -2715,14 +2681,14 @@
     "DraftStore": {
       "name": "DraftStore",
       "filename": "src/flux/stores/draft-store.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/draft-store.coffee#L41",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/draft-store.coffee#L41",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [
         {
           "name": "sessionForClientId",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/draft-store.coffee#L117",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/draft-store.coffee#L117",
           "visibility": "Public",
           "summary": "Fetch a {DraftStoreProxy} for displaying and/or editing the\ndraft with `clientId`.",
           "description": "Fetch a {DraftStoreProxy} for displaying and/or editing the\ndraft with `clientId`.\n\nExample:\n\n```coffee\nsession = DraftStore.sessionForClientId(clientId)\nsession.prepare().then ->\n   # session.draft() is now ready\n```",
@@ -2744,7 +2710,7 @@
         {
           "name": "isSendingDraft",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/draft-store.coffee#L125",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/draft-store.coffee#L125",
           "visibility": "Public",
           "summary": "Look up the sending state of the given draftClientId.\nIn popout windows the existance of the window is the sending state. ",
           "description": "Look up the sending state of the given draftClientId.\nIn popout windows the existance of the window is the sending state. "
@@ -2752,7 +2718,7 @@
         {
           "name": "extensions",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/draft-store.coffee#L133",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/draft-store.coffee#L133",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -2766,7 +2732,7 @@
         {
           "name": "registerExtension",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/draft-store.coffee#L142",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/draft-store.coffee#L142",
           "visibility": "Public",
           "summary": "Registers a new extension with the DraftStore. DraftStore extensions\nmake it possible to extend the editor experience, modify draft contents,\ndisplay warnings before draft are sent, and more.",
           "description": "Registers a new extension with the DraftStore. DraftStore extensions\nmake it possible to extend the editor experience, modify draft contents,\ndisplay warnings before draft are sent, and more.",
@@ -2782,7 +2748,7 @@
         {
           "name": "unregisterExtension",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/draft-store.coffee#L149",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/draft-store.coffee#L149",
           "visibility": "Public",
           "summary": "Unregisters the extension provided from the DraftStore.",
           "description": "Unregisters the extension provided from the DraftStore.",
@@ -2805,13 +2771,13 @@
     "DraftStoreExtension": {
       "name": "DraftStoreExtension",
       "filename": "src/flux/stores/draft-store-extension.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/draft-store-extension.coffee#L32",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/draft-store-extension.coffee#L32",
       "sections": [],
       "classMethods": [
         {
           "name": "warningsForSending",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/draft-store-extension.coffee#L43",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/draft-store-extension.coffee#L43",
           "visibility": "Public",
           "summary": "Inspect the draft, and return any warnings that need to be displayed before\nthe draft is sent. Warnings should be string phrases, such as \"without an attachment\"\nthat fit into a message of the form: \"Send #{phase1} and #{phase2}?\"",
           "description": "Inspect the draft, and return any warnings that need to be displayed before\nthe draft is sent. Warnings should be string phrases, such as \"without an attachment\"\nthat fit into a message of the form: \"Send #{phase1} and #{phase2}?\"",
@@ -2831,9 +2797,37 @@
           ]
         },
         {
+          "name": "composerToolbar",
+          "sectionName": null,
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/draft-store-extension.coffee#L66",
+          "visibility": "Public",
+          "summary": "declare an icon to be displayed in the composer's toolbar (where\nbold, italic, underline, etc are).",
+          "description": "declare an icon to be displayed in the composer's toolbar (where\nbold, italic, underline, etc are).\n\nYou must declare the following properties:",
+          "arguments": [
+            {
+              "name": "mutator",
+              "description": "A function that's called when your toolbar button is clicked. This mutator function will be passed as its only argument the `dom`. The `dom` is the full {DOM} object of the current composer. You may mutate this in place. We don't care about the mutator's return value.",
+              "type": "DOM",
+              "isOptional": false
+            },
+            {
+              "name": "tooltip",
+              "description": "A one or two word description of what your icon does",
+              "type": null,
+              "isOptional": false
+            },
+            {
+              "name": "iconUrl",
+              "description": "The url of your icon. It should be in the `nylas://` scheme. For example: `nylas://your-package-name/assets/my-icon@2x.png`. Note, we will downsample your image by 2x (for Retina screens), so make sure it's twice the resolution. The icon should be black and white. We will directly pass the `url` prop of a {RetinaImg}",
+              "type": "RetinaImg",
+              "isOptional": false
+            }
+          ]
+        },
+        {
           "name": "prepareNewDraft",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/draft-store-extension.coffee#L57",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/draft-store-extension.coffee#L80",
           "visibility": "Public",
           "summary": "Override prepareNewDraft to modify a brand new draft before it is displayed\nin a composer. This is one of the only places in the application where it's safe\nto modify the draft object you're given directly to add participants to the draft,\nadd a signature, etc.",
           "description": "Override prepareNewDraft to modify a brand new draft before it is displayed\nin a composer. This is one of the only places in the application where it's safe\nto modify the draft object you're given directly to add participants to the draft,\nadd a signature, etc.\n\nBy default, new drafts are considered `pristine`. If the user leaves the composer\nwithout making any changes, the draft is discarded. If your extension populates\nthe draft in a way that makes it \"populated\" in a valuable way, you should set\n`draft.pristine = false` so the draft saves, even if no further changes are made."
@@ -2841,7 +2835,7 @@
         {
           "name": "finalizeSessionBeforeSending",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/draft-store-extension.coffee#L79",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/draft-store-extension.coffee#L102",
           "visibility": "Public",
           "summary": "Override finalizeSessionBeforeSending in your DraftStoreExtension subclass to transform\nthe {DraftStoreProxy} editing session just before the draft is sent. This method\ngives you an opportunity to make any final substitutions or changes after any\n{::warningsForSending} have been displayed.",
           "description": "Override finalizeSessionBeforeSending in your DraftStoreExtension subclass to transform\nthe {DraftStoreProxy} editing session just before the draft is sent. This method\ngives you an opportunity to make any final substitutions or changes after any\n{::warningsForSending} have been displayed.\n\nExample:\n\n```coffee\n# Remove any <code> tags found in the draft body\nfinalizeSessionBeforeSending: (session) ->\n  body = session.draft().body\n  clean = body.replace(/<\\/?code[^>]*>/g, '')\n  if body != clean\n    session.changes.add(body: clean)\n```",
@@ -2857,7 +2851,7 @@
         {
           "name": "onMouseUp",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/draft-store-extension.coffee#L95",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/draft-store-extension.coffee#L118",
           "visibility": "Public",
           "summary": "Override onMouseUp in your DraftStoreExtension subclass to\nlisten for mouse up events sent to the composer's body text area. This\nhook provides the contenteditable DOM Node itself, allowing you to\nadjust selection ranges and change content as necessary.",
           "description": "Override onMouseUp in your DraftStoreExtension subclass to\nlisten for mouse up events sent to the composer's body text area. This\nhook provides the contenteditable DOM Node itself, allowing you to\nadjust selection ranges and change content as necessary.",
@@ -2885,7 +2879,7 @@
         {
           "name": "onFocusPrevious",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/draft-store-extension.coffee#L111",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/draft-store-extension.coffee#L134",
           "visibility": "Public",
           "summary": "Called when the user presses `Shift-Tab` while focused on the composer's body field.\nOverride onFocusPrevious in your DraftStoreExtension to adjust the selection or perform\nother actions. If your package implements Shift-Tab behavior in a particular scenario, you\nshould prevent the default behavior of Shift-Tab via `event.preventDefault()`.",
           "description": "Called when the user presses `Shift-Tab` while focused on the composer's body field.\nOverride onFocusPrevious in your DraftStoreExtension to adjust the selection or perform\nother actions. If your package implements Shift-Tab behavior in a particular scenario, you\nshould prevent the default behavior of Shift-Tab via `event.preventDefault()`.",
@@ -2913,7 +2907,7 @@
         {
           "name": "onFocusNext",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/draft-store-extension.coffee#L128",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/draft-store-extension.coffee#L151",
           "visibility": "Public",
           "summary": "Called when the user presses `Tab` while focused on the composer's body field.\nOverride onFocusPrevious in your DraftStoreExtension to adjust the selection or perform\nother actions. If your package implements Tab behavior in a particular scenario, you\nshould prevent the default behavior of Tab via `event.preventDefault()`.",
           "description": "Called when the user presses `Tab` while focused on the composer's body field.\nOverride onFocusPrevious in your DraftStoreExtension to adjust the selection or perform\nother actions. If your package implements Tab behavior in a particular scenario, you\nshould prevent the default behavior of Tab via `event.preventDefault()`.",
@@ -2941,10 +2935,10 @@
         {
           "name": "onInput",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/draft-store-extension.coffee#L159",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/draft-store-extension.coffee#L186",
           "visibility": "Public",
-          "summary": "Override onInput in your DraftStoreExtension subclass to implement\ncustom behavior as the user types in the composer's contenteditable body field.",
-          "description": "Override onInput in your DraftStoreExtension subclass to implement\ncustom behavior as the user types in the composer's contenteditable body field.\n\nExample:\n\nThe Nylas `templates` package uses this method to see if the user has populated a\n`<code>` tag placed in the body and change it's CSS class to reflect that it is no\nlonger empty.\n\n```coffee\nonInput: (editableNode, event) ->\n  selection = document.getSelection()\n\n  isWithinNode = (node) ->\n    test = selection.baseNode\n    while test isnt editableNode\n      return true if test is node\n      test = test.parentNode\n    return false\n\n  codeTags = editableNode.querySelectorAll('code.var.empty')\n  for codeTag in codeTags\n    if selection.containsNode(codeTag) or isWithinNode(codeTag)\n      codeTag.classList.remove('empty')\n```"
+          "summary": "Override onInput in your DraftStoreExtension subclass to\nimplement custom behavior as the user types in the composer's\ncontenteditable body field.",
+          "description": "Override onInput in your DraftStoreExtension subclass to\nimplement custom behavior as the user types in the composer's\ncontenteditable body field.\n\nAs the first argument you are passed the entire DOM object of the\ncomposer. You may mutate this object and edit it in place.\n\nExample:\n\nThe Nylas `templates` package uses this method to see if the user has populated a\n`<code>` tag placed in the body and change it's CSS class to reflect that it is no\nlonger empty.\n\n```coffee\nonInput: (editableNode, event) ->\n  selection = document.getSelection()\n\n  isWithinNode = (node) ->\n    test = selection.baseNode\n    while test isnt editableNode\n      return true if test is node\n      test = test.parentNode\n    return false\n\n  codeTags = editableNode.querySelectorAll('code.var.empty')\n  for codeTag in codeTags\n    if selection.containsNode(codeTag) or isWithinNode(codeTag)\n      codeTag.classList.remove('empty')\n```"
         }
       ],
       "instanceMethods": [],
@@ -2957,14 +2951,14 @@
     "DraftStoreProxy": {
       "name": "DraftStoreProxy",
       "filename": "src/flux/stores/draft-store-proxy.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/draft-store-proxy.coffee#L80",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/draft-store-proxy.coffee#L80",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [
         {
           "name": "draft",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/draft-store-proxy.coffee#L104",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/draft-store-proxy.coffee#L104",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -2978,7 +2972,7 @@
         {
           "name": "draftPristineBody",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/draft-store-proxy.coffee#L112",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/draft-store-proxy.coffee#L112",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -3014,7 +3008,7 @@
       "name": "EventStore",
       "superClass": "NylasStore",
       "filename": "src/flux/stores/event-store.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/event-store.coffee#L33",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/event-store.coffee#L33",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [],
@@ -3051,14 +3045,14 @@
       "name": "File",
       "superClass": "Model",
       "filename": "src/flux/models/file.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/file.coffee#L27",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/file.coffee#L27",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [
         {
           "name": "displayName",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/file.coffee#L56",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/file.coffee#L56",
           "visibility": "Public",
           "summary": "Files can have empty names, or no name. `displayName` returns the file's\nname if one is present, and falls back to appropriate default name based on\nthe contentType. It will always return a non-empty string.",
           "description": "Files can have empty names, or no name. `displayName` returns the file's\nname if one is present, and falls back to appropriate default name based on\nthe contentType. It will always return a non-empty string."
@@ -3066,7 +3060,7 @@
         {
           "name": "displayExtension",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/file.coffee#L77",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/file.coffee#L77",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -3142,14 +3136,14 @@
     "FocusedContentStore": {
       "name": "FocusedContentStore",
       "filename": "src/flux/stores/focused-content-store.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/focused-content-store.coffee#L53",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/focused-content-store.coffee#L53",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [
         {
           "name": "focused",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/focused-content-store.coffee#L142",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/focused-content-store.coffee#L145",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -3171,7 +3165,7 @@
         {
           "name": "focusedId",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/focused-content-store.coffee#L152",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/focused-content-store.coffee#L155",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -3193,7 +3187,7 @@
         {
           "name": "keyboardCursor",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/focused-content-store.coffee#L164",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/focused-content-store.coffee#L167",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -3215,7 +3209,7 @@
         {
           "name": "keyboardCursorId",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/focused-content-store.coffee#L176",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/focused-content-store.coffee#L179",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -3237,7 +3231,7 @@
         {
           "name": "keyboardCursorEnabled",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/focused-content-store.coffee#L184",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/focused-content-store.coffee#L187",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -3259,7 +3253,7 @@
       "name": "Folder",
       "superClass": "Category",
       "filename": "src/flux/models/folder.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/folder.coffee#L42",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/folder.coffee#L42",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [],
@@ -3354,6 +3348,12 @@
               "isOptional": true
             },
             {
+              "name": "containersRequired",
+              "description": ". Pass false to optionally remove the containers  placed around injected components to isolate them from the rest of the app.",
+              "type": null,
+              "isOptional": true
+            },
+            {
               "name": null,
               "description": "Any other props you provide, such as `direction`, `data-column`, etc. will be applied to the {Flexbox} rendered by the InjectedComponentSet.",
               "type": null
@@ -3370,7 +3370,7 @@
       "name": "Label",
       "superClass": "Category",
       "filename": "src/flux/models/label.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/label.coffee#L42",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/label.coffee#L42",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [],
@@ -3383,7 +3383,7 @@
     "Matcher": {
       "name": "Matcher",
       "filename": "src/flux/attributes/matcher.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/attributes/matcher.coffee#L36",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/attributes/matcher.coffee#L36",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [],
@@ -3481,7 +3481,7 @@
       "instanceProperties": [],
       "visibility": "Public",
       "summary": "React component for multi-section Menus with key binding",
-      "description": "React component for multi-section Menus with key binding\n\nThe Menu component allows you to display a list of items. Menu takes care of\nseveral important things, ensuring that your menu is consistent with the rest\nof the Edgehill application and offers a near-native experience:\n\n* Keyboard Interaction with the Up and Down arrow keys, Enter to select\n* Maintaining selection across content changes\n* Highlighted state\n\nMenus are often, but not always, used in conjunction with {Popover} to display\na floating \"popup\" menu. See `template-picker.cjsx` for an example.\n\nThe Menu also exposes \"header\" and \"footer\" regions you can fill with arbitrary\ncomponents by providing the `headerComponents` and `footerComponents` props.\nThese items are nested within `.header-container`. and `.footer-container`,\nand you can customize their appearance by providing CSS selectors scoped to your\ncomponent's Menu instance:\n\n```css\n.template-picker .menu .header-container {\n  height: 100px;\n}\n```\n\nSection: Component Kit"
+      "description": "React component for multi-section Menus with key binding\n\nThe Menu component allows you to display a list of items. Menu takes care of\nseveral important things, ensuring that your menu is consistent with the rest\nof the N1 application and offers a near-native experience:\n\n* Keyboard Interaction with the Up and Down arrow keys, Enter to select\n* Maintaining selection across content changes\n* Highlighted state\n\nMenus are often, but not always, used in conjunction with {Popover} to display\na floating \"popup\" menu. See `template-picker.cjsx` for an example.\n\nThe Menu also exposes \"header\" and \"footer\" regions you can fill with arbitrary\ncomponents by providing the `headerComponents` and `footerComponents` props.\nThese items are nested within `.header-container`. and `.footer-container`,\nand you can customize their appearance by providing CSS selectors scoped to your\ncomponent's Menu instance:\n\n```css\n.template-picker .menu .header-container {\n  height: 100px;\n}\n```\n\nSection: Component Kit"
     },
     "MenuItem": {
       "name": "MenuItem",
@@ -3535,14 +3535,14 @@
     "MenuManager": {
       "name": "MenuManager",
       "filename": "src/menu-manager.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/menu-manager.coffee#L62",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/menu-manager.coffee#L62",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [
         {
           "name": "add",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/menu-manager.coffee#L89",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/menu-manager.coffee#L89",
           "visibility": "Public",
           "summary": "Adds the given items to the application menu.",
           "description": "Adds the given items to the application menu.",
@@ -3592,7 +3592,7 @@
         {
           "name": "update",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/menu-manager.coffee#L137",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/menu-manager.coffee#L137",
           "visibility": "Public",
           "summary": "Refreshes the currently visible menu. ",
           "description": "Refreshes the currently visible menu. "
@@ -3645,14 +3645,14 @@
       "name": "Message",
       "superClass": "Model",
       "filename": "src/flux/models/message.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/message.coffee#L70",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/message.coffee#L70",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [
         {
           "name": "participants",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/message.coffee#L205",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/message.coffee#L206",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -3666,7 +3666,7 @@
         {
           "name": "participantsForReplyAll",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/message.coffee#L216",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/message.coffee#L217",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -3680,7 +3680,7 @@
         {
           "name": "participantsForReply",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/message.coffee#L246",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/message.coffee#L247",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -3694,7 +3694,7 @@
         {
           "name": "fileIds",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/message.coffee#L261",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/message.coffee#L262",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -3708,7 +3708,7 @@
         {
           "name": "isFromMe",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/message.coffee#L267",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/message.coffee#L268",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -3722,7 +3722,7 @@
         {
           "name": "plainTextBody",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/message.coffee#L272",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/message.coffee#L273",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -3736,7 +3736,7 @@
         {
           "name": "replyAttributionLine",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/message.coffee#L282",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/message.coffee#L283",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -3757,13 +3757,13 @@
     "MessageStoreExtension": {
       "name": "MessageStoreExtension",
       "filename": "src/flux/stores/message-store-extension.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/message-store-extension.coffee#L26",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/message-store-extension.coffee#L26",
       "sections": [],
       "classMethods": [
         {
           "name": "formatMessageBody",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/message-store-extension.coffee#L32",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/message-store-extension.coffee#L32",
           "visibility": "Public",
           "summary": "Transform the message body HTML provided in `body` and return HTML\nthat should be displayed for the message.",
           "description": "Transform the message body HTML provided in `body` and return HTML\nthat should be displayed for the message."
@@ -3779,14 +3779,14 @@
     "Model": {
       "name": "Model",
       "filename": "src/flux/models/model.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/model.coffee#L32",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/model.coffee#L32",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [
         {
           "name": "attributes",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/model.coffee#L80",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/model.coffee#L80",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -3800,7 +3800,7 @@
         {
           "name": "toJSON",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/model.coffee#L108",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/model.coffee#L108",
           "visibility": "Public",
           "summary": "Deflates the model to a plain JSON object. Only attributes defined\non the model are included in the JSON.",
           "description": "Deflates the model to a plain JSON object. Only attributes defined\non the model are included in the JSON.",
@@ -3822,7 +3822,7 @@
         {
           "name": "matches",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/model.coffee#L127",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/model.coffee#L127",
           "visibility": "Public",
           "summary": "Evaluates the model against one or more {Matcher} objects.",
           "description": "Evaluates the model against one or more {Matcher} objects.",
@@ -3851,14 +3851,14 @@
     "ModelQuery": {
       "name": "ModelQuery",
       "filename": "src/flux/models/query.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/query.coffee#L35",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/query.coffee#L35",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [
         {
           "name": "where",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/query.coffee#L58",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/query.coffee#L58",
           "visibility": "Public",
           "summary": "Add one or more where clauses to the query",
           "description": "Add one or more where clauses to the query\n\nThis method is chainable.",
@@ -3874,7 +3874,7 @@
         {
           "name": "include",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/query.coffee#L80",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/query.coffee#L80",
           "visibility": "Public",
           "summary": "Include specific joined data attributes in result objects.",
           "description": "Include specific joined data attributes in result objects.\n\nThis method is chainable.",
@@ -3890,7 +3890,7 @@
         {
           "name": "includeAll",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/query.coffee#L90",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/query.coffee#L90",
           "visibility": "Public",
           "summary": "Include all of the available joined data attributes in returned models.",
           "description": "Include all of the available joined data attributes in returned models.\n\nThis method is chainable."
@@ -3898,7 +3898,7 @@
         {
           "name": "order",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/query.coffee#L101",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/query.coffee#L101",
           "visibility": "Public",
           "summary": "Apply a sort order to the query.",
           "description": "Apply a sort order to the query.\n\nThis method is chainable.",
@@ -3914,7 +3914,7 @@
         {
           "name": "one",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/query.coffee#L111",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/query.coffee#L111",
           "visibility": "Public",
           "summary": "Set the `singular` flag - only one model will be returned from the\nquery, and a `LIMIT 1` clause will be used.",
           "description": "Set the `singular` flag - only one model will be returned from the\nquery, and a `LIMIT 1` clause will be used.\n\nThis method is chainable."
@@ -3922,7 +3922,7 @@
         {
           "name": "limit",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/query.coffee#L121",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/query.coffee#L121",
           "visibility": "Public",
           "summary": "Limit the number of query results.",
           "description": "Limit the number of query results.\n\nThis method is chainable.",
@@ -3938,7 +3938,7 @@
         {
           "name": "offset",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/query.coffee#L133",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/query.coffee#L133",
           "visibility": "Public",
           "summary": "",
           "description": "\n\nThis method is chainable.",
@@ -3954,7 +3954,7 @@
         {
           "name": "count",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/query.coffee#L143",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/query.coffee#L143",
           "visibility": "Public",
           "summary": "Set the `count` flag - instead of returning inflated models,\nthe query will return the result `COUNT`.",
           "description": "Set the `count` flag - instead of returning inflated models,\nthe query will return the result `COUNT`.\n\nThis method is chainable."
@@ -3962,7 +3962,7 @@
         {
           "name": "then",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/query.coffee#L167",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/query.coffee#L167",
           "visibility": "Public",
           "summary": "Short-hand syntax that calls run().then(fn) with the provided function.",
           "description": "Short-hand syntax that calls run().then(fn) with the provided function.",
@@ -3976,7 +3976,7 @@
         {
           "name": "run",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/query.coffee#L173",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/query.coffee#L173",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -4029,7 +4029,7 @@
       "instanceProperties": [],
       "visibility": "Public",
       "summary": "MultiselectActionBar is a simple component that can be placed in a {Sheet} Toolbar.\nWhen the provided `dataStore` has a selection, it appears over the other items in the toolbar.",
-      "description": "MultiselectActionBar is a simple component that can be placed in a {Sheet} Toolbar.\nWhen the provided `dataStore` has a selection, it appears over the other items in the toolbar.\n\nGenerally, you wrap {MultiselectActionBar} in your own simple component to provide a dataStore\nand other settings:\n\n```coffee\nclass MultiselectActionBar extends React.Component\n  @displayName: 'MultiselectActionBar'\n\n  render: =>\n    <MultiselectActionBar\n      dataStore={ThreadListStore}\n      className=\"thread-list\"\n      collection=\"thread\" />\n```\n\nThe MultiselectActionBar uses the `ComponentRegistry` to find items to display for the given\ncollection name. To add an item to the bar created in the example above, register it like this:\n\n```coffee\nComponentRegistry.register ThreadBulkArchiveButton,\n  role: 'thread:BulkAction'\n```\n\nSection: Component Kit"
+      "description": "MultiselectActionBar is a simple component that can be placed in a {Sheet} Toolbar.\nWhen the provided `dataStore` has a selection, it appears over the other items in the toolbar.\n\nGenerally, you wrap {MultiselectActionBar} in your own simple component to provide a dataStore\nand other settings:\n\n```coffee\nclass MultiselectActionBar extends React.Component\n  @displayName: 'MultiselectActionBar'\n\n  render: =>\n    <MultiselectActionBar\n      dataStore={ThreadListStore}\n      className=\"thread-list\"\n      collection=\"thread\" />\n```\n\nThe MultiselectActionBar uses the `ComponentRegistry` to find items to display for the given\ncollection name. To add an item to the bar created in the example above, register it like this:\n\n```coffee\nComponentRegistry.register ThreadBulkRemoveButton,\n  role: 'thread:BulkAction'\n```\n\nSection: Component Kit"
     },
     "MultiselectList": {
       "name": "MultiselectList",
@@ -4048,7 +4048,7 @@
     "PackageManager": {
       "name": "PackageManager",
       "filename": "src/package-manager.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/package-manager.coffee#L33",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/package-manager.coffee#L34",
       "sections": [
         {
           "name": "Event Subscription",
@@ -4084,7 +4084,7 @@
         {
           "name": "onDidLoadInitialPackages",
           "sectionName": "Event Subscription",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/package-manager.coffee#L66",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/package-manager.coffee#L67",
           "visibility": "Public",
           "summary": "Invoke the given callback when all packages have been loaded.",
           "description": "Invoke the given callback when all packages have been loaded.",
@@ -4106,7 +4106,7 @@
         {
           "name": "onDidActivateInitialPackages",
           "sectionName": "Event Subscription",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/package-manager.coffee#L79",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/package-manager.coffee#L80",
           "visibility": "Public",
           "summary": "Invoke the given callback when all packages have been activated.",
           "description": "Invoke the given callback when all packages have been activated.",
@@ -4128,7 +4128,7 @@
         {
           "name": "onDidActivatePackage",
           "sectionName": "Event Subscription",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/package-manager.coffee#L93",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/package-manager.coffee#L94",
           "visibility": "Public",
           "summary": "Invoke the given callback when a package is activated.",
           "description": "Invoke the given callback when a package is activated.",
@@ -4158,7 +4158,7 @@
         {
           "name": "onDidDeactivatePackage",
           "sectionName": "Event Subscription",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/package-manager.coffee#L102",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/package-manager.coffee#L103",
           "visibility": "Public",
           "summary": "Invoke the given callback when a package is deactivated.",
           "description": "Invoke the given callback when a package is deactivated.",
@@ -4188,7 +4188,7 @@
         {
           "name": "onDidLoadPackage",
           "sectionName": "Event Subscription",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/package-manager.coffee#L111",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/package-manager.coffee#L112",
           "visibility": "Public",
           "summary": "Invoke the given callback when a package is loaded.",
           "description": "Invoke the given callback when a package is loaded.",
@@ -4218,7 +4218,7 @@
         {
           "name": "onDidUnloadPackage",
           "sectionName": "Event Subscription",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/package-manager.coffee#L120",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/package-manager.coffee#L121",
           "visibility": "Public",
           "summary": "Invoke the given callback when a package is unloaded.",
           "description": "Invoke the given callback when a package is unloaded.",
@@ -4248,7 +4248,7 @@
         {
           "name": "getApmPath",
           "sectionName": "Package system data",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/package-manager.coffee#L140",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/package-manager.coffee#L141",
           "visibility": "Public",
           "summary": "Get the path to the apm command.",
           "description": "Get the path to the apm command.\n\nReturn a {String} file path to apm. "
@@ -4256,7 +4256,7 @@
         {
           "name": "getPackageDirPaths",
           "sectionName": "Package system data",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/package-manager.coffee#L157",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/package-manager.coffee#L157",
           "visibility": "Public",
           "summary": "Get the paths being used to look for packages.",
           "description": "Get the paths being used to look for packages.",
@@ -4270,7 +4270,7 @@
         {
           "name": "resolvePackagePath",
           "sectionName": "General package data",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/package-manager.coffee#L169",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/package-manager.coffee#L169",
           "visibility": "Public",
           "summary": "Resolve the given package name to a path on disk.",
           "description": "Resolve the given package name to a path on disk.\n\nReturn a {String} folder path or undefined if it could not be resolved. ",
@@ -4286,7 +4286,7 @@
         {
           "name": "isBundledPackage",
           "sectionName": "General package data",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/package-manager.coffee#L183",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/package-manager.coffee#L183",
           "visibility": "Public",
           "summary": "Is the package with the given name bundled with Atom?",
           "description": "Is the package with the given name bundled with Atom?",
@@ -4308,7 +4308,7 @@
         {
           "name": "enablePackage",
           "sectionName": "Enabling and disabling packages",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/package-manager.coffee#L193",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/package-manager.coffee#L193",
           "visibility": "Public",
           "summary": "Enable the package with the given name.",
           "description": "Enable the package with the given name.",
@@ -4322,7 +4322,7 @@
         {
           "name": "disablePackage",
           "sectionName": "Enabling and disabling packages",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/package-manager.coffee#L201",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/package-manager.coffee#L201",
           "visibility": "Public",
           "summary": "Disable the package with the given name.",
           "description": "Disable the package with the given name.",
@@ -4336,7 +4336,7 @@
         {
           "name": "isPackageDisabled",
           "sectionName": "Enabling and disabling packages",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/package-manager.coffee#L211",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/package-manager.coffee#L211",
           "visibility": "Public",
           "summary": "Is the package with the given name disabled?",
           "description": "Is the package with the given name disabled?",
@@ -4358,7 +4358,7 @@
         {
           "name": "getActivePackages",
           "sectionName": "Accessing active packages",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/package-manager.coffee#L219",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/package-manager.coffee#L219",
           "visibility": "Public",
           "summary": "Get an {Array} of all the active {Package}s. ",
           "description": "Get an {Array} of all the active {Package}s. "
@@ -4366,7 +4366,7 @@
         {
           "name": "getActivePackage",
           "sectionName": "Accessing active packages",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/package-manager.coffee#L227",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/package-manager.coffee#L227",
           "visibility": "Public",
           "summary": "Get the active {Package} with the given name.",
           "description": "Get the active {Package} with the given name.",
@@ -4388,7 +4388,7 @@
         {
           "name": "isPackageActive",
           "sectionName": "Accessing active packages",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/package-manager.coffee#L235",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/package-manager.coffee#L235",
           "visibility": "Public",
           "summary": "Is the {Package} with the given name active?",
           "description": "Is the {Package} with the given name active?",
@@ -4410,7 +4410,7 @@
         {
           "name": "getLoadedPackages",
           "sectionName": "Accessing loaded packages",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/package-manager.coffee#L243",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/package-manager.coffee#L243",
           "visibility": "Public",
           "summary": "Get an {Array} of all the loaded {Package}s ",
           "description": "Get an {Array} of all the loaded {Package}s "
@@ -4418,7 +4418,7 @@
         {
           "name": "getLoadedPackage",
           "sectionName": "Accessing loaded packages",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/package-manager.coffee#L257",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/package-manager.coffee#L257",
           "visibility": "Public",
           "summary": "Get the loaded {Package} with the given name.",
           "description": "Get the loaded {Package} with the given name.",
@@ -4440,7 +4440,7 @@
         {
           "name": "isPackageLoaded",
           "sectionName": "Accessing loaded packages",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/package-manager.coffee#L265",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/package-manager.coffee#L265",
           "visibility": "Public",
           "summary": "Is the package with the given name loaded?",
           "description": "Is the package with the given name loaded?",
@@ -4462,7 +4462,7 @@
         {
           "name": "getAvailablePackagePaths",
           "sectionName": "Accessing available packages",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/package-manager.coffee#L276",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/package-manager.coffee#L276",
           "visibility": "Public",
           "summary": "Get an {Array} of {String}s of all the available package paths.",
           "description": "Get an {Array} of {String}s of all the available package paths.\n\nIf the optional windowType is passed, it will only load packages\nthat declare that windowType in their package.json "
@@ -4470,7 +4470,7 @@
         {
           "name": "getAvailablePackageNames",
           "sectionName": "Accessing available packages",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/package-manager.coffee#L309",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/package-manager.coffee#L309",
           "visibility": "Public",
           "summary": "Get an {Array} of {String}s of all the available package names. ",
           "description": "Get an {Array} of {String}s of all the available package names. "
@@ -4478,7 +4478,7 @@
         {
           "name": "getAvailablePackageMetadata",
           "sectionName": "Accessing available packages",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/package-manager.coffee#L313",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/package-manager.coffee#L313",
           "visibility": "Public",
           "summary": "Get an {Array} of {String}s of all the available package metadata. ",
           "description": "Get an {Array} of {String}s of all the available package metadata. "
@@ -4501,8 +4501,8 @@
       "classProperties": [],
       "instanceProperties": [],
       "visibility": "Public",
-      "summary": "The Popover component makes it easy to display a sheet or popup menu when the\nuser clicks the React element provided as `buttonComponent`. In Edgehill, the Popover\ncomponent is used to create rich dropdown menus, detail popups, etc. with consistent\nlook and feel and behavior.",
-      "description": "The Popover component makes it easy to display a sheet or popup menu when the\nuser clicks the React element provided as `buttonComponent`. In Edgehill, the Popover\ncomponent is used to create rich dropdown menus, detail popups, etc. with consistent\nlook and feel and behavior.\n\nThe Popover component handles:\n\n* Rendering it's children when you click `buttonComponent`, and dismissing it's\n  children when you click outside the popover or press the Escape key.\n* Automatically focusing the item with the lowest tabIndex inside the popover\n\n## Input Focus\n\nIf your Popover contains an input, like a search bar, give it a tabIndex and\nPopover will automatically focus it when the popover is opened.\n\n## Advanced Use\n\nIf you don't want to use the Popover in conjunction with a triggering button,\nyou can manually call `open()` and `close()` to display it. A typical scenario\nlooks like this:\n\n```coffeescript\nrender: =>\n  <Popover ref=\"myPopover\"> Popover Contents </Popover>\n\nshowMyPopover: =>\n  @refs.myPopover.open()\n```\n\nSection: Component Kit"
+      "summary": "The Popover component makes it easy to display a sheet or popup menu when the\nuser clicks the React element provided as `buttonComponent`. In N1, the Popover\ncomponent is used to create rich dropdown menus, detail popups, etc. with consistent\nlook and feel and behavior.",
+      "description": "The Popover component makes it easy to display a sheet or popup menu when the\nuser clicks the React element provided as `buttonComponent`. In N1, the Popover\ncomponent is used to create rich dropdown menus, detail popups, etc. with consistent\nlook and feel and behavior.\n\nThe Popover component handles:\n\n* Rendering it's children when you click `buttonComponent`, and dismissing it's\n  children when you click outside the popover or press the Escape key.\n* Automatically focusing the item with the lowest tabIndex inside the popover\n\n## Input Focus\n\nIf your Popover contains an input, like a search bar, give it a tabIndex and\nPopover will automatically focus it when the popover is opened.\n\n## Advanced Use\n\nIf you don't want to use the Popover in conjunction with a triggering button,\nyou can manually call `open()` and `close()` to display it. A typical scenario\nlooks like this:\n\n```coffeescript\nrender: =>\n  <Popover ref=\"myPopover\"> Popover Contents </Popover>\n\nshowMyPopover: =>\n  @refs.myPopover.open()\n```\n\nSection: Component Kit"
     },
     "ResizableRegion": {
       "name": "ResizableRegion",
@@ -4515,8 +4515,8 @@
       "classProperties": [],
       "instanceProperties": [],
       "visibility": "Public",
-      "summary": "ResizableRegion wraps it's `children` in a div with a fixed width or height, and a\ndraggable edge. It is used throughout Nylas Mail to implement resizable columns, trays, etc.",
-      "description": "ResizableRegion wraps it's `children` in a div with a fixed width or height, and a\ndraggable edge. It is used throughout Nylas Mail to implement resizable columns, trays, etc.\n\nSection: Component Kit"
+      "summary": "ResizableRegion wraps it's `children` in a div with a fixed width or height, and a\ndraggable edge. It is used throughout N1 to implement resizable columns, trays, etc.",
+      "description": "ResizableRegion wraps it's `children` in a div with a fixed width or height, and a\ndraggable edge. It is used throughout N1 to implement resizable columns, trays, etc.\n\nSection: Component Kit"
     },
     "RetinaImg": {
       "name": "RetinaImg",
@@ -4594,7 +4594,7 @@
     "ScopeDescriptor": {
       "name": "ScopeDescriptor",
       "filename": "src/scope-descriptor.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/scope-descriptor.coffee#L23",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/scope-descriptor.coffee#L23",
       "sections": [
         {
           "name": "Construction and Destruction",
@@ -4606,7 +4606,7 @@
         {
           "name": "constructor",
           "sectionName": "Construction and Destruction",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/scope-descriptor.coffee#L38",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/scope-descriptor.coffee#L38",
           "visibility": "Public",
           "summary": "Create a {ScopeDescriptor} object.",
           "description": "Create a {ScopeDescriptor} object.",
@@ -4630,7 +4630,7 @@
         {
           "name": "getScopesArray",
           "sectionName": "Construction and Destruction",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/scope-descriptor.coffee#L41",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/scope-descriptor.coffee#L41",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -4651,7 +4651,7 @@
     "SortOrder": {
       "name": "SortOrder",
       "filename": "src/flux/attributes/sort-order.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/attributes/sort-order.coffee#L15",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/attributes/sort-order.coffee#L15",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [],
@@ -4678,7 +4678,7 @@
     "StyleManager": {
       "name": "StyleManager",
       "filename": "src/style-manager.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/style-manager.coffee#L13",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/style-manager.coffee#L13",
       "sections": [
         {
           "name": "Event Subscription",
@@ -4698,7 +4698,7 @@
         {
           "name": "observeStyleElements",
           "sectionName": "Event Subscription",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/style-manager.coffee#L38",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/style-manager.coffee#L38",
           "visibility": "Extended",
           "summary": "Invoke `callback` for all current and future style elements.",
           "description": "Invoke `callback` for all current and future style elements.",
@@ -4742,7 +4742,7 @@
         {
           "name": "onDidAddStyleElement",
           "sectionName": "Event Subscription",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/style-manager.coffee#L57",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/style-manager.coffee#L57",
           "visibility": "Extended",
           "summary": "Invoke `callback` when a style element is added.",
           "description": "Invoke `callback` when a style element is added.",
@@ -4786,7 +4786,7 @@
         {
           "name": "onDidRemoveStyleElement",
           "sectionName": "Event Subscription",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/style-manager.coffee#L67",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/style-manager.coffee#L67",
           "visibility": "Extended",
           "summary": "Invoke `callback` when a style element is removed.",
           "description": "Invoke `callback` when a style element is removed.",
@@ -4816,7 +4816,7 @@
         {
           "name": "onDidUpdateStyleElement",
           "sectionName": "Event Subscription",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/style-manager.coffee#L83",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/style-manager.coffee#L83",
           "visibility": "Extended",
           "summary": "Invoke `callback` when an existing style element is updated.",
           "description": "Invoke `callback` when an existing style element is updated.",
@@ -4860,7 +4860,7 @@
         {
           "name": "getStyleElements",
           "sectionName": "Reading Style Elements",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/style-manager.coffee#L91",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/style-manager.coffee#L91",
           "visibility": "Extended",
           "summary": "Get all loaded style elements. ",
           "description": "Get all loaded style elements. "
@@ -4868,7 +4868,7 @@
         {
           "name": "getUserStyleSheetPath",
           "sectionName": "Paths",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/style-manager.coffee#L164",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/style-manager.coffee#L164",
           "visibility": "Extended",
           "summary": "Get the path of the user style sheet in `~/.atom`.",
           "description": "Get the path of the user style sheet in `~/.atom`.",
@@ -4886,10 +4886,24 @@
       "summary": "A singleton instance of this class available via `atom.styles`,\nwhich you can use to globally query and observe the set of active style\nsheets. The `StyleManager` doesn't add any style elements to the DOM on its\nown, but is instead subscribed to by individual `<atom-styles>` elements,\nwhich clone and attach style elements in different contexts.",
       "description": "A singleton instance of this class available via `atom.styles`,\nwhich you can use to globally query and observe the set of active style\nsheets. The `StyleManager` doesn't add any style elements to the DOM on its\nown, but is instead subscribed to by individual `<atom-styles>` elements,\nwhich clone and attach style elements in different contexts.\n\nSection: Atom "
     },
+    "Switch": {
+      "name": "Switch",
+      "superClass": "React",
+      "filename": "switch.coffee",
+      "srcUrl": null,
+      "sections": [],
+      "classMethods": [],
+      "instanceMethods": [],
+      "classProperties": [],
+      "instanceProperties": [],
+      "visibility": "Public",
+      "summary": "A small React component which renders as a horizontal on/off switch.\nProvide it with `onChange` and `checked` props just like a checkbox:",
+      "description": "A small React component which renders as a horizontal on/off switch.\nProvide it with `onChange` and `checked` props just like a checkbox:\n\n```\n<Switch onChange={@_onToggleChecked} checked={@state.form.isChecked} />\n```"
+    },
     "Task": {
       "name": "Task",
       "filename": "src/task.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/task.coffee#L40",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/task.coffee#L40",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [],
@@ -4902,14 +4916,14 @@
     "TaskQueue": {
       "name": "TaskQueue",
       "filename": "src/flux/stores/task-queue.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/task-queue.coffee#L67",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/task-queue.coffee#L67",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [
         {
           "name": "findTask",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/task-queue.coffee#L106",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/task-queue.coffee#L106",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -4943,13 +4957,13 @@
       "instanceProperties": [],
       "visibility": "Public",
       "summary": "The TaskQueue is a Flux-compatible Store that manages a queue of {Task}\nobjects. Each {Task} represents an individual API action, like sending a draft\nor marking a thread as \"read\". Tasks optimistically make changes to the app's\nlocal cache and encapsulate logic for performing changes on the server, rolling\nback in case of failure, and waiting on dependent tasks.",
-      "description": "The TaskQueue is a Flux-compatible Store that manages a queue of {Task}\nobjects. Each {Task} represents an individual API action, like sending a draft\nor marking a thread as \"read\". Tasks optimistically make changes to the app's\nlocal cache and encapsulate logic for performing changes on the server, rolling\nback in case of failure, and waiting on dependent tasks.\n\nThe TaskQueue is essential to offline mode in Nylas Mail. It automatically pauses\nwhen the user's internet connection is unavailable and resumes when online.\n\nThe task queue is persisted to disk, ensuring that tasks are executed later,\neven if the user quits Nylas Mail.\n\nThe TaskQueue is only available in the app's main window. Rather than directly\nqueuing tasks, you should use the {Actions} to interact with the {TaskQueue}.\nTasks queued from secondary windows are serialized and sent to the application's\nmain window via IPC.\n\n## Queueing a Task\n\n```coffee\nif @_thread && @_thread.unread\n  Actions.queueTask(new ChangeStarredTask(thread: @_thread, starred: true))\n```\n\n## Dequeueing a Task\n\n```coffee\nActions.dequeueMatchingTask({\n  type: 'FileUploadTask',\n  matching: {\n    filePath: uploadData.filePath\n  }\n})\n```\n\n## Creating Tasks\n\nSupport for creating custom {Task} subclasses in third-party packages is coming soon.\nThis is currently blocked by the ActionBridge, which is responsible for sending actions\nbetween windows, since it's JSON serializer is not extensible.\n\nSection: Stores"
+      "description": "The TaskQueue is a Flux-compatible Store that manages a queue of {Task}\nobjects. Each {Task} represents an individual API action, like sending a draft\nor marking a thread as \"read\". Tasks optimistically make changes to the app's\nlocal cache and encapsulate logic for performing changes on the server, rolling\nback in case of failure, and waiting on dependent tasks.\n\nThe TaskQueue is essential to offline mode in N1. It automatically pauses\nwhen the user's internet connection is unavailable and resumes when online.\n\nThe task queue is persisted to disk, ensuring that tasks are executed later,\neven if the user quits N1.\n\nThe TaskQueue is only available in the app's main window. Rather than directly\nqueuing tasks, you should use the {Actions} to interact with the {TaskQueue}.\nTasks queued from secondary windows are serialized and sent to the application's\nmain window via IPC.\n\n## Queueing a Task\n\n```coffee\nif @_thread && @_thread.unread\n  Actions.queueTask(new ChangeStarredTask(thread: @_thread, starred: true))\n```\n\n## Dequeueing a Task\n\n```coffee\nActions.dequeueMatchingTask({\n  type: 'FileUploadTask',\n  matching: {\n    filePath: uploadData.filePath\n  }\n})\n```\n\n## Creating Tasks\n\nSupport for creating custom {Task} subclasses in third-party packages is coming soon.\nThis is currently blocked by the ActionBridge, which is responsible for sending actions\nbetween windows, since it's JSON serializer is not extensible.\n\nSection: Stores"
     },
     "TaskQueueStatusStore": {
       "name": "TaskQueueStatusStore",
       "superClass": "NylasStore",
       "filename": "src/flux/stores/task-queue-status-store.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/task-queue-status-store.coffee#L10",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/task-queue-status-store.coffee#L10",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [],
@@ -4962,7 +4976,7 @@
     "ThemeManager": {
       "name": "ThemeManager",
       "filename": "src/theme-manager.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/theme-manager.coffee#L19",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/theme-manager.coffee#L19",
       "sections": [
         {
           "name": "Event Subscription",
@@ -4986,7 +5000,7 @@
         {
           "name": "onDidChangeActiveThemes",
           "sectionName": "Event Subscription",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/theme-manager.coffee#L78",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/theme-manager.coffee#L78",
           "visibility": "Essential",
           "summary": "Invoke `callback` when style sheet changes associated with\nupdating the list of active themes have completed.",
           "description": "Invoke `callback` when style sheet changes associated with\nupdating the list of active themes have completed.",
@@ -5002,7 +5016,7 @@
         {
           "name": "getLoadedThemeNames",
           "sectionName": "Accessing Loaded Themes",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/theme-manager.coffee#L154",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/theme-manager.coffee#L154",
           "visibility": "Public",
           "summary": "Get an array of all the loaded theme names. ",
           "description": "Get an array of all the loaded theme names. "
@@ -5010,7 +5024,7 @@
         {
           "name": "getLoadedThemes",
           "sectionName": "Accessing Loaded Themes",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/theme-manager.coffee#L162",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/theme-manager.coffee#L162",
           "visibility": "Public",
           "summary": "Get an array of all the loaded themes. ",
           "description": "Get an array of all the loaded themes. "
@@ -5018,7 +5032,7 @@
         {
           "name": "getActiveThemeNames",
           "sectionName": "Accessing Active Themes",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/theme-manager.coffee#L170",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/theme-manager.coffee#L170",
           "visibility": "Public",
           "summary": "Get an array of all the active theme names. ",
           "description": "Get an array of all the active theme names. "
@@ -5026,7 +5040,7 @@
         {
           "name": "getActiveThemes",
           "sectionName": "Accessing Active Themes",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/theme-manager.coffee#L178",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/theme-manager.coffee#L178",
           "visibility": "Public",
           "summary": "Get an array of all the active themes. ",
           "description": "Get an array of all the active themes. "
@@ -5034,7 +5048,7 @@
         {
           "name": "getEnabledThemeNames",
           "sectionName": "Managing Enabled Themes",
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/theme-manager.coffee#L190",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/theme-manager.coffee#L190",
           "visibility": "Public",
           "summary": "Get the enabled theme names from the config.",
           "description": "Get the enabled theme names from the config.",
@@ -5056,14 +5070,14 @@
       "name": "Thread",
       "superClass": "Model",
       "filename": "src/flux/models/thread.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/thread.coffee#L42",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/thread.coffee#L42",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [
         {
           "name": "categoryNamed",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/models/thread.coffee#L103",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/models/thread.coffee#L106",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -5138,14 +5152,14 @@
       "name": "WorkspaceStore",
       "superClass": "NylasStore",
       "filename": "src/flux/stores/workspace-store.coffee",
-      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/workspace-store.coffee#L17",
+      "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/workspace-store.coffee#L24",
       "sections": [],
       "classMethods": [],
       "instanceMethods": [
         {
           "name": "topSheet",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/workspace-store.coffee#L116",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/workspace-store.coffee#L126",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -5159,7 +5173,7 @@
         {
           "name": "rootSheet",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/workspace-store.coffee#L121",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/workspace-store.coffee#L131",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -5173,7 +5187,7 @@
         {
           "name": "sheetStack",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/workspace-store.coffee#L126",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/workspace-store.coffee#L136",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -5187,7 +5201,7 @@
         {
           "name": "hiddenLocations",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/workspace-store.coffee#L131",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/workspace-store.coffee#L141",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -5201,7 +5215,7 @@
         {
           "name": "isLocationHidden",
           "sectionName": null,
-          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.7/src/flux/stores/workspace-store.coffee#L136",
+          "srcUrl": "https://github.com/nylas/edgehill/blob/v0.3.10/src/flux/stores/workspace-store.coffee#L146",
           "visibility": "Public",
           "summary": "",
           "description": "",
@@ -5216,8 +5230,8 @@
       "classProperties": [],
       "instanceProperties": [],
       "visibility": "Public",
-      "summary": "The WorkspaceStore manages Sheets and layout modes in the application.\nObserving the WorkspaceStore makes it easy to monitor the sheet stack. To learn\nmore about sheets and layout in Nylas Mail, see the {InterfaceConcepts.md}\ndocumentation.",
-      "description": "The WorkspaceStore manages Sheets and layout modes in the application.\nObserving the WorkspaceStore makes it easy to monitor the sheet stack. To learn\nmore about sheets and layout in Nylas Mail, see the {InterfaceConcepts.md}\ndocumentation.\n\nSection: Stores"
+      "summary": "The WorkspaceStore manages Sheets and layout modes in the application.\nObserving the WorkspaceStore makes it easy to monitor the sheet stack. To learn\nmore about sheets and layout in N1, see the {InterfaceConcepts.md}\ndocumentation.",
+      "description": "The WorkspaceStore manages Sheets and layout modes in the application.\nObserving the WorkspaceStore makes it easy to monitor the sheet stack. To learn\nmore about sheets and layout in N1, see the {InterfaceConcepts.md}\ndocumentation.\n\nSection: Stores"
     }
   }
 }
