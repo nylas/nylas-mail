@@ -50,7 +50,7 @@ module.exports =
               detailedMessage: "The shell commands `atom` and `apm` are installed."
 
   installAtomCommand: (resourcePath, askForPrivilege, callback) ->
-    commandPath = path.join(resourcePath, 'atom.sh')
+    commandPath = path.join(resourcePath, 'N1.sh')
     @createSymlink commandPath, askForPrivilege, callback
 
   installApmCommand: (resourcePath, askForPrivilege, callback) ->

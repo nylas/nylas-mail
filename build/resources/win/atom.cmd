@@ -16,7 +16,7 @@ FOR %%a IN (%*) DO (
 )
 
 IF "%EXPECT_OUTPUT%"=="YES" (
-  "%~dp0\..\..\atom.exe" %*
+  "%~dp0\..\..\nylas.exe" %*
 ) ELSE (
   "%~dp0\..\app\apm\bin\node.exe" "%~dp0\atom.js" %*
 )
