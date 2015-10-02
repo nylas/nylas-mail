@@ -4,4 +4,5 @@ description: "An extensible, open-source mail client built on the modern web."
 google_analytics_id: "UA-60022049-2"
 
 collections:
-- examples
+  examples:
+    output: true

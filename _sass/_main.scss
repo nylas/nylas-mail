@@ -393,3 +393,23 @@ p {
     background: linear-gradient(to bottom, #3878fa 0%, #0a80ff 100%);
   }
 }
+
+.example-item {
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.example-item-description {
+  font-size: 14px;
+  line-height: 20px;
+  color: #555;
+  margin: 5px 0;
+}
+
+.example-item-assumed-experience-badge {
+  padding: 2px 4px;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+  background: #f7f7f7;
+}
