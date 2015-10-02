@@ -45,7 +45,7 @@ class WelcomePage extends React.Component
 
   _renderStep0: ->
     <div className={@_stepClass(0)} key="step-0">
-      <RetinaImg className="logo" style={zoom: 0.20, marginTop: 60} url="nylas://onboarding/assets/nylas-pictograph@2x.png" mode={RetinaImg.Mode.ContentIsMask} />
+      <RetinaImg className="logo" style={zoom: 0.20, marginTop: 60, opacity: 0.7} url="nylas://onboarding/assets/nylas-pictographB@2x.png" mode={RetinaImg.Mode.ContentPreserve}/>
       <p className="hero-text" style={marginTop: 30, fontSize: 44}>Say hello to N1.</p>
       <p className="sub-text" style={marginTop: 0, fontSize: 24}>The next-generation email platform.</p>
       <div style={fontSize:17, marginTop: 45}>Built with ❤︎ by Nylas</div>
@@ -65,7 +65,7 @@ class WelcomePage extends React.Component
       <RetinaImg className="wrench" mode={RetinaImg.Mode.ContentPreserve}
                  url="nylas://onboarding/assets/wrench@2x.png" />
 
-      <p className="sub-text">N1 is built with modern web technologies and easy to extend with JavaScript.</p>
+      <p className="sub-text">N1 is built with modern web technologies and is easy to extend with JavaScript.</p>
       {@_renderNavBubble(1)}
     </div>
 
