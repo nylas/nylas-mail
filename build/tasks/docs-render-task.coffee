@@ -133,15 +133,8 @@ module.exports = (grunt) ->
 
     sidebar.sections.push
       name: 'Sample Code'
-      items: [{
-        name: 'Composer Translation'
-        link: 'https://github.com/nylas/edgehill-plugins/tree/master/translate'
-        external: true
-        },{
-        name: 'Github Sidebar'
-        link: 'https://github.com/nylas/edgehill-plugins/tree/master/sidebar-github-profile'
-        external: true
-        }]
+      link: 'https://nylas.github.io/N1/examples'
+      external: true
 
     referenceSections = {}
     for klass in classes
@@ -223,7 +216,7 @@ module.exports = (grunt) ->
     # Render sidebar json
 
     grunt.file.write(outputPathFor('sidebar.json'), JSON.stringify(sidebar, null, 2))
-    
+
     # Render Class Pages
 
     classTemplatePath = path.join(templatesPath, 'class.html')

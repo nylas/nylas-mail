@@ -30,7 +30,7 @@
     "grunt-shell": "~0.3.1",
     "handlebars": "^3.0.2",
     "harmony-collections": "~0.3.8",
-    "highlight.js": "^8.5.0",
+    "highlight.js": "^8.8.0",
     "json-front-matter": "^1.0.0",
     "legal-eagle": "~0.9.0",
     "meta-marked": "^0.3.3",
