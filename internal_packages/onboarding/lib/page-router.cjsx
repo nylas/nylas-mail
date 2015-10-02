@@ -31,8 +31,8 @@ class PageRouter extends React.Component
   _initializeWindowSize: =>
     return if @_unmounted
     {width, height} = React.findDOMNode(@refs.activePage).getBoundingClientRect()
+    atom.setSize(width, height)
     atom.center()
-    atom.setSizeAnimated(width, height, 0)
     atom.show()
 
   _updateWindowSize: =>
