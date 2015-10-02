@@ -79,11 +79,16 @@ class AccountSettingsPage extends React.Component
 
   _onSettingsChanged: (event) =>
     field = event.target.dataset.field
+    format = event.target.dataset.format
+    int_formatter = (a) ->
+      i = parseInt(a)
+      if isNaN(i) then "" else i
+    formatter = if format is 'integer' then int_formatter else (a) -> a
     settings = @state.settings
     if event.target.type is 'checkbox'
       settings[field] = event.target.checked
     else
-      settings[field] = event.target.value
+      settings[field] = formatter(event.target.value)
     @setState({settings})
 
   _onValueChanged: (event) =>
@@ -94,7 +99,11 @@ class AccountSettingsPage extends React.Component
 
   _onFieldKeyPress: (event) =>
     if event.key in ['Enter', 'Return']
-      @_onSubmit()
+      pages = @state.provider.pages || []
+      if pages.length > @state.pageNumber+1
+        @_onNextButton()
+      else
+        @_onSubmit()
 
   _renderTitle: =>
     if @state.provider.name is 'gmail'
@@ -129,6 +138,7 @@ class AccountSettingsPage extends React.Component
            onChange={@_onValueChanged}
            onKeyPress={@_onFieldKeyPress}
            data-field={field.name}
+           data-format={field.format} ? ""
            className={errclass}
            placeholder={field.placeholder} />
       </label>
@@ -144,6 +154,7 @@ class AccountSettingsPage extends React.Component
              onChange={@_onSettingsChanged}
              onKeyPress={@_onFieldKeyPress}
              data-field={field.name}
+             data-format={field.format} ? ""
              className={field.className ? ""} />
           {field.label}
         </label>
@@ -159,6 +170,7 @@ class AccountSettingsPage extends React.Component
              onChange={@_onSettingsChanged}
              onKeyPress={@_onFieldKeyPress}
              data-field={field.name}
+             data-format={field.format} ? ""
              className={errclass+(field.className ? "")}
              placeholder={field.placeholder} />
         </label>

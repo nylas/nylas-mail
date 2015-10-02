@@ -90,7 +90,7 @@ class ActivitySidebar extends React.Component
         <RetinaImg name="sending-spinner.gif" width={18} mode={RetinaImg.Mode.ContentPreserve} />
       </div>
       <div className="inner">
-        Syncing mail data&hellip;
+        Syncing your mailbox&hellip;
       </div>
     </div>
 

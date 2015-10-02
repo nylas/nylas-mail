@@ -55,7 +55,7 @@ class InitialSyncActivity extends React.Component
     else
       <div className={classSet} key="initial-sync" onClick={=> @setState expandedSync: !@state.expandedSync}>
         {@_renderProgressBar(totalProgress)}
-        <div className="inner">Syncing mail data&hellip;</div>
+        <div className="inner">Syncing your mailbox&hellip;</div>
         {@_expandedSyncState()}
       </div>
 
