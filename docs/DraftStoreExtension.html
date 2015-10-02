@@ -1,156 +1,17 @@
-<html>
-<head>
-<meta charset="utf-8">
-<title>N1 — DraftStoreExtension</title>
-<meta property="og:title" content="An extensible mail client built on the modern web | N1">
-<meta property="og:type" content="website">
-<meta property="og:image" content="https://nylas.github.io/N1/images/meta_share.png">
-<link rel="shortcut icon" href="/N1/images/favicon.ico">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<link rel="stylesheet" type="text/css" href="/N1/css/main.css"/>
-<link rel="stylesheet" type="text/css" href="/N1/css/tomorrow.css">
-</head>
-<body>
-<div id="header">
-  <div class="container">
-    <img src="/images/edgehill.png" class="logo" />
-    <div class="title">N1<div class="small">Developer Preview</div></div>
-  </div>
-</div>
+---
+layout: docs
+title: DraftStoreExtension
+---
 
-<div class="container">
+<h2>Summary</h2>
 
-<div class="page-title">
-  DraftStoreExtension
-</div>
-
-<div id="sidebar">
-  <div class="heading">Getting Started</div>
-  <ul>
-        <li><a href="/guides/FirstSteps.html" >First Steps</a></li>
-  </ul>
-  <div class="heading">Guides</div>
-  <ul>
-        <li><a href="/guides/InterfaceConcepts.html" >Interface Concepts</a></li>
-        <li><a href="/guides/PackageOverview.html" >Building a Package</a></li>
-        <li><a href="/guides/React.html" >Interface Components</a></li>
-        <li><a href="/guides/Architecture.html" >Application Architecture</a></li>
-        <li><a href="/guides/Debugging.html" >Debugging N1</a></li>
-        <li><a href="/guides/Database.html" >Accessing the Database</a></li>
-        <li><a href="/guides/DraftStoreExtensions.html" >Extending the Composer</a></li>
-        <li><a href="/guides/WritingSpecs.html" >Writing Specs</a></li>
-  </ul>
-  <div class="heading">Sample Code</div>
-  <ul>
-        <li><a href="https://github.com/nylas/edgehill-plugins/tree/master/translate" target="_blank">Composer Translation</a></li>
-        <li><a href="https://github.com/nylas/edgehill-plugins/tree/master/sidebar-github-profile" target="_blank">Github Sidebar</a></li>
-  </ul>
-  <div class="heading">API Reference</div>
-  <ul>
-        <div class="heading">General</div>
-        <ul>
-              <li><a href="/docs/Actions.html" >Actions</a></li>
-              <li><a href="/docs/Atom.html" >Atom</a></li>
-              <li><a href="/docs/BufferedNodeProcess.html" >BufferedNodeProcess</a></li>
-              <li><a href="/docs/BufferedProcess.html" >BufferedProcess</a></li>
-              <li><a href="/docs/ChangeFolderTask.html" >ChangeFolderTask</a></li>
-              <li><a href="/docs/ChangeLabelsTask.html" >ChangeLabelsTask</a></li>
-              <li><a href="/docs/Config.html" >Config</a></li>
-              <li><a href="/docs/DraggableImg.html" >DraggableImg</a></li>
-              <li><a href="/docs/FocusTrackingRegion.html" >FocusTrackingRegion</a></li>
-              <li><a href="/docs/Switch.html" >Switch</a></li>
-              <li><a href="/docs/Task.html" >Task</a></li>
-              <li><a href="/docs/TaskQueueStatusStore.html" >TaskQueueStatusStore</a></li>
-        </ul>
-        <div class="heading">Component Kit</div>
-        <ul>
-              <li><a href="/docs/EventedIFrame.html" >EventedIFrame</a></li>
-              <li><a href="/docs/Flexbox.html" >Flexbox</a></li>
-              <li><a href="/docs/InjectedComponent.html" >InjectedComponent</a></li>
-              <li><a href="/docs/InjectedComponentSet.html" >InjectedComponentSet</a></li>
-              <li><a href="/docs/Menu.html" >Menu</a></li>
-              <li><a href="/docs/MenuItem.html" >MenuItem</a></li>
-              <li><a href="/docs/MenuNameEmailItem.html" >MenuNameEmailItem</a></li>
-              <li><a href="/docs/MultiselectActionBar.html" >MultiselectActionBar</a></li>
-              <li><a href="/docs/MultiselectList.html" >MultiselectList</a></li>
-              <li><a href="/docs/Popover.html" >Popover</a></li>
-              <li><a href="/docs/ResizableRegion.html" >ResizableRegion</a></li>
-              <li><a href="/docs/RetinaImg.html" >RetinaImg</a></li>
-              <li><a href="/docs/Spinner.html" >Spinner</a></li>
-              <li><a href="/docs/TimeoutTransitionGroupChild.html" >TimeoutTransitionGroupChild</a></li>
-              <li><a href="/docs/UnsafeComponent.html" >UnsafeComponent</a></li>
-        </ul>
-        <div class="heading">Models</div>
-        <ul>
-              <li><a href="/docs/Account.html" >Account</a></li>
-              <li><a href="/docs/Calendar.html" >Calendar</a></li>
-              <li><a href="/docs/Contact.html" >Contact</a></li>
-              <li><a href="/docs/File.html" >File</a></li>
-              <li><a href="/docs/Folder.html" >Folder</a></li>
-              <li><a href="/docs/Label.html" >Label</a></li>
-              <li><a href="/docs/Message.html" >Message</a></li>
-              <li><a href="/docs/Model.html" >Model</a></li>
-              <li><a href="/docs/Thread.html" >Thread</a></li>
-        </ul>
-        <div class="heading">Stores</div>
-        <ul>
-              <li><a href="/docs/AccountStore.html" >AccountStore</a></li>
-              <li><a href="/docs/ComponentRegistry.html" >ComponentRegistry</a></li>
-              <li><a href="/docs/ContactStore.html" >ContactStore</a></li>
-              <li><a href="/docs/EventStore.html" >EventStore</a></li>
-              <li><a href="/docs/FocusedContentStore.html" >FocusedContentStore</a></li>
-              <li><a href="/docs/MessageStoreExtension.html" >MessageStoreExtension</a></li>
-              <li><a href="/docs/TaskQueue.html" >TaskQueue</a></li>
-              <li><a href="/docs/WorkspaceStore.html" >WorkspaceStore</a></li>
-        </ul>
-        <div class="heading">Database</div>
-        <ul>
-              <li><a href="/docs/Attribute.html" >Attribute</a></li>
-              <li><a href="/docs/AttributeBoolean.html" >AttributeBoolean</a></li>
-              <li><a href="/docs/AttributeCollection.html" >AttributeCollection</a></li>
-              <li><a href="/docs/AttributeDateTime.html" >AttributeDateTime</a></li>
-              <li><a href="/docs/AttributeJoinedData.html" >AttributeJoinedData</a></li>
-              <li><a href="/docs/AttributeNumber.html" >AttributeNumber</a></li>
-              <li><a href="/docs/AttributeObject.html" >AttributeObject</a></li>
-              <li><a href="/docs/AttributeServerId.html" >AttributeServerId</a></li>
-              <li><a href="/docs/AttributeString.html" >AttributeString</a></li>
-              <li><a href="/docs/DatabaseStore.html" >DatabaseStore</a></li>
-              <li><a href="/docs/DatabaseView.html" >DatabaseView</a></li>
-              <li><a href="/docs/Matcher.html" >Matcher</a></li>
-              <li><a href="/docs/ModelQuery.html" >ModelQuery</a></li>
-              <li><a href="/docs/SortOrder.html" >SortOrder</a></li>
-        </ul>
-        <div class="heading">Drafts</div>
-        <ul>
-              <li><a href="/docs/DraftChangeSet.html" >DraftChangeSet</a></li>
-              <li><a href="/docs/DraftStore.html" >DraftStore</a></li>
-              <li><a href="/docs/DraftStoreExtension.html" >DraftStoreExtension</a></li>
-              <li><a href="/docs/DraftStoreProxy.html" >DraftStoreProxy</a></li>
-        </ul>
-        <div class="heading">Atom</div>
-        <ul>
-              <li><a href="/docs/Clipboard.html" >Clipboard</a></li>
-              <li><a href="/docs/Color.html" >Color</a></li>
-              <li><a href="/docs/CommandRegistry.html" >CommandRegistry</a></li>
-              <li><a href="/docs/MenuManager.html" >MenuManager</a></li>
-              <li><a href="/docs/PackageManager.html" >PackageManager</a></li>
-              <li><a href="/docs/ScopeDescriptor.html" >ScopeDescriptor</a></li>
-              <li><a href="/docs/StyleManager.html" >StyleManager</a></li>
-              <li><a href="/docs/ThemeManager.html" >ThemeManager</a></li>
-        </ul>
-  </ul>
-</div>
-
-<div id="main">
-  <h2>Summary</h2>
-
-  <div class="markdown-from-sourecode">
-    <p><p>DraftStoreExtension is an abstract base class. To create DraftStoreExtensions
-that enhance the composer experience, you should subclass <a href='/docs/draftstoreextension.html'>DraftStoreExtension</a> and
+<div class="markdown-from-sourecode">
+  <p><p>DraftStoreExtension is an abstract base class. To create DraftStoreExtensions
+that enhance the composer experience, you should subclass <a href='draftstoreextension.html'>DraftStoreExtension</a> and
 implement the class methods your plugin needs.</p>
-<p>To register your extension with the DraftStore, call <a href='/docs/DraftStore.html#registerExtension'>DraftStore::registerExtension</a>.
+<p>To register your extension with the DraftStore, call <a href='DraftStore.html#registerExtension'>DraftStore::registerExtension</a>.
 When your package is being unloaded, you <em>must</em> call the corresponding
-<a href='/docs/DraftStore.html#unregisterExtension'>DraftStore::unregisterExtension</a> to unhook your extension.</p>
+<a href='DraftStore.html#unregisterExtension'>DraftStore::unregisterExtension</a> to unhook your extension.</p>
 <pre><code class="lang-coffee">activate: -&gt;
   DraftStore.<span class="hljs-function"><span class="hljs-title">registerExtension</span><span class="hljs-params">(MyExtension)</span></span>
 
@@ -168,363 +29,339 @@ drafts at any time. You should not expect that the session you receive in
 This will likely change in the future. If you have a use-case for a Draft Store extension that
 is not possible with the current API, please let us know.</p>
 </p>
-  </div>
+</div>
 
-  <ul>
-  </ul>
+<ul>
+</ul>
 
 
 
-      <h3>Class Methods</h3>
+    <h3>Class Methods</h3>
 
-      <h4 id=warningsForSending class="function-name">
-        warningsForSending(<span class="args"><span class="arg">draft</span></span>) <a href="#warningsForSending" class="link"></a>
-      </h4>
-      
-      <div class="function-description markdown-from-sourecode">
-        <p><p>Inspect the draft, and return any warnings that need to be displayed before
-      the draft is sent. Warnings should be string phrases, such as &quot;without an attachment&quot;
-      that fit into a message of the form: &quot;Send #{phase1} and #{phase2}?&quot;</p>
-      </p>
-      </div>
-      
-          <strong>Parameters</strong>
-          <table class="arguments">
-              <tr>
-                <th>Argument</th>
-                <th>Description</th>
-              </tr>
-              <tr>
-                <td style="width:15%;">
-                  <em>draft</em>
-                </td>
-                <td class="markdown-from-sourecode">
-                  
-                  <p>A fully populated <a href='/docs/message.html'>Message</a> object that is about to be sent.</p>
-      
-                </td>
-              </tr>
-          </table>
-      
-          <strong>Returns</strong>
-          <table class="arguments">
+    <h4 id=warningsForSending class="function-name">
+      warningsForSending(<span class="args"><span class="arg">draft</span></span>) <a href="#warningsForSending" class="link"></a>
+    </h4>
+    
+    <div class="function-description markdown-from-sourecode">
+      <p><p>Inspect the draft, and return any warnings that need to be displayed before
+    the draft is sent. Warnings should be string phrases, such as &quot;without an attachment&quot;
+    that fit into a message of the form: &quot;Send #{phase1} and #{phase2}?&quot;</p>
+    </p>
+    </div>
+    
+        <strong>Parameters</strong>
+        <table class="arguments">
             <tr>
-              <th>Return Values</th>
+              <th>Argument</th>
+              <th>Description</th>
             </tr>
-            <tr><td class="markdown-from-sourecode"><p>Returns a list of warning strings, or an empty array if no warnings need to be displayed.</p>
-      </td></tr>
-          </table>
-      <h4 id=composerToolbar class="function-name">
-        composerToolbar(<span class="args"><span class="arg">mutator</span><span class="arg">tooltip</span><span class="arg">iconUrl</span></span>) <a href="#composerToolbar" class="link"></a>
-      </h4>
-      
-      <div class="function-description markdown-from-sourecode">
-        <p><p>declare an icon to be displayed in the composer&#39;s toolbar (where
-      bold, italic, underline, etc are).</p>
-      <p>You must declare the following properties:</p>
-      </p>
-      </div>
-      
-          <strong>Parameters</strong>
-          <table class="arguments">
-              <tr>
-                <th>Argument</th>
-                <th>Description</th>
-              </tr>
-              <tr>
-                <td style="width:15%;">
-                  <em>mutator</em>
-                </td>
-                <td class="markdown-from-sourecode">
-                  
-                  <p>A function that&#39;s called when your toolbar button is clicked. This mutator function will be passed as its only argument the <code>dom</code>. The <code>dom</code> is the full {DOM} object of the current composer. You may mutate this in place. We don&#39;t care about the mutator&#39;s return value.</p>
-      
-                </td>
-              </tr>
-              <tr>
-                <td style="width:15%;">
-                  <em>tooltip</em>
-                </td>
-                <td class="markdown-from-sourecode">
-                  
-                  <p>A one or two word description of what your icon does</p>
-      
-                </td>
-              </tr>
-              <tr>
-                <td style="width:15%;">
-                  <em>iconUrl</em>
-                </td>
-                <td class="markdown-from-sourecode">
-                  
-                  <p>The url of your icon. It should be in the <code>nylas://</code> scheme. For example: <code>nylas://your-package-name/assets/my-icon@2x.png</code>. Note, we will downsample your image by 2x (for Retina screens), so make sure it&#39;s twice the resolution. The icon should be black and white. We will directly pass the <code>url</code> prop of a <a href='/docs/retinaimg.html'>RetinaImg</a></p>
-      
-                </td>
-              </tr>
-          </table>
-      
-      <h4 id=prepareNewDraft class="function-name">
-        prepareNewDraft(<span class="args"></span>) <a href="#prepareNewDraft" class="link"></a>
-      </h4>
-      
-      <div class="function-description markdown-from-sourecode">
-        <p><p>Override prepareNewDraft to modify a brand new draft before it is displayed
-      in a composer. This is one of the only places in the application where it&#39;s safe
-      to modify the draft object you&#39;re given directly to add participants to the draft,
-      add a signature, etc.</p>
-      <p>By default, new drafts are considered <code>pristine</code>. If the user leaves the composer
-      without making any changes, the draft is discarded. If your extension populates
-      the draft in a way that makes it &quot;populated&quot; in a valuable way, you should set
-      <code>draft.pristine = false</code> so the draft saves, even if no further changes are made.</p>
-      </p>
-      </div>
-      
-      
-      <h4 id=finalizeSessionBeforeSending class="function-name">
-        finalizeSessionBeforeSending(<span class="args"><span class="arg">session</span></span>) <a href="#finalizeSessionBeforeSending" class="link"></a>
-      </h4>
-      
-      <div class="function-description markdown-from-sourecode">
-        <p><p>Override finalizeSessionBeforeSending in your DraftStoreExtension subclass to transform
-      the <a href='/docs/draftstoreproxy.html'>DraftStoreProxy</a> editing session just before the draft is sent. This method
-      gives you an opportunity to make any final substitutions or changes after any
-      <a href='#warningsForSending'>warningsForSending</a> have been displayed.</p>
-      <p>Example:</p>
-      <pre><code class="lang-coffee"><span class="hljs-comment"># Remove any &lt;code&gt; tags found in the draft body</span>
-      <span class="hljs-attribute">finalizeSessionBeforeSending</span>: <span class="hljs-function"><span class="hljs-params">(session)</span> -&gt;</span>
-        body = session.draft().body
-        clean = body.replace(<span class="hljs-regexp">/&lt;\/?code[^&gt;]*&gt;/g</span>, <span class="hljs-string">''</span>)
-        <span class="hljs-keyword">if</span> body != clean
-          session.changes.add(<span class="hljs-attribute">body</span>: clean)
-      </code></pre>
-      </p>
-      </div>
-      
-          <strong>Parameters</strong>
-          <table class="arguments">
-              <tr>
-                <th>Argument</th>
-                <th>Description</th>
-              </tr>
-              <tr>
-                <td style="width:15%;">
-                  <em>session</em>
-                </td>
-                <td class="markdown-from-sourecode">
-                  
-                  <p>A <a href='/docs/draftstoreproxy.html'>DraftStoreProxy</a> for the draft.</p>
-      
-                </td>
-              </tr>
-          </table>
-      
-      <h4 id=onMouseUp class="function-name">
-        onMouseUp(<span class="args"><span class="arg">editableNode</span><span class="arg">range</span><span class="arg">event</span></span>) <a href="#onMouseUp" class="link"></a>
-      </h4>
-      
-      <div class="function-description markdown-from-sourecode">
-        <p><p>Override onMouseUp in your DraftStoreExtension subclass to
-      listen for mouse up events sent to the composer&#39;s body text area. This
-      hook provides the contenteditable DOM Node itself, allowing you to
-      adjust selection ranges and change content as necessary.</p>
-      </p>
-      </div>
-      
-          <strong>Parameters</strong>
-          <table class="arguments">
-              <tr>
-                <th>Argument</th>
-                <th>Description</th>
-              </tr>
-              <tr>
-                <td style="width:15%;">
-                  <em>editableNode</em>
-                </td>
-                <td class="markdown-from-sourecode">
-                  
-                  <p>The composer&#39;s contenteditable <a href='https://developer.mozilla.org/en-US/docs/Web/API/Node'>Node</a> that received the event.</p>
-      
-                </td>
-              </tr>
-              <tr>
-                <td style="width:15%;">
-                  <em>range</em>
-                </td>
-                <td class="markdown-from-sourecode">
-                  
-                  <p>The currently selected <a href='https://developer.mozilla.org/en-US/docs/Web/API/Range'>Range</a> in the <code>editableNode</code></p>
-      
-                </td>
-              </tr>
-              <tr>
-                <td style="width:15%;">
-                  <em>event</em>
-                </td>
-                <td class="markdown-from-sourecode">
-                  
-                  <p>The mouse up event.</p>
-      
-                </td>
-              </tr>
-          </table>
-      
-      <h4 id=onFocusPrevious class="function-name">
-        onFocusPrevious(<span class="args"><span class="arg">editableNode</span><span class="arg">range</span><span class="arg">event</span></span>) <a href="#onFocusPrevious" class="link"></a>
-      </h4>
-      
-      <div class="function-description markdown-from-sourecode">
-        <p><p>Called when the user presses <code>Shift-Tab</code> while focused on the composer&#39;s body field.
-      Override onFocusPrevious in your DraftStoreExtension to adjust the selection or perform
-      other actions. If your package implements Shift-Tab behavior in a particular scenario, you
-      should prevent the default behavior of Shift-Tab via <code>event.preventDefault()</code>.</p>
-      </p>
-      </div>
-      
-          <strong>Parameters</strong>
-          <table class="arguments">
-              <tr>
-                <th>Argument</th>
-                <th>Description</th>
-              </tr>
-              <tr>
-                <td style="width:15%;">
-                  <em>editableNode</em>
-                </td>
-                <td class="markdown-from-sourecode">
-                  
-                  <p>The composer&#39;s contenteditable <a href='https://developer.mozilla.org/en-US/docs/Web/API/Node'>Node</a> that received the event.</p>
-      
-                </td>
-              </tr>
-              <tr>
-                <td style="width:15%;">
-                  <em>range</em>
-                </td>
-                <td class="markdown-from-sourecode">
-                  
-                  <p>The currently selected <a href='https://developer.mozilla.org/en-US/docs/Web/API/Range'>Range</a> in the <code>editableNode</code></p>
-      
-                </td>
-              </tr>
-              <tr>
-                <td style="width:15%;">
-                  <em>event</em>
-                </td>
-                <td class="markdown-from-sourecode">
-                  
-                  <p>The mouse up event.</p>
-      
-                </td>
-              </tr>
-          </table>
-      
-      <h4 id=onFocusNext class="function-name">
-        onFocusNext(<span class="args"><span class="arg">editableNode</span><span class="arg">range</span><span class="arg">event</span></span>) <a href="#onFocusNext" class="link"></a>
-      </h4>
-      
-      <div class="function-description markdown-from-sourecode">
-        <p><p>Called when the user presses <code>Tab</code> while focused on the composer&#39;s body field.
-      Override onFocusPrevious in your DraftStoreExtension to adjust the selection or perform
-      other actions. If your package implements Tab behavior in a particular scenario, you
-      should prevent the default behavior of Tab via <code>event.preventDefault()</code>.</p>
-      </p>
-      </div>
-      
-          <strong>Parameters</strong>
-          <table class="arguments">
-              <tr>
-                <th>Argument</th>
-                <th>Description</th>
-              </tr>
-              <tr>
-                <td style="width:15%;">
-                  <em>editableNode</em>
-                </td>
-                <td class="markdown-from-sourecode">
-                  
-                  <p>The composer&#39;s contenteditable <a href='https://developer.mozilla.org/en-US/docs/Web/API/Node'>Node</a> that received the event.</p>
-      
-                </td>
-              </tr>
-              <tr>
-                <td style="width:15%;">
-                  <em>range</em>
-                </td>
-                <td class="markdown-from-sourecode">
-                  
-                  <p>The currently selected <a href='https://developer.mozilla.org/en-US/docs/Web/API/Range'>Range</a> in the <code>editableNode</code></p>
-      
-                </td>
-              </tr>
-              <tr>
-                <td style="width:15%;">
-                  <em>event</em>
-                </td>
-                <td class="markdown-from-sourecode">
-                  
-                  <p>The mouse up event.</p>
-      
-                </td>
-              </tr>
-          </table>
-      
-      <h4 id=onInput class="function-name">
-        onInput(<span class="args"></span>) <a href="#onInput" class="link"></a>
-      </h4>
-      
-      <div class="function-description markdown-from-sourecode">
-        <p><p>Override onInput in your DraftStoreExtension subclass to
-      implement custom behavior as the user types in the composer&#39;s
-      contenteditable body field.</p>
-      <p>As the first argument you are passed the entire DOM object of the
-      composer. You may mutate this object and edit it in place.</p>
-      <p>Example:</p>
-      <p>The Nylas <code>templates</code> package uses this method to see if the user has populated a
-      <code>&lt;code&gt;</code> tag placed in the body and change it&#39;s CSS class to reflect that it is no
-      longer empty.</p>
-      <pre><code class="lang-coffee">onInput: (editableNode, event) -&gt;
-        selection = document.<span class="hljs-function"><span class="hljs-title">getSelection</span><span class="hljs-params">()</span></span>
-      
-        isWithinNode = (node) -&gt;
-          test = selection<span class="hljs-class">.baseNode</span>
-          while test isnt editableNode
-            return true <span class="hljs-keyword">if</span> test is node
-            test = test<span class="hljs-class">.parentNode</span>
-          return false
-      
-        codeTags = editableNode.<span class="hljs-function"><span class="hljs-title">querySelectorAll</span><span class="hljs-params">(<span class="hljs-string">'code.var.empty'</span>)</span></span>
-        <span class="hljs-keyword">for</span> codeTag <span class="hljs-keyword">in</span> codeTags
-          <span class="hljs-keyword">if</span> selection.<span class="hljs-function"><span class="hljs-title">containsNode</span><span class="hljs-params">(codeTag)</span></span> or <span class="hljs-function"><span class="hljs-title">isWithinNode</span><span class="hljs-params">(codeTag)</span></span>
-            codeTag<span class="hljs-class">.classList</span><span class="hljs-class">.remove</span>(<span class="hljs-string">'empty'</span>)
-      </code></pre>
-      </p>
-      </div>
-      
-      
+            <tr>
+              <td style="width:15%;">
+                <em>draft</em>
+              </td>
+              <td class="markdown-from-sourecode">
+                
+                <p>A fully populated <a href='message.html'>Message</a> object that is about to be sent.</p>
+    
+              </td>
+            </tr>
+        </table>
+    
+        <strong>Returns</strong>
+        <table class="arguments">
+          <tr>
+            <th>Return Values</th>
+          </tr>
+          <tr><td class="markdown-from-sourecode"><p>Returns a list of warning strings, or an empty array if no warnings need to be displayed.</p>
+    </td></tr>
+        </table>
+    <h4 id=composerToolbar class="function-name">
+      composerToolbar(<span class="args"><span class="arg">mutator</span><span class="arg">tooltip</span><span class="arg">iconUrl</span></span>) <a href="#composerToolbar" class="link"></a>
+    </h4>
+    
+    <div class="function-description markdown-from-sourecode">
+      <p><p>declare an icon to be displayed in the composer&#39;s toolbar (where
+    bold, italic, underline, etc are).</p>
+    <p>You must declare the following properties:</p>
+    </p>
+    </div>
+    
+        <strong>Parameters</strong>
+        <table class="arguments">
+            <tr>
+              <th>Argument</th>
+              <th>Description</th>
+            </tr>
+            <tr>
+              <td style="width:15%;">
+                <em>mutator</em>
+              </td>
+              <td class="markdown-from-sourecode">
+                
+                <p>A function that&#39;s called when your toolbar button is clicked. This mutator function will be passed as its only argument the <code>dom</code>. The <code>dom</code> is the full {DOM} object of the current composer. You may mutate this in place. We don&#39;t care about the mutator&#39;s return value.</p>
+    
+              </td>
+            </tr>
+            <tr>
+              <td style="width:15%;">
+                <em>tooltip</em>
+              </td>
+              <td class="markdown-from-sourecode">
+                
+                <p>A one or two word description of what your icon does</p>
+    
+              </td>
+            </tr>
+            <tr>
+              <td style="width:15%;">
+                <em>iconUrl</em>
+              </td>
+              <td class="markdown-from-sourecode">
+                
+                <p>The url of your icon. It should be in the <code>nylas://</code> scheme. For example: <code>nylas://your-package-name/assets/my-icon@2x.png</code>. Note, we will downsample your image by 2x (for Retina screens), so make sure it&#39;s twice the resolution. The icon should be black and white. We will directly pass the <code>url</code> prop of a <a href='retinaimg.html'>RetinaImg</a></p>
+    
+              </td>
+            </tr>
+        </table>
+    
+    <h4 id=prepareNewDraft class="function-name">
+      prepareNewDraft(<span class="args"></span>) <a href="#prepareNewDraft" class="link"></a>
+    </h4>
+    
+    <div class="function-description markdown-from-sourecode">
+      <p><p>Override prepareNewDraft to modify a brand new draft before it is displayed
+    in a composer. This is one of the only places in the application where it&#39;s safe
+    to modify the draft object you&#39;re given directly to add participants to the draft,
+    add a signature, etc.</p>
+    <p>By default, new drafts are considered <code>pristine</code>. If the user leaves the composer
+    without making any changes, the draft is discarded. If your extension populates
+    the draft in a way that makes it &quot;populated&quot; in a valuable way, you should set
+    <code>draft.pristine = false</code> so the draft saves, even if no further changes are made.</p>
+    </p>
+    </div>
+    
+    
+    <h4 id=finalizeSessionBeforeSending class="function-name">
+      finalizeSessionBeforeSending(<span class="args"><span class="arg">session</span></span>) <a href="#finalizeSessionBeforeSending" class="link"></a>
+    </h4>
+    
+    <div class="function-description markdown-from-sourecode">
+      <p><p>Override finalizeSessionBeforeSending in your DraftStoreExtension subclass to transform
+    the <a href='draftstoreproxy.html'>DraftStoreProxy</a> editing session just before the draft is sent. This method
+    gives you an opportunity to make any final substitutions or changes after any
+    <a href='#warningsForSending'>warningsForSending</a> have been displayed.</p>
+    <p>Example:</p>
+    <pre><code class="lang-coffee"><span class="hljs-comment"># Remove any &lt;code&gt; tags found in the draft body</span>
+    <span class="hljs-attribute">finalizeSessionBeforeSending</span>: <span class="hljs-function"><span class="hljs-params">(session)</span> -&gt;</span>
+      body = session.draft().body
+      clean = body.replace(<span class="hljs-regexp">/&lt;\/?code[^&gt;]*&gt;/g</span>, <span class="hljs-string">''</span>)
+      <span class="hljs-keyword">if</span> body != clean
+        session.changes.add(<span class="hljs-attribute">body</span>: clean)
+    </code></pre>
+    </p>
+    </div>
+    
+        <strong>Parameters</strong>
+        <table class="arguments">
+            <tr>
+              <th>Argument</th>
+              <th>Description</th>
+            </tr>
+            <tr>
+              <td style="width:15%;">
+                <em>session</em>
+              </td>
+              <td class="markdown-from-sourecode">
+                
+                <p>A <a href='draftstoreproxy.html'>DraftStoreProxy</a> for the draft.</p>
+    
+              </td>
+            </tr>
+        </table>
+    
+    <h4 id=onMouseUp class="function-name">
+      onMouseUp(<span class="args"><span class="arg">editableNode</span><span class="arg">range</span><span class="arg">event</span></span>) <a href="#onMouseUp" class="link"></a>
+    </h4>
+    
+    <div class="function-description markdown-from-sourecode">
+      <p><p>Override onMouseUp in your DraftStoreExtension subclass to
+    listen for mouse up events sent to the composer&#39;s body text area. This
+    hook provides the contenteditable DOM Node itself, allowing you to
+    adjust selection ranges and change content as necessary.</p>
+    </p>
+    </div>
+    
+        <strong>Parameters</strong>
+        <table class="arguments">
+            <tr>
+              <th>Argument</th>
+              <th>Description</th>
+            </tr>
+            <tr>
+              <td style="width:15%;">
+                <em>editableNode</em>
+              </td>
+              <td class="markdown-from-sourecode">
+                
+                <p>The composer&#39;s contenteditable <a href='https://developer.mozilla.org/en-US/docs/Web/API/Node'>Node</a> that received the event.</p>
+    
+              </td>
+            </tr>
+            <tr>
+              <td style="width:15%;">
+                <em>range</em>
+              </td>
+              <td class="markdown-from-sourecode">
+                
+                <p>The currently selected <a href='https://developer.mozilla.org/en-US/docs/Web/API/Range'>Range</a> in the <code>editableNode</code></p>
+    
+              </td>
+            </tr>
+            <tr>
+              <td style="width:15%;">
+                <em>event</em>
+              </td>
+              <td class="markdown-from-sourecode">
+                
+                <p>The mouse up event.</p>
+    
+              </td>
+            </tr>
+        </table>
+    
+    <h4 id=onFocusPrevious class="function-name">
+      onFocusPrevious(<span class="args"><span class="arg">editableNode</span><span class="arg">range</span><span class="arg">event</span></span>) <a href="#onFocusPrevious" class="link"></a>
+    </h4>
+    
+    <div class="function-description markdown-from-sourecode">
+      <p><p>Called when the user presses <code>Shift-Tab</code> while focused on the composer&#39;s body field.
+    Override onFocusPrevious in your DraftStoreExtension to adjust the selection or perform
+    other actions. If your package implements Shift-Tab behavior in a particular scenario, you
+    should prevent the default behavior of Shift-Tab via <code>event.preventDefault()</code>.</p>
+    </p>
+    </div>
+    
+        <strong>Parameters</strong>
+        <table class="arguments">
+            <tr>
+              <th>Argument</th>
+              <th>Description</th>
+            </tr>
+            <tr>
+              <td style="width:15%;">
+                <em>editableNode</em>
+              </td>
+              <td class="markdown-from-sourecode">
+                
+                <p>The composer&#39;s contenteditable <a href='https://developer.mozilla.org/en-US/docs/Web/API/Node'>Node</a> that received the event.</p>
+    
+              </td>
+            </tr>
+            <tr>
+              <td style="width:15%;">
+                <em>range</em>
+              </td>
+              <td class="markdown-from-sourecode">
+                
+                <p>The currently selected <a href='https://developer.mozilla.org/en-US/docs/Web/API/Range'>Range</a> in the <code>editableNode</code></p>
+    
+              </td>
+            </tr>
+            <tr>
+              <td style="width:15%;">
+                <em>event</em>
+              </td>
+              <td class="markdown-from-sourecode">
+                
+                <p>The mouse up event.</p>
+    
+              </td>
+            </tr>
+        </table>
+    
+    <h4 id=onFocusNext class="function-name">
+      onFocusNext(<span class="args"><span class="arg">editableNode</span><span class="arg">range</span><span class="arg">event</span></span>) <a href="#onFocusNext" class="link"></a>
+    </h4>
+    
+    <div class="function-description markdown-from-sourecode">
+      <p><p>Called when the user presses <code>Tab</code> while focused on the composer&#39;s body field.
+    Override onFocusPrevious in your DraftStoreExtension to adjust the selection or perform
+    other actions. If your package implements Tab behavior in a particular scenario, you
+    should prevent the default behavior of Tab via <code>event.preventDefault()</code>.</p>
+    </p>
+    </div>
+    
+        <strong>Parameters</strong>
+        <table class="arguments">
+            <tr>
+              <th>Argument</th>
+              <th>Description</th>
+            </tr>
+            <tr>
+              <td style="width:15%;">
+                <em>editableNode</em>
+              </td>
+              <td class="markdown-from-sourecode">
+                
+                <p>The composer&#39;s contenteditable <a href='https://developer.mozilla.org/en-US/docs/Web/API/Node'>Node</a> that received the event.</p>
+    
+              </td>
+            </tr>
+            <tr>
+              <td style="width:15%;">
+                <em>range</em>
+              </td>
+              <td class="markdown-from-sourecode">
+                
+                <p>The currently selected <a href='https://developer.mozilla.org/en-US/docs/Web/API/Range'>Range</a> in the <code>editableNode</code></p>
+    
+              </td>
+            </tr>
+            <tr>
+              <td style="width:15%;">
+                <em>event</em>
+              </td>
+              <td class="markdown-from-sourecode">
+                
+                <p>The mouse up event.</p>
+    
+              </td>
+            </tr>
+        </table>
+    
+    <h4 id=onInput class="function-name">
+      onInput(<span class="args"></span>) <a href="#onInput" class="link"></a>
+    </h4>
+    
+    <div class="function-description markdown-from-sourecode">
+      <p><p>Override onInput in your DraftStoreExtension subclass to
+    implement custom behavior as the user types in the composer&#39;s
+    contenteditable body field.</p>
+    <p>As the first argument you are passed the entire DOM object of the
+    composer. You may mutate this object and edit it in place.</p>
+    <p>Example:</p>
+    <p>The Nylas <code>templates</code> package uses this method to see if the user has populated a
+    <code>&lt;code&gt;</code> tag placed in the body and change it&#39;s CSS class to reflect that it is no
+    longer empty.</p>
+    <pre><code class="lang-coffee">onInput: (editableNode, event) -&gt;
+      selection = document.<span class="hljs-function"><span class="hljs-title">getSelection</span><span class="hljs-params">()</span></span>
+    
+      isWithinNode = (node) -&gt;
+        test = selection<span class="hljs-class">.baseNode</span>
+        while test isnt editableNode
+          return true <span class="hljs-keyword">if</span> test is node
+          test = test<span class="hljs-class">.parentNode</span>
+        return false
+    
+      codeTags = editableNode.<span class="hljs-function"><span class="hljs-title">querySelectorAll</span><span class="hljs-params">(<span class="hljs-string">'code.var.empty'</span>)</span></span>
+      <span class="hljs-keyword">for</span> codeTag <span class="hljs-keyword">in</span> codeTags
+        <span class="hljs-keyword">if</span> selection.<span class="hljs-function"><span class="hljs-title">containsNode</span><span class="hljs-params">(codeTag)</span></span> or <span class="hljs-function"><span class="hljs-title">isWithinNode</span><span class="hljs-params">(codeTag)</span></span>
+          codeTag<span class="hljs-class">.classList</span><span class="hljs-class">.remove</span>(<span class="hljs-string">'empty'</span>)
+    </code></pre>
+    </p>
+    </div>
+    
+    
 
 
 
-</div>
-
-</div>
-
-<div id="footer">
-  <div class="container">
-    <img src="images/edgehill.png" class="logo" />
-    <div class="small">N1 Developer Preview<br><em>© 2014-2015 Nylas, Inc.</em></div>
-  </div>
-</div>
-
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-60022049-2', 'auto');
-  ga('send', 'pageview');
-
-</script>
-
-</body>
-</html>

@@ -1,0 +1,42 @@
+---
+layout: docs
+title: Debugging N1
+---
+<h3 id="chromium-devtools">Chromium DevTools</h3>
+<p>N1 is built on top of Electron, which runs the latest version of Chromium (at the time of writing, Chromium 43). You can access the standard <a href="https://developer.chrome.com/devtools">Chrome DevTools</a> using the <code>Command-Option-I</code> (<code>Ctrl-Shift-I</code> on Windows/Linux) keyboard shortcut, including the Debugger, Profiler, and Console. You can find extensive information about the Chromium DevTools on <a href="https://developer.chrome.com/devtools">developer.chrome.com</a>.</p>
+<p>Here are a few hidden tricks for getting the most out of the Chromium DevTools:</p>
+<ul>
+<li><p>You can use <code>Command-P</code> to &quot;Open Quickly&quot;, jumping to a particular source file from any tab.</p>
+</li>
+<li><p>You can set breakpoints by clicking the line number gutter while viewing a source file.</p>
+</li>
+<li><p>While on a breakpoint, you can toggle the console panel by pressing <code>Esc</code> and type commands which are executed in the current scope.</p>
+</li>
+<li><p>While viewing the DOM in the <code>Elements</code> panel, typing <code>$0</code> on the console refers to the currently selected DOM node.</p>
+</li>
+</ul>
+<h3 id="nylas-developer-panel">Nylas Developer Panel</h3>
+<p>If you choose <code>Developer &gt; Relaunch with Debug Flags...</code> from the menu, you can enable the Nylas Developer Panel at the bottom of the main window.</p>
+<p>The Developer Panel provides three views which you can click to activate:</p>
+<ul>
+<li><p><code>Tasks</code>: This view allows you to inspect the <a href='taskqueue.html'>TaskQueue</a> and see the what tasks are pending and complete. Click a task to see its JSON representation and inspect it&#39;s values, including the last error it encountered.</p>
+</li>
+<li><p><code>Delta Stream</code>: This view allows you to see the streaming updates from the Nylas API that the app has received. You can click individual updates to see the exact JSON that was consumed by the app, and search in the lower left for updates pertaining to an object ID or type.</p>
+</li>
+<li><p><code>Requests</code>: This view shows the requests the app has made to the Nylas API in <code>curl</code>-equivalent form. (The app does not actually make <code>curl</code> requests). You can click &quot;Copy&quot; to copy a <code>curl</code> command to the clipboard, or &quot;Run&quot; to execute it in a new Terminal window.</p>
+</li>
+</ul>
+<p>The Developer Panel also allows you to toggle &quot;View Component Regions&quot;. Turning on component regions adds a red border to areas of the app that render dynamically injected components, and shows the props passed to React components in each one. See {react} for more information.</p>
+<h3 id="the-development-workflow">The Development Workflow</h3>
+<p>If you&#39;re debugging a package, you&#39;ll be modifying your code and re-running N1 over and over again. There are a few things you can do to make this development workflow less time consuming:</p>
+<ul>
+<li><p><strong>Inline Changes</strong>: Using the Chromium DevTools, you can change the contents of your coffeescript and javascript source files, type <code>Command-S</code> to save, and hot-swap the code. This makes it easy to test small adjustments to your code without re-launching N1.</p>
+</li>
+<li><p><strong>View &gt; Refresh</strong>: From the View menu, choose &quot;Refresh&quot; to reload the N1 window just like a page in your browser. Refreshing is faster than restarting the app and allows you to iterate more quickly.</p>
+<blockquote>
+<p>Note: A bug in Electron causes the Chromium DevTools to become detatched if you refresh the app often. If you find that Chromium is not stopping at your breakpoints, quit N1 and re-launch it.</p>
+</blockquote>
+</li>
+</ul>
+<p>In the future, we&#39;ll support much richer hot-reloading of plugin components and code. Stay tuned!</p>
+

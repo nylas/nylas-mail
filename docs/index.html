@@ -1,143 +1,7 @@
-<html>
-<head>
-<meta charset="utf-8">
-<title>N1 — First Steps</title>
-<meta property="og:title" content="An extensible mail client built on the modern web | N1">
-<meta property="og:type" content="website">
-<meta property="og:image" content="https://nylas.github.io/N1/images/meta_share.png">
-<link rel="shortcut icon" href="/N1/images/favicon.ico">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<link rel="stylesheet" type="text/css" href="/N1/css/main.css"/>
-<link rel="stylesheet" type="text/css" href="/N1/css/tomorrow.css">
-</head>
-<body>
-<div id="header">
-  <div class="container">
-    <img src="/images/edgehill.png" class="logo" />
-    <div class="title">N1<div class="small">Developer Preview</div></div>
-  </div>
-</div>
-
-<div class="container">
-
-
-<div id="sidebar">
-  <div class="heading">Getting Started</div>
-  <ul>
-        <li><a href="/guides/FirstSteps.html" >First Steps</a></li>
-  </ul>
-  <div class="heading">Guides</div>
-  <ul>
-        <li><a href="/guides/InterfaceConcepts.html" >Interface Concepts</a></li>
-        <li><a href="/guides/PackageOverview.html" >Building a Package</a></li>
-        <li><a href="/guides/React.html" >Interface Components</a></li>
-        <li><a href="/guides/Architecture.html" >Application Architecture</a></li>
-        <li><a href="/guides/Debugging.html" >Debugging N1</a></li>
-        <li><a href="/guides/Database.html" >Accessing the Database</a></li>
-        <li><a href="/guides/DraftStoreExtensions.html" >Extending the Composer</a></li>
-        <li><a href="/guides/WritingSpecs.html" >Writing Specs</a></li>
-  </ul>
-  <div class="heading">Sample Code</div>
-  <ul>
-        <li><a href="https://github.com/nylas/edgehill-plugins/tree/master/translate" target="_blank">Composer Translation</a></li>
-        <li><a href="https://github.com/nylas/edgehill-plugins/tree/master/sidebar-github-profile" target="_blank">Github Sidebar</a></li>
-  </ul>
-  <div class="heading">API Reference</div>
-  <ul>
-        <div class="heading">General</div>
-        <ul>
-              <li><a href="/docs/Actions.html" >Actions</a></li>
-              <li><a href="/docs/Atom.html" >Atom</a></li>
-              <li><a href="/docs/BufferedNodeProcess.html" >BufferedNodeProcess</a></li>
-              <li><a href="/docs/BufferedProcess.html" >BufferedProcess</a></li>
-              <li><a href="/docs/ChangeFolderTask.html" >ChangeFolderTask</a></li>
-              <li><a href="/docs/ChangeLabelsTask.html" >ChangeLabelsTask</a></li>
-              <li><a href="/docs/Config.html" >Config</a></li>
-              <li><a href="/docs/DraggableImg.html" >DraggableImg</a></li>
-              <li><a href="/docs/FocusTrackingRegion.html" >FocusTrackingRegion</a></li>
-              <li><a href="/docs/Switch.html" >Switch</a></li>
-              <li><a href="/docs/Task.html" >Task</a></li>
-              <li><a href="/docs/TaskQueueStatusStore.html" >TaskQueueStatusStore</a></li>
-        </ul>
-        <div class="heading">Component Kit</div>
-        <ul>
-              <li><a href="/docs/EventedIFrame.html" >EventedIFrame</a></li>
-              <li><a href="/docs/Flexbox.html" >Flexbox</a></li>
-              <li><a href="/docs/InjectedComponent.html" >InjectedComponent</a></li>
-              <li><a href="/docs/InjectedComponentSet.html" >InjectedComponentSet</a></li>
-              <li><a href="/docs/Menu.html" >Menu</a></li>
-              <li><a href="/docs/MenuItem.html" >MenuItem</a></li>
-              <li><a href="/docs/MenuNameEmailItem.html" >MenuNameEmailItem</a></li>
-              <li><a href="/docs/MultiselectActionBar.html" >MultiselectActionBar</a></li>
-              <li><a href="/docs/MultiselectList.html" >MultiselectList</a></li>
-              <li><a href="/docs/Popover.html" >Popover</a></li>
-              <li><a href="/docs/ResizableRegion.html" >ResizableRegion</a></li>
-              <li><a href="/docs/RetinaImg.html" >RetinaImg</a></li>
-              <li><a href="/docs/Spinner.html" >Spinner</a></li>
-              <li><a href="/docs/TimeoutTransitionGroupChild.html" >TimeoutTransitionGroupChild</a></li>
-              <li><a href="/docs/UnsafeComponent.html" >UnsafeComponent</a></li>
-        </ul>
-        <div class="heading">Models</div>
-        <ul>
-              <li><a href="/docs/Account.html" >Account</a></li>
-              <li><a href="/docs/Calendar.html" >Calendar</a></li>
-              <li><a href="/docs/Contact.html" >Contact</a></li>
-              <li><a href="/docs/File.html" >File</a></li>
-              <li><a href="/docs/Folder.html" >Folder</a></li>
-              <li><a href="/docs/Label.html" >Label</a></li>
-              <li><a href="/docs/Message.html" >Message</a></li>
-              <li><a href="/docs/Model.html" >Model</a></li>
-              <li><a href="/docs/Thread.html" >Thread</a></li>
-        </ul>
-        <div class="heading">Stores</div>
-        <ul>
-              <li><a href="/docs/AccountStore.html" >AccountStore</a></li>
-              <li><a href="/docs/ComponentRegistry.html" >ComponentRegistry</a></li>
-              <li><a href="/docs/ContactStore.html" >ContactStore</a></li>
-              <li><a href="/docs/EventStore.html" >EventStore</a></li>
-              <li><a href="/docs/FocusedContentStore.html" >FocusedContentStore</a></li>
-              <li><a href="/docs/MessageStoreExtension.html" >MessageStoreExtension</a></li>
-              <li><a href="/docs/TaskQueue.html" >TaskQueue</a></li>
-              <li><a href="/docs/WorkspaceStore.html" >WorkspaceStore</a></li>
-        </ul>
-        <div class="heading">Database</div>
-        <ul>
-              <li><a href="/docs/Attribute.html" >Attribute</a></li>
-              <li><a href="/docs/AttributeBoolean.html" >AttributeBoolean</a></li>
-              <li><a href="/docs/AttributeCollection.html" >AttributeCollection</a></li>
-              <li><a href="/docs/AttributeDateTime.html" >AttributeDateTime</a></li>
-              <li><a href="/docs/AttributeJoinedData.html" >AttributeJoinedData</a></li>
-              <li><a href="/docs/AttributeNumber.html" >AttributeNumber</a></li>
-              <li><a href="/docs/AttributeObject.html" >AttributeObject</a></li>
-              <li><a href="/docs/AttributeServerId.html" >AttributeServerId</a></li>
-              <li><a href="/docs/AttributeString.html" >AttributeString</a></li>
-              <li><a href="/docs/DatabaseStore.html" >DatabaseStore</a></li>
-              <li><a href="/docs/DatabaseView.html" >DatabaseView</a></li>
-              <li><a href="/docs/Matcher.html" >Matcher</a></li>
-              <li><a href="/docs/ModelQuery.html" >ModelQuery</a></li>
-              <li><a href="/docs/SortOrder.html" >SortOrder</a></li>
-        </ul>
-        <div class="heading">Drafts</div>
-        <ul>
-              <li><a href="/docs/DraftChangeSet.html" >DraftChangeSet</a></li>
-              <li><a href="/docs/DraftStore.html" >DraftStore</a></li>
-              <li><a href="/docs/DraftStoreExtension.html" >DraftStoreExtension</a></li>
-              <li><a href="/docs/DraftStoreProxy.html" >DraftStoreProxy</a></li>
-        </ul>
-        <div class="heading">Atom</div>
-        <ul>
-              <li><a href="/docs/Clipboard.html" >Clipboard</a></li>
-              <li><a href="/docs/Color.html" >Color</a></li>
-              <li><a href="/docs/CommandRegistry.html" >CommandRegistry</a></li>
-              <li><a href="/docs/MenuManager.html" >MenuManager</a></li>
-              <li><a href="/docs/PackageManager.html" >PackageManager</a></li>
-              <li><a href="/docs/ScopeDescriptor.html" >ScopeDescriptor</a></li>
-              <li><a href="/docs/StyleManager.html" >StyleManager</a></li>
-              <li><a href="/docs/ThemeManager.html" >ThemeManager</a></li>
-        </ul>
-  </ul>
-</div>
-<div id="main" class="article">
+---
+layout: docs
+title: First Steps
+---
 <style>
 h3 {
   line-height: 40px;
@@ -205,12 +69,6 @@ blockquote p {
 <div class="row">
   <div class="col-md-12">
     <h2>Start building on top of Nylas in minutes:</h2>
-     <p>Packages lie at the heart of N1. The thread list, composer and other core parts of the app are packages bundled with the app, and extending N1 is as simple as creating a new package.</p>
-  </div>
-</div>
-
-<div class="row">
-  <div class="col-md-8">
     <h3 class="first padded"><div class="number">1</div> Install N1</h3>
     <p>Download and install Nylas for <span id="platforms"></span>. Open it and sign in to your email account.</p>
   </div>
@@ -219,7 +77,7 @@ blockquote p {
 <div class="row">
   <div class="col-md-8">
     <h3 class="second padded"><div class="number">2</div> Start a Package</h3>
-    <p>From the Developer Menu, choose <span class="instruction-literal">Create a Package...</span> and name your new package.</p>
+    <p>Packages lie at the heart of N1. The thread list, composer and other core parts of the app are packages bundled with the app, and you have access to the same set of APIs. From the Developer Menu, choose <span class="instruction-literal">Create a Package...</span> and name your new package.</p>
   </div>
   <div class="col-md-4">
     <img src="./images/Step2-Menu@2x.png" width="203" height="194" style="margin-top:88px;"/>
@@ -229,7 +87,7 @@ blockquote p {
 <div class="row">
   <div class="col-md-12">
     <h3 class="third padded"><div class="number">3</div> See it in Action</h3>
-    <p>The example package just created adds a section to the message sidebar and is already enabled, view a message to see it in action! If you make changes to the source, choose <span class="instruction-literal">View &gt; Refresh</span> to see your changes in N1.</p>
+    <p>Your new package comes with some basic code that adds a section to the message sidebar, and it&#39;s already enabled! View a message to see it in action. If you make changes to the source, choose <span class="instruction-literal">View &gt; Refresh</span> to see your changes in N1.</p>
   </div>
 </div>
 
@@ -237,7 +95,7 @@ blockquote p {
 
 <div class="row">
   <div class="col-md-12">
-    <h2 class="continue"><a href="getting-started-2">Explore the package</a></h2>
+    <h2 class="continue"><a href="getting-started-2">Step 2: Build your first package</a></h2>
   </div>
 </div>
 
@@ -245,9 +103,9 @@ blockquote p {
 
 <div class="row">
   <div class="col-md-6" style="padding-right:30px;">
-    <h4><div class="letter">A</div>Source dive</h4>
+    <h4><div class="letter">A</div> Explore the source</h4>
     <img src="./images/Illu-ExploreTheSource@2x.png" width="121" height="96" style="margin:auto; margin-bottom:35px; display:block;"/>
-    <p>N1 is built on the modern web - packages are written in CoffeeScript or JavaScript. Packages are a lot like node modules, with their own source, assets, and tests. Check out the packages that power your N1, located in <span class="instruction-literal">~/.nylas/dev/packages</span>!</p>
+    <p>Nylas is built on the modern web - packages are written in CoffeeScript or JavaScript. Packages are a lot like node modules, with their own source, assets, and tests. Check out yours in <span class="instruction-literal">~/.nylas/dev/packages</span>.</p>
   </div>
   <div class="col-md-6" style="padding-left:30px;">
     <h4><div class="letter">B</div> Run the specs</h4>
@@ -445,27 +303,3 @@ GithubUserStore = Reflux.createStore
 <p>You can find a more extensive version of this example in our <a href="https://github.com/nylas/edgehill-plugins/tree/master/sidebar-github-profile">sample packages repository</a>.</p>
 </blockquote>
 
-</div>
-
-</div>
-
-<div id="footer">
-  <div class="container">
-    <img src="images/edgehill.png" class="logo" />
-    <div class="small">N1 Developer Preview<br><em>© 2014-2015 Nylas, Inc.</em></div>
-  </div>
-</div>
-
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-60022049-2', 'auto');
-  ga('send', 'pageview');
-
-</script>
-
-</body>
-</html>

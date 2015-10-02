@@ -1,151 +1,12 @@
-<html>
-<head>
-<meta charset="utf-8">
-<title>N1 — Actions</title>
-<meta property="og:title" content="An extensible mail client built on the modern web | N1">
-<meta property="og:type" content="website">
-<meta property="og:image" content="https://nylas.github.io/N1/images/meta_share.png">
-<link rel="shortcut icon" href="/N1/images/favicon.ico">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<link rel="stylesheet" type="text/css" href="/N1/css/main.css"/>
-<link rel="stylesheet" type="text/css" href="/N1/css/tomorrow.css">
-</head>
-<body>
-<div id="header">
-  <div class="container">
-    <img src="/images/edgehill.png" class="logo" />
-    <div class="title">N1<div class="small">Developer Preview</div></div>
-  </div>
-</div>
+---
+layout: docs
+title: Actions
+---
 
-<div class="container">
+<h2>Summary</h2>
 
-<div class="page-title">
-  Actions
-</div>
-
-<div id="sidebar">
-  <div class="heading">Getting Started</div>
-  <ul>
-        <li><a href="/guides/FirstSteps.html" >First Steps</a></li>
-  </ul>
-  <div class="heading">Guides</div>
-  <ul>
-        <li><a href="/guides/InterfaceConcepts.html" >Interface Concepts</a></li>
-        <li><a href="/guides/PackageOverview.html" >Building a Package</a></li>
-        <li><a href="/guides/React.html" >Interface Components</a></li>
-        <li><a href="/guides/Architecture.html" >Application Architecture</a></li>
-        <li><a href="/guides/Debugging.html" >Debugging N1</a></li>
-        <li><a href="/guides/Database.html" >Accessing the Database</a></li>
-        <li><a href="/guides/DraftStoreExtensions.html" >Extending the Composer</a></li>
-        <li><a href="/guides/WritingSpecs.html" >Writing Specs</a></li>
-  </ul>
-  <div class="heading">Sample Code</div>
-  <ul>
-        <li><a href="https://github.com/nylas/edgehill-plugins/tree/master/translate" target="_blank">Composer Translation</a></li>
-        <li><a href="https://github.com/nylas/edgehill-plugins/tree/master/sidebar-github-profile" target="_blank">Github Sidebar</a></li>
-  </ul>
-  <div class="heading">API Reference</div>
-  <ul>
-        <div class="heading">General</div>
-        <ul>
-              <li><a href="/docs/Actions.html" >Actions</a></li>
-              <li><a href="/docs/Atom.html" >Atom</a></li>
-              <li><a href="/docs/BufferedNodeProcess.html" >BufferedNodeProcess</a></li>
-              <li><a href="/docs/BufferedProcess.html" >BufferedProcess</a></li>
-              <li><a href="/docs/ChangeFolderTask.html" >ChangeFolderTask</a></li>
-              <li><a href="/docs/ChangeLabelsTask.html" >ChangeLabelsTask</a></li>
-              <li><a href="/docs/Config.html" >Config</a></li>
-              <li><a href="/docs/DraggableImg.html" >DraggableImg</a></li>
-              <li><a href="/docs/FocusTrackingRegion.html" >FocusTrackingRegion</a></li>
-              <li><a href="/docs/Switch.html" >Switch</a></li>
-              <li><a href="/docs/Task.html" >Task</a></li>
-              <li><a href="/docs/TaskQueueStatusStore.html" >TaskQueueStatusStore</a></li>
-        </ul>
-        <div class="heading">Component Kit</div>
-        <ul>
-              <li><a href="/docs/EventedIFrame.html" >EventedIFrame</a></li>
-              <li><a href="/docs/Flexbox.html" >Flexbox</a></li>
-              <li><a href="/docs/InjectedComponent.html" >InjectedComponent</a></li>
-              <li><a href="/docs/InjectedComponentSet.html" >InjectedComponentSet</a></li>
-              <li><a href="/docs/Menu.html" >Menu</a></li>
-              <li><a href="/docs/MenuItem.html" >MenuItem</a></li>
-              <li><a href="/docs/MenuNameEmailItem.html" >MenuNameEmailItem</a></li>
-              <li><a href="/docs/MultiselectActionBar.html" >MultiselectActionBar</a></li>
-              <li><a href="/docs/MultiselectList.html" >MultiselectList</a></li>
-              <li><a href="/docs/Popover.html" >Popover</a></li>
-              <li><a href="/docs/ResizableRegion.html" >ResizableRegion</a></li>
-              <li><a href="/docs/RetinaImg.html" >RetinaImg</a></li>
-              <li><a href="/docs/Spinner.html" >Spinner</a></li>
-              <li><a href="/docs/TimeoutTransitionGroupChild.html" >TimeoutTransitionGroupChild</a></li>
-              <li><a href="/docs/UnsafeComponent.html" >UnsafeComponent</a></li>
-        </ul>
-        <div class="heading">Models</div>
-        <ul>
-              <li><a href="/docs/Account.html" >Account</a></li>
-              <li><a href="/docs/Calendar.html" >Calendar</a></li>
-              <li><a href="/docs/Contact.html" >Contact</a></li>
-              <li><a href="/docs/File.html" >File</a></li>
-              <li><a href="/docs/Folder.html" >Folder</a></li>
-              <li><a href="/docs/Label.html" >Label</a></li>
-              <li><a href="/docs/Message.html" >Message</a></li>
-              <li><a href="/docs/Model.html" >Model</a></li>
-              <li><a href="/docs/Thread.html" >Thread</a></li>
-        </ul>
-        <div class="heading">Stores</div>
-        <ul>
-              <li><a href="/docs/AccountStore.html" >AccountStore</a></li>
-              <li><a href="/docs/ComponentRegistry.html" >ComponentRegistry</a></li>
-              <li><a href="/docs/ContactStore.html" >ContactStore</a></li>
-              <li><a href="/docs/EventStore.html" >EventStore</a></li>
-              <li><a href="/docs/FocusedContentStore.html" >FocusedContentStore</a></li>
-              <li><a href="/docs/MessageStoreExtension.html" >MessageStoreExtension</a></li>
-              <li><a href="/docs/TaskQueue.html" >TaskQueue</a></li>
-              <li><a href="/docs/WorkspaceStore.html" >WorkspaceStore</a></li>
-        </ul>
-        <div class="heading">Database</div>
-        <ul>
-              <li><a href="/docs/Attribute.html" >Attribute</a></li>
-              <li><a href="/docs/AttributeBoolean.html" >AttributeBoolean</a></li>
-              <li><a href="/docs/AttributeCollection.html" >AttributeCollection</a></li>
-              <li><a href="/docs/AttributeDateTime.html" >AttributeDateTime</a></li>
-              <li><a href="/docs/AttributeJoinedData.html" >AttributeJoinedData</a></li>
-              <li><a href="/docs/AttributeNumber.html" >AttributeNumber</a></li>
-              <li><a href="/docs/AttributeObject.html" >AttributeObject</a></li>
-              <li><a href="/docs/AttributeServerId.html" >AttributeServerId</a></li>
-              <li><a href="/docs/AttributeString.html" >AttributeString</a></li>
-              <li><a href="/docs/DatabaseStore.html" >DatabaseStore</a></li>
-              <li><a href="/docs/DatabaseView.html" >DatabaseView</a></li>
-              <li><a href="/docs/Matcher.html" >Matcher</a></li>
-              <li><a href="/docs/ModelQuery.html" >ModelQuery</a></li>
-              <li><a href="/docs/SortOrder.html" >SortOrder</a></li>
-        </ul>
-        <div class="heading">Drafts</div>
-        <ul>
-              <li><a href="/docs/DraftChangeSet.html" >DraftChangeSet</a></li>
-              <li><a href="/docs/DraftStore.html" >DraftStore</a></li>
-              <li><a href="/docs/DraftStoreExtension.html" >DraftStoreExtension</a></li>
-              <li><a href="/docs/DraftStoreProxy.html" >DraftStoreProxy</a></li>
-        </ul>
-        <div class="heading">Atom</div>
-        <ul>
-              <li><a href="/docs/Clipboard.html" >Clipboard</a></li>
-              <li><a href="/docs/Color.html" >Color</a></li>
-              <li><a href="/docs/CommandRegistry.html" >CommandRegistry</a></li>
-              <li><a href="/docs/MenuManager.html" >MenuManager</a></li>
-              <li><a href="/docs/PackageManager.html" >PackageManager</a></li>
-              <li><a href="/docs/ScopeDescriptor.html" >ScopeDescriptor</a></li>
-              <li><a href="/docs/StyleManager.html" >StyleManager</a></li>
-              <li><a href="/docs/ThemeManager.html" >ThemeManager</a></li>
-        </ul>
-  </ul>
-</div>
-
-<div id="main">
-  <h2>Summary</h2>
-
-  <div class="markdown-from-sourecode">
-    <p><p>In the Flux <a href='/guides/Architecture.html'>Application Architecture</a>, almost every user action
+<div class="markdown-from-sourecode">
+  <p><p>In the Flux <a href='Architecture.html'>Application Architecture</a>, almost every user action
 is translated into an Action object and fired globally. Stores in the app observe
 these actions and perform business logic. This loose coupling means that your
 packages can observe actions and perform additional logic, or fire actions which
@@ -183,245 +44,221 @@ that is not a Store, you can still use the <code>listen</code> method provided b
   <span class="hljs-property">@unlisten</span>()
 </code></pre>
 </p>
-  </div>
-
-  <ul>
-  </ul>
-
-
-      <h3>Class Properties</h3>
-
-      <h4 id=didPassivelyReceiveNewModels>didPassivelyReceiveNewModels <a href="#didPassivelyReceiveNewModels" class="link"></a></h4>
-      <p><p>Fired when the Nylas API Connector receives new data from the API.</p>
-      <p><em>Scope: Global</em></p>
-      <p>Receives an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a> of <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a>s of <a href='/docs/model.html'>Model</a>s, for example:</p>
-      <pre><code class="lang-json">{
-        'thread': <span class="hljs-annotation">[&lt;Thread&gt;, &lt;Thread&gt;]</span>
-        'contact': <span class="hljs-annotation">[&lt;Contact&gt;]</span>
-      }
-      </code></pre>
-      </p>
-      <h4 id=queueTask>queueTask <a href="#queueTask" class="link"></a></h4>
-      <p><p>Queue a <a href='/docs/task.html'>Task</a> object to the <a href='/docs/taskqueue.html'>TaskQueue</a>.</p>
-      <p><em>Scope: Work Window</em></p>
-      </p>
-      <h4 id=dequeueAllTasks>dequeueAllTasks <a href="#dequeueAllTasks" class="link"></a></h4>
-      <p><p>Dequeue all <a href='/docs/task.html'>Task</a>s from the <a href='/docs/taskqueue.html'>TaskQueue</a>. Use with care.</p>
-      <p><em>Scope: Work Window</em></p>
-      </p>
-      <h4 id=dequeueMatchingTask>dequeueMatchingTask <a href="#dequeueMatchingTask" class="link"></a></h4>
-      <p><p>Dequeue a <a href='/docs/task.html'>Task</a> matching the description provided.</p>
-      <p><em>Scope: Work Window</em></p>
-      </p>
-      <h4 id=retryInitialSync>retryInitialSync <a href="#retryInitialSync" class="link"></a></h4>
-      <p><p>Retry the initial sync</p>
-      <p><em>Scope: Work Window</em></p>
-      </p>
-      <h4 id=openPreferences>openPreferences <a href="#openPreferences" class="link"></a></h4>
-      <p><p>Open the preferences window. Pass an object with a tab name
-      (ie: <code>{tab: &#39;Accounts&#39;}</code>) to open a specific panel.</p>
-      <p><em>Scope: Window</em></p>
-      </p>
-      <h4 id=registerPreferencesTab>registerPreferencesTab <a href="#registerPreferencesTab" class="link"></a></h4>
-      <p><p>Register a preferences tab, usually applied in Preferences window</p>
-      <p><em>Scope: Window</em></p>
-      </p>
-      <h4 id=clearDeveloperConsole>clearDeveloperConsole <a href="#clearDeveloperConsole" class="link"></a></h4>
-      <p><p>Clear the developer console for the current window.</p>
-      <p><em>Scope: Window</em></p>
-      </p>
-      <h4 id=selectAccountId>selectAccountId <a href="#selectAccountId" class="link"></a></h4>
-      <p><p>Select the provided account ID in the current window.</p>
-      <p><em>Scope: Window</em></p>
-      </p>
-      <h4 id=selectRootSheet>selectRootSheet <a href="#selectRootSheet" class="link"></a></h4>
-      <p><p>Select the provided sheet in the current window. This action changes
-      the top level sheet.</p>
-      <p><em>Scope: Window</em></p>
-      <pre><code>Actions.<span class="hljs-function"><span class="hljs-title">selectRootSheet</span><span class="hljs-params">(WorkspaceStore.Sheet.Threads)</span></span>
-      </code></pre></p>
-      <h4 id=toggleWorkspaceLocationHidden>toggleWorkspaceLocationHidden <a href="#toggleWorkspaceLocationHidden" class="link"></a></h4>
-      <p><p>Toggle whether a particular column is visible. Call this action
-      with one of the Sheet location constants:</p>
-      <pre><code>Actions.<span class="hljs-function"><span class="hljs-title">toggleWorkspaceLocationHidden</span><span class="hljs-params">(WorkspaceStore.Location.MessageListSidebar)</span></span>
-      </code></pre></p>
-      <h4 id=setCursorPosition>setCursorPosition <a href="#setCursorPosition" class="link"></a></h4>
-      <p><p>Focus the keyboard on an item in a collection. This action moves the
-      <code>keyboard focus</code> element in lists and other components,  but does not change
-      the focused DOM element.</p>
-      <p><em>Scope: Window</em></p>
-      <pre><code>Actions.<span class="hljs-function"><span class="hljs-title">setCursorPosition</span><span class="hljs-params">(collection: <span class="hljs-string">'thread'</span>, item: &lt;Thread&gt;)</span></span>
-      </code></pre></p>
-      <h4 id=setFocus>setFocus <a href="#setFocus" class="link"></a></h4>
-      <p><p>Focus on an item in a collection. This action changes the selection
-      in lists and other components, but does not change the focused DOM element.</p>
-      <p><em>Scope: Window</em></p>
-      <pre><code>Actions.<span class="hljs-function"><span class="hljs-title">setFocus</span><span class="hljs-params">(collection: <span class="hljs-string">'thread'</span>, item: &lt;Thread&gt;)</span></span>
-      </code></pre></p>
-      <h4 id=focusMailView>focusMailView <a href="#focusMailView" class="link"></a></h4>
-      <p><p>Focus the interface on a specific {Category}.</p>
-      <p><em>Scope: Window</em></p>
-      <pre><code>Actions.<span class="hljs-function"><span class="hljs-title">focusMailView</span><span class="hljs-params">(&lt;Category&gt;)</span></span>
-      </code></pre></p>
-      <h4 id=toggleMessageIdExpanded>toggleMessageIdExpanded <a href="#toggleMessageIdExpanded" class="link"></a></h4>
-      <p><p>If the message with the provided id is currently beign displayed in the
-      thread view, this action toggles whether it&#39;s full content or snippet is shown.</p>
-      <p><em>Scope: Window</em></p>
-      <pre><code><span class="hljs-keyword">message</span> = &lt;<span class="hljs-keyword">Message</span>&gt;
-      Actions.toggleMessageIdExpanded(<span class="hljs-keyword">message</span>.id)
-      </code></pre></p>
-      <h4 id=composeReply>composeReply <a href="#composeReply" class="link"></a></h4>
-      <p><p>Create a new reply to the provided threadId and messageId. Note that
-      this action does not focus on the thread, so you may not be able to see the new draft
-      unless you also call <a href='#setFocus'>setFocus</a>.</p>
-      <p><em>Scope: Window</em></p>
-      <pre><code><span class="hljs-comment"># Compose a reply to the last message in the thread</span>
-      Actions.composeReply({threadId: <span class="hljs-string">'123'</span>})
-      
-      <span class="hljs-comment"># Compose a reply to a specific message in the thread</span>
-      Actions.composeReply({threadId: <span class="hljs-string">'123'</span>, messageId: <span class="hljs-string">'123'</span>})
-      </code></pre></p>
-      <h4 id=composeForward>composeForward <a href="#composeForward" class="link"></a></h4>
-      <p><p>Create a new draft for forwarding the provided threadId and messageId. See
-      <a href='#composeReply'>composeReply</a> for parameters and behavior.</p>
-      <p><em>Scope: Window</em></p>
-      </p>
-      <h4 id=composeReplyAll>composeReplyAll <a href="#composeReplyAll" class="link"></a></h4>
-      <p><p>Create a new draft and &quot;reply all&quot; to the provided threadId and messageId. See
-      <a href='#composeReply'>composeReply</a> for parameters and behavior.</p>
-      <p><em>Scope: Window</em></p>
-      </p>
-      <h4 id=composePopoutDraft>composePopoutDraft <a href="#composePopoutDraft" class="link"></a></h4>
-      <p><p>Pop out the draft with the provided ID so the user can edit it in another
-      window.</p>
-      <p><em>Scope: Window</em></p>
-      <pre><code>messageId = <span class="hljs-string">'123'</span>
-      Actions.<span class="hljs-function"><span class="hljs-title">composePopoutDraft</span><span class="hljs-params">(messageId)</span></span>
-      </code></pre></p>
-      <h4 id=composeNewBlankDraft>composeNewBlankDraft <a href="#composeNewBlankDraft" class="link"></a></h4>
-      <p><p>Open a new composer window for creating a new draft from scratch.</p>
-      <p><em>Scope: Window</em></p>
-      <pre><code>Actions.<span class="hljs-function"><span class="hljs-title">composeNewBlankDraft</span><span class="hljs-params">()</span></span>
-      </code></pre></p>
-      <h4 id=sendDraft>sendDraft <a href="#sendDraft" class="link"></a></h4>
-      <p><p>Send the draft with the given ID. This Action is handled by the <a href='/docs/draftstore.html'>DraftStore</a>,
-      which finalizes the <a href='/docs/draftchangeset.html'>DraftChangeSet</a> and allows <a href='/docs/draftstoreextension.html'>DraftStoreExtension</a>s to display
-      warnings and do post-processing. To change send behavior, you should consider using
-      one of these objects rather than listening for the {sendDraft} action.</p>
-      <p><em>Scope: Window</em></p>
-      <pre><code>Actions.<span class="hljs-function"><span class="hljs-title">sendDraft</span><span class="hljs-params">(<span class="hljs-string">'123'</span>)</span></span>
-      </code></pre></p>
-      <h4 id=destroyDraft>destroyDraft <a href="#destroyDraft" class="link"></a></h4>
-      <p><p>Destroys the draft with the given ID. This Action is handled by the <a href='/docs/draftstore.html'>DraftStore</a>,
-      and does not display any confirmation UI.</p>
-      <p><em>Scope: Window</em></p>
-      </p>
-      <h4 id=removeCurrentlyFocusedThread>removeCurrentlyFocusedThread <a href="#removeCurrentlyFocusedThread" class="link"></a></h4>
-      <p><p>Remove the currently focused <a href='/docs/thread.html'>Thread</a>.</p>
-      <p><em>Scope: Window</em></p>
-      </p>
-      <h4 id=removeSelection>removeSelection <a href="#removeSelection" class="link"></a></h4>
-      <p><p>Removes the Thread objects currently selected in the app&#39;s main thread list.</p>
-      <p><em>Scope: Window</em></p>
-      </p>
-      <h4 id=searchQueryChanged>searchQueryChanged <a href="#searchQueryChanged" class="link"></a></h4>
-      <p><p>Updates the search query in the app&#39;s main search bar with the provided query text.</p>
-      <p><em>Scope: Window</em></p>
-      <pre><code>Actions.<span class="hljs-function"><span class="hljs-title">searchQueryChanged</span><span class="hljs-params">(<span class="hljs-string">"New Search Query"</span>)</span></span>
-      </code></pre></p>
-      <h4 id=searchQueryCommitted>searchQueryCommitted <a href="#searchQueryCommitted" class="link"></a></h4>
-      <p><p>Submits a search with the provided query text. Unlike <code>searchQueryChanged</code>, this
-      action immediately performs a search.</p>
-      <p><em>Scope: Window</em></p>
-      <pre><code>Actions.<span class="hljs-function"><span class="hljs-title">searchQueryCommitted</span><span class="hljs-params">(<span class="hljs-string">"New Search Query"</span>)</span></span>
-      </code></pre></p>
-      <h4 id=RSVPEvent>RSVPEvent <a href="#RSVPEvent" class="link"></a></h4>
-      <p><p>Submits the user&#39;s response to an RSVP event.</p>
-      <p><em>Scope: Window</em></p>
-      </p>
-      <h4 id=postNotification>postNotification <a href="#postNotification" class="link"></a></h4>
-      <p><p>Fire to display an in-window notification to the user in the app&#39;s standard
-      notification interface.</p>
-      <p><em>Scope: Global</em></p>
-      <pre><code><span class="hljs-comment"># A simple notification</span>
-      Actions.postNotification({message: <span class="hljs-string">"Removed Thread"</span>, <span class="hljs-built_in">type</span>: <span class="hljs-string">'success'</span>})
-      
-      <span class="hljs-comment"># A sticky notification with actions</span>
-      NOTIF_ACTION_YES = <span class="hljs-string">'YES'</span>
-      NOTIF_ACTION_NO = <span class="hljs-string">'NO'</span>
-      
-      Actions.postNotification
-        <span class="hljs-built_in">type</span>: <span class="hljs-string">'info'</span>,
-        sticky: <span class="hljs-literal">true</span>
-        message: <span class="hljs-string">"Thanks for trying out N1! Would you like to make it your default mail client?"</span>,
-        icon: <span class="hljs-string">'fa-inbox'</span>,
-        actions: [{
-          label: <span class="hljs-string">'Yes'</span>
-          id: NOTIF_ACTION_YES
-        },{
-          label: <span class="hljs-string">'Not Now'</span>
-          id: NOTIF_ACTION_NO
-        }]
-      </code></pre></p>
-      <h4 id=notificationActionTaken>notificationActionTaken <a href="#notificationActionTaken" class="link"></a></h4>
-      <p><p>Listen to this action to handle user interaction with notifications you
-      published via <code>postNotification</code>.</p>
-      <p><em>Scope: Global</em></p>
-      <pre><code><span class="hljs-variable">@_unlisten</span> = Actions.notificationActionTaken.<span class="hljs-function">listen</span>(<span class="hljs-variable">@_onActionTaken</span>, @)
-      
-      <span class="hljs-attribute">_onActionTaken</span>: ({notification, action}) -&gt;
-        if action.id is NOTIF_ACTION_YES
-          # perform action
-      </code></pre></p>
-      <h4 id=removeFile>removeFile <a href="#removeFile" class="link"></a></h4>
-      <p><p>Remove a file from a draft.</p>
-      <p><em>Scope: Window</em></p>
-      <pre><code>Actions<span class="hljs-class">.removeFile</span>
-        file: fileObject
-        messageClientId: draftClientId
-      </code></pre></p>
-      <h4 id=popSheet>popSheet <a href="#popSheet" class="link"></a></h4>
-      <p><p>Pop the current sheet off the Sheet stack maintained by the <a href='/docs/workspacestore.html'>WorkspaceStore</a>.
-      This action has no effect if the window is currently showing a root sheet.</p>
-      <p><em>Scope: Window</em></p>
-      </p>
-      <h4 id=pushSheet>pushSheet <a href="#pushSheet" class="link"></a></h4>
-      <p><p>Push a sheet of a specific type onto the Sheet stack maintained by the
-      <a href='/docs/workspacestore.html'>WorkspaceStore</a>. Note that sheets have no state. To show a <em>specific</em> thread,
-      you should push a Thread sheet and call <code>setFocus</code> to select the thread.</p>
-      <p><em>Scope: Window</em></p>
-      <pre><code>WorkspaceStore.defineSheet <span class="hljs-string">'Thread'</span>, <span class="hljs-list">{}</span>,
-          list: [<span class="hljs-string">'MessageList'</span>, <span class="hljs-string">'MessageListSidebar'</span>]
-      
-      ...
-      
-      @pushSheet(WorkspaceStore.Sheet.<span class="hljs-keyword">Thread</span>)
-      </code></pre></p>
-
-
-
-
 </div>
 
-</div>
+<ul>
+</ul>
 
-<div id="footer">
-  <div class="container">
-    <img src="images/edgehill.png" class="logo" />
-    <div class="small">N1 Developer Preview<br><em>© 2014-2015 Nylas, Inc.</em></div>
-  </div>
-</div>
 
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    <h3>Class Properties</h3>
 
-  ga('create', 'UA-60022049-2', 'auto');
-  ga('send', 'pageview');
+    <h4 id=didPassivelyReceiveNewModels>didPassivelyReceiveNewModels <a href="#didPassivelyReceiveNewModels" class="link"></a></h4>
+    <p><p>Fired when the Nylas API Connector receives new data from the API.</p>
+    <p><em>Scope: Global</em></p>
+    <p>Receives an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a> of <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a>s of <a href='model.html'>Model</a>s, for example:</p>
+    <pre><code class="lang-json">{
+      'thread': <span class="hljs-annotation">[&lt;Thread&gt;, &lt;Thread&gt;]</span>
+      'contact': <span class="hljs-annotation">[&lt;Contact&gt;]</span>
+    }
+    </code></pre>
+    </p>
+    <h4 id=queueTask>queueTask <a href="#queueTask" class="link"></a></h4>
+    <p><p>Queue a <a href='task.html'>Task</a> object to the <a href='taskqueue.html'>TaskQueue</a>.</p>
+    <p><em>Scope: Work Window</em></p>
+    </p>
+    <h4 id=dequeueAllTasks>dequeueAllTasks <a href="#dequeueAllTasks" class="link"></a></h4>
+    <p><p>Dequeue all <a href='task.html'>Task</a>s from the <a href='taskqueue.html'>TaskQueue</a>. Use with care.</p>
+    <p><em>Scope: Work Window</em></p>
+    </p>
+    <h4 id=dequeueMatchingTask>dequeueMatchingTask <a href="#dequeueMatchingTask" class="link"></a></h4>
+    <p><p>Dequeue a <a href='task.html'>Task</a> matching the description provided.</p>
+    <p><em>Scope: Work Window</em></p>
+    </p>
+    <h4 id=retryInitialSync>retryInitialSync <a href="#retryInitialSync" class="link"></a></h4>
+    <p><p>Retry the initial sync</p>
+    <p><em>Scope: Work Window</em></p>
+    </p>
+    <h4 id=openPreferences>openPreferences <a href="#openPreferences" class="link"></a></h4>
+    <p><p>Open the preferences window. Pass an object with a tab name
+    (ie: <code>{tab: &#39;Accounts&#39;}</code>) to open a specific panel.</p>
+    <p><em>Scope: Window</em></p>
+    </p>
+    <h4 id=registerPreferencesTab>registerPreferencesTab <a href="#registerPreferencesTab" class="link"></a></h4>
+    <p><p>Register a preferences tab, usually applied in Preferences window</p>
+    <p><em>Scope: Window</em></p>
+    </p>
+    <h4 id=clearDeveloperConsole>clearDeveloperConsole <a href="#clearDeveloperConsole" class="link"></a></h4>
+    <p><p>Clear the developer console for the current window.</p>
+    <p><em>Scope: Window</em></p>
+    </p>
+    <h4 id=selectAccountId>selectAccountId <a href="#selectAccountId" class="link"></a></h4>
+    <p><p>Select the provided account ID in the current window.</p>
+    <p><em>Scope: Window</em></p>
+    </p>
+    <h4 id=selectRootSheet>selectRootSheet <a href="#selectRootSheet" class="link"></a></h4>
+    <p><p>Select the provided sheet in the current window. This action changes
+    the top level sheet.</p>
+    <p><em>Scope: Window</em></p>
+    <pre><code>Actions.<span class="hljs-function"><span class="hljs-title">selectRootSheet</span><span class="hljs-params">(WorkspaceStore.Sheet.Threads)</span></span>
+    </code></pre></p>
+    <h4 id=toggleWorkspaceLocationHidden>toggleWorkspaceLocationHidden <a href="#toggleWorkspaceLocationHidden" class="link"></a></h4>
+    <p><p>Toggle whether a particular column is visible. Call this action
+    with one of the Sheet location constants:</p>
+    <pre><code>Actions.<span class="hljs-function"><span class="hljs-title">toggleWorkspaceLocationHidden</span><span class="hljs-params">(WorkspaceStore.Location.MessageListSidebar)</span></span>
+    </code></pre></p>
+    <h4 id=setCursorPosition>setCursorPosition <a href="#setCursorPosition" class="link"></a></h4>
+    <p><p>Focus the keyboard on an item in a collection. This action moves the
+    <code>keyboard focus</code> element in lists and other components,  but does not change
+    the focused DOM element.</p>
+    <p><em>Scope: Window</em></p>
+    <pre><code>Actions.<span class="hljs-function"><span class="hljs-title">setCursorPosition</span><span class="hljs-params">(collection: <span class="hljs-string">'thread'</span>, item: &lt;Thread&gt;)</span></span>
+    </code></pre></p>
+    <h4 id=setFocus>setFocus <a href="#setFocus" class="link"></a></h4>
+    <p><p>Focus on an item in a collection. This action changes the selection
+    in lists and other components, but does not change the focused DOM element.</p>
+    <p><em>Scope: Window</em></p>
+    <pre><code>Actions.<span class="hljs-function"><span class="hljs-title">setFocus</span><span class="hljs-params">(collection: <span class="hljs-string">'thread'</span>, item: &lt;Thread&gt;)</span></span>
+    </code></pre></p>
+    <h4 id=focusMailView>focusMailView <a href="#focusMailView" class="link"></a></h4>
+    <p><p>Focus the interface on a specific {Category}.</p>
+    <p><em>Scope: Window</em></p>
+    <pre><code>Actions.<span class="hljs-function"><span class="hljs-title">focusMailView</span><span class="hljs-params">(&lt;Category&gt;)</span></span>
+    </code></pre></p>
+    <h4 id=toggleMessageIdExpanded>toggleMessageIdExpanded <a href="#toggleMessageIdExpanded" class="link"></a></h4>
+    <p><p>If the message with the provided id is currently beign displayed in the
+    thread view, this action toggles whether it&#39;s full content or snippet is shown.</p>
+    <p><em>Scope: Window</em></p>
+    <pre><code><span class="hljs-keyword">message</span> = &lt;<span class="hljs-keyword">Message</span>&gt;
+    Actions.toggleMessageIdExpanded(<span class="hljs-keyword">message</span>.id)
+    </code></pre></p>
+    <h4 id=composeReply>composeReply <a href="#composeReply" class="link"></a></h4>
+    <p><p>Create a new reply to the provided threadId and messageId. Note that
+    this action does not focus on the thread, so you may not be able to see the new draft
+    unless you also call <a href='#setFocus'>setFocus</a>.</p>
+    <p><em>Scope: Window</em></p>
+    <pre><code><span class="hljs-comment"># Compose a reply to the last message in the thread</span>
+    Actions.composeReply({threadId: <span class="hljs-string">'123'</span>})
+    
+    <span class="hljs-comment"># Compose a reply to a specific message in the thread</span>
+    Actions.composeReply({threadId: <span class="hljs-string">'123'</span>, messageId: <span class="hljs-string">'123'</span>})
+    </code></pre></p>
+    <h4 id=composeForward>composeForward <a href="#composeForward" class="link"></a></h4>
+    <p><p>Create a new draft for forwarding the provided threadId and messageId. See
+    <a href='#composeReply'>composeReply</a> for parameters and behavior.</p>
+    <p><em>Scope: Window</em></p>
+    </p>
+    <h4 id=composeReplyAll>composeReplyAll <a href="#composeReplyAll" class="link"></a></h4>
+    <p><p>Create a new draft and &quot;reply all&quot; to the provided threadId and messageId. See
+    <a href='#composeReply'>composeReply</a> for parameters and behavior.</p>
+    <p><em>Scope: Window</em></p>
+    </p>
+    <h4 id=composePopoutDraft>composePopoutDraft <a href="#composePopoutDraft" class="link"></a></h4>
+    <p><p>Pop out the draft with the provided ID so the user can edit it in another
+    window.</p>
+    <p><em>Scope: Window</em></p>
+    <pre><code>messageId = <span class="hljs-string">'123'</span>
+    Actions.<span class="hljs-function"><span class="hljs-title">composePopoutDraft</span><span class="hljs-params">(messageId)</span></span>
+    </code></pre></p>
+    <h4 id=composeNewBlankDraft>composeNewBlankDraft <a href="#composeNewBlankDraft" class="link"></a></h4>
+    <p><p>Open a new composer window for creating a new draft from scratch.</p>
+    <p><em>Scope: Window</em></p>
+    <pre><code>Actions.<span class="hljs-function"><span class="hljs-title">composeNewBlankDraft</span><span class="hljs-params">()</span></span>
+    </code></pre></p>
+    <h4 id=sendDraft>sendDraft <a href="#sendDraft" class="link"></a></h4>
+    <p><p>Send the draft with the given ID. This Action is handled by the <a href='draftstore.html'>DraftStore</a>,
+    which finalizes the <a href='draftchangeset.html'>DraftChangeSet</a> and allows <a href='draftstoreextension.html'>DraftStoreExtension</a>s to display
+    warnings and do post-processing. To change send behavior, you should consider using
+    one of these objects rather than listening for the {sendDraft} action.</p>
+    <p><em>Scope: Window</em></p>
+    <pre><code>Actions.<span class="hljs-function"><span class="hljs-title">sendDraft</span><span class="hljs-params">(<span class="hljs-string">'123'</span>)</span></span>
+    </code></pre></p>
+    <h4 id=destroyDraft>destroyDraft <a href="#destroyDraft" class="link"></a></h4>
+    <p><p>Destroys the draft with the given ID. This Action is handled by the <a href='draftstore.html'>DraftStore</a>,
+    and does not display any confirmation UI.</p>
+    <p><em>Scope: Window</em></p>
+    </p>
+    <h4 id=removeCurrentlyFocusedThread>removeCurrentlyFocusedThread <a href="#removeCurrentlyFocusedThread" class="link"></a></h4>
+    <p><p>Remove the currently focused <a href='thread.html'>Thread</a>.</p>
+    <p><em>Scope: Window</em></p>
+    </p>
+    <h4 id=removeSelection>removeSelection <a href="#removeSelection" class="link"></a></h4>
+    <p><p>Removes the Thread objects currently selected in the app&#39;s main thread list.</p>
+    <p><em>Scope: Window</em></p>
+    </p>
+    <h4 id=searchQueryChanged>searchQueryChanged <a href="#searchQueryChanged" class="link"></a></h4>
+    <p><p>Updates the search query in the app&#39;s main search bar with the provided query text.</p>
+    <p><em>Scope: Window</em></p>
+    <pre><code>Actions.<span class="hljs-function"><span class="hljs-title">searchQueryChanged</span><span class="hljs-params">(<span class="hljs-string">"New Search Query"</span>)</span></span>
+    </code></pre></p>
+    <h4 id=searchQueryCommitted>searchQueryCommitted <a href="#searchQueryCommitted" class="link"></a></h4>
+    <p><p>Submits a search with the provided query text. Unlike <code>searchQueryChanged</code>, this
+    action immediately performs a search.</p>
+    <p><em>Scope: Window</em></p>
+    <pre><code>Actions.<span class="hljs-function"><span class="hljs-title">searchQueryCommitted</span><span class="hljs-params">(<span class="hljs-string">"New Search Query"</span>)</span></span>
+    </code></pre></p>
+    <h4 id=RSVPEvent>RSVPEvent <a href="#RSVPEvent" class="link"></a></h4>
+    <p><p>Submits the user&#39;s response to an RSVP event.</p>
+    <p><em>Scope: Window</em></p>
+    </p>
+    <h4 id=postNotification>postNotification <a href="#postNotification" class="link"></a></h4>
+    <p><p>Fire to display an in-window notification to the user in the app&#39;s standard
+    notification interface.</p>
+    <p><em>Scope: Global</em></p>
+    <pre><code><span class="hljs-comment"># A simple notification</span>
+    Actions.postNotification({message: <span class="hljs-string">"Removed Thread"</span>, <span class="hljs-built_in">type</span>: <span class="hljs-string">'success'</span>})
+    
+    <span class="hljs-comment"># A sticky notification with actions</span>
+    NOTIF_ACTION_YES = <span class="hljs-string">'YES'</span>
+    NOTIF_ACTION_NO = <span class="hljs-string">'NO'</span>
+    
+    Actions.postNotification
+      <span class="hljs-built_in">type</span>: <span class="hljs-string">'info'</span>,
+      sticky: <span class="hljs-literal">true</span>
+      message: <span class="hljs-string">"Thanks for trying out N1! Would you like to make it your default mail client?"</span>,
+      icon: <span class="hljs-string">'fa-inbox'</span>,
+      actions: [{
+        label: <span class="hljs-string">'Yes'</span>
+        id: NOTIF_ACTION_YES
+      },{
+        label: <span class="hljs-string">'Not Now'</span>
+        id: NOTIF_ACTION_NO
+      }]
+    </code></pre></p>
+    <h4 id=notificationActionTaken>notificationActionTaken <a href="#notificationActionTaken" class="link"></a></h4>
+    <p><p>Listen to this action to handle user interaction with notifications you
+    published via <code>postNotification</code>.</p>
+    <p><em>Scope: Global</em></p>
+    <pre><code><span class="hljs-variable">@_unlisten</span> = Actions.notificationActionTaken.<span class="hljs-function">listen</span>(<span class="hljs-variable">@_onActionTaken</span>, @)
+    
+    <span class="hljs-attribute">_onActionTaken</span>: ({notification, action}) -&gt;
+      if action.id is NOTIF_ACTION_YES
+        # perform action
+    </code></pre></p>
+    <h4 id=removeFile>removeFile <a href="#removeFile" class="link"></a></h4>
+    <p><p>Remove a file from a draft.</p>
+    <p><em>Scope: Window</em></p>
+    <pre><code>Actions<span class="hljs-class">.removeFile</span>
+      file: fileObject
+      messageClientId: draftClientId
+    </code></pre></p>
+    <h4 id=popSheet>popSheet <a href="#popSheet" class="link"></a></h4>
+    <p><p>Pop the current sheet off the Sheet stack maintained by the <a href='workspacestore.html'>WorkspaceStore</a>.
+    This action has no effect if the window is currently showing a root sheet.</p>
+    <p><em>Scope: Window</em></p>
+    </p>
+    <h4 id=pushSheet>pushSheet <a href="#pushSheet" class="link"></a></h4>
+    <p><p>Push a sheet of a specific type onto the Sheet stack maintained by the
+    <a href='workspacestore.html'>WorkspaceStore</a>. Note that sheets have no state. To show a <em>specific</em> thread,
+    you should push a Thread sheet and call <code>setFocus</code> to select the thread.</p>
+    <p><em>Scope: Window</em></p>
+    <pre><code>WorkspaceStore.defineSheet <span class="hljs-string">'Thread'</span>, <span class="hljs-list">{}</span>,
+        list: [<span class="hljs-string">'MessageList'</span>, <span class="hljs-string">'MessageListSidebar'</span>]
+    
+    ...
+    
+    @pushSheet(WorkspaceStore.Sheet.<span class="hljs-keyword">Thread</span>)
+    </code></pre></p>
 
-</script>
 
-</body>
-</html>
+
+

@@ -1,0 +1,16 @@
+---
+layout: docs
+title: test.md
+---
+<pre><code class="lang-coffee">render: =&gt;
+  &lt;<span class="hljs-type">Popover</span> <span class="hljs-keyword">ref</span>=<span class="hljs-string">"popover"</span>
+           className=<span class="hljs-string">"translate-language-picker pull-right"</span>
+           buttonComponent={@_renderButton()}&gt;
+    &lt;<span class="hljs-type">Menu</span> items={ <span class="hljs-type">Object</span>.keys(<span class="hljs-type">YandexLanguages</span>) }
+          itemKey={ (item) -&gt; item }
+          itemContent={ (item) -&gt; item }
+          onSelect={@_onTranslate}
+          /&gt;
+  &lt;/<span class="hljs-type">Popover</span>&gt;
+</code></pre>
+

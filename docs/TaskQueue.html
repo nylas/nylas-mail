@@ -1,152 +1,13 @@
-<html>
-<head>
-<meta charset="utf-8">
-<title>N1 — TaskQueue</title>
-<meta property="og:title" content="An extensible mail client built on the modern web | N1">
-<meta property="og:type" content="website">
-<meta property="og:image" content="https://nylas.github.io/N1/images/meta_share.png">
-<link rel="shortcut icon" href="/N1/images/favicon.ico">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<link rel="stylesheet" type="text/css" href="/N1/css/main.css"/>
-<link rel="stylesheet" type="text/css" href="/N1/css/tomorrow.css">
-</head>
-<body>
-<div id="header">
-  <div class="container">
-    <img src="/images/edgehill.png" class="logo" />
-    <div class="title">N1<div class="small">Developer Preview</div></div>
-  </div>
-</div>
+---
+layout: docs
+title: TaskQueue
+---
 
-<div class="container">
+<h2>Summary</h2>
 
-<div class="page-title">
-  TaskQueue
-</div>
-
-<div id="sidebar">
-  <div class="heading">Getting Started</div>
-  <ul>
-        <li><a href="/guides/FirstSteps.html" >First Steps</a></li>
-  </ul>
-  <div class="heading">Guides</div>
-  <ul>
-        <li><a href="/guides/InterfaceConcepts.html" >Interface Concepts</a></li>
-        <li><a href="/guides/PackageOverview.html" >Building a Package</a></li>
-        <li><a href="/guides/React.html" >Interface Components</a></li>
-        <li><a href="/guides/Architecture.html" >Application Architecture</a></li>
-        <li><a href="/guides/Debugging.html" >Debugging N1</a></li>
-        <li><a href="/guides/Database.html" >Accessing the Database</a></li>
-        <li><a href="/guides/DraftStoreExtensions.html" >Extending the Composer</a></li>
-        <li><a href="/guides/WritingSpecs.html" >Writing Specs</a></li>
-  </ul>
-  <div class="heading">Sample Code</div>
-  <ul>
-        <li><a href="https://github.com/nylas/edgehill-plugins/tree/master/translate" target="_blank">Composer Translation</a></li>
-        <li><a href="https://github.com/nylas/edgehill-plugins/tree/master/sidebar-github-profile" target="_blank">Github Sidebar</a></li>
-  </ul>
-  <div class="heading">API Reference</div>
-  <ul>
-        <div class="heading">General</div>
-        <ul>
-              <li><a href="/docs/Actions.html" >Actions</a></li>
-              <li><a href="/docs/Atom.html" >Atom</a></li>
-              <li><a href="/docs/BufferedNodeProcess.html" >BufferedNodeProcess</a></li>
-              <li><a href="/docs/BufferedProcess.html" >BufferedProcess</a></li>
-              <li><a href="/docs/ChangeFolderTask.html" >ChangeFolderTask</a></li>
-              <li><a href="/docs/ChangeLabelsTask.html" >ChangeLabelsTask</a></li>
-              <li><a href="/docs/Config.html" >Config</a></li>
-              <li><a href="/docs/DraggableImg.html" >DraggableImg</a></li>
-              <li><a href="/docs/FocusTrackingRegion.html" >FocusTrackingRegion</a></li>
-              <li><a href="/docs/Switch.html" >Switch</a></li>
-              <li><a href="/docs/Task.html" >Task</a></li>
-              <li><a href="/docs/TaskQueueStatusStore.html" >TaskQueueStatusStore</a></li>
-        </ul>
-        <div class="heading">Component Kit</div>
-        <ul>
-              <li><a href="/docs/EventedIFrame.html" >EventedIFrame</a></li>
-              <li><a href="/docs/Flexbox.html" >Flexbox</a></li>
-              <li><a href="/docs/InjectedComponent.html" >InjectedComponent</a></li>
-              <li><a href="/docs/InjectedComponentSet.html" >InjectedComponentSet</a></li>
-              <li><a href="/docs/Menu.html" >Menu</a></li>
-              <li><a href="/docs/MenuItem.html" >MenuItem</a></li>
-              <li><a href="/docs/MenuNameEmailItem.html" >MenuNameEmailItem</a></li>
-              <li><a href="/docs/MultiselectActionBar.html" >MultiselectActionBar</a></li>
-              <li><a href="/docs/MultiselectList.html" >MultiselectList</a></li>
-              <li><a href="/docs/Popover.html" >Popover</a></li>
-              <li><a href="/docs/ResizableRegion.html" >ResizableRegion</a></li>
-              <li><a href="/docs/RetinaImg.html" >RetinaImg</a></li>
-              <li><a href="/docs/Spinner.html" >Spinner</a></li>
-              <li><a href="/docs/TimeoutTransitionGroupChild.html" >TimeoutTransitionGroupChild</a></li>
-              <li><a href="/docs/UnsafeComponent.html" >UnsafeComponent</a></li>
-        </ul>
-        <div class="heading">Models</div>
-        <ul>
-              <li><a href="/docs/Account.html" >Account</a></li>
-              <li><a href="/docs/Calendar.html" >Calendar</a></li>
-              <li><a href="/docs/Contact.html" >Contact</a></li>
-              <li><a href="/docs/File.html" >File</a></li>
-              <li><a href="/docs/Folder.html" >Folder</a></li>
-              <li><a href="/docs/Label.html" >Label</a></li>
-              <li><a href="/docs/Message.html" >Message</a></li>
-              <li><a href="/docs/Model.html" >Model</a></li>
-              <li><a href="/docs/Thread.html" >Thread</a></li>
-        </ul>
-        <div class="heading">Stores</div>
-        <ul>
-              <li><a href="/docs/AccountStore.html" >AccountStore</a></li>
-              <li><a href="/docs/ComponentRegistry.html" >ComponentRegistry</a></li>
-              <li><a href="/docs/ContactStore.html" >ContactStore</a></li>
-              <li><a href="/docs/EventStore.html" >EventStore</a></li>
-              <li><a href="/docs/FocusedContentStore.html" >FocusedContentStore</a></li>
-              <li><a href="/docs/MessageStoreExtension.html" >MessageStoreExtension</a></li>
-              <li><a href="/docs/TaskQueue.html" >TaskQueue</a></li>
-              <li><a href="/docs/WorkspaceStore.html" >WorkspaceStore</a></li>
-        </ul>
-        <div class="heading">Database</div>
-        <ul>
-              <li><a href="/docs/Attribute.html" >Attribute</a></li>
-              <li><a href="/docs/AttributeBoolean.html" >AttributeBoolean</a></li>
-              <li><a href="/docs/AttributeCollection.html" >AttributeCollection</a></li>
-              <li><a href="/docs/AttributeDateTime.html" >AttributeDateTime</a></li>
-              <li><a href="/docs/AttributeJoinedData.html" >AttributeJoinedData</a></li>
-              <li><a href="/docs/AttributeNumber.html" >AttributeNumber</a></li>
-              <li><a href="/docs/AttributeObject.html" >AttributeObject</a></li>
-              <li><a href="/docs/AttributeServerId.html" >AttributeServerId</a></li>
-              <li><a href="/docs/AttributeString.html" >AttributeString</a></li>
-              <li><a href="/docs/DatabaseStore.html" >DatabaseStore</a></li>
-              <li><a href="/docs/DatabaseView.html" >DatabaseView</a></li>
-              <li><a href="/docs/Matcher.html" >Matcher</a></li>
-              <li><a href="/docs/ModelQuery.html" >ModelQuery</a></li>
-              <li><a href="/docs/SortOrder.html" >SortOrder</a></li>
-        </ul>
-        <div class="heading">Drafts</div>
-        <ul>
-              <li><a href="/docs/DraftChangeSet.html" >DraftChangeSet</a></li>
-              <li><a href="/docs/DraftStore.html" >DraftStore</a></li>
-              <li><a href="/docs/DraftStoreExtension.html" >DraftStoreExtension</a></li>
-              <li><a href="/docs/DraftStoreProxy.html" >DraftStoreProxy</a></li>
-        </ul>
-        <div class="heading">Atom</div>
-        <ul>
-              <li><a href="/docs/Clipboard.html" >Clipboard</a></li>
-              <li><a href="/docs/Color.html" >Color</a></li>
-              <li><a href="/docs/CommandRegistry.html" >CommandRegistry</a></li>
-              <li><a href="/docs/MenuManager.html" >MenuManager</a></li>
-              <li><a href="/docs/PackageManager.html" >PackageManager</a></li>
-              <li><a href="/docs/ScopeDescriptor.html" >ScopeDescriptor</a></li>
-              <li><a href="/docs/StyleManager.html" >StyleManager</a></li>
-              <li><a href="/docs/ThemeManager.html" >ThemeManager</a></li>
-        </ul>
-  </ul>
-</div>
-
-<div id="main">
-  <h2>Summary</h2>
-
-  <div class="markdown-from-sourecode">
-    <p><p>The TaskQueue is a Flux-compatible Store that manages a queue of <a href='/docs/task.html'>Task</a>
-objects. Each <a href='/docs/task.html'>Task</a> represents an individual API action, like sending a draft
+<div class="markdown-from-sourecode">
+  <p><p>The TaskQueue is a Flux-compatible Store that manages a queue of <a href='task.html'>Task</a>
+objects. Each <a href='task.html'>Task</a> represents an individual API action, like sending a draft
 or marking a thread as &quot;read&quot;. Tasks optimistically make changes to the app&#39;s
 local cache and encapsulate logic for performing changes on the server, rolling
 back in case of failure, and waiting on dependent tasks.</p>
@@ -155,7 +16,7 @@ when the user&#39;s internet connection is unavailable and resumes when online.<
 <p>The task queue is persisted to disk, ensuring that tasks are executed later,
 even if the user quits N1.</p>
 <p>The TaskQueue is only available in the app&#39;s main window. Rather than directly
-queuing tasks, you should use the <a href='/docs/actions.html'>Actions</a> to interact with the <a href='/docs/taskqueue.html'>TaskQueue</a>.
+queuing tasks, you should use the <a href='actions.html'>Actions</a> to interact with the <a href='taskqueue.html'>TaskQueue</a>.
 Tasks queued from secondary windows are serialized and sent to the application&#39;s
 main window via IPC.</p>
 <h2 id="queueing-a-task">Queueing a Task</h2>
@@ -171,91 +32,67 @@ main window via IPC.</p>
 })
 </code></pre>
 <h2 id="creating-tasks">Creating Tasks</h2>
-<p>Support for creating custom <a href='/docs/task.html'>Task</a> subclasses in third-party packages is coming soon.
+<p>Support for creating custom <a href='task.html'>Task</a> subclasses in third-party packages is coming soon.
 This is currently blocked by the ActionBridge, which is responsible for sending actions
 between windows, since it&#39;s JSON serializer is not extensible.</p>
 </p>
-  </div>
+</div>
 
-  <ul>
-  </ul>
-
-
+<ul>
+</ul>
 
 
 
-      <h3>Instance Methods</h3>
 
-      <h4 id=findTask class="function-name">
-        findTask(<span class="args"><span class="arg">type</span><span class="arg">matching</span></span>) <a href="#findTask" class="link"></a>
-      </h4>
-      
-      <div class="function-description markdown-from-sourecode">
-        <p></p>
-      </div>
-      
-          <strong>Parameters</strong>
-          <table class="arguments">
-              <tr>
-                <th>Argument</th>
-                <th>Description</th>
-              </tr>
-              <tr>
-                <td style="width:15%;">
-                  <em>type</em>
-                </td>
-                <td class="markdown-from-sourecode">
-                  
-                  <p>The string name of the task class, or the Task class itself. (ie: {SaveDraftTask} or &#39;SaveDraftTask&#39;)</p>
-      
-                </td>
-              </tr>
-              <tr>
-                <td style="width:15%;">
-                  <em>matching</em>
-                </td>
-                <td class="markdown-from-sourecode">
-                  
-                  <p>Optional An <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a> with criteria to pass to _.isMatch. For a  SaveDraftTask, this could be {draftClientId: &quot;123123&quot;}</p>
-      
-                </td>
-              </tr>
-          </table>
-      
-          <strong>Returns</strong>
-          <table class="arguments">
+
+    <h3>Instance Methods</h3>
+
+    <h4 id=findTask class="function-name">
+      findTask(<span class="args"><span class="arg">type</span><span class="arg">matching</span></span>) <a href="#findTask" class="link"></a>
+    </h4>
+    
+    <div class="function-description markdown-from-sourecode">
+      <p></p>
+    </div>
+    
+        <strong>Parameters</strong>
+        <table class="arguments">
             <tr>
-              <th>Return Values</th>
+              <th>Argument</th>
+              <th>Description</th>
             </tr>
-            <tr><td class="markdown-from-sourecode"><p>Returns an existing task in the queue that matches the type you provide,
-      and any other match properties. Useful for checking to see if something, like
-      a &quot;SendDraft&quot; task is in-flight.</p>
-      </td></tr>
-            <tr><td class="markdown-from-sourecode"><p>Returns a matching <a href='/docs/task.html'>Task</a>, or null.</p>
-      </td></tr>
-          </table>
+            <tr>
+              <td style="width:15%;">
+                <em>type</em>
+              </td>
+              <td class="markdown-from-sourecode">
+                
+                <p>The string name of the task class, or the Task class itself. (ie: {SaveDraftTask} or &#39;SaveDraftTask&#39;)</p>
+    
+              </td>
+            </tr>
+            <tr>
+              <td style="width:15%;">
+                <em>matching</em>
+              </td>
+              <td class="markdown-from-sourecode">
+                
+                <p>Optional An <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a> with criteria to pass to _.isMatch. For a  SaveDraftTask, this could be {draftClientId: &quot;123123&quot;}</p>
+    
+              </td>
+            </tr>
+        </table>
+    
+        <strong>Returns</strong>
+        <table class="arguments">
+          <tr>
+            <th>Return Values</th>
+          </tr>
+          <tr><td class="markdown-from-sourecode"><p>Returns an existing task in the queue that matches the type you provide,
+    and any other match properties. Useful for checking to see if something, like
+    a &quot;SendDraft&quot; task is in-flight.</p>
+    </td></tr>
+          <tr><td class="markdown-from-sourecode"><p>Returns a matching <a href='task.html'>Task</a>, or null.</p>
+    </td></tr>
+        </table>
 
-</div>
-
-</div>
-
-<div id="footer">
-  <div class="container">
-    <img src="images/edgehill.png" class="logo" />
-    <div class="small">N1 Developer Preview<br><em>© 2014-2015 Nylas, Inc.</em></div>
-  </div>
-</div>
-
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-60022049-2', 'auto');
-  ga('send', 'pageview');
-
-</script>
-
-</body>
-</html>

@@ -1,0 +1,19 @@
+{% include top.html %}
+
+<body class="wrap">
+  {% include header.html %}
+
+  <div class="container container-docs" style="padding-top:80px;">
+    <div id="sidebar">
+      {% include sidebar.html %}
+    </div>
+    <div id="main">
+      {{ content }}
+    </div>
+  </div>
+
+  {% include footer.html %}
+  {% include analytics.html %}
+
+</body>
+</html>

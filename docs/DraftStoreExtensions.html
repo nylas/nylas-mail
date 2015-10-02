@@ -1,0 +1,39 @@
+---
+layout: docs
+title: Extending the Composer
+---
+<p>The composer lies at the heart of N1, and many improvements to the mail experience require deep integration with the composer. To enable these sort of plugins, the <a href='draftstore.html'>DraftStore</a> exposes an extension API.</p>
+<p>This API allows your package to:</p>
+<ul>
+<li><p>Display warning messages before a draft is sent. (ie: &quot;Are you sure you want to send this without attaching a file?&quot;)</p>
+</li>
+<li><p>Intercept keyboard and mouse events to the composer&#39;s text editor.</p>
+</li>
+<li><p>Transform the draft and make additional changes before it is sent.</p>
+</li>
+</ul>
+<p>To create your own composer extensions, subclass <a href='draftstoreextension.html'>DraftStoreExtension</a> and override the methods your extension needs.</p>
+<p>In the sample packages repository, <a href="">templates</a> is an example of a package which uses a DraftStoreExtension to enhance the composer experience.</p>
+<h3 id="example">Example</h3>
+<p>This extension displays a warning before sending a draft that contains the names of competitors&#39; products. If the user proceeds to send the draft containing the words, it appends a disclaimer.</p>
+<pre><code class="lang-coffee"><a href='draftstoreextension.html'>DraftStoreExtension</a> = <span class="hljs-built_in">require</span> <span class="hljs-string">'nylas-exports'</span>
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ProductsExtension</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">DraftStoreExtension</span></span>
+
+   <span class="hljs-property">@warningsForSending</span>: <span class="hljs-function"><span class="hljs-params">(draft)</span> -&gt;</span>
+      words = [<span class="hljs-string">'acme'</span>, <span class="hljs-string">'anvil'</span>, <span class="hljs-string">'tunnel'</span>, <span class="hljs-string">'rocket'</span>, <span class="hljs-string">'dynamite'</span>]
+      body = draft.body.toLowercase()
+      <span class="hljs-keyword">for</span> word <span class="hljs-keyword">in</span> words
+        <span class="hljs-keyword">if</span> body.indexOf(word) &gt; <span class="hljs-number">0</span>
+            <span class="hljs-keyword">return</span> [<span class="hljs-string">"with the word '<span class="hljs-subst">#{word}</span>'?"</span>]
+      <span class="hljs-keyword">return</span> []
+
+   <span class="hljs-property">@finalizeSessionBeforeSending</span>: <span class="hljs-function"><span class="hljs-params">(session)</span> -&gt;</span>
+      draft = session.draft()
+      <span class="hljs-keyword">if</span> <span class="hljs-property">@warningsForSending</span>(draft)
+         bodyWithWarning = draft.body += <span class="hljs-string">"&lt;br&gt;This email \
+             contains competitor's product names \
+            or trademarks used in context."</span>
+         session.changes.add(<span class="hljs-attribute">body</span>: bodyWithWarning)
+</code></pre>
+

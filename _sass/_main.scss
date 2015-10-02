@@ -1,0 +1,395 @@
+
+@font-face {
+  font-family: 'FaktPro';
+  font-style: normal;
+  font-weight: 200;
+  src: local('FaktPro-Thin'), url('/fonts/FaktPro-Thin.ttf'), local('Helvetica Neue'), local('Helvetica');
+}
+
+@font-face {
+  font-family: 'FaktPro';
+  font-style: normal;
+  font-weight: 300;
+  src: local('FaktPro-Light'), url('/fonts/FaktPro-Light.ttf'), local('Helvetica Neue'), local('Helvetica');
+}
+
+@font-face {
+  font-family: 'FaktPro';
+  font-style: normal;
+  font-weight: 400;
+  src: local('FaktPro-Blond'), url('/fonts/FaktPro-Blond.ttf'), local('Helvetica Neue'), local('Helvetica');
+}
+
+@font-face {
+  font-family: 'FaktPro';
+  font-style: normal;
+  font-weight: 500;
+  src: local('FaktPro-Medium'), url('/fonts/FaktPro-Medium.ttf'), local('Helvetica Neue'), local('Helvetica');
+}
+
+@font-face {
+  font-family: 'FaktPro';
+  font-style: normal;
+  font-weight: 600;
+  src: local('FaktPro-SemiBold'), url('/fonts/FaktPro-SemiBold.ttf'), local('Helvetica Neue'), local('Helvetica');
+}
+
+body {
+    padding: 0;
+    margin: 0;
+    font-family: 'FaktPro';
+    font-weight: normal;
+    font-size: 16px;
+    line-height: 1.5em;
+    background-color: white;
+    margin: 0;
+}
+table {
+    margin: 10px 0 15px 0;
+    border-collapse: collapse;
+}
+td,th {
+    vertical-align: top;
+    border: 1px solid #ddd;
+    padding: 10px;
+    line-height: 1.5em;
+}
+th {
+    padding: 5px 10px;
+}
+
+a {
+    color: #0069d6;
+    text-decoration: none;
+}
+a:hover {
+    color: #0050a3;
+    text-decoration: none;
+}
+a img {
+    border: none;
+}
+
+#header {
+  padding-top:40px;
+  padding-bottom:20px;
+  background-color:#eee;
+  margin-bottom:40px;
+}
+#footer {
+  margin-top:50px;
+  padding-top:30px;
+  padding-bottom:30px;
+  background-color:#eee;
+  clear:both;
+}
+
+#header .logo,
+#footer .logo {
+  float:left;
+  width:50px;
+  padding-right: 15px;
+}
+#header .title,
+#footer .title {
+  line-height: 22px;
+  font-size:20px;
+  font-weight:600;
+  padding-top:6px;
+}
+#header .small,
+#footer .small {
+  font-weight:300;
+  font-size:0.9em;
+}
+
+#main {
+  margin-left:290px;
+}
+
+#sidebar {
+  float:left;
+  position:static;
+  width:250px;
+}
+
+#sidebar .heading {
+  color:#404040;
+  line-height:28px;
+  font-size:16px;
+  font-weight:bold;
+}
+#sidebar ul .heading {
+  line-height:22px;
+  font-size:14px;
+  padding-top:6px;
+}
+
+#sidebar ul {
+  margin-top:0;
+  padding-left:15px;
+}
+#sidebar ul li {
+  list-style-type:none;
+}
+#sidebar ul li a {
+  color:#404040;
+  font-size:14px;
+  line-height:1.8em;
+}
+#sidebar ul li.active a {
+  color:black;
+  font-size:14px;
+  font-weight: bold;
+  line-height:1.8em;
+}
+
+.page-title {
+  font-weight:200;
+  font-size:40px;
+  color:#404040;
+  padding-bottom:40px;
+  padding-top:30px;
+}
+.page-title .extends {
+  font-style: italic;
+  font-size:0.7em;
+  color:#ccc;
+}
+
+/* It's not possible to make H3+ in Markdown parsed out of source code, because
+ Coffeescript uses the ### as the comment block character. Allow the use of #
+ and ##, but convert these h1 and h2 elements to smaller headings. */
+.markdown-from-sourecode h1,
+.markdown-from-sourecode h2 {
+  font-size: 24px;
+  margin-top:30px;
+}
+
+.article img {
+  margin-top:18px;
+  margin-bottom:18px;
+}
+
+.article .center-logo {
+  width:270px;
+  height:270px;
+  margin:auto;
+  margin-top:20px;
+  display:block;
+  border:0;
+}
+
+.function-name {
+  border-bottom:1px solid #ccc;
+  padding-top:10px;
+}
+.function-name .arg {
+  color: #999;
+}
+.function-name .arg:after {
+  content: ", ";
+  color: #999;
+}
+.function-name .arg:last-child:after {
+  content: "";
+}
+.function-description h1,
+.function-description h2,
+.function-description h3,
+.function-description h4,
+.function-description h5 {
+  font-size: 16px;
+  line-height:1.5em;
+  margin:0;
+}
+
+table th {
+  background-color: #EAF7F6;
+  text-align:left;
+}
+table td {
+  position:relative;
+}
+table.arguments {
+  width:100%;
+}
+table.arguments p {
+  margin-bottom:0;
+}
+table.arguments .optional {
+  background-color: #EAF7F6;
+  position:absolute;
+  top:0px;
+  right:0px;
+  padding-right: 4px;
+  padding-left: 4px;
+  font-weight: 500;
+  font-size: 11px;
+  line-height:16px;
+}
+
+table.no-border td {
+  border:0;
+}
+
+h1 {
+  font-weight: 200;
+  font-size: 100px;
+  line-height: 100px;
+  margin:20px;
+  padding:0;
+}
+h3 {
+  font-weight: 200;
+  font-size: 45px;
+  line-height:1.2em;
+  margin-bottom:20px;
+  margin-top:0;
+  padding:0;
+}
+h4 {
+  font-weight: 200;
+  font-size: 30px;
+  line-height:1.2em;
+  margin:0;
+  margin-top: 15px;
+  padding:0;
+  opacity: 0.7;
+  display:inline-block;
+}
+body, html {
+}
+p {
+  font-weight: 200;
+  font-size: 20px;
+  line-height:1.7em;
+
+}
+
+.container {
+  max-width:1000px;
+  margin:auto;
+}
+
+.grid.feature {
+  margin-top:100px;
+}
+
+.hero {
+  width:100%;
+  height:700px;
+  position:relative;
+  overflow: hidden;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.35);
+  -webkit-user-select:none;
+}
+.hacker {
+  width:100%;
+  height:500px;
+  margin-top:100px;
+  background: url(/images/hacker_background.png) center no-repeat;
+  background-size: cover;
+}
+.hero-bg-left {
+  width:100%;
+  height: 700px;
+  background: url(/images/left.png) top left no-repeat;
+  background-size: contain;
+  z-index: 1;
+  position: absolute;
+}
+.hero-bg-right {
+  width:100%;
+  height: 700px;
+  background: url(/images/right.png) top right no-repeat;
+  background-size: contain;
+  z-index: 2;
+  position: absolute;
+}
+.hero .copy {
+  text-align: center;
+  z-index: 3;
+  margin:auto;
+  max-width:80%;
+  position: relative;
+  top: 15%;
+}
+.footer {
+  padding-top:15px;
+  padding-bottom:15px;
+  box-shadow: 0 1px -1px rgba(0,0,0,0.35);
+}
+.nav {
+  line-height: 50px;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.35);
+  -webkit-user-select:none;
+  cursor:default;
+  position:fixed;
+  width:100%;
+  z-index:4;
+  background-color:rgba(255,255,255,1);
+  a {
+    color: inherit;
+  }
+  ul {
+    display: inline-block;
+    padding:0;
+    padding-left:30px;
+    margin: 0;
+    li {
+      list-style-type: none;
+      display: inline-block;
+      padding-left: 15px;
+      padding-right: 15px;
+      color: rgba(0,0,0,0.7);
+    }
+    li:hover {
+      color: rgba(0,0,0,1);
+    }
+    li.active {
+      font-weight: 600;
+      color: rgba(0,0,0,1);
+    }
+  }
+}
+
+.btn {
+  -webkit-user-select:none;
+  padding: 0.33em 1em;
+  border-radius: 4px;
+  border: 0;
+  cursor: default;
+  display:inline-block;
+  color: #231f20;
+  background: linear-gradient(to top, rgba(241, 241, 241, 0.75) 0%, rgba(253, 253, 253, 0.75) 100%);
+  height: auto;
+  line-height: 1;
+  box-shadow: 0 0.5px 0 rgba(0,0,0,0.15), 0 -0.5px 0 rgba(0,0,0,0.15), 0.5px 0 0 rgba(0,0,0,0.15), -0.5px 0 0 rgba(0,0,0,0.15), 0 1px 1px rgba(0, 0, 0, 0.15);
+
+  &:active {
+    background: linear-gradient(to top, rgba(230, 230, 230, 0.75) 0%, rgba(220, 220, 220, 0.75) 100%);
+  }
+}
+
+.btn-large {
+  padding: 12px;
+  padding-left: 30px;
+  padding-right: 30px;
+  font-size: 20px;
+}
+
+.btn.btn-emphasis {
+  position: relative;
+  color: white;
+  background: linear-gradient(to bottom, #6bb1f9 0%, #0a80ff 100%);
+  box-shadow: none;
+  border: 1px solid #3878fa;
+
+  &:hover {
+    color:white;
+  }
+  &:active {
+    background: linear-gradient(to bottom, #3878fa 0%, #0a80ff 100%);
+  }
+}

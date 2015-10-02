@@ -1,0 +1,28 @@
+<div class="nav">
+  <div class="container">
+    <a href="/">
+      <span style="font-weight:400; padding-right:7px; font-size:25px; display:inline-block; float:left;">Nylas</span>
+      <span style="font-weight:300; font-size:25px; display:inline-block;">N1</span>
+    </a>
+
+    <ul>
+      <li class="{% if page.overview %}active{% endif %}">
+        <a href="/">Home</a>
+      </li>
+      <li class="{% if page.url contains '/examples' %}active{% endif %}">
+        <a href="/examples">Examples</a>
+      </li>
+      <li class="{% if page.url contains '/docs/' %}active{% endif %}">
+        <a href="/docs">Documentation</a>
+      </li>
+    </ul>
+    <div style="float:right; display:block;">
+      <ul>
+        <li>Support</li>
+      </ul>
+      <ul>
+        <li class="btn btn-emphasis">Download</li>
+      </ul>
+    </div>
+  </div>
+</div>

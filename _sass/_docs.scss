@@ -1,0 +1,146 @@
+.container-docs {
+  color: #737373;
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  blockquote {
+      margin: 0;
+      padding: 0;
+  }
+  strong {
+    color: #404040;
+  }
+  p {
+      margin-bottom: 12px;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+      color: #404040;
+      line-height: 36px;
+  }
+  h1 {
+      font-size: 40px;
+      margin-top:30px;
+  }
+  h2 {
+      font-size: 30px;
+      margin-top:30px;
+  }
+  h3 {
+      font-size: 24px;
+      margin-top:30px;
+  }
+  h4 {
+      font-size: 18px;
+      margin-top:20px;
+  }
+  h5 {
+      font-size: 16px;
+  }
+  h6 {
+      font-size: 14px;
+  }
+  hr {
+      margin: 0 0 19px;
+      border: 0;
+      border-bottom: 1px solid #ccc;
+  }
+  h1:first-child,
+  h2:first-child,
+  h3:first-child,
+  h4:first-child,
+  h5:first-child,
+  h6:first-child {
+      margin-top:0;
+  }
+
+  blockquote {
+    padding: 13px 13px 21px 15px;
+    margin-bottom: 18px;
+    font-family:georgia,serif;
+    font-style: italic;
+    border-left: 5px solid #C7DDDB;
+    background-color: #EAF7F6;
+  }
+  blockquote p {
+    font-size: 15px;
+    font-weight: normal;
+    margin-bottom: 0;
+    font-style: italic;
+  }
+  blockquote code {
+    background-color:white;
+  }
+  img {
+    max-width:100%;
+  }
+  code, pre {
+    font-family: Monaco, Andale Mono, Courier New, monospace;
+  }
+  code {
+    color: rgba(0, 0, 0, 0.75);
+    background-color: #EAF7F6;
+    padding: 1px 3px;
+    font-size: 14px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+  }
+  pre {
+    margin: 0 0 18px;
+    line-height: 18px;
+    font-size: 14px;
+    border: 1px solid #d9d9d9;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  pre code {
+    font-size: 13px;
+    background-color: white;
+    padding: 0;
+    display: block;
+    padding: 14px;
+  }
+  sup {
+    font-size: 0.83em;
+    vertical-align: super;
+    line-height: 0;
+  }
+  * {
+    -webkit-print-color-adjust: exact;
+  }
+
+  .link {
+    width:18px;
+    height:18px;
+    display:inline-block;
+    vertical-align:sub;
+    opacity:0.4;
+    background:url(/images/link.png) top left;
+    background-size:cover;
+  }
+
+  @media screen and (min-width: 1020px) {
+      .container {
+          width: 960px;
+          margin:auto;
+      }
+  }
+  @media print {
+      body,code,pre code,h1,h2,h3,h4,h5,h6 {
+          color: black;
+      }
+      table, pre {
+          page-break-inside: avoid;
+      }
+  }
+}
