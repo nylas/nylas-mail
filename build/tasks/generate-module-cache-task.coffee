@@ -23,7 +23,6 @@ module.exports = (grunt) ->
           'src'
           'src/browser'
           'static'
-          'vendor'
         ]
 
     # Reactionary does not have an explicit react dependency

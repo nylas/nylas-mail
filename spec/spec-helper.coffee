@@ -3,7 +3,7 @@ atom.initialize()
 atom.restoreWindowDimensions()
 
 require 'jasmine-json'
-require '../vendor/jasmine-jquery'
+require './jasmine-jquery'
 path = require 'path'
 _ = require 'underscore'
 _str = require 'underscore.string'

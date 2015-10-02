@@ -4,7 +4,7 @@ remote = require 'remote'
 module.exports.runSpecSuite = (specSuite, logFile, logErrors=true) ->
   {$, $$} = require '../src/space-pen-extensions'
 
-  window[key] = value for key, value of require '../vendor/jasmine'
+  window[key] = value for key, value of require './jasmine'
 
   {TerminalReporter} = require 'jasmine-tagged'
 
