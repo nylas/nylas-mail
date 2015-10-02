@@ -26,7 +26,7 @@ Once you have a token:
   git clone https://github.com/nylas/N1.git
   cd N1
   script/bootstrap
-  ./n1 --dev
+  ./N1.sh --dev
   ```
 
 Our early access tokens are designed control access to our production mail sync
