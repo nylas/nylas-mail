@@ -6,6 +6,7 @@ DatabaseStore = require '../../src/flux/stores/database-store'
 {APIError} = require '../../src/flux/errors'
 Message = require '../../src/flux/models/message'
 TaskQueue = require '../../src/flux/stores/task-queue'
+SoundRegistry = require '../../src/sound-registry'
 _ = require 'underscore'
 
 describe "SendDraftTask", ->
@@ -94,7 +95,7 @@ describe "SendDraftTask", ->
         Promise.resolve()
       spyOn(DatabaseStore, 'persistModel').andCallFake (draft) ->
         Promise.resolve()
-      spyOn(atom, "playSound")
+      spyOn(SoundRegistry, "playSound")
       spyOn(Actions, "postNotification")
       spyOn(Actions, "sendDraftSuccess")
 
@@ -110,7 +111,7 @@ describe "SendDraftTask", ->
 
     it "should play a sound", ->
       waitsForPromise => @task.performRemote().then ->
-        expect(atom.playSound).toHaveBeenCalledWith("mail_sent.ogg")
+        expect(SoundRegistry.playSound).toHaveBeenCalledWith("send")
 
     it "should start an API request to /send", ->
       waitsForPromise =>

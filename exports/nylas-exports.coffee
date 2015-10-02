@@ -131,6 +131,7 @@ class NylasExports
 
   # Services
   @load "UndoManager", 'flux/undo-manager'
+  @load "SoundRegistry", 'sound-registry'
   @load "QuotedHTMLParser", 'services/quoted-html-parser'
   @load "QuotedPlainTextParser", 'services/quoted-plain-text-parser'
   @require "RemoveThreadHelper", 'services/remove-thread-helper'
