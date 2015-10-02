@@ -18,6 +18,9 @@ docs/includes
 spec/fixtures/evil-files/
 yoursway-create-dmg
 *nylas-private-*
+/_site
+/.sass-cache
+
 
 !spec/fixtures/packages/package-with-incompatible-native-module/node_modules
 
