@@ -20,6 +20,7 @@ MessageUtils = require '../models/message-utils'
 Actions = require '../actions'
 
 TaskQueue = require './task-queue'
+SoundRegistry = require '../../sound-registry'
 
 {subjectWithPrefix} = require '../models/utils'
 {Listener, Publisher} = require '../modules/reflux-coffee'
@@ -459,6 +460,7 @@ class DraftStore
 
   # The user request to send the draft
   _onSendDraft: (draftClientId) =>
+    SoundRegistry.playSound('hit-send')
     @_draftsSending[draftClientId] = true
     @trigger(draftClientId)
 

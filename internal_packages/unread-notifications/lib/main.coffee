@@ -4,6 +4,7 @@ _ = require 'underscore'
  MailViewFilter,
  AccountStore,
  CategoryStore,
+ SoundRegistry,
  DatabaseStore} = require 'nylas-exports'
 
 module.exports =
@@ -94,7 +95,7 @@ module.exports =
           threads[msg.threadId]?.categoryNamed('inbox') isnt null
 
         return resolve() if newUnreadInInbox.length is 0
-        atom.playSound('new_mail.ogg')
+        SoundRegistry.playSound('new-mail')
 
         for msg in newUnreadInInbox
           @stack.push({message: msg, thread: threads[msg.threadId]})

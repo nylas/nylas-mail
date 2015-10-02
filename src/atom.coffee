@@ -699,14 +699,6 @@ class Atom extends Model
     shell.beep() if @config.get('core.audioBeep')
     @emitter.emit 'did-beep'
 
-  playSound: (filename) ->
-    return if @inSpecMode()
-    {resourcePath} = atom.getLoadSettings()
-    a = new Audio()
-    a.src = path.join(resourcePath, 'static', 'sounds', filename)
-    a.autoplay = true
-    a.play()
-
   # Essential: A flexible way to open a dialog akin to an alert dialog.
   #
   # ## Examples

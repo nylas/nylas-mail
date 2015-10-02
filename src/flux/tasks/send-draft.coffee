@@ -7,6 +7,7 @@ TaskQueue = require '../stores/task-queue'
 SyncbackDraftTask = require './syncback-draft'
 FileUploadTask = require './file-upload-task'
 NylasAPI = require '../nylas-api'
+SoundRegistry = require '../../sound-registry'
 
 module.exports =
 class SendDraftTask extends Task
@@ -73,7 +74,7 @@ class SendDraftTask extends Task
       @draft = @draft.clone().fromJSON(json)
       @draft.draft = false
       DatabaseStore.persistModel(@draft).then =>
-        atom.playSound('mail_sent.ogg')
+        SoundRegistry.playSound('send')
         Actions.sendDraftSuccess
           draftClientId: @draftClientId
           newMessage: @draft
