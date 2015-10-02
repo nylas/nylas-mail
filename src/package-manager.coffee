@@ -38,7 +38,7 @@ class PackageManager
     @emitter = new Emitter
     @packageDirPaths = []
     if @specMode
-      @packageDirPaths.push(path.join(@resourcePath, "spec-nylas", "fixtures", "packages"))
+      @packageDirPaths.push(path.join(@resourcePath, "spec", "fixtures", "packages"))
     else
       @packageDirPaths.push(path.join(@resourcePath, "internal_packages"))
       if not safeMode

@@ -148,6 +148,6 @@ class NylasExports
   @get "APMWrapper", -> require('../apm-wrapper')
 
   # Testing
-  @get "NylasTestUtils", -> require '../../spec-nylas/test_utils'
+  @get "NylasTestUtils", -> require '../../spec/test_utils'
 
 module.exports = NylasExports

@@ -206,9 +206,8 @@ module.exports = (grunt) ->
         'dot-nylas/**/*.coffee'
         'src/**/*.coffee'
         'src/**/*.cjsx'
+        'spec/**/*.cjsx'
         'spec/**/*.coffee'
-        'spec-nylas/**/*.cjsx'
-        'spec-nylas/**/*.coffee'
       ]
 
     coffeelint:
@@ -226,9 +225,8 @@ module.exports = (grunt) ->
         'build/Gruntfile.coffee'
       ]
       test: [
+        'spec/**/*.cjsx'
         'spec/**/*.coffee'
-        'spec-nylas/**/*.cjsx'
-        'spec-nylas/**/*.coffee'
       ]
       static: [
         'static/**/*.coffee'

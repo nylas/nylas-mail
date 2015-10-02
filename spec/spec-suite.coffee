@@ -33,10 +33,7 @@ setSpecDirectory = (specDirectory) ->
 runAllSpecs = ->
   {resourcePath} = atom.getLoadSettings()
 
-  # requireSpecs(path.join(resourcePath, 'spec'))
-  #
-  # EDGEHILL_CORE: Load edgehill core specs instead of Atom text editor core specs.
-  requireSpecs(path.join(resourcePath, 'spec-nylas'))
+  requireSpecs(path.join(resourcePath, 'spec'))
 
   setSpecType('core')
 

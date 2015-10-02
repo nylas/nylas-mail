@@ -23,7 +23,7 @@ describe 'ModuleCache', ->
       _atomModuleCache:
         extensions:
           '.json': [
-            path.join('spec-nylas', 'fixtures', 'module-cache', 'file.json')
+            path.join('spec', 'fixtures', 'module-cache', 'file.json')
           ]
     }
     expect(require('./fixtures/module-cache/file.json').foo).toBe 'bar'

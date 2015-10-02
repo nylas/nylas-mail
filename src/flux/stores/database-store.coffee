@@ -7,7 +7,7 @@ Model = require '../models/model'
 Utils = require '../models/utils'
 Actions = require '../actions'
 ModelQuery = require '../models/query'
-NylasStore = require 'nylas-store'
+NylasStore = require '../../global/nylas-store'
 DatabaseSetupQueryBuilder = require './database-setup-query-builder'
 PriorityUICoordinator = require '../../priority-ui-coordinator'
 

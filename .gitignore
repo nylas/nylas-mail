@@ -19,7 +19,7 @@ spec/fixtures/evil-files/
 yoursway-create-dmg
 *nylas-private-*
 
-!spec-nylas/fixtures/packages/package-with-incompatible-native-module/node_modules
+!spec/fixtures/packages/package-with-incompatible-native-module/node_modules
 
 #emacs
 *~
