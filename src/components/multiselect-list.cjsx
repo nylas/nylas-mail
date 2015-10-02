@@ -57,7 +57,7 @@ class MultiselectList extends React.Component
 
       item = React.findDOMNode(@).querySelector(".focused")
       item ?= React.findDOMNode(@).querySelector(".keyboard-cursor")
-      return unless item
+      return unless item instanceof Node
       @refs.list.scrollTo(item)
 
   componentWillUnmount: =>
