@@ -46,7 +46,6 @@ module.exports = (grunt) ->
     packageDirectories = []
     nonPackageDirectories = [
       'dot-nylas'
-      'vendor'
     ]
 
     {devDependencies} = grunt.file.readJSON('package.json')
