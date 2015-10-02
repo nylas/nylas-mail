@@ -3,11 +3,8 @@
 Here you will find well-annotated samples to showcase how to build
 packages in N1.
 
+**See more on https://nylas.github.io/N1/examples/**
+
 ## Getting Started
 
-1. Each package is in its own folder. To try out a package, copy the folder
-   into `$HOME/.nylas/packages`, run `apm install`, and restart N1.
-2. The entry point of each package is the `activate` method of
-   `lib/main.cjsx`. Most packages do nothing but register themselves with
-   the `ComponentRegistry`
-3. Read the annotated source code of the package files.
+To get started, follow the getting started guides here: https://nylas.github.io/N1/docs/
