@@ -291,7 +291,7 @@ class PackageManager
         try
           {windowTypes} = Package.loadMetadata(packagePath) ? {}
           if windowTypes
-            return windowTypes[windowType]?
+            return windowTypes[windowType]? or windowTypes["all"]?
           else if loadPackagesWhenNoTypesSpecified
             return true
           return false
