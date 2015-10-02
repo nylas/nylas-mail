@@ -1,6 +1,6 @@
 title: "N1 | Presented by Nylas"
 description: "An extensible, open-source mail client built on the modern web."
-
+baseurl: /N1
 google_analytics_id: "UA-60022049-2"
 
 collections:
