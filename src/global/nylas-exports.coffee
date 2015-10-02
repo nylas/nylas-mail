@@ -6,13 +6,13 @@ DatabaseObjectRegistry = null
 class NylasExports
   @registerSerializable = (exported) ->
     if exported.prototype
-      Task ?= require '../src/flux/tasks/task'
-      Model ?= require '../src/flux/models/model'
+      Task ?= require '../flux/tasks/task'
+      Model ?= require '../flux/models/model'
       if exported.prototype instanceof Model
-        DatabaseObjectRegistry ?= require '../src/database-object-registry'
+        DatabaseObjectRegistry ?= require '../database-object-registry'
         DatabaseObjectRegistry.register(exported)
       else if exported.prototype instanceof Task
-        TaskRegistry ?= require '../src/task-registry'
+        TaskRegistry ?= require '../task-registry'
         TaskRegistry.register(exported)
 
   @get = (prop, get) ->
@@ -22,14 +22,14 @@ class NylasExports
   @load = (prop, path) ->
     Object.defineProperty @, prop,
       get: ->
-        exported = require "../src/#{path}"
+        exported = require "../#{path}"
         NylasExports.registerSerializable(exported)
         return exported
       enumerable: true
 
   # Will require immediately
   @require = (prop, path) ->
-    exported = require "../src/#{path}"
+    exported = require "../#{path}"
     NylasExports.registerSerializable(exported)
     @[prop] = exported
 
@@ -137,17 +137,17 @@ class NylasExports
   @require "RemoveThreadHelper", 'services/remove-thread-helper'
 
   # Errors
-  @get "APIError", -> require('../src/flux/errors').APIError
-  @get "OfflineError", -> require('../src/flux/errors').OfflineError
-  @get "TimeoutError", -> require('../src/flux/errors').TimeoutError
+  @get "APIError", -> require('../flux/errors').APIError
+  @get "OfflineError", -> require('../flux/errors').OfflineError
+  @get "TimeoutError", -> require('../flux/errors').TimeoutError
 
   # Process Internals
   @load "LaunchServices", 'launch-services'
   @load "BufferedProcess", 'buffered-process'
   @load "BufferedNodeProcess", 'buffered-node-process'
-  @get "APMWrapper", -> require('../src/apm-wrapper')
+  @get "APMWrapper", -> require('../apm-wrapper')
 
   # Testing
-  @get "NylasTestUtils", -> require '../spec-nylas/test_utils'
+  @get "NylasTestUtils", -> require '../../spec-nylas/test_utils'
 
 module.exports = NylasExports

@@ -121,7 +121,7 @@ loadExtensions = (modulePath, rootPath, rootMetadata, moduleCache) ->
     return if 'tests' in segments
     return if 'spec' in segments
     return if 'specs' in segments
-    return if segments.length > 1 and not (segments[0] in ['exports', 'lib', 'node_modules', 'src', 'static', 'vendor'])
+    return if segments.length > 1 and not (segments[0] in ['lib', 'node_modules', 'src', 'static', 'vendor'])
 
     extension = path.extname(filePath)
     if extension in extensions
@@ -196,9 +196,9 @@ resolveModulePath = (relativePath, parentModule) ->
 registerBuiltins = (devMode) ->
   if devMode or not cache.resourcePath.startsWith("#{process.resourcesPath}#{path.sep}")
     fs = require 'fs-plus'
-    atomCoffeePath = path.join(cache.resourcePath, 'exports', 'atom.coffee')
+    atomCoffeePath = path.join(cache.resourcePath, 'src', 'global', 'atom.coffee')
     cache.builtins.atom = atomCoffeePath if fs.isFileSync(atomCoffeePath)
-  cache.builtins.atom ?= path.join(cache.resourcePath, 'exports', 'atom.js')
+  cache.builtins.atom ?= path.join(cache.resourcePath, 'src', 'global', 'atom.js')
 
   electronRoot = path.join(process.resourcesPath, 'atom.asar')
 

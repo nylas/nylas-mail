@@ -19,7 +19,6 @@ module.exports = (grunt) ->
       if '' in folder.paths
         folder.paths = [
           ''
-          'exports'
           'spec'
           'src'
           'src/browser'
