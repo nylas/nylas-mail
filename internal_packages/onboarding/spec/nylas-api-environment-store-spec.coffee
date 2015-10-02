@@ -15,18 +15,18 @@ describe "NylasApiEnvironmentStore", ->
     spyOn(atom, "inDevMode").andReturn true
     spyOn(atom.config, "get").andReturn undefined
     store = new storeConstructor()
-    expect(atom.config.set).toHaveBeenCalledWith("env", "staging")
+    expect(atom.config.set).toHaveBeenCalledWith("env", "production")
 
   it "initializes with the correct default in production", ->
     spyOn(atom, "inDevMode").andReturn false
     spyOn(atom.config, "get").andReturn undefined
     store = new storeConstructor()
-    expect(atom.config.set).toHaveBeenCalledWith("env", "staging")
+    expect(atom.config.set).toHaveBeenCalledWith("env", "production")
 
   describe "when setting the environment", ->
     it "sets from the desired action", ->
-      Actions.changeAPIEnvironment("production")
-      expect(atom.config.set).toHaveBeenCalledWith("env", "production")
+      Actions.changeAPIEnvironment("staging")
+      expect(atom.config.set).toHaveBeenCalledWith("env", "staging")
 
     it "throws if the env is invalid", ->
       expect( -> Actions.changeAPIEnvironment("bad")).toThrow()
