@@ -22,11 +22,11 @@ try
 
   {runSpecSuite} = require './jasmine-helper'
 
-  # Add 'exports' to module search path.
-  exportsPath = path.join(atom.getLoadSettings().resourcePath, 'exports')
-  require('module').globalPaths.push(exportsPath)
+  # Add 'src/global' to module search path.
+  globalPath = path.join(atom.getLoadSettings().resourcePath, 'src', 'global')
+  require('module').globalPaths.push(globalPath)
   # Still set NODE_PATH since tasks may need it.
-  process.env.NODE_PATH = exportsPath
+  process.env.NODE_PATH = globalPath
 
   document.title = "Spec Suite"
   runSpecSuite './spec-suite', atom.getLoadSettings().logFile

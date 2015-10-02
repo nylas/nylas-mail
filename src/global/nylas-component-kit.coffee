@@ -2,12 +2,12 @@
 class NylasComponentKit
   @load = (prop, path) ->
     Object.defineProperty @prototype, prop,
-      get: -> require "../src/components/#{path}"
+      get: -> require "../components/#{path}"
 
   @loadFrom = (prop, path) ->
     Object.defineProperty @prototype, prop,
       get: ->
-        exported = require "../src/components/#{path}"
+        exported = require "../components/#{path}"
         return exported[prop]
 
   @load "Menu", 'menu'

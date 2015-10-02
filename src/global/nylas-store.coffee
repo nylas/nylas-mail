@@ -1,5 +1,5 @@
-{Listener, Publisher} = require '../src/flux/modules/reflux-coffee'
-CoffeeHelpers = require '../src/flux/coffee-helpers'
+{Listener, Publisher} = require '../flux/modules/reflux-coffee'
+CoffeeHelpers = require '../flux/coffee-helpers'
 
 # A simple Flux implementation
 class NylasStore

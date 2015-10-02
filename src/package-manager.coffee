@@ -408,9 +408,9 @@ class PackageManager
   # If a windowType is passed, we'll only load packages who declare that
   # windowType as `true` in their package.json file.
   loadPackages: (windowType) ->
-    # Ensure atom exports is already in the require cache so the load time
+    # Ensure src/global is already in the require cache so the load time
     # of the first package isn't skewed by being the first to require atom
-    require '../exports/atom'
+    require './global/atom'
 
     packagePaths = @getAvailablePackagePaths(windowType)
 

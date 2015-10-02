@@ -119,7 +119,6 @@ module.exports = (grunt) ->
       src: [
         'src/**/*.coffee'
         'internal_packages/**/*.coffee'
-        'exports/**/*.coffee'
         'static/**/*.coffee'
       ]
       dest: appDir
@@ -205,7 +204,6 @@ module.exports = (grunt) ->
         'internal_packages/**/*.cjsx'
         'internal_packages/**/*.coffee'
         'dot-nylas/**/*.coffee'
-        'exports/**/*.coffee'
         'src/**/*.coffee'
         'src/**/*.cjsx'
         'spec/**/*.coffee'
@@ -220,7 +218,6 @@ module.exports = (grunt) ->
         'internal_packages/**/*.cjsx'
         'internal_packages/**/*.coffee'
         'dot-nylas/**/*.coffee'
-        'exports/**/*.coffee'
         'src/**/*.coffee'
         'src/**/*.cjsx'
       ]
