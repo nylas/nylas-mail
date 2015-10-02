@@ -125,6 +125,7 @@ Providers = [
         label: 'Port (optional)'
         className: 'half'
         default: 993
+        format: 'integer'
         page: 1
       }, {
         name: 'imap_ssl_enabled'
@@ -157,6 +158,7 @@ Providers = [
         placeholder: '587'
         label: 'Port (optional)'
         className: 'half'
+        format: 'integer'
         default: 587
         page: 2
       }, {
