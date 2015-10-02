@@ -24,12 +24,12 @@ main window via IPC.</p>
   Actions.queueTask(<span class="hljs-keyword">new</span> ChangeStarredTask(<span class="hljs-attribute">thread</span>: <span class="hljs-property">@_thread</span>, <span class="hljs-attribute">starred</span>: <span class="hljs-literal">true</span>))
 </code></pre>
 <h2 id="dequeueing-a-task">Dequeueing a Task</h2>
-<pre><code class="lang-coffee"><span class="hljs-type">Actions</span>.dequeueMatchingTask({
-  <span class="hljs-class"><span class="hljs-keyword">type</span>:</span> <span class="hljs-symbol">'FileUploadTas</span>k',
+<pre><code class="lang-coffee"><span class="hljs-tag">Actions</span><span class="hljs-class">.dequeueMatchingTask</span>(<span class="hljs-rules">{
+  <span class="hljs-rule"><span class="hljs-attribute">type</span>:<span class="hljs-value"> <span class="hljs-string">'FileUploadTask'</span>,
   matching: {
     filePath: uploadData.filePath
   }
-})
+})</span></span></span>
 </code></pre>
 <h2 id="creating-tasks">Creating Tasks</h2>
 <p>Support for creating custom <a href='task.html'>Task</a> subclasses in third-party packages is coming soon.

@@ -22,7 +22,7 @@ ComponentRegistry<span class="hljs-class">.register</span> NotificationsStickyBa
   location: WorkspaceStore<span class="hljs-class">.Sheet</span><span class="hljs-class">.Threads</span><span class="hljs-class">.Header</span>
 </code></pre>
 <p>Each column is laid out as a CSS Flexbox, making them extremely flexible. For more about layout using Flexbox, see Working with Flexbox.</p>
-<h3 id="toolbars">Toolbars</h3>
+<p>###Toolbars</p>
 <p>Toolbars in N1 are also powered by the <a href='componentregistry.html'>ComponentRegistry</a>. Though toolbars appear to be a single unit at the top of a sheet, they are divided into columns with the same widths as the columns in the sheet beneath them.</p>
 <p><img src="./images/toolbar.png"></p>
 <p>Each Toolbar column is laid out using <a href='flexbox.html'>Flexbox</a>. You can control where toolbar elements appear within the column using the CSS <code>order</code> attribute. To make it easy to position toolbar items on the left, right, or center of a column, we&#39;ve added two &quot;spacer&quot; elements with <code>order:50</code> and <code>order:-50</code> that evenly use up available space. Other CSS attributes allow you to control whether your items shrink or expand as the column&#39;s size changes.</p>

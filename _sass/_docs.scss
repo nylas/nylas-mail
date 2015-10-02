@@ -1,5 +1,6 @@
 .container-docs {
-  color: #737373;
+  color: #545454;
+  font-size:1em;
 
   h1,
   h2,
@@ -17,6 +18,8 @@
   }
   p {
       margin-bottom: 12px;
+      font-size:1em;
+      font-weight: 300;
   }
   h1,
   h2,
@@ -26,6 +29,9 @@
   h6 {
       color: #404040;
       line-height: 36px;
+      font-weight: 500;
+      opacity: 1;
+      margin-bottom:15px;
   }
   h1 {
       font-size: 40px;
@@ -63,6 +69,13 @@
       margin-top:0;
   }
 
+  .markdown-from-sourecode {
+    h4, h3, h2, h1 {
+      font-size: 18px;
+      margin-top:20px;
+      margin-bottom:5px;
+    }
+  }
   blockquote {
     padding: 13px 13px 21px 15px;
     margin-bottom: 18px;
@@ -78,7 +91,7 @@
     font-style: italic;
   }
   blockquote code {
-    background-color:white;
+    background-color:#f2f2f2;
   }
   img {
     max-width:100%;
@@ -87,8 +100,8 @@
     font-family: Monaco, Andale Mono, Courier New, monospace;
   }
   code {
-    color: rgba(0, 0, 0, 0.75);
-    background-color: #EAF7F6;
+    color: rgba(0,0,0,0.76);
+    background-color: #f2f2f2;
     padding: 1px 3px;
     font-size: 14px;
     -webkit-border-radius: 3px;
@@ -105,7 +118,7 @@
   }
   pre code {
     font-size: 13px;
-    background-color: white;
+    background-color: #f2f2f2;
     padding: 0;
     display: block;
     padding: 14px;
@@ -118,6 +131,66 @@
   * {
     -webkit-print-color-adjust: exact;
   }
+  a {
+    font-weight: 400;
+  }
+
+  #sidebar {
+    float:left;
+    position:static;
+    width:250px;
+
+    .section {
+      padding-bottom:15px;
+
+      &.collapsed {
+        ul {
+          height: 0;
+          overflow: hidden;
+          opacity: 0;
+        }
+      }
+
+      a.heading {
+        color:#404040;
+        line-height:28px;
+        font-size:16px;
+        font-weight:bold;
+      }
+
+      ul {
+        margin:0;
+        padding-left:15px;
+        height: 100%;
+        transition: all 200ms ease-out;
+
+        li {
+          list-style-type:none;
+          a {
+            color:#404040;
+            font-size:14px;
+            line-height:1.8em;
+          }
+        }
+        li.active a {
+          color:black;
+          font-size:14px;
+          font-weight: bold;
+          line-height:1.8em;
+        }
+        .heading {
+          line-height:22px;
+          font-size:14px;
+          padding-top:6px;
+        }
+      }
+    }
+  }
+
+  #doc-title {
+    margin-top:30px;
+    margin-bottom:30px;
+  }
 
   .link {
     width:18px;
@@ -125,7 +198,7 @@
     display:inline-block;
     vertical-align:sub;
     opacity:0.4;
-    background:url(/images/link.png) top left;
+    background:url(../docs/images/link.png) top left;
     background-size:cover;
   }
 

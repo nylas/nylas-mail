@@ -60,12 +60,12 @@ more info.</p>
 default, the type it should be, etc. A simple example:</p>
 <pre><code class="lang-coffee"><span class="hljs-comment"># We want to provide an `enableThing`, and a `thingVolume`</span>
 config:
-  enableThing:
+  <span class="hljs-built_in">enable</span>Thing:
     <span class="hljs-built_in">type</span>: <span class="hljs-string">'boolean'</span>
-    <span class="hljs-keyword">default</span>: <span class="hljs-keyword">false</span>
+    default: <span class="hljs-literal">false</span>
   thingVolume:
     <span class="hljs-built_in">type</span>: <span class="hljs-string">'integer'</span>
-    <span class="hljs-keyword">default</span>: <span class="hljs-number">5</span>
+    default: <span class="hljs-number">5</span>
     minimum: <span class="hljs-number">1</span>
     maximum: <span class="hljs-number">11</span>
 </code></pre>
@@ -172,11 +172,11 @@ valid CSS color format such as <code>#abc</code>, <code>#abcdef</code>, <code>wh
 <p>All types support an <code>enum</code> key. The enum key lets you specify all values
 that the config setting can possibly be. <code>enum</code> <em>must</em> be an array of values
 of your specified type. Schema:</p>
-<pre><code class="lang-coffee"><span class="hljs-attribute">config</span>:
-  <span class="hljs-attribute">someSetting</span>:
-    <span class="hljs-attribute">type</span>: <span class="hljs-string">'integer'</span>
-    <span class="hljs-attribute">default</span>: <span class="hljs-number">4</span>
-    <span class="hljs-attribute">enum</span>: [<span class="hljs-number">2</span>, <span class="hljs-number">4</span>, <span class="hljs-number">6</span>, <span class="hljs-number">8</span>]
+<pre><code class="lang-coffee"><span class="hljs-symbol">config:</span>
+  <span class="hljs-symbol">someSetting:</span>
+    <span class="hljs-symbol">type:</span> <span class="hljs-string">'integer'</span>
+    <span class="hljs-symbol">default:</span> <span class="hljs-number">4</span>
+    <span class="hljs-class"><span class="hljs-keyword">enum</span>: [2, 4, 6, 8]</span>
 </code></pre>
 <p>Usage:</p>
 <pre><code class="lang-coffee">atom.config.<span class="hljs-built_in">set</span>(<span class="hljs-string">'my-package.someSetting'</span>, <span class="hljs-string">'2'</span>)

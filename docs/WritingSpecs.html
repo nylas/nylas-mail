@@ -2,12 +2,11 @@
 layout: docs
 title: Writing Specs
 ---
-<h1 id="writing-specs">Writing specs</h1>
 <p>Nylas uses <a href="http://jasmine.github.io/1.3/introduction.html">Jasmine</a> as its spec framework. As a package developer, you can write specs using Jasmine 1.3 and get some quick wins. Jasmine specs can be run in N1 directly from the Developer menu, and the test environment provides you with helpful stubs. You can also require your own test framework, or use Jasmine for integration tests and your own framework for your existing business logic.</p>
 <p>This documentation describes using <a href="http://jasmine.github.io/1.3/introduction.html">Jasmine 1.3</a> to write specs for a Nylas package.</p>
-<h4 id="running-specs">Running Specs</h4>
+<h3 id="running-specs">Running Specs</h3>
 <p>You can run your package specs from <code>Developer &gt; Run Package Specs...</code>. Once you&#39;ve opened the spec window, you can see output and re-run your specs by clicking <code>Reload Specs</code>.</p>
-<h4 id="writing-specs">Writing Specs</h4>
+<h3 id="writing-specs">Writing Specs</h3>
 <p>To create specs, place <code>js</code>, <code>coffee</code>, or <code>cjsx</code> files in the <code>spec</code> directory of your package. Spec files must end with the <code>-spec</code> suffix.</p>
 <p>Here&#39;s an annotated look at a typical Jasmine spec:</p>
 <pre><code class="lang-coffee"><span class="hljs-comment"># The `describe` method takes two arguments, a description and a function. If the description</span>

@@ -99,12 +99,12 @@ that is not a Store, you can still use the <code>listen</code> method provided b
     <p><p>Select the provided sheet in the current window. This action changes
     the top level sheet.</p>
     <p><em>Scope: Window</em></p>
-    <pre><code>Actions.<span class="hljs-function"><span class="hljs-title">selectRootSheet</span><span class="hljs-params">(WorkspaceStore.Sheet.Threads)</span></span>
+    <pre><code><span class="hljs-tag">Actions</span><span class="hljs-class">.selectRootSheet</span>(<span class="hljs-tag">WorkspaceStore</span><span class="hljs-class">.Sheet</span><span class="hljs-class">.Threads</span>)
     </code></pre></p>
     <h4 id=toggleWorkspaceLocationHidden>toggleWorkspaceLocationHidden <a href="#toggleWorkspaceLocationHidden" class="link"></a></h4>
     <p><p>Toggle whether a particular column is visible. Call this action
     with one of the Sheet location constants:</p>
-    <pre><code>Actions.<span class="hljs-function"><span class="hljs-title">toggleWorkspaceLocationHidden</span><span class="hljs-params">(WorkspaceStore.Location.MessageListSidebar)</span></span>
+    <pre><code><span class="hljs-tag">Actions</span><span class="hljs-class">.toggleWorkspaceLocationHidden</span>(<span class="hljs-tag">WorkspaceStore</span><span class="hljs-class">.Location</span><span class="hljs-class">.MessageListSidebar</span>)
     </code></pre></p>
     <h4 id=setCursorPosition>setCursorPosition <a href="#setCursorPosition" class="link"></a></h4>
     <p><p>Focus the keyboard on an item in a collection. This action moves the
@@ -237,9 +237,9 @@ that is not a Store, you can still use the <code>listen</code> method provided b
     <h4 id=removeFile>removeFile <a href="#removeFile" class="link"></a></h4>
     <p><p>Remove a file from a draft.</p>
     <p><em>Scope: Window</em></p>
-    <pre><code>Actions<span class="hljs-class">.removeFile</span>
-      file: fileObject
-      messageClientId: draftClientId
+    <pre><code><span class="hljs-tag">Actions</span><span class="hljs-class">.removeFile</span>
+      <span class="hljs-rule"><span class="hljs-attribute">file</span>:<span class="hljs-value"> fileObject
+      messageClientId: draftClientId</span></span>
     </code></pre></p>
     <h4 id=popSheet>popSheet <a href="#popSheet" class="link"></a></h4>
     <p><p>Pop the current sheet off the Sheet stack maintained by the <a href='workspacestore.html'>WorkspaceStore</a>.

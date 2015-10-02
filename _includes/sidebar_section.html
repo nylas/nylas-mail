@@ -1,10 +1,12 @@
-<div class="heading">{{include.section.name}}</div>
-<ul>
-  {% for item in include.section.items %}
-    {% if item.items %}
-      {% include sidebar_section.html section=item %}
-    {% else %}
-      <li class="{% if page.url contains item.link %}active{% endif %}"><a href="{{item.link}}" {% if item.external %}target="_blank"{% endif %}>{{item.name}}</a></li>
-    {% endif %}
-  {% endfor %}
-</ul>
+<div class="section">
+  <a class="heading" href="{{include.section.link}}" {% if include.section.external %}target="_blank"{% endif %}>{{include.section.name}}</a>
+  <ul>
+    {% for item in include.section.items %}
+      {% if item.items %}
+        {% include sidebar_section.html section=item %}
+      {% else %}
+        <li class="{% if page.url contains item.link %}active{% endif %}"><a href="{{item.link}}" {% if item.external %}target="_blank"{% endif %}>{{item.name}}</a></li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+</div>

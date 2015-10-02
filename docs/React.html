@@ -53,13 +53,13 @@ title: Interface Components
 </code></pre>
 </li>
 <li><p>Add a component to the action bar at the bottom of the Composer:</p>
-<pre><code class="lang-coffee">     ComponentRegistry<span class="hljs-class">.register</span> TemplatePicker,
-       role: <span class="hljs-string">'Composer:ActionButton'</span>
+<pre><code class="lang-coffee">     <span class="hljs-tag">ComponentRegistry</span><span class="hljs-class">.register</span> <span class="hljs-tag">TemplatePicker</span>,
+       <span class="hljs-rule"><span class="hljs-attribute">role</span>:<span class="hljs-value"> <span class="hljs-string">'Composer:ActionButton'</span></span></span>
 </code></pre>
 </li>
 <li><p>Replace the <code>Participants</code> component that ships with N1 to display thread participants on your own:</p>
-<pre><code class="lang-coffee">     ComponentRegistry<span class="hljs-class">.register</span> ParticipantsWithStatusDots,
-         role: <span class="hljs-string">'Participants'</span>
+<pre><code class="lang-coffee">     <span class="hljs-tag">ComponentRegistry</span><span class="hljs-class">.register</span> <span class="hljs-tag">ParticipantsWithStatusDots</span>,
+         <span class="hljs-rule"><span class="hljs-attribute">role</span>:<span class="hljs-value"> <span class="hljs-string">'Participants'</span></span></span>
 </code></pre>
 </li>
 </ol>
