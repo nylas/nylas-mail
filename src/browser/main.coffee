@@ -52,7 +52,7 @@ start = ->
     Application.open(args)
     console.log("App load time: #{Date.now() - global.shellStartTime}ms") unless args.test
 
-global.devResourcePath = process.env.EDGEHILL_PATH ? process.cwd()
+global.devResourcePath = process.env.N1_PATH ? process.cwd()
 # Normalize to make sure drive letter case is consistent on Windows
 global.devResourcePath = path.normalize(global.devResourcePath) if global.devResourcePath
 
@@ -90,8 +90,8 @@ parseCommandLine = ->
     opened or a new window if it hasn't.
 
     Environment Variables:
-    EDGEHILL_PATH  The path from which Atom loads source code in dev mode.
-                   Defaults to `cwd`.
+    N1_PATH  The path from which Atom loads source code in dev mode.
+             Defaults to `cwd`.
   """
   options.alias('d', 'dev').boolean('d').describe('d', 'Run in development mode.')
   options.alias('f', 'foreground').boolean('f').describe('f', 'Keep the browser process in the foreground.')
