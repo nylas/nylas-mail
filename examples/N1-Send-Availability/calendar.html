@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel='stylesheet' href='fullcalendar/fullcalendar.css' />
+    <script src='nylas://send-availability/fullcalendar/lib/jquery.min.js'></script>
+    <script src='nylas://send-availability/fullcalendar/lib/moment.min.js'></script>
+    <script src='nylas://send-availability/fullcalendar/fullcalendar.js'></script>
+
+    <script src="nylas://send-availability/node_modules/electron-safe-ipc/guest-bundle.js"></script>
+    <script>
+
+        function randomId(len) {
+            var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
+                    newId = [];
+            for (var i = 0; i < len; i++)
+                newId[i] = chars[0 | Math.random()*chars.length];
+            return newId.join('');
+        }
+
+        // class to communicate with the parent window
+        Parent = (function(){
+            function Parent() {
+                //listen for and and route messages from the parent
+                var _this = this;
+                electronSafeIpc.on("fromMain", function (event, data) {
+                    _this._onReceive(event, data)
+                });
+
+                //initialize container for event listeners
+                this.listeners = {};
+            }
+            Parent.prototype._send = function (event, data) {
+                //send a message to the parent
+                electronSafeIpc.send("fromRenderer", event, data);
+            };
+            Parent.prototype._onReceive = function (event, data) {
+                //handle an incoming message from the parent. Route the message data
+                //to the appropriate event listeners based on the "event" param
+                var listeners = this.listeners[event];
+                if(listeners !== undefined) {
+                    listeners.forEach(function(callback) {
+                        callback(JSON.parse(data));
+                    });
+                }
+            };
+
+            //basic jquery-style event listener methods
+            Parent.prototype.on = function(event, callback) {
+                //add an event listener
+                if(this.listeners[event] === undefined)
+                    this.listeners[event] = [];
+                this.listeners[event].push(callback);
+                return callback
+            };
+            Parent.prototype.off = function (event, callback) {
+                //remove an event listener
+                if(this.listeners[event] !== undefined) {
+                    var i = this.listeners[event].indexOf(callback);
+                    if(i > -1)
+                        this.listeners[event].splice(i, 1);
+                }
+            };
+            Parent.prototype.one = function(event,callback) {
+                //add a single-use event listener
+                var _this = this;
+                var outer = function(data) {
+                    try {callback(data);}
+                    finally {_this.off(event,outer)}
+                };
+                this.on(event,outer);
+            };
+
+            Parent.prototype.load_events = function (start, end, callback) {
+                //use timestamp as a request id
+                var id = Date.now();
+                //register a single-use event listener
+                this.one("get_events_"+id,callback);
+                //send the request, which will trigger an event when it completes
+                this._send("get_events",{start:start,end:end,id:id});
+            };
+
+            Parent.prototype.send_results = function(data) {
+                this._send("available_times", data);
+            };
+        return Parent})();
+
+        parent = new Parent();
+
+        function getUrlParam(name) {
+            var match = new RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+            return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+        }
+
+        var availableTimes = [];
+        var meetingLength = 0.5;
+        function resetCalendar(opts,firstCall) {
+            if(!firstCall) $('#calendar').fullCalendar("destroy");
+            if(!opts) opts = {};
+
+            var defaults = {
+                header: {
+                    left: 'prev,next',
+                    center: 'title',
+                    right: 'today'
+                },
+                defaultView: 'agendaWeek',
+                handleWindowResize: false,
+                aspectRatio: 1,
+                selectable: true,
+                selectHelper: true,
+                select: function(start, end) {
+                    // when a region of time on the calendar is selected, create events in the region to mark off
+                    // available time slots. Also add these to our list of available times to be passed back from
+                    // this window.
+                    var new_events = [];
+                    //increment through selected time range, in blocks of size `meetingLength`
+                    while(start.isBefore(end)) {
+                        new_events.push({
+                            title: "Available",
+                            start: moment(start),
+                            end: moment(start).add(meetingLength, "hours"),
+                            color:"#8CA",
+                            id: "available"
+                        });
+                        start.add(meetingLength, "hours");
+                    }
+                    //add the events to the calendar and to `availableTimes`
+                    new_events.forEach(function(e){
+                        availableTimes.push(e);
+                        $('#calendar').fullCalendar('renderEvent', e, true);
+                    });
+                    $('#calendar').fullCalendar('unselect');
+                },
+                events: function(start, end, timezone, callback) {
+                    // When a page of the calendar is loaded, this function is called to retrieve existing events.
+                    // Make a call to the parent window asking for events in the displayed time range, and convert
+                    // them to the format expected by fullcalendar
+                    parent.load_events(start.unix(), end.unix(), function(events){
+                        callback(events.map(function(event){
+                            return {
+                                id: event.id,
+                                title: event.title,
+                                allDay: false,
+                                start: new Date(event.when.start_time*1000),
+                                end: new Date(event.when.end_time*1000)
+                            }
+                        }));
+                    })
+                }
+            };
+
+            for (var key in opts) {
+                if (opts.hasOwnProperty(key))
+                    defaults[key] = opts[key];
+            }
+            $('#calendar').fullCalendar(defaults);
+        }
+
+        $(document).ready(function() {
+
+            //initialize the calendar
+            resetCalendar({},true);
+
+            //handle reset button click
+            $("#reset").click(function(e){
+                $('#calendar').fullCalendar('removeEvents', "available");
+                availableTimes = [];
+            });
+
+            //handle meeting length dropdown
+            $("#meeting-length").change(function(e){
+                meetingLength = parseFloat($(this).val());
+                $('#calendar').fullCalendar('removeEvents', "available");
+                availableTimes = [];
+                resetCalendar({
+                    snapDuration: {hours: meetingLength}
+                });
+            });
+
+            //handle done button click
+            $("#done").click(function(e){
+                parent.send_results({
+                    draftClientId: getUrlParam("draftClientId"),
+                    eventData: {
+                        title: $("#title").val().trim(),
+                        location: $("#location").val().trim(),
+                        description: $("#description").val().trim()
+                    },
+                    events: availableTimes.map(function(e){
+                            return  {
+                                start: e.start.unix(),
+                                end: e.end.unix(),
+                                date: e.start.format("dddd, MMM Do"), //event date, in local timezone
+                                time: e.start.format("h:mma")+"-"+e.end.format("h:mma"), //event duration, in local time
+                                serverKey: randomId(128) //string to access this time slot on the server
+                            }
+                        })
+                });
+                window.close();
+            });
+        });
+    </script>
+    <style>
+        body {font-family: sans-serif;}
+        .fc-day-header {font-size: 14px;}
+        .fc-axis {font-size: 13px;}
+
+        #calendar {
+            position: fixed;
+            left: 150px;
+            right: 0;
+            top: 0;
+            bottom: 0;
+        }
+        #options {
+            position: fixed;
+            width: 150px;
+            left: 0;
+            top: 0;
+            bottom: 0;
+        }
+
+        .row button{
+            padding: 4px;
+            width: 100%;
+        }
+        div.row {
+            padding: 5px;
+            margin: 10px 0;
+            font-size: 14px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div id="options">
+    <div class="row">
+        <button id="reset">Reset</button>
+    </div>
+
+    <div class="row">
+        <div>Meeting Length</div>
+        <select id="meeting-length">
+            <option value="0.5">30 min</option>
+            <option value="1">1 hr</option>
+            <option value="1.5">1 hr 30 min</option>
+            <option value="2">2 hr</option>
+        </select>
+    </div>
+
+    <div class="row">
+        <input id="title" placeholder="Event title"></input>
+    </div>
+
+    <div class="row">
+        <input id="location" placeholder="Location"></input>
+    </div>
+
+    <div class="row">
+        <input id="description" placeholder="Description"></input>
+    </div>
+
+    <div class="row">
+        <button id="done">Done</button>
+    </div>
+</div>
+<div id='calendar'></div>
+</body>
+</html>
