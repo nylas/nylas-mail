@@ -2,3 +2,5 @@ temp-cjsx
 node_modules
 *.DS_Store
 api.json
+/_site
+.sass-cache*
