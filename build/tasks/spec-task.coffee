@@ -137,7 +137,7 @@ module.exports = (grunt) ->
     done = @async()
     testSucceeded = false
     testOutput = ""
-    testProc = proc.spawn("./atom.sh", ["--test"])
+    testProc = proc.spawn("./N1.sh", ["--test"])
 
     testProc.stdout.on 'data', (data) ->
       str = data.toString()

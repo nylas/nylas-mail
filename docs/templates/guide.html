@@ -1,15 +1,5 @@
-{{>_header}}
-
-{{#if meta.TitleHidden}}
-{{else}}
-<div class="page-title">{{meta.title}}</div>
-{{/if}}
-
-<div id="sidebar">
-{{>_sidebar}}
-</div>
-<div id="main" class="article">
+---
+layout: docs
+title: {{meta.title}}
+---
 {{{html}}}
-</div>
-
-{{>_footer}}
