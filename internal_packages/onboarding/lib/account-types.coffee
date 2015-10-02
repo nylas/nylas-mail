@@ -66,6 +66,31 @@ Providers = [
       label: 'Password'
     }]
   }, {
+    name: 'outlook'
+    displayName: 'Outlook.com'
+    icon: 'ic-settings-account-outlook.png'
+    header_icon: 'setup-icon-provider-outlook.png'
+    color: '#1174c3'
+    fields: [
+      {
+        name: 'name'
+        type: 'text'
+        placeholder: 'Ashton Letterman'
+        label: 'Name'
+      }, {
+        name: 'email'
+        type: 'text'
+        placeholder: 'you@hotmail.com'
+        label: 'Email'
+      }
+    ]
+    settings: [{
+        name: 'password'
+        type: 'password'
+        placeholder: 'Password'
+        label: 'Password'
+      }]
+  }, {
     name: 'yahoo'
     displayName: 'Yahoo'
     icon: 'ic-settings-account-yahoo.png'

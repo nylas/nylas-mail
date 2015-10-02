@@ -201,8 +201,8 @@ class AccountSettingsPage extends React.Component
       data.settings[k] = v
     data.provider = @state.provider.name
 
-    # handle special case for exchange/outlook username field
-    if data.provider in ['exchange','outlook'] and not data.settings.username?.trim().length
+    # handle special case for exchange/outlook/hotmail username field
+    if data.provider in ['exchange','outlook','hotmail'] and not data.settings.username?.trim().length
       data.settings.username = data.email
 
     @setState(tryingToAuthenticate: true)
