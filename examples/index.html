@@ -25,7 +25,7 @@ title: Examples
         <div class="example-item">
           <div>
             <h4 style="margin-top:0;">
-              <a href="{{ example.url }}">{{ example.title }}</a>
+              <a href="{{ site.baseurl }}{{ example.url }}">{{ example.title }}</a>
             </h4>
           </div>
           <div class="example-item-description">
@@ -34,6 +34,14 @@ title: Examples
           <div class="example-item-assumed-experience">
             <span class="example-item-assumed-experience-badge">Assumed experience:</span>
             {{ example.assumed_experience }}
+          </div>
+          <div class="example-item-links">
+            <span>
+              <a href="{{ site.baseurl }}{{ example.url }}">Annotated source</a>
+            </span>
+            <span style="float:right;">
+              <a href="{{ example.github }}">View on GitHub</a>
+            </span>
           </div>
         </div>
       </div>
