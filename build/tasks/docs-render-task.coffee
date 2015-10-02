@@ -43,10 +43,10 @@ module.exports = (grunt) ->
   {cp, mkdir, rm} = require('./task-helpers')(grunt)
 
   relativePathForGuide = (filename) ->
-    '/guides/'+filename[0..-4]+'.html'
+    filename[0..-4]+'.html'
 
   relativePathForClass = (classname) ->
-    '/docs/'+classname+'.html'
+    classname+'.html'
 
   outputPathFor = (relativePath) ->
     docsOutputDir = grunt.config.get('docsOutputDir')
@@ -98,7 +98,7 @@ module.exports = (grunt) ->
     # Parse guide Markdown
 
     guides = []
-    guidesPath = path.resolve(__dirname, '..', '..', 'docs', 'guides')
+    guidesPath = path.resolve(__dirname, '..', '..', 'docs')
     fs.traverseTreeSync guidesPath, (file) ->
       if path.extname(file) is '.md'
         {html, meta} = marked(grunt.file.read(file))
@@ -220,29 +220,10 @@ module.exports = (grunt) ->
           val = val.replace(text, "<a href='#{url}'>#{label}</a>")
       val
 
-    # Copy non-documentation assets
+    # Render sidebar json
 
-    docsPath = path.resolve(__dirname, '..', '..', 'docs')
-    assets = []
-    grunt.file.recurse docsPath, (abspath, root, subdir = "", filename) ->
-      if path.extname(filename) in ['.png', '.jpg', '.ico', '.css']
-        return if abspath.indexOf('/output/') isnt -1
-        return if abspath.indexOf('/templates/') isnt -1
-        destpath = path.join(docsOutputDir, subdir, filename)
-        assets.push({abspath, destpath})
-
-    for asset in assets
-      cp(asset.abspath, asset.destpath)
-
-    pages = []
-    grunt.file.recurse docsPath, (abspath, root, subdir = "", filename) ->
-      if path.extname(filename) in ['.html']
-        return if abspath.indexOf('/output/') isnt -1
-        return if abspath.indexOf('/templates/') isnt -1
-        html = fs.readFileSync(abspath)
-        destpath = path.join(docsOutputDir, subdir, filename)
-        pages.push({html, destpath})
-
+    grunt.file.write(outputPathFor('sidebar.json'), JSON.stringify(sidebar, null, 2))
+    
     # Render Class Pages
 
     classTemplatePath = path.join(templatesPath, 'class.html')
@@ -269,13 +250,6 @@ module.exports = (grunt) ->
 
       result = guideTemplate({name, meta, html, sidebar})
       grunt.file.write(outputPathFor(relativePathForGuide(filename)), result)
-
-    # Render main pages
-
-    pageTemplatePath = path.join(templatesPath, 'page.html')
-    pageTemplate = Handlebars.compile(grunt.file.read(pageTemplatePath))
-    for {html, destpath} in pages
-      grunt.file.write(destpath, pageTemplate({html}))
 
     # Remove temp cjsx output
     rm(outputPathFor("temp-cjsx"))

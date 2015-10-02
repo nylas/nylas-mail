@@ -63,7 +63,7 @@
     });
   };
 
-  global.devResourcePath = (ref = process.env.EDGEHILL_PATH) != null ? ref : process.cwd();
+  global.devResourcePath = (ref = process.env.N1_PATH) != null ? ref : process.cwd();
 
   if (global.devResourcePath) {
     global.devResourcePath = path.normalize(global.devResourcePath);
@@ -103,7 +103,7 @@
     var args, devMode, executedFrom, logFile, newWindow, options, packageDirectoryPath, packageManifest, packageManifestPath, pathsToOpen, pidToKillWhenClosed, resourcePath, safeMode, specDirectory, specFilePattern, specsOnCommandLine, test, version;
     version = app.getVersion();
     options = optimist(process.argv.slice(1));
-    options.usage("Atom Editor v" + version + "\n\nUsage: atom [options] [path ...]\n\nOne or more paths to files or folders to open may be specified.\n\nFile paths will open in the current window.\n\nFolder paths will open in an existing window if that folder has already been\nopened or a new window if it hasn't.\n\nEnvironment Variables:\nEDGEHILL_PATH  The path from which Atom loads source code in dev mode.\n               Defaults to `cwd`.");
+    options.usage("Atom Editor v" + version + "\n\nUsage: atom [options] [path ...]\n\nOne or more paths to files or folders to open may be specified.\n\nFile paths will open in the current window.\n\nFolder paths will open in an existing window if that folder has already been\nopened or a new window if it hasn't.\n\nEnvironment Variables:\nN1_PATH  The path from which Atom loads source code in dev mode.\n               Defaults to `cwd`.");
     options.alias('d', 'dev').boolean('d').describe('d', 'Run in development mode.');
     options.alias('f', 'foreground').boolean('f').describe('f', 'Keep the browser process in the foreground.');
     options.alias('h', 'help').boolean('h').describe('h', 'Print this usage message.');

@@ -37,7 +37,7 @@ module.exports = (grunt) ->
     mkdir appDir
 
     if process.platform isnt 'win32'
-      cp 'atom.sh', path.resolve(appDir, '..', 'new-app', 'atom.sh')
+      cp 'N1.sh', path.resolve(appDir, '..', 'new-app', 'N1.sh')
 
     cp 'package.json', path.join(appDir, 'package.json')
     cp path.join('build', 'resources', 'nylas.png'), path.join(appDir, 'nylas.png')
@@ -174,7 +174,7 @@ module.exports = (grunt) ->
 
     if process.platform is 'win32'
       cp path.join('build', 'resources', 'win', 'atom.cmd'), path.join(shellAppDir, 'resources', 'cli', 'atom.cmd')
-      cp path.join('build', 'resources', 'win', 'atom.sh'), path.join(shellAppDir, 'resources', 'cli', 'atom.sh')
+      cp path.join('build', 'resources', 'win', 'N1.sh'), path.join(shellAppDir, 'resources', 'cli', 'N1.sh')
       cp path.join('build', 'resources', 'win', 'atom.js'), path.join(shellAppDir, 'resources', 'cli', 'atom.js')
       cp path.join('build', 'resources', 'win', 'apm.sh'), path.join(shellAppDir, 'resources', 'cli', 'apm.sh')
 

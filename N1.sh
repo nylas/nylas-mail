@@ -47,43 +47,46 @@ if [ $REDIRECT_STDERR ]; then
   exec 2> /dev/null
 fi
 
+N1_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd );
+export N1_PATH
+
 if [ $OS == 'Mac' ]; then
-  if [ -z "$EDGEHILL_PATH" ]; then
-    echo "Set the EDGEHILL_PATH environment variable to the absolute location of the main edgehill folder."
+  if [ -z "$N1_PATH" ]; then
+    echo "Set the N1_PATH environment variable to the absolute location of the main edgehill folder."
     exit 1
   fi
 
-  ELECTRON_PATH=${ELECTRON_PATH:-$EDGEHILL_PATH/electron} # Set ELECTRON_PATH unless it is already set
+  ELECTRON_PATH=${ELECTRON_PATH:-$N1_PATH/electron} # Set ELECTRON_PATH unless it is already set
 
   # Exit if Atom can't be found
   if [ -z "$ELECTRON_PATH" ]; then
-    echo "Cannot locate electron. Be sure you have run script/grunt download-electron first from $EDGEHILL_PATH"
+    echo "Cannot locate electron. Be sure you have run script/grunt download-electron first from $N1_PATH"
     exit 1
   fi
 
   # We find the electron executable inside of the electron directory.
-  $ELECTRON_PATH/Electron.app/Contents/MacOS/Electron --executed-from="$(pwd)" --pid=$$ "$@" $EDGEHILL_PATH
+  $ELECTRON_PATH/Electron.app/Contents/MacOS/Electron --executed-from="$(pwd)" --pid=$$ "$@" $N1_PATH
 
 elif [ $OS == 'Linux' ]; then
   DOT_INBOX_DIR="$HOME/.nylas"
 
   mkdir -p "$DOT_INBOX_DIR"
 
-  if [ -z "$EDGEHILL_PATH" ]; then
-    echo "Set the EDGEHILL_PATH environment variable to the absolute location of the main edgehill folder."
+  if [ -z "$N1_PATH" ]; then
+    echo "Set the N1_PATH environment variable to the absolute location of the main edgehill folder."
     exit 1
   fi
 
-  ELECTRON_PATH=${ELECTRON_PATH:-$EDGEHILL_PATH/electron} # Set ELECTRON_PATH unless it is already set
+  ELECTRON_PATH=${ELECTRON_PATH:-$N1_PATH/electron} # Set ELECTRON_PATH unless it is already set
 
   # Exit if Atom can't be found
   if [ -z "$ELECTRON_PATH" ]; then
-    echo "Cannot locate electron. Be sure you have run script/grunt download-electron first from $EDGEHILL_PATH"
+    echo "Cannot locate electron. Be sure you have run script/grunt download-electron first from $N1_PATH"
     exit 1
   fi
 
   # We find the electron executable inside of the electron directory.
-  $ELECTRON_PATH/electron --executed-from="$(pwd)" --pid=$$ "$@" $EDGEHILL_PATH
+  $ELECTRON_PATH/electron --executed-from="$(pwd)" --pid=$$ "$@" $N1_PATH
 
 fi
 
