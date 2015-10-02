@@ -144,9 +144,9 @@ parseCommandLine = ->
       # want to test.
       if test and toString.call(test) is "[object String]"
         if test is "core"
-          specDirectory = path.join(global.devResourcePath, "spec-nylas")
+          specDirectory = path.join(global.devResourcePath, "spec")
         else if test is "window"
-          specDirectory = path.join(global.devResourcePath, "spec-nylas")
+          specDirectory = path.join(global.devResourcePath, "spec")
           specsOnCommandLine = false
         else
           specDirectory = path.resolve(path.join(global.devResourcePath, "internal_packages", test))

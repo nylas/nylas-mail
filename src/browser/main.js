@@ -158,9 +158,9 @@
       } else {
         if (test && toString.call(test) === "[object String]") {
           if (test === "core") {
-            specDirectory = path.join(global.devResourcePath, "spec-nylas");
+            specDirectory = path.join(global.devResourcePath, "spec");
           } else if (test === "window") {
-            specDirectory = path.join(global.devResourcePath, "spec-nylas");
+            specDirectory = path.join(global.devResourcePath, "spec");
             specsOnCommandLine = false;
           } else {
             specDirectory = path.resolve(path.join(global.devResourcePath, "internal_packages", test));

@@ -117,4 +117,4 @@ describe "NylasSyncWorkerPool", ->
         expect(DatabaseStore.unpersistModel).toHaveBeenCalledWith(@thread)
 
   describe "handleModelResponse", ->
-    # SEE spec-nylas/nylas-api-spec.coffee
+    # SEE spec/nylas-api-spec.coffee
