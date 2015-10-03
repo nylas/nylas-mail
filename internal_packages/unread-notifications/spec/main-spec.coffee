@@ -6,6 +6,7 @@ Label = require '../../../src/flux/models/label'
 CategoryStore = require '../../../src/flux/stores/category-store'
 DatabaseStore = require '../../../src/flux/stores/database-store'
 AccountStore = require '../../../src/flux/stores/account-store'
+SoundRegistry = require '../../../src/sound-registry'
 Main = require '../lib/main'
 
 describe "UnreadNotifications", ->
@@ -170,3 +171,25 @@ describe "UnreadNotifications", ->
       .then ->
         expect(window.Notification).not.toHaveBeenCalled()
 
+  it "should play a sound when it gets new mail", ->
+    spyOn(atom.config, "get").andCallFake (config) ->
+      if config is "unread-notifications.enabled" then return true
+      if config is "unread-notifications.sounds" then return true
+
+    spyOn(SoundRegistry, "playSound")
+    waitsForPromise =>
+      Main._onNewMailReceived({message: [@msg1]})
+      .then ->
+        expect(atom.config.get.calls[1].args[0]).toBe "unread-notifications.sounds"
+        expect(SoundRegistry.playSound).toHaveBeenCalledWith("new-mail")
+
+  it "should not play a sound if the config is off", ->
+    spyOn(atom.config, "get").andCallFake (config) ->
+      if config is "unread-notifications.enabled" then return true
+      if config is "unread-notifications.sounds" then return false
+    spyOn(SoundRegistry, "playSound")
+    waitsForPromise =>
+      Main._onNewMailReceived({message: [@msg1]})
+      .then ->
+        expect(atom.config.get.calls[1].args[0]).toBe "unread-notifications.sounds"
+        expect(SoundRegistry.playSound).not.toHaveBeenCalled()
