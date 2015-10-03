@@ -11,11 +11,13 @@ like to contribute to N1 core and we'll get you set up immediately.
 
 # Getting Started
 
-Once you have a token:
+Once you have an invitation code:
 
     git clone https://github.com/nylas/N1.git
     cd N1
     script/bootstrap
+
+Read the [getting started guides](http://nylas.github.io/N1/docs/).
 
 # Running N1 Core
 
