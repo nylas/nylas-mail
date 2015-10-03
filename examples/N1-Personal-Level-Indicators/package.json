@@ -1,0 +1,15 @@
+{
+  "name": "PersonalLevelIndicators",
+  "main": "./lib/main",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "engines": {
+    "atom": ">=0.3.5"
+  },
+  "description": "Enter a description of your package!",
+  "dependencies": [],
+  "license": "MIT"
+}
