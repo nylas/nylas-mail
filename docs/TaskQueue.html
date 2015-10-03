@@ -1,6 +1,7 @@
 ---
 layout: docs
 title: TaskQueue
+edit_url: "https://github.com/nylas/N1/blob/master/src/flux/stores/task-queue.coffee"
 ---
 
 <h2>Summary</h2>
@@ -50,11 +51,11 @@ between windows, since it&#39;s JSON serializer is not extensible.</p>
     <h4 id=findTask class="function-name">
       findTask(<span class="args"><span class="arg">type</span><span class="arg">matching</span></span>) <a href="#findTask" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p></p>
     </div>
-    
+
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -66,9 +67,9 @@ between windows, since it&#39;s JSON serializer is not extensible.</p>
                 <em>type</em>
               </td>
               <td class="markdown-from-sourecode">
-                
+
                 <p>The string name of the task class, or the Task class itself. (ie: {SaveDraftTask} or &#39;SaveDraftTask&#39;)</p>
-    
+
               </td>
             </tr>
             <tr>
@@ -76,13 +77,13 @@ between windows, since it&#39;s JSON serializer is not extensible.</p>
                 <em>matching</em>
               </td>
               <td class="markdown-from-sourecode">
-                
+
                 <p>Optional An <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a> with criteria to pass to _.isMatch. For a  SaveDraftTask, this could be {draftClientId: &quot;123123&quot;}</p>
-    
+
               </td>
             </tr>
         </table>
-    
+
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -95,4 +96,3 @@ between windows, since it&#39;s JSON serializer is not extensible.</p>
           <tr><td class="markdown-from-sourecode"><p>Returns a matching <a href='task.html'>Task</a>, or null.</p>
     </td></tr>
         </table>
-
