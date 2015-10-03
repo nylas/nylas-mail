@@ -22,6 +22,10 @@ input[type="url"] {
   font-weight:400;
   background: @input-bg;
 
+  &:disabled {
+    background: fadeout(@input-bg, 40%);
+  }
+
   &.input-bordered {
     border-radius: @border-radius-base;
     border: 1px solid @input-border;

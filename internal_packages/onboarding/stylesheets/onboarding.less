@@ -253,6 +253,10 @@
       &::-webkit-input-placeholder {
         color: #C6C6C6;
       }
+
+      &:disabled {
+        background: fadeout(@input-bg, 40%);
+      }
     }
     input[type=checkbox] {
       width: initial;
