@@ -1,6 +1,7 @@
 ---
 layout: docs
 title: Accessing the Database
+edit_url: "https://github.com/nylas/N1/blob/a2c697754ad692e6a54629ffd93883dda79b0d78/docs/Database.md"
 ---
 <p>N1 is built on top of a custom database layer modeled after ActiveRecord. For many parts of the application, the database is the source of truth. Data is retrieved from the API, written to the database, and changes to the database trigger Stores and components to refresh their contents. The illustration below shows this flow of data:</p>
 <p><img src="./images/database-flow.png"></p>
@@ -112,4 +113,3 @@ DatabaseStore.<span class="hljs-function"><span class="hljs-title">find</span><s
 <li><p>All changes to the local database must be observable</p>
 </li>
 </ul>
-

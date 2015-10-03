@@ -1,6 +1,7 @@
 ---
 layout: docs
 title: Application Architecture
+edit_url: "https://github.com/nylas/N1/blob/a2c697754ad692e6a54629ffd93883dda79b0d78/docs/Architecture.md"
 ---
 <p>N1 uses <a href="https://github.com/spoike/refluxjs">Reflux</a>, a slim implementation of Facebook&#39;s <a href="https://facebook.github.io/flux/">Flux Application Architecture</a> to coordinate the movement of data through the application. Flux is extremely well suited for applications that support third-party extension because it emphasizes loose coupling and well defined interfaces between components. It enforces:</p>
 <ul>
@@ -26,4 +27,3 @@ title: Application Architecture
 <p>In Flux applications, views fire <a href='actions.html'>Actions</a>, which anyone in the application can subscribe to. Typically, <code>Stores</code> listen to actions to perform business logic and trigger updates to their corresponding views. For example, when you click &quot;Compose&quot; in the top left corner of N1, the React component for the button fires <a href='Actions.html#composeNewBlankDraft'>Actions::composeNewBlankDraft</a>. The <a href='draftstore.html'>DraftStore</a> listens to this action and opens a new composer window.</p>
 <p>This approach means that your packages can fire existing <a href='actions.html'>Actions</a>, like <a href='Actions.html#composeNewBlankDraft'>Actions::composeNewBlankDraft</a>, or observe actions to add functionality. (For example, we have an Analytics package that also listens for <a href='Actions.html#composeNewBlankDraft'>Actions::composeNewBlankDraft</a> and counts how many times it&#39;s been fired.) You can also define your own actions for use within your package.</p>
 <p>For a complete list of available actions, see <a href='actions.html'>Actions</a>.</p>
-
