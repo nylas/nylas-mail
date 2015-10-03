@@ -607,7 +607,7 @@ class ContenteditableComponent extends React.Component
   # the scroll container may be many levels up.
   _ensureSelectionVisible: (selection) ->
     # If our parent supports scroll to bottom, check for that
-    if @props.onScrollToBottom and DOMUtils.atEndOfContent(selection, @_editableNode())
+    if @_shouldScrollToBottom(selection)
       @props.onScrollToBottom()
 
     # Don't bother computing client rects if no scroll method has been provided
@@ -624,6 +624,25 @@ class ContenteditableComponent extends React.Component
 
     # The bounding client rect has changed
     @setInnerState editableNode: @_editableNode()
+
+  # As you're typing a lot of content and the cursor begins to scroll off
+  # to the bottom, we want to make it look like we're tracking your
+  # typing.
+  _shouldScrollToBottom: (selection) ->
+    (@props.onScrollToBottom and
+    DOMUtils.atEndOfContent(selection, @_editableNode()) and
+    @_bottomIsNearby())
+
+  # If the bottom of the container we're scrolling to is really far away
+  # from this contenteditable and your scroll position, we don't want to
+  # jump away. This can commonly happen if the composer has a very tall
+  # image attachment. The "send" button may be 1000px away from the bottom
+  # of the contenteditable. props.onScrollToBottom moves to the bottom of
+  # the "send" button.
+  _bottomIsNearby: ->
+    parentRect = @props.getComposerBoundingRect()
+    selfRect = @_editableNode().getBoundingClientRect()
+    return Math.abs(parentRect.bottom - selfRect.bottom) <= 250
 
   _getSelectionRectFromDOM: (selection) ->
     node = selection.anchorNode
