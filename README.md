@@ -20,3 +20,4 @@ Everything in N1 is an extension. Building your own is easy.
 
 If you would like to run the N1 source and contribute, check out our [contributing
 guide](https://github.com/nylas/N1/blob/master/CONTRIBUTING.md)
+
