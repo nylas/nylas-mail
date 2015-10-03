@@ -153,11 +153,13 @@ class ComposerView extends React.Component
 
   render: =>
     if @props.mode is "inline"
-      <FocusTrackingRegion className={@_wrapClasses()} tabIndex="-1">
+      <FocusTrackingRegion className={@_wrapClasses()}
+                           ref="composer"
+                           tabIndex="-1">
         {@_renderComposer()}
       </FocusTrackingRegion>
     else
-      <div className={@_wrapClasses()}>
+      <div className={@_wrapClasses()} ref="composer">
         {@_renderComposer()}
       </div>
 
@@ -283,12 +285,22 @@ class ComposerView extends React.Component
       onFilePaste={@_onFilePaste}
       footerElements={@_editableFooterElements()}
       onScrollToBottom={@_onScrollToBottom()}
+      getComposerBoundingRect={@_getComposerBoundingRect}
       initialSelectionSnapshot={@_recoveredSelection} />
+
+  # The contenteditable decides when to request a scroll based on the
+  # position of the cursor and its relative distance to this composer
+  # component. We provide it our boundingClientRect so it can calculate
+  # this value.
+  _getComposerBoundingRect: =>
+    React.findDOMNode(@refs.composer).getBoundingClientRect()
 
   _onScrollToBottom: ->
     if @props.onRequestScrollTo
       return =>
-        @props.onRequestScrollTo({clientId: @_proxy.draft().clientId})
+        @props.onRequestScrollTo
+          clientId: @_proxy.draft().clientId
+          position: ScrollRegion.ScrollPosition.Bottom
     else return null
 
   _editableFilters: ->

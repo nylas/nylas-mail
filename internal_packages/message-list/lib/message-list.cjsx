@@ -358,13 +358,14 @@ class MessageList extends React.Component
   #
   # If messageId and location are defined, that means we want to scroll
   # smoothly to the top of a particular message.
-  _onChildScrollRequest: ({clientId, rect}={}) =>
+  _onChildScrollRequest: ({clientId, rect, position}={}) =>
     return if @_draftScrollInProgress
     if clientId
       messageElement = @_getMessageContainer(clientId)
       return unless messageElement
+      pos = position ? ScrollRegion.ScrollPosition.Visible
       @refs.messageWrap.scrollTo(messageElement, {
-        position: ScrollRegion.ScrollPosition.Visible
+        position: pos
       })
     else if rect
       @refs.messageWrap.scrollToRect(rect, {
