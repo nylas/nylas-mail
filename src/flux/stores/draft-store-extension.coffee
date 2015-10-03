@@ -119,28 +119,13 @@ class DraftStoreExtension
     return
 
   ###
-  Public: Called when the user presses `Shift-Tab` while focused on the composer's body field.
-  Override onFocusPrevious in your DraftStoreExtension to adjust the selection or perform
-  other actions. If your package implements Shift-Tab behavior in a particular scenario, you
-  should prevent the default behavior of Shift-Tab via `event.preventDefault()`.
-
-  - `editableNode` The composer's contenteditable {Node} that received the event.
-
-  - `range`: The currently selected {Range} in the `editableNode`
-
-  - `event`: The mouse up event.
-
-  ###
-  @onFocusPrevious: (editableNode, range, event) ->
-    return
-
-
-  ###
   Public: Called when the user presses `Tab` while focused on the composer's body field.
-  Override onFocusPrevious in your DraftStoreExtension to adjust the selection or perform
+  Override onTabDown in your DraftStoreExtension to adjust the selection or perform
   other actions. If your package implements Tab behavior in a particular scenario, you
   should prevent the default behavior of Tab via `event.preventDefault()`.
 
+  Important: You should prevent the default tab behavior with great care.
+
   - `editableNode` The composer's contenteditable {Node} that received the event.
 
   - `range`: The currently selected {Range} in the `editableNode`
@@ -148,7 +133,7 @@ class DraftStoreExtension
   - `event`: The mouse up event.
 
   ###
-  @onFocusNext: (editableNode, range, event) ->
+  @onTabDown: (editableNode, range, event) ->
     return
 
   ###
