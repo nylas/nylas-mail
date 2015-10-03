@@ -1,0 +1,13 @@
+{
+  "name": "preferences",
+  "version": "0.0.0",
+  "main": "./lib/main",
+  "description": "Mail filters, AKA mail rules",
+  "license": "Proprietary",
+  "private": true,
+  "engines": {
+    "atom": "#"
+  },
+  "dependencies": {
+  }
+}
