@@ -1,0 +1,173 @@
+---
+layout: default
+title: Getting started with plugins
+---
+
+<style>
+    code .bg{
+        background-color: #f6f6f6;
+        padding: 0 5px;
+        border-radius: 5px;
+    }
+    table.code td {
+        border: none;
+        padding: 0;
+        line-height: 20px;
+        font-family: monospace;
+        font-size: 12px;
+    }
+
+    table.code td.code {
+        padding-left: 20px;
+    }
+    table.code td.line-num {
+        color: #AAA;
+        border-right: 1px solid #EEE;
+        padding: 0 5px;
+        background: #F8F8F8;
+
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -o-user-select: none;
+        user-select: none;
+    }
+    table.code td.filename {
+        background: #EEE;
+        border-bottom: 1px solid #CCC;
+        padding-left: 5px;
+    }
+</style>
+
+<div class="container">
+    <div class="grid" style="padding-top: 100px">
+        <div class="unit one-third">
+            <img src="/N1/images/watercolor_help.png" style="
+              width: 200px;
+              margin: auto;
+              display: inline-block;
+          ">
+        </div>
+        <div class="unit two-thirds" style="margin-top: 34px">
+            <h2 style="margin-bottom: 10px; margin-top:0">Build an N1 plugin</h2>
+            <div style="">
+                <h4 style="margin-top: 0">Extend your mail client in five minutes</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid feature" style="margin-top: 0px;">
+        <p>
+            Plugins lie at the heart of N1. The thread list, composer
+            and other core parts of the app are packages bundled with the
+            app, and you can create your own in a matter of minutes.
+        </p>
+    </div>
+
+    <div class="grid feature" style="margin-top: 60px;">
+        <div class="unit two-thirds" style="margin-top:60px;">
+            <h3>1. Install N1</h3>
+            <p>
+                Download and install Nylas for
+                <a href="">Mac OS X</a>
+                (or <a href="">Linux</a>).
+                Open it and sign in to your email account.
+            </p>
+        </div>
+        <div class="unit one-third" style="text-align: right;">
+            <img src="/N1/images/screenshot-sign-in.png" style="width:300px;"/>
+        </div>
+    </div>
+
+    <div class="grid feature">
+        <div class="unit one-third">
+            <img src="/N1/images/screenshot-create-plugin.png" style="width:300px;"/>
+        </div>
+        <div class="unit two-thirds">
+            <h3>2. Create a plugin</h3>
+            <p>First, switch over to development mode: go to the <code>Developer</code> menu
+                and select <code>Run with debug flags...</code>. Dev mode turns on better exception
+                logging and enables hot-reloading, but runs a bit slower.
+            </p>
+            <p>Next, choose <code>Create a Package...</code> from the the <code>Developer</code> menu,
+                and name your new plugin. This will create a directory in <code>~/.nylas/dev/packages</code>
+                containing your new plugin.
+            </p>
+        </div>
+    </div>
+
+    <div class="grid feature">
+        <div class="unit whole">
+            <h3>3. Start hacking!</h3>
+            <p>
+                Open the file <code>&lt;your-package&gt;/lib/my-message-sidebar.cjsx</code> in your
+                favorite text editor. Your new plugin is pre-filled with a simple example component
+                for the message sidebar (on the right when you're viewing an email), but with a
+                few quick changes we can build something interesting.
+            </p>
+        </div>
+
+        <div class="unit two-fifths">
+            <table class="code">
+                <tbody>
+                <tr><td class="filename" colspan="2">&lt;your-package&gt;/lib/my-message-sidebar.cjsx</td></tr>
+                <tr><td class="line-num">34</td><td class="code">render: =></td></tr>
+                <tr><td class="line-num">35</td><td class="code">&nbsp;&nbsp;&nbsp;&nbsp;if @state.contact</td></tr>
+                <tr><td class="line-num">36</td><td class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;content = @_renderContent()</td></tr>
+                <tr><td class="line-num">37</td><td class="code">&nbsp;&nbsp;&nbsp;&nbsp;else</td></tr>
+                <tr><td class="line-num">38</td><td class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;content = @_renderPlaceholder()</td></tr>
+                <tr><td class="line-num">39</td><td class="code"></td></tr>
+                <tr><td class="line-num">40</td><td class="code">&nbsp;&nbsp;&nbsp;&nbsp;&lt;div className="my-message-sidebar"&gt;</td></tr>
+                <tr><td class="line-num">41</td><td class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{content}</td></tr>
+                <tr><td class="line-num">42</td><td class="code">&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="unit three-fifths">
+            <p>
+                Scroll down to line 34, the <code>render</code> method. We can replace the code here
+                to change what shows up in the sidebar, and see it happen live when we save.
+            </p>
+            <p>
+                Try opening a message in N1 - you'll see the new package's example text show up on the
+                sidebar. Now delete the content of the <code>render</code> method and save - the text
+                should disappear.
+            </p>
+        </div>
+
+        <div class="unit one-third">
+            <p>
+                Now let's add something - a bar that changes color based on the active contact in the
+                sidebar. Drop in the code below, then save the file.
+            </p>
+        </div>
+        <div class="unit two-thirds">
+            <table class="code">
+                <tbody>
+                <tr><td class="filename" colspan="2">&lt;your-package&gt;/lib/my-message-sidebar.cjsx</td></tr>
+                <tr><td class="line-num">34</td><td class="code">render: =></td></tr>
+                <tr><td class="line-num">35</td><td class="code">&nbsp;&nbsp;&nbsp;&nbsp;&lt;div className="email-color" style={@_getStyles()}&gt;&lt;/div&gt;</td></tr>
+                <tr><td class="line-num">36</td><td class="code"></td></tr>
+                <tr><td class="line-num">37</td><td class="code">_getStyles: =></td></tr>
+                <tr><td class="line-num">38</td><td class="code">&nbsp;&nbsp;&nbsp;&nbsp;domain = @state.contact.email.split("@")[1]</td></tr>
+                <tr><td class="line-num">39</td><td class="code">&nbsp;&nbsp;&nbsp;&nbsp;hue = (domain.split('').reduce(((sum, char) -> sum + char.charCodeAt(0)), 0) % 36)*10</td></tr>
+                <tr><td class="line-num">40</td><td class="code">&nbsp;&nbsp;&nbsp;&nbsp;color = "hsl(#{hue}, 62%, 57%)"</td></tr>
+                <tr><td class="line-num">41</td><td class="code">&nbsp;&nbsp;&nbsp;&nbsp;return {background: color, height: 2, 'margin-top': 5}</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="unit two-thirds" style="text-align: right;">
+            <img src="/N1/images/screenshot-color-bar.png"/>
+        </div>
+        <div class="unit one-third">
+            <p>
+                You should see a horizontal bar that changes color based on
+                the domain of the contact's email address!
+            </p>
+        </div>
+    </div>
+
+</div>
+
+
