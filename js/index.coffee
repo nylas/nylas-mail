@@ -1,0 +1,6 @@
+---
+---
+
+preparePage = ->
+
+window.onload = ->
