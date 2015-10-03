@@ -5,7 +5,7 @@
 
   "isStarterPackage": true,
   "title": "Translation",
-  "description": "An example package for N1 that translates drafts into other languages using the Yandex API.",
+  "description": "Translate your drafts in the composer into other languages using the Yandex Translation API.",
   "icon": "./icon.png",
 
   "license": "Proprietary",
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/nylas/translate"
+    "url": "https://github.com/nylas/N1"
   },
   "windowTypes": {
     "default": true,

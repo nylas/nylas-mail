@@ -5,7 +5,7 @@
 
   "isStarterPackage": true,
   "title": "Github",
-  "description": "Adds Github quick actions to many emails, and allows you to see the Github profiles of the people you email.",
+  "description": "Extends the contact card in the sidebar to show public repos of the people you email.",
   "icon": "./icon.png",
 
   "license": "MIT",

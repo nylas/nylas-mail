@@ -1,0 +1,22 @@
+{
+  "name": "N1-Composer-Templates",
+  "version": "0.1.0",
+  "main": "./lib/main",
+
+  "isStarterPackage": true,
+  "title": "Templates",
+  "description": "Create templates you can use to pre-fill the composer - never type the same email again!",
+  "icon": "./icon.png",
+
+  "license": "Proprietary",
+  "private": true,
+  "engines": {
+    "atom": "*"
+  },
+  "dependencies": {
+  },
+  "windowTypes": {
+    "default": true,
+    "composer": true
+  }
+}

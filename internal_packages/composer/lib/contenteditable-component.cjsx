@@ -42,21 +42,6 @@ class ContenteditableComponent extends React.Component
     @_editableNode().addEventListener('contextmenu', @_onShowContextualMenu)
     @_setupSelectionListeners()
     @_setupGlobalMouseListener()
-
-    @_disposable = atom.commands.add '.contenteditable-container *', {
-      'core:focus-next': (event) =>
-        editableNode = @_editableNode()
-        range = DOMUtils.getRangeInScope(editableNode)
-        for extension in DraftStore.extensions()
-          extension.onFocusNext(editableNode, range, event) if extension.onFocusNext
-
-      'core:focus-previous': (event) =>
-        editableNode = @_editableNode()
-        range = DOMUtils.getRangeInScope(editableNode)
-        for extension in DraftStore.extensions()
-          extension.onFocusPrevious(editableNode, range, event) if extension.onFocusPrevious
-      }
-
     @_cleanHTML()
 
     @setInnerState editableNode: @_editableNode()
@@ -69,7 +54,6 @@ class ContenteditableComponent extends React.Component
     @_editableNode().removeEventListener('contextmenu', @_onShowContextualMenu)
     @_teardownSelectionListeners()
     @_teardownGlobalMouseListener()
-    @_disposable.dispose()
 
   componentWillReceiveProps: (nextProps) =>
     @_setupServices(nextProps)
@@ -275,7 +259,18 @@ class ContenteditableComponent extends React.Component
     @_onInput()
 
   _onTabDown: (event) ->
+    editableNode = @_editableNode()
+    range = DOMUtils.getRangeInScope(editableNode)
+
+    for extension in DraftStore.extensions()
+      extension.onTabDown(editableNode, range, event) if extension.onTabDown
+
+    return if event.defaultPrevented
+    @_onTabDownDefaultBehavior(event)
+
+  _onTabDownDefaultBehavior: (event) ->
     event.preventDefault()
+
     selection = document.getSelection()
     if selection?.isCollapsed
       # Only Elements (not Text nodes) have the `closest` method
