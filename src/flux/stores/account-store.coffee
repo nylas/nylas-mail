@@ -102,4 +102,78 @@ class AccountStore
   tokenForAccountId: (id) =>
     @_tokens[id]
 
+  # Private: Load fake data from a directory for taking nice screenshots
+  #
+  _importFakeData: (dir) =>
+    fs = require 'fs-plus'
+    path = require 'path'
+    DatabaseStore = require './database-store'
+    Message = require '../models/message'
+    Account = require '../models/account'
+    Thread = require '../models/thread'
+    Label = require '../models/label'
+
+    labels = {}
+    threads = []
+    messages = []
+
+    account = @itemWithEmailAddress('mark@nylas.com')
+    unless account
+      account = new Account()
+      account.serverId = account.clientId
+      account.emailAddress = "mark@nylas.com"
+      account.organizationUnit = 'label'
+      account.name = "Mark"
+      account.provider = "gmail"
+      @_accounts.push(account)
+      @_tokens[account.id] = 'nope'
+
+    filenames = fs.readdirSync(path.join(dir, 'threads'))
+    for filename in filenames
+      threadJSON = fs.readFileSync(path.join(dir, 'threads', filename))
+      threadMessages = JSON.parse(threadJSON).map (j) -> (new Message).fromJSON(j)
+      threadLabels = []
+      threadParticipants = []
+      threadAttachment = false
+      threadUnread = false
+
+      for m in threadMessages
+        m.accountId = account.id
+        for l in m.labels
+          l.accountId = account.id
+          unless l.id in labels
+            labels[l.id] = l
+        threadParticipants = threadParticipants.concat(m.participants())
+        threadLabels = threadLabels.concat(m.labels)
+        threadAttachment ||= m.files.length > 0
+        threadUnread ||= m.unread
+
+      threadParticipants = _.uniq threadParticipants, (p) -> p.email
+      threadLabels = _.uniq threadLabels, (l) -> l.id
+
+      thread = new Thread(
+        accountId: account.id
+        serverId: threadMessages[0].threadId
+        clientId: threadMessages[0].threadId
+        subject: threadMessages[0].subject
+        lastMessageReceivedTimestamp: threadMessages[0].date
+        hasAttachment: threadAttachment
+        labels: threadLabels
+        participants: threadParticipants
+        unread: threadUnread
+        snippet: threadMessages[0].snippet
+        starred: threadMessages[0].starred
+        labels: threadMessages[0].labels
+      )
+      messages = messages.concat(threadMessages)
+      threads.push(thread)
+
+    downloadsDir = path.join(dir, 'downloads')
+    for filename in fs.readdirSync(downloadsDir)
+      fs.copySync(path.join(downloadsDir, filename), path.join(atom.getConfigDirPath(), 'downloads', filename))
+
+    DatabaseStore.persistModels(_.values(labels))
+    DatabaseStore.persistModels(messages)
+    DatabaseStore.persistModels(threads)
+
 module.exports = new AccountStore()
