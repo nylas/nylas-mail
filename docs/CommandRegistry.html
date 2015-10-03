@@ -1,6 +1,7 @@
 ---
 layout: docs
 title: CommandRegistry
+edit_url: "https://github.com/nylas/N1/blob/master/src/command-registry.coffee"
 ---
 
 <h2>Summary</h2>
@@ -47,13 +48,13 @@ bubbling process and prevent invocation of additional listeners.</p>
     <h4 id=add class="function-name">
       add(<span class="args"></span>) <a href="#add" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Add one or more command listeners associated with a selector.</p>
     </p>
     </div>
-    
-    
+
+
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -66,12 +67,12 @@ bubbling process and prevent invocation of additional listeners.</p>
     <h4 id=findCommands class="function-name">
       findCommands(<span class="args"><span class="arg">params</span></span>) <a href="#findCommands" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Find all registered commands matching a query.</p>
     </p>
     </div>
-    
+
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -83,13 +84,13 @@ bubbling process and prevent invocation of additional listeners.</p>
                 <em>params</em>
               </td>
               <td class="markdown-from-sourecode">
-                
+
                 <p>An <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a> containing one or more of the following keys:</p>
-    
+
               </td>
             </tr>
         </table>
-    
+
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -108,7 +109,7 @@ bubbling process and prevent invocation of additional listeners.</p>
     <h4 id=dispatch class="function-name">
       dispatch(<span class="args"><span class="arg">target</span><span class="arg">commandName</span></span>) <a href="#dispatch" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Simulate the dispatch of a command on a DOM node.</p>
     <p>This can be useful for testing when you want to simulate the invocation of a
@@ -117,7 +118,7 @@ bubbling process and prevent invocation of additional listeners.</p>
     processed.</p>
     </p>
     </div>
-    
+
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -129,9 +130,9 @@ bubbling process and prevent invocation of additional listeners.</p>
                 <em>target</em>
               </td>
               <td class="markdown-from-sourecode">
-                
+
                 <p>The DOM node at which to start bubbling the command event.</p>
-    
+
               </td>
             </tr>
             <tr>
@@ -139,11 +140,9 @@ bubbling process and prevent invocation of additional listeners.</p>
                 <em>commandName</em>
               </td>
               <td class="markdown-from-sourecode">
-                
+
                 <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> indicating the name of the command to dispatch. </p>
-    
+
               </td>
             </tr>
         </table>
-    
-
