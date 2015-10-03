@@ -203,6 +203,13 @@ h1 {
   margin:20px;
   padding:0;
 }
+h2 {
+  font-weight: 200;
+  font-size:60px;
+  line-height:60px;
+  margin-bottom:20px;
+  margin-top:20px;
+}
 h3 {
   font-weight: 200;
   font-size: 45px;
@@ -281,7 +288,7 @@ p {
 .footer {
   padding-top:15px;
   padding-bottom:15px;
-  box-shadow: 0 1px -1px rgba(0,0,0,0.35);
+  box-shadow: 0 -1px 1px rgba(0,0,0,0.35);
 }
 .nav {
   line-height: 50px;
