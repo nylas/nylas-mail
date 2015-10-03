@@ -32,6 +32,10 @@ class TestExtension extends DraftStoreExtension
 describe "DraftStore", ->
   beforeEach ->
     spyOn(atom, 'newWindow').andCallFake ->
+    for id, session of DraftStore._draftSessions
+      if session.teardown
+        DraftStore._doneWithSession(session)
+    DraftStore._draftSessions = {}
 
   describe "creating drafts", ->
     beforeEach ->
