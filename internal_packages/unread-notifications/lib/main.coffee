@@ -95,7 +95,8 @@ module.exports =
           threads[msg.threadId]?.categoryNamed('inbox') isnt null
 
         return resolve() if newUnreadInInbox.length is 0
-        SoundRegistry.playSound('new-mail')
+        if atom.config.get("unread-notifications.sounds")
+          SoundRegistry.playSound('new-mail')
 
         for msg in newUnreadInInbox
           @stack.push({message: msg, thread: threads[msg.threadId]})

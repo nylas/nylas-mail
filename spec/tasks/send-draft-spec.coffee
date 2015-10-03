@@ -110,8 +110,16 @@ describe "SendDraftTask", ->
         expect(args.newMessage.id).toBe @serverMessageId
 
     it "should play a sound", ->
+      spyOn(atom.config, "get").andReturn true
       waitsForPromise => @task.performRemote().then ->
+        expect(atom.config.get).toHaveBeenCalledWith("core.sending.sounds")
         expect(SoundRegistry.playSound).toHaveBeenCalledWith("send")
+
+    it "shouldn't play a sound if the config is disabled", ->
+      spyOn(atom.config, "get").andReturn false
+      waitsForPromise => @task.performRemote().then ->
+        expect(atom.config.get).toHaveBeenCalledWith("core.sending.sounds")
+        expect(SoundRegistry.playSound).not.toHaveBeenCalled()
 
     it "should start an API request to /send", ->
       waitsForPromise =>

@@ -74,7 +74,8 @@ class SendDraftTask extends Task
       @draft = @draft.clone().fromJSON(json)
       @draft.draft = false
       DatabaseStore.persistModel(@draft).then =>
-        SoundRegistry.playSound('send')
+        if atom.config.get("core.sending.sounds")
+          SoundRegistry.playSound('send')
         Actions.sendDraftSuccess
           draftClientId: @draftClientId
           newMessage: @draft

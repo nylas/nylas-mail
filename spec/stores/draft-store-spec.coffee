@@ -9,6 +9,7 @@ DraftStore = require '../../src/flux/stores/draft-store'
 DraftStoreExtension = require '../../src/flux/stores/draft-store-extension'
 SendDraftTask = require '../../src/flux/tasks/send-draft'
 DestroyDraftTask = require '../../src/flux/tasks/destroy-draft'
+SoundRegistry = require '../../src/sound-registry'
 Actions = require '../../src/flux/actions'
 Utils = require '../../src/flux/models/utils'
 ipc = require 'ipc'
@@ -689,6 +690,19 @@ describe "DraftStore", ->
       DraftStore._draftSessions[draftClientId] = proxy
       spyOn(DraftStore, "_doneWithSession").andCallThrough()
       spyOn(DraftStore, "trigger")
+      spyOn(SoundRegistry, "playSound")
+
+    it "plays a sound immediately when sending draft", ->
+      spyOn(atom.config, "get").andReturn true
+      DraftStore._onSendDraft(draftClientId)
+      expect(atom.config.get).toHaveBeenCalledWith("core.sending.sounds")
+      expect(SoundRegistry.playSound).toHaveBeenCalledWith("hit-send")
+
+    it "doesn't plays a sound if the setting is off", ->
+      spyOn(atom.config, "get").andReturn false
+      DraftStore._onSendDraft(draftClientId)
+      expect(atom.config.get).toHaveBeenCalledWith("core.sending.sounds")
+      expect(SoundRegistry.playSound).not.toHaveBeenCalled()
 
     it "sets the sending state when sending", ->
       spyOn(atom, "isMainWindow").andReturn true
