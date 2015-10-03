@@ -61,7 +61,7 @@ class Atom extends Model
   @getStatePath: ->
     {isSpec, mainWindow} = @getLoadSettings()
     if isSpec
-      filename = 'spec'
+      filename = 'spec-saved-state.json'
     else if mainWindow
       path.join(@getConfigDirPath(), 'main-window-state.json')
     else

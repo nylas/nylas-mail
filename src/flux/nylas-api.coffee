@@ -128,7 +128,11 @@ class NylasAPI
   _onConfigChanged: =>
     prev = {@AppID, @APIRoot, @APITokens}
 
-    env = atom.config.get('env')
+    if atom.inSpecMode()
+      env = "testing"
+    else
+      env = atom.config.get('env')
+
     if not env
       env = 'production'
       console.error("NylasAPI: config.cson does not contain an environment \
