@@ -1,6 +1,7 @@
 ---
 layout: docs
 title: Actions
+edit_url: "https://github.com/nylas/N1/blob/master/src/flux/actions.coffee"
 ---
 
 <h2>Summary</h2>
@@ -138,7 +139,7 @@ that is not a Store, you can still use the <code>listen</code> method provided b
     <p><em>Scope: Window</em></p>
     <pre><code><span class="hljs-comment"># Compose a reply to the last message in the thread</span>
     Actions.composeReply({threadId: <span class="hljs-string">'123'</span>})
-    
+
     <span class="hljs-comment"># Compose a reply to a specific message in the thread</span>
     Actions.composeReply({threadId: <span class="hljs-string">'123'</span>, messageId: <span class="hljs-string">'123'</span>})
     </code></pre></p>
@@ -206,11 +207,11 @@ that is not a Store, you can still use the <code>listen</code> method provided b
     <p><em>Scope: Global</em></p>
     <pre><code><span class="hljs-comment"># A simple notification</span>
     Actions.postNotification({message: <span class="hljs-string">"Removed Thread"</span>, <span class="hljs-built_in">type</span>: <span class="hljs-string">'success'</span>})
-    
+
     <span class="hljs-comment"># A sticky notification with actions</span>
     NOTIF_ACTION_YES = <span class="hljs-string">'YES'</span>
     NOTIF_ACTION_NO = <span class="hljs-string">'NO'</span>
-    
+
     Actions.postNotification
       <span class="hljs-built_in">type</span>: <span class="hljs-string">'info'</span>,
       sticky: <span class="hljs-literal">true</span>
@@ -229,7 +230,7 @@ that is not a Store, you can still use the <code>listen</code> method provided b
     published via <code>postNotification</code>.</p>
     <p><em>Scope: Global</em></p>
     <pre><code><span class="hljs-variable">@_unlisten</span> = Actions.notificationActionTaken.<span class="hljs-function">listen</span>(<span class="hljs-variable">@_onActionTaken</span>, @)
-    
+
     <span class="hljs-attribute">_onActionTaken</span>: ({notification, action}) -&gt;
       if action.id is NOTIF_ACTION_YES
         # perform action
@@ -253,12 +254,8 @@ that is not a Store, you can still use the <code>listen</code> method provided b
     <p><em>Scope: Window</em></p>
     <pre><code>WorkspaceStore.defineSheet <span class="hljs-string">'Thread'</span>, <span class="hljs-list">{}</span>,
         list: [<span class="hljs-string">'MessageList'</span>, <span class="hljs-string">'MessageListSidebar'</span>]
-    
+
     ...
-    
+
     @pushSheet(WorkspaceStore.Sheet.<span class="hljs-keyword">Thread</span>)
     </code></pre></p>
-
-
-
-

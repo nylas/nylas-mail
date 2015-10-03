@@ -1,6 +1,7 @@
 ---
 layout: docs
 title: ContactStore
+edit_url: "https://github.com/nylas/N1/blob/master/src/flux/stores/contact-store.coffee"
 ---
 
 <h2>Summary</h2>
@@ -33,14 +34,14 @@ to refresh data based on the ContactStore.</p>
     <h4 id=searchContacts class="function-name">
       searchContacts(<span class="args"><span class="arg">search</span><span class="arg">[options]</span></span>) <a href="#searchContacts" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Search the user&#39;s contact list for the given search term.
     This method compares the <code>search</code> string against each Contact&#39;s
     <code>name</code> and <code>email</code>.</p>
     </p>
     </div>
-    
+
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -52,9 +53,9 @@ to refresh data based on the ContactStore.</p>
                 <em>search</em>
               </td>
               <td class="markdown-from-sourecode">
-                
+
                 <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> A search phrase, such as <code>ben@n</code> or <code>Ben G</code></p>
-    
+
               </td>
             </tr>
             <tr>
@@ -64,11 +65,11 @@ to refresh data based on the ContactStore.</p>
               <td class="markdown-from-sourecode">
                 <span class="optional">Optional</span>
                 <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a> If you will only be displaying a few results, you should pass a limit value. <a href='#searchContacts'>searchContacts</a> will return as soon as <code>limit</code> matches have been found.</p>
-    
+
               </td>
             </tr>
         </table>
-    
+
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -80,12 +81,12 @@ to refresh data based on the ContactStore.</p>
     <h4 id=isValidContact class="function-name">
       isValidContact(<span class="args"></span>) <a href="#isValidContact" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p></p>
     </div>
-    
-    
+
+
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -95,4 +96,3 @@ to refresh data based on the ContactStore.</p>
     contains a properly formatted email address.</p>
     </td></tr>
         </table>
-

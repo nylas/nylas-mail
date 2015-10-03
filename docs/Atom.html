@@ -1,6 +1,7 @@
 ---
 layout: docs
 title: Atom
+edit_url: "https://github.com/nylas/N1/blob/master/src/atom.coffee"
 ---
 
 <h2>Summary</h2>
@@ -29,12 +30,12 @@ title: Atom
     <h4 id=onDidBeep class="function-name">
       onDidBeep(<span class="args"><span class="arg">callback</span></span>) <a href="#onDidBeep" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Invoke the given callback whenever <a href='#beep'>beep</a> is called.</p>
     </p>
     </div>
-    
+
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -46,13 +47,13 @@ title: Atom
                 <em>callback</em>
               </td>
               <td class="markdown-from-sourecode">
-                
+
                 <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function'>Function</a> to be called whenever <a href='#beep'>beep</a> is called.</p>
-    
+
               </td>
             </tr>
         </table>
-    
+
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -64,13 +65,13 @@ title: Atom
     <h4 id=onWillThrowError class="function-name">
       onWillThrowError(<span class="args"><span class="arg">callback</span></span>) <a href="#onWillThrowError" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Invoke the given callback when there is an unhandled error, but
     before the devtools pop open</p>
     </p>
     </div>
-    
+
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -82,13 +83,13 @@ title: Atom
                 <em>callback</em>
               </td>
               <td class="markdown-from-sourecode">
-                
+
                 <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function'>Function</a> to be called whenever there is an unhandled error</p>
-    
+
               </td>
             </tr>
         </table>
-    
+
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -100,12 +101,12 @@ title: Atom
     <h4 id=onDidThrowError class="function-name">
       onDidThrowError(<span class="args"><span class="arg">callback</span></span>) <a href="#onDidThrowError" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Invoke the given callback whenever there is an unhandled error.</p>
     </p>
     </div>
-    
+
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -117,13 +118,13 @@ title: Atom
                 <em>callback</em>
               </td>
               <td class="markdown-from-sourecode">
-                
+
                 <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function'>Function</a> to be called whenever there is an unhandled error</p>
-    
+
               </td>
             </tr>
         </table>
-    
+
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -135,7 +136,7 @@ title: Atom
     <h4 id=trace class="function-name">
       trace(<span class="args"></span>) <a href="#trace" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Run the Chromium content-tracing module for five seconds, and save
     the output to a file which is printed to the command-line output of the app.
@@ -144,48 +145,48 @@ title: Atom
     Tools Profiler, but for all processes and threads. </p>
     </p>
     </div>
-    
-    
+
+
     <h4 id=inDevMode class="function-name">
       inDevMode(<span class="args"></span>) <a href="#inDevMode" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Is the current window in development mode? </p>
     </p>
     </div>
-    
-    
+
+
     <h4 id=inSafeMode class="function-name">
       inSafeMode(<span class="args"></span>) <a href="#inSafeMode" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Is the current window in safe mode? </p>
     </p>
     </div>
-    
-    
+
+
     <h4 id=inSpecMode class="function-name">
       inSpecMode(<span class="args"></span>) <a href="#inSpecMode" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Is the current window running specs? </p>
     </p>
     </div>
-    
-    
+
+
     <h4 id=getVersion class="function-name">
       getVersion(<span class="args"></span>) <a href="#getVersion" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Get the version of the Atom application.</p>
     </p>
     </div>
-    
-    
+
+
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -197,25 +198,25 @@ title: Atom
     <h4 id=isReleasedVersion class="function-name">
       isReleasedVersion(<span class="args"></span>) <a href="#isReleasedVersion" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Determine whether the current version is an official release. </p>
     </p>
     </div>
-    
-    
+
+
     <h4 id=getWindowLoadTime class="function-name">
       getWindowLoadTime(<span class="args"></span>) <a href="#getWindowLoadTime" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Get the time taken to completely load the current window.</p>
     <p>This time include things like loading and activating packages, creating
     DOM elements for the editor, and reading the config.</p>
     </p>
     </div>
-    
-    
+
+
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -228,23 +229,23 @@ title: Atom
     <h4 id=close class="function-name">
       close(<span class="args"></span>) <a href="#close" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Close the current window. </p>
     </p>
     </div>
-    
-    
+
+
     <h4 id=getSize class="function-name">
       getSize(<span class="args"></span>) <a href="#getSize" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Get the size of current window.</p>
     </p>
     </div>
-    
-    
+
+
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -256,12 +257,12 @@ title: Atom
     <h4 id=setSize class="function-name">
       setSize(<span class="args"><span class="arg">width</span><span class="arg">height</span></span>) <a href="#setSize" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Set the size of current window.</p>
     </p>
     </div>
-    
+
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -273,9 +274,9 @@ title: Atom
                 <em>width</em>
               </td>
               <td class="markdown-from-sourecode">
-                
+
                 <p>The <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number'>Number</a> of pixels.</p>
-    
+
               </td>
             </tr>
             <tr>
@@ -283,22 +284,22 @@ title: Atom
                 <em>height</em>
               </td>
               <td class="markdown-from-sourecode">
-                
+
                 <p>The <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number'>Number</a> of pixels. </p>
-    
+
               </td>
             </tr>
         </table>
-    
+
     <h4 id=setSizeAnimated class="function-name">
       setSizeAnimated(<span class="args"><span class="arg">width</span><span class="arg">height</span><span class="arg">duration</span></span>) <a href="#setSizeAnimated" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Transition and set the size of the current window.</p>
     </p>
     </div>
-    
+
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -310,9 +311,9 @@ title: Atom
                 <em>width</em>
               </td>
               <td class="markdown-from-sourecode">
-                
+
                 <p>The <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number'>Number</a> of pixels.</p>
-    
+
               </td>
             </tr>
             <tr>
@@ -320,9 +321,9 @@ title: Atom
                 <em>height</em>
               </td>
               <td class="markdown-from-sourecode">
-                
+
                 <p>The <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number'>Number</a> of pixels.</p>
-    
+
               </td>
             </tr>
             <tr>
@@ -330,23 +331,23 @@ title: Atom
                 <em>duration</em>
               </td>
               <td class="markdown-from-sourecode">
-                
+
                 <p>The <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number'>Number</a> of pixels. </p>
-    
+
               </td>
             </tr>
         </table>
-    
+
     <h4 id=getPosition class="function-name">
       getPosition(<span class="args"></span>) <a href="#getPosition" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Get the position of current window.</p>
     </p>
     </div>
-    
-    
+
+
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -358,12 +359,12 @@ title: Atom
     <h4 id=setPosition class="function-name">
       setPosition(<span class="args"><span class="arg">x</span><span class="arg">y</span></span>) <a href="#setPosition" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Set the position of current window.</p>
     </p>
     </div>
-    
+
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -375,9 +376,9 @@ title: Atom
                 <em>x</em>
               </td>
               <td class="markdown-from-sourecode">
-                
+
                 <p>The <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number'>Number</a> of pixels.</p>
-    
+
               </td>
             </tr>
             <tr>
@@ -385,77 +386,77 @@ title: Atom
                 <em>y</em>
               </td>
               <td class="markdown-from-sourecode">
-                
+
                 <p>The <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number'>Number</a> of pixels. </p>
-    
+
               </td>
             </tr>
         </table>
-    
+
     <h4 id=center class="function-name">
       center(<span class="args"></span>) <a href="#center" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Move current window to the center of the screen. </p>
     </p>
     </div>
-    
-    
+
+
     <h4 id=focus class="function-name">
       focus(<span class="args"></span>) <a href="#focus" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Focus the current window. </p>
     </p>
     </div>
-    
-    
+
+
     <h4 id=show class="function-name">
       show(<span class="args"></span>) <a href="#show" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Show the current window. </p>
     </p>
     </div>
-    
-    
+
+
     <h4 id=hide class="function-name">
       hide(<span class="args"></span>) <a href="#hide" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Hide the current window. </p>
     </p>
     </div>
-    
-    
+
+
     <h4 id=reload class="function-name">
       reload(<span class="args"></span>) <a href="#reload" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Reload the current window. </p>
     </p>
     </div>
-    
-    
+
+
     <h4 id=getWindowProps class="function-name">
       getWindowProps(<span class="args"></span>) <a href="#getWindowProps" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>The windowProps passed when creating the window via <code>newWindow</code>.</p>
     </p>
     </div>
-    
-    
+
+
     <h4 id=onWindowPropsReceived class="function-name">
       onWindowPropsReceived(<span class="args"></span>) <a href="#onWindowPropsReceived" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>If your package declares hot-loaded window types, <code>onWindowPropsReceived</code>
     fires when your hot-loaded window is about to be shown so you can update
@@ -466,67 +467,67 @@ title: Atom
     </ul>
     </p>
     </div>
-    
-    
+
+
     <h4 id=isMaximixed class="function-name">
       isMaximixed(<span class="args"></span>) <a href="#isMaximixed" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Is the current window maximized? </p>
     </p>
     </div>
-    
-    
+
+
     <h4 id=isFullScreen class="function-name">
       isFullScreen(<span class="args"></span>) <a href="#isFullScreen" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Is the current window in full screen mode? </p>
     </p>
     </div>
-    
-    
+
+
     <h4 id=setFullScreen class="function-name">
       setFullScreen(<span class="args"></span>) <a href="#setFullScreen" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Set the full screen state of the current window. </p>
     </p>
     </div>
-    
-    
+
+
     <h4 id=toggleFullScreen class="function-name">
       toggleFullScreen(<span class="args"></span>) <a href="#toggleFullScreen" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Toggle the full screen state of the current window. </p>
     </p>
     </div>
-    
-    
+
+
     <h4 id=beep class="function-name">
       beep(<span class="args"></span>) <a href="#beep" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Visually and audibly trigger a beep. </p>
     </p>
     </div>
-    
-    
+
+
     <h4 id=confirm class="function-name">
       confirm(<span class="args"><span class="arg">options</span></span>) <a href="#confirm" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>A flexible way to open a dialog akin to an alert dialog.</p>
     </p>
     </div>
-    
+
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -538,13 +539,13 @@ title: Atom
                 <em>options</em>
               </td>
               <td class="markdown-from-sourecode">
-                
+
                 <p>An <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a> with the following keys:</p>
-    
+
               </td>
             </tr>
         </table>
-    
+
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -556,31 +557,28 @@ title: Atom
     <h4 id=openDevTools class="function-name">
       openDevTools(<span class="args"></span>) <a href="#openDevTools" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Open the dev tools for the current window. </p>
     </p>
     </div>
-    
-    
+
+
     <h4 id=toggleDevTools class="function-name">
       toggleDevTools(<span class="args"></span>) <a href="#toggleDevTools" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Toggle the visibility of the dev tools for the current window. </p>
     </p>
     </div>
-    
-    
+
+
     <h4 id=executeJavaScriptInDevTools class="function-name">
       executeJavaScriptInDevTools(<span class="args"></span>) <a href="#executeJavaScriptInDevTools" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Execute code in dev tools. </p>
     </p>
     </div>
-    
-    
-

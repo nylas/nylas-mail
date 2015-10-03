@@ -1,6 +1,7 @@
 ---
 layout: docs
 title: Building a Package
+edit_url: "https://github.com/nylas/N1/blob/a2c697754ad692e6a54629ffd93883dda79b0d78/docs/PackageOverview.md"
 ---
 <p>Packages lie at the heart of N1. Each part of the core experience is a separate package that uses the Nylas Package API to add functionality to the client. Want to make a read-only mail client? Remove the core <code>Composer</code> package and you&#39;ll see reply buttons and composer functionality disappear.</p>
 <p>Let&#39;s explore the files in a simple package that adds a Translate option to the Composer. When you tap the Translate button, we&#39;ll display a popup menu with a list of languages. When you pick a language, we&#39;ll make a web request and convert your reply into the desired language.</p>
@@ -75,4 +76,3 @@ title: Building a Package
 </code></pre><h3 id="installing-a-package">Installing a Package</h3>
 <p>N1 ships with many packages already bundled with the application. When the application launches, it looks for additional packages in <code>~/.nylas/dev/packages</code>. Each package you create belongs in its own directory inside this folder.</p>
 <p>In the future, it will be possible to install packages directly from within the client.</p>
-

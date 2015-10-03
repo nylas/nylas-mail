@@ -1,6 +1,7 @@
 ---
 layout: docs
 title: Interface Components
+edit_url: "https://github.com/nylas/N1/blob/a2c697754ad692e6a54629ffd93883dda79b0d78/docs/React.md"
 ---
 <p>N1 uses <a href="https://facebook.github.io/react/">React</a> to create a fast, responsive UI. Packages that want to extend the N1 interface should use React. Using React&#39;s <a href="https://facebook.github.io/react/jsx-in-depth.html">JSX</a> syntax is optional, but both <a href="https://facebook.github.io/react/jsx-in-depth.html">JSX</a> and <a href="https://github.com/jsdf/coffee-react">CJSX</a> (CoffeeScript) are available.</p>
 <p>For a quick introduction to React, take a look at Facebook&#39;s <a href="https://facebook.github.io/react/getting-started.html">Getting Started with React</a>.</p>
@@ -86,4 +87,3 @@ title: Interface Components
 <p>N1 considers all injected components &quot;unsafe&quot;. When you render them using <a href='injectedcomponent.html'>InjectedComponent</a> or <a href='injectedcomponentset.html'>InjectedComponentSet</a>, they will be wrapped in a component that prevents exceptions in their React render and lifecycle methods from impacting your component. Instead of your component triggering a React Invariant exception in the application, an exception notice will be rendered in place of the unsafe component.</p>
 <p><img src="./images/unsafe-component-exception.png"></p>
 <p>In the future, N1 may automatically disable packages when their React components throw exceptions.</p>
-

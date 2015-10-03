@@ -1,6 +1,7 @@
 ---
 layout: docs
 title: ModelQuery
+edit_url: "https://github.com/nylas/N1/blob/master/src/flux/models/query.coffee"
 ---
 
 <h2>Summary</h2>
@@ -41,13 +42,13 @@ query.<span class="hljs-keyword">where</span>([<span class="hljs-type">Thread</s
     <h4 id=where class="function-name">
       where(<span class="args"><span class="arg">matchers</span></span>) <a href="#where" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Add one or more where clauses to the query</p>
     <p>This method is chainable.</p>
     </p>
     </div>
-    
+
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -59,23 +60,23 @@ query.<span class="hljs-keyword">where</span>([<span class="hljs-type">Thread</s
                 <em>matchers</em>
               </td>
               <td class="markdown-from-sourecode">
-                
+
                 <p>An <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of <a href='matcher.html'>Matcher</a> objects that add where clauses to the underlying query.</p>
-    
+
               </td>
             </tr>
         </table>
-    
+
     <h4 id=include class="function-name">
       include(<span class="args"><span class="arg">attr</span></span>) <a href="#include" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Include specific joined data attributes in result objects.</p>
     <p>This method is chainable.</p>
     </p>
     </div>
-    
+
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -87,34 +88,34 @@ query.<span class="hljs-keyword">where</span>([<span class="hljs-type">Thread</s
                 <em>attr</em>
               </td>
               <td class="markdown-from-sourecode">
-                
+
                 <p>A <a href='attributejoineddata.html'>AttributeJoinedData</a> that you want to be populated in the returned models. Note: This results in a LEFT OUTER JOIN. See <a href='attributejoineddata.html'>AttributeJoinedData</a> for more information.</p>
-    
+
               </td>
             </tr>
         </table>
-    
+
     <h4 id=includeAll class="function-name">
       includeAll(<span class="args"></span>) <a href="#includeAll" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Include all of the available joined data attributes in returned models.</p>
     <p>This method is chainable.</p>
     </p>
     </div>
-    
-    
+
+
     <h4 id=order class="function-name">
       order(<span class="args"><span class="arg">orders</span></span>) <a href="#order" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Apply a sort order to the query.</p>
     <p>This method is chainable.</p>
     </p>
     </div>
-    
+
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -126,35 +127,35 @@ query.<span class="hljs-keyword">where</span>([<span class="hljs-type">Thread</s
                 <em>orders</em>
               </td>
               <td class="markdown-from-sourecode">
-                
+
                 <p>An <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of one or more <a href='sortorder.html'>SortOrder</a> objects that determine the sort order of returned models.</p>
-    
+
               </td>
             </tr>
         </table>
-    
+
     <h4 id=one class="function-name">
       one(<span class="args"></span>) <a href="#one" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Set the <code>singular</code> flag - only one model will be returned from the
     query, and a <code>LIMIT 1</code> clause will be used.</p>
     <p>This method is chainable.</p>
     </p>
     </div>
-    
-    
+
+
     <h4 id=limit class="function-name">
       limit(<span class="args"><span class="arg">limit</span></span>) <a href="#limit" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Limit the number of query results.</p>
     <p>This method is chainable.</p>
     </p>
     </div>
-    
+
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -166,22 +167,22 @@ query.<span class="hljs-keyword">where</span>([<span class="hljs-type">Thread</s
                 <em>limit</em>
               </td>
               <td class="markdown-from-sourecode">
-                
+
                 <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number'>Number</a> The number of models that should be returned.</p>
-    
+
               </td>
             </tr>
         </table>
-    
+
     <h4 id=offset class="function-name">
       offset(<span class="args"><span class="arg">offset</span></span>) <a href="#offset" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>This method is chainable.</p>
     </p>
     </div>
-    
+
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -193,35 +194,35 @@ query.<span class="hljs-keyword">where</span>([<span class="hljs-type">Thread</s
                 <em>offset</em>
               </td>
               <td class="markdown-from-sourecode">
-                
+
                 <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number'>Number</a> The start offset of the query.</p>
-    
+
               </td>
             </tr>
         </table>
-    
+
     <h4 id=count class="function-name">
       count(<span class="args"></span>) <a href="#count" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Set the <code>count</code> flag - instead of returning inflated models,
     the query will return the result <code>COUNT</code>.</p>
     <p>This method is chainable.</p>
     </p>
     </div>
-    
-    
+
+
     <h4 id=then class="function-name">
       then(<span class="args"></span>) <a href="#then" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Short-hand syntax that calls run().then(fn) with the provided function.</p>
     </p>
     </div>
-    
-    
+
+
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -234,12 +235,12 @@ query.<span class="hljs-keyword">where</span>([<span class="hljs-type">Thread</s
     <h4 id=run class="function-name">
       run(<span class="args"></span>) <a href="#run" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p></p>
     </div>
-    
-    
+
+
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -249,4 +250,3 @@ query.<span class="hljs-keyword">where</span>([<span class="hljs-type">Thread</s
     query, or rejects with an error from the Database layer.</p>
     </td></tr>
         </table>
-

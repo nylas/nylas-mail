@@ -257,7 +257,9 @@ p {
 .footer {
   padding-top:15px;
   padding-bottom:15px;
-  box-shadow: 0 -1px 1px rgba(0,0,0,0.35);
+}
+.footer > .container > .grid {
+  box-shadow: inset 0 4px 4px -4px rgba(0,0,0,0.35);
 }
 
 .btn,
