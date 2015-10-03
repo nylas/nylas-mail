@@ -4,3 +4,8 @@ node_modules
 api.json
 /_site
 .sass-cache*
+.arcconfig
+.arclint
+electron
+internal_packages
+arclib
