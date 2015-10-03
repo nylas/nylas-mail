@@ -20,6 +20,9 @@ title: Examples
     {% for example in site.collections.examples.docs %}
       <div class="half unit" style="padding-left:10px; padding-right:10px;">
         <div class="example-item">
+          <div class="example-item-image">
+            <img src="{{ example.image }}">
+          </div>
           <div>
             <h4 style="margin-top:0;">
               <a href="{{ site.baseurl }}{{ example.url }}">{{ example.title }}</a>

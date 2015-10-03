@@ -392,3 +392,12 @@ p {
   line-height: 20px;
   margin-top: 5px;
 }
+
+.example-item-image {
+  height: 120px;
+  width: 100%;
+  overflow: auto;
+  margin-bottom: 10px;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+}
