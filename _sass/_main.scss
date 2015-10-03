@@ -394,9 +394,9 @@ p {
 }
 
 .example-item-image {
-  height: 120px;
+  height: 150px;
   width: 100%;
-  overflow: auto;
+  overflow: hidden;
   margin-bottom: 10px;
   border-radius: 3px;
   border: 1px solid #ccc;
