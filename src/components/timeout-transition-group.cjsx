@@ -21,10 +21,12 @@ animationSupported = => true
 ###
 
 addClass = (element, className) =>
+  return unless element
   element.classList.add(className)
   element
 
 removeClass = (element, className) =>
+  return unless element
   if element.classList.contains(className)
     element.classList.remove(className)
   element

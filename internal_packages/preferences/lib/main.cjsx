@@ -55,7 +55,7 @@ module.exports =
       width: 520
       resizable: false
       autosize: true
-      stylesheetRegex: /preferences/
+      stylesheetRegex: /(preferences|nylas\-fonts)/
       props: {
         initialTab: tab
       }
