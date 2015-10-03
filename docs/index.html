@@ -1,6 +1,7 @@
 ---
 layout: docs
 title: First Steps
+edit_url: "https://github.com/nylas/N1/blob/master/docs/index.md"
 ---
 <style>
 h3 {
@@ -258,7 +259,7 @@ GithubUserStore = Reflux.createStore
     <span class="hljs-comment"># Get the newly focused contact</span>
     contact = FocusedContactsStore.focusedContact()
     <span class="hljs-comment"># Clear the profile we're currently showing</span>
-    <span class="hljs-property">@_profile</span> = <span class="hljs-literal">null</span>    
+    <span class="hljs-property">@_profile</span> = <span class="hljs-literal">null</span>
     <span class="hljs-keyword">if</span> contact
       <span class="hljs-property">@_fetchGithubProfile</span>(contact.email)
     <span class="hljs-property">@trigger</span>(@)
@@ -302,4 +303,3 @@ GithubUserStore = Reflux.createStore
 <blockquote>
 <p>You can find a more extensive version of this example in our <a href="https://github.com/nylas/edgehill-plugins/tree/master/sidebar-github-profile">sample packages repository</a>.</p>
 </blockquote>
-

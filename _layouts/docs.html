@@ -11,6 +11,12 @@
     </div>
     <div id="main">
       {{ content }}
+
+    {% if page.edit_url %}
+      <h2>Can you help us improve these docs?</h2>
+      <p>The source of these docs is <a href="{{ page.edit_url }}">here</a> on GitHub. If you see a way these docs can be improved, please fork us!</p>
+    {% endif %}
+
     </div>
   </div>
 
