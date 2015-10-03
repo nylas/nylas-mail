@@ -4,7 +4,6 @@ _ = require 'underscore'
 {EdgehillAPI, Utils} = require 'nylas-exports'
 
 OnboardingActions = require './onboarding-actions'
-NylasApiEnvironmentStore = require './nylas-api-environment-store'
 Providers = require './account-types'
 url = require 'url'
 
@@ -15,11 +14,6 @@ class AccountChoosePage extends React.Component
     @state =
       email: ""
       provider: ""
-      environment: NylasApiEnvironmentStore.getEnvironment()
-
-  componentDidMount: ->
-    @_usub = NylasApiEnvironmentStore.listen =>
-      @setState environment: NylasApiEnvironmentStore.getEnvironment()
 
   componentWillUnmount: ->
     @_usub?()
@@ -87,19 +81,5 @@ class AccountChoosePage extends React.Component
         approval_prompt: 'force'
     })
     shell.openExternal(googleUrl)
-
-  _environmentComponent: =>
-    return <div></div> unless atom.inDevMode()
-    <div className="environment-selector">
-      <select value={@state.environment} onChange={@_onEnvChange}>
-        <option value="development">Development (edgehill-dev, api-staging)</option>
-        <option value="experimental">Experimental (edgehill-experimental, api-experimental)</option>
-        <option value="staging">Staging (edgehill-staging, api-staging)</option>
-        <option value="production">Production (edgehill, api)</option>
-      </select>
-    </div>
-
-  _onEnvChange: (event) =>
-    OnboardingActions.changeAPIEnvironment(event.target.value)
 
 module.exports = AccountChoosePage

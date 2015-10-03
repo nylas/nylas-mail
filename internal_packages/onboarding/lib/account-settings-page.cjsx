@@ -7,6 +7,8 @@ ipc = require 'ipc'
 OnboardingActions = require './onboarding-actions'
 NylasApiEnvironmentStore = require './nylas-api-environment-store'
 Providers = require './account-types'
+remote = require('remote')
+dialog = remote.require('dialog')
 
 class AccountSettingsPage extends React.Component
   @displayName: "AccountSettingsPage"
@@ -224,6 +226,8 @@ class AccountSettingsPage extends React.Component
         pass: ''
         sendImmediately: true
     .then (json) =>
+      json.invite_code = atom.config.get('edgehill.token')
+      json.email = data.email
       EdgehillAPI.request
         path: "/connect/nylas"
         method: "POST"
@@ -235,6 +239,19 @@ class AccountSettingsPage extends React.Component
 
   _onNetworkError: (err) =>
     errorMessage = err.message
+    if errorMessage == "Invite code required"
+      choice = dialog.showMessageBox(
+            remote.getCurrentWindow(),
+            {
+                type: 'info',
+                buttons: ['Okay'],
+                title: 'Confirm',
+                message: 'Due to a large number of sign-ups this week, you’ll need an invitation code to add another account! Visit http://invite.nylas.com/ to grab one, or hold tight!'
+            });
+      OnboardingActions.moveToPage("token-auth")
+    if errorMessage == "Invalid invite code"
+      # delay?
+      OnboardingActions.moveToPage("token-auth")
     pageNumber = @state.pageNumber
     errorFieldNames = err.body?.missing_fields || err.body?.missing_settings
 

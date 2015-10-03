@@ -8,6 +8,8 @@ AccountChoosePage = require './account-choose-page'
 AccountSettingsPage = require './account-settings-page'
 InitialPreferencesPage = require './initial-preferences-page'
 InitialPackagesPage = require './initial-packages-page'
+TokenAuthPage = require './token-auth-page'
+
 
 class PageRouter extends React.Component
   @displayName: 'PageRouter'
@@ -73,6 +75,7 @@ class PageRouter extends React.Component
   _renderCurrentPage: =>
     Component = {
       "welcome": WelcomePage
+      "token-auth": TokenAuthPage
       "account-choose": AccountChoosePage
       "account-settings": AccountSettingsPage
       "initial-preferences": InitialPreferencesPage

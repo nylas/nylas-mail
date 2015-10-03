@@ -7,8 +7,8 @@ DatabaseStore = require './stores/database-store'
 PriorityUICoordinator = require '../priority-ui-coordinator'
 async = require 'async'
 
-# TODO: Fold this code into NylasAPI or create a base class
-class EdgehillAPI
+
+class SignupAPI
 
   constructor: ->
     atom.config.onDidChange('env', @_onConfigChanged)
@@ -18,13 +18,11 @@ class EdgehillAPI
   _onConfigChanged: =>
     env = atom.config.get('env')
     if env is 'development'
-      @APIRoot = "http://localhost:5001"
-    else if env is 'experimental'
-      @APIRoot = "https://edgehill-experimental.nylas.com"
-    else if env is 'staging'
-      @APIRoot = "https://edgehill-staging.nylas.com"
+      @APIRoot = "http://localhost:5000"
+    else if env in ['experimental', 'staging']
+      @APIRoot = "https://invite-staging.nylas.com"
     else
-      @APIRoot = "https://edgehill.nylas.com"
+      @APIRoot = "https://invite.nylas.com"
 
   request: (options={}) ->
     return if atom.getLoadSettings().isSpec
@@ -32,13 +30,6 @@ class EdgehillAPI
     options.url ?= "#{@APIRoot}#{options.path}" if options.path
     options.body ?= {} unless options.formData
     options.json = true
-
-    auth = @_getCredentials()
-    if not options.auth and auth
-      options.auth =
-        user: auth.username
-        pass: auth.password
-        sendImmediately: true
 
     options.error ?= @_defaultErrorCallback
 
@@ -63,13 +54,24 @@ class EdgehillAPI
           else
             options.success(body) if options.success
 
-  _getCredentials: ->
-    atom.config.get('edgehill.credentials')
-
-  _setCredentials: (credentials) ->
-    atom.config.set('edgehill.credentials', credentials)
-
   _defaultErrorCallback: (apiError) ->
     console.error(apiError)
 
-module.exports = new EdgehillAPI
+  _onNetworkError: (err) =>
+    errorMessage = err.message
+    pageNumber = @state.pageNumber
+    errorFieldNames = err.body?.missing_fields || err.body?.missing_settings
+
+    if errorFieldNames
+      {pageNumber, errorMessage} = @_stateForMissingFieldNames(errorFieldNames)
+    if err.statusCode is -123 # timeout
+      errorMessage = "Request timed out. Please try again."
+
+    @setState
+      pageNumber: pageNumber
+      errorMessage: errorMessage
+      errorFieldNames: errorFieldNames || []
+      tryingToAuthenticate: false
+    @_resize()
+
+module.exports = new SignupAPI
