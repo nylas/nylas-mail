@@ -21,11 +21,11 @@ title: Examples
       <div class="half unit" style="padding-left:10px; padding-right:10px;">
         <div class="example-item">
           <div class="example-item-image">
-            <img src="{{ example.image }}">
+            <a href="{{ example.github }}"><img src="{{ example.image }}"></a>
           </div>
           <div>
-            <h4 style="margin-top:0;">
-              <a href="{{ site.baseurl }}{{ example.url }}">{{ example.title }}</a>
+            <h4 style="margin-top:10px;">
+              <a href="{{ example.github }}">{{ example.title }}</a>
             </h4>
           </div>
           <div class="example-item-description">
@@ -40,7 +40,7 @@ title: Examples
               <a href="{{ site.baseurl }}{{ example.url }}">Annotated source</a>
             </span>
             <span style="float:right;">
-              <a href="{{ example.github }}">View on GitHub</a>
+              <a href="{{ example.github }}" class="github">View on GitHub</a>
             </span>
           </div>
         </div>
