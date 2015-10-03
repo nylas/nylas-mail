@@ -138,7 +138,8 @@ class AccountSettingsPage extends React.Component
            onChange={@_onValueChanged}
            onKeyPress={@_onFieldKeyPress}
            data-field={field.name}
-           data-format={field.format} ? ""
+           data-format={field.format ? ""}
+           disabled={@state.tryingToAuthenticate}
            className={errclass}
            placeholder={field.placeholder} />
       </label>
@@ -154,7 +155,8 @@ class AccountSettingsPage extends React.Component
              onChange={@_onSettingsChanged}
              onKeyPress={@_onFieldKeyPress}
              data-field={field.name}
-             data-format={field.format} ? ""
+             disabled={@state.tryingToAuthenticate}
+             data-format={field.format ? ""}
              className={field.className ? ""} />
           {field.label}
         </label>
@@ -170,7 +172,8 @@ class AccountSettingsPage extends React.Component
              onChange={@_onSettingsChanged}
              onKeyPress={@_onFieldKeyPress}
              data-field={field.name}
-             data-format={field.format} ? ""
+             data-format={field.format ? ""}
+             disabled={@state.tryingToAuthenticate}
              className={errclass+(field.className ? "")}
              placeholder={field.placeholder} />
         </label>
@@ -181,7 +184,7 @@ class AccountSettingsPage extends React.Component
       <button className="btn btn-large btn-gradient" type="button" onClick={@_onNextButton}>Continue</button>
     else if @state.provider.name isnt 'gmail'
       if @state.tryingToAuthenticate
-        <button className="btn btn-large btn-gradient btn-add-account-spinning" type="button">
+        <button className="btn btn-large btn-disabled btn-add-account-spinning" type="button">
           <RetinaImg name="sending-spinner.gif" width={15} height={15} mode={RetinaImg.Mode.ContentPreserve} /> Adding account&hellip;
         </button>
       else
