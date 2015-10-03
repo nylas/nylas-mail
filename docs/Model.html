@@ -1,6 +1,7 @@
 ---
 layout: docs
 title: Model
+edit_url: "https://github.com/nylas/N1/blob/master/src/flux/models/model.coffee"
 ---
 
 <h2>Summary</h2>
@@ -38,12 +39,12 @@ object.</p>
     <h4 id=attributes class="function-name">
       attributes(<span class="args"></span>) <a href="#attributes" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p></p>
     </div>
-    
-    
+
+
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -55,13 +56,13 @@ object.</p>
     <h4 id=toJSON class="function-name">
       toJSON(<span class="args"><span class="arg">[options]</span></span>) <a href="#toJSON" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Deflates the model to a plain JSON object. Only attributes defined
     on the model are included in the JSON.</p>
     </p>
     </div>
-    
+
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -75,11 +76,11 @@ object.</p>
               <td class="markdown-from-sourecode">
                 <span class="optional">Optional</span>
                 <p>An <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a> with additional options. To skip joined  data attributes in the toJSON representation, pass the <code>joined:false</code></p>
-    
+
               </td>
             </tr>
         </table>
-    
+
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -91,12 +92,12 @@ object.</p>
     <h4 id=matches class="function-name">
       matches(<span class="args"><span class="arg">criteria</span></span>) <a href="#matches" class="link"></a>
     </h4>
-    
+
     <div class="function-description markdown-from-sourecode">
       <p><p>Evaluates the model against one or more <a href='matcher.html'>Matcher</a> objects.</p>
     </p>
     </div>
-    
+
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -108,13 +109,13 @@ object.</p>
                 <em>criteria</em>
               </td>
               <td class="markdown-from-sourecode">
-                
+
                 <p>An <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of <a href='matcher.html'>Matcher</a>s to run on the model.</p>
-    
+
               </td>
             </tr>
         </table>
-    
+
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -123,4 +124,3 @@ object.</p>
           <tr><td class="markdown-from-sourecode"><p>Returns true if the model matches the criteria.</p>
     </td></tr>
         </table>
-
