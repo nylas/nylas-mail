@@ -1,3 +1,5 @@
+$blue: #419bf9;
+
 .hero {
   z-index: 2;
   position: relative;
@@ -46,6 +48,48 @@ img.hero-bg {
   @include linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1));
 }
 
+.hero-text {
+  position: relative;
+  z-index: 5;
+  width: 90%;
+  margin: 0 auto;
+  padding-top: 130px;
+  max-width: 500px;
+  text-align: center;
+
+  @include animation(fadeIn 2s $ease-in-out-cubic both);
+  @include keyframes(fadeIn) {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+}
+
+#play-intro {
+  display: inline-block;
+  position: relative;
+  font-weight: 400;
+  font-size: 20px;
+  margin-right: 30px;
+  position: relative;
+  &:hover {
+    cursor: pointer;
+    color: $blue;
+    .triangle {
+      @include triangle(20px, $blue, right);
+    }
+  }
+  .triangle {
+    top: 2px;
+    position: absolute;
+    left: -20px;
+    @include triangle(20px, gray, right);
+  }
+}
+
 img.main-screenshot {
   z-index: 10;
   max-width: 80%;
@@ -68,21 +112,3 @@ img.main-screenshot {
 }
 
 
-.slogan {
-  position: relative;
-  z-index: 5;
-  width: 90%;
-  margin: 0 auto;
-  padding-top: 130px;
-  max-width: 500px;
-  text-align: center;
-}
-
-.hero .copy {
-  text-align: center;
-  z-index: 3;
-  margin:auto;
-  max-width:80%;
-  position: relative;
-  top: 15%;
-}
