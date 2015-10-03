@@ -1,41 +1,51 @@
 AutoUpdateManager = require '../src/browser/auto-update-manager'
+url = require 'url'
 
 describe "AutoUpdateManager", ->
-  c1 = get: ->
-  c2 = get: -> "major"
-  c3 = get: -> "minor"
-  c4 = get: -> "patch"
-  c5 = get: -> "commit"
-  c6 = get: -> "foo"
-
-  base = "https://edgehill.nylas.com/update-check?platform=#{process.platform}&version="
-
   beforeEach ->
-    @feedUrl = (version, config) ->
-      m = new AutoUpdateManager(version, config)
-      spyOn(m, "setupAutoUpdater")
-      return m.feedUrl
+    @updateIdentity = null
+    @config =
+      set: jasmine.createSpy('config.set')
+      get: (key) =>
+        if key is 'nylas.accounts'
+          return [{email_address: 'ben@nylas.com'},{email_address: 'mark@nylas.com'}]
+        if key is 'updateIdentity'
+          return @updateIdentity
 
   describe "with attached commit version", ->
-    beforeEach ->
-      @v = "3.222.1-abc"
-
     it "correctly sets the feedURL", ->
-      expect(@feedUrl(@v, c1)).toBe "#{base}3.222.1-abc&level=patch"
-      expect(@feedUrl(@v, c2)).toBe "#{base}3.222.1-abc&level=major"
-      expect(@feedUrl(@v, c3)).toBe "#{base}3.222.1-abc&level=minor"
-      expect(@feedUrl(@v, c4)).toBe "#{base}3.222.1-abc&level=patch"
-      expect(@feedUrl(@v, c5)).toBe "#{base}3.222.1-abc&level=commit"
-      expect(@feedUrl(@v, c6)).toBe "#{base}3.222.1-abc&level=patch"
+      m = new AutoUpdateManager("3.222.1-abc", @config)
+      spyOn(m, "setupAutoUpdater")
+
+      {query} = url.parse(m.feedUrl, true)
+      expect(query.arch).toBe process.arch
+      expect(query.platform).toBe process.platform
+      expect(query.version).toBe "3.222.1-abc"
 
   describe "with no attached commit", ->
-    beforeEach ->
-      @v = "3.222.1"
-
     it "correctly sets the feedURL", ->
-      expect(@feedUrl(@v, c1)).toBe "#{base}3.222.1&level=patch"
-      expect(@feedUrl(@v, c2)).toBe "#{base}3.222.1&level=major"
-      expect(@feedUrl(@v, c3)).toBe "#{base}3.222.1&level=minor"
-      expect(@feedUrl(@v, c4)).toBe "#{base}3.222.1&level=patch"
-      expect(@feedUrl(@v, c5)).toBe "#{base}3.222.1&level=commit"
-      expect(@feedUrl(@v, c6)).toBe "#{base}3.222.1&level=patch"
+      m = new AutoUpdateManager("3.222.1", @config)
+      spyOn(m, "setupAutoUpdater")
+      {query} = url.parse(m.feedUrl, true)
+      expect(query.arch).toBe process.arch
+      expect(query.platform).toBe process.platform
+      expect(query.version).toBe "3.222.1"
+
+  describe "when an update identity is not present", ->
+    it "should save one to @config and send it", ->
+      m = new AutoUpdateManager("3.222.1", @config)
+      spyOn(m, "setupAutoUpdater")
+      {query} = url.parse(m.feedUrl, true)
+
+      expect(query.id).toBeDefined()
+      expect(@config.set).toHaveBeenCalledWith('updateIdentity', query.id)
+
+  describe "when an update identity is already set", ->
+    it "should send it and not save any changes", ->
+      @updateIdentity = "test-identity"
+      m = new AutoUpdateManager("3.222.1", @config)
+      spyOn(m, "setupAutoUpdater")
+      {query} = url.parse(m.feedUrl, true)
+
+      expect(query.id).toEqual(@updateIdentity)
+      expect(@config.set).not.toHaveBeenCalled()

@@ -1,6 +1,7 @@
 autoUpdater = null
 _ = require 'underscore'
 {EventEmitter} = require 'events'
+uuid = require 'node-uuid'
 path = require 'path'
 fs = require 'fs'
 
@@ -19,20 +20,27 @@ class AutoUpdateManager
   constructor: (@version, @config, @specMode) ->
     @state = IdleState
 
+    updaterId = @config.get("updateIdentity")
+    if not updaterId
+      updaterId = uuid.v4()
+      @config.set("updateIdentity", updaterId)
+
+    emails = []
+    accounts = @config.get('nylas.accounts') || []
+    for account in accounts
+      if account.email_address?
+        emails.push(encodeURIComponent(account.email_address))
+    updaterEmails = emails.join(',')
+
     if process.platform is 'win32'
       # Squirrel for Windows can't handle query params
       # https://github.com/Squirrel/Squirrel.Windows/issues/132
-      @feedUrl = "https://edgehill.nylas.com/update-check/win32/#{@getUpgradeLevel()}/#{@version}"
+      @feedUrl = "https://edgehill.nylas.com/update-check/win32/#{@version}/#{updaterId}/#{updaterEmails}"
     else
-      @feedUrl = "https://edgehill.nylas.com/update-check?platform=#{process.platform}&version=#{@version}&level=#{@getUpgradeLevel()}"
+      @feedUrl = "https://edgehill.nylas.com/update-check?platform=#{process.platform}&arch=#{process.arch}&version=#{@version}&id=#{updaterId}&emails=#{updaterEmails}"
 
     if not @specMode
       process.nextTick => @setupAutoUpdater()
-
-  getUpgradeLevel: ->
-    lvl = @config.get("updateLevel") ? "patch"
-    if lvl not in ["major", "minor", "patch", "commit"] then lvl = "patch"
-    return lvl
 
   setupAutoUpdater: ->
     if process.platform is 'win32'
