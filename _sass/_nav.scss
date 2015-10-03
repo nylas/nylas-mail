@@ -1,0 +1,45 @@
+.nav {
+  z-index: 10;
+  @include animation(fadeIn 2s $ease-in-out-cubic);
+  @include keyframes(fadeIn) {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  line-height: 50px;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.35);
+  -webkit-user-select:none;
+  cursor:default;
+  position:fixed;
+  width:100%;
+  background-color:rgba(255,255,255,1);
+  a {
+    color: inherit;
+  }
+  ul {
+    display: inline-block;
+    padding:0;
+    padding-left:30px;
+    margin: 0;
+    li {
+      list-style-type: none;
+      display: inline-block;
+      color: rgba(0,0,0,0.7);
+      a {
+        padding: 15px;
+      }
+    }
+    li:hover {
+      color: rgba(0,0,0,1);
+    }
+    li.active {
+      font-weight: 600;
+      color: rgba(0,0,0,1);
+    }
+  }
+}
+

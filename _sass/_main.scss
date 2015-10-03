@@ -1,3 +1,6 @@
+@import "nav.scss";
+@import "animated-hero.scss";
+
 @font-face {
   font-family: 'FaktPro';
   font-style: normal;
@@ -244,15 +247,6 @@ p {
 .grid.feature {
   margin-top:100px;
 }
-
-.hero {
-  width:100%;
-  height:700px;
-  position:relative;
-  overflow: hidden;
-  box-shadow: 0 1px 1px rgba(0,0,0,0.35);
-  -webkit-user-select:none;
-}
 .hacker {
   width:100%;
   height:500px;
@@ -260,68 +254,10 @@ p {
   background: url(../images/hacker_background.png) center no-repeat;
   background-size: cover;
 }
-.hero-bg-left {
-  width:100%;
-  height: 700px;
-  background: url(../images/left.png) top left no-repeat;
-  background-size: contain;
-  z-index: 1;
-  position: absolute;
-}
-.hero-bg-right {
-  width:100%;
-  height: 700px;
-  background: url(../images/right.png) top right no-repeat;
-  background-size: contain;
-  z-index: 2;
-  position: absolute;
-}
-.hero .copy {
-  text-align: center;
-  z-index: 3;
-  margin:auto;
-  max-width:80%;
-  position: relative;
-  top: 15%;
-}
 .footer {
   padding-top:15px;
   padding-bottom:15px;
   box-shadow: 0 -1px 1px rgba(0,0,0,0.35);
-}
-.nav {
-  line-height: 50px;
-  box-shadow: 0 1px 1px rgba(0,0,0,0.35);
-  -webkit-user-select:none;
-  cursor:default;
-  position:fixed;
-  width:100%;
-  z-index:4;
-  background-color:rgba(255,255,255,1);
-  a {
-    color: inherit;
-  }
-  ul {
-    display: inline-block;
-    padding:0;
-    padding-left:30px;
-    margin: 0;
-    li {
-      list-style-type: none;
-      display: inline-block;
-      color: rgba(0,0,0,0.7);
-      a {
-        padding: 15px;
-      }
-    }
-    li:hover {
-      color: rgba(0,0,0,1);
-    }
-    li.active {
-      font-weight: 600;
-      color: rgba(0,0,0,1);
-    }
-  }
 }
 
 .btn,
