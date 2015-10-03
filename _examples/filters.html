@@ -1,0 +1,176 @@
+---
+title: "filters"
+description: "Also known as mail rules. Automate actions for emails that match your criteria."
+assumed_experience: "Experience with React, but none with Flux, Electron, or N1."
+github: "https://github.com/nylas/N1/tree/master/examples/N1-Filters"
+---
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Filters</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+
+    <ul class="sections">
+
+
+
+        <li id="section-1">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h1 id="filters">Filters</h1>
+<p>A way to apply filters, AKA mail rules, to incoming mail.</p>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>
+Filters = <span class="hljs-built_in">require</span> <span class="hljs-string">'./filters'</span></pre></div></div>
+
+        </li>
+
+
+        <li id="section-2">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Requiring ‘nylas-exports’ is the way to access core N1 components.</p>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>{WorkspaceStore, ComponentRegistry} = <span class="hljs-built_in">require</span> <span class="hljs-string">'nylas-exports'</span></pre></div></div>
+
+        </li>
+
+
+        <li id="section-3">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Your main.coffee (or main.cjsx) file needs to export an object for your
+package to run.</p>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre><span class="hljs-built_in">module</span>.exports =</pre></div></div>
+
+        </li>
+
+
+        <li id="section-4">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>When your package is loading, the <code>activate</code> method runs. <code>activate</code> is the
+package’s time to insert React components into the applicatio and also
+listen to events.</p>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">activate</span>: <span class="hljs-function">-&gt;</span></pre></div></div>
+
+        </li>
+
+
+        <li id="section-5">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p><code>WorkspaceStore.defineSheet</code> creates an N1 “sheet,” which is a large area
+for you to inject React components. Sheets span the whole window.</p>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    WorkspaceStore.defineSheet <span class="hljs-string">'Filters'</span>, {<span class="hljs-attribute">root</span>: <span class="hljs-literal">true</span>, <span class="hljs-attribute">name</span>: <span class="hljs-string">'Filters'</span>},
+      <span class="hljs-attribute">list</span>: [<span class="hljs-string">'RootSidebar'</span>, <span class="hljs-string">'Filters'</span>]</pre></div></div>
+
+        </li>
+
+
+        <li id="section-6">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>Above, we named the sheet “Filters,” and we’re registering a React
+component to live inside the “Filters” sheet.</p>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    ComponentRegistry.register Filters,
+      <span class="hljs-attribute">location</span>: WorkspaceStore.Location.Filters</pre></div></div>
+
+        </li>
+
+
+        <li id="section-7">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p><code>WorkspaceStore.SidebarItem</code> is a React component which is meant to be
+inserted into the navigation bar on the left of the main worksheet.</p>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-property">@sidebarItem</span> = <span class="hljs-keyword">new</span> WorkspaceStore.SidebarItem
+      <span class="hljs-attribute">sheet</span>: WorkspaceStore.Sheet.Filters
+      <span class="hljs-attribute">id</span>: <span class="hljs-string">'Filters'</span>
+      <span class="hljs-attribute">name</span>: <span class="hljs-string">'Filters'</span></pre></div></div>
+
+        </li>
+
+
+        <li id="section-8">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>And this is how we actually insert the SidebarItem into the sheet!</p>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    WorkspaceStore.addSidebarItem(<span class="hljs-property">@sidebarItem</span>)</pre></div></div>
+
+        </li>
+
+
+        <li id="section-9">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p><code>deactivate</code> is called when packages are closing. It’s a good time to
+unregister React components.</p>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">deactivate</span>: <span class="hljs-function">-&gt;</span>
+    ComponentRegistry.unregister Filters</pre></div></div>
+
+        </li>
+
+    </ul>
+  </div>
+</body>
+</html>
