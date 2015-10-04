@@ -79,7 +79,7 @@ DatabaseStore.count(Thread).where([Thread.attributes.lastMessageTimestamp.greate
 
 ## Retrieving Pages of Models
 
-If you need to paginate through a view of data, you should use a `DatabaseView`. Database views can be configured with a sort order and a set of where clauses. After the view is configured, it maintains a cache of models in memory in a highly efficient manner and makes it easy to implement pagination. `DatabaseView` also performs deep inspection of it's cache when models are changed and can avoid costly SQL queries.
+If you need to paginate through a view of data, you should use a `DatabaseView`. Database views can be configured with a sort order and a set of where clauses. After the view is configured, it maintains a cache of models in memory in a highly efficient manner and makes it easy to implement pagination. `DatabaseView` also performs deep inspection of its cache when models are changed and can avoid costly SQL queries.
 
 
 ## Saving and Updating Models

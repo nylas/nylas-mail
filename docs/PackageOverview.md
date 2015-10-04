@@ -46,7 +46,7 @@ Our package also contains source files, a spec file with complete tests for the 
 
 N1 can read `js`, `coffee`, `jsx`, and `cjsx` files automatically.
 
-Inside `main.coffee`, there are two important functions being exported:
+Inside `main.coffee`, there are three important functions being exported:
 
 ```coffee
 require './translate-button'

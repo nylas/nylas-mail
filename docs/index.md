@@ -73,7 +73,7 @@ blockquote p {
   <div class="col-md-12">
     <h2>Start building on top of Nylas in minutes:</h2>
     <h3 class="first padded"><div class="number">1</div> Install N1</h3>
-    <p>Download and install Nylas for <span id="platforms"></span>. Open it and sign in to your email account.</p>
+    <p>Download and install Nylas for <a href="">Mac OS X</a> (or <a href="">Linux</a>). Open it and sign in to your email account.</p>
   </div>
 </div>
 
@@ -117,7 +117,7 @@ blockquote p {
   </div>
 </div>
 
-<h2 class="gsg-header">Step 2: Building your first package</h2>
+<h2 class="gsg-header">Step 3: Building your first package</h2>
 
 If you followed the [first part](getting-started) of our Getting Started Guide, you should have a brand new package just waiting to be explored.
 
@@ -238,7 +238,7 @@ If you're a fan of using the Chrome Developer Tools to tinker with styles, no fe
 <hr/>
 
 
-<h2 class="gsg-header">Step 3: Adding a Data Store</h2>
+<h2 class="gsg-header">Step 4: Adding a Data Store</h2>
 
 Building on the [previous part](getting-started-2) of our Getting Started guide, we're going to introduce a data store to give our sidebar superpowers.
 
