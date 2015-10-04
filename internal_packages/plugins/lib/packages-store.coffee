@@ -176,7 +176,20 @@ PackagesStore = Reflux.createStore
         @_displayMessage("Package installed", msg)
 
   _onCreatePackage: ->
-    packagesDir = path.join(atom.getConfigDirPath(), 'packages')
+    if not atom.inDevMode()
+      btn = dialog.showMessageBox
+        type: 'warning'
+        message: "Run with debug flags?"
+        detail: "To develop plugins, you should run N1 with debug flags.
+                This gives you better error messages, the debug version of
+                React, and more. You can disable it at any time from the
+                Developer menu."
+        buttons: ["OK", "Cancel"]
+      if btn is 0
+        ipc.send('command', 'application:toggle-dev')
+      return
+
+    packagesDir = path.join(atom.getConfigDirPath(), 'dev', 'packages')
     fs.makeTreeSync(packagesDir)
 
     dialog.showSaveDialog
@@ -248,7 +261,7 @@ PackagesStore = Reflux.createStore
     pkgs
 
   _displayMessage: (title, message) ->
-    chosen = dialog.showMessageBox
+    dialog.showMessageBox
       type: 'warning'
       message: title
       detail: message

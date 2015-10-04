@@ -17,6 +17,20 @@ class TabInstalled extends React.Component
     if @state.search.length > 0
       searchEmpty = "No matching packages."
 
+    if atom.inDevMode()
+      devPackages = @state.packages.dev
+      devEmpty = <span>
+        You don't have any packages installed in ~/.nylas/dev/packages.
+        These packages are only loaded when you run the app with debug flags
+        enabled (via the Developer menu).<br/><br/>Learn more about building
+        packages at <a href='https://nylas.github.io/N1/docs'>https://nylas.github.io/N1/docs</a>
+      </span>
+      devCTA = <div className="btn btn-large" onClick={@_onCreatePackage}>Create New Package...</div>
+    else
+      devPackages = []
+      devEmpty = <span>Run with debug flags enabled to load ~/.nylas/dev/packages.</span>
+      devCTA = <div className="btn btn-large" onClick={@_onEnableDevMode}>Enable Debug Flags</div>
+
     <div className="installed">
       <div className="inner">
         <input
@@ -27,19 +41,22 @@ class TabInstalled extends React.Component
         <PackageSet
           packages={@state.packages.user}
           title="Installed"
-          emptyText={searchEmpty ? "You don't have any packages installed in ~/.nylas/packages."} />
+          emptyText={searchEmpty ? <span>You don't have any packages installed in ~/.nylas/packages.</span>} />
         <PackageSet
           title="Development"
-          packages={@state.packages.dev}
-          emptyText={searchEmpty ? <span>You don't have any packages installed in ~/.nylas/dev/packages. These packages are only loaded when you run the app with debug flags enabled (via the Developer menu).<br/><br/>Learn more about building packages at <a href='https://nylas.github.io/N1/docs'>https://nylas.github.io/N1/docs</a></span>}   />
+          packages={devPackages}
+          emptyText={searchEmpty ? devEmpty} />
         <div className="new-package">
-          <div className="btn btn-large" onClick={@_onCreatePackage}>Create New Package...</div>
+          {devCTA}
         </div>
         <PackageSet
           title="Core"
           packages={@state.packages.core} />
       </div>
     </div>
+
+  _onEnableDevMode: =>
+    require('ipc').send('command', 'application:toggle-dev')
 
   componentDidMount: =>
     @_unsubscribers = []
