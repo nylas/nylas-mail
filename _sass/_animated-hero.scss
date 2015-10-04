@@ -118,7 +118,7 @@ $extra-hero-height: 200px;
   position: absolute;
 }
 
-.step-0 {
+.start-animation {
   #hero-text {
     @include animation(fadeOut 1s $ease-in-out-cubic both);
   }
@@ -151,6 +151,28 @@ $extra-hero-height: 200px;
       border: 0;
     }
   }
+}
+
+#provider-wrap {
+  @include keyframes(providerPopIn) {
+    0% {
+      opacity: 0;
+      @include transform(translateY(10px) scale(0.5));
+    }
+    100% {
+      opacity: 1;
+      @include transform(translateY(0) scale(0.5));
+    }
+  }
+  .provider-img {
+    position: relative;
+    display: inline-block;
+  }
+  .p-0 { @include animation(providerPopIn 300ms 0 $ease-in-out-cubic both); }
+  .p-1 { @include animation(providerPopIn 300ms 150ms $ease-in-out-cubic both); }
+  .p-2 { @include animation(providerPopIn 300ms 300ms $ease-in-out-cubic both); }
+  .p-3 { @include animation(providerPopIn 300ms 450ms $ease-in-out-cubic both); }
+  .p-4 { @include animation(providerPopIn 300ms 600ms $ease-in-out-cubic both); }
 }
 
 .slide-out {

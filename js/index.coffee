@@ -106,7 +106,7 @@ runFrames = (frames) ->
       else setTimeout(resolve, delay)
   return sequence
 
-window.step1 = ->
+window.screencastSequence = ->
 
   # Need to know the dimensions of the images used in step 1
   animationContainerSize = [1136,823]
@@ -183,16 +183,31 @@ window.step1 = ->
 
   $("##{_.keys(frames.step1)[0]}").show()
 
-  runFrames(frames.step1).then ->
+  return runFrames(frames.step1).then -> new Promise (resolve, reject) ->
     $("#step1").addClass("slide-out")
     $("#step2").addClass("slide-in")
     $("##{_.keys(frames.step2)[0]}").show()
-    $timerFrame = $($("#step1")[0])
-    $timerFrame.on "animationend", ->
-      $timerFrame.off "animationend"
+    $("#step1").on "animationend", ->
+      $("#step1").off "animationend"
       $("#step1").remove()
       runFrames(frames.step2).then ->
-        console.log "Step 2 done!"
+        $("#step2").removeClass("slide-in").addClass("slide-out")
+        $("#step2").on "animationend", ->
+          $("#step2").remove()
+          return resolve()
+
+window.providerSequence = ->
+  providers = [
+    "outlook"
+    "exchange"
+    "gmail"
+    "icloud"
+    "yahoo"
+  ]
+  imgs = providers.map (provider, i) ->
+    "<img id='#{provider}' class='provider-img p-#{i}' src='images/providers/#{provider}@2x.png'/>"
+  .join('')
+  $("#animation-container").html("<div id='provider-wrap'>#{imgs}</div>")
 
 positionAnimationContainer = ->
   winW = $(window).width()
@@ -251,5 +266,7 @@ window.onload = ->
   onResize()
   $("body").addClass("initial")
   $("#play-intro").on "click", ->
-    $("body").addClass("step-0").removeClass("initial")
-    step1()
+    $("body").addClass("start-animation").removeClass("initial")
+    screencastSequence()
+    .then(providerSequence)
+
