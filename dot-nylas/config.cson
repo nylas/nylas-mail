@@ -7,3 +7,4 @@
       "calendar-bar"
     ]
   'updateLevel': 'patch'
+  'env': 'production'
