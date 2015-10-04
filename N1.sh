@@ -59,8 +59,8 @@ if [ $OS == 'Mac' ]; then
   ELECTRON_PATH=${ELECTRON_PATH:-$N1_PATH/electron} # Set ELECTRON_PATH unless it is already set
 
   # Exit if Atom can't be found
-  if [ -z "$ELECTRON_PATH" ]; then
-    echo "Cannot locate electron. Be sure you have run script/grunt download-electron first from $N1_PATH"
+  if [ ! -d "$ELECTRON_PATH" ]; then
+    echo "Cannot locate electron. Be sure you have run script/bootstrap first from $N1_PATH"
     exit 1
   fi
 
@@ -73,15 +73,15 @@ elif [ $OS == 'Linux' ]; then
   mkdir -p "$DOT_INBOX_DIR"
 
   if [ -z "$N1_PATH" ]; then
-    echo "Set the N1_PATH environment variable to the absolute location of the main edgehill folder."
+    echo "Set the N1_PATH environment variable to the absolute location of the main N1 folder."
     exit 1
   fi
 
   ELECTRON_PATH=${ELECTRON_PATH:-$N1_PATH/electron} # Set ELECTRON_PATH unless it is already set
 
   # Exit if Atom can't be found
-  if [ -z "$ELECTRON_PATH" ]; then
-    echo "Cannot locate electron. Be sure you have run script/grunt download-electron first from $N1_PATH"
+  if [ ! -d "$ELECTRON_PATH" ]; then
+    echo "Cannot locate electron. Be sure you have run script/bootstrap first from $N1_PATH"
     exit 1
   fi
 
