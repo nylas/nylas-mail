@@ -1,18 +1,30 @@
-# Filters package for Edgehill
+# Filters package for N1
 
-<img src="https://raw.githubusercontent.com/nylas/edgehill-plugins/master/filters/filters-screencap.png?token=ABx0UZ4A4Qd2ikF3y6kwHOK3MX_ZEf1lks5WEr6WwA%3D%3D">
+<img src="https://raw.githubusercontent.com/nylas/N1/master/examples/N1-Filters/filters-screencap.png">
 
-## Who?
+#### Install this plugin:
+
+1. Download and run N1
+
+2. From the menu, select `Developer > Install a Package Manually...`
+   The dialog will default to this examples directory. Just choose the
+   package to install it!
+
+   > When you install packages, they're moved to `~/.nylas/packages`,
+   > and N1 runs `apm install` on the command line to fetch dependencies
+   > listed in the package's `package.json`
+
+#### Who?
 
 The source is annotated for people who are familiar with React, but not familiar with APIs from either Atom or N1.
 
 As such, we will not annotate any code that is specific for React, but we'll annotate code for everything else.
 
-## Why?
+#### Why?
 
-There's no native way to automate mail filtering in Edgehill. This package provides a lightweight interface and implementation of mail filters and mail rules to handle repetitive mail tasks for you.
+There's no native way to automate mail filtering in N1. This package provides a lightweight interface and implementation of mail filters and mail rules to handle repetitive mail tasks for you.
 
-## How?
+#### How?
 
 This package works in two steps: managing the filters and applying the filters.
 
@@ -33,7 +45,7 @@ The only actions this package supports currently are:
 - Deleting
 - Archiving (skipping the inbox)
 
-## Roadmap?
+#### Roadmap
 
 Right now, both managing the filters and applying the filters is done client-side.
 
