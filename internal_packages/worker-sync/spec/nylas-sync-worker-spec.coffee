@@ -62,6 +62,10 @@ describe "NylasSyncWorker", ->
       expect(modelsRequested).toEqual(['threads', 'labels', 'drafts', 'contacts', 'events'])
       expect(countsRequested).toEqual(['/threads', '/labels', '/drafts', '/contacts', '/events'])
 
+    fit "should fetch 1000 labels and folders, to prevent issues where Inbox is not in the first page", ->
+      labelsRequest = _.find @apiRequests, (r) -> r.model is 'labels'
+      expect(labelsRequest.params.limit).toBe(1000)
+
     it "should mark incomplete collections as `busy`", ->
       @worker.start()
       advanceClock()
@@ -102,7 +106,6 @@ describe "NylasSyncWorker", ->
       advanceClock(30000); expect(@worker.resumeFetches.callCount).toBe(5)
 
     it "handles the request as a failure if we try and grab labels or folders without an 'inbox'", ->
-
       spyOn(@worker, 'resumeFetches').andCallThrough()
       @worker.start()
       expect(@worker.resumeFetches.callCount).toBe(1)
@@ -113,7 +116,6 @@ describe "NylasSyncWorker", ->
       expect(@worker.resumeFetches.callCount).toBe(2)
 
     it "handles the request as a success if we try and grab labels or folders and it includes the 'inbox'", ->
-
       spyOn(@worker, 'resumeFetches').andCallThrough()
       @worker.start()
       expect(@worker.resumeFetches.callCount).toBe(1)

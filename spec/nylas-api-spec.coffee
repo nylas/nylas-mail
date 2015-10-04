@@ -55,7 +55,6 @@ describe "NylasAPI", ->
       expect(Actions.postNotification.mostRecentCall.args[0].message).toEqual("Nylas can no longer authenticate with your mail provider. You will not be able to send or receive mail. Please unlink your account and sign in again.")
 
   describe "handleModelResponse", ->
-
     beforeEach ->
       spyOn(DatabaseStore, "persistModels").andCallFake (models) ->
         Promise.resolve(models)
