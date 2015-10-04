@@ -1,6 +1,7 @@
 _ = require 'underscore'
 Reflux = require 'reflux'
 Mixpanel = require 'mixpanel'
+qs = require 'querystring'
 
 Actions = require '../actions'
 AccountStore = require './account-store'
@@ -39,6 +40,7 @@ AnalyticsStore = Reflux.createStore
 
   init: ->
     @analytics = Mixpanel.init("9a2137b80c098b3d594e39b776ebe085")
+    @listenTo Actions.sendFeedback, @_onSendFeedback
     @listenTo AccountStore, => @identify()
     @identify()
 
@@ -90,3 +92,45 @@ AnalyticsStore = Reflux.createStore
       @analytics.people.set_once(account.id, {
         "First Seen": (new Date()).toISOString()
       })
+
+  _onSendFeedback: ->
+    return if atom.inSpecMode()
+
+    {AccountStore} = require 'nylas-exports'
+    BrowserWindow = require('remote').require('browser-window')
+    Screen = require('remote').require('screen')
+    path = require 'path'
+
+    account = AccountStore.current()
+    params = qs.stringify({
+      name: account.name
+      email: account.emailAddress
+      accountId: account.id
+      accountProvider: account.provider
+      platform: process.platform
+      provider: account.displayProvider()
+      organizational_unit: account.organizationUnit
+      version: atom.getVersion()
+    })
+
+    parentBounds = atom.getCurrentWindow().getBounds()
+    parentScreen = Screen.getDisplayMatching(parentBounds)
+
+    width = 376
+    height = Math.min(550, parentBounds.height)
+    x = Math.min(parentScreen.workAreaSize.width - width, Math.max(0, parentBounds.x + parentBounds.width - 36 - width / 2))
+    y = Math.max(0, (parentBounds.y + parentBounds.height) - height - 60)
+
+    w = new BrowserWindow
+      'node-integration': false,
+      'web-preferences': {'web-security':false},
+      'x': x
+      'y': y
+      'width': width,
+      'height': height,
+      'title': 'Feedback'
+
+    {resourcePath} = atom.getLoadSettings()
+    url = path.join(resourcePath, 'static', 'feedback.html')
+    w.loadUrl("file://#{url}?#{params}")
+    w.show()

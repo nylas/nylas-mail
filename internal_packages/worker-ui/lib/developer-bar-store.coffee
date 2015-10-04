@@ -64,7 +64,6 @@ class DeveloperBarStore extends NylasStore
     @listenTo Actions.longPollProcessedDeltas, @_onLongPollProcessedDeltas
     @listenTo Actions.longPollStateChanged, @_onLongPollStateChange
     @listenTo Actions.clearDeveloperConsole, @_onClear
-    @listenTo Actions.sendFeedback, @_onSendFeedback
 
   _onClear: ->
     @_curlHistoryIds = []
@@ -109,29 +108,5 @@ class DeveloperBarStore extends NylasStore
     item = new DeveloperBarCurlRequest({id: requestId, request, statusCode, error})
     @_curlHistory[idx] = item
     @triggerThrottled(@)
-
-  _onSendFeedback: ->
-    {AccountStore} = require 'nylas-exports'
-    BrowserWindow = require('remote').require('browser-window')
-    path = require 'path'
-
-    account = AccountStore.current()
-    params = qs.stringify({
-      name: account.name
-      email: account.emailAddress
-      accountId: account.id
-      platform: process.platform
-      provider: account.displayProvider()
-      organizational_unit: account.organizationUnit
-      version: atom.getVersion()
-    })
-    w = new BrowserWindow
-      'node-integration': false,
-      'web-preferences': {'web-security':false},
-      'width': 450,
-      'height': 700
-
-    url = path.join __dirname, '../static/feedback.html'
-    w.loadUrl "file://#{url}?#{params}"
 
 module.exports = new DeveloperBarStore()

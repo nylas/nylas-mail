@@ -116,7 +116,7 @@ class Actions
   @longPollOffline: ActionScopeWorkWindow
   @willMakeAPIRequest: ActionScopeWorkWindow
   @didMakeAPIRequest: ActionScopeWorkWindow
-  @sendFeedback: ActionScopeWorkWindow
+  @sendFeedback: ActionScopeWindow
 
   ###
   Public: Retry the initial sync
