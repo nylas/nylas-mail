@@ -60,6 +60,7 @@ class SendDraftTask extends Task
       accountId: @draft.accountId
       method: 'POST'
       body: body
+      timeout: 1000 * 60 * 5 # We cannot hang up a send - won't know if it sent
       returnsModel: false
 
     .then (json) =>
