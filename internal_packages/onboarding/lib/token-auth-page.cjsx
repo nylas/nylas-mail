@@ -15,7 +15,6 @@ class TokenAuthPage extends React.Component
   constructor: (@props) ->
     @state =
       token: ""
-      required: "checking"
       authError: false
       environment: NylasApiEnvironmentStore.getEnvironment()
       tokenAuthEnabled: PageRouterStore.tokenAuthEnabled()
@@ -39,7 +38,7 @@ class TokenAuthPage extends React.Component
       <div className="page token-auth">
         <button key="retry" className="btn btn-large btn-retry" onClick={OnboardingActions.retryCheckTokenAuthStatus()}>Retry</button>
       </div>
-    if @state.required is "yes"
+    if @state.tokenAuthEnabled is "yes"
       <div className="page token-auth">
         <div className="quit" onClick={ -> OnboardingActions.closeWindow() }>
           <RetinaImg name="onboarding-close.png" mode={RetinaImg.Mode.ContentPreserve}/>
