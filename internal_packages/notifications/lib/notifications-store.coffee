@@ -12,7 +12,7 @@ class Notification
     # Check to make sure the provided data is a valid notificaiton, since
     # notifications may be constructed by anyone developing on N1
     throw new Error "No `new` keyword when constructing Notification" unless @ instanceof Notification
-    throw new Error "Type must be `info`,`error`, or `success`" unless @type in ['info', 'error', 'success']
+    throw new Error "Type must be `info`, `developer`, `error`, or `success`" unless @type in ['info', 'error', 'success', 'developer']
     throw new Error "Message must be provided for notification" unless @message
     if @actions
       for action in @actions
