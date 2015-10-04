@@ -1,17 +1,63 @@
 ---
 ---
 
-preparePage = ->
+# startSequence()
+# .then(step1)
+# .then(step2)
+# .then(step3)
+# .then(step4)
+# .then(step5)
+#
+# # show composer
+# step1 = ->
+#   startStep()
+#   .then(focusClient)
+#   .then(doReply)
+#   .then(typeReply)
+#   .then(addImage)
+#   .then(sendEmail)
+#
+# step2 = ->
+#   startStep()
+#   .then(addAccount)
+#   .then(focusPicker)
+#   .then(selectAccount)
+#   .then(swapModes)
+#
+# step3 = ->
+#   startStep()
+#   .then(openLabelPicker)
+#   .then(typeLabel)
+#   .then(applyLabel)
+#
+# step4 = ->
+#   startStep()
+#   .then(openInspectorPanel)
+#   .then(typeCommand)
+#   .then(activateExtension)
+#
+# step5 = ->
+#   startStep()
+#   .then(fadeClient)
+#   .then(showCta)
 
-loadAssets = ->
+# To ensure we have maximal width and height viewport coverage
+fixAnimationContainer = ->
+  # $("#animation-container")
 
-fixHeroSize = ->
+# To allow for a fixed amount of bleed below the fold regardless of window
+# size.
+fixHeroHeight = ->
   Math.max(Math.min($("#hero")?.height($(window).height() + 200), 640), 1200)
 
-fixNavMargin = ->
+# To ensure that our overflowing, dynamically sized screenshot pushes the
+# remaining content down the correct ammount.
+fixHeroMargin = ->
   marginBottom = Math.max(($("#main-screenshot").height() + ($("#main-screenshot").offset().top - $("#hero").offset().top)) - $("#hero").height(), 0)
   $("#hero").css(marginBottom: marginBottom)
 
+# To ensure there's enough white-space between the watercolor images to
+# let the hero text show through.
 fixWatercolors = ->
   lCutoff = 0.55
   rCutoff = 0.6
@@ -28,8 +74,8 @@ fixWatercolors = ->
   $("#watercolor-right").css(right: rightMove)
 
 onResize = ->
-  fixHeroSize()
-  fixNavMargin()
+  fixHeroHeight()
+  fixHeroMargin()
   fixWatercolors()
 
 window.onresize = onResize
