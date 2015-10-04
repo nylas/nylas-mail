@@ -23,14 +23,14 @@
   {
     label: 'Developer'
     submenu: [
+      { label: 'Run with &Debug Flags', type: 'checkbox', command: 'application:toggle-dev' }
+      { type: 'separator' }
+      { label: '&Reload', command: 'window:reload' }
       { label: 'Toggle Developer &Tools', command: 'window:toggle-dev-tools' }
       { label: 'Toggle Component Regions', command: 'window:toggle-component-regions' }
       { label: 'Toggle React Remote', command: 'window:toggle-react-remote' }
       { type: 'separator' }
       { label: 'Open Activity Window', command: 'application:show-work-window' }
-      { type: 'separator' }
-      { label: '&Reload', command: 'window:reload' }
-      { label: 'Relaunch with &Debug Flags...', command: 'application:open-dev' }
       { type: 'separator' }
       { label: 'Create a Package...', command: 'application:create-package' }
       { label: 'Install a Package Manually...', command: 'application:install-package' }

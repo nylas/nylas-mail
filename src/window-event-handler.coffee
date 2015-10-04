@@ -16,6 +16,9 @@ class WindowEventHandler
   constructor: ->
     @reloadRequested = false
 
+    _.defer =>
+      @showDevModeMessages()
+
     @subscribe ipc, 'open-path', (pathToOpen) ->
       unless atom.project?.getPaths().length
         if fs.existsSync(pathToOpen) or fs.existsSync(path.dirname(pathToOpen))
@@ -208,3 +211,26 @@ class WindowEventHandler
       previousElement.focus()
     else if highestElement?
       highestElement.focus()
+
+  showDevModeMessages: ->
+    return unless atom.isMainWindow()
+
+    if atom.inDevMode()
+      Actions = require './flux/actions'
+      Actions.postNotification
+        icon: 'fa-flask'
+        type: 'info'
+        sticky: true
+        actions: [{label: 'Thanks', id: 'ok'}]
+        message: "N1 is running with debug flags enabled (slower). Packages in
+                  ~/.nylas/dev/packages will be loaded. Have fun!"
+    else
+      console.log("%c Welcome to N1! If you're exploring the source or building a
+                   plugin, you should enable debug flags. It's slower, but
+                   gives you better exceptions, the debug version of React,
+                   and more. Choose %c Developer > Run with Debug Flags %c
+                   from the menu. Also, check out https://nylas.github.io/N1/docs
+                   for documentation and sample code!",
+                   "background-color: antiquewhite;",
+                   "background-color: antiquewhite; font-weight:bold;",
+                   "background-color: antiquewhite; font-weight:normal;")

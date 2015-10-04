@@ -21,13 +21,13 @@ Here are a few hidden tricks for getting the most out of the Chromium DevTools:
 
 ### Nylas Developer Panel
 
-If you choose `Developer > Relaunch with Debug Flags...` from the menu, you can enable the Nylas Developer Panel at the bottom of the main window.
+If you choose `Developer > Show Activity Window` from the menu, you can see detailed logs of the requests, tasks, and streaming updates processed by N1.
 
 The Developer Panel provides three views which you can click to activate:
 
 - `Tasks`: This view allows you to inspect the {TaskQueue} and see the what tasks are pending and complete. Click a task to see its JSON representation and inspect it's values, including the last error it encountered.
 
-- `Delta Stream`: This view allows you to see the streaming updates from the Nylas API that the app has received. You can click individual updates to see the exact JSON that was consumed by the app, and search in the lower left for updates pertaining to an object ID or type.
+- `Long Polling`: This view allows you to see the streaming updates from the Nylas API that the app has received. You can click individual updates to see the exact JSON that was consumed by the app, and search in the lower left for updates pertaining to an object ID or type.
 
 - `Requests`: This view shows the requests the app has made to the Nylas API in `curl`-equivalent form. (The app does not actually make `curl` requests). You can click "Copy" to copy a `curl` command to the clipboard, or "Run" to execute it in a new Terminal window.
 

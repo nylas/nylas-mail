@@ -16,6 +16,8 @@ class ApplicationMenu
     @setActiveTemplate(@getDefaultTemplate())
     global.application.autoUpdateManager.on 'state-changed', (state) =>
       @showUpdateMenuItem(state)
+    global.application.config.observe 'devMode', (state) =>
+      @showDevModeItem()
 
   # Public: Updates the entire menu with the given keybindings.
   #
@@ -37,6 +39,7 @@ class ApplicationMenu
 
     @showUpdateMenuItem(global.application.autoUpdateManager.getState())
     @showFullscreenMenuItem(@lastFocusedWindow?.isFullScreen())
+    @showDevModeItem()
 
   # Register a BrowserWindow with this application menu.
   addWindow: (window) ->
@@ -123,12 +126,16 @@ class ApplicationMenu
     enterItem.visible = !fullscreen
     exitItem.visible = fullscreen
 
+  showDevModeItem: ->
+    devModeItem = _.find(@flattenMenuItems(@menu), ({label}) -> label == 'Run with Debug Flags')
+    devModeItem?.checked = global.application.devMode
+
   # Default list of menu items.
   #
   # Returns an Array of menu item Objects.
   getDefaultTemplate: ->
     [
-      label: "Atom"
+      label: "N1"
       submenu: [
           { label: "Check for Update", metadata: {autoUpdate: true}}
           { label: 'Reload', accelerator: 'Command+R', click: => @focusedWindow()?.reload() }

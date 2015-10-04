@@ -80,6 +80,12 @@ class Application
     @config = new Config({configDirPath, @resourcePath})
     @config.load()
 
+    # Normally, you enter dev mode by passing the --dev command line flag.
+    # But for developers using the compiled app, it's easier to toggle dev
+    # mode from the menu and have it persist through relaunch.
+    if @config.get('devMode')
+      @devMode = true
+
     @windowManager = new WindowManager({@resourcePath, @config, @devMode, @safeMode})
     @autoUpdateManager = new AutoUpdateManager(@version, @config, @specMode)
     @applicationMenu = new ApplicationMenu(@version)
@@ -250,10 +256,16 @@ class Application
       @windowManager.unregisterAllHotWindows()
       @autoUpdateManager.install()
 
-    @on 'application:open-dev', =>
-      @devMode = true
+    @on 'application:toggle-dev', =>
+      @devMode = !@devMode
+
+      if @devMode
+        @config.set('devMode', true)
+      else
+        @config.set('devMode', undefined)
+
       @windowManager.closeAllWindows()
-      @windowManager.devMode = true
+      @windowManager.devMode = @devMode
       @openWindowsForTokenState()
 
     @on 'application:toggle-theme', =>

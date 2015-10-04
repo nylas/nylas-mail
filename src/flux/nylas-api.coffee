@@ -226,7 +226,9 @@ class NylasAPI
       type: 'error'
       tag: '401'
       sticky: true
-      message: "Nylas can no longer authenticate with your mail provider. You will not be able to send or receive mail. Please unlink your account and sign in again.",
+      message: "Nylas can no longer authenticate with your mail provider. You
+               will not be able to send or receive mail. Please unlink your
+               account and sign in again.",
       icon: 'fa-sign-out'
       actions: [{
         label: 'Unlink'
