@@ -43,17 +43,37 @@
 
 animationContainerSize = [0,0]
 
+typeMe = (str, parent, {top, left}) -> new Promise (resolve, reject) ->
+  el = $("<div contenteditable=true id='editable'/>")
+  parent.append(el)
+  el.css {top, left}
+  el.focus()
+  sequence = Promise.resolve()
+  accumulator = ""
+  setTimeout ->
+    _.each str.split(''), (char, i) ->
+      delay = Math.random() * 120 + 10
+      sequence = sequence.then -> new Promise (resolve, reject) ->
+        accumulator += char
+        el.html(accumulator)
+        selection = document.getSelection()
+        selection?.setBaseAndExtent(selection.anchorNode, accumulator.length, selection.focusNode, accumulator.length)
+        setTimeout(resolve, delay)
+    sequence.then ->
+      resolve()
+  , 1500
+
 window.step1 = ->
 
   animationContainerSize = [1136,823]
   setAnimationContainer()
 
   frames =
-    "1-1": 2000
-    "1-2": 2000
-    "1-3": 2000
-    "1-4": 2000
-    "1-5": 2000
+    "1-1": 3000
+    "1-2": 250
+    "1-3": 1000
+    "1-4": 1500
+    "1-5": 250
     "1-6": 2000
 
   i = 0
@@ -68,7 +88,27 @@ window.step1 = ->
   _.each frames, (delay, frame) ->
     sequence = sequence.then -> new Promise (resolve, reject) ->
       $("##{frame}").show()
-      setTimeout(resolve, delay)
+      if frame is "1-3"
+        coords =
+          top: 449
+          left: 608
+        typeMe("omg Gljúfrafoss was awesome!", $("#animation-container"), coords)
+        .then ->
+          setTimeout(resolve, delay)
+      else if frame is "1-4"
+        setTimeout ->
+          $("#editable").html("omg Gljúfrafoss was <strong>awesome</strong>!")
+          selection = document.getSelection()
+          selection?.setBaseAndExtent(selection.anchorNode, 1000, selection.focusNode, 1000)
+          $("#1-4").hide()
+          setTimeout(resolve, delay)
+        , delay
+      else if frame is "1-6"
+        $("#editable").removeAttr("contenteditable")
+        $("#editable").css top: 428
+        setTimeout(resolve, delay)
+      else
+        setTimeout(resolve, delay)
   sequence.then ->
     console.log("step 1 is done!")
 

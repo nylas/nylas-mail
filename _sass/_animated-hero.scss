@@ -134,6 +134,18 @@ $extra-hero-height: 200px;
       display: none;
       position: absolute;
     }
+
+    #editable {
+      z-index: 10;
+      width: 442px;
+      border: 0;
+      position: absolute;
+      outline: 0;
+    }
+    #editable:focus {
+      outline: 0;
+      border: 0;
+    }
   }
 }
 
