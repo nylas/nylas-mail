@@ -2,14 +2,14 @@ _ = require 'underscore'
 ipc = require 'ipc'
 Reflux = require 'reflux'
 
-SettingsActions = require './settings-actions'
+PluginsActions = require './plugins-actions'
 
 module.exports =
-SettingsStore = Reflux.createStore
+TabsStore = Reflux.createStore
 
   init: ->
     @_tabIndex = 0
-    @listenTo(SettingsActions.selectTabIndex, @_onTabIndexChanged)
+    @listenTo(PluginsActions.selectTabIndex, @_onTabIndexChanged)
 
   # Getters
 

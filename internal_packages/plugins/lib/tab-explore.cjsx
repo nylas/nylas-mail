@@ -1,8 +1,8 @@
 React = require 'react'
 _ = require "underscore"
 PackageSet = require './package-set'
-SettingsPackagesStore = require './settings-packages-store'
-SettingsActions = require './settings-actions'
+PackagesStore = require './packages-store'
+PluginsActions = require './plugins-actions'
 {Spinner, EventedIFrame, Flexbox} = require 'nylas-component-kit'
 classNames = require 'classnames'
 
@@ -46,24 +46,24 @@ class TabExplore extends React.Component
 
   componentDidMount: =>
     @_unsubscribers = []
-    @_unsubscribers.push SettingsPackagesStore.listen(@_onChange)
+    @_unsubscribers.push PackagesStore.listen(@_onChange)
 
     # Trigger a refresh of the featured packages
-    SettingsActions.refreshFeaturedPackages()
+    PluginsActions.refreshFeaturedPackages()
 
   componentWillUnmount: =>
     unsubscribe() for unsubscribe in @_unsubscribers
 
   _getStateFromStores: =>
-    featured: SettingsPackagesStore.featured()
-    search: SettingsPackagesStore.globalSearchValue()
-    searchResults: SettingsPackagesStore.searchResults()
+    featured: PackagesStore.featured()
+    search: PackagesStore.globalSearchValue()
+    searchResults: PackagesStore.searchResults()
 
   _onChange: =>
     @setState(@_getStateFromStores())
 
   _onSearchChange: (event) =>
-    SettingsActions.setGlobalSearchValue(event.target.value)
+    PluginsActions.setGlobalSearchValue(event.target.value)
 
 
 module.exports = TabExplore

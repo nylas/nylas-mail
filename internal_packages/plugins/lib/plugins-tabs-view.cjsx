@@ -4,11 +4,11 @@ _ = require "underscore"
 classNames = require 'classnames'
 
 Tabs = require './tabs'
-SettingsActions = require './settings-actions'
-SettingsStore = require './settings-store'
+TabsStore = require './tabs-store'
+PluginsActions = require './plugins-actions'
 
-class SettingsTabs extends React.Component
-  @displayName: 'SettingsTabs'
+class PluginsTabs extends React.Component
+  @displayName: 'PluginsTabs'
 
   @propTypes:
     'onChange': React.PropTypes.Func
@@ -22,7 +22,7 @@ class SettingsTabs extends React.Component
     @state = @_getStateFromStores()
 
   render: ->
-    <ul className="settings-view-tabs">
+    <ul className="plugins-view-tabs">
       {@_renderItems()}
     </ul>
 
@@ -31,20 +31,20 @@ class SettingsTabs extends React.Component
       classes = classNames
         'tab': true
         'active': idx is @state.tabIndex
-      <li key={key} className={classes} onClick={ => SettingsActions.selectTabIndex(idx)}>{name}</li>
+      <li key={key} className={classes} onClick={ => PluginsActions.selectTabIndex(idx)}>{name}</li>
 
   componentDidMount: =>
     @_unsubscribers = []
-    @_unsubscribers.push SettingsStore.listen(@_onChange)
+    @_unsubscribers.push TabsStore.listen(@_onChange)
 
   componentWillUnmount: =>
     unsubscribe() for unsubscribe in @_unsubscribers
 
   _getStateFromStores: =>
-    tabIndex: SettingsStore.tabIndex()
+    tabIndex: TabsStore.tabIndex()
 
   _onChange: =>
     @setState(@_getStateFromStores())
 
 
-module.exports = SettingsTabs
+module.exports = PluginsTabs

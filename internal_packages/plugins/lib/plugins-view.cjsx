@@ -3,33 +3,32 @@ _ = require "underscore"
 {Flexbox} = require 'nylas-component-kit'
 classNames = require 'classnames'
 
-SettingsStore = require './settings-store'
+TabsStore = require './tabs-store'
 Tabs = require './tabs'
 
-class SettingsView extends React.Component
-  @displayName: 'SettingsView'
+class PluginsView extends React.Component
+  @displayName: 'PluginsView'
 
   constructor: (@props) ->
     @state = @_getStateFromStores()
 
   render: =>
-    SettingsTabComponent = Tabs[@state.tabIndex].component
-    <div className="settings-view">
-      <SettingsTabComponent />
+    PluginsTabComponent = Tabs[@state.tabIndex].component
+    <div className="plugins-view">
+      <PluginsTabComponent />
     </div>
 
   componentDidMount: =>
     @_unsubscribers = []
-    @_unsubscribers.push SettingsStore.listen(@_onChange)
+    @_unsubscribers.push TabsStore.listen(@_onChange)
 
   componentWillUnmount: =>
     unsubscribe() for unsubscribe in @_unsubscribers
 
   _getStateFromStores: =>
-    tabIndex: SettingsStore.tabIndex()
+    tabIndex: TabsStore.tabIndex()
 
   _onChange: =>
     @setState(@_getStateFromStores())
 
-
-module.exports = SettingsView
+module.exports = PluginsView

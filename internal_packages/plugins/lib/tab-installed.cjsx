@@ -1,8 +1,8 @@
 React = require 'react'
 _ = require "underscore"
 PackageSet = require './package-set'
-SettingsPackagesStore = require './settings-packages-store'
-SettingsActions = require './settings-actions'
+PackagesStore = require './packages-store'
+PluginsActions = require './plugins-actions'
 {Spinner, EventedIFrame, Flexbox} = require 'nylas-component-kit'
 classNames = require 'classnames'
 
@@ -26,41 +26,41 @@ class TabInstalled extends React.Component
           placeholder="Search Installed Packages"/>
         <PackageSet
           packages={@state.packages.user}
-          title="Community"
-          emptyText={searchEmpty ? "You don't have any community packages installed"} />
-        <PackageSet
-          title="Core"
-          packages={@state.packages.core} />
+          title="Installed"
+          emptyText={searchEmpty ? "You don't have any packages installed in ~/.nylas/packages."} />
         <PackageSet
           title="Development"
           packages={@state.packages.dev}
-          emptyText={searchEmpty ? "You don't have any packages in ~/.nylas/dev/packages"}   />
+          emptyText={searchEmpty ? <span>You don't have any packages installed in ~/.nylas/dev/packages. These packages are only loaded when you run the app with debug flags enabled (via the Developer menu).<br/><br/>Learn more about building packages at <a href='https://nylas.github.io/N1/docs'>https://nylas.github.io/N1/docs</a></span>}   />
         <div className="new-package">
           <div className="btn btn-large" onClick={@_onCreatePackage}>Create New Package...</div>
         </div>
+        <PackageSet
+          title="Core"
+          packages={@state.packages.core} />
       </div>
     </div>
 
   componentDidMount: =>
     @_unsubscribers = []
-    @_unsubscribers.push SettingsPackagesStore.listen(@_onChange)
+    @_unsubscribers.push PackagesStore.listen(@_onChange)
 
-    SettingsActions.refreshInstalledPackages()
+    PluginsActions.refreshInstalledPackages()
 
   componentWillUnmount: =>
     unsubscribe() for unsubscribe in @_unsubscribers
 
   _getStateFromStores: =>
-    packages: SettingsPackagesStore.installed()
-    search: SettingsPackagesStore.installedSearchValue()
+    packages: PackagesStore.installed()
+    search: PackagesStore.installedSearchValue()
 
   _onChange: =>
     @setState(@_getStateFromStores())
 
   _onCreatePackage: =>
-    SettingsActions.createPackage()
+    PluginsActions.createPackage()
 
   _onSearchChange: (event) =>
-    SettingsActions.setInstalledSearchValue(event.target.value)
+    PluginsActions.setInstalledSearchValue(event.target.value)
 
 module.exports = TabInstalled

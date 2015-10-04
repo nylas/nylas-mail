@@ -1,7 +1,7 @@
 React = require 'react'
 _ = require 'underscore'
 
-SettingsActions = require './settings-actions'
+PluginsActions = require './plugins-actions'
 
 class Package extends React.Component
   @displayName: 'Package'
@@ -16,10 +16,11 @@ class Package extends React.Component
     extras = []
 
     if @props.package.installed
-      if @props.package.enabled
-        actions.push <div className="btn btn-small" onClick={@_onDisablePackage}>Disable</div>
-      else
-        actions.push <div className="btn btn-small" onClick={@_onEnablePackage}>Enable</div>
+      if @props.package.category in ['user' ,'dev']
+        if @props.package.enabled
+          actions.push <div className="btn btn-small" onClick={@_onDisablePackage}>Disable</div>
+        else
+          actions.push <div className="btn btn-small" onClick={@_onEnablePackage}>Enable</div>
       if @props.package.category is 'user'
         actions.push <div className="btn btn-small" onClick={@_onUninstallPackage}>Uninstall</div>
       if @props.package.category is 'dev'
@@ -50,21 +51,21 @@ class Package extends React.Component
     </div>
 
   _onDisablePackage: =>
-    SettingsActions.disablePackage(@props.package)
+    PluginsActions.disablePackage(@props.package)
 
   _onEnablePackage: =>
-    SettingsActions.enablePackage(@props.package)
+    PluginsActions.enablePackage(@props.package)
 
   _onUninstallPackage: =>
-    SettingsActions.uninstallPackage(@props.package)
+    PluginsActions.uninstallPackage(@props.package)
 
   _onUpdatePackage: =>
-    SettingsActions.updatePackage(@props.package)
+    PluginsActions.updatePackage(@props.package)
 
   _onInstallPackage: =>
-    SettingsActions.installPackage(@props.package)
+    PluginsActions.installPackage(@props.package)
 
   _onShowPackage: =>
-    SettingsActions.showPackage(@props.package)
+    PluginsActions.showPackage(@props.package)
 
 module.exports = Package

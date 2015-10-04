@@ -59,18 +59,28 @@ class AccountSidebarStore extends NylasStore
     # Find root views and add them to the bottom of the list (Drafts, etc.)
     standardItems = standardCategoryItems
     standardItems.splice(1, 0, starredItem)
-    standardItems.push(WorkspaceStore.sidebarItems()...)
+
+    customSections = {}
+    for item in WorkspaceStore.sidebarItems()
+      if item.section
+        customSections[item.section] ?= []
+        customSections[item.section].push(item)
+      else
+        standardItems.push(item)
 
     @_sections = []
     @_sections.push
       label: 'Mailboxes'
       items: standardItems
-      type: 'mailboxes'
+
+    for section, items of customSections
+      @_sections.push
+        label: section
+        items: items
 
     @_sections.push
       label: CategoryStore.categoryLabel()
       items: userCategoryItems
-      type: 'category'
 
     @trigger()
 

@@ -8,6 +8,7 @@ class PackageSet extends React.Component
     'emptyText': React.PropTypes.string
 
   render: ->
+    return false unless @props.packages
     packages = @props.packages.map (pkg) -> <Package package={pkg} />
     count = <span>({@props.packages.length})</span>
 

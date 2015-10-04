@@ -1,5 +1,6 @@
 React = require "react"
 ActivitySidebar = require "./activity-sidebar"
+NotificationStore = require './notifications-store'
 NotificationsStickyBar = require "./notifications-sticky-bar"
 {ComponentRegistry, WorkspaceStore} = require("nylas-exports")
 
