@@ -4,12 +4,12 @@ Reflux = require 'reflux'
 path = require 'path'
 fs = require 'fs-plus'
 shell = require 'shell'
-SettingsActions = require './settings-actions'
+PluginsActions = require './plugins-actions'
 {APMWrapper} = require 'nylas-exports'
 dialog = require('remote').require('dialog')
 
 module.exports =
-SettingsPackagesStore = Reflux.createStore
+PackagesStore = Reflux.createStore
 
   init: ->
     @_apm = new APMWrapper()
@@ -22,8 +22,8 @@ SettingsPackagesStore = Reflux.createStore
     @_searchResults = null
     @_refreshFeatured()
 
-    @listenTo SettingsActions.refreshFeaturedPackages, @_refreshFeatured
-    @listenTo SettingsActions.refreshInstalledPackages, @_refreshInstalled
+    @listenTo PluginsActions.refreshFeaturedPackages, @_refreshFeatured
+    @listenTo PluginsActions.refreshInstalledPackages, @_refreshInstalled
 
     atom.commands.add 'body',
       'application:create-package': => @_onCreatePackage()
@@ -31,16 +31,16 @@ SettingsPackagesStore = Reflux.createStore
     atom.commands.add 'body',
       'application:install-package': => @_onInstallPackage()
 
-    @listenTo SettingsActions.createPackage, @_onCreatePackage
-    @listenTo SettingsActions.updatePackage, @_onUpdatePackage
-    @listenTo SettingsActions.setGlobalSearchValue, @_onGlobalSearchChange
-    @listenTo SettingsActions.setInstalledSearchValue, @_onInstalledSearchChange
+    @listenTo PluginsActions.createPackage, @_onCreatePackage
+    @listenTo PluginsActions.updatePackage, @_onUpdatePackage
+    @listenTo PluginsActions.setGlobalSearchValue, @_onGlobalSearchChange
+    @listenTo PluginsActions.setInstalledSearchValue, @_onInstalledSearchChange
 
-    @listenTo SettingsActions.showPackage, (pkg) =>
+    @listenTo PluginsActions.showPackage, (pkg) =>
       dir = atom.packages.resolvePackagePath(pkg.name)
       shell.showItemInFolder(dir) if dir
 
-    @listenTo SettingsActions.installPackage, (pkg) =>
+    @listenTo PluginsActions.installPackage, (pkg) =>
       @_installing[pkg.name] = true
       @trigger(@)
       @_apm.install pkg, (err) =>
@@ -52,7 +52,7 @@ SettingsPackagesStore = Reflux.createStore
             atom.packages.enablePackage(pkg.name)
         @_onPackagesChanged()
 
-    @listenTo SettingsActions.uninstallPackage, (pkg) =>
+    @listenTo PluginsActions.uninstallPackage, (pkg) =>
       if atom.packages.isPackageLoaded(pkg.name)
         atom.packages.disablePackage(pkg.name)
         atom.packages.unloadPackage(pkg.name)
@@ -60,11 +60,11 @@ SettingsPackagesStore = Reflux.createStore
         @_displayMessage("Sorry, an error occurred", err.toString()) if err
         @_onPackagesChanged()
 
-    @listenTo SettingsActions.enablePackage, (pkg) ->
+    @listenTo PluginsActions.enablePackage, (pkg) ->
       if atom.packages.isPackageDisabled(pkg.name)
         atom.packages.enablePackage(pkg.name)
 
-    @listenTo SettingsActions.disablePackage, (pkg) ->
+    @listenTo PluginsActions.disablePackage, (pkg) ->
       unless atom.packages.isPackageDisabled(pkg.name)
         atom.packages.disablePackage(pkg.name)
 

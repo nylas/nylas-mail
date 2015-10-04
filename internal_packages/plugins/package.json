@@ -1,8 +1,8 @@
 {
-  "name": "settings",
+  "name": "plugins",
   "version": "0.1.0",
   "main": "./lib/main",
-  "description": "Settings",
+  "description": "Plugins",
   "license": "Proprietary",
   "private": true,
   "engines": {
