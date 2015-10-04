@@ -63,7 +63,7 @@ class AccountSidebar extends React.Component
       else if item.sheet
         <SidebarSheetItem
           key={item.id}
-          item={item.sheet}
+          item={item}
           select={item.sheet.id is @state.selected?.id} />
 
       else

@@ -29,7 +29,7 @@ class AccountSidebarSheetItem extends React.Component
 
   _onClick: (event) =>
     event.preventDefault()
-    Actions.selectRootSheet(@props.item)
+    Actions.selectRootSheet(@props.item.sheet)
 
 
 module.exports = AccountSidebarSheetItem

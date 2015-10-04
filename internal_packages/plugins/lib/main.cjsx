@@ -12,7 +12,8 @@ module.exports =
 
     @sidebarItem = new WorkspaceStore.SidebarItem
       sheet: WorkspaceStore.Sheet.Plugins
-      id: 'Plugins'
+      icon: 'plugins.png'
+      id: 'plugins'
       name: 'Plugins'
       section: 'Views'
 
