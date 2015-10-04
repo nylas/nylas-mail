@@ -8,6 +8,9 @@ Tabs = require './tabs'
 
 class PluginsView extends React.Component
   @displayName: 'PluginsView'
+  @containerStyles:
+    minWidth: 500
+    maxWidth: 99999
 
   constructor: (@props) ->
     @state = @_getStateFromStores()
