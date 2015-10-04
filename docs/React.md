@@ -6,7 +6,7 @@ Order:   2
 
 N1 uses [React](https://facebook.github.io/react/) to create a fast, responsive UI. Packages that want to extend the N1 interface should use React. Using React's [JSX](https://facebook.github.io/react/jsx-in-depth.html) syntax is optional, but both [JSX](https://facebook.github.io/react/jsx-in-depth.html) and [CJSX](https://github.com/jsdf/coffee-react) (CoffeeScript) are available.
 
-For a quick introduction to React, take a look at Facebook's [Getting Started with React](https://facebook.github.io/react/getting-started.html).
+For a quick introduction to React, take a look at Facebook's [Getting Started with React](http://facebook.github.io/react/docs/getting-started.html).
 
 #### React Components
 
@@ -43,7 +43,7 @@ Here's a quick look at standard components you can require from `nylas-component
 
 ## React Component Injection
 
-The N1 interface is composed at runtime from components added by different packages. The app's left sidebar contains components from the composer package, the source list package, the activity package, and more. You can leverage the flexiblity of this system to extend almost any part of N1's interface.
+The N1 interface is composed at runtime from components added by different packages. The app's left sidebar contains components from the composer package, the source list package, the activity package, and more. You can leverage the flexibility of this system to extend almost any part of N1's interface.
 
 ### Registering Components
 

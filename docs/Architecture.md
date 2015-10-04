@@ -21,7 +21,7 @@ There are several core stores in the application:
 
 - **{DraftStore}**: Manages Drafts, which are {Message} objects the user is authoring. Drafts present a unique case in N1 because they may be updated frequently by disconnected parts of the application. You should use the {DraftStore} to create, edit, and send drafts.
 
-- **{FocusedContentStore}**: Manages focus within the main applciation window. The {FocusedContentStore} allows you to query and monitor changes to the selected thread, tag, file, etc.
+- **{FocusedContentStore}**: Manages focus within the main application window. The {FocusedContentStore} allows you to query and monitor changes to the selected thread, tag, file, etc.
 
 Most packages declare additional stores that subscribe to these Stores, as well as user Actions, and vend data to the package's React components.
 

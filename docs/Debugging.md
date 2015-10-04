@@ -41,6 +41,6 @@ If you're debugging a package, you'll be modifying your code and re-running N1 o
 
 - **View > Refresh**: From the View menu, choose "Refresh" to reload the N1 window just like a page in your browser. Refreshing is faster than restarting the app and allows you to iterate more quickly.
 
- > Note: A bug in Electron causes the Chromium DevTools to become detatched if you refresh the app often. If you find that Chromium is not stopping at your breakpoints, quit N1 and re-launch it.
+ > Note: A bug in Electron causes the Chromium DevTools to become detached if you refresh the app often. If you find that Chromium is not stopping at your breakpoints, quit N1 and re-launch it.
 
 In the future, we'll support much richer hot-reloading of plugin components and code. Stay tuned!

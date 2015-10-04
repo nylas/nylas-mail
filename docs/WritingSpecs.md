@@ -108,7 +108,7 @@ describe "fs.readdir(path, cb)", ->
       expect(spy).toHaveBeenCalledWith(null, ['example.coffee'])
 ```
 
-For a more detailed documentation on asynchronous tests please visit the http://jasmine.github.io/1.3/introduction.html#section-Asynchronous_Support)[Jasmine documentation].
+For a more detailed documentation on asynchronous tests please visit the [Jasmine documentation](http://jasmine.github.io/1.3/introduction.html#section-Asynchronous_Support).
 
 
 #### Tips for Debugging Specs

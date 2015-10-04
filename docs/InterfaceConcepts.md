@@ -10,7 +10,7 @@ The N1 user interface is conceptually organized into Sheets. Each Sheet represen
 
 The {WorkspaceStore} maintains the state of the application's workspace and the stack of sheets currently being displayed. Your packages can declare "root" sheets which are listed in the app's main sidebar, or push custom sheets on top of sheets to display data.
 
-The Nylas Workspace supports two display modes: `split` and `list`. Each Sheet describes it's appearance in each of the view modes it supports. For example, the `Threads` sheet describes a three column `split` view and a single column `list` view. Other sheets, like `Files` register for only one mode, and the user's mode preference is ignored.
+The Nylas Workspace supports two display modes: `split` and `list`. Each Sheet describes its appearance in each of the view modes it supports. For example, the `Threads` sheet describes a three column `split` view and a single column `list` view. Other sheets, like `Files` register for only one mode, and the user's mode preference is ignored.
 
 For each mode, Sheets register a set of column names.
 
@@ -40,7 +40,7 @@ ComponentRegistry.register NotificationsStickyBar,
 Each column is laid out as a CSS Flexbox, making them extremely flexible. For more about layout using Flexbox, see Working with Flexbox.
 
 
-###Toolbars
+### Toolbars
 
 Toolbars in N1 are also powered by the {ComponentRegistry}. Though toolbars appear to be a single unit at the top of a sheet, they are divided into columns with the same widths as the columns in the sheet beneath them.
 
