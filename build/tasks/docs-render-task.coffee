@@ -187,7 +187,7 @@ module.exports = (grunt) ->
         else if thirdPartyClasses[term]
           url = thirdPartyClasses[term]
         else if knownClassnames[term]
-          url = relativePathForClass(term)
+          url = relativePathForClass(knownClassnames[term].name)
         else if knownGuides[term]
           label = knownGuides[term].meta.title
           url = relativePathForGuide(knownGuides[term].filename)
