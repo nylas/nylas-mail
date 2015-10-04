@@ -41,6 +41,55 @@
 #   .then(fadeClient)
 #   .then(showCta)
 
+animationContainerSize = [0,0]
+
+window.step1 = ->
+
+  animationContainerSize = [1136,823]
+  setAnimationContainer()
+
+  frames =
+    "1-1": 2000
+    "1-2": 2000
+    "1-3": 2000
+    "1-4": 2000
+    "1-5": 2000
+    "1-6": 2000
+
+  i = 0
+  frameImgs = _.map frames, (delay, frame) ->
+    i++
+    "<img id='#{frame}' src='images/#{frame}.png' style='z-index: #{i}'/>"
+
+  $("#animation-container").html(frameImgs.join(''))
+  $("#1-1").show()
+
+  sequence = Promise.resolve()
+  _.each frames, (delay, frame) ->
+    sequence = sequence.then -> new Promise (resolve, reject) ->
+      $("##{frame}").show()
+      setTimeout(resolve, delay)
+  sequence.then ->
+    console.log("step 1 is done!")
+
+setAnimationContainer = ->
+  winW = $(window).width()
+  winH = $(window).height() - $("#nav").height()
+  [w,h] = animationContainerSize
+
+  scaleW = 1 - (Math.min(winW - w, 0) / -w)
+  scaleH = 1 - (Math.min(winH - h, 0) / -h)
+  scale = Math.min(scaleW, scaleH)
+  console.log scale
+  $("#animation-container").css
+    "width": "#{w}px"
+    "height": "#{h}px"
+    "margin-left": "-#{w/2}px"
+    "-webkit-transform": "scale(#{scale})"
+    "-moz-transform": "scale(#{scale})"
+    "-ms-transform": "scale(#{scale})"
+    "-o-transform": "scale(#{scale})"
+    "transform": "scale(#{scale})"
 
 # To allow for a fixed amount of bleed below the fold regardless of window
 # size.
@@ -72,9 +121,14 @@ fixWatercolors = ->
 
 onResize = ->
   fixHeroHeight()
-  fixHeroMargin()
+  # fixHeroMargin()
   fixWatercolors()
+  setAnimationContainer()
 
 window.onresize = onResize
 window.onload = ->
   onResize()
+  $("body").addClass("initial")
+  $("#play-intro").on "click", ->
+    $("body").addClass("step-0").removeClass("initial")
+    step1()

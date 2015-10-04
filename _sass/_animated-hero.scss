@@ -31,6 +31,10 @@ $blue: #419bf9;
   }
 }
 
+img {
+  border: 0;
+}
+
 img.hero-bg {
   height: 100%;
   min-height: 400px;
@@ -68,13 +72,13 @@ img.hero-bg {
 }
 
 .hero-text {
-  position: relative;
+  position: absolute;
   z-index: 5;
-  width: 90%;
-  margin: 0 auto;
-  padding-top: 130px;
   max-width: 500px;
   text-align: center;
+  @include transform(translate(-50%, -50%));
+  top: 50%;
+  left: 50%;
 
   @include animation(fadeIn 2s $ease-in-out-cubic both);
 }
@@ -104,54 +108,81 @@ img.hero-bg {
 $nav-height: 53px;
 $extra-hero-height: 200px;
 
-img.main-screenshot {
+.initial {
+  .animation-container {
+    display: none;
+  }
+}
+.animation-container {
   z-index: 10;
   position: absolute;
-  left: 50%;
-  width: auto;
-  height: auto;
-  @include calc(max-height, "100% - 253px");
-}
-
-@mixin main-screenshot-key-1 {
-  max-width: 80%;
-  max-height: 80%;
-  opacity: 0;
-  top: 510px;
-  @include transform(scale(0.98) translateX(-51%));
-}
-@mixin main-screenshot-key-2 {
-  max-width: 80%;
-  opacity: 1;
-  top: 460px;
-  @include transform(scale(1) translateX(-50%));
-}
-@mixin main-screenshot-key-3 {
-  max-width: 100%;
-  opacity: 1;
-  top: $nav-height;
-  @include transform(scale(1) translateX(-50%));
 }
 
 .step-0 {
-  img.main-screenshot {
-    @include animation(slideIn 1s 2s $ease-in-out-cubic both);
-    @include keyframes(slideIn) {
-      0% { @include main-screenshot-key-1 }
-      100% { @include main-screenshot-key-2 }
+  #hero-text {
+    @include animation(fadeOut 1s $ease-in-out-cubic both);
+  }
+
+  .animation-container {
+    display: block;
+    top: $nav-height;
+    left: 50%;
+    @include animation(fadeIn 1s 1s $ease-in-out-cubic both);
+    @include transform-origin(center top);
+
+    img {
+      display: none;
+      position: absolute;
     }
   }
 }
 
-.step-1 {
-  #hero-text {
-    @include animation(fadeOut 1s $ease-in-out-cubic both);
-  }
-  img.main-screenshot {
-    @include animation(focusUp 1s 0.5s $ease-in-out-cubic both);
-    @include keyframes(focusUp) {
-      0% { @include main-screenshot-key-2 }
-      100% { @include main-screenshot-key-3 }
-    }
-  }
-}
+// img.main-screenshot {
+//   left: 50%;
+//   width: auto;
+//   height: auto;
+//   @include calc(max-height, "100% - 253px");
+// }
+//
+// @mixin main-screenshot-key-1 {
+//   max-width: 80%;
+//   max-height: 80%;
+//   opacity: 0;
+//   top: 510px;
+//   @include transform(scale(0.98) translateX(-51%));
+// }
+// @mixin main-screenshot-key-2 {
+//   max-width: 80%;
+//   opacity: 1;
+//   top: 460px;
+//   @include transform(scale(1) translateX(-50%));
+// }
+// @mixin main-screenshot-key-3 {
+//   max-width: 100%;
+//   opacity: 1;
+//   top: $nav-height;
+//   @include transform(scale(1) translateX(-50%));
+// }
+//
+// .step-0 {
+//   img.main-screenshot {
+//     @include animation(slideIn 1s 2s $ease-in-out-cubic both);
+//     @include keyframes(slideIn) {
+//       0% { @include main-screenshot-key-1 }
+//       100% { @include main-screenshot-key-2 }
+//     }
+//   }
+// }
+//
+// .step-1 {
+//   #hero-text {
+//     @include animation(fadeOut 1s $ease-in-out-cubic both);
+//   }
+//   img.main-screenshot {
+//     @include animation(focusUp 1s 0.5s $ease-in-out-cubic both);
+//     @include keyframes(focusUp) {
+//       0% { @include main-screenshot-key-2 }
+//       100% { @include main-screenshot-key-3 }
+//     }
+//   }
+// }
