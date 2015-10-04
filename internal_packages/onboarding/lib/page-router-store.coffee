@@ -82,6 +82,8 @@ class PageRouterStore extends NylasStore
           @_tokenAuthEnabled = "no"
         @trigger()
       error: (err) =>
+        if err.statusCode is 404
+          err.message = "Sorry, we could not reach the Nylas API. Please try again."
         @_tokenAuthEnabledError = err.message
         @trigger()
 
