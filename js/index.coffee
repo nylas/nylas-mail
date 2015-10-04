@@ -41,9 +41,6 @@
 #   .then(fadeClient)
 #   .then(showCta)
 
-# To ensure we have maximal width and height viewport coverage
-fixAnimationContainer = ->
-  # $("#animation-container")
 
 # To allow for a fixed amount of bleed below the fold regardless of window
 # size.

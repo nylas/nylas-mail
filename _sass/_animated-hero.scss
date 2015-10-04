@@ -127,7 +127,7 @@ img.main-screenshot {
   @include transform(scale(1) translateX(-50%));
 }
 @mixin main-screenshot-key-3 {
-  max-width: 90%;
+  max-width: 100%;
   opacity: 1;
   top: $nav-height;
   @include transform(scale(1) translateX(-50%));
