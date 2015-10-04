@@ -36,7 +36,7 @@ class SheetContainer extends React.Component
 
     feedbackElement = null
     if atom.isMainWindow()
-      feedbackElement = <div className="btn-feedback" onClick={ => Actions.sendFeedback() }>?</div>
+      feedbackElement = <div className="btn-feedback" onClick={Actions.sendFeedback}>?</div>
 
     <Flexbox direction="column" className="layout-mode-#{@state.mode}">
       {@_toolbarContainerElement()}

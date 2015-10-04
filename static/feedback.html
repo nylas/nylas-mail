@@ -13,7 +13,6 @@
                 var val = decodeURIComponent(item[1])
                 queryParams[key] = val;
             });
-            console.log(queryParams);
 
             // Load the intercom widget.
             var w = window;
@@ -50,13 +49,21 @@
                 email: queryParams.email,
                 name: queryParams.name,
                 "accountId": queryParams.accountId,
+                "accountProvider": queryParams.accountProvider,
                 "platform": queryParams.platform,
                 "provider": queryParams.provider,
                 "organizational_unit": queryParams.organizational_unit,
                 "version": queryParams.version,
+                "product": "N1"
             });
             window.Intercom('show');
         })();
     </script>
 </head>
-<body></body></html>
+<body>
+<style>
+.intercom-sheet-header-close-button, .intercom-sheet-header-minimize-button {
+  display:none !important;
+}
+</style>
+</body></html>
