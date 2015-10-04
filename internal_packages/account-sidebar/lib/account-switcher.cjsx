@@ -8,6 +8,11 @@ classNames = require 'classnames'
 class AccountSwitcher extends React.Component
   @displayName: 'AccountSwitcher'
 
+  @containerRequired: false
+  @containerStyles:
+    minWidth: 165
+    maxWidth: 210
+
   constructor: (@props) ->
     @state = @_getStateFromStores()
     @state.showing = false

@@ -1,9 +1,8 @@
 React = require 'react'
 {Actions, MailViewFilter, WorkspaceStore} = require("nylas-exports")
-{ScrollRegion} = require("nylas-component-kit")
+{ScrollRegion, Flexbox} = require("nylas-component-kit")
 SidebarDividerItem = require("./account-sidebar-divider-item")
 SidebarSheetItem = require("./account-sidebar-sheet-item")
-AccountSwitcher = require ("./account-switcher")
 AccountSidebarStore = require ("./account-sidebar-store")
 AccountSidebarMailViewItem = require("./account-sidebar-mail-view-item")
 {RetinaImg} = require 'nylas-component-kit'
@@ -28,7 +27,6 @@ class AccountSidebar extends React.Component
 
   render: =>
     <ScrollRegion style={flex:1} id="account-sidebar">
-      <AccountSwitcher />
       <div className="account-sidebar-sections">
         {@_sections()}
       </div>
