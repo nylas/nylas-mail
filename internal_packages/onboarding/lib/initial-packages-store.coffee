@@ -7,7 +7,12 @@ class InitialPackagesStore extends NylasStore
   constructor: ->
     @starterPackages = []
     {resourcePath} = atom.getLoadSettings()
-    @starterPackagesPath = path.join(resourcePath, "examples")
+
+    if resourcePath.indexOf('app.asar') != -1
+      @starterPackagesPath = path.join(resourcePath,'..', 'app.asar.unpacked', 'examples')
+    else
+      @starterPackagesPath = path.join(resourcePath, "examples")
+
     @lastError = null
     @loadStarterPackages()
 
