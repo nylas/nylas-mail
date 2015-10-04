@@ -162,8 +162,15 @@ PackagesStore = Reflux.createStore
     @_apm.update(pkg, pkg.newerVersion)
 
   _onInstallPackage: ->
+    {resourcePath} = atom.getLoadSettings()
+    if resourcePath.indexOf('app.asar') != -1
+      starterPackagesPath = path.join(resourcePath,'..', 'app.asar.unpacked', 'examples')
+    else
+      starterPackagesPath = path.join(resourcePath, "examples")
+
     dialog.showOpenDialog
       title: "Choose a Package Directory"
+      defaultPath: starterPackagesPath
       properties: ['openDirectory']
     , (filenames) =>
       return if not filenames or filenames.length is 0

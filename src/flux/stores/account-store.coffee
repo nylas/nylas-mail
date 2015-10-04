@@ -163,7 +163,6 @@ class AccountStore
         unread: threadUnread
         snippet: threadMessages[0].snippet
         starred: threadMessages[0].starred
-        labels: threadMessages[0].labels
       )
       messages = messages.concat(threadMessages)
       threads.push(thread)
