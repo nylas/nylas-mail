@@ -36,9 +36,9 @@ class TokenAuthPage extends React.Component
   render: =>
     if @state.authError
       <div className="page token-auth">
-        <button key="retry" className="btn btn-large btn-retry" onClick={OnboardingActions.retryCheckTokenAuthStatus()}>Retry</button>
+        <button key="retry" className="btn btn-large btn-retry" onClick={@_onContinue}>Retry</button>
       </div>
-    if @state.tokenAuthEnabled is "yes"
+    else if @state.tokenAuthEnabled is "yes"
       <div className="page token-auth">
         <div className="quit" onClick={ -> OnboardingActions.closeWindow() }>
           <RetinaImg name="onboarding-close.png" mode={RetinaImg.Mode.ContentPreserve}/>
@@ -116,6 +116,9 @@ class TokenAuthPage extends React.Component
     errorMessage = err.message
     if err.statusCode is -123 # timeout
       errorMessage = "Request timed out. Please try again."
+
+    if err.statusCode is 404
+      errorMessage = "Invite code required"
 
     @setState
       errorMessage: errorMessage
