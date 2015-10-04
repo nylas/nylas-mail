@@ -1,7 +1,7 @@
 [Desktop Entry]
-Name=Nylas
+Name=Nylas N1
 Comment=<%= description %>
-GenericName=Nylas
+GenericName=Nylas N1
 Exec=<%= installDir %>/share/nylas/nylas %U
 Icon=<%= iconName %>
 Type=Application
