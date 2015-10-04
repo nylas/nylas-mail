@@ -227,6 +227,7 @@ class AccountSettingsPage extends React.Component
       EdgehillAPI.request
         path: "/connect/nylas"
         method: "POST"
+        timeout: 30000
         body: json
         success: (json) =>
           OnboardingActions.accountJSONReceived(json)
