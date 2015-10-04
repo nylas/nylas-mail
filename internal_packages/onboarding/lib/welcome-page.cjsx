@@ -12,7 +12,6 @@ class WelcomePage extends React.Component
     @state =
       step: 0
       lastStep: 0
-      tokenAuthEnabled: PageRouterStore.tokenAuthEnabled()
 
   render: ->
     <div className="welcome-page page opaque">
@@ -120,9 +119,10 @@ class WelcomePage extends React.Component
   _onContinue: =>
     if @state.step < 2
       @setState(step: @state.step + 1)
-    else if @state.tokenAuthEnabled is "no"
-      OnboardingActions.moveToPage("account-choose")
     else
-      OnboardingActions.moveToPage("token-auth")
+      if PageRouterStore.tokenAuthEnabled() is "no"
+        OnboardingActions.moveToPage("account-choose")
+      else
+        OnboardingActions.moveToPage("token-auth")
 
 module.exports = WelcomePage

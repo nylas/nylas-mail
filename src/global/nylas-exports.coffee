@@ -40,7 +40,6 @@ class NylasExports
   @load "NylasAPI", 'flux/nylas-api'
   @load "NylasSyncStatusStore", 'flux/stores/nylas-sync-status-store'
   @load "EdgehillAPI", 'flux/edgehill-api'
-  @load "SignupAPI", "flux/signup-api"
 
   # The Database
   @load "ModelView", 'flux/stores/model-view'

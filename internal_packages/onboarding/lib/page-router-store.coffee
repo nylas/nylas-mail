@@ -1,6 +1,7 @@
 Reflux = require 'reflux'
 OnboardingActions = require './onboarding-actions'
-{AccountStore, SignupAPI} = require 'nylas-exports'
+TokenAuthAPI = require './token-auth-api'
+{AccountStore} = require 'nylas-exports'
 NylasStore = require 'nylas-store'
 ipc = require 'ipc'
 url = require 'url'
@@ -13,13 +14,10 @@ class PageRouterStore extends NylasStore
 
     @_page = atom.getWindowProps().page ? ''
     @_pageData = atom.getWindowProps().pageData ? {}
-
-    @_tokenAuthEnabled = "unknown"
-    @_tokenAuthError = null
-
     @_pageStack = [{page: @_page, pageData: @_pageData}]
 
     @_checkTokenAuthStatus()
+
     @listenTo OnboardingActions.moveToPreviousPage, @_onMoveToPreviousPage
     @listenTo OnboardingActions.moveToPage, @_onMoveToPage
     @listenTo OnboardingActions.closeWindow, @_onCloseWindow
@@ -45,6 +43,8 @@ class PageRouterStore extends NylasStore
 
   tokenAuthEnabled: -> @_tokenAuthEnabled
 
+  tokenAuthEnabledError: -> @_tokenAuthEnabledError
+
   connectType: ->
     @_connectType
 
@@ -67,18 +67,22 @@ class PageRouterStore extends NylasStore
       atom.close()
 
   _checkTokenAuthStatus: ->
-    SignupAPI.request
+    @_tokenAuthEnabled = "unknown"
+    @_tokenAuthEnabledError = null
+    @trigger()
+
+    TokenAuthAPI.request
       path: "/status"
       returnsModel: false
-      timeout: 30000
+      timeout: 10000
       success: (json) =>
         if json.restricted
           @_tokenAuthEnabled = "yes"
         else
           @_tokenAuthEnabled = "no"
         @trigger()
-      error: (err) => 
-        @_tokenAuthError = err
+      error: (err) =>
+        @_tokenAuthEnabledError = err.message
         @trigger()
 
 module.exports = new PageRouterStore()

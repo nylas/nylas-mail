@@ -162,20 +162,20 @@
     left:25px;
   }
 
-  .page-enter {
+  .alpha-fade-enter {
     opacity: 0.01;
     transition: all .15s ease-out;
   }
 
-  .page-enter.page-enter-active {
+  .alpha-fade-enter.alpha-fade-enter-active {
     opacity: 1;
   }
-  .page-leave {
+  .alpha-fade-leave {
     opacity: 1;
     transition: all .15s ease-in;
   }
 
-  .page-leave.page-leave-active {
+  .alpha-fade-leave.alpha-fade-leave-active {
     opacity: 0.01;
   }
 
@@ -347,18 +347,18 @@
   }
 }
 
+.page.token-auth.token-auth-enabled {
+  height: auto;
+  padding-bottom:25px;
+}
 .page.token-auth{
   width: 388px;
   height: 405px;
+  position: relative;
+
   padding-top: 50px;
   img.logo.content-mask {
     background-color: rgba(255,255,255,0.4);
-  }
-  div.alert{
-    position: absolute;
-    left: 43%;
-    top: 65%;
-    color: #A33;
   }
 
   .caption {

@@ -53,7 +53,7 @@ class PageRouter extends React.Component
     <div className="page-frame">
       {@_renderDragRegion()}
       <ReactCSSTransitionGroup
-        transitionName="page"
+        transitionName="alpha-fade"
         leaveTimeout={150}
         enterTimeout={150}>
         {@_renderCurrentPage()}
