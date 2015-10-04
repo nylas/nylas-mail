@@ -306,17 +306,24 @@ p {
 
 .example-item {
   padding: 15px;
-  border: 1px solid #ccc;
   border-radius: 4px;
+  border:1px solid #ccc;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.15);
+  margin-bottom:20px;
 }
 
 .example-item-description {
-  font-size: 14px;
+  font-size: 16px;
   line-height: 20px;
   color: #555;
   margin: 5px 0;
 }
 
+.example-item-assumed-experience {
+  margin-top:15px;
+  font-size: 14px;
+  color: #555;
+}
 .example-item-assumed-experience-badge {
   padding: 2px 4px;
   border-radius: 3px;
@@ -325,13 +332,27 @@ p {
 }
 
 .example-item-links {
-  font-size: 14px;
-  line-height: 20px;
-  margin-top: 5px;
+  line-height: 16px;
+  margin-top: 20px;
+  border-top:1px solid #ddd;
+  a {
+    display:inline-block;
+    padding-top:15px;
+  }
+  a.github::before {
+    display: inline-block;
+    width:16px;
+    height:16px;
+    margin-right:7px;
+    background:url(https://github.com/favicon.ico) center no-repeat;
+    background-size: contain;
+    content: " ";
+    vertical-align: top;
+  }
 }
 
 .example-item-image {
-  height: 150px;
+  height: 170px;
   width: 100%;
   overflow: hidden;
   margin-bottom: 10px;
