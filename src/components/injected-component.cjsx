@@ -66,7 +66,7 @@ class InjectedComponent extends React.Component
 
     exposedProps = @props.exposedProps ? {}
     className = @props.className ? ""
-    className += "registered-region-visible" if @state.visible
+    className += " registered-region-visible" if @state.visible
 
     component = @state.component
 
