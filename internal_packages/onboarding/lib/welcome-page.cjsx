@@ -2,6 +2,7 @@ React = require 'react'
 shell = require 'shell'
 classnames = require 'classnames'
 {RetinaImg, TimeoutTransitionGroup} = require 'nylas-component-kit'
+PageRouterStore = require './page-router-store'
 OnboardingActions = require './onboarding-actions'
 
 class WelcomePage extends React.Component
@@ -119,6 +120,9 @@ class WelcomePage extends React.Component
     if @state.step < 2
       @setState(step: @state.step + 1)
     else
-      OnboardingActions.moveToPage("account-choose")
+      if PageRouterStore.tokenAuthEnabled() is "no"
+        OnboardingActions.moveToPage("account-choose")
+      else
+        OnboardingActions.moveToPage("token-auth")
 
 module.exports = WelcomePage

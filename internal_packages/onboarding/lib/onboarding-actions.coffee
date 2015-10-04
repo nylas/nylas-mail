@@ -7,6 +7,7 @@ OnboardingActions = Reflux.createActions [
   "moveToPreviousPage"
   "moveToPage"
   "accountJSONReceived"
+  "retryCheckTokenAuthStatus"
 ]
 
 for key, action of OnboardingActions
