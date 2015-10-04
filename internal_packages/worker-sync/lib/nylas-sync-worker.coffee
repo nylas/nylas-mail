@@ -94,9 +94,9 @@ class NylasSyncWorker
 
     @fetchCollection('threads')
     if @_account.usesLabels()
-      @fetchCollection('labels')
+      @fetchCollection('labels', {initialPageSize: 1000})
     if @_account.usesFolders()
-      @fetchCollection('folders')
+      @fetchCollection('folders', {initialPageSize: 1000})
     @fetchCollection('drafts')
     @fetchCollection('contacts')
     @fetchCollection('calendars')
@@ -116,7 +116,10 @@ class NylasSyncWorker
     @writeState()
 
     @fetchCollectionCount(model)
-    @fetchCollectionPage(model, {offset: 0, limit: INITIAL_PAGE_SIZE})
+    @fetchCollectionPage(model, {
+      limit: options.initialPageSize ? INITIAL_PAGE_SIZE,
+      offset: 0
+    })
 
   fetchCollectionCount: (model) ->
     @_api.makeRequest
