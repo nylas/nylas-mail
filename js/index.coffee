@@ -43,6 +43,31 @@
 
 animationContainerSize = [0,0]
 
+moveCursor = (start, end) ->
+  try
+    selection = document.getSelection?()
+    return unless selection
+    child = selection.anchorNode?.childNodes?[0]
+    if child
+      node = child
+    else
+      node = selection.anchorNode
+    return unless node
+    if selection.setBaseAndExtent
+      selection.setBaseAndExtent(node, start, node, end)
+    else if Range
+      range = new Range
+      start = Math.min(node.length ? 1000, start)
+      end = Math.min(node.lengty ? 1000, end)
+      range.setStart(node, start)
+      range.setEnd(node, end)
+      selection.removeAllRanges?()
+      selection.addRange?(range)
+    else return
+  catch e
+    console.error e
+  return
+
 typeMe = (str, parent, {top, left}) -> new Promise (resolve, reject) ->
   el = $("<div contenteditable=true id='editable'/>")
   parent.append(el)
@@ -57,7 +82,7 @@ typeMe = (str, parent, {top, left}) -> new Promise (resolve, reject) ->
         accumulator += char
         el.html(accumulator)
         selection = document.getSelection()
-        selection?.setBaseAndExtent(selection.anchorNode, accumulator.length, selection.focusNode, accumulator.length)
+        moveCursor(accumulator.length, accumulator.length)
         setTimeout(resolve, delay)
     sequence.then ->
       resolve()
@@ -91,20 +116,19 @@ window.step1 = ->
     coords =
       top: 449
       left: 608
-    typeMe("Wow! Iceland looks awesome!", $("#step1"), coords)
+    typeMe("Wow! Iceland looks awesome.", $("#step1"), coords)
     .then ->
       setTimeout ->
-        selection = document.getSelection()
-        selection?.setBaseAndExtent(selection.anchorNode, 19, selection.focusNode, 26)
+        moveCursor(19, 26)
         $("#1-4-hovering-toolbar").addClass("pop-in")
         resolve()
       , delay
 
   markBold = (delay, resolve) ->
     setTimeout ->
-      $("#editable").html("Wow! Iceland looks <strong>awesome</strong>!")
-      selection = document.getSelection()
-      selection?.setBaseAndExtent(selection.anchorNode, 1000, selection.focusNode, 1000)
+      $("#editable").html("Wow! Iceland looks <strong>awesome</strong>.")
+      len = $("#editable").html().length
+      moveCursor(len, len)
       $("#1-4-hovering-toolbar").removeClass("pop-in").addClass("pop-out")
       setTimeout(resolve, 2*delay)
     , delay
