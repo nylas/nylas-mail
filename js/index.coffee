@@ -71,8 +71,8 @@ window.step1 = ->
   frames =
     "1-1": 3000
     "1-2": 250
-    "1-3": 1000
-    "1-4": 1500
+    "1-3": 500
+    "1-4": 750
     "1-5": 250
     "1-6": 2000
 
@@ -92,12 +92,12 @@ window.step1 = ->
         coords =
           top: 449
           left: 608
-        typeMe("omg Gljúfrafoss was awesome!", $("#animation-container"), coords)
+        typeMe("omg Iceland was awesome!", $("#animation-container"), coords)
         .then ->
           setTimeout(resolve, delay)
       else if frame is "1-4"
         setTimeout ->
-          $("#editable").html("omg Gljúfrafoss was <strong>awesome</strong>!")
+          $("#editable").html("omg Iceland was <strong>awesome</strong>!")
           selection = document.getSelection()
           selection?.setBaseAndExtent(selection.anchorNode, 1000, selection.focusNode, 1000)
           $("#1-4").hide()

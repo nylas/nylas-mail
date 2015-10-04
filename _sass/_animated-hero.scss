@@ -130,6 +130,10 @@ $extra-hero-height: 200px;
     @include animation(fadeIn 1s 1s $ease-in-out-cubic both);
     @include transform-origin(center top);
 
+    &:hover {
+      cursor: default;
+    }
+
     img {
       display: none;
       position: absolute;
