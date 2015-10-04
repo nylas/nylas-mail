@@ -111,42 +111,27 @@ class DeveloperBarStore extends NylasStore
     @triggerThrottled(@)
 
   _onSendFeedback: ->
-    {AccountStore,
-     Contact,
-     Message,
-     DatabaseStore} = require 'nylas-exports'
+    {AccountStore} = require 'nylas-exports'
+    BrowserWindow = require('remote').require('browser-window')
+    path = require 'path'
 
-    user = AccountStore.current().name
+    account = AccountStore.current()
+    params = qs.stringify({
+      name: account.name
+      email: account.emailAddress
+      accountId: account.id
+      platform: process.platform
+      provider: account.displayProvider()
+      organizational_unit: account.organizationUnit
+      version: atom.getVersion()
+    })
+    w = new BrowserWindow
+      'node-integration': false,
+      'web-preferences': {'web-security':false},
+      'width': 450,
+      'height': 700
 
-    draft = new Message
-      from: [AccountStore.current().me()]
-      to: [
-        new Contact
-          name: "Nylas Team"
-          email: "feedback@nylas.com"
-      ]
-      date: (new Date)
-      draft: true
-      subject: "Feedback"
-      accountId: AccountStore.current().id
-      body: """
-        Hi, Nylas team! I have some feedback for you.<br/>
-        <br/>
-        <b>What happened:</b><br/>
-        <br/>
-        <br/>
-        <b>Impact:</b><br/>
-        <br/>
-        <br/>
-        <b>Feedback:</b><br/>
-        <br/>
-        <br/>
-        <b>Environment:</b><br/>
-        I'm using N1 #{atom.getVersion()} and my platform is #{process.platform}-#{process.arch}.<br/>
-        --<br/>
-        #{user}<br/>
-      """
-    DatabaseStore.persistModel(draft).then ->
-      Actions.composePopoutDraft(draft.clientId)
+    url = path.join __dirname, '../static/feedback.html'
+    w.loadUrl "file://#{url}?#{params}"
 
 module.exports = new DeveloperBarStore()
