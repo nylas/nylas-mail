@@ -117,13 +117,13 @@ class AccountStore
     threads = []
     messages = []
 
-    account = @itemWithEmailAddress('mark@nylas.com')
+    account = @itemWithEmailAddress('nora@nylas.com')
     unless account
       account = new Account()
       account.serverId = account.clientId
-      account.emailAddress = "mark@nylas.com"
+      account.emailAddress = "nora@nylas.com"
       account.organizationUnit = 'label'
-      account.name = "Mark"
+      account.name = "Nora"
       account.provider = "gmail"
       @_accounts.push(account)
       @_tokens[account.id] = 'nope'
@@ -151,18 +151,19 @@ class AccountStore
       threadParticipants = _.uniq threadParticipants, (p) -> p.email
       threadLabels = _.uniq threadLabels, (l) -> l.id
 
+      lastMsg = _.last(threadMessages)
       thread = new Thread(
         accountId: account.id
-        serverId: threadMessages[0].threadId
-        clientId: threadMessages[0].threadId
-        subject: threadMessages[0].subject
-        lastMessageReceivedTimestamp: threadMessages[0].date
+        serverId: lastMsg.threadId
+        clientId: lastMsg.threadId
+        subject: lastMsg.subject
+        lastMessageReceivedTimestamp: lastMsg.date
         hasAttachment: threadAttachment
         labels: threadLabels
         participants: threadParticipants
         unread: threadUnread
-        snippet: threadMessages[0].snippet
-        starred: threadMessages[0].starred
+        snippet: lastMsg.snippet
+        starred: lastMsg.starred
       )
       messages = messages.concat(threadMessages)
       threads.push(thread)
