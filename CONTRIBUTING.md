@@ -99,6 +99,7 @@ To build the N1 image:
     docker build -t n1 .
 
 To run it:
+
 1. [Install Homebrew](http://brew.sh/)
 2. In one terminal
     1. `brew install socat`
