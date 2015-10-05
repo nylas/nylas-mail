@@ -1,0 +1,92 @@
+
+
+@font-face {
+	font-family:'FaktPro-Blond';
+	src: local('FaktPro-Blond_gdi'), url('../fonts/FaktPro-Blond_gdi.eot');
+	src: url('../fonts/FaktPro-Blond_gdi.eot?#iefix') format('embedded-opentype'),
+		url('../fonts/FaktPro-Blond_gdi.woff') format('woff'),
+		url('../fonts/FaktPro-Blond_gdi.ttf') format('truetype'),
+		url('../fonts/FaktPro-Blond_gdi.svg#FaktPro-Blond') format('svg');
+	font-weight: 350;
+	font-style: normal;
+	font-stretch: normal;
+	unicode-range: U+0020-25CA;
+}
+
+@font-face {
+	font-family:'FaktPro-Hair';
+	src: local('FaktPro-Hair_gdi'), url('../fonts/FaktPro-Hair_gdi.eot');
+	src: url('../fonts/FaktPro-Hair_gdi.eot?#iefix') format('embedded-opentype'),
+	url('../fonts/FaktPro-Hair_gdi.woff') format('woff'),
+	url('../fonts/FaktPro-Hair_gdi.ttf') format('truetype'),
+	url('../fonts/FaktPro-Hair_gdi.svg#FaktPro-Hair') format('svg');
+	font-weight: 280;
+	font-style: normal;
+	font-stretch: normal;
+	unicode-range: U+0020-25CA;
+}
+
+@font-face {
+	font-family:'FaktPro-Light';
+	src: local('FaktPro-Light_gdi'), url('../fonts/FaktPro-Light_gdi.eot');
+	src: url('../fonts/FaktPro-Light_gdi.eot?#iefix') format('embedded-opentype'),
+	url('../fonts/FaktPro-Light_gdi.woff') format('woff'),
+	url('../fonts/FaktPro-Light_gdi.ttf') format('truetype'),
+	url('../fonts/FaktPro-Light_gdi.svg#FaktPro-Light') format('svg');
+	font-weight: 300;
+	font-style: normal;
+	font-stretch: normal;
+	unicode-range: U+0020-25CA;
+}
+
+@font-face {
+	font-family:'FaktPro-Medium';
+	src: local('FaktPro-Medium_gdi'), url('../fonts/FaktPro-Medium_gdi.eot');
+	src: url('../fonts/FaktPro-Medium_gdi.eot?#iefix') format('embedded-opentype'),
+	url('../fonts/FaktPro-Medium_gdi.woff') format('woff'),
+	url('../fonts/FaktPro-Medium_gdi.ttf') format('truetype'),
+	url('../fonts/FaktPro-Medium_gdi.svg#FaktPro-Medium') format('svg');
+	font-weight: 500;
+	font-style: normal;
+	font-stretch: normal;
+	unicode-range: U+0020-25CA;
+}
+
+@font-face {
+	font-family:'FaktPro-Normal';
+	src: local('FaktPro-Normal_gdi'), url('../fonts/FaktPro-Normal_gdi.eot');
+	src: url('../fonts/FaktPro-Normal_gdi.eot?#iefix') format('embedded-opentype'),
+	url('../fonts/FaktPro-Normal_gdi.woff') format('woff'),
+	url('../fonts/FaktPro-Normal_gdi.ttf') format('truetype'),
+	url('../fonts/FaktPro-Normal_gdi.svg#FaktPro-Normal') format('svg');
+	font-weight: 400;
+	font-style: normal;
+	font-stretch: normal;
+	unicode-range: U+0020-25CA;
+}
+
+@font-face {
+	font-family:'FaktPro-SemiBold';
+	src: local('FaktPro-SemiBold_gdi'), url('../fonts/FaktPro-SemiBold_gdi.eot');
+	src: url('../fonts/FaktPro-SemiBold_gdi.eot?#iefix') format('embedded-opentype'),
+	url('../fonts/FaktPro-SemiBold_gdi.woff') format('woff'),
+	url('../fonts/FaktPro-SemiBold_gdi.ttf') format('truetype'),
+	url('../fonts/FaktPro-SemiBold_gdi.svg#FaktPro-SemiBold') format('svg');
+	font-weight: 600;
+	font-style: normal;
+	font-stretch: normal;
+	unicode-range: U+0020-25CA;
+}
+
+@font-face {
+	font-family:'FaktPro-Thin';
+	src: local('FaktPro-Thin_gdi'), url('../fonts/FaktPro-Thin_gdi.eot');
+	src: url('../fonts/FaktPro-Thin_gdi.eot?#iefix') format('embedded-opentype'),
+	url('../fonts/FaktPro-Thin_gdi.woff') format('woff'),
+	url('../fonts/FaktPro-Thin_gdi.ttf') format('truetype'),
+	url('../fonts/FaktPro-Thin_gdi.svg#FaktPro-Thin') format('svg');
+	font-weight: 290;
+	font-style: normal;
+	font-stretch: normal;
+	unicode-range: U+0020-25CA;
+}

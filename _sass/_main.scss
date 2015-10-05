@@ -1,45 +1,77 @@
 @import "nav.scss";
 @import "animated-hero.scss";
 
+
 @font-face {
-  font-family: 'FaktPro';
-  font-style: normal;
+  font-family:'FaktPro-Thin';
+  src: local('FaktPro-Thin_gdi'), url('../fonts/FaktPro-Thin_gdi.eot');
+  src: url('../fonts/FaktPro-Thin_gdi.eot?#iefix') format('embedded-opentype'),
+  url('../fonts/FaktPro-Thin_gdi.woff') format('woff'),
+  url('../fonts/FaktPro-Thin_gdi.ttf') format('truetype'),
+  url('../fonts/FaktPro-Thin_gdi.svg#FaktPro-Thin') format('svg');
   font-weight: 200;
-  src: local('FaktPro-Thin'), url('../fonts/FaktPro-Thin.ttf'), local('Helvetica Neue'), local('Helvetica');
+  font-style: normal;
+  font-stretch: normal;
+  unicode-range: U+0020-25CA;
 }
 
 @font-face {
-  font-family: 'FaktPro';
-  font-style: normal;
+  font-family:'FaktPro-Light';
+  src: local('FaktPro-Light_gdi'), url('../fonts/FaktPro-Light_gdi.eot');
+  src: url('../fonts/FaktPro-Light_gdi.eot?#iefix') format('embedded-opentype'),
+  url('../fonts/FaktPro-Light_gdi.woff') format('woff'),
+  url('../fonts/FaktPro-Light_gdi.ttf') format('truetype'),
+  url('../fonts/FaktPro-Light_gdi.svg#FaktPro-Light') format('svg');
   font-weight: 300;
-  src: local('FaktPro-Light'), url('../fonts/FaktPro-Light.ttf'), local('Helvetica Neue'), local('Helvetica');
+  font-style: normal;
+  font-stretch: normal;
+  unicode-range: U+0020-25CA;
 }
 
 @font-face {
-  font-family: 'FaktPro';
-  font-style: normal;
+  font-family:'FaktPro-Blond';
+  src: local('FaktPro-Blond_gdi'), url('../fonts/FaktPro-Blond_gdi.eot');
+  src: url('../fonts/FaktPro-Blond_gdi.eot?#iefix') format('embedded-opentype'),
+  url('../fonts/FaktPro-Blond_gdi.woff') format('woff'),
+  url('../fonts/FaktPro-Blond_gdi.ttf') format('truetype'),
+  url('../fonts/FaktPro-Blond_gdi.svg#FaktPro-Blond') format('svg');
   font-weight: 400;
-  src: local('FaktPro-Blond'), url('../fonts/FaktPro-Blond.ttf'), local('Helvetica Neue'), local('Helvetica');
+  font-style: normal;
+  font-stretch: normal;
+  unicode-range: U+0020-25CA;
 }
 
 @font-face {
-  font-family: 'FaktPro';
-  font-style: normal;
+  font-family:'FaktPro-Medium';
+  src: local('FaktPro-Medium_gdi'), url('../fonts/FaktPro-Medium_gdi.eot');
+  src: url('../fonts/FaktPro-Medium_gdi.eot?#iefix') format('embedded-opentype'),
+  url('../fonts/FaktPro-Medium_gdi.woff') format('woff'),
+  url('../fonts/FaktPro-Medium_gdi.ttf') format('truetype'),
+  url('../fonts/FaktPro-Medium_gdi.svg#FaktPro-Medium') format('svg');
   font-weight: 500;
-  src: local('FaktPro-Medium'), url('../fonts/FaktPro-Medium.ttf'), local('Helvetica Neue'), local('Helvetica');
+  font-style: normal;
+  font-stretch: normal;
+  unicode-range: U+0020-25CA;
 }
 
 @font-face {
-  font-family: 'FaktPro';
-  font-style: normal;
+  font-family:'FaktPro-SemiBold';
+  src: local('FaktPro-SemiBold_gdi'), url('../fonts/FaktPro-SemiBold_gdi.eot');
+  src: url('../fonts/FaktPro-SemiBold_gdi.eot?#iefix') format('embedded-opentype'),
+  url('../fonts/FaktPro-SemiBold_gdi.woff') format('woff'),
+  url('../fonts/FaktPro-SemiBold_gdi.ttf') format('truetype'),
+  url('../fonts/FaktPro-SemiBold_gdi.svg#FaktPro-SemiBold') format('svg');
   font-weight: 600;
-  src: local('FaktPro-SemiBold'), url('../fonts/FaktPro-SemiBold.ttf'), local('Helvetica Neue'), local('Helvetica');
+  font-style: normal;
+  font-stretch: normal;
+  unicode-range: U+0020-25CA;
 }
+
 
 body {
     padding: 0;
     margin: 0;
-    font-family: 'FaktPro';
+    font-family: 'FaktPro', sans-serif;
     font-weight: normal;
     font-size: 16px;
     line-height: 1.5em;
