@@ -1,0 +1,161 @@
+#!/bin/sh
+# postinst script for Nylas
+#
+# see: dh_installdeb(1)
+
+# summary of how this script can be called:
+#        * <postinst> `configure' <most-recently-configured-version>
+#        * <old-postinst> abort-upgrade' <new version>
+#        * <conflictor's-postinst> `abort-remove' `in-favour' <package>
+#          <new-version>
+#        * <postinst> `abort-remove'
+#        * <deconfigured's-postinst> `abort-deconfigure' `in-favour'
+#          <failed-install-package> <version> `removing'
+#          <conflicting-package> <version>
+# for details, see http://www.debian.org/doc/debian-policy/ or
+# the debian-policy package
+
+UBUNTU_CODENAMES="lucid maverick natty oneiric precise quantal raring saucy trusty utopic vivid"
+DEBIAN_CODENAMES="squeeze wheezy jessie sid"
+
+case "$1" in
+    configure)
+    	gtk-update-icon-cache /usr/share/icons/hicolor > /dev/null 2>&1
+
+        DISTRO=`lsb_release -s -i`
+
+        if [ "$DISTRO" = "Ubuntu" ]; then
+          DISTS=$UBUNTU_CODENAMES
+          DISTRO="ubuntu"
+        elif [ "$DISTRO" = "Debian" ]; then
+          DISTS=$DEBIAN_CODENAMES
+          DISTRO="debian"
+        else
+          echo "You are not running Debian or Ubuntu.  Not adding Nylas repository."
+          DISTRO=""
+        fi
+
+        if [ -n "$DISTRO" ]; then
+          # Add the Nylas repository.
+          # Copyright (c) 2009 The Chromium Authors. All rights reserved.
+          # Use of this source code is governed by a BSD-style license.
+
+          # Install the repository signing key
+          install_key() {
+            APT_KEY="`which apt-key 2> /dev/null`"
+            if [ -x "$APT_KEY" ]; then
+              "$APT_KEY" add - >/dev/null 2>&1 <<KEYDATA
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1
+
+mQSuBFX0SVwRDACLnMu8V6T6fyp5n5x/ZpOUuI1AEWkPfRUzF/lVdo2P7llJw1xG
+iovmCwI8KdvRmjtrDG7BxnwHgZfEdYOWx80SunTLQL/MBx3pfqN74WzCFjuI6GRU
+xbyM7PbwsHkefMtcHNfX74SLMdxq3gGgWlds2UOBuWlB2arz8x7WhnvwcWwtYeuo
++P/suo69vWRsP4vm/8XPi07NU9s0Kny/bpB2CF8lMlwg/C2NiFyzMW236WH6obJ9
+ACkcrPpxfgjPuhppTQuMUp0wB++nIZdzzAGQpiqGgPq7vCSnXrSR/pFZYWWPdq5C
+64cmHLO1LaO18+41ogL1zAkPadf+T6i6APq3M6jWsOmEME1bnjoQjhvR2xt7st1R
+IyRWK7Yj/9EeMtTbsTOHwR2qcQknRlNgiCny3hRiNP8Dy3AlaZqiwfYAgX5/cfUr
+wtbJzv1tFfIBFXOzFBl2zsHLkCm/FGoeWxZDe1S3YzgSsJlNxSJRmrUPRHTItDIb
+/03MvSm6gp2J9t8BALaFZEOHCYNqoxXHGIsfwjnrnQqRG59jlx+dgk+JALZnC/92
+zkt2i5BRxF3HkyAqA1L+M8daomESQvEjHMtGSQrGK6B/VzYQYVigyn91c41E2ijh
+0cvzDj2m0jgmI1CwsC3B9FR3IPAZwip9PC65yU8Z95VnmcPEbOLJ4CLPPXV/8x+I
+vEyqp9ePRVyfz1x2dlBWCq+sIjVqiMPMNT49+mfAdOBwikt+F9z+F+3ao1XfX2z3
+isXpAlgr2eNty9EuPx3uYocs6vTlAvrzgqbdVgkPlr4hATdVteMU3Y+I9zlJTIFt
+SqGLROF4mu+j9Pr3HG0j0eCPbj/5b+Wsmw9mNjE7o8y3Og66O8kn4o/FnJ7gT21d
+fljg+Js4p9i3qsPxaLfHSJc7g5URBBYDQ/P/QOcIc5P/hnGC/dOpFC3+o47FTc2e
+8/OUw5UNuPJ3oDZW8rPNlWT4EehP+1QuXhd4I59Xbm3OCAFDMPrX/uWNB8s2kFkn
+6CuzqOWOmNimukKqy6gnrRvMzHV1afQDDL77qOA79hEDW715gkZ4QPO5yjNdKUAL
+/3RkuNaCxmYa7Ny+nU6xQvbQM/Kp/RpNTNgy31LyvpRQY4mskEmIJcuxc6CXmpPI
+psdbHTMzK0qByfRFtkAVD4p+AuWuEc+SMWx5lHy62TObPpGtgkjPCy4u0K2ntx7w
+vaM9x33q+aLC/GKRADQSbtKVbBO5ei/OnQv0Bo4QkBHNVz92P5jlhLiwh3VDWkc+
+vvFeXI2UxvDpQ4AVrM0QWmyIWRjLjWrP5aoIo9Q3druTgsWIE+hsWWKUda2ajhh+
+6Jg2HYSzvMxB3W1sMl+ezrksKSr9ziFUGOObxnPBVM7AI2qa0zqkLF6WyUGY4SEZ
+GFL7jsahos27wLcz5bVMM12Y7k2YIlmzxK9TY2sfn4Z43uvwB9/rUbOGdRm5G24I
+XGicrvcnB0oFtvlmgRkPt3prEWEwRIIGWrU1K8OL52dSovUoD5rkmBCeQ7WITQbT
+tmyBiNmoD16Eo1p77NDSgNjvJS1BjLuo7co4mIqZmsK0xJuWNh4WaJ9AFaxAqeep
+DLQeTnlsYXMgVGVhbSA8c3VwcG9ydEBueWxhcy5jb20+iHcEExEIAB8FAlX0SVwC
+GwMFCwkIBwMFFQoJCAsDFgIDAh4BAheAAAoJEDj8bpZ9Cs9KTNkA/jsks9Q89PaS
+dZVWAsu8QAqbMQQkrk4QFr0Aha5P0vRfAP43CgplwMIQkdDxf02Etuj8JYdzRGdm
+MKFYFOTibEgbfw==
+=3EXM
+-----END PGP PUBLIC KEY BLOCK-----
+KEYDATA
+            fi
+          }
+
+          DISTRIB_CODENAME=`lsb_release -s -c`
+
+          for DIST in $DISTS; do
+              REPO=$DIST
+              if [ "$DIST" = "$DISTRIB_CODENAME" ]; then
+                break
+              fi
+          done
+
+          REPOCONFIG="deb [arch=i386,amd64] http://apt.nylas.com/$DISTRO $REPO main"
+
+          APT_GET="`which apt-get 2> /dev/null`"
+          APT_CONFIG="`which apt-config 2> /dev/null`"
+
+          # Parse apt configuration and return requested variable value.
+          apt_config_val() {
+            APTVAR="$1"
+            if [ -x "$APT_CONFIG" ]; then
+              "$APT_CONFIG" dump | sed -e "/^$APTVAR /"'!d' -e "s/^$APTVAR \"\(.*\)\".*/\1/"
+            fi
+          }
+
+          # Set variables for the locations of the apt sources lists.
+          find_apt_sources() {
+            APTDIR=$(apt_config_val Dir)
+            APTETC=$(apt_config_val 'Dir::Etc')
+            APT_SOURCES="$APTDIR$APTETC$(apt_config_val 'Dir::Etc::sourcelist')"
+            APT_SOURCESDIR="$APTDIR$APTETC$(apt_config_val 'Dir::Etc::sourceparts')"
+          }
+
+          # Add the Nylas repository to the apt sources.
+          # Returns:
+          # 0 - no update necessary
+          # 1 - sources were updated
+          # 2 - error
+          update_sources_lists() {
+            if [ ! "$REPOCONFIG" ]; then
+              return 0
+            fi
+
+            find_apt_sources
+
+            if [ -d "$APT_SOURCESDIR" ]; then
+              # Nothing to do if it's already there.
+              SOURCELIST=$(grep -H "$REPOCONFIG" "$APT_SOURCESDIR/nylas.list" \
+                2>/dev/null | cut -d ':' -f 1)
+              if [ -n "$SOURCELIST" ]; then
+                return 0
+              fi
+
+              printf "$REPOCONFIG\n" > "$APT_SOURCESDIR/nylas.list"
+              if [ $? -eq 0 ]; then
+                return 1
+              fi
+            fi
+            return 2
+          }
+
+          install_key
+          update_sources_lists
+
+        fi
+	;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+        echo "postinst called with unknown argument '$1'" >&2
+        exit 1
+    ;;
+esac
+
+set -e
+
+exit 0
