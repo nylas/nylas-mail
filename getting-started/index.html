@@ -24,6 +24,15 @@ title: Getting started with plugins
     table.code td.code {
         padding-left: 20px;
     }
+    table.code td.code.hlt {
+        background: #D0E0FF;
+    }
+    table.code td.code.add {
+        background: #D0FFD0;
+    }
+    table.code td.code.rm {
+        background: #FFD0D0;
+    }
     table.code td.line-num {
         color: #AAA;
         border-right: 1px solid #EEE;
@@ -41,6 +50,25 @@ title: Getting started with plugins
         border-bottom: 1px solid #CCC;
         padding-left: 5px;
     }
+
+
+    table.code td.code span.str{
+        color: #008800;
+    }
+    table.code td.code span.op{
+        font-weight: bold;
+        color: #DD7700
+    }
+
+    div.links-overlay {
+        background: #EEE;
+        border: 1px solid #DDD;
+        border-radius: 5px;
+    }
+    div.links-overlay p {
+        margin-top: 5px;
+    }
+
     .grid .unit:last-child {
         padding-right: 10px;
     }
@@ -127,68 +155,108 @@ title: Getting started with plugins
                 <tr><td class="line-num">31</td><td class="code">componentWillUnmount: =></td></tr>
                 <tr><td class="line-num">32</td><td class="code">&nbsp;&nbsp;&nbsp;&nbsp;@unsubscribe()</td></tr>
                 <tr><td class="line-num">33</td><td class="code"></td></tr>
-                <tr><td class="line-num">34</td><td class="code">render: =></td></tr>
-                <tr><td class="line-num">35</td><td class="code">&nbsp;&nbsp;&nbsp;&nbsp;if @state.contact</td></tr>
-                <tr><td class="line-num">36</td><td class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;content = @_renderContent()</td></tr>
-                <tr><td class="line-num">37</td><td class="code">&nbsp;&nbsp;&nbsp;&nbsp;else</td></tr>
-                <tr><td class="line-num">38</td><td class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;content = @_renderPlaceholder()</td></tr>
-                <tr><td class="line-num">39</td><td class="code"></td></tr>
-                <tr><td class="line-num">40</td><td class="code">&nbsp;&nbsp;&nbsp;&nbsp;&lt;div className="my-message-sidebar"&gt;</td></tr>
-                <tr><td class="line-num">41</td><td class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{content}</td></tr>
-                <tr><td class="line-num">42</td><td class="code">&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;</td></tr>
+                <tr><td class="line-num">34</td><td class="code hlt">render: =></td></tr>
+                <tr><td class="line-num">35</td><td class="code hlt">&nbsp;&nbsp;&nbsp;&nbsp;<span class="op">if</span> @state.contact</td></tr>
+                <tr><td class="line-num">36</td><td class="code hlt">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;content = @_renderContent()</td></tr>
+                <tr><td class="line-num">37</td><td class="code hlt">&nbsp;&nbsp;&nbsp;&nbsp;<span class="op">else</span></td></tr>
+                <tr><td class="line-num">38</td><td class="code hlt">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;content = @_renderPlaceholder()</td></tr>
+                <tr><td class="line-num">39</td><td class="code hlt"></td></tr>
+                <tr><td class="line-num">40</td><td class="code hlt">&nbsp;&nbsp;&nbsp;&nbsp;&lt;div className=<span class="str">"my-message-sidebar"</span>&gt;</td></tr>
+                <tr><td class="line-num">41</td><td class="code hlt">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{content}</td></tr>
+                <tr><td class="line-num">42</td><td class="code hlt">&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;</td></tr>
+                <tr><td class="line-num">43</td><td class="code"></td></tr>
+                <tr><td class="line-num">44</td><td class="code">_renderContent: =></td></tr>
                 </tbody>
             </table>
         </div>
 
     </div>
-    <div class="grid wider">
+    <div class="grid wider" style="margin-top: 30px">
 
-        <div class="unit three-fifths" style="text-align: right;">
+        <div class="unit half" >
             <img src="/N1/images/screenshot-base-plugin.png"/>
         </div>
-        <div class="unit two-fifths">
+        <div class="unit half" style="margin-top: 50px">
             <p>
                 Try opening a message in N1 - you'll see the new package's example text show up on the
-                sidebar. Now delete the content of the <code class="background">render</code> method and save - the text
-                should disappear.
+                sidebar. Now delete the content of the <code class="background">render</code> method
+                and save - the text should disappear.
             </p>
         </div>
 
     </div>
-    <div class="grid wider">
+    <div class="grid wider" style="margin-top: 30px">
 
         <div class="unit one-third">
             <p>
                 Now let's add something - a bar that changes color based on the active contact in the
-                sidebar. Drop in the code below, then save the file.
+                sidebar. Replace the existing <code class="background">render</code> method with the
+                code to the right, then save the file.
             </p>
         </div>
         <div class="unit two-thirds">
             <table class="code">
                 <tbody>
                 <tr><td class="filename" colspan="2">&lt;your-package&gt;/lib/my-message-sidebar.cjsx</td></tr>
+                <tr><td class="line-num">33</td><td class="code"></td></tr>
                 <tr><td class="line-num">34</td><td class="code">render: =></td></tr>
-                <tr><td class="line-num">35</td><td class="code">&nbsp;&nbsp;&nbsp;&nbsp;&lt;div className="email-color" style={@_getStyles()}&gt;&lt;/div&gt;</td></tr>
-                <tr><td class="line-num">36</td><td class="code"></td></tr>
-                <tr><td class="line-num">37</td><td class="code">_getStyles: =></td></tr>
-                <tr><td class="line-num">38</td><td class="code">&nbsp;&nbsp;&nbsp;&nbsp;domain = @state.contact.email.split("@")[1]</td></tr>
-                <tr><td class="line-num">39</td><td class="code">&nbsp;&nbsp;&nbsp;&nbsp;hue = (domain.split('').reduce(((sum, char) -> sum + char.charCodeAt(0)), 0) % 36)*10</td></tr>
-                <tr><td class="line-num">40</td><td class="code">&nbsp;&nbsp;&nbsp;&nbsp;color = "hsl(#{hue}, 62%, 57%)"</td></tr>
-                <tr><td class="line-num">41</td><td class="code">&nbsp;&nbsp;&nbsp;&nbsp;return {background: color, height: 2, 'margin-top': 5}</td></tr>
+                <tr><td class="line-num">35</td><td class="code add">&nbsp;&nbsp;&nbsp;&nbsp;&lt;div className=<span class="str">"email-color"</span> style={@_getStyles()}&gt;&lt;/div&gt;</td></tr>
+                <tr><td class="line-num">36</td><td class="code add"></td></tr>
+                <tr><td class="line-num">37</td><td class="code add">_getStyles: =></td></tr>
+                <tr><td class="line-num">38</td><td class="code add">&nbsp;&nbsp;&nbsp;&nbsp;domain = @state.contact.email.split("@")[1]</td></tr>
+                <tr><td class="line-num">39</td><td class="code add">&nbsp;&nbsp;&nbsp;&nbsp;hue = (domain.split('').reduce(((sum, char) -> sum + char.charCodeAt(0)), 0) % 36)*10</td></tr>
+                <tr><td class="line-num">40</td><td class="code add">&nbsp;&nbsp;&nbsp;&nbsp;color = <span class="str">"hsl(#{hue}, 62%, 57%)"</span></td></tr>
+                <tr><td class="line-num">41</td><td class="code add">&nbsp;&nbsp;&nbsp;&nbsp;<span class="op">return</span> {background: color, height: 2, 'margin-top': 5}</td></tr>
+                <tr><td class="line-num">42</td><td class="code"></td></tr>
                 </tbody>
             </table>
         </div>
 
     </div>
-    <div class="grid wider">
+    <div class="grid wider" style="margin-top: 30px">
 
-        <div class="unit two-thirds" style="text-align: right;">
+        <div class="unit half" style="text-align: right;">
             <img src="/N1/images/screenshot-color-bar.png"/>
         </div>
-        <div class="unit one-third">
+        <div class="unit half" style="margin-top: 50px">
             <p>
                 You should see a horizontal bar that changes color based on
-                the domain of the contact's email address!
+                the domain of the contact's email address.
+            </p>
+        </div>
+    </div>
+
+
+    <div class="grid feature wider">
+        <div class="unit whole">
+            <h3>That's it!</h3>
+            <p>
+                Extending the N1 mail client is that simple. Try making more code changes and seeing
+                how they affect the message sidebar. Then when you're ready, follow one of the links
+                below to learn more.
+            </p>
+        </div>
+    </div>
+    <div class="grid wider links-overlay">
+        <div class="unit one-third">
+            <h4><a href="">Keep building</a></h4>
+            <p>
+                Build more functionality into the message sidebar in an extended
+                tutorial that picks up where this one left off.
+            </p>
+        </div>
+        <div class="unit one-third">
+            <h4><a href="">See more examples</a></h4>
+            <p>
+                Check out our library of example plugins to see what else you can build on top of
+                N1.
+            </p>
+        </div>
+        <div class="unit one-third">
+            <h4><a href="">Read the docs</a></h4>
+            <p>
+                Head over to the full API documentation to learn about everything you can leverage
+                to build an N1 plugin.
             </p>
         </div>
     </div>
