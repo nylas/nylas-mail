@@ -280,7 +280,7 @@ onResize = ->
   fixStaticClientImages()
 
 window.onresize = onResize
-window.onload = ->
+$ ->
   onResize()
   $("body").addClass("initial")
   $("#play-intro").on "click", ->
