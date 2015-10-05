@@ -1,12 +1,14 @@
 .nav {
   z-index: 10;
-  @include animation(fadeIn 2s $ease-in-out-cubic);
-  @include keyframes(fadeIn) {
-    0% {
-      opacity: 0;
-    }
-    100% {
-      opacity: 1;
+  &.index-nav {
+    @include animation(fadeIn 2s $ease-in-out-cubic);
+    @include keyframes(fadeIn) {
+      0% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+      }
     }
   }
 
