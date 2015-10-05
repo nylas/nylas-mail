@@ -177,6 +177,11 @@
             line-height:1.8em;
           }
         }
+        li.active{
+          background: #EEE;
+          padding-left: 30px;
+          margin-left: -30px;
+        }
         li.active a {
           color:black;
           font-size:14px;

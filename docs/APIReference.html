@@ -1,0 +1,61 @@
+---
+layout: default
+title: N1 Documentation
+edit_url: "https://github.com/nylas/N1/blob/master/docs/index.md"
+---
+<style>
+    .list-heading {
+        margin-bottom: 10px;
+        border-bottom: 1px solid #DDD;
+    }
+    div.list-heading a {
+        color: #000;
+    }
+    div.list-item {
+        padding: 3px 0;
+    }
+    .overlay {
+        background: #F8F8F8;
+        border: 1px solid #EEE;
+        border-radius: 5px;
+    }
+</style>
+
+<div class="container">
+
+    <div class="grid wider" style="padding-top: 100px">
+        <div class="unit one-third">
+            <img src="/N1/images/watercolor_help.png" style="
+              width: 200px;
+              margin: auto;
+              display: inline-block;
+          ">
+        </div>
+        <div class="unit two-thirds" style="margin-top: 34px">
+            <h2>API Reference</h2>
+        </div>
+    </div>
+
+    <div class="grid wider overlay">
+        {% for section in site.data.sidebar.sections %}
+            {% if section.name == "API Reference" %}
+                {% for item in section.items) %}
+                    <div class="unit one-third">
+                        <div class="list-heading">
+                            <a href="{{item.link}}" {% if item.external %}target="_blank"{% endif %}>
+                                <h4>{{item.name}}</h4>
+                            </a>
+                        </div>
+                        {% for subitem in item.items %}
+                            <div class="list-item">
+                                <a href="{{subitem.link}}" {% if subitem.external %}target="_blank"{% endif %}>
+                                    {{subitem.name}}
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
