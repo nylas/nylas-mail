@@ -1,6 +1,18 @@
 @import "nav.scss";
 @import "animated-hero.scss";
 
+@font-face {
+  font-family:'FaktPro-Hair';
+  src: local('FaktPro-Hair_gdi'), url('../fonts/FaktPro-Hair_gdi.eot');
+  src: url('../fonts/FaktPro-Hair_gdi.eot?#iefix') format('embedded-opentype'),
+  url('../fonts/FaktPro-Hair_gdi.woff') format('woff'),
+  url('../fonts/FaktPro-Hair_gdi.ttf') format('truetype'),
+  url('../fonts/FaktPro-Hair_gdi.svg#FaktPro-Hair') format('svg');
+  font-weight: 280;
+  font-style: normal;
+  font-stretch: normal;
+  unicode-range: U0020-25CA;
+}
 
 @font-face {
   font-family:'FaktPro-Thin';
@@ -9,7 +21,7 @@
   url('../fonts/FaktPro-Thin_gdi.woff') format('woff'),
   url('../fonts/FaktPro-Thin_gdi.ttf') format('truetype'),
   url('../fonts/FaktPro-Thin_gdi.svg#FaktPro-Thin') format('svg');
-  font-weight: 200;
+  font-weight: 290;
   font-style: normal;
   font-stretch: normal;
   unicode-range: U+0020-25CA;
@@ -35,7 +47,7 @@
   url('../fonts/FaktPro-Blond_gdi.woff') format('woff'),
   url('../fonts/FaktPro-Blond_gdi.ttf') format('truetype'),
   url('../fonts/FaktPro-Blond_gdi.svg#FaktPro-Blond') format('svg');
-  font-weight: 400;
+  font-weight: 350;
   font-style: normal;
   font-stretch: normal;
   unicode-range: U+0020-25CA;
