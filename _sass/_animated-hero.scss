@@ -52,11 +52,6 @@ img {
   top: 0;
   height: 100%;
 
-  img {
-    height: 100%;
-    width: auto;
-  }
-
   @include animation(burnIn 1.5s 0.5s $ease-in-out-cubic both);
   @include keyframes(burnIn) {
     0% {
@@ -97,7 +92,7 @@ img {
   position: relative;
   font-weight: 400;
   font-size: 20px;
-  margin-right: 30px;
+  margin: 0 30px 30px 40px;
   position: relative;
   &:hover {
     cursor: pointer;

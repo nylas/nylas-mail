@@ -316,3 +316,5 @@ window.onload = ->
     screencastSequence()
     .then(providerSequence)
 
+  $("#hamburger").on "click", ->
+    $("#nav").toggleClass("open")

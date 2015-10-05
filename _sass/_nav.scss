@@ -10,27 +10,38 @@
     }
   }
 
+  overflow: hidden;
+
+  height: 50px;
   line-height: 50px;
   box-shadow: 0 1px 1px rgba(0,0,0,0.35);
   -webkit-user-select:none;
-  cursor:default;
+  cursor: pointer;
   position:fixed;
   width:100%;
   background-color:rgba(255,255,255,1);
   a {
     color: inherit;
+    &:hover {
+      cursor: pointer;
+    }
   }
   ul {
     display: inline-block;
     padding:0;
-    padding-left:30px;
     margin: 0;
+    vertical-align: top;
     li {
       list-style-type: none;
       display: inline-block;
       color: rgba(0,0,0,0.7);
       a {
         padding: 15px;
+      }
+      &:first-child {
+        a {
+          padding-left: 0;
+        }
       }
     }
     li:hover {
@@ -39,6 +50,72 @@
     li.active {
       font-weight: 600;
       color: rgba(0,0,0,1);
+    }
+  }
+
+  .alt-nav-actions {
+    float: right;
+    display: block;
+  }
+
+  .logo {
+    margin-right: 30px;
+  }
+
+  .hamburger {display: none;}
+
+  @include transition(height 500ms ease-in-out);
+
+  @media (max-width: 800px) {
+    &.open {
+      height: 173px;
+    }
+
+    .logo {
+      display: block;
+    }
+    .alt-nav-actions {
+      float: none;
+    }
+
+    .hamburger {
+      display: block;
+      position: absolute;
+      top: 0;
+      right: 0;
+      padding: 10px 15px;
+      z-index: 2;
+      hr {
+        width: 25px;
+        height: 3px;
+        border: 0;
+        margin: 5px 0;
+        padding: 0;
+        background: rgba(0,0,0,0.75);
+      }
+    }
+  }
+  @media (max-width: 470px) {
+    ul.main-nav-actions li a {
+      padding: 7px;
+      &:first-child {
+        padding-left: 0;
+      }
+    }
+  }
+  @media (max-width: 420px) {
+    &.open {
+      height: 273px;
+    }
+    ul li a {
+      padding: 0;
+    }
+    ul li {
+      display: block;
+      line-height: 30px;
+    }
+    ul li .btn {
+      margin-top: 13px;
     }
   }
 }

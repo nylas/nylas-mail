@@ -1,11 +1,11 @@
 <div id="nav" class="nav">
   <div class="container">
-    <a href="{{ site.baseurl }}/">
+    <a class="logo" href="{{ site.baseurl }}/">
       <span style="font-weight:400; padding-right:7px; font-size:25px; display:inline-block; float:left;">Nylas</span>
       <span style="font-weight:300; font-size:25px; display:inline-block;">N1</span>
     </a>
 
-    <ul>
+    <ul class="main-nav-actions">
       <li class="{% if page.overview %}active{% endif %}">
         <a href="{{ site.baseurl }}/">Home</a>
       </li>
@@ -19,13 +19,12 @@
         <a href="{{ site.baseurl }}/docs">Documentation</a>
       </li>
     </ul>
-    <div style="float:right; display:block;">
+    <div class="alt-nav-actions">
       <ul>
         <li><a href="http://slack-invite.nylas.com/" target="_blank">Support</a></li>
-      </ul>
-      <ul>
         <li><a class="btn btn-emphasis" href="https://invite.nylas.com/download">Download</a></li>
       </ul>
     </div>
   </div>
+  <div id="hamburger" class="hamburger"><hr><hr><hr></div>
 </div>
