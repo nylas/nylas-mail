@@ -125,18 +125,22 @@ $extra-hero-height: 200px;
     @include transform(scale(0.80));
   }
 
+  h4 {
+    font-size:34px;
+    text-shadow: 0px 0px 4px white;
+    text-align: center;
+    width: 100%;
+    z-index: 20;
+    display:block;
+  }
+
   #step1, #step2 {
-    h2 {
-      text-align: center;
-      width: 100%;
-      z-index: 20;
+    h4 {
       position:absolute;
       top: -80px;
-      text-shadow: 0px 0px 4px white;
     }
     position: relative;
     top: 190px;
-
   }
 }
 
@@ -364,6 +368,7 @@ $extra-hero-height: 200px;
   @include transition(opacity 1s ease-out);
   @include animation(fade-in-screenshot 1.5s);
   text-align: center;
+  display:block;
   margin-top: 75px;
   opacity: 1;
 }
