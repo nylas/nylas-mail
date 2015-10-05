@@ -180,7 +180,7 @@ window.providerSequence = ->
       "<img id='#{provider}' class='provider-img p-#{i}' src='images/providers/#{provider}@2x.png'/>"
     .join('')
     os = "<img id='os-image' src='images/platforms.png'>"
-    header = "<h4>If you have an email account, you can use N1.</h4>"
+    header = "<h4>Universal and cross-platform.</h4>"
 
     $("#animation-container").html("<div id='provider-wrap'>#{header}#{imgs}<br/>#{os}</div>")
     setTimeout ->
@@ -192,7 +192,7 @@ window.providerSequence = ->
 
 window.pluginsSequence = ->
   new Promise (resolve, reject) ->
-    $("#animation-container").html('<div id="window-container" class="window"><div class="screenshot"></div></div><h4 id="plugins-title">N1 is hackable!</h4>')
+    $("#animation-container").html('<div id="window-container" class="window"><div class="screenshot"></div></div><h4 id="plugins-title">Open source, and ready for developers.</h4>')
     runPluginsSequence(resolve)
 
 positionAnimationContainer = ->
