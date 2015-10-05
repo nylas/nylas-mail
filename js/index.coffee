@@ -181,13 +181,13 @@ window.providerSequence = ->
     imgs = providers.map (provider, i) ->
       "<img id='#{provider}' class='provider-img p-#{i}' src='{{ site.baseurl }}/images/providers/#{provider}@2x.png'/>"
     .join('')
-    os = "<img id='os-image' src='{{ site.baseurl }}/images/platforms.png'>"
+    os = "<img id='os-image' class='os-image' src='{{ site.baseurl }}/images/platforms.png'>"
     header = "<h4>N1 is universal and cross-platform.</h4>"
 
     $("#animation-container").html("<div id='provider-wrap'>#{header}#{imgs}<br/>#{os}</div>")
     setTimeout ->
-      $("#provider-wrap").addClass("slide-out")
-      $("#provider-wrap").on "animationend", ->
+      $("#provider-wrap").addClass("provider-out")
+      $("#provider-wrap .p-4").on "animationend", ->
         $("#provider-wrap").remove()
         resolve()
     , 4000
@@ -274,8 +274,16 @@ fixStaticClientImages = ->
 
   scale = Math.min(1 - (nominalScreenshot - innerWidth) / nominalScreenshot, 1)
   $(".static-screenshot, #static-screenshot-wrap").width(nominalScreenshot * scale)
-  $("#window-container").width(nominalScreenshot * scale)
   $(".static-composer").width(nominalComposer * scale)
+  $wc = $("#window-container")
+  if $wc.length > 0
+    $wc.width(nominalScreenshot * scale)
+    if $wc.hasClass("free-falling")
+      $("#window-container-after-spacer").css
+        "margin-top": $wc.height() + 100
+    else
+      $("#window-container-after-spacer").css
+        "margin-top": 50
 
 onResize = ->
   fixHeroHeight()
@@ -323,6 +331,9 @@ $ ->
       $("#hero").parent().append(a)
       $("#window-container-after-spacer").addClass("free-falling")
       $('#play-intro').html('<div class="triangle"></div>Replay Intro</div>')
+      setTimeout ->
+        fixStaticClientImages()
+      , 2000
 
   $("#hamburger").on "click", ->
     $("#nav").toggleClass("open")

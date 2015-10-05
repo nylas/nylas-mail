@@ -199,6 +199,16 @@ $extra-hero-height: 200px;
       @include transform(translateY(0) scale(0.5));
     }
   }
+  @include keyframes(providerPopOut) {
+    0% {
+      opacity: 1;
+      @include transform(translateY(0) scale(0.5));
+    }
+    100% {
+      opacity: 0;
+      @include transform(translateY(-10px) scale(0.5));
+    }
+  }
   .provider-img {
     display: block;
     float: left;
@@ -212,19 +222,29 @@ $extra-hero-height: 200px;
   #gmail { @include linear-gradient(to top, #e99999, #e99999); }
   #icloud { @include linear-gradient(to top, #61bfe9, #61bfe9); }
   #yahoo { @include linear-gradient(to top, #a76ead, #a76ead); }
-  #os-image {
+  .os-image {
     position: relative;
     display: inline;
     width: 400px;
     margin-top: 100px;
-    @include animation(fadeIn 300ms 800ms $ease-in-out-cubic both);
+    @include animation(fadeIn 350ms 800ms $ease-in-out-cubic both);
   }
-  h2 { @include animation(fadeIn 300ms $ease-in-out-cubic both); }
+  h4 { @include animation(fadeIn 300ms $ease-in-out-cubic both); }
   .p-0 { @include animation(providerPopIn 350ms 100ms $ease-in-out-cubic both); }
   .p-1 { @include animation(providerPopIn 350ms 200ms $ease-in-out-cubic both); }
   .p-2 { @include animation(providerPopIn 350ms 300ms $ease-in-out-cubic both); }
   .p-3 { @include animation(providerPopIn 350ms 400ms $ease-in-out-cubic both); }
   .p-4 { @include animation(providerPopIn 350ms 500ms $ease-in-out-cubic both); }
+
+  &.provider-out {
+    h4 { @include animation(fadeOut 350ms 350ms $ease-in-out-cubic both); }
+    .os-image { @include animation(fadeOut 350ms 350mms $ease-in-out-cubic both); }
+    .p-0 { @include animation(providerPopOut 350ms 100ms $ease-in-out-cubic both); }
+    .p-1 { @include animation(providerPopOut 350ms 200ms $ease-in-out-cubic both); }
+    .p-2 { @include animation(providerPopOut 350ms 300ms $ease-in-out-cubic both); }
+    .p-3 { @include animation(providerPopOut 350ms 400ms $ease-in-out-cubic both); }
+    .p-4 { @include animation(providerPopOut 350ms 500ms $ease-in-out-cubic both); }
+  }
 }
 
 .slide-out {
