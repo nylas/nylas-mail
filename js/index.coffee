@@ -154,20 +154,20 @@ window.screencastSequence = ->
 
   $("##{_.keys(frames.step1)[0]}").show()
 
-  $("#step1").append("<h4>N1 is a great-looking email client with all the features you expect.</h4>")
+  $("#step1").append("<h4>N1 is a brand new email client built by Nylas.</h4>")
   return runFrames(frames.step1).then -> new Promise (resolve, reject) ->
-    # $("#step2").append("<h4>It even works with Gmail labels and workflows.</h4>")
-    # $("#step1").addClass("slide-out")
-    # $("#step2").addClass("slide-in")
-    # $("##{_.keys(frames.step2)[0]}").show()
-    # $("#step1").on "animationend", ->
-    #   $("#step1").off "animationend"
-    #   $("#step1").remove()
-    #   runFrames(frames.step2).then ->
-    #     $("#step2").removeClass("slide-in").addClass("slide-out")
-    #     $("#step2").on "animationend", ->
-    #       $("#step2").remove()
-    #       return resolve()
+    $("#step2").append("<h4>It feels familiar, even for Gmail users.</h4>")
+    $("#step1").addClass("slide-out")
+    $("#step2").addClass("slide-in")
+    $("##{_.keys(frames.step2)[0]}").show()
+    $("#step1").on "animationend", ->
+      $("#step1").off "animationend"
+      $("#step1").remove()
+      runFrames(frames.step2).then ->
+        $("#step2").removeClass("slide-in").addClass("slide-out")
+        $("#step2").on "animationend", ->
+          $("#step2").remove()
+          return resolve()
 
 window.providerSequence = ->
   new Promise (resolve, reject) ->
@@ -182,7 +182,7 @@ window.providerSequence = ->
       "<img id='#{provider}' class='provider-img p-#{i}' src='images/providers/#{provider}@2x.png'/>"
     .join('')
     os = "<img id='os-image' src='images/platforms.png'>"
-    header = "<h4>If you have an email account, you can use N1.</h4>"
+    header = "<h4>N1 is universal and cross-platform.</h4>"
 
     $("#animation-container").html("<div id='provider-wrap'>#{header}#{imgs}<br/>#{os}</div>")
     setTimeout ->
@@ -194,7 +194,7 @@ window.providerSequence = ->
 
 window.pluginsSequence = ->
   new Promise (resolve, reject) ->
-    $("#animation-container").html('<div id="window-container" class="window"><div class="screenshot"></div></div><h4 id="plugins-title">N1 is hackable!</h4>')
+    $("#animation-container").html('<div id="window-container" class="window"><div class="screenshot"></div></div><h4 id="plugins-title">N1 also supports rich plugins to add new features.</h4>')
     runPluginsSequence(resolve)
 
 positionAnimationContainer = ->
