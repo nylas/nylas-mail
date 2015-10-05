@@ -141,7 +141,7 @@
     {
       "name": "Sample Code",
       "description":"Check out example plugins to get an idea of what you can build on N1.",
-      "link": "https://nylas.github.io/N1/examples",
+      "link": "https://nylas.com/N1/examples",
       "external": true,
       "items": [
         {
