@@ -192,7 +192,7 @@ window.screencastSequence = ->
 
   $("##{_.keys(frames.step1)[0]}").show()
 
-  $("#step1").append("<h4>N1 is fast, friendly, and easy to use</h4>")
+  $("#step1").append("<h4>N1 is a great-looking email desktop client.</h4>")
   return runFrames(frames.step1).then -> new Promise (resolve, reject) ->
     $("#step2").append("<h4>Fresh, yet familiar</h4>")
     $("#step1").addClass("slide-out")
@@ -208,19 +208,32 @@ window.screencastSequence = ->
           return resolve()
 
 window.providerSequence = ->
-  providers = [
-    "outlook"
-    "exchange"
-    "gmail"
-    "icloud"
-    "yahoo"
-  ]
-  imgs = providers.map (provider, i) ->
-    "<img id='#{provider}' class='provider-img p-#{i}' src='images/providers/#{provider}@2x.png'/>"
-  .join('')
-  os = "<img id='os-image' src='images/platforms.png'>"
-  header = "<h2>Works everywhere for everyone</h2>"
-  $("#animation-container").html("<div id='provider-wrap'>#{header}#{imgs}<br/>#{os}</div>")
+  new Promise (resolve, reject) ->
+    providers = [
+      "outlook"
+      "exchange"
+      "gmail"
+      "icloud"
+      "yahoo"
+    ]
+    imgs = providers.map (provider, i) ->
+      "<img id='#{provider}' class='provider-img p-#{i}' src='images/providers/#{provider}@2x.png'/>"
+    .join('')
+    os = "<img id='os-image' src='images/platforms.png'>"
+    header = "<h2>Works everywhere for everyone</h2>"
+
+    $("#animation-container").html("<div id='provider-wrap'>#{header}#{imgs}<br/>#{os}</div>")
+    setTimeout ->
+      $("#provider-wrap").addClass("slide-out")
+      $("#provider-wrap").on "animationend", ->
+        $("#provider-wrap").remove()
+        resolve()
+    , 4000
+
+window.pluginsSequence = ->
+  new Promise (resolve, reject) ->
+    $("#animation-container").html('<div id="window-container" class="window"><div class="screenshot"></div></div><h2 id="plugins-title">N1 is hackable!</h2>')
+    runPluginsSequence()
 
 positionAnimationContainer = ->
   winW = $(window).width()
@@ -315,6 +328,7 @@ window.onload = ->
     $("body").addClass("start-animation").removeClass("initial")
     screencastSequence()
     .then(providerSequence)
+    .then(pluginsSequence)
 
   $("#hamburger").on "click", ->
     $("#nav").toggleClass("open")

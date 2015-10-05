@@ -1,0 +1,82 @@
+---
+layout: default
+title: FAQ
+---
+
+<div class="container">
+
+  <div class="grid">
+    <div class="whole unit" style="margin-top:100px;">
+      <img src="/N1/images/watercolor_help.png" style="
+          width: 200px;
+          margin: auto;
+          display: block;
+      ">
+      <h2 style="text-align:center;">Frequently Asked Questions</h2>
+    </div>
+  </div>
+
+  <div style="text-align:center">
+  <p>Can't find your answer here? Try in our <a href="http://slack-invite.nylas.com/">Community Slack Channel</a></p>
+  </div>
+
+  <div class="grid">
+
+
+    <h4><strong>What is N1 and why did you make it?</strong></h4>
+    <p>Some response</p>
+
+    <h4><strong>What can you build on top of N1?</strong></h4>
+    <p>The N1 plugin system makes it easy to add new buttons, sidebars, and other functionality to the app. See the full <a href="../examples">example plugins</a> list for some inspiration! </p>
+
+    <h4><strong>Is N1 open source?</strong></h4>
+    <p>Yes, N1 is open source free software, licensed under GPLv3. See the <a href="http://github.com/nylas/n1">GitHub page</a> for more details.</p>
+
+    <h4><strong>Why doesn’t this connect directly via IMAP & SMTP?</strong></h4>
+    <p>One of the key reasons we were able to develop this app quickly was that it uses the Nylas Platform APIs, powered by our open source sync engine. This moves the complexity of mailsync to the server infrastructure. N1 is compatible with the same providers as the Nylas Platform, including Gmail, Yahoo, iCloud, Microsoft Exchange, and hundreds others.</p>
+
+
+    <h4><strong>Why is search sometimes slow?</strong></h4>
+    <p>Search is powered by the backend IMAP/ActiveSync search APIs. These are unfortunately sometimes slow. If N1 is able to auto-suggest a thread, you may be able to jump to it faster. We're working on better solutions here, too.</p>
+
+    <h4><strong>What is bundled in the N1 download, but not the GitHub repo?</strong></h4>
+    <p>There are some files in N1 that we can not redistribute under the a GPL license, including the app’s typeface and sounds. The compiled N1 binary includes these assets as well as a few packages for connecting to the hosted Nylas Platform.
+    </p>
+
+    <h4><strong>How secure are plugins built on N1? </strong></h4>
+    <p>We recommend only installing plugins that have been created by developers you trust. N1 is an extremely flexible platform and does not currently contain access control levels on a plugin-by-plugin basis. (Want to help us work on it? Email jobs@nylas.com!)</p>
+
+    <h4><strong>Why is the download so big?</strong></h4>
+    <p>That’s Node (V8) and Electron (Chromium and all its dependencies) for you! Should this be a shared library? Yes we hope eventually!</p>
+
+    <h4><strong>How secure is your hosted API platform that powers N1?</strong></h4>
+    <p>We take security extremely seriously. See the Nylas Platform security page for more details: <a href="https://nylas.com/security">https://nylas.com/security</a></p>
+
+
+    <h4><strong>I don’t trust anyone with my email. Can I run N1 and the API server myself?</strong></h4>
+    <p>Yes! See the <a href="https://github.com/nylas/N1/blob/master/README.md">README</a> for full instructions on setting up the sync engine, API, and N1 on your local machine. You can run everything locally and even develop plugins without using a single Nylas Platform service.</p>
+
+
+    <h4><strong>After a linked email account is removed, does Nylas keep the contents of all my synced emails in its database or backups?</strong></h4>
+    <p>After an account is unlinked, its data is queued for removal from our cloud infrastruture and will be deleted within 60 days. For accounts that require immediate deletion, please contact <a href="mailto:support@nylas.com?subject=Account%20Deletion">support@nylas.com</a>.</p>
+
+
+    <h4><strong>How does Nylas make money?</strong></h4>
+    <p>Nylas is building a next-generation email platform, and makes money by providing infrastructure and services. You can see a few of our customers on the <a href="https://www.nylas.com/use_cases">Use Cases</a> page.</p>
+
+    <p>Note that Nylas is not an advertising company. We don’t sell user data or provide “personalized” ads, and we have no plans to do so.</p>
+
+    <h4><strong>How is a N1 plugin different from Gmail.js or other Chrome Extensions?</strong></h4>
+    <p>Some developers have been able to extend Gmail’s interface by creating Chrome Extensions that inject new DOM nodes. This has serious drawbacks, since it only works with Gmail, it only works with Chrome, and it requires constantly reverse-engineering the minified Gmail JavaScript code.</p>
+    <p>Plugins in N1 are built on fully-supported APIs that are end-to-end tested. It’s an actual development platform with libraries, tests, UI components, and more. Check out the docs for more details.</p>
+
+    <h4><strong>Who is the team behind this?</strong></h4>
+    <p>N1 is created by Nylas: a small team of engineers and designers based in San Francisco.</p>
+
+    <h4><strong>N1 is cool. Are you hiring?</strong></h4>
+    <p>Of course! :) See our <a href="https://nylas.com/jobs">jobs page</a> or email <a href="mailto:hello@nylas.com">hello@nylas.com</a>.</p>
+
+
+  </div>
+
+</div>
