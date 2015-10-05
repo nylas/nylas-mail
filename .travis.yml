@@ -13,4 +13,4 @@ addons:
     packages:
     - g++-4.8
 node_js:
-  - "4"
+  - "0.10"
