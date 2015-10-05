@@ -309,47 +309,6 @@ $extra-hero-height: 200px;
 }
 
 
-// part 3 - plugins
-
-.window {
-  display: block;
-  width: 921px;
-  height: 640px;
-  top:40px;
-  position: relative;
-  margin: auto;
-  background-color: rgba(248, 248, 248, 0.7);
-  box-shadow: 0 1px 2px rgba(0,0,0, 0.2);
-  border-radius: 4px;
-  overflow: hidden;
-}
-.part {
-  display:inline-block;
-  position: absolute;
-  @include transform(translate3d(0,0,0));
-  @include transition(all 1.0s cubic-bezier(0.22, 0.61, 0.36, 1));
-}
-.part > div > div {
-  position: absolute;
-  top: 6px;
-  bottom: 6px;
-  right: 6px;
-  left: 6px;
-  @include transition(all 0.75s linear);
-}
-
-.animation-container .window {
-  @include animation(fade-in-screenshot 0.2s);
-  @include transition(top 1s ease-in-out);
-
-  .static-screenshot {
-    @include box-shadow(0 2px 8px rgba(0,0,0,0.25));
-    @include animation(fade-in-screenshot 1.5s);
-    @include animation-fill-mode(both);
-    @include animation-delay(5.1s);
-  }
-}
-
 #plugins-title {
   @include transition(opacity 1s ease-out);
   @include animation(fade-in-screenshot 1.5s);
@@ -433,18 +392,44 @@ $extra-hero-height: 200px;
 }
 .top { animation: top 2s; animation-delay: 0.4s; animation-fill-mode:both; }
 
+// part 3 - plugins
+
+.animation-container #window-container {
+  @include animation(fade-in-screenshot 0.2s);
+  @include transition(top 1s ease-in-out);
+
+  .static-screenshot {
+    @include box-shadow(0 2px 8px rgba(0,0,0,0.25));
+    @include animation(fade-in-screenshot 1.5s);
+    @include animation-fill-mode(both);
+    @include animation-delay(5.1s);
+  }
+}
+
 #window-container {
+  display: block;
+  width: 921px;
+  height: 640px;
+  top: 40px;
+  position: relative;
+  margin: auto;
+  background-color: rgba(248, 248, 248, 0.7);
+  box-shadow: 0 1px 2px rgba(0,0,0, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
   @include transition(box-shadow 2s ease-in-out);
+
   &.add-shadow {
     box-shadow: 0px 8px 25px rgba(0,0,0,0.25);
-  }
-  .static-composer {
-    @include animation(fadeIn 500ms 500ms $ease-in-out-cubic both);
-    z-index: 200;
   }
 
   &.fade-out {
     @include animation(fadeOut 500ms $ease-in-out-cubic both);
+  }
+
+  .static-composer {
+    @include animation(fadeIn 500ms 500ms $ease-in-out-cubic both);
+    z-index: 200;
   }
   .static-screenshot {
     background:url('../images/1-initial-outlook-base-noshadow.png') top left no-repeat;
@@ -458,7 +443,6 @@ $extra-hero-height: 200px;
     opacity: 0;
     z-index:  100;
   }
-
 }
 
 #window-container.free-falling {
@@ -470,12 +454,12 @@ $extra-hero-height: 200px;
   left: 50%;
   z-index: 2;
   overflow: visible;
-  width: auto;
   height: auto;
   background: transparent;
 
   .static-screenshot {
     opacity: 1;
+    position: relative;
   }
   .composer {
     width: 615px;
@@ -500,6 +484,7 @@ $extra-hero-height: 200px;
     opacity: 1;
   }
 }
+
 #window-container-after-spacer {
   margin-top:50px;
   margin-bottom:40px;
@@ -508,3 +493,21 @@ $extra-hero-height: 200px;
 #window-container-after-spacer.free-falling {
   margin-top:538px;
 }
+
+
+
+.part {
+  display:inline-block;
+  position: absolute;
+  @include transform(translate3d(0,0,0));
+  @include transition(all 1.0s cubic-bezier(0.22, 0.61, 0.36, 1));
+}
+.part > div > div {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  right: 6px;
+  left: 6px;
+  @include transition(all 0.75s linear);
+}
+

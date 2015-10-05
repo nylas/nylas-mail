@@ -274,6 +274,7 @@ fixStaticClientImages = ->
 
   scale = Math.min(1 - (nominalScreenshot - innerWidth) / nominalScreenshot, 1)
   $(".static-screenshot, #static-screenshot-wrap").width(nominalScreenshot * scale)
+  $("#window-container").width(nominalScreenshot * scale)
   $(".static-composer").width(nominalComposer * scale)
 
 onResize = ->
@@ -306,6 +307,7 @@ $ ->
     .then =>
       $("body").addClass("finished")
       a = $('#window-container')
+      a.append("<img src='{{ site.baseurl }}/images/1-initial-outlook-base-noshadow.png' style='width:100%' />")
       a.children('.part').remove()
       a.css({
         width: a[0].getBoundingClientRect().width,
@@ -313,10 +315,10 @@ $ ->
       })
       a.addClass("free-falling")
       a.append($('<img class="static-composer" src="{{ site.baseurl }}/images/composer-no-shadow.png" class="composer">'))
-      fixStaticClientImages()
       setTimeout =>
         a.addClass("finished")
         a.css({ width: "", height: "" })
+        fixStaticClientImages()
       , 1
       $("#hero").parent().append(a)
       $("#window-container-after-spacer").addClass("free-falling")
