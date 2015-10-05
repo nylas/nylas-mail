@@ -62,7 +62,7 @@ describe "NylasSyncWorker", ->
       expect(modelsRequested).toEqual(['threads', 'labels', 'drafts', 'contacts', 'events'])
       expect(countsRequested).toEqual(['/threads', '/labels', '/drafts', '/contacts', '/events'])
 
-    fit "should fetch 1000 labels and folders, to prevent issues where Inbox is not in the first page", ->
+    it "should fetch 1000 labels and folders, to prevent issues where Inbox is not in the first page", ->
       labelsRequest = _.find @apiRequests, (r) -> r.model is 'labels'
       expect(labelsRequest.params.limit).toBe(1000)
 
