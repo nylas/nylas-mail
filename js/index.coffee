@@ -200,7 +200,7 @@ window.screencastSequence = ->
     $("#step1").on "animationend", ->
       $("#step1").off "animationend"
       $("#step1").remove()
-      $("#step1").append("<h4>Fresh, yet familiar</h4>")
+      $("#step2").append("<h4>Fresh, yet familiar</h4>")
       runFrames(frames.step2).then ->
         $("#step2").removeClass("slide-in").addClass("slide-out")
         $("#step2").on "animationend", ->
