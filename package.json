@@ -1,8 +1,8 @@
 {
   "name": "nylas",
-  "productName": "Nylas",
+  "productName": "Nylas N1",
   "version": "0.3.13",
-  "description": "An email OS",
+  "description": "An extensible, open-source mail client built on the modern web.",
   "main": "./src/browser/main.js",
   "repository": {
     "type": "git",

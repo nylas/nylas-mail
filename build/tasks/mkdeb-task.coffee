@@ -33,7 +33,7 @@ module.exports = (grunt) ->
 
     {name, version, description} = grunt.file.readJSON('package.json')
     section = 'devel'
-    maintainer = 'Nylas <edgehill@nylas.com>'
+    maintainer = 'Nylas Team <support@nylas.com>'
     installDir = '/usr'
     iconName = 'nylas'
     getInstalledSize buildDir, (error, installedSize) ->
@@ -41,9 +41,11 @@ module.exports = (grunt) ->
       controlFilePath = fillTemplate(path.join('build', 'resources', 'linux', 'debian', 'control'), data)
       desktopFilePath = fillTemplate(path.join('build', 'resources', 'linux', 'nylas.desktop'), data)
       icon = path.join('build', 'resources', 'nylas.png')
+      postinstFilePath  = path.join('build', 'resources', 'linux', 'debian', 'postinst')
+      postrmFilePath = path.join('build', 'resources', 'linux', 'debian', 'postrm')
 
       cmd = path.join('script', 'mkdeb')
-      args = [version, arch, controlFilePath, desktopFilePath, icon, buildDir]
+      args = [version, arch, controlFilePath, desktopFilePath, icon, postinstFilePath, postrmFilePath, buildDir]
       spawn {cmd, args}, (error) ->
         if error?
           done(error)

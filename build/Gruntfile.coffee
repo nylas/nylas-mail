@@ -9,7 +9,7 @@ os = require 'os'
 # headers.
 #
 # Some useful grunt options are:
-#   --instal-dir
+#   --install-dir
 #   --build-dir
 #
 # To keep the various directories straight, here are what the various
