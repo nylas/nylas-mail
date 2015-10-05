@@ -99,9 +99,11 @@
   code, pre {
     font-family: Monaco, Andale Mono, Courier New, monospace;
   }
+
+  // inline code (`ClassName`)
   code {
-    color: rgba(0,0,0,0.76);
-    background-color: #f2f2f2;
+    color: #2F3942;
+    background-color: #eee;
     padding: 1px 3px;
     font-size: 14px;
     -webkit-border-radius: 3px;
@@ -116,9 +118,12 @@
     white-space: pre-wrap;
     word-wrap: break-word;
   }
+
+  // code blocks (```)
   pre code {
+    color: #eee;
     font-size: 13px;
-    background-color: #f2f2f2;
+    background-color: #2F3942;
     padding: 0;
     display: block;
     padding: 14px;

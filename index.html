@@ -63,34 +63,62 @@ everything from the simplest workflow enhancements to entirely new views of your
 
 
 <div class="hacker">
-  <div class="container">
-    <div class="grid">
-      <div class="unit half" style="text-align: left; margin-top:60px;">
-        <h3 style="margin-bottom:0; color:white;">Welcome Developers.</h3>
-        <h4 style="max-width:500px; color:white;">Innovate on top of email with JavaScript, NodeJS and React.</h4>
-        <div class="cta" style="margin-top:40px;">
-          <a href="examples" class="btn btn-large" style="margin-right:10px;">
-            See Examples
-          </a>
-          <a href="docs" class="btn btn-large btn-emphasis">
-            Get Started
-          </a>
-        </div>
+  <div class="grid" style="position:relative;">
+    <div class="unit half" style="text-align: left;">
+      <h3 style="margin-bottom:0; color:white;">Welcome Developers.</h3>
+      <h4 style="max-width:500px; color:white;">Innovate on top of email with JavaScript, NodeJS, React, and Electron.</h4>
+      <div class="cta" style="margin-top:40px;">
+        <a href="examples" class="btn btn-large" style="margin-right:10px;">
+          See Examples
+        </a>
+        <a href="docs" class="btn btn-large btn-emphasis">
+          Get Started
+        </a>
       </div>
-      <div class="unit half">
-        <pre><code class="lang-coffee">render: =&gt;
-          &lt;<span class="hljs-type">Popover</span> <span class="hljs-keyword">ref</span>=<span class="hljs-string">"popover"</span>
-                   className=<span class="hljs-string">"translate-language-picker pull-right"</span>
-                   buttonComponent={@_renderButton()}&gt;
-            &lt;<span class="hljs-type">Menu</span> items={ <span class="hljs-type">Object</span>.keys(<span class="hljs-type">YandexLanguages</span>) }
-                  itemKey={ (item) -&gt; item }
-                  itemContent={ (item) -&gt; item }
-                  onSelect={@_onTranslate}
-                  /&gt;
-          &lt;/<span class="hljs-type">Popover</span>&gt;
-        </code></pre>
-
-      </div>
+    </div>
+    <div class="unit half">
+      <pre style="background-color:rgba(0,0,0,0.4); color:white; font-size: 0.8em; line-height: 1.6em; margin-right:45px; padding-left: 20px; border-radius:4px; border:1px solid rgba(0,0,0,0.4);">
+        <code class="javascript">
+render: <span class="hljs-keyword">function</span>() {
+  <span class="hljs-keyword">return</span> <span class="hljs-tag">&lt;Popover </span>
+    <span class="hljs-literal">ref</span>=<span class="hljs-string">"popover"</span>
+    <span class="hljs-literal">className</span>=<span class="hljs-string">"translate-language-picker pull-right"</span>
+    <span class="hljs-literal">buttonComponent</span>={<span class="hljs-variable">@_renderButton()</span>}&gt;
+    <span class="hljs-tag">&lt;Menu</span>
+      <span class="hljs-literal">items</span>={ <span class="hljs-tag">Object</span>.keys(<span class="hljs-tag">YandexLanguages</span>) }
+      <span class="hljs-literal">onSelect</span>={<span class="hljs-variable">@_onTranslate</span>}/&gt;
+  <span class="hljs-tag">&lt;/Popover&gt;</span>
+}</code>
+        </pre>
+    </div>
+    <div style="position:absolute; width:300px; height:200px; bottom:0; right:0;">
+      <img src="images/popover_translate.png" style="width:300px;"/>
     </div>
   </div>
 </div>
+
+<div class="grid">
+  <h3>Meet the team behind N1</h3>
+  <p>
+    We're a <a href="https://nylas.com/about">small team of engineers</a> solving
+    big problems - and we're <a href="https://nylas.com/jobs">hiring!</a>
+    If you'd like to get in touch, feel free to email us at <a href="mailto:hello@nylas.com">hello@nylas.com</a>.
+    N1 is <a href="https://github.com/nylas/N1">open source</a> and we welcome
+    pull requests!
+  </p>
+
+  <div class="unit half">
+    <a href="https://www.youtube.com/watch?v=Uu4Yz2HmCgE">
+      <img width="100%" src="images/talk_Uu4Yz2HmCgE.png">
+      <h4 style="font-size:20px;">ReactEurope 2015: How React & Flux Turn Apps Into Extensible Platforms</h4>
+    </a>
+  </div>
+  <div class="unit half">
+    <a href="https://www.youtube.com/watch?v=JIRXVGVPzn8">
+      <img width="100%" src="images/talk_JIRXVGVPzn8.png">
+      <h4 style="font-size:20px;">Bay Area Electron Meetup: Making the web feel native</h4>
+    </a>
+  </div>
+</div>
+
+<div style="padding:30px;"></div>
