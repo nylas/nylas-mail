@@ -57,11 +57,6 @@ module.exports = (grunt) ->
 
         grunt.file.write(desktopInstallFile, filled)
 
-      # Create relative symbol link for apm.
-      process.chdir(binDir)
-      rm('apm')
-      fs.symlinkSync(path.join('..', 'share', 'nylas', 'resources', 'app', 'apm', 'node_modules', '.bin', 'apm'), 'apm')
-
       fs.chmodSync(path.join(shareDir, 'nylas'), "755")
 
     grunt.log.ok("Installed Nylas into #{installDir}")
