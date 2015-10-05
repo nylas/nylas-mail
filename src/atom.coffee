@@ -430,10 +430,12 @@ class Atom extends Model
 
     startTime = Date.now()
     boundsForI = (i) ->
-      x: Math.round(startBounds.x + (width-startBounds.width) * -0.5 * i)
-      y: Math.round(startBounds.y + (height-startBounds.height) * -0.5 * i)
-      width: Math.round(startBounds.width + (width-startBounds.width) * i)
-      height: Math.round(startBounds.height + (height-startBounds.height) * i)
+      # It's very important this function never return undefined for any of the
+      # keys which blows up setBounds.
+      x: Math.round(startBounds.x + (width-startBounds.width) * -0.5 * i) ? 0
+      y: Math.round(startBounds.y + (height-startBounds.height) * -0.5 * i) ? 0
+      width: Math.round(startBounds.width + (width-startBounds.width) * i) ? width
+      height: Math.round(startBounds.height + (height-startBounds.height) * i) ? height
 
     tick = ->
       t = Math.min(1, (Date.now() - startTime) / (duration))
