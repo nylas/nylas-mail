@@ -55,7 +55,7 @@ class PhishingIndicator extends React.Component
     # This package's strategy to ascertain whether or not the email is a
     # phishing attempt boils down to checking the `replyTo` attributes on
     # `Message` models from `MessageStore`.
-    if message.replyTo? and message.replyTo.length != 0
+    if message?.replyTo? and message.replyTo.length != 0
 
       # The `from` and `replyTo` attributes on `Message` models both refer to
       # arrays of `Contact` models, which in turn have `email` attributes.
@@ -65,9 +65,9 @@ class PhishingIndicator extends React.Component
       # This is our core logic for our whole package! If the `from` and
       # `replyTo` emails are different, then we want to show a phishing warning.
       if reply_to isnt from
-          return [from, reply_to]
+        return [from, reply_to]
 
-    return [null, null];
+    return [null, null]
 
 module.exports =
 
