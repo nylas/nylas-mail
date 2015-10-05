@@ -54,7 +54,7 @@ addFramesToAnimationContainer = (frames, {wrapId}) ->
     i++
     "<img id='#{frame}' src='images/#{frame}.png' style='z-index: #{i}'/>"
   frameImgs = frameImgs.join('')
-  $("#animation-container").append("<div class='scaled'><div id='#{wrapId}'>#{frameImgs}</div></div>")
+  $("#animation-container").append("<div id='#{wrapId}'>#{frameImgs}</div>")
   return
 
 runFrames = (frames) ->
@@ -69,7 +69,9 @@ runFrames = (frames) ->
 window.screencastSequence = ->
 
   # Need to know the dimensions of the images used in step 1
-  animationContainerSize = [1136,823]
+  screenHeight = 823
+  bufferHeight = 100
+  animationContainerSize = [1136,screenHeight+bufferHeight]
   positionAnimationContainer()
 
   typeInReply = (delay, resolve) ->
@@ -154,18 +156,18 @@ window.screencastSequence = ->
 
   $("#step1").append("<h4>N1 is a great-looking email client with all the features you expect.</h4>")
   return runFrames(frames.step1).then -> new Promise (resolve, reject) ->
-    $("#step2").append("<h4>It even works with Gmail labels and workflows.</h4>")
-    $("#step1").addClass("slide-out")
-    $("#step2").addClass("slide-in")
-    $("##{_.keys(frames.step2)[0]}").show()
-    $("#step1").on "animationend", ->
-      $("#step1").off "animationend"
-      $("#step1").remove()
-      runFrames(frames.step2).then ->
-        $("#step2").removeClass("slide-in").addClass("slide-out")
-        $("#step2").on "animationend", ->
-          $("#step2").remove()
-          return resolve()
+    # $("#step2").append("<h4>It even works with Gmail labels and workflows.</h4>")
+    # $("#step1").addClass("slide-out")
+    # $("#step2").addClass("slide-in")
+    # $("##{_.keys(frames.step2)[0]}").show()
+    # $("#step1").on "animationend", ->
+    #   $("#step1").off "animationend"
+    #   $("#step1").remove()
+    #   runFrames(frames.step2).then ->
+    #     $("#step2").removeClass("slide-in").addClass("slide-out")
+    #     $("#step2").on "animationend", ->
+    #       $("#step2").remove()
+    #       return resolve()
 
 window.providerSequence = ->
   new Promise (resolve, reject) ->
@@ -317,3 +319,5 @@ $ ->
 
   $("#hamburger").on "click", ->
     $("#nav").toggleClass("open")
+
+console.log("%cWe love your curiosity! Let us know what other easter eggs you find. 😊 We're always looking for extraordinary people. Check out the jobs page or give me a ping at evan@nylas.com if you're interested in learning more about some of the big challenges we're tackling", "font-size: 16px;font-family:FaktPro, sans-serif;line-height:1.7")
