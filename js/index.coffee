@@ -1,46 +1,6 @@
 ---
 ---
 
-# startSequence()
-# .then(step1)
-# .then(step2)
-# .then(step3)
-# .then(step4)
-# .then(step5)
-#
-# # show composer
-# step1 = ->
-#   startStep()
-#   .then(focusClient)
-#   .then(doReply)
-#   .then(typeReply)
-#   .then(addImage)
-#   .then(sendEmail)
-#
-# step2 = ->
-#   startStep()
-#   .then(addAccount)
-#   .then(focusPicker)
-#   .then(selectAccount)
-#   .then(swapModes)
-#
-# step3 = ->
-#   startStep()
-#   .then(openLabelPicker)
-#   .then(typeLabel)
-#   .then(applyLabel)
-#
-# step4 = ->
-#   startStep()
-#   .then(openInspectorPanel)
-#   .then(typeCommand)
-#   .then(activateExtension)
-#
-# step5 = ->
-#   startStep()
-#   .then(fadeClient)
-#   .then(showCta)
-
 animationContainerSize = [0,0]
 
 moveCursor = (start, end) ->
