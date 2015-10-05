@@ -156,7 +156,7 @@ window.screencastSequence = ->
 
   $("#step1").append("<h4>N1 is a brand new email client built by Nylas.</h4>")
   return runFrames(frames.step1).then -> new Promise (resolve, reject) ->
-    $("#step2").append("<h4>It feels familiar, even for Gmail users.</h4>")
+    $("#step2").append("<h4>It feels familiar, especially for Gmail users.</h4>")
     $("#step1").addClass("slide-out")
     $("#step2").addClass("slide-in")
     $("##{_.keys(frames.step2)[0]}").show()
