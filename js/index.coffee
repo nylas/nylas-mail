@@ -194,8 +194,10 @@ window.providerSequence = ->
 
 window.pluginsSequence = ->
   new Promise (resolve, reject) ->
-    $("#animation-container").html('<div id="window-container" class="window"><div class="screenshot"></div></div><h4 id="plugins-title">N1 also supports rich plugins to add new features.</h4>')
-    runPluginsSequence(resolve)
+    $("#animation-container").html('<div id="window-container" class="window"><img src="images/1-initial-outlook-base-noshadow.png" class="static-screenshot"/></div><h4 id="plugins-title">N1 also supports rich plugins to add new features.</h4>')
+    almostDone = ->
+      $("#window-container").addClass("add-shadow")
+    runPluginsSequence(resolve, almostDone)
 
 positionAnimationContainer = ->
   winW = $(window).width()
@@ -271,8 +273,8 @@ fixStaticClientImages = ->
   innerWidth = $("#static-client-images").innerWidth() - padding - overhang
 
   scale = Math.min(1 - (nominalScreenshot - innerWidth) / nominalScreenshot, 1)
-  $("#static-screenshot, #static-screenshot-wrap").width(nominalScreenshot * scale)
-  $("#static-composer").width(nominalComposer * scale)
+  $(".static-screenshot, #static-screenshot-wrap").width(nominalScreenshot * scale)
+  $(".static-composer").width(nominalComposer * scale)
 
 onResize = ->
   fixHeroHeight()
@@ -305,13 +307,10 @@ $ ->
         height: a[0].getBoundingClientRect().height
       })
       a.addClass("free-falling")
-      a.append($('<img id="static-composer" src="images/composer-no-shadow.png" class="composer">'));
+      a.append($('<img class="static-composer" src="images/composer-no-shadow.png" class="composer">'))
       setTimeout =>
-        a.addClass("finished");
-        a.css({
-          width: "",
-          height: ""
-        })
+        a.addClass("finished")
+        a.css({ width: "", height: "" })
       , 1
       $("#hero").parent().append(a)
       $("#window-container-after-spacer").addClass("free-falling")

@@ -1,6 +1,6 @@
 <script>
 
-function runPluginsSequence(callback) {
+function runPluginsSequence(callback, almostDone) {
   var grid = {};
   var w = 12;
   var h = 7;
@@ -145,6 +145,7 @@ function runPluginsSequence(callback) {
       div.classList.add('color-transparent');
     }
     document.getElementById('plugins-title').style.opacity = 0;
+    almostDone();
     setTimeout(function() {
       callback();
     }, 2500);
