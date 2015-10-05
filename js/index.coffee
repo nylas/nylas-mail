@@ -54,7 +54,7 @@ addFramesToAnimationContainer = (frames, {wrapId}) ->
     i++
     "<img id='#{frame}' src='images/#{frame}.png' style='z-index: #{i}'/>"
   frameImgs = frameImgs.join('')
-  $("#animation-container").append("<div id='#{wrapId}'>#{frameImgs}</div>")
+  $("#animation-container").append("<div class='scaled'><div id='#{wrapId}'>#{frameImgs}</div></div>")
   return
 
 runFrames = (frames) ->
@@ -193,7 +193,7 @@ window.providerSequence = ->
 window.pluginsSequence = ->
   new Promise (resolve, reject) ->
     $("#animation-container").html('<div id="window-container" class="window"><div class="screenshot"></div></div><h2 id="plugins-title">N1 is hackable!</h2>')
-    runPluginsSequence()
+    runPluginsSequence(resolve)
 
 positionAnimationContainer = ->
   winW = $(window).width()
@@ -283,12 +283,37 @@ window.onresize = onResize
 $ ->
   onResize()
   $("body").addClass("initial")
+
   $("#play-intro").on "click", ->
+    $("body").removeClass("finished")
+    $("#window-container").remove()
+    $("#plugins-title").remove()
+    $("#window-container-after-spacer").removeClass("free-falling")
     $("#static-client-images").hide()
     $("body").addClass("start-animation").removeClass("initial")
     screencastSequence()
     .then(providerSequence)
     .then(pluginsSequence)
+    .then =>
+      $("body").addClass("finished")
+      a = $('#window-container')
+      a.children('.part').remove()
+      a.css({
+        width: a[0].getBoundingClientRect().width,
+        height: a[0].getBoundingClientRect().height
+      })
+      a.addClass("free-falling")
+      a.append($('<img id="static-composer" src="images/composer-no-shadow.png" class="composer">'));
+      setTimeout =>
+        a.addClass("finished");
+        a.css({
+          width: "",
+          height: ""
+        })
+      , 1
+      $("#hero").parent().append(a)
+      $("#window-container-after-spacer").addClass("free-falling")
+      $('#play-intro').html('<div class="triangle"></div>Replay Intro</div>')
 
   $("#hamburger").on "click", ->
     $("#nav").toggleClass("open")

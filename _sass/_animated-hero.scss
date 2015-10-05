@@ -24,7 +24,6 @@ $blue: #419bf9;
   width: 100%;
   height: 1200px; // Reset by js on boot
   position: relative;
-  overflow-y: visible; // So the screenshot can bleed
   overflow-x: hidden;
   img {
     -webkit-user-select: none;
@@ -93,6 +92,7 @@ img {
   font-weight: 400;
   font-size: 20px;
   margin: 0 30px 30px 40px;
+  // margin-right: -20px;
   position: relative;
   &:hover {
     cursor: pointer;
@@ -121,19 +121,28 @@ $extra-hero-height: 200px;
   z-index: 10;
   position: absolute;
 
-  h4 {
-    position: absolute;
-    top: -35px;
-    text-align: center;
-    width: 100%;
-    font-weight: 400;
-    z-index: 20;
-    text-shadow: 0px 0px 4px white;
+  .scaled {
+    @include transform(scale(0.80));
   }
 
   #step1, #step2 {
+    h2 {
+      text-align: center;
+      width: 100%;
+      z-index: 20;
+      position:absolute;
+      top: -80px;
+      text-shadow: 0px 0px 4px white;
+    }
     position: relative;
-    top: 40px; // So h4 can go above the step containers
+    top: 190px;
+
+  }
+}
+
+.start-animation.finished {
+  #hero-text {
+    @include animation(fadeIn 1s $ease-in-out-cubic both);
   }
 }
 
@@ -176,7 +185,6 @@ $extra-hero-height: 200px;
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
-  padding-left: 100px;
   padding-top: 17%;
   text-align: center;
   @include keyframes(providerPopIn) {
@@ -296,4 +304,188 @@ $extra-hero-height: 200px;
       @include transform(translateY(5px));
     }
   }
+}
+
+
+// part 3 - plugins
+
+.window {
+  display: block;
+  width: 921px;
+  height: 640px;
+  top:40px;
+  position: relative;
+  margin: auto;
+  background-color: rgba(248, 248, 248, 0.7);
+  box-shadow: 0 1px 2px rgba(0,0,0, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.part {
+  display:inline-block;
+  position: absolute;
+  @include transform(translate3d(0,0,0));
+  @include transition(all 1.0s cubic-bezier(0.22, 0.61, 0.36, 1));
+}
+.part > div > div {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  right: 6px;
+  left: 6px;
+  @include transition(all 0.75s linear);
+}
+.screenshot {
+  background:url('../images/1-initial-outlook-base-noshadow.png') top left no-repeat;
+  background-size: contain;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
+  border-radius: 4px;
+  z-index:  100;
+}
+
+.animation-container .window {
+  @include animation(fade-in-screenshot 0.2s);
+  @include transition(top 1s ease-in-out);
+
+  .screenshot {
+    @include box-shadow(0 2px 8px rgba(0,0,0,0.25));
+    @include animation(fade-in-screenshot 1.5s);
+    @include animation-fill-mode(both);
+    @include animation-delay(5.1s);
+  }
+}
+
+#plugins-title {
+  @include transition(opacity 1s ease-out);
+  @include animation(fade-in-screenshot 1.5s);
+  text-align: center;
+  margin-top: 75px;
+  opacity: 1;
+}
+.color-white > div > div {
+  background-color: #f6f7f8 !important;
+}
+.color-transparent > div > div {
+  /*background-color: rgba(255,255,255,0) !important;*/
+}
+.color-a > div > div {
+  background-color: rgba(172, 235, 254, 1);
+}
+.color-b > div > div {
+  background-color: rgba(182, 245, 254, 1);
+}
+.color-c > div > div {
+  background-color: rgba(152, 225, 234, 1);;
+}
+.color-d > div > div {
+  background-color: rgba(162, 225, 234, 1);;
+}
+.color-e > div > div {
+  background-color: #d3aec8;
+}
+
+@keyframes fade-in-screenshot {
+    from {transform: scale(1, 1); opacity: 0;}
+    to {transform: scale(1, 1); opacity: 1;}
+}
+
+@keyframes contact-bottom {
+    from {transform: translate3d(700px,700px,0); opacity: 0; }
+    to {transform: translate3d(0,0,0); opacity: 1; }
+}
+.contact-bottom { animation: contact-bottom 2s; animation-fill-mode:both; }
+
+
+@keyframes contact {
+    from {transform: scale(1.2,1.2); opacity: 0; }
+    to {transform: scale(1,1);   opacity: 1; }
+}
+.contact { animation: contact 2s; animation-delay: 3s; animation-fill-mode:both;  }
+
+
+@keyframes thread {
+    from {transform: translate3d(0,700px,0); opacity: 0;}
+    to {transform: translate3d(0,0,0); opacity: 1;}
+}
+.thread { animation: thread 2s; animation-fill-mode:both; }
+
+
+@keyframes threads {
+    from {transform: translate3d(-100px,700px,0); opacity: 0;}
+    to {transform: translate3d(0,0,0); opacity: 1;}
+}
+.threads { animation: threads 2s; animation-delay: 0.4s; animation-fill-mode:both;  }
+
+
+@keyframes left-bottom {
+    from {transform: translate3d(-400px,700px,0); opacity: 0;}
+    to {transform: translate3d(0,0,0); opacity: 1;}
+}
+.left-bottom { animation: left-bottom 2s; animation-fill-mode:both; }
+
+
+@keyframes left {
+    from {transform: translate3d(-700px,0,0); opacity: 0;}
+    to {transform: translate3d(0,0,0); opacity: 1;}
+}
+.left { animation: left 2s; animation-delay: 0.3s; animation-fill-mode:both; }
+
+
+@keyframes top {
+    from {transform: translate3d(0,-400px,0); opacity: 0;}
+    to {transform: translate3d(0,0,0); opacity: 1;}
+}
+.top { animation: top 2s; animation-delay: 0.4s; animation-fill-mode:both; }
+
+#window-container {
+
+}
+#window-container.free-falling {
+  position: absolute;
+  top: 98px;
+  margin: auto;
+  display: block;
+  transform: translate(-50%,0);
+  left: 50%;
+  z-index: 2;
+  overflow: visible;
+
+  .screenshot {
+    opacity: 1;
+  }
+  .composer {
+    width: 615px;
+    position: absolute;
+    z-index: 100;
+    left: 600px;
+    top: 335px;
+    opacity: 0;
+    @include box-shadow(0 1px 3px rgba(0,0,0,0.2));
+    @include transition(opacity 1s ease-in-out);
+  }
+}
+#window-container.free-falling.finished {
+  @include transition(all 1s ease-in-out);
+
+  top: 800px;
+  transform: translate(-60%,0);
+  width: 1024px;
+  height: 712px;
+
+  .composer {
+    opacity: 1;
+  }
+}
+#window-container-after-spacer {
+  margin-top:50px;
+  margin-bottom:40px;
+  @include transition(opacity 400ms ease-in-out);
+}
+#window-container-after-spacer.free-falling {
+  margin-top:538px;
 }
