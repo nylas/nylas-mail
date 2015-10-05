@@ -60,30 +60,30 @@ however, the Sync Engine is open source and you can run it yourself.
 1. After you've linked accounts to the Sync Engine, populate your
    `~/.nylas/config.cson` as follows:
 
-    "*":
-      nylas:
-        accounts: [
-          {
-            server_id: "{ACCOUNT_ID_1}"
-            object: "account"
-            account_id: "{ACCOUNT_ID_1}"
-            name: "{YOUR NAME}"
-            provider: "{PROVIDER_NAME}"
-            email_address: "{YOUR_EMAIL_ADDRESS}"
-            organization_unit: "{folder or label}"
-            id: "{ACCOUNT_ID_1}"
-          }
-          {
-            server_id: "{ACCOUNT_ID_2}"
-            object: "account"
-            account_id: "{ACCOUNT_ID_2}"
-            name: "{YOUR_NAME}"
-            provider: "{PROVIDER_NAME}"
-            email_address: "{YOUR_EMAIL_ADDRESS}"
-            organization_unit: "{folder or label}"
-            id: "{ACCOUNT_ID_2}"
-          }
-        ]
-        accountTokens:
-          {ACCOUNT_ID_1}: "{ACCOUNT_ID_1}"
-          {ACCOUNT_ID_2}: "{ACCOUNT_ID_2}"
+        "*":
+          nylas:
+            accounts: [
+              {
+                server_id: "{ACCOUNT_ID_1}"
+                object: "account"
+                account_id: "{ACCOUNT_ID_1}"
+                name: "{YOUR NAME}"
+                provider: "{PROVIDER_NAME}"
+                email_address: "{YOUR_EMAIL_ADDRESS}"
+                organization_unit: "{folder or label}"
+                id: "{ACCOUNT_ID_1}"
+              }
+              {
+                server_id: "{ACCOUNT_ID_2}"
+                object: "account"
+                account_id: "{ACCOUNT_ID_2}"
+                name: "{YOUR_NAME}"
+                provider: "{PROVIDER_NAME}"
+                email_address: "{YOUR_EMAIL_ADDRESS}"
+                organization_unit: "{folder or label}"
+                id: "{ACCOUNT_ID_2}"
+              }
+            ]
+            accountTokens:
+              {ACCOUNT_ID_1}: "{ACCOUNT_ID_1}"
+              {ACCOUNT_ID_2}: "{ACCOUNT_ID_2}"
