@@ -179,7 +179,7 @@
     {
       "name": "API Reference",
       "description":"View detailed documentation on all the classes and methods in the API.",
-      "link": "APIReference.html",
+      "link": "http://nylas.github.io/N1/docs/APIReference.html",
       "items": [
         {
           "name": "General",
