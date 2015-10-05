@@ -319,30 +319,36 @@ $ ->
 
     $("#plugins-title").remove()
     $("#window-container-after-spacer").removeClass("free-falling")
-    $("#static-client-images").hide()
+    # $("#static-client-images").hide()
     $("body").addClass("start-animation").removeClass("initial")
     screencastSequence()
     .then(providerSequence)
     .then(pluginsSequence)
     .then =>
+      $wc = $("#window-container")
+      $wc.addClass("fade-out")
+      $wc.on "animationend", -> $wc.remove()
       $("body").addClass("finished")
-      a = $('#window-container')
-      a.append("<img src='{{ site.baseurl }}/images/1-initial-outlook-base-noshadow.png' style='width:100%' />")
-      a.children('.part').remove()
-      a.css({
-        width: a[0].getBoundingClientRect().width,
-        height: a[0].getBoundingClientRect().height
-      })
-      a.addClass("free-falling")
-      a.append($('<img class="static-composer" src="{{ site.baseurl }}/images/composer-no-shadow.png" class="composer">'))
-      setTimeout =>
-        a.addClass("finished")
-        a.css({ width: "", height: "" })
-        fixStaticClientImages()
-      , 1
-      $("#hero").parent().append(a)
-      $("#window-container-after-spacer").addClass("free-falling")
+
+      # a = $('#window-container')
+      # a.append("<img src='{{ site.baseurl }}/images/1-initial-outlook-base-noshadow.png' style='width:100%' />")
+      # a.children('.part').remove()
+      # a.css({
+      #   width: a[0].getBoundingClientRect().width,
+      #   height: a[0].getBoundingClientRect().height
+      # })
+      # a.addClass("free-falling")
+      # a.append($('<img class="static-composer" src="{{ site.baseurl }}/images/composer-no-shadow.png" class="composer">'))
+      # setTimeout =>
+      #   a.addClass("finished")
+      #   a.css({ width: "", height: "" })
+      #   fixStaticClientImages()
+      # , 1
+      # $("#hero").parent().append(a)
+      # $("#window-container-after-spacer").addClass("free-falling")
+
       $('#play-intro').html('<div class="triangle"></div>Replay Intro</div>')
+
       setTimeout ->
         fixStaticClientImages()
       , 2200

@@ -142,6 +142,7 @@ $extra-hero-height: 200px;
   }
 }
 
+
 .start-animation.finished {
   #hero-text {
     @include animation(fadeIn 1s 1s $ease-in-out-cubic both);
