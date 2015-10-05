@@ -278,12 +278,24 @@ fixStaticClientImages = ->
   $wc = $("#window-container")
   if $wc.length > 0
     $wc.width(nominalScreenshot * scale)
-    if $wc.hasClass("free-falling")
-      $("#window-container-after-spacer").css
-        "margin-top": $wc.height() + 100
-    else
-      $("#window-container-after-spacer").css
-        "margin-top": 50
+
+    $spacer = $("#window-container-after-spacer")
+    $spacer.css "margin-top": 0
+
+    bot = $wc.offset().top + $wc.height()
+    margin = bot - ($spacer.offset().top - 100)
+
+    $spacer.css "margin-top": margin
+
+    # if $wc.hasClass("free-falling")
+    #   $("#window-container-after-spacer").css
+    #     "margin-top": $wc.height() + 100
+    # else
+    #   $("#window-container-after-spacer").css
+    #     "margin-top": 50
+  else
+    $("#window-container-after-spacer").css
+      "margin-top": 50
 
 onResize = ->
   fixHeroHeight()
@@ -333,7 +345,7 @@ $ ->
       $('#play-intro').html('<div class="triangle"></div>Replay Intro</div>')
       setTimeout ->
         fixStaticClientImages()
-      , 2000
+      , 2200
 
   $("#hamburger").on "click", ->
     $("#nav").toggleClass("open")
