@@ -271,17 +271,30 @@ fixWatercolors = ->
   $("#watercolor-left").css(left: leftMove)
   $("#watercolor-right").css(right: rightMove)
 
+fixStaticClientImages = ->
+  overhang = 70
+  padding = 40
+  nominalScreenshot = 1280
+  nominalComposer = 615
+  innerWidth = $("#static-client-images").innerWidth() - padding - overhang
+
+  scale = Math.min(1 - (nominalScreenshot - innerWidth) / nominalScreenshot, 1)
+  $("#static-screenshot, #static-screenshot-wrap").width(nominalScreenshot * scale)
+  $("#static-composer").width(nominalComposer * scale)
+
 onResize = ->
   fixHeroHeight()
   # fixHeroMargin()
   fixWatercolors()
   positionAnimationContainer()
+  fixStaticClientImages()
 
 window.onresize = onResize
 window.onload = ->
   onResize()
   $("body").addClass("initial")
   $("#play-intro").on "click", ->
+    $("#static-client-images").hide()
     $("body").addClass("start-animation").removeClass("initial")
     screencastSequence()
     .then(providerSequence)

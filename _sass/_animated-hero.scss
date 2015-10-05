@@ -193,24 +193,24 @@ $extra-hero-height: 200px;
     position: relative;
     border-radius: 45px;
   }
-  #outlook { @include linear-gradient(to top, #f6f7f8, #1174c3); }
-  #exchange { @include linear-gradient(to top, #f6f7f8, #1ea2a3); }
-  #gmail { @include linear-gradient(to top, #f6f7f8, #e99999); }
-  #icloud { @include linear-gradient(to top, #f6f7f8, #61bfe9); }
-  #yahoo { @include linear-gradient(to top, #f6f7f8, #a76ead); }
+  #outlook { @include linear-gradient(to top, #1174c3, #1174c3); }
+  #exchange { @include linear-gradient(to top, #1ea2a3, #1ea2a3); }
+  #gmail { @include linear-gradient(to top, #e99999, #e99999); }
+  #icloud { @include linear-gradient(to top, #61bfe9, #61bfe9); }
+  #yahoo { @include linear-gradient(to top, #a76ead, #a76ead); }
   #os-image {
     position: relative;
     display: inline;
     width: 400px;
     margin-top: 100px;
-    @include animation(fadeIn 300ms 500ms $ease-in-out-cubic both);
+    @include animation(fadeIn 300ms 800ms $ease-in-out-cubic both);
   }
   h2 { @include animation(fadeIn 300ms $ease-in-out-cubic both); }
-  .p-0 { @include animation(providerPopIn 300ms 150ms $ease-in-out-cubic both); }
-  .p-1 { @include animation(providerPopIn 300ms 200ms $ease-in-out-cubic both); }
-  .p-2 { @include animation(providerPopIn 300ms 250ms $ease-in-out-cubic both); }
-  .p-3 { @include animation(providerPopIn 300ms 300ms $ease-in-out-cubic both); }
-  .p-4 { @include animation(providerPopIn 300ms 350ms $ease-in-out-cubic both); }
+  .p-0 { @include animation(providerPopIn 350ms 100ms $ease-in-out-cubic both); }
+  .p-1 { @include animation(providerPopIn 350ms 200ms $ease-in-out-cubic both); }
+  .p-2 { @include animation(providerPopIn 350ms 300ms $ease-in-out-cubic both); }
+  .p-3 { @include animation(providerPopIn 350ms 400ms $ease-in-out-cubic both); }
+  .p-4 { @include animation(providerPopIn 350ms 500ms $ease-in-out-cubic both); }
 }
 
 .slide-out {
