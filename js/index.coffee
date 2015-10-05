@@ -134,8 +134,17 @@ window.screencastSequence = ->
     , delay
 
   adjustTypedText = (delay, resolve) ->
+    try
+      if Audio
+        a = new Audio
+        a.src = "images/send.ogg"
+        a.autoplay = true
+        $("#step1").append(a)
+        a.play?()
+    catch
+      console.log "Audio not supported"
     $("#editable").removeAttr("contenteditable")
-    $("#editable").css top: 428
+    $("#editable").css top: 568, left: 607
     setTimeout(resolve, delay)
 
   showMultiSelectToolbar = (delay, resolve) ->
