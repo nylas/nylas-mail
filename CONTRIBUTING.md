@@ -17,7 +17,7 @@ Once you have an invitation code:
     cd N1
     script/bootstrap
 
-Read the [getting started guides](http://nylas.github.io/N1/docs/).
+Read the [getting started guides](http://nylas.com/N1/docs/).
 
 # Running N1 Core
 

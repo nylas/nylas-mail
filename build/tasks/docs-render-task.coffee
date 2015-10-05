@@ -133,7 +133,7 @@ module.exports = (grunt) ->
 
     sidebar.sections.push
       name: 'Sample Code'
-      link: 'https://nylas.github.io/N1/examples'
+      link: 'https://nylas.com/N1/examples'
       external: true
 
     referenceSections = {}

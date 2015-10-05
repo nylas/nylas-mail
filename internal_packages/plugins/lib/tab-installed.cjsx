@@ -23,7 +23,7 @@ class TabInstalled extends React.Component
         You don't have any packages installed in ~/.nylas/dev/packages.
         These packages are only loaded when you run the app with debug flags
         enabled (via the Developer menu).<br/><br/>Learn more about building
-        packages at <a href='https://nylas.github.io/N1/docs'>https://nylas.github.io/N1/docs</a>
+        packages at <a href='https://nylas.com/N1/docs'>https://nylas.com/N1/docs</a>
       </span>
       devCTA = <div className="btn btn-large" onClick={@_onCreatePackage}>Create New Package...</div>
     else
