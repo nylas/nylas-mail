@@ -1,6 +1,6 @@
 ---
 layout: docs
-title: First Steps
+title: Getting Started (Part 2)
 edit_url: "https://github.com/nylas/N1/blob/master/docs/index.md"
 ---
 <style>
@@ -67,25 +67,19 @@ edit_url: "https://github.com/nylas/N1/blob/master/docs/index.md"
 </style>
 
 
-<h2 class="gsg-header">Building a plugin</h2>
+<h2 class="gsg-header">Continue building your plugin!</h2>
 
 <p>
-  If you followed the <a href="getting-started">first part</a> of our Getting Started Guide,
-  you should have a brand new plugin just waiting to be explored.
+  If you followed the <a href="/N1/getting-started/">first part</a> of our Getting Started Guide,
+  you should have a freshly written plugin that places a colored line in the message sidebar. This guide
+  picks up where we left off, and goes a bit more in depth explaining what each part of the code does.
 </p>
 <p>
-  This sample plugin simply adds the name of the currently focused contact to the sidebar:
+  We&#39;re going to build on your new plugin to show the sender&#39;s <a href="http://gravatar.com">Gravatar</a>
+  image in the sidebar, instead of just a colored line.
 </p>
 <p>
-  <img class="gsg-center" src="images/sidebar-example.png"/>
-</p>
-<p>
-  We&#39;re going to build on this to show the sender&#39;s <a href="http://gravatar.com">Gravatar</a>
-  image in the sidebar, instead of just their name. You can check out the full code for the plugin
-  <a href="https://github.com/nylas/edgehill-plugins/tree/master/sidebar-gravatar">in the sample plugins repository</a>.
-</p>
-<p>
-  Find the plugin source in <code>~/.nylas/dev/packages</code> and open the contents in your favorite text editor.
+  If you don't still have it open, find the plugin source in <code>~/.nylas/dev/packages</code> and open the contents in your favorite text editor.
 </p>
 <blockquote>
   <p>
@@ -100,16 +94,16 @@ edit_url: "https://github.com/nylas/N1/blob/master/docs/index.md"
   Let&#39;s poke around and change what the sidebar displays.
 </p>
 <p>
-  You&#39;ll find the code responsible for the sidebar in <code>lib/my-message-sidebar.cjsx</code>. Take a look at
+  Just like in the last tutorial, you&#39;ll find the code responsible for the sidebar in <code>lib/my-message-sidebar.cjsx</code>. Take a look at
   the <code>render</code> method -- this generates the content which appears in the sidebar.
 </p>
 <p>
-  (How does it get in the sidebar? See <a href="interfaceconcepts">Interface Concepts</a> and look at
+  (How does it get in the sidebar? See <a href="InterfaceConcepts.html">Interface Concepts</a> and look at
   <code>main.cjsx</code> for clues. We&#39;ll dive into this more later in the guide.)
 </p>
 <p>
   We can change the sidebar to display the contact&#39;s email address as well. Check out the
-  <a href="reference/contact">Contact attributes</a> and change the <code>_renderContent</code> method to display more information:
+  <a href="Contact.html">Contact attributes</a> and change the <code>_renderContent</code> method to display more information:
 </p>
 <pre><code class="lang-coffee">_renderContent: =&gt;
   <span class="hljs-variable">&lt;div className="header"&gt;</span>
