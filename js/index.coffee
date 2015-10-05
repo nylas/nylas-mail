@@ -194,13 +194,13 @@ window.screencastSequence = ->
 
   $("#step1").append("<h4>N1 is fast, friendly, and easy to use</h4>")
   return runFrames(frames.step1).then -> new Promise (resolve, reject) ->
+    $("#step2").append("<h4>Fresh, yet familiar</h4>")
     $("#step1").addClass("slide-out")
     $("#step2").addClass("slide-in")
     $("##{_.keys(frames.step2)[0]}").show()
     $("#step1").on "animationend", ->
       $("#step1").off "animationend"
       $("#step1").remove()
-      $("#step2").append("<h4>Fresh, yet familiar</h4>")
       runFrames(frames.step2).then ->
         $("#step2").removeClass("slide-in").addClass("slide-out")
         $("#step2").on "animationend", ->
@@ -227,6 +227,8 @@ positionAnimationContainer = ->
   winH = $(window).height() - $("#nav").height()
   [w,h] = animationContainerSize
 
+  leftoverH = Math.max(winH - h - 80, 0)
+
   scaleW = 1 - (Math.min(winW - w, 0) / -w)
   scaleH = 1 - (Math.min(winH - h, 0) / -h)
   scale = Math.min(scaleW, scaleH)
@@ -234,6 +236,7 @@ positionAnimationContainer = ->
     "width": "#{w}px"
     "height": "#{h}px"
     "margin-left": "-#{w/2}px"
+    "margin-top": "#{leftoverH/2}px"
     "-webkit-transform": "scale(#{scale})"
     "-moz-transform": "scale(#{scale})"
     "-ms-transform": "scale(#{scale})"
