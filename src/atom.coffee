@@ -586,7 +586,20 @@ class Atom extends Model
   getDefaultWindowDimensions: ->
     screen = remote.require('screen')
     {width, height} = screen.getPrimaryDisplay().workAreaSize
-    {x: 0, y: 0, width, height}
+    x = 0
+    y = 0
+
+    MAX_WIDTH = 1440
+    if width > MAX_WIDTH
+      x = (width - MAX_WIDTH) / 2
+      width = MAX_WIDTH
+
+    MAX_HEIGHT = 900
+    if height > MAX_HEIGHT
+      y = (height - MAX_HEIGHT) / 2
+      height = MAX_HEIGHT
+
+    {x, y, width, height}
 
   restoreWindowDimensions: ->
     dimensions = @savedState.windowDimensions
