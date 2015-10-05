@@ -164,8 +164,6 @@ module.exports = (grunt) ->
     cp 'static', path.join(appDir, 'static')
 
     cp path.join('apm', 'node_modules', 'atom-package-manager'), path.resolve(appDir, '..', 'new-app', 'apm'), filter: filterNodeModule
-    if process.platform isnt 'win32'
-      fs.symlinkSync(path.join('..', '..', 'bin', 'apm'), path.resolve(appDir, '..', 'new-app', 'apm', 'node_modules', '.bin', 'apm'))
 
     if process.platform is 'darwin'
       grunt.file.recurse path.join('build', 'resources', 'mac'), (sourcePath, rootDirectory, subDirectory='', filename) ->
