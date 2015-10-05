@@ -2,11 +2,11 @@
 
 ![N1 Screenshot](http://nylas.github.io/N1/images/1-1-initial-outlook-base.png)
 
-**N1 is an open-source mail client built on the modern web with [Electron](https://github.com/atom/electron), [React](https://facebook.github.io/react/), and [Flux](https://facebook.github.io/flux/).** It is designed to be extensible, so it's easy to create new experiences and workflows around email. N1 runs against the [Nylas Sync Engine](https://www.nylas.com/sync_engine), which is also [open source](https://nylas.github.io/N1).
+**N1 is an open-source mail client built on the modern web with [Electron](https://github.com/atom/electron), [React](https://facebook.github.io/react/), and [Flux](https://facebook.github.io/flux/).** It is designed to be extensible, so it's easy to create new experiences and workflows around email. N1 runs against the [Nylas Sync Engine](https://www.nylas.com/sync_engine), which is also [open source](https://github.com/nylas/N1).
 
 # Download N1
 
-You can download compiled versions of N1 for Mac OS X and Linux from [https://nylas.github.io/N1](https://nylas.github.io/N1). You can also build and run N1 on Windows. A Windows distribution is coming soon!
+You can download compiled versions of N1 for Mac OS X and Linux from [https://nylas.com/N1](https://nylas.com/N1). You can also build and run N1 on Windows. A Windows distribution is coming soon!
 
 # Build A Plugin
 
