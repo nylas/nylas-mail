@@ -78,9 +78,8 @@ class AccountStore
   addAccountFromJSON: (json) =>
     if not json.email_address or not json.provider
       console.error("Returned account data is invalid", json)
-      atom.emitError
-        msg: "Returned account data is invalid"
-        json: json
+      console.log JSON.stringify(json)
+      atom.emitError(new Error("Returned account data is invalid"))
       return
     return if @_tokens[json.id]
     @_tokens[json.id] = json.auth_token
