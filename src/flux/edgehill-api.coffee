@@ -18,7 +18,7 @@ class EdgehillAPI
   _onConfigChanged: =>
     env = atom.config.get('env')
     if env is 'development'
-      @APIRoot = "https://edgehill-dev.nylas.com"
+      @APIRoot = "http://localhost:5009"
     else if env is 'experimental'
       @APIRoot = "https://edgehill-experimental.nylas.com"
     else if env is 'staging'

@@ -1,14 +1,15 @@
 React = require 'react'
-
+remote = require 'remote'
+dialog = remote.require 'dialog'
+Crypto = require 'crypto'
 ipc = require 'ipc'
+
 {RetinaImg} = require 'nylas-component-kit'
 {EdgehillAPI, NylasAPI, APIError} = require 'nylas-exports'
 
 OnboardingActions = require './onboarding-actions'
 NylasApiEnvironmentStore = require './nylas-api-environment-store'
 Providers = require './account-types'
-remote = require('remote')
-dialog = remote.require('dialog')
 
 class AccountSettingsPage extends React.Component
   @displayName: "AccountSettingsPage"
@@ -27,8 +28,10 @@ class AccountSettingsPage extends React.Component
       if field.default?
         @state.settings[field.name] = field.default
 
+    # Special case for gmail. Rather than showing a form, we poll in the
+    # background for completion of the gmail auth on the server.
     if @state.provider.name is 'gmail'
-      poll_attempt_id = 0
+      pollAttemptId = 0
       done = false
       # polling with capped exponential backoff
       delay = 1000
@@ -36,22 +39,34 @@ class AccountSettingsPage extends React.Component
       poll = (id,initial_delay) =>
         _retry = =>
           tries++
-          @_pollForGmailAccount((account) ->
-            if account?
+          @_pollForGmailAccount((account_data) =>
+            if account_data?
               done = true
+              {data} = account_data
+              # accountJson = @_decrypt(data, @state.provider.encryptionKey, @state.provider.encryptionIv)
+              account = JSON.parse(data)
               OnboardingActions.accountJSONReceived(account)
-            else if tries < 10 and id is poll_attempt_id
+            else if tries < 20 and id is pollAttemptId
               setTimeout(_retry, delay)
-              delay *= 1.5 # exponential backoff
+              delay *= 1.2 # exponential backoff
           )
         setTimeout(_retry,initial_delay)
 
       ipc.on('browser-window-focus', ->
         if not done  # hack to deactivate this listener when done
-          poll_attempt_id++
-          poll(poll_attempt_id,0)
+          pollAttemptId++
+          poll(pollAttemptId,0)
       )
-      poll(poll_attempt_id,2000)
+      poll(pollAttemptId,5000)
+
+  _decrypt: (encrypted, key, iv) ->
+    decipher = Crypto.createDecipheriv('aes-192-cbc', key, iv)
+    # The server pads the cyphertext with an extra block of all spaces at the end,
+    # to avoid having to call .final() here which seems to be broken...
+    dec = decipher.update(encrypted,'hex','utf8')
+    #dec += decipher.final('utf8');
+    return dec
+
 
   componentDidMount: ->
 
@@ -226,15 +241,21 @@ class AccountSettingsPage extends React.Component
         pass: ''
         sendImmediately: true
     .then (json) =>
-      json.invite_code = atom.config.get('edgehill.token')
+      invite_code = atom.config.get('edgehill.token')
+
+      json.invite_code = invite_code
       json.email = data.email
+
       EdgehillAPI.request
         path: "/connect/nylas"
         method: "POST"
         timeout: 30000
         body: json
         success: (json) =>
-          OnboardingActions.accountJSONReceived(json)
+          OnboardingActions.accountJSONReceived({
+            code: json.code,
+            invite_code: invite_code
+          })
         error: @_onNetworkError
     .catch(@_onNetworkError)
 

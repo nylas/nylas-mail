@@ -61,15 +61,33 @@ class AccountChoosePage extends React.Component
       , 600
     OnboardingActions.moveToPage("account-settings", {provider})
 
+  _base64url: (buf) ->
+    # Python-style urlsafe_b64encode
+    buf.toString('base64')
+      .replace(/\+/g, '-') # Convert '+' to '-'
+      .replace(/\//g, '_') # Convert '/' to '_'
+
   _onBounceToGmail: (provider) =>
-    provider.clientKey = Utils.generateTempId()[6..]+'-'+Utils.generateTempId()[6..]
-    shell = require 'shell'
+    crypto = require 'crypto'
+
+    # Client key is used for polling. Requirements are that it not be guessable
+    # and that it never collides with an active key (keys are active only between
+    # initiating gmail auth and successfully requesting the account data once.
+    provider.clientKey = @_base64url(crypto.randomBytes(40))
+
+    # Encryption key is used to AES encrypt the account data during storage on the
+    # server.
+    provider.encryptionKey = crypto.randomBytes(24)
+    provider.encryptionIv = crypto.randomBytes(16)
+    code = atom.config.get('edgehill.token') || ''
+    state = [provider.clientKey,@_base64url(provider.encryptionKey),@_base64url(provider.encryptionIv),code].join(',')
+    
     googleUrl = url.format({
       protocol: 'https'
       host: 'accounts.google.com/o/oauth2/auth'
       query:
         response_type: 'code'
-        state: provider.clientKey
+        state: state
         client_id: '372024217839-cdsnrrqfr4d6b4gmlqepd7v0n0l0ip9q.apps.googleusercontent.com'
         redirect_uri: "#{EdgehillAPI.APIRoot}/oauth/google/callback"
         access_type: 'offline'
@@ -80,6 +98,7 @@ class AccountChoosePage extends React.Component
             https://www.googleapis.com/auth/calendar'
         approval_prompt: 'force'
     })
+    shell = require 'shell'
     shell.openExternal(googleUrl)
 
 module.exports = AccountChoosePage
