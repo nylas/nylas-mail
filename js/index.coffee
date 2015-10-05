@@ -192,7 +192,7 @@ window.screencastSequence = ->
 
   $("##{_.keys(frames.step1)[0]}").show()
 
-  $("#step1").append("<h4>N1 is fast, friendly, and easy to use</h4>")
+  $("#step1").append("<h4>N1 is a great-looking email desktop client.</h4>")
   return runFrames(frames.step1).then -> new Promise (resolve, reject) ->
     $("#step2").append("<h4>Fresh, yet familiar</h4>")
     $("#step1").addClass("slide-out")
