@@ -55,10 +55,10 @@ class InitialPackagesPage extends React.Component
         <RetinaImg name="onboarding-back.png" mode={RetinaImg.Mode.ContentPreserve}/>
       </div>
 
-      <h1 style={paddingTop: 60, marginBottom: 20}>Explore packages</h1>
+      <h1 style={paddingTop: 60, marginBottom: 20}>Explore plugins</h1>
       <p style={paddingBottom: 20}>
-        Packages lie at the heart of N1 and give it it's powerful features.<br/>
-        Want to enable a few example packages now? They'll be installed to <code>~/.nylas</code>
+        Plugins lie at the heart of N1 and give it it's powerful features.<br/>
+        Want to enable a few example plugins now? They'll be installed to <code>~/.nylas</code>
       </p>
 
       <div>
