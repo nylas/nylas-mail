@@ -257,8 +257,8 @@ fixWatercolors = ->
   lw = (leftSolidWidth + leftTransWidth)
   rw = (rightSolidWidth + rightTransWidth)
 
-  overlapLeft = 50
-  overlapRight = 160
+  overlapLeft = 120
+  overlapRight = 300
   shiftLeft = Math.min(heroLeft - lw + overlapLeft, 0)
   shiftRight = Math.min((hw - heroRight) - rw + overlapRight, 0)
 
