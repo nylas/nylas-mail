@@ -56,8 +56,10 @@ title: Getting started with plugins
         color: #008800;
     }
     table.code td.code span.op{
-        font-weight: bold;
-        color: #DD7700
+        color: #AA00AA;
+    }
+    table.code td.code span.fn{
+        color: #880000;
     }
 
     div.links-overlay {
@@ -96,9 +98,9 @@ title: Getting started with plugins
     <div class="grid wider">
         <div class="unit whole">
             <p>
-                Plugins lie at the heart of N1. The thread list, composer
-                and other core parts of the app are packages bundled with the
-                app, and you can create your own in a matter of minutes.
+                Plugins lie at the heart of N1. The thread list, message composer
+                and other core parts are just packages bundled with the
+                app. You can create your own packages in a matter of minutes!
             </p>
         </div>
     </div>
@@ -124,12 +126,12 @@ title: Getting started with plugins
         </div>
         <div class="unit two-thirds" style="padding-left: 20px;">
             <h3>2. Create a plugin</h3>
-            <p>First, switch over to development mode: go to the <code class="background">Developer</code> menu
-                and select <code class="background">Relaunch with debug flags...</code>. Dev mode turns on better exception
-                logging and enables hot-reloading, but runs a bit slower.
+            <p>First, switch over to Developer Mode. Go to the <code class="background">Developer</code> menu
+                and select <code class="background">Relaunch with debug flags...</code>. Developer Mode turns on better exception
+                logging and enables hot-reloading.
             </p>
-            <p>Next, choose <code class="background">Create a Package...</code> from the the <code class="background">Developer</code> menu,
-                and name your new plugin. This will create a directory in <code class="background">~/.nylas/dev/packages</code>
+            <p>Next, choose <code class="background">Create a Package...</code> from the <code class="background">Developer</code> menu,
+                and name your new plugin. This creates a directory in <code class="background">~/.nylas/dev/packages</code>
                 containing your new plugin.
             </p>
         </div>
@@ -141,12 +143,12 @@ title: Getting started with plugins
             <p>
                 Open the file <code class="background">&lt;your-package-name&gt;/lib/my-message-sidebar.cjsx</code> in your
                 favorite text editor. Your new plugin is pre-filled with a simple example component
-                for the message sidebar (on the right when you're viewing an email), which is defined in this file. It
-                just shows the name of the selected contact, but with a few quick changes we can build something interesting.
+                for the message sidebar (on the right when you're viewing an email). It only shows the name of the
+                selected contact, but with a few quick changes we can build something more interesting.
             </p>
             <p>
-                Scroll down to line 34, the <code class="background">render</code> method. We can replace the code here
-                to change what shows up in the sidebar, and see it happen live when we save.
+                Scroll down to line 34, the <code class="background">render</code> method. Replace the code here
+                to change what shows up in the sidebar. See your changes happen live when you save!
             </p>
         </div>
         <div class="unit two-fifths">
@@ -154,20 +156,21 @@ title: Getting started with plugins
                 <tbody>
                 <tr><td class="filename" colspan="2">&lt;your-package&gt;/lib/my-message-sidebar.cjsx</td></tr>
                 <tr><td class="line-num">30</td><td class="code"></td></tr>
-                <tr><td class="line-num">31</td><td class="code">componentWillUnmount: =></td></tr>
-                <tr><td class="line-num">32</td><td class="code">&nbsp;&nbsp;&nbsp;&nbsp;@unsubscribe()</td></tr>
+                <tr><td class="line-num">31</td><td class="code"><span class="fn">componentWillUnmount</span>: =></td></tr>
+                <tr><td class="line-num">32</td><td class="code">&nbsp;&nbsp;&nbsp;&nbsp;@<span class="fn">unsubscribe</span>()</td></tr>
                 <tr><td class="line-num">33</td><td class="code"></td></tr>
-                <tr><td class="line-num">34</td><td class="code hlt">render: =></td></tr>
+                <tr><td class="line-num">34</td><td class="code hlt"><span class="fn">render</span>: =></td></tr>
                 <tr><td class="line-num">35</td><td class="code hlt">&nbsp;&nbsp;&nbsp;&nbsp;<span class="op">if</span> @state.contact</td></tr>
-                <tr><td class="line-num">36</td><td class="code hlt">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;content = @_renderContent()</td></tr>
+                <tr><td class="line-num">36</td><td class="code hlt">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;content = @<span class="fn">_renderContent</span>()</td></tr>
                 <tr><td class="line-num">37</td><td class="code hlt">&nbsp;&nbsp;&nbsp;&nbsp;<span class="op">else</span></td></tr>
-                <tr><td class="line-num">38</td><td class="code hlt">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;content = @_renderPlaceholder()</td></tr>
+                <tr><td class="line-num">38</td><td class="code hlt">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;content = @<span class="fn">_renderPlaceholder</span>()</td></tr>
                 <tr><td class="line-num">39</td><td class="code hlt"></td></tr>
-                <tr><td class="line-num">40</td><td class="code hlt">&nbsp;&nbsp;&nbsp;&nbsp;&lt;div className=<span class="str">"my-message-sidebar"</span>&gt;</td></tr>
+                <tr><td class="line-num">40</td><td class="code hlt">&nbsp;&nbsp;&nbsp;&nbsp;
+                    &lt;<span class="fn">div</span> className=<span class="str">"my-message-sidebar"</span>&gt;</td></tr>
                 <tr><td class="line-num">41</td><td class="code hlt">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{content}</td></tr>
-                <tr><td class="line-num">42</td><td class="code hlt">&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;</td></tr>
+                <tr><td class="line-num">42</td><td class="code hlt">&nbsp;&nbsp;&nbsp;&nbsp;&lt;/<span class="fn">div</span>&gt;</td></tr>
                 <tr><td class="line-num">43</td><td class="code"></td></tr>
-                <tr><td class="line-num">44</td><td class="code">_renderContent: =></td></tr>
+                <tr><td class="line-num">44</td><td class="code"><span class="fn">_renderContent</span>: =></td></tr>
                 </tbody>
             </table>
         </div>
@@ -181,7 +184,7 @@ title: Getting started with plugins
         <div class="unit half" style="margin-top: 50px">
             <p>
                 Try opening a message in N1 - you'll see the new package's example text show up on the
-                sidebar. Now delete the content of the <code class="background">render</code> method
+                sidebar. Delete the content of the <code class="background">render</code> method
                 and save - the text should disappear.
             </p>
         </div>
@@ -201,14 +204,20 @@ title: Getting started with plugins
                 <tbody>
                 <tr><td class="filename" colspan="2">&lt;your-package&gt;/lib/my-message-sidebar.cjsx</td></tr>
                 <tr><td class="line-num">33</td><td class="code"></td></tr>
-                <tr><td class="line-num">34</td><td class="code">render: =></td></tr>
-                <tr><td class="line-num">35</td><td class="code add">&nbsp;&nbsp;&nbsp;&nbsp;&lt;div className=<span class="str">"email-color"</span> style={@_getStyles()}&gt;&lt;/div&gt;</td></tr>
+                <tr><td class="line-num">34</td><td class="code"><span class="fn">render</span>: =></td></tr>
+                <tr><td class="line-num">35</td><td class="code add">&nbsp;&nbsp;&nbsp;&nbsp;
+                    &lt;<span class="fn">div</span> className=<span class="str">"email-color"</span> style={@<span class="fn">_getStyles</span>()}&gt;&lt;/<span class="fn">div</span>&gt;</td></tr>
                 <tr><td class="line-num">36</td><td class="code add"></td></tr>
-                <tr><td class="line-num">37</td><td class="code add">_getStyles: =></td></tr>
-                <tr><td class="line-num">38</td><td class="code add">&nbsp;&nbsp;&nbsp;&nbsp;domain = @state.contact.email.split("@")[1]</td></tr>
-                <tr><td class="line-num">39</td><td class="code add">&nbsp;&nbsp;&nbsp;&nbsp;hue = (domain.split('').reduce(((sum, char) -> sum + char.charCodeAt(0)), 0) % 36)*10</td></tr>
-                <tr><td class="line-num">40</td><td class="code add">&nbsp;&nbsp;&nbsp;&nbsp;color = <span class="str">"hsl(#{hue}, 62%, 57%)"</span></td></tr>
-                <tr><td class="line-num">41</td><td class="code add">&nbsp;&nbsp;&nbsp;&nbsp;<span class="op">return</span> {background: color, height: 2, 'margin-top': 5}</td></tr>
+                <tr><td class="line-num">37</td><td class="code add"><span class="fn">_getStyles</span>: =></td></tr>
+                <tr><td class="line-num">38</td><td class="code add">&nbsp;&nbsp;&nbsp;&nbsp;
+                    domain = @state.contact.email.<span class="fn">split</span>("@")[1]</td></tr>
+                <tr><td class="line-num">39</td><td class="code add">&nbsp;&nbsp;&nbsp;&nbsp;
+                    hue = (domain.<span class="fn">split</span>('').<span class="fn">reduce</span>(((sum, char) -> sum + char.
+                    <span class="fn">charCodeAt</span>(0)), 0) % 36)*10</td></tr>
+                <tr><td class="line-num">40</td><td class="code add">&nbsp;&nbsp;&nbsp;&nbsp;
+                    color = <span class="str">"hsl(#{hue}, 62%, 57%)"</span></td></tr>
+                <tr><td class="line-num">41</td><td class="code add">&nbsp;&nbsp;&nbsp;&nbsp;
+                    <span class="op">return</span> {background: color, height: 2, 'margin-top': 5}</td></tr>
                 <tr><td class="line-num">42</td><td class="code"></td></tr>
                 </tbody>
             </table>
@@ -222,7 +231,7 @@ title: Getting started with plugins
         </div>
         <div class="unit half" style="margin-top: 50px">
             <p>
-                Now go back to N1, and open a message. You should see a horizontal bar that changes
+                Go back to N1, and try opening a message. You should see a horizontal bar that changes
                 color based on the domain of the contact's email address.
             </p>
         </div>
@@ -233,8 +242,8 @@ title: Getting started with plugins
         <div class="unit whole">
             <h3>That's it!</h3>
             <p>
-                Extending the N1 mail client is that simple. Try making more code changes and seeing
-                how they affect the message sidebar. Then when you're ready, follow one of the links
+                Extending the N1 mail client is really that simple. Try making more code changes and seeing
+                how they affect the message sidebar. When you're ready, follow one of the links
                 below to learn more.
             </p>
         </div>
@@ -243,7 +252,7 @@ title: Getting started with plugins
         <div class="unit one-third">
             <h4><a href="">Keep building</a></h4>
             <p>
-                Build more functionality into the message sidebar in an extended
+                Build even more functionality into the message sidebar in our extended
                 tutorial that picks up where this one left off.
             </p>
         </div>
@@ -257,8 +266,8 @@ title: Getting started with plugins
         <div class="unit one-third">
             <h4><a href="">Read the docs</a></h4>
             <p>
-                Head over to the full API documentation to learn about everything you can leverage
-                to build an N1 plugin.
+                Head over to our full documentation. Learn everything there is to know
+                about building an N1 plugin.
             </p>
         </div>
     </div>

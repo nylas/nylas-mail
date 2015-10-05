@@ -4,14 +4,17 @@ title: N1 Documentation
 edit_url: "https://github.com/nylas/N1/blob/master/docs/index.md"
 ---
 <style>
-    .list-heading {
-        color: #000;
+    .list-heading:not(.api){
+        color: #555;
+    }
+    .list-heading h4 {
+        opacity: 1 !important;
     }
     div.description {
         border-top: 1px solid #DDD;
         padding-top: 10px;
         color: #888;
-        font-size: 15px;
+        font-size: 16px;
         line-height: 18px;
         min-height: 65px;
     }
@@ -49,31 +52,28 @@ edit_url: "https://github.com/nylas/N1/blob/master/docs/index.md"
         </div>
     </div>
 
-    <div class="grid wider overlay">
-        {% for section in site.data.sidebar.sections %}
-            <div class="unit one-third">
-                <a class="list-heading"
-                   href="{{section.link}}"
-                   {% if section.external %}target="_blank"{% endif %}>
-                    <h4>{{section.name}}</h4>
-                </a>
-                <div class="description">{{section.description}}</div>
-                {% if section.name != "API Reference" %}
-                    {% for item in section.items %}
-                        <div class="list-item">
-                            <a href="{{item.link}}" {% if item.external %}target="_blank"{% endif %}>
-                                {{item.name}}
-                            </a>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                <div class="list-item">
-                    <a href="APIReference.html">
-                        Index
+    <div class="overlay">
+        <div class="grid wider">
+            {% for section in site.data.sidebar.sections %}
+            {% if section.name == "API Reference" %}</div><div class="grid wider">{% endif %}
+                <div class="unit {% if section.name == 'API Reference' %}whole{% else %}half{% endif %}">
+                    <a class="list-heading {% if section.name == 'API Reference' %}api{% endif %}"
+                       href="{{section.link}}"
+                       {% if section.external %}target="_blank"{% endif %}>
+                        <h4>{{section.name}}</h4>
                     </a>
+                    <div class="description">{{section.description}}</div>
+                    {% if section.name != "API Reference" %}
+                        {% for item in section.items %}
+                            <div class="list-item">
+                                <a href="{{item.link}}" {% if item.external %}target="_blank"{% endif %}>
+                                    {{item.name}}
+                                </a>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
                 </div>
-                {% endif %}
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
     </div>
 </div>
