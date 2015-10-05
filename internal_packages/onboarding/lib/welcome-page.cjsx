@@ -1,7 +1,7 @@
 React = require 'react'
 shell = require 'shell'
 classnames = require 'classnames'
-{RetinaImg, TimeoutTransitionGroup} = require 'nylas-component-kit'
+{RetinaImg} = require 'nylas-component-kit'
 PageRouterStore = require './page-router-store'
 OnboardingActions = require './onboarding-actions'
 
