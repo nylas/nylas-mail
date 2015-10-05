@@ -52,7 +52,7 @@ addFramesToAnimationContainer = (frames, {wrapId}) ->
   i = 0
   frameImgs = _.map frames, ({delay, callback}, frame) ->
     i++
-    "<img id='#{frame}' src='images/#{frame}.png' style='z-index: #{i}'/>"
+    "<img id='#{frame}' src='{{ site.baseurl }}/images/#{frame}.png' style='z-index: #{i}'/>"
   frameImgs = frameImgs.join('')
   $("#animation-container").append("<div id='#{wrapId}'>#{frameImgs}</div>")
   return
@@ -99,7 +99,7 @@ window.screencastSequence = ->
     try
       if Audio
         a = new Audio
-        a.src = "images/send.ogg"
+        a.src = "{{ site.baseurl }}/images/send.ogg"
         a.autoplay = true
         $("#step1").append(a)
         a.play?()
@@ -110,7 +110,7 @@ window.screencastSequence = ->
     setTimeout(resolve, delay)
 
   showMultiSelectToolbar = (delay, resolve) ->
-    $toolbarWrap = $("<div id='toolbar-wrap'><img id='toolbar' class='slide-in-from-top' src='images/2-topbar.png' style='display:block; position: relative' /></div>")
+    $toolbarWrap = $("<div id='toolbar-wrap'><img id='toolbar' class='slide-in-from-top' src='{{ site.baseurl }}/images/2-topbar.png' style='display:block; position: relative' /></div>")
     $("#step2").append($toolbarWrap)
     $toolbarWrap.css
       "display": "block"
@@ -179,9 +179,9 @@ window.providerSequence = ->
       "yahoo"
     ]
     imgs = providers.map (provider, i) ->
-      "<img id='#{provider}' class='provider-img p-#{i}' src='images/providers/#{provider}@2x.png'/>"
+      "<img id='#{provider}' class='provider-img p-#{i}' src='{{ site.baseurl }}/images/providers/#{provider}@2x.png'/>"
     .join('')
-    os = "<img id='os-image' src='images/platforms.png'>"
+    os = "<img id='os-image' src='{{ site.baseurl }}/images/platforms.png'>"
     header = "<h4>N1 is universal and cross-platform.</h4>"
 
     $("#animation-container").html("<div id='provider-wrap'>#{header}#{imgs}<br/>#{os}</div>")
@@ -307,7 +307,7 @@ $ ->
         height: a[0].getBoundingClientRect().height
       })
       a.addClass("free-falling")
-      a.append($('<img class="static-composer" src="images/composer-no-shadow.png" class="composer">'))
+      a.append($('<img class="static-composer" src="{{ site.baseurl }}/images/composer-no-shadow.png" class="composer">'))
       setTimeout =>
         a.addClass("finished")
         a.css({ width: "", height: "" })
