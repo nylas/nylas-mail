@@ -223,7 +223,7 @@ positionAnimationContainer = ->
 # To allow for a fixed amount of bleed below the fold regardless of window
 # size.
 fixHeroHeight = ->
-  Math.max(Math.min($("#hero")?.height($(window).height() + 200), 640), 1200)
+  $("#hero")?.height(Math.max($(window).height() + 200, 640))
 
 # To ensure that our overflowing, dynamically sized screenshot pushes the
 # remaining content down the correct ammount.
@@ -310,6 +310,7 @@ $ ->
   $("body").addClass("initial")
 
   $("#play-intro").on "click", ->
+    fixHeroHeight()
     $("body").removeClass("finished").removeClass("start-animation")
 
     $wc = $("#window-container")
@@ -319,7 +320,8 @@ $ ->
 
     $("#plugins-title").remove()
     $("#window-container-after-spacer").removeClass("free-falling")
-    # $("#static-client-images").hide()
+    $("#static-client-images").css
+      "margin-top": "-180px"
     $("body").addClass("start-animation").removeClass("initial")
     screencastSequence()
     .then(providerSequence)
@@ -329,6 +331,10 @@ $ ->
       $wc.addClass("fade-out")
       $wc.on "animationend", -> $wc.remove()
       $("body").addClass("finished")
+      $("#static-client-images").css
+        "margin-top": "-320px"
+
+      # $("#static-client-images").height($("#hero").height() - 250)
 
       # a = $('#window-container')
       # a.append("<img src='{{ site.baseurl }}/images/1-initial-outlook-base-noshadow.png' style='width:100%' />")

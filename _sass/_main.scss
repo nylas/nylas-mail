@@ -420,6 +420,7 @@ p {
   position: relative;
   z-index: 2;
   text-align: center;
+  @include transition(margin 1s $ease-in-out-cubic);
 }
 #static-screenshot-wrap {
   margin: 0 auto 8% auto;
