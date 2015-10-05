@@ -25,7 +25,7 @@ class LaunchServicesLinux
     throw new Error "isRegisteredForURLScheme is async, provide a callback" unless callback
     exec "xdg-mime query default x-scheme-handler/#{scheme}", (err, stdout, stderr) ->
       return callback(err) if callback and err
-      callback(null, stdout is 'nylas.desktop')
+      callback(stdout.trim() is 'nylas.desktop')
 
   resetURLScheme: (scheme, callback) ->
     exec "xdg-mime default thunderbird.desktop x-scheme-handler/#{scheme}", (err, stdout, stderr) ->
