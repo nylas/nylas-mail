@@ -2,7 +2,7 @@
 @import "animated-hero.scss";
 
 @font-face {
-  font-family:'FaktPro-Hair';
+  font-family:'FaktPro';
   src: local('FaktPro-Hair_gdi'), url('/N1/fonts/FaktPro-Hair_gdi.eot');
   src: url('/N1/fonts/FaktPro-Hair_gdi.eot?#iefix') format('embedded-opentype'),
   url('/N1/fonts/FaktPro-Hair_gdi.woff') format('woff'),
@@ -15,20 +15,20 @@
 }
 
 @font-face {
-  font-family:'FaktPro-Thin';
+  font-family:'FaktPro';
   src: local('FaktPro-Thin_gdi'), url('/N1/fonts/FaktPro-Thin_gdi.eot');
   src: url('/N1/fonts/FaktPro-Thin_gdi.eot?#iefix') format('embedded-opentype'),
   url('/N1/fonts/FaktPro-Thin_gdi.woff') format('woff'),
   url('/N1/fonts/FaktPro-Thin_gdi.ttf') format('truetype'),
   url('/N1/fonts/FaktPro-Thin_gdi.svg#FaktPro-Thin') format('svg');
-  font-weight: 290;
+  font-weight: 200;
   font-style: normal;
   font-stretch: normal;
   unicode-range: U+0020-25CA;
 }
 
 @font-face {
-  font-family:'FaktPro-Light';
+  font-family:'FaktPro';
   src: local('FaktPro-Light_gdi'), url('/N1/fonts/FaktPro-Light_gdi.eot');
   src: url('/N1/fonts/FaktPro-Light_gdi.eot?#iefix') format('embedded-opentype'),
   url('/N1/fonts/FaktPro-Light_gdi.woff') format('woff'),
@@ -41,7 +41,7 @@
 }
 
 @font-face {
-  font-family:'FaktPro-Blond';
+  font-family:'FaktPro';
   src: local('FaktPro-Blond_gdi'), url('/N1/fonts/FaktPro-Blond_gdi.eot');
   src: url('/N1/fonts/FaktPro-Blond_gdi.eot?#iefix') format('embedded-opentype'),
   url('/N1/fonts/FaktPro-Blond_gdi.woff') format('woff'),
@@ -54,7 +54,7 @@
 }
 
 @font-face {
-  font-family:'FaktPro-Medium';
+  font-family:'FaktPro';
   src: local('FaktPro-Medium_gdi'), url('/N1/fonts/FaktPro-Medium_gdi.eot');
   src: url('/N1/fonts/FaktPro-Medium_gdi.eot?#iefix') format('embedded-opentype'),
   url('/N1/fonts/FaktPro-Medium_gdi.woff') format('woff'),
@@ -67,7 +67,7 @@
 }
 
 @font-face {
-  font-family:'FaktPro-SemiBold';
+  font-family:'FaktPro';
   src: local('FaktPro-SemiBold_gdi'), url('/N1/fonts/FaktPro-SemiBold_gdi.eot');
   src: url('/N1/fonts/FaktPro-SemiBold_gdi.eot?#iefix') format('embedded-opentype'),
   url('/N1/fonts/FaktPro-SemiBold_gdi.woff') format('woff'),
@@ -83,7 +83,7 @@
 body {
     padding: 0;
     margin: 0;
-    font-family: 'FaktPro-Blond', sans-serif;
+    font-family: 'FaktPro', sans-serif;
     font-weight: normal;
     font-size: 16px;
     line-height: 1.5em;
@@ -315,6 +315,7 @@ p {
   padding: 0.33em 1em;
   border-radius: 4px;
   border: 0;
+  white-space: nowrap;
   cursor: default;
   display:inline-block;
   color: #231f20;
