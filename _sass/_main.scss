@@ -325,12 +325,18 @@ p {
   margin-top:15px;
   font-size: 14px;
   color: #555;
-}
-.example-item-assumed-experience-badge {
-  padding: 2px 4px;
+  background: #f7f7f7;
   border-radius: 3px;
   border: 1px solid #ccc;
-  background: #f7f7f7;
+  padding: 2px 8px;
+}
+.example-item-assumed-experience-badge {
+  //padding: 2px 4px;
+  //border-radius: 3px;
+  //border: 1px solid #ccc;
+  color: #000;
+  font-weight: 600;
+  //background: #f7f7f7;
 }
 
 .example-item-links {
