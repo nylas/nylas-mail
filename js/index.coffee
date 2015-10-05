@@ -309,7 +309,8 @@ $ ->
   onResize()
   $("body").addClass("initial")
 
-  $("#play-intro").on "click", ->
+  $("#play-intro, .hero-text").on "click", ->
+    ga?("track", "event", "N1", "intro", "start")
     fixHeroHeight()
     $("body").removeClass("finished").removeClass("start-animation")
 
