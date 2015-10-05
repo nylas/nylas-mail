@@ -361,7 +361,4 @@ $ ->
       , 2200
   , 100
 
-  $("#hamburger").on "click", ->
-    $("#nav").toggleClass("open")
-
 console.log("%cWe love your curiosity! Let us know what other easter eggs you find. 😊 We're always looking for extraordinary people. Check out the jobs page or give me a ping at evan@nylas.com if you're interested in learning more about some of the big challenges we're tackling", "font-size: 16px;font-family:FaktPro, sans-serif;line-height:1.7")
