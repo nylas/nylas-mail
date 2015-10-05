@@ -457,7 +457,7 @@ $extra-hero-height: 200px;
     z-index: 200;
   }
   .static-screenshot {
-    background:url('{{ site.baseurl }}/images/1-initial-outlook-base-noshadow.png') top left no-repeat;
+    background:url('../images/1-initial-outlook-base-noshadow.png') top left no-repeat;
     background-size: contain;
     box-shadow: 0 0 0;
     position: absolute;

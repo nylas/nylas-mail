@@ -309,7 +309,7 @@ $ ->
   onResize()
   $("body").addClass("initial")
 
-  $("#play-intro, .hero-text").on "click", ->
+  $("#play-intro, .hero-text").on "click", _.debounce ->
     ga?("track", "event", "N1", "intro", "start")
     fixHeroHeight()
     $("body").removeClass("finished").removeClass("start-animation")
@@ -359,6 +359,7 @@ $ ->
       setTimeout ->
         fixStaticClientImages()
       , 2200
+  , 100
 
   $("#hamburger").on "click", ->
     $("#nav").toggleClass("open")
