@@ -257,19 +257,36 @@ fixHeroMargin = ->
 # To ensure there's enough white-space between the watercolor images to
 # let the hero text show through.
 fixWatercolors = ->
-  lCutoff = 0.55
-  rCutoff = 0.6
-  lWidth = $("#watercolor-left").width()
-  rWidth = $("#watercolor-right").width()
+
+  leftSolid = 708/800
+  leftTrans = 196/800
+  rightSolid = 295/800
+  rightTrans = 433/800
+
+  hh = $("#hero").height()
+  hw = $("#hero").width()
+  leftSolidWidth = hh * leftSolid
+  leftTransWidth = hh * leftTrans
+  rightSolidWidth = hh * rightSolid
+  rightTransWidth = hh * rightTrans
+  $("#left-solid").height(hh).width(leftSolidWidth)
+  $("#left-trans").height(hh).width(leftTransWidth)
+  $("#right-solid").height(hh).width(rightSolidWidth)
+  $("#right-trans").height(hh).width(rightTransWidth)
 
   heroLeft = $("#hero-text").offset().left
-  leftMove = Math.max(Math.min(heroLeft - (lWidth * lCutoff), 0), -lWidth * lCutoff)
-
   heroRight = $("#hero-text").offset().left + $("#hero-text").width()
-  rightMove = Math.max(Math.min(heroRight - (rWidth * rCutoff), 0), -rWidth * rCutoff)
 
-  $("#watercolor-left").css(left: leftMove)
-  $("#watercolor-right").css(right: rightMove)
+  lw = (leftSolidWidth + leftTransWidth)
+  rw = (rightSolidWidth + rightTransWidth)
+
+  overlapLeft = 50
+  overlapRight = 160
+  shiftLeft = Math.min(heroLeft - lw + overlapLeft, 0)
+  shiftRight = Math.min((hw - heroRight) - rw + overlapRight, 0)
+
+  $("#watercolor-left").css(left: shiftLeft)
+  $("#watercolor-right").css(right: shiftRight)
 
 fixStaticClientImages = ->
   overhang = 70

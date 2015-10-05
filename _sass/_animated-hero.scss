@@ -35,11 +35,28 @@ img {
   border: 0;
 }
 
-img.hero-bg {
-  height: 100%;
-  min-height: 400px;
+#watercolor-left {
+  z-index: 1;
+  left: 0;
+  text-align: left;
+  // min-width: 196+708;
+}
+#watercolor-right {
+  z-index: 2;
+  right: 0;
+  text-align: right;
+  // min-width: 433+295;
+}
+.hero-bg {
   position: absolute;
   top: 0;
+  height: 100%;
+
+  img {
+    height: 100%;
+    width: auto;
+  }
+
   @include animation(burnIn 1.5s 0.5s $ease-in-out-cubic both);
   @include keyframes(burnIn) {
     0% {
@@ -53,14 +70,6 @@ img.hero-bg {
   }
 }
 
-#watercolor-left {
-  z-index: 1;
-  left: 0;
-}
-#watercolor-right {
-  z-index: 2;
-  right: 0;
-}
 
 #bg-fade {
   z-index: 3;
