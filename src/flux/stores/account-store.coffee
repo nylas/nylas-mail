@@ -76,6 +76,12 @@ class AccountStore
       @trigger()
 
   addAccountFromJSON: (json) =>
+    if not json.email_address or not json.provider
+      console.error("Returned account data is invalid", json)
+      atom.emitError
+        msg: "Returned account data is invalid"
+        json: json
+      return
     return if @_tokens[json.id]
     @_tokens[json.id] = json.auth_token
     @_accounts.push((new Account).fromJSON(json))
