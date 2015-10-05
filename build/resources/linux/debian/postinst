@@ -15,7 +15,7 @@
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
-UBUNTU_CODENAMES="lucid maverick natty oneiric precise quantal raring saucy trusty utopic vivid"
+UBUNTU_CODENAMES="precise trusty utopic vivid"
 DEBIAN_CODENAMES="squeeze wheezy jessie sid"
 
 case "$1" in
