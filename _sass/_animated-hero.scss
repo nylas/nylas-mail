@@ -116,6 +116,21 @@ $extra-hero-height: 200px;
 .animation-container {
   z-index: 10;
   position: absolute;
+
+  h4 {
+    position: absolute;
+    top: -35px;
+    text-align: center;
+    width: 100%;
+    font-weight: 400;
+    z-index: 20;
+    text-shadow: 0px 0px 4px white;
+  }
+
+  #step1, #step2 {
+    position: relative;
+    top: 40px; // So h4 can go above the step containers
+  }
 }
 
 .start-animation {
@@ -154,6 +169,12 @@ $extra-hero-height: 200px;
 }
 
 #provider-wrap {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding-left: 100px;
+  padding-top: 17%;
+  text-align: center;
   @include keyframes(providerPopIn) {
     0% {
       opacity: 0;
@@ -165,14 +186,31 @@ $extra-hero-height: 200px;
     }
   }
   .provider-img {
+    display: block;
+    float: left;
+    margin: 0 0 -90px -90px;
+    left: 90px;
     position: relative;
-    display: inline-block;
+    border-radius: 45px;
   }
-  .p-0 { @include animation(providerPopIn 300ms 0 $ease-in-out-cubic both); }
-  .p-1 { @include animation(providerPopIn 300ms 150ms $ease-in-out-cubic both); }
-  .p-2 { @include animation(providerPopIn 300ms 300ms $ease-in-out-cubic both); }
-  .p-3 { @include animation(providerPopIn 300ms 450ms $ease-in-out-cubic both); }
-  .p-4 { @include animation(providerPopIn 300ms 600ms $ease-in-out-cubic both); }
+  #outlook { @include linear-gradient(to top, #f6f7f8, #1174c3); }
+  #exchange { @include linear-gradient(to top, #f6f7f8, #1ea2a3); }
+  #gmail { @include linear-gradient(to top, #f6f7f8, #e99999); }
+  #icloud { @include linear-gradient(to top, #f6f7f8, #61bfe9); }
+  #yahoo { @include linear-gradient(to top, #f6f7f8, #a76ead); }
+  #os-image {
+    position: relative;
+    display: inline;
+    width: 400px;
+    margin-top: 100px;
+    @include animation(fadeIn 300ms 500ms $ease-in-out-cubic both);
+  }
+  h2 { @include animation(fadeIn 300ms $ease-in-out-cubic both); }
+  .p-0 { @include animation(providerPopIn 300ms 150ms $ease-in-out-cubic both); }
+  .p-1 { @include animation(providerPopIn 300ms 200ms $ease-in-out-cubic both); }
+  .p-2 { @include animation(providerPopIn 300ms 250ms $ease-in-out-cubic both); }
+  .p-3 { @include animation(providerPopIn 300ms 300ms $ease-in-out-cubic both); }
+  .p-4 { @include animation(providerPopIn 300ms 350ms $ease-in-out-cubic both); }
 }
 
 .slide-out {

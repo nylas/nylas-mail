@@ -192,6 +192,7 @@ window.screencastSequence = ->
 
   $("##{_.keys(frames.step1)[0]}").show()
 
+  $("#step1").append("<h4>N1 is fast, friendly, and easy to use</h4>")
   return runFrames(frames.step1).then -> new Promise (resolve, reject) ->
     $("#step1").addClass("slide-out")
     $("#step2").addClass("slide-in")
@@ -199,6 +200,7 @@ window.screencastSequence = ->
     $("#step1").on "animationend", ->
       $("#step1").off "animationend"
       $("#step1").remove()
+      $("#step1").append("<h4>Fresh, yet familiar</h4>")
       runFrames(frames.step2).then ->
         $("#step2").removeClass("slide-in").addClass("slide-out")
         $("#step2").on "animationend", ->
@@ -216,7 +218,9 @@ window.providerSequence = ->
   imgs = providers.map (provider, i) ->
     "<img id='#{provider}' class='provider-img p-#{i}' src='images/providers/#{provider}@2x.png'/>"
   .join('')
-  $("#animation-container").html("<div id='provider-wrap'>#{imgs}</div>")
+  os = "<img id='os-image' src='images/platforms.png'>"
+  header = "<h2>Works everywhere for everyone</h2>"
+  $("#animation-container").html("<div id='provider-wrap'>#{header}#{imgs}<br/>#{os}</div>")
 
 positionAnimationContainer = ->
   winW = $(window).width()
