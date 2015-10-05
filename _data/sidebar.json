@@ -179,7 +179,7 @@
     {
       "name": "API Reference",
       "description":"View detailed documentation on all the classes and methods in the API.",
-      "link": "http://localhost:4000/N1/docs/APIReference.html",
+      "link": "APIReference.html",
       "items": [
         {
           "name": "General",
