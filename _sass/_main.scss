@@ -223,7 +223,7 @@ h3 {
 h4 {
   font-weight: 200;
   font-size: 30px;
-  line-height:1.2em;
+  line-height:1.5em;
   margin:0;
   margin-top: 15px;
   padding:0;
@@ -232,6 +232,11 @@ h4 {
 }
 body, html {
 }
+
+.feature p {
+  max-width: 480px;
+}
+
 p {
   font-weight: 400;
   font-size: 18px;
