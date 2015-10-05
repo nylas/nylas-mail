@@ -61,6 +61,7 @@ describe "AccountStore", ->
         "client_id" : 'local-4f9d476a-c175',
         "server_id" : '1234',
         "email_address":"ben@nylas.com",
+        "provider":"gmail",
         "object":"account"
         "auth_token": "auth-123"
         "organization_unit": "label"
