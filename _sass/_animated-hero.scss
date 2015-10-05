@@ -144,7 +144,7 @@ $extra-hero-height: 200px;
 
 .start-animation.finished {
   #hero-text {
-    @include animation(fadeIn 1s $ease-in-out-cubic both);
+    @include animation(fadeIn 1s 1s $ease-in-out-cubic both);
   }
 }
 
@@ -337,23 +337,12 @@ $extra-hero-height: 200px;
   left: 6px;
   @include transition(all 0.75s linear);
 }
-// .screenshot {
-//   // background:url('../images/1-initial-outlook-base-noshadow.png') top left no-repeat;
-//   // background-size: contain;
-//   position: absolute;
-//   top: 0;
-//   left: 0;
-//   right: 0;
-//   bottom: 0;
-//   opacity: 0;
-//   z-index:  100;
-// }
 
 .animation-container .window {
   @include animation(fade-in-screenshot 0.2s);
   @include transition(top 1s ease-in-out);
 
-  .screenshot {
+  .static-screenshot {
     @include box-shadow(0 2px 8px rgba(0,0,0,0.25));
     @include animation(fade-in-screenshot 1.5s);
     @include animation-fill-mode(both);
@@ -449,10 +438,27 @@ $extra-hero-height: 200px;
   &.add-shadow {
     box-shadow: 0px 8px 25px rgba(0,0,0,0.25);
   }
-  .static-screenshot {
-    width: 100%;
-    display: block;
+  .static-composer {
+    @include animation(fadeIn 500ms 500ms $ease-in-out-cubic both);
+    z-index: 200;
   }
+
+  &.fade-out {
+    @include animation(fadeOut 500ms $ease-in-out-cubic both);
+  }
+  .static-screenshot {
+    background:url('../images/1-initial-outlook-base-noshadow.png') top left no-repeat;
+    background-size: contain;
+    box-shadow: 0 0 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0;
+    z-index:  100;
+  }
+
 }
 
 #window-container.free-falling {
@@ -464,8 +470,11 @@ $extra-hero-height: 200px;
   left: 50%;
   z-index: 2;
   overflow: visible;
+  width: auto;
+  height: auto;
+  background: transparent;
 
-  .screenshot {
+  .static-screenshot {
     opacity: 1;
   }
   .composer {
@@ -476,16 +485,16 @@ $extra-hero-height: 200px;
     top: 335px;
     opacity: 0;
     @include box-shadow(0 1px 3px rgba(0,0,0,0.2));
-    @include transition(opacity 1s ease-in-out);
+    @include transition(opacity 500ms ease-in-out);
   }
 }
 #window-container.free-falling.finished {
-  @include transition(all 1s ease-in-out);
+  @include transition(all 2s $ease-in-out-cubic);
 
   top: 800px;
-  transform: translate(-60%,0);
-  width: 1024px;
-  height: 712px;
+  transform: translate(-55%,0);
+  // width: 1024px;
+  // height: 712px;
 
   .composer {
     opacity: 1;
@@ -494,7 +503,7 @@ $extra-hero-height: 200px;
 #window-container-after-spacer {
   margin-top:50px;
   margin-bottom:40px;
-  @include transition(opacity 400ms ease-in-out);
+  @include transition(opacity 400ms $ease-in-out-cubic);
 }
 #window-container-after-spacer.free-falling {
   margin-top:538px;

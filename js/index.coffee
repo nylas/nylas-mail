@@ -194,7 +194,7 @@ window.providerSequence = ->
 
 window.pluginsSequence = ->
   new Promise (resolve, reject) ->
-    $("#animation-container").html('<div id="window-container" class="window"><img src="images/1-initial-outlook-base-noshadow.png" class="static-screenshot"/></div><h4 id="plugins-title">N1 also supports rich plugins to add new features.</h4>')
+    $("#animation-container").html('<div id="window-container" class="window"><div class="static-screenshot"></div></div><h4 id="plugins-title">N1 also supports rich plugins to add new features.</h4>')
     almostDone = ->
       $("#window-container").addClass("add-shadow")
     runPluginsSequence(resolve, almostDone)
@@ -289,8 +289,13 @@ $ ->
   $("body").addClass("initial")
 
   $("#play-intro").on "click", ->
-    $("body").removeClass("finished")
-    $("#window-container").remove()
+    $("body").removeClass("finished").removeClass("start-animation")
+
+    $wc = $("#window-container")
+    if $wc.length > 0
+      $wc.addClass("fade-out")
+      $wc.on "animationend", -> $wc.remove()
+
     $("#plugins-title").remove()
     $("#window-container-after-spacer").removeClass("free-falling")
     $("#static-client-images").hide()
@@ -308,6 +313,7 @@ $ ->
       })
       a.addClass("free-falling")
       a.append($('<img class="static-composer" src="images/composer-no-shadow.png" class="composer">'))
+      fixStaticClientImages()
       setTimeout =>
         a.addClass("finished")
         a.css({ width: "", height: "" })
