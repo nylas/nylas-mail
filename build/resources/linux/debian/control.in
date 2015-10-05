@@ -8,4 +8,4 @@ Architecture: <%= arch %>
 Installed-Size: <%= installedSize %>
 Maintainer: <%= maintainer %>
 Description: <%= description %>
- Nylas is an email OS
+ Nylas N1 is an extensible, open source mail client built on the modern web.
