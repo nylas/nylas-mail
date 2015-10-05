@@ -241,7 +241,7 @@ class AccountSettingsPage extends React.Component
         pass: ''
         sendImmediately: true
     .then (json) =>
-      invite_code = atom.config.get('edgehill.token')
+      invite_code = atom.config.get('invitationCode')
 
       json.invite_code = invite_code
       json.email = data.email
@@ -252,10 +252,7 @@ class AccountSettingsPage extends React.Component
         timeout: 30000
         body: json
         success: (json) =>
-          OnboardingActions.accountJSONReceived({
-            code: json.code,
-            invite_code: invite_code
-          })
+          OnboardingActions.accountJSONReceived(json)
         error: @_onNetworkError
     .catch(@_onNetworkError)
 

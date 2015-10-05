@@ -79,9 +79,9 @@ class AccountChoosePage extends React.Component
     # server.
     provider.encryptionKey = crypto.randomBytes(24)
     provider.encryptionIv = crypto.randomBytes(16)
-    code = atom.config.get('edgehill.token') || ''
+    code = atom.config.get('invitationCode') || ''
     state = [provider.clientKey,@_base64url(provider.encryptionKey),@_base64url(provider.encryptionIv),code].join(',')
-    
+
     googleUrl = url.format({
       protocol: 'https'
       host: 'accounts.google.com/o/oauth2/auth'
