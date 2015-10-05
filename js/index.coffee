@@ -208,19 +208,32 @@ window.screencastSequence = ->
           return resolve()
 
 window.providerSequence = ->
-  providers = [
-    "outlook"
-    "exchange"
-    "gmail"
-    "icloud"
-    "yahoo"
-  ]
-  imgs = providers.map (provider, i) ->
-    "<img id='#{provider}' class='provider-img p-#{i}' src='images/providers/#{provider}@2x.png'/>"
-  .join('')
-  os = "<img id='os-image' src='images/platforms.png'>"
-  header = "<h2>Works everywhere for everyone</h2>"
-  $("#animation-container").html("<div id='provider-wrap'>#{header}#{imgs}<br/>#{os}</div>")
+  new Promise (resolve, reject) ->
+    providers = [
+      "outlook"
+      "exchange"
+      "gmail"
+      "icloud"
+      "yahoo"
+    ]
+    imgs = providers.map (provider, i) ->
+      "<img id='#{provider}' class='provider-img p-#{i}' src='images/providers/#{provider}@2x.png'/>"
+    .join('')
+    os = "<img id='os-image' src='images/platforms.png'>"
+    header = "<h2>Works everywhere for everyone</h2>"
+
+    $("#animation-container").html("<div id='provider-wrap'>#{header}#{imgs}<br/>#{os}</div>")
+    setTimeout ->
+      $("#provider-wrap").addClass("slide-out")
+      $("#provider-wrap").on "animationend", ->
+        $("#provider-wrap").remove()
+        resolve()
+    , 4000
+
+window.pluginsSequence = ->
+  new Promise (resolve, reject) ->
+    $("#animation-container").html('<div id="window-container" class="window"><div class="screenshot"></div></div><h2 id="plugins-title">N1 is hackable!</h2>')
+    runPluginsSequence()
 
 positionAnimationContainer = ->
   winW = $(window).width()
@@ -315,4 +328,4 @@ window.onload = ->
     $("body").addClass("start-animation").removeClass("initial")
     screencastSequence()
     .then(providerSequence)
-
+    .then(pluginsSequence)

@@ -1,3 +1,283 @@
+<style>
+.window {
+  display: block;
+  width: 921px;
+  height: 640px;
+  top:40px;
+  position: relative;
+  margin: auto;
+  background-color: rgba(248, 248, 248, 0.7);
+  box-shadow: 0 1px 2px rgba(0,0,0, 0.2);
+  border-radius: 4px;
+  animation: fade-in-screenshot 0.2s;
+  overflow: hidden;
+}
+.part {
+  display:inline-block;
+  position: absolute;
+  transform: translate3d(0,0,0);
+  transition: all 1.0s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.part > div > div {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  right: 6px;
+  left: 6px;
+  transition: all 0.75s linear;
+}
+.screenshot {
+  background:url('images/1-initial-outlook-base-noshadow.png') top left no-repeat;
+  background-size: contain;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
+  border-radius: 4px;
+  animation: fade-in-screenshot 1.5s;
+  animation-fill-mode:both;
+  animation-delay: 5.1s;
+  z-index:  100;
+}
+#plugins-title {
+  animation: fade-in-screenshot 1.5s;
+  text-align: center;
+  margin-top: 75px;
+  opacity: 1;
+  transition: opacity 1s ease-out;
+}
+.color-white > div > div {
+  background-color: #f6f7f8 !important;
+}
+.color-transparent > div > div {
+  /*background-color: rgba(255,255,255,0) !important;*/
+}
+.color-a > div > div {
+  background-color: rgba(172, 235, 254, 1);
+}
+.color-b > div > div {
+  background-color: rgba(182, 245, 254, 1);
+}
+.color-c > div > div {
+  background-color: rgba(152, 225, 234, 1);;
+}
+.color-d > div > div {
+  background-color: rgba(162, 225, 234, 1);;
+}
+.color-e > div > div {
+  background-color: #d3aec8;
+}
+
+@keyframes fade-in-screenshot {
+    from {transform: scale(1, 1); opacity: 0;}
+    to {transform: scale(1, 1); opacity: 1;}
+}
+
+@keyframes contact-bottom {
+    from {transform: translate3d(700px,700px,0); opacity: 0; }
+    to {transform: translate3d(0,0,0); opacity: 1; }
+}
+.contact-bottom { animation: contact-bottom 2s; animation-fill-mode:both; }
+
+
+@keyframes contact {
+    from {transform: scale(1.2,1.2); opacity: 0; }
+    to {transform: scale(1,1);   opacity: 1; }
+}
+.contact { animation: contact 2s; animation-delay: 3s; animation-fill-mode:both;  }
+
+
+@keyframes thread {
+    from {transform: translate3d(0,700px,0); opacity: 0;}
+    to {transform: translate3d(0,0,0); opacity: 1;}
+}
+.thread { animation: thread 2s; animation-fill-mode:both; }
+
+
+@keyframes threads {
+    from {transform: translate3d(-100px,700px,0); opacity: 0;}
+    to {transform: translate3d(0,0,0); opacity: 1;}
+}
+.threads { animation: threads 2s; animation-delay: 0.4s; animation-fill-mode:both;  }
+
+
+@keyframes left-bottom {
+    from {transform: translate3d(-400px,700px,0); opacity: 0;}
+    to {transform: translate3d(0,0,0); opacity: 1;}
+}
+.left-bottom { animation: left-bottom 2s; animation-fill-mode:both; }
+
+
+@keyframes left {
+    from {transform: translate3d(-700px,0,0); opacity: 0;}
+    to {transform: translate3d(0,0,0); opacity: 1;}
+}
+.left { animation: left 2s; animation-delay: 0.3s; animation-fill-mode:both; }
+
+
+@keyframes top {
+    from {transform: translate3d(0,-400px,0); opacity: 0;}
+    to {transform: translate3d(0,0,0); opacity: 1;}
+}
+.top { animation: top 2s; animation-delay: 0.4s; animation-fill-mode:both; }
+
+</style>
+
+<script>
+
+function runPluginsSequence() {
+  var grid = {};
+  var w = 12;
+  var h = 7;
+  var gridSizeW = 921 / w;
+  var gridSizeH = 640 / h;
+
+  var filled = 0;
+  var count = w * h;
+
+  for (var x = 0; x < w; x ++) {
+    for (var y = 0; y < h; y ++) {
+      grid[x+","+y] = true;
+    }
+  }
+
+  var shapes = {
+    'SquareBig': [[0,0], [0,1], [1,0], [1,1]],
+    'L': [[0,0], [0, 1], [0, 2], [1, 2]],
+    'L-Small': [[1,1], [0, 1], [1, 0]],
+    'L-sideways': [[0,0], [1, 0], [2, 0], [0, 1]],
+    'ThreeHorizontal': [[0,0], [1, 0], [2, 0]],
+    'TwoHorizontal': [[0,0], [1, 0]],
+    'ThreeVertical': [[0,0], [0, 1], [0, 2]],
+    'Square': [[0,0]]
+  };
+
+  var windowContainer = document.getElementById('window-container');
+  var windowDivs = [];
+
+  while (filled < count) {
+    var rootX = Math.floor((Math.random() * 112315) % w);
+    var rootY = Math.floor((Math.random() * 612312) % h);
+
+    var shapeKeys = Object.keys(shapes);
+    for (var i = 0; i < shapeKeys.length; i ++) {
+      var shapeKey = shapeKeys[i];
+      var shape = shapes[shapeKey];
+
+      var doesFit = true;
+      for (var ii = 0; ii < shape.length; ii ++) {
+        var gridX = rootX + shape[ii][0];
+        var gridY = rootY + shape[ii][1];
+        if (grid[gridX+","+gridY] !== true) {
+          doesFit = false;
+          break;
+        }
+      }
+
+      if (doesFit) {
+        var div = document.createElement('div');
+        div.classList.add('part');
+
+        var colorClass = ['color-a', 'color-b', 'color-c', 'color-d', 'color-e'][Math.floor((Math.random() * 10123) % 4)];
+        div.classList.add(colorClass);
+
+        div.style.position = 'relative';
+        div.style.left = rootX * gridSizeW + "px";
+        div.style.top = rootY * gridSizeH + "px";
+
+        var shapeLookup = {};
+        for (var ii = 0; ii < shape.length; ii ++) {
+          shapeLookup[shape[ii][0]+","+shape[ii][1]] = true;
+        }
+
+        var maxExtentX = 0;
+        var maxExtentY = 0;
+        for (var ii = 0; ii < shape.length; ii ++) {
+          var shapeGridX = shape[ii][0];
+          var shapeGridY = shape[ii][1];
+          var worldGridX = rootX + shapeGridX;
+          var worldGridY = rootY + shapeGridY;
+          grid[worldGridX+","+worldGridY] = shapeKey;
+          filled += 1;
+
+          maxExtentX = Math.max(maxExtentX, shapeGridX + 1);
+          maxExtentY = Math.max(maxExtentY, shapeGridY + 1);
+
+          var gridEl = document.createElement('div');
+          gridEl.style.position = 'absolute';
+          gridEl.style.left = shapeGridX * gridSizeW + 'px';
+          gridEl.style.top = shapeGridY * gridSizeH + 'px';
+          gridEl.style.width = gridSizeW+'px';
+          gridEl.style.height = gridSizeH+'px';
+          var gridElInner = document.createElement('div');
+          if (shapeLookup[(shapeGridX - 1)+","+shapeGridY]) {
+            gridElInner.style.left = '0';
+          }
+          if (shapeLookup[(shapeGridX + 1)+","+shapeGridY]) {
+            gridElInner.style.right = '0';
+          }
+          if (shapeLookup[shapeGridX+","+(shapeGridY-1)]) {
+            gridElInner.style.top = '0';
+          }
+          if (shapeLookup[shapeGridX+","+(shapeGridY+1)]) {
+            gridElInner.style.bottom = '0';
+          }
+          gridEl.appendChild(gridElInner);
+          div.appendChild(gridEl);
+
+        }
+
+        // compute the angle we want to animate it in
+        var distFromCenterX = ((rootX + maxExtentX / 2) - w / 2);
+        var distFromCenterY = ((rootY + maxExtentY / 2) - h / 2);
+        var dist = Math.sqrt(Math.pow(distFromCenterY, 2) + Math.pow(distFromCenterX, 2));
+        var angle = Math.atan2(distFromCenterY, distFromCenterX);
+        var radius = -100;
+
+        div.style.width = (maxExtentX * gridSizeW) + "px";
+        div.style.height = (maxExtentY * gridSizeH) + "px";
+        div.style.position = 'absolute';
+        div.style.transitionDelay = Math.round(dist / 10.0 * 1700) + 'ms';
+        div.style.opacity = 0;
+        div.style.transform = 'translate3d('+Math.round(Math.cos(angle) * radius)+'px, '+Math.round(Math.sin(angle) * radius)+'px, 0px) scale3d(0.2,0.2, 1)';
+        windowDivs.push(div);
+        windowContainer.appendChild(div);
+        break;
+      }
+    }
+  }
+
+  setTimeout(function() {
+    for (var ii = 0; ii < windowDivs.length; ii++) {
+      windowDivs[ii].style.transform = 'translate3d(0,0,0)';
+      windowDivs[ii].style.opacity = 1;
+    }
+  }, 10);
+
+  setTimeout(function() {
+    for (var ii = 0; ii < windowDivs.length; ii++) {
+      var div = windowDivs[ii];
+      for (var x = 0; x < div.children.length; x++) {
+        var inner = div.children[x].children[0];
+        inner.style.transform = "scale(1.2,1.2)";
+      }
+      div.classList.add('color-white');
+    }
+  }, 4400);
+
+  setTimeout(function() {
+    for (var ii = 0; ii < windowDivs.length; ii++) {
+      var div = windowDivs[ii];
+      div.classList.add('color-transparent');
+    }
+    document.getElementById('plugins-title').style.opacity = 0;
+  }, 5000);
+}
+</script>
+
 <div id="hero" class="hero">
 
   <div id="watercolor-left" class="hero-bg" >
