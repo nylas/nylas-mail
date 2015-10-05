@@ -40,3 +40,50 @@ This will run the full suite of automated unit tests. We use [Jasmine 1.3](http:
 
 It runs all tests inside of the `/spec` folder and all tests inside of
 `/internal_packages/**/spec`
+
+# Running Against Open Source Sync Engine
+
+N1 needs to fetch mail from a running instance of the [Nylas Sync
+Engine](https://github.com/nylas/sync-engine). The Sync Engine is what
+abstracts away IMAP, POP, and SMPT to serve your email on any provider
+through a modern, RESTful API.
+
+By default the N1 source points to our hosted version of the sync-engine;
+however, the Sync Engine is open source and you can run it yourself.
+
+1. Go to https://github.com/nylas/sync-engine for instructions on how to
+   get the Sync Engine running on a Vagrant virtual machine.
+
+1. Open up `src/flux/nylas-api.coffee` and change the `@APIRoot` variable
+   to point to your Sync Engine instance.
+
+1. After you've linked accounts to the Sync Engine, populate your
+   `~/.nylas/config.cson` as follows:
+
+    "*":
+      nylas:
+        accounts: [
+          {
+            server_id: "{ACCOUNT_ID_1}"
+            object: "account"
+            account_id: "{ACCOUNT_ID_1}"
+            name: "{YOUR NAME}"
+            provider: "{PROVIDER_NAME}"
+            email_address: "{YOUR_EMAIL_ADDRESS}"
+            organization_unit: "{folder or label}"
+            id: "{ACCOUNT_ID_1}"
+          }
+          {
+            server_id: "{ACCOUNT_ID_2}"
+            object: "account"
+            account_id: "{ACCOUNT_ID_2}"
+            name: "{YOUR_NAME}"
+            provider: "{PROVIDER_NAME}"
+            email_address: "{YOUR_EMAIL_ADDRESS}"
+            organization_unit: "{folder or label}"
+            id: "{ACCOUNT_ID_2}"
+          }
+        ]
+        accountTokens:
+          {ACCOUNT_ID_1}: "{ACCOUNT_ID_1}"
+          {ACCOUNT_ID_2}: "{ACCOUNT_ID_2}"
