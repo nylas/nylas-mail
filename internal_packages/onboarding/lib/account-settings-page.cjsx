@@ -45,7 +45,7 @@ class AccountSettingsPage extends React.Component
               {data} = account_data
               # accountJson = @_decrypt(data, @state.provider.encryptionKey, @state.provider.encryptionIv)
               account = JSON.parse(data)
-              OnboardingActions.accountJSONReceived(account)
+              @_onAccountReceived(account)
             else if tries < 20 and id is pollAttemptId
               setTimeout(_retry, delay)
               delay *= 1.2 # exponential backoff
@@ -251,10 +251,20 @@ class AccountSettingsPage extends React.Component
         method: "POST"
         timeout: 30000
         body: json
-        success: (json) =>
-          OnboardingActions.accountJSONReceived(json)
+        success: @_onAccountReceived
         error: @_onNetworkError
     .catch(@_onNetworkError)
+
+  _onAccountReceived: (json) =>
+    try
+      OnboardingActions.accountJSONReceived(json)
+    catch e
+      atom.emitError(e)
+      @setState
+        tryingToAuthenticate: false
+        errorMessage: "Sorry, something went wrong on the Nylas server. Please try again. If you're still having issues, contact us at support@nylas.com."
+      @_resize()
+
 
   _onNetworkError: (err) =>
     errorMessage = err.message
