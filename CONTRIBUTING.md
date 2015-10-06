@@ -44,6 +44,14 @@ This will run the full suite of automated unit tests. We use [Jasmine 1.3](http:
 It runs all tests inside of the `/spec` folder and all tests inside of
 `/internal_packages/**/spec`
 
+# Building
+
+Once you've checked out N1 and run `script/bootstrap`, you can create a packaged
+version of the application by running `script/build`. Note that the builds
+available at [https://nylas.com/N1](https://nylas.com/N1) include licensed
+fonts, sounds, and other improvements. If you're just looking to run N1, you
+should download it there!
+
 # Running Against Open Source Sync Engine
 
 N1 needs to fetch mail from a running instance of the [Nylas Sync
