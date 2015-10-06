@@ -593,12 +593,12 @@ class Atom extends Model
 
     MAX_WIDTH = 1440
     if width > MAX_WIDTH
-      x = (width - MAX_WIDTH) / 2
+      x = Math.floor((width - MAX_WIDTH) / 2)
       width = MAX_WIDTH
 
     MAX_HEIGHT = 900
     if height > MAX_HEIGHT
-      y = (height - MAX_HEIGHT) / 2
+      y = Math.floor((height - MAX_HEIGHT) / 2)
       height = MAX_HEIGHT
 
     {x, y, width, height}
