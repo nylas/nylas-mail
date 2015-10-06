@@ -152,7 +152,7 @@ FileDownloadStore = Reflux.createStore
 
   # Returns a promise with a Download object, allowing other actions to be
   # daisy-chained to the end of the download operation.
-  _startDownload: (file) ->
+  _runDownload: (file) ->
     @_prepareFolder(file).then =>
       targetPath = @pathForFile(file)
 
@@ -172,18 +172,16 @@ FileDownloadStore = Reflux.createStore
       # Do we actually need to queue and run the download? Queuing a download
       # for an already-downloaded file has side-effects, like making the UI
       # flicker briefly.
-      @_checkForDownloadedFile(file).then (downloaded) =>
-        if downloaded
+      @_checkForDownloadedFile(file).then (alreadyHaveFile) =>
+        if alreadyHaveFile
           # If we have the file, just resolve with a resolved download representing the file.
           download.promise = Promise.resolve()
           return Promise.resolve(download)
         else
-          cleanup = =>
-            @_cleanupDownload(download)
-            Promise.resolve(download)
           @_downloads[file.id] = download
           @trigger()
-          return download.run().catch(cleanup).then(cleanup)
+          return download.run().finally =>
+            @_cleanupDownload(download)
 
   # Returns a promise that resolves with true or false. True if the file has
   # been downloaded, false if it should be downloaded.
@@ -203,20 +201,25 @@ FileDownloadStore = Reflux.createStore
       mkdirpAsync(targetFolder)
 
   _fetch: (file) ->
-    @_startDownload(file)
+    @_runDownload(file).catch ->
+      # Passively ignore
 
   _fetchAndOpen: (file) ->
-    @_startDownload(file).then (download) ->
+    @_runDownload(file).then (download) ->
       shell.openItem(download.targetPath)
+    .catch =>
+      @_presentError(file)
 
   _fetchAndSave: (file) ->
     atom.showSaveDialog @_defaultSavePath(file), (savePath) =>
       return unless savePath
-      @_startDownload(file).then (download) ->
+      @_runDownload(file).then (download) ->
         stream = fs.createReadStream(download.targetPath)
         stream.pipe(fs.createWriteStream(savePath))
         stream.on 'end', ->
           shell.showItemInFolder(savePath)
+      .catch =>
+        @_presentError(file)
 
   _abortFetchFile: (file) ->
     download = @_downloads[file.id]
@@ -242,6 +245,15 @@ FileDownloadStore = Reflux.createStore
       downloadDir = os.tmpdir()
 
     path.join(downloadDir, file.displayName())
+
+  _presentError: (file) ->
+    dialog = require('remote').require('dialog')
+    dialog.showMessageBox
+      type: 'warning'
+      message: "Download Failed"
+      detail: "Unable to download #{file.displayName()}.
+               Check your network connection and try again."
+      buttons: ["OK"]
 
 # Expose the Download class for our tests, and possibly for other things someday
 FileDownloadStore.Download = Download
