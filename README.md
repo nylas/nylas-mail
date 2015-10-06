@@ -15,3 +15,8 @@ Plugins lie at the heart of N1 and give it it's powerful features. Building your
 If you would like to run the N1 source and contribute, check out our [contributing
 guide](https://github.com/nylas/N1/blob/master/CONTRIBUTING.md)
 
+# Feature Requests / Package Ideas
+
+Have an idea for a package, or a feature you'd love to see in N1? Check out our
+[public Trello board](https://trello.com/b/hxsqB6vx/n1-open-source-roadmap)
+to contribute your thoughts and vote on existing ideas.
