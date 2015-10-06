@@ -11,6 +11,9 @@ like to contribute to N1 core and we'll get you set up immediately.
 
 # Getting Started
 
+**Important! To build N1, you need to use Node 0.10.x. You can use [nvm](https://github.com/creationix/nvm)
+to run Node 0.10.x alongside your existing version.**
+
 Once you have an invitation code:
 
     git clone https://github.com/nylas/N1.git
