@@ -68,7 +68,7 @@
 
   @include transition(height 500ms ease-in-out);
 
-  @media (max-width: 800px) {
+  @media (max-width: 900px) {
     &.open {
       height: 173px;
     }
@@ -107,7 +107,7 @@
   }
   @media (max-width: 420px) {
     &.open {
-      height: 273px;
+      height: 323px;
     }
     ul li a {
       padding: 0;

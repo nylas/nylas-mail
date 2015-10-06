@@ -440,3 +440,21 @@ p {
   // right: -5%; // Now set by JS in fixStaticClientImages
   box-shadow: 0px 15px 50px rgba(0,0,0,0.20);
 }
+.footer .grid .unit {
+  text-align: center;
+  &:first-child {
+    text-align: left;
+  }
+  &:last-child {
+    text-align: right;
+  }
+}
+@media (max-width: 568px) {
+  .footer .grid .unit {
+    text-align: left;
+
+    &:last-child {
+      text-align: left;
+    }
+  }
+}
