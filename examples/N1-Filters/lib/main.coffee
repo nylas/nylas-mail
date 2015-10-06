@@ -10,7 +10,7 @@ Filters = require './filters'
 # package to run.
 module.exports =
   # When your package is loading, the `activate` method runs. `activate` is the
-  # package's time to insert React components into the applicatio and also
+  # package's time to insert React components into the application and also
   # listen to events.
   activate: ->
     # `WorkspaceStore.defineSheet` creates an N1 "sheet," which is a large area
