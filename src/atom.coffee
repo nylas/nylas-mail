@@ -416,6 +416,8 @@ class Atom extends Model
   # * `width` The {Number} of pixels.
   # * `height` The {Number} of pixels.
   setSize: (width, height) ->
+    width = Math.round(width)
+    height = Math.round(height)
     @getCurrentWindow().setSize(width, height)
 
   # Essential: Transition and set the size of the current window.
@@ -426,6 +428,8 @@ class Atom extends Model
   setSizeAnimated: (width, height, duration=400) ->
     cubicInOut = (t) -> if t<.5 then 4*t**3 else (t-1)*(2*t-2)**2+1
     win = @getCurrentWindow()
+    width = Math.round(width)
+    height = Math.round(height)
     startBounds = win.getBounds()
 
     startTime = Date.now()
@@ -447,6 +451,7 @@ class Atom extends Model
 
   setMinimumWidth: (minWidth) ->
     win = @getCurrentWindow()
+    minWidth = Math.round(minWidth)
     minHeight = win.getMinimumSize()[1]
     win.setMinimumSize(minWidth, minHeight)
 
@@ -465,6 +470,8 @@ class Atom extends Model
   # * `x` The {Number} of pixels.
   # * `y` The {Number} of pixels.
   setPosition: (x, y) ->
+    x = Math.round(x)
+    y = Math.round(y)
     ipc.send('call-window-method', 'setPosition', x, y)
 
   # Extended: Get the current window
