@@ -437,6 +437,6 @@ p {
 .static-composer {
   position: absolute;
   bottom: -6%;
-  right: -5%;
+  // right: -5%; // Now set by JS in fixStaticClientImages
   box-shadow: 0px 15px 50px rgba(0,0,0,0.20);
 }

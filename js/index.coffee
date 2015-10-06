@@ -262,8 +262,12 @@ fixWatercolors = ->
   shiftLeft = Math.min(heroLeft - lw + overlapLeft, 0)
   shiftRight = Math.min((hw - heroRight) - rw + overlapRight, 0)
 
-  $("#watercolor-left").css(left: shiftLeft)
-  $("#watercolor-right").css(right: shiftRight)
+  $("#watercolor-left").css
+    left: shiftLeft
+    width: leftSolidWidth + leftTransWidth + 1
+  $("#watercolor-right").css
+    right: shiftRight
+    width: rightTransWidth + rightSolidWidth + 1
 
 fixStaticClientImages = ->
   overhang = 70
@@ -278,8 +282,14 @@ fixStaticClientImages = ->
       "margin-top": -1 * (heroOverhangHeight + $(window).height() * 0.2)
 
   scale = Math.min(1 - (nominalScreenshot - innerWidth) / nominalScreenshot, 1)
-  $(".static-screenshot, #static-screenshot-wrap").width(nominalScreenshot * scale)
+  screenshotWrapWidth = nominalScreenshot * scale
+  $(".static-screenshot, #static-screenshot-wrap").width(screenshotWrapWidth)
   $(".static-composer").width(nominalComposer * scale)
+
+  availableMargin = ($(window).width() - screenshotWrapWidth - 2) / 2
+  $(".static-composer").css
+    right: -1 * (Math.min(availableMargin, 0.05 * screenshotWrapWidth))
+
   $wc = $("#window-container")
   if $wc.length > 0
     $wc.width(nominalScreenshot * scale)

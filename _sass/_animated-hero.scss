@@ -24,7 +24,7 @@ $blue: #419bf9;
   width: 100%;
   height: 1200px; // Reset by js on boot
   position: relative;
-  overflow-x: hidden;
+  overflow: hidden;
   // @include transition(height 1s ease-in-out);
   img {
     -webkit-user-select: none;
