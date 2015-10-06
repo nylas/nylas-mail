@@ -272,6 +272,11 @@ fixStaticClientImages = ->
   nominalComposer = 615
   innerWidth = $("#static-client-images").innerWidth() - padding - overhang
 
+  if window.experiments.disableAnimation
+    heroOverhangHeight = 200
+    $("#static-client-images").css
+      "margin-top": -1 * (heroOverhangHeight + $(window).height() * 0.2)
+
   scale = Math.min(1 - (nominalScreenshot - innerWidth) / nominalScreenshot, 1)
   $(".static-screenshot, #static-screenshot-wrap").width(nominalScreenshot * scale)
   $(".static-composer").width(nominalComposer * scale)
@@ -304,15 +309,25 @@ onResize = ->
   positionAnimationContainer()
   fixStaticClientImages()
 
+window.experiments = {}
+
 window.onresize = onResize
 $ ->
   onResize()
   $("body").addClass("initial")
 
+  animationPlaying = false
   $("#play-intro, .hero-text").on "click", _.debounce ->
+    return if window.experiments.disableAnimation
+    return if animationPlaying
+    animationPlaying = true
     ga?("track", "event", "N1", "intro", "start")
     fixHeroHeight()
     $("body").removeClass("finished").removeClass("start-animation")
+
+    $("#hero-text").on "animationend", ->
+      $("#hero-text").off "animationend"
+      $("#hero-text").hide()
 
     $wc = $("#window-container")
     if $wc.length > 0
@@ -332,8 +347,10 @@ $ ->
       $wc.addClass("fade-out")
       $wc.on "animationend", -> $wc.remove()
       $("body").addClass("finished")
+      $("#hero-text").show()
       $("#static-client-images").css
         "margin-top": "-320px"
+      animationPlaying = false
 
       # $("#static-client-images").height($("#hero").height() - 250)
 
@@ -360,5 +377,8 @@ $ ->
         fixStaticClientImages()
       , 2200
   , 100
+
+window.onload = ->
+  onResize()
 
 console.log("%cWe love your curiosity! Let us know what other easter eggs you find. 😊 We're always looking for extraordinary people. Check out the jobs page or give me a ping at evan@nylas.com if you're interested in learning more about some of the big challenges we're tackling", "font-size: 16px;font-family:FaktPro, sans-serif;line-height:1.7")

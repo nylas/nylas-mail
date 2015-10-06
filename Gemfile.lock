@@ -132,3 +132,6 @@ PLATFORMS
 DEPENDENCIES
   bourbon
   github-pages
+
+BUNDLED WITH
+   1.10.2

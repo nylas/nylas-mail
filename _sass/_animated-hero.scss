@@ -84,6 +84,10 @@ img {
   top: 50%;
   left: 50%;
 
+  &:hover {
+    cursor: pointer;
+  }
+
   @include animation(fadeIn 2s $ease-in-out-cubic both);
 }
 
