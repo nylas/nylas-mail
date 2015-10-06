@@ -9,15 +9,15 @@ Documentation](https://nylas.com/docs/api#folders)
 
 NOTE: This is different from a `Folder`. A `Folder` is used for generic
 IMAP and Exchange, while `Label`s are used for Gmail. The `Account` has
-the filed `organizationUnit` which specifies if the current account uses
+the field `organizationUnit` which specifies if the current account uses
 either "folder" or "label".
 
 While the two appear fairly similar, they have different behavioral
 semantics and are treated separately.
 
 Nylas also exposes a set of standard types or categories of folders/
-labels: an extended version of [rfc-6154]
-(http://tools.ietf.org/html/rfc6154), returned as the name of the folder/
+labels: an extended version of [rfc-6154](http://tools.ietf.org/html/rfc6154), 
+returned as the name of the folder/
 label:
   - inbox
   - all
@@ -28,7 +28,7 @@ label:
   - spam
   - important
 
-NOTE: "starred" and "unread" are no longer folder nor labels. They are now
+NOTE: "starred" and "unread" are no longer folders nor labels. They are now
 boolean values on messages and threads.
 
 ## Attributes
