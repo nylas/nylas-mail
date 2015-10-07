@@ -9,6 +9,10 @@ You currently need an early invitation code to get setup on N1. Sign up
 [here](https://invite.nylas.com) to request one. Drop us a line saying you'd
 like to contribute to N1 core and we'll get you set up immediately.
 
+# Pull requests
+
+We require all authors sign our [Contributor License Agreement](https://www.nylas.com/cla.html) when submitting pull requests. (It's similar to other projects, like NodeJS or Meteor.)
+
 # Getting Started
 
 **Important! To build N1, you need to use Node 0.10.x. You can use [nvm](https://github.com/creationix/nvm)
