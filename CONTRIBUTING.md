@@ -60,7 +60,7 @@ should download it there!
 
 N1 needs to fetch mail from a running instance of the [Nylas Sync
 Engine](https://github.com/nylas/sync-engine). The Sync Engine is what
-abstracts away IMAP, POP, and SMPT to serve your email on any provider
+abstracts away IMAP, POP, and SMTP to serve your email on any provider
 through a modern, RESTful API.
 
 By default the N1 source points to our hosted version of the sync-engine;
