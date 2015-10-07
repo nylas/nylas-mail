@@ -13,17 +13,18 @@
 * Paste this:
 ```
 "*":
+  env: "local"
   nylas:
     accounts: [
 ```
 * Visit http://localhost:5555/accounts
 * Copy the output between the {}
-* Paste it in the config file, after the stuff from 8.
-* Paste after the stuff from 11. The accountTokens have to be there for every account.
+* Paste it in the config file, after the stuff from before.
+* Finally add the following information at the end of the file. The accountTokens have to be there for every account.
 ```
 ]
     accountTokens:
-        "account_id value without qutation marks": "account_id value with qutation marks"
+        "account_id value without quotations marks": "account_id value with quotations marks"
 ```
 * Save
 * Start N1
