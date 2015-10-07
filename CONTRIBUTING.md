@@ -69,7 +69,8 @@ however, the Sync Engine is open source and you can run it yourself.
    to point to your Sync Engine instance.
 
 1. After you've linked accounts to the Sync Engine, populate your
-   `~/.nylas/config.cson` as follows:
+   `~/.nylas/config.cson` as follows. You can get a list of connected accounts
+   and their attributes from the /accounts endpoint (ex. `http://localhost:5555/accounts`):
 
         "*":
           nylas:

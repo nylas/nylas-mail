@@ -15,6 +15,9 @@ Plugins lie at the heart of N1 and give it it's powerful features. Building your
 If you would like to run the N1 source and contribute, check out our [contributing
 guide](https://github.com/nylas/N1/blob/master/CONTRIBUTING.md)
 
+# Running Locally
+By default the N1 source points to our hosted version of the Nylas Sync Engine; however, the Sync Engine is open source and you can [run it yourself](https://github.com/nylas/N1/blob/master/CONTRIBUTING.md#running-against-open-source-sync-engine).
+
 # Feature Requests / Package Ideas
 
 Have an idea for a package, or a feature you'd love to see in N1? Check out our
