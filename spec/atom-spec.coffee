@@ -70,6 +70,12 @@ describe "the `atom` global", ->
         out = atom.getDefaultWindowDimensions()
         expect(out).toEqual x: 0, y: 0, width: 1000, height: 800
 
+      it "always rounds X and Y", ->
+        spyOn(screen, 'getPrimaryDisplay').andReturn workAreaSize: width: 1845, height: 955
+
+        out = atom.getDefaultWindowDimensions()
+        expect(out).toEqual x: 202, y: 27, width: 1440, height: 900
+
 
   describe ".isReleasedVersion()", ->
     it "returns false if the version is a SHA and true otherwise", ->
