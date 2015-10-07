@@ -234,6 +234,7 @@ fixHeroMargin = ->
 # To ensure there's enough white-space between the watercolor images to
 # let the hero text show through.
 fixWatercolors = ->
+  return unless $("#watercolor-left").length > 0
 
   leftSolid = 708/800
   leftTrans = 196/800
@@ -322,16 +323,20 @@ onResize = ->
 window.experiments = {}
 
 window.onresize = onResize
+
 $ ->
   onResize()
   $("body").addClass("initial")
+
+  $("#home-download-button").on "click", window.trackDownloadLink("hero")
+  $("#bottom-download-button").on "click", window.trackDownloadLink("bottom")
 
   animationPlaying = false
   $("#play-intro, .hero-text").on "click", _.debounce ->
     return if window.experiments.disableAnimation
     return if animationPlaying
     animationPlaying = true
-    ga?("track", "event", "N1", "intro", "start")
+    ga?("send", "event", "Animation Start")
     fixHeroHeight()
     $("body").removeClass("finished").removeClass("start-animation")
 
@@ -361,6 +366,7 @@ $ ->
       $("#static-client-images").css
         "margin-top": "-320px"
       animationPlaying = false
+      ga?("send", "event", "Animation End")
 
       # $("#static-client-images").height($("#hero").height() - 250)
 

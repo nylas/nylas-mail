@@ -1,5 +1,25 @@
 <!-- analytics -->
 
+<script>
+window.trackDownloadLink = function(eventAction) {
+  return function(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    var href = $(event.currentTarget).attr('href');
+    ga('send',{
+      'hitType': 'event',
+      'eventCategory': 'Download',
+      'eventAction': eventAction,
+      'hitCallback': function() {
+        document.location = href;
+      }
+    });
+    return false;
+  }
+  return false;
+}
+</script>
+
 {% if site.google_analytics_id %}
   <!-- Google Analytics (http://google.com/analytics) -->
   <script>
