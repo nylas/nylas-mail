@@ -103,3 +103,24 @@ however, the Sync Engine is open source and you can run it yourself.
             accountTokens:
               {ACCOUNT_ID_1}: "{ACCOUNT_ID_1}"
               {ACCOUNT_ID_2}: "{ACCOUNT_ID_2}"
+
+# Building on OS X in Docker
+
+You'll need to have installed [Docker](http://docs.docker.com/mac/started/)
+and done the Docker Machine setup with at least 2GB of RAM
+e.g. `docker-machine create --driver=virtualbox --virtualbox-memory "2048" dev`
+
+To build the N1 image:
+
+    docker build -t n1 .
+
+To run it:
+
+1. [Install Homebrew](http://brew.sh/)
+2. In one terminal
+    1. `brew install socat`
+    2. `socat TCP-LISTEN:6000,reuseaddr,fork UNIX-CLIENT:\"$DISPLAY\"`
+3. In another
+    1. `brew cask install xquartz`
+    2. `open -a XQuartz`
+    3. `docker run --rm --name n1 -e DISPLAY=192.168.99.1:0 n1`
