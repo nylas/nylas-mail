@@ -6,12 +6,12 @@
   "main": "./src/browser/main.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nylas/edgehill.git"
+    "url": "https://github.com/nylas/N1.git"
   },
   "bugs": {
-    "url": "https://github.com/nylas/edgehill/issues"
+    "url": "https://github.com/nylas/N1/issues"
   },
-  "electronVersion": "0.30.7",
+  "electronVersion": "0.30.8",
   "dependencies": {
     "6to5-core": "^3.5",
     "asar": "^0.5.0",
@@ -22,7 +22,7 @@
     "classnames": "1.2.1",
     "clear-cut": "0.4.0",
     "coffee-react": "^2.0.0",
-    "coffee-script": "1.9.0",
+    "coffee-script": "1.10.0",
     "coffeestack": "^1.1",
     "color": "^0.7.3",
     "delegato": "^1",
@@ -53,24 +53,19 @@
     "q": "^1.0.1",
     "raven": "0.7.2",
     "react": "^0.13.2",
-    "react-atom-fork": "^0.11.5",
     "react-hot-api": "0.4.5",
-    "reactionary-atom-fork": "^1.0.0",
     "reflux": "0.1.13",
     "request": "^2.53",
     "request-progress": "^0.3",
     "runas": "^2.0",
     "sanitize-html": "^1.9",
-    "scandal": "2.0.0",
     "scoped-property-store": "^0.16.2",
-    "scrollbar-style": "^2.0",
     "season": "^5.1",
     "semver": "^4.2",
     "serializable": "^1",
     "service-hub": "^0.2.0",
     "space-pen": "3.8.2",
     "spellchecker": "2.2.1",
-    "stacktrace-parser": "^0.1",
     "temp": "^0.8",
     "text-buffer": "^4.1",
     "theorist": "^1.0",
