@@ -34,10 +34,6 @@ class SheetContainer extends React.Component
 
     sheetElements = @_sheetElements()
 
-    feedbackElement = null
-    if atom.isMainWindow()
-      feedbackElement = <div className="btn-feedback" onClick={Actions.sendFeedback}>?</div>
-
     <Flexbox direction="column" className="layout-mode-#{@state.mode}">
       {@_toolbarContainerElement()}
 
@@ -60,7 +56,7 @@ class SheetContainer extends React.Component
         <InjectedComponentSet matching={locations: [topSheet.Footer, WorkspaceStore.Sheet.Global.Footer]}
                               direction="column"
                               id={topSheet.id}/>
-        {feedbackElement}
+
       </div>
     </Flexbox>
 
