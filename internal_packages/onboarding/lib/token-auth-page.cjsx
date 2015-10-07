@@ -25,10 +25,10 @@ class TokenAuthPage extends React.Component
     @_usub = PageRouterStore.listen(@_onTokenAuthChange)
 
   _onTokenAuthChange: =>
-    @setState({
+    @setState
       tokenAuthEnabled: PageRouterStore.tokenAuthEnabled()
       tokenAuthEnabledError: PageRouterStore.tokenAuthEnabledError()
-    })
+    @_resize()
 
   componentWillUnmount: ->
     @_usub?()

@@ -265,7 +265,6 @@ class AccountSettingsPage extends React.Component
         errorMessage: "Sorry, something went wrong on the Nylas server. Please try again. If you're still having issues, contact us at support@nylas.com."
       @_resize()
 
-
   _onNetworkError: (err) =>
     errorMessage = err.message
     if errorMessage == "Invite code required"
