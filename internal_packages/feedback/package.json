@@ -1,0 +1,13 @@
+{
+  "name": "feedback",
+  "main": "./lib/main",
+  "version": "0.1.0",
+  "engines": {
+    "atom": "*"
+  },
+  "description": "Intercom feeedback",
+  "dependencies": {
+    "electron-safe-ipc": "^0.5"
+  },
+  "private":true
+}

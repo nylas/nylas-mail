@@ -1,0 +1,52 @@
+@import "ui-variables";
+@import "ui-mixins";
+
+.btn-feedback {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  background: linear-gradient(to bottom, @blue 0%,darken(@blue, 10%) 100%);
+  width:50px;
+  height:50px;
+  border-radius:25px;
+  display: inline-block;
+  font-size: 30px;
+  text-align: center;
+  line-height:50px;
+  color:rgba(255,255,255,0.9);
+  border: 1px solid darken(@blue, 20%);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  cursor: default;
+}
+.btn-feedback:hover {
+  color:rgba(255,255,255,1);
+  background: linear-gradient(to bottom, lighten(@blue,5%) 0%, darken(@blue, 5%) 100%);
+}
+.btn-feedback:active {
+  background: linear-gradient(to bottom, darken(@blue,20%) 0%, darken(@blue, 10%) 100%);
+}
+
+@keyframes bounce {
+  46% {right: 10px; animation-timing-function: ease-in;}
+  50% {right: 35px; animation-timing-function: ease-in;}
+  55% {right: 10px; width: 50px; animation-timing-function: ease-out;}
+  58% {right: 3px;  width: 48px; animation-timing-function: ease-in;}
+  61% {right: 10px; width: 50px; animation-timing-function: ease-out;}
+  63% {right: 14px; animation-timing-function: ease-in;}
+  65% {right: 10px; animation-timing-function: ease-out;}
+}
+
+.btn-feedback.newmsg{
+  background: linear-gradient(to bottom, #F55 0%,darken(#F55, 10%) 100%);
+  border: 1px solid darken(#F55, 20%);
+}
+.btn-feedback.newmsg:not(:hover):not(:active){
+  animation: bounce 3s ease-in-out 0s infinite;
+}
+.btn-feedback.newmsg:hover {
+  color:rgba(255,255,255,1);
+  background: linear-gradient(to bottom, lighten(#F55,5%) 0%, darken(#F55, 5%) 100%);
+}
+.btn-feedback.newmsg:active {
+  background: linear-gradient(to bottom, darken(#F55,20%) 0%, darken(#F55, 10%) 100%);
+}
