@@ -33,7 +33,7 @@ function printArgs(args) {
 
 function makeSqlite3Command() {
   var npmPath = path.resolve(__dirname, '..', 'build', 'node_modules', '.bin', 'npm');
-  var nodeGypPath = path.resolve(__dirname, '..', 'build', 'node_modules', '.bin', 'node-gyp');
+  var nodeGypPath = path.resolve(__dirname, '..', 'build', 'node_modules', 'npm', 'node_modules', '.bin', 'node-gyp');
   var appPackageJSON = JSON.parse(fs.readFileSync(path.resolve(__dirname, '..', 'package.json')));
   var targetVersion = appPackageJSON['electronVersion'];
   var targetPlatform = require('os').platform();
@@ -43,7 +43,7 @@ function makeSqlite3Command() {
     // Unless electron for windows goes 64bit, this should stay
     throw new Error("Building for win32 with architecture "+targetArch+". Are you sure you meant to do this?");
   }
-  return npmPath+" install https://github.com/bengotow/node-sqlite3/archive/master.tar.gz --ignore-scripts && cd node_modules/sqlite3 && "+npmPath+" run prepublish && "+nodeGypPath+" configure --module_name=node_sqlite3 --module_path=../lib/binding/node-v44-"+targetPlatform+"-"+targetArch+" && "+nodeGypPath+" rebuild --target="+targetVersion+" --arch="+targetArch+" --target_platform="+targetPlatform+" --dist-url=https://atom.io/download/atom-shell --module_name=node_sqlite3 --module_path=../lib/binding/node-v44-"+targetPlatform+"-"+targetArch
+  return npmPath+" install https://github.com/bengotow/node-sqlite3/archive/master.tar.gz --ignore-scripts && cd node_modules/sqlite3 && "+npmPath+" run prepublish && "+nodeGypPath+" configure rebuild --target="+targetVersion+" --arch="+targetArch+" --target_platform="+targetPlatform+" --dist-url=https://atom.io/download/atom-shell --module_name=node_sqlite3 --module_path=../lib/binding/node-v44-"+targetPlatform+"-"+targetArch
 }
 
 function bootstrap() {
@@ -66,7 +66,7 @@ function bootstrap() {
 
   var buildInstallCommand = initialNpmCommand + npmFlags + 'install';
   var buildInstallOptions = {cwd: path.resolve(__dirname, '..', 'build')};
-  var apmInstallCommand = npmPath + npmFlags + 'install';
+  var apmInstallCommand = npmPath + npmFlags + '--target=0.10.40 ' + 'install';
   var apmInstallOptions = {cwd: apmInstallPath};
 
   var rebuildSqlite3Command = makeSqlite3Command();
