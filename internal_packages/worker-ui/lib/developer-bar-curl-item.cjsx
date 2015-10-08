@@ -1,11 +1,15 @@
+classNames = require 'classnames'
 React = require 'react/addons'
 
 class DeveloperBarCurlItem extends React.Component
   @displayName: 'DeveloperBarCurlItem'
 
   render: =>
-    <div className={"item status-code-#{@props.item.statusCode}"}>
-      <div className="code">{@props.item.statusCode}</div>
+    classes = classNames
+      "item": true
+      "error-code": @_isError()
+    <div className={classes}>
+      <div className="code">{@props.item.statusCode}{@_errorMessage()}</div>
       <span className="timestamp">{@props.item.startMoment.format("HH:mm:ss")}&nbsp;&nbsp;</span>
       <a onClick={@_onRunCommand}>Run</a>
       <a onClick={@_onCopyCommand}>Copy</a>
@@ -18,6 +22,16 @@ class DeveloperBarCurlItem extends React.Component
   _onCopyCommand: =>
     clipboard = require('clipboard')
     clipboard.writeText(@props.item.command)
+
+  _isError: ->
+    return false if @props.item.statusCode is "pending"
+    return not (parseInt(@props.item.statusCode) <= 399)
+
+  _errorMessage: ->
+    if (@props.item.errorMessage ? "").length > 0
+      return " | #{@props.item.errorMessage}"
+    else
+      return ""
 
   _onRunCommand: =>
     curlFile = "#{atom.getConfigDirPath()}/curl.command"

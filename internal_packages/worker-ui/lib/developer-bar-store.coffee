@@ -25,6 +25,7 @@ class DeveloperBarCurlRequest
 
     @command = "curl -X #{request.method} #{headers}#{data} \"#{url}\""
     @statusCode = statusCode ? error?.code ? "pending"
+    @errorMessage = error?.message ? error
     @startMoment = moment(request.startTime)
     @
 
