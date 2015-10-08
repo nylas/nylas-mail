@@ -325,7 +325,7 @@ module.exports = (grunt) ->
   ciTasks.push('set-version', 'lint', 'generate-asar')
   ciTasks.push('mkdeb') if process.platform is 'linux'
   ciTasks.push('test') if process.platform is 'darwin'
-  ciTasks.push('codesign')
+  ciTasks.push('codesign') unless process.env.TRAVIS
   ciTasks.push('mkdmg') if process.platform is 'darwin'
   ciTasks.push('create-windows-installer') if process.platform is 'win32'
   # ciTasks.push('publish-docs') if process.platform is 'darwin'
