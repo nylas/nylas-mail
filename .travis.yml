@@ -1,16 +1,16 @@
-language: node_js
-sudo: true
-before_install:
-  - sudo apt-get install libgnome-keyring-dev
-install:
-  - ./script/bootstrap
-env:
-  - CXX=g++-4.8
+matrix:
+  include:
+    - os: linux
+    - os: osx
+
+sudo: false
+
+script: script/cibuild
+
 addons:
   apt:
-    sources:
-    - ubuntu-toolchain-r-test
     packages:
-    - g++-4.8
+    - libgnome-keyring-dev
+
 node_js:
   - "0.10"
