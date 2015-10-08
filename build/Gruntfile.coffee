@@ -297,7 +297,7 @@ module.exports = (grunt) ->
       outputDir: 'electron'
       downloadDir: electronDownloadDir
       rebuild: true  # rebuild native modules after electron is updated
-      token: process.env.ATOM_ACCESS_TOKEN
+      token: process.env.NYLAS_ACCESS_TOKEN
 
     'create-windows-installer':
       appDirectory: shellAppDir
