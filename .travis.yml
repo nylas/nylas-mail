@@ -1,6 +1,6 @@
 env:
   global:
-    - NYLAS_ACCESS_TOKEN=7740641a9b32bac91c5b3cd60633071887a07eee
+    - NYLAS_ACCESS_TOKEN=3d954b69a7b74a5086f51e0e1b8403885246b598
 
 matrix:
   include:
