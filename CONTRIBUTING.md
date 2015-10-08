@@ -9,14 +9,7 @@ You currently need an early invitation code to get setup on N1. Sign up
 [here](https://invite.nylas.com) to request one. Drop us a line saying you'd
 like to contribute to N1 core and we'll get you set up immediately.
 
-# Pull requests
-
-We require all authors sign our [Contributor License Agreement](https://www.nylas.com/cla.html) when submitting pull requests. (It's similar to other projects, like NodeJS or Meteor.)
-
 # Getting Started
-
-**Important! To build N1, you need to use Node 0.10.x. You can use [nvm](https://github.com/creationix/nvm)
-to run Node 0.10.x alongside your existing version.**
 
 Once you have an invitation code:
 
@@ -47,6 +40,35 @@ This will run the full suite of automated unit tests. We use [Jasmine 1.3](http:
 
 It runs all tests inside of the `/spec` folder and all tests inside of
 `/internal_packages/**/spec`
+
+# Pull requests
+
+We require all authors sign our [Contributor License
+Agreement](https://www.nylas.com/cla.html) before pull requests (even
+minor ones) can be accepted. (It's similar to other projects, like NodeJS
+Meteor, or React). I'm really sorry, but Legal made us do it.
+
+## Commit Format
+
+We decided to not impose super strict commit guidelines on the community.
+
+We're trusting you to be thoughtful, responsible, committers.
+
+We do have a few heuristics:
+
+- Keep commits fairly isolated. Don't jam lots of different functionality
+  in 1 squashed commit. `git bisect` and `git cherry-pick` should still be
+  reasonable things to do.
+- Keep commits fairly significant. DO `squash` all those little file
+  changes and "fixmes". Don't make it difficult to browse our history.
+  Play the balance between this idea and the last point. If a commit
+  doesn't deserve your time to write a long thoughtful message about, then
+  squash it.
+- Be hyper-descriptive in your commit messages. I care less about what
+  you did (I can read the code), **I want to know WHY you did it**. Put
+  that in the commit body (not the subject). Itemize the major semantic
+  changes that happened.
+- Read "[How to Write a Git Commit Message](http://chris.beams.io/posts/git-commit/)" if you haven't already (but don't be too prescriptivist about it!)
 
 # Building
 
@@ -103,3 +125,7 @@ however, the Sync Engine is open source and you can run it yourself.
             accountTokens:
               {ACCOUNT_ID_1}: "{ACCOUNT_ID_1}"
               {ACCOUNT_ID_2}: "{ACCOUNT_ID_2}"
+
+Note: `{ACCOUNT_ID_1}` refers to the database ID of the `Account` object
+you create when setting up the Sync Engine. The JSON above should match
+fairly closely with the Sync Engine `Account` object.
