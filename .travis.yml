@@ -1,16 +1,25 @@
-language: node_js
-node_js:
-  - "4.1"
-  - "4.0"
-  - "0.12"
-  - "0.10"
-
 matrix:
   include:
     - os: linux
+      env: NODE_VERSION=0.10
+    - os: linux
+      env: NODE_VERSION=0.12
+    - os: linux
+      env: NODE_VERSION=4
     - os: osx
+      env: NODE_VERSION=0.10
+    - os: osx
+      env: NODE_VERSION=0.12
+    - os: osx
+      env: NODE_VERSION=4
 
 sudo: false
+
+install:
+  - git clone https://github.com/creationix/nvm.git /tmp/.nvm
+  - source /tmp/.nvm/nvm.sh
+  - nvm install $NODE_VERSION
+  - nvm use $NODE_VERSION
 
 script: script/cibuild
 
