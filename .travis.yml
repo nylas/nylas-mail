@@ -1,3 +1,7 @@
+env:
+  global:
+    - NYLAS_ACCESS_TOKEN=7740641a9b32bac91c5b3cd60633071887a07eee
+
 matrix:
   include:
     - os: linux
