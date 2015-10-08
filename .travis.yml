@@ -2,6 +2,8 @@ env:
   global:
     - NYLAS_ACCESS_TOKEN=cb200be7c921f73a1c35930f6a4ac8758b271be0
 
+compiler: clang
+
 matrix:
   include:
     - os: linux
