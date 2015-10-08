@@ -1,3 +1,10 @@
+language: node_js
+node_js:
+  - "4.1"
+  - "4.0"
+  - "0.12"
+  - "0.10"
+
 matrix:
   include:
     - os: linux
@@ -11,6 +18,3 @@ addons:
   apt:
     packages:
     - libgnome-keyring-dev
-
-node_js:
-  - "0.10"
