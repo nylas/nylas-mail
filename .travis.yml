@@ -26,4 +26,7 @@ script: script/cibuild
 addons:
   apt:
     packages:
+    - build-essential
+    - git
     - libgnome-keyring-dev
+    - fakeroot
