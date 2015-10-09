@@ -88,17 +88,35 @@ through a modern, RESTful API.
 By default the N1 source points to our hosted version of the sync-engine;
 however, the Sync Engine is open source and you can run it yourself.
 
-1. Go to https://github.com/nylas/sync-engine for instructions on how to
-   get the Sync Engine running on a Vagrant virtual machine.
+1. Install the Nylas Sync Engine in a Vagrant virtual machine by following the
+  [installation and setup](https://github.com/nylas/sync-engine#installation-and-setup)
+  instructions.
 
-1. Open up `src/flux/nylas-api.coffee` and change the `@APIRoot` variable
-   to point to your Sync Engine instance.
+2. Once you've installed the sync engine, add accounts by running the inbox-auth
+   script. For Gmail accounts, the syntax is simple: `bin/inbox-auth you@gmail.com`
 
-1. After you've linked accounts to the Sync Engine, populate your
-   `~/.nylas/config.cson` as follows. You can get a list of connected accounts
-   and their attributes from the /accounts endpoint (ex. `http://localhost:5555/accounts`):
+3. Start the sync engine, and also start the API via `bin/inbox-api`.
+
+4. After you've linked accounts to the Sync Engine, open or create a file at
+   `~/.nylas/config.cson`. This is the config file that N1 reads at launch.
+
+   Replace `env: "production"` with `env: "local"` at the top level of the config.
+   This tells N1 to look at `localhost:5555` for the sync engine. If you've deployed
+   the sync engine elsewhere, you'll need to edit `nylas-api.coffee`.
+
+   Copy the JSON array of accounts returned from the Sync Engine's `/accounts`
+   endpoint (ex. `http://localhost:5555/accounts`) into the config file at the
+   path `*.nylas.accounts`.
+
+   Finally, N1 will look for access tokens for these accounts under `*.nylas.accountTokens`.
+   For each account you've created, add an entry there with the account ID as
+   both the key and value. This works because the open-source sync engine expects
+   an account ID as the HTTP Basic Auth username.
+
+   It should look something like this:
 
         "*":
+          env: "local"
           nylas:
             accounts: [
               {
