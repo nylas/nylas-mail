@@ -47,8 +47,8 @@ class InitialSyncActivity extends React.Component
       return false
     else if error
       <div className={classSet} key="initial-sync">
-        <div className="inner">Initial sync encountered an error. Waiting to retry...
-          <div className="btn btn-emphasis" onClick={@_onTryAgain}>Try Again</div>
+        <div className="inner">An error occurred while syncing your mailbox. Sync will resume in a moment&hellip;
+          <div className="btn" style={marginTop:10} onClick={@_onTryAgain}>Try Again Now</div>
         </div>
         {@_expandedSyncState()}
       </div>

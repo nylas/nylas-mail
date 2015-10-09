@@ -104,22 +104,32 @@ class NylasSyncWorker
 
   fetchCollection: (model, options = {}) ->
     return unless @_state
-    return if @_state[model]?.complete and not options.force?
-    return if @_state[model]?.busy
+    state = @_state[model] ? {}
 
-    @_state[model] =
-      complete: false
-      error: null
-      busy: true
-      count: 0
-      fetched: 0
+    return if state.complete and not options.force?
+    return if state.busy
+
+    state.complete = false
+    state.error = null
+    state.busy = true
+    state.fetched ?= 0
+
+    if not state.count
+      state.count = 0
+      @fetchCollectionCount(model)
+
+    if state.errorRequestRange
+      {limit, offset} = state.errorRequestRange
+      state.errorRequestRange = null
+      @fetchCollectionPage(model, {limit, offset})
+    else
+      @fetchCollectionPage(model, {
+        limit: options.initialPageSize ? INITIAL_PAGE_SIZE,
+        offset: 0
+      })
+
+    @_state[model] = state
     @writeState()
-
-    @fetchCollectionCount(model)
-    @fetchCollectionPage(model, {
-      limit: options.initialPageSize ? INITIAL_PAGE_SIZE,
-      offset: 0
-    })
 
   fetchCollectionCount: (model) ->
     @_api.makeRequest
@@ -141,23 +151,31 @@ class NylasSyncWorker
     requestOptions =
       error: (err) =>
         return if @_terminated
-        @_fetchCollectionPageError(model, err)
+        @_fetchCollectionPageError(model, params, err)
+
       success: (json) =>
         return if @_terminated
 
         if model in ["labels", "folders"] and @_hasNoInbox(json)
-          @_fetchCollectionPageError(model, "No inbox in #{model}")
+          @_fetchCollectionPageError(model, params, "No inbox in #{model}")
           return
 
         lastReceivedIndex = params.offset + json.length
-        if json.length is params.limit
+        moreToFetch = json.length is params.limit
+
+        if moreToFetch
           nextParams = _.extend({}, params, {offset: lastReceivedIndex})
           nextParams.limit = Math.min(Math.round(params.limit * 1.5), MAX_PAGE_SIZE)
           nextDelay = Math.max(0, 1000 - (Date.now() - requestStartTime))
           setTimeout(( => @fetchCollectionPage(model, nextParams)), nextDelay)
-          @updateTransferState(model, {fetched: lastReceivedIndex})
-        else
-          @updateTransferState(model, {fetched: lastReceivedIndex, busy: false, complete: true})
+
+        @updateTransferState(model, {
+          fetched: lastReceivedIndex,
+          busy: moreToFetch,
+          complete: !moreToFetch,
+          error: null,
+          errorRequestRange: null
+        })
 
     if model is 'threads'
       @_api.getThreads(@_account.id, params, requestOptions)
@@ -171,13 +189,18 @@ class NylasSyncWorker
   _hasNoInbox: (json) ->
     return not _.any(json, (obj) -> obj.name is "inbox")
 
-  _fetchCollectionPageError: (model, err) ->
+  _fetchCollectionPageError: (model, params, err) ->
     @_resumeTimer.backoff()
     @_resumeTimer.start()
-    @updateTransferState(model, {busy: false, complete: false, error: err.toString()})
+    @updateTransferState(model, {
+      busy: false,
+      complete: false,
+      error: err.toString()
+      errorRequestRange: {offset: params.offset, limit: params.limit}
+    })
 
-  updateTransferState: (model, {busy, error, complete, fetched, count}) ->
-    @_state[model] = _.defaults({busy, error, complete, fetched, count}, @_state[model])
+  updateTransferState: (model, updatedKeys) ->
+    @_state[model] = _.extend(@_state[model], updatedKeys)
     @writeState()
 
   writeState: ->
