@@ -1,6 +1,7 @@
 _ = require 'underscore'
 {Actions, DatabaseStore} = require 'nylas-exports'
 NylasLongConnection = require './nylas-long-connection'
+ContactRankingsCache = require './contact-rankings-cache'
 
 INITIAL_PAGE_SIZE = 30
 MAX_PAGE_SIZE = 250
@@ -42,6 +43,7 @@ class NylasSyncWorker
 
     @_terminated = false
     @_connection = new NylasLongConnection(api, account.id)
+    @_refreshingCaches = [new ContactRankingsCache(account.id)]
     @_resumeTimer = new BackoffTimer =>
       # indirection needed so resumeFetches can be spied on
       @resumeFetches()
@@ -76,12 +78,14 @@ class NylasSyncWorker
   start: ->
     @_resumeTimer.start()
     @_connection.start()
+    @_refreshingCaches.map (c) -> c.start()
     @resumeFetches()
 
   cleanup: ->
     @_unlisten?()
     @_resumeTimer.cancel()
     @_connection.end()
+    @_refreshingCaches.map (c) -> c.end()
     @_terminated = true
     @
 
