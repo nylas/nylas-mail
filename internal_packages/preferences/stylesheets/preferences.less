@@ -51,6 +51,9 @@ body.platform-darwin {
 
   padding-bottom:50px;
 
+  background-color: @background-primary;
+  color: @text-color;
+
   .platform-darwin-only {
     display: none;
   }
@@ -159,9 +162,9 @@ body.platform-darwin {
     margin: auto;
 
     .appearance-mode {
-      background-color:#f7f9f9;
+      background-color: @background-off-primary;;
       border-radius: 10px;
-      border: 1px solid #c6c7c7;
+      border: 1px solid @background-tertiary;
       text-align: center;
       flex: 1;
       padding:25px;
@@ -169,7 +172,7 @@ body.platform-darwin {
       margin:10px;
       margin-top:0;
       img {
-        background-color: #c6c7c7;
+        background-color: @background-tertiary;
       }
       div {
         margin-top: 15px;
