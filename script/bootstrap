@@ -37,7 +37,13 @@ function makeSqlite3Command() {
   var appPackageJSON = JSON.parse(fs.readFileSync(path.resolve(__dirname, '..', 'package.json')));
   var targetVersion = appPackageJSON['electronVersion'];
   var targetPlatform = require('os').platform();
-  var targetArch = require('os').arch();
+  if(targetPlatform == "win32") {
+    // As of Electron 0.29.2, all windows machines, even if they're 64 bit,
+    // return "ia32" as the arch
+    var targetArch = "ia32"
+  } else {
+    var targetArch = require('os').arch();
+  }
 
   return npmPath+" install https://github.com/bengotow/node-sqlite3/archive/master.tar.gz --ignore-scripts && cd node_modules/sqlite3 && "+npmPath+" run prepublish && "+nodeGypPath+" configure rebuild --target="+targetVersion+" --arch="+targetArch+" --target_platform="+targetPlatform+" --dist-url=https://atom.io/download/atom-shell --module_name=node_sqlite3 --module_path=../lib/binding/node-v44-"+targetPlatform+"-"+targetArch
 }
