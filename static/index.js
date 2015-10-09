@@ -1,6 +1,6 @@
-// This is to prevent React from displaying an annoying message about
-// installing their dev tools. The React dev tools put a variable on the
-// global scope. We need to do it here before React loads.
+/* This is to prevent React from displaying an annoying message about
+  installing their dev tools. The React dev tools put a variable on the
+  global scope. We need to do it here before React loads. */
 window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = {}
 
 
@@ -59,8 +59,8 @@ window.onload = function() {
     require('crash-reporter').start({
       productName: 'Atom',
       companyName: 'GitHub',
-      // By explicitly passing the app version here, we could save the call
-      // of "require('remote').require('app').getVersion()".
+      /* By explicitly passing the app version here, we could save the call
+      of "require('remote').require('app').getVersion()". */
       extra: {_version: loadSettings.appVersion}
     });
 

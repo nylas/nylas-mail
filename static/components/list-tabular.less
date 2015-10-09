@@ -29,13 +29,14 @@
 }
 
 .sheet-toolbar .selection-bar {
-  // This item sits in the toolbar and takes up all the remaining
-  // space from the toolbar-spacer divs, but flex-shrink means that
-  // it shrinks before any other element when not enough space is available.
+  /* This item sits in the toolbar and takes up all the remaining
+  space from the toolbar-spacer divs, but flex-shrink means that
+  it shrinks before any other element when not enough space is available.
 
-  // This is important because the spacers will prevent items from being clickable,
-  // (webkit-app-region:drag) even if we're covering them up. We need to make them
-  // 0px wide!
+  This is important because the spacers will prevent items from being clickable,
+  (webkit-app-region:drag) even if we're covering them up. We need to make them
+  0px wide!
+  */
 
   width: 100%;
   flex-shrink:100;
