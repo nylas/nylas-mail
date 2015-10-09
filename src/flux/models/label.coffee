@@ -16,7 +16,7 @@ While the two appear fairly similar, they have different behavioral
 semantics and are treated separately.
 
 Nylas also exposes a set of standard types or categories of folders/
-labels: an extended version of [rfc-6154](http://tools.ietf.org/html/rfc6154), 
+labels: an extended version of [rfc-6154](http://tools.ietf.org/html/rfc6154),
 returned as the name of the folder/
 label:
   - inbox

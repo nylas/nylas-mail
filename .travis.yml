@@ -1,16 +1,34 @@
-language: node_js
-sudo: true
-before_install:
-  - sudo apt-get install libgnome-keyring-dev
-install:
-  - ./script/bootstrap
 env:
-  - CXX=g++-4.8
+  global:
+    - NYLAS_ACCESS_TOKEN=cb200be7c921f73a1c35930f6a4ac8758b271be0
+
+compiler: clang
+
+matrix:
+  include:
+    - os: linux
+      env: NODE_VERSION=0.10
+    - os: linux
+      env: NODE_VERSION=0.12
+    - os: osx
+      env: NODE_VERSION=0.10
+    - os: osx
+      env: NODE_VERSION=0.12
+
+sudo: false
+
+install:
+  - git clone https://github.com/creationix/nvm.git /tmp/.nvm
+  - source /tmp/.nvm/nvm.sh
+  - nvm install $NODE_VERSION
+  - nvm use $NODE_VERSION
+
+script: script/cibuild
+
 addons:
   apt:
-    sources:
-    - ubuntu-toolchain-r-test
     packages:
-    - g++-4.8
-node_js:
-  - "0.10"
+    - build-essential
+    - git
+    - libgnome-keyring-dev
+    - fakeroot
