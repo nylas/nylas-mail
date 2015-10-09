@@ -3,6 +3,8 @@
 
 .sidebar-activity-transition-wrapper {
   order: 2;
+  z-index: 2;
+  overflow-y: auto;
 
   &.sidebar-activity-empty {
     position: absolute;
@@ -19,7 +21,6 @@
   font-size: @font-size-small;
   color: @text-color-subtle;
   line-height:@line-height-computed * 0.95;
-  overflow-y:scroll;
   box-shadow:inset 0 1px 0 @border-color-divider;
   &:hover { cursor: default }
 
