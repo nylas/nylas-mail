@@ -462,6 +462,7 @@ class DraftStore
   _onSendDraft: (draftClientId) =>
     if atom.config.get("core.sending.sounds")
       SoundRegistry.playSound('hit-send')
+
     @_draftsSending[draftClientId] = true
     @trigger(draftClientId)
 

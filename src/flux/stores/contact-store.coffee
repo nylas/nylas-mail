@@ -113,7 +113,11 @@ class ContactStore extends NylasStore
   #
   isValidContact: (contact) =>
     return false unless contact instanceof Contact
-    return contact.email and RegExpUtils.emailRegex().test(contact.email)
+    return false unless contact.email
+
+    # The email regexp must match the /entire/ email address
+    [match] = RegExpUtils.emailRegex().exec(contact.email)
+    return match is contact.email
 
   parseContactsInString: (contactString, options={}) =>
     {skipNameLookup} = options
