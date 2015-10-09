@@ -39,10 +39,6 @@ function makeSqlite3Command() {
   var targetPlatform = require('os').platform();
   var targetArch = require('os').arch();
 
-  if ((targetPlatform == 'win32') && (targetArch != 'ia32')) {
-    // Unless electron for windows goes 64bit, this should stay
-    throw new Error("Building for win32 with architecture "+targetArch+". Are you sure you meant to do this?");
-  }
   return npmPath+" install https://github.com/mapbox/node-sqlite3/archive/v3.1.0.tar.gz --ignore-scripts && cd node_modules/sqlite3 && "+npmPath+" run prepublish && "+nodeGypPath+" configure rebuild --target="+targetVersion+" --arch="+targetArch+" --target_platform="+targetPlatform+" --dist-url=https://atom.io/download/atom-shell --module_name=node_sqlite3 --module_path=../lib/binding/node-v44-"+targetPlatform+"-"+targetArch
 }
 
