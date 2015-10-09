@@ -184,7 +184,7 @@ class QuotedHTMLParser
     if weirdEl then elements.push(weirdEl)
 
     elements = _.map elements, (el) ->
-      if el.previousElementSibling.nodeName is "HR"
+      if el.previousElementSibling and el.previousElementSibling.nodeName is "HR"
         return el.parentElement
       else return el
     return elements
