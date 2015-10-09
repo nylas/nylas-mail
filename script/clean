@@ -12,10 +12,10 @@ var home = process.env[(process.platform === 'win32') ? 'USERPROFILE' : 'HOME'];
 var tmpdir = os.tmpdir();
 
 // Windows: Use START as a way to ignore error if nylas.exe isnt running
-var killatom = process.platform === 'win32' ? 'START taskkill /F /IM ' + productName + '.exe' : 'pkill -9 ' + productName + ' || true';
+var killnylas = process.platform === 'win32' ? 'START taskkill /F /IM ' + productName + '.exe' : 'pkill -9 ' + productName + ' || true';
 
 var commands = [
-  killatom,
+  killnylas,
   [__dirname, '..', 'node_modules'],
   [__dirname, '..', 'build', 'node_modules'],
   [__dirname, '..', 'apm', 'node_modules'],
@@ -25,8 +25,8 @@ var commands = [
   [home, '.nylas', '.npm'],
   [home, '.nylas', 'compile-cache'],
   [home, '.nylas', 'electron'],
-  [tmpdir, 'atom-build'],
-  [tmpdir, 'atom-cached-electrons'],
+  [tmpdir, 'nylas-build'],
+  [tmpdir, 'nylas-cached-electrons'],
 ];
 var run = function() {
   var next = commands.shift();
