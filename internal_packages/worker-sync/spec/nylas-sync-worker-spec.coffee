@@ -143,6 +143,11 @@ describe "NylasSyncWorker", ->
       @worker.resumeFetches()
       expect(@worker.fetchCollection.calls.map (call) -> call.args[0]).toEqual(['threads', 'labels', 'drafts', 'contacts', 'calendars', 'events'])
 
+    it "should be called when Actions.retryInitialSync is received", ->
+      spyOn(@worker, 'resumeFetches').andCallThrough()
+      Actions.retryInitialSync()
+      expect(@worker.resumeFetches).toHaveBeenCalled()
+
   describe "fetchCollection", ->
     beforeEach ->
       @apiRequests = []
@@ -172,14 +177,39 @@ describe "NylasSyncWorker", ->
       expect(@apiRequests[0].requestOptions.path).toBe('/threads')
       expect(@apiRequests[0].requestOptions.qs.view).toBe('count')
 
-    it "should start the first request for models", ->
-      @worker._state.threads = {
-        'busy': false
-        'complete': false
-      }
-      @worker.fetchCollection('threads')
-      expect(@apiRequests[1].model).toBe('threads')
-      expect(@apiRequests[1].params.offset).toBe(0)
+    describe "when there is no errorRequestRange saved", ->
+      it "should start the first request for models", ->
+        @worker._state.threads = {
+          'busy': false
+          'complete': false
+        }
+        @worker.fetchCollection('threads')
+        expect(@apiRequests[1].model).toBe('threads')
+        expect(@apiRequests[1].params.offset).toBe(0)
+
+    describe "when there is an errorRequestRange saved", ->
+      beforeEach ->
+        @worker._state.threads =
+          'count': 1200
+          'fetched': 100
+          'busy': false
+          'complete': false
+          'error': new Error("Something bad")
+          'errorRequestRange':
+            offset: 100
+            limit: 50
+
+      it "should start paginating from the request that failed", ->
+        @worker.fetchCollection('threads')
+        expect(@apiRequests[0].model).toBe('threads')
+        expect(@apiRequests[0].params.offset).toBe(100)
+        expect(@apiRequests[0].params.limit).toBe(50)
+
+      it "should not reset the `count`, `fetched` or start fetching the count", ->
+        @worker.fetchCollection('threads')
+        expect(@worker._state.threads.fetched).toBe(100)
+        expect(@worker._state.threads.count).toBe(1200)
+        expect(@apiRequests.length).toBe(1)
 
   describe "when an API request completes", ->
     beforeEach ->
@@ -254,28 +284,28 @@ describe "NylasSyncWorker", ->
         expect(@worker.state().threads.complete).toEqual(true)
 
     describe "with an error", ->
-      it "should log the error to the state", ->
+      it "should log the error to the state, along with the range that failed", ->
         err = new Error("Oh no a network error")
         @request.requestOptions.error(err)
         expect(@worker.state().threads.busy).toEqual(false)
         expect(@worker.state().threads.complete).toEqual(false)
         expect(@worker.state().threads.error).toEqual(err.toString())
+        expect(@worker.state().threads.errorRequestRange).toEqual({offset: 0, limit: 30})
 
       it "should not request another page", ->
         @request.requestOptions.error(new Error("Oh no a network error"))
         expect(@apiRequests.length).toBe(0)
 
-    it "resumes when a action forces it to", ->
-      err = new Error("Oh no a network error")
-      @request.requestOptions.error(err)
-      expect(@worker.state().threads.busy).toEqual(false)
-      expect(@worker.state().threads.complete).toEqual(false)
-      spyOn(@worker, 'resumeFetches').andCallThrough()
-      Actions.retryInitialSync()
-      expect(@worker.resumeFetches).toHaveBeenCalled()
-      expect(@worker.resumeFetches.calls.length).toBe 1
-      expect(@worker.state().threads.busy).toEqual(true)
-      expect(@worker.state().threads.error).toBe(null)
+    describe "succeeds after a previous error", ->
+      beforeEach ->
+        @worker._state.threads.error = new Error("Something bad happened")
+        @worker._state.threads.errorRequestRange = {limit: 10, offset: 10}
+        @request.requestOptions.success([])
+        advanceClock(1)
+
+      it "should clear any previous error", ->
+        expect(@worker.state().threads.error).toEqual(null)
+        expect(@worker.state().threads.errorRequestRange).toEqual(null)
 
   describe "cleanup", ->
     it "should termiate the long polling connection", ->
