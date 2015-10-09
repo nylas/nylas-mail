@@ -1,6 +1,5 @@
 React = require 'react'
 {Actions, AccountStore} = require("nylas-exports")
-{ScrollRegion} = require("nylas-component-kit")
 crypto = require 'crypto'
 {RetinaImg} = require 'nylas-component-kit'
 classNames = require 'classnames'
