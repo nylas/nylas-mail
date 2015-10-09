@@ -1,6 +1,7 @@
 _ = require 'underscore'
 proxyquire = require 'proxyquire'
 Contact = require '../../src/flux/models/contact'
+NylasAPI = require '../../src/flux/nylas-api'
 ContactStore = require '../../src/flux/stores/contact-store'
 DatabaseStore = require '../../src/flux/stores/database-store'
 AccountStore = require '../../src/flux/stores/account-store'
@@ -8,6 +9,19 @@ AccountStore = require '../../src/flux/stores/account-store'
 describe "ContactStore", ->
   beforeEach ->
     spyOn(atom, "isMainWindow").andReturn true
+
+    @rankings = [
+      ["evanA@nylas.com", 10]
+      ["evanB@nylas.com", 1]
+      ["evanC@nylas.com", 0.1]
+    ]
+
+    spyOn(NylasAPI, "makeRequest").andCallFake (options) =>
+      if options.path is "/contacts/rankings"
+        return Promise.resolve(@rankings)
+      else
+        throw new Error("Invalid request path!")
+
     atom.testOrganizationUnit = "folder"
     ContactStore._contactCache = []
     ContactStore._fetchOffset = 0
@@ -29,6 +43,45 @@ describe "ContactStore", ->
 
     it "triggers a database fetch", ->
       expect(ContactStore._refreshCache.calls.length).toBe 1
+
+  describe "ranking contacts", ->
+    beforeEach ->
+      ContactStore._accountId = TEST_ACCOUNT_ID
+      @c1 = new Contact(name: "Evan A", email: "evanA@nylas.com")
+      @c2 = new Contact(name: "Evan B", email: "evanB@nylas.com")
+      @c3 = new Contact(name: "Evan C", email: "evanC@nylas.com")
+      @c4 = new Contact(name: "Ben", email: "ben@nylas.com")
+      spyOn(DatabaseStore, "findAll").andCallFake ->
+        where: -> Promise.resolve([@c3, @c1, @c2, @c4])
+
+    it "Holds the appropriate rankings on refresh and lowercased the emails", ->
+      runs ->
+        spyOn(ContactStore._rankingsCache, "trigger")
+        ContactStore._rankingsCache.refresh()
+      waitsFor ->
+        ContactStore._rankingsCache.trigger.calls.length > 0
+      runs ->
+        rankings = ContactStore._rankingsCache.value()
+
+        expect(rankings).toEqual
+          "evana@nylas.com": 10
+          "evanb@nylas.com": 1
+          "evanc@nylas.com": 0.1
+
+    it "triggers a sort on a contact refresh", ->
+      spyOn(ContactStore, "_sortContactsCacheWithRankings")
+      waitsForPromise ->
+        ContactStore.__refreshCache().then -> # Non debounced version
+          expect(ContactStore._sortContactsCacheWithRankings).toHaveBeenCalled()
+
+    it "sorts the contact cache by the rankings", ->
+      ContactStore._contactCache = [@c3, @c1, @c2, @c4]
+      ContactStore._rankingsCache._value =
+        "evana@nylas.com": 10
+        "evanb@nylas.com": 1
+        "evanc@nylas.com": 0.1
+      ContactStore._sortContactsCacheWithRankings()
+      expect(ContactStore._contactCache).toEqual [@c1, @c2, @c3, @c4]
 
   describe "when the Account updates but the ID doesn't change", ->
     it "does nothing", ->
