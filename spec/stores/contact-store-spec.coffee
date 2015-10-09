@@ -3,6 +3,7 @@ proxyquire = require 'proxyquire'
 Contact = require '../../src/flux/models/contact'
 NylasAPI = require '../../src/flux/nylas-api'
 ContactStore = require '../../src/flux/stores/contact-store'
+ContactRankingStore = require '../../src/flux/stores/contact-ranking-store'
 DatabaseStore = require '../../src/flux/stores/database-store'
 AccountStore = require '../../src/flux/stores/account-store'
 
@@ -54,20 +55,6 @@ describe "ContactStore", ->
       spyOn(DatabaseStore, "findAll").andCallFake ->
         where: -> Promise.resolve([@c3, @c1, @c2, @c4])
 
-    it "Holds the appropriate rankings on refresh and lowercased the emails", ->
-      runs ->
-        spyOn(ContactStore._rankingsCache, "trigger")
-        ContactStore._rankingsCache.refresh()
-      waitsFor ->
-        ContactStore._rankingsCache.trigger.calls.length > 0
-      runs ->
-        rankings = ContactStore._rankingsCache.value()
-
-        expect(rankings).toEqual
-          "evana@nylas.com": 10
-          "evanb@nylas.com": 1
-          "evanc@nylas.com": 0.1
-
     it "triggers a sort on a contact refresh", ->
       spyOn(ContactStore, "_sortContactsCacheWithRankings")
       waitsForPromise ->
@@ -75,11 +62,11 @@ describe "ContactStore", ->
           expect(ContactStore._sortContactsCacheWithRankings).toHaveBeenCalled()
 
     it "sorts the contact cache by the rankings", ->
-      ContactStore._contactCache = [@c3, @c1, @c2, @c4]
-      ContactStore._rankingsCache._value =
+      spyOn(ContactRankingStore, 'value').andReturn
         "evana@nylas.com": 10
         "evanb@nylas.com": 1
         "evanc@nylas.com": 0.1
+      ContactStore._contactCache = [@c3, @c1, @c2, @c4]
       ContactStore._sortContactsCacheWithRankings()
       expect(ContactStore._contactCache).toEqual [@c1, @c2, @c3, @c4]
 

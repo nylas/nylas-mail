@@ -13,18 +13,23 @@ class ContactRankingsCache extends RefreshingJSONCache
     })
 
   fetchData: (callback) =>
+    return if atom.inSpecMode()
+
     NylasAPI.makeRequest
       accountId: @_accountId
       path: "/contacts/rankings"
       returnsModel: false
     .then (json) =>
-# Convert rankings into the format needed for quick lookup
+      return unless json and json instanceof Array
+
+      # Convert rankings into the format needed for quick lookup
       rankings = {}
       for [email, rank] in json
         rankings[email.toLowerCase()] = rank
       callback(rankings)
-    .catch (err) =>
-      console.warn("Request for Contact Rankings failed for account #{@_accountId}. #{err}")
 
+    .catch (err) =>
+      console.warn("Request for Contact Rankings failed for
+                    account #{@_accountId}. #{err}")
 
 module.exports = ContactRankingsCache
