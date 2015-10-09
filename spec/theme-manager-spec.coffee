@@ -318,66 +318,66 @@ describe "ThemeManager", ->
         [stylesheetRemovedHandler, stylesheetAddedHandler, stylesheetsChangedHandler] = []
 
         waitsForPromise ->
-          themeManager.activateThemes()
+          themeManager.activateThemes().then ->
 
-        runs ->
-          atom.styles.onDidRemoveStyleElement styleElementRemovedHandler = jasmine.createSpy("styleElementRemovedHandler")
-          atom.styles.onDidAddStyleElement styleElementAddedHandler = jasmine.createSpy("styleElementAddedHandler")
+            runs ->
+              atom.styles.onDidRemoveStyleElement styleElementRemovedHandler = jasmine.createSpy("styleElementRemovedHandler")
+              atom.styles.onDidAddStyleElement styleElementAddedHandler = jasmine.createSpy("styleElementAddedHandler")
 
-          themeManager.onDidChangeStylesheets stylesheetsChangedHandler = jasmine.createSpy("stylesheetsChangedHandler")
-          themeManager.onDidRemoveStylesheet stylesheetRemovedHandler = jasmine.createSpy("stylesheetRemovedHandler")
-          themeManager.onDidAddStylesheet stylesheetAddedHandler = jasmine.createSpy("stylesheetAddedHandler")
-          spyOn(themeManager, 'loadUserStylesheet').andCallThrough()
+              themeManager.onDidChangeStylesheets stylesheetsChangedHandler = jasmine.createSpy("stylesheetsChangedHandler")
+              themeManager.onDidRemoveStylesheet stylesheetRemovedHandler = jasmine.createSpy("stylesheetRemovedHandler")
+              themeManager.onDidAddStylesheet stylesheetAddedHandler = jasmine.createSpy("stylesheetAddedHandler")
+              spyOn(themeManager, 'loadUserStylesheet').andCallThrough()
 
-          expect($(document.body).css('border-style')).toBe 'dotted'
-          fs.writeFileSync(userStylesheetPath, 'body {border-style: dashed}')
+              expect($(document.body).css('border-style')).toBe 'dotted'
+              fs.writeFileSync(userStylesheetPath, 'body {border-style: dashed}')
 
-        waitsFor ->
-          themeManager.loadUserStylesheet.callCount is 1
+            waitsFor ->
+              themeManager.loadUserStylesheet.callCount is 1
 
-        runs ->
-          expect($(document.body).css('border-style')).toBe 'dashed'
+            runs ->
+              expect($(document.body).css('border-style')).toBe 'dashed'
 
-          expect(styleElementRemovedHandler).toHaveBeenCalled()
-          expect(styleElementRemovedHandler.argsForCall[0][0].textContent).toContain 'dotted'
-          expect(stylesheetRemovedHandler).toHaveBeenCalled()
+              expect(styleElementRemovedHandler).toHaveBeenCalled()
+              expect(styleElementRemovedHandler.argsForCall[0][0].textContent).toContain 'dotted'
+              expect(stylesheetRemovedHandler).toHaveBeenCalled()
 
-          match = null
-          for rule in stylesheetRemovedHandler.argsForCall[0][0].cssRules
-            match = rule if rule.selectorText is 'body'
-          expect(match.style.border).toBe 'dotted'
+              match = null
+              for rule in stylesheetRemovedHandler.argsForCall[0][0].cssRules
+                match = rule if rule.selectorText is 'body'
+              expect(match.style.border).toBe 'dotted'
 
-          expect(styleElementAddedHandler).toHaveBeenCalled()
-          expect(styleElementAddedHandler.argsForCall[0][0].textContent).toContain 'dashed'
-          expect(stylesheetAddedHandler).toHaveBeenCalled()
-          match = null
-          for rule in stylesheetAddedHandler.argsForCall[0][0].cssRules
-            match = rule if rule.selectorText is 'body'
-          expect(match.style.border).toBe 'dashed'
+              expect(styleElementAddedHandler).toHaveBeenCalled()
+              expect(styleElementAddedHandler.argsForCall[0][0].textContent).toContain 'dashed'
+              expect(stylesheetAddedHandler).toHaveBeenCalled()
+              match = null
+              for rule in stylesheetAddedHandler.argsForCall[0][0].cssRules
+                match = rule if rule.selectorText is 'body'
+              expect(match.style.border).toBe 'dashed'
 
-          expect(stylesheetsChangedHandler).toHaveBeenCalled()
+              expect(stylesheetsChangedHandler).toHaveBeenCalled()
 
-          styleElementRemovedHandler.reset()
-          stylesheetRemovedHandler.reset()
-          stylesheetsChangedHandler.reset()
-          fs.removeSync(userStylesheetPath)
+              styleElementRemovedHandler.reset()
+              stylesheetRemovedHandler.reset()
+              stylesheetsChangedHandler.reset()
+              fs.removeSync(userStylesheetPath)
 
-        waitsFor ->
-          themeManager.loadUserStylesheet.callCount is 2
+            waitsFor ->
+              themeManager.loadUserStylesheet.callCount is 2
 
-        runs ->
-          expect(styleElementRemovedHandler).toHaveBeenCalled()
-          expect(styleElementRemovedHandler.argsForCall[0][0].textContent).toContain 'dashed'
-          expect(stylesheetRemovedHandler).toHaveBeenCalled()
+            runs ->
+              expect(styleElementRemovedHandler).toHaveBeenCalled()
+              expect(styleElementRemovedHandler.argsForCall[0][0].textContent).toContain 'dashed'
+              expect(stylesheetRemovedHandler).toHaveBeenCalled()
 
-        waitsFor ->
-          match = null
-          for rule in stylesheetRemovedHandler.argsForCall[0][0].cssRules
-            match = rule if rule.selectorText is 'body'
-          match.style.border is 'dashed' and $(document.body).css('border-style') is 'none'
+            waitsFor ->
+              match = null
+              for rule in stylesheetRemovedHandler.argsForCall[0][0].cssRules
+                match = rule if rule.selectorText is 'body'
+              match.style.border is 'dashed' and $(document.body).css('border-style') is 'none'
 
-        runs ->
-          expect(stylesheetsChangedHandler).toHaveBeenCalled()
+            runs ->
+              expect(stylesheetsChangedHandler).toHaveBeenCalled()
 
     describe "when there is an error reading the stylesheet", ->
       addErrorHandler = null

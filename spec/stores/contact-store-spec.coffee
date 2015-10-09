@@ -27,15 +27,10 @@ describe "ContactStore", ->
     ContactStore._contactCache = []
     ContactStore._fetchOffset = 0
     ContactStore._accountId = null
+    ContactRankingStore.reset()
 
   afterEach ->
     atom.testOrganizationUnit = null
-
-  it "initializes the cache from the DB", ->
-    spyOn(DatabaseStore, "findAll").andCallFake -> Promise.resolve([])
-    ContactStore.constructor()
-    expect(ContactStore._contactCache.length).toBe 0
-    expect(ContactStore._fetchOffset).toBe 0
 
   describe "when the Account updates from null to valid", ->
     beforeEach ->
