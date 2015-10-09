@@ -2,7 +2,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Feedback</title>
-    <script src="nylas://feedback/node_modules/electron-safe-ipc/guest-bundle.js"></script>
     <script>
         (function() {
             var query = location.search.substr(1);
@@ -22,7 +21,9 @@
                 _newMessages = value;
             }
             function sendNewMessageState(value) {
-                electronSafeIpc.send("fromRenderer", 'newFeedbackMessages', value);
+              var req = new XMLHttpRequest();
+              req.open("GET", "nylas-feedback-available:///this-area-ignored");
+              req.send();
             }
 
             //Hacky intercom-dependent constants

@@ -7,7 +7,6 @@
   },
   "description": "Intercom feeedback",
   "dependencies": {
-    "electron-safe-ipc": "^0.5"
   },
   "private":true
 }

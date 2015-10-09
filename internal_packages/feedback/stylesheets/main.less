@@ -37,16 +37,21 @@
 }
 
 .btn-feedback.newmsg{
-  background: linear-gradient(to bottom, #F55 0%,darken(#F55, 10%) 100%);
-  border: 1px solid darken(#F55, 20%);
+  color:rgba(255,255,255,1);
+}
+.btn-feedback.newmsg::after {
+  display:block;
+  background: linear-gradient(to bottom, darken(red, 2%) 0%, darken(red, 10%) 100%);
+  content: "•";
+  position: absolute;
+  font-size:16px;
+  width:16px;
+  height:16px;
+  top: -4px;
+  right: -4px;
+  line-height: 13px;
+  border-radius: 10px;
 }
 .btn-feedback.newmsg:not(:hover):not(:active){
   animation: bounce 3s ease-in-out 0s infinite;
-}
-.btn-feedback.newmsg:hover {
-  color:rgba(255,255,255,1);
-  background: linear-gradient(to bottom, lighten(#F55,5%) 0%, darken(#F55, 5%) 100%);
-}
-.btn-feedback.newmsg:active {
-  background: linear-gradient(to bottom, darken(#F55,20%) 0%, darken(#F55, 10%) 100%);
 }
