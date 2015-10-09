@@ -4,6 +4,7 @@
  AccountStore,
  Actions} = require 'nylas-exports'
 {RetinaImg} = require 'nylas-component-kit'
+FeedbackActions = require './feedback-actions'
 
 class FeedbackButton extends React.Component
   @displayName: 'FeedbackButton'
@@ -12,10 +13,12 @@ class FeedbackButton extends React.Component
     @state = {newMessages: false}
 
   componentDidMount: =>
-    @unsubscribe = Actions.sendFeedback.listen(@_onSendFeedback)
+    @_unsubs = []
+    @_unsubs.push Actions.sendFeedback.listen(@_onSendFeedback)
+    @_unsubs.push FeedbackActions.feedbackAvailable.listen(@_onFeedbackAvailable)
 
   componentWillUnmount: =>
-    @unsubscribe()
+    unsub() for unsub in @_unsubs
 
   render: =>
     <div style={position:"absolute",height:0}>
@@ -25,6 +28,9 @@ class FeedbackButton extends React.Component
   _getClassName: =>
     return "btn-feedback" + if @state.newMessages then " newmsg" else ""
 
+  _onFeedbackAvailable: =>
+    @setState(newMessages: true)
+
   _onSendFeedback: =>
     return if atom.inSpecMode()
 
@@ -33,8 +39,7 @@ class FeedbackButton extends React.Component
     path = require 'path'
     qs = require 'querystring'
 
-    ipc_path = require.resolve("electron-safe-ipc/host")
-    ipc = require('remote').require(ipc_path)
+    @setState(newMessages: false)
 
     if window.feedbackWindow?
       window.feedbackWindow.show()
@@ -77,15 +82,8 @@ class FeedbackButton extends React.Component
       w.on 'closed', (event) ->
         window.feedbackWindow = null # if the window does get closed, clear our ref to it
 
-      ipc.on "fromRenderer", (event,data) =>
-        if event == "newFeedbackMessages"
-          @setState(newMessages:data)
-
       url = path.join __dirname, '..', 'feedback.html'
       w.loadUrl("file://#{url}?#{params}")
       w.show()
-
-
-
 
 module.exports = FeedbackButton
