@@ -8,111 +8,10 @@ NylasStore = require 'nylas-store'
 RegExpUtils = require '../../regexp-utils'
 DatabaseStore = require './database-store'
 AccountStore = require './account-store'
+ContactRankingStore = require './contact-ranking-store'
 _ = require 'underscore'
 
-NylasAPI = require '../nylas-api'
-{Listener, Publisher} = require '../modules/reflux-coffee'
-CoffeeHelpers = require '../coffee-helpers'
-
 WindowBridge = require '../../window-bridge'
-
-###
-The JSONCache class exposes a simple API for maintaining a local cache of data
-in a JSON file that needs to be refreshed periodically. Using JSONCache is a good
-idea because it handles a file errors and JSON parsing errors gracefully.
-
-To use the JSONCache class, subclass it and implement `refreshValue`, which
-should compute a new JSON value and return it via the callback:
-
-```
-refreshValue: (callback) ->
-  NylasAPI.makeRequest(...).then (values) ->
-    callback(values)
-```
-
-If you do not wish to refresh the value, do not call the callback.
-
-When you create an instance of a JSONCache, you need to provide several settings:
-
-- `key`: A unique key identifying this object.
-
-- `version`: a version number. If the local cache has a different version number
-  it will be thrown out. Useful if you want to change the format of the data
-  stored in the cache.
-
-- `maxAge`: the maximum age of the local cache before it should be refreshed.
-
-###
-class JSONCache
-  @include: CoffeeHelpers.includeModule
-  @include Publisher
-
-  constructor: ({@key, @version, @maxAge}) ->
-    @_value = null
-    DatabaseStore.findJSONObject(@key).then (json) =>
-      return @refresh() unless json
-      return @refresh() unless json.version is @version
-      @_value = json.value
-      @trigger()
-
-      age = (new Date).getTime() - json.time
-      if age > @maxAge
-        @refresh()
-      else
-        setTimeout(@refresh, @maxAge - age)
-
-  value: ->
-    @_value
-
-  reset: ->
-    DatabaseStore.persistJSONObject(@key, {})
-    clearInterval(@_interval) if @_interval
-    @_interval = null
-    @_value = null
-
-  refresh: =>
-    clearInterval(@_interval) if @_interval
-    @_interval = setInterval(@refresh, @maxAge)
-
-    @refreshValue (newValue) =>
-      @_value = newValue
-      DatabaseStore.persistJSONObject(@key, {
-        version: @version
-        time: (new Date).getTime()
-        value: @_value
-      })
-      @trigger()
-
-  refreshValue: (callback) =>
-    throw new Error("Subclasses should override this method.")
-
-
-class RankingsJSONCache extends JSONCache
-
-  constructor: ->
-    super(key: 'RankingsJSONCache', version: 1, maxAge: 60 * 60 * 1000 * 24)
-
-  refreshValue: (callback) =>
-    return unless atom.isMainWindow()
-
-    accountId = AccountStore.current()?.id
-    return unless accountId
-
-    NylasAPI.makeRequest
-      accountId: accountId
-      path: "/contacts/rankings"
-      returnsModel: false
-    .then (json) =>
-      # Check that the current account is still the one we requested data for
-      return unless accountId is AccountStore.current()?.id
-      # Convert rankings into the format needed for quick lookup
-      rankings = {}
-      for [email, rank] in json
-        rankings[email.toLowerCase()] = rank
-      callback(rankings)
-    .catch (err) =>
-      console.warn("Request for Contact Rankings failed. #{err}")
-
 
 ###
 Public: ContactStore maintains an in-memory cache of the user's address
@@ -141,10 +40,9 @@ class ContactStore extends NylasStore
       @_contactCache = []
       @_accountId = null
 
-      @_rankingsCache = new RankingsJSONCache()
       @listenTo DatabaseStore, @_onDatabaseChanged
       @listenTo AccountStore, @_onAccountChanged
-      @listenTo @_rankingsCache, @_sortContactsCacheWithRankings
+      @listenTo ContactRankingStore, @_sortContactsCacheWithRankings
 
       @_accountId = AccountStore.current()?.id
       @_refreshCache()
@@ -276,7 +174,7 @@ class ContactStore extends NylasStore
   _refreshCache: _.debounce(ContactStore::__refreshCache, 100)
 
   _sortContactsCacheWithRankings: =>
-    rankings = @_rankingsCache.value()
+    rankings = ContactRankingStore.value()
     return unless rankings
     @_contactCache = _.sortBy @_contactCache, (contact) =>
       - (rankings[contact.email.toLowerCase()] ? 0) / 1
@@ -287,7 +185,7 @@ class ContactStore extends NylasStore
 
   _resetCache: =>
     @_contactCache = []
-    @_rankingsCache.reset()
+    ContactRankingStore.reset()
     @trigger(@)
 
   _onAccountChanged: =>
@@ -295,7 +193,6 @@ class ContactStore extends NylasStore
     @_accountId = AccountStore.current()?.id
 
     if @_accountId
-      @_rankingsCache.refresh()
       @_refreshCache()
     else
       @_resetCache()
