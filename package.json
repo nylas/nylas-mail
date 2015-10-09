@@ -58,7 +58,7 @@
     "request": "^2.53",
     "request-progress": "^0.3",
     "runas": "^2.0",
-    "sanitize-html": "^1.9",
+    "sanitize-html": "1.9.0",
     "scoped-property-store": "^0.16.2",
     "season": "^5.1",
     "semver": "^4.2",
