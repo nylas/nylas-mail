@@ -297,7 +297,7 @@ module.exports = (grunt) ->
       outputDir: 'electron'
       downloadDir: electronDownloadDir
       rebuild: true  # rebuild native modules after electron is updated
-      token: process.env.ATOM_ACCESS_TOKEN
+      token: process.env.NYLAS_ACCESS_TOKEN
 
     'create-windows-installer':
       appDirectory: shellAppDir
@@ -325,11 +325,11 @@ module.exports = (grunt) ->
   ciTasks.push('set-version', 'lint', 'generate-asar')
   ciTasks.push('mkdeb') if process.platform is 'linux'
   ciTasks.push('test') if process.platform is 'darwin'
-  ciTasks.push('codesign')
-  ciTasks.push('mkdmg') if process.platform is 'darwin'
-  ciTasks.push('create-windows-installer') if process.platform is 'win32'
-  # ciTasks.push('publish-docs') if process.platform is 'darwin'
-  ciTasks.push('publish-nylas-build') if process.platform is 'darwin'
+  ciTasks.push('codesign') unless process.env.TRAVIS
+  ciTasks.push('mkdmg') if process.platform is 'darwin' and not process.env.TRAVIS
+  ciTasks.push('create-windows-installer') if process.platform is 'win32' and not process.env.TRAVIS
+  # ciTasks.push('publish-docs') if process.platform is 'darwin' and not process.env.TRAVIS
+  ciTasks.push('publish-nylas-build') if process.platform is 'darwin' and not process.env.TRAVIS
   grunt.registerTask('ci', ciTasks)
 
   defaultTasks = ['download-electron', 'build', 'set-version', 'generate-asar']
