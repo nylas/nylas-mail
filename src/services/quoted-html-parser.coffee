@@ -74,7 +74,12 @@ class QuotedHTMLParser
 
   _parseHTML: (text) ->
     domParser = new DOMParser()
-    doc = domParser.parseFromString(text, "text/html")
+    try
+      doc = domParser.parseFromString(text, "text/html")
+    catch error
+      text = "HTML Parser Error: #{error.toString()}"
+      doc = domParser.parseFromString(text, "text/html")
+      atom.emitError(error)
     return doc
 
   _wholeBodyIsQuote: (doc, quoteElements) ->
