@@ -1,18 +1,19 @@
-// Color abstraction hierarchy:
-// 1. Hex code (#428bca)
-// 2. Common color name (@blue)
-// 3. Generic color descriptor (@accent-primary, @background-primary)
-// --------
-// 4. Generic usage descriptor (@input-background, @button-background)
-// 5. Application-specific usage (@unread-label-background)
+/*  Color abstraction hierarchy:
+    1. Hex code (#428bca)
+    2. Common color name (@blue)
+    3. Generic color descriptor (@accent-primary, @background-primary)
+    --------
+    4. Generic usage descriptor (@input-background, @button-background)
+    5. Application-specific usage (@unread-label-background)
 
-// Typography abstraction hierarchy
-// 1. Font-face (Nylas-Pro)
-// 2. Common name (@bold, @italic)
-// 3. Generic font descriptor mixins (.bold, .italic, .h1, .h2)
-// --------
-// 4. Generic usage descriptor (.btn-text, .p-body)
-// 5. Application-specific usage (.message-list-h1)
+    Typography abstraction hierarchy
+    1. Font-face (Nylas-Pro)
+    2. Common name (@bold, @italic)
+    3. Generic font descriptor mixins (.bold, .italic, .h1, .h2)
+    --------
+    4. Generic usage descriptor (.btn-text, .p-body)
+    5. Application-specific usage (.message-list-h1)
+*/
 
 //=============================== Colors ===============================//
 //== Brand colors
@@ -245,13 +246,13 @@
 
 
 //=============================== Z-Index ==============================//
-//-- Z-index master list
-//
-// Warning: Avoid customizing these values. They're used for a bird's eye
-// view of components dependent on the z-axis and are designed to all work
-// together.
-//
-// Note: These variables are not generated into the Customizer.
+/*-- Z-index master list
+
+Warning: Avoid customizing these values. They're used for a bird's eye
+view of components dependent on the z-axis and are designed to all work
+together.
+
+Note: These variables are not generated into the Customizer. */
 
 @zindex-navbar:            1000;
 @zindex-dropdown:          1000;
@@ -351,19 +352,20 @@
 @state-danger-bg:                #f2dede;
 @state-danger-border:            darken(spin(@state-danger-bg, -10), 5%);
 
-/////
 
-// -------------
-// EVERYTHING BELOW THIS NEEDS TO BE DEPRECATED OR MOVED ABOVE THIS
-// old stuff
-// -------------
+/*
+-------------
+EVERYTHING BELOW THIS NEEDS TO BE DEPRECATED OR MOVED ABOVE THIS
+old stuff
+-------------
 
-// Private
-//
-// Do not use these colors outside of this file.
-// You should choose variables based on the role of your
-// interface elements. In other themes, @light-blue may
-// not be light or blue.
+Private
+
+Do not use these colors outside of this file.
+You should choose variables based on the role of your
+interface elements. In other themes, @light-blue may
+not be light or blue.
+*/
 
 @PANTONE-340-UP:     #00ac6f;
 @PANTONE-7704-UP:    #009ec4;
