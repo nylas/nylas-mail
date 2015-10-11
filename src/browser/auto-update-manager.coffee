@@ -7,7 +7,7 @@ fs = require 'fs'
 
 IdleState = 'idle'
 CheckingState = 'checking'
-DownladingState = 'downloading'
+DownloadingState = 'downloading'
 UpdateAvailableState = 'update-available'
 NoUpdateAvailableState = 'no-update-available'
 UnsupportedState = 'unsupported'
@@ -61,7 +61,7 @@ class AutoUpdateManager
       @setState(NoUpdateAvailableState)
 
     autoUpdater.on 'update-available', =>
-      @setState(DownladingState)
+      @setState(DownloadingState)
 
     autoUpdater.on 'update-downloaded', (event, @releaseNotes, @releaseVersion) =>
       @setState(UpdateAvailableState)
@@ -69,8 +69,11 @@ class AutoUpdateManager
 
     @check(hidePopups: true)
     setInterval =>
+      if @state in [UpdateAvailableState, UnsupportedState]
+        console.log "Skipping update check... update ready to install, or updater unavailable."
+        return
       @check(hidePopups: true)
-    , (1000 * 60 * 5)
+    , (1000 * 60 * 30)
 
     switch process.platform
       when 'win32'
