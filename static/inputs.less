@@ -28,7 +28,8 @@ input[type="url"] {
 
   &.input-bordered {
     border-radius: @border-radius-base;
-    border: 1px solid @input-border;
+    border: none;
+    box-shadow: 0 0.5px 0 @input-border, 0 -0.5px 0 @input-border, 0.5px 0 0 @input-border, -0.5px 0 0 @input-border;
   }
 }
 input[type="text"]:focus,
