@@ -139,6 +139,18 @@ describe "ContactStore", ->
       expect(ContactStore.isValidContact(new Contact(name: 'Ben', email:'<ben@nylas.com>'))).toBe(false)
       expect(ContactStore.isValidContact(new Contact(name: 'Ben', email:'"ben@nylas.com"'))).toBe(false)
 
+    it "returns false if we're not passed a contact", ->
+      expect(ContactStore.isValidContact()).toBe false
+
+    it "returns false if the contact doesn't have an email", ->
+      expect(ContactStore.isValidContact(new Contact(name: "test"))).toBe false
+
+    it "returns false if the email doesn't satisfy the regex", ->
+      expect(ContactStore.isValidContact(new Contact(name: "test", email: "foo"))).toBe false
+
+    it "returns false if the email doesn't match", ->
+      expect(ContactStore.isValidContact(new Contact(name: "test", email: "foo@"))).toBe false
+
   describe 'parseContactsInString', ->
     testCases =
       # Single contact test cases

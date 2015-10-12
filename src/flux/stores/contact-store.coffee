@@ -116,8 +116,10 @@ class ContactStore extends NylasStore
     return false unless contact.email
 
     # The email regexp must match the /entire/ email address
-    [match] = RegExpUtils.emailRegex().exec(contact.email)
-    return match is contact.email
+    result = RegExpUtils.emailRegex().exec(contact.email)
+    if result and result instanceof Array
+      return result[0] is contact.email
+    else return false
 
   parseContactsInString: (contactString, options={}) =>
     {skipNameLookup} = options
