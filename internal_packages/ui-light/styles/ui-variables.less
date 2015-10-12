@@ -1,1 +1,90 @@
-@background-primary:     #ffffff;
+
+// UI COLORS
+// With this variables you can override the original ui-variables
+// •••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
+
+	//== Brand colors
+	@nylas-yellow:      #D5DC28;
+	@nylas-yellow-dark: #A0C23A;
+	@nylas-green:       #5CB346;
+	@nylas-green-dark:  #078E46;
+	@nylas-blue:        #11A1A2;
+	@nylas-blue-dark:   #0F7982;
+	@nylas-black:       #313435;
+	@nylas-gray:        #434648;
+
+
+	//== Generic colors
+	@black:        @nylas-black;
+	@white:        #ffffff;
+	@gray-base:    #0a0b0c;
+	@gray-darker:  lighten( @gray-base, 13.5% ); // #222
+	@gray-dark:    lighten( @gray-base, 20% );   // #333
+	@gray:         lighten( @gray-base, 33.5% ); // #555
+	@gray-light:   lighten( @gray-base, 46.7% ); // #777
+	@gray-lighter: lighten( @gray-base, 92.5% ); // #eee
+	@blue:         #419bf9;
+	@blue-dark:    #3187e1;
+
+
+// SPACING
+// Define common padding and border radius sizes and more. Values based on
+// 14px text and 1.428 line-height (~20px to start).
+// •••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
+
+	@spacing-standard:          @font-size-base;
+
+	@spacing-quarter:           @spacing-standard * 0.25;
+	@spacing-half:              @spacing-standard * 0.5;
+	@spacing-three-quarters:    @spacing-standard * 0.75;
+
+	@spacing-sub-double:        @spacing-standard * 1.75;
+	@spacing-double:            @spacing-standard * 2;
+	@spacing-super-double:      @spacing-standard * 2.25;
+
+
+	@padding-base-vertical:     6px;
+	@padding-base-horizontal:   18px;
+
+	@padding-large-vertical:    10px;
+	@padding-large-horizontal:  16px;
+
+	@padding-small-vertical:    5px;
+	@padding-small-horizontal:  10px;
+
+	@padding-xs-vertical:       1px;
+	@padding-xs-horizontal:     5px;
+
+	@line-height-large:         @line-height-computed * 1.3;
+	@line-height-small:         @line-height-computed * 0.95;
+
+	@border-radius-base:        2px;
+	@border-radius-large:       4px;
+	@border-radius-small:       1px;
+
+
+// COMPONENTS
+// •••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
+	
+	//== Toolbar colors
+	@background-primary:       	@white;
+	@toolbar-background-color: 	@white;
+	
+	//== Sidebar
+	@panel-background-color:   	@gray-lighter;
+
+
+// BUTTONS
+// •••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
+
+	@btn-shadow:                  @standard-shadow;
+	@btn-default-bg-color:    		@background-primary;
+	@btn-default-text-color:  		@text-color;
+	@btn-action-bg-color:     		@success-color;
+	@btn-action-text-color:       @text-color;
+
+	@btn-emphasis-bg-color:   #5b90fb;
+	@btn-emphasis-text-color: @text-color-inverse;
+
+	@btn-danger-bg-color:     @danger-color;
+	@btn-danger-text-color:   @text-color-inverse;
