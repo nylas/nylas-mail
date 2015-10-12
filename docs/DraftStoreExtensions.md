@@ -14,7 +14,7 @@ This API allows your package to:
 
 - Transform the draft and make additional changes before it is sent.
 
-To create your own composer extensions, subclass {DraftStoreExtension} and override the methods your extension needs.
+To create your own composer extensions, subclass {DraftStoreExtensions} and override the methods your extension needs.
 
 In the sample packages repository, [templates]() is an example of a package which uses a DraftStoreExtension to enhance the composer experience.
 
