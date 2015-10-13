@@ -1,7 +1,6 @@
 ---
 layout: docs
 title: UnsafeComponent
-edit_url: "https://github.com/nylas/N1/blob/master/src/components/unsafe-component.cjsx"
 ---
 
 <h2>Summary</h2>
@@ -9,9 +8,9 @@ edit_url: "https://github.com/nylas/N1/blob/master/src/components/unsafe-compone
 <div class="markdown-from-sourecode">
   <p><p>Renders a component provided via the <code>component</code> prop, and ensures that
 failures in the component&#39;s code do not cause state inconsistencies elsewhere in
-the application. This component is used by <a href='injectedcomponent.html'>InjectedComponent</a> and
-<a href='injectedcomponentset.html'>InjectedComponentSet</a> to isolate third party code that could be buggy.</p>
-<p>Occasionally, having your component wrapped in <a href='unsafecomponent.html'>UnsafeComponent</a> can cause style
+the application. This component is used by <a href='InjectedComponent.html'>InjectedComponent</a> and
+<a href='InjectedComponentSet.html'>InjectedComponentSet</a> to isolate third party code that could be buggy.</p>
+<p>Occasionally, having your component wrapped in <a href='UnsafeComponent.html'>UnsafeComponent</a> can cause style
 issues. For example, in a Flexbox, the <code>div.unsafe-component-wrapper</code> will cause
 your <code>flex</code> and <code>order</code> values to be one level too deep. For these scenarios,
 UnsafeComponent looks for <code>containerStyles</code> on your React component and attaches
@@ -40,9 +39,13 @@ them to the wrapper div:</p>
                 <em>component</em>
               </td>
               <td>
-
+                
                 <p>The <a href='https://facebook.github.io/react/docs/component-api.html'>React.Component</a> to display. All other props will be passed on to this component.</p>
-
+    
               </td>
             </tr>
         </table>
+
+
+
+

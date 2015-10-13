@@ -1,14 +1,13 @@
 ---
 layout: docs
 title: TaskQueue
-edit_url: "https://github.com/nylas/N1/blob/master/src/flux/stores/task-queue.coffee"
 ---
 
 <h2>Summary</h2>
 
 <div class="markdown-from-sourecode">
-  <p><p>The TaskQueue is a Flux-compatible Store that manages a queue of <a href='task.html'>Task</a>
-objects. Each <a href='task.html'>Task</a> represents an individual API action, like sending a draft
+  <p><p>The TaskQueue is a Flux-compatible Store that manages a queue of <a href='Task.html'>Task</a>
+objects. Each <a href='Task.html'>Task</a> represents an individual API action, like sending a draft
 or marking a thread as &quot;read&quot;. Tasks optimistically make changes to the app&#39;s
 local cache and encapsulate logic for performing changes on the server, rolling
 back in case of failure, and waiting on dependent tasks.</p>
@@ -17,7 +16,7 @@ when the user&#39;s internet connection is unavailable and resumes when online.<
 <p>The task queue is persisted to disk, ensuring that tasks are executed later,
 even if the user quits N1.</p>
 <p>The TaskQueue is only available in the app&#39;s main window. Rather than directly
-queuing tasks, you should use the <a href='actions.html'>Actions</a> to interact with the <a href='taskqueue.html'>TaskQueue</a>.
+queuing tasks, you should use the <a href='Actions.html'>Actions</a> to interact with the <a href='TaskQueue.html'>TaskQueue</a>.
 Tasks queued from secondary windows are serialized and sent to the application&#39;s
 main window via IPC.</p>
 <h2 id="queueing-a-task">Queueing a Task</h2>
@@ -33,7 +32,7 @@ main window via IPC.</p>
 })</span></span></span>
 </code></pre>
 <h2 id="creating-tasks">Creating Tasks</h2>
-<p>Support for creating custom <a href='task.html'>Task</a> subclasses in third-party packages is coming soon.
+<p>Support for creating custom <a href='Task.html'>Task</a> subclasses in third-party packages is coming soon.
 This is currently blocked by the ActionBridge, which is responsible for sending actions
 between windows, since it&#39;s JSON serializer is not extensible.</p>
 </p>
@@ -51,11 +50,11 @@ between windows, since it&#39;s JSON serializer is not extensible.</p>
     <h4 id=findTask class="function-name">
       findTask(<span class="args"><span class="arg">type</span><span class="arg">matching</span></span>) <a href="#findTask" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p></p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -67,9 +66,9 @@ between windows, since it&#39;s JSON serializer is not extensible.</p>
                 <em>type</em>
               </td>
               <td class="markdown-from-sourecode">
-
+                
                 <p>The string name of the task class, or the Task class itself. (ie: {SaveDraftTask} or &#39;SaveDraftTask&#39;)</p>
-
+    
               </td>
             </tr>
             <tr>
@@ -77,13 +76,13 @@ between windows, since it&#39;s JSON serializer is not extensible.</p>
                 <em>matching</em>
               </td>
               <td class="markdown-from-sourecode">
-
+                
                 <p>Optional An <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a> with criteria to pass to _.isMatch. For a  SaveDraftTask, this could be {draftClientId: &quot;123123&quot;}</p>
-
+    
               </td>
             </tr>
         </table>
-
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -93,6 +92,7 @@ between windows, since it&#39;s JSON serializer is not extensible.</p>
     and any other match properties. Useful for checking to see if something, like
     a &quot;SendDraft&quot; task is in-flight.</p>
     </td></tr>
-          <tr><td class="markdown-from-sourecode"><p>Returns a matching <a href='task.html'>Task</a>, or null.</p>
+          <tr><td class="markdown-from-sourecode"><p>Returns a matching <a href='Task.html'>Task</a>, or null.</p>
     </td></tr>
         </table>
+

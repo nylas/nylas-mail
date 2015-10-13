@@ -1,7 +1,6 @@
 ---
 layout: docs
 title: ChangeFolderTask
-edit_url: "https://github.com/nylas/N1/blob/master/src/flux/tasks/change-folder-task.coffee"
 ---
 
 <h2>Summary</h2>
@@ -10,9 +9,9 @@ edit_url: "https://github.com/nylas/N1/blob/master/src/flux/tasks/change-folder-
   <p><p>Create a new task to apply labels to a message or thread.</p>
 <p>Takes an options object of the form:</p>
 <ul>
-<li>folder: The <a href='folder.html'>Folder</a> or <a href='folder.html'>Folder</a> IDs to move to</li>
-<li>threads: An array of <a href='thread.html'>Thread</a>s or <a href='thread.html'>Thread</a> IDs</li>
-<li>threads: An array of <a href='message.html'>Message</a>s or <a href='message.html'>Message</a> IDs</li>
+<li>folder: The <a href='Folder.html'>Folder</a> or <a href='Folder.html'>Folder</a> IDs to move to</li>
+<li>threads: An array of <a href='Thread.html'>Thread</a>s or <a href='Thread.html'>Thread</a> IDs</li>
+<li>threads: An array of <a href='Message.html'>Message</a>s or <a href='Message.html'>Message</a> IDs</li>
 <li>undoData: Since changing the folder is a destructive action,
 undo tasks need to store the configuration of what folders messages
 were in. When creating an undo task, we fill this parameter with
@@ -23,3 +22,8 @@ that configuration</li>
 
 <ul>
 </ul>
+
+
+
+
+

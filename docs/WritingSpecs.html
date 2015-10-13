@@ -1,7 +1,6 @@
 ---
 layout: docs
 title: Writing Specs
-edit_url: "https://github.com/nylas/N1/blob/a2c697754ad692e6a54629ffd93883dda79b0d78/docs/WritingSpecs.md"
 ---
 <p>Nylas uses <a href="http://jasmine.github.io/1.3/introduction.html">Jasmine</a> as its spec framework. As a package developer, you can write specs using Jasmine 1.3 and get some quick wins. Jasmine specs can be run in N1 directly from the Developer menu, and the test environment provides you with helpful stubs. You can also require your own test framework, or use Jasmine for integration tests and your own framework for your existing business logic.</p>
 <p>This documentation describes using <a href="http://jasmine.github.io/1.3/introduction.html">Jasmine 1.3</a> to write specs for a Nylas package.</p>
@@ -79,7 +78,7 @@ describe <span class="hljs-string">"Editor::moveUp"</span>,<span class="hljs-fun
       <span class="hljs-function"><span class="hljs-title">expect</span><span class="hljs-params">(spy.mostRecentCall.args)</span></span><span class="hljs-class">.toEqual</span> exp
       <span class="hljs-function"><span class="hljs-title">expect</span><span class="hljs-params">(spy)</span></span>.<span class="hljs-function"><span class="hljs-title">toHaveBeenCalledWith</span><span class="hljs-params">(null, [<span class="hljs-string">'example.coffee'</span>])</span></span>
 </code></pre>
-<p>For a more detailed documentation on asynchronous tests please visit the <a href="http://jasmine.github.io/1.3/introduction.html#section-Asynchronous_Support)[Jasmine">http://jasmine.github.io/1.3/introduction.html#section-Asynchronous_Support)[Jasmine</a> documentation].</p>
+<p>For a more detailed documentation on asynchronous tests please visit the <a href="http://jasmine.github.io/1.3/introduction.html#section-Asynchronous_Support">Jasmine documentation</a>.</p>
 <h4 id="tips-for-debugging-specs">Tips for Debugging Specs</h4>
 <p>To run a limited subset of specs use the <code>fdescribe</code> or <code>fit</code> methods. You can use those to focus a single spec or several specs. In the example above, focusing an individual spec looks like this:</p>
 <pre><code class="lang-coffee">describe <span class="hljs-string">"when a test is written"</span>, -&gt;
@@ -87,3 +86,4 @@ describe <span class="hljs-string">"Editor::moveUp"</span>,<span class="hljs-fun
     <span class="hljs-function"><span class="hljs-title">expect</span><span class="hljs-params">(<span class="hljs-string">"apples"</span>)</span></span>.<span class="hljs-function"><span class="hljs-title">toEqual</span><span class="hljs-params">(<span class="hljs-string">"apples"</span>)</span></span>
     <span class="hljs-function"><span class="hljs-title">expect</span><span class="hljs-params">(<span class="hljs-string">"oranges"</span>)</span></span><span class="hljs-class">.not</span><span class="hljs-class">.toEqual</span>(<span class="hljs-string">"apples"</span>)
 </code></pre>
+

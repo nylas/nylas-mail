@@ -1,7 +1,6 @@
 ---
 layout: docs
 title: Message
-edit_url: "https://github.com/nylas/N1/blob/master/src/flux/models/message.coffee"
 ---
 
 <h2>Summary</h2>
@@ -15,30 +14,30 @@ exception being drafts). Nylas does not support operations such as move or delet
 individual messages; those operations should be performed on the message’s thread.
 All messages are part of a thread, even if that thread has only one message.</p>
 <h2 id="attributes">Attributes</h2>
-<p><code>to</code>: <a href='attributecollection.html'>AttributeCollection</a> A collection of <a href='contact.html'>Contact</a> objects</p>
-<p><code>cc</code>: <a href='attributecollection.html'>AttributeCollection</a> A collection of <a href='contact.html'>Contact</a> objects</p>
-<p><code>bcc</code>: <a href='attributecollection.html'>AttributeCollection</a> A collection of <a href='contact.html'>Contact</a> objects</p>
-<p><code>from</code>: <a href='attributecollection.html'>AttributeCollection</a> A collection of <a href='contact.html'>Contact</a> objects.</p>
-<p><code>replyTo</code>: <a href='attributecollection.html'>AttributeCollection</a> A collection of <a href='contact.html'>Contact</a> objects.</p>
-<p><code>date</code>: <a href='attributedatetime.html'>AttributeDateTime</a> When the message was delivered. Queryable.</p>
-<p><code>subject</code>: <a href='attributestring.html'>AttributeString</a> The subject of the thread. Queryable.</p>
-<p><code>snippet</code>: <a href='attributestring.html'>AttributeString</a> A short, 140-character plain-text summary of the message body.</p>
-<p><code>unread</code>: <a href='attributeboolean.html'>AttributeBoolean</a> True if the message is unread. Queryable.</p>
-<p><code>starred</code>: <a href='attributeboolean.html'>AttributeBoolean</a> True if the message is starred. Queryable.</p>
-<p><code>draft</code>: <a href='attributeboolean.html'>AttributeBoolean</a> True if the message is a draft. Queryable.</p>
-<p><code>version</code>: <a href='attributenumber.html'>AttributeNumber</a> The version number of the message. Message
+<p><code>to</code>: <a href='AttributeCollection.html'>AttributeCollection</a> A collection of <a href='Contact.html'>Contact</a> objects</p>
+<p><code>cc</code>: <a href='AttributeCollection.html'>AttributeCollection</a> A collection of <a href='Contact.html'>Contact</a> objects</p>
+<p><code>bcc</code>: <a href='AttributeCollection.html'>AttributeCollection</a> A collection of <a href='Contact.html'>Contact</a> objects</p>
+<p><code>from</code>: <a href='AttributeCollection.html'>AttributeCollection</a> A collection of <a href='Contact.html'>Contact</a> objects.</p>
+<p><code>replyTo</code>: <a href='AttributeCollection.html'>AttributeCollection</a> A collection of <a href='Contact.html'>Contact</a> objects.</p>
+<p><code>date</code>: <a href='AttributeDateTime.html'>AttributeDateTime</a> When the message was delivered. Queryable.</p>
+<p><code>subject</code>: <a href='AttributeString.html'>AttributeString</a> The subject of the thread. Queryable.</p>
+<p><code>snippet</code>: <a href='AttributeString.html'>AttributeString</a> A short, 140-character plain-text summary of the message body.</p>
+<p><code>unread</code>: <a href='AttributeBoolean.html'>AttributeBoolean</a> True if the message is unread. Queryable.</p>
+<p><code>starred</code>: <a href='AttributeBoolean.html'>AttributeBoolean</a> True if the message is starred. Queryable.</p>
+<p><code>draft</code>: <a href='AttributeBoolean.html'>AttributeBoolean</a> True if the message is a draft. Queryable.</p>
+<p><code>version</code>: <a href='AttributeNumber.html'>AttributeNumber</a> The version number of the message. Message
    versions are used for drafts, and increment when attributes are changed.</p>
-<p><code>files</code>: <a href='attributecollection.html'>AttributeCollection</a> A set of <a href='file.html'>File</a> models representing
+<p><code>files</code>: <a href='AttributeCollection.html'>AttributeCollection</a> A set of <a href='File.html'>File</a> models representing
    the attachments on this thread.</p>
-<p><code>body</code>: <a href='attributejoineddata.html'>AttributeJoinedData</a> The HTML body of the message. You must specifically
+<p><code>body</code>: <a href='AttributeJoinedData.html'>AttributeJoinedData</a> The HTML body of the message. You must specifically
  request this attribute when querying for a Message using the {<a href='AttributeJoinedData.html#include'>AttributeJoinedData::include</a>}
  method.</p>
-<p><code>pristine</code>: <a href='attributeboolean.html'>AttributeBoolean</a> True if the message is a draft which has not been
+<p><code>pristine</code>: <a href='AttributeBoolean.html'>AttributeBoolean</a> True if the message is a draft which has not been
  edited since it was created.</p>
-<p><code>threadId</code>: <a href='attributestring.html'>AttributeString</a> The ID of the Message&#39;s parent <a href='thread.html'>Thread</a>. Queryable.</p>
-<p><code>replyToMessageId</code>: <a href='attributestring.html'>AttributeString</a> The ID of a <a href='message.html'>Message</a> that this message
+<p><code>threadId</code>: <a href='AttributeString.html'>AttributeString</a> The ID of the Message&#39;s parent <a href='Thread.html'>Thread</a>. Queryable.</p>
+<p><code>replyToMessageId</code>: <a href='AttributeString.html'>AttributeString</a> The ID of a <a href='Message.html'>Message</a> that this message
  is in reply to.</p>
-<p>This class also inherits attributes from <a href='model.html'>Model</a></p>
+<p>This class also inherits attributes from <a href='Model.html'>Model</a></p>
 </p>
 </div>
 
@@ -54,12 +53,12 @@ All messages are part of a thread, even if that thread has only one message.</p>
     <h4 id=participants class="function-name">
       participants(<span class="args"></span>) <a href="#participants" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p></p>
     </div>
-
-
+    
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -72,12 +71,12 @@ All messages are part of a thread, even if that thread has only one message.</p>
     <h4 id=participantsForReplyAll class="function-name">
       participantsForReplyAll(<span class="args"></span>) <a href="#participantsForReplyAll" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p></p>
     </div>
-
-
+    
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -91,12 +90,12 @@ All messages are part of a thread, even if that thread has only one message.</p>
     <h4 id=participantsForReply class="function-name">
       participantsForReply(<span class="args"></span>) <a href="#participantsForReply" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p></p>
     </div>
-
-
+    
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -110,29 +109,29 @@ All messages are part of a thread, even if that thread has only one message.</p>
     <h4 id=fileIds class="function-name">
       fileIds(<span class="args"></span>) <a href="#fileIds" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p></p>
     </div>
-
-
+    
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
             <th>Return Values</th>
           </tr>
-          <tr><td class="markdown-from-sourecode"><p>Returns an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of <a href='file.html'>File</a> IDs</p>
+          <tr><td class="markdown-from-sourecode"><p>Returns an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of <a href='File.html'>File</a> IDs</p>
     </td></tr>
         </table>
     <h4 id=isFromMe class="function-name">
       isFromMe(<span class="args"></span>) <a href="#isFromMe" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p></p>
     </div>
-
-
+    
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -146,12 +145,12 @@ All messages are part of a thread, even if that thread has only one message.</p>
     <h4 id=plainTextBody class="function-name">
       plainTextBody(<span class="args"></span>) <a href="#plainTextBody" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p></p>
     </div>
-
-
+    
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -164,12 +163,12 @@ All messages are part of a thread, even if that thread has only one message.</p>
     <h4 id=replyAttributionLine class="function-name">
       replyAttributionLine(<span class="args"></span>) <a href="#replyAttributionLine" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p></p>
     </div>
-
-
+    
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -180,3 +179,4 @@ All messages are part of a thread, even if that thread has only one message.</p>
     ie &quot;On Dec. 12th, 2015 at 4:00PM, Ben Gotow wrote:&quot;</p>
     </td></tr>
         </table>
+

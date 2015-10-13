@@ -1,14 +1,13 @@
 ---
 layout: docs
 title: DraftStoreExtension
-edit_url: "https://github.com/nylas/N1/blob/master/src/flux/stores/draft-store-extension.coffee"
 ---
 
 <h2>Summary</h2>
 
 <div class="markdown-from-sourecode">
   <p><p>DraftStoreExtension is an abstract base class. To create DraftStoreExtensions
-that enhance the composer experience, you should subclass <a href='draftstoreextension.html'>DraftStoreExtension</a> and
+that enhance the composer experience, you should subclass <a href='DraftStoreExtension.html'>DraftStoreExtension</a> and
 implement the class methods your plugin needs.</p>
 <p>To register your extension with the DraftStore, call <a href='DraftStore.html#registerExtension'>DraftStore::registerExtension</a>.
 When your package is being unloaded, you <em>must</em> call the corresponding
@@ -42,14 +41,14 @@ is not possible with the current API, please let us know.</p>
     <h4 id=warningsForSending class="function-name">
       warningsForSending(<span class="args"><span class="arg">draft</span></span>) <a href="#warningsForSending" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Inspect the draft, and return any warnings that need to be displayed before
     the draft is sent. Warnings should be string phrases, such as &quot;without an attachment&quot;
     that fit into a message of the form: &quot;Send #{phase1} and #{phase2}?&quot;</p>
     </p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -61,13 +60,13 @@ is not possible with the current API, please let us know.</p>
                 <em>draft</em>
               </td>
               <td class="markdown-from-sourecode">
-
-                <p>A fully populated <a href='message.html'>Message</a> object that is about to be sent.</p>
-
+                
+                <p>A fully populated <a href='Message.html'>Message</a> object that is about to be sent.</p>
+    
               </td>
             </tr>
         </table>
-
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -79,14 +78,14 @@ is not possible with the current API, please let us know.</p>
     <h4 id=composerToolbar class="function-name">
       composerToolbar(<span class="args"><span class="arg">mutator</span><span class="arg">tooltip</span><span class="arg">iconUrl</span></span>) <a href="#composerToolbar" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>declare an icon to be displayed in the composer&#39;s toolbar (where
     bold, italic, underline, etc are).</p>
     <p>You must declare the following properties:</p>
     </p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -98,9 +97,9 @@ is not possible with the current API, please let us know.</p>
                 <em>mutator</em>
               </td>
               <td class="markdown-from-sourecode">
-
+                
                 <p>A function that&#39;s called when your toolbar button is clicked. This mutator function will be passed as its only argument the <code>dom</code>. The <code>dom</code> is the full {DOM} object of the current composer. You may mutate this in place. We don&#39;t care about the mutator&#39;s return value.</p>
-
+    
               </td>
             </tr>
             <tr>
@@ -108,9 +107,9 @@ is not possible with the current API, please let us know.</p>
                 <em>tooltip</em>
               </td>
               <td class="markdown-from-sourecode">
-
+                
                 <p>A one or two word description of what your icon does</p>
-
+    
               </td>
             </tr>
             <tr>
@@ -118,17 +117,17 @@ is not possible with the current API, please let us know.</p>
                 <em>iconUrl</em>
               </td>
               <td class="markdown-from-sourecode">
-
-                <p>The url of your icon. It should be in the <code>nylas://</code> scheme. For example: <code>nylas://your-package-name/assets/my-icon@2x.png</code>. Note, we will downsample your image by 2x (for Retina screens), so make sure it&#39;s twice the resolution. The icon should be black and white. We will directly pass the <code>url</code> prop of a <a href='retinaimg.html'>RetinaImg</a></p>
-
+                
+                <p>The url of your icon. It should be in the <code>nylas://</code> scheme. For example: <code>nylas://your-package-name/assets/my-icon@2x.png</code>. Note, we will downsample your image by 2x (for Retina screens), so make sure it&#39;s twice the resolution. The icon should be black and white. We will directly pass the <code>url</code> prop of a <a href='RetinaImg.html'>RetinaImg</a></p>
+    
               </td>
             </tr>
         </table>
-
+    
     <h4 id=prepareNewDraft class="function-name">
       prepareNewDraft(<span class="args"></span>) <a href="#prepareNewDraft" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Override prepareNewDraft to modify a brand new draft before it is displayed
     in a composer. This is one of the only places in the application where it&#39;s safe
@@ -140,15 +139,15 @@ is not possible with the current API, please let us know.</p>
     <code>draft.pristine = false</code> so the draft saves, even if no further changes are made.</p>
     </p>
     </div>
-
-
+    
+    
     <h4 id=finalizeSessionBeforeSending class="function-name">
       finalizeSessionBeforeSending(<span class="args"><span class="arg">session</span></span>) <a href="#finalizeSessionBeforeSending" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Override finalizeSessionBeforeSending in your DraftStoreExtension subclass to transform
-    the <a href='draftstoreproxy.html'>DraftStoreProxy</a> editing session just before the draft is sent. This method
+    the <a href='DraftStoreProxy.html'>DraftStoreProxy</a> editing session just before the draft is sent. This method
     gives you an opportunity to make any final substitutions or changes after any
     <a href='#warningsForSending'>warningsForSending</a> have been displayed.</p>
     <p>Example:</p>
@@ -161,7 +160,7 @@ is not possible with the current API, please let us know.</p>
     </code></pre>
     </p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -173,17 +172,17 @@ is not possible with the current API, please let us know.</p>
                 <em>session</em>
               </td>
               <td class="markdown-from-sourecode">
-
-                <p>A <a href='draftstoreproxy.html'>DraftStoreProxy</a> for the draft.</p>
-
+                
+                <p>A <a href='DraftStoreProxy.html'>DraftStoreProxy</a> for the draft.</p>
+    
               </td>
             </tr>
         </table>
-
+    
     <h4 id=onMouseUp class="function-name">
       onMouseUp(<span class="args"><span class="arg">editableNode</span><span class="arg">range</span><span class="arg">event</span></span>) <a href="#onMouseUp" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Override onMouseUp in your DraftStoreExtension subclass to
     listen for mouse up events sent to the composer&#39;s body text area. This
@@ -191,7 +190,7 @@ is not possible with the current API, please let us know.</p>
     adjust selection ranges and change content as necessary.</p>
     </p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -203,9 +202,9 @@ is not possible with the current API, please let us know.</p>
                 <em>editableNode</em>
               </td>
               <td class="markdown-from-sourecode">
-
+                
                 <p>The composer&#39;s contenteditable <a href='https://developer.mozilla.org/en-US/docs/Web/API/Node'>Node</a> that received the event.</p>
-
+    
               </td>
             </tr>
             <tr>
@@ -213,9 +212,9 @@ is not possible with the current API, please let us know.</p>
                 <em>range</em>
               </td>
               <td class="markdown-from-sourecode">
-
+                
                 <p>The currently selected <a href='https://developer.mozilla.org/en-US/docs/Web/API/Range'>Range</a> in the <code>editableNode</code></p>
-
+    
               </td>
             </tr>
             <tr>
@@ -223,75 +222,26 @@ is not possible with the current API, please let us know.</p>
                 <em>event</em>
               </td>
               <td class="markdown-from-sourecode">
-
+                
                 <p>The mouse up event.</p>
-
+    
               </td>
             </tr>
         </table>
-
-    <h4 id=onFocusPrevious class="function-name">
-      onFocusPrevious(<span class="args"><span class="arg">editableNode</span><span class="arg">range</span><span class="arg">event</span></span>) <a href="#onFocusPrevious" class="link"></a>
+    
+    <h4 id=onTabDown class="function-name">
+      onTabDown(<span class="args"><span class="arg">editableNode</span><span class="arg">range</span><span class="arg">event</span></span>) <a href="#onTabDown" class="link"></a>
     </h4>
-
-    <div class="function-description markdown-from-sourecode">
-      <p><p>Called when the user presses <code>Shift-Tab</code> while focused on the composer&#39;s body field.
-    Override onFocusPrevious in your DraftStoreExtension to adjust the selection or perform
-    other actions. If your package implements Shift-Tab behavior in a particular scenario, you
-    should prevent the default behavior of Shift-Tab via <code>event.preventDefault()</code>.</p>
-    </p>
-    </div>
-
-        <strong>Parameters</strong>
-        <table class="arguments">
-            <tr>
-              <th>Argument</th>
-              <th>Description</th>
-            </tr>
-            <tr>
-              <td style="width:15%;">
-                <em>editableNode</em>
-              </td>
-              <td class="markdown-from-sourecode">
-
-                <p>The composer&#39;s contenteditable <a href='https://developer.mozilla.org/en-US/docs/Web/API/Node'>Node</a> that received the event.</p>
-
-              </td>
-            </tr>
-            <tr>
-              <td style="width:15%;">
-                <em>range</em>
-              </td>
-              <td class="markdown-from-sourecode">
-
-                <p>The currently selected <a href='https://developer.mozilla.org/en-US/docs/Web/API/Range'>Range</a> in the <code>editableNode</code></p>
-
-              </td>
-            </tr>
-            <tr>
-              <td style="width:15%;">
-                <em>event</em>
-              </td>
-              <td class="markdown-from-sourecode">
-
-                <p>The mouse up event.</p>
-
-              </td>
-            </tr>
-        </table>
-
-    <h4 id=onFocusNext class="function-name">
-      onFocusNext(<span class="args"><span class="arg">editableNode</span><span class="arg">range</span><span class="arg">event</span></span>) <a href="#onFocusNext" class="link"></a>
-    </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Called when the user presses <code>Tab</code> while focused on the composer&#39;s body field.
-    Override onFocusPrevious in your DraftStoreExtension to adjust the selection or perform
+    Override onTabDown in your DraftStoreExtension to adjust the selection or perform
     other actions. If your package implements Tab behavior in a particular scenario, you
     should prevent the default behavior of Tab via <code>event.preventDefault()</code>.</p>
+    <p>Important: You should prevent the default tab behavior with great care.</p>
     </p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -303,9 +253,9 @@ is not possible with the current API, please let us know.</p>
                 <em>editableNode</em>
               </td>
               <td class="markdown-from-sourecode">
-
+                
                 <p>The composer&#39;s contenteditable <a href='https://developer.mozilla.org/en-US/docs/Web/API/Node'>Node</a> that received the event.</p>
-
+    
               </td>
             </tr>
             <tr>
@@ -313,9 +263,9 @@ is not possible with the current API, please let us know.</p>
                 <em>range</em>
               </td>
               <td class="markdown-from-sourecode">
-
+                
                 <p>The currently selected <a href='https://developer.mozilla.org/en-US/docs/Web/API/Range'>Range</a> in the <code>editableNode</code></p>
-
+    
               </td>
             </tr>
             <tr>
@@ -323,17 +273,17 @@ is not possible with the current API, please let us know.</p>
                 <em>event</em>
               </td>
               <td class="markdown-from-sourecode">
-
+                
                 <p>The mouse up event.</p>
-
+    
               </td>
             </tr>
         </table>
-
+    
     <h4 id=onInput class="function-name">
       onInput(<span class="args"></span>) <a href="#onInput" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Override onInput in your DraftStoreExtension subclass to
     implement custom behavior as the user types in the composer&#39;s
@@ -346,14 +296,14 @@ is not possible with the current API, please let us know.</p>
     longer empty.</p>
     <pre><code class="lang-coffee">onInput: (editableNode, event) -&gt;
       selection = document.<span class="hljs-function"><span class="hljs-title">getSelection</span><span class="hljs-params">()</span></span>
-
+    
       isWithinNode = (node) -&gt;
         test = selection<span class="hljs-class">.baseNode</span>
         while test isnt editableNode
           return true <span class="hljs-keyword">if</span> test is node
           test = test<span class="hljs-class">.parentNode</span>
         return false
-
+    
       codeTags = editableNode.<span class="hljs-function"><span class="hljs-title">querySelectorAll</span><span class="hljs-params">(<span class="hljs-string">'code.var.empty'</span>)</span></span>
       <span class="hljs-keyword">for</span> codeTag <span class="hljs-keyword">in</span> codeTags
         <span class="hljs-keyword">if</span> selection.<span class="hljs-function"><span class="hljs-title">containsNode</span><span class="hljs-params">(codeTag)</span></span> or <span class="hljs-function"><span class="hljs-title">isWithinNode</span><span class="hljs-params">(codeTag)</span></span>
@@ -361,3 +311,8 @@ is not possible with the current API, please let us know.</p>
     </code></pre>
     </p>
     </div>
+    
+    
+
+
+

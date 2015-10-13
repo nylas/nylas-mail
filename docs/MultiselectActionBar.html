@@ -1,7 +1,6 @@
 ---
 layout: docs
 title: MultiselectActionBar
-edit_url: "https://github.com/nylas/N1/blob/master/src/components/multiselect-action-bar.cjsx"
 ---
 
 <h2>Summary</h2>
@@ -9,7 +8,7 @@ edit_url: "https://github.com/nylas/N1/blob/master/src/components/multiselect-ac
 <div class="markdown-from-sourecode">
   <p><p>MultiselectActionBar is a simple component that can be placed in a {Sheet} Toolbar.
 When the provided <code>dataStore</code> has a selection, it appears over the other items in the toolbar.</p>
-<p>Generally, you wrap <a href='multiselectactionbar.html'>MultiselectActionBar</a> in your own simple component to provide a dataStore
+<p>Generally, you wrap <a href='MultiselectActionBar.html'>MultiselectActionBar</a> in your own simple component to provide a dataStore
 and other settings:</p>
 <pre><code class="lang-coffee"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MultiselectActionBar</span> <span class="hljs-keyword"><span class="hljs-keyword">extends</span></span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span>
 </span>  <span class="hljs-annotation">@displayName</span>: <span class="hljs-symbol">'MultiselectActionBa</span>r'
@@ -43,9 +42,9 @@ collection name. To add an item to the bar created in the example above, registe
                 <em>dataStore</em>
               </td>
               <td>
-
+                
                 <p>An instance of a {ModelView}.</p>
-
+    
               </td>
             </tr>
             <tr>
@@ -53,9 +52,13 @@ collection name. To add an item to the bar created in the example above, registe
                 <em>collection</em>
               </td>
               <td>
-
+                
                 <p>The name of the collection. The collection name is used for the text  that appears in the bar &quot;1 thread selected&quot; and is also used to find components  in the component registry that should appear in the bar (<code>thread</code> =&gt; <code>thread:BulkAtion</code>)</p>
-
+    
               </td>
             </tr>
         </table>
+
+
+
+

@@ -1,7 +1,6 @@
 ---
 layout: docs
 title: Actions
-edit_url: "https://github.com/nylas/N1/blob/master/src/flux/actions.coffee"
 ---
 
 <h2>Summary</h2>
@@ -56,7 +55,7 @@ that is not a Store, you can still use the <code>listen</code> method provided b
     <h4 id=didPassivelyReceiveNewModels>didPassivelyReceiveNewModels <a href="#didPassivelyReceiveNewModels" class="link"></a></h4>
     <p><p>Fired when the Nylas API Connector receives new data from the API.</p>
     <p><em>Scope: Global</em></p>
-    <p>Receives an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a> of <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a>s of <a href='model.html'>Model</a>s, for example:</p>
+    <p>Receives an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a> of <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a>s of <a href='Model.html'>Model</a>s, for example:</p>
     <pre><code class="lang-json">{
       'thread': <span class="hljs-annotation">[&lt;Thread&gt;, &lt;Thread&gt;]</span>
       'contact': <span class="hljs-annotation">[&lt;Contact&gt;]</span>
@@ -64,15 +63,15 @@ that is not a Store, you can still use the <code>listen</code> method provided b
     </code></pre>
     </p>
     <h4 id=queueTask>queueTask <a href="#queueTask" class="link"></a></h4>
-    <p><p>Queue a <a href='task.html'>Task</a> object to the <a href='taskqueue.html'>TaskQueue</a>.</p>
+    <p><p>Queue a <a href='Task.html'>Task</a> object to the <a href='TaskQueue.html'>TaskQueue</a>.</p>
     <p><em>Scope: Work Window</em></p>
     </p>
     <h4 id=dequeueAllTasks>dequeueAllTasks <a href="#dequeueAllTasks" class="link"></a></h4>
-    <p><p>Dequeue all <a href='task.html'>Task</a>s from the <a href='taskqueue.html'>TaskQueue</a>. Use with care.</p>
+    <p><p>Dequeue all <a href='Task.html'>Task</a>s from the <a href='TaskQueue.html'>TaskQueue</a>. Use with care.</p>
     <p><em>Scope: Work Window</em></p>
     </p>
     <h4 id=dequeueMatchingTask>dequeueMatchingTask <a href="#dequeueMatchingTask" class="link"></a></h4>
-    <p><p>Dequeue a <a href='task.html'>Task</a> matching the description provided.</p>
+    <p><p>Dequeue a <a href='Task.html'>Task</a> matching the description provided.</p>
     <p><em>Scope: Work Window</em></p>
     </p>
     <h4 id=retryInitialSync>retryInitialSync <a href="#retryInitialSync" class="link"></a></h4>
@@ -139,7 +138,7 @@ that is not a Store, you can still use the <code>listen</code> method provided b
     <p><em>Scope: Window</em></p>
     <pre><code><span class="hljs-comment"># Compose a reply to the last message in the thread</span>
     Actions.composeReply({threadId: <span class="hljs-string">'123'</span>})
-
+    
     <span class="hljs-comment"># Compose a reply to a specific message in the thread</span>
     Actions.composeReply({threadId: <span class="hljs-string">'123'</span>, messageId: <span class="hljs-string">'123'</span>})
     </code></pre></p>
@@ -166,20 +165,20 @@ that is not a Store, you can still use the <code>listen</code> method provided b
     <pre><code>Actions.<span class="hljs-function"><span class="hljs-title">composeNewBlankDraft</span><span class="hljs-params">()</span></span>
     </code></pre></p>
     <h4 id=sendDraft>sendDraft <a href="#sendDraft" class="link"></a></h4>
-    <p><p>Send the draft with the given ID. This Action is handled by the <a href='draftstore.html'>DraftStore</a>,
-    which finalizes the <a href='draftchangeset.html'>DraftChangeSet</a> and allows <a href='draftstoreextension.html'>DraftStoreExtension</a>s to display
+    <p><p>Send the draft with the given ID. This Action is handled by the <a href='DraftStore.html'>DraftStore</a>,
+    which finalizes the <a href='DraftChangeSet.html'>DraftChangeSet</a> and allows <a href='DraftStoreExtension.html'>DraftStoreExtension</a>s to display
     warnings and do post-processing. To change send behavior, you should consider using
     one of these objects rather than listening for the {sendDraft} action.</p>
     <p><em>Scope: Window</em></p>
     <pre><code>Actions.<span class="hljs-function"><span class="hljs-title">sendDraft</span><span class="hljs-params">(<span class="hljs-string">'123'</span>)</span></span>
     </code></pre></p>
     <h4 id=destroyDraft>destroyDraft <a href="#destroyDraft" class="link"></a></h4>
-    <p><p>Destroys the draft with the given ID. This Action is handled by the <a href='draftstore.html'>DraftStore</a>,
+    <p><p>Destroys the draft with the given ID. This Action is handled by the <a href='DraftStore.html'>DraftStore</a>,
     and does not display any confirmation UI.</p>
     <p><em>Scope: Window</em></p>
     </p>
     <h4 id=removeCurrentlyFocusedThread>removeCurrentlyFocusedThread <a href="#removeCurrentlyFocusedThread" class="link"></a></h4>
-    <p><p>Remove the currently focused <a href='thread.html'>Thread</a>.</p>
+    <p><p>Remove the currently focused <a href='Thread.html'>Thread</a>.</p>
     <p><em>Scope: Window</em></p>
     </p>
     <h4 id=removeSelection>removeSelection <a href="#removeSelection" class="link"></a></h4>
@@ -207,11 +206,11 @@ that is not a Store, you can still use the <code>listen</code> method provided b
     <p><em>Scope: Global</em></p>
     <pre><code><span class="hljs-comment"># A simple notification</span>
     Actions.postNotification({message: <span class="hljs-string">"Removed Thread"</span>, <span class="hljs-built_in">type</span>: <span class="hljs-string">'success'</span>})
-
+    
     <span class="hljs-comment"># A sticky notification with actions</span>
     NOTIF_ACTION_YES = <span class="hljs-string">'YES'</span>
     NOTIF_ACTION_NO = <span class="hljs-string">'NO'</span>
-
+    
     Actions.postNotification
       <span class="hljs-built_in">type</span>: <span class="hljs-string">'info'</span>,
       sticky: <span class="hljs-literal">true</span>
@@ -230,7 +229,7 @@ that is not a Store, you can still use the <code>listen</code> method provided b
     published via <code>postNotification</code>.</p>
     <p><em>Scope: Global</em></p>
     <pre><code><span class="hljs-variable">@_unlisten</span> = Actions.notificationActionTaken.<span class="hljs-function">listen</span>(<span class="hljs-variable">@_onActionTaken</span>, @)
-
+    
     <span class="hljs-attribute">_onActionTaken</span>: ({notification, action}) -&gt;
       if action.id is NOTIF_ACTION_YES
         # perform action
@@ -243,19 +242,23 @@ that is not a Store, you can still use the <code>listen</code> method provided b
       messageClientId: draftClientId</span></span>
     </code></pre></p>
     <h4 id=popSheet>popSheet <a href="#popSheet" class="link"></a></h4>
-    <p><p>Pop the current sheet off the Sheet stack maintained by the <a href='workspacestore.html'>WorkspaceStore</a>.
+    <p><p>Pop the current sheet off the Sheet stack maintained by the <a href='WorkspaceStore.html'>WorkspaceStore</a>.
     This action has no effect if the window is currently showing a root sheet.</p>
     <p><em>Scope: Window</em></p>
     </p>
     <h4 id=pushSheet>pushSheet <a href="#pushSheet" class="link"></a></h4>
     <p><p>Push a sheet of a specific type onto the Sheet stack maintained by the
-    <a href='workspacestore.html'>WorkspaceStore</a>. Note that sheets have no state. To show a <em>specific</em> thread,
+    <a href='WorkspaceStore.html'>WorkspaceStore</a>. Note that sheets have no state. To show a <em>specific</em> thread,
     you should push a Thread sheet and call <code>setFocus</code> to select the thread.</p>
     <p><em>Scope: Window</em></p>
     <pre><code>WorkspaceStore.defineSheet <span class="hljs-string">'Thread'</span>, <span class="hljs-list">{}</span>,
         list: [<span class="hljs-string">'MessageList'</span>, <span class="hljs-string">'MessageListSidebar'</span>]
-
+    
     ...
-
+    
     @pushSheet(WorkspaceStore.Sheet.<span class="hljs-keyword">Thread</span>)
     </code></pre></p>
+
+
+
+

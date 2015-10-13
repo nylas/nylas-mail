@@ -1,7 +1,6 @@
 ---
 layout: docs
 title: Menu
-edit_url: "https://github.com/nylas/N1/blob/master/src/components/menu.cjsx"
 ---
 
 <h2>Summary</h2>
@@ -16,7 +15,7 @@ of the N1 application and offers a near-native experience:</p>
 <li>Maintaining selection across content changes</li>
 <li>Highlighted state</li>
 </ul>
-<p>Menus are often, but not always, used in conjunction with <a href='popover.html'>Popover</a> to display
+<p>Menus are often, but not always, used in conjunction with <a href='Popover.html'>Popover</a> to display
 a floating &quot;popup&quot; menu. See <code>template-picker.cjsx</code> for an example.</p>
 <p>The Menu also exposes &quot;header&quot; and &quot;footer&quot; regions you can fill with arbitrary
 components by providing the <code>headerComponents</code> and <code>footerComponents</code> props.
@@ -47,7 +46,7 @@ component&#39;s Menu instance:</p>
               <td>
                 <span class="optional">Optional</span>
                 <p>The <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> class name applied to the Menu</p>
-
+    
               </td>
             </tr>
             <tr>
@@ -55,9 +54,9 @@ component&#39;s Menu instance:</p>
                 <em>itemContent</em>
               </td>
               <td>
-
-                <p>A <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function'>Function</a> that returns a <a href='menuitem.html'>MenuItem</a>, <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a>, or React component for the given <code>item</code>. If you return a <a href='menuitem.html'>MenuItem</a>, your item is injected into the list directly. If you return a string or React component, the result is placed within a <a href='menuitem.html'>MenuItem</a>, resulting in the following DOM: <code>&lt;div className=&quot;item [selected]&quot;&gt;{your content}&lt;/div&gt;</code>. To create dividers and other special menu items, return an instance of:</p>
-
+                
+                <p>A <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function'>Function</a> that returns a <a href='MenuItem.html'>MenuItem</a>, <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a>, or React component for the given <code>item</code>. If you return a <a href='MenuItem.html'>MenuItem</a>, your item is injected into the list directly. If you return a string or React component, the result is placed within a <a href='MenuItem.html'>MenuItem</a>, resulting in the following DOM: <code>&lt;div className=&quot;item [selected]&quot;&gt;{your content}&lt;/div&gt;</code>. To create dividers and other special menu items, return an instance of:</p>
+    
               </td>
             </tr>
             <tr>
@@ -65,9 +64,9 @@ component&#39;s Menu instance:</p>
                 <em>itemKey</em>
               </td>
               <td>
-
+                
                 <p>A <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function'>Function</a> that returns a unique string key for the given <code>item</code>. Keys are important for efficient React rendering when <code>items</code> is changed, and a key function is required.</p>
-
+    
               </td>
             </tr>
             <tr>
@@ -75,9 +74,9 @@ component&#39;s Menu instance:</p>
                 <em>itemChecked</em>
               </td>
               <td>
-
+                
                 <p>A <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function'>Function</a> that returns true if the given item should be shown with a checkmark. If you don&#39;t provide an implementation for <code>itemChecked</code>, no checkmarks are ever shown.</p>
-
+    
               </td>
             </tr>
             <tr>
@@ -85,9 +84,9 @@ component&#39;s Menu instance:</p>
                 <em>items</em>
               </td>
               <td>
-
+                
                 <p>An <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of arbitrary objects the menu should display.</p>
-
+    
               </td>
             </tr>
             <tr>
@@ -95,9 +94,9 @@ component&#39;s Menu instance:</p>
                 <em>onSelect</em>
               </td>
               <td>
-
+                
                 <p>A <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function'>Function</a> called with the selected item when the user clicks an item in the menu or confirms their selection with the Enter key.</p>
-
+    
               </td>
             </tr>
             <tr>
@@ -105,9 +104,9 @@ component&#39;s Menu instance:</p>
                 <em>defaultSelectedIndex</em>
               </td>
               <td>
-
+                
                 <p>The index of the item first selected if there was no other previous index. Defaults to 0. Set to -1 if you want nothing selected.</p>
-
+    
               </td>
             </tr>
         </table>
@@ -120,12 +119,12 @@ component&#39;s Menu instance:</p>
     <h4 id=getSelectedItem class="function-name">
       getSelectedItem(<span class="args"></span>) <a href="#getSelectedItem" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p></p>
     </div>
-
-
+    
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -137,9 +136,12 @@ component&#39;s Menu instance:</p>
     <h4 id=setSelectedItem class="function-name">
       setSelectedItem(<span class="args"></span>) <a href="#setSelectedItem" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Set the currently selected item. Pass
     null to remove the selection</p>
     </p>
     </div>
+    
+    
+

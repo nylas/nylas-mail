@@ -1,7 +1,6 @@
 ---
 layout: docs
 title: Config
-edit_url: "https://github.com/nylas/N1/blob/master/src/config.coffee"
 ---
 
 <h2>Summary</h2>
@@ -158,7 +157,7 @@ must be under a <code>properties key</code></p>
         <span class="hljs-attribute">maximum</span>: <span class="hljs-number">11.5</span>
 </code></pre>
 <h4 id="color">color</h4>
-<p>Values will be coerced into a <a href='color.html'>Color</a> with <code>red</code>, <code>green</code>, <code>blue</code>, and <code>alpha</code>
+<p>Values will be coerced into a <a href='Color.html'>Color</a> with <code>red</code>, <code>green</code>, <code>blue</code>, and <code>alpha</code>
 properties that all have numeric values. <code>red</code>, <code>green</code>, <code>blue</code> will be in
 the range 0 to 255 and <code>value</code> will be in the range 0 to 1. Values can be any
 valid CSS color format such as <code>#abc</code>, <code>#abcdef</code>, <code>white</code>,
@@ -227,7 +226,7 @@ you do not need to specify a title or description!</p>
     <h4 id=observe class="function-name">
       observe(<span class="args"><span class="arg">keyPath</span><span class="arg">options</span><span class="arg">callback</span></span>) <a href="#observe" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Add a listener for changes to a given key path. This is different
     than <a href='#onDidChange'>onDidChange</a> in that it will immediately call your callback with the
@@ -240,7 +239,7 @@ you do not need to specify a title or description!</p>
     </code></pre>
     </p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -252,9 +251,9 @@ you do not need to specify a title or description!</p>
                 <em>keyPath</em>
               </td>
               <td class="markdown-from-sourecode">
-
+                
                 <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> name of the key to observe</p>
-
+    
               </td>
             </tr>
             <tr>
@@ -262,9 +261,9 @@ you do not need to specify a title or description!</p>
                 <em>options</em>
               </td>
               <td class="markdown-from-sourecode">
-
+                
                 <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a></p>
-
+    
               </td>
             </tr>
             <tr>
@@ -272,13 +271,13 @@ you do not need to specify a title or description!</p>
                 <em>callback</em>
               </td>
               <td class="markdown-from-sourecode">
-
+                
                 <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function'>Function</a> to call when the value of the key changes.</p>
-
+    
               </td>
             </tr>
         </table>
-
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -291,13 +290,13 @@ you do not need to specify a title or description!</p>
     <h4 id=onDidChange class="function-name">
       onDidChange(<span class="args"><span class="arg">[keyPath]</span><span class="arg">[optional]</span><span class="arg">callback</span></span>) <a href="#onDidChange" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Add a listener for changes to a given key path. If <code>keyPath</code> is
     not specified, your callback will be called on changes to any key.</p>
     </p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -311,7 +310,7 @@ you do not need to specify a title or description!</p>
               <td class="markdown-from-sourecode">
                 <span class="optional">Optional</span>
                 <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> name of the key to observe. Must be specified if <code>scopeDescriptor</code> is specified.</p>
-
+    
               </td>
             </tr>
             <tr>
@@ -321,7 +320,7 @@ you do not need to specify a title or description!</p>
               <td class="markdown-from-sourecode">
                 <span class="optional">Optional</span>
                 <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a></p>
-
+    
               </td>
             </tr>
             <tr>
@@ -329,13 +328,13 @@ you do not need to specify a title or description!</p>
                 <em>callback</em>
               </td>
               <td class="markdown-from-sourecode">
-
+                
                 <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function'>Function</a> to call when the value of the key changes.</p>
-
+    
               </td>
             </tr>
         </table>
-
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -348,7 +347,7 @@ you do not need to specify a title or description!</p>
     <h4 id=get class="function-name">
       get(<span class="args"><span class="arg">keyPath</span><span class="arg">[options]</span></span>) <a href="#get" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Retrieves the setting for the given key.</p>
     <h3 id="examples">Examples</h3>
@@ -375,7 +374,7 @@ you do not need to specify a title or description!</p>
     </code></pre>
     </p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -387,9 +386,9 @@ you do not need to specify a title or description!</p>
                 <em>keyPath</em>
               </td>
               <td class="markdown-from-sourecode">
-
+                
                 <p>The <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> name of the key to retrieve.</p>
-
+    
               </td>
             </tr>
             <tr>
@@ -399,11 +398,11 @@ you do not need to specify a title or description!</p>
               <td class="markdown-from-sourecode">
                 <span class="optional">Optional</span>
                 <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a></p>
-
+    
               </td>
             </tr>
         </table>
-
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -416,13 +415,13 @@ you do not need to specify a title or description!</p>
     <h4 id=getAll class="function-name">
       getAll(<span class="args"><span class="arg">keyPath</span><span class="arg">[options]</span></span>) <a href="#getAll" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Get all of the values for the given key-path, along with their
     associated scope selector.</p>
     </p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -434,9 +433,9 @@ you do not need to specify a title or description!</p>
                 <em>keyPath</em>
               </td>
               <td class="markdown-from-sourecode">
-
+                
                 <p>The <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> name of the key to retrieve</p>
-
+    
               </td>
             </tr>
             <tr>
@@ -446,11 +445,11 @@ you do not need to specify a title or description!</p>
               <td class="markdown-from-sourecode">
                 <span class="optional">Optional</span>
                 <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a> see the <code>options</code> argument to <a href='#get'>get</a></p>
-
+    
               </td>
             </tr>
         </table>
-
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -458,7 +457,7 @@ you do not need to specify a title or description!</p>
           </tr>
           <tr><td class="markdown-from-sourecode"><p>Returns an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a>s with the following keys:</p>
     <ul>
-    <li><code>scopeDescriptor</code> The <a href='scopedescriptor.html'>ScopeDescriptor</a> with which the value is associated</li>
+    <li><code>scopeDescriptor</code> The <a href='ScopeDescriptor.html'>ScopeDescriptor</a> with which the value is associated</li>
     <li><code>value</code> The value for the key-path</li>
     </ul>
     </td></tr>
@@ -466,7 +465,7 @@ you do not need to specify a title or description!</p>
     <h4 id=set class="function-name">
       set(<span class="args"><span class="arg">keyPath</span><span class="arg">value</span><span class="arg">[options]</span></span>) <a href="#set" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Sets the value for a configuration setting.</p>
     <p>This value is stored in Atom&#39;s internal configuration file.</p>
@@ -479,10 +478,10 @@ you do not need to specify a title or description!</p>
     <pre><code class="lang-coffee">atom.config.get(<span class="hljs-symbol">'editor</span>.tabLength') # =&gt; <span class="hljs-number">4</span>
     atom.config.get(<span class="hljs-symbol">'editor</span>.tabLength', scope: [<span class="hljs-symbol">'source</span>.ruby']) # =&gt; <span class="hljs-number">4</span>
     atom.config.get(<span class="hljs-symbol">'editor</span>.tabLength', scope: [<span class="hljs-symbol">'source</span>.js']) # =&gt; <span class="hljs-number">4</span>
-
+    
     # <span class="hljs-type">Set</span> ruby <span class="hljs-keyword">to</span> <span class="hljs-number">2</span>
     atom.config.set(<span class="hljs-symbol">'editor</span>.tabLength', <span class="hljs-number">2</span>, scopeSelector: <span class="hljs-symbol">'source</span>.ruby') # =&gt; <span class="hljs-literal">true</span>
-
+    
     # <span class="hljs-type">Notice</span> it's only set <span class="hljs-keyword">to</span> <span class="hljs-number">2</span> <span class="hljs-keyword">in</span> the case <span class="hljs-keyword">of</span> ruby
     atom.config.get(<span class="hljs-symbol">'editor</span>.tabLength') # =&gt; <span class="hljs-number">4</span>
     atom.config.get(<span class="hljs-symbol">'editor</span>.tabLength', scope: [<span class="hljs-symbol">'source</span>.ruby']) # =&gt; <span class="hljs-number">2</span>
@@ -490,7 +489,7 @@ you do not need to specify a title or description!</p>
     </code></pre>
     </p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -502,9 +501,9 @@ you do not need to specify a title or description!</p>
                 <em>keyPath</em>
               </td>
               <td class="markdown-from-sourecode">
-
+                
                 <p>The <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> name of the key.</p>
-
+    
               </td>
             </tr>
             <tr>
@@ -512,9 +511,9 @@ you do not need to specify a title or description!</p>
                 <em>value</em>
               </td>
               <td class="markdown-from-sourecode">
-
+                
                 <p>The value of the setting. Passing <code>undefined</code> will revert the setting to the default value.</p>
-
+    
               </td>
             </tr>
             <tr>
@@ -524,11 +523,11 @@ you do not need to specify a title or description!</p>
               <td class="markdown-from-sourecode">
                 <span class="optional">Optional</span>
                 <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a></p>
-
+    
               </td>
             </tr>
         </table>
-
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -544,12 +543,12 @@ you do not need to specify a title or description!</p>
     <h4 id=unset class="function-name">
       unset(<span class="args"><span class="arg">keyPath</span><span class="arg">[options]</span></span>) <a href="#unset" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Restore the setting at <code>keyPath</code> to its default value.</p>
     </p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -561,9 +560,9 @@ you do not need to specify a title or description!</p>
                 <em>keyPath</em>
               </td>
               <td class="markdown-from-sourecode">
-
+                
                 <p>The <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> name of the key.</p>
-
+    
               </td>
             </tr>
             <tr>
@@ -573,33 +572,33 @@ you do not need to specify a title or description!</p>
               <td class="markdown-from-sourecode">
                 <span class="optional">Optional</span>
                 <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a></p>
-
+    
               </td>
             </tr>
         </table>
-
+    
     <h4 id=getSources class="function-name">
       getSources(<span class="args"></span>) <a href="#getSources" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Get an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of all of the <code>source</code> <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a>s with which
     settings have been added via <a href='#set'>set</a>. </p>
     </p>
     </div>
-
-
+    
+    
     <h4 id=getSchema class="function-name">
       getSchema(<span class="args"><span class="arg">keyPath</span></span>) <a href="#getSchema" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Retrieve the schema for a specific key path. The schema will tell
     you what type the keyPath expects, and other metadata about the config
     option.</p>
     </p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -611,13 +610,13 @@ you do not need to specify a title or description!</p>
                 <em>keyPath</em>
               </td>
               <td class="markdown-from-sourecode">
-
+                
                 <p>The <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> name of the key.</p>
-
+    
               </td>
             </tr>
         </table>
-
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -631,24 +630,24 @@ you do not need to specify a title or description!</p>
     <h4 id=getUserConfigPath class="function-name">
       getUserConfigPath(<span class="args"></span>) <a href="#getUserConfigPath" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Get the <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> path to the config file being used. </p>
     </p>
     </div>
-
-
+    
+    
     <h4 id=transact class="function-name">
       transact(<span class="args"><span class="arg">callback</span></span>) <a href="#transact" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Suppress calls to handler functions registered with <a href='#onDidChange'>onDidChange</a>
     and <a href='#observe'>observe</a> for the duration of <code>callback</code>. After <code>callback</code> executes,
     handlers will be called once if the value for their key-path has changed.</p>
     </p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -660,9 +659,11 @@ you do not need to specify a title or description!</p>
                 <em>callback</em>
               </td>
               <td class="markdown-from-sourecode">
-
+                
                 <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function'>Function</a> to execute while suppressing calls to handlers. </p>
-
+    
               </td>
             </tr>
         </table>
+    
+

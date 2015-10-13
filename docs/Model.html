@@ -1,7 +1,6 @@
 ---
 layout: docs
 title: Model
-edit_url: "https://github.com/nylas/N1/blob/master/src/flux/models/model.coffee"
 ---
 
 <h2>Summary</h2>
@@ -10,20 +9,20 @@ edit_url: "https://github.com/nylas/N1/blob/master/src/flux/models/model.coffee"
   <p><p>A base class for API objects that provides abstract support for
 serialization and deserialization, matching by attributes, and ID-based equality.</p>
 <h2 id="attributes">Attributes</h2>
-<p><code>id</code>: <a href='attributestring.html'>AttributeString</a> The resolved canonical ID of the model used in the
+<p><code>id</code>: <a href='AttributeString.html'>AttributeString</a> The resolved canonical ID of the model used in the
 database and generally throughout the app. The id property is a custom
 getter that resolves to the serverId first, and then the clientId.</p>
-<p><code>clientId</code>: <a href='attributestring.html'>AttributeString</a> An ID created at object construction and
+<p><code>clientId</code>: <a href='AttributeString.html'>AttributeString</a> An ID created at object construction and
 persists throughout the lifetime of the object. This is extremely useful
 for optimistically creating objects (like drafts and categories) and
 having a constant reference to it. In all other cases, use the resolved
 <code>id</code> field.</p>
-<p><code>serverId</code>: <a href='attributeserverid.html'>AttributeServerId</a> The server ID of the model. In most cases,
+<p><code>serverId</code>: <a href='AttributeServerId.html'>AttributeServerId</a> The server ID of the model. In most cases,
 except optimistic creation, this will also be the canonical id of the
 object.</p>
-<p><code>object</code>: <a href='attributestring.html'>AttributeString</a> The model&#39;s type. This field is used by the JSON
+<p><code>object</code>: <a href='AttributeString.html'>AttributeString</a> The model&#39;s type. This field is used by the JSON
  deserializer to create an instance of the correct class when inflating the object.</p>
-<p><code>accountId</code>: <a href='attributestring.html'>AttributeString</a> The string Account Id this model belongs to.</p>
+<p><code>accountId</code>: <a href='AttributeString.html'>AttributeString</a> The string Account Id this model belongs to.</p>
 </p>
 </div>
 
@@ -39,30 +38,30 @@ object.</p>
     <h4 id=attributes class="function-name">
       attributes(<span class="args"></span>) <a href="#attributes" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p></p>
     </div>
-
-
+    
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
             <th>Return Values</th>
           </tr>
-          <tr><td class="markdown-from-sourecode"><p>Returns an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of <a href='attribute.html'>Attribute</a> objects defined on the Model&#39;s constructor</p>
+          <tr><td class="markdown-from-sourecode"><p>Returns an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of <a href='Attribute.html'>Attribute</a> objects defined on the Model&#39;s constructor</p>
     </td></tr>
         </table>
     <h4 id=toJSON class="function-name">
       toJSON(<span class="args"><span class="arg">[options]</span></span>) <a href="#toJSON" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Deflates the model to a plain JSON object. Only attributes defined
     on the model are included in the JSON.</p>
     </p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -76,11 +75,11 @@ object.</p>
               <td class="markdown-from-sourecode">
                 <span class="optional">Optional</span>
                 <p>An <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a> with additional options. To skip joined  data attributes in the toJSON representation, pass the <code>joined:false</code></p>
-
+    
               </td>
             </tr>
         </table>
-
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -92,12 +91,12 @@ object.</p>
     <h4 id=matches class="function-name">
       matches(<span class="args"><span class="arg">criteria</span></span>) <a href="#matches" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
-      <p><p>Evaluates the model against one or more <a href='matcher.html'>Matcher</a> objects.</p>
+      <p><p>Evaluates the model against one or more <a href='Matcher.html'>Matcher</a> objects.</p>
     </p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -109,13 +108,13 @@ object.</p>
                 <em>criteria</em>
               </td>
               <td class="markdown-from-sourecode">
-
-                <p>An <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of <a href='matcher.html'>Matcher</a>s to run on the model.</p>
-
+                
+                <p>An <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of <a href='Matcher.html'>Matcher</a>s to run on the model.</p>
+    
               </td>
             </tr>
         </table>
-
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -124,3 +123,4 @@ object.</p>
           <tr><td class="markdown-from-sourecode"><p>Returns true if the model matches the criteria.</p>
     </td></tr>
         </table>
+

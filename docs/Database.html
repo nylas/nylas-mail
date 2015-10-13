@@ -1,13 +1,12 @@
 ---
 layout: docs
 title: Accessing the Database
-edit_url: "https://github.com/nylas/N1/blob/a2c697754ad692e6a54629ffd93883dda79b0d78/docs/Database.md"
 ---
 <p>N1 is built on top of a custom database layer modeled after ActiveRecord. For many parts of the application, the database is the source of truth. Data is retrieved from the API, written to the database, and changes to the database trigger Stores and components to refresh their contents. The illustration below shows this flow of data:</p>
 <p><img src="./images/database-flow.png"></p>
-<p>The Database connection is managed by the <a href='databasestore.html'>DatabaseStore</a>, a singleton object that exists in every window. All Database requests are asynchronous. Queries are forwarded to the application&#39;s <code>Browser</code> process via IPC and run in SQLite.</p>
+<p>The Database connection is managed by the <a href='DatabaseStore.html'>DatabaseStore</a>, a singleton object that exists in every window. All Database requests are asynchronous. Queries are forwarded to the application&#39;s <code>Browser</code> process via IPC and run in SQLite.</p>
 <h2 id="declaring-models">Declaring Models</h2>
-<p>In N1, Models are thin wrappers around data with a particular schema. Each <a href='model.html'>Model</a> class declares a set of attributes that define the object&#39;s data. For example:</p>
+<p>In N1, Models are thin wrappers around data with a particular schema. Each <a href='Model.html'>Model</a> class declares a set of attributes that define the object&#39;s data. For example:</p>
 <pre><code class="lang-coffee"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Example</span> <span class="hljs-keyword"><span class="hljs-keyword">extends</span></span> <span class="hljs-title">Model</span>
 </span>
   <span class="hljs-annotation">@attributes</span>:
@@ -36,7 +35,7 @@ edit_url: "https://github.com/nylas/N1/blob/a2c697754ad692e6a54629ffd93883dda79b
       modelKey: <span class="hljs-symbol">'unrea</span>d'
 </code></pre>
 <p>When models are inflated from JSON using <code>fromJSON</code> or converted to JSON using <code>toJSON</code>, only the attributes declared on the model are copied. The <code>modelKey</code> and <code>jsonKey</code> options allow you to specify where a particular key should be found. Attributes are also coerced to the proper types: String attributes will always be strings, Boolean attributes will always be <code>true</code> or <code>false</code>, etc. <code>null</code> is a valid value for all types.</p>
-<p>The <a href='databasestore.html'>DatabaseStore</a> automatically maintains cache tables for storing Model objects. By default, models are stored in the cache as JSON blobs and basic attributes are not queryable. When the <code>queryable</code> option is specified on an attribute, it is given a separate column and index in the SQLite table for the model, and you can construct queries using the attribute:</p>
+<p>The <a href='DatabaseStore.html'>DatabaseStore</a> automatically maintains cache tables for storing Model objects. By default, models are stored in the cache as JSON blobs and basic attributes are not queryable. When the <code>queryable</code> option is specified on an attribute, it is given a separate column and index in the SQLite table for the model, and you can construct queries using the attribute:</p>
 <pre><code class="lang-coffee">Thread<span class="hljs-class">.attributes</span><span class="hljs-class">.namespaceId</span><span class="hljs-class">.equals</span>(<span class="hljs-string">"123"</span>)
 <span class="hljs-comment">// where namespace_id = '123'</span>
 
@@ -61,18 +60,18 @@ DatabaseStore.count<span class="hljs-function"><span class="hljs-params">(Thread
     <span class="hljs-comment"># count threads where last message received since 120315123.</span>
 </code></pre>
 <h2 id="retrieving-pages-of-models">Retrieving Pages of Models</h2>
-<p>If you need to paginate through a view of data, you should use a <code>DatabaseView</code>. Database views can be configured with a sort order and a set of where clauses. After the view is configured, it maintains a cache of models in memory in a highly efficient manner and makes it easy to implement pagination. <code>DatabaseView</code> also performs deep inspection of it&#39;s cache when models are changed and can avoid costly SQL queries.</p>
+<p>If you need to paginate through a view of data, you should use a <code>DatabaseView</code>. Database views can be configured with a sort order and a set of where clauses. After the view is configured, it maintains a cache of models in memory in a highly efficient manner and makes it easy to implement pagination. <code>DatabaseView</code> also performs deep inspection of its cache when models are changed and can avoid costly SQL queries.</p>
 <h2 id="saving-and-updating-models">Saving and Updating Models</h2>
-<p>The <a href='databasestore.html'>DatabaseStore</a> exposes two methods for creating and updating models: <code>persistModel</code> and <code>persistModels</code>. When you call <code>persistModel</code>, queries are automatically executed to update the object in the cache and the <a href='databasestore.html'>DatabaseStore</a> triggers, broadcasting an update to the rest of the application so that views dependent on these kind of models can refresh.</p>
-<p>When possible, you should accumulate the objects you want to save and call <code>persistModels</code>. The <a href='databasestore.html'>DatabaseStore</a> will generate batch insert statements, and a single notification will be broadcast throughout the application. Since saving objects can result in objects being re-fetched by many stores and components, you should be mindful of database insertions.</p>
+<p>The <a href='DatabaseStore.html'>DatabaseStore</a> exposes two methods for creating and updating models: <code>persistModel</code> and <code>persistModels</code>. When you call <code>persistModel</code>, queries are automatically executed to update the object in the cache and the <a href='DatabaseStore.html'>DatabaseStore</a> triggers, broadcasting an update to the rest of the application so that views dependent on these kind of models can refresh.</p>
+<p>When possible, you should accumulate the objects you want to save and call <code>persistModels</code>. The <a href='DatabaseStore.html'>DatabaseStore</a> will generate batch insert statements, and a single notification will be broadcast throughout the application. Since saving objects can result in objects being re-fetched by many stores and components, you should be mindful of database insertions.</p>
 <h2 id="saving-drafts">Saving Drafts</h2>
-<p>Drafts in N1 presented us with a unique challenge. The same draft may be edited rapidly by unrelated parts of the application, causing race scenarios. (For example, when the user is typing and attachments finish uploading at the same time.) This problem could be solved by object locking, but we chose to marshall draft changes through a central DraftStore that debounces database queries and adds other helpful features. See the <a href='draftstore.html'>DraftStore</a> documentation for more information.</p>
+<p>Drafts in N1 presented us with a unique challenge. The same draft may be edited rapidly by unrelated parts of the application, causing race scenarios. (For example, when the user is typing and attachments finish uploading at the same time.) This problem could be solved by object locking, but we chose to marshall draft changes through a central DraftStore that debounces database queries and adds other helpful features. See the <a href='DraftStore.html'>DraftStore</a> documentation for more information.</p>
 <h2 id="removing-models">Removing Models</h2>
-<p>The <a href='databasestore.html'>DatabaseStore</a> exposes a single method, <code>unpersistModel</code>, that allows you to purge an object from the cache. You cannot remove a model by ID alone - you must load it first.</p>
+<p>The <a href='DatabaseStore.html'>DatabaseStore</a> exposes a single method, <code>unpersistModel</code>, that allows you to purge an object from the cache. You cannot remove a model by ID alone - you must load it first.</p>
 <h4 id="advanced-model-attributes">Advanced Model Attributes</h4>
 <h5 id="attribute-joineddata">Attribute.JoinedData</h5>
 <p>Joined Data attributes allow you to store certain attributes of an object in a separate table in the database. We use this attribute type for Message bodies. Storing message bodies, which can be very large, in a separate table allows us to make queries on message metadata extremely fast, and inflate Message objects without their bodies to build the thread list.</p>
-<p>When building a <a href='modelquery.html'>ModelQuery</a> on a model with a {JoinedDataAttribute}, you need to call <code>include</code> to explicitly load the joined data attribute. The query builder will automatically perform a <code>LEFT OUTER JOIN</code> with the secondary table to retrieve the attribute:</p>
+<p>When building a <a href='ModelQuery.html'>ModelQuery</a> on a model with a {JoinedDataAttribute}, you need to call <code>include</code> to explicitly load the joined data attribute. The query builder will automatically perform a <code>LEFT OUTER JOIN</code> with the secondary table to retrieve the attribute:</p>
 <pre><code class="lang-coffee">DatabaseStore.<span class="hljs-function"><span class="hljs-title">find</span><span class="hljs-params">(Message, <span class="hljs-string">'123'</span>)</span></span><span class="hljs-class">.then</span> (message) -&gt;
     <span class="hljs-comment">// message.body is undefined</span>
 
@@ -82,8 +81,8 @@ DatabaseStore.<span class="hljs-function"><span class="hljs-title">find</span><s
 <p>When you call <code>persistModel</code>, JoinedData attributes are automatically written to the secondary table.</p>
 <p>JoinedData attributes cannot be <code>queryable</code>.</p>
 <h5 id="attribute-collection">Attribute.Collection</h5>
-<p>Collection attributes provide basic support for one-to-many relationships. For example, <a href='thread.html'>Thread</a>s in N1 have a collection of {Tag}s.</p>
-<p>When Collection attributes are marked as <code>queryable</code>, the <a href='databasestore.html'>DatabaseStore</a> automatically creates a join table and maintains it as you create, save, and delete models. When you call <code>persistModel</code>, entries are added to the join table associating the ID of the model with the IDs of models in the collection.</p>
+<p>Collection attributes provide basic support for one-to-many relationships. For example, <a href='Thread.html'>Thread</a>s in N1 have a collection of {Tag}s.</p>
+<p>When Collection attributes are marked as <code>queryable</code>, the <a href='DatabaseStore.html'>DatabaseStore</a> automatically creates a join table and maintains it as you create, save, and delete models. When you call <code>persistModel</code>, entries are added to the join table associating the ID of the model with the IDs of models in the collection.</p>
 <p>Collection attributes have an additional clause builder, <code>contains</code>:</p>
 <pre><code class="lang-coffee">DatabaseStore.<span class="hljs-function"><span class="hljs-title">findAll</span><span class="hljs-params">(Thread)</span></span>.<span class="hljs-function"><span class="hljs-title">where</span><span class="hljs-params">([Thread.attributes.tags.contains(<span class="hljs-string">'inbox'</span>)</span></span>])
 </code></pre>
@@ -92,10 +91,10 @@ DatabaseStore.<span class="hljs-function"><span class="hljs-title">find</span><s
 </code></pre>
 <h4 id="listening-for-changes">Listening for Changes</h4>
 <p>For many parts of the application, the Database is the source of truth. Funneling changes through the database ensures that they are available to the entire application. Basing your packages on the Database, and listening to it for changes, ensures that your views never fall out of sync.</p>
-<p>Within Reflux Stores, you can listen to the <a href='databasestore.html'>DatabaseStore</a> using the <code>listenTo</code> helper method:</p>
+<p>Within Reflux Stores, you can listen to the <a href='DatabaseStore.html'>DatabaseStore</a> using the <code>listenTo</code> helper method:</p>
 <pre><code class="lang-coffee"><span class="hljs-variable">@listenTo</span>(DatabaseStore, <span class="hljs-variable">@_onDataChanged</span>)
 </code></pre>
-<p>Within generic code, you can listen to the <a href='databasestore.html'>DatabaseStore</a> using this syntax:</p>
+<p>Within generic code, you can listen to the <a href='DatabaseStore.html'>DatabaseStore</a> using this syntax:</p>
 <pre><code class="lang-coffee"><span class="hljs-variable">@unlisten</span> = DatabaseStore.<span class="hljs-function">listen</span>(<span class="hljs-variable">@_onDataChanged</span>, @)
 </code></pre>
 <p>When a model is persisted or unpersisted from the database, your listener method will fire. It&#39;s very important to inspect the change payload before making queries to refresh your data. The change payload is a simple object with the following keys:</p>
@@ -113,3 +112,4 @@ DatabaseStore.<span class="hljs-function"><span class="hljs-title">find</span><s
 <li><p>All changes to the local database must be observable</p>
 </li>
 </ul>
+

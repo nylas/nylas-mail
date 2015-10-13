@@ -1,16 +1,15 @@
 ---
 layout: docs
 title: Attribute
-edit_url: "https://github.com/nylas/N1/blob/master/src/flux/attributes/attribute.coffee"
 ---
 
 <h2>Summary</h2>
 
 <div class="markdown-from-sourecode">
   <p><p>The Attribute class represents a single model attribute, like &#39;account_id&#39;.
-Subclasses of <a href='attribute.html'>Attribute</a> like <a href='attributedatetime.html'>AttributeDateTime</a> know how to covert between
+Subclasses of <a href='Attribute.html'>Attribute</a> like <a href='AttributeDateTime.html'>AttributeDateTime</a> know how to covert between
 the JSON representation of that type and the javascript representation.
-The Attribute class also exposes convenience methods for generating <a href='matcher.html'>Matcher</a> objects.</p>
+The Attribute class also exposes convenience methods for generating <a href='Matcher.html'>Matcher</a> objects.</p>
 </p>
 </div>
 
@@ -26,85 +25,86 @@ The Attribute class also exposes convenience methods for generating <a href='mat
     <h4 id=equal class="function-name">
       equal(<span class="args"></span>) <a href="#equal" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p></p>
     </div>
-
-
+    
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
             <th>Return Values</th>
           </tr>
-          <tr><td class="markdown-from-sourecode"><p>Returns a <a href='matcher.html'>Matcher</a> for objects <code>=</code> to the provided value.</p>
+          <tr><td class="markdown-from-sourecode"><p>Returns a <a href='Matcher.html'>Matcher</a> for objects <code>=</code> to the provided value.</p>
     </td></tr>
         </table>
     <h4 id=in class="function-name">
       in(<span class="args"></span>) <a href="#in" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p></p>
     </div>
-
-
+    
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
             <th>Return Values</th>
           </tr>
-          <tr><td class="markdown-from-sourecode"><p>Returns a <a href='matcher.html'>Matcher</a> for objects <code>=</code> to the provided value.</p>
+          <tr><td class="markdown-from-sourecode"><p>Returns a <a href='Matcher.html'>Matcher</a> for objects <code>=</code> to the provided value.</p>
     </td></tr>
         </table>
     <h4 id=not class="function-name">
       not(<span class="args"></span>) <a href="#not" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p></p>
     </div>
-
-
+    
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
             <th>Return Values</th>
           </tr>
-          <tr><td class="markdown-from-sourecode"><p>Returns a <a href='matcher.html'>Matcher</a> for objects <code>!=</code> to the provided value.</p>
+          <tr><td class="markdown-from-sourecode"><p>Returns a <a href='Matcher.html'>Matcher</a> for objects <code>!=</code> to the provided value.</p>
     </td></tr>
         </table>
     <h4 id=descending class="function-name">
       descending(<span class="args"></span>) <a href="#descending" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p></p>
     </div>
-
-
+    
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
             <th>Return Values</th>
           </tr>
-          <tr><td class="markdown-from-sourecode"><p>Returns a descending <a href='sortorder.html'>SortOrder</a> for this attribute.</p>
+          <tr><td class="markdown-from-sourecode"><p>Returns a descending <a href='SortOrder.html'>SortOrder</a> for this attribute.</p>
     </td></tr>
         </table>
     <h4 id=ascending class="function-name">
       ascending(<span class="args"></span>) <a href="#ascending" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p></p>
     </div>
-
-
+    
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
             <th>Return Values</th>
           </tr>
-          <tr><td class="markdown-from-sourecode"><p>Returns an ascending <a href='sortorder.html'>SortOrder</a> for this attribute.</p>
+          <tr><td class="markdown-from-sourecode"><p>Returns an ascending <a href='SortOrder.html'>SortOrder</a> for this attribute.</p>
     </td></tr>
         </table>
+

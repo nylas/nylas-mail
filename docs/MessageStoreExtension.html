@@ -1,14 +1,13 @@
 ---
 layout: docs
 title: MessageStoreExtension
-edit_url: "https://github.com/nylas/N1/blob/master/src/flux/stores/message-store-extension.coffee"
 ---
 
 <h2>Summary</h2>
 
 <div class="markdown-from-sourecode">
   <p><p>MessageStoreExtension is an abstract base class. To create MessageStoreExtension
-that customize message viewing, you should subclass <a href='messagestoreextension.html'>MessageStoreExtension</a> and
+that customize message viewing, you should subclass <a href='MessageStoreExtension.html'>MessageStoreExtension</a> and
 implement the class methods your plugin needs.</p>
 <p>To register your extension with the MessageStore, call <a href='MessageStore.html#registerExtension'>MessageStore::registerExtension</a>.
 When your package is being unloaded, you <em>must</em> call the corresponding
@@ -37,9 +36,14 @@ is not possible with the current API, please let us know.</p>
     <h4 id=formatMessageBody class="function-name">
       formatMessageBody(<span class="args"></span>) <a href="#formatMessageBody" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Transform the message body HTML provided in <code>body</code> and return HTML
     that should be displayed for the message.</p>
     </p>
     </div>
+    
+    
+
+
+

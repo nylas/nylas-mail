@@ -1,7 +1,6 @@
 ---
 layout: docs
 title: Debugging N1
-edit_url: "https://github.com/nylas/N1/blob/a2c697754ad692e6a54629ffd93883dda79b0d78/docs/Debugging.md"
 ---
 <h3 id="chromium-devtools">Chromium DevTools</h3>
 <p>N1 is built on top of Electron, which runs the latest version of Chromium (at the time of writing, Chromium 43). You can access the standard <a href="https://developer.chrome.com/devtools">Chrome DevTools</a> using the <code>Command-Option-I</code> (<code>Ctrl-Shift-I</code> on Windows/Linux) keyboard shortcut, including the Debugger, Profiler, and Console. You can find extensive information about the Chromium DevTools on <a href="https://developer.chrome.com/devtools">developer.chrome.com</a>.</p>
@@ -17,12 +16,12 @@ edit_url: "https://github.com/nylas/N1/blob/a2c697754ad692e6a54629ffd93883dda79b
 </li>
 </ul>
 <h3 id="nylas-developer-panel">Nylas Developer Panel</h3>
-<p>If you choose <code>Developer &gt; Relaunch with Debug Flags...</code> from the menu, you can enable the Nylas Developer Panel at the bottom of the main window.</p>
+<p>If you choose <code>Developer &gt; Show Activity Window</code> from the menu, you can see detailed logs of the requests, tasks, and streaming updates processed by N1.</p>
 <p>The Developer Panel provides three views which you can click to activate:</p>
 <ul>
-<li><p><code>Tasks</code>: This view allows you to inspect the <a href='taskqueue.html'>TaskQueue</a> and see the what tasks are pending and complete. Click a task to see its JSON representation and inspect it&#39;s values, including the last error it encountered.</p>
+<li><p><code>Tasks</code>: This view allows you to inspect the <a href='TaskQueue.html'>TaskQueue</a> and see the what tasks are pending and complete. Click a task to see its JSON representation and inspect it&#39;s values, including the last error it encountered.</p>
 </li>
-<li><p><code>Delta Stream</code>: This view allows you to see the streaming updates from the Nylas API that the app has received. You can click individual updates to see the exact JSON that was consumed by the app, and search in the lower left for updates pertaining to an object ID or type.</p>
+<li><p><code>Long Polling</code>: This view allows you to see the streaming updates from the Nylas API that the app has received. You can click individual updates to see the exact JSON that was consumed by the app, and search in the lower left for updates pertaining to an object ID or type.</p>
 </li>
 <li><p><code>Requests</code>: This view shows the requests the app has made to the Nylas API in <code>curl</code>-equivalent form. (The app does not actually make <code>curl</code> requests). You can click &quot;Copy&quot; to copy a <code>curl</code> command to the clipboard, or &quot;Run&quot; to execute it in a new Terminal window.</p>
 </li>
@@ -35,8 +34,9 @@ edit_url: "https://github.com/nylas/N1/blob/a2c697754ad692e6a54629ffd93883dda79b
 </li>
 <li><p><strong>View &gt; Refresh</strong>: From the View menu, choose &quot;Refresh&quot; to reload the N1 window just like a page in your browser. Refreshing is faster than restarting the app and allows you to iterate more quickly.</p>
 <blockquote>
-<p>Note: A bug in Electron causes the Chromium DevTools to become detatched if you refresh the app often. If you find that Chromium is not stopping at your breakpoints, quit N1 and re-launch it.</p>
+<p>Note: A bug in Electron causes the Chromium DevTools to become detached if you refresh the app often. If you find that Chromium is not stopping at your breakpoints, quit N1 and re-launch it.</p>
 </blockquote>
 </li>
 </ul>
 <p>In the future, we&#39;ll support much richer hot-reloading of plugin components and code. Stay tuned!</p>
+

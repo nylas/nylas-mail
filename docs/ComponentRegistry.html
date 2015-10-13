@@ -1,14 +1,13 @@
 ---
 layout: docs
 title: ComponentRegistry
-edit_url: "https://github.com/nylas/N1/blob/master/src/component-registry.coffee"
 ---
 
 <h2>Summary</h2>
 
 <div class="markdown-from-sourecode">
   <p><p>The ComponentRegistry maintains an index of React components registered
-by Nylas packages. Components can use <a href='injectedcomponent.html'>InjectedComponent</a> and <a href='injectedcomponentset.html'>InjectedComponentSet</a>
+by Nylas packages. Components can use <a href='InjectedComponent.html'>InjectedComponent</a> and <a href='InjectedComponentSet.html'>InjectedComponentSet</a>
 to dynamically render components registered with the ComponentRegistry.</p>
 </p>
 </div>
@@ -25,7 +24,7 @@ to dynamically render components registered with the ComponentRegistry.</p>
     <h4 id=register class="function-name">
       register(<span class="args"><span class="arg">component</span><span class="arg">options</span></span>) <a href="#register" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Register a new component with the Component Registry.
     Typically, packages call this method from their main <code>activate</code> method
@@ -34,7 +33,7 @@ to dynamically render components registered with the ComponentRegistry.</p>
     <p>This method is chainable.</p>
     </p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -46,9 +45,9 @@ to dynamically render components registered with the ComponentRegistry.</p>
                 <em>component</em>
               </td>
               <td class="markdown-from-sourecode">
-
+                
                 <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a> A React Component with a <code>displayName</code></p>
-
+    
               </td>
             </tr>
             <tr>
@@ -56,22 +55,22 @@ to dynamically render components registered with the ComponentRegistry.</p>
                 <em>options</em>
               </td>
               <td class="markdown-from-sourecode">
-
+                
                 <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a>: Note that for advanced use cases, you can also pass (<code>modes</code>, <code>roles</code>, <code>locations</code>) with arrays instead of single values.</p>
-
+    
               </td>
             </tr>
         </table>
-
+    
     <h4 id=findComponentByName class="function-name">
       findComponentByName(<span class="args"><span class="arg">name</span></span>) <a href="#findComponentByName" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Retrieve the registry entry for a given name.</p>
     </p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -83,13 +82,13 @@ to dynamically render components registered with the ComponentRegistry.</p>
                 <em>name</em>
               </td>
               <td class="markdown-from-sourecode">
-
+                
                 <p>The <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> name of the registered component to retrieve.</p>
-
+    
               </td>
             </tr>
         </table>
-
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -101,20 +100,20 @@ to dynamically render components registered with the ComponentRegistry.</p>
     <h4 id=findComponentsMatching class="function-name">
       findComponentsMatching(<span class="args"><span class="arg">descriptor</span></span>) <a href="#findComponentsMatching" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Retrieve all of the registry entries matching a given descriptor.</p>
     <pre><code class="lang-coffee">  <span class="hljs-tag">ComponentRegistry</span><span class="hljs-class">.findComponentsMatching</span>(<span class="hljs-rules">{
         <span class="hljs-rule"><span class="hljs-attribute">role</span>:<span class="hljs-value"> <span class="hljs-string">'Composer:ActionButton'</span>
       })
-
+    
       ComponentRegistry.<span class="hljs-function">findComponentsMatching</span>({
         location: WorkspaceStore.Location.RootSidebar.Toolbar
       })</span></span></span>
     </code></pre>
     </p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -126,13 +125,13 @@ to dynamically render components registered with the ComponentRegistry.</p>
                 <em>descriptor</em>
               </td>
               <td class="markdown-from-sourecode">
-
+                
                 <p>An <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a> that specifies set of components using the available keys below. Note that for advanced use cases, you can also pass (<code>modes</code>, <code>roles</code>, <code>locations</code>) with arrays instead of single values.</p>
-
+    
               </td>
             </tr>
         </table>
-
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -141,3 +140,4 @@ to dynamically render components registered with the ComponentRegistry.</p>
           <tr><td class="markdown-from-sourecode"><p>Returns an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of <a href='https://facebook.github.io/react/docs/component-api.html'>React.Component</a> objects</p>
     </td></tr>
         </table>
+

@@ -1,7 +1,6 @@
 ---
 layout: docs
 title: Contact
-edit_url: "https://github.com/nylas/N1/blob/master/src/flux/models/contact.coffee"
 ---
 
 <h2>Summary</h2>
@@ -11,15 +10,15 @@ edit_url: "https://github.com/nylas/N1/blob/master/src/flux/models/contact.coffe
 For more information about Contacts on the Nylas Platform, read the
 <a href="https://nylas.com/docs/api#contacts">Contacts API Documentation</a></p>
 <h2 id="attributes">Attributes</h2>
-<p><code>name</code>: <a href='attributestring.html'>AttributeString</a> The name of the contact. Queryable.</p>
-<p><code>email</code>: <a href='attributestring.html'>AttributeString</a> The email address of the contact. Queryable.</p>
-<p><code>thirdPartyData</code>: <a href='attributeobject.html'>AttributeObject</a> Extra data that we find out about a
+<p><code>name</code>: <a href='AttributeString.html'>AttributeString</a> The name of the contact. Queryable.</p>
+<p><code>email</code>: <a href='AttributeString.html'>AttributeString</a> The email address of the contact. Queryable.</p>
+<p><code>thirdPartyData</code>: <a href='AttributeObject.html'>AttributeObject</a> Extra data that we find out about a
 contact.  The data is keyed by the 3rd party service that dumped the data
 there. The value is an object of raw data in the form that the service
 provides</p>
 <p>We also have &quot;normalized&quot; optional data for each contact. This list may
 grow as the needs of a contact become more complex.</p>
-<p>This class also inherits attributes from <a href='model.html'>Model</a></p>
+<p>This class also inherits attributes from <a href='Model.html'>Model</a></p>
 </p>
 </div>
 
@@ -35,12 +34,12 @@ grow as the needs of a contact become more complex.</p>
     <h4 id=toString class="function-name">
       toString(<span class="args"></span>) <a href="#toString" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p></p>
     </div>
-
-
+    
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -53,12 +52,12 @@ grow as the needs of a contact become more complex.</p>
     <h4 id=isMe class="function-name">
       isMe(<span class="args"></span>) <a href="#isMe" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p></p>
     </div>
-
-
+    
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -69,3 +68,4 @@ grow as the needs of a contact become more complex.</p>
     the account email, since it is case-insensitive and future-proof.</p>
     </td></tr>
         </table>
+

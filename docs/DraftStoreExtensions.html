@@ -1,9 +1,8 @@
 ---
 layout: docs
 title: Extending the Composer
-edit_url: "https://github.com/nylas/N1/blob/a2c697754ad692e6a54629ffd93883dda79b0d78/docs/DraftStoreExtensions.md"
 ---
-<p>The composer lies at the heart of N1, and many improvements to the mail experience require deep integration with the composer. To enable these sort of plugins, the <a href='draftstore.html'>DraftStore</a> exposes an extension API.</p>
+<p>The composer lies at the heart of N1, and many improvements to the mail experience require deep integration with the composer. To enable these sort of plugins, the <a href='DraftStore.html'>DraftStore</a> exposes an extension API.</p>
 <p>This API allows your package to:</p>
 <ul>
 <li><p>Display warning messages before a draft is sent. (ie: &quot;Are you sure you want to send this without attaching a file?&quot;)</p>
@@ -13,11 +12,11 @@ edit_url: "https://github.com/nylas/N1/blob/a2c697754ad692e6a54629ffd93883dda79b
 <li><p>Transform the draft and make additional changes before it is sent.</p>
 </li>
 </ul>
-<p>To create your own composer extensions, subclass <a href='draftstoreextension.html'>DraftStoreExtension</a> and override the methods your extension needs.</p>
+<p>To create your own composer extensions, subclass {DraftStoreExtensions} and override the methods your extension needs.</p>
 <p>In the sample packages repository, <a href="">templates</a> is an example of a package which uses a DraftStoreExtension to enhance the composer experience.</p>
 <h3 id="example">Example</h3>
 <p>This extension displays a warning before sending a draft that contains the names of competitors&#39; products. If the user proceeds to send the draft containing the words, it appends a disclaimer.</p>
-<pre><code class="lang-coffee"><a href='draftstoreextension.html'>DraftStoreExtension</a> = <span class="hljs-built_in">require</span> <span class="hljs-string">'nylas-exports'</span>
+<pre><code class="lang-coffee"><a href='DraftStoreExtension.html'>DraftStoreExtension</a> = <span class="hljs-built_in">require</span> <span class="hljs-string">'nylas-exports'</span>
 
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ProductsExtension</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">DraftStoreExtension</span></span>
 
@@ -37,3 +36,4 @@ edit_url: "https://github.com/nylas/N1/blob/a2c697754ad692e6a54629ffd93883dda79b
             or trademarks used in context."</span>
          session.changes.add(<span class="hljs-attribute">body</span>: bodyWithWarning)
 </code></pre>
+

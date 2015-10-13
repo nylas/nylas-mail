@@ -1,7 +1,6 @@
 ---
 layout: docs
 title: Account
-edit_url: "https://github.com/nylas/N1/blob/master/src/flux/models/account.coffee"
 ---
 
 <h2>Summary</h2>
@@ -13,14 +12,14 @@ an email account.</p>
 <p>For more information about Accounts on the Nylas Platform, read the
 <a href="https://nylas.com/docs/api#Account">Account API Documentation</a></p>
 <h2 id="attributes">Attributes</h2>
-<p><code>name</code>: <a href='attributestring.html'>AttributeString</a> The name of the Account.</p>
-<p><code>provider</code>: <a href='attributestring.html'>AttributeString</a> The Account&#39;s mail provider  (ie: <code>gmail</code>)</p>
-<p><code>emailAddress</code>: <a href='attributestring.html'>AttributeString</a> The Account&#39;s email address
+<p><code>name</code>: <a href='AttributeString.html'>AttributeString</a> The name of the Account.</p>
+<p><code>provider</code>: <a href='AttributeString.html'>AttributeString</a> The Account&#39;s mail provider  (ie: <code>gmail</code>)</p>
+<p><code>emailAddress</code>: <a href='AttributeString.html'>AttributeString</a> The Account&#39;s email address
 (ie: <code>ben@nylas.com</code>). Queryable.</p>
-<p><code>organizationUnit</code>: <a href='attributestring.html'>AttributeString</a> Either &quot;label&quot; or &quot;folder&quot;.
+<p><code>organizationUnit</code>: <a href='AttributeString.html'>AttributeString</a> Either &quot;label&quot; or &quot;folder&quot;.
 Depending on the provider, the account may be organized by folders or
 labels.</p>
-<p>This class also inherits attributes from <a href='model.html'>Model</a></p>
+<p>This class also inherits attributes from <a href='Model.html'>Model</a></p>
 </p>
 </div>
 
@@ -36,22 +35,22 @@ labels.</p>
     <h4 id=usesLabels class="function-name">
       usesLabels(<span class="args"></span>) <a href="#usesLabels" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>The current organization_unit used by the account. </p>
     </p>
     </div>
-
-
+    
+    
     <h4 id=displayProvider class="function-name">
       displayProvider(<span class="args"></span>) <a href="#displayProvider" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p></p>
     </div>
-
-
+    
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -61,3 +60,4 @@ labels.</p>
     like Gmail, Exchange, or Outlook 365</p>
     </td></tr>
         </table>
+

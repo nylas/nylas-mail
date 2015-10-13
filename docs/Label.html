@@ -1,7 +1,6 @@
 ---
 layout: docs
 title: Label
-edit_url: "https://github.com/nylas/N1/blob/master/src/flux/models/label.coffee"
 ---
 
 <h2>Summary</h2>
@@ -12,13 +11,13 @@ information about Label on the Nylas Platform, read the <a href="https://nylas.c
 Documentation</a></p>
 <p>NOTE: This is different from a <code>Folder</code>. A <code>Folder</code> is used for generic
 IMAP and Exchange, while <code>Label</code>s are used for Gmail. The <code>Account</code> has
-the filed <code>organizationUnit</code> which specifies if the current account uses
+the field <code>organizationUnit</code> which specifies if the current account uses
 either &quot;folder&quot; or &quot;label&quot;.</p>
 <p>While the two appear fairly similar, they have different behavioral
 semantics and are treated separately.</p>
 <p>Nylas also exposes a set of standard types or categories of folders/
-labels: an extended version of [rfc-6154]
-(<a href="http://tools.ietf.org/html/rfc6154">http://tools.ietf.org/html/rfc6154</a>), returned as the name of the folder/
+labels: an extended version of <a href="http://tools.ietf.org/html/rfc6154">rfc-6154</a>,
+returned as the name of the folder/
 label:</p>
 <ul>
 <li>inbox</li>
@@ -30,13 +29,18 @@ label:</p>
 <li>spam</li>
 <li>important</li>
 </ul>
-<p>NOTE: &quot;starred&quot; and &quot;unread&quot; are no longer folder nor labels. They are now
+<p>NOTE: &quot;starred&quot; and &quot;unread&quot; are no longer folders nor labels. They are now
 boolean values on messages and threads.</p>
 <h2 id="attributes">Attributes</h2>
-<p><code>name</code>: <a href='attributestring.html'>AttributeString</a> The internal name of the label. Queryable.</p>
-<p><code>displayName</code>: <a href='attributestring.html'>AttributeString</a> The display-friendly name of the label. Queryable.</p>
+<p><code>name</code>: <a href='AttributeString.html'>AttributeString</a> The internal name of the label. Queryable.</p>
+<p><code>displayName</code>: <a href='AttributeString.html'>AttributeString</a> The display-friendly name of the label. Queryable.</p>
 </p>
 </div>
 
 <ul>
 </ul>
+
+
+
+
+

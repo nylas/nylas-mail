@@ -1,7 +1,6 @@
 ---
 layout: docs
 title: ContactStore
-edit_url: "https://github.com/nylas/N1/blob/master/src/flux/stores/contact-store.coffee"
 ---
 
 <h2>Summary</h2>
@@ -11,7 +10,7 @@ edit_url: "https://github.com/nylas/N1/blob/master/src/flux/stores/contact-store
 book, making it easy to build autocompletion functionality and resolve
 the names associated with email addresses.</p>
 <h2 id="listening-for-changes">Listening for Changes</h2>
-<p>The ContactStore monitors the <a href='databasestore.html'>DatabaseStore</a> for changes to <a href='contact.html'>Contact</a> models
+<p>The ContactStore monitors the <a href='DatabaseStore.html'>DatabaseStore</a> for changes to <a href='Contact.html'>Contact</a> models
 and triggers when contacts have changed, allowing your stores and components
 to refresh data based on the ContactStore.</p>
 <pre><code class="lang-coffee"><span class="hljs-variable">@unsubscribe</span> = ContactStore.<span class="hljs-function">listen</span>(<span class="hljs-variable">@_onContactsChanged</span>, @)
@@ -34,14 +33,14 @@ to refresh data based on the ContactStore.</p>
     <h4 id=searchContacts class="function-name">
       searchContacts(<span class="args"><span class="arg">search</span><span class="arg">[options]</span></span>) <a href="#searchContacts" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Search the user&#39;s contact list for the given search term.
     This method compares the <code>search</code> string against each Contact&#39;s
     <code>name</code> and <code>email</code>.</p>
     </p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -53,9 +52,9 @@ to refresh data based on the ContactStore.</p>
                 <em>search</em>
               </td>
               <td class="markdown-from-sourecode">
-
+                
                 <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> A search phrase, such as <code>ben@n</code> or <code>Ben G</code></p>
-
+    
               </td>
             </tr>
             <tr>
@@ -65,34 +64,35 @@ to refresh data based on the ContactStore.</p>
               <td class="markdown-from-sourecode">
                 <span class="optional">Optional</span>
                 <p><a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object'>Object</a> If you will only be displaying a few results, you should pass a limit value. <a href='#searchContacts'>searchContacts</a> will return as soon as <code>limit</code> matches have been found.</p>
-
+    
               </td>
             </tr>
         </table>
-
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
             <th>Return Values</th>
           </tr>
-          <tr><td class="markdown-from-sourecode"><p>Returns an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of matching <a href='contact.html'>Contact</a> models</p>
+          <tr><td class="markdown-from-sourecode"><p>Returns an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of matching <a href='Contact.html'>Contact</a> models</p>
     </td></tr>
         </table>
     <h4 id=isValidContact class="function-name">
       isValidContact(<span class="args"></span>) <a href="#isValidContact" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p></p>
     </div>
-
-
+    
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
             <th>Return Values</th>
           </tr>
-          <tr><td class="markdown-from-sourecode"><p>Returns true if the contact provided is a <a href='contact.html'>Contact</a> instance and
+          <tr><td class="markdown-from-sourecode"><p>Returns true if the contact provided is a <a href='Contact.html'>Contact</a> instance and
     contains a properly formatted email address.</p>
     </td></tr>
         </table>
+

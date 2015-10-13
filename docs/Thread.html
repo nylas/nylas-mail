@@ -1,7 +1,6 @@
 ---
 layout: docs
 title: Thread
-edit_url: "https://github.com/nylas/N1/blob/master/src/flux/models/thread.coffee"
 ---
 
 <h2>Summary</h2>
@@ -11,18 +10,18 @@ edit_url: "https://github.com/nylas/N1/blob/master/src/flux/models/thread.coffee
 For more information about Threads on the Nylas Platform, read the
 <a href="https://nylas.com/docs/api#threads">Threads API Documentation</a></p>
 <h2 id="attributes">Attributes</h2>
-<p><code>snippet</code>: <a href='attributestring.html'>AttributeString</a> A short, ~140 character string with the content
+<p><code>snippet</code>: <a href='AttributeString.html'>AttributeString</a> A short, ~140 character string with the content
    of the last message in the thread. Queryable.</p>
-<p><code>subject</code>: <a href='attributestring.html'>AttributeString</a> The subject of the thread. Queryable.</p>
-<p><code>unread</code>: <a href='attributeboolean.html'>AttributeBoolean</a> True if the thread is unread. Queryable.</p>
-<p><code>starred</code>: <a href='attributeboolean.html'>AttributeBoolean</a> True if the thread is starred. Queryable.</p>
-<p><code>version</code>: <a href='attributenumber.html'>AttributeNumber</a> The version number of the thread.</p>
-<p><code>participants</code>: <a href='attributecollection.html'>AttributeCollection</a> A set of <a href='contact.html'>Contact</a> models
+<p><code>subject</code>: <a href='AttributeString.html'>AttributeString</a> The subject of the thread. Queryable.</p>
+<p><code>unread</code>: <a href='AttributeBoolean.html'>AttributeBoolean</a> True if the thread is unread. Queryable.</p>
+<p><code>starred</code>: <a href='AttributeBoolean.html'>AttributeBoolean</a> True if the thread is starred. Queryable.</p>
+<p><code>version</code>: <a href='AttributeNumber.html'>AttributeNumber</a> The version number of the thread.</p>
+<p><code>participants</code>: <a href='AttributeCollection.html'>AttributeCollection</a> A set of <a href='Contact.html'>Contact</a> models
    representing the participants in the thread.
    Note: Contacts on Threads do not have IDs.</p>
-<p><code>lastMessageReceivedTimestamp</code>: <a href='attributedatetime.html'>AttributeDateTime</a> The timestamp of the
+<p><code>lastMessageReceivedTimestamp</code>: <a href='AttributeDateTime.html'>AttributeDateTime</a> The timestamp of the
    last message on the thread.</p>
-<p>This class also inherits attributes from <a href='model.html'>Model</a></p>
+<p>This class also inherits attributes from <a href='Model.html'>Model</a></p>
 </p>
 </div>
 
@@ -38,11 +37,11 @@ For more information about Threads on the Nylas Platform, read the
     <h4 id=categoryNamed class="function-name">
       categoryNamed(<span class="args"><span class="arg">id</span></span>) <a href="#categoryNamed" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p></p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -54,13 +53,13 @@ For more information about Threads on the Nylas Platform, read the
                 <em>id</em>
               </td>
               <td class="markdown-from-sourecode">
-
+                
                 <p>A <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> {Category} name</p>
-
+    
               </td>
             </tr>
         </table>
-
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -71,3 +70,4 @@ For more information about Threads on the Nylas Platform, read the
     <code>names</code></p>
     </td></tr>
         </table>
+

@@ -1,7 +1,6 @@
 ---
 layout: docs
 title: DatabaseStore
-edit_url: "https://github.com/nylas/N1/blob/master/src/flux/stores/database-store.coffee"
 ---
 
 <h2>Summary</h2>
@@ -32,9 +31,9 @@ inspect the changes that are sent to your listener method.</p>
 carefully choose when to refresh their data. The <code>change</code> object passed to your
 event handler allows you to decide whether to refresh your data and exposes
 the following keys:</p>
-<p><code>objectClass</code>: The <a href='model.html'>Model</a> class that has been changed. If multiple types of models
+<p><code>objectClass</code>: The <a href='Model.html'>Model</a> class that has been changed. If multiple types of models
 were saved to the database, you will receive multiple change events.</p>
-<p><code>objects</code>: An <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of <a href='model.html'>Model</a> instances that were either created, updated or
+<p><code>objects</code>: An <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of <a href='Model.html'>Model</a> instances that were either created, updated or
 deleted from the local cache. If your component or store presents a single object
 or a small collection of objects, you should look to see if any of the objects
 are in your displayed set before refreshing.</p>
@@ -53,7 +52,7 @@ are in your displayed set before refreshing.</p>
     <h4 id=find class="function-name">
       find(<span class="args"><span class="arg">class</span><span class="arg">id</span></span>) <a href="#find" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Creates a new Model Query for retrieving a single model specified by
     the class and id.</p>
@@ -63,7 +62,7 @@ are in your displayed set before refreshing.</p>
     </code></pre>
     </p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -75,9 +74,9 @@ are in your displayed set before refreshing.</p>
                 <em>class</em>
               </td>
               <td class="markdown-from-sourecode">
-
-                <p>The class of the <a href='model.html'>Model</a> you&#39;re trying to retrieve.</p>
-
+                
+                <p>The class of the <a href='Model.html'>Model</a> you&#39;re trying to retrieve.</p>
+    
               </td>
             </tr>
             <tr>
@@ -85,31 +84,31 @@ are in your displayed set before refreshing.</p>
                 <em>id</em>
               </td>
               <td class="markdown-from-sourecode">
-
-                <p>The <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> id of the <a href='model.html'>Model</a> you&#39;re trying to retrieve</p>
-
+                
+                <p>The <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string'>String</a> id of the <a href='Model.html'>Model</a> you&#39;re trying to retrieve</p>
+    
               </td>
             </tr>
         </table>
-
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
             <th>Return Values</th>
           </tr>
-          <tr><td class="markdown-from-sourecode"><p>Returns a <a href='modelquery.html'>ModelQuery</a></p>
+          <tr><td class="markdown-from-sourecode"><p>Returns a <a href='ModelQuery.html'>ModelQuery</a></p>
     </td></tr>
         </table>
     <h4 id=findBy class="function-name">
       findBy(<span class="args"><span class="arg">class</span><span class="arg">predicates</span></span>) <a href="#findBy" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Creates a new Model Query for retrieving a single model matching the
     predicates provided.</p>
     </p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -121,9 +120,9 @@ are in your displayed set before refreshing.</p>
                 <em>class</em>
               </td>
               <td class="markdown-from-sourecode">
-
-                <p>The class of the <a href='model.html'>Model</a> you&#39;re trying to retrieve.</p>
-
+                
+                <p>The class of the <a href='Model.html'>Model</a> you&#39;re trying to retrieve.</p>
+    
               </td>
             </tr>
             <tr>
@@ -131,31 +130,31 @@ are in your displayed set before refreshing.</p>
                 <em>predicates</em>
               </td>
               <td class="markdown-from-sourecode">
-
-                <p>An <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of <a href='matcher.html'>matcher</a> objects. The set of predicates the  returned model must match.</p>
-
+                
+                <p>An <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of <a href='Matcher.html'>matcher</a> objects. The set of predicates the  returned model must match.</p>
+    
               </td>
             </tr>
         </table>
-
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
             <th>Return Values</th>
           </tr>
-          <tr><td class="markdown-from-sourecode"><p>Returns a <a href='modelquery.html'>ModelQuery</a></p>
+          <tr><td class="markdown-from-sourecode"><p>Returns a <a href='ModelQuery.html'>ModelQuery</a></p>
     </td></tr>
         </table>
     <h4 id=findAll class="function-name">
       findAll(<span class="args"><span class="arg">class</span><span class="arg">predicates</span></span>) <a href="#findAll" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Creates a new Model Query for retrieving all models matching the
     predicates provided.</p>
     </p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -167,9 +166,9 @@ are in your displayed set before refreshing.</p>
                 <em>class</em>
               </td>
               <td class="markdown-from-sourecode">
-
-                <p>The class of the <a href='model.html'>Model</a> you&#39;re trying to retrieve.</p>
-
+                
+                <p>The class of the <a href='Model.html'>Model</a> you&#39;re trying to retrieve.</p>
+    
               </td>
             </tr>
             <tr>
@@ -177,31 +176,31 @@ are in your displayed set before refreshing.</p>
                 <em>predicates</em>
               </td>
               <td class="markdown-from-sourecode">
-
-                <p>An <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of <a href='matcher.html'>matcher</a> objects. The set of predicates the  returned model must match.</p>
-
+                
+                <p>An <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of <a href='Matcher.html'>matcher</a> objects. The set of predicates the  returned model must match.</p>
+    
               </td>
             </tr>
         </table>
-
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
             <th>Return Values</th>
           </tr>
-          <tr><td class="markdown-from-sourecode"><p>Returns a <a href='modelquery.html'>ModelQuery</a></p>
+          <tr><td class="markdown-from-sourecode"><p>Returns a <a href='ModelQuery.html'>ModelQuery</a></p>
     </td></tr>
         </table>
     <h4 id=count class="function-name">
       count(<span class="args"><span class="arg">class</span><span class="arg">predicates</span></span>) <a href="#count" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Creates a new Model Query that returns the <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number'>Number</a> of models matching
     the predicates provided.</p>
     </p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -213,9 +212,9 @@ are in your displayed set before refreshing.</p>
                 <em>class</em>
               </td>
               <td class="markdown-from-sourecode">
-
-                <p>The class of the <a href='model.html'>Model</a> you&#39;re trying to retrieve.</p>
-
+                
+                <p>The class of the <a href='Model.html'>Model</a> you&#39;re trying to retrieve.</p>
+    
               </td>
             </tr>
             <tr>
@@ -223,25 +222,25 @@ are in your displayed set before refreshing.</p>
                 <em>predicates</em>
               </td>
               <td class="markdown-from-sourecode">
-
-                <p>An <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of <a href='matcher.html'>matcher</a> objects. The set of predicates the  returned model must match.</p>
-
+                
+                <p>An <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of <a href='Matcher.html'>matcher</a> objects. The set of predicates the  returned model must match.</p>
+    
               </td>
             </tr>
         </table>
-
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
             <th>Return Values</th>
           </tr>
-          <tr><td class="markdown-from-sourecode"><p>Returns a <a href='modelquery.html'>ModelQuery</a></p>
+          <tr><td class="markdown-from-sourecode"><p>Returns a <a href='ModelQuery.html'>ModelQuery</a></p>
     </td></tr>
         </table>
     <h4 id=modelify class="function-name">
       modelify(<span class="args"><span class="arg">class</span><span class="arg"></span></span>) <a href="#modelify" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Modelify converts the provided array of IDs or models (or a mix of
     IDs and models) into an array of models of the <code>klass</code> provided by querying for the missing items.</p>
@@ -249,7 +248,7 @@ are in your displayed set before refreshing.</p>
     if no query is necessary.</p>
     </p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -261,9 +260,9 @@ are in your displayed set before refreshing.</p>
                 <em>class</em>
               </td>
               <td class="markdown-from-sourecode">
-
-                <p>The <a href='model.html'>Model</a> class desired.</p>
-
+                
+                <p>The <a href='Model.html'>Model</a> class desired.</p>
+    
               </td>
             </tr>
             <tr>
@@ -271,22 +270,22 @@ are in your displayed set before refreshing.</p>
                 <em></em>
               </td>
               <td class="markdown-from-sourecode">
-
+                
                 <p>&#39;arr&#39; An <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> with a mix of string model IDs and/or models.</p>
-
+    
               </td>
             </tr>
         </table>
-
+    
     <h4 id=run class="function-name">
       run(<span class="args"><span class="arg">modelQuery</span></span>) <a href="#run" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
-      <p><p>Executes a <a href='modelquery.html'>ModelQuery</a> on the local database.</p>
+      <p><p>Executes a <a href='ModelQuery.html'>ModelQuery</a> on the local database.</p>
     </p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -298,13 +297,13 @@ are in your displayed set before refreshing.</p>
                 <em>modelQuery</em>
               </td>
               <td class="markdown-from-sourecode">
-
-                <p>A <a href='modelquery.html'>ModelQuery</a> to execute.</p>
-
+                
+                <p>A <a href='ModelQuery.html'>ModelQuery</a> to execute.</p>
+    
               </td>
             </tr>
         </table>
-
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -319,12 +318,12 @@ are in your displayed set before refreshing.</p>
     <h4 id=persistModel class="function-name">
       persistModel(<span class="args"><span class="arg">model</span></span>) <a href="#persistModel" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Asynchronously writes <code>model</code> to the cache and triggers a change event.</p>
     </p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -336,13 +335,13 @@ are in your displayed set before refreshing.</p>
                 <em>model</em>
               </td>
               <td class="markdown-from-sourecode">
-
-                <p>A <a href='model.html'>Model</a> to write to the database.</p>
-
+                
+                <p>A <a href='Model.html'>Model</a> to write to the database.</p>
+    
               </td>
             </tr>
         </table>
-
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -360,13 +359,13 @@ are in your displayed set before refreshing.</p>
     <h4 id=persistModels class="function-name">
       persistModels(<span class="args"><span class="arg">models</span></span>) <a href="#persistModels" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Asynchronously writes <code>models</code> to the cache and triggers a single change
     event. Note: Models must be of the same class to be persisted in a batch operation.</p>
     </p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -378,13 +377,13 @@ are in your displayed set before refreshing.</p>
                 <em>models</em>
               </td>
               <td class="markdown-from-sourecode">
-
-                <p>An <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of <a href='model.html'>Model</a> objects to write to the database.</p>
-
+                
+                <p>An <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/array'>Array</a> of <a href='Model.html'>Model</a> objects to write to the database.</p>
+    
               </td>
             </tr>
         </table>
-
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -402,12 +401,12 @@ are in your displayed set before refreshing.</p>
     <h4 id=unpersistModel class="function-name">
       unpersistModel(<span class="args"><span class="arg">model</span></span>) <a href="#unpersistModel" class="link"></a>
     </h4>
-
+    
     <div class="function-description markdown-from-sourecode">
       <p><p>Asynchronously removes <code>model</code> from the cache and triggers a change event.</p>
     </p>
     </div>
-
+    
         <strong>Parameters</strong>
         <table class="arguments">
             <tr>
@@ -419,13 +418,13 @@ are in your displayed set before refreshing.</p>
                 <em>model</em>
               </td>
               <td class="markdown-from-sourecode">
-
-                <p>A <a href='model.html'>Model</a> to write to the database.</p>
-
+                
+                <p>A <a href='Model.html'>Model</a> to write to the database.</p>
+    
               </td>
             </tr>
         </table>
-
+    
         <strong>Returns</strong>
         <table class="arguments">
           <tr>
@@ -440,3 +439,4 @@ are in your displayed set before refreshing.</p>
     </ul>
     </td></tr>
         </table>
+

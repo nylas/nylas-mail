@@ -1,7 +1,6 @@
 ---
 layout: docs
 title: EventStore
-edit_url: "https://github.com/nylas/N1/blob/master/src/flux/stores/event-store.coffee"
 ---
 
 <h2>Summary</h2>
@@ -9,7 +8,7 @@ edit_url: "https://github.com/nylas/N1/blob/master/src/flux/stores/event-store.c
 <div class="markdown-from-sourecode">
   <p><p>EventStore maintains</p>
 <h2 id="listening-for-changes">Listening for Changes</h2>
-<p>The EventStore monitors the <a href='databasestore.html'>DatabaseStore</a> for changes to {Event} models
+<p>The EventStore monitors the <a href='DatabaseStore.html'>DatabaseStore</a> for changes to {Event} models
 and triggers when events have changed, allowing your stores and components
 to refresh data based on the EventStore.</p>
 <pre><code class="lang-coffee"><span class="hljs-variable">@unsubscribe</span> = EventStore.<span class="hljs-function">listen</span>(<span class="hljs-variable">@_onEventsChanged</span>, @)
@@ -22,3 +21,8 @@ to refresh data based on the EventStore.</p>
 
 <ul>
 </ul>
+
+
+
+
+
