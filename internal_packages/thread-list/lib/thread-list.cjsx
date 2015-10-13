@@ -208,6 +208,9 @@ class ThreadList extends React.Component
         className="thread-list thread-list-narrow"
         scrollTooltipComponent={ThreadListScrollTooltip}
         emptyComponent={EmptyState}
+        onDragStart={@_onDragStart}
+        onDragEnd={@_onDragEnd}
+        draggable="true"
         collection="thread" />
     else
       <div></div>
