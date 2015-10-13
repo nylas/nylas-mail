@@ -95,7 +95,7 @@ however, the Sync Engine is open source and you can run it yourself.
 2. Once you've installed the sync engine, add accounts by running the inbox-auth
    script. For Gmail accounts, the syntax is simple: `bin/inbox-auth you@gmail.com`
 
-3. Start the sync engine, and also start the API via `bin/inbox-api`.
+3. Start the sync engine by running `bin/inbox-start` and the API via `bin/inbox-api`.
 
 4. After you've linked accounts to the Sync Engine, open or create a file at
    `~/.nylas/config.cson`. This is the config file that N1 reads at launch.
@@ -108,12 +108,15 @@ however, the Sync Engine is open source and you can run it yourself.
    endpoint (ex. `http://localhost:5555/accounts`) into the config file at the
    path `*.nylas.accounts`.
 
-   Finally, N1 will look for access tokens for these accounts under `*.nylas.accountTokens`.
-   For each account you've created, add an entry there with the account ID as
-   both the key and value. This works because the open-source sync engine expects
-   an account ID as the HTTP Basic Auth username.
+   N1 will look for access tokens for these accounts under `*.nylas.accountTokens`,
+   but the open source version of the sync engine does not provide access tokens.
+   When you make requests to the open source API, you provide an account
+   ID in the HTTP Basic Auth username field instead of an account token.
 
-   It should look something like this:
+   For each account you've created, add an entry to `*.nylas.accountTokens`
+   with the account ID as both the key and value.
+
+   The final `config.cson` file should look something like this:
 
         "*":
           env: "local"
