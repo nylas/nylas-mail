@@ -5,7 +5,7 @@ var verifyRequirements = require('./utils/verify-requirements');
 var safeExec = require('./utils/child-process-wrapper.js').safeExec;
 var path = require('path');
 
-// Executes an array of commands one by one.
+// Executes an array of commands in series
 function executeCommands(commands, done, index) {
   index = (index == undefined ? 0 : index);
   if (index < commands.length) {
@@ -32,8 +32,8 @@ function printArgs(args) {
 }
 
 function makeSqlite3Command() {
-  var npmPath = path.resolve(__dirname, '..', 'build', 'node_modules', '.bin', 'npm');
-  var nodeGypPath = path.resolve(__dirname, '..', 'build', 'node_modules', 'npm', 'node_modules', '.bin', 'node-gyp');
+  var npmPath = '"' + path.resolve(__dirname, '..', 'build', 'node_modules', '.bin', 'npm') + '"';
+  var nodeGypPath = '"' + path.resolve(__dirname, '..', 'build', 'node_modules', 'npm', 'node_modules', '.bin', 'node-gyp') + '"';
   var appPackageJSON = JSON.parse(fs.readFileSync(path.resolve(__dirname, '..', 'package.json')));
   var targetVersion = appPackageJSON['electronVersion'];
   var targetPlatform = require('os').platform();
@@ -49,18 +49,18 @@ function bootstrap() {
   if (!fs.existsSync(path.join(apmInstallPath, 'node_modules')))
     fs.mkdirSync(path.join(apmInstallPath, 'node_modules'));
 
-  var apmPath = path.resolve(__dirname, '..', 'apm', 'node_modules', 'atom-package-manager', 'bin', 'apm')
+  var apmPath = '"' + path.resolve(__dirname, '..', 'apm', 'node_modules', 'atom-package-manager', 'bin', 'apm') + '"';
   var apmFlags = process.env.JANKY_SHA1 || process.argv.indexOf('--no-color') !== -1 ? ' --no-color' : '';
 
   var npmPath = path.resolve(__dirname, '..', 'build', 'node_modules', '.bin', 'npm');
-  var initialNpmCommand = fs.existsSync(npmPath) ? npmPath : 'npm';
-  var npmFlags = ' --userconfig=' + path.resolve('.npmrc') + ' ';
+  npmPath = fs.existsSync(npmPath) ? '"'+npmPath+'"' : 'npm';
+  var npmFlags = ' --userconfig=' + '"' + path.resolve('.npmrc') + '" ';
 
-  var gruntPath = path.resolve(__dirname, '..', 'build', 'node_modules', '.bin', 'grunt');
+  var gruntPath = '"' + path.resolve(__dirname, '..', 'build', 'node_modules', '.bin', 'grunt') + '"';
 
   var packagesToDedupe = ['fs-plus', 'humanize-plus', 'roaster', 'season', 'grim'];
 
-  var buildInstallCommand = initialNpmCommand + npmFlags + 'install';
+  var buildInstallCommand = npmPath + npmFlags + 'install';
   var buildInstallOptions = {cwd: path.resolve(__dirname, '..', 'build')};
   var apmInstallCommand = npmPath + npmFlags + '--target=0.10.40 ' + 'install';
   var apmInstallOptions = {cwd: apmInstallPath};
@@ -175,7 +175,11 @@ function bootstrap() {
   ]);
 
   process.chdir(path.dirname(__dirname));
-  executeCommands(commands, process.exit);
+  executeCommands(commands, function() {
+    console.log("---------------------------------------------");
+    console.log("script/bootstrap completed successfully. You can start\nN1 via ./N1.sh --dev, or run tests with ./N1.sh --test");
+    process.exit();
+  });
 }
 
 verifyRequirements(function(error, successMessage) {
