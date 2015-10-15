@@ -63,7 +63,7 @@ module.exports =
 
   _onNewMailReceived: (incoming) ->
     new Promise (resolve, reject) =>
-      return resolve() if atom.config.get('unread-notifications.enabled') is false
+      return resolve() if atom.config.get('core.notifications.enabled') is false
 
       incomingMessages = incoming['message'] ? []
       incomingThreads = incoming['thread'] ? []
@@ -95,7 +95,7 @@ module.exports =
           threads[msg.threadId]?.categoryNamed('inbox') isnt null
 
         return resolve() if newUnreadInInbox.length is 0
-        if atom.config.get("unread-notifications.sounds")
+        if atom.config.get("core.notifications.sounds")
           SoundRegistry.playSound('new-mail')
 
         for msg in newUnreadInInbox
