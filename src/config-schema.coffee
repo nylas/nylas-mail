@@ -53,3 +53,12 @@ module.exports =
             type: 'string'
             default: 'reply-all'
             enum: ['reply', 'reply-all']
+      notifications:
+        type: 'object'
+        properties:
+          enabled:
+            type: 'boolean'
+            default: true
+          sounds:
+            type: 'boolean'
+            default: true

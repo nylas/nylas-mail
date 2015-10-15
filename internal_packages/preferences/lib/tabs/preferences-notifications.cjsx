@@ -24,10 +24,10 @@ class PreferencesNotifications extends React.Component
           </p>
           <p>
             <input type="checkbox"
-                   id="unread-notifications.enabled"
-                   checked={@props.config.get('unread-notifications.enabled')}
-                   onChange={ => @props.config.toggle('unread-notifications.enabled')}/>
-            <label htmlFor="unread-notifications.enabled">Show notifications for new unread messages</label>
+                   id="core.notifications.enabled"
+                   checked={@props.config.get('core.notifications.enabled')}
+                   onChange={ => @props.config.toggle('core.notifications.enabled')}/>
+            <label htmlFor="core.notifications.enabled">Show notifications for new unread messages</label>
           </p>
         </div>
       </div>
@@ -38,10 +38,10 @@ class PreferencesNotifications extends React.Component
       <div className="section-body">
         <p>
           <input type="checkbox"
-                 id="unread-notifications.sounds"
-                 checked={@props.config.get('unread-notifications.sounds')}
-                 onChange={ => @props.config.toggle('unread-notifications.sounds')}/>
-          <label htmlFor="unread-notifications.sounds">Play sound when receiving new mail</label>
+                 id="core.notifications.sounds"
+                 checked={@props.config.get('core.notifications.sounds')}
+                 onChange={ => @props.config.toggle('core.notifications.sounds')}/>
+          <label htmlFor="core.notifications.sounds">Play sound when receiving new mail</label>
         </p>
         <p>
           <input type="checkbox"

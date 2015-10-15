@@ -173,23 +173,23 @@ describe "UnreadNotifications", ->
 
   it "should play a sound when it gets new mail", ->
     spyOn(atom.config, "get").andCallFake (config) ->
-      if config is "unread-notifications.enabled" then return true
-      if config is "unread-notifications.sounds" then return true
+      if config is "core.notifications.enabled" then return true
+      if config is "core.notifications.sounds" then return true
 
     spyOn(SoundRegistry, "playSound")
     waitsForPromise =>
       Main._onNewMailReceived({message: [@msg1]})
       .then ->
-        expect(atom.config.get.calls[1].args[0]).toBe "unread-notifications.sounds"
+        expect(atom.config.get.calls[1].args[0]).toBe "core.notifications.sounds"
         expect(SoundRegistry.playSound).toHaveBeenCalledWith("new-mail")
 
   it "should not play a sound if the config is off", ->
     spyOn(atom.config, "get").andCallFake (config) ->
-      if config is "unread-notifications.enabled" then return true
-      if config is "unread-notifications.sounds" then return false
+      if config is "core.notifications.enabled" then return true
+      if config is "core.notifications.sounds" then return false
     spyOn(SoundRegistry, "playSound")
     waitsForPromise =>
       Main._onNewMailReceived({message: [@msg1]})
       .then ->
-        expect(atom.config.get.calls[1].args[0]).toBe "unread-notifications.sounds"
+        expect(atom.config.get.calls[1].args[0]).toBe "core.notifications.sounds"
         expect(SoundRegistry.playSound).not.toHaveBeenCalled()
