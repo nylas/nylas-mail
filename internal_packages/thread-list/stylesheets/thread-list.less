@@ -84,6 +84,7 @@
   .participants {
     font-size:   @font-size-small;
     text-overflow: ellipsis;
+    text-align: left;
     overflow: hidden;
     position: relative;
     top:2px;
@@ -114,7 +115,6 @@
       flex: 1;
     }
     .thread-icon {
-      flex-shrink:0;
       margin-right:@padding-base-horizontal;
       margin-left:@padding-base-horizontal;
     }
@@ -170,6 +170,7 @@
   .thread-icon {
     width:26px;
     height:26px;
+    flex-shrink:0;
     background-size: 15px;
     display:inline-block;
     background-repeat: no-repeat;
