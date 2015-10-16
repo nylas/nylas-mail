@@ -28,7 +28,10 @@ module.exports = (grunt) ->
         return reject() if error
         commitHash = stdout?.trim?()
         packageVersion = json.version
-        fullVersion = "#{json.version}-#{commitHash}"
+        if packageVersion.indexOf('-') > 0
+          fullVersion = packageVersion
+        else
+          fullVersion = "#{packageVersion}-#{commitHash}"
         resolve()
 
   runEmailIntegrationTest = ->
@@ -108,7 +111,7 @@ module.exports = (grunt) ->
 
       spawn
         cmd: "zip"
-        args: ["-9", "-y", "-r", zipFilepath, filepath]
+        args: ["-9", "-y", "-r", zipFilepath, filename]
       , (error) ->
         process.chdir(orig)
         if error
@@ -144,9 +147,9 @@ module.exports = (grunt) ->
           uploadPromises.push uploadToS3(dmgName(), "#{process.platform}/N1-#{fullVersion}.dmg")
           uploadPromises.push uploadZipToS3(appName(), "#{process.platform}/N1-#{fullVersion}.zip")
         if process.platform is 'win32'
-          uploadPromises.push uploadToS3("installer/"+winReleasesName(), "#{process.platform}/nylas-#{fullVersion}-RELEASES.txt")
-          uploadPromises.push uploadToS3("installer/"+winSetupName(), "#{process.platform}/nylas-#{fullVersion}.exe")
-          uploadPromises.push uploadToS3("installer/"+winNupkgName(), "#{process.platform}/nylas-#{fullVersion}-full.nupkg")
+          uploadPromises.push uploadToS3("installer/"+winReleasesName(), "#{process.platform}/N1-#{fullVersion}-RELEASES.txt")
+          uploadPromises.push uploadToS3("installer/"+winSetupName(), "#{process.platform}/N1-#{fullVersion}.exe")
+          uploadPromises.push uploadToS3("installer/"+winNupkgName(), "#{process.platform}/N1-#{fullVersion}-full.nupkg")
 
         Promise.all(uploadPromises).then(done).catch (err) ->
           grunt.log.error(err)
