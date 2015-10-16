@@ -26,7 +26,7 @@ module.exports = (grunt) ->
 getLicenseText = (dependencyLicenses) ->
   {keys} = require 'underscore'
   text = """
-    #{fs.readFileSync('LICENSE.md', 'utf8')}
+    #{fs.readFileSync('LICENSE', 'utf8')}
 
     This application bundles the following third-party packages in accordance
     with the following licenses:\n\n
