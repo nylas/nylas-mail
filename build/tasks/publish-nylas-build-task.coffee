@@ -6,32 +6,41 @@ request = require 'request'
 Promise = require 'bluebird'
 
 s3Client = null
+packageVersion = null
+fullVersion = null
 
 module.exports = (grunt) ->
   {cp, spawn, rm} = require('./task-helpers')(grunt)
-
-  getVersion = ->
-    {version} = require(path.join(grunt.config.get('atom.appDir'), 'package.json'))
-    return version
 
   appName = -> grunt.config.get('atom.appName')
   dmgName = -> "#{appName().split('.')[0]}.dmg"
   zipName = -> "#{appName().split('.')[0]}.zip"
   winReleasesName = -> "RELEASES"
   winSetupName = -> "Nylas N1Setup.exe"
-  winNupkgName = -> "nylas-#{getVersion()}-full.nupkg"
+  winNupkgName = -> "nylas-#{packageVersion}-full.nupkg"
+
+  populateVersion = ->
+    new Promise (resolve, reject) ->
+      json = require(path.join(grunt.config.get('atom.appDir'), 'package.json'))
+      cmd = 'git'
+      args = ['rev-parse', '--short', 'HEAD']
+      spawn {cmd, args}, (error, {stdout}={}, code) ->
+        return reject() if error
+        commitHash = stdout?.trim?()
+        packageVersion = json.version
+        fullVersion = "#{json.version}-#{commitHash}"
+        resolve()
 
   runEmailIntegrationTest = ->
     return Promise.resolve() unless process.platform is 'darwin'
 
     buildDir = grunt.config.get('atom.buildDir')
-    buildVersion = getVersion()
     new Promise (resolve, reject) ->
       appToRun = path.join(buildDir, appName())
       scriptToRun = "./build/run-build-and-send-screenshot.scpt"
       spawn
         cmd: "osascript"
-        args: [scriptToRun, appToRun, buildVersion]
+        args: [scriptToRun, appToRun, fullVersion]
       , (error) ->
         if error
           reject(error)
@@ -77,7 +86,8 @@ module.exports = (grunt) ->
         resolve(data)
 
   uploadToS3 = (filename, key) ->
-    filepath = path.join(grunt.config.get('atom.buildDir'), filename)
+    buildDir = grunt.config.get('atom.buildDir')
+    filepath = path.join(buildDir, filename)
 
     grunt.log.writeln ">> Uploading #{filename} to #{key}…"
     put(filepath, key).then (data) ->
@@ -86,12 +96,13 @@ module.exports = (grunt) ->
         Promise.resolve(data)
 
   uploadZipToS3 = (filename, key) ->
-    filepath = path.join(grunt.config.get('atom.buildDir'), filename)
+    buildDir = grunt.config.get('atom.buildDir')
+    filepath = path.join(buildDir, filename)
 
     grunt.log.writeln ">> Creating zip file…"
     new Promise (resolve, reject) ->
       zipFilepath = filepath + ".zip"
-      rm(zipPath)
+      rm(zipFilepath)
       orig = process.cwd()
       process.chdir(buildDir)
 
@@ -104,7 +115,7 @@ module.exports = (grunt) ->
           reject(error)
           return
 
-        grunt.log.writeln ">> Created #{zipPath}"
+        grunt.log.writeln ">> Created #{zipFilepath}"
         grunt.log.writeln ">> Uploading…"
         uploadToS3(zipFilepath, key).then(resolve).catch(reject)
 
@@ -126,16 +137,17 @@ module.exports = (grunt) ->
 
     done = @async()
 
-    runEmailIntegrationTest().then ->
-      uploadPromises = []
-      if process.platform is 'darwin'
-        uploadPromises.push uploadToS3(dmgName(), "#{process.platform}/N1-#{getVersion()}.dmg")
-        uploadPromises.push uploadZipToS3(appName(), "#{process.platform}/N1-#{getVersion()}.zip")
-      if process.platform is 'win32'
-        uploadPromises.push uploadToS3("installer/"+winReleasesName(), "#{process.platform}/nylas-#{getVersion()}-RELEASES.txt")
-        uploadPromises.push uploadToS3("installer/"+winSetupName(), "#{process.platform}/nylas-#{getVersion()}.exe")
-        uploadPromises.push uploadToS3("installer/"+winNupkgName(), "#{process.platform}/#{winNupkgName()}")
+    populateVersion().then ->
+      runEmailIntegrationTest().then ->
+        uploadPromises = []
+        if process.platform is 'darwin'
+          uploadPromises.push uploadToS3(dmgName(), "#{process.platform}/N1-#{fullVersion}.dmg")
+          uploadPromises.push uploadZipToS3(appName(), "#{process.platform}/N1-#{fullVersion}.zip")
+        if process.platform is 'win32'
+          uploadPromises.push uploadToS3("installer/"+winReleasesName(), "#{process.platform}/nylas-#{fullVersion}-RELEASES.txt")
+          uploadPromises.push uploadToS3("installer/"+winSetupName(), "#{process.platform}/nylas-#{fullVersion}.exe")
+          uploadPromises.push uploadToS3("installer/"+winNupkgName(), "#{process.platform}/nylas-#{fullVersion}-full.nupkg")
 
-      Promise.all(uploadPromises).then(done).catch (err) ->
-        grunt.log.error(err)
-        return false
+        Promise.all(uploadPromises).then(done).catch (err) ->
+          grunt.log.error(err)
+          return false
