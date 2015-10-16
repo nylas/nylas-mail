@@ -51,16 +51,16 @@ module.exports = (grunt) ->
         resolve()
 
   postToSlack = (msg) ->
+    return Promise.resolve() unless process.env.PUBLISH_SLACK_HOOK
     new Promise (resolve, reject) ->
-      url = "https://hooks.slack.com/services/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"
       request.post
-        url: url
+        url: process.env.PUBLISH_SLACK_HOOK
         json:
           username: "Edgehill Builds"
           text: msg
       , (err, httpResponse, body) ->
-        if err then reject(err)
-        else resolve()
+        return reject(err) if err
+        resolve()
 
   put = (localSource, destName) ->
     grunt.log.writeln ">> Uploading #{localSource} to S3…"
@@ -94,7 +94,7 @@ module.exports = (grunt) ->
 
     grunt.log.writeln ">> Uploading #{filename} to #{key}…"
     put(filepath, key).then (data) ->
-      msg = "N1 release asset uploaded: <#{data.Location}|#{filename}>"
+      msg = "N1 release asset uploaded: <#{data.Location}|#{key}>"
       postToSlack(msg).then ->
         Promise.resolve(data)
 
