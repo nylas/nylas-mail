@@ -70,6 +70,7 @@
     "underscore": "^1.8",
     "underscore.string": "^3.0"
   },
+  "license": "GPL-3.0",
   "packageDependencies": {},
   "private": true,
   "scripts": {
