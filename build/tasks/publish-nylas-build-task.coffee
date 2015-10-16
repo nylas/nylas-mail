@@ -5,6 +5,8 @@ path = require 'path'
 request = require 'request'
 Promise = require 'bluebird'
 
+s3Client = null
+
 module.exports = (grunt) ->
   {cp, spawn, rm} = require('./task-helpers')(grunt)
 
@@ -15,13 +17,13 @@ module.exports = (grunt) ->
   appName = -> grunt.config.get('atom.appName')
   dmgName = -> "#{appName().split('.')[0]}.dmg"
   zipName = -> "#{appName().split('.')[0]}.zip"
+  winReleasesName = -> "RELEASES"
+  winSetupName = -> "Nylas N1Setup.exe"
+  winNupkgName = -> "nylas-#{getVersion()}-full.nupkg"
 
-  defaultPublishPath = -> path.join(process.env.HOME, "Downloads")
+  runEmailIntegrationTest = ->
+    return Promise.resolve() unless process.platform is 'darwin'
 
-  publishPath = ->
-    process.env.PUBLISH_PATH ? defaultPublishPath()
-
-  runEmailIntegrationTest = (s3Client) ->
     buildDir = grunt.config.get('atom.buildDir')
     buildVersion = getVersion()
     new Promise (resolve, reject) ->
@@ -48,26 +50,7 @@ module.exports = (grunt) ->
         if err then reject(err)
         else resolve()
 
-  # Returns a properly bound s3obj
-  prepareS3 = ->
-    awsKey = process.env.AWS_ACCESS_KEY_ID ? ""
-    awsSecret = process.env.AWS_SECRET_ACCESS_KEY ? ""
-
-    if awsKey.length is 0
-      grunt.log.error "Please set the AWS_ACCESS_KEY_ID environment variable"
-      return false
-    if awsSecret.length is 0
-      grunt.log.error "Please set the AWS_SECRET_ACCESS_KEY environment variable"
-      return false
-
-    s3Client = s3.createClient
-      s3Options:
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID
-        scretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-
-    return s3Client
-
-  uploadFile = (s3Client, localSource, destName) ->
+  put = (localSource, destName) ->
     grunt.log.writeln ">> Uploading #{localSource} to S3…"
 
     write = grunt.log.writeln
@@ -93,74 +76,66 @@ module.exports = (grunt) ->
       uploader.on "end", (data) ->
         resolve(data)
 
-  uploadDMGToS3 = (s3Client) ->
-    destName = "#{process.platform}/Edgehill_#{getVersion()}.dmg"
-    dmgPath = path.join(grunt.config.get('atom.buildDir'), dmgName())
-    new Promise (resolve, reject) ->
-      uploadFile(s3Client, dmgPath, destName)
-      .then (data) ->
-        grunt.log.ok "Uploaded DMG to #{data.Location}"
-        msg = "New Mac Edgehill build! <#{data.Location}|#{destName}>"
-        postToSlack(msg).then ->
-          resolve(data)
-        .catch(reject)
-      .catch(reject)
+  uploadToS3 = (filename, key) ->
+    filepath = path.join(grunt.config.get('atom.buildDir'), filename)
 
-  uploadZipToS3 = (s3Client) ->
-    destName = "#{process.platform}/Edgehill_#{getVersion()}.zip"
-    buildDir = grunt.config.get('atom.buildDir')
+    grunt.log.writeln ">> Uploading #{filename} to #{key}…"
+    put(filepath, key).then (data) ->
+      msg = "N1 release asset uploaded: <#{data.Location}|#{filename}>"
+      postToSlack(msg).then ->
+        Promise.resolve(data)
+
+  uploadZipToS3 = (filename, key) ->
+    filepath = path.join(grunt.config.get('atom.buildDir'), filename)
 
     grunt.log.writeln ">> Creating zip file…"
     new Promise (resolve, reject) ->
-      appToZip = path.join(buildDir, appName())
-      zipPath = path.join(buildDir, zipName())
-
-      rm zipPath
-
+      zipFilepath = filepath + ".zip"
+      rm(zipPath)
       orig = process.cwd()
       process.chdir(buildDir)
 
       spawn
         cmd: "zip"
-        args: ["-9", "-y", "-r", zipName(), appName()]
+        args: ["-9", "-y", "-r", zipFilepath, filepath]
       , (error) ->
+        process.chdir(orig)
         if error
-          process.chdir(orig)
           reject(error)
           return
 
         grunt.log.writeln ">> Created #{zipPath}"
         grunt.log.writeln ">> Uploading…"
-        uploadFile(s3Client, zipPath, destName)
-        .then (data) ->
-          grunt.log.ok "Uploaded zip to #{data.Location}"
-          process.chdir(orig)
-          resolve(data)
-        .catch (err) ->
-          process.chdir(orig)
-          reject(err)
+        uploadToS3(zipFilepath, key).then(resolve).catch(reject)
 
   grunt.registerTask "publish-nylas-build", "Publish Nylas build", ->
+    awsKey = process.env.AWS_ACCESS_KEY_ID ? ""
+    awsSecret = process.env.AWS_SECRET_ACCESS_KEY ? ""
+
+    if awsKey.length is 0
+      grunt.log.error "Please set the AWS_ACCESS_KEY_ID environment variable"
+      return false
+    if awsSecret.length is 0
+      grunt.log.error "Please set the AWS_SECRET_ACCESS_KEY environment variable"
+      return false
+
+    s3Client = s3.createClient
+      s3Options:
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID
+        scretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+
     done = @async()
 
     runEmailIntegrationTest().then ->
-      dmgPath = path.join(grunt.config.get('atom.buildDir'), dmgName())
+      uploadPromises = []
+      if process.platform is 'darwin'
+        uploadPromises.push uploadToS3(dmgName(), "#{process.platform}/N1-#{getVersion()}.dmg")
+        uploadPromises.push uploadZipToS3(appName(), "#{process.platform}/N1-#{getVersion()}.zip")
+      if process.platform is 'win32'
+        uploadPromises.push uploadToS3("installer/"+winReleasesName(), "#{process.platform}/nylas-#{getVersion()}-RELEASES.txt")
+        uploadPromises.push uploadToS3("installer/"+winSetupName(), "#{process.platform}/nylas-#{getVersion()}.exe")
+        uploadPromises.push uploadToS3("installer/"+winNupkgName(), "#{process.platform}/#{winNupkgName()}")
 
-      if not fs.existsSync dmgPath
-        grunt.log.error "DMG does not exist at #{dmgPath}. Run script/grunt build first."
-      cp dmgPath, path.join(publishPath(), dmgName())
-
-      grunt.log.ok "Copied DMG to #{publishPath()}"
-      if publishPath() is defaultPublishPath()
-        grunt.log.ok "Set the PUBLISH_PATH environment variable to change where Edgehill copies the built file to."
-
-      s3Client = prepareS3()
-      if s3Client
-        Promise.all([uploadDMGToS3(s3Client), uploadZipToS3(s3Client)])
-        .then ->
-          done()
-        .catch (err) ->
-          grunt.log.error(err)
-          return false
-      else
+      Promise.all(uploadPromises).then(done).catch (err) ->
+        grunt.log.error(err)
         return false

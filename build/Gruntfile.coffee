@@ -300,12 +300,16 @@ module.exports = (grunt) ->
       token: process.env.NYLAS_ACCESS_TOKEN
 
     'create-windows-installer':
-      appDirectory: shellAppDir
-      outputDirectory: path.join(buildDir, 'installer')
-      authors: 'Nylas Inc.'
-      loadingGif: path.resolve(__dirname, 'resources', 'win', 'loading.gif')
-      iconUrl: 'http://edgehill.s3.amazonaws.com/static/nylas.ico'
-      setupIcon: path.resolve(__dirname, 'resources', 'win', 'nylas.ico')
+      installer:
+        appDirectory: shellAppDir
+        outputDirectory: path.join(buildDir, 'installer')
+        authors: 'Nylas Inc.'
+        loadingGif: path.resolve(__dirname, 'resources', 'win', 'loading.gif')
+        iconUrl: 'http://edgehill.s3.amazonaws.com/static/nylas.ico'
+        setupIcon: path.resolve(__dirname, 'resources', 'win', 'nylas.ico')
+        certificateFile: process.env.CERTIFICATE_FILE
+        certificatePassword: process.env.CERTIFICATE_PASSWORD
+        exe: 'nylas.exe'
 
     shell:
       'kill-atom':
@@ -327,9 +331,9 @@ module.exports = (grunt) ->
   ciTasks.push('test') if process.platform is 'darwin'
   ciTasks.push('codesign') unless process.env.TRAVIS
   ciTasks.push('mkdmg') if process.platform is 'darwin' and not process.env.TRAVIS
-  ciTasks.push('create-windows-installer') if process.platform is 'win32' and not process.env.TRAVIS
+  ciTasks.push('create-windows-installer:installer') if process.platform is 'win32' and not process.env.TRAVIS
   # ciTasks.push('publish-docs') if process.platform is 'darwin' and not process.env.TRAVIS
-  ciTasks.push('publish-nylas-build') if process.platform is 'darwin' and not process.env.TRAVIS
+  ciTasks.push('publish-nylas-build') if process.platform in ['darwin', 'win32'] and not process.env.TRAVIS
   grunt.registerTask('ci', ciTasks)
 
   defaultTasks = ['download-electron', 'build', 'set-version', 'generate-asar']
