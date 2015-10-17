@@ -35,7 +35,7 @@ class AutoUpdateManager
     if process.platform is 'win32'
       # Squirrel for Windows can't handle query params
       # https://github.com/Squirrel/Squirrel.Windows/issues/132
-      @feedUrl = "https://edgehill.nylas.com/update-check/win32/#{@version}/#{updaterId}/#{updaterEmails}"
+      @feedUrl = "https://edgehill.nylas.com/update-check/win32/#{process.arch}/#{@version}/#{updaterId}/#{updaterEmails}"
     else
       @feedUrl = "https://edgehill.nylas.com/update-check?platform=#{process.platform}&arch=#{process.arch}&version=#{@version}&id=#{updaterId}&emails=#{updaterEmails}"
 
