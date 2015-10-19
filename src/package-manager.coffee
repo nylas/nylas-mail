@@ -13,9 +13,9 @@ ThemePackage = require './theme-package'
 DatabaseStore = require './flux/stores/database-store'
 APMWrapper = require './apm-wrapper'
 
-# Extended: Package manager for coordinating the lifecycle of Atom packages.
+# Extended: Package manager for coordinating the lifecycle of Nylas packages.
 #
-# An instance of this class is always available as the `atom.packages` global.
+# An instance of this class is always available as the `nylas.packages` global.
 #
 # Packages can be loaded, activated, and deactivated, and unloaded:
 #  * Loading a package reads and parses the package's metadata and resources
@@ -29,7 +29,7 @@ APMWrapper = require './apm-wrapper'
 # Packages can be enabled/disabled via the `core.disabledPackages` config
 # settings and also by calling `enablePackage()/disablePackage()`.
 #
-# Section: Atom
+# Section: Nylas
 module.exports =
 class PackageManager
   EmitterMixin.includeInto(this)
@@ -175,7 +175,7 @@ class PackageManager
     packagePath = path.join(@resourcePath, 'node_modules', name)
     return packagePath if @hasAtomEngine(packagePath)
 
-  # Public: Is the package with the given name bundled with Atom?
+  # Public: Is the package with the given name bundled with Nylas?
   #
   # * `name` - The {String} package name.
   #
@@ -408,8 +408,8 @@ class PackageManager
   # windowType as `true` in their package.json file.
   loadPackages: (windowType) ->
     # Ensure src/global is already in the require cache so the load time
-    # of the first package isn't skewed by being the first to require atom
-    require './global/atom'
+    # of the first package isn't skewed by being the first to require nylas
+    require './global/nylas'
 
     packagePaths = @getAvailablePackagePaths(windowType)
 
