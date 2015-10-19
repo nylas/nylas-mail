@@ -8,7 +8,7 @@ module.exports = (grunt) ->
     onBuildMachine = process.env.JANKY_SHA1 and process.env.JANKY_BRANCH is 'master'
     onWindows = process.platform is 'win32'
     inRepository = fs.existsSync(path.resolve(__dirname, '..', '..', '.git'))
-    {version} = require(path.join(grunt.config.get('atom.appDir'), 'package.json'))
+    {version} = require(path.join(grunt.config.get('nylas.appDir'), 'package.json'))
     if onBuildMachine or onWindows or not inRepository
       callback(null, version)
     else
@@ -27,7 +27,7 @@ module.exports = (grunt) ->
         done(error)
         return
 
-      appDir = grunt.config.get('atom.appDir')
+      appDir = grunt.config.get('nylas.appDir')
 
       # Replace version field of package.json.
       packageJsonPath = path.join(appDir, 'package.json')
@@ -38,11 +38,11 @@ module.exports = (grunt) ->
 
       if process.platform is 'darwin'
         cmd = 'script/set-version'
-        args = [grunt.config.get('atom.buildDir'), version]
+        args = [grunt.config.get('nylas.buildDir'), version]
         spawn {cmd, args}, (error, result, code) -> done(error)
 
       else if process.platform is 'win32'
-        shellAppDir = grunt.config.get('atom.shellAppDir')
+        shellAppDir = grunt.config.get('nylas.shellAppDir')
         shellExePath = path.join(shellAppDir, 'nylas.exe')
 
         strings =

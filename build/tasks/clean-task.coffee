@@ -7,7 +7,7 @@ module.exports = (grunt) ->
   grunt.registerTask 'partial-clean', 'Delete some of the build files', ->
     tmpdir = os.tmpdir()
 
-    rm grunt.config.get('atom.buildDir')
+    rm grunt.config.get('nylas.buildDir')
     rm require('../src/coffee-cache').cacheDir
     rm require('../src/less-compile-cache').cacheDir
     rm path.join(tmpdir, 'atom-cached-electrons')

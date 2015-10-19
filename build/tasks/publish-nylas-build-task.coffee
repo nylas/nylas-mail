@@ -12,7 +12,7 @@ fullVersion = null
 module.exports = (grunt) ->
   {cp, spawn, rm} = require('./task-helpers')(grunt)
 
-  appName = -> grunt.config.get('atom.appName')
+  appName = -> grunt.config.get('nylas.appName')
   dmgName = -> "#{appName().split('.')[0]}.dmg"
   zipName = -> "#{appName().split('.')[0]}.zip"
   winReleasesName = -> "RELEASES"
@@ -21,7 +21,7 @@ module.exports = (grunt) ->
 
   populateVersion = ->
     new Promise (resolve, reject) ->
-      json = require(path.join(grunt.config.get('atom.appDir'), 'package.json'))
+      json = require(path.join(grunt.config.get('nylas.appDir'), 'package.json'))
       cmd = 'git'
       args = ['rev-parse', '--short', 'HEAD']
       spawn {cmd, args}, (error, {stdout}={}, code) ->
@@ -37,7 +37,7 @@ module.exports = (grunt) ->
   runEmailIntegrationTest = ->
     return Promise.resolve() unless process.platform is 'darwin'
 
-    buildDir = grunt.config.get('atom.buildDir')
+    buildDir = grunt.config.get('nylas.buildDir')
     new Promise (resolve, reject) ->
       appToRun = path.join(buildDir, appName())
       scriptToRun = "./build/run-build-and-send-screenshot.scpt"
@@ -88,7 +88,7 @@ module.exports = (grunt) ->
         resolve(data)
 
   uploadToS3 = (filename, key) ->
-    buildDir = grunt.config.get('atom.buildDir')
+    buildDir = grunt.config.get('nylas.buildDir')
     filepath = path.join(buildDir, filename)
 
     grunt.log.writeln ">> Uploading #{filename} to #{key}…"
@@ -98,7 +98,7 @@ module.exports = (grunt) ->
         Promise.resolve(data)
 
   uploadZipToS3 = (filenameToZip, key) ->
-    buildDir = grunt.config.get('atom.buildDir')
+    buildDir = grunt.config.get('nylas.buildDir')
     buildZipFilename = "#{filenameToZip}.zip"
     buildZipPath = path.join(buildDir, buildZipFilename)
 

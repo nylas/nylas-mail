@@ -4,8 +4,8 @@ os = require 'os'
 
 # This is the main Gruntfile that manages building N1 distributions.
 # The reason it's inisde of the build/ folder is so everything can be
-# compiled against Node's v8 headers instead of Atom's v8 headers. All
-# packages in the root-level node_modules are compiled against Atom's v8
+# compiled against Node's v8 headers instead of Electron's v8 headers. All
+# packages in the root-level node_modules are compiled against Electron's v8
 # headers.
 #
 # Some useful grunt options are:
@@ -173,7 +173,7 @@ module.exports = (grunt) ->
       continue unless grunt.file.isFile(metadataPath)
 
       {engines, theme} = grunt.file.readJSON(metadataPath)
-      if engines?.atom?
+      if engines?.nylas?
         coffeeConfig.glob_to_multiple.src.push("#{directory}/**/*.coffee")
         lessConfig.glob_to_multiple.src.push("#{directory}/**/*.less")
         prebuildLessConfig.src.push("#{directory}/**/*.less") unless theme
@@ -183,7 +183,7 @@ module.exports = (grunt) ->
   grunt.initConfig
     pkg: grunt.file.readJSON('package.json')
 
-    atom: {appDir, appName, symbolsDir, buildDir, contentsDir, installDir, shellAppDir}
+    nylas: {appDir, appName, symbolsDir, buildDir, contentsDir, installDir, shellAppDir}
 
     docsOutputDir: 'docs/output'
 
@@ -312,7 +312,7 @@ module.exports = (grunt) ->
         exe: 'nylas.exe'
 
     shell:
-      'kill-atom':
+      'kill-nylas':
         command: killCommand
         options:
           stdout: false
@@ -321,7 +321,7 @@ module.exports = (grunt) ->
 
   grunt.registerTask('compile', ['coffee', 'cjsx', 'prebuild-less', 'cson', 'peg'])
   grunt.registerTask('lint', ['coffeelint', 'csslint', 'lesslint', 'nylaslint'])
-  grunt.registerTask('test', ['shell:kill-atom', 'run-edgehill-specs'])
+  grunt.registerTask('test', ['shell:kill-nylas', 'run-edgehill-specs'])
   grunt.registerTask('docs', ['build-docs', 'render-docs'])
 
   ciTasks = ['output-disk-space', 'download-electron', 'build']

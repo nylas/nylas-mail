@@ -12,9 +12,9 @@ module.exports = (grunt) ->
       return ''
 
   grunt.registerTask 'build', 'Build the application', ->
-    shellAppDir = grunt.config.get('atom.shellAppDir')
-    buildDir = grunt.config.get('atom.buildDir')
-    appDir = grunt.config.get('atom.appDir')
+    shellAppDir = grunt.config.get('nylas.shellAppDir')
+    buildDir = grunt.config.get('nylas.buildDir')
+    appDir = grunt.config.get('nylas.appDir')
 
     rm shellAppDir
     rm path.join(buildDir, 'installer')

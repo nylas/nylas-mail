@@ -6,11 +6,11 @@ Promise = require("bluebird")
 module.exports = (grunt) ->
   {spawn, rm} = require('./task-helpers')(grunt)
 
-  appName = -> grunt.config.get('atom.appName')
+  appName = -> grunt.config.get('nylas.appName')
   dmgName = -> "#{appName().split('.')[0]}.dmg"
-  buildDir = -> grunt.config.get('atom.buildDir')
+  buildDir = -> grunt.config.get('nylas.buildDir')
   dmgPath = -> path.join(buildDir(), dmgName())
-  appDir = -> path.join(buildDir(), grunt.config.get('atom.appName'))
+  appDir = -> path.join(buildDir(), grunt.config.get('nylas.appName'))
 
   getDmgExecutable = ->
     new Promise (resolve, reject) ->

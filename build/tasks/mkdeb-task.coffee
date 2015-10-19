@@ -9,7 +9,7 @@ module.exports = (grunt) ->
     template = _.template(String(fs.readFileSync("#{filePath}.in")))
     filled = template(data)
 
-    outputPath = path.join(grunt.config.get('atom.buildDir'), path.basename(filePath))
+    outputPath = path.join(grunt.config.get('nylas.buildDir'), path.basename(filePath))
     grunt.file.write(outputPath, filled)
     outputPath
 
@@ -22,7 +22,7 @@ module.exports = (grunt) ->
 
   grunt.registerTask 'mkdeb', 'Create debian package', ->
     done = @async()
-    buildDir = grunt.config.get('atom.buildDir')
+    buildDir = grunt.config.get('nylas.buildDir')
 
     if process.arch is 'ia32'
       arch = 'i386'
