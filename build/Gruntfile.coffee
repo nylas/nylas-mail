@@ -173,7 +173,7 @@ module.exports = (grunt) ->
       continue unless grunt.file.isFile(metadataPath)
 
       {engines, theme} = grunt.file.readJSON(metadataPath)
-      if engines?.nylas?
+      if engines?.atom?
         coffeeConfig.glob_to_multiple.src.push("#{directory}/**/*.coffee")
         lessConfig.glob_to_multiple.src.push("#{directory}/**/*.less")
         prebuildLessConfig.src.push("#{directory}/**/*.less") unless theme
