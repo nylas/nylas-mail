@@ -150,6 +150,14 @@ module.exports = (grunt) ->
           uploadPromises.push uploadToS3("installer/"+winReleasesName(), "#{fullVersion}/#{process.platform}/#{process.arch}/RELEASES")
           uploadPromises.push uploadToS3("installer/"+winSetupName(), "#{fullVersion}/#{process.platform}/#{process.arch}/N1.exe")
           uploadPromises.push uploadToS3("installer/"+winNupkgName(), "#{fullVersion}/#{process.platform}/#{process.arch}/#{winNupkgName()}")
+        if process.platform is 'linux'
+          buildDir = grunt.config.get('atom.buildDir')
+          files = fs.readdirSync(buildDir)
+          for file in files
+            if path.extname(file) is '.deb'
+              uploadPromises.push uploadToS3(file, "#{fullVersion}/#{process.platform}/#{process.arch}/N1.deb")
+            if path.extname(file) is '.rpm'
+              uploadPromises.push uploadToS3(file, "#{fullVersion}/#{process.platform}/#{process.arch}/N1.rpm")
 
         Promise.all(uploadPromises).then(done).catch (err) ->
           grunt.log.error(err)

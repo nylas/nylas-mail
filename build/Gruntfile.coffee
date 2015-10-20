@@ -327,13 +327,16 @@ module.exports = (grunt) ->
   ciTasks = ['output-disk-space', 'download-electron', 'build']
   ciTasks.push('dump-symbols') if process.platform isnt 'win32'
   ciTasks.push('set-version', 'lint', 'generate-asar')
-  ciTasks.push('mkdeb') if process.platform is 'linux'
   ciTasks.push('test') if process.platform is 'darwin'
-  ciTasks.push('codesign') unless process.env.TRAVIS
-  ciTasks.push('mkdmg') if process.platform is 'darwin' and not process.env.TRAVIS
-  ciTasks.push('create-windows-installer:installer') if process.platform is 'win32' and not process.env.TRAVIS
-  # ciTasks.push('publish-docs') if process.platform is 'darwin' and not process.env.TRAVIS
-  ciTasks.push('publish-nylas-build') if process.platform in ['darwin', 'win32'] and not process.env.TRAVIS
+
+  unless process.env.TRAVIS
+    ciTasks.push('codesign')
+    ciTasks.push('mkdmg') if process.platform is 'darwin'
+    ciTasks.push('mkdeb') if process.platform is 'linux'
+    ciTasks.push('mkrpm') if process.platform is 'linux'
+    ciTasks.push('create-windows-installer:installer') if process.platform is 'win32'
+    ciTasks.push('publish-nylas-build')
+
   grunt.registerTask('ci', ciTasks)
 
   defaultTasks = ['download-electron', 'build', 'set-version', 'generate-asar']
