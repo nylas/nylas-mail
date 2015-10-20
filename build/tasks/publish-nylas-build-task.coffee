@@ -144,12 +144,12 @@ module.exports = (grunt) ->
       runEmailIntegrationTest().then ->
         uploadPromises = []
         if process.platform is 'darwin'
-          uploadPromises.push uploadToS3(dmgName(), "#{process.platform}/#{fullVersion}/N1.dmg")
-          uploadPromises.push uploadZipToS3(appName(), "#{process.platform}/#{fullVersion}/N1.zip")
+          uploadPromises.push uploadToS3(dmgName(), "#{fullVersion}/#{process.platform}/#{process.arch}/N1.dmg")
+          uploadPromises.push uploadZipToS3(appName(), "#{fullVersion}/#{process.platform}/#{process.arch}/N1.zip")
         if process.platform is 'win32'
-          uploadPromises.push uploadToS3("installer/"+winReleasesName(), "#{process.platform}/#{fullVersion}/RELEASES")
-          uploadPromises.push uploadToS3("installer/"+winSetupName(), "#{process.platform}/#{fullVersion}/N1.exe")
-          uploadPromises.push uploadToS3("installer/"+winNupkgName(), "#{process.platform}/#{fullVersion}/#{winNupkgName()}")
+          uploadPromises.push uploadToS3("installer/"+winReleasesName(), "#{fullVersion}/#{process.platform}/#{process.arch}/RELEASES")
+          uploadPromises.push uploadToS3("installer/"+winSetupName(), "#{fullVersion}/#{process.platform}/#{process.arch}/N1.exe")
+          uploadPromises.push uploadToS3("installer/"+winNupkgName(), "#{fullVersion}/#{process.platform}/#{process.arch}/#{winNupkgName()}")
 
         Promise.all(uploadPromises).then(done).catch (err) ->
           grunt.log.error(err)
