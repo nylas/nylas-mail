@@ -333,7 +333,8 @@ module.exports = (grunt) ->
     ciTasks.push('codesign')
     ciTasks.push('mkdmg') if process.platform is 'darwin'
     ciTasks.push('mkdeb') if process.platform is 'linux'
-    ciTasks.push('mkrpm') if process.platform is 'linux'
+    # Only works on Fedora build machines
+    # ciTasks.push('mkrpm') if process.platform is 'linux'
     ciTasks.push('create-windows-installer:installer') if process.platform is 'win32'
     ciTasks.push('publish-nylas-build')
 
