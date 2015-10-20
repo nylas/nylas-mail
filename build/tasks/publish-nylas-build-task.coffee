@@ -98,29 +98,29 @@ module.exports = (grunt) ->
       postToSlack(msg).then ->
         Promise.resolve(data)
 
-  uploadZipToS3 = (filename, key) ->
+  uploadZipToS3 = (filenameToZip, key) ->
     buildDir = grunt.config.get('atom.buildDir')
-    filepath = path.join(buildDir, filename)
+    buildZipFilename = "#{filenameToZip}.zip"
+    buildZipPath = path.join(buildDir, buildZipFilename)
 
     grunt.log.writeln ">> Creating zip file…"
+
     new Promise (resolve, reject) ->
-      zipFilepath = filepath + ".zip"
-      rm(zipFilepath)
+      rm(buildZipPath)
       orig = process.cwd()
       process.chdir(buildDir)
 
       spawn
         cmd: "zip"
-        args: ["-9", "-y", "-r", zipFilepath, filename]
+        args: ["-9", "-y", "-r", buildZipPath, filenameToZip]
       , (error) ->
         process.chdir(orig)
         if error
           reject(error)
           return
 
-        grunt.log.writeln ">> Created #{zipFilepath}"
-        grunt.log.writeln ">> Uploading…"
-        uploadToS3(zipFilepath, key).then(resolve).catch(reject)
+        grunt.log.writeln ">> Created #{buildZipPath}"
+        uploadToS3(buildZipFilename, key).then(resolve).catch(reject)
 
   grunt.registerTask "publish-nylas-build", "Publish Nylas build", ->
     awsKey = process.env.AWS_ACCESS_KEY_ID ? ""
