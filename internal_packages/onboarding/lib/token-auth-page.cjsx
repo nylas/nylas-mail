@@ -36,7 +36,7 @@ class TokenAuthPage extends React.Component
   render: =>
     if @state.tokenAuthEnabled is "unknown"
       <div className="page token-auth">
-        <TimeoutTransitionGroup leaveTimeout={125} enterTimeout={125} transitionName="alpha-fade">
+        <TimeoutTransitionGroup leaveTimeout={150} enterTimeout={150} transitionName="alpha-fade">
           {@_renderWaitingForTokenAuthAnswer()}
         </TimeoutTransitionGroup>
       </div>

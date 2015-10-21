@@ -3,7 +3,6 @@ Sheet = require './sheet'
 Flexbox = require './components/flexbox'
 RetinaImg = require './components/retina-img'
 Utils = require './flux/models/utils'
-TimeoutTransitionGroup = require './components/timeout-transition-group'
 _str = require 'underscore.string'
 _ = require 'underscore'
 
@@ -164,17 +163,11 @@ class Toolbar extends React.Component
     elements = components.map (component) =>
       <component key={component.displayName} {...@props} />
 
-    <TimeoutTransitionGroup
-      className="item-container"
-      component={Flexbox}
-      direction="row"
-      leaveTimeout={125}
-      enterTimeout={125}
-      transitionName="sheet-toolbar">
+    <Flexbox className="item-container" direction="row">
       {elements}
       <ToolbarSpacer key="spacer-50" order={-50}/>
       <ToolbarSpacer key="spacer+50" order={50}/>
-    </TimeoutTransitionGroup>
+    </Flexbox>
 
   recomputeLayout: =>
     # Yes this really happens - do not remove!
