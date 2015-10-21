@@ -53,24 +53,29 @@ class Account extends Model
       name: @name
       email: @emailAddress
 
-  # Public: The current organization_unit used by the account.
-  usesLabels: -> @organizationUnit is "label"
-  usesFolders: -> @organizationUnit is "folder"
+  usesLabels: ->
+    @organizationUnit is "label"
+
+  usesFolders: ->
+    @organizationUnit is "folder"
 
   categoryClass: ->
     if @usesLabels()
       return require './label'
-    else
+    else if @usesFolders()
       return require './folder'
+    else
+      return null
 
   # Public: Returns the localized, properly capitalized provider name,
   # like Gmail, Exchange, or Outlook 365
   displayProvider: ->
     if @provider is 'eas'
       return 'Exchange'
-    if @provider is 'gmail'
+    else if @provider is 'gmail'
       return 'Gmail'
-    return @provider
+    else
+      return @provider
 
   usesImportantFlag: ->
     @provider is 'gmail'
