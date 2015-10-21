@@ -43,7 +43,6 @@ class AccountSwitcher extends React.Component
       {@_renderGravatarForAccount(@state.account)}
       <div style={float: 'right', marginTop: -2}>
         <RetinaImg className="toggle"
-                   title={if @state.showing then "Collapse" else "Manage accounts"}
                    name="account-switcher-dropdown.png"
                    mode={RetinaImg.Mode.ContentPreserve} />
       </div>
