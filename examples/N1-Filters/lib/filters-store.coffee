@@ -2,7 +2,7 @@ NylasStore = require 'nylas-store'
 _ = require 'underscore'
 _s = require 'underscore.string'
 {Actions, CategoryStore, AccountStore, ChangeLabelsTask,
- ChangeFolderTask, ArchiveThreadHelper, ChangeStarredTask,
+ ChangeFolderTask, TaskFactory, ChangeStarredTask,
  ChangeUnreadTask, Utils} = require 'nylas-exports'
 
 # The FiltersStore performs all business logic for filters: the single source
@@ -90,25 +90,14 @@ class FiltersStore extends NylasStore
             unread: false
             threads: [thread]
         else if action is "archive" and val is true
-          ArchiveThreadHelper.getArchiveTask [thread]
+          TaskFactory.taskForArchiving({threads: [thread]})
         else if action is "star" and val is true
           new ChangeStarredTask
             starred: true
             threads: [thread]
         else if action is "delete" and val is true
-          trash = CategoryStore.getStandardCategory "trash"
+          TaskFactory.taskForMovingToTrash({threads: [thread]})
 
-          # Some email providers use labels, like Gmail, and others use folders,
-          # like Microsoft Exchange. Labels and folders behave very differently,
-          # so there are different Task classes to modify records for them.
-          if AccountStore.current().usesFolders()
-            new ChangeFolderTask
-              folder: trash
-              threads: [thread]
-          else
-            new ChangeLabelsTask
-              labelsToAdd: [trash]
-              threads: [thread]
       .value()
 
   _getPassedFilters: ({message, thread}) =>

@@ -18,12 +18,11 @@ class ThreadToggleUnreadButton extends React.Component
     </button>
 
   _onClick: (e) =>
-    e.stopPropagation()
-
     task = new ChangeUnreadTask
       thread: @props.thread
       unread: !@props.thread.unread
-    Actions.queueTask task
+    Actions.queueTask(task)
     Actions.popSheet()
+    e.stopPropagation()
 
 module.exports = ThreadToggleUnreadButton

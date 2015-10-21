@@ -11,13 +11,12 @@ CategoryPicker = require '../lib/category-picker'
  Actions,
  CategoryStore,
  DatabaseStore,
- ChangeLabelsTask,
- ChangeFolderTask,
+ TaskFactory,
  SyncbackCategoryTask,
  FocusedMailViewStore,
  TaskQueueStatusStore} = require 'nylas-exports'
 
-describe 'CategoryPicker', ->
+fdescribe 'CategoryPicker', ->
   beforeEach ->
     CategoryStore._categoryCache = {}
 
@@ -78,23 +77,6 @@ describe 'CategoryPicker', ->
       expect(data[2].name).toBeUndefined()
       expect(data[2].category).toBe @userCategory
 
-    xdescribe 'when picking for a single Thread', ->
-      it 'renders a picker', ->
-        expect(ReactTestUtils.isCompositeComponentWithType @picker, CategoryPicker).toBe true
-
-      it "does not include a newItem prompt if there's no search", ->
-        outData = @picker._recalculateState().categoryData
-        newItem = _.findWhere(outData, newCategoryItem: true)
-        l1 = _.findWhere(outData, id: 'id-123')
-        expect(newItem).toBeUndefined()
-        expect(l1.name).toBe "inbox"
-
-      it "includes a newItem selector with the current search term", ->
-
-    xdescribe 'when picking labels for a single Thread', ->
-      beforeEach ->
-        atom.testOrganizationUnit = "label"
-
   describe "'create new' item", ->
     beforeEach ->
       setupForCreateNew.call @
@@ -128,156 +110,74 @@ describe 'CategoryPicker', ->
       expect(count).toBe 1
 
   describe "_onSelectCategory()", ->
-    describe "using labels", ->
+    beforeEach ->
+      setupForCreateNew.call @, "folder"
+      spyOn(TaskFactory, 'taskForRemovingCategory').andCallThrough()
+      spyOn(TaskFactory, 'taskForApplyingCategory').andCallThrough()
+      spyOn(Actions, "queueTask")
+
+    it "closes the popover", ->
+      spyOn(@popover, "close")
+      @picker._onSelectCategory { usage: 0, category: "asdf" }
+      expect(@popover.close).toHaveBeenCalled()
+
+    describe "when selecting a category currently on all the selected items", ->
+      it "fires a task to remove the category", ->
+        input =
+          category: "asdf"
+          usage: 1
+
+        @picker._onSelectCategory(input)
+        expect(TaskFactory.taskForRemovingCategory).toHaveBeenCalledWith
+          threads: [@testThread]
+          category: "asdf"
+        expect(Actions.queueTask).toHaveBeenCalled()
+
+    describe "when selecting a category not on all the selected items", ->
+      it "fires a task to add the category", ->
+        input =
+          category: "asdf"
+          usage: 0
+
+        @picker._onSelectCategory(input)
+        expect(TaskFactory.taskForApplyingCategory).toHaveBeenCalledWith
+          threads: [@testThread]
+          category: "asdf"
+        expect(Actions.queueTask).toHaveBeenCalled()
+
+    describe "when selecting a new category", ->
       beforeEach ->
-        setupForCreateNew.call @, "label"
-        spyOn Actions, "queueTask"
+        input =
+          newCategoryItem: true
+        @picker.setState(searchValue: "teSTing!")
+        @picker._onSelectCategory(input)
 
-      it "adds a label if it was previously unused", ->
-        input = { usage: 0, newCategoryItem: undefined, category: "asdf" }
-
-        @picker._onSelectCategory input
-
+      it "queues a new syncback task for creating a category", ->
         expect(Actions.queueTask).toHaveBeenCalled()
-
-        labelsToAdd = Actions.queueTask.calls[0].args[0].labelsToAdd
-        expect(labelsToAdd.length).toBe 1
-        expect(labelsToAdd[0]).toEqual input.category
-
-        threadsToUpdate = Actions.queueTask.calls[0].args[0].threads
-        expect(threadsToUpdate).toEqual [ @testThread ]
-
-      it "removes a label if it was previously used", ->
-        input = { usage: 1, newCategoryItem: undefined, category: "asdf" }
-
-        @picker._onSelectCategory input
-
-        expect(Actions.queueTask).toHaveBeenCalled()
-
-        labelsToRemove = Actions.queueTask.calls[0].args[0].labelsToRemove
-        expect(labelsToRemove.length).toBe 1
-        expect(labelsToRemove[0]).toEqual input.category
-
-        threadsToUpdate = Actions.queueTask.calls[0].args[0].threads
-        expect(threadsToUpdate).toEqual [ @testThread ]
-
-      it "creates a new label task", ->
-        input = { newCategoryItem: true }
-
-        @picker.setState searchValue: "teSTing!"
-
-        @picker._onSelectCategory input
-
-        expect(Actions.queueTask).toHaveBeenCalled()
-
         syncbackTask = Actions.queueTask.calls[0].args[0]
         newCategory  = syncbackTask.category
         expect(syncbackTask.organizationUnit).toBe "label"
         expect(newCategory.displayName).toBe "teSTing!"
         expect(newCategory.accountId).toBe TEST_ACCOUNT_ID
 
-      it "queues a change label task after performRemote for creating it", ->
-        input = { newCategoryItem: true }
-        label = new Label(clientId: "local-123")
+      it "queues a task for applying the category after it has saved", ->
+        label = new Label(displayName: "teSTing!")
 
         spyOn(TaskQueueStatusStore, "waitForPerformRemote").andCallFake (task) ->
           expect(task instanceof SyncbackCategoryTask).toBe true
           Promise.resolve()
+
         spyOn(DatabaseStore, "findBy").andCallFake (klass, {clientId}) ->
-          expect(klass).toBe Label
-          expect(typeof clientId).toBe "string"
-          Promise.resolve label
+          expect(klass).toBe(Label)
+          expect(typeof clientId).toBe("string")
+          Promise.resolve(label)
+
+        waitsFor ->
+          Actions.queueTask.calls.length > 1
+          label = Actions.queueTask.calls[0].args[0].category
 
         runs ->
-          @picker.setState searchValue: "teSTing!"
-          @picker._onSelectCategory input
-
-        waitsFor -> Actions.queueTask.calls.length > 1
-
-        runs ->
-          changeLabelsTask = Actions.queueTask.calls[1].args[0]
-          expect(changeLabelsTask instanceof ChangeLabelsTask).toBe true
-          expect(changeLabelsTask.labelsToAdd).toEqual [ label ]
-          expect(changeLabelsTask.threads).toEqual [ @testThread ]
-
-      it "doesn't queue any duplicate syncback tasks", ->
-        input = { newCategoryItem: true }
-        label = new Label(clientId: "local-123")
-
-        spyOn(TaskQueueStatusStore, "waitForPerformRemote").andCallFake (task) ->
-          expect(task instanceof SyncbackCategoryTask).toBe true
-          Promise.resolve()
-        spyOn(DatabaseStore, "findBy").andCallFake (klass, {clientId}) ->
-          expect(klass).toBe Label
-          expect(typeof clientId).toBe "string"
-          Promise.resolve label
-
-        runs ->
-          @picker.setState searchValue: "teSTing!"
-          @picker._onSelectCategory input
-
-        waitsFor -> Actions.queueTask.calls.length > 1
-
-        runs ->
-          allInputs = Actions.queueTask.calls.map (c) -> c.args[0]
-          syncbackTasks = allInputs.filter (i) -> i instanceof SyncbackCategoryTask
-          expect(syncbackTasks.length).toBe 1
-
-    describe "using folders", ->
-      beforeEach ->
-        setupForCreateNew.call @, "folder"
-        spyOn Actions, "queueTask"
-        spyOn Actions, "moveThread"
-        spyOn Actions, "moveThreads"
-
-      it "moves a thread if the component has one", ->
-        input = { category: "blah" }
-        @picker._onSelectCategory input
-        expect(Actions.moveThread).toHaveBeenCalled()
-
-        args = Actions.moveThread.calls[0].args
-        expect(args[0]).toEqual @testThread
-        expect(args[1].folder).toEqual input.category
-        expect(args[1].threads).toEqual [ @testThread ]
-
-      it "moves threads if the component has no thread but has items", ->
-        @picker = ReactTestUtils.renderIntoDocument(
-          <CategoryPicker items={[@testThread]} />
-        )
-        @popover = ReactTestUtils.findRenderedComponentWithType @picker, Popover
-        @popover.open()
-
-        input = { category: "blah" }
-        @picker._onSelectCategory input
-        expect(Actions.moveThreads).toHaveBeenCalled()
-
-      it "creates a new folder task", ->
-        input = { newCategoryItem: true }
-        folder = new Folder(clientId: "local-456", serverId: "yes.")
-
-        spyOn(TaskQueueStatusStore, "waitForPerformRemote").andCallFake (task) ->
-          expect(task instanceof SyncbackCategoryTask).toBe true
-          Promise.resolve()
-        spyOn(DatabaseStore, "findBy").andCallFake (klass, {clientId}) ->
-          expect(klass).toBe Folder
-          expect(typeof clientId).toBe "string"
-          Promise.resolve folder
-
-        runs ->
-          @picker.setState searchValue: "teSTing!"
-          @picker._onSelectCategory input
-
-        waitsFor -> Actions.moveThread.calls.length > 0
-
-        runs ->
-          changeFoldersTask = Actions.moveThread.calls[0].args[1]
-          expect(changeFoldersTask instanceof ChangeFolderTask).toBe true
-          expect(changeFoldersTask.folder).toEqual folder
-          expect(changeFoldersTask.threads).toEqual [ @testThread ]
-
-    it "closes the popover", ->
-      setupForCreateNew.call @, "folder"
-      spyOn @popover, "close"
-      spyOn Actions, "moveThread"
-      @picker._onSelectCategory { usage: 0, category: "asdf" }
-      expect(@popover.close).toHaveBeenCalled()
+          expect(TaskFactory.taskForApplyingCategory).toHaveBeenCalledWith
+            threads: [@testThread]
+            category: label
+          expect(TaskFactory.taskForApplyingCategory.callCount).toBe(1)

@@ -72,6 +72,9 @@ class Model
     @clientId ?= Utils.generateTempId()
     @
 
+  isSaved: ->
+    @serverId?
+
   clone: ->
     (new @constructor).fromJSON(@toJSON())
 

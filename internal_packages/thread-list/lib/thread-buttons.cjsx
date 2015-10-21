@@ -3,37 +3,57 @@ classNames = require 'classnames'
 ThreadListStore = require './thread-list-store'
 {RetinaImg} = require 'nylas-component-kit'
 {Actions,
- RemoveThreadHelper,
+ TaskFactory,
+ CategoryStore,
  FocusedContentStore,
  FocusedMailViewStore} = require "nylas-exports"
 
-class ThreadBulkRemoveButton extends React.Component
-  @displayName: 'ThreadBulkRemoveButton'
+class ThreadBulkArchiveButton extends React.Component
+  @displayName: 'ThreadBulkArchiveButton'
   @containerRequired: false
 
   @propTypes:
     selection: React.PropTypes.object.isRequired
 
   render: ->
-    focusedMailViewFilter = FocusedMailViewStore.mailView()
-    return false unless focusedMailViewFilter?.canRemoveThreads()
+    return false unless mailViewFilter?.canArchiveThreads()
 
-    if RemoveThreadHelper.removeType() is RemoveThreadHelper.Type.Archive
-      tooltip = "Archive"
-      imgName = "toolbar-archive.png"
-    else if RemoveThreadHelper.removeType() is RemoveThreadHelper.Type.Trash
-      tooltip = "Trash"
-      imgName = "toolbar-trash.png"
+    <button style={order:-107}
+            className="btn btn-toolbar"
+            data-tooltip="Archive"
+            onClick={@_onArchive}>
+      <RetinaImg name="toolbar-archive.png" mode={RetinaImg.Mode.ContentIsMask} />
+    </button>
+
+  _onArchive: =>
+    task = TaskFactory.taskForArchiving
+      threads: @props.selection.items(),
+      fromView: FocusedMailViewStore.mailView()
+    Actions.queueTask(task)
+
+class ThreadBulkTrashButton extends React.Component
+  @displayName: 'ThreadBulkTrashButton'
+  @containerRequired: false
+
+  @propTypes:
+    selection: React.PropTypes.object.isRequired
+
+  render: ->
+    mailViewFilter = FocusedMailViewStore.mailView()
+    return false unless mailViewFilter?.canTrashThreads()
 
     <button style={order:-106}
             className="btn btn-toolbar"
-            data-tooltip={tooltip}
+            data-tooltip="Move to Trash"
             onClick={@_onRemove}>
-      <RetinaImg name={imgName} mode={RetinaImg.Mode.ContentIsMask} />
+      <RetinaImg name="toolbar-trash.png" mode={RetinaImg.Mode.ContentIsMask} />
     </button>
 
   _onRemove: =>
-    Actions.removeSelection()
+    task = TaskFactory.taskForMovingToTrash
+      threads: @props.selection.items(),
+      fromView: FocusedMailViewStore.mailView()
+    Actions.queueTask(task)
 
 
 class ThreadBulkStarButton extends React.Component
@@ -52,7 +72,8 @@ class ThreadBulkStarButton extends React.Component
     </button>
 
   _onStar: =>
-    Actions.toggleStarSelection()
+    task = TaskFactory.taskForInvertingStarred(threads: @props.selection.items())
+    Actions.queueTask(task)
 
 
 class ThreadBulkToggleUnreadButton extends React.Component
@@ -62,19 +83,9 @@ class ThreadBulkToggleUnreadButton extends React.Component
   @propTypes:
     selection: React.PropTypes.object.isRequired
 
-  constructor: ->
-    @state = @_getStateFromStores()
-    super
-
-  componentDidMount: =>
-    @unsubscribers = []
-    @unsubscribers.push ThreadListStore.listen @_onStoreChange
-
-  componentWillUnmount: =>
-    unsubscribe() for unsubscribe in @unsubscribers
-
   render: =>
-    fragment = if @state.canMarkUnread then "unread" else "read"
+    canMarkUnread = not @props.selection.items().every (s) -> s.unread is true
+    fragment = if canMarkUnread then "unread" else "read"
 
     <button style={order:-105}
             className="btn btn-toolbar"
@@ -85,15 +96,8 @@ class ThreadBulkToggleUnreadButton extends React.Component
     </button>
 
   _onClick: =>
-    Actions.toggleUnreadSelection()
-
-  _onStoreChange: =>
-    @setState @_getStateFromStores()
-
-  _getStateFromStores: =>
-    selections = ThreadListStore.view().selection.items()
-    canMarkUnread: not selections.every (s) -> s.unread is true
-
+    task = TaskFactory.taskForInvertingUnread(threads: @props.selection.items())
+    Actions.queueTask(task)
 
 
 ThreadNavButtonMixin =
@@ -171,4 +175,11 @@ UpButton = React.createClass
 UpButton.containerRequired = false
 DownButton.containerRequired = false
 
-module.exports = {DownButton, UpButton, ThreadBulkRemoveButton, ThreadBulkStarButton, ThreadBulkToggleUnreadButton}
+module.exports = {
+  DownButton,
+  UpButton,
+  ThreadBulkArchiveButton,
+  ThreadBulkTrashButton,
+  ThreadBulkStarButton,
+  ThreadBulkToggleUnreadButton
+}

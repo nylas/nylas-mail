@@ -70,6 +70,12 @@ class ModelViewSelection
       @_items = without
       @trigger(@)
 
+  removeItemsNotMatching: (matchers) ->
+    count = @_items.length
+    @_items = _.filter @_items, (t) -> t.matches(matchers)
+    if @_items.length isnt count
+      @trigger(@)
+
   expandTo: (item) ->
     return unless item
     throw new Error("expandTo must be called with a Model") unless item instanceof Model
