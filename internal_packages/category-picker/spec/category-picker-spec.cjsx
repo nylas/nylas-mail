@@ -9,6 +9,7 @@ CategoryPicker = require '../lib/category-picker'
  Folder,
  Thread,
  Actions,
+ AccountStore,
  CategoryStore,
  DatabaseStore,
  TaskFactory,
@@ -16,7 +17,7 @@ CategoryPicker = require '../lib/category-picker'
  FocusedMailViewStore,
  TaskQueueStatusStore} = require 'nylas-exports'
 
-fdescribe 'CategoryPicker', ->
+describe 'CategoryPicker', ->
   beforeEach ->
     CategoryStore._categoryCache = {}
 
@@ -25,11 +26,11 @@ fdescribe 'CategoryPicker', ->
 
   setupFor = (organizationUnit) ->
     atom.testOrganizationUnit = organizationUnit
-    klass = if organizationUnit is "label" then Label else Folder
+    @categoryClass = if organizationUnit is "label" then Label else Folder
 
-    @inboxCategory = new klass(id: 'id-123', name: 'inbox', displayName: "INBOX")
-    @archiveCategory = new klass(id: 'id-456', name: 'archive', displayName: "ArCHIVe")
-    @userCategory = new klass(id: 'id-789', name: null, displayName: "MyCategory")
+    @inboxCategory = new @categoryClass(id: 'id-123', name: 'inbox', displayName: "INBOX")
+    @archiveCategory = new @categoryClass(id: 'id-456', name: 'archive', displayName: "ArCHIVe")
+    @userCategory = new @categoryClass(id: 'id-789', name: null, displayName: "MyCategory")
 
     spyOn(CategoryStore, "getStandardCategories").andReturn [ @inboxCategory, @archiveCategory ]
     spyOn(CategoryStore, "getUserCategories").andReturn [ @userCategory ]
@@ -147,37 +148,45 @@ fdescribe 'CategoryPicker', ->
 
     describe "when selecting a new category", ->
       beforeEach ->
-        input =
+        @input =
           newCategoryItem: true
         @picker.setState(searchValue: "teSTing!")
-        @picker._onSelectCategory(input)
 
       it "queues a new syncback task for creating a category", ->
+        @picker._onSelectCategory(@input)
         expect(Actions.queueTask).toHaveBeenCalled()
         syncbackTask = Actions.queueTask.calls[0].args[0]
         newCategory  = syncbackTask.category
-        expect(syncbackTask.organizationUnit).toBe "label"
+        expect(newCategory instanceof @categoryClass).toBe(true)
         expect(newCategory.displayName).toBe "teSTing!"
         expect(newCategory.accountId).toBe TEST_ACCOUNT_ID
 
       it "queues a task for applying the category after it has saved", ->
-        label = new Label(displayName: "teSTing!")
-
+        category = false
+        resolveSave = false
         spyOn(TaskQueueStatusStore, "waitForPerformRemote").andCallFake (task) ->
           expect(task instanceof SyncbackCategoryTask).toBe true
-          Promise.resolve()
+          new Promise (resolve, reject) ->
+            resolveSave = resolve
 
         spyOn(DatabaseStore, "findBy").andCallFake (klass, {clientId}) ->
-          expect(klass).toBe(Label)
+          expect(klass).toBe(Folder)
           expect(typeof clientId).toBe("string")
-          Promise.resolve(label)
+          Promise.resolve(category)
+
+        @picker._onSelectCategory(@input)
 
         waitsFor ->
-          Actions.queueTask.calls.length > 1
-          label = Actions.queueTask.calls[0].args[0].category
+          Actions.queueTask.callCount > 0
+
+        runs ->
+          category = Actions.queueTask.calls[0].args[0].category
+          resolveSave()
+
+        waitsFor ->
+          TaskFactory.taskForApplyingCategory.calls.length is 1
 
         runs ->
           expect(TaskFactory.taskForApplyingCategory).toHaveBeenCalledWith
             threads: [@testThread]
-            category: label
-          expect(TaskFactory.taskForApplyingCategory.callCount).toBe(1)
+            category: category

@@ -200,9 +200,11 @@ class CategoryPicker extends React.Component
     @refs.menu.setSelectedItem(null)
 
     if item.newCategoryItem
-      category = new AccountStore.current().categoryClass()
+      CategoryClass = AccountStore.current().categoryClass()
+      category = new CategoryClass
         displayName: @state.searchValue,
         accountId: AccountStore.current().id
+
       syncbackTask = new SyncbackCategoryTask({category})
       TaskQueueStatusStore.waitForPerformRemote(syncbackTask).then =>
         DatabaseStore.findBy(category.constructor, clientId: category.clientId).then (category) =>
