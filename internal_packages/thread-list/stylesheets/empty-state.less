@@ -76,30 +76,34 @@
 
     .top-left {
       -webkit-transition: all @duration ease-out;
+      transform: translate3d(-20px, -10px, 0);
       position:absolute;
-      top:-10px;
-      left:-20px;
+      top:0;
+      left:0;
     }
 
     .top-right {
       -webkit-transition: all @duration ease-out;
+      transform: translate3d(20px, -10px, 0);
       position:absolute;
-      top:-10px;
-      right:-20px;
+      top:0;
+      right:0;
     }
 
     .bottom-left {
       -webkit-transition: all @duration ease-out;
+      transform: translate3d(-20px, 10px, 0);
       position:absolute;
-      bottom:-10px;
-      left:-20px;
+      bottom:0;
+      left:0;
     }
 
     .bottom-right {
       -webkit-transition: all @duration ease-out;
+      transform: translate3d(20px, 10px, 0);
       position:absolute;
-      bottom:-10px;
-      right:-20px;
+      bottom:0;
+      right:0;
     }
   }
 
@@ -116,23 +120,19 @@
       }
 
       .top-left {
-        top:0;
-        left:0;
+        transform: translate3d(0, 0, 0);
       }
 
       .top-right {
-        top:0;
-        right:0;
+        transform: translate3d(0, 0, 0);
       }
 
       .bottom-left {
-        bottom:0;
-        left:0;
+        transform: translate3d(0, 0, 0);
       }
 
       .bottom-right {
-        bottom:0;
-        right:0;
+        transform: translate3d(0, 0, 0);
       }
     }
   }
