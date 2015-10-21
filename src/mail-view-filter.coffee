@@ -48,15 +48,18 @@ class MailViewFilter
   canApplyToThreads: ->
     throw new Error("canApplyToThreads: Not implemented in base class.")
 
-  # Whether or not the current MailViewFilter can "archive" or "trash"
-  canArchiveThreads: ->
-    throw new Error("canArchiveThreads: Not implemented in base class.")
-
-  canTrashThreads: ->
-    throw new Error("canTrashThreads: Not implemented in base class.")
-
   applyToThreads: (threadsOrIds) ->
     throw new Error("applyToThreads: Not implemented in base class.")
+
+  # Whether or not the current MailViewFilter can "archive" or "trash"
+  # Subclasses should call `super` if they override these methods
+  canArchiveThreads: ->
+    return false unless CategoryStore.getArchiveCategory()
+    return true
+
+  canTrashThreads: ->
+    return false unless CategoryStore.getTrashCategory()
+    return true
 
 class SearchMailViewFilter extends MailViewFilter
   constructor: (@searchQuery) ->
@@ -96,12 +99,6 @@ class StarredMailViewFilter extends MailViewFilter
   canApplyToThreads: ->
     true
 
-  canArchiveThreads: ->
-    true
-
-  canTrashThreads: ->
-    true
-
   applyToThreads: (threadsOrIds) ->
     ChangeStarredTask = require './flux/tasks/change-starred-task'
     task = new ChangeStarredTask({threads:threadsOrIds, starred: true})
@@ -139,13 +136,11 @@ class CategoryMailViewFilter extends MailViewFilter
 
   canArchiveThreads: ->
     return false if @category.name in ["archive", "all", "sent"]
-    return false if @category.displayName is atom.config.get("core.archiveFolder")
-    return false unless CategoryStore.getStandardCategory("archive")
-    return true
+    super
 
   canTrashThreads: ->
     return false if @category.name in ["trash"]
-    return true
+    super
 
   applyToThreads: (threadsOrIds) ->
     if AccountStore.current().usesLabels()

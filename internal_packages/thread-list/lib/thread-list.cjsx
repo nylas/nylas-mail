@@ -110,7 +110,6 @@ class ThreadList extends React.Component
           attachment = <div className="thread-icon thread-icon-attachment"></div>
 
         currentCategoryId = FocusedMailViewStore.mailView()?.categoryId()
-        allCategoryId = CategoryStore.getStandardCategory('all')?.id
 
         ignoredIds = [currentCategoryId]
         ignoredIds.push(cat.id) for cat in CategoryStore.getHiddenCategories()
@@ -265,7 +264,7 @@ class ThreadList extends React.Component
     return unless ThreadListStore.view()
 
     focused = FocusedContentStore.focused('thread')
-      
+
     if WorkspaceStore.layoutMode() is "list" and WorkspaceStore.topSheet() is WorkspaceStore.Sheet.Thread
       threads = [focused]
     else if ThreadListStore.view().selection.count() > 0

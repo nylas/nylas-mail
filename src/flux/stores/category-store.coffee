@@ -58,17 +58,15 @@ class CategoryStore extends NylasStore
       return "Folders"
     else if account.usesLabels()
       return "Labels"
-    return "Unknown"
+    else
+      return "Unknown"
 
+  # Public: Returns {Folder} or {Label}, depending on the current provider.
+  #
   categoryClass: ->
     account = AccountStore.current()
     return null unless account
-
-    if account.usesFolders()
-      return Folder
-    else if account.usesLabels()
-      return Label
-    return null
+    return account.categoryClass()
 
   # Public: Returns an array of all the categories in the current account, both
   # standard and user generated. The items returned by this function will be
@@ -84,6 +82,24 @@ class CategoryStore extends NylasStore
     if not name in @StandardCategoryNames
       throw new Error("'#{name}' is not a standard category")
     return _.findWhere @_categoryCache, {name}
+
+  # Public: Returns the Folder or Label object that should be used for "Archive"
+  # actions. On Gmail, this is the "all" label. On providers using folders, it
+  # returns any available "Archive" folder, or null if no such folder exists.
+  #
+  getArchiveCategory: ->
+    account = AccountStore.current()
+    return null unless account
+    if account.usesFolders()
+      return @getStandardCategory("archive")
+    else
+      return @getStandardCategory("all")
+
+  # Public: Returns the Folder or Label object taht should be used for
+  # "Move to Trash", or null if no trash folder exists.
+  #
+  getTrashCategory: ->
+    @getStandardCategory("trash")
 
   # Public: Returns all of the standard categories for the current account.
   #
