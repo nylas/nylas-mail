@@ -1,7 +1,7 @@
 _ = require 'underscore'
 
-# This keeps track of constructors so we know how to inflate serialized
-# objects.
+# Public: This keeps track of constructors so we know how to inflate
+# serialized objects.
 #
 # If 3rd party packages want to register new inflatable models, they can
 # use `register` and pass the constructor along with the name.

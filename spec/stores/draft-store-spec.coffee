@@ -685,12 +685,15 @@ describe "DraftStore", ->
     beforeEach ->
       DraftStore._draftSessions = {}
       DraftStore._draftsSending = {}
+      @forceCommit = false
       proxy =
         prepare: -> Promise.resolve(proxy)
         teardown: ->
         draft: -> {}
         changes:
-          commit: -> Promise.resolve()
+          commit: ({force}={}) =>
+            @forceCommit = force
+            Promise.resolve()
       DraftStore._draftSessions[draftClientId] = proxy
       spyOn(DraftStore, "_doneWithSession").andCallThrough()
       spyOn(DraftStore, "trigger")
@@ -744,6 +747,15 @@ describe "DraftStore", ->
       runs ->
         expect(atom.close).not.toHaveBeenCalled()
 
+    it "forces a commit to happen before sending", ->
+      spyOn(Actions, "queueTask")
+      runs ->
+        DraftStore._onSendDraft(draftClientId)
+      waitsFor ->
+        DraftStore._doneWithSession.calls.length > 0
+      runs ->
+        expect(@forceCommit).toBe true
+
     it "queues a SendDraftTask", ->
       spyOn(Actions, "queueTask")
       runs ->
@@ -785,7 +797,7 @@ describe "DraftStore", ->
       spyOn(dialog, "showMessageBox")
       DraftStore._draftsSending[draftClientId] = true
       Actions.draftSendingFailed({errorMessage: "boohoo", draftClientId})
-      advanceClock(10)
+      advanceClock(200)
       expect(DraftStore.isSendingDraft(draftClientId)).toBe false
       expect(DraftStore.trigger).toHaveBeenCalledWith(draftClientId)
       expect(dialog.showMessageBox).toHaveBeenCalled()

@@ -29,12 +29,12 @@ class MarkMessageReadTask extends Task
         unread: false
       returnsModel: true
     .then =>
-      return Promise.resolve(Task.Status.Finished)
+      return Promise.resolve(Task.Status.Success)
     .catch APIError, (err) =>
       if err.statusCode in NylasAPI.PermanentErrorCodes
         # Run performLocal backwards to undo the tag changes
         @message.unread = @_previousUnreadState
         DatabaseStore.persistModel(@message).then =>
-          return Promise.resolve(Task.Status.Finished)
+          return Promise.resolve(Task.Status.Failed)
       else
         return Promise.resolve(Task.Status.Retry)

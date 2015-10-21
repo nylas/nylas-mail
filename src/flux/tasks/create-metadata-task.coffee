@@ -40,12 +40,12 @@ class CreateMetadataTask extends Task
           value: @value
         success: =>
           Actions.metadataCreated @type, @metadatum
-          resolve(Task.Status.Finished)
+          resolve(Task.Status.Success)
         error: (apiError) =>
           Actions.metadataError _.extend @_baseErrorData(),
             errorType: "APIError"
             error: apiError
-          reject(apiError)
+          resolve(Task.Status.Failed)
 
   _baseErrorData: ->
     action: "create"

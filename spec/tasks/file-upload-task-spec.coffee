@@ -115,9 +115,7 @@ describe "FileUploadTask", ->
       @taskExitStatus = null
       @runWithError = (simulatedError) =>
         runs ->
-          @task.performRemote().catch (err) ->
-            console.log(err)
-          .then (status) =>
+          @task.performRemote().then (status) =>
             @taskExitStatus = status
 
         waitsFor ->
@@ -132,7 +130,8 @@ describe "FileUploadTask", ->
 
     describe "if the error is permanent", ->
       beforeEach ->
-        @runWithError(new APIError(statusCode: 400))
+        @apiError = new APIError(statusCode: 400)
+        @runWithError(@apiError)
 
       it "should broadcast `failed` if the error is permanent", ->
         runs ->
@@ -140,9 +139,9 @@ describe "FileUploadTask", ->
           dataReceived = Actions.uploadStateChanged.calls[0].args[0]
           expect(_.isMatch(dataReceived, data)).toBe(true)
 
-      it "should resolve with `finished`", ->
-        runs ->
-          expect(@taskExitStatus).toBe(Task.Status.Finished)
+      it "should report Failed with the APIError", ->
+        runs =>
+          expect(@taskExitStatus).toEqual([Task.Status.Failed, @apiError])
 
     describe "if the error is temporary", ->
       beforeEach ->
@@ -161,6 +160,10 @@ describe "FileUploadTask", ->
           data = _.extend(@uploadData, {state: "aborted", bytesUploaded: 0})
           dataReceived = Actions.uploadStateChanged.calls[0].args[0]
           expect(_.isMatch(dataReceived, data)).toBe(true)
+
+      it "should resolve with Task.Status.Failed", ->
+        runs ->
+          expect(@taskExitStatus).toBe(Task.Status.Failed)
 
   describe "when the remote API request succeeds", ->
     beforeEach ->

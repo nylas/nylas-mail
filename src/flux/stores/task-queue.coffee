@@ -143,6 +143,11 @@ class TaskQueue
       @_completed.shift() if @_completed.length > 1000
       @_updateSoon()
 
+  dequeueTaskAndDependents: (taskOrId) ->
+    task = @_resolveTaskArgument(taskOrId)
+    if not task
+      throw new Error("Couldn't find task in queue to dequeue")
+
   dequeueAll: =>
     for task in @_queue by -1
       @dequeue(task)
@@ -164,8 +169,11 @@ class TaskQueue
 
   _processQueue: =>
     for task in @_queue by -1
-      continue if @_taskIsBlocked(task)
-      @_processTask(task)
+      if @_taskIsBlocked(task)
+        task.queueState.debugStatus = Task.DebugStatus.WaitingOnDependency
+        continue
+      else
+        @_processTask(task)
 
   _processTask: (task) =>
     return if task.queueState.isProcessing
@@ -178,8 +186,50 @@ class TaskQueue
     .then (status) =>
       @dequeue(task) unless status is Task.Status.Retry
     .catch (err) =>
-      console.warn("Task #{task.constructor.name} threw an error: #{err}.")
-      @dequeue(task)
+      @_seenDownstream = {}
+      @_notifyOfDependentError(task, err)
+      .then (responses) =>
+        @_dequeueDownstreamTasks(responses)
+        @dequeue(task)
+
+  # When we `_notifyOfDependentError`s, we collect a nested array of
+  # responses of the tasks we notified. We need to responses to determine
+  # whether or not we should dequeue that task.
+  _dequeueDownstreamTasks: (responses=[]) ->
+    # Responses are nested arrays due to the recursion
+    responses = _.flatten(responses)
+
+    # A response may be `null` if it hit our infinite recursion check.
+    responses = _.filter responses, (r) -> r?
+
+    responses.forEach (resp) =>
+      if resp.returnValue is Task.DO_NOT_DEQUEUE_ME
+        return
+      else
+        resp.downstreamTask.queueState.status = Task.Status.Continue
+        resp.downstreamTask.queueState.debugStatus = Task.DebugStatus.DequeuedDependency
+        @dequeue(resp.downstreamTask)
+
+  # Recursively notifies tasks of dependent errors
+  _notifyOfDependentError: (failedTask, err) ->
+    downstream = @_tasksDependingOn(failedTask) ? []
+    Promise.map downstream, (downstreamTask) =>
+
+      return Promise.resolve(null) unless downstreamTask
+
+      # Infinte recursion check!
+      # These will get removed later
+      return Promise.resolve(null) if @_seenDownstream[downstreamTask.id]
+      @_seenDownstream[downstreamTask.id] = true
+
+      responseHash = Promise.props
+        returnValue: downstreamTask.onDependentTaskError(failedTask, err)
+        downstreamTask: downstreamTask
+
+      return Promise.all([
+        responseHash
+        @_notifyOfDependentError(downstreamTask, err)
+      ])
 
   _dequeueObsoleteTasks: (task) =>
     obsolete = _.filter @_queue, (otherTask) =>
@@ -191,11 +241,17 @@ class TaskQueue
       return task.shouldDequeueOtherTask(otherTask)
 
     for otherTask in obsolete
+      otherTask.queueState.status = Task.Status.Continue
+      otherTask.queueState.debugStatus = Task.DebugStatus.DequeuedObsolete
       @dequeue(otherTask)
+
+  _tasksDependingOn: (task) ->
+    _.filter @_queue, (otherTask) ->
+      otherTask.isDependentTask(task) and task isnt otherTask
 
   _taskIsBlocked: (task) =>
     _.any @_queue, (otherTask) ->
-      task.shouldWaitForTask(otherTask) and task isnt otherTask
+      task.isDependentTask(otherTask) and task isnt otherTask
 
   _resolveTaskArgument: (taskOrId) =>
     if not taskOrId

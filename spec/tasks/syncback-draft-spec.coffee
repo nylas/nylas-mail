@@ -48,6 +48,84 @@ describe "SyncbackDraftTask", ->
       fn()
       return Promise.resolve()
 
+  describe "queueing multiple tasks", ->
+    beforeEach ->
+      @taskA = new SyncbackDraftTask("draft-123")
+      @taskB = new SyncbackDraftTask("draft-123")
+      @taskC = new SyncbackDraftTask("draft-123")
+      @taskOther = new SyncbackDraftTask("draft-456")
+
+      now = Date.now()
+      @taskA.creationDate = now - 20
+      @taskB.creationDate = now - 10
+      @taskC.creationDate = now
+      TaskQueue._queue = []
+
+    it "dequeues other SyncbackDraftTasks that haven't started yet", ->
+      # Task A is taking forever, B is waiting on it, and C gets queued.
+      [@taskA, @taskB, @taskOther].forEach (t) ->
+        t.queueState.localComplete = true
+
+      # taskA has already started This should NOT get dequeued
+      @taskA.queueState.isProcessing = true
+
+      # taskB hasn't started yet! This should get dequeued
+      @taskB.queueState.isProcessing = false
+
+      # taskOther, while unstarted, doesn't match the draftId and should
+      # not get dequeued
+      @taskOther.queueState.isProcessing = false
+
+      TaskQueue._queue = [@taskA, @taskB, @taskOther]
+      spyOn(@taskC, "runLocal").andReturn Promise.resolve()
+
+      TaskQueue.enqueue(@taskC)
+
+      # Note that taskB is gone, taskOther was untouched, and taskC was
+      # added.
+      expect(TaskQueue._queue).toEqual = [@taskA, @taskOther, @taskC]
+
+      expect(@taskC.runLocal).toHaveBeenCalled()
+
+    it "waits for any other inflight tasks to finish or error", ->
+      @taskA.queueState.localComplete = true
+      @taskA.queueState.isProcessing = true
+      @taskB.queueState.localComplete = true
+      spyOn(@taskB, "runRemote").andReturn Promise.resolve()
+
+      TaskQueue._queue = [@taskA, @taskB]
+
+      # Since taskA has isProcessing set to true, it will just be passed
+      # over. We expect taskB to fail the `_taskIsBlocked` test
+      TaskQueue._processQueue()
+      advanceClock(100)
+      expect(TaskQueue._queue).toEqual [@taskA, @taskB]
+      expect(@taskA.queueState.isProcessing).toBe true
+      expect(@taskB.queueState.isProcessing).toBe false
+      expect(@taskB.runRemote).not.toHaveBeenCalled()
+
+    it "does not get dequeued if dependent tasks fail", ->
+      @taskA.queueState.localComplete = true
+      @taskB.queueState.localComplete = true
+
+      spyOn(@taskA, "performRemote").andReturn Promise.resolve(Task.Status.Failed)
+      spyOn(@taskB, "performRemote").andReturn Promise.resolve(Task.Status.Success)
+
+      spyOn(TaskQueue, "dequeue").andCallThrough()
+      spyOn(TaskQueue, "trigger")
+
+      TaskQueue._queue = [@taskA, @taskB]
+      TaskQueue._processQueue()
+      advanceClock(100)
+      TaskQueue._processQueue()
+      advanceClock(100)
+      expect(@taskA.performRemote).toHaveBeenCalled()
+      expect(@taskB.performRemote).toHaveBeenCalled()
+      expect(TaskQueue.dequeue.calls.length).toBe 2
+
+      expect(@taskA.queueState.debugStatus).not.toBe Task.DebugStatus.DequeuedDependency
+      expect(@taskA.queueState.debugStatus).not.toBe Task.DebugStatus.DequeuedDependency
+
   describe "performRemote", ->
     beforeEach ->
       spyOn(NylasAPI, 'makeRequest').andCallFake (opts) ->
@@ -124,14 +202,15 @@ describe "SyncbackDraftTask", ->
               expect(status).toBe Task.Status.Retry
 
       [500, 0].forEach (code) ->
-        it "Aborts on #{code} errors when we're PUT-ing", ->
+        it "Fails on #{code} errors when we're PUT-ing", ->
           stubAPI(code, "PUT")
           waitsForPromise =>
-            @task.performRemote().then (status) =>
+            @task.performRemote().then ([status, err]) =>
+              expect(status).toBe Task.Status.Failed
               expect(@task.getLatestLocalDraft).toHaveBeenCalled()
               expect(@task.getLatestLocalDraft.calls.length).toBe 1
               expect(@task.detatchFromRemoteID).not.toHaveBeenCalled()
-              expect(status).toBe Task.Status.Finished
+              expect(err.statusCode).toBe code
 
     describe 'when POST-ing', ->
       beforeEach ->
@@ -140,20 +219,21 @@ describe "SyncbackDraftTask", ->
         spyOn(@task, "detatchFromRemoteID").andCallFake -> Promise.resolve(localDraft())
 
       [400, 404, 409, 500, 0].forEach (code) ->
-        it "Aborts on #{code} errors when we're POST-ing", ->
+        it "Fails on #{code} errors when we're POST-ing", ->
           stubAPI(code, "POST")
           waitsForPromise =>
-            @task.performRemote().then (status) =>
+            @task.performRemote().then ([status, err]) =>
+              expect(status).toBe Task.Status.Failed
               expect(@task.getLatestLocalDraft).toHaveBeenCalled()
               expect(@task.getLatestLocalDraft.calls.length).toBe 1
               expect(@task.detatchFromRemoteID).not.toHaveBeenCalled()
-              expect(status).toBe Task.Status.Finished
+              expect(err.statusCode).toBe code
 
-      it "Aborts on unknown errors", ->
+      it "Fails on unknown errors", ->
         spyOn(NylasAPI, "makeRequest").andCallFake -> Promise.reject(new APIError())
         waitsForPromise =>
-          @task.performRemote().then (status) =>
+          @task.performRemote().then ([status, err]) =>
+            expect(status).toBe Task.Status.Failed
             expect(@task.getLatestLocalDraft).toHaveBeenCalled()
             expect(@task.getLatestLocalDraft.calls.length).toBe 1
             expect(@task.detatchFromRemoteID).not.toHaveBeenCalled()
-            expect(status).toBe Task.Status.Finished

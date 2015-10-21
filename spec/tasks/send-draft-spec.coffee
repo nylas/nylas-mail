@@ -1,6 +1,7 @@
 NylasAPI = require '../../src/flux/nylas-api'
 Actions = require '../../src/flux/actions'
 SyncbackDraftTask = require '../../src/flux/tasks/syncback-draft'
+FileUploadTask = require '../../src/flux/tasks/file-upload-task'
 SendDraftTask = require '../../src/flux/tasks/send-draft'
 DatabaseStore = require '../../src/flux/stores/database-store'
 {APIError} = require '../../src/flux/errors'
@@ -10,7 +11,7 @@ SoundRegistry = require '../../src/sound-registry'
 _ = require 'underscore'
 
 describe "SendDraftTask", ->
-  describe "shouldWaitForTask", ->
+  describe "isDependentTask", ->
     it "should return true if there are SyncbackDraftTasks for the same draft", ->
       @draftA = new Message
         version: '1'
@@ -36,7 +37,7 @@ describe "SendDraftTask", ->
       @saveB = new SyncbackDraftTask('localid-B')
       @sendA = new SendDraftTask('localid-A')
 
-      expect(@sendA.shouldWaitForTask(@saveA)).toBe(true)
+      expect(@sendA.isDependentTask(@saveA)).toBe(true)
 
   describe "performLocal", ->
     it "should throw an exception if the first parameter is not a clientId", ->
@@ -275,3 +276,21 @@ describe "SendDraftTask", ->
       waitsForPromise =>
         @task.performRemote().catch (error) ->
           expect(error).toBe "DB error"
+
+  describe "failing dependent task", ->
+    it "notifies the user that the required draft save failed", ->
+      task = new SendDraftTask("local-1234")
+      syncback = new SyncbackDraftTask('local-1234')
+      spyOn(task, "_notifyUserOfError")
+      task.onDependentTaskError(syncback, new Error("Oh no"))
+      expect(task._notifyUserOfError).toHaveBeenCalled()
+      expect(task._notifyUserOfError.calls.length).toBe 1
+
+    it "notifies the user that the required file upload failed", ->
+      task = new SendDraftTask("local-1234")
+      fileUploadTask = new FileUploadTask('/dev/null', 'local-1234')
+      spyOn(task, "_notifyUserOfError")
+      task.onDependentTaskError(fileUploadTask, new Error("Oh no"))
+      expect(task._notifyUserOfError).toHaveBeenCalled()
+      expect(task._notifyUserOfError.calls.length).toBe 1
+

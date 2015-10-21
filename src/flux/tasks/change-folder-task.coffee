@@ -41,7 +41,7 @@ class ChangeFolderTask extends ChangeMailTask
     else
       return "Moved objects#{folderText}"
 
-  shouldWaitForTask: (other) -> other instanceof SyncbackCategoryTask
+  isDependentTask: (other) -> other instanceof SyncbackCategoryTask
 
   performLocal: ->
     if not @folder

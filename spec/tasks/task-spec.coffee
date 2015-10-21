@@ -12,13 +12,13 @@ describe "Task", ->
   describe "initial state", ->
     it "should set up queue state with additional information about local/remote", ->
       task = new Task()
-      expect(task.queueState).toEqual({ isProcessing : false, localError : null, localComplete : false, remoteError : null, remoteAttempts : 0, remoteComplete : false })
+      expect(task.queueState).toEqual({ isProcessing : false, localError : null, localComplete : false, remoteError : null, remoteAttempts : 0, remoteComplete : false, status: null, debugStatus: Task.DebugStatus.JustConstructed})
 
   describe "runLocal", ->
     beforeEach ->
       class APITestTask extends Task
         performLocal: -> Promise.resolve()
-        performRemote: -> Promise.resolve(Task.Status.Finished)
+        performRemote: -> Promise.resolve(Task.Status.Success)
       @task = new APITestTask()
 
     describe "when performLocal is not complete", ->
@@ -73,10 +73,37 @@ describe "Task", ->
         advanceClock()
         expect(@task.performRemote).toHaveBeenCalled()
 
+      it "it should resolve Continue if it already ran", ->
+        @task.queueState.remoteComplete = true
+        waitsForPromise =>
+          @task.runRemote().then (status) =>
+            expect(@task.queueState.status).toBe Task.Status.Continue
+            expect(status).toBe Task.Status.Continue
+
+      it "marks as complete if the task 'continue's", ->
+        spyOn(@task, 'performRemote').andCallFake ->
+          Promise.resolve(Task.Status.Continue)
+          @task.runRemote()
+          advanceClock()
+          expect(@task.performRemote).toHaveBeenCalled()
+          expect(@task.queueState.remoteError).toBe(null)
+          expect(@task.queueState.remoteComplete).toBe(true)
+          expect(@task.queueState.status).toBe(Task.Status.Continue)
+
+      it "marks as failed if the task reverts", ->
+        spyOn(@task, 'performRemote').andCallFake ->
+          Promise.resolve(Task.Status.Failed)
+          @task.runRemote()
+          advanceClock()
+          expect(@task.performRemote).toHaveBeenCalled()
+          expect(@task.queueState.remoteError).toBe(null)
+          expect(@task.queueState.remoteComplete).toBe(true)
+          expect(@task.queueState.status).toBe(Task.Status.Failed)
+
       describe "when performRemote resolves", ->
         beforeEach ->
           spyOn(@task, 'performRemote').andCallFake ->
-            Promise.resolve(Task.Status.Finished)
+            Promise.resolve(Task.Status.Success)
 
         it "should save that performRemote is complete with no errors", ->
           @task.runRemote()
@@ -84,6 +111,7 @@ describe "Task", ->
           expect(@task.performRemote).toHaveBeenCalled()
           expect(@task.queueState.remoteError).toBe(null)
           expect(@task.queueState.remoteComplete).toBe(true)
+          expect(@task.queueState.status).toBe(Task.Status.Success)
 
         it "should only allow the performRemote method to return a Task.Status", ->
           result = null
@@ -96,6 +124,7 @@ describe "Task", ->
           @ok.queueState.localComplete = true
           @ok.runRemote().then (r) -> result = r
           advanceClock()
+          expect(@ok.queueState.status).toBe(Task.Status.Retry)
           expect(result).toBe(Task.Status.Retry)
 
           class BadTask extends Task
@@ -106,15 +135,10 @@ describe "Task", ->
           advanceClock()
           expect(err.message).toBe('performRemote returned lalal, which is not a Task.Status')
 
-      describe "when performRemote rejects", ->
+      describe "when performRemote rejects multiple times", ->
         beforeEach ->
-          @error = new APIError("Oh no!")
-          spyOn(@task, 'performRemote').andCallFake => Promise.reject(@error)
-
-        it "should save the error to the queueState", ->
-          @task.runRemote().catch(noop)
-          advanceClock()
-          expect(@task.queueState.remoteError).toBe(@error)
+          spyOn(@task, 'performRemote').andCallFake =>
+            Promise.resolve(Task.Status.Failed)
 
         it "should increment the number of attempts", ->
           runs ->
@@ -125,3 +149,72 @@ describe "Task", ->
             @task.runRemote().catch(noop)
           waitsFor ->
             @task.queueState.remoteAttempts == 2
+
+      describe "when performRemote resolves with Task.Status.Failed", ->
+        beforeEach ->
+          spyOn(atom, "emitError")
+          @error = new APIError("Oh no!")
+          spyOn(@task, 'performRemote').andCallFake =>
+            Promise.resolve(Task.Status.Failed)
+
+        it "Should handle the error as a caught Failure", ->
+          waitsForPromise =>
+            @task.runRemote().then ->
+              throw new Error("Should not resolve")
+            .catch (err) =>
+              expect(@task.queueState.remoteError instanceof Error).toBe true
+              expect(@task.queueState.remoteAttempts).toBe(1)
+              expect(@task.queueState.status).toBe(Task.Status.Failed)
+              expect(atom.emitError).not.toHaveBeenCalled()
+
+      describe "when performRemote resolves with Task.Status.Failed and an error", ->
+        beforeEach ->
+          spyOn(atom, "emitError")
+          @error = new APIError("Oh no!")
+          spyOn(@task, 'performRemote').andCallFake =>
+            Promise.resolve([Task.Status.Failed, @error])
+
+        it "Should handle the error as a caught Failure", ->
+          waitsForPromise =>
+            @task.runRemote().then ->
+              throw new Error("Should not resolve")
+            .catch (err) =>
+              expect(@task.queueState.remoteError).toBe(@error)
+              expect(@task.queueState.remoteAttempts).toBe(1)
+              expect(@task.queueState.status).toBe(Task.Status.Failed)
+              expect(atom.emitError).not.toHaveBeenCalled()
+
+      describe "when performRemote rejects with Task.Status.Failed", ->
+        beforeEach ->
+          spyOn(atom, "emitError")
+          @error = new APIError("Oh no!")
+          spyOn(@task, 'performRemote').andCallFake =>
+            Promise.reject([Task.Status.Failed, @error])
+
+        it "Should handle the rejection as normal", ->
+          waitsForPromise =>
+            @task.runRemote().then ->
+              throw new Error("Should not resolve")
+            .catch (err) =>
+              expect(@task.queueState.remoteError).toBe(@error)
+              expect(@task.queueState.remoteAttempts).toBe(1)
+              expect(@task.queueState.status).toBe(Task.Status.Failed)
+              expect(atom.emitError).not.toHaveBeenCalled()
+
+      describe "when performRemote throws an unknown error", ->
+        beforeEach ->
+          spyOn(atom, "emitError")
+          @error = new Error("Oh no!")
+          spyOn(@task, 'performRemote').andCallFake =>
+            throw @error
+
+        it "Should handle the error as an uncaught error", ->
+          waitsForPromise =>
+            @task.runRemote().then ->
+              throw new Error("Should not resolve")
+            .catch (err) =>
+              expect(@task.queueState.remoteError).toBe(@error)
+              expect(@task.queueState.remoteAttempts).toBe(1)
+              expect(@task.queueState.status).toBe(Task.Status.Failed)
+              expect(@task.queueState.debugStatus).toBe(Task.DebugStatus.UncaughtError)
+              expect(atom.emitError).toHaveBeenCalledWith(@error)

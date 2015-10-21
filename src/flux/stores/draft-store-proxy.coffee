@@ -46,9 +46,12 @@ class DraftChangeSet
       clearTimeout(@_timer) if @_timer
       @_timer = setTimeout(@commit, 5000)
 
-  commit: =>
+  # If force is true, then we'll always run the `_onCommit` callback
+  # regardless if there are _pending changes or not
+  commit: ({force}={}) =>
     @_commitChain = @_commitChain.finally =>
-      if Object.keys(@_pending).length is 0
+
+      if not force and Object.keys(@_pending).length is 0
         return Promise.resolve(true)
 
       @_saving = @_pending
