@@ -141,7 +141,12 @@ class AtomWindow
     @browserWindow.on 'close', (event) =>
       if @neverClose and !global.application.quitting
         event.preventDefault()
-        @browserWindow.hide()
+        if @browserWindow.isFullScreen()
+          @browserWindow.once 'leave-full-screen', =>
+            @browserWindow.hide()
+          @browserWindow.setFullScreen(false)
+        else
+          @browserWindow.hide()
         @emit 'window:close-prevented'
 
     @browserWindow.on 'closed', =>
