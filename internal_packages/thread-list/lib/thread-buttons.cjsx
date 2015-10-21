@@ -95,7 +95,7 @@ class ThreadBulkToggleUnreadButton extends React.Component
             className="btn btn-toolbar"
             title="Mark as #{fragment}"
             onClick={@_onClick}>
-      <RetinaImg name="icon-toolbar-markas#{fragment}@2x.png"
+      <RetinaImg name="toolbar-markas#{fragment}.png"
                  mode={RetinaImg.Mode.ContentIsMask} />
     </button>
 

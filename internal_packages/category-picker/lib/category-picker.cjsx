@@ -56,11 +56,11 @@ class CategoryPicker extends React.Component
     return <span></span> unless @_account
 
     if @_account?.usesLabels()
-      img = "ic-toolbar-tag.png"
+      img = "toolbar-tag.png"
       tooltip = "Apply Labels"
       placeholder = "Label as"
     else if @_account?.usesFolders()
-      img = "ic-toolbar-movetofolder.png"
+      img = "toolbar-movetofolder.png"
       tooltip = "Move to Folder"
       placeholder = "Move to folder"
     else
