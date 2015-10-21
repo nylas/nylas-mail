@@ -38,6 +38,11 @@ Providers = [
         type: 'password'
         placeholder: 'Password'
         label: 'Password'
+      }, {
+          name: 'eas_server_host'
+          type: 'text'
+          placeholder: 'mail.company.com'
+          label: 'Exchange server (optional)'
       }
     ]
   }, {
