@@ -11,6 +11,10 @@ class PreferencesHeader extends React.Component
     activeTab: React.PropTypes.object
 
   render: =>
+    if process.platform is "win32"
+        imgMode = RetinaImg.Mode.ContentIsMask
+    else
+        imgMode = RetinaImg.Mode.ContentPreserve
     <div className="preference-header">
       { @props.tabs.map (tab) =>
         classname = "preference-header-item"
@@ -19,7 +23,7 @@ class PreferencesHeader extends React.Component
         <div className={classname} onClick={ => @props.changeActiveTab(tab) } key={tab.name}>
           <div className="phi-container">
             <div className="icon">
-              <RetinaImg mode={RetinaImg.Mode.ContentPreserve} name={tab.icon} />
+              <RetinaImg mode={imgMode} name={tab.icon} />
             </div>
             <div className="name">
               {tab.name}

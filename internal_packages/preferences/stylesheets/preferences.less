@@ -273,5 +273,33 @@ body.platform-darwin {
       }
     }
   }
+}
 
+body.platform-win32 {
+  .preference-header {
+    background: #f2f2f2;
+
+    .preference-header-item {
+      margin-left: 0;
+      margin-right: 1px;
+      width: 80px;
+      padding-top: 3px;
+      .windows-btn-hover;
+      height: 63px;
+
+      color: @text-color;
+      .icon img.content-mask { background: @text-color; }
+
+      &:hover {
+        background: #e5e5e5;
+      }
+      &.active {
+        background: #f2f2f2;
+        border-radius: 0 0 0 0;
+        border-bottom: 2px solid @accent-primary;
+        color: @accent-primary;
+        .icon img.content-mask { background: @accent-primary; }
+      }
+    }
+  }
 }

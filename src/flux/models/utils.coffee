@@ -162,10 +162,17 @@ Utils =
         file = file.replace(/\\/g, '/')
         Utils.images[resourcePath][path.basename(file)] = file
 
-    if window.devicePixelRatio > 1
-      return Utils.images[resourcePath]["#{name}@2x.#{ext}"] ? Utils.images[resourcePath][fullname] ? Utils.images[resourcePath]["#{name}@1x.#{ext}"]
-    else
-      return Utils.images[resourcePath]["#{name}@1x.#{ext}"] ? Utils.images[resourcePath][fullname] ? Utils.images[resourcePath]["#{name}@2x.#{ext}"]
+    plat = process.platform ? ""
+    ratio = window.devicePixelRatio ? 1
+
+    return Utils.images[resourcePath]["#{name}-#{plat}@#{ratio}x.#{ext}"] ?
+           Utils.images[resourcePath]["#{name}@#{ratio}x.#{ext}"] ?
+           Utils.images[resourcePath]["#{name}-#{plat}.#{ext}"] ?
+           Utils.images[resourcePath]["#{name}.#{ext}"] ?
+           Utils.images[resourcePath]["#{name}-#{plat}@2x.#{ext}"] ?
+           Utils.images[resourcePath]["#{name}@2x.#{ext}"] ?
+           Utils.images[resourcePath]["#{name}-#{plat}@1x.#{ext}"] ?
+           Utils.images[resourcePath]["#{name}@1x.#{ext}"]
 
   subjectWithPrefix: (subject, prefix) ->
     if subject.search(/fwd:/i) is 0
