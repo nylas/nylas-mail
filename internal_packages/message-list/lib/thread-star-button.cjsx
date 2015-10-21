@@ -13,7 +13,7 @@ class StarButton extends React.Component
     selected = @props.thread? and @props.thread.starred
     <button className="btn btn-toolbar"
             style={order: -104}
-            data-tooltip="Star"
+            title={if selected then "Remove star" else "Add star"}
             onClick={@_onStarToggle}>
       <RetinaImg name="toolbar-star.png" mode={RetinaImg.Mode.ContentIsMask} selected={selected} />
     </button>

@@ -11,7 +11,7 @@ class ThreadToggleUnreadButton extends React.Component
 
     <button className="btn btn-toolbar"
             style={order: -105}
-            data-tooltip="Mark as #{fragment}"
+            title="Mark as #{fragment}"
             onClick={@_onClick}>
       <RetinaImg name="icon-toolbar-markas#{fragment}@2x.png"
       mode={RetinaImg.Mode.ContentIsMask} />

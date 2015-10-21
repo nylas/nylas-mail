@@ -43,7 +43,9 @@ class ThreadListIcon extends React.Component
     true
 
   render: =>
-    <div className="thread-icon #{@_iconType()}" onClick={@_onToggleStar}></div>
+    <div className="thread-icon #{@_iconType()}"
+         title="Star"
+         onClick={@_onToggleStar}></div>
 
   _onToggleStar: (event) =>
     task = new ChangeStarredTask(thread: @props.thread, starred: !@props.thread.starred)

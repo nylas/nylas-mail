@@ -13,7 +13,7 @@ class DraftDeleteButton extends React.Component
   render: ->
     <button style={order:-100}
             className="btn btn-toolbar"
-            data-tooltip="Delete"
+            title="Delete"
             onClick={@_destroySelected}>
       <RetinaImg name="icon-composer-trash.png" mode={RetinaImg.Mode.ContentIsMask} />
     </button>

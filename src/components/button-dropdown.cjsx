@@ -20,7 +20,9 @@ class ButtonDropdown extends React.Component
 
     if @props.primaryClick
       <div ref="button" onBlur={@_onBlur} tabIndex={999} className={classnames}>
-        <div className="primary-item" onClick={@props.primaryClick}>
+        <div className="primary-item"
+             title={@props.primaryTitle ? ""}
+             onClick={@props.primaryClick}>
           {@props.primaryItem}
         </div>
         <div className="secondary-picker" onClick={@toggleDropdown}>
@@ -32,7 +34,9 @@ class ButtonDropdown extends React.Component
       </div>
     else
       <div ref="button" onBlur={@_onBlur} tabIndex={999} className={classnames}>
-        <div className="only-item" onClick={@toggleDropdown}>
+        <div className="only-item"
+             title={@props.primaryTitle ? ""}
+             onClick={@toggleDropdown}>
           {@props.primaryItem}
           <RetinaImg name={"icon-thread-disclosure.png"} style={marginLeft:12} mode={RetinaImg.Mode.ContentIsMask}/>
         </div>

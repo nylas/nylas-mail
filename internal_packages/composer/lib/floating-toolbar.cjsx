@@ -99,7 +99,7 @@ class FloatingToolbar extends React.Component
         buttons.push(
           <button className="btn btn-extension"
                 onClick={ => @_extensionMutateDom(toolbarItem.mutator)}
-                data-tooltip="#{toolbarItem.tooltip}"><RetinaImg mode={RetinaImg.Mode.ContentIsMask} url="#{toolbarItem.iconUrl}" /></button>)
+                title="#{toolbarItem.tooltip}"><RetinaImg mode={RetinaImg.Mode.ContentIsMask} url="#{toolbarItem.iconUrl}" /></button>)
     return buttons
 
   _extensionMutateDom: (mutator) =>

@@ -425,11 +425,11 @@ class ComposerView extends React.Component
                       exposedProps={draftClientId:@props.draftClientId, threadId: @props.threadId}>
 
       <button className="btn btn-toolbar btn-trash" style={order: 100}
-              data-tooltip="Delete draft"
+              title="Delete draft"
               onClick={@_destroyDraft}><RetinaImg name="icon-composer-trash.png" mode={RetinaImg.Mode.ContentIsMask} /></button>
 
       <button className="btn btn-toolbar btn-attach" style={order: 50}
-              data-tooltip="Attach file"
+              title="Attach file"
               onClick={@_attachFile}><RetinaImg name="icon-composer-attachment.png" mode={RetinaImg.Mode.ContentIsMask} /></button>
 
       <div style={order: 0, flex: 1} />

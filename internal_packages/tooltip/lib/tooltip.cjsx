@@ -3,6 +3,8 @@ React = require 'react/addons'
 {DOMUtils} = require 'nylas-exports'
 
 ###
+IMPORTANT: This has been deprecated. Use the native `title=` attribute instead.
+This will ensure native-behavior cross platform.
 The Tooltip component displays a consistent hovering tooltip for use when
 extra context information is required.
 

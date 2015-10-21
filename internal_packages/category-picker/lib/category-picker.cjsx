@@ -70,7 +70,7 @@ class CategoryPicker extends React.Component
 
     if @state.isPopoverOpen then tooltip = ""
 
-    button = <button className="btn btn-toolbar" data-tooltip={tooltip}>
+    button = <button className="btn btn-toolbar" title={tooltip}>
       <RetinaImg name={img} mode={RetinaImg.Mode.ContentIsMask}/>
     </button>
 
