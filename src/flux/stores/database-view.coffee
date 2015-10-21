@@ -154,6 +154,9 @@ class DatabaseView extends ModelView
     if items.length is 0
       return
 
+    @selection.updateModelReferences(items)
+    @selection.removeItemsNotMatching(@_matchers)
+
     if items.length > 5
       @log("invalidateAfterDatabaseChange on #{items.length} items would be expensive. Invalidating entire range.")
       @invalidateCount()
@@ -226,7 +229,7 @@ class DatabaseView extends ModelView
           pagesCouldHaveChanged = true
 
     if didMakeOptimisticChange
-      @_emitter.emit('trigger')
+      @trigger()
 
     if pagesCouldHaveChanged
       @invalidateCount()
@@ -253,8 +256,7 @@ class DatabaseView extends ModelView
         item.metadata = @_pages[page]?.metadata[item.id]
         @_pages[page]?.items[pageIdx] = item
 
-      @selection.updateModelReferences(items)
-      @_emitter.emit('trigger')
+      @trigger()
 
   invalidateMetadataFor: (ids = []) ->
     # This method should be called when you know that only the metadata for
@@ -281,7 +283,7 @@ class DatabaseView extends ModelView
   invalidateCount: ->
     DatabaseStore.findAll(@klass).where(@_matchers).count().then (count) =>
       @_count = count
-      @_emitter.emit('trigger')
+      @trigger()
 
   invalidateRetainedRange: ->
     @_throttler.whenReady =>
@@ -373,6 +375,7 @@ class DatabaseView extends ModelView
         Utils.modelFreeze(item)
 
       @selection.updateModelReferences(items)
+      @selection.removeItemsNotMatching(@_matchers)
 
       page.items = items
       page.loading = false
@@ -380,7 +383,7 @@ class DatabaseView extends ModelView
       page.lastTouchTime = touchTime
 
       # Trigger if this is the last page that needed to be loaded
-      @_emitter.emit('trigger') if @loaded()
+      @trigger() if @loaded()
 
   cullPages: ->
     pagesLoaded = Object.keys(@_pages)

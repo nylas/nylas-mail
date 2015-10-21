@@ -216,9 +216,6 @@ describe "ThreadList", ->
     spyOn(ThreadStore, "_onAccountChanged")
     spyOn(DatabaseStore, "findAll").andCallFake ->
       new Promise (resolve, reject) -> resolve(test_threads())
-    spyOn(Actions, "removeCurrentlyFocusedThread")
-    spyOn(Actions, "removeAndNext")
-    spyOn(Actions, "removeAndPrevious")
     ReactTestUtils.spyOnClass(ThreadList, "_prepareColumns").andCallFake ->
       @_columns = columns
 

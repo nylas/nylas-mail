@@ -305,29 +305,6 @@ class Actions
   @destroyDraft: ActionScopeWindow
 
   ###
-  Public: Remove the currently focused {Thread}.
-
-  *Scope: Window*
-  ###
-  @removeCurrentlyFocusedThread: ActionScopeWindow
-
-  ###
-  Public: Removes the Thread objects currently selected in the app's main thread list.
-
-  *Scope: Window*
-  ###
-  @removeSelection: ActionScopeWindow
-  @removeAndNext: ActionScopeWindow
-  @removeAndPrevious: ActionScopeWindow
-  @toggleStarSelection: ActionScopeWindow
-  @toggleStarFocused: ActionScopeWindow
-  @toggleUnreadSelection: ActionScopeWindow
-  @deleteSelection: ActionScopeWindow
-
-  @moveThread: ActionScopeWindow
-  @moveThreads: ActionScopeWindow
-
-  ###
   Public: Updates the search query in the app's main search bar with the provided query text.
 
   *Scope: Window*

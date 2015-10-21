@@ -11,11 +11,18 @@ class ModelView
     @_pages = {}
     @_emitter = new EventEmitter()
 
-    @selection = new ModelViewSelection @, => @_emitter.emit('trigger')
+    @selection = new ModelViewSelection(@, @trigger)
 
     @
 
   # Accessing Data
+
+  trigger: =>
+    return if @_triggering
+    @_triggering = true
+    _.defer =>
+      @_triggering = false
+      @_emitter.emit('trigger')
 
   listen: (callback, bindContext) ->
     eventHandler = (args) ->
@@ -32,7 +39,7 @@ class ModelView
 
   empty: ->
     @count() <= 0
-    
+
   get: (idx) ->
     unless _.isNumber(idx)
       throw new Error("ModelView.get() takes a numeric index. Maybe you meant getById()?")

@@ -9,7 +9,8 @@ MessageToolbarItems = require "./message-toolbar-items"
  SidebarContactList} = require "./sidebar-components"
 
 ThreadStarButton = require './thread-star-button'
-ThreadRemoveButton = require './thread-remove-button'
+ThreadArchiveButton = require './thread-archive-button'
+ThreadTrashButton = require './thread-trash-button'
 ThreadToggleUnreadButton = require './thread-toggle-unread-button'
 
 AutolinkerExtension = require './plugins/autolinker-extension'
@@ -36,7 +37,10 @@ module.exports =
     ComponentRegistry.register ThreadStarButton,
       role: 'message:Toolbar'
 
-    ComponentRegistry.register ThreadRemoveButton,
+    ComponentRegistry.register ThreadArchiveButton,
+      role: 'message:Toolbar'
+
+    ComponentRegistry.register ThreadTrashButton,
       role: 'message:Toolbar'
 
     ComponentRegistry.register ThreadToggleUnreadButton,
@@ -48,7 +52,8 @@ module.exports =
   deactivate: ->
     ComponentRegistry.unregister MessageList
     ComponentRegistry.unregister ThreadStarButton
-    ComponentRegistry.unregister ThreadRemoveButton
+    ComponentRegistry.unregister ThreadArchiveButton
+    ComponentRegistry.unregister ThreadTrashButton
     ComponentRegistry.unregister ThreadToggleUnreadButton
     ComponentRegistry.unregister MessageToolbarItems
     ComponentRegistry.unregister SidebarContactCard

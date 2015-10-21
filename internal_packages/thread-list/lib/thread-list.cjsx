@@ -9,11 +9,13 @@ classNames = require 'classnames'
 {timestamp, subject} = require './formatting-utils'
 {Actions,
  Utils,
- CanvasUtils,
  Thread,
+ CanvasUtils,
+ TaskFactory,
  WorkspaceStore,
  AccountStore,
  CategoryStore,
+ FocusedContentStore,
  FocusedMailViewStore} = require 'nylas-exports'
 
 ThreadListParticipants = require './thread-list-participants'
@@ -165,11 +167,21 @@ class ThreadList extends React.Component
 
     @narrowColumns = [cNarrow]
 
+    _shift = ({offset, afterRunning}) =>
+      view = ThreadListStore.view()
+      focusedId = FocusedContentStore.focusedId('thread')
+      focusedIdx = Math.min(view.count() - 1, Math.max(0, view.indexOfId(focusedId) + offset))
+      item = view.get(focusedIdx)
+      afterRunning()
+      Actions.setFocus(collection: 'thread', item: item)
+
     @commands =
-      'core:remove-item': @_onRemoveItem
+      'core:remove-item': @_onBackspace
       'core:star-item': @_onStarItem
-      'core:remove-and-previous': -> Actions.removeAndPrevious()
-      'core:remove-and-next': -> Actions.removeAndNext()
+      'core:remove-and-previous': =>
+        _shift(offset: 1, afterRunning: @_onBackspace)
+      'core:remove-and-next': =>
+        _shift(offset: -1, afterRunning: @_onBackspace)
 
     @itemPropsProvider = (item) ->
       className: classNames
@@ -252,22 +264,37 @@ class ThreadList extends React.Component
   _onStarItem: =>
     return unless ThreadListStore.view()
 
+    focused = FocusedContentStore.focused('thread')
+      
     if WorkspaceStore.layoutMode() is "list" and WorkspaceStore.topSheet() is WorkspaceStore.Sheet.Thread
-      Actions.toggleStarFocused()
+      threads = [focused]
     else if ThreadListStore.view().selection.count() > 0
-      Actions.toggleStarSelection()
+      threads = ThreadListStore.view().selection.items()
     else
-      Actions.toggleStarFocused()
+      threads = [focused]
 
-  _onRemoveItem: =>
+    task = TaskFactory.taskForInvertingStarred({threads})
+    Actions.queueTask(task)
+
+  _onBackspace: =>
     return unless ThreadListStore.view()
 
-    if WorkspaceStore.layoutMode() is "list" and WorkspaceStore.topSheet() is WorkspaceStore.Sheet.Thread
-      Actions.removeCurrentlyFocusedThread()
+    focused = FocusedContentStore.focused('thread')
+
+    if WorkspaceStore.layoutMode() is "split" and focused
+      task = TaskFactory.taskForMovingToTrash
+        threads: [focused]
+        fromView: FocusedMailViewStore.mailView()
+      Actions.queueTask(task)
+
     else if ThreadListStore.view().selection.count() > 0
-      Actions.removeSelection()
-    else
-      Actions.removeCurrentlyFocusedThread()
+      task = TaskFactory.taskForMovingToTrash
+        threads: ThreadListStore.view().selection.items()
+        fromView: FocusedMailViewStore.mailView()
+      Actions.queueTask(task)
+
+    else if WorkspaceStore.layoutMode() is "list" and WorkspaceStore.topSheet() is WorkspaceStore.Sheet.Thread
+      Actions.popSheet()
 
 
 module.exports = ThreadList

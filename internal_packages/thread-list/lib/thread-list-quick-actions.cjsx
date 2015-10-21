@@ -1,6 +1,7 @@
 React = require 'react'
 {Actions,
- RemoveThreadHelper,
+ CategoryStore,
+ TaskFactory,
  FocusedMailViewStore} = require 'nylas-exports'
 
 class ThreadListQuickActions extends React.Component
@@ -9,22 +10,42 @@ class ThreadListQuickActions extends React.Component
     thread: React.PropTypes.object
 
   render: =>
-    focusedMailViewFilter = FocusedMailViewStore.mailView()
-    return false unless focusedMailViewFilter?.canRemoveThreads()
+    mailViewFilter = FocusedMailViewStore.mailView()
+    archive = null
+    remove = null
 
-    classNames = "btn action action-#{RemoveThreadHelper.removeType()}"
+    if mailViewFilter?.canArchiveThreads()
+      archive = <div key="archive"
+                     className="btn action action-archive"
+                     onClick={@_onArchive}></div>
+
+    if mailViewFilter?.canTrashThreads()
+      trash = <div key="remove"
+                   className='btn action action-trash'
+                   onClick={@_onRemove}></div>
 
     <div className="inner">
-      <div key="remove" className={classNames} onClick={@_onRemove}></div>
+      {archive}
+      {trash}
     </div>
 
   shouldComponentUpdate: (newProps, newState) ->
     newProps.thread.id isnt @props?.thread.id
 
+  _onArchive: (event) =>
+    task = TaskFactory.taskForArchiving
+      threads: [@props.thread]
+      fromView: FocusedMailViewStore.mailView()
+    Actions.queueTask(task)
+
+    # Don't trigger the thread row click
+    event.stopPropagation()
+
   _onRemove: (event) =>
-    focusedMailViewFilter = FocusedMailViewStore.mailView()
-    t = RemoveThreadHelper.getRemovalTask([@props.thread], focusedMailViewFilter)
-    Actions.queueTask(t)
+    task = TaskFactory.taskForMovingToTrash
+      threads: [@props.thread]
+      fromView: FocusedMailViewStore.mailView()
+    Actions.queueTask(task)
 
     # Don't trigger the thread row click
     event.stopPropagation()

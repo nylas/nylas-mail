@@ -9,10 +9,7 @@ NylasStore = require 'nylas-store'
  DatabaseStore,
  AccountStore,
  WorkspaceStore,
- ChangeUnreadTask,
- ChangeStarredTask,
  FocusedContentStore,
- RemoveThreadHelper,
  TaskQueueStatusStore,
  FocusedMailViewStore} = require 'nylas-exports'
 
@@ -21,20 +18,6 @@ NylasStore = require 'nylas-store'
 class ThreadListStore extends NylasStore
   constructor: ->
     @_resetInstanceVars()
-
-    @listenTo Actions.removeSelection, @_onRemoveSelection
-
-    @listenTo Actions.removeCurrentlyFocusedThread, @_onRemoveAndAuto
-    @listenTo Actions.removeAndNext, @_onRemoveAndNext
-    @listenTo Actions.removeAndPrevious, @_onRemoveAndPrev
-
-    @listenTo Actions.moveThread, @_onMoveThread
-    @listenTo Actions.moveThreads, @_onMoveThreads
-
-    @listenTo Actions.toggleStarSelection, @_onToggleStarSelection
-    @listenTo Actions.toggleStarFocused, @_onToggleStarFocused
-
-    @listenTo Actions.toggleUnreadSelection, @_onToggleUnreadSelection
 
     @listenTo DatabaseStore, @_onDataChanged
     @listenTo AccountStore, @_onAccountChanged
@@ -115,139 +98,36 @@ class ThreadListStore extends NylasStore
     return unless @_view
 
     if change.objectClass is Thread.name
+      focusedId = FocusedContentStore.focusedId('thread')
+      keyboardId = FocusedContentStore.keyboardCursorId('thread')
+      viewModeAutofocuses = WorkspaceStore.layoutMode() is 'split' or WorkspaceStore.topSheet().root is true
+
+      focusedIndex = @_view.indexOfId(focusedId)
+      keyboardIndex = @_view.indexOfId(keyboardId)
+
+      shiftIndex = (i) =>
+        if i > 0 and (@_view.get(i - 1)?.unread or i >= @_view.count())
+          return i - 1
+        else
+          return i
+
       @_view.invalidate({change: change, shallow: true})
+
+      focusedLost = focusedIndex >= 0 and @_view.indexOfId(focusedId) is -1
+      keyboardLost = keyboardIndex >= 0 and @_view.indexOfId(keyboardId) is -1
+
+      if viewModeAutofocuses and focusedLost
+        Actions.setFocus(collection: 'thread', item: @_view.get(shiftIndex(focusedIndex)))
+
+      if keyboardLost
+        Actions.setCursorPosition(collection: 'thread', item: @_view.get(shiftIndex(keyboardIndex)))
 
     if change.objectClass is Message.name
       # Important: Until we optimize this so that it detects the set change
-      # and avoids a query, this should be debounced since it's very unimportant
+      # and avoids a query, this should be defered since it's very unimportant
       _.defer =>
         threadIds = _.uniq _.map change.objects, (m) -> m.threadId
         @_view.invalidateMetadataFor(threadIds)
 
-  _onToggleStarSelection: ->
-    threads = @_view.selection.items()
-    focusedId = FocusedContentStore.focusedId('thread')
-    keyboardId = FocusedContentStore.keyboardCursorId('thread')
-
-    oneAlreadyStarred = false
-    for thread in threads
-      if thread.starred
-        oneAlreadyStarred = true
-
-    starred = not oneAlreadyStarred
-    task = new ChangeStarredTask({threads, starred})
-    Actions.queueTask(task)
-
-  _onToggleStarFocused: ->
-    focused = FocusedContentStore.focused('thread')
-    cursor = FocusedContentStore.keyboardCursor('thread')
-    if focused
-      task = new ChangeStarredTask(thread: focused, starred: !focused.starred)
-    else if cursor
-      task = new ChangeStarredTask(thread: cursor, starred: !cursor.starred)
-
-    if task
-      Actions.queueTask(task)
-
-  _onToggleUnreadSelection: ->
-    threads = @_view.selection.items()
-    allUnread = threads.every (t) ->
-      t.unread is true
-    unread = not allUnread
-
-    task = new ChangeUnreadTask {threads, unread}
-    Actions.queueTask task
-
-  _onRemoveAndAuto: ->
-    @_removeAndShiftBy('auto')
-
-  _onRemoveAndPrev: ->
-    @_removeAndShiftBy(-1)
-
-  _onRemoveAndNext: ->
-    @_removeAndShiftBy(1)
-
-  _removeAndShiftBy: (offset) ->
-    mailViewFilter = FocusedMailViewStore.mailView()
-    return unless mailViewFilter.canApplyToThreads()
-    focused = FocusedContentStore.focused('thread')
-    return unless focused
-    task = RemoveThreadHelper.getRemovalTask([focused], mailViewFilter)
-    @_moveAndShiftBy(offset, task)
-
-  _onRemoveSelection: ->
-    mailViewFilter = FocusedMailViewStore.mailView()
-    return unless mailViewFilter.canApplyToThreads()
-    selectedThreads = @_view.selection.items()
-    return unless selectedThreads.length > 0
-    task = RemoveThreadHelper.getRemovalTask(selectedThreads, mailViewFilter)
-    @_onMoveThreads(selectedThreads, task)
-
-  _onMoveThread: (thread, task) ->
-    @_moveAndShiftBy('auto', task)
-
-  _onMoveThreads: (threads, task) ->
-    threadIds = threads.map (thread) -> thread.id
-    focusedId = FocusedContentStore.focusedId('thread')
-    keyboardId = FocusedContentStore.keyboardCursorId('thread')
-
-    if focusedId in threadIds
-      changeFocused = true
-    if keyboardId in threadIds
-      changeKeyboardCursor = true
-
-    if changeFocused or changeKeyboardCursor
-      newFocusIndex = Number.MAX_VALUE
-      for thread in threads
-        newFocusIndex = Math.min(newFocusIndex, @_view.indexOfId(thread.id))
-
-    TaskQueueStatusStore.waitForPerformLocal(task).then =>
-      layoutMode = WorkspaceStore.layoutMode()
-      if changeFocused
-        item = @_view.get(newFocusIndex)
-        Actions.setFocus(collection: 'thread', item: item)
-      if changeKeyboardCursor
-        item = @_view.get(newFocusIndex)
-        Actions.setCursorPosition(collection: 'thread', item: item)
-        Actions.setFocus(collection: 'thread', item: item) if layoutMode is 'split'
-
-    Actions.queueTask(task)
-    @_view.selection.clear()
-
-  _moveAndShiftBy: (offset, task) ->
-    layoutMode = WorkspaceStore.layoutMode()
-    focused = FocusedContentStore.focused('thread')
-    explicitOffset = if offset is "auto" then false else true
-
-    return unless focused
-
-    # Determine the current index
-    index = @_view.indexOfId(focused.id)
-    return if index is -1
-
-    # Determine the next index we want to move to
-    if offset is 'auto'
-      if @_view.get(index - 1)?.unread
-        offset = -1
-      else
-        offset = 1
-
-    index = Math.min(Math.max(index + offset, 0), @_view.count() - 2)
-    nextKeyboard = nextFocus = @_view.get(index)
-
-    # Remove the current thread from selection
-    @_view.selection.remove(focused)
-
-    # If the user is in list mode and removed without specifically saying
-    # "remove and next" or "remove and prev", return to the thread list
-    # instead of focusing on the next message.
-    if layoutMode is 'list' and not explicitOffset
-      nextFocus = null
-
-    # Remove the current thread
-    TaskQueueStatusStore.waitForPerformLocal(task).then =>
-      Actions.setFocus(collection: 'thread', item: nextFocus)
-      Actions.setCursorPosition(collection: 'thread', item: nextKeyboard)
-    Actions.queueTask(task)
 
 module.exports = new ThreadListStore()

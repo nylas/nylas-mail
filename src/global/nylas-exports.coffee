@@ -72,7 +72,8 @@ class NylasExports
   @require "Task", 'flux/tasks/task'
   @require "TaskRegistry", "task-registry"
   @require "TaskQueue", 'flux/stores/task-queue'
-  @load "TaskQueueStatusStore", 'flux/stores/task-queue-status-store'
+  @require "TaskFactory", 'flux/tasks/task-factory'
+  @load    "TaskQueueStatusStore", 'flux/stores/task-queue-status-store'
   @require "UndoRedoStore", 'flux/stores/undo-redo-store'
 
   # Tasks
@@ -134,7 +135,6 @@ class NylasExports
   @load "SoundRegistry", 'sound-registry'
   @load "QuotedHTMLParser", 'services/quoted-html-parser'
   @load "QuotedPlainTextParser", 'services/quoted-plain-text-parser'
-  @require "RemoveThreadHelper", 'services/remove-thread-helper'
 
   # Errors
   @get "APIError", -> require('../flux/errors').APIError

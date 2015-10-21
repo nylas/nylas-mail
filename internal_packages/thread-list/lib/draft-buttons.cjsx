@@ -14,11 +14,13 @@ class DraftDeleteButton extends React.Component
     <button style={order:-100}
             className="btn btn-toolbar"
             data-tooltip="Delete"
-            onClick={@_destroyDraft}>
+            onClick={@_destroySelected}>
       <RetinaImg name="icon-composer-trash.png" mode={RetinaImg.Mode.ContentIsMask} />
     </button>
 
-  _destroyDraft: =>
-    Actions.deleteSelection()
+  _destroySelected: =>
+    for item in @props.selection.items()
+      Actions.queueTask(new DestroyDraftTask(draftClientId: item.clientId))
+    @props.selection.clear()
 
 module.exports = {DraftDeleteButton}

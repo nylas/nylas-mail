@@ -13,7 +13,6 @@ class DraftListStore extends NylasStore
   constructor: ->
     @listenTo DatabaseStore, @_onDataChanged
     @listenTo AccountStore, @_onAccountChanged
-    @listenTo Actions.deleteSelection, @_onDeleteSelection
 
     # It's important to listen to sendDraftSuccess because the
     # _onDataChanged method will ignore our newly created draft because it
@@ -51,13 +50,5 @@ class DraftListStore extends NylasStore
     containsDraft = _.some(change.objects, (msg) -> msg.draft)
     return unless containsDraft and @_view
     @_view.invalidate()
-
-  _onDeleteSelection: =>
-    selected = @_view.selection.items()
-
-    for item in selected
-      Actions.queueTask(new DestroyDraftTask(draftClientId: item.clientId))
-
-    @_view.selection.clear()
 
 module.exports = new DraftListStore()

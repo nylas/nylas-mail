@@ -198,6 +198,7 @@ describe "DatabaseView", ->
           e.subject = subject
           @view.invalidateAfterDatabaseChange({objects:[e], type: 'persist'})
         waitsFor ->
+          advanceClock(1)
           @view._emitter.emit.callCount > 0
         runs ->
           expect(@view._pages[1].items[1].id).toEqual(@e.id)
@@ -213,6 +214,7 @@ describe "DatabaseView", ->
             b.labels = []
             @view.invalidateAfterDatabaseChange({objects:[b], type: 'persist'})
           waitsFor ->
+            advanceClock(1)
             @view._emitter.emit.callCount > 0
 
         it "should optimistically remove them and shift result pages", ->
@@ -230,6 +232,7 @@ describe "DatabaseView", ->
           runs ->
             @view.invalidateAfterDatabaseChange({objects:[@b], type: 'unpersist'})
           waitsFor ->
+            advanceClock(1)
             @view._emitter.emit.callCount > 0
 
         it "should optimistically remove them and shift result pages", ->
@@ -301,6 +304,7 @@ describe "DatabaseView", ->
         runs ->
           @completeQuery()
         waitsFor ->
+          advanceClock(1)
           @view._emitter.emit.callCount > 0
         runs ->
           expect(@view._pages[0].items).toEqual(@items)
@@ -311,6 +315,7 @@ describe "DatabaseView", ->
           expect(@view._pages[0].loading).toEqual(true)
           @completeQuery()
         waitsFor ->
+          advanceClock(1)
           @view._emitter.emit.callCount > 0
         runs ->
           expect(@view._pages[0].loading).toEqual(false)
@@ -327,6 +332,7 @@ describe "DatabaseView", ->
           runs ->
             @completeQuery()
           waitsFor ->
+            advanceClock(1)
             @view._emitter.emit.callCount > 0
           runs ->
             expect(@view._pages[0].items[0].metadata).toEqual('metadata-for-model-a')
@@ -336,6 +342,7 @@ describe "DatabaseView", ->
           runs ->
             @completeQuery()
           waitsFor ->
+            advanceClock(1)
             @view._emitter.emit.callCount > 0
           runs ->
             expect(@view._pages[0].metadata).toEqual
@@ -366,6 +373,7 @@ describe "DatabaseView", ->
               resolve()
 
           waitsFor ->
+            advanceClock(1)
             @view._emitter.emit.callCount > 0
 
           runs ->

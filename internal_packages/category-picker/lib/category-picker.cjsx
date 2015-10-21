@@ -7,12 +7,11 @@ React = require 'react'
  Thread,
  Actions,
  TaskQueue,
+ TaskFactory,
  AccountStore,
  CategoryStore,
  DatabaseStore,
  WorkspaceStore,
- ChangeLabelsTask,
- ChangeFolderTask,
  SyncbackCategoryTask,
  TaskQueueStatusStore,
  FocusedMailViewStore} = require 'nylas-exports'
@@ -194,72 +193,36 @@ class CategoryPicker extends React.Component
     return <span>{parts}</span>
 
   _onSelectCategory: (item) =>
-    return unless @_threads().length > 0
+    threads = @_threads()
+
+    return unless threads.length > 0
     return unless @_account
     @refs.menu.setSelectedItem(null)
 
-    if @_account.usesLabels()
-      if item.newCategoryItem
-        cat = new Label
-          displayName: @state.searchValue,
-          accountId: AccountStore.current().id
-        task = new SyncbackCategoryTask
-          category: cat
-          organizationUnit: "label"
+    if item.newCategoryItem
+      category = new AccountStore.current().categoryClass()
+        displayName: @state.searchValue,
+        accountId: AccountStore.current().id
+      syncbackTask = new SyncbackCategoryTask({category})
+      TaskQueueStatusStore.waitForPerformRemote(syncbackTask).then =>
+        DatabaseStore.findBy(category.constructor, clientId: category.clientId).then (category) =>
+          applyTask = TaskFactory.taskForApplyingCategory
+            threads: threads
+            category: category
+          Actions.queueTask(applyTask)
+      Actions.queueTask(syncbackTask)
 
-        TaskQueueStatusStore.waitForPerformRemote(task).then =>
-          DatabaseStore.findBy Label, clientId: cat.clientId
-        .then (cat) =>
-          changeLabelsTask = new ChangeLabelsTask
-            labelsToAdd: [cat]
-            threads: @_threads()
-          Actions.queueTask(changeLabelsTask)
-
-        Actions.queueTask(task)
-      else if item.usage > 0
-        task = new ChangeLabelsTask
-          labelsToRemove: [item.category]
-          threads: @_threads()
-        Actions.queueTask(task)
-      else
-        task = new ChangeLabelsTask
-          labelsToAdd: [item.category]
-          threads: @_threads()
-        Actions.queueTask(task)
-
-    else if @_account.usesFolders()
-      if item.newCategoryItem?
-        cat = new Folder
-          displayName: @state?.searchValue,
-          accountId: AccountStore.current().id
-        task = new SyncbackCategoryTask
-          category: cat
-          organizationUnit: "folder"
-
-        TaskQueueStatusStore.waitForPerformRemote(task).then =>
-          DatabaseStore.findBy Folder, clientId: cat.clientId
-        .then (cat) =>
-          return if not cat?.serverId
-
-          changeFolderTask = new ChangeFolderTask
-            folder: cat
-            threads: @_threads()
-          if @props.thread
-            Actions.moveThread(@props.thread, changeFolderTask)
-          else if @props.items
-            Actions.moveThreads(@_threads(), changeFolderTask)
-        Actions.queueTask(task)
-      else
-        task = new ChangeFolderTask
-          folder: item.category
-          threads: @_threads()
-        if @props.thread
-          Actions.moveThread(@props.thread, task)
-        else if @props.items
-          Actions.moveThreads(@_threads(), task)
+    else if item.usage is threads.length
+      applyTask = TaskFactory.taskForRemovingCategory
+        threads: threads
+        category: item.category
+      Actions.queueTask(applyTask)
 
     else
-      throw new Error("Invalid organizationUnit")
+      applyTask = TaskFactory.taskForApplyingCategory
+        threads: threads
+        category: item.category
+      Actions.queueTask(applyTask)
 
     @refs.popover.close()
 
