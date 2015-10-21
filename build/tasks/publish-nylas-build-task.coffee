@@ -76,7 +76,6 @@ module.exports = (grunt) ->
           Key: destName
           ACL: "public-read"
           Bucket: "edgehill"
-          ContentDisposition:"attachment; filename=\"N1#{ext}\""
 
       uploader.on "error", (err) ->
         reject(err)
@@ -148,7 +147,7 @@ module.exports = (grunt) ->
           uploadPromises.push uploadZipToS3(appName(), "#{fullVersion}/#{process.platform}/#{process.arch}/N1.zip")
         if process.platform is 'win32'
           uploadPromises.push uploadToS3("installer/"+winReleasesName(), "#{fullVersion}/#{process.platform}/#{process.arch}/RELEASES")
-          uploadPromises.push uploadToS3("installer/"+winSetupName(), "#{fullVersion}/#{process.platform}/#{process.arch}/N1.exe")
+          uploadPromises.push uploadToS3("installer/"+winSetupName(), "#{fullVersion}/#{process.platform}/#{process.arch}/N1Setup.exe")
           uploadPromises.push uploadToS3("installer/"+winNupkgName(), "#{fullVersion}/#{process.platform}/#{process.arch}/#{winNupkgName()}")
         if process.platform is 'linux'
           buildDir = grunt.config.get('atom.buildDir')
