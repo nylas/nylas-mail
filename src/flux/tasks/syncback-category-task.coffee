@@ -1,5 +1,7 @@
 CategoryStore = require '../stores/category-store'
 DatabaseStore = require '../stores/database-store'
+Label = require '../models/label'
+Folder = require '../models/folder'
 {generateTempId} = require '../models/utils'
 Task = require './task'
 NylasAPI = require '../nylas-api'
@@ -7,11 +9,14 @@ NylasAPI = require '../nylas-api'
 
 module.exports = class SyncbackCategoryTask extends Task
 
-  constructor: ({@category, @organizationUnit}={}) ->
+  constructor: ({@category}={}) ->
     super
 
   label: ->
-    "Creating new #{@organizationUnit}..."
+    if @category instanceof Label
+      "Creating new label..."
+    else
+      "Creating new folder..."
 
   performLocal: ->
     # When we send drafts, we don't update anything in the app until
@@ -19,8 +24,6 @@ module.exports = class SyncbackCategoryTask extends Task
     # already sent when they haven't!
     if not @category
       return Promise.reject(new Error("Attempt to call SyncbackCategoryTask.performLocal without @category."))
-    else if @organizationUnit isnt "label" and @organizationUnit isnt "folder"
-      return Promise.reject(new Error("Attempt to call SyncbackCategoryTask.performLocal with @organizationUnit which wasn't 'folder' or 'label'."))
 
     if @_shouldChangeBackwards()
       DatabaseStore.unpersistModel @category
@@ -28,9 +31,9 @@ module.exports = class SyncbackCategoryTask extends Task
       DatabaseStore.persistModel @category
 
   performRemote: ->
-    if @organizationUnit is "label"
+    if @category instanceof Label
       path = "/labels"
-    else if @organizationUnit is "folder"
+    else
       path = "/folders"
 
     NylasAPI.makeRequest
