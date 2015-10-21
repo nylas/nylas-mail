@@ -69,7 +69,7 @@ class SheetContainer extends React.Component
       {toolbarElements[0]}
       <TimeoutTransitionGroup  leaveTimeout={125}
                                enterTimeout={125}
-                               transitionName="sheet-toolbar">
+                               transitionName="opacity-125ms">
         {toolbarElements[1..-1]}
       </TimeoutTransitionGroup>
     </div>

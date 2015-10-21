@@ -53,7 +53,7 @@ Example:
 <TimeoutTransitionGroup
   leaveTimeout={125}
   enterTimeout={125}
-  transitionName="sheet-toolbar">
+  transitionName="opacity-125ms">
   {toolbarElements[1..-1]}
 </TimeoutTransitionGroup>
 ```
@@ -63,6 +63,16 @@ Section: Component Kit
 class TimeoutTransitionGroupChild extends React.Component
 
   transition: (animationType, finishCallback) =>
+    animationDuration = 0
+    if animationType is 'enter'
+      animationDuration = @props.enterTimeout
+    else if animationType is 'leave'
+      animationDuration = @props.leaveTimeout
+
+    if animationDuration is 0
+      finishCallback()
+      return
+
     node = React.findDOMNode(@)
     return unless node
     className = @props.name + '-' + animationType
@@ -98,15 +108,12 @@ class TimeoutTransitionGroupChild extends React.Component
     if !animationSupported()
       endListener()
     else
-      if animationType == 'enter'
-        @animationTimeout = setTimeout(endListener, @props.enterTimeout)
-      else if animationType == 'leave'
-        @animationTimeout = setTimeout(endListener, @props.leaveTimeout)
+      @animationTimeout = setTimeout(endListener, animationDuration)
 
     addClass(node, className)
 
     # Need to do this to actually trigger a transition.
-    @queueClass activeClassName
+    @queueClass(activeClassName)
     return
 
   queueClass: (className) =>
