@@ -103,7 +103,6 @@ class NylasExports
   @require "MessageStore", 'flux/stores/message-store'
   @require "ContactStore", 'flux/stores/contact-store'
   @require "CategoryStore", 'flux/stores/category-store'
-  @require "MetadataStore", 'flux/stores/metadata-store'
   @require "AnalyticsStore", 'flux/stores/analytics-store'
   @require "WorkspaceStore", 'flux/stores/workspace-store'
   @require "DraftCountStore", 'flux/stores/draft-count-store'
