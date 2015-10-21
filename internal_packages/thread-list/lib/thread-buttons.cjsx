@@ -1,3 +1,4 @@
+_ = require 'underscore'
 React = require "react/addons"
 classNames = require 'classnames'
 ThreadListStore = require './thread-list-store'
@@ -20,7 +21,7 @@ class ThreadBulkArchiveButton extends React.Component
 
     <button style={order:-107}
             className="btn btn-toolbar"
-            data-tooltip="Archive"
+            title="Archive"
             onClick={@_onArchive}>
       <RetinaImg name="toolbar-archive.png" mode={RetinaImg.Mode.ContentIsMask} />
     </button>
@@ -44,7 +45,7 @@ class ThreadBulkTrashButton extends React.Component
 
     <button style={order:-106}
             className="btn btn-toolbar"
-            data-tooltip="Move to Trash"
+            title="Move to Trash"
             onClick={@_onRemove}>
       <RetinaImg name="toolbar-trash.png" mode={RetinaImg.Mode.ContentIsMask} />
     </button>
@@ -64,9 +65,12 @@ class ThreadBulkStarButton extends React.Component
     selection: React.PropTypes.object.isRequired
 
   render: ->
+    noStars = _.every @props.selection.items(), (t) -> _.isMatch(t, {starred: false})
+    title = if noStars then "Star all" else "Remove stars from all"
+
     <button style={order:-104}
             className="btn btn-toolbar"
-            data-tooltip="Star"
+            title={title}
             onClick={@_onStar}>
       <RetinaImg name="toolbar-star.png" mode={RetinaImg.Mode.ContentIsMask} />
     </button>
@@ -89,7 +93,7 @@ class ThreadBulkToggleUnreadButton extends React.Component
 
     <button style={order:-105}
             className="btn btn-toolbar"
-            data-tooltip="Mark as #{fragment}"
+            title="Mark as #{fragment}"
             onClick={@_onClick}>
       <RetinaImg name="icon-toolbar-markas#{fragment}@2x.png"
                  mode={RetinaImg.Mode.ContentIsMask} />
@@ -131,7 +135,7 @@ DownButton = React.createClass
   mixins: [ThreadNavButtonMixin]
 
   render: ->
-    <div className={@_classSet()} onClick={@_onClick}>
+    <div className={@_classSet()} onClick={@_onClick} title="Next thread">
       <RetinaImg name="toolbar-down-arrow.png" mode={RetinaImg.Mode.ContentIsMask} />
     </div>
 
@@ -154,7 +158,7 @@ UpButton = React.createClass
   mixins: [ThreadNavButtonMixin]
 
   render: ->
-    <div className={@_classSet()} onClick={@_onClick}>
+    <div className={@_classSet()} onClick={@_onClick} title="Previous thread">
       <RetinaImg name="toolbar-up-arrow.png" mode={RetinaImg.Mode.ContentIsMask} />
     </div>
 

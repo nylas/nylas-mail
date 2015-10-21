@@ -16,11 +16,13 @@ class ThreadListQuickActions extends React.Component
 
     if mailViewFilter?.canArchiveThreads()
       archive = <div key="archive"
+                     title="Archive"
                      className="btn action action-archive"
                      onClick={@_onArchive}></div>
 
     if mailViewFilter?.canTrashThreads()
       trash = <div key="remove"
+                   title="Trash"
                    className='btn action action-trash'
                    onClick={@_onRemove}></div>
 

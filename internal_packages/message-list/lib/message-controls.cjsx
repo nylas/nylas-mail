@@ -17,6 +17,7 @@ class MessageControls extends React.Component
     <div className="message-actions-wrap">
       <ButtonDropdown
         primaryItem={<RetinaImg name={items[0].image} mode={RetinaImg.Mode.ContentIsMask}/>}
+        primaryTitle={items[0].name}
         primaryClick={items[0].select}
         menu={@_dropdownMenu(items[1..-1])}/>
       <div className="message-actions-ellipsis" onClick={@_onShowActionsMenu}>

@@ -18,7 +18,7 @@ class ThreadArchiveButton extends React.Component
 
     <button className="btn btn-toolbar btn-archive"
             style={order: -107}
-            data-tooltip="Archive"
+            title="Archive"
             onClick={@_onArchive}>
       <RetinaImg name="toolbar-archive.png" mode={RetinaImg.Mode.ContentIsMask}/>
     </button>

@@ -19,7 +19,7 @@ class ThreadTrashButton extends React.Component
 
     <button className="btn btn-toolbar"
             style={order: -106}
-            data-tooltip="Move to Trash"
+            title="Move to Trash"
             onClick={@_onRemove}>
       <RetinaImg name="toolbar-trash.png" mode={RetinaImg.Mode.ContentIsMask}/>
     </button>

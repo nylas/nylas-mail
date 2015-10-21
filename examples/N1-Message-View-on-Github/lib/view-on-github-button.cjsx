@@ -80,7 +80,7 @@ class ViewOnGithubButton extends React.Component
     return null unless @state.link
     <button className="btn btn-toolbar"
             onClick={@_openLink}
-            data-tooltip={"Visit Thread on GitHub"}>
+            title={"Visit Thread on GitHub"}>
       <RetinaImg
         mode={RetinaImg.Mode.ContentIsMask}
         url="nylas://N1-Message-View-on-Github/assets/github@2x.png" />

@@ -38,7 +38,9 @@ class MailImportantIcon extends React.Component
     isImportant = _.findWhere(@props.thread.labels, {id: importantId})?
 
     activeClassname = if isImportant then "active" else ""
-    <div className="mail-important-icon #{activeClassname}" onClick={@_onToggleImportant}></div>
+    <div className="mail-important-icon #{activeClassname}"
+         title={if isImportant then "Mark as unimportant" else "Mark as important"}
+         onClick={@_onToggleImportant}></div>
 
   _onToggleImportant: (event) =>
     importantLabel = CategoryStore.getStandardCategory('important')

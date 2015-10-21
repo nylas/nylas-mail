@@ -21,7 +21,7 @@ class FeedbackButton extends React.Component
     unsub() for unsub in @_unsubs
 
   render: =>
-    <div style={position:"absolute",height:0}>
+    <div style={position:"absolute",height:0} title="Help & Feedback">
       <div className={@_getClassName()} onClick={@_onSendFeedback}>?</div>
     </div>
 

@@ -61,7 +61,7 @@ class ToolbarBack extends React.Component
     else
       title = "Back"
 
-    <div className="item-back" onClick={@_onClick}>
+    <div className="item-back" onClick={@_onClick} title="Return to #{title}">
       <RetinaImg name="sheet-back.png" mode={RetinaImg.Mode.ContentIsMask} />
       <div className="item-back-title">{title}</div>
     </div>

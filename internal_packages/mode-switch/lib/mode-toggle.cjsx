@@ -23,6 +23,7 @@ class ModeToggle extends React.Component
   render: =>
     <button className="btn btn-toolbar mode-toggle mode-#{@state.hidden}"
          style={order:500}
+         title={if @state.hidden then "Show sidebar" else "Hide sidebar"}
          onClick={@_onToggleMode}>
       <RetinaImg
         name="toolbar-icon-toggle-pane.png"
