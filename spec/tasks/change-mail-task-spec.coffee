@@ -205,15 +205,15 @@ describe "ChangeMailTask", ->
         @task.messages = []
         waitsForPromise =>
           @task.performRemote().then (code) =>
-            expect(code).toEqual(Task.Status.Finished)
+            expect(code).toEqual(Task.Status.Success)
 
     describe "if performRequests resolves", ->
-      it "should resolve with Task.Status.Finished", ->
+      it "should resolve with Task.Status.Success", ->
         @task = new ChangeMailTask()
         spyOn(@task, 'performRequests').andReturn(Promise.resolve())
         waitsForPromise =>
           @task.performRemote().then (result) =>
-            expect(result).toBe(Task.Status.Finished)
+            expect(result).toBe(Task.Status.Success)
 
     describe "if performRequests rejects with a permanent network error", ->
       beforeEach ->
@@ -227,10 +227,10 @@ describe "ChangeMailTask", ->
             expect(@task.performLocal).toHaveBeenCalled()
             expect(@task._isReverting).toBe(true)
 
-      it "should resolve with finished after reverting", ->
+      it "should resolve with Task.Status.Failed after reverting", ->
         waitsForPromise =>
           @task.performRemote().then (result) =>
-            expect(result).toBe(Task.Status.Finished)
+            expect(result).toBe(Task.Status.Failed)
 
     describe "if performRequests rejects with a temporary network error", ->
       beforeEach ->
@@ -450,7 +450,7 @@ describe "ChangeMailTask", ->
           @task.performLocal().then =>
             expect(@task._lockAll).toHaveBeenCalled()
 
-    describe "when performRemote is returning Task.Status.Finished", ->
+    describe "when performRemote is returning Task.Status.Success", ->
       it "should clean up locks", ->
         spyOn(@task, 'performRequests').andReturn(Promise.resolve())
         spyOn(@task, '_ensureLocksRemoved')
@@ -458,7 +458,7 @@ describe "ChangeMailTask", ->
           @task.performRemote().then =>
             expect(@task._ensureLocksRemoved).toHaveBeenCalled()
 
-    describe "when performRemote is returning Task.Status.Finished after reverting", ->
+    describe "when performRemote is returning Task.Status.Failed after reverting", ->
       it "should clean up locks", ->
         spyOn(@task, 'performRequests').andReturn(Promise.reject(new APIError(statusCode: 400)))
         spyOn(@task, '_ensureLocksRemoved')
@@ -544,7 +544,7 @@ describe "ChangeMailTask", ->
       task._restoreValues = null
       expect( -> task.createUndoTask()).toThrow()
 
-  describe "shouldWaitForTask", ->
+  describe "isDependentTask", ->
     it "should return true if another, older ChangeMailTask involves the same threads", ->
       a = new ChangeMailTask()
       a.threads = ['t1', 't2', 't3']
@@ -555,8 +555,8 @@ describe "ChangeMailTask", ->
       c = new ChangeMailTask()
       c.threads = ['t0', 't7']
       c.creationDate = new Date(3000)
-      expect(a.shouldWaitForTask(b)).toEqual(false)
-      expect(a.shouldWaitForTask(c)).toEqual(false)
-      expect(b.shouldWaitForTask(a)).toEqual(true)
-      expect(c.shouldWaitForTask(a)).toEqual(false)
-      expect(c.shouldWaitForTask(b)).toEqual(true)
+      expect(a.isDependentTask(b)).toEqual(false)
+      expect(a.isDependentTask(c)).toEqual(false)
+      expect(b.isDependentTask(a)).toEqual(true)
+      expect(c.isDependentTask(a)).toEqual(false)
+      expect(c.isDependentTask(b)).toEqual(true)

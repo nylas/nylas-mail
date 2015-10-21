@@ -35,12 +35,17 @@ class ComposerWithWindowProps extends React.Component
   _showInitialErrorDialog: (msg) ->
     remote = require('remote')
     dialog = remote.require('dialog')
-    dialog.showMessageBox remote.getCurrentWindow(), {
-      type: 'warning'
-      buttons: ['Okay'],
-      message: "Error"
-      detail: msg
-    }
+    # We delay so the view has time to update the restored draft. If we
+    # don't delay the modal may come up in a state where the draft looks
+    # like it hasn't been restored or has been lost.
+    _.delay ->
+      dialog.showMessageBox remote.getCurrentWindow(), {
+        type: 'warning'
+        buttons: ['Okay'],
+        message: "Error"
+        detail: msg
+      }
+    , 100
 
 module.exports =
   activate: (@state={}) ->

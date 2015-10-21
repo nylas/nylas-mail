@@ -42,7 +42,14 @@ class DeveloperBarTask extends React.Component
       errCode = remoteError.statusCode ? ""
       errMessage = remoteError.body?.message ? remoteError?.message ? JSON.stringify(remoteError)
 
-    return "#{@props.task.constructor.name} #{errType} #{errCode} #{errMessage}"
+    id = @props.task.id[-4..-1]
+
+    if qs.status
+      status = "#{qs.status} (#{qs.debugStatus})"
+    else
+      status = "#{qs.debugStatus}"
+
+    return "#{@props.task.constructor.name} (ID: #{id}) #{status} #{errType} #{errCode} #{errMessage}"
 
   _classNames: =>
     qs = @props.task.queueState ? {}

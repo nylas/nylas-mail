@@ -48,12 +48,12 @@ module.exports = class SyncbackCategoryTask extends Task
       @category.serverId = json.id
       DatabaseStore.persistModel @category
     .then ->
-      return Promise.resolve(Task.Status.Finished)
+      return Promise.resolve(Task.Status.Success)
     .catch APIError, (err) =>
       if err.statusCode in NylasAPI.PermanentErrorCodes
         @_isReverting = true
         @performLocal().then =>
-          return Promise.resolve(Task.Status.Finished)
+          return Promise.resolve(Task.Status.Failed)
       else
         return Promise.resolve(Task.Status.Retry)
 

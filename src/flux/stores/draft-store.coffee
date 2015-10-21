@@ -470,7 +470,15 @@ class DraftStore
       @_runExtensionsBeforeSend(session)
 
       # Immediately save any pending changes so we don't save after sending
-      session.changes.commit().then =>
+      #
+      # It's important that we force commit the changes before sending.
+      # Once committed, we'll queue a `SyncbackDraftTask`. Since we may be
+      # sending a draft by its serverId, we need to make sure that the
+      # server has the latest changes. It's possible for the
+      # session.changes._pending to be empty if the last SyncbackDraftTask
+      # failed during its performRemote. When we send we should always try
+      # again.
+      session.changes.commit(force: true).then =>
         task = new SendDraftTask(draftClientId, {fromPopout: @_isPopout()})
         Actions.queueTask(task)
         @_doneWithSession(session)
@@ -495,7 +503,10 @@ class DraftStore
     @_draftsSending[draftClientId] = false
     @trigger(draftClientId)
     if atom.isMainWindow()
-      _.defer ->
+      # We delay so the view has time to update the restored draft. If we
+      # don't delay the modal may come up in a state where the draft looks
+      # like it hasn't been restored or has been lost.
+      _.delay ->
         remote = require('remote')
         dialog = remote.require('dialog')
         dialog.showMessageBox remote.getCurrentWindow(), {
@@ -504,5 +515,6 @@ class DraftStore
           message: "Error"
           detail: errorMessage
         }
+      , 100
 
  module.exports = new DraftStore()

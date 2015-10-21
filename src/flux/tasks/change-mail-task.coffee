@@ -156,13 +156,13 @@ class ChangeMailTask extends Task
   performRemote: ->
     @performRequests(@objectClass(), @objectArray()).then =>
       @_ensureLocksRemoved()
-      return Promise.resolve(Task.Status.Finished)
+      return Promise.resolve(Task.Status.Success)
     .catch APIError, (err) =>
       if err.statusCode in NylasAPI.PermanentErrorCodes
         @_isReverting = true
         @performLocal().then =>
           @_ensureLocksRemoved()
-          return Promise.resolve(Task.Status.Finished)
+          return Promise.resolve(Task.Status.Failed)
       else
         return Promise.resolve(Task.Status.Retry)
 
@@ -198,9 +198,11 @@ class ChangeMailTask extends Task
 
   createUndoTask: ->
     if @_isUndoTask
-      throw new Error("ChangeMailTask::createUndoTask Cannot create an undo task from an undo task.")
+      err new Error("ChangeMailTask::createUndoTask Cannot create an undo task from an undo task.")
+      return Promise.resolve([Task.Status.Failed, err])
     if not @_restoreValues
-      throw new Error("ChangeMailTask::createUndoTask Cannot undo a task which has not finished performLocal yet.")
+      err new Error("ChangeMailTask::createUndoTask Cannot undo a task which has not finished performLocal yet.")
+      return Promise.resolve([Task.Status.Failed, err])
 
     task = @createIdenticalTask()
     task._restoreValues = @_restoreValues
@@ -238,7 +240,7 @@ class ChangeMailTask extends Task
   # To ensure that complex offline actions are synced correctly, label/folder additions
   # and removals need to be applied in order. (For example, star many threads,
   # and then unstar one.)
-  shouldWaitForTask: (other) ->
+  isDependentTask: (other) ->
     # Only wait on other tasks that are older and also involve the same threads
     return unless other instanceof ChangeMailTask
     otherOlder = other.creationDate < @creationDate

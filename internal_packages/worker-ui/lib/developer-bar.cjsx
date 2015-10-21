@@ -84,8 +84,14 @@ class DeveloperBar extends React.Component
       queue = @state.queue.filter(matchingFilter)
       queueDivs = for i in [@state.queue.length - 1..0] by -1
         task = @state.queue[i]
+        # We need to pass the task separately because we want to update
+        # when just that variable changes. Otherwise, since the `task`
+        # pointer doesn't change, the `DeveloperBarTask` doesn't know to
+        # update.
+        status = @state.queue[i].queueState.status
         <DeveloperBarTask task={task}
                          key={task.id}
+                         status={status}
                          type="queued" />
 
       queueCompleted = @state.completed.filter(matchingFilter)

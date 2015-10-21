@@ -22,10 +22,19 @@ class SyncbackDraftTask extends Task
     super
 
   shouldDequeueOtherTask: (other) ->
-    other instanceof SyncbackDraftTask and other.draftClientId is @draftClientId and other.creationDate < @creationDate
+    other instanceof SyncbackDraftTask and
+    other.draftClientId is @draftClientId and
+    other.creationDate <= @creationDate
 
-  shouldWaitForTask: (other) ->
-    other instanceof SyncbackDraftTask and other.draftClientId is @draftClientId and other.creationDate < @creationDate
+  isDependentTask: (other) ->
+    other instanceof SyncbackDraftTask and
+    other.draftClientId is @draftClientId and
+    other.creationDate <= @creationDate
+
+  # We want to wait for other SyncbackDraftTasks to run, but we don't want
+  # to get dequeued if they fail.
+  onDependentTaskError: ->
+    return Task.DO_NOT_DEQUEUE_ME
 
   performLocal: ->
     # SyncbackDraftTask does not do anything locally. You should persist your changes
@@ -84,7 +93,7 @@ class SyncbackDraftTask extends Task
               DatabaseStore.persistModel(draft)
 
         .then =>
-          return Promise.resolve(Task.Status.Finished)
+          return Promise.resolve(Task.Status.Success)
 
         .catch APIError, (err) =>
           if err.statusCode in [400, 404, 409] and err.requestOptions?.method is 'PUT'
@@ -92,12 +101,13 @@ class SyncbackDraftTask extends Task
               if not draft then draft = oldDraft
               @detatchFromRemoteID(draft).then ->
                 return Promise.resolve(Task.Status.Retry)
-
-          else if err.statusCode in NylasAPI.PermanentErrorCodes
-            return Promise.resolve(Task.Status.Finished)
-
           else
-            return Promise.resolve(Task.Status.Finished)
+            # NOTE: There's no offline handling. If we're offline
+            # SyncbackDraftTasks should always fail.
+            #
+            # We don't roll anything back locally, but this failure
+            # ensures that SendDraftTasks can never succeed while offline.
+            Promise.resolve([Task.Status.Failed, err])
 
   getLatestLocalDraft: =>
     DatabaseStore.findBy(Message, clientId: @draftClientId).include(Message.attributes.body)

@@ -39,11 +39,14 @@ class EventRSVPTask extends Task
         }
         returnsModel: true
       .then =>
-        return Promise.resolve(Task.Status.Finished)
+        return Promise.resolve(Task.Status.Success)
       .catch APIError, (err) =>
         ##TODO: event already accepted/declined/etc
         @event.participants = @_previousParticipantsState
-        DatabaseStore.persistModel(@event).then(resolve).catch(reject)
+        DatabaseStore.persistModel(@event).then ->
+          resolve(Task.Status.Failed)
+        .catch (err) ->
+          resolve(Task.Status.Failed)
 
   onOtherError: -> Promise.resolve()
   onTimeoutError: -> Promise.resolve()

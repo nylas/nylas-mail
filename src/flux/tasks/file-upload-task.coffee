@@ -35,7 +35,10 @@ class FileUploadTask extends Task
     Actions.uploadStateChanged @_uploadData("started")
 
     DatabaseStore.findBy(Message, {clientId: @messageClientId}).then (draft) =>
-      return Promise.resolve(Task.Status.Finished) unless draft
+      if not draft
+        err new Error("Can't find draft #{@messageClientId} in Database to upload file to")
+        return Promise.resolve([Task.Status.Failed, err])
+
       @_accountId = draft.accountId
 
       @_makeRequest()
@@ -44,17 +47,17 @@ class FileUploadTask extends Task
       .then (file) =>
         Actions.uploadStateChanged @_uploadData("completed")
         Actions.fileUploaded(file: file, uploadData: @_uploadData("completed"))
-        return Promise.resolve(Task.Status.Finished)
+        return Promise.resolve(Task.Status.Success)
       .catch APIError, (err) =>
         if err.statusCode in NylasAPI.PermanentErrorCodes
           msg = "There was a problem uploading this file. Please try again later."
           Actions.uploadStateChanged(@_uploadData("failed"))
           Actions.postNotification({message: msg, type: "error"})
-          return Promise.resolve(Task.Status.Finished)
+          return Promise.resolve([Task.Status.Failed, err])
         else if err.statusCode is NylasAPI.CancelledErrorCode
           Actions.uploadStateChanged(@_uploadData("aborted"))
           Actions.fileAborted(@_uploadData("aborted"))
-          return Promise.resolve(Task.Status.Finished)
+          return Promise.resolve(Task.Status.Failed)
         else
           return Promise.resolve(Task.Status.Retry)
 

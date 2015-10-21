@@ -276,6 +276,7 @@ class Atom extends Model
       @emitError(error)
 
   emitError: (error) ->
+    console.error(error) unless @inSpecMode()
     eventObject = {message: error.message, originalError: error}
     @emitter.emit('will-throw-error', eventObject)
     @emit('uncaught-error', error.message, null, null, null, error)

@@ -21,9 +21,16 @@ class SendDraftTask extends Task
   shouldDequeueOtherTask: (other) ->
     other instanceof SendDraftTask and other.draftClientId is @draftClientId
 
-  shouldWaitForTask: (other) ->
+  isDependentTask: (other) ->
     (other instanceof SyncbackDraftTask and other.draftClientId is @draftClientId) or
     (other instanceof FileUploadTask and other.messageClientId is @draftClientId)
+
+  onDependentTaskError: (task, err) ->
+    if task instanceof SyncbackDraftTask
+      msg = "Your message could not be sent because we could not save your draft. Please check your network connection and try again soon."
+    else if task instanceof FileUploadTask
+      msg = "Your message could not be sent because a file failed to upload. Please try re-uploading your file and try again."
+    @_notifyUserOfError(msg) if msg
 
   performLocal: ->
     # When we send drafts, we don't update anything in the app until
@@ -42,6 +49,11 @@ class SendDraftTask extends Task
       if not draft
         return Promise.reject(new Error("We couldn't find the saved draft."))
 
+      # Just before sending we ask the {DraftStoreProxy} to commit its
+      # changes. This will fire a {SyncbackDraftTask}. Since we will be
+      # sending the draft by its serverId, we must be ABSOLUTELY sure that
+      # the {SyncbackDraftTask} succeeded otherwise we will send an
+      # incomplete or obsolete message.
       if draft.serverId
         body =
           draft_id: draft.serverId
@@ -81,7 +93,7 @@ class SendDraftTask extends Task
           draftClientId: @draftClientId
           newMessage: @draft
 
-        return Promise.resolve(Task.Status.Finished)
+        return Promise.resolve(Task.Status.Success)
       .catch @_permanentError
 
     .catch APIError, (err) =>
@@ -92,16 +104,26 @@ class SendDraftTask extends Task
         body.thread_id = null
         body.reply_to_message_id = null
         return @_send(body)
-      else if (err.statusCode in NylasAPI.PermanentErrorCodes or
-               err.statusCode is NylasAPI.TimeoutErrorCode)
-        @_permanentError()
+      else if err.statusCode is 500
+        msg = "Your message could not be sent at this time. Please try again soon."
+        return @_permanentError(err, msg)
+      else if err.statusCode in [400, 404]
+        msg = "Your message could not be sent at this time. Please try again soon."
+        atom.emitError(new Error("Sending a message responded with #{err.statusCode}!"))
+        return @_permanentError(err, msg)
+      else if err.statusCode is NylasAPI.TimeoutErrorCode
+        msg = "We lost internet connection just as we were trying to send your message! Please wait a little bit to see if it went through. If not, check your internet connection and try sending again."
+        return @_permanentError(err, msg)
       else
         return Promise.resolve(Task.Status.Retry)
 
-  _permanentError: =>
-    msg = "Your draft could not be sent. Please check your network connection and try again."
+  _permanentError: (err, msg) =>
+    @_notifyUserOfError(msg)
+
+    return Promise.resolve([Task.Status.Failed, err])
+
+  _notifyUserOfError: (msg) =>
     if @fromPopout
       Actions.composePopoutDraft(@draftClientId, {errorMessage: msg})
     else
       Actions.draftSendingFailed({draftClientId: @draftClientId, errorMessage: msg})
-    return Promise.resolve(Task.Status.Finished)

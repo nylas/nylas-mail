@@ -33,7 +33,7 @@ class ChangeLabelsTask extends ChangeMailTask
       return "Removed #{@labelsToRemove[0].displayName} from #{@threads.length} #{type}"
     return "Changed labels on #{@threads.length} #{type}"
 
-  shouldWaitForTask: (other) -> other instanceof SyncbackCategoryTask
+  isDependentTask: (other) -> other instanceof SyncbackCategoryTask
 
   performLocal: ->
     if @labelsToAdd.length is 0 and @labelsToRemove.length is 0

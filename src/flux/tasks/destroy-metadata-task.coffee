@@ -57,12 +57,12 @@ class DestroyMetadataTask extends Task
       body: body
       success: =>
         Actions.metadataDestroyed(@type)
-        resolve(Task.Status.Finished)
+        resolve(Task.Status.Success)
       error: (apiError) =>
         Actions.metadataError _.extend @_baseErrorData(),
           errorType: "APIError"
           error: apiError
-        reject(apiError)
+        resolve(Task.Status.Failed)
 
   _baseErrorData: ->
     action: "destroy"
