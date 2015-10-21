@@ -24,12 +24,15 @@ describe 'FileUploadStore', ->
     spyOn(Actions, "queueTask")
 
   describe 'attachFile', ->
-    it "throws if the message id is blank", ->
+    it "throws if no messageClientId is provided", ->
       expect( -> Actions.attachFile()).toThrow()
 
     it "throws if the message id is blank", ->
       spyOn(Actions, "attachFilePath")
-      Actions.attachFile messageClientId: msgId
+      spyOn(fs, 'stat').andCallFake (path, callback) ->
+        callback(null, {size: 1234, isDirectory: -> false})
+
+      Actions.attachFile(messageClientId: msgId)
       expect(atom.showOpenDialog).toHaveBeenCalled()
       expect(Actions.attachFilePath).toHaveBeenCalled()
       args = Actions.attachFilePath.calls[0].args[0]
@@ -37,12 +40,12 @@ describe 'FileUploadStore', ->
       expect(args.path).toBe fpath
 
   describe 'attachFilePath', ->
-    it "throws if the message id is blank", ->
+    it "throws if no messageClientId or path is provided", ->
       expect( -> Actions.attachFilePath()).toThrow()
 
     it 'Creates a new file upload task', ->
       spyOn(fs, 'stat').andCallFake (path, callback) ->
-        callback(null, {isDirectory: -> false})
+        callback(null, {size: 1234, isDirectory: -> false})
       Actions.attachFilePath
         messageClientId: msgId
         path: fpath
@@ -54,7 +57,17 @@ describe 'FileUploadStore', ->
     it 'displays an error if the file path given is a directory', ->
       spyOn(FileUploadStore, '_onAttachFileError')
       spyOn(fs, 'stat').andCallFake (path, callback) ->
-        callback(null, {isDirectory: -> true})
+        callback(null, {size: 1234, isDirectory: -> true})
+      Actions.attachFilePath
+        messageClientId: msgId
+        path: fpath
+      expect(Actions.queueTask).not.toHaveBeenCalled()
+      expect(FileUploadStore._onAttachFileError).toHaveBeenCalled()
+
+    it 'displays an error if the file is more than 25MB', ->
+      spyOn(FileUploadStore, '_onAttachFileError')
+      spyOn(fs, 'stat').andCallFake (path, callback) ->
+        callback(null, {size: 25*1000000+1, isDirectory: -> true})
       Actions.attachFilePath
         messageClientId: msgId
         path: fpath

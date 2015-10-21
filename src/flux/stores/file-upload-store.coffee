@@ -66,6 +66,8 @@ FileUploadStore = Reflux.createStore
         @_onAttachFileError("#{filename} could not be found, or has invalid file permissions.")
       else if stats.isDirectory()
         @_onAttachFileError("#{filename} is a directory. Try compressing it and attaching it again.")
+      else if stats.size > 25 * 1000000
+        @_onAttachFileError("#{filename} cannot be attached because it is larger than 25MB.")
       else
         Actions.queueTask(new FileUploadTask(path, messageClientId))
 
