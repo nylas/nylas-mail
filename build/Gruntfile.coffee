@@ -75,7 +75,7 @@ module.exports = (grunt) ->
 
   [major, minor, patch] = packageJson.version.split('.')
   tmpDir = os.tmpdir()
-  appName = if process.platform is 'darwin' then 'Nylas.app' else 'Nylas'
+  appName = if process.platform is 'darwin' then 'Nylas N1.app' else 'Nylas'
   buildDir = grunt.option('build-dir') ? path.join(tmpDir, 'nylas-build')
   buildDir = path.resolve(buildDir)
   installDir = grunt.option('install-dir')
