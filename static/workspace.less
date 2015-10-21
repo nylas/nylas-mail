@@ -223,13 +223,6 @@ body.is-blurred {
     }
   }
 
-  .toolbar-menu-control {
-    order:10000;
-    padding-top: 5px;
-    .btn { margin-left: 0; }
-    img.content-mask { background-color: @text-color-heading; }
-  }
-
   .btn-toolbar {
     margin-top: @spacing-three-quarters;
     margin-left: @spacing-three-quarters;
@@ -358,7 +351,18 @@ body.platform-win32 {
   &.window-type-default {
     .toolbar-menu-control {
       display:inherit;
+      order:10000;
+      .btn { margin-left: 0; }
+      .btn-toolbar {
+        padding: 0 17px;
+      }
+      img.content-mask {
+        position: relative;
+        top: 30px;
+        background-color: @text-color-heading;
+      }
     }
+
   }
 
   .item-compose {
@@ -384,9 +388,16 @@ body.platform-win32 {
     background-image: none;
     background: @background-primary;
     .btn-toolbar {
+      transition: background 300ms;
+      margin: 0 0 0 1px;
+      height: 49px;
+      padding: 0 14px;
       border: 0;
       box-shadow: none;
       background: none;
+      &:hover {
+        background: #e5e5e5;
+      }
     }
   }
 }
