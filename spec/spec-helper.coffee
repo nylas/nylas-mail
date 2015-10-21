@@ -153,17 +153,14 @@ beforeEach ->
   spyOn(atom.menu, 'sendToBrowserProcess')
 
   # Log in a fake user
-  spyOn(AccountStore, 'current').andCallFake -> new Account
-    name: TEST_ACCOUNT_NAME
-    provider: "gmail"
-    emailAddress: TEST_ACCOUNT_EMAIL
-    organizationUnit: atom.testOrganizationUnit
-    clientId: TEST_ACCOUNT_CLIENT_ID
-    serverId: TEST_ACCOUNT_ID
-    usesLabels: -> atom.testOrganizationUnit is "label"
-    usesFolders: -> atom.testOrganizationUnit is "folder"
-    me: ->
-      new Contact(email: TEST_ACCOUNT_EMAIL, name: TEST_ACCOUNT_NAME)
+  spyOn(AccountStore, 'current').andCallFake ->
+    new Account
+      provider: "gmail"
+      name: TEST_ACCOUNT_NAME
+      emailAddress: TEST_ACCOUNT_EMAIL
+      organizationUnit: atom.testOrganizationUnit
+      clientId: TEST_ACCOUNT_CLIENT_ID
+      serverId: TEST_ACCOUNT_ID
 
   # reset config before each spec; don't load or save from/to `config.json`
   spyOn(Config::, 'load')
