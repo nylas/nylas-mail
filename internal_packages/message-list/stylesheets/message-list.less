@@ -18,7 +18,7 @@ body.platform-win32 {
     .message-toolbar-arrow.down {
       margin: 0 0 0 1px;
       padding: 6px 5px 0 5px;
-      .windows-btn-hover;
+      .windows-btn-bg;
       &:hover {
         background: #e5e5e5;
       }
@@ -30,7 +30,7 @@ body.platform-win32 {
     .message-toolbar-arrow.up {
       margin: 0 0 0 1px;
       padding: 6px 5px 0 5px;
-      .windows-btn-hover;
+      .windows-btn-bg;
       &.btn-icon:hover {
         color: @text-color;
         img.content-mask { background: rgba(35, 31, 32, 0.8); }
@@ -40,6 +40,25 @@ body.platform-win32 {
       &:hover {
         background: transparent;
       }
+    }
+  }
+
+  #message-list {
+    .message-item-wrap {
+      .message-item-white-wrap {
+        border-radius: 0;
+      }
+    }
+    .minified-bundle {
+      .num-messages {
+        border-radius: 0;
+      }
+      .msg-line {
+        border-radius: 0;
+      }
+    }
+    .footer-reply-area-wrap {
+      border-radius: 0;
     }
   }
 }
@@ -148,7 +167,7 @@ body.platform-win32 {
   }
 
   .minified-bundle + .message-item-wrap {
-    margin-top: 0;
+    margin-top: -5px;
   }
 
   .message-item-wrap {
@@ -255,7 +274,7 @@ body.platform-win32 {
       top: 50%;
       left: 50%;
       margin-left: -80px;
-      margin-top: -12px;
+      margin-top: -14px;
       border-radius: 15px;
       border: 1px solid @border-color-divider;
       width: 160px;
@@ -272,15 +291,14 @@ body.platform-win32 {
       max-width: @message-max-width;
       margin: 0 auto;
       width: 100%;
+      margin-top: -13px;
     }
     .msg-line {
       border-radius: 4px 4px 0 0;
       position: relative;
       border-top: 1px solid @border-color-divider;
-      border-right: 1px solid @border-color-divider;
-      border-left: 1px solid @border-color-divider;
       background-color: darken(@background-primary, 2%);
-      box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+      box-shadow: 0 0.5px 0 rgba(0,0,0,0.1), 0 -0.5px 0 rgba(0,0,0,0.1), 0.5px 0 0 rgba(0,0,0,0.1), -0.5px 0 0 rgba(0,0,0,0.1);
     }
   }
 
@@ -326,14 +344,14 @@ body.platform-win32 {
       transition: opacity 100ms, width 150ms;
       transition-delay: 50ms, 0ms;
       transition-timing-function: ease-in-out;
-      width: 98px;
+      width: 99px;
       height: 32px;
       opacity: 1;
       text-align: right;
+    }
 
-      .button-dropdown {
-        width: 76px;
-      }
+    .button-dropdown {
+      width: 77px;
     }
 
     .message-actions-ellipsis {

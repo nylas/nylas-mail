@@ -8,6 +8,44 @@ button, html input[type="button"] {
   }
 }
 
+body.platform-win32 {
+  .btn {
+    .windows-btn-bg;
+    .windows-btn-border;
+
+    &.btn-action {
+      border: 2px solid darken(@btn-action-bg-color, 10%);
+      &:hover {
+        background: @btn-action-bg-color;
+      }
+    }
+
+    &.btn-emphasis {
+      background: @btn-emphasis-bg-color;
+      border: 0;
+
+      &:hover {
+        border-radius: 0;
+        background: darken(@btn-emphasis-bg-color, 10%);
+      }
+    }
+
+    &.btn-emphasis:active {
+      background: @btn-emphasis-bg-color;
+      box-shadow: 0 0 0;
+    }
+
+    &.btn-danger, .btn-destructive {
+      background: @btn-danger-bg-color;
+      border: 0;
+      &:hover {
+        border-radius: 0;
+        background: darken(@btn-danger-bg-color, 10%);
+      }
+    }
+  }
+}
+
 .btn {
   padding: 0.33em 1em;
   border-radius: @border-radius-base;

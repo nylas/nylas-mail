@@ -161,6 +161,10 @@ body.platform-darwin {
     width:70%;
     margin: auto;
 
+    .section-appearance {
+      padding-left: 0;
+    }
+
     .appearance-mode {
       background-color: @background-off-primary;;
       border-radius: 10px;
@@ -169,7 +173,7 @@ body.platform-darwin {
       flex: 1;
       padding:25px;
       padding-bottom:9px;
-      margin:10px;
+      margin-right:10px;
       margin-top:0;
       img {
         background-color: @background-tertiary;
@@ -275,6 +279,12 @@ body.platform-darwin {
   }
 }
 
+body.platform-win32.is-blurred {
+  .preference-header {
+    background: lighten(@toolbar-background-color, 14%);
+  }
+}
+
 body.platform-win32 {
   .preference-header {
     background: #f2f2f2;
@@ -284,7 +294,7 @@ body.platform-win32 {
       margin-right: 1px;
       width: 80px;
       padding-top: 3px;
-      .windows-btn-hover;
+      .windows-btn-bg;
       height: 63px;
 
       color: @text-color;
@@ -299,6 +309,17 @@ body.platform-win32 {
         border-bottom: 2px solid @accent-primary;
         color: @accent-primary;
         .icon img.content-mask { background: @accent-primary; }
+      }
+    }
+  }
+
+  .preferences-wrap {
+    .well {
+      border-radius: 0;
+    }
+    .container-appearance {
+      .appearance-mode {
+        border-radius: 0;
       }
     }
   }

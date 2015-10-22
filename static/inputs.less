@@ -37,3 +37,22 @@ input[type="email"]:focus, {
     box-shadow: 0 0 3px @accent-primary;
   }
 }
+body.platform-win32 {
+  input[type="text"],
+  input[type="email"],
+  input[type="date"],
+  input[type="datetime"],
+  input[type="datetime-local"],
+  input[type="month"],
+  input[type="number"],
+  input[type="password"],
+  input[type="range"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="time"],
+  input[type="url"] {
+    &.input-bordered {
+      border-radius: 0;
+    }
+  }
+}

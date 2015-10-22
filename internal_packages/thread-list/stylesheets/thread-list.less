@@ -216,6 +216,10 @@
 
 
 // quick actions
+@reply-img: "../static/images/thread-list-quick-actions/ic-quick-button-reply@2x.png";
+@archive-img: "../static/images/thread-list-quick-actions/ic-quick-button-archive@2x.png";
+@forward-img: "../static/images/thread-list-quick-actions/ic-quick-button-forward@2x.png";
+@trash-img: "../static/images/thread-list-quick-actions/ic-quick-button-trash@2x.png";
 
 .thread-list .list-item .list-column-HoverActions {
   display:none;
@@ -231,16 +235,39 @@
     margin-right:40px;
   }
   .action.action-reply {
-    background: url(../static/images/thread-list-quick-actions/ic-quick-button-reply@2x.png) top left no-repeat, @background-gradient;
+    background: url(@reply-img) top left no-repeat, @background-gradient;
   }
   .action.action-forward {
-    background: url(../static/images/thread-list-quick-actions/ic-quick-button-forward@2x.png) top left no-repeat, @background-gradient;
+    background: url(@forward-img) top left no-repeat, @background-gradient;
   }
   .action.action-archive {
-    background: url(../static/images/thread-list-quick-actions/ic-quick-button-archive@2x.png) center no-repeat, @background-gradient;
+    background: url(@archive-img) center no-repeat, @background-gradient;
   }
   .action.action-trash {
-    background: url(../static/images/thread-list-quick-actions/ic-quick-button-trash@2x.png) center no-repeat, @background-gradient;
+    background: url(@trash-img) center no-repeat, @background-gradient;
+  }
+}
+body.platform-win32 {
+  .thread-list .list-item .list-column-HoverActions {
+    .action {
+      border: 0;
+      margin: 9px 0 0 0;
+      &:last-child {
+        margin-right: 30px;
+      }
+    }
+    .action.action-reply {
+      background: url(@reply-img) top left no-repeat;
+    }
+    .action.action-forward {
+      background: url(@forward-img) top left no-repeat;
+    }
+    .action.action-archive {
+      background: url(@archive-img) center no-repeat;
+    }
+    .action.action-trash {
+      background: url(@trash-img) center no-repeat;
+    }
   }
 }
 .thread-list .list-item:hover .list-column-HoverActions {

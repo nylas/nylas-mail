@@ -9,6 +9,17 @@
 @compose-width: 800px;
 @compose-min-height: 150px;
 
+body.platform-win32 {
+  .composer-inner-wrap {
+    .composer-action-bar-wrap {
+      .btn {
+        height: 30px;
+        padding-top: 1px;
+      }
+    }
+  }
+}
+
 .composer-inner-wrap {
   position: relative;
   height: 100%;
@@ -431,7 +442,7 @@
     padding: 0 @padding;
   }
 
-  .toolbar-btn {
+  button.btn.toolbar-btn {
     @padding-top: 4px;
     @padding-left: 8px;
 
@@ -460,5 +471,15 @@
       &.btn-underline { background-image: url("images/composer/tooltip-underline-blue@2x.png") }
       &.btn-link { background-image: url("images/composer/tooltip-link-blue@2x.png") }
     }
+  }
+}
+body.platform-win32 {
+  .composer-inner-wrap {
+    .composer-drop-cover {
+      border-radius: 0;
+    }
+  }
+  .floating-toolbar {
+    border-radius: 0;
   }
 }
