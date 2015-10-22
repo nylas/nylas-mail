@@ -51,7 +51,9 @@
     height: 100%;
     width: 100%;
     overflow-y: scroll;
+    z-index: 1; // Important so that content does not repaint with container
   }
+
   .scroll-region-content-inner {
     transform:translate3d(0,0,0);
   }

@@ -60,7 +60,7 @@ class Sheet extends React.Component
          style={style}
          className={"sheet mode-#{@state.mode}"}
          data-id={@props.data.id}>
-      <Flexbox direction="row">
+      <Flexbox direction="row" style={overflow: 'hidden'}>
         {@_columnFlexboxElements()}
       </Flexbox>
     </div>
@@ -83,6 +83,7 @@ class Sheet extends React.Component
         style =
           height: '100%'
           minWidth: minWidth
+          overflow: 'hidden'
         if maxWidth < FLEX
           style.width = maxWidth
         else

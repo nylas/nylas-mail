@@ -16,6 +16,7 @@ class AccountSidebarMailViewItem extends React.Component
 
   @propTypes:
     select: React.PropTypes.bool
+    item: React.PropTypes.object.isRequired
     mailView: React.PropTypes.object.isRequired
 
   constructor: (@props) ->
@@ -53,7 +54,7 @@ class AccountSidebarMailViewItem extends React.Component
       {unread}
 
       <div className="icon">{@_renderIcon()}</div>
-      <div className="name">{@props.mailView.name}</div>
+      <div className="name">{@props.item.name}</div>
     </DropZone>
 
   _renderIcon: ->
