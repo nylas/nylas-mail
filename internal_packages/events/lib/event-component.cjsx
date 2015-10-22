@@ -3,10 +3,11 @@ path = require 'path'
 React = require 'react'
 {RetinaImg} = require 'nylas-component-kit'
 {Actions,
+Event,
 Utils,
 ComponentRegistry,
-EventStore,
 AccountStore} = require 'nylas-exports'
+EventRSVPTask = require './tasks/event-rsvp'
 moment = require 'moment-timezone'
 
 class EventComponent extends React.Component
@@ -16,20 +17,27 @@ class EventComponent extends React.Component
     event: React.PropTypes.object.isRequired
 
   constructor: (@props) ->
-    @state = @_getStateFromStores()
+    # Since getting state is asynchronous, default to empty values
+    @state = @_nullEvent()
+
+  _nullEvent: ->
+    participants: []
+    title: ""
+    when: {start_time: 0}
 
   _onChange: =>
-    @setState(@_getStateFromStores())
+    DatabaseStore.find(Event, @props.event.id).then (event) =>
+      event ?= @_nullEvent()
+      @setState(event)
 
-  _getStateFromStores: ->
-    e = EventStore.getEvent(@props.event.id)
-    e ?= @props.event
+  componentDidMount: -> @_onChange()
 
   componentWillMount: ->
-    @unsub = EventStore.listen(@_onChange)
+    @usubs.push DatabaseStore.listen (change) =>
+      @_onChange() if change.objectClass is Event.name
+    @usubs.push AccountStore.listen(@_onChange)
 
-  componentWillUnmount: ->
-    @unsub()
+  componentWillUnmount: -> usub?() for usub in @usubs()
 
   _myStatus: =>
     myEmail = AccountStore.current()?.me().email
@@ -72,7 +80,7 @@ class EventComponent extends React.Component
     classes = "btn-rsvp"
     if @_myStatus() == "yes"
       classes += " yes"
-    <div className=classes onClick={@_onClickAccept}>
+    <div className=classes onClick={=> @_rsvp("yes")}>
       Accept
     </div>
 
@@ -80,7 +88,7 @@ class EventComponent extends React.Component
     classes = "btn-rsvp"
     if @_myStatus() == "no"
       classes += " no"
-    <div className=classes onClick={@_onClickDecline}>
+    <div className=classes onClick={=> @_rsvp("no")}>
       Decline
     </div>
 
@@ -88,15 +96,12 @@ class EventComponent extends React.Component
     classes = "btn-rsvp"
     if @_myStatus() == "maybe"
       classes += " maybe"
-    <div className=classes onClick={@_onClickMaybe}>
+    <div className=classes onClick={=> @_rsvp("maybe")}>
       Maybe
     </div>
 
-  _onClickAccept: => Actions.RSVPEvent(@state, "yes")
-
-  _onClickDecline: => Actions.RSVPEvent(@state, "no")
-
-  _onClickMaybe: => Actions.RSVPEvent(@state, "maybe")
+  _rsvp: (status) ->
+    Acitions.queueTask(new EventRSVPTask(@state, status))
 
 
 module.exports = EventComponent

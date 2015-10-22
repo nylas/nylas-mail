@@ -97,7 +97,6 @@ class NylasExports
   # These need to be required immediately since some Stores are
   # listen-only and not explicitly required from anywhere. Stores
   # currently set themselves up on require.
-  @require "EventStore", 'flux/stores/event-store'
   @require "DraftStore", 'flux/stores/draft-store'
   @require "AccountStore", 'flux/stores/account-store'
   @require "MessageStore", 'flux/stores/message-store'
