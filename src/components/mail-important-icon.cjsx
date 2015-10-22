@@ -13,14 +13,14 @@ class MailImportantIcon extends React.Component
     thread: React.PropTypes.object
 
   constructor: (@props) ->
-    @state = @getStateFromStores()
+    @state = @getState()
 
-  getStateFromStores: =>
-    showing: AccountStore.current().usesImportantFlag() and atom.config.get('core.showImportant')
+  getState: =>
+    showing: AccountStore.current()?.usesImportantFlag() and atom.config.get('core.showImportant')
 
   componentDidMount: =>
     @subscription = atom.config.observe 'core.showImportant', =>
-      @setState(@getStateFromStores())
+      @setState(@getState())
 
   componentWillUnmount: =>
     @subscription?.dispose()
