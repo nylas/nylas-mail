@@ -15,7 +15,6 @@ class SpellcheckDraftStoreExtension extends DraftStoreExtension
 
   @onLearnSpelling: (editableNode, word) ->
     delete SpellcheckCache[word]
-    @ensureSetup()
     @walkTree(editableNode)
 
   @walkTree: (editableNode) =>
@@ -55,7 +54,7 @@ class SpellcheckDraftStoreExtension extends DraftStoreExtension
           # Do not mark it until the user types a space or leaves.
           if selectionSnapshot.focusNode is node and selectionSnapshot.focusOffset is match.index + match[0].length
             continue
-          
+
           if spellingSpan
             spellingSpan.classList.add('misspelled')
           else
