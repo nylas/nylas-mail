@@ -11,7 +11,7 @@ This documentation describes using [Jasmine 1.3](http://jasmine.github.io/1.3/in
 
 ### Running Specs
 
-You can run your package specs from `Developer > Run Package Specs...`. Once you've opened the spec window, you can see output and re-run your specs by clicking `Reload Specs`.
+You can run your package specs from `Developer > Run Plugin Specs...`. Once you've opened the spec window, you can see output and re-run your specs by clicking `Reload Specs`.
 
 ### Writing Specs
 

@@ -24,8 +24,8 @@ N1 is available for Mac, Windows, and Linux. Download the latest build for your 
 Packages lie at the heart of N1. Each part of the core experience is a separate package that uses the Nylas Package API to add functionality to the client. Learn more about packages and create your first package.
 </p>
 <ul>
-<li><a href="/sdk/getting-started">Create a Package</a></li>
-<li><a href="/sdk/packageoverview">Package Overview</a></li>
+<li><a href="/sdk/getting-started">Create a Plugin</a></li>
+<li><a href="/sdk/packageoverview">Plugin Overview</a></li>
 </ul>
 
 </td></tr>

@@ -79,8 +79,8 @@ blockquote p {
 
 <div class="row">
   <div class="col-md-8">
-    <h3 class="second padded"><div class="number">2</div> Start a Package</h3>
-    <p>Packages lie at the heart of N1. The thread list, composer and other core parts of the app are packages bundled with the app, and you have access to the same set of APIs. From the Developer Menu, choose <span class="instruction-literal">Create a Package...</span> and name your new package.</p>
+    <h3 class="second padded"><div class="number">2</div> Start a Plugin</h3>
+    <p>Plugins lie at the heart of N1. The thread list, composer and other core parts of the app are plugins bundled with the app, and you have access to the same set of APIs. From the Developer Menu, choose <span class="instruction-literal">Create a Plugin...</span> and name your new plugin.</p>
   </div>
   <div class="col-md-4">
     <img src="./images/Step2-Menu@2x.png" width="203" height="194" style="margin-top:88px;"/>
@@ -90,7 +90,7 @@ blockquote p {
 <div class="row">
   <div class="col-md-12">
     <h3 class="third padded"><div class="number">3</div> See it in Action</h3>
-    <p>Your new package comes with some basic code that adds a section to the message sidebar, and it's already enabled! View a message to see it in action. If you make changes to the source, choose <span class="instruction-literal">View > Refresh</span> to see your changes in N1.</p>
+    <p>Your new plugin comes with some basic code that adds a section to the message sidebar, and it's already enabled! View a message to see it in action. If you make changes to the source, choose <span class="instruction-literal">View > Refresh</span> to see your changes in N1.</p>
   </div>
 </div>
 
@@ -98,7 +98,7 @@ blockquote p {
 
 <div class="row">
   <div class="col-md-12">
-    <h2 class="continue"><a href="getting-started-2">Step 2: Build your first package</a></h2>
+    <h2 class="continue"><a href="getting-started-2">Step 2: Build your first plugin</a></h2>
   </div>
 </div>
 
@@ -108,28 +108,28 @@ blockquote p {
   <div class="col-md-6" style="padding-right:30px;">
     <h4><div class="letter">A</div> Explore the source</h4>
     <img src="./images/Illu-ExploreTheSource@2x.png" width="121" height="96" style="margin:auto; margin-bottom:35px; display:block;"/>
-    <p>Nylas is built on the modern web - packages are written in CoffeeScript or JavaScript. Packages are a lot like node modules, with their own source, assets, and tests. Check out yours in <span class="instruction-literal">~/.nylas/dev/packages</span>.</p>
+    <p>Nylas is built on the modern web - plugins are written in CoffeeScript or JavaScript. Plugins are a lot like node modules, with their own source, assets, and tests. Check out yours in <span class="instruction-literal">~/.nylas/dev/packages</span>.</p>
   </div>
   <div class="col-md-6" style="padding-left:30px;">
     <h4><div class="letter">B</div> Run the specs</h4>
     <img src="./images/illu-RunTheSpecs@2x.png" width="139" height="96" style="margin:auto; margin-bottom:35px; display:block;"/>
-    <p>In N1, select <span class="instruction-literal">Developer > Run Package Specs...</span> from the menu to run your package's new specs. Nylas and its packages use the Jasmine testing framework.</p>
+    <p>In N1, select <span class="instruction-literal">Developer > Run Plugin Specs...</span> from the menu to run your plugin's new specs. Nylas and its plugins use the Jasmine testing framework.</p>
   </div>
 </div>
 
-<h2 class="gsg-header">Step 3: Building your first package</h2>
+<h2 class="gsg-header">Step 3: Building your first plugin</h2>
 
-If you followed the [first part](getting-started) of our Getting Started Guide, you should have a brand new package just waiting to be explored.
+If you followed the [first part](getting-started) of our Getting Started Guide, you should have a brand new plugin just waiting to be explored.
 
-This sample package simply adds the name of the currently focused contact to the sidebar:
+This sample plugin simply adds the name of the currently focused contact to the sidebar:
 
 <img class="gsg-center" src="images/sidebar-example.png"/>
 
-We're going to build on this to show the sender's [Gravatar](http://gravatar.com) image in the sidebar, instead of just their name. You can check out the full code for the package [in the sample packages repository](https://github.com/nylas/edgehill-plugins/tree/master/sidebar-gravatar).
+We're going to build on this to show the sender's [Gravatar](http://gravatar.com) image in the sidebar, instead of just their name. You can check out the full code for the plugin [in the sample plugins repository](https://github.com/nylas/edgehill-plugins/tree/master/sidebar-gravatar).
 
-Find the package source in `~/.nylas/dev/packages` and open the contents in your favorite text editor.
+Find the plugin source in `~/.nylas/dev/plugins` and open the contents in your favorite text editor.
 
-> We use [CJSX](https://github.com/jsdf/coffee-react), a [CoffeeScript](http://coffeescript.org/) syntax for [JSX](https://facebook.github.io/react/docs/jsx-in-depth.html), to streamline our package code.
+> We use [CJSX](https://github.com/jsdf/coffee-react), a [CoffeeScript](http://coffeescript.org/) syntax for [JSX](https://facebook.github.io/react/docs/jsx-in-depth.html), to streamline our plugin code.
  For syntax highlighting, we recommend [Babel](https://github.com/babel/babel-sublime) for Sublime, or the [CJSX Language](https://atom.io/packages/language-cjsx) Atom package.
 
 ### Changing the data
@@ -149,13 +149,13 @@ _renderContent: =>
   </div>
 ```
 
-After making changes to the package, reload N1 by going to `View > Reload`.
+After making changes to the plugin, reload N1 by going to `View > Reload`.
 
 ### Installing a dependency
 
 Now we've figured out how to show the contact's email address, we can use that to generate the [Gravatar](http://gravatar.com) for the contact. However, as per the [Gravatar documentation](https://en.gravatar.com/site/implement/images/), we need to be able to calculate the MD5 hash for an email address first.
 
-Let's install the `md5` package and save it as a dependency in our `package.json`:
+Let's install the `md5` plugin and save it as a dependency in our `package.json`:
 
 ```bash
 $ npm install md5 --save
@@ -229,11 +229,11 @@ You'll see these styles reflected in your sidebar.
 
 <img class="gsg-center" src="images/sidebar-style.png"/>
 
-If you're a fan of using the Chrome Developer Tools to tinker with styles, no fear; they work in N1, too. Open them by going to `Developer > Toggle Developer Tools`. You'll also find them helpful for debugging in the event that your package isn't behaving as expected.
+If you're a fan of using the Chrome Developer Tools to tinker with styles, no fear; they work in N1, too. Open them by going to `Developer > Toggle Developer Tools`. You'll also find them helpful for debugging in the event that your plugin isn't behaving as expected.
 
 <hr/>
 
-<h2 class="continue"><a href="getting-started-3">Continue this guide: adding a data store to your package</a></h2>
+<h2 class="continue"><a href="getting-started-3">Continue this guide: adding a data store to your plugin</a></h2>
 
 <hr/>
 
@@ -263,7 +263,7 @@ We've already used this (without realizing) in the [Gravatar sidebar example](ge
 
 In this case, the sidebar listens to the `FocusedContactsStore`, which updates when the person selected in the conversation changes. This triggers the `_onChange` method which updates the component state; this causes React to render the view with the new state.
 
-To add more depth to our sidebar package, we need to:
+To add more depth to our sidebar plugin, we need to:
 
 * Create our own data store which will listen to `FocusedContactsStore`
 * Extend our data store to do additional things with the contact data
@@ -369,6 +369,6 @@ For example:
 
 ## Extending The Store
 
-To make this package more compelling, we can extend the store to make further API requests and fetch more data about the user. Passing this data back to the UI component follows exactly the same pattern as the barebones data shown above, so we'll leave it as an exercise for  the reader. :)
+To make this plugin more compelling, we can extend the store to make further API requests and fetch more data about the user. Passing this data back to the UI component follows exactly the same pattern as the barebones data shown above, so we'll leave it as an exercise for  the reader. :)
 
-> You can find a more extensive version of this example in our [sample packages repository](https://github.com/nylas/edgehill-plugins/tree/master/sidebar-github-profile).
+> You can find a more extensive version of this example in our [sample plugins repository](https://github.com/nylas/edgehill-plugins/tree/master/sidebar-github-profile).
