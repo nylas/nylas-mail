@@ -74,13 +74,21 @@ class FeedbackButton extends React.Component
         'height': height,
         'title': 'Feedback'
 
+      onOpenURL = (event, href) ->
+        shell = require 'shell'
+        shell.openExternal(href)
+        event.preventDefault()
+
       # Disable window close, hide instead
       w.on 'close', (event) ->
         # inside the window we prevent close - here we route close to hide
         event.preventDefault() # this does nothing, contrary to the docs
         w.hide()
       w.on 'closed', (event) ->
-        window.feedbackWindow = null # if the window does get closed, clear our ref to it
+        # if the window does get closed, clear our ref to it
+        window.feedbackWindow = null
+      w.webContents.on('new-window', onOpenURL)
+      w.webContents.on('will-navigate', onOpenURL)
 
       url = path.join __dirname, '..', 'feedback.html'
       w.loadUrl("file://#{url}?#{params}")
