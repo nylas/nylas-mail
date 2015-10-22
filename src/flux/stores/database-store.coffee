@@ -8,6 +8,7 @@ Utils = require '../models/utils'
 Actions = require '../actions'
 ModelQuery = require '../models/query'
 NylasStore = require '../../global/nylas-store'
+PromiseQueue = require 'promise-queue'
 DatabaseSetupQueryBuilder = require './database-setup-query-builder'
 PriorityUICoordinator = require '../../priority-ui-coordinator'
 
@@ -468,18 +469,18 @@ class DatabaseStore extends NylasStore
       Promise.resolve(data)
 
   atomically: (fn) =>
-    @_atomicPromise ?= Promise.resolve()
-    @_atomicPromise = @_atomicPromise.then =>
-      @_atomically(fn)
-    return @_atomicPromise
+    maxConcurrent = 1
+    maxQueue = Infinity
+    @_promiseQueue ?= new PromiseQueue(maxConcurrent, maxQueue)
+    return @_promiseQueue.add(=> @_atomically(fn))
 
   _atomically: (fn) ->
     @_query("BEGIN EXCLUSIVE TRANSACTION")
     .then =>
       fn()
-    .then (val) =>
-      @_query("COMMIT").then =>
-        Promise.resolve(val)
+    .finally (val) => @_query("COMMIT")
+    # NOTE: The value that `fn` resolves to is propagated all the way back to
+    # the originally caller of `atomically`
 
   ########################################################################
   ########################### PRIVATE METHODS ############################

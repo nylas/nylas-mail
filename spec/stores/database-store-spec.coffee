@@ -343,13 +343,22 @@ describe "DatabaseStore", ->
           expect(@performed[1].query).toBe "TEST"
           expect(@performed[2].query).toBe "COMMIT"
 
-    it "resolves, but doesn't fire a commit on failure", ->
+    it "preserves resolved values", ->
+      waitsForPromise =>
+        DatabaseStore.atomically( =>
+          DatabaseStore._query("TEST")
+          return Promise.resolve("myValue")
+        ).then (myValue) =>
+          expect(myValue).toBe "myValue"
+
+    it "always fires a COMMIT, even if the promise fails", ->
       waitsForPromise =>
         DatabaseStore.atomically( =>
           throw new Error("BOOO")
         ).catch =>
-          expect(@performed.length).toBe 1
+          expect(@performed.length).toBe 2
           expect(@performed[0].query).toBe "BEGIN EXCLUSIVE TRANSACTION"
+          expect(@performed[1].query).toBe "COMMIT"
 
     it "can be called multiple times and get queued", ->
       waitsForPromise =>
@@ -365,6 +374,64 @@ describe "DatabaseStore", ->
           expect(@performed[3].query).toBe "COMMIT"
           expect(@performed[4].query).toBe "BEGIN EXCLUSIVE TRANSACTION"
           expect(@performed[5].query).toBe "COMMIT"
+
+    it "carries on if one of them fails, but still calls the COMMIT for the failed block", ->
+      caughtError = false
+      DatabaseStore.atomically( => DatabaseStore._query("ONE") )
+      DatabaseStore.atomically( => throw new Error("fail") ).catch ->
+        caughtError = true
+      DatabaseStore.atomically( => DatabaseStore._query("THREE") )
+      advanceClock(100)
+      expect(@performed.length).toBe 8
+      expect(@performed[0].query).toBe "BEGIN EXCLUSIVE TRANSACTION"
+      expect(@performed[1].query).toBe "ONE"
+      expect(@performed[2].query).toBe "COMMIT"
+      expect(@performed[3].query).toBe "BEGIN EXCLUSIVE TRANSACTION"
+      expect(@performed[4].query).toBe "COMMIT"
+      expect(@performed[5].query).toBe "BEGIN EXCLUSIVE TRANSACTION"
+      expect(@performed[6].query).toBe "THREE"
+      expect(@performed[7].query).toBe "COMMIT"
+      expect(caughtError).toBe true
+
+    it "is actually running in series and blocks on never-finishing specs", ->
+      resolver = null
+      DatabaseStore.atomically( -> )
+      advanceClock(100)
+      expect(@performed.length).toBe 2
+      expect(@performed[0].query).toBe "BEGIN EXCLUSIVE TRANSACTION"
+      expect(@performed[1].query).toBe "COMMIT"
+      DatabaseStore.atomically( -> new Promise (resolve, reject) -> resolver = resolve)
+      advanceClock(100)
+      blockedPromiseDone = false
+      DatabaseStore.atomically( -> ).then =>
+        blockedPromiseDone = true
+      advanceClock(100)
+      expect(@performed.length).toBe 3
+      expect(@performed[2].query).toBe "BEGIN EXCLUSIVE TRANSACTION"
+      expect(blockedPromiseDone).toBe false
+
+      # Now that we've made our assertion about blocking, we need to clean up
+      # our test and actually resolve that blocked promise now, otherwise
+      # remaining tests won't run properly.
+      advanceClock(100)
+      resolver()
+      advanceClock(100)
+      expect(blockedPromiseDone).toBe true
+      advanceClock(100)
+
+    it "can be called multiple times and preserve return values", ->
+      waitsForPromise =>
+        v1 = null
+        v2 = null
+        v3 = null
+        Promise.all([
+          DatabaseStore.atomically( -> "a" ).then (val) -> v1 = val
+          DatabaseStore.atomically( -> "b" ).then (val) -> v2 = val
+          DatabaseStore.atomically( -> "c" ).then (val) -> v3 = val
+        ]).then =>
+          expect(v1).toBe "a"
+          expect(v2).toBe "b"
+          expect(v3).toBe "c"
 
     it "can be called multiple times and get queued", ->
       waitsForPromise =>
