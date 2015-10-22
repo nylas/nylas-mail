@@ -422,6 +422,10 @@ class WindowManager
   # Public: Removes the {AtomWindow} from the global window list.
   removeWindow: (window) ->
     @_windows.splice @_windows.indexOf(window), 1
+    if window is @_mainWindow
+      @_mainWindow = null
+    if window is @_workWindow
+      @_workWindow = null
     @applicationMenu?.enableWindowSpecificItems(false) if @_windows.length == 0
     @windowClosedOrHidden()
 
