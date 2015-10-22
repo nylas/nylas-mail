@@ -407,10 +407,16 @@ class DraftStore
     title = if options.newDraft then "New Message" else "Message"
 
     save.then =>
-      atom.newWindow
-        title: title
-        windowType: "composer"
-        windowProps: _.extend(options, {draftClientId})
+      app = require('remote').getGlobal('application')
+      existing = app.windowManager.windowWithPropsMatching({draftClientId})
+      if existing
+        existing.restore() if existing.isMinimized()
+        existing.focus()
+      else
+        atom.newWindow
+          title: title
+          windowType: "composer"
+          windowProps: _.extend(options, {draftClientId})
 
   _onHandleMailtoLink: (urlString) =>
     account = AccountStore.current()
