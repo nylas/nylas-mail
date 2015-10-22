@@ -1,7 +1,7 @@
 React = require "react/addons"
 classNames = require 'classnames'
 {RetinaImg} = require 'nylas-component-kit'
-{Actions, FocusedContentStore} = require "nylas-exports"
+{Actions, FocusedContentStore, DestroyDraftTask} = require "nylas-exports"
 
 class DraftDeleteButton extends React.Component
   @displayName: 'DraftDeleteButton'
