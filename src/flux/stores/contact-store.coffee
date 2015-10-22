@@ -177,6 +177,8 @@ class ContactStore extends NylasStore
       @trigger()
     .catch (err) =>
       console.warn("Request for Contacts failed. #{err}")
+    return true
+
   _refreshCache: _.debounce(ContactStore::__refreshCache, 100)
 
   _sortContactsCacheWithRankings: =>
