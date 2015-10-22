@@ -52,9 +52,9 @@ describe "ContactStore", ->
 
     it "triggers a sort on a contact refresh", ->
       spyOn(ContactStore, "_sortContactsCacheWithRankings")
-      waitsForPromise ->
-        ContactStore.__refreshCache().then -> # Non debounced version
-          expect(ContactStore._sortContactsCacheWithRankings).toHaveBeenCalled()
+      ContactStore.__refreshCache()
+      advanceClock(100)
+      expect(ContactStore._sortContactsCacheWithRankings).toHaveBeenCalled()
 
     it "sorts the contact cache by the rankings", ->
       spyOn(ContactRankingStore, 'value').andReturn
