@@ -8,7 +8,12 @@
   background-color: @source-list-bg;
 
   section {
-    padding-bottom: @padding-base-vertical;
+    margin-bottom: @padding-base-vertical;
+
+    section {
+      padding-left: @padding-base-horizontal * 1.3;
+      margin-bottom: 0;
+    }
   }
 
   .heading {
@@ -20,15 +25,45 @@
     letter-spacing: -0.2px;
   }
 
+  .item-container {
+    display:flex;
+    align-items: center;
+
+    .disclosure-triangle {
+      flex-shrink: 0;
+      padding:7px;
+      width:20px;
+      visibility: hidden;
+
+      div {
+        transform:rotate(90deg);
+        transition: transform 90ms linear;
+        border-top: 4px solid transparent;
+        border-bottom: 4px solid transparent;
+        border-left: 7px solid @text-color-very-subtle;
+      }
+
+      &.visible {
+        visibility: visible;
+      }
+      &.collapsed {
+        div {
+          transform:rotate(0deg);
+        }
+      }
+    }
+  }
+
   .item {
     color: @text-color-subtle;
+    flex: 1;
     img.content-mask {
       background-color: @text-color-subtle;
       vertical-align: text-bottom;
     }
     font-size: @font-size-small;
     font-weight: 400;
-    padding: 0 @spacing-standard;
+    padding-right: @spacing-standard;
     line-height: @line-height-large * 1.1;
     clear: both;
 
@@ -42,7 +77,7 @@
       float: left;
     }
     .name {
-      padding-left: @padding-small-horizontal;
+      padding-left: @padding-small-horizontal * 0.85;
       position:relative;
       top:1px;
       overflow: hidden;

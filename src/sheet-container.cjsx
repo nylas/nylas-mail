@@ -34,7 +34,7 @@ class SheetContainer extends React.Component
 
     sheetElements = @_sheetElements()
 
-    <Flexbox direction="column" className="layout-mode-#{@state.mode}">
+    <Flexbox direction="column" className="layout-mode-#{@state.mode}" style={overflow: 'hidden'}>
       {@_toolbarContainerElement()}
 
       <div name="Header" style={order:1, zIndex: 2}>

@@ -1,4 +1,5 @@
 React = require 'react'
+_ = require 'underscore'
 {Actions, MailViewFilter, WorkspaceStore} = require("nylas-exports")
 {ScrollRegion, Flexbox} = require("nylas-component-kit")
 SidebarDividerItem = require("./account-sidebar-divider-item")
@@ -6,6 +7,21 @@ SidebarSheetItem = require("./account-sidebar-sheet-item")
 AccountSidebarStore = require ("./account-sidebar-store")
 AccountSidebarMailViewItem = require("./account-sidebar-mail-view-item")
 {RetinaImg} = require 'nylas-component-kit'
+
+class DisclosureTriangle extends React.Component
+  @displayName: 'DisclosureTriangle'
+
+  @propTypes:
+    collapsed: React.PropTypes.bool
+    visible: React.PropTypes.bool
+    onToggleCollapsed: React.PropTypes.func.isRequired
+
+  render: ->
+    classnames = "disclosure-triangle"
+    classnames += " visible" if @props.visible
+    classnames += " collapsed" if @props.collapsed
+    <div className={classnames} onClick={@props.onToggleCollapsed}><div></div></div>
+
 
 class AccountSidebar extends React.Component
   @displayName: 'AccountSidebar'
@@ -17,6 +33,7 @@ class AccountSidebar extends React.Component
 
   constructor: (@props) ->
     @state = @_getStateFromStores()
+    @state.collapsed = {}
 
   componentDidMount: =>
     @unsubscribers = []
@@ -36,40 +53,65 @@ class AccountSidebar extends React.Component
     @state.sections.map (section) =>
       <section key={section.label}>
         <div className="heading">{section.label}</div>
-        {@_itemComponents(section)}
+        {@_itemComponents(section.items)}
       </section>
 
-  _itemComponents: (section) =>
-    section.items.map (item) =>
-      unless item instanceof WorkspaceStore.SidebarItem
-        throw new Error("AccountSidebar:_itemComponents: sections contained an \
-                         item which was not a SidebarItem")
+  _itemComponents: (items) =>
+    components = []
 
-      if item.component
-        Component = item.component
-        <Component
-          key={item.id}
-          item={item}
-          select={item.id is @state.selected?.id } />
+    items.forEach (item) =>
+      components.push(
+        <span key={item.id} className="item-container">
+          <DisclosureTriangle
+            collapsed={@state.collapsed[item.id]}
+            visible={item.children.length > 0}
+            onToggleCollapsed={ => @_onToggleCollapsed(item.id)}/>
+          {@_itemComponent(item)}
+        </span>
+      )
 
-      else if item.mailViewFilter
-        <AccountSidebarMailViewItem
-          key={item.id}
-          mailView={item.mailViewFilter}
-          select={item.mailViewFilter.isEqual(@state.selected)} />
+      if item.children.length and not @state.collapsed[item.id]
+        components.push(
+          <section key={"#{item.id}-children"}>
+            {@_itemComponents(item.children)}
+          </section>
+        )
 
-      else if item.sheet
-        <SidebarSheetItem
-          key={item.id}
-          item={item}
-          select={item.sheet.id is @state.selected?.id} />
+    components
 
-      else
-        throw new Error("AccountSidebar:_itemComponents: each item must have a \
-                         custom component, or a sheet or mailViewFilter")
+  _itemComponent: (item) =>
+    unless item instanceof WorkspaceStore.SidebarItem
+      throw new Error("AccountSidebar:_itemComponents: sections contained an \
+                       item which was not a SidebarItem")
+
+    if item.component
+      Component = item.component
+      <Component
+        item={item}
+        select={item.id is @state.selected?.id } />
+
+    else if item.mailViewFilter
+      <AccountSidebarMailViewItem
+        item={item}
+        mailView={item.mailViewFilter}
+        select={item.mailViewFilter.isEqual(@state.selected)} />
+
+    else if item.sheet
+      <SidebarSheetItem
+        item={item}
+        select={item.sheet.id is @state.selected?.id} />
+
+    else
+      throw new Error("AccountSidebar:_itemComponents: each item must have a \
+                       custom component, or a sheet or mailViewFilter")
 
   _onStoreChange: =>
     @setState @_getStateFromStores()
+
+  _onToggleCollapsed: (itemId) =>
+    collapsed = _.clone(@state.collapsed)
+    collapsed[itemId] = !collapsed[itemId]
+    @setState({collapsed})
 
   _getStateFromStores: =>
     sections: AccountSidebarStore.sections()
