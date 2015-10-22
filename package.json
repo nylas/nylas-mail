@@ -50,6 +50,7 @@
     "optimist": "0.4.0",
     "pathwatcher": "^4.4.0",
     "property-accessors": "^1",
+    "promise-queue": "2.1.1",
     "q": "^1.0.1",
     "raven": "0.7.2",
     "react": "^0.13.2",

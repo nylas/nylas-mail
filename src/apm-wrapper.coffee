@@ -210,7 +210,6 @@ class APMWrapper
       if code is 0
         callback?()
       else
-        atom.packages.activatePackage(name) if activateOnFailure
         error = new Error(errorMessage)
         error.stdout = stdout
         error.stderr = stderr
