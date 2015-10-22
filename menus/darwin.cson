@@ -63,10 +63,10 @@
       { type: 'separator' }
       { label: 'Open Activity Window', command: 'application:show-work-window' }
       { type: 'separator' }
-      { label: 'Create a Package...', command: 'application:create-package' }
-      { label: 'Install a Package Manually...', command: 'application:install-package' }
+      { label: 'Create a Plugin...', command: 'application:create-package' }
+      { label: 'Install a Plugin Manually...', command: 'application:install-package' }
       { type: 'separator' }
-      { label: 'Run Package Specs...', command: 'application:run-package-specs' }
+      { label: 'Run Plugin Specs...', command: 'application:run-package-specs' }
       { label: 'Run N1 Specs', command: 'application:run-all-specs' }
       { type: 'separator' }
       { label: 'Open Detailed Logs', command: 'window:open-errorreporter-logs' }
