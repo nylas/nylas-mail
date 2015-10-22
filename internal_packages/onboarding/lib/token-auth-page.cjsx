@@ -64,7 +64,7 @@ class TokenAuthPage extends React.Component
 
   _renderWaitingForTokenAuthAnswer: =>
     if @state.tokenAuthEnabledError
-      <div style={position:'absolute', width:'100%', padding:60, paddingTop:100} key="error">
+      <div style={position:'absolute', width:'100%', padding:60, paddingTop:135} key="error">
         <div className="errormsg">{@state.tokenAuthEnabledError}</div>
         <button key="retry"
                 style={marginTop: 15}
@@ -77,7 +77,7 @@ class TokenAuthPage extends React.Component
       <div style={position:'absolute', width:'100%'} key="spinner">
         <RetinaImg url="nylas://onboarding/assets/installing-spinner.gif"
                    mode={RetinaImg.Mode.ContentPreserve}
-                   style={marginTop: 150}/>
+                   style={marginTop: 190}/>
       </div>
 
   _renderInput: =>

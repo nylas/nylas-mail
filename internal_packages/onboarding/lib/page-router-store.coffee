@@ -17,7 +17,6 @@ class PageRouterStore extends NylasStore
     @_pageStack = [{page: @_page, pageData: @_pageData}]
 
     @_checkTokenAuthStatus()
-
     @listenTo OnboardingActions.moveToPreviousPage, @_onMoveToPreviousPage
     @listenTo OnboardingActions.moveToPage, @_onMoveToPage
     @listenTo OnboardingActions.closeWindow, @_onCloseWindow
