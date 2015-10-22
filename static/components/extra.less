@@ -1,4 +1,5 @@
 @import "ui-variables";
+@import "ui-mixins";
 
 .quoted-text-control {
   color: @text-color-very-subtle;
@@ -23,6 +24,20 @@
     top:-1px;
     position:relative;
     padding-right:8px;
+  }
+}
+
+body.platform-win32 {
+  .quoted-text-control {
+    .windows-btn-bg;
+    .windows-btn-border;
+    &:hover {
+      color: @text-color-very-subtle;
+      .windows-btn-border;
+    }
+  }
+  .mail-label {
+    border-radius: 0;
   }
 }
 

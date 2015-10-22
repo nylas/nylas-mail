@@ -10,10 +10,13 @@ LabelColorizer =
   backgroundColorDark: (label) -> "hsl(#{label.hue()}, 62%, 57%)"
 
   styles: (label) ->
-    color: LabelColorizer.color(label)
-    backgroundColor: LabelColorizer.backgroundColor(label)
-    boxShadow: "inset 0 0 1px hsl(#{label.hue()}, 62%, 47%), inset 0 1px 1px rgba(255,255,255,0.5), 0 0.5px 0 rgba(255,255,255,0.5)"
-    backgroundImage: 'linear-gradient(rgba(255,255,255, 0.4), rgba(255,255,255,0))'
+    styles =
+      color: LabelColorizer.color(label)
+      backgroundColor: LabelColorizer.backgroundColor(label)
+      boxShadow: "inset 0 0 1px hsl(#{label.hue()}, 62%, 47%), inset 0 1px 1px rgba(255,255,255,0.5), 0 0.5px 0 rgba(255,255,255,0.5)"
+    if process.platform isnt "win32"
+      styles["backgroundImage"] = 'linear-gradient(rgba(255,255,255, 0.4), rgba(255,255,255,0))'
+    return styles
 
 class MailLabel extends React.Component
   @propTypes:

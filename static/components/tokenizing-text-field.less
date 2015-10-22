@@ -181,3 +181,26 @@
 body.is-blurred .tokenizing-field .token:not(.invalid) {
   background: @background-secondary;
 }
+
+body.platform-win32 {
+  .tokenizing-field {
+    .content-container {
+      border-radius: 0;
+    }
+  }
+  .token {
+    border-radius: 0;
+    background: @token-bottom;
+    &.selected,
+    &.dragging {
+      border-radius: 0;
+      background: @token-selected-top;
+    }
+    &:hover {
+      background: @token-hover-bottom;
+    }
+    &.invalid.selected, &.invalid.dragging {
+      background: @token-invalid-selected-top;
+    }
+  }
+}

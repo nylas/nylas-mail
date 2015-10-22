@@ -400,6 +400,11 @@ body.platform-win32 {
       }
     }
   }
+  .btn-feedback {
+    background: @blue;
+    &:hover { background: lighten(@blue, 5%); }
+    &:active { background: lighten(@blue, 20%); }
+  }
 }
 
 body.platform-win32.is-blurred {

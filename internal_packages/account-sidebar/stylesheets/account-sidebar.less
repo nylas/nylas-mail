@@ -166,6 +166,21 @@
     }
   }
 }
+body.platform-win32 {
+  #account-switcher {
+    .dropdown {
+      border-radius: 0;
+    }
+    .item {
+      border-radius: 0;
+    }
+    .secondary-item {
+      &:first-child, &:last-child {
+        border-radius: 0;
+      }
+    }
+  }
+}
 
 
 #account-switcher.open {
