@@ -427,6 +427,13 @@ class Atom extends Model
   # * `height` The {Number} of pixels.
   # * `duration` The {Number} of pixels.
   setSizeAnimated: (width, height, duration=400) ->
+    if process.platform is 'win32'
+      duration = 0
+
+    @_setSizeAnimatedCallCount ?= 0
+    @_setSizeAnimatedCallCount += 1
+
+    call = @_setSizeAnimatedCallCount
     cubicInOut = (t) -> if t<.5 then 4*t**3 else (t-1)*(2*t-2)**2+1
     win = @getCurrentWindow()
     width = Math.round(width)
@@ -442,7 +449,8 @@ class Atom extends Model
       width: Math.round(startBounds.width + (width-startBounds.width) * i) ? width
       height: Math.round(startBounds.height + (height-startBounds.height) * i) ? height
 
-    tick = ->
+    tick = =>
+      return unless call is @_setSizeAnimatedCallCount
       t = Math.min(1, (Date.now() - startTime) / (duration))
       i = cubicInOut(t)
       win.setBounds(boundsForI(i))
