@@ -12,9 +12,9 @@ class PreferencesHeader extends React.Component
 
   render: =>
     if process.platform is "win32"
-        imgMode = RetinaImg.Mode.ContentIsMask
+      imgMode = RetinaImg.Mode.ContentIsMask
     else
-        imgMode = RetinaImg.Mode.ContentPreserve
+      imgMode = RetinaImg.Mode.ContentPreserve
     <div className="preference-header">
       { @props.tabs.map (tab) =>
         classname = "preference-header-item"
