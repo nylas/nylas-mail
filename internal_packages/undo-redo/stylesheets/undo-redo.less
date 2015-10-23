@@ -4,6 +4,7 @@
 .undo-redo-manager {
   position: absolute;
   bottom: 10px;
+  z-index: 100;
   width:100%;
   text-align: center;
   pointer-events: none;
@@ -52,18 +53,22 @@ body.platform-win32 {
 
 .undo-redo-item-enter {
   opacity: 0.01;
-  transition: all .3s ease-out;
+  transform: translate3d(0, 10px, 0);
+  transition: all .15s ease-out;
 }
 
 .undo-redo-item-enter.undo-redo-item-enter-active {
   opacity: 1;
+  transform: translate3d(0, 0, 0);
 }
 
 .undo-redo-item-leave {
   opacity: 1;
-  transition: all .3s ease-in;
+  transform: translate3d(0, 0, 0);
+  transition: all .15s ease-in;
 }
 
 .undo-redo-item-leave.undo-redo-item-leave-active {
+  transform: translate3d(0, 10px, 0);
   opacity: 0.01;
 }
