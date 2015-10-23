@@ -174,13 +174,15 @@ PackagesStore = Reflux.createStore
       properties: ['openDirectory']
     , (filenames) =>
       return if not filenames or filenames.length is 0
-      atom.packages.installPackageFromPath filenames[0], (err) =>
+      atom.packages.installPackageFromPath filenames[0], (err, packageTargetDir) =>
         return if err
         packageName = path.basename(filenames[0])
         msg = "#{packageName} has been installed and enabled. No need to \
                restart! If you don't see the package loaded, check the \
                console for errors."
         @_displayMessage("Package installed", msg)
+        if packageTargetDir
+          shell.showItemInFolder(packageTargetDir)
 
   _onCreatePackage: ->
     if not atom.inDevMode()
