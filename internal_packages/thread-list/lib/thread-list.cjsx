@@ -175,12 +175,14 @@ class ThreadList extends React.Component
       Actions.setFocus(collection: 'thread', item: item)
 
     @commands =
-      'core:remove-item': @_onBackspace
+      'core:remove-from-view': @_onRemoveFromView
+      'core:archive-item': @_onArchiveItem
+      'core:delete-item': @_onDeleteItem
       'core:star-item': @_onStarItem
       'core:remove-and-previous': =>
-        _shift(offset: 1, afterRunning: @_onBackspace)
+        _shift(offset: 1, afterRunning: @_onRemoveFromView)
       'core:remove-and-next': =>
-        _shift(offset: -1, afterRunning: @_onBackspace)
+        _shift(offset: -1, afterRunning: @_onRemoveFromView)
 
     @itemPropsProvider = (item) ->
       className: classNames
@@ -260,40 +262,58 @@ class ThreadList extends React.Component
 
   # Additional Commands
 
-  _onStarItem: =>
-    return unless ThreadListStore.view()
-
+  _threadsForKeyboardAction: ->
+    return null unless ThreadListStore.view()
     focused = FocusedContentStore.focused('thread')
-
-    if WorkspaceStore.layoutMode() is "list" and WorkspaceStore.topSheet() is WorkspaceStore.Sheet.Thread
-      threads = [focused]
+    if focused
+      return [focused]
     else if ThreadListStore.view().selection.count() > 0
-      threads = ThreadListStore.view().selection.items()
+      return ThreadListStore.view().selection.items()
     else
-      threads = [focused]
+      return null
 
+  _onStarItem: =>
+    threads = @_threadsForKeyboardAction()
+    return unless threads
     task = TaskFactory.taskForInvertingStarred({threads})
     Actions.queueTask(task)
 
-  _onBackspace: =>
-    return unless ThreadListStore.view()
+  _onRemoveFromView: =>
+    threads = @_threadsForKeyboardAction()
+    if threads
+      if FocusedMailViewStore.mailView().canArchiveThreads()
+        removeMethod = TaskFactory.taskForArchiving
+      else if FocusedMailViewStore.mailView().canTrashThreads()
+        removeMethod = TaskFactory.taskForMovingToTrash
+      else
+        return
 
-    focused = FocusedContentStore.focused('thread')
-
-    if WorkspaceStore.layoutMode() is "split" and focused
-      task = TaskFactory.taskForMovingToTrash
-        threads: [focused]
+      task = removeMethod
+        threads: threads
         fromView: FocusedMailViewStore.mailView()
       Actions.queueTask(task)
 
-    else if ThreadListStore.view().selection.count() > 0
-      task = TaskFactory.taskForMovingToTrash
-        threads: ThreadListStore.view().selection.items()
+    Actions.popSheet()
+
+  _onArchiveItem: =>
+    return unless FocusedMailViewStore.mailView().canArchiveThreads()
+    threads = @_threadsForKeyboardAction()
+    if threads
+      task = TaskFactory.taskForArchiving
+        threads: threads
         fromView: FocusedMailViewStore.mailView()
       Actions.queueTask(task)
+    Actions.popSheet()
 
-    else if WorkspaceStore.layoutMode() is "list" and WorkspaceStore.topSheet() is WorkspaceStore.Sheet.Thread
-      Actions.popSheet()
+  _onDeleteItem: =>
+    return unless FocusedMailViewStore.mailView().canTrashThreads()
+    threads = @_threadsForKeyboardAction()
+    if threads
+      task = TaskFactory.taskForMovingToTrash
+        threads: threads
+        fromView: FocusedMailViewStore.mailView()
+      Actions.queueTask(task)
+    Actions.popSheet()
 
 
 module.exports = ThreadList

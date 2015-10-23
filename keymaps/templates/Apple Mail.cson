@@ -9,7 +9,7 @@
   'cmd-alt-f': 'application:focus-search'
   'cmd-D': 'application:send-message'
   'cmd-V': 'application:change-category'
-  'delete'   : 'core:remove-item'
+  'cmd-e'   : 'core:archive-item'
 
 'body.platform-linux, body.platform-win32':
   'ctrl-n' : 'application:new-message'
@@ -19,4 +19,4 @@
   'ctrl-alt-f': 'application:focus-search'
   'ctrl-D': 'application:send-message'
   'ctrl-shift-v': 'application:change-category'
-  'delete'   : 'core:remove-item'
+  'ctrl-e'   : 'core:archive-item'

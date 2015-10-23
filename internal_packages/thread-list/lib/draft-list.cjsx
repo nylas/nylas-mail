@@ -50,7 +50,7 @@ class DraftList extends React.Component
 
     @columns = [c1, c2, c3]
     @commands =
-      'core:remove-item': @_onDelete
+      'core:remove-from-view': @_onDelete
 
   render: =>
     <MultiselectList

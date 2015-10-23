@@ -8,7 +8,7 @@ CategoryStore = require '../stores/category-store'
 
 class TaskFactory
 
-  taskForApplyingCategory: ({threads, fromView, category, exclusive}) ->
+  taskForApplyingCategory: ({threads, fromView, category, exclusive}) =>
     account = AccountStore.current()
     if account.usesFolders()
       return null unless category
@@ -27,7 +27,7 @@ class TaskFactory
         labelsToRemove: labelsToRemove
         labelsToAdd: [category]
 
-  taskForRemovingCategory: ({threads, fromView, category, exclusive}) ->
+  taskForRemovingCategory: ({threads, fromView, category, exclusive}) =>
     account = AccountStore.current()
     if account.usesFolders()
       return new ChangeFolderTask
@@ -45,27 +45,27 @@ class TaskFactory
         labelsToRemove: [category]
         labelsToAdd: labelsToAdd
 
-  taskForArchiving: ({threads, fromView}) ->
+  taskForArchiving: ({threads, fromView}) =>
     category = CategoryStore.getArchiveCategory()
     @taskForApplyingCategory({threads, fromView, category, exclusive: true})
 
-  taskForUnarchiving: ({threads, fromView}) ->
+  taskForUnarchiving: ({threads, fromView}) =>
     category = CategoryStore.getArchiveCategory()
     @taskForRemovingCategory({threads, fromView, category, exclusive: true})
 
-  taskForMovingToTrash: ({threads, fromView}) ->
+  taskForMovingToTrash: ({threads, fromView}) =>
     category = CategoryStore.getTrashCategory()
     @taskForApplyingCategory({threads, fromView, category, exclusive: true})
 
-  taskForMovingFromTrash: ({threads, fromView}) ->
+  taskForMovingFromTrash: ({threads, fromView}) =>
     category = CategoryStore.getTrashCategory()
     @taskForRemovingCategory({threads, fromView, category, exclusive: true})
 
-  taskForInvertingUnread: ({threads}) ->
+  taskForInvertingUnread: ({threads}) =>
     unread = _.every threads, (t) -> _.isMatch(t, {unread: false})
     return new ChangeUnreadTask({threads, unread})
 
-  taskForInvertingStarred: ({threads}) ->
+  taskForInvertingStarred: ({threads}) =>
     starred = _.every threads, (t) -> _.isMatch(t, {starred: false})
     return new ChangeStarredTask({threads, starred})
 
