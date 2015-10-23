@@ -85,12 +85,14 @@ class TokenAuthPage extends React.Component
       <input type="text"
          value={@state.token}
          onChange={@_onTokenChange}
+         onKeyPress={@_onKeyPress}
          placeholder="Invitation Code"
          className="token-input error" />
     else
       <input type="text"
          value={@state.token}
          onChange={@_onTokenChange}
+         onKeyPress={@_onKeyPress}
          placeholder="Invitation Code"
          className="token-input" />
 
@@ -112,6 +114,10 @@ class TokenAuthPage extends React.Component
 
   _onTokenChange: (event) =>
     @setState(token: event.target.value)
+
+  _onKeyPress: (event) =>
+    if event.key in ['Enter', 'Return']
+      @_onContinue()
 
   _onContinue: =>
     if @state.tokenAuthInflight
