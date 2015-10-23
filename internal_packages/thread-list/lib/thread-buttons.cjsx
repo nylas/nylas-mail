@@ -17,6 +17,7 @@ class ThreadBulkArchiveButton extends React.Component
     selection: React.PropTypes.object.isRequired
 
   render: ->
+    mailViewFilter = FocusedMailViewStore.mailView()
     return false unless mailViewFilter?.canArchiveThreads()
 
     <button style={order:-107}
