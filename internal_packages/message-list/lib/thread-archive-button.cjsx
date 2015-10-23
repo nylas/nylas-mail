@@ -29,6 +29,7 @@ class ThreadArchiveButton extends React.Component
       threads: [@props.thread],
       fromView: FocusedMailViewStore.mailView()
     Actions.queueTask(task)
+    Actions.popSheet()
     e.stopPropagation()
 
 
