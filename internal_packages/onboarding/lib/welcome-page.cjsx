@@ -49,7 +49,11 @@ class WelcomePage extends React.Component
       <RetinaImg className="logo" style={zoom: 0.20, marginTop: 60, opacity: 0.7} url="nylas://onboarding/assets/nylas-pictographB@2x.png" mode={RetinaImg.Mode.ContentPreserve}/>
       <p className="hero-text" style={marginTop: 30, fontSize: 44}>Say hello to N1.</p>
       <p className="sub-text" style={marginTop: 0, fontSize: 24}>The next-generation email platform.</p>
-      <div style={fontSize:17, marginTop: 45}>Built with ❤︎ by Nylas</div>
+      <div style={fontSize:17, marginTop: 45}>
+        Built with
+        <RetinaImg url="nylas://onboarding/assets/nylas-love@2x.png" mode={RetinaImg.Mode.ContentPreserve}/>
+        by Nylas
+      </div>
       <RetinaImg className="icons" style={position: "absolute", left: -45, top: 130} url="nylas://onboarding/assets/shapes-left@2x.png" mode={RetinaImg.Mode.ContentIsMask} />
       <RetinaImg className="icons" style={position: "absolute", right: -40, top: 130} url="nylas://onboarding/assets/shapes-right@2x.png" mode={RetinaImg.Mode.ContentIsMask} />
       {@_renderNavBubble(0)}
