@@ -9,8 +9,9 @@
   'cmd-,'    : 'application:open-preferences'
   'up'       : 'core:previous-item'
   'down'     : 'core:next-item'
-  'backspace': 'core:remove-item'
   'enter'    : 'core:focus-item'
+  'delete': 'core:remove-from-view'
+  'backspace': 'core:remove-from-view'
 
   # Default cross-platform core behaviors
   'left': 'core:move-left'
@@ -21,7 +22,6 @@
   'shift-right': 'core:select-right'
   'shift-pageup': 'core:select-page-up'
   'shift-pagedown': 'core:select-page-down'
-  'delete': 'core:delete'
   'shift-delete': 'core:cut'
 
 # Inputs are native by default.

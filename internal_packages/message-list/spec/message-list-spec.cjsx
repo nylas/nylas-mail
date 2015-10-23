@@ -206,11 +206,6 @@ describe "MessageList", ->
               MessageParticipants)
       expect(items.length).toBe 1
 
-    it "toggles star on a thread if 'core:star-item' is fired", ->
-      spyOn(@messageList, "_onStar")
-      atom.keymaps.dispatchCommandEvent('core:star-item', document.body, new KeyboardEvent('keydown'))
-      expect(@messageList._onStar).toHaveBeenCalled()
-
     it "focuses new composers when a draft is added", ->
       spyOn(@messageList, "_focusDraft")
       msgs = @messageList.state.messages

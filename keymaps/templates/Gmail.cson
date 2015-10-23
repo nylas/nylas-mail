@@ -5,23 +5,22 @@
 # darwin-gmail.cson, darwin-macmail.cson, win32-gmail.cson...
 
 'body':
-  'c'        : 'application:new-message' # Gmail
-  '/'        : 'application:focus-search' # Gmail
+  'c'        : 'application:new-message'
+  '/'        : 'application:focus-search'
 
-  'r'        : 'application:reply' # Gmail
-  'R'        : 'application:reply-all' # N1
-  'a'        : 'application:reply-all' # Gmail
-  'f'        : 'application:forward' # Gmail
-  'l'        : 'application:change-category' # Gmail
-  'u'        : 'application:pop-sheet' # Gmail
-  'delete'   : 'application:pop-sheet'
+  'r'        : 'application:reply'
+  'a'        : 'application:reply-all'
+  'f'        : 'application:forward'
+  'l'        : 'application:change-category'
+  'u'        : 'application:pop-sheet'
 
-  'k'        : 'core:previous-item' # Gmail
-  'j'        : 'core:next-item' # Gmail
-  ']'        : 'core:remove-and-previous' # Gmail
-  '['        : 'core:remove-and-next' # Gmail
-  'e'        : 'core:remove-item' # Gmail
-  's'        : 'core:star-item' #Gmail
+  'k'        : 'core:previous-item'
+  'j'        : 'core:next-item'
+  ']'        : 'core:remove-and-previous'
+  '['        : 'core:remove-and-next'
+  '#'        : 'core:delete-item'
+  'e'        : 'core:archive-item'
+  's'        : 'core:star-item'
   'x'        : 'core:select-item'
 
 # Gmail also includes some more basic ones that users expect from desktop software.

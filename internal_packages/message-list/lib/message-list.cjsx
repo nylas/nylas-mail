@@ -74,7 +74,6 @@ class MessageList extends React.Component
     @_unsubscribers.push MessageStore.listen @_onChange
 
     commands = _.extend {},
-      'core:star-item': => @_onStar()
       'application:reply': => @_createReplyOrUpdateExistingDraft('reply')
       'application:reply-all': => @_createReplyOrUpdateExistingDraft('reply-all')
       'application:forward': => @_onForward()
@@ -177,13 +176,6 @@ class MessageList extends React.Component
 
     session.changes.add(updated)
     @_focusDraft(@_getMessageContainer(draft.clientId))
-
-  _onStar: =>
-    return unless @state.currentThread
-    threads = [@state.currentThread]
-    starred = not @state.currentThread.starred
-    task = new ChangeStarredTask({threads, starred})
-    Actions.queueTask(task)
 
   _onForward: =>
     return unless @state.currentThread
