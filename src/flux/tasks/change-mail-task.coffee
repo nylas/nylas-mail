@@ -198,10 +198,10 @@ class ChangeMailTask extends Task
 
   createUndoTask: ->
     if @_isUndoTask
-      err new Error("ChangeMailTask::createUndoTask Cannot create an undo task from an undo task.")
+      err = new Error("ChangeMailTask::createUndoTask Cannot create an undo task from an undo task.")
       return Promise.resolve([Task.Status.Failed, err])
     if not @_restoreValues
-      err new Error("ChangeMailTask::createUndoTask Cannot undo a task which has not finished performLocal yet.")
+      err = new Error("ChangeMailTask::createUndoTask Cannot undo a task which has not finished performLocal yet.")
       return Promise.resolve([Task.Status.Failed, err])
 
     task = @createIdenticalTask()
