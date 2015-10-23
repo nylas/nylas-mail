@@ -19,7 +19,7 @@ Once you have an invitation code:
 
 Read the [getting started guides](http://nylas.com/N1/docs/).
 
-See [Windows instructions here](https://github.com/nylas/N1/blob/docs/Windows.md)
+See [Windows instructions here](https://github.com/nylas/N1/blob/master/docs/Windows.md)
 
 # Running N1 Core
 
