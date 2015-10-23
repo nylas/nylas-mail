@@ -18,6 +18,11 @@ StylesElement = require './styles-element'
 Utils = require './flux/models/utils'
 {APIError} = require './flux/errors'
 
+ensureInteger = (f, fallback) ->
+  if f is NaN or f is undefined or f is null
+    f = fallback
+  return Math.round(f)
+
 # Essential: Atom global for dealing with packages, themes, menus, and the window.
 #
 # The singleton of this class is always available as the `atom` global.
@@ -417,8 +422,8 @@ class Atom extends Model
   # * `width` The {Number} of pixels.
   # * `height` The {Number} of pixels.
   setSize: (width, height) ->
-    width = Math.round(width)
-    height = Math.round(height)
+    width = ensureInteger(width, 100)
+    height = ensureInteger(height, 100)
     @getCurrentWindow().setSize(width, height)
 
   # Essential: Transition and set the size of the current window.
@@ -427,27 +432,36 @@ class Atom extends Model
   # * `height` The {Number} of pixels.
   # * `duration` The {Number} of pixels.
   setSizeAnimated: (width, height, duration=400) ->
+    # On Windows, the native window resizing code isn't fast enough to "animate"
+    # by resizing over and over again. Just turn off animation for now.
     if process.platform is 'win32'
-      duration = 0
+      duration = 1
 
+    # Avoid divide by zero errors below
+    duration = Math.max(1, duration)
+
+    # Keep track of the number of times this method has been invoked, and ensure
+    # that we only `tick` for the last invocation. This prevents two resizes from
+    # running at the same time.
     @_setSizeAnimatedCallCount ?= 0
     @_setSizeAnimatedCallCount += 1
-
     call = @_setSizeAnimatedCallCount
+
     cubicInOut = (t) -> if t<.5 then 4*t**3 else (t-1)*(2*t-2)**2+1
     win = @getCurrentWindow()
     width = Math.round(width)
     height = Math.round(height)
-    startBounds = win.getBounds()
 
-    startTime = Date.now()
+    startBounds = win.getBounds()
+    startTime = Date.now() - 1 # - 1 so that if duration is 1, t = 1 on the first frame
+
     boundsForI = (i) ->
       # It's very important this function never return undefined for any of the
       # keys which blows up setBounds.
-      x: Math.round(startBounds.x + (width-startBounds.width) * -0.5 * i) ? 0
-      y: Math.round(startBounds.y + (height-startBounds.height) * -0.5 * i) ? 0
-      width: Math.round(startBounds.width + (width-startBounds.width) * i) ? width
-      height: Math.round(startBounds.height + (height-startBounds.height) * i) ? height
+      x: ensureInteger(startBounds.x + (width-startBounds.width) * -0.5 * i, 0)
+      y: ensureInteger(startBounds.y + (height-startBounds.height) * -0.5 * i, 0)
+      width: ensureInteger(startBounds.width + (width-startBounds.width) * i, width)
+      height: ensureInteger(startBounds.height + (height-startBounds.height) * i, height)
 
     tick = =>
       return unless call is @_setSizeAnimatedCallCount
@@ -460,7 +474,7 @@ class Atom extends Model
 
   setMinimumWidth: (minWidth) ->
     win = @getCurrentWindow()
-    minWidth = Math.round(minWidth)
+    minWidth = ensureInteger(minWidth, 0)
     minHeight = win.getMinimumSize()[1]
     win.setMinimumSize(minWidth, minHeight)
 
@@ -479,8 +493,8 @@ class Atom extends Model
   # * `x` The {Number} of pixels.
   # * `y` The {Number} of pixels.
   setPosition: (x, y) ->
-    x = Math.round(x)
-    y = Math.round(y)
+    x = ensureInteger(x, 0)
+    y = ensureInteger(y, 0)
     ipc.send('call-window-method', 'setPosition', x, y)
 
   # Extended: Get the current window
