@@ -327,7 +327,7 @@ class PackageManager
     packageTargetDir = path.join(packagesDir, packageName)
 
     fs.makeTree packagesDir, (err) =>
-      return callback(err) if err
+      return callback(err, null) if err
 
       fs.exists packageTargetDir, (packageAlreadyExists) =>
         if packageAlreadyExists
@@ -340,14 +340,13 @@ class PackageManager
             detail: 'Remove it before trying to install another package of the same name.'
             message: message
           })
-          callback(new Error(message))
+          callback(new Error(message), null)
           return
 
         fs.copySync(packageSourceDir, packageTargetDir)
 
         apm = new APMWrapper()
         apm.installDependenciesInPackageDirectory packageTargetDir, (err) =>
-          shell.showItemInFolder(packageTargetDir)
           if err
             dialog.showMessageBox({
               type: 'warning'
@@ -355,11 +354,11 @@ class PackageManager
               title: 'Package installation failed'
               message: err.toString()
             })
-            callback(err)
+            callback(err, packageTargetDir)
           else
             @enablePackage(packageTargetDir)
             @activatePackage(packageName)
-            callback(null)
+            callback(null, packageTargetDir)
 
   ###
   Section: Private
