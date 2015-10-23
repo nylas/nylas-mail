@@ -23,7 +23,11 @@ class ChangeFolderTask extends ChangeMailTask
   constructor: ({@folder}={}) ->
     super
 
-  label: -> "Moving to folder…"
+  label: ->
+    if @folder
+      "Moving to #{@folder.displayName}…"
+    else
+      "Moving to folder…"
 
   description: ->
     folderText = ""
