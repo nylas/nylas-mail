@@ -45,11 +45,11 @@ class DestroyDraftTask extends Task
     # when we performed locally, or if the draft has never been synced to
     # the server (id is still self-assigned)
     if not @draft
-      err new Error("No valid draft to destroy!")
+      err = new Error("No valid draft to destroy!")
       return Promise.resolve([Task.Status.Failed, err])
 
     if not @draft.serverId or not @draft.version?
-      err new Error("Can't destroy draft without a version or serverId")
+      err = new Error("Can't destroy draft without a version or serverId")
       return Promise.resolve([Task.Status.Failed, err])
 
     NylasAPI.makeRequest

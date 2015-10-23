@@ -36,7 +36,7 @@ class FileUploadTask extends Task
 
     DatabaseStore.findBy(Message, {clientId: @messageClientId}).then (draft) =>
       if not draft
-        err new Error("Can't find draft #{@messageClientId} in Database to upload file to")
+        err = new Error("Can't find draft #{@messageClientId} in Database to upload file to")
         return Promise.resolve([Task.Status.Failed, err])
 
       @_accountId = draft.accountId
