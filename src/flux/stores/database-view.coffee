@@ -156,6 +156,8 @@ class DatabaseView extends ModelView
 
     @selection.updateModelReferences(items)
     @selection.removeItemsNotMatching(@_matchers)
+    if change.type is 'unpersist'
+      @selection.remove(item) for item in items
 
     if items.length > 5
       @log("invalidateAfterDatabaseChange on #{items.length} items would be expensive. Invalidating entire range.")
