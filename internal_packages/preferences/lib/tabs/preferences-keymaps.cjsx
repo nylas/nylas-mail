@@ -97,6 +97,6 @@ class PreferencesKeymaps extends React.Component
       return keystrokes.replace(/-/gi,'').replace(/cmd/gi, '⌘').replace(/alt/gi, '⌥').replace(/shift/gi, '⇧').replace(/ctrl/gi, '^').toUpperCase()
 
   _onShowUserKeymaps: =>
-    require('shell').openItem(atom.keymaps.getUserKeymapPath())
+    require('shell').showItemInFolder(atom.keymaps.getUserKeymapPath())
 
 module.exports = PreferencesKeymaps
