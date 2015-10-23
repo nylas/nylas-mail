@@ -5,6 +5,7 @@ classNames = require 'classnames'
 {DatabaseView,
  NylasAPI,
  NylasSyncStatusStore,
+ Message,
  WorkspaceStore} = require 'nylas-exports'
 
 EmptyMessages = [{
@@ -80,6 +81,8 @@ class EmptyState extends React.Component
     @_unlisteners = []
     @_unlisteners.push WorkspaceStore.listen(@_onChange, @)
     @_unlisteners.push NylasSyncStatusStore.listen(@_onChange, @)
+    if @props.visible and not @state.active
+      @setState(active:true)
 
   shouldComponentUpdate: (nextProps, nextState) ->
     # Avoid deep comparison of dataView, which is a very complex object
@@ -103,6 +106,8 @@ class EmptyState extends React.Component
     messageOverride = null
 
     if @props.dataView instanceof DatabaseView
+      if @props.dataView.klass is Message
+        messageOverride = "No messages to display."
       if @state.layoutMode is 'list'
         ContentComponent = ContentQuotes
       if @state.syncing

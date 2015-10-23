@@ -5,8 +5,10 @@ React = require 'react'
  InjectedComponent} = require 'nylas-component-kit'
 {timestamp, subject} = require './formatting-utils'
 {Actions,
+ FocusedContentStore,
  DatabaseStore} = require 'nylas-exports'
 DraftListStore = require './draft-list-store'
+EmptyState = require './empty-state'
 
 class DraftList extends React.Component
   @displayName: 'DraftList'
@@ -15,10 +17,14 @@ class DraftList extends React.Component
 
   componentWillMount: =>
     snippet = (html) =>
-      @draftSanitizer ?= document.createElement('div')
-      @draftSanitizer.innerHTML = html[0..400]
-      text = @draftSanitizer.innerText
-      text[0..200]
+      return "" unless html and typeof(html) is 'string'
+      try
+        @draftSanitizer ?= document.createElement('div')
+        @draftSanitizer.innerHTML = html[0..400]
+        text = @draftSanitizer.innerText
+        text[0..200]
+      catch
+        return ""
 
     c1 = new ListTabular.Column
       name: "Name"
@@ -50,7 +56,7 @@ class DraftList extends React.Component
 
     @columns = [c1, c2, c3]
     @commands =
-      'core:remove-from-view': @_onDelete
+      'core:remove-from-view': @_onRemoveFromView
 
   render: =>
     <MultiselectList
@@ -58,6 +64,7 @@ class DraftList extends React.Component
       columns={@columns}
       commands={@commands}
       onDoubleClick={@_onDoubleClick}
+      emptyComponent={EmptyState}
       itemPropsProvider={ -> {} }
       itemHeight={39}
       className="draft-list"
@@ -68,10 +75,10 @@ class DraftList extends React.Component
 
   # Additional Commands
 
-  _onDelete: ({focusedId}) =>
-    item = DraftListStore.view().getById(focusedId)
-    return unless item
-    Actions.destroyDraft(item.clientId)
+  _onRemoveFromView: =>
+    items = DraftListStore.view().selection.items()
+    for item in items
+      Actions.destroyDraft(item.clientId)
 
 
 module.exports = DraftList
