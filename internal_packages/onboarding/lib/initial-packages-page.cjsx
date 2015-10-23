@@ -21,7 +21,8 @@ class InstallButton extends React.Component
     <div className={classname} onClick={@_onInstall}></div>
 
   _onInstall: =>
-    return false unless @props.package.path
+    return if @state.installing or @state.installed
+    return unless @props.package.path
     RunningPackageInstalls += 1
     @setState(installing: true)
     atom.packages.installPackageFromPath @props.package.path, (err) =>

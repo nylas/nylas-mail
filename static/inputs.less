@@ -51,8 +51,13 @@ body.platform-win32 {
   input[type="tel"],
   input[type="time"],
   input[type="url"] {
+    border: 2px solid @input-border;
     &.input-bordered {
       border-radius: 0;
+    }
+    &:focus {
+      box-shadow: 0;
+      border: 2px solid darken(@input-border, 10%);
     }
   }
 }

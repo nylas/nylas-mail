@@ -727,4 +727,33 @@ body.platform-win32 {
       transition: opacity .01s ease-in;
     }
   }
+  .initial-package {
+    .btn-install {
+      height: auto;
+    }
+    .btn-install:after {
+      content: "Install";
+    }
+    .btn-install.installing {
+      height: 32px;
+      border: 0;
+      &:hover {
+        background: url('nylas://onboarding/assets/installing-spinner.gif') center no-repeat;
+        background-size: 18px;
+      }
+    }
+    .btn-install.installed {
+      border: 0;
+      height: 32px;
+      &:hover {
+        background: url('nylas://onboarding/assets/green_check@2x.png') center no-repeat;
+        background-size: 27px;
+      }
+    }
+    .btn-install.installed:after,
+    .btn-install.installing:after {
+      content: "";
+    }
+  }
+
 }

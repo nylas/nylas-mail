@@ -24,6 +24,9 @@ class APMWrapper
       ATOM_API_URL: 'https://edgehill-packages.nylas.com/api'
       ATOM_HOME: atom.getConfigDirPath()
 
+    if process.platform is "win32"
+      options.env["ProgramFiles"] = process.env.ProgramFiles
+
     args.push('--no-color')
     new BufferedProcess({command, args, stdout, stderr, exit, options})
 
