@@ -12,6 +12,8 @@ AccountStore} = require 'nylas-exports'
 class UndoRedoComponent extends React.Component
   @displayName: 'UndoRedoComponent'
 
+  @containerRequired: false
+
   constructor: (@props) ->
     @state = @_getStateFromStores()
     @_timeout = null
@@ -53,8 +55,8 @@ class UndoRedoComponent extends React.Component
 
     <TimeoutTransitionGroup
       className={names}
-      leaveTimeout={450}
-      enterTimeout={250}
+      leaveTimeout={150}
+      enterTimeout={150}
       transitionName="undo-redo-item">
       {inner}
     </TimeoutTransitionGroup>
@@ -65,7 +67,7 @@ class UndoRedoComponent extends React.Component
         <div className="undo-redo-message-wrapper">
           {@state.task.description()}
         </div>
-        <div className="undo-redo-action-wrapper" onClick={@_undoTask}>
+        <div className="undo-redo-action-wrapper" onClick={@_onClick}>
           <RetinaImg name="undo-icon@2x.png"
                      mode={RetinaImg.Mode.ContentPreserve}/>
           <span className="undo-redo-action-text">Undo</span>
@@ -74,7 +76,7 @@ class UndoRedoComponent extends React.Component
     else
       []
 
-  _undoTask: =>
+  _onClick: =>
     atom.commands.dispatch(document.querySelector('body'), 'core:undo')
     @_hide()
 
