@@ -158,7 +158,7 @@ class StyleManager
   Section: Paths
   ###
 
-  # Extended: Get the path of the user style sheet in `~/.atom`.
+  # Extended: Get the path of the user style sheet in `~/.nylas`.
   #
   # Returns a {String}.
   getUserStyleSheetPath: ->

@@ -221,7 +221,7 @@ class ThemeManager
   Section: Private
   ###
 
-  # Returns the {String} path to the user's stylesheet under ~/.atom
+  # Returns the {String} path to the user's stylesheet under ~/.nylas
   getUserStylesheetPath: ->
     Grim.deprecate("Call atom.styles.getUserStyleSheetPath() instead")
     atom.styles.getUserStyleSheetPath()
