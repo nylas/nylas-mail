@@ -71,12 +71,34 @@ class ToolbarBack extends React.Component
 
 class ToolbarWindowControls extends React.Component
   @displayName: 'ToolbarWindowControls'
+  constructor: (@props) ->
+    @state = {alt: false}
+
+  componentDidMount: =>
+    if process.platform is 'darwin'
+      window.addEventListener('keydown', @_onAlt)
+      window.addEventListener('keyup', @_onAlt)
+
+  componentWillUnmount: =>
+    if process.platform is 'darwin'
+      window.removeEventListener('keydown', @_onAlt)
+      window.removeEventListener('keyup', @_onAlt)
+
   render: =>
-    <div name="ToolbarWindowControls" className="toolbar-window-controls">
+    <div name="ToolbarWindowControls" className="toolbar-window-controls alt-#{@state.alt}">
       <button className="close" onClick={ -> atom.close()}></button>
       <button className="minimize" onClick={ -> atom.minimize()}></button>
-      <button className="maximize" onClick={ -> atom.maximize()}></button>
+      <button className="maximize" onClick={@_onMaximize}></button>
     </div>
+
+  _onAlt: (event) =>
+    @setState(alt: event.altKey) if @state.alt isnt event.altKey
+
+  _onMaximize: (event) =>
+    if process.platform is 'darwin' and not event.altKey
+      atom.setFullScreen(!atom.isFullScreen())
+    else
+      atom.maximize()
 
 class ToolbarMenuControl extends React.Component
   @displayName: 'ToolbarMenuControl'
