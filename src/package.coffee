@@ -538,7 +538,7 @@ class Package
   # Public: Is this package compatible with this version of Atom?
   #
   # Incompatible packages cannot be activated. This will include packages
-  # installed to ~/.atom/packages that were built against node 0.11.10 but
+  # installed to ~/.nylas/packages that were built against node 0.11.10 but
   # now need to be upgrade to node 0.11.13.
   #
   # Returns a {Boolean}, true if compatible, false if incompatible.

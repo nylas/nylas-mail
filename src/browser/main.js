@@ -111,7 +111,7 @@
     options.alias('n', 'new-window').boolean('n').describe('n', 'Open a new window.');
     options.alias('r', 'resource-path').string('r').describe('r', 'Set the path to the Atom source directory and enable dev-mode.');
     options.alias('s', 'spec-directory').string('s').describe('s', 'Set the directory from which to run package specs (default: Atom\'s spec directory).');
-    options.boolean('safe').describe('safe', 'Do not load packages from ~/.atom/packages or ~/.atom/dev/packages.');
+    options.boolean('safe').describe('safe', 'Do not load packages from ~/.nylas/packages or ~/.nylas/dev/packages.');
     options.alias('t', 'test').boolean('t').describe('t', 'Run the specified specs and exit with error code on failures.');
     options.alias('v', 'version').boolean('v').describe('v', 'Print the version.');
     options.alias('w', 'wait').boolean('w').describe('w', 'Wait for window to be closed before returning.');

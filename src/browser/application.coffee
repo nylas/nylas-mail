@@ -478,8 +478,8 @@ class Application
   #                   completion.
   #   :resourcePath - The path to include specs from.
   #   :specPath - The directory to load specs from.
-  #   :safeMode - A Boolean that, if true, won't run specs from ~/.atom/packages
-  #               and ~/.atom/dev/packages, defaults to false.
+  #   :safeMode - A Boolean that, if true, won't run specs from ~/.nylas/packages
+  #               and ~/.nylas/dev/packages, defaults to false.
   runSpecs: ({exitWhenDone, resourcePath, specDirectory, specFilePattern, logFile, safeMode}) ->
     if resourcePath isnt @resourcePath and not fs.existsSync(resourcePath)
       resourcePath = @resourcePath
