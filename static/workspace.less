@@ -108,7 +108,12 @@ atom-workspace {
     background-image: url("images/application-frame/minimize@1x.png");
   }
   .maximize {
-    background-image: url("images/application-frame/maximize@1x.png");
+    background-image: url("images/application-frame/fullscreen@1x.png");
+  }
+  &.alt-true {
+    .maximize {
+      background-image: url("images/application-frame/maximize@1x.png");
+    }
   }
 }
 
@@ -121,7 +126,12 @@ atom-workspace {
       background-image: url("images/application-frame/minimize@2x.png");
     }
     .maximize {
-      background-image: url("images/application-frame/maximize@2x.png");
+      background-image: url("images/application-frame/fullscreen@2x.png");
+    }
+    &.alt-true {
+      .maximize {
+        background-image: url("images/application-frame/maximize@2x.png");
+      }
     }
   }
 }
