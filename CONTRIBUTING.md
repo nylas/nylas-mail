@@ -21,6 +21,8 @@ Read the [getting started guides](http://nylas.com/N1/docs/).
 
 See [Windows instructions here](https://github.com/nylas/N1/blob/master/docs/Windows.md)
 
+Linux users on Debian 8 and Ubuntu 15.04 onward must also install libgcrypt11, which Electron depends on. 
+
 # Running N1 Core
 
     ./N1.sh --dev
