@@ -27,7 +27,7 @@ class PreferencesGeneral extends React.Component
     event.preventDefault()
 
   _renderImportanceOptionElement: =>
-    return false unless AccountStore.current().usesImportantFlag()
+    return false unless AccountStore.current()?.usesImportantFlag()
     importanceOptionElement = <div className="section-header">
       <input type="checkbox" id="show-important"
              checked={@props.config.get('core.showImportant')}
