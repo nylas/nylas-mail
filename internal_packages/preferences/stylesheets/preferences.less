@@ -229,8 +229,10 @@ body.platform-darwin {
     margin-right:20px;
 
     .account-name {
-        font-size: @font-size-larger;
+        font-size: @font-size-large;
         cursor:default;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     .account-subtext {
         font-size: @font-size-small;
