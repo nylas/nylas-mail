@@ -51,7 +51,7 @@ class WorkspaceStore extends NylasStore
     @SidebarItem = WorkspaceSidebarItem
     @SidebarItems = SidebarItems = {}
 
-    @_hiddenLocations = {}
+    @_hiddenLocations = atom.config.get('core.workspace.hiddenLocations') || {}
     @_sheetStack = []
 
     if atom.isMainWindow()
@@ -86,6 +86,9 @@ class WorkspaceStore extends NylasStore
       delete @_hiddenLocations[location.id]
     else
       @_hiddenLocations[location.id] = location
+
+    atom.config.set('core.workspace.hiddenLocations', @_hiddenLocations)
+
     @trigger(@)
 
   _onSetFocus: ({collection, item}) =>
