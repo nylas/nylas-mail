@@ -11,6 +11,15 @@
 
 You can download compiled versions of N1 for Mac OS X and Linux from [https://nylas.com/N1](https://nylas.com/N1). You can also build and run N1 on Windows. A Windows distribution is coming soon!
 
+# Compiling N1 Yourself
+
+1. If you don't already have nvm installed: https://github.com/creationix/nvm. Follow instructions to install node 0.10.x
+2. git clone https://github.com/nylas/N1.git
+3. cd N1
+4. ./script/bootstrap (might need to run as sudo)
+5. if successful you should get the messsage: "script/bootstrap completed successfully. You can start
+N1 via ./N1.sh --dev, or run tests with ./N1.sh --test"
+
 # Build A Plugin
 
 Plugins lie at the heart of N1 and give it it's powerful features. Building your own plugins allows you to integrate the app with other tools, experiment with new workflows, and more. Follow the [Getting Started guide](http://nylas.com/N1/getting-started/) to write your first plugin in 5 minutes.
