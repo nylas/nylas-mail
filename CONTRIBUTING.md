@@ -148,8 +148,8 @@ however, the Sync Engine is open source and you can run it yourself.
               }
             ]
             accountTokens:
-              {ACCOUNT_ID_1}: "{ACCOUNT_ID_1}"
-              {ACCOUNT_ID_2}: "{ACCOUNT_ID_2}"
+              "{ACCOUNT_ID_1}": "{ACCOUNT_ID_1}"
+              "{ACCOUNT_ID_2}": "{ACCOUNT_ID_2}"
 
 Note: `{ACCOUNT_ID_1}` refers to the database ID of the `Account` object
 you create when setting up the Sync Engine. The JSON above should match
