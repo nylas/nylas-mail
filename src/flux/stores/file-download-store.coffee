@@ -68,12 +68,12 @@ class Download
       # a callback until the stream has ended. These helper functions ensure
       # that resolve or reject is only fired once regardless of the order
       # these two events (stream end and `success`) happen in.
-      streamEnded = ->
+      streamEnded = =>
         finished = true
         if finishedAction
           finishedAction(@)
 
-      onStreamEnded = (action) ->
+      onStreamEnded = (action) =>
         if finished
           action(@)
         else

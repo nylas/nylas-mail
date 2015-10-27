@@ -54,7 +54,7 @@ class AttachmentComponent extends React.Component
 
   _canAbortDownload: -> true
 
-  _canClickToView: => not @props.removable and not @_isDownloading()
+  _canClickToView: => not @props.removable
 
   _isDownloading: => @props.download?.state is "downloading"
 
@@ -74,7 +74,8 @@ class AttachmentComponent extends React.Component
       event.preventDefault()
     return
 
-  _onClickView: => Actions.fetchAndOpenFile(@props.file) if @_canClickToView()
+  _onClickView: =>
+    Actions.fetchAndOpenFile(@props.file) if @_canClickToView()
 
   _onClickRemove: (event) =>
     Actions.removeFile
