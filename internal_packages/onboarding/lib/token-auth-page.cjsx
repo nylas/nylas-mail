@@ -123,10 +123,10 @@ class TokenAuthPage extends React.Component
     if @state.tokenAuthInflight
       return
 
-    if not @state.token
+    if not @state.token or not /^[\w]{32}$/.test(@state.token)
       @setState({
         tokenAuthInflight: false,
-        tokenValidityError: "Please enter an invitation code."
+        tokenValidityError: "Please enter a valid invitation code."
       })
       @_resize()
       return
