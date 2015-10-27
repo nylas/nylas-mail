@@ -32,7 +32,6 @@ function printArgs(args) {
 }
 
 function makeSqlite3Command() {
-  var npmPath = '"' + path.resolve(__dirname, '..', 'build', 'node_modules', '.bin', 'npm') + '"';
   var nodeGypPath = '"' + path.resolve(__dirname, '..', 'build', 'node_modules', 'npm', 'node_modules', '.bin', 'node-gyp') + '"';
   var appPackageJSON = JSON.parse(fs.readFileSync(path.resolve(__dirname, '..', 'package.json')));
   var targetVersion = appPackageJSON['electronVersion'];
@@ -45,7 +44,12 @@ function makeSqlite3Command() {
     var targetArch = require('os').arch();
   }
 
-  return npmPath+" install https://github.com/bengotow/node-sqlite3/archive/master.tar.gz --ignore-scripts && cd node_modules/sqlite3 && "+npmPath+" run prepublish && "+nodeGypPath+" configure rebuild --target="+targetVersion+" --arch="+targetArch+" --target_platform="+targetPlatform+" --dist-url=https://atom.io/download/atom-shell --module_name=node_sqlite3 --module_path=../lib/binding/node-v44-"+targetPlatform+"-"+targetArch
+  return makeNPMPath() + " install https://github.com/bengotow/node-sqlite3/archive/master.tar.gz --ignore-scripts && cd node_modules/sqlite3 && "+nodeGypPath+" configure rebuild --target="+targetVersion+" --arch="+targetArch+" --target_platform="+targetPlatform+" --dist-url=https://atom.io/download/atom-shell --module_name=node_sqlite3 --module_path=../lib/binding/node-v44-"+targetPlatform+"-"+targetArch
+}
+
+function makeNPMPath() {
+  var npmPath = path.resolve(__dirname, '..', 'build', 'node_modules', '.bin', 'npm');
+  return fs.existsSync(npmPath) ? '"'+npmPath+'"' : 'npm';
 }
 
 function bootstrap() {
@@ -58,17 +62,15 @@ function bootstrap() {
   var apmPath = '"' + path.resolve(__dirname, '..', 'apm', 'node_modules', 'atom-package-manager', 'bin', 'apm') + '"';
   var apmFlags = process.env.JANKY_SHA1 || process.argv.indexOf('--no-color') !== -1 ? ' --no-color' : '';
 
-  var npmPath = path.resolve(__dirname, '..', 'build', 'node_modules', '.bin', 'npm');
-  npmPath = fs.existsSync(npmPath) ? '"'+npmPath+'"' : 'npm';
   var npmFlags = ' --userconfig=' + '"' + path.resolve('.npmrc') + '" ';
 
   var gruntPath = '"' + path.resolve(__dirname, '..', 'build', 'node_modules', '.bin', 'grunt') + '"';
 
   var packagesToDedupe = ['fs-plus', 'humanize-plus', 'roaster', 'season', 'grim'];
 
-  var buildInstallCommand = npmPath + npmFlags + 'install';
+  var buildInstallCommand = makeNPMPath() + npmFlags + 'install';
   var buildInstallOptions = {cwd: path.resolve(__dirname, '..', 'build')};
-  var apmInstallCommand = npmPath + npmFlags + '--target=0.10.40 ' + 'install';
+  var apmInstallCommand = makeNPMPath() + npmFlags + '--target=0.10.40 ' + 'install';
   var apmInstallOptions = {cwd: apmInstallPath};
 
   var rebuildSqlite3Command = makeSqlite3Command();
