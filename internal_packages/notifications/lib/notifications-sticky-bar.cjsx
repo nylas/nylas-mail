@@ -8,15 +8,32 @@ class NotificationStickyItem extends React.Component
   render: =>
     notif = @props.notification
     iconClass = if notif.icon then "fa #{notif.icon}" else ""
+    actionDefault = null
     actionComponents = notif.actions?.map (action) =>
-      <a className="action" key={action.label} onClick={=> @_fireItemAction(notif, action)}>{action.label}</a>
+      classname = "action "
+      if action.default
+        actionDefault = action
+        classname += "default"
 
-    <div className={"notifications-sticky-item notification-#{notif.type}"}>
-      <i className={iconClass}></i><span>{notif.message}</span>{actionComponents}
-    </div>
+      <a className={classname}
+         key={action.label}
+         onClick={=> @_fireItemAction(notif, action)}>
+         {action.label}
+      </a>
+
+    if actionDefault
+      <div className={"notifications-sticky-item notification-#{notif.type} has-default-action"}
+           onClick={=> @_fireItemAction(notif, actionDefault)}>
+        <i className={iconClass}></i><span>{notif.message}</span>{actionComponents}
+      </div>
+    else
+      <div className={"notifications-sticky-item notification-#{notif.type}"}>
+        <i className={iconClass}></i><span>{notif.message}</span>{actionComponents}
+      </div>
 
   _fireItemAction: (notification, action) =>
     Actions.notificationActionTaken({notification, action})
+    event.stopPropagation()
 
 
 class NotificationStickyBar extends React.Component

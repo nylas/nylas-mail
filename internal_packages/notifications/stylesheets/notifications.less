@@ -148,33 +148,34 @@
   .notifications-sticky-item {
     display:block;
     font-size: @font-size-base;
-    line-height: @line-height-base;
-    padding: @padding-base-vertical @padding-base-horizontal @padding-base-vertical @padding-base-horizontal;
     color:@text-color-inverse;
     border-top:1px solid rgba(0,0,0,0.25);
     border-bottom:1px solid rgba(0,0,0,0.25);
+    padding-left: @padding-base-horizontal;
+    line-height: @line-height-base * 1.5;
     a {
       float:right;
-      font-size:13px;
-      background-color: rgba(255,255,255,0.2);
       color:@text-color-inverse;
-      border-radius: 4px;
-      padding:1px;
-      padding-left:6px;
-      padding-right:6px;
-      margin-left:10px;
-      border-top:1px solid transparent;
-      border-bottom:none;
+      padding: 0 @padding-base-horizontal;
     }
     a:hover {
-      background-color: rgba(0,0,0,0.2);
-      border-top:1px solid rgba(0,0,0,0.35);
+      background-color: rgba(255,255,255,0.15);
       text-decoration:none;
       color:@text-color-inverse;
     }
-
+    a.default {
+      background-color: rgba(0,0,0,0.15);
+    }
+    a.default:hover {
+      background-color: rgba(255,255,255,0.15);
+    }
     i {
       margin-right:@padding-base-horizontal;
+    }
+
+    &.has-default-action:hover {
+      -webkit-filter: brightness(110%);
+      cursor:default;
     }
   }
 }

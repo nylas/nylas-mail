@@ -44,7 +44,7 @@ NotificationStore = Reflux.createStore
     # your package should listen to notificationActionTaken and check the
     # notification and action objects.
     @listenTo Actions.notificationActionTaken, ({notification, action}) =>
-      @_removeNotification(notification)()
+      @_removeNotification(notification)() if action.dismisses
     @listenTo Actions.postNotification, (data) =>
       @_postNotification(new Notification(data))
     @listenTo Actions.multiWindowNotification, (data={}, context={}) =>

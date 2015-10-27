@@ -357,10 +357,13 @@ class Actions
     icon: 'fa-inbox',
     actions: [{
       label: 'Yes'
+      default: true
+      dismisses: true
       id: NOTIF_ACTION_YES
     },{
-      label: 'Not Now'
-      id: NOTIF_ACTION_NO
+      label: 'More Info'
+      dismisses: false
+      id: NOTIF_ACTION_MORE_INFO
     }]
 
   ```

@@ -51,12 +51,11 @@ class AutoUpdater
         @emit 'update-not-available'
         return
 
+      @emit 'update-available'
       @installUpdate (error) =>
         if error?
           @emit 'update-not-available'
           return
-
-        @emit 'update-available'
-        @emit 'update-downloaded', {}, update.releaseNotes, update.version, new Date(), 'https://atom.io', => @quitAndInstall()
+        @emit 'update-downloaded', {}, update.releaseNotes, update.version
 
 module.exports = new AutoUpdater()

@@ -221,7 +221,7 @@ class WindowEventHandler
         icon: 'fa-flask'
         type: 'developer'
         sticky: true
-        actions: [{label: 'Thanks', id: 'ok'}]
+        actions: [{label: 'Thanks', id: 'ok', dismisses: true, default: true}]
         message: "N1 is running with debug flags enabled (slower). Packages in
                   ~/.nylas/dev/packages will be loaded. Have fun!"
     else

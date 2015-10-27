@@ -26,9 +26,12 @@ module.exports =
           icon: 'fa-inbox',
           actions: [{
             label: 'Yes'
+            dismisses: true
+            default: true
             id: NOTIF_ACTION_YES
           },{
             label: 'Not Now'
+            dismisses: true
             id: NOTIF_ACTION_NO
           }]
 
