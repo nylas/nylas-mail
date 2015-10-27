@@ -82,7 +82,7 @@ class AutoUpdateManager
         @setState(UnsupportedState)
 
   emitUpdateAvailableEvent: (windows...) ->
-    return unless @releaseVersion? and @releaseNotes
+    return unless @releaseVersion
     for atomWindow in windows
       atomWindow.sendMessage('update-available', {@releaseVersion, @releaseNotes})
 
@@ -95,7 +95,6 @@ class AutoUpdateManager
     @state
 
   check: ({hidePopups}={}) ->
-    console.log "Checking for updates..."
     unless hidePopups
       autoUpdater.once 'update-not-available', @onUpdateNotAvailable
       autoUpdater.once 'error', @onUpdateError

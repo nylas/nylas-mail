@@ -231,6 +231,8 @@ class NylasAPI
                account and sign in again.",
       icon: 'fa-sign-out'
       actions: [{
+        default: true
+        dismisses: true
         label: 'Unlink'
         id: '401:unlink'
       }]
