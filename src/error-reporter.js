@@ -20,7 +20,7 @@ var logpid = process.pid;
 if (process.type === 'renderer') {
   logpid = remote.process.pid + "." +  process.pid;
 }
-var logpath = path.join(tmpPath, 'edgehill-' + logpid + '.log');
+var logpath = path.join(tmpPath, 'Nylas-N1-' + logpid + '.log');
 
 // globally define Error.toJSON. This allows us to pass errors via IPC
 // and through the Action Bridge. Note:they are not re-inflated into
@@ -78,7 +78,7 @@ module.exports = ErrorReporter = (function() {
           return;
         }
 
-        var logFilter = new RegExp("edgehill-[.0-9]*.log$");
+        var logFilter = new RegExp("Nylas-N1-[.0-9]*.log$");
         files.forEach(function(file) {
           if (logFilter.test(file) === true) {
             var filepath = path.join(tmpPath, file);
@@ -239,9 +239,9 @@ module.exports = ErrorReporter = (function() {
     }
     var logPattern = null;
     if (process.type === 'renderer') {
-      logPattern = "edgehill-"+remote.process.pid+"[.0-9]*.log$";
+      logPattern = "Nylas-N1-"+remote.process.pid+"[.0-9]*.log$";
     } else {
-      logPattern = "edgehill-"+process.pid+"[.0-9]*.log$";
+      logPattern = "Nylas-N1-"+process.pid+"[.0-9]*.log$";
     }
 
     console.log("ErrorReporter: Shipping Logs. " + reason);

@@ -13,7 +13,6 @@ module.exports = (grunt) ->
       '**/vendor/**'
       '**/examples/**'
       '**/src/tasks/**'
-      '**/node_modules/aws-sdk/**'
       '**/node_modules/spellchecker/**'
     ]
     unpack = "{#{unpack.join(',')}}"

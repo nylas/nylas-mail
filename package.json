@@ -17,7 +17,6 @@
     "asar": "^0.5.0",
     "async": "^0.9",
     "atom-keymap": "^5.1",
-    "aws-sdk": "2.1.28",
     "bluebird": "^2.9",
     "classnames": "1.2.1",
     "clear-cut": "0.4.0",
