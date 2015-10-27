@@ -2,7 +2,7 @@ fs = require 'fs'
 path = require 'path'
 request = require 'request'
 
-detailedLogging = false
+detailedLogging = true
 detailedLog = (msg) ->
   console.log(msg) if detailedLogging
 
@@ -32,34 +32,23 @@ module.exports = (dir, regexPattern) ->
       callback()
       return
 
-    # The AWS Module does some really interesting stuff - it loads it's configuration
-    # from JSON files. Unfortunately, when the app is built into an ASAR bundle, child
-    # processes forked from the main process can't seem to access files inside the archive,
-    # so AWS can't find it's JSON config. (5/20)
-    if __dirname.indexOf('app.asar') != -1
-      AWSModulePath = path.join(__dirname, '..','..','..', 'app.asar.unpacked', 'node_modules', 'aws-sdk')
-    else
-      AWSModulePath = 'aws-sdk'
-
-    # Note: These credentials are only good for uploading to this
-    # specific bucket and can't be used for anything else.
-    AWS = require(AWSModulePath)
-    AWS.config.update
-      accessKeyId: 'AKIAIEGVDSVLK3Z7UVFA',
-      secretAccessKey: '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'
-
-    bucket = new AWS.S3({params: {Bucket: 'edgehill-client-logs'}})
-    uploadTime = Date.now()
-
     logs.forEach (log) ->
-      stream = fs.createReadStream(log, {flags: 'r'})
-      key = "#{uploadTime}-#{path.basename(log)}"
-      params = {Key: key, Body: stream}
       remaining += 1
-      bucket.upload params, (err, data) ->
+      url = 'https://edgehill.nylas.com/ingest-log'
+      formData =
+        file:
+          value: fs.createReadStream(log, {flags: 'r'})
+          options:
+            filename: 'log.txt',
+            contentType: 'text/plain'
+
+      request.post {url, formData}, (err, response, body) ->
         if err
-          detailedLog("Error uploading #{key}: #{err.toString()}")
+          detailedLog("Error uploading #{log}: #{err.toString()}")
+        else if response.statusCode isnt 200
+          detailedLog("Error uploading #{log}: status code #{response.statusCode}")
         else
-          detailedLog("Successfully uploaded #{key}")
-        fs.truncate(log)
+          detailedLog("Successfully uploaded #{log}")
+        fs.truncate log, =>
+          fs.unlink(log)
         finished()
