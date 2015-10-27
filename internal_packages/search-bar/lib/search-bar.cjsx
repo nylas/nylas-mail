@@ -57,9 +57,11 @@ class SearchBar extends React.Component
                  key="accessory"
                  mode={RetinaImg.Mode.ContentDark}
                  onClick={@_doSearch} />
-      <div className="search-accessory clear"
-           key="clear"
-           onClick={@_onClearSearch}><i className="fa fa-remove"></i></div>
+      <RetinaImg className="search-accessory clear"
+                 name="searchclear.png"
+                 key="clear"
+                 mode={RetinaImg.Mode.ContentDark}
+                 onClick={@_onClearSearch} />
     ]
 
     itemContentFunc = (item) =>
