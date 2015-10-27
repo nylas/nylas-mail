@@ -71,7 +71,7 @@ class PageRouterStore extends NylasStore
     @trigger()
 
     TokenAuthAPI.request
-      path: "/status"
+      path: "/status/"
       returnsModel: false
       timeout: 10000
       success: (json) =>
