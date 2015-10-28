@@ -2,7 +2,7 @@
 Name=Nylas N1
 Comment=<%= description %>
 GenericName=Nylas N1
-Exec=<%= installDir %>/share/nylas/nylas %U
+Exec=<%= installDir %>/share/Nylas/Nylas %U
 Icon=<%= iconName %>
 Type=Application
 StartupNotify=true

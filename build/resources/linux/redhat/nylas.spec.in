@@ -12,6 +12,7 @@ AutoReqProv:    no # Avoid libchromiumcontent.so missing dependency
 %install
 mkdir -p %{buildroot}/usr/local/share/Nylas
 cp -r /tmp/nylas-build/Nylas/* %{buildroot}/usr/local/share/Nylas
+cd %{buildroot}/usr/local/share/Nylas && 
 mkdir -p %{buildroot}/usr/local/bin/
 ln -sf /usr/local/share/Nylas/resources/app/apm/node_modules/.bin/apm %{buildroot}/usr/local/bin/apm
 cp N1.sh %{buildroot}/usr/local/bin/nylas
