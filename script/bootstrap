@@ -44,12 +44,9 @@ function makeSqlite3Command() {
     var targetArch = require('os').arch();
   }
 
-  return makeNPMPath() + " install https://github.com/bengotow/node-sqlite3/archive/master.tar.gz --ignore-scripts && cd node_modules/sqlite3 && "+nodeGypPath+" configure rebuild --target="+targetVersion+" --arch="+targetArch+" --target_platform="+targetPlatform+" --dist-url=https://atom.io/download/atom-shell --module_name=node_sqlite3 --module_path=../lib/binding/node-v44-"+targetPlatform+"-"+targetArch
-}
-
-function makeNPMPath() {
-  var npmPath = path.resolve(__dirname, '..', 'build', 'node_modules', '.bin', 'npm');
-  return fs.existsSync(npmPath) ? '"'+npmPath+'"' : 'npm';
+  // Use our local version of npm (npm 3x) to build sqlite
+  var npmPath = '"' + path.resolve(__dirname, '..', 'build', 'node_modules', '.bin', 'npm') + '"';
+  return npmPath + " install https://github.com/bengotow/node-sqlite3/archive/master.tar.gz --ignore-scripts && cd node_modules/sqlite3 && "+nodeGypPath+" configure rebuild --target="+targetVersion+" --arch="+targetArch+" --target_platform="+targetPlatform+" --dist-url=https://atom.io/download/atom-shell --module_name=node_sqlite3 --module_path=../lib/binding/node-v44-"+targetPlatform+"-"+targetArch
 }
 
 function bootstrap() {
@@ -68,9 +65,15 @@ function bootstrap() {
 
   var packagesToDedupe = ['fs-plus', 'humanize-plus', 'roaster', 'season', 'grim'];
 
-  var buildInstallCommand = makeNPMPath() + npmFlags + 'install';
+  // use the system version of npm to install build folder dependencies, including our
+  // own copy of NPM 3.x, which we'll use for subsequent commands
+  var buildInstallCommand = 'npm' + npmFlags + 'install';
   var buildInstallOptions = {cwd: path.resolve(__dirname, '..', 'build')};
-  var apmInstallCommand = makeNPMPath() + npmFlags + '--target=0.10.40 ' + 'install';
+  var npmPath = '"' + path.resolve(__dirname, '..', 'build', 'node_modules', '.bin', 'npm') + '"';
+
+  // Use our local version of npm in ./build to install apm. This ensures it gets a
+  // flat dependency tree.
+  var apmInstallCommand = npmPath + npmFlags + '--target=0.10.40 ' + 'install';
   var apmInstallOptions = {cwd: apmInstallPath};
 
   var rebuildSqlite3Command = makeSqlite3Command();
