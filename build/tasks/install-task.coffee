@@ -32,13 +32,13 @@ module.exports = (grunt) ->
 
     else
       binDir = path.join(installDir, 'bin')
-      shareDir = path.join(installDir, 'share', 'nylas')
+      shareDir = path.join(installDir, 'share', 'Nylas')
       iconName = path.join(shareDir, 'resources', 'app', 'resources', 'nylas.png')
 
       mkdir binDir
       # Note that `N1.sh` can't be renamed `nylas.sh` because `apm`
       # is currently hard-coded to call `N1.sh`
-      cp 'N1.sh', path.join(binDir, 'nylas')
+      cp 'N1.sh', path.join(binDir, 'Nylas')
       rm shareDir
       mkdir path.dirname(shareDir)
       cp shellAppDir, shareDir
@@ -51,12 +51,12 @@ module.exports = (grunt) ->
 
         {description} = grunt.file.readJSON('package.json')
         iconName = path.join(shareDir, 'resources', 'app', 'resources', 'nylas.png')
-        installDir = path.join(installDir, '.') # To prevent "Exec=/usr/local//share/nylas/nylas"
+        installDir = path.join(installDir, '.') # To prevent "Exec=/usr/local//share/Nylas/nylas"
         template = _.template(String(fs.readFileSync(desktopFile)))
         filled = template({description, installDir, iconName})
 
         grunt.file.write(desktopInstallFile, filled)
 
-      fs.chmodSync(path.join(shareDir, 'nylas'), "755")
+      fs.chmodSync(path.join(shareDir, 'Nylas'), "755")
 
     grunt.log.ok("Installed Nylas into #{installDir}")

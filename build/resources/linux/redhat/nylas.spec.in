@@ -13,7 +13,7 @@ AutoReqProv:    no # Avoid libchromiumcontent.so missing dependency
 mkdir -p %{buildroot}/usr/local/share/Nylas
 cp -r /tmp/nylas-build/Nylas/* %{buildroot}/usr/local/share/Nylas
 mkdir -p %{buildroot}/usr/local/bin/
-ln -sf /usr/local/share/nylas/resources/app/apm/node_modules/.bin/apm %{buildroot}/usr/local/bin/apm
+ln -sf /usr/local/share/Nylas/resources/app/apm/node_modules/.bin/apm %{buildroot}/usr/local/bin/apm
 cp N1.sh %{buildroot}/usr/local/bin/nylas
 chmod 755 nylas
 mkdir -p %{buildroot}/usr/local/share/applications/
@@ -22,5 +22,5 @@ mv nylas.desktop %{buildroot}/usr/local/share/applications/
 %files
 /usr/local/bin/nylas
 /usr/local/bin/apm
-/usr/local/share/nylas/
+/usr/local/share/Nylas/
 /usr/local/share/applications/nylas.desktop

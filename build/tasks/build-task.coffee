@@ -31,7 +31,7 @@ module.exports = (grunt) ->
       rm path.join(shellAppDir, 'electron.exe')
     else
       cp 'electron', shellAppDir, filter: /default_app/
-      cp path.join(shellAppDir, 'electron'), path.join(shellAppDir, 'nylas')
+      cp path.join(shellAppDir, 'electron'), path.join(shellAppDir, 'Nylas')
       rm path.join(shellAppDir, 'electron')
 
     mkdir appDir

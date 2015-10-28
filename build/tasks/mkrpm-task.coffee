@@ -31,7 +31,7 @@ module.exports = (grunt) ->
     mkdir rpmDir
 
     installDir = grunt.config.get('atom.installDir')
-    shareDir = path.join(installDir, 'share', 'nylas')
+    shareDir = path.join(installDir, 'share', 'Nylas')
     iconName = path.join(shareDir, 'resources', 'app', 'resources', 'nylas.png')
 
     data = {name, version, description, installDir, iconName}

@@ -35,7 +35,7 @@ os = require 'os'
 #
 # installDir = /usr/local OR $INSTALL_PREFIX
 # binDir     = /usr/local/bin
-# shareDir   = /usr/local/share/nylas
+# shareDir   = /usr/local/share/Nylas
 
 # Add support for obselete APIs of vm module so we can make some third-party
 # modules work under node v0.11.x.
