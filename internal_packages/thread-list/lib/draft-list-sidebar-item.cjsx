@@ -29,7 +29,7 @@ class DraftListSidebarItem extends React.Component
 
     unread = []
     if @state.count > 0
-      unread = <div className="unread item-count-box">{@state.count}</div>
+      unread = <div className="count item-count-box">{@state.count}</div>
 
     <div className={classSet} onClick={@_onClick}>
       {unread}

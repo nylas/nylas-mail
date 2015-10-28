@@ -6,13 +6,14 @@
 // number of messages in a thread)
 .item-count-box {
   float: right;
-  min-width: 26px;
+  min-width: 15px;
+  height: 15px;
   text-align: center;
   display: inline;
-  font-size: @font-size-smaller;
-  padding: @padding-xs-vertical @padding-xs-horizontal @padding-xs-vertical @padding-xs-horizontal;
-  margin-top: floor(@line-height-large - @line-height-small)/2;
-  line-height: @line-height-small;
+  font-size: @font-size-tiny;
+  padding: 0 0.286em 0 0.286em;
+  margin-top: floor(@line-height-large*1.1 - @font-size)/2 + 1;
+  line-height: @font-size;
   border-radius: @border-radius-small;
 }
 body.platform-win32 {
