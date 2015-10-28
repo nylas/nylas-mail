@@ -163,7 +163,18 @@ module.exports = (grunt) ->
     cp 'src', path.join(appDir, 'src'), filter: /.+\.(cson|coffee|cjsx|jsx)$/
     cp 'static', path.join(appDir, 'static')
 
-    cp path.join('apm', 'node_modules', 'atom-package-manager'), path.resolve(appDir, '..', 'new-app', 'apm'), filter: filterNodeModule
+    # Move all of the node modules inside /apm/node_modules to new-app/apm/node_modules
+    apmInstallDir = path.resolve(appDir, '..', 'new-app', 'apm')
+    mkdir apmInstallDir
+    cp path.join('apm', 'node_modules'), path.resolve(apmInstallDir, 'node_modules'), filter: filterNodeModule
+
+    # Move /apm/node_modules/atom-package-manager to new-app/apm. We're essentially
+    # pulling the atom-package-manager module up outside of the node_modules folder,
+    # which is necessary because npmV3 installs nested dependencies in the same dir.
+    apmPackageDir = path.join(apmInstallDir, 'node_modules', 'atom-package-manager')
+    for name in fs.readdirSync(apmPackageDir)
+      fs.renameSync path.join(apmPackageDir, name), path.join(apmInstallDir, name)
+    fs.unlinkSync(apmPackageDir)
 
     if process.platform is 'darwin'
       grunt.file.recurse path.join('build', 'resources', 'mac'), (sourcePath, rootDirectory, subDirectory='', filename) ->
