@@ -1,5 +1,17 @@
 # N1 Changelog
 
+### 0.3.20 (10/28/15)
+
+- The “Update is Available” notification now links to release notes
+- Notifications have improved styling, and the entire notification bar is clickable
+- A new notification after updating links you to the release notes
+- The search input has the correct X, and a better focus outline
+- On Mac OS X, the green window frame dot is tied to fullscreen and changes to maximize when you hold option. (FINE.)
+- On Windows, long paths no longer cause installation to fail (still in testing)
+- Format checks prevent users from submitting crazy invite code strings to invite.nylas.com
+- The invite code check now requests /status/, not /status, which prevents issues for some users
+- The sidebar “hidden” setting is now persisted through relaunch
+
 ### 0.3.19 (10/23/15)
 
 - Gmail users now have the option to “Move to Trash” in addition to "Archive", and we support the `#` Gmail shortcut.
