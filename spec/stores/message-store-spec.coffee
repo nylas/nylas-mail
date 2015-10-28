@@ -14,6 +14,7 @@ testMessage2 = new Message(id: 'b', body: '123', files: [])
 describe "MessageStore", ->
   describe "when thread focus changes", ->
     beforeEach ->
+      MessageStore._lastLoadedThreadId = null
       @focus = null
       spyOn(FocusedContentStore, 'focused').andCallFake (collection) =>
         if collection is 'thread'
@@ -73,5 +74,19 @@ describe "MessageStore", ->
         expect(Actions.queueTask).not.toHaveBeenCalled()
         @focus = null
         FocusedContentStore.trigger({impactsCollection: -> true})
+        advanceClock(500)
+        expect(Actions.queueTask).not.toHaveBeenCalled()
+
+      it "should not re-mark the thread as read when made unread", ->
+        @focus = testThread
+        testThread.unread = false
+        FocusedContentStore.trigger({impactsCollection: -> true})
+        advanceClock(500)
+        expect(Actions.queueTask).not.toHaveBeenCalled()
+
+        # This simulates a DB change or some attribute changing on the
+        # thread.
+        testThread.unread = true
+        MessageStore._fetchFromCache()
         advanceClock(500)
         expect(Actions.queueTask).not.toHaveBeenCalled()

@@ -90,7 +90,6 @@ class NylasExports
   @require "SyncbackDraftTask", 'flux/tasks/syncback-draft'
   @require "ChangeStarredTask", 'flux/tasks/change-starred-task'
   @require "CreateMetadataTask", 'flux/tasks/create-metadata-task'
-  @require "MarkMessageReadTask", 'flux/tasks/mark-message-read'
   @require "DestroyMetadataTask", 'flux/tasks/destroy-metadata-task'
 
   # Stores
