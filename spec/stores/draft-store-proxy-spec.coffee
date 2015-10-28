@@ -41,11 +41,11 @@ describe "DraftChangeSet", ->
         expect(@changeSet.commit).toHaveBeenCalled()
 
     describe "otherwise", ->
-      it "should commit after five seconds", ->
+      it "should commit after thirty seconds", ->
         spyOn(@changeSet, 'commit')
         @changeSet.add({body: 'Hello World!'})
         expect(@changeSet.commit).not.toHaveBeenCalled()
-        advanceClock(6000)
+        advanceClock(31000)
         expect(@changeSet.commit).toHaveBeenCalled()
 
   describe "commit", ->
