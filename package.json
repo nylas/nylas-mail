@@ -40,7 +40,6 @@
     "juice": "^1.4",
     "less-cache": "0.21",
     "marked": "^0.3",
-    "mixpanel": "0.0.20",
     "mkdirp": "^0.5",
     "moment": "^2.8",
     "moment-timezone": "^0.3",
