@@ -25,14 +25,14 @@ module.exports =
           message: "Thanks for trying out N1! Would you like to make it your default mail client?",
           icon: 'fa-inbox',
           actions: [{
+            label: 'Not Now'
+            dismisses: true
+            id: NOTIF_ACTION_NO
+          },{
             label: 'Yes'
             dismisses: true
             default: true
             id: NOTIF_ACTION_YES
-          },{
-            label: 'Not Now'
-            dismisses: true
-            id: NOTIF_ACTION_NO
           }]
 
   deactivate: ->
