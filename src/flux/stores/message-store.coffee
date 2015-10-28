@@ -126,6 +126,26 @@ class MessageStore extends NylasStore
 
     @_fetchFromCache()
 
+  _markAsRead: ->
+    # Mark the thread as read if necessary. Make sure it's still the
+    # current thread after the timeout.
+    #
+    # Override canBeUndone to return false so that we don't see undo
+    # prompts (since this is a passive action vs. a user-triggered
+    # action.)
+    loadedThreadId = @_thread?.id
+    return unless loadedThreadId
+    return if @_lastLoadedThreadId is loadedThreadId
+    @_lastLoadedThreadId = loadedThreadId
+    if @_thread.unread
+      markAsReadDelay = atom.config.get('core.reading.markAsReadDelay')
+      setTimeout =>
+        return unless loadedThreadId is @_thread?.id and @_thread.unread
+        t = new ChangeUnreadTask(thread: @_thread, unread: false)
+        t.canBeUndone = => false
+        Actions.queueTask(t)
+      , markAsReadDelay
+
   _onToggleMessageIdExpanded: (id) =>
     item = _.findWhere(@_items, {id})
     return unless item
@@ -178,21 +198,8 @@ class MessageStore extends NylasStore
       # and once when ready. Many third-party stores will observe
       # MessageStore and they'll be stupid and re-render constantly.
       if loaded
-        # Mark the thread as read if necessary. Make sure it's still the
-        # current thread after the timeout.
-
-        # Override canBeUndone to return false so that we don't see undo prompts
-        # (since this is a passive action vs. a user-triggered action.)
-        if @_thread.unread
-          markAsReadDelay = atom.config.get('core.reading.markAsReadDelay')
-          setTimeout =>
-            return unless loadedThreadId is @_thread?.id and @_thread.unread
-            t = new ChangeUnreadTask(thread: @_thread, unread: false)
-            t.canBeUndone = => false
-            Actions.queueTask(t)
-          , markAsReadDelay
-
         @_itemsLoading = false
+        @_markAsRead()
         @trigger(@)
 
   _fetchExpandedBodies: (items) ->
