@@ -48,13 +48,13 @@ module.exports =
       message: "An update to N1 is available #{version} - click to update now!",
       icon: 'fa-flag'
       actions: [{
+        label: 'See What\'s New'
+        id: 'release-bar:view-changelog'
+      },{
         label: 'Install Now'
         dismisses: true
         default: true
         id: 'release-bar:install-update'
-      },{
-        label: 'See What\'s New'
-        id: 'release-bar:view-changelog'
       }]
 
   deactivate: ->
