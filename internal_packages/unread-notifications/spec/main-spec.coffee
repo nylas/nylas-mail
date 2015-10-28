@@ -193,3 +193,54 @@ describe "UnreadNotifications", ->
       .then ->
         expect(atom.config.get.calls[1].args[0]).toBe "core.notifications.sounds"
         expect(SoundRegistry.playSound).not.toHaveBeenCalled()
+
+  describe "when the message has no matching thread", ->
+    beforeEach ->
+      @msgNoThread = new Message
+        unread: true
+        date: new Date()
+        from: [new Contact(name: 'Ben', email: 'ben@example.com')]
+        subject: "Hello World"
+        threadId: "missing"
+
+    it "should not create a Notification, since it cannot be determined whether the message is in the Inbox", ->
+      waitsForPromise =>
+        Main._onNewMailReceived({message: [@msgNoThread]})
+        .then ->
+          advanceClock(2000)
+          expect(window.Notification).not.toHaveBeenCalled()
+
+    it "should call _onNewMessagesMissingThreads to try displaying a notification again in 10 seconds", ->
+      waitsForPromise =>
+        spyOn(Main, '_onNewMessagesMissingThreads')
+        Main._onNewMailReceived({message: [@msgNoThread]})
+        .then =>
+          advanceClock(2000)
+          expect(Main._onNewMessagesMissingThreads).toHaveBeenCalledWith([@msgNoThread])
+
+  describe "_onNewMessagesMissingThreads", ->
+    beforeEach ->
+      @msgNoThread = new Message
+        unread: true
+        date: new Date()
+        from: [new Contact(name: 'Ben', email: 'ben@example.com')]
+        subject: "Hello World"
+        threadId: "missing"
+      spyOn(Main, '_onNewMailReceived')
+      Main._onNewMessagesMissingThreads([@msgNoThread])
+      advanceClock(2000)
+
+    it "should wait 10 seconds and then re-query for threads", ->
+      expect(DatabaseStore.find).not.toHaveBeenCalled()
+      @msgNoThread.threadId = "A"
+      advanceClock(10000)
+      expect(DatabaseStore.find).toHaveBeenCalled()
+      advanceClock()
+      expect(Main._onNewMailReceived).toHaveBeenCalledWith({message: [@msgNoThread], thread: [@threadA]})
+
+    it "should do nothing if the threads still can't be found", ->
+      expect(DatabaseStore.find).not.toHaveBeenCalled()
+      advanceClock(10000)
+      expect(DatabaseStore.find).toHaveBeenCalled()
+      advanceClock()
+      expect(Main._onNewMailReceived).not.toHaveBeenCalled()
