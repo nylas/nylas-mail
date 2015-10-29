@@ -226,6 +226,19 @@ class Actions
   @toggleMessageIdExpanded: ActionScopeWindow
 
   ###
+  Public: Create a new reply to the provided threadId and messageId and populate
+  it with the body provided.
+
+  *Scope: Window*
+
+  ```
+  message = <Message>
+  Actions.sendQuickReply({threadId: '123', messageId: '234'}, "Thanks Ben!")
+  ```
+  ###
+  @sendQuickReply: ActionScopeWindow
+
+  ###
   Public: Create a new reply to the provided threadId and messageId. Note that
   this action does not focus on the thread, so you may not be able to see the new draft
   unless you also call {::setFocus}.

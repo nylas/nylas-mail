@@ -55,6 +55,7 @@ class DraftStore
     @listenTo Actions.composePopoutDraft, @_onPopoutDraftClientId
     @listenTo Actions.composeNewBlankDraft, @_onPopoutBlankDraft
     @listenTo Actions.draftSendingFailed, @_onDraftSendingFailed
+    @listenTo Actions.sendQuickReply, @_onSendQuickReply
 
     if atom.isMainWindow()
       ipc.on 'new-message', => @_onPopoutBlankDraft()
@@ -189,6 +190,19 @@ class DraftStore
     return unless containsDraft
     @trigger(change)
 
+  _onSendQuickReply: (context, body) =>
+    @_newMessageWithContext context, (thread, message) =>
+      {to, cc} = message.participantsForReply()
+      return {
+        replyToMessage: message
+        to: to
+      }
+    .then ({draft}) =>
+      draft.body = body + "\n\n" + draft.body
+      draft.pristine = false
+      DatabaseStore.persistModel(draft).then =>
+        Actions.sendDraft(draft.clientId)
+
   _onComposeReply: (context) =>
     @_newMessageWithContext context, (thread, message) =>
       {to, cc} = message.participantsForReply()
@@ -221,7 +235,7 @@ class DraftStore
     @_draftSessions[draft.clientId] = new DraftStoreProxy(draft.clientId, draft)
 
     DatabaseStore.persistModel(draft).then =>
-      Promise.resolve(draftClientId: draft.clientId)
+      Promise.resolve(draftClientId: draft.clientId, draft: draft)
 
   _newMessageWithContext: (args, attributesCallback) =>
     return unless AccountStore.current()
@@ -239,8 +253,9 @@ class DraftStore
     .then @_prepareNewMessageAttributes
     .then @_constructDraft
     .then @_finalizeAndPersistNewMessage
-    .then ({draftClientId}) =>
+    .then ({draftClientId, draft}) =>
       Actions.composePopoutDraft(draftClientId) if args.popout
+      Promise.resolve({draftClientId, draft})
 
   _buildModelResolvers: ({thread, threadId, message, messageId}) ->
     queries = {}

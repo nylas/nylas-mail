@@ -7,6 +7,7 @@ CategoryStore = require '../../../src/flux/stores/category-store'
 DatabaseStore = require '../../../src/flux/stores/database-store'
 AccountStore = require '../../../src/flux/stores/account-store'
 SoundRegistry = require '../../../src/sound-registry'
+NativeNotifications = require '../../../src/native-notifications'
 Main = require '../lib/main'
 
 describe "UnreadNotifications", ->
@@ -89,7 +90,7 @@ describe "UnreadNotifications", ->
       return Promise.resolve(@threadB) if id is 'B'
       return Promise.resolve(null)
 
-    spyOn(window, 'Notification').andCallFake ->
+    spyOn(NativeNotifications, 'displayNotification').andCallFake ->
     spyOn(Promise, 'props').andCallFake (dict) ->
       dictOut = {}
       for key, val of dict
@@ -107,8 +108,16 @@ describe "UnreadNotifications", ->
       Main._onNewMailReceived({message: [@msgRead, @msg1]})
       .then ->
         advanceClock(2000)
-        expect(window.Notification).toHaveBeenCalled()
-        expect(window.Notification.mostRecentCall.args).toEqual([ 'Ben', { body : 'Hello World', tag : 'unread-update' } ])
+        expect(NativeNotifications.displayNotification).toHaveBeenCalled()
+        options = NativeNotifications.displayNotification.mostRecentCall.args[0]
+        delete options['onActivate']
+        expect(options).toEqual({
+          title: 'Ben',
+          subtitle: 'Hello World',
+          body: undefined,
+          canReply: true,
+          tag: 'unread-update'
+        })
 
   it "should create multiple Notifications if there is more than one but less than five unread messages", ->
     waitsForPromise =>
@@ -117,7 +126,7 @@ describe "UnreadNotifications", ->
         #Need to call advance clock twice because we call setTimeout twice
         advanceClock(2000)
         advanceClock(2000)
-        expect(window.Notification.callCount).toEqual(3)
+        expect(NativeNotifications.displayNotification.callCount).toEqual(3)
 
   it "should create a Notification if there are five or more unread messages", ->
     waitsForPromise =>
@@ -125,51 +134,71 @@ describe "UnreadNotifications", ->
         message: [@msg1, @msg2, @msg3, @msg4, @msg5]})
       .then ->
         advanceClock(2000)
-        expect(window.Notification).toHaveBeenCalled()
-        expect(window.Notification.mostRecentCall.args).toEqual([ '5 Unread Messages', { tag : 'unread-update' } ])
+        expect(NativeNotifications.displayNotification).toHaveBeenCalled()
+        expect(NativeNotifications.displayNotification.mostRecentCall.args).toEqual([{
+          title: '5 Unread Messages',
+          tag: 'unread-update'
+        }])
 
   it "should create a Notification correctly, even if new mail has no sender", ->
     waitsForPromise =>
       Main._onNewMailReceived({message: [@msgNoSender]})
       .then ->
-        expect(window.Notification).toHaveBeenCalled()
-        expect(window.Notification.mostRecentCall.args).toEqual([ 'Unknown', { body : 'Hello World', tag : 'unread-update' } ])
+        expect(NativeNotifications.displayNotification).toHaveBeenCalled()
+
+        options = NativeNotifications.displayNotification.mostRecentCall.args[0]
+        delete options['onActivate']
+        expect(options).toEqual({
+          title: 'Unknown',
+          subtitle: 'Hello World',
+          body: undefined,
+          canReply : true,
+          tag: 'unread-update'
+        })
 
   it "should not create a Notification if there are no new messages", ->
     waitsForPromise ->
       Main._onNewMailReceived({message: []})
       .then ->
-        expect(window.Notification).not.toHaveBeenCalled()
+        expect(NativeNotifications.displayNotification).not.toHaveBeenCalled()
 
     waitsForPromise ->
       Main._onNewMailReceived({})
       .then ->
-        expect(window.Notification).not.toHaveBeenCalled()
+        expect(NativeNotifications.displayNotification).not.toHaveBeenCalled()
 
   it "should not notify about unread messages that are outside the inbox", ->
     waitsForPromise =>
       Main._onNewMailReceived({message: [@msgUnreadButArchived, @msg1]})
       .then ->
-        expect(window.Notification).toHaveBeenCalled()
-        expect(window.Notification.mostRecentCall.args).toEqual([ 'Ben', { body : 'Hello World', tag : 'unread-update' } ])
+        expect(NativeNotifications.displayNotification).toHaveBeenCalled()
+        options = NativeNotifications.displayNotification.mostRecentCall.args[0]
+        delete options['onActivate']
+        expect(options).toEqual({
+          title: 'Ben',
+          subtitle: 'Hello World',
+          body: undefined,
+          canReply : true,
+          tag: 'unread-update'
+        })
 
   it "should not create a Notification if the new messages are not unread", ->
     waitsForPromise =>
       Main._onNewMailReceived({message: [@msgRead]})
       .then ->
-        expect(window.Notification).not.toHaveBeenCalled()
+        expect(NativeNotifications.displayNotification).not.toHaveBeenCalled()
 
   it "should not create a Notification if the new messages are actually old ones", ->
     waitsForPromise =>
       Main._onNewMailReceived({message: [@msgOld]})
       .then ->
-        expect(window.Notification).not.toHaveBeenCalled()
+        expect(NativeNotifications.displayNotification).not.toHaveBeenCalled()
 
   it "should not create a Notification if the new message is one I sent", ->
     waitsForPromise =>
       Main._onNewMailReceived({message: [@msgFromMe]})
       .then ->
-        expect(window.Notification).not.toHaveBeenCalled()
+        expect(NativeNotifications.displayNotification).not.toHaveBeenCalled()
 
   it "should play a sound when it gets new mail", ->
     spyOn(atom.config, "get").andCallFake (config) ->
@@ -208,7 +237,7 @@ describe "UnreadNotifications", ->
         Main._onNewMailReceived({message: [@msgNoThread]})
         .then ->
           advanceClock(2000)
-          expect(window.Notification).not.toHaveBeenCalled()
+          expect(NativeNotifications.displayNotification).not.toHaveBeenCalled()
 
     it "should call _onNewMessagesMissingThreads to try displaying a notification again in 10 seconds", ->
       waitsForPromise =>

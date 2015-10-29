@@ -44,6 +44,7 @@
     "moment": "^2.8",
     "moment-timezone": "^0.3",
     "nslog": "^2.0.0",
+    "NodObjC": "git+https://github.com/TooTallNate/NodObjC",
     "node-uuid": "^1.4",
     "optimist": "0.4.0",
     "pathwatcher": "^4.4.0",
