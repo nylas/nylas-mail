@@ -10,6 +10,11 @@ Note: You currently need an invitation code to use N1. You can request one
 [here](https://invite.nylas.com). If you reach out to our team, we can bump
 you to the front of the list so you can contribute to the project.
 
+The invitation flow allows us to control adoption of N1 and maintain a great
+experience for our users. However, the sync engine is 
+[open source](https://github.com/nylas/sync-engine) and you can set it
+up yourself to begin using N1 immediately. Follow instructions on the [sync
+engine](https://github.com/nylas/sync-engine) repository.
 
 ### Getting Started
 
@@ -42,6 +47,15 @@ This will run the full suite of automated unit tests. We use [Jasmine 1.3](http:
 It runs all tests inside of the `/spec` folder and all tests inside of
 `/internal_packages/**/spec`
 
+### Creating binaries
+
+Once you've checked out N1 and run `script/bootstrap`, you can create a packaged
+version of the application by running `script/build`. Note that the builds
+available at [https://nylas.com/N1](https://nylas.com/N1) include licensed
+fonts, sounds, and other improvements. If you're just looking to run N1, you
+should download it there!
+
+
 # Pull requests
 
 We require all authors sign our [Contributor License
@@ -49,7 +63,7 @@ Agreement](https://www.nylas.com/cla.html) before pull requests (even
 minor ones) can be accepted. (It's similar to other projects, like NodeJS
 Meteor, or React). I'm really sorry, but Legal made us do it.
 
-## Commit Format
+### Commit Format
 
 We decided to not impose super strict commit guidelines on the community.
 
@@ -70,14 +84,6 @@ We do have a few heuristics:
   that in the commit body (not the subject). Itemize the major semantic
   changes that happened.
 - Read "[How to Write a Git Commit Message](http://chris.beams.io/posts/git-commit/)" if you haven't already (but don't be too prescriptivist about it!)
-
-# Building
-
-Once you've checked out N1 and run `script/bootstrap`, you can create a packaged
-version of the application by running `script/build`. Note that the builds
-available at [https://nylas.com/N1](https://nylas.com/N1) include licensed
-fonts, sounds, and other improvements. If you're just looking to run N1, you
-should download it there!
 
 # Running Against Open Source Sync Engine
 
