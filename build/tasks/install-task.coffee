@@ -19,7 +19,7 @@ module.exports = (grunt) ->
 
       createShortcut = path.resolve('script', 'create-shortcut.cmd')
       shortcutIconPath = path.resolve('script', 'build', 'resources', 'win', 'nylas.ico')
-      runas('cmd', ['/c', createShortcut, path.join(installDir, 'nylas.exe'), 'Nylas', shortcutIconPath])
+      runas('cmd', ['/c', createShortcut, path.join(installDir, 'nylas.exe'), 'nylas', shortcutIconPath])
 
     else if process.platform is 'darwin'
       rm installDir
