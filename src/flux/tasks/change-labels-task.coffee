@@ -59,13 +59,13 @@ class ChangeLabelsTask extends ChangeMailTask
       @threads = _.compact(threads)
       @messages = _.compact(messages)
 
-      # The base class does the heavy lifting and calls _changesToModel
+      # The base class does the heavy lifting and calls changesToModel
       return super
 
-  _processesNestedMessages: ->
+  processNestedMessages: ->
     false
 
-  _changesToModel: (model) ->
+  changesToModel: (model) ->
     labelsToRemoveIds = _.pluck(@labelsToRemove, 'id')
 
     labels = [].concat(model.labels, @labelsToAdd)
@@ -73,7 +73,7 @@ class ChangeLabelsTask extends ChangeMailTask
     labels = _.uniq labels, false, (label) -> label.id
     {labels}
 
-  _requestBodyForModel: (model) ->
+  requestBodyForModel: (model) ->
     labels: model.labels.map (l) -> l.id
 
 module.exports = ChangeLabelsTask

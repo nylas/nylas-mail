@@ -50,13 +50,13 @@ describe "ChangeMailTask", ->
     spyOn(DatabaseStore, 'persistModels').andReturn(Promise.resolve())
     spyOn(DatabaseStore, 'persistModel').andReturn(Promise.resolve())
 
-  it "leaves subclasses to implement _changesToModel", ->
+  it "leaves subclasses to implement changesToModel", ->
     task = new ChangeMailTask()
-    expect( => task._changesToModel() ).toThrow()
+    expect( => task.changesToModel() ).toThrow()
 
-  it "leaves subclasses to implement _requestBodyForModel", ->
+  it "leaves subclasses to implement requestBodyForModel", ->
     task = new ChangeMailTask()
-    expect( => task._requestBodyForModel() ).toThrow()
+    expect( => task.requestBodyForModel() ).toThrow()
 
   describe "performLocal", ->
     it "rejects if it's an undo task and no restore values are present", ->
@@ -103,10 +103,10 @@ describe "ChangeMailTask", ->
           expect(@task._applyChanges).toHaveBeenCalledWith(@task.threads)
           expect(DatabaseStore.persistModels).toHaveBeenCalledWith([@threadAChanged])
 
-    describe "when _processesNestedMessages is overridden to return true", ->
+    describe "when processNestedMessages is overridden to return true", ->
       it "fetches messages on changed threads and appends them to the messages to update", ->
         waitsForPromise =>
-          @task._processesNestedMessages = => true
+          @task.processNestedMessages = => true
           @task._performLocalThreads().then =>
             expect(@task._applyChanges).toHaveBeenCalledWith(@task.threads)
             expect(@task.messages).toEqual([@threadAMesage1, @threadAMesage2])
@@ -131,17 +131,17 @@ describe "ChangeMailTask", ->
     describe "when applying forwards", ->
       beforeEach ->
         spyOn(@task, '_shouldChangeBackwards').andReturn(false)
-        spyOn(@task, '_changesToModel').andCallFake (thread) =>
+        spyOn(@task, 'changesToModel').andCallFake (thread) =>
           if thread is @threadC
             return {folders: [new Folder(id: "different!")]}
           else
             return {folders: thread.folders}
 
-      it "should call _changesToModel on each model", ->
+      it "should call changesToModel on each model", ->
         @task._applyChanges([@threadA, @threadB])
-        expect(@task._changesToModel.callCount).toBe(2)
-        expect(@task._changesToModel.calls[0].args[0]).toBe(@threadA)
-        expect(@task._changesToModel.calls[1].args[0]).toBe(@threadB)
+        expect(@task.changesToModel.callCount).toBe(2)
+        expect(@task.changesToModel.calls[0].args[0]).toBe(@threadA)
+        expect(@task.changesToModel.calls[1].args[0]).toBe(@threadB)
 
       it "should return only the models with new values", ->
         out = @task._applyChanges([@threadA, @threadB, @threadC])
@@ -177,26 +177,26 @@ describe "ChangeMailTask", ->
 
   describe "performRemote", ->
     describe "if threads are set", ->
-      it "should only call performRequests with threads", ->
+      it "should only call _performRequests with threads", ->
         @task = new ChangeMailTask()
         @task.threads = [@threadA, @threadB]
         @task.messages = [@threadAMesage1, @threadAMesage2]
-        spyOn(@task, 'performRequests').andReturn(Promise.resolve())
+        spyOn(@task, '_performRequests').andReturn(Promise.resolve())
         waitsForPromise =>
           @task.performRemote().then =>
-            expect(@task.performRequests).toHaveBeenCalledWith(Thread, @task.threads)
-            expect(@task.performRequests.callCount).toBe(1)
+            expect(@task._performRequests).toHaveBeenCalledWith(Thread, @task.threads)
+            expect(@task._performRequests.callCount).toBe(1)
 
     describe "if only messages are set", ->
-      it "should only call performRequests with messages", ->
+      it "should only call _performRequests with messages", ->
         @task = new ChangeMailTask()
         @task.threads = []
         @task.messages = [@threadAMesage1, @threadAMesage2]
-        spyOn(@task, 'performRequests').andReturn(Promise.resolve())
+        spyOn(@task, '_performRequests').andReturn(Promise.resolve())
         waitsForPromise =>
           @task.performRemote().then =>
-            expect(@task.performRequests).toHaveBeenCalledWith(Message, @task.messages)
-            expect(@task.performRequests.callCount).toBe(1)
+            expect(@task._performRequests).toHaveBeenCalledWith(Message, @task.messages)
+            expect(@task._performRequests.callCount).toBe(1)
 
     describe "if somehow there are no threads or messages", ->
       it "should resolve", ->
@@ -207,18 +207,18 @@ describe "ChangeMailTask", ->
           @task.performRemote().then (code) =>
             expect(code).toEqual(Task.Status.Success)
 
-    describe "if performRequests resolves", ->
+    describe "if _performRequests resolves", ->
       it "should resolve with Task.Status.Success", ->
         @task = new ChangeMailTask()
-        spyOn(@task, 'performRequests').andReturn(Promise.resolve())
+        spyOn(@task, '_performRequests').andReturn(Promise.resolve())
         waitsForPromise =>
           @task.performRemote().then (result) =>
             expect(result).toBe(Task.Status.Success)
 
-    describe "if performRequests rejects with a permanent network error", ->
+    describe "if _performRequests rejects with a permanent network error", ->
       beforeEach ->
         @task = new ChangeMailTask()
-        spyOn(@task, 'performRequests').andReturn(Promise.reject(new APIError(statusCode: 400)))
+        spyOn(@task, '_performRequests').andReturn(Promise.reject(new APIError(statusCode: 400)))
         spyOn(@task, 'performLocal').andReturn(Promise.resolve())
 
       it "should set isReverting and call performLocal", ->
@@ -232,10 +232,10 @@ describe "ChangeMailTask", ->
           @task.performRemote().then (result) =>
             expect(result).toBe(Task.Status.Failed)
 
-    describe "if performRequests rejects with a temporary network error", ->
+    describe "if _performRequests rejects with a temporary network error", ->
       beforeEach ->
         @task = new ChangeMailTask()
-        spyOn(@task, 'performRequests').andReturn(Promise.reject(new APIError(statusCode: NylasAPI.SampleTemporaryErrorCode)))
+        spyOn(@task, '_performRequests').andReturn(Promise.reject(new APIError(statusCode: NylasAPI.SampleTemporaryErrorCode)))
         spyOn(@task, 'performLocal').andReturn(Promise.resolve())
 
       it "should not revert", ->
@@ -250,7 +250,7 @@ describe "ChangeMailTask", ->
             expect(result).toBe(Task.Status.Retry)
 
 
-    describe "performRequests", ->
+    describe "_performRequests", ->
       beforeEach ->
         @task = new ChangeMailTask()
         @task._restoreValues =
@@ -258,7 +258,7 @@ describe "ChangeMailTask", ->
           'B': {}
           'C': {}
           'A1': {}
-        spyOn(@task, '_requestBodyForModel').andCallFake (model) =>
+        spyOn(@task, 'requestBodyForModel').andCallFake (model) =>
           if model is @threadA
             return {field: 'thread-a-body'}
           if model is @threadB
@@ -266,10 +266,10 @@ describe "ChangeMailTask", ->
           if model is @threadAMesage1
             return {field: 'message-1'}
 
-      it "should call NylasAPI.makeRequest for each model, passing the result of _requestBodyForModel", ->
+      it "should call NylasAPI.makeRequest for each model, passing the result of requestBodyForModel", ->
         spyOn(NylasAPI, 'makeRequest').andReturn(Promise.resolve())
         runs ->
-          @task.performRequests(Thread, [@threadA, @threadB])
+          @task._performRequests(Thread, [@threadA, @threadB])
         waitsFor ->
           NylasAPI.makeRequest.callCount is 2
         runs ->
@@ -283,7 +283,7 @@ describe "ChangeMailTask", ->
 
         resolved = false
         runs ->
-          @task.performRequests(Thread, [@threadA, @threadB]).then =>
+          @task._performRequests(Thread, [@threadA, @threadB]).then =>
             resolved = true
         waitsFor ->
           NylasAPI.makeRequest.callCount is 2
@@ -303,7 +303,7 @@ describe "ChangeMailTask", ->
 
         resolved = false
         runs ->
-          @task.performRequests(Thread, [@threadA, @threadB]).then =>
+          @task._performRequests(Thread, [@threadA, @threadB]).then =>
             resolved = true
         waitsFor ->
           NylasAPI.makeRequest.callCount is 2
@@ -320,7 +320,7 @@ describe "ChangeMailTask", ->
 
         err = null
         runs ->
-          @task.performRequests(Thread, [@threadA, @threadB]).catch (error) =>
+          @task._performRequests(Thread, [@threadA, @threadB]).catch (error) =>
             err = error
         waitsFor ->
           NylasAPI.makeRequest.callCount is 2
@@ -338,7 +338,7 @@ describe "ChangeMailTask", ->
         spyOn(NylasAPI, 'makeRequest').andCallFake ->
           new Promise (resolve, reject) -> #noop
         runs ->
-          @task.performRequests(Thread, [@threadA, @threadB])
+          @task._performRequests(Thread, [@threadA, @threadB])
         waitsFor ->
           NylasAPI.makeRequest.callCount is 2
         runs ->
@@ -350,7 +350,7 @@ describe "ChangeMailTask", ->
         spyOn(NylasAPI, 'makeRequest').andCallFake ->
           new Promise (resolve, reject) -> #noop
         runs ->
-          @task.performRequests(Message, [@threadAMesage1])
+          @task._performRequests(Message, [@threadAMesage1])
         waitsFor ->
           NylasAPI.makeRequest.callCount is 1
         runs ->
@@ -363,7 +363,7 @@ describe "ChangeMailTask", ->
           new Promise (resolve, reject) -> #noop
         spyOn(@task, '_removeLock')
         runs ->
-          @task.performRequests(Thread, [@threadAMesage1])
+          @task._performRequests(Thread, [@threadAMesage1])
         waitsFor ->
           NylasAPI.makeRequest.callCount is 1
         runs ->
@@ -379,7 +379,7 @@ describe "ChangeMailTask", ->
         threads = []
         threads.push new Thread(id: "#{idx}", subject: idx) for idx in [0..100]
         @task._restoreValues = _.map threads, (t) -> {some: 'data'}
-        @task.performRequests(Thread, threads)
+        @task._performRequests(Thread, threads)
         advanceClock()
         expect(resolves.length).toEqual(5)
         advanceClock()
@@ -405,7 +405,7 @@ describe "ChangeMailTask", ->
         threads = []
         threads.push new Thread(id: "#{idx}", subject: idx) for idx in [0..100]
         @task._restoreValues = _.map threads, (t) -> {some: 'data'}
-        @task.performRequests(Thread, threads)
+        @task._performRequests(Thread, threads)
         advanceClock()
         expect(resolves.length).toEqual(5)
         resolves[idx]() for idx in [0...4]
@@ -452,7 +452,7 @@ describe "ChangeMailTask", ->
 
     describe "when performRemote is returning Task.Status.Success", ->
       it "should clean up locks", ->
-        spyOn(@task, 'performRequests').andReturn(Promise.resolve())
+        spyOn(@task, '_performRequests').andReturn(Promise.resolve())
         spyOn(@task, '_ensureLocksRemoved')
         waitsForPromise =>
           @task.performRemote().then =>
@@ -460,7 +460,7 @@ describe "ChangeMailTask", ->
 
     describe "when performRemote is returning Task.Status.Failed after reverting", ->
       it "should clean up locks", ->
-        spyOn(@task, 'performRequests').andReturn(Promise.reject(new APIError(statusCode: 400)))
+        spyOn(@task, '_performRequests').andReturn(Promise.reject(new APIError(statusCode: 400)))
         spyOn(@task, '_ensureLocksRemoved')
         waitsForPromise =>
           @task.performRemote().then =>
@@ -468,7 +468,7 @@ describe "ChangeMailTask", ->
 
     describe "when performRemote is returning Task.Status.Retry", ->
       it "should not clean up locks", ->
-        spyOn(@task, 'performRequests').andReturn(Promise.reject(new APIError(statusCode: NylasAPI.SampleTemporaryErrorCode)))
+        spyOn(@task, '_performRequests').andReturn(Promise.reject(new APIError(statusCode: NylasAPI.SampleTemporaryErrorCode)))
         spyOn(@task, '_ensureLocksRemoved')
         waitsForPromise =>
           @task.performRemote().then =>

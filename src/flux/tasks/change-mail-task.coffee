@@ -44,18 +44,24 @@ mapLimit = (input, numberInParallel, fn) ->
     else
       resolve([])
 
-# The ChangeMailTask is a base class for all tasks that modify sets of threads or
-# messages. Subclasses implement `_changesToModel` and `_requestBodyForModel` to
-# define the specific transforms they provide, and override `performLocal` to
-# perform additional consistency checks.
-#
-# ChangeMailTask aims to be fast and efficient. It does not write changes to the
-# database or make API requests for models that are unmodified by `_changesToModel`
-#
-# ChangeMailTask stores the previous values of all models it changes into @_restoreValues
-# and handles undo/redo. When undoing, it restores previous values and calls
-# `_requestBodyForModel` to make undo API requests. It does not call `_changesToModel`.
-##
+###
+Public: The ChangeMailTask is a base class for all tasks that modify sets
+of threads or messages.
+
+Subclasses implement {ChangeMailTask::changesToModel} and
+{ChangeMailTask::requestBodyForModel} to define the specific transforms
+they provide, and override {ChangeMailTask::performLocal} to perform
+additional consistency checks.
+
+ChangeMailTask aims to be fast and efficient. It does not write changes to
+the database or make API requests for models that are unmodified by
+{ChangeMailTask::changesToModel}
+
+ChangeMailTask stores the previous values of all models it changes into
+@_restoreValues and handles undo/redo. When undoing, it restores previous
+values and calls {ChangeMailTask::requestBodyForModel} to make undo API
+requests. It does not call {ChangeMailTask::changesToModel}.
+###
 class ChangeMailTask extends Task
 
   constructor: ({@threads, thread, @messages, message} = {}) ->
@@ -67,38 +73,49 @@ class ChangeMailTask extends Task
 
   # Functions for subclasses
 
-  # Override this method and return an object with key-value pairs representing
-  # changed values. For example, if your task sets unread: false, return
-  # {unread: false}.
+  # Public: Override this method and return an object with key-value pairs
+  # representing changed values. For example, if your task sets unread:
+  # false, return {unread: false}.
   #
-  _changesToModel: (model) ->
+  # - `model` an individual {Thread} or {Message}
+  #
+  # Returns an object whos key-value pairs represent the desired changed
+  # object.
+  changesToModel: (model) ->
     throw new Error("You must override this method.")
 
-  # Override this method and return an object that will be the request body
-  # used for saving changes to `model`.
+  # Public: Override this method and return an object that will be the
+  # request body used for saving changes to `model`.
   #
-  _requestBodyForModel: (model) ->
+  # - `model` an individual {Thread} or {Message}
+  #
+  # Returns an object that will be passed as the `body` to the actual API
+  # `request` object
+  requestBodyForModel: (model) ->
     throw new Error("You must override this method.")
 
-  # Generally, you cannot provide both messages and threads at the same time. However,
-  # ChangeMailTask runs for provided threads first and then messages. Override
-  # and return true, and you will receive `_changesToModel` for messages in
-  # changed threads, and any changes you make will be written to the database
-  # and undone during undo.
+  # Public: Override to indicate whether actions need to be taken for all
+  # messages of each thread.
   #
-  # Note that API requests are only made for threads if threads are present.
+  # Generally, you cannot provide both messages and threads at the same
+  # time. However, ChangeMailTask runs for provided threads first and then
+  # messages. Override and return true, and you will receive
+  # `changesToModel` for messages in changed threads, and any changes you
+  # make will be written to the database and undone during undo.
   #
-  _processesNestedMessages: ->
+  # Note that API requests are only made for threads if threads are
+  # present.
+  processNestedMessages: ->
     false
 
-  # Perform Local
-
-  # Subclasses should override `performLocal` and call super once they've
-  # prepared the data they need and verified that requirements are met.
+  # Public: Subclasses should override `performLocal` and call super once
+  # they've prepared the data they need and verified that requirements are
+  # met.
+  #
+  # See {Task::performLocal} for more usage info
   #
   # Note: Currently, *ALL* subclasses must use `DatabaseStore.modelify`
   # to convert `threads` and `messages` from models or ids to models.
-  #
   performLocal: ->
     if @_isUndoTask and not @_restoreValues
       return Promise.reject(new Error("ChangeMailTask: No _restoreValues provided for undo task."))
@@ -115,7 +132,7 @@ class ChangeMailTask extends Task
     changedIds = _.pluck(changed, 'id')
 
     DatabaseStore.persistModels(changed).then =>
-      if @_processesNestedMessages()
+      if @processNestedMessages()
         DatabaseStore.findAll(Message).where(Message.attributes.threadId.in(changedIds)).then (messages) =>
           @messages = [].concat(messages, @messages)
           Promise.resolve()
@@ -138,7 +155,7 @@ class ChangeMailTask extends Task
     else
       @_restoreValues ?= {}
       for model, idx in modelArray
-        fieldsNew = @_changesToModel(model)
+        fieldsNew = @changesToModel(model)
         fieldsCurrent = _.pick(model, Object.keys(fieldsNew))
         if not _.isEqual(fieldsCurrent, fieldsNew)
           @_restoreValues[model.id] = fieldsCurrent
@@ -152,9 +169,8 @@ class ChangeMailTask extends Task
     @_isReverting or @_isUndoTask
 
   # Perform Remote
-
   performRemote: ->
-    @performRequests(@objectClass(), @objectArray()).then =>
+    @_performRequests(@objectClass(), @objectArray()).then =>
       @_ensureLocksRemoved()
       return Promise.resolve(Task.Status.Success)
     .catch APIError, (err) =>
@@ -166,7 +182,7 @@ class ChangeMailTask extends Task
       else
         return Promise.resolve(Task.Status.Retry)
 
-  performRequests: (klass, models) ->
+  _performRequests: (klass, models) ->
     mapLimit models, 5, (model) =>
       # Don't bother making a web request if performLocal didn't modify this model
       return Promise.resolve() unless @_restoreValues[model.id]
@@ -180,7 +196,7 @@ class ChangeMailTask extends Task
         path: "/#{endpoint}/#{model.id}"
         accountId: model.accountId
         method: 'PUT'
-        body: @_requestBodyForModel(model)
+        body: @requestBodyForModel(model)
         returnsModel: true
         beforeProcessing: (body) =>
           @_removeLock(model)

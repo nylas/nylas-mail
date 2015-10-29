@@ -42,10 +42,10 @@ class ChangeStarredTask extends ChangeMailTask
       @threads = _.compact(threads)
       return super
 
-  _changesToModel: (model) ->
+  changesToModel: (model) ->
     {starred: @starred}
 
-  _requestBodyForModel: (model) ->
+  requestBodyForModel: (model) ->
     starred: model.starred
 
 module.exports = ChangeStarredTask

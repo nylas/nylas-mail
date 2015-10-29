@@ -69,19 +69,19 @@ class ChangeFolderTask extends ChangeMailTask
       @threads = _.compact(threads)
       @messages = _.compact(messages)
 
-      # The base class does the heavy lifting and calls _changesToModel
+      # The base class does the heavy lifting and calls changesToModel
       return super
 
-  _processesNestedMessages: ->
+  processNestedMessages: ->
     false
 
-  _changesToModel: (model) ->
+  changesToModel: (model) ->
     if model instanceof Thread
       {folders: [@folder]}
     else
       {folder: @folder}
 
-  _requestBodyForModel: (model) ->
+  requestBodyForModel: (model) ->
     if model instanceof Thread
       folder: model.folders[0]?.id || null
     else
