@@ -112,6 +112,7 @@ class NylasExports
   @require "FocusedContactsStore", 'flux/stores/focused-contacts-store'
   @require "MessageBodyProcessor", 'flux/stores/message-body-processor'
   @require "MessageStoreExtension", 'flux/stores/message-store-extension'
+  @require "PreferencesSectionStore", 'flux/stores/preferences-section-store'
 
   # React Components
   @get "React", -> require 'react' # Our version of React for 3rd party use

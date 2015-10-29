@@ -333,6 +333,9 @@ class Application
     ipc.on 'from-react-remote-window', (event, json) =>
       @windowManager.sendToMainWindow('from-react-remote-window', json)
 
+    ipc.on 'from-react-remote-window-selection', (event, json) =>
+      @windowManager.sendToMainWindow('from-react-remote-window-selection', json)
+
     ipc.on 'inline-style-parse', (event, {body, clientId}) =>
       juice = require 'juice'
       try

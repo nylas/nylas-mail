@@ -1,15 +1,15 @@
 React = require 'react'
 _ = require 'underscore'
 {RetinaImg, Flexbox, ConfigPropContainer} = require 'nylas-component-kit'
+{PreferencesSectionStore} = require 'nylas-exports'
 
-PreferencesStore = require './preferences-store'
 PreferencesHeader = require './preferences-header'
 
 class Preferences extends React.Component
   @displayName: 'Preferences'
 
   constructor: (@props) ->
-    tabs = PreferencesStore.tabs()
+    tabs = PreferencesSectionStore.sections()
     if @props.initialTab
       activeTab = _.find tabs, (t) => t.name is @props.initialTab
     activeTab ||= tabs[0]
@@ -18,7 +18,7 @@ class Preferences extends React.Component
 
   componentDidMount: =>
     @unlisteners = []
-    @unlisteners.push PreferencesStore.listen =>
+    @unlisteners.push PreferencesSectionStore.listen =>
       @setState(@getStateFromStores())
 
   componentWillUnmount: =>
@@ -29,7 +29,7 @@ class Preferences extends React.Component
       @setState(activeTab: @state.tabs[0])
 
   getStateFromStores: =>
-    tabs: PreferencesStore.tabs()
+    tabs: PreferencesSectionStore.sections()
 
   render: =>
     if @state.activeTab

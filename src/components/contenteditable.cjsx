@@ -2,14 +2,13 @@ _ = require 'underscore'
 React = require 'react'
 
 {Utils,
- DOMUtils,
- DraftStore} = require 'nylas-exports'
+ DOMUtils} = require 'nylas-exports'
 
 ClipboardService = require './clipboard-service'
 FloatingToolbarContainer = require './floating-toolbar-container'
 
-class ContenteditableComponent extends React.Component
-  @displayName: "ContenteditableComponent"
+class Contenteditable extends React.Component
+  @displayName: "Contenteditable"
   @propTypes:
     html: React.PropTypes.string
     initialSelectionSnapshot: React.PropTypes.object
@@ -23,8 +22,26 @@ class ContenteditableComponent extends React.Component
     onScrollTo: React.PropTypes.func
     onScrollToBottom: React.PropTypes.func
 
+    # A series of callbacks that can get executed at various points along
+    # the contenteditable. Has the keys:
+    lifecycleCallbacks: React.PropTypes.object
+
+    spellcheck: React.PropTypes.bool
+
+    floatingToolbar: React.PropTypes.bool
+
   @defaultProps:
     filters: []
+    spellcheck: true
+    floatingToolbar: true
+    lifecycleCallbacks:
+      componentDidUpdate: (editableNode) ->
+      onInput: (editableNode, event) ->
+      onTabDown: (editableNode, event, range) ->
+      onLearnSpelling: (editableNode, text) ->
+      onSubstitutionPerformed: (editableNode) ->
+      onMouseUp: (editableNode, event, range) ->
+
 
   constructor: (@props) ->
     @innerState = {}
@@ -66,19 +83,23 @@ class ContenteditableComponent extends React.Component
     @_restoreSelection()
 
     editableNode = @_editableNode()
-    for extension in DraftStore.extensions()
-      extension.onComponentDidUpdate(@_editableNode()) if extension.onComponentDidUpdate
+
+    @props.lifecycleCallbacks.componentDidUpdate(editableNode)
 
     @setInnerState
       links: editableNode.querySelectorAll("*[href]")
       editableNode: editableNode
 
+  _renderFloatingToolbar: ->
+    return unless @props.floatingToolbar
+    <FloatingToolbarContainer
+      ref="toolbarController"
+      onSaveUrl={@_onSaveUrl}
+      onDomMutator={@_onDomMutator} />
+
   render: =>
     <div className="contenteditable-container">
-      <FloatingToolbarContainer
-        ref="toolbarController"
-        onSaveUrl={@_onSaveUrl}
-        onDomMutator={@_onDomMutator} />
+      {@_renderFloatingToolbar()}
 
       <div id="contenteditable"
            ref="contenteditable"
@@ -143,7 +164,7 @@ class ContenteditableComponent extends React.Component
 
     @_runCoreFilters()
 
-    @_runExtensionFilters(event)
+    @props.lifecycleCallbacks.onInput(@_editableNode(), event)
 
     @_normalize()
 
@@ -161,10 +182,6 @@ class ContenteditableComponent extends React.Component
 
   _runCoreFilters: ->
     @_createLists()
-
-  _runExtensionFilters: (event) ->
-    for extension in DraftStore.extensions()
-      extension.onInput(@_editableNode(), event) if extension.onInput
 
   _saveNewHtml: ->
     html = @_editableNode().innerHTML
@@ -262,8 +279,7 @@ class ContenteditableComponent extends React.Component
     editableNode = @_editableNode()
     range = DOMUtils.getRangeInScope(editableNode)
 
-    for extension in DraftStore.extensions()
-      extension.onTabDown(editableNode, range, event) if extension.onTabDown
+    @props.lifecycleCallbacks.onTabDown(editableNode, event, range)
 
     return if event.defaultPrevented
     @_onTabDownDefaultBehavior(event)
@@ -684,7 +700,6 @@ class ContenteditableComponent extends React.Component
     clipboard = require('clipboard')
     Menu = remote.require('menu')
     MenuItem = remote.require('menu-item')
-    spellchecker = require('spellchecker')
 
     apply = (newtext) =>
       range.deleteContents()
@@ -693,15 +708,7 @@ class ContenteditableComponent extends React.Component
       range.selectNode(node)
       selection.removeAllRanges()
       selection.addRange(range)
-      for extension in DraftStore.extensions()
-        if extension.onSubstitutionPerformed
-          extension.onSubstitutionPerformed(@_editableNode())
-
-    learnSpelling = =>
-      spellchecker.add(text)
-      for extension in DraftStore.extensions()
-        if extension.onLearnSpelling
-          extension.onLearnSpelling(@_editableNode(), text)
+      @props.lifecycleCallbacks.onSubstitutionPerformed(@_editableNode())
 
     cut = =>
       clipboard.writeText(text)
@@ -715,17 +722,23 @@ class ContenteditableComponent extends React.Component
 
     menu = new Menu()
 
-    if spellchecker.isMisspelled(text)
-      corrections = spellchecker.getCorrectionsForMisspelling(text)
-      if corrections.length > 0
-        corrections.forEach (correction) ->
-          menu.append(new MenuItem({ label: correction, click:( -> apply(correction))}))
-      else
-        menu.append(new MenuItem({ label: 'No Guesses Found', enabled: false}))
+    ## TODO, move into spellcheck package
+    if @props.spellcheck
+      spellchecker = require('spellchecker')
+      learnSpelling = =>
+        spellchecker.add(text)
+        @props.lifecycleCallbacks.onLearnSpelling(@_editableNode(), text)
+      if spellchecker.isMisspelled(text)
+        corrections = spellchecker.getCorrectionsForMisspelling(text)
+        if corrections.length > 0
+          corrections.forEach (correction) ->
+            menu.append(new MenuItem({ label: correction, click:( -> apply(correction))}))
+        else
+          menu.append(new MenuItem({ label: 'No Guesses Found', enabled: false}))
 
-      menu.append(new MenuItem({ type: 'separator' }))
-      menu.append(new MenuItem({ label: 'Learn Spelling', click: learnSpelling}))
-      menu.append(new MenuItem({ type: 'separator' }))
+        menu.append(new MenuItem({ type: 'separator' }))
+        menu.append(new MenuItem({ label: 'Learn Spelling', click: learnSpelling}))
+        menu.append(new MenuItem({ type: 'separator' }))
 
     menu.append(new MenuItem({ label: 'Cut', click:cut}))
     menu.append(new MenuItem({ label: 'Copy', click:copy}))
@@ -771,14 +784,10 @@ class ContenteditableComponent extends React.Component
     return event unless DOMUtils.selectionInScope(selection, editableNode)
 
     range = DOMUtils.getRangeInScope(editableNode)
-    if range
-      try
-        for extension in DraftStore.extensions()
-          extension.onMouseUp(editableNode, range, event) if extension.onMouseUp
-      catch e
-        console.log('DraftStore extension raised an error: '+e.toString())
 
-    event
+    @props.lifecycleCallbacks.onMouseUp(editableNode, event, range)
+
+    return event
 
   _onDragStart: (event) =>
     editable = @_editableNode()
@@ -881,4 +890,4 @@ class ContenteditableComponent extends React.Component
     @_setupSelectionListeners()
     @_onInput()
 
-module.exports = ContenteditableComponent
+module.exports = Contenteditable

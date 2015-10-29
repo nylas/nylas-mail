@@ -15,18 +15,19 @@ class PreferencesHeader extends React.Component
       imgMode = RetinaImg.Mode.ContentIsMask
     else
       imgMode = RetinaImg.Mode.ContentPreserve
-    <div className="preference-header">
-      { @props.tabs.map (tab) =>
-        classname = "preference-header-item"
-        classname += " active" if tab is @props.activeTab
 
-        <div className={classname} onClick={ => @props.changeActiveTab(tab) } key={tab.name}>
+    <div className="preference-header">
+      { @props.tabs.map (sectionConfig) =>
+        classname = "preference-header-item"
+        classname += " active" if sectionConfig is @props.activeTab
+
+        <div className={classname} onClick={ => @props.changeActiveTab(sectionConfig) } key={sectionConfig.sectionId}>
           <div className="phi-container">
             <div className="icon">
-              <RetinaImg mode={imgMode} name={tab.icon} />
+              <RetinaImg mode={imgMode} {...sectionConfig.nameOrUrl()} />
             </div>
             <div className="name">
-              {tab.name}
+              {sectionConfig.displayName}
             </div>
           </div>
         </div>
