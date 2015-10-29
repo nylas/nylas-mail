@@ -131,28 +131,28 @@ describe "ChangeFolderTask", ->
         @thread = testThreads['t1']
         @task = new ChangeFolderTask(folder: testFolders['f1'], threads: [testThreads['t1'], testThreads['t2']])
 
-      describe "_changesToModel", ->
+      describe "changesToModel", ->
         describe "if the model is a Thread", ->
           it "returns an object with a folders key, and an array with the folder", ->
-            expect(@task._changesToModel(@thread)).toEqual({folders: [testFolders['f1']]})
+            expect(@task.changesToModel(@thread)).toEqual({folders: [testFolders['f1']]})
 
         describe "if the model is a Message", ->
           it "returns an object with a folder key, and the folder", ->
-            expect(@task._changesToModel(@message)).toEqual({folder: testFolders['f1']})
+            expect(@task.changesToModel(@message)).toEqual({folder: testFolders['f1']})
 
-      describe "_requestBodyForModel", ->
+      describe "requestBodyForModel", ->
         describe "if the model is a Thread", ->
           it "returns folder: <id>, using the first available folder", ->
             @thread.folders = []
-            expect(@task._requestBodyForModel(@thread)).toEqual(folder: null)
+            expect(@task.requestBodyForModel(@thread)).toEqual(folder: null)
             @thread.folders = [testFolders['f1']]
-            expect(@task._requestBodyForModel(@thread)).toEqual(folder: 'f1')
+            expect(@task.requestBodyForModel(@thread)).toEqual(folder: 'f1')
             @thread.folders = [testFolders['f2'], testFolders['f1']]
-            expect(@task._requestBodyForModel(@thread)).toEqual(folder: 'f2')
+            expect(@task.requestBodyForModel(@thread)).toEqual(folder: 'f2')
 
         describe "if the model is a Message", ->
           it "returns folder: <id>, using the message folder", ->
             @message.folder = null
-            expect(@task._requestBodyForModel(@message)).toEqual(folder: null)
+            expect(@task.requestBodyForModel(@message)).toEqual(folder: null)
             @message.folder = testFolders['f1']
-            expect(@task._requestBodyForModel(@message)).toEqual(folder: 'f1')
+            expect(@task.requestBodyForModel(@message)).toEqual(folder: 'f1')

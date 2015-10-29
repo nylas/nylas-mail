@@ -146,26 +146,26 @@ describe "ChangeLabelsTask", ->
             expect(@task.threads).toEqual([testThreads['t1']])
 
     describe 'change methods', ->
-      describe "_changesToModel", ->
+      describe "changesToModel", ->
         it 'properly adds labels', ->
           task = new ChangeLabelsTask
             labelsToAdd: [testLabels['l1'], testLabels['l2']]
             labelsToRemove: []
-          out = task._changesToModel(testThreads['t1'])
+          out = task.changesToModel(testThreads['t1'])
           expect(out).toEqual(labels: [testLabels['l1'], testLabels['l2']])
 
         it 'properly removes labels', ->
           task = new ChangeLabelsTask
             labelsToAdd: []
             labelsToRemove: [testLabels['l1'], testLabels['l2']]
-          out = task._changesToModel(testThreads['t3'])
+          out = task.changesToModel(testThreads['t3'])
           expect(out).toEqual(labels: [testLabels['l3']])
 
         it 'properly adds and removes labels', ->
           task = new ChangeLabelsTask
             labelsToAdd: [testLabels['l1'], testLabels['l2']]
             labelsToRemove: [testLabels['l2'], testLabels['l3']]
-          out = task._changesToModel(testThreads['t1'])
+          out = task.changesToModel(testThreads['t1'])
           expect(out).toEqual(labels: [testLabels['l1']])
 
         it 'should return an == array of labels when no changes have occurred', ->
@@ -173,7 +173,7 @@ describe "ChangeLabelsTask", ->
           task = new ChangeLabelsTask
             labelsToAdd: [testLabels['l3'], testLabels['l1'], testLabels['l2']]
             labelsToRemove: []
-          out = task._changesToModel(thread)
+          out = task.changesToModel(thread)
           expect(_.isEqual(thread.labels, out.labels)).toBe(true)
 
         it 'should not modify the input thread in any way', ->
@@ -181,15 +181,15 @@ describe "ChangeLabelsTask", ->
           task = new ChangeLabelsTask
             labelsToAdd: []
             labelsToRemove: [testLabels['l2']]
-          out = task._changesToModel(thread)
+          out = task.changesToModel(thread)
           expect(thread.labels.length).toBe(2)
           expect(out.labels.length).toBe(1)
 
-      describe "_requestBodyForModel", ->
+      describe "requestBodyForModel", ->
         it 'returns labels:<ids> for both threads and messages', ->
           task = new ChangeLabelsTask()
 
-          out = task._requestBodyForModel(testThreads['t3'])
+          out = task.requestBodyForModel(testThreads['t3'])
           expect(out).toEqual(labels: ['l2', 'l3'])
-          out = task._requestBodyForModel(testMessages['m3'])
+          out = task.requestBodyForModel(testMessages['m3'])
           expect(out).toEqual(labels: ['l2', 'l3'])
