@@ -5,6 +5,7 @@ _ = require 'underscore'
  AccountStore,
  CategoryStore,
  SoundRegistry,
+ NativeNotifications,
  DatabaseStore} = require 'nylas-exports'
 
 module.exports =
@@ -27,29 +28,39 @@ module.exports =
   serialize: ->
 
   _notifyAll: ->
-    new Notification("#{@stack.length} Unread Messages", {
+    NativeNotifications.displayNotification
+      title: "#{@stack.length} Unread Messages",
       tag: 'unread-update'
-    })
     @stack = []
 
   _notifyOne: ({message, thread}) ->
-    body = message.subject
-    if not body or body.length is 0
-      body = message.snippet
+    account = _.find AccountStore.items(), (a) -> a.id is message.accountId
     from = message.from[0]?.displayName() ? "Unknown"
+    title = from
+    if message.subject and message.subject.length > 0
+      subtitle = message.subject
+      body = message.snippet
+    else
+      subtitle = message.snippet
+      body = null
 
-    notif = new Notification(from, {
+    notif = NativeNotifications.displayNotification
+      title: title
+      subtitle: subtitle
       body: body
+      canReply: true
       tag: 'unread-update'
-    })
-    notif.onclick = =>
-      atom.displayWindow()
-      if AccountStore.current().id isnt thread.accountId
-        Actions.selectAccountId(thread.accountId)
+      onActivate: ({tag, response, activationType}) =>
+        if activationType is 'replied' and response and _.isString(response)
+          Actions.sendQuickReply({thread, message}, response)
+        else
+          atom.displayWindow()
+          if AccountStore.current().id isnt thread.accountId
+            Actions.selectAccountId(thread.accountId)
 
-      MailViewFilter filter = MailViewFilter.forCategory(thread.categoryNamed('inbox'))
-      Actions.focusMailView(filter)
-      Actions.setFocus(collection: 'thread', item: thread)
+          MailViewFilter filter = MailViewFilter.forCategory(thread.categoryNamed('inbox'))
+          Actions.focusMailView(filter)
+          Actions.setFocus(collection: 'thread', item: thread)
 
   _notifyMessages: ->
     if @stack.length >= 5

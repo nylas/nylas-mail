@@ -3,6 +3,7 @@ BrowserWindow = require 'browser-window'
 WindowManager = require './window-manager'
 ApplicationMenu = require './application-menu'
 AutoUpdateManager = require './auto-update-manager'
+NativeNotificationManager = require './native-notification-manager'
 NylasProtocolHandler = require './nylas-protocol-handler'
 SharedFileManager = require './shared-file-manager'
 
@@ -57,6 +58,7 @@ class Application
     client.on 'error', createApplication
 
   windowManager: null
+  notificationManager: null
   applicationMenu: null
   nylasProtocolHandler: null
   resourcePath: null
@@ -87,6 +89,7 @@ class Application
       @devMode = true
 
     @windowManager = new WindowManager({@resourcePath, @config, @devMode, @safeMode})
+    @notificationManager = new NativeNotificationManager()
     @autoUpdateManager = new AutoUpdateManager(@version, @config, @specMode)
     @applicationMenu = new ApplicationMenu(@version)
     @_databasePhase = 'setup'

@@ -131,6 +131,7 @@ class NylasExports
   @load "SoundRegistry", 'sound-registry'
   @load "QuotedHTMLParser", 'services/quoted-html-parser'
   @load "QuotedPlainTextParser", 'services/quoted-plain-text-parser'
+  @load "NativeNotifications", 'native-notifications'
 
   # Errors
   @get "APIError", -> require('../flux/errors').APIError
