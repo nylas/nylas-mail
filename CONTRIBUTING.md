@@ -1,15 +1,17 @@
-# Contributing to N1 Core
+# Filing an Issue
 
-Thank you for contributing!!
+Thanks for checking out N1! If you have a feature request, be sure to check out the [open source roadmap](http://trello.com/b/hxsqB6vx/n1-open-source-roadmap). If someone has already requested the feature you have in mind, you can upvote the card on Trello—to keep things organized, we often close feature requests on GitHub  after creating Trello cards.
 
-N1 core is the foundation our community uses to build email extensions with the
-modern web.
+If you've found a bug, try searching for similars issue before filing a new one. Please include the version of N1 you're using, the platform you're using (Mac / Windows / Linux), and the type of email account. (Gmail, Outlook 365, etc.)
 
-You currently need an early invitation code to get setup on N1. Sign up
-[here](https://invite.nylas.com) to request one. Drop us a line saying you'd
-like to contribute to N1 core and we'll get you set up immediately.
+# Contributing to N1
 
-# Getting Started
+Note: You currently need an invitation code to use N1. You can request one
+[here](https://invite.nylas.com). If you reach out to our team, we can bump
+you to the front of the list so you can contribute to the project.
+
+
+### Getting Started
 
 Once you have an invitation code:
 
@@ -23,20 +25,15 @@ See [Windows instructions here](https://github.com/nylas/N1/blob/master/docs/Win
 
 Linux users on Debian 8 and Ubuntu 15.04 onward must also install libgcrypt11, which Electron depends on. 
 
-# Running N1 Core
+### Running N1
 
     ./N1.sh --dev
 
-Once the app boots, you'll be prompted to enter your early invitation code and
+Once the app boots, you'll be prompted to enter your invitation code and
 email credentials.
 
-Our early invitation codes are designed control access to our production mail sync
-engine while we roll out N1. However, the sync engine is [open
-source](https://github.com/nylas/sync-engine) and you can set it up yourself to
-begin using N1 immediately. Follow instructions on the [sync
-engine](https://github.com/nylas/sync-engine) repository.
 
-# Testing N1 Core
+### Testing N1
 
     ./N1.sh --test
 
