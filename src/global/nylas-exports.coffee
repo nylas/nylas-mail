@@ -90,7 +90,6 @@ class NylasExports
   @require "SyncbackDraftTask", 'flux/tasks/syncback-draft'
   @require "ChangeStarredTask", 'flux/tasks/change-starred-task'
   @require "CreateMetadataTask", 'flux/tasks/create-metadata-task'
-  @require "MarkMessageReadTask", 'flux/tasks/mark-message-read'
   @require "DestroyMetadataTask", 'flux/tasks/destroy-metadata-task'
 
   # Stores
@@ -102,7 +101,6 @@ class NylasExports
   @require "MessageStore", 'flux/stores/message-store'
   @require "ContactStore", 'flux/stores/contact-store'
   @require "CategoryStore", 'flux/stores/category-store'
-  @require "AnalyticsStore", 'flux/stores/analytics-store'
   @require "WorkspaceStore", 'flux/stores/workspace-store'
   @require "DraftCountStore", 'flux/stores/draft-count-store'
   @require "FileUploadStore", 'flux/stores/file-upload-store'

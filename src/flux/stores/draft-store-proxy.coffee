@@ -44,7 +44,7 @@ class DraftChangeSet
       @commit()
     else
       clearTimeout(@_timer) if @_timer
-      @_timer = setTimeout(@commit, 5000)
+      @_timer = setTimeout(@commit, 30000)
 
   # If force is true, then we'll always run the `_onCommit` callback
   # regardless if there are _pending changes or not

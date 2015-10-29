@@ -146,15 +146,16 @@
   }
 
   .notifications-sticky-item {
-    display:block;
+    display:flex;
     font-size: @font-size-base;
     color:@text-color-inverse;
     border-top:1px solid rgba(0,0,0,0.25);
     border-bottom:1px solid rgba(0,0,0,0.25);
     padding-left: @padding-base-horizontal;
     line-height: @line-height-base * 1.5;
+    align-items: baseline;
     a {
-      float:right;
+      flex-shrink: 0;
       color:@text-color-inverse;
       padding: 0 @padding-base-horizontal;
     }
@@ -171,6 +172,12 @@
     }
     i {
       margin-right:@padding-base-horizontal;
+    }
+    div {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: @line-height-base * 1.1;
     }
 
     &.has-default-action:hover {

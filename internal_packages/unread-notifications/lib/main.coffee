@@ -61,6 +61,19 @@ module.exports =
     if @stack.length > 0
       @stackProcessTimer = setTimeout(( => @_notifyMessages()), 2000)
 
+  # https://phab.nylas.com/D2188
+  _onNewMessagesMissingThreads: (messages) ->
+    setTimeout =>
+      threads = {}
+      for msg in messages
+        threads[msg.threadId] ?= DatabaseStore.find(Thread, msg.threadId)
+      Promise.props(threads).then (threads) =>
+        messages = _.filter messages, (msg) =>
+          threads[msg.threadId]?
+        if messages.length > 0
+          @_onNewMailReceived({message: messages, thread: _.values(threads)})
+    , 10000
+
   _onNewMailReceived: (incoming) ->
     new Promise (resolve, reject) =>
       return resolve() if atom.config.get('core.notifications.enabled') is false
@@ -92,7 +105,15 @@ module.exports =
       Promise.props(threads).then (threads) =>
         # Filter new unread messages to just the ones in the inbox
         newUnreadInInbox = _.filter newUnread, (msg) ->
-          threads[msg.threadId]?.categoryNamed('inbox') isnt null
+          threads[msg.threadId]?.categoryNamed('inbox')
+
+        # Filter messages that we can't decide whether to display or not
+        # since no associated Thread object has arrived yet.
+        newUnreadMissingThreads = _.filter newUnread, (msg) ->
+          not threads[msg.threadId]?
+
+        if newUnreadMissingThreads.length > 0
+          @_onNewMessagesMissingThreads(newUnreadMissingThreads)
 
         return resolve() if newUnreadInInbox.length is 0
         if atom.config.get("core.notifications.sounds")

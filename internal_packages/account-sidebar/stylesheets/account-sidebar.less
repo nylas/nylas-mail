@@ -57,6 +57,7 @@
   .item {
     color: @text-color-subtle;
     flex: 1;
+    display: flex;
     img.content-mask {
       background-color: @text-color-subtle;
       vertical-align: text-bottom;
@@ -67,16 +68,12 @@
     line-height: @line-height-large * 1.1;
     clear: both;
 
-    .unread {
-      font-weight: @font-weight-medium;
-      color: @source-list-active-bg;
-      background: @source-list-active-color;
-      margin-left:@padding-small-horizontal;
-    }
     .icon {
-      float: left;
+      flex-shrink: 0;
+      order: 1;
     }
     .name {
+      order: 2;
       padding-left: @padding-small-horizontal * 0.85;
       position:relative;
       top:1px;
@@ -84,6 +81,20 @@
       padding-top: @padding-small-vertical;
       padding-bottom:@padding-small-vertical;
       line-height: @line-height-small;
+      text-overflow: ellipsis;
+    }
+    .item-count-box {
+      order: 3;
+      flex-shrink: 0;
+      font-weight: @font-weight-semi-bold;
+      color: @source-list-active-bg;
+      margin-left: @padding-small-horizontal * 0.8;
+    }
+    .unread {
+      background: @source-list-active-color;
+    }
+    .count {
+      background: #b4bbc3;
     }
     &.selected {
       background: @source-list-active-bg;
