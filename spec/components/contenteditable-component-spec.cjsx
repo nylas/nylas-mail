@@ -6,20 +6,20 @@ _ = require "underscore"
 fs = require 'fs'
 React = require "react/addons"
 ReactTestUtils = React.addons.TestUtils
-ContenteditableComponent = require "../lib/contenteditable-component",
+Contenteditable = require "../../src/components/contenteditable",
 
-describe "ContenteditableComponent", ->
+describe "Contenteditable", ->
   beforeEach ->
     @onChange = jasmine.createSpy('onChange')
     html = 'Test <strong>HTML</strong>'
     @component = ReactTestUtils.renderIntoDocument(
-      <ContenteditableComponent html={html} onChange={@onChange}/>
+      <Contenteditable html={html} onChange={@onChange}/>
     )
     @editableNode = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithAttr(@component, 'contentEditable'))
 
   describe "render", ->
     it 'should render into the document', ->
-      expect(ReactTestUtils.isCompositeComponentWithType @component, ContenteditableComponent).toBe true
+      expect(ReactTestUtils.isCompositeComponentWithType @component, Contenteditable).toBe true
 
     it "should include a content-editable div", ->
       expect(@editableNode).toBeDefined()
@@ -62,7 +62,7 @@ describe "ContenteditableComponent", ->
       it "should save the image to a temporary file and call `onFilePaste`", ->
         onPaste = jasmine.createSpy('onPaste')
         @component = ReactTestUtils.renderIntoDocument(
-          <ContenteditableComponent html={''} onChange={@onChange} onFilePaste={onPaste} />
+          <Contenteditable html={''} onChange={@onChange} onFilePaste={onPaste} />
         )
         @editableNode = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithAttr(@component, 'contentEditable'))
         runs ->

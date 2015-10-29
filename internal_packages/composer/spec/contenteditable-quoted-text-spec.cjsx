@@ -9,9 +9,9 @@ ReactTestUtils = React.addons.TestUtils
 
 Fields = require '../lib/fields'
 Composer = require "../lib/composer-view",
-ContenteditableComponent = require "../lib/contenteditable-component",
+{Contenteditable} = require 'nylas-component-kit'
 
-describe "ContenteditableComponent", ->
+describe "Contenteditable", ->
   beforeEach ->
     @onChange = jasmine.createSpy('onChange')
     @htmlNoQuote = 'Test <strong>HTML</strong><br>'

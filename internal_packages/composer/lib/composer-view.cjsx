@@ -15,6 +15,7 @@ React = require 'react'
 {DropZone,
  RetinaImg,
  ScrollRegion,
+ Contenteditable,
  InjectedComponent,
  FocusTrackingRegion,
  InjectedComponentSet} = require 'nylas-component-kit'
@@ -26,7 +27,6 @@ ExpandedParticipants = require './expanded-participants'
 CollapsedParticipants = require './collapsed-participants'
 
 ContenteditableFilter = require './contenteditable-filter'
-ContenteditableComponent = require './contenteditable-component'
 
 Fields = require './fields'
 
@@ -275,7 +275,7 @@ class ComposerView extends React.Component
     </span>
 
   _renderBodyContenteditable: ->
-    <ContenteditableComponent
+    <Contenteditable
       ref={Fields.Body}
       html={@state.body}
       onFocus={ => @setState focusedField: Fields.Body}
@@ -285,8 +285,38 @@ class ComposerView extends React.Component
       onFilePaste={@_onFilePaste}
       footerElements={@_editableFooterElements()}
       onScrollToBottom={@_onScrollToBottom()}
+      lifecycleCallbacks={@_contenteditableLifecycleCallbacks()}
       getComposerBoundingRect={@_getComposerBoundingRect}
       initialSelectionSnapshot={@_recoveredSelection} />
+
+  _contenteditableLifecycleCallbacks: ->
+    componentDidUpdate: (editableNode) =>
+      for extension in DraftStore.extensions()
+        extension.onComponentDidUpdate?(editableNode)
+
+    onInput: (editableNode, event) =>
+      for extension in DraftStore.extensions()
+        extension.onInput?(editableNode, event)
+
+    onTabDown: (editableNode, event, range) =>
+      for extension in DraftStore.extensions()
+        extension.onTabDown?(editableNode, range, event)
+
+    onSubstitutionPerformed: (editableNode) =>
+      for extension in DraftStore.extensions()
+        extension.onSubstitutionPerformed?(editableNode)
+
+    onLearnSpelling: (editableNode, text) =>
+      for extension in DraftStore.extensions()
+        extension.onLearnSpelling?(editableNode, text)
+
+    onMouseUp: (editableNode, event, range) =>
+      return unless range
+      try
+        for extension in DraftStore.extensions()
+          extension.onMouseUp?(editableNode, range, event)
+      catch e
+        console.error('DraftStore extension raised an error: '+e.toString())
 
   # The contenteditable decides when to request a scroll based on the
   # position of the cursor and its relative distance to this composer

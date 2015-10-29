@@ -1,6 +1,6 @@
 {Message} = require 'nylas-exports'
 
-SignatureDraftStoreExtension = require '../lib/draft-extension'
+SignatureDraftStoreExtension = require '../lib/signature-draft-extension'
 
 describe "SignatureDraftStoreExtension", ->
   describe "prepareNewDraft", ->

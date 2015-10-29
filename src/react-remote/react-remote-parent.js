@@ -5,6 +5,7 @@ var LinkedValueUtils = require('react/lib/LinkedValueUtils');
 var ReactDOMComponent = require('react/lib/ReactDOMComponent');
 var methods = Object.keys(ReactDOMComponent.BackendIDOperations);
 var invocationTargets = [];
+var lastSelectionData = {}
 
 var sources = {
   CSSPropertyOperations: require('react/lib/CSSPropertyOperations'),
@@ -133,7 +134,10 @@ ipc.on('from-react-remote-window', function(json) {
     if (rep.targetReactId) {
       rep.target = document.querySelector(["[data-reactid='"+rep.targetReactId+"']"]);
     }
-    if (rep.target && (rep.targetValue !== undefined)) {
+    if (rep.target && rep.target.contentEditable=="true") {
+      rep.target.innerHTML = rep.targetValue;
+    }
+    else if (rep.target && (rep.targetValue !== undefined)) {
       rep.target.value = rep.targetValue;
     }
     if (rep.target && (rep.targetChecked !== undefined)) {
@@ -148,15 +152,35 @@ ipc.on('from-react-remote-window', function(json) {
 
     var e = new EventClass(rep.eventType, rep);
 
-    process.nextTick(function() {
-      if (rep.target) {
-        rep.target.dispatchEvent(e);
-      } else {
-        container.dispatchEvent(e);
-      }
-    });
+    if (rep.target) {
+      rep.target.dispatchEvent(e);
+    } else {
+      container.dispatchEvent(e);
+    }
   }
 });
+
+exp = require('./selection-listeners.js');
+restoreSelection = exp.restoreSelection;
+getSelectionData = exp.getSelectionData;
+
+selectionChange = function() {
+  selectionData = getSelectionData();
+  if (_.isEqual(selectionData, lastSelectionData)) { return; }
+  lastSelectionData = _.clone(selectionData)
+  for (var i = 0; i < invocationTargets.length; i++) {
+    var target = invocationTargets[i];
+    target.send({selectionData: selectionData})
+  }
+}
+// document.addEventListener("selectionchange", selectionChange);
+
+ipc.on('from-react-remote-window-selection', function(selectionData){
+  document.removeEventListener("selectionchange", selectionChange)
+  restoreSelection(selectionData)
+  document.addEventListener("selectionchange", selectionChange);
+});
+
 
 var parentListenersAttached = false;
 var reactRemoteContainer = document.createElement('div');

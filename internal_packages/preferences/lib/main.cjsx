@@ -1,4 +1,4 @@
-PreferencesStore = require './preferences-store'
+{PreferencesSectionStore} = require 'nylas-exports'
 
 module.exports =
   activate: (@state={}) ->
@@ -6,42 +6,43 @@ module.exports =
     React = require 'react'
     {Actions} = require('nylas-exports')
 
-    Actions.registerPreferencesTab({
-      icon: 'ic-settings-general.png'
-      name: 'General'
-      component: require './tabs/preferences-general'
-    })
-    Actions.registerPreferencesTab({
-      icon: 'ic-settings-accounts.png'
-      name: 'Accounts'
-      component: require './tabs/preferences-accounts'
-    })
-    # Actions.registerPreferencesTab({
-    #   icon: 'ic-settings-mailrules.png'
-    #   name: 'Mail Rules'
-    #   component: require './tabs/preferences-mailrules'
-    # })
-    Actions.registerPreferencesTab({
-      icon: 'ic-settings-shortcuts.png'
-      name: 'Shortcuts'
-      component: require './tabs/preferences-keymaps'
-    })
-    Actions.registerPreferencesTab({
-      icon: 'ic-settings-notifications.png'
-      name: 'Notifications'
-      component: require './tabs/preferences-notifications'
-    })
-    Actions.registerPreferencesTab({
-      icon: 'ic-settings-appearance.png'
-      name: 'Appearance'
-      component: require './tabs/preferences-appearance'
-    })
+    Cfg = PreferencesSectionStore.SectionConfig
 
-    # Actions.registerPreferencesTab({
-    #   icon: 'ic-settings-signatures.png'
-    #   name: 'Signatures'
-    #   component: require './tabs/preferences-signatures'
-    # })
+    PreferencesSectionStore.registerPreferenceSection(new Cfg {
+      icon: 'ic-settings-general.png'
+      sectionId: 'General'
+      displayName: 'General'
+      component: require './tabs/preferences-general'
+      order: 1
+    })
+    PreferencesSectionStore.registerPreferenceSection(new Cfg {
+      icon: 'ic-settings-accounts.png'
+      sectionId: 'Accounts'
+      displayName: 'Accounts'
+      component: require './tabs/preferences-accounts'
+      order: 2
+    })
+    PreferencesSectionStore.registerPreferenceSection(new Cfg {
+      icon: 'ic-settings-shortcuts.png'
+      sectionId: 'Shortcuts'
+      displayName: 'Shortcuts'
+      component: require './tabs/preferences-keymaps'
+      order: 3
+    })
+    PreferencesSectionStore.registerPreferenceSection(new Cfg {
+      icon: 'ic-settings-notifications.png'
+      sectionId: 'Notifications'
+      displayName: 'Notifications'
+      component: require './tabs/preferences-notifications'
+      order: 4
+    })
+    PreferencesSectionStore.registerPreferenceSection(new Cfg {
+      icon: 'ic-settings-appearance.png'
+      sectionId: 'Appearance'
+      displayName: 'Appearance'
+      component: require './tabs/preferences-appearance'
+      order: 5
+    })
 
     Actions.openPreferences.listen(@_openPreferences)
     ipc.on 'open-preferences', => @_openPreferences()

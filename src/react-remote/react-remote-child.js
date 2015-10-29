@@ -1,11 +1,23 @@
+var _ = require('underscore')
 var container = document.getElementById("container");
 var ipc = require('ipc');
+var lastSelectionData = {}
 
 document.body.classList.add("platform-"+process.platform);
 document.body.classList.add("window-type-react-remote");
 
+exp = require('./selection-listeners.js');
+restoreSelection = exp.restoreSelection;
+getSelectionData = exp.getSelectionData;
+
 var receiveEvent = function (json) {
   var remote = require('remote');
+
+  if (json.selectionData) {
+    document.removeEventListener("selectionchange", selectionChange);
+    restoreSelection(json.selectionData)
+    document.addEventListener("selectionchange", selectionChange);
+  }
 
   if (json.html) {
     var browserWindow = remote.getCurrentWindow();
@@ -86,7 +98,10 @@ events.forEach(function(type) {
     if (event.target) {
       representation.targetReactId = event.target.dataset.reactid;
     }
-    if (event.target.value !== undefined) {
+    if (event.target.contentEditable=="true") {
+      representation.targetValue = event.target.innerHTML;
+    }
+    else if (event.target.value !== undefined) {
       representation.targetValue = event.target.value;
     }
     if (event.target.checked !== undefined) {
@@ -100,3 +115,14 @@ events.forEach(function(type) {
     }
   }, true);
 });
+
+
+selectionChange = function() {
+  selectionData = getSelectionData()
+  if (_.isEqual(selectionData, lastSelectionData)) { return; }
+  lastSelectionData = _.clone(selectionData)
+  var remote = require('remote');
+  remote.getCurrentWindow().id
+  ipc.send("from-react-remote-window-selection", selectionData);
+}
+// document.addEventListener("selectionchange", selectionChange);
