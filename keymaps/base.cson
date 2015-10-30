@@ -10,8 +10,13 @@
   'up'       : 'core:previous-item'
   'down'     : 'core:next-item'
   'enter'    : 'core:focus-item'
-  'delete': 'core:remove-from-view'
+  'delete'   : 'core:remove-from-view'
   'backspace': 'core:remove-from-view'
+
+  'pageup'   : 'core:messages-page-up'
+  'pagedown' : 'core:messages-page-down'
+  'shift-pageup'   : 'core:list-page-up'
+  'shift-pagedown' : 'core:list-page-down'
 
   # Default cross-platform core behaviors
   'left': 'core:move-left'
@@ -20,8 +25,6 @@
   'shift-down': 'core:select-down'
   'shift-left': 'core:select-left'
   'shift-right': 'core:select-right'
-  'shift-pageup': 'core:select-page-up'
-  'shift-pagedown': 'core:select-page-down'
   'shift-delete': 'core:cut'
 
 # Inputs are native by default.

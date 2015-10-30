@@ -173,6 +173,10 @@ class ListTabular extends React.Component
   scrollTo: (node) =>
     @refs.container.scrollTo(node)
 
+  scrollByPage: (direction) =>
+    height = React.findDOMNode(@refs.container).clientHeight
+    @refs.container.scrollTop += height * direction
+
 
 ListTabular.Item = ListTabularItem
 ListTabular.Column = ListColumn

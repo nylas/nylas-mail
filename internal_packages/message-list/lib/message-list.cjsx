@@ -77,6 +77,8 @@ class MessageList extends React.Component
       'application:reply': => @_createReplyOrUpdateExistingDraft('reply')
       'application:reply-all': => @_createReplyOrUpdateExistingDraft('reply-all')
       'application:forward': => @_onForward()
+      'core:messages-page-up': => @_onScrollByPage(-1)
+      'core:messages-page-down': => @_onScrollByPage(1)
 
     @command_unsubscriber = atom.commands.add('body', commands)
 
@@ -365,6 +367,10 @@ class MessageList extends React.Component
       })
     else
       throw new Error("onChildScrollRequest: expected clientId or rect")
+
+  _onScrollByPage: (direction) =>
+    height = React.findDOMNode(@refs.messageWrap).clientHeight
+    @refs.messageWrap.scrollTop += height * direction
 
   _onChange: =>
     newState = @_getStateFromStores()
