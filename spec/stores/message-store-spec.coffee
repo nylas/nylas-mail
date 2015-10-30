@@ -12,9 +12,50 @@ testMessage1 = new Message(id: 'a', body: '123', files: [])
 testMessage2 = new Message(id: 'b', body: '123', files: [])
 
 describe "MessageStore", ->
-  describe "when thread focus changes", ->
+  describe "when the receiving focus changes from the FocusedContentStore", ->
+    beforeEach ->
+      if MessageStore._onFocusChangedTimer
+        clearTimeout(MessageStore._onFocusChangedTimer)
+        MessageStore._onFocusChangedTimer = null
+      spyOn(MessageStore, '_onApplyFocusChange')
+
+    afterEach ->
+      if MessageStore._onFocusChangedTimer
+        clearTimeout(MessageStore._onFocusChangedTimer)
+        MessageStore._onFocusChangedTimer = null
+
+    describe "if no change has happened in the last 100ms", ->
+      it "should apply immediately", ->
+        FocusedContentStore.trigger(impactsCollection: (c) -> true )
+        expect(MessageStore._onApplyFocusChange).toHaveBeenCalled()
+
+    describe "if a change has happened in the last 100ms", ->
+      it "should not apply immediately", ->
+        noop = =>
+        MessageStore._onFocusChangedTimer = setTimeout(noop, 100)
+        FocusedContentStore.trigger(impactsCollection: (c) -> true )
+        expect(MessageStore._onApplyFocusChange).not.toHaveBeenCalled()
+
+      it "should apply 100ms after the last focus change and reset", ->
+        FocusedContentStore.trigger(impactsCollection: (c) -> true )
+        expect(MessageStore._onApplyFocusChange.callCount).toBe(1)
+        advanceClock(50)
+        FocusedContentStore.trigger(impactsCollection: (c) -> true )
+        expect(MessageStore._onApplyFocusChange.callCount).toBe(1)
+        advanceClock(50)
+        FocusedContentStore.trigger(impactsCollection: (c) -> true )
+        expect(MessageStore._onApplyFocusChange.callCount).toBe(1)
+        advanceClock(150)
+        FocusedContentStore.trigger(impactsCollection: (c) -> true )
+        expect(MessageStore._onApplyFocusChange.callCount).toBe(3)
+        advanceClock(150)
+        FocusedContentStore.trigger(impactsCollection: (c) -> true )
+        expect(MessageStore._onApplyFocusChange.callCount).toBe(5)
+
+  describe "when applying focus changes", ->
     beforeEach ->
       MessageStore._lastLoadedThreadId = null
+
       @focus = null
       spyOn(FocusedContentStore, 'focused').andCallFake (collection) =>
         if collection is 'thread'
@@ -37,7 +78,7 @@ describe "MessageStore", ->
     it "should retrieve the focused thread", ->
       @focus = testThread
       MessageStore._thread = null
-      FocusedContentStore.trigger({impactsCollection: -> true})
+      MessageStore._onApplyFocusChange()
       expect(DatabaseStore.findAll).toHaveBeenCalled()
       expect(DatabaseStore.findAll.mostRecentCall.args[0]).toBe(Message)
 
@@ -45,13 +86,13 @@ describe "MessageStore", ->
       it "should do nothing", ->
         @focus = testThread
         MessageStore._thread = @focus
-        FocusedContentStore.trigger({impactsCollection: -> true})
+        MessageStore._onApplyFocusChange()
         expect(DatabaseStore.findAll).not.toHaveBeenCalled()
 
     describe "when the thread is unread", ->
       beforeEach ->
         @focus = null
-        FocusedContentStore.trigger({impactsCollection: -> true})
+        MessageStore._onApplyFocusChange()
         testThread.unread = true
         spyOn(Actions, 'queueTask')
         spyOn(atom.config, 'get').andCallFake (key) =>
@@ -60,7 +101,7 @@ describe "MessageStore", ->
 
       it "should queue a task to mark the thread as read", ->
         @focus = testThread
-        FocusedContentStore.trigger({impactsCollection: -> true})
+        MessageStore._onApplyFocusChange()
         advanceClock(500)
         expect(Actions.queueTask).not.toHaveBeenCalled()
         advanceClock(500)
@@ -69,18 +110,18 @@ describe "MessageStore", ->
 
       it "should not queue a task to mark the thread as read if the thread is no longer selected 500msec later", ->
         @focus = testThread
-        FocusedContentStore.trigger({impactsCollection: -> true})
+        MessageStore._onApplyFocusChange()
         advanceClock(500)
         expect(Actions.queueTask).not.toHaveBeenCalled()
         @focus = null
-        FocusedContentStore.trigger({impactsCollection: -> true})
+        MessageStore._onApplyFocusChange()
         advanceClock(500)
         expect(Actions.queueTask).not.toHaveBeenCalled()
 
       it "should not re-mark the thread as read when made unread", ->
         @focus = testThread
         testThread.unread = false
-        FocusedContentStore.trigger({impactsCollection: -> true})
+        MessageStore._onApplyFocusChange()
         advanceClock(500)
         expect(Actions.queueTask).not.toHaveBeenCalled()
 
