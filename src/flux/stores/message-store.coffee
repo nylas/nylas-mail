@@ -115,6 +115,26 @@ class MessageStore extends NylasStore
         @_fetchFromCache()
 
   _onFocusChanged: (change) =>
+    # This implements a debounce that fires on the leading and trailing edge.
+    #
+    # If we haven't changed focus in the last 100ms, do it immediately. This means
+    # there is no delay when moving to the next thread, deselecting a thread, etc.
+    #
+    # If we have changed focus in the last 100ms, wait for focus changes to
+    # stop arriving for 100msec before applying. This means that flying
+    # through threads doesn't cause is to make a zillion queries for messages.
+    #
+    if not @_onFocusChangedTimer
+      @_onApplyFocusChange()
+    else
+      clearTimeout(@_onFocusChangedTimer)
+
+    @_onFocusChangedTimer = setTimeout =>
+      @_onFocusChangedTimer = null
+      @_onApplyFocusChange()
+    , 100
+
+  _onApplyFocusChange: =>
     focused = FocusedContentStore.focused('thread')
     return if @_thread?.id is focused?.id
 
