@@ -76,6 +76,8 @@ class MultiselectList extends React.Component
       'core:previous-item': => @_onShift(-1)
       'core:select-down': => @_onShift(1, {select: true})
       'core:select-up': => @_onShift(-1, {select: true})
+      'core:list-page-up': => @_onScrollByPage(-1)
+      'core:list-page-down': => @_onScrollByPage(1)
       'application:pop-sheet': => @_onDeselect()
 
     Object.keys(props.commands).forEach (key) =>
@@ -162,6 +164,9 @@ class MultiselectList extends React.Component
   _onShift: (delta, options = {}) =>
     return unless @state.handler
     @state.handler.onShift(delta, options)
+
+  _onScrollByPage: (delta) =>
+    @refs.list.scrollByPage(delta)
 
   _onChange: =>
     @setState(@_getStateFromStores())
