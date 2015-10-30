@@ -105,6 +105,8 @@ class WindowEventHandler
 
     @subscribe $(document), 'click', 'a', @openLink
 
+    @subscribe $(document), 'contextmenu', 'input', @openContextualMenuForInput
+
     # Prevent form submits from changing the current window's URL
     @subscribe $(document), 'submit', 'form', (e) -> e.preventDefault()
 
@@ -159,6 +161,30 @@ class WindowEventHandler
       shell.openExternal(href)
 
     return
+
+  openContextualMenuForInput: (event) ->
+    event.preventDefault()
+    hasSelectedText = event.target.selectionStart isnt event.target.selectionEnd
+
+    remote = require('remote')
+    Menu = remote.require('menu')
+    MenuItem = remote.require('menu-item')
+    menu = new Menu()
+    menu.append(new MenuItem({
+      label: 'Cut'
+      enabled: hasSelectedText
+      click: => document.execCommand('cut')
+    }))
+    menu.append(new MenuItem({
+      label: 'Copy'
+      enabled: hasSelectedText
+      click: => document.execCommand('copy')
+    }))
+    menu.append(new MenuItem({
+      label: 'Paste',
+      click: => document.execCommand('paste')
+    }))
+    menu.popup(remote.getCurrentWindow())
 
   eachTabIndexedElement: (callback) ->
     for element in $('[tabindex]')
