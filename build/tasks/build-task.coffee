@@ -174,6 +174,7 @@ module.exports = (grunt) ->
     apmPackageDir = path.join(apmInstallDir, 'node_modules', 'atom-package-manager')
     for name in fs.readdirSync(apmPackageDir)
       fs.renameSync path.join(apmPackageDir, name), path.join(apmInstallDir, name)
+    fs.unlinkSync(path.join(apmInstallDir, 'node_modules', '.bin', 'apm'))
     fs.rmdirSync(apmPackageDir)
 
     if process.platform is 'darwin'
