@@ -115,6 +115,8 @@ class MessageStore extends NylasStore
         @_fetchFromCache()
 
   _onFocusChanged: (change) =>
+    return unless change.impactsCollection('thread')
+
     # This implements a debounce that fires on the leading and trailing edge.
     #
     # If we haven't changed focus in the last 100ms, do it immediately. This means
