@@ -1,20 +1,38 @@
 _ = require 'underscore'
 React = require 'react'
 
-{Utils,
- DOMUtils} = require 'nylas-exports'
-
+{Utils, DOMUtils} = require 'nylas-exports'
 ClipboardService = require './clipboard-service'
 FloatingToolbarContainer = require './floating-toolbar-container'
 
+###
+Public: A modern, well-behaved, React-compatible contenteditable
+
+This <Contenteditable /> component is fully React-compatible and behaves
+like a standard controlled input.
+
+```javascript
+getInitialState: function() {
+  return {value: '<strong>Hello!</strong>'};
+},
+handleChange: function(event) {
+  this.setState({value: event.target.value});
+},
+render: function() {
+  var value = this.state.value;
+  return <Contenteditable type="text" value={value} onChange={this.handleChange} />;
+}
+```
+###
 class Contenteditable extends React.Component
   @displayName: "Contenteditable"
-  @propTypes:
-    html: React.PropTypes.string
-    initialSelectionSnapshot: React.PropTypes.object
 
-    filters: React.PropTypes.array
-    footerElements: React.PropTypes.node
+  @propTypes:
+
+    # The current html state, as a string, of the contenteditable.
+    value: React.PropTypes.string
+
+    initialSelectionSnapshot: React.PropTypes.object
 
     # Passes an absolute top coordinate to scroll to.
     onChange: React.PropTypes.func.isRequired
@@ -23,7 +41,7 @@ class Contenteditable extends React.Component
     onScrollToBottom: React.PropTypes.func
 
     # A series of callbacks that can get executed at various points along
-    # the contenteditable. Has the keys:
+    # the contenteditable.
     lifecycleCallbacks: React.PropTypes.object
 
     spellcheck: React.PropTypes.bool
@@ -31,7 +49,6 @@ class Contenteditable extends React.Component
     floatingToolbar: React.PropTypes.bool
 
   @defaultProps:
-    filters: []
     spellcheck: true
     floatingToolbar: true
     lifecycleCallbacks:
@@ -105,15 +122,19 @@ class Contenteditable extends React.Component
            ref="contenteditable"
            contentEditable
            spellCheck={false}
-           onBlur={@_onBlur}
-           onFocus={@_onFocus}
-           onClick={@_onClick}
-           onPaste={@clipboardService.onPaste}
-           onInput={@_onInput}
-           onKeyDown={@_onKeyDown}
-           dangerouslySetInnerHTML={@_dangerouslySetInnerHTML()}></div>
-      {@props.footerElements}
+           dangerouslySetInnerHTML={__html: @props.value}
+           {...@_eventHandlers()}></div>
     </div>
+
+  _eventHandlers: =>
+    onBlur: @_onBlur
+    onFocus: @_onFocus
+    onClick: @_onClick
+    onPaste: @clipboardService.onPaste
+    onInput: @_onInput
+    onKeyDown: @_onKeyDown
+    onCompositionEnd: @_onCompositionEnd
+    onCompositionStart: @_onCompositionStart
 
   focus: =>
     @_editableNode().focus()
@@ -144,6 +165,13 @@ class Contenteditable extends React.Component
     # of `click` to make it clear that we've handled the event.
     # Note: Related to composer-view#_onClickComposeBody
     event.stopPropagation()
+
+  _onCompositionStart: =>
+    @_teardownSelectionListeners()
+
+  _onCompositionEnd: =>
+    @_setupSelectionListeners()
+    @_onInput()
 
   _onKeyDown: (event) =>
     if event.key is "Tab"
@@ -184,10 +212,7 @@ class Contenteditable extends React.Component
     @_createLists()
 
   _saveNewHtml: ->
-    html = @_editableNode().innerHTML
-    for filter in @props.filters
-      html = filter.afterDisplay(html)
-    @props.onChange(target: {value: html})
+    @props.onChange(target: {value: @_editableNode().innerHTML})
 
   # Determines if the user wants to add an ordered or unordered list.
   _createLists: ->
@@ -478,12 +503,6 @@ class Contenteditable extends React.Component
 
   _editableNode: =>
     React.findDOMNode(@refs.contenteditable)
-
-  _dangerouslySetInnerHTML: =>
-    html = @props.html
-    for filter in @props.filters
-      html = filter.beforeDisplay(html)
-    return __html: html
 
   ######### SELECTION MANAGEMENT ##########
   #

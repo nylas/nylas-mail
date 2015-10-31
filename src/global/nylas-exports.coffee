@@ -128,7 +128,7 @@ class NylasExports
   @load "MessageUtils", 'flux/models/message-utils'
 
   # Services
-  @load "UndoManager", 'flux/undo-manager'
+  @load "UndoManager", 'undo-manager'
   @load "SoundRegistry", 'sound-registry'
   @load "QuotedHTMLParser", 'services/quoted-html-parser'
   @load "QuotedPlainTextParser", 'services/quoted-plain-text-parser'

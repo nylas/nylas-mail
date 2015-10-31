@@ -1,4 +1,4 @@
-UndoManager = require "../src/flux/undo-manager"
+UndoManager = require "../src/undo-manager"
 
 describe "UndoManager", ->
   beforeEach ->
