@@ -157,6 +157,10 @@ class DraftStore
     session.teardown()
     delete @_draftSessions[session.draftClientId]
 
+  _cleanupAllSessions: ->
+    for draftClientId, session of @_draftSessions
+      @_doneWithSession(session)
+
   _onBeforeUnload: =>
     promises = []
 

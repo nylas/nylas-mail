@@ -21,7 +21,7 @@ class NylasComponentKit
   @load "DraggableImg", 'draggable-img'
   @load "EventedIFrame", 'evented-iframe'
   @load "ButtonDropdown", 'button-dropdown'
-  @load "Contenteditable", 'contenteditable'
+  @load "Contenteditable", 'contenteditable/contenteditable'
   @load "MultiselectList", 'multiselect-list'
   @load "InjectedComponent", 'injected-component'
   @load "TokenizingTextField", 'tokenizing-text-field'

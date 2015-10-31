@@ -70,7 +70,7 @@ class PreferencesSignatures extends React.Component
   _renderCurrentSignature: ->
     <Contenteditable
        ref="signatureInput"
-       html={@state.currentSignature}
+       value={@state.currentSignature}
        onChange={@_onEditSignature}
        spellcheck={false}
        floatingToolbar={false} />

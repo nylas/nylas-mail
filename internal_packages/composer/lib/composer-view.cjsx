@@ -26,8 +26,6 @@ ImageFileUpload = require './image-file-upload'
 ExpandedParticipants = require './expanded-participants'
 CollapsedParticipants = require './collapsed-participants'
 
-ContenteditableFilter = require './contenteditable-filter'
-
 Fields = require './fields'
 
 # The ComposerView is a unique React component because it (currently) is a
@@ -269,21 +267,20 @@ class ComposerView extends React.Component
       </div>
 
   _renderBody: =>
-    <span>
+    <span ref="composerBodyWrap">
       {@_renderBodyContenteditable()}
+      {@_renderQuotedTextControl()}
       {@_renderAttachments()}
     </span>
 
   _renderBodyContenteditable: ->
     <Contenteditable
       ref={Fields.Body}
-      html={@state.body}
+      value={@_removeQuotedText(@state.body)}
       onFocus={ => @setState focusedField: Fields.Body}
-      filters={@_editableFilters()}
       onChange={@_onChangeBody}
       onScrollTo={@props.onRequestScrollTo}
       onFilePaste={@_onFilePaste}
-      footerElements={@_editableFooterElements()}
       onScrollToBottom={@_onScrollToBottom()}
       lifecycleCallbacks={@_contenteditableLifecycleCallbacks()}
       getComposerBoundingRect={@_getComposerBoundingRect}
@@ -332,18 +329,6 @@ class ComposerView extends React.Component
           clientId: @_proxy.draft().clientId
           position: ScrollRegion.ScrollPosition.Bottom
     else return null
-
-  _editableFilters: ->
-    return [@_quotedTextFilter()]
-
-  _quotedTextFilter: ->
-    filter = new ContenteditableFilter
-    filter.beforeDisplay = @_removeQuotedText
-    filter.afterDisplay = @_showQuotedText
-    return filter
-
-  _editableFooterElements: ->
-    @_renderQuotedTextControl()
 
   _removeQuotedText: (html) =>
     if @state.showQuotedText then return html
@@ -614,6 +599,8 @@ class ComposerView extends React.Component
   _onChangeBody: (event) =>
     return unless @_proxy
 
+    newBody = @_showQuotedText(event.target.value)
+
     # The body changes extremely frequently (on every key stroke). To keep
     # performance up, we don't want to trigger every single key stroke
     # since that will cause an entire composer re-render. We, however,
@@ -623,7 +610,7 @@ class ComposerView extends React.Component
     # We want to use debounce instead of throttle because we don't want ot
     # trigger janky re-renders mid quick-type. Let's just do it at the end
     # when you're done typing and about to move onto something else.
-    @_addToProxy({body: event.target.value}, {fromBodyChange: true})
+    @_addToProxy({body: newBody}, {fromBodyChange: true})
     @_throttledTrigger ?= _.debounce =>
       @_ignoreNextTrigger = false
       @_proxy.trigger()

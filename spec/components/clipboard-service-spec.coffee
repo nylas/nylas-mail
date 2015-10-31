@@ -1,4 +1,4 @@
-ClipboardService = require '../../src/components/clipboard-service'
+ClipboardService = require '../../src/components/contenteditable/clipboard-service'
 
 describe "ClipboardService", ->
   beforeEach ->
