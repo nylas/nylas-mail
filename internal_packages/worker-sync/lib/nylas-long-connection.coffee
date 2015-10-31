@@ -46,17 +46,14 @@ class NylasLongConnection
     cursor = atom.config.get(@_cursorKey)
     return callback(cursor) if cursor
 
-    stamp = Math.round(new Date().getTime() / 1000.0)
     @_api.makeRequest
-      path: "/delta/generate_cursor"
+      path: "/delta/latest_cursor"
       accountId: @_accountId
       method: 'POST'
-      body: { "start": stamp }
-      success: (json) =>
-        @setCursor(json['cursor'])
-        callback(json['cursor'])
-        console.log("Retrieved cursor #{json['cursor']} from \
-                    `generate_cursor` with timestamp: #{stamp}")
+      success: ({cursor}) =>
+        console.log("Obtained stream cursor #{cursor}.")
+        @setCursor(cursor)
+        callback(cursor)
 
   setCursor: (cursor) ->
     atom.config.set(@_cursorKey, cursor)
