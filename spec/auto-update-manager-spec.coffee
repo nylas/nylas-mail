@@ -4,6 +4,7 @@ url = require 'url'
 describe "AutoUpdateManager", ->
   beforeEach ->
     @updateIdentity = null
+    @specMode = true
     @config =
       set: jasmine.createSpy('config.set')
       get: (key) =>
@@ -14,7 +15,7 @@ describe "AutoUpdateManager", ->
 
   describe "with attached commit version", ->
     it "correctly sets the feedURL", ->
-      m = new AutoUpdateManager("3.222.1-abc", @config)
+      m = new AutoUpdateManager("3.222.1-abc", @config, @specMode)
       spyOn(m, "setupAutoUpdater")
 
       {query} = url.parse(m.feedUrl, true)
@@ -24,7 +25,7 @@ describe "AutoUpdateManager", ->
 
   describe "with no attached commit", ->
     it "correctly sets the feedURL", ->
-      m = new AutoUpdateManager("3.222.1", @config)
+      m = new AutoUpdateManager("3.222.1", @config, @specMode)
       spyOn(m, "setupAutoUpdater")
       {query} = url.parse(m.feedUrl, true)
       expect(query.arch).toBe process.arch
@@ -33,7 +34,7 @@ describe "AutoUpdateManager", ->
 
   describe "when an update identity is not present", ->
     it "should save one to @config and send it", ->
-      m = new AutoUpdateManager("3.222.1", @config)
+      m = new AutoUpdateManager("3.222.1", @config, @specMode)
       spyOn(m, "setupAutoUpdater")
       {query} = url.parse(m.feedUrl, true)
 
@@ -43,7 +44,7 @@ describe "AutoUpdateManager", ->
   describe "when an update identity is already set", ->
     it "should send it and not save any changes", ->
       @updateIdentity = "test-identity"
-      m = new AutoUpdateManager("3.222.1", @config)
+      m = new AutoUpdateManager("3.222.1", @config, @specMode)
       spyOn(m, "setupAutoUpdater")
       {query} = url.parse(m.feedUrl, true)
 
