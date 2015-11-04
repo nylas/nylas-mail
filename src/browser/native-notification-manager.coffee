@@ -23,6 +23,10 @@ class NativeNotificationManagerMacOSX
     @_delegate = Delegate('alloc')('init')
     @_center('setDelegate', @_delegate)
 
+    # Ensure that these objects are never, ever garbage collected
+    global.__nativeNotificationManagerMacOSXDelegate = Delegate
+    global.__nativeNotificationManagerMacOSX = @
+
     ipc.on('fire-native-notification', @onFireNotification)
 
   shouldPresentNotification: (self, _cmd, center, notif) =>
