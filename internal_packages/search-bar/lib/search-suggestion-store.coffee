@@ -24,29 +24,26 @@ SearchSuggestionStore = Reflux.createStore
 
   onSearchQueryChanged: (query) ->
     @_query = query
-    @_rebuildResults()
+    @trigger()
+    _.defer => @_rebuildResults()
 
   onSearchQueryCommitted: (query) ->
     @_query = query
     @_committedQuery = query
     @_clearResults()
-    @trigger()
 
   onSearchBlurred: ->
     @_clearResults()
-    @trigger()
 
   _clearResults: ->
     @_threadResults = null
     @_contactResults = null
     @_suggestions = []
+    @trigger()
 
   _rebuildResults: ->
     {key, val} = @queryKeyAndVal()
-    unless key and val
-      @_clearResults()
-      @trigger(@)
-      return
+    return @_clearResults() unless key and val
 
     ContactStore.searchContacts(val, limit:10).then (results) =>
       @_contactResults = results
@@ -98,7 +95,7 @@ SearchSuggestionStore = Reflux.createStore
           contact: contact
           value: [{"all": contact.email}]
 
-    @trigger(@)
+    @trigger()
 
   # Exposed Data
 
