@@ -49,6 +49,8 @@ module.exports = (dir, regexPattern) ->
           detailedLog("Error uploading #{log}: status code #{response.statusCode}")
         else
           detailedLog("Successfully uploaded #{log}")
-        fs.truncate log, =>
-          fs.unlink(log)
+        fs.truncate log, (err) =>
+          console.log(err) if err
+          fs.unlink log, (err) =>
+            console.log(err) if err
         finished()
