@@ -105,10 +105,11 @@ class SearchBar extends React.Component
           str += val
         else
           str += val
+    str
 
   _stringToQuery: (str) =>
     return [] unless str
-    return [all: str]
+    return [{all: str}]
 
   _onValueChange: (event) =>
     Actions.searchQueryChanged(@_stringToQuery(event.target.value))
