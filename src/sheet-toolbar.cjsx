@@ -44,11 +44,11 @@ class ToolbarBack extends React.Component
     CategoryStore ?= require './flux/stores/category-store'
     FocusedMailViewStore ?= require './flux/stores/focused-mail-view-store'
     @state =
-      categoryName: FocusedMailViewStore.mailView().name
+      categoryName: FocusedMailViewStore.mailView()?.name
 
   componentDidMount: =>
     @_unsubscriber = FocusedMailViewStore.listen =>
-      @setState(categoryName: FocusedMailViewStore.mailView().name)
+      @setState(categoryName: FocusedMailViewStore.mailView()?.name)
 
   componentWillUnmount: =>
     @_unsubscriber() if @_unsubscriber
