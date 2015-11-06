@@ -30,7 +30,7 @@ install:
   - echo $CC
   - echo $CXX
   - clang --version
-  - gcc -v
+  - if [ "$CC" = "gcc-4.8" ]; then gcc-4.8 -v; else gcc -v; fi
   - git clone https://github.com/creationix/nvm.git /tmp/.nvm
   - source /tmp/.nvm/nvm.sh
   - nvm install $NODE_VERSION
