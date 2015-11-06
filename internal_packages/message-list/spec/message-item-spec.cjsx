@@ -11,7 +11,7 @@ ReactTestUtils = React.addons.TestUtils
  FileDownloadStore,
  MessageBodyProcessor} = require "nylas-exports"
 
-EmailFrameStub = React.createClass({render: -> <div></div>})
+MessageItemBody = React.createClass({render: -> <div></div>})
 
 {InjectedComponent} = require 'nylas-component-kit'
 
@@ -83,7 +83,7 @@ user_5 = new Contact
 
 
 MessageItem = proxyquire '../lib/message-item',
-  './email-frame': EmailFrameStub
+  './message-item-body': MessageItemBody
 
 MessageTimestamp = require '../lib/message-timestamp'
 
@@ -162,8 +162,8 @@ describe "MessageItem", ->
     beforeEach ->
       @createComponent({collapsed: false})
 
-    it "should render the EmailFrame", ->
-      frame = ReactTestUtils.findRenderedComponentWithType(@component, EmailFrameStub)
+    it "should render the MessageItemBody", ->
+      frame = ReactTestUtils.findRenderedComponentWithType(@component, MessageItemBody)
       expect(frame).toBeDefined()
 
     it "should not have the `collapsed` class", ->
@@ -216,117 +216,3 @@ describe "MessageItem", ->
       @createComponent()
       attachments = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@component, InjectedComponent, matching: {role: 'Attachment'})
       expect(attachments.length).toEqual(8)
-
-    describe "inline", ->
-      it "should never leave src=cid:// in the message body", ->
-        body = @component._formatBody()
-        expect(body.indexOf('cid')).toEqual(-1)
-
-      it "should give images a fixed height when height and width are set as html attributes", ->
-        @message.body = """
-          <img src=\"cid:#{file_inline.contentId}\"/>
-          <img src=\"cid:#{file_inline.contentId}\" width="50"/>
-          <img src=\"cid:#{file_inline.contentId}\" width="50" height="40"/>
-          <img src=\"cid:#{file_inline.contentId}\" width="1000" height="800"/>
-          """
-        @createComponent()
-        body = @component._formatBody()
-        expect(body).toEqual """<img src="/fake/path-inline.png"/>
-<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNikAQAACIAHF/uBd8AAAAASUVORK5CYII=" width="50"/>
-<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNikAQAACIAHF/uBd8AAAAASUVORK5CYII=" width="50" height="40" style="height:40px;" />
-<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNikAQAACIAHF/uBd8AAAAASUVORK5CYII=" width="1000" height="800" style="height:592px;" />
-"""
-      it "should replace cid://<file.contentId> with the FileDownloadStore's path for the file", ->
-        body = @component._formatBody()
-        expect(body.indexOf('alt="A" src="/fake/path-inline.png"')).toEqual(@message.body.indexOf('alt="A"'))
-
-      it "should not replace cid://<file.contentId> with the FileDownloadStore's path if the download is in progress", ->
-        body = @component._formatBody()
-        expect(body.indexOf('/fake/path-downloading.png')).toEqual(-1)
-
-
-  describe "showQuotedText", ->
-
-    it "should be initialized to false", ->
-      @createComponent()
-      expect(@component.state.showQuotedText).toBe(false)
-
-    it "shouldn't render the quoted text control if there's no quoted text", ->
-      @message.body = "no quotes here!"
-      @createComponent()
-      toggles = ReactTestUtils.scryRenderedDOMComponentsWithClass(@component, 'quoted-text-control')
-      expect(toggles.length).toBe 0
-
-    describe 'quoted text control toggle button', ->
-      beforeEach ->
-        @message.body = """
-          Message
-          <blockquote class="gmail_quote">
-            Quoted message
-          </blockquote>
-          """
-        @createComponent()
-        @toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@component, 'quoted-text-control')
-
-      it 'should be rendered', ->
-        expect(@toggle).toBeDefined()
-
-      it 'prompts to hide the quote', ->
-        expect(React.findDOMNode(@toggle).textContent).toEqual "•••Show previous"
-
-    it "should be initialized to true if the message contains `Forwarded`...", ->
-      @message.body = """
-        Hi guys, take a look at this. Very relevant. -mg
-        <br>
-        <br>
-        <div class="gmail_quote">
-          ---- Forwarded Message -----
-          blablalba
-        </div>
-        """
-      @createComponent()
-      expect(@component.state.showQuotedText).toBe(true)
-
-    it "should be initialized to false if the message is a response to a Forwarded message", ->
-      @message.body = """
-        Thanks mg, that indeed looks very relevant. Will bring it up
-        with the rest of the team.
-
-        On Sunday, March 4th at 12:32AM, Michael Grinich Wrote:
-        <div class="gmail_quote">
-          Hi guys, take a look at this. Very relevant. -mg
-          <br>
-          <br>
-          <div class="gmail_quote">
-            ---- Forwarded Message -----
-            blablalba
-          </div>
-        </div>
-        """
-      @createComponent()
-      expect(@component.state.showQuotedText).toBe(false)
-
-    describe "when showQuotedText is true", ->
-      beforeEach ->
-        @message.body = """
-          Message
-          <blockquote class="gmail_quote">
-            Quoted message
-          </blockquote>
-          """
-        @createComponent()
-        @component.setState(showQuotedText: true)
-
-      describe 'quoted text control toggle button', ->
-        beforeEach ->
-          @toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@component, 'quoted-text-control')
-
-        it 'should be rendered', ->
-          expect(@toggle).toBeDefined()
-
-        it 'prompts to hide the quote', ->
-          expect(React.findDOMNode(@toggle).textContent).toEqual "•••Hide previous"
-
-      it "should pass the value into the EmailFrame", ->
-        frame = ReactTestUtils.findRenderedComponentWithType(@component, EmailFrameStub)
-        expect(frame.props.showQuotedText).toBe(true)

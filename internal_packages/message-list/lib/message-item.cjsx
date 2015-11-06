@@ -3,6 +3,7 @@ classNames = require 'classnames'
 _ = require 'underscore'
 EmailFrame = require './email-frame'
 MessageParticipants = require "./message-participants"
+MessageItemBody = require "./message-item-body"
 MessageTimestamp = require "./message-timestamp"
 MessageControls = require './message-controls'
 {Utils,
@@ -33,7 +34,6 @@ class MessageItem extends React.Component
       # Holds the downloadData (if any) for all of our files. It's a hash
       # keyed by a fileId. The value is the downloadData.
       downloads: FileDownloadStore.downloadDataForFiles(@props.message.fileIds())
-      showQuotedText: @_isForwardedMessage()
       detailedHeaders: false
 
   componentDidMount: =>
@@ -79,21 +79,12 @@ class MessageItem extends React.Component
       <div className="message-item-white-wrap">
         <div className="message-item-area">
           {@_renderHeader()}
-          <EmailFrame showQuotedText={@state.showQuotedText} content={@_formatBody()}/>
-          {@_renderQuotedTextControl()}
+          <MessageItemBody message={@props.message} downloads={@state.downloads} />
           {@_renderEvents()}
           {@_renderAttachments()}
         </div>
       </div>
     </div>
-
-  _renderQuotedTextControl: ->
-    if QuotedHTMLParser.hasQuotedHTML(@props.message.body)
-      text = if @state.showQuotedText then "Hide" else "Show"
-      <a className="quoted-text-control" onClick={@_toggleQuotedText}>
-        <span className="dots">&bull;&bull;&bull;</span>{text} previous
-      </a>
-    else return null
 
   _renderHeader: =>
     classes = classNames
@@ -110,10 +101,6 @@ class MessageItem extends React.Component
                           date={@props.message.date} />
 
         {@_renderMessageControls()}
-
-        <InjectedComponentSet className="message-indicator"
-                              matching={role: "MessageIndicator"}
-                              exposedProps={message: @props.message}/>
       </div>
 
       <MessageParticipants to={@props.message.to}
@@ -202,32 +189,6 @@ class MessageItem extends React.Component
         <RetinaImg name={"message-disclosure-triangle.png"} mode={RetinaImg.Mode.ContentIsMask}/>
       </div>
 
-  # Eventually, _formatBody will run a series of registered body transformers.
-  # For now, it just runs a few we've hardcoded here, which are all synchronous.
-  _formatBody: =>
-    return "" unless @props.message and @props.message.body
-
-    # Runs extensions, potentially asynchronous soon
-    body = MessageBodyProcessor.process(@props.message)
-
-    # Replace cid:// references with the paths to downloaded files
-    for file in @props.message.files
-      continue if @state.downloads[file.id]
-      cidLink = "cid:#{file.contentId}"
-      fileLink = "#{FileDownloadStore.pathForFile(file)}"
-      body = body.replace(cidLink, fileLink)
-
-    # Replace remaining cid:// references - we will not display them since they'll
-    # throw "unknown ERR_UNKNOWN_URL_SCHEME". Show a transparent pixel so that there's
-    # no "missing image" region shown, just a space.
-    body = body.replace(MessageUtils.cidRegex, "src=\"#{TransparentPixel}\"")
-
-    body
-
-  _toggleQuotedText: =>
-    @setState
-      showQuotedText: !@state.showQuotedText
-
   _toggleCollapsed: =>
     return if @props.isLastMsg
     Actions.toggleMessageIdExpanded(@props.message.id)
@@ -279,9 +240,6 @@ class MessageItem extends React.Component
   _isRealFile: (file) ->
     hasCIDInBody = file.contentId? and @props.message.body?.indexOf(file.contentId) > 0
     return not hasCIDInBody
-
-  _isForwardedMessage: =>
-    Utils.isForwardedMessage(@props.message)
 
   _onDownloadStoreChange: =>
     @setState
