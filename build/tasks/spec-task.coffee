@@ -27,7 +27,7 @@ module.exports = (grunt) ->
     grunt.log.error(stderr)
 
   getAppPath = ->
-    contentsDir = grunt.config.get('atom.contentsDir')
+    contentsDir = grunt.config.get('nylas.contentsDir')
     switch process.platform
       when 'darwin'
         path.join(contentsDir, 'MacOS', 'Edgehill')
@@ -38,7 +38,7 @@ module.exports = (grunt) ->
 
   runPackageSpecs = (callback) ->
     failedPackages = []
-    rootDir = grunt.config.get('atom.shellAppDir')
+    rootDir = grunt.config.get('nylas.shellAppDir')
     resourcePath = process.cwd()
     appPath = getAppPath()
 

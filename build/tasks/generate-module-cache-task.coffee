@@ -4,7 +4,7 @@ ModuleCache = require '../../src/module-cache'
 
 module.exports = (grunt) ->
   grunt.registerTask 'generate-module-cache', 'Generate a module cache for all core modules and packages', ->
-    appDir = grunt.config.get('atom.appDir')
+    appDir = grunt.config.get('nylas.appDir')
 
     {packageDependencies} = grunt.file.readJSON('package.json')
 

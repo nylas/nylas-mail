@@ -2,7 +2,7 @@ path = require 'path'
 
 module.exports = (grunt) ->
   grunt.registerTask 'output-long-paths', 'Log long paths in the built application', ->
-    shellAppDir = grunt.config.get('atom.shellAppDir')
+    shellAppDir = grunt.config.get('nylas.shellAppDir')
 
     longPaths = []
     grunt.file.recurse shellAppDir, (absolutePath, rootPath, relativePath, fileName) ->

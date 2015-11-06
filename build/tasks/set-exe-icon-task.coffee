@@ -4,7 +4,7 @@ module.exports = (grunt) ->
   grunt.registerTask 'set-exe-icon', 'Set icon of the exe', ->
     done = @async()
 
-    shellAppDir = grunt.config.get('atom.shellAppDir')
+    shellAppDir = grunt.config.get('nylas.shellAppDir')
     shellExePath = path.join(shellAppDir, 'nylas.exe')
     iconPath = path.resolve('build', 'resources', 'win', 'nylas.ico')
 

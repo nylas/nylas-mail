@@ -13,5 +13,5 @@ module.exports =
 
 # The following classes can't be used from a Task handler and should therefore
 # only be exported when not running as a child node process
-unless process.env.ATOM_SHELL_INTERNAL_RUN_AS_NODE
+unless process.env.NYLAS_INTERNAL_RUN_AS_NODE
   module.exports.Task = require '../task'

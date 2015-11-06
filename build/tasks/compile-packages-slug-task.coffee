@@ -7,7 +7,7 @@ module.exports = (grunt) ->
   {spawn, rm} = require('./task-helpers')(grunt)
 
   grunt.registerTask 'compile-packages-slug', 'Add bundled package metadata information to the main package.json file', ->
-    appDir = fs.realpathSync(grunt.config.get('atom.appDir'))
+    appDir = fs.realpathSync(grunt.config.get('nylas.appDir'))
 
     modulesDirectory = path.join(appDir, 'node_modules')
     internalNylasPackagesDirectory = path.join(appDir, 'internal_packages')

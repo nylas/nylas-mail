@@ -2,7 +2,7 @@ path = require 'path'
 
 module.exports = (grunt) ->
   grunt.registerTask 'output-build-filetypes', 'Log counts for each filetype in the built application', ->
-    shellAppDir = grunt.config.get('atom.shellAppDir')
+    shellAppDir = grunt.config.get('nylas.shellAppDir')
 
     types = {}
     grunt.file.recurse shellAppDir, (absolutePath, rootPath, relativePath, fileName) ->
