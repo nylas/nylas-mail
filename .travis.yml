@@ -14,14 +14,15 @@ matrix:
       env: NODE_VERSION=0.12
 # Wants a c++11 compiler
     - os: linux
-      env: NODE_VERSION=4.1
+      env: NODE_VERSION=4.1 CC=gcc-4.8 CXX=g++-4.8
     - os: osx
       env: NODE_VERSION=0.10
 # npn registry Connection Reset errors
 #    - os: osx
 #      env: NODE_VERSION=0.12
+# osx already supports c++11 in Apple LLVM
     - os: osx
-      env: NODE_VERSION=4.1
+      env: NODE_VERSION=4.1 CC=clang CXX=clang++
 
 sudo: false
 
@@ -29,7 +30,6 @@ install:
   - echo $CC
   - echo $CXX
   - clang --version
-  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
   - git clone https://github.com/creationix/nvm.git /tmp/.nvm
   - source /tmp/.nvm/nvm.sh
   - nvm install $NODE_VERSION
