@@ -134,7 +134,7 @@ class ComposerView extends React.Component
     @undoManager = new UndoManager
     DraftStore.sessionForClientId(draftClientId).then(@_setupSession)
 
-  __setupSessionsetupSession: (proxy) =>
+  _setupSession: (proxy) =>
     return if @_unmounted
     return unless proxy.draftClientId is @props.draftClientId
     @_proxy = proxy

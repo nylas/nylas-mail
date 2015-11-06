@@ -21,7 +21,8 @@ class FocusedMailViewStore extends NylasStore
 
   _onFocusMailView: (filter) =>
     return if filter.isEqual(@_mailView)
-    Actions.selectRootSheet(WorkspaceStore.Sheet.Threads)
+    if WorkspaceStore.Sheet.Threads
+      Actions.selectRootSheet(WorkspaceStore.Sheet.Threads)
     Actions.searchQueryCommitted('')
     @_setMailView(filter)
 
