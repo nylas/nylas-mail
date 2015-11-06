@@ -68,8 +68,7 @@ class Model
     else
       values["serverId"] ?= values["id"]
 
-    @constructor.attributesKeys ?= Object.keys(@constructor.attributes)
-    for key in @constructor.attributesKeys
+    for key in Object.keys(@constructor.attributes)
       continue if key is 'id'
       continue unless values[key]?
       @[key] = values[key]
@@ -104,8 +103,7 @@ class Model
     #
     if json["id"] and not Utils.isTempId(json["id"])
       @serverId = json["id"]
-    @constructor.attributesKeys ?= Object.keys(@constructor.attributes)
-    for key in @constructor.attributesKeys
+    for key in Object.keys(@constructor.attributes)
       continue if key is 'id'
       attr = @constructor.attributes[key]
       @[key] = attr.fromJSON(json[attr.jsonKey]) unless json[attr.jsonKey] is undefined
@@ -121,8 +119,7 @@ class Model
   #
   toJSON: (options = {}) ->
     json = {}
-    @constructor.attributesKeys ?= Object.keys(@constructor.attributes)
-    for key in @constructor.attributesKeys
+    for key in Object.keys(@constructor.attributes)
       continue if key is 'id'
       attr = @constructor.attributes[key]
       continue if attr instanceof Attributes.AttributeJoinedData and options.joined is false
