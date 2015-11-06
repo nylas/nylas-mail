@@ -90,6 +90,8 @@ function bootstrap() {
     apmInstallCommand    += ' --loglevel error';
     moduleInstallCommand += ' --loglevel error';
     dedupeApmCommand     += ' --quiet';
+
+    apmDedupeOptions.ignoreStdout = true;
     buildInstallOptions.ignoreStdout = true;
     apmInstallOptions.ignoreStdout = true;
   }
