@@ -245,7 +245,7 @@ class Package
     if @bundledPackage and packagesCache[@name]?
       @keymaps = (["#{atom.packages.resourcePath}#{path.sep}#{keymapPath}", keymapObject] for keymapPath, keymapObject of packagesCache[@name].keymaps)
     else
-      @keymaps = @getKeymapPaths().map (keymapPath) -> [keymapPath, CSON.readFileSync(keymapPath) ? {}]
+      @keymaps = @getKeymapPaths().map (keymapPath) -> [keymapPath, atom.keymaps.readKeymap(keymapPath) ? {}]
 
   loadMenus: ->
     if @bundledPackage and packagesCache[@name]?

@@ -151,7 +151,7 @@ class Atom extends Model
     @loadTime = null
 
     Config = require './config'
-    KeymapManager = require './keymap-extensions'
+    KeymapManager = require './keymap-manager'
     CommandRegistry = require './command-registry'
     PackageManager = require './package-manager'
     Clipboard = require './clipboard'
@@ -183,11 +183,11 @@ class Atom extends Model
     @config = new Config({configDirPath, resourcePath})
 
     @keymaps = new KeymapManager({configDirPath, resourcePath})
-    @keymaps.subscribeToFileReadFailure()
     @keymaps.onDidMatchBinding (event) ->
-      # If the user fired a command with the application: prefix bound to the body, re-fire it
-      # up into the browser process. This prevents us from needing this crap, which has to be
-      # updated every time a new application: command is added:
+      # If the user fired a command with the application: prefix bound to
+      # the body, re-fire it up into the browser process. This prevents us
+      # from needing this crap, which has to be updated every time a new
+      # application: command is added:
       # https://github.com/atom/atom/blob/master/src/workspace-element.coffee#L119
       if event.binding.command.indexOf('application:') is 0 and event.binding.selector.indexOf("body") is 0
         ipc.send('command', event.binding.command)

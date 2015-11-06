@@ -1,7 +1,7 @@
 shell = require 'shell'
 GithubStore = require './github-store'
 {React} = require 'nylas-exports'
-{RetinaImg} = require 'nylas-component-kit'
+{RetinaImg, KeyCommandsRegion} = require 'nylas-component-kit'
 
 ###
 The `ViewOnGithubButton` displays a button whenever there's a relevant
@@ -68,23 +68,24 @@ class ViewOnGithubButton extends React.Component
     # are cleaned up. Every time the `GithubStore` calls its `trigger`
     # method, the `_onStoreChanged` callback will be fired.
     @_unlisten = GithubStore.listen(@_onStoreChanged)
-    @_keymapUnlisten = atom.commands.add 'body', {
-      'github:open': @_openLink
-    }
 
   componentWillUnmount: ->
     @_unlisten?()
-    @_keymapUnlisten?.dispose()
+
+  _keymapHandlers: ->
+    'github:open': @_openLink
 
   render: ->
     return null unless @state.link
-    <button className="btn btn-toolbar"
-            onClick={@_openLink}
-            title={"Visit Thread on GitHub"}>
-      <RetinaImg
-        mode={RetinaImg.Mode.ContentIsMask}
-        url="nylas://N1-Message-View-on-Github/assets/github@2x.png" />
-    </button>
+    <KeyCommandsRegion globalHandlers={@_keymapHandlers()}>
+      <button className="btn btn-toolbar"
+              onClick={@_openLink}
+              title={"Visit Thread on GitHub"}>
+        <RetinaImg
+          mode={RetinaImg.Mode.ContentIsMask}
+          url="nylas://N1-Message-View-on-Github/assets/github@2x.png" />
+      </button>
+    </KeyCommandsRegion>
 
 
   #### Super common N1 Component private methods ####

@@ -21,6 +21,9 @@ class MailViewFilter
   @forSearch: (query) ->
     new SearchMailViewFilter(query)
 
+  @forAll: ->
+    new AllMailViewFilter()
+
   # Instance Methods
 
   constructor: ->
@@ -82,6 +85,31 @@ class SearchMailViewFilter extends MailViewFilter
 
   categoryId: ->
     null
+
+class AllMailViewFilter extends MailViewFilter
+  constructor: ->
+    @name = "All"
+    @iconName = "all-mail.png"
+    @
+
+  isEqual: (other) ->
+    super(other) and other.searchQuery is @searchQuery
+
+  matchers: ->
+    account = AccountStore.current()
+    [Thread.attributes.accountId.equal(account.id)]
+
+  canApplyToThreads: ->
+    true
+
+  canArchiveThreads: ->
+    false
+
+  canTrashThreads: ->
+    false
+
+  categoryId: ->
+    CategoryStore.getStandardCategory("all")?.id
 
 
 class StarredMailViewFilter extends MailViewFilter

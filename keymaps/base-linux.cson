@@ -1,36 +1,11 @@
-# Note: For a menu item to have a keyboard equiavalent, it needs
-# to be listed in this file.
+# Note: Only put keymaps in here that apply to Linux ONLY
+#
+# Most cross-platform issues can be resolved by using the special N1
+# `cmdctrl` extension before you keymap. This will automatically default
+# to using the `cmd` key on Mac and `ctrl` key on Windows.
 
 # Linux email-specific menu items
 'body':
-  # Linux application keys
-  'ctrl-q': 'application:quit'
-
-  # Linux core keys
-  'ctrl-z': 'core:undo'
-  'ctrl-Z': 'core:redo'
-  'ctrl-y': 'core:redo'
-  'ctrl-x': 'core:cut'
-  'ctrl-c': 'core:copy'
-  'ctrl-a': 'core:select-all'
-  'ctrl-v': 'core:paste'
   'ctrl-insert': 'core:copy'
   'shift-insert': 'core:paste'
-
-  # Linux window keys
-  'ctrl-w': 'core:close'
-  'ctrl-=': 'window:increase-font-size'
-  'ctrl-+': 'window:increase-font-size'
-  'ctrl--': 'window:decrease-font-size'
-  'ctrl-_': 'window:decrease-font-size'
-  'ctrl-0': 'window:reset-font-size'
-  'ctrl-alt-r': 'window:reload'
-  'ctrl-shift-i': 'window:toggle-dev-tools'
-  'ctrl-alt-p': 'application:run-package-specs'
-  'ctrl-alt-s': 'application:run-all-specs'
   'F11': 'window:toggle-full-screen'
-
-'body *[contenteditable]':
-  'ctrl-z': 'native!'
-  'ctrl-Z': 'native!'
-  'ctrl-y': 'native!'

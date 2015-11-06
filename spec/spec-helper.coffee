@@ -9,7 +9,7 @@ _ = require 'underscore'
 _str = require 'underscore.string'
 fs = require 'fs-plus'
 Grim = require 'grim'
-KeymapManager = require '../src/keymap-extensions'
+KeymapManager = require '../src/keymap-manager'
 
 # FIXME: Remove jquery from this
 {$} = require '../src/space-pen-extensions'

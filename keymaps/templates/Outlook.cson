@@ -1,34 +1,18 @@
 # Note: For a menu item to have a keyboard equiavalent, it needs
 # to be listed in this file.
 
-'body.platform-darwin':
+'body':
   # Windows email-specific menu items
-  'cmd-shift-v': 'application:change-category' # Outlook
+  'cmdctrl-shift-v': 'application:change-category' # Outlook
   'F3':           'application:focus-search'
-  'cmd-e':       'application:focus-search'
-  'cmd-f':       'application:forward'
-  'cmd-shift-v': 'application:change-category'
-  'cmd-d':       'core:delete-item'
+  'cmdctrl-e':       'application:focus-search'
+  'cmdctrl-f':       'application:forward'
+  'cmdctrl-shift-v': 'application:change-category'
+  'cmdctrl-d':       'application:delete-item'
   'alt-backspace':'core:undo'
   'alt-s':        'application:send-message'
-  'cmd-r':       'application:reply'
-  'cmd-shift-r': 'application:reply-all'
-  'cmd-n' :      'application:new-message'
-  'cmd-shift-m': 'application:new-message'
-  'cmd-enter':   'send'
-
-'body.platform-linux, body.platform-win32':
-  # Windows email-specific menu items
-  'ctrl-shift-v': 'application:change-category' # Outlook
-  'F3':           'application:focus-search'
-  'ctrl-e':       'application:focus-search'
-  'ctrl-f':       'application:forward'
-  'ctrl-shift-v': 'application:change-category'
-  'ctrl-d':       'core:delete-item'
-  'alt-backspace':'core:undo'
-  'alt-s':        'application:send-message'
-  'ctrl-r':       'application:reply'
-  'ctrl-shift-r': 'application:reply-all'
-  'ctrl-n' :      'application:new-message'
-  'ctrl-shift-m': 'application:new-message'
-  'ctrl-enter':   'send'
+  'cmdctrl-r':       'application:reply'
+  'cmdctrl-shift-r': 'application:reply-all'
+  'cmdctrl-n' :      'application:new-message'
+  'cmdctrl-shift-m': 'application:new-message'
+  'cmdctrl-enter':   'send'

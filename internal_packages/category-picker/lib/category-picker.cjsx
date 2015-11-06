@@ -19,6 +19,7 @@ React = require 'react'
 {Menu,
  Popover,
  RetinaImg,
+ KeyCommandsRegion,
  LabelColorizer} = require 'nylas-component-kit'
 
 # This changes the category on one or more threads.
@@ -37,9 +38,6 @@ class CategoryPicker extends React.Component
     @unsubscribers.push CategoryStore.listen @_onStoreChanged
     @unsubscribers.push AccountStore.listen @_onStoreChanged
 
-    @_commandUnsubscriber = atom.commands.add 'body',
-      "application:change-category": @_onOpenCategoryPopover
-
     # If the threads we're picking categories for change, (like when they
     # get their categories updated), we expect our parents to pass us new
     # props. We don't listen to the DatabaseStore ourselves.
@@ -50,7 +48,9 @@ class CategoryPicker extends React.Component
   componentWillUnmount: =>
     return unless @unsubscribers
     unsubscribe() for unsubscribe in @unsubscribers
-    @_commandUnsubscriber.dispose()
+
+  _keymapHandlers: ->
+    "application:change-category": @_onOpenCategoryPopover
 
   render: =>
     return <span></span> unless @_account
@@ -84,23 +84,25 @@ class CategoryPicker extends React.Component
              onChange={@_onSearchValueChange}/>
     ]
 
-    <Popover className="category-picker"
-             ref="popover"
-             onOpened={@_onPopoverOpened}
-             onClosed={@_onPopoverClosed}
-             direction="down-align-left"
-             style={order: -103}
-             buttonComponent={button}>
-      <Menu ref="menu"
-            headerComponents={headerComponents}
-            footerComponents={[]}
-            items={@state.categoryData}
-            itemKey={ (item) -> item.id }
-            itemContent={@_renderItemContent}
-            onSelect={@_onSelectCategory}
-            defaultSelectedIndex={if @state.searchValue is "" then -1 else 0}
-            />
-    </Popover>
+    <KeyCommandsRegion globalHandlers={@_keymapHandlers()}>
+      <Popover className="category-picker"
+               ref="popover"
+               onOpened={@_onPopoverOpened}
+               onClosed={@_onPopoverClosed}
+               direction="down-align-left"
+               style={order: -103}
+               buttonComponent={button}>
+        <Menu ref="menu"
+              headerComponents={headerComponents}
+              footerComponents={[]}
+              items={@state.categoryData}
+              itemKey={ (item) -> item.id }
+              itemContent={@_renderItemContent}
+              onSelect={@_onSelectCategory}
+              defaultSelectedIndex={if @state.searchValue is "" then -1 else 0}
+              />
+      </Popover>
+    </KeyCommandsRegion>
 
   _onOpenCategoryPopover: =>
     return unless @_threads().length > 0

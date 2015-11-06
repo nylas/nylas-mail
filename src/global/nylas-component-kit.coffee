@@ -23,6 +23,7 @@ class NylasComponentKit
   @load "ButtonDropdown", 'button-dropdown'
   @load "Contenteditable", 'contenteditable/contenteditable'
   @load "MultiselectList", 'multiselect-list'
+  @load "KeyCommandsRegion", 'key-commands-region'
   @load "InjectedComponent", 'injected-component'
   @load "TokenizingTextField", 'tokenizing-text-field'
   @load "MultiselectActionBar", 'multiselect-action-bar'

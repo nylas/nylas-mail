@@ -1,22 +1,12 @@
 # Note: For a menu item to have a keyboard equiavalent, it needs
 # to be listed in this file.
 
-'body.platform-darwin':
-  'cmd-n' : 'application:new-message'
-  'cmd-r' : 'application:reply'
-  'cmd-R' : 'application:reply-all'
-  'cmd-F' : 'application:forward'
-  'cmd-alt-f': 'application:focus-search'
-  'cmd-D': 'application:send-message'
-  'cmd-V': 'application:change-category'
-  'cmd-e'   : 'core:archive-item'
-
-'body.platform-linux, body.platform-win32':
-  'ctrl-n' : 'application:new-message'
-  'ctrl-r' : 'application:reply'
-  'ctrl-R' : 'application:reply-all'
-  'ctrl-F' : 'application:forward'
-  'ctrl-alt-f': 'application:focus-search'
-  'ctrl-D': 'application:send-message'
-  'ctrl-shift-v': 'application:change-category'
-  'ctrl-e'   : 'core:archive-item'
+'body':
+  'cmdctrl-n' : 'application:new-message'
+  'cmdctrl-r' : 'application:reply'
+  'cmdctrl-R' : 'application:reply-all'
+  'cmdctrl-F' : 'application:forward'
+  'cmdctrl-alt-f': 'application:focus-search'
+  'cmdctrl-D': 'application:send-message'
+  'cmdctrl-V': 'application:change-category'
+  'cmdctrl-e'   : 'application:archive-item'

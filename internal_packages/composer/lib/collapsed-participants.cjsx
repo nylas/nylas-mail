@@ -20,6 +20,7 @@ class CollapsedParticipants extends React.Component
     bcc: []
 
   constructor: (@props={}) ->
+    @_keyPrefix = Utils.generateTempId()
     @state =
       numToDisplay: 999
       numRemaining: 0
@@ -60,15 +61,17 @@ class CollapsedParticipants extends React.Component
 
     return <div className="num-remaining-wrap tokenizing-field"><div className="show-more-fade"></div><div className="num-remaining token">{str}</div></div>
 
-  _collapsedContact: (contact) ->
+  _collapsedContact: (contact) =>
     name = contact.displayName()
-    <span key={contact.id}
+    key = @_keyPrefix + contact.email + contact.name
+    <span key={key}
           className="collapsed-contact regular-contact">{name}</span>
 
-  _collapsedBccContact: (contact, i) ->
+  _collapsedBccContact: (contact, i) =>
     name = contact.displayName()
+    key = @_keyPrefix + contact.email + contact.name
     if i is 0 then name = "Bcc: #{name}"
-    <span key={contact.id}
+    <span key={key}
           className="collapsed-contact bcc-contact">{name}</span>
 
   _setNumHiddenParticipants: ->

@@ -1,202 +1,97 @@
-# Email-specific core key-mappings
+# This is the core set of universal, cross-platform keymaps. This is
+# extended in the following places:
 #
-# There are additional mappings in <platform>.cson files that bind
-# menu items. In the future, we should break these into files like:
-# darwin-gmail.cson, darwin-macmail.cson, win32-gmail.cson...
+# 1. keymaps/base.cson - (This file) Core, universal keymaps across all platforms
+# 2. keymaps/base-darwin.cson - Any universal mac-only keymaps
+# 3. keymaps/base-win32.cson - Any universal windows-only keymaps
+# 4. keymaps/base-darwin.cson - Any universal linux-only keymaps
+# 5. keymaps/templates/Gmail.cson - Gmail key bindings for all platforms
+# 6. keymaps/templates/Outlook.cson - Outlook key bindings for all platforms
+# 7. keymaps/templates/Apple Mail.cson - Mac Mail key bindings for all platforms
+# 8. some/package/keymaps/package.cson - Keymaps for a specific package
+# 9. ~/.nylas/keymap.cson - Custom user-specific overrides
+#
+# NOTE: We have a special N1 extension called `cmdctrl` that automatically
+# uses `cmd` on mac and `ctrl` on windows and linux. This covers most
+# cross-platform cases. For truely platform-specific features, use the
+# platform keymap extensions.
 
 'body':
-  'escape'   : 'application:pop-sheet'
-  'cmd-,'    : 'application:open-preferences'
-  'up'       : 'core:previous-item'
-  'down'     : 'core:next-item'
-  'enter'    : 'core:focus-item'
-  'delete'   : 'core:remove-from-view'
-  'backspace': 'core:remove-from-view'
-
-  'pageup'   : 'core:messages-page-up'
-  'pagedown' : 'core:messages-page-down'
-  'shift-pageup'   : 'core:list-page-up'
-  'shift-pagedown' : 'core:list-page-down'
-
-  # Default cross-platform core behaviors
-  'left': 'core:move-left'
-  'right': 'core:move-right'
-  'shift-up': 'core:select-up'
-  'shift-down': 'core:select-down'
-  'shift-left': 'core:select-left'
-  'shift-right': 'core:select-right'
+  ### Core system commands. ###
+  # These have their default effects, but map to
+  # commands to allow for custom interactions.
+  'cmdctrl-z': 'core:undo'
+  'cmdctrl-Z': 'core:redo'
+  'cmdctrl-y': 'core:redo'
+  'cmdctrl-x': 'core:cut'
+  'cmdctrl-c': 'core:copy'
+  'cmdctrl-v': 'core:paste'
+  'cmdctrl-a': 'core:select-all'
   'shift-delete': 'core:cut'
 
-# Inputs are native by default.
-# Also make sure not to catch anything intended for a webview
-'body input, body textarea, body *[contenteditable], body webview':
-  'up': 'native!'
-  'left': 'native!'
-  'down': 'native!'
-  'right': 'native!'
-  'cmd-up': 'native!'
-  'cmd-left': 'native!'
-  'cmd-down': 'native!'
-  'cmd-right': 'native!'
-  'ctrl-up':   'native!'
-  'ctrl-left': 'native!'
-  'ctrl-down': 'native!'
-  'ctrl-right': 'native!'
-  'shift-up':   'native!'
-  'shift-left': 'native!'
-  'shift-down': 'native!'
-  'shift-right': 'native!'
-  'escape': 'native!'
-  'pageup': 'native!'
-  'pagedown': 'native!'
-  'shift-pageup': 'native!'
-  'shift-pagedown': 'native!'
-  'enter': 'native!'
-  'cmd-enter': 'native!'
-  'ctrl-enter': 'native!'
-  'shift-enter': 'native!'
-  'backspace': 'native!'
-  'shift-backspace': 'native!'
-  'delete': 'native!'
-  'shift-delete': 'native!'
-  'cmd-y': 'native!'
-  'cmd-z': 'native!'
-  'cmd-Z': 'native!'
-  'cmd-x': 'native!'
-  'cmd-X': 'native!'
-  'cmd-c': 'native!'
-  'cmd-C': 'native!'
-  'cmd-v': 'native!'
-  'cmd-V': 'native!'
-  'cmd-a': 'native!'
-  'cmd-A': 'native!'
-  'cmd-b': 'native!'
-  'cmd-i': 'native!'
-  'cmd-u': 'native!'
-  'ctrl-y': 'native!'
-  'ctrl-z': 'native!'
-  'ctrl-Z': 'native!'
-  'ctrl-x': 'native!'
-  'ctrl-X': 'native!'
-  'ctrl-c': 'native!'
-  'ctrl-C': 'native!'
-  'ctrl-v': 'native!'
-  'ctrl-V': 'native!'
-  'ctrl-a': 'native!'
-  'ctrl-A': 'native!'
-  'ctrl-b': 'native!'
-  'ctrl-i': 'native!'
-  'ctrl-u': 'native!'
-  'a': 'native!'
-  'b': 'native!'
-  'c': 'native!'
-  'd': 'native!'
-  'e': 'native!'
-  'f': 'native!'
-  'g': 'native!'
-  'h': 'native!'
-  'i': 'native!'
-  'j': 'native!'
-  'k': 'native!'
-  'l': 'native!'
-  'm': 'native!'
-  'n': 'native!'
-  'o': 'native!'
-  'p': 'native!'
-  'q': 'native!'
-  'r': 'native!'
-  's': 'native!'
-  't': 'native!'
-  'u': 'native!'
-  'v': 'native!'
-  'w': 'native!'
-  'x': 'native!'
-  'y': 'native!'
-  'z': 'native!'
-  'A': 'native!'
-  'B': 'native!'
-  'C': 'native!'
-  'D': 'native!'
-  'E': 'native!'
-  'F': 'native!'
-  'G': 'native!'
-  'H': 'native!'
-  'I': 'native!'
-  'J': 'native!'
-  'K': 'native!'
-  'L': 'native!'
-  'M': 'native!'
-  'N': 'native!'
-  'O': 'native!'
-  'P': 'native!'
-  'Q': 'native!'
-  'R': 'native!'
-  'S': 'native!'
-  'T': 'native!'
-  'U': 'native!'
-  'V': 'native!'
-  'W': 'native!'
-  'X': 'native!'
-  'Y': 'native!'
-  'Z': 'native!'
-  '1': 'native!'
-  '2': 'native!'
-  '3': 'native!'
-  '4': 'native!'
-  '5': 'native!'
-  '6': 'native!'
-  '7': 'native!'
-  '8': 'native!'
-  '9': 'native!'
-  '0': 'native!'
-  '~': 'native!'
-  '!': 'native!'
-  '@': 'native!'
-  '#': 'native!'
-  '$': 'native!'
-  '%': 'native!'
-  '^': 'native!'
-  '&': 'native!'
-  '*': 'native!'
-  '(': 'native!'
-  ')': 'native!'
-  '-': 'native!'
-  '_': 'native!'
-  '=': 'native!'
-  '+': 'native!'
-  '[': 'native!'
-  '{': 'native!'
-  ']': 'native!'
-  '}': 'native!'
-  '\\': 'native!'
-  '|': 'native!'
-  ';': 'native!'
-  ':': 'native!'
-  '\'': 'native!'
-  '"': 'native!'
-  '<': 'native!'
-  ',': 'native!'
-  '>': 'native!'
-  '.': 'native!'
-  '?': 'native!'
-  '/': 'native!'
+  'up'         : 'core:previous-item'
+  'down'       : 'core:next-item'
+  'left'       : 'core:move-left'
+  'right'      : 'core:move-right'
+  'shift-up'   : 'core:select-up'
+  'shift-down' : 'core:select-down'
+  'shift-left' : 'core:select-left'
+  'shift-right': 'core:select-right'
 
-'body input, body textarea':
-  'tab': 'core:focus-next'
-  'shift-tab': 'core:focus-previous'
+  ### Core application commands. ###
+  'cmdctrl-q' : 'application:quit'
+  'cmdctrl-w' : 'window:close'
 
-'body webview':
-  'tab': 'native!'
-  'shift-tab': 'native!'
+  ### Universal N1 commands. ###
+  'enter'    : 'core:focus-item'
+  'delete'   : 'core:remove-from-view'
+  'escape'   : 'application:pop-sheet'
+  'backspace': 'core:remove-from-view'
+  'cmdctrl-,': 'application:open-preferences'
 
-# So our contenteditable control can do its own thing
-'body *[contenteditable]':
-  'tab': 'native!'
-  'shift-tab': 'native!'
+  'pageup'        : 'core:messages-page-up'
+  'pagedown'      : 'core:messages-page-down'
+  'shift-pageup'  : 'core:list-page-up'
+  'shift-pagedown': 'core:list-page-down'
 
-# For menus
-'body .menu, body .menu, body .menu input':
-  # and by "native!" I actually mean for it to just let React deal with
-  # it.
-  'tab': 'native!'
-  'shift-tab': 'native!'
+  ### N1 developer commands. ###
+  'cmdctrl-alt-l': 'window:reload'
+  'cmdctrl-alt-i': 'window:toggle-dev-tools'
+  'cmdctrl-alt-w': 'application:show-work-window'
+  'cmdctrl-alt-s': 'application:run-all-specs'
+  'cmdctrl-alt-p': 'application:run-package-specs'
+
+'body *[contenteditable].contenteditable':
+  ### Basic formatting commands ###
+  'cmdctrl-u': 'contenteditable:underline'
+  'cmdctrl-b': 'contenteditable:bold'
+  'cmdctrl-i': 'contenteditable:italic'
+  'cmdctrl-k': 'contenteditable:insert-link'
+
+  ### Advanced formatting commands ###
+  'cmdctrl-&': 'contenteditable:numbered-list'
+  'cmdctrl-#': 'contenteditable:numbered-list'
+  'cmdctrl-*': 'contenteditable:bulleted-list'
+  'cmdctrl-(': 'contenteditable:quote'
+
+  'cmdctrl-[': 'contenteditable:outdent'
+  'cmdctrl-]': 'contenteditable:indent'
+
+  'cmdctrl-L': 'contenteditable:align-left'
+  'cmdctrl-E': 'contenteditable:align-center'
+  'cmdctrl-R': 'contenteditable:align-right'
+
+  'cmdctrl-,': 'contenteditable:set-right-to-left'
+  'cmdctrl-.': 'contenteditable:set-left-to-right'
+
+  'cmdctrl-\\': 'contenteditable:remove-formatting'
+
+  'cmdctrl-%': 'contenteditable:previous-font'
+  'cmdctrl-^': 'contenteditable:next-font'
+  'cmdctrl-+': 'contenteditable:increase-text-size'
+  'cmdctrl--': 'contenteditable:decrease-text-size'
+
+  ### Custom Property Navigating ###
+  'cmdctrl-;': 'contenteditable:previous-selection'
+  "cmdctrl-'": 'contenteditable:next-selection'
+  'cmdctrl-m': 'contenteditable:open-spelling-suggestions'

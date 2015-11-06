@@ -17,6 +17,7 @@ React = require 'react'
  ScrollRegion,
  Contenteditable,
  InjectedComponent,
+ KeyCommandsRegion,
  FocusTrackingRegion,
  InjectedComponentSet} = require 'nylas-component-kit'
 
@@ -77,15 +78,6 @@ class ComposerView extends React.Component
     @_usubs = []
     @_usubs.push FileUploadStore.listen @_onFileUploadStoreChange
     @_usubs.push AccountStore.listen @_onAccountStoreChanged
-    @_keymapUnlisten = atom.commands.add '.composer-outer-wrap', {
-      'composer:send-message': => @_sendDraft()
-      'composer:delete-empty-draft': => @_deleteDraftIfEmpty()
-      'composer:show-and-focus-bcc': => @_onChangeEnabledFields(show: [Fields.Bcc], focus: Fields.Bcc)
-      'composer:show-and-focus-cc': => @_onChangeEnabledFields(show: [Fields.Cc], focus: Fields.Cc)
-      'composer:focus-to': => @_onChangeEnabledFields(show: [Fields.To], focus: Fields.To)
-      "composer:undo": @undo
-      "composer:redo": @redo
-    }
     @_applyFocusedField()
 
   componentWillUnmount: =>
@@ -93,7 +85,6 @@ class ComposerView extends React.Component
     @_teardownForDraft()
     @_deleteDraftIfEmpty()
     usub() for usub in @_usubs
-    @_keymapUnlisten.dispose() if @_keymapUnlisten
 
   componentDidUpdate: =>
     # We want to use a temporary variable instead of putting this into the
@@ -104,6 +95,19 @@ class ComposerView extends React.Component
     @_recoveredSelection = null if @_recoveredSelection?
 
     @_applyFocusedField()
+
+  _keymapHandlers: ->
+    'composer:send-message': => @_sendDraft()
+    'composer:delete-empty-draft': => @_deleteDraftIfEmpty()
+    'composer:show-and-focus-bcc': =>
+      @_onChangeEnabledFields(show: [Fields.Bcc], focus: Fields.Bcc)
+    'composer:show-and-focus-cc': =>
+      @_onChangeEnabledFields(show: [Fields.Cc], focus: Fields.Cc)
+    'composer:focus-to': =>
+      @_onChangeEnabledFields(show: [Fields.To], focus: Fields.To)
+    "composer:show-and-focus-from": => # TODO
+    "composer:undo": @undo
+    "composer:redo": @redo
 
   _applyFocusedField: ->
     if @state.focusedField
@@ -130,7 +134,7 @@ class ComposerView extends React.Component
     @undoManager = new UndoManager
     DraftStore.sessionForClientId(draftClientId).then(@_setupSession)
 
-  _setupSession: (proxy) =>
+  __setupSessionsetupSession: (proxy) =>
     return if @_unmounted
     return unless proxy.draftClientId is @props.draftClientId
     @_proxy = proxy
@@ -149,20 +153,26 @@ class ComposerView extends React.Component
     if @_proxy
       @_proxy.changes.commit()
 
-  render: =>
+  render: ->
+    <KeyCommandsRegion localHandlers={@_keymapHandlers()}
+                       className="composer-outer-wrap">
+      {@_renderComposerWrap()}
+    </KeyCommandsRegion>
+
+  _renderComposerWrap: =>
     if @props.mode is "inline"
       <FocusTrackingRegion className={@_wrapClasses()}
-                           ref="composer"
+                           ref="composerWrap"
                            tabIndex="-1">
         {@_renderComposer()}
       </FocusTrackingRegion>
     else
-      <div className={@_wrapClasses()} ref="composer">
+      <div className={@_wrapClasses()} ref="composerWrap">
         {@_renderComposer()}
       </div>
 
   _wrapClasses: =>
-    "message-item-white-wrap composer-outer-wrap #{@props.className ? ""}"
+    "message-item-white-wrap #{@props.className ? ""}"
 
   _renderComposer: =>
     <DropZone className="composer-inner-wrap"
@@ -320,7 +330,7 @@ class ComposerView extends React.Component
   # component. We provide it our boundingClientRect so it can calculate
   # this value.
   _getComposerBoundingRect: =>
-    React.findDOMNode(@refs.composer).getBoundingClientRect()
+    React.findDOMNode(@refs.composerWrap).getBoundingClientRect()
 
   _onScrollToBottom: ->
     if @props.onRequestScrollTo

@@ -1,6 +1,8 @@
 _ = require 'underscore'
 Actions = require '../actions'
 AccountStore = require './account-store'
+CategoryStore = require './category-store'
+MailViewFilter = require '../../mail-view-filter'
 NylasStore = require 'nylas-store'
 
 Sheet = {}
@@ -41,8 +43,38 @@ class WorkspaceStore extends NylasStore
       @popToRootSheet()
       @trigger()
 
-    atom.commands.add 'body',
-      'application:pop-sheet': => @popSheet()
+    atom.commands.add 'body', @_navigationCommands()
+
+  _navigationCommands: ->
+    'application:pop-sheet'    : => @popSheet()
+    'navigation:go-to-inbox'   : => @_setMailViewByName("inbox")
+    'navigation:go-to-starred' : => @_selectStarredView()
+    'navigation:go-to-sent'    : => @_setMailViewByName("sent")
+    'navigation:go-to-drafts'  : => @_selectDraftsSheet()
+    'navigation:go-to-all'     : => @_selectAllView()
+    'navigation:go-to-contacts': => ## TODO
+    'navigation:go-to-tasks'   : => ## TODO
+    'navigation:go-to-label'   : => ## TODO
+
+  _setMailViewByName: (categoryName) ->
+    category = CategoryStore.getStandardCategory(categoryName)
+    return unless category
+    view = MailViewFilter.forCategory(category)
+    return unless view
+    Actions.focusMailView(view)
+
+  _selectDraftsSheet: ->
+    Actions.selectRootSheet(@Sheet.Drafts)
+
+  _selectAllView: ->
+    category = CategoryStore.getArchiveCategory()
+    return unless category
+    view = MailViewFilter.forCategory(category)
+    return unless view
+    Actions.focusMailView(view)
+
+  _selectStarredView: ->
+    Actions.focusMailView MailViewFilter.forStarred()
 
   _resetInstanceVars: =>
     @Location = Location = {}
