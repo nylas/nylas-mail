@@ -15,7 +15,7 @@
   "dependencies": {
     "asar": "^0.5.0",
     "async": "^0.9",
-    "atom-keymap": "6.1.0",
+    "atom-keymap": "5.1.11",
     "babel-core": "^6.0.20",
     "babel-preset-es2015": "^6.0.15",
     "babel-preset-react": "^6.0.15",
