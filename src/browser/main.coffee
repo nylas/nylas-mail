@@ -17,6 +17,9 @@ start = ->
     squirrelCommand = process.argv[1]
     return if SquirrelUpdate.handleStartupEvent(app, squirrelCommand)
 
+  # This prevents Win10 from showing dupe items in the taskbar
+  app.setAppUserModelId('com.squirrel.nylas.nylas')
+
   addPathToOpen = (event, pathToOpen) ->
     event.preventDefault()
     args.pathsToOpen.push(pathToOpen)
