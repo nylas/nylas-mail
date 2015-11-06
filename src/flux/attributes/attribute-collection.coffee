@@ -54,13 +54,17 @@ class AttributeCollection extends Attribute
     return [] unless json && json instanceof Array
     objs = []
     for objJSON in json
-      obj = new @itemClass(objJSON)
-      # Important: if no ids are in the JSON, don't make them up
-      # randomly.  This causes an object to be "different" each time it's
-      # de-serialized even if it's actually the same, makes React
-      # components re-render!
-      obj.clientId = undefined
-      obj.fromJSON(objJSON) if obj.fromJSON?
+      if @itemClass.prototype.fromJSON?
+        obj = new @itemClass
+        # Important: if no ids are in the JSON, don't make them up
+        # randomly.  This causes an object to be "different" each time it's
+        # de-serialized even if it's actually the same, makes React
+        # components re-render!
+        obj.clientId = undefined
+        obj.fromJSON(objJSON)
+      else
+        obj = new @itemClass(objJSON)
+        obj.clientId = undefined
       objs.push(obj)
     objs
 
