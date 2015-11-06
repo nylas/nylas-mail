@@ -6,6 +6,7 @@ MessageBodyWidth = 740
 class MessageBodyProcessor
 
   constructor: ->
+    @_subscriptions = []
     @resetCache()
 
   resetCache: ->
@@ -13,11 +14,23 @@ class MessageBodyProcessor
     # both data structures so we can access it in O(1) and also delete in O(1)
     @_recentlyProcessedA = []
     @_recentlyProcessedD = {}
+    for {message, callback} in @_subscriptions
+      callback(@process(message))
 
   _key: (message) ->
     return message.id + message.version
 
-  process: (message) ->
+  version: ->
+    @_version
+
+  processAndSubscribe: (message, callback) =>
+    callback(@process(message))
+    sub = {message, callback}
+    @_subscriptions.push(sub)
+    return =>
+      @_subscriptions.splice(@_subscriptions.indexOf(sub), 1)
+
+  process: (message) =>
     body = message.body
     key = @_key(message)
     if @_recentlyProcessedD[key]

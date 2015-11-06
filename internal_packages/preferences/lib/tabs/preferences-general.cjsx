@@ -26,6 +26,10 @@ class PreferencesGeneral extends React.Component
     @props.config.toggle('core.showImportant')
     event.preventDefault()
 
+  toggleAutoloadImages: (event) =>
+    @props.config.toggle('core.reading.autoloadImages')
+    event.preventDefault()
+
   toggleShowSystemTrayIcon: (event) =>
     @props.config.toggle('core.showSystemTray')
     event.preventDefault()
@@ -47,11 +51,20 @@ class PreferencesGeneral extends React.Component
           <label htmlFor="default-client">Use Nylas as my default mail client</label>
         </div>
 
+        <div className="section-header platform-darwin-only">
+          <input type="checkbox" id="show-system-tray"
+                 checked={@props.config.get('core.showSystemTray')}
+                 onChange={@toggleShowSystemTrayIcon}/>
+          <label htmlFor="show-system-tray">Show N1 icon in the menu bar</label>
+        </div>
+
         {@_renderImportanceOptionElement()}
 
-        <div className="section-header platform-darwin-only">
-          <input type="checkbox" id="show-system-tray" checked={@props.config.get('core.showSystemTray')} onChange={@toggleShowSystemTrayIcon}/>
-          <label htmlFor="show-system-tray">Show Nylas app icon in the menu bar</label>
+        <div className="section-header">
+          <input type="checkbox" id="autoload-images"
+                 checked={@props.config.get('core.reading.autoloadImages')}
+                 onChange={@toggleAutoloadImages}/>
+          <label htmlFor="autoload-images">Automatically load images in viewed messages</label>
         </div>
 
         <div className="section-header" style={marginTop:30}>

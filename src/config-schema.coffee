@@ -46,6 +46,9 @@ module.exports =
           markAsReadDelay:
             type: 'integer'
             default: 500
+          autoloadImages:
+            type: 'boolean'
+            default: true
       sending:
         type: 'object'
         properties:

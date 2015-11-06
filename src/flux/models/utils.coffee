@@ -222,7 +222,7 @@ Utils =
     # https://regex101.com/r/iS7kD5/2
     domainPart1 = /@(.+)/gi.exec(email)?[1] ? ""
 
-    email = "#{localPart1}#{domainPart1}".trim().toLowerCase()
+    email = "#{localPart1}@#{domainPart1}".trim().toLowerCase()
     return email
 
   emailIsEquivalent: (email1="", email2="") ->

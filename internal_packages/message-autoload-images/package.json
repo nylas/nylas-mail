@@ -1,0 +1,14 @@
+{
+  "name": "message-autoload-images",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Option to conditionally load the images in messages",
+  "license": "Proprietary",
+  "private": true,
+  "engines": {
+    "atom": "*"
+  },
+  "dependencies": {
+    "autolinker": "0.18.1"
+  }
+}
