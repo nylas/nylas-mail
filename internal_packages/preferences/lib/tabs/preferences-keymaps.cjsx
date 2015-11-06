@@ -12,7 +12,7 @@ DisplayedKeybindings = [
   ['application:focus-search', 'Search'],
   ['application:change-category', 'Change Folder / Labels'],
   ['core:select-item', 'Select Focused Item'],
-  ['core:star-item', 'Star Focused Item'],
+  ['application:star-item', 'Star Focused Item'],
 ]
 
 class PreferencesKeymaps extends React.Component

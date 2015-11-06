@@ -1,7 +1,7 @@
 React = require 'react/addons'
 classNames = require 'classnames'
 {Actions, WorkspaceStore} = require 'nylas-exports'
-{Menu, RetinaImg} = require 'nylas-component-kit'
+{Menu, RetinaImg, KeyCommandsRegion} = require 'nylas-component-kit'
 SearchSuggestionStore = require './search-suggestion-store'
 _ = require 'underscore'
 
@@ -20,20 +20,16 @@ class SearchBar extends React.Component
     @usub.push SearchSuggestionStore.listen @_onChange
     @usub.push WorkspaceStore.listen =>
       @setState(focused: false) if @state.focused
-    @body_unsubscriber = atom.commands.add 'body', {
-      'application:focus-search': @_onFocusSearch
-    }
-    @search_unsubscriber = atom.commands.add '.search-bar', {
-      'search-bar:escape-search': @_clearAndBlur
-    }
 
   # It's important that every React class explicitly stops listening to
   # atom events before it unmounts. Thank you event-kit
   # This can be fixed via a Reflux mixin
   componentWillUnmount: =>
     usub() for usub in @usub
-    @body_unsubscriber.dispose()
-    @search_unsubscriber.dispose()
+
+  _keymapHandlers: ->
+    'application:focus-search': @_onFocusSearch
+    'search-bar:escape-search': @_clearAndBlur
 
   render: =>
     inputValue = @_queryToString(@state.query)
@@ -74,16 +70,18 @@ class SearchBar extends React.Component
       else
         item.label
 
-    <div className="search-bar">
-      <Menu ref="menu"
-        className={@_containerClasses()}
-        headerComponents={headerComponents}
-        items={@state.suggestions}
-        itemContent={itemContentFunc}
-        itemKey={ (item) -> item.id ? item.label }
-        onSelect={@_onSelectSuggestion}
-        />
-    </div>
+    <KeyCommandsRegion className="search-bar" globalHandlers={@_keymapHandlers()}>
+      <div>
+        <Menu ref="menu"
+          className={@_containerClasses()}
+          headerComponents={headerComponents}
+          items={@state.suggestions}
+          itemContent={itemContentFunc}
+          itemKey={ (item) -> item.id ? item.label }
+          onSelect={@_onSelectSuggestion}
+          />
+      </div>
+    </KeyCommandsRegion>
 
   _onFocusSearch: =>
     React.findDOMNode(@refs.searchInput).focus()

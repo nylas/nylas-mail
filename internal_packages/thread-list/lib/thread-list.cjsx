@@ -5,6 +5,7 @@ classNames = require 'classnames'
  MultiselectList,
  RetinaImg,
  MailLabel,
+ KeyCommandsRegion,
  InjectedComponentSet} = require 'nylas-component-kit'
 {timestamp, subject} = require './formatting-utils'
 {Actions,
@@ -166,24 +167,6 @@ class ThreadList extends React.Component
 
     @narrowColumns = [cNarrow]
 
-    _shift = ({offset, afterRunning}) =>
-      view = ThreadListStore.view()
-      focusedId = FocusedContentStore.focusedId('thread')
-      focusedIdx = Math.min(view.count() - 1, Math.max(0, view.indexOfId(focusedId) + offset))
-      item = view.get(focusedIdx)
-      afterRunning()
-      Actions.setFocus(collection: 'thread', item: item)
-
-    @commands =
-      'core:remove-from-view': @_onRemoveFromView
-      'core:archive-item': @_onArchiveItem
-      'core:delete-item': @_onDeleteItem
-      'core:star-item': @_onStarItem
-      'core:remove-and-previous': =>
-        _shift(offset: 1, afterRunning: @_onRemoveFromView)
-      'core:remove-and-next': =>
-        _shift(offset: -1, afterRunning: @_onRemoveFromView)
-
     @itemPropsProvider = (item) ->
       className: classNames
         'unread': item.unread
@@ -196,12 +179,35 @@ class ThreadList extends React.Component
   componentWillUnmount: =>
     window.removeEventListener('resize', @_onResize, true)
 
-  render: =>
+  _shift: ({offset, afterRunning}) =>
+    view = ThreadListStore.view()
+    focusedId = FocusedContentStore.focusedId('thread')
+    focusedIdx = Math.min(view.count() - 1, Math.max(0, view.indexOfId(focusedId) + offset))
+    item = view.get(focusedIdx)
+    afterRunning()
+    Actions.setFocus(collection: 'thread', item: item)
+
+  _keymapHandlers: ->
+    'core:remove-from-view': @_onRemoveFromView
+    'application:archive-item': @_onArchiveItem
+    'application:delete-item': @_onDeleteItem
+    'application:star-item': @_onStarItem
+    'application:remove-and-previous': =>
+      @_shift(offset: 1, afterRunning: @_onRemoveFromView)
+    'application:remove-and-next': =>
+      @_shift(offset: -1, afterRunning: @_onRemoveFromView)
+
+  render: ->
+    <KeyCommandsRegion globalHandlers={@_keymapHandlers()}
+                       className="thread-list-wrap">
+      {@_renderList()}
+    </KeyCommandsRegion>
+
+  _renderList: =>
     if @state.style is 'wide'
       <MultiselectList
         dataStore={ThreadListStore}
         columns={@wideColumns}
-        commands={@commands}
         itemPropsProvider={@itemPropsProvider}
         itemHeight={39}
         className="thread-list"
@@ -215,7 +221,6 @@ class ThreadList extends React.Component
       <MultiselectList
         dataStore={ThreadListStore}
         columns={@narrowColumns}
-        commands={@commands}
         itemPropsProvider={@itemPropsProvider}
         itemHeight={90}
         className="thread-list thread-list-narrow"
@@ -259,8 +264,6 @@ class ThreadList extends React.Component
     desired = if React.findDOMNode(@).offsetWidth < 540 then 'narrow' else 'wide'
     if current isnt desired
       @setState(style: desired)
-
-  # Additional Commands
 
   _threadsForKeyboardAction: ->
     return null unless ThreadListStore.view()

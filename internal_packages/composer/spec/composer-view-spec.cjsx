@@ -133,6 +133,9 @@ describe "populated composer", ->
     @isSending = {state: false}
     spyOn(DraftStore, "isSendingDraft").andCallFake => @isSending.state
 
+  afterEach ->
+    DraftStore._cleanupAllSessions()
+
   describe "when sending a new message", ->
     it 'makes a request with the message contents', ->
       useDraft.call @
@@ -528,20 +531,21 @@ describe "populated composer", ->
         useFullDraft.apply(@)
         makeComposer.call(@)
         NylasTestUtils.loadKeymap("internal_packages/composer/keymaps/composer")
+        @$composer = @composer.refs.composerWrap
 
       it "sends the draft on cmd-enter", ->
-        NylasTestUtils.keyPress("cmd-enter", React.findDOMNode(@composer))
+        NylasTestUtils.keyPress("cmd-enter", React.findDOMNode(@$composer))
         expect(Actions.sendDraft).toHaveBeenCalled()
 
       it "does not send the draft on enter if the button isn't in focus", ->
-        NylasTestUtils.keyPress("enter", React.findDOMNode(@composer))
+        NylasTestUtils.keyPress("enter", React.findDOMNode(@$composer))
         expect(Actions.sendDraft).not.toHaveBeenCalled()
 
       it "doesn't let you send twice", ->
-        NylasTestUtils.keyPress("cmd-enter", React.findDOMNode(@composer))
+        NylasTestUtils.keyPress("cmd-enter", React.findDOMNode(@$composer))
         @isSending.state = true
         DraftStore.trigger()
-        NylasTestUtils.keyPress("cmd-enter", React.findDOMNode(@composer))
+        NylasTestUtils.keyPress("cmd-enter", React.findDOMNode(@$composer))
         expect(Actions.sendDraft).toHaveBeenCalled()
         expect(Actions.sendDraft.calls.length).toBe 1
 

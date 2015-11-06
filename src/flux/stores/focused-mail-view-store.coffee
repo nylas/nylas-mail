@@ -1,4 +1,5 @@
 NylasStore = require 'nylas-store'
+WorkspaceStore = require './workspace-store'
 MailViewFilter = require '../../mail-view-filter'
 CategoryStore = require './category-store'
 AccountStore = require './account-store'
@@ -18,8 +19,9 @@ class FocusedMailViewStore extends NylasStore
     else if not CategoryStore.byId(@_mailView.categoryId())
       @_setMailView(@_defaultMailView())
 
-  _onFocusMailView: (filter) ->
+  _onFocusMailView: (filter) =>
     return if filter.isEqual(@_mailView)
+    Actions.selectRootSheet(WorkspaceStore.Sheet.Threads)
     Actions.searchQueryCommitted('')
     @_setMailView(filter)
 
@@ -36,7 +38,7 @@ class FocusedMailViewStore extends NylasStore
       @_mailViewBeforeSearch = null
 
   _defaultMailView: ->
-    category = CategoryStore.getStandardCategory('inbox')
+    category = CategoryStore.getStandardCategory("inbox")
     return null unless category
     MailViewFilter.forCategory(category)
 

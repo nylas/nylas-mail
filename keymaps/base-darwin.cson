@@ -1,39 +1,13 @@
-# Note: For a menu item to have a keyboard equiavalent, it needs
-# to be listed in this file.
+# Note: Only put keymaps in here that apply to Mac ONLY
+#
+# Most cross-platform issues can be resolved by using the special N1
+# `cmdctrl` extension before you keymap. This will automatically default
+# to using the `cmd` key on Mac and `ctrl` key on Windows.
 
 'body':
-  # Mac application keys
-  'cmd-q': 'application:quit'
+  'cmd-m': 'application:minimize'
   'cmd-h': 'application:hide'
   'cmd-1': 'application:show-main-window'
-  'cmd-m': 'application:minimize'
-  'cmd-alt-w': 'application:show-work-window'
   'cmd-alt-h': 'application:hide-other-applications'
-  'alt-cmd-ctrl-m': 'application:zoom'
-  'cmd-alt-ctrl-s': 'application:run-all-specs'
-
-  # Mac core keys
-  'cmd-z': 'core:undo'
-  'cmd-Z': 'core:redo'
-  'cmd-y': 'core:redo'
-  'cmd-x': 'core:cut'
-  'cmd-c': 'core:copy'
-  'cmd-a': 'core:select-all'
-  'cmd-v': 'core:paste'
-
-  # Mac window keys
-  'cmd-w': 'window:close'
-  'cmd-=': 'window:increase-font-size'
-  'cmd-+': 'window:increase-font-size'
-  'cmd--': 'window:decrease-font-size'
-  'cmd-_': 'window:decrease-font-size'
-  'cmd-0': 'window:reset-font-size'
-  'alt-cmd-i': 'window:toggle-dev-tools'
   'cmd-ctrl-f': 'window:toggle-full-screen'
-  'ctrl-alt-cmd-l': 'window:reload'
-  'cmd-alt-ctrl-p': 'application:run-package-specs'
-
-'body *[contenteditable]':
-  'cmd-z': 'native!'
-  'cmd-Z': 'native!'
-  'cmd-y': 'native!'
+  'alt-cmd-ctrl-m': 'application:zoom'

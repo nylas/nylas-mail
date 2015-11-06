@@ -1,43 +1,11 @@
-# Note: For a menu item to have a keyboard equiavalent, it needs
-# to be listed in this file.
+# Note: Only put keymaps in here that apply to Windows ONLY
+#
+# Most cross-platform issues can be resolved by using the special N1
+# `cmdctrl` extension before you keymap. This will automatically default
+# to using the `cmd` key on Mac and `ctrl` key on Windows.
 
 'body':
-  # Windows email-specific menu items
-  'ctrl-n': 'application:new-message' # Outlook
-  'ctrl-r': 'application:reply' # Outlook
-  'ctrl-R': 'application:reply-all' # Outlook
-  'ctrl-F': 'application:forward' # Outlook
-  'ctrl-shift-v': 'application:change-category' # Outlook
-
-  # Windows application keys
-  'ctrl-q': 'application:quit'
-  'ctrl-alt-s': 'application:run-all-specs'
-
-# Windows core keys
-  'ctrl-z': 'core:undo'
-  'ctrl-Z': 'core:redo'
-  'ctrl-y': 'core:redo'
-  'ctrl-x': 'core:cut'
-  'ctrl-c': 'core:copy'
-  'ctrl-a': 'core:select-all'
-  'ctrl-v': 'core:paste'
-  'ctrl-insert': 'core:copy'
-  'shift-insert': 'core:paste'
-
-# Windows window keys
-  'ctrl-w': 'window:close'
-  'ctrl-=': 'window:increase-font-size'
-  'ctrl-+': 'window:increase-font-size'
-  'ctrl--': 'window:decrease-font-size'
-  'ctrl-_': 'window:decrease-font-size'
-  'ctrl-0': 'window:reset-font-size'
-  'ctrl-alt-r': 'window:reload'
-  'ctrl-alt-i': 'window:toggle-dev-tools'
-  'ctrl-alt-p': 'application:run-package-specs'
-  'ctrl-alt-s': 'application:run-all-specs'
+  'cmd-alt-l': 'window:reload'
+  'cmd-alt-i': 'window:toggle-dev-tools'
+  'cmd-alt-w': 'application:show-work-window'
   'F11': 'window:toggle-full-screen'
-
-'body *[contenteditable]':
-  'ctrl-z': 'native!'
-  'ctrl-Z': 'native!'
-  'ctrl-y': 'native!'

@@ -1,24 +1,26 @@
 # Your keymap
 #
-# Atom keymaps work similarly to stylesheets. Just as stylesheets use selectors
-# to apply styles to elements, Atom keymaps use selectors to associate
-# keystrokes with events in specific contexts.
+# N1 keymaps work in conjunction with the {KeyCommandsRegion} React
+# component.
 #
-# You can create a new keybinding in this file by typing "key" and then hitting
-# tab.
+# A key, or sequence of keys is first mapped to a "command".
 #
-# Here's an example taken from Atom's built-in keymap:
+# The "command" is then mapped to a callback function within your React
+# component or store.
 #
-# 'atom-text-editor':
-#   'enter': 'editor:newline'
+# The keyboard -> command mapping is defined in this `.cson` file. Each
+# mapping is scoped under the component that it applies to by matching the
+# root-level CSS class of that component.
 #
-# '.workspace':
-#   'ctrl-shift-p': 'core:move-up'
-#   'ctrl-p': 'core:move-down'
+# Any global, top-level mappings are scoped under the `body` selector.
 #
-# You can find more information about keymaps in these guides:
-# * https://atom.io/docs/latest/customizing-atom#customizing-key-bindings
-# * https://atom.io/docs/latest/advanced/keymaps
+# For example:
+#
+# 'body':
+#   'ctrl-c': 'application:new-message'
+#
+# '.my-custom-package':
+#   'ctrl-p': 'myPackage:customAction'
 #
 # This file uses CoffeeScript Object Notation (CSON).
 # If you are unfamiliar with CSON, you can read more about it here:

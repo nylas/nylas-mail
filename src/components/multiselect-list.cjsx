@@ -8,6 +8,7 @@ Spinner = require './spinner'
  WorkspaceStore,
  FocusedContentStore,
  AccountStore} = require 'nylas-exports'
+{KeyCommandsRegion} = require 'nylas-component-kit'
 EventEmitter = require('events').EventEmitter
 
 MultiselectListInteractionHandler = require './multiselect-list-interaction-handler'
@@ -30,7 +31,6 @@ class MultiselectList extends React.Component
   @propTypes =
     className: React.PropTypes.string.isRequired
     collection: React.PropTypes.string.isRequired
-    commands: React.PropTypes.object.isRequired
     columns: React.PropTypes.array.isRequired
     dataStore: React.PropTypes.object.isRequired
     itemPropsProvider: React.PropTypes.func.isRequired
@@ -66,30 +66,23 @@ class MultiselectList extends React.Component
   teardownForProps: =>
     return unless @unsubscribers
     unsubscribe() for unsubscribe in @unsubscribers
-    @command_unsubscriber.dispose()
 
   setupForProps: (props) =>
-    commands = _.extend {},
-      'core:focus-item': => @_onEnter()
-      'core:select-item': => @_onSelect()
-      'core:next-item': => @_onShift(1)
-      'core:previous-item': => @_onShift(-1)
-      'core:select-down': => @_onShift(1, {select: true})
-      'core:select-up': => @_onShift(-1, {select: true})
-      'core:list-page-up': => @_onScrollByPage(-1)
-      'core:list-page-down': => @_onScrollByPage(1)
-      'application:pop-sheet': => @_onDeselect()
-
-    Object.keys(props.commands).forEach (key) =>
-      commands[key] = =>
-        context = {focusedId: @state.focusedId}
-        props.commands[key](context)
-
     @unsubscribers = []
     @unsubscribers.push props.dataStore.listen @_onChange
     @unsubscribers.push WorkspaceStore.listen @_onChange
     @unsubscribers.push FocusedContentStore.listen @_onChange
-    @command_unsubscriber = atom.commands.add('body', commands)
+
+  _keymapHandlers: ->
+    'core:focus-item': => @_onEnter()
+    'core:select-item': => @_onSelect()
+    'core:next-item': => @_onShift(1)
+    'core:previous-item': => @_onShift(-1)
+    'core:select-down': => @_onShift(1, {select: true})
+    'core:select-up': => @_onShift(-1, {select: true})
+    'core:list-page-up': => @_onScrollByPage(-1)
+    'core:list-page-down': => @_onScrollByPage(1)
+    'application:pop-sheet': => @_onDeselect()
 
   render: =>
     # IMPORTANT: DO NOT pass inline functions as props. _.isEqual thinks these
@@ -122,19 +115,21 @@ class MultiselectList extends React.Component
 
       spinnerElement = <Spinner visible={!@state.loaded and @state.empty} />
 
-      <div className={className} {...otherProps}>
-        <ListTabular
-          ref="list"
-          columns={@state.computedColumns}
-          scrollTooltipComponent={@props.scrollTooltipComponent}
-          dataView={@state.dataView}
-          itemPropsProvider={@itemPropsProvider}
-          itemHeight={@props.itemHeight}
-          onSelect={@_onClickItem}
-          onDoubleClick={@props.onDoubleClick} />
-        {spinnerElement}
-        {emptyElement}
-      </div>
+      <KeyCommandsRegion globalHandlers={@_keymapHandlers()} className="multiselect-list">
+        <div className={className} {...otherProps}>
+          <ListTabular
+            ref="list"
+            columns={@state.computedColumns}
+            scrollTooltipComponent={@props.scrollTooltipComponent}
+            dataView={@state.dataView}
+            itemPropsProvider={@itemPropsProvider}
+            itemHeight={@props.itemHeight}
+            onSelect={@_onClickItem}
+            onDoubleClick={@props.onDoubleClick} />
+          {spinnerElement}
+          {emptyElement}
+        </div>
+      </KeyCommandsRegion>
     else
       <div className={className} {...otherProps}>
         <Spinner visible={true} />

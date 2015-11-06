@@ -10,18 +10,19 @@ MessageItemContainer = require './message-item-container'
  MessageStore,
  DatabaseStore,
  WorkspaceStore,
- ComponentRegistry,
  ChangeLabelsTask,
+ ComponentRegistry,
  ChangeStarredTask} = require("nylas-exports")
 
 {Spinner,
+ RetinaImg,
+ MailLabel,
  ScrollRegion,
  ResizableRegion,
- RetinaImg,
- InjectedComponentSet,
- MailLabel,
  MailImportantIcon,
- InjectedComponent} = require('nylas-component-kit')
+ InjectedComponent,
+ KeyCommandsRegion,
+ InjectedComponentSet} = require('nylas-component-kit')
 
 class MessageListScrollTooltip extends React.Component
   @displayName: 'MessageListScrollTooltip'
@@ -73,18 +74,8 @@ class MessageList extends React.Component
     @_unsubscribers = []
     @_unsubscribers.push MessageStore.listen @_onChange
 
-    commands = _.extend {},
-      'application:reply': => @_createReplyOrUpdateExistingDraft('reply')
-      'application:reply-all': => @_createReplyOrUpdateExistingDraft('reply-all')
-      'application:forward': => @_onForward()
-      'core:messages-page-up': => @_onScrollByPage(-1)
-      'core:messages-page-down': => @_onScrollByPage(1)
-
-    @command_unsubscriber = atom.commands.add('body', commands)
-
   componentWillUnmount: =>
     unsubscribe() for unsubscribe in @_unsubscribers
-    @command_unsubscriber.dispose()
 
   shouldComponentUpdate: (nextProps, nextState) =>
     not Utils.isEqualReact(nextProps, @props) or
@@ -96,6 +87,13 @@ class MessageList extends React.Component
     newDraftClientIds = @_newDraftClientIds(prevState)
     if newDraftClientIds.length > 0
       @_focusDraft(@_getMessageContainer(newDraftClientIds[0]))
+
+  _keymapHandlers: ->
+    'application:reply': => @_createReplyOrUpdateExistingDraft('reply')
+    'application:reply-all': => @_createReplyOrUpdateExistingDraft('reply-all')
+    'application:forward': => @_onForward()
+    'core:messages-page-up': => @_onScrollByPage(-1)
+    'core:messages-page-down': => @_onScrollByPage(1)
 
   _newDraftClientIds: (prevState) =>
     oldDraftIds = _.map(_.filter((prevState.messages ? []), (m) -> m.draft), (m) -> m.clientId)
@@ -191,26 +189,28 @@ class MessageList extends React.Component
       "messages-wrap": true
       "ready": not @state.loading
 
-    <div className="message-list" id="message-list">
-      <ScrollRegion tabIndex="-1"
-           className={wrapClass}
-           scrollTooltipComponent={MessageListScrollTooltip}
-           ref="messageWrap">
-        {@_renderSubject()}
-        <div className="headers" style={position:'relative'}>
-          <InjectedComponentSet
-            className="message-list-notification-bars"
-            matching={role:"MessageListNotificationBar"}
-            exposedProps={thread: @state.currentThread}/>
-          <InjectedComponentSet
-            className="message-list-headers"
-            matching={role:"MessageListHeaders"}
-            exposedProps={thread: @state.currentThread}/>
-        </div>
-        {@_messageElements()}
-      </ScrollRegion>
-      <Spinner visible={@state.loading} />
-    </div>
+    <KeyCommandsRegion globalHandlers={@_keymapHandlers()}>
+      <div className="message-list" id="message-list">
+        <ScrollRegion tabIndex="-1"
+             className={wrapClass}
+             scrollTooltipComponent={MessageListScrollTooltip}
+             ref="messageWrap">
+          {@_renderSubject()}
+          <div className="headers" style={position:'relative'}>
+            <InjectedComponentSet
+              className="message-list-notification-bars"
+              matching={role:"MessageListNotificationBar"}
+              exposedProps={thread: @state.currentThread}/>
+            <InjectedComponentSet
+              className="message-list-headers"
+              matching={role:"MessageListHeaders"}
+              exposedProps={thread: @state.currentThread}/>
+          </div>
+          {@_messageElements()}
+        </ScrollRegion>
+        <Spinner visible={@state.loading} />
+      </div>
+    </KeyCommandsRegion>
 
   _renderSubject: ->
     subject = @state.currentThread?.subject
@@ -300,7 +300,7 @@ class MessageList extends React.Component
       <div className="num-messages">{bundle.messages.length} older messages</div>
       <div className="msg-lines" style={height: h*lines.length}>
         {lines.map (msg, i) ->
-          <div style={height: h*2, top: -h*i} className="msg-line"></div>}
+          <div key={msg.id} style={height: h*2, top: -h*i} className="msg-line"></div>}
       </div>
     </div>
 
