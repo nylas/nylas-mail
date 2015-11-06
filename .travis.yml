@@ -10,12 +10,14 @@ matrix:
       env: NODE_VERSION=0.10
     - os: linux
       env: NODE_VERSION=0.12
-    - os: linux
-      env: NODE_VERSION=4.1
+# Wants a c++11 compiler
+#    - os: linux
+#      env: NODE_VERSION=4.1
     - os: osx
       env: NODE_VERSION=0.10
-    - os: osx
-      env: NODE_VERSION=0.12
+# npn registry Connection Reset errors
+#    - os: osx
+#      env: NODE_VERSION=0.12
     - os: osx
       env: NODE_VERSION=4.1
 
@@ -26,6 +28,7 @@ install:
   - source /tmp/.nvm/nvm.sh
   - nvm install $NODE_VERSION
   - nvm use --delete-prefix $NODE_VERSION
+  - clang --version
 
 script: script/cibuild
 
