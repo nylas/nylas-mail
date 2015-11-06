@@ -33,16 +33,27 @@ class AccountStore
       if newAccountIds.length > 0
         Actions.selectAccountId(newAccountIds[0])
 
+    atom.commands.add 'body', @_accountSwitchCommands()
+
+  _accountSwitchCommands: ->
+    commands = {}
+    [0..8].forEach (index) =>
+      key = "application:select-account-#{index}"
+      commands[key] = _.partial(@_selectAccountByIndex, index)
+    return commands
+
+  _selectAccountByIndex: (index) =>
+    @_index = Math.min(@_accounts.length - 1, Math.max(0, index))
+    atom.config.set(saveIndexKey, @_index)
+    @trigger()
+
   _load: =>
     @_accounts = []
     for json in atom.config.get(saveObjectsKey) || []
       @_accounts.push((new Account).fromJSON(json))
 
     index = atom.config.get(saveIndexKey) || 0
-    @_index = Math.min(@_accounts.length - 1, Math.max(0, index))
-
-    @_tokens = atom.config.get(saveTokensKey) || {}
-    @trigger()
+    @_selectAccountByIndex(index)
 
   _save: =>
     atom.config.set(saveObjectsKey, @_accounts)

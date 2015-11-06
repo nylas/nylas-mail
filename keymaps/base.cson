@@ -54,6 +54,16 @@
   'shift-pageup'  : 'core:list-page-up'
   'shift-pagedown': 'core:list-page-down'
 
+  'cmdctrl-1': 'application:select-account-0'
+  'cmdctrl-2': 'application:select-account-1'
+  'cmdctrl-3': 'application:select-account-2'
+  'cmdctrl-4': 'application:select-account-3'
+  'cmdctrl-5': 'application:select-account-4'
+  'cmdctrl-6': 'application:select-account-5'
+  'cmdctrl-7': 'application:select-account-6'
+  'cmdctrl-8': 'application:select-account-7'
+  'cmdctrl-9': 'application:select-account-8'
+
   ### N1 developer commands. ###
   'cmdctrl-alt-l': 'window:reload'
   'cmdctrl-alt-i': 'window:toggle-dev-tools'
