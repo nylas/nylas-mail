@@ -80,9 +80,12 @@ class Contenteditable extends React.Component
 
     @setInnerState editableNode: @_editableNode()
 
+  # When we have a composition event in progress, we should not update
+  # because otherwise our composition event will be blown away.
   shouldComponentUpdate: (nextProps, nextState) ->
-    not Utils.isEqualReact(nextProps, @props) or
-    not Utils.isEqualReact(nextState, @state)
+    not @_inCompositionEvent and
+    (not Utils.isEqualReact(nextProps, @props) or
+     not Utils.isEqualReact(nextState, @state))
 
   componentWillUnmount: =>
     @_editableNode().removeEventListener('contextmenu', @_onShowContextualMenu)
@@ -166,10 +169,25 @@ class Contenteditable extends React.Component
     # Note: Related to composer-view#_onClickComposeBody
     event.stopPropagation()
 
+  # We must set the `inCompositionEvent` flag in addition to tearing down
+  # the selecton listeners. While the composition event is in progress, we
+  # want to ignore any input events we get.
+  #
+  # It is also possible for a composition event to end and then
+  # immediately start a new composition event. This happens when two
+  # composition event-triggering characters are pressed twice in a row.
+  # When the first composition event ends, the `onInput` method fires (as
+  # it's supposed to) and sends off an asynchronous update request when we
+  # `_saveNewHtml`. Before that comes back via new props, the 2nd
+  # composition event starts. Without the `_inCompositionEvent` flag
+  # stopping the re-render, the asynchronous update request will cause us
+  # to re-render and blow away our newly started 2nd composition event.
   _onCompositionStart: =>
+    @_inCompositionEvent = true
     @_teardownSelectionListeners()
 
   _onCompositionEnd: =>
+    @_inCompositionEvent = false
     @_setupSelectionListeners()
     @_onInput()
 
