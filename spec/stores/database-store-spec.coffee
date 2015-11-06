@@ -16,7 +16,7 @@ describe "DatabaseStore", ->
   beforeEach ->
     TestModel.configureBasic()
     spyOn(ModelQuery.prototype, 'where').andCallThrough()
-    spyOn(DatabaseStore, '_triggerSoon').andCallFake -> Promise.resolve()
+    spyOn(DatabaseStore, '_accumulateAndTrigger').andCallFake -> Promise.resolve()
 
     @performed = []
 
@@ -122,9 +122,9 @@ describe "DatabaseStore", ->
     it "should cause the DatabaseStore to trigger with a change that contains the model", ->
       waitsForPromise ->
         DatabaseStore.persistModel(testModelInstance).then ->
-          expect(DatabaseStore._triggerSoon).toHaveBeenCalled()
+          expect(DatabaseStore._accumulateAndTrigger).toHaveBeenCalled()
 
-          change = DatabaseStore._triggerSoon.mostRecentCall.args[0]
+          change = DatabaseStore._accumulateAndTrigger.mostRecentCall.args[0]
           expect(change).toEqual({objectClass: TestModel.name, objects: [testModelInstance], type:'persist'})
         .catch (err) ->
           console.log err
@@ -141,9 +141,9 @@ describe "DatabaseStore", ->
     it "should cause the DatabaseStore to trigger with a change that contains the models", ->
       waitsForPromise ->
         DatabaseStore.persistModels([testModelInstanceA, testModelInstanceB]).then ->
-          expect(DatabaseStore._triggerSoon).toHaveBeenCalled()
+          expect(DatabaseStore._accumulateAndTrigger).toHaveBeenCalled()
 
-          change = DatabaseStore._triggerSoon.mostRecentCall.args[0]
+          change = DatabaseStore._accumulateAndTrigger.mostRecentCall.args[0]
           expect(change).toEqual
             objectClass: TestModel.name,
             objects: [testModelInstanceA, testModelInstanceB]
@@ -171,9 +171,9 @@ describe "DatabaseStore", ->
     it "should cause the DatabaseStore to trigger() with a change that contains the model", ->
       waitsForPromise ->
         DatabaseStore.unpersistModel(testModelInstance).then ->
-          expect(DatabaseStore._triggerSoon).toHaveBeenCalled()
+          expect(DatabaseStore._accumulateAndTrigger).toHaveBeenCalled()
 
-          change = DatabaseStore._triggerSoon.mostRecentCall.args[0]
+          change = DatabaseStore._accumulateAndTrigger.mostRecentCall.args[0]
           expect(change).toEqual({objectClass: TestModel.name, objects: [testModelInstance], type:'unpersist'})
 
     describe "when the model provides additional sqlite config", ->
@@ -447,4 +447,4 @@ describe "DatabaseStore", ->
           expect(@performed[4].query).toBe "BEGIN EXCLUSIVE TRANSACTION"
           expect(@performed[5].query).toBe "COMMIT"
 
-describe "DatabaseStore::_triggerSoon", ->
+describe "DatabaseStore::_accumulateAndTrigger", ->

@@ -10,6 +10,7 @@ ModelQuery = require '../models/query'
 NylasStore = require '../../global/nylas-store'
 PromiseQueue = require 'promise-queue'
 DatabaseSetupQueryBuilder = require './database-setup-query-builder'
+DatabaseChangeRecord = require './database-change-record'
 PriorityUICoordinator = require '../../priority-ui-coordinator'
 
 {AttributeCollection, AttributeJoinedData} = require '../attributes'
@@ -414,7 +415,7 @@ class DatabaseStore extends NylasStore
       throw new Error("DatabaseStore::persistModel - You must pass an instance of the Model class.")
 
     @_writeModels([model]).then =>
-      @_triggerSoon({objectClass: model.constructor.name, objects: [model], type: 'persist'})
+      @_accumulateAndTrigger({objectClass: model.constructor.name, objects: [model], type: 'persist'})
 
   # Public: Asynchronously writes `models` to the cache and triggers a single change
   # event. Note: Models must be of the same class to be persisted in a batch operation.
@@ -442,7 +443,7 @@ class DatabaseStore extends NylasStore
       ids[model.id] = true
 
     @_writeModels(models).then =>
-      @_triggerSoon({objectClass: models[0].constructor.name, objects: models, type: 'persist'})
+      @_accumulateAndTrigger({objectClass: models[0].constructor.name, objects: models, type: 'persist'})
 
   # Public: Asynchronously removes `model` from the cache and triggers a change event.
   #
@@ -455,12 +456,12 @@ class DatabaseStore extends NylasStore
   #     callbacks failed
   unpersistModel: (model) =>
     @_deleteModel(model).then =>
-      @_triggerSoon({objectClass: model.constructor.name, objects: [model], type: 'unpersist'})
+      @_accumulateAndTrigger({objectClass: model.constructor.name, objects: [model], type: 'unpersist'})
 
   persistJSONObject: (key, json) ->
     jsonString = serializeRegisteredObjects(json)
     @_query("REPLACE INTO `JSONObject` (`key`,`data`) VALUES (?,?)", [key, jsonString]).then =>
-      @trigger({objectClass: 'JSONObject', objects: [{key: key, json: json}], type: 'persist'})
+      @trigger(new DatabaseChangeRecord({objectClass: 'JSONObject', objects: [{key: key, json: json}], type: 'persist'}))
 
   findJSONObject: (key) ->
     @_query("SELECT `data` FROM `JSONObject` WHERE key = ? LIMIT 1", [key]).then (results) =>
@@ -486,19 +487,19 @@ class DatabaseStore extends NylasStore
   ########################### PRIVATE METHODS ############################
   ########################################################################
 
-  # _TriggerSoon is a guarded version of trigger that can accumulate changes.
+  # _accumulateAndTrigger is a guarded version of trigger that can accumulate changes.
   # This means that even if you're a bad person and call `persistModel` 100 times
   # from 100 task objects queued at the same time, it will only create one
   # `trigger` event. This is important since the database triggering impacts
   # the entire application.
-  _triggerSoon: (change) =>
+  _accumulateAndTrigger: (change) =>
     @_triggerPromise ?= new Promise (resolve, reject) =>
       @_resolve = resolve
 
     flush = =>
       return unless @_changeAccumulated
       clearTimeout(@_changeFireTimer) if @_changeFireTimer
-      @trigger(@_changeAccumulated)
+      @trigger(new DatabaseChangeRecord(@_changeAccumulated))
       @_changeAccumulated = null
       @_changeFireTimer = null
       @_resolve?()
@@ -662,3 +663,4 @@ class DatabaseStore extends NylasStore
 
 
 module.exports = new DatabaseStore()
+module.exports.ChangeRecord = DatabaseChangeRecord

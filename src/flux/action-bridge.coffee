@@ -80,7 +80,7 @@ class ActionBridge
 
       if name == Message.DATABASE_STORE_TRIGGER
         DatabaseStore.triggeringFromActionBridge = true
-        DatabaseStore.trigger(args...)
+        DatabaseStore.trigger(new DatabaseStore.ChangeRecord(args...))
         DatabaseStore.triggeringFromActionBridge = false
 
       else if Actions[name]

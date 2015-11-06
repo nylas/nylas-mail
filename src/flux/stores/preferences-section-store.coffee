@@ -20,7 +20,7 @@ class SectionConfig
 class PreferencesSectionStore extends NylasStore
   constructor: ->
     @_sectionConfigs = []
-    @_triggerSoon ?= _.debounce(( => @trigger()), 20)
+    @_accumulateAndTrigger ?= _.debounce(( => @trigger()), 20)
     @Section = {}
     @SectionConfig = SectionConfig
 
@@ -64,12 +64,12 @@ class PreferencesSectionStore extends NylasStore
     @Section[sectionConfig.sectionId] = sectionConfig.sectionId
     @_sectionConfigs.push(sectionConfig)
     @_sectionConfigs = _.sortBy(@_sectionConfigs, "order")
-    @_triggerSoon()
+    @_accumulateAndTrigger()
 
   unregisterPreferenceSection: (sectionId) ->
     delete @Section[sectionId]
     @_sectionConfigs = _.reject @_sectionConfigs, (sectionConfig) ->
       sectionConfig.sectionId is sectionId
-    @_triggerSoon()
+    @_accumulateAndTrigger()
 
 module.exports = new PreferencesSectionStore()
