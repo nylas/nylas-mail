@@ -13,7 +13,7 @@ const onSystemTrayToggle = (showSystemTray)=> {
 };
 
 export function activate() {
-  unsubConfig = atom.config.onDidChange('core.showSystemTray', onSystemTrayToggle);
+  unsubConfig = atom.config.onDidChange('core.showSystemTray', onSystemTrayToggle).dispose;
   if (atom.config.get('core.showSystemTray')) {
     systemTray = new SystemTray(platform);
   }
