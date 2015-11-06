@@ -1,14 +1,14 @@
 global.shellStartTime = Date.now()
 
 app = require 'app'
-fs = require 'fs'
+fs = require 'fs-plus'
 path = require 'path'
 optimist = require 'optimist'
 
 start = ->
   args = parseCommandLine()
 
-  global.errorReporter = setupErrorReporter(args)
+  global.errorLogger = setupErrorLogger(args)
 
   setupCoffeeScript()
 
@@ -59,9 +59,12 @@ global.devResourcePath = process.env.N1_PATH ? process.cwd()
 # Normalize to make sure drive letter case is consistent on Windows
 global.devResourcePath = path.normalize(global.devResourcePath) if global.devResourcePath
 
-setupErrorReporter = (args={}) ->
-  ErrorReporter = require '../error-reporter'
-  return new ErrorReporter({inSpecMode: args.test, inDevMode: args.devMode})
+setupErrorLogger = (args={}) ->
+  ErrorLogger = require '../error-logger'
+  return new ErrorLogger
+    inSpecMode: args.test
+    inDevMode: args.devMode
+    resourcePath: args.resourcePath
 
 setupCrashReporter = ->
   # In the future, we may want to collect actual native crash reports,

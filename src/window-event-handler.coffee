@@ -71,8 +71,8 @@ class WindowEventHandler
     @subscribeToCommand $(window), 'window:toggle-dev-tools', ->
       atom.toggleDevTools()
 
-    @subscribeToCommand $(window), 'window:open-errorreporter-logs', ->
-      atom.errorReporter.openLogs()
+    @subscribeToCommand $(window), 'window:open-errorlogger-logs', ->
+      atom.errorLogger.openLogs()
 
     @subscribeToCommand $(window), 'window:toggle-component-regions', ->
       ComponentRegistry = require './component-registry'

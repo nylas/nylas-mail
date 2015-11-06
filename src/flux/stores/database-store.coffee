@@ -189,7 +189,7 @@ class DatabaseStore extends NylasStore
   _handleSetupError: (err) =>
     console.error(err)
     console.log(atom.getWindowType())
-    atom.errorReporter.reportError(err)
+    atom.emitError(err)
     app = require('remote').getGlobal('application')
     app.rebuildDatabase()
 
