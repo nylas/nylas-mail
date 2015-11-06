@@ -26,12 +26,14 @@ matrix:
 sudo: false
 
 install:
+  - echo $CC
+  - echo $CXX
+  - clang --version
   - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
   - git clone https://github.com/creationix/nvm.git /tmp/.nvm
   - source /tmp/.nvm/nvm.sh
   - nvm install $NODE_VERSION
   - nvm use --delete-prefix $NODE_VERSION
-  - clang --version
 
 script: script/cibuild
 
