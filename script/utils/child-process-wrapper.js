@@ -15,7 +15,7 @@ exports.safeExec = function(command, options, callback) {
   options.maxBuffer = 1024 * 1024;
 
   var child = childProcess.exec(command, options, function(error, stdout, stderr) {
-    if (error)
+    if (error && !options.ignoreStderr)
       process.exit(error.code || 1);
     else
       callback(null);
