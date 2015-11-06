@@ -25,8 +25,7 @@ install:
   - git clone https://github.com/creationix/nvm.git /tmp/.nvm
   - source /tmp/.nvm/nvm.sh
   - nvm install $NODE_VERSION
-  - [ "x$NODE_VERSION" == "x4.1" ] && npm config delete prefix
-  - nvm use $NODE_VERSION
+  - nvm use --delete-prefix $NODE_VERSION
 
 script: script/cibuild
 
