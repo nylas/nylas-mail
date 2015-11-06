@@ -1,9 +1,25 @@
 Message = require '../../src/flux/models/message'
 Thread = require '../../src/flux/models/thread'
 Label = require '../../src/flux/models/label'
+{Utils} = require 'nylas-exports'
 _ = require 'underscore'
 
 describe 'Thread', ->
+
+  describe 'serialization performance', ->
+    xit '1,000,000 iterations', ->
+      iterations = 0
+      json = '[{"client_id":"local-76c370af-65de","server_id":"f0vkowp7zxt7djue7ifylb940","object":"thread","account_id":"1r6w6qiq3sb0o9fiwin6v87dd","snippet":"http://itunestandc.tumblr.com/tagged/itunes-terms-and-conditions/chrono _______________________________________________ http://www.macgroup.com/mailman/listinfo/smartfriends-chat","subject":"iTunes Terms And Conditions as you\'ve never seen them before","unread":true,"starred":false,"version":1,"folders":[],"labels":[{"server_id":"8cf4fn20k9pjjhjawrv3xrxo0","name":"all","display_name":"All Mail","id":"8cf4fn20k9pjjhjawrv3xrxo0"},{"server_id":"f1lq8faw8vv06m67y8f3xdf84","name":"inbox","display_name":"Inbox","id":"f1lq8faw8vv06m67y8f3xdf84"}],"participants":[{"name":"Andrew Stadler","email":"stadler@gmail.com","thirdPartyData":{}},{"name":"Smart Friends™ Chat","email":"smartfriends-chat@macgroup.com","thirdPartyData":{}}],"has_attachments":false,"last_message_received_timestamp":1446600615,"id":"f0vkowp7zxt7djue7ifylb940"}]'
+      start = Date.now()
+      while iterations < 1000000
+        if _.isString(json)
+          data = JSON.parse(json)
+        object = new Thread()
+        object.fromJSON(data)
+        object
+        iterations += 1
+      console.log((Date.now() - start) / 1000.0 + "ms per 1000")
+
   describe '.sortLabels()', ->
     getSortedLabels = (inputs) ->
       labels = _.map inputs, (i) ->
