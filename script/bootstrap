@@ -91,6 +91,7 @@ function bootstrap() {
     moduleInstallCommand += ' --loglevel error';
     dedupeApmCommand     += ' --quiet';
 
+    apmDedupeOptions.ignoreStderr = true;
     apmDedupeOptions.ignoreStdout = true;
     buildInstallOptions.ignoreStdout = true;
     apmInstallOptions.ignoreStdout = true;
