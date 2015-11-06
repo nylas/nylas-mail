@@ -67,8 +67,13 @@ class Model
       values["clientId"] ?= values["id"]
     else
       values["serverId"] ?= values["id"]
-    for key, definition of @attributes()
-      @[key] = values[key] if values[key]?
+
+    @constructor.attributesKeys ?= Object.keys(@constructor.attributes)
+    for key in @constructor.attributesKeys
+      continue if key is 'id'
+      continue unless values[key]?
+      @[key] = values[key]
+
     @clientId ?= Utils.generateTempId()
     @
 
@@ -94,9 +99,15 @@ class Model
   # This method is chainable.
   #
   fromJSON: (json) ->
+    # Note: The loop in this function has been optimized for the V8 'fast case'
+    # https://github.com/petkaantonov/bluebird/wiki/Optimization-killers
+    #
     if json["id"] and not Utils.isTempId(json["id"])
       @serverId = json["id"]
-    for key, attr of @attributes()
+    @constructor.attributesKeys ?= Object.keys(@constructor.attributes)
+    for key in @constructor.attributesKeys
+      continue if key is 'id'
+      attr = @constructor.attributes[key]
       @[key] = attr.fromJSON(json[attr.jsonKey]) unless json[attr.jsonKey] is undefined
     @
 
@@ -110,11 +121,12 @@ class Model
   #
   toJSON: (options = {}) ->
     json = {}
-    for key, attr of @attributes()
-      value = attr.toJSON(@[key])
-      if attr instanceof Attributes.AttributeJoinedData and options.joined is false
-        continue
-      json[attr.jsonKey] = value
+    @constructor.attributesKeys ?= Object.keys(@constructor.attributes)
+    for key in @constructor.attributesKeys
+      continue if key is 'id'
+      attr = @constructor.attributes[key]
+      continue if attr instanceof Attributes.AttributeJoinedData and options.joined is false
+      json[attr.jsonKey] = attr.toJSON(@[key])
     json["id"] = @id
     json
 
