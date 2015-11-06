@@ -2,7 +2,9 @@ env:
   global:
     - NYLAS_ACCESS_TOKEN=cb200be7c921f73a1c35930f6a4ac8758b271be0
 
-compiler: clang
+compiler:
+  - clang
+  - gcc
 
 matrix:
   include:
@@ -11,8 +13,8 @@ matrix:
     - os: linux
       env: NODE_VERSION=0.12
 # Wants a c++11 compiler
-#    - os: linux
-#      env: NODE_VERSION=4.1
+    - os: linux
+      env: NODE_VERSION=4.1
     - os: osx
       env: NODE_VERSION=0.10
 # npn registry Connection Reset errors
@@ -24,6 +26,7 @@ matrix:
 sudo: false
 
 install:
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
   - git clone https://github.com/creationix/nvm.git /tmp/.nvm
   - source /tmp/.nvm/nvm.sh
   - nvm install $NODE_VERSION
@@ -34,8 +37,12 @@ script: script/cibuild
 
 addons:
   apt:
+    sources:
+    - ubuntu-toolchain-r-test
     packages:
     - build-essential
+    - clang
+    - fakeroot
+    - g++-4.8
     - git
     - libgnome-keyring-dev
-    - fakeroot
