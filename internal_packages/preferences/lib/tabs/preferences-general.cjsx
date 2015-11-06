@@ -26,6 +26,10 @@ class PreferencesGeneral extends React.Component
     @props.config.toggle('core.showImportant')
     event.preventDefault()
 
+  toggleShowSystemTrayIcon: (event) =>
+    @props.config.toggle('core.showSystemTray')
+    event.preventDefault()
+
   _renderImportanceOptionElement: =>
     return false unless AccountStore.current()?.usesImportantFlag()
     importanceOptionElement = <div className="section-header">
@@ -44,6 +48,11 @@ class PreferencesGeneral extends React.Component
         </div>
 
         {@_renderImportanceOptionElement()}
+
+        <div className="section-header platform-darwin-only">
+          <input type="checkbox" id="show-system-tray" checked={@props.config.get('core.showSystemTray')} onChange={@toggleShowSystemTrayIcon}/>
+          <label htmlFor="show-system-tray">Show Nylas app icon in the menu bar</label>
+        </div>
 
         <div className="section-header" style={marginTop:30}>
           Delay for marking messages as read:

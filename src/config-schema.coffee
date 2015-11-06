@@ -17,6 +17,9 @@ module.exports =
       showImportant:
         type: 'boolean'
         default: true
+      showSystemTray:
+        type: 'boolean'
+        default: true
       disabledPackages:
         type: 'array'
         default: []

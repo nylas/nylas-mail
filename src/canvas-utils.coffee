@@ -5,6 +5,8 @@ DragCanvas = document.createElement("canvas")
 DragCanvas.style.position = "absolute"
 document.body.appendChild(DragCanvas)
 
+SystemTrayCanvas = document.createElement("canvas")
+
 CanvasUtils =
   roundRect: (ctx, x, y, width, height, radius = 5, fill, stroke = true) ->
     ctx.beginPath()
@@ -69,5 +71,24 @@ CanvasUtils =
     ctx.fillText(text, textX * scale, 12 * scale, 30 * scale)
 
     return DragCanvas
+
+  canvasWithSystemTrayIconAndText: (img, text) ->
+    canvas = SystemTrayCanvas
+    w = img.width
+    h = img.height
+    # Rough estimate of extra width to hold text
+    canvas.width = w + (10 * text.length)
+    canvas.height = h
+
+    context = canvas.getContext('2d')
+    context.font = '14px Nylas-Pro'
+    context.fillStyle = 'black'
+    context.textAlign = 'start'
+    context.textBaseline = 'middle'
+
+    context.drawImage(img, 0, 0)
+    # Place after img, vertically aligned
+    context.fillText(text, w + 2, h / 2)
+    return canvas
 
 module.exports = CanvasUtils
