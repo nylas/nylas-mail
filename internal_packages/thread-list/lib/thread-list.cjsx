@@ -74,9 +74,10 @@ class ThreadList extends React.Component
       name: "★"
       resolver: (thread) =>
         [
-          <ThreadListIcon thread={thread} />
-          <MailImportantIcon thread={thread} />
+          <ThreadListIcon key="thread-list-icon" thread={thread} />
+          <MailImportantIcon key="mail-important-icon" thread={thread} />
           <InjectedComponentSet
+            key="injected-component-set"
             inline={true}
             containersRequired={false}
             matching={role: "ThreadListIcon"}

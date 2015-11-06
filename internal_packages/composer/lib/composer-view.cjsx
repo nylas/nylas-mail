@@ -154,8 +154,7 @@ class ComposerView extends React.Component
       @_proxy.changes.commit()
 
   render: ->
-    <KeyCommandsRegion localHandlers={@_keymapHandlers()}
-                       className="composer-outer-wrap">
+    <KeyCommandsRegion localHandlers={@_keymapHandlers()} >
       {@_renderComposerWrap()}
     </KeyCommandsRegion>
 
@@ -172,7 +171,7 @@ class ComposerView extends React.Component
       </div>
 
   _wrapClasses: =>
-    "message-item-white-wrap #{@props.className ? ""}"
+    "message-item-white-wrap composer-outer-wrap #{@props.className ? ""}"
 
   _renderComposer: =>
     <DropZone className="composer-inner-wrap"
