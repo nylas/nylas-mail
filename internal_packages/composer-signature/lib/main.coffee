@@ -16,7 +16,8 @@ module.exports =
       displayName: "Signatures"
       component: require "./preferences-signatures"
 
-    PreferencesSectionStore.registerPreferenceSection(@sectionConfig)
+    # TODO Re-enable when fixed!
+    # PreferencesSectionStore.registerPreferenceSection(@sectionConfig)
 
     ## TODO:
     # PreferencesSectionStore.registerPreferences "composer-signatures", [
