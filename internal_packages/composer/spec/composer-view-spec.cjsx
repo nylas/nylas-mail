@@ -348,11 +348,15 @@ describe "populated composer", ->
       @body = @composer.refs[Fields.Body]
       spyOn(@body, "focus")
       spyOn(React, "findDOMNode").andCallThrough()
+      spyOn(@composer, "_applyFocusedField").andCallThrough()
 
     it "can focus on the subject", ->
       @composer.setState focusedField: Fields.Subject
+      expect(@composer._applyFocusedField.calls.length).toBe 1
       expect(React.findDOMNode).toHaveBeenCalled()
-      expect(React.findDOMNode.calls.length).toBe 3
+      calls = _.filter React.findDOMNode.calls, (call) ->
+        call.args[0].props.name == "subject"
+      expect(calls.length).toBe 1
 
     it "can focus on the body", ->
       @composer.setState focusedField: Fields.Body
@@ -362,7 +366,7 @@ describe "populated composer", ->
     it "ignores focuses to participant fields", ->
       @composer.setState focusedField: Fields.To
       expect(@body.focus).not.toHaveBeenCalled()
-      expect(React.findDOMNode.calls.length).toBe 1
+      expect(React.findDOMNode.calls.length).toBe 3
 
   describe "when participants are added during a draft update", ->
     it "shows the cc fields and bcc fields to ensure participants are never hidden", ->
