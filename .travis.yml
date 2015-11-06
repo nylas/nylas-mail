@@ -10,10 +10,14 @@ matrix:
       env: NODE_VERSION=0.10
     - os: linux
       env: NODE_VERSION=0.12
+    - os: linux
+      env: NODE_VERSION=4.1
     - os: osx
       env: NODE_VERSION=0.10
     - os: osx
       env: NODE_VERSION=0.12
+    - os: osx
+      env: NODE_VERSION=4.1
 
 sudo: false
 
