@@ -53,7 +53,10 @@ class AccountStore
       @_accounts.push((new Account).fromJSON(json))
 
     index = atom.config.get(saveIndexKey) || 0
-    @_selectAccountByIndex(index)
+    @_index = Math.min(@_accounts.length - 1, Math.max(0, index))
+
+    @_tokens = atom.config.get(saveTokensKey) || {}
+    @trigger()
 
   _save: =>
     atom.config.set(saveObjectsKey, @_accounts)
