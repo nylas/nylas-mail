@@ -30,6 +30,7 @@ install:
   - echo $CC
   - echo $CXX
   - clang --version
+  - gcc -v
   - git clone https://github.com/creationix/nvm.git /tmp/.nvm
   - source /tmp/.nvm/nvm.sh
   - nvm install $NODE_VERSION
