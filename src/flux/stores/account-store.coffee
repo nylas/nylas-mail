@@ -43,9 +43,8 @@ class AccountStore
     return commands
 
   _selectAccountByIndex: (index) =>
-    @_index = Math.min(@_accounts.length - 1, Math.max(0, index))
-    atom.config.set(saveIndexKey, @_index)
-    @trigger()
+    index = Math.min(@_accounts.length - 1, Math.max(0, index))
+    Actions.selectAccountId(@_accounts[index].id)
 
   _load: =>
     @_accounts = []
