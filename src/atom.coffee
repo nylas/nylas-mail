@@ -144,7 +144,7 @@ class Atom extends Model
     unless @inDevMode() or @inSpecMode()
       require('grim').deprecate = ->
 
-    @setupErrorHandling()
+    @setupErrorLogger()
 
     @unsubscribe()
 
@@ -222,11 +222,12 @@ class Atom extends Model
   # Start our error reporting to the backend and attach error handlers
   # to the window and the Bluebird Promise library, converting things
   # back through the sourcemap as necessary.
-  setupErrorHandling: ->
-    ErrorReporter = require './error-reporter'
-    @errorReporter = new ErrorReporter
+  setupErrorLogger: ->
+    ErrorLogger = require './error-logger'
+    @errorLogger = new ErrorLogger
       inSpecMode: @inSpecMode()
       inDevMode: @inDevMode()
+      resourcePath: @getLoadSettings().resourcePath
 
     sourceMapCache = {}
 

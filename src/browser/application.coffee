@@ -220,14 +220,6 @@ class Application
         resourcePath: @resourcePath
         safeMode: @windowManager.focusedWindow()?.safeMode
 
-    @on 'application:ship-logs', ->
-      global.errorReporter.shipLogs("User triggered.")
-      dialog.showMessageBox
-        type: 'warning'
-        buttons: ['OK']
-        message: 'Your local N1 logs have been sent to LogStash.'
-        title: 'Logs Shipped'
-
     @on 'application:run-package-specs', ->
       dialog.showOpenDialog {
         title: 'Choose a Package Directory'

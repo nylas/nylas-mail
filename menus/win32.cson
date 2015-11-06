@@ -38,8 +38,7 @@
       { label: 'Run Plugin &Specs...', command: 'application:run-package-specs' }
       { label: 'Run &N1 Specs', command: 'application:run-all-specs' }
       { type: 'separator' }
-      { label: 'Open Detailed Logs', command: 'window:open-errorreporter-logs' }
-      { label: 'Ship Detailed Logs to Nylas', command: 'application:ship-logs' }
+      { label: 'Open Detailed Logs', command: 'window:open-errorlogger-logs' }
     ]
   }
   {

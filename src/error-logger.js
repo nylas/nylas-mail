@@ -1,8 +1,7 @@
 // This file cannot be Coffeescript because it loads before the Coffeescript
 // interpreter. Note that it runs in both browser and renderer processes.
 
-var ErrorReporter, raven, _, fs, path, app, os, remote;
-raven = require('raven');
+var ErrorLogger, _, fs, path, app, os, remote;
 os = require('os');
 _ = require('underscore');
 fs = require('fs-plus');
@@ -38,16 +37,18 @@ Object.defineProperty(Error.prototype, 'toJSON', {
     configurable: true
 });
 
-module.exports = ErrorReporter = (function() {
+module.exports = ErrorLogger = (function() {
 
-  function ErrorReporter(modes) {
+  function ErrorLogger(args) {
     var self = this;
 
-    this.inSpecMode = modes.inSpecMode
-    this.inDevMode = modes.inDevMode
+    this.inSpecMode = args.inSpecMode
+    this.inDevMode = args.inDevMode
+    this.resourcePath = args.resourcePath
+
+    this.extensions = this.setupErrorLoggerExtensions(args)
 
     if (!this.inSpecMode) {
-      this._setupSentry();
       this._cleanOldLogFiles();
       this._setupNewLogFile();
       this._hookProcessOutputs();
@@ -57,20 +58,37 @@ module.exports = ErrorReporter = (function() {
     console.debug = _.bind(this.consoleDebug, this);
   }
 
-  ErrorReporter.prototype._setupSentry = function() {
-    // Initialize the Sentry connector
-    this.client = new raven.Client('https://7a32cb0189ff4595a55c98ffb7939c46:f791c3c402b343068bed056b8b504dd5@sentry.nylas.com/4');
-    this.client.on('error', function(e) {
-      console.log(e.reason);
-      console.log(e.statusCode);
-      return console.log(e.response);
-    });
-  }
+  ErrorLogger.prototype.setupErrorLoggerExtensions = function(args) {
+    var extension, extensionConstructor, extensionPath, extensions, extensionsPath, i, len, ref;
+    if (args == null) {
+      args = {};
+    }
+    extensions = [];
+    extensionsPath = path.join(args.resourcePath, 'src', 'error-logger-extensions');
+    ref = fs.listSync(extensionsPath);
+    for (i = 0, len = ref.length; i < len; i++) {
+      extensionPath = ref[i];
+      if (path.basename(extensionPath)[0] === '.') {
+        continue;
+      }
+      extensionConstructor = require(extensionPath);
+      if (!(typeof extensionConstructor === "function")) {
+        throw new Error("Logger Extensions must return an extension constructor");
+      }
+      extension = new extensionConstructor({
+        inSpecMode: args.inSpecMode,
+        inDevMode: args.inDevMode,
+        resourcePath: args.resourcePath
+      });
+      extensions.push(extension);
+    }
+    return extensions;
+  };
 
   // If we're the browser process, remove log files that are more than
   // two days old. These log files get pretty big because we're logging
   // so verbosely.
-  ErrorReporter.prototype._cleanOldLogFiles = function() {
+  ErrorLogger.prototype._cleanOldLogFiles = function() {
     if (process.type === 'browser') {
       fs.readdir(tmpPath, function(err, files) {
         if (err) {
@@ -95,10 +113,7 @@ module.exports = ErrorReporter = (function() {
     }
   }
 
-  ErrorReporter.prototype._setupNewLogFile = function() {
-    this.shipLogsQueued = false;
-    this.shipLogsTime = 0;
-
+  ErrorLogger.prototype._setupNewLogFile = function() {
     // Open a file write stream to log output from this process
     console.log("Streaming log data to "+logpath);
 
@@ -111,7 +126,7 @@ module.exports = ErrorReporter = (function() {
     });
   }
 
-  ErrorReporter.prototype._hookProcessOutputs = function() {
+  ErrorLogger.prototype._hookProcessOutputs = function() {
     var self = this;
     // Override stdout and stderr to pipe their output to the file
     // in addition to calling through to the existing implementation
@@ -138,15 +153,30 @@ module.exports = ErrorReporter = (function() {
     });
   }
 
-  ErrorReporter.prototype._catchUncaughtErrors = function() {
+  ErrorLogger.prototype.notifyExtensions = function() {
+    var command, args;
+    command = arguments[0]
+    args = 2 <= arguments.length ? Array.prototype.slice.call(arguments, 1) : [];
+    for (var i=0; i < this.extensions.length; i++) {
+      extension = this.extensions[i]
+      extension[command].apply(this, args);
+    }
+  }
+
+  ErrorLogger.prototype.apiDebug = function(error) {
+    this.appendLog(error, error.statusCode, error.message);
+    this.notifyExtensions("onDidLogAPIError", error);
+  }
+
+  ErrorLogger.prototype._catchUncaughtErrors = function() {
     var self = this;
     // Link to the appropriate error handlers for the browser
     // or renderer process
     if (process.type === 'renderer') {
       atom.onDidThrowError(function(_arg) {
-        return self.reportError(_arg.originalError, {
-          'message': _arg.message
-        });
+        if (self.inSpecMode || self.inDevMode) { return };
+        self.appendLog(_arg.originalError, _arg.message);
+        self.notifyExtensions("onDidThrowError", _arg.originalError, _arg.message)
       });
 
     } else if (process.type === 'browser') {
@@ -157,7 +187,7 @@ module.exports = ErrorReporter = (function() {
         if (error == null) {
           error = {};
         }
-        self.reportError(error);
+        self.notifyExtensions("onDidThrowError", error)
         if (error.message != null) {
           nslog(error.message);
         }
@@ -172,7 +202,7 @@ module.exports = ErrorReporter = (function() {
   // or `false`, don't print in console as the first parameter.
   // This makes it easy for developers to turn on and off
   // "verbose console" mode.
-  ErrorReporter.prototype.consoleDebug = function() {
+  ErrorLogger.prototype.consoleDebug = function() {
     var args = [];
     var showIt = arguments[0];
     for (var ii = 1; ii < arguments.length; ii++) {
@@ -184,7 +214,7 @@ module.exports = ErrorReporter = (function() {
     this.appendLog.apply(this, [args]);
   }
 
-  ErrorReporter.prototype.appendLog = function(obj) {
+  ErrorLogger.prototype.appendLog = function(obj) {
     if (this.inSpecMode) { return };
 
     try {
@@ -196,94 +226,19 @@ module.exports = ErrorReporter = (function() {
 
       this.logstream.write(message, 'utf8', function (err) {
         if (err) {
-          console.error("ErrorReporter: Unable to write to the log stream!" + err.toString());
+          console.error("ErrorLogger: Unable to write to the log stream!" + err.toString());
         }
       });
     } catch (err) {
-      console.error("ErrorReporter: Unable to write to the log stream." + err.toString());
+      console.error("ErrorLogger: Unable to write to the log stream." + err.toString());
     }
   };
 
-  ErrorReporter.prototype.openLogs = function() {
+  ErrorLogger.prototype.openLogs = function() {
     var shell = require('shell');
     shell.openItem(logpath);
   };
 
-  ErrorReporter.prototype.shipLogs = function(reason) {
-    if (this.inSpecMode) { return };
-
-    if (!this.shipLogsQueued) {
-      var timeSinceLogShip = Date.now() - this.shipLogsTime;
-      if (timeSinceLogShip > 20000) {
-        this.runShipLogsTask(reason);
-      } else {
-        this.shipLogsQueued = true;
-        var self = this;
-        setTimeout(function() {
-          self.runShipLogsTask(reason);
-          self.shipLogsQueued = false;
-        }, 20000 - timeSinceLogShip);
-      }
-    }
-  };
-
-  ErrorReporter.prototype.runShipLogsTask = function(reason) {
-    if (this.inSpecMode) { return };
-
-    var self = this;
-
-    this.shipLogsTime = Date.now();
-
-    if (!reason) {
-      reason = "";
-    }
-    var logPattern = null;
-    if (process.type === 'renderer') {
-      logPattern = "Nylas-N1-"+remote.process.pid+"[.0-9]*.log$";
-    } else {
-      logPattern = "Nylas-N1-"+process.pid+"[.0-9]*.log$";
-    }
-
-    console.log("ErrorReporter: Shipping Logs. " + reason);
-
-    Task = require('./task');
-    ship = Task.once(fs.absolute('./tasks/ship-logs-task'), tmpPath, logPattern, function() {
-      self.appendLog("ErrorReporter: Shipped Logs.");
-    });
-  };
-
-
-  ErrorReporter.prototype.getVersion = function() {
-    var _ref;
-    return (typeof atom !== "undefined" && atom !== null ? atom.getVersion() : void 0) ||
-           ((_ref = require('app')) != null ? _ref.getVersion() : void 0);
-  };
-
-  ErrorReporter.prototype.reportError = function(err, metadata) {
-    if (this.inSpecMode || this.inDevMode) { return };
-
-    // Never send user auth tokens
-    if (err.requestOptions && err.requestOptions.auth) {
-      delete err.requestOptions['auth'];
-    }
-
-    // Never send message bodies
-    if (err.requestOptions && err.requestOptions.body && err.requestOptions.body.body) {
-      delete err.requestOptions.body['body'];
-    }
-
-    this.client.captureError(err, {
-      extra: metadata,
-      tags: {
-        'platform': process.platform,
-        'version': this.getVersion()
-      }
-    });
-
-    this.appendLog(err, metadata);
-    this.shipLogs('Exception occurred');
-  };
-
-  return ErrorReporter;
+  return ErrorLogger;
 
 })();

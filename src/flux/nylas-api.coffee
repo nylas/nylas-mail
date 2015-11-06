@@ -97,6 +97,7 @@ class NylasAPIRequest
               response ?= {}
               response.statusCode = TimeoutErrorCode
             apiError = new APIError({error, response, body, requestOptions: @options})
+            atom.errorLogger.apiDebug(apiError)
             @options.error?(apiError)
             reject(apiError)
           else
