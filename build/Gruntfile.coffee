@@ -52,10 +52,12 @@ _.extend(global, require('harmony-collections')) unless global.WeakMap?
 module.exports = (grunt) ->
   grunt.loadNpmTasks('grunt-coffeelint-cjsx')
   grunt.loadNpmTasks('grunt-lesslint')
+  grunt.loadNpmTasks('grunt-babel')
   grunt.loadNpmTasks('grunt-cson')
   grunt.loadNpmTasks('grunt-contrib-csslint')
   grunt.loadNpmTasks('grunt-coffee-react')
   grunt.loadNpmTasks('grunt-contrib-coffee')
+  grunt.loadNpmTasks('grunt-eslint')
   grunt.loadNpmTasks('grunt-contrib-less')
   grunt.loadNpmTasks('grunt-shell')
   grunt.loadNpmTasks('grunt-markdown')
@@ -124,6 +126,25 @@ module.exports = (grunt) ->
       dest: appDir
       ext: '.js'
 
+  babelConfig =
+    options: require './config/babel.json'
+    dist:
+      files: [{
+        expand: true
+        src: [
+          'src/**/*.es6'
+          'src/**/*.es'
+          'src/**/*.jsx'
+          'internal_packages/**/*.es6'
+          'internal_packages/**/*.es'
+          'internal_packages/**/*.jsx'
+          'static/**/*.es6'
+          'static/**/*.es'
+        ]
+        dest: appDir
+        ext: '.js'
+      }]
+
   lessConfig =
     options:
       paths: [
@@ -189,6 +210,8 @@ module.exports = (grunt) ->
 
     coffee: coffeeConfig
 
+    babel: babelConfig
+
     cjsx: cjsxConfig
 
     less: lessConfig
@@ -234,6 +257,20 @@ module.exports = (grunt) ->
       ]
       target:
         grunt.option("target")?.split(" ") or []
+
+    eslint:
+      options:
+        configFile: 'build/config/eslint.json'
+      target: [
+        'internal_packages/**/*.jsx'
+        'internal_packages/**/*.es6'
+        'internal_packages/**/*.es'
+        'dot-nylas/**/*.es6'
+        'dot-nylas/**/*.es'
+        'src/**/*.es6'
+        'src/**/*.es'
+        'src/**/*.jsx'
+      ]
 
     csslint:
       options:
@@ -319,8 +356,8 @@ module.exports = (grunt) ->
           stderr: false
           failOnError: false
 
-  grunt.registerTask('compile', ['coffee', 'cjsx', 'prebuild-less', 'cson', 'peg'])
-  grunt.registerTask('lint', ['coffeelint', 'csslint', 'lesslint', 'nylaslint'])
+  grunt.registerTask('compile', ['coffee', 'cjsx', 'babel', 'prebuild-less', 'cson', 'peg'])
+  grunt.registerTask('lint', ['coffeelint', 'csslint', 'lesslint', 'nylaslint', 'eslint'])
   grunt.registerTask('test', ['shell:kill-atom', 'run-edgehill-specs'])
   grunt.registerTask('docs', ['build-docs', 'render-docs'])
 

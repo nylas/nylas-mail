@@ -77,6 +77,10 @@
     "vm-compatibility-layer": "0.1.0"
   },
   "devDependencies": {
+    "babel-eslint": "^4.1.3",
+    "eslint": "^1.5.1",
+    "eslint-config-airbnb": "^0.1.0",
+    "eslint-plugin-react": "^3.4.2",
     "nock": "^2",
     "grunt": "^0.4.5",
     "grunt-serve": "^0.1.6",

@@ -1,0 +1,17 @@
+{
+  "extends": "airbnb",
+  "globals": {
+    "atom": false
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "jasmine": true
+  },
+  "rules": {
+    "react/prop-types": [2, {"ignore": ["children"]}],
+    "eqeqeq": [2, "smart"],
+    "id-length": [0],
+    "no-loop-func": [0]
+  }
+}
