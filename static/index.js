@@ -16,11 +16,8 @@ function registerRuntimeTranspilers(hotreload) {
     require('coffee-react/register');
   }
   // This redefines require.extensions
-  require('babel-core/register')({
-    sourceMaps: true,
-    presets: ['es2015', 'react', 'stage-0'],
-    extensions: ['.es6', '.es', '.jsx'],
-  });
+  babelOptions = require('./babelrc.json');
+  require('babel-core/register')(babelOptions);
 }
 
 window.onload = function() {

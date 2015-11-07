@@ -16,10 +16,7 @@
     "asar": "^0.5.0",
     "async": "^0.9",
     "atom-keymap": "5.1.11",
-    "babel-core": "^6.0.20",
-    "babel-preset-es2015": "^6.0.15",
-    "babel-preset-react": "^6.0.15",
-    "babel-preset-stage-0": "^6.0.15",
+    "babel-core": "^5.8.21",
     "bluebird": "^2.9",
     "classnames": "1.2.1",
     "clear-cut": "0.4.0",
@@ -77,10 +74,6 @@
     "vm-compatibility-layer": "0.1.0"
   },
   "devDependencies": {
-    "babel-eslint": "^4.1.3",
-    "eslint": "^1.5.1",
-    "eslint-config-airbnb": "^0.1.0",
-    "eslint-plugin-react": "^3.4.2",
     "nock": "^2",
     "grunt": "^0.4.5",
     "grunt-serve": "^0.1.6",

@@ -47,7 +47,6 @@ class AccountStore
     windowMenu = _.find atom.menu.template, ({label}) -> MenuHelpers.normalizeLabel(label) is 'Window'
     return unless windowMenu
     submenu = _.reject windowMenu.submenu, (item) -> item.account
-    console.log(submenu)
     return unless submenu
     idx = _.findIndex submenu, ({type}) -> type is 'separator'
     return unless idx > 0
