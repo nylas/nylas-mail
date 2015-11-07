@@ -1,6 +1,7 @@
 Actions = require '../actions'
 Account = require '../models/account'
 Utils = require '../models/utils'
+MenuHelpers = require '../../menu-helpers'
 DatabaseStore = require './database-store'
 _ = require 'underscore'
 
@@ -33,16 +34,37 @@ class AccountStore
       if newAccountIds.length > 0
         Actions.selectAccountId(newAccountIds[0])
 
-    atom.commands.add 'body', @_accountSwitchCommands()
+    @_setupFastAccountCommands()
 
-  _accountSwitchCommands: ->
+  _setupFastAccountCommands: ->
     commands = {}
     [0..8].forEach (index) =>
       key = "application:select-account-#{index}"
       commands[key] = _.partial(@_selectAccountByIndex, index)
-    return commands
+    atom.commands.add('body', commands)
+
+  _setupFastAccountMenu: ->
+    windowMenu = _.find atom.menu.template, ({label}) -> MenuHelpers.normalizeLabel(label) is 'Window'
+    return unless windowMenu
+    submenu = _.reject windowMenu.submenu, (item) -> item.account
+    console.log(submenu)
+    return unless submenu
+    idx = _.findIndex submenu, ({type}) -> type is 'separator'
+    return unless idx > 0
+
+    accountMenuItems = @items().map (item, idx) =>
+      {
+        label: item.emailAddress,
+        command: "application:select-account-#{idx}",
+        account: true
+      }
+
+    submenu.splice(idx + 1, 0, accountMenuItems...)
+    windowMenu.submenu = submenu
+    atom.menu.update()
 
   _selectAccountByIndex: (index) =>
+    require('ipc').send('command', 'application:show-main-window')
     index = Math.min(@_accounts.length - 1, Math.max(0, index))
     Actions.selectAccountId(@_accounts[index].id)
 
@@ -55,6 +77,7 @@ class AccountStore
     @_index = Math.min(@_accounts.length - 1, Math.max(0, index))
 
     @_tokens = atom.config.get(saveTokensKey) || {}
+    @_setupFastAccountMenu()
     @trigger()
 
   _save: =>
@@ -67,7 +90,7 @@ class AccountStore
 
   onSelectAccountId: (id) =>
     idx = _.findIndex @_accounts, (a) -> a.id is id
-    return if idx is -1
+    return if idx is -1 or @_index is idx
     atom.config.set(saveIndexKey, idx)
     @_index = idx
     @trigger()

@@ -7,7 +7,6 @@
 'body':
   'cmd-m': 'application:minimize'
   'cmd-h': 'application:hide'
-  'cmd-0': 'application:show-main-window'
   'cmd-alt-h': 'application:hide-other-applications'
   'cmd-ctrl-f': 'window:toggle-full-screen'
   'alt-cmd-ctrl-m': 'application:zoom'
