@@ -1,6 +1,7 @@
 fs = require 'fs'
 path = require 'path'
 os = require 'os'
+babelOptions = require '../static/babelrc'
 
 # This is the main Gruntfile that manages building N1 distributions.
 # The reason it's inisde of the build/ folder is so everything can be
@@ -127,7 +128,7 @@ module.exports = (grunt) ->
       ext: '.js'
 
   babelConfig =
-    options: require './config/babel.json'
+    options: babelOptions
     dist:
       files: [{
         expand: true
