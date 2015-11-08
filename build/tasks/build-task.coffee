@@ -61,7 +61,6 @@ module.exports = (grunt) ->
     # Put any paths here that shouldn't end up in the built Electron.app
     # so that it doesn't becomes larger than it needs to be.
     ignoredPaths = [
-      path.join('git-utils', 'deps')
       path.join('less', 'dist')
       path.join('npm', 'doc')
       path.join('npm', 'html')
@@ -120,7 +119,6 @@ module.exports = (grunt) ->
 
     # Ignore *.cc and *.h files from native modules
     ignoredPaths.push "#{escapeRegExp(path.join('ctags', 'src') + path.sep)}.*\\.(cc|h)*"
-    ignoredPaths.push "#{escapeRegExp(path.join('git-utils', 'src') + path.sep)}.*\\.(cc|h)*"
     ignoredPaths.push "#{escapeRegExp(path.join('keytar', 'src') + path.sep)}.*\\.(cc|h)*"
     ignoredPaths.push "#{escapeRegExp(path.join('nslog', 'src') + path.sep)}.*\\.(cc|h)*"
     ignoredPaths.push "#{escapeRegExp(path.join('pathwatcher', 'src') + path.sep)}.*\\.(cc|h)*"
