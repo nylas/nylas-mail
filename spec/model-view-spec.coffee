@@ -33,6 +33,14 @@ describe "ModelView", ->
   beforeEach ->
     @view = new TestModelView()
 
+  describe "itemsCurrentlyInViewMatching", ->
+    it "returns matching items", ->
+      @view.stubFillPage(0)
+      items = @view.itemsCurrentlyInViewMatching (item) ->
+        item.id == "A55"
+      expect(items.length).toBe 1
+      expect(items[0].id).toBe "A55"
+
   describe "setRetainedRange", ->
     it "should perform basic bounds checks to avoid fetching non-existent pages", ->
       @view.setRetainedRange({start: -100, end: 15000})
