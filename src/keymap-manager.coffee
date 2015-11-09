@@ -2,6 +2,7 @@ fs = require 'fs-plus'
 path = require 'path'
 CSON = require 'season'
 AtomKeymap = require 'atom-keymap'
+KeymapUtils = require './keymap-utils'
 
 class KeymapManager extends AtomKeymap
 
@@ -15,25 +16,7 @@ class KeymapManager extends AtomKeymap
   # N1 adds the `cmdctrl` extension. This will use `cmd` or `ctrl` on a
   # mac, and `ctrl` only on windows and linux.
   readKeymap: (args...) ->
-    re = /(cmdctrl|ctrlcmd)/i
-    keymap = super(args...)
-    for selector, keyBindings of keymap
-      normalizedBindings = {}
-      for keystrokes, command of keyBindings
-        if re.test keystrokes
-          if process.platform is "darwin"
-            newKeystrokes1= keystrokes.replace(re, "ctrl")
-            newKeystrokes2= keystrokes.replace(re, "cmd")
-            normalizedBindings[newKeystrokes1] = command
-            normalizedBindings[newKeystrokes2] = command
-          else
-            newKeystrokes = keystrokes.replace(re, "ctrl")
-            normalizedBindings[newKeystrokes] = command
-        else
-          normalizedBindings[keystrokes] = command
-      keymap[selector] = normalizedBindings
-
-    return keymap
+    return KeymapUtils.cmdCtrlPreprocessor super(args...)
 
   loadBundledKeymaps: ->
     # Load the base keymap and the base.platform keymap
