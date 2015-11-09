@@ -30,11 +30,13 @@ class AutoloadImagesStore extends NylasStore
     true
 
   _loadWhitelist: =>
-    fs.readFile @_whitelistEmailsPath, (err, body) =>
-      return console.log(err) if err or not body
-      @_whitelistEmails = {}
-      for email in body.toString().split(/[\n\r]+/)
-        @_whitelistEmails[Utils.toEquivalentEmailForm(email)] = true
+    fs.exists @_whitelistEmailsPath, (exists) =>
+      return unless exists
+      fs.readFile @_whitelistEmailsPath, (err, body) =>
+        return console.log(err) if err or not body
+        @_whitelistEmails = {}
+        for email in body.toString().split(/[\n\r]+/)
+          @_whitelistEmails[Utils.toEquivalentEmailForm(email)] = true
 
   _saveWhitelist: =>
     data = Object.keys(@_whitelistEmails).join('\n')
