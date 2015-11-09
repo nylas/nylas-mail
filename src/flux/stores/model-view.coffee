@@ -73,6 +73,13 @@ class ModelView
   pagesRetained: ->
     [Math.floor(@_retainedRange.start / @_pageSize)..Math.floor(@_retainedRange.end / @_pageSize)]
 
+  itemsCurrentlyInViewMatching: (matchFn) ->
+    matchedItems = []
+    for index, page of @_pages
+      for item in (page.items ? [])
+        matchedItems.push item if matchFn(item)
+    return matchedItems
+
   setRetainedRange: ({start, end}) ->
     {start, end} = @padRetainedRange({start, end})
     start = Math.max(0, Math.min(@count(), start))

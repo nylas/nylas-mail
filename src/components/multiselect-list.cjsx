@@ -83,6 +83,9 @@ class MultiselectList extends React.Component
     'core:list-page-up': => @_onScrollByPage(-1)
     'core:list-page-down': => @_onScrollByPage(1)
     'application:pop-sheet': => @_onDeselect()
+    'multiselect-list:select-all': @_onSelectAll
+    'core:select-all': @_onSelectAll
+    'multiselect-list:deselect-all': => @_onDeselect()
 
   render: =>
     # IMPORTANT: DO NOT pass inline functions as props. _.isEqual thinks these
@@ -151,6 +154,11 @@ class MultiselectList extends React.Component
   _onSelect: =>
     return unless @state.handler
     @state.handler.onSelect()
+
+  _onSelectAll: =>
+    return unless @state.handler
+    items = @state.dataView.itemsCurrentlyInViewMatching -> true
+    @state.dataView.selection.set(items)
 
   _onDeselect: =>
     return unless @_visible() and @state.dataView

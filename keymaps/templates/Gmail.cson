@@ -13,8 +13,8 @@
   'g l' : 'navigation:go-to-label'
 
   ### Threadlist selection ###
-  '* a': 'thread-list:select-all'
-  '* n': 'thread-list:deselect-all'
+  '* a': 'multiselect-list:select-all'
+  '* n': 'multiselect-list:deselect-all'
   '* r': 'thread-list:select-read'
   '* u': 'thread-list:select-unread'
   '* s': 'thread-list:select-starred'
