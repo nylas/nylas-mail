@@ -44,7 +44,7 @@ class AccountSwitcher extends React.Component
       <div style={float: 'right', marginTop: -2}>
         <RetinaImg className="toggle"
                    name="account-switcher-dropdown.png"
-                   mode={RetinaImg.Mode.ContentPreserve} />
+                   mode={RetinaImg.Mode.ContentDark} />
       </div>
       <div className="name" style={lineHeight: "110%"}>
         {@state.account.emailAddress.trim().toLowerCase()}
