@@ -46,6 +46,10 @@ class AtomWindow
     else
       frame = toolbar
 
+    if @isSpec
+      frame = true
+      toolbar = false
+
     options =
       show: false
       title: title ? 'Nylas'

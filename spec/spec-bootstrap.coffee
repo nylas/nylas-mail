@@ -29,6 +29,8 @@ try
   process.env.NODE_PATH = globalPath
 
   document.title = "Spec Suite"
+  document.getElementById("application-loading-cover").remove()
+
   runSpecSuite './spec-suite', atom.getLoadSettings().logFile
 catch error
   if atom?.getLoadSettings().exitWhenDone
