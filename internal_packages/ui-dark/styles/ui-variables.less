@@ -6,16 +6,15 @@
 @gray-lighter: darken(@gray-base, 92.5%); // #eee
 @white:        #0a0b0c;
 
-@background-off-primary: #333;
-@background-secondary:   #2D2D2D;
+@background-primary:     #313131;
+@background-off-primary: #282828;
+@background-secondary:   #222;
 @background-tertiary:    #6d7987;
 
-@background-primary:        #313131;
-@background-color:          darken(#313131, 15%);
 @btn-default-bg-color:      #404040;
 @dropdown-default-bg-color: #404040;
-@accent-primary:            lighten(#5AA8FA, 20%);
-@accent-primary-dark:       lighten(#3087E1, 20%);
+@accent-primary:            #5AA8FA;
+@accent-primary-dark:       lighten(#3087E1, 10%);
 
 @text-color:                      #C2C2C2;
 @text-color-subtle:               fadeout(@text-color, 20%);
@@ -40,7 +39,7 @@
 
 @toolbar-background-color: @background-secondary;
 
-.thread-icon:not(.thread-icon-unread) {
+.thread-icon:not(.thread-icon-unread):not(.thread-icon-star) {
   -webkit-filter: invert(100%);
 }
 img.content-dark {
