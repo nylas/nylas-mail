@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Nylas N1
+Name[pl]=Klient poczty Nylas N1
 Comment=<%= description %>
 GenericName=Nylas N1
 Exec=<%= installDir %>/share/nylas/nylas %U
