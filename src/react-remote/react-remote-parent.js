@@ -280,8 +280,10 @@ var openWindowForComponent = function(Component, options) {
         break;
       }
     }
-    reactRemoteContainer.removeChild(container);
-    console.log("Cleaned up react remote window");
+
+    React.render(React.createElement('div'), container, function() {
+      reactRemoteContainer.removeChild(container);
+    });
     container = null;
     thinWindow = null;
   };
