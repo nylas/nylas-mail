@@ -25,14 +25,11 @@ class PreferencesKeymaps extends React.Component
     @_loadTemplates()
 
   componentDidMount: =>
-    @_mounted = true
-    atom.keymaps.onDidReloadKeymap =>
-      # Temporary fix for https://github.com/atom/atom-keymap/issues/101
-      return unless @_mounted
+    @_disposable = atom.keymaps.onDidReloadKeymap =>
       @setState(bindings: @_getStateFromKeymaps())
 
   componentWillUnmount: =>
-    @_mounted = false
+    @_disposable.dispose()
 
   _loadTemplates: =>
     templatesDir = path.join(atom.getLoadSettings().resourcePath, 'keymaps', 'templates')
