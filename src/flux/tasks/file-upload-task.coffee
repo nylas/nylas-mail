@@ -79,6 +79,7 @@ class FileUploadTask extends Task
       json: false
       formData: @_formData()
       started: started
+      timeout: 20 * 60 * 1000
     .finally(cleanup)
 
   _performRemoteParseFile: (rawResponseString) =>
