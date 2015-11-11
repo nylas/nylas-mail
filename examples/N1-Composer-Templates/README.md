@@ -14,7 +14,7 @@ tags are always stripped so the recipient never sees any highlighting.
 This example is a good starting point for plugins that want to extend the composer
 experience.
 
-<img src="https://raw.githubusercontent.com/nylas/N1/master/examples/N1-Github-Contact-Card-Section/screenshot.png">
+<img src="https://raw.githubusercontent.com/nylas/N1/master/examples/N1-Composer-Templates/screenshot.png">
 
 #### Install this plugin:
 

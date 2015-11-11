@@ -9,7 +9,7 @@ requireSpecs = (specDirectory) ->
   if _.isString(specFilePattern) and specFilePattern.length > 0
     regex = new RegExp(specFilePattern)
   else
-    regex = /-spec\.(coffee|js|jsx|cjsx)$/
+    regex = /-spec\.(coffee|js|jsx|cjsx|es6|es)$/
 
   for specFilePath in fs.listTreeSync(specDirectory)
     require(specFilePath) if regex.test(specFilePath)
