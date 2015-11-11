@@ -11,7 +11,7 @@ module.exports =
     @item.setAttribute("id", "tooltip-container")
     @item.setAttribute("class", "tooltip-container")
     @tooltip = React.render(React.createElement(Tooltip), @item)
-    document.querySelector(atom.workspaceViewParentSelector).appendChild(@item)
+    document.querySelector(NylasEnv.workspaceViewParentSelector).appendChild(@item)
 
     @mouseDownListener = _.bind(@tooltip.onMouseDown, @tooltip)
     @mouseOverListener = _.bind(@tooltip.onMouseOver, @tooltip)
@@ -23,7 +23,7 @@ module.exports =
 
   deactivate: ->
     React.unmountComponentAtNode(@item)
-    document.querySelector(atom.workspaceViewParentSelector).removeChild(@item)
+    document.querySelector(NylasEnv.workspaceViewParentSelector).removeChild(@item)
 
     window.removeEventListener("mousedown", @mouseDownListener)
     window.removeEventListener("mouseover", @mouseOverListener)

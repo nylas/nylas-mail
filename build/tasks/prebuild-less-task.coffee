@@ -9,13 +9,12 @@ module.exports = (grunt) ->
       ['ui-light', 'ui-dark']
     ]
 
-    directory = path.join(grunt.config.get('atom.appDir'), 'less-compile-cache')
+    directory = path.join(grunt.config.get('nylasGruntConfig.appDir'), 'less-compile-cache')
 
     for configuration in prebuiltConfigurations
       importPaths = grunt.config.get('less.options.paths')
       themeMains = []
       for theme in configuration
-        # TODO Use AtomPackage class once it runs outside of an Atom context
         themePath = path.resolve('node_modules', theme)
         if fs.existsSync(themePath) is false
           themePath = path.resolve('internal_packages', theme)

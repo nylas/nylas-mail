@@ -40,8 +40,8 @@ class ActionBridge
 
   constructor: (ipc) ->
     @ipc = ipc
-    @initiatorId = atom.getWindowType()
-    @role = if atom.isWorkWindow() then Role.WORK else Role.SECONDARY
+    @initiatorId = NylasEnv.getWindowType()
+    @role = if NylasEnv.isWorkWindow() then Role.WORK else Role.SECONDARY
 
     # Listen for action bridge messages from other windows
     @ipc.on('action-bridge-message', @onIPCMessage)

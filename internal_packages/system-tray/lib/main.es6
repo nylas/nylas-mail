@@ -13,8 +13,8 @@ const onSystemTrayToggle = (showSystemTray)=> {
 };
 
 export function activate() {
-  unsubConfig = atom.config.onDidChange('core.showSystemTray', onSystemTrayToggle).dispose;
-  if (atom.config.get('core.showSystemTray')) {
+  unsubConfig = NylasEnv.config.onDidChange('core.showSystemTray', onSystemTrayToggle).dispose;
+  if (NylasEnv.config.get('core.showSystemTray')) {
     systemTray = new SystemTray(platform);
   }
 }

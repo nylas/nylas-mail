@@ -25,14 +25,14 @@ class PreferencesKeymaps extends React.Component
     @_loadTemplates()
 
   componentDidMount: =>
-    @_disposable = atom.keymaps.onDidReloadKeymap =>
+    @_disposable = NylasEnv.keymaps.onDidReloadKeymap =>
       @setState(bindings: @_getStateFromKeymaps())
 
   componentWillUnmount: =>
     @_disposable.dispose()
 
   _loadTemplates: =>
-    templatesDir = path.join(atom.getLoadSettings().resourcePath, 'keymaps', 'templates')
+    templatesDir = path.join(NylasEnv.getLoadSettings().resourcePath, 'keymaps', 'templates')
     fs.readdir templatesDir, (err, files) =>
       return unless files and files instanceof Array
       templates = files.filter (filename) =>
@@ -44,7 +44,7 @@ class PreferencesKeymaps extends React.Component
   _getStateFromKeymaps: =>
     bindings = {}
     for [command, label] in DisplayedKeybindings
-      bindings[command] = atom.keymaps.findKeyBindings(command: command, target: document.body) || []
+      bindings[command] = NylasEnv.keymaps.findKeyBindings(command: command, target: document.body) || []
     bindings
 
   render: =>
@@ -97,7 +97,7 @@ class PreferencesKeymaps extends React.Component
       return keystrokes.replace(/-/gi,'').replace(/cmd/gi, '⌘').replace(/alt/gi, '⌥').replace(/shift/gi, '⇧').replace(/ctrl/gi, '^').toUpperCase()
 
   _onShowUserKeymaps: =>
-    keymapsFile = atom.keymaps.getUserKeymapPath()
+    keymapsFile = NylasEnv.keymaps.getUserKeymapPath()
     if !fs.existsSync(keymapsFile)
       fs.writeSync(fs.openSync(keymapsFile, 'w'), '')
     require('shell').showItemInFolder(keymapsFile)

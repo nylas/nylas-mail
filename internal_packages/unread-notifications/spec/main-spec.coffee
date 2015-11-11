@@ -201,7 +201,7 @@ describe "UnreadNotifications", ->
         expect(NativeNotifications.displayNotification).not.toHaveBeenCalled()
 
   it "should play a sound when it gets new mail", ->
-    spyOn(atom.config, "get").andCallFake (config) ->
+    spyOn(NylasEnv.config, "get").andCallFake (config) ->
       if config is "core.notifications.enabled" then return true
       if config is "core.notifications.sounds" then return true
 
@@ -209,18 +209,18 @@ describe "UnreadNotifications", ->
     waitsForPromise =>
       Main._onNewMailReceived({message: [@msg1]})
       .then ->
-        expect(atom.config.get.calls[1].args[0]).toBe "core.notifications.sounds"
+        expect(NylasEnv.config.get.calls[1].args[0]).toBe "core.notifications.sounds"
         expect(SoundRegistry.playSound).toHaveBeenCalledWith("new-mail")
 
   it "should not play a sound if the config is off", ->
-    spyOn(atom.config, "get").andCallFake (config) ->
+    spyOn(NylasEnv.config, "get").andCallFake (config) ->
       if config is "core.notifications.enabled" then return true
       if config is "core.notifications.sounds" then return false
     spyOn(SoundRegistry, "playSound")
     waitsForPromise =>
       Main._onNewMailReceived({message: [@msg1]})
       .then ->
-        expect(atom.config.get.calls[1].args[0]).toBe "core.notifications.sounds"
+        expect(NylasEnv.config.get.calls[1].args[0]).toBe "core.notifications.sounds"
         expect(SoundRegistry.playSound).not.toHaveBeenCalled()
 
   describe "when the message has no matching thread", ->

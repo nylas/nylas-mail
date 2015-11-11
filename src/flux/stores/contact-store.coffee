@@ -36,7 +36,7 @@ Section: Stores
 class ContactStore extends NylasStore
 
   constructor: ->
-    if atom.isMainWindow() or atom.inSpecMode()
+    if NylasEnv.isMainWindow() or NylasEnv.inSpecMode()
       @_contactCache = []
       @_accountId = null
 
@@ -60,7 +60,7 @@ class ContactStore extends NylasStore
   #
   searchContacts: (search, options={}) =>
     {limit, noPromise} = options
-    if not atom.isMainWindow()
+    if not NylasEnv.isMainWindow()
       if noPromise
         throw new Error("We search Contacts in the Main window, which makes it impossible for this to be a noPromise method from this window")
       # Returns a promise that resolves to the value of searchContacts
@@ -123,7 +123,7 @@ class ContactStore extends NylasStore
 
   parseContactsInString: (contactString, options={}) =>
     {skipNameLookup} = options
-    if not atom.isMainWindow()
+    if not NylasEnv.isMainWindow()
       # Returns a promise that resolves to the value of searchContacts
       return WindowBridge.runInMainWindow("ContactStore", "parseContactsInString", [contactString, options])
     detected = []

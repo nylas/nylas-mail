@@ -23,7 +23,7 @@ class BackoffTimer
 
   backoff: =>
     @_delay = Math.min(@_delay * 1.4, 5 * 1000 * 60) # Cap at 5 minutes
-    if not atom.inSpecMode()
+    if not NylasEnv.inSpecMode()
       console.log("Backing off after sync failure. Will retry in #{Math.floor(@_delay / 1000)} seconds.")
 
   start: =>

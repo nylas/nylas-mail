@@ -29,7 +29,7 @@ class SystemTray {
 
   _onClicked() {
     if (this._platform !== 'darwin') {
-      atom.focus();
+      NylasEnv.focus();
     }
   }
 

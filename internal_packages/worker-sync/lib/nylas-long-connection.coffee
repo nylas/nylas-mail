@@ -40,10 +40,10 @@ class NylasLongConnection
     @_accountId
 
   hasCursor: ->
-    !!atom.config.get(@_cursorKey)
+    !!NylasEnv.config.get(@_cursorKey)
 
   withCursor: (callback) ->
-    cursor = atom.config.get(@_cursorKey)
+    cursor = NylasEnv.config.get(@_cursorKey)
     return callback(cursor) if cursor
 
     @_api.makeRequest
@@ -56,7 +56,7 @@ class NylasLongConnection
         callback(cursor)
 
   setCursor: (cursor) ->
-    atom.config.set(@_cursorKey, cursor)
+    NylasEnv.config.set(@_cursorKey, cursor)
 
   state: ->
     @state

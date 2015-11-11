@@ -9,7 +9,7 @@ module.exports = (grunt) ->
     template = _.template(String(fs.readFileSync("#{filePath}.in")))
     filled = template(data)
 
-    outputPath = path.join(grunt.config.get('atom.buildDir'), path.basename(filePath))
+    outputPath = path.join(grunt.config.get('nylasGruntConfig.buildDir'), path.basename(filePath))
     grunt.file.write(outputPath, filled)
     outputPath
 
@@ -24,13 +24,13 @@ module.exports = (grunt) ->
       return done("Unsupported arch #{process.arch}")
 
     {name, version, description} = grunt.file.readJSON('package.json')
-    buildDir = grunt.config.get('atom.buildDir')
+    buildDir = grunt.config.get('nylasGruntConfig.buildDir')
 
     rpmDir = path.join(buildDir, 'rpm')
     rm rpmDir
     mkdir rpmDir
 
-    installDir = grunt.config.get('atom.installDir')
+    installDir = grunt.config.get('nylasGruntConfig.installDir')
     shareDir = path.join(installDir, 'share', 'nylas')
     iconName = path.join(shareDir, 'resources', 'app', 'resources', 'nylas.png')
 

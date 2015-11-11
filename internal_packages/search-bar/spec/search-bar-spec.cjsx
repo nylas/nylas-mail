@@ -8,7 +8,7 @@ SearchSuggestionStore = require '../lib/search-suggestion-store'
 
 describe 'SearchBar', ->
   beforeEach ->
-    spyOn(atom, "isMainWindow").andReturn true
+    spyOn(NylasEnv, "isMainWindow").andReturn true
     @searchBar = ReactTestUtils.renderIntoDocument(<SearchBar />)
     input = ReactTestUtils.findRenderedDOMComponentWithTag(@searchBar, "input")
     @input = React.findDOMNode(input)

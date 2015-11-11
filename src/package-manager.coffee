@@ -13,9 +13,9 @@ ThemePackage = require './theme-package'
 DatabaseStore = require './flux/stores/database-store'
 APMWrapper = require './apm-wrapper'
 
-# Extended: Package manager for coordinating the lifecycle of Atom packages.
+# Extended: Package manager for coordinating the lifecycle of N1 packages.
 #
-# An instance of this class is always available as the `atom.packages` global.
+# An instance of this class is always available as the `NylasEnv.packages` global.
 #
 # Packages can be loaded, activated, and deactivated, and unloaded:
 #  * Loading a package reads and parses the package's metadata and resources
@@ -29,7 +29,7 @@ APMWrapper = require './apm-wrapper'
 # Packages can be enabled/disabled via the `core.disabledPackages` config
 # settings and also by calling `enablePackage()/disablePackage()`.
 #
-# Section: Atom
+# Section: N1
 module.exports =
 class PackageManager
   EmitterMixin.includeInto(this)
@@ -53,7 +53,7 @@ class PackageManager
     @serviceHub = new ServiceHub
 
     @packageActivators = []
-    @registerPackageActivator(this, ['atom', 'textmate'])
+    @registerPackageActivator(this, ['nylas'])
 
   ###
   Section: Event Subscription
@@ -173,9 +173,9 @@ class PackageManager
     return packagePath if fs.isDirectorySync(packagePath)
 
     packagePath = path.join(@resourcePath, 'node_modules', name)
-    return packagePath if @hasAtomEngine(packagePath)
+    return packagePath if @nasNylasEngine(packagePath)
 
-  # Public: Is the package with the given name bundled with Atom?
+  # Public: Is the package with the given name bundled with Nylas?
   #
   # * `name` - The {String} package name.
   #
@@ -209,7 +209,7 @@ class PackageManager
   #
   # Returns a {Boolean}.
   isPackageDisabled: (name) ->
-    _.include(atom.config.get('core.disabledPackages') ? [], name)
+    _.include(NylasEnv.config.get('core.disabledPackages') ? [], name)
 
   ###
   Section: Accessing active packages
@@ -245,7 +245,7 @@ class PackageManager
 
   # Get packages for a certain package type
   #
-  # * `types` an {Array} of {String}s like ['atom', 'textmate'].
+  # * `types` an {Array} of {String}s like ['nylas', 'my-package'].
   getLoadedPackagesForTypes: (types) ->
     pack for pack in @getLoadedPackages() when pack.getType() in types
 
@@ -322,7 +322,7 @@ class PackageManager
     dialog = require('remote').require('dialog')
     shell = require('shell')
 
-    packagesDir = path.join(atom.getConfigDirPath(), 'packages')
+    packagesDir = path.join(NylasEnv.getConfigDirPath(), 'packages')
     packageName = path.basename(packageSourceDir)
     packageTargetDir = path.join(packagesDir, packageName)
 
@@ -379,16 +379,16 @@ class PackageManager
 
     @packageDependencies
 
-  hasAtomEngine: (packagePath) ->
+  nasNylasEngine: (packagePath) ->
     metadata = Package.loadMetadata(packagePath, true)
-    metadata?.engines?.atom?
+    metadata?.engines?.nylas?
 
   unobserveDisabledPackages: ->
     @disabledPackagesSubscription?.dispose()
     @disabledPackagesSubscription = null
 
   observeDisabledPackages: ->
-    @disabledPackagesSubscription ?= atom.config.onDidChange 'core.disabledPackages', ({newValue, oldValue}) =>
+    @disabledPackagesSubscription ?= NylasEnv.config.onDidChange 'core.disabledPackages', ({newValue, oldValue}) =>
       packagesToEnable = _.difference(oldValue, newValue)
       packagesToDisable = _.difference(newValue, oldValue)
 
@@ -407,10 +407,6 @@ class PackageManager
   # If a windowType is passed, we'll only load packages who declare that
   # windowType as `true` in their package.json file.
   loadPackages: (windowType) ->
-    # Ensure src/global is already in the require cache so the load time
-    # of the first package isn't skewed by being the first to require atom
-    require './global/atom'
-
     packagePaths = @getAvailablePackagePaths(windowType)
 
     packagePaths = packagePaths.filter (packagePath) => not @isPackageDisabled(path.basename(packagePath))
@@ -476,7 +472,7 @@ class PackageManager
 
   activatePackages: (packages) ->
     promises = []
-    atom.config.transact =>
+    NylasEnv.config.transact =>
       for pack in packages
         @loadPackage(pack.name)
 
@@ -514,7 +510,7 @@ class PackageManager
 
   # Deactivate all packages
   deactivatePackages: ->
-    atom.config.transact =>
+    NylasEnv.config.transact =>
       @deactivatePackage(pack.name) for pack in @getLoadedPackages()
     @unobserveDisabledPackages()
 

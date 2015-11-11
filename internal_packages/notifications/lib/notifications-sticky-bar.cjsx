@@ -57,7 +57,7 @@ class NotificationStickyBar extends React.Component
     @
 
   # It's important that every React class explicitly stops listening to
-  # atom events before it unmounts. Thank you event-kit
+  # N1 events before it unmounts. Thank you event-kit
   # This can be fixed via a Reflux mixin
   componentWillUnmount: =>
     @_unlistener() if @_unlistener

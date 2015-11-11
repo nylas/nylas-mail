@@ -1,4 +1,4 @@
-AtomWindow = require './atom-window'
+NylasWindow = require './nylas-window'
 BrowserWindow = require 'browser-window'
 WindowManager = require './window-manager'
 ApplicationMenu = require './application-menu'
@@ -30,7 +30,7 @@ configDirPath = fs.absolute('~/.nylas')
 
 # The application's singleton class.
 #
-# It's the entry point into the Atom application and maintains the global state
+# It's the entry point into the N1 application and maintains the global state
 # of the application.
 #
 module.exports =
@@ -106,9 +106,9 @@ class Application
       for urlToOpen in (urlsToOpen || [])
         @openUrl(urlToOpen)
 
-  # Creates server to listen for additional atom application launches.
+  # Creates server to listen for additional N1 application launches.
   #
-  # You can run the atom command multiple times, but after the first launch
+  # You can run the N1 command multiple times, but after the first launch
   # the other launches will just pass their information to this server and then
   # close immediately.
   listenForArgumentsFromNewProcess: ->
@@ -192,9 +192,9 @@ class Application
     return if phase is @_databasePhase
 
     @_databasePhase = phase
-    @windowManager.windows().forEach (atomWindow) ->
-      return unless atomWindow.browserWindow.webContents
-      atomWindow.browserWindow.webContents.send('database-phase-change', phase)
+    @windowManager.windows().forEach (nylasWindow) ->
+      return unless nylasWindow.browserWindow.webContents
+      nylasWindow.browserWindow.webContents.send('database-phase-change', phase)
 
   rebuildDatabase: =>
     return if @_databasePhase is 'close'
@@ -232,9 +232,9 @@ class Application
     @on 'application:reset-config-and-relaunch', @_resetConfigAndRelaunch
 
     @on 'application:quit', => app.quit()
-    @on 'application:inspect', ({x,y, atomWindow}) ->
-      atomWindow ?= @windowManager.focusedWindow()
-      atomWindow?.browserWindow.inspectElement(x, y)
+    @on 'application:inspect', ({x,y, nylasWindow}) ->
+      nylasWindow ?= @windowManager.focusedWindow()
+      nylasWindow?.browserWindow.inspectElement(x, y)
 
     @on 'application:add-account', => @windowManager.ensureOnboardingWindow()
     @on 'application:new-message', => @windowManager.sendToMainWindow('new-message')
@@ -362,10 +362,10 @@ class Application
 
     ipc.on 'action-bridge-rebroadcast-to-all', (event, args...) =>
       win = BrowserWindow.fromWebContents(event.sender)
-      @windowManager.windows().forEach (atomWindow) ->
-        return if atomWindow.browserWindow == win
-        return unless atomWindow.browserWindow.webContents
-        atomWindow.browserWindow.webContents.send('action-bridge-message', args...)
+      @windowManager.windows().forEach (nylasWindow) ->
+        return if nylasWindow.browserWindow == win
+        return unless nylasWindow.browserWindow.webContents
+        nylasWindow.browserWindow.webContents.send('action-bridge-message', args...)
 
     ipc.on 'action-bridge-rebroadcast-to-work', (event, args...) =>
       workWindow = @windowManager.workWindow()
@@ -432,12 +432,12 @@ class Application
   # Public: Executes the given command on the given window.
   #
   # command - The string representing the command.
-  # atomWindow - The {AtomWindow} to send the command to.
+  # nylasWindow - The {NylasWindow} to send the command to.
   # args - The optional arguments to pass along.
-  sendCommandToWindow: (command, atomWindow, args...) ->
+  sendCommandToWindow: (command, nylasWindow, args...) ->
     unless @emit(command, args...)
-      if atomWindow?
-        atomWindow.sendCommand(command, args...)
+      if nylasWindow?
+        nylasWindow.sendCommand(command, args...)
       else
         @sendCommandToFirstResponder(command)
 
@@ -465,7 +465,7 @@ class Application
     else
       console.log "Ignoring unknown URL type: #{urlToOpen}"
 
-  # Opens up a new {AtomWindow} to run specs within.
+  # Opens up a new {NylasWindow} to run specs within.
   #
   # options -
   #   :exitWhenDone - A Boolean that, if true, will close the window upon
@@ -486,4 +486,4 @@ class Application
     isSpec = true
     devMode = true
     safeMode ?= false
-    new AtomWindow({bootstrapScript, resourcePath, exitWhenDone, isSpec, devMode, specDirectory, specFilePattern, logFile, safeMode})
+    new NylasWindow({bootstrapScript, resourcePath, exitWhenDone, isSpec, devMode, specDirectory, specFilePattern, logFile, safeMode})

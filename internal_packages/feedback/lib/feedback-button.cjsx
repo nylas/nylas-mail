@@ -32,7 +32,7 @@ class FeedbackButton extends React.Component
     @setState(newMessages: true)
 
   _onSendFeedback: =>
-    return if atom.inSpecMode()
+    return if NylasEnv.inSpecMode()
 
     Screen = require('remote').require('screen')
     qs = require 'querystring'
@@ -46,10 +46,10 @@ class FeedbackButton extends React.Component
       platform: process.platform
       provider: account.displayProvider()
       organizational_unit: account.organizationUnit
-      version: atom.getVersion()
+      version: NylasEnv.getVersion()
     })
 
-    parentBounds = atom.getCurrentWindow().getBounds()
+    parentBounds = NylasEnv.getCurrentWindow().getBounds()
     parentScreen = Screen.getDisplayMatching(parentBounds)
 
     width = 376

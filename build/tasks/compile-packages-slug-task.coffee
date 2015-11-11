@@ -8,7 +8,7 @@ module.exports = (grunt) ->
   {spawn, rm} = require('./task-helpers')(grunt)
 
   grunt.registerTask 'compile-packages-slug', 'Add bundled package metadata information to the main package.json file', ->
-    appDir = fs.realpathSync(grunt.config.get('atom.appDir'))
+    appDir = fs.realpathSync(grunt.config.get('nylasGruntConfig.appDir'))
 
     modulesDirectory = path.join(appDir, 'node_modules')
     internalNylasPackagesDirectory = path.join(appDir, 'internal_packages')
@@ -22,9 +22,9 @@ module.exports = (grunt) ->
 
       metadataPath = path.join(moduleDirectory, 'package.json')
       metadata = grunt.file.readJSON(metadataPath)
-      continue unless metadata?.engines?.atom?
+      continue unless metadata?.engines?.nylas?
 
-      moduleCache = metadata._atomModuleCache ? {}
+      moduleCache = metadata._nylasModuleCache ? {}
 
       rm metadataPath
 
@@ -57,6 +57,6 @@ module.exports = (grunt) ->
         delete moduleCache.extensions[extension] if paths.length is 0
 
     metadata = grunt.file.readJSON(path.join(appDir, 'package.json'))
-    metadata._atomPackages = packages
+    metadata._N1Packages = packages
 
     grunt.file.write(path.join(appDir, 'package.json'), JSON.stringify(metadata))

@@ -18,25 +18,25 @@ if global.application
 else
   app = require('remote').getGlobal('application')
 
-# Essential: Used to access all of Atom's configuration details.
+# Essential: Used to access all of N1's configuration details.
 #
-# An instance of this class is always available as the `atom.config` global.
+# An instance of this class is always available as the `NylasEnv.config` global.
 #
 # ## Getting and setting config settings.
 #
 # ```coffee
 # # Note that with no value set, ::get returns the setting's default value.
-# atom.config.get('my-package.myKey') # -> 'defaultValue'
+# NylasEnv.config.get('my-package.myKey') # -> 'defaultValue'
 #
-# atom.config.set('my-package.myKey', 'value')
-# atom.config.get('my-package.myKey') # -> 'value'
+# NylasEnv.config.set('my-package.myKey', 'value')
+# NylasEnv.config.get('my-package.myKey') # -> 'value'
 # ```
 #
 # You may want to watch for changes. Use {::observe} to catch changes to the setting.
 #
 # ```coffee
-# atom.config.set('my-package.myKey', 'value')
-# atom.config.observe 'my-package.myKey', (newValue) ->
+# NylasEnv.config.set('my-package.myKey', 'value')
+# NylasEnv.config.observe 'my-package.myKey', (newValue) ->
 #   # `observe` calls immediately and every time the value is changed
 #   console.log 'My configuration changed:', newValue
 # ```
@@ -44,7 +44,7 @@ else
 # If you want a notification only when the value changes, use {::onDidChange}.
 #
 # ```coffee
-# atom.config.onDidChange 'my-package.myKey', ({newValue, oldValue}) ->
+# NylasEnv.config.onDidChange 'my-package.myKey', ({newValue, oldValue}) ->
 #   console.log 'My configuration changed:', newValue, oldValue
 # ```
 #
@@ -56,15 +56,15 @@ else
 #
 # ```coffee
 # # When no value has been set, `::get` returns the setting's default value
-# atom.config.get('my-package.anInt') # -> 12
+# NylasEnv.config.get('my-package.anInt') # -> 12
 #
 # # The string will be coerced to the integer 123
-# atom.config.set('my-package.anInt', '123')
-# atom.config.get('my-package.anInt') # -> 123
+# NylasEnv.config.set('my-package.anInt', '123')
+# NylasEnv.config.get('my-package.anInt') # -> 123
 #
 # # The string will be coerced to an integer, but it must be greater than 0, so is set to 1
-# atom.config.set('my-package.anInt', '-20')
-# atom.config.get('my-package.anInt') # -> 1
+# NylasEnv.config.set('my-package.anInt', '-20')
+# NylasEnv.config.get('my-package.anInt') # -> 1
 # ```
 #
 # ## Defining settings for your package
@@ -83,9 +83,6 @@ else
 #   activate: (state) -> # ...
 #   # ...
 # ```
-#
-# See [Creating a Package](https://atom.io/docs/latest/creating-a-package) for
-# more info.
 #
 # ## Config Schemas
 #
@@ -109,16 +106,16 @@ else
 # set to a string `'10'`, it will be coerced into an integer.
 #
 # ```coffee
-# atom.config.set('my-package.thingVolume', '10')
-# atom.config.get('my-package.thingVolume') # -> 10
+# NylasEnv.config.set('my-package.thingVolume', '10')
+# NylasEnv.config.get('my-package.thingVolume') # -> 10
 #
 # # It respects the min / max
-# atom.config.set('my-package.thingVolume', '400')
-# atom.config.get('my-package.thingVolume') # -> 11
+# NylasEnv.config.set('my-package.thingVolume', '400')
+# NylasEnv.config.get('my-package.thingVolume') # -> 11
 #
 # # If it cannot be coerced, the value will not be set
-# atom.config.set('my-package.thingVolume', 'cats')
-# atom.config.get('my-package.thingVolume') # -> 11
+# NylasEnv.config.set('my-package.thingVolume', 'cats')
+# NylasEnv.config.get('my-package.thingVolume') # -> 11
 # ```
 #
 # ### Supported Types
@@ -133,11 +130,11 @@ else
 #     default: 5
 #
 # # Then
-# atom.config.set('my-package.someSetting', 'true')
-# atom.config.get('my-package.someSetting') # -> true
+# NylasEnv.config.set('my-package.someSetting', 'true')
+# NylasEnv.config.get('my-package.someSetting') # -> true
 #
-# atom.config.set('my-package.someSetting', '12')
-# atom.config.get('my-package.someSetting') # -> 12
+# NylasEnv.config.set('my-package.someSetting', '12')
+# NylasEnv.config.get('my-package.someSetting') # -> 12
 # ```
 #
 # #### string
@@ -257,16 +254,16 @@ else
 # Usage:
 #
 # ```coffee
-# atom.config.set('my-package.someSetting', '2')
-# atom.config.get('my-package.someSetting') # -> 2
+# NylasEnv.config.set('my-package.someSetting', '2')
+# NylasEnv.config.get('my-package.someSetting') # -> 2
 #
 # # will not set values outside of the enum values
-# atom.config.set('my-package.someSetting', '3')
-# atom.config.get('my-package.someSetting') # -> 2
+# NylasEnv.config.set('my-package.someSetting', '3')
+# NylasEnv.config.get('my-package.someSetting') # -> 2
 #
 # # If it cannot be coerced, the value will not be set
-# atom.config.set('my-package.someSetting', '4')
-# atom.config.get('my-package.someSetting') # -> 4
+# NylasEnv.config.set('my-package.someSetting', '4')
+# NylasEnv.config.get('my-package.someSetting') # -> 4
 # ```
 #
 # #### title and description
@@ -326,7 +323,7 @@ class Config
     throw error if error?
     value
 
-  # Created during initialization, available as `atom.config`
+  # Created during initialization, available as `NylasEnv.config`
   constructor: ({@configDirPath, @resourcePath}={}) ->
     @emitter = new Emitter
     @schema =
@@ -365,7 +362,7 @@ class Config
   # `core.themes` for changes
   #
   # ```coffee
-  # atom.config.observe 'core.themes', (value) ->
+  # NylasEnv.config.observe 'core.themes', (value) ->
   #   # do stuff with value
   # ```
   #
@@ -373,9 +370,7 @@ class Config
   # * `options` {Object}
   #   * `scopeDescriptor` (optional) {ScopeDescriptor} describing a path from
   #     the root of the syntax tree to a token. Get one by calling
-  #     {editor.getLastCursor().getScopeDescriptor()}. See {::get} for examples.
-  #     See [the scopes docs](https://atom.io/docs/latest/advanced/scopes-and-scope-descriptors)
-  #     for more information.
+  #     {editor.getLastCursor().getScopeDescriptor()}.
   # * `callback` {Function} to call when the value of the key changes.
   #   * `value` the new value of the key
   #
@@ -397,10 +392,9 @@ class Config
         Grim.deprecate """
           Config::observe no longer takes a `callNow` option. Use ::onDidChange instead.
           Note that ::onDidChange passes its callback different arguments.
-          See https://atom.io/docs/api/latest/Config
         """
     else
-      console.error 'An unsupported form of Config::observe is being used. See https://atom.io/docs/api/latest/Config for details'
+      console.error 'An unsupported form of Config::observe is being used.'
       return
 
     if scopeDescriptor?
@@ -416,8 +410,7 @@ class Config
   # * `optional` (optional) {Object}
   #   * `scopeDescriptor` (optional) {ScopeDescriptor} describing a path from
   #     the root of the syntax tree to a token. Get one by calling
-  #     {editor.getLastCursor().getScopeDescriptor()}. See {::get} for examples.
-  #     See [the scopes docs](https://atom.io/docs/latest/advanced/scopes-and-scope-descriptors)
+  #     {editor.getLastCursor().getScopeDescriptor()}.
   #     for more information.
   # * `callback` {Function} to call when the value of the key changes.
   #   * `event` {Object}
@@ -458,7 +451,7 @@ class Config
   # You might want to know what themes are enabled, so check `core.themes`
   #
   # ```coffee
-  # atom.config.get('core.themes')
+  # NylasEnv.config.get('core.themes')
   # ```
   #
   # With scope descriptors you can get settings within a specific editor
@@ -466,14 +459,14 @@ class Config
   # files.
   #
   # ```coffee
-  # atom.config.get('editor.tabLength', scope: ['source.ruby']) # => 2
+  # NylasEnv.config.get('editor.tabLength', scope: ['source.ruby']) # => 2
   # ```
   #
   # This setting in ruby files might be different than the global tabLength setting
   #
   # ```coffee
-  # atom.config.get('editor.tabLength') # => 4
-  # atom.config.get('editor.tabLength', scope: ['source.ruby']) # => 2
+  # NylasEnv.config.get('editor.tabLength') # => 4
+  # NylasEnv.config.get('editor.tabLength', scope: ['source.ruby']) # => 2
   # ```
   #
   # You can get the language scope descriptor via
@@ -481,14 +474,14 @@ class Config
   # for the editor's language.
   #
   # ```coffee
-  # atom.config.get('editor.tabLength', scope: @editor.getRootScopeDescriptor()) # => 2
+  # NylasEnv.config.get('editor.tabLength', scope: @editor.getRootScopeDescriptor()) # => 2
   # ```
   #
   # Additionally, you can get the setting at the specific cursor position.
   #
   # ```coffee
   # scopeDescriptor = @editor.getLastCursor().getScopeDescriptor()
-  # atom.config.get('editor.tabLength', scope: scopeDescriptor) # => 2
+  # NylasEnv.config.get('editor.tabLength', scope: scopeDescriptor) # => 2
   # ```
   #
   # * `keyPath` The {String} name of the key to retrieve.
@@ -501,10 +494,8 @@ class Config
   #   * `scope` (optional) {ScopeDescriptor} describing a path from
   #     the root of the syntax tree to a token. Get one by calling
   #     {editor.getLastCursor().getScopeDescriptor()}
-  #     See [the scopes docs](https://atom.io/docs/latest/advanced/scopes-and-scope-descriptors)
-  #     for more information.
   #
-  # Returns the value from Atom's default settings, the user's configuration
+  # Returns the value from N1's default settings, the user's configuration
   # file in the type specified by the configuration schema.
   get: ->
     if arguments.length > 1
@@ -550,31 +541,31 @@ class Config
 
   # Essential: Sets the value for a configuration setting.
   #
-  # This value is stored in Atom's internal configuration file.
+  # This value is stored in N1's internal configuration file.
   #
   # ### Examples
   #
   # You might want to change the themes programmatically:
   #
   # ```coffee
-  # atom.config.set('core.themes', ['ui-light', 'atom-light-syntax'])
+  # NylasEnv.config.set('core.themes', ['ui-light', 'my-custom-theme'])
   # ```
   #
   # You can also set scoped settings. For example, you might want change the
   # `editor.tabLength` only for ruby files.
   #
   # ```coffee
-  # atom.config.get('editor.tabLength') # => 4
-  # atom.config.get('editor.tabLength', scope: ['source.ruby']) # => 4
-  # atom.config.get('editor.tabLength', scope: ['source.js']) # => 4
+  # NylasEnv.config.get('editor.tabLength') # => 4
+  # NylasEnv.config.get('editor.tabLength', scope: ['source.ruby']) # => 4
+  # NylasEnv.config.get('editor.tabLength', scope: ['source.js']) # => 4
   #
   # # Set ruby to 2
-  # atom.config.set('editor.tabLength', 2, scopeSelector: 'source.ruby') # => true
+  # NylasEnv.config.set('editor.tabLength', 2, scopeSelector: 'source.ruby') # => true
   #
   # # Notice it's only set to 2 in the case of ruby
-  # atom.config.get('editor.tabLength') # => 4
-  # atom.config.get('editor.tabLength', scope: ['source.ruby']) # => 2
-  # atom.config.get('editor.tabLength', scope: ['source.js']) # => 4
+  # NylasEnv.config.get('editor.tabLength') # => 4
+  # NylasEnv.config.get('editor.tabLength', scope: ['source.ruby']) # => 2
+  # NylasEnv.config.get('editor.tabLength', scope: ['source.js']) # => 4
   # ```
   #
   # * `keyPath` The {String} name of the key.
@@ -582,8 +573,6 @@ class Config
   #   setting to the default value.
   # * `options` (optional) {Object}
   #   * `scopeSelector` (optional) {String}. eg. '.source.ruby'
-  #     See [the scopes docs](https://atom.io/docs/latest/advanced/scopes-and-scope-descriptors)
-  #     for more information.
   #   * `source` (optional) {String} The name of a file with which the setting
   #     is associated. Defaults to the user's config file.
   #
@@ -682,7 +671,7 @@ class Config
   #
   # Returns the default value.
   getDefault: ->
-    Grim.deprecate("Use `::get(keyPath, {scope, excludeSources: [atom.config.getUserConfigPath()]})` instead")
+    Grim.deprecate("Use `::get(keyPath, {scope, excludeSources: [NylasEnv.config.getUserConfigPath()]})` instead")
     if arguments.length is 1
       [keyPath] = arguments
     else
@@ -698,7 +687,7 @@ class Config
   # Returns a {Boolean}, `true` if the current value is the default, `false`
   # otherwise.
   isDefault: ->
-    Grim.deprecate("Use `not ::get(keyPath, {scope, sources: [atom.config.getUserConfigPath()]})?` instead")
+    Grim.deprecate("Use `not ::get(keyPath, {scope, sources: [NylasEnv.config.getUserConfigPath()]})?` instead")
     if arguments.length is 1
       [keyPath] = arguments
     else
@@ -744,31 +733,6 @@ class Config
     finally
       @transactDepth--
       @emitChangeEvent()
-
-  ###
-  Section: Deprecated
-  ###
-
-  getInt: (keyPath) ->
-    Grim.deprecate '''Config::getInt is no longer necessary. Use ::get instead.
-    Make sure the config option you are accessing has specified an `integer`
-    schema. See the schema section of
-    https://atom.io/docs/api/latest/Config for more info.'''
-    parseInt(@get(keyPath))
-
-  getPositiveInt: (keyPath, defaultValue=0) ->
-    Grim.deprecate '''Config::getPositiveInt is no longer necessary. Use ::get instead.
-    Make sure the config option you are accessing has specified an `integer`
-    schema with `minimum: 1`. See the schema section of
-    https://atom.io/docs/api/latest/Config for more info.'''
-    Math.max(@getInt(keyPath), 0) or defaultValue
-
-  toggle: (keyPath) ->
-    Grim.deprecate 'Config::toggle is no longer supported. Please remove from your code.'
-    @set(keyPath, !@get(keyPath))
-
-  unobserve: (keyPath) ->
-    Grim.deprecate 'Config::unobserve no longer does anything. Call `.dispose()` on the object returned by Config::observe instead.'
 
   ###
   Section: Internal methods used by core
@@ -864,8 +828,7 @@ class Config
       @notifyFailure """
         Unable to watch path: `#{path.basename(@configFilePath)}`. Make sure you have permissions to
         `#{@configFilePath}`. On linux there are currently problems with watch
-        sizes. See [this document][watches] for more info.
-        [watches]:https://github.com/atom/atom/blob/master/docs/build-instructions/linux.md#typeerror-unable-to-watch-path
+        sizes.
       """
 
   unobserveUserConfig: ->

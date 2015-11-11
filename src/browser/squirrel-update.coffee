@@ -3,9 +3,9 @@ fs = require 'fs-plus'
 path = require 'path'
 
 appFolder = path.resolve(process.execPath, '..')
-rootAtomFolder = path.resolve(appFolder, '..')
-binFolder = path.join(rootAtomFolder, 'bin')
-updateDotExe = path.join(rootAtomFolder, 'Update.exe')
+rootN1Folder = path.resolve(appFolder, '..')
+binFolder = path.join(rootN1Folder, 'bin')
+updateDotExe = path.join(rootN1Folder, 'Update.exe')
 exeName = path.basename(process.execPath)
 
 if process.env.SystemRoot
@@ -78,67 +78,6 @@ getPath = (callback) ->
     else
       callback(new Error('Registry query for PATH failed'))
 
-
-# Add atom and apm to the PATH
-#
-# This is done by adding .cmd shims to the root bin folder in the Atom
-# install directory that point to the newly installed versions inside
-# the versioned app directories.
-addCommandsToPath = (callback) ->
-  installCommands = (callback) ->
-    atomCommandPath = path.join(binFolder, 'atom.cmd')
-    relativeAtomPath = path.relative(binFolder, path.join(appFolder, 'resources', 'cli', 'atom.cmd'))
-    atomCommand = "@echo off\r\n\"%~dp0\\#{relativeAtomPath}\" %*"
-
-    atomShCommandPath = path.join(binFolder, 'atom')
-    relativeAtomShPath = path.relative(binFolder, path.join(appFolder, 'resources', 'cli', 'N1.sh'))
-    atomShCommand = "#!/bin/sh\r\n\"$0/../#{relativeAtomShPath.replace(/\\/g, '/')}\" \"$@\""
-
-    apmCommandPath = path.join(binFolder, 'apm.cmd')
-    relativeApmPath = path.relative(binFolder, path.join(process.resourcesPath, 'app', 'apm', 'bin', 'apm.cmd'))
-    apmCommand = "@echo off\r\n\"%~dp0\\#{relativeApmPath}\" %*"
-
-    apmShCommandPath = path.join(binFolder, 'apm')
-    relativeApmShPath = path.relative(binFolder, path.join(appFolder, 'resources', 'cli', 'apm.sh'))
-    apmShCommand = "#!/bin/sh\r\n\"$0/../#{relativeApmShPath.replace(/\\/g, '/')}\" \"$@\""
-
-    fs.writeFile atomCommandPath, atomCommand, ->
-      fs.writeFile atomShCommandPath, atomShCommand, ->
-        fs.writeFile apmCommandPath, apmCommand, ->
-          fs.writeFile apmShCommandPath, apmShCommand, ->
-            callback()
-
-  addBinToPath = (pathSegments, callback) ->
-    pathSegments.push(binFolder)
-    newPathEnv = pathSegments.join(';')
-    spawnSetx(['Path', newPathEnv], callback)
-
-  installCommands (error) ->
-    return callback(error) if error?
-
-    getPath (error, pathEnv) ->
-      return callback(error) if error?
-
-      pathSegments = pathEnv.split(/;+/).filter (pathSegment) -> pathSegment
-      if pathSegments.indexOf(binFolder) is -1
-        addBinToPath(pathSegments, callback)
-      else
-        callback()
-
-# Remove atom and apm from the PATH
-removeCommandsFromPath = (callback) ->
-  getPath (error, pathEnv) ->
-    return callback(error) if error?
-
-    pathSegments = pathEnv.split(/;+/).filter (pathSegment) ->
-      pathSegment and pathSegment isnt binFolder
-    newPathEnv = pathSegments.join(';')
-
-    if pathEnv isnt newPathEnv
-      spawnSetx(['Path', newPathEnv], callback)
-    else
-      callback()
-
 # Create a desktop and start menu shortcut by using the command line API
 # provided by Squirrel's Update.exe
 createShortcuts = (callback) ->
@@ -148,7 +87,7 @@ createShortcuts = (callback) ->
 # provided by Squirrel's Update.exe
 updateShortcuts = (callback) ->
   if homeDirectory = fs.getHomeDirectory()
-    desktopShortcutPath = path.join(homeDirectory, 'Desktop', 'Atom.lnk')
+    desktopShortcutPath = path.join(homeDirectory, 'Desktop', 'N1.lnk')
     # Check if the desktop shortcut has been previously deleted and
     # and keep it deleted if it was
     fs.exists desktopShortcutPath, (desktopShortcutExists) ->
@@ -168,15 +107,15 @@ removeShortcuts = (callback) ->
 
 exports.spawn = spawnUpdate
 
-# Is the Update.exe installed with Atom?
+# Is the Update.exe installed with N1?
 exports.existsSync = ->
   fs.existsSync(updateDotExe)
 
-# Restart Atom using the version pointed to by the atom.cmd shim
-exports.restartAtom = (app) ->
+# Restart N1 using the version pointed to by the N1.cmd shim
+exports.restartN1 = (app) ->
   if projectPath = global.application?.lastFocusedWindow?.projectPath
     args = [projectPath]
-  app.once 'will-quit', -> spawn(path.join(binFolder, 'atom.cmd'), args)
+  app.once 'will-quit', -> spawn(path.join(binFolder, 'N1.cmd'), args)
   app.quit()
 
 # Handle squirrel events denoted by --squirrel-* command line arguments.
@@ -184,18 +123,15 @@ exports.handleStartupEvent = (app, squirrelCommand) ->
   switch squirrelCommand
     when '--squirrel-install'
       createShortcuts ->
-        addCommandsToPath ->
-          app.quit()
+        app.quit()
       true
     when '--squirrel-updated'
       updateShortcuts ->
-        addCommandsToPath ->
-          app.quit()
+        app.quit()
       true
     when '--squirrel-uninstall'
       removeShortcuts ->
-        removeCommandsFromPath ->
-          app.quit()
+        app.quit()
       true
     when '--squirrel-obsolete'
       app.quit()

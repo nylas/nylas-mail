@@ -390,7 +390,7 @@ describe "populated composer", ->
 
   describe "When sending a message", ->
     beforeEach ->
-      spyOn(atom, "isMainWindow").andReturn true
+      spyOn(NylasEnv, "isMainWindow").andReturn true
       remote = require('remote')
       @dialog = remote.require('dialog')
       spyOn(remote, "getCurrentWindow")
@@ -734,7 +734,7 @@ describe "when the DraftStore `isSending` isn't stubbed out", ->
   it "doesn't send twice in the main window", ->
     spyOn(Actions, "queueTask")
     spyOn(Actions, "sendDraft").andCallThrough()
-    spyOn(atom, "isMainWindow").andReturn true
+    spyOn(NylasEnv, "isMainWindow").andReturn true
     useFullDraft.call(@)
     makeComposer.call(@)
     @composer._sendDraft()

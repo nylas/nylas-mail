@@ -1,6 +1,6 @@
 _ = require 'underscore'
 fs = require 'fs-plus'
-AtomWindow = require './atom-window'
+NylasWindow = require './nylas-window'
 BrowserWindow = require 'browser-window'
 app = require 'app'
 
@@ -23,16 +23,16 @@ class WindowManager
     @_windows
 
   windowWithPropsMatching: (props) ->
-    _.find @_windows, (atomWindow) ->
-      {windowProps} = atomWindow.loadSettings()
+    _.find @_windows, (nylasWindow) ->
+      {windowProps} = nylasWindow.loadSettings()
       return false unless windowProps
       _.every Object.keys(props), (key) -> _.isEqual(props[key],windowProps[key])
 
   focusedWindow: ->
-    _.find @_windows, (atomWindow) -> atomWindow.isFocused()
+    _.find @_windows, (nylasWindow) -> nylasWindow.isFocused()
 
   visibleWindows: ->
-    _.filter @_windows, (atomWindow) -> atomWindow.isVisible()
+    _.filter @_windows, (nylasWindow) -> nylasWindow.isVisible()
 
   ###
   Main Window
@@ -73,7 +73,7 @@ class WindowManager
       bootstrapScript ?= require.resolve('../window-bootstrap')
       resourcePath ?= @resourcePath
 
-      @_mainWindow = new AtomWindow
+      @_mainWindow = new NylasWindow
         loadingMessage: loadingMessage
         bootstrapScript: bootstrapScript
         resourcePath: resourcePath
@@ -219,19 +219,19 @@ class WindowManager
   # reload.
   #
   # To listen for window props being sent to your existing hot-loaded window,
-  # add a callback to `atom.onWindowPropsChanged`.
+  # add a callback to `NylasEnv.onWindowPropsChanged`.
   #
   # Since the window is already loaded, there are only some options that
   # can be soft-reloaded. If you attempt to pass options that a soft
   # reload doesn't support, you'll be forced to load from a `coldStart`.
   #
-  # Any options passed in here will be passed into the AtomWindow
+  # Any options passed in here will be passed into the NylasWindow
   # constructor, which will eventually show up in the window's main
-  # loadSettings, which is accessible via `atom.getLoadSettings()`
+  # loadSettings, which is accessible via `NylasEnv.getLoadSettings()`
   #
   # REQUIRED options:
   #   - windowType: defaults "popout". This eventually ends up as
-  #     atom.getWindowType()
+  #     NylasEnv.getWindowType()
   #
   # Valid options:
   #   - coldStart: true
@@ -244,7 +244,7 @@ class WindowManager
   #   - All of the options of BrowserWindow
   #     https://github.com/atom/electron/blob/master/docs/api/browser-window.md#new-browserwindowoptions
   #
-  # Returns a new AtomWindow
+  # Returns a new NylasWindow
   #
   newWindow: (options={}) ->
     if options.coldStart or not @_hotWindows[options.windowType]?
@@ -319,7 +319,7 @@ class WindowManager
     @_hotWindows = {}
 
   defaultWindowOptions: ->
-    #TODO: Defaults are also applied in AtomWindow.constructor.
+    #TODO: Defaults are also applied in NylasWindow.constructor.
     devMode: @devMode
     safeMode: @safeMode
     windowType: 'popout'
@@ -328,7 +328,7 @@ class WindowManager
 
   newColdWindow: (options={}) ->
     options = _.extend(@defaultWindowOptions(), options)
-    win = new AtomWindow(options)
+    win = new NylasWindow(options)
     newLoadSettings = _.extend(win.loadSettings(), options)
     win.setLoadSettings(newLoadSettings)
     win.showWhenLoaded() unless options.hidden
@@ -338,7 +338,7 @@ class WindowManager
   # window instead of creatinga new one, there are limitations in the
   # options you can provide.
   #
-  # Returns a new AtomWindow
+  # Returns a new NylasWindow
   #
   newHotWindow: (options={}) ->
     hotWindowParams = @_hotWindows[options.windowType]
@@ -446,7 +446,7 @@ class WindowManager
     if @_replenishQueue.length > 0
       options = @_replenishQueue.shift()
       console.log "WindowManager: Preparing a new '#{options.windowType}' window"
-      newWindow = new AtomWindow(options)
+      newWindow = new NylasWindow(options)
       @_hotWindows[options.windowType].loadedWindows.push(newWindow)
       newWindow.once 'window:loaded', =>
         @_processingQueue = false
@@ -456,10 +456,10 @@ class WindowManager
 
 
   ###
-  Methods called from AtomWindow
+  Methods called from NylasWindow
   ###
 
-  # Public: Removes the {AtomWindow} from the global window list.
+  # Public: Removes the {NylasWindow} from the global window list.
   removeWindow: (window) ->
     @_windows.splice @_windows.indexOf(window), 1
     if window is @_mainWindow
@@ -469,8 +469,8 @@ class WindowManager
     @applicationMenu?.enableWindowSpecificItems(false) if @_windows.length == 0
     @windowClosedOrHidden()
 
-  # Public: Adds the {AtomWindow} to the global window list.
-  # IMPORTANT: AtomWindows add themselves - you don't need to manually add them
+  # Public: Adds the {NylasWindow} to the global window list.
+  # IMPORTANT: NylasWindows add themselves - you don't need to manually add them
   addWindow: (window) ->
     @_windows.push window
     global.application.applicationMenu?.addWindow(window.browserWindow)

@@ -77,7 +77,7 @@ class UndoRedoComponent extends React.Component
       []
 
   _onClick: =>
-    atom.commands.dispatch(document.querySelector('body'), 'core:undo')
+    NylasEnv.commands.dispatch(document.querySelector('body'), 'core:undo')
     @_hide()
 
   _hide: =>

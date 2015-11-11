@@ -95,7 +95,7 @@ describe "MessageStore", ->
         MessageStore._onApplyFocusChange()
         testThread.unread = true
         spyOn(Actions, 'queueTask')
-        spyOn(atom.config, 'get').andCallFake (key) =>
+        spyOn(NylasEnv.config, 'get').andCallFake (key) =>
           if key is 'core.reading.markAsReadDelay'
             return 600
 

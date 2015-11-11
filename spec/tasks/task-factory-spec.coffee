@@ -12,7 +12,7 @@
 #       expect(RemoveThreadHelper.removeType()).toBe null
 #
 #     it "returns the type if it's saved", ->
-#       spyOn(atom.config, "get").andReturn "trash"
+#       spyOn(NylasEnv.config, "get").andReturn "trash"
 #       expect(RemoveThreadHelper.removeType()).toBe "trash"
 #
 #     it "returns the archive category if it exists", ->
@@ -39,14 +39,14 @@
 #         else return null
 #
 #     afterEach ->
-#       atom.testOrganizationUnit = null
+#       NylasEnv.testOrganizationUnit = null
 #
 #     it "returns null if there's no current account", ->
 #       spyOn(RemoveThreadHelper, "_currentAccount").andReturn null
 #       expect(RemoveThreadHelper.getRemovalTask()).toBe null
 #
 #     it "creates the task when using labels and trashing", ->
-#       atom.testOrganizationUnit = "label"
+#       NylasEnv.testOrganizationUnit = "label"
 #       spyOn(RemoveThreadHelper, "_currentAccount").andReturn new Account
 #         provider: "eas"
 #         organizationUnit: "label"
@@ -58,7 +58,7 @@
 #
 #     it "creates the task when using labels and archiving", ->
 #       @categories = ["all", "archive", "trash"]
-#       atom.testOrganizationUnit = "label"
+#       NylasEnv.testOrganizationUnit = "label"
 #       spyOn(RemoveThreadHelper, "_currentAccount").andReturn new Account
 #         provider: "gmail"
 #         organizationUnit: "label"
@@ -69,7 +69,7 @@
 #
 #     it "creates the task when using folders and trashing", ->
 #       @categories = ["all", "trash"]
-#       atom.testOrganizationUnit = "folder"
+#       NylasEnv.testOrganizationUnit = "folder"
 #       spyOn(RemoveThreadHelper, "_currentAccount").andReturn new Account
 #         provider: "eas"
 #         organizationUnit: "folder"
@@ -79,7 +79,7 @@
 #
 #     it "creates the task when using folders and archiving", ->
 #       @categories = ["all", "archive", "trash"]
-#       atom.testOrganizationUnit = "folder"
+#       NylasEnv.testOrganizationUnit = "folder"
 #       spyOn(RemoveThreadHelper, "_currentAccount").andReturn new Account
 #         provider: "gmail"
 #         organizationUnit: "folder"

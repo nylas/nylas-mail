@@ -1,7 +1,7 @@
-atom: arch-dependent-file-in-usr-share
-atom: changelog-file-missing-in-native-package
-atom: copyright-file-contains-full-apache-2-license
-atom: copyright-should-refer-to-common-license-file-for-apache-2
-atom: embedded-library
-atom: package-installs-python-bytecode
-atom: unstripped-binary-or-object
+nylas: arch-dependent-file-in-usr-share
+nylas: changelog-file-missing-in-native-package
+nylas: copyright-file-contains-full-apache-2-license
+nylas: copyright-should-refer-to-common-license-file-for-apache-2
+nylas: embedded-library
+nylas: package-installs-python-bytecode
+nylas: unstripped-binary-or-object

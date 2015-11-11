@@ -17,7 +17,7 @@ module.exports = (grunt) ->
     ]
     unpack = "{#{unpack.join(',')}}"
 
-    appDir = grunt.config.get('atom.appDir')
+    appDir = grunt.config.get('nylasGruntConfig.appDir')
     unless fs.existsSync(appDir)
       grunt.log.error 'The app has to be built before generating asar archive.'
       return done(false)

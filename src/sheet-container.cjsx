@@ -20,9 +20,6 @@ class SheetContainer extends React.Component
   componentDidMount: =>
     @unsubscribe = WorkspaceStore.listen @_onStoreChange
 
-  # It's important that every React class explicitly stops listening to
-  # atom events before it unmounts. Thank you event-kit
-  # This can be fixed via a Reflux mixin
   componentWillUnmount: =>
     @unsubscribe() if @unsubscribe
 
@@ -61,7 +58,7 @@ class SheetContainer extends React.Component
     </Flexbox>
 
   _toolbarContainerElement: =>
-    {toolbar} = atom.getLoadSettings()
+    {toolbar} = NylasEnv.getLoadSettings()
     return [] unless toolbar
 
     toolbarElements = @_toolbarElements()

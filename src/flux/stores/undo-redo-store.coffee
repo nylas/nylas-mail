@@ -18,8 +18,8 @@ class UndoRedoStore
 
     @listenTo(Actions.queueTask, @_onTaskQueued)
 
-    atom.commands.add('body', {'core:undo': => @undo() })
-    atom.commands.add('body', {'core:redo': => @redo() })
+    NylasEnv.commands.add('body', {'core:undo': => @undo() })
+    NylasEnv.commands.add('body', {'core:redo': => @redo() })
 
   _onTaskQueued: (task) =>
     if task.canBeUndone()

@@ -142,7 +142,6 @@ class NylasExports
   # Process Internals
   @load "LaunchServices", 'launch-services'
   @load "BufferedProcess", 'buffered-process'
-  @load "BufferedNodeProcess", 'buffered-node-process'
   @get "APMWrapper", -> require('../apm-wrapper')
 
   # Testing

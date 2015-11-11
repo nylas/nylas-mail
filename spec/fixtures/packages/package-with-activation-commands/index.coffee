@@ -6,9 +6,9 @@ module.exports =
   activate: ->
     @activateCallCount++
 
-    atom.commands.add 'atom-workspace', 'activation-command', =>
+    NylasEnv.commands.add 'nylas-workspace', 'activation-command', =>
       @activationCommandCallCount++
 
-    editorView = atom.views.getView(atom.workspace.getActiveTextEditor())?.__spacePenView
+    editorView = NylasEnv.views.getView(NylasEnv.workspace.getActiveTextEditor())?.__spacePenView
     editorView?.command 'activation-command', =>
       @legacyActivationCommandCallCount++

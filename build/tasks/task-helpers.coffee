@@ -60,9 +60,9 @@ module.exports = (grunt) ->
       grunt.log.error results.stderr if exitCode != 0
       callback(error, results, exitCode)
 
-  isAtomPackage: (packagePath) ->
+  isNylasPackage: (packagePath) ->
     try
       {engines} = grunt.file.readJSON(path.join(packagePath, 'package.json'))
-      engines?.atom?
+      engines?.nylas?
     catch error
       false

@@ -11,12 +11,12 @@ async = require 'async'
 class EdgehillAPI
 
   constructor: ->
-    atom.config.onDidChange('env', @_onConfigChanged)
+    NylasEnv.config.onDidChange('env', @_onConfigChanged)
     @_onConfigChanged()
     @
 
   _onConfigChanged: =>
-    env = atom.config.get('env')
+    env = NylasEnv.config.get('env')
     if env is 'development'
       @APIRoot = "http://localhost:5009"
     else if env is 'experimental'
@@ -27,7 +27,7 @@ class EdgehillAPI
       @APIRoot = "https://edgehill.nylas.com"
 
   request: (options={}) ->
-    return if atom.getLoadSettings().isSpec
+    return if NylasEnv.getLoadSettings().isSpec
     options.method ?= 'GET'
     options.url ?= "#{@APIRoot}#{options.path}" if options.path
     options.body ?= {} unless options.formData
@@ -64,10 +64,10 @@ class EdgehillAPI
             options.success(body) if options.success
 
   _getCredentials: ->
-    atom.config.get('edgehill.credentials')
+    NylasEnv.config.get('edgehill.credentials')
 
   _setCredentials: (credentials) ->
-    atom.config.set('edgehill.credentials', credentials)
+    NylasEnv.config.set('edgehill.credentials', credentials)
 
   _defaultErrorCallback: (apiError) ->
     console.error(apiError)

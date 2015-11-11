@@ -79,7 +79,7 @@ class QuotedHTMLParser
     catch error
       text = "HTML Parser Error: #{error.toString()}"
       doc = domParser.parseFromString(text, "text/html")
-      atom.emitError(error)
+      NylasEnv.emitError(error)
     return doc
 
   _wholeBodyIsQuote: (doc, quoteElements) ->

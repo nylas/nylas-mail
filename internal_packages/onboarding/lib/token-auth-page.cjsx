@@ -138,7 +138,7 @@ class TokenAuthPage extends React.Component
       returnsModel: false
       timeout: 30000
       success: (json) =>
-        atom.config.set("invitationCode", @state.token)
+        NylasEnv.config.set("invitationCode", @state.token)
         OnboardingActions.moveToPage("account-choose")
       error: (err) =>
         _.delay =>

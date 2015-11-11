@@ -18,7 +18,7 @@ class NylasSyncWorkerPool
     @_onAccountsChanged()
 
   _onAccountsChanged: ->
-    return if atom.inSpecMode()
+    return if NylasEnv.inSpecMode()
 
     accounts = AccountStore.items()
     workers = _.map(accounts, @workerForAccount)

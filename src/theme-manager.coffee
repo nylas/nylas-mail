@@ -12,9 +12,7 @@ Package = require './package'
 
 # Extended: Handles loading and activating available themes.
 #
-# An instance of this class is always available as the `atom.themes` global.
-#
-# Section: Atom
+# An instance of this class is always available as the `NylasEnv.themes` global.
 module.exports =
 class ThemeManager
   EmitterMixin.includeInto(this)
@@ -27,7 +25,7 @@ class ThemeManager
     @packageManager.registerPackageActivator(this, ['theme'])
     @sheetsByStyleElement = new WeakMap
 
-    stylesElement = document.head.querySelector('atom-styles')
+    stylesElement = document.head.querySelector('nylas-styles')
     stylesElement.onDidAddStyleElement @styleElementAdded.bind(this)
     stylesElement.onDidRemoveStyleElement @styleElementRemoved.bind(this)
     stylesElement.onDidUpdateStyleElement @styleElementUpdated.bind(this)
@@ -90,7 +88,7 @@ class ThemeManager
   #
   # Returns a {Disposable} on which `.dispose()` can be called to unsubscribe.
   onDidAddStylesheet: (callback) ->
-    Grim.deprecate("Use atom.styles.onDidAddStyleElement instead")
+    Grim.deprecate("Use NylasEnv.styles.onDidAddStyleElement instead")
     @emitter.on 'did-add-stylesheet', callback
 
   # Deprecated: Invoke `callback` when a stylesheet has been removed from the dom.
@@ -100,7 +98,7 @@ class ThemeManager
   #
   # Returns a {Disposable} on which `.dispose()` can be called to unsubscribe.
   onDidRemoveStylesheet: (callback) ->
-    Grim.deprecate("Use atom.styles.onDidRemoveStyleElement instead")
+    Grim.deprecate("Use NylasEnv.styles.onDidRemoveStyleElement instead")
     @emitter.on 'did-remove-stylesheet', callback
 
   # Deprecated: Invoke `callback` when a stylesheet has been updated.
@@ -110,7 +108,7 @@ class ThemeManager
   #
   # Returns a {Disposable} on which `.dispose()` can be called to unsubscribe.
   onDidUpdateStylesheet: (callback) ->
-    Grim.deprecate("Use atom.styles.onDidUpdateStyleElement instead")
+    Grim.deprecate("Use NylasEnv.styles.onDidUpdateStyleElement instead")
     @emitter.on 'did-update-stylesheet', callback
 
   # Deprecated: Invoke `callback` when any stylesheet has been updated, added, or removed.
@@ -119,7 +117,7 @@ class ThemeManager
   #
   # Returns a {Disposable} on which `.dispose()` can be called to unsubscribe.
   onDidChangeStylesheets: (callback) ->
-    Grim.deprecate("Use atom.styles.onDidAdd/RemoveStyleElement instead")
+    Grim.deprecate("Use NylasEnv.styles.onDidAdd/RemoveStyleElement instead")
     @emitter.on 'did-change-stylesheets', callback
 
   on: (eventName) ->
@@ -188,11 +186,11 @@ class ThemeManager
   #
   # Returns an array of theme names in the order that they should be activated.
   getEnabledThemeNames: ->
-    themeNames = atom.config.get('core.themes') ? []
+    themeNames = NylasEnv.config.get('core.themes') ? []
     themeNames = [themeNames] unless _.isArray(themeNames)
     themeNames = themeNames.filter (themeName) ->
       if themeName and typeof themeName is 'string'
-        return true if atom.packages.resolvePackagePath(themeName)
+        return true if NylasEnv.packages.resolvePackagePath(themeName)
         console.warn("Enabled theme '#{themeName}' is not installed.")
       false
 
@@ -214,8 +212,8 @@ class ThemeManager
   #
   # * `enabledThemeNames` An {Array} of {String} theme names.
   setEnabledThemes: (enabledThemeNames) ->
-    Grim.deprecate("Use `atom.config.set('core.themes', arrayOfThemeNames)` instead")
-    atom.config.set('core.themes', enabledThemeNames)
+    Grim.deprecate("Use `NylasEnv.config.set('core.themes', arrayOfThemeNames)` instead")
+    NylasEnv.config.set('core.themes', enabledThemeNames)
 
   ###
   Section: Private
@@ -223,8 +221,8 @@ class ThemeManager
 
   # Returns the {String} path to the user's stylesheet under ~/.nylas
   getUserStylesheetPath: ->
-    Grim.deprecate("Call atom.styles.getUserStyleSheetPath() instead")
-    atom.styles.getUserStyleSheetPath()
+    Grim.deprecate("Call NylasEnv.styles.getUserStyleSheetPath() instead")
+    NylasEnv.styles.getUserStyleSheetPath()
 
   # Resolve and apply the stylesheet specified by the path.
   #
@@ -252,7 +250,7 @@ class ThemeManager
   loadUserStylesheet: ->
     @unwatchUserStylesheet()
 
-    userStylesheetPath = atom.styles.getUserStyleSheetPath()
+    userStylesheetPath = NylasEnv.styles.getUserStyleSheetPath()
     return unless fs.isFileSync(userStylesheetPath)
     try
       @userStylesheetFile = new File(userStylesheetPath)
@@ -266,9 +264,7 @@ class ThemeManager
         Unable to watch path: `#{path.basename(userStylesheetPath)}`. Make sure
         you have permissions to `#{userStylesheetPath}`.
 
-        On linux there are currently problems with watch sizes. See
-        [this document][watches] for more info.
-        [watches]:https://github.com/atom/atom/blob/master/docs/build-instructions/linux.md#typeerror-unable-to-watch-path
+        On linux there are currently problems with watch sizes.
       """
       console.error(message, dismissable: true)
       console.error(error.toString())
@@ -278,7 +274,7 @@ class ThemeManager
     catch
       return
 
-    @userStyleSheetDisposable = atom.styles.addStyleSheet(userStylesheetContents, sourcePath: userStylesheetPath, priority: 2)
+    @userStyleSheetDisposable = NylasEnv.styles.addStyleSheet(userStylesheetContents, sourcePath: userStylesheetPath, priority: 2)
 
   loadBaseStylesheets: ->
     @reloadBaseStylesheets()
@@ -290,7 +286,7 @@ class ThemeManager
       @requireStylesheet(nativeStylesheetPath)
 
   stylesheetElementForId: (id) ->
-    document.head.querySelector("atom-styles style[source-path=\"#{id}\"]")
+    document.head.querySelector("nylas-styles style[source-path=\"#{id}\"]")
 
   resolveStylesheet: (stylesheetPath) ->
     if path.extname(stylesheetPath).length > 0
@@ -337,7 +333,7 @@ class ThemeManager
     @styleSheetDisposablesBySourcePath[stylesheetPath]?.dispose()
 
   applyStylesheet: (path, text) ->
-    @styleSheetDisposablesBySourcePath[path] = atom.styles.addStyleSheet(text, sourcePath: path)
+    @styleSheetDisposablesBySourcePath[path] = NylasEnv.styles.addStyleSheet(text, sourcePath: path)
 
   stringToId: (string) ->
     string.replace(/\\/g, '/')
@@ -345,8 +341,8 @@ class ThemeManager
   activateThemes: ->
     deferred = Q.defer()
 
-    # atom.config.observe runs the callback once, then on subsequent changes.
-    atom.config.observe 'core.themes', =>
+    # NylasEnv.config.observe runs the callback once, then on subsequent changes.
+    NylasEnv.config.observe 'core.themes', =>
       @deactivateThemes()
 
       @refreshLessCache() # Update cache for packages in core.themes config
@@ -379,14 +375,14 @@ class ThemeManager
   isInitialLoadComplete: -> @initialLoadComplete
 
   addActiveThemeClasses: ->
-    workspaceElement = document.getElementsByTagName('atom-workspace')[0]
+    workspaceElement = document.getElementsByTagName('nylas-workspace')[0]
     return unless workspaceElement
     for pack in @getActiveThemes()
       workspaceElement.classList.add("theme-#{pack.name}")
     return
 
   removeActiveThemeClasses: ->
-    workspaceElement = document.getElementsByTagName('atom-workspace')[0]
+    workspaceElement = document.getElementsByTagName('nylas-workspace')[0]
     return unless workspaceElement
     for pack in @getActiveThemes()
       workspaceElement.classList.remove("theme-#{pack.name}")

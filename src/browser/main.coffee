@@ -84,9 +84,9 @@ parseCommandLine = ->
   version = app.getVersion()
   options = optimist(process.argv[1..])
   options.usage """
-    Atom Editor v#{version}
+    N1 v#{version}
 
-    Usage: atom [options] [path ...]
+    Usage: n1 [options] [path ...]
 
     One or more paths to files or folders to open may be specified.
 
@@ -96,7 +96,7 @@ parseCommandLine = ->
     opened or a new window if it hasn't.
 
     Environment Variables:
-    N1_PATH  The path from which Atom loads source code in dev mode.
+    N1_PATH  The path from which N1 loads source code in dev mode.
              Defaults to `cwd`.
   """
   options.alias('d', 'dev').boolean('d').describe('d', 'Run in development mode.')
@@ -104,8 +104,8 @@ parseCommandLine = ->
   options.alias('h', 'help').boolean('h').describe('h', 'Print this usage message.')
   options.alias('l', 'log-file').string('l').describe('l', 'Log all output to file.')
   options.alias('n', 'new-window').boolean('n').describe('n', 'Open a new window.')
-  options.alias('r', 'resource-path').string('r').describe('r', 'Set the path to the Atom source directory and enable dev-mode.')
-  options.alias('s', 'spec-directory').string('s').describe('s', 'Set the directory from which to run package specs (default: Atom\'s spec directory).')
+  options.alias('r', 'resource-path').string('r').describe('r', 'Set the path to the N1 source directory and enable dev-mode.')
+  options.alias('s', 'spec-directory').string('s').describe('s', 'Set the directory from which to run package specs (default: N1\'s spec directory).')
   options.boolean('safe').describe('safe', 'Do not load packages from ~/.nylas/packages or ~/.nylas/dev/packages.')
   options.alias('t', 'test').boolean('t').describe('t', 'Run the specified specs and exit with error code on failures.')
   options.alias('v', 'version').boolean('v').describe('v', 'Print the version.')
@@ -137,7 +137,7 @@ parseCommandLine = ->
     resourcePath = args['resource-path']
   else
     specsOnCommandLine = true
-    # Set resourcePath based on the specDirectory if running specs on atom core
+    # Set resourcePath based on the specDirectory if running specs on N1 core
     if specDirectory?
       packageDirectoryPath = path.resolve(specDirectory, '..')
       packageManifestPath = path.join(packageDirectoryPath, 'package.json')

@@ -20,15 +20,15 @@ class WindowEventHandler
       @showDevModeMessages()
 
     @subscribe ipc, 'open-path', (pathToOpen) ->
-      unless atom.project?.getPaths().length
+      unless NylasEnv.project?.getPaths().length
         if fs.existsSync(pathToOpen) or fs.existsSync(path.dirname(pathToOpen))
-          atom.project?.setPaths([pathToOpen])
+          NylasEnv.project?.setPaths([pathToOpen])
 
       unless fs.isDirectorySync(pathToOpen)
-        atom.workspace?.open(pathToOpen, {})
+        NylasEnv.workspace?.open(pathToOpen, {})
 
     @subscribe ipc, 'update-available', (detail) ->
-      atom.updateAvailable(detail)
+      NylasEnv.updateAvailable(detail)
 
     @subscribe ipc, 'send-feedback', (detail) ->
       Actions = require './flux/actions'
@@ -43,36 +43,36 @@ class WindowEventHandler
     @subscribe ipc, 'command', (command, args...) ->
       activeElement = document.activeElement
       # Use the workspace element view if body has focus
-      if activeElement is document.body and workspaceElement = document.getElementById("atom-workspace")
+      if activeElement is document.body and workspaceElement = document.getElementById("nylas-workspace")
         activeElement = workspaceElement
-      atom.commands.dispatch(activeElement, command, args[0])
+      NylasEnv.commands.dispatch(activeElement, command, args[0])
 
     @subscribe $(window), 'beforeunload', =>
-      if atom.getCurrentWindow().isWebViewFocused() and not @reloadRequested
-        atom.hide()
+      if NylasEnv.getCurrentWindow().isWebViewFocused() and not @reloadRequested
+        NylasEnv.hide()
       @reloadRequested = false
-      atom.storeWindowDimensions()
-      atom.saveStateAndUnloadWindow()
+      NylasEnv.storeWindowDimensions()
+      NylasEnv.saveStateAndUnloadWindow()
       true
 
     @subscribe $(window), 'unload', =>
-      atom.windowEventHandler?.unsubscribe()
+      NylasEnv.windowEventHandler?.unsubscribe()
 
     @subscribeToCommand $(window), 'window:toggle-full-screen', ->
-      atom.toggleFullScreen()
+      NylasEnv.toggleFullScreen()
 
     @subscribeToCommand $(window), 'window:close', ->
-      atom.close()
+      NylasEnv.close()
 
     @subscribeToCommand $(window), 'window:reload', =>
       @reloadRequested = true
-      atom.reload()
+      NylasEnv.reload()
 
     @subscribeToCommand $(window), 'window:toggle-dev-tools', ->
-      atom.toggleDevTools()
+      NylasEnv.toggleDevTools()
 
     @subscribeToCommand $(window), 'window:open-errorlogger-logs', ->
-      atom.errorLogger.openLogs()
+      NylasEnv.errorLogger.openLogs()
 
     @subscribeToCommand $(window), 'window:toggle-component-regions', ->
       ComponentRegistry = require './component-registry'
@@ -116,7 +116,7 @@ class WindowEventHandler
   # `.override-key-bindings` class.
   handleNativeKeybindings: ->
     menu = null
-    webContents = atom.getCurrentWindow().webContents
+    webContents = NylasEnv.getCurrentWindow().webContents
     bindCommandToAction = (command, action) =>
       @subscribe $(document), command, (event) ->
         unless event.target.webkitMatchesSelector('.override-key-bindings')
@@ -131,7 +131,7 @@ class WindowEventHandler
     bindCommandToAction('core:select-all', 'selectAll')
 
   onKeydown: (event) ->
-    atom.keymaps.handleKeyboardEvent(event)
+    NylasEnv.keymaps.handleKeyboardEvent(event)
 
   # Important: even though we don't do anything here, we need to catch the
   # drop event to prevent the browser from navigating the to the "url" of the
@@ -239,9 +239,9 @@ class WindowEventHandler
       highestElement.focus()
 
   showDevModeMessages: ->
-    return unless atom.isMainWindow()
+    return unless NylasEnv.isMainWindow()
 
-    if atom.inDevMode()
+    if NylasEnv.inDevMode()
       Actions = require './flux/actions'
       Actions.postNotification
         icon: 'fa-flask'

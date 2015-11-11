@@ -18,7 +18,7 @@ describe 'FileUploadStore', ->
       filePath: fpath
       fileSize: 12345
 
-    spyOn(atom, "showOpenDialog").andCallFake (props, callback) ->
+    spyOn(NylasEnv, "showOpenDialog").andCallFake (props, callback) ->
       callback(fpath)
 
     spyOn(Actions, "queueTask")
@@ -33,7 +33,7 @@ describe 'FileUploadStore', ->
         callback(null, {size: 1234, isDirectory: -> false})
 
       Actions.attachFile(messageClientId: msgId)
-      expect(atom.showOpenDialog).toHaveBeenCalled()
+      expect(NylasEnv.showOpenDialog).toHaveBeenCalled()
       expect(Actions.attachFilePath).toHaveBeenCalled()
       args = Actions.attachFilePath.calls[0].args[0]
       expect(args.messageClientId).toBe msgId

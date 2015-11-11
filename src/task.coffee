@@ -5,17 +5,12 @@ Grim = require 'grim'
 
 # Extended: Run a node script in a separate process.
 #
-# Used by the fuzzy-finder and [find in project](https://github.com/atom/atom/blob/master/src/scan-handler.coffee).
-#
-# For a real-world example, see the [scan-handler](https://github.com/atom/atom/blob/master/src/scan-handler.coffee)
-# and the [instantiation of the task](https://github.com/atom/atom/blob/4a20f13162f65afc816b512ad7201e528c3443d7/src/project.coffee#L245).
-#
 # ## Examples
 #
 # In your package code:
 #
 # ```coffee
-# {Task} = require 'atom'
+# {Task} = require './task'
 #
 # task = Task.once '/path/to/task-file.coffee', parameter1, parameter2, ->
 #   console.log 'task has finished'

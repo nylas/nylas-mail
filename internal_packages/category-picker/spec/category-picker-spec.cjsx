@@ -22,10 +22,10 @@ describe 'CategoryPicker', ->
     CategoryStore._categoryCache = {}
 
   afterEach ->
-    atom.testOrganizationUnit = null
+    NylasEnv.testOrganizationUnit = null
 
   setupFor = (organizationUnit) ->
-    atom.testOrganizationUnit = organizationUnit
+    NylasEnv.testOrganizationUnit = organizationUnit
     @categoryClass = if organizationUnit is "label" then Label else Folder
 
     @inboxCategory = new @categoryClass(id: 'id-123', name: 'inbox', displayName: "INBOX")
@@ -82,7 +82,7 @@ describe 'CategoryPicker', ->
     beforeEach ->
       setupForCreateNew.call @
 
-    afterEach -> atom.testOrganizationUnit = null
+    afterEach -> NylasEnv.testOrganizationUnit = null
 
     it "is not visible when the search box is empty", ->
       count = ReactTestUtils.scryRenderedDOMComponentsWithClass(@picker, 'category-create-new').length

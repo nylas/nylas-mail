@@ -1,7 +1,7 @@
 {
   "extends": "airbnb",
   "globals": {
-    "atom": false
+    "NylasEnv": false
   },
   "env": {
     "browser": true,

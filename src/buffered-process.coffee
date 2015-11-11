@@ -9,7 +9,7 @@ path = require 'path'
 # ## Examples
 #
 # ```coffee
-# {BufferedProcess} = require 'atom'
+# {BufferedProcess} = require 'nylas-exports'
 #
 # command = 'ps'
 # args = ['-ef']

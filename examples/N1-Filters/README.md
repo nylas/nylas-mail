@@ -16,7 +16,7 @@
 
 #### Who?
 
-The source is annotated for people who are familiar with React, but not familiar with APIs from either Atom or N1.
+The source is annotated for people who are familiar with React, but not familiar with APIs from N1.
 
 As such, we will not annotate any code that is specific for React, but we'll annotate code for everything else.
 

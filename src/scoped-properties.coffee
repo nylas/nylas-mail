@@ -14,10 +14,10 @@ class ScopedProperties
 
   activate: ->
     for selector, properties of @scopedProperties
-      atom.config.set(null, properties, scopeSelector: selector, source: @path)
+      NylasEnv.config.set(null, properties, scopeSelector: selector, source: @path)
     return
 
   deactivate: ->
     for selector of @scopedProperties
-      atom.config.unset(null, scopeSelector: selector, source: @path)
+      NylasEnv.config.unset(null, scopeSelector: selector, source: @path)
     return

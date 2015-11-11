@@ -11,7 +11,7 @@ class APMWrapper
     @packagePromises = []
 
   runCommand: (args, options, callback) ->
-    command = atom.packages.getApmPath()
+    command = NylasEnv.packages.getApmPath()
     outputLines = []
     stdout = (lines) -> outputLines.push(lines)
     errorLines = []
@@ -22,7 +22,7 @@ class APMWrapper
     options ||= {}
     options.env =
       ATOM_API_URL: 'https://edgehill-packages.nylas.com/api'
-      ATOM_HOME: atom.getConfigDirPath()
+      ATOM_HOME: NylasEnv.getConfigDirPath()
 
     if process.platform is "win32"
       options.env["ProgramFiles"] = process.env.ProgramFiles
@@ -54,7 +54,7 @@ class APMWrapper
 
   loadFeatured: (options, callback) ->
     args = ['featured', '--json']
-    version = atom.getVersion()
+    version = NylasEnv.getVersion()
     args.push('--themes') if options.themes
     args.push('--compatible', version) if semver.valid(version)
     errorMessage = 'Fetching featured packages failed.'
@@ -64,7 +64,7 @@ class APMWrapper
 
   loadOutdated: (callback) ->
     args = ['outdated', '--json']
-    version = atom.getVersion()
+    version = NylasEnv.getVersion()
     args.push('--compatible', version) if semver.valid(version)
     errorMessage = 'Fetching outdated packages and themes failed.'
 
@@ -79,7 +79,7 @@ class APMWrapper
     handleProcessErrors(apmProcess, errorMessage, callback)
 
   loadCompatiblePackageVersion: (packageName, callback) ->
-    args = ['view', packageName, '--json', '--compatible', @normalizeVersion(atom.getVersion())]
+    args = ['view', packageName, '--json', '--compatible', @normalizeVersion(NylasEnv.getVersion())]
     errorMessage = "Fetching package '#{packageName}' failed."
 
     apmProcess = @runCommandReturningPackages(args, errorMessage, callback)
@@ -98,7 +98,7 @@ class APMWrapper
     @packagePromises[packageName] ?= Promise.promisify(@loadPackage, this, packageName)()
 
   satisfiesVersion: (version, metadata) ->
-    engine = metadata.engines?.atom ? '*'
+    engine = metadata.engines?.nylas ? '*'
     return false unless semver.validRange(engine)
     return semver.satisfies(version, engine)
 
@@ -139,12 +139,12 @@ class APMWrapper
     {name, theme} = pack
 
     if theme
-      activateOnSuccess = atom.packages.isPackageActive(name)
+      activateOnSuccess = NylasEnv.packages.isPackageActive(name)
     else
-      activateOnSuccess = not atom.packages.isPackageDisabled(name)
-    activateOnFailure = atom.packages.isPackageActive(name)
-    atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
-    atom.packages.unloadPackage(name) if atom.packages.isPackageLoaded(name)
+      activateOnSuccess = not NylasEnv.packages.isPackageDisabled(name)
+    activateOnFailure = NylasEnv.packages.isPackageActive(name)
+    NylasEnv.packages.deactivatePackage(name) if NylasEnv.packages.isPackageActive(name)
+    NylasEnv.packages.unloadPackage(name) if NylasEnv.packages.isPackageLoaded(name)
 
     errorMessage = "Updating to \u201C#{name}@#{newVersion}\u201D failed."
     onError = (error) =>
@@ -155,13 +155,13 @@ class APMWrapper
     exit = (code, stdout, stderr) =>
       if code is 0
         if activateOnSuccess
-          atom.packages.activatePackage(name)
+          NylasEnv.packages.activatePackage(name)
         else
-          atom.packages.loadPackage(name)
+          NylasEnv.packages.loadPackage(name)
 
         callback?()
       else
-        atom.packages.activatePackage(name) if activateOnFailure
+        NylasEnv.packages.activatePackage(name) if activateOnFailure
         error = new Error(errorMessage)
         error.stdout = stdout
         error.stderr = stderr
@@ -171,14 +171,14 @@ class APMWrapper
     handleProcessErrors(apmProcess, errorMessage, onError)
 
   unload: (packageName) ->
-    if atom.packages.isPackageLoaded(name)
-      atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
-      atom.packages.unloadPackage(name)
+    if NylasEnv.packages.isPackageLoaded(name)
+      NylasEnv.packages.deactivatePackage(name) if NylasEnv.packages.isPackageActive(name)
+      NylasEnv.packages.unloadPackage(name)
 
   install: (pack, callback) ->
     {name, version, theme} = pack
-    activateOnSuccess = not theme and not atom.packages.isPackageDisabled(name)
-    activateOnFailure = atom.packages.isPackageActive(name)
+    activateOnSuccess = not theme and not NylasEnv.packages.isPackageDisabled(name)
+    activateOnFailure = NylasEnv.packages.isPackageActive(name)
 
     @unload(name)
     args = ['install', "#{name}@#{version}"]
@@ -191,13 +191,13 @@ class APMWrapper
     exit = (code, stdout, stderr) =>
       if code is 0
         if activateOnSuccess
-          atom.packages.activatePackage(name)
+          NylasEnv.packages.activatePackage(name)
         else
-          atom.packages.loadPackage(name)
+          NylasEnv.packages.loadPackage(name)
 
         callback?()
       else
-        atom.packages.activatePackage(name) if activateOnFailure
+        NylasEnv.packages.activatePackage(name) if activateOnFailure
         error = new Error(errorMessage)
         error.stdout = stdout
         error.stderr = stderr
@@ -224,7 +224,7 @@ class APMWrapper
   uninstall: (pack, callback) ->
     {name} = pack
 
-    atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
+    NylasEnv.packages.deactivatePackage(name) if NylasEnv.packages.isPackageActive(name)
 
     errorMessage = "Uninstalling \u201C#{name}\u201D failed."
     onError = (error) =>

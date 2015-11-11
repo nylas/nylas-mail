@@ -40,7 +40,7 @@ class MessageControls extends React.Component
       select: @_onForward
 
     if @props.message.canReplyAll()
-      defaultReplyType = atom.config.get('core.sending.defaultReplyType')
+      defaultReplyType = NylasEnv.config.get('core.sending.defaultReplyType')
       if defaultReplyType is 'reply-all'
         return [replyAll, reply, forward]
       else

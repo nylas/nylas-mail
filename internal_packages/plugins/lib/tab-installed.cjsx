@@ -17,7 +17,7 @@ class TabInstalled extends React.Component
     if @state.search.length > 0
       searchEmpty = "No matching packages."
 
-    if atom.inDevMode()
+    if NylasEnv.inDevMode()
       devPackages = @state.packages.dev
       devEmpty = <span>
         You don't have any packages installed in ~/.nylas/dev/packages.

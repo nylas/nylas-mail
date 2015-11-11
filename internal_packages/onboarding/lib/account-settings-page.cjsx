@@ -241,7 +241,7 @@ class AccountSettingsPage extends React.Component
         pass: ''
         sendImmediately: true
     .then (json) =>
-      invite_code = atom.config.get('invitationCode')
+      invite_code = NylasEnv.config.get('invitationCode')
 
       json.invite_code = invite_code
       json.email = data.email
@@ -259,7 +259,7 @@ class AccountSettingsPage extends React.Component
     try
       OnboardingActions.accountJSONReceived(json)
     catch e
-      atom.emitError(e)
+      NylasEnv.emitError(e)
       @setState
         tryingToAuthenticate: false
         errorMessage: "Sorry, something went wrong on the Nylas server. Please try again. If you're still having issues, contact us at support@nylas.com."

@@ -12,11 +12,9 @@ MenuHelpers = require './menu-helpers'
 # Extended: Provides a registry for menu items that you'd like to appear in the
 # application menu.
 #
-# An instance of this class is always available as the `atom.menu` global.
+# An instance of this class is always available as the `NylasEnv.menu` global.
 #
 # ## Menu CSON Format
-#
-# Here is an example from the [tree-view](https://github.com/atom/tree-view/blob/master/menus/tree-view.cson):
 #
 # ```coffee
 # [
@@ -56,23 +54,21 @@ MenuHelpers = require './menu-helpers'
 # ```
 #
 # See {::add} for more info about adding menu's directly.
-#
-# Section: Atom
 module.exports =
 class MenuManager
   constructor: ({@resourcePath}) ->
     @pendingUpdateOperation = null
     @template = []
-    atom.keymaps.onDidLoadBundledKeymaps => @loadPlatformItems()
-    atom.keymaps.onDidReloadKeymap => @update()
-    atom.packages.onDidActivateInitialPackages => @sortPackagesMenu()
+    NylasEnv.keymaps.onDidLoadBundledKeymaps => @loadPlatformItems()
+    NylasEnv.keymaps.onDidReloadKeymap => @update()
+    NylasEnv.packages.onDidActivateInitialPackages => @sortPackagesMenu()
 
   # Public: Adds the given items to the application menu.
   #
   # ## Examples
   #
   # ```coffee
-  #   atom.menu.add [
+  #   NylasEnv.menu.add [
   #     {
   #       label: 'Hello'
   #       submenu : [{label: 'World!', command: 'hello:world'}]
@@ -111,14 +107,14 @@ class MenuManager
       # Selector isn't valid
       return false
 
-    # Simulate an atom-text-editor element attached to a atom-workspace element attached
+    # Simulate an nylas-theme-wrap element attached to a nylas-workspace element attached
     # to a body element that has the same classes as the current body element.
     unless @testEditor?
       testBody = document.createElement('body')
       testBody.classList.add(@classesForElement(document.body)...)
 
       testWorkspace = document.createElement('div')
-      workspaceClasses = @classesForElement(document.body.querySelector('atom-workspace'))
+      workspaceClasses = @classesForElement(document.body.querySelector('nylas-workspace'))
       workspaceClasses = ['workspace'] if workspaceClasses.length is 0
       testWorkspace.classList.add(workspaceClasses...)
 
@@ -140,7 +136,7 @@ class MenuManager
     clearImmediate(@pendingUpdateOperation) if @pendingUpdateOperation?
     @pendingUpdateOperation = setImmediate =>
       keystrokesByCommand = {}
-      for binding in atom.keymaps.getKeyBindings() when @includeSelector(binding.selector)
+      for binding in NylasEnv.keymaps.getKeyBindings() when @includeSelector(binding.selector)
         keystrokesByCommand[binding.command] ?= []
         keystrokesByCommand[binding.command].unshift binding.keystrokes
       @sendToBrowserProcess(@template, keystrokesByCommand)

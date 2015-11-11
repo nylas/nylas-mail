@@ -9,16 +9,16 @@ module.exports =
     updater = remote.getGlobal('application').autoUpdateManager
     @_unlisten = Actions.notificationActionTaken.listen(@_onNotificationActionTaken, @)
 
-    configVersion = atom.config.get("lastVersion")
-    currentVersion = atom.getVersion()
+    configVersion = NylasEnv.config.get("lastVersion")
+    currentVersion = NylasEnv.getVersion()
     if configVersion and configVersion isnt currentVersion
-      atom.config.set("lastVersion", currentVersion)
+      NylasEnv.config.set("lastVersion", currentVersion)
       @displayThanksNotification()
 
     if updater.getState() is 'update-available'
       @displayNotification(updater.releaseVersion)
 
-    atom.onUpdateAvailable ({releaseVersion, releaseNotes} = {}) =>
+    NylasEnv.onUpdateAvailable ({releaseVersion, releaseNotes} = {}) =>
       @displayNotification(releaseVersion)
 
   displayThanksNotification: ->

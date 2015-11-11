@@ -32,12 +32,12 @@ module.exports =
 
   installShellCommandsInteractively: ->
     showErrorDialog = (error) ->
-      atom.confirm
+      NylasEnv.confirm
         message: "Failed to install shell commands"
         detailedMessage: error.message
 
-    resourcePath = atom.getLoadSettings().resourcePath
-    @installAtomCommand resourcePath, true, (error) =>
+    resourcePath = NylasEnv.getLoadSettings().resourcePath
+    @installN1Command resourcePath, true, (error) =>
       if error?
         showErrorDialog(error)
       else
@@ -45,11 +45,11 @@ module.exports =
           if error?
             showErrorDialog(error)
           else
-            atom.confirm
+            NylasEnv.confirm
               message: "Commands installed."
-              detailedMessage: "The shell commands `atom` and `apm` are installed."
+              detailedMessage: "The shell commands `n1` and `apm` are installed."
 
-  installAtomCommand: (resourcePath, askForPrivilege, callback) ->
+  installN1Command: (resourcePath, askForPrivilege, callback) ->
     commandPath = path.join(resourcePath, 'N1.sh')
     @createSymlink commandPath, askForPrivilege, callback
 

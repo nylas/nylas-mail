@@ -1,18 +1,16 @@
 clipboard = require 'clipboard'
 crypto = require 'crypto'
 
-# Extended: Represents the clipboard used for copying and pasting in Atom.
+# Extended: Represents the clipboard used for copying and pasting in Nylas N1.
 #
-# An instance of this class is always available as the `atom.clipboard` global.
-#
-# Section: Atom
+# An instance of this class is always available as the `NylasEnv.clipboard` global.
 #
 # ## Examples
 #
 # ```coffee
-# atom.clipboard.write('hello')
+# NylasEnv.clipboard.write('hello')
 #
-# console.log(atom.clipboard.read()) # 'hello'
+# console.log(NylasEnv.clipboard.read()) # 'hello'
 # ```
 module.exports =
 class Clipboard

@@ -6,7 +6,7 @@ NylasStore = require 'nylas-store'
 class InitialPackagesStore extends NylasStore
   constructor: ->
     @starterPackages = []
-    {resourcePath} = atom.getLoadSettings()
+    {resourcePath} = NylasEnv.getLoadSettings()
 
     if resourcePath.indexOf('app.asar') != -1
       @starterPackagesPath = path.join(resourcePath,'..', 'app.asar.unpacked', 'examples')

@@ -17,12 +17,12 @@ describe "StylesElement", ->
   it "renders a style tag for all currently active stylesheets in the style manager", ->
     initialChildCount = element.children.length
 
-    disposable1 = atom.styles.addStyleSheet("a {color: red;}")
+    disposable1 = NylasEnv.styles.addStyleSheet("a {color: red;}")
     expect(element.children.length).toBe initialChildCount + 1
     expect(element.children[initialChildCount].textContent).toBe "a {color: red;}"
     expect(addedStyleElements).toEqual [element.children[initialChildCount]]
 
-    disposable2 = atom.styles.addStyleSheet("a {color: blue;}")
+    disposable2 = NylasEnv.styles.addStyleSheet("a {color: blue;}")
     expect(element.children.length).toBe initialChildCount + 2
     expect(element.children[initialChildCount + 1].textContent).toBe "a {color: blue;}"
     expect(addedStyleElements).toEqual [element.children[initialChildCount], element.children[initialChildCount + 1]]
@@ -35,10 +35,10 @@ describe "StylesElement", ->
   it "orders style elements by priority", ->
     initialChildCount = element.children.length
 
-    atom.styles.addStyleSheet("a {color: red}", priority: 1)
-    atom.styles.addStyleSheet("a {color: blue}", priority: 0)
-    atom.styles.addStyleSheet("a {color: green}", priority: 2)
-    atom.styles.addStyleSheet("a {color: yellow}", priority: 1)
+    NylasEnv.styles.addStyleSheet("a {color: red}", priority: 1)
+    NylasEnv.styles.addStyleSheet("a {color: blue}", priority: 0)
+    NylasEnv.styles.addStyleSheet("a {color: green}", priority: 2)
+    NylasEnv.styles.addStyleSheet("a {color: yellow}", priority: 1)
 
     expect(element.children[initialChildCount].textContent).toBe "a {color: blue}"
     expect(element.children[initialChildCount + 1].textContent).toBe "a {color: red}"
@@ -48,8 +48,8 @@ describe "StylesElement", ->
   it "updates existing style nodes when style elements are updated", ->
     initialChildCount = element.children.length
 
-    atom.styles.addStyleSheet("a {color: red;}", sourcePath: '/foo/bar')
-    atom.styles.addStyleSheet("a {color: blue;}", sourcePath: '/foo/bar')
+    NylasEnv.styles.addStyleSheet("a {color: red;}", sourcePath: '/foo/bar')
+    NylasEnv.styles.addStyleSheet("a {color: blue;}", sourcePath: '/foo/bar')
 
     expect(element.children.length).toBe initialChildCount + 1
     expect(element.children[initialChildCount].textContent).toBe "a {color: blue;}"
@@ -58,8 +58,8 @@ describe "StylesElement", ->
   it "only includes style elements matching the 'context' attribute", ->
     initialChildCount = element.children.length
 
-    atom.styles.addStyleSheet("a {color: red;}", context: 'test-context')
-    atom.styles.addStyleSheet("a {color: green;}")
+    NylasEnv.styles.addStyleSheet("a {color: red;}", context: 'test-context')
+    NylasEnv.styles.addStyleSheet("a {color: green;}")
 
     expect(element.children.length).toBe initialChildCount + 2
     expect(element.children[initialChildCount].textContent).toBe "a {color: red;}"
@@ -70,28 +70,28 @@ describe "StylesElement", ->
     expect(element.children.length).toBe 1
     expect(element.children[0].textContent).toBe "a {color: red;}"
 
-    atom.styles.addStyleSheet("a {color: blue;}", context: 'test-context')
-    atom.styles.addStyleSheet("a {color: yellow;}")
+    NylasEnv.styles.addStyleSheet("a {color: blue;}", context: 'test-context')
+    NylasEnv.styles.addStyleSheet("a {color: yellow;}")
 
     expect(element.children.length).toBe 2
     expect(element.children[0].textContent).toBe "a {color: red;}"
     expect(element.children[1].textContent).toBe "a {color: blue;}"
 
-  describe "atom-text-editor shadow DOM selector upgrades", ->
+  describe "nylas-theme-wrap shadow DOM selector upgrades", ->
     beforeEach ->
-      element.setAttribute('context', 'atom-text-editor')
+      element.setAttribute('context', 'nylas-theme-wrap')
       spyOn(console, 'warn')
 
     it "upgrades selectors containing .editor-colors", ->
-      atom.styles.addStyleSheet(".editor-colors {background: black;}", context: 'atom-text-editor')
+      NylasEnv.styles.addStyleSheet(".editor-colors {background: black;}", context: 'nylas-theme-wrap')
       expect(element.firstChild.sheet.cssRules[0].selectorText).toBe ':host'
 
     it "upgrades selectors containing .editor", ->
-      atom.styles.addStyleSheet """
+      NylasEnv.styles.addStyleSheet """
         .editor {background: black;}
         .editor.mini {background: black;}
         .editor:focus {background: black;}
-      """, context: 'atom-text-editor'
+      """, context: 'nylas-theme-wrap'
 
       expect(element.firstChild.sheet.cssRules[0].selectorText).toBe ':host'
       expect(element.firstChild.sheet.cssRules[1].selectorText).toBe ':host(.mini)'
@@ -99,16 +99,16 @@ describe "StylesElement", ->
 
     it "defers selector upgrade until the element is attached", ->
       element = new StylesElement
-      element.setAttribute('context', 'atom-text-editor')
+      element.setAttribute('context', 'nylas-theme-wrap')
       element.initialize()
 
-      atom.styles.addStyleSheet ".editor {background: black;}", context: 'atom-text-editor'
+      NylasEnv.styles.addStyleSheet ".editor {background: black;}", context: 'nylas-theme-wrap'
       expect(element.firstChild.sheet).toBeNull()
 
       document.querySelector('#jasmine-content').appendChild(element)
       expect(element.firstChild.sheet.cssRules[0].selectorText).toBe ':host'
 
     it "does not throw exceptions on rules with no selectors", ->
-      atom.styles.addStyleSheet """
+      NylasEnv.styles.addStyleSheet """
         @media screen {font-size: 10px;}
-      """, context: 'atom-text-editor'
+      """, context: 'nylas-theme-wrap'

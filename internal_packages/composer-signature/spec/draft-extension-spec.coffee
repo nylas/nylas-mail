@@ -7,7 +7,7 @@ describe "SignatureDraftStoreExtension", ->
     describe "when a signature is defined", ->
       beforeEach ->
         @signature = "<div id='signature'>This is my signature.</div>"
-        spyOn(atom.config, 'get').andCallFake =>
+        spyOn(NylasEnv.config, 'get').andCallFake =>
           @signature
 
       it "should insert the signature at the end of the message or before the first blockquote", ->
@@ -25,7 +25,7 @@ describe "SignatureDraftStoreExtension", ->
 
     describe "when a signature is not defined", ->
       beforeEach ->
-        spyOn(atom.config, 'get').andCallFake ->
+        spyOn(NylasEnv.config, 'get').andCallFake ->
           null
 
       it "should not do anything", ->

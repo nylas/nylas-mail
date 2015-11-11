@@ -5,6 +5,6 @@
   "description": "Displays a notification asking the user to make N1 their default mailto handler",
   "license": "Proprietary",
     "engines": {
-    "atom": "*"
+    "nylas": "*"
   }
 }

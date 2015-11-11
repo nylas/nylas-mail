@@ -22,11 +22,11 @@ class WindowTitle extends React.Component
   @displayName: "WindowTitle"
 
   constructor: (@props) ->
-    @state = atom.getLoadSettings()
+    @state = NylasEnv.getLoadSettings()
 
   componentDidMount: ->
-    @unlisten = atom.onWindowPropsReceived (windowProps) =>
-      @setState atom.getLoadSettings()
+    @unlisten = NylasEnv.onWindowPropsReceived (windowProps) =>
+      @setState NylasEnv.getLoadSettings()
 
   componentWillUnmount: -> @unlisten()
 
@@ -86,8 +86,8 @@ class ToolbarWindowControls extends React.Component
 
   render: =>
     <div name="ToolbarWindowControls" className="toolbar-window-controls alt-#{@state.alt}">
-      <button className="close" onClick={ -> atom.close()}></button>
-      <button className="minimize" onClick={ -> atom.minimize()}></button>
+      <button className="close" onClick={ -> NylasEnv.close()}></button>
+      <button className="minimize" onClick={ -> NylasEnv.minimize()}></button>
       <button className="maximize" onClick={@_onMaximize}></button>
     </div>
 
@@ -96,9 +96,9 @@ class ToolbarWindowControls extends React.Component
 
   _onMaximize: (event) =>
     if process.platform is 'darwin' and not event.altKey
-      atom.setFullScreen(!atom.isFullScreen())
+      NylasEnv.setFullScreen(!NylasEnv.isFullScreen())
     else
-      atom.maximize()
+      NylasEnv.maximize()
 
 class ToolbarMenuControl extends React.Component
   @displayName: 'ToolbarMenuControl'
@@ -113,7 +113,7 @@ class ToolbarMenuControl extends React.Component
     applicationMenu = require('remote').getGlobal('application').applicationMenu
     activeTemplate = Utils.deepClone(applicationMenu.activeTemplate)
     menu = require('remote').require('menu').buildFromTemplate(activeTemplate)
-    menu.popup(atom.getCurrentWindow())
+    menu.popup(NylasEnv.getCurrentWindow())
 
 ComponentRegistry.register ToolbarWindowControls,
   location: WorkspaceStore.Sheet.Global.Toolbar.Left

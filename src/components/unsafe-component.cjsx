@@ -56,7 +56,7 @@ class UnsafeComponent extends React.Component
       element = <component key={name} {...props} />
       @injected = React.render(element, node)
     catch err
-      if atom.inDevMode()
+      if NylasEnv.inDevMode()
         console.error err
         stack = err.stack
         console.log stack

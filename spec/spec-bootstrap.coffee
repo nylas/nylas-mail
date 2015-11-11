@@ -11,19 +11,19 @@ global.Promise = require 'bluebird'
 
 try
   require '../src/window'
-  Atom = require '../src/atom'
-  Atom.configDirPath = fs.absolute('~/.nylas-spec')
-  window.atom = Atom.loadOrCreate()
-  global.Promise.longStackTraces() if atom.inDevMode()
+  NylasEnvConstructor = require '../src/nylas-env'
+  NylasEnvConstructor.configDirPath = fs.absolute('~/.nylas-spec')
+  window.NylasEnv = NylasEnvConstructor.loadOrCreate()
+  global.Promise.longStackTraces() if NylasEnv.inDevMode()
 
   # Show window synchronously so a focusout doesn't fire on input elements
   # that are focused in the very first spec run.
-  atom.getCurrentWindow().show() unless atom.getLoadSettings().exitWhenDone
+  NylasEnv.getCurrentWindow().show() unless NylasEnv.getLoadSettings().exitWhenDone
 
   {runSpecSuite} = require './jasmine-helper'
 
   # Add 'src/global' to module search path.
-  globalPath = path.join(atom.getLoadSettings().resourcePath, 'src', 'global')
+  globalPath = path.join(NylasEnv.getLoadSettings().resourcePath, 'src', 'global')
   require('module').globalPaths.push(globalPath)
   # Still set NODE_PATH since tasks may need it.
   process.env.NODE_PATH = globalPath
@@ -31,10 +31,10 @@ try
   document.title = "Spec Suite"
   document.getElementById("application-loading-cover").remove()
 
-  runSpecSuite './spec-suite', atom.getLoadSettings().logFile
+  runSpecSuite './spec-suite', NylasEnv.getLoadSettings().logFile
 catch error
-  if atom?.getLoadSettings().exitWhenDone
+  if NylasEnv?.getLoadSettings().exitWhenDone
     console.error(error.stack ? error)
-    atom.exit(1)
+    NylasEnv.exit(1)
   else
     throw error

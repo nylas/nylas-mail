@@ -21,7 +21,7 @@ StylesImpactedByZoom = [
 # instance because it's a fairly expensive operation. Since the
 # resourcePath can't change once the app has booted, it's safe to set the
 # constant at require-time
-DEFAULT_RESOURCE_PATH = atom.getLoadSettings().resourcePath
+DEFAULT_RESOURCE_PATH = NylasEnv.getLoadSettings().resourcePath
 
 Mode =
   ContentPreserve: 'original'

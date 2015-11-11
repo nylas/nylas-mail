@@ -4,7 +4,7 @@ AccountSidebarStore = require '../lib/account-sidebar-store'
 describe "AccountSidebarStore", ->
   describe "sections", ->
     it "should return the correct output", ->
-      atom.testOrganizationUnit = 'folder'
+      NylasEnv.testOrganizationUnit = 'folder'
 
       spyOn(CategoryStore, 'getStandardCategories').andCallFake ->
         return [

@@ -113,7 +113,7 @@ class EventedIFrame extends React.Component
           target.setAttribute('href', "http://#{rawHref}")
 
       e.preventDefault()
-      atom.windowEventHandler.openLink(target: target)
+      NylasEnv.windowEventHandler.openLink(target: target)
 
   _isBlacklistedHref: (href) ->
     return (new RegExp(/^file:/i)).test(href)
@@ -151,7 +151,7 @@ class EventedIFrame extends React.Component
     linkTarget = @_getContainingTarget(event, {with: 'href'})
     if linkTarget
       href = linkTarget.getAttribute('href')
-      menu.append(new MenuItem({ label: "Open Link", click:( -> atom.windowEventHandler.openLink({href}) )}))
+      menu.append(new MenuItem({ label: "Open Link", click:( -> NylasEnv.windowEventHandler.openLink({href}) )}))
       menu.append(new MenuItem({ label: "Copy Link", click:( -> clipboard.writeText(href) )}))
       menu.append(new MenuItem({ type: 'separator' }))
 
@@ -163,7 +163,7 @@ class EventedIFrame extends React.Component
       menu.append(new MenuItem({
         label: "Save Image...",
         click: ->
-          atom.showSaveDialog srcFilename, (path) ->
+          NylasEnv.showSaveDialog srcFilename, (path) ->
             return unless path
             oReq = new XMLHttpRequest()
             oReq.open("GET", src, true)
@@ -209,7 +209,7 @@ class EventedIFrame extends React.Component
       menu.append(new MenuItem({ label: "Copy", click:( -> clipboard.writeText(text) )}))
       menu.append(new MenuItem({ label: "Search Google for '#{textPreview}'", click:( -> shell.openExternal("https://www.google.com/search?q=#{encodeURIComponent(text)}") )}))
       if process.platform is 'darwin'
-        menu.append(new MenuItem({ label: "Look Up '#{textPreview}'", click:( -> atom.getCurrentWindow().showDefinitionForSelection() )}))
+        menu.append(new MenuItem({ label: "Look Up '#{textPreview}'", click:( -> NylasEnv.getCurrentWindow().showDefinitionForSelection() )}))
 
 
     if process.platform is 'darwin'

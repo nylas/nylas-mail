@@ -35,7 +35,7 @@ class Sheet extends React.Component
     @props.onColumnSizeChanged(@) if @props.onColumnSizeChanged
     minWidth = 0
     minWidth += col.minWidth for col in @state.columns
-    atom.setMinimumWidth(minWidth)
+    NylasEnv.setMinimumWidth(minWidth)
 
   shouldComponentUpdate: (nextProps, nextState) =>
     not _.isEqual(nextProps, @props) or not _.isEqual(nextState, @state)

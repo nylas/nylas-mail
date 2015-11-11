@@ -173,7 +173,7 @@ class ApplicationMenu
   #                       are Arrays containing the keystroke.
   #
   # Returns a String containing the keystroke in a format that can be interpreted
-  #   by atom shell to provide nice icons where available.
+  #   by Electron to provide nice icons where available.
   acceleratorForCommand: (command, keystrokesByCommand) ->
     firstKeystroke = keystrokesByCommand[command]?[0]
     return null unless firstKeystroke

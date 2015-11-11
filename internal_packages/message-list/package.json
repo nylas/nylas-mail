@@ -6,7 +6,7 @@
   "license": "Proprietary",
   "private": true,
   "engines": {
-    "atom": "*"
+    "nylas": "*"
   },
   "dependencies": {
     "autolinker": "0.18.1"

@@ -8,10 +8,10 @@ class ThemePackage extends Package
   getStyleSheetPriority: -> 1
 
   enable: ->
-    atom.config.unshiftAtKeyPath('core.themes', @name)
+    NylasEnv.config.unshiftAtKeyPath('core.themes', @name)
 
   disable: ->
-    atom.config.removeAtKeyPath('core.themes', @name)
+    NylasEnv.config.removeAtKeyPath('core.themes', @name)
 
   load: ->
     @measure 'loadTime', =>

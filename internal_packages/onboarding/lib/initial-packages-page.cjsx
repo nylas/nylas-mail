@@ -10,7 +10,7 @@ RunningPackageInstalls = 0
 class InstallButton extends React.Component
   constructor: (@props) ->
     @state =
-      installed: atom.packages.resolvePackagePath(@props.package.name)?
+      installed: NylasEnv.packages.resolvePackagePath(@props.package.name)?
       installing: false
 
   render: =>
@@ -25,12 +25,12 @@ class InstallButton extends React.Component
     return unless @props.package.path
     RunningPackageInstalls += 1
     @setState(installing: true)
-    atom.packages.installPackageFromPath @props.package.path, (err) =>
+    NylasEnv.packages.installPackageFromPath @props.package.path, (err) =>
       RunningPackageInstalls -= 1
       @props.onPackageInstaled()
       @setState({
         installing: false
-        installed: atom.packages.resolvePackagePath(@props.package.name)?
+        installed: NylasEnv.packages.resolvePackagePath(@props.package.name)?
       })
 
 class InitialPackagesPage extends React.Component

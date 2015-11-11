@@ -16,7 +16,7 @@ DatabaseStore = require './database-store'
 
 JSONObjectStorageKey = 'task-queue'
 
-if not atom.isWorkWindow() and not atom.inSpecMode()
+if not NylasEnv.isWorkWindow() and not NylasEnv.inSpecMode()
   module.exports = {JSONObjectStorageKey}
   return
 

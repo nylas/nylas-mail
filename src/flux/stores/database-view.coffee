@@ -76,7 +76,7 @@ class DatabaseView extends ModelView
     @
 
   log: ->
-    return unless verbose and not atom.inSpecMode()
+    return unless verbose and not NylasEnv.inSpecMode()
     if _.isString(arguments[0])
       arguments[0] = "DatabaseView (#{@klass.name}): "+arguments[0]
     console.log(arguments...)

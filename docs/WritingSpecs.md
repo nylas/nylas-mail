@@ -65,10 +65,10 @@ This method can be used in the `describe`, `it`, `beforeEach` and `afterEach` fu
 describe "when we open a file", ->
   beforeEach ->
     waitsForPromise ->
-      atom.workspace.open 'c.coffee'
+      NylasEnv.workspace.open 'c.coffee'
 
   it "should be opened in an editor", ->
-    expect(atom.workspace.getActiveTextEditor().getPath()).toContain 'c.coffee'
+    expect(NylasEnv.workspace.getActiveTextEditor().getPath()).toContain 'c.coffee'
 
 ```
 
@@ -79,15 +79,15 @@ describe "waiting for the packages to load", ->
 
   beforeEach ->
     waitsForPromise ->
-      atom.workspace.open('sample.js')
+      NylasEnv.workspace.open('sample.js')
     waitsForPromise ->
-      atom.packages.activatePackage('tabs')
+      NylasEnv.packages.activatePackage('tabs')
     waitsForPromise ->
-      atom.packages.activatePackage('tree-view')
+      NylasEnv.packages.activatePackage('tree-view')
 
   it 'should have waited long enough', ->
-    expect(atom.packages.isPackageActive('tabs')).toBe true
-    expect(atom.packages.isPackageActive('tree-view')).toBe true
+    expect(NylasEnv.packages.isPackageActive('tabs')).toBe true
+    expect(NylasEnv.packages.isPackageActive('tree-view')).toBe true
 ```
 
 #### Asynchronous functions with callbacks

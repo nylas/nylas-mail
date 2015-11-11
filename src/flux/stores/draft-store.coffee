@@ -57,7 +57,7 @@ class DraftStore
     @listenTo Actions.draftSendingFailed, @_onDraftSendingFailed
     @listenTo Actions.sendQuickReply, @_onSendQuickReply
 
-    if atom.isMainWindow()
+    if NylasEnv.isMainWindow()
       ipc.on 'new-message', => @_onPopoutBlankDraft()
 
     # Remember that these two actions only fire in the current window and
@@ -68,7 +68,7 @@ class DraftStore
 
     @listenTo Actions.removeFile, @_onRemoveFile
 
-    atom.onBeforeUnload @_onBeforeUnload
+    NylasEnv.onBeforeUnload @_onBeforeUnload
 
     @_draftSessions = {}
     @_extensions = []
@@ -95,9 +95,6 @@ class DraftStore
     ipc.on 'mailto', @_onHandleMailtoLink
 
     ipc.on 'inline-styles-result', @_onInlineStylesResult
-
-    # TODO: Doesn't work if we do window.addEventListener, but this is
-    # fragile. Pending an Atom fix perhaps?
 
   ######### PUBLIC #######################################################
 
@@ -176,11 +173,11 @@ class DraftStore
 
     if promises.length > 0
       # Important: There are some scenarios where all the promises resolve instantly.
-      # Firing atom.close() does nothing if called within an existing beforeUnload
+      # Firing NylasEnv.close() does nothing if called within an existing beforeUnload
       # handler, so we need to always defer by one tick before re-firing close.
       Promise.settle(promises).then =>
         @_draftSessions = {}
-        atom.finishUnload()
+        NylasEnv.finishUnload()
 
       # Stop and wait before closing
       return false
@@ -432,7 +429,7 @@ class DraftStore
         existing.restore() if existing.isMinimized()
         existing.focus()
       else
-        atom.newWindow
+        NylasEnv.newWindow
           title: title
           windowType: "composer"
           windowProps: _.extend(options, {draftClientId})
@@ -481,11 +478,11 @@ class DraftStore
     # Queue the task to destroy the draft
     Actions.queueTask(new DestroyDraftTask(draftClientId: draftClientId))
 
-    atom.close() if @_isPopout()
+    NylasEnv.close() if @_isPopout()
 
   # The user request to send the draft
   _onSendDraft: (draftClientId) =>
-    if atom.config.get("core.sending.sounds")
+    if NylasEnv.config.get("core.sending.sounds")
       SoundRegistry.playSound('hit-send')
 
     @_draftsSending[draftClientId] = true
@@ -507,10 +504,10 @@ class DraftStore
         task = new SendDraftTask(draftClientId, {fromPopout: @_isPopout()})
         Actions.queueTask(task)
         @_doneWithSession(session)
-        atom.close() if @_isPopout()
+        NylasEnv.close() if @_isPopout()
 
   _isPopout: ->
-    atom.getWindowType() is "composer"
+    NylasEnv.getWindowType() is "composer"
 
   # Give third-party plugins an opportunity to sanitize draft data
   _runExtensionsBeforeSend: (session) ->
@@ -527,7 +524,7 @@ class DraftStore
   _onDraftSendingFailed: ({draftClientId, errorMessage}) ->
     @_draftsSending[draftClientId] = false
     @trigger(draftClientId)
-    if atom.isMainWindow()
+    if NylasEnv.isMainWindow()
       # We delay so the view has time to update the restored draft. If we
       # don't delay the modal may come up in a state where the draft looks
       # like it hasn't been restored or has been lost.

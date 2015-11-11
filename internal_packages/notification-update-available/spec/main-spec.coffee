@@ -41,9 +41,9 @@ describe "NotificationUpdateAvailable", ->
       expect(@package.displayNotification).not.toHaveBeenCalled()
 
     it "should listen for `window:update-available`", ->
-      spyOn(atom, 'onUpdateAvailable').andCallThrough()
+      spyOn(NylasEnv, 'onUpdateAvailable').andCallThrough()
       @package.activate()
-      expect(atom.onUpdateAvailable).toHaveBeenCalled()
+      expect(NylasEnv.onUpdateAvailable).toHaveBeenCalled()
 
   describe "displayNotification", ->
     beforeEach ->

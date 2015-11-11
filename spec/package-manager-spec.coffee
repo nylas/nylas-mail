@@ -2,35 +2,35 @@ path = require 'path'
 {$, $$} = require '../src/space-pen-extensions'
 Package = require '../src/package'
 DatabaseStore = require '../src/flux/stores/database-store'
-{Disposable} = require 'atom'
+{Disposable} = require 'event-kit'
 
 describe "PackageManager", ->
   workspaceElement = null
 
   beforeEach ->
-    workspaceElement = document.createElement('atom-workspace')
+    workspaceElement = document.createElement('nylas-workspace')
     jasmine.attachToDOM(workspaceElement)
 
   describe "::loadPackage(name)", ->
     beforeEach ->
-      atom.config.set("core.disabledPackages", [])
+      NylasEnv.config.set("core.disabledPackages", [])
 
     it "returns the package", ->
-      pack = atom.packages.loadPackage("package-with-index")
+      pack = NylasEnv.packages.loadPackage("package-with-index")
       expect(pack instanceof Package).toBe true
       expect(pack.metadata.name).toBe "package-with-index"
 
     it "returns the package if it has an invalid keymap", ->
       spyOn(console, 'warn')
       spyOn(console, 'error')
-      pack = atom.packages.loadPackage("package-with-broken-keymap")
+      pack = NylasEnv.packages.loadPackage("package-with-broken-keymap")
       expect(pack instanceof Package).toBe true
       expect(pack.metadata.name).toBe "package-with-broken-keymap"
 
     it "returns the package if it has an invalid stylesheet", ->
       spyOn(console, 'warn')
       spyOn(console, 'error')
-      pack = atom.packages.loadPackage("package-with-invalid-styles")
+      pack = NylasEnv.packages.loadPackage("package-with-invalid-styles")
       expect(pack instanceof Package).toBe true
       expect(pack.metadata.name).toBe "package-with-invalid-styles"
       expect(pack.stylesheets.length).toBe 0
@@ -38,22 +38,22 @@ describe "PackageManager", ->
     it "returns null if the package has an invalid package.json", ->
       spyOn(console, 'warn')
       spyOn(console, 'error')
-      expect(atom.packages.loadPackage("package-with-broken-package-json")).toBeNull()
+      expect(NylasEnv.packages.loadPackage("package-with-broken-package-json")).toBeNull()
       expect(console.warn.callCount).toBe(2)
       expect(console.warn.argsForCall[0][0]).toContain("Failed to load package.json")
 
     it "returns null if the package is not found in any package directory", ->
       spyOn(console, 'warn')
       spyOn(console, 'error')
-      expect(atom.packages.loadPackage("this-package-cannot-be-found")).toBeNull()
+      expect(NylasEnv.packages.loadPackage("this-package-cannot-be-found")).toBeNull()
       expect(console.warn.callCount).toBe(1)
       expect(console.warn.argsForCall[0][0]).toContain("Could not resolve")
 
     it "invokes ::onDidLoadPackage listeners with the loaded package", ->
       loadedPackage = null
-      atom.packages.onDidLoadPackage (pack) -> loadedPackage = pack
+      NylasEnv.packages.onDidLoadPackage (pack) -> loadedPackage = pack
 
-      atom.packages.loadPackage("package-with-main")
+      NylasEnv.packages.loadPackage("package-with-main")
 
       expect(loadedPackage.name).toBe "package-with-main"
 
@@ -62,33 +62,33 @@ describe "PackageManager", ->
       it "throws an error", ->
         pack = null
         waitsForPromise ->
-          atom.packages.activatePackage('package-with-main').then (p) -> pack = p
+          NylasEnv.packages.activatePackage('package-with-main').then (p) -> pack = p
 
         runs ->
-          expect(atom.packages.isPackageLoaded(pack.name)).toBeTruthy()
-          expect(atom.packages.isPackageActive(pack.name)).toBeTruthy()
-          expect( -> atom.packages.unloadPackage(pack.name)).toThrow()
-          expect(atom.packages.isPackageLoaded(pack.name)).toBeTruthy()
-          expect(atom.packages.isPackageActive(pack.name)).toBeTruthy()
+          expect(NylasEnv.packages.isPackageLoaded(pack.name)).toBeTruthy()
+          expect(NylasEnv.packages.isPackageActive(pack.name)).toBeTruthy()
+          expect( -> NylasEnv.packages.unloadPackage(pack.name)).toThrow()
+          expect(NylasEnv.packages.isPackageLoaded(pack.name)).toBeTruthy()
+          expect(NylasEnv.packages.isPackageActive(pack.name)).toBeTruthy()
 
     describe "when the package is not loaded", ->
       it "throws an error", ->
-        expect(atom.packages.isPackageLoaded('unloaded')).toBeFalsy()
-        expect( -> atom.packages.unloadPackage('unloaded')).toThrow()
-        expect(atom.packages.isPackageLoaded('unloaded')).toBeFalsy()
+        expect(NylasEnv.packages.isPackageLoaded('unloaded')).toBeFalsy()
+        expect( -> NylasEnv.packages.unloadPackage('unloaded')).toThrow()
+        expect(NylasEnv.packages.isPackageLoaded('unloaded')).toBeFalsy()
 
     describe "when the package is loaded", ->
       it "no longers reports it as being loaded", ->
-        pack = atom.packages.loadPackage('package-with-main')
-        expect(atom.packages.isPackageLoaded(pack.name)).toBeTruthy()
-        atom.packages.unloadPackage(pack.name)
-        expect(atom.packages.isPackageLoaded(pack.name)).toBeFalsy()
+        pack = NylasEnv.packages.loadPackage('package-with-main')
+        expect(NylasEnv.packages.isPackageLoaded(pack.name)).toBeTruthy()
+        NylasEnv.packages.unloadPackage(pack.name)
+        expect(NylasEnv.packages.isPackageLoaded(pack.name)).toBeFalsy()
 
     it "invokes ::onDidUnloadPackage listeners with the unloaded package", ->
-      atom.packages.loadPackage('package-with-main')
+      NylasEnv.packages.loadPackage('package-with-main')
       unloadedPackage = null
-      atom.packages.onDidUnloadPackage (pack) -> unloadedPackage = pack
-      atom.packages.unloadPackage('package-with-main')
+      NylasEnv.packages.onDidUnloadPackage (pack) -> unloadedPackage = pack
+      NylasEnv.packages.unloadPackage('package-with-main')
       expect(unloadedPackage.name).toBe 'package-with-main'
 
   describe "::activatePackage(id)", ->
@@ -96,11 +96,11 @@ describe "PackageManager", ->
       it "it only calls activate on the package once", ->
         spyOn(Package.prototype, 'activateNow').andCallThrough()
         waitsForPromise ->
-          atom.packages.activatePackage('package-with-index')
+          NylasEnv.packages.activatePackage('package-with-index')
         waitsForPromise ->
-          atom.packages.activatePackage('package-with-index')
+          NylasEnv.packages.activatePackage('package-with-index')
         waitsForPromise ->
-          atom.packages.activatePackage('package-with-index')
+          NylasEnv.packages.activatePackage('package-with-index')
 
         runs ->
           expect(Package.prototype.activateNow.callCount).toBe 1
@@ -112,7 +112,7 @@ describe "PackageManager", ->
           spyOn(mainModule, 'activate')
           pack = null
           waitsForPromise ->
-            atom.packages.activatePackage('package-with-main').then (p) -> pack = p
+            NylasEnv.packages.activatePackage('package-with-main').then (p) -> pack = p
 
           runs ->
             expect(mainModule.activate).toHaveBeenCalled()
@@ -124,25 +124,25 @@ describe "PackageManager", ->
           spyOn(indexModule, 'activate')
           pack = null
           waitsForPromise ->
-            atom.packages.activatePackage('package-with-index').then (p) -> pack = p
+            NylasEnv.packages.activatePackage('package-with-index').then (p) -> pack = p
 
           runs ->
             expect(indexModule.activate).toHaveBeenCalled()
             expect(pack.mainModule).toBe indexModule
 
       it "assigns config schema, including defaults when package contains a schema", ->
-        expect(atom.config.get('package-with-config-schema.numbers.one')).toBeUndefined()
+        expect(NylasEnv.config.get('package-with-config-schema.numbers.one')).toBeUndefined()
 
         waitsForPromise ->
-          atom.packages.activatePackage('package-with-config-schema')
+          NylasEnv.packages.activatePackage('package-with-config-schema')
 
         runs ->
-          expect(atom.config.get('package-with-config-schema.numbers.one')).toBe 1
-          expect(atom.config.get('package-with-config-schema.numbers.two')).toBe 2
+          expect(NylasEnv.config.get('package-with-config-schema.numbers.one')).toBe 1
+          expect(NylasEnv.config.get('package-with-config-schema.numbers.two')).toBe 2
 
-          expect(atom.config.set('package-with-config-schema.numbers.one', 'nope')).toBe false
-          expect(atom.config.set('package-with-config-schema.numbers.one', '10')).toBe true
-          expect(atom.config.get('package-with-config-schema.numbers.one')).toBe 10
+          expect(NylasEnv.config.set('package-with-config-schema.numbers.one', 'nope')).toBe false
+          expect(NylasEnv.config.set('package-with-config-schema.numbers.one', '10')).toBe true
+          expect(NylasEnv.config.get('package-with-config-schema.numbers.one')).toBe 10
 
       describe "when a package has configDefaults", ->
         beforeEach ->
@@ -153,67 +153,67 @@ describe "PackageManager", ->
 
         # it "still assigns configDefaults from the module though deprecated", ->
         #
-        #   expect(atom.config.get('package-with-config-defaults.numbers.one')).toBeUndefined()
+        #   expect(NylasEnv.config.get('package-with-config-defaults.numbers.one')).toBeUndefined()
         #
         #   waitsForPromise ->
-        #     atom.packages.activatePackage('package-with-config-defaults')
+        #     NylasEnv.packages.activatePackage('package-with-config-defaults')
         #
         #   runs ->
-        #     expect(atom.config.get('package-with-config-defaults.numbers.one')).toBe 1
-        #     expect(atom.config.get('package-with-config-defaults.numbers.two')).toBe 2
+        #     expect(NylasEnv.config.get('package-with-config-defaults.numbers.one')).toBe 1
+        #     expect(NylasEnv.config.get('package-with-config-defaults.numbers.two')).toBe 2
 
     describe "when the package has no main module", ->
       it "does not throw an exception", ->
         spyOn(console, "error")
         spyOn(console, "warn")
-        expect(-> atom.packages.activatePackage('package-without-module')).not.toThrow()
+        expect(-> NylasEnv.packages.activatePackage('package-without-module')).not.toThrow()
         expect(console.error).not.toHaveBeenCalled()
         expect(console.warn).not.toHaveBeenCalled()
 
     it "passes the activate method the package's previously serialized state if it exists", ->
       pack = null
       waitsForPromise ->
-        atom.packages.activatePackage("package-with-serialization").then (p) -> pack = p
+        NylasEnv.packages.activatePackage("package-with-serialization").then (p) -> pack = p
 
       runs ->
         expect(pack.mainModule.someNumber).not.toBe 77
         pack.mainModule.someNumber = 77
-        atom.packages.deactivatePackage("package-with-serialization")
+        NylasEnv.packages.deactivatePackage("package-with-serialization")
         spyOn(pack.mainModule, 'activate').andCallThrough()
         waitsForPromise ->
-          atom.packages.activatePackage("package-with-serialization")
+          NylasEnv.packages.activatePackage("package-with-serialization")
         runs ->
           expect(pack.mainModule.activate.calls[0].args[0]).toEqual({someNumber: 77})
 
     it "invokes ::onDidActivatePackage listeners with the activated package", ->
       activatedPackage = null
-      atom.packages.onDidActivatePackage (pack) ->
+      NylasEnv.packages.onDidActivatePackage (pack) ->
         activatedPackage = pack
 
-      atom.packages.activatePackage('package-with-main')
+      NylasEnv.packages.activatePackage('package-with-main')
 
       waitsFor -> activatedPackage?
       runs -> expect(activatedPackage.name).toBe 'package-with-main'
 
     describe "when the package throws an error while loading", ->
       it "logs a warning instead of throwing an exception", ->
-        atom.config.set("core.disabledPackages", [])
+        NylasEnv.config.set("core.disabledPackages", [])
         spyOn(console, "log")
         spyOn(console, "warn")
         spyOn(console, "error")
-        expect(-> atom.packages.activatePackage("package-that-throws-an-exception")).not.toThrow()
+        expect(-> NylasEnv.packages.activatePackage("package-that-throws-an-exception")).not.toThrow()
         expect(console.warn).toHaveBeenCalled()
 
     describe "when the package is not found", ->
       it "rejects the promise", ->
-        atom.config.set("core.disabledPackages", [])
+        NylasEnv.config.set("core.disabledPackages", [])
 
         onSuccess = jasmine.createSpy('onSuccess')
         onFailure = jasmine.createSpy('onFailure')
         spyOn(console, 'warn')
         spyOn(console, "error")
 
-        atom.packages.activatePackage("this-doesnt-exist").then(onSuccess, onFailure)
+        NylasEnv.packages.activatePackage("this-doesnt-exist").then(onSuccess, onFailure)
 
         waitsFor "promise to be rejected", ->
           onFailure.callCount > 0
@@ -230,75 +230,75 @@ describe "PackageManager", ->
           element2 = $$ -> @div class: 'test-2'
           element3 = $$ -> @div class: 'test-3'
 
-          expect(atom.keymaps.findKeyBindings(keystrokes:'ctrl-z', target:element1[0])).toHaveLength 0
-          expect(atom.keymaps.findKeyBindings(keystrokes:'ctrl-z', target:element2[0])).toHaveLength 0
-          expect(atom.keymaps.findKeyBindings(keystrokes:'ctrl-z', target:element3[0])).toHaveLength 0
+          expect(NylasEnv.keymaps.findKeyBindings(keystrokes:'ctrl-z', target:element1[0])).toHaveLength 0
+          expect(NylasEnv.keymaps.findKeyBindings(keystrokes:'ctrl-z', target:element2[0])).toHaveLength 0
+          expect(NylasEnv.keymaps.findKeyBindings(keystrokes:'ctrl-z', target:element3[0])).toHaveLength 0
 
           waitsForPromise ->
-            atom.packages.activatePackage("package-with-keymaps")
+            NylasEnv.packages.activatePackage("package-with-keymaps")
 
           runs ->
-            expect(atom.keymaps.findKeyBindings(keystrokes:'ctrl-z', target:element1[0])[0].command).toBe "test-1"
-            expect(atom.keymaps.findKeyBindings(keystrokes:'ctrl-z', target:element2[0])[0].command).toBe "test-2"
-            expect(atom.keymaps.findKeyBindings(keystrokes:'ctrl-z', target:element3[0])).toHaveLength 0
+            expect(NylasEnv.keymaps.findKeyBindings(keystrokes:'ctrl-z', target:element1[0])[0].command).toBe "test-1"
+            expect(NylasEnv.keymaps.findKeyBindings(keystrokes:'ctrl-z', target:element2[0])[0].command).toBe "test-2"
+            expect(NylasEnv.keymaps.findKeyBindings(keystrokes:'ctrl-z', target:element3[0])).toHaveLength 0
 
       describe "when the metadata contains a 'keymaps' manifest", ->
         it "loads only the keymaps specified by the manifest, in the specified order", ->
           element1 = $$ -> @div class: 'test-1'
           element3 = $$ -> @div class: 'test-3'
 
-          expect(atom.keymaps.findKeyBindings(keystrokes:'ctrl-z', target:element1[0])).toHaveLength 0
+          expect(NylasEnv.keymaps.findKeyBindings(keystrokes:'ctrl-z', target:element1[0])).toHaveLength 0
 
           waitsForPromise ->
-            atom.packages.activatePackage("package-with-keymaps-manifest")
+            NylasEnv.packages.activatePackage("package-with-keymaps-manifest")
 
           runs ->
-            expect(atom.keymaps.findKeyBindings(keystrokes:'ctrl-z', target:element1[0])[0].command).toBe 'keymap-1'
-            expect(atom.keymaps.findKeyBindings(keystrokes:'ctrl-n', target:element1[0])[0].command).toBe 'keymap-2'
-            expect(atom.keymaps.findKeyBindings(keystrokes:'ctrl-y', target:element3[0])).toHaveLength 0
+            expect(NylasEnv.keymaps.findKeyBindings(keystrokes:'ctrl-z', target:element1[0])[0].command).toBe 'keymap-1'
+            expect(NylasEnv.keymaps.findKeyBindings(keystrokes:'ctrl-n', target:element1[0])[0].command).toBe 'keymap-2'
+            expect(NylasEnv.keymaps.findKeyBindings(keystrokes:'ctrl-y', target:element3[0])).toHaveLength 0
 
       describe "when the keymap file is empty", ->
         it "does not throw an error on activation", ->
           waitsForPromise ->
-            atom.packages.activatePackage("package-with-empty-keymap")
+            NylasEnv.packages.activatePackage("package-with-empty-keymap")
 
           runs ->
-            expect(atom.packages.isPackageActive("package-with-empty-keymap")).toBe true
+            expect(NylasEnv.packages.isPackageActive("package-with-empty-keymap")).toBe true
 
     describe "menu loading", ->
       beforeEach ->
-        atom.menu.template = []
+        NylasEnv.menu.template = []
 
       describe "when the metadata does not contain a 'menus' manifest", ->
         it "loads all the .cson/.json files in the menus directory", ->
           element = ($$ -> @div class: 'test-1')[0]
 
           waitsForPromise ->
-            atom.packages.activatePackage("package-with-menus")
+            NylasEnv.packages.activatePackage("package-with-menus")
 
           runs ->
-            expect(atom.menu.template.length).toBe 2
-            expect(atom.menu.template[0].label).toBe "Second to Last"
-            expect(atom.menu.template[1].label).toBe "Last"
+            expect(NylasEnv.menu.template.length).toBe 2
+            expect(NylasEnv.menu.template[0].label).toBe "Second to Last"
+            expect(NylasEnv.menu.template[1].label).toBe "Last"
 
       describe "when the metadata contains a 'menus' manifest", ->
         it "loads only the menus specified by the manifest, in the specified order", ->
           element = ($$ -> @div class: 'test-1')[0]
 
           waitsForPromise ->
-            atom.packages.activatePackage("package-with-menus-manifest")
+            NylasEnv.packages.activatePackage("package-with-menus-manifest")
 
           runs ->
-            expect(atom.menu.template[0].label).toBe "Second to Last"
-            expect(atom.menu.template[1].label).toBe "Last"
+            expect(NylasEnv.menu.template[0].label).toBe "Second to Last"
+            expect(NylasEnv.menu.template[1].label).toBe "Last"
 
       describe "when the menu file is empty", ->
         it "does not throw an error on activation", ->
           waitsForPromise ->
-            atom.packages.activatePackage("package-with-empty-menu")
+            NylasEnv.packages.activatePackage("package-with-empty-menu")
 
           runs ->
-            expect(atom.packages.isPackageActive("package-with-empty-menu")).toBe true
+            expect(NylasEnv.packages.isPackageActive("package-with-empty-menu")).toBe true
 
     describe "stylesheet loading", ->
       describe "when the metadata contains a 'styleSheets' manifest", ->
@@ -307,21 +307,21 @@ describe "PackageManager", ->
           two = require.resolve("./fixtures/packages/package-with-style-sheets-manifest/styles/2.less")
           three = require.resolve("./fixtures/packages/package-with-style-sheets-manifest/styles/3.css")
 
-          one = atom.themes.stringToId(one)
-          two = atom.themes.stringToId(two)
-          three = atom.themes.stringToId(three)
+          one = NylasEnv.themes.stringToId(one)
+          two = NylasEnv.themes.stringToId(two)
+          three = NylasEnv.themes.stringToId(three)
 
-          expect(atom.themes.stylesheetElementForId(one)).toBeNull()
-          expect(atom.themes.stylesheetElementForId(two)).toBeNull()
-          expect(atom.themes.stylesheetElementForId(three)).toBeNull()
+          expect(NylasEnv.themes.stylesheetElementForId(one)).toBeNull()
+          expect(NylasEnv.themes.stylesheetElementForId(two)).toBeNull()
+          expect(NylasEnv.themes.stylesheetElementForId(three)).toBeNull()
 
           waitsForPromise ->
-            atom.packages.activatePackage("package-with-style-sheets-manifest")
+            NylasEnv.packages.activatePackage("package-with-style-sheets-manifest")
 
           runs ->
-            expect(atom.themes.stylesheetElementForId(one)).not.toBeNull()
-            expect(atom.themes.stylesheetElementForId(two)).not.toBeNull()
-            expect(atom.themes.stylesheetElementForId(three)).toBeNull()
+            expect(NylasEnv.themes.stylesheetElementForId(one)).not.toBeNull()
+            expect(NylasEnv.themes.stylesheetElementForId(two)).not.toBeNull()
+            expect(NylasEnv.themes.stylesheetElementForId(three)).toBeNull()
             expect($('#jasmine-content').css('font-size')).toBe '1px'
 
       describe "when the metadata does not contain a 'styleSheets' manifest", ->
@@ -331,34 +331,34 @@ describe "PackageManager", ->
           three = require.resolve("./fixtures/packages/package-with-styles/styles/3.test-context.css")
           four = require.resolve("./fixtures/packages/package-with-styles/styles/4.css")
 
-          one = atom.themes.stringToId(one)
-          two = atom.themes.stringToId(two)
-          three = atom.themes.stringToId(three)
-          four = atom.themes.stringToId(four)
+          one = NylasEnv.themes.stringToId(one)
+          two = NylasEnv.themes.stringToId(two)
+          three = NylasEnv.themes.stringToId(three)
+          four = NylasEnv.themes.stringToId(four)
 
-          expect(atom.themes.stylesheetElementForId(one)).toBeNull()
-          expect(atom.themes.stylesheetElementForId(two)).toBeNull()
-          expect(atom.themes.stylesheetElementForId(three)).toBeNull()
-          expect(atom.themes.stylesheetElementForId(four)).toBeNull()
+          expect(NylasEnv.themes.stylesheetElementForId(one)).toBeNull()
+          expect(NylasEnv.themes.stylesheetElementForId(two)).toBeNull()
+          expect(NylasEnv.themes.stylesheetElementForId(three)).toBeNull()
+          expect(NylasEnv.themes.stylesheetElementForId(four)).toBeNull()
 
           waitsForPromise ->
-            atom.packages.activatePackage("package-with-styles")
+            NylasEnv.packages.activatePackage("package-with-styles")
 
           runs ->
-            expect(atom.themes.stylesheetElementForId(one)).not.toBeNull()
-            expect(atom.themes.stylesheetElementForId(two)).not.toBeNull()
-            expect(atom.themes.stylesheetElementForId(three)).not.toBeNull()
-            expect(atom.themes.stylesheetElementForId(four)).not.toBeNull()
+            expect(NylasEnv.themes.stylesheetElementForId(one)).not.toBeNull()
+            expect(NylasEnv.themes.stylesheetElementForId(two)).not.toBeNull()
+            expect(NylasEnv.themes.stylesheetElementForId(three)).not.toBeNull()
+            expect(NylasEnv.themes.stylesheetElementForId(four)).not.toBeNull()
             expect($('#jasmine-content').css('font-size')).toBe '3px'
 
       it "assigns the stylesheet's context based on the filename", ->
         waitsForPromise ->
-          atom.packages.activatePackage("package-with-styles")
+          NylasEnv.packages.activatePackage("package-with-styles")
 
         runs ->
           count = 0
 
-          for styleElement in atom.styles.getStyleElements()
+          for styleElement in NylasEnv.styles.getStyleElements()
             if styleElement.sourcePath.match /1.css/
               expect(styleElement.context).toBe undefined
               count++
@@ -380,10 +380,10 @@ describe "PackageManager", ->
     describe "scoped-property loading", ->
       it "loads the scoped properties", ->
         waitsForPromise ->
-          atom.packages.activatePackage("package-with-settings")
+          NylasEnv.packages.activatePackage("package-with-settings")
 
         runs ->
-          expect(atom.config.get 'editor.increaseIndentPattern', scope: ['.source.omg']).toBe '^a'
+          expect(NylasEnv.config.get 'editor.increaseIndentPattern', scope: ['.source.omg']).toBe '^a'
 
     describe "service registration", ->
       it "registers the package's provided and consumed services", ->
@@ -396,10 +396,10 @@ describe "PackageManager", ->
         spyOn(consumerModule, 'consumeSecondService').andReturn(new Disposable -> secondServiceDisposed = true)
 
         waitsForPromise ->
-          atom.packages.activatePackage("package-with-consumed-services")
+          NylasEnv.packages.activatePackage("package-with-consumed-services")
 
         waitsForPromise ->
-          atom.packages.activatePackage("package-with-provided-services")
+          NylasEnv.packages.activatePackage("package-with-provided-services")
 
         runs ->
           expect(consumerModule.consumeFirstServiceV3).toHaveBeenCalledWith('first-service-v3')
@@ -410,16 +410,16 @@ describe "PackageManager", ->
           consumerModule.consumeFirstServiceV4.reset()
           consumerModule.consumeSecondService.reset()
 
-          atom.packages.deactivatePackage("package-with-provided-services")
+          NylasEnv.packages.deactivatePackage("package-with-provided-services")
 
           expect(firstServiceV3Disposed).toBe true
           expect(firstServiceV4Disposed).toBe true
           expect(secondServiceDisposed).toBe true
 
-          atom.packages.deactivatePackage("package-with-consumed-services")
+          NylasEnv.packages.deactivatePackage("package-with-consumed-services")
 
         waitsForPromise ->
-          atom.packages.activatePackage("package-with-provided-services")
+          NylasEnv.packages.activatePackage("package-with-provided-services")
 
         runs ->
           expect(consumerModule.consumeFirstServiceV3).not.toHaveBeenCalled()
@@ -428,20 +428,20 @@ describe "PackageManager", ->
 
   describe "::deactivatePackage(id)", ->
     afterEach ->
-      atom.packages.unloadPackages()
+      NylasEnv.packages.unloadPackages()
 
     it "calls `deactivate` on the package's main module if activate was successful", ->
       pack = null
       waitsForPromise ->
-        atom.packages.activatePackage("package-with-deactivate").then (p) -> pack = p
+        NylasEnv.packages.activatePackage("package-with-deactivate").then (p) -> pack = p
 
       runs ->
-        expect(atom.packages.isPackageActive("package-with-deactivate")).toBeTruthy()
+        expect(NylasEnv.packages.isPackageActive("package-with-deactivate")).toBeTruthy()
         spyOn(pack.mainModule, 'deactivate').andCallThrough()
 
-        atom.packages.deactivatePackage("package-with-deactivate")
+        NylasEnv.packages.deactivatePackage("package-with-deactivate")
         expect(pack.mainModule.deactivate).toHaveBeenCalled()
-        expect(atom.packages.isPackageActive("package-with-module")).toBeFalsy()
+        expect(NylasEnv.packages.isPackageActive("package-with-module")).toBeFalsy()
 
         spyOn(console, 'log')
         spyOn(console, 'warn')
@@ -449,15 +449,15 @@ describe "PackageManager", ->
 
       badPack = null
       waitsForPromise ->
-        atom.packages.activatePackage("package-that-throws-on-activate").then (p) -> badPack = p
+        NylasEnv.packages.activatePackage("package-that-throws-on-activate").then (p) -> badPack = p
 
       runs ->
-        expect(atom.packages.isPackageActive("package-that-throws-on-activate")).toBeTruthy()
+        expect(NylasEnv.packages.isPackageActive("package-that-throws-on-activate")).toBeTruthy()
         spyOn(badPack.mainModule, 'deactivate').andCallThrough()
 
-        atom.packages.deactivatePackage("package-that-throws-on-activate")
+        NylasEnv.packages.deactivatePackage("package-that-throws-on-activate")
         expect(badPack.mainModule.deactivate).not.toHaveBeenCalled()
-        expect(atom.packages.isPackageActive("package-that-throws-on-activate")).toBeFalsy()
+        expect(NylasEnv.packages.isPackageActive("package-that-throws-on-activate")).toBeFalsy()
 
     it "does not serialize packages that have not been activated called on their main module", ->
       spyOn(console, 'log')
@@ -465,78 +465,78 @@ describe "PackageManager", ->
       spyOn(console, "error")
       badPack = null
       waitsForPromise ->
-        atom.packages.activatePackage("package-that-throws-on-activate").then (p) -> badPack = p
+        NylasEnv.packages.activatePackage("package-that-throws-on-activate").then (p) -> badPack = p
 
       runs ->
         spyOn(badPack.mainModule, 'serialize').andCallThrough()
 
-        atom.packages.deactivatePackage("package-that-throws-on-activate")
+        NylasEnv.packages.deactivatePackage("package-that-throws-on-activate")
         expect(badPack.mainModule.serialize).not.toHaveBeenCalled()
 
     it "absorbs exceptions that are thrown by the package module's serialize method", ->
       spyOn(console, 'error')
 
       waitsForPromise ->
-        atom.packages.activatePackage('package-with-serialize-error')
+        NylasEnv.packages.activatePackage('package-with-serialize-error')
 
       waitsForPromise ->
-        atom.packages.activatePackage('package-with-serialization')
+        NylasEnv.packages.activatePackage('package-with-serialization')
 
       runs ->
-        atom.packages.deactivatePackages()
-        expect(atom.packages.packageStates['package-with-serialize-error']).toBeUndefined()
-        expect(atom.packages.packageStates['package-with-serialization']).toEqual someNumber: 1
+        NylasEnv.packages.deactivatePackages()
+        expect(NylasEnv.packages.packageStates['package-with-serialize-error']).toBeUndefined()
+        expect(NylasEnv.packages.packageStates['package-with-serialization']).toEqual someNumber: 1
         expect(console.error).toHaveBeenCalled()
 
     it "absorbs exceptions that are thrown by the package module's deactivate method", ->
       spyOn(console, 'error')
 
       waitsForPromise ->
-        atom.packages.activatePackage("package-that-throws-on-deactivate")
+        NylasEnv.packages.activatePackage("package-that-throws-on-deactivate")
 
       runs ->
-        expect(-> atom.packages.deactivatePackage("package-that-throws-on-deactivate")).not.toThrow()
+        expect(-> NylasEnv.packages.deactivatePackage("package-that-throws-on-deactivate")).not.toThrow()
         expect(console.error).toHaveBeenCalled()
 
     it "removes the package's keymaps", ->
       waitsForPromise ->
-        atom.packages.activatePackage('package-with-keymaps')
+        NylasEnv.packages.activatePackage('package-with-keymaps')
 
       runs ->
-        atom.packages.deactivatePackage('package-with-keymaps')
-        expect(atom.keymaps.findKeyBindings(keystrokes:'ctrl-z', target: ($$ -> @div class: 'test-1')[0])).toHaveLength 0
-        expect(atom.keymaps.findKeyBindings(keystrokes:'ctrl-z', target: ($$ -> @div class: 'test-2')[0])).toHaveLength 0
+        NylasEnv.packages.deactivatePackage('package-with-keymaps')
+        expect(NylasEnv.keymaps.findKeyBindings(keystrokes:'ctrl-z', target: ($$ -> @div class: 'test-1')[0])).toHaveLength 0
+        expect(NylasEnv.keymaps.findKeyBindings(keystrokes:'ctrl-z', target: ($$ -> @div class: 'test-2')[0])).toHaveLength 0
 
     it "removes the package's stylesheets", ->
       waitsForPromise ->
-        atom.packages.activatePackage('package-with-styles')
+        NylasEnv.packages.activatePackage('package-with-styles')
 
       runs ->
-        atom.packages.deactivatePackage('package-with-styles')
+        NylasEnv.packages.deactivatePackage('package-with-styles')
         one = require.resolve("./fixtures/packages/package-with-style-sheets-manifest/styles/1.css")
         two = require.resolve("./fixtures/packages/package-with-style-sheets-manifest/styles/2.less")
         three = require.resolve("./fixtures/packages/package-with-style-sheets-manifest/styles/3.css")
-        expect(atom.themes.stylesheetElementForId(one)).not.toExist()
-        expect(atom.themes.stylesheetElementForId(two)).not.toExist()
-        expect(atom.themes.stylesheetElementForId(three)).not.toExist()
+        expect(NylasEnv.themes.stylesheetElementForId(one)).not.toExist()
+        expect(NylasEnv.themes.stylesheetElementForId(two)).not.toExist()
+        expect(NylasEnv.themes.stylesheetElementForId(three)).not.toExist()
 
     it "removes the package's scoped-properties", ->
       waitsForPromise ->
-        atom.packages.activatePackage("package-with-settings")
+        NylasEnv.packages.activatePackage("package-with-settings")
 
       runs ->
-        expect(atom.config.get 'editor.increaseIndentPattern', scope: ['.source.omg']).toBe '^a'
-        atom.packages.deactivatePackage("package-with-settings")
-        expect(atom.config.get 'editor.increaseIndentPattern', scope: ['.source.omg']).toBeUndefined()
+        expect(NylasEnv.config.get 'editor.increaseIndentPattern', scope: ['.source.omg']).toBe '^a'
+        NylasEnv.packages.deactivatePackage("package-with-settings")
+        expect(NylasEnv.config.get 'editor.increaseIndentPattern', scope: ['.source.omg']).toBeUndefined()
 
     it "invokes ::onDidDeactivatePackage listeners with the deactivated package", ->
       waitsForPromise ->
-        atom.packages.activatePackage("package-with-main")
+        NylasEnv.packages.activatePackage("package-with-main")
 
       runs ->
         deactivatedPackage = null
-        atom.packages.onDidDeactivatePackage (pack) -> deactivatedPackage = pack
-        atom.packages.deactivatePackage("package-with-main")
+        NylasEnv.packages.onDidDeactivatePackage (pack) -> deactivatedPackage = pack
+        NylasEnv.packages.deactivatePackage("package-with-main")
         expect(deactivatedPackage.name).toBe "package-with-main"
 
   describe "::activate()", ->
@@ -544,105 +544,105 @@ describe "PackageManager", ->
       jasmine.snapshotDeprecations()
       spyOn(console, 'warn')
       spyOn(console, "error")
-      atom.packages.loadPackages()
+      NylasEnv.packages.loadPackages()
 
-      loadedPackages = atom.packages.getLoadedPackages()
+      loadedPackages = NylasEnv.packages.getLoadedPackages()
       expect(loadedPackages.length).toBeGreaterThan 0
 
     afterEach ->
-      atom.packages.deactivatePackages()
-      atom.packages.unloadPackages()
+      NylasEnv.packages.deactivatePackages()
+      NylasEnv.packages.unloadPackages()
       jasmine.restoreDeprecationsSnapshot()
 
     it "activates all the packages, and none of the themes", ->
-      packageActivator = spyOn(atom.packages, 'activatePackages')
-      themeActivator = spyOn(atom.themes, 'activatePackages')
+      packageActivator = spyOn(NylasEnv.packages, 'activatePackages')
+      themeActivator = spyOn(NylasEnv.themes, 'activatePackages')
 
-      atom.packages.activate()
+      NylasEnv.packages.activate()
 
       expect(packageActivator).toHaveBeenCalled()
       expect(themeActivator).toHaveBeenCalled()
 
       packages = packageActivator.mostRecentCall.args[0]
-      expect(['atom', 'textmate']).toContain(pack.getType()) for pack in packages
+      expect(['nylas']).toContain(pack.getType()) for pack in packages
 
       themes = themeActivator.mostRecentCall.args[0]
       expect(['theme']).toContain(theme.getType()) for theme in themes
 
     it "refreshes the database after activating packages with models", ->
       spyOn(DatabaseStore, "refreshDatabaseSchema")
-      package2 = atom.packages.loadPackage('package-with-models')
-      atom.packages.activatePackages([package2])
+      package2 = NylasEnv.packages.loadPackage('package-with-models')
+      NylasEnv.packages.activatePackages([package2])
       expect(DatabaseStore.refreshDatabaseSchema).toHaveBeenCalled()
       expect(DatabaseStore.refreshDatabaseSchema.calls.length).toBe 1
 
     it "calls callbacks registered with ::onDidActivateInitialPackages", ->
-      package1 = atom.packages.loadPackage('package-with-main')
-      package2 = atom.packages.loadPackage('package-with-index')
-      package3 = atom.packages.loadPackage('package-with-activation-commands')
-      spyOn(atom.packages, 'getLoadedPackages').andReturn([package1, package2])
+      package1 = NylasEnv.packages.loadPackage('package-with-main')
+      package2 = NylasEnv.packages.loadPackage('package-with-index')
+      package3 = NylasEnv.packages.loadPackage('package-with-activation-commands')
+      spyOn(NylasEnv.packages, 'getLoadedPackages').andReturn([package1, package2])
 
       activateSpy = jasmine.createSpy('activateSpy')
-      atom.packages.onDidActivateInitialPackages(activateSpy)
+      NylasEnv.packages.onDidActivateInitialPackages(activateSpy)
 
-      atom.packages.activate()
+      NylasEnv.packages.activate()
       waitsFor -> activateSpy.callCount > 0
       runs ->
-        jasmine.unspy(atom.packages, 'getLoadedPackages')
-        expect(package1 in atom.packages.getActivePackages()).toBe true
-        expect(package2 in atom.packages.getActivePackages()).toBe true
-        expect(package3 in atom.packages.getActivePackages()).toBe false
+        jasmine.unspy(NylasEnv.packages, 'getLoadedPackages')
+        expect(package1 in NylasEnv.packages.getActivePackages()).toBe true
+        expect(package2 in NylasEnv.packages.getActivePackages()).toBe true
+        expect(package3 in NylasEnv.packages.getActivePackages()).toBe false
 
   describe "::enablePackage(id) and ::disablePackage(id)", ->
     describe "with packages", ->
       it "enables a disabled package", ->
         spyOn(DatabaseStore, "refreshDatabaseSchema")
         packageName = 'package-with-main'
-        atom.config.pushAtKeyPath('core.disabledPackages', packageName)
-        atom.packages.observeDisabledPackages()
-        expect(atom.config.get('core.disabledPackages')).toContain packageName
+        NylasEnv.config.pushAtKeyPath('core.disabledPackages', packageName)
+        NylasEnv.packages.observeDisabledPackages()
+        expect(NylasEnv.config.get('core.disabledPackages')).toContain packageName
 
-        pack = atom.packages.enablePackage(packageName)
-        loadedPackages = atom.packages.getLoadedPackages()
+        pack = NylasEnv.packages.enablePackage(packageName)
+        loadedPackages = NylasEnv.packages.getLoadedPackages()
         activatedPackages = null
         waitsFor ->
-          activatedPackages = atom.packages.getActivePackages()
+          activatedPackages = NylasEnv.packages.getActivePackages()
           activatedPackages.length > 0
 
         runs ->
           expect(loadedPackages).toContain(pack)
           expect(activatedPackages).toContain(pack)
           expect(DatabaseStore.refreshDatabaseSchema).not.toHaveBeenCalled()
-          expect(atom.config.get('core.disabledPackages')).not.toContain packageName
+          expect(NylasEnv.config.get('core.disabledPackages')).not.toContain packageName
 
       it 'refreshes the DB when loading a package with models', ->
         spyOn(DatabaseStore, "refreshDatabaseSchema")
         packageName = "package-with-models"
-        atom.config.pushAtKeyPath('core.disabledPackages', packageName)
-        atom.packages.observeDisabledPackages()
-        atom.config.removeAtKeyPath("core.disabledPackages", packageName)
+        NylasEnv.config.pushAtKeyPath('core.disabledPackages', packageName)
+        NylasEnv.packages.observeDisabledPackages()
+        NylasEnv.config.removeAtKeyPath("core.disabledPackages", packageName)
         expect(DatabaseStore.refreshDatabaseSchema).toHaveBeenCalled()
         expect(DatabaseStore.refreshDatabaseSchema.calls.length).toBe 1
 
       it "disables an enabled package", ->
         packageName = 'package-with-main'
         waitsForPromise ->
-          atom.packages.activatePackage(packageName)
+          NylasEnv.packages.activatePackage(packageName)
 
         runs ->
-          atom.packages.observeDisabledPackages()
-          expect(atom.config.get('core.disabledPackages')).not.toContain packageName
+          NylasEnv.packages.observeDisabledPackages()
+          expect(NylasEnv.config.get('core.disabledPackages')).not.toContain packageName
 
-          pack = atom.packages.disablePackage(packageName)
+          pack = NylasEnv.packages.disablePackage(packageName)
 
-          activatedPackages = atom.packages.getActivePackages()
+          activatedPackages = NylasEnv.packages.getActivePackages()
           expect(activatedPackages).not.toContain(pack)
-          expect(atom.config.get('core.disabledPackages')).toContain packageName
+          expect(NylasEnv.config.get('core.disabledPackages')).toContain packageName
 
       it "returns null if the package cannot be loaded", ->
         spyOn(console, 'warn')
         spyOn(console, "error")
-        expect(atom.packages.enablePackage("this-doesnt-exist")).toBeNull()
+        expect(NylasEnv.packages.enablePackage("this-doesnt-exist")).toBeNull()
         expect(console.warn.callCount).toBe 1
 
     describe "with themes", ->
@@ -650,53 +650,53 @@ describe "PackageManager", ->
 
       beforeEach ->
         theme_dir = path.resolve(__dirname, '../internal_packages')
-        atom.packages.packageDirPaths.unshift(theme_dir)
+        NylasEnv.packages.packageDirPaths.unshift(theme_dir)
         waitsForPromise ->
-          atom.themes.activateThemes()
+          NylasEnv.themes.activateThemes()
 
       afterEach ->
-        atom.themes.deactivateThemes()
+        NylasEnv.themes.deactivateThemes()
 
       it "enables and disables a theme", ->
         packageName = 'theme-with-package-file'
 
-        expect(atom.config.get('core.themes')).not.toContain packageName
-        expect(atom.config.get('core.disabledPackages')).not.toContain packageName
+        expect(NylasEnv.config.get('core.themes')).not.toContain packageName
+        expect(NylasEnv.config.get('core.disabledPackages')).not.toContain packageName
 
         # enabling of theme
-        pack = atom.packages.enablePackage(packageName)
+        pack = NylasEnv.packages.enablePackage(packageName)
 
         waitsFor ->
-          pack in atom.packages.getActivePackages()
+          pack in NylasEnv.packages.getActivePackages()
 
         runs ->
-          expect(atom.config.get('core.themes')).toContain packageName
-          expect(atom.config.get('core.disabledPackages')).not.toContain packageName
+          expect(NylasEnv.config.get('core.themes')).toContain packageName
+          expect(NylasEnv.config.get('core.disabledPackages')).not.toContain packageName
 
           didChangeActiveThemesHandler = jasmine.createSpy('didChangeActiveThemesHandler')
           didChangeActiveThemesHandler.reset()
-          atom.themes.onDidChangeActiveThemes didChangeActiveThemesHandler
+          NylasEnv.themes.onDidChangeActiveThemes didChangeActiveThemesHandler
 
-          pack = atom.packages.disablePackage(packageName)
+          pack = NylasEnv.packages.disablePackage(packageName)
 
         waitsFor ->
           didChangeActiveThemesHandler.callCount is 1
 
         runs ->
-          expect(atom.packages.getActivePackages()).not.toContain pack
-          expect(atom.config.get('core.themes')).not.toContain packageName
-          expect(atom.config.get('core.themes')).not.toContain packageName
-          expect(atom.config.get('core.disabledPackages')).not.toContain packageName
+          expect(NylasEnv.packages.getActivePackages()).not.toContain pack
+          expect(NylasEnv.config.get('core.themes')).not.toContain packageName
+          expect(NylasEnv.config.get('core.themes')).not.toContain packageName
+          expect(NylasEnv.config.get('core.disabledPackages')).not.toContain packageName
 
   describe 'packages with models and tasks', ->
     beforeEach ->
-      atom.packages.deactivatePackages()
-      atom.packages.unloadPackages()
+      NylasEnv.packages.deactivatePackages()
+      NylasEnv.packages.unloadPackages()
 
     it 'registers objects on load', ->
-      withModels = atom.packages.loadPackage("package-with-models")
-      withoutModels = atom.packages.loadPackage("package-with-main")
+      withModels = NylasEnv.packages.loadPackage("package-with-models")
+      withoutModels = NylasEnv.packages.loadPackage("package-with-main")
       expect(withModels.declaresNewDatabaseObjects).toBe true
       expect(withoutModels.declaresNewDatabaseObjects).toBe false
-      expect(atom.packages.packagesWithDatabaseObjects.length).toBe 1
-      expect(atom.packages.packagesWithDatabaseObjects[0]).toBe withModels
+      expect(NylasEnv.packages.packagesWithDatabaseObjects.length).toBe 1
+      expect(NylasEnv.packages.packagesWithDatabaseObjects[0]).toBe withModels

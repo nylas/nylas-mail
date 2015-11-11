@@ -28,7 +28,7 @@ describe "AccountStore", ->
         "organization_unit": "label"
       }]
 
-    spyOn(atom.config, 'get').andCallFake (key) ->
+    spyOn(NylasEnv.config, 'get').andCallFake (key) ->
       if key is 'nylas.accounts'
         return accounts
       else if key is 'nylas.currentAccountIndex'
@@ -44,18 +44,18 @@ describe "AccountStore", ->
     expect(@instance.current().emailAddress).toEqual(accounts[1]['email_address'])
 
   it "should initialize current() to null if data is not present", ->
-    spyOn(atom.config, 'get').andCallFake -> null
+    spyOn(NylasEnv.config, 'get').andCallFake -> null
     @instance = new @constructor
     expect(@instance.current()).toEqual(null)
 
   it "should initialize current() to null if data is invalid", ->
-    spyOn(atom.config, 'get').andCallFake -> "this isn't an object"
+    spyOn(NylasEnv.config, 'get').andCallFake -> "this isn't an object"
     @instance = new @constructor
     expect(@instance.current()).toEqual(null)
 
   describe "adding account from json", ->
     beforeEach ->
-      spyOn(atom.config, "set")
+      spyOn(NylasEnv.config, "set")
       @json =
         "id": "1234",
         "client_id" : 'local-4f9d476a-c175',
@@ -79,8 +79,8 @@ describe "AccountStore", ->
       expect(@instance._accounts[0]).toEqual account
 
     it "saves the config", ->
-      expect(atom.config.save).toHaveBeenCalled()
-      expect(atom.config.set.calls.length).toBe 4
+      expect(NylasEnv.config.save).toHaveBeenCalled()
+      expect(NylasEnv.config.set.calls.length).toBe 4
 
     it "selects the account", ->
       expect(@instance._index).toBe 0

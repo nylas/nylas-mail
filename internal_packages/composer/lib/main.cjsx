@@ -15,10 +15,10 @@ class ComposerWithWindowProps extends React.Component
   @containerRequired: false
 
   constructor: (@props) ->
-    @state = atom.getWindowProps()
+    @state = NylasEnv.getWindowProps()
 
   componentDidMount: ->
-    @unlisten = atom.onWindowPropsReceived (windowProps) =>
+    @unlisten = NylasEnv.onWindowPropsReceived (windowProps) =>
       {errorMessage} = windowProps
       @setState(windowProps)
       if errorMessage
@@ -53,15 +53,15 @@ module.exports =
     ComponentRegistry.register ComposerView,
       role: 'Composer'
 
-    if atom.isMainWindow()
-      atom.registerHotWindow
+    if NylasEnv.isMainWindow()
+      NylasEnv.registerHotWindow
         windowType: 'composer'
         replenishNum: 2
 
       ComponentRegistry.register ComposeButton,
         location: WorkspaceStore.Location.RootSidebar.Toolbar
     else
-      atom.getCurrentWindow().setMinimumSize(480, 400)
+      NylasEnv.getCurrentWindow().setMinimumSize(480, 400)
       WorkspaceStore.defineSheet 'Main', {root: true},
         popout: ['Center']
 
@@ -69,8 +69,8 @@ module.exports =
         location: WorkspaceStore.Location.Center
 
   deactivate: ->
-    if atom.isMainWindow()
-      atom.unregisterHotWindow('composer')
+    if NylasEnv.isMainWindow()
+      NylasEnv.unregisterHotWindow('composer')
     ComponentRegistry.unregister(ComposerView)
     ComponentRegistry.unregister(ComposeButton)
     ComponentRegistry.unregister(ComposerWithWindowProps)

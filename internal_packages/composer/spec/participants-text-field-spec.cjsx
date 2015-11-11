@@ -35,7 +35,7 @@ participant5 = new Contact
 
 describe 'ParticipantsTextField', ->
   beforeEach ->
-    spyOn(atom, "isMainWindow").andReturn true
+    spyOn(NylasEnv, "isMainWindow").andReturn true
     @propChange = jasmine.createSpy('change')
 
     @fieldName = 'to'

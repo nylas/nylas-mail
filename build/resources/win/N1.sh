@@ -18,5 +18,5 @@ done
 if [ $EXPECT_OUTPUT ]; then
   "$0/../../../nylas.exe" "$@"
 else
-  "$0/../../app/apm/bin/node.exe" "$0/../atom.js" "$@"
+  "$0/../../app/apm/bin/node.exe" "$0/../nylas-win-bootup.js" "$@"
 fi

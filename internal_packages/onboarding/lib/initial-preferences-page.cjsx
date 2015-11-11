@@ -31,7 +31,7 @@ class InitialPreferencesOptions extends React.Component
     @_loadTemplates()
 
   _loadTemplates: =>
-    templatesDir = path.join(atom.getLoadSettings().resourcePath, 'keymaps', 'templates')
+    templatesDir = path.join(NylasEnv.getLoadSettings().resourcePath, 'keymaps', 'templates')
     fs.readdir templatesDir, (err, files) =>
       return unless files and files instanceof Array
       templates = files.filter (filename) =>

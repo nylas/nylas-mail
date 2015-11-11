@@ -4,7 +4,7 @@ ModuleCache = require '../../src/module-cache'
 
 module.exports = (grunt) ->
   grunt.registerTask 'generate-module-cache', 'Generate a module cache for all core modules and packages', ->
-    appDir = grunt.config.get('atom.appDir')
+    appDir = grunt.config.get('nylasGruntConfig.appDir')
 
     {packageDependencies} = grunt.file.readJSON('package.json')
 
@@ -15,7 +15,7 @@ module.exports = (grunt) ->
 
     metadata = grunt.file.readJSON(path.join(appDir, 'package.json'))
 
-    metadata._atomModuleCache.folders.forEach (folder) ->
+    metadata._nylasModuleCache.folders.forEach (folder) ->
       if '' in folder.paths
         folder.paths = [
           ''
@@ -24,14 +24,5 @@ module.exports = (grunt) ->
           'src/browser'
           'static'
         ]
-
-    # Reactionary does not have an explicit react dependency
-    metadata._atomModuleCache.folders.push
-      paths: [
-        'node_modules/reactionary-atom-fork/lib'
-      ]
-      dependencies: {
-        'react-atom-fork': metadata.dependencies['react-atom-fork']
-      }
 
     grunt.file.write(path.join(appDir, 'package.json'), JSON.stringify(metadata))

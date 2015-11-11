@@ -10,7 +10,7 @@
 
   "license": "Proprietary",
   "engines": {
-    "atom": "*"
+    "nylas": "*"
   },
   "repository": {
     "type": "git",

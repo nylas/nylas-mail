@@ -27,7 +27,7 @@ DatabasePhase =
   Close: 'close'
 
 DEBUG_TO_LOG = false
-DEBUG_QUERY_PLANS = atom.inDevMode()
+DEBUG_QUERY_PLANS = NylasEnv.inDevMode()
 DEBUG_MISSING_ACCOUNT_ID = false
 
 BEGIN_TRANSACTION = 'BEGIN TRANSACTION'
@@ -85,10 +85,10 @@ class DatabaseStore extends NylasStore
     @_open = false
     @_waiting = []
 
-    if atom.inSpecMode()
-      @_databasePath = path.join(atom.getConfigDirPath(),'edgehill.test.db')
+    if NylasEnv.inSpecMode()
+      @_databasePath = path.join(NylasEnv.getConfigDirPath(),'edgehill.test.db')
     else
-      @_databasePath = path.join(atom.getConfigDirPath(),'edgehill.db')
+      @_databasePath = path.join(NylasEnv.getConfigDirPath(),'edgehill.db')
 
     # Listen to events from the application telling us when the database is ready,
     # should be closed so it can be deleted, etc.
@@ -96,12 +96,12 @@ class DatabaseStore extends NylasStore
     _.defer => @_onPhaseChange()
 
   _onPhaseChange: (event) =>
-    return if atom.inSpecMode()
+    return if NylasEnv.inSpecMode()
 
     app = require('remote').getGlobal('application')
     phase = app.databasePhase()
 
-    if phase is DatabasePhase.Setup and atom.isWorkWindow()
+    if phase is DatabasePhase.Setup and NylasEnv.isWorkWindow()
       @_openDatabase =>
         @_checkDatabaseVersion {allowNotSet: true}, =>
           @_runDatabaseSetup =>
@@ -123,7 +123,7 @@ class DatabaseStore extends NylasStore
   # database schema to prepare those tables. This method may be called
   # extremely frequently as new models are added when packages load.
   refreshDatabaseSchema: ->
-    return unless atom.isWorkWindow()
+    return unless NylasEnv.isWorkWindow()
     app = require('remote').getGlobal('application')
     phase = app.databasePhase()
     if phase isnt DatabasePhase.Setup
@@ -132,7 +132,7 @@ class DatabaseStore extends NylasStore
   _openDatabase: (ready) =>
     return ready() if @_db
 
-    if atom.isWorkWindow()
+    if NylasEnv.isWorkWindow()
       # Since only the main window calls `_runDatabaseSetup`, it's important that
       # it is also the only window with permission to create the file on disk
       mode = sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE
@@ -188,8 +188,8 @@ class DatabaseStore extends NylasStore
 
   _handleSetupError: (err) =>
     console.error(err)
-    console.log(atom.getWindowType())
-    atom.emitError(err)
+    console.log(NylasEnv.getWindowType())
+    NylasEnv.emitError(err)
     app = require('remote').getGlobal('application')
     app.rebuildDatabase()
 

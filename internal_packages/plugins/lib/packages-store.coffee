@@ -25,10 +25,10 @@ PackagesStore = Reflux.createStore
     @listenTo PluginsActions.refreshFeaturedPackages, @_refreshFeatured
     @listenTo PluginsActions.refreshInstalledPackages, @_refreshInstalled
 
-    atom.commands.add 'body',
+    NylasEnv.commands.add 'body',
       'application:create-package': => @_onCreatePackage()
 
-    atom.commands.add 'body',
+    NylasEnv.commands.add 'body',
       'application:install-package': => @_onInstallPackage()
 
     @listenTo PluginsActions.createPackage, @_onCreatePackage
@@ -37,7 +37,7 @@ PackagesStore = Reflux.createStore
     @listenTo PluginsActions.setInstalledSearchValue, @_onInstalledSearchChange
 
     @listenTo PluginsActions.showPackage, (pkg) =>
-      dir = atom.packages.resolvePackagePath(pkg.name)
+      dir = NylasEnv.packages.resolvePackagePath(pkg.name)
       shell.showItemInFolder(dir) if dir
 
     @listenTo PluginsActions.installPackage, (pkg) =>
@@ -48,25 +48,25 @@ PackagesStore = Reflux.createStore
           delete @_installing[pkg.name]
           @_displayMessage("Sorry, an error occurred", err.toString())
         else
-          if atom.packages.isPackageDisabled(pkg.name)
-            atom.packages.enablePackage(pkg.name)
+          if NylasEnv.packages.isPackageDisabled(pkg.name)
+            NylasEnv.packages.enablePackage(pkg.name)
         @_onPackagesChanged()
 
     @listenTo PluginsActions.uninstallPackage, (pkg) =>
-      if atom.packages.isPackageLoaded(pkg.name)
-        atom.packages.disablePackage(pkg.name)
-        atom.packages.unloadPackage(pkg.name)
+      if NylasEnv.packages.isPackageLoaded(pkg.name)
+        NylasEnv.packages.disablePackage(pkg.name)
+        NylasEnv.packages.unloadPackage(pkg.name)
       @_apm.uninstall pkg, (err) =>
         @_displayMessage("Sorry, an error occurred", err.toString()) if err
         @_onPackagesChanged()
 
     @listenTo PluginsActions.enablePackage, (pkg) ->
-      if atom.packages.isPackageDisabled(pkg.name)
-        atom.packages.enablePackage(pkg.name)
+      if NylasEnv.packages.isPackageDisabled(pkg.name)
+        NylasEnv.packages.enablePackage(pkg.name)
 
     @listenTo PluginsActions.disablePackage, (pkg) ->
-      unless atom.packages.isPackageDisabled(pkg.name)
-        atom.packages.disablePackage(pkg.name)
+      unless NylasEnv.packages.isPackageDisabled(pkg.name)
+        NylasEnv.packages.disablePackage(pkg.name)
 
     @_hasPrepared = false
 
@@ -93,10 +93,10 @@ PackagesStore = Reflux.createStore
 
   _prepareIfFresh: ->
     return if @_hasPrepared
-    atom.packages.onDidActivatePackage(=> @_onPackagesChangedDebounced())
-    atom.packages.onDidDeactivatePackage(=> @_onPackagesChangedDebounced())
-    atom.packages.onDidLoadPackage(=> @_onPackagesChangedDebounced())
-    atom.packages.onDidUnloadPackage(=> @_onPackagesChangedDebounced())
+    NylasEnv.packages.onDidActivatePackage(=> @_onPackagesChangedDebounced())
+    NylasEnv.packages.onDidDeactivatePackage(=> @_onPackagesChangedDebounced())
+    NylasEnv.packages.onDidLoadPackage(=> @_onPackagesChangedDebounced())
+    NylasEnv.packages.onDidUnloadPackage(=> @_onPackagesChangedDebounced())
     @_onPackagesChanged()
     @_hasPrepared = true
 
@@ -162,7 +162,7 @@ PackagesStore = Reflux.createStore
     @_apm.update(pkg, pkg.newerVersion)
 
   _onInstallPackage: ->
-    {resourcePath} = atom.getLoadSettings()
+    {resourcePath} = NylasEnv.getLoadSettings()
     if resourcePath.indexOf('app.asar') != -1
       starterPackagesPath = path.join(resourcePath,'..', 'app.asar.unpacked', 'examples')
     else
@@ -174,7 +174,7 @@ PackagesStore = Reflux.createStore
       properties: ['openDirectory']
     , (filenames) =>
       return if not filenames or filenames.length is 0
-      atom.packages.installPackageFromPath filenames[0], (err, packageTargetDir) =>
+      NylasEnv.packages.installPackageFromPath filenames[0], (err, packageTargetDir) =>
         return if err
         packageName = path.basename(filenames[0])
         msg = "#{packageName} has been installed and enabled. No need to \
@@ -185,7 +185,7 @@ PackagesStore = Reflux.createStore
           shell.showItemInFolder(packageTargetDir)
 
   _onCreatePackage: ->
-    if not atom.inDevMode()
+    if not NylasEnv.inDevMode()
       btn = dialog.showMessageBox
         type: 'warning'
         message: "Run with debug flags?"
@@ -198,7 +198,7 @@ PackagesStore = Reflux.createStore
         ipc.send('command', 'application:toggle-dev')
       return
 
-    packagesDir = path.join(atom.getConfigDirPath(), 'dev', 'packages')
+    packagesDir = path.join(NylasEnv.getConfigDirPath(), 'dev', 'packages')
     fs.makeTreeSync(packagesDir)
 
     dialog.showSaveDialog
@@ -214,7 +214,7 @@ PackagesStore = Reflux.createStore
         return @_displayMessage('Invalid package location', 'Sorry, you must
                                     create packages in the packages folder.')
 
-      if atom.packages.resolvePackagePath(packageName)
+      if NylasEnv.packages.resolvePackagePath(packageName)
         return @_displayMessage('Invalid package name', 'Sorry, you must
                                     give your package a unqiue name.')
 
@@ -225,7 +225,7 @@ PackagesStore = Reflux.createStore
       fs.mkdir packageDir, (err) =>
         return @_displayMessage('Could not create package', err.toString()) if err
 
-        {resourcePath} = atom.getLoadSettings()
+        {resourcePath} = NylasEnv.getLoadSettings()
         packageTemplatePath = path.join(resourcePath, 'static', 'package-template')
         packageJSON =
           name: packageName
@@ -235,7 +235,7 @@ PackagesStore = Reflux.createStore
             type: 'git'
             url: ''
           engines:
-            atom: ">=#{atom.getVersion()}"
+            nylas: ">=#{NylasEnv.getVersion()}"
           description: "Enter a description of your package!"
           dependencies: {}
           license: "MIT"
@@ -244,8 +244,8 @@ PackagesStore = Reflux.createStore
         fs.writeFileSync(path.join(packageDir, 'package.json'), JSON.stringify(packageJSON, null, 2))
         shell.showItemInFolder(packageDir)
         _.defer ->
-          atom.packages.enablePackage(packageDir)
-          atom.packages.activatePackage(packageName)
+          NylasEnv.packages.enablePackage(packageDir)
+          NylasEnv.packages.activatePackage(packageName)
 
   _onGlobalSearchChange: (val) ->
     # Clear previous search results data if this is a new
@@ -261,7 +261,7 @@ PackagesStore = Reflux.createStore
     installedNames = _.flatten(_.values(@_installed)).map (pkg) -> pkg.name
 
     _.flatten(_.values(pkgs)).forEach (pkg) =>
-      pkg.enabled = !atom.packages.isPackageDisabled(pkg.name)
+      pkg.enabled = !NylasEnv.packages.isPackageDisabled(pkg.name)
       pkg.installed = pkg.name in installedNames
       pkg.installing = @_installing[pkg.name]?
       pkg.newerVersionAvailable = @_newerVersions[pkg.name]?

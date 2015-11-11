@@ -54,7 +54,7 @@ module.exports =
         if activationType is 'replied' and response and _.isString(response)
           Actions.sendQuickReply({thread, message}, response)
         else
-          atom.displayWindow()
+          NylasEnv.displayWindow()
           if AccountStore.current().id isnt thread.accountId
             Actions.selectAccountId(thread.accountId)
 
@@ -87,7 +87,7 @@ module.exports =
 
   _onNewMailReceived: (incoming) ->
     new Promise (resolve, reject) =>
-      return resolve() if atom.config.get('core.notifications.enabled') is false
+      return resolve() if NylasEnv.config.get('core.notifications.enabled') is false
 
       incomingMessages = incoming['message'] ? []
       incomingThreads = incoming['thread'] ? []
@@ -127,7 +127,7 @@ module.exports =
           @_onNewMessagesMissingThreads(newUnreadMissingThreads)
 
         return resolve() if newUnreadInInbox.length is 0
-        if atom.config.get("core.notifications.sounds")
+        if NylasEnv.config.get("core.notifications.sounds")
           SoundRegistry.playSound('new-mail')
 
         for msg in newUnreadInInbox

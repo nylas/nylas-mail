@@ -12,18 +12,18 @@ class AutoloadImagesStore extends NylasStore
     @_whitelistEmails = {}
     @_whitelistMessageIds = {}
 
-    @_whitelistEmailsPath = path.join(atom.getConfigDirPath(), 'autoload-images-whitelist.txt')
+    @_whitelistEmailsPath = path.join(NylasEnv.getConfigDirPath(), 'autoload-images-whitelist.txt')
 
     @_loadWhitelist()
 
     @listenTo AutoloadImagesActions.temporarilyEnableImages, @_onTemporarilyEnableImages
     @listenTo AutoloadImagesActions.permanentlyEnableImages, @_onPermanentlyEnableImages
 
-    atom.config.observe 'core.reading.autoloadImages', =>
+    NylasEnv.config.observe 'core.reading.autoloadImages', =>
       MessageBodyProcessor.resetCache()
 
   shouldBlockImagesIn: (message) =>
-    return false if atom.config.get('core.reading.autoloadImages') is true
+    return false if NylasEnv.config.get('core.reading.autoloadImages') is true
     return false if @_whitelistEmails[Utils.toEquivalentEmailForm(message.fromContact().email)]
     return false if @_whitelistMessageIds[message.id]
     return false unless ImagesRegexp.test(message.body)

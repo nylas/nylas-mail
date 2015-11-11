@@ -9,7 +9,7 @@ AccountStore = require '../../src/flux/stores/account-store'
 
 describe "ContactStore", ->
   beforeEach ->
-    spyOn(atom, "isMainWindow").andReturn true
+    spyOn(NylasEnv, "isMainWindow").andReturn true
 
     @rankings = [
       ["evanA@nylas.com", 10]
@@ -23,14 +23,14 @@ describe "ContactStore", ->
       else
         throw new Error("Invalid request path!")
 
-    atom.testOrganizationUnit = "folder"
+    NylasEnv.testOrganizationUnit = "folder"
     ContactStore._contactCache = []
     ContactStore._fetchOffset = 0
     ContactStore._accountId = null
     ContactRankingStore.reset()
 
   afterEach ->
-    atom.testOrganizationUnit = null
+    NylasEnv.testOrganizationUnit = null
 
   describe "when the Account updates from null to valid", ->
     beforeEach ->

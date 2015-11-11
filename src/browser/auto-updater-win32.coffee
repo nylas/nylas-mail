@@ -9,7 +9,7 @@ class AutoUpdater
 
   quitAndInstall: ->
     if SquirrelUpdate.existsSync()
-      SquirrelUpdate.restartAtom(require('app'))
+      SquirrelUpdate.restartN1(require('app'))
     else
       require('auto-updater').quitAndInstall()
 

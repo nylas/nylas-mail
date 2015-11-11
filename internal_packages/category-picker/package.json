@@ -6,6 +6,6 @@
   "license": "Proprietary",
   "private": true,
   "engines": {
-    "atom": "*"
+    "nylas": "*"
   }
 }

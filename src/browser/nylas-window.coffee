@@ -7,7 +7,7 @@ _ = require 'underscore'
 {EventEmitter} = require 'events'
 
 module.exports =
-class AtomWindow
+class NylasWindow
   _.extend @prototype, EventEmitter.prototype
 
   @iconPath: path.resolve(__dirname, '..', '..', 'build', 'resources', 'nylas.png')
@@ -54,7 +54,6 @@ class AtomWindow
       show: false
       title: title ? 'Nylas'
       frame: frame
-      #https://atomio.slack.com/archives/electron/p1432056952000608
       'standard-window': frame
       width: width
       height: height

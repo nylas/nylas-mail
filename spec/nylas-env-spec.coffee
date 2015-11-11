@@ -4,32 +4,32 @@ path = require 'path'
 Package = require '../src/package'
 ThemeManager = require '../src/theme-manager'
 
-describe "the `atom` global", ->
+describe "the `NylasEnv` global", ->
   describe 'window sizing methods', ->
     describe '::getPosition and ::setPosition', ->
       it 'sets the position of the window, and can retrieve the position just set', ->
-        atom.setPosition(22, 45)
-        expect(atom.getPosition()).toEqual x: 22, y: 45
+        NylasEnv.setPosition(22, 45)
+        expect(NylasEnv.getPosition()).toEqual x: 22, y: 45
 
     describe '::getSize and ::setSize', ->
       originalSize = null
       beforeEach ->
-        originalSize = atom.getSize()
+        originalSize = NylasEnv.getSize()
       afterEach ->
-        atom.setSize(originalSize.width, originalSize.height)
+        NylasEnv.setSize(originalSize.width, originalSize.height)
 
       it 'sets the size of the window, and can retrieve the size just set', ->
-        atom.setSize(100, 400)
-        expect(atom.getSize()).toEqual width: 100, height: 400
+        NylasEnv.setSize(100, 400)
+        expect(NylasEnv.getSize()).toEqual width: 100, height: 400
 
     describe '::setMinimumWidth', ->
-      win = atom.getCurrentWindow()
+      win = NylasEnv.getCurrentWindow()
 
       it "sets the minimum width", ->
         inputMinWidth = 500
         win.setMinimumSize(1000, 1000)
 
-        atom.setMinimumWidth(inputMinWidth)
+        NylasEnv.setMinimumWidth(inputMinWidth)
 
         [actualMinWidth, h] = win.getMinimumSize()
         expect(actualMinWidth).toBe inputMinWidth
@@ -38,7 +38,7 @@ describe "the `atom` global", ->
         inputMinWidth = 1000
         win.setSize(500, 500)
 
-        atom.setMinimumWidth(inputMinWidth)
+        NylasEnv.setMinimumWidth(inputMinWidth)
 
         [actualWidth, h] = win.getMinimumSize()
         expect(actualWidth).toBe inputMinWidth
@@ -49,41 +49,41 @@ describe "the `atom` global", ->
       it "returns primary display's work area size if it's small enough", ->
         spyOn(screen, 'getPrimaryDisplay').andReturn workAreaSize: width: 1440, height: 900
 
-        out = atom.getDefaultWindowDimensions()
+        out = NylasEnv.getDefaultWindowDimensions()
         expect(out).toEqual x: 0, y: 0, width: 1440, height: 900
 
       it "caps width at 1440 and centers it, if wider", ->
         spyOn(screen, 'getPrimaryDisplay').andReturn workAreaSize: width: 1840, height: 900
 
-        out = atom.getDefaultWindowDimensions()
+        out = NylasEnv.getDefaultWindowDimensions()
         expect(out).toEqual x: 200, y: 0, width: 1440, height: 900
 
       it "caps height at 900 and centers it, if taller", ->
         spyOn(screen, 'getPrimaryDisplay').andReturn workAreaSize: width: 1440, height: 1100
 
-        out = atom.getDefaultWindowDimensions()
+        out = NylasEnv.getDefaultWindowDimensions()
         expect(out).toEqual x: 0, y: 100, width: 1440, height: 900
 
       it "returns only the max viewport size if it's smaller than the defaults", ->
         spyOn(screen, 'getPrimaryDisplay').andReturn workAreaSize: width: 1000, height: 800
 
-        out = atom.getDefaultWindowDimensions()
+        out = NylasEnv.getDefaultWindowDimensions()
         expect(out).toEqual x: 0, y: 0, width: 1000, height: 800
 
       it "always rounds X and Y", ->
         spyOn(screen, 'getPrimaryDisplay').andReturn workAreaSize: width: 1845, height: 955
 
-        out = atom.getDefaultWindowDimensions()
+        out = NylasEnv.getDefaultWindowDimensions()
         expect(out).toEqual x: 202, y: 27, width: 1440, height: 900
 
 
   describe ".isReleasedVersion()", ->
     it "returns false if the version is a SHA and true otherwise", ->
       version = '0.1.0'
-      spyOn(atom, 'getVersion').andCallFake -> version
-      expect(atom.isReleasedVersion()).toBe true
+      spyOn(NylasEnv, 'getVersion').andCallFake -> version
+      expect(NylasEnv.isReleasedVersion()).toBe true
       version = '36b5518'
-      expect(atom.isReleasedVersion()).toBe false
+      expect(NylasEnv.isReleasedVersion()).toBe false
 
   xdescribe "when an update becomes available", ->
     subscription = null
@@ -93,7 +93,7 @@ describe "the `atom` global", ->
 
     it "invokes onUpdateAvailable listeners", ->
       updateAvailableHandler = jasmine.createSpy("update-available-handler")
-      subscription = atom.onUpdateAvailable updateAvailableHandler
+      subscription = NylasEnv.onUpdateAvailable updateAvailableHandler
 
       autoUpdater = require('remote').require('auto-updater')
       autoUpdater.emit 'update-downloaded', null, "notes", "version"
@@ -108,14 +108,14 @@ describe "the `atom` global", ->
 
   xdescribe "loading default config", ->
     it 'loads the default core config', ->
-      expect(atom.config.get('core.excludeVcsIgnoredPaths')).toBe true
-      expect(atom.config.get('core.followSymlinks')).toBe false
-      expect(atom.config.get('editor.showInvisibles')).toBe false
+      expect(NylasEnv.config.get('core.excludeVcsIgnoredPaths')).toBe true
+      expect(NylasEnv.config.get('core.followSymlinks')).toBe false
+      expect(NylasEnv.config.get('editor.showInvisibles')).toBe false
 
   xdescribe "window onerror handler", ->
     beforeEach ->
-      spyOn atom, 'openDevTools'
-      spyOn atom, 'executeJavaScriptInDevTools'
+      spyOn NylasEnv, 'openDevTools'
+      spyOn NylasEnv, 'executeJavaScriptInDevTools'
 
     it "will open the dev tools when an error is triggered", ->
       try
@@ -123,8 +123,8 @@ describe "the `atom` global", ->
       catch e
         window.onerror.call(window, e.toString(), 'abc', 2, 3, e)
 
-      expect(atom.openDevTools).toHaveBeenCalled()
-      expect(atom.executeJavaScriptInDevTools).toHaveBeenCalled()
+      expect(NylasEnv.openDevTools).toHaveBeenCalled()
+      expect(NylasEnv.executeJavaScriptInDevTools).toHaveBeenCalled()
 
     describe "::onWillThrowError", ->
       willThrowSpy = null
@@ -133,7 +133,7 @@ describe "the `atom` global", ->
 
       it "is called when there is an error", ->
         error = null
-        atom.onWillThrowError(willThrowSpy)
+        NylasEnv.onWillThrowError(willThrowSpy)
         try
           a + 1
         catch e
@@ -150,7 +150,7 @@ describe "the `atom` global", ->
 
       it "will not show the devtools when preventDefault() is called", ->
         willThrowSpy.andCallFake (errorObject) -> errorObject.preventDefault()
-        atom.onWillThrowError(willThrowSpy)
+        NylasEnv.onWillThrowError(willThrowSpy)
 
         try
           a + 1
@@ -158,8 +158,8 @@ describe "the `atom` global", ->
           window.onerror.call(window, e.toString(), 'abc', 2, 3, e)
 
         expect(willThrowSpy).toHaveBeenCalled()
-        expect(atom.openDevTools).not.toHaveBeenCalled()
-        expect(atom.executeJavaScriptInDevTools).not.toHaveBeenCalled()
+        expect(NylasEnv.openDevTools).not.toHaveBeenCalled()
+        expect(NylasEnv.executeJavaScriptInDevTools).not.toHaveBeenCalled()
 
     describe "::onDidThrowError", ->
       didThrowSpy = null
@@ -168,7 +168,7 @@ describe "the `atom` global", ->
 
       it "is called when there is an error", ->
         error = null
-        atom.onDidThrowError(didThrowSpy)
+        NylasEnv.onDidThrowError(didThrowSpy)
         try
           a + 1
         catch e

@@ -15,7 +15,7 @@ yourself from the database.
 The DraftCountStore is only available in the main window.
 ###
 
-if not atom.isMainWindow() and not atom.inSpecMode() then return
+if not NylasEnv.isMainWindow() and not NylasEnv.inSpecMode() then return
 
 DraftCountStore = Reflux.createStore
   init: ->

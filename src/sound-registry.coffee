@@ -6,7 +6,7 @@ class SoundRegistry
     @_sounds = {}
 
   playSound: (name) ->
-    return if atom.inSpecMode()
+    return if NylasEnv.inSpecMode()
     src = @_sounds[name]
     return unless src
 
@@ -18,7 +18,7 @@ class SoundRegistry
       else
         a.src = path.join(resourcePath, 'static', 'sounds', src)
     else if _.isArray src
-      {resourcePath} = atom.getLoadSettings()
+      {resourcePath} = NylasEnv.getLoadSettings()
       args = [resourcePath].concat(src)
       a.src = path.join.apply(@, args)
 

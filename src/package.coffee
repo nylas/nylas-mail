@@ -16,7 +16,7 @@ TaskRegistry = require './task-registry'
 DatabaseObjectRegistry = require './database-object-registry'
 
 try
-  packagesCache = require('../package.json')?._atomPackages ? {}
+  packagesCache = require('../package.json')?._N1Packages ? {}
 catch error
   packagesCache = {}
 
@@ -27,10 +27,10 @@ class Package
   EmitterMixin.includeInto(this)
 
   @isBundledPackagePath: (packagePath) ->
-    if atom.packages.devMode
-      return false unless atom.packages.resourcePath.startsWith("#{process.resourcesPath}#{path.sep}")
+    if NylasEnv.packages.devMode
+      return false unless NylasEnv.packages.resourcePath.startsWith("#{process.resourcesPath}#{path.sep}")
 
-    @resourcePathWithTrailingSlash ?= "#{atom.packages.resourcePath}#{path.sep}"
+    @resourcePathWithTrailingSlash ?= "#{NylasEnv.packages.resourcePath}#{path.sep}"
     packagePath?.startsWith(@resourcePathWithTrailingSlash)
 
   @loadMetadata: (packagePath, ignoreErrors=false) ->
@@ -104,10 +104,10 @@ class Package
   ###
 
   enable: ->
-    atom.config.removeAtKeyPath('core.disabledPackages', @name)
+    NylasEnv.config.removeAtKeyPath('core.disabledPackages', @name)
 
   disable: ->
-    atom.config.pushAtKeyPath('core.disabledPackages', @name)
+    NylasEnv.config.pushAtKeyPath('core.disabledPackages', @name)
 
   isTheme: ->
     @metadata?.theme?
@@ -118,7 +118,7 @@ class Package
     @[key] = Date.now() - startTime
     value
 
-  getType: -> 'atom'
+  getType: -> 'nylas'
 
   getStyleSheetPriority: -> 0
 
@@ -178,7 +178,7 @@ class Package
       @activateConfig()
       @activateStylesheets()
       if @requireMainModule()
-        @mainModule.activate(atom.packages.getPackageState(@name) ? {}, path.resolve(@path))
+        @mainModule.activate(NylasEnv.packages.getPackageState(@name) ? {}, path.resolve(@path))
         @mainActivated = true
         @activateServices()
     catch e
@@ -194,12 +194,9 @@ class Package
     @requireMainModule()
     if @mainModule?
       if @mainModule.config? and typeof @mainModule.config is 'object'
-        atom.config.setSchema @name, {type: 'object', properties: @mainModule.config}
+        NylasEnv.config.setSchema @name, {type: 'object', properties: @mainModule.config}
       else if @mainModule.configDefaults? and typeof @mainModule.configDefaults is 'object'
-        deprecate """Use a config schema instead. See the configuration section
-        of https://atom.io/docs/latest/creating-a-package and
-        https://atom.io/docs/api/latest/Config for more details"""
-        atom.config.setDefaults(@name, @mainModule.configDefaults)
+        NylasEnv.config.setDefaults(@name, @mainModule.configDefaults)
       @mainModule.activateConfig?()
     @configActivated = true
 
@@ -213,17 +210,17 @@ class Package
       if match = path.basename(sourcePath).match(/[^.]*\.([^.]*)\./)
         context = match[1]
       else if @metadata.theme is 'syntax'
-        context = 'atom-text-editor'
+        context = 'nylas-theme-wrap'
       else
         context = undefined
 
-      @stylesheetDisposables.add(atom.styles.addStyleSheet(source, {sourcePath, priority, context}))
+      @stylesheetDisposables.add(NylasEnv.styles.addStyleSheet(source, {sourcePath, priority, context}))
     @stylesheetsActivated = true
 
   activateResources: ->
     @activationDisposables = new CompositeDisposable
-    @activationDisposables.add(atom.keymaps.add(keymapPath, map)) for [keymapPath, map] in @keymaps
-    @activationDisposables.add(atom.menu.add(map['menu'])) for [menuPath, map] in @menus when map['menu']?
+    @activationDisposables.add(NylasEnv.keymaps.add(keymapPath, map)) for [keymapPath, map] in @keymaps
+    @activationDisposables.add(NylasEnv.menu.add(map['menu'])) for [menuPath, map] in @menus when map['menu']?
 
     unless @grammarsActivated
       grammar.activate() for grammar in @grammars
@@ -235,21 +232,21 @@ class Package
   activateServices: ->
     for name, {versions} of @metadata.providedServices
       for version, methodName of versions
-        @activationDisposables.add atom.packages.serviceHub.provide(name, version, @mainModule[methodName]())
+        @activationDisposables.add NylasEnv.packages.serviceHub.provide(name, version, @mainModule[methodName]())
 
     for name, {versions} of @metadata.consumedServices
       for version, methodName of versions
-        @activationDisposables.add atom.packages.serviceHub.consume(name, version, @mainModule[methodName].bind(@mainModule))
+        @activationDisposables.add NylasEnv.packages.serviceHub.consume(name, version, @mainModule[methodName].bind(@mainModule))
 
   loadKeymaps: ->
     if @bundledPackage and packagesCache[@name]?
-      @keymaps = (["#{atom.packages.resourcePath}#{path.sep}#{keymapPath}", keymapObject] for keymapPath, keymapObject of packagesCache[@name].keymaps)
+      @keymaps = (["#{NylasEnv.packages.resourcePath}#{path.sep}#{keymapPath}", keymapObject] for keymapPath, keymapObject of packagesCache[@name].keymaps)
     else
-      @keymaps = @getKeymapPaths().map (keymapPath) -> [keymapPath, atom.keymaps.readKeymap(keymapPath) ? {}]
+      @keymaps = @getKeymapPaths().map (keymapPath) -> [keymapPath, NylasEnv.keymaps.readKeymap(keymapPath) ? {}]
 
   loadMenus: ->
     if @bundledPackage and packagesCache[@name]?
-      @menus = (["#{atom.packages.resourcePath}#{path.sep}#{menuPath}", menuObject] for menuPath, menuObject of packagesCache[@name].menus)
+      @menus = (["#{NylasEnv.packages.resourcePath}#{path.sep}#{menuPath}", menuObject] for menuPath, menuObject of packagesCache[@name].menus)
     else
       @menus = @getMenuPaths().map (menuPath) -> [menuPath, CSON.readFileSync(menuPath) ? {}]
 
@@ -269,7 +266,7 @@ class Package
 
   loadStylesheets: ->
     @stylesheets = @getStylesheetPaths().map (stylesheetPath) ->
-      [stylesheetPath, atom.themes.loadStylesheet(stylesheetPath, true)]
+      [stylesheetPath, NylasEnv.themes.loadStylesheet(stylesheetPath, true)]
 
   getStylesheetsPath: ->
     if fs.isDirectorySync(path.join(@path, 'stylesheets'))
@@ -297,7 +294,7 @@ class Package
     grammarPaths = fs.listSync(grammarsDirPath, ['json', 'cson'])
     for grammarPath in grammarPaths
       try
-        grammar = atom.grammars.readGrammarSync(grammarPath)
+        grammar = NylasEnv.grammars.readGrammarSync(grammarPath)
         grammar.packageName = @name
         @grammars.push(grammar)
         grammar.activate()
@@ -311,7 +308,7 @@ class Package
     return Q() if @grammarsLoaded
 
     loadGrammar = (grammarPath, callback) =>
-      atom.grammars.readGrammar grammarPath, (error, grammar) =>
+      NylasEnv.grammars.readGrammar grammarPath, (error, grammar) =>
         if error?
           console.warn("Failed to load grammar: #{grammarPath}", error.stack ? error)
         else
@@ -410,7 +407,7 @@ class Package
 
     if @bundledPackage and packagesCache[@name]?
       if packagesCache[@name].main
-        @mainModulePath = "#{atom.packages.resourcePath}#{path.sep}#{packagesCache[@name].main}"
+        @mainModulePath = "#{NylasEnv.packages.resourcePath}#{path.sep}#{packagesCache[@name].main}"
         @mainModulePath = fs.resolveExtension(@mainModulePath, ["", _.keys(require.extensions)...])
       else
         @mainModulePath = null
@@ -434,8 +431,8 @@ class Package
         do (selector, command) =>
           # Add dummy command so it appears in menu.
           # The real command will be registered on package activation
-          @activationCommandSubscriptions.add atom.commands.add selector, command, ->
-          @activationCommandSubscriptions.add atom.commands.onWillDispatch (event) =>
+          @activationCommandSubscriptions.add NylasEnv.commands.add selector, command, ->
+          @activationCommandSubscriptions.add NylasEnv.commands.onWillDispatch (event) =>
             return unless event.type is command
             currentTarget = event.target
             while currentTarget
@@ -464,22 +461,22 @@ class Package
         Commands should be grouped by selector as follows:
         ```json
           "activationCommands": {
-            "atom-workspace": ["foo:bar", "foo:baz"],
-            "atom-text-editor": ["foo:quux"]
+            "nylas-workspace": ["foo:bar", "foo:baz"],
+            "nylas-theme-wrap": ["foo:quux"]
           }
         ```
       """
       if _.isArray(@metadata.activationEvents)
         for eventName in @metadata.activationEvents
-          @activationCommands['atom-workspace'] ?= []
-          @activationCommands['atom-workspace'].push(eventName)
+          @activationCommands['nylas-workspace'] ?= []
+          @activationCommands['nylas-workspace'].push(eventName)
       else if _.isString(@metadata.activationEvents)
         eventName = @metadata.activationEvents
-        @activationCommands['atom-workspace'] ?= []
-        @activationCommands['atom-workspace'].push(eventName)
+        @activationCommands['nylas-workspace'] ?= []
+        @activationCommands['nylas-workspace'].push(eventName)
       else
         for eventName, selector of @metadata.activationEvents
-          selector ?= 'atom-workspace'
+          selector ?= 'nylas-workspace'
           @activationCommands[selector] ?= []
           @activationCommands[selector].push(eventName)
 
@@ -514,7 +511,7 @@ class Package
   # to minimize the impact on startup time.
   getIncompatibleNativeModules: ->
     localStorageKey = "installed-packages:#{@name}:#{@metadata.version}"
-    unless atom.inDevMode()
+    unless NylasEnv.inDevMode()
       try
         {incompatibleNativeModules} = JSON.parse(global.localStorage.getItem(localStorageKey)) ? {}
       return incompatibleNativeModules if incompatibleNativeModules?
@@ -535,7 +532,7 @@ class Package
     global.localStorage.setItem(localStorageKey, JSON.stringify({incompatibleNativeModules}))
     incompatibleNativeModules
 
-  # Public: Is this package compatible with this version of Atom?
+  # Public: Is this package compatible with this version of N1?
   #
   # Incompatible packages cannot be activated. This will include packages
   # installed to ~/.nylas/packages that were built against node 0.11.10 but
@@ -545,7 +542,7 @@ class Package
   isCompatible: ->
     return @compatible if @compatible?
 
-    if @path.indexOf(path.join(atom.packages.resourcePath, 'node_modules') + path.sep) is 0
+    if @path.indexOf(path.join(NylasEnv.packages.resourcePath, 'node_modules') + path.sep) is 0
       # Bundled packages are always considered compatible
       @compatible = true
     else if packageMain = @getMainModulePath()

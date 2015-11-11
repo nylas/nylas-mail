@@ -5,11 +5,11 @@ global.Promise = require 'bluebird'
 # Like sands through the hourglass, so are the days of our lives.
 require './window'
 
-Atom = require './atom'
-window.atom = Atom.loadOrCreate('editor')
-global.Promise.longStackTraces() if atom.inDevMode()
-atom.initialize()
-atom.startRootWindow()
+NylasEnvConstructor = require './nylas-env'
+window.NylasEnv = NylasEnvConstructor.loadOrCreate()
+global.Promise.longStackTraces() if NylasEnv.inDevMode()
+NylasEnv.initialize()
+NylasEnv.startRootWindow()
 
 
 # Workaround for focus getting cleared upon window creation

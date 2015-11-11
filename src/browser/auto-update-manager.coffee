@@ -83,8 +83,8 @@ class AutoUpdateManager
 
   emitUpdateAvailableEvent: (windows...) ->
     return unless @releaseVersion
-    for atomWindow in windows
-      atomWindow.sendMessage('update-available', {@releaseVersion, @releaseNotes})
+    for nylasWindow in windows
+      nylasWindow.sendMessage('update-available', {@releaseVersion, @releaseNotes})
 
   setState: (state) ->
     return if @state is state

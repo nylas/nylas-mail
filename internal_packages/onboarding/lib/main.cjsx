@@ -6,7 +6,7 @@ module.exports =
 
   activate: (@state) ->
     # This package does nothing in other windows
-    return unless atom.getWindowType() is 'onboarding'
+    return unless NylasEnv.getWindowType() is 'onboarding'
 
     WorkspaceStore.defineSheet 'Main', {root: true},
       list: ['Center']

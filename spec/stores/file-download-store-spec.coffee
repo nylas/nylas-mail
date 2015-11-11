@@ -210,13 +210,13 @@ describe "FileDownloadStore", ->
   describe "_fetchAndSave", ->
     beforeEach ->
       @savePath = "/Users/imaginary/.nylas/Downloads/b.png"
-      spyOn(atom, 'showSaveDialog').andCallFake (options, callback) => callback(@savePath)
+      spyOn(NylasEnv, 'showSaveDialog').andCallFake (options, callback) => callback(@savePath)
 
     it "should open a save dialog and prompt the user to choose a download path", ->
       spyOn(FileDownloadStore, '_runDownload').andCallFake =>
         new Promise (resolve, reject) -> # never resolve
       FileDownloadStore._fetchAndSave(@testfile)
-      expect(atom.showSaveDialog).toHaveBeenCalled()
+      expect(NylasEnv.showSaveDialog).toHaveBeenCalled()
       expect(FileDownloadStore._runDownload).toHaveBeenCalledWith(@testfile)
 
     it "should copy the file to the download path after it's been downloaded and open it after the stream has ended", ->

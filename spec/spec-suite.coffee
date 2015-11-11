@@ -4,7 +4,7 @@ path = require 'path'
 require './spec-helper'
 
 requireSpecs = (specDirectory) ->
-  specFilePattern = atom.getLoadSettings().specFilePattern
+  specFilePattern = NylasEnv.getLoadSettings().specFilePattern
 
   if _.isString(specFilePattern) and specFilePattern.length > 0
     regex = new RegExp(specFilePattern)
@@ -31,15 +31,15 @@ setSpecDirectory = (specDirectory) ->
   setSpecField('specDirectory', specDirectory)
 
 runAllSpecs = ->
-  {resourcePath} = atom.getLoadSettings()
+  {resourcePath} = NylasEnv.getLoadSettings()
 
   requireSpecs(path.join(resourcePath, 'spec'))
 
   setSpecType('core')
 
   fixturesPackagesPath = path.join(__dirname, 'fixtures', 'packages')
-  # packagePaths = atom.packages.getAvailablePackageNames().map (packageName) ->
-  #   atom.packages.resolvePackagePath(packageName)
+  # packagePaths = NylasEnv.packages.getAvailablePackageNames().map (packageName) ->
+  #   NylasEnv.packages.resolvePackagePath(packageName)
 
   # EDGEHILL_CORE: Look in internal_packages instead of node_modules
   packagePaths = []
@@ -63,7 +63,7 @@ runAllSpecs = ->
   requireSpecs(path.join(packagePath, 'spec')) for packagePath in packagePaths.user ? []
   setSpecType('user')
 
-if specDirectory = atom.getLoadSettings().specDirectory
+if specDirectory = NylasEnv.getLoadSettings().specDirectory
   requireSpecs(specDirectory)
   setSpecType('user')
 else

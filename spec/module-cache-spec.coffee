@@ -8,7 +8,7 @@ describe 'ModuleCache', ->
   beforeEach ->
     spyOn(Module, '_findPath').andCallThrough()
 
-  it 'resolves atom shell module paths without hitting the filesystem', ->
+  it 'resolves Electron module paths without hitting the filesystem', ->
     builtins = ModuleCache.cache.builtins
     expect(Object.keys(builtins).length).toBeGreaterThan 0
 
@@ -19,8 +19,8 @@ describe 'ModuleCache', ->
     expect(Module._findPath.callCount).toBe 0
 
   it 'resolves relative core paths without hitting the filesystem', ->
-    ModuleCache.add atom.getLoadSettings().resourcePath, {
-      _atomModuleCache:
+    ModuleCache.add NylasEnv.getLoadSettings().resourcePath, {
+      _nylasModuleCache:
         extensions:
           '.json': [
             path.join('spec', 'fixtures', 'module-cache', 'file.json')
@@ -30,9 +30,9 @@ describe 'ModuleCache', ->
     expect(Module._findPath.callCount).toBe 0
 
   it 'resolves module paths when a compatible version is provided by core', ->
-    packagePath = fs.realpathSync(temp.mkdirSync('atom-package'))
+    packagePath = fs.realpathSync(temp.mkdirSync('n1-package'))
     ModuleCache.add packagePath, {
-      _atomModuleCache:
+      _nylasModuleCache:
         folders: [{
           paths: [
             ''
@@ -41,8 +41,8 @@ describe 'ModuleCache', ->
             'underscore': '*'
         }]
     }
-    ModuleCache.add atom.getLoadSettings().resourcePath, {
-      _atomModuleCache:
+    ModuleCache.add NylasEnv.getLoadSettings().resourcePath, {
+      _nylasModuleCache:
         dependencies: [{
           name: 'underscore'
           version: require('underscore/package.json').version
@@ -61,9 +61,9 @@ describe 'ModuleCache', ->
     expect(Module._findPath.callCount).toBe 0
 
   it 'does not resolve module paths when no compatible version is provided by core', ->
-    packagePath = fs.realpathSync(temp.mkdirSync('atom-package'))
+    packagePath = fs.realpathSync(temp.mkdirSync('n1-package'))
     ModuleCache.add packagePath, {
-      _atomModuleCache:
+      _nylasModuleCache:
         folders: [{
           paths: [
             ''
@@ -72,8 +72,8 @@ describe 'ModuleCache', ->
             'underscore': '0.0.1'
         }]
     }
-    ModuleCache.add atom.getLoadSettings().resourcePath, {
-      _atomModuleCache:
+    ModuleCache.add NylasEnv.getLoadSettings().resourcePath, {
+      _nylasModuleCache:
         dependencies: [{
           name: 'underscore'
           version: require('underscore/package.json').version

@@ -58,8 +58,8 @@ window.onload = function() {
 
     // Start the crash reporter before anything else.
     require('crash-reporter').start({
-      productName: 'Atom',
-      companyName: 'GitHub',
+      productName: 'Nylas N1',
+      companyName: 'Nylas',
       // By explicitly passing the app version here, we could save the call
       // of "require('remote').require('app').getVersion()".
       extra: {_version: loadSettings.appVersion}
@@ -75,9 +75,9 @@ window.onload = function() {
 
     require(loadSettings.bootstrapScript);
 
-    if (global.atom) {
-      global.atom.loadTime = Date.now() - startTime;
-      console.log('Window load time: ' + global.atom.getWindowLoadTime() + 'ms');
+    if (global.NylasEnv) {
+      global.NylasEnv.loadTime = Date.now() - startTime;
+      console.log('Window load time: ' + global.NylasEnv.getWindowLoadTime() + 'ms');
     } else {
       require('ipc').sendChannel('window-command', 'window:loaded');
     }
