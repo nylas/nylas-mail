@@ -9,14 +9,14 @@ Category = require '../../src/flux/models/category'
 describe "UnreadCountStore", ->
   describe "_fetchCount", ->
     beforeEach ->
-      atom.testOrganizationUnit = 'folder'
+      NylasEnv.testOrganizationUnit = 'folder'
       spyOn(DatabaseStore, 'findBy').andCallFake =>
         Promise.resolve(new Category({id: 'inbox-category-id'}))
       spyOn(DatabaseStore, 'count').andCallFake =>
         Promise.resolve(100)
 
     it "should create the correct query when using folders", ->
-      atom.testOrganizationUnit = 'folder'
+      NylasEnv.testOrganizationUnit = 'folder'
       UnreadCountStore._fetchCount()
       advanceClock()
       expect(DatabaseStore.findBy).toHaveBeenCalledWith(Folder, {name: 'inbox', accountId: TEST_ACCOUNT_ID})
@@ -30,7 +30,7 @@ describe "UnreadCountStore", ->
       expect(Matchers[2].val).toBe('inbox-category-id')
 
     it "should create the correct query when using labels", ->
-      atom.testOrganizationUnit = 'label'
+      NylasEnv.testOrganizationUnit = 'label'
       UnreadCountStore._fetchCount()
       advanceClock()
       expect(DatabaseStore.findBy).toHaveBeenCalledWith(Label, {name: 'inbox', accountId: TEST_ACCOUNT_ID})
@@ -64,7 +64,7 @@ describe "UnreadCountStore", ->
   describe "_updateBadgeForCount", ->
     it "should set the badge correctly", ->
       spyOn(UnreadCountStore, '_setBadge')
-      spyOn(atom, 'isMainWindow').andCallFake -> true
+      spyOn(NylasEnv, 'isMainWindow').andCallFake -> true
       UnreadCountStore._updateBadgeForCount(0)
       expect(UnreadCountStore._setBadge).toHaveBeenCalledWith("")
       UnreadCountStore._updateBadgeForCount(1)

@@ -14,11 +14,6 @@
 # * {Editor::scopeDescriptorForBufferPosition} to get the descriptor at a
 #   specific position in the buffer.
 # * {Cursor::getScopeDescriptor} to get a cursor's descriptor based on position.
-#
-# See the [scopes and scope descriptor guide](https://atom.io/docs/v0.138.0/advanced/scopes-and-scope-descriptors)
-# for more information.
-#
-# Section: Atom
 module.exports =
 class ScopeDescriptor
   @fromObject: (scopes) ->

@@ -8,15 +8,15 @@ SpecificityCache = {}
 
 # Public: Associates listener functions with commands in a
 # context-sensitive way using CSS selectors. You can access a global instance of
-# this class via `atom.commands`, and commands registered there will be
+# this class via `NylasEnv.commands`, and commands registered there will be
 # presented in the command palette.
 #
 # The global command registry facilitates a style of event handling known as
-# *event delegation* that was popularized by jQuery. Atom commands are expressed
+# *event delegation* that was popularized by jQuery. N1 commands are expressed
 # as custom DOM events that can be invoked on the currently focused element via
 # a key binding or manually via the command palette. Rather than binding
 # listeners for command events directly to DOM nodes, you instead register
-# command event listeners globally on `atom.commands` and constrain them to
+# command event listeners globally on `NylasEnv.commands` and constrain them to
 # specific kinds of elements with CSS selectors.
 #
 # As the event bubbles upward through the DOM, all registered event listeners
@@ -28,14 +28,14 @@ SpecificityCache = {}
 # `stopPropagation` and `stopImmediatePropagation` can be used to terminate the
 # bubbling process and prevent invocation of additional listeners.
 #
-# Section: Atom
+# Section: N1
 #
 # ## Example
 #
 # Here is a command that inserts the current date in an editor:
 #
 # ```coffee
-# atom.commands.add 'atom-text-editor',
+# NylasEnv.commands.add 'nylas-theme-wrap',
 #   'user:insert-date': (event) ->
 #     editor = @getModel()
 #     editor.insertText(new Date().toLocaleString())

@@ -6,14 +6,14 @@ NylasStore = require 'nylas-store'
 ipc = require 'ipc'
 url = require 'url'
 
-return unless atom.getWindowType() is "onboarding"
+return unless NylasEnv.getWindowType() is "onboarding"
 
 class PageRouterStore extends NylasStore
   constructor: ->
-    atom.onWindowPropsReceived @_onWindowPropsChanged
+    NylasEnv.onWindowPropsReceived @_onWindowPropsChanged
 
-    @_page = atom.getWindowProps().page ? ''
-    @_pageData = atom.getWindowProps().pageData ? {}
+    @_page = NylasEnv.getWindowProps().page ? ''
+    @_pageData = NylasEnv.getWindowProps().pageData ? {}
     @_pageStack = [{page: @_page, pageData: @_pageData}]
 
     @_checkTokenAuthStatus()
@@ -27,7 +27,7 @@ class PageRouterStore extends NylasStore
     isFirstAccount = AccountStore.items().length is 0
     AccountStore.addAccountFromJSON(json)
     ipc.send('new-account-added')
-    atom.displayWindow()
+    NylasEnv.displayWindow()
     if isFirstAccount
       @_onMoveToPage('initial-preferences', {account: json})
     else
@@ -61,9 +61,9 @@ class PageRouterStore extends NylasStore
   _onCloseWindow: ->
     isFirstAccount = AccountStore.items().length is 0
     if isFirstAccount
-      atom.quit()
+      NylasEnv.quit()
     else
-      atom.close()
+      NylasEnv.close()
 
   _checkTokenAuthStatus: ->
     @_tokenAuthEnabled = "unknown"

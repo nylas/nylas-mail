@@ -2,13 +2,11 @@ fs = require 'fs-plus'
 path = require 'path'
 {Emitter, Disposable} = require 'event-kit'
 
-# Extended: A singleton instance of this class available via `atom.styles`,
+# Extended: A singleton instance of this class available via `NylasEnv.styles`,
 # which you can use to globally query and observe the set of active style
 # sheets. The `StyleManager` doesn't add any style elements to the DOM on its
-# own, but is instead subscribed to by individual `<atom-styles>` elements,
+# own, but is instead subscribed to by individual `<nylas-styles>` elements,
 # which clone and attach style elements in different contexts.
-#
-# Section: Atom
 module.exports =
 class StyleManager
   constructor: ->
@@ -162,8 +160,8 @@ class StyleManager
   #
   # Returns a {String}.
   getUserStyleSheetPath: ->
-    stylesheetPath = fs.resolve(path.join(atom.getConfigDirPath(), 'styles'), ['css', 'less'])
+    stylesheetPath = fs.resolve(path.join(NylasEnv.getConfigDirPath(), 'styles'), ['css', 'less'])
     if fs.isFileSync(stylesheetPath)
       stylesheetPath
     else
-      path.join(atom.getConfigDirPath(), 'styles.less')
+      path.join(NylasEnv.getConfigDirPath(), 'styles.less')

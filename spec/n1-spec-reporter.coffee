@@ -36,7 +36,7 @@ formatStackTrace = (spec, message='', stackTrace) ->
   lines.join('\n').trim()
 
 module.exports =
-class AtomReporter extends View
+class N1SpecReporter extends View
   @content: ->
     @div class: 'spec-reporter', =>
       @div class: 'padded pull-right', =>

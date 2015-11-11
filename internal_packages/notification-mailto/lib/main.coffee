@@ -13,7 +13,7 @@ module.exports =
     return unless @services.available()
 
     # We shouldn't ask if they've already said No
-    return if atom.config.get(NOTIF_SETTINGS_KEY) is true
+    return if NylasEnv.config.get(NOTIF_SETTINGS_KEY) is true
 
     @services.isRegisteredForURLScheme 'mailto', (registered) =>
       # Prompt them to make Nylas their default client
@@ -46,4 +46,4 @@ module.exports =
         console.log(err) if err
 
     if action.id is NOTIF_ACTION_NO
-      atom.config.set(NOTIF_SETTINGS_KEY, true)
+      NylasEnv.config.set(NOTIF_SETTINGS_KEY, true)

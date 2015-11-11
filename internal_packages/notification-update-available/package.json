@@ -5,6 +5,6 @@
   "description": "Displays a notification when an update is available",
   "license": "Proprietary",
   "engines": {
-    "atom": "*"
+    "nylas": "*"
   }
 }

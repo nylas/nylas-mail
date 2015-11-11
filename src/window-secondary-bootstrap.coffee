@@ -9,11 +9,11 @@ require './window'
 # loadSettings = JSON.parse(decodeURIComponent(location.search.substr(14)))
 # {windowType} = loadSettings
 
-Atom = require './atom'
-window.atom = Atom.loadOrCreate()
-global.Promise.longStackTraces() if atom.inDevMode()
-atom.initialize()
-atom.startSecondaryWindow()
+NylasEnvConstructor = require './nylas-env'
+window.NylasEnv = NylasEnvConstructor.loadOrCreate()
+global.Promise.longStackTraces() if NylasEnv.inDevMode()
+NylasEnv.initialize()
+NylasEnv.startSecondaryWindow()
 
 # Workaround for focus getting cleared upon window creation
 windowFocused = ->

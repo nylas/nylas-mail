@@ -42,7 +42,7 @@ jQuery.fn.trigger = (eventName, data) ->
     data.jQueryTrigger = true
 
     for element in this
-      atom.commands.dispatch(element, eventName, data)
+      NylasEnv.commands.dispatch(element, eventName, data)
     this
 
 HandlersByOriginalHandler = new WeakMap
@@ -52,7 +52,7 @@ AddEventListener = (element, type, listener) ->
   if NativeEventNames.has(type)
     element.addEventListener(type, listener)
   else
-    disposable = atom.commands.add(element, type, listener)
+    disposable = NylasEnv.commands.add(element, type, listener)
 
     unless disposablesByType = CommandDisposablesByElement.get(element)
       disposablesByType = {}
@@ -84,13 +84,13 @@ jQuery.event.add = (elem, types, originalHandler, data, selector) ->
 
   HandlersByOriginalHandler.set(originalHandler, handler)
 
-  JQueryEventAdd.call(this, elem, types, handler, data, selector, AddEventListener if atom?.commands?)
+  JQueryEventAdd.call(this, elem, types, handler, data, selector, AddEventListener if NylasEnv?.commands?)
 
 JQueryEventRemove = jQuery.event.remove
 jQuery.event.remove = (elem, types, originalHandler, selector, mappedTypes) ->
   if originalHandler?
     handler = HandlersByOriginalHandler.get(originalHandler) ? originalHandler
-  JQueryEventRemove(elem, types, handler, selector, mappedTypes, RemoveEventListener if atom?.commands?)
+  JQueryEventRemove(elem, types, handler, selector, mappedTypes, RemoveEventListener if NylasEnv?.commands?)
 
 JQueryContains = jQuery.contains
 

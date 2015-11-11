@@ -20,7 +20,7 @@ Each package is defined by a `package.json` file that includes its name, version
   "description": "An example package for N1",
   "license": "Proprietary",
   "engines": {
-    "atom": "*"
+    "nylas": "*"
   },
   "dependencies": {
     "request": "^2.53"

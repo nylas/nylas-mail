@@ -58,7 +58,7 @@ if [ $OS == 'Mac' ]; then
 
   ELECTRON_PATH=${ELECTRON_PATH:-$N1_PATH/electron} # Set ELECTRON_PATH unless it is already set
 
-  # Exit if Atom can't be found
+  # Exit if Electron can't be found
   if [ ! -d "$ELECTRON_PATH" ]; then
     echo "Cannot locate electron. Be sure you have run script/bootstrap first from $N1_PATH"
     exit 1
@@ -79,7 +79,7 @@ elif [ $OS == 'Linux' ]; then
 
   ELECTRON_PATH=${ELECTRON_PATH:-$N1_PATH/electron} # Set ELECTRON_PATH unless it is already set
 
-  # Exit if Atom can't be found
+  # Exit if Electron can't be found
   if [ ! -d "$ELECTRON_PATH" ]; then
     echo "Cannot locate electron. Be sure you have run script/bootstrap first from $N1_PATH"
     exit 1
@@ -90,13 +90,12 @@ elif [ $OS == 'Linux' ]; then
 
 fi
 
-# Exits this process when Atom is used as $EDITOR
 on_die() {
   exit 0
 }
 trap 'on_die' SIGQUIT SIGTERM
 
-# If the wait flag is set, don't exit this process until Atom tells it to.
+# If the wait flag is set, don't exit this process until Electron tells it to.
 if [ $WAIT ]; then
   while true; do
     sleep 1

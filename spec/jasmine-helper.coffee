@@ -20,7 +20,7 @@ module.exports.runSpecSuite = (specSuite, logFile, logErrors=true) ->
     else
       remote.process.stdout.write(str)
 
-  if atom.getLoadSettings().exitWhenDone
+  if NylasEnv.getLoadSettings().exitWhenDone
     reporter = new TerminalReporter
       color: true
       print: (str) ->
@@ -30,10 +30,10 @@ module.exports.runSpecSuite = (specSuite, logFile, logErrors=true) ->
         if process.env.JANKY_SHA1
           grim = require 'grim'
           grim.logDeprecations() if grim.getDeprecationsLength() > 0
-        atom.exit(runner.results().failedCount > 0 ? 1 : 0)
+        NylasEnv.exit(runner.results().failedCount > 0 ? 1 : 0)
   else
-    AtomReporter = require './atom-reporter'
-    reporter = new AtomReporter()
+    N1SpecReporter = require './n1-spec-reporter'
+    reporter = new N1SpecReporter()
 
   require specSuite
 

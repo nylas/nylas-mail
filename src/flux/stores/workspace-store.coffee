@@ -36,14 +36,14 @@ class WorkspaceStore extends NylasStore
     @listenTo Actions.popSheet, @popSheet
     @listenTo Actions.searchQueryCommitted, @popToRootSheet
 
-    @_preferredLayoutMode = atom.config.get('core.workspace.mode')
-    atom.config.observe 'core.workspace.mode', (mode) =>
+    @_preferredLayoutMode = NylasEnv.config.get('core.workspace.mode')
+    NylasEnv.config.observe 'core.workspace.mode', (mode) =>
       return if mode is @_preferredLayoutMode
       @_preferredLayoutMode = mode
       @popToRootSheet()
       @trigger()
 
-    atom.commands.add 'body', @_navigationCommands()
+    NylasEnv.commands.add 'body', @_navigationCommands()
 
   _navigationCommands: ->
     'application:pop-sheet'    : => @popSheet()
@@ -83,10 +83,10 @@ class WorkspaceStore extends NylasStore
     @SidebarItem = WorkspaceSidebarItem
     @SidebarItems = SidebarItems = {}
 
-    @_hiddenLocations = atom.config.get('core.workspace.hiddenLocations') || {}
+    @_hiddenLocations = NylasEnv.config.get('core.workspace.hiddenLocations') || {}
     @_sheetStack = []
 
-    if atom.isMainWindow()
+    if NylasEnv.isMainWindow()
       @defineSheet 'Global'
       @defineSheet 'Threads', {root: true},
         list: ['RootSidebar', 'ThreadList']
@@ -119,7 +119,7 @@ class WorkspaceStore extends NylasStore
     else
       @_hiddenLocations[location.id] = location
 
-    atom.config.set('core.workspace.hiddenLocations', @_hiddenLocations)
+    NylasEnv.config.set('core.workspace.hiddenLocations', @_hiddenLocations)
 
     @trigger(@)
 

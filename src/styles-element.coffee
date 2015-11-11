@@ -18,7 +18,7 @@ class StylesElement extends HTMLElement
     @styleElementClonesByOriginalElement = new WeakMap
 
   attachedCallback: ->
-    if @context is 'atom-text-editor'
+    if @context is 'nylas-theme-wrap'
       for styleElement in @children
         @upgradeDeprecatedSelectors(styleElement)
     @initialize()
@@ -36,16 +36,16 @@ class StylesElement extends HTMLElement
     @subscriptions = new CompositeDisposable
     @context = @getAttribute('context') ? undefined
 
-    @subscriptions.add atom.styles.observeStyleElements(@styleElementAdded.bind(this))
-    @subscriptions.add atom.styles.onDidRemoveStyleElement(@styleElementRemoved.bind(this))
-    @subscriptions.add atom.styles.onDidUpdateStyleElement(@styleElementUpdated.bind(this))
+    @subscriptions.add NylasEnv.styles.observeStyleElements(@styleElementAdded.bind(this))
+    @subscriptions.add NylasEnv.styles.onDidRemoveStyleElement(@styleElementRemoved.bind(this))
+    @subscriptions.add NylasEnv.styles.onDidUpdateStyleElement(@styleElementUpdated.bind(this))
 
   contextChanged: ->
     return unless @subscriptions?
 
     @styleElementRemoved(child) for child in Array::slice.call(@children)
     @context = @getAttribute('context')
-    @styleElementAdded(styleElement) for styleElement in atom.styles.getStyleElements()
+    @styleElementAdded(styleElement) for styleElement in NylasEnv.styles.getStyleElements()
 
   styleElementAdded: (styleElement) ->
     return unless @styleElementMatchesContext(styleElement)
@@ -65,7 +65,7 @@ class StylesElement extends HTMLElement
 
     @insertBefore(styleElementClone, insertBefore)
 
-    if @context is 'atom-text-editor'
+    if @context is 'nylas-theme-wrap'
       @upgradeDeprecatedSelectors(styleElementClone)
 
     @emitter.emit 'did-add-style-element', styleElementClone
@@ -114,4 +114,4 @@ class StylesElement extends HTMLElement
       warning += "\nSee the upgrade guide for information on removing this warning."
       console.warn(warning)
 
-module.exports = StylesElement = document.registerElement 'atom-styles', prototype: StylesElement.prototype
+module.exports = StylesElement = document.registerElement 'nylas-styles', prototype: StylesElement.prototype

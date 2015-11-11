@@ -31,7 +31,7 @@ class TestExtension extends DraftStoreExtension
 
 describe "DraftStore", ->
   beforeEach ->
-    spyOn(atom, 'newWindow').andCallFake ->
+    spyOn(NylasEnv, 'newWindow').andCallFake ->
     for id, session of DraftStore._draftSessions
       if session.teardown
         DraftStore._doneWithSession(session)
@@ -615,16 +615,16 @@ describe "DraftStore", ->
       expect(DraftStore._doneWithSession).toHaveBeenCalledWith(@session)
 
     it "should close the window if it's a popout", ->
-      spyOn(atom, "close")
+      spyOn(NylasEnv, "close")
       spyOn(DraftStore, "_isPopout").andReturn true
       DraftStore._onDestroyDraft('abc')
-      expect(atom.close).toHaveBeenCalled()
+      expect(NylasEnv.close).toHaveBeenCalled()
 
     it "should NOT close the window if isn't a popout", ->
-      spyOn(atom, "close")
+      spyOn(NylasEnv, "close")
       spyOn(DraftStore, "_isPopout").andReturn false
       DraftStore._onDestroyDraft('abc')
-      expect(atom.close).not.toHaveBeenCalled()
+      expect(NylasEnv.close).not.toHaveBeenCalled()
 
   describe "before unloading", ->
     it "should destroy pristine drafts", ->
@@ -650,12 +650,12 @@ describe "DraftStore", ->
         }}
 
       it "should return false and call window.close itself", ->
-        spyOn(atom, 'finishUnload')
+        spyOn(NylasEnv, 'finishUnload')
         expect(DraftStore._onBeforeUnload()).toBe(false)
-        expect(atom.finishUnload).not.toHaveBeenCalled()
+        expect(NylasEnv.finishUnload).not.toHaveBeenCalled()
         @resolve()
         advanceClock(1000)
-        expect(atom.finishUnload).toHaveBeenCalled()
+        expect(NylasEnv.finishUnload).toHaveBeenCalled()
 
     describe "when drafts return immediately fulfilled commit promises", ->
       beforeEach ->
@@ -666,12 +666,12 @@ describe "DraftStore", ->
             pristine: false
         }}
 
-      it "should still wait one tick before firing atom.close again", ->
-        spyOn(atom, 'finishUnload')
+      it "should still wait one tick before firing NylasEnv.close again", ->
+        spyOn(NylasEnv, 'finishUnload')
         expect(DraftStore._onBeforeUnload()).toBe(false)
-        expect(atom.finishUnload).not.toHaveBeenCalled()
+        expect(NylasEnv.finishUnload).not.toHaveBeenCalled()
         advanceClock()
-        expect(atom.finishUnload).toHaveBeenCalled()
+        expect(NylasEnv.finishUnload).toHaveBeenCalled()
 
     describe "when there are no drafts", ->
       beforeEach ->
@@ -700,19 +700,19 @@ describe "DraftStore", ->
       spyOn(SoundRegistry, "playSound")
 
     it "plays a sound immediately when sending draft", ->
-      spyOn(atom.config, "get").andReturn true
+      spyOn(NylasEnv.config, "get").andReturn true
       DraftStore._onSendDraft(draftClientId)
-      expect(atom.config.get).toHaveBeenCalledWith("core.sending.sounds")
+      expect(NylasEnv.config.get).toHaveBeenCalledWith("core.sending.sounds")
       expect(SoundRegistry.playSound).toHaveBeenCalledWith("hit-send")
 
     it "doesn't plays a sound if the setting is off", ->
-      spyOn(atom.config, "get").andReturn false
+      spyOn(NylasEnv.config, "get").andReturn false
       DraftStore._onSendDraft(draftClientId)
-      expect(atom.config.get).toHaveBeenCalledWith("core.sending.sounds")
+      expect(NylasEnv.config.get).toHaveBeenCalledWith("core.sending.sounds")
       expect(SoundRegistry.playSound).not.toHaveBeenCalled()
 
     it "sets the sending state when sending", ->
-      spyOn(atom, "isMainWindow").andReturn true
+      spyOn(NylasEnv, "isMainWindow").andReturn true
       spyOn(Actions, "queueTask").andCallThrough()
       runs ->
         DraftStore._onSendDraft(draftClientId)
@@ -723,29 +723,29 @@ describe "DraftStore", ->
         expect(DraftStore.trigger).toHaveBeenCalled()
 
     it "returns false if the draft hasn't been seen", ->
-      spyOn(atom, "isMainWindow").andReturn true
+      spyOn(NylasEnv, "isMainWindow").andReturn true
       expect(DraftStore.isSendingDraft(draftClientId)).toBe false
 
     it "closes the window if it's a popout", ->
-      spyOn(atom, "getWindowType").andReturn "composer"
-      spyOn(atom, "isMainWindow").andReturn false
-      spyOn(atom, "close")
+      spyOn(NylasEnv, "getWindowType").andReturn "composer"
+      spyOn(NylasEnv, "isMainWindow").andReturn false
+      spyOn(NylasEnv, "close")
       runs ->
         DraftStore._onSendDraft(draftClientId)
-      waitsFor "Atom to close", ->
-        atom.close.calls.length > 0
+      waitsFor "N1 to close", ->
+        NylasEnv.close.calls.length > 0
 
     it "doesn't close the window if it's inline", ->
-      spyOn(atom, "getWindowType").andReturn "other"
-      spyOn(atom, "isMainWindow").andReturn false
-      spyOn(atom, "close")
+      spyOn(NylasEnv, "getWindowType").andReturn "other"
+      spyOn(NylasEnv, "isMainWindow").andReturn false
+      spyOn(NylasEnv, "close")
       spyOn(DraftStore, "_isPopout").andCallThrough()
       runs ->
         DraftStore._onSendDraft(draftClientId)
       waitsFor ->
         DraftStore._isPopout.calls.length > 0
       runs ->
-        expect(atom.close).not.toHaveBeenCalled()
+        expect(NylasEnv.close).not.toHaveBeenCalled()
 
     it "forces a commit to happen before sending", ->
       spyOn(Actions, "queueTask")
@@ -770,9 +770,9 @@ describe "DraftStore", ->
         expect(task.fromPopout).toBe false
 
     it "queues a SendDraftTask with popout info", ->
-      spyOn(atom, "getWindowType").andReturn "composer"
-      spyOn(atom, "isMainWindow").andReturn false
-      spyOn(atom, "close")
+      spyOn(NylasEnv, "getWindowType").andReturn "composer"
+      spyOn(NylasEnv, "isMainWindow").andReturn false
+      spyOn(NylasEnv, "close")
       spyOn(Actions, "queueTask")
       runs ->
         DraftStore._onSendDraft(draftClientId)
@@ -784,14 +784,14 @@ describe "DraftStore", ->
         expect(task.fromPopout).toBe true
 
     it "resets the sending state if there's an error", ->
-      spyOn(atom, "isMainWindow").andReturn false
+      spyOn(NylasEnv, "isMainWindow").andReturn false
       DraftStore._draftsSending[draftClientId] = true
       Actions.draftSendingFailed({errorMessage: "boohoo", draftClientId})
       expect(DraftStore.isSendingDraft(draftClientId)).toBe false
       expect(DraftStore.trigger).toHaveBeenCalledWith(draftClientId)
 
     it "displays a popup in the main window if there's an error", ->
-      spyOn(atom, "isMainWindow").andReturn true
+      spyOn(NylasEnv, "isMainWindow").andReturn true
       remote = require('remote')
       dialog = remote.require('dialog')
       spyOn(dialog, "showMessageBox")
@@ -806,7 +806,7 @@ describe "DraftStore", ->
 
   describe "session teardown", ->
     beforeEach ->
-      spyOn(atom, 'isMainWindow').andReturn true
+      spyOn(NylasEnv, 'isMainWindow').andReturn true
       @draftTeardown = jasmine.createSpy('draft teardown')
       @session =
         draftClientId: "abc"
@@ -827,7 +827,7 @@ describe "DraftStore", ->
 
   describe "mailto handling", ->
     beforeEach ->
-      spyOn(atom, 'isMainWindow').andReturn true
+      spyOn(NylasEnv, 'isMainWindow').andReturn true
 
     describe "extensions", ->
       beforeEach ->

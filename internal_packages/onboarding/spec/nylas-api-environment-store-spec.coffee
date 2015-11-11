@@ -4,29 +4,29 @@ storeConstructor = NylasApiEnvironmentStore.constructor
 
 describe "NylasApiEnvironmentStore", ->
   beforeEach ->
-    spyOn(atom.config, "set")
+    spyOn(NylasEnv.config, "set")
 
   it "doesn't set if it alreayd exists", ->
-    spyOn(atom.config, "get").andReturn "staging"
+    spyOn(NylasEnv.config, "get").andReturn "staging"
     store = new storeConstructor()
-    expect(atom.config.set).not.toHaveBeenCalled()
+    expect(NylasEnv.config.set).not.toHaveBeenCalled()
 
   it "initializes with the correct default in dev mode", ->
-    spyOn(atom, "inDevMode").andReturn true
-    spyOn(atom.config, "get").andReturn undefined
+    spyOn(NylasEnv, "inDevMode").andReturn true
+    spyOn(NylasEnv.config, "get").andReturn undefined
     store = new storeConstructor()
-    expect(atom.config.set).toHaveBeenCalledWith("env", "production")
+    expect(NylasEnv.config.set).toHaveBeenCalledWith("env", "production")
 
   it "initializes with the correct default in production", ->
-    spyOn(atom, "inDevMode").andReturn false
-    spyOn(atom.config, "get").andReturn undefined
+    spyOn(NylasEnv, "inDevMode").andReturn false
+    spyOn(NylasEnv.config, "get").andReturn undefined
     store = new storeConstructor()
-    expect(atom.config.set).toHaveBeenCalledWith("env", "production")
+    expect(NylasEnv.config.set).toHaveBeenCalledWith("env", "production")
 
   describe "when setting the environment", ->
     it "sets from the desired action", ->
       Actions.changeAPIEnvironment("staging")
-      expect(atom.config.set).toHaveBeenCalledWith("env", "staging")
+      expect(NylasEnv.config.set).toHaveBeenCalledWith("env", "staging")
 
     it "throws if the env is invalid", ->
       expect( -> Actions.changeAPIEnvironment("bad")).toThrow()

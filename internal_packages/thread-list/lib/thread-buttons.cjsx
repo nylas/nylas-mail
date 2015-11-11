@@ -149,7 +149,7 @@ DownButton = React.createClass
 
   _onClick: ->
     return if @state.disabled
-    atom.commands.dispatch(document.body, 'core:next-item')
+    NylasEnv.commands.dispatch(document.body, 'core:next-item')
 
   _getStateFromStores: ->
     disabled: @isLastThread()
@@ -172,7 +172,7 @@ UpButton = React.createClass
 
   _onClick: ->
     return if @state.disabled
-    atom.commands.dispatch(document.body, 'core:previous-item')
+    NylasEnv.commands.dispatch(document.body, 'core:previous-item')
 
   _getStateFromStores: ->
     disabled: @isFirstThread()

@@ -87,7 +87,7 @@ class SendDraftTask extends Task
       @draft = @draft.clone().fromJSON(json)
       @draft.draft = false
       DatabaseStore.persistModel(@draft).then =>
-        if atom.config.get("core.sending.sounds")
+        if NylasEnv.config.get("core.sending.sounds")
           SoundRegistry.playSound('send')
         Actions.sendDraftSuccess
           draftClientId: @draftClientId
@@ -109,7 +109,7 @@ class SendDraftTask extends Task
         return @_permanentError(err, msg)
       else if err.statusCode in [400, 404]
         msg = "Your message could not be sent at this time. Please try again soon."
-        atom.emitError(new Error("Sending a message responded with #{err.statusCode}!"))
+        NylasEnv.emitError(new Error("Sending a message responded with #{err.statusCode}!"))
         return @_permanentError(err, msg)
       else if err.statusCode is NylasAPI.TimeoutErrorCode
         msg = "We lost internet connection just as we were trying to send your message! Please wait a little bit to see if it went through. If not, check your internet connection and try sending again."

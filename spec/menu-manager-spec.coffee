@@ -4,7 +4,7 @@ describe "MenuManager", ->
   menu = null
 
   beforeEach ->
-    menu = new MenuManager(resourcePath: atom.getLoadSettings().resourcePath)
+    menu = new MenuManager(resourcePath: NylasEnv.getLoadSettings().resourcePath)
 
   describe "::add(items)", ->
     it "can add new menus that can be removed with the returned disposable", ->

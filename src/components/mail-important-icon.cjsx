@@ -16,10 +16,10 @@ class MailImportantIcon extends React.Component
     @state = @getState()
 
   getState: =>
-    showing: AccountStore.current()?.usesImportantFlag() and atom.config.get('core.showImportant')
+    showing: AccountStore.current()?.usesImportantFlag() and NylasEnv.config.get('core.showImportant')
 
   componentDidMount: =>
-    @subscription = atom.config.observe 'core.showImportant', =>
+    @subscription = NylasEnv.config.observe 'core.showImportant', =>
       @setState(@getState())
 
   componentWillUnmount: =>

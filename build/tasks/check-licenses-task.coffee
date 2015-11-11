@@ -14,9 +14,6 @@ module.exports = (grunt) ->
         console.error(err)
         process.exit 1
 
-      for key of summary
-        delete summary[key] if key.match /^atom@/
-
       if size(summary)
         console.error "Found dependencies without permissive licenses:"
         for name in keys(summary).sort()

@@ -144,14 +144,14 @@ class FiltersStore extends NylasStore
 
   # The filters are stored in the config.cson file.
   _loadFilters: =>
-    atom.config.get('filters') ? []
+    NylasEnv.config.get('filters') ? []
 
   # Rewrite the filters to the config.cson file.
   _saveFilters: (filters) =>
     filters = @_trimFilters filters
 
     if @_validateFilters(filters)
-      atom.config.set 'filters', filters
+      NylasEnv.config.set 'filters', filters
     else
       throw new Error("invalid filters")
 

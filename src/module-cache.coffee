@@ -131,7 +131,7 @@ loadExtensions = (modulePath, rootPath, rootMetadata, moduleCache) ->
   onDirectory = (childPath) ->
     # Don't include extensions from bundled packages
     # These are generated and stored in the package's own metadata cache
-    if rootMetadata.name is 'atom'
+    if rootMetadata.name is 'nylas'
       parentPath = path.dirname(childPath)
       if parentPath is nodeModulesPath
         packageName = path.basename(childPath)
@@ -194,12 +194,6 @@ resolveModulePath = (relativePath, parentModule) ->
   return
 
 registerBuiltins = (devMode) ->
-  if devMode or not cache.resourcePath.startsWith("#{process.resourcesPath}#{path.sep}")
-    fs = require 'fs-plus'
-    atomCoffeePath = path.join(cache.resourcePath, 'src', 'global', 'atom.coffee')
-    cache.builtins.atom = atomCoffeePath if fs.isFileSync(atomCoffeePath)
-  cache.builtins.atom ?= path.join(cache.resourcePath, 'src', 'global', 'atom.js')
-
   electronRoot = path.join(process.resourcesPath, 'atom.asar')
 
   commonRoot = path.join(electronRoot, 'common', 'api', 'lib')
@@ -258,7 +252,7 @@ exports.create = (modulePath) ->
   loadFolderCompatibility(modulePath, modulePath, metadata, moduleCache)
   loadExtensions(modulePath, modulePath, metadata, moduleCache)
 
-  metadata._atomModuleCache = moduleCache
+  metadata._nylasModuleCache = moduleCache
   fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2))
 
   return
@@ -289,7 +283,7 @@ exports.add = (directoryPath, metadata) ->
     catch error
       return
 
-  cacheToAdd = metadata?._atomModuleCache
+  cacheToAdd = metadata?._nylasModuleCache
   return unless cacheToAdd?
 
   for dependency in cacheToAdd.dependencies ? []

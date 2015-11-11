@@ -34,7 +34,7 @@ class DeveloperBarCurlItem extends React.Component
       return ""
 
   _onRunCommand: =>
-    curlFile = "#{atom.getConfigDirPath()}/curl.command"
+    curlFile = "#{NylasEnv.getConfigDirPath()}/curl.command"
     fs = require 'fs-plus'
     if fs.existsSync(curlFile)
       fs.unlinkSync(curlFile)

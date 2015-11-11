@@ -5,7 +5,7 @@
   "description": "The N1 Client Theme",
   "license": "Proprietary",
   "engines": {
-    "atom": "*"
+    "nylas": "*"
   },
   "private": true
 }

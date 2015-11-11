@@ -23,7 +23,7 @@ class ThreadListStore extends NylasStore
     @listenTo AccountStore, @_onAccountChanged
     @listenTo FocusedMailViewStore, @_onMailViewChanged
 
-    atom.commands.add "body",
+    NylasEnv.commands.add "body",
       'thread-list:select-read'     : @_onSelectRead
       'thread-list:select-unread'   : @_onSelectUnread
       'thread-list:select-starred'  : @_onSelectStarred

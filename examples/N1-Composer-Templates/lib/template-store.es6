@@ -6,7 +6,7 @@ import fs from 'fs';
 
 class TemplateStore extends NylasStore {
 
-  init(templatesDir = path.join(atom.getConfigDirPath(), 'templates')) {
+  init(templatesDir = path.join(NylasEnv.getConfigDirPath(), 'templates')) {
     this.items = this.items.bind(this);
     this.templatesDirectory = this.templatesDirectory.bind(this);
     this._setStoreDefaults = this._setStoreDefaults.bind(this);

@@ -117,7 +117,7 @@ FileDownloadStore = Reflux.createStore
     @listenTo Actions.didPassivelyReceiveNewModels, @_newMailReceived
 
     @_downloads = {}
-    @_downloadDirectory = "#{atom.getConfigDirPath()}/downloads"
+    @_downloadDirectory = "#{NylasEnv.getConfigDirPath()}/downloads"
     mkdirp(@_downloadDirectory)
 
   ######### PUBLIC #######################################################
@@ -145,7 +145,7 @@ FileDownloadStore = Reflux.createStore
   ########### PRIVATE ####################################################
 
   _newMailReceived: (incoming) =>
-    return unless atom.config.get('core.attachments.downloadPolicy') is 'on-receive'
+    return unless NylasEnv.config.get('core.attachments.downloadPolicy') is 'on-receive'
     for message in incoming
       for file in message.files
         @_fetch(file)
@@ -211,7 +211,7 @@ FileDownloadStore = Reflux.createStore
       @_presentError(file)
 
   _fetchAndSave: (file) ->
-    atom.showSaveDialog @_defaultSavePath(file), (savePath) =>
+    NylasEnv.showSaveDialog @_defaultSavePath(file), (savePath) =>
       return unless savePath
       @_runDownload(file).then (download) ->
         stream = fs.createReadStream(download.targetPath)

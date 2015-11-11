@@ -14,8 +14,8 @@ describe "ActionBridge", ->
 
   describe "in the work window", ->
     beforeEach ->
-      spyOn(atom, "getWindowType").andReturn "default"
-      spyOn(atom, "isWorkWindow").andReturn true
+      spyOn(NylasEnv, "getWindowType").andReturn "default"
+      spyOn(NylasEnv, "isWorkWindow").andReturn true
       @bridge = new ActionBridge(ipc)
 
     it "should have the role Role.WORK", ->
@@ -46,8 +46,8 @@ describe "ActionBridge", ->
 
   describe "in another window", ->
     beforeEach ->
-      spyOn(atom, "getWindowType").andReturn "popout"
-      spyOn(atom, "isWorkWindow").andReturn false
+      spyOn(NylasEnv, "getWindowType").andReturn "popout"
+      spyOn(NylasEnv, "isWorkWindow").andReturn false
       @bridge = new ActionBridge(ipc)
       @message = new Message
         id: 'test-id'
@@ -76,8 +76,8 @@ describe "ActionBridge", ->
 
   describe "onRebroadcast", ->
     beforeEach ->
-      spyOn(atom, "getWindowType").andReturn "popout"
-      spyOn(atom, "isMainWindow").andReturn false
+      spyOn(NylasEnv, "getWindowType").andReturn "popout"
+      spyOn(NylasEnv, "isMainWindow").andReturn false
       @bridge = new ActionBridge(ipc)
 
     describe "when called with TargetWindows.ALL", ->

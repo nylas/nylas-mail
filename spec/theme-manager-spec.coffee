@@ -9,16 +9,16 @@ Package = require '../src/package'
 
 describe "ThemeManager", ->
   themeManager = null
-  resourcePath = atom.getLoadSettings().resourcePath
-  configDirPath = atom.getConfigDirPath()
+  resourcePath = NylasEnv.getLoadSettings().resourcePath
+  configDirPath = NylasEnv.getConfigDirPath()
 
   beforeEach ->
     spyOn(console, "log")
     spyOn(console, "warn")
     spyOn(console, "error")
     theme_dir = path.resolve(__dirname, '../internal_packages')
-    atom.packages.packageDirPaths.unshift(theme_dir)
-    themeManager = new ThemeManager({packageManager: atom.packages, resourcePath, configDirPath})
+    NylasEnv.packages.packageDirPaths.unshift(theme_dir)
+    themeManager = new ThemeManager({packageManager: NylasEnv.packages, resourcePath, configDirPath})
 
   afterEach ->
     themeManager.deactivateThemes()
@@ -26,7 +26,7 @@ describe "ThemeManager", ->
   describe "theme getters and setters", ->
     beforeEach ->
       jasmine.snapshotDeprecations()
-      atom.packages.loadPackages()
+      NylasEnv.packages.loadPackages()
 
     afterEach ->
       jasmine.restoreDeprecationsSnapshot()
@@ -40,14 +40,14 @@ describe "ThemeManager", ->
         themeManager.activateThemes()
 
       runs ->
-        names = atom.config.get('core.themes')
+        names = NylasEnv.config.get('core.themes')
         expect(names.length).toBeGreaterThan(0)
         themes = themeManager.getActiveThemes()
         expect(themes).toHaveLength(names.length)
 
   describe "when the core.themes config value contains invalid entry", ->
     it "ignores theme", ->
-      atom.config.set 'core.themes', [
+      NylasEnv.config.set 'core.themes', [
         'ui-light'
         null
         undefined
@@ -63,7 +63,7 @@ describe "ThemeManager", ->
 
   describe "::getImportPaths()", ->
     it "returns the theme directories before the themes are loaded", ->
-      atom.config.set('core.themes', ['theme-with-index-less', 'ui-dark', 'ui-light'])
+      NylasEnv.config.set('core.themes', ['theme-with-index-less', 'ui-dark', 'ui-light'])
 
       paths = themeManager.getImportPaths()
 
@@ -73,20 +73,20 @@ describe "ThemeManager", ->
       expect(paths[1]).toContain 'ui-dark'
 
     it "ignores themes that cannot be resolved to a directory", ->
-      atom.config.set('core.themes', ['definitely-not-a-theme'])
+      NylasEnv.config.set('core.themes', ['definitely-not-a-theme'])
       expect(-> themeManager.getImportPaths()).not.toThrow()
 
   describe "when the core.themes config value changes", ->
     it "add/removes stylesheets to reflect the new config value", ->
       themeManager.onDidChangeActiveThemes didChangeActiveThemesHandler = jasmine.createSpy()
-      spyOn(atom.styles, 'getUserStyleSheetPath').andCallFake -> null
+      spyOn(NylasEnv.styles, 'getUserStyleSheetPath').andCallFake -> null
 
       waitsForPromise ->
         themeManager.activateThemes()
 
       runs ->
         didChangeActiveThemesHandler.reset()
-        atom.config.set('core.themes', [])
+        NylasEnv.config.set('core.themes', [])
 
       waitsFor ->
         didChangeActiveThemesHandler.callCount == 1
@@ -94,7 +94,7 @@ describe "ThemeManager", ->
       runs ->
         didChangeActiveThemesHandler.reset()
         expect($('style.theme')).toHaveLength 0
-        atom.config.set('core.themes', ['ui-dark'])
+        NylasEnv.config.set('core.themes', ['ui-dark'])
 
       waitsFor ->
         didChangeActiveThemesHandler.callCount == 1
@@ -103,7 +103,7 @@ describe "ThemeManager", ->
         didChangeActiveThemesHandler.reset()
         expect($('style[priority=1]')).toHaveLength 1
         expect($('style[priority=1]:eq(0)').attr('source-path')).toMatch /ui-dark/
-        atom.config.set('core.themes', ['ui-light', 'ui-dark'])
+        NylasEnv.config.set('core.themes', ['ui-light', 'ui-dark'])
 
       waitsFor ->
         didChangeActiveThemesHandler.callCount == 1
@@ -113,7 +113,7 @@ describe "ThemeManager", ->
         expect($('style[priority=1]')).toHaveLength 2
         expect($('style[priority=1]:eq(0)').attr('source-path')).toMatch /ui-dark/
         expect($('style[priority=1]:eq(1)').attr('source-path')).toMatch /ui-light/
-        atom.config.set('core.themes', [])
+        NylasEnv.config.set('core.themes', [])
 
       waitsFor ->
         didChangeActiveThemesHandler.callCount == 1
@@ -122,7 +122,7 @@ describe "ThemeManager", ->
         didChangeActiveThemesHandler.reset()
         expect($('style[priority=1]')).toHaveLength(1)
         # ui-dark has an directory path, the syntax one doesn't
-        atom.config.set('core.themes', ['theme-with-index-less', 'ui-light'])
+        NylasEnv.config.set('core.themes', ['theme-with-index-less', 'ui-light'])
 
       waitsFor ->
         didChangeActiveThemesHandler.callCount == 1
@@ -134,7 +134,7 @@ describe "ThemeManager", ->
         expect(importPaths[0]).toContain 'ui-light'
 
     it 'adds theme-* classes to the workspace for each active theme', ->
-      workspaceElement = document.createElement('atom-workspace')
+      workspaceElement = document.createElement('nylas-workspace')
       jasmine.attachToDOM(workspaceElement)
 
       themeManager.onDidChangeActiveThemes didChangeActiveThemesHandler = jasmine.createSpy()
@@ -146,7 +146,7 @@ describe "ThemeManager", ->
         expect(workspaceElement).toHaveClass 'theme-ui-light'
 
         themeManager.onDidChangeActiveThemes didChangeActiveThemesHandler = jasmine.createSpy()
-        atom.config.set('core.themes', ['theme-with-ui-variables'])
+        NylasEnv.config.set('core.themes', ['theme-with-ui-variables'])
 
       waitsFor ->
         didChangeActiveThemesHandler.callCount > 0
@@ -158,7 +158,7 @@ describe "ThemeManager", ->
 
   describe "when a theme fails to load", ->
     it "logs a warning", ->
-      atom.packages.activatePackage('a-theme-that-will-not-be-found')
+      NylasEnv.packages.activatePackage('a-theme-that-will-not-be-found')
       expect(console.warn.callCount).toBe 1
       expect(console.warn.argsForCall[0][0]).toContain "Could not resolve 'a-theme-that-will-not-be-found'"
 
@@ -170,7 +170,7 @@ describe "ThemeManager", ->
       jasmine.restoreDeprecationsSnapshot()
 
     it "synchronously loads css at the given path and installs a style tag for it in the head", ->
-      atom.styles.onDidAddStyleElement styleElementAddedHandler = jasmine.createSpy("styleElementAddedHandler")
+      NylasEnv.styles.onDidAddStyleElement styleElementAddedHandler = jasmine.createSpy("styleElementAddedHandler")
       themeManager.onDidChangeStylesheets stylesheetsChangedHandler = jasmine.createSpy("stylesheetsChangedHandler")
       themeManager.onDidAddStylesheet stylesheetAddedHandler = jasmine.createSpy("stylesheetAddedHandler")
 
@@ -236,7 +236,7 @@ describe "ThemeManager", ->
       disposable = themeManager.requireStylesheet(cssPath)
       expect($(document.body).css('font-weight')).toBe("bold")
 
-      atom.styles.onDidRemoveStyleElement styleElementRemovedHandler = jasmine.createSpy("styleElementRemovedHandler")
+      NylasEnv.styles.onDidRemoveStyleElement styleElementRemovedHandler = jasmine.createSpy("styleElementRemovedHandler")
       themeManager.onDidRemoveStylesheet stylesheetRemovedHandler = jasmine.createSpy("stylesheetRemovedHandler")
       themeManager.onDidChangeStylesheets stylesheetsChangedHandler = jasmine.createSpy("stylesheetsChangedHandler")
 
@@ -255,8 +255,8 @@ describe "ThemeManager", ->
   describe "base style sheet loading", ->
     workspaceElement = null
     beforeEach ->
-      workspaceElement = document.createElement('atom-workspace')
-      workspaceElement.appendChild document.createElement('atom-text-editor')
+      workspaceElement = document.createElement('nylas-workspace')
+      workspaceElement.appendChild document.createElement('nylas-theme-wrap')
       jasmine.attachToDOM(workspaceElement)
 
       waitsForPromise ->
@@ -275,7 +275,7 @@ describe "ThemeManager", ->
             return false
 
     it "loads the correct values from the theme's ui-variables file", ->
-      atom.config.set('core.themes', ['theme-with-ui-variables'])
+      NylasEnv.config.set('core.themes', ['theme-with-ui-variables'])
 
       @waitsForThemeRefresh()
       runs ->
@@ -283,13 +283,13 @@ describe "ThemeManager", ->
         expect(getComputedStyle(workspaceElement)["background-color"]).toBe "rgb(0, 0, 255)"
 
         # a value that is not overridden in the theme
-        expect($("atom-text-editor").css("padding-top")).toBe "150px"
-        expect($("atom-text-editor").css("padding-right")).toBe "150px"
-        expect($("atom-text-editor").css("padding-bottom")).toBe "150px"
+        expect($("nylas-theme-wrap").css("padding-top")).toBe "150px"
+        expect($("nylas-theme-wrap").css("padding-right")).toBe "150px"
+        expect($("nylas-theme-wrap").css("padding-bottom")).toBe "150px"
 
     describe "when there is a theme with incomplete variables", ->
       it "loads the correct values from the fallback ui-variables", ->
-        atom.config.set('core.themes', ['theme-with-incomplete-ui-variables'])
+        NylasEnv.config.set('core.themes', ['theme-with-incomplete-ui-variables'])
 
         @waitsForThemeRefresh()
         runs ->
@@ -297,14 +297,14 @@ describe "ThemeManager", ->
           expect(getComputedStyle(workspaceElement)["background-color"]).toBe "rgb(0, 0, 255)"
 
           # a value that is not overridden in the theme
-          expect($("atom-text-editor").css("background-color")).toBe "rgb(152, 123, 0)"
+          expect($("nylas-theme-wrap").css("background-color")).toBe "rgb(152, 123, 0)"
 
   describe "user stylesheet", ->
     userStylesheetPath = null
     beforeEach ->
       userStylesheetPath = path.join(temp.mkdirSync("nylas-spec"), 'styles.less')
       fs.writeFileSync(userStylesheetPath, 'body {border-style: dotted !important;}')
-      spyOn(atom.styles, 'getUserStyleSheetPath').andReturn userStylesheetPath
+      spyOn(NylasEnv.styles, 'getUserStyleSheetPath').andReturn userStylesheetPath
 
     describe "when the user stylesheet changes", ->
       beforeEach ->
@@ -321,8 +321,8 @@ describe "ThemeManager", ->
           themeManager.activateThemes().then ->
 
             runs ->
-              atom.styles.onDidRemoveStyleElement styleElementRemovedHandler = jasmine.createSpy("styleElementRemovedHandler")
-              atom.styles.onDidAddStyleElement styleElementAddedHandler = jasmine.createSpy("styleElementAddedHandler")
+              NylasEnv.styles.onDidRemoveStyleElement styleElementRemovedHandler = jasmine.createSpy("styleElementRemovedHandler")
+              NylasEnv.styles.onDidAddStyleElement styleElementAddedHandler = jasmine.createSpy("styleElementAddedHandler")
 
               themeManager.onDidChangeStylesheets stylesheetsChangedHandler = jasmine.createSpy("stylesheetsChangedHandler")
               themeManager.onDidRemoveStylesheet stylesheetRemovedHandler = jasmine.createSpy("stylesheetRemovedHandler")
@@ -391,7 +391,7 @@ describe "ThemeManager", ->
         expect(console.error).toHaveBeenCalled()
         note = console.error.mostRecentCall.args[0]
         expect(note).toEqual 'EACCES permission denied "styles.less"'
-        expect(atom.styles.styleElementsBySourcePath[atom.styles.getUserStyleSheetPath()]).toBeUndefined()
+        expect(NylasEnv.styles.styleElementsBySourcePath[NylasEnv.styles.getUserStyleSheetPath()]).toBeUndefined()
 
     describe "when there is an error watching the user stylesheet", ->
       addErrorHandler = null
@@ -409,7 +409,7 @@ describe "ThemeManager", ->
 
   describe "when a non-existent theme is present in the config", ->
     beforeEach ->
-      atom.config.set('core.themes', ['non-existent-dark-ui'])
+      NylasEnv.config.set('core.themes', ['non-existent-dark-ui'])
 
       waitsForPromise ->
         themeManager.activateThemes()
@@ -422,11 +422,11 @@ describe "ThemeManager", ->
 
   describe "when in safe mode", ->
     beforeEach ->
-      themeManager = new ThemeManager({packageManager: atom.packages, resourcePath, configDirPath, safeMode: true})
+      themeManager = new ThemeManager({packageManager: NylasEnv.packages, resourcePath, configDirPath, safeMode: true})
 
     describe 'when the enabled UI theme is bundled with N1', ->
       beforeEach ->
-        atom.config.set('core.themes', ['ui-light'])
+        NylasEnv.config.set('core.themes', ['ui-light'])
 
         waitsForPromise ->
           themeManager.activateThemes()
@@ -438,7 +438,7 @@ describe "ThemeManager", ->
 
     describe 'when the enabled UI theme is not bundled with N1', ->
       beforeEach ->
-        atom.config.set('core.themes', ['installed-dark-ui'])
+        NylasEnv.config.set('core.themes', ['installed-dark-ui'])
 
         waitsForPromise ->
           themeManager.activateThemes()
@@ -450,7 +450,7 @@ describe "ThemeManager", ->
 
     describe 'when the enabled UI theme is not bundled with N1', ->
       beforeEach ->
-        atom.config.set('core.themes', ['installed-dark-ui'])
+        NylasEnv.config.set('core.themes', ['installed-dark-ui'])
 
         waitsForPromise ->
           themeManager.activateThemes()

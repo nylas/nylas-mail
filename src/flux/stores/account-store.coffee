@@ -27,7 +27,7 @@ class AccountStore
   constructor: ->
     @_load()
     @listenTo Actions.selectAccountId, @onSelectAccountId
-    atom.config.observe saveTokensKey, (updatedTokens) =>
+    NylasEnv.config.observe saveTokensKey, (updatedTokens) =>
       return if _.isEqual(updatedTokens, @_tokens)
       newAccountIds = _.keys(_.omit(updatedTokens, _.keys(@_tokens)))
       @_load()
@@ -41,10 +41,10 @@ class AccountStore
     [0..8].forEach (index) =>
       key = "application:select-account-#{index}"
       commands[key] = _.partial(@_selectAccountByIndex, index)
-    atom.commands.add('body', commands)
+    NylasEnv.commands.add('body', commands)
 
   _setupFastAccountMenu: ->
-    windowMenu = _.find atom.menu.template, ({label}) -> MenuHelpers.normalizeLabel(label) is 'Window'
+    windowMenu = _.find NylasEnv.menu.template, ({label}) -> MenuHelpers.normalizeLabel(label) is 'Window'
     return unless windowMenu
     submenu = _.reject windowMenu.submenu, (item) -> item.account
     return unless submenu
@@ -60,7 +60,7 @@ class AccountStore
 
     submenu.splice(idx + 1, 0, accountMenuItems...)
     windowMenu.submenu = submenu
-    atom.menu.update()
+    NylasEnv.menu.update()
 
   _selectAccountByIndex: (index) =>
     require('ipc').send('command', 'application:show-main-window')
@@ -69,28 +69,28 @@ class AccountStore
 
   _load: =>
     @_accounts = []
-    for json in atom.config.get(saveObjectsKey) || []
+    for json in NylasEnv.config.get(saveObjectsKey) || []
       @_accounts.push((new Account).fromJSON(json))
 
-    index = atom.config.get(saveIndexKey) || 0
+    index = NylasEnv.config.get(saveIndexKey) || 0
     @_index = Math.min(@_accounts.length - 1, Math.max(0, index))
 
-    @_tokens = atom.config.get(saveTokensKey) || {}
+    @_tokens = NylasEnv.config.get(saveTokensKey) || {}
     @_setupFastAccountMenu()
     @trigger()
 
   _save: =>
-    atom.config.set(saveObjectsKey, @_accounts)
-    atom.config.set(saveIndexKey, @_index)
-    atom.config.set(saveTokensKey, @_tokens)
-    atom.config.save()
+    NylasEnv.config.set(saveObjectsKey, @_accounts)
+    NylasEnv.config.set(saveIndexKey, @_index)
+    NylasEnv.config.set(saveTokensKey, @_tokens)
+    NylasEnv.config.save()
 
   # Inbound Events
 
   onSelectAccountId: (id) =>
     idx = _.findIndex @_accounts, (a) -> a.id is id
     return if idx is -1 or @_index is idx
-    atom.config.set(saveIndexKey, idx)
+    NylasEnv.config.set(saveIndexKey, idx)
     @_index = idx
     @trigger()
 
@@ -209,7 +209,7 @@ class AccountStore
 
     downloadsDir = path.join(dir, 'downloads')
     for filename in fs.readdirSync(downloadsDir)
-      fs.copySync(path.join(downloadsDir, filename), path.join(atom.getConfigDirPath(), 'downloads', filename))
+      fs.copySync(path.join(downloadsDir, filename), path.join(NylasEnv.getConfigDirPath(), 'downloads', filename))
 
     DatabaseStore.persistModels(_.values(labels))
     DatabaseStore.persistModels(messages)

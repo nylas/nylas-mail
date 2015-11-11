@@ -38,7 +38,7 @@ module.exports = (grunt) ->
     switch process.platform
       when 'darwin'
         cmd = 'codesign'
-        args = ['--deep', '--force', '--verbose', '--sign', 'Developer ID Application: InboxApp, Inc.', grunt.config.get('atom.shellAppDir')]
+        args = ['--deep', '--force', '--verbose', '--sign', 'Developer ID Application: InboxApp, Inc.', grunt.config.get('nylasGruntConfig.shellAppDir')]
         spawn {cmd, args}, (error) -> callback(error)
       when 'win32'
         # TODO: Don't do anything now, because we need a certificate pfx file
@@ -46,12 +46,12 @@ module.exports = (grunt) ->
         return callback()
         spawn {cmd: 'taskkill', args: ['/F', '/IM', 'nylas.exe']}, ->
           cmd = process.env.JANKY_SIGNTOOL ? 'signtool'
-          args = ['sign', path.join(grunt.config.get('atom.shellAppDir'), 'nylas.exe')]
+          args = ['sign', path.join(grunt.config.get('nylasGruntConfig.shellAppDir'), 'nylas.exe')]
 
           spawn {cmd, args}, (error) ->
             return callback(error) if error?
 
-            setupExePath = path.resolve(grunt.config.get('atom.buildDir'), 'installer', 'NylasSetup.exe')
+            setupExePath = path.resolve(grunt.config.get('nylasGruntConfig.buildDir'), 'installer', 'NylasSetup.exe')
             if fs.isFileSync(setupExePath)
               args = ['sign', setupExePath]
               spawn {cmd, args}, (error) -> callback(error)

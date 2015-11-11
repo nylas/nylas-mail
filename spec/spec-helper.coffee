@@ -1,6 +1,6 @@
 require '../src/window'
-atom.initialize()
-atom.restoreWindowDimensions()
+NylasEnv.initialize()
+NylasEnv.restoreWindowDimensions()
 
 require 'jasmine-json'
 require './jasmine-jquery'
@@ -24,19 +24,19 @@ AccountStore = require "../src/flux/stores/account-store"
 Contact = require '../src/flux/models/contact'
 {TaskQueue, ComponentRegistry} = require "nylas-exports"
 
-atom.themes.loadBaseStylesheets()
-atom.themes.requireStylesheet '../static/jasmine'
-atom.themes.initialLoadComplete = true
+NylasEnv.themes.loadBaseStylesheets()
+NylasEnv.themes.requireStylesheet '../static/jasmine'
+NylasEnv.themes.initialLoadComplete = true
 
-atom.keymaps.loadBundledKeymaps()
-keyBindingsToRestore = atom.keymaps.getKeyBindings()
-commandsToRestore = atom.commands.getSnapshot()
-styleElementsToRestore = atom.styles.getSnapshot()
+NylasEnv.keymaps.loadBundledKeymaps()
+keyBindingsToRestore = NylasEnv.keymaps.getKeyBindings()
+commandsToRestore = NylasEnv.commands.getSnapshot()
+styleElementsToRestore = NylasEnv.styles.getSnapshot()
 
 window.addEventListener 'core:close', -> window.close()
 window.addEventListener 'beforeunload', ->
-  atom.storeWindowDimensions()
-  atom.saveSync()
+  NylasEnv.storeWindowDimensions()
+  NylasEnv.saveSync()
 $('html,body').css('overflow', 'auto')
 
 # Allow document.title to be assigned in specs without screwing up spec window title
@@ -56,7 +56,7 @@ specPackageName = null
 specPackagePath = null
 isCoreSpec = false
 
-{specDirectory, resourcePath} = atom.getLoadSettings()
+{specDirectory, resourcePath} = NylasEnv.getLoadSettings()
 
 if specDirectory
   specPackagePath = path.resolve(specDirectory, '..')
@@ -112,7 +112,7 @@ window.TEST_ACCOUNT_EMAIL = "tester@nylas.com"
 window.TEST_ACCOUNT_NAME = "Nylas Test"
 
 beforeEach ->
-  atom.testOrganizationUnit = null
+  NylasEnv.testOrganizationUnit = null
   Grim.clearDeprecations() if isCoreSpec
   ComponentRegistry._clear()
   global.localStorage.clear()
@@ -123,11 +123,11 @@ beforeEach ->
 
   $.fx.off = true
   documentTitle = null
-  atom.packages.serviceHub = new ServiceHub
-  atom.keymaps.keyBindings = _.clone(keyBindingsToRestore)
-  atom.commands.restoreSnapshot(commandsToRestore)
-  atom.styles.restoreSnapshot(styleElementsToRestore)
-  atom.workspaceViewParentSelector = '#jasmine-content'
+  NylasEnv.packages.serviceHub = new ServiceHub
+  NylasEnv.keymaps.keyBindings = _.clone(keyBindingsToRestore)
+  NylasEnv.commands.restoreSnapshot(commandsToRestore)
+  NylasEnv.styles.restoreSnapshot(styleElementsToRestore)
+  NylasEnv.workspaceViewParentSelector = '#jasmine-content'
 
   window.resetTimeouts()
   spyOn(_._, "now").andCallFake -> window.now
@@ -136,21 +136,21 @@ beforeEach ->
   spyOn(window, "setInterval").andCallFake window.fakeSetInterval
   spyOn(window, "clearInterval").andCallFake window.fakeClearInterval
 
-  atom.packages.packageStates = {}
+  NylasEnv.packages.packageStates = {}
 
   serializedWindowState = null
 
-  spyOn(atom, 'saveSync')
+  spyOn(NylasEnv, 'saveSync')
 
-  spy = spyOn(atom.packages, 'resolvePackagePath').andCallFake (packageName) ->
+  spy = spyOn(NylasEnv.packages, 'resolvePackagePath').andCallFake (packageName) ->
     if specPackageName and packageName is specPackageName
       resolvePackagePath(specPackagePath)
     else
       resolvePackagePath(packageName)
-  resolvePackagePath = _.bind(spy.originalValue, atom.packages)
+  resolvePackagePath = _.bind(spy.originalValue, NylasEnv.packages)
 
-  # prevent specs from modifying Atom's menus
-  spyOn(atom.menu, 'sendToBrowserProcess')
+  # prevent specs from modifying N1's menus
+  spyOn(NylasEnv.menu, 'sendToBrowserProcess')
 
   # Log in a fake user
   spyOn(AccountStore, 'current').andCallFake ->
@@ -158,16 +158,16 @@ beforeEach ->
       provider: "gmail"
       name: TEST_ACCOUNT_NAME
       emailAddress: TEST_ACCOUNT_EMAIL
-      organizationUnit: atom.testOrganizationUnit
+      organizationUnit: NylasEnv.testOrganizationUnit
       clientId: TEST_ACCOUNT_CLIENT_ID
       serverId: TEST_ACCOUNT_ID
 
   # reset config before each spec; don't load or save from/to `config.json`
   spyOn(Config::, 'load')
   spyOn(Config::, 'save')
-  config = new Config({resourcePath, configDirPath: atom.getConfigDirPath()})
-  atom.config = config
-  atom.loadConfig()
+  config = new Config({resourcePath, configDirPath: NylasEnv.getConfigDirPath()})
+  NylasEnv.config = config
+  NylasEnv.loadConfig()
   config.set "core.destroyEmptyPanes", false
   config.set "editor.fontFamily", "Courier"
   config.set "editor.fontSize", 16
@@ -202,18 +202,18 @@ afterEach ->
   if console.error isnt original_error
     console.error = original_error
 
-  atom.packages.deactivatePackages()
-  atom.menu.template = []
+  NylasEnv.packages.deactivatePackages()
+  NylasEnv.menu.template = []
 
-  atom.themes.removeStylesheet('global-editor-styles')
+  NylasEnv.themes.removeStylesheet('global-editor-styles')
 
-  delete atom.state?.packageStates
+  delete NylasEnv.state?.packageStates
 
   $('#jasmine-content').empty() unless window.debugContent
 
   ReactTestUtils.unmountAll()
 
-  jasmine.unspy(atom, 'saveSync')
+  jasmine.unspy(NylasEnv, 'saveSync')
   ensureNoPathSubscriptions()
   waits(0) # yield to ui thread to make screen update more frequently
 
@@ -359,8 +359,8 @@ window.waitsForPromise = (args...) ->
   window.waitsFor timeout, (moveOn) ->
     promise = fn()
     # Keep in mind we can't check `promise instanceof Promise` because parts of
-    # the app still use other Promise libraries (Atom used Q, we use Bluebird.)
-    # Just see if it looks promise-like.
+    # the app still use other Promise libraries Just see if it looks
+    # promise-like.
     if not promise or not promise.then
       jasmine.getEnv().currentSpec.fail("Expected callback to return a promise-like object, but it returned #{promise}")
       moveOn()
@@ -446,7 +446,7 @@ $.fn.enableKeymap = ->
   @on 'keydown', (e) ->
     originalEvent = e.originalEvent ? e
     Object.defineProperty(originalEvent, 'target', get: -> e.target) unless originalEvent.target?
-    atom.keymaps.handleKeyboardEvent(originalEvent)
+    NylasEnv.keymaps.handleKeyboardEvent(originalEvent)
     not e.originalEvent.defaultPrevented
 
 $.fn.attachToDom = ->

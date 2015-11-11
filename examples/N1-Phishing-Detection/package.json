@@ -5,7 +5,7 @@
   "description": "An example package for Nylas Mail that translates drafts into other languages using the Yandex API.",
   "license": "Proprietary",
   "engines": {
-    "atom": "*"
+    "nylas": "*"
   },
   "repository": {
     "type": "git",

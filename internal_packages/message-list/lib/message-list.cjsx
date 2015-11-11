@@ -238,7 +238,7 @@ class MessageList extends React.Component
 
   # Returns either "reply" or "reply-all"
   _replyType: =>
-    defaultReplyType = atom.config.get('core.sending.defaultReplyType')
+    defaultReplyType = NylasEnv.config.get('core.sending.defaultReplyType')
     lastMsg = _.last(_.filter((@state.messages ? []), (m) -> not m.draft))
     return 'reply' unless lastMsg
 

@@ -160,7 +160,7 @@ class MessageStore extends NylasStore
     return if @_lastLoadedThreadId is loadedThreadId
     @_lastLoadedThreadId = loadedThreadId
     if @_thread.unread
-      markAsReadDelay = atom.config.get('core.reading.markAsReadDelay')
+      markAsReadDelay = NylasEnv.config.get('core.reading.markAsReadDelay')
       setTimeout =>
         return unless loadedThreadId is @_thread?.id and @_thread.unread
         t = new ChangeUnreadTask(thread: @_thread, unread: false)
@@ -234,7 +234,7 @@ class MessageStore extends NylasStore
     startedAFetch
 
   _fetchExpandedAttachments: (items) ->
-    return unless atom.config.get('core.attachments.downloadPolicy') is 'on-read'
+    return unless NylasEnv.config.get('core.attachments.downloadPolicy') is 'on-read'
     for item in items
       continue unless @_itemsExpanded[item.id]
       for file in item.files

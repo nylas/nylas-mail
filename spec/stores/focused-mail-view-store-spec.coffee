@@ -15,7 +15,7 @@ describe "FocusedMailViewStore", ->
     FocusedMailViewStore._mailView = null
 
   afterEach ->
-    atom.testOrganizationUnit = null
+    NylasEnv.testOrganizationUnit = null
 
   testStore = ->
     describe "_onCategoryStoreChanged", ->
@@ -67,7 +67,7 @@ describe "FocusedMailViewStore", ->
 
   describe 'when using labels', ->
     beforeEach ->
-      atom.testOrganizationUnit = 'label'
+      NylasEnv.testOrganizationUnit = 'label'
 
       @inboxCategory = new Label(id: 'id-123', name: 'inbox', displayName: "INBOX")
       @inboxFilter = MailViewFilter.forCategory(@inboxCategory)
@@ -84,7 +84,7 @@ describe "FocusedMailViewStore", ->
 
   describe 'when using folders', ->
     beforeEach ->
-      atom.testOrganizationUnit = 'folder'
+      NylasEnv.testOrganizationUnit = 'folder'
 
       @inboxCategory = new Folder(id: 'id-123', name: 'inbox', displayName: "INBOX")
       @inboxFilter = MailViewFilter.forCategory(@inboxCategory)

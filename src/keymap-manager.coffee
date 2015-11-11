@@ -32,7 +32,7 @@ class KeymapManager extends AtomKeymap
     templateKeymapPath = null
     reloadTemplateKeymap = =>
       @removeBindingsFromSource(templateKeymapPath) if templateKeymapPath
-      templateFile = atom.config.get(templateConfigKey)
+      templateFile = NylasEnv.config.get(templateConfigKey)
       if templateFile
         templateKeymapPath = fs.resolve(path.join(@resourcePath, 'keymaps', 'templates'), templateFile, ['cson', 'json'])
         if fs.existsSync(templateKeymapPath)
@@ -41,7 +41,7 @@ class KeymapManager extends AtomKeymap
         else
           console.warn("Could not find #{templateKeymapPath}")
 
-    atom.config.observe(templateConfigKey, reloadTemplateKeymap)
+    NylasEnv.config.observe(templateConfigKey, reloadTemplateKeymap)
     reloadTemplateKeymap()
 
     @emitter.emit 'did-load-bundled-keymaps'

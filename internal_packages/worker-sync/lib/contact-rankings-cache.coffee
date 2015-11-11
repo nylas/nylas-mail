@@ -13,7 +13,7 @@ class ContactRankingsCache extends RefreshingJSONCache
     })
 
   fetchData: (callback) =>
-    return if atom.inSpecMode()
+    return if NylasEnv.inSpecMode()
 
     NylasAPI.makeRequest
       accountId: @_accountId

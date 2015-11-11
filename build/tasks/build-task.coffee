@@ -3,7 +3,7 @@ path = require 'path'
 _ = require 'underscore'
 
 module.exports = (grunt) ->
-  {cp, isAtomPackage, mkdir, rm} = require('./task-helpers')(grunt)
+  {cp, isNylasPackage, mkdir, rm} = require('./task-helpers')(grunt)
 
   escapeRegExp = (string) ->
     if string
@@ -12,9 +12,9 @@ module.exports = (grunt) ->
       return ''
 
   grunt.registerTask 'build', 'Build the application', ->
-    shellAppDir = grunt.config.get('atom.shellAppDir')
-    buildDir = grunt.config.get('atom.buildDir')
-    appDir = grunt.config.get('atom.appDir')
+    shellAppDir = grunt.config.get('nylasGruntConfig.shellAppDir')
+    buildDir = grunt.config.get('nylasGruntConfig.buildDir')
+    appDir = grunt.config.get('nylasGruntConfig.appDir')
 
     rm shellAppDir
     rm path.join(buildDir, 'installer')
@@ -52,7 +52,7 @@ module.exports = (grunt) ->
     for packageFolder in ['node_modules', 'internal_packages']
       for child in fs.readdirSync(packageFolder)
         directory = path.join(packageFolder, child)
-        if isAtomPackage(directory)
+        if isNylasPackage(directory)
           packageDirectories.push(directory)
           packageNames.push(child)
         else
@@ -181,9 +181,9 @@ module.exports = (grunt) ->
           grunt.file.copy(sourcePath, path.resolve(appDir, '..', subDirectory, filename))
 
     if process.platform is 'win32'
-      cp path.join('build', 'resources', 'win', 'atom.cmd'), path.join(shellAppDir, 'resources', 'cli', 'atom.cmd')
+      cp path.join('build', 'resources', 'win', 'N1.cmd'), path.join(shellAppDir, 'resources', 'cli', 'N1.cmd')
       cp path.join('build', 'resources', 'win', 'N1.sh'), path.join(shellAppDir, 'resources', 'cli', 'N1.sh')
-      cp path.join('build', 'resources', 'win', 'atom.js'), path.join(shellAppDir, 'resources', 'cli', 'atom.js')
+      cp path.join('build', 'resources', 'win', 'nylas-win-bootup.js'), path.join(shellAppDir, 'resources', 'cli', 'nylas-win-bootup.js')
       cp path.join('build', 'resources', 'win', 'apm.sh'), path.join(shellAppDir, 'resources', 'cli', 'apm.sh')
 
     if process.platform is 'linux'

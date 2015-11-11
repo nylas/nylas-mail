@@ -97,7 +97,7 @@ class NylasAPIRequest
               response ?= {}
               response.statusCode = TimeoutErrorCode
             apiError = new APIError({error, response, body, requestOptions: @options})
-            atom.errorLogger.apiDebug(apiError)
+            NylasEnv.errorLogger.apiDebug(apiError)
             @options.error?(apiError)
             reject(apiError)
           else
@@ -123,16 +123,16 @@ class NylasAPI
     @_workers = []
     @_optimisticChangeTracker = new NylasAPIOptimisticChangeTracker()
 
-    atom.config.onDidChange('env', @_onConfigChanged)
+    NylasEnv.config.onDidChange('env', @_onConfigChanged)
     @_onConfigChanged()
 
   _onConfigChanged: =>
     prev = {@AppID, @APIRoot, @APITokens}
 
-    if atom.inSpecMode()
+    if NylasEnv.inSpecMode()
       env = "testing"
     else
-      env = atom.config.get('env')
+      env = NylasEnv.config.get('env')
 
     if not env
       env = 'production'
@@ -171,7 +171,7 @@ class NylasAPI
   # scenarios, respectively.
   #
   makeRequest: (options={}) ->
-    if atom.getLoadSettings().isSpec
+    if NylasEnv.getLoadSettings().isSpec
       return Promise.resolve()
 
     success = (body) =>
@@ -190,7 +190,7 @@ class NylasAPI
         if err.response.statusCode is 401
           handlePromise = @_handle401(options.url)
         if err.response.statusCode is 400
-          atom.emitError(err)
+          NylasEnv.emitError(err)
       handlePromise.finally ->
         Promise.reject(err)
 
@@ -213,7 +213,7 @@ class NylasAPI
       klass = @_apiObjectToClassMap[collection[0..-2]] # Warning: threads => thread
 
     if klass and klassId and klassId.length > 0
-      unless atom.inSpecMode()
+      unless NylasEnv.inSpecMode()
         console.warn("Deleting #{klass.name}:#{klassId} due to API 404")
       DatabaseStore.find(klass, klassId).then (model) ->
         if model

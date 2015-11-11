@@ -42,7 +42,7 @@ FileUploadStore = Reflux.createStore
     @_verifyId(messageClientId)
 
     # When the dialog closes, it triggers `Actions.pathsToOpen`
-    atom.showOpenDialog {properties: ['openFile', 'multiSelections']}, (pathsToOpen) ->
+    NylasEnv.showOpenDialog {properties: ['openFile', 'multiSelections']}, (pathsToOpen) ->
       return if not pathsToOpen?
       pathsToOpen = [pathsToOpen] if _.isString(pathsToOpen)
 

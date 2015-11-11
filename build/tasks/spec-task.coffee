@@ -8,7 +8,7 @@ request = require 'request'
 concurrency = 2
 
 module.exports = (grunt) ->
-  {isAtomPackage, spawn} = require('./task-helpers')(grunt)
+  {isNylasPackage, spawn} = require('./task-helpers')(grunt)
 
   packageSpecQueue = null
 
@@ -27,7 +27,7 @@ module.exports = (grunt) ->
     grunt.log.error(stderr)
 
   getAppPath = ->
-    contentsDir = grunt.config.get('atom.contentsDir')
+    contentsDir = grunt.config.get('nylasGruntConfig.contentsDir')
     switch process.platform
       when 'darwin'
         path.join(contentsDir, 'MacOS', 'Edgehill')
@@ -38,7 +38,7 @@ module.exports = (grunt) ->
 
   runPackageSpecs = (callback) ->
     failedPackages = []
-    rootDir = grunt.config.get('atom.shellAppDir')
+    rootDir = grunt.config.get('nylasGruntConfig.shellAppDir')
     resourcePath = process.cwd()
     appPath = getAppPath()
 
@@ -76,7 +76,7 @@ module.exports = (grunt) ->
     for packageDirectory in fs.readdirSync(modulesDirectory)
       packagePath = path.join(modulesDirectory, packageDirectory)
       continue unless grunt.file.isDir(path.join(packagePath, 'spec'))
-      continue unless isAtomPackage(packagePath)
+      continue unless isNylasPackage(packagePath)
       packageSpecQueue.push(packagePath)
 
     packageSpecQueue.concurrency = concurrency - 1
@@ -123,7 +123,7 @@ module.exports = (grunt) ->
       elapsedTime = Math.round((Date.now() - startTime) / 100) / 10
       grunt.log.ok("Total spec time: #{elapsedTime}s using #{concurrency} cores")
       failures = failedPackages
-      failures.push "atom core" if coreSpecFailed
+      failures.push "N1 core" if coreSpecFailed
 
       grunt.log.error("[Error]".red + " #{failures.join(', ')} spec(s) failed") if failures.length > 0
 

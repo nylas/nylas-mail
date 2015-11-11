@@ -23,15 +23,15 @@ ensureInteger = (f, fallback) ->
     f = fallback
   return Math.round(f)
 
-# Essential: Atom global for dealing with packages, themes, menus, and the window.
+# Essential: NylasEnv global for dealing with packages, themes, menus, and the window.
 #
-# The singleton of this class is always available as the `atom` global.
+# The singleton of this class is always available as the `NylasEnv` global.
 module.exports =
-class Atom extends Model
+class NylasEnvConstructor extends Model
   @version: 1  # Increment this when the serialization format changes
 
   # Load or create the application environment
-  # Returns an Atom instance, fully initialized
+  # Returns an NylasEnv instance, fully initialized
   @loadOrCreate: ->
     startTime = Date.now()
 
@@ -72,7 +72,7 @@ class Atom extends Model
     else
       null
 
-  # Get the directory path to Atom's configuration area.
+  # Get the directory path to NylasEnv's configuration area.
   #
   # Returns the absolute path to ~/.nylas
   @getConfigDirPath: ->
@@ -136,7 +136,7 @@ class Atom extends Model
   # Sets up the basic services that should be available in all modes
   # (both spec and application).
   #
-  # Call after this instance has been assigned to the `atom` global.
+  # Call after this instance has been assigned to the `NylasEnv` global.
   initialize: ->
     # Disable deprecations unless in dev mode or spec mode so that regular
     # editor performance isn't impacted by generating stack traces for
@@ -176,7 +176,7 @@ class Atom extends Model
     # Make react.js faster
     process.env.NODE_ENV ?= 'production' unless devMode
 
-    # Set Atom's home so packages don't have to guess it
+    # Set NylasEnv's home so packages don't have to guess it
     process.env.ATOM_HOME = configDirPath
 
     # Setup config and load it immediately so it's available to our singletons
@@ -188,7 +188,6 @@ class Atom extends Model
       # the body, re-fire it up into the browser process. This prevents us
       # from needing this crap, which has to be updated every time a new
       # application: command is added:
-      # https://github.com/atom/atom/blob/master/src/workspace-element.coffee#L119
       if event.binding.command.indexOf('application:') is 0 and event.binding.selector.indexOf("body") is 0
         ipc.send('command', event.binding.command)
 
@@ -344,9 +343,6 @@ class Atom extends Model
           console.log('Tracing data recorded to ' + path)
       , 5000
 
-  ###
-  Section: Atom Details
-  ###
   isMainWindow: ->
     !!@getLoadSettings().mainWindow
 
@@ -368,7 +364,7 @@ class Atom extends Model
   inSpecMode: ->
     @getLoadSettings().isSpec
 
-  # Public: Get the version of the Atom application.
+  # Public: Get the version of N1.
   #
   # Returns the version text {String}.
   getVersion: ->
@@ -401,7 +397,7 @@ class Atom extends Model
     @constructor.getLoadSettings()
 
   ###
-  Section: Managing The Atom Window
+  Section: Managing The Nylas Window
   ###
 
   # Essential: Close the current window.
@@ -675,7 +671,7 @@ class Atom extends Model
   registerCommands: ->
     {resourcePath} = @getLoadSettings()
     CommandInstaller = require './command-installer'
-    CommandInstaller.installAtomCommand resourcePath, false, (error) ->
+    CommandInstaller.installN1Command resourcePath, false, (error) ->
       console.warn error.message if error?
     CommandInstaller.installApmCommand resourcePath, false, (error) ->
       console.warn error.message if error?
@@ -750,7 +746,7 @@ class Atom extends Model
   # ## Examples
   #
   # ```coffee
-  # atom.confirm
+  # NylasEnv.confirm
   #   message: 'How you feeling?'
   #   detailedMessage: 'Be honest.'
   #   buttons:
@@ -808,7 +804,7 @@ class Atom extends Model
   deserializeSheetContainer: ->
     startTime = Date.now()
     # Put state back into sheet-container? Restore app state here
-    @item = document.createElement("atom-workspace")
+    @item = document.createElement("nylas-workspace")
     @item.setAttribute("id", "sheet-container")
     @item.setAttribute("class", "sheet-container")
     @item.setAttribute("tabIndex", "-1")

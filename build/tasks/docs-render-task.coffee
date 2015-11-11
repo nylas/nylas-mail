@@ -144,7 +144,7 @@ module.exports = (grunt) ->
         referenceSections[klass.section] = section
       section.classes.push(klass)
 
-    preferredSectionOrdering = ['General', 'Component Kit', 'Models', 'Stores', 'Database', 'Drafts', 'Atom']
+    preferredSectionOrdering = ['General', 'Component Kit', 'Models', 'Stores', 'Database', 'Drafts', 'NylasEnv']
     sorted = []
     for key in preferredSectionOrdering
       if referenceSections[key]

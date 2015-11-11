@@ -4,12 +4,12 @@ nodeRequest = require 'request'
 class TokenAuthAPI
 
   constructor: ->
-    atom.config.onDidChange('env', @_onConfigChanged)
+    NylasEnv.config.onDidChange('env', @_onConfigChanged)
     @_onConfigChanged()
     @
 
   _onConfigChanged: =>
-    env = atom.config.get('env')
+    env = NylasEnv.config.get('env')
     if env is 'development'
       @APIRoot = "http://localhost:6001"
     else if env in ['experimental', 'staging']
@@ -18,7 +18,7 @@ class TokenAuthAPI
       @APIRoot = "https://invite.nylas.com"
 
   request: (options={}) ->
-    return if atom.getLoadSettings().isSpec
+    return if NylasEnv.getLoadSettings().isSpec
     options.method ?= 'GET'
     options.url ?= "#{@APIRoot}#{options.path}" if options.path
     options.body ?= {} unless options.formData

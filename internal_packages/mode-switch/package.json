@@ -5,7 +5,7 @@
   "main": "./lib/main",
   "license": "Proprietary",
   "engines": {
-    "atom": "*"
+    "nylas": "*"
   },
   "private": true
 }

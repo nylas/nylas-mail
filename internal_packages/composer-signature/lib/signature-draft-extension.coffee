@@ -3,7 +3,7 @@
 class SignatureDraftStoreExtension extends DraftStoreExtension
   @prepareNewDraft: (draft) ->
     accountId = AccountStore.current().id
-    signature = atom.config.get("nylas.account-#{accountId}.signature")
+    signature = NylasEnv.config.get("nylas.account-#{accountId}.signature")
     return unless signature
 
     insertionPoint = draft.body.indexOf('<blockquote')

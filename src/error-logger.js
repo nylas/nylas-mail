@@ -173,7 +173,7 @@ module.exports = ErrorLogger = (function() {
     // Link to the appropriate error handlers for the browser
     // or renderer process
     if (process.type === 'renderer') {
-      atom.onDidThrowError(function(_arg) {
+      NylasEnv.onDidThrowError(function(_arg) {
         if (self.inSpecMode || self.inDevMode) { return };
         self.appendLog(_arg.originalError, _arg.message);
         self.notifyExtensions("onDidThrowError", _arg.originalError, _arg.message)

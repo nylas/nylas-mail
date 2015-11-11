@@ -24,6 +24,7 @@
         return;
       }
     }
+    app.setAppUserModelId('com.squirrel.nylas.nylas');
     addPathToOpen = function(event, pathToOpen) {
       event.preventDefault();
       return args.pathsToOpen.push(pathToOpen);
@@ -104,14 +105,14 @@
     var args, devMode, executedFrom, logFile, newWindow, options, packageDirectoryPath, packageManifest, packageManifestPath, pathsToOpen, pidToKillWhenClosed, resourcePath, safeMode, specDirectory, specFilePattern, specsOnCommandLine, test, version;
     version = app.getVersion();
     options = optimist(process.argv.slice(1));
-    options.usage("Atom Editor v" + version + "\n\nUsage: atom [options] [path ...]\n\nOne or more paths to files or folders to open may be specified.\n\nFile paths will open in the current window.\n\nFolder paths will open in an existing window if that folder has already been\nopened or a new window if it hasn't.\n\nEnvironment Variables:\nN1_PATH  The path from which Atom loads source code in dev mode.\n         Defaults to `cwd`.");
+    options.usage("N1 v" + version + "\n\nUsage: n1 [options] [path ...]\n\nOne or more paths to files or folders to open may be specified.\n\nFile paths will open in the current window.\n\nFolder paths will open in an existing window if that folder has already been\nopened or a new window if it hasn't.\n\nEnvironment Variables:\nN1_PATH  The path from which N1 loads source code in dev mode.\n         Defaults to `cwd`.");
     options.alias('d', 'dev').boolean('d').describe('d', 'Run in development mode.');
     options.alias('f', 'foreground').boolean('f').describe('f', 'Keep the browser process in the foreground.');
     options.alias('h', 'help').boolean('h').describe('h', 'Print this usage message.');
     options.alias('l', 'log-file').string('l').describe('l', 'Log all output to file.');
     options.alias('n', 'new-window').boolean('n').describe('n', 'Open a new window.');
-    options.alias('r', 'resource-path').string('r').describe('r', 'Set the path to the Atom source directory and enable dev-mode.');
-    options.alias('s', 'spec-directory').string('s').describe('s', 'Set the directory from which to run package specs (default: Atom\'s spec directory).');
+    options.alias('r', 'resource-path').string('r').describe('r', 'Set the path to the N1 source directory and enable dev-mode.');
+    options.alias('s', 'spec-directory').string('s').describe('s', 'Set the directory from which to run package specs (default: N1\'s spec directory).');
     options.boolean('safe').describe('safe', 'Do not load packages from ~/.nylas/packages or ~/.nylas/dev/packages.');
     options.alias('t', 'test').boolean('t').describe('t', 'Run the specified specs and exit with error code on failures.');
     options.alias('v', 'version').boolean('v').describe('v', 'Print the version.');

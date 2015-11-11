@@ -10,7 +10,7 @@
 
   "license": "MIT",
   "engines": {
-    "atom": "*"
+    "nylas": "*"
   },
   "repository": {
     "type": "git",

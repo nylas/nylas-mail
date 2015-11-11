@@ -237,7 +237,7 @@ var openWindowForComponent = function(Component, options) {
   // Create a browser window
   var thinWindowUrl = url.format({
     protocol: 'file',
-    pathname: atom.getLoadSettings().resourcePath+"/static/react-remote-child.html",
+    pathname: NylasEnv.getLoadSettings().resourcePath+"/static/react-remote-child.html",
     slashes: true
   });
   var thinWindow = new BrowserWindow({

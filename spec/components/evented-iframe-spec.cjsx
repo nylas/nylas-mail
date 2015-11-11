@@ -14,8 +14,8 @@ describe 'EventedIFrame', ->
       @preventDefaultSpy = jasmine.createSpy('preventDefault')
       @openLinkSpy = jasmine.createSpy("openLink")
 
-      @oldOpenLink = atom.windowEventHandler.openLink
-      atom.windowEventHandler.openLink = @openLinkSpy
+      @oldOpenLink = NylasEnv.windowEventHandler.openLink
+      NylasEnv.windowEventHandler.openLink = @openLinkSpy
 
       @fakeEvent = (href) =>
         stopPropagation: ->
@@ -25,7 +25,7 @@ describe 'EventedIFrame', ->
           setAttribute: @setAttributeSpy
 
     afterEach ->
-      atom.windowEventHandler.openLink = @oldOpenLink
+      NylasEnv.windowEventHandler.openLink = @oldOpenLink
 
     it 'works for acceptable link types', ->
       hrefs = [
