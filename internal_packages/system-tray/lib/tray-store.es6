@@ -30,13 +30,14 @@ const menuTemplate = [
   },
 ];
 
-const _buildMenu = (platform)=> {
-  if (platform === 'darwin') {
-    menuTemplate.unshift({
-      label: 'Open inbox',
-      click: ()=> atom.focus(),
-    });
-  }
+if (process.platform === 'darwin') {
+  menuTemplate.unshift({
+    label: 'Open inbox',
+    click: ()=> atom.focus(),
+  });
+}
+
+const _buildMenu = ()=> {
   return Menu.buildFromTemplate(menuTemplate);
 };
 
