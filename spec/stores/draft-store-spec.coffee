@@ -885,9 +885,11 @@ describe "DraftStore", ->
         'mailto:bengotow@gmail.com&subject=Martha Stewart&cc=cc@nylas.com',
         'mailto:bengotow@gmail.com?subject=Martha%20Stewart&cc=cc@nylas.com&bcc=bcc@nylas.com',
         'mailto:bengotow@gmail.com?subject=Martha%20Stewart&cc=cc@nylas.com&bcc=Ben <bcc@nylas.com>',
-        'mailto:Ben Gotow <bengotow@gmail.com>,Shawn <shawn@nylas.com>?subject=Yes this is really valid'
-        'mailto:Ben%20Gotow%20<bengotow@gmail.com>,Shawn%20<shawn@nylas.com>?subject=Yes%20this%20is%20really%20valid'
+        'mailto:Ben Gotow <bengotow@gmail.com>,Shawn <shawn@nylas.com>?subject=Yes this is really valid',
+        'mailto:Ben%20Gotow%20<bengotow@gmail.com>,Shawn%20<shawn@nylas.com>?subject=Yes%20this%20is%20really%20valid',
         'mailto:Reply <d+AORGpRdj0KXKUPBE1LoI0a30F10Ahj3wu3olS-aDk5_7K5Wu6WqqqG8t1HxxhlZ4KEEw3WmrSdtobgUq57SkwsYAH6tG57IrNqcQR0K6XaqLM2nGNZ22D2k@docs.google.com>?subject=Nilas%20Message%20to%20Customers',
+        'mailto:email@address.com?&subject=test&body=type%20your%0Amessage%20here'
+        'mailto:?body=type%20your%0D%0Amessage%0D%0Ahere'
       ]
       expected = [
         new Message(),
@@ -938,6 +940,15 @@ describe "DraftStore", ->
         new Message(
           to: [new Contact(name: 'Reply', email: 'd+AORGpRdj0KXKUPBE1LoI0a30F10Ahj3wu3olS-aDk5_7K5Wu6WqqqG8t1HxxhlZ4KEEw3WmrSdtobgUq57SkwsYAH6tG57IrNqcQR0K6XaqLM2nGNZ22D2k@docs.google.com')],
           subject: 'Nilas Message to Customers'
+        ),
+        new Message(
+          to: [new Contact(name: 'email@address.com', email: 'email@address.com')],
+          subject: 'test'
+          body: 'type your\nmessage here'
+        ),
+        new Message(
+          to: [],
+          body: 'type your\r\nmessage\r\nhere'
         )
       ]
 
@@ -948,7 +959,8 @@ describe "DraftStore", ->
               expectedDraft = expected[idx]
               received = DatabaseStore.persistModel.mostRecentCall.args[0]
               expect(received['subject']).toEqual(expectedDraft['subject'])
-              for attr in ['to', 'cc', 'bcc', 'subject']
+              expect(received['body']).toEqual(expectedDraft['body']) if expectedDraft['body']
+              for attr in ['to', 'cc', 'bcc']
                 for contact, jdx in received[attr]
                   expectedContact = expectedDraft[attr][jdx]
                   expect(contact.email).toEqual(expectedContact.email)
