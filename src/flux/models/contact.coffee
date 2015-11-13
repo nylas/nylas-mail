@@ -122,8 +122,8 @@ class Contact extends Model
     name = name.split(/[()]/)[1] if name.split(/[()]/).length > 1
 
     # Take care of phrases like "Mike Kaylor via LinkedIn" that should be displayed
-    # as the contents before the separator word.
-    name = name.split(/(via)/)[0]
+    # as the contents before the separator word. Do not break "Olivia"
+    name = name.split(/(\svia\s)/i)[0]
 
     # If the phrase has an '@', use everything before the @ sign
     # Unless that would result in an empty string!

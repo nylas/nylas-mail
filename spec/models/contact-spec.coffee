@@ -54,6 +54,15 @@ describe "Contact", ->
     c8 = new Contact {name: "Mike Kaylor via LinkedIn"}
     expect(c8.firstName()).toBe "Mike"
     expect(c8.lastName()).toBe "Kaylor"
+    c8 = new Contact {name: "Mike Kaylor VIA LinkedIn"}
+    expect(c8.firstName()).toBe "Mike"
+    expect(c8.lastName()).toBe "Kaylor"
+    c8 = new Contact {name: "Mike Viator"}
+    expect(c8.firstName()).toBe "Mike"
+    expect(c8.lastName()).toBe "Viator"
+    c8 = new Contact {name: "Olivia Pope"}
+    expect(c8.firstName()).toBe "Olivia"
+    expect(c8.lastName()).toBe "Pope"
 
   it "properly parses evan (Evan Morikawa)", ->
     c8 = new Contact {name: "evan (Evan Morikawa)"}
