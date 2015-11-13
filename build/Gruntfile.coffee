@@ -104,6 +104,7 @@ module.exports = (grunt) ->
     installDir ?= process.env.INSTALL_PREFIX ? '/usr/local'
     killCommand = 'pkill -9 nylas'
 
+  grunt.option('appDir', appDir)
   installDir = path.resolve(installDir)
 
   cjsxConfig =
@@ -359,7 +360,7 @@ module.exports = (grunt) ->
 
   grunt.registerTask('compile', ['coffee', 'cjsx', 'babel', 'prebuild-less', 'cson', 'peg'])
   grunt.registerTask('lint', ['coffeelint', 'csslint', 'lesslint', 'nylaslint', 'eslint'])
-  grunt.registerTask('test', ['shell:kill-n1', 'run-edgehill-specs'])
+  grunt.registerTask('test', ['shell:kill-n1', 'run-edgehill-specs', 'run-spectron-specs'])
   grunt.registerTask('docs', ['build-docs', 'render-docs'])
 
   ciTasks = ['output-disk-space', 'download-electron', 'build']
