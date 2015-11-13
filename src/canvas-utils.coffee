@@ -81,7 +81,7 @@ CanvasUtils =
     canvas.height = h
 
     context = canvas.getContext('2d')
-    context.font = '14px Nylas-Pro'
+    context.font = '14px Nylas-Pro, sans-serif'
     context.fillStyle = 'black'
     context.textAlign = 'start'
     context.textBaseline = 'middle'
