@@ -23,11 +23,11 @@
   'cmdctrl-z': 'core:undo'
   'cmdctrl-Z': 'core:redo'
   'cmdctrl-y': 'core:redo'
+  'shift-delete': 'core:cut'
   'cmdctrl-x': 'core:cut'
   'cmdctrl-c': 'core:copy'
   'cmdctrl-v': 'core:paste'
   'cmdctrl-a': 'core:select-all'
-  'shift-delete': 'core:cut'
 
   'up'         : 'core:previous-item'
   'down'       : 'core:next-item'
