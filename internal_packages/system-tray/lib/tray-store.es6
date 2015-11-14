@@ -15,25 +15,25 @@ const UNREAD_ICON_PATH = path.join(__dirname, '..', 'assets', process.platform, 
 const menuTemplate = [
   {
     label: 'New Message',
-    click: ()=> ipc.send('command', 'application:new-message')
+    click: ()=> ipc.send('command', 'application:new-message'),
   },
   {
     label: 'Preferences',
-    click: ()=> ipc.send('command', 'application:open-preferences')
+    click: ()=> ipc.send('command', 'application:open-preferences'),
   },
   {
     type: 'separator',
   },
   {
     label: 'Quit N1',
-    click: ()=> ipc.send('command', 'application:quit')
+    click: ()=> ipc.send('command', 'application:quit'),
   },
 ];
 
 if (process.platform === 'darwin') {
   menuTemplate.unshift({
     label: 'Open Inbox',
-    click: ()=> ipc.send('command', 'application:show-main-window')
+    click: ()=> ipc.send('command', 'application:show-main-window'),
   });
 }
 
