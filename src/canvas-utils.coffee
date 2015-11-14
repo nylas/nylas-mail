@@ -72,23 +72,31 @@ CanvasUtils =
 
     return DragCanvas
 
+  measureTextInCanvas: (text, font) ->
+    canvas = document.createElement('canvas')
+    context = canvas.getContext('2d')
+    context.font = font
+    return Math.ceil(context.measureText(text).width)
+
   canvasWithSystemTrayIconAndText: (img, text) ->
     canvas = SystemTrayCanvas
     w = img.width
     h = img.height
-    # Rough estimate of extra width to hold text
-    canvas.width = w + (10 * text.length)
+    font = '14px Nylas-Pro, sans-serif'
+
+    textWidth = if text.length > 0 then CanvasUtils.measureTextInCanvas(text, font) + 2 else 0
+    canvas.width = w + textWidth
     canvas.height = h
 
     context = canvas.getContext('2d')
-    context.font = '14px Nylas-Pro, sans-serif'
+    context.font = font
     context.fillStyle = 'black'
     context.textAlign = 'start'
     context.textBaseline = 'middle'
 
     context.drawImage(img, 0, 0)
     # Place after img, vertically aligned
-    context.fillText(text, w + 2, h / 2)
+    context.fillText(text, w, h / 2)
     return canvas
 
 module.exports = CanvasUtils
