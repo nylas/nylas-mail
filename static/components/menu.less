@@ -85,7 +85,7 @@
     background-image:url(./images/menu/checked-selected@2x.png);
   }
 
-  .item.selected, .item:hover, .item:active {
+  .item.selected, .item:active {
     text-decoration: none;
     background-color: @accent-primary;
     color: @text-color-inverse;
@@ -96,6 +96,13 @@
       color: @text-color-inverse-very-subtle;
     }
   }
+
+  .item:not(.active):not(.selected):hover {
+    text-decoration: none;
+    background-color: fade(@black, 3%);
+    color:inherit;
+  }
+
 }
 body.platform-win32 {
   .menu {

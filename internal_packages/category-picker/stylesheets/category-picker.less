@@ -5,9 +5,6 @@ body.platform-win32 {
   .category-picker {
     margin-left: 0;
   }
-  img.content-mask {
-    top: 0;
-  }
 }
 
 .category-picker {
@@ -16,16 +13,10 @@ body.platform-win32 {
   }
 
   .menu {
-
     background: @background-secondary;
 
     .header-container {
       border-bottom: 0;
-    }
-
-    .item.selected:hover {
-      background-color: @accent-primary;
-      color: @text-color-inverse;
     }
 
     .item.divider {
@@ -53,12 +44,14 @@ body.platform-win32 {
   }
 
   img.content-mask {
-    background-color: @text-color-subtle;
     position: relative;
-    top: -1px;
+    top:3px;
+    background-color: @text-color-subtle;
   }
-  .item.selected img.content-mask {
-    background-color: @text-color-inverse;
+  .item.selected, .item.active {
+    img.content-mask {
+      background-color: @text-color-inverse;
+    }
   }
 
   img.check-img {
