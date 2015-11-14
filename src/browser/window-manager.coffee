@@ -62,6 +62,8 @@ class WindowManager
         @_mainWindow.focus()
       else if !@_mainWindow.isVisible()
         @_mainWindow.showWhenLoaded()
+      else
+        @_mainWindow.focus()
 
     else
       if @devMode
