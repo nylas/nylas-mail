@@ -64,6 +64,7 @@ class MenuManager
     @pendingUpdateOperation = null
     @template = []
     atom.keymaps.onDidLoadBundledKeymaps => @loadPlatformItems()
+    atom.keymaps.onDidReloadKeymap => @update()
     atom.packages.onDidActivateInitialPackages => @sortPackagesMenu()
 
   # Public: Adds the given items to the application menu.
@@ -165,7 +166,7 @@ class MenuManager
     for key, bindings of keystrokesByCommand
       for binding in bindings
         continue if binding.indexOf(' ') != -1
-
+        continue unless /(cmd|ctrl|shift|alt)/.test(binding)
         filtered[key] ?= []
         filtered[key].push(binding)
     filtered
