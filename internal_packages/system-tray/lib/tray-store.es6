@@ -1,8 +1,8 @@
 import path from 'path';
 import remote from 'remote';
+import ipc from 'ipc';
 import NylasStore from 'nylas-store';
 import {UnreadCountStore, CanvasUtils} from 'nylas-exports';
-const WindowManager = remote.getGlobal('application').windowManager;
 const NativeImage = remote.require('native-image');
 const Menu = remote.require('menu');
 const {canvasWithSystemTrayIconAndText} = CanvasUtils;
@@ -15,25 +15,25 @@ const UNREAD_ICON_PATH = path.join(__dirname, '..', 'assets', process.platform, 
 const menuTemplate = [
   {
     label: 'New Message',
-    click: ()=> WindowManager.sendToMainWindow('new-message'),
+    click: ()=> ipc.send('command', 'application:new-message')
   },
   {
     label: 'Preferences',
-    click: ()=> WindowManager.sendToMainWindow('open-preferences'),
+    click: ()=> ipc.send('command', 'application:open-preferences')
   },
   {
     type: 'separator',
   },
   {
     label: 'Quit N1',
-    click: ()=> atom.quit(),
+    click: ()=> ipc.send('command', 'application:quit')
   },
 ];
 
 if (process.platform === 'darwin') {
   menuTemplate.unshift({
-    label: 'Open inbox',
-    click: ()=> atom.focus(),
+    label: 'Open Inbox',
+    click: ()=> ipc.send('command', 'application:show-main-window')
   });
 }
 
