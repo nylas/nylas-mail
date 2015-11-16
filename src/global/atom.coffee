@@ -1,12 +1,9 @@
-{Point, Range} = require 'text-buffer'
 {Emitter, Disposable, CompositeDisposable} = require 'event-kit'
 {deprecate} = require 'grim'
 
 module.exports =
   BufferedNodeProcess: require '../buffered-node-process'
   BufferedProcess: require '../buffered-process'
-  Point: Point
-  Range: Range
   Emitter: Emitter
   Disposable: Disposable
   CompositeDisposable: CompositeDisposable
