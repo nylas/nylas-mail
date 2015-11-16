@@ -13,7 +13,6 @@
   },
   "electronVersion": "0.29.2",
   "dependencies": {
-    "asar": "^0.5.0",
     "async": "^0.9",
     "atom-keymap": "5.1.11",
     "babel-core": "^5.8.21",
