@@ -47,7 +47,7 @@
     "pathwatcher": "^4.4.0",
     "property-accessors": "^1",
     "promise-queue": "2.1.1",
-    "proxyquire": "git+https://github.com/bengotow/proxyquire",
+    "proxyquire": "git+http://github.com/bengotow/proxyquire",
     "q": "^1.0.1",
     "raven": "0.7.2",
     "react": "^0.13.2",
