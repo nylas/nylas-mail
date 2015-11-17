@@ -82,7 +82,7 @@ CanvasUtils =
     canvas = SystemTrayCanvas
     w = img.width
     h = img.height
-    font = '14px Nylas-Pro, sans-serif'
+    font = '26px Nylas-Pro, sans-serif'
 
     textWidth = if text.length > 0 then CanvasUtils.measureTextInCanvas(text, font) + 2 else 0
     canvas.width = w + textWidth
