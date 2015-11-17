@@ -5,6 +5,11 @@ var verifyRequirements = require('./utils/verify-requirements');
 var safeExec = require('./utils/child-process-wrapper.js').safeExec;
 var path = require('path');
 
+var userHomeDirectory = (process.platform === 'win32') ? process.env.USERPROFILE : process.env.HOME;
+var appPackageJSON = JSON.parse(fs.readFileSync(path.resolve(__dirname, '..', 'package.json')));
+var targetElectronVersion = appPackageJSON['electronVersion'];
+var targetPlatform = require('os').platform();
+
 // Executes an array of commands in series
 function executeCommands(commands, done, index) {
   index = (index == undefined ? 0 : index);
@@ -33,10 +38,7 @@ function printArgs(args) {
 
 function makeSqlite3Command() {
   var nodeGypPath = '"' + path.resolve(__dirname, '..', 'build', 'node_modules', 'npm', 'node_modules', '.bin', 'node-gyp') + '"';
-  var appPackageJSON = JSON.parse(fs.readFileSync(path.resolve(__dirname, '..', 'package.json')));
-  var targetVersion = appPackageJSON['electronVersion'];
-  var targetPlatform = require('os').platform();
-  if(targetPlatform == "win32") {
+  if (targetPlatform == "win32") {
     // As of Electron 0.29.2, all windows machines, even if they're 64 bit,
     // return "ia32" as the arch
     var targetArch = "ia32"
@@ -46,15 +48,15 @@ function makeSqlite3Command() {
 
   // Use our local version of npm (npm 3x) to build sqlite
   var npmPath = '"' + path.resolve(__dirname, '..', 'build', 'node_modules', '.bin', 'npm') + '"';
-  return npmPath + " install https://github.com/bengotow/node-sqlite3/archive/master.tar.gz --ignore-scripts && cd node_modules/sqlite3 && "+nodeGypPath+" configure rebuild --target="+targetVersion+" --arch="+targetArch+" --target_platform="+targetPlatform+" --dist-url=https://atom.io/download/atom-shell --module_name=node_sqlite3 --module_path=../lib/binding/node-v44-"+targetPlatform+"-"+targetArch
+  return npmPath + " install https://github.com/bengotow/node-sqlite3/archive/master.tar.gz --ignore-scripts && cd node_modules/sqlite3 && "+nodeGypPath+" configure rebuild --target="+targetElectronVersion+" --arch="+targetArch+" --target_platform="+targetPlatform+" --dist-url=https://atom.io/download/atom-shell --module_name=node_sqlite3 --module_path=../lib/binding/node-v44-"+targetPlatform+"-"+targetArch
 }
 
 function bootstrap() {
-  var apmInstallPath = path.resolve(__dirname, '..', 'apm');
-  if (!fs.existsSync(apmInstallPath))
-    fs.mkdirSync(apmInstallPath);
-  if (!fs.existsSync(path.join(apmInstallPath, 'node_modules')))
-    fs.mkdirSync(path.join(apmInstallPath, 'node_modules'));
+  var apmDestinationPath = path.resolve(__dirname, '..', 'apm');
+  if (!fs.existsSync(apmDestinationPath))
+    fs.mkdirSync(apmDestinationPath);
+  if (!fs.existsSync(path.join(apmDestinationPath, 'node_modules')))
+    fs.mkdirSync(path.join(apmDestinationPath, 'node_modules'));
 
   var apmPath = '"' + path.resolve(__dirname, '..', 'apm', 'node_modules', 'atom-package-manager', 'bin', 'apm') + '"';
   var apmFlags = process.env.JANKY_SHA1 || process.argv.indexOf('--no-color') !== -1 ? ' --no-color' : '';
@@ -73,34 +75,42 @@ function bootstrap() {
 
   // Use our local version of npm in ./build to install apm. This ensures it gets a
   // flat dependency tree.
-  var apmInstallCommand = npmPath + npmFlags + '--target=0.10.40 ' + 'install';
-  var apmInstallOptions = {cwd: apmInstallPath};
+  var npmInstallApmCommand = npmPath + npmFlags + '--target=0.10.40 ' + 'install';
+  var npmInstallApmOptions = {cwd: apmDestinationPath};
 
-  var apmDedupeCommand = npmPath + npmFlags + '--target=0.10.40 ' + 'dedupe';
-  var apmDedupeOptions = {cwd: path.join(apmInstallPath, 'node_modules', 'npm')};
+  var npmDedupeNpmCommand = npmPath + npmFlags + '--target=0.10.40 ' + 'dedupe';
+  var npmDedupeNpmOptions = {cwd: path.join(apmDestinationPath, 'node_modules', 'npm')};
 
-  var rebuildSqlite3Command = makeSqlite3Command();
+  var sqlite3Command = makeSqlite3Command();
 
-  var moduleInstallCommand = apmPath + ' install' + apmFlags;
-  var dedupeApmCommand = apmPath + ' dedupe' + apmFlags;
-  var semverOptions = {cwd: path.resolve(__dirname, '..', 'apm', 'node_modules', 'atom-package-manager')};
+  var apmInstallCommand = apmPath + ' install' + apmFlags;
+
+  var apmEnv = JSON.parse(JSON.stringify(process.env))
+  apmEnv['ATOM_ELECTRON_VERSION'] = targetElectronVersion;
+  apmEnv['ATOM_HOME'] = path.join(userHomeDirectory, '.nylas');
+
+  var apmDedupeCommand = apmPath + ' dedupe' + apmFlags;
+  var semverOptions = {
+    cwd: path.resolve(__dirname, '..', 'apm', 'node_modules', 'atom-package-manager'),
+    env: apmEnv
+  };
 
   if (process.argv.indexOf('--no-quiet') === -1) {
     buildInstallCommand  += ' --loglevel error';
-    apmInstallCommand    += ' --loglevel error';
-    moduleInstallCommand += ' --loglevel error';
-    dedupeApmCommand     += ' --quiet';
+    npmInstallApmCommand    += ' --loglevel error';
+    apmInstallCommand += ' --loglevel error';
+    apmDedupeCommand     += ' --quiet';
 
-    apmDedupeOptions.ignoreStderr = true;
-    apmDedupeOptions.ignoreStdout = true;
+    npmDedupeNpmOptions.ignoreStderr = true;
+    npmDedupeNpmOptions.ignoreStdout = true;
     buildInstallOptions.ignoreStdout = true;
-    apmInstallOptions.ignoreStdout = true;
+    npmInstallApmOptions.ignoreStdout = true;
   }
 
   // apm ships with 32-bit node so make sure its native modules are compiled
   // for a 32-bit target architecture
   if (process.env.JANKY_SHA1 && process.platform === 'win32')
-    apmInstallCommand += ' --arch=ia32';
+    npmInstallApmCommand += ' --arch=ia32';
 
   m1  = "\n---> Installing N1 build tools\n"
   m1 += "     This goes inside the `build` folder and runs `npm install`\n"
@@ -112,23 +122,23 @@ function bootstrap() {
   m2  = "\n\n---> Installing apm\n"
   m2 += "     This installs apm via N1's `npm`\n"
   m2 += "     We use this local apm copy to install all N1 dependencies & packages\n\n"
-  m2 += "     $ "+apmInstallCommand+" "+printArgs(apmInstallOptions)+"\n"
+  m2 += "     $ "+npmInstallApmCommand+" "+printArgs(npmInstallApmOptions)+"\n"
 
   m2a  = "\n\n---> Flattening apm package tree\n"
   m2a += "     This runs `npm dedupe` on apm's `npm` dependency.\n"
   m2a += "     We use this to prevent paths over 260 characters on Windows.\n\n"
-  m2a += "     $ "+apmDedupeCommand+" "+printArgs(apmDedupeOptions)+"\n"
+  m2a += "     $ "+npmDedupeNpmCommand+" "+printArgs(npmDedupeNpmOptions)+"\n"
 
   m3  = "\n\n---> Cleaning apm via `apm clean`\n"
 
   m4  = "\n\n---> Installing N1 dependencies & packages via `apm install`\n\n"
-  m4 += "     $ "+moduleInstallCommand+"\n"
+  m4 += "     $ "+apmInstallCommand+"\n"
 
-  m5  = "\n\n---> De-duping packages `apm clean`\n\n"
-  m5 += "     $ apm "+packagesToDedupe.join(' ')+"\n"
+  m5  = "\n\n---> De-duping packages `apm dedupe`\n\n"
+  m5 += "     $ "+apmDedupeCommand+" "+packagesToDedupe.join(' ')+"\n"
 
-  m6  = "\n\n---> Request version `apm clean`\n\n"
-  m6 += "     $ apm request semver "+printArgs(semverOptions)+"\n"
+  m6  = "\n\n---> Request version `apm dedupe`\n\n"
+  m6 += "     $ "+apmDedupeCommand+" request semver "+printArgs(semverOptions)+"\n"
 
   m7  = "\n\n---> Getting latest Electron\n\n"
   var gruntCmd = ""
@@ -142,17 +152,18 @@ function bootstrap() {
       options: buildInstallOptions
     },
     {
-      command: apmInstallCommand,
+      command: npmInstallApmCommand,
       message: m2,
-      options: apmInstallOptions
+      options: npmInstallApmOptions
     },
     {
-      command: apmDedupeCommand,
+      command: npmDedupeNpmCommand,
       message: m2a,
-      options: apmDedupeOptions
+      options: npmDedupeNpmOptions
     },
     {
       command: apmPath + ' clean' + apmFlags,
+      options: { env: apmEnv },
       message: m3
     }
   ];
@@ -169,9 +180,12 @@ function bootstrap() {
       var dirPackageJSON = JSON.parse(fs.readFileSync(dirPackageJSONPath));
       if (dirPackageJSON.dependencies && (Object.keys(dirPackageJSON.dependencies).length > 0)) {
         commands.push({
-          command: moduleInstallCommand,
+          command: apmInstallCommand,
           message: "Installing dependencies for "+dir,
-          options: {cwd: path.join(internalPackagesDir, dir) }
+          options: {
+            cwd: path.join(internalPackagesDir, dir),
+            env: apmEnv
+          }
         });
       }
     }
@@ -179,25 +193,27 @@ function bootstrap() {
 
   commands = commands.concat([
     {
-      command: moduleInstallCommand,
+      command: apmInstallCommand,
+      options: { env: apmEnv },
       message: m4
     },
     {
-      command: dedupeApmCommand + ' ' + packagesToDedupe.join(' '),
+      command: apmDedupeCommand + ' ' + packagesToDedupe.join(' '),
+      options: { env: apmEnv },
       message: m5
     },
     {
-      command: dedupeApmCommand + ' request semver',
-      message: m6,
-      options: semverOptions
+      command: apmDedupeCommand + ' request semver',
+      options: semverOptions,
+      message: m6
     },
     {
       command: downloadElectronCmd,
       message: m7
     },
     {
-      command: rebuildSqlite3Command,
-      message: "Building sqlite3 with command: "+rebuildSqlite3Command
+      command: sqlite3Command,
+      message: "Building sqlite3 with command: "+sqlite3Command
     }
   ]);
 
