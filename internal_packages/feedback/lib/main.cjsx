@@ -8,8 +8,9 @@ module.exports =
     ComponentRegistry.register FeedbackButton,
       location: WorkspaceStore.Sheet.Global.Footer
 
-    protocol.registerProtocol 'nylas-feedback-available', =>
+    protocol.registerStringProtocol 'nylas-feedback-available', (request, callback) =>
       FeedbackActions.feedbackAvailable()
+      callback('ok')
 
   serialize: ->
 
