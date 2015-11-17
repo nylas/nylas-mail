@@ -30,7 +30,7 @@ class NylasProtocolHandler
 
   # Creates the 'Nylas' custom protocol handler.
   registerNylasProtocol: ->
-    protocol.registerProtocol 'nylas', (request) =>
+    protocol.registerFileProtocol 'nylas', (request, callback) =>
       relativePath = path.normalize(request.url.substr(7))
 
       if relativePath.indexOf('assets/') is 0
@@ -42,4 +42,4 @@ class NylasProtocolHandler
           filePath = path.join(loadPath, relativePath)
           break if fs.statSyncNoException(filePath).isFile?()
 
-      new protocol.RequestFileJob(filePath)
+      callback(filePath)
