@@ -54,7 +54,7 @@ class CommandRegistry
 
   # Public: Add one or more command listeners associated with a selector.
   #
-  # ## Arguments: Registering One Command
+  # **Arguments Registering One Command**
   #
   # * `target` A {String} containing a CSS selector or a DOM element. If you
   #   pass a selector, the command will be globally associated with all matching
@@ -68,7 +68,7 @@ class CommandRegistry
   #   * `event` A standard DOM event instance. Call `stopPropagation` or
   #     `stopImmediatePropagation` to terminate bubbling early.
   #
-  # ## Arguments: Registering Multiple Commands
+  # **Arguments Registering Multiple Commands**
   #
   # * `target` A {String} containing a CSS selector or a DOM element. If you
   #   pass a selector, the commands will be globally associated with all

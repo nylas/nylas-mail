@@ -298,9 +298,9 @@ class Task
   # completed. This is contained in the {TaskQueueStatusStore} so you can
   # listen to tasks across windows.
   #
-  # ## Examples:
+  # ## Examples
   #
-  # ### Simple Optimistic Updating:
+  # ### Simple Optimistic Updating
   #
   # ```coffee
   # class MyTask extends Task

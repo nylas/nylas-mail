@@ -3,7 +3,7 @@
 
 A package for N1 that translates draft text into other languages using the Yandex Translation API.
 
-#### Install this plugin:
+#### Install this plugin
 
 1. Download and run N1
 
@@ -15,7 +15,7 @@ A package for N1 that translates draft text into other languages using the Yande
    > and N1 runs `apm install` on the command line to fetch dependencies
    > listed in the package's `package.json`
 
-#### Build documentation:
+#### Build documentation
 
 ```
 cjsx-transform lib/main.cjsx > docs/main.coffee

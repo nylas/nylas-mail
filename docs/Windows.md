@@ -25,7 +25,7 @@ compile a few native extensions via node-gyp and expect certain programs to be
 available on your `PATH`. If `script\bootstrap.cmd` fails due to a compilation
 error, it is likely due to a Visual Studio problem.
 
-## Visual Studio:
+## Visual Studio
 There are now several versions of Visual Studio. Node-gyp is designed to detect
 the current version installed on your system. If you are using Visual Studio 2015,
 you must be using a newer version of Node.
@@ -36,7 +36,7 @@ explicitly set the version of Visual Studio you want it to use by setting the
 Valid values are `2015`, `2013`, `2013e`, `2012`, etc. (`e` stands for "express").
 The full set of values are [here](https://github.com/nodejs/node/blob/v4.2.1/tools/gyp/pylib/gyp/MSVSVersion.py#L411)
 
-## Node & Npm:
+## Node & Npm
 We only use your system's Node to bootstrap `apm`. Once we have `apm` installed,
 your system's Node no longer matters and we install remaining packages with `apm`.
 
@@ -52,6 +52,6 @@ Instead of running the whole `script\bootstrap.cmd` script to test this, you can
 `cd` into the `\build` folder, and from there run `npm install`. Only the
 `build\package.json` modules need your system's Node.
 
-## Python:
+## Python
 The `python` executable must be on your `PATH`. Depending on how you installed Python,
 you may need to ensure the `python.exe` can be found.

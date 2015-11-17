@@ -6,7 +6,7 @@ This is a package that allows you to email times that you are free to other peop
 
 <img src="https://raw.githubusercontent.com/nylas/N1/master/examples/N1-Send-Availability/screenshots/send-availability-2.png">
 
-#### Install this plugin:
+#### Install this plugin
 
 1. Download and run N1
 
