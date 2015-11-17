@@ -1,5 +1,44 @@
 # N1 Changelog
 
+### 0.3.23 (11/17/15)
+
+- Features:
+  + System Tray: Quickly create new messages, view unread count, and quit N1
+  + Keybindings: The Gmail keybinding set now supports all Gmail shortcuts
+  + Quick Account Switching: Use Cmd-1, Cmd-2, etc. to switch accounts
+  + ES6 JavaScript: You can now write N1 plugins using ES6 (Stage 0) JavaScript
+    - The "Templates" example plugin is now written in ES6
+
+- Fixes:
+  + Mailto links with newline characters are now supported
+  + File uploads no longer time out after 15 seconds
+  + Label names are no longer autocapitalized
+  + On Windows, the icon is no longer pixelated at many resolutions
+  + On Windows, long paths no longer cause installation to fail
+  + On Windows, N1 uses the "NylasPro" font correctly
+  + Mark as read now works when viewing messages in split-pane mode
+  + Basic cut, copy, and paste menus are available for all inputs
+  + You can now type in the middle of a search query
+  + Names containing "via" are no longer truncated
+  + N1 quits without throwing exceptions
+
+- Internationalization:
+  + Composition events are now supported in the composer
+  + Labels with foreign characters no longer sync incorrectly in new accounts
+
+- Style:
+  + Dark mode looks better and has fewer color issues
+  + Unread counts in the sidebar are smaller
+  + Subject and body always align in the narrow thread list
+  + The search box no longer overflows if you type a long search query
+  + Hover states in menus and dropdowns are more consistent
+
+- Performance:
+  + In split-pane mode, moving through messages quickly no longer causes jank.
+  + Model.fromJSON is 40% faster thanks to optimized loops and other fixes
+  + Models are lazily deserialized after being broadcast into other windows
+
+
 ### 0.3.20 (10/28/15)
 
 - The “Update is Available” notification now links to release notes
