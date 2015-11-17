@@ -73,7 +73,6 @@
   "packageDependencies": {},
   "private": true,
   "scripts": {
-    "test": "./N1.sh --test",
-    "preinstall": "node -e 'process.exit(0)'"
+    "test": "./N1.sh --test"
   }
 }
