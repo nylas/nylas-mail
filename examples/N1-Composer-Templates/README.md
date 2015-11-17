@@ -16,7 +16,7 @@ experience.
 
 <img src="https://raw.githubusercontent.com/nylas/N1/master/examples/N1-Composer-Templates/screenshot.png">
 
-#### Install this plugin:
+#### Install this plugin
 
 1. Download and run N1
 

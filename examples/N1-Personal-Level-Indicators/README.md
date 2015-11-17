@@ -2,7 +2,7 @@
 
 An icon to indicate whether an email was sent to either just you, or you and other recipients, or a mailing list that you were on.
 
-#### Install this plugin:
+#### Install this plugin
 
 1. Download and run N1
 

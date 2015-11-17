@@ -5,7 +5,7 @@ a message's originating address is different from its return address. The warnin
 
 ![screenshot](./screenshot.png)
 
-#### Install this plugin:
+#### Install this plugin
 
 1. Download and run N1
 
@@ -21,7 +21,7 @@ a message's originating address is different from its return address. The warnin
 
 This package is our slimmest example package. It's annotated for developers who have no experience with React, Flux, Electron, or N1.
 
-#### To build documentation (the manual way):
+#### To build documentation (the manual way)
 
 ```
 cjsx-transform lib/main.cjsx > docs/main.coffee

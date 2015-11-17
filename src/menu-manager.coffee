@@ -70,6 +70,7 @@ class MenuManager
   # Public: Adds the given items to the application menu.
   #
   # ## Examples
+  #
   # ```coffee
   #   atom.menu.add [
   #     {

@@ -19,7 +19,7 @@ module.exports =
     # TODO Re-enable when fixed!
     # PreferencesSectionStore.registerPreferenceSection(@sectionConfig)
 
-    ## TODO:
+    ## TODO
     # PreferencesSectionStore.registerPreferences "composer-signatures", [
     #   {
     #     section: PreferencesSectionStore.Section.Signatures
