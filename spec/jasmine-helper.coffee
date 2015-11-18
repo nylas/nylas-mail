@@ -30,7 +30,10 @@ module.exports.runSpecSuite = (specSuite, logFile, logErrors=true) ->
         if process.env.JANKY_SHA1
           grim = require 'grim'
           grim.logDeprecations() if grim.getDeprecationsLength() > 0
-        NylasEnv.exit(runner.results().failedCount > 0 ? 1 : 0)
+        if runner.results().failedCount > 0
+          NylasEnv.exit(1)
+        else
+          NylasEnv.exit(0)
   else
     N1SpecReporter = require './n1-spec-reporter'
     reporter = new N1SpecReporter()
