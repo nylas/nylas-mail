@@ -50,6 +50,13 @@ class ThreadListStore extends NylasStore
       @trigger(@)
     ,@
 
+    # Set up a one-time listener to focus an item in the new view
+    if WorkspaceStore.layoutMode() is 'split'
+      unlisten = view.listen ->
+        if view.loaded()
+          Actions.setFocus(collection: 'thread', item: view.get(0))
+          unlisten()
+
     @trigger(@)
 
   createView: ->
@@ -75,14 +82,6 @@ class ThreadListStore extends NylasStore
           for message in messages
             messagesByThread[message.threadId].push message
           messagesByThread
-
-      if WorkspaceStore.layoutMode() is 'split'
-          # Set up a one-time listener to focus an item in the new view
-        unlisten = view.listen ->
-          if view.loaded()
-            Actions.setFocus(collection: 'thread', item: view.get(0))
-            unlisten()
-
       @setView(view)
 
     Actions.setFocus(collection: 'thread', item: null)
