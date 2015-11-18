@@ -18,7 +18,7 @@ var PREFIX_LENGTH = Math.max.apply(Math, PREFIXES.map(function (prefix) {
 }))
 
 exports.shouldCompile = function (sourceCode, filePath) {
-  if (filePath.endsWith('.es6')) {
+  if (filePath.endsWith('.es6') || filePath.endsWith('.jsx')) {
     return true;
   }
   var start = sourceCode.substr(0, PREFIX_LENGTH)
