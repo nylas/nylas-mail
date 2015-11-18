@@ -537,7 +537,7 @@ describe "populated composer", ->
         NylasTestUtils.loadKeymap("internal_packages/composer/keymaps/composer")
         @$composer = @composer.refs.composerWrap
 
-      fit "sends the draft on cmd-enter", ->
+      it "sends the draft on cmd-enter", ->
         NylasTestUtils.keyPress("cmd-enter", React.findDOMNode(@$composer))
         expect(Actions.sendDraft).toHaveBeenCalled()
         expect(Actions.sendDraft.calls.length).toBe 1
@@ -546,7 +546,7 @@ describe "populated composer", ->
         NylasTestUtils.keyPress("enter", React.findDOMNode(@$composer))
         expect(Actions.sendDraft).not.toHaveBeenCalled()
 
-      fit "doesn't let you send twice", ->
+      it "doesn't let you send twice", ->
         NylasTestUtils.keyPress("cmd-enter", React.findDOMNode(@$composer))
         expect(Actions.sendDraft).toHaveBeenCalled()
         expect(Actions.sendDraft.calls.length).toBe 1
