@@ -44,7 +44,7 @@ class QuotedHTMLParser
     if options.keepIfWholeBodyIsQuote and @_wholeBodyIsQuote(doc, quoteElements)
       return doc.children[0].innerHTML
     else
-      DOMUtils.removeElements(quoteElements, options)
+      DOMUtils.Mutating.removeElements(quoteElements, options)
       childNodes = doc.body.childNodes
 
       extraTailBrTags = []
@@ -56,7 +56,7 @@ class QuotedHTMLParser
         else
           break
 
-      DOMUtils.removeElements(extraTailBrTags)
+      DOMUtils.Mutating.removeElements(extraTailBrTags)
       return doc.children[0].innerHTML
 
   appendQuotedHTML: (htmlWithoutQuotes, originalHTML) ->

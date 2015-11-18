@@ -30,6 +30,9 @@ module.exports =
 class NylasEnvConstructor extends Model
   @version: 1  # Increment this when the serialization format changes
 
+  assert: (bool, msg) ->
+    throw new Error("Assertion error: #{msg}") if not bool
+
   # Load or create the application environment
   # Returns an NylasEnv instance, fully initialized
   @loadOrCreate: ->
@@ -143,6 +146,8 @@ class NylasEnvConstructor extends Model
     # deprecated calls.
     unless @inDevMode() or @inSpecMode()
       require('grim').deprecate = ->
+
+    @enhanceEventObject()
 
     @setupErrorLogger()
 
@@ -919,3 +924,12 @@ class NylasEnvConstructor extends Model
         remote.require('app').quit()
       else
         @close()
+
+  enhanceEventObject: ->
+    overriddenStop =  Event::stopPropagation
+    Event::stopPropagation = ->
+      @propagationStopped = true
+      overriddenStop.apply(@, arguments)
+    Event::isPropagationStopped = ->
+      @propagationStopped
+

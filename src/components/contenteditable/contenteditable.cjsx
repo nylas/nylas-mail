@@ -5,6 +5,8 @@ React = require 'react'
 ClipboardService = require './clipboard-service'
 FloatingToolbarContainer = require './floating-toolbar-container'
 
+ListManager = require './list-manager'
+
 ###
 Public: A modern, well-behaved, React-compatible contenteditable
 
@@ -40,25 +42,37 @@ class Contenteditable extends React.Component
     onScrollTo: React.PropTypes.func
     onScrollToBottom: React.PropTypes.func
 
-    # A series of callbacks that can get executed at various points along
-    # the contenteditable.
-    lifecycleCallbacks: React.PropTypes.object
+    # A list of objects that extend {ContenteditablePlugin}
+    plugins: React.PropTypes.array
 
     spellcheck: React.PropTypes.bool
 
     floatingToolbar: React.PropTypes.bool
 
   @defaultProps:
+    plugins: []
     spellcheck: true
     floatingToolbar: true
-    lifecycleCallbacks:
-      componentDidUpdate: (editableNode) ->
-      onInput: (editableNode, event) ->
-      onTabDown: (editableNode, event, range) ->
-      onLearnSpelling: (editableNode, text) ->
-      onSubstitutionPerformed: (editableNode) ->
-      onMouseUp: (editableNode, event, range) ->
 
+  corePlugins: [ListManager]
+
+  # We allow extensions to read, and mutate the:
+  #
+  # 1. DOM of the contenteditable
+  # 2. The Selection
+  # 3. The innerState of the component
+  # 4. The context menu (onShowContextMenu)
+  #
+  # We treat mutations as a single atomic change (even if multiple actual
+  # mutations happened).
+  atomicEdit: (editingFunction, event, extraArgs...) ->
+    @_teardownSelectionListeners()
+    innerStateProxy =
+      get: => return @innerState
+      set: (newInnerState) => @setInnerState(newInnerState)
+    args = [event, @_editableNode(), document.getSelection(), innerStateProxy, extraArgs...]
+    editingFunction.apply(null, args)
+    @_setupSelectionListeners()
 
   constructor: (@props) ->
     @innerState = {}
@@ -73,7 +87,7 @@ class Contenteditable extends React.Component
     @refs["toolbarController"]?.componentWillReceiveInnerProps(innerState)
 
   componentDidMount: =>
-    @_editableNode().addEventListener('contextmenu', @_onShowContextualMenu)
+    @_editableNode().addEventListener('contextmenu', @_onShowContextMenu)
     @_setupSelectionListeners()
     @_setupGlobalMouseListener()
     @_cleanHTML()
@@ -88,7 +102,7 @@ class Contenteditable extends React.Component
      not Utils.isEqualReact(nextState, @state))
 
   componentWillUnmount: =>
-    @_editableNode().removeEventListener('contextmenu', @_onShowContextualMenu)
+    @_editableNode().removeEventListener('contextmenu', @_onShowContextMenu)
     @_teardownSelectionListeners()
     @_teardownGlobalMouseListener()
 
@@ -99,13 +113,9 @@ class Contenteditable extends React.Component
 
   componentDidUpdate: =>
     @_cleanHTML()
-
     @_restoreSelection()
 
     editableNode = @_editableNode()
-
-    @props.lifecycleCallbacks.componentDidUpdate(editableNode)
-
     @setInnerState
       links: editableNode.querySelectorAll("*[href]")
       editableNode: editableNode
@@ -191,164 +201,88 @@ class Contenteditable extends React.Component
     @_setupSelectionListeners()
     @_onInput()
 
+  # Will execute the event handlers on each of the registerd and core plugins
+  # In this context, event.preventDefault and event.stopPropagation don't refer
+  # to stopping default DOM behavior or prevent event bubbling through the DOM,
+  # but rather prevent our own Contenteditable default behavior, and preventing
+  # other plugins from being called.
+  # If any of the plugins calls event.preventDefault() it will prevent the
+  # default behavior for the Contenteditable, which basically means preventing
+  # the core plugin handlers from being called.
+  # If any of the plugins calls event.stopPropagation(), it will prevent any
+  # other plugin handlers from being called.
+  _runPluginHandlersForEvent: (method, event, args...) =>
+    executeCallback = (plugin) =>
+      return if not plugin[method]?
+      callback = callback.bind(plugin)
+      @atomicEdit(callback, event, args...)
+
+    for plugin in @props.plugins
+      break if event.isPropagationStopped()
+      executeCallback(plugin)
+
+    return if event.defaultPrevented or event.isPropagationStopped()
+    for plugin in @corePlugins
+      break if event.isPropagationStopped()
+      executeCallback(plugin)
+
   _onKeyDown: (event) =>
+    @_runPluginHandlersForEvent("onKeyDown", event)
+
+    # This is a special case where we don't want to bubble up the event to the
+    # keymap manager if the plugin prevented the default behavior
+    if event.defaultPrevented
+      event.stopPropagation()
+      return
+
     if event.key is "Tab"
-      @_onTabDown(event)
-    if event.key is "Backspace"
-      @_onBackspaceDown(event)
+      @_onTabDownDefaultBehavior(event)
+
     U = 85
     if event.which is U and (event.metaKey or event.ctrlKey)
       event.preventDefault()
       document.execCommand("underline")
     return
 
+  # Every time the contents of the contenteditable DOM node change, the
+  # `onInput` event gets fired.
+  #
+  # If we are in the middle of an `atomic` change transaction, we ignore
+  # those changes.
+  #
+  # At all other times we take the change, apply various filters to the
+  # new content, then notify our parent that the content has been updated.
   _onInput: (event) =>
     return if @_ignoreInputChanges
     @_ignoreInputChanges = true
-
     @_resetInnerStateOnInput()
 
-    @_runCoreFilters()
-
-    @props.lifecycleCallbacks.onInput(@_editableNode(), event)
+    @_runPluginHandlersForEvent("onInput", event)
 
     @_normalize()
 
     @_saveSelectionState()
 
-    @_saveNewHtml()
+    @_notifyParentOfChange()
 
     @_ignoreInputChanges = false
     return
 
   _resetInnerStateOnInput: ->
-    @_justCreatedList = false
+    @_autoCreatedListFromText = false
     @setInnerState dragging: false if @innerState.dragging
     @setInnerState doubleDown: false if @innerState.doubleDown
 
-  _runCoreFilters: ->
-    @_createLists()
-
-  _saveNewHtml: ->
+  _notifyParentOfChange: ->
     @props.onChange(target: {value: @_editableNode().innerHTML})
 
-  # Determines if the user wants to add an ordered or unordered list.
-  _createLists: ->
-    # The `execCommand` will update the DOM and move the cursor. Since
-    # this is happening in the middle of an `_onInput` callback, we want
-    # the whole operation to look "atomic". As such we'll do any necessary
-    # DOM cleanup and fire the `exec` command with the listeners off, then
-    # re-enable at the end.
-    if @_resetListToText
-      @_resetListToText = false
-      return
-
-    updateDOM = (command) =>
-      @_teardownSelectionListeners()
-      document.execCommand(command)
-      selection = document.getSelection()
-      selection.anchorNode.parentElement.innerHTML = ""
-      @_setupSelectionListeners()
-
-    text = @_textContentAtCursor()
-    if (/^\d\.\s$/).test text
-      @_justCreatedList = text
-      updateDOM("insertOrderedList")
-    else if (/^[*-]\s$/).test text
-      @_justCreatedList = text
-      updateDOM("insertUnorderedList")
-
-  _onBackspaceDown: (event) ->
-    if document.getSelection()?.isCollapsed
-      if @_atStartOfList()
-        li = @_closestAtCursor("li")
-        list = @_closestAtCursor("ul, ol")
-        return unless li and list
-        event.preventDefault()
-        if list.querySelectorAll('li')?[0] is li # We're in first li
-          if @_justCreatedList
-            @_resetListToText = true
-            @_replaceFirstListItem(li, @_justCreatedList)
-          else
-            @_replaceFirstListItem(li, "")
-        else
-          document.execCommand("outdent")
-
-  # The native document.execCommand('outdent')
-  _outdent: ->
-
-  _closestAtCursor: (selector) ->
-    selection = document.getSelection()
-    return unless selection?.isCollapsed
-    return @_closest(selection.anchorNode, selector)
-
-  # https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
-  # Only Elements (not Text nodes) have the `closest` method
-  _closest: (node, selector) ->
-    el = if node instanceof HTMLElement then node else node.parentElement
-    return el.closest(selector)
-
-  _replaceFirstListItem: (li, replaceWith) ->
-    @_teardownSelectionListeners()
-    list = @_closest(li, "ul, ol")
-
-    if replaceWith.length is 0
-      replaceWith = replaceWith.replace /\s/g, "&nbsp;"
-      text = document.createElement("div")
-      text.innerHTML = "<br>"
-    else
-      replaceWith = replaceWith.replace /\s/g, "&nbsp;"
-      text = document.createElement("span")
-      text.innerHTML = "#{replaceWith}"
-
-    if list.querySelectorAll('li').length <= 1
-      # Delete the whole list and replace with text
-      list.parentNode.replaceChild(text, list)
-    else
-      # Delete the list item and prepend the text before the rest of the
-      # list
-      li.parentNode.removeChild(li)
-      list.parentNode.insertBefore(text, list)
-
-    child = text.childNodes[0] ? text
-    index = Math.max(replaceWith.length - 1, 0)
-    selection = document.getSelection()
-    selection.setBaseAndExtent(child, index, child, index)
-
-    @_setupSelectionListeners()
-    @_onInput()
-
-  _onTabDown: (event) ->
-    editableNode = @_editableNode()
-    range = DOMUtils.getRangeInScope(editableNode)
-
-    @props.lifecycleCallbacks.onTabDown(editableNode, event, range)
-
-    return if event.defaultPrevented
-    @_onTabDownDefaultBehavior(event)
-
   _onTabDownDefaultBehavior: (event) ->
-    event.preventDefault()
-
     selection = document.getSelection()
     if selection?.isCollapsed
-      # Only Elements (not Text nodes) have the `closest` method
-      li = @_closestAtCursor("li")
-      if li
-        if event.shiftKey
-          list = @_closestAtCursor("ul, ol")
-          # BUG: As of 9/25/15 if you outdent the first item in a list, it
-          # doesn't work :(
-          if list.querySelectorAll('li')?[0] is li # We're in first li
-            @_replaceFirstListItem(li, li.innerHTML)
-          else
-            document.execCommand("outdent")
-        else
-          document.execCommand("indent")
-      else if event.shiftKey
-        if @_atTabChar()
-          @_removeLastCharacter()
-        else if @_atBeginning()
+      if event.shiftKey
+        if DOMUtils.isAtTabChar(selection)
+          @_removeLastCharacter(selection)
+        else if DOMUtils.isAtBeginningOfDocument(@_editableNode(), selection)
           return # Don't stop propagation
       else
         document.execCommand("insertText", false, "\t")
@@ -357,53 +291,17 @@ class Contenteditable extends React.Component
         document.execCommand("insertText", false, "")
       else
         document.execCommand("insertText", false, "\t")
+    event.preventDefault()
     event.stopPropagation()
 
-  _selectionInText: (selection) ->
-    return false unless selection
-    return selection.isCollapsed and selection.anchorNode.nodeType is Node.TEXT_NODE and selection.anchorOffset > 0
-
-  _atTabChar: ->
-    selection = document.getSelection()
-    if @_selectionInText(selection)
-      return selection.anchorNode.textContent[selection.anchorOffset - 1] is "\t"
-    else return false
-
-  _atStartOfList: ->
-    selection = document.getSelection()
-    anchor = selection.anchorNode
-    return false if not selection.isCollapsed
-    return true if anchor?.nodeName is "LI"
-    return false if selection.anchorOffset > 0
-    li = @_closest(anchor, "li")
-    return unless li
-    return DOMUtils.isFirstChild(li, anchor)
-
-  _atBeginning: ->
-    selection = document.getSelection()
-    return false if not selection.isCollapsed
-    return false if selection.anchorOffset > 0
-    el = @_editableNode()
-    return true if el.childNodes.length is 0
-    return true if selection.anchorNode is el
-    firstChild = el.childNodes[0]
-    return selection.anchorNode is firstChild
-
-  _removeLastCharacter: ->
-    selection = document.getSelection()
-    if @_selectionInText(selection)
+  _removeLastCharacter: (selection) ->
+    if DOMUtils.isSelectionInTextNode(selection)
       node = selection.anchorNode
       offset = selection.anchorOffset
       @_teardownSelectionListeners()
       selection.setBaseAndExtent(node, offset - 1, node, offset)
       document.execCommand("delete")
       @_setupSelectionListeners()
-
-  _textContentAtCursor: ->
-    selection = document.getSelection()
-    if selection.isCollapsed
-      return selection.anchorNode?.textContent
-    else return null
 
   # This component works by re-rendering on every change and restoring the
   # selection. This is also how standard React controlled inputs work too.
@@ -468,7 +366,7 @@ class Contenteditable extends React.Component
     els = @_editableNode().querySelectorAll('ul')
 
     # This mutates the DOM in place.
-    DOMUtils.collapseAdjacentElements(els)
+    DOMUtils.Mutating.collapseAdjacentElements(els)
 
   # After an input, the selection can sometimes get itself into a state
   # that either can't be restored properly, or will cause undersirable
@@ -665,7 +563,7 @@ class Contenteditable extends React.Component
 
       rect = rangeInScope.getBoundingClientRect()
       if DOMUtils.isEmptyBoudingRect(rect)
-        rect = @_getSelectionRectFromDOM(selection)
+        rect = DOMUtils.getSelectionRectFromDOM(selection)
 
       if rect
         @props.onScrollTo({rect})
@@ -692,17 +590,6 @@ class Contenteditable extends React.Component
     selfRect = @_editableNode().getBoundingClientRect()
     return Math.abs(parentRect.bottom - selfRect.bottom) <= 250
 
-  _getSelectionRectFromDOM: (selection) ->
-    node = selection.anchorNode
-    if node.nodeType is Node.TEXT_NODE
-      r = document.createRange()
-      r.selectNodeContents(node)
-      return r.getBoundingClientRect()
-    else if node.nodeType is Node.ELEMENT_NODE
-      return node.getBoundingClientRect()
-    else
-      return null
-
   # We use global listeners to determine whether or not dragging is
   # happening. This is because dragging may stop outside the scope of
   # this element. Note that the `dragstart` and `dragend` events don't
@@ -718,19 +605,12 @@ class Contenteditable extends React.Component
     window.removeEventListener("mousedown", @__onMouseDown)
     window.removeEventListener("mouseup", @__onMouseUp)
 
-  _onShowContextualMenu: (event) =>
+  _onShowContextMenu: (event) =>
     @refs["toolbarController"]?.forceClose()
     event.preventDefault()
 
     selection = document.getSelection()
-    range = selection.getRangeAt(0)
-
-    # On Windows, right-clicking a word does not select it at the OS-level.
-    # We need to implement this behavior locally for the rest of the logic here.
-    if range.collapsed
-      DOMUtils.selectWordContainingRange(range)
-      range = selection.getRangeAt(0)
-
+    range = DOMUtils.Mutating.getRangeAtAndSelectWord(selection, 0)
     text = range.toString()
 
     remote = require('remote')
@@ -738,48 +618,22 @@ class Contenteditable extends React.Component
     Menu = remote.require('menu')
     MenuItem = remote.require('menu-item')
 
-    apply = (newtext) =>
-      range.deleteContents()
-      node = document.createTextNode(newtext)
-      range.insertNode(node)
-      range.selectNode(node)
-      selection.removeAllRanges()
-      selection.addRange(range)
-      @props.lifecycleCallbacks.onSubstitutionPerformed(@_editableNode())
-
     cut = =>
       clipboard.writeText(text)
-      apply('')
+      DOMUtils.Mutating.applyTextInRange(range, selection, '')
 
     copy = =>
       clipboard.writeText(text)
 
     paste = =>
-      apply(clipboard.readText())
+      DOMUtils.Mutating.applyTextInRange(range, selection, clipboard.readText())
 
     menu = new Menu()
 
-    ## TODO, move into spellcheck package
-    if @props.spellcheck
-      spellchecker = require('spellchecker')
-      learnSpelling = =>
-        spellchecker.add(text)
-        @props.lifecycleCallbacks.onLearnSpelling(@_editableNode(), text)
-      if spellchecker.isMisspelled(text)
-        corrections = spellchecker.getCorrectionsForMisspelling(text)
-        if corrections.length > 0
-          corrections.forEach (correction) ->
-            menu.append(new MenuItem({ label: correction, click:( -> apply(correction))}))
-        else
-          menu.append(new MenuItem({ label: 'No Guesses Found', enabled: false}))
-
-        menu.append(new MenuItem({ type: 'separator' }))
-        menu.append(new MenuItem({ label: 'Learn Spelling', click: learnSpelling}))
-        menu.append(new MenuItem({ type: 'separator' }))
-
-    menu.append(new MenuItem({ label: 'Cut', click:cut}))
-    menu.append(new MenuItem({ label: 'Copy', click:copy}))
-    menu.append(new MenuItem({ label: 'Paste', click:paste}))
+    @_runPluginHandlersForEvent("onShowContextMenu", event, menu)
+    menu.append(new MenuItem({ label: 'Cut', click: cut}))
+    menu.append(new MenuItem({ label: 'Copy', click: copy}))
+    menu.append(new MenuItem({ label: 'Paste', click: paste}))
     menu.popup(remote.getCurrentWindow())
 
   _onMouseDown: (event) =>
@@ -820,10 +674,7 @@ class Contenteditable extends React.Component
     selection = document.getSelection()
     return event unless DOMUtils.selectionInScope(selection, editableNode)
 
-    range = DOMUtils.getRangeInScope(editableNode)
-
-    @props.lifecycleCallbacks.onMouseUp(editableNode, event, range)
-
+    @_runPluginHandlersForEvent("onClick", event)
     return event
 
   _onDragStart: (event) =>
@@ -882,9 +733,6 @@ class Contenteditable extends React.Component
 
     @_ensureSelectionVisible(selection)
     @_setupSelectionListeners()
-
-  _getNodeIndex: (nodeToFind) =>
-    DOMUtils.findSimilarNodes(@_editableNode(), nodeToFind).indexOf nodeToFind
 
   # This needs to be in the contenteditable area because we need to first
   # restore the selection before calling the `execCommand`
