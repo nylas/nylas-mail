@@ -348,11 +348,11 @@ describe "populated composer", ->
       @body = @composer.refs[Fields.Body]
       spyOn(@body, "focus")
       spyOn(React, "findDOMNode").andCallThrough()
-      spyOn(@composer, "_applyFocusedField").andCallThrough()
+      spyOn(@composer, "_applyFieldFocus").andCallThrough()
 
     it "can focus on the subject", ->
       @composer.setState focusedField: Fields.Subject
-      expect(@composer._applyFocusedField.calls.length).toBe 1
+      expect(@composer._applyFieldFocus.calls.length).toBe 1
       expect(React.findDOMNode).toHaveBeenCalled()
       calls = _.filter React.findDOMNode.calls, (call) ->
         call.args[0].props.name == "subject"
