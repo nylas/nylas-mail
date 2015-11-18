@@ -65,7 +65,7 @@ class Application
   exit: (status) -> app.exit(status)
 
   constructor: (options) ->
-    {@resourcePath, @version, @devMode, test, @safeMode} = options
+    {@resourcePath, @devResourcePath, @version, @devMode, test, @safeMode} = options
     @specMode = test
 
     # Normalize to make sure drive letter case is consistent on Windows
@@ -479,7 +479,7 @@ class Application
       resourcePath = @resourcePath
 
     try
-      bootstrapScript = require.resolve(path.resolve(global.devResourcePath, 'spec', 'spec-bootstrap'))
+      bootstrapScript = require.resolve(path.resolve(@devResourcePath, 'spec', 'spec-bootstrap'))
     catch error
       bootstrapScript = require.resolve(path.resolve(__dirname, '..', '..', 'spec', 'spec-bootstrap'))
 
