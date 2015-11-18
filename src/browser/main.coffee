@@ -1,5 +1,9 @@
 global.shellStartTime = Date.now()
 
+process.on 'uncaughtException', (error={}) ->
+  console.log(error.message) if error.message?
+  console.log(error.stack) if error.stack?
+
 app = require 'app'
 fs = require 'fs-plus'
 path = require 'path'
@@ -7,15 +11,10 @@ optimist = require 'optimist'
 
 start = ->
   args = parseCommandLine()
-
   global.errorLogger = setupErrorLogger(args)
-
-  setupCoffeeScript()
-
-  if process.platform is 'win32'
-    SquirrelUpdate = require './squirrel-update'
-    squirrelCommand = process.argv[1]
-    return if SquirrelUpdate.handleStartupEvent(app, squirrelCommand)
+  setupNylasHome(args)
+  setupCompileCache()
+  return if handleStartupEventWithSquirrel()
 
   # This prevents Win10 from showing dupe items in the taskbar
   app.setAppUserModelId('com.squirrel.nylas.nylas')
@@ -24,7 +23,6 @@ start = ->
     event.preventDefault()
     args.pathsToOpen.push(pathToOpen)
 
-  args.urlsToOpen = []
   addUrlToOpen = (event, urlToOpen) ->
     event.preventDefault()
     args.urlsToOpen.push(urlToOpen)
@@ -39,25 +37,31 @@ start = ->
     app.removeListener 'open-file', addPathToOpen
     app.removeListener 'open-url', addUrlToOpen
 
-    cwd = args.executedFrom?.toString() or process.cwd()
-    args.pathsToOpen = args.pathsToOpen.map (pathToOpen) ->
-      if cwd
-        path.resolve(cwd, pathToOpen.toString())
-      else
-        path.resolve(pathToOpen.toString())
-
-    if args.devMode
-      require(path.join(args.resourcePath, 'src', 'coffee-cache')).register()
-      Application = require path.join(args.resourcePath, 'src', 'browser', 'application')
-    else
-      Application = require './application'
-
+    Application = require path.join(args.resourcePath, 'src', 'browser', 'application')
     Application.open(args)
+
     console.log("App load time: #{Date.now() - global.shellStartTime}ms") unless args.test
 
-global.devResourcePath = process.env.N1_PATH ? process.cwd()
-# Normalize to make sure drive letter case is consistent on Windows
-global.devResourcePath = path.normalize(global.devResourcePath) if global.devResourcePath
+setupNylasHome = ->
+  return if process.env.NYLAS_HOME
+  atomHome = path.join(app.getHomeDir(), '.nylas')
+  process.env.NYLAS_HOME = atomHome
+
+normalizeDriveLetterName = (filePath) ->
+  if process.platform is 'win32'
+    filePath.replace /^([a-z]):/, ([driveLetter]) -> driveLetter.toUpperCase() + ":"
+  else
+    filePath
+
+handleStartupEventWithSquirrel = ->
+  return false unless process.platform is 'win32'
+  SquirrelUpdate = require './squirrel-update'
+  squirrelCommand = process.argv[1]
+  SquirrelUpdate.handleStartupEvent(app, squirrelCommand)
+
+setupCompileCache = ->
+  compileCache = require('../compile-cache')
+  compileCache.setHomeDirectory(process.env.NYLAS_HOME)
 
 setupErrorLogger = (args={}) ->
   ErrorLogger = require '../error-logger'
@@ -70,15 +74,6 @@ setupCrashReporter = ->
   # In the future, we may want to collect actual native crash reports,
   # but for now let's not send them to GitHub
   # crashReporter.start(productName: "N1", companyName: "Nylas")
-
-setupCoffeeScript = ->
-  CoffeeScript = null
-
-  require.extensions['.coffee'] = (module, filePath) ->
-    CoffeeScript ?= require('coffee-script')
-    coffee = fs.readFileSync(filePath, 'utf8')
-    js = CoffeeScript.compile(coffee, filename: filePath)
-    module._compile(js, filePath)
 
 parseCommandLine = ->
   version = app.getVersion()
@@ -120,17 +115,19 @@ parseCommandLine = ->
     process.stdout.write("#{version}\n")
     process.exit(0)
 
-  executedFrom = args['executed-from']
+  executedFrom = args['executed-from']?.toString() ? process.cwd()
   devMode = args['dev']
   safeMode = args['safe']
   pathsToOpen = args._
   pathsToOpen = [executedFrom] if executedFrom and pathsToOpen.length is 0
+  urlsToOpen = []
   test = args['test']
   specDirectory = args['spec-directory']
   newWindow = args['new-window']
   pidToKillWhenClosed = args['pid'] if args['wait']
   logFile = args['log-file']
   specFilePattern = args['file-pattern']
+  devResourcePath = process.env.N1_PATH ? process.cwd()
 
   if args['resource-path']
     devMode = true
@@ -157,8 +154,8 @@ parseCommandLine = ->
         else
           specDirectory = path.resolve(path.join(global.devResourcePath, "internal_packages", test))
 
-    if devMode
-      resourcePath ?= global.devResourcePath
+  devMode = true if test
+  resourcePath ?= devResourcePath if devMode
 
   unless fs.statSyncNoException(resourcePath)
     resourcePath = path.dirname(path.dirname(__dirname))
@@ -167,6 +164,9 @@ parseCommandLine = ->
   # explicitly pass it by command line, see http://git.io/YC8_Ew.
   process.env.PATH = args['path-environment'] if args['path-environment']
 
-  {resourcePath, pathsToOpen, executedFrom, test, version, pidToKillWhenClosed, devMode, safeMode, newWindow, specDirectory, specsOnCommandLine, logFile, specFilePattern}
+  resourcePath = normalizeDriveLetterName(resourcePath)
+  devResourcePath = normalizeDriveLetterName(devResourcePath)
+
+  {resourcePath, pathsToOpen, urlsToOpen, executedFrom, test, version, pidToKillWhenClosed, devMode, safeMode, newWindow, specDirectory, specsOnCommandLine, logFile, specFilePattern}
 
 start()

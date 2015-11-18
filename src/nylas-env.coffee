@@ -177,7 +177,7 @@ class NylasEnvConstructor extends Model
     process.env.NODE_ENV ?= 'production' unless devMode
 
     # Set NylasEnv's home so packages don't have to guess it
-    process.env.ATOM_HOME = configDirPath
+    process.env.NYLAS_HOME = configDirPath
 
     # Setup config and load it immediately so it's available to our singletons
     @config = new Config({configDirPath, resourcePath})
@@ -234,27 +234,20 @@ class NylasEnvConstructor extends Model
       @lastUncaughtError = Array::slice.call(arguments)
       [message, url, line, column, originalError] = @lastUncaughtError
 
-      # Convert the javascript error back into a Coffeescript error
-      convertedLine = convertLine(url, line, column, sourceMapCache)
-      {line, column} = convertedLine if convertedLine?
-      originalError.stack = convertStackTrace(originalError.stack, sourceMapCache) if originalError
+      {line, column} = mapSourcePosition({source: url, line, column})
 
       eventObject = {message, url, line, column, originalError}
 
       openDevTools = true
       eventObject.preventDefault = -> openDevTools = false
 
-      # Announce that we will display the error. Recipients can call preventDefault
-      # to prevent the developer tools from being shown
-      @emitter.emit('will-throw-error', eventObject)
+      @emitter.emit 'will-throw-error', eventObject
 
       if openDevTools and @inDevMode()
         @openDevTools()
-        @executeJavaScriptInDevTools('InspectorFrontendAPI.showConsole()')
+        @executeJavaScriptInDevTools('DevToolsAPI.showConsole()')
 
-      # Announce that the error was uncaught
-      @emit('uncaught-error', arguments...)
-      @emitter.emit('did-throw-error', eventObject)
+      @emitter.emit 'did-throw-error', {message, url, line, column, originalError}
 
     # Since Bluebird is the promise library, we can properly report
     # unhandled errors from business logic inside promises.
