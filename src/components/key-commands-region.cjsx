@@ -101,6 +101,7 @@ class KeyCommandsRegion extends React.Component
 
   componentWillUnmount: ->
     @_unmountListeners()
+    @_mounted = false
 
   # When the {KeymapManager} finds a valid keymap in a `.cson` file, it
   # will create a CustomEvent with the command name as its type. That
