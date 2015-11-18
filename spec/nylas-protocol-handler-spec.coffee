@@ -3,7 +3,7 @@ describe '"nylas" protocol URL', ->
     called = false
     request = new XMLHttpRequest()
     request.addEventListener('load', -> called = true)
-    request.open('GET', 'nylas://async/package.json', true)
+    request.open('GET', 'nylas://account-sidebar/package.json', true)
     request.send()
 
     waitsFor 'request to be done', -> called is true
