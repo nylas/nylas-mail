@@ -1,0 +1,13 @@
+#!/bin/bash
+
+mkdir docs/output
+script/grunt docs
+git checkout gh-pages --quiet
+cp -rf docs/output/* docs
+mv -f docs/sidebar.json _data
+rm -f docs/api.json
+rm -rf docs/output
+
+git add .
+printf "Now commit the changes! \n\n"
+git status
