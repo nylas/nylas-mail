@@ -214,7 +214,7 @@ class Contenteditable extends React.Component
   _runPluginHandlersForEvent: (method, event, args...) =>
     executeCallback = (plugin) =>
       return if not plugin[method]?
-      callback = callback.bind(plugin)
+      callback = plugin[method].bind(plugin)
       @atomicEdit(callback, event, args...)
 
     for plugin in @props.plugins
