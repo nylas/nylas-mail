@@ -24,6 +24,10 @@ class MessageItemBody extends React.Component
   componentWillMount: =>
     @_unsub = MessageBodyProcessor.processAndSubscribe(@props.message, @_onBodyChanged)
 
+  componentWillReceiveProps: (newProps) =>
+    @_unsub?()
+    @_unsub = MessageBodyProcessor.processAndSubscribe(newProps.message, @_onBodyChanged)
+
   componentWillUnmount: =>
     @_unsub?()
 

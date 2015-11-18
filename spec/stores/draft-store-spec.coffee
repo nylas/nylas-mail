@@ -720,7 +720,29 @@ describe "DraftStore", ->
         Actions.queueTask.calls.length > 0
       runs ->
         expect(DraftStore.isSendingDraft(draftClientId)).toBe true
+
+    # Since all changes haven't been applied yet, we want to ensure that
+    # no view of the draft renders the draft as if its sending, but with
+    # the wrong text.
+    it "does NOT trigger until the latest changes have been applied", ->
+      spyOn(NylasEnv, "isMainWindow").andReturn true
+      spyOn(Actions, "queueTask").andCallThrough()
+      runs ->
+        DraftStore._onSendDraft(draftClientId)
+        expect(DraftStore.trigger).not.toHaveBeenCalled()
+      waitsFor ->
+        Actions.queueTask.calls.length > 0
+      runs ->
+        # Normally, the session.changes.commit will persist to the
+        # Database. Since that's stubbed out, we need to manually invoke
+        # to database update event to get the trigger (which we want to
+        # test) to fire
+        DraftStore._onDataChanged
+          objectClass: "Message"
+          objects: [draft: true]
+        expect(DraftStore.isSendingDraft(draftClientId)).toBe true
         expect(DraftStore.trigger).toHaveBeenCalled()
+        expect(DraftStore.trigger.calls.length).toBe 1
 
     it "returns false if the draft hasn't been seen", ->
       spyOn(NylasEnv, "isMainWindow").andReturn true
