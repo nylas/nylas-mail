@@ -1,3 +1,4 @@
+crypto = require "crypto"
 MessageUtils = require '../models/message-utils'
 MessageStore = require './message-store'
 
@@ -17,8 +18,13 @@ class MessageBodyProcessor
     for {message, callback} in @_subscriptions
       callback(@process(message))
 
+  # It's far safer to key off the hash of the body then the [id, version]
+  # pair. This is because it's theoretically possible for the body to
+  # change without the version updating. When drafts sent N1 used to
+  # optimistically display the message before the latest changes
+  # persisted.
   _key: (message) ->
-    return message.id + message.version
+    return crypto.createHash('md5').update(message.body).digest('hex')
 
   version: ->
     @_version

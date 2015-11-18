@@ -486,7 +486,11 @@ class DraftStore
       SoundRegistry.playSound('hit-send')
 
     @_draftsSending[draftClientId] = true
-    @trigger(draftClientId)
+
+    # It's important NOT to call `trigger(draftClientId)` here. At this
+    # point there are still unpersisted changes in the DraftStoreProxy. If
+    # we `trigger`, we'll briefly display the wrong version of the draft
+    # as if it was sending.
 
     @sessionForClientId(draftClientId).then (session) =>
       @_runExtensionsBeforeSend(session)
