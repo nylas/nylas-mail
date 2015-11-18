@@ -116,8 +116,7 @@ class SearchBar extends React.Component
 
   _onSelectSuggestion: (item) =>
     if item.thread?
-      Actions.searchQueryCommitted(null)
-      Actions.setFocus({collection: 'thread', item: item.thread})
+      Actions.searchQueryCommitted([{all: "\"#{item.thread.subject}\""}])
     else
       Actions.searchQueryCommitted(item.value)
 
