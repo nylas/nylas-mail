@@ -29,6 +29,8 @@ CollapsedParticipants = require './collapsed-participants'
 
 Fields = require './fields'
 
+ComposerExtensionsPlugin = require './composer-extensions-plugin'
+
 # The ComposerView is a unique React component because it (currently) is a
 # singleton. Normally, the React way to do things would be to re-render the
 # Composer with new props.
@@ -78,7 +80,7 @@ class ComposerView extends React.Component
     @_usubs = []
     @_usubs.push FileUploadStore.listen @_onFileUploadStoreChange
     @_usubs.push AccountStore.listen @_onAccountStoreChanged
-    @_applyFocusedField()
+    @_applyFieldFocus()
 
   componentWillUnmount: =>
     @_unmounted = true # rarf
@@ -94,7 +96,7 @@ class ComposerView extends React.Component
     # re-rendering.
     @_recoveredSelection = null if @_recoveredSelection?
 
-    @_applyFocusedField()
+    @_applyFieldFocus()
 
   _keymapHandlers: ->
     'composer:send-message': => @_sendDraft()
@@ -109,13 +111,17 @@ class ComposerView extends React.Component
     "composer:undo": @undo
     "composer:redo": @redo
 
-  _applyFocusedField: ->
-    if @state.focusedField
+  _applyFieldFocus: ->
+    if @state.focusedField and @_lastFocusedField isnt @state.focusedField
+      @_lastFocusedField = @state.focusedField
       return unless @refs[@state.focusedField]
       if @refs[@state.focusedField].focus
         @refs[@state.focusedField].focus()
       else
         React.findDOMNode(@refs[@state.focusedField]).focus()
+
+      if @state.focusedField is Fields.Body
+        @refs[Fields.Body].selectEnd()
 
   componentWillReceiveProps: (newProps) =>
     @_ignoreNextTrigger = false
@@ -223,7 +229,10 @@ class ComposerView extends React.Component
 
       {@_renderSubject()}
 
-      <div className="compose-body" ref="composeBody" onClick={@_onClickComposeBody}>
+      <div className="compose-body"
+           ref="composeBody"
+           onMouseUp={@_onMouseUpComposerBody}
+           onMouseDown={@_onMouseDownComposerBody}>
         {@_renderBody()}
         {@_renderFooterRegions()}
       </div>
@@ -291,38 +300,9 @@ class ComposerView extends React.Component
       onScrollTo={@props.onRequestScrollTo}
       onFilePaste={@_onFilePaste}
       onScrollToBottom={@_onScrollToBottom()}
-      lifecycleCallbacks={@_contenteditableLifecycleCallbacks()}
+      plugins={[ComposerExtensionsPlugin]}
       getComposerBoundingRect={@_getComposerBoundingRect}
       initialSelectionSnapshot={@_recoveredSelection} />
-
-  _contenteditableLifecycleCallbacks: ->
-    componentDidUpdate: (editableNode) =>
-      for extension in DraftStore.extensions()
-        extension.onComponentDidUpdate?(editableNode)
-
-    onInput: (editableNode, event) =>
-      for extension in DraftStore.extensions()
-        extension.onInput?(editableNode, event)
-
-    onTabDown: (editableNode, event, range) =>
-      for extension in DraftStore.extensions()
-        extension.onTabDown?(editableNode, range, event)
-
-    onSubstitutionPerformed: (editableNode) =>
-      for extension in DraftStore.extensions()
-        extension.onSubstitutionPerformed?(editableNode)
-
-    onLearnSpelling: (editableNode, text) =>
-      for extension in DraftStore.extensions()
-        extension.onLearnSpelling?(editableNode, text)
-
-    onMouseUp: (editableNode, event, range) =>
-      return unless range
-      try
-        for extension in DraftStore.extensions()
-          extension.onMouseUp?(editableNode, range, event)
-      catch e
-        console.error('DraftStore extension raised an error: '+e.toString())
 
   # The contenteditable decides when to request a scroll based on the
   # position of the cursor and its relative distance to this composer
@@ -472,8 +452,23 @@ class ComposerView extends React.Component
   # This lets us click outside of the `contenteditable`'s `contentBody`
   # and simulate what happens when you click beneath the text *in* the
   # contentEditable.
-  _onClickComposeBody: (event) =>
-    @refs[Fields.Body].selectEnd()
+  #
+  # Unfortunately, we need to manually keep track of the "click" in
+  # separate mouseDown, mouseUp events because we need to ensure that the
+  # start and end target are both not in the contenteditable. This ensures
+  # that this behavior doesn't interfear with a click and drag selection.
+  _onMouseDownComposerBody: (event) =>
+    if React.findDOMNode(@refs[Fields.Body]).contains(event.target)
+      @_mouseDownTarget = null
+    else @_mouseDownTarget = event.target
+
+  _onMouseUpComposerBody: (event) =>
+    if event.target is @_mouseDownTarget
+      @refs[Fields.Body].selectEnd()
+    @_mouseDownTarget = null
+
+  _onMouseMoveComposeBody: (event) =>
+    if @_mouseComposeBody is "down" then @_mouseComposeBody = "move"
 
   _onDraftChanged: =>
     return if @_ignoreNextTrigger

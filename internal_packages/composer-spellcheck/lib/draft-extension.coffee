@@ -1,19 +1,47 @@
-{DraftStoreExtension, AccountStore} = require 'nylas-exports'
+{DraftStoreExtension, AccountStore, DOMUtils} = require 'nylas-exports'
 _ = require 'underscore'
+spellchecker = require('spellchecker')
+remote = require('remote')
+MenuItem = remote.require('menu-item')
 
 SpellcheckCache = {}
 
 class SpellcheckDraftStoreExtension extends DraftStoreExtension
 
   @isMisspelled: (word) ->
-    @spellchecker ?= require('spellchecker')
-    SpellcheckCache[word] ?= @spellchecker.isMisspelled(word)
+    SpellcheckCache[word] ?= spellchecker.isMisspelled(word)
     SpellcheckCache[word]
 
-  @onComponentDidUpdate: (editableNode) ->
+  @onInput: (editableNode) ->
     @walkTree(editableNode)
 
-  @onLearnSpelling: (editableNode, word) ->
+  @onShowContextMenu: (event, editableNode, selection, innerStateProxy, menu) =>
+    range = DOMUtils.Mutating.getRangeAtAndSelectWord(selection, 0)
+    word = range.toString()
+    if @isMisspelled(word)
+      corrections = spellchecker.getCorrectionsForMisspelling(word)
+      if corrections.length > 0
+        corrections.forEach (correction) =>
+          menu.append(new MenuItem({
+            label: correction,
+            click: @applyCorrection.bind(@, editableNode, range, selection, correction)
+          }))
+      else
+        menu.append(new MenuItem({ label: 'No Guesses Found', enabled: false}))
+
+      menu.append(new MenuItem({ type: 'separator' }))
+      menu.append(new MenuItem({
+        label: 'Learn Spelling',
+        click: @learnSpelling.bind(@, editableNode, word)
+      }))
+      menu.append(new MenuItem({ type: 'separator' }))
+
+  @applyCorrection: (editableNode, range, selection, correction) =>
+    DOMUtils.Mutating.applyTextInRange(range, selection, correction)
+    @walkTree(editableNode)
+
+  @learnSpelling: (editableNode, word) =>
+    spellchecker.add(word)
     delete SpellcheckCache[word]
     @walkTree(editableNode)
 
