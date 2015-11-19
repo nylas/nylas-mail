@@ -356,7 +356,7 @@ module.exports = (grunt) ->
 
   grunt.registerTask('compile', ['coffee', 'cjsx', 'babel', 'prebuild-less', 'cson', 'peg'])
   grunt.registerTask('lint', ['coffeelint', 'csslint', 'lesslint', 'nylaslint', 'eslint'])
-  grunt.registerTask('test', ['shell:kill-n1', 'run-edgehill-specs'])
+  grunt.registerTask('test', ['shell:kill-n1', 'run-unit-tests'])
   grunt.registerTask('docs', ['build-docs', 'render-docs'])
 
   ciTasks = ['output-disk-space', 'download-electron', 'build']
