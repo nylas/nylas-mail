@@ -39,7 +39,9 @@ executeTests = (test, grunt, done) ->
 module.exports = (grunt) ->
 
   grunt.registerTask 'run-spectron-specs', 'Run spectron specs', ->
-    appPath = path.resolve('./N1.sh')
+    rootDir = path.resolve('.')
+    appPath = path.resolve('./electron/Electron.app/Contents/MacOS/Electron')
+
     done = @async()
     npmPath = path.resolve "./build/node_modules/.bin/npm"
     grunt.log.writeln 'App exists: ' + fs.existsSync(appPath)
@@ -53,7 +55,12 @@ module.exports = (grunt) ->
         grunt.fail.warn(error)
         done(false)
       else
-        executeTests cmd: npmPath, args: ['test', "APP_PATH=#{appPath}"], grunt, (succeeded) ->
+        appArgs = [
+          'test'
+          "APP_PATH=#{appPath}"
+          "APP_ARGS=#{rootDir}"
+        ]
+        executeTests cmd: npmPath, args: appArgs, grunt, (succeeded) ->
           process.chdir('..')
           done(succeeded)
 
