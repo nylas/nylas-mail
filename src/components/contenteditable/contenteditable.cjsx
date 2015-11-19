@@ -211,6 +211,8 @@ class Contenteditable extends React.Component
   # the core plugin handlers from being called.
   # If any of the plugins calls event.stopPropagation(), it will prevent any
   # other plugin handlers from being called.
+  #
+  # NOTE: It's possible for there to be no `event` passed in.
   _runPluginHandlersForEvent: (method, event, args...) =>
     executeCallback = (plugin) =>
       return if not plugin[method]?
@@ -218,12 +220,12 @@ class Contenteditable extends React.Component
       @atomicEdit(callback, event, args...)
 
     for plugin in @props.plugins
-      break if event.isPropagationStopped()
+      break if event?.isPropagationStopped()
       executeCallback(plugin)
 
-    return if event.defaultPrevented or event.isPropagationStopped()
+    return if event?.defaultPrevented or event?.isPropagationStopped()
     for plugin in @corePlugins
-      break if event.isPropagationStopped()
+      break if event?.isPropagationStopped()
       executeCallback(plugin)
 
   _onKeyDown: (event) =>
