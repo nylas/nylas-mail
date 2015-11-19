@@ -33,7 +33,7 @@ class AccountSidebar extends React.Component
 
   constructor: (@props) ->
     @state = @_getStateFromStores()
-    @state.collapsed = {}
+    @state.collapsed = NylasEnv.config.get('core.accountSidebarCollapsed') ? {}
 
   componentDidMount: =>
     @unsubscribers = []
@@ -111,6 +111,7 @@ class AccountSidebar extends React.Component
   _onToggleCollapsed: (itemId) =>
     collapsed = _.clone(@state.collapsed)
     collapsed[itemId] = !collapsed[itemId]
+    NylasEnv.config.set('core.accountSidebarCollapsed', collapsed)
     @setState({collapsed})
 
   _getStateFromStores: =>
