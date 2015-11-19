@@ -68,8 +68,8 @@ class WindowManager
     else
       if @devMode
         try
-          bootstrapScript = require.resolve(path.join(global.devResourcePath, 'src', 'window-bootstrap'))
-          resourcePath = global.devResourcePath
+          bootstrapScript = require.resolve(path.join(@resourcePath, 'src', 'window-bootstrap'))
+          resourcePath = @resourcePath
       bootstrapScript ?= require.resolve('../window-bootstrap')
       resourcePath ?= @resourcePath
 
