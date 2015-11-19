@@ -172,8 +172,11 @@ DOMUtils =
   # https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
   # Only Elements (not Text nodes) have the `closest` method
   closest: (node, selector) ->
-    el = if node instanceof HTMLElement then node else node.parentElement
-    return el.closest(selector)
+    if node instanceof HTMLElement
+      return node.closest(selector)
+    else if node?.parentNode
+      return DOMUtils.closest(node.parentNode, selector)
+    else return null
 
   closestAtCursor: (selector) ->
     selection = document.getSelection()

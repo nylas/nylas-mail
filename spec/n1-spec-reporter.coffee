@@ -7,7 +7,7 @@ grim = require 'grim'
 marked = require 'marked'
 
 sourceMaps = {}
-formatStackTrace = (spec, message='', stackTrace) ->
+formatStackTrace = (spec, message='', stackTrace, indent="") ->
   return stackTrace unless stackTrace
 
   jasminePattern = /^\s*at\s+.*\(?.*[/\\]jasmine(-[^/\\]*)?\.js:\d+:\d+\)?\s*$/
@@ -32,8 +32,8 @@ formatStackTrace = (spec, message='', stackTrace) ->
     # Relativize locations to spec directory
     lines[index] = line.replace("at #{spec.specDirectory}#{path.sep}", 'at ')
 
-  lines = lines.map (line) -> line.trim()
-  lines.join('\n').trim()
+  lines = lines.map (line) -> indent + line.trim()
+  lines.join('\n')
 
 module.exports =
 class N1SpecReporter extends View
@@ -60,6 +60,7 @@ class N1SpecReporter extends View
         @span outlet: 'deprecationStatus', '0 deprecations'
         @div class: 'deprecation-toggle'
       @div outlet: 'deprecationList', class: 'deprecation-list'
+      @pre outlet: "plainTextOutput", class: 'plain-text-output'
 
   startedAt: null
   runningSpecCount: 0
@@ -92,6 +93,8 @@ class N1SpecReporter extends View
     else
       @message.text "#{@failedCount} failures"
 
+    @status.addClass("specs-complete")
+
   reportSuiteResults: (suite) ->
 
   reportSpecResults: (spec) ->
@@ -99,6 +102,45 @@ class N1SpecReporter extends View
     spec.endedAt = Date.now()
     @specComplete(spec)
     @updateStatusView(spec)
+    @reportPlainTextSpecResult(spec)
+
+  reportPlainTextSpecResult: (spec) ->
+    str = ""
+    if spec.results().failedCount > 0
+      str += @suiteString(spec) + "\n"
+      indent = @indentationString(spec.suite, 1)
+      stackIndent = @indentationString(spec.suite, 2)
+
+      description = spec.description
+      description = "it #{description}" if description.indexOf('it ') isnt 0
+      str += indent + description + "\n"
+
+      for result in spec.results().getItems()
+        continue if result.passed()
+        str += indent + result.message + "\n"
+        stackTrace = formatStackTrace(spec, result.message, result.trace.stack, stackIndent)
+        str += stackTrace + "\n"
+      str += "\n\n"
+    @plainTextOutput.append(str)
+
+  indentationString: (suite, plus=0) ->
+    rootSuite = suite
+    indentLevel = 0 + plus
+    while rootSuite.parentSuite
+      rootSuite = rootSuite.parentSuite
+      indentLevel += 1
+    return [0...indentLevel].map(-> "  ").join("")
+
+  suiteString: (spec) ->
+    descriptions = [spec.suite.description]
+
+    rootSuite = spec.suite
+    while rootSuite.parentSuite
+      indent = @indentationString(rootSuite)
+      descriptions.unshift(indent + rootSuite.description)
+      rootSuite = rootSuite.parentSuite
+
+    descriptions.join("\n")
 
   reportSpecStarting: (spec) ->
     @specStarted(spec)
