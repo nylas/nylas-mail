@@ -147,12 +147,12 @@ parseCommandLine = ->
       # want to test.
       if test and toString.call(test) is "[object String]"
         if test is "core"
-          specDirectory = path.join(global.devResourcePath, "spec")
+          specDirectory = path.join(devResourcePath, "spec")
         else if test is "window"
-          specDirectory = path.join(global.devResourcePath, "spec")
+          specDirectory = path.join(devResourcePath, "spec")
           specsOnCommandLine = false
         else
-          specDirectory = path.resolve(path.join(global.devResourcePath, "internal_packages", test))
+          specDirectory = path.resolve(path.join(devResourcePath, "internal_packages", test))
 
   devMode = true if test
   resourcePath ?= devResourcePath if devMode
