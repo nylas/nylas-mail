@@ -121,7 +121,13 @@ class EventedIFrame extends React.Component
   _onIFrameMouseEvent: (event) =>
     node = React.findDOMNode(@)
     nodeRect = node.getBoundingClientRect()
-    node.dispatchEvent(new MouseEvent(event.type, _.extend({}, event, {
+
+    eventAttrs = {}
+    for key in Object.keys(event)
+      continue if key in ['webkitMovementX', 'webkitMovementY']
+      eventAttrs[key] = event[key]
+
+    node.dispatchEvent(new MouseEvent(event.type, _.extend({}, eventAttrs, {
       clientX: event.clientX + nodeRect.left
       clientY: event.clientY + nodeRect.top
       pageX: event.pageX + nodeRect.left
