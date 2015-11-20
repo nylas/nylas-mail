@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title></title>
+    <title>Schedule: {{ event.title }}</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
     <script src='/static/js/moment.min.js'></script>
+    <script src='/static/js/moment-timezone-with-data.min.js'></script>
     <style>
         .selected {
             background: #8CF;
@@ -45,7 +46,7 @@
             return {
                 date: moment(e.start*1000).format("dddd, MMM Do"),
                 time: moment(e.start*1000).format("h:mma") + "-" +
-                      moment(e.end*1000).format("h:mma"),
+                      moment(e.end*1000).format("h:mma")+ " (" + moment().tz(moment.tz.guess()).format("z") + ")",
                 serverKey: e.key
             };
         });
