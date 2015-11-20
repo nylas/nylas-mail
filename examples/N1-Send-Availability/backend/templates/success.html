@@ -5,23 +5,26 @@
     <title></title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
     <style>
-        body{
-            text-align: center;
-        }
-        h1 {
-            margin-top: 50px;
+        .icon {
+            font-size: 120px;
+            color: #DDD;
         }
         .content {
+            margin-top:50px;
+            text-align: center;
             font-size: 18px;
-            margin-top: 20px;
+        }
+        .content.top {
+            margin-top: 100px;
         }
     </style>
 </head>
 <body>
-<h1>No event found.</h1>
+<div class="content top">
+    <span class="glyphicon glyphicon-calendar icon"></span>
+</div>
 <div class="content">
-    Uh oh, it looks like that event doesn't exist or is no longer valid.<br/>
-    Maybe it was already scheduled?
+    Event scheduled! Check your email for the invitation.
 </div>
 </body>
 </html>

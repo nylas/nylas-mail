@@ -4,11 +4,10 @@
     <meta charset="UTF-8">
     <title></title>
     <link rel='stylesheet' href='fullcalendar/fullcalendar.css' />
-    <script src='nylas://send-availability/fullcalendar/lib/jquery.min.js'></script>
-    <script src='nylas://send-availability/fullcalendar/lib/moment.min.js'></script>
-    <script src='nylas://send-availability/fullcalendar/fullcalendar.js'></script>
+    <script src='nylas://N1-Send-Availability/fullcalendar/lib/jquery.min.js'></script>
+    <script src='nylas://N1-Send-Availability/fullcalendar/lib/moment.min.js'></script>
+    <script src='nylas://N1-Send-Availability/fullcalendar/fullcalendar.js'></script>
 
-    <script src="nylas://send-availability/node_modules/electron-safe-ipc/guest-bundle.js"></script>
     <script>
 
         function randomId(len) {
@@ -21,68 +20,21 @@
 
         // class to communicate with the parent window
         Parent = (function(){
-            function Parent() {
-                //listen for and and route messages from the parent
-                var _this = this;
-                electronSafeIpc.on("fromMain", function (event, data) {
-                    _this._onReceive(event, data)
-                });
-
-                //initialize container for event listeners
-                this.listeners = {};
-            }
-            Parent.prototype._send = function (event, data) {
-                //send a message to the parent
-                electronSafeIpc.send("fromRenderer", event, data);
-            };
-            Parent.prototype._onReceive = function (event, data) {
-                //handle an incoming message from the parent. Route the message data
-                //to the appropriate event listeners based on the "event" param
-                var listeners = this.listeners[event];
-                if(listeners !== undefined) {
-                    listeners.forEach(function(callback) {
-                        callback(JSON.parse(data));
-                    });
-                }
-            };
-
-            //basic jquery-style event listener methods
-            Parent.prototype.on = function(event, callback) {
-                //add an event listener
-                if(this.listeners[event] === undefined)
-                    this.listeners[event] = [];
-                this.listeners[event].push(callback);
-                return callback
-            };
-            Parent.prototype.off = function (event, callback) {
-                //remove an event listener
-                if(this.listeners[event] !== undefined) {
-                    var i = this.listeners[event].indexOf(callback);
-                    if(i > -1)
-                        this.listeners[event].splice(i, 1);
-                }
-            };
-            Parent.prototype.one = function(event,callback) {
-                //add a single-use event listener
-                var _this = this;
-                var outer = function(data) {
-                    try {callback(data);}
-                    finally {_this.off(event,outer)}
-                };
-                this.on(event,outer);
-            };
-
+            function Parent() {}
             Parent.prototype.load_events = function (start, end, callback) {
-                //use timestamp as a request id
-                var id = Date.now();
-                //register a single-use event listener
-                this.one("get_events_"+id,callback);
-                //send the request, which will trigger an event when it completes
-                this._send("get_events",{start:start,end:end,id:id});
+                $.ajax({
+                    url: "send-availability://get_events",
+                    data: {start:start, end:end},
+                    success: callback,
+                    dataType: 'json'
+                });
             };
 
             Parent.prototype.send_results = function(data) {
-                this._send("available_times", data);
+                $.ajax({
+                    url: "send-availability://available_times",
+                    data: {data:JSON.stringify(data)}
+                });
             };
         return Parent})();
 
@@ -108,6 +60,7 @@
                 defaultView: 'agendaWeek',
                 handleWindowResize: false,
                 aspectRatio: 1,
+                timezone: 'local',
                 selectable: true,
                 selectHelper: true,
                 select: function(start, end) {

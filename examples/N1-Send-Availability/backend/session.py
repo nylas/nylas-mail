@@ -3,19 +3,24 @@ from contextlib import contextmanager
 
 from sqlalchemy.orm.session import Session
 from sqlalchemy import create_engine
+import os
 
 
 cached_engine = None
 
 
 def new_engine(database="sendavailability"):
-    uri_template = ("mysql+pymysql://{username}:{password}@{host}:"
-                    "{port}/{database}")
-    uri = uri_template.format(username="root",
-                              password="root",
-                              host="localhost",
-                              port=3307,
-                              database=database if database else '')
+    db_url = os.environ['CLEARDB_DATABASE_URL']
+    if db_url:
+        uri = 'mysql+pymysql'+db_url[5:].split('?')[0]
+    else:
+        uri_template = ("mysql+pymysql://{username}:{password}@{host}:"
+                        "{port}/{database}")
+        uri = uri_template.format(username="root",
+                                  password="root",
+                                  host="localhost",
+                                  port=3307,
+                                  database=database if database else '')
     return create_engine(uri,
                          isolation_level='READ COMMITTED',
                          echo=False,

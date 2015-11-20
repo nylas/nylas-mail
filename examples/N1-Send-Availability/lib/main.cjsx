@@ -11,12 +11,12 @@
  Event} = require 'nylas-exports'
 
 url = require('url')
+qs = require("querystring")
 
 CalendarButton = require './calendar-button'
 AvailabilityDraftExtension = require './availability-draft-extension'
 
-path = require.resolve("electron-safe-ipc/host")
-ipc = require('remote').require(path)
+protocol = require('remote').require('protocol')
 
 # A simple class for building HTML in code
 class HtmlNode
@@ -27,7 +27,7 @@ class HtmlNode
     @children = []
 
   attr: (k,v,isJson=false) ->
-    @attrs[k] = if isJson then v.replace(/"/g,"'") else v
+    @attrs[k] = if isJson then btoa(v) else v
     return @
 
   style: (k,v) ->
@@ -39,8 +39,8 @@ class HtmlNode
     return node
 
   appendNode: (name) ->
-    node = new HtmlNode(name);
-    return @append(node);
+    node = new HtmlNode(name)
+    return @append(node)
 
   appendText: (text) ->
     @append(text)
@@ -54,7 +54,7 @@ class HtmlNode
       children = (if n instanceof HtmlNode then n.toString() else n for n in @children).join("\n")
       return "<#{@name} #{attrs} style=\"#{styles}\">\n#{children}\n</#{@name}>"
     else
-     return "<#{@name} #{attrs} style=\"#{styles}\" />"
+      return "<#{@name} #{attrs} style=\"#{styles}\" />"
 
 
 module.exports =
@@ -79,7 +79,13 @@ module.exports =
 
     # Subscribe to the ipc event `fromRenderer`, which will be published
     # elsewhere in the package.
-    ipc.on "fromRenderer", (args...) => @_onCalendarEvent(args...)
+    protocol.registerStringProtocol 'send-availability', (request, callback) =>
+      {host:event,query:rawQuery} = url.parse(request.url)
+      stringArgs = qs.parse(rawQuery)
+      data = {}
+      for own k,v of stringArgs
+        data[k] = JSON.parse(v)
+      response = @_onCalendarEvent(event,data,callback)
 
   # Serialize is called when your package is about to be unmounted.
   # You can return a state object that will be passed back to your package
@@ -95,10 +101,11 @@ module.exports =
   deactivate: ->
     ComponentRegistry.unregister CalendarButton
     DraftStore.unregister AvailabilityDraftExtension
+    protocol.unregisterProtocol('send-availability')
 
   ### Internal Methods ###
 
-  _onCalendarEvent: (event,data) ->
+  _onCalendarEvent: (event,data,callback) ->
     switch event
       when "get_events"
         {start,end,id:eventId} = data
@@ -106,14 +113,10 @@ module.exports =
           Event.attributes.start.lessThan(end),
           Event.attributes.end.greaterThan(start),
         ]).then (events) =>
-          @_sendToCalendar("get_events_"+eventId,events)
+          callback(JSON.stringify(events))
       when "available_times"
-        {draftClientId,eventData,events} = data
-        @_addBlockToDraft(events,draftClientId,eventData);
-
-  # Sends a message to the calendar window
-  _sendToCalendar: (event,data) ->
-    ipc.send("fromMain", event, JSON.stringify(data))
+        {draftClientId,eventData,events} = data.data
+        @_addBlockToDraft(events,draftClientId,eventData)
 
   # Grabs the current draft text, appends the availability HTML block to it, and saves
   _addBlockToDraft: (events,draftClientId,eventData) ->
@@ -123,8 +126,7 @@ module.exports =
       text = QuotedHTMLParser.removeQuotedHTML(draftHtml)
 
       # add the block
-      console.log(@_createBlock(events,eventData));
-      text += "<br/>"+@_createBlock(events,eventData)+"<br/>";
+      text += "<br/>"+@_createBlock(events,eventData)+"<br/>"
 
       newDraftHtml = QuotedHTMLParser.appendQuotedHTML(text, draftHtml)
 
@@ -206,8 +208,8 @@ module.exports =
       for e in dayEvents
         # The URL points to the event page with this time slot selected
         eventUrl = url.format({
-          protocol: "http"
-          host: "localhost:8888"
+          protocol: "https"
+          host: "sendavail.herokuapp.com"
           pathname: "/event/#{e.serverKey}"
         })
         times.appendNode("div")
