@@ -5,9 +5,9 @@ class CalendarButton extends React.Component
   @displayName: 'CalendarButton'
 
   render: =>
-    <div className="btn btn-toolbar" onClick={@_onClick}>
+    <button className="btn btn-toolbar" onClick={@_onClick}>
       Add Availability
-    </div>
+    </button>
 
   _onClick: =>
     BrowserWindow = require('remote').require('browser-window')

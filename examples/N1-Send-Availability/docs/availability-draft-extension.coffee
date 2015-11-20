@@ -13,13 +13,13 @@ class AvailabilityDraftExtension extends DraftStoreExtension
     sender = session.draft().from
     matches = (/data-send-availability="(.*)?" style/).exec body
     if matches?
-      json = matches[1].replace(/'/g,'"')
+      json = atob(matches[1])
       data = JSON.parse(json)
       data.attendees = []
       data.attendees = participants.map (p) ->
-        name: p.name, email: p.email, isSender: c.isMe()
+        name: p.name, email: p.email, isSender: p.isMe()
       console.log "Sending request!\n",JSON.stringify data
-      serverUrl = "http://localhost:8888/register-events"
+      serverUrl = "https://sendavail.herokuapp.com/register-events"
       request.post {url: serverUrl, body: JSON.stringify(data)}, (error, resp, data) =>
         console.log(error,resp,data)
 

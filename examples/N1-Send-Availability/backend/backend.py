@@ -10,6 +10,7 @@ from cStringIO import StringIO
 from datetime import datetime
 import pytz
 import time
+import os
 
 import models as m
 from session import session_scope
@@ -21,7 +22,7 @@ m.init_db()
 
 @app.route('/', methods=["GET", "POST"])
 def hello_world():
-    return 'Hello World!'
+    return render_template("success.html")
 
 
 @app.route('/register-events', methods=["POST"])
@@ -33,6 +34,14 @@ def register_events():
 
     # Save new event details and times to database
     with session_scope() as dbsession:
+
+        conflicts = [
+            dbsession.query(m.EventTime)
+            .filter(m.EventTime.key == tm['serverKey']).first()
+            for tm in data['times']
+        ]
+        if any(n is not None for n in conflicts):
+            raise 'An event key conflicts with an existing key: %s' % conflicts
         times = [_make_event_time(d) for d in data['times']]
         attendees = [_make_attendee(d) for d in data['attendees']]
 
@@ -60,8 +69,8 @@ def load_event(key):
         times = []
         for t in event.times:
             times.append({
-                "start": time.mktime(t.start.timetuple()),
-                "end": time.mktime(t.end.timetuple()),
+                "start": timestamp(t.start),
+                "end": timestamp(t.end),
                 "key": t.key
             })
         return render_template("show_event.html",
@@ -94,11 +103,11 @@ def schedule(key):
         dbsession.commit()
         dbsession.delete(event)
 
-        return 'Success!'
+        return render_template('success.html')
 
 
 def _create_email(event, etime):
-    sender = event.organizer.email #"send-availability@nylas.com"
+    sender = event.organizer.email
     html_body = render_template("event_email.html", event=event, time=etime)
     text_body = render_template("event_email.txt", event=event, time=etime)
     msg = mime.create.multipart('mixed')
@@ -108,11 +117,14 @@ def _create_email(event, etime):
     body.append(
         mime.create.text('plain', text_body),
         mime.create.text('html', html_body),
-        mime.create.text('calendar; method=REQUEST',
-                         ical_txt, charset='utf8'))
-    msg.append(body)
+        mime.create.text('calendar; method=REQUEST', ical_txt, charset='utf8')
+    )
+    msg.append(
+        body,
+        mime.create.attachment('application/ics', ical_txt, filename='event.ics', disposition='attachment', charset='utf8')
+    )
 
-    msg.headers['From'] = sender
+    msg.headers['From'] = "scheduler@nylas.com"
     msg.headers['Reply-To'] = sender
     msg.headers['Subject'] = "Invitation: {}".format(event.title)
     msg.headers['To'] = ", ".join([a.email for a in event.attendees])
@@ -121,22 +133,22 @@ def _create_email(event, etime):
 
 
 def _send_email(msg):
-    with open("mailgun-key.txt") as f:
-        print msg.to_string()
-        key = f.read()
-        requests.post(
-            "https://api.mailgun.net/v3/mg.nylas.com/messages.mime",
-            auth=("api", key),
-            data={"to": msg.headers["To"]},
-            files={"message": StringIO(msg.to_string())}
-        )
+    key = os.environ['MAILGUN_KEY']
+    requests.post(
+        "https://api.mailgun.net/v3/mg.nylas.com/messages.mime",
+        auth=("api", key),
+        data={"to": msg.headers["To"]},
+        files={"message": StringIO(msg.to_string())}
+    )
 
 
 def _make_ics(event, etime):
 
     cal = Calendar()
     cal.add('prodid', 'N1-send-availability-package')
-    cal.add('version', '1.0')
+    cal.add('version', '2.0')
+
+    cal.add('method', 'REQUEST')   # also have PUBLISH or CANCEL
 
     evt = Event()
     evt.add('summary', event.title)
@@ -185,6 +197,10 @@ def _make_attendee(attendee_data):
                       email=attendee_data["email"],
                       is_sender=attendee_data["isSender"])
 
+
+def timestamp(dt):
+    'Return POSIX timestamp as float'
+    return (dt - datetime.utcfromtimestamp(0)).total_seconds()
 
 if __name__ == '__main__':
     app.run(port=8888, debug=True)

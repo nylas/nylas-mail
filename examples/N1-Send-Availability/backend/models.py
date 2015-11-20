@@ -10,10 +10,10 @@ Base = declarative_base()
 
 
 def init_db():
-    engine = new_engine(None)
-    engine.execute("CREATE DATABASE IF NOT EXISTS sendavailability "
-                   "DEFAULT CHARACTER SET utf8mb4 "
-                   "DEFAULT COLLATE utf8mb4_general_ci;")
+    # engine = new_engine(None)
+    # engine.execute("CREATE DATABASE IF NOT EXISTS sendavailability "
+    #                "DEFAULT CHARACTER SET utf8mb4 "
+    #                "DEFAULT COLLATE utf8mb4_general_ci;")
     Base.metadata.create_all(new_engine())
 
 

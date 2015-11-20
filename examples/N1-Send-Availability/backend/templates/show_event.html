@@ -3,11 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title></title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
     <script src='/static/js/moment.min.js'></script>
     <style>
-        body{
-            font-family: Verdana, "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
-        }
         .selected {
             background: #8CF;
         }
@@ -23,7 +21,8 @@
     </style>
 </head>
 <body>
-<h1>Confirm event scheduling</h1>
+<div class="container">
+    <h1>Confirm event scheduling</h1>
     <div style="border:1px solid #eee;border-radius:3px;padding:10px">
         <div style="padding:0 5px">
             <div style="font-weight:bold;font-size:18px">{{ event.title }}</div>
@@ -37,16 +36,16 @@
     <form action="/event/{{selected_key}}" method="post">
         <button type="submit" class="schedule">Schedule!</button>
     </form>
-
+</div>
 
     <script>
         events = {{ times_json|tojson|safe }}
         console.log(events[0].start,events[0].end)
         times = events.map(function(e) {
             return {
-                date: moment(e.start*1000).local().format("dddd, MMM Do"),
-                time: moment(e.start*1000).local().format("h:mma") + "-" +
-                      moment(e.end*1000).local().format("h:mma"),
+                date: moment(e.start*1000).format("dddd, MMM Do"),
+                time: moment(e.start*1000).format("h:mma") + "-" +
+                      moment(e.end*1000).format("h:mma"),
                 serverKey: e.key
             };
         });
