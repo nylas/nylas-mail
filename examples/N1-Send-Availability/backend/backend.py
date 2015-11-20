@@ -20,10 +20,6 @@ app = Flask(__name__)
 
 m.init_db()
 
-@app.route('/', methods=["GET", "POST"])
-def hello_world():
-    return render_template("success.html")
-
 
 @app.route('/register-events', methods=["POST"])
 def register_events():
@@ -154,12 +150,12 @@ def _make_ics(event, etime):
     evt.add('summary', event.title)
     evt.add('location', event.location)
     evt.add('description', event.description)
-    evt.add('dtstart', etime.start)
-    evt.add('dtend', etime.end)
-    evt.add('dtstamp', datetime.now())
+    evt.add('dtstart', etime.start.replace(tzinfo=pytz.UTC))
+    evt.add('dtend', etime.end.replace(tzinfo=pytz.UTC))
+    evt.add('dtstamp', datetime.now(pytz.UTC))
 
     evt['uid'] = '{timestamp}/{email}'.format(
-        timestamp=time.mktime(datetime.now().timetuple()),
+        timestamp=time.mktime(datetime.now(pytz.UTC).timetuple()),
         email=event.organizer.email
     )
     evt.add('priority', 5)

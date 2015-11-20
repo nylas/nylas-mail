@@ -6,6 +6,7 @@
     <link rel='stylesheet' href='fullcalendar/fullcalendar.css' />
     <script src='nylas://N1-Send-Availability/fullcalendar/lib/jquery.min.js'></script>
     <script src='nylas://N1-Send-Availability/fullcalendar/lib/moment.min.js'></script>
+    <script src='nylas://N1-Send-Availability/fullcalendar/lib/moment-timezone-with-data.min.js'></script>
     <script src='nylas://N1-Send-Availability/fullcalendar/fullcalendar.js'></script>
 
     <script>
@@ -146,7 +147,8 @@
                                 start: e.start.unix(),
                                 end: e.end.unix(),
                                 date: e.start.format("dddd, MMM Do"), //event date, in local timezone
-                                time: e.start.format("h:mma")+"-"+e.end.format("h:mma"), //event duration, in local time
+                                time: e.start.format("h:mma")+"-"+e.end.format("h:mma")+ //event duration, in local time
+                                      " ("+moment().tz(moment.tz.guess()).format("z")+")", //local time zone abbrev
                                 serverKey: randomId(128) //string to access this time slot on the server
                             }
                         })
