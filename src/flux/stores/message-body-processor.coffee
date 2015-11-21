@@ -24,7 +24,7 @@ class MessageBodyProcessor
   # optimistically display the message before the latest changes
   # persisted.
   _key: (message) ->
-    return crypto.createHash('md5').update(message.body).digest('hex')
+    return message.id + crypto.createHash('md5').update(message.body ? "").digest('hex')
 
   version: ->
     @_version
@@ -38,6 +38,8 @@ class MessageBodyProcessor
 
   process: (message) =>
     body = message.body
+    return "" unless body
+
     key = @_key(message)
     if @_recentlyProcessedD[key]
       return @_recentlyProcessedD[key].body
