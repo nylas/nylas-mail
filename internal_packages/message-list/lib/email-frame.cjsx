@@ -45,7 +45,9 @@ class EmailFrame extends React.Component
     # `padding`.
     doc.write("<!DOCTYPE html>")
 
-    EmailFixingStyles = document.querySelector('[source-path*="email-frame.less"]')?.innerText
+    EmailFixingStyles = ""
+    for sheet in document.querySelectorAll('[source-path*="email-frame.less"]')
+      EmailFixingStyles += "\n"+sheet.innerText
     EmailFixingStyles = EmailFixingStyles.replace(/.ignore-in-parent-frame/g, '')
     if (EmailFixingStyles)
       doc.write("<style>#{EmailFixingStyles}</style>")
