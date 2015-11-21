@@ -68,8 +68,7 @@
     "temp": "^0.8",
     "theorist": "^1.0",
     "underscore": "^1.8",
-    "underscore.string": "^3.0",
-    "vm-compatibility-layer": "0.1.0"
+    "underscore.string": "^3.0"
   },
   "packageDependencies": {},
   "private": true,
