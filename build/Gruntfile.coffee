@@ -38,10 +38,6 @@ babelOptions = require '../static/babelrc'
 # binDir     = /usr/local/bin
 # shareDir   = /usr/local/share/nylas
 
-# Add support for obselete APIs of vm module so we can make some third-party
-# modules work under node v0.11.x.
-require 'vm-compatibility-layer'
-
 _ = require 'underscore'
 
 packageJson = require '../package.json'
