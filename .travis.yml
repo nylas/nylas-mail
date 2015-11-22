@@ -8,18 +8,17 @@ compiler:
 
 matrix:
   include:
-    - os: linux
-      env: NODE_VERSION=0.10
-    - os: linux
-      env: NODE_VERSION=0.12
 # Wants a c++11 compiler
+    - os: linux
+      env: NODE_VERSION=0.10 CC=gcc-4.8 CXX=g++-4.8
+    - os: linux
+      env: NODE_VERSION=0.12 CC=gcc-4.8 CXX=g++-4.8
     - os: linux
       env: NODE_VERSION=4.2 CC=gcc-4.8 CXX=g++-4.8
     - os: linux
       env: NODE_VERSION=5 CC=gcc-4.8 CXX=g++-4.8
     - os: osx
       env: NODE_VERSION=0.10
-# npn registry Connection Reset errors
     - os: osx
       env: NODE_VERSION=0.12 CC=clang CXX=clang++
 # osx already supports c++11 in Apple LLVM
