@@ -29,10 +29,6 @@ matrix:
 
 sudo: false
 
-before_script:
-  - export DISPLAY=:99.0
-  - sh -e /etc/init.d/xvfb start
-
 install:
   - echo $CC
   - echo $CXX
@@ -42,6 +38,10 @@ install:
   - source /tmp/.nvm/nvm.sh
   - nvm install $NODE_VERSION
   - nvm use --delete-prefix $NODE_VERSION
+
+before_script:
+  - [ "${TRAVIS_OS_NAME}" == "linux" ] && export DISPLAY=:99.0
+  - [ "${TRAVIS_OS_NAME}" == "linux" ] && sh -e /etc/init.d/xvfb start
 
 script: script/cibuild
 
