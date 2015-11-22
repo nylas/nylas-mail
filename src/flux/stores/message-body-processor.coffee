@@ -38,8 +38,6 @@ class MessageBodyProcessor
 
   process: (message) =>
     body = message.body
-    return "" unless body
-
     key = @_key(message)
     if @_recentlyProcessedD[key]
       return @_recentlyProcessedD[key].body
