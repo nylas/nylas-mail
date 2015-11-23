@@ -1,3 +1,4 @@
+_ = require "underscore"
 crypto = require "crypto"
 MessageUtils = require '../models/message-utils'
 MessageStore = require './message-store'
@@ -38,7 +39,7 @@ class MessageBodyProcessor
 
   process: (message) =>
     body = message.body
-    return "" unless body
+    return "" unless _.isString message.body
 
     key = @_key(message)
     if @_recentlyProcessedD[key]
