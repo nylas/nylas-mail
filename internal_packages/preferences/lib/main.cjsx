@@ -1,10 +1,13 @@
-{PreferencesSectionStore} = require 'nylas-exports'
+{PreferencesSectionStore,
+ Actions,
+ WorkspaceStore,
+ ComponentRegistry} = require 'nylas-exports'
 
 module.exports =
-  activate: (@state={}) ->
+
+  activate: ->
     ipc = require 'ipc'
     React = require 'react'
-    {Actions} = require('nylas-exports')
 
     Cfg = PreferencesSectionStore.SectionConfig
 
@@ -29,38 +32,20 @@ module.exports =
       component: require './tabs/preferences-keymaps'
       order: 3
     })
-    PreferencesSectionStore.registerPreferenceSection(new Cfg {
-      icon: 'ic-settings-notifications.png'
-      sectionId: 'Notifications'
-      displayName: 'Notifications'
-      component: require './tabs/preferences-notifications'
-      order: 4
-    })
-    PreferencesSectionStore.registerPreferenceSection(new Cfg {
-      icon: 'ic-settings-appearance.png'
-      sectionId: 'Appearance'
-      displayName: 'Appearance'
-      component: require './tabs/preferences-appearance'
-      order: 5
-    })
+
+    WorkspaceStore.defineSheet 'Preferences', {},
+      split: ['Preferences']
+      list: ['Preferences']
+
+    PreferencesRoot = require('./preferences-root')
+    ComponentRegistry.register PreferencesRoot,
+      location: WorkspaceStore.Location.Preferences
 
     Actions.openPreferences.listen(@_openPreferences)
     ipc.on 'open-preferences', => @_openPreferences()
 
-  _openPreferences: ({tab} = {}) ->
-    {ReactRemote} = require('nylas-exports')
-    Preferences = require('./preferences')
-    ReactRemote.openWindowForComponent(Preferences, {
-      tag: 'preferences'
-      title: "Preferences"
-      width: 520
-      resizable: false
-      autosize: true
-      stylesheetRegex: /(preferences|nylas\-fonts)/
-      props: {
-        initialTab: tab
-      }
-    })
+  _openPreferences: ->
+    Actions.pushSheet(WorkspaceStore.Sheet.Preferences)
 
   deactivate: ->
 

@@ -126,19 +126,18 @@ class Actions
   @retryInitialSync: ActionScopeWorkWindow
 
   ###
-  Public: Open the preferences window. Pass an object with a tab name
-  (ie: `{tab: 'Accounts'}`) to open a specific panel.
+  Public: Open the preferences view.
 
   *Scope: Window*
   ###
   @openPreferences: ActionScopeWindow
 
   ###
-  Public: Register a preferences tab, usually applied in Preferences window
+  Public: Switch to the preferences tab with the specific name
 
   *Scope: Window*
   ###
-  @registerPreferencesTab: ActionScopeWindow
+  @switchPreferencesSection: ActionScopeWindow
 
   ###
   Public: Clear the developer console for the current window.

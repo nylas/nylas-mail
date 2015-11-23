@@ -1,5 +1,6 @@
 _ = require 'underscore'
 NylasStore = require 'nylas-store'
+Actions = require '../actions'
 
 class SectionConfig
   constructor: (opts={}) ->
@@ -20,21 +21,21 @@ class SectionConfig
 class PreferencesSectionStore extends NylasStore
   constructor: ->
     @_sectionConfigs = []
+    @_activeSectionId = null
     @_accumulateAndTrigger ?= _.debounce(( => @trigger()), 20)
+
     @Section = {}
     @SectionConfig = SectionConfig
+
+    @listenTo Actions.switchPreferencesSection, (sectionName) =>
+      @_activeSectionId = sectionName
+      @trigger()
 
   sections: =>
     @_sectionConfigs
 
-  # TODO: Use our <GeneratedForm /> Class
-  # TODO: Add in a "richtext" input type in addition to standard input
-  # types.
-  registerPreferences: (packageId, config) ->
-    throw new Error("Not implemented yet")
-
-  unregisterPreferences: (packageId) ->
-    throw new Error("Not implemented yet")
+  activeSectionId: =>
+    @_activeSectionId
 
   ###
   Public: Register a new top-level section to preferences
@@ -64,6 +65,10 @@ class PreferencesSectionStore extends NylasStore
     @Section[sectionConfig.sectionId] = sectionConfig.sectionId
     @_sectionConfigs.push(sectionConfig)
     @_sectionConfigs = _.sortBy(@_sectionConfigs, "order")
+
+    if @_sectionConfigs.length is 1
+      @_activeSectionId = sectionConfig.sectionId
+
     @_accumulateAndTrigger()
 
   unregisterPreferenceSection: (sectionId) ->

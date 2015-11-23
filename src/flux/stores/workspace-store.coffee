@@ -34,6 +34,7 @@ class WorkspaceStore extends NylasStore
     @listenTo Actions.toggleWorkspaceLocationHidden, @_onToggleLocationHidden
 
     @listenTo Actions.popSheet, @popSheet
+    @listenTo Actions.pushSheet, @pushSheet
     @listenTo Actions.searchQueryCommitted, @popToRootSheet
 
     @_preferredLayoutMode = NylasEnv.config.get('core.workspace.mode')

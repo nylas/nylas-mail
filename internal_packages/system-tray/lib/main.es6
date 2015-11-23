@@ -21,8 +21,8 @@ export function activate() {
     }
   };
 
-  unsubConfig = NylasEnv.config.onDidChange('core.showSystemTray', onSystemTrayToggle).dispose;
-  if (NylasEnv.config.get('core.showSystemTray')) {
+  unsubConfig = NylasEnv.config.onDidChange('core.workspace.systemTray', onSystemTrayToggle).dispose;
+  if (NylasEnv.config.get('core.workspace.systemTray')) {
     systemTray = new SystemTray(platform);
   }
 }

@@ -49,24 +49,28 @@ class PreferencesKeymaps extends React.Component
 
   render: =>
     <div className="container-keymaps">
-      <Flexbox className="shortcut shortcut-select">
-        <div className="shortcut-name">Keyboard shortcut set:</div>
-        <div className="shortcut-value">
-          <select
-            style={margin:0}
-            value={@props.config.get('core.keymapTemplate')}
-            onChange={ (event) => @props.config.set('core.keymapTemplate', event.target.value) }>
-          { @state.templates.map (template) =>
-            <option key={template} value={template}>{template}</option>
-          }
-          </select>
-        </div>
-      </Flexbox>
-      {@_renderBindings()}
-
-      <div className="shortcuts-extras">
+      <section>
+        <h2>Shortcuts</h2>
+        <Flexbox className="shortcut shortcut-select">
+          <div className="shortcut-name">Keyboard shortcut set:</div>
+          <div className="shortcut-value">
+            <select
+              style={margin:0}
+              value={@props.config.get('core.keymapTemplate')}
+              onChange={ (event) => @props.config.set('core.keymapTemplate', event.target.value) }>
+            { @state.templates.map (template) =>
+              <option key={template} value={template}>{template}</option>
+            }
+            </select>
+          </div>
+        </Flexbox>
+        {@_renderBindings()}
+      </section>
+      <section>
+        <h2>Customization</h2>
+        <p>Define additional shortcuts by adding them to your shortcuts file.</p>
         <button className="btn" onClick={@_onShowUserKeymaps}>Edit custom shortcuts</button>
-      </div>
+      </section>
     </div>
 
   _renderBindingFor: ([command, label]) =>

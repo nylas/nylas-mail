@@ -19,7 +19,7 @@ UnreadCountStore = Reflux.createStore
     @listenTo AccountStore, @_onAccountChanged
     @listenTo DatabaseStore, @_onDataChanged
 
-    NylasEnv.config.observe 'core.showUnreadBadge', (val) =>
+    NylasEnv.config.observe 'core.notifications.unreadBadge', (val) =>
       if val is true
         @_updateBadgeForCount()
       else
@@ -75,7 +75,7 @@ UnreadCountStore = Reflux.createStore
 
   _updateBadgeForCount: (count) ->
     return unless NylasEnv.isMainWindow()
-    return if NylasEnv.config.get('core.showUnreadBadge') is false
+    return if NylasEnv.config.get('core.notifications.unreadBadge') is false
     if count > 999
       @_setBadge("999+")
     else if count > 0

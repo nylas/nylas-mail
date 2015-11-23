@@ -157,6 +157,7 @@ body.platform-win32 {
   background: -webkit-gradient(linear, left top, left bottom, from(darken(@btn-default-bg-color, 9%)), to(darken(@btn-default-bg-color, 13.5%)));
 }
 .btn-disabled {
+  color:      fadeout(@btn-default-text-color, 40%);
   background: fadeout(@btn-default-bg-color, 15%);
   box-shadow: 0 0.5px 0 rgba(0,0,0,0.15), 0 -0.5px 0 rgba(0,0,0,0.15), 0.5px 0 0 rgba(0,0,0,0.15), -0.5px 0 0 rgba(0,0,0,0.15);
   &:active {
