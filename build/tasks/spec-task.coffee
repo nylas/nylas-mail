@@ -1,42 +1,33 @@
 fs = require 'fs'
 path = require 'path'
 request = require 'request'
-proc = require 'child_process'
+childProcess = require 'child_process'
 
-executeTests = (test, grunt, done) ->
-  testSucceeded = false
+executeTests = ({cmd, args}, grunt, done) ->
+  testProc = childProcess.spawn(cmd, args)
+
   testOutput = ""
+  testProc.stdout.pipe(process.stdout)
+  testProc.stderr.pipe(process.stderr)
+  testProc.stdout.on 'data', (data) -> testOutput += data.toString()
+  testProc.stderr.on 'data', (data) -> testOutput += data.toString()
 
-  testProc = proc.spawn(test.cmd, test.args, {stdio: "inherit"})
+  testProc.on 'error', (err) -> grunt.log.error("Process error: #{err}")
 
-  # testProc.stdout.on 'data', (data) ->
-  #   str = data.toString()
-  #   testOutput += str
-  #   console.log(str)
-  #   if str.indexOf(' 0 failures') isnt -1
-  #     testSucceeded = true
-  #
-  # testProc.stderr.on 'data', (data) ->
-  #   str = data.toString()
-  #   testOutput += str
-  #   grunt.log.error(str)
+  testProc.on 'exit', (exitCode, signal) ->
+    if exitCode is 0 then done()
+    else notifyOfTestError(testOutput, grunt).then -> done(false)
 
-  testProc.on 'error', (err) ->
-    grunt.log.error("Process error: #{err}")
-
-  testProc.on 'close', (exitCode, signal) ->
-    if testSucceeded and exitCode is 0
-      done()
-    else
-      testOutput = testOutput.replace(/\x1b\[[^m]+m/g, '')
-      url = "https://hooks.slack.com/services/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"
-      request.post
-        url: url
-        json:
-          username: "Edgehill Builds"
-          text: "Aghhh somebody broke the build. ```#{testOutput}```"
-      , (err, httpResponse, body) ->
-        done(false)
+notifyOfTestError = (testOutput, grunt) -> new Promise (resolve, reject) ->
+  if (process.env("TEST_ERROR_HOOK_URL") ? "").length > 0
+    testOutput = grunt.log.uncolor(testOutput)
+    request.post
+      url: process.env("TEST_ERROR_HOOK_URL")
+      json:
+        username: "Edgehill Builds"
+        text: "Aghhh somebody broke the build. ```#{testOutput}```"
+    , resolve
+  else resolve()
 
 module.exports = (grunt) ->
 
@@ -50,7 +41,7 @@ module.exports = (grunt) ->
 
     process.chdir('./spectron')
     grunt.log.writeln "Current dir: #{process.cwd()}"
-    installProc = proc.exec "#{npmPath} install", (error) ->
+    installProc = childProcess.exec "#{npmPath} install", (error) ->
       if error?
         process.chdir('..')
         grunt.log.error('Failed while running npm install in spectron folder')
