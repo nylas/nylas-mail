@@ -42,6 +42,9 @@ class ConfigPropContainer extends React.Component
     }
 
   render: =>
-    React.cloneElement(@props.children, {config: @state.config})
+    React.cloneElement(@props.children, {
+      config: @state.config,
+      configSchema: NylasEnv.config.getSchema('core')
+    })
 
 module.exports = ConfigPropContainer

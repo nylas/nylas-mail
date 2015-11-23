@@ -1,61 +1,56 @@
 @import "ui-variables";
 @import "ui-mixins";
 
-body.window-type-react-remote {
-  margin:0;
-
-  .sheet-toolbar {
-    border-bottom: none;
-    height:30px;
-    min-height:30px;
-    max-height:30px;
-    display: none;
-
-    .toolbar-window-controls {
-      margin-top:3px;
-      margin-left:3px;
-    }
-    .window-title {
-      line-height:30px;
-    }
-  }
-  .sheet {
-    background: @background-secondary;
-  }
-}
-
-body.platform-darwin.window-type-react-remote {
-  .sheet-toolbar {
-    display:inherit;
-  }
-}
-
 // Preferences Specific
-
-body.is-blurred {
-  .preference-header {
-    background-image: -webkit-linear-gradient(top, lighten(@toolbar-background-color, 14%), lighten(@toolbar-background-color, 14%));
-  }
-}
-
-body.platform-darwin {
-  .preferences-wrap .platform-darwin-only {
-    display: inherit;
-  }
-}
 
 .preferences-wrap {
   input[type=checkbox] {margin: 0 7px 0 0; position: relative; top: -1px; }
   input[type=radio] {margin: 0 7px 0 0; position: relative; top: -1px; }
   select { margin: 4px 0 0 8px; }
 
-  padding-bottom:50px;
-
+  height: 100%;
   background-color: @background-primary;
   color: @text-color;
 
-  .platform-darwin-only {
-    display: none;
+  section:first-child h2:first-child {
+    margin-top:0;
+  }
+
+  section section h2 {
+    font-size:120%;
+  }
+
+  section {
+    padding-bottom: @padding-base-vertical;
+    .item {
+      padding-top: @padding-small-vertical;
+      padding-bottom: @padding-small-vertical;
+    }
+  }
+
+  .preferences-sidebar {
+    background: @background-secondary;
+    border-right: 1px solid @border-color-divider;
+    flex: 1;
+    max-width:350px;
+    min-width:200px;
+    height: 100%;
+
+    .item {
+      padding: @padding-large-vertical @padding-large-horizontal;
+      border-bottom: 1px solid @border-color-divider;
+      cursor: default;
+    }
+    .item.active {
+      background: @background-primary;
+    }
+  }
+
+  .preferences-content {
+    flex: 4;
+    .scroll-region-content {
+      padding: @padding-large-vertical*3 @padding-large-horizontal * 3;
+    }
   }
 
   .well {
@@ -72,105 +67,68 @@ body.platform-darwin {
     }
   }
 
-  .section {
-    margin-top:25px;
-  }
-
-  .section-header {
-    line-height: 2em;
-    margin-top:7px;
-    margin-bottom:2px;
-    cursor: default;
-  }
-
-  .section-body {
-    padding:5px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-
-    .section-body-list {
-        flex: 1;
-        img { width:100%; padding:15px;}
-    }
-  }
-
   .container-signatures {
-      width:95%;
-      margin-left: 2.5%;
-      margin-right: 2.5%;
+    .contenteditable-container {
+      border: 1px solid @input-border-color;
+      padding: 10px;
+      margin-top: 20px;
+      min-height: 200px;
+    }
 
-      .contenteditable-container {
-        border: 1px solid @input-border-color;
-        padding: 10px;
-        margin-top: 20px;
+    .section-body {
+      padding: 10px 0 0 0;
+
+      .menu {
+        border: solid thin #CCC;
+        margin-right: 5px;
+        min-height: 200px;
+        .menu-items {
+          margin:0;
+          padding:0;
+          list-style: none;
+
+          li { padding: 6px; }
+        }
+      }
+      .menu-horizontal {
+        height: 100%;
+        .menu-items {
+          height:100%;
+          margin: 0;
+          padding: 0;
+          list-style: none;
+          li {
+            text-align:center;
+            width:40px;
+            display:inline-block;
+            padding:8px 16px 8px 16px;
+            border-right: solid thin #CCC;
+          }
+        }
+      }
+      .signature-area {
+        border: solid thin #CCC;
         min-height: 200px;
       }
-
-      .section-body {
-          padding: 10px 0 0 0;
-
-          .menu {
-              border: solid thin #CCC;
-              margin-right: 5px;
-              min-height: 200px;
-              .menu-items {
-                  margin:0;
-                  padding:0;
-                  list-style: none;
-
-                  li { padding: 6px; }
-              }
-          }
-          .menu-horizontal {
-              height: 100%;
-              .menu-items {
-                  height:100%;
-                  margin: 0;
-                  padding: 0;
-                  list-style: none;
-                  li {
-                      text-align:center;
-                      width:40px;
-                      display:inline-block;
-                      padding:8px 16px 8px 16px;
-                      border-right: solid thin #CCC;
-                  }
-              }
-          }
-          .signature-area {
-              border: solid thin #CCC;
-              min-height: 200px;
-          }
-          .menu-footer {
-              border: solid thin #CCC;
-              overflow: auto;
-          }
-          .signature-footer {
-              border: solid thin #CCC;
-              overflow: auto;
-
-              .edit-html-button {
-                  float: right;
-                  margin: 6px;
-              }
-          }
+      .menu-footer {
+        border: solid thin #CCC;
+        overflow: auto;
       }
+      .signature-footer {
+        border: solid thin #CCC;
+        overflow: auto;
 
-  }
-
-  .container-notifications {
-      width: 75%;
-      margin-left: auto;
-      margin-right: auto;
-  }
-
-  .container-appearance {
-    width:70%;
-    margin: auto;
-
-    .section-appearance {
-      padding-left: 0;
+        .edit-html-button {
+          float: right;
+          margin: 6px;
+        }
+      }
     }
+  }
+
+  .appearance-mode-switch {
+    max-width:400px;
+    text-align: right;
 
     .appearance-mode {
       background-color: @background-off-primary;;
@@ -181,6 +139,7 @@ body.platform-darwin {
       padding:25px;
       padding-bottom:9px;
       margin-right:10px;
+      margin-bottom:7px;
       margin-top:0;
       img {
         background-color: @background-tertiary;
@@ -189,6 +148,9 @@ body.platform-darwin {
         margin-top: 15px;
         text-transform: capitalize;
         cursor: default;
+      }
+      &:last-child {
+        margin-right:0;
       }
     }
     .appearance-mode.active {
@@ -199,129 +161,43 @@ body.platform-darwin {
   }
 
   .container-keymaps {
-      width:75%;
-      margin-left:12.5%;
-      margin-right:12.5%;
-
-      .shortcut {
-          padding: 3px 0;
-          &.shortcut-select {
-              padding: 5px 0 20px 0;
-              select {
-                  width: 75%;
-              }
-          }
-
-          .shortcut-name {
-              text-align: right;
-              flex: 1;
-              margin-right: 20px;
-          }
-
-          .shortcut-value {
-              text-align: left;
-              flex: 1;
-          }
+    .shortcut {
+      padding: 3px 0;
+      &.shortcut-select {
+        padding: 5px 0 20px 0;
+        select {
+            width: 75%;
+        }
       }
 
-      .shortcuts-extras {
-          text-align:center;
-          margin-top: 20px;
-       }
+      .shortcut-name {
+        text-align: right;
+        flex: 1;
+        margin-right: 20px;
+      }
 
+      .shortcut-value {
+        text-align: left;
+        flex: 1;
+      }
+    }
   }
 
   .container-accounts {
-    margin-left:20px;
-    margin-right:20px;
-
     .account-name {
-        font-size: @font-size-large;
-        cursor:default;
-        overflow: hidden;
-        text-overflow: ellipsis;
+      font-size: @font-size-large;
+      cursor:default;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .account-subtext {
-        font-size: @font-size-small;
-        cursor:default;
+      font-size: @font-size-small;
+      cursor:default;
     }
-  }
-
-  .preference-header {
-    margin-bottom:15px;
-    border-bottom: 1px solid darken(@toolbar-background-color, 9%);
-    background-image: -webkit-linear-gradient(top, @toolbar-background-color, darken(@toolbar-background-color, 2%));
-    cursor: default;
-    -webkit-user-select: none;
-    -webkit-app-region: drag;
-
-    .preference-header-item {
-      margin-left:3px;
-      margin-right:3px;
-      padding-left:3px;
-      padding-right:3px;
-      -webkit-app-region: no-drag;
-      display: inline-block;
-
-      .phi-container {
-        padding-left:5px;
-        padding-right:5px;
-        padding-top: 3px;
-        text-align: center;
-        height:58px;
-
-        .icon {
-          height:33px;
-        }
-        .name {
-          font-size:12px;
-          line-height:22px;
-          white-space:nowrap;
-        }
-      }
-      &.active {
-        background-color:rgba(0,0,0, 0.12);
-        border-top-left-radius: 4px;
-        border-top-right-radius: 4px;
-      }
-    }
-  }
-}
-
-body.platform-win32.is-blurred {
-  .preference-header {
-    background: lighten(@toolbar-background-color, 14%);
   }
 }
 
 body.platform-win32 {
-  .preference-header {
-    background: #f2f2f2;
-
-    .preference-header-item {
-      margin-left: 0;
-      margin-right: 1px;
-      width: 80px;
-      padding-top: 3px;
-      .windows-btn-bg;
-      height: 63px;
-
-      color: @text-color;
-      .icon img.content-mask { background: @text-color; }
-
-      &:hover {
-        background: #e5e5e5;
-      }
-      &.active {
-        background: #f2f2f2;
-        border-radius: 0 0 0 0;
-        border-bottom: 2px solid @accent-primary;
-        color: @accent-primary;
-        .icon img.content-mask { background: @accent-primary; }
-      }
-    }
-  }
-
   .preferences-wrap {
     .well {
       border-radius: 0;

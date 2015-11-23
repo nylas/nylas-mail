@@ -16,22 +16,20 @@ class PreferencesAccounts extends React.Component
     @unsubscribe?()
 
   render: =>
-    <div className="container-accounts">
+    <section className="container-accounts">
+      <h2>Accounts</h2>
       {@_renderAccounts()}
       <div style={textAlign:"right", marginTop: '20'}>
         <button className="btn btn-large" onClick={@_onAddAccount}>Add Account...</button>
       </div>
 
       {@_renderLinkedAccounts()}
-    </div>
+    </section>
 
   _renderAccounts: =>
     return false unless @state.accounts
 
     <div>
-      <div className="section-header">
-        Accounts:
-      </div>
       { @state.accounts.map (account) =>
         <div className="well large" style={marginBottom:10} key={account.id}>
           <Flexbox direction="row" style={alignItems: 'middle'}>
