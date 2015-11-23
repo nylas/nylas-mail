@@ -54,7 +54,6 @@
     "underscore": "^1.8",
     "underscore.string": "^3.2",
     "unzip": "~0.1.9",
-    "vm-compatibility-layer": "~0.1.0",
     "webdriverio": "^2.4.5"
   }
 }
