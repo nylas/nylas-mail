@@ -112,7 +112,7 @@
   setupCrashReporter = function() {};
 
   parseCommandLine = function() {
-    var args, devMode, devResourcePath, executedFrom, logFile, newWindow, options, packageDirectoryPath, packageManifest, packageManifestPath, pathsToOpen, pidToKillWhenClosed, ref, ref1, ref2, resourcePath, safeMode, specDirectory, specFilePattern, specsOnCommandLine, test, urlsToOpen, version;
+    var args, devMode, devResourcePath, executedFrom, logFile, newWindow, options, packageDirectoryPath, packageManifest, packageManifestPath, pathsToOpen, pidToKillWhenClosed, ref, ref1, ref2, resourcePath, safeMode, showSpecsInWindow, specDirectory, specFilePattern, test, urlsToOpen, version;
     version = app.getVersion();
     options = optimist(process.argv.slice(1));
     options.usage("N1 v" + version + "\n\nUsage: n1 [options] [path ...]\n\nOne or more paths to files or folders to open may be specified.\n\nFile paths will open in the current window.\n\nFolder paths will open in an existing window if that folder has already been\nopened or a new window if it hasn't.\n\nEnvironment Variables:\nN1_PATH  The path from which N1 loads source code in dev mode.\n         Defaults to `cwd`.");
@@ -153,11 +153,11 @@
     logFile = args['log-file'];
     specFilePattern = args['file-pattern'];
     devResourcePath = (ref2 = process.env.N1_PATH) != null ? ref2 : process.cwd();
+    showSpecsInWindow = false;
     if (args['resource-path']) {
       devMode = true;
       resourcePath = args['resource-path'];
     } else {
-      specsOnCommandLine = true;
       if (specDirectory != null) {
         packageDirectoryPath = path.resolve(specDirectory, '..');
         packageManifestPath = path.join(packageDirectoryPath, 'package.json');
@@ -175,7 +175,7 @@
             specDirectory = path.join(devResourcePath, "spec");
           } else if (test === "window") {
             specDirectory = path.join(devResourcePath, "spec");
-            specsOnCommandLine = false;
+            showSpecsInWindow = true;
           } else {
             specDirectory = path.resolve(path.join(devResourcePath, "internal_packages", test));
           }
@@ -210,7 +210,7 @@
       safeMode: safeMode,
       newWindow: newWindow,
       specDirectory: specDirectory,
-      specsOnCommandLine: specsOnCommandLine,
+      showSpecsInWindow: showSpecsInWindow,
       logFile: logFile,
       specFilePattern: specFilePattern
     };

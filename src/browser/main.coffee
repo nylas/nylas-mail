@@ -129,11 +129,12 @@ parseCommandLine = ->
   specFilePattern = args['file-pattern']
   devResourcePath = process.env.N1_PATH ? process.cwd()
 
+  showSpecsInWindow = false
+
   if args['resource-path']
     devMode = true
     resourcePath = args['resource-path']
   else
-    specsOnCommandLine = true
     # Set resourcePath based on the specDirectory if running specs on N1 core
     if specDirectory?
       packageDirectoryPath = path.resolve(specDirectory, '..')
@@ -150,7 +151,7 @@ parseCommandLine = ->
           specDirectory = path.join(devResourcePath, "spec")
         else if test is "window"
           specDirectory = path.join(devResourcePath, "spec")
-          specsOnCommandLine = false
+          showSpecsInWindow = true
         else
           specDirectory = path.resolve(path.join(devResourcePath, "internal_packages", test))
 
@@ -167,6 +168,6 @@ parseCommandLine = ->
   resourcePath = normalizeDriveLetterName(resourcePath)
   devResourcePath = normalizeDriveLetterName(devResourcePath)
 
-  {resourcePath, pathsToOpen, urlsToOpen, executedFrom, test, version, pidToKillWhenClosed, devMode, safeMode, newWindow, specDirectory, specsOnCommandLine, logFile, specFilePattern}
+  {resourcePath, pathsToOpen, urlsToOpen, executedFrom, test, version, pidToKillWhenClosed, devMode, safeMode, newWindow, specDirectory, showSpecsInWindow, logFile, specFilePattern}
 
 start()

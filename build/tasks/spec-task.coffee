@@ -6,18 +6,20 @@ proc = require 'child_process'
 executeTests = (test, grunt, done) ->
   testSucceeded = false
   testOutput = ""
-  testProc = proc.spawn(test.cmd, test.args)
-  testProc.stdout.on 'data', (data) ->
-    str = data.toString()
-    testOutput += str
-    console.log(str)
-    if str.indexOf(' 0 failures') isnt -1
-      testSucceeded = true
 
-  testProc.stderr.on 'data', (data) ->
-    str = data.toString()
-    testOutput += str
-    grunt.log.error(str)
+  testProc = proc.spawn(test.cmd, test.args, {stdio: "inherit"})
+
+  # testProc.stdout.on 'data', (data) ->
+  #   str = data.toString()
+  #   testOutput += str
+  #   console.log(str)
+  #   if str.indexOf(' 0 failures') isnt -1
+  #     testSucceeded = true
+  #
+  # testProc.stderr.on 'data', (data) ->
+  #   str = data.toString()
+  #   testOutput += str
+  #   grunt.log.error(str)
 
   testProc.on 'error', (err) ->
     grunt.log.error("Process error: #{err}")
