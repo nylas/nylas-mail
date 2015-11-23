@@ -7,6 +7,8 @@
 # The credentials for the Keychain are availble via the Jenkins-injected
 # KEYCHAIN_ACCESS environment variable.
 
+set -e
+
 echo "---> $(npm --version)"
 echo "---> $(node --version)"
 script/bootstrap

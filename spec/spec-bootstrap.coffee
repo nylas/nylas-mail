@@ -18,7 +18,8 @@ try
 
   # Show window synchronously so a focusout doesn't fire on input elements
   # that are focused in the very first spec run.
-  NylasEnv.getCurrentWindow().show() unless NylasEnv.getLoadSettings().exitWhenDone
+  if NylasEnv.getLoadSettings().showSpecsInWindow
+    NylasEnv.getCurrentWindow().show()
 
   {runSpecSuite} = require './jasmine-helper'
 

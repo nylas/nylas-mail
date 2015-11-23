@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Runs script/grunt docs and moves the output to gh-pages branch
 # This overwrites whatever is in gh-pages
 mkdir docs/output
