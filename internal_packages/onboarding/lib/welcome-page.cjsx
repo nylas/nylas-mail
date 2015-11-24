@@ -1,5 +1,5 @@
 React = require 'react'
-shell = require 'shell'
+{shell} = require 'electron'
 classnames = require 'classnames'
 {RetinaImg} = require 'nylas-component-kit'
 PageRouterStore = require './page-router-store'

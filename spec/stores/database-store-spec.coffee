@@ -1,5 +1,4 @@
 _ = require 'underscore'
-ipc = require 'ipc'
 
 Label = require '../../src/flux/models/label'
 Thread = require '../../src/flux/models/thread'

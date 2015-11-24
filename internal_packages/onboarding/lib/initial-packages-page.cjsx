@@ -102,6 +102,6 @@ class InitialPackagesPage extends React.Component
     if RunningPackageInstalls > 0
       @setState(waitingToGetStarted: true)
     else
-      require('ipc').send('account-setup-successful')
+      require('electron').ipcRenderer.send('account-setup-successful')
 
 module.exports = InitialPackagesPage

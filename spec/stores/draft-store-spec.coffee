@@ -12,7 +12,8 @@ DestroyDraftTask = require '../../src/flux/tasks/destroy-draft'
 SoundRegistry = require '../../src/sound-registry'
 Actions = require '../../src/flux/actions'
 Utils = require '../../src/flux/models/utils'
-ipc = require 'ipc'
+
+{ipcRenderer} = require 'electron'
 _ = require 'underscore'
 
 fakeThread = null
@@ -42,14 +43,14 @@ describe "DraftStore", ->
       spyOn(DraftStore, "_sanitizeBody").andCallThrough()
       spyOn(DraftStore, "_onInlineStylesResult").andCallThrough()
       spyOn(DraftStore, "_convertToInlineStyles").andCallThrough()
-      spyOn(ipc, "send").andCallFake (message, body) ->
+      spyOn(ipcRenderer, "send").andCallFake (message, body) ->
         if message is "inline-style-parse"
           # There needs to be a defer block in here so the promise
           # responsible for handling the `inline-style-parse` can be
           # properly set. If the whole path is synchronous instead of
           # asynchrounous, the promise is not cleared properly. Doing this
           # requires us to add `advanceClock` blocks.
-          _.defer -> DraftStore._onInlineStylesResult(body)
+          _.defer -> DraftStore._onInlineStylesResult({}, body)
 
       fakeThread = new Thread
         id: 'fake-thread-id'
@@ -863,7 +864,7 @@ describe "DraftStore", ->
           received = draft
           Promise.resolve()
         waitsForPromise ->
-          DraftStore._onHandleMailtoLink('mailto:bengotow@gmail.com').then ->
+          DraftStore._onHandleMailtoLink({}, 'mailto:bengotow@gmail.com').then ->
             expect(received.body.indexOf("Edited by TestExtension!")).toBe(0)
 
     describe "when testing subject keys", ->
@@ -875,19 +876,19 @@ describe "DraftStore", ->
 
       it "works for lowercase", ->
         waitsForPromise =>
-          DraftStore._onHandleMailtoLink('mailto:asdf@asdf.com?subject=' + @expected).then =>
+          DraftStore._onHandleMailtoLink({}, 'mailto:asdf@asdf.com?subject=' + @expected).then =>
             received = DraftStore._finalizeAndPersistNewMessage.mostRecentCall.args[0]
             expect(received.subject).toBe(@expected)
 
       it "works for title case", ->
         waitsForPromise =>
-          DraftStore._onHandleMailtoLink('mailto:asdf@asdf.com?Subject=' + @expected).then =>
+          DraftStore._onHandleMailtoLink({}, 'mailto:asdf@asdf.com?Subject=' + @expected).then =>
             received = DraftStore._finalizeAndPersistNewMessage.mostRecentCall.args[0]
             expect(received.subject).toBe(@expected)
 
       it "works for uppercase", ->
         waitsForPromise =>
-          DraftStore._onHandleMailtoLink('mailto:asdf@asdf.com?SUBJECT=' + @expected).then =>
+          DraftStore._onHandleMailtoLink({}, 'mailto:asdf@asdf.com?SUBJECT=' + @expected).then =>
             received = DraftStore._finalizeAndPersistNewMessage.mostRecentCall.args[0]
             expect(received.subject).toBe(@expected)
 
@@ -977,7 +978,7 @@ describe "DraftStore", ->
       links.forEach (link, idx) ->
         it "works for #{link}", ->
           waitsForPromise ->
-            DraftStore._onHandleMailtoLink(link).then ->
+            DraftStore._onHandleMailtoLink({}, link).then ->
               expectedDraft = expected[idx]
               received = DatabaseStore.persistModel.mostRecentCall.args[0]
               expect(received['subject']).toEqual(expectedDraft['subject'])

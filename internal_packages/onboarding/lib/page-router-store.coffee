@@ -2,8 +2,8 @@ Reflux = require 'reflux'
 OnboardingActions = require './onboarding-actions'
 TokenAuthAPI = require './token-auth-api'
 {AccountStore} = require 'nylas-exports'
+{ipcRenderer} = require 'electron'
 NylasStore = require 'nylas-store'
-ipc = require 'ipc'
 url = require 'url'
 
 return unless NylasEnv.getWindowType() is "onboarding"
@@ -26,12 +26,12 @@ class PageRouterStore extends NylasStore
   _onAccountJSONReceived: (json) =>
     isFirstAccount = AccountStore.items().length is 0
     AccountStore.addAccountFromJSON(json)
-    ipc.send('new-account-added')
+    ipcRenderer.send('new-account-added')
     NylasEnv.displayWindow()
     if isFirstAccount
       @_onMoveToPage('initial-preferences', {account: json})
     else
-      ipc.send('account-setup-successful')
+      ipcRenderer.send('account-setup-successful')
 
   _onWindowPropsChanged: ({page, pageData}={}) =>
     @_onMoveToPage(page, pageData)

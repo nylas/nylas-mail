@@ -56,7 +56,7 @@ class TabInstalled extends React.Component
     </div>
 
   _onEnableDevMode: =>
-    require('ipc').send('command', 'application:toggle-dev')
+    require('electron').ipcRenderer.send('command', 'application:toggle-dev')
 
   componentDidMount: =>
     @_unsubscribers = []

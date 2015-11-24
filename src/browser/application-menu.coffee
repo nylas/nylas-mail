@@ -1,9 +1,6 @@
-app = require 'app'
-ipc = require 'ipc'
-Menu = require 'menu'
+{BrowserWindow, Menu, app} = require 'electron'
 _ = require 'underscore'
 Utils = require '../flux/models/utils'
-BrowserWindow = require 'browser-window'
 
 # Used to manage the global application menu.
 #

@@ -1,5 +1,5 @@
-remote = require 'remote'
 React = require 'react'
+{remote} = require 'electron'
 {Actions, NylasAPI, AccountStore} = require 'nylas-exports'
 {RetinaImg, ButtonDropdown, Menu} = require 'nylas-component-kit'
 
@@ -131,7 +131,7 @@ class MessageControls extends React.Component
       success: (body) =>
         fs.writeFile tmpfile, body, =>
           window = new BrowserWindow(width: 800, height: 600, title: "#{@props.message.subject} - RFC822")
-          window.loadUrl('file://'+tmpfile)
+          window.loadURL('file://'+tmpfile)
 
   _onLogData: =>
     console.log @props.message

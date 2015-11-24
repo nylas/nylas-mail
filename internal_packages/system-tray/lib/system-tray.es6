@@ -18,8 +18,8 @@ class SystemTray {
   }
 
   _addEventListeners() {
-    this._tray.addListener('clicked', this._onClicked.bind(this));
-    const unsubClicked = ()=> this._tray.removeListener('clicked', this._onClicked);
+    this._tray.addListener('click', this._onClicked.bind(this));
+    const unsubClicked = ()=> this._tray.removeListener('click', this._onClicked);
     const unsubStore = this._store.listen(this._onChange.bind(this));
     return ()=> {
       unsubClicked();

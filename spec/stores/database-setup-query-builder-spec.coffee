@@ -1,4 +1,3 @@
-ipc = require 'ipc'
 TestModel = require '../fixtures/db-test-model'
 Attributes = require '../../src/flux/attributes'
 DatabaseSetupQueryBuilder = require '../../src/flux/stores/database-setup-query-builder'

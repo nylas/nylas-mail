@@ -1,7 +1,6 @@
-app = require 'app'
+{app, protocol} = require 'electron'
 fs = require 'fs'
 path = require 'path'
-protocol = require 'protocol'
 
 # Handles requests with 'nylas' protocol.
 #
@@ -18,7 +17,7 @@ module.exports =
 class NylasProtocolHandler
   constructor: (resourcePath, safeMode) ->
     @loadPaths = []
-    @dotNylasDirectory = path.join(app.getHomeDir(), '.nylas')
+    @dotNylasDirectory = path.join(app.getPath('home'), '.nylas')
 
     unless safeMode
       @loadPaths.push(path.join(@dotNylasDirectory, 'dev', 'packages'))

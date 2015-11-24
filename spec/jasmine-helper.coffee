@@ -1,5 +1,5 @@
 fs = require 'fs'
-remote = require 'remote'
+{remote} = require 'electron'
 
 module.exports.runSpecSuite = (specSuite, logFile, logErrors=true) ->
   {$, $$} = require '../src/space-pen-extensions'

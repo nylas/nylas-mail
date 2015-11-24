@@ -26,10 +26,10 @@ class ImageAttachmentComponent extends AttachmentComponent
   _canAbortDownload: -> false
 
   _renderRemoveIcon: ->
-    <RetinaImg name="image-cancel-button.png"/>
+    <RetinaImg name="image-cancel-button.png" mode={RetinaImg.Mode.ContentPreserve} />
 
   _renderDownloadButton: ->
-    <RetinaImg name="image-download-button.png"/>
+    <RetinaImg name="image-download-button.png" mode={RetinaImg.Mode.ContentPreserve} />
 
   _imgOrLoader: ->
     if @props.download

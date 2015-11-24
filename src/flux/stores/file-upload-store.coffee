@@ -1,5 +1,4 @@
 _ = require 'underscore'
-ipc = require 'ipc'
 fs = require 'fs'
 Reflux = require 'reflux'
 Actions = require '../actions'

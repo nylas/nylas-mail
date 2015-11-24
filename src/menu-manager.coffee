@@ -1,9 +1,9 @@
 path = require 'path'
 
 _ = require 'underscore'
-ipc = require 'ipc'
 CSON = require 'season'
 fs = require 'fs-plus'
+{ipcRenderer} = require 'electron'
 {Disposable} = require 'event-kit'
 Utils = require './flux/models/utils'
 
@@ -170,7 +170,7 @@ class MenuManager
 
   sendToBrowserProcess: (template, keystrokesByCommand) ->
     keystrokesByCommand = @filterMultipleKeystroke(keystrokesByCommand)
-    ipc.send 'update-application-menu', template, keystrokesByCommand
+    ipcRenderer.send 'update-application-menu', template, keystrokesByCommand
 
   # Get an {Array} of {String} classes for the given element.
   classesForElement: (element) ->

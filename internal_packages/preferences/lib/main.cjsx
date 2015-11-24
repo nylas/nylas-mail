@@ -6,7 +6,7 @@
 module.exports =
 
   activate: ->
-    ipc = require 'ipc'
+    {ipcRenderer} = require 'electron'
     React = require 'react'
 
     Cfg = PreferencesSectionStore.SectionConfig
@@ -42,7 +42,7 @@ module.exports =
       location: WorkspaceStore.Location.Preferences
 
     Actions.openPreferences.listen(@_openPreferences)
-    ipc.on 'open-preferences', => @_openPreferences()
+    ipcRenderer.on 'open-preferences', => @_openPreferences()
 
   _openPreferences: ->
     Actions.pushSheet(WorkspaceStore.Sheet.Preferences)

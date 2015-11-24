@@ -1,4 +1,4 @@
-shell = require 'shell'
+{shell} = require 'electron'
 GithubStore = require './github-store'
 {React} = require 'nylas-exports'
 {RetinaImg, KeyCommandsRegion} = require 'nylas-component-kit'

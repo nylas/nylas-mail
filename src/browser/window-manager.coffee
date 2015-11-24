@@ -1,8 +1,8 @@
 _ = require 'underscore'
 fs = require 'fs-plus'
 NylasWindow = require './nylas-window'
-BrowserWindow = require 'browser-window'
-app = require 'app'
+
+{BrowserWindow, app} = require 'electron'
 
 class WindowManager
 
@@ -164,16 +164,17 @@ class WindowManager
       @feedbackWindow.show()
     else
       @feedbackWindow = w = new BrowserWindow
-        'node-integration': false,
-        'web-preferences': {'web-security':false},
-        'x': x
-        'y': y
-        'width': width,
-        'height': height,
-        'title': 'Feedback'
+        nodeIntegration: false
+        webPreferences:
+          webSecurity:false
+        x: x
+        y: y
+        width: width,
+        height: height,
+        title: 'Feedback'
 
       onOpenURL = (event, href) ->
-        shell = require 'shell'
+        {shell} = require 'electron'
         shell.openExternal(href)
         event.preventDefault()
 
@@ -190,7 +191,7 @@ class WindowManager
       w.webContents.on('will-navigate', onOpenURL)
 
       url = require('path').join(@resourcePath, 'static', 'feedback.html')
-      w.loadUrl("file://#{url}?#{params}")
+      w.loadURL("file://#{url}?#{params}")
       w.show()
 
   # Makes a new window appear of a certain `windowType`.

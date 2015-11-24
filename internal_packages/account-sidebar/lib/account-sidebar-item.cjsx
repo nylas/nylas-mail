@@ -56,9 +56,8 @@ class AccountSidebarItem extends React.Component
   _onShowContextMenu: =>
     item = @props.item
     label = item.name
-    remote = require 'remote'
-    Menu = remote.require 'menu'
-    MenuItem = remote.require 'menu-item'
+    {remote} = require 'electron'
+    {Menu, MenuItem} = remote.require 'electron'
 
     menu = new Menu()
     menu.append(new MenuItem({

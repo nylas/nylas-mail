@@ -1,9 +1,8 @@
 crypto = require 'crypto'
-ipc = require 'ipc'
 os = require 'os'
 path = require 'path'
-remote = require 'remote'
-shell = require 'shell'
+
+{ipcRenderer, remote, shell} = require 'electron'
 
 _ = require 'underscore'
 {deprecate} = require 'grim'
@@ -194,10 +193,10 @@ class NylasEnvConstructor extends Model
       # from needing this crap, which has to be updated every time a new
       # application: command is added:
       if event.binding.command.indexOf('application:') is 0 and event.binding.selector.indexOf("body") is 0
-        ipc.send('command', event.binding.command)
+        ipcRenderer.send('command', event.binding.command)
 
     unless @inSpecMode()
-      @actionBridge = new ActionBridge(ipc)
+      @actionBridge = new ActionBridge(ipcRenderer)
 
     @commands = new CommandRegistry
     specMode = @inSpecMode()
@@ -490,7 +489,7 @@ class NylasEnvConstructor extends Model
   setPosition: (x, y) ->
     x = ensureInteger(x, 0)
     y = ensureInteger(y, 0)
-    ipc.send('call-window-method', 'setPosition', x, y)
+    ipcRenderer.send('call-window-method', 'setPosition', x, y)
 
   # Extended: Get the current window
   getCurrentWindow: ->
@@ -498,32 +497,32 @@ class NylasEnvConstructor extends Model
 
   # Extended: Move current window to the center of the screen.
   center: ->
-    ipc.send('call-window-method', 'center')
+    ipcRenderer.send('call-window-method', 'center')
 
   # Extended: Focus the current window.
   focus: ->
-    ipc.send('call-window-method', 'focus')
+    ipcRenderer.send('call-window-method', 'focus')
     window.focus()
 
   # Extended: Show the current window.
   show: ->
-    ipc.send('call-window-method', 'show')
+    ipcRenderer.send('call-window-method', 'show')
 
   isVisible: ->
     @getCurrentWindow().isVisible()
 
   # Extended: Hide the current window.
   hide: ->
-    ipc.send('call-window-method', 'hide')
+    ipcRenderer.send('call-window-method', 'hide')
 
   # Extended: Reload the current window.
   reload: ->
-    ipc.send('call-window-method', 'restart')
+    ipcRenderer.send('call-window-method', 'restart')
 
   # Updates the window load settings - called when the app is ready to display
   # a hot-loaded window. Causes listeners registered with `onWindowPropsReceived`
   # to receive new window props.
-  loadSettingsChanged: (loadSettings) =>
+  loadSettingsChanged: (event, loadSettings) =>
     @loadSettings = loadSettings
     @constructor.loadSettings = loadSettings
     {width, height, windowProps} = loadSettings
@@ -553,10 +552,10 @@ class NylasEnvConstructor extends Model
     @getCurrentWindow().isMaximized()
 
   maximize: ->
-    ipc.send('call-window-method', 'maximize')
+    ipcRenderer.send('call-window-method', 'maximize')
 
   minimize: ->
-    ipc.send('call-window-method', 'minimize')
+    ipcRenderer.send('call-window-method', 'minimize')
 
   # Extended: Is the current window in full screen mode?
   isFullScreen: ->
@@ -564,7 +563,7 @@ class NylasEnvConstructor extends Model
 
   # Extended: Set the full screen state of the current window.
   setFullScreen: (fullScreen=false) ->
-    ipc.send('call-window-method', 'setFullScreen', fullScreen)
+    ipcRenderer.send('call-window-method', 'setFullScreen', fullScreen)
     if fullScreen then document.body.classList.add("fullscreen") else document.body.classList.remove("fullscreen")
 
   # Extended: Toggle the full screen state of the current window.
@@ -658,7 +657,7 @@ class NylasEnvConstructor extends Model
 
     @showRootWindow()
 
-    ipc.sendChannel('window-command', 'window:loaded')
+    ipcRenderer.send('window-command', 'window:loaded')
 
   showRootWindow: ->
     cover = document.getElementById("application-loading-cover")
@@ -697,27 +696,27 @@ class NylasEnvConstructor extends Model
     @packages.activate()
     @keymaps.loadUserKeymap()
 
-    ipc.on("load-settings-changed", @loadSettingsChanged)
+    ipcRenderer.on("load-settings-changed", @loadSettingsChanged)
 
     @setWindowDimensions({width, height}) if width and height
 
     @menu.update()
 
-    ipc.sendChannel('window-command', 'window:loaded')
+    ipcRenderer.send('window-command', 'window:loaded')
 
   # Requests that the backend browser bootup a new window with the given
   # options.
   # See the valid option types in Application::newWindow in
   # src/browser/application.coffee
-  newWindow: (options={}) -> ipc.send('new-window', options)
+  newWindow: (options={}) -> ipcRenderer.send('new-window', options)
 
   # Registers a hot window for certain packages
   # See the valid option types in Application::registerHotWindow in
   # src/browser/application.coffee
-  registerHotWindow: (options={}) -> ipc.send('register-hot-window', options)
+  registerHotWindow: (options={}) -> ipcRenderer.send('register-hot-window', options)
 
   # Unregisters a hot window with the given windowType
-  unregisterHotWindow: (windowType) -> ipc.send('unregister-hot-window', windowType)
+  unregisterHotWindow: (windowType) -> ipcRenderer.send('unregister-hot-window', windowType)
 
   saveStateAndUnloadWindow: ->
     @packages.deactivatePackages()
@@ -785,15 +784,15 @@ class NylasEnvConstructor extends Model
 
   # Extended: Open the dev tools for the current window.
   openDevTools: ->
-    ipc.send('call-window-method', 'openDevTools')
+    ipcRenderer.send('call-window-method', 'openDevTools')
 
   # Extended: Toggle the visibility of the dev tools for the current window.
   toggleDevTools: ->
-    ipc.send('call-window-method', 'toggleDevTools')
+    ipcRenderer.send('call-window-method', 'toggleDevTools')
 
   # Extended: Execute code in dev tools.
   executeJavaScriptInDevTools: (code) ->
-    ipc.send('call-window-method', 'executeJavaScriptInDevTools', code)
+    ipcRenderer.send('call-webcontents-method', 'executeJavaScriptInDevTools', code)
 
   ###
   Section: Private
@@ -837,11 +836,12 @@ class NylasEnvConstructor extends Model
 
   showOpenDialog: (options, callback) ->
     dialog = remote.require('dialog')
-    dialog.showOpenDialog(@getCurrentWindow(), options, callback)
+    callback(dialog.showOpenDialog(@getCurrentWindow(), options))
 
-  showSaveDialog: (defaultPath, callback) ->
+  showSaveDialog: (options, callback) ->
+    options.title ?= 'Save File'
     dialog = remote.require('dialog')
-    dialog.showSaveDialog(@getCurrentWindow(), {title: 'Save File', defaultPath}, callback)
+    callback(dialog.showSaveDialog(@getCurrentWindow(), options))
 
   showErrorDialog: (message) ->
     dialog = remote.require('dialog')
@@ -941,4 +941,3 @@ class NylasEnvConstructor extends Model
       overriddenStop.apply(@, arguments)
     Event::isPropagationStopped = ->
       @propagationStopped
-

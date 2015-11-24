@@ -65,7 +65,7 @@ class ActionBridge
         callback = => @onRebroadcast(TargetWindows.WORK, name, arguments)
         Actions[name].listen(callback, @)
 
-  onIPCMessage: (initiatorId, name, json) =>
+  onIPCMessage: (event, initiatorId, name, json) =>
     # There's something very strange about IPC event handlers. The ReactRemoteParent
     # threw React exceptions when calling setState from an IPC callback, and the debugger
     # often refuses to stop at breakpoints immediately inside IPC callbacks.

@@ -19,12 +19,13 @@ class FileUpload extends React.Component
         <Flexbox direction="row" style={alignItems: 'center'}>
           <RetinaImg className="file-icon"
                      fallback="file-fallback.png"
+                     mode={RetinaImg.Mode.ContentPreserve}
                      name="file-#{@_extension()}.png"/>
           <span className="file-name">
             <span className="uploading">Uploading:</span>&nbsp;{@_basename()}
           </span>
           <div className="file-action-icon" onClick={@_onClickRemove}>
-            <RetinaImg name="remove-attachment.png"/>
+            <RetinaImg name="remove-attachment.png" mode={RetinaImg.Mode.ContentDark} />
           </div>
         </Flexbox>
       </div>

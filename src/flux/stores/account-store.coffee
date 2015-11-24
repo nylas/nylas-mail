@@ -63,7 +63,7 @@ class AccountStore
     NylasEnv.menu.update()
 
   _selectAccountByIndex: (index) =>
-    require('ipc').send('command', 'application:show-main-window')
+    require('electron').ipcRenderer.send('command', 'application:show-main-window')
     index = Math.min(@_accounts.length - 1, Math.max(0, index))
     Actions.selectAccountId(@_accounts[index].id)
 
@@ -103,7 +103,7 @@ class AccountStore
     @_save()
 
     if @_accounts.length is 0
-      ipc = require('ipc')
+      ipc = require('electron').ipcRenderer
       ipc.send('command', 'application:reset-config-and-relaunch')
     else
       if @_index is idx

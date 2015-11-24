@@ -18,7 +18,7 @@ describe "AutoUpdateManager", ->
       m = new AutoUpdateManager("3.222.1-abc", @config, @specMode)
       spyOn(m, "setupAutoUpdater")
 
-      {query} = url.parse(m.feedUrl, true)
+      {query} = url.parse(m.feedURL, true)
       expect(query.arch).toBe process.arch
       expect(query.platform).toBe process.platform
       expect(query.version).toBe "3.222.1-abc"
@@ -27,7 +27,7 @@ describe "AutoUpdateManager", ->
     it "correctly sets the feedURL", ->
       m = new AutoUpdateManager("3.222.1", @config, @specMode)
       spyOn(m, "setupAutoUpdater")
-      {query} = url.parse(m.feedUrl, true)
+      {query} = url.parse(m.feedURL, true)
       expect(query.arch).toBe process.arch
       expect(query.platform).toBe process.platform
       expect(query.version).toBe "3.222.1"
@@ -36,7 +36,7 @@ describe "AutoUpdateManager", ->
     it "should save one to @config and send it", ->
       m = new AutoUpdateManager("3.222.1", @config, @specMode)
       spyOn(m, "setupAutoUpdater")
-      {query} = url.parse(m.feedUrl, true)
+      {query} = url.parse(m.feedURL, true)
 
       expect(query.id).toBeDefined()
       expect(@config.set).toHaveBeenCalledWith('updateIdentity', query.id)
@@ -46,7 +46,7 @@ describe "AutoUpdateManager", ->
       @updateIdentity = "test-identity"
       m = new AutoUpdateManager("3.222.1", @config, @specMode)
       spyOn(m, "setupAutoUpdater")
-      {query} = url.parse(m.feedUrl, true)
+      {query} = url.parse(m.feedURL, true)
 
       expect(query.id).toEqual(@updateIdentity)
       expect(@config.set).not.toHaveBeenCalled()

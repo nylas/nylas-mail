@@ -17,7 +17,7 @@ KeymapManager = require '../src/keymap-manager'
 Config = require '../src/config'
 ServiceHub = require 'service-hub'
 pathwatcher = require 'pathwatcher'
-clipboard = require 'clipboard'
+{clipboard} = require 'electron'
 
 Account = require "../src/flux/models/account"
 AccountStore = require "../src/flux/stores/account-store"
