@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>QuickSchedule</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page_wrapper">
+            <div id="jump_page">
+              
+                
+                <a class="source" href="availability-draft-extension.html">
+                  availability-draft-extension.coffee
+                </a>
+              
+                
+                <a class="source" href="calendar-button.html">
+                  calendar-button.coffee
+                </a>
+              
+                
+                <a class="source" href="main.html">
+                  main.coffee
+                </a>
+              
+            </div>
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h1 id="quick-schedule">QuickSchedule</h1>
+<p>A fairly complex package which allows you to select calendar availabilities
+to email. Whoever receives your email with your availabilities can click on
+your availabilities to schedule an appointment with you.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
+{ComponentRegistry,
+ DatabaseStore,
+ DraftStore,
+ QuotedHTMLParser,
+ Event} = <span class="hljs-built_in">require</span> <span class="hljs-string">'nylas-exports'</span>
+
+url = <span class="hljs-built_in">require</span>(<span class="hljs-string">'url'</span>)
+
+CalendarButton = <span class="hljs-built_in">require</span> <span class="hljs-string">'./calendar-button'</span>
+AvailabilityDraftExtension = <span class="hljs-built_in">require</span> <span class="hljs-string">'./availability-draft-extension'</span>
+
+path = <span class="hljs-built_in">require</span>.resolve(<span class="hljs-string">"electron-safe-ipc/host"</span>)
+ipc = <span class="hljs-built_in">require</span>(<span class="hljs-string">'remote'</span>).<span class="hljs-built_in">require</span>(path)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>A simple class for building HTML in code</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">HtmlNode</span></span>
+  <span class="hljs-attribute">constructor</span>: <span class="hljs-function"><span class="hljs-params">(name)</span> -&gt;</span>
+    <span class="hljs-property">@name</span> = name
+    <span class="hljs-property">@attrs</span> = {}
+    <span class="hljs-property">@styles</span> = {}
+    <span class="hljs-property">@children</span> = []
+
+  <span class="hljs-attribute">attr</span>: <span class="hljs-function"><span class="hljs-params">(k,v,isJson=<span class="hljs-literal">false</span>)</span> -&gt;</span>
+    <span class="hljs-property">@attrs</span>[k] = <span class="hljs-keyword">if</span> isJson <span class="hljs-keyword">then</span> v.replace(<span class="hljs-regexp">/"/g</span>,<span class="hljs-string">"'"</span>) <span class="hljs-keyword">else</span> v
+    <span class="hljs-keyword">return</span> @
+
+  <span class="hljs-attribute">style</span>: <span class="hljs-function"><span class="hljs-params">(k,v)</span> -&gt;</span>
+    <span class="hljs-property">@styles</span>[k] = v
+    <span class="hljs-keyword">return</span> @
+
+  <span class="hljs-attribute">append</span>: <span class="hljs-function"><span class="hljs-params">(node)</span> -&gt;</span>
+    <span class="hljs-property">@children</span>.push(node)
+    <span class="hljs-keyword">return</span> node
+
+  <span class="hljs-attribute">appendNode</span>: <span class="hljs-function"><span class="hljs-params">(name)</span> -&gt;</span>
+    node = <span class="hljs-keyword">new</span> HtmlNode(name);
+    <span class="hljs-keyword">return</span> <span class="hljs-property">@append</span>(node);
+
+  <span class="hljs-attribute">appendText</span>: <span class="hljs-function"><span class="hljs-params">(text)</span> -&gt;</span>
+    <span class="hljs-property">@append</span>(text)
+    <span class="hljs-keyword">return</span> @
+
+  <span class="hljs-attribute">toString</span>: <span class="hljs-function">-&gt;</span>
+    attrs = (<span class="hljs-string">"<span class="hljs-subst">#{k}</span>=\"<span class="hljs-subst">#{v}</span>\""</span> <span class="hljs-keyword">for</span> k,v <span class="hljs-keyword">of</span> <span class="hljs-property">@attrs</span>).join(<span class="hljs-string">" "</span>)
+    styles = (<span class="hljs-string">"<span class="hljs-subst">#{k}</span>: <span class="hljs-subst">#{v}</span>;"</span> <span class="hljs-keyword">for</span> k,v <span class="hljs-keyword">of</span> <span class="hljs-property">@styles</span>).join(<span class="hljs-string">" "</span>)
+
+    <span class="hljs-keyword">if</span> <span class="hljs-property">@children</span>?.length &gt; <span class="hljs-number">0</span>
+      children = (<span class="hljs-keyword">if</span> n <span class="hljs-keyword">instanceof</span> HtmlNode <span class="hljs-keyword">then</span> n.toString() <span class="hljs-keyword">else</span> n <span class="hljs-keyword">for</span> n <span class="hljs-keyword">in</span> <span class="hljs-property">@children</span>).join(<span class="hljs-string">"\n"</span>)
+      <span class="hljs-keyword">return</span> <span class="hljs-string">"&lt;<span class="hljs-subst">#{<span class="hljs-property">@name</span>}</span> <span class="hljs-subst">#{attrs}</span> style=\"<span class="hljs-subst">#{styles}</span>\"&gt;\n<span class="hljs-subst">#{children}</span>\n&lt;/<span class="hljs-subst">#{<span class="hljs-property">@name</span>}</span>&gt;"</span>
+    <span class="hljs-keyword">else</span>
+     <span class="hljs-keyword">return</span> <span class="hljs-string">"&lt;<span class="hljs-subst">#{<span class="hljs-property">@name</span>}</span> <span class="hljs-subst">#{attrs}</span> style=\"<span class="hljs-subst">#{styles}</span>\" /&gt;"</span>
+
+
+<span class="hljs-built_in">module</span>.exports =</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <h2 id="package-methods">Package Methods</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Activate is called when the package is loaded. If your package previously
+saved state using <code>serialize</code> it is provided.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">activate</span>: <span class="hljs-function"><span class="hljs-params">(<span class="hljs-property">@state</span>)</span> -&gt;</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>Using <code>ComponentRegistry.register</code>, we insert an instance of
+<code>CalendarButton</code> into the <code>&#39;Composer:ActionButton&#39;</code> section of the
+application, to sit along with the other React components already inside
+<code>&#39;Composer:ActionButton&#39;</code>.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    ComponentRegistry.register CalendarButton,
+      <span class="hljs-attribute">role</span>: <span class="hljs-string">'Composer:ActionButton'</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>You can add your own extensions to the N1 Composer view and the original
+DraftStore by invoking <code>DraftStore.registerExtension</code> with a subclass of
+<code>DraftStoreExtension</code>.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    DraftStore.registerExtension AvailabilityDraftExtension</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>Subscribe to the ipc event <code>fromRenderer</code>, which will be published
+elsewhere in the package.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    ipc.<span class="hljs-literal">on</span> <span class="hljs-string">"fromRenderer"</span>, <span class="hljs-function"><span class="hljs-params">(args...)</span> =&gt;</span> <span class="hljs-property">@_onCalendarEvent</span>(args...)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>Serialize is called when your package is about to be unmounted.
+You can return a state object that will be passed back to your package
+when it is re-activated.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">serialize</span>: <span class="hljs-function">-&gt;</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>This <strong>optional</strong> method is called when the window is shutting down,
+or when your package is being updated or disabled. If your package is
+watching any files, holding external resources, providing commands or
+subscribing to events, release them here.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">deactivate</span>: <span class="hljs-function">-&gt;</span>
+    ComponentRegistry.unregister CalendarButton
+    DraftStore.unregister AvailabilityDraftExtension</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <h2 id="internal-methods">Internal Methods</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
+  <span class="hljs-attribute">_onCalendarEvent</span>: <span class="hljs-function"><span class="hljs-params">(event,data)</span> -&gt;</span>
+    <span class="hljs-keyword">switch</span> event
+      <span class="hljs-keyword">when</span> <span class="hljs-string">"get_events"</span>
+        {start,end,<span class="hljs-attribute">id</span>:eventId} = data
+        DatabaseStore.findAll(Event).where([
+          Event.attributes.start.lessThan(end),
+          Event.attributes.end.greaterThan(start),
+        ]).<span class="hljs-keyword">then</span> (events) =&gt;
+          <span class="hljs-property">@_sendToCalendar</span>(<span class="hljs-string">"get_events_"</span>+eventId,events)
+      <span class="hljs-keyword">when</span> <span class="hljs-string">"available_times"</span>
+        {draftClientId,eventData,events} = data
+        <span class="hljs-property">@_addBlockToDraft</span>(events,draftClientId,eventData);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>Sends a message to the calendar window</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">_sendToCalendar</span>: <span class="hljs-function"><span class="hljs-params">(event,data)</span> -&gt;</span>
+    ipc.send(<span class="hljs-string">"fromMain"</span>, event, JSON.stringify(data))</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>Grabs the current draft text, appends the quick-schedule HTML block to it, and saves</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">_addBlockToDraft</span>: <span class="hljs-function"><span class="hljs-params">(events,draftClientId,eventData)</span> -&gt;</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>Obtain the session for the current draft.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    DraftStore.sessionForClientId(draftClientId).<span class="hljs-keyword">then</span> (session) =&gt;
+      draftHtml = session.draft().body
+      text = QuotedHTMLParser.removeQuotedHTML(draftHtml)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>add the block</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      <span class="hljs-built_in">console</span>.log(<span class="hljs-property">@_createBlock</span>(events,eventData));
+      text += <span class="hljs-string">"&lt;br/&gt;"</span>+<span class="hljs-property">@_createBlock</span>(events,eventData)+<span class="hljs-string">"&lt;br/&gt;"</span>;
+
+      newDraftHtml = QuotedHTMLParser.appendQuotedHTML(text, draftHtml)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p>update the draft</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      session.changes.add(<span class="hljs-attribute">body</span>: newDraftHtml)
+      session.changes.commit()</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p>Given the data for an event and its availability slots, creates an HTML string
+that can be inserted into an email message</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">_createBlock</span>: <span class="hljs-function"><span class="hljs-params">(events,eventData)</span> -&gt;</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <p>Group the events by their <code>date</code>, to give one box per day</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    byDay = {}
+    <span class="hljs-keyword">for</span> event <span class="hljs-keyword">in</span> events
+      (byDay[event.date] ?= []).push(event)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
+              </div>
+              <p>Create an HtmlNode and write its attributes and child nodes</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    block = <span class="hljs-keyword">new</span> HtmlNode(<span class="hljs-string">"div"</span>)
+      .attr(<span class="hljs-string">"class"</span>,<span class="hljs-string">"quick-schedule"</span>)
+      .attr(<span class="hljs-string">"data-quick-schedule"</span>,JSON.stringify({</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
+              </div>
+              <p>add the full event data here as JSON so that it can be read by this plugin
+elsewhere (e.g. right before sending the draft, etc)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-attribute">event</span>: eventData
+        <span class="hljs-attribute">times</span>: ({start,end,serverKey} = e <span class="hljs-keyword">for</span> e <span class="hljs-keyword">in</span> events)
+      }), <span class="hljs-literal">true</span>)
+      .style(<span class="hljs-string">"border"</span>,<span class="hljs-string">"1px solid #EEE"</span>)
+      .style(<span class="hljs-string">"border-radius"</span>,<span class="hljs-string">"3px"</span>)
+      .style(<span class="hljs-string">"padding"</span>,<span class="hljs-string">"10px"</span>)
+
+    eventInfo = block.appendNode(<span class="hljs-string">"div"</span>)
+      .attr(<span class="hljs-string">"class"</span>,<span class="hljs-string">"event-container"</span>)
+      .style(<span class="hljs-string">"padding"</span>,<span class="hljs-string">"0 5px"</span>)
+
+    eventInfo.appendNode(<span class="hljs-string">"div"</span>)
+      .attr(<span class="hljs-string">"class"</span>,<span class="hljs-string">"event-title"</span>)
+      .appendText(eventData.title)
+      .style(<span class="hljs-string">"font-weight"</span>,<span class="hljs-string">"bold"</span>)
+      .style(<span class="hljs-string">"font-size"</span>,<span class="hljs-string">"18px"</span>)
+    eventInfo.appendNode(<span class="hljs-string">"div"</span>)
+      .attr(<span class="hljs-string">"class"</span>,<span class="hljs-string">"event-location"</span>)
+      .appendText(eventData.location)
+    eventInfo.appendNode(<span class="hljs-string">"div"</span>)
+      .attr(<span class="hljs-string">"class"</span>,<span class="hljs-string">"event-description"</span>)
+      .style(<span class="hljs-string">"font-size"</span>,<span class="hljs-string">"13px"</span>)
+      .appendText(eventData.description)
+    eventInfo.appendNode(<span class="hljs-string">"span"</span>)
+      .appendText(<span class="hljs-string">"Click on a time to schedule instantly:"</span>)
+      .style(<span class="hljs-string">"font-size"</span>,<span class="hljs-string">"13px"</span>)
+      .style(<span class="hljs-string">"color"</span>,<span class="hljs-string">"#AAA"</span>)
+
+    daysContainer = block.appendNode(<span class="hljs-string">"div"</span>)
+      .attr(<span class="hljs-string">"class"</span>,<span class="hljs-string">"days"</span>)
+      .style(<span class="hljs-string">"display"</span>,<span class="hljs-string">"flex"</span>)
+      .style(<span class="hljs-string">"flex-wrap"</span>,<span class="hljs-string">"wrap"</span>)
+      .style(<span class="hljs-string">"padding"</span>,<span class="hljs-string">"10px 0"</span>)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-20">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-20">&#182;</a>
+              </div>
+              <p>Create one div per day, and write each time slot in as a line</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">for</span> dayText,dayEvents <span class="hljs-keyword">of</span> byDay
+      dayBlock = daysContainer.appendNode(<span class="hljs-string">"div"</span>)
+        .attr(<span class="hljs-string">"class"</span>,<span class="hljs-string">"day-container"</span>)
+        .style(<span class="hljs-string">"flex-grow"</span>,<span class="hljs-string">"1"</span>)
+        .style(<span class="hljs-string">"margin"</span>,<span class="hljs-string">"5px"</span>)
+        .style(<span class="hljs-string">"border"</span>,<span class="hljs-string">"1px solid #DDD"</span>)
+        .style(<span class="hljs-string">"border-radius"</span>,<span class="hljs-string">"3px"</span>)
+
+      dayBlock.appendNode(<span class="hljs-string">"div"</span>)
+        .attr(<span class="hljs-string">"class"</span>,<span class="hljs-string">"day-title"</span>)
+        .style(<span class="hljs-string">"text-align"</span>,<span class="hljs-string">"center"</span>)
+        .style(<span class="hljs-string">"font-size"</span>,<span class="hljs-string">"13px"</span>)
+        .style(<span class="hljs-string">"background"</span>,<span class="hljs-string">"#EEE"</span>)
+        .style(<span class="hljs-string">"color"</span>,<span class="hljs-string">"#666"</span>)
+        .style(<span class="hljs-string">"padding"</span>,<span class="hljs-string">"2px 4px"</span>)
+        .appendText(dayText.toUpperCase())
+
+      times = dayBlock.appendNode(<span class="hljs-string">"div"</span>)
+        .attr(<span class="hljs-string">"class"</span>,<span class="hljs-string">"day-times"</span>)
+        .style(<span class="hljs-string">"padding"</span>,<span class="hljs-string">"5px"</span>)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
+              <p>One line per time slot</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">for</span> e <span class="hljs-keyword">in</span> dayEvents</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+              <p>The URL points to the event page with this time slot selected</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        eventUrl = url.format({
+          <span class="hljs-attribute">protocol</span>: <span class="hljs-string">"http"</span>
+          <span class="hljs-attribute">host</span>: <span class="hljs-string">"localhost:8888"</span>
+          <span class="hljs-attribute">pathname</span>: <span class="hljs-string">"/event/<span class="hljs-subst">#{e.serverKey}</span>"</span>
+        })
+        times.appendNode(<span class="hljs-string">"div"</span>)
+          .attr(<span class="hljs-string">"class"</span>,<span class="hljs-string">"day-time"</span>)
+          .style(<span class="hljs-string">"padding"</span>,<span class="hljs-string">"2px 0"</span>)
+          .appendNode(<span class="hljs-string">"a"</span>)
+            .attr(<span class="hljs-string">"href"</span>,eventUrl)
+            .attr(<span class="hljs-string">"data-starttime"</span>,e.start)
+            .attr(<span class="hljs-string">"data-endtime"</span>,e.end)
+            .style(<span class="hljs-string">"text-decoration"</span>,<span class="hljs-string">"none"</span>)
+            .appendText(e.time)
+
+    <span class="hljs-keyword">return</span> block.toString()</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

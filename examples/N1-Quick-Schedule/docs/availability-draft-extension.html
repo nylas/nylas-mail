@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>availability-draft-extension.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page_wrapper">
+            <div id="jump_page">
+              
+                
+                <a class="source" href="availability-draft-extension.html">
+                  availability-draft-extension.coffee
+                </a>
+              
+                
+                <a class="source" href="calendar-button.html">
+                  calendar-button.coffee
+                </a>
+              
+                
+                <a class="source" href="main.html">
+                  main.coffee
+                </a>
+              
+            </div>
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>availability-draft-extension.coffee</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
+{DraftStoreExtension} = <span class="hljs-built_in">require</span> <span class="hljs-string">'nylas-exports'</span>
+request = <span class="hljs-built_in">require</span> <span class="hljs-string">'request'</span>
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AvailabilityDraftExtension</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">DraftStoreExtension</span></span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>When subclassing the DraftStoreExtension, you can add your own custom logic
+to execute before a draft is sent in the @finalizeSessionBeforeSending
+method. Here, we’re registering the events before we send the draft.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-property">@finalizeSessionBeforeSending</span>: <span class="hljs-function"><span class="hljs-params">(session)</span> -&gt;</span>
+    body = session.draft().body
+    participants = session.draft().participants()
+    sender = session.draft().from
+    matches = (<span class="hljs-regexp">/data-quick-schedule="(.*)?" style/</span>).exec body
+    <span class="hljs-keyword">if</span> matches?
+      json = matches[<span class="hljs-number">1</span>].replace(<span class="hljs-regexp">/'/g</span>,<span class="hljs-string">'"'</span>)
+      data = JSON.parse(json)
+      data.attendees = []
+      data.attendees = participants.map (p) -&gt;
+        <span class="hljs-attribute">name</span>: p.name, <span class="hljs-attribute">email</span>: p.email, <span class="hljs-attribute">isSender</span>: c.isMe()
+      <span class="hljs-built_in">console</span>.log <span class="hljs-string">"Sending request!\n"</span>,JSON.stringify data
+      serverUrl = <span class="hljs-string">"https://sendavail.herokuapp.com/register-events"</span>
+      request.post {<span class="hljs-attribute">url</span>: serverUrl, <span class="hljs-attribute">body</span>: JSON.stringify(data)}, <span class="hljs-function"><span class="hljs-params">(error, resp, data)</span> =&gt;</span>
+        <span class="hljs-built_in">console</span>.log(error,resp,data)
+
+
+<span class="hljs-built_in">module</span>.exports = AvailabilityDraftExtension</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

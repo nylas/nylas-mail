@@ -1,5 +1,0 @@
-{
-  "name": "N1 Send Availability Backend",
-  "description": "Server supporting the N1 Send Availability plugin",
-  "addons": [ "cleardb:ignite" ]
-}
