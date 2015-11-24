@@ -611,31 +611,15 @@ class Contenteditable extends React.Component
     @refs["toolbarController"]?.forceClose()
     event.preventDefault()
 
-    selection = document.getSelection()
-    range = DOMUtils.Mutating.getRangeAtAndSelectWord(selection, 0)
-    text = range.toString()
-
     remote = require('remote')
-    clipboard = require('clipboard')
     Menu = remote.require('menu')
     MenuItem = remote.require('menu-item')
 
-    cut = =>
-      clipboard.writeText(text)
-      DOMUtils.Mutating.applyTextInRange(range, selection, '')
-
-    copy = =>
-      clipboard.writeText(text)
-
-    paste = =>
-      DOMUtils.Mutating.applyTextInRange(range, selection, clipboard.readText())
-
     menu = new Menu()
-
     @_runPluginHandlersForEvent("onShowContextMenu", event, menu)
-    menu.append(new MenuItem({ label: 'Cut', click: cut}))
-    menu.append(new MenuItem({ label: 'Copy', click: copy}))
-    menu.append(new MenuItem({ label: 'Paste', click: paste}))
+    menu.append(new MenuItem({ label: 'Cut', role: 'cut'}))
+    menu.append(new MenuItem({ label: 'Copy', role: 'copy'}))
+    menu.append(new MenuItem({ label: 'Paste', role: 'paste'}))
     menu.popup(remote.getCurrentWindow())
 
   _onMouseDown: (event) =>
