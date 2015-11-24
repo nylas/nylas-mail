@@ -79,9 +79,15 @@ class AppearanceModeOption extends React.Component
   render: =>
     classname = "appearance-mode"
     classname += " active" if @props.active
+
+    label = {
+      'list': 'Single Panel'
+      'split': 'Two Panel'
+    }[@props.mode]
+
     <div className={classname} onClick={@props.onClick}>
       <RetinaImg name={"appearance-mode-#{@props.mode}.png"} mode={RetinaImg.Mode.ContentIsMask}/>
-      <div>{@props.mode} View</div>
+      <div>{label}</div>
     </div>
 
 class WorkspaceSection extends React.Component
