@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "main": "./lib/main",
   "description": "View threads using React",
-  "license": "Proprietary",
+  "license": "GPLv3",
   "private": true,
   "engines": {
     "nylas": "*"

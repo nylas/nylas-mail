@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "main": "./lib/main",
   "description": "A small extension to the draft store that implements spellcheck",
-  "license": "Proprietary",
+  "license": "GPLv3",
   "private": true,
   "engines": {
     "nylas": "*"
