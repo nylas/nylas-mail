@@ -3,6 +3,8 @@ _ = require "underscore"
 {EventedIFrame} = require 'nylas-component-kit'
 {QuotedHTMLParser} = require 'nylas-exports'
 
+EmailFrameStylesStore = require './email-frame-styles-store'
+
 class EmailFrame extends React.Component
   @displayName = 'EmailFrame'
 
@@ -18,14 +20,14 @@ class EmailFrame extends React.Component
   componentDidMount: =>
     @_mounted = true
     @_writeContent()
-    @_setFrameHeight()
+    @_unlisten = EmailFrameStylesStore.listen(@_writeContent)
 
   componentWillUnmount: =>
     @_mounted = false
+    @_unlisten()
 
   componentDidUpdate: =>
     @_writeContent()
-    @_setFrameHeight()
 
   shouldComponentUpdate: (newProps, newState) =>
     # Turns out, React is not able to tell if props.children has changed,
@@ -44,19 +46,16 @@ class EmailFrame extends React.Component
     # the `border-collapse: collapse` css property while setting a
     # `padding`.
     doc.write("<!DOCTYPE html>")
-
-    EmailFixingStyles = ""
-    for sheet in document.querySelectorAll('[source-path*="email-frame.less"]')
-      EmailFixingStyles += "\n"+sheet.innerText
-    EmailFixingStyles = EmailFixingStyles.replace(/.ignore-in-parent-frame/g, '')
-    if (EmailFixingStyles)
-      doc.write("<style>#{EmailFixingStyles}</style>")
+    styles = EmailFrameStylesStore.styles()
+    if (styles)
+      doc.write("<style>#{styles}</style>")
     doc.write("<div id='inbox-html-wrapper'>#{@_emailContent()}</div>")
     doc.close()
 
     # Notify the EventedIFrame that we've replaced it's document (with `open`)
     # so it can attach event listeners again.
     @refs.iframe.documentWasReplaced()
+    @_setFrameHeight()
 
   _setFrameHeight: =>
     return unless @_mounted
