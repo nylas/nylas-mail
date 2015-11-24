@@ -6,7 +6,10 @@ class DisclosureTriangle extends React.Component
   @propTypes:
     collapsed: React.PropTypes.bool
     visible: React.PropTypes.bool
-    onToggleCollapsed: React.PropTypes.func.isRequired
+    onToggleCollapsed: React.PropTypes.func
+
+  @defaultProps:
+    onToggleCollapsed: ->
 
   render: ->
     classnames = "disclosure-triangle"
