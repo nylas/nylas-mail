@@ -284,13 +284,18 @@ class ThreadList extends React.Component
 
   _onRemoveFromView: =>
     threads = @_threadsForKeyboardAction()
+    backspaceDelete = NylasEnv.config.get('core.reading.backspaceDelete')
     if threads
-      if FocusedMailViewStore.mailView().canArchiveThreads()
-        removeMethod = TaskFactory.taskForArchiving
-      else if FocusedMailViewStore.mailView().canTrashThreads()
-        removeMethod = TaskFactory.taskForMovingToTrash
-      else
-        return
+      if backspaceDelete
+        if FocusedMailViewStore.mailView().canTrashThreads()
+          removeMethod = TaskFactory.taskForMovingToTrash
+        else 
+          return
+      else 
+        if FocusedMailViewStore.mailView().canArchiveThreads()
+          removeMethod = TaskFactory.taskForArchiving
+        else
+          return
 
       task = removeMethod
         threads: threads

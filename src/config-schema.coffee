@@ -57,6 +57,10 @@ module.exports =
             type: 'boolean'
             default: true
             title: "Automatically load images in viewed messages"
+          backspaceDelete:
+            type: 'boolean'
+            default: false
+            title: "Use backspace to delete messages"
       sending:
         type: 'object'
         properties:
