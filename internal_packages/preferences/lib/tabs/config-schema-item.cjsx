@@ -34,7 +34,7 @@ class ConfigSchemaItem extends React.Component
     else if @props.configSchema['enum']?
       <div className="item">
         <label htmlFor={@props.keyPath}>{@props.configSchema.title}:</label>
-        <select onChange={@_onChangeValue}>
+        <select onChange={@_onChangeValue} value={@props.config.get(@props.keyPath)}>
           {_.zip(@props.configSchema.enum, @props.configSchema.enumLabels).map ([value, label]) =>
             <option value={value}>{label}</option>
           }
@@ -54,10 +54,12 @@ class ConfigSchemaItem extends React.Component
     return true if process.platform in @props.configSchema.platforms
     return false
 
-  _onChangeChecked: =>
+  _onChangeChecked: (event) =>
     @props.config.toggle(@props.keyPath)
+    event.target.blur()
 
   _onChangeValue: (event) =>
     @props.config.set(@props.keyPath, event.target.value)
+    event.target.blur()
 
 module.exports = ConfigSchemaItem
