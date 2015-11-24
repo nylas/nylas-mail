@@ -90,6 +90,8 @@ class DatabaseStore extends NylasStore
     else
       @_databasePath = path.join(NylasEnv.getConfigDirPath(),'edgehill.db')
 
+    @_databaseMutationHooks = []
+
     # Listen to events from the application telling us when the database is ready,
     # should be closed so it can be deleted, etc.
     ipc.on('database-phase-change', @_onPhaseChange)
@@ -413,9 +415,7 @@ class DatabaseStore extends NylasStore
   persistModel: (model) =>
     unless model and model instanceof Model
       throw new Error("DatabaseStore::persistModel - You must pass an instance of the Model class.")
-
-    @_writeModels([model]).then =>
-      @_accumulateAndTrigger({objectClass: model.constructor.name, objects: [model], type: 'persist'})
+    @persistModels([model])
 
   # Public: Asynchronously writes `models` to the cache and triggers a single change
   # event. Note: Models must be of the same class to be persisted in a batch operation.
@@ -429,10 +429,11 @@ class DatabaseStore extends NylasStore
   #     callbacks failed
   persistModels: (models=[]) =>
     return Promise.resolve() if models.length is 0
+
     klass = models[0].constructor
     ids = {}
 
-    if not models[0] instanceof Model
+    unless models[0] instanceof Model
       throw new Error("DatabaseStore::persistModels - You must pass an array of items which descend from the Model class.")
 
     for model in models
@@ -442,8 +443,15 @@ class DatabaseStore extends NylasStore
         throw new Error("DatabaseStore::persistModels - You must pass an array of models with different ids. ID #{model.id} is in the set multiple times.")
       ids[model.id] = true
 
-    @_writeModels(models).then =>
-      @_accumulateAndTrigger({objectClass: models[0].constructor.name, objects: models, type: 'persist'})
+    ids = Object.keys(ids)
+    @_runMutationHooks('beforeDatabaseChange', models, ids).then (data) =>
+      @_writeModels(models).then =>
+        @_runMutationHooks('afterDatabaseChange', models, ids, data)
+        @_accumulateAndTrigger({
+          objectClass: models[0].constructor.name
+          objects: models
+          type: 'persist'
+        })
 
   # Public: Asynchronously removes `model` from the cache and triggers a change event.
   #
@@ -455,8 +463,14 @@ class DatabaseStore extends NylasStore
   #   - rejects if any databse query fails or one of the triggering
   #     callbacks failed
   unpersistModel: (model) =>
-    @_deleteModel(model).then =>
-      @_accumulateAndTrigger({objectClass: model.constructor.name, objects: [model], type: 'unpersist'})
+    @_runMutationHooks('beforeDatabaseChange', [model], [model.id]).then (data) =>
+      @_deleteModel(model).then =>
+        @_runMutationHooks('afterDatabaseChange', [model], [model.id], data)
+        @_accumulateAndTrigger({
+          objectClass: model.constructor.name,
+          objects: [model],
+          type: 'unpersist'
+        })
 
   persistJSONObject: (key, json) ->
     jsonString = serializeRegisteredObjects(json)
@@ -468,6 +482,24 @@ class DatabaseStore extends NylasStore
       return Promise.resolve(null) unless results[0]
       data = deserializeRegisteredObjects(results[0].data)
       Promise.resolve(data)
+
+  addMutationHook: ({beforeDatabaseChange, afterDatabaseChange}) ->
+    throw new Error("DatabaseStore:addMutationHook - You must provide a beforeDatabaseChange function") unless beforeDatabaseChange
+    throw new Error("DatabaseStore:addMutationHook - You must provide a afterDatabaseChange function") unless afterDatabaseChange
+    @_databaseMutationHooks.push({beforeDatabaseChange, afterDatabaseChange})
+
+  removeMutationHook: (hook) ->
+    @_databaseMutationHooks = _.without(@_databaseMutationHooks, hook)
+
+  _runMutationHooks: (selectorName, models, ids, data = []) ->
+    beforePromises = @_databaseMutationHooks.map (hook, idx) =>
+      Promise.try =>
+        hook[selectorName](@_query, models, ids, data[idx])
+
+    Promise.all(beforePromises).catch (e) =>
+      unless NylasEnv.inSpecMode()
+        console.warn("DatabaseStore Hook: #{selectorName} failed", e)
+      Promise.resolve([])
 
   atomically: (fn) =>
     maxConcurrent = 1
@@ -545,7 +577,6 @@ class DatabaseStore extends NylasStore
 
     klass = models[0].constructor
     attributes = _.values(klass.attributes)
-    ids = []
 
     columnAttributes = _.filter attributes, (attr) ->
       attr.queryable && attr.columnSQL && attr.jsonKey != 'id'
@@ -563,6 +594,7 @@ class DatabaseStore extends NylasStore
     # an array of the values and a corresponding question mark set
     values = []
     marks = []
+    ids = []
     for model in models
       json = model.toJSON(joined: false)
       ids.push(model.id)
@@ -615,13 +647,6 @@ class DatabaseStore extends NylasStore
         if model[attr.modelKey]?
           promises.push @_query("REPLACE INTO `#{attr.modelTable}` (`id`, `value`) VALUES (?, ?)", [model.id, model[attr.modelKey]])
 
-    # For each model, execute any other code the model wants to run.
-    # This allows model classes to do things like update a full-text table
-    # that holds a composite of several fields
-    if klass.additionalSQLiteConfig?.writeModel?
-      for model in models
-        promises = promises.concat klass.additionalSQLiteConfig.writeModel(model)
-
     return Promise.all(promises)
 
   # Fires the queries required to delete models to the DB
@@ -652,12 +677,6 @@ class DatabaseStore extends NylasStore
 
     joinedDataAttributes.forEach (attr) =>
       promises.push @_query("DELETE FROM `#{attr.modelTable}` WHERE `id` = ?", [model.id])
-
-    # Execute any other code the model wants to run.
-    # This allows model classes to do things like update a full-text table
-    # that holds a composite of several fields, or update entirely
-    # separate database systems
-    promises = promises.concat klass.additionalSQLiteConfig?.deleteModel?(model)
 
     return Promise.all(promises)
 

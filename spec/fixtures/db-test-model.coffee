@@ -108,7 +108,5 @@ TestModel.configureWithAdditionalSQLiteConfig = ->
   TestModel.additionalSQLiteConfig =
     setup: ->
       ['CREATE INDEX IF NOT EXISTS ThreadListIndex ON Thread(last_message_received_timestamp DESC, account_id, id)']
-    writeModel: jasmine.createSpy('additionalWriteModel')
-    deleteModel: jasmine.createSpy('additionalDeleteModel')
 
 module.exports = TestModel

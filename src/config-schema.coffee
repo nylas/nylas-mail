@@ -18,6 +18,10 @@ module.exports =
             type: 'boolean'
             default: true
             title: "Show Gmail-style important markers (Gmail Only)"
+          showUnreadForAllCategories:
+            type: 'boolean'
+            default: false
+            title: "Show unread counts for all folders / labels"
       disabledPackages:
         type: 'array'
         default: []

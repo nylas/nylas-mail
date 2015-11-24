@@ -87,15 +87,21 @@
       order: 3;
       flex-shrink: 0;
       font-weight: @font-weight-semi-bold;
-      color: @source-list-active-bg;
+      color: fadeout(@text-color-subtle, 50%);
       margin-left: @padding-small-horizontal * 0.8;
+      box-shadow: inset 0 0 1px @text-color-subtle;
     }
-    .unread {
+    .item-count-box.inbox {
+      color: @source-list-active-bg;
       background: @source-list-active-color;
+      box-shadow: none;
     }
-    .count {
-      background: #b4bbc3;
+    .item-count-box.archive,
+    .item-count-box.all,
+    .item-count-box.spam {
+      display: none;
     }
+
     &.selected {
       background: @source-list-active-bg;
       color: @source-list-active-color;

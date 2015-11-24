@@ -2,7 +2,7 @@ React = require 'react'
 classNames = require 'classnames'
 {Actions,
  Utils,
- UnreadCountStore,
+ ThreadCountsStore,
  WorkspaceStore,
  AccountStore,
  FocusedMailViewStore,
@@ -17,29 +17,16 @@ class AccountSidebarMailViewItem extends React.Component
   @propTypes:
     select: React.PropTypes.bool
     item: React.PropTypes.object.isRequired
+    itemUnreadCount: React.PropTypes.number
     mailView: React.PropTypes.object.isRequired
 
   constructor: (@props) ->
-    @state =
-      unreadCount: UnreadCountStore.count() ? 0
-
-  componentWillMount: =>
-    @_usub = UnreadCountStore.listen @_onUnreadCountChange
-
-  componentWillUnmount: =>
-    @_usub()
-
-  _onUnreadCountChange: =>
-    @setState unreadCount: UnreadCountStore.count()
+    @state = {}
 
   shouldComponentUpdate: (nextProps, nextState) =>
     !Utils.isEqualReact(@props, nextProps) or !Utils.isEqualReact(@state, nextState)
 
   render: =>
-    unread = []
-    if @props.mailView.category?.name is "inbox" and @state.unreadCount > 0
-      unread = <div className="unread item-count-box">{@state.unreadCount}</div>
-
     containerClass = classNames
       'item': true
       'selected': @props.select
@@ -51,11 +38,16 @@ class AccountSidebarMailViewItem extends React.Component
          shouldAcceptDrop={@_shouldAcceptDrop}
          onDragStateChange={ ({isDropping}) => @setState({isDropping}) }
          onDrop={@_onDrop}>
-      {unread}
-
+      {@_renderUnreadCount()}
       <div className="icon">{@_renderIcon()}</div>
       <div className="name">{@props.item.name}</div>
     </DropZone>
+
+  _renderUnreadCount: =>
+    return false if @props.itemUnreadCount is 0
+    className = 'item-count-box '
+    className += @props.mailView.category?.name
+    <div className={className}>{@props.itemUnreadCount}</div>
 
   _renderIcon: ->
     <RetinaImg name={@props.mailView.iconName} fallback={'folder.png'} mode={RetinaImg.Mode.ContentIsMask} />

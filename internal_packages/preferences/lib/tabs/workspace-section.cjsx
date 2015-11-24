@@ -105,6 +105,11 @@ class WorkspaceSection extends React.Component
         keyPath="core.workspace.showImportant"
         config={@props.config} />
 
+      <ConfigSchemaItem
+        configSchema={@props.configSchema.properties.workspace.properties.showUnreadForAllCategories}
+        keyPath="core.workspace.showUnreadForAllCategories"
+        config={@props.config} />
+
       <div className="item">
         <input type="checkbox"
                id="dark"

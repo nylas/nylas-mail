@@ -1,6 +1,6 @@
 React = require 'react'
 _ = require 'underscore'
-{Actions, MailViewFilter, WorkspaceStore} = require("nylas-exports")
+{Actions, MailViewFilter, WorkspaceStore, ThreadCountsStore} = require("nylas-exports")
 {ScrollRegion, Flexbox} = require("nylas-component-kit")
 SidebarDividerItem = require("./account-sidebar-divider-item")
 SidebarSheetItem = require("./account-sidebar-sheet-item")
@@ -38,9 +38,12 @@ class AccountSidebar extends React.Component
   componentDidMount: =>
     @unsubscribers = []
     @unsubscribers.push AccountSidebarStore.listen @_onStoreChange
+    @unsubscribers.push ThreadCountsStore.listen @_onStoreChange
+    @configSubscription = NylasEnv.config.observe('core.workspace.showUnreadForAllCategories', @_onStoreChange)
 
   componentWillUnmount: =>
     unsubscribe() for unsubscribe in @unsubscribers
+    @configSubscription?.dispose()
 
   render: =>
     <ScrollRegion style={flex:1} id="account-sidebar">
@@ -79,6 +82,12 @@ class AccountSidebar extends React.Component
 
     components
 
+  _itemUnreadCount: (item) =>
+    category = item.mailViewFilter.category
+    if category and (category.name is 'inbox' or @state.unreadCountsForAll)
+      return @state.unreadCounts[category.id]
+    return 0
+
   _itemComponent: (item) =>
     unless item instanceof WorkspaceStore.SidebarItem
       throw new Error("AccountSidebar:_itemComponents: sections contained an \
@@ -93,6 +102,7 @@ class AccountSidebar extends React.Component
     else if item.mailViewFilter
       <AccountSidebarMailViewItem
         item={item}
+        itemUnreadCount={@_itemUnreadCount(item)}
         mailView={item.mailViewFilter}
         select={item.mailViewFilter.isEqual(@state.selected)} />
 
@@ -117,6 +127,8 @@ class AccountSidebar extends React.Component
   _getStateFromStores: =>
     sections: AccountSidebarStore.sections()
     selected: AccountSidebarStore.selected()
+    unreadCounts: ThreadCountsStore.unreadCounts()
+    unreadCountsForAll: NylasEnv.config.get('core.workspace.showUnreadForAllCategories')
 
 
 module.exports = AccountSidebar
