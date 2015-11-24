@@ -32,12 +32,19 @@ notifyOfTestError = (testOutput, grunt) -> new Promise (resolve, reject) ->
 module.exports = (grunt) ->
 
   grunt.registerTask 'run-spectron-specs', 'Run spectron specs', ->
-    rootDir = path.resolve('.')
-    appPath = path.resolve('./electron/Electron.app/Contents/MacOS/Electron')
+    shellAppDir = grunt.config.get('nylasGruntConfig.shellAppDir')
+    executablePath = path.join(shellAppDir, 'Contents', 'MacOS', 'Nylas')
 
     done = @async()
     npmPath = path.resolve "./build/node_modules/.bin/npm"
-    grunt.log.writeln 'App exists: ' + fs.existsSync(appPath)
+
+    if process.platform isnt 'darwin'
+      grunt.log.error("run-spectron-specs only works on Mac OS X at the moment.")
+      done(false)
+
+    if not fs.existsSync(executablePath)
+      grunt.log.error("run-spectron-specs requires the built version of the app at #{executablePath}")
+      done(false)
 
     process.chdir('./spectron')
     grunt.log.writeln "Current dir: #{process.cwd()}"
@@ -50,8 +57,8 @@ module.exports = (grunt) ->
       else
         appArgs = [
           'test'
-          "APP_PATH=#{appPath}"
-          "APP_ARGS=#{rootDir}"
+          "APP_PATH=#{executablePath}"
+          "APP_ARGS="
         ]
         executeTests cmd: npmPath, args: appArgs, grunt, (succeeded) ->
           process.chdir('..')
