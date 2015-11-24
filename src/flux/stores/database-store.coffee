@@ -1,5 +1,4 @@
 _ = require 'underscore'
-ipc = require 'ipc'
 async = require 'async'
 path = require 'path'
 sqlite3 = require 'sqlite3'
@@ -12,6 +11,8 @@ PromiseQueue = require 'promise-queue'
 DatabaseSetupQueryBuilder = require './database-setup-query-builder'
 DatabaseChangeRecord = require './database-change-record'
 PriorityUICoordinator = require '../../priority-ui-coordinator'
+
+{ipcRenderer} = require 'electron'
 
 {AttributeCollection, AttributeJoinedData} = require '../attributes'
 
@@ -94,7 +95,7 @@ class DatabaseStore extends NylasStore
 
     # Listen to events from the application telling us when the database is ready,
     # should be closed so it can be deleted, etc.
-    ipc.on('database-phase-change', @_onPhaseChange)
+    ipcRenderer.on('database-phase-change', @_onPhaseChange)
     _.defer => @_onPhaseChange()
 
   _onPhaseChange: (event) =>

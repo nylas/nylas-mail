@@ -35,9 +35,9 @@ class AutoUpdateManager
     if process.platform is 'win32'
       # Squirrel for Windows can't handle query params
       # https://github.com/Squirrel/Squirrel.Windows/issues/132
-      @feedUrl = "https://edgehill.nylas.com/update-check/win32/#{process.arch}/#{@version}/#{updaterId}/#{updaterEmails}"
+      @feedURL = "https://edgehill.nylas.com/update-check/win32/#{process.arch}/#{@version}/#{updaterId}/#{updaterEmails}"
     else
-      @feedUrl = "https://edgehill.nylas.com/update-check?platform=#{process.platform}&arch=#{process.arch}&version=#{@version}&id=#{updaterId}&emails=#{updaterEmails}"
+      @feedURL = "https://edgehill.nylas.com/update-check?platform=#{process.platform}&arch=#{process.arch}&version=#{@version}&id=#{updaterId}&emails=#{updaterEmails}"
 
     if not @specMode
       process.nextTick => @setupAutoUpdater()
@@ -46,13 +46,13 @@ class AutoUpdateManager
     if process.platform is 'win32'
       autoUpdater = require './auto-updater-win32'
     else
-      autoUpdater = require 'auto-updater'
+      autoUpdater = require('electron').autoUpdater
 
     autoUpdater.on 'error', (event, message) =>
       console.error "Error Downloading Update: #{message}"
       @setState(ErrorState)
 
-    autoUpdater.setFeedUrl(@feedUrl)
+    autoUpdater.setFeedURL(@feedURL)
 
     autoUpdater.on 'checking-for-update', =>
       @setState(CheckingState)
@@ -110,7 +110,7 @@ class AutoUpdateManager
 
   onUpdateNotAvailable: =>
     autoUpdater.removeListener 'error', @onUpdateError
-    dialog = require 'dialog'
+    {dialog} = require 'electron'
     dialog.showMessageBox
       type: 'info'
       buttons: ['OK']
@@ -121,7 +121,7 @@ class AutoUpdateManager
 
   onUpdateError: (event, message) =>
     autoUpdater.removeListener 'update-not-available', @onUpdateNotAvailable
-    dialog = require 'dialog'
+    {dialog} = require 'electron'
     dialog.showMessageBox
       type: 'warning'
       buttons: ['OK']

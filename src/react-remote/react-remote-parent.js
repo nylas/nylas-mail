@@ -1,4 +1,4 @@
-var ipc = require("ipc");
+var ipcRenderer = require("electron").ipcRenderer;
 var React = require('react');
 var _ = require('underscore');
 var LinkedValueUtils = require('react/lib/LinkedValueUtils');
@@ -117,7 +117,7 @@ setTimeout(function(){
   observeMethod('ReactDOMSelect', 'componentDidMount', Custom.sendSelectCurrentValue);
 }, 10);
 
-ipc.on('from-react-remote-window', function(json) {
+ipcRenderer.on('from-react-remote-window', function(event, json) {
   var container = null;
   for (var ii = 0; ii < invocationTargets.length; ii ++) {
     if (invocationTargets[ii].windowId == json.windowId) {
@@ -175,7 +175,7 @@ selectionChange = function() {
 }
 // document.addEventListener("selectionchange", selectionChange);
 
-ipc.on('from-react-remote-window-selection', function(selectionData){
+ipcRenderer.on('from-react-remote-window-selection', function(event, selectionData){
   document.removeEventListener("selectionchange", selectionChange)
   restoreSelection(selectionData)
   document.addEventListener("selectionchange", selectionChange);
@@ -248,7 +248,7 @@ var openWindowForComponent = function(Component, options) {
     resizable: options.resizable,
     show: false
   });
-  thinWindow.loadUrl(thinWindowUrl);
+  thinWindow.loadURL(thinWindowUrl);
   if (process.platform !== 'darwin') {
     thinWindow.setMenu(null);
   }

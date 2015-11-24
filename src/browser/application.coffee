@@ -1,22 +1,19 @@
 NylasWindow = require './nylas-window'
-BrowserWindow = require 'browser-window'
 WindowManager = require './window-manager'
 ApplicationMenu = require './application-menu'
 AutoUpdateManager = require './auto-update-manager'
 NylasProtocolHandler = require './nylas-protocol-handler'
 SharedFileManager = require './shared-file-manager'
 
+{BrowserWindow, Menu, app, ipcMain, dialog} = require 'electron'
+
 _ = require 'underscore'
 fs = require 'fs-plus'
 os = require 'os'
-app = require 'app'
-ipc = require 'ipc'
 net = require 'net'
 url = require 'url'
 exec = require('child_process').exec
-Menu = require 'menu'
 path = require 'path'
-dialog = require 'dialog'
 querystring = require 'querystring'
 {EventEmitter} = require 'events'
 
@@ -310,28 +307,28 @@ class Application
       @openUrl(urlToOpen)
       event.preventDefault()
 
-    ipc.on 'set-badge-value', (event, value) =>
+    ipcMain.on 'set-badge-value', (event, value) =>
       app.dock?.setBadge?(value)
 
-    ipc.on 'new-window', (event, options) =>
+    ipcMain.on 'new-window', (event, options) =>
       @windowManager.newWindow(options)
 
-    ipc.on 'show-feedback-window', (event, options) =>
+    ipcMain.on 'show-feedback-window', (event, options) =>
       @windowManager.showFeedbackWindow(options)
 
-    ipc.on 'register-hot-window', (event, options) =>
+    ipcMain.on 'register-hot-window', (event, options) =>
       @windowManager.registerHotWindow(options)
 
-    ipc.on 'unregister-hot-window', (event, windowType) =>
+    ipcMain.on 'unregister-hot-window', (event, windowType) =>
       @windowManager.unregisterHotWindow(windowType)
 
-    ipc.on 'from-react-remote-window', (event, json) =>
+    ipcMain.on 'from-react-remote-window', (event, json) =>
       @windowManager.sendToMainWindow('from-react-remote-window', json)
 
-    ipc.on 'from-react-remote-window-selection', (event, json) =>
+    ipcMain.on 'from-react-remote-window-selection', (event, json) =>
       @windowManager.sendToMainWindow('from-react-remote-window-selection', json)
 
-    ipc.on 'inline-style-parse', (event, {body, clientId}) =>
+    ipcMain.on 'inline-style-parse', (event, {body, clientId}) =>
       juice = require 'juice'
       try
         body = juice(body)
@@ -348,48 +345,51 @@ class Application
       @openWindowsForTokenState()
       event.preventDefault()
 
-    ipc.on 'update-application-menu', (event, template, keystrokesByCommand) =>
+    ipcMain.on 'update-application-menu', (event, template, keystrokesByCommand) =>
       win = BrowserWindow.fromWebContents(event.sender)
       @applicationMenu.update(win, template, keystrokesByCommand)
 
-    ipc.on 'command', (event, command) =>
+    ipcMain.on 'command', (event, command) =>
       @emit(command)
 
-    ipc.on 'window-command', (event, command, args...) ->
+    ipcMain.on 'window-command', (event, command, args...) ->
       win = BrowserWindow.fromWebContents(event.sender)
       win.emit(command, args...)
 
-    ipc.on 'call-window-method', (event, method, args...) ->
+    ipcMain.on 'call-window-method', (event, method, args...) ->
       win = BrowserWindow.fromWebContents(event.sender)
       win[method](args...)
 
-    ipc.on 'action-bridge-rebroadcast-to-all', (event, args...) =>
+    ipcMain.on 'call-webcontents-method', (event, method, args...) ->
+      event.sender[method](args...)
+
+    ipcMain.on 'action-bridge-rebroadcast-to-all', (event, args...) =>
       win = BrowserWindow.fromWebContents(event.sender)
       @windowManager.windows().forEach (nylasWindow) ->
         return if nylasWindow.browserWindow == win
         return unless nylasWindow.browserWindow.webContents
         nylasWindow.browserWindow.webContents.send('action-bridge-message', args...)
 
-    ipc.on 'action-bridge-rebroadcast-to-work', (event, args...) =>
+    ipcMain.on 'action-bridge-rebroadcast-to-work', (event, args...) =>
       workWindow = @windowManager.workWindow()
       return if not workWindow or not workWindow.browserWindow.webContents
       return if BrowserWindow.fromWebContents(event.sender) is workWindow
       workWindow.browserWindow.webContents.send('action-bridge-message', args...)
 
     clipboard = null
-    ipc.on 'write-text-to-selection-clipboard', (event, selectedText) ->
-      clipboard ?= require 'clipboard'
+    ipcMain.on 'write-text-to-selection-clipboard', (event, selectedText) ->
+      clipboard ?= require('electron').clipboard
       clipboard.writeText(selectedText, 'selection')
 
-    ipc.on 'account-setup-successful', (event) =>
+    ipcMain.on 'account-setup-successful', (event) =>
       @windowManager.showMainWindow()
       @windowManager.ensureWorkWindow()
       @windowManager.onboardingWindow()?.close()
 
-    ipc.on 'new-account-added', (event) =>
+    ipcMain.on 'new-account-added', (event) =>
       @windowManager.ensureWorkWindow()
 
-    ipc.on 'run-in-window', (event, params) =>
+    ipcMain.on 'run-in-window', (event, params) =>
       @_sourceWindows ?= {}
       sourceWindow = BrowserWindow.fromWebContents(event.sender)
       @_sourceWindows[params.taskId] = sourceWindow
@@ -401,7 +401,7 @@ class Application
       return if not targetWindow or not targetWindow.browserWindow.webContents
       targetWindow.browserWindow.webContents.send('run-in-window', params)
 
-    ipc.on 'remote-run-results', (event, params) =>
+    ipcMain.on 'remote-run-results', (event, params) =>
       sourceWindow = @_sourceWindows[params.taskId]
       sourceWindow.webContents.send('remote-run-results', params)
       delete @_sourceWindows[params.taskId]

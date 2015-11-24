@@ -98,7 +98,7 @@ class AccountChoosePage extends React.Component
             https://www.googleapis.com/auth/calendar'
         approval_prompt: 'force'
     })
-    shell = require 'shell'
+    {shell} = require 'electron'
     shell.openExternal(googleUrl)
 
 module.exports = AccountChoosePage

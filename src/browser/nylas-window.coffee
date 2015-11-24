@@ -1,5 +1,4 @@
-BrowserWindow = require 'browser-window'
-app = require 'app'
+{BrowserWindow, app} = require 'electron'
 path = require 'path'
 fs = require 'fs'
 url = require 'url'
@@ -55,26 +54,24 @@ class NylasWindow
       show: false
       title: title ? 'Nylas'
       frame: frame
-      'standard-window': frame
       width: width
       height: height
       resizable: resizable ? true
       icon: @constructor.iconPath
-      'web-preferences':
-        'direct-write': true
-        'subpixel-font-scaling': true
+      webPreferences:
+        directWrite: true
 
     if @mainWindow
       # Prevents DOM timers from being suspended when the main window is hidden.
       # Means there's not an awkward catch-up when you re-show the main window.
-      options['web-preferences']['page-visibility'] = true
+      options.webPreferences.pageVisibility = true
 
     # Don't set icon on Windows so the exe's ico will be used as window and
     # taskbar's icon. See https://github.com/atom/atom/issues/4811 for more.
     if process.platform is 'linux'
       options.icon = @constructor.iconPath
 
-    @browserWindow = new BrowserWindow options
+    @browserWindow = new BrowserWindow(options)
     global.application.windowManager.addWindow(this)
 
     @handleEvents()
@@ -108,7 +105,7 @@ class NylasWindow
       if @browserWindow.loadSettingsChangedSinceGetURL
         @browserWindow.webContents.send('load-settings-changed', @browserWindow.loadSettings)
 
-    @browserWindow.loadUrl(@getUrl(loadSettings))
+    @browserWindow.loadURL(@getURL(loadSettings))
     @browserWindow.focusOnWebView() if @isSpec
 
   loadSettings: ->
@@ -120,7 +117,7 @@ class NylasWindow
     if @loaded
       @browserWindow.webContents.send('load-settings-changed', loadSettings)
 
-  getUrl: (loadSettingsObj) ->
+  getURL: (loadSettingsObj) ->
     # Ignore the windowState when passing loadSettings via URL, since it could
     # be quite large.
     loadSettings = _.clone(loadSettingsObj)
@@ -172,7 +169,7 @@ class NylasWindow
       return if @isSpec
       return if not @loaded
 
-      dialog = require 'dialog'
+      {dialog} = require 'electron'
       chosen = dialog.showMessageBox @browserWindow,
         type: 'warning'
         buttons: ['Close', 'Keep Waiting']
@@ -184,9 +181,9 @@ class NylasWindow
       global.application.exit(100) if @exitWhenDone
 
       if @neverClose
-        @browserWindow.restart()
+        @browserWindow.reload()
       else
-        dialog = require 'dialog'
+        {dialog} = require 'electron'
         chosen = dialog.showMessageBox @browserWindow,
           type: 'warning'
           buttons: ['Close Window', 'Reload', 'Keep It Open']
@@ -194,7 +191,7 @@ class NylasWindow
           detail: 'Please report this issue to us at support@nylas.com.'
         switch chosen
           when 0 then @browserWindow.destroy()
-          when 1 then @browserWindow.restart()
+          when 1 then @browserWindow.reload()
 
     @setupContextMenu()
 
@@ -271,6 +268,6 @@ class NylasWindow
 
   isSpecWindow: -> @isSpec
 
-  reload: -> @browserWindow.restart()
+  reload: -> @browserWindow.reload()
 
   toggleDevTools: -> @browserWindow.toggleDevTools()

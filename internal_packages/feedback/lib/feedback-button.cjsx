@@ -57,7 +57,7 @@ class FeedbackButton extends React.Component
     x = Math.min(parentScreen.workAreaSize.width - width, Math.max(0, parentBounds.x + parentBounds.width - 36 - width / 2))
     y = Math.max(0, (parentBounds.y + parentBounds.height) - height - 60)
 
-    require('ipc').send('show-feedback-window', { x, y, width, height, params })
+    require('electron').ipcRenderer.send('show-feedback-window', { x, y, width, height, params })
     setTimeout =>
       @setState(newMessages: false)
     , 250

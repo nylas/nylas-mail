@@ -1,5 +1,4 @@
 _ = require 'underscore'
-ipc = require 'ipc'
 Model = null
 SerializableRegistry = require './serializable-registry'
 

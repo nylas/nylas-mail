@@ -1,4 +1,4 @@
-clipboard = require 'clipboard'
+{clipboard} = require 'electron'
 crypto = require 'crypto'
 
 # Extended: Represents the clipboard used for copying and pasting in Nylas N1.

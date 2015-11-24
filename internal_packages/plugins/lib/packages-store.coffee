@@ -1,12 +1,12 @@
 _ = require 'underscore'
-ipc = require 'ipc'
 Reflux = require 'reflux'
 path = require 'path'
 fs = require 'fs-plus'
-shell = require 'shell'
 PluginsActions = require './plugins-actions'
 {APMWrapper} = require 'nylas-exports'
-dialog = require('remote').require('dialog')
+
+{ipcRenderer, shell, remote} = require 'electron'
+dialog = remote.require('dialog')
 
 module.exports =
 PackagesStore = Reflux.createStore
@@ -168,7 +168,7 @@ PackagesStore = Reflux.createStore
     else
       starterPackagesPath = path.join(resourcePath, "examples")
 
-    dialog.showOpenDialog
+    NylasEnv.showOpenDialog
       title: "Choose a Package Directory"
       defaultPath: starterPackagesPath
       properties: ['openDirectory']
@@ -195,13 +195,13 @@ PackagesStore = Reflux.createStore
                 Developer menu."
         buttons: ["OK", "Cancel"]
       if btn is 0
-        ipc.send('command', 'application:toggle-dev')
+        ipcRenderer.send('command', 'application:toggle-dev')
       return
 
     packagesDir = path.join(NylasEnv.getConfigDirPath(), 'dev', 'packages')
     fs.makeTreeSync(packagesDir)
 
-    dialog.showSaveDialog
+    NylasEnv.showSaveDialog
       title: "Save New Package"
       defaultPath: packagesDir
       properties: ['createDirectory']

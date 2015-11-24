@@ -40,7 +40,7 @@ class DeveloperBarCurlItem extends React.Component
       fs.unlinkSync(curlFile)
     fs.writeFileSync(curlFile, @props.item.command)
     fs.chmodSync(curlFile, '777')
-    shell = require 'shell'
+    {shell} = require 'electron'
     shell.openItem(curlFile)
 
 

@@ -12,15 +12,16 @@ class CalendarButton extends React.Component
   _onClick: =>
     BrowserWindow = require('remote').require('browser-window')
     w = new BrowserWindow
-      'node-integration': false,
-      'web-preferences': {'web-security':false},
-      'width': 700,
-      'height': 600
+      nodeIntegration: false
+      webPreferences:
+        webSecurity:false
+      width: 700
+      height: 600
 
     # Here, we load an arbitrary html file into the Composer!
     path = require 'path'
     url = path.join __dirname, '..', 'calendar.html'
-    w.loadUrl "file://#{url}?draftClientId=#{@props.draftClientId}"
+    w.loadURL "file://#{url}?draftClientId=#{@props.draftClientId}"
 
 
   _getDialog: =>

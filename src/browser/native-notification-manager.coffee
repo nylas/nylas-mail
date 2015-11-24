@@ -1,4 +1,4 @@
-# ipc = require 'ipc'
+# ipcMain = require 'ipcMain'
 # BrowserWindow = require 'browser-window'
 #
 # class NativeNotificationManagerUnavailable
@@ -27,7 +27,7 @@
 #     global.__nativeNotificationManagerMacOSXDelegate = Delegate
 #     global.__nativeNotificationManagerMacOSX = @
 #
-#     ipc.on('fire-native-notification', @onFireNotification)
+#     ipcMain.on('fire-native-notification', @onFireNotification)
 #
 #   shouldPresentNotification: (self, _cmd, center, notif) =>
 #     return true

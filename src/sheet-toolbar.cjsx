@@ -28,7 +28,8 @@ class WindowTitle extends React.Component
     @unlisten = NylasEnv.onWindowPropsReceived (windowProps) =>
       @setState NylasEnv.getLoadSettings()
 
-  componentWillUnmount: -> @unlisten()
+  componentWillUnmount: ->
+    @unlisten?()
 
   render: ->
     <div className="window-title">{@state.title}</div>

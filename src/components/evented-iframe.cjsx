@@ -169,7 +169,7 @@ class EventedIFrame extends React.Component
       menu.append(new MenuItem({
         label: "Save Image...",
         click: ->
-          NylasEnv.showSaveDialog srcFilename, (path) ->
+          NylasEnv.showSaveDialog {defaultPath: srcFilename}, (path) ->
             return unless path
             oReq = new XMLHttpRequest()
             oReq.open("GET", src, true)
@@ -190,7 +190,7 @@ class EventedIFrame extends React.Component
             canvas.height = img.height
             canvas.getContext("2d").drawImage(imageTarget, 0, 0)
             imageDataURL = canvas.toDataURL("image/png")
-            img = NativeImage.createFromDataUrl(imageDataURL)
+            img = NativeImage.createFromDataURL(imageDataURL)
             clipboard.writeImage(img)
           , false)
           img.src = src

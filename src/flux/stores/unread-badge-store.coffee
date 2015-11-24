@@ -61,6 +61,6 @@ class UnreadBadgeStore extends NylasStore
     # NOTE: Do not underestimate how long this can take. It's a synchronous
     # remote call and can take ~50+msec.
     return if NylasEnv.config.get('core.showUnreadBadge') is false
-    require('ipc').send('set-badge-value', val)
+    require('electron').ipcRenderer.send('set-badge-value', val)
 
 module.exports = new UnreadBadgeStore()

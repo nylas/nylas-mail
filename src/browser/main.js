@@ -64,7 +64,7 @@
     if (process.env.NYLAS_HOME) {
       return;
     }
-    atomHome = path.join(app.getHomeDir(), '.nylas');
+    atomHome = path.join(app.getPath('home'), '.nylas');
     return process.env.NYLAS_HOME = atomHome;
   };
 

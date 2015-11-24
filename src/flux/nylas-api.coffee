@@ -241,8 +241,8 @@ class NylasAPI
     unless @_notificationUnlisten
       handler = ({notification, action}) ->
         if action.id is '401:unlink'
-          ipc = require 'ipc'
-          ipc.send('command', 'application:reset-config-and-relaunch')
+          {ipcRenderer} = require 'electron'
+          ipcRenderer.send('command', 'application:reset-config-and-relaunch')
       @_notificationUnlisten = Actions.notificationActionTaken.listen(handler, @)
 
     return Promise.resolve()

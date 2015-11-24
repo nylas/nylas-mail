@@ -1,8 +1,9 @@
 _ = require 'underscore'
-ipc = require 'ipc'
 crypto = require 'crypto'
 moment = require 'moment'
 sanitizeHtml = require 'sanitize-html'
+
+{ipcRenderer} = require 'electron'
 
 DraftStoreProxy = require './draft-store-proxy'
 DatabaseStore = require './database-store'
@@ -58,7 +59,7 @@ class DraftStore
     @listenTo Actions.sendQuickReply, @_onSendQuickReply
 
     if NylasEnv.isMainWindow()
-      ipc.on 'new-message', => @_onPopoutBlankDraft()
+      ipcRenderer.on 'new-message', => @_onPopoutBlankDraft()
 
     # Remember that these two actions only fire in the current window and
     # are picked up by the instance of the DraftStore in the current
@@ -92,9 +93,9 @@ class DraftStore
     # request to queue something, and when it appears on the queue.
     @_draftsSending = {}
 
-    ipc.on 'mailto', @_onHandleMailtoLink
+    ipcRenderer.on 'mailto', @_onHandleMailtoLink
 
-    ipc.on 'inline-styles-result', @_onInlineStylesResult
+    ipcRenderer.on 'inline-styles-result', @_onInlineStylesResult
 
   ######### PUBLIC #######################################################
 
@@ -371,7 +372,7 @@ class DraftStore
     body = @_injectUserAgentStyles(body)
     @_inlineStylePromises[clientId] ?= new Promise (resolve, reject) =>
       @_inlineStyleResolvers[clientId] = resolve
-      ipc.send('inline-style-parse', {body, clientId})
+      ipcRenderer.send('inline-style-parse', {body, clientId})
     return @_inlineStylePromises[clientId]
 
   # This will prepend the user agent stylesheet so we can apply it to the
@@ -383,7 +384,7 @@ class DraftStore
     userAgentDefault = require '../../chrome-user-agent-stylesheet-string'
     return "#{body[0...i]}<style>#{userAgentDefault}</style>#{body[i..-1]}"
 
-  _onInlineStylesResult: ({body, clientId}) =>
+  _onInlineStylesResult: (event, {body, clientId}) =>
     delete @_inlineStylePromises[clientId]
     @_inlineStyleResolvers[clientId](body)
     delete @_inlineStyleResolvers[clientId]
@@ -422,19 +423,23 @@ class DraftStore
 
     title = if options.newDraft then "New Message" else "Message"
 
+    console.log('starting save')
     save.then =>
+      console.log('finished save')
       app = require('remote').getGlobal('application')
       existing = app.windowManager.windowWithPropsMatching({draftClientId})
+      console.log('discovered existing')
       if existing
         existing.restore() if existing.isMinimized()
         existing.focus()
       else
+        console.log('NylasEnv.newWindow')
         NylasEnv.newWindow
           title: title
           windowType: "composer"
           windowProps: _.extend(options, {draftClientId})
 
-  _onHandleMailtoLink: (urlString) =>
+  _onHandleMailtoLink: (event, urlString) =>
     account = AccountStore.current()
     return unless account
 

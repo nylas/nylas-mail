@@ -87,7 +87,7 @@ class PreferencesAccounts extends React.Component
     tokens
 
   _onAddAccount: =>
-    ipc = require('ipc')
+    ipc = require('electron').ipcRenderer
     ipc.send('command', 'application:add-account')
 
   _onAccountChange: =>

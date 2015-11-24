@@ -4,7 +4,7 @@ process.on 'uncaughtException', (error={}) ->
   console.log(error.message) if error.message?
   console.log(error.stack) if error.stack?
 
-app = require 'app'
+{app} = require 'electron'
 fs = require 'fs-plus'
 path = require 'path'
 optimist = require 'optimist'
@@ -44,7 +44,7 @@ start = ->
 
 setupNylasHome = ->
   return if process.env.NYLAS_HOME
-  atomHome = path.join(app.getHomeDir(), '.nylas')
+  atomHome = path.join(app.getPath('home'), '.nylas')
   process.env.NYLAS_HOME = atomHome
 
 normalizeDriveLetterName = (filePath) ->

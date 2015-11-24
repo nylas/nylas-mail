@@ -1,6 +1,6 @@
 var _ = require('underscore')
 var container = document.getElementById("container");
-var ipc = require('ipc');
+var ipc = require('electron').ipcRenderer;
 var lastSelectionData = {}
 
 document.body.classList.add("platform-"+process.platform);

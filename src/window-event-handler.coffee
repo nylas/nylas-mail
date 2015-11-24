@@ -2,8 +2,7 @@ path = require 'path'
 {$} = require './space-pen-extensions'
 _ = require 'underscore'
 {Disposable} = require 'event-kit'
-ipc = require 'ipc'
-shell = require 'shell'
+{shell, ipcRenderer} = require 'electron'
 {Subscriber} = require 'emissary'
 fs = require 'fs-plus'
 url = require 'url'
@@ -19,7 +18,7 @@ class WindowEventHandler
     _.defer =>
       @showDevModeMessages()
 
-    @subscribe ipc, 'open-path', (pathToOpen) ->
+    @subscribe ipcRenderer, 'open-path', (event, pathToOpen) ->
       unless NylasEnv.project?.getPaths().length
         if fs.existsSync(pathToOpen) or fs.existsSync(path.dirname(pathToOpen))
           NylasEnv.project?.setPaths([pathToOpen])
@@ -27,20 +26,20 @@ class WindowEventHandler
       unless fs.isDirectorySync(pathToOpen)
         NylasEnv.workspace?.open(pathToOpen, {})
 
-    @subscribe ipc, 'update-available', (detail) ->
+    @subscribe ipcRenderer, 'update-available', (event, detail) ->
       NylasEnv.updateAvailable(detail)
 
-    @subscribe ipc, 'send-feedback', (detail) ->
+    @subscribe ipcRenderer, 'send-feedback', (detail) ->
       Actions = require './flux/actions'
       Actions.sendFeedback()
 
-    @subscribe ipc, 'browser-window-focus', ->
+    @subscribe ipcRenderer, 'browser-window-focus', ->
       document.body.classList.remove('is-blurred')
 
-    @subscribe ipc, 'browser-window-blur', ->
+    @subscribe ipcRenderer, 'browser-window-blur', ->
       document.body.classList.add('is-blurred')
 
-    @subscribe ipc, 'command', (command, args...) ->
+    @subscribe ipcRenderer, 'command', (event, command, args...) ->
       activeElement = document.activeElement
       # Use the workspace element view if body has focus
       if activeElement is document.body and workspaceElement = document.getElementById("nylas-workspace")

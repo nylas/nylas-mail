@@ -1,5 +1,5 @@
 fs = require 'fs'
-shell = require 'shell'
+{shell} = require 'electron'
 NylasAPI = require '../../src/flux/nylas-api'
 File = require '../../src/flux/models/file'
 FileDownloadStore = require '../../src/flux/stores/file-download-store'

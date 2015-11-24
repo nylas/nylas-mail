@@ -1,8 +1,7 @@
 os = require 'os'
 fs = require 'fs'
-ipc = require 'ipc'
 path = require 'path'
-shell = require 'shell'
+{shell} = require 'electron'
 mkdirp = require 'mkdirp'
 Utils = require '../models/utils'
 Reflux = require 'reflux'
@@ -211,7 +210,7 @@ FileDownloadStore = Reflux.createStore
       @_presentError(file)
 
   _fetchAndSave: (file) ->
-    NylasEnv.showSaveDialog @_defaultSavePath(file), (savePath) =>
+    NylasEnv.showSaveDialog {defaultPath: @_defaultSavePath(file)}, (savePath) =>
       return unless savePath
       @_runDownload(file).then (download) ->
         stream = fs.createReadStream(download.targetPath)

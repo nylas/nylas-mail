@@ -1,6 +1,6 @@
 path = require('path')
 fs = require('fs-plus')
-ipc = require('ipc')
+ipc = require('electron').ipcRenderer
 
 require('module').globalPaths.push(path.resolve('exports'))
 

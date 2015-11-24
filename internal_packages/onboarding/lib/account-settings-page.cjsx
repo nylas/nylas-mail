@@ -1,9 +1,6 @@
 React = require 'react'
-remote = require 'remote'
-dialog = remote.require 'dialog'
 Crypto = require 'crypto'
-ipc = require 'ipc'
-
+{ipcRenderer, dialog, remote} = require 'electron'
 {RetinaImg} = require 'nylas-component-kit'
 {EdgehillAPI, NylasAPI, APIError} = require 'nylas-exports'
 
@@ -52,7 +49,7 @@ class AccountSettingsPage extends React.Component
           )
         setTimeout(_retry,initial_delay)
 
-      ipc.on('browser-window-focus', ->
+      ipcRenderer.on('browser-window-focus', ->
         if not done  # hack to deactivate this listener when done
           pollAttemptId++
           poll(pollAttemptId,0)

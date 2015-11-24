@@ -8,14 +8,15 @@ stubUpdaterReleaseVersion = null
 ipcSendArgs = null
 
 PackageMain = proxyquire "../lib/main",
-  "ipc":
-    send: ->
-      ipcSendArgs = arguments
-  "remote":
-    getGlobal: (global) ->
-      autoUpdateManager:
-        releaseVersion: stubUpdaterReleaseVersion
-        getState: -> stubUpdaterState
+  "electron":
+    "ipcRenderer":
+      send: ->
+        ipcSendArgs = arguments
+    "remote":
+      getGlobal: (global) ->
+        autoUpdateManager:
+          releaseVersion: stubUpdaterReleaseVersion
+          getState: -> stubUpdaterState
 
 describe "NotificationUpdateAvailable", ->
   beforeEach ->
@@ -33,7 +34,7 @@ describe "NotificationUpdateAvailable", ->
       stubUpdaterState = 'update-available'
       @package.activate()
       expect(@package.displayNotification).toHaveBeenCalled()
-    
+
     it "should not display a notification if no update is avialable", ->
       spyOn(@package, 'displayNotification')
       stubUpdaterState = 'no-update-available'
@@ -63,9 +64,8 @@ describe "NotificationUpdateAvailable", ->
 
       notifOptions = Actions.postNotification.mostRecentCall.args[0]
       expect(notifOptions.message.indexOf(version) > 0).toBe(true)
- 
+
     describe "when the action is taken", ->
       it "should fire the `application:install-update` IPC event", ->
         Actions.notificationActionTaken({notification: {}, action: {id: 'release-bar:install-update'}})
         expect(Array.prototype.slice.call(ipcSendArgs)).toEqual(['command', 'application:install-update'])
-

@@ -1,7 +1,6 @@
 import path from 'path';
-import remote from 'remote';
-import ipc from 'ipc';
 import NylasStore from 'nylas-store';
+import {remote, ipcRenderer} from 'electron';
 import {UnreadBadgeStore, CanvasUtils} from 'nylas-exports';
 const NativeImage = remote.require('native-image');
 const Menu = remote.require('menu');
@@ -15,25 +14,25 @@ const UNREAD_ICON_PATH = path.join(__dirname, '..', 'assets', process.platform, 
 const menuTemplate = [
   {
     label: 'New Message',
-    click: ()=> ipc.send('command', 'application:new-message'),
+    click: ()=> ipcRenderer.send('command', 'application:new-message'),
   },
   {
     label: 'Preferences',
-    click: ()=> ipc.send('command', 'application:open-preferences'),
+    click: ()=> ipcRenderer.send('command', 'application:open-preferences'),
   },
   {
     type: 'separator',
   },
   {
     label: 'Quit N1',
-    click: ()=> ipc.send('command', 'application:quit'),
+    click: ()=> ipcRenderer.send('command', 'application:quit'),
   },
 ];
 
 if (process.platform === 'darwin') {
   menuTemplate.unshift({
     label: 'Open Inbox',
-    click: ()=> ipc.send('command', 'application:show-main-window'),
+    click: ()=> ipcRenderer.send('command', 'application:show-main-window'),
   });
 }
 
@@ -77,10 +76,10 @@ class TrayStore extends NylasStore {
         const img = new Image();
         // toDataUrl always returns the @1x image data, so the assets/darwin/
         // contains an "@2x" image /without/ the @2x extension
-        img.src = this._baseIcon.toDataUrl();
+        img.src = this._baseIcon.toDataURL();
         const count = this._unreadCount || '';
         const canvas = canvasWithSystemTrayIconAndText(img, count.toString());
-        const pngData = NativeImage.createFromDataUrl(canvas.toDataURL()).toPng();
+        const pngData = NativeImage.createFromDataURL(canvas.toDataURL()).toPng();
 
         // creating from a buffer allows us to specify that the image is @2x
         const out2x = NativeImage.createFromBuffer(pngData, 2);

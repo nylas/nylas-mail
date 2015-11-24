@@ -40,7 +40,7 @@ class ComposerView extends React.Component
   @containerRequired: false
 
   @propTypes:
-    draftClientId: React.PropTypes.string.isRequired
+    draftClientId: React.PropTypes.string
 
     # Either "inline" or "fullwindow"
     mode: React.PropTypes.string

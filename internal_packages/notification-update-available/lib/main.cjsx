@@ -1,6 +1,5 @@
-remote = require 'remote'
 {Actions} = require 'nylas-exports'
-ipc = require('ipc')
+{ipcRenderer, remote} = require('electron')
 
 module.exports =
 
@@ -62,7 +61,7 @@ module.exports =
 
   _onNotificationActionTaken: ({notification, action}) ->
     if action.id is 'release-bar:install-update'
-      ipc.send 'command', 'application:install-update'
+      ipcRenderer.send 'command', 'application:install-update'
       true
     if action.id is 'release-bar:view-changelog'
       require('shell').openExternal('https://github.com/nylas/N1/blob/master/CHANGELOG.md')
