@@ -34,7 +34,7 @@ module.exports = (grunt) ->
   grunt.registerTask 'run-spectron-specs', 'Run spectron specs', ->
     shellAppDir = grunt.config.get('nylasGruntConfig.shellAppDir')
 
-    if process.platform is 'darwine'
+    if process.platform is 'darwin'
       executablePath = path.join(shellAppDir, 'Contents', 'MacOS', 'Nylas')
     else
       executablePath = path.join(shellAppDir, 'nylas')
