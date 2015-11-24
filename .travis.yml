@@ -10,13 +10,13 @@ matrix:
   include:
 # Wants a c++11 compiler
     - os: linux
-      env: NODE_VERSION=0.10 CC=gcc-4.8 CXX=g++-4.8
+      env: NODE_VERSION=0.10 CC=gcc-4.8 CXX=g++-4.8 NYLAS_HOME=/home/travis/.nylas
     - os: linux
-      env: NODE_VERSION=0.12 CC=gcc-4.8 CXX=g++-4.8
+      env: NODE_VERSION=0.12 CC=gcc-4.8 CXX=g++-4.8 NYLAS_HOME=/home/travis/.nylas
     - os: linux
-      env: NODE_VERSION=4.2 CC=gcc-4.8 CXX=g++-4.8
+      env: NODE_VERSION=4.2 CC=gcc-4.8 CXX=g++-4.8 NYLAS_HOME=/home/travis/.nylas
     - os: linux
-      env: NODE_VERSION=5 CC=gcc-4.8 CXX=g++-4.8
+      env: NODE_VERSION=5 CC=gcc-4.8 CXX=g++-4.8 NYLAS_HOME=/home/travis/.nylas
     - os: osx
       env: NODE_VERSION=0.10
     - os: osx
@@ -39,6 +39,12 @@ install:
   - nvm install $NODE_VERSION
   - nvm use --delete-prefix $NODE_VERSION
 
+before_script:
+  - if [ "${TRAVIS_OS_NAME}" == "linux" ]; then
+    export DISPLAY=:99.0;
+    sh -e /etc/init.d/xvfb start;
+    fi
+
 script: script/cibuild
 
 addons:
@@ -52,3 +58,4 @@ addons:
     - g++-4.8
     - git
     - libgnome-keyring-dev
+    - xvfb
