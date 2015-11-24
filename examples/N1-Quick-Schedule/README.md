@@ -1,10 +1,10 @@
 # QuickSchedule
 
-This is a package that allows you to email times that you are free to other people to make it easier to schedule appointments. The package adds a "QuickSchedule" button next to the "Send" button. The button opens a calendar, in which you can select time periods to email to other people. When the recipient clicks a link to a specific time, the event is scheduled immediately. Say goodbye to the hassle of scheduling and say hello to QuickSchedule!
+Say goodbye to the hassle of scheduling! This new plugin lets you avoid the typical back-and-forth of picking a time to meet. Just select a few options, and your recipient confirms with one click. It's the best way to instantly schedule meetings.
 
-<img src="https://raw.githubusercontent.com/nylas/N1/master/examples/N1-Quick-Schedule/screenshots/quick-schedule-1.png">
+This plugin works by adding a small "QuickSchedule" button next to the Send button in the composer. Clicking the button will open a calendar where you can select potential times to meet. These times are placed in the draft, and your recipient can confirm a time with one click. It even automatically adds the event to both calendars! 
 
-<img src="https://raw.githubusercontent.com/nylas/N1/master/examples/N1-Quick-Schedule/screenshots/quick-schedule-2.png">
+<img src="https://raw.githubusercontent.com/nylas/N1/master/examples/N1-Quick-Schedule/screenshots/quick-schedule-3.png">
 
 ### How to install this plugin
 
