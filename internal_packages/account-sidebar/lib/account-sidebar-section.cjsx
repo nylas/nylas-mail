@@ -1,9 +1,10 @@
 React              = require 'react'
 _                  = require 'underscore'
 _str               = require 'underscore.string'
-{RetinaImg}        = require 'nylas-component-kit'
 AccountSidebarItem = require './account-sidebar-item'
 
+{RetinaImg,
+ DisclosureTriangle} = require 'nylas-component-kit'
 
 class AccountSidebarSection extends React.Component
   @displayName: "AccountSidebarSection"
@@ -36,9 +37,8 @@ class AccountSidebarSection extends React.Component
       onClick={@_onCreateButtonClicked.bind(@, label)}>
       <RetinaImg
         url="nylas://account-sidebar/assets/icon-sidebar-addcategory@2x.png"
-        fallback="icon-sidebar-addcategory.png"
         style={height: 14, width: 14}
-        mode={RetinaImg.Mode.ContentPreserve} />
+        mode={RetinaImg.Mode.ContentIsMask} />
     </div>
 
   _createItemInput: (section) ->
@@ -46,6 +46,7 @@ class AccountSidebarSection extends React.Component
     placeholder = "Create new #{label}"
     <span className="item-container">
       <div className="item add-item-container">
+        <DisclosureTriangle collapsed={false} visible={false} />
         <div className="icon">
           <RetinaImg
             name="#{section.iconName}"
@@ -58,6 +59,7 @@ class AccountSidebarSection extends React.Component
           className="input-bordered add-item-input"
           autoFocus={true}
           onKeyDown={_.partial @_onInputKeyDown, _, section}
+          onBlur={ => @setState(showCreateInput: false) }
           placeholder={placeholder}/>
       </div>
     </span>
