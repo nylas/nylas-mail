@@ -8,6 +8,9 @@ Actions = require '../actions'
 Thread = require '../models/thread'
 Folder = require '../models/folder'
 Label = require '../models/label'
+WindowBridge = require '../../window-bridge'
+
+JSONObjectKey = 'UnreadCounts-V0'
 
 class CategoryDatabaseMutationObserver
   constructor: (@_countsDidChange) ->
@@ -50,6 +53,7 @@ class CategoryDatabaseMutationObserver
 
 class ThreadCountsStore extends NylasStore
   CategoryDatabaseMutationObserver: CategoryDatabaseMutationObserver
+  JSONObjectKey: JSONObjectKey
 
   constructor: ->
     @_counts = {}
@@ -58,18 +62,19 @@ class ThreadCountsStore extends NylasStore
     @_saveCountsSoon ?= _.throttle(@_saveCounts, 1000)
 
     @listenTo DatabaseStore, @_onDatabaseChanged
-    DatabaseStore.findJSONObject('UnreadCounts').then (json) =>
+    DatabaseStore.findJSONObject(JSONObjectKey).then (json) =>
       @_counts = json ? {}
       @trigger()
 
+    @_observer = new CategoryDatabaseMutationObserver(@_onCountsChanged)
+    DatabaseStore.addMutationHook(@_observer)
+
     if NylasEnv.isWorkWindow()
-      @_observer = new CategoryDatabaseMutationObserver(@_onCountsChanged)
-      DatabaseStore.addMutationHook(@_observer)
       @_loadCategories().then =>
         @_fetchCountsMissing()
 
   unreadCountForCategoryId: (catId) =>
-    return null unless @_counts[catId]
+    return null if @_counts[catId] is undefined
     @_counts[catId] + (@_deltas[catId] || 0)
 
   unreadCounts: =>
@@ -86,11 +91,15 @@ class ThreadCountsStore extends NylasStore
             @_categories.push(obj)
         @_fetchCountsMissing()
 
-    if change.objectClass is 'JSONObject' and change.objects[0].key is 'UnreadCounts'
+    else if change.objectClass is 'JSONObject' and change.objects[0].key is JSONObjectKey
       @_counts = change.objects[0].json ? {}
       @trigger()
 
   _onCountsChanged: (metadata) =>
+    if not NylasEnv.isWorkWindow()
+      WindowBridge.runInWorkWindow("ThreadCountsStore", "_onCountsChanged", [metadata])
+      return
+
     for catId, unread of metadata
       @_deltas[catId] ?= 0
       @_deltas[catId] += unread
@@ -104,16 +113,27 @@ class ThreadCountsStore extends NylasStore
       @_categories = [].concat(folders, labels)
       Promise.resolve()
 
+  # Fetch a count, populate it in the cache, and then call ourselves to
+  # populate the next missing count.
   _fetchCountsMissing: =>
     # Find a category missing a count
     category = _.find @_categories, (cat) => !@_counts[cat.id]?
-    return @_saveCountsSoon() unless category
+    return unless category
 
-    # Fetch the count, populate it in the cache, and then call ourselves to
-    # populate the next missing count
+    # Reset the delta for the category, since we're about to fetch absolute count
+    @_deltas[category.id] = 0
+
     @_fetchCountForCategory(category).then (unread) =>
-      @_counts[category.id] = unread
-      @_fetchCountsMissing()
+      # Only apply the count if we know it's still correct. If we've detected changes
+      # during the query, we can't know whether `unread` includes those or not.
+      # Just run the count query again in a few moments.
+      if @_deltas[category.id] is 0
+        @_counts[category.id] = unread
+
+      # We defer for a while - this means populating all the counts can take a while,
+      # but we don't want to flood the db with expensive SELECT COUNT queries.
+      _.delay(@_fetchCountsMissing, 3000)
+      @_saveCountsSoon()
 
     # This method is not intended to return a promise and it
     # could cause strange chaining.
@@ -125,7 +145,8 @@ class ThreadCountsStore extends NylasStore
       @_counts[key] += count
       delete @_deltas[key]
 
-    DatabaseStore.persistJSONObject('UnreadCounts', @_counts)
+    DatabaseStore.persistJSONObject(JSONObjectKey, @_counts)
+    @trigger()
 
   _fetchCountForCategory: (cat) =>
     if cat instanceof Label
@@ -133,7 +154,7 @@ class ThreadCountsStore extends NylasStore
     else if cat instanceof Folder
       categoryAttribute = Thread.attributes.folders
     else
-      throw new Error("Unexpected cat class")
+      throw new Error("Unexpected category class")
 
     DatabaseStore.count(Thread, [
       Thread.attributes.accountId.equal(cat.accountId),

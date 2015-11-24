@@ -19,7 +19,7 @@ class WindowBridge
   runInMainWindow: (args...) ->
     @runInWindow("main", args...)
 
-  runInWorkWindow: ->
+  runInWorkWindow: (args...) ->
     @runInWindow("work", args...)
 
   _onResults: (event, {returnValue, taskId}={}) =>
