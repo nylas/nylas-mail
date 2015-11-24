@@ -538,7 +538,11 @@ describe "populated composer", ->
         @$composer = @composer.refs.composerWrap
 
       it "sends the draft on cmd-enter", ->
-        NylasTestUtils.keyPress("cmd-enter", React.findDOMNode(@$composer))
+        if process.platform is "darwin"
+          cmdctrl = 'cmd'
+        else
+          cmdctrl = 'ctrl'
+        NylasTestUtils.keyPress("#{cmdctrl}-enter", React.findDOMNode(@$composer))
         expect(Actions.sendDraft).toHaveBeenCalled()
         expect(Actions.sendDraft.calls.length).toBe 1
 
@@ -547,12 +551,16 @@ describe "populated composer", ->
         expect(Actions.sendDraft).not.toHaveBeenCalled()
 
       it "doesn't let you send twice", ->
-        NylasTestUtils.keyPress("cmd-enter", React.findDOMNode(@$composer))
+        if process.platform is "darwin"
+          cmdctrl = 'cmd'
+        else
+          cmdctrl = 'ctrl'
+        NylasTestUtils.keyPress("#{cmdctrl}-enter", React.findDOMNode(@$composer))
         expect(Actions.sendDraft).toHaveBeenCalled()
         expect(Actions.sendDraft.calls.length).toBe 1
         @isSending = true
         DraftStore.trigger()
-        NylasTestUtils.keyPress("cmd-enter", React.findDOMNode(@$composer))
+        NylasTestUtils.keyPress("#{cmdctrl}-enter", React.findDOMNode(@$composer))
         expect(Actions.sendDraft).toHaveBeenCalled()
         expect(Actions.sendDraft.calls.length).toBe 1
 
