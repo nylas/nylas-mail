@@ -16,10 +16,17 @@ class AppearanceModeOption extends React.Component
   render: =>
     classname = "appearance-mode"
     classname += " active" if @props.active
+
+    label = {
+      'list': 'Single Panel'
+      'split': 'Two Panel'
+    }[@props.mode]
+
     <div className={classname} onClick={@props.onClick}>
       <RetinaImg name={"appearance-mode-#{@props.mode}.png"} mode={RetinaImg.Mode.ContentIsMask}/>
-      <div>{@props.mode} View</div>
+      <div>{label}</div>
     </div>
+
 
 class InitialPreferencesOptions extends React.Component
   @propTypes:
@@ -66,8 +73,8 @@ class InitialPreferencesOptions extends React.Component
     <div style={display:'flex', width:600, marginBottom: 50, marginLeft:150, marginRight: 150, textAlign: 'left'}>
       <div style={flex:1}>
         <p>
-          Do you prefer a single-panel Gmail-style
-          layout or a dual panel layout?
+          Do you prefer a single panel layout (like Gmail)
+          or a two panel layout?
         </p>
         <Flexbox direction="row" style={alignItems: "center"}>
           {['list', 'split'].map (mode) =>

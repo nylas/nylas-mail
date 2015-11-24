@@ -16,7 +16,7 @@
   + On Windows, the icon is no longer pixelated at many resolutions
   + On Windows, long paths no longer cause installation to fail
   + On Windows, N1 uses the "NylasPro" font correctly
-  + Mark as read now works when viewing messages in split-pane mode
+  + Mark as read now works when viewing messages in two panel mode
   + Basic cut, copy, and paste menus are available for all inputs
   + You can now type in the middle of a search query
   + Names containing "via" are no longer truncated
@@ -34,7 +34,7 @@
   + Hover states in menus and dropdowns are more consistent
 
 - Performance:
-  + In split-pane mode, moving through messages quickly no longer causes jank.
+  + In two panel mode, moving through messages quickly no longer causes jank.
   + Model.fromJSON is 40% faster thanks to optimized loops and other fixes
   + Models are lazily deserialized after being broadcast into other windows
 

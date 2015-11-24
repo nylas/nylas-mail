@@ -4,7 +4,7 @@ Section: Guides
 Order:   1
 ---
 
-The N1 user interface is conceptually organized into Sheets. Each Sheet represents a window of content. For example, the `Threads` sheet lies at the heart of the application. When the user chooses the "Files" tab, a separate `Files` sheet is displayed in place of `Threads`. When the user clicks a thread in single-pane mode, a `Thread` sheet is pushed on to the workspace and appears after a brief transition.
+The N1 user interface is conceptually organized into Sheets. Each Sheet represents a window of content. For example, the `Threads` sheet lies at the heart of the application. When the user chooses the "Files" tab, a separate `Files` sheet is displayed in place of `Threads`. When the user clicks a thread in single panel mode, a `Thread` sheet is pushed on to the workspace and appears after a brief transition.
 
 <img src="./images/sheets.png">
 
