@@ -33,14 +33,18 @@ module.exports = (grunt) ->
 
   grunt.registerTask 'run-spectron-specs', 'Run spectron specs', ->
     shellAppDir = grunt.config.get('nylasGruntConfig.shellAppDir')
-    executablePath = path.join(shellAppDir, 'Contents', 'MacOS', 'Nylas')
+
+    if process.platform is 'darwine'
+      executablePath = path.join(shellAppDir, 'Contents', 'MacOS', 'Nylas')
+    else
+      executablePath = path.join(shellAppDir, 'nylas')
 
     done = @async()
     npmPath = path.resolve "./build/node_modules/.bin/npm"
 
-    if process.platform isnt 'darwin'
-      grunt.log.error("run-spectron-specs only works on Mac OS X at the moment.")
-      done(false)
+    #if process.platform isnt 'darwin'
+    #  grunt.log.error("run-spectron-specs only works on Mac OS X at the moment.")
+    #  done(false)
 
     if not fs.existsSync(executablePath)
       grunt.log.error("run-spectron-specs requires the built version of the app at #{executablePath}")
