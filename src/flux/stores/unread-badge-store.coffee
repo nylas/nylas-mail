@@ -26,9 +26,14 @@ class UnreadBadgeStore extends NylasStore
 
   _onCategoriesChanged: =>
     cat = CategoryStore.getStandardCategory('inbox')
-    return if @_category and cat.id is @_category.id
-    @_category = cat
-    @_updateCount()
+    if not cat
+      @_count = 0
+      @_category = null
+      @_setBadgeForCount()
+      @trigger()
+    else if not @_category or cat.id isnt @_category.id
+      @_category = cat
+      @_updateCount()
 
   _onCountsChanged: =>
     @_updateCount()
