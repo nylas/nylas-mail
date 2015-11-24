@@ -4,6 +4,7 @@ _ = require 'underscore'
  DatabaseStore,
  CategoryStore,
  AccountStore,
+ ThreadCountsStore,
  WorkspaceStore,
  DraftCountStore,
  Actions,
@@ -12,7 +13,8 @@ _ = require 'underscore'
  Message,
  MailViewFilter,
  FocusedMailViewStore,
- NylasAPI,
+ SyncbackCategoryTask,
+ DestroyCategoryTask,
  Thread} = require 'nylas-exports'
 
 class AccountSidebarStore extends NylasStore
@@ -38,7 +40,9 @@ class AccountSidebarStore extends NylasStore
     @listenTo CategoryStore, @_refreshSections
     @listenTo WorkspaceStore, @_refreshSections
     @listenTo DraftCountStore, @_refreshSections
+    @listenTo ThreadCountsStore, @_refreshSections
     @listenTo FocusedMailViewStore, => @trigger()
+    @configSubscription = NylasEnv.config.observe('core.workspace.showUnreadForAllCategories', @_refreshSections)
 
   _refreshSections: =>
     account = AccountStore.current()
@@ -111,6 +115,9 @@ class AccountSidebarStore extends NylasStore
     @_sections.push
       label: CategoryStore.categoryLabel()
       items: userCategoryItemsHierarchical
+      iconName: CategoryStore.categoryIconName()
+      createItem: @_createCategory
+      destroyItem: @_destroyCategory
 
     @trigger()
 
@@ -125,5 +132,23 @@ class AccountSidebarStore extends NylasStore
       id: category.id,
       name: shortenedName || category.displayName
       mailViewFilter: MailViewFilter.forCategory(category)
+      unreadCount: @_itemUnreadCount(category)
+
+  _createCategory: (displayName) ->
+    CategoryClass = AccountStore.current().categoryClass()
+    category = new CategoryClass
+      displayName: displayName
+      accountId: AccountStore.current().id
+    Actions.queueTask(new SyncbackCategoryTask({category}))
+
+  _destroyCategory: (sidebarItem) ->
+    category = sidebarItem.mailViewFilter.category
+    Actions.queueTask(new DestroyCategoryTask({category}))
+
+  _itemUnreadCount: (category) =>
+    unreadCountEnabled = NylasEnv.config.get('core.workspace.showUnreadForAllCategories')
+    if category and (category.name is 'inbox' or unreadCountEnabled)
+      return ThreadCountsStore.unreadCountForCategoryId(category.id)
+    return 0
 
 module.exports = new AccountSidebarStore()

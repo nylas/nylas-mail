@@ -140,10 +140,8 @@ class CategoryMailViewFilter extends MailViewFilter
 
     if cat.name
       @iconName = "#{cat.name}.png"
-    else if AccountStore.current().usesLabels()
-      @iconName = "tag.png"
     else
-      @iconName = "folder.png"
+      @iconName = CategoryStore.categoryIconName()
 
     @
 

@@ -115,6 +115,7 @@ describe "AccountSidebarStore", ->
         },
         {
           label: 'Folders',
+          iconName: 'folder.png',
           items: [
             {
               id: 'a',

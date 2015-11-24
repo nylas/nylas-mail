@@ -843,6 +843,15 @@ class NylasEnvConstructor extends Model
     dialog = remote.require('dialog')
     dialog.showSaveDialog(@getCurrentWindow(), {title: 'Save File', defaultPath}, callback)
 
+  showErrorDialog: (message) ->
+    dialog = remote.require('dialog')
+    dialog.showMessageBox null, {
+      type: 'warning'
+      buttons: ['Okay'],
+      message: "Error"
+      detail: message
+    }
+
   saveSync: ->
     stateString = JSON.stringify(@savedState)
     if statePath = @constructor.getStatePath()

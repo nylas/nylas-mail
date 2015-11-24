@@ -1,26 +1,8 @@
 React = require 'react'
 _ = require 'underscore'
-{Actions, MailViewFilter, WorkspaceStore, ThreadCountsStore} = require("nylas-exports")
-{ScrollRegion, Flexbox} = require("nylas-component-kit")
-SidebarDividerItem = require("./account-sidebar-divider-item")
-SidebarSheetItem = require("./account-sidebar-sheet-item")
-AccountSidebarStore = require ("./account-sidebar-store")
-AccountSidebarMailViewItem = require("./account-sidebar-mail-view-item")
-{RetinaImg} = require 'nylas-component-kit'
-
-class DisclosureTriangle extends React.Component
-  @displayName: 'DisclosureTriangle'
-
-  @propTypes:
-    collapsed: React.PropTypes.bool
-    visible: React.PropTypes.bool
-    onToggleCollapsed: React.PropTypes.func.isRequired
-
-  render: ->
-    classnames = "disclosure-triangle"
-    classnames += " visible" if @props.visible
-    classnames += " collapsed" if @props.collapsed
-    <div className={classnames} onClick={@props.onToggleCollapsed}><div></div></div>
+{ScrollRegion} = require 'nylas-component-kit'
+AccountSidebarStore = require './account-sidebar-store'
+AccountSidebarSection = require './account-sidebar-section'
 
 
 class AccountSidebar extends React.Component
@@ -38,12 +20,9 @@ class AccountSidebar extends React.Component
   componentDidMount: =>
     @unsubscribers = []
     @unsubscribers.push AccountSidebarStore.listen @_onStoreChange
-    @unsubscribers.push ThreadCountsStore.listen @_onStoreChange
-    @configSubscription = NylasEnv.config.observe('core.workspace.showUnreadForAllCategories', @_onStoreChange)
 
   componentWillUnmount: =>
     unsubscribe() for unsubscribe in @unsubscribers
-    @configSubscription?.dispose()
 
   render: =>
     <ScrollRegion style={flex:1} id="account-sidebar">
@@ -54,67 +33,12 @@ class AccountSidebar extends React.Component
 
   _sections: =>
     @state.sections.map (section) =>
-      <section key={section.label}>
-        <div className="heading">{section.label}</div>
-        {@_itemComponents(section.items)}
-      </section>
-
-  _itemComponents: (items) =>
-    components = []
-
-    items.forEach (item) =>
-      components.push(
-        <span key={item.id} className="item-container">
-          <DisclosureTriangle
-            collapsed={@state.collapsed[item.id]}
-            visible={item.children.length > 0}
-            onToggleCollapsed={ => @_onToggleCollapsed(item.id)}/>
-          {@_itemComponent(item)}
-        </span>
-      )
-
-      if item.children.length and not @state.collapsed[item.id]
-        components.push(
-          <section key={"#{item.id}-children"}>
-            {@_itemComponents(item.children)}
-          </section>
-        )
-
-    components
-
-  _itemUnreadCount: (item) =>
-    category = item.mailViewFilter.category
-    if category and (category.name is 'inbox' or @state.unreadCountsForAll)
-      return @state.unreadCounts[category.id]
-    return 0
-
-  _itemComponent: (item) =>
-    unless item instanceof WorkspaceStore.SidebarItem
-      throw new Error("AccountSidebar:_itemComponents: sections contained an \
-                       item which was not a SidebarItem")
-
-    if item.component
-      Component = item.component
-      <Component
-        item={item}
-        select={item.id is @state.selected?.id } />
-
-    else if item.mailViewFilter
-      <AccountSidebarMailViewItem
-        item={item}
-        itemUnreadCount={@_itemUnreadCount(item)}
-        mailView={item.mailViewFilter}
-        select={item.mailViewFilter.isEqual(@state.selected)} />
-
-    else if item.sheet
-      <SidebarSheetItem
-        item={item}
-        select={item.sheet.id is @state.selected?.id} />
-
-    else
-      throw new Error("AccountSidebar:_itemComponents: each item must have a \
-                       custom component, or a sheet or mailViewFilter")
-
+      <AccountSidebarSection
+        key={section.label}
+        section={section}
+        collapsed={@state.collapsed}
+        selected={@state.selected}
+        onToggleCollapsed={@_onToggleCollapsed} />
   _onStoreChange: =>
     @setState @_getStateFromStores()
 
@@ -127,8 +51,5 @@ class AccountSidebar extends React.Component
   _getStateFromStores: =>
     sections: AccountSidebarStore.sections()
     selected: AccountSidebarStore.selected()
-    unreadCounts: ThreadCountsStore.unreadCounts()
-    unreadCountsForAll: NylasEnv.config.get('core.workspace.showUnreadForAllCategories')
-
 
 module.exports = AccountSidebar

@@ -32,9 +32,9 @@ class Category extends Model
       modelKey: 'displayName'
       jsonKey: 'display_name'
 
-    'unread': Attributes.Number
-      queryable: true
-      modelKey: 'unread'
+    'isDeleted': Attributes.Boolean
+      modelKey: 'isDeleted'
+      jsonKey: 'is_deleted'
 
   hue: ->
     return 0 unless @displayName

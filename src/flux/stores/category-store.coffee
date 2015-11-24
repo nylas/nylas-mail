@@ -61,6 +61,18 @@ class CategoryStore extends NylasStore
     else
       return "Unknown"
 
+  categoryIconName: ->
+    account = AccountStore.current()
+    return "folder.png" unless account
+
+    if account.usesFolders()
+      return "folder.png"
+    else if account.usesLabels()
+      return "tag.png"
+    else
+      return null
+
+
   # Public: Returns {Folder} or {Label}, depending on the current provider.
   #
   categoryClass: ->
