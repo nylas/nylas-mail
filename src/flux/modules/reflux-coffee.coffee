@@ -90,7 +90,11 @@ module.exports =
       err = @validateListening(listenable)
       throw err if err
       @fetchInitialState listenable, defaultCallback
-      desub = listenable.listen(@[callback] or callback, this)
+
+      resolvedCallback = @[callback] or callback
+      if not resolvedCallback
+        throw new Error("@listenTo called with undefined callback")
+      desub = listenable.listen(resolvedCallback, this)
 
       unsubscriber = ->
         index = subs.indexOf(subscriptionobj)
@@ -150,6 +154,9 @@ module.exports =
       @_emitter.setMaxListeners(50)
 
     listen: (callback, bindContext) ->
+      if not callback
+        throw new Error("@listen called with undefined callback")
+
       @setupEmitter()
       bindContext ?= @
       aborted = false

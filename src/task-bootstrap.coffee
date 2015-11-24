@@ -10,14 +10,6 @@ setupGlobals = ->
     trace: ->
   global.__defineGetter__ 'console', -> console
 
-  fs = require 'fs'
-  fs.existsSync = (path) ->
-    try
-      fs.accessSync(path)
-      return true
-    catch
-      return false
-
   global.document =
     createElement: ->
       setAttribute: ->
@@ -32,7 +24,7 @@ setupGlobals = ->
 
   global.emit = (event, args...) ->
     process.send({event, args})
-  global.navigator = {userAgent: userAgent}
+  global.navigator = {userAgent}
   global.window = global
 
 handleEvents = ->

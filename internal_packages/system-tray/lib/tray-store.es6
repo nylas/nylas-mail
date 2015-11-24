@@ -2,7 +2,7 @@ import path from 'path';
 import remote from 'remote';
 import ipc from 'ipc';
 import NylasStore from 'nylas-store';
-import {UnreadCountStore, CanvasUtils} from 'nylas-exports';
+import {UnreadBadgeStore, CanvasUtils} from 'nylas-exports';
 const NativeImage = remote.require('native-image');
 const Menu = remote.require('menu');
 const {canvasWithSystemTrayIconAndText} = CanvasUtils;
@@ -49,10 +49,10 @@ class TrayStore extends NylasStore {
 
     this._unreadIcon = NativeImage.createFromPath(UNREAD_ICON_PATH);
     this._baseIcon = NativeImage.createFromPath(BASE_ICON_PATH);
-    this._unreadCount = UnreadCountStore.count() || 0;
+    this._unreadCount = UnreadBadgeStore.count() || 0;
     this._menu = _buildMenu(platform);
     this._icon = this._getIconImg();
-    this.listenTo(UnreadCountStore, this._onUnreadCountChanged);
+    this.listenTo(UnreadBadgeStore, this._onUnreadCountChanged);
   }
 
   unreadCount() {
@@ -96,7 +96,7 @@ class TrayStore extends NylasStore {
   }
 
   _onUnreadCountChanged() {
-    this._unreadCount = UnreadCountStore.count();
+    this._unreadCount = UnreadBadgeStore.count();
     this._icon = this._getIconImg();
     this.trigger();
   }

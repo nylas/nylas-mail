@@ -119,23 +119,13 @@ describe "DatabaseStore", ->
       expect(q.sql()).toBe("SELECT `TestModel`.`data` FROM `TestModel`  WHERE `TestModel`.`id` = 'b'  ")
 
   describe "persistModel", ->
-    it "should cause the DatabaseStore to trigger with a change that contains the model", ->
-      waitsForPromise ->
-        DatabaseStore.persistModel(testModelInstance).then ->
-          expect(DatabaseStore._accumulateAndTrigger).toHaveBeenCalled()
-
-          change = DatabaseStore._accumulateAndTrigger.mostRecentCall.args[0]
-          expect(change).toEqual({objectClass: TestModel.name, objects: [testModelInstance], type:'persist'})
-        .catch (err) ->
-          console.log err
-
-    it "should call through to _writeModels", ->
-      spyOn(DatabaseStore, '_writeModels').andReturn Promise.resolve()
-      DatabaseStore.persistModel(testModelInstance)
-      expect(DatabaseStore._writeModels.callCount).toBe(1)
-
     it "should throw an exception if the model is not a subclass of Model", ->
       expect(-> DatabaseStore.persistModel({id: 'asd', subject: 'bla'})).toThrow()
+
+    it "should call through to persistModels", ->
+      spyOn(DatabaseStore, 'persistModels').andReturn Promise.resolve()
+      DatabaseStore.persistModel(testModelInstance)
+      expect(DatabaseStore.persistModels.callCount).toBe(1)
 
   describe "persistModels", ->
     it "should cause the DatabaseStore to trigger with a change that contains the models", ->
@@ -152,6 +142,7 @@ describe "DatabaseStore", ->
     it "should call through to _writeModels after checking them", ->
       spyOn(DatabaseStore, '_writeModels').andReturn Promise.resolve()
       DatabaseStore.persistModels([testModelInstanceA, testModelInstanceB])
+      advanceClock()
       expect(DatabaseStore._writeModels.callCount).toBe(1)
 
     it "should throw an exception if the models are not the same class,\
@@ -160,6 +151,72 @@ describe "DatabaseStore", ->
 
     it "should throw an exception if the models are not a subclass of Model", ->
       expect(-> DatabaseStore.persistModels([{id: 'asd', subject: 'bla'}])).toThrow()
+
+    describe "mutationHooks", ->
+      beforeEach ->
+        @beforeShouldThrow = false
+        @beforeShouldReject = false
+        @beforeDatabaseChange = jasmine.createSpy('beforeDatabaseChange').andCallFake =>
+          throw new Error("beforeShouldThrow") if @beforeShouldThrow
+          new Promise (resolve, reject) =>
+            setTimeout =>
+              return resolve(new Error("beforeShouldReject")) if @beforeShouldReject
+              resolve("value")
+            , 1000
+
+        @afterDatabaseChange = jasmine.createSpy('afterDatabaseChange').andCallFake =>
+          new Promise (resolve, reject) ->
+            setTimeout(( => resolve()), 1000)
+
+        @hook = {@beforeDatabaseChange, @afterDatabaseChange}
+        DatabaseStore.addMutationHook(@hook)
+
+        @writeModelsResolve = null
+        spyOn(DatabaseStore, '_writeModels').andCallFake =>
+          new Promise (resolve, reject) =>
+            @writeModelsResolve = resolve
+
+      afterEach ->
+        DatabaseStore.removeMutationHook(@hook)
+
+      it "should run pre-mutation hooks, wait to write models, and then run post-mutation hooks", ->
+        DatabaseStore.persistModels([testModelInstanceA, testModelInstanceB])
+        expect(@beforeDatabaseChange).toHaveBeenCalledWith(
+          DatabaseStore._query,
+          [testModelInstanceA, testModelInstanceB],
+          [testModelInstanceA.id, testModelInstanceB.id],
+          undefined
+        )
+        expect(DatabaseStore._writeModels).not.toHaveBeenCalled()
+        advanceClock(1100)
+        advanceClock()
+        expect(DatabaseStore._writeModels).toHaveBeenCalled()
+        expect(@afterDatabaseChange).not.toHaveBeenCalled()
+        @writeModelsResolve()
+        advanceClock()
+        advanceClock()
+        expect(@afterDatabaseChange).toHaveBeenCalledWith(
+          DatabaseStore._query,
+          [testModelInstanceA, testModelInstanceB],
+          [testModelInstanceA.id, testModelInstanceB.id],
+          "value"
+        )
+
+      it "should carry on if a pre-mutation hook throws", ->
+        @beforeShouldThrow = true
+        DatabaseStore.persistModels([testModelInstanceA, testModelInstanceB])
+        expect(@beforeDatabaseChange).toHaveBeenCalled()
+        advanceClock()
+        advanceClock()
+        expect(DatabaseStore._writeModels).toHaveBeenCalled()
+
+      it "should carry on if a pre-mutation hook rejects", ->
+        @beforeShouldReject = true
+        DatabaseStore.persistModels([testModelInstanceA, testModelInstanceB])
+        expect(@beforeDatabaseChange).toHaveBeenCalled()
+        advanceClock()
+        advanceClock()
+        expect(DatabaseStore._writeModels).toHaveBeenCalled()
 
   describe "unpersistModel", ->
     it "should delete the model by Id", -> waitsForPromise =>
@@ -175,20 +232,6 @@ describe "DatabaseStore", ->
 
           change = DatabaseStore._accumulateAndTrigger.mostRecentCall.args[0]
           expect(change).toEqual({objectClass: TestModel.name, objects: [testModelInstance], type:'unpersist'})
-
-    describe "when the model provides additional sqlite config", ->
-      beforeEach ->
-        TestModel.configureWithAdditionalSQLiteConfig()
-
-      it "should call the deleteModel method and provide the model", ->
-        waitsForPromise ->
-          DatabaseStore.unpersistModel(testModelInstance).then ->
-            expect(TestModel.additionalSQLiteConfig.deleteModel).toHaveBeenCalled()
-            expect(TestModel.additionalSQLiteConfig.deleteModel.mostRecentCall.args[0]).toBe(testModelInstance)
-
-      it "should not fail if additional config is present, but deleteModel is not defined", ->
-        delete TestModel.additionalSQLiteConfig['deleteModel']
-        expect( => DatabaseStore.unpersistModel(testModelInstance)).not.toThrow()
 
     describe "when the model has collection attributes", ->
       it "should delete all of the elements in the join tables", ->
@@ -314,20 +357,6 @@ describe "DatabaseStore", ->
         @m = new TestModel(id: 'local-6806434c-b0cd')
         DatabaseStore._writeModels([@m])
         expect(@performed.length).toBe(1)
-
-    describe "when the model provides additional sqlite config", ->
-      beforeEach ->
-        TestModel.configureWithAdditionalSQLiteConfig()
-
-      it "should call the writeModel method and provide the model", ->
-        @m = new TestModel(id: 'local-6806434c-b0cd', body: 'hello world')
-        DatabaseStore._writeModels([@m])
-        expect(TestModel.additionalSQLiteConfig.writeModel).toHaveBeenCalledWith(@m)
-
-      it "should not fail if additional config is present, but writeModel is not defined", ->
-        delete TestModel.additionalSQLiteConfig['writeModel']
-        @m = new TestModel(id: 'local-6806434c-b0cd', body: 'hello world')
-        expect( => DatabaseStore._writeModels([@m])).not.toThrow()
 
   describe "atomically", ->
     beforeEach ->

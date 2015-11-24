@@ -32,6 +32,10 @@ class Category extends Model
       modelKey: 'displayName'
       jsonKey: 'display_name'
 
+    'unread': Attributes.Number
+      queryable: true
+      modelKey: 'unread'
+
   hue: ->
     return 0 unless @displayName
     hue = 0
