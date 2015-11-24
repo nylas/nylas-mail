@@ -171,8 +171,8 @@
           "external": true
         },
         {
-          "name": "Send Availability",
-          "link": "https://github.com/nylas/N1/tree/master/examples/N1-Send-Availability",
+          "name": "Quick Schedule",
+          "link": "https://github.com/nylas/N1/tree/master/examples/N1-Quick-Schedule",
           "external": true
         }
       ]
