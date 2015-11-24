@@ -245,6 +245,7 @@ class WindowEventHandler
       Actions.postNotification
         icon: 'fa-flask'
         type: 'developer'
+        tag: 'developer'
         sticky: true
         actions: [{label: 'Thanks', id: 'ok', dismisses: true, default: true}]
         message: "N1 is running with debug flags enabled (slower). Packages in

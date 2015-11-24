@@ -5,6 +5,7 @@ Thread = require '../../src/flux/models/thread'
 Folder = require '../../src/flux/models/folder'
 Label = require '../../src/flux/models/label'
 Matcher = require '../../src/flux/attributes/matcher'
+WindowBridge = require '../../src/window-bridge'
 
 describe "ThreadCountsStore", ->
   describe "unreadCountForCategoryId", ->
@@ -21,21 +22,35 @@ describe "ThreadCountsStore", ->
       expect(ThreadCountsStore.unreadCountForCategoryId('b')).toBe(3)
 
   describe "when the mutation observer reports count changes", ->
-    it "should merge count deltas into existing count detlas", ->
-      ThreadCountsStore._deltas =
-        'l1': -1
-        'l2': 2
-      ThreadCountsStore._onCountsChanged({'l1': -1, 'l2': 1, 'l3': 2})
-      expect(ThreadCountsStore._deltas).toEqual({
-        'l1': -2,
-        'l2': 3,
-        'l3': 2
-      })
+    describe "in the work window", ->
+      beforeEach ->
+        spyOn(NylasEnv, 'isWorkWindow').andReturn(true)
 
-    it "should queue a save of the counts", ->
-      spyOn(ThreadCountsStore, '_saveCountsSoon')
-      ThreadCountsStore._onCountsChanged({'l1': -1, 'l2': 1, 'l3': 2})
-      expect(ThreadCountsStore._saveCountsSoon).toHaveBeenCalled()
+      it "should merge count deltas into existing count detlas", ->
+        ThreadCountsStore._deltas =
+          'l1': -1
+          'l2': 2
+        ThreadCountsStore._onCountsChanged({'l1': -1, 'l2': 1, 'l3': 2})
+        expect(ThreadCountsStore._deltas).toEqual({
+          'l1': -2,
+          'l2': 3,
+          'l3': 2
+        })
+
+      it "should queue a save of the counts", ->
+        spyOn(ThreadCountsStore, '_saveCountsSoon')
+        ThreadCountsStore._onCountsChanged({'l1': -1, 'l2': 1, 'l3': 2})
+        expect(ThreadCountsStore._saveCountsSoon).toHaveBeenCalled()
+
+    describe "in other windows", ->
+      beforeEach ->
+        spyOn(NylasEnv, 'isWorkWindow').andReturn(false)
+
+      it "should use the WindowBridge to forward the invocation to the work window", ->
+        spyOn(WindowBridge, 'runInWorkWindow')
+        payload = {'l1': -1, 'l2': 1, 'l3': 2}
+        ThreadCountsStore._onCountsChanged(payload)
+        expect(WindowBridge.runInWorkWindow).toHaveBeenCalledWith('ThreadCountsStore', '_onCountsChanged', [payload])
 
   describe "when a folder or label is persisted", ->
     beforeEach ->
@@ -83,7 +98,12 @@ describe "ThreadCountsStore", ->
         'abc': 1
       }
       spyOn(ThreadCountsStore, 'trigger')
-      ThreadCountsStore._onDatabaseChanged({objectClass: 'JSONObject', objects: [{key: 'UnreadCounts', json: newCounts}]})
+      ThreadCountsStore._onDatabaseChanged({
+        objectClass: 'JSONObject',
+        objects: [
+          {key: ThreadCountsStore.JSONObjectKey, json: newCounts}
+        ]
+      })
       expect(ThreadCountsStore._counts).toEqual(newCounts)
       expect(ThreadCountsStore.trigger).toHaveBeenCalled()
 
@@ -95,38 +115,39 @@ describe "ThreadCountsStore", ->
         new Label(id: "l3", displayName: "Happy Days", accountId: 'a1'),
         new Label(id: "l4", displayName: "Sad Days", accountId: 'a1')
       ]
+      ThreadCountsStore._deltas =
+        l1: 10
+        l2: 0
+        l3: 3
+        l4: 12
       ThreadCountsStore._counts =
         l1: 10
         l2: 0
 
-    it "should call _fetchCountForCategory for the first category not already in the counts cache", ->
-      spyOn(ThreadCountsStore, '_fetchCountForCategory').andCallFake ->
-        new Promise (resolve, reject) ->
-      ThreadCountsStore._fetchCountsMissing()
+      @countResolve = null
+      @countReject = null
+      spyOn(ThreadCountsStore, '_fetchCountForCategory').andCallFake =>
+        new Promise (resolve, reject) =>
+          @countResolve = resolve
+          @countReject = reject
 
+    it "should call _fetchCountForCategory for the first category not already in the counts cache", ->
+      ThreadCountsStore._fetchCountsMissing()
       calls = ThreadCountsStore._fetchCountForCategory.calls
       expect(calls.length).toBe(1)
       expect(calls[0].args[0]).toBe(ThreadCountsStore._categories[2])
 
-    describe "when the count promsie finishes", ->
-      beforeEach ->
-        @countResolve = null
-        @countReject = null
-        spyOn(ThreadCountsStore, '_fetchCountForCategory').andCallFake =>
-          new Promise (resolve, reject) =>
-            @countResolve = resolve
-            @countReject = reject
+    it "should set the _deltas for the category it's counting back to zero", ->
+      ThreadCountsStore._fetchCountsMissing()
+      expect(ThreadCountsStore._deltas.l3).toBe(0)
 
+    describe "when the count promise finishes", ->
       it "should add it to the count cache", ->
         ThreadCountsStore._fetchCountsMissing()
         advanceClock()
         @countResolve(4)
         advanceClock()
-        expect(ThreadCountsStore._counts).toEqual({
-          l1: 10
-          l2: 0
-          l3: 4
-        })
+        expect(ThreadCountsStore._counts.l3).toEqual(4)
 
       it "should call _fetchCountsMissing again to populate the next missing count", ->
         ThreadCountsStore._fetchCountsMissing()
@@ -135,6 +156,19 @@ describe "ThreadCountsStore", ->
         @countResolve(4)
         advanceClock()
         expect(ThreadCountsStore._fetchCountsMissing).toHaveBeenCalled()
+
+      describe "when deltas appear during a count", ->
+        it "should not set the count and count again in 10 seconds", ->
+          ThreadCountsStore._fetchCountsMissing()
+          spyOn(ThreadCountsStore, '_fetchCountsMissing')
+          advanceClock()
+          ThreadCountsStore._deltas.l3 = -1
+          @countResolve(4)
+          advanceClock()
+          expect(ThreadCountsStore._counts.l3).toBeUndefined()
+          expect(ThreadCountsStore._fetchCountsMissing).not.toHaveBeenCalled()
+          advanceClock(10001)
+          expect(ThreadCountsStore._fetchCountsMissing).toHaveBeenCalled()
 
       describe "when a count fails", ->
         it "should not immediately try to count any other categories", ->
@@ -185,7 +219,7 @@ describe "ThreadCountsStore", ->
     it "should persist the new counts to the database", ->
       spyOn(DatabaseStore, 'persistJSONObject')
       ThreadCountsStore._saveCounts()
-      expect(DatabaseStore.persistJSONObject).toHaveBeenCalledWith('UnreadCounts', ThreadCountsStore._counts)
+      expect(DatabaseStore.persistJSONObject).toHaveBeenCalledWith(ThreadCountsStore.JSONObjectKey, ThreadCountsStore._counts)
 
 describe "CategoryDatabaseMutationObserver", ->
   beforeEach ->

@@ -423,17 +423,13 @@ class DraftStore
 
     title = if options.newDraft then "New Message" else "Message"
 
-    console.log('starting save')
     save.then =>
-      console.log('finished save')
       app = require('remote').getGlobal('application')
       existing = app.windowManager.windowWithPropsMatching({draftClientId})
-      console.log('discovered existing')
       if existing
         existing.restore() if existing.isMinimized()
         existing.focus()
       else
-        console.log('NylasEnv.newWindow')
         NylasEnv.newWindow
           title: title
           windowType: "composer"

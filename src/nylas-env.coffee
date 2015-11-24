@@ -683,7 +683,7 @@ class NylasEnvConstructor extends Model
      windowPackages} = @getLoadSettings()
 
     cover = document.getElementById("application-loading-cover")
-    cover.remove()
+    cover.remove() if cover
 
     @loadConfig()
 
