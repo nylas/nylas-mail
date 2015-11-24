@@ -34,7 +34,8 @@ class AccountSidebarSection extends React.Component
   _createItemButton: ({label}) ->
     <div
       className="add-item-button"
-      onClick={@_onCreateButtonClicked.bind(@, label)}>
+      onMouseDown={@_onCreateButtonMouseDown}
+      onMouseUp={@_onCreateButtonClicked.bind(@, label)}>
       <RetinaImg
         url="nylas://account-sidebar/assets/icon-sidebar-addcategory@2x.png"
         style={height: 14, width: 14}
@@ -59,7 +60,7 @@ class AccountSidebarSection extends React.Component
           className="input-bordered add-item-input"
           autoFocus={true}
           onKeyDown={_.partial @_onInputKeyDown, _, section}
-          onBlur={ => @setState(showCreateInput: false) }
+          onBlur={@_onInputBlur}
           placeholder={placeholder}/>
       </div>
     </span>
@@ -87,8 +88,15 @@ class AccountSidebarSection extends React.Component
 
     components
 
+  _onCreateButtonMouseDown: =>
+    @_clickingCreateButton = true
+
   _onCreateButtonClicked: (sectionLabel) =>
+    @_clickingCreateButton = false
     @setState(showCreateInput: not @state.showCreateInput)
+
+  _onInputBlur: =>
+   @setState(showCreateInput: false) if not @_clickingCreateButton
 
   _onInputKeyDown: (event, section) =>
     if event.key is 'Escape'

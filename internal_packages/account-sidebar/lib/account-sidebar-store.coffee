@@ -143,6 +143,7 @@ class AccountSidebarStore extends NylasStore
 
   _destroyCategory: (sidebarItem) ->
     category = sidebarItem.mailViewFilter.category
+    return if category.isDeleted is true
     Actions.queueTask(new DestroyCategoryTask({category}))
 
   _itemUnreadCount: (category) =>
