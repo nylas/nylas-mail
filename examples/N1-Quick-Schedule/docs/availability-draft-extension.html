@@ -91,7 +91,7 @@ method. Here, we’re registering the events before we send the draft.</p>
       data.attendees = participants.map (p) -&gt;
         <span class="hljs-attribute">name</span>: p.name, <span class="hljs-attribute">email</span>: p.email, <span class="hljs-attribute">isSender</span>: c.isMe()
       <span class="hljs-built_in">console</span>.log <span class="hljs-string">"Sending request!\n"</span>,JSON.stringify data
-      serverUrl = <span class="hljs-string">"https://sendavail.herokuapp.com/register-events"</span>
+      serverUrl = <span class="hljs-string">"https://quickschedule.herokuapp.com/register-events"</span>
       request.post {<span class="hljs-attribute">url</span>: serverUrl, <span class="hljs-attribute">body</span>: JSON.stringify(data)}, <span class="hljs-function"><span class="hljs-params">(error, resp, data)</span> =&gt;</span>
         <span class="hljs-built_in">console</span>.log(error,resp,data)
 

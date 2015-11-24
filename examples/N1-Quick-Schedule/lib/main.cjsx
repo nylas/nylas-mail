@@ -209,7 +209,7 @@ module.exports =
         # The URL points to the event page with this time slot selected
         eventUrl = url.format({
           protocol: "https"
-          host: "sendavail.herokuapp.com"
+          host: "quickschedule.herokuapp.com"
           pathname: "/event/#{e.serverKey}"
         })
         times.appendNode("div")
