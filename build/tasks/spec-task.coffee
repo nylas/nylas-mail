@@ -42,9 +42,9 @@ module.exports = (grunt) ->
     done = @async()
     npmPath = path.resolve "./build/node_modules/.bin/npm"
 
-    #if process.platform isnt 'darwin'
-    #  grunt.log.error("run-spectron-specs only works on Mac OS X at the moment.")
-    #  done(false)
+    if process.platform is 'win32'
+      grunt.log.error("run-spectron-specs only works on Mac OS X at the moment.")
+      done(false)
 
     if not fs.existsSync(executablePath)
       grunt.log.error("run-spectron-specs requires the built version of the app at #{executablePath}")
