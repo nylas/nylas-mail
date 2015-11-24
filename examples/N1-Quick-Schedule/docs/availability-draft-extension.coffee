@@ -19,7 +19,7 @@ class AvailabilityDraftExtension extends DraftStoreExtension
       data.attendees = participants.map (p) ->
         name: p.name, email: p.email, isSender: p.isMe()
       console.log "Sending request!\n",JSON.stringify data
-      serverUrl = "https://sendavail.herokuapp.com/register-events"
+      serverUrl = "https://quickschedule.herokuapp.com/register-events"
       request.post {url: serverUrl, body: JSON.stringify(data)}, (error, resp, data) =>
         console.log(error,resp,data)
 
