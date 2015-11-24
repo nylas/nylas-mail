@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title></title>
-    <link rel='stylesheet' href='fullcalendar/fullcalendar.css' />
+    <link rel='stylesheet' href='bootstrap.min.css'/>
+    <link rel='stylesheet' href='fullcalendar/fullcalendar.css'/>
     <script src='nylas://N1-Send-Availability/fullcalendar/lib/jquery.min.js'></script>
     <script src='nylas://N1-Send-Availability/fullcalendar/lib/moment.min.js'></script>
     <script src='nylas://N1-Send-Availability/fullcalendar/lib/moment-timezone-with-data.min.js'></script>
     <script src='nylas://N1-Send-Availability/fullcalendar/fullcalendar.js'></script>
+    <script src='nylas://N1-Send-Availability/bootstrap.min.js'></script>
 
     <script>
 
@@ -60,7 +62,7 @@
                 },
                 defaultView: 'agendaWeek',
                 handleWindowResize: false,
-                aspectRatio: 1,
+                aspectRatio: 1.3,
                 timezone: 'local',
                 selectable: true,
                 selectHelper: true,
@@ -116,6 +118,8 @@
 
             //initialize the calendar
             resetCalendar({},true);
+            $(".fc-button").toggleClass("btn btn-default",true);
+            $(".fc-button").toggleClass("fc-state-default",false);
 
             //handle reset button click
             $("#reset").click(function(e){
@@ -164,39 +168,57 @@
 
         #calendar {
             position: fixed;
-            left: 150px;
-            right: 0;
-            top: 0;
-            bottom: 0;
+            left: 5px;
+            right: 205px;
+            top: 50px;
+            bottom: 5px;
+        }
+        #calendar h2 {
+            font-size: 20px;
+            margin-top: 5px;
         }
         #options {
             position: fixed;
-            width: 150px;
-            left: 0;
-            top: 0;
+            width: 200px;
+            right: 0;
+            top: 45px;
             bottom: 0;
+            padding: 5px;
+        }
+        #options p{
+            line-height: 16px;
+            font-size: 13px;
+            color: #555;
+        }
+        #options label {
+            font-weight: normal;
+        }
+        #title-bar {
+            padding: 5px;
+            text-align: center;
+            background: #EEE;
+        }
+        #title-bar h2 {
+            margin: 0;
+        }
+        #reset, #done {
+            width: 93px;
+        }
+        #description {
+            height: 150px;
         }
 
-        .row button{
-            padding: 4px;
-            width: 100%;
-        }
-        div.row {
-            padding: 5px;
-            margin: 10px 0;
-            font-size: 14px;
-            text-align: center;
-        }
+
     </style>
 </head>
 <body>
+<div id="title-bar">
+    <h2>Calendar Availability: Event Setup</h2>
+</div>
 <div id="options">
-    <div class="row">
-        <button id="reset">Reset</button>
-    </div>
-
-    <div class="row">
-        <div>Meeting Length</div>
+    <h4>Event details:</h4>
+    <div class="form-group">
+        <label for="meeting-length">Length:</label>
         <select id="meeting-length">
             <option value="0.5">30 min</option>
             <option value="1">1 hr</option>
@@ -205,21 +227,26 @@
         </select>
     </div>
 
-    <div class="row">
-        <input id="title" placeholder="Event title"></input>
+    <div class="form-group">
+        <input type="text" class="form-control" id="title" placeholder="Title"></input>
     </div>
 
-    <div class="row">
-        <input id="location" placeholder="Location"></input>
+    <div class="form-group">
+        <input type="text" class="form-control" id="location" placeholder="Location"></input>
     </div>
 
-    <div class="row">
-        <input id="description" placeholder="Description"></input>
+    <div class="form-group">
+        <textarea type="text" class="form-control" id="description" placeholder="Description"></textarea>
     </div>
 
-    <div class="row">
-        <button id="done">Done</button>
+    <div class="form-group">
+        <button class="btn btn-default" id="reset">Reset</button>
+        <button class="btn btn-default" id="done">Done</button>
     </div>
+    <p> Use this tool to offer options for scheduling a meeting or event. Click and drag in the
+        calendar to select time ranges when you're available. Enter event details on the left,
+        to be included in the event invitation.
+    </p>
 </div>
 <div id='calendar'></div>
 </body>
