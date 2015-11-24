@@ -32,7 +32,7 @@ describe "DatabaseSetupQueryBuilder", ->
         'CREATE TABLE IF NOT EXISTS `TestModel` (id TEXT PRIMARY KEY,data BLOB,client_id TEXT,server_id TEXT)',
         'CREATE UNIQUE INDEX IF NOT EXISTS `TestModel_id` ON `TestModel` (`id`)',
         'CREATE TABLE IF NOT EXISTS `TestModel-Label` (id TEXT KEY, `value` TEXT)'
-        'CREATE UNIQUE INDEX IF NOT EXISTS `TestModel_Label_id_val` ON `TestModel-Label` (`id`,`value`)',
+        'CREATE UNIQUE INDEX IF NOT EXISTS `TestModel_Label_val_id` ON `TestModel-Label` (`value` ASC, `id` ASC)',
       ]
       for query,i in queries
         expect(query).toBe(expected[i])
