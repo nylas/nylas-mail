@@ -96,7 +96,7 @@ class AccountSidebarSection extends React.Component
     @setState(showCreateInput: not @state.showCreateInput)
 
   _onInputBlur: =>
-   @setState(showCreateInput: false) if not @_clickingCreateButton
+    @setState(showCreateInput: false) if not @_clickingCreateButton
 
   _onInputKeyDown: (event, section) =>
     if event.key is 'Escape'
