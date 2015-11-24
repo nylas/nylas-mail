@@ -21,7 +21,21 @@ function handleSetupError (error) {
   console.error(error.stack || error)
 }
 
+function copyEnvFromMainProcess() {
+  var _ = require('underscore');
+  var remote = require('remote');
+  var newEnv = _.extend({}, process.env, remote.process.env);
+  process.env = newEnv;
+}
+
 function setupWindow (loadSettings) {
+  if (process.platform === 'linux') {
+    // This will properly inherit process.env from the main process, which it
+    // doesn't do by default on Linux. See:
+    // https://github.com/atom/electron/issues/3306
+    copyEnvFromMainProcess();
+  }
+
   var hotreload = loadSettings.devMode && !loadSettings.isSpec;
   var CompileCache = require('../src/compile-cache')
   CompileCache.setHotReload(hotreload)
