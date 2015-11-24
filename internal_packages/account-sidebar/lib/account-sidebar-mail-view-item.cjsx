@@ -2,7 +2,6 @@ React = require 'react'
 classNames = require 'classnames'
 {Actions,
  Utils,
- ThreadCountsStore,
  WorkspaceStore,
  AccountStore,
  FocusedMailViewStore,
@@ -17,7 +16,6 @@ class AccountSidebarMailViewItem extends React.Component
   @propTypes:
     select: React.PropTypes.bool
     item: React.PropTypes.object.isRequired
-    itemUnreadCount: React.PropTypes.number
     mailView: React.PropTypes.object.isRequired
 
   constructor: (@props) ->
@@ -27,10 +25,13 @@ class AccountSidebarMailViewItem extends React.Component
     !Utils.isEqualReact(@props, nextProps) or !Utils.isEqualReact(@state, nextState)
 
   render: =>
+    isDeleted = @props.mailView?.category?.isDeleted is true
+
     containerClass = classNames
       'item': true
       'selected': @props.select
       'dropping': @state.isDropping
+      'deleted': isDeleted
 
     <DropZone className={containerClass}
          onClick={@_onClick}
@@ -44,10 +45,10 @@ class AccountSidebarMailViewItem extends React.Component
     </DropZone>
 
   _renderUnreadCount: =>
-    return false if @props.itemUnreadCount is 0
+    return false unless @props.item.unreadCount
     className = 'item-count-box '
     className += @props.mailView.category?.name
-    <div className={className}>{@props.itemUnreadCount}</div>
+    <div className={className}>{@props.item.unreadCount}</div>
 
   _renderIcon: ->
     <RetinaImg name={@props.mailView.iconName} fallback={'folder.png'} mode={RetinaImg.Mode.ContentIsMask} />

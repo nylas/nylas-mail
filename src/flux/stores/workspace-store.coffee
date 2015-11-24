@@ -10,7 +10,7 @@ Location = {}
 SidebarItems = {}
 
 class WorkspaceSidebarItem
-  constructor: ({@id, @component, @icon, @name, @sheet, @mailViewFilter, @section, @children}) ->
+  constructor: ({@id, @component, @icon, @name, @sheet, @mailViewFilter, @section, @children, @unreadCount}) ->
     if not @sheet and not @mailViewFilter and not @component
       throw new Error("WorkspaceSidebarItem: You must provide either a sheet \
                        component, or a mailViewFilter for the sidebar item named #{@name}")

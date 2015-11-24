@@ -533,14 +533,7 @@ class DraftStore
       # don't delay the modal may come up in a state where the draft looks
       # like it hasn't been restored or has been lost.
       _.delay ->
-        remote = require('remote')
-        dialog = remote.require('dialog')
-        dialog.showMessageBox remote.getCurrentWindow(), {
-          type: 'warning'
-          buttons: ['Okay'],
-          message: "Error"
-          detail: errorMessage
-        }
+        NylasEnv.showErrorDialog(errorMessage)
       , 100
 
  module.exports = new DraftStore()

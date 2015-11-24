@@ -23,6 +23,27 @@
     padding-left:@padding-small-horizontal;
     padding-top:@padding-small-horizontal;
     letter-spacing: -0.2px;
+    display: inline-block;
+  }
+
+  .add-item-button {
+    display: inline-block;
+    margin-left: @padding-small-horizontal;
+    cursor: pointer;
+  }
+
+  .add-item-container {
+    padding-left: @padding-small-horizontal;
+    align-items: center;
+
+    .add-item-input {
+      order: 2;
+      font-size: @font-size-small;
+      margin-left: @padding-small-horizontal * 0.85;
+      height: 22px;
+      text-indent: 4px;
+      width: 85%;
+    }
   }
 
   .item-container {
@@ -111,6 +132,9 @@
       background-color: lighten(@source-list-bg, 20%);
       color: @source-list-active-color;
       img.content-mask { background-color: @source-list-active-color; }
+    }
+    &.deleted {
+      opacity: 0.5;
     }
 
     &:hover {
