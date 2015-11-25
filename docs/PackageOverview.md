@@ -18,7 +18,7 @@ Each package is defined by a `package.json` file that includes its name, version
   "version": "0.1.0",
   "main": "./lib/main",
   "description": "An example package for N1",
-  "license": "Proprietary",
+  "license": "GPLv3",
   "engines": {
     "nylas": ">=0.3.0 <0.5.0"
   },

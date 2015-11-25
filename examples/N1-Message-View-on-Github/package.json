@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "main": "./lib/main",
   "description": "View on Github button",
-  "license": "Proprietary",
+  "license": "GPLv3",
   "private": true,
   "engines": {
     "nylas": ">=0.3.0 <0.5.0"
