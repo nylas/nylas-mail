@@ -155,6 +155,7 @@ describe "ThreadCountsStore", ->
         advanceClock()
         @countResolve(4)
         advanceClock()
+        advanceClock(10001)
         expect(ThreadCountsStore._fetchCountsMissing).toHaveBeenCalled()
 
       describe "when deltas appear during a count", ->

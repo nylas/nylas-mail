@@ -151,7 +151,7 @@ class ComposerView extends React.Component
   _preloadImages: (files=[]) ->
     files.forEach (file) ->
       uploadData = FileUploadStore.linkedUpload(file)
-      if not uploadData? and Utils.looksLikeImage(file)
+      if not uploadData? and Utils.shouldDisplayAsImage(file)
         Actions.fetchFile(file)
 
   _teardownForDraft: =>
@@ -399,10 +399,10 @@ class ComposerView extends React.Component
     return sortOrder
 
   _images: ->
-    _.sortBy _.filter(@_uploadsAndFiles(), Utils.looksLikeImage), @_fileSort
+    _.sortBy _.filter(@_uploadsAndFiles(), Utils.shouldDisplayAsImage), @_fileSort
 
   _nonImages: ->
-    _.sortBy _.reject(@_uploadsAndFiles(), Utils.looksLikeImage), @_fileSort
+    _.sortBy _.reject(@_uploadsAndFiles(), Utils.shouldDisplayAsImage), @_fileSort
 
   _uploadsAndFiles: ->
     # When uploads finish, they stay attached to the object at 100%
