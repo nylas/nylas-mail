@@ -89,14 +89,14 @@ Utils =
     return set
 
   # Given a File object or uploadData of an uploading file object,
-  # determine if it looks like an image
-  looksLikeImage: (file={}) ->
+  # determine if it looks like an image and is in the size range for previews
+  shouldDisplayAsImage: (file={}) ->
     name = file.filename ? file.fileName ? file.name ? ""
     size = file.size ? file.fileSize ? 0
     ext = path.extname(name).toLowerCase()
     extensions = ['.jpg', '.bmp', '.gif', '.png', '.jpeg']
 
-    return ext in extensions and size > 512 and size < 1024*1024*10
+    return ext in extensions and size > 512 and size < 1024*1024*5
 
 
   looksLikeGmailInvite: (message={}) ->

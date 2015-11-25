@@ -201,7 +201,7 @@ class MessageItem extends React.Component
 
     for file in (@props.message.files ? [])
       continue unless @_isRealFile(file)
-      if Utils.looksLikeImage(file)
+      if Utils.shouldDisplayAsImage(file)
         imageAttachments.push(file)
       else
         otherAttachments.push(file)
