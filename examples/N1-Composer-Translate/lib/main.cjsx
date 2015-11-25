@@ -71,8 +71,7 @@ class TranslateButton extends React.Component
   #
   _renderButton: =>
     <button className="btn btn-toolbar">
-      Translate
-      <RetinaImg name="toolbar-chevron.png"/>
+      Translate <span style={fontSize: "9px", verticalAlign: "middle"}>▼</span>
     </button>
 
   _onTranslate: (lang) =>
