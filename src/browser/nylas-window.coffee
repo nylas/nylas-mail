@@ -61,7 +61,7 @@ class NylasWindow
       webPreferences:
         directWrite: true
 
-    if @mainWindow
+    if @neverClose
       # Prevents DOM timers from being suspended when the main window is hidden.
       # Means there's not an awkward catch-up when you re-show the main window.
       options.webPreferences.pageVisibility = true
