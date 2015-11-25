@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Mode switch",
   "main": "./lib/main",
-  "license": "Proprietary",
+  "license": "GPLv3",
   "engines": {
     "nylas": "*"
   },
