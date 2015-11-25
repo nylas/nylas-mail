@@ -1,5 +1,44 @@
 # N1 Changelog
 
+### 0.3.25 (11/25/15)
+
+- Features:
+  + Labels / Folders: You can now add labels from the sidebar and delete them by right-clicking.
+  + Unread Counts: You can now turn on unread counts for all folders and labels in preferences
+  + Examples: QuickSchedule allows you to easily send your availability and schedule events.
+  + Status Bar Icon: On Mac OS X, the status bar icon is retina and renders properly in dark mode.
+  + Preferences: The Preferences interface has been revamped in preparation for filters, signatures, and per-plugin preferences.
+
+- Development:
+  + We now use Electron `0.35.1`
+  + We now use Spectron to run a few integration tests on Mac
+  + The `atom` global has been renamed `NylasEnv`
+  + The spec suite now runs and all tests pass on Linux (@mbilker)
+  + The build process now supports Node 4.2 and Node 5
+  + The build process exits if script/bootstrap fails
+
+- Fixes:
+  + The account switcher no longer sticks when trying to change accounts.
+  + The app will no longer attempt to preview images larger than 5MB.
+  + An outdated draft body no longer appears briefly when drafts are sent.
+  + You can now right-click and paste images as well as text into the composer
+  + `pre` tags in message bodies now render properly
+  + `NYLAS_HOME` is defined in the renderer process on Linux (@mbilker)
+  + The `MessageBodyProcessor` runs for every message, even if bodies are identical (@mbilker)
+  + The collapsed state of labels in the sidebar is preserved through restart.
+  + Choosing a subject line from the search suggestions now searches for that subject.
+
+- Style:
+  + Message rendering in dark mode is much better - no more white email backgrounds.
+  + We now refer to "list view" and "split view" as "single panel" and "two panel"
+  + The pop-out composer renders correctly in dark mode.
+
+- Performance:
+  + Queries for the thread list are now 4x faster thanks to revised join table indices.
+  + Unread counts no longer require periodic `SELECT COUNT(*)` queries.
+  + We've pulled Atom's new compile-cache, which provides speed improvements at launch.
+
+
 ### 0.3.23 (11/17/15)
 
 - Features:
