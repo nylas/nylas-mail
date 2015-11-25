@@ -24,7 +24,7 @@ case "$1" in
 
         DISTRO=`lsb_release -s -i`
 
-        if [ "$DISTRO" = "Ubuntu" ]; then
+        if [ "$DISTRO" = "Ubuntu" ] || [ "$DISTRO" = "elementary OS" ]; then
           DISTS=$UBUNTU_CODENAMES
           DISTRO="ubuntu"
         elif [ "$DISTRO" = "Debian" ]; then
