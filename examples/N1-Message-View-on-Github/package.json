@@ -6,7 +6,7 @@
   "license": "Proprietary",
   "private": true,
   "engines": {
-    "nylas": "*"
+    "nylas": ">=0.3.0 <0.5.0"
   },
   "dependencies": {
     "underscore": "^1.8.3"
