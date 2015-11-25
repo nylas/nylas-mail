@@ -28,6 +28,8 @@ class Attribute
     throw (new Error "Attribute.in: you must pass an array of values.") unless val instanceof Array
     throw (new Error "Attribute::in (#{@modelKey}) - you must provide a value") unless val?
     throw (new Error "Attribute::in (#{@modelKey}) - this field cannot be queried against") unless @queryable
+    if val.length is 0
+      console.warn "Attribute::in (#{@modelKey}) called with an empty set. You should avoid this useless query!"
     new Matcher(@, 'in', val)
 
   # Public: Returns a {Matcher} for objects `!=` to the provided value.

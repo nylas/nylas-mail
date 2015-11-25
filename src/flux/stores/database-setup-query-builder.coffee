@@ -45,9 +45,9 @@ class DatabaseSetupQueryBuilder
       attr.queryable && attr instanceof AttributeCollection
     collectionAttributes.forEach (attribute) ->
       joinTable = tableNameForJoin(klass, attribute.itemClass)
-      joinIndexName = "#{joinTable.replace('-', '_')}_val_id"
       queries.push("CREATE TABLE IF NOT EXISTS `#{joinTable}` (id TEXT KEY, `value` TEXT)")
-      queries.push("CREATE UNIQUE INDEX IF NOT EXISTS `#{joinIndexName}` ON `#{joinTable}` (`value` ASC, `id` ASC)")
+      queries.push("CREATE INDEX IF NOT EXISTS `#{joinTable.replace('-', '_')}_id` ON `#{joinTable}` (`id` ASC)")
+      queries.push("CREATE UNIQUE INDEX IF NOT EXISTS `#{joinTable.replace('-', '_')}_val_id` ON `#{joinTable}` (`value` ASC, `id` ASC)")
 
     joinedDataAttributes = _.filter attributes, (attr) ->
       attr instanceof AttributeJoinedData

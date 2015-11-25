@@ -432,6 +432,7 @@ class DatabaseStore extends NylasStore
     return Promise.resolve() if models.length is 0
 
     klass = models[0].constructor
+    clones = []
     ids = {}
 
     unless models[0] instanceof Model
@@ -442,17 +443,21 @@ class DatabaseStore extends NylasStore
         throw new Error("DatabaseStore::persistModels - When you batch persist objects, they must be of the same type")
       if ids[model.id]
         throw new Error("DatabaseStore::persistModels - You must pass an array of models with different ids. ID #{model.id} is in the set multiple times.")
+
+      clones.push(model.clone())
       ids[model.id] = true
 
     ids = Object.keys(ids)
-    @_runMutationHooks('beforeDatabaseChange', models, ids).then (data) =>
-      @_writeModels(models).then =>
-        @_runMutationHooks('afterDatabaseChange', models, ids, data)
-        @_accumulateAndTrigger({
-          objectClass: models[0].constructor.name
-          objects: models
-          type: 'persist'
-        })
+
+    @atomicMutation =>
+      @_runMutationHooks('beforeDatabaseChange', clones, ids).then (data) =>
+        @_writeModels(clones).then =>
+          @_runMutationHooks('afterDatabaseChange', clones, ids, data)
+          @_accumulateAndTrigger({
+            objectClass: clones[0].constructor.name
+            objects: clones
+            type: 'persist'
+          })
 
   # Public: Asynchronously removes `model` from the cache and triggers a change event.
   #
@@ -464,14 +469,17 @@ class DatabaseStore extends NylasStore
   #   - rejects if any databse query fails or one of the triggering
   #     callbacks failed
   unpersistModel: (model) =>
-    @_runMutationHooks('beforeDatabaseChange', [model], [model.id]).then (data) =>
-      @_deleteModel(model).then =>
-        @_runMutationHooks('afterDatabaseChange', [model], [model.id], data)
-        @_accumulateAndTrigger({
-          objectClass: model.constructor.name,
-          objects: [model],
-          type: 'unpersist'
-        })
+    model = model.clone()
+
+    @atomicMutation =>
+      @_runMutationHooks('beforeDatabaseChange', [model], [model.id]).then (data) =>
+        @_deleteModel(model).then =>
+          @_runMutationHooks('afterDatabaseChange', [model], [model.id], data)
+          @_accumulateAndTrigger({
+            objectClass: model.constructor.name,
+            objects: [model],
+            type: 'unpersist'
+          })
 
   persistJSONObject: (key, json) ->
     jsonString = serializeRegisteredObjects(json)
@@ -484,6 +492,18 @@ class DatabaseStore extends NylasStore
       data = deserializeRegisteredObjects(results[0].data)
       Promise.resolve(data)
 
+  # Private: Mutation hooks allow you to observe changes to the database and
+  # add additional functionality before and after the REPLACE / INSERT queries.
+  #
+  # beforeDatabaseChange: Run queries, etc. and return a promise. The DatabaseStore
+  # will proceed with changes once your promise has finished. You cannot call
+  # persistModel or unpersistModel from this hook.
+  #
+  # afterDatabaseChange: Run queries, etc. after the REPLACE / INSERT queries
+  #
+  # Warning: this is very low level. If you just want to watch for changes, You
+  # should subscribe to the DatabaseStore's trigger events.
+  #
   addMutationHook: ({beforeDatabaseChange, afterDatabaseChange}) ->
     throw new Error("DatabaseStore:addMutationHook - You must provide a beforeDatabaseChange function") unless beforeDatabaseChange
     throw new Error("DatabaseStore:addMutationHook - You must provide a afterDatabaseChange function") unless afterDatabaseChange
@@ -503,18 +523,28 @@ class DatabaseStore extends NylasStore
       Promise.resolve([])
 
   atomically: (fn) =>
-    maxConcurrent = 1
-    maxQueue = Infinity
-    @_promiseQueue ?= new PromiseQueue(maxConcurrent, maxQueue)
-    return @_promiseQueue.add(=> @_atomically(fn))
+    @_atomicallyQueue ?= new PromiseQueue(1, Infinity)
+    @_atomicallyQueue.add(=> @_ensureInTransaction(fn))
 
-  _atomically: (fn) ->
+  atomicMutation: (fn) =>
+    @_mutationQueue ?= new PromiseQueue(1, Infinity)
+    @_mutationQueue.add(=> @_ensureInTransaction(fn))
+
+  _ensureInTransaction: (fn) ->
+    return fn() if @_inTransaction
+    @_wrapInTransaction(fn)
+
+  _wrapInTransaction: (fn) ->
+    @_inTransaction = true
     @_query("BEGIN EXCLUSIVE TRANSACTION")
     .then =>
+      # NOTE: The value that `fn` resolves to is propagated all the way back to
+      # the originally caller of `atomically`
       fn()
-    .finally (val) => @_query("COMMIT")
-    # NOTE: The value that `fn` resolves to is propagated all the way back to
-    # the originally caller of `atomically`
+    .finally (val) =>
+      @_query("COMMIT")
+      @_inTransaction = false
+
 
   ########################################################################
   ########################### PRIVATE METHODS ############################
@@ -605,6 +635,7 @@ class DatabaseStore extends NylasStore
       marks.push(marksSet)
 
     marksSQL = marks.join(',')
+
     promises.push @_query("REPLACE INTO `#{klass.name}` (#{columnsSQL}) VALUES #{marksSQL}", values)
 
     # For each join table property, find all the items in the join table for this

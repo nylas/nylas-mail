@@ -277,6 +277,9 @@ class NylasAPI
         return false
       return true
 
+    if unlockedJSONs.length is 0
+      return Promise.resolve([])
+
     # Step 3: Retrieve any existing models from the database for the given IDs.
     ids = _.pluck(unlockedJSONs, 'id')
     DatabaseStore = require './stores/database-store'

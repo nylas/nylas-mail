@@ -10,7 +10,7 @@ Folder = require '../models/folder'
 Label = require '../models/label'
 WindowBridge = require '../../window-bridge'
 
-JSONObjectKey = 'UnreadCounts-V0'
+JSONObjectKey = 'UnreadCounts-V1'
 
 class CategoryDatabaseMutationObserver
   constructor: (@_countsDidChange) ->
