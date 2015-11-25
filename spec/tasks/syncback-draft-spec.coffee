@@ -44,7 +44,7 @@ describe "SyncbackDraftTask", ->
     spyOn(DatabaseStore, "persistModel").andCallFake ->
       Promise.resolve()
 
-    spyOn(DatabaseStore, "_atomically").andCallFake (fn) ->
+    spyOn(DatabaseStore, "_wrapInTransaction").andCallFake (fn) ->
       fn()
       return Promise.resolve()
 

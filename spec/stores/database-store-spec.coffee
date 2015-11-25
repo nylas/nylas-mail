@@ -14,6 +14,11 @@ testModelInstanceB = new TestModel(id: "BBB")
 describe "DatabaseStore", ->
   beforeEach ->
     TestModel.configureBasic()
+
+    DatabaseStore._atomicallyQueue = undefined
+    DatabaseStore._mutationQueue = undefined
+    DatabaseStore._inTransaction = false
+
     spyOn(ModelQuery.prototype, 'where').andCallThrough()
     spyOn(DatabaseStore, '_accumulateAndTrigger').andCallFake -> Promise.resolve()
 
@@ -124,6 +129,7 @@ describe "DatabaseStore", ->
     it "should call through to persistModels", ->
       spyOn(DatabaseStore, 'persistModels').andReturn Promise.resolve()
       DatabaseStore.persistModel(testModelInstance)
+      advanceClock()
       expect(DatabaseStore.persistModels.callCount).toBe(1)
 
   describe "persistModels", ->
@@ -180,6 +186,7 @@ describe "DatabaseStore", ->
 
       it "should run pre-mutation hooks, wait to write models, and then run post-mutation hooks", ->
         DatabaseStore.persistModels([testModelInstanceA, testModelInstanceB])
+        advanceClock()
         expect(@beforeDatabaseChange).toHaveBeenCalledWith(
           DatabaseStore._query,
           [testModelInstanceA, testModelInstanceB],
@@ -204,6 +211,7 @@ describe "DatabaseStore", ->
       it "should carry on if a pre-mutation hook throws", ->
         @beforeShouldThrow = true
         DatabaseStore.persistModels([testModelInstanceA, testModelInstanceB])
+        advanceClock()
         expect(@beforeDatabaseChange).toHaveBeenCalled()
         advanceClock()
         advanceClock()
@@ -212,17 +220,42 @@ describe "DatabaseStore", ->
       it "should carry on if a pre-mutation hook rejects", ->
         @beforeShouldReject = true
         DatabaseStore.persistModels([testModelInstanceA, testModelInstanceB])
+        advanceClock()
         expect(@beforeDatabaseChange).toHaveBeenCalled()
         advanceClock()
         advanceClock()
         expect(DatabaseStore._writeModels).toHaveBeenCalled()
 
+      it "should be atomic: other persistModels calls should not run during the pre+write+post series", ->
+        DatabaseStore.persistModels([testModelInstanceA])
+        DatabaseStore.persistModels([testModelInstanceB])
+
+        # Expect the entire flow (before, write, after) to be called once
+        # before anything is called twice.
+        advanceClock()
+        advanceClock()
+        expect(@beforeDatabaseChange.callCount).toBe(1)
+        advanceClock(1100)
+        advanceClock()
+        expect(DatabaseStore._writeModels.callCount).toBe(1)
+        @writeModelsResolve()
+        advanceClock(1100)
+        advanceClock()
+        expect(@afterDatabaseChange.callCount).toBe(1)
+        advanceClock()
+
+        # The second call to persistModels can start now
+        expect(@beforeDatabaseChange.callCount).toBe(2)
+
   describe "unpersistModel", ->
-    it "should delete the model by Id", -> waitsForPromise =>
-      DatabaseStore.unpersistModel(testModelInstance).then =>
-        expect(@performed.length).toBe(1)
-        expect(@performed[0].query).toBe("DELETE FROM `TestModel` WHERE `id` = ?")
-        expect(@performed[0].values[0]).toBe('1234')
+    it "should delete the model by id", ->
+      waitsForPromise =>
+        DatabaseStore.unpersistModel(testModelInstance).then =>
+          expect(@performed.length).toBe(3)
+          expect(@performed[0].query).toBe("BEGIN EXCLUSIVE TRANSACTION")
+          expect(@performed[1].query).toBe("DELETE FROM `TestModel` WHERE `id` = ?")
+          expect(@performed[1].values[0]).toBe('1234')
+          expect(@performed[2].query).toBe("COMMIT")
 
     it "should cause the DatabaseStore to trigger() with a change that contains the model", ->
       waitsForPromise ->
@@ -237,18 +270,22 @@ describe "DatabaseStore", ->
         TestModel.configureWithCollectionAttribute()
         waitsForPromise =>
           DatabaseStore.unpersistModel(testModelInstance).then =>
-            expect(@performed.length).toBe(2)
-            expect(@performed[1].query).toBe("DELETE FROM `TestModel-Label` WHERE `id` = ?")
-            expect(@performed[1].values[0]).toBe('1234')
+            expect(@performed.length).toBe(4)
+            expect(@performed[0].query).toBe("BEGIN EXCLUSIVE TRANSACTION")
+            expect(@performed[2].query).toBe("DELETE FROM `TestModel-Label` WHERE `id` = ?")
+            expect(@performed[2].values[0]).toBe('1234')
+            expect(@performed[3].query).toBe("COMMIT")
 
     describe "when the model has joined data attributes", ->
       it "should delete the element in the joined data table", ->
         TestModel.configureWithJoinedDataAttribute()
         waitsForPromise =>
           DatabaseStore.unpersistModel(testModelInstance).then =>
-            expect(@performed.length).toBe(2)
-            expect(@performed[1].query).toBe("DELETE FROM `TestModelBody` WHERE `id` = ?")
-            expect(@performed[1].values[0]).toBe('1234')
+            expect(@performed.length).toBe(4)
+            expect(@performed[0].query).toBe("BEGIN EXCLUSIVE TRANSACTION")
+            expect(@performed[2].query).toBe("DELETE FROM `TestModelBody` WHERE `id` = ?")
+            expect(@performed[2].values[0]).toBe('1234')
+            expect(@performed[3].query).toBe("COMMIT")
 
   describe "_writeModels", ->
     it "should compose a REPLACE INTO query to save the model", ->
@@ -358,9 +395,6 @@ describe "DatabaseStore", ->
         expect(@performed.length).toBe(1)
 
   describe "atomically", ->
-    beforeEach ->
-      DatabaseStore._atomicPromise = null
-
     it "sets up an exclusive transaction", ->
       waitsForPromise =>
         DatabaseStore.atomically( =>
