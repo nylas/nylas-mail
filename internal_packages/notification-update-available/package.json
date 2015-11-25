@@ -3,7 +3,7 @@
   "main": "./lib/main",
   "version": "0.36.0",
   "description": "Displays a notification when an update is available",
-  "license": "Proprietary",
+  "license": "GPLv3",
   "engines": {
     "nylas": "*"
   }
