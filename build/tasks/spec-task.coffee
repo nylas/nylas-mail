@@ -1,6 +1,7 @@
 fs = require 'fs'
 path = require 'path'
 request = require 'request'
+Promise = require 'bluebird'
 childProcess = require 'child_process'
 
 executeTests = ({cmd, args}, grunt, done) ->
