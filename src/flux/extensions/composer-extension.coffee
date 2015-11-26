@@ -1,47 +1,51 @@
+ContenteditableExtension = require('./contenteditable-extension')
 ###
-Public: To create ComposerExtensions that enhance the composer experience, you
-should create objects that implement the interface defined at {ComposerExtension}.
+Public: To create ComposerExtensions that enhance the composer experience,
+you should create objects that implement the interface defined at
+{ComposerExtension}.
 
 {ComposerExtension} extends {ContenteditableExtension}, so you can also
 implement the methods defined there to further enhance the composer
 experience.
 
-To register your extension with the ExtensionRegistry, call {ExtensionRegistry::Composer::register}.
-When your package is being unloaded, you *must* call the corresponding
+To register your extension with the ExtensionRegistry, call
+{ExtensionRegistry::Composer::register}.  When your package is being
+unloaded, you *must* call the corresponding
 {ExtensionRegistry::Composer::unregister} to unhook your extension.
 
-```coffee
-activate: ->
-  ExtensionRegistry.Composer.register(MyExtension)
+```
+coffee activate: -> ExtensionRegistry.Composer.register(MyExtension)
 
 ...
 
-deactivate: ->
-  ExtensionRegistry.Composer.unregister(MyExtension)
+deactivate: -> ExtensionRegistry.Composer.unregister(MyExtension)
 ```
 
-Your ComposerExtension should be stateless. The user may have multiple drafts
-open at any time, and the methods of your ComposerExtension may be called for different
-drafts at any time. You should not expect that the session you receive in
- {::finalizeSessionBeforeSending} is for the same draft you previously received in
- {::warningsForSending}, etc.
+**Your ComposerExtension should be stateless**. The user may have multiple
+drafts open at any time, and the methods of your ComposerExtension may be
+called for different drafts at any time. You should not expect that the
+session you receive in {::finalizeSessionBeforeSending} is for the same
+draft you previously received in {::warningsForSending}, etc.
 
-The ComposerExtension API does not currently expose any asynchronous or {Promise}-based APIs.
-This will likely change in the future. If you have a use-case for a ComposerExtension that
-is not possible with the current API, please let us know.
+The ComposerExtension API does not currently expose any asynchronous or
+{Promise}-based APIs.  This will likely change in the future. If you have
+a use-case for a ComposerExtension that is not possible with the current
+API, please let us know.
 
 Section: Extensions
 ###
-class ComposerExtension
+class ComposerExtension extends ContenteditableExtension
 
   ###
-  Public: Inspect the draft, and return any warnings that need to be displayed before
-  the draft is sent. Warnings should be string phrases, such as "without an attachment"
-  that fit into a message of the form: "Send #{phase1} and #{phase2}?"
+  Public: Inspect the draft, and return any warnings that need to be
+  displayed before the draft is sent. Warnings should be string phrases,
+  such as "without an attachment" that fit into a message of the form:
+  "Send #{phase1} and #{phase2}?"
 
   - `draft`: A fully populated {Message} object that is about to be sent.
 
-  Returns a list of warning strings, or an empty array if no warnings need to be displayed.
+  Returns a list of warning strings, or an empty array if no warnings need
+  to be displayed.
   ###
   @warningsForSending: (draft) ->
     []
@@ -53,42 +57,45 @@ class ComposerExtension
   You must return an object that contains the following properties:
 
   - `mutator`: A function that's called when your toolbar button is
-  clicked. This mutator function will be passed as its only argument the
-  `dom`. The `dom` is the full {DOM} object of the current composer. You
-  may mutate this in place. We don't care about the mutator's return
-  value.
+  clicked. The mutator will be passed: `(contenteditableDOM, selection,
+  event)`.  It will be executed in a wrapped transaction block where it is
+  safe to mutate the DOM and the selection object.
+
+  - `className`: The button will already have the `btn` and `toolbar-btn`
+  classes.
 
   - `tooltip`: A one or two word description of what your icon does
 
-  - `iconUrl`: The url of your icon. It should be in the `nylas://` scheme.
-
-  For example: `nylas://your-package-name/assets/my-icon@2x.png`. Note, we
-  will downsample your image by 2x (for Retina screens), so make sure it's
-  twice the resolution. The icon should be black and white. We will
-  directly pass the `url` prop of a {RetinaImg}
+  - `iconUrl`: The url of your icon. It should be in the `nylas://`
+  scheme.  For example: `nylas://your-package-name/assets/my-icon@2x.png`.
+  Note, we will downsample your image by 2x (for Retina screens), so make
+  sure it's twice the resolution. The icon should be black and white. We
+  will directly pass the `url` prop of a {RetinaImg}
   ###
   @composerToolbar: ->
     return
 
   ###
-  Public: Override prepareNewDraft to modify a brand new draft before it is displayed
-  in a composer. This is one of the only places in the application where it's safe
-  to modify the draft object you're given directly to add participants to the draft,
-  add a signature, etc.
+  Public: Override prepareNewDraft to modify a brand new draft before it
+  is displayed in a composer. This is one of the only places in the
+  application where it's safe to modify the draft object you're given
+  directly to add participants to the draft, add a signature, etc.
 
-  By default, new drafts are considered `pristine`. If the user leaves the composer
-  without making any changes, the draft is discarded. If your extension populates
-  the draft in a way that makes it "populated" in a valuable way, you should set
-  `draft.pristine = false` so the draft saves, even if no further changes are made.
+  By default, new drafts are considered `pristine`. If the user leaves the
+  composer without making any changes, the draft is discarded. If your
+  extension populates the draft in a way that makes it "populated" in a
+  valuable way, you should set `draft.pristine = false` so the draft
+  saves, even if no further changes are made.
   ###
   @prepareNewDraft: (draft) ->
     return
 
   ###
-  Public: Override finalizeSessionBeforeSending in your ComposerExtension subclass to
-  transform the {DraftStoreProxy} editing session just before the draft is sent. This method
-  gives you an opportunity to make any final substitutions or changes after any
-  {::warningsForSending} have been displayed.
+  Public: Override finalizeSessionBeforeSending in your ComposerExtension
+  subclass to transform the {DraftStoreProxy} editing session just before
+  the draft is sent. This method gives you an opportunity to make any
+  final substitutions or changes after any {::warningsForSending} have
+  been displayed.
 
   - `session`: A {DraftStoreProxy} for the draft.
 

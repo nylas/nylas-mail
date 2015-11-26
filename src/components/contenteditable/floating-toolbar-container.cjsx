@@ -1,7 +1,7 @@
 _ = require 'underscore'
 React = require 'react'
 
-{Utils, DOMUtils} = require 'nylas-exports'
+{Utils, DOMUtils, ExtensionRegistry} = require 'nylas-exports'
 
 FloatingToolbar = require './floating-toolbar'
 
@@ -11,14 +11,21 @@ class FloatingToolbarContainer extends React.Component
   @displayName: "FloatingToolbarContainer"
 
   @propTypes:
+    # We are passed in the Contenteditable's `atomicEdit` mutator
+    # function. This is the safe way to request updates in the
+    # contenteditable. It will pass the editable DOM node and the
+    # Selection object plus any extra args (like DOM event objects) to the
+    # callback
+    atomicEdit: React.PropTypes.func
+
     # A function we call when we would like to request to change the
     # current selection
+    #
+    # TODO: This is passed in and can't use atomicEdit in its pure form
+    # because it needs to reset the main selection state of the
+    # Contenteditable plugin. This should go away once we do a Selection
+    # refactor.
     onSaveUrl: React.PropTypes.func
-
-    # When an extension wants to mutate the DOM, it passes `onDomMutator`
-    # a callback function. That callback is expecting to be passed the
-    # latest DOM object and may modify it in place.
-    onDomMutator: React.PropTypes.func
 
   @innerPropTypes:
     links: React.PropTypes.array
@@ -88,17 +95,51 @@ class FloatingToolbarContainer extends React.Component
       onMouseEnter={@_onEnterToolbar}
       onChangeMode={@_onChangeMode}
       onMouseLeave={@_onLeaveToolbar}
-      onDomMutator={@props.onDomMutator}
       linkToModify={@state.linkToModify}
+      buttonConfigs={@_toolbarButtonConfigs()}
       onChangeFocus={@_onChangeFocus}
       editAreaWidth={@state.editAreaWidth}
       contentPadding={@CONTENT_PADDING}
-      onDoneWithLink={@_onDoneWithLink}
-      onClickLinkEditBtn={@_onClickLinkEditBtn} />
+      onDoneWithLink={@_onDoneWithLink} />
 
-  # Called when a user clicks the "link" icon on the FloatingToolbar
-  _onClickLinkEditBtn: =>
-    @setState toolbarMode: "edit-link"
+  # We setup the buttons that the Toolbar should have as a combination of
+  # core actions and user-defined plugins. The FloatingToolbar simply
+  # renders them.
+  _toolbarButtonConfigs: ->
+    atomicEditWrap = (command) => (event) =>
+      @props.atomicEdit((-> document.execCommand(command)), event)
+
+    extensionButtonConfigs = []
+    ExtensionRegistry.Composer.extensions().forEach (ext) ->
+      config = ext.composerToolbar?()
+      extensionButtonConfigs.push(config) if config?
+
+    return [
+      {
+        className: "btn-bold"
+        onClick: atomicEditWrap("bold")
+        tooltip: "Bold"
+        iconUrl: null # Defined in the css of btn-bold
+      }
+      {
+        className: "btn-italic"
+        onClick: atomicEditWrap("italic")
+        tooltip: "Italic"
+        iconUrl: null # Defined in the css of btn-italic
+      }
+      {
+        className: "btn-underline"
+        onClick: atomicEditWrap("underline")
+        tooltip: "Underline"
+        iconUrl: null # Defined in the css of btn-underline
+      }
+      {
+        className: "btn-link"
+        onClick: => @setState toolbarMode: "edit-link"
+        tooltip: "Edit Link"
+        iconUrl: null # Defined in the css of btn-link
+      }
+    ].concat(extensionButtonConfigs)
 
   # A user could be done with a link because they're setting a new one, or
   # clearing one, or just canceling.

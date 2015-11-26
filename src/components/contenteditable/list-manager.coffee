@@ -2,11 +2,11 @@ _str = require 'underscore.string'
 {DOMUtils, ContenteditableExtension} = require 'nylas-exports'
 
 class ListManager extends ContenteditableExtension
-  @onInput: (event, editableNode, selection) ->
+  @onContentChanged: (editableNode, selection) ->
     if @_spaceEntered and @hasListStartSignature(selection)
-      @createList(event, selection)
+      @createList(null, selection)
 
-  @onKeyDown: (event, editableNode, selection) ->
+  @onKeyDown: (editableNode, selection, event) ->
     @_spaceEntered = event.key is " "
     if DOMUtils.isInList()
       if event.key is "Backspace" and DOMUtils.atStartOfList()
@@ -52,7 +52,7 @@ class ListManager extends ContenteditableExtension
       return
     el = DOMUtils.closest(selection.anchorNode, "li")
     DOMUtils.Mutating.removeEmptyNodes(el)
-    event.preventDefault()
+    event?.preventDefault()
 
   @removeListStarter: (starterRegex, selection) ->
     el = DOMUtils.closest(selection.anchorNode, "li")

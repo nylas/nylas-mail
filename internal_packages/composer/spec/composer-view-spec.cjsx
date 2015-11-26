@@ -143,7 +143,7 @@ describe "populated composer", ->
       editableNode = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithAttr(@composer, 'contentEditable'))
       spyOn(@proxy.changes, "add")
       editableNode.innerHTML = "Hello <strong>world</strong>"
-      ReactTestUtils.Simulate.input(editableNode)
+      @composer.refs[Fields.Body]._onDOMMutated(["mutated"])
       expect(@proxy.changes.add).toHaveBeenCalled()
       expect(@proxy.changes.add.calls.length).toBe 1
       body = @proxy.changes.add.calls[0].args[0].body
@@ -168,7 +168,7 @@ describe "populated composer", ->
 
     it 'saves the full new body, plus quoted text', ->
       @editableNode.innerHTML = "Hello <strong>world</strong>"
-      ReactTestUtils.Simulate.input(@editableNode)
+      @composer.refs[Fields.Body]._onDOMMutated(["mutated"])
       expect(@proxy.changes.add).toHaveBeenCalled()
       expect(@proxy.changes.add.calls.length).toBe 1
       body = @proxy.changes.add.calls[0].args[0].body
@@ -200,7 +200,7 @@ describe "populated composer", ->
 
     it 'saves the full new body, plus forwarded text', ->
       @editableNode.innerHTML = "Hello <strong>world</strong>#{@fwdBody}"
-      ReactTestUtils.Simulate.input(@editableNode)
+      @composer.refs[Fields.Body]._onDOMMutated(["mutated"])
       expect(@proxy.changes.add).toHaveBeenCalled()
       expect(@proxy.changes.add.calls.length).toBe 1
       body = @proxy.changes.add.calls[0].args[0].body
