@@ -49,7 +49,7 @@ class Application
     client = net.connect {path: socketPath}, ->
       client.write JSON.stringify(options), ->
         client.end()
-        app.terminate()
+        app.quit()
 
     client.on 'error', createApplication
 
