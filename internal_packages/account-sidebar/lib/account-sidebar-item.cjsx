@@ -10,8 +10,8 @@ class AccountSidebarItem extends React.Component
 
   @propTypes: {
     item: React.PropTypes.object.isRequired
-    selected: React.PropTypes.object.isRequired
     onToggleCollapsed: React.PropTypes.func.isRequired
+    selected: React.PropTypes.object
     collapsed: React.PropTypes.bool
     onDestroyItem: React.PropTypes.func
   }

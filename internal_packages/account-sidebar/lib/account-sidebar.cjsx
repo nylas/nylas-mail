@@ -39,6 +39,7 @@ class AccountSidebar extends React.Component
         collapsed={@state.collapsed}
         selected={@state.selected}
         onToggleCollapsed={@_onToggleCollapsed} />
+
   _onStoreChange: =>
     @setState @_getStateFromStores()
 

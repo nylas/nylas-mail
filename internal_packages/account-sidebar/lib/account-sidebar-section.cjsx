@@ -12,8 +12,8 @@ class AccountSidebarSection extends React.Component
   @propTypes: {
     section: React.PropTypes.object.isRequired
     collapsed: React.PropTypes.object.isRequired
-    selected: React.PropTypes.object.isRequired
     onToggleCollapsed: React.PropTypes.func.isRequired
+    selected: React.PropTypes.object
   }
 
   constructor: (@props) ->
