@@ -15,6 +15,7 @@ describe "Contenteditable", ->
     @component = ReactTestUtils.renderIntoDocument(
       <Contenteditable html={html} onChange={@onChange}/>
     )
+
     @editableNode = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithAttr(@component, 'contentEditable'))
 
   describe "render", ->
@@ -30,20 +31,26 @@ describe "Contenteditable", ->
 
       @performEdit = (newHTML, component = @component) =>
         @editableNode.innerHTML = newHTML
-        ReactTestUtils.Simulate.input(@editableNode, {target: {value: newHTML}})
 
     it "should fire `props.onChange`", ->
-      @performEdit('Test <strong>New HTML</strong>')
-      expect(@onChange).toHaveBeenCalled()
+      runs =>
+        @performEdit('Test <strong>New HTML</strong>')
+      waitsFor =>
+        @onChange.calls.length > 0
+      runs =>
+        expect(@onChange).toHaveBeenCalled()
 
     # One day we may make this more efficient. For now we aggressively
     # re-render because of the manual cursor positioning.
     it "should fire if the html is the same", ->
       expect(@onChange.callCount).toBe(0)
-      @performEdit(@changedHtmlWithoutQuote)
-      expect(@onChange.callCount).toBe(1)
-      @performEdit(@changedHtmlWithoutQuote)
-      expect(@onChange.callCount).toBe(2)
+      runs =>
+        @performEdit(@changedHtmlWithoutQuote)
+        @performEdit(@changedHtmlWithoutQuote)
+      waitsFor =>
+        @onChange.callCount > 0
+      runs =>
+        expect(@onChange).toHaveBeenCalled()
 
   describe "pasting", ->
     beforeEach ->

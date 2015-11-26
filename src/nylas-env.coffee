@@ -239,7 +239,7 @@ class NylasEnvConstructor extends Model
       @lastUncaughtError = Array::slice.call(arguments)
       [message, url, line, column, originalError] = @lastUncaughtError
 
-      {line, column} = mapSourcePosition({source: url, line, column})
+      # {line, column} = mapSourcePosition({source: url, line, column})
 
       eventObject = {message, url, line, column, originalError}
 

@@ -21,36 +21,45 @@ render() {
 }
 ```
 
-If you specifically want to enhance the Composer experience you should register
-a {ComposerExtension}
+If you specifically want to enhance the Composer experience you should
+register a {ComposerExtension}
 
 Section: Extensions
 ###
 class ContenteditableExtension
 
   ###
-  Public: Override onInput in your Contenteditable subclass to implement custom
-  behavior as the user types in the contenteditable's body field. You may mutate
-  the contenteditable in place, we do not expect any return value from this method.
+  Public: Override onContentChanged in your Contenteditable subclass to
+  implement custom behavior as the user types in the contenteditable's
+  body field. This method fires any time any DOM changes anywhere in the
+  Contenteditable component. It is wrapper over a native DOM
+  {MutationObserver}.
 
-  The onInput event can be triggered by a variety of events, some of which could
-  have been already been looked at by a callback. Almost any DOM mutation will
-  fire this event. Sometimes those mutations are the cause of other callbacks.
+  Callback params:
+    - editableNode: DOM node that represents the current
+    contenteditable. This object can be mutated in place to modify the
+    Contenteditable's content
+    - selection: {Selection} object that represents the current selection
+    on the contenteditable
+    - mutations: An array of DOM Mutations as returned by the
+    {MutationObserver}. Note that these may not always be populated
 
-  - event: DOM event fired on the contenteditable
-  - editableNode: DOM node that represents the current contenteditable.This object
-  can be mutated in place to modify the Contenteditable's content
-  - selection: [Selection](https://developer.mozilla.org/en-US/docs/Web/API/Selection)
-  object that represents the current selection on the contenteditable
+  You may mutate the contenteditable in place, we do not expect any return
+  value from this method.
+
+  The onContentChanged event can be triggered by a variety of events, some
+  of which could have been already been looked at by a callback. Any DOM
+  mutation will fire this event. Sometimes those mutations are the cause
+  of other callbacks.
 
   Example:
 
-  The Nylas `templates` package uses this method to see if the user has populated a
-  `<code>` tag placed in the body and change it's CSS class to reflect that it is no
-  longer empty.
+  The Nylas `templates` package uses this method to see if the user has
+  populated a `<code>` tag placed in the body and change it's CSS class to
+  reflect that it is no longer empty.
 
   ```coffee
-  onInput: (event, editableNode, selection) ->
+  onContentChanged: (editableNode, selection, mutations) ->
     isWithinNode = (node) ->
       test = selection.baseNode
       while test isnt editableNode
@@ -64,46 +73,46 @@ class ContenteditableExtension
         codeTag.classList.remove('empty')
   ```
   ###
-  @onInput: (event, editableNode, selection) ->
+  @onContentChanged: (editableNode, selection, mutations) ->
 
   ###
   Public: Override onBlur to mutate the contenteditable DOM node whenever the
   onBlur event is fired on it. You may mutate the contenteditable in place, we
   not expect any return value from this method.
 
-  - event: DOM event fired on the contenteditable
   - editableNode: DOM node that represents the current contenteditable.This object
   can be mutated in place to modify the Contenteditable's content
   - selection: [Selection](https://developer.mozilla.org/en-US/docs/Web/API/Selection)
   object that represents the current selection on the contenteditable
+  - event: DOM event fired on the contenteditable
   ###
-  @onBlur: (event, editableNode, selection) ->
+  @onBlur: (editableNode, selection, event) ->
 
   ###
   Public: Override onFocus to mutate the contenteditable DOM node whenever the
   onFocus event is fired on it. You may mutate the contenteditable in place, we
   not expect any return value from this method.
 
-  - event: DOM event fired on the contenteditable
   - editableNode: DOM node that represents the current contenteditable.This object
   can be mutated in place to modify the Contenteditable's content
   - selection: [Selection](https://developer.mozilla.org/en-US/docs/Web/API/Selection)
   object that represents the current selection on the contenteditable
+  - event: DOM event fired on the contenteditable
   ###
-  @onFocus: (event, editableNode, selection) ->
+  @onFocus: (editableNode, selection, event) ->
 
   ###
   Public: Override onClick to mutate the contenteditable DOM node whenever the
   onClick event is fired on it. You may mutate the contenteditable in place, we
   not expect any return value from this method.
 
-  - event: DOM event fired on the contenteditable
   - editableNode: DOM node that represents the current contenteditable.This object
   can be mutated in place to modify the Contenteditable's content
   - selection: [Selection](https://developer.mozilla.org/en-US/docs/Web/API/Selection)
   object that represents the current selection on the contenteditable
+  - event: DOM event fired on the contenteditable
   ###
-  @onClick: (event, editableNode, selection) ->
+  @onClick: (editableNode, selection, event) ->
 
   ###
   Public: Override onKeyDown to mutate the contenteditable DOM node whenever the
@@ -119,20 +128,19 @@ class ContenteditableExtension
 
   Important: You should prevent the default key down behavior with great care.
 
-  - event: DOM event fired on the contenteditable
   - editableNode: DOM node that represents the current contenteditable.This object
   can be mutated in place to modify the Contenteditable's content
   - selection: [Selection](https://developer.mozilla.org/en-US/docs/Web/API/Selection)
   object that represents the current selection on the contenteditable
+  - event: DOM event fired on the contenteditable
   ###
-  @onKeyDown: (event, editableNode, selection) ->
+  @onKeyDown: (editableNode, selection, event) ->
 
   ###
   Public: Override onInput to mutate the contenteditable DOM node whenever the
   onInput event is fired on it.You may mutate the contenteditable in place, we
   not expect any return value from this method.
 
-  - event: DOM event fired on the contenteditable
   - editableNode: DOM node that represents the current contenteditable.This object
   can be mutated in place to modify the Contenteditable's content
   - selection: [Selection](https://developer.mozilla.org/en-US/docs/Web/API/Selection)
@@ -140,7 +148,8 @@ class ContenteditableExtension
   - menu: [Menu](https://github.com/atom/electron/blob/master/docs/api/menu.md)
   object you can mutate in order to add new [MenuItems](https://github.com/atom/electron/blob/master/docs/api/menu-item.md)
   to the context menu that will be displayed when you right click the contenteditable.
+  - event: DOM event fired on the contenteditable
   ###
-  @onShowContextMenu: (event, editableNode, selection, menu) ->
+  @onShowContextMenu: (editableNode, selection, event, menu) ->
 
 module.exports = ContenteditableExtension
