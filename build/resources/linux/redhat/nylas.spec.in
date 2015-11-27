@@ -22,6 +22,8 @@ chmod 755 %{buildroot}/usr/local/bin/nylas
 mkdir -p %{buildroot}/usr/local/share/applications/
 mv nylas.desktop %{buildroot}/usr/local/share/applications/
 
+cp /tmp/nylas-build/icons/512.png %{buildroot}/usr/local/share/nylas/resources/app/nylas.png
+
 for s in 16 32 64 128 256 512; do
     mkdir -p %{buildroot}/usr/local/share/icons/hicolor/${s}x${s}/apps
     cp -p /tmp/nylas-build/icons/${s}.png \
