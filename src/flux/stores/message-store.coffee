@@ -8,6 +8,8 @@ AccountStore = require "./account-store"
 FocusedContentStore = require "./focused-content-store"
 ChangeUnreadTask = require '../tasks/change-unread-task'
 NylasAPI = require '../nylas-api'
+ExtensionRegistry = require '../../extension-registry'
+{deprecate} = require '../../deprecate-utils'
 async = require 'async'
 _ = require 'underscore'
 
@@ -43,25 +45,27 @@ class MessageStore extends NylasStore
 
   # Public: Returns the extensions registered with the MessageStore.
   extensions: =>
-    @_extensions
+    ExtensionRegistry.MessageView.extensions()
 
-  # Public: Registers a new extension with the MessageStore. MessageStore extensions
+  # Public: Deprecated, use {ExtensionRegistry.MessageView.register} instead.
+  # Registers a new extension with the MessageStore. MessageStore extensions
   # make it possible to customize message body parsing, and will do more in
   # the future.
   #
-  # - `ext` A {MessageStoreExtension} instance.
+  # - `ext` A {MessageViewExtension} instance.
   #
   registerExtension: (ext) =>
-    @_extensions.push(ext)
-    MessageBodyProcessor = require './message-body-processor'
-    MessageBodyProcessor.resetCache()
+    ExtensionRegistry.MessageView.register(ext)
 
-  # Public: Unregisters the extension provided from the MessageStore.
+  # Public: Deprecated, use {ExtensionRegistry.MessageView.unregister} instead.
+  # Unregisters the extension provided from the MessageStore.
   #
-  # - `ext` A {MessageStoreExtension} instance.
+  # - `ext` A {MessageViewExtension} instance.
   #
   unregisterExtension: (ext) =>
-    @_extensions = _.without(@_extensions, ext)
+    ExtensionRegistry.MessageView.unregister(ext)
+
+  _onExtensionsChanged: (role) ->
     MessageBodyProcessor = require './message-body-processor'
     MessageBodyProcessor.resetCache()
 
@@ -73,10 +77,10 @@ class MessageStore extends NylasStore
     @_itemsExpanded = {}
     @_itemsLoading = false
     @_thread = null
-    @_extensions = []
     @_inflight = {}
 
   _registerListeners: ->
+    @listenTo ExtensionRegistry.MessageView, @_onExtensionsChanged
     @listenTo DatabaseStore, @_onDataChanged
     @listenTo FocusedContentStore, @_onFocusChanged
     @listenTo Actions.toggleMessageIdExpanded, @_onToggleMessageIdExpanded
@@ -287,4 +291,17 @@ class MessageStore extends NylasStore
 
     items
 
-module.exports = new MessageStore()
+store = new MessageStore()
+store.registerExtension = deprecate(
+  'MessageStore.registerExtension',
+  'ExtensionRegistry.MessageView.register',
+  store,
+  store.registerExtension
+)
+store.unregisterExtension = deprecate(
+  'MessageStore.unregisterExtension',
+  'ExtensionRegistry.MessageView.unregister',
+  store,
+  store.unregisterExtension
+)
+module.exports = store

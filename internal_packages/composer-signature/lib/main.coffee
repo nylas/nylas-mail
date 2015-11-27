@@ -1,5 +1,5 @@
-{PreferencesUIStore, DraftStore} = require 'nylas-exports'
-SignatureDraftExtension = require './signature-draft-extension'
+{PreferencesUIStore, ExtensionRegistry} = require 'nylas-exports'
+SignatureComposerExtension = require './signature-composer-extension'
 
 module.exports =
   activate: (@state={}) ->
@@ -8,11 +8,11 @@ module.exports =
       displayName: "Signatures"
       component: require "./preferences-signatures"
 
-    DraftStore.registerExtension(SignatureDraftExtension)
+    ExtensionRegistry.Composer.register(SignatureComposerExtension)
     PreferencesUIStore.registerPreferencesTab(@preferencesTab)
 
   deactivate: ->
-    DraftStore.unregisterExtension(SignatureDraftExtension)
+    ExtensionRegistry.Composer.unregister(SignatureComposerExtension)
     PreferencesUIStore.unregisterPreferencesTab(@preferencesTab.sectionId)
 
   serialize: -> @state

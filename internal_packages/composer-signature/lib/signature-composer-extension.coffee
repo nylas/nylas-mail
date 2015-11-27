@@ -1,6 +1,6 @@
-{DraftStoreExtension, AccountStore} = require 'nylas-exports'
+{ComposerExtension, AccountStore} = require 'nylas-exports'
 
-class SignatureDraftStoreExtension extends DraftStoreExtension
+class SignatureComposerExtension extends ComposerExtension
   @prepareNewDraft: (draft) ->
     accountId = AccountStore.current().id
     signature = NylasEnv.config.get("nylas.account-#{accountId}.signature")
@@ -11,4 +11,4 @@ class SignatureDraftStoreExtension extends DraftStoreExtension
       insertionPoint = draft.body.length
     draft.body = draft.body.substr(0, insertionPoint-1) + "<br/>" + signature + draft.body.substr(insertionPoint)
 
-module.exports = SignatureDraftStoreExtension
+module.exports = SignatureComposerExtension

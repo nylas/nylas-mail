@@ -1,8 +1,7 @@
 _str = require 'underscore.string'
-{DOMUtils} = require 'nylas-exports'
-ContenteditablePlugin = require './contenteditable-plugin'
+{DOMUtils, ContenteditableExtension} = require 'nylas-exports'
 
-class ListManager extends ContenteditablePlugin
+class ListManager extends ContenteditableExtension
   @onInput: (event, editableNode, selection) ->
     if @_spaceEntered and @hasListStartSignature(selection)
       @createList(event, selection)

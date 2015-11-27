@@ -1,5 +1,4 @@
 _ = require 'underscore'
-Actions = require './flux/actions'
 
 {Listener, Publisher} = require './flux/modules/reflux-coffee'
 CoffeeHelpers = require './flux/coffee-helpers'

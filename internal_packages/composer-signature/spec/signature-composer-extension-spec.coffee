@@ -1,8 +1,8 @@
 {Message} = require 'nylas-exports'
 
-SignatureDraftStoreExtension = require '../lib/signature-draft-extension'
+SignatureComposerExtension = require '../lib/signature-composer-extension'
 
-describe "SignatureDraftStoreExtension", ->
+describe "SignatureComposerExtension", ->
   describe "prepareNewDraft", ->
     describe "when a signature is defined", ->
       beforeEach ->
@@ -18,9 +18,9 @@ describe "SignatureDraftStoreExtension", ->
           draft: true
           body: 'This is a another test.'
 
-        SignatureDraftStoreExtension.prepareNewDraft(a)
+        SignatureComposerExtension.prepareNewDraft(a)
         expect(a.body).toEqual("This is a test!<br/><div id='signature'>This is my signature.</div><blockquote>Hello world</blockquote>")
-        SignatureDraftStoreExtension.prepareNewDraft(b)
+        SignatureComposerExtension.prepareNewDraft(b)
         expect(b.body).toEqual("This is a another test<br/><div id='signature'>This is my signature.</div>")
 
     describe "when a signature is not defined", ->
@@ -32,5 +32,5 @@ describe "SignatureDraftStoreExtension", ->
         a = new Message
           draft: true
           body: 'This is a test! <blockquote>Hello world</blockquote>'
-        SignatureDraftStoreExtension.prepareNewDraft(a)
+        SignatureComposerExtension.prepareNewDraft(a)
         expect(a.body).toEqual('This is a test! <blockquote>Hello world</blockquote>')

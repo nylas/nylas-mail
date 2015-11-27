@@ -1,4 +1,4 @@
-{DraftStoreExtension, AccountStore, DOMUtils} = require 'nylas-exports'
+{ComposerExtension, AccountStore, DOMUtils} = require 'nylas-exports'
 _ = require 'underscore'
 spellchecker = require('spellchecker')
 remote = require('remote')
@@ -6,16 +6,16 @@ MenuItem = remote.require('menu-item')
 
 SpellcheckCache = {}
 
-class SpellcheckDraftStoreExtension extends DraftStoreExtension
+class SpellcheckComposerExtension extends ComposerExtension
 
   @isMisspelled: (word) ->
     SpellcheckCache[word] ?= spellchecker.isMisspelled(word)
     SpellcheckCache[word]
 
-  @onInput: (editableNode) ->
+  @onInput: (editableNode) =>
     @walkTree(editableNode)
 
-  @onShowContextMenu: (event, editableNode, selection, innerStateProxy, menu) =>
+  @onShowContextMenu: (event, editableNode, selection, menu) =>
     range = DOMUtils.Mutating.getRangeAtAndSelectWord(selection, 0)
     word = range.toString()
     if @isMisspelled(word)
@@ -123,6 +123,6 @@ class SpellcheckDraftStoreExtension extends DraftStoreExtension
     if body != clean
       session.changes.add(body: clean)
 
-SpellcheckDraftStoreExtension.SpellcheckCache = SpellcheckCache
+SpellcheckComposerExtension.SpellcheckCache = SpellcheckCache
 
-module.exports = SpellcheckDraftStoreExtension
+module.exports = SpellcheckComposerExtension

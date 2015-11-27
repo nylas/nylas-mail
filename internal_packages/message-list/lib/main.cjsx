@@ -1,7 +1,7 @@
 MessageList = require "./message-list"
 MessageToolbarItems = require "./message-toolbar-items"
 {ComponentRegistry,
- MessageStore,
+ ExtensionRegistry,
  WorkspaceStore} = require 'nylas-exports'
 
 {SidebarContactCard,
@@ -46,8 +46,8 @@ module.exports =
     ComponentRegistry.register ThreadToggleUnreadButton,
       role: 'message:Toolbar'
 
-    MessageStore.registerExtension(AutolinkerExtension)
-    MessageStore.registerExtension(TrackingPixelsExtension)
+    ExtensionRegistry.MessageView.register AutolinkerExtension
+    ExtensionRegistry.MessageView.register TrackingPixelsExtension
 
   deactivate: ->
     ComponentRegistry.unregister MessageList
@@ -59,7 +59,7 @@ module.exports =
     ComponentRegistry.unregister SidebarContactCard
     ComponentRegistry.unregister SidebarSpacer
     ComponentRegistry.unregister SidebarContactList
-    MessageStore.unregisterExtension(AutolinkerExtension)
-    MessageStore.unregisterExtension(TrackingPixelsExtension)
+    ExtensionRegistry.MessageView.unregister AutolinkerExtension
+    ExtensionRegistry.MessageView.unregister TrackingPixelsExtension
 
   serialize: -> @state

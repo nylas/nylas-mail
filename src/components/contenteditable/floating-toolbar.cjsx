@@ -3,7 +3,7 @@ React = require 'react/addons'
 classNames = require 'classnames'
 {CompositeDisposable} = require 'event-kit'
 {RetinaImg} = require 'nylas-component-kit'
-{DraftStore} = require 'nylas-exports'
+{ExtensionRegistry} = require 'nylas-exports'
 
 class FloatingToolbar extends React.Component
   @displayName = "FloatingToolbar"
@@ -29,9 +29,11 @@ class FloatingToolbar extends React.Component
     @state =
       urlInputValue: @_initialUrl() ? ""
       componentWidth: 0
+      extensions: ExtensionRegistry.Composer.extensions()
 
   componentDidMount: =>
     @subscriptions = new CompositeDisposable()
+    @usubExtensions = ExtensionRegistry.Composer.listen @_onExtensionsChanged
 
   componentWillReceiveProps: (nextProps) =>
     @setState
@@ -39,6 +41,7 @@ class FloatingToolbar extends React.Component
 
   componentWillUnmount: =>
     @subscriptions?.dispose()
+    @usubExtensions()
 
   componentDidUpdate: =>
     if @props.mode is "edit-link" and not @props.linkToModify
@@ -88,12 +91,12 @@ class FloatingToolbar extends React.Component
       <button className="btn btn-link toolbar-btn"
               onClick={@props.onClickLinkEditBtn}
               data-command-name="link"></button>
-      {@_toolbarExtensions()}
+      {@_toolbarExtensions(@state.extensions)}
     </div>
 
-  _toolbarExtensions: ->
+  _toolbarExtensions: (extensions) ->
     buttons = []
-    for extension in DraftStore.extensions()
+    for extension in extensions
       toolbarItem = extension.composerToolbar?()
       if toolbarItem
         buttons.push(
@@ -101,6 +104,9 @@ class FloatingToolbar extends React.Component
                 onClick={ => @_extensionMutateDom(toolbarItem.mutator)}
                 title="#{toolbarItem.tooltip}"><RetinaImg mode={RetinaImg.Mode.ContentIsMask} url="#{toolbarItem.iconUrl}" /></button>)
     return buttons
+
+  _onExtensionsChanged: =>
+    @setState extensions: ExtensionRegistry.Composer.extensions()
 
   _extensionMutateDom: (mutator) =>
     @props.onDomMutator(mutator)

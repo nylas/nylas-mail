@@ -1,4 +1,4 @@
-{MessageStoreExtension, RegExpUtils} = require 'nylas-exports'
+{MessageViewExtension, RegExpUtils} = require 'nylas-exports'
 
 TrackingBlacklist = [{
     name: 'Sidekick',
@@ -98,7 +98,7 @@ TrackingBlacklist = [{
     homepage: 'http://salesloft.com'
   }]
 
-class TrackingPixelsExtension extends MessageStoreExtension
+class TrackingPixelsExtension extends MessageViewExtension
 
   @formatMessageBody: (message) ->
     return unless message.isFromMe()

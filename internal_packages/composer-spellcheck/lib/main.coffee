@@ -1,11 +1,11 @@
-{ComponentRegistry, DraftStore} = require 'nylas-exports'
-Extension = require './draft-extension'
+{ExtensionRegistry} = require 'nylas-exports'
+SpellcheckComposerExtension = require './spellcheck-composer-extension'
 
 module.exports =
   activate: (@state={}) ->
-    DraftStore.registerExtension(Extension)
+    ExtensionRegistry.Composer.register(SpellcheckComposerExtension)
 
   deactivate: ->
-    DraftStore.unregisterExtension(Extension)
+    ExtensionRegistry.Composer.unregister(SpellcheckComposerExtension)
 
   serialize: -> @state

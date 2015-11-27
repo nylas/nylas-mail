@@ -1,5 +1,5 @@
 {ComponentRegistry,
- MessageStore,
+ ExtensionRegistry,
  WorkspaceStore} = require 'nylas-exports'
 
 AutoloadImagesExtension = require './autoload-images-extension'
@@ -10,12 +10,12 @@ module.exports =
 
   activate: (@state={}) ->
     # Register Message List Actions we provide globally
-    MessageStore.registerExtension(AutoloadImagesExtension)
+    ExtensionRegistry.MessageView.register AutoloadImagesExtension
     ComponentRegistry.register AutoloadImagesHeader,
       role: 'message:BodyHeader'
 
   deactivate: ->
-    MessageStore.unregisterExtension(AutoloadImagesExtension)
+    ExtensionRegistry.MessageView.unregister AutoloadImagesExtension
     ComponentRegistry.unregister(AutoloadImagesHeader)
 
   serialize: -> @state
