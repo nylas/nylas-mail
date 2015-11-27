@@ -341,8 +341,9 @@ class Application
       # win = BrowserWindow.fromWebContents(event.sender)
       event.sender.send('inline-styles-result', {body, clientId})
 
-    app.on 'activate-with-no-open-windows', (event) =>
-      @openWindowsForTokenState()
+    app.on 'activate', (event, hasVisibleWindows) =>
+      if not hasVisibleWindows
+        @openWindowsForTokenState()
       event.preventDefault()
 
     ipcMain.on 'update-application-menu', (event, template, keystrokesByCommand) =>
