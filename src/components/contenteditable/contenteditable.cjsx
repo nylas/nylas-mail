@@ -36,25 +36,34 @@ class Contenteditable extends React.Component
 
     initialSelectionSnapshot: React.PropTypes.object
 
-    # Passes an absolute top coordinate to scroll to.
+    # Handlers
     onChange: React.PropTypes.func.isRequired
     onFilePaste: React.PropTypes.func
+    # Passes an absolute top coordinate to scroll to.
     onScrollTo: React.PropTypes.func
     onScrollToBottom: React.PropTypes.func
 
-    # A list of objects that extend {ContenteditablePlugin}
-    plugins: React.PropTypes.array
+    # Extension DOM Mutating handlers. See {ContenteditableExtension}
+    onInput: React.PropTypes.func
+    onBlur: React.PropTypes.func
+    onFocus: React.PropTypes.func
+    onClick: React.PropTypes.func
+    onKeyDown: React.PropTypes.func
+    onShowContextMenu: React.PropTypes.func
+
+    # A list of objects that extend {ContenteditableExtension}
+    extensions: React.PropTypes.array
 
     spellcheck: React.PropTypes.bool
 
     floatingToolbar: React.PropTypes.bool
 
   @defaultProps:
-    plugins: []
+    extensions: []
     spellcheck: true
     floatingToolbar: true
 
-  corePlugins: [ListManager]
+  coreExtensions: [ListManager]
 
   # We allow extensions to read, and mutate the:
   #
@@ -70,7 +79,7 @@ class Contenteditable extends React.Component
     innerStateProxy =
       get: => return @innerState
       set: (newInnerState) => @setInnerState(newInnerState)
-    args = [event, @_editableNode(), document.getSelection(), innerStateProxy, extraArgs...]
+    args = [event, @_editableNode(), document.getSelection(), extraArgs..., innerStateProxy]
     editingFunction.apply(null, args)
     @_setupSelectionListeners()
 
@@ -162,7 +171,7 @@ class Contenteditable extends React.Component
     selection.addRange(range)
 
   # When some other component (like the `FloatingToolbar` or some
-  # `DraftStoreExtension`) wants to mutate the DOM, it declares a
+  # `ComposerExtension`) wants to mutate the DOM, it declares a
   # `mutator` function. That mutator expects to be passed the latest DOM
   # object (the `_editableNode()`) and will do mutations to it. Once those
   # mutations are done, we need to be sure to notify that changes
@@ -201,38 +210,42 @@ class Contenteditable extends React.Component
     @_setupSelectionListeners()
     @_onInput()
 
-  # Will execute the event handlers on each of the registerd and core plugins
+  # Will execute the event handlers on each of the registerd and core extensions
   # In this context, event.preventDefault and event.stopPropagation don't refer
   # to stopping default DOM behavior or prevent event bubbling through the DOM,
   # but rather prevent our own Contenteditable default behavior, and preventing
-  # other plugins from being called.
-  # If any of the plugins calls event.preventDefault() it will prevent the
+  # other extensions from being called.
+  # If any of the extensions calls event.preventDefault() it will prevent the
   # default behavior for the Contenteditable, which basically means preventing
-  # the core plugin handlers from being called.
-  # If any of the plugins calls event.stopPropagation(), it will prevent any
-  # other plugin handlers from being called.
+  # the core extension handlers from being called.
+  # If any of the extensions calls event.stopPropagation(), it will prevent any
+  # other extension handlers from being called.
   #
   # NOTE: It's possible for there to be no `event` passed in.
-  _runPluginHandlersForEvent: (method, event, args...) =>
-    executeCallback = (plugin) =>
-      return if not plugin[method]?
-      callback = plugin[method].bind(plugin)
+  _runExtensionHandlersForEvent: (method, event, args...) =>
+    executeCallback = (extension) =>
+      return if not extension[method]?
+      callback = extension[method].bind(extension)
       @atomicEdit(callback, event, args...)
 
-    for plugin in @props.plugins
+    # Check if any of the extension handlers where passed as a prop and call
+    # that first
+    executeCallback(@props)
+
+    for extension in @props.extensions
       break if event?.isPropagationStopped()
-      executeCallback(plugin)
+      executeCallback(extension)
 
     return if event?.defaultPrevented or event?.isPropagationStopped()
-    for plugin in @corePlugins
+    for extension in @coreExtensions
       break if event?.isPropagationStopped()
-      executeCallback(plugin)
+      executeCallback(extension)
 
   _onKeyDown: (event) =>
-    @_runPluginHandlersForEvent("onKeyDown", event)
+    @_runExtensionHandlersForEvent("onKeyDown", event)
 
     # This is a special case where we don't want to bubble up the event to the
-    # keymap manager if the plugin prevented the default behavior
+    # keymap manager if the extension prevented the default behavior
     if event.defaultPrevented
       event.stopPropagation()
       return
@@ -259,7 +272,7 @@ class Contenteditable extends React.Component
     @_ignoreInputChanges = true
     @_resetInnerStateOnInput()
 
-    @_runPluginHandlersForEvent("onInput", event)
+    @_runExtensionHandlersForEvent("onInput", event)
 
     @_normalize()
 
@@ -413,11 +426,12 @@ class Contenteditable extends React.Component
   _onBlur: (event) =>
     @setInnerState dragging: false
     return if @_editableNode().parentElement.contains event.relatedTarget
+    @_runExtensionHandlersForEvent("onBlur", event)
     @setInnerState editableFocused: false
 
   _onFocus: (event) =>
     @setInnerState editableFocused: true
-    @props.onFocus?(event)
+    @_runExtensionHandlersForEvent("onFocus", event)
 
   _editableNode: =>
     React.findDOMNode(@refs.contenteditable)
@@ -616,7 +630,8 @@ class Contenteditable extends React.Component
     MenuItem = remote.require('menu-item')
 
     menu = new Menu()
-    @_runPluginHandlersForEvent("onShowContextMenu", event, menu)
+
+    @_runExtensionHandlersForEvent("onShowContextMenu", event, menu)
     menu.append(new MenuItem({ label: 'Cut', role: 'cut'}))
     menu.append(new MenuItem({ label: 'Copy', role: 'copy'}))
     menu.append(new MenuItem({ label: 'Paste', role: 'paste'}))
@@ -660,7 +675,7 @@ class Contenteditable extends React.Component
     selection = document.getSelection()
     return event unless DOMUtils.selectionInScope(selection, editableNode)
 
-    @_runPluginHandlersForEvent("onClick", event)
+    @_runExtensionHandlersForEvent("onClick", event)
     return event
 
   _onDragStart: (event) =>

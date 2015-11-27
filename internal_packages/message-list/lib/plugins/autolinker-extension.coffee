@@ -1,7 +1,7 @@
 Autolinker = require 'autolinker'
-{MessageStoreExtension} = require 'nylas-exports'
+{MessageViewExtension} = require 'nylas-exports'
 
-class AutolinkerExtension extends MessageStoreExtension
+class AutolinkerExtension extends MessageViewExtension
 
   @formatMessageBody: (message) ->
     # Apply the autolinker pass to make emails and links clickable

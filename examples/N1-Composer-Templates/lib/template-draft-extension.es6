@@ -43,7 +43,6 @@ class TemplatesDraftStoreExtension extends DraftStoreExtension {
   }
 
   static onTabDown(editableNode, range, event) {
-    console.log('tabbed');
     if (event.shiftKey) {
       return this.onTabSelectNextVar(editableNode, range, event, -1);
     }

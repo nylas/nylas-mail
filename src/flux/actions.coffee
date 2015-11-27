@@ -296,7 +296,7 @@ class Actions
 
   ###
   Public: Send the draft with the given ID. This Action is handled by the {DraftStore},
-  which finalizes the {DraftChangeSet} and allows {DraftStoreExtension}s to display
+  which finalizes the {DraftChangeSet} and allows {ComposerExtension}s to display
   warnings and do post-processing. To change send behavior, you should consider using
   one of these objects rather than listening for the {sendDraft} action.
 

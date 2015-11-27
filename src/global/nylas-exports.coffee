@@ -33,6 +33,15 @@ class NylasExports
     NylasExports.registerSerializable(exported)
     @[prop] = exported
 
+  @requireDeprecated = (prop, path, {instead} = {}) ->
+    {deprecate} = require '../deprecate-utils'
+    Object.defineProperty @, prop,
+      get: deprecate prop, instead, @, ->
+        exported = require "../#{path}"
+        NylasExports.registerSerializable(exported)
+        return exported
+      enumerable: true
+
   # Actions
   @load "Actions", 'flux/actions'
 
@@ -108,13 +117,23 @@ class NylasExports
   @require "ThreadCountsStore", 'flux/stores/thread-counts-store'
   @require "UnreadBadgeStore", 'flux/stores/unread-badge-store'
   @require "FileDownloadStore", 'flux/stores/file-download-store'
-  @require "DraftStoreExtension", 'flux/stores/draft-store-extension'
   @require "FocusedContentStore", 'flux/stores/focused-content-store'
   @require "FocusedMailViewStore", 'flux/stores/focused-mail-view-store'
   @require "FocusedContactsStore", 'flux/stores/focused-contacts-store'
   @require "MessageBodyProcessor", 'flux/stores/message-body-processor'
-  @require "MessageStoreExtension", 'flux/stores/message-store-extension'
   @require "PreferencesUIStore", 'flux/stores/preferences-ui-store'
+
+  # Deprecated
+  @requireDeprecated "DraftStoreExtension", 'flux/stores/draft-store-extension',
+    instead: 'ComposerExtension'
+  @requireDeprecated "MessageStoreExtension", 'flux/stores/message-store-extension',
+    instead: 'MessageViewExtension'
+
+  # Extensions
+  @require "ExtensionRegistry", 'extension-registry'
+  @require "ContenteditableExtension", 'flux/extensions/contenteditable-extension'
+  @require "ComposerExtension", 'flux/extensions/composer-extension'
+  @require "MessageViewExtension", 'flux/extensions/message-view-extension'
 
   # React Components
   @get "React", -> require 'react' # Our version of React for 3rd party use
@@ -145,9 +164,6 @@ class NylasExports
   @load "LaunchServices", 'launch-services'
   @load "BufferedProcess", 'buffered-process'
   @get "APMWrapper", -> require('../apm-wrapper')
-
-  # Contenteditable
-  @load "ContenteditablePlugin", 'components/contenteditable/contenteditable-plugin'
 
   # Testing
   @get "NylasTestUtils", -> require '../../spec/nylas-test-utils'

@@ -6,7 +6,7 @@ ModelQuery = require '../../src/flux/models/query'
 AccountStore = require '../../src/flux/stores/account-store'
 DatabaseStore = require '../../src/flux/stores/database-store'
 DraftStore = require '../../src/flux/stores/draft-store'
-DraftStoreExtension = require '../../src/flux/stores/draft-store-extension'
+ComposerExtension = require '../../src/flux/extensions/composer-extension'
 SendDraftTask = require '../../src/flux/tasks/send-draft'
 DestroyDraftTask = require '../../src/flux/tasks/destroy-draft'
 SoundRegistry = require '../../src/sound-registry'
@@ -26,7 +26,7 @@ messageWithStyleTags = null
 fakeMessages = null
 fakeMessageWithFiles = null
 
-class TestExtension extends DraftStoreExtension
+class TestExtension extends ComposerExtension
   @prepareNewDraft: (draft) ->
     draft.body = "Edited by TestExtension!" + draft.body
 

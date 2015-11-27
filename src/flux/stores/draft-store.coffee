@@ -29,6 +29,9 @@ CoffeeHelpers = require '../coffee-helpers'
 DOMUtils = require '../../dom-utils'
 RegExpUtils = require '../../regexp-utils'
 
+ExtensionRegistry = require '../../extension-registry'
+{deprecate} = require '../../deprecate-utils'
+
 ###
 Public: DraftStore responds to Actions that interact with Drafts and exposes
 public getter methods to return Draft objects and sessions.
@@ -72,7 +75,6 @@ class DraftStore
     NylasEnv.onBeforeUnload @_onBeforeUnload
 
     @_draftSessions = {}
-    @_extensions = []
 
     @_inlineStylePromises = {}
     @_inlineStyleResolvers = {}
@@ -131,23 +133,25 @@ class DraftStore
 
   # Public: Returns the extensions registered with the DraftStore.
   extensions: =>
-    @_extensions
+    ExtensionRegistry.Composer.extensions()
 
-  # Public: Registers a new extension with the DraftStore. DraftStore extensions
+  # Public: Deprecated, use {ExtensionRegistry.Composer.register} instead.
+  # Registers a new extension with the DraftStore. DraftStore extensions
   # make it possible to extend the editor experience, modify draft contents,
   # display warnings before draft are sent, and more.
   #
-  # - `ext` A {DraftStoreExtension} instance.
+  # - `ext` A {ComposerExtension} instance.
   #
   registerExtension: (ext) =>
-    @_extensions.push(ext)
+    ExtensionRegistry.Composer.register(ext)
 
-  # Public: Unregisters the extension provided from the DraftStore.
+  # Public: Deprecated, use {ExtensionRegistry.Composer.unregister} instead.
+  # Unregisters the extension provided from the DraftStore.
   #
-  # - `ext` A {DraftStoreExtension} instance.
+  # - `ext` A {ComposerExtension} instance.
   #
   unregisterExtension: (ext) =>
-    @_extensions = _.without(@_extensions, ext)
+    ExtensionRegistry.Composer.unregister(ext)
 
   ########### PRIVATE ####################################################
 
@@ -228,7 +232,7 @@ class DraftStore
 
   _finalizeAndPersistNewMessage: (draft) =>
     # Give extensions an opportunity to perform additional setup to the draft
-    for extension in @_extensions
+    for extension in @extensions()
       continue unless extension.prepareNewDraft
       extension.prepareNewDraft(draft)
 
@@ -516,7 +520,7 @@ class DraftStore
 
   # Give third-party plugins an opportunity to sanitize draft data
   _runExtensionsBeforeSend: (session) ->
-    for extension in @_extensions
+    for extension in @extensions()
       continue unless extension.finalizeSessionBeforeSending
       extension.finalizeSessionBeforeSending(session)
 
@@ -537,4 +541,19 @@ class DraftStore
         NylasEnv.showErrorDialog(errorMessage)
       , 100
 
- module.exports = new DraftStore()
+
+# Deprecations
+store = new DraftStore()
+store.registerExtension = deprecate(
+  'DraftStore.registerExtension',
+  'ExtensionRegistry.Composer.register',
+  store,
+  store.registerExtension
+)
+store.unregisterExtension = deprecate(
+  'DraftStore.unregisterExtension',
+  'ExtensionRegistry.Composer.unregister',
+  store,
+  store.unregisterExtension
+)
+module.exports = store

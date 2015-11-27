@@ -1,7 +1,7 @@
 AutoloadImagesStore = require './autoload-images-store'
-{MessageStoreExtension} = require 'nylas-exports'
+{MessageViewExtension} = require 'nylas-exports'
 
-class AutoloadImagesExtension extends MessageStoreExtension
+class AutoloadImagesExtension extends MessageViewExtension
 
   @formatMessageBody: (message) ->
     if AutoloadImagesStore.shouldBlockImagesIn(message)

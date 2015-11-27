@@ -14,18 +14,18 @@ This API allows your package to:
 
 - Transform the draft and make additional changes before it is sent.
 
-To create your own composer extensions, subclass {DraftStoreExtensions} and override the methods your extension needs.
+To create your own composer extensions, subclass {ComposerExtension} and override the methods your extension needs.
 
-In the sample packages repository, [templates]() is an example of a package which uses a DraftStoreExtension to enhance the composer experience.
+In the sample packages repository, [templates]() is an example of a package which uses a ComposerExtension to enhance the composer experience.
 
 ### Example
 
 This extension displays a warning before sending a draft that contains the names of competitors' products. If the user proceeds to send the draft containing the words, it appends a disclaimer.
 
 ```coffee
-{DraftStoreExtension} = require 'nylas-exports'
+{ComposerExtension} = require 'nylas-exports'
 
-class ProductsExtension extends DraftStoreExtension
+class ProductsExtension extends ComposerExtension
 
    @warningsForSending: (draft) ->
       words = ['acme', 'anvil', 'tunnel', 'rocket', 'dynamite']

@@ -10,7 +10,8 @@ React = require 'react'
  AccountStore,
  FileUploadStore,
  QuotedHTMLParser,
- FileDownloadStore} = require 'nylas-exports'
+ FileDownloadStore,
+ ExtensionRegistry} = require 'nylas-exports'
 
 {DropZone,
  RetinaImg,
@@ -28,8 +29,6 @@ ExpandedParticipants = require './expanded-participants'
 CollapsedParticipants = require './collapsed-participants'
 
 Fields = require './fields'
-
-ComposerExtensionsPlugin = require './composer-extensions-plugin'
 
 # The ComposerView is a unique React component because it (currently) is a
 # singleton. Normally, the React way to do things would be to re-render the
@@ -68,6 +67,7 @@ class ComposerView extends React.Component
       enabledFields: [] # Gets updated in @_initiallyEnabledFields
       showQuotedText: false
       uploads: FileUploadStore.uploadsForMessage(@props.draftClientId) ? []
+      extensions: ExtensionRegistry.Composer.extensions()
 
   componentWillMount: =>
     @_prepareForDraft(@props.draftClientId)
@@ -80,6 +80,7 @@ class ComposerView extends React.Component
     @_usubs = []
     @_usubs.push FileUploadStore.listen @_onFileUploadStoreChange
     @_usubs.push AccountStore.listen @_onAccountStoreChanged
+    @_usubs.push ExtensionRegistry.Composer.listen @_onExtensionsChanged
     @_applyFieldFocus()
 
   componentWillUnmount: =>
@@ -300,7 +301,7 @@ class ComposerView extends React.Component
       onScrollTo={@props.onRequestScrollTo}
       onFilePaste={@_onFilePaste}
       onScrollToBottom={@_onScrollToBottom()}
-      plugins={[ComposerExtensionsPlugin]}
+      extensions={@state.extensions}
       getComposerBoundingRect={@_getComposerBoundingRect}
       initialSelectionSnapshot={@_recoveredSelection} />
 
@@ -529,6 +530,9 @@ class ComposerView extends React.Component
     enabledFields.push Fields.Body
     return enabledFields
 
+  _onExtensionsChanged: =>
+    @setState extensions: ExtensionRegistry.Composer.extensions()
+
   # When the account store changes, the From field may or may not still
   # be in scope. We need to make sure to update our enabled fields.
   _onAccountStoreChanged: =>
@@ -685,7 +689,7 @@ class ComposerView extends React.Component
       warnings.push('without a body')
 
     # Check third party warnings added via DraftStore extensions
-    for extension in DraftStore.extensions()
+    for extension in @state.extensions
       continue unless extension.warningsForSending
       warnings = warnings.concat(extension.warningsForSending(draft))
 
