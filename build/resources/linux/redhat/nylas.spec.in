@@ -12,15 +12,30 @@ AutoReqProv:    no # Avoid libchromiumcontent.so missing dependency
 %install
 mkdir -p %{buildroot}/usr/local/share/nylas
 cp -r /tmp/nylas-build/Nylas/* %{buildroot}/usr/local/share/nylas
+
 mkdir -p %{buildroot}/usr/local/bin/
 ln -sf /usr/local/share/nylas/resources/app/apm/node_modules/.bin/apm %{buildroot}/usr/local/bin/apm
+
 cp N1.sh %{buildroot}/usr/local/bin/nylas
-chmod 755 nylas
+chmod 755 %{buildroot}/usr/local/bin/nylas
+
 mkdir -p %{buildroot}/usr/local/share/applications/
 mv nylas.desktop %{buildroot}/usr/local/share/applications/
+
+for s in 16 32 64 128 256 512; do
+    mkdir -p %{buildroot}/usr/local/share/icons/hicolor/${s}x${s}/apps
+    cp -p /tmp/nylas-build/icons/${s}.png \
+               %{buildroot}/usr/local/share/icons/hicolor/${s}x${s}/apps/nylas.png
+done
 
 %files
 /usr/local/bin/nylas
 /usr/local/bin/apm
 /usr/local/share/nylas/
 /usr/local/share/applications/nylas.desktop
+/usr/local/share/icons/hicolor/16x16/apps/nylas.png
+/usr/local/share/icons/hicolor/32x32/apps/nylas.png
+/usr/local/share/icons/hicolor/64x64/apps/nylas.png
+/usr/local/share/icons/hicolor/128x128/apps/nylas.png
+/usr/local/share/icons/hicolor/256x256/apps/nylas.png
+/usr/local/share/icons/hicolor/512x512/apps/nylas.png
