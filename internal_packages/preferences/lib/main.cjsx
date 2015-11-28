@@ -2,11 +2,11 @@
  Actions,
  WorkspaceStore,
  ComponentRegistry} = require 'nylas-exports'
+{ipcRenderer} = require 'electron'
 
 module.exports =
 
   activate: ->
-    {ipcRenderer} = require 'electron'
     React = require 'react'
 
     Cfg = PreferencesSectionStore.SectionConfig
@@ -45,7 +45,9 @@ module.exports =
     ipcRenderer.on 'open-preferences', => @_openPreferences()
 
   _openPreferences: ->
-    Actions.pushSheet(WorkspaceStore.Sheet.Preferences)
+    ipcRenderer.send 'command', 'application:show-main-window'
+    if WorkspaceStore.topSheet() isnt WorkspaceStore.Sheet.Preferences
+      Actions.pushSheet(WorkspaceStore.Sheet.Preferences)
 
   deactivate: ->
 
