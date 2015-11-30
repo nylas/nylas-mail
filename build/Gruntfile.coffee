@@ -362,7 +362,7 @@ module.exports = (grunt) ->
   ciTasks = ['output-disk-space', 'download-electron', 'build']
   ciTasks.push('dump-symbols') if process.platform isnt 'win32'
   ciTasks.push('set-version', 'lint', 'generate-asar')
-  ciTasks.push('test') if process.platform isnt 'win32'
+  ciTasks.push('test') if process.platform is 'darwin'
 
   unless process.env.TRAVIS
     ciTasks.push('codesign')
