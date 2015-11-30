@@ -9,6 +9,6 @@ class SignatureDraftStoreExtension extends DraftStoreExtension
     insertionPoint = draft.body.indexOf('<blockquote')
     if insertionPoint is -1
       insertionPoint = draft.body.length
-    draft.body = draft.body.substr(0, insertionPoint-1) + signature + draft.body.substr(insertionPoint)
+    draft.body = draft.body.substr(0, insertionPoint-1) + "<br/>" + signature + draft.body.substr(insertionPoint)
 
 module.exports = SignatureDraftStoreExtension

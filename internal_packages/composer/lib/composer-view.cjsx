@@ -120,7 +120,7 @@ class ComposerView extends React.Component
       else
         React.findDOMNode(@refs[@state.focusedField]).focus()
 
-      if @state.focusedField is Fields.Body
+      if @state.focusedField is Fields.Body and not @_proxy.draftPristineBody()
         @refs[Fields.Body].selectEnd()
 
   componentWillReceiveProps: (newProps) =>
