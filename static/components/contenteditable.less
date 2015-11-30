@@ -1,0 +1,147 @@
+.contenteditable-container {
+  flex: 1;
+  display: flex;
+  line-height: 1.4;
+  position: relative;
+  color: @text-color;
+  font-size: @font-size;
+
+  div[contenteditable], .contenteditable {
+    flex: 1;
+  }
+
+  spelling.misspelled {
+    background: linear-gradient(45deg, transparent, transparent 49%, red 49%, transparent 51%);
+    background-size: 2px 2px;
+    background-position: bottom;
+    background-repeat-y: no-repeat;
+  }
+
+  .floating-toolbar {
+    z-index: 10;
+    position: absolute;
+
+    background: #fff;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.19), inset 0 0 1px rgba(0,0,0,0.5);
+    border-radius: @border-radius-base;
+    color: @text-color;
+
+    transition-duration: .15s;
+    transition-property: opacity, margin;
+    opacity: 0;
+    visibility: hidden;
+    margin-top: 3px;
+
+    &.toolbar-visible {
+      opacity: 1;
+      visibility: visible;
+      margin-top: 0;
+    }
+
+    .toolbar-pointer {
+      position: absolute;
+      width: 22.5px;
+      height: 10px;
+      background: transparent url('images/tooltip/tooltip-bg-pointer@2x.png') no-repeat;
+      background-size: 22.5px 9.5px;
+      margin-left: -11.2px;
+    }
+
+    &.above {
+      .toolbar-pointer {
+        transform: rotate(0deg);
+        bottom: -9px;
+      }
+    }
+    &.below {
+      .toolbar-pointer {
+        transform: rotate(180deg);
+        top: -9px;
+      }
+    }
+
+    .floating-toolbar-input {
+      border: 0;
+      display: inline;
+      // The hardcoded numbers here represent the widths of the various
+      // icons and buttons that surround the input. They are hardcoded here
+      // because CSS does the calculation for us that we'd otherwise have to
+      // do in React before the element renders to the page.
+      width: calc(~"100% - 62px");
+      &.with-remove {
+        width: calc(~"100% - 95px");
+      }
+      color: @text-color;
+    }
+
+    @padding: 0.5em;
+    .btn {
+      background: transparent;
+      font-size: 16px;
+      height: auto;
+      border-radius: 0;
+      padding: @padding*0.75 @padding;
+      margin: 0;
+      color: @text-color;
+      box-shadow: none;
+      &:first-child {
+        padding-left: 1.5*@padding;
+      }
+      &:last-child {
+        padding-right: 1.5*@padding;
+      }
+      &:hover, &:active {
+        color: lighten(@text-color-link, 10%);
+        background: transparent;
+      }
+    }
+
+    .preview-btn-icon {
+      position: relative;
+      top: 1px;
+      padding: 0 @padding;
+    }
+
+    button.btn.toolbar-btn {
+      @padding-top: 4px;
+      @padding-left: 8px;
+
+      width: 12.5px + 2*@padding-left;
+      height: 12.5px + 2*@padding-top;
+      margin: 7.5px 0;
+      box-shadow: none;
+      border: 0;
+      border-right: 1px solid @border-color-divider;
+      &:last-child { border-right: 0 }
+
+      background: no-repeat;
+      background-size: 12.5px 12.5px;
+      background-position: @padding-left @padding-top;
+      &.btn-bold { background-image: url("images/composer/tooltip-bold-black@2x.png") }
+      &.btn-italic { background-image: url("images/composer/tooltip-italic-black@2x.png") }
+      &.btn-underline { background-image: url("images/composer/tooltip-underline-black@2x.png") }
+      &.btn-link { background-image: url("images/composer/tooltip-link-black@2x.png") }
+      &:hover {
+        cursor: pointer;
+        background: no-repeat;
+        background-size: 12.5px 12.5px;
+        background-position: @padding-left @padding-top;
+        &.btn-bold { background-image: url("images/composer/tooltip-bold-blue@2x.png") }
+        &.btn-italic { background-image: url("images/composer/tooltip-italic-blue@2x.png") }
+        &.btn-underline { background-image: url("images/composer/tooltip-underline-blue@2x.png") }
+        &.btn-link { background-image: url("images/composer/tooltip-link-blue@2x.png") }
+      }
+    }
+  }
+}
+
+body.platform-win32 {
+  .contenteditable-container {
+    .floating-toolbar {
+      border-radius: 0;
+      input, input:focus {
+        border: 0;
+      }
+    }
+  }
+}

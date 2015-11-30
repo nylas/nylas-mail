@@ -131,7 +131,7 @@ class Contenteditable extends React.Component
     <div className="contenteditable-container">
       {@_renderFloatingToolbar()}
 
-      <div id="contenteditable"
+      <div className="contenteditable"
            ref="contenteditable"
            contentEditable
            spellCheck={false}
