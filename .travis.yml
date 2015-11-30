@@ -59,3 +59,7 @@ addons:
     - git
     - libgnome-keyring-dev
     - xvfb
+
+branches:
+  only:
+    - master
