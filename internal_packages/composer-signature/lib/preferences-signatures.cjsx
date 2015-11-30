@@ -23,11 +23,9 @@ class PreferencesSignatures extends React.Component
       selectedAccountId: selectedAccountId
 
   componentDidMount: ->
-    console.log "Mounting preferences"
     @usub = AccountStore.listen @_onChange
 
   componentWillUnmount: ->
-    console.log "Unmounting preferences"
     @usub()
     @_saveSignatureNow(@state.selectedAccountId, @state.currentSignature)
 
@@ -104,7 +102,8 @@ class PreferencesSignatures extends React.Component
 
   render: =>
     rawText = if @state.editAsHTML then "Raw HTML " else ""
-    <div className="container-signatures">
+    <section className="container-signatures">
+      <h2>Signatures</h2>
       <div className="section-title">
         {rawText}Signature for: {@_renderAccountPicker()}
       </div>
@@ -112,6 +111,6 @@ class PreferencesSignatures extends React.Component
         {if @state.editAsHTML then @_renderHTMLSignature() else @_renderEditableSignature()}
       </div>
       <div className="toggle-mode" style={marginTop: "1em"}>{@_renderModeToggle()}</div>
-    </div>
+    </section>
 
 module.exports = PreferencesSignatures

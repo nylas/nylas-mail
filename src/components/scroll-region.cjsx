@@ -312,6 +312,11 @@ class ScrollRegion extends React.Component
     @setState(state)
 
   _onScroll: (event) =>
+    # onScroll events propogate, which is a bit strange. We could actually be
+    # receiving a scroll event for a textarea inside the scroll region.
+    # See Preferences > Signatures > textarea
+    return unless event.target is React.findDOMNode(@refs.content)
+
     if not @state.scrolling
       @recomputeDimensions()
       @_setSharedState(scrolling: true)
