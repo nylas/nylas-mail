@@ -18,13 +18,14 @@ class DefaultMailClientItem extends React.Component
       <label htmlFor="default-client">Use Nylas as my default mail client</label>
     </div>
 
-  toggleDefaultMailClient: =>
+  toggleDefaultMailClient: (event) =>
     if @state.defaultClient is true
       @setState(defaultClient: false)
       @_services.resetURLScheme('mailto')
     else
       @setState(defaultClient: true)
       @_services.registerForURLScheme('mailto')
+    event.target.blur()
 
 class AppearanceModeSwitch extends React.Component
   @displayName: 'AppearanceModeSwitch'
@@ -120,8 +121,7 @@ class WorkspaceSection extends React.Component
         <input type="checkbox"
                id="dark"
                checked={@props.config.contains('core.themes','ui-dark')}
-               onChange={ => @props.config.toggleContains('core.themes', 'ui-dark')}
-               />
+               onChange={@_onToggleDark} />
         <label htmlFor="dark">Use dark color scheme</label>
       </div>
 
@@ -129,5 +129,9 @@ class WorkspaceSection extends React.Component
 
       <AppearanceModeSwitch config={@props.config} />
     </section>
+
+  _onToggleDark: (event) =>
+    @props.config.toggleContains('core.themes', 'ui-dark')
+    event.target.blur()
 
 module.exports = WorkspaceSection

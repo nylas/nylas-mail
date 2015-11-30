@@ -24,7 +24,7 @@ class EmailFrame extends React.Component
 
   componentWillUnmount: =>
     @_mounted = false
-    @_unlisten()
+    @_unlisten?()
 
   componentDidUpdate: =>
     @_writeContent()
@@ -38,6 +38,8 @@ class EmailFrame extends React.Component
 
   _writeContent: =>
     doc = React.findDOMNode(@).contentDocument
+    return unless doc
+
     doc.open()
 
     # NOTE: The iframe must have a modern DOCTYPE. The lack of this line

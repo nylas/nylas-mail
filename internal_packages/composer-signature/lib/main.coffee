@@ -3,12 +3,13 @@ SignatureDraftExtension = require './signature-draft-extension'
 
 module.exports =
   activate: (@state={}) ->
-    DraftStore.registerExtension(SignatureDraftExtension)
-
     @preferencesTab = new PreferencesUIStore.TabItem
       tabId: "Signatures"
       displayName: "Signatures"
       component: require "./preferences-signatures"
+
+    DraftStore.registerExtension(SignatureDraftExtension)
+    PreferencesUIStore.registerPreferencesTab(@preferencesTab)
 
   deactivate: ->
     DraftStore.unregisterExtension(SignatureDraftExtension)
