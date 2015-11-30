@@ -137,7 +137,7 @@ class Actions
 
   *Scope: Window*
   ###
-  @switchPreferencesSection: ActionScopeWindow
+  @switchPreferencesTab: ActionScopeWindow
 
   ###
   Public: Clear the developer console for the current window.

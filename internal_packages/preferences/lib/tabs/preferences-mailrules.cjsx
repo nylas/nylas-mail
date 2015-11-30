@@ -7,6 +7,7 @@ class PreferencesMailRules extends React.Component
 
   render: =>
     <div className="container-mail-rules">
+      {@props.accountId}
     </div>
 
 module.exports = PreferencesMailRules

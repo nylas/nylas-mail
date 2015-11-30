@@ -1,4 +1,4 @@
-{PreferencesSectionStore,
+{PreferencesUIStore,
  Actions,
  WorkspaceStore,
  ComponentRegistry} = require 'nylas-exports'
@@ -9,25 +9,22 @@ module.exports =
   activate: ->
     React = require 'react'
 
-    Cfg = PreferencesSectionStore.SectionConfig
+    Cfg = PreferencesUIStore.TabItem
 
-    PreferencesSectionStore.registerPreferenceSection(new Cfg {
-      icon: 'ic-settings-general.png'
-      sectionId: 'General'
+    PreferencesUIStore.registerPreferencesTab(new Cfg {
+      tabId: 'General'
       displayName: 'General'
       component: require './tabs/preferences-general'
       order: 1
     })
-    PreferencesSectionStore.registerPreferenceSection(new Cfg {
-      icon: 'ic-settings-accounts.png'
-      sectionId: 'Accounts'
+    PreferencesUIStore.registerPreferencesTab(new Cfg {
+      tabId: 'Accounts'
       displayName: 'Accounts'
       component: require './tabs/preferences-accounts'
       order: 2
     })
-    PreferencesSectionStore.registerPreferenceSection(new Cfg {
-      icon: 'ic-settings-shortcuts.png'
-      sectionId: 'Shortcuts'
+    PreferencesUIStore.registerPreferencesTab(new Cfg {
+      tabId: 'Shortcuts'
       displayName: 'Shortcuts'
       component: require './tabs/preferences-keymaps'
       order: 3

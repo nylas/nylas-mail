@@ -1,7 +1,10 @@
 React = require 'react'
 _ = require 'underscore'
-{RetinaImg, Flexbox, ConfigPropContainer, ScrollRegion} = require 'nylas-component-kit'
-{PreferencesSectionStore} = require 'nylas-exports'
+{RetinaImg,
+ Flexbox,
+ ConfigPropContainer,
+ ScrollRegion} = require 'nylas-component-kit'
+{PreferencesUIStore} = require 'nylas-exports'
 
 PreferencesSidebar = require './preferences-sidebar'
 
@@ -14,27 +17,28 @@ class PreferencesRoot extends React.Component
 
   componentDidMount: =>
     @unlisteners = []
-    @unlisteners.push PreferencesSectionStore.listen =>
+    @unlisteners.push PreferencesUIStore.listen =>
       @setState(@getStateFromStores())
 
   componentWillUnmount: =>
     unlisten() for unlisten in @unlisteners
 
   getStateFromStores: =>
-    sections: PreferencesSectionStore.sections()
-    activeSectionId: PreferencesSectionStore.activeSectionId()
+    tabs: PreferencesUIStore.tabs()
+    selection: PreferencesUIStore.selection()
 
   render: =>
-    section = _.find @state.sections, ({sectionId}) => sectionId is @state.activeSectionId
+    tabId = @state.selection.get('tabId')
+    tab = @state.tabs.find (s) => s.tabId is tabId
 
-    if section
-      bodyElement = <section.component />
+    if tab
+      bodyElement = <tab.component accountId={@state.selection.get('accountId')} />
     else
-      bodyElement = <div>No Section Active</div>
+      bodyElement = <div></div>
 
     <Flexbox direction="row" className="preferences-wrap">
-      <PreferencesSidebar sections={@state.sections}
-                          activeSectionId={@state.activeSectionId} />
+      <PreferencesSidebar tabs={@state.tabs}
+                          selection={@state.selection} />
       <ScrollRegion className="preferences-content">
         <ConfigPropContainer>{bodyElement}</ConfigPropContainer>
       </ScrollRegion>
