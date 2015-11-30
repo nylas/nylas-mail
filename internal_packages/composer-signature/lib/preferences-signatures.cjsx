@@ -17,17 +17,17 @@ class PreferencesSignatures extends React.Component
       initialSig = ""
 
     @state =
+      editAsHTML: false
       accounts: AccountStore.items()
       currentSignature: initialSig
       selectedAccountId: selectedAccountId
 
   componentDidMount: ->
+    console.log "Mounting preferences"
     @usub = AccountStore.listen @_onChange
 
-  shouldComponentUpdate: (nextProps, nextState) =>
-    nextState.selectedAccountId isnt @state.selectedAccountId
-
   componentWillUnmount: ->
+    console.log "Unmounting preferences"
     @usub()
     @_saveSignatureNow(@state.selectedAccountId, @state.currentSignature)
 
@@ -67,12 +67,17 @@ class PreferencesSignatures extends React.Component
       {options}
     </select>
 
-  _renderCurrentSignature: ->
+  _renderEditableSignature: ->
     <Contenteditable
        ref="signatureInput"
        value={@state.currentSignature}
        onChange={@_onEditSignature}
        spellcheck={false} />
+
+  _renderHTMLSignature: ->
+    <textarea ref="signatureHTMLInput"
+              value={@state.currentSignature}
+              onChange={@_onEditSignature}/>
 
   _onEditSignature: (event) =>
     html = event.target.value
@@ -91,14 +96,22 @@ class PreferencesSignatures extends React.Component
       currentSignature: initialSig
       selectedAccountId: selectedAccountId
 
+  _renderModeToggle: ->
+    if @state.editAsHTML
+      return <a onClick={=> @setState(editAsHTML: false); return}>Edit live preview</a>
+    else
+      return <a onClick={=> @setState(editAsHTML: true); return}>Edit raw HTML</a>
+
   render: =>
+    rawText = if @state.editAsHTML then "Raw HTML " else ""
     <div className="container-signatures">
       <div className="section-title">
-        Signature for: {@_renderAccountPicker()}
+        {rawText}Signature for: {@_renderAccountPicker()}
       </div>
       <div className="signature-wrap">
-        {@_renderCurrentSignature()}
+        {if @state.editAsHTML then @_renderHTMLSignature() else @_renderEditableSignature()}
       </div>
+      <div className="toggle-mode" style={marginTop: "1em"}>{@_renderModeToggle()}</div>
     </div>
 
 module.exports = PreferencesSignatures
