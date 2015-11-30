@@ -1,5 +1,21 @@
 # N1 Changelog
 
+### 0.3.26 (11/30/15)
+
+- Features:
+  + Link Targets: Hovering over links in an email displays their web address.
+  + Signatures: In Preferences > Signatures, you can now configure a signature for each account.
+    More signatures improvements are coming soon!
+
+- Development:
+  + The specs run correctly on Node v0.10, resolving issues with the Linux CI server
+
+- Fixes:
+  + On OS X, N1 no longer crashes when clicking the dock icon if the main window is hidden.
+  + The main window is focused when you open Preferences
+  + On Fedora, N1 now appears with the correct icon
+  + Remaining references to `app.terminate` replaced with `app.quit`
+
 ### 0.3.25 (11/25/15)
 
 - Features:
