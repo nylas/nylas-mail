@@ -72,8 +72,7 @@ class PreferencesSignatures extends React.Component
        ref="signatureInput"
        value={@state.currentSignature}
        onChange={@_onEditSignature}
-       spellcheck={false}
-       floatingToolbar={false} />
+       spellcheck={false} />
 
   _onEditSignature: (event) =>
     html = event.target.value
@@ -97,7 +96,7 @@ class PreferencesSignatures extends React.Component
       <div className="section-title">
         Signature for: {@_renderAccountPicker()}
       </div>
-      <div>
+      <div className="signature-wrap">
         {@_renderCurrentSignature()}
       </div>
     </div>
