@@ -119,7 +119,7 @@ class AccountSwitcher extends React.Component
     @setState(showing: false)
 
   _onManageAccounts: =>
-    Actions.switchPreferencesSection('Accounts')
+    Actions.switchPreferencesTab('Accounts')
     Actions.openPreferences()
 
     @setState(showing: false)

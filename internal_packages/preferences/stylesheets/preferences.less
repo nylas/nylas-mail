@@ -37,12 +37,48 @@
     height: 100%;
 
     .item {
-      padding: @padding-large-vertical @padding-large-horizontal;
       border-bottom: 1px solid @border-color-divider;
       cursor: default;
-    }
-    .item.active {
-      background: @background-primary;
+
+      &.active {
+        background: @background-primary;
+
+        &:not(.has-subitems) {
+          border-right:3px solid @component-active-color;
+          .name {
+            color: @component-active-color;
+          }
+        }
+        .subitem.active {
+          background: @background-primary;
+          border-right:3px solid @component-active-color;
+          color: @component-active-color;
+        }
+      }
+
+      .disclosure-triangle {
+        float: left;
+        padding-top:16px;
+      }
+
+      .name {
+        padding: @padding-large-vertical @padding-large-horizontal;
+      }
+
+      .subitems {
+        padding-left: 0;
+        box-shadow: inset 0 2px 1px rgba(0, 0, 0, 0.15);
+        background: darken(@background-secondary, 3%);
+        list-style-type: none;
+        font-size: 0.95em;
+        margin: 0;
+
+        .subitem {
+          padding: @padding-large-vertical * 0.8 @padding-large-horizontal + 4;
+          border-top: 1px solid @border-color-divider;
+          border-right:3px solid transparent;
+        }
+      }
     }
   }
 

@@ -51,31 +51,6 @@
 
   .item-container {
     display:flex;
-
-    .disclosure-triangle {
-      flex-shrink: 0;
-      padding:7px;
-      padding-top:12px;
-      width:20px;
-      visibility: hidden;
-
-      div {
-        transform:rotate(90deg);
-        transition: transform 90ms linear;
-        border-top: 4px solid transparent;
-        border-bottom: 4px solid transparent;
-        border-left: 7px solid @text-color-very-subtle;
-      }
-
-      &.visible {
-        visibility: visible;
-      }
-      &.collapsed {
-        div {
-          transform:rotate(0deg);
-        }
-      }
-    }
   }
 
   .item {
