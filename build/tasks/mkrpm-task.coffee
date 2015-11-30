@@ -32,7 +32,7 @@ module.exports = (grunt) ->
 
     installDir = grunt.config.get('nylasGruntConfig.installDir')
     shareDir = path.join(installDir, 'share', 'nylas')
-    iconName = path.join(shareDir, 'resources', 'app', 'resources', 'nylas.png')
+    iconName = 'nylas'
 
     data = {name, version, description, installDir, iconName}
     specFilePath = fillTemplate(path.join('build', 'resources', 'linux', 'redhat', 'nylas.spec'), data)
