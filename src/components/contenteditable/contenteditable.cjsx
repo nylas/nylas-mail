@@ -2,6 +2,7 @@ _ = require 'underscore'
 React = require 'react'
 
 {Utils, DOMUtils} = require 'nylas-exports'
+{KeyCommandsRegion} = require 'nylas-component-kit'
 ClipboardService = require './clipboard-service'
 FloatingToolbarContainer = require './floating-toolbar-container'
 
@@ -128,7 +129,8 @@ class Contenteditable extends React.Component
       onDomMutator={@_onDomMutator} />
 
   render: =>
-    <div className="contenteditable-container">
+    <KeyCommandsRegion className="contenteditable-container"
+                       localHandlers={@_keymapHandlers()}>
       {@_renderFloatingToolbar()}
 
       <div className="contenteditable"
@@ -137,7 +139,21 @@ class Contenteditable extends React.Component
            spellCheck={false}
            dangerouslySetInnerHTML={__html: @props.value}
            {...@_eventHandlers()}></div>
-    </div>
+    </KeyCommandsRegion>
+
+  _keymapHandlers: ->
+    'contenteditable:underline': @_execCommandWrap("underline")
+    'contenteditable:bold': @_execCommandWrap("bold")
+    'contenteditable:italic': @_execCommandWrap("italic")
+    'contenteditable:numbered-list': @_execCommandWrap("insertOrderedList")
+    'contenteditable:bulleted-list': @_execCommandWrap("insertUnorderedList")
+    'contenteditable:outdent': @_execCommandWrap("outdent")
+    'contenteditable:indent': @_execCommandWrap("indent")
+
+  _execCommandWrap: (command) => (e) =>
+    @atomicEdit =>
+      document.execCommand(command)
+    , e
 
   _eventHandlers: =>
     onBlur: @_onBlur
@@ -239,12 +255,7 @@ class Contenteditable extends React.Component
 
     if event.key is "Tab"
       @_onTabDownDefaultBehavior(event)
-
-    U = 85
-    if event.which is U and (event.metaKey or event.ctrlKey)
-      event.preventDefault()
-      document.execCommand("underline")
-    return
+      return
 
   # Every time the contents of the contenteditable DOM node change, the
   # `onInput` event gets fired.
