@@ -6,12 +6,14 @@
   + Link Targets: Hovering over links in an email displays their web address.
   + Signatures: In Preferences > Signatures, you can now configure a signature for each account.
     More signatures improvements are coming soon!
+  + Quick RSVP: N1 displays an event summary with RSVP options for messages with calendar invites.
 
 - Development:
   + The specs run correctly on Node v0.10, resolving issues with the Linux CI server
 
 - Fixes:
   + On OS X, N1 no longer crashes when clicking the dock icon if the main window is hidden.
+  + On Linux, N1 now handles retina displays correctly. No more tiny, tiny text!
   + The main window is focused when you open Preferences
   + On Fedora, N1 now appears with the correct icon
   + Remaining references to `app.terminate` replaced with `app.quit`
