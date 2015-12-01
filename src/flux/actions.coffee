@@ -225,6 +225,19 @@ class Actions
   @toggleMessageIdExpanded: ActionScopeWindow
 
   ###
+  Public: This action toggles wether to collapse or expand all messages in a
+  thread depending on if there are currently collapsed messages.
+
+  *Scope: Window*
+
+  ```
+  message = <Message>
+  Actions.toggleAllMessagesExpanded()
+  ```
+  ###
+  @toggleAllMessagesExpanded: ActionScopeWindow
+
+  ###
   Public: Create a new reply to the provided threadId and messageId and populate
   it with the body provided.
 
