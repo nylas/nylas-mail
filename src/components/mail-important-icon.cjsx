@@ -6,6 +6,7 @@ React = require 'react'
  ChangeLabelsTask,
  CategoryStore,
  AccountStore} = require 'nylas-exports'
+{KeyCommandsRegion} = require 'nylas-component-kit'
 
 class MailImportantIcon extends React.Component
   @displayName: 'MailImportantIcon'
@@ -38,18 +39,27 @@ class MailImportantIcon extends React.Component
     isImportant = _.findWhere(@props.thread.labels, {id: importantId})?
 
     activeClassname = if isImportant then "active" else ""
-    <div className="mail-important-icon #{activeClassname}"
-         title={if isImportant then "Mark as unimportant" else "Mark as important"}
-         onClick={@_onToggleImportant}></div>
+    <KeyCommandsRegion globalHandlers={@_globalHandlers()}>
+      <div className="mail-important-icon #{activeClassname}"
+           title={if isImportant then "Mark as unimportant" else "Mark as important"}
+           onClick={@_onToggleImportant}></div>
+    </KeyCommandsRegion>
+
+  _globalHandlers: =>
+    'application:mark-as-important': (e) => @_setImportant(e, true)
+    'application:mark-as-unimportant': (e) => @_setImportant(e, false)
 
   _onToggleImportant: (event) =>
-    importantLabel = CategoryStore.getStandardCategory('important')
     isImportant = _.findWhere(@props.thread.labels, {id: importantLabel.id})?
+    @_setImportant(event, !isImportant)
 
-    if isImportant
-      task = new ChangeLabelsTask(thread: @props.thread, labelsToRemove: [importantLabel], labelsToAdd: [])
-    else
+  _setImportant: (event, important) =>
+    importantLabel = CategoryStore.getStandardCategory('important')
+
+    if important
       task = new ChangeLabelsTask(thread: @props.thread, labelsToAdd: [importantLabel], labelsToRemove: [])
+    else
+      task = new ChangeLabelsTask(thread: @props.thread, labelsToRemove: [importantLabel], labelsToAdd: [])
 
     Actions.queueTask(task)
 
