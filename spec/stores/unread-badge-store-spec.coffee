@@ -5,11 +5,15 @@ describe "UnreadBadgeStore", ->
   describe "_setBadgeForCount", ->
     it "should set the badge correctly", ->
       spyOn(UnreadBadgeStore, '_setBadge')
-      UnreadBadgeStore._setBadgeForCount(0)
+      UnreadBadgeStore._count = 0
+      UnreadBadgeStore._setBadgeForCount()
       expect(UnreadBadgeStore._setBadge).toHaveBeenCalledWith("")
-      UnreadBadgeStore._setBadgeForCount(1)
+      UnreadBadgeStore._count = 1
+      UnreadBadgeStore._setBadgeForCount()
       expect(UnreadBadgeStore._setBadge).toHaveBeenCalledWith("1")
-      UnreadBadgeStore._setBadgeForCount(100)
+      UnreadBadgeStore._count = 100
+      UnreadBadgeStore._setBadgeForCount()
       expect(UnreadBadgeStore._setBadge).toHaveBeenCalledWith("100")
-      UnreadBadgeStore._setBadgeForCount(1000)
+      UnreadBadgeStore._count = 1000
+      UnreadBadgeStore._setBadgeForCount()
       expect(UnreadBadgeStore._setBadge).toHaveBeenCalledWith("999+")
