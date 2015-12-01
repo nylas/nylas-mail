@@ -220,6 +220,18 @@ class MessageList extends React.Component
       <MailImportantIcon thread={@state.currentThread} />
       <span className="message-subject">{subject}</span>
       {@_renderLabels()}
+      {@_renderIcons()}
+    </div>
+
+  _renderIcons: =>
+    expandTitle = if MessageStore.hasCollapsedItems()
+      "Expand All"
+    else
+      "Collapse All"
+    <div className="message-icons-wrap">
+      <div onClick={@_onToggleAllMessagesExpanded}>
+        <RetinaImg name="expand.png" fallback="expand.png" title={expandTitle}/>
+      </div>
     </div>
 
   _renderLabels: =>
@@ -249,6 +261,9 @@ class MessageList extends React.Component
         return 'reply'
     else
       return 'reply'
+
+  _onToggleAllMessagesExpanded: ->
+    Actions.toggleAllMessagesExpanded()
 
   _onRemoveLabel: (label) =>
     task = new ChangeLabelsTask(thread: @state.currentThread, labelsToRemove: [label])

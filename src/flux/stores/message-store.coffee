@@ -33,6 +33,9 @@ class MessageStore extends NylasStore
     # this.state == nextState is always true if we modify objects in place.
     _.clone @_itemsExpanded
 
+  hasCollapsedItems: ->
+    _.size(@_itemsExpanded) < @_items.length
+
   itemClientIds: ->
     _.pluck(@_items, "clientId")
 
@@ -84,6 +87,7 @@ class MessageStore extends NylasStore
     @listenTo DatabaseStore, @_onDataChanged
     @listenTo FocusedContentStore, @_onFocusChanged
     @listenTo Actions.toggleMessageIdExpanded, @_onToggleMessageIdExpanded
+    @listenTo Actions.toggleAllMessagesExpanded, @_onToggleAllMessagesExpanded
 
   _onDataChanged: (change) =>
     return unless @_thread
@@ -172,17 +176,31 @@ class MessageStore extends NylasStore
         Actions.queueTask(t)
       , markAsReadDelay
 
+  _onToggleAllMessagesExpanded: =>
+    if @hasCollapsedItems()
+      @_items.forEach @_expandItem
+    else
+      # Do not collapse the latest message, i.e. the last one
+      @_items[...-1].forEach @_collapseItem
+    @trigger()
+
   _onToggleMessageIdExpanded: (id) =>
     item = _.findWhere(@_items, {id})
     return unless item
 
     if @_itemsExpanded[id]
-      delete @_itemsExpanded[id]
+      @_collapseItem(item)
     else
-      @_itemsExpanded[id] = "explicit"
-      @_fetchExpandedBodies([item])
-      @_fetchExpandedAttachments([item])
+      @_expandItem(item)
     @trigger()
+
+  _expandItem: (item) =>
+    @_itemsExpanded[item.id] = "explicit"
+    @_fetchExpandedBodies([item])
+    @_fetchExpandedAttachments([item])
+
+  _collapseItem: (item) =>
+    delete @_itemsExpanded[item.id]
 
   _fetchFromCache: (options = {}) ->
     return unless @_thread
