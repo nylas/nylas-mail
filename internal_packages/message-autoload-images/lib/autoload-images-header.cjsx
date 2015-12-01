@@ -1,9 +1,13 @@
 React = require 'react'
 AutoloadImagesStore = require './autoload-images-store'
 Actions = require './autoload-images-actions'
+{Message} = require 'nylas-exports'
 
 class AutoloadImagesHeader extends React.Component
   @displayName: 'AutoloadImagesHeader'
+
+  @propTypes:
+    message: React.PropTypes.instanceOf(Message).isRequired
 
   constructor: (@props) ->
 

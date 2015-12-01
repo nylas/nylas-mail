@@ -88,7 +88,7 @@ class NylasExports
   # Tasks
   # These need to be required immediately to populate the TaskRegistry so
   # we know how to deserialized saved or IPC-sent tasks.
-  @require "EventRSVP", 'flux/tasks/event-rsvp'
+  @require "EventRSVPTask", 'flux/tasks/event-rsvp'
   @require "SendDraftTask", 'flux/tasks/send-draft'
   @require "FileUploadTask", 'flux/tasks/file-upload-task'
   @require "DestroyDraftTask", 'flux/tasks/destroy-draft'
