@@ -2,6 +2,8 @@
 
 An icon to indicate whether an email was sent to either just you, or you and other recipients, or a mailing list that you were on.
 
+<img src="https://raw.githubusercontent.com/nylas/N1/master/examples/N1-Personal-Level-Indicators/examples-screencap-personal-level-icon.png"/>
+
 #### Install this plugin
 
 1. Download and run N1
