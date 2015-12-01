@@ -77,15 +77,21 @@ module.exports =
     # `DraftStoreExtension`.
     DraftStore.registerExtension AvailabilityDraftExtension
 
-    # Subscribe to the ipc event `fromRenderer`, which will be published
-    # elsewhere in the package.
-    protocol.registerStringProtocol 'quick-schedule', (request, callback) =>
-      {host:event,query:rawQuery} = url.parse(request.url)
-      stringArgs = qs.parse(rawQuery)
-      data = {}
-      for own k,v of stringArgs
-        data[k] = JSON.parse(v)
-      response = @_onCalendarEvent(event,data,callback)
+    # Register a protocol that allows the calendar window to pass data back to the plugin
+    # with web requests
+    if NylasEnv.isMainWindow()
+      # First unregister the protocol, in case it has already been registered with a callback that's no
+      # longer valid (e.g. if the main window has reloaded). If the protocol is not registered, this line
+      # does nothing.
+      protocol.unregisterProtocol('quick-schedule')
+      # Now register the new protocol
+      protocol.registerStringProtocol 'quick-schedule', (request, callback) =>
+        {host:event,query:rawQuery} = url.parse(request.url)
+        stringArgs = qs.parse(rawQuery)
+        data = {}
+        for own k,v of stringArgs
+          data[k] = JSON.parse(v)
+        response = @_onCalendarEvent(event,data,callback)
 
   # Serialize is called when your package is about to be unmounted.
   # You can return a state object that will be passed back to your package
@@ -100,8 +106,9 @@ module.exports =
   #
   deactivate: ->
     ComponentRegistry.unregister CalendarButton
-    DraftStore.unregister AvailabilityDraftExtension
-    protocol.unregisterProtocol('quick-schedule')
+    DraftStore.unregisterExtension AvailabilityDraftExtension
+    if NylasEnv.isMainWindow()
+      protocol.unregisterProtocol('quick-schedule')
 
   ### Internal Methods ###
 
