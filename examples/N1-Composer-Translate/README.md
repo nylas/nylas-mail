@@ -3,6 +3,8 @@
 
 A package for N1 that translates draft text into other languages using the Yandex Translation API.
 
+<img src="https://raw.githubusercontent.com/nylas/N1/master/examples/N1-Composer-Translate/examples-screencap-translate.png"/>
+
 #### Install this plugin
 
 1. Download and run N1
