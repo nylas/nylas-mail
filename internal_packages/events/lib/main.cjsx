@@ -1,12 +1,12 @@
-# {ComponentRegistry, WorkspaceStore} = require 'nylas-exports'
-# EventComponent = require "./event-component"
+{ComponentRegistry, WorkspaceStore} = require 'nylas-exports'
+EventHeader = require "./event-header"
 
 module.exports =
   activate: (@state={}) ->
-    # ComponentRegistry.register EventComponent,
-    #   role: 'Event'
+    ComponentRegistry.register EventHeader,
+      role: 'message:BodyHeader'
 
   deactivate: ->
-    # ComponentRegistry.unregister(EventComponent)
+    ComponentRegistry.unregister(EventHeader)
 
   serialize: -> @state

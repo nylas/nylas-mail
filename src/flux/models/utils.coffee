@@ -99,13 +99,6 @@ Utils =
     return ext in extensions and size > 512 and size < 1024*1024*5
 
 
-  looksLikeGmailInvite: (message={}) ->
-    idx = message.body.search('itemtype="http://schema.org/Event"')
-    if idx == -1
-      return false
-    return true
-
-
   # Escapes potentially dangerous html characters
   # This code is lifted from Angular.js
   # See their specs here:
