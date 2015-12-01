@@ -59,7 +59,7 @@ class PreferencesSignatures extends React.Component
 
   _renderAccountPicker: ->
     options = @state.accounts.map (account) ->
-      <option value={account.id}>{account.emailAddress}</option>
+      <option value={account.id} key={account.id}>{account.emailAddress}</option>
 
     <select value={@state.selectedAccountId} onChange={@_onSelectAccount}>
       {options}
