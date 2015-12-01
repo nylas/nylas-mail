@@ -49,7 +49,7 @@ describe "MessageToolbarItem marking as unread", ->
 
   it "queues a task to change unread status to true", ->
     spyOn Actions, "queueTask"
-    ReactTestUtils.Simulate.click React.findDOMNode(markUnreadBtn)
+    ReactTestUtils.Simulate.click React.findDOMNode(markUnreadBtn).childNodes[0]
 
     changeUnreadTask = Actions.queueTask.calls[0].args[0]
     expect(changeUnreadTask instanceof ChangeUnreadTask).toBe true
@@ -58,6 +58,7 @@ describe "MessageToolbarItem marking as unread", ->
 
   it "returns to the thread list", ->
     spyOn Actions, "popSheet"
-    ReactTestUtils.Simulate.click React.findDOMNode(markUnreadBtn)
+    ReactTestUtils.Simulate.click React.findDOMNode(markUnreadBtn).childNodes[0]
 
     expect(Actions.popSheet).toHaveBeenCalled()
+
