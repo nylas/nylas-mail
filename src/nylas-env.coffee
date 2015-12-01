@@ -10,6 +10,7 @@ _ = require 'underscore'
 {Model} = require 'theorist'
 fs = require 'fs-plus'
 {convertStackTrace, convertLine} = require 'coffeestack'
+{mapSourcePosition} = require 'source-map-support'
 
 WindowEventHandler = require './window-event-handler'
 StylesElement = require './styles-element'
