@@ -10,10 +10,9 @@ This plugin works by adding a small "QuickSchedule" button next to the Send butt
 
 1. [Download and run N1](https://nylas.com/n1)
 
-2. [Download the plugin](https://www.dropbox.com/s/3n3t6lt17g0nuhy/n1-quickschedule-plugin.zip?dl=0) and unzip it
-
-3. From the menu, select `Developer > Install a Package Manually...`
-   Choose the unzipped `n1-quickschedule-plugin` directory to install the plugin.
+2. From the menu, select `Developer > Install a Plugin Manually...`
+   The dialog will default to this examples directory. Just choose the
+   `N1-Quick-Schedule` folder to install it!
 
    > Note: When you install plugins, they're moved to `~/.nylas/packages`,
    > and N1 runs `apm install` on the command line to fetch dependencies
