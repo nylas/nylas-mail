@@ -20,7 +20,7 @@ experience.
 
 1. Download and run N1
 
-2. From the menu, select `Developer > Install a Package Manually...`
+2. From the menu, select `Developer > Install a Plugin Manually...`
    The dialog will default to this examples directory. Just choose the
    package to install it!
 
