@@ -23,6 +23,7 @@ class ConfigSchemaItem extends React.Component
         <h2>{_str.humanize(@props.keyName)}</h2>
         {_.pairs(@props.configSchema.properties).map ([key, value]) =>
           <ConfigSchemaItem
+            key={key}
             keyName={key}
             keyPath={"#{@props.keyPath}.#{key}"}
             configSchema={value}
@@ -36,7 +37,7 @@ class ConfigSchemaItem extends React.Component
         <label htmlFor={@props.keyPath}>{@props.configSchema.title}:</label>
         <select onChange={@_onChangeValue} value={@props.config.get(@props.keyPath)}>
           {_.zip(@props.configSchema.enum, @props.configSchema.enumLabels).map ([value, label]) =>
-            <option value={value}>{label}</option>
+            <option key={value} value={value}>{label}</option>
           }
         </select>
       </div>

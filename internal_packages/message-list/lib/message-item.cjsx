@@ -80,7 +80,6 @@ class MessageItem extends React.Component
         <div className="message-item-area">
           {@_renderHeader()}
           <MessageItemBody message={@props.message} downloads={@state.downloads} />
-          {@_renderEvents()}
           {@_renderAttachments()}
         </div>
       </div>
@@ -156,13 +155,6 @@ class MessageItem extends React.Component
     else
       <div></div>
 
-  _renderEvents: =>
-    events = @_eventComponents()
-    if events.length > 0 and not Utils.looksLikeGmailInvite(@props.message)
-      <div className="events-area">{events}</div>
-    else
-      <div></div>
-
   _renderHeaderSideItems: ->
     styles =
       position: "absolute"
@@ -226,16 +218,6 @@ class MessageItem extends React.Component
         key={file.id} />
 
     return otherAttachments.concat(imageAttachments)
-
-  _eventComponents: =>
-    events = @props.message.events.map (e) =>
-      <InjectedComponent
-        className="event-wrap"
-        matching={role:"Event"}
-        exposedProps={event:e}
-        key={e.id}/>
-
-    return events
 
   _isRealFile: (file) ->
     hasCIDInBody = file.contentId? and @props.message.body?.indexOf(file.contentId) > 0

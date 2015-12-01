@@ -46,7 +46,9 @@ class PreferencesSidebarItem extends React.Component
           "subitem": true
           "active": account.id is @props.selection.get('accountId')
 
-        <li className={classes} onClick={ (event) => @_onClickAccount(event, account.id)}>
+        <li key={account.id}
+            className={classes}
+            onClick={ (event) => @_onClickAccount(event, account.id)}>
           {account.emailAddress}
         </li>
     else
