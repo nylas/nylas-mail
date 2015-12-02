@@ -168,4 +168,5 @@ class NylasExports
   # Testing
   @get "NylasTestUtils", -> require '../../spec/nylas-test-utils'
 
+window.$n = NylasExports
 module.exports = NylasExports
