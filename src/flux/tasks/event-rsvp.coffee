@@ -28,25 +28,24 @@ class EventRSVPTask extends Task
       DatabaseStore.persistModel(e)
 
   performRemote: ->
-    new Promise (resolve, reject) =>
-      NylasAPI.makeRequest
-        path: "/send-rsvp"
-        accountId: @event.accountId
-        method: "POST"
-        body: {
-          event_id: @event.id,
-          status: @RSVPResponse
-        }
-        returnsModel: true
-      .then =>
-        return Promise.resolve(Task.Status.Success)
-      .catch APIError, (err) =>
-        ##TODO event already accepted/declined/etc
-        @event.participants = @_previousParticipantsState
-        DatabaseStore.persistModel(@event).then ->
-          resolve(Task.Status.Failed)
-        .catch (err) ->
-          resolve(Task.Status.Failed)
+    NylasAPI.makeRequest
+      path: "/send-rsvp"
+      accountId: @event.accountId
+      method: "POST"
+      body: {
+        event_id: @event.id,
+        status: @RSVPResponse
+      }
+      returnsModel: true
+    .then =>
+      return Promise.resolve(Task.Status.Success)
+    .catch APIError, (err) =>
+      ##TODO event already accepted/declined/etc
+      @event.participants = @_previousParticipantsState
+      DatabaseStore.persistModel(@event).then ->
+        return Promise.resolve(Task.Status.Failed)
+      .catch (err) ->
+        return Promise.resolve(Task.Status.Failed)
 
   onOtherError: -> Promise.resolve()
   onTimeoutError: -> Promise.resolve()
