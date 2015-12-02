@@ -223,52 +223,6 @@ class NylasEnvConstructor extends Model
     window.onbeforeunload = => @_unloading()
     @_unloadCallbacks = []
 
-  # Some unit tests require access to the Selenium web driver APIs as exposed
-  # by Spectron/Chromedriver. The app must be booted by Spectron as is done in the `run-integration-tests` task. Once Spectron boots the app, it will expose a RESTful API
-  #
-  # The Selenium API spec is here: https://code.google.com/p/selenium/wiki/JsonWireProtocol
-  #
-  # The Node wrapper for that API is provided by webdriver: http://webdriver.io/api.html
-  #
-  # Spectron wraps webdriver (in its `client` property) and adds additional methods: https://github.com/kevinsawicki/spectron
-  #
-  # Spectron requests that Selenium use Chromedriver
-  # https://sites.google.com/a/chromium.org/chromedriver/home to interface
-  # with the app, but points the binary at Electron.
-  #
-  # Since this code here is "inside" the booted process, we have no way of
-  # directly accessing the client from the test runner. However, we can still
-  # connect directly to the Selenium server to control ourself.
-  #
-  # We unfortunately can't create a new session with Selenium, because we
-  # won't be connected to the correct process (us!). Instead we need to
-  # inspect the existing sessions and use the existing one instead.
-  #
-  # We then manually setup the WebDriver session, and add in the extra
-  # spectron APIs via `Spectron.Application::addCommands`.
-  #
-  # http://webdriver.io/api/protocol/windowHandles.html
-  # https://code.google.com/p/selenium/wiki/JsonWireProtocol#/session/:sessionId/element/:id/value
-  setupSpectron: ->
-    options =
-      host: "127.0.0.1"
-      port: 9515
-    SpectronApp = require('spectron').Application
-    @spectron = new SpectronApp
-    WebDriver = require('webdriverio')
-    @spectron.client = new WebDriver.remote(options)
-    @spectron.addCommands()
-    @spectron.client.sessions().then ({value}) =>
-      {sessionId, capabilities} = value[0]
-      @spectron.client.requestHandler.sessionID = sessionId
-      # https://github.com/webdriverio/webdriverio/blob/master/lib/protocol/init.js
-      @spectron.client.sessionID = sessionId
-      @spectron.client.capabilities = capabilities
-      @spectron.client.desiredCapabilities = capabilities
-
-  inIntegrationSpecMode: ->
-    @inSpecMode() and @spectron?.client?.sessionID
-
   # Start our error reporting to the backend and attach error handlers
   # to the window and the Bluebird Promise library, converting things
   # back through the sourcemap as necessary.

@@ -43,22 +43,16 @@ module.exports.runSpecSuite = (specSuite, logFile, logErrors=true) ->
 
   NylasEnv.initialize()
 
-  # Tests that run under an integration environment need Spectron to be
-  # asynchronously setup and connected to the Selenium API before proceeding.
-  # Once setup, one can test `NylasEnv.inIntegrationSpecMode()`
-  #
-  # This safely works regardless if Spectron is loaded.
-  NylasEnv.setupSpectron().finally ->
-    require specSuite
+  require specSuite
 
-    jasmineEnv = jasmine.getEnv()
-    jasmineEnv.addReporter(reporter)
-    jasmineEnv.addReporter(timeReporter)
-    jasmineEnv.setIncludedTags([process.platform])
+  jasmineEnv = jasmine.getEnv()
+  jasmineEnv.addReporter(reporter)
+  jasmineEnv.addReporter(timeReporter)
+  jasmineEnv.setIncludedTags([process.platform])
 
-    $('body').append $$ -> @div id: 'jasmine-content'
+  $('body').append $$ -> @div id: 'jasmine-content'
 
-    jasmineEnv.execute()
+  jasmineEnv.execute()
 
 disableFocusMethods = ->
   ['fdescribe', 'ffdescribe', 'fffdescribe', 'fit', 'ffit', 'fffit'].forEach (methodName) ->
