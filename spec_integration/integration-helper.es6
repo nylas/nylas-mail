@@ -1,5 +1,4 @@
 import path from 'path'
-import Promise from 'bluebird'
 import {Application} from 'spectron';
 
 class N1Launcher extends Application {
@@ -46,7 +45,7 @@ class N1Launcher extends Application {
       return NylasEnv.getLoadSettings().windowType;
     }).then(({value})=>{
       if(value === "composer") {
-        return client.isWindowVisible()
+        return client.isExisting(".contenteditable")
       } else {
         return false
       }
