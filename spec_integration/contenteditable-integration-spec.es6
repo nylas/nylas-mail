@@ -1,7 +1,7 @@
 import {N1Launcher} from './integration-helper'
 import ContenteditableTestHarness from './contenteditable-test-harness.es6'
 
-fdescribe('Contenteditable Integration Spec', function() {
+describe('Contenteditable Integration Spec', function() {
   beforeAll((done)=>{
     this.app = new N1Launcher(["--dev"]);
     this.app.popoutComposerWindowReady().finally(done);
@@ -77,23 +77,53 @@ fdescribe('Contenteditable Integration Spec', function() {
       }).then(done).catch(done.fail)
     });
 
-    // it("create a single item then delete it with backspace", (done) => {
-    //   this.ce.test({
-    //     keys: ['-', 'Space', 'a', 'Left arrow', 'Back space'],
-    //     expectedHTML: "<span style=\"line-height: 1.4;\">a</span><br>",
-    //     expectedSelectionResolver: (dom) => {
-    //       return {node: dom.childNodes[0], offset: 0} }
-    //   }).then(done).catch(done.fail)
-    // });
-    //
-    // it("create a single item then delete it with tab", (done) => {
-    //   this.ce.test({
-    //     keys: ['-', 'Space', 'a', 'Shift', 'Tab'],
-    //     expectedHTML: "<span style=\"line-height: 1.4;\">a</span><br>",
-    //     expectedSelectionResolver: (dom) => {
-    //       return {node: dom.childNodes[0], offset: 1} }
-    //   }).then(done).catch(done.fail)
-    // });
+  // describe "when creating two items in a list", ->
+  //   beforeEach ->
+  //     @twoItemKeys = ['-', 'Space', 'a', 'Return', 'b']
+  //
+  //   it "creates two items with enter at end", -> waitsForPromise =>
+  //     @ce.keys(@twoItemKeys).then =>
+  //       @ce.expectHTML "<ul><li>a</li><li>b</li></ul>"
+  //       @ce.expectSelection (dom) ->
+  //         node: dom.querySelectorAll('li')[1].childNodes[0]
+  //         offset: 1
+  //
+  //   xit "backspace from the start of the 1st item outdents", ->
+  //     @ce.keys @twoItemKeys.concat ['left', 'up', 'backspace']
+  //
+  //   xit "backspace from the start of the 2nd item outdents", ->
+  //     @ce.keys @twoItemKeys.concat ['left', 'backspace']
+  //
+  //   xit "shift-tab from the start of the 1st item outdents", ->
+  //     @ce.keys @twoItemKeys.concat ['left', 'up', 'shift-tab']
+  //
+  //   xit "shift-tab from the start of the 2nd item outdents", ->
+  //     @ce.keys @twoItemKeys.concat ['left', 'shift-tab']
+  //
+  //   xit "shift-tab from the end of the 1st item outdents", ->
+  //     @ce.keys @twoItemKeys.concat ['up', 'shift-tab']
+  //
+  //   xit "shift-tab from the end of the 2nd item outdents", ->
+  //     @ce.keys @twoItemKeys.concat ['shift-tab']
+  //
+  //   xit "backspace from the end of the 1st item doesn't outdent", ->
+  //     @ce.keys @twoItemKeys.concat ['up', 'backspace']
+  //
+  //   xit "backspace from the end of the 2nd item doesn't outdent", ->
+  //     @ce.keys @twoItemKeys.concat ['backspace']
+  //
+  // xdescribe "multi-depth bullets", ->
+  //   it "creates multi level bullet when tabbed in", ->
+  //     @ce.keys ['-', ' ', 'a', 'tab']
+  //
+  //   it "creates multi level bullet when tabbed in", ->
+  //     @ce.keys ['-', ' ', 'tab', 'a']
+  //
+  //   it "returns to single level bullet on backspace", ->
+  //     @ce.keys ['-', ' ', 'a', 'tab', 'left', 'backspace']
+  //
+  //   it "returns to single level bullet on shift-tab", ->
+  //     @ce.keys ['-', ' ', 'a', 'tab', 'shift-tab']
 
   });
 

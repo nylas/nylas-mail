@@ -65,14 +65,12 @@
     "service-hub": "^0.2.0",
     "source-map-support": "^0.3.2",
     "space-pen": "3.8.2",
-    "spectron": "0.34.1",
     "spellchecker": "^3.1.2",
     "sqlite3": "https://github.com/mapbox/node-sqlite3/archive/v3.1.1.tar.gz",
     "temp": "^0.8",
     "theorist": "^1.0",
     "underscore": "^1.8",
-    "underscore.string": "^3.0",
-    "webdriverio": "3.2.6"
+    "underscore.string": "^3.0"
   },
   "packageDependencies": {},
   "private": true,
