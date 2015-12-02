@@ -1,10 +1,19 @@
+import Promise from 'bluebird'
 import {N1Launcher} from './integration-helper'
+import ContenteditableTestHarness from './contenteditable-test-harness.es6'
 
-describe('Nylas Prod Bootup Tests', function() {
+fdescribe('Contenteditable Integration Spec', function() {
   beforeAll((done)=>{
+    console.log("----------- BEFORE ALL");
     // Boot in dev mode with no arguments
     this.app = new N1Launcher(["--dev"]);
-    this.app.mainWindowReady().finally(done);
+    this.app.popoutComposerWindowReady().finally(done);
+  });
+
+  beforeEach((done) => {
+    console.log("----------- BEFORE EACH");
+    this.ce = new ContenteditableTestHarness(this.app.client, expect)
+    this.ce.init().finally(done);
   });
 
   afterAll((done)=> {
@@ -13,6 +22,18 @@ describe('Nylas Prod Bootup Tests', function() {
     } else {
       done()
     }
+  });
+
+  fit("Creates ordered lists", (done)=> {
+    console.log("RUNNING KEYS");
+    this.app.client.keys(["1", ".", "Space"]).then(()=>{
+      console.log("DONE FIRING KEYS");
+      e1 = this.ce.expectHTML("<ol><li>WOOO</li></ol>")
+      e2 = this.ce.expectSelection((dom) => {
+        return {node: dom.querySelectorAll("li")[0]}
+      })
+      return Promise.all(e1,e2)
+    }).catch((err)=>{ console.log("XXXX ERROR"); console.log(err); }).finally(done)
   });
 
   it("has main window visible", (done)=> {
