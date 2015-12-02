@@ -60,7 +60,7 @@ module.exports =
           backspaceDelete:
             type: 'boolean'
             default: false
-            title: "Use backspace to delete messages"
+            title: "Use backspace / delete to move messages to trash"
       sending:
         type: 'object'
         properties:

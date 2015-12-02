@@ -289,9 +289,9 @@ class ThreadList extends React.Component
       if backspaceDelete
         if FocusedMailViewStore.mailView().canTrashThreads()
           removeMethod = TaskFactory.taskForMovingToTrash
-        else 
+        else
           return
-      else 
+      else
         if FocusedMailViewStore.mailView().canArchiveThreads()
           removeMethod = TaskFactory.taskForArchiving
         else
