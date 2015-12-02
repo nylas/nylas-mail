@@ -112,9 +112,7 @@ class ToolbarMenuControl extends React.Component
 
   _openMenu: =>
     applicationMenu = require('remote').getGlobal('application').applicationMenu
-    activeTemplate = Utils.deepClone(applicationMenu.activeTemplate)
-    menu = require('remote').require('menu').buildFromTemplate(activeTemplate)
-    menu.popup(NylasEnv.getCurrentWindow())
+    applicationMenu.menu.popup(NylasEnv.getCurrentWindow())
 
 ComponentRegistry.register ToolbarWindowControls,
   location: WorkspaceStore.Sheet.Global.Toolbar.Left
