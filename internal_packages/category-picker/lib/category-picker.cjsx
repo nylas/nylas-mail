@@ -252,9 +252,12 @@ class CategoryPicker extends React.Component
     @_account = AccountStore.current()
     return unless @_account
 
-    categories = CategoryStore.getStandardCategories()
-      .concat([{divider: true, id: "category-divider"}])
-      .concat(CategoryStore.getUserCategories())
+    if @_account.usesLabels()
+      categories = CategoryStore.getCategories()
+    else
+      categories = CategoryStore.getStandardCategories()
+        .concat([{divider: true, id: "category-divider"}])
+        .concat(CategoryStore.getUserCategories())
 
     usageCount = @_categoryUsageCount(props, categories)
 
@@ -292,9 +295,8 @@ class CategoryPicker extends React.Component
     currentCategoryId = FocusedMailViewStore.mailView()?.categoryId()
 
     if @_account?.usesLabels()
-      hiddenCategories = ["all", "spam", "trash", "drafts", "sent"]
-      if allInInbox
-        hiddenCategories.push("inbox")
+      hiddenCategories = ["all", "drafts", "sent", "archive", "starred", "important"]
+      hiddenCategories.push("inbox") if allInInbox
       return false if category.divider
     else if @_account?.usesFolders()
       hiddenCategories = ["drafts", "sent"]
