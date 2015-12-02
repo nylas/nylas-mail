@@ -11,7 +11,7 @@ module.exports = (grunt) ->
     else
       return ''
 
-  grunt.registerTask 'build', 'Build the application', ->
+  grunt.registerTask 'copy-files-for-build', 'Copy files for build', ->
     shellAppDir = grunt.config.get('nylasGruntConfig.shellAppDir')
     buildDir = grunt.config.get('nylasGruntConfig.buildDir')
     appDir = grunt.config.get('nylasGruntConfig.appDir')
@@ -188,8 +188,3 @@ module.exports = (grunt) ->
 
     if process.platform is 'linux'
       cp path.join('build', 'resources', 'linux', 'icons'), path.join(buildDir, 'icons')
-
-    dependencies = ['compile', 'generate-license:save', 'generate-module-cache', 'compile-packages-slug']
-    dependencies.push('copy-info-plist') if process.platform is 'darwin'
-    dependencies.push('set-exe-icon') if process.platform is 'win32'
-    grunt.task.run(dependencies...)
