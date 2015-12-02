@@ -27,8 +27,6 @@
   'o': 'core:focus-item'
   'p': 'message-list:previous-message'
   'n': 'message-list:next-message'
-  '`': 'thread-list:next-inbox'
-  '~': 'thread-list:previous-inbox'
 
   ### Application ###
   'c': 'application:new-message'
@@ -55,8 +53,6 @@
   'A': 'application:reply-all-new-window'
   'f': 'application:forward'
   'F': 'application:forward-new-window'
-
-  'N': 'application:update-conversation'
 
   ']': 'application:remove-and-previous'
   '}': 'application:remove-and-previous'
