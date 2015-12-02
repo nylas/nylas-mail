@@ -63,3 +63,6 @@ addons:
 branches:
   only:
     - master
+
+git:
+  submodules: false
