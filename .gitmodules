@@ -1,0 +1,3 @@
+[submodule "build/resources/nylas"]
+	path = build/resources/nylas
+	url = git@github.com:nylas/edgehill.git
