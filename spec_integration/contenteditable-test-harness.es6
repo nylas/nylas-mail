@@ -1,43 +1,40 @@
-import Promise from 'bluebird'
-
 class ContenteditableTestHarness {
 
-  constructor(client, expect) {
-    this.expect = expect
+  constructor(client) {
     this.client = client;
   }
 
   init() {
-    console.log("INIT TEST HARNESS");
     return this.client.execute(() => {
       ce = document.querySelector(".contenteditable")
       ce.innerHTML = ""
       ce.focus()
-    }).then(({value})=>{
-      console.log(value);
+    })
+  }
+
+  test({keys, expectedHTML, expectedSelectionResolver}) {
+    return this.client.keys(keys).then(()=>{
+      return this.expectHTML(expectedHTML)
+    }).then(()=>{
+      return this.expectSelection(expectedSelectionResolver)
     })
   }
 
   expectHTML(expectedHTML) {
-    console.log("EXPECTING HTML");
-    console.log(expectedHTML);
-    return this.client.execute((expect, arg2) => {
-      console.log(expect);
-      console.log(arg2);
-      ce = document.querySelector(".contenteditable")
-      expect(ce.innerHTML).toBe(expectedHTML)
-      return ce.innerHTML
-    }, this.expect, "FOOO").then(({value})=>{
-      console.log("GOT HTML VALUE");
-      console.log(value);
-    }).catch((err)=>{
-      console.log("XXXXXXXXXX GOT ERROR")
-      console.log(err);
+    return this.client.execute(() => {
+      return document.querySelector(".contenteditable").innerHTML
+    }).then(({value})=>{
+      expect(value).toBe(expectedHTML)
     })
   }
 
   expectSelection(callback) {
-    return this.client.execute(() => {
+    // Since `execute` fires parameters to Selenium via REST API, we can
+    // only pass strings. We serialize the callback so we can run it in
+    // the correct execution environment of the window instead of the
+    // Selenium wrapper.
+    return this.client.execute((callbackStr) => {
+      eval(`callback=${callbackStr}`);
       ce = document.querySelector(".contenteditable")
       expectSel = callback(ce)
 
@@ -48,10 +45,51 @@ class ContenteditableTestHarness {
 
       selection = document.getSelection()
 
-      this.expect(selection.anchorNode).toBe(anchorNode)
-      this.expect(selection.focusNode).toBe(focusNode)
-      this.expect(selection.anchorOffset).toBe(anchorOffset)
-      this.expect(selection.focusOffset).toBe(focusOffset)
+      return {
+        anchorNodeMatch: selection.anchorNode === anchorNode,
+        focusNodeMatch: selection.focusNode === focusNode,
+        anchorOffsetMatch: selection.anchorOffset === anchorOffset,
+        focusOffsetMatch: selection.focusOffset === focusOffset,
+        expectedAnchorNode: anchorNode.outerHTML,
+        expectedFocusNode: focusNode.outerHTML,
+        expectedAnchorOffset: anchorOffset,
+        expectedFocusOffset: focusOffset,
+        actualAnchorNode: selection.anchorNode.outerHTML,
+        actualFocusNode: selection.focusNode.outerHTML,
+        actualAnchorOffset: selection.anchorOffset,
+        actualFocusOffset: selection.focusOffset,
+      }
+
+    }, callback.toString()).then(({value}) => {
+      matchInfo = value
+
+      allMatched = true;
+      if (!matchInfo.anchorNodeMatch) {
+        console.errorColor("\nAnchor nodes don't match")
+        console.errorColor(`Expected: "${matchInfo.actualAnchorNode}" to be "${matchInfo.expectedAnchorNode}"`);
+        allMatched = false;
+      }
+      if (!matchInfo.focusNodeMatch) {
+        console.errorColor("\nFocus nodes don't match")
+        console.errorColor(`Expected: "${matchInfo.actualFocusNode}" to be "${matchInfo.expectedFocusNode}"`);
+        allMatched = false;
+      }
+      if (!matchInfo.anchorOffsetMatch) {
+        console.errorColor("\nAnchor offsets don't match")
+        console.errorColor(`Expected: ${matchInfo.actualAnchorOffset} to be ${matchInfo.expectedAnchorOffset}`);
+        allMatched = false;
+      }
+      if (!matchInfo.focusOffsetMatch) {
+        console.errorColor("\nFocus offsets don't match")
+        console.errorColor(`Expected: ${matchInfo.actualFocusOffset} to be ${matchInfo.expectedFocusOffset}`);
+        allMatched = false;
+      }
+
+      outMsgDescription = "matched. See discrepancies above"
+      if (allMatched) { outMsg = outMsgDescription
+      } else { outMsg = "Selection" }
+      // "Expected Selection to be matched. See discrepancies above"
+      expect(outMsg).toBe(outMsgDescription);
     })
   }
 }
