@@ -2,7 +2,7 @@ import {N1Launcher} from './integration-helper'
 
 // Some unit tests, such as the Contenteditable specs need to be run with
 // Spectron availble in the environment.
-fdescribe('Integrated Unit Tests', function() {
+describe('Integrated Unit Tests', function() {
   beforeAll((done)=>{
     // Boot in dev mode with no arguments
     this.app = new N1Launcher(["--test=window"]);

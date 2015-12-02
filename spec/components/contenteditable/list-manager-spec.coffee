@@ -2,7 +2,7 @@ ContenteditableTestHarness = require './contenteditable-test-harness'
 
 return unless NylasEnv.inIntegrationSpecMode()
 
-fdescribe "ListManager", ->
+xdescribe "ListManager", ->
   beforeEach ->
     # console.log "--> Before each"
     @ce = new ContenteditableTestHarness
@@ -22,7 +22,7 @@ fdescribe "ListManager", ->
       @ce.expectSelection (dom) ->
         node: dom.querySelectorAll("li")[0]
 
-  ffit "Undoes ordered list creation with backspace", -> waitsForPromise =>
+  it "Undoes ordered list creation with backspace", -> waitsForPromise =>
     @ce.keys(['1', '.', 'Space', 'Back space']).then =>
       @ce.expectHTML "1.&nbsp;"
       @ce.expectSelection (dom) ->
@@ -35,7 +35,7 @@ fdescribe "ListManager", ->
       @ce.expectSelection (dom) ->
         node: dom.querySelectorAll("li")[0]
 
-  xit "Undoes unordered list creation with backspace", ->
+  it "Undoes unordered list creation with backspace", ->
     aitsForPromise =>
       @ce.keys(['*', 'Space', 'Back space']).then =>
         @ce.expectHTML "*&nbsp;"

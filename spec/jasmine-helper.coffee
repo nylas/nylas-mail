@@ -20,7 +20,10 @@ module.exports.runSpecSuite = (specSuite, logFile, logErrors=true) ->
     else
       remote.process.stdout.write(str)
 
-  if NylasEnv.getLoadSettings().exitWhenDone
+  if NylasEnv.getLoadSettings().showSpecsInWindow
+    N1SpecReporter = require './n1-spec-reporter'
+    reporter = new N1SpecReporter()
+  else if NylasEnv.getLoadSettings().exitWhenDone
     reporter = new TerminalReporter
       color: true
       print: (str) ->
