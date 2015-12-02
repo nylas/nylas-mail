@@ -140,24 +140,49 @@
   .container-keymaps {
     max-width: 450px;
 
+    .col-left {
+      text-align: right;
+      flex: 1;
+      margin-right: 20px;
+    }
+    .col-right {
+      text-align: left;
+      flex: 1;
+      select {
+          width: 75%;
+      }
+    }
+
+    .shortcut-presets {
+      padding: 5px 0 20px 0;
+    }
+
+    .shortcut-section-title {
+      border-bottom:1px solid @border-color-divider;
+      margin: @padding-large-vertical * 1.5 0;
+    }
+
     .shortcut {
       padding: 3px 0;
-      &.shortcut-select {
-        padding: 5px 0 20px 0;
-        select {
-            width: 75%;
-        }
-      }
-
-      .shortcut-name {
-        text-align: right;
-        flex: 1;
-        margin-right: 20px;
-      }
-
+      color: @text-color-very-subtle;
       .shortcut-value {
-        text-align: left;
-        flex: 1;
+        font-family: monospace;
+        font-weight: 600;
+        color: @text-color;
+        .then {
+          font-family: @font-family-base;
+          color: @text-color-very-subtle;
+          font-weight: 400;
+          font-size: 0.9em;
+          padding-left:3px;
+          padding-right:3px;
+        }
+        &:after {
+          content: ", "
+        }
+        &:last-child:after {
+          content: "";
+        }
       }
     }
   }
