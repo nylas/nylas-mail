@@ -44,7 +44,6 @@ class MessageItemBody extends React.Component
 
   _renderBody: =>
     return null unless @state.processedBody?
-    console.log(@state.processedBody)
     <EmailFrame showQuotedText={@state.showQuotedText} content={@state.processedBody}/>
 
   _renderQuotedTextControl: =>
