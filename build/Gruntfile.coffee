@@ -9,6 +9,9 @@ babelOptions = require '../static/babelrc'
 # packages in the root-level node_modules are compiled against Chrome's v8
 # headers.
 #
+# See build/resources/nylas/docs/ContinuousIntegration.md for more detailed
+# instructions on how we build N1.
+#
 # Some useful grunt options are:
 #   --install-dir
 #   --build-dir
@@ -37,7 +40,6 @@ babelOptions = require '../static/babelrc'
 # installDir = /usr/local OR $INSTALL_PREFIX
 # binDir     = /usr/local/bin
 # shareDir   = /usr/local/share/nylas
-
 _ = require 'underscore'
 
 packageJson = require '../package.json'
@@ -332,7 +334,7 @@ module.exports = (grunt) ->
       outputDir: 'electron'
       downloadDir: electronDownloadDir
       rebuild: true  # rebuild native modules after electron is updated
-      token: process.env.NYLAS_ACCESS_TOKEN
+      token: process.env.NYLAS_GITHUB_OAUTH_TOKEN
 
     'create-windows-installer':
       installer:
@@ -343,7 +345,7 @@ module.exports = (grunt) ->
         iconUrl: 'http://edgehill.s3.amazonaws.com/static/nylas.ico'
         setupIcon: path.resolve(__dirname, 'resources', 'win', 'nylas.ico')
         certificateFile: process.env.CERTIFICATE_FILE
-        certificatePassword: process.env.CERTIFICATE_PASSWORD
+        certificatePassword: process.env.WINDOWS_CODESIGN_KEY_PASSWORD
         exe: 'nylas.exe'
 
     shell:
@@ -375,18 +377,25 @@ module.exports = (grunt) ->
   buildTasks.push('set-exe-icon') if process.platform is 'win32'
   grunt.registerTask('build', buildTasks)
 
-  ciTasks = ['output-disk-space', 'download-electron', 'build']
+  ciTasks = ['output-disk-space',
+             'download-electron',
+             'build']
   ciTasks.push('dump-symbols') if process.platform isnt 'win32'
   ciTasks.push('set-version', 'lint', 'generate-asar')
-  ciTasks.push('test') if process.platform is 'darwin'
 
-  unless process.env.TRAVIS
-    ciTasks.push('codesign')
-    ciTasks.push('mkdmg') if process.platform is 'darwin'
-    ciTasks.push('mkdeb') if process.platform is 'linux'
+  if process.platform is "darwin"
+    ciTasks.push('test', 'codesign', 'mkdmg')
+
+  else if process.platform is "linux"
+    ciTasks.push('mkdeb')
     # Only works on Fedora build machines
     # ciTasks.push('mkrpm') if process.platform is 'linux'
-    ciTasks.push('create-windows-installer:installer') if process.platform is 'win32'
+
+  else if process.platform is "win32"
+    ciTasks.push('create-windows-installer:installer')
+
+  {shouldPublishBuild} = require('./tasks/task-helpers')(grunt)
+  if shouldPublishBuild()
     ciTasks.push('publish-nylas-build')
 
   grunt.registerTask('ci', ciTasks)

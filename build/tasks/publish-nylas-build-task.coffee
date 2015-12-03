@@ -51,10 +51,10 @@ module.exports = (grunt) ->
         resolve()
 
   postToSlack = (msg) ->
-    return Promise.resolve() unless process.env.PUBLISH_SLACK_HOOK
+    return Promise.resolve() unless process.env.NYLAS_INTERNAL_HOOK_URL
     new Promise (resolve, reject) ->
       request.post
-        url: process.env.PUBLISH_SLACK_HOOK
+        url: process.env.NYLAS_INTERNAL_HOOK_URL
         json:
           username: "Edgehill Builds"
           text: msg
@@ -126,11 +126,9 @@ module.exports = (grunt) ->
     awsSecret = process.env.AWS_SECRET_ACCESS_KEY ? ""
 
     if awsKey.length is 0
-      grunt.log.error "Please set the AWS_ACCESS_KEY_ID environment variable"
-      return false
+      grunt.fail.fatal "Please set the AWS_ACCESS_KEY_ID environment variable"
     if awsSecret.length is 0
-      grunt.log.error "Please set the AWS_SECRET_ACCESS_KEY environment variable"
-      return false
+      grunt.fail.fatal "Please set the AWS_SECRET_ACCESS_KEY environment variable"
 
     s3Client = s3.createClient
       s3Options:
@@ -139,25 +137,34 @@ module.exports = (grunt) ->
 
     done = @async()
 
-    populateVersion().then ->
-      runEmailIntegrationTest().then ->
-        uploadPromises = []
-        if process.platform is 'darwin'
-          uploadPromises.push uploadToS3(dmgName(), "#{fullVersion}/#{process.platform}/#{process.arch}/N1.dmg")
-          uploadPromises.push uploadZipToS3(appName(), "#{fullVersion}/#{process.platform}/#{process.arch}/N1.zip")
-        if process.platform is 'win32'
-          uploadPromises.push uploadToS3("installer/"+winReleasesName(), "#{fullVersion}/#{process.platform}/#{process.arch}/RELEASES")
-          uploadPromises.push uploadToS3("installer/"+winSetupName(), "#{fullVersion}/#{process.platform}/#{process.arch}/N1Setup.exe")
-          uploadPromises.push uploadToS3("installer/"+winNupkgName(), "#{fullVersion}/#{process.platform}/#{process.arch}/#{winNupkgName()}")
-        if process.platform is 'linux'
-          buildDir = grunt.config.get('nylasGruntConfig.buildDir')
-          files = fs.readdirSync(buildDir)
-          for file in files
-            if path.extname(file) is '.deb'
-              uploadPromises.push uploadToS3(file, "#{fullVersion}/#{process.platform}/#{process.arch}/N1.deb")
-            if path.extname(file) is '.rpm'
-              uploadPromises.push uploadToS3(file, "#{fullVersion}/#{process.platform}/#{process.arch}/N1.rpm")
+    populateVersion()
+    .then ->
+      if process.env.RUN_APPLE_SCRIPT_INTEGRATION
+        runEmailIntegrationTest()
+      else Promise.resolve()
+    .then ->
+      uploadPromises = []
+      if process.platform is 'darwin'
+        uploadPromises.push uploadToS3(dmgName(), "#{fullVersion}/#{process.platform}/#{process.arch}/N1.dmg")
+        uploadPromises.push uploadZipToS3(appName(), "#{fullVersion}/#{process.platform}/#{process.arch}/N1.zip")
 
-        Promise.all(uploadPromises).then(done).catch (err) ->
-          grunt.log.error(err)
-          return false
+      else if process.platform is 'win32'
+        uploadPromises.push uploadToS3("installer/"+winReleasesName(), "#{fullVersion}/#{process.platform}/#{process.arch}/RELEASES")
+        uploadPromises.push uploadToS3("installer/"+winSetupName(), "#{fullVersion}/#{process.platform}/#{process.arch}/N1Setup.exe")
+        uploadPromises.push uploadToS3("installer/"+winNupkgName(), "#{fullVersion}/#{process.platform}/#{process.arch}/#{winNupkgName()}")
+
+      else if process.platform is 'linux'
+        buildDir = grunt.config.get('nylasGruntConfig.buildDir')
+        files = fs.readdirSync(buildDir)
+        for file in files
+          if path.extname(file) is '.deb'
+            uploadPromises.push uploadToS3(file, "#{fullVersion}/#{process.platform}/#{process.arch}/N1.deb")
+          if path.extname(file) is '.rpm'
+            uploadPromises.push uploadToS3(file, "#{fullVersion}/#{process.platform}/#{process.arch}/N1.rpm")
+
+      else
+        grunt.fail.fatal "Unsupported platform: '#{process.platform}'"
+
+      Promise.all(uploadPromises).then(done).catch (err) ->
+        grunt.log.error(err)
+        return false
