@@ -201,6 +201,22 @@
       cursor:default;
     }
   }
+
+  .platform-note {
+    padding: @padding-base-vertical @padding-base-horizontal;
+    background: @background-secondary;
+    border-left:3px solid @info-color;
+    margin:@padding-base-vertical 0;
+    font-size:0.95em;
+    &:before {
+      color: @info-color;
+      font-weight:600;
+      content: "NOTE: ";
+    }
+  }
+  .platform-linux-only {
+    display: none;
+  }
 }
 
 body.platform-win32 {
@@ -212,6 +228,14 @@ body.platform-win32 {
       .appearance-mode {
         border-radius: 0;
       }
+    }
+  }
+}
+
+body.platform-linux {
+  .preferences-wrap {
+    .platform-linux-only {
+      display: block;
     }
   }
 }
