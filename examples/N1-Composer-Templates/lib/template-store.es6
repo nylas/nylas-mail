@@ -1,4 +1,4 @@
-import {DraftStore, Actions} from 'nylas-exports';
+import {DraftStore, Actions, QuotedHTMLParser} from 'nylas-exports';
 import NylasStore from 'nylas-store';
 import shell from 'shell';
 import path from 'path';
@@ -82,7 +82,7 @@ class TemplateStore extends NylasStore {
       DraftStore.sessionForClientId(draftClientId).then((session) => {
         const draft = session.draft();
         const draftName = name ? name : draft.subject;
-        const draftContents = contents ? contents : draft.body;
+        const draftContents = contents ? contents : QuotedHTMLParser.removeQuotedHTML(draft.body);
         if (!draftName || draftName.length === 0) {
           this._displayError('Give your draft a subject to name your template.');
         }
@@ -113,34 +113,95 @@ class TemplateStore extends NylasStore {
   }
 
   _writeTemplate(name, contents) {
+    this.saveTemplate(name, contents, true, (template) => {
+      Actions.switchPreferencesTab('Quick Replies');
+      Actions.openPreferences()
+    });
+  }
+
+  saveTemplate(name, contents, isNew, callback) {
     const filename = `${name}.html`;
     const templatePath = path.join(this._templatesDir, filename);
+
+    var template = null;
+    this._items.forEach((item) => {
+      if (item.name === name) { template = item; }
+    });
+
+    if(isNew && template !== null) {
+      this._displayError("A template with that name already exists!");
+      return undefined;
+    }
+
     fs.writeFile(templatePath, contents, (err) => {
       if (err) { this._displayError(err); }
-      shell.showItemInFolder(templatePath);
-      this._items.push({
-        id: filename,
-        name: name,
-        path: templatePath,
-      });
+      if (template === null) {
+        template = {
+          id: filename,
+          name: name,
+          path: templatePath
+        };
+        this._items.push(template);
+      }
+      if(callback)
+        callback(template);
       this.trigger(this);
     });
   }
 
+  deleteTemplate(name, callback) {
+    var template = null;
+    this._items.forEach((item) => {
+      if (item.name === name) { template = item; }
+    });
+    if (!template) { return undefined }
+
+    fs.unlink(template.path, () => {
+      this._populate();
+      if(callback)
+        callback()
+    });
+  }
+
+  renameTemplate(oldName, newName, callback) {
+    var template = null;
+    this._items.forEach((item) => {
+      if (item.name === oldName) { template = item; }
+    });
+    if (!template) { return undefined }
+
+    const newFilename = `${newName}.html`;
+    const oldPath = path.join(this._templatesDir, `${oldName}.html`);
+    const newPath = path.join(this._templatesDir, newFilename);
+    fs.rename(oldPath, newPath, () => {
+      template.name = newName;
+      template.id = newFilename;
+      template.path = newPath;
+      this.trigger(this);
+      callback(template)
+    });
+  }
+
   _onInsertTemplateId({templateId, draftClientId} = {}) {
-    const iterable = this._items;
+    this.getTemplateContents(templateId, (body) => {
+      DraftStore.sessionForClientId(draftClientId).then((session)=> {
+        draftHtml = QuotedHTMLParser.appendQuotedHTML(body, session.draft().body);
+        session.changes.add({body: draftHtml});
+      });
+    });
+  }
+
+  getTemplateContents(templateId, callback) {
     let template = null;
-    for (let i = 0, item; i < iterable.length; i++) {
-      item = iterable[i];
+    this._items.forEach((item) => {
       if (item.id === templateId) { template = item; }
-    }
-    if (!template) { return undefined; }
+    });
+
+    if (!template) { return undefined }
 
     fs.readFile(template.path, (err, data)=> {
       const body = data.toString();
-      DraftStore.sessionForClientId(draftClientId).then((session)=> {
-        session.changes.add({body: body});
-      });
+      callback(body);
     });
   }
 }
