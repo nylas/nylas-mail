@@ -28,6 +28,8 @@
       { label: 'New Message', command: 'application:new-message' }
       { type: 'separator' }
       { label: 'Close Window', command: 'window:close' }
+      { type: 'separator' }
+      { label: 'Print Current Thread', command: 'application:print-thread' }
     ]
   }
 
