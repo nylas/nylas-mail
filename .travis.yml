@@ -63,6 +63,7 @@ addons:
 branches:
   only:
     - master
+    - travis-test
 
 git:
   submodules: false
