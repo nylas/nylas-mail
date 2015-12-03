@@ -92,6 +92,7 @@ class MessageList extends React.Component
     'application:reply': => @_createReplyOrUpdateExistingDraft('reply')
     'application:reply-all': => @_createReplyOrUpdateExistingDraft('reply-all')
     'application:forward': => @_onForward()
+    'application:print-thread': => @_onPrintThread()
     'core:messages-page-up': => @_onScrollByPage(-1)
     'core:messages-page-down': => @_onScrollByPage(1)
 
@@ -230,7 +231,10 @@ class MessageList extends React.Component
       "Collapse All"
     <div className="message-icons-wrap">
       <div onClick={@_onToggleAllMessagesExpanded}>
-        <RetinaImg name="expand.png" fallback="expand.png" title={expandTitle}/>
+        <RetinaImg name="expand.png" fallback="expand.png" title={expandTitle} mode={RetinaImg.Mode.ContentPreserve}/>
+      </div>
+      <div onClick={@_onPrintThread}>
+        <RetinaImg name="print.png" fallback="print.png" title="Print Thread" mode={RetinaImg.Mode.ContentPreserve}/>
       </div>
     </div>
 
@@ -264,6 +268,10 @@ class MessageList extends React.Component
 
   _onToggleAllMessagesExpanded: ->
     Actions.toggleAllMessagesExpanded()
+
+  _onPrintThread: =>
+    node = React.findDOMNode(@)
+    Actions.printThread(@state.currentThread, node.innerHTML)
 
   _onRemoveLabel: (label) =>
     task = new ChangeLabelsTask(thread: @state.currentThread, labelsToRemove: [label])

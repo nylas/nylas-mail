@@ -4,9 +4,11 @@
     submenu: [
       { label: '&New Message', command: 'application:new-message' }
       { type: 'separator' }
-      { label: 'Preferences', command: 'application:open-preferences' }
       { label: 'Add Account...', command: 'application:add-account' }
       { label: 'Clos&e Window', command: 'window:close' }
+      { type: 'separator' }
+      { label: 'Print Current Thread', command: 'application:print-thread' }
+      { type: 'separator' }
       { label: 'Quit', command: 'application:quit' }
     ]
   }
@@ -21,6 +23,8 @@
       { label: 'C&opy', command: 'core:copy' }
       { label: '&Paste', command: 'core:paste' }
       { label: 'Select &All', command: 'core:select-all' }
+      { type: 'separator' }
+      { label: 'Preferences', command: 'application:open-preferences' }
     ]
   }
 

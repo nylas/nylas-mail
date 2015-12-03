@@ -41,6 +41,7 @@
   ### Core application commands. ###
   'cmdctrl-q' : 'application:quit'
   'cmdctrl-w' : 'window:close'
+  'cmdctrl-p' : 'application:print-thread'
 
   ### Universal N1 commands. ###
   'enter'    : 'core:focus-item'
