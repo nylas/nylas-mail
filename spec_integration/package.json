@@ -8,6 +8,7 @@
   "scripts": {
     "test": "jasmine JASMINE_CONFIG_PATH=./config.json"
   },
+  "license": "GPL-3.0",
   "dependencies": {
     "bluebird": "^3.0.5",
     "babel-core": "^5.8.21",

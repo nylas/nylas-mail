@@ -61,6 +61,14 @@ module.exports = (grunt) ->
       grunt.log.error results.stderr if exitCode != 0
       callback(error, results, exitCode)
 
+  spawnP: (cmd, args=[], opts={}) -> new Promise (resolve, reject) ->
+    childProcess = require 'child_process'
+    opts.stdio ?= 'inherit'
+    proc = childProcess.spawn(cmd, args, opts)
+    proc.on 'error', grunt.fail.fatal
+    proc.on 'close', (exitCode, signal) ->
+      if exitCode is 0 then resolve() else reject(exitCode)
+
   isNylasPackage: (packagePath) ->
     try
       {engines} = grunt.file.readJSON(path.join(packagePath, 'package.json'))
@@ -69,12 +77,39 @@ module.exports = (grunt) ->
       false
 
   notifyAPI: (msg, callback) ->
-    if (process.env("TEST_ERROR_HOOK_URL") ? "").length > 0
+    if (process.env("NYLAS_INTERNAL_HOOK_URL") ? "").length > 0
       request.post
-        url: process.env("TEST_ERROR_HOOK_URL")
+        url: process.env("NYLAS_INTERNAL_HOOK_URL")
         json:
           username: "Edgehill Builds"
           text: msg
       , callback
     else callback()
+
+  shouldPublishBuild: ->
+    return false unless process.env.PUBLISH_BUILD
+    if process.env.APPVEYOR
+      if process.env.APPVEYOR_PULL_REQUEST_NUMBER
+        grunt.log.writeln("Skipping because this is a pull request")
+        return false
+
+      branch = process.env.APPVEYOR_REPO_BRANCH
+      if branch is "master" or branch is "ci-test"
+        return true
+      else
+        grunt.log.writeln("Skipping. We don't operate on branch '#{branch}''")
+        return false
+
+    else if process.env.TRAVIS
+      if process.env.TRAVIS_PULL_REQUEST isnt "false"
+        grunt.log.writeln("Skipping because this is a pull request")
+        return false
+
+      branch = process.env.TRAVIS_BRANCH
+      if branch is "master" or branch is "ci-test"
+        return true
+      else
+        grunt.log.writeln("Skipping. We don't operate on branch '#{branch}''")
+        return false
+    return true
 
