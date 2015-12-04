@@ -1,5 +1,10 @@
 # N1 Changelog
 
+
+### 0.3.27 (12/3/15)
+
+- Critical patch to the QuickSchedule plugin to prevent it from sending multiple RSVP responses
+
 ### 0.3.26 (11/30/15)
 
 - Features:
