@@ -16,7 +16,7 @@ class FocusedMailViewStore extends NylasStore
   _onCategoryStoreChanged: ->
     if not @_mailView
       @_setMailView(@_defaultMailView())
-    else if not CategoryStore.byId(@_mailView.categoryId())
+    else if @_mailView.categoryId() and not CategoryStore.byId(@_mailView.categoryId())
       @_setMailView(@_defaultMailView())
 
   _onFocusMailView: (filter) =>
