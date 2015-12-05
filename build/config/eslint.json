@@ -12,6 +12,7 @@
     "react/prop-types": [2, {"ignore": ["children"]}],
     "eqeqeq": [2, "smart"],
     "id-length": [0],
-    "no-loop-func": [0]
+    "no-loop-func": [0],
+    "new-cap": [2, {"capIsNew": false}]
   }
 }

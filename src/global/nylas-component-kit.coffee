@@ -31,6 +31,7 @@ class NylasComponentKit
   @load "TimeoutTransitionGroup", 'timeout-transition-group'
   @load "ConfigPropContainer", "config-prop-container"
   @load "DisclosureTriangle", "disclosure-triangle"
+  @load "EditableList", "editable-list"
 
   @load "ScrollRegion", 'scroll-region'
   @load "ResizableRegion", 'resizable-region'

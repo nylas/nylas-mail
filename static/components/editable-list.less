@@ -1,0 +1,50 @@
+@import "ui-variables";
+
+.nylas-editable-list {
+
+  .items-wrapper {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid @border-secondary-bg;
+    background-color: @background-secondary;
+    font-size: 0.9em;
+
+    .editable-item {
+      padding: @padding-small-vertical @padding-small-horizontal;
+      cursor: default;
+
+      &.selected {
+        background-color: @background-selected;
+        color: @text-color-selected;
+      }
+      &+.editable-item {
+        border-top: 1px solid @border-color-divider;
+      }
+      input {
+        border: none;
+        padding: 0;
+        font-size: inherit;
+        background-color: @background-selected;
+        color: @text-color-selected;
+      }
+      ::-webkit-input-placeholder {
+        color: @text-color-inverse-very-subtle;
+      }
+    }
+  }
+
+  .buttons-wrapper {
+    margin-top: @padding-xs-horizontal;
+
+    .btn-editable-list {
+      height: 20px;
+      width: 30px;
+      text-align: center;
+      padding: 0 0 2px 0;
+
+      &+.btn-editable-list {
+        margin-left: 3px;
+      }
+    }
+  }
+}
