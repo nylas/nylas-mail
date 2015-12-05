@@ -1,13 +1,13 @@
 _ = require 'underscore'
 {Contenteditable, RetinaImg, Flexbox} = require 'nylas-component-kit'
 {AccountStore, Utils, React} = require 'nylas-exports'
-TemplateStore = require './template-store';
+TemplateStore = require './template-store'
 
 class PreferencesTemplates extends React.Component
   @displayName: 'PreferencesTemplates'
 
   constructor: (@props) ->
-    TemplateStore.init();
+    TemplateStore.init()
     @_templateSaveQueue = {}
 
     @state =
