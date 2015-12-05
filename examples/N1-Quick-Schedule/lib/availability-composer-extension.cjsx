@@ -1,10 +1,9 @@
-
-{DraftStoreExtension} = require 'nylas-exports'
+{ComposerExtension} = require 'nylas-exports'
 request = require 'request'
 
-class AvailabilityDraftExtension extends DraftStoreExtension
+class AvailabilityComposerExtension extends ComposerExtension
 
-  # When subclassing the DraftStoreExtension, you can add your own custom logic
+  # When subclassing the ComposerExtension, you can add your own custom logic
   # to execute before a draft is sent in the @finalizeSessionBeforeSending
   # method. Here, we're registering the events before we send the draft.
   @finalizeSessionBeforeSending: (session) ->
@@ -24,4 +23,4 @@ class AvailabilityDraftExtension extends DraftStoreExtension
         console.log(error,resp,data)
 
 
-module.exports = AvailabilityDraftExtension
+module.exports = AvailabilityComposerExtension

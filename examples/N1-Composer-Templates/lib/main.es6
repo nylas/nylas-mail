@@ -1,29 +1,27 @@
-import {PreferencesUIStore, ComponentRegistry, DraftStore} from 'nylas-exports';
+import {PreferencesUIStore, ComponentRegistry, ExtensionRegistry} from 'nylas-exports';
 import TemplatePicker from './template-picker';
 import TemplateStatusBar from './template-status-bar';
-import Extension from './template-draft-extension';
+import TemplateComposerExtension from './template-composer-extension';
 
 module.exports = {
-  item: null, // The DOM item the main React component renders into
-
   activate(state = {}) {
     this.state = state;
     this.preferencesTab = new PreferencesUIStore.TabItem({
-      tabId: "Quick Replies",
-      displayName: "Quick Replies",
-      component: require("./preferences-templates"),
+      tabId: 'Quick Replies',
+      displayName: 'Quick Replies',
+      component: require('./preferences-templates'),
     });
     ComponentRegistry.register(TemplatePicker, {role: 'Composer:ActionButton'});
     ComponentRegistry.register(TemplateStatusBar, {role: 'Composer:Footer'});
     PreferencesUIStore.registerPreferencesTab(this.preferencesTab);
-    return DraftStore.registerExtension(Extension);
+    ExtensionRegistry.Composer.register(TemplateComposerExtension);
   },
 
   deactivate() {
     ComponentRegistry.unregister(TemplatePicker);
     ComponentRegistry.unregister(TemplateStatusBar);
     PreferencesUIStore.unregisterPreferencesTab(this.preferencesTab.sectionId);
-    return DraftStore.unregisterExtension(Extension);
+    ExtensionRegistry.Composer.unregister(TemplateComposerExtension);
   },
 
   serialize() { return this.state; },

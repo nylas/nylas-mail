@@ -8,13 +8,14 @@
  DatabaseStore,
  DraftStore,
  QuotedHTMLParser,
+ ExtensionRegistry,
  Event} = require 'nylas-exports'
 
 url = require('url')
 qs = require("querystring")
 
 CalendarButton = require './calendar-button'
-AvailabilityDraftExtension = require './availability-draft-extension'
+AvailabilityComposerExtension = require './availability-composer-extension'
 
 protocol = require('remote').require('protocol')
 
@@ -73,9 +74,9 @@ module.exports =
       role: 'Composer:ActionButton'
 
     # You can add your own extensions to the N1 Composer view and the original
-    # DraftStore by invoking `DraftStore.registerExtension` with a subclass of
-    # `DraftStoreExtension`.
-    DraftStore.registerExtension AvailabilityDraftExtension
+    # Composer by invoking `ExtensionRegistry.Composer.register` with a subclass of
+    # `ComposerExtension`.
+    ExtensionRegistry.Composer.register AvailabilityComposerExtension
 
     # Register a protocol that allows the calendar window to pass data back to the plugin
     # with web requests
@@ -106,7 +107,7 @@ module.exports =
   #
   deactivate: ->
     ComponentRegistry.unregister CalendarButton
-    DraftStore.unregisterExtension AvailabilityDraftExtension
+    ExtensionRegistry.Composer.unregister AvailabilityComposerExtension
     if NylasEnv.isMainWindow()
       protocol.unregisterProtocol('quick-schedule')
 
