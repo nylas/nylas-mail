@@ -10,14 +10,14 @@ Folder = require '../models/folder'
 Label = require '../models/label'
 WindowBridge = require '../../window-bridge'
 
-JSONObjectKey = 'UnreadCounts-V1'
+JSONObjectKey = 'UnreadCounts-V2'
 
 class CategoryDatabaseMutationObserver
   constructor: (@_countsDidChange) ->
 
-  beforeDatabaseChange: (query, models, ids) =>
-    if models[0].constructor.name is 'Thread'
-      idString = "'" + ids.join("','") +  "'"
+  beforeDatabaseChange: (query, {type, objects, objectIds, objectClass}) =>
+    if objectClass is Thread.name
+      idString = "'" + objectIds.join("','") +  "'"
       Promise.props
         labelData: query("SELECT `Thread`.id as id, `Thread-Label`.`value` as catId FROM `Thread` INNER JOIN `Thread-Label` ON `Thread`.`id` = `Thread-Label`.`id` WHERE `Thread`.id IN (#{idString}) AND `Thread`.unread = 1", [])
         folderData: query("SELECT `Thread`.id as id, `Thread-Folder`.`value` as catId FROM `Thread` INNER JOIN `Thread-Folder` ON `Thread`.`id` = `Thread-Folder`.`id` WHERE `Thread`.id IN (#{idString}) AND `Thread`.unread = 1", [])
@@ -31,16 +31,18 @@ class CategoryDatabaseMutationObserver
     else
       Promise.resolve()
 
-  afterDatabaseChange: (query, models, ids, beforeResolveValue) =>
-    if models[0].constructor.name is 'Thread'
+  afterDatabaseChange: (query, {type, objects, objectIds, objectClass}, beforeResolveValue) =>
+    if objectClass is Thread.name
       {categories} = beforeResolveValue
-      for thread in models
-        continue unless thread.unread
-        for collection in ['labels', 'folders']
-          if thread[collection]
-            for cat in thread[collection]
-              categories[cat.id] ?= 0
-              categories[cat.id] += 1
+
+      if type is 'persist'
+        for thread in objects
+          continue unless thread.unread
+          for collection in ['labels', 'folders']
+            if thread[collection]
+              for cat in thread[collection]
+                categories[cat.id] ?= 0
+                categories[cat.id] += 1
 
       for key, val of categories
         delete categories[key] if val is 0

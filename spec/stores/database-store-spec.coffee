@@ -141,6 +141,7 @@ describe "DatabaseStore", ->
           change = DatabaseStore._accumulateAndTrigger.mostRecentCall.args[0]
           expect(change).toEqual
             objectClass: TestModel.name,
+            objectIds: [testModelInstanceA.id, testModelInstanceB.id]
             objects: [testModelInstanceA, testModelInstanceB]
             type:'persist'
 
@@ -189,8 +190,12 @@ describe "DatabaseStore", ->
         advanceClock()
         expect(@beforeDatabaseChange).toHaveBeenCalledWith(
           DatabaseStore._query,
-          [testModelInstanceA, testModelInstanceB],
-          [testModelInstanceA.id, testModelInstanceB.id],
+          {
+            objects: [testModelInstanceA, testModelInstanceB]
+            objectIds: [testModelInstanceA.id, testModelInstanceB.id]
+            objectClass: testModelInstanceA.constructor.name
+            type: 'persist'
+          },
           undefined
         )
         expect(DatabaseStore._writeModels).not.toHaveBeenCalled()
@@ -203,8 +208,12 @@ describe "DatabaseStore", ->
         advanceClock()
         expect(@afterDatabaseChange).toHaveBeenCalledWith(
           DatabaseStore._query,
-          [testModelInstanceA, testModelInstanceB],
-          [testModelInstanceA.id, testModelInstanceB.id],
+          {
+            objects: [testModelInstanceA, testModelInstanceB]
+            objectIds: [testModelInstanceA.id, testModelInstanceB.id]
+            objectClass: testModelInstanceA.constructor.name
+            type: 'persist'
+          },
           "value"
         )
 
@@ -263,7 +272,12 @@ describe "DatabaseStore", ->
           expect(DatabaseStore._accumulateAndTrigger).toHaveBeenCalled()
 
           change = DatabaseStore._accumulateAndTrigger.mostRecentCall.args[0]
-          expect(change).toEqual({objectClass: TestModel.name, objects: [testModelInstance], type:'unpersist'})
+          expect(change).toEqual({
+            objectClass: TestModel.name,
+            objectIds: [testModelInstance.id]
+            objects: [testModelInstance],
+            type:'unpersist'
+          })
 
     describe "when the model has collection attributes", ->
       it "should delete all of the elements in the join tables", ->
