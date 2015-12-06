@@ -37,7 +37,7 @@ module.exports = (grunt) ->
     mkdir appDir
 
     if process.platform isnt 'win32'
-      cp 'N1.sh', path.resolve(appDir, '..', 'new-app', 'N1.sh')
+      cp path.resolve('build', 'resources', 'nylas.sh'), path.resolve(appDir, '..', 'new-app', 'N1.sh')
 
     cp 'package.json', path.join(appDir, 'package.json')
     cp path.join('build', 'resources', 'nylas.png'), path.join(appDir, 'nylas.png')
