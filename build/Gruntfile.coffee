@@ -22,11 +22,11 @@ babelOptions = require '../static/babelrc'
 # tmpDir: /var/folders/xl/_qdlmc512sb6cpqryy_2tzzw0000gn/T/ (aka /tmp)
 #
 # buildDir    = /tmp/nylas-build
-# shellAppDir = /tmp/nylas-build/Nylas.app
-# contentsDir = /tmp/nylas-build/Nylas.app/Contents
-# appDir      = /tmp/nylas-build/Nylas.app/Contents/Resources/app
+# shellAppDir = /tmp/nylas-build/Nylas N1.app
+# contentsDir = /tmp/nylas-build/Nylas N1.app/Contents
+# appDir      = /tmp/nylas-build/Nylas N1.app/Contents/Resources/app
 #
-# installDir = /Applications/Nylas.app
+# installDir = /Applications/Nylas N1.app
 #
 # And on Linux:
 #
@@ -79,7 +79,7 @@ module.exports = (grunt) ->
   home = if process.platform is 'win32' then process.env.USERPROFILE else process.env.HOME
   electronDownloadDir = path.join(home, '.nylas', 'electron')
 
-  symbolsDir = path.join(buildDir, 'Atom.breakpad.syms')
+  symbolsDir = path.join(buildDir, 'Nylas.breakpad.syms')
   shellAppDir = path.join(buildDir, appName)
   if process.platform is 'win32'
     contentsDir = shellAppDir
