@@ -12,6 +12,7 @@ class EditableList extends Component {
       PropTypes.element,
     ])),
     className: PropTypes.string,
+    createPlaceholder: PropTypes.string,
     onCreateItem: PropTypes.func,
     onDeleteItem: PropTypes.func,
     onItemEdited: PropTypes.func,
@@ -22,6 +23,8 @@ class EditableList extends Component {
 
   static defaultProps = {
     children: [],
+    className: '',
+    createPlaceholder: '',
     onDeleteItem: ()=> {},
     onItemEdited: ()=> {},
     onItemSelected: ()=> {},
@@ -30,7 +33,6 @@ class EditableList extends Component {
 
   constructor(props) {
     super(props);
-    this._items = this.props.children;
     this._doubleClickedItem = false;
     this.state = props.initialState || {
       editing: null,
@@ -60,7 +62,13 @@ class EditableList extends Component {
     if (_.includes(['Enter', 'Return'], event.key)) {
       this.setState({creatingItem: false});
       this.props.onItemCreated(event.target.value);
+    } else if (event.key === 'Escape') {
+      this.setState({creatingItem: false});
     }
+  }
+
+  _onCreateInputBlur = ()=> {
+    this.setState({creatingItem: false});
   }
 
   _onItemClick = (event, item, idx)=> {
@@ -81,14 +89,14 @@ class EditableList extends Component {
   }
 
   _onListKeyDown = (event)=> {
-    const len = this._items.size;
+    const len = this.props.children.size;
     const handle = {
       'ArrowUp': (sel)=> sel === 0 ? sel : sel - 1,
       'ArrowDown': (sel)=> sel === len - 1 ? sel : sel + 1,
       'Escape': ()=> null,
     };
     const selected = (handle[event.key] || ((sel)=> sel))(this.state.selected);
-    this._selectItem(this._items[selected], selected);
+    this._selectItem(this.props.children[selected], selected);
   }
 
   _onCreateItem = ()=> {
@@ -101,7 +109,7 @@ class EditableList extends Component {
 
   _onDeleteItem = ()=> {
     const idx = this.state.selected;
-    const item = this._items[idx];
+    const item = this.props.children[idx];
     if (item) {
       this.props.onDeleteItem(item, idx);
     }
@@ -150,19 +158,21 @@ class EditableList extends Component {
     );
   }
 
-  _renderCreateItem = (onCreateInputKeyDown = this._onCreateInputKeyDown)=> {
+  _renderCreateItem = ()=> {
     return (
-      <div className="create-item">
+      <div className="create-item-input" key="create-item-input">
         <input
           autoFocus
           type="text"
-          onKeyDown={onCreateInputKeyDown} />
+          placeholder={this.props.createPlaceholder}
+          onBlur={this._onCreateInputBlur}
+          onKeyDown={this._onCreateInputKeyDown} />
       </div>
     );
   }
 
   render() {
-    let items = this._items.map((item, idx)=> this._renderItem(item, idx));
+    let items = this.props.children.map((item, idx)=> this._renderItem(item, idx));
     if (this.state.creatingItem === true) {
       items = items.concat(this._renderCreateItem());
     }
