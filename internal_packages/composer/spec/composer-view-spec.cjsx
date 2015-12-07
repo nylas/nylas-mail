@@ -124,7 +124,7 @@ useFullDraft = ->
     replyToMessageId: null
 
 makeComposer = ->
-  @composer = ReactTestUtils.renderIntoDocument(
+  @composer = NylasTestUtils.renderIntoDocument(
     <ComposerView draftClientId={DRAFT_CLIENT_ID} />
   )
 
@@ -135,6 +135,7 @@ describe "populated composer", ->
 
   afterEach ->
     DraftStore._cleanupAllSessions()
+    NylasTestUtils.removeFromDocument(@composer)
 
   describe "when sending a new message", ->
     it 'makes a request with the message contents', ->
@@ -143,7 +144,7 @@ describe "populated composer", ->
       editableNode = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithAttr(@composer, 'contentEditable'))
       spyOn(@proxy.changes, "add")
       editableNode.innerHTML = "Hello <strong>world</strong>"
-      ReactTestUtils.Simulate.input(editableNode)
+      @composer.refs[Fields.Body]._onDOMMutated(["mutated"])
       expect(@proxy.changes.add).toHaveBeenCalled()
       expect(@proxy.changes.add.calls.length).toBe 1
       body = @proxy.changes.add.calls[0].args[0].body
@@ -168,7 +169,7 @@ describe "populated composer", ->
 
     it 'saves the full new body, plus quoted text', ->
       @editableNode.innerHTML = "Hello <strong>world</strong>"
-      ReactTestUtils.Simulate.input(@editableNode)
+      @composer.refs[Fields.Body]._onDOMMutated(["mutated"])
       expect(@proxy.changes.add).toHaveBeenCalled()
       expect(@proxy.changes.add.calls.length).toBe 1
       body = @proxy.changes.add.calls[0].args[0].body
@@ -200,7 +201,7 @@ describe "populated composer", ->
 
     it 'saves the full new body, plus forwarded text', ->
       @editableNode.innerHTML = "Hello <strong>world</strong>#{@fwdBody}"
-      ReactTestUtils.Simulate.input(@editableNode)
+      @composer.refs[Fields.Body]._onDOMMutated(["mutated"])
       expect(@proxy.changes.add).toHaveBeenCalled()
       expect(@proxy.changes.add.calls.length).toBe 1
       body = @proxy.changes.add.calls[0].args[0].body
@@ -366,7 +367,7 @@ describe "populated composer", ->
     it "ignores focuses to participant fields", ->
       @composer.setState focusedField: Fields.To
       expect(@body.focus).not.toHaveBeenCalled()
-      expect(React.findDOMNode.calls.length).toBe 3
+      expect(@composer._applyFieldFocus.calls.length).toBe 1
 
   describe "when participants are added during a draft update", ->
     it "shows the cc fields and bcc fields to ensure participants are never hidden", ->
@@ -542,12 +543,12 @@ describe "populated composer", ->
           cmdctrl = 'cmd'
         else
           cmdctrl = 'ctrl'
-        NylasTestUtils.keyPress("#{cmdctrl}-enter", React.findDOMNode(@$composer))
+        NylasTestUtils.keyDown("#{cmdctrl}-enter", React.findDOMNode(@$composer))
         expect(Actions.sendDraft).toHaveBeenCalled()
         expect(Actions.sendDraft.calls.length).toBe 1
 
       it "does not send the draft on enter if the button isn't in focus", ->
-        NylasTestUtils.keyPress("enter", React.findDOMNode(@$composer))
+        NylasTestUtils.keyDown("enter", React.findDOMNode(@$composer))
         expect(Actions.sendDraft).not.toHaveBeenCalled()
 
       it "doesn't let you send twice", ->
@@ -555,12 +556,12 @@ describe "populated composer", ->
           cmdctrl = 'cmd'
         else
           cmdctrl = 'ctrl'
-        NylasTestUtils.keyPress("#{cmdctrl}-enter", React.findDOMNode(@$composer))
+        NylasTestUtils.keyDown("#{cmdctrl}-enter", React.findDOMNode(@$composer))
         expect(Actions.sendDraft).toHaveBeenCalled()
         expect(Actions.sendDraft.calls.length).toBe 1
         @isSending = true
         DraftStore.trigger()
-        NylasTestUtils.keyPress("#{cmdctrl}-enter", React.findDOMNode(@$composer))
+        NylasTestUtils.keyDown("#{cmdctrl}-enter", React.findDOMNode(@$composer))
         expect(Actions.sendDraft).toHaveBeenCalled()
         expect(Actions.sendDraft.calls.length).toBe 1
 

@@ -485,16 +485,21 @@ class WindowManager
         window.removeListener('window:close-prevented', closePreventedHandler)
 
   windowClosedOrHidden: ->
-    # On Windows and Linux, we want to terminate the app after the last visible
-    # window is closed. However, there are brief moments where the app has no
-    # windows, like when you log out or finish logging in. Wait a while after
-    # the last window close event to see if we should quit.
+    # Typically, N1 stays running in the background on all platforms, since it
+    # has a status icon you can use to quit it.
+    #
+    # However, on Windows and Linux we /do/ want to quit if the app is somehow
+    # put into a state where there are no visible windows and the main window
+    # doesn't exist.
+    #
+    # This /shouldn't/ happen, but if it does, the only way for them to recover
+    # would be to pull up the Task Manager. Ew.
+    #
     if process.platform in ['win32', 'linux']
       @quitCheck ?= _.debounce =>
         noVisibleWindows = @visibleWindows().length is 0
-        mainWindowLoading = @mainWindow() and not @mainWindow().isLoaded()
-        workWindowLoading = @workWindow() and not @workWindow().isLoaded()
-        if noVisibleWindows and not mainWindowLoading and not workWindowLoading
+        noMainWindowLoaded = not @mainWindow()?.isLoaded()
+        if noVisibleWindows and noMainWindowLoaded
           app.quit()
       , 10000
       @quitCheck()

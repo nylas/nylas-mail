@@ -24,7 +24,7 @@
   font-size: @font-size-small;
 }
 
-.compose-body .contenteditable {
+.compose-body,.container-templates .contenteditable {
   code.var {
     font: inherit;
     padding:0;
@@ -38,4 +38,95 @@
       background-color: @code-bg-color;
     }
   }
+}
+
+
+.container-templates {
+  max-width: 640px;
+
+
+  .template-wrap {
+    position: relative;
+    border: 1px solid @input-border-color;
+    padding: 10px;
+    margin-top: 20px;
+    min-height: 200px;
+    display: flex;
+
+    textarea {
+      border: 0;
+      padding: 0;
+      flex: 1;
+      font-family: monospace;
+      font-size: 0.9em;
+    }
+  }
+
+  .section-body {
+    padding: 10px 0 0 0;
+
+    .menu {
+      border: solid thin #CCC;
+      margin-right: 5px;
+      min-height: 200px;
+      .menu-items {
+        margin:0;
+        padding:0;
+        list-style: none;
+
+        li { padding: 6px; }
+      }
+    }
+    .menu-horizontal {
+      height: 100%;
+      .menu-items {
+        height:100%;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        li {
+          text-align:center;
+          width:40px;
+          display:inline-block;
+          padding:8px 16px 8px 16px;
+          border-right: solid thin #CCC;
+        }
+      }
+    }
+    .template-area {
+      border: solid thin #CCC;
+      min-height: 200px;
+    }
+    .menu-footer {
+      border: solid thin #CCC;
+      overflow: auto;
+    }
+    .template-footer {
+      border: solid thin #CCC;
+      overflow: auto;
+
+      .edit-html-button {
+        float: right;
+        margin: 6px;
+      }
+    }
+  }
+
+  .template-name-btn {
+    float: right;
+    margin: 6px;
+  }
+  .template-name-input {
+    display: inline-block;
+    width: 200px;
+  }
+  .editor-note {
+    color: #AAA;
+    font-size: small;
+  }
+}
+.templates-instructions {
+  color: #333;
+  font-size: small;
+  margin-top: 20px;
 }

@@ -9,31 +9,71 @@ class FloatingToolbar extends React.Component
   @displayName = "FloatingToolbar"
 
   @propTypes:
+    # Absolute position in px relative to parent <Contenteditable />
     top: React.PropTypes.number
+
+    # Absolute position in px relative to parent <Contenteditable />
     left: React.PropTypes.number
+
+    # Either "above" or "below". Used when determining which CSS to use
+    pos: React.PropTypes.string
+
+    # Either "edit-link" or "buttons". Determines whether we're showing
+    # edit buttons or the link editor
     mode: React.PropTypes.string
+
+    # The current display state of the toolbar
+    visible: React.PropTypes.bool
+
+    # A callback function we use to save the URL to the Contenteditable
+    #
+    # TODO: This only gets passed down because the Selection state must be
+    # manually maniuplated to apply the link to the appropriate text via
+    # the document.execcommand("createLink") command. This should get
+    # refactored with the Selection state.
+    onSaveUrl: React.PropTypes.func
+
+    # A callback so our parent can decide whether or not to hide when the
+    # mouse has moved over the component
     onMouseEnter: React.PropTypes.func
     onMouseLeave: React.PropTypes.func
 
-    # When an extension wants to mutate the DOM, it passes `onDomMutator`
-    # a mutator function. That mutator is expecting to be passed the
-    # latest DOM object and may modify it in place.
-    onDomMutator: React.PropTypes.func
+    # The current DOM link we are modifying
+    linkToModify: React.PropTypes.object
+
+    # Declares what buttons should appear in the toolbar. An array of
+    # config objects.
+    buttonConfigs: React.PropTypes.array
+
+    # Notifies our parent of when we focus in and out of inputs in the
+    # toolbar.
+    onChangeFocus: React.PropTypes.func
+
+    # The absolute available area we have used in calculating our
+    # appropriate position.
+    editAreaWidth: React.PropTypes.number
+
+    # The absolute available padding we have used in calculating our
+    # appropriate position.
+    contentPadding: React.PropTypes.number
+
+    # A callback used when a link has been cancled, completed, or escaped
+    # from. Used to notify our parent to switch modes.
+    onDoneWithLink: React.PropTypes.func
 
   @defaultProps:
     mode: "buttons"
     onMouseEnter: ->
     onMouseLeave: ->
+    buttonConfigs: []
 
   constructor: (@props) ->
     @state =
       urlInputValue: @_initialUrl() ? ""
       componentWidth: 0
-      extensions: ExtensionRegistry.Composer.extensions()
 
   componentDidMount: =>
     @subscriptions = new CompositeDisposable()
-    @usubExtensions = ExtensionRegistry.Composer.listen @_onExtensionsChanged
 
   componentWillReceiveProps: (nextProps) =>
     @setState
@@ -41,7 +81,6 @@ class FloatingToolbar extends React.Component
 
   componentWillUnmount: =>
     @subscriptions?.dispose()
-    @usubExtensions()
 
   componentDidUpdate: =>
     if @props.mode is "edit-link" and not @props.linkToModify
@@ -78,38 +117,16 @@ class FloatingToolbar extends React.Component
     else return <div></div>
 
   _renderButtons: =>
-    <div className="toolbar-buttons">
-      <button className="btn btn-bold toolbar-btn"
-              onClick={@_execCommand}
-              data-command-name="bold"></button>
-      <button className="btn btn-italic toolbar-btn"
-              onClick={@_execCommand}
-              data-command-name="italic"></button>
-      <button className="btn btn-underline toolbar-btn"
-              onClick={@_execCommand}
-              data-command-name="underline"></button>
-      <button className="btn btn-link toolbar-btn"
-              onClick={@props.onClickLinkEditBtn}
-              data-command-name="link"></button>
-      {@_toolbarExtensions(@state.extensions)}
-    </div>
+    @props.buttonConfigs.map (config, i) ->
+      if (config.iconUrl ? "").length > 0
+        icon = <RetinaImg mode={RetinaImg.Mode.ContentIsMask}
+                          url="#{toolbarItem.iconUrl}" />
+      else icon = ""
 
-  _toolbarExtensions: (extensions) ->
-    buttons = []
-    for extension in extensions
-      toolbarItem = extension.composerToolbar?()
-      if toolbarItem
-        buttons.push(
-          <button className="btn btn-extension"
-                onClick={ => @_extensionMutateDom(toolbarItem.mutator)}
-                title="#{toolbarItem.tooltip}"><RetinaImg mode={RetinaImg.Mode.ContentIsMask} url="#{toolbarItem.iconUrl}" /></button>)
-    return buttons
-
-  _onExtensionsChanged: =>
-    @setState extensions: ExtensionRegistry.Composer.extensions()
-
-  _extensionMutateDom: (mutator) =>
-    @props.onDomMutator(mutator)
+      <button className="btn toolbar-btn #{config.className ? ''}"
+              key={"btn-#{i}"}
+              onClick={config.onClick}
+              title="#{config.tooltip}">{icon}</button>
 
   _renderLink: =>
     removeBtn = ""
@@ -195,11 +212,6 @@ class FloatingToolbar extends React.Component
     if (@state.urlInputValue ? "").trim().length > 0
       @props.onSaveUrl @state.urlInputValue, @props.linkToModify
     @props.onDoneWithLink()
-
-  _execCommand: (event) =>
-    cmd = event.currentTarget.getAttribute 'data-command-name'
-    document.execCommand(cmd, false, null)
-    true
 
   _toolbarLeft: =>
     CONTENT_PADDING = @props.contentPadding ? 15

@@ -89,8 +89,8 @@ class ThreadBulkToggleUnreadButton extends React.Component
     selection: React.PropTypes.object.isRequired
 
   render: =>
-    canMarkUnread = not @props.selection.items().every (s) -> s.unread is true
-    fragment = if canMarkUnread then "unread" else "read"
+    postClickUnreadState = _.every @props.selection.items(), (t) -> _.isMatch(t, {unread: false})
+    fragment = if postClickUnreadState then "unread" else "read"
 
     <button style={order:-105}
             className="btn btn-toolbar"
@@ -150,6 +150,7 @@ DownButton = React.createClass
   _onClick: ->
     return if @state.disabled
     NylasEnv.commands.dispatch(document.body, 'core:next-item')
+    return
 
   _getStateFromStores: ->
     disabled: @isLastThread()
@@ -173,6 +174,7 @@ UpButton = React.createClass
   _onClick: ->
     return if @state.disabled
     NylasEnv.commands.dispatch(document.body, 'core:previous-item')
+    return
 
   _getStateFromStores: ->
     disabled: @isFirstThread()

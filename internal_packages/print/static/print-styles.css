@@ -1,0 +1,74 @@
+body {
+  overflow: auto !important;
+}
+#print-header {
+  padding: 15px 20px 0 20px;
+}
+#print-header img {
+  zoom: 0.5;
+}
+#print-header .logo-wrapper {
+  display: flex;
+  align-items: center;
+  font-family: "Nylas-Pro", "Helvetica", "Lucidia Grande", sans-serif !important;
+}
+#print-header h1 {
+  font-size: 1.5em !important;
+  font-family: "Nylas-Pro", "Helvetica", "Lucidia Grande", sans-serif !important;
+}
+#print-header .account {
+  margin-left: auto;
+  font-size: 0.8em !important;
+}
+#print-header .participant {
+  font-size: 0.7em;
+  font-family: "Nylas-Pro", "Helvetica", "Lucidia Grande", sans-serif !important;
+}
+
+/* Elements to hide */
+.message-subject-wrap {
+  display: none !important;
+}
+.minified-bundle,.headers,.scrollbar-track,.message-icons-wrap,.header-toggle-control {
+  display: none !important;
+}
+.message-actions-wrap {
+  display: none;
+}
+.collapsed.message-item-wrap,.draft.message-item-wrap {
+  display: none !important;
+}
+.message-item-area>div {
+  display: none !important;
+}
+.quoted-text-control, .footer-reply-area-wrap {
+  display: none;
+}
+
+@media only print {
+  body,#message-list,.message-item-wrap,.message-item-white-wrap,
+  .message-item-area,.inbox-html-wrapper {
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+  #message-list {
+    min-height: initial;
+  }
+  #print-header {
+    padding: 0;
+  }
+  #print-header .account {
+    font-size: 0.7em;
+  }
+  .message-item-wrap {
+    display: block;
+  }
+  .message-item-area>span {
+    page-break-before: avoid;
+  }
+  .message-item-area>header {
+    page-break-after: avoid;
+  }
+}

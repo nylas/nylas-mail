@@ -8,13 +8,14 @@
  DatabaseStore,
  DraftStore,
  QuotedHTMLParser,
+ ExtensionRegistry,
  Event} = require 'nylas-exports'
 
 url = require('url')
 qs = require("querystring")
 
 CalendarButton = require './calendar-button'
-AvailabilityDraftExtension = require './availability-draft-extension'
+AvailabilityComposerExtension = require './availability-composer-extension'
 
 protocol = require('remote').require('protocol')
 
@@ -73,19 +74,25 @@ module.exports =
       role: 'Composer:ActionButton'
 
     # You can add your own extensions to the N1 Composer view and the original
-    # DraftStore by invoking `DraftStore.registerExtension` with a subclass of
-    # `DraftStoreExtension`.
-    DraftStore.registerExtension AvailabilityDraftExtension
+    # Composer by invoking `ExtensionRegistry.Composer.register` with a subclass of
+    # `ComposerExtension`.
+    ExtensionRegistry.Composer.register AvailabilityComposerExtension
 
-    # Subscribe to the ipc event `fromRenderer`, which will be published
-    # elsewhere in the package.
-    protocol.registerStringProtocol 'quick-schedule', (request, callback) =>
-      {host:event,query:rawQuery} = url.parse(request.url)
-      stringArgs = qs.parse(rawQuery)
-      data = {}
-      for own k,v of stringArgs
-        data[k] = JSON.parse(v)
-      response = @_onCalendarEvent(event,data,callback)
+    # Register a protocol that allows the calendar window to pass data back to the plugin
+    # with web requests
+    if NylasEnv.isMainWindow()
+      # First unregister the protocol, in case it has already been registered with a callback that's no
+      # longer valid (e.g. if the main window has reloaded). If the protocol is not registered, this line
+      # does nothing.
+      protocol.unregisterProtocol('quick-schedule')
+      # Now register the new protocol
+      protocol.registerStringProtocol 'quick-schedule', (request, callback) =>
+        {host:event,query:rawQuery} = url.parse(request.url)
+        stringArgs = qs.parse(rawQuery)
+        data = {}
+        for own k,v of stringArgs
+          data[k] = JSON.parse(v)
+        response = @_onCalendarEvent(event,data,callback)
 
   # Serialize is called when your package is about to be unmounted.
   # You can return a state object that will be passed back to your package
@@ -100,8 +107,9 @@ module.exports =
   #
   deactivate: ->
     ComponentRegistry.unregister CalendarButton
-    DraftStore.unregister AvailabilityDraftExtension
-    protocol.unregisterProtocol('quick-schedule')
+    ExtensionRegistry.Composer.unregister AvailabilityComposerExtension
+    if NylasEnv.isMainWindow()
+      protocol.unregisterProtocol('quick-schedule')
 
   ### Internal Methods ###
 

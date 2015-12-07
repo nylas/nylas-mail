@@ -1,6 +1,6 @@
-import {DraftStoreExtension} from 'nylas-exports';
+import {DOMUtils, ComposerExtension} from 'nylas-exports';
 
-class TemplatesDraftStoreExtension extends DraftStoreExtension {
+class TemplatesComposerExtension extends ComposerExtension {
 
   static warningsForSending(draft) {
     const warnings = [];
@@ -18,7 +18,7 @@ class TemplatesDraftStoreExtension extends DraftStoreExtension {
     }
   }
 
-  static onMouseUp(editableNode, range) {
+  static onClick(editableNode, range) {
     const ref = range.startContainer;
     let parent = (ref != null) ? ref.parentNode : undefined;
     let parentCodeNode = null;
@@ -42,11 +42,14 @@ class TemplatesDraftStoreExtension extends DraftStoreExtension {
     }
   }
 
-  static onTabDown(editableNode, range, event) {
-    if (event.shiftKey) {
-      return this.onTabSelectNextVar(editableNode, range, event, -1);
+  static onTabDown(editableNode, selection, event) {
+    if (event.key === 'Tab') {
+      const range = DOMUtils.getRangeInScope(editableNode);
+      if (event.shiftKey) {
+        this.onTabSelectNextVar(editableNode, range, event, -1);
+      }
+      this.onTabSelectNextVar(editableNode, range, event, 1);
     }
-    return this.onTabSelectNextVar(editableNode, range, event, 1);
   }
 
   static onTabSelectNextVar(editableNode, range, event, delta) {
@@ -96,9 +99,7 @@ class TemplatesDraftStoreExtension extends DraftStoreExtension {
     }
   }
 
-  static onInput(editableNode) {
-    const selection = document.getSelection();
-
+  static onContentChanged(editableNode, selection) {
     const isWithinNode = (node)=> {
       let test = selection.baseNode;
       while (test !== editableNode) {
@@ -125,4 +126,4 @@ class TemplatesDraftStoreExtension extends DraftStoreExtension {
 }
 
 
-module.exports = TemplatesDraftStoreExtension;
+module.exports = TemplatesComposerExtension;

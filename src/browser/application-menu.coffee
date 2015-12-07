@@ -124,7 +124,7 @@ class ApplicationMenu
     exitItem.visible = fullscreen
 
   showDevModeItem: ->
-    devModeItem = _.find(@flattenMenuItems(@menu), ({label}) -> label == 'Run with Debug Flags')
+    devModeItem = _.find(@flattenMenuItems(@menu), ({command}) -> command is 'application:toggle-dev')
     devModeItem?.checked = global.application.devMode
 
   # Default list of menu items.

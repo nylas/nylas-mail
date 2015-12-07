@@ -14,6 +14,7 @@ exports.safeExec = function(command, options, callback) {
   // The default is 200KB.
   options.maxBuffer = 1024 * 1024;
 
+  options.stdio = "inherit"
   var child = childProcess.exec(command, options, function(error, stdout, stderr) {
     if (error && !options.ignoreStderr)
       process.exit(error.code || 1);
@@ -31,9 +32,8 @@ exports.safeSpawn = function(command, args, options, callback) {
     callback = options;
     options = {};
   }
+  options.stdio = "inherit"
   var child = childProcess.spawn(command, args, options);
-  child.stderr.pipe(process.stderr);
-  child.stdout.pipe(process.stdout);
   child.on('error', function(error) {
     console.error('Command \'' + command + '\' failed: ' + error.message);
   });

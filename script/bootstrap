@@ -145,6 +145,12 @@ function bootstrap() {
   var downloadElectronCmd = gruntPath + " download-electron --gruntfile build/Gruntfile.coffee"
   m7 += "     $ "+downloadElectronCmd
 
+  var integrationCommand = npmPath + npmFlags + 'install';
+  var integrationOptions = {cwd: path.resolve(__dirname, '..', 'spec_integration')};
+
+  m8  = "\n\n---> Installing integration test modules\n\n"
+  m8 += "     $ "+integrationCommand+" "+printArgs(integrationOptions)+"\n"
+
   var commands = [
     {
       command: buildInstallCommand,
@@ -210,6 +216,11 @@ function bootstrap() {
     {
       command: downloadElectronCmd,
       message: m7
+    },
+    {
+      command: integrationCommand,
+      options: integrationOptions,
+      message: m8
     },
     {
       command: sqlite3Command,

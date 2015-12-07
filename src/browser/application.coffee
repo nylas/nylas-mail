@@ -493,4 +493,4 @@ class Application
     isSpec = true
     devMode = true
     safeMode ?= false
-    new NylasWindow({bootstrapScript, resourcePath, exitWhenDone, isSpec, devMode, specDirectory, specFilePattern, logFile, safeMode})
+    new NylasWindow({bootstrapScript, resourcePath, exitWhenDone, isSpec, devMode, specDirectory, specFilePattern, logFile, safeMode, showSpecsInWindow})

@@ -3,7 +3,7 @@ import {Popover, Menu, RetinaImg} from 'nylas-component-kit';
 import TemplateStore from './template-store';
 
 class TemplatePicker extends React.Component {
-  static displayName = 'TemplatePicker'
+  static displayName = 'TemplatePicker';
 
   static propTypes = {
     draftClientId: React.PropTypes.string,
@@ -52,16 +52,16 @@ class TemplatePicker extends React.Component {
     });
   }
 
-  _onChooseTemplate = (template)=> {
+  _onChooseTemplate = (template) => {
     Actions.insertTemplateId({templateId: template.id, draftClientId: this.props.draftClientId});
     return this.refs.popover.close();
   }
 
-  _onManageTemplates() {
+  _onManageTemplates = () => {
     return Actions.showTemplates();
   }
 
-  _onNewTemplate() {
+  _onNewTemplate = () => {
     return Actions.createTemplate({draftClientId: this.props.draftClientId});
   }
 

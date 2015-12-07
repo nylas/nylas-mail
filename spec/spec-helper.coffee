@@ -1,14 +1,16 @@
+_ = require 'underscore'
+_str = require 'underscore.string'
+fs = require 'fs-plus'
+path = require 'path'
+
 require '../src/window'
-NylasEnv.initialize()
 NylasEnv.restoreWindowDimensions()
 
 require 'jasmine-json'
 require './jasmine-jquery'
-path = require 'path'
-_ = require 'underscore'
-_str = require 'underscore.string'
-fs = require 'fs-plus'
+
 Grim = require 'grim'
+TimeOverride = require './time-override'
 KeymapManager = require '../src/keymap-manager'
 
 # FIXME: Remove jquery from this
@@ -50,7 +52,7 @@ jasmine.getEnv().addEqualityTester(_.isEqual) # Use underscore's definition of e
 if process.env.JANKY_SHA1 and process.platform is 'win32'
   jasmine.getEnv().defaultTimeoutInterval = 60000
 else
-  jasmine.getEnv().defaultTimeoutInterval = 1000
+  jasmine.getEnv().defaultTimeoutInterval = 10000
 
 specPackageName = null
 specPackagePath = null
@@ -98,13 +100,6 @@ ReactTestUtils.unmountAll = ->
     React.unmountComponentAtNode(container)
   ReactElementContainers = []
 
-# Make Bluebird use setTimeout so that it hooks into our stubs, and you can
-# advance promises using `advanceClock()`. To avoid breaking any specs that
-# `dont` manually call advanceClock, call it automatically on the next tick.
-Promise.setScheduler (fn) ->
-  setTimeout(fn, 0)
-  process.nextTick -> advanceClock(1)
-
 # So it passes the Utils.isTempId test
 window.TEST_ACCOUNT_CLIENT_ID = "local-test-account-client-id"
 window.TEST_ACCOUNT_ID = "test-account-server-id"
@@ -129,18 +124,14 @@ beforeEach ->
   NylasEnv.styles.restoreSnapshot(styleElementsToRestore)
   NylasEnv.workspaceViewParentSelector = '#jasmine-content'
 
-  window.resetTimeouts()
-  spyOn(_._, "now").andCallFake -> window.now
-  spyOn(window, "setTimeout").andCallFake window.fakeSetTimeout
-  spyOn(window, "clearTimeout").andCallFake window.fakeClearTimeout
-  spyOn(window, "setInterval").andCallFake window.fakeSetInterval
-  spyOn(window, "clearInterval").andCallFake window.fakeClearInterval
-
   NylasEnv.packages.packageStates = {}
 
   serializedWindowState = null
 
   spyOn(NylasEnv, 'saveSync')
+
+  TimeOverride.resetTime()
+  TimeOverride.enableSpies()
 
   spy = spyOn(NylasEnv.packages, 'resolvePackagePath').andCallFake (packageName) ->
     if specPackageName and packageName is specPackageName
@@ -176,7 +167,6 @@ beforeEach ->
     "package-with-broken-package-json", "package-with-broken-keymap"]
   config.set "editor.useShadowDOM", true
   advanceClock(1000)
-  window.setTimeout.reset()
   config.load.reset()
   config.save.reset()
 
@@ -188,6 +178,7 @@ beforeEach ->
 
   addCustomMatchers(this)
 
+  TimeOverride.resetSpyData()
 
 original_log = console.log
 original_warn = console.warn
@@ -265,13 +256,6 @@ jasmine.snapshotDeprecations = ->
 
 jasmine.restoreDeprecationsSnapshot = ->
   Grim.deprecations = deprecationsSnapshot
-
-jasmine.useRealClock = ->
-  jasmine.unspy(window, 'setTimeout')
-  jasmine.unspy(window, 'clearTimeout')
-  jasmine.unspy(window, 'setInterval')
-  jasmine.unspy(window, 'clearInterval')
-  jasmine.unspy(_._, 'now')
 
 addCustomMatchers = (spec) ->
   spec.addMatchers
@@ -379,85 +363,8 @@ window.waitsForPromise = (args...) ->
         jasmine.getEnv().currentSpec.fail("Expected promise to be resolved, but it was rejected with #{msg}")
         moveOn()
 
-window.resetTimeouts = ->
-  window.now = 0
-  window.timeoutCount = 0
-  window.intervalCount = 0
-  window.timeouts = []
-  window.intervalTimeouts = {}
-
-window.fakeSetTimeout = (callback, ms) ->
-  id = ++window.timeoutCount
-  window.timeouts.push([id, window.now + ms, callback])
-  id
-
-window.fakeClearTimeout = (idToClear) ->
-  window.timeouts ?= []
-  window.timeouts = window.timeouts.filter ([id]) -> id != idToClear
-
-window.fakeSetInterval = (callback, ms) ->
-  id = ++window.intervalCount
-  action = ->
-    callback()
-    window.intervalTimeouts[id] = window.fakeSetTimeout(action, ms)
-  window.intervalTimeouts[id] = window.fakeSetTimeout(action, ms)
-  id
-
-window.fakeClearInterval = (idToClear) ->
-  window.fakeClearTimeout(@intervalTimeouts[idToClear])
-
-window.advanceClock = (delta=1) ->
-  window.now += delta
-  callbacks = []
-
-  window.timeouts ?= []
-  window.timeouts = window.timeouts.filter ([id, strikeTime, callback]) ->
-    if strikeTime <= window.now
-      callbacks.push(callback)
-      false
-    else
-      true
-
-  callback() for callback in callbacks
-
 window.pagePixelPositionForPoint = (editorView, point) ->
   point = Point.fromObject point
   top = editorView.renderedLines.offset().top + point.row * editorView.lineHeight
   left = editorView.renderedLines.offset().left + point.column * editorView.charWidth - editorView.renderedLines.scrollLeft()
   { top, left }
-
-window.tokensText = (tokens) ->
-  _.pluck(tokens, 'value').join('')
-
-window.setEditorWidthInChars = (editorView, widthInChars, charWidth=editorView.charWidth) ->
-  editorView.width(charWidth * widthInChars + editorView.gutter.outerWidth())
-  $(window).trigger 'resize' # update width of editor view's on-screen lines
-
-window.setEditorHeightInLines = (editorView, heightInLines, lineHeight=editorView.lineHeight) ->
-  editorView.height(editorView.getEditor().getLineHeightInPixels() * heightInLines)
-  editorView.component?.measureHeightAndWidth()
-
-$.fn.resultOfTrigger = (type) ->
-  event = $.Event(type)
-  this.trigger(event)
-  event.result
-
-$.fn.enableKeymap = ->
-  @on 'keydown', (e) ->
-    originalEvent = e.originalEvent ? e
-    Object.defineProperty(originalEvent, 'target', get: -> e.target) unless originalEvent.target?
-    NylasEnv.keymaps.handleKeyboardEvent(originalEvent)
-    not e.originalEvent.defaultPrevented
-
-$.fn.attachToDom = ->
-  @appendTo($('#jasmine-content')) unless @isOnDom()
-
-$.fn.simulateDomAttachment = ->
-  $('<html>').append(this)
-
-$.fn.textInput = (data) ->
-  this.each ->
-    event = document.createEvent('TextEvent')
-    event.initTextEvent('textInput', true, true, window, data)
-    event = $.event.fix(event)
-    $(this).trigger(event)
