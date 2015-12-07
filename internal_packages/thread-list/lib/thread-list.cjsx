@@ -295,7 +295,7 @@ class ThreadList extends React.Component
         if FocusedMailViewStore.mailView().canArchiveThreads()
           removeMethod = TaskFactory.taskForArchiving
         else
-          return
+          removeMethod = TaskFactory.taskForMovingToTrash
 
       task = removeMethod
         threads: threads
