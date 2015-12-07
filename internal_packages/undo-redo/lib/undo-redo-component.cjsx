@@ -69,7 +69,7 @@ class UndoRedoComponent extends React.Component
         </div>
         <div className="undo-redo-action-wrapper" onClick={@_onClick}>
           <RetinaImg name="undo-icon@2x.png"
-                     mode={RetinaImg.Mode.ContentPreserve}/>
+                     mode={RetinaImg.Mode.ContentIsMask}/>
           <span className="undo-redo-action-text">Undo</span>
         </div>
       </div>
