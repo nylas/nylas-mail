@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "main": "./lib/main",
   "description": "Mail filters, AKA mail rules",
-  "license": "GPLv3",
+  "license": "GPL-3.0",
   "private": true,
   "engines": {
     "nylas": ">=0.3.0 <0.5.0"

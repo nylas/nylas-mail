@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "main": "./lib/main",
   "description": "Displays cross-platform system tray icon with unread count",
-  "license": "GPLv3",
+  "license": "GPL-3.0",
   "private": true,
   "engines": {
     "nylas": "*"
