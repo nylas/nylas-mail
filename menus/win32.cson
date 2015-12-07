@@ -9,6 +9,7 @@
       { label: 'Cu&t', command: 'core:cut' }
       { label: '&Copy', command: 'core:copy' }
       { label: '&Paste', command: 'core:paste' }
+      { label: 'Paste and Match Style', command: 'core:paste-and-match-style' }
       { label: 'Select &All', command: 'core:select-all' }
     ]
   }

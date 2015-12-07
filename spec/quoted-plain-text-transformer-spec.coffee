@@ -4,7 +4,7 @@
 fs = require('fs')
 path = require 'path'
 _ = require('underscore')
-QuotedPlainTextParser = require('../src/services/quoted-plain-text-parser')
+QuotedPlainTextParser = require('../src/services/quoted-plain-text-transformer')
 
 getParsedEmail = (name, format="plain") ->
   data = getRawEmail(name, format)

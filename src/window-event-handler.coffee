@@ -125,6 +125,7 @@ class WindowEventHandler
     bindCommandToAction('core:copy', 'copy')
     bindCommandToAction('core:cut', 'cut')
     bindCommandToAction('core:paste', 'paste')
+    bindCommandToAction('core:paste-and-match-style', 'pasteAndMatchStyle')
     bindCommandToAction('core:undo', 'undo')
     bindCommandToAction('core:redo', 'redo')
     bindCommandToAction('core:select-all', 'selectAll')

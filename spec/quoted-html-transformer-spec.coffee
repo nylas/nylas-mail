@@ -1,22 +1,22 @@
 _ = require('underscore')
 fs = require('fs')
 path = require 'path'
-QuotedHTMLParser = require('../src/services/quoted-html-parser')
+QuotedHTMLTransformer = require('../src/services/quoted-html-transformer')
 
-describe "QuotedHTMLParser", ->
+describe "QuotedHTMLTransformer", ->
 
   readFile = (fname) ->
     emailPath = path.resolve(__dirname, 'fixtures', 'emails', fname)
     return fs.readFileSync(emailPath, 'utf8')
 
   hideQuotedHTML = (fname) ->
-    return QuotedHTMLParser.hideQuotedHTML(readFile(fname))
+    return QuotedHTMLTransformer.hideQuotedHTML(readFile(fname))
 
   removeQuotedHTML = (fname, opts={}) ->
-    return QuotedHTMLParser.removeQuotedHTML(readFile(fname), opts)
+    return QuotedHTMLTransformer.removeQuotedHTML(readFile(fname), opts)
 
   numQuotes = (html) ->
-    re = new RegExp(QuotedHTMLParser.annotationClass, 'g')
+    re = new RegExp(QuotedHTMLTransformer.annotationClass, 'g')
     html.match(re)?.length ? 0
 
   [1..16].forEach (n) ->
@@ -260,23 +260,23 @@ describe "QuotedHTMLParser", ->
     it 'works with these manual test cases', ->
       for {before, after} in tests
         opts = keepIfWholeBodyIsQuote: true
-        test = clean(QuotedHTMLParser.removeQuotedHTML(before, opts))
+        test = clean(QuotedHTMLTransformer.removeQuotedHTML(before, opts))
         expect(test).toEqual clean(after)
 
     it 'removes all trailing <br> tags except one', ->
       input0 = "hello world<br><br><blockquote>foolololol</blockquote>"
       expect0 = "<head></head><body>hello world<br></body>"
-      expect(QuotedHTMLParser.removeQuotedHTML(input0)).toEqual expect0
+      expect(QuotedHTMLTransformer.removeQuotedHTML(input0)).toEqual expect0
 
     it 'preserves <br> tags in the middle and only chops off tail', ->
       input0 = "hello<br><br>world<br><br><blockquote>foolololol</blockquote>"
       expect0 = "<head></head><body>hello<br><br>world<br></body>"
-      expect(QuotedHTMLParser.removeQuotedHTML(input0)).toEqual expect0
+      expect(QuotedHTMLTransformer.removeQuotedHTML(input0)).toEqual expect0
 
 
 
   # We have a little utility method that you can manually uncomment to
-  # generate what the current iteration of the QuotedHTMLParser things the
+  # generate what the current iteration of the QuotedHTMLTransformer things the
   # `removeQuotedHTML` should look like. These can be manually inspected in
   # a browser before getting their filename changed to
   # `email_#{n}_stripped.html". The actually tests will run the current
@@ -284,11 +284,10 @@ describe "QuotedHTMLParser", ->
   # anything has changed in the parser.
   #
   # It's inside of the specs here instaed of its own script because the
-  # `QuotedHTMLParser` needs Electron booted up in order to work because
+  # `QuotedHTMLTransformer` needs Electron booted up in order to work because
   # of the DOMParser.
   xit "Run this simple funciton to generate output files", ->
     [16].forEach (n) ->
-      newHTML = QuotedHTMLParser.removeQuotedHTML(readFile("email_#{n}.html"))
+      newHTML = QuotedHTMLTransformer.removeQuotedHTML(readFile("email_#{n}.html"))
       outPath = path.resolve(__dirname, 'fixtures', 'emails', "email_#{n}_raw_stripped.html")
       fs.writeFileSync(outPath, newHTML)
-

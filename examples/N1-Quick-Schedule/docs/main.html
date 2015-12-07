@@ -60,7 +60,7 @@ your availabilities to schedule an appointment with you.</p>
 {ComponentRegistry,
  DatabaseStore,
  DraftStore,
- QuotedHTMLParser,
+ QuotedHTMLTransformer,
  Event} = <span class="hljs-built_in">require</span> <span class="hljs-string">'nylas-exports'</span>
 
 url = <span class="hljs-built_in">require</span>(<span class="hljs-string">'url'</span>)
@@ -315,8 +315,7 @@ subscribing to events, release them here.</p>
 
             <div class="content"><div class='highlight'><pre>    DraftStore.sessionForClientId(draftClientId).<span class="hljs-keyword">then</span> (session) =&gt;
       draftHtml = session.draft().body
-      text = QuotedHTMLParser.removeQuotedHTML(draftHtml)</pre></div></div>
-
+      text = QuotedHTMLTransformer.removeQuotedHTML(draftHtml)</pre></div></div>
         </li>
 
 
@@ -333,8 +332,7 @@ subscribing to events, release them here.</p>
             <div class="content"><div class='highlight'><pre>      <span class="hljs-built_in">console</span>.log(<span class="hljs-property">@_createBlock</span>(events,eventData));
       text += <span class="hljs-string">"&lt;br/&gt;"</span>+<span class="hljs-property">@_createBlock</span>(events,eventData)+<span class="hljs-string">"&lt;br/&gt;"</span>;
 
-      newDraftHtml = QuotedHTMLParser.appendQuotedHTML(text, draftHtml)</pre></div></div>
-
+      newDraftHtml = QuotedHTMLTransformer.appendQuotedHTML(text, draftHtml)</pre></div></div>
         </li>
 
 

@@ -7,7 +7,7 @@ ReactTestUtils = React.addons.TestUtils
  File,
  Thread,
  Utils,
- QuotedHTMLParser,
+ QuotedHTMLTransformer,
  FileDownloadStore,
  MessageBodyProcessor} = require "nylas-exports"
 

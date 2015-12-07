@@ -7,7 +7,7 @@
 {ComponentRegistry,
  DatabaseStore,
  DraftStore,
- QuotedHTMLParser,
+ QuotedHTMLTransformer,
  ExtensionRegistry,
  Event} = require 'nylas-exports'
 
@@ -131,12 +131,12 @@ module.exports =
     # Obtain the session for the current draft.
     DraftStore.sessionForClientId(draftClientId).then (session) =>
       draftHtml = session.draft().body
-      text = QuotedHTMLParser.removeQuotedHTML(draftHtml)
+      text = QuotedHTMLTransformer.removeQuotedHTML(draftHtml)
 
       # add the block
       text += "<br/>"+@_createBlock(events,eventData)+"<br/>"
 
-      newDraftHtml = QuotedHTMLParser.appendQuotedHTML(text, draftHtml)
+      newDraftHtml = QuotedHTMLTransformer.appendQuotedHTML(text, draftHtml)
 
       # update the draft
       session.changes.add(body: newDraftHtml)
