@@ -5,9 +5,6 @@ env:
 sudo: required
 dist: trusty
 
-services:
-  - xvfb
-
 matrix:
   include:
 # Wants a c++11 compiler
@@ -43,6 +40,7 @@ install:
 before_script:
   - if [ "${TRAVIS_OS_NAME}" == "linux" ]; then
     export DISPLAY=:99.0;
+    sh -e /etc/init.d/xvfb start;
     fi
 
 script: script/cibuild
