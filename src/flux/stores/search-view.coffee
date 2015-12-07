@@ -56,7 +56,7 @@ class SearchView extends ModelView
 
     NylasAPI.makeRequest
       method: 'GET'
-      path: "/threads/search?q=#{@_query}"
+      path: "/threads/search?q=#{encodeURIComponent(@_query)}"
       accountId: @_accountId
       json: true
       returnsModel: false
