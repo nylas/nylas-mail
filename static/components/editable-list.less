@@ -7,6 +7,7 @@
     flex-direction: column;
     border: 1px solid @border-secondary-bg;
     background-color: @background-secondary;
+    min-height: 50px;
     font-size: 0.9em;
 
     .editable-item {
@@ -32,13 +33,18 @@
       }
     }
 
-    .create-item {
-      padding: @padding-small-vertical @padding-small-horizontal;
+    .editable-item+.create-item-input {
       border-top: 1px solid @border-color-divider;
+    }
+
+    .create-item-input {
       input {
+        padding: 0 @padding-small-vertical;
         border: none;
-        padding: 0;
         font-size: inherit;
+      }
+      ::-webkit-input-placeholder {
+        font-style: italic;
       }
     }
   }
