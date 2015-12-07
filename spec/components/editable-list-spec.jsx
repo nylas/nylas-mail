@@ -38,6 +38,37 @@ describe('EditableList', ()=> {
     });
   });
 
+  describe('_onCreateInputKeyDown', ()=> {
+    it('calls onItemCreated', ()=> {
+      const onItemCreated = jasmine.createSpy('onItemCreated');
+      const list = makeList(['1', '2'], {initialState: {creatingItem: true}, onItemCreated});
+      const createItem = findRenderedDOMComponentWithClass(list, 'create-item');
+      const input = findRenderedDOMComponentWithTag(createItem, 'input');
+      findDOMNode(input).value = 'New Item';
+
+      Simulate.keyDown(input, {key: 'Enter'});
+
+      expect(onItemCreated).toHaveBeenCalledWith('New Item');
+    });
+  });
+
+  describe('_onCreateItem', ()=> {
+    it('should call prop callback when provided', ()=> {
+      const onCreateItem = jasmine.createSpy('onCreateItem');
+      const list = makeList(['1', '2'], {onCreateItem});
+
+      list._onCreateItem();
+      expect(onCreateItem).toHaveBeenCalled();
+    });
+
+    it('should set state for creating item when no callback provided', ()=> {
+      const list = makeList(['1', '2']);
+      spyOn(list, 'setState');
+      list._onCreateItem();
+      expect(list.setState).toHaveBeenCalledWith({creatingItem: true});
+    });
+  });
+
   describe('_renderItem', ()=> {
     const makeItem = (item, idx, state = {}, handlers = {})=> {
       const list = makeList();
@@ -109,18 +140,26 @@ describe('EditableList', ()=> {
       const innerList = findDOMNode(
         findRenderedDOMComponentWithClass(list, 'items-wrapper')
       );
+      expect(()=> {
+        findRenderedDOMComponentWithClass(list, 'create-item');
+      }).toThrow();
+
       expect(innerList.childNodes.length).toEqual(3);
       items.forEach((item, idx)=> expect(innerList.childNodes[idx].textContent).toEqual(item));
     });
 
+    it('renders create input as an item when creating', ()=> {
+      const items = ['1', '2', '3'];
+      const list = makeList(items, {initialState: {creatingItem: true}});
+      const createItem = findRenderedDOMComponentWithClass(list, 'create-item');
+      expect(createItem).toBeDefined();
+    });
+
     it('renders add button', ()=> {
-      const onCreateItem = jasmine.createSpy('onCreateItem');
-      const list = makeList([], {onCreateItem});
+      const list = makeList();
       const button = scryRenderedDOMComponentsWithClass(list, 'btn-editable-list')[0];
 
-      Simulate.click(button);
-
-      expect(onCreateItem).toHaveBeenCalled();
+      expect(findDOMNode(button).textContent).toEqual('+');
     });
 
     it('renders delete button', ()=> {
@@ -130,6 +169,7 @@ describe('EditableList', ()=> {
 
       Simulate.click(button);
 
+      expect(findDOMNode(button).textContent).toEqual('—');
       expect(onDeleteItem).toHaveBeenCalledWith('2', 1);
     });
   });

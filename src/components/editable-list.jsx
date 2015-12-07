@@ -16,15 +16,16 @@ class EditableList extends Component {
     onDeleteItem: PropTypes.func,
     onItemEdited: PropTypes.func,
     onItemSelected: PropTypes.func,
+    onItemCreated: PropTypes.func,
     initialState: PropTypes.object,
   }
 
   static defaultProps = {
     children: [],
-    onCreateItem: ()=> {},
     onDeleteItem: ()=> {},
     onItemEdited: ()=> {},
     onItemSelected: ()=> {},
+    onItemCreated: ()=> {},
   }
 
   constructor(props) {
@@ -34,6 +35,7 @@ class EditableList extends Component {
     this.state = props.initialState || {
       editing: null,
       selected: null,
+      creatingItem: false,
     };
   }
 
@@ -51,6 +53,13 @@ class EditableList extends Component {
       this.props.onItemEdited(event.target.value, item, idx);
     } else if (event.key === 'Escape') {
       this.setState({editing: null});
+    }
+  }
+
+  _onCreateInputKeyDown = (event)=> {
+    if (_.includes(['Enter', 'Return'], event.key)) {
+      this.setState({creatingItem: false});
+      this.props.onItemCreated(event.target.value);
     }
   }
 
@@ -83,7 +92,11 @@ class EditableList extends Component {
   }
 
   _onCreateItem = ()=> {
-    this.props.onCreateItem();
+    if (this.props.onCreateItem) {
+      this.props.onCreateItem();
+    } else {
+      this.setState({creatingItem: true});
+    }
   }
 
   _onDeleteItem = ()=> {
@@ -137,7 +150,23 @@ class EditableList extends Component {
     );
   }
 
+  _renderCreateItem = (onCreateInputKeyDown = this._onCreateInputKeyDown)=> {
+    return (
+      <div className="create-item">
+        <input
+          autoFocus
+          type="text"
+          onKeyDown={onCreateInputKeyDown} />
+      </div>
+    );
+  }
+
   render() {
+    let items = this._items.map((item, idx)=> this._renderItem(item, idx));
+    if (this.state.creatingItem === true) {
+      items = items.concat(this._renderCreateItem());
+    }
+
     return (
       <div className={`nylas-editable-list ${this.props.className}`}>
         <div
@@ -145,7 +174,7 @@ class EditableList extends Component {
           tabIndex="1"
           onBlur={this._onListBlur}
           onKeyDown={this._onListKeyDown}>
-          {this._items.map((item, idx)=> this._renderItem(item, idx))}
+          {items}
         </div>
         <div className="buttons-wrapper">
           <button className="btn btn-small btn-editable-list" onClick={this._onCreateItem}>+</button>
