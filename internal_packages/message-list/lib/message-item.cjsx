@@ -12,7 +12,7 @@ MessageControls = require './message-controls'
  AccountStore,
  MessageStore,
  MessageBodyProcessor,
- QuotedHTMLParser,
+ QuotedHTMLTransformer,
  ComponentRegistry,
  FileDownloadStore} = require 'nylas-exports'
 {RetinaImg,

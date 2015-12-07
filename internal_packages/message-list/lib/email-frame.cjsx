@@ -1,7 +1,7 @@
 React = require 'react'
 _ = require "underscore"
 {EventedIFrame} = require 'nylas-component-kit'
-{QuotedHTMLParser} = require 'nylas-exports'
+{QuotedHTMLTransformer} = require 'nylas-exports'
 
 EmailFrameStylesStore = require './email-frame-styles-store'
 
@@ -82,7 +82,7 @@ class EmailFrame extends React.Component
     if @props.showQuotedText
       @props.content
     else
-      QuotedHTMLParser.removeQuotedHTML(@props.content, keepIfWholeBodyIsQuote: true)
+      QuotedHTMLTransformer.removeQuotedHTML(@props.content, keepIfWholeBodyIsQuote: true)
 
 
 module.exports = EmailFrame

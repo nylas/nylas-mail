@@ -6,7 +6,7 @@ _str = require 'underscore.string'
 # For plain text emails we look for lines that look like they're quoted
 # text based on common conventions:
 #
-# For HTML emails use QuotedHTMLParser
+# For HTML emails use QuotedHTMLTransformer
 #
 # This is modied from https://github.com/mko/emailreplyparser, which is a
 # JS port of GitHub's Ruby https://github.com/github/email_reply_parser

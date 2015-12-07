@@ -27,6 +27,7 @@
   'cmdctrl-x': 'core:cut'
   'cmdctrl-c': 'core:copy'
   'cmdctrl-v': 'core:paste'
+  'cmdctrl-shift-v': 'core:paste-and-match-style'
   'cmdctrl-a': 'core:select-all'
 
   'up'         : 'core:previous-item'

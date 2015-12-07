@@ -151,9 +151,14 @@ class NylasExports
   # Services
   @load "UndoManager", 'undo-manager'
   @load "SoundRegistry", 'sound-registry'
-  @load "QuotedHTMLParser", 'services/quoted-html-parser'
-  @load "QuotedPlainTextParser", 'services/quoted-plain-text-parser'
   @load "NativeNotifications", 'native-notifications'
+
+  @load "QuotedHTMLTransformer", 'services/quoted-html-transformer'
+  @load "QuotedPlainTextTransformer", 'services/quoted-plain-text-transformer'
+  @load "SanitizeTransformer", 'services/sanitize-transformer'
+  @load "InlineStyleTransformer", 'services/inline-style-transformer'
+  @requireDeprecated "QuotedHTMLParser", 'services/quoted-html-transformer',
+    instead: 'QuotedHTMLTransformer'
 
   # Errors
   @get "APIError", -> require('../flux/errors').APIError
