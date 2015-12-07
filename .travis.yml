@@ -7,11 +7,13 @@ dist: trusty
 
 matrix:
   include:
-# Wants a c++11 compiler
     - os: linux
       env: NODE_VERSION=0.10
     - os: linux
       env: NODE_VERSION=0.12
+# Trusty image already has a few Node.js versions preinstalled,
+# including 0.10, 0.12, and 4.1, but not 4.2 and 5. Explicitly
+# denote installation of these versions
     - os: linux
       env: NODE_VERSION=4.2 NODE_INSTALL=1
     - os: linux
@@ -20,7 +22,6 @@ matrix:
       env: NODE_VERSION=0.10
     - os: osx
       env: NODE_VERSION=0.12 CC=clang CXX=clang++
-# osx already supports c++11 in Apple LLVM
     - os: osx
       env: NODE_VERSION=4.2 CC=clang CXX=clang++
     - os: osx
