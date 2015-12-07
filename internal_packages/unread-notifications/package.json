@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "main": "./lib/main",
   "description": "Fires notifications when new mail is received",
-  "license": "GPLv3",
+  "license": "GPL-3.0",
   "private": true,
   "engines": {
     "nylas": "*"

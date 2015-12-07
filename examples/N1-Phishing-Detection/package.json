@@ -3,7 +3,7 @@
   "version": "0.2.1",
   "main": "./lib/main",
   "description": "An example package for Nylas Mail that translates drafts into other languages using the Yandex API.",
-  "license": "GPLv3",
+  "license": "GPL-3.0",
   "engines": {
     "nylas": ">=0.3.0 <0.5.0"
   },
