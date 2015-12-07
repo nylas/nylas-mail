@@ -17,12 +17,6 @@ StylesImpactedByZoom = [
   'marginRight'
 ]
 
-# We don't want to call `getLoadSettings` for each and every RetinaImg
-# instance because it's a fairly expensive operation. Since the
-# resourcePath can't change once the app has booted, it's safe to set the
-# constant at require-time
-DEFAULT_RESOURCE_PATH = NylasEnv.getLoadSettings().resourcePath
-
 Mode =
   ContentPreserve: 'original'
   ContentLight: 'light'
@@ -138,8 +132,7 @@ class RetinaImg extends React.Component
       name = "#{basename}-active.#{ext}"
     if @props.selected is true
       name = "#{basename}-selected.#{ext}"
-    resourcePath = @props.resourcePath ? DEFAULT_RESOURCE_PATH
-    Utils.imageNamed(resourcePath, name)
 
+    Utils.imageNamed(name, @props.resourcePath)
 
 module.exports = RetinaImg

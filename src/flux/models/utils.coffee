@@ -5,6 +5,7 @@ tz = Intl.DateTimeFormat().resolvedOptions().timeZone
 
 TaskRegistry = null
 DatabaseObjectRegistry = null
+DefaultResourcePath = null
 
 module.exports =
 Utils =
@@ -140,8 +141,11 @@ Utils =
   tableNameForJoin: (primaryKlass, secondaryKlass) ->
     "#{primaryKlass.name}-#{secondaryKlass.name}"
 
-  imageNamed: (resourcePath, fullname) ->
+  imageNamed: (fullname, resourcePath) ->
     [name, ext] = fullname.split('.')
+
+    DefaultResourcePath ?= NylasEnv.getLoadSettings().resourcePath
+    resourcePath ?= DefaultResourcePath
 
     Utils.images ?= {}
     if not Utils.images[resourcePath]?

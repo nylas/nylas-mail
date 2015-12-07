@@ -116,6 +116,7 @@ describe "MessageItem", ->
       @component = ReactTestUtils.renderIntoDocument(
         <MessageItemBody message={@message} downloads={@downloads} />
       )
+      advanceClock()
 
   describe "when the message contains attachments", ->
     beforeEach ->
@@ -156,6 +157,7 @@ describe "MessageItem", ->
       it "should give images a fixed height when height and width are set as html attributes", ->
         @message.body = """
           <img src=\"cid:#{file_inline.contentId}\"/>
+          <img src='cid:#{file_inline.contentId}'/>
           <img src=\"cid:#{file_inline.contentId}\" width="50"/>
           <img src=\"cid:#{file_inline.contentId}\" width="50" height="40"/>
           <img src=\"cid:#{file_inline.contentId}\" width="1000" height="800"/>
@@ -163,9 +165,10 @@ describe "MessageItem", ->
         @createComponent()
         body = @component.state.processedBody
         expect(body).toEqual """<img src="/fake/path-inline.png"/>
-<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNikAQAACIAHF/uBd8AAAAASUVORK5CYII=" width="50"/>
-<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNikAQAACIAHF/uBd8AAAAASUVORK5CYII=" width="50" height="40" style="height:40px;" />
-<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNikAQAACIAHF/uBd8AAAAASUVORK5CYII=" width="1000" height="800" style="height:592px;" />
+<img src='/fake/path-inline.png'/>
+<img src="/fake/path-inline.png" width="50"/>
+<img src="/fake/path-inline.png" width="50" height="40" style="height:40px;" />
+<img src="/fake/path-inline.png" width="1000" height="800" style="height:592px;" />
 """
 
   describe "showQuotedText", ->

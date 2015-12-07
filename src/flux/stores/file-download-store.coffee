@@ -18,7 +18,15 @@ mkdirpAsync = (folder) ->
     mkdirp folder, (err) ->
       if err then reject(err) else resolve(folder)
 
+State =
+  Unstarted: 'unstarted'
+  Downloading: 'downloading'
+  Finished: 'finished'
+  Failed: 'failed'
+
 class Download
+  @State: State
+
   constructor: ({@fileId, @targetPath, @filename, @filesize, @progressCallback}) ->
     if not @filename or @filename.length is 0
       throw new Error("Download.constructor: You must provide a non-empty filename.")
@@ -29,23 +37,14 @@ class Download
 
     @percent = 0
     @promise = null
+    @state = State.Unstarted
     @
-
-  state: ->
-    if not @promise
-      'unstarted'
-    else if @promise.isFulfilled()
-      'finished'
-    else if @promise.isRejected()
-      'failed'
-    else
-      'downloading'
 
   # We need to pass a plain object so we can have fresh references for the
   # React views while maintaining the single object with the running
   # request.
   data: -> Object.freeze _.clone
-    state: @state()
+    state: @state
     fileId: @fileId
     percent: @percent
     filename: @filename
@@ -60,23 +59,20 @@ class Download
     @promise = new Promise (resolve, reject) =>
       accountId = AccountStore.current()?.id
       stream = fs.createWriteStream(@targetPath)
-      finished = false
-      finishedAction = null
 
       # We need to watch the request for `success` or `error`, but not fire
-      # a callback until the stream has ended. These helper functions ensure
-      # that resolve or reject is only fired once regardless of the order
-      # these two events (stream end and `success`) happen in.
-      streamEnded = =>
-        finished = true
-        if finishedAction
-          finishedAction(@)
+      # a callback until the stream has ended. This helper functions ensure
+      # that resolve or reject is only fired once the stream has been closed.
+      checkIfFinished = (action) =>
+        # Wait for the stream to finish writing to disk and clear the request
+        return if @request
 
-      onStreamEnded = (action) =>
-        if finished
-          action(@)
-        else
-          finishedAction = action
+        if @state is State.Finished
+          resolve()
+        else if @state is State.Failed
+          reject()
+
+      @state = State.Downloading
 
       NylasAPI.makeRequest
         json: false
@@ -90,19 +86,22 @@ class Download
             @percent = progress.percent
             @progressCallback()
           .on "end", =>
-            # Wait for the file stream to finish writing before we resolve or reject
-            stream.end(streamEnded)
+            @request = null
+            checkIfFinished()
           .pipe(stream)
 
         success: =>
           # At this point, the file stream has not finished writing to disk.
           # Don't resolve yet, or the browser will load only part of the image.
-          onStreamEnded(resolve)
+          @state = State.Finished
+          @percent = 100
+          checkIfFinished()
 
         error: =>
-          onStreamEnded(reject)
+          @state = State.Failed
+          checkIfFinished()
 
-  abort: ->
+  ensureClosed: ->
     @request?.abort()
 
 
@@ -129,16 +128,15 @@ FileDownloadStore = Reflux.createStore
     return undefined unless file
     path.join(@_downloadDirectory, file.id, file.displayName())
 
-  downloadDataForFile: (fileId) -> @_downloads[fileId]?.data()
+  downloadDataForFile: (fileId) ->
+    @_downloads[fileId]?.data()
 
   # Returns a hash of download objects keyed by fileId
   #
   downloadDataForFiles: (fileIds=[]) ->
     downloadData = {}
     fileIds.forEach (fileId) =>
-      data = @downloadDataForFile(fileId)
-      return unless data
-      downloadData[fileId] = data
+      downloadData[fileId] = @downloadDataForFile(fileId)
     return downloadData
 
   ########### PRIVATE ####################################################
@@ -152,29 +150,30 @@ FileDownloadStore = Reflux.createStore
   # Returns a promise with a Download object, allowing other actions to be
   # daisy-chained to the end of the download operation.
   _runDownload: (file) ->
+    targetPath = @pathForFile(file)
+
+    # is there an existing download for this file? If so,
+    # return that promise so users can chain to the end of it.
+    download = @_downloads[file.id]
+    return download.run() if download
+
+    # create a new download for this file
+    download = new Download
+      fileId: file.id
+      filesize: file.size
+      filename: file.displayName()
+      targetPath: targetPath
+      progressCallback: => @trigger()
+
+    # Do we actually need to queue and run the download? Queuing a download
+    # for an already-downloaded file has side-effects, like making the UI
+    # flicker briefly.
     @_prepareFolder(file).then =>
-      targetPath = @pathForFile(file)
-
-      # is there an existing download for this file? If so,
-      # return that promise so users can chain to the end of it.
-      download = @_downloads[file.id]
-      return download.run() if download
-
-      # create a new download for this file
-      download = new Download
-        fileId: file.id
-        filesize: file.size
-        filename: file.displayName()
-        targetPath: targetPath
-        progressCallback: => @trigger()
-
-      # Do we actually need to queue and run the download? Queuing a download
-      # for an already-downloaded file has side-effects, like making the UI
-      # flicker briefly.
       @_checkForDownloadedFile(file).then (alreadyHaveFile) =>
         if alreadyHaveFile
           # If we have the file, just resolve with a resolved download representing the file.
           download.promise = Promise.resolve()
+          download.state = State.Finished
           return Promise.resolve(download)
         else
           @_downloads[file.id] = download
@@ -230,9 +229,8 @@ FileDownloadStore = Reflux.createStore
       fs.unlink(downloadPath) if exists
 
   _cleanupDownload: (download) ->
-    download.abort()
+    download.ensureClosed()
     @trigger()
-    delete @_downloads[download.fileId]
 
   _defaultSavePath: (file) ->
     if process.platform is 'win32'

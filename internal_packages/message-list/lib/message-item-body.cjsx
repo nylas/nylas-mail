@@ -58,12 +58,21 @@ class MessageItemBody extends React.Component
       showQuotedText: !@state.showQuotedText
 
   _onBodyChanged: (body) =>
+    downloadingSpinnerPath = Utils.imageNamed('inline-loading-spinner.gif')
+
     # Replace cid:// references with the paths to downloaded files
     for file in @props.message.files
-      continue if @props.downloads[file.id]
-      cidLink = "cid:#{file.contentId}"
-      fileLink = "#{FileDownloadStore.pathForFile(file)}"
-      body = body.replace(cidLink, fileLink)
+      download = @props.downloads[file.id]
+      cidRegexp = new RegExp("cid:#{file.contentId}(['\"]+)", 'gi')
+
+      if download and download.state isnt 'finished'
+        # Render a spinner and inject a `style` tag that injects object-position / object-fit
+        body = body.replace cidRegexp, (text, quoteCharacter) ->
+          "#{downloadingSpinnerPath}#{quoteCharacter} style=#{quoteCharacter} object-position: 50% 50%; object-fit: none; "
+      else
+        # Render the completed download
+        body = body.replace cidRegexp, (text, quoteCharacter) ->
+          "#{FileDownloadStore.pathForFile(file)}#{quoteCharacter}"
 
     # Replace remaining cid:// references - we will not display them since they'll
     # throw "unknown ERR_UNKNOWN_URL_SCHEME". Show a transparent pixel so that there's
