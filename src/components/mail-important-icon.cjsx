@@ -3,10 +3,9 @@ React = require 'react'
 {Actions,
  Utils,
  Thread,
- ChangeLabelsTask,
+ TaskFactory,
  CategoryStore,
  AccountStore} = require 'nylas-exports'
-{KeyCommandsRegion} = require 'nylas-component-kit'
 
 class MailImportantIcon extends React.Component
   @displayName: 'MailImportantIcon'
@@ -17,10 +16,10 @@ class MailImportantIcon extends React.Component
     @state = @getState()
 
   getState: =>
-    showing: AccountStore.current()?.usesImportantFlag() and NylasEnv.config.get('core.showImportant')
+    showing: AccountStore.current()?.usesImportantFlag() and NylasEnv.config.get('core.workspace.showImportant')
 
   componentDidMount: =>
-    @subscription = NylasEnv.config.observe 'core.showImportant', =>
+    @subscription = NylasEnv.config.observe 'core.workspace.showImportant', =>
       @setState(@getState())
 
   componentWillUnmount: =>
@@ -39,27 +38,19 @@ class MailImportantIcon extends React.Component
     isImportant = _.findWhere(@props.thread.labels, {id: importantId})?
 
     activeClassname = if isImportant then "active" else ""
-    <KeyCommandsRegion globalHandlers={@_globalHandlers()}>
-      <div className="mail-important-icon #{activeClassname}"
-           title={if isImportant then "Mark as unimportant" else "Mark as important"}
-           onClick={@_onToggleImportant}></div>
-    </KeyCommandsRegion>
-
-  _globalHandlers: =>
-    'application:mark-as-important': (e) => @_setImportant(e, true)
-    'application:mark-as-unimportant': (e) => @_setImportant(e, false)
+    <div className="mail-important-icon #{activeClassname}"
+         title={if isImportant then "Mark as unimportant" else "Mark as important"}
+         onClick={@_onToggleImportant}></div>
 
   _onToggleImportant: (event) =>
-    isImportant = _.findWhere(@props.thread.labels, {id: importantLabel.id})?
-    @_setImportant(event, !isImportant)
+    category = CategoryStore.getStandardCategory('important')
+    isImportant = _.findWhere(@props.thread.labels, {id: category.id})?
+    threads = [@props.thread]
 
-  _setImportant: (event, important) =>
-    importantLabel = CategoryStore.getStandardCategory('important')
-
-    if important
-      task = new ChangeLabelsTask(thread: @props.thread, labelsToAdd: [importantLabel], labelsToRemove: [])
+    if !isImportant
+      task = TaskFactory.taskForApplyingCategory({threads, category})
     else
-      task = new ChangeLabelsTask(thread: @props.thread, labelsToRemove: [importantLabel], labelsToAdd: [])
+      task = TaskFactory.taskForRemovingCategory({threads, category})
 
     Actions.queueTask(task)
 
