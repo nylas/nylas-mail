@@ -16,9 +16,9 @@ matrix:
     - os: linux
       env: NODE_VERSION=0.12
     - os: linux
-      env: NODE_VERSION=4.2 NODE_INSTALL=0
+      env: NODE_VERSION=4.2 NODE_INSTALL=1
     - os: linux
-      env: NODE_VERSION=5 NODE_INSTALL=0
+      env: NODE_VERSION=5 NODE_INSTALL=1
     - os: osx
       env: NODE_VERSION=0.10
     - os: osx
@@ -30,7 +30,14 @@ matrix:
       env: NODE_VERSION=5 CC=clang CXX=clang++
 
 install:
-  - nvm install $NODE_VERSION
+  - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then
+    git clone https://github.com/creationix/nvm.git /tmp/.nvm;
+    source /tmp/.nvm/nvm.sh;
+    nvm install $NODE_VERSION;
+    fi
+  - if [ "${NODE_INSTALL}" == "1" ]; then
+    nvm install $NODE_VERSION;
+    fi
   - nvm use --delete-prefix $NODE_VERSION
 
 before_script:
