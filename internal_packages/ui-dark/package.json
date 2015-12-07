@@ -3,7 +3,7 @@
   "theme": "ui",
   "version": "0.1.0",
   "description": "The Dark N1 Client Theme",
-  "license": "GPLv3",
+  "license": "GPL-3.0",
   "engines": {
     "nylas": "*"
   },
