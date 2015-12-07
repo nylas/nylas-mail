@@ -231,8 +231,8 @@ FileDownloadStore = Reflux.createStore
 
   _cleanupDownload: (download) ->
     download.abort()
-    delete @_downloads[download.fileId]
     @trigger()
+    delete @_downloads[download.fileId]
 
   _defaultSavePath: (file) ->
     if process.platform is 'win32'
