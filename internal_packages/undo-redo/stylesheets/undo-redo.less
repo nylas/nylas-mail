@@ -28,7 +28,7 @@
     flex-shrink: 1;
     margin-left: 16px;
     margin-right: 30px;
-    color: lighten(@gray-base, 70%);
+    color: @background-primary;
     overflow:hidden;
     text-overflow: ellipsis;
     text-align: left;
@@ -39,9 +39,12 @@
     margin-right: 15px;
     white-space:nowrap;
 
+    img {
+      background-color: @background-primary;
+    }
     .undo-redo-action-text {
       margin-left: 5px;
-      color: @white;
+      color: @background-primary;
     }
   }
 }
