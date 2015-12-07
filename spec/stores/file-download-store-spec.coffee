@@ -251,7 +251,7 @@ describe "FileDownloadStore", ->
   describe "_abortFetchFile", ->
     beforeEach ->
       @download =
-        abort: jasmine.createSpy('abort')
+        ensureClosed: jasmine.createSpy('abort')
         fileId: @testfile.id
       FileDownloadStore._downloads[@testfile.id] = @download
 
@@ -260,11 +260,11 @@ describe "FileDownloadStore", ->
       spyOn(fs, 'unlink')
       FileDownloadStore._abortFetchFile(@testfile)
       expect(fs.unlink).toHaveBeenCalled()
-      expect(@download.abort).toHaveBeenCalled()
+      expect(@download.ensureClosed).toHaveBeenCalled()
 
     it "should not try to delete the file if doesn't exist", ->
       spyOn(fs, 'exists').andCallFake (path, callback) -> callback(false)
       spyOn(fs, 'unlink')
       FileDownloadStore._abortFetchFile(@testfile)
       expect(fs.unlink).not.toHaveBeenCalled()
-      expect(@download.abort).toHaveBeenCalled()
+      expect(@download.ensureClosed).toHaveBeenCalled()

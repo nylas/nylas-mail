@@ -31,7 +31,7 @@ class MessageBodyProcessor
     @_version
 
   processAndSubscribe: (message, callback) =>
-    callback(@process(message))
+    _.defer => callback(@process(message))
     sub = {message, callback}
     @_subscriptions.push(sub)
     return =>
