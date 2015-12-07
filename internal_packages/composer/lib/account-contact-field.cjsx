@@ -40,7 +40,7 @@ class AccountContactField extends React.Component
       currentLabel = "Please select one of your accounts"
       # currentLabel = "Choose an account..."
 
-    return <span className="from-picker" style={position: "relative", top: "5px", left: "0.5em"}>{currentLabel}</span>
+    return <span className="from-picker" style={position: "relative", top: 6, left: "0.5em"}>{currentLabel}</span>
 
     # <ButtonDropdown
     #   ref="dropdown"
