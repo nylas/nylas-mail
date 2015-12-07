@@ -447,17 +447,20 @@ class DatabaseStore extends NylasStore
       clones.push(model.clone())
       ids[model.id] = true
 
-    ids = Object.keys(ids)
+    # Note: It's important that we clone the objects since other code could mutate
+    # them during the save process. We want to guaruntee that the models you send to
+    # persistModels are saved exactly as they were sent.
 
     @atomicMutation =>
-      @_runMutationHooks('beforeDatabaseChange', clones, ids).then (data) =>
+      metadata =
+        objectClass: clones[0].constructor.name
+        objectIds: Object.keys(ids)
+        objects: clones
+        type: 'persist'
+      @_runMutationHooks('beforeDatabaseChange', metadata).then (data) =>
         @_writeModels(clones).then =>
-          @_runMutationHooks('afterDatabaseChange', clones, ids, data)
-          @_accumulateAndTrigger({
-            objectClass: clones[0].constructor.name
-            objects: clones
-            type: 'persist'
-          })
+          @_runMutationHooks('afterDatabaseChange', metadata, data)
+          @_accumulateAndTrigger(metadata)
 
   # Public: Asynchronously removes `model` from the cache and triggers a change event.
   #
@@ -472,14 +475,15 @@ class DatabaseStore extends NylasStore
     model = model.clone()
 
     @atomicMutation =>
-      @_runMutationHooks('beforeDatabaseChange', [model], [model.id]).then (data) =>
+      metadata =
+        objectClass: model.constructor.name,
+        objectIds: [model.id]
+        objects: [model],
+        type: 'unpersist'
+      @_runMutationHooks('beforeDatabaseChange', metadata).then (data) =>
         @_deleteModel(model).then =>
-          @_runMutationHooks('afterDatabaseChange', [model], [model.id], data)
-          @_accumulateAndTrigger({
-            objectClass: model.constructor.name,
-            objects: [model],
-            type: 'unpersist'
-          })
+          @_runMutationHooks('afterDatabaseChange', metadata, data)
+          @_accumulateAndTrigger(metadata)
 
   persistJSONObject: (key, json) ->
     jsonString = serializeRegisteredObjects(json)
@@ -512,10 +516,10 @@ class DatabaseStore extends NylasStore
   removeMutationHook: (hook) ->
     @_databaseMutationHooks = _.without(@_databaseMutationHooks, hook)
 
-  _runMutationHooks: (selectorName, models, ids, data = []) ->
+  _runMutationHooks: (selectorName, metadata, data = []) ->
     beforePromises = @_databaseMutationHooks.map (hook, idx) =>
       Promise.try =>
-        hook[selectorName](@_query, models, ids, data[idx])
+        hook[selectorName](@_query, metadata, data[idx])
 
     Promise.all(beforePromises).catch (e) =>
       unless NylasEnv.inSpecMode()

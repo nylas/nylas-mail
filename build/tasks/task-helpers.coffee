@@ -1,5 +1,6 @@
 fs = require 'fs-plus'
 path = require 'path'
+request = require 'request'
 
 module.exports = (grunt) ->
   cp: (source, destination, {filter}={}) ->
@@ -66,3 +67,14 @@ module.exports = (grunt) ->
       engines?.nylas?
     catch error
       false
+
+  notifyAPI: (msg, callback) ->
+    if (process.env("TEST_ERROR_HOOK_URL") ? "").length > 0
+      request.post
+        url: process.env("TEST_ERROR_HOOK_URL")
+        json:
+          username: "Edgehill Builds"
+          text: msg
+      , callback
+    else callback()
+

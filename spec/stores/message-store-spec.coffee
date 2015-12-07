@@ -10,6 +10,7 @@ Actions = require '../../src/flux/actions'
 testThread = new Thread(id: '123')
 testMessage1 = new Message(id: 'a', body: '123', files: [])
 testMessage2 = new Message(id: 'b', body: '123', files: [])
+testMessage3 = new Message(id: 'c', body: '123', files: [])
 
 describe "MessageStore", ->
   describe "when the receiving focus changes from the FocusedContentStore", ->
@@ -131,3 +132,24 @@ describe "MessageStore", ->
         MessageStore._fetchFromCache()
         advanceClock(500)
         expect(Actions.queueTask).not.toHaveBeenCalled()
+
+  describe "when toggling expansion of all messages", ->
+    beforeEach ->
+      MessageStore._items = [testMessage1, testMessage2, testMessage3]
+      spyOn(MessageStore, '_fetchExpandedBodies')
+      spyOn(MessageStore, '_fetchExpandedAttachments')
+
+    it 'should expand all when at default state', ->
+      MessageStore._itemsExpanded = {c: 'default'}
+      Actions.toggleAllMessagesExpanded()
+      expect(MessageStore._itemsExpanded).toEqual a: 'explicit', b: 'explicit', c: 'explicit'
+
+    it 'should expand all when at least one item is collapsed', ->
+      MessageStore._itemsExpanded = {b: 'explicit', c: 'explicit'}
+      Actions.toggleAllMessagesExpanded()
+      expect(MessageStore._itemsExpanded).toEqual a: 'explicit', b: 'explicit', c: 'explicit'
+
+    it 'should collapse all except the latest message when all expanded', ->
+      MessageStore._itemsExpanded = {a: 'explicit', b: 'explicit', c: 'explicit'}
+      Actions.toggleAllMessagesExpanded()
+      expect(MessageStore._itemsExpanded).toEqual c: 'explicit'

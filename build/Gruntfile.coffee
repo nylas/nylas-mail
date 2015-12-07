@@ -354,10 +354,26 @@ module.exports = (grunt) ->
           stderr: false
           failOnError: false
 
-  grunt.registerTask('compile', ['coffee', 'cjsx', 'babel', 'prebuild-less', 'cson', 'peg'])
-  grunt.registerTask('lint', ['coffeelint', 'csslint', 'lesslint', 'nylaslint', 'eslint'])
-  grunt.registerTask('test', ['shell:kill-n1', 'run-edgehill-specs'])
+  grunt.registerTask('compile',
+    ['coffee', 'cjsx', 'babel', 'prebuild-less', 'cson', 'peg'])
+
+  grunt.registerTask('lint',
+    ['coffeelint', 'csslint', 'lesslint', 'nylaslint', 'eslint'])
+
+  grunt.registerTask('test', ['shell:kill-n1', 'run-unit-tests'])
+
   grunt.registerTask('docs', ['build-docs', 'render-docs'])
+
+  buildTasks = [
+    'add-nylas-build-resources',
+    'copy-files-for-build',
+    'compile',
+    'generate-license:save',
+    'generate-module-cache',
+    'compile-packages-slug']
+  buildTasks.push('copy-info-plist') if process.platform is 'darwin'
+  buildTasks.push('set-exe-icon') if process.platform is 'win32'
+  grunt.registerTask('build', buildTasks)
 
   ciTasks = ['output-disk-space', 'download-electron', 'build']
   ciTasks.push('dump-symbols') if process.platform isnt 'win32'
@@ -374,11 +390,3 @@ module.exports = (grunt) ->
     ciTasks.push('publish-nylas-build')
 
   grunt.registerTask('ci', ciTasks)
-
-  defaultTasks = ['download-electron', 'build', 'set-version', 'generate-asar']
-  # We don't run `install` on linux because you need to run `sudo`.
-  # See docs/build-instructions/linux.md
-  # `sudo script/grunt install`
-  defaultTasks.push 'mkdmg' if process.platform is 'darwin'
-  defaultTasks.push 'install' unless process.platform is 'linux'
-  grunt.registerTask('default', defaultTasks)

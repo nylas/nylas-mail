@@ -32,7 +32,7 @@ describe "Composer Quoted Text", ->
   # Must be called with the test's scope
   setHTML = (newHTML) ->
     @$contentEditable.innerHTML = newHTML
-    ReactTestUtils.Simulate.input(@$contentEditable, {target: {value: newHTML}})
+    @contentEditable._onDOMMutated(["mutated"])
 
   describe "quoted-text-control toggle button", ->
 

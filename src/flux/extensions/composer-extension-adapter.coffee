@@ -4,21 +4,21 @@ DOMUtils = require '../../dom-utils'
 
 ComposerExtensionAdapter = (extension) ->
 
-  if extension.onInput?.length <= 2
+  if extension.onInput?
     origInput = extension.onInput
-    extension.onInput = (event, editableNode, selection) ->
-      origInput(editableNode, event)
+    extension.onContentChanged = (editableNode, selection, mutations) ->
+      origInput(editableNode)
 
     extension.onInput = deprecate(
       "DraftStoreExtension.onInput",
-      "ComposerExtension.onInput",
+      "ComposerExtension.onContentChanged",
       extension,
-      extension.onInput
+      extension.onContentChanged
     )
 
   if extension.onTabDown?
     origKeyDown = extension.onKeyDown
-    extension.onKeyDown = (event, editableNode, selection) ->
+    extension.onKeyDown = (editableNode, selection, event) ->
       if event.key is "Tab"
         range = DOMUtils.getRangeInScope(editableNode)
         extension.onTabDown(editableNode, range, event)
@@ -34,7 +34,7 @@ ComposerExtensionAdapter = (extension) ->
 
   if extension.onMouseUp?
     origOnClick = extension.onClick
-    extension.onClick = (event, editableNode, selection) ->
+    extension.onClick = (editableNode, selection, event) ->
       range = DOMUtils.getRangeInScope(editableNode)
       extension.onMouseUp(editableNode, range, event)
       origOnClick?(event, editableNode, selection)

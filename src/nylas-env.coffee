@@ -500,7 +500,8 @@ class NylasEnvConstructor extends Model
   center: ->
     ipcRenderer.send('call-window-method', 'center')
 
-  # Extended: Focus the current window.
+  # Extended: Focus the current window. Note: this will not open the window
+  # if it is hidden.
   focus: ->
     ipcRenderer.send('call-window-method', 'focus')
     window.focus()
@@ -663,6 +664,7 @@ class NylasEnvConstructor extends Model
   showRootWindow: ->
     cover = document.getElementById("application-loading-cover")
     cover.classList.add('visible')
+    document.body.classList.add("main-window-loaded")
     @restoreWindowDimensions()
     @getCurrentWindow().setMinimumSize(875, 500)
 

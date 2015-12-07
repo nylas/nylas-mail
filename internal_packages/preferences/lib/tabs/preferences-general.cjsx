@@ -20,6 +20,11 @@ class PreferencesGeneral extends React.Component
         keyPath="core.notifications"
         config={@props.config} />
 
+      <div className="platform-note platform-linux-only">
+        N1 desktop notifications on Linux require Zenity. You may need to install
+        it with your package manager (ie: <code>sudo apt-get install zenity</code>)
+      </div>
+
       <ConfigSchemaItem
         configSchema={@props.configSchema.properties.reading}
         keyName="Reading"

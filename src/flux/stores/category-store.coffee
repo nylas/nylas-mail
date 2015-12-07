@@ -144,13 +144,7 @@ class CategoryStore extends NylasStore
     return unless categoryClass
 
     DatabaseStore.findAll(categoryClass).where(categoryClass.attributes.accountId.equal(account.id)).then (categories=[]) =>
-      @_categoryCache = {}
-      @_categoryCache[category.id] = category for category in categories
-
-      # Compute user categories
-      userCategories = _.reject _.values(@_categoryCache), (cat) =>
-        cat.name in @StandardCategoryNames or cat.name in @HiddenCategoryNames
-      userCategories = userCategories.sort (catA, catB) =>
+      categories = categories.sort (catA, catB) ->
         nameA = catA.displayName
         nameB = catB.displayName
 
@@ -161,10 +155,16 @@ class CategoryStore extends NylasStore
 
         nameA.localeCompare(nameB)
 
-      @_userCategories =  _.compact(userCategories)
+      @_categoryCache = {}
+      for category in categories
+        @_categoryCache[category.id] = category
+
+      # Compute user categories
+      @_userCategories = _.compact _.reject categories, (cat) =>
+        cat.name in @StandardCategoryNames or cat.name in @HiddenCategoryNames
 
       # Compute hidden categories
-      @_hiddenCategories = _.filter _.values(@_categoryCache), (cat) =>
+      @_hiddenCategories = _.filter categories, (cat) =>
         cat.name in @HiddenCategoryNames
 
       # Compute standard categories

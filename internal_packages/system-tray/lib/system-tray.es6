@@ -1,4 +1,4 @@
-import remote from 'remote';
+import {remote, ipcRenderer} from 'electron';
 import TrayStore from './tray-store';
 const Tray = remote.require('tray');
 
@@ -29,7 +29,7 @@ class SystemTray {
 
   _onClicked() {
     if (this._platform !== 'darwin') {
-      NylasEnv.focus();
+      ipcRenderer.send('command', 'application:show-main-window');
     }
   }
 

@@ -39,14 +39,13 @@ class Contenteditable extends React.Component
 
     # Handlers
     onChange: React.PropTypes.func.isRequired
-    onFilePaste: React.PropTypes.func
     # Passes an absolute top coordinate to scroll to.
     onScrollTo: React.PropTypes.func
     onScrollToBottom: React.PropTypes.func
 
     # Extension DOM Mutating handlers. See {ContenteditableExtension}
+    onFilePaste: React.PropTypes.func
     onInput: React.PropTypes.func
-    onBlur: React.PropTypes.func
     onFocus: React.PropTypes.func
     onClick: React.PropTypes.func
     onKeyDown: React.PropTypes.func
@@ -75,14 +74,12 @@ class Contenteditable extends React.Component
   #
   # We treat mutations as a single atomic change (even if multiple actual
   # mutations happened).
-  atomicEdit: (editingFunction, event, extraArgs...) ->
-    @_teardownSelectionListeners()
-    innerStateProxy =
-      get: => return @innerState
-      set: (newInnerState) => @setInnerState(newInnerState)
-    args = [event, @_editableNode(), document.getSelection(), extraArgs..., innerStateProxy]
+  atomicEdit: (editingFunction, extraArgs...) =>
+    @_teardownListeners()
+    args = [@_editableNode(), document.getSelection(), extraArgs...]
     editingFunction.apply(null, args)
-    @_setupSelectionListeners()
+    @_setupListeners()
+    @_onDOMMutated()
 
   constructor: (@props) ->
     @innerState = {}
@@ -97,11 +94,10 @@ class Contenteditable extends React.Component
     @refs["toolbarController"]?.componentWillReceiveInnerProps(innerState)
 
   componentDidMount: =>
-    @_editableNode().addEventListener('contextmenu', @_onShowContextMenu)
-    @_setupSelectionListeners()
+    @_mutationObserver = new MutationObserver(@_onDOMMutated)
+    @_setupListeners()
     @_setupGlobalMouseListener()
     @_cleanHTML()
-
     @setInnerState editableNode: @_editableNode()
 
   # When we have a composition event in progress, we should not update
@@ -112,8 +108,7 @@ class Contenteditable extends React.Component
      not Utils.isEqualReact(nextState, @state))
 
   componentWillUnmount: =>
-    @_editableNode().removeEventListener('contextmenu', @_onShowContextMenu)
-    @_teardownSelectionListeners()
+    @_teardownListeners()
     @_teardownGlobalMouseListener()
 
   componentWillReceiveProps: (nextProps) =>
@@ -126,6 +121,12 @@ class Contenteditable extends React.Component
     @_restoreSelection()
 
     editableNode = @_editableNode()
+
+    # On a given update the actual DOM node might be a different object on
+    # the heap. We need to refresh the mutation listeners.
+    @_teardownListeners()
+    @_setupListeners()
+
     @setInnerState
       links: editableNode.querySelectorAll("*[href]")
       editableNode: editableNode
@@ -133,9 +134,9 @@ class Contenteditable extends React.Component
   _renderFloatingToolbar: ->
     return unless @props.floatingToolbar
     <FloatingToolbarContainer
-      ref="toolbarController"
-      onSaveUrl={@_onSaveUrl}
-      onDomMutator={@_onDomMutator} />
+        ref="toolbarController"
+        atomicEdit={@atomicEdit}
+        onSaveUrl={@_onSaveUrl} />
 
   render: =>
     <KeyCommandsRegion className="contenteditable-container"
@@ -151,25 +152,26 @@ class Contenteditable extends React.Component
     </KeyCommandsRegion>
 
   _keymapHandlers: ->
-    'contenteditable:underline': @_execCommandWrap("underline")
-    'contenteditable:bold': @_execCommandWrap("bold")
-    'contenteditable:italic': @_execCommandWrap("italic")
-    'contenteditable:numbered-list': @_execCommandWrap("insertOrderedList")
-    'contenteditable:bulleted-list': @_execCommandWrap("insertUnorderedList")
-    'contenteditable:outdent': @_execCommandWrap("outdent")
-    'contenteditable:indent': @_execCommandWrap("indent")
+    atomicEditWrap = => (command) => (event) =>
+      @atomicEdit((-> document.execCommand(command)), event)
 
-  _execCommandWrap: (command) => (e) =>
-    @atomicEdit =>
-      document.execCommand(command)
-    , e
+    keymapHandlers = {
+      'contenteditable:bold': atomicEditWrap("bold")
+      'contenteditable:italic': atomicEditWrap("italic")
+      'contenteditable:indent': atomicEditWrap("indent")
+      'contenteditable:outdent': atomicEditWrap("outdent")
+      'contenteditable:underline': atomicEditWrap("underline")
+      'contenteditable:numbered-list': atomicEditWrap("insertOrderedList")
+      'contenteditable:bulleted-list': atomicEditWrap("insertUnorderedList")
+    }
+
+    return keymapHandlers
 
   _eventHandlers: =>
     onBlur: @_onBlur
     onFocus: @_onFocus
     onClick: @_onClick
     onPaste: @clipboardService.onPaste
-    onInput: @_onInput
     onKeyDown: @_onKeyDown
     onCompositionEnd: @_onCompositionEnd
     onCompositionStart: @_onCompositionStart
@@ -186,18 +188,6 @@ class Contenteditable extends React.Component
     selection.removeAllRanges()
     selection.addRange(range)
 
-  # When some other component (like the `FloatingToolbar` or some
-  # `ComposerExtension`) wants to mutate the DOM, it declares a
-  # `mutator` function. That mutator expects to be passed the latest DOM
-  # object (the `_editableNode()`) and will do mutations to it. Once those
-  # mutations are done, we need to be sure to notify that changes
-  # happened.
-  _onDomMutator: (mutator) =>
-    @_teardownSelectionListeners()
-    mutator(@_editableNode())
-    @_setupSelectionListeners()
-    @_onInput()
-
   _onClick: (event) ->
     # We handle mouseDown, mouseMove, mouseUp, but we want to stop propagation
     # of `click` to make it clear that we've handled the event.
@@ -211,7 +201,7 @@ class Contenteditable extends React.Component
   # It is also possible for a composition event to end and then
   # immediately start a new composition event. This happens when two
   # composition event-triggering characters are pressed twice in a row.
-  # When the first composition event ends, the `onInput` method fires (as
+  # When the first composition event ends, the `_onDOMMutated` method fires (as
   # it's supposed to) and sends off an asynchronous update request when we
   # `_saveNewHtml`. Before that comes back via new props, the 2nd
   # composition event starts. Without the `_inCompositionEvent` flag
@@ -219,46 +209,44 @@ class Contenteditable extends React.Component
   # to re-render and blow away our newly started 2nd composition event.
   _onCompositionStart: =>
     @_inCompositionEvent = true
-    @_teardownSelectionListeners()
+    @_teardownListeners()
 
   _onCompositionEnd: =>
     @_inCompositionEvent = false
-    @_setupSelectionListeners()
-    @_onInput()
+    @_setupListeners()
+    @_onDOMMutated()
 
-  # Will execute the event handlers on each of the registerd and core extensions
-  # In this context, event.preventDefault and event.stopPropagation don't refer
-  # to stopping default DOM behavior or prevent event bubbling through the DOM,
-  # but rather prevent our own Contenteditable default behavior, and preventing
-  # other extensions from being called.
-  # If any of the extensions calls event.preventDefault() it will prevent the
-  # default behavior for the Contenteditable, which basically means preventing
-  # the core extension handlers from being called.
-  # If any of the extensions calls event.stopPropagation(), it will prevent any
-  # other extension handlers from being called.
-  #
-  # NOTE: It's possible for there to be no `event` passed in.
-  _runExtensionHandlersForEvent: (method, event, args...) =>
-    executeCallback = (extension) =>
-      return if not extension[method]?
-      callback = extension[method].bind(extension)
-      @atomicEdit(callback, event, args...)
+  _runCallbackOnExtensions: (method, args...) =>
+    for extension in @props.extensions.concat(@coreExtensions)
+      @_runExtensionMethod(extension, method, args...)
 
-    # Check if any of the extension handlers where passed as a prop and call
-    # that first
-    executeCallback(@props)
-
+  # Will execute the event handlers on each of the registerd and core
+  # extensions In this context, event.preventDefault and
+  # event.stopPropagation don't refer to stopping default DOM behavior or
+  # prevent event bubbling through the DOM, but rather prevent our own
+  # Contenteditable default behavior, and preventing other extensions from
+  # being called. If any of the extensions calls event.preventDefault()
+  # it will prevent the default behavior for the Contenteditable, which
+  # basically means preventing the core extension handlers from being
+  # called.  If any of the extensions calls event.stopPropagation(), it
+  # will prevent any other extension handlers from being called.
+  _runEventCallbackOnExtensions: (method, event, args...) =>
     for extension in @props.extensions
       break if event?.isPropagationStopped()
-      executeCallback(extension)
+      @_runExtensionMethod(extension, method, event, args...)
 
     return if event?.defaultPrevented or event?.isPropagationStopped()
     for extension in @coreExtensions
       break if event?.isPropagationStopped()
-      executeCallback(extension)
+      @_runExtensionMethod(extension, method, event, args...)
+
+  _runExtensionMethod: (extension, method, args...) =>
+    return if not extension[method]?
+    editingFunction = extension[method].bind(extension)
+    @atomicEdit(editingFunction, args...)
 
   _onKeyDown: (event) =>
-    @_runExtensionHandlersForEvent("onKeyDown", event)
+    @_runEventCallbackOnExtensions("onKeyDown", event)
 
     # This is a special case where we don't want to bubble up the event to the
     # keymap manager if the extension prevented the default behavior
@@ -271,19 +259,20 @@ class Contenteditable extends React.Component
       return
 
   # Every time the contents of the contenteditable DOM node change, the
-  # `onInput` event gets fired.
+  # `_onDOMMutated` event gets fired.
   #
   # If we are in the middle of an `atomic` change transaction, we ignore
   # those changes.
   #
   # At all other times we take the change, apply various filters to the
   # new content, then notify our parent that the content has been updated.
-  _onInput: (event) =>
+  _onDOMMutated: (mutations) =>
     return if @_ignoreInputChanges
+    return unless mutations and mutations.length > 0
     @_ignoreInputChanges = true
     @_resetInnerStateOnInput()
 
-    @_runExtensionHandlersForEvent("onInput", event)
+    @_runCallbackOnExtensions("onContentChanged", mutations)
 
     @_normalize()
 
@@ -324,10 +313,10 @@ class Contenteditable extends React.Component
     if DOMUtils.isSelectionInTextNode(selection)
       node = selection.anchorNode
       offset = selection.anchorOffset
-      @_teardownSelectionListeners()
+      @_teardownListeners()
       selection.setBaseAndExtent(node, offset - 1, node, offset)
       document.execCommand("delete")
-      @_setupSelectionListeners()
+      @_setupListeners()
 
   # This component works by re-rendering on every change and restoring the
   # selection. This is also how standard React controlled inputs work too.
@@ -411,14 +400,14 @@ class Contenteditable extends React.Component
     return if selection.anchorOffset > 0 or selection.focusOffset > 0
 
     if selection.isCollapsed and @_unselectableNode(selection.focusNode)
-      @_teardownSelectionListeners()
+      @_teardownListeners()
       treeWalker = document.createTreeWalker(selection.focusNode)
       while treeWalker.nextNode()
         currentNode = treeWalker.currentNode
         if @_unselectableNode(currentNode)
           selection.setBaseAndExtent(currentNode, 0, currentNode, 0)
           break
-      @_setupSelectionListeners()
+      @_setupListeners()
     return
 
   _unselectableNode: (node) ->
@@ -437,12 +426,12 @@ class Contenteditable extends React.Component
   _onBlur: (event) =>
     @setInnerState dragging: false
     return if @_editableNode().parentElement.contains event.relatedTarget
-    @_runExtensionHandlersForEvent("onBlur", event)
+    @_runEventCallbackOnExtensions("onBlur", event)
     @setInnerState editableFocused: false
 
   _onFocus: (event) =>
     @setInnerState editableFocused: true
-    @_runExtensionHandlersForEvent("onFocus", event)
+    @_runEventCallbackOnExtensions("onFocus", event)
 
   _editableNode: =>
     React.findDOMNode(@refs.contenteditable)
@@ -486,13 +475,26 @@ class Contenteditable extends React.Component
   # which node is most likely the matching one.
 
   # http://www.w3.org/TR/selection-api/#selectstart-event
-  _setupSelectionListeners: =>
+  _setupListeners: =>
     @_ignoreInputChanges = false
+    @_mutationObserver.observe(@_editableNode(), @_mutationConfig())
     document.addEventListener("selectionchange", @_saveSelectionState)
+    @_editableNode().addEventListener('contextmenu', @_onShowContextMenu)
 
-  _teardownSelectionListeners: =>
+  # https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
+  _mutationConfig: ->
+    subtree: true
+    childList: true
+    attributes: true
+    characterData: true
+    attributeOldValue: true
+    characterDataOldValue: true
+
+  _teardownListeners: =>
     document.removeEventListener("selectionchange", @_saveSelectionState)
+    @_mutationObserver.disconnect()
     @_ignoreInputChanges = true
+    @_editableNode().removeEventListener('contextmenu', @_onShowContextMenu)
 
   getCurrentSelection: => _.clone(@_selection ? {})
   getPreviousSelection: => _.clone(@_previousSelection ? {})
@@ -642,7 +644,7 @@ class Contenteditable extends React.Component
 
     menu = new Menu()
 
-    @_runExtensionHandlersForEvent("onShowContextMenu", event, menu)
+    @_runEventCallbackOnExtensions("onShowContextMenu", event, menu)
     menu.append(new MenuItem({ label: 'Cut', role: 'cut'}))
     menu.append(new MenuItem({ label: 'Copy', role: 'copy'}))
     menu.append(new MenuItem({ label: 'Paste', role: 'paste'}))
@@ -686,7 +688,7 @@ class Contenteditable extends React.Component
     selection = document.getSelection()
     return event unless DOMUtils.selectionInScope(selection, editableNode)
 
-    @_runExtensionHandlersForEvent("onClick", event)
+    @_runEventCallbackOnExtensions("onClick", event)
     return event
 
   _onDragStart: (event) =>
@@ -736,7 +738,7 @@ class Contenteditable extends React.Component
     newEndNode = DOMUtils.findSimilarNodes(editable, @_selection.endNode)[@_selection.endNodeIndex]
     return if not newStartNode? or not newEndNode?
 
-    @_teardownSelectionListeners()
+    @_teardownListeners()
     selection = document.getSelection()
     selection.setBaseAndExtent(newStartNode,
                                @_selection.startOffset,
@@ -744,12 +746,15 @@ class Contenteditable extends React.Component
                                @_selection.endOffset)
 
     @_ensureSelectionVisible(selection)
-    @_setupSelectionListeners()
+    @_setupListeners()
 
   # This needs to be in the contenteditable area because we need to first
   # restore the selection before calling the `execCommand`
   #
   # If the url is empty, that means we want to remove the url.
+  #
+  # TODO: Move this into floating-toolbar-container once we do a refactor
+  # pass on the Selection object.
   _onSaveUrl: (url, linkToModify) =>
     if linkToModify?
       linkToModify = DOMUtils.findSimilarNodes(@_editableNode(), linkToModify)?[0]?.childNodes[0]
@@ -779,12 +784,12 @@ class Contenteditable extends React.Component
 
   _execCommand: (commandArgs=[], selectionRange={}) =>
     {anchorNode, anchorOffset, focusNode, focusOffset} = selectionRange
-    @_teardownSelectionListeners()
+    @_teardownListeners()
     if anchorNode and focusNode
       selection = document.getSelection()
       selection.setBaseAndExtent(anchorNode, anchorOffset, focusNode, focusOffset)
     document.execCommand.apply(document, commandArgs)
-    @_setupSelectionListeners()
-    @_onInput()
+    @_setupListeners()
+    @_onDOMMutated()
 
 module.exports = Contenteditable

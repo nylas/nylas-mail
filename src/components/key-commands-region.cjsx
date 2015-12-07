@@ -113,22 +113,16 @@ class KeyCommandsRegion extends React.Component
   # particular scope, we simply need to listen at the root window level
   # here for all commands coming in.
   _setupListeners: (props) ->
-    _.each props.globalHandlers, (callback, handler) ->
-      window.addEventListener(handler, callback)
-
+    @_globalDisposable = NylasEnv.commands.add('body', props.globalHandlers)
     return unless @_mounted
     $el = React.findDOMNode(@)
-    _.each props.localHandlers, (callback, handler) ->
-      $el.addEventListener(handler, callback)
+    @_localDisposable = NylasEnv.commands.add($el, props.localHandlers)
 
   _unmountListeners: ->
-    _.each @props.globalHandlers, (callback, handler) ->
-      window.removeEventListener(handler, callback)
-
-    return unless @_mounted
-    $el = React.findDOMNode(@)
-    _.each @props.localHandlers, (callback, handler) ->
-      $el.removeEventListener(handler, callback)
+    @_globalDisposable?.dispose()
+    @_globalDisposable = null
+    @_localDisposable?.dispose()
+    @_localDisposable = null
 
   render: ->
     <div className="key-commands-region #{@props.className}">

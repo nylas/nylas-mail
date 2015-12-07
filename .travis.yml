@@ -63,3 +63,7 @@ addons:
 branches:
   only:
     - master
+    - ci-test
+
+git:
+  submodules: false

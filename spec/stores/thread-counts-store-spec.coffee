@@ -243,39 +243,61 @@ describe "CategoryDatabaseMutationObserver", ->
       labels: [@label1, @label3]
 
   describe "given a set of modifying models", ->
-    it "should call countsDidChange with the folder / label membership deltas", ->
-      queryResolves = []
-      query = jasmine.createSpy('query').andCallFake =>
-        new Promise (resolve, reject) ->
-          queryResolves.push(resolve)
+    scenarios = [{
+        type: 'persist',
+        expected: {
+          l3: -1,
+          l2: -1,
+          l4: 1
+        }
+      },{
+        type: 'unpersist',
+        expected: {
+          l1: -1,
+          l3: -2,
+          l2: -1
+        }
+      }]
+    scenarios.forEach ({type, expected}) ->
+      it "should call countsDidChange with the folder / label membership deltas (#{type})", ->
+        queryResolves = []
+        query = jasmine.createSpy('query').andCallFake =>
+          new Promise (resolve, reject) ->
+            queryResolves.push(resolve)
 
-      countsDidChange = jasmine.createSpy('countsDidChange')
-      m = new ThreadCountsStore.CategoryDatabaseMutationObserver(countsDidChange)
+        countsDidChange = jasmine.createSpy('countsDidChange')
+        m = new ThreadCountsStore.CategoryDatabaseMutationObserver(countsDidChange)
 
-      beforePromise = m.beforeDatabaseChange(query, [@threadA, @threadB, @threadC], [@threadA.id, @threadB.id, @threadC.id])
-      expect(query.callCount).toBe(2)
-      expect(query.calls[0].args[0]).toEqual("SELECT `Thread`.id as id, `Thread-Label`.`value` as catId FROM `Thread` INNER JOIN `Thread-Label` ON `Thread`.`id` = `Thread-Label`.`id` WHERE `Thread`.id IN ('A','B','C') AND `Thread`.unread = 1")
-      expect(query.calls[1].args[0]).toEqual("SELECT `Thread`.id as id, `Thread-Folder`.`value` as catId FROM `Thread` INNER JOIN `Thread-Folder` ON `Thread`.`id` = `Thread-Folder`.`id` WHERE `Thread`.id IN ('A','B','C') AND `Thread`.unread = 1")
-      queryResolves[0]([
-        {id: @threadA.id, catId: @label1.id},
-        {id: @threadA.id, catId: @label3.id},
-        {id: @threadB.id, catId: @label2.id},
-        {id: @threadB.id, catId: @label3.id},
-      ])
-      queryResolves[1]([])
+        beforePromise = m.beforeDatabaseChange(query, {
+          type: type
+          objects: [@threadA, @threadB, @threadC],
+          objectIds: [@threadA.id, @threadB.id, @threadC.id]
+          objectClass: Thread.name
+        })
+        expect(query.callCount).toBe(2)
+        expect(query.calls[0].args[0]).toEqual("SELECT `Thread`.id as id, `Thread-Label`.`value` as catId FROM `Thread` INNER JOIN `Thread-Label` ON `Thread`.`id` = `Thread-Label`.`id` WHERE `Thread`.id IN ('A','B','C') AND `Thread`.unread = 1")
+        expect(query.calls[1].args[0]).toEqual("SELECT `Thread`.id as id, `Thread-Folder`.`value` as catId FROM `Thread` INNER JOIN `Thread-Folder` ON `Thread`.`id` = `Thread-Folder`.`id` WHERE `Thread`.id IN ('A','B','C') AND `Thread`.unread = 1")
+        queryResolves[0]([
+          {id: @threadA.id, catId: @label1.id},
+          {id: @threadA.id, catId: @label3.id},
+          {id: @threadB.id, catId: @label2.id},
+          {id: @threadB.id, catId: @label3.id},
+        ])
+        queryResolves[1]([])
 
-      waitsForPromise =>
-        beforePromise.then (result) =>
-          expect(result).toEqual({
-            categories: {
-              l1: -1,
-              l3: -2,
-              l2: -1
-            }
-          })
-          m.afterDatabaseChange(query, [@threadA, @threadB, @threadC], [@threadA.id, @threadB.id, @threadC.id], result)
-          expect(countsDidChange).toHaveBeenCalledWith({
-            l3: -1,
-            l2: -1,
-            l4: 1
-          })
+        waitsForPromise =>
+          beforePromise.then (result) =>
+            expect(result).toEqual({
+              categories: {
+                l1: -1,
+                l3: -2,
+                l2: -1
+              }
+            })
+            m.afterDatabaseChange(query, {
+              type: type
+              objects: [@threadA, @threadB, @threadC],
+              objectIds: [@threadA.id, @threadB.id, @threadC.id]
+              objectClass: Thread.name
+            }, result)
+            expect(countsDidChange).toHaveBeenCalledWith(expected)

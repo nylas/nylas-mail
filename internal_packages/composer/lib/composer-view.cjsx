@@ -67,7 +67,7 @@ class ComposerView extends React.Component
       enabledFields: [] # Gets updated in @_initiallyEnabledFields
       showQuotedText: false
       uploads: FileUploadStore.uploadsForMessage(@props.draftClientId) ? []
-      extensions: ExtensionRegistry.Composer.extensions()
+      composerExtensions: @_composerExtensions()
 
   componentWillMount: =>
     @_prepareForDraft(@props.draftClientId)
@@ -98,6 +98,11 @@ class ComposerView extends React.Component
     @_recoveredSelection = null if @_recoveredSelection?
 
     @_applyFieldFocus()
+
+  ## TODO add core composer extensions to refactor callback props out of
+  # Contenteditable
+  _composerExtensions: ->
+    ExtensionRegistry.Composer.extensions()
 
   _keymapHandlers: ->
     'composer:send-message': => @_sendDraft()
@@ -301,7 +306,7 @@ class ComposerView extends React.Component
       onScrollTo={@props.onRequestScrollTo}
       onFilePaste={@_onFilePaste}
       onScrollToBottom={@_onScrollToBottom()}
-      extensions={@state.extensions}
+      extensions={@state.composerExtensions}
       getComposerBoundingRect={@_getComposerBoundingRect}
       initialSelectionSnapshot={@_recoveredSelection} />
 
@@ -531,7 +536,7 @@ class ComposerView extends React.Component
     return enabledFields
 
   _onExtensionsChanged: =>
-    @setState extensions: ExtensionRegistry.Composer.extensions()
+    @setState composerExtensions: @_composerExtensions()
 
   # When the account store changes, the From field may or may not still
   # be in scope. We need to make sure to update our enabled fields.
@@ -689,7 +694,7 @@ class ComposerView extends React.Component
       warnings.push('without a body')
 
     # Check third party warnings added via DraftStore extensions
-    for extension in @state.extensions
+    for extension in @state.composerExtensions
       continue unless extension.warningsForSending
       warnings = warnings.concat(extension.warningsForSending(draft))
 

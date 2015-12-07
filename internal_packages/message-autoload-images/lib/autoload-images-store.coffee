@@ -5,7 +5,7 @@ path = require 'path'
 AutoloadImagesActions = require './autoload-images-actions'
 
 # https://en.wikipedia.org/wiki/Comparison_of_web_browsers#Image_format_support
-ImagesRegexp = /\/\/[^'"]*\.(jpg|jpeg|jpe|jif|jfif|jfi|png|xbm|bmp|dib|ico|pict|tiff|gif|pic|webp)+/gi
+ImagesRegexp = /(src[\s]*=[\s]*['"]+|:[\s]*url\()+([^"'\)]*)/gi
 
 class AutoloadImagesStore extends NylasStore
   constructor: ->
