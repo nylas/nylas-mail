@@ -2,21 +2,23 @@ env:
   global:
     - NYLAS_ACCESS_TOKEN=cb200be7c921f73a1c35930f6a4ac8758b271be0
 
-compiler:
-  - clang
-  - gcc
+sudo: required
+dist: trusty
+
+services:
+  - xvfb
 
 matrix:
   include:
 # Wants a c++11 compiler
     - os: linux
-      env: NODE_VERSION=0.10 CC=gcc-4.8 CXX=g++-4.8 NYLAS_HOME=/home/travis/.nylas
+      env: NODE_VERSION=0.10
     - os: linux
-      env: NODE_VERSION=0.12 CC=gcc-4.8 CXX=g++-4.8 NYLAS_HOME=/home/travis/.nylas
+      env: NODE_VERSION=0.12
     - os: linux
-      env: NODE_VERSION=4.2 CC=gcc-4.8 CXX=g++-4.8 NYLAS_HOME=/home/travis/.nylas
+      env: NODE_VERSION=4.2 NODE_INSTALL=0
     - os: linux
-      env: NODE_VERSION=5 CC=gcc-4.8 CXX=g++-4.8 NYLAS_HOME=/home/travis/.nylas
+      env: NODE_VERSION=5 NODE_INSTALL=0
     - os: osx
       env: NODE_VERSION=0.10
     - os: osx
@@ -27,43 +29,22 @@ matrix:
     - os: osx
       env: NODE_VERSION=5 CC=clang CXX=clang++
 
-sudo: false
-
 install:
-  - echo $CC
-  - echo $CXX
-  - clang --version
-  - if [ "$CC" = "gcc-4.8" ]; then gcc-4.8 -v; else gcc -v; fi
-  - git clone https://github.com/creationix/nvm.git /tmp/.nvm
-  - source /tmp/.nvm/nvm.sh
   - nvm install $NODE_VERSION
   - nvm use --delete-prefix $NODE_VERSION
 
 before_script:
   - if [ "${TRAVIS_OS_NAME}" == "linux" ]; then
     export DISPLAY=:99.0;
-    sh -e /etc/init.d/xvfb start;
     fi
 
 script: script/cibuild
 
 addons:
   apt:
-    sources:
-    - ubuntu-toolchain-r-test
     packages:
-    - build-essential
-    - clang
     - fakeroot
-    - g++-4.8
-    - git
     - libgnome-keyring-dev
-    - xvfb
-
-branches:
-  only:
-    - master
-    - ci-test
 
 git:
   submodules: false
