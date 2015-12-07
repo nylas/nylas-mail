@@ -11,12 +11,6 @@ else
   exit 1
 fi
 
-if [ "$(basename $0)" == 'nylas-beta' ]; then
-  BETA_VERSION=true
-else
-  BETA_VERSION=
-fi
-
 while getopts ":wtfvh-:" opt; do
   case "$opt" in
     -)
@@ -55,11 +49,7 @@ if [ $EXPECT_OUTPUT ]; then
 fi
 
 if [ $OS == 'Mac' ]; then
-  if [ -n "$BETA_VERSION" ]; then
-    NYLAS_APP_NAME="Nylas N1 Beta.app"
-  else
-    NYLAS_APP_NAME="Nylas N1.app"
-  fi
+  NYLAS_APP_NAME="Nylas N1.app"
 
   if [ -z "${NYLAS_PATH}" ]; then
     # If NYLAS_PATH isnt set, check /Applications and then ~/Applications for Nylas N1.app
@@ -89,12 +79,7 @@ elif [ $OS == 'Linux' ]; then
   SCRIPT=$(readlink -f "$0")
   USR_DIRECTORY=$(readlink -f $(dirname $SCRIPT)/..)
 
-  if [ -n "$BETA_VERSION" ]; then
-    NYLAS_PATH="$USR_DIRECTORY/share/nylas-beta/nylas"
-  else
-    NYLAS_PATH="$USR_DIRECTORY/share/nylas/nylas"
-  fi
-
+  NYLAS_PATH="$USR_DIRECTORY/share/nylas/nylas"
   NYLAS_HOME="${NYLAS_HOME:-$HOME/.nylas}"
   mkdir -p "$NYLAS_HOME"
 
