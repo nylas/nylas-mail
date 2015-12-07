@@ -193,6 +193,8 @@ class ThreadList extends React.Component
     'application:archive-item': @_onArchiveItem
     'application:delete-item': @_onDeleteItem
     'application:star-item': @_onStarItem
+    'application:mark-important': @_onSetImportantItem
+    'application:mark-unimportant': @_onSetUnimportantItem
     'application:remove-and-previous': =>
       @_shift(offset: 1, afterRunning: @_onRemoveFromView)
     'application:remove-and-next': =>
@@ -280,6 +282,24 @@ class ThreadList extends React.Component
     threads = @_threadsForKeyboardAction()
     return unless threads
     task = TaskFactory.taskForInvertingStarred({threads})
+    Actions.queueTask(task)
+
+  _onSetImportantItem: =>
+    @_setImportant(true)
+
+  _onSetUnimportantItem: =>
+    @_setImportant(false)
+
+  _setImportant: (important) =>
+    threads = @_threadsForKeyboardAction()
+    return unless threads
+    return unless AccountStore.current()?.usesImportantFlag()
+    category = CategoryStore.getStandardCategory('important')
+    if important
+      task = TaskFactory.taskForApplyingCategory({threads, category})
+    else
+      task = TaskFactory.taskForRemovingCategory({threads, category})
+
     Actions.queueTask(task)
 
   _onRemoveFromView: =>

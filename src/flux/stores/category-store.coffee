@@ -15,7 +15,7 @@ class CategoryStore extends NylasStore
 
     @listenTo DatabaseStore, @_onDBChanged
     @listenTo AccountStore, @_refreshCacheFromDB
-    NylasEnv.config.observe 'core.showImportant', => @_refreshCacheFromDB()
+    NylasEnv.config.observe 'core.workspace.showImportant', => @_refreshCacheFromDB()
 
     @_refreshCacheFromDB()
 
@@ -173,7 +173,7 @@ class CategoryStore extends NylasStore
       for key, val of @_categoryCache
         byStandardName[val.name] = val
 
-      if not NylasEnv.config.get('core.showImportant')
+      if not NylasEnv.config.get('core.workspace.showImportant')
         delete byStandardName['important']
 
       @_standardCategories = _.compact @StandardCategoryNames.map (name) =>
