@@ -152,7 +152,7 @@ class Contenteditable extends React.Component
     </KeyCommandsRegion>
 
   _keymapHandlers: ->
-    atomicEditWrap = => (command) => (event) =>
+    atomicEditWrap = (command) => (event) =>
       @atomicEdit((-> document.execCommand(command)), event)
 
     keymapHandlers = {
