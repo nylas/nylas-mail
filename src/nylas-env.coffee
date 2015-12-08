@@ -521,7 +521,7 @@ class NylasEnvConstructor extends Model
 
   # Extended: Reload the current window.
   reload: ->
-    ipcRenderer.send('call-window-method', 'restart')
+    ipcRenderer.send('call-webcontents-method', 'reload')
 
   # Updates the window load settings - called when the app is ready to display
   # a hot-loaded window. Causes listeners registered with `onWindowPropsReceived`
@@ -789,15 +789,15 @@ class NylasEnvConstructor extends Model
 
   # Extended: Open the dev tools for the current window.
   openDevTools: ->
-    ipcRenderer.send('call-window-method', 'openDevTools')
+    ipcRenderer.send('call-webcontents-method', 'openDevTools')
 
   # Extended: Toggle the visibility of the dev tools for the current window.
   toggleDevTools: ->
-    ipcRenderer.send('call-window-method', 'toggleDevTools')
+    ipcRenderer.send('call-webcontents-method', 'toggleDevTools')
 
   # Extended: Execute code in dev tools.
   executeJavaScriptInDevTools: (code) ->
-    ipcRenderer.send('call-webcontents-method', 'executeJavaScriptInDevTools', code)
+    ipcRenderer.send('call-devtools-webcontents-method', 'executeJavaScript', code)
 
   ###
   Section: Private

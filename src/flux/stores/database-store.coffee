@@ -6,6 +6,7 @@ Model = require '../models/model'
 Utils = require '../models/utils'
 Actions = require '../actions'
 ModelQuery = require '../models/query'
+JSONBlobQuery = require '../models/json-blob-query'
 NylasStore = require '../../global/nylas-store'
 PromiseQueue = require 'promise-queue'
 DatabaseSetupQueryBuilder = require './database-setup-query-builder'
@@ -33,10 +34,6 @@ DEBUG_MISSING_ACCOUNT_ID = false
 
 BEGIN_TRANSACTION = 'BEGIN TRANSACTION'
 COMMIT = 'COMMIT'
-
-class JSONBlobQuery extends ModelQuery
-  formatResultObjects: (objects) =>
-    return objects[0]?.json || null
 
 ###
 Public: N1 is built on top of a custom database layer modeled after

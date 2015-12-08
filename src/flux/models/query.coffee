@@ -176,17 +176,19 @@ class ModelQuery
       return result[0]['count'] / 1
     else
       try
-        objects = result.map (row) =>
-          json = JSON.parse(row['data'])
-          object = (new @_klass).fromJSON(json)
-          for attr in @_includeJoinedData
-            value = row[attr.jsonKey]
-            value = null if value is AttributeJoinedData.NullPlaceholder
-            object[attr.modelKey] = value
-          object
+        objects = result.map(@inflateRawRow)
       catch jsonError
         throw new Error("Query could not parse the database result. Query: #{@sql()}, Error: #{jsonError.toString()}")
       return objects
+
+  inflateRawRow: (row) =>
+    json = JSON.parse(row['data'])
+    object = (new @_klass).fromJSON(json)
+    for attr in @_includeJoinedData
+      value = row[attr.jsonKey]
+      value = null if value is AttributeJoinedData.NullPlaceholder
+      object[attr.modelKey] = value
+    object
 
   formatResultObjects: (objects) ->
     return objects[0] if @_returnOne

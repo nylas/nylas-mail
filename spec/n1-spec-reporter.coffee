@@ -83,7 +83,7 @@ class N1SpecReporter extends View
     @on 'click', '.stack-trace', ->
       $(this).toggleClass('expanded')
 
-    @reloadButton.on 'click', -> require('electron').ipcRenderer.send('call-window-method', 'restart')
+    @reloadButton.on 'click', -> require('electron').ipcRenderer.send('call-webcontents-method', 'reload')
 
   reportRunnerResults: (runner) ->
     @updateSpecCounts()

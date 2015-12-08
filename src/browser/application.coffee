@@ -364,6 +364,11 @@ class Application
     ipcMain.on 'call-webcontents-method', (event, method, args...) ->
       event.sender[method](args...)
 
+    ipcMain.on 'call-devtools-webcontents-method', (event, method, args...) ->
+      # If devtools aren't open the `webContents::devToolsWebContents`
+      # will be null
+      event.sender.devToolsWebContents?[method](args...)
+
     ipcMain.on 'action-bridge-rebroadcast-to-all', (event, args...) =>
       win = BrowserWindow.fromWebContents(event.sender)
       @windowManager.windows().forEach (nylasWindow) ->
