@@ -95,11 +95,13 @@ describe "ModelQuery", ->
       @q.includeAll()
       expect(@q._includeJoinedData).toEqual([Message.attributes.body])
 
-  describe "formatResult", ->
+  describe "response formatting", ->
     it "should always return a Number for counts", ->
       q = new ModelQuery(Message, @db)
       q.where({accountId: 'abcd'}).count()
-      expect(q.formatResult([{count:"12"}])).toBe(12)
+
+      raw = [{count:"12"}]
+      expect(q.formatResultObjects(q.inflateResult(raw))).toBe(12)
 
   describe "sql", ->
     beforeEach ->
@@ -108,6 +110,12 @@ describe "ModelQuery", ->
         Matcher.muid = 1
         scenario.builder(q)
         expect(q.sql().trim()).toBe(scenario.sql.trim())
+
+    it "should finalize the query so no further changes can be made", ->
+      q = new ModelQuery(Account, @db)
+      spyOn(q, 'finalize')
+      q.sql()
+      expect(q.finalize).toHaveBeenCalled()
 
     it "should correctly generate queries with multiple where clauses", ->
       @runScenario Account,

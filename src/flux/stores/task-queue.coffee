@@ -14,10 +14,10 @@ DatabaseStore = require './database-store'
 {APIError,
  TimeoutError} = require '../errors'
 
-JSONObjectStorageKey = 'task-queue'
+JSONBlobStorageKey = 'task-queue'
 
 if not NylasEnv.isWorkWindow() and not NylasEnv.inSpecMode()
-  module.exports = {JSONObjectStorageKey}
+  module.exports = {JSONBlobStorageKey}
   return
 
 ###
@@ -262,7 +262,7 @@ class TaskQueue
       return _.findWhere(@_queue, id: taskOrId)
 
   _restoreQueue: =>
-    DatabaseStore.findJSONObject(JSONObjectStorageKey).then (queue = []) =>
+    DatabaseStore.findJSONBlob(JSONBlobStorageKey).then (queue = []) =>
       # We need to set the processing bit back to false so it gets
       # re-retried upon inflation
       for task in queue
@@ -273,7 +273,7 @@ class TaskQueue
 
   _updateSoon: =>
     @_updateSoonThrottled ?= _.throttle =>
-      DatabaseStore.persistJSONObject(JSONObjectStorageKey, @_queue ? [])
+      DatabaseStore.persistJSONBlob(JSONBlobStorageKey, @_queue ? [])
       _.defer =>
         @_processQueue()
         @trigger()
@@ -281,3 +281,4 @@ class TaskQueue
     @_updateSoonThrottled()
 
 module.exports = new TaskQueue()
+module.exports.JSONBlobStorageKey = JSONBlobStorageKey

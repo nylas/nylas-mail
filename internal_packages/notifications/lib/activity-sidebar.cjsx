@@ -31,7 +31,6 @@ class ActivitySidebar extends React.Component
 
   componentWillUnmount: =>
     unlisten() for unlisten in @_unlisteners
-    @_workerUnlisten() if @_workerUnlisten
 
   render: =>
     items = [@_renderNotificationActivityItems(), @_renderTaskActivityItems()]

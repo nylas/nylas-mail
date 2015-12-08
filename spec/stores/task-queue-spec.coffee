@@ -34,7 +34,7 @@ describe "TaskQueue", ->
   describe "restoreQueue", ->
     it "should fetch the queue from the database, reset flags and start processing", ->
       queue = [@processingTask, @unstartedTask]
-      spyOn(DatabaseStore, 'findJSONObject').andCallFake => Promise.resolve(queue)
+      spyOn(DatabaseStore, 'findJSONBlob').andCallFake => Promise.resolve(queue)
       spyOn(TaskQueue, '_processQueue')
 
       waitsForPromise =>

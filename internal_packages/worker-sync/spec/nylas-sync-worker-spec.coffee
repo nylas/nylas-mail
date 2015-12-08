@@ -16,8 +16,8 @@ describe "NylasSyncWorker", ->
       getThreads: (account, params, requestOptions) =>
         @apiRequests.push({account, model:'threads', params, requestOptions})
 
-    spyOn(DatabaseStore, 'persistJSONObject').andReturn(Promise.resolve())
-    spyOn(DatabaseStore, 'findJSONObject').andCallFake (key) =>
+    spyOn(DatabaseStore, 'persistJSONBlob').andReturn(Promise.resolve())
+    spyOn(DatabaseStore, 'findJSONBlob').andCallFake (key) =>
       if key is "NylasSyncWorker:#{TEST_ACCOUNT_ID}"
         return Promise.resolve _.extend {}, {
           "contacts":

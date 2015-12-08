@@ -1,4 +1,5 @@
 _ = require 'underscore'
+Rx = require 'rx-lite'
 AccountStore = require './account-store'
 DatabaseStore = require './database-store'
 NylasStore = require 'nylas-store'
@@ -7,25 +8,17 @@ class NylasSyncStatusStore extends NylasStore
 
   constructor: ->
     @_statesByAccount = {}
+    @_subscriptions = {}
 
     @listenTo AccountStore, @_onAccountsChanged
-    @listenTo DatabaseStore, @_onChange
     @_onAccountsChanged()
 
   _onAccountsChanged: =>
-    promises = []
     AccountStore.items().forEach (item) =>
-      return if @_statesByAccount[item.id]
-      promises.push DatabaseStore.findJSONObject("NylasSyncWorker:#{item.id}").then (json) =>
+      query = DatabaseStore.findJSONBlob("NylasSyncWorker:#{item.id}")
+      @_subscriptions[item.id] ?= Rx.Observable.fromQuery(query).subscribe (json) =>
         @_statesByAccount[item.id] = json ? {}
-    Promise.all(promises).then =>
-      @trigger()
-
-  _onChange: (change) =>
-    if change.objectClass is 'JSONObject' and change.objects[0].key.indexOf('NylasSyncWorker') is 0
-      [worker, accountId] = change.objects[0].key.split(':')
-      @_statesByAccount[accountId] = change.objects[0].json
-      @trigger()
+        @trigger()
 
   state: =>
     @_statesByAccount
