@@ -20,7 +20,7 @@ module.exports = {
   deactivate() {
     ComponentRegistry.unregister(TemplatePicker);
     ComponentRegistry.unregister(TemplateStatusBar);
-    PreferencesUIStore.unregisterPreferencesTab(this.preferencesTab.sectionId);
+    PreferencesUIStore.unregisterPreferencesTab(this.preferencesTab.tabId);
     ExtensionRegistry.Composer.unregister(TemplateComposerExtension);
   },
 
