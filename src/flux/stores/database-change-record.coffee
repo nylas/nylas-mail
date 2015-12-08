@@ -25,12 +25,12 @@ class DatabaseChangeRecord
     })
     Object.defineProperty(@, 'objects', {
       get: ->
-        @_objects ?= Utils.deserializeRegisteredObjects(@_objectsString)
+        @_objects ?= JSON.parse(@_objectsString, Utils.registeredObjectReviver)
         @_objects
     })
 
   toJSON: =>
-    @_objectsString ?= Utils.serializeRegisteredObjects(@_objects)
+    @_objectsString ?= JSON.stringify(@_objects, Utils.registeredObjectReplacer)
 
     type: @type
     objectClass: @objectClass

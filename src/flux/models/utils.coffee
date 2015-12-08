@@ -10,35 +10,30 @@ DefaultResourcePath = null
 module.exports =
 Utils =
 
-  # To deserialize a string serialized with the `Utils.serializeRegisteredObjects`
-  # method. This will convert anything that has a known class to its
-  # appropriate object type.
-  deserializeRegisteredObjects: (json) ->
+  registeredObjectReviver: (k,v) ->
+    type = v?.__constructorName
+    return v unless type
+
     TaskRegistry ?= require '../../task-registry'
     DatabaseObjectRegistry ?= require '../../database-object-registry'
 
-    JSON.parse json, (k,v) ->
-      type = v?.__constructorName
-      return v unless type
+    if DatabaseObjectRegistry.isInRegistry(type)
+      return DatabaseObjectRegistry.deserialize(type, v)
 
-      if DatabaseObjectRegistry.isInRegistry(type)
-        return DatabaseObjectRegistry.deserialize(type, v)
+    if TaskRegistry.isInRegistry(type)
+      return TaskRegistry.deserialize(type, v)
 
-      if TaskRegistry.isInRegistry(type)
-        return TaskRegistry.deserialize(type, v)
+    return v
 
-      return v
-
-  serializeRegisteredObjects: (object) ->
+  registeredObjectReplacer: (k, v) ->
     TaskRegistry ?= require '../../task-registry'
     DatabaseObjectRegistry ?= require '../../database-object-registry'
 
-    JSON.stringify object, (k, v) ->
-      if _.isObject(v)
-        type = this[k].constructor.name
-        if DatabaseObjectRegistry.isInRegistry(type) or TaskRegistry.isInRegistry(type)
-          v.__constructorName = type
-      return v
+    if _.isObject(v)
+      type = this[k].constructor.name
+      if DatabaseObjectRegistry.isInRegistry(type) or TaskRegistry.isInRegistry(type)
+        v.__constructorName = type
+    return v
 
   timeZone: tz
 

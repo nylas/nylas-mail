@@ -12,7 +12,7 @@ class WindowBridge
     taskId = Utils.generateTempId()
     new Promise (resolve, reject) =>
       @_tasks[taskId] = {resolve, reject}
-      args = Utils.serializeRegisteredObjects(args)
+      args = JSON.stringify(args, Utils.registeredObjectReplacer)
       params = {window, objectName, methodName, args, taskId}
       ipcRenderer.send("run-in-window", params)
 
@@ -23,21 +23,21 @@ class WindowBridge
     @runInWindow("work", args...)
 
   _onResults: (event, {returnValue, taskId}={}) =>
-    returnValue = Utils.deserializeRegisteredObjects(returnValue)
+    returnValue = JSON.parse(returnValue, Utils.registeredObjectReviver)
     @_tasks[taskId].resolve(returnValue)
     delete @_tasks[taskId]
 
   _onRunInWindow: (event, {objectName, methodName, args, taskId}={}) =>
-    args = Utils.deserializeRegisteredObjects(args)
+    args = JSON.parse(args, Utils.registeredObjectReviver)
     exports = require 'nylas-exports'
     result = exports[objectName][methodName].apply(null, args)
     if _.isFunction(result.then)
       result.then (returnValue) ->
-        returnValue = Utils.serializeRegisteredObjects(returnValue)
+        returnValue = JSON.stringify(returnValue, Utils.registeredObjectReplacer)
         ipcRenderer.send('remote-run-results', {returnValue, taskId})
     else
       returnValue = result
-      returnValue = Utils.serializeRegisteredObjects(returnValue)
+      returnValue = JSON.stringify(returnValue, Utils.registeredObjectReplacer)
       ipcRenderer.send('remote-run-results', {returnValue, taskId})
 
 module.exports = new WindowBridge

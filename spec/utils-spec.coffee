@@ -2,6 +2,7 @@ _ = require('underscore')
 Utils = require '../src/flux/models/utils'
 Thread = require '../src/flux/models/thread'
 Contact = require '../src/flux/models/contact'
+JSONBlob = require '../src/flux/models/json-blob'
 
 class Foo
   constructor: (@instanceVar) ->
@@ -14,6 +15,35 @@ class Bar extends Foo
   subMethod: (stuff) ->
     @moreStuff = stuff
     @method(stuff)
+
+describe "registeredObjectReviver / registeredObjectReplacer", ->
+  beforeEach ->
+    @testThread = new Thread
+      id: 'local-1'
+      participants: [
+        new Contact(id: 'local-a', name: 'Juan', email:'juan@nylas.com'),
+        new Contact(id: 'local-b', name: 'Ben', email:'ben@nylas.com')
+      ]
+      subject: 'Test 1234'
+
+  it "should serialize and de-serialize models correctly", ->
+    expectedString = '[{"client_id":"local-1","subject":"Test 1234","participants":[{"client_id":"local-a","name":"Juan","email":"juan@nylas.com","thirdPartyData":{},"id":"local-a"},{"client_id":"local-b","name":"Ben","email":"ben@nylas.com","thirdPartyData":{},"id":"local-b"}],"id":"local-1","__constructorName":"Thread"}]'
+
+    jsonString = JSON.stringify([@testThread], Utils.registeredObjectReplacer)
+    expect(jsonString).toEqual(expectedString)
+    revived = JSON.parse(jsonString, Utils.registeredObjectReviver)
+    expect(revived).toEqual([@testThread])
+
+  it "should re-inflate Models in places they're not explicitly declared types", ->
+    b = new JSONBlob({id: "local-ThreadsToProcess", json: [@testThread]})
+    jsonString = JSON.stringify(b, Utils.registeredObjectReplacer)
+    expectedString = '{"client_id":"local-ThreadsToProcess","json":[{"client_id":"local-1","subject":"Test 1234","participants":[{"client_id":"local-a","name":"Juan","email":"juan@nylas.com","thirdPartyData":{},"id":"local-a"},{"client_id":"local-b","name":"Ben","email":"ben@nylas.com","thirdPartyData":{},"id":"local-b"}],"id":"local-1","__constructorName":"Thread"}],"id":"local-ThreadsToProcess","__constructorName":"JSONBlob"}'
+
+    expect(jsonString).toEqual(expectedString)
+    revived = JSON.parse(jsonString, Utils.registeredObjectReviver)
+    expect(revived).toEqual(b)
+    expect(revived.json[0] instanceof Thread).toBe(true)
+    expect(revived.json[0].participants[0] instanceof Contact).toBe(true)
 
 describe "modelFreeze", ->
   it "should freeze the object", ->
