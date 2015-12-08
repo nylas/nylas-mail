@@ -212,10 +212,12 @@ class NylasEnvConstructor extends Model
       @getCurrentWindow().setMenuBarVisibility(false)
 
     # initialize spell checking
-    require('web-frame').setSpellCheckProvider("en-US", false, {
+    require('web-frame').setSpellCheckProvider(navigator.language, false, {
       spellCheck: (text) ->
         !(require('spellchecker').isMisspelled(text))
     })
+    spellchecker = require('spellchecker')
+    spellchecker.setDictionary(navigator.language)
 
     @subscribe @packages.onDidActivateInitialPackages => @watchThemes()
     @windowEventHandler = new WindowEventHandler
