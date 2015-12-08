@@ -4,7 +4,7 @@ EmailFrame = require './email-frame'
 {Utils,
  MessageUtils,
  MessageBodyProcessor,
- QuotedHTMLParser,
+ QuotedHTMLTransformer,
  FileDownloadStore} = require 'nylas-exports'
 {InjectedComponentSet} = require 'nylas-component-kit'
 
@@ -47,7 +47,7 @@ class MessageItemBody extends React.Component
     <EmailFrame showQuotedText={@state.showQuotedText} content={@state.processedBody}/>
 
   _renderQuotedTextControl: =>
-    return null unless QuotedHTMLParser.hasQuotedHTML(@props.message.body)
+    return null unless QuotedHTMLTransformer.hasQuotedHTML(@props.message.body)
     text = if @state.showQuotedText then "Hide" else "Show"
     <a className="quoted-text-control" onClick={@_toggleQuotedText}>
       <span className="dots">&bull;&bull;&bull;</span>{text} previous

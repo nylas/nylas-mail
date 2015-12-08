@@ -1,4 +1,5 @@
 Reflux = require 'reflux'
+Rx = require 'rx-lite'
 _ = require 'underscore'
 NylasStore = require 'nylas-store'
 CategoryStore = require './category-store'
@@ -10,7 +11,7 @@ Folder = require '../models/folder'
 Label = require '../models/label'
 WindowBridge = require '../../window-bridge'
 
-JSONObjectKey = 'UnreadCounts-V2'
+JSONBlobKey = 'UnreadCounts-V2'
 
 class CategoryDatabaseMutationObserver
   constructor: (@_countsDidChange) ->
@@ -55,25 +56,28 @@ class CategoryDatabaseMutationObserver
 
 class ThreadCountsStore extends NylasStore
   CategoryDatabaseMutationObserver: CategoryDatabaseMutationObserver
-  JSONObjectKey: JSONObjectKey
+  JSONBlobKey: JSONBlobKey
 
   constructor: ->
     @_counts = {}
     @_deltas = {}
-    @_categories = []
     @_saveCountsSoon ?= _.throttle(@_saveCounts, 1000)
-
-    @listenTo DatabaseStore, @_onDatabaseChanged
-    DatabaseStore.findJSONObject(JSONObjectKey).then (json) =>
-      @_counts = json ? {}
-      @trigger()
 
     @_observer = new CategoryDatabaseMutationObserver(@_onCountsChanged)
     DatabaseStore.addMutationHook(@_observer)
 
     if NylasEnv.isWorkWindow()
-      @_loadCategories().then =>
+      DatabaseStore.findJSONBlob(JSONBlobKey).then(@_onCountsBlobRead)
+      Rx.Observable.combineLatest(
+        Rx.Observable.fromQuery(DatabaseStore.findAll(Label)),
+        Rx.Observable.fromQuery(DatabaseStore.findAll(Folder))
+      ).subscribe ([labels, folders]) =>
+        @_categories = [].concat(labels, folders)
         @_fetchCountsMissing()
+
+    else
+      query = DatabaseStore.findJSONBlob(JSONBlobKey)
+      Rx.Observable.fromQuery(query).subscribe(@_onCountsBlobRead)
 
   unreadCountForCategoryId: (catId) =>
     return null if @_counts[catId] is undefined
@@ -81,21 +85,6 @@ class ThreadCountsStore extends NylasStore
 
   unreadCounts: =>
     @_counts
-
-  _onDatabaseChanged: (change) =>
-    if NylasEnv.isWorkWindow()
-      if change.objectClass in [Folder.name, Label.name]
-        for obj in change.objects
-          objIdx = _.findIndex @_categories, (cat) -> cat.id is obj.id
-          if objIdx isnt -1
-            @_categories[objIdx] = obj
-          else
-            @_categories.push(obj)
-        @_fetchCountsMissing()
-
-    else if change.objectClass is 'JSONObject' and change.objects[0].key is JSONObjectKey
-      @_counts = change.objects[0].json ? {}
-      @trigger()
 
   _onCountsChanged: (metadata) =>
     if not NylasEnv.isWorkWindow()
@@ -107,13 +96,9 @@ class ThreadCountsStore extends NylasStore
       @_deltas[catId] += unread
     @_saveCountsSoon()
 
-  _loadCategories: =>
-    Promise.props({
-      folders: DatabaseStore.findAll(Folder)
-      labels: DatabaseStore.findAll(Label)
-    }).then ({folders, labels}) =>
-      @_categories = [].concat(folders, labels)
-      Promise.resolve()
+  _onCountsBlobRead: (json) =>
+    @_counts = json ? {}
+    @trigger()
 
   # Fetch a count, populate it in the cache, and then call ourselves to
   # populate the next missing count.
@@ -147,7 +132,7 @@ class ThreadCountsStore extends NylasStore
       @_counts[key] += count
       delete @_deltas[key]
 
-    DatabaseStore.persistJSONObject(JSONObjectKey, @_counts)
+    DatabaseStore.persistJSONBlob(JSONBlobKey, @_counts)
     @trigger()
 
   _fetchCountForCategory: (cat) =>

@@ -9,7 +9,7 @@ request = require 'request'
 
 {React,
  ComponentRegistry,
- QuotedHTMLParser,
+ QuotedHTMLTransformer,
  DraftStore} = require 'nylas-exports'
 {Menu,
  RetinaImg,
@@ -83,7 +83,7 @@ class TranslateButton extends React.Component
     #
     session = DraftStore.sessionForClientId(@props.draftClientId).then (session) =>
       draftHtml = session.draft().body
-      text = QuotedHTMLParser.removeQuotedHTML(draftHtml)
+      text = QuotedHTMLTransformer.removeQuotedHTML(draftHtml)
 
       query =
         key: YandexTranslationKey
@@ -99,7 +99,7 @@ class TranslateButton extends React.Component
         # The new text of the draft is our translated response, plus any quoted text
         # that we didn't process.
         translated = json.text.join('')
-        translated = QuotedHTMLParser.appendQuotedHTML(translated, draftHtml)
+        translated = QuotedHTMLTransformer.appendQuotedHTML(translated, draftHtml)
 
         # To update the draft, we add the new body to it's session. The session object
         # automatically marshalls changes to the database and ensures that others accessing

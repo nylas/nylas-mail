@@ -30,7 +30,7 @@ class EventHeader extends React.Component
 
   componentDidMount: =>
     @_unlisten = DatabaseStore.listen (change) =>
-      if change.objectClass is Event.name
+      if @state.event and change.objectClass is Event.name
         updated = _.find change.objects, (o) => o.id is @state.event.id
         @setState({event: updated}) if updated
     @_onChange()

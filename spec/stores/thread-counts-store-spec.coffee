@@ -52,58 +52,13 @@ describe "ThreadCountsStore", ->
         ThreadCountsStore._onCountsChanged(payload)
         expect(WindowBridge.runInWorkWindow).toHaveBeenCalledWith('ThreadCountsStore', '_onCountsChanged', [payload])
 
-  describe "when a folder or label is persisted", ->
-    beforeEach ->
-      @lExisting = new Label(id: "l1", name: "inbox", displayName: "Inbox")
-      ThreadCountsStore._categories = [@lExisting]
-
-      @lCreated = new Label(id: "lNew", displayName: "Hi there!")
-      @lUpdated = @lExisting.clone()
-      @lUpdated.displayName = "Inbox Edited"
-
-      spyOn(ThreadCountsStore, '_fetchCountsMissing')
-
-    describe "in the work window", ->
-      beforeEach ->
-        spyOn(NylasEnv, 'isWorkWindow').andReturn(true)
-
-      it "should add or update it in it's local categories cache", ->
-        ThreadCountsStore._onDatabaseChanged({objectClass: Label.name, objects: [@lCreated]})
-        expect(ThreadCountsStore._categories).toEqual([@lExisting, @lCreated])
-
-        ThreadCountsStore._onDatabaseChanged({objectClass: Label.name, objects: [@lUpdated]})
-        expect(ThreadCountsStore._categories).toEqual([@lUpdated, @lCreated])
-
-        ThreadCountsStore._categories = []
-
-        ThreadCountsStore._onDatabaseChanged({objectClass: Label.name, objects: [@lCreated, @lUpdated]})
-        expect(ThreadCountsStore._categories).toEqual([@lCreated, @lUpdated])
-
-      it "should run _fetchCountsMissing", ->
-        ThreadCountsStore._onDatabaseChanged({objectClass: Label.name, objects: [@lUpdated]})
-        expect(ThreadCountsStore._fetchCountsMissing).toHaveBeenCalled()
-
-    describe "in other windows", ->
-      beforeEach ->
-        spyOn(NylasEnv, 'isWorkWindow').andReturn(false)
-
-      it "should do nothing", ->
-        ThreadCountsStore._onDatabaseChanged({objectClass: Label.name, objects: [@lCreated]})
-        expect(ThreadCountsStore._categories).toEqual([@lExisting])
-        expect(ThreadCountsStore._fetchCountsMissing).not.toHaveBeenCalled()
-
   describe "when counts are persisted", ->
     it "should update it's _counts cache and trigger", ->
       newCounts = {
         'abc': 1
       }
       spyOn(ThreadCountsStore, 'trigger')
-      ThreadCountsStore._onDatabaseChanged({
-        objectClass: 'JSONObject',
-        objects: [
-          {key: ThreadCountsStore.JSONObjectKey, json: newCounts}
-        ]
-      })
+      ThreadCountsStore._onCountsBlobRead(newCounts)
       expect(ThreadCountsStore._counts).toEqual(newCounts)
       expect(ThreadCountsStore.trigger).toHaveBeenCalled()
 
@@ -218,9 +173,9 @@ describe "ThreadCountsStore", ->
       })
 
     it "should persist the new counts to the database", ->
-      spyOn(DatabaseStore, 'persistJSONObject')
+      spyOn(DatabaseStore, 'persistJSONBlob')
       ThreadCountsStore._saveCounts()
-      expect(DatabaseStore.persistJSONObject).toHaveBeenCalledWith(ThreadCountsStore.JSONObjectKey, ThreadCountsStore._counts)
+      expect(DatabaseStore.persistJSONBlob).toHaveBeenCalledWith(ThreadCountsStore.JSONBlobKey, ThreadCountsStore._counts)
 
 describe "CategoryDatabaseMutationObserver", ->
   beforeEach ->

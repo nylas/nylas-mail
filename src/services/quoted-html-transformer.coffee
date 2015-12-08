@@ -2,7 +2,7 @@ _ = require 'underscore'
 crypto = require 'crypto'
 DOMUtils = require '../dom-utils'
 
-class QuotedHTMLParser
+class QuotedHTMLTransformer
 
   annotationClass: "nylas-quoted-text-segment"
 
@@ -198,4 +198,4 @@ class QuotedHTMLParser
     return Array::slice.call(doc.querySelectorAll('blockquote'))
 
 
-module.exports = new QuotedHTMLParser
+module.exports = new QuotedHTMLTransformer

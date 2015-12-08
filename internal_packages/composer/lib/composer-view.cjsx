@@ -9,7 +9,7 @@ React = require 'react'
  ContactStore,
  AccountStore,
  FileUploadStore,
- QuotedHTMLParser,
+ QuotedHTMLTransformer,
  FileDownloadStore,
  ExtensionRegistry} = require 'nylas-exports'
 
@@ -327,14 +327,14 @@ class ComposerView extends React.Component
 
   _removeQuotedText: (html) =>
     if @state.showQuotedText then return html
-    else return QuotedHTMLParser.removeQuotedHTML(html)
+    else return QuotedHTMLTransformer.removeQuotedHTML(html)
 
   _showQuotedText: (html) =>
     if @state.showQuotedText then return html
-    else return QuotedHTMLParser.appendQuotedHTML(html, @state.body)
+    else return QuotedHTMLTransformer.appendQuotedHTML(html, @state.body)
 
   _renderQuotedTextControl: ->
-    if QuotedHTMLParser.hasQuotedHTML(@state.body)
+    if QuotedHTMLTransformer.hasQuotedHTML(@state.body)
       text = if @state.showQuotedText then "Hide" else "Show"
       <a className="quoted-text-control" onClick={@_onToggleQuotedText}>
         <span className="dots">&bull;&bull;&bull;</span>{text} previous
@@ -712,7 +712,7 @@ class ComposerView extends React.Component
     Actions.sendDraft(@props.draftClientId)
 
   _mentionsAttachment: (body) =>
-    body = QuotedHTMLParser.removeQuotedHTML(body.toLowerCase().trim())
+    body = QuotedHTMLTransformer.removeQuotedHTML(body.toLowerCase().trim())
     return body.indexOf("attach") >= 0
 
   _destroyDraft: =>

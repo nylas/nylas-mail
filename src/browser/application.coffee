@@ -328,18 +328,18 @@ class Application
     ipcMain.on 'from-react-remote-window-selection', (event, json) =>
       @windowManager.sendToMainWindow('from-react-remote-window-selection', json)
 
-    ipcMain.on 'inline-style-parse', (event, {body, clientId}) =>
+    ipcMain.on 'inline-style-parse', (event, {html, key}) =>
       juice = require 'juice'
       try
-        body = juice(body)
+        html = juice(html)
       catch
         # If the juicer fails (because of malformed CSS or some other
         # reason), then just return the body. We will still push it
         # through the HTML sanitizer which will strip the style tags. Oh
         # well.
-        body = body
+        html = html
       # win = BrowserWindow.fromWebContents(event.sender)
-      event.sender.send('inline-styles-result', {body, clientId})
+      event.sender.send('inline-styles-result', {html, key})
 
     app.on 'activate', (event, hasVisibleWindows) =>
       if not hasVisibleWindows

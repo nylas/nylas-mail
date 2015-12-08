@@ -56,8 +56,8 @@ class PreferencesUIStore extends NylasStore
       @_selection = @_selection.set('tabId', tabItem.tabId)
     @_triggerDebounced()
 
-  unregisterPreferencesTab: (tabId) ->
-    @_tabs = @_tabs.filter (s) => s.tabId isnt tabId
+  unregisterPreferencesTab: (tabItemOrId) ->
+    @_tabs = @_tabs.filter (s) -> s.tabId isnt tabItemOrId and s isnt tabItemOrId
     @_triggerDebounced()
 
 module.exports = new PreferencesUIStore()

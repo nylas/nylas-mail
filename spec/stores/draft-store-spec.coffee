@@ -13,6 +13,9 @@ SoundRegistry = require '../../src/sound-registry'
 Actions = require '../../src/flux/actions'
 Utils = require '../../src/flux/models/utils'
 
+InlineStyleTransformer = require '../../src/services/inline-style-transformer'
+SanitizeTransformer = require '../../src/services/sanitize-transformer'
+
 {ipcRenderer} = require 'electron'
 _ = require 'underscore'
 
@@ -40,9 +43,8 @@ describe "DraftStore", ->
 
   describe "creating drafts", ->
     beforeEach ->
-      spyOn(DraftStore, "_sanitizeBody").andCallThrough()
-      spyOn(DraftStore, "_onInlineStylesResult").andCallThrough()
-      spyOn(DraftStore, "_convertToInlineStyles").andCallThrough()
+      spyOn(DraftStore, "_prepareBodyForQuoting").andCallFake (body) ->
+        Promise.resolve(body)
       spyOn(ipcRenderer, "send").andCallFake (message, body) ->
         if message is "inline-style-parse"
           # There needs to be a defer block in here so the promise
@@ -181,11 +183,7 @@ describe "DraftStore", ->
         expect(@model.replyToMessageId).toEqual(fakeMessage1.id)
 
       it "should sanitize the HTML", ->
-        expect(DraftStore._sanitizeBody).toHaveBeenCalled()
-
-      it "should not call the style inliner when there are no style tags", ->
-        expect(DraftStore._convertToInlineStyles).not.toHaveBeenCalled()
-        expect(DraftStore._onInlineStylesResult).not.toHaveBeenCalled()
+        expect(DraftStore._prepareBodyForQuoting).toHaveBeenCalled()
 
     describe "onComposeReply", ->
       describe "when the message provided as context has one or more 'ReplyTo' recipients", ->
@@ -245,11 +243,7 @@ describe "DraftStore", ->
         expect(@model.replyToMessageId).toEqual(fakeMessage1.id)
 
       it "should sanitize the HTML", ->
-        expect(DraftStore._sanitizeBody).toHaveBeenCalled()
-
-      it "should not call the style inliner when there are no style tags", ->
-        expect(DraftStore._convertToInlineStyles).not.toHaveBeenCalled()
-        expect(DraftStore._onInlineStylesResult).not.toHaveBeenCalled()
+        expect(DraftStore._prepareBodyForQuoting).toHaveBeenCalled()
 
     describe "onComposeReplyAll", ->
       describe "when the message provided as context has one or more 'ReplyTo' recipients", ->
@@ -329,45 +323,7 @@ describe "DraftStore", ->
         expect(@model.replyToMessageId).toEqual(undefined)
 
       it "should sanitize the HTML", ->
-        expect(DraftStore._sanitizeBody).toHaveBeenCalled()
-
-      it "should not call the style inliner when there are no style tags", ->
-        expect(DraftStore._convertToInlineStyles).not.toHaveBeenCalled()
-        expect(DraftStore._onInlineStylesResult).not.toHaveBeenCalled()
-
-    describe "inlining <style> tags", ->
-      it "inlines styles when replying", ->
-        runs ->
-          DraftStore._onComposeReply({threadId: fakeThread.id, messageId: messageWithStyleTags.id})
-          advanceClock(100)
-        waitsFor ->
-          DatabaseStore.persistModel.callCount > 0
-        runs ->
-          model = DatabaseStore.persistModel.mostRecentCall.args[0]
-          expect(DraftStore._convertToInlineStyles).toHaveBeenCalled()
-          expect(DraftStore._onInlineStylesResult).toHaveBeenCalled()
-
-      it "inlines styles when replying all", ->
-        runs ->
-          DraftStore._onComposeReplyAll({threadId: fakeThread.id, messageId: messageWithStyleTags.id})
-          advanceClock(100)
-        waitsFor ->
-          DatabaseStore.persistModel.callCount > 0
-        runs ->
-          model = DatabaseStore.persistModel.mostRecentCall.args[0]
-          expect(DraftStore._convertToInlineStyles).toHaveBeenCalled()
-          expect(DraftStore._onInlineStylesResult).toHaveBeenCalled()
-
-      it "inlines styles when forwarding", ->
-        runs ->
-          DraftStore._onComposeForward({threadId: fakeThread.id, messageId: messageWithStyleTags.id})
-          advanceClock(100)
-        waitsFor ->
-          DatabaseStore.persistModel.callCount > 0
-        runs ->
-          model = DatabaseStore.persistModel.mostRecentCall.args[0]
-          expect(DraftStore._convertToInlineStyles).toHaveBeenCalled()
-          expect(DraftStore._onInlineStylesResult).toHaveBeenCalled()
+        expect(DraftStore._prepareBodyForQuoting).toHaveBeenCalled()
 
     describe "popout drafts", ->
       beforeEach ->
@@ -582,6 +538,17 @@ describe "DraftStore", ->
             , (thread, message) ->
               expect(message).toEqual(fakeMessage1)
               {}
+
+  describe "sanitizing draft bodies", ->
+    it "should transform inline styles and sanitize unsafe html", ->
+      spyOn(InlineStyleTransformer, 'run').andCallFake (input) => Promise.resolve(input)
+      spyOn(SanitizeTransformer, 'run').andCallFake (input) => Promise.resolve(input)
+
+      input = "test 123"
+      DraftStore._prepareBodyForQuoting(input)
+      expect(InlineStyleTransformer.run).toHaveBeenCalledWith(input)
+      advanceClock()
+      expect(SanitizeTransformer.run).toHaveBeenCalledWith(input, SanitizeTransformer.Preset.UnsafeOnly)
 
   describe "onDestroyDraft", ->
     beforeEach ->

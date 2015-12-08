@@ -42,7 +42,7 @@ describe('EditableList', ()=> {
     it('calls onItemCreated', ()=> {
       const onItemCreated = jasmine.createSpy('onItemCreated');
       const list = makeList(['1', '2'], {initialState: {creatingItem: true}, onItemCreated});
-      const createItem = findRenderedDOMComponentWithClass(list, 'create-item');
+      const createItem = findRenderedDOMComponentWithClass(list, 'create-item-input');
       const input = findRenderedDOMComponentWithTag(createItem, 'input');
       findDOMNode(input).value = 'New Item';
 
@@ -141,7 +141,7 @@ describe('EditableList', ()=> {
         findRenderedDOMComponentWithClass(list, 'items-wrapper')
       );
       expect(()=> {
-        findRenderedDOMComponentWithClass(list, 'create-item');
+        findRenderedDOMComponentWithClass(list, 'create-item-input');
       }).toThrow();
 
       expect(innerList.childNodes.length).toEqual(3);
@@ -151,7 +151,7 @@ describe('EditableList', ()=> {
     it('renders create input as an item when creating', ()=> {
       const items = ['1', '2', '3'];
       const list = makeList(items, {initialState: {creatingItem: true}});
-      const createItem = findRenderedDOMComponentWithClass(list, 'create-item');
+      const createItem = findRenderedDOMComponentWithClass(list, 'create-item-input');
       expect(createItem).toBeDefined();
     });
 

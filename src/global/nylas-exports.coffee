@@ -55,6 +55,7 @@ class NylasExports
   @load "SearchView", 'flux/stores/search-view'
   @load "DatabaseView", 'flux/stores/database-view'
   @load "DatabaseStore", 'flux/stores/database-store'
+  @load "QuerySubscriptionPool", 'flux/models/query-subscription-pool'
 
   # Database Objects
   # These need to be required immeidatley to populated the
@@ -70,6 +71,7 @@ class NylasExports
   @require "Category", 'flux/models/category'
   @require "Calendar", 'flux/models/calendar'
   @require "Metadata", 'flux/models/metadata'
+  @require "JSONBlob", 'flux/models/json-blob'
   @require "DatabaseObjectRegistry", "database-object-registry"
   @require "MailViewFilter", 'mail-view-filter'
 
@@ -151,9 +153,14 @@ class NylasExports
   # Services
   @load "UndoManager", 'undo-manager'
   @load "SoundRegistry", 'sound-registry'
-  @load "QuotedHTMLParser", 'services/quoted-html-parser'
-  @load "QuotedPlainTextParser", 'services/quoted-plain-text-parser'
   @load "NativeNotifications", 'native-notifications'
+
+  @load "QuotedHTMLTransformer", 'services/quoted-html-transformer'
+  @load "QuotedPlainTextTransformer", 'services/quoted-plain-text-transformer'
+  @load "SanitizeTransformer", 'services/sanitize-transformer'
+  @load "InlineStyleTransformer", 'services/inline-style-transformer'
+  @requireDeprecated "QuotedHTMLParser", 'services/quoted-html-transformer',
+    instead: 'QuotedHTMLTransformer'
 
   # Errors
   @get "APIError", -> require('../flux/errors').APIError

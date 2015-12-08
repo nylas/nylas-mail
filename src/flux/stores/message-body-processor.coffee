@@ -83,4 +83,5 @@ class MessageBodyProcessor
     @_recentlyProcessedA.unshift(item)
     @_recentlyProcessedD[key] = item
 
+
 module.exports = new MessageBodyProcessor()

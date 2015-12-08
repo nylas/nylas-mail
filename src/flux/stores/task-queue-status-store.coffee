@@ -1,4 +1,5 @@
 _ = require 'underscore'
+Rx = require 'rx-lite'
 NylasStore = require 'nylas-store'
 DatabaseStore = require './database-store'
 AccountStore = require './account-store'
@@ -13,15 +14,10 @@ class TaskQueueStatusStore extends NylasStore
     @_queue = []
     @_waitingLocals = []
     @_waitingRemotes = []
-    @listenTo DatabaseStore, @_onChange
 
-    DatabaseStore.findJSONObject(TaskQueue.JSONObjectStorageKey).then (json) =>
+    query = DatabaseStore.findJSONBlob(TaskQueue.JSONBlobStorageKey)
+    Rx.Observable.fromQuery(query).subscribe (json) =>
       @_queue = json || []
-      @trigger()
-
-  _onChange: (change) =>
-    if change.objectClass is 'JSONObject' and change.objects[0].key is 'task-queue'
-      @_queue = change.objects[0].json
       @_waitingLocals = @_waitingLocals.filter ({taskId, resolve}) =>
         task = _.findWhere(@_queue, {id: taskId})
         if not task or task.queueState.localComplete

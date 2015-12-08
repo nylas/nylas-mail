@@ -51,7 +51,7 @@ class NylasSyncWorker
     @_unlisten = Actions.retryInitialSync.listen(@_onRetryInitialSync, @)
 
     @_state = null
-    DatabaseStore.findJSONObject("NylasSyncWorker:#{@_account.id}").then (json) =>
+    DatabaseStore.findJSONBlob("NylasSyncWorker:#{@_account.id}").then (json) =>
       @_state = json ? {}
       for model, modelState of @_state
         modelState.busy = false
@@ -209,7 +209,7 @@ class NylasSyncWorker
 
   writeState: ->
     @_writeState ?= _.debounce =>
-      DatabaseStore.persistJSONObject("NylasSyncWorker:#{@_account.id}", @_state)
+      DatabaseStore.persistJSONBlob("NylasSyncWorker:#{@_account.id}", @_state)
     ,100
     @_writeState()
 

@@ -1,7 +1,6 @@
 _ = require 'underscore'
 crypto = require 'crypto'
 moment = require 'moment'
-sanitizeHtml = require 'sanitize-html'
 
 {ipcRenderer} = require 'electron'
 
@@ -12,6 +11,9 @@ ContactStore = require './contact-store'
 
 SendDraftTask = require '../tasks/send-draft'
 DestroyDraftTask = require '../tasks/destroy-draft'
+
+InlineStyleTransformer = require '../../services/inline-style-transformer'
+SanitizeTransformer = require '../../services/sanitize-transformer'
 
 Thread = require '../models/thread'
 Contact = require '../models/contact'
@@ -27,7 +29,6 @@ SoundRegistry = require '../../sound-registry'
 {Listener, Publisher} = require '../modules/reflux-coffee'
 CoffeeHelpers = require '../coffee-helpers'
 DOMUtils = require '../../dom-utils'
-RegExpUtils = require '../../regexp-utils'
 
 ExtensionRegistry = require '../../extension-registry'
 {deprecate} = require '../../deprecate-utils'
@@ -76,9 +77,6 @@ class DraftStore
 
     @_draftSessions = {}
 
-    @_inlineStylePromises = {}
-    @_inlineStyleResolvers = {}
-
     # We would ideally like to be able to calculate the sending state
     # declaratively from the existence of the SendDraftTask on the
     # TaskQueue.
@@ -96,8 +94,6 @@ class DraftStore
     @_draftsSending = {}
 
     ipcRenderer.on 'mailto', @_onHandleMailtoLink
-
-    ipcRenderer.on 'inline-styles-result', @_onInlineStylesResult
 
   ######### PUBLIC #######################################################
 
@@ -323,7 +319,7 @@ class DraftStore
   _prepareAttributesBody: (attributes) ->
     if attributes.replyToMessage
       replyToMessage = attributes.replyToMessage
-      @_prepareBodyForQuoting(replyToMessage.body, attributes.clientId).then (body) ->
+      @_prepareBodyForQuoting(replyToMessage.body).then (body) ->
         return """
           <br><br><blockquote class="gmail_quote"
             style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
@@ -342,7 +338,7 @@ class DraftStore
       fields.push("To: #{contactsAsHtml(forwardMessage.to)}") if forwardMessage.to.length > 0
       fields.push("CC: #{contactsAsHtml(forwardMessage.cc)}") if forwardMessage.cc.length > 0
       fields.push("BCC: #{contactsAsHtml(forwardMessage.bcc)}") if forwardMessage.bcc.length > 0
-      @_prepareBodyForQuoting(forwardMessage.body, attributes.clientId).then (body) ->
+      @_prepareBodyForQuoting(forwardMessage.body).then (body) ->
         return """
           <br><br><blockquote class="gmail_quote"
             style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
@@ -355,50 +351,17 @@ class DraftStore
     else return Promise.resolve("")
 
   # Eventually we'll want a nicer solution for inline attachments
-  _prepareBodyForQuoting: (body="", clientId) =>
+  _prepareBodyForQuoting: (body="") =>
     ## Fix inline images
     cidRE = MessageUtils.cidRegexString
+
     # Be sure to match over multiple lines with [\s\S]*
     # Regex explanation here: https://regex101.com/r/vO6eN2/1
     re = new RegExp("<img.*#{cidRE}[\\s\\S]*?>", "igm")
     body.replace(re, "")
 
-    ## Remove style tags and inline styles
-    # This prevents styles from leaking emails.
-    # https://github.com/Automattic/juice
-    if (RegExpUtils.looseStyleTag()).test(body)
-      @_convertToInlineStyles(body, clientId).then (body) =>
-        return @_sanitizeBody(body)
-    else
-      return Promise.resolve(@_sanitizeBody(body))
-
-  _convertToInlineStyles: (body, clientId) ->
-    body = @_injectUserAgentStyles(body)
-    @_inlineStylePromises[clientId] ?= new Promise (resolve, reject) =>
-      @_inlineStyleResolvers[clientId] = resolve
-      ipcRenderer.send('inline-style-parse', {body, clientId})
-    return @_inlineStylePromises[clientId]
-
-  # This will prepend the user agent stylesheet so we can apply it to the
-  # styles properly.
-  _injectUserAgentStyles: (body) ->
-    # No DOM parsing! Just find the first <style> tag and prepend there.
-    i = body.search(RegExpUtils.looseStyleTag())
-    return body if i is -1
-    userAgentDefault = require '../../chrome-user-agent-stylesheet-string'
-    return "#{body[0...i]}<style>#{userAgentDefault}</style>#{body[i..-1]}"
-
-  _onInlineStylesResult: (event, {body, clientId}) =>
-    delete @_inlineStylePromises[clientId]
-    @_inlineStyleResolvers[clientId](body)
-    delete @_inlineStyleResolvers[clientId]
-    return
-
-  _sanitizeBody: (body) ->
-    return sanitizeHtml body,
-      allowedTags: DOMUtils.permissiveTags()
-      allowedAttributes: DOMUtils.permissiveAttributes()
-      allowedSchemes: [ 'http', 'https', 'ftp', 'mailto', 'data' ]
+    InlineStyleTransformer.run(body).then (body) =>
+      SanitizeTransformer.run(body, SanitizeTransformer.Preset.UnsafeOnly)
 
   _onPopoutBlankDraft: =>
     account = AccountStore.current()
