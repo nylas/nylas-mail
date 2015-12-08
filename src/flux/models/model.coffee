@@ -106,7 +106,8 @@ class Model
     for key in Object.keys(@constructor.attributes)
       continue if key is 'id'
       attr = @constructor.attributes[key]
-      @[key] = attr.fromJSON(json[attr.jsonKey]) unless json[attr.jsonKey] is undefined
+      attrValue = json[attr.jsonKey]
+      @[key] = attr.fromJSON(attrValue) unless attrValue is undefined
     @
 
   # Public: Deflates the model to a plain JSON object. Only attributes defined
@@ -122,8 +123,10 @@ class Model
     for key in Object.keys(@constructor.attributes)
       continue if key is 'id'
       attr = @constructor.attributes[key]
+      attrValue = @[key]
+      continue if attrValue is undefined
       continue if attr instanceof Attributes.AttributeJoinedData and options.joined is false
-      json[attr.jsonKey] = attr.toJSON(@[key])
+      json[attr.jsonKey] = attr.toJSON(attrValue)
     json["id"] = @id
     json
 

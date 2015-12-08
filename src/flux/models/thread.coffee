@@ -93,10 +93,6 @@ class Thread extends Model
   fromJSON: (json) ->
     super(json)
 
-    # TODO: This is temporary, waiting on a migration on the backend
-    @lastMessageReceivedTimestamp ||= new Date(json['last_message_timestamp'] * 1000)
-    @
-
   # Public: Returns true if the thread has a {Category} with the given
   # name. Note, only `CategoryStore::standardCategories` have valid
   # `names`

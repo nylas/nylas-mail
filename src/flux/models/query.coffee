@@ -1,4 +1,5 @@
 {Matcher, AttributeJoinedData} = require '../attributes'
+Utils = require './utils'
 _ = require 'underscore'
 
 ###
@@ -177,7 +178,7 @@ class ModelQuery
     else
       try
         objects = result.map (row) =>
-          json = JSON.parse(row['data'])
+          json = JSON.parse(row['data'], Utils.registeredObjectReviver)
           object = (new @_klass).fromJSON(json)
           for attr in @_includeJoinedData
             value = row[attr.jsonKey]

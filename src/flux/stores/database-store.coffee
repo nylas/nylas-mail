@@ -16,9 +16,7 @@ PriorityUICoordinator = require '../../priority-ui-coordinator'
 
 {AttributeCollection, AttributeJoinedData} = require '../attributes'
 
-{tableNameForJoin,
- serializeRegisteredObjects,
- deserializeRegisteredObjects} = require '../models/utils'
+{tableNameForJoin} = require '../models/utils'
 
 DatabaseVersion = 16
 
@@ -632,7 +630,7 @@ class DatabaseStore extends NylasStore
     for model in models
       json = model.toJSON(joined: false)
       ids.push(model.id)
-      values.push(model.id, JSON.stringify(json))
+      values.push(model.id, JSON.stringify(json, Utils.registeredObjectReplacer))
       columnAttributes.forEach (attr) ->
         values.push(json[attr.jsonKey])
       marks.push(marksSet)

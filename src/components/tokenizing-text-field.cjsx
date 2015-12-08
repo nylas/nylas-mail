@@ -102,7 +102,7 @@ class Token extends React.Component
     </div>
 
   _onDragStart: (event) =>
-    json = Utils.serializeRegisteredObjects(@props.item)
+    json = JSON.stringify(@props.item, Utils.registeredObjectReplacer)
     event.dataTransfer.setData('nylas-token-item', json)
     event.dataTransfer.setData('text/plain', @props.item.toString())
     event.dataTransfer.dropEffect = "move"
@@ -363,7 +363,7 @@ class TokenizingTextField extends React.Component
 
     try
       data = event.dataTransfer.getData('nylas-token-item')
-      item = Utils.deserializeRegisteredObjects(data)
+      item = JSON.parse(data, Utils.registeredObjectReviver)
     catch err
       console.error(err)
       item = null
