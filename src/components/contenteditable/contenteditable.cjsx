@@ -42,14 +42,7 @@ class Contenteditable extends React.Component
     # Passes an absolute top coordinate to scroll to.
     onScrollTo: React.PropTypes.func
     onScrollToBottom: React.PropTypes.func
-
-    # Extension DOM Mutating handlers. See {ContenteditableExtension}
     onFilePaste: React.PropTypes.func
-    onInput: React.PropTypes.func
-    onFocus: React.PropTypes.func
-    onClick: React.PropTypes.func
-    onKeyDown: React.PropTypes.func
-    onShowContextMenu: React.PropTypes.func
 
     # A list of objects that extend {ContenteditableExtension}
     extensions: React.PropTypes.array
@@ -152,7 +145,7 @@ class Contenteditable extends React.Component
     </KeyCommandsRegion>
 
   _keymapHandlers: ->
-    atomicEditWrap = => (command) => (event) =>
+    atomicEditWrap = (command) => (event) =>
       @atomicEdit((-> document.execCommand(command)), event)
 
     keymapHandlers = {
