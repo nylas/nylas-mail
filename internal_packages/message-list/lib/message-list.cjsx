@@ -225,18 +225,24 @@ class MessageList extends React.Component
     </div>
 
   _renderIcons: =>
-    expandTitle = if MessageStore.hasCollapsedItems()
-      "Expand All"
-    else
-      "Collapse All"
     <div className="message-icons-wrap">
-      <div onClick={@_onToggleAllMessagesExpanded}>
-        <RetinaImg name="expand.png" fallback="expand.png" title={expandTitle} mode={RetinaImg.Mode.ContentPreserve}/>
-      </div>
+      {@_renderExpandToggle()}
       <div onClick={@_onPrintThread}>
-        <RetinaImg name="print.png" fallback="print.png" title="Print Thread" mode={RetinaImg.Mode.ContentPreserve}/>
+        <RetinaImg name="print.png" title="Print Thread" mode={RetinaImg.Mode.ContentIsMask}/>
       </div>
     </div>
+
+  _renderExpandToggle: =>
+    if MessageStore.items().length < 2
+      <span></span>
+    else if MessageStore.hasCollapsedItems()
+      <div onClick={@_onToggleAllMessagesExpanded}>
+        <RetinaImg name={"expand.png"} title={"Expand All"} mode={RetinaImg.Mode.ContentIsMask}/>
+      </div>
+    else
+      <div onClick={@_onToggleAllMessagesExpanded}>
+        <RetinaImg name={"collapse.png"} title={"Collapse All"} mode={RetinaImg.Mode.ContentIsMask}/>
+      </div>
 
   _renderLabels: =>
     labels = @state.currentThread.sortedLabels()
