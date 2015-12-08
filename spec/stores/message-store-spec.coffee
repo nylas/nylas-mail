@@ -72,7 +72,6 @@ describe "MessageStore", ->
 
       spyOn(DatabaseStore, 'findAll').andCallFake ->
         include: -> @
-        waitForAnimations: -> @
         where: -> @
         then: (callback) -> callback([testMessage1, testMessage2])
 

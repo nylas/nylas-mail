@@ -43,8 +43,8 @@ class ModelQuery
     @_database || = require '../stores/database-store'
     @_matchers = []
     @_orders = []
-    @_singular = false
-    @_waitForAnimations = false
+    @_range = {}
+    @_returnOne = false
     @_includeJoinedData = []
     @_count = false
     @
@@ -56,6 +56,8 @@ class ModelQuery
   # This method is chainable.
   #
   where: (matchers) ->
+    @_assertNotFinalized()
+
     if matchers instanceof Matcher
       @_matchers.push(matchers)
     else if matchers instanceof Array
@@ -78,6 +80,7 @@ class ModelQuery
   # This method is chainable.
   #
   include: (attr) ->
+    @_assertNotFinalized()
     if attr instanceof AttributeJoinedData is false
       throw new Error("query.include() must be called with a joined data attribute")
     @_includeJoinedData.push(attr)
@@ -88,6 +91,7 @@ class ModelQuery
   # This method is chainable.
   #
   includeAll: ->
+    @_assertNotFinalized()
     for key, attr of @_klass.attributes
       @include(attr) if attr instanceof AttributeJoinedData
     @
@@ -99,6 +103,7 @@ class ModelQuery
   # This method is chainable.
   #
   order: (orders) ->
+    @_assertNotFinalized()
     orders = [orders] unless orders instanceof Array
     @_orders = @_orders.concat(orders)
     @
@@ -109,7 +114,8 @@ class ModelQuery
   # This method is chainable.
   #
   one: ->
-    @_singular = true
+    @_assertNotFinalized()
+    @_returnOne = true
     @
 
   # Public: Limit the number of query results.
@@ -119,8 +125,8 @@ class ModelQuery
   # This method is chainable.
   #
   limit: (limit) ->
-    throw new Error("Cannot use limit > 2 with one()") if @_singular and limit > 1
-    @_range ?= {}
+    @_assertNotFinalized()
+    throw new Error("Cannot use limit > 2 with one()") if @_returnOne and limit > 1
     @_range.limit = limit
     @
 
@@ -131,7 +137,7 @@ class ModelQuery
   # This method is chainable.
   #
   offset: (offset) ->
-    @_range ?= {}
+    @_assertNotFinalized()
     @_range.offset = offset
     @
 
@@ -141,18 +147,8 @@ class ModelQuery
   # This method is chainable.
   #
   count: ->
+    @_assertNotFinalized()
     @_count = true
-    @
-
-  ##
-  # Public: Set the `waitForAnimations` flag - instead of waiting for animations and other important user
-  # interactions to complete, the query result will be processed immediately. Use with care: forcing
-  # immediate evaluation can cause glitches in animations.
-  #
-  # This method is chainable.
-  #
-  waitForAnimations: ->
-    @_waitForAnimations = true
     @
 
   ###
@@ -173,7 +169,7 @@ class ModelQuery
   run: ->
     @_database.run(@)
 
-  formatResult: (result) ->
+  inflateResult: (result) ->
     return null unless result
 
     if @_count
@@ -189,15 +185,20 @@ class ModelQuery
             object[attr.modelKey] = value
           object
       catch jsonError
-        throw new Error("Query could not parse the database result. Query: #{@sql()}, Row Data: #{row[0]}, Error: #{jsonError.toString()}")
-      return objects[0] if @_singular
+        throw new Error("Query could not parse the database result. Query: #{@sql()}, Error: #{jsonError.toString()}")
       return objects
+
+  formatResultObjects: (objects) ->
+    return objects[0] if @_returnOne
+    return objects
 
   # Query SQL Building
 
   # Returns a {String} with the SQL generated for the query.
   #
   sql: ->
+    @finalize()
+
     if @_count
       result = "COUNT(*) as count"
     else
@@ -206,18 +207,13 @@ class ModelQuery
         result += ", #{attr.selectSQL(@_klass)} "
 
     order = if @_count then "" else @_orderClause()
-    if @_singular
-      limit = "LIMIT 1"
-    else if @_range?.limit
+    if @_range.limit?
       limit = "LIMIT #{@_range.limit}"
     else
       limit = ""
-    if @_range?.offset
+    if @_range.offset?
       limit += " OFFSET #{@_range.offset}"
     "SELECT #{result} FROM `#{@_klass.name}` #{@_whereClause()} #{order} #{limit}"
-
-  executeOptions: ->
-    waitForAnimations: @_waitForAnimations
 
   _whereClause: ->
     joins = []
@@ -240,10 +236,6 @@ class ModelQuery
     sql
 
   _orderClause: ->
-    if @_orders.length == 0
-      natural = @_klass.naturalSortOrder()
-      @_orders.push(natural) if natural
-
     return "" unless @_orders.length
 
     sql = " ORDER BY "
@@ -251,12 +243,39 @@ class ModelQuery
       sql += sort.orderBySQL(@_klass)
     sql
 
+  # Private: Marks the object as final, preventing any changes to the where
+  # clauses, orders, etc.
+  finalize: ->
+    if @_orders.length is 0
+      natural = @_klass.naturalSortOrder()
+      @_orders.push(natural) if natural
+    if @_returnOne and not @_range.limit
+      @limit(1)
+    @_finalized = true
+    @
+
+  # Private: Throws an exception if the query has been frozen.
+  _assertNotFinalized: ->
+    if @_finalized
+      throw new Error("ModelQuery: You cannot modify a query after calling `then` or `listen`")
+
   # Introspection
   # (These are here to make specs easy)
+
+  matchers: ->
+    @_matchers
 
   matcherValueForModelKey: (key) ->
     matcher = _.find @_matchers, (m) -> m.attr.modelKey = key
     matcher?.val
 
+  range: ->
+    @_range
+
+  orderSortDescriptors: ->
+    @_orders
+
+  objectClass: ->
+    @_klass.name
 
 module.exports = ModelQuery

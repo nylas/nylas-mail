@@ -12,11 +12,6 @@ class DatabaseSetupQueryBuilder
 
   setupQueries: ->
     queries = []
-
-    # Add table for storing generic JSON blobs
-    queries.push("CREATE TABLE IF NOT EXISTS `JSONObject` (key TEXT PRIMARY KEY, data BLOB)")
-    queries.push("CREATE UNIQUE INDEX IF NOT EXISTS `JSONObject_id` ON `JSONObject` (`key`)")
-
     for key, klass of DatabaseObjectRegistry.classMap()
       queries = queries.concat @setupQueriesForTable(klass)
     return queries

@@ -34,6 +34,10 @@ DEBUG_MISSING_ACCOUNT_ID = false
 BEGIN_TRANSACTION = 'BEGIN TRANSACTION'
 COMMIT = 'COMMIT'
 
+class JSONBlobQuery extends ModelQuery
+  formatResultObjects: (objects) =>
+    return objects[0]?.json || null
+
 ###
 Public: N1 is built on top of a custom database layer modeled after
 ActiveRecord. For many parts of the application, the database is the source
@@ -395,14 +399,12 @@ class DatabaseStore extends NylasStore
   #
   # Returns a {Promise} that
   #   - resolves with the result of the database query.
-  run: (modelQuery) =>
-    {waitForAnimations} = modelQuery.executeOptions()
+  #
+  run: (modelQuery, options = {format: true}) =>
     @_query(modelQuery.sql(), []).then (result) =>
-      if waitForAnimations
-        PriorityUICoordinator.settle.then =>
-          Promise.resolve(modelQuery.formatResult(result))
-      else
-        Promise.resolve(modelQuery.formatResult(result))
+      result = modelQuery.inflateResult(result)
+      result = modelQuery.formatResultObjects(result) unless options.format is false
+      Promise.resolve(result)
 
   # Public: Asynchronously writes `model` to the cache and triggers a change event.
   #
@@ -485,16 +487,13 @@ class DatabaseStore extends NylasStore
           @_runMutationHooks('afterDatabaseChange', metadata, data)
           @_accumulateAndTrigger(metadata)
 
-  persistJSONObject: (key, json) ->
-    jsonString = serializeRegisteredObjects(json)
-    @_query("REPLACE INTO `JSONObject` (`key`,`data`) VALUES (?,?)", [key, jsonString]).then =>
-      @trigger(new DatabaseChangeRecord({objectClass: 'JSONObject', objects: [{key: key, json: json}], type: 'persist'}))
+  persistJSONBlob: (id, json) ->
+    JSONBlob = require '../models/json-blob'
+    @persistModel(new JSONBlob({id, json}))
 
-  findJSONObject: (key) ->
-    @_query("SELECT `data` FROM `JSONObject` WHERE key = ? LIMIT 1", [key]).then (results) =>
-      return Promise.resolve(null) unless results[0]
-      data = deserializeRegisteredObjects(results[0].data)
-      Promise.resolve(data)
+  findJSONBlob: (id) ->
+    JSONBlob = require '../models/json-blob'
+    new JSONBlobQuery(JSONBlob, @).where({id}).one()
 
   # Private: Mutation hooks allow you to observe changes to the database and
   # add additional functionality before and after the REPLACE / INSERT queries.

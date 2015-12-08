@@ -12,7 +12,7 @@ class RefreshingJSONCache
     @end()
 
     # Look up existing data from db
-    DatabaseStore.findJSONObject(@key).then (json) =>
+    DatabaseStore.findJSONBlob(@key).then (json) =>
 
       # Refresh immediately if json is missing or version is outdated. Otherwise,
       # compute next refresh time and schedule
@@ -24,7 +24,7 @@ class RefreshingJSONCache
 
   reset: ->
     # Clear db value, turn off any scheduled actions
-    DatabaseStore.persistJSONObject(@key, {})
+    DatabaseStore.persistJSONBlob(@key, {})
     @end()
 
   end: ->
@@ -39,7 +39,7 @@ class RefreshingJSONCache
 
     # Call fetch data function, save it to the database
     @fetchData (newValue) =>
-      DatabaseStore.persistJSONObject(@key, {
+      DatabaseStore.persistJSONBlob(@key, {
         version: @version
         time: Date.now()
         value: newValue

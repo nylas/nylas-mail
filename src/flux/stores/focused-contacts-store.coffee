@@ -1,4 +1,5 @@
 _ = require 'underscore'
+Rx = require 'rx-lite'
 
 Utils = require '../models/utils'
 Actions = require '../actions'
@@ -12,7 +13,6 @@ FocusedContentStore = require './focused-content-store'
 # A store that handles the focuses collections of and individual contacts
 class FocusedContactsStore extends NylasStore
   constructor: ->
-    @listenTo DatabaseStore, @_onDatabaseChanged
     @listenTo MessageStore, @_onMessageStoreChanged
     @listenTo Actions.focusContact, @_onFocusContact
     @_clearCurrentParticipants()
@@ -23,14 +23,6 @@ class FocusedContactsStore extends NylasStore
 
   # We need to wait now for the MessageStore to grab all of the
   # appropriate messages for the given thread.
-
-  _onDatabaseChanged: (change) =>
-    return unless @_currentFocusedContact
-    return unless change and change.objectClass is 'contact'
-    current = _.find change.objects, (c) => c.email is @_currentFocusedContact.email
-    if current
-      @_currentFocusedContact = current
-      @trigger()
 
   _onMessageStoreChanged: =>
     threadId = if MessageStore.itemsLoading() then null else MessageStore.threadId()
@@ -61,20 +53,26 @@ class FocusedContactsStore extends NylasStore
   _clearCurrentParticipants: ->
     @_contactScores = {}
     @_currentContacts = []
+    @_unsubFocusedContact?.dispose()
+    @_unsubFocusedContact = null
     @_currentFocusedContact = null
     @_currentThread = null
 
   _onFocusContact: (contact) =>
-    if not contact
-      @_currentFocusedContact = null
-      @trigger()
-    else
-      DatabaseStore.findBy(Contact, {
+    @_unsubFocusedContact?.dispose()
+    @_unsubFocusedContact = null
+
+    if contact
+      query = DatabaseStore.findBy(Contact, {
         email: contact.email,
         accountId: @_currentThread.accountId
-      }).then (match) =>
+      })
+      @_unsubFocusedContact = Rx.Observable.fromQuery(query).subscribe (match) =>
         @_currentFocusedContact = match ? contact
         @trigger()
+    else
+      @_currentFocusedContact = null
+      @trigger()
 
   # We score everyone to determine who's the most relevant to display in
   # the sidebar.
