@@ -17,7 +17,7 @@ class JSONBlob extends Model
       modelKey: 'serverId'
       jsonKey: 'server_id'
 
-    'json': Attributes.SerializedObjects
+    'json': Attributes.Object
       modelKey: 'json'
       jsonKey: 'json'
 

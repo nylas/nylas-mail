@@ -34,4 +34,4 @@ prefs.activate()
 
 ipc.on 'command', (command, args) ->
   if command is 'window:toggle-dev-tools'
-    ipc.send('call-webcontents-method', 'toggleDevTools')
+    ipc.send('call-window-method', 'toggleDevTools')
