@@ -301,14 +301,18 @@ class ComposerView extends React.Component
     <Contenteditable
       ref={Fields.Body}
       value={@_removeQuotedText(@state.body)}
-      onFocus={ => @setState focusedField: Fields.Body}
       onChange={@_onChangeBody}
       onScrollTo={@props.onRequestScrollTo}
       onFilePaste={@_onFilePaste}
       onScrollToBottom={@_onScrollToBottom()}
-      extensions={@state.composerExtensions}
+      extensions={[@_contenteditableHandlers()].concat(@state.composerExtensions)}
       getComposerBoundingRect={@_getComposerBoundingRect}
       initialSelectionSnapshot={@_recoveredSelection} />
+
+  _contenteditableHandlers: =>
+    {
+      onFocus: => @setState(focusedField: Fields.Body)
+    }
 
   # The contenteditable decides when to request a scroll based on the
   # position of the cursor and its relative distance to this composer
