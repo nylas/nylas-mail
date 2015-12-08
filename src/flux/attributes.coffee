@@ -9,7 +9,6 @@ AttributeDateTime = require './attributes/attribute-datetime'
 AttributeCollection = require './attributes/attribute-collection'
 AttributeJoinedData = require './attributes/attribute-joined-data'
 AttributeServerId = require './attributes/attribute-serverid'
-AttributeSerializedObjects = require './attributes/attribute-serialized-objects'
 
 module.exports =
   Matcher: Matcher
@@ -23,7 +22,6 @@ module.exports =
   Collection: -> new AttributeCollection(arguments...)
   JoinedData: -> new AttributeJoinedData(arguments...)
   ServerId: -> new AttributeServerId(arguments...)
-  SerializedObjects: -> new AttributeSerializedObjects(arguments...)
 
   AttributeNumber: AttributeNumber
   AttributeString: AttributeString
@@ -33,4 +31,3 @@ module.exports =
   AttributeCollection: AttributeCollection
   AttributeJoinedData: AttributeJoinedData
   AttributeServerId: AttributeServerId
-  AttributeSerializedObjects: AttributeSerializedObjects
