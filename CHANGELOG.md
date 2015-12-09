@@ -1,6 +1,6 @@
 # N1 Changelog
 
-### 0.3.28 (12/7/15)
+### 0.3.29 (12/9/15)
 
 - Features:
   + Print: You can now print threads via a button beside the subject line.
@@ -9,28 +9,34 @@
   + Expand / Collapse Thread: A button beside the subject line allows you to expand / collapse the thread.
   + Delete vs Archive: A new option allows you to choose the behavior of the Delete & Backspace keys.
   + Backgrounding: On Windows and Linux, the app will run from the System Tray, even if you close the main window.
-  
+
 - Fixes:
+  + Unread counts now work correctly on providers that delete threads.
   + Bold, underline, and italic keybindings have been fixed.
   + Mark as unread / Mark as important keybindings have been added.
-  + Search queries with special characters and puncutation now work.
+  + Search queries with special characters and punctuation now work.
   + On OS X, the badge icon now respects the option in preferences.
   + On Windows, the app's menu now shows conditional menu items properly.
   + On Linux, the preferences note that `zenity` is required for desktop notifications.
   + Disabling "Autoload images" blocks images without file extensions correctly.
-  + Unread counts now work correctly on providers that delete threads.
-  + The "toggle unread" button displays the correct icon when multiple emails are selected.
-  + The up / down arrows in the thread pane now correctly move between threads.
+  + The spellchecker now respects your system language preferences.
+  + "Toggle unread" displays the correct icon when multiple emails are selected.
   + "Show Important flags" now works as expected for Gmail accounts.
   + Changing accounts with an active search query runs the query for the other account.
+  + The up / down arrows in the thread pane now correctly move between threads.
+  + Focus no longer jumps between composer fields when you type after clicking them.
   + The entire signature box is now clickable.
+
+- Style:
+  + The Translate and Quick Schedule plugins now have composer toolbar icons.
+  + The undo/redo notification is styled correctly in dark mode.
 
 - Development:
   + `DraftStoreExtension` and `MessageStoreExtension` have been deprecated in favor of `ComposerExtension` and `MessageViewExtension`, respectively. See 9f309d399b7fe01230b53d3dec994b372bf2fd54 for more details.
   + `nylas-exports` is available on the Developer Tools console as `$n`
   + New integration tests for the composer can be run with `script/grunt run-integration-tests`
 
-  
+
 ### 0.3.27 (12/3/15)
 
 - Critical patch to the QuickSchedule plugin to prevent it from sending multiple RSVP responses
