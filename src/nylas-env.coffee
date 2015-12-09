@@ -217,7 +217,8 @@ class NylasEnvConstructor extends Model
         !(require('spellchecker').isMisspelled(text))
     })
     spellchecker = require('spellchecker')
-    spellchecker.setDictionary(navigator.language)
+    lang = navigator.language ? "en-US"
+    spellchecker.setDictionary(lang)
 
     @subscribe @packages.onDidActivateInitialPackages => @watchThemes()
     @windowEventHandler = new WindowEventHandler
