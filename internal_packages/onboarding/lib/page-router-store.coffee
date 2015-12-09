@@ -1,7 +1,7 @@
 Reflux = require 'reflux'
 OnboardingActions = require './onboarding-actions'
 TokenAuthAPI = require './token-auth-api'
-{AccountStore} = require 'nylas-exports'
+{AccountStore, Actions} = require 'nylas-exports'
 {ipcRenderer} = require 'electron'
 NylasStore = require 'nylas-store'
 url = require 'url'
@@ -30,6 +30,7 @@ class PageRouterStore extends NylasStore
     NylasEnv.displayWindow()
     if isFirstAccount
       @_onMoveToPage('initial-preferences', {account: json})
+      Actions.recordUserEvent('First Account Linked')
     else
       ipcRenderer.send('account-setup-successful')
 
