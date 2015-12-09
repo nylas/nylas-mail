@@ -238,8 +238,11 @@ class TokenizingTextField extends React.Component
     # Called when we remove and there's nothing left to remove
     onEmptied: React.PropTypes.func
 
-    # Gets called when the secondary action of the token gets invoked.
+    # Called when the secondary action of the token gets invoked.
     onTokenAction: React.PropTypes.func
+
+    # Called when the input is focused
+    onFocus: React.PropTypes.func
 
     # The tabIndex of the input item
     tabIndex: React.PropTypes.oneOfType([
@@ -373,6 +376,7 @@ class TokenizingTextField extends React.Component
 
   _onInputFocused: ({noCompletions}={}) =>
     @setState(focus: true)
+    @props.onFocus?()
     @_refreshCompletions() unless noCompletions
 
   _onInputKeydown: (event) =>
