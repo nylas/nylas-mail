@@ -66,7 +66,7 @@ describe "AccountStore", ->
         "auth_token": "auth-123"
         "organization_unit": "label"
       @instance = new @constructor
-      spyOn(@instance, "onSelectAccountId").andCallThrough()
+      spyOn(@instance, "_onSelectAccount").andCallThrough()
       spyOn(@instance, "trigger")
       @instance.addAccountFromJSON(@json)
 
@@ -84,8 +84,8 @@ describe "AccountStore", ->
 
     it "selects the account", ->
       expect(@instance._index).toBe 0
-      expect(@instance.onSelectAccountId).toHaveBeenCalledWith("1234")
-      expect(@instance.onSelectAccountId.calls.length).toBe 1
+      expect(@instance._onSelectAccount).toHaveBeenCalledWith("1234")
+      expect(@instance._onSelectAccount.calls.length).toBe 1
 
     it "triggers", ->
       expect(@instance.trigger).toHaveBeenCalled()

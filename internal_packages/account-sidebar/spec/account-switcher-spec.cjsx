@@ -13,6 +13,7 @@ describe "AccountSwitcher", ->
         {
           emailAddress: "dillon@nylas.com",
           provider: "exchange"
+          label: "work"
         }
       ]
 

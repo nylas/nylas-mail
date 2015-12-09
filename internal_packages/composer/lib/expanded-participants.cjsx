@@ -17,6 +17,9 @@ class ExpandedParticipants extends React.Component
     bcc: React.PropTypes.array
     from: React.PropTypes.array
 
+    # The account to which the current draft belongs
+    account: React.PropTypes.object
+
     # Either "fullwindow" or "inline"
     mode: React.PropTypes.string
 
@@ -143,6 +146,7 @@ class ExpandedParticipants extends React.Component
           ref={Fields.From}
           onChange={ (me) => @props.onChangeParticipants(from: [me]) }
           onFocus={ => @props.onChangeFocusedField(Fields.From) }
+          account={@props.account}
           value={@props.from?[0]} />
       )
 

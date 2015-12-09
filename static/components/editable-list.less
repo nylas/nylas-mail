@@ -6,41 +6,55 @@
     display: flex;
     flex-direction: column;
     border: 1px solid @border-secondary-bg;
-    background-color: @background-secondary;
-    min-height: 50px;
+    background-color: @background-primary;
+    height: 90px;
     font-size: 0.9em;
 
-    .editable-item {
-      padding: @padding-small-vertical @padding-small-horizontal;
-      cursor: default;
+    .selected {
+      background-color: @component-active-color;
+      color: @component-active-bg;
+    }
 
-      &.selected {
-        background-color: @background-selected;
-        color: @text-color-selected;
+    .edit-icon {
+      display: none;
+      cursor: pointer;
+    }
+
+    .editable-item {
+      padding: (@padding-small-vertical - 1) @padding-small-horizontal;
+      cursor: default;
+      border-bottom: 1px solid @border-color-divider;
+      flex-shrink: 0;
+
+      &.selected.with-edit-icon {
+        display: flex;
+        align-items: center;
+        padding-right: 20px;
+
+        img.edit-icon {
+          display: inline;
+          background-color: @component-active-bg;
+          margin-left: auto;
+        }
       }
-      &+.editable-item {
-        border-top: 1px solid @border-color-divider;
-      }
-      input {
+
+      &>input {
         border: none;
         padding: 0;
         font-size: inherit;
-        background-color: @background-selected;
-        color: @text-color-selected;
+        background-color: @component-active-color;
+        color: @component-active-bg;
       }
       ::-webkit-input-placeholder {
         color: @text-color-inverse-very-subtle;
       }
     }
 
-    .editable-item+.create-item-input {
-      border-top: 1px solid @border-color-divider;
-    }
-
     .create-item-input {
-      input {
-        padding: 0 @padding-small-vertical;
+      &>input {
+        padding: (@padding-small-vertical - 1) @padding-small-horizontal;
         border: none;
+        border-bottom: 1px solid @border-color-divider;
         font-size: inherit;
       }
       ::-webkit-input-placeholder {
@@ -50,17 +64,20 @@
   }
 
   .buttons-wrapper {
-    margin-top: @padding-xs-horizontal;
+    display: flex;
+    border: 1px solid @border-secondary-bg;
+    border-top: none;
+    background-color: @background-secondary;
 
     .btn-editable-list {
-      height: 20px;
-      width: 30px;
-      text-align: center;
-      padding: 0 0 2px 0;
-
-      &+.btn-editable-list {
-        margin-left: 3px;
-      }
+      display: flex;
+      justify-content: center;
+      height: 25px;
+      width: 25px;
+      border-right: 1px solid #dddddd;
+      font-size: 1em;
+      cursor: default;
+      color: @text-color-subtle;
     }
   }
 }

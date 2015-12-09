@@ -151,7 +151,25 @@ class Actions
 
   *Scope: Window*
   ###
-  @selectAccountId: ActionScopeWindow
+  @selectAccount: ActionScopeWindow
+
+  ###
+  Public: Remove the selected account
+
+  *Scope: Window*
+  ###
+  @removeAccount: ActionScopeWindow
+
+  ###
+  Public: Update the provided account
+
+  *Scope: Window*
+
+  ```
+  Actions.updateAccount(account.id, {accountName: 'new'})
+  ```
+  ###
+  @updateAccount: ActionScopeWindow
 
   ###
   Public: Select the provided sheet in the current window. This action changes

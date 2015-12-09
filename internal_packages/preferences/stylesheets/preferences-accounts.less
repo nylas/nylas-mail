@@ -1,0 +1,68 @@
+@import "ui-variables";
+
+// Preferences Specific
+.preferences-wrap {
+  .preferences-accounts {
+    .accounts-content {
+      display: flex;
+
+      .account-list {
+        width: 400px;
+
+        .items-wrapper {
+          height: 525px;
+        }
+
+        .account {
+          padding: 10px;
+          border-bottom: 1px solid @border-color-divider;
+        }
+
+        .account-name {
+          font-size: @font-size-large;
+          cursor:default;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .account-subtext {
+          font-size: @font-size-small;
+          cursor:default;
+        }
+
+        .btn-editable-list {
+          height: 35px;
+          width: 35px;
+          font-size: 1.3em;
+        }
+      }
+
+      .account-details {
+        width: 400px;
+        padding-top: 20px;
+        padding-left: @spacing-super-double;
+        padding-right: @spacing-super-double;
+        background-color: @gray-lighter;
+        border-top: 1px solid @border-color-divider;
+        border-right: 1px solid @border-color-divider;
+        border-bottom: 1px solid @border-color-divider;
+
+        .items-wrapper {
+          height: 180px;
+        }
+
+        &>h3 {
+          font-size: 1.2em;
+          &:first-child {
+            margin-top: 0;
+          }
+        }
+
+        &>input {
+          font-size: 0.9em;
+          width: 100%;
+        }
+      }
+    }
+  }
+}

@@ -84,22 +84,8 @@
 
   .preferences-content {
     flex: 4;
-    .scroll-region-content {
+    &>.scroll-region-content {
       padding: @padding-large-vertical*3 @padding-large-horizontal * 3;
-    }
-  }
-
-  .well {
-    border-radius: 7px;
-    border:1px solid @border-color-divider;
-    background-color: lighten(@background-secondary, 2%);
-
-    &.large {
-      padding: 20px;
-      padding-right:10px;
-    }
-    &.small {
-      padding:10px;
     }
   }
 
@@ -184,21 +170,6 @@
           content: "";
         }
       }
-    }
-  }
-
-  .container-accounts {
-    max-width: 600px;
-
-    .account-name {
-      font-size: @font-size-large;
-      cursor:default;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .account-subtext {
-      font-size: @font-size-small;
-      cursor:default;
     }
   }
 

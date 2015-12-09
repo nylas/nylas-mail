@@ -49,65 +49,65 @@ class SyncbackDraftTask extends Task
     @getLatestLocalDraft().then (draft) =>
       # The draft may have been deleted by another task. Nothing we can do.
       return Promise.resolve() unless draft
-      @checkDraftFromMatchesAccount(draft).then (draft) =>
 
-        if draft.serverId
-          path = "/drafts/#{draft.serverId}"
-          method = 'PUT'
+      if draft.serverId
+        path = "/drafts/#{draft.serverId}"
+        method = 'PUT'
+      else
+        path = "/drafts"
+        method = 'POST'
+
+      payload = draft.toJSON()
+      @submittedBody = payload.body
+      # Not sure why were doing this, so commenting out for now
+      # delete payload['from']
+
+      # We keep this in memory as a fallback in case
+      # `getLatestLocalDraft` returns null after we make our API
+      # request.
+      oldDraft = draft
+
+      NylasAPI.makeRequest
+        accountId: draft.accountId
+        path: path
+        method: method
+        body: payload
+        returnsModel: false
+
+      .then (json) =>
+        # Important: There could be a significant delay between us initiating the save
+        # and getting JSON back from the server. Our local copy of the draft may have
+        # already changed more.
+        #
+        # The only fields we want to update from the server are the `id` and `version`.
+        #
+        # Also note that this *could* still rollback a save between the find / persist
+        # below. We currently have no way of locking between processes. Maybe a
+        # log-style data structure would be better suited for drafts.
+        #
+        DatabaseStore.atomically =>
+          @getLatestLocalDraft().then (draft) ->
+            if not draft then draft = oldDraft
+            draft.version = json.version
+            draft.serverId = json.id
+            DatabaseStore.persistModel(draft)
+
+      .then =>
+        return Promise.resolve(Task.Status.Success)
+
+      .catch APIError, (err) =>
+        if err.statusCode in [400, 404, 409] and err.requestOptions?.method is 'PUT'
+          @getLatestLocalDraft().then (draft) =>
+            if not draft then draft = oldDraft
+            @detatchFromRemoteID(draft).then ->
+              return Promise.resolve(Task.Status.Retry)
         else
-          path = "/drafts"
-          method = 'POST'
-
-        payload = draft.toJSON()
-        @submittedBody = payload.body
-        delete payload['from']
-
-        # We keep this in memory as a fallback in case
-        # `getLatestLocalDraft` returns null after we make our API
-        # request.
-        oldDraft = draft
-
-        NylasAPI.makeRequest
-          accountId: draft.accountId
-          path: path
-          method: method
-          body: payload
-          returnsModel: false
-
-        .then (json) =>
-          # Important: There could be a significant delay between us initiating the save
-          # and getting JSON back from the server. Our local copy of the draft may have
-          # already changed more.
+          # NOTE: There's no offline handling. If we're offline
+          # SyncbackDraftTasks should always fail.
           #
-          # The only fields we want to update from the server are the `id` and `version`.
-          #
-          # Also note that this *could* still rollback a save between the find / persist
-          # below. We currently have no way of locking between processes. Maybe a
-          # log-style data structure would be better suited for drafts.
-          #
-          DatabaseStore.atomically =>
-            @getLatestLocalDraft().then (draft) ->
-              if not draft then draft = oldDraft
-              draft.version = json.version
-              draft.serverId = json.id
-              DatabaseStore.persistModel(draft)
-
-        .then =>
-          return Promise.resolve(Task.Status.Success)
-
-        .catch APIError, (err) =>
-          if err.statusCode in [400, 404, 409] and err.requestOptions?.method is 'PUT'
-            @getLatestLocalDraft().then (draft) =>
-              if not draft then draft = oldDraft
-              @detatchFromRemoteID(draft).then ->
-                return Promise.resolve(Task.Status.Retry)
-          else
-            # NOTE: There's no offline handling. If we're offline
-            # SyncbackDraftTasks should always fail.
-            #
-            # We don't roll anything back locally, but this failure
-            # ensures that SendDraftTasks can never succeed while offline.
-            Promise.resolve([Task.Status.Failed, err])
+          # We don't roll anything back locally, but this failure
+          # ensures that SendDraftTasks can never succeed while offline.
+          Promise.resolve([Task.Status.Failed, err])
 
   getLatestLocalDraft: =>
     DatabaseStore.findBy(Message, clientId: @draftClientId).include(Message.attributes.body)

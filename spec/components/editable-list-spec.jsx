@@ -138,7 +138,7 @@ describe('EditableList', ()=> {
       const items = ['1', '2', '3'];
       const list = makeList(items);
       const innerList = findDOMNode(
-        findRenderedDOMComponentWithClass(list, 'items-wrapper')
+        findRenderedDOMComponentWithClass(list, 'scroll-region-content-inner')
       );
       expect(()=> {
         findRenderedDOMComponentWithClass(list, 'create-item-input');

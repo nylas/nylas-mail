@@ -1,6 +1,7 @@
 Model = require './model'
 Utils = require './utils'
 Attributes = require '../attributes'
+RegExpUtils = require '../../regexp-utils'
 _ = require 'underscore'
 
 # Only load the AccountStore the first time we actually need it. This
@@ -64,6 +65,20 @@ class Contact extends Model
   @additionalSQLiteConfig:
     setup: ->
       ['CREATE INDEX IF NOT EXISTS ContactEmailIndex ON Contact(account_id,email)']
+
+  @fromString: (string) ->
+    emailRegex = RegExpUtils.emailRegex()
+    match = emailRegex.exec(string)
+    if emailRegex.exec(string)
+      throw new Error('Error while calling Contact.fromString: string contains more than one email')
+    email = match[0]
+    name = string[0...match.index - 1]
+    name = name[0...-1] if name[name.length - 1] in ['<', '(']
+    name = name.trim()
+    return new Contact
+      accountId: @id
+      name: name
+      email: email
 
   # Public: Returns a string of the format `Full Name <email@address.com>` if
   # the contact has a populated name, just the email address otherwise.
