@@ -26,13 +26,17 @@ class AccountStore
 
   constructor: ->
     @_load()
-    @listenTo Actions.selectAccountId, @onSelectAccountId
+    @listenTo Actions.selectAccount, @_onSelectAccount
+    @listenTo Actions.removeAccount, @_onRemoveAccount
+    @listenTo Actions.updateAccount, @_onUpdateAccount
     NylasEnv.config.observe saveTokensKey, (updatedTokens) =>
       return if _.isEqual(updatedTokens, @_tokens)
       newAccountIds = _.keys(_.omit(updatedTokens, _.keys(@_tokens)))
       @_load()
       if newAccountIds.length > 0
-        Actions.selectAccountId(newAccountIds[0])
+        Actions.selectAccount(newAccountIds[0])
+    unless NylasEnv.isMainWindow()
+      NylasEnv.config.observe saveObjectsKey, => @_load()
 
     @_setupFastAccountCommands()
 
@@ -65,7 +69,7 @@ class AccountStore
   _selectAccountByIndex: (index) =>
     require('electron').ipcRenderer.send('command', 'application:show-main-window')
     index = Math.min(@_accounts.length - 1, Math.max(0, index))
-    Actions.selectAccountId(@_accounts[index].id)
+    Actions.selectAccount(@_accounts[index].id)
 
   _load: =>
     @_accounts = []
@@ -87,14 +91,23 @@ class AccountStore
 
   # Inbound Events
 
-  onSelectAccountId: (id) =>
+  _onSelectAccount: (id) =>
     idx = _.findIndex @_accounts, (a) -> a.id is id
     return if idx is -1 or @_index is idx
     NylasEnv.config.set(saveIndexKey, idx)
     @_index = idx
     @trigger()
 
-  removeAccountId: (id) =>
+  _onUpdateAccount: (id, updated) =>
+    idx = _.findIndex @_accounts, (a) -> a.id is id
+    account = @_accounts[idx]
+    return if !account
+    account = _.extend(account, updated)
+    @_accounts[idx] = account
+    NylasEnv.config.set(saveObjectsKey, @_accounts)
+    @trigger()
+
+  _onRemoveAccount: (id) =>
     idx = _.findIndex @_accounts, (a) -> a.id is id
     return if idx is -1
 
@@ -107,7 +120,7 @@ class AccountStore
       ipc.send('command', 'application:reset-config-and-relaunch')
     else
       if @_index is idx
-        Actions.selectAccountId(@_accounts[0].id)
+        Actions.selectAccount(@_accounts[0].id)
       @trigger()
 
   addAccountFromJSON: (json) =>
@@ -119,7 +132,7 @@ class AccountStore
     @_tokens[json.id] = json.auth_token
     @_accounts.push((new Account).fromJSON(json))
     @_save()
-    @onSelectAccountId(json.id)
+    @_onSelectAccount(json.id)
 
   # Exposed Data
 
@@ -131,6 +144,11 @@ class AccountStore
   itemWithEmailAddress: (email) =>
     _.find @_accounts, (account) ->
       Utils.emailIsEquivalent(email, account.emailAddress)
+
+  # Public: Returns the {Account} for the given account id, or null.
+  itemWithId: (accountId) =>
+    _.find @_accounts, (account) ->
+      accountId is account.accountId
 
   # Public: Returns the currently active {Account}.
   current: =>

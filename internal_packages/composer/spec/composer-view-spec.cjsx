@@ -308,17 +308,17 @@ describe "populated composer", ->
       makeComposer.call @
       expect(@composer.state.enabledFields).not.toContain Fields.From
 
-    it "disables if it's a reply-to message", ->
-      spyOn(AccountStore, 'items').andCallFake -> [{id: 1}, {id: 2}]
-      useDraft.call @, replyToMessageId: "local-123", files: []
-      makeComposer.call @
-      expect(@composer.state.enabledFields).not.toContain Fields.From
-
     it "disables if there are attached files", ->
       spyOn(AccountStore, 'items').andCallFake -> [{id: 1}, {id: 2}]
       useDraft.call @, replyToMessageId: null, files: [f1]
       makeComposer.call @
       expect(@composer.state.enabledFields).not.toContain Fields.From
+
+    it "enables if it's a reply-to message", ->
+      spyOn(AccountStore, 'items').andCallFake -> [{id: 1}, {id: 2}]
+      useDraft.call @, replyToMessageId: "local-123", files: []
+      makeComposer.call @
+      expect(@composer.state.enabledFields).toContain Fields.From
 
     it "enables if requirements are met", ->
       a1 = new Account()

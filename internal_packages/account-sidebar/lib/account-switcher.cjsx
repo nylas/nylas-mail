@@ -39,6 +39,7 @@ class AccountSwitcher extends React.Component
     </div>
 
   _renderPrimaryItem: =>
+    label = @state.account.label.trim()
     <div className="item primary-item" onClick={@_toggleDropdown}>
       {@_renderGravatarForAccount(@state.account)}
       <div style={float: 'right', marginTop: -2}>
@@ -47,13 +48,14 @@ class AccountSwitcher extends React.Component
                    mode={RetinaImg.Mode.ContentDark} />
       </div>
       <div className="name" style={lineHeight: "110%"}>
-        {@state.account.emailAddress.trim().toLowerCase()}
+        {label}
       </div>
       <div style={clear: "both"}></div>
     </div>
 
   _renderAccount: (account) =>
     email = account.emailAddress.trim().toLowerCase()
+    label = account.label.trim()
     classes = classNames
       "active": account is @state.account
       "item": true
@@ -61,7 +63,7 @@ class AccountSwitcher extends React.Component
 
     <div className={classes} onClick={ => @_onSwitchAccount(account)} key={email}>
       {@_renderGravatarForAccount(account)}
-      <div className="name" style={lineHeight: "110%"}>{email}</div>
+      <div className="name" style={lineHeight: "110%"}>{label}</div>
       <div style={clear: "both"}></div>
     </div>
 
@@ -115,7 +117,7 @@ class AccountSwitcher extends React.Component
     @setState(showing: false)
 
   _onSwitchAccount: (account) =>
-    Actions.selectAccountId(account.id)
+    Actions.selectAccount(account.id)
     @setState(showing: false)
 
   _onManageAccounts: =>

@@ -56,7 +56,7 @@ module.exports =
         else
           NylasEnv.displayWindow()
           if AccountStore.current().id isnt thread.accountId
-            Actions.selectAccountId(thread.accountId)
+            Actions.selectAccount(thread.accountId)
 
           MailViewFilter filter = MailViewFilter.forCategory(thread.categoryNamed('inbox'))
           Actions.focusMailView(filter)

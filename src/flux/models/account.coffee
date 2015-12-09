@@ -45,6 +45,23 @@ class Account extends Model
       modelKey: 'organizationUnit'
       jsonKey: 'organization_unit'
 
+    'label': Attributes.String
+      queryable: false
+      modelKey: 'label'
+
+    'aliases': Attributes.Object
+      queryable: false
+      modelKey: 'aliases'
+
+  constructor: ->
+    super
+    @aliases ||= []
+    @label ||= @emailAddress
+
+  fromJSON: (json) ->
+    json["label"] ||= json[@constructor.attributes['emailAddress'].jsonKey]
+    super(json)
+
   # Returns a {Contact} model that represents the current user.
   me: ->
     Contact = require './contact'
@@ -52,6 +69,11 @@ class Account extends Model
       accountId: @id
       name: @name
       email: @emailAddress
+
+  meUsingAlias: (alias) ->
+    Contact = require './contact'
+    return @me() unless alias
+    return Contact.fromString(alias)
 
   usesLabels: ->
     @organizationUnit is "label"

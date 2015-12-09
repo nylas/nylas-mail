@@ -9,20 +9,8 @@ class AccountContactField extends React.Component
 
   @propTypes:
     value: React.PropTypes.object
+    account: React.PropTypes.object,
     onChange: React.PropTypes.func.isRequired
-
-  constructor: (@props) ->
-    @state = @getStateFromStores()
-
-  componentDidMount: =>
-    @unlisten = AccountStore.listen =>
-      @setState(@getStateFromStores())
-
-  componentWillUnmount: =>
-    @unlisten()
-
-  getStateFromStores: =>
-    accounts: AccountStore.items()
 
   render: =>
     <div className="composer-participant-field">
@@ -31,34 +19,30 @@ class AccountContactField extends React.Component
     </div>
 
   _renderFromPicker: ->
-    current = _.find @state.accounts, (acct) =>
-      acct.emailAddress is @props.value?.email
-
-    if current
-      currentLabel = current.me().toString()
+    if @props.account? && @props.value?
+      label = @props.value.toString()
+      if @props.account.aliases.length is 0
+        return @_renderAccountSpan(label)
+      return <ButtonDropdown
+        ref="dropdown"
+        bordered={false}
+        primaryItem={<span>{label}</span>}
+        menu={@_renderAliasesMenu(@props.account)}/>
     else
-      currentLabel = "Please select one of your accounts"
-      # currentLabel = "Choose an account..."
+      return @_renderAccountSpan("Please select an account")
 
-    return <span className="from-picker" style={position: "relative", top: 6, left: "0.5em"}>{currentLabel}</span>
+  _renderAliasesMenu: (account) =>
+    <Menu
+      items={[account.me().toString()].concat account.aliases}
+      itemKey={ (alias) -> alias }
+      itemContent={ (alias) -> alias }
+      onSelect={@_onChooseAlias.bind(@, account)} />
 
-    # <ButtonDropdown
-    #   ref="dropdown"
-    #   bordered={false}
-    #   primaryItem={<span>{currentLabel}</span>}
-    #   menu={@_renderMenu()}/>
+  _renderAccountSpan: (label) ->
+    <span className="from-picker" style={position: "relative", top: 6, left: "0.5em"}>{label}</span>
 
-  _renderMenu: =>
-    others = _.reject @state.accounts, (acct) =>
-      acct.emailAddress is @props.value?.email
-
-    <Menu items={others}
-      itemKey={ (account) -> account.id }
-      itemContent={ (account) -> account.me().toString() }
-      onSelect={@_onChooseAccount} />
-
-  _onChooseAccount: (account) =>
-    @props.onChange(account.me())
+  _onChooseAlias: (account, alias) =>
+    @props.onChange(account.meUsingAlias(alias))
     @refs.dropdown.toggleDropdown()
 
 

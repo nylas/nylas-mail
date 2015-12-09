@@ -308,7 +308,7 @@ body.platform-win32 {
 //////////////////////////////////
 .composer-participant-field {
   position: relative;
-  padding: 7px 0 0 0;
+  padding: 8px 0 0 0;
   margin: 0 8+@spacing-standard;
   flex-shrink: 0;
   border-bottom: 1px solid @border-color-divider;
@@ -317,6 +317,15 @@ body.platform-win32 {
 
   .button-dropdown {
     margin-left: 10px;
+    &:hover {
+      .primary-item,
+      .only-item {
+        border-radius: 4px;
+      }
+    }
+    .secondary-items {
+      border-radius: 4px;
+    }
   }
 
   .participant {
