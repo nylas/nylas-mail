@@ -9,9 +9,9 @@ ExpandedParticipants = require '../lib/expanded-participants'
 describe "ExpandedParticipants", ->
   makeField = (props={}) ->
     @onChangeParticipants = jasmine.createSpy("onChangeParticipants")
-    @onChangeEnabledFields = jasmine.createSpy("onChangeEnabledFields")
+    @onAdjustEnabledFields = jasmine.createSpy("onAdjustEnabledFields")
     props.onChangeParticipants = @onChangeParticipants
-    props.onChangeEnabledFields = @onChangeEnabledFields
+    props.onAdjustEnabledFields = @onAdjustEnabledFields
     @fields = ReactTestUtils.renderIntoDocument(
       <ExpandedParticipants {...props} />
     )
@@ -83,34 +83,34 @@ describe "ExpandedParticipants", ->
     makeField.call(@)
     el = ReactTestUtils.findRenderedDOMComponentWithClass(@fields, "show-cc")
     ReactTestUtils.Simulate.click(React.findDOMNode(el))
-    expect(@onChangeEnabledFields).toHaveBeenCalledWith show: [Fields.Cc], focus: Fields.Cc
+    expect(@onAdjustEnabledFields).toHaveBeenCalledWith show: [Fields.Cc]
 
   it "shows and focuses bcc when clicked", ->
     makeField.call(@)
     el = ReactTestUtils.findRenderedDOMComponentWithClass(@fields, "show-bcc")
     ReactTestUtils.Simulate.click(React.findDOMNode(el))
-    expect(@onChangeEnabledFields).toHaveBeenCalledWith show: [Fields.Bcc], focus: Fields.Bcc
+    expect(@onAdjustEnabledFields).toHaveBeenCalledWith show: [Fields.Bcc]
 
   it "shows subject when clicked", ->
     makeField.call(@)
     el = ReactTestUtils.findRenderedDOMComponentWithClass(@fields, "show-subject")
     ReactTestUtils.Simulate.click(React.findDOMNode(el))
-    expect(@onChangeEnabledFields).toHaveBeenCalledWith show: [Fields.Subject], focus: Fields.Subject
+    expect(@onAdjustEnabledFields).toHaveBeenCalledWith show: [Fields.Subject]
 
   it "empties cc and focuses on to field", ->
     makeField.call(@, enabledFields: [Fields.Cc, Fields.Bcc, Fields.Subject])
     @fields.refs[Fields.Cc].props.onEmptied()
-    expect(@onChangeEnabledFields).toHaveBeenCalledWith hide: [Fields.Cc], focus: Fields.To
+    expect(@onAdjustEnabledFields).toHaveBeenCalledWith hide: [Fields.Cc]
 
   it "empties bcc and focuses on to field", ->
     makeField.call(@, enabledFields: [Fields.Cc, Fields.Bcc, Fields.Subject])
     @fields.refs[Fields.Bcc].props.onEmptied()
-    expect(@onChangeEnabledFields).toHaveBeenCalledWith hide: [Fields.Bcc], focus: Fields.Cc
+    expect(@onAdjustEnabledFields).toHaveBeenCalledWith hide: [Fields.Bcc]
 
   it "empties bcc and focuses on cc field", ->
     makeField.call(@, enabledFields: [Fields.Bcc, Fields.Subject])
     @fields.refs[Fields.Bcc].props.onEmptied()
-    expect(@onChangeEnabledFields).toHaveBeenCalledWith hide: [Fields.Bcc], focus: Fields.To
+    expect(@onAdjustEnabledFields).toHaveBeenCalledWith hide: [Fields.Bcc]
 
   it "notifies when participants change", ->
     makeField.call(@, enabledFields: [Fields.Cc, Fields.Bcc, Fields.Subject])

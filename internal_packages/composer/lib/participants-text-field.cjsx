@@ -27,6 +27,10 @@ class ParticipantsTextField extends React.Component
 
     className: React.PropTypes.string
 
+    onEmptied: React.PropTypes.func
+
+    onFocus: React.PropTypes.func
+
   @defaultProps:
     visible: true
 
@@ -50,6 +54,7 @@ class ParticipantsTextField extends React.Component
         onRemove={@_remove}
         onEdit={@_edit}
         onEmptied={@props.onEmptied}
+        onFocus={@props.onFocus}
         onTokenAction={@_showContextMenu}
         tabIndex={@props.tabIndex}
         menuClassSet={classSet}

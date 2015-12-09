@@ -108,11 +108,11 @@ class ComposerView extends React.Component
     'composer:send-message': => @_sendDraft()
     'composer:delete-empty-draft': => @_deleteDraftIfEmpty()
     'composer:show-and-focus-bcc': =>
-      @_onChangeEnabledFields(show: [Fields.Bcc], focus: Fields.Bcc)
+      @_onAdjustEnabledFields(show: [Fields.Bcc])
     'composer:show-and-focus-cc': =>
-      @_onChangeEnabledFields(show: [Fields.Cc], focus: Fields.Cc)
+      @_onAdjustEnabledFields(show: [Fields.Cc])
     'composer:focus-to': =>
-      @_onChangeEnabledFields(show: [Fields.To], focus: Fields.To)
+      @_onAdjustEnabledFields(show: [Fields.To])
     "composer:show-and-focus-from": => # TODO
     "composer:undo": @undo
     "composer:redo": @redo
@@ -226,11 +226,12 @@ class ComposerView extends React.Component
           enabledFields={@state.enabledFields}
           onPopoutComposer={@_onPopoutComposer}
           onChangeParticipants={@_onChangeParticipants}
-          onChangeEnabledFields={@_onChangeEnabledFields} />
+          onChangeFocusedField={@_onChangeFocusedField}
+          onAdjustEnabledFields={@_onAdjustEnabledFields} />
       else
         <CollapsedParticipants
           to={@state.to} cc={@state.cc} bcc={@state.bcc}
-          onClick={@_focusParticipantField} />
+          onClick={@_onExpandParticipantFields} />
       }
 
       {@_renderSubject()}
@@ -254,29 +255,37 @@ class ComposerView extends React.Component
 
   _onTabDown: (event) =>
     event.preventDefault()
+    event.stopPropagation()
+    @_onShiftFocusedField(if event.shiftKey then -1 else 1)
+
+  _onShiftFocusedField: (dir) =>
     enabledFields = _.filter @state.enabledFields, (field) ->
       Fields.Order[field] >= 0
     enabledFields = _.sortBy enabledFields, (field) ->
       Fields.Order[field]
     i = enabledFields.indexOf @state.focusedField
-    dir = if event.shiftKey then -1 else 1
     newI = Math.min(Math.max(i + dir, 0), enabledFields.length - 1)
-    @setState focusedField: enabledFields[newI]
-    event.stopPropagation()
+    @_onChangeFocusedField(enabledFields[newI])
 
-  _onChangeParticipantField: (focusedField) =>
+  _onChangeFocusedField: (focusedField) =>
     @setState {focusedField}
-    @_lastFocusedParticipantField = focusedField
+    if focusedField in [Fields.To, Fields.Cc, Fields.Bcc]
+      @_lastFocusedParticipantField = focusedField
 
-  _focusParticipantField: =>
-    @setState focusedField: @_lastFocusedParticipantField ? Fields.To
+  _onExpandParticipantFields: =>
+    @_onChangeFocusedField(@_lastFocusedParticipantField ? Fields.To)
 
-  _onChangeEnabledFields: ({show, hide, focus}={}) =>
+  _onAdjustEnabledFields: ({show, hide}={}) =>
     show = show ? []; hide = hide ? []
-    newFields = _.difference(@state.enabledFields.concat(show), hide)
-    @setState
-      enabledFields: newFields
-      focusedField: (focus ? @state.focusedField)
+    enabledFields = _.difference(@state.enabledFields.concat(show), hide)
+
+    if hide.length > 0 and enabledFields.indexOf(@state.focusedField) is -1
+      @_onShiftFocusedField(-1)
+
+    @setState({enabledFields})
+
+    if show.length > 0
+      @_onChangeFocusedField(show[0])
 
   _renderSubject: ->
     if Fields.Subject in @state.enabledFields
