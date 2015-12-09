@@ -30,10 +30,13 @@ class ExpandedParticipants extends React.Component
     enabledFields: React.PropTypes.array
 
     # Callback for when a user changes which fields should be visible
-    onChangeEnabledFields: React.PropTypes.func
+    onAdjustEnabledFields: React.PropTypes.func
 
     # Callback for the participants change
     onChangeParticipants: React.PropTypes.func
+
+    # Callback for the field focus changes
+    onChangeFocusedField: React.PropTypes.func
 
   @defaultProps:
     to: []
@@ -51,7 +54,7 @@ class ExpandedParticipants extends React.Component
     @_applyFocusedField()
 
   render: ->
-    <div className="expanded-participants" 
+    <div className="expanded-participants"
          ref="participantWrap">
       {@_renderFields()}
     </div>
@@ -73,17 +76,17 @@ class ExpandedParticipants extends React.Component
         <div className="composer-participant-actions">
           {if Fields.Cc not in @props.enabledFields
             <span className="header-action show-cc"
-                  onClick={@_showAndFocusCc}>Cc</span>
+                  onClick={ => @props.onAdjustEnabledFields(show: [Fields.Cc]) }>Cc</span>
           }
 
           { if Fields.Bcc not in @props.enabledFields
             <span className="header-action show-bcc"
-                  onClick={@_showAndFocusBcc}>Bcc</span>
+                  onClick={ => @props.onAdjustEnabledFields(show: [Fields.Bcc]) }>Bcc</span>
           }
 
           { if Fields.Subject not in @props.enabledFields
             <span className="header-action show-subject"
-                  onClick={@_showAndFocusSubject}>Subject</span>
+                  onClick={ => @props.onAdjustEnabledFields(show: [Fields.Subject]) }>Subject</span>
           }
 
           { if @props.mode is "inline"
@@ -102,6 +105,7 @@ class ExpandedParticipants extends React.Component
           field='to'
           change={@props.onChangeParticipants}
           className="composer-participant-field to-field"
+          onFocus={ => @props.onChangeFocusedField(Fields.To) }
           participants={to: @props['to'], cc: @props['cc'], bcc: @props['bcc']} />
       </div>
     )
@@ -113,7 +117,8 @@ class ExpandedParticipants extends React.Component
           key="cc"
           field='cc'
           change={@props.onChangeParticipants}
-          onEmptied={@_onEmptyCc}
+          onEmptied={ => @props.onAdjustEnabledFields(hide: [Fields.Cc]) }
+          onFocus={ => @props.onChangeFocusedField(Fields.Cc) }
           className="composer-participant-field cc-field"
           participants={to: @props['to'], cc: @props['cc'], bcc: @props['bcc']} />
       )
@@ -125,7 +130,8 @@ class ExpandedParticipants extends React.Component
           key="bcc"
           field='bcc'
           change={@props.onChangeParticipants}
-          onEmptied={@_onEmptyBcc}
+          onEmptied={ => @props.onAdjustEnabledFields(hide: [Fields.Bcc]) }
+          onFocus={ => @props.onChangeFocusedField(Fields.Bcc) }
           className="composer-participant-field bcc-field"
           participants={to: @props['to'], cc: @props['cc'], bcc: @props['bcc']} />
       )
@@ -136,38 +142,10 @@ class ExpandedParticipants extends React.Component
           key="from"
           ref={Fields.From}
           onChange={ (me) => @props.onChangeParticipants(from: [me]) }
+          onFocus={ => @props.onChangeFocusedField(Fields.From) }
           value={@props.from?[0]} />
       )
 
     fields
-
-  _showAndFocusBcc: =>
-    @props.onChangeEnabledFields
-      show: [Fields.Bcc]
-      focus: Fields.Bcc
-
-  _showAndFocusCc: =>
-    @props.onChangeEnabledFields
-      show: [Fields.Cc]
-      focus: Fields.Cc
-
-  _showAndFocusSubject: =>
-    @props.onChangeEnabledFields
-      show: [Fields.Subject]
-      focus: Fields.Subject
-
-  _onEmptyCc: =>
-    @props.onChangeEnabledFields
-      hide: [Fields.Cc]
-      focus: Fields.To
-
-  _onEmptyBcc: =>
-    if Fields.Cc in @props.enabledFields
-      focus = Fields.Cc
-    else
-      focus = Fields.To
-    @props.onChangeEnabledFields
-      hide: [Fields.Bcc]
-      focus: focus
 
 module.exports = ExpandedParticipants
