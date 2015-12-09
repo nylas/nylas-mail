@@ -6,7 +6,6 @@ Model = require '../models/model'
 Utils = require '../models/utils'
 Actions = require '../actions'
 ModelQuery = require '../models/query'
-JSONBlobQuery = require '../models/json-blob-query'
 NylasStore = require '../../global/nylas-store'
 PromiseQueue = require 'promise-queue'
 DatabaseSetupQueryBuilder = require './database-setup-query-builder'
@@ -17,9 +16,7 @@ PriorityUICoordinator = require '../../priority-ui-coordinator'
 
 {AttributeCollection, AttributeJoinedData} = require '../attributes'
 
-{tableNameForJoin,
- serializeRegisteredObjects,
- deserializeRegisteredObjects} = require '../models/utils'
+{tableNameForJoin} = require '../models/utils'
 
 DatabaseVersion = 16
 
@@ -34,6 +31,10 @@ DEBUG_MISSING_ACCOUNT_ID = false
 
 BEGIN_TRANSACTION = 'BEGIN TRANSACTION'
 COMMIT = 'COMMIT'
+
+class JSONBlobQuery extends ModelQuery
+  formatResultObjects: (objects) =>
+    return objects[0]?.json || null
 
 ###
 Public: N1 is built on top of a custom database layer modeled after
@@ -629,7 +630,7 @@ class DatabaseStore extends NylasStore
     for model in models
       json = model.toJSON(joined: false)
       ids.push(model.id)
-      values.push(model.id, JSON.stringify(json))
+      values.push(model.id, JSON.stringify(json, Utils.registeredObjectReplacer))
       columnAttributes.forEach (attr) ->
         values.push(json[attr.jsonKey])
       marks.push(marksSet)

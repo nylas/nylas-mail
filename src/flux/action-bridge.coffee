@@ -76,7 +76,7 @@ class ActionBridge
     process.nextTick =>
       console.debug(printToConsole, "ActionBridge: #{@initiatorId} Action Bridge Received: #{name}")
 
-      args = Utils.deserializeRegisteredObjects(json)
+      args = JSON.parse(json, Utils.registeredObjectReviver)
 
       if name == Message.DATABASE_STORE_TRIGGER
         DatabaseStore.triggeringFromActionBridge = true
@@ -99,7 +99,8 @@ class ActionBridge
       if arg instanceof Function
         throw new Error("ActionBridge cannot forward action argument of type `function` to work window.")
       params.push(arg[0])
-    json = Utils.serializeRegisteredObjects(params)
+
+    json = JSON.stringify(params, Utils.registeredObjectReplacer)
 
     console.debug(printToConsole, "ActionBridge: #{@initiatorId} Action Bridge Broadcasting: #{name}")
     @ipc.send("action-bridge-rebroadcast-to-#{target}", @initiatorId, name, json)

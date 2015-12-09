@@ -10,11 +10,12 @@ DefaultResourcePath = null
 module.exports =
 Utils =
 
-  JSONReviver: (k,v) ->
-    TaskRegistry ?= require '../../task-registry'
-    DatabaseObjectRegistry ?= require '../../database-object-registry'
+  registeredObjectReviver: (k,v) ->
     type = v?.__constructorName
     return v unless type
+
+    TaskRegistry ?= require '../../task-registry'
+    DatabaseObjectRegistry ?= require '../../database-object-registry'
 
     if DatabaseObjectRegistry.isInRegistry(type)
       return DatabaseObjectRegistry.deserialize(type, v)
@@ -24,25 +25,15 @@ Utils =
 
     return v
 
-  JSONReplacer: (k,v) ->
+  registeredObjectReplacer: (k, v) ->
     TaskRegistry ?= require '../../task-registry'
     DatabaseObjectRegistry ?= require '../../database-object-registry'
+
     if _.isObject(v)
       type = this[k].constructor.name
       if DatabaseObjectRegistry.isInRegistry(type) or TaskRegistry.isInRegistry(type)
         v.__constructorName = type
     return v
-
-  # To deserialize a string serialized with the
-  # `Utils.serializeRegisteredObjects` method. This will convert anything
-  # that has a known class to its appropriate object type.
-  ## TODO: Globally override JSON.parse???
-  deserializeRegisteredObjects: (json) ->
-    return JSON.parse(json, Utils.JSONReviver)
-
-  ## TODO: Globally override JSON.stringify???
-  serializeRegisteredObjects: (object) ->
-    return JSON.stringify(object, Utils.JSONReplacer)
 
   timeZone: tz
 

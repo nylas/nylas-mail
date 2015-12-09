@@ -1,8 +1,7 @@
 React = require 'react'
-Crypto = require 'crypto'
 {ipcRenderer, dialog, remote} = require 'electron'
 {RetinaImg} = require 'nylas-component-kit'
-{EdgehillAPI, NylasAPI, APIError} = require 'nylas-exports'
+{EdgehillAPI, NylasAPI, APIError, Actions} = require 'nylas-exports'
 
 OnboardingActions = require './onboarding-actions'
 NylasApiEnvironmentStore = require './nylas-api-environment-store'
@@ -40,7 +39,6 @@ class AccountSettingsPage extends React.Component
             if account_data?
               done = true
               {data} = account_data
-              # accountJson = @_decrypt(data, @state.provider.encryptionKey, @state.provider.encryptionIv)
               account = JSON.parse(data)
               @_onAccountReceived(account)
             else if tries < 20 and id is pollAttemptId
@@ -55,19 +53,6 @@ class AccountSettingsPage extends React.Component
           poll(pollAttemptId,0)
       )
       poll(pollAttemptId,5000)
-
-  _decrypt: (encrypted, key, iv) ->
-    decipher = Crypto.createDecipheriv('aes-192-cbc', key, iv)
-    # The server pads the cyphertext with an extra block of all spaces at the end,
-    # to avoid having to call .final() here which seems to be broken...
-    dec = decipher.update(encrypted,'hex','utf8')
-    #dec += decipher.final('utf8');
-    return dec
-
-
-  componentDidMount: ->
-
-  componentWillUnmount: ->
 
   render: ->
     <div className="page account-setup">
@@ -228,7 +213,7 @@ class AccountSettingsPage extends React.Component
     # If this succeeds, send the received code to N1 server to register the account
     # Otherwise process the error message from the server and highlight UI as needed
     NylasAPI.makeRequest
-      path: "/auth?client_id=#{NylasAPI.AppID}"
+      path: "/auth?client_id=#{NylasAPI.AppID}&n1_id=#{NylasEnv.config.get('updateIdentity')}"
       method: 'POST'
       body: data
       returnsModel: false
@@ -253,6 +238,10 @@ class AccountSettingsPage extends React.Component
     .catch(@_onNetworkError)
 
   _onAccountReceived: (json) =>
+    Actions.recordUserEvent('Auth Successful', {
+      provider: @state.provider.name
+    })
+
     try
       OnboardingActions.accountJSONReceived(json)
     catch e
@@ -264,6 +253,12 @@ class AccountSettingsPage extends React.Component
 
   _onNetworkError: (err) =>
     errorMessage = err.message
+
+    Actions.recordUserEvent('Auth Failed', {
+      errorMessage: errorMessage
+      provider: @state.provider.name
+    })
+
     if errorMessage == "Invite code required"
       choice = dialog.showMessageBox(remote.getCurrentWindow(), {
         type: 'info',
