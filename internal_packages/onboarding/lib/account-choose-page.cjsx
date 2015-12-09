@@ -1,7 +1,7 @@
 React = require 'react'
 _ = require 'underscore'
 {RetinaImg} = require 'nylas-component-kit'
-{EdgehillAPI, Utils} = require 'nylas-exports'
+{EdgehillAPI, Utils, Actions} = require 'nylas-exports'
 
 OnboardingActions = require './onboarding-actions'
 Providers = require './account-types'
@@ -53,6 +53,10 @@ class AccountChoosePage extends React.Component
     @setState email: event.target.value
 
   _onChooseProvider: (provider) =>
+    Actions.recordUserEvent('Auth Flow Started', {
+      provider: provider.name
+    })
+
     if provider.name is 'gmail'
       # Show the "Sign in to Gmail" prompt for a moment before actually bouncing
       # to Gmail. (400msec animation + 200msec to read)
