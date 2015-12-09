@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import classNames from 'classNames';
+import classNames from 'classnames';
 import React, {Component, PropTypes} from 'react';
 
 class EditableList extends Component {
