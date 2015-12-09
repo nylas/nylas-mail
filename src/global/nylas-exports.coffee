@@ -149,6 +149,7 @@ class NylasExports
   @load "CanvasUtils", 'canvas-utils'
   @load "RegExpUtils", 'regexp-utils'
   @load "MessageUtils", 'flux/models/message-utils'
+  @load "NylasSpellchecker", 'nylas-spellchecker'
 
   # Services
   @load "UndoManager", 'undo-manager'
