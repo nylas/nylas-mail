@@ -485,6 +485,11 @@ class Actions
   @metadataCreated: ActionScopeWindow
   @metadataDestroyed: ActionScopeWindow
 
+  ###
+  Public: Publish a user event to any analytics services linked to N1.
+  ###
+  @recordUserEvent: ActionScopeWindow
+
 
 # Read the actions we declared on the dummy Actions object above
 # and translate them into Reflux Actions
