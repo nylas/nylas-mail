@@ -5,6 +5,14 @@ describe "NylasSpellchecker", ->
     @spellchecker = NylasSpellchecker
     @fullDictList = ["en_AU", "en_GB", "en_CA", "en_IN", "en", "da", "de", "es", "fr", "it", "Multilingual", "nl", "nb", "pt_BR", "pt_PT", "sv", "tr", "ru"]
 
+  it "can be passed a null language", ->
+    @spellchecker.setLanguage()
+    expect(@spellchecker.languageAvailable).toBe false
+
+  it "can be passed a null or empty language", ->
+    @spellchecker.setLanguage("")
+    expect(@spellchecker.languageAvailable).toBe false
+
   it "accepts null languages", ->
     expect(@spellchecker.isLanguageAvailable()).toBe false
 
@@ -62,7 +70,7 @@ describe "NylasSpellchecker", ->
       spyOn(@spellchecker, "_setWebframeSpellchecker")
       @spellchecker.setLanguage("en-US")
 
-    it "sets `languageAvailable` to false", ->
+    it "sets `languageAvailable` to true", ->
       expect(@spellchecker.languageAvailable).toBe true
 
     it "it correctly says on the webframe when words are spelled correctly", ->

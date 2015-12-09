@@ -14,12 +14,16 @@ class NylasSpellchecker
 
   isSpelledCorrectly: (args...) => not @isMisspelled(args...)
 
-  setLanguage: (lang) ->
+  setLanguage: (lang="") ->
     @languageAvailable = @isLanguageAvailable(lang)
     if @languageAvailable
       spellCheck = @isSpelledCorrectly
     else
       spellCheck = -> true
+
+    # Need to default to a valid language so web-frame
+    # `setSpellCheckProvder` gets a non empty string
+    if lang.length is 0 then lang = "en-US"
 
     @_setWebframeSpellchecker(lang, spellCheck)
     spellchecker.setDictionary(lang)
