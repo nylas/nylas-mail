@@ -47,8 +47,8 @@ setupConfigDir = (args) ->
 
   mkdirp.sync(configDirPath)
   if process.platform is 'win32'
-    fsWin=require('fswin')
-    fsWin.setAttributesSync(pathToFileOrDir, {IS_HIDDEN: true})
+    winattr=require('winattr')
+    winattr.setSync(configDirPath, {hidden: true})
 
   process.env.NYLAS_HOME = configDirPath
 
