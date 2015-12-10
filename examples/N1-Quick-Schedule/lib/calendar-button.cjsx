@@ -12,11 +12,12 @@ class CalendarButton extends React.Component
   _onClick: =>
     BrowserWindow = require('remote').require('browser-window')
     w = new BrowserWindow
+      title: 'N1 QuickSchedule'
       nodeIntegration: false
       webPreferences:
         webSecurity:false
-      width: 700
-      height: 600
+      width: 800
+      height: 650
 
     # Here, we load an arbitrary html file into the Composer!
     path = require 'path'

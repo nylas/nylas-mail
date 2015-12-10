@@ -48,8 +48,14 @@
             return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
         }
 
+        function resizeCalendar() {
+            $('#calendar').fullCalendar('option', 'height', $(window).height()-55);
+        }
+
         var availableTimes = [];
+        var eventSlots = {};
         var meetingLength = 0.5;
+        var nextId = 0;
         function resetCalendar(opts,firstCall) {
             if(!firstCall) $('#calendar').fullCalendar("destroy");
             if(!opts) opts = {};
@@ -61,7 +67,20 @@
                     right: 'today'
                 },
                 defaultView: 'agendaWeek',
-                handleWindowResize: false,
+                handleWindowResize: true,
+                windowResize: function(){
+                    resizeCalendar();
+                },
+                eventRender: function(event, element) {
+                    if(event.id === "available") {
+                        element.append( "<span class='closeon'>✕</span>" );
+                        element.find(".closeon").click(function() {
+                            $('#calendar').fullCalendar('removeEvents',function(e){return e===event});
+                            availableTimes = availableTimes.filter(function(e){return e.ext_id !== event.ext_id});
+                            delete eventSlots[event.start.format() + event.end.format()];
+                        });
+                    }
+                },
                 aspectRatio: 1.3,
                 timezone: 'local',
                 selectable: true,
@@ -73,18 +92,22 @@
                     var new_events = [];
                     //increment through selected time range, in blocks of size `meetingLength`
                     while(start.isBefore(end)) {
-                        new_events.push({
+                        e = {
                             title: "Available",
                             start: moment(start),
                             end: moment(start).add(meetingLength, "hours"),
                             color:"#8CA",
-                            id: "available"
-                        });
+                            id: "available",
+                            ext_id: nextId++
+                        };
+                        if(!eventSlots[e.start.format() + e.end.format()])
+                            new_events.push(e);
                         start.add(meetingLength, "hours");
                     }
                     //add the events to the calendar and to `availableTimes`
                     new_events.forEach(function(e){
                         availableTimes.push(e);
+                        eventSlots[e.start.format() + e.end.format()] = true;
                         $('#calendar').fullCalendar('renderEvent', e, true);
                     });
                     $('#calendar').fullCalendar('unselect');
@@ -112,6 +135,7 @@
                     defaults[key] = opts[key];
             }
             $('#calendar').fullCalendar(defaults);
+            resizeCalendar();
         }
 
         $(document).ready(function() {
@@ -125,16 +149,12 @@
             $("#reset").click(function(e){
                 $('#calendar').fullCalendar('removeEvents', "available");
                 availableTimes = [];
+                eventSlots = {};
             });
 
             //handle meeting length dropdown
             $("#meeting-length").change(function(e){
                 meetingLength = parseFloat($(this).val());
-                $('#calendar').fullCalendar('removeEvents', "available");
-                availableTimes = [];
-                resetCalendar({
-                    snapDuration: {hours: meetingLength}
-                });
             });
 
             //handle done button click
@@ -155,7 +175,7 @@
                                       " ("+moment().tz(moment.tz.guess()).format("z")+")", //local time zone abbrev
                                 serverKey: randomId(128) //string to access this time slot on the server
                             }
-                        })
+                        }).sort(function(a,b) { return a.start - b.start })
                 });
                 window.close();
             });
@@ -168,8 +188,8 @@
 
         #calendar {
             position: fixed;
-            left: 5px;
-            right: 205px;
+            left: 205px;
+            right: 5px;
             top: 50px;
             bottom: 5px;
         }
@@ -180,7 +200,7 @@
         #options {
             position: fixed;
             width: 200px;
-            right: 0;
+            left: 0;
             top: 45px;
             bottom: 0;
             padding: 5px;
@@ -208,6 +228,21 @@
             height: 150px;
         }
 
+        .closeon {
+            display: none;
+            color: #000;
+            position: absolute;
+            right: 0;
+            top: 0;
+            z-index: 100;
+            cursor: pointer;
+        }
+        .fc-event:hover .closeon {
+            display: block;
+        }
+        .fc-event:hover .closeon:hover {
+            color: #800;
+        }
 
     </style>
 </head>
@@ -241,7 +276,7 @@
 
     <div class="form-group">
         <button class="btn btn-default" id="reset">Reset</button>
-        <button class="btn btn-default" id="done">Done</button>
+        <button class="btn btn-primary" id="done">Done</button>
     </div>
     <p> Use this tool to offer options for scheduling a meeting or event. Click and drag in the
         calendar to select time ranges when you're available. Enter event details on the left,
