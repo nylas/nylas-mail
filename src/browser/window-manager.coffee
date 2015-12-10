@@ -6,7 +6,7 @@ NylasWindow = require './nylas-window'
 
 class WindowManager
 
-  constructor: ({@devMode, @safeMode, @resourcePath, @config}) ->
+  constructor: ({@devMode, @safeMode, @resourcePath, @configDirPath, @config}) ->
     @_windows = []
     @_mainWindow = null
     @_workWindow = null
@@ -73,14 +73,12 @@ class WindowManager
       bootstrapScript ?= require.resolve('../window-bootstrap')
       resourcePath ?= @resourcePath
 
-      @_mainWindow = new NylasWindow
+      @_mainWindow = new NylasWindow _.extend {}, @defaultWindowOptions(),
         loadingMessage: loadingMessage
         bootstrapScript: bootstrapScript
-        resourcePath: resourcePath
-        devMode: @devMode
-        safeMode: @safeMode
         neverClose: true
         mainWindow: true
+        windowType: 'default'
         # The position and resizable bit gets reset when the window
         # finishes loading. This represents the state of our "loading"
         # window.
@@ -325,6 +323,7 @@ class WindowManager
     safeMode: @safeMode
     windowType: 'popout'
     resourcePath: @resourcePath
+    configDirPath: @configDirPath
     bootstrapScript: require.resolve("../window-secondary-bootstrap")
 
   newColdWindow: (options={}) ->

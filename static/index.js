@@ -39,7 +39,7 @@ function setupWindow (loadSettings) {
   var hotreload = loadSettings.devMode && !loadSettings.isSpec;
   var CompileCache = require('../src/compile-cache')
   CompileCache.setHotReload(hotreload)
-  CompileCache.setHomeDirectory(process.env.NYLAS_HOME)
+  CompileCache.setHomeDirectory(loadSettings.configDirPath)
 
   var ModuleCache = require('../src/module-cache')
   ModuleCache.register(loadSettings)

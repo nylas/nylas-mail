@@ -20,6 +20,7 @@ yoursway-create-dmg
 *nylas-private-*
 /_site
 /.sass-cache
+.integration-test-config
 
 !spec/fixtures/packages/package-with-incompatible-native-module/node_modules
 

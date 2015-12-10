@@ -303,7 +303,7 @@ class ThemeManager
   loadLessStylesheet: (lessStylesheetPath, importFallbackVariables=false) ->
     unless @lessCache?
       LessCompileCache = require './less-compile-cache'
-      @lessCache = new LessCompileCache({@resourcePath, importPaths: @getImportPaths()})
+      @lessCache = new LessCompileCache({@configDirPath, @resourcePath, importPaths: @getImportPaths()})
 
     try
       if importFallbackVariables

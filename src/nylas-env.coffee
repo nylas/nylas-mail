@@ -67,19 +67,13 @@ class NylasEnvConstructor extends Model
   # Returns the path where the state for the current window will be
   # located if it exists.
   @getStatePath: ->
-    {isSpec, mainWindow} = @getLoadSettings()
+    {isSpec, mainWindow, configDirPath} = @getLoadSettings()
     if isSpec
       filename = 'spec-saved-state.json'
     else if mainWindow
-      path.join(@getConfigDirPath(), 'main-window-state.json')
+      path.join(configDirPath, 'main-window-state.json')
     else
       null
-
-  # Get the directory path to NylasEnv's configuration area.
-  #
-  # Returns the absolute path to ~/.nylas
-  @getConfigDirPath: ->
-    @configDirPath ?= fs.absolute('~/.nylas')
 
   # Returns the load settings hash associated with the current window.
   @getLoadSettings: ->
@@ -164,9 +158,8 @@ class NylasEnvConstructor extends Model
     StyleManager = require './style-manager'
     ActionBridge = require './flux/action-bridge'
     MenuManager = require './menu-manager'
-    configDirPath = @getConfigDirPath()
 
-    {devMode, safeMode, resourcePath, windowType} = @getLoadSettings()
+    {devMode, safeMode, resourcePath, configDirPath, windowType} = @getLoadSettings()
 
     document.body.classList.add("platform-#{process.platform}")
     document.body.classList.add("window-type-#{windowType}")
@@ -370,10 +363,7 @@ class NylasEnvConstructor extends Model
     not /\w{7}/.test(@getVersion()) # Check if the release is a 7-character SHA prefix
 
   # Public: Get the directory path to N1's configuration area.
-  #
-  # Returns the absolute path to `~/.nylas`.
-  getConfigDirPath: ->
-    @constructor.getConfigDirPath()
+  getConfigDirPath: => @getLoadSettings().configDirPath
 
   # Public: Get the time taken to completely load the current window.
   #
@@ -659,9 +649,8 @@ class NylasEnvConstructor extends Model
     ipcRenderer.send('window-command', 'window:loaded')
 
   showRootWindow: ->
-    cover = document.getElementById("application-loading-cover")
-    cover.classList.add('visible')
-    document.body.classList.add("main-window-loaded")
+    document.getElementById("application-loading-cover").remove()
+    document.body.classList.add("window-loaded")
     @restoreWindowDimensions()
     @getCurrentWindow().setMinimumSize(875, 500)
 

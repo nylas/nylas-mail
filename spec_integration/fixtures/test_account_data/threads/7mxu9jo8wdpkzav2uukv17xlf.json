@@ -1,0 +1,48 @@
+[
+    {
+        "account_id": "1nqpfzd0l7djj2xhega8i3iyc",
+        "bcc": [],
+        "body": "<p>Hey there, we\u2019re just writing to let you know that you\u2019ve been automatically subscribed to a repository on GitHub.</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp;nylas/N1 created by emorikawa<br>&nbsp;&nbsp;&nbsp;&nbsp;The full-featured production version of N1<br>&nbsp;&nbsp;&nbsp;&nbsp;https://github.com/nylas/N1</p>\n<p>You\u2019ll receive notifications for all issues, pull requests, and comments that happen inside the repository. If you would like to stop watching this repository, you can manage your settings here:</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp;https://github.com/nylas/N1/subscription</p>\n<p>You can unwatch this repository immediately by clicking here:</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp;https://github.com/nylas/N1/unsubscribe_via_email/ACmlr4l1V2j_CJ3lA4XY4t_dz9t_WMm7ks5o3b1OgaJpZM4Cl_EK</p>\n<p>You were automatically subscribed because you\u2019ve been given push access to the repository.</p>\n<p>Thanks!</p>",
+        "cc": [],
+        "date": 1443743182,
+        "events": [],
+        "files": [],
+        "from": [
+            {
+                "email": "noreply@github.com",
+                "name": "GitHub"
+            }
+        ],
+        "id": "21sssm6ixp8otdxttjdd60yag",
+        "labels": [
+            {
+                "display_name": "Inbox",
+                "id": "88i72euk07ody1d0c8m8c7qk7",
+                "name": "inbox"
+            },
+            {
+                "display_name": "All Mail",
+                "id": "er7ed7zo00k3itzn5f39hmlnr",
+                "name": "all"
+            },
+            {
+                "display_name": "Nylas Team",
+                "id": "cpimvyt4yhzgif0vxjytzzzzz",
+                "name": null
+            }
+        ],
+        "object": "message",
+        "reply_to": [],
+        "snippet": "Hey there, we\u2019re just writing to let you know that you\u2019ve been automatically subscribed to a repository on GitHub. nylas/N1 created by emorikawa The full-featured production version of ",
+        "starred": false,
+        "subject": "[GitHub] Subscribed to nylas/N1 notifications",
+        "thread_id": "7mxu9jo8wdpkzav2uukv17xlf",
+        "to": [
+            {
+                "email": "matt.murdock@gmail.com",
+                "name": ""
+            }
+        ],
+        "unread": false
+    }
+]

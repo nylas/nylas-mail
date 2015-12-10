@@ -211,8 +211,12 @@ class AccountStore
     for filename in fs.readdirSync(downloadsDir)
       fs.copySync(path.join(downloadsDir, filename), path.join(NylasEnv.getConfigDirPath(), 'downloads', filename))
 
-    DatabaseStore.persistModels(_.values(labels))
-    DatabaseStore.persistModels(messages)
-    DatabaseStore.persistModels(threads)
+    Promise.all([
+      DatabaseStore.persistModel(account),
+      DatabaseStore.persistModels(_.values(labels)),
+      DatabaseStore.persistModels(messages),
+      DatabaseStore.persistModels(threads)
+    ]).then =>
+      Actions.selectAccountId account.id
 
 module.exports = new AccountStore()

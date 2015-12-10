@@ -1,8 +1,8 @@
 // argv[0] = node
 // argv[1] = jasmine
-// argv[2] = JASMINE_CONFIG_PATH=./config.json
+// argv[2] = JASMINE_CONFIG_PATH=./jasmine/config.json
 // argv[3] = NYLAS_ROOT_PATH=/path/to/nylas/root
-var babelOptions = require('../static/babelrc.json');
+var babelOptions = require('../../static/babelrc.json');
 require('babel-core/register')(babelOptions);
 
 var chalk = require('chalk')
@@ -36,4 +36,3 @@ process.on("unhandledRejection", function(reason, promise) {
   if (reason.stack) { console.errorColor(reason.stack); }
   console.errorColor(promise);
 });
-

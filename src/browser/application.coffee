@@ -23,8 +23,6 @@ socketPath =
   else
     path.join(os.tmpdir(), 'edgehill.sock')
 
-configDirPath = fs.absolute('~/.nylas')
-
 # The application's singleton class.
 #
 # It's the entry point into the N1 application and maintains the global state
@@ -42,7 +40,7 @@ class Application
     # take a few seconds to trigger 'error' event, it could be a bug of node
     # or electron, before it's fixed we check the existence of socketPath to
     # speedup startup.
-    if (process.platform isnt 'win32' and not fs.existsSync socketPath) or options.test
+    if (process.platform isnt 'win32' and not fs.existsSync socketPath) or options.specMode
       createApplication()
       return
 
@@ -62,8 +60,7 @@ class Application
   exit: (status) -> app.exit(status)
 
   constructor: (options) ->
-    {@resourcePath, @devResourcePath, @version, @devMode, test, @safeMode} = options
-    @specMode = test
+    {@resourcePath, @configDirPath, @version, @devMode, @specMode, @safeMode} = options
 
     # Normalize to make sure drive letter case is consistent on Windows
     @resourcePath = path.normalize(@resourcePath) if @resourcePath
@@ -74,7 +71,7 @@ class Application
     @nylasProtocolHandler = new NylasProtocolHandler(@resourcePath, @safeMode)
 
     Config = require '../config'
-    @config = new Config({configDirPath, @resourcePath})
+    @config = new Config({@configDirPath, @resourcePath})
     @config.load()
 
     # Normally, you enter dev mode by passing the --dev command line flag.
@@ -83,7 +80,7 @@ class Application
     if @config.get('devMode')
       @devMode = true
 
-    @windowManager = new WindowManager({@resourcePath, @config, @devMode, @safeMode})
+    @windowManager = new WindowManager({@resourcePath, @configDirPath, @config, @devMode, @safeMode})
     @autoUpdateManager = new AutoUpdateManager(@version, @config, @specMode)
     @applicationMenu = new ApplicationMenu(@version)
     @_databasePhase = 'setup'
@@ -95,8 +92,8 @@ class Application
     @launchWithOptions(options)
 
   # Opens a new window based on the options provided.
-  launchWithOptions: ({urlsToOpen, test, devMode, safeMode, specDirectory, specFilePattern, logFile, showSpecsInWindow}) ->
-    if test
+  launchWithOptions: ({urlsToOpen, specMode, devMode, safeMode, specDirectory, specFilePattern, logFile, showSpecsInWindow}) ->
+    if specMode
       exitWhenDone = true
       @runSpecs({exitWhenDone, showSpecsInWindow, @resourcePath, specDirectory, specFilePattern, logFile})
     else
@@ -176,9 +173,9 @@ class Application
       @windowManager.ensureOnboardingWindow(welcome: true)
 
   _deleteDatabase: (callback) ->
-    @deleteFileWithRetry path.join(configDirPath,'edgehill.db'), callback
-    @deleteFileWithRetry path.join(configDirPath,'edgehill.db-wal')
-    @deleteFileWithRetry path.join(configDirPath,'edgehill.db-shm')
+    @deleteFileWithRetry path.join(@configDirPath,'edgehill.db'), callback
+    @deleteFileWithRetry path.join(@configDirPath,'edgehill.db-wal')
+    @deleteFileWithRetry path.join(@configDirPath,'edgehill.db-shm')
 
   databasePhase: ->
     @_databasePhase
@@ -219,7 +216,7 @@ class Application
     @on 'application:run-package-specs', ->
       dialog.showOpenDialog {
         title: 'Choose a Package Directory'
-        defaultPath: configDirPath,
+        defaultPath: @configDirPath,
         properties: ['openDirectory']
       }, (filenames) =>
         return if not filenames or filenames.length is 0
@@ -486,11 +483,11 @@ class Application
       resourcePath = @resourcePath
 
     try
-      bootstrapScript = require.resolve(path.resolve(@devResourcePath, 'spec', 'spec-bootstrap'))
+      bootstrapScript = require.resolve(path.resolve(@resourcePath, 'spec', 'spec-bootstrap'))
     catch error
       bootstrapScript = require.resolve(path.resolve(__dirname, '..', '..', 'spec', 'spec-bootstrap'))
 
     isSpec = true
     devMode = true
     safeMode ?= false
-    new NylasWindow({bootstrapScript, resourcePath, exitWhenDone, isSpec, devMode, specDirectory, specFilePattern, logFile, safeMode, showSpecsInWindow})
+    new NylasWindow({bootstrapScript, @configDirPath, resourcePath, exitWhenDone, isSpec, devMode, specDirectory, specFilePattern, logFile, safeMode, showSpecsInWindow})

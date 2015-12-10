@@ -1,0 +1,25 @@
+"*":
+  updateIdentity: "00000000-0000-0000-0000-000000000000"
+  env: "production"
+  nylas:
+    accounts: [
+      {
+        client_id: "local-00000000-0000"
+        server_id: "fake-server-id"
+        object: "account"
+        account_id: "accountid1234"
+        name: "Nylas Test"
+        provider: "eas"
+        email_address: "test@nylas.com"
+        organization_unit: "folder"
+        id: "accountid1234"
+      }
+    ]
+    currentAccountIndex: 1
+    accountTokens:
+      accountid1234: "fake-token"
+    accountid1234:
+      cursor: "fake-cursor"
+  core:
+    workspace:
+      mode: "split"

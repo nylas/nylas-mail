@@ -1,5 +1,5 @@
-import {N1Launcher} from './integration-helper'
-import ContenteditableTestHarness from './contenteditable-test-harness.es6'
+import N1Launcher from './helpers/n1-launcher'
+import ContenteditableTestHarness from './helpers/contenteditable-test-harness.es6'
 
 describe('Contenteditable Integration Spec', function() {
   beforeAll((done)=>{

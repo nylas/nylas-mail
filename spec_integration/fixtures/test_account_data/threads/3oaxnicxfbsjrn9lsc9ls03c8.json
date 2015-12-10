@@ -1,0 +1,87 @@
+[
+    {
+        "account_id": "1nqpfzd0l7djj2xhega8i3iyc",
+        "bcc": [],
+        "body": "<div dir=\"ltr\">We had a great time this weekend!</div>",
+        "cc": [],
+        "date": 1443818787,
+        "events": [],
+        "files": [
+            {
+                "content_type": "image/jpeg",
+                "filename": "2015-09-19 13.27.43.jpg",
+                "id": "2yciz0fv6eki05e3tadq4r39n",
+                "size": 951329
+            },
+            {
+                "content_type": "image/jpeg",
+                "filename": "DSC00147.JPG",
+                "id": "x93vconbilqoks499kg4mjhm",
+                "size": 1287660
+            },
+            {
+                "content_type": "image/jpeg",
+                "filename": "DSC00148.JPG",
+                "id": "i8888ig7vdob2j6o2turz4dn",
+                "size": 1260993
+            },
+            {
+                "content_type": "image/jpeg",
+                "filename": "DSC00156.JPG",
+                "id": "4ufyb9bccvhdg75hh5jhmarf1",
+                "size": 948713
+            }
+        ],
+        "from": [
+            {
+                "email": "nylanaut@gmail.com",
+                "name": "Benjamin Nylas"
+            }
+        ],
+        "id": "4gn270rwbp2d005jhp8i1pqpl",
+        "labels": [
+            {
+                "display_name": "Inbox",
+                "id": "88i72euk07ody1d0c8m8c7qk7",
+                "name": "inbox"
+            },
+            {
+                "display_name": "All Mail",
+                "id": "er7ed7zo00k3itzn5f39hmlnr",
+                "name": "all"
+            },
+            {
+                "display_name": "Important",
+                "id": "cpimvyt4yhzgif0vxjytvafy4",
+                "name": "important"
+            },
+            {
+                "display_name": "Photos",
+                "id": "cpimvyt4yhzgif0vxjytvafy1",
+                "name": null
+            },
+            {
+                "display_name": "Nylas Team",
+                "id": "cpimvyt4yhzgif0vxjytzzzzz",
+                "name": null
+            }
+        ],
+        "object": "message",
+        "reply_to": [],
+        "snippet": "We had a great time this weekend!",
+        "starred": true,
+        "subject": "Team Photos - Russian River Trip",
+        "thread_id": "3oaxnicxfbsjrn9lsc9ls03c8",
+        "to": [
+            {
+                "email": "ben@nylas.com",
+                "name": ""
+            },
+            {
+                "email": "matt.murdock@gmail.com",
+                "name": ""
+            }
+        ],
+        "unread": false
+    }
+]

@@ -7,51 +7,52 @@ process.on 'uncaughtException', (error={}) ->
 {app} = require 'electron'
 fs = require 'fs-plus'
 path = require 'path'
-optimist = require 'optimist'
+mkdirp = require 'mkdirp'
 
 start = ->
   args = parseCommandLine()
   global.errorLogger = setupErrorLogger(args)
-  setupNylasHome(args)
-  setupCompileCache()
+  configDirPath = setupConfigDir(args)
+  args.configDirPath = configDirPath
+  setupCompileCache(configDirPath)
   return if handleStartupEventWithSquirrel()
 
   # This prevents Win10 from showing dupe items in the taskbar
   app.setAppUserModelId('com.squirrel.nylas.nylas')
 
-  addPathToOpen = (event, pathToOpen) ->
-    event.preventDefault()
-    args.pathsToOpen.push(pathToOpen)
-
   addUrlToOpen = (event, urlToOpen) ->
     event.preventDefault()
     args.urlsToOpen.push(urlToOpen)
 
-  app.on 'open-file', addPathToOpen
   app.on 'open-url', addUrlToOpen
 
-  app.on 'will-finish-launching', ->
-    setupCrashReporter()
-
   app.on 'ready', ->
-    app.removeListener 'open-file', addPathToOpen
     app.removeListener 'open-url', addUrlToOpen
 
     Application = require path.join(args.resourcePath, 'src', 'browser', 'application')
     Application.open(args)
 
-    console.log("App load time: #{Date.now() - global.shellStartTime}ms") unless args.test
+    console.log("App load time: #{Date.now() - global.shellStartTime}ms") unless args.specMode
 
-setupNylasHome = ->
-  return if process.env.NYLAS_HOME
-  atomHome = path.join(app.getPath('home'), '.nylas')
-  process.env.NYLAS_HOME = atomHome
-
-normalizeDriveLetterName = (filePath) ->
-  if process.platform is 'win32'
-    filePath.replace /^([a-z]):/, ([driveLetter]) -> driveLetter.toUpperCase() + ":"
+setupConfigDir = (args) ->
+  # https://github.com/atom/atom/issues/8281
+  if args.specMode
+    defaultConfigDir = path.join(app.getPath('home'), '.nylas-spec')
   else
-    filePath
+    defaultConfigDir = path.join(app.getPath('home'), '.nylas')
+
+  configDirPath = args.configDirPath ?
+                  process.env.NYLAS_HOME ?
+                  defaultConfigDir
+
+  mkdirp.sync(configDirPath)
+  if process.platform is 'win32'
+    fsWin=require('fswin')
+    fsWin.setAttributesSync(pathToFileOrDir, {IS_HIDDEN: true})
+
+  process.env.NYLAS_HOME = configDirPath
+
+  return configDirPath
 
 handleStartupEventWithSquirrel = ->
   return false unless process.platform is 'win32'
@@ -59,52 +60,63 @@ handleStartupEventWithSquirrel = ->
   squirrelCommand = process.argv[1]
   SquirrelUpdate.handleStartupEvent(app, squirrelCommand)
 
-setupCompileCache = ->
+setupCompileCache = (configDirPath) ->
   compileCache = require('../compile-cache')
-  compileCache.setHomeDirectory(process.env.NYLAS_HOME)
+  compileCache.setHomeDirectory(configDirPath)
 
 setupErrorLogger = (args={}) ->
   ErrorLogger = require '../error-logger'
   return new ErrorLogger
-    inSpecMode: args.test
+    inSpecMode: args.specMode
     inDevMode: args.devMode
     resourcePath: args.resourcePath
 
-setupCrashReporter = ->
-  # In the future, we may want to collect actual native crash reports,
-  # but for now let's not send them to GitHub
-  # crashReporter.start(productName: "N1", companyName: "Nylas")
+declareOptions = (argv) ->
+  optimist = require 'optimist'
+  options = optimist(argv)
+  options.usage """
+    Nylas N1 v#{app.getVersion()}
+
+    Usage: n1 [options]
+
+    Run N1: The open source extensible email client
+
+    `n1 --dev` to start the client in dev mode.
+
+    `n1 --test` to run unit tests.
+  """
+  options.alias('d', 'dev').boolean('d')
+    .describe('d', 'Run in development mode.')
+
+  options.alias('t', 'test').boolean('t')
+    .describe('t', 'Run the specified specs and exit with error code on failures.')
+
+  options.boolean('safe')
+    .describe('safe', 'Do not load packages from ~/.nylas/packages or ~/.nylas/dev/packages.')
+
+  options.alias('h', 'help').boolean('h')
+    .describe('h', 'Print this usage message.')
+
+  options.alias('l', 'log-file').string('l')
+    .describe('l', 'Log all test output to file.')
+
+  options.alias('c', 'config-dir-path').string('c')
+    .describe('c', 'Override the path to the N1 configuration directory')
+
+  options.alias('s', 'spec-directory').string('s')
+    .describe('s', 'Override the directory from which to run package specs')
+
+  options.alias('f', 'spec-file-pattern').string('f')
+    .describe('f', 'Override the default file regex to determine which tests should run (defaults to "-spec\.(coffee|js|jsx|cjsx|es6|es)$" )')
+
+  options.alias('v', 'version').boolean('v')
+    .describe('v', 'Print the version.')
+
+  return options
 
 parseCommandLine = ->
   version = app.getVersion()
-  options = optimist(process.argv[1..])
-  options.usage """
-    N1 v#{version}
-
-    Usage: n1 [options] [path ...]
-
-    One or more paths to files or folders to open may be specified.
-
-    File paths will open in the current window.
-
-    Folder paths will open in an existing window if that folder has already been
-    opened or a new window if it hasn't.
-
-    Environment Variables:
-    N1_PATH  The path from which N1 loads source code in dev mode.
-             Defaults to `cwd`.
-  """
-  options.alias('d', 'dev').boolean('d').describe('d', 'Run in development mode.')
-  options.alias('f', 'foreground').boolean('f').describe('f', 'Keep the browser process in the foreground.')
-  options.alias('h', 'help').boolean('h').describe('h', 'Print this usage message.')
-  options.alias('l', 'log-file').string('l').describe('l', 'Log all output to file.')
-  options.alias('n', 'new-window').boolean('n').describe('n', 'Open a new window.')
-  options.alias('r', 'resource-path').string('r').describe('r', 'Set the path to the N1 source directory and enable dev-mode.')
-  options.alias('s', 'spec-directory').string('s').describe('s', 'Set the directory from which to run package specs (default: N1\'s spec directory).')
-  options.boolean('safe').describe('safe', 'Do not load packages from ~/.nylas/packages or ~/.nylas/dev/packages.')
-  options.alias('t', 'test').boolean('t').describe('t', 'Run the specified specs and exit with error code on failures.')
-  options.alias('v', 'version').boolean('v').describe('v', 'Print the version.')
-  options.alias('w', 'wait').boolean('w').describe('w', 'Wait for window to be closed before returning.')
+  options = declareOptions(process.argv[1..])
   args = options.argv
 
   if args.help
@@ -115,59 +127,24 @@ parseCommandLine = ->
     process.stdout.write("#{version}\n")
     process.exit(0)
 
-  executedFrom = args['executed-from']?.toString() ? process.cwd()
-  devMode = args['dev']
-  safeMode = args['safe']
-  pathsToOpen = args._
-  pathsToOpen = [executedFrom] if executedFrom and pathsToOpen.length is 0
-  urlsToOpen = []
-  test = args['test']
-  specDirectory = args['spec-directory']
-  newWindow = args['new-window']
-  pidToKillWhenClosed = args['pid'] if args['wait']
+  devMode = args['dev'] || args['test']
   logFile = args['log-file']
-  specFilePattern = args['file-pattern']
-  devResourcePath = process.env.N1_PATH ? process.cwd()
+  specMode = args['test']
+  safeMode = args['safe']
+  configDirPath = args['config-dir-path']
+  specDirectory = args['spec-directory']
+  specFilePattern = args['spec-file-pattern']
+  showSpecsInWindow = specMode is "window"
 
-  showSpecsInWindow = false
+  resourcePath = path.resolve(args['resource-path'] ?
+                              path.dirname(path.dirname(__dirname)))
 
-  if args['resource-path']
-    devMode = true
-    resourcePath = args['resource-path']
-  else
-    # Set resourcePath based on the specDirectory if running specs on N1 core
-    if specDirectory?
-      packageDirectoryPath = path.resolve(specDirectory, '..')
-      packageManifestPath = path.join(packageDirectoryPath, 'package.json')
-      if fs.statSyncNoException(packageManifestPath)
-        try
-          packageManifest = JSON.parse(fs.readFileSync(packageManifestPath))
-          resourcePath = packageDirectoryPath if packageManifest.name is 'edgehill'
-    else
-      # EDGEHILL_CORE: if test is given a name, assume that's the package we
-      # want to test.
-      if test and toString.call(test) is "[object String]"
-        if test is "core"
-          specDirectory = path.join(devResourcePath, "spec")
-        else if test is "window"
-          specDirectory = path.join(devResourcePath, "spec")
-          showSpecsInWindow = true
-        else
-          specDirectory = path.resolve(path.join(devResourcePath, "internal_packages", test))
+  urlsToOpen = []
 
-  devMode = true if test
-  resourcePath ?= devResourcePath if devMode
-
-  unless fs.statSyncNoException(resourcePath)
-    resourcePath = path.dirname(path.dirname(__dirname))
-
-  # On Yosemite the $PATH is not inherited by the "open" command, so we have to
-  # explicitly pass it by command line, see http://git.io/YC8_Ew.
+  # On Yosemite the $PATH is not inherited by the "open" command, so we
+  # have to explicitly pass it by command line, see http://git.io/YC8_Ew.
   process.env.PATH = args['path-environment'] if args['path-environment']
 
-  resourcePath = normalizeDriveLetterName(resourcePath)
-  devResourcePath = normalizeDriveLetterName(devResourcePath)
-
-  {resourcePath, pathsToOpen, urlsToOpen, executedFrom, test, version, pidToKillWhenClosed, devMode, safeMode, newWindow, specDirectory, showSpecsInWindow, logFile, specFilePattern}
+  return {version, devMode, logFile, specMode, safeMode, configDirPath, specDirectory, specFilePattern, showSpecsInWindow, resourcePath, urlsToOpen}
 
 start()

@@ -12,7 +12,6 @@ global.Promise = require 'bluebird'
 try
   require '../src/window'
   NylasEnvConstructor = require '../src/nylas-env'
-  NylasEnvConstructor.configDirPath = fs.absolute('~/.nylas-spec')
   window.NylasEnv = window.atom = NylasEnvConstructor.loadOrCreate()
   global.Promise.longStackTraces() if NylasEnv.inDevMode()
 
