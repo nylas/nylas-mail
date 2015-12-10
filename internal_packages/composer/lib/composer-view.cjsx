@@ -4,6 +4,7 @@ React = require 'react'
 {File,
  Utils,
  Actions,
+ DOMUtils,
  DraftStore,
  UndoManager,
  ContactStore,
@@ -174,6 +175,7 @@ class ComposerView extends React.Component
     if @props.mode is "inline"
       <FocusTrackingRegion className={@_wrapClasses()}
                            ref="composerWrap"
+                           onFocusIn={@_onFocusIn}
                            tabIndex="-1">
         {@_renderComposer()}
       </FocusTrackingRegion>
@@ -485,6 +487,14 @@ class ComposerView extends React.Component
     if event.target is @_mouseDownTarget
       @refs[Fields.Body].selectEnd()
     @_mouseDownTarget = null
+
+  # When a user focuses the composer, it's possible that no input is
+  # initially focused. If this happens, we focus the contenteditable. If
+  # we didn't focus the contenteditable, the user may start typing and
+  # erroneously trigger keyboard shortcuts.
+  _onFocusIn: (event) =>
+    return if DOMUtils.closest(event.target, DOMUtils.inputTypes())
+    @refs[Fields.Body].selectEnd()
 
   _onMouseMoveComposeBody: (event) =>
     if @_mouseComposeBody is "down" then @_mouseComposeBody = "move"

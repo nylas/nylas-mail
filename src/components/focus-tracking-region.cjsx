@@ -11,13 +11,20 @@ class FocusTrackingRegion extends React.Component
   @propTypes:
     className: React.PropTypes.string
     children: React.PropTypes.any
+    onFocusIn: React.PropTypes.func
+    onFocusOut: React.PropTypes.func
+
+  @defaultProps:
+    onFocusIn: ->
+    onFocusOut: ->
 
   constructor: (@props) ->
     @state = {focused: false}
     @_goingout = false
 
-    @_in = =>
+    @_in = (args...) =>
       @_goingout = false
+      @props.onFocusIn(args...) if @state.focused is false
       @setState(focused: true)
 
     @_out = =>
@@ -41,6 +48,7 @@ class FocusTrackingRegion extends React.Component
         # when the element receiving focus does not support selection (like a
         # div with tabIndex=-1)
         document.getSelection().empty()
+        @props.onFocusOut() if @state.focused is true
         @setState(focused: false)
         @_goingout = false
       , 100

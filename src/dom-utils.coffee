@@ -169,6 +169,9 @@ DOMUtils =
     return unless li
     return DOMUtils.isFirstChild(li, anchor)
 
+  # Selectors for input types
+  inputTypes: -> "input, textarea, *[contenteditable]"
+
   # https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
   # Only Elements (not Text nodes) have the `closest` method
   closest: (node, selector) ->
