@@ -1,4 +1,4 @@
-# N1 Dar UI theme
+# N1 Dark UI theme
 
 Default dark UI theme for N1.
 
