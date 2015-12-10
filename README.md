@@ -2,7 +2,7 @@
 
 ![N1 Screenshot](http://nylas.com/N1/images/1-1-initial-outlook-base.png)
 
-**N1 is an open-source mail client built on the modern web with [Electron](https://github.com/atom/electron), [React](https://facebook.github.io/react/), and [Flux](https://facebook.github.io/flux/).** It is designed to be extensible, so it's easy to create new experiences and workflows around email. N1 is built on the Nylas Sync Engine which is also [open source free software](https://github.com/nylas/sync-engine).
+**N1 is a [free/libre](http://www.gnu.org/philosophy/free-sw.html) mail client built on the modern web with [Electron](https://github.com/atom/electron), [React](https://facebook.github.io/react/), and [Flux](https://facebook.github.io/flux/).** It is designed to be extensible, so it's easy to create new experiences and workflows around email. N1 is built on the [Nylas Sync Engine](https://github.com/nylas/sync-engine), which is also free software.
 
 [![Build Status](https://travis-ci.org/nylas/N1.svg?branch=master)](https://travis-ci.org/nylas/N1)
 [![Slack Invite Button](http://slack-invite.nylas.com/badge.svg)](http://slack-invite.nylas.com)
@@ -19,7 +19,7 @@ If you would like to run the N1 source and contribute, check out our [contributi
 guide](https://github.com/nylas/N1/blob/master/CONTRIBUTING.md)
 
 # Running Locally
-By default the N1 source points to our hosted version of the Nylas Sync Engine; however, the Sync Engine is open source and you can [run it yourself](https://github.com/nylas/N1/blob/master/CONTRIBUTING.md#running-against-open-source-sync-engine).
+By default the N1 source points to our hosted version of the Nylas Sync Engine; however, the Sync Engine is free software and you can [run it yourself](https://github.com/nylas/N1/blob/master/CONTRIBUTING.md#running-against-open-source-sync-engine).
 
 # Feature Requests / Package Ideas
 
