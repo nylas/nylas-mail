@@ -1,0 +1,191 @@
+[
+  {
+      "account_id": "1nqpfzd0l7djj2xhega8i3iyc",
+      "bcc": [],
+      "body": "<head></head><body>Where are the Iceland photos?! \ud83d\udc11\ud83c\udf0b\ud83d\udc34\ud83d\udc26\ud83d\udc11</body>",
+      "cc": [],
+      "date": 1443842821,
+      "events": [],
+      "files": [],
+      "labels": [
+          {
+              "display_name": "Inbox",
+              "id": "88i72euk07ody1d0c8m8c7qk7",
+              "name": "inbox"
+          },
+          {
+              "display_name": "All Mail",
+              "id": "er7ed7zo00k3itzn5f39hmlnr",
+              "name": "all"
+          },
+          {
+              "display_name": "Important",
+              "id": "cpimvyt4yhzgif0vxjytvafy4",
+              "name": "important"
+          },
+          {
+              "display_name": "Photos",
+              "id": "cpimvyt4yhzgif0vxjytvafy1",
+              "name": null
+          },
+          {
+              "display_name": "Iceland",
+              "id": "cpimvyt4yhzgif0vxjytzzzzz",
+              "name": null
+          }
+      ],
+      "from": [
+          {
+              "email": "nora@nylas.com",
+              "name": "Nora Goldman"
+          }
+      ],
+      "id": "3rn37t6ybk6v1w4nyhleufu4f",
+      "object": "message",
+      "reply_to": [],
+      "snippet": "Where are the Iceland photos?! \ud83d\udc11\ud83c\udf0b\ud83d\udc34\ud83d\udc26\ud83d\udc11",
+      "starred": false,
+      "subject": "Iceland and all the \u00feings!!",
+      "thread_id": "arhpub0jn27hk7c3lj1zd5b39",
+      "to": [
+          {
+              "email": "evan@evanmorikawa.com",
+              "name": "Evan Morikawa"
+          },
+          {
+              "email": "lana@lingboli.com",
+              "name": "Lana Li"
+          }
+      ],
+      "unread": false
+  },
+  {
+      "account_id": "1nqpfzd0l7djj2xhega8i3iyc",
+      "bcc": [],
+      "body": "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"><div dir=\"ltr\">Here's one! More coming soon.</div><blockquote class=\"gmail_quote\" style=\"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex\">\n\n\n\n<div>\nDo you have the Iceland photos? \ud83d\udc11\ud83c\udf0b\ud83d\udc34\ud83d\udc26\ud83d\udc11\n</div>\n\n</blockquote></div>",
+      "cc": [
+          {
+              "email": "lana@lingboli.com",
+              "name": "Lana Li"
+          }
+      ],
+      "date": 1443842822,
+      "events": [],
+      "files": [
+          {
+              "content_type": "image/jpeg",
+              "filename": "111-IMG_6000.jpg",
+              "id": "1pznqhlxvxyjrmrs7vktai029",
+              "size": 8821534
+          }
+      ],
+      "labels": [
+          {
+              "display_name": "Inbox",
+              "id": "88i72euk07ody1d0c8m8c7qk7",
+              "name": "inbox"
+          },
+          {
+              "display_name": "All Mail",
+              "id": "er7ed7zo00k3itzn5f39hmlnr",
+              "name": "all"
+          },
+          {
+              "display_name": "Important",
+              "id": "cpimvyt4yhzgif0vxjytvafy4",
+              "name": "important"
+          },
+          {
+              "display_name": "Photos",
+              "id": "cpimvyt4yhzgif0vxjytvafy1",
+              "name": null
+          },
+          {
+              "display_name": "Iceland",
+              "id": "cpimvyt4yhzgif0vxjytzzzzz",
+              "name": null
+          }
+      ],
+      "from": [
+          {
+              "email": "evan@evanmorikawa.com",
+              "name": "Evan Morikawa"
+          }
+      ],
+      "id": "5xrug792jvb9tsj1ig8edjduz",
+      "object": "message",
+      "reply_to": [],
+      "snippet": "Yeah! Here's one. More coming soon. On Sat, Oct 3, 2015 at 6:21 PM, Evan Morikawa <evan@evanmorikawa.com> wrote: Do you have the Iceland photos? \ud83d\udc11\ud83c\udf0b\ud83d\udc34\ud83d\udc26\ud83d\udc11",
+      "starred": false,
+      "subject": "Re: Iceland and all the \u00feings!!",
+      "thread_id": "arhpub0jn27hk7c3lj1zd5b39",
+      "to": [
+          {
+              "email": "nora@nylas.com",
+              "name": "Nora Goldman"
+          }
+      ],
+      "unread": false
+  },
+  {
+      "account_id": "1nqpfzd0l7djj2xhega8i3iyc",
+      "bcc": [],
+      "body": "Wow! Iceland looks awesome. <blockquote><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"><div dir=\"ltr\">Here's one! More coming soon.</div><blockquote class=\"gmail_quote\" style=\"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex\">\n\n\n\n<div>\nDo you have the Iceland photos? \ud83d\udc11\ud83c\udf0b\ud83d\udc34\ud83d\udc26\ud83d\udc11\n</div>\n\n</blockquote></div></blockquote>",
+      "cc": [
+          {
+              "email": "lana@lingboli.com",
+              "name": "Lana Li"
+          }
+      ],
+      "date": 1443999694,
+      "events": [],
+      "files": [],
+      "labels": [
+          {
+              "display_name": "Inbox",
+              "id": "88i72euk07ody1d0c8m8c7qk7",
+              "name": "inbox"
+          },
+          {
+              "display_name": "All Mail",
+              "id": "er7ed7zo00k3itzn5f39hmlnr",
+              "name": "all"
+          },
+          {
+              "display_name": "Important",
+              "id": "cpimvyt4yhzgif0vxjytvafy4",
+              "name": "important"
+          },
+          {
+              "display_name": "Photos",
+              "id": "cpimvyt4yhzgif0vxjytvafy1",
+              "name": null
+          },
+          {
+              "display_name": "Iceland",
+              "id": "cpimvyt4yhzgif0vxjytzzzzz",
+              "name": null
+          }
+      ],
+      "from": [
+          {
+              "email": "nora@nylas.com",
+              "name": "Nora Goldman"
+          }
+      ],
+      "id": "6xrug792jvb9tsj1ig8edjdua",
+      "object": "message",
+      "reply_to": [],
+      "snippet": "Wow! Iceland looks awesome. On Sat Oct 3, 2015 at 6:23 PM, Yeah! Here's one. More coming soon. On Sat, Oct 3, 2015 at 6:21 PM, Evan Morikawa <evan@evanmorikawa.com> wrote: Do you have the Iceland photos? \ud83d\udc11\ud83c\udf0b\ud83d\udc34\ud83d\udc26\ud83d\udc11",
+      "starred": false,
+      "subject": "Re: Iceland and all the \u00feings!!",
+      "thread_id": "arhpub0jn27hk7c3lj1zd5b39",
+      "to": [
+          {
+              "email": "evan@evanmorikawa.com",
+              "name": "Evan Morikawa"
+          }
+      ],
+      "unread": false
+  }
+]

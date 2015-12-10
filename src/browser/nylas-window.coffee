@@ -30,7 +30,8 @@ class NylasWindow
      @neverClose,
      @mainWindow,
      @resourcePath,
-     @exitWhenDone} = settings
+     @exitWhenDone,
+     @configDirPath} = settings
 
     # Normalize to make sure drive letter case is consistent on Windows
     @resourcePath = path.normalize(@resourcePath) if @resourcePath

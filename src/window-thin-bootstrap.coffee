@@ -18,7 +18,7 @@ global.NylasEnv =
   onBeforeUnload: ->
   getWindowLoadTime: -> 0
   getConfigDirPath: ->
-    @configDirPath ?= fs.absolute('~/.nylas')
+    @configDirPath ?= JSON.parse(decodeURIComponent(location.search.substr(14))).configDirPath
   getLoadSettings: ->
     @loadSettings ?= JSON.parse(decodeURIComponent(location.search.substr(14)))
   inSpecMode: ->

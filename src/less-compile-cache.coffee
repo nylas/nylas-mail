@@ -4,9 +4,7 @@ LessCache = require 'less-cache'
 # {LessCache} wrapper used by {ThemeManager} to read stylesheets.
 module.exports =
 class LessCompileCache
-  @cacheDir: path.join(process.env.NYLAS_HOME, 'compile-cache', 'less')
-
-  constructor: ({resourcePath, importPaths}) ->
+  constructor: ({configDirPath, resourcePath, importPaths}) ->
     @lessSearchPaths = [
       path.join(resourcePath, 'static', 'variables')
       path.join(resourcePath, 'static')
@@ -18,7 +16,7 @@ class LessCompileCache
       importPaths = @lessSearchPaths
 
     @cache = new LessCache
-      cacheDir: @constructor.cacheDir
+      cacheDir: path.join(configDirPath, 'compile-cache', 'less')
       importPaths: importPaths
       resourcePath: resourcePath
       fallbackDir: path.join(resourcePath, 'less-compile-cache')

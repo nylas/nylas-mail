@@ -4,6 +4,6 @@
     "**/*-spec.{js,es6,es,jsx}"
   ],
   "helpers": [
-    "bootstrap.js"
+    "jasmine/bootstrap.js"
   ]
 }

@@ -4,13 +4,13 @@ compiler:
 matrix:
   include:
   - os: linux
-    env: NODE_VERSION=0.10 CC=gcc-4.8 CXX=g++-4.8 NYLAS_HOME=/home/travis/.nylas
+    env: NODE_VERSION=0.10 CC=gcc-4.8 CXX=g++-4.8
   - os: linux
-    env: NODE_VERSION=0.12 CC=gcc-4.8 CXX=g++-4.8 NYLAS_HOME=/home/travis/.nylas
+    env: NODE_VERSION=0.12 CC=gcc-4.8 CXX=g++-4.8
   - os: linux
-    env: NODE_VERSION=4.2 CC=gcc-4.8 CXX=g++-4.8 NYLAS_HOME=/home/travis/.nylas PUBLISH_BUILD=true
+    env: NODE_VERSION=4.2 CC=gcc-4.8 CXX=g++-4.8 PUBLISH_BUILD=true
   - os: linux
-    env: NODE_VERSION=5 CC=gcc-4.8 CXX=g++-4.8 NYLAS_HOME=/home/travis/.nylas
+    env: NODE_VERSION=5 CC=gcc-4.8 CXX=g++-4.8
   - os: osx
     env: NODE_VERSION=0.10
   - os: osx

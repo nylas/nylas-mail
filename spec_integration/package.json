@@ -6,7 +6,7 @@
     "url": "https://github.com/nylas/N1.git"
   },
   "scripts": {
-    "test": "jasmine JASMINE_CONFIG_PATH=./config.json"
+    "test": "jasmine JASMINE_CONFIG_PATH=./jasmine/config.json"
   },
   "license": "GPL-3.0",
   "dependencies": {
