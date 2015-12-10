@@ -14,11 +14,7 @@ matrix:
   - os: osx
     env: NODE_VERSION=0.10
   - os: osx
-    env: NODE_VERSION=0.12 CC=clang CXX=clang++
-  - os: osx
     env: NODE_VERSION=4.2 CC=clang CXX=clang++ PUBLISH_BUILD=true
-  - os: osx
-    env: NODE_VERSION=5 CC=clang CXX=clang++
 sudo: false
 install:
 - echo $CC
