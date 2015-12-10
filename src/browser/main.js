@@ -52,7 +52,7 @@
   };
 
   setupConfigDir = function(args) {
-    var configDirPath, defaultConfigDir, fsWin, ref, ref1;
+    var configDirPath, defaultConfigDir, ref, ref1, winattr;
     if (args.specMode) {
       defaultConfigDir = path.join(app.getPath('home'), '.nylas-spec');
     } else {
@@ -61,9 +61,9 @@
     configDirPath = (ref = (ref1 = args.configDirPath) != null ? ref1 : process.env.NYLAS_HOME) != null ? ref : defaultConfigDir;
     mkdirp.sync(configDirPath);
     if (process.platform === 'win32') {
-      fsWin = require('fswin');
-      fsWin.setAttributesSync(pathToFileOrDir, {
-        IS_HIDDEN: true
+      winattr = require('winattr');
+      winattr.setSync(configDirPath, {
+        hidden: true
       });
     }
     process.env.NYLAS_HOME = configDirPath;
