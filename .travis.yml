@@ -72,6 +72,7 @@ script: script/cibuild
 cache:
   directories:
     - node_modules
+    - build/node_modules
 
 # The NYLAS_GITHUB_OAUTH_TOKEN is overriden by build/resources/certs/set_unix_env.sh
 env:
