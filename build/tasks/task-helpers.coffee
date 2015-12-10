@@ -77,9 +77,9 @@ module.exports = (grunt) ->
       false
 
   notifyAPI: (msg, callback) ->
-    if (process.env("NYLAS_INTERNAL_HOOK_URL") ? "").length > 0
+    if (process.env.NYLAS_INTERNAL_HOOK_URL ? "").length > 0
       request.post
-        url: process.env("NYLAS_INTERNAL_HOOK_URL")
+        url: process.env.NYLAS_INTERNAL_HOOK_URL
         json:
           username: "Edgehill Builds"
           text: msg
