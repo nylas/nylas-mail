@@ -4,8 +4,6 @@ git:
   submodules: false
 
 addons:
-  ssh_known_hosts:
-  - github.com
   apt:
     sources:
     - ubuntu-toolchain-r-test
@@ -45,6 +43,7 @@ before_install:
   openssl aes-256-cbc -k "$DECRYPTION_PASSWORD" -in build/resources/ssh/nylas-n1-ci-ssh.openssl.enc -out nylas-n1-ci-ssh -d;
   mv nylas-n1-ci-ssh ~/.ssh/id_rsa;
   chmod 400 ~/.ssh/id_rsa;
+  ssh-keyscan github.com >> ~/.ssh/known_hosts;
   git submodule update --init --recursive;
   2>/dev/null 1>/dev/null openssl aes-256-cbc -K $encrypted_d583b56b822e_key -iv $encrypted_d583b56b822e_iv -in build/resources/nylas/encrypted_certificates/travis/travis-files.tar.enc -out build/resources/nylas/encrypted_certificates/travis/travis-files.tar -d;
   mkdir build/resources/certs;
@@ -69,6 +68,10 @@ before_script:
   fi
 
 script: script/cibuild
+
+cache:
+  directories:
+    - node_modules
 
 # The NYLAS_GITHUB_OAUTH_TOKEN is overriden by build/resources/certs/set_unix_env.sh
 env:

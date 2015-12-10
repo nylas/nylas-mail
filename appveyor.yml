@@ -47,3 +47,7 @@ environment:
     CERTIFICATE_FILE: .\build\resources\nylas\encrypted_certificates\appveyor\win-nylas-n1.p12
     DECRYPTION_PASSWORD:
       secure: 48VSzDtdBd52Xlo3TZ1NeR1yRRrZ3AU6Px5XjD5RDp44cFU5GYVspecGqX6DGCV7i0D7nldGMyEbXNrjM1t1Kw==
+
+cache:
+  - '%USERPROFILE%\.nylas\.apm'
+  - '%USERPROFILE%\.npm'
