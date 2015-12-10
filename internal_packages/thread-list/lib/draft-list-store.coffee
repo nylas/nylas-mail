@@ -47,8 +47,7 @@ class DraftListStore extends NylasStore
 
   _onDataChanged: (change) =>
     return unless change.objectClass is Message.name
-    containsDraft = _.some(change.objects, (msg) -> msg.draft)
-    return unless containsDraft and @_view
+    return unless @_view
     @_view.invalidate({change: change, shallow: true})
 
 module.exports = new DraftListStore()
