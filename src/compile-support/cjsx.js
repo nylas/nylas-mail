@@ -132,9 +132,7 @@ var hotCompile = (function () {
 }());
 
 function registerHotCompile() {
-  CoffeeScript.FILE_EXTENSIONS.forEach(function(ext) {
-    require.extensions[ext] = hotCompile;
-  });
+  require.extensions['.cjsx'] = hotCompile;
 
   if (process.mainModule === module) {
     var path = require('path');

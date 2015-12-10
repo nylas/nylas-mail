@@ -356,9 +356,15 @@ class Application
 
     ipcMain.on 'call-window-method', (event, method, args...) ->
       win = BrowserWindow.fromWebContents(event.sender)
+      console.error("Method #{method} does not exist on BrowserWindow!") unless win[method]
       win[method](args...)
 
+    ipcMain.on 'call-devtools-webcontents-method', (event, method, args...) ->
+      # If devtools aren't open the `webContents::devToolsWebContents` will be null
+      event.sender.devToolsWebContents?[method](args...)
+
     ipcMain.on 'call-webcontents-method', (event, method, args...) ->
+      console.error("Method #{method} does not exist on WebContents!") unless event.sender[method]
       event.sender[method](args...)
 
     ipcMain.on 'action-bridge-rebroadcast-to-all', (event, args...) =>
