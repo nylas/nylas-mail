@@ -35,6 +35,7 @@
     vertical-align: top;
     li {
       list-style-type: none;
+      white-space: nowrap;
       display: inline-block;
       color: rgba(0,0,0,0.7);
       a {
@@ -121,4 +122,3 @@
     }
   }
 }
-
