@@ -68,9 +68,9 @@ class Download
         return if @request
 
         if @state is State.Finished
-          resolve()
+          resolve(@) # Note: we must resolve with this
         else if @state is State.Failed
-          reject()
+          reject(@)
 
       @state = State.Downloading
 
