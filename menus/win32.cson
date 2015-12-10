@@ -18,7 +18,6 @@
     label: '&View'
     submenu: [
       { label: 'Toggle &Full Screen', command: 'window:toggle-full-screen' }
-      { label: 'Toggle Menu Bar', command: 'window:toggle-menu-bar' }
     ]
   }
   {
