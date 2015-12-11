@@ -16,7 +16,7 @@ class NylasSpellchecker
 
   isSpelledCorrectly: (args...) => not @isMisspelled(args...)
 
-  setLanguage: (lang="", dict=@_getDictionaryPath()) ->
+  setLanguage: (lang="", dict="") ->
     @languageAvailable = @isLanguageAvailable(lang)
     if @languageAvailable
       spellCheck = @isSpelledCorrectly
@@ -28,15 +28,35 @@ class NylasSpellchecker
     if lang.length is 0 then lang = "en-US"
 
     @_setWebframeSpellchecker(lang, spellCheck)
+
+    if process.platform is "linux"
+      dictionaryPath = @_getHunspellDictionary()
+    else
+      # On Mac we defer to NSSpellChecker
+      # On Windows we use the Windows Spell Check API
+      #
+      # Both of those automatically provide a set of dictionaries based on
+      # the language string.
+      #
+      # On Windows 10 you can see the dictionaries that are available by
+      # looking in: C:\Users\YourName\AppData\Roaming\Microsoft\Spelling
+      #
+      # The `dictionaryPath` parameter is ignored on Mac & Windows by
+      # node-spellchecker
+      dictionaryPath = ""
+
+    if dict.length is 0 then dict = dictionaryPath
+
     spellchecker.setDictionary(lang, dict)
 
   # Separate method for testing
   _setWebframeSpellchecker: (lang, spellCheck) ->
     require('web-frame').setSpellCheckProvider(lang, false, {spellCheck})
 
-  # node-spellchecker's method for resolving the builtin hunspell dictionaries for Linux
-  # (From https://github.com/atom/node-spellchecker/blob/master/lib/spellchecker.js#L50-L61)
-  _getDictionaryPath: ->
+  # node-spellchecker's method for resolving the builtin hunspell
+  # dictionaries for Linux (From
+  # https://github.com/atom/node-spellchecker/blob/master/lib/spellchecker.js#L50-L61)
+  _getHunspellDictionary: ->
     dict = path.join(require.resolve('spellchecker'), '..', '..', 'vendor', 'hunspell_dictionaries')
     try
       # HACK: Special case being in an asar archive
