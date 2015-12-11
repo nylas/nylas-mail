@@ -36,9 +36,12 @@ function setupWindow (loadSettings) {
     copyEnvFromMainProcess();
   }
 
-  var hotreload = loadSettings.devMode && !loadSettings.isSpec;
   var CompileCache = require('../src/compile-cache')
+
+  // TODO: Re-enable hotreloading when react-proxy is added.
+  var hotreload = false
   CompileCache.setHotReload(hotreload)
+
   CompileCache.setHomeDirectory(loadSettings.configDirPath)
 
   var ModuleCache = require('../src/module-cache')
