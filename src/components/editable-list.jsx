@@ -59,10 +59,12 @@ class EditableList extends Component {
    */
   /**
    * If provided, this function will be called when an item is selected via click or arrow
-   * keys.
+   * keys. If the selection is cleared, it will receive null.
    * @callback props.onItemSelected
-   * @param {(Component|string|number)} selectedItem - The selected item
-   * @param {number} idx - The index of the selected item
+   * @param {(Component|string|number)} selectedItem - The selected item or null
+   * when selection cleared
+   * @param {number} idx - The index of the selected item or null when selection
+   * cleared
    */
   /**
    * If provided, this function will be called when the user has entered a value to create
@@ -103,7 +105,7 @@ class EditableList extends Component {
 
   constructor(props) {
     super(props);
-    this._doubleClickedItem = false;
+    this._beganEditing = false;
     this.state = props.initialState || {
       editing: null,
       selected: (props.allowEmptySelection ? null : 0),
@@ -127,9 +129,11 @@ class EditableList extends Component {
   }
 
   _selectItem = (item, idx)=> {
-    this.setState({selected: idx}, ()=> {
-      this.props.onItemSelected(item, idx);
-    });
+    if (this.state.selected !== idx) {
+      this.setState({selected: idx}, ()=> {
+        this.props.onItemSelected(item, idx);
+      });
+    }
   }
 
   /**
@@ -151,7 +155,7 @@ class EditableList extends Component {
   }
 
   _onEditInputFocus = ()=> {
-    this._doubleClickedItem = false;
+    this._beganEditing = false;
   }
 
   _onEditInputKeyDown = (event, item, idx)=> {
@@ -180,15 +184,15 @@ class EditableList extends Component {
     this._selectItem(item, idx);
   }
 
-  _onItemDoubleClick = (event, item, idx)=> {
+  _onItemEdit = (event, item, idx)=> {
     if (!React.isValidElement(item)) {
-      this._doubleClickedItem = true;
+      this._beganEditing = true;
       this.setState({editing: idx});
     }
   }
 
   _onListBlur = ()=> {
-    if (!this._doubleClickedItem && this.props.allowEmptySelection) {
+    if (!this._beganEditing && this.props.allowEmptySelection) {
       this.setState({selected: null});
     }
   }
@@ -265,9 +269,10 @@ class EditableList extends Component {
     );
   }
 
+  // handlers object for testing
   _renderItem = (item, idx, {editing, selected} = this.state, handlers = {})=> {
     const onClick = handlers.onClick || this._onItemClick;
-    const onDoubleClick = handlers.onDoubleClick || this._onItemDoubleClick;
+    const onEdit = handlers.onEdit || this._onItemEdit;
 
     const classes = classNames({
       'list-item': true,
@@ -288,14 +293,14 @@ class EditableList extends Component {
         className={classes}
         key={idx}
         onClick={_.partial(onClick, _, item, idx)}
-        onDoubleClick={_.partial(onDoubleClick, _, item, idx)}>
+        onDoubleClick={_.partial(onEdit, _, item, idx)}>
         {itemToRender}
         <RetinaImg
           className="edit-icon"
           name="edit-icon.png"
           title="Edit Item"
           mode={RetinaImg.Mode.ContentIsMask}
-          onClick={_.partial(onDoubleClick, _, item, idx)} />
+          onClick={_.partial(onEdit, _, item, idx)} />
       </div>
     );
   }

@@ -26,6 +26,60 @@ describe('EditableList', ()=> {
     });
   });
 
+  describe('_onItemEdit', ()=> {
+    it('enters editing mode when double click when item is not React Element', ()=> {
+      const list = makeList(['1', '2']);
+      spyOn(list, 'setState');
+      const item = scryRenderedDOMComponentsWithClass(list, 'editable-item')[0];
+
+      Simulate.doubleClick(item);
+
+      expect(list.setState).toHaveBeenCalledWith({editing: 0});
+    });
+
+    it('enters editing mode when edit icon clicked when item is not React Element', ()=> {
+      const list = makeList(['1', '2']);
+      spyOn(list, 'setState');
+      const editIcon = scryRenderedDOMComponentsWithClass(list, 'edit-icon')[0];
+
+      Simulate.click(editIcon);
+
+      expect(list.setState).toHaveBeenCalledWith({editing: 0});
+    });
+
+    it('does not enters editing mode when item is React Element', ()=> {
+      const item = <div></div>;
+      const list = makeList(['1', item]);
+      spyOn(list, 'setState');
+      list._onItemEdit({}, item, 1);
+      expect(list.setState).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('_onListBlur', ()=> {
+    it('clears selection when requirements met', ()=> {
+      const list = makeList(['1', '2'], {allowEmptySelection: true});
+      const innerList = findRenderedDOMComponentWithClass(list, 'items-wrapper');
+      list._beganEditing = false;
+      spyOn(list, 'setState');
+
+      Simulate.blur(innerList);
+
+      expect(list.setState).toHaveBeenCalledWith({selected: null});
+    });
+
+    it('does not clear selection when entering edit mode', ()=> {
+      const list = makeList(['1', '2'], {allowEmptySelection: true});
+      const innerList = findRenderedDOMComponentWithClass(list, 'items-wrapper');
+      list._beganEditing = true;
+      spyOn(list, 'setState');
+
+      Simulate.blur(innerList);
+
+      expect(list.setState).not.toHaveBeenCalled();
+    });
+  });
+
   describe('_onListKeyDown', ()=> {
     it('calls onItemSelected', ()=> {
       const onItemSelected = jasmine.createSpy('onItemSelected');
@@ -35,6 +89,26 @@ describe('EditableList', ()=> {
       Simulate.keyDown(innerList, {key: 'ArrowDown'});
 
       expect(onItemSelected).toHaveBeenCalledWith('2', 1);
+    });
+
+    it('does not select an item when at the bottom of the list and moves down', ()=> {
+      const onItemSelected = jasmine.createSpy('onItemSelected');
+      const list = makeList(['1', '2'], {initialState: {selected: 1}, onItemSelected});
+      const innerList = findRenderedDOMComponentWithClass(list, 'items-wrapper');
+
+      Simulate.keyDown(innerList, {key: 'ArrowDown'});
+
+      expect(onItemSelected).not.toHaveBeenCalled();
+    });
+
+    it('does not select an item when at the top of the list and moves up', ()=> {
+      const onItemSelected = jasmine.createSpy('onItemSelected');
+      const list = makeList(['1', '2'], {initialState: {selected: 0}, onItemSelected});
+      const innerList = findRenderedDOMComponentWithClass(list, 'items-wrapper');
+
+      Simulate.keyDown(innerList, {key: 'ArrowUp'});
+
+      expect(onItemSelected).not.toHaveBeenCalled();
     });
   });
 
@@ -79,16 +153,16 @@ describe('EditableList', ()=> {
 
     it('binds correct click callbacks', ()=> {
       const onClick = jasmine.createSpy('onClick');
-      const onDoubleClick = jasmine.createSpy('onDoubleClick');
-      const item = makeItem('item 1', 0, {}, {onClick, onDoubleClick});
+      const onEdit = jasmine.createSpy('onEdit');
+      const item = makeItem('item 1', 0, {}, {onClick, onEdit});
 
       Simulate.click(item);
       expect(onClick.calls[0].args[1]).toEqual('item 1');
       expect(onClick.calls[0].args[2]).toEqual(0);
 
       Simulate.doubleClick(item);
-      expect(onDoubleClick.calls[0].args[1]).toEqual('item 1');
-      expect(onDoubleClick.calls[0].args[2]).toEqual(0);
+      expect(onEdit.calls[0].args[1]).toEqual('item 1');
+      expect(onEdit.calls[0].args[2]).toEqual(0);
     });
 
     it('renders correctly when item is selected', ()=> {
