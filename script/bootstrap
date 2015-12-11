@@ -158,6 +158,11 @@ function bootstrap() {
       options: buildInstallOptions
     },
     {
+      command: "script/grunt add-nylas-build-resources",
+      message: "",
+      options: {}
+    },
+    {
       command: npmInstallApmCommand,
       message: m2,
       options: npmInstallApmOptions
