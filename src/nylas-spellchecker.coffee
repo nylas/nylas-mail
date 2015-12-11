@@ -40,9 +40,9 @@ class NylasSpellchecker
     dict = path.join(require.resolve('spellchecker'), '..', '..', 'vendor', 'hunspell_dictionaries')
     try
       # HACK: Special case being in an asar archive
-      unpacked = dict.replace('.asar' + path.sep, '.asar.unpacked' + path.sep);
+      unpacked = dict.replace('.asar' + path.sep, '.asar.unpacked' + path.sep)
       if require('fs').statSyncNoException(unpacked)
-        dict = unpacked;
+        dict = unpacked
     catch
 
     dict
