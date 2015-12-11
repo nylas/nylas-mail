@@ -48,7 +48,7 @@ describe('EditableList', ()=> {
     });
 
     it('does not enters editing mode when item is React Element', ()=> {
-      const item = <div></div>;
+      const item = <div key='2'></div>;
       const list = makeList(['1', item]);
       spyOn(list, 'setState');
       list._onItemEdit({}, item, 1);
