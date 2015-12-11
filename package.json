@@ -52,7 +52,6 @@
     "q": "^1.0.1",
     "raven": "0.7.2",
     "react": "^0.13.2",
-    "react-hot-api": "0.4.5",
     "reflux": "0.1.13",
     "request": "^2.53",
     "request-progress": "^0.3",

@@ -1,5 +1,7 @@
 CoffeeScript = require('coffee-react');
 
+// TODO: Remove react-hot-api (which is deprecated) in favor of react-proxy
+//
 // Note: This uses https://github.com/gaearon/react-hot-api and code from
 // https://github.com/BenoitZugmeyer/chwitt-react/blob/2d62184986c7c183955dcb607dba5ceda70a2221/bootstrap-jsx.js
 
