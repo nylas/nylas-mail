@@ -18,7 +18,7 @@ class NylasSpellchecker
 
   setLanguage: (lang="", dict=@_getDictionaryPath()) ->
     @languageAvailable = @isLanguageAvailable(lang)
-    if @languageAvailable or process.platform is 'linux'
+    if @languageAvailable
       spellCheck = @isSpelledCorrectly
     else
       spellCheck = -> true
@@ -53,16 +53,22 @@ class NylasSpellchecker
   add: spellchecker.add
 
   isMisspelled: (text) =>
-    if @languageAvailable or process.platform is 'linux'
+    if @languageAvailable
       spellchecker.isMisspelled(text)
     else
       return false
 
   getAvailableDictionaries: ->
-    spellchecker.getAvailableDictionaries() ? []
+    if process.platform is 'linux'
+      arr = spellchecker.getAvailableDictionaries()
+      if not "en_US" in arr
+        arr.push('en_US') # Installed by default in node-spellchecker's vendor directory
+      arr
+    else
+      spellchecker.getAvailableDictionaries() ? []
 
   getCorrectionsForMisspelling: (args...) =>
-    if @languageAvailable or process.platform is 'linux'
+    if @languageAvailable
       spellchecker.getCorrectionsForMisspelling(args...)
     else return []
 
