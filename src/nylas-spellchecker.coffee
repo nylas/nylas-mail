@@ -16,7 +16,7 @@ class NylasSpellchecker
 
   isSpelledCorrectly: (args...) => not @isMisspelled(args...)
 
-  setLanguage: (lang="", dict="") ->
+  setLanguage: (lang="", dict=@_getHunspellDictionary()) ->
     @languageAvailable = @isLanguageAvailable(lang)
     if @languageAvailable
       spellCheck = @isSpelledCorrectly
@@ -29,24 +29,19 @@ class NylasSpellchecker
 
     @_setWebframeSpellchecker(lang, spellCheck)
 
-    if process.platform is "linux"
-      dictionaryPath = @_getHunspellDictionary()
-    else
-      # On Mac we defer to NSSpellChecker
-      # On Windows we use the Windows Spell Check API
-      #
-      # Both of those automatically provide a set of dictionaries based on
-      # the language string.
-      #
-      # On Windows 10 you can see the dictionaries that are available by
-      # looking in: C:\Users\YourName\AppData\Roaming\Microsoft\Spelling
-      #
-      # The `dictionaryPath` parameter is ignored on Mac & Windows by
-      # node-spellchecker
-      dictionaryPath = ""
-
-    if dict.length is 0 then dict = dictionaryPath
-
+    # On Mac we defer to NSSpellChecker
+    # On Windows we use the Windows Spell Check API
+    #
+    # Both of those automatically provide a set of dictionaries based on
+    # the language string.
+    #
+    # On Windows 10 you can see the dictionaries that are available by
+    # looking in: C:\Users\YourName\AppData\Roaming\Microsoft\Spelling
+    #
+    # The `dict` parameter is ignored by node-spellchecker
+    #
+    # On Linux and old versions of windows we default back to the hunspell
+    # dictionary
     spellchecker.setDictionary(lang, dict)
 
   # Separate method for testing
