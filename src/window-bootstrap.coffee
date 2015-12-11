@@ -1,6 +1,7 @@
 # Swap out Node's native Promise for Bluebird, which allows us to
 # do fancy things like handle exceptions inside promise blocks
 global.Promise = require 'bluebird'
+Promise.setScheduler(global.setImmediate)
 
 # Like sands through the hourglass, so are the days of our lives.
 require './window'
