@@ -117,13 +117,13 @@ class EditableList extends Component {
   // Helpers
 
   _createItem = (value)=> {
-    this.setState({creatingItem: false}, ()=> {
+    this._clearCreatingState(()=> {
       this.props.onItemCreated(value);
     });
   }
 
   _updateItem = (value, originalItem, idx)=> {
-    this.setState({editing: null}, ()=> {
+    this._clearEditingState(()=> {
       this.props.onItemEdited(value, originalItem, idx);
     });
   }
@@ -134,6 +134,25 @@ class EditableList extends Component {
         this.props.onItemSelected(item, idx);
       });
     }
+  }
+
+  _clearEditingState = (callback)=> {
+    this._setStateAndFocus({editing: null}, callback);
+  }
+
+  _clearCreatingState = (callback)=> {
+    this._setStateAndFocus({creatingItem: false}, callback);
+  }
+
+  _setStateAndFocus = (state, callback = ()=> {})=> {
+    this.setState(state, ()=> {
+      this._focusSelf();
+      callback();
+    });
+  }
+
+  _focusSelf = ()=> {
+    React.findDOMNode(this).focus();
   }
 
   /**
@@ -163,7 +182,7 @@ class EditableList extends Component {
     if (_.includes(['Enter', 'Return'], event.key)) {
       this._updateItem(event.target.value, item, idx);
     } else if (event.key === 'Escape') {
-      this.setState({editing: null});
+      this._clearEditingState();
     }
   }
 
@@ -176,7 +195,7 @@ class EditableList extends Component {
     if (_.includes(['Enter', 'Return'], event.key)) {
       this._createItem(event.target.value);
     } else if (event.key === 'Escape') {
-      this.setState({creatingItem: false});
+      this._clearCreatingState();
     }
   }
 
