@@ -71,9 +71,9 @@ class DatabaseView extends ModelView
     @_orders = config.orders ? []
 
     @_count = -1
-    process.nextTick =>
-      @invalidateCount()
-      @invalidateRetainedRange()
+
+    @invalidateCount()
+    @invalidateRetainedRange()
     @
 
   log: ->
