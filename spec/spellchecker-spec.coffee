@@ -40,6 +40,34 @@ describe "NylasSpellchecker", ->
     spyOn(@spellchecker, "getAvailableDictionaries").andReturn @fullDictList
     expect(@spellchecker.isLanguageAvailable("en")).toBe true
 
+  it "sets the correct default dictionary", ->
+    nodeSpellchecker = require('spellchecker')
+    spyOn(nodeSpellchecker, "setDictionary")
+    @spellchecker.setDictionary("en_US")
+    expect(nodeSpellchecker.setDictionary).toHaveBeenCalled()
+    expect(nodeSpellchecker.setDictionary.calls[0].args[0]).toBe "en_US"
+    dict = nodeSpellchecker.setDictionary.calls[0].args[1]
+    if process.platform is "darwin"
+      expect(dict.length).toBe 0
+    else if process.platform is "win32"
+      expect(dict.length).toBe 0
+    else if process.platform is "linux"
+      expect(dict.length).toBeGreaterThan 0
+
+  it "uses the passed-in dictionary", ->
+    nodeSpellchecker = require('spellchecker')
+    spyOn(nodeSpellchecker, "setDictionary")
+    @spellchecker.setDictionary("fr", "/path/to/dict")
+    expect(nodeSpellchecker.setDictionary).toHaveBeenCalled()
+    expect(nodeSpellchecker.setDictionary.calls[0].args[0]).toBe "fr"
+    dict = nodeSpellchecker.setDictionary.calls[0].args[1]
+    if process.platform is "darwin"
+      expect(dict).toBe "/path/to/dict"
+    else if process.platform is "win32"
+      expect(dict).toBe "/path/to/dict"
+    else if process.platform is "linux"
+      expect(dict).toBe "/path/to/dict"
+
   describe "when we don't recognize the language", ->
     beforeEach ->
       spyOn(@spellchecker, "getAvailableDictionaries").andReturn ["foo"]
@@ -87,12 +115,11 @@ describe "NylasSpellchecker", ->
 
     it "provides options for misspelled words", ->
       expect(@spellchecker.getCorrectionsForMisspelling("")).toEqual []
-      # TODO: Determine the reason OS X and/or Windows return an empty array
-      # for the string. -mbilker
+
       if process.platform is 'linux'
         expect(@spellchecker.getCorrectionsForMisspelling("asdfk")).toEqual ['asked', 'acidify', 'Assad']
-      else
-        expect(@spellchecker.getCorrectionsForMisspelling("asdfk")).toEqual []
+      else if process.platofrm is "darwin"
+        expect(@spellchecker.getCorrectionsForMisspelling("testt")).toEqual [ 'test', 'tests', 'testy', 'testa' ]
 
     it "still provides options for correctly spelled workds", ->
       expect(@spellchecker.getCorrectionsForMisspelling("hello").length).toBeGreaterThan 1
