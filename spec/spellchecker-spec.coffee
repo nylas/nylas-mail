@@ -87,7 +87,12 @@ describe "NylasSpellchecker", ->
 
     it "provides options for misspelled words", ->
       expect(@spellchecker.getCorrectionsForMisspelling("")).toEqual []
-      expect(@spellchecker.getCorrectionsForMisspelling("asdfk")).toEqual []
+      # TODO: Determine the reason OS X and/or Windows return an empty array
+      # for the string. -mbilker
+      if process.platform is 'linux'
+        expect(@spellchecker.getCorrectionsForMisspelling("asdfk")).toEqual ['asked', 'acidify', 'Assad']
+      else
+        expect(@spellchecker.getCorrectionsForMisspelling("asdfk")).toEqual []
 
     it "still provides options for correctly spelled workds", ->
       expect(@spellchecker.getCorrectionsForMisspelling("hello").length).toBeGreaterThan 1
