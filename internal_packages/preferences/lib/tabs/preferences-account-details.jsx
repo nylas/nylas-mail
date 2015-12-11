@@ -27,13 +27,13 @@ class PreferencesAccountDetails extends Component {
   // Helpers
 
   /**
-   * Will transform any user input into alias format.
+   * @private Will transform any user input into alias format.
    * It will ignore any text after an email, if one is entered.
    * If no email is entered, it will use the account's email.
    * It will treat the text before the email as the name for the alias.
    * If no name is entered, it will use the account's name value.
-   * @param{string} str - The string the user entered on the alias input
-   * @param{object} [account=this.props.account] - The account object
+   * @param {string} str - The string the user entered on the alias input
+   * @param {object} [account=this.props.account] - The account object
    */
   _makeAlias(str, account = this.props.account) {
     const emailRegex = RegExpUtils.emailRegex();
