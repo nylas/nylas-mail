@@ -48,9 +48,9 @@ describe "NylasSpellchecker", ->
     expect(nodeSpellchecker.setDictionary.calls[0].args[0]).toBe "en_US"
     dict = nodeSpellchecker.setDictionary.calls[0].args[1]
     if process.platform is "darwin"
-      expect(dict.length).toBe 0
+      expect(dict.length).toBeGreaterThan 0
     else if process.platform is "win32"
-      expect(dict.length).toBe 0
+      expect(dict.length).toBeGreaterThan 0
     else if process.platform is "linux"
       expect(dict.length).toBeGreaterThan 0
 
