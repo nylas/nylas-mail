@@ -22,6 +22,7 @@ class ThreadListStore extends NylasStore
     @listenTo DatabaseStore, @_onDataChanged
     @listenTo AccountStore, @_onAccountChanged
     @listenTo FocusedMailViewStore, @_onMailViewChanged
+    @createView()
 
     NylasEnv.commands.add "body",
       'thread-list:select-read'     : @_onSelectRead
