@@ -164,6 +164,8 @@ class WindowEventHandler
 
   openContextualMenuForInput: (event) ->
     event.preventDefault()
+
+    return unless event.target.type in ['text', 'password', 'email', 'number', 'range', 'search', 'tel', 'url']
     hasSelectedText = event.target.selectionStart isnt event.target.selectionEnd
 
     remote = require('remote')
