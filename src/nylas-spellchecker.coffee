@@ -1,3 +1,5 @@
+path = require('path')
+
 spellchecker = require('spellchecker')
 
 class NylasSpellchecker
@@ -14,9 +16,9 @@ class NylasSpellchecker
 
   isSpelledCorrectly: (args...) => not @isMisspelled(args...)
 
-  setLanguage: (lang="") ->
+  setLanguage: (lang="", dict=@_getDictionaryPath()) ->
     @languageAvailable = @isLanguageAvailable(lang)
-    if @languageAvailable
+    if @languageAvailable or process.platform is 'linux'
       spellCheck = @isSpelledCorrectly
     else
       spellCheck = -> true
@@ -26,26 +28,41 @@ class NylasSpellchecker
     if lang.length is 0 then lang = "en-US"
 
     @_setWebframeSpellchecker(lang, spellCheck)
-    spellchecker.setDictionary(lang)
+    spellchecker.setDictionary(lang, dict)
 
   # Separate method for testing
   _setWebframeSpellchecker: (lang, spellCheck) ->
     require('web-frame').setSpellCheckProvider(lang, false, {spellCheck})
 
+  # node-spellchecker's method for resolving the builtin hunspell dictionaries for Linux
+  # (From https://github.com/atom/node-spellchecker/blob/master/lib/spellchecker.js#L50-L61)
+  _getDictionaryPath: ->
+    dict = path.join(require.resolve('spellchecker'), '..', '..', 'vendor', 'hunspell_dictionaries')
+    try
+      # HACK: Special case being in an asar archive
+      unpacked = dict.replace('.asar' + path.sep, '.asar.unpacked' + path.sep);
+      if require('fs').statSyncNoException(unpacked)
+        dict = unpacked;
+    catch
+
+    dict
+
   #### spellchecker methods ####
-  setDictionary: (lang) => @setLanguage(lang)
+  setDictionary: (lang, dict) => @setLanguage(lang, dict)
 
   add: spellchecker.add
 
   isMisspelled: (text) =>
-    if @languageAvailable then spellchecker.isMisspelled(text)
-    else return false
+    if @languageAvailable or process.platform is 'linux'
+      spellchecker.isMisspelled(text)
+    else
+      return false
 
   getAvailableDictionaries: ->
     spellchecker.getAvailableDictionaries() ? []
 
   getCorrectionsForMisspelling: (args...) =>
-    if @languageAvailable
+    if @languageAvailable or process.platform is 'linux'
       spellchecker.getCorrectionsForMisspelling(args...)
     else return []
 
