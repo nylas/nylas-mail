@@ -337,6 +337,9 @@ class NylasEnvConstructor extends Model
   isWorkWindow: ->
     @getWindowType() is 'work'
 
+  isComposerWindow: ->
+    @getWindowType() is 'composer'
+
   getWindowType: ->
     @getLoadSettings().windowType
 
