@@ -90,6 +90,7 @@ class AccountSidebarSection extends React.Component
 
   _onCreateButtonMouseDown: =>
     @_clickingCreateButton = true
+    return
 
   _onCreateButtonClicked: (sectionLabel) =>
     @_clickingCreateButton = false
