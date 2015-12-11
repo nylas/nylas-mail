@@ -158,7 +158,7 @@ function bootstrap() {
       options: buildInstallOptions
     },
     {
-      command: "script/grunt add-nylas-build-resources",
+      command: gruntPath + " add-nylas-build-resources --gruntfile build/Gruntfile.coffee",
       message: "",
       options: {}
     },
