@@ -35,7 +35,7 @@ class AccountStore
       @_load()
       if newAccountIds.length > 0
         Actions.selectAccount(newAccountIds[0])
-    unless NylasEnv.isMainWindow()
+    if NylasEnv.isComposerWindow()
       NylasEnv.config.observe saveObjectsKey, => @_load()
 
     @_setupFastAccountCommands()
