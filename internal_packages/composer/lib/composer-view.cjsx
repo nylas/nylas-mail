@@ -574,10 +574,11 @@ class ComposerView extends React.Component
     account = AccountStore.itemWithId @_proxy?.draft().accountId
     @setState {enabledFields, account}
 
-  _shouldShowFromField: (draft) ->
+  _shouldShowFromField: (draft) =>
     return false unless draft
-    return AccountStore.items().length > 1 and
-           draft.files.length is 0
+    account = AccountStore.itemWithId(draft.accountId)
+    return false unless account
+    return account.aliases.length > 1
 
   _shouldEnableSubject: =>
     return false unless @_proxy
