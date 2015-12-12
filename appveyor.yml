@@ -10,6 +10,7 @@ branches:
   only:
   - master
   - ci-test
+  - stable
 
 test: off
 
