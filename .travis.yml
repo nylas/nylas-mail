@@ -20,6 +20,7 @@ branches:
   only:
   - master
   - ci-test
+  - stable
 
 matrix:
   include:

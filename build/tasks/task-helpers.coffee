@@ -94,7 +94,7 @@ module.exports = (grunt) ->
         return false
 
       branch = process.env.APPVEYOR_REPO_BRANCH
-      if branch is "master" or branch is "ci-test" or branch[0..7] is "release/"
+      if branch is "master" or branch is "ci-test" or branch is "stable"
         return true
       else
         grunt.log.writeln("Skipping. We don't operate on branch '#{branch}''")
@@ -106,7 +106,7 @@ module.exports = (grunt) ->
         return false
 
       branch = process.env.TRAVIS_BRANCH
-      if branch is "master" or branch is "ci-test" or branch[0..7] is "release/"
+      if branch is "master" or branch is "ci-test" or branch is "stable"
         return true
       else
         grunt.log.writeln("Skipping. We don't operate on branch '#{branch}''")
