@@ -161,83 +161,88 @@ function bootstrap() {
       command: gruntPath + " add-nylas-build-resources --gruntfile build/Gruntfile.coffee",
       message: "",
       options: {}
-    },
-    {
-      command: npmInstallApmCommand,
-      message: m2,
-      options: npmInstallApmOptions
-    },
-    {
-      command: npmDedupeNpmCommand,
-      message: m2a,
-      options: npmDedupeNpmOptions
-    },
-    {
-      command: apmPath + ' clean' + apmFlags,
-      options: { env: apmEnv },
-      message: m3
     }
-  ];
-
-  // we need this because we don't put our modules in node_modules and npm
-  // install doesn't find them. Run APM install on each package directory manually.
-  internalPackagesDir = path.resolve(__dirname, '..', 'internal_packages');
-  internalPackages = fs.readdirSync('internal_packages');
-  internalPackages.forEach(function(dir) {
-    var dirPackageJSONPath = path.join(internalPackagesDir, dir, 'package.json');
-    // On windows and linux, invoking the apm command is very slow even when there are no
-    // dependencies. Make it faster by not calling unless we find there are deps.
-    if (fs.existsSync(dirPackageJSONPath)) {
-      var dirPackageJSON = JSON.parse(fs.readFileSync(dirPackageJSONPath));
-      if (dirPackageJSON.dependencies && (Object.keys(dirPackageJSON.dependencies).length > 0)) {
-        commands.push({
-          command: apmInstallCommand,
-          message: "Installing dependencies for "+dir,
-          options: {
-            cwd: path.join(internalPackagesDir, dir),
-            env: apmEnv
-          }
-        });
-      }
-    }
-  });
-
-  commands = commands.concat([
-    {
-      command: apmInstallCommand,
-      options: { env: apmEnv },
-      message: m4
-    },
-    {
-      command: apmDedupeCommand + ' ' + packagesToDedupe.join(' '),
-      options: { env: apmEnv },
-      message: m5
-    },
-    {
-      command: apmDedupeCommand + ' request semver',
-      options: semverOptions,
-      message: m6
-    },
-    {
-      command: downloadElectronCmd,
-      message: m7
-    },
-    {
-      command: integrationCommand,
-      options: integrationOptions,
-      message: m8
-    },
-    {
-      command: sqlite3Command,
-      message: "Building sqlite3 with command: "+sqlite3Command
-    }
-  ]);
-
+  ]
   process.chdir(path.dirname(__dirname));
   executeCommands(commands, function() {
-    console.log("---------------------------------------------");
-    console.log("script/bootstrap completed successfully. You can start\nN1 via ./N1.sh --dev, or run tests with ./N1.sh --test");
-    process.exit();
+    var commands = [
+      {
+        command: npmInstallApmCommand,
+        message: m2,
+        options: npmInstallApmOptions
+      },
+      {
+        command: npmDedupeNpmCommand,
+        message: m2a,
+        options: npmDedupeNpmOptions
+      },
+      {
+        command: apmPath + ' clean' + apmFlags,
+        options: { env: apmEnv },
+        message: m3
+      }
+    ];
+
+    // we need this because we don't put our modules in node_modules and npm
+    // install doesn't find them. Run APM install on each package directory manually.
+    internalPackagesDir = path.resolve(__dirname, '..', 'internal_packages');
+    internalPackages = fs.readdirSync('internal_packages');
+    internalPackages.forEach(function(dir) {
+      var dirPackageJSONPath = path.join(internalPackagesDir, dir, 'package.json');
+      // On windows and linux, invoking the apm command is very slow even when there are no
+      // dependencies. Make it faster by not calling unless we find there are deps.
+      if (fs.existsSync(dirPackageJSONPath)) {
+        var dirPackageJSON = JSON.parse(fs.readFileSync(dirPackageJSONPath));
+        if (dirPackageJSON.dependencies && (Object.keys(dirPackageJSON.dependencies).length > 0)) {
+          commands.push({
+            command: apmInstallCommand,
+            message: "Installing dependencies for "+dir,
+            options: {
+              cwd: path.join(internalPackagesDir, dir),
+              env: apmEnv
+            }
+          });
+        }
+      }
+    });
+
+    commands = commands.concat([
+      {
+        command: apmInstallCommand,
+        options: { env: apmEnv },
+        message: m4
+      },
+      {
+        command: apmDedupeCommand + ' ' + packagesToDedupe.join(' '),
+        options: { env: apmEnv },
+        message: m5
+      },
+      {
+        command: apmDedupeCommand + ' request semver',
+        options: semverOptions,
+        message: m6
+      },
+      {
+        command: downloadElectronCmd,
+        message: m7
+      },
+      {
+        command: integrationCommand,
+        options: integrationOptions,
+        message: m8
+      },
+      {
+        command: sqlite3Command,
+        message: "Building sqlite3 with command: "+sqlite3Command
+      }
+    ]);
+
+    process.chdir(path.dirname(__dirname));
+    executeCommands(commands, function() {
+      console.log("---------------------------------------------");
+      console.log("script/bootstrap completed successfully. You can start\nN1 via ./N1.sh --dev, or run tests with ./N1.sh --test");
+      process.exit();
+    });
   });
 }
 
