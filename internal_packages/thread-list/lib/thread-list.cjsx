@@ -13,6 +13,7 @@ classNames = require 'classnames'
  Thread,
  CanvasUtils,
  TaskFactory,
+ ChangeUnreadTask,
  WorkspaceStore,
  AccountStore,
  CategoryStore,
@@ -193,8 +194,10 @@ class ThreadList extends React.Component
     'application:archive-item': @_onArchiveItem
     'application:delete-item': @_onDeleteItem
     'application:star-item': @_onStarItem
-    'application:mark-important': @_onSetImportantItem
-    'application:mark-unimportant': @_onSetUnimportantItem
+    'application:mark-important': @_onMarkImportantItem
+    'application:mark-unimportant': @_onMarkUnimportantItem
+    'application:mark-as-unread': @_onMarkUnreadItem
+    'application:mark-as-read': @_onMarkReadItem
     'application:remove-and-previous': =>
       @_shift(offset: 1, afterRunning: @_onRemoveFromView)
     'application:remove-and-next': =>
@@ -284,10 +287,10 @@ class ThreadList extends React.Component
     task = TaskFactory.taskForInvertingStarred({threads})
     Actions.queueTask(task)
 
-  _onSetImportantItem: =>
+  _onMarkImportantItem: =>
     @_setImportant(true)
 
-  _onSetUnimportantItem: =>
+  _onMarkUnimportantItem: =>
     @_setImportant(false)
 
   _setImportant: (important) =>
@@ -301,6 +304,21 @@ class ThreadList extends React.Component
       task = TaskFactory.taskForRemovingCategory({threads, category})
 
     Actions.queueTask(task)
+
+  _onMarkReadItem: =>
+    @_setUnread(false)
+
+  _onMarkUnreadItem: =>
+    @_setUnread(true)
+
+  _setUnread: (unread) =>
+    threads = @_threadsForKeyboardAction()
+    return unless threads
+    task = new ChangeUnreadTask
+      threads: threads
+      unread: unread
+    Actions.queueTask(task)
+    Actions.popSheet()
 
   _onRemoveFromView: =>
     threads = @_threadsForKeyboardAction()
