@@ -151,6 +151,12 @@ class DraftStore
 
   ########### PRIVATE ####################################################
 
+  _getFromField: (account) ->
+    if account.defaultAlias?
+      account.meUsingAlias(account.defaultAlias)
+    else
+      account.me()
+
   _doneWithSession: (session) ->
     session.teardown()
     delete @_draftSessions[session.draftClientId]
@@ -280,7 +286,7 @@ class DraftStore
 
   _constructDraft: ({attributes, thread}) =>
     return new Message _.extend {}, attributes,
-      from: [AccountStore.current().me()]
+      from: [@_getFromField(AccountStore.current())]
       date: (new Date)
       draft: true
       pristine: true
@@ -369,7 +375,7 @@ class DraftStore
 
     draft = new Message
       body: ""
-      from: [account.me()]
+      from: [@_getFromField(account)]
       date: (new Date)
       draft: true
       pristine: true
@@ -420,7 +426,7 @@ class DraftStore
     draft = new Message
       body: query.body || ''
       subject: query.subject || '',
-      from: [account.me()]
+      from: [@_getFromField(account)]
       date: (new Date)
       draft: true
       pristine: true

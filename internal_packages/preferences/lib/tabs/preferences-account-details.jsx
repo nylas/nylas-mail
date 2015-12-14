@@ -51,6 +51,13 @@ class PreferencesAccountDetails extends Component {
     return `${name} <${email}>`;
   }
 
+  _updatedDefaultAlias(originalAlias, newAlias, defaultAlias) {
+    if (originalAlias === defaultAlias) {
+      return newAlias;
+    }
+    return defaultAlias;
+  }
+
   _saveChanges = ()=> {
     this.props.onAccountUpdated(this.props.account, this.state);
   }
@@ -73,19 +80,52 @@ class PreferencesAccountDetails extends Component {
   _onAccountAliasUpdated = (newAlias, alias, idx)=> {
     const coercedAlias = this._makeAlias(newAlias);
     const aliases = this.state.aliases.slice();
-
+    let defaultAlias = this.state.defaultAlias;
+    if (defaultAlias === alias) {
+      defaultAlias = coercedAlias;
+    }
     aliases[idx] = coercedAlias;
-    this.setState({aliases}, ()=> {
+    this.setState({aliases, defaultAlias}, ()=> {
       this._saveChanges();
     });
   }
 
   _onAccountAliasRemoved = (alias, idx)=> {
     const aliases = this.state.aliases.slice();
+    let defaultAlias = this.state.defaultAlias;
+    if (defaultAlias === alias) {
+      defaultAlias = null;
+    }
     aliases.splice(idx, 1);
-    this.setState({aliases}, ()=> {
+    this.setState({aliases, defaultAlias}, ()=> {
       this._saveChanges();
     });
+  }
+
+  _onDefaultAliasSelected = (event)=> {
+    const defaultAlias = event.target.value === 'None' ? null : event.target.value;
+    this.setState({defaultAlias}, ()=> {
+      this._saveChanges();
+    });
+  }
+
+
+  // Renderers
+
+  _renderDefaultAliasSelector(account) {
+    const aliases = account.aliases;
+    const defaultAlias = account.defaultAlias || 'None';
+    if (aliases.length > 0) {
+      return (
+        <div className="default-alias-selector">
+          <span>Default alias: </span>
+          <select value={defaultAlias} onChange={this._onDefaultAliasSelected}>
+            <option>None</option>
+            {aliases.map((alias, idx)=> <option key={`alias-${idx}`} value={alias}>{alias}</option>)}
+          </select>
+        </div>
+      );
+    }
   }
 
   render() {
@@ -111,6 +151,7 @@ class PreferencesAccountDetails extends Component {
           onDeleteItem={this._onAccountAliasRemoved} >
           {account.aliases}
         </EditableList>
+        {this._renderDefaultAliasSelector(account)}
       </div>
     );
   }

@@ -53,6 +53,11 @@ class Account extends Model
       queryable: false
       modelKey: 'aliases'
 
+    'defaultAlias': Attributes.Object
+      queryable: false
+      modelKey: 'defaultAlias'
+      jsonKey: 'default_alias'
+
   constructor: ->
     super
     @aliases ||= []
