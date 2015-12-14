@@ -6,12 +6,13 @@ ModelQuery = require '../../src/flux/models/query'
 AccountStore = require '../../src/flux/stores/account-store'
 DatabaseStore = require '../../src/flux/stores/database-store'
 DraftStore = require '../../src/flux/stores/draft-store'
-ComposerExtension = require '../../src/flux/extensions/composer-extension'
+ComposerExtension = require '../../flux/src/extensions/composer-extension'
 SendDraftTask = require '../../src/flux/tasks/send-draft'
 DestroyDraftTask = require '../../src/flux/tasks/destroy-draft'
 SoundRegistry = require '../../src/sound-registry'
 Actions = require '../../src/flux/actions'
 Utils = require '../../src/flux/models/utils'
+ExtensionRegistry = require '../../src/extension-registry'
 
 InlineStyleTransformer = require '../../src/services/inline-style-transformer'
 SanitizeTransformer = require '../../src/services/sanitize-transformer'
@@ -389,9 +390,9 @@ describe "DraftStore", ->
 
       describe "extensions", ->
         beforeEach ->
-          DraftStore.registerExtension(TestExtension)
+          ExtensionRegistry.Composer.register(TestExtension)
         afterEach ->
-          DraftStore.unregisterExtension(TestExtension)
+          ExtensionRegistry.Composer.unregister(TestExtension)
 
         it "should give extensions a chance to customize the draft via ext.prepareNewDraft", ->
           @_callNewMessageWithContext {threadId: fakeThread.id}
@@ -821,9 +822,9 @@ describe "DraftStore", ->
 
     describe "extensions", ->
       beforeEach ->
-        DraftStore.registerExtension(TestExtension)
+        ExtensionRegistry.Composer.register(TestExtension)
       afterEach ->
-        DraftStore.unregisterExtension(TestExtension)
+        ExtensionRegistry.Composer.unregister(TestExtension)
 
       it "should give extensions a chance to customize the draft via ext.prepareNewDraft", ->
         received = null
