@@ -46,6 +46,7 @@ class PreferencesAccountDetails extends Component {
     if (!name) {
       name = account.name || 'No name provided';
     }
+    name = name.trim();
     // TODO Sanitize the name string
     return `${name} <${email}>`;
   }
