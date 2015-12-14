@@ -133,9 +133,9 @@ class NylasExports
 
   # Extensions
   @require "ExtensionRegistry", 'extension-registry'
-  @require "ContenteditableExtension", 'flux/extensions/contenteditable-extension'
-  @require "ComposerExtension", 'flux/extensions/composer-extension'
-  @require "MessageViewExtension", 'flux/extensions/message-view-extension'
+  @require "ContenteditableExtension", 'extensions/contenteditable-extension'
+  @require "ComposerExtension", 'extensions/composer-extension'
+  @require "MessageViewExtension", 'extensions/message-view-extension'
 
   # React Components
   @get "React", -> require 'react' # Our version of React for 3rd party use
