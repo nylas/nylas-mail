@@ -1,6 +1,6 @@
 _ = require 'underscore'
-{deprecate} = require '../../deprecate-utils'
-DOMUtils = require '../../dom-utils'
+{deprecate} = require '../deprecate-utils'
+DOMUtils = require '../dom-utils'
 
 ComposerExtensionAdapter = (extension) ->
 

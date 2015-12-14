@@ -55,7 +55,7 @@ Registry.include(Listener);
 
 export const Composer = new Registry(
   'Composer',
-  require('./flux/extensions/composer-extension-adapter')
+  require('./extensions/composer-extension-adapter')
 );
 
 export const MessageView = new Registry(
