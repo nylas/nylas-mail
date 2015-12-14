@@ -302,28 +302,23 @@ describe "populated composer", ->
       makeComposer.call @
       expect(@composer._shouldShowFromField()).toBe false
 
-    it "disables if there's 1 account item", ->
-      spyOn(AccountStore, 'items').andCallFake -> [{id: 1}]
+    it "disables if account has no aliases", ->
+      spyOn(AccountStore, 'itemWithId').andCallFake -> {id: 1, aliases: []}
       useDraft.call @, replyToMessageId: null, files: []
       makeComposer.call @
       expect(@composer.state.enabledFields).not.toContain Fields.From
 
-    it "disables if there are attached files", ->
-      spyOn(AccountStore, 'items').andCallFake -> [{id: 1}, {id: 2}]
-      useDraft.call @, replyToMessageId: null, files: [f1]
-      makeComposer.call @
-      expect(@composer.state.enabledFields).not.toContain Fields.From
-
     it "enables if it's a reply-to message", ->
-      spyOn(AccountStore, 'items').andCallFake -> [{id: 1}, {id: 2}]
+      aliases = ['A <a@b.c']
+      spyOn(AccountStore, 'itemWithId').andCallFake -> {id: 1, aliases: aliases}
       useDraft.call @, replyToMessageId: "local-123", files: []
       makeComposer.call @
       expect(@composer.state.enabledFields).toContain Fields.From
 
     it "enables if requirements are met", ->
       a1 = new Account()
-      a2 = new Account()
-      spyOn(AccountStore, 'items').andCallFake -> [a1, a2]
+      a1.aliases = ['a1']
+      spyOn(AccountStore, 'itemWithId').andCallFake -> a1
       useDraft.call @, replyToMessageId: null, files: []
       makeComposer.call @
       expect(@composer.state.enabledFields).toContain Fields.From

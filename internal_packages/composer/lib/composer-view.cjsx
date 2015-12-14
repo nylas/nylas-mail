@@ -578,7 +578,7 @@ class ComposerView extends React.Component
     return false unless draft
     account = AccountStore.itemWithId(draft.accountId)
     return false unless account
-    return account.aliases.length > 1
+    return account.aliases.length > 0
 
   _shouldEnableSubject: =>
     return false unless @_proxy
