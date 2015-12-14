@@ -367,7 +367,6 @@ module.exports = (grunt) ->
   grunt.registerTask('docs', ['build-docs', 'render-docs'])
 
   buildTasks = [
-    'add-nylas-build-resources',
     'copy-files-for-build',
     'compile',
     'generate-license:save',
