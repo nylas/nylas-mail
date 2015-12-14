@@ -36,6 +36,7 @@ export default class N1Launcher extends Application {
 
   popoutComposerWindowReady() {
     return this.windowReady(N1Launcher.mainWindowLoadedMatcher).then(() => {
+<<<<<<< Updated upstream
       return this.client.execute((FAKE_DATA_PATH)=>{
         $n.AccountStore._importFakeData(FAKE_DATA_PATH)
         $n.Actions.composeNewBlankDraft();
@@ -45,6 +46,25 @@ export default class N1Launcher extends Application {
         return this.client.window(windowId)
       })
     })
+=======
+      return this.client
+      .timeoutsAsyncScript(5000)
+      .executeAsync((fakeDataPath, done) => {
+        return $n.AccountStore._importFakeData(fakeDataPath).then(function(){
+          $n.Actions.composeNewBlankDraft();
+          done();
+        });
+      }, FAKE_DATA_PATH);
+    }).then(()=>{
+      return N1Launcher.waitUntilMatchingWindowLoaded(this.client, N1Launcher.composerWindowMatcher).then((windowId)=>{
+        return new Promise((resolve,reject) => {
+          setTimeout(() => {
+            resolve(this.client.window(windowId));
+          }, 500);
+        });
+      });
+    });
+>>>>>>> Stashed changes
   }
 
   windowReady(matcher) {
