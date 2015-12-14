@@ -48,7 +48,7 @@ describe('EditableList', ()=> {
     });
 
     it('does not enters editing mode when item is React Element', ()=> {
-      const item = <div key='2'></div>;
+      const item = <div key="2"></div>;
       const list = makeList(['1', item]);
       spyOn(list, 'setState');
       list._onItemEdit({}, item, 1);
@@ -72,6 +72,17 @@ describe('EditableList', ()=> {
       const list = makeList(['1', '2'], {allowEmptySelection: true});
       const innerList = findRenderedDOMComponentWithClass(list, 'items-wrapper');
       list._beganEditing = true;
+      spyOn(list, 'setState');
+
+      Simulate.blur(innerList);
+
+      expect(list.setState).not.toHaveBeenCalled();
+    });
+
+    it('does not clear selection when prop does not allow it', ()=> {
+      const list = makeList(['1', '2'], {allowEmptySelection: false});
+      const innerList = findRenderedDOMComponentWithClass(list, 'items-wrapper');
+      list._beganEditing = false;
       spyOn(list, 'setState');
 
       Simulate.blur(innerList);
@@ -107,6 +118,26 @@ describe('EditableList', ()=> {
       const innerList = findRenderedDOMComponentWithClass(list, 'items-wrapper');
 
       Simulate.keyDown(innerList, {key: 'ArrowUp'});
+
+      expect(onItemSelected).not.toHaveBeenCalled();
+    });
+
+    it('clears selection when esc pressed', ()=> {
+      const onItemSelected = jasmine.createSpy('onItemSelected');
+      const list = makeList(['1', '2'], {initialState: {selected: 0}, onItemSelected});
+      const innerList = findRenderedDOMComponentWithClass(list, 'items-wrapper');
+
+      Simulate.keyDown(innerList, {key: 'Escape'});
+
+      expect(onItemSelected).toHaveBeenCalledWith(undefined, null);
+    });
+
+    it('does not clear the selection when esc pressed but prop does not allow it', ()=> {
+      const onItemSelected = jasmine.createSpy('onItemSelected');
+      const list = makeList(['1', '2'], {initialState: {selected: 0}, allowEmptySelection: false, onItemSelected});
+      const innerList = findRenderedDOMComponentWithClass(list, 'items-wrapper');
+
+      Simulate.keyDown(innerList, {key: 'Escape'});
 
       expect(onItemSelected).not.toHaveBeenCalled();
     });

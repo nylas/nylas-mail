@@ -170,11 +170,15 @@ class EditableList extends Component {
   // Handlers
 
   _onEditInputBlur = (event, item, idx)=> {
+    return;
     this._updateItem(event.target.value, item, idx);
   }
 
-  _onEditInputFocus = ()=> {
+  _onEditInputFocus = (event)=> {
+    const input = event.target;
     this._beganEditing = false;
+    // Move cursor to the end of the input
+    input.selectionStart = input.selectionEnd = input.value.length;
   }
 
   _onEditInputKeyDown = (event, item, idx)=> {
@@ -221,7 +225,7 @@ class EditableList extends Component {
     const handle = {
       'ArrowUp': (sel)=> Math.max(0, sel - 1),
       'ArrowDown': (sel)=> sel === len - 1 ? sel : sel + 1,
-      'Escape': ()=> null,
+      'Escape': (sel)=> this.props.allowEmptySelection ? null : sel,
     };
     const selected = (handle[event.key] || ((sel)=> sel))(this.state.selected);
     this._scrollTo(selected);
@@ -262,6 +266,7 @@ class EditableList extends Component {
         autoFocus
         type="text"
         placeholder={item}
+        defaultValue={item}
         onBlur={_.partial(onInputBlur, _, item, idx)}
         onFocus={onInputFocus}
         onKeyDown={_.partial(onInputKeyDown, _, item, idx)} />
