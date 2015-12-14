@@ -5,7 +5,7 @@ class DeprecateUtils
     console.warn message if condition
 
   @deprecate: (fnName, newName, ctx, fn) ->
-    if NylasEnv.inDevMode
+    if NylasEnv.inDevMode() and not NylasEnv.inSpecMode()
       warn = true
       newFn = =>
         DeprecateUtils.warn(
