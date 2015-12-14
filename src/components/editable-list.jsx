@@ -170,7 +170,6 @@ class EditableList extends Component {
   // Handlers
 
   _onEditInputBlur = (event, item, idx)=> {
-    return;
     this._updateItem(event.target.value, item, idx);
   }
 
