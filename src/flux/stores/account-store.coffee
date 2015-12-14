@@ -180,6 +180,8 @@ class AccountStore
       account.serverId = account.clientId
       account.emailAddress = "nora@nylas.com"
       account.organizationUnit = 'label'
+      account.label = "Nora's Email"
+      account.aliases = []
       account.name = "Nora"
       account.provider = "gmail"
       @_accounts.push(account)
@@ -226,8 +228,9 @@ class AccountStore
       threads.push(thread)
 
     downloadsDir = path.join(dir, 'downloads')
-    for filename in fs.readdirSync(downloadsDir)
-      fs.copySync(path.join(downloadsDir, filename), path.join(NylasEnv.getConfigDirPath(), 'downloads', filename))
+    if fs.existsSync(downloadsDir)
+      for filename in fs.readdirSync(downloadsDir)
+        fs.copySync(path.join(downloadsDir, filename), path.join(NylasEnv.getConfigDirPath(), 'downloads', filename))
 
     Promise.all([
       DatabaseStore.persistModel(account),
@@ -235,6 +238,6 @@ class AccountStore
       DatabaseStore.persistModels(messages),
       DatabaseStore.persistModels(threads)
     ]).then =>
-      Actions.selectAccountId account.id
+      Actions.selectAccount account.id
 
 module.exports = new AccountStore()
