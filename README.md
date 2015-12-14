@@ -16,7 +16,7 @@ You can download compiled versions of N1 for Windows, Mac OS X, and Linux (.deb)
 Plugins lie at the heart of N1 and give it its powerful features. Building your own plugins allows you to integrate the app with other tools, experiment with new workflows, and more. Follow the [Getting Started guide](http://nylas.com/N1/getting-started/) to write your first plugin in 5 minutes.
 
 If you would like to run the N1 source and contribute, check out our [contributing
-guide](https://github.com/nylas/N1/blob/master/CONTRIBUTING.md)
+guide](https://github.com/nylas/N1/blob/master/CONTRIBUTING.md).
 
 # Running Locally
 By default the N1 source points to our hosted version of the Nylas Sync Engine; however, the Sync Engine is open source and you can [run it yourself](https://github.com/nylas/N1/blob/master/CONTRIBUTING.md#running-against-open-source-sync-engine).
@@ -25,4 +25,4 @@ By default the N1 source points to our hosted version of the Nylas Sync Engine; 
 
 Have an idea for a package, or a feature you'd love to see in N1? Check out our
 [public Trello board](https://trello.com/b/hxsqB6vx/n1-open-source-roadmap)
-to contribute your thoughts and vote on existing ideas.
+to contribute your thoughts and vote on existing ideas or see the [existing plugins and themes](http://github.com/nylas/n1-plugins).
