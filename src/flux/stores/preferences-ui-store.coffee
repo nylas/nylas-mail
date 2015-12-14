@@ -4,6 +4,8 @@ AccountStore = require './account-store'
 Actions = require '../actions'
 Immutable = require 'immutable'
 
+MAIN_TAB_ITEM_ID = 'General'
+
 class TabItem
   constructor: (opts={}) ->
     opts.order ?= Infinity
@@ -52,7 +54,7 @@ class PreferencesUIStore extends NylasStore
   registerPreferencesTab: (tabItem) ->
     @_tabs = @_tabs.push(tabItem).sort (a, b) =>
       a.order > b.order
-    if @_tabs.size is 1
+    if tabItem.tabId is MAIN_TAB_ITEM_ID
       @_selection = @_selection.set('tabId', tabItem.tabId)
     @_triggerDebounced()
 
