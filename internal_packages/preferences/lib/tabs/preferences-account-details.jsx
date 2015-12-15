@@ -142,7 +142,14 @@ class PreferencesAccountDetails extends Component {
           value={account.label}
           onBlur={this._saveChanges}
           onChange={this._onAccountLabelUpdated} />
+
         <h3>Aliases</h3>
+
+        <div className="platform-note">
+          You may need to configure aliases with your
+          mail provider (Outlook, Gmail) before using them.
+        </div>
+
         <EditableList
           showEditIcon
           createInputProps={{placeholder: aliasPlaceholder}}
