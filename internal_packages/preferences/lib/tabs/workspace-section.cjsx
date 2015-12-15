@@ -91,6 +91,43 @@ class AppearanceModeOption extends React.Component
       <div>{label}</div>
     </div>
 
+class ThemeSelector extends React.Component
+  constructor: (@props) ->
+    @_themeManager = NylasEnv.themes
+    @state = @_getState()
+
+  componentDidMount: =>
+    @disposable = @_themeManager.onDidChangeActiveThemes =>
+      @setState @_getState()
+
+  componentWillUnmount: ->
+    @disposable.dispose()
+
+  _getState: =>
+    themes: @_themeManager.getLoadedThemes()
+    activeTheme: @_themeManager.getActiveTheme().name
+
+  _setActiveTheme: (theme) =>
+    @setState activeTheme: theme
+    @_themeManager.setActiveTheme theme
+
+  _onChangeTheme: (event) =>
+    value = event.target.value
+    if value is 'install'
+      NylasEnv.commands.dispatch document.body, 'application:install-package'
+    else
+      @_setActiveTheme(value)
+
+  render: =>
+    <div className="item">
+      <span>Select theme: </span>
+      <select value={@state.activeTheme} onChange={@_onChangeTheme}>
+        {@state.themes.map (theme) ->
+          <option key={theme.name} value={theme.name}>{theme.displayName}</option>}
+        <option value="install">Install a theme...</option>
+      </select>
+    </div>
+
 class WorkspaceSection extends React.Component
   @displayName: 'WorkspaceSection'
   @propTypes:
@@ -117,21 +154,11 @@ class WorkspaceSection extends React.Component
         keyPath="core.workspace.showUnreadForAllCategories"
         config={@props.config} />
 
-      <div className="item">
-        <input type="checkbox"
-               id="dark"
-               checked={@props.config.contains('core.themes','ui-dark')}
-               onChange={@_onToggleDark} />
-        <label htmlFor="dark">Use dark color scheme</label>
-      </div>
+      <ThemeSelector />
 
       <h2>Layout</h2>
 
       <AppearanceModeSwitch config={@props.config} />
     </section>
-
-  _onToggleDark: (event) =>
-    @props.config.toggleContains('core.themes', 'ui-dark')
-    event.target.blur()
 
 module.exports = WorkspaceSection

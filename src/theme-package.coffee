@@ -8,7 +8,7 @@ class ThemePackage extends Package
   getStyleSheetPriority: -> 1
 
   enable: ->
-    NylasEnv.config.unshiftAtKeyPath('core.themes', @name)
+    NylasEnv.themes.setActiveTheme(@name)
 
   disable: ->
     NylasEnv.config.removeAtKeyPath('core.themes', @name)

@@ -75,6 +75,7 @@ class Package
     @metadata ?= Package.loadMetadata(@path)
     @bundledPackage = Package.isBundledPackagePath(@path)
     @name = @metadata?.name ? path.basename(@path)
+    @displayName = @metadata?.displayName || @name
     ModuleCache.add(@path, @metadata)
     @reset()
     @declaresNewDatabaseObjects = false
