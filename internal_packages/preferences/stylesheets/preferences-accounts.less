@@ -48,7 +48,7 @@
         border-bottom: 1px solid @border-color-divider;
 
         .items-wrapper {
-          height: 180px;
+          height: 140px;
         }
 
         &>h3 {
@@ -65,11 +65,12 @@
 
         .default-alias-selector {
           font-size: 0.9em;
-          float: right;
+          display:flex;
+          align-items: baseline;
+          padding-top: @padding-base-vertical;
 
           &>select {
-            min-width: 35%;
-            max-width: 243px;
+            flex: 1;
           }
         }
       }
