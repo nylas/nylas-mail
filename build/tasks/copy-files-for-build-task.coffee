@@ -25,6 +25,18 @@ module.exports = (grunt) ->
       cp(path.join(shellAppDir, 'Contents', 'MacOS', 'Electron'),
          path.join(shellAppDir, 'Contents', 'MacOS', 'Nylas'))
       rm path.join(shellAppDir, 'Contents', 'MacOS', 'Electron')
+
+      # Create locale directories that were skipped because they were empty.
+      # Otherwise, `navigator.language` always returns `English`.
+      resourcesDir = 'electron/Electron.app/Contents/Resources'
+      filenames = fs.readdirSync(resourcesDir)
+      for filename in filenames
+        continue unless fs.statSync(path.join(resourcesDir, filename)).isDirectory()
+        continue unless path.extname(filename) is '.lproj'
+        destination = path.join(shellAppDir, 'Contents', 'Resources', filename)
+        continue if fs.existsSync(destination)
+        grunt.file.mkdir(destination)
+
     else if process.platform is 'win32'
       cp 'electron', shellAppDir, filter: /default_app/
       cp path.join(shellAppDir, 'electron.exe'), path.join(shellAppDir, 'nylas.exe')
