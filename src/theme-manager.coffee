@@ -30,6 +30,8 @@ class ThemeManager
     stylesElement.onDidRemoveStyleElement @styleElementRemoved.bind(this)
     stylesElement.onDidUpdateStyleElement @styleElementUpdated.bind(this)
 
+  baseThemeName: -> 'ui-light'
+
   watchCoreStyles: ->
     console.log('Watching /static and /internal_packages for LESS changes')
     watchStylesIn = (folder) =>
@@ -176,6 +178,11 @@ class ThemeManager
   getActiveThemes: ->
     pack for pack in @packageManager.getActivePackages() when pack.isTheme()
 
+  getActiveTheme: ->
+    # The first element in the array returned by `getActiveNames` themes will
+    # actually be the active theme
+    @getActiveThemes()[0]
+
   activatePackages: -> @activateThemes()
 
   ###
@@ -214,6 +221,17 @@ class ThemeManager
   setEnabledThemes: (enabledThemeNames) ->
     Grim.deprecate("Use `NylasEnv.config.set('core.themes', arrayOfThemeNames)` instead")
     NylasEnv.config.set('core.themes', enabledThemeNames)
+
+  # Set the active theme.
+  # Because of how theme-manager works, we always need to set the
+  # base theme first, and the newly activated theme after it to override the
+  # styles. We don't want to have more than 1 theme active at a time, so the
+  # array of active themes should always be of size 2.
+  #
+  # * `theme` {string} - the theme to activate
+  setActiveTheme: (theme) ->
+    base = @baseThemeName()
+    NylasEnv.config.set('core.themes', _.uniq [base, theme])
 
   ###
   Section: Private
