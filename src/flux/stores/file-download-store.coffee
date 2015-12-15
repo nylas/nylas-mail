@@ -115,7 +115,7 @@ FileDownloadStore = Reflux.createStore
     @listenTo Actions.didPassivelyReceiveNewModels, @_newMailReceived
 
     @_downloads = {}
-    @_downloadDirectory = "#{NylasEnv.getConfigDirPath()}/downloads"
+    @_downloadDirectory = path.join(NylasEnv.getConfigDirPath(), 'downloads')
     mkdirp(@_downloadDirectory)
 
   ######### PUBLIC #######################################################
