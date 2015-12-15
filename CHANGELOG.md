@@ -1,5 +1,21 @@
 # N1 Changelog
 
+### 0.3.32 (12/15/15)
+
+- Features:
+  + Aliases: You can now add aliases from the Accounts preferences tab and use them when composing messages!
+  + Themes: From the General preferences tab you can now install custom themes via a dropdown picker.
+
+- Fixes:
+  + Selecting multiple threads and marking as read / unread works as expected.
+  + When you send a draft, it is correctly removed from the draft list.
+  + Preferences open to the General tab by default.
+  + Spellcheck:
+    - On Mac OS X and Windows 8+, spellcheck now offers suggestions in
+      the system language.
+    - On Linux and Windows <8, spellcheck no longer defaults to english
+      when your language is unavailable.
+
 ### 0.3.29 (12/9/15)
 
 - Features:
