@@ -33,7 +33,7 @@ module.exports = (grunt) ->
     else
       binDir = path.join(installDir, 'bin')
       shareDir = path.join(installDir, 'share', 'nylas')
-      iconName = path.join(shareDir, 'resources', 'app', 'resources', 'nylas.png')
+      iconName = path.join(shareDir, 'resources', 'app', 'nylas.png')
 
       mkdir binDir
       # Note that `N1.sh` can't be renamed `nylas.sh` because `apm`
@@ -50,7 +50,7 @@ module.exports = (grunt) ->
         desktopInstallFile = path.join(installDir, 'share', 'applications', 'nylas.desktop')
 
         {description} = grunt.file.readJSON('package.json')
-        iconName = path.join(shareDir, 'resources', 'app', 'resources', 'nylas.png')
+        iconName = path.join(shareDir, 'resources', 'app', 'nylas.png')
         installDir = path.join(installDir, '.') # To prevent "Exec=/usr/local//share/nylas/nylas"
         template = _.template(String(fs.readFileSync(desktopFile)))
         filled = template({description, installDir, iconName})
