@@ -1,16 +1,19 @@
-NylasAPI = require '../../src/flux/nylas-api'
-Actions = require '../../src/flux/actions'
-{APIError} = require '../../src/flux/errors'
-EventRSVPTask = require '../../src/flux/tasks/event-rsvp'
-DatabaseStore = require '../../src/flux/stores/database-store'
-Event = require '../../src/flux/models/event'
-AccountStore = require '../../src/flux/stores/account-store'
 _ = require 'underscore'
+
+{NylasAPI,
+ Event,
+ Actions,
+ APIError,
+ EventRSVPTask,
+ DatabaseStore,
+ DatabaseTransaction,
+ AccountStore} = require 'nylas-exports'
 
 describe "EventRSVPTask", ->
   beforeEach ->
     spyOn(DatabaseStore, 'find').andCallFake => Promise.resolve(@event)
-    spyOn(DatabaseStore, 'persistModel').andCallFake -> Promise.resolve()
+    spyOn(DatabaseTransaction.prototype, '_query').andCallFake -> Promise.resolve([])
+    spyOn(DatabaseTransaction.prototype, 'persistModel').andCallFake -> Promise.resolve()
     @myName = "Ben Tester"
     @myEmail = "tester@nylas.com"
     @event = new Event
@@ -43,7 +46,7 @@ describe "EventRSVPTask", ->
     it "should trigger an action to persist the change", ->
       @task.performLocal()
       advanceClock()
-      expect(DatabaseStore.persistModel).toHaveBeenCalled()
+      expect(DatabaseTransaction.prototype.persistModel).toHaveBeenCalled()
 
   describe "performRemote", ->
     it "should make the POST request to the message endpoint", ->
@@ -89,4 +92,4 @@ describe "EventRSVPTask", ->
       @task.performLocal()
       @task.performRemote()
       advanceClock()
-      expect(DatabaseStore.persistModel).toHaveBeenCalled()
+      expect(DatabaseTransaction.prototype.persistModel).toHaveBeenCalled()

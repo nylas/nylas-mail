@@ -215,10 +215,11 @@ class NylasAPI
     if klass and klassId and klassId.length > 0
       unless NylasEnv.inSpecMode()
         console.warn("Deleting #{klass.name}:#{klassId} due to API 404")
-      DatabaseStore.find(klass, klassId).then (model) ->
-        if model
-          return DatabaseStore.unpersistModel(model)
-        else return Promise.resolve()
+
+      DatabaseStore.inTransaction (t) ->
+        t.find(klass, klassId).then (model) ->
+          return Promise.resolve() unless model
+          return t.unpersistModel(model)
     else
       return Promise.resolve()
 
@@ -283,36 +284,37 @@ class NylasAPI
     # Step 3: Retrieve any existing models from the database for the given IDs.
     ids = _.pluck(unlockedJSONs, 'id')
     DatabaseStore = require './stores/database-store'
-    DatabaseStore.atomically =>
-      DatabaseStore.findAll(klass).where(klass.attributes.id.in(ids)).then (models) ->
-        existingModels = {}
-        existingModels[model.id] = model for model in models
+    DatabaseStore.findAll(klass).where(klass.attributes.id.in(ids)).then (models) ->
+      existingModels = {}
+      existingModels[model.id] = model for model in models
 
-        responseModels = []
-        changedModels = []
+      responseModels = []
+      changedModels = []
 
-        # Step 4: Merge the response data into the existing data for each model,
-        # skipping changes when we already have the given version
-        unlockedJSONs.forEach (json) =>
-          model = existingModels[json.id]
+      # Step 4: Merge the response data into the existing data for each model,
+      # skipping changes when we already have the given version
+      unlockedJSONs.forEach (json) =>
+        model = existingModels[json.id]
 
-          isSameOrNewerVersion = model and model.version? and json.version? and model.version >= json.version
-          isAlreadySent = model and model.draft is false and json.draft is true
+        isSameOrNewerVersion = model and model.version? and json.version? and model.version >= json.version
+        isAlreadySent = model and model.draft is false and json.draft is true
 
-          if isSameOrNewerVersion
-            json._delta?.ignoredBecause = "JSON v#{json.version} <= model v#{model.version}"
-          else if isAlreadySent
-            json._delta?.ignoredBecause = "Model #{model.id} is already sent!"
-          else
-            model ?= new klass()
-            model.fromJSON(json)
-            changedModels.push(model)
-          responseModels.push(model)
+        if isSameOrNewerVersion
+          json._delta?.ignoredBecause = "JSON v#{json.version} <= model v#{model.version}"
+        else if isAlreadySent
+          json._delta?.ignoredBecause = "Model #{model.id} is already sent!"
+        else
+          model ?= new klass()
+          model.fromJSON(json)
+          changedModels.push(model)
+        responseModels.push(model)
 
-        # Step 5: Save models that have changed, and then return all of the models
-        # that were in the response body.
-        DatabaseStore.persistModels(changedModels).then ->
-          return Promise.resolve(responseModels)
+      # Step 5: Save models that have changed, and then return all of the models
+      # that were in the response body.
+      DatabaseStore.inTransaction (t) ->
+        t.persistModels(changedModels)
+      .then ->
+        return Promise.resolve(responseModels)
 
   _apiObjectToClassMap:
     "file": require('./models/file')

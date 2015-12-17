@@ -1,7 +1,11 @@
 _ = require 'underscore'
 fs = require 'fs'
 path = require 'path'
-{NylasAPI, Thread, DatabaseStore, Actions} = require 'nylas-exports'
+{NylasAPI,
+ Thread,
+ DatabaseStore,
+ DatabaseTransaction,
+ Actions} = require 'nylas-exports'
 NylasSyncWorkerPool = require '../lib/nylas-sync-worker-pool'
 
 fixturesPath = path.resolve(__dirname, 'fixtures')
@@ -96,25 +100,26 @@ describe "NylasSyncWorkerPool", ->
         "id": @thread.id,
         "timestamp": "2015-08-26T17:36:45.297Z"
 
+      spyOn(DatabaseTransaction.prototype, '_query').andCallFake -> Promise.resolve([])
+      spyOn(DatabaseTransaction.prototype, 'unpersistModel')
+
     it "should resolve if the object cannot be found", ->
       spyOn(DatabaseStore, 'find').andCallFake (klass, id) =>
         return Promise.resolve(null)
-      spyOn(DatabaseStore, 'unpersistModel')
       waitsForPromise =>
         NylasSyncWorkerPool._handleDeltaDeletion(@delta)
       runs =>
         expect(DatabaseStore.find).toHaveBeenCalledWith(Thread, 'idhere')
-        expect(DatabaseStore.unpersistModel).not.toHaveBeenCalled()
+        expect(DatabaseTransaction.prototype.unpersistModel).not.toHaveBeenCalled()
 
     it "should call unpersistModel if the object exists", ->
       spyOn(DatabaseStore, 'find').andCallFake (klass, id) =>
         return Promise.resolve(@thread)
-      spyOn(DatabaseStore, 'unpersistModel')
       waitsForPromise =>
         NylasSyncWorkerPool._handleDeltaDeletion(@delta)
       runs =>
         expect(DatabaseStore.find).toHaveBeenCalledWith(Thread, 'idhere')
-        expect(DatabaseStore.unpersistModel).toHaveBeenCalledWith(@thread)
+        expect(DatabaseTransaction.prototype.unpersistModel).toHaveBeenCalledWith(@thread)
 
   describe "handleModelResponse", ->
     # SEE spec/nylas-api-spec.coffee

@@ -1,16 +1,17 @@
 _ = require 'underscore'
-Folder = require '../../src/flux/models/folder'
-Thread = require '../../src/flux/models/thread'
-Message = require '../../src/flux/models/message'
-Actions = require '../../src/flux/actions'
-NylasAPI = require '../../src/flux/nylas-api'
-Query = require '../../src/flux/models/query'
-DatabaseStore = require '../../src/flux/stores/database-store'
-Task = require '../../src/flux/tasks/task'
-ChangeMailTask = require '../../src/flux/tasks/change-mail-task'
 
-{APIError} = require '../../src/flux/errors'
-{Utils} = require '../../src/flux/models/utils'
+{APIError,
+ Folder,
+ Thread,
+ Message,
+ ACtions,
+ NylasAPI,
+ Query,
+ DatabaseStore,
+ DatabaseTransaction,
+ Task,
+ Utils,
+ ChangeMailTask} = require 'nylas-exports'
 
 describe "ChangeMailTask", ->
   beforeEach ->
@@ -47,8 +48,9 @@ describe "ChangeMailTask", ->
         models = models[0]
       Promise.resolve(models)
 
-    spyOn(DatabaseStore, 'persistModels').andReturn(Promise.resolve())
-    spyOn(DatabaseStore, 'persistModel').andReturn(Promise.resolve())
+    spyOn(DatabaseTransaction.prototype, 'persistModels').andReturn(Promise.resolve())
+    spyOn(DatabaseTransaction.prototype, 'persistModel').andReturn(Promise.resolve())
+    spyOn(DatabaseTransaction.prototype, '_query').andReturn(Promise.resolve([]))
 
   it "leaves subclasses to implement changesToModel", ->
     task = new ChangeMailTask()
@@ -101,7 +103,7 @@ describe "ChangeMailTask", ->
       waitsForPromise =>
         @task._performLocalThreads().then =>
           expect(@task._applyChanges).toHaveBeenCalledWith(@task.threads)
-          expect(DatabaseStore.persistModels).toHaveBeenCalledWith([@threadAChanged])
+          expect(DatabaseTransaction.prototype.persistModels).toHaveBeenCalledWith([@threadAChanged])
 
     describe "when processNestedMessages is overridden to return true", ->
       it "fetches messages on changed threads and appends them to the messages to update", ->
@@ -122,7 +124,7 @@ describe "ChangeMailTask", ->
       waitsForPromise =>
         @task._performLocalMessages().then =>
           expect(@task._applyChanges).toHaveBeenCalledWith(@task.messages)
-          expect(DatabaseStore.persistModels).toHaveBeenCalledWith([@threadBMesage1])
+          expect(DatabaseTransaction.prototype.persistModels).toHaveBeenCalledWith([@threadBMesage1])
 
   describe "_applyChanges", ->
     beforeEach ->

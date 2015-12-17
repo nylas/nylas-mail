@@ -131,7 +131,11 @@ class ChangeMailTask extends Task
     changed = @_applyChanges(@threads)
     changedIds = _.pluck(changed, 'id')
 
-    DatabaseStore.persistModels(changed).then =>
+    return Promise.resolve() if changed.length is 0
+
+    DatabaseStore.inTransaction (t) =>
+      t.persistModels(changed)
+    .then =>
       if @processNestedMessages()
         DatabaseStore.findAll(Message).where(Message.attributes.threadId.in(changedIds)).then (messages) =>
           @messages = [].concat(messages, @messages)
@@ -141,7 +145,11 @@ class ChangeMailTask extends Task
 
   _performLocalMessages: ->
     changed = @_applyChanges(@messages)
-    DatabaseStore.persistModels(changed)
+
+    return Promise.resolve() if changed.length is 0
+
+    DatabaseStore.inTransaction (t) ->
+      t.persistModels(changed)
 
   _applyChanges: (modelArray) ->
     changed = []

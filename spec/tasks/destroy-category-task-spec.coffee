@@ -1,8 +1,11 @@
-DestroyCategoryTask = require "../../src/flux/tasks/destroy-category-task"
-NylasAPI = require "../../src/flux/nylas-api"
-Task = require '../../src/flux/tasks/task'
-{APIError} = require '../../src/flux/errors'
-{Label, Folder, DatabaseStore} = require "nylas-exports"
+{DestroyCategoryTask,
+ NylasAPI,
+ Task,
+ APIError,
+ Label,
+ Folder,
+ DatabaseStore,
+ DatabaseTransaction} = require "nylas-exports"
 
 describe "DestroyCategoryTask", ->
   pathOf = (fn) ->
@@ -25,18 +28,21 @@ describe "DestroyCategoryTask", ->
     new DestroyCategoryTask
       category: category
 
+  beforeEach ->
+    spyOn(DatabaseTransaction.prototype, '_query').andCallFake -> Promise.resolve([])
+    spyOn(DatabaseTransaction.prototype, 'persistModel').andCallFake -> Promise.resolve()
+
   describe "performLocal", ->
-    beforeEach ->
-      spyOn(DatabaseStore, 'persistModel')
-
-    it "sets an is deleted flag and persists the category", ->
+    it "sets an `isDeleted` flag and persists the category", ->
       task = makeTask(Folder)
-      task.performLocal()
-
-      expect(DatabaseStore.persistModel).toHaveBeenCalled()
-      model = DatabaseStore.persistModel.calls[0].args[0]
-      expect(model.serverId).toEqual "server-444"
-      expect(model.isDeleted).toBe true
+      runs =>
+        task.performLocal()
+      waitsFor =>
+        DatabaseTransaction.prototype.persistModel.callCount > 0
+      runs =>
+        model = DatabaseTransaction.prototype.persistModel.calls[0].args[0]
+        expect(model.serverId).toEqual "server-444"
+        expect(model.isDeleted).toBe true
 
   describe "performRemote", ->
     it "throws error when no category present", ->
@@ -86,8 +92,6 @@ describe "DestroyCategoryTask", ->
     describe "when request fails", ->
       beforeEach ->
         spyOn(NylasEnv, 'emitError')
-        spyOn(DatabaseStore, 'persistModel').andCallFake ->
-          Promise.resolve()
         spyOn(NylasAPI, 'makeRequest').andCallFake ->
           Promise.reject(new APIError({statusCode: 403}))
 
@@ -100,7 +104,7 @@ describe "DestroyCategoryTask", ->
             expect(status).toEqual Task.Status.Failed
             expect(task._notifyUserOfError).toHaveBeenCalled()
             expect(NylasEnv.emitError).toHaveBeenCalled()
-            expect(DatabaseStore.persistModel).toHaveBeenCalled()
-            model = DatabaseStore.persistModel.calls[0].args[0]
+            expect(DatabaseTransaction.prototype.persistModel).toHaveBeenCalled()
+            model = DatabaseTransaction.prototype.persistModel.calls[0].args[0]
             expect(model.serverId).toEqual "server-444"
             expect(model.isDeleted).toBe false

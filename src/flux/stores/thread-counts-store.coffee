@@ -132,7 +132,8 @@ class ThreadCountsStore extends NylasStore
       @_counts[key] += count
       delete @_deltas[key]
 
-    DatabaseStore.persistJSONBlob(JSONBlobKey, @_counts)
+    DatabaseStore.inTransaction (t) =>
+      t.persistJSONBlob(JSONBlobKey, @_counts)
     @trigger()
 
   _fetchCountForCategory: (cat) =>

@@ -208,7 +208,9 @@ class DraftStore
     .then ({draft}) =>
       draft.body = body + "\n\n" + draft.body
       draft.pristine = false
-      DatabaseStore.persistModel(draft).then =>
+      DatabaseStore.inTransaction (t) =>
+        t.persistModel(draft)
+      .then =>
         Actions.sendDraft(draft.clientId)
 
   _onComposeReply: (context) =>
@@ -242,7 +244,9 @@ class DraftStore
     # doesn't need to do a query for it a second from now when the composer wants it.
     @_draftSessions[draft.clientId] = new DraftStoreProxy(draft.clientId, draft)
 
-    DatabaseStore.persistModel(draft).then =>
+    DatabaseStore.inTransaction (t) =>
+      t.persistModel(draft)
+    .then =>
       Promise.resolve(draftClientId: draft.clientId, draft: draft)
 
   _newMessageWithContext: (args, attributesCallback) =>

@@ -32,7 +32,10 @@ FullContactStore = Reflux.createStore
         contact.company = data.organizations?[0]?["name"]
         contact.thirdPartyData ?= {}
         contact.thirdPartyData["FullContact"] = data
-        DatabaseStore.persistModel(contact)
-        @trigger()
+
+        DatabaseStore.inTransaction (t) =>
+          t.persistModel(contact)
+        .then =>
+          @trigger()
 
 module.exports = FullContactStore

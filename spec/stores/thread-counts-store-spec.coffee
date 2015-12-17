@@ -1,5 +1,6 @@
 _ = require 'underscore'
 DatabaseStore = require '../../src/flux/stores/database-store'
+DatabaseTransaction = require '../../src/flux/stores/database-transaction'
 ThreadCountsStore = require '../../src/flux/stores/thread-counts-store'
 Thread = require '../../src/flux/models/thread'
 Folder = require '../../src/flux/models/folder'
@@ -173,9 +174,14 @@ describe "ThreadCountsStore", ->
       })
 
     it "should persist the new counts to the database", ->
-      spyOn(DatabaseStore, 'persistJSONBlob')
-      ThreadCountsStore._saveCounts()
-      expect(DatabaseStore.persistJSONBlob).toHaveBeenCalledWith(ThreadCountsStore.JSONBlobKey, ThreadCountsStore._counts)
+      spyOn(DatabaseStore, '_query').andCallFake -> Promise.resolve([])
+      spyOn(DatabaseTransaction.prototype, 'persistJSONBlob')
+      runs =>
+        ThreadCountsStore._saveCounts()
+      waitsFor =>
+        DatabaseTransaction.prototype.persistJSONBlob.callCount > 0
+      runs =>
+        expect(DatabaseTransaction.prototype.persistJSONBlob).toHaveBeenCalledWith(ThreadCountsStore.JSONBlobKey, ThreadCountsStore._counts)
 
 describe "CategoryDatabaseMutationObserver", ->
   beforeEach ->

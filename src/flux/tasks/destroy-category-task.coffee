@@ -29,7 +29,8 @@ class DestroyCategoryTask extends Task
     if not @category
       return Promise.reject(new Error("Attempt to call DestroyCategoryTask.performLocal without @category."))
     @category.isDeleted = true
-    DatabaseStore.persistModel @category
+    DatabaseStore.inTransaction (t) =>
+      t.persistModel(@category)
 
   performRemote: ->
     if not @category
@@ -54,7 +55,9 @@ class DestroyCategoryTask extends Task
       if err.statusCode in NylasAPI.PermanentErrorCodes
         # Revert isDeleted flag
         @category.isDeleted = false
-        DatabaseStore.persistModel(@category).then =>
+        DatabaseStore.inTransaction (t) =>
+          t.persistModel(@category)
+        .then =>
           NylasEnv.emitError(
             new Error("Deleting category responded with #{err.statusCode}!")
           )
@@ -65,13 +68,13 @@ class DestroyCategoryTask extends Task
 
   _notifyUserOfError: (category = @category) ->
     displayName = category.displayName
-    label = if category instanceof Label
+    displayType = if category instanceof Label
       'label'
     else
       'folder'
 
-    msg = "The #{label} #{displayName} could not be deleted."
-    if label is 'folder'
+    msg = "The #{displayType} #{displayName} could not be deleted."
+    if displayType is 'folder'
       msg += " Make sure the folder you want to delete is empty before deleting it."
 
     NylasEnv.showErrorDialog(msg)

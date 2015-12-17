@@ -86,7 +86,9 @@ class SendDraftTask extends Task
       # with a valid serverId.
       @draft = @draft.clone().fromJSON(json)
       @draft.draft = false
-      DatabaseStore.persistModel(@draft).then =>
+      DatabaseStore.inTransaction (t) =>
+        t.persistModel(@draft)
+      .then =>
         if NylasEnv.config.get("core.sending.sounds")
           SoundRegistry.playSound('send')
         Actions.sendDraftSuccess

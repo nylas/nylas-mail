@@ -49,8 +49,7 @@ class DeveloperBarStore extends NylasStore
 
   triggerThrottled: ->
     @_triggerThrottled ?= _.throttle(@trigger, 100)
-    if NylasEnv.getCurrentWindow().isVisible()
-      @_triggerThrottled()
+    @_triggerThrottled()
 
   _setStoreDefaults: ->
     @_curlHistoryIds = []

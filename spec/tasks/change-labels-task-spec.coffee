@@ -12,7 +12,6 @@ ChangeLabelsTask = require '../../src/flux/tasks/change-labels-task'
 
 testLabels = {}
 testThreads = {}
-testMessages = {}
 
 describe "ChangeLabelsTask", ->
   beforeEach ->
@@ -25,7 +24,6 @@ describe "ChangeLabelsTask", ->
       Promise.resolve items.map (item) =>
         return testLabels[item] if testLabels[item]
         return testThreads[item] if testThreads[item]
-        return testMessages[item] if testMessages[item]
         item
 
     testLabels = @testLabels =
@@ -38,20 +36,10 @@ describe "ChangeLabelsTask", ->
       't2': new Thread(id: 't2', labels: _.values(@testLabels))
       't3': new Thread(id: 't3', labels: [@testLabels['l2'], @testLabels['l3']])
 
-    testMessages = @testMessages =
-      'm1': new Message(id: 'm1', labels: [@testLabels['l1']])
-      'm2': new Message(id: 'm2', labels: _.values(@testLabels))
-      'm3': new Message(id: 'm3', labels: [@testLabels['l2'], @testLabels['l3']])
-
     @basicThreadTask = new ChangeLabelsTask
       labelsToAdd: ["l1", "l2"]
       labelsToRemove: ["l3"]
       threads: ['t1']
-
-    @basicMessageTask = new ChangeLabelsTask
-      labelsToAdd: ["l1", "l2"]
-      labelsToRemove: ["l3"]
-      messages: ['m1']
 
   describe "description", ->
     it "should include the name of the added label if it's the only mutation and it was provided as an object", ->
@@ -75,11 +63,12 @@ describe "ChangeLabelsTask", ->
       expect(task.description()).toEqual("Changed labels on 3 threads")
 
   describe "performLocal", ->
-    it "should throw an exception if task has not been given a label, or messages and threads", ->
+    it "should throw an exception if task has not been given a label, has been given messages, or no threads", ->
       badTasks = [
         new ChangeLabelsTask(),
         new ChangeLabelsTask(threads: [123]),
         new ChangeLabelsTask(threads: [123], messages: ["foo"]),
+        new ChangeLabelsTask(labelsToAdd: ['l2'], labelsToRemove: ['l1'], messages: [123]),
         new ChangeLabelsTask(threads: "Thread"),
       ]
       goodTasks = [
@@ -87,11 +76,6 @@ describe "ChangeLabelsTask", ->
           labelsToAdd: ['l2']
           labelsToRemove: ['l1']
           threads: ['t1']
-        )
-        new ChangeLabelsTask(
-          labelsToAdd: ['l2']
-          labelsToRemove: []
-          messages: ['m1']
         )
       ]
       caught = []
@@ -190,6 +174,4 @@ describe "ChangeLabelsTask", ->
           task = new ChangeLabelsTask()
 
           out = task.requestBodyForModel(testThreads['t3'])
-          expect(out).toEqual(labels: ['l2', 'l3'])
-          out = task.requestBodyForModel(testMessages['m3'])
           expect(out).toEqual(labels: ['l2', 'l3'])

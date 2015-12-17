@@ -119,9 +119,11 @@ class NylasSyncWorkerPool
   _handleDeltaDeletion: (delta) =>
     klass = NylasAPI._apiObjectToClassMap[delta.object]
     return unless klass
-    DatabaseStore.find(klass, delta.id).then (model) ->
-      return Promise.resolve() unless model
-      return DatabaseStore.unpersistModel(model)
+
+    DatabaseStore.inTransaction (t) =>
+      t.find(klass, delta.id).then (model) ->
+        return Promise.resolve() unless model
+        return t.unpersistModel(model)
 
 pool = new NylasSyncWorkerPool()
 window.NylasSyncWorkerPool = pool

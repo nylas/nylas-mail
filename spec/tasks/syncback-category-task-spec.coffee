@@ -1,6 +1,9 @@
-SyncbackCategoryTask = require "../../src/flux/tasks/syncback-category-task"
-NylasAPI = require "../../src/flux/nylas-api"
-{Label, Folder, DatabaseStore} = require "nylas-exports"
+{Label,
+ NylasAPI,
+ Folder,
+ DatabaseStore,
+ SyncbackCategoryTask,
+ DatabaseTransaction} = require "nylas-exports"
 
 describe "SyncbackCategoryTask", ->
   describe "performRemote", ->
@@ -24,7 +27,8 @@ describe "SyncbackCategoryTask", ->
     beforeEach ->
       spyOn(NylasAPI, "makeRequest").andCallFake ->
         Promise.resolve(id: "server-444")
-      spyOn(DatabaseStore, "persistModel")
+      spyOn(DatabaseTransaction.prototype, "_query").andCallFake => Promise.resolve([])
+      spyOn(DatabaseTransaction.prototype, "persistModel")
 
     it "sends API req to /labels if user uses labels", ->
       task = makeTask(Label)
@@ -51,7 +55,7 @@ describe "SyncbackCategoryTask", ->
         task = makeTask(Label)
         task.performRemote({})
         .then ->
-          expect(DatabaseStore.persistModel).toHaveBeenCalled()
-          model = DatabaseStore.persistModel.calls[0].args[0]
+          expect(DatabaseTransaction.prototype.persistModel).toHaveBeenCalled()
+          model = DatabaseTransaction.prototype.persistModel.calls[0].args[0]
           expect(model.clientId).toBe "local-444"
           expect(model.serverId).toBe "server-444"

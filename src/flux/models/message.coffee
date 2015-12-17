@@ -2,7 +2,6 @@ _ = require 'underscore'
 moment = require 'moment'
 
 File = require './file'
-Label = require './label'
 Utils = require './utils'
 Folder = require './folder'
 Model = require './model'
@@ -148,11 +147,6 @@ class Message extends Model
     'folder': Attributes.Object
       modelKey: 'folder'
       itemClass: Folder
-
-    'labels': Attributes.Collection
-      queryable: true
-      modelKey: 'labels'
-      itemClass: Label
 
 
   @naturalSortOrder: ->

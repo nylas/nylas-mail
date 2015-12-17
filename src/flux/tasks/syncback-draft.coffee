@@ -85,12 +85,12 @@ class SyncbackDraftTask extends Task
         # below. We currently have no way of locking between processes. Maybe a
         # log-style data structure would be better suited for drafts.
         #
-        DatabaseStore.atomically =>
+        DatabaseStore.inTransaction (t) =>
           @getLatestLocalDraft().then (draft) ->
             if not draft then draft = oldDraft
             draft.version = json.version
             draft.serverId = json.id
-            DatabaseStore.persistModel(draft)
+            t.persistModel(draft)
 
       .then =>
         return Promise.resolve(Task.Status.Success)
@@ -135,4 +135,5 @@ class SyncbackDraftTask extends Task
     delete newDraft.threadId
     delete newDraft.replyToMessageId
 
-    DatabaseStore.persistModel(newDraft)
+    DatabaseStore.inTransaction (t) =>
+      t.persistModel(newDraft)

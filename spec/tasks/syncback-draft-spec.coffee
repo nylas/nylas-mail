@@ -1,17 +1,17 @@
 _ = require 'underscore'
 
-NylasAPI = require '../../src/flux/nylas-api'
-Task = require '../../src/flux/tasks/task'
-Actions = require '../../src/flux/actions'
-Message = require '../../src/flux/models/message'
-Account = require '../../src/flux/models/account'
-Contact = require '../../src/flux/models/contact'
-{APIError} = require '../../src/flux/errors'
-AccountStore = require '../../src/flux/stores/account-store'
-DatabaseStore = require '../../src/flux/stores/database-store'
-TaskQueue = require '../../src/flux/stores/task-queue'
-
-SyncbackDraftTask = require '../../src/flux/tasks/syncback-draft'
+{DatabaseTransaction,
+SyncbackDraftTask,
+DatabaseStore,
+AccountStore,
+TaskQueue,
+Contact,
+Message,
+Account,
+Actions,
+Task,
+APIError,
+NylasAPI} = require 'nylas-exports'
 
 inboxError =
   message: "No draft with public id bvn4aydxuyqlbmzowh4wraysg",
@@ -41,12 +41,10 @@ describe "SyncbackDraftTask", ->
       else if clientId is "missingDraftId" then Promise.resolve()
       else return Promise.resolve()
 
-    spyOn(DatabaseStore, "persistModel").andCallFake ->
+    spyOn(DatabaseTransaction.prototype, "_query").andCallFake ->
+      Promise.resolve([])
+    spyOn(DatabaseTransaction.prototype, "persistModel").andCallFake ->
       Promise.resolve()
-
-    spyOn(DatabaseStore, "_wrapInTransaction").andCallFake (fn) ->
-      fn()
-      return Promise.resolve()
 
   describe "queueing multiple tasks", ->
     beforeEach ->

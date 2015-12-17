@@ -55,6 +55,7 @@ class NylasExports
   @load "SearchView", 'flux/stores/search-view'
   @load "DatabaseView", 'flux/stores/database-view'
   @load "DatabaseStore", 'flux/stores/database-store'
+  @load "DatabaseTransaction", 'flux/stores/database-transaction'
   @load "QuerySubscriptionPool", 'flux/models/query-subscription-pool'
 
   # Database Objects
@@ -94,6 +95,7 @@ class NylasExports
   @require "SendDraftTask", 'flux/tasks/send-draft'
   @require "FileUploadTask", 'flux/tasks/file-upload-task'
   @require "DestroyDraftTask", 'flux/tasks/destroy-draft'
+  @require "ChangeMailTask", 'flux/tasks/change-mail-task'
   @require "ChangeLabelsTask", 'flux/tasks/change-labels-task'
   @require "ChangeFolderTask", 'flux/tasks/change-folder-task'
   @require "SyncbackCategoryTask", 'flux/tasks/syncback-category-task'

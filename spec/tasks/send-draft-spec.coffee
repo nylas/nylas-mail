@@ -1,14 +1,17 @@
-NylasAPI = require '../../src/flux/nylas-api'
-Actions = require '../../src/flux/actions'
-SyncbackDraftTask = require '../../src/flux/tasks/syncback-draft'
-FileUploadTask = require '../../src/flux/tasks/file-upload-task'
-SendDraftTask = require '../../src/flux/tasks/send-draft'
-DatabaseStore = require '../../src/flux/stores/database-store'
-{APIError} = require '../../src/flux/errors'
-Message = require '../../src/flux/models/message'
-TaskQueue = require '../../src/flux/stores/task-queue'
-SoundRegistry = require '../../src/sound-registry'
 _ = require 'underscore'
+
+{APIError,
+ Actions,
+ DatabaseStore,
+ DatabaseTransaction,
+ Message,
+ Task,
+ TaskQueue,
+ SendDraftTask,
+ SyncbackDraftTask,
+ FileUploadTask,
+ NylasAPI,
+ SoundRegistry} = require 'nylas-exports'
 
 describe "SendDraftTask", ->
   describe "isDependentTask", ->
@@ -92,9 +95,11 @@ describe "SendDraftTask", ->
         Promise.resolve(response)
       spyOn(DatabaseStore, 'run').andCallFake (klass, id) =>
         Promise.resolve(@draft)
-      spyOn(DatabaseStore, 'unpersistModel').andCallFake (draft) ->
+      spyOn(DatabaseTransaction.prototype, '_query').andCallFake ->
+        Promise.resolve([])
+      spyOn(DatabaseTransaction.prototype, 'unpersistModel').andCallFake (draft) ->
         Promise.resolve()
-      spyOn(DatabaseStore, 'persistModel').andCallFake (draft) ->
+      spyOn(DatabaseTransaction.prototype, 'persistModel').andCallFake (draft) ->
         Promise.resolve()
       spyOn(SoundRegistry, "playSound")
       spyOn(Actions, "postNotification")
@@ -136,8 +141,8 @@ describe "SendDraftTask", ->
       expect(@draft.serverId).toBeUndefined()
       waitsForPromise =>
         @task.performRemote().then =>
-          expect(DatabaseStore.persistModel).toHaveBeenCalled()
-          model = DatabaseStore.persistModel.calls[0].args[0]
+          expect(DatabaseTransaction.prototype.persistModel).toHaveBeenCalled()
+          model = DatabaseTransaction.prototype.persistModel.calls[0].args[0]
           expect(model.clientId).toBe @draftClientId
           expect(model.serverId).toBe @serverMessageId
           expect(model.draft).toBe false
@@ -190,10 +195,10 @@ describe "SendDraftTask", ->
     it "should write the saved message to the database with the same client ID", ->
       waitsForPromise =>
         @task.performRemote().then =>
-          expect(DatabaseStore.persistModel).toHaveBeenCalled()
-          expect(DatabaseStore.persistModel.mostRecentCall.args[0].clientId).toEqual(@draftClientId)
-          expect(DatabaseStore.persistModel.mostRecentCall.args[0].serverId).toEqual('1233123AEDF1')
-          expect(DatabaseStore.persistModel.mostRecentCall.args[0].draft).toEqual(false)
+          expect(DatabaseTransaction.prototype.persistModel).toHaveBeenCalled()
+          expect(DatabaseTransaction.prototype.persistModel.mostRecentCall.args[0].clientId).toEqual(@draftClientId)
+          expect(DatabaseTransaction.prototype.persistModel.mostRecentCall.args[0].serverId).toEqual('1233123AEDF1')
+          expect(DatabaseTransaction.prototype.persistModel.mostRecentCall.args[0].draft).toEqual(false)
 
   describe "failing performRemote", ->
     beforeEach ->
@@ -211,9 +216,11 @@ describe "SendDraftTask", ->
           email: 'dummy@nylas.com'
       @task = new SendDraftTask("local-1234")
       spyOn(Actions, "dequeueTask")
-      spyOn(DatabaseStore, 'unpersistModel').andCallFake (draft) ->
+      spyOn(DatabaseTransaction.prototype, '_query').andCallFake ->
+        Promise.resolve([])
+      spyOn(DatabaseTransaction.prototype, 'unpersistModel').andCallFake (draft) ->
         Promise.resolve()
-      spyOn(DatabaseStore, 'persistModel').andCallFake (draft) ->
+      spyOn(DatabaseTransaction.prototype, 'persistModel').andCallFake (draft) ->
         Promise.resolve()
 
     describe "when the server responds with `Invalid message public ID`", ->
@@ -293,4 +300,3 @@ describe "SendDraftTask", ->
       task.onDependentTaskError(fileUploadTask, new Error("Oh no"))
       expect(task._notifyUserOfError).toHaveBeenCalled()
       expect(task._notifyUserOfError.calls.length).toBe 1
-
