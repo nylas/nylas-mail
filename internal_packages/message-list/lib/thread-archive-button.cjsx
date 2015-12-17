@@ -1,7 +1,6 @@
-_ = require 'underscore'
-React = require 'react'
 {RetinaImg} = require 'nylas-component-kit'
 {Actions,
+ React,
  TaskFactory,
  DOMUtils,
  FocusedMailViewStore} = require 'nylas-exports'
@@ -31,6 +30,5 @@ class ThreadArchiveButton extends React.Component
     Actions.queueTask(task)
     Actions.popSheet()
     e.stopPropagation()
-
 
 module.exports = ThreadArchiveButton
