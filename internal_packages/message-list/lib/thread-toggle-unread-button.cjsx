@@ -1,6 +1,5 @@
-React = require 'react'
-{Actions, FocusedContentStore, ChangeUnreadTask} = require 'nylas-exports'
-{RetinaImg, KeyCommandsRegion} = require 'nylas-component-kit'
+{Actions, React, FocusedContentStore, ChangeUnreadTask} = require 'nylas-exports'
+{RetinaImg} = require 'nylas-component-kit'
 
 class ThreadToggleUnreadButton extends React.Component
   @displayName: "ThreadToggleUnreadButton"
