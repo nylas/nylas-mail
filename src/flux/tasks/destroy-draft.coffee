@@ -38,7 +38,8 @@ class DestroyDraftTask extends Task
     find.include(Message.attributes.body).then (draft) =>
       return Promise.resolve() unless draft
       @draft = draft
-      DatabaseStore.unpersistModel(draft)
+      DatabaseStore.inTransaction (t) =>
+        t.unpersistModel(draft)
 
   performRemote: ->
     # We don't need to do anything if we weren't able to find the draft
@@ -74,7 +75,9 @@ class DestroyDraftTask extends Task
 
       if err.statusCode in NylasAPI.PermanentErrorCodes
         Actions.postNotification({message: "Unable to delete this draft. Restoring...", type: "error"})
-        DatabaseStore.persistModel(@draft).then =>
+        DatabaseStore.inTransaction (t) =>
+          t.persistModel(@draft)
+        .then =>
           Promise.resolve(Task.Status.Failed)
       else
         Promise.resolve(Task.Status.Retry)

@@ -38,8 +38,12 @@ class DestroyMetadataTask extends Task
         if (models ? []).length is 0
           resolve()
         else
-          Promise.settle(models.map (m) -> DatabaseStore.unpersistModel(m))
-          .then(resolve).catch(reject)
+          DatabaseStore.inTransaction (t) ->
+            promises = models.map (m) ->
+              t.unpersistModel(m)
+            Promise.settle(promises)
+          .then(resolve)
+          .catch(reject)
       .catch (error) ->
         console.error "Error finding Metadata to destroy", error
         console.error error.stack

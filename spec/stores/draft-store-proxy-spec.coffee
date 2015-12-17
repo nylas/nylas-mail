@@ -1,6 +1,7 @@
 Message = require '../../src/flux/models/message'
 Actions = require '../../src/flux/actions'
 DatabaseStore = require '../../src/flux/stores/database-store'
+DatabaseTransaction = require '../../src/flux/stores/database-transaction'
 DraftStoreProxy = require '../../src/flux/stores/draft-store-proxy'
 DraftChangeSet = DraftStoreProxy.DraftChangeSet
 _ = require 'underscore'
@@ -171,9 +172,8 @@ describe "DraftStoreProxy", ->
       @draft = new Message(draft: true, clientId: 'client-id', body: 'A', subject: 'initial')
       @proxy = new DraftStoreProxy('client-id', @draft)
 
-      spyOn(DatabaseStore, "atomically").andCallFake (fn) ->
-        return Promise.resolve(fn())
-      spyOn(DatabaseStore, "persistModel").andReturn Promise.resolve()
+      spyOn(DatabaseTransaction.prototype, "persistModel").andReturn Promise.resolve()
+      spyOn(DatabaseTransaction.prototype, "_query").andReturn Promise.resolve()
       spyOn(Actions, "queueTask").andReturn Promise.resolve()
 
     it "should ignore the update unless it applies to the current draft", ->
@@ -192,17 +192,18 @@ describe "DraftStoreProxy", ->
 
     it "atomically commits changes", ->
       spyOn(DatabaseStore, "findBy").andReturn(Promise.resolve(@draft))
+      spyOn(DatabaseStore, 'inTransaction').andCallThrough()
       waitsForPromise =>
         @proxy.changes.add({body: "123"}, {immediate: true}).then =>
-          expect(DatabaseStore.atomically).toHaveBeenCalled()
-          expect(DatabaseStore.atomically.calls.length).toBe 1
+          expect(DatabaseStore.inTransaction).toHaveBeenCalled()
+          expect(DatabaseStore.inTransaction.calls.length).toBe 1
 
     it "persist the applied changes", ->
       spyOn(DatabaseStore, "findBy").andReturn(Promise.resolve(@draft))
       waitsForPromise =>
         @proxy.changes.add({body: "123"}, {immediate: true}).then =>
-          expect(DatabaseStore.persistModel).toHaveBeenCalled()
-          updated = DatabaseStore.persistModel.calls[0].args[0]
+          expect(DatabaseTransaction.prototype.persistModel).toHaveBeenCalled()
+          updated = DatabaseTransaction.prototype.persistModel.calls[0].args[0]
           expect(updated.body).toBe "123"
 
     it "queues a SyncbackDraftTask", ->
@@ -218,8 +219,8 @@ describe "DraftStoreProxy", ->
         spyOn(DatabaseStore, "findBy").andReturn(Promise.resolve(null))
         waitsForPromise =>
           @proxy.changes.add({body: "123"}, {immediate: true}).then =>
-            expect(DatabaseStore.persistModel).toHaveBeenCalled()
-            updated = DatabaseStore.persistModel.calls[0].args[0]
+            expect(DatabaseTransaction.prototype.persistModel).toHaveBeenCalled()
+            updated = DatabaseTransaction.prototype.persistModel.calls[0].args[0]
             expect(updated.body).toBe "123"
             expect(Actions.queueTask).toHaveBeenCalled()
             task = Actions.queueTask.calls[0].args[0]
@@ -227,10 +228,11 @@ describe "DraftStoreProxy", ->
 
     it "does nothing if the draft is marked as destroyed", ->
       spyOn(DatabaseStore, "findBy").andReturn(Promise.resolve(@draft))
+      spyOn(DatabaseStore, 'inTransaction').andCallThrough()
       waitsForPromise =>
         @proxy._destroyed = true
         @proxy.changes.add({body: "123"}, {immediate: true}).then =>
-          expect(DatabaseStore.atomically).not.toHaveBeenCalled()
+          expect(DatabaseStore.inTransaction).not.toHaveBeenCalled()
 
   describe "draft pristine body", ->
     describe "when the draft given to the session is pristine", ->

@@ -24,7 +24,7 @@ class RefreshingJSONCache
 
   reset: ->
     # Clear db value, turn off any scheduled actions
-    DatabaseStore.persistJSONBlob(@key, {})
+    DatabaseStore.inTransaction (t) => t.persistJSONBlob(@key, {})
     @end()
 
   end: ->
@@ -39,11 +39,12 @@ class RefreshingJSONCache
 
     # Call fetch data function, save it to the database
     @fetchData (newValue) =>
-      DatabaseStore.persistJSONBlob(@key, {
-        version: @version
-        time: Date.now()
-        value: newValue
-      })
+      DatabaseStore.inTransaction (t) =>
+        t.persistJSONBlob(@key, {
+          version: @version
+          time: Date.now()
+          value: newValue
+        })
 
   fetchData: (callback) =>
     throw new Error("Subclasses should override this method.")

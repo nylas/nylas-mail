@@ -273,7 +273,8 @@ class TaskQueue
 
   _updateSoon: =>
     @_updateSoonThrottled ?= _.throttle =>
-      DatabaseStore.persistJSONBlob(JSONBlobStorageKey, @_queue ? [])
+      DatabaseStore.inTransaction (t) =>
+        t.persistJSONBlob(JSONBlobStorageKey, @_queue ? [])
       _.defer =>
         @_processQueue()
         @trigger()

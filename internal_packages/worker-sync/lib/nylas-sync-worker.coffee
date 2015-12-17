@@ -4,7 +4,7 @@ NylasLongConnection = require './nylas-long-connection'
 ContactRankingsCache = require './contact-rankings-cache'
 
 INITIAL_PAGE_SIZE = 30
-MAX_PAGE_SIZE = 250
+MAX_PAGE_SIZE = 200
 
 # BackoffTimer is a small helper class that wraps setTimeout. It fires the function
 # you provide at a regular interval, but backs off each time you call `backoff`.
@@ -209,7 +209,8 @@ class NylasSyncWorker
 
   writeState: ->
     @_writeState ?= _.debounce =>
-      DatabaseStore.persistJSONBlob("NylasSyncWorker:#{@_account.id}", @_state)
+      DatabaseStore.inTransaction (t) =>
+        t.persistJSONBlob("NylasSyncWorker:#{@_account.id}", @_state)
     ,100
     @_writeState()
 

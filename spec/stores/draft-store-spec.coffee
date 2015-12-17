@@ -5,6 +5,7 @@ Contact = require '../../src/flux/models/contact'
 ModelQuery = require '../../src/flux/models/query'
 AccountStore = require '../../src/flux/stores/account-store'
 DatabaseStore = require '../../src/flux/stores/database-store'
+DatabaseTransaction = require '../../src/flux/stores/database-transaction'
 DraftStore = require '../../src/flux/stores/draft-store'
 ComposerExtension = require '../../src/extensions/composer-extension'
 SendDraftTask = require '../../src/flux/tasks/send-draft'
@@ -36,6 +37,7 @@ class TestExtension extends ComposerExtension
 
 describe "DraftStore", ->
   beforeEach ->
+    spyOn(DatabaseTransaction.prototype, '_query').andCallFake -> Promise.resolve([])
     spyOn(NylasEnv, 'newWindow').andCallFake ->
     for id, session of DraftStore._draftSessions
       if session.teardown
@@ -156,7 +158,8 @@ describe "DraftStore", ->
       spyOn(DatabaseStore, 'run').andCallFake (query) ->
         return Promise.resolve(fakeMessage2) if query._klass is Message
         return Promise.reject(new Error('Not Stubbed'))
-      spyOn(DatabaseStore, 'persistModel').andCallFake -> Promise.resolve()
+
+      spyOn(DatabaseTransaction.prototype, 'persistModel').andCallFake -> Promise.resolve()
 
     afterEach ->
       # Have to cleanup the DraftStoreProxy objects or we'll get a memory
@@ -169,9 +172,9 @@ describe "DraftStore", ->
         runs ->
           DraftStore._onComposeReply({threadId: fakeThread.id, messageId: fakeMessage1.id})
         waitsFor ->
-          DatabaseStore.persistModel.callCount > 0
+          DatabaseTransaction.prototype.persistModel.callCount > 0
         runs ->
-          @model = DatabaseStore.persistModel.mostRecentCall.args[0]
+          @model = DatabaseTransaction.prototype.persistModel.mostRecentCall.args[0]
 
       it "should include quoted text", ->
         expect(@model.body.indexOf('blockquote') > 0).toBe(true)
@@ -192,9 +195,9 @@ describe "DraftStore", ->
           runs ->
             DraftStore._onComposeReply({threadId: fakeThread.id, messageId: msgWithReplyTo.id})
           waitsFor ->
-            DatabaseStore.persistModel.callCount > 0
+            DatabaseTransaction.prototype.persistModel.callCount > 0
           runs ->
-            @model = DatabaseStore.persistModel.mostRecentCall.args[0]
+            @model = DatabaseTransaction.prototype.persistModel.mostRecentCall.args[0]
             expect(@model.to).toEqual(msgWithReplyTo.replyTo)
             expect(@model.cc.length).toBe 0
             expect(@model.bcc.length).toBe 0
@@ -205,9 +208,9 @@ describe "DraftStore", ->
           runs ->
             DraftStore._onComposeReply({threadId: fakeThread.id, messageId: msgFromMe.id})
           waitsFor ->
-            DatabaseStore.persistModel.callCount > 0
+            DatabaseTransaction.prototype.persistModel.callCount > 0
           runs ->
-            @model = DatabaseStore.persistModel.mostRecentCall.args[0]
+            @model = DatabaseTransaction.prototype.persistModel.mostRecentCall.args[0]
             expect(@model.to).toEqual(msgFromMe.to)
             expect(@model.cc.length).toBe 0
             expect(@model.bcc.length).toBe 0
@@ -217,9 +220,9 @@ describe "DraftStore", ->
         runs ->
           DraftStore._onComposeReplyAll({threadId: fakeThread.id, messageId: fakeMessage1.id})
         waitsFor ->
-          DatabaseStore.persistModel.callCount > 0
+          DatabaseTransaction.prototype.persistModel.callCount > 0
         runs ->
-          @model = DatabaseStore.persistModel.mostRecentCall.args[0]
+          @model = DatabaseTransaction.prototype.persistModel.mostRecentCall.args[0]
 
       it "should include quoted text", ->
         expect(@model.body.indexOf('blockquote') > 0).toBe(true)
@@ -252,9 +255,9 @@ describe "DraftStore", ->
           runs ->
             DraftStore._onComposeReply({threadId: fakeThread.id, messageId: msgWithReplyTo.id})
           waitsFor ->
-            DatabaseStore.persistModel.callCount > 0
+            DatabaseTransaction.prototype.persistModel.callCount > 0
           runs ->
-            @model = DatabaseStore.persistModel.mostRecentCall.args[0]
+            @model = DatabaseTransaction.prototype.persistModel.mostRecentCall.args[0]
 
         it "addresses the draft to all of the message's 'ReplyTo' recipients", ->
           expect(@model.to).toEqual(msgWithReplyTo.replyTo)
@@ -270,9 +273,9 @@ describe "DraftStore", ->
           runs ->
             DraftStore._onComposeReplyAll({threadId: fakeThread.id, messageId: msgWithReplyToDuplicates.id})
           waitsFor ->
-            DatabaseStore.persistModel.callCount > 0
+            DatabaseTransaction.prototype.persistModel.callCount > 0
           runs ->
-            model = DatabaseStore.persistModel.mostRecentCall.args[0]
+            model = DatabaseTransaction.prototype.persistModel.mostRecentCall.args[0]
             ccEmails = model.cc.map (cc) -> cc.email
             expect(ccEmails.sort()).toEqual(['1@1.com', '2@2.com', '4@4.com'])
             toEmails = model.to.map (to) -> to.email
@@ -284,9 +287,9 @@ describe "DraftStore", ->
           runs ->
             DraftStore._onComposeReplyAll({threadId: fakeThread.id, messageId: msgFromMe.id})
           waitsFor ->
-            DatabaseStore.persistModel.callCount > 0
+            DatabaseTransaction.prototype.persistModel.callCount > 0
           runs ->
-            @model = DatabaseStore.persistModel.mostRecentCall.args[0]
+            @model = DatabaseTransaction.prototype.persistModel.mostRecentCall.args[0]
             expect(@model.to).toEqual(msgFromMe.to)
             expect(@model.cc).toEqual(msgFromMe.cc)
             expect(@model.bcc.length).toBe 0
@@ -296,9 +299,9 @@ describe "DraftStore", ->
         runs ->
           DraftStore._onComposeForward({threadId: fakeThread.id, messageId: fakeMessageWithFiles.id})
         waitsFor ->
-          DatabaseStore.persistModel.callCount > 0
+          DatabaseTransaction.prototype.persistModel.callCount > 0
         runs ->
-          @model = DatabaseStore.persistModel.mostRecentCall.args[0]
+          @model = DatabaseTransaction.prototype.persistModel.mostRecentCall.args[0]
           expect(@model.files.length).toBe 2
           expect(@model.files[0].filename).toBe "test.jpg"
 
@@ -307,9 +310,9 @@ describe "DraftStore", ->
         runs ->
           DraftStore._onComposeForward({threadId: fakeThread.id, messageId: fakeMessage1.id})
         waitsFor ->
-          DatabaseStore.persistModel.callCount > 0
+          DatabaseTransaction.prototype.persistModel.callCount > 0
         runs ->
-          @model = DatabaseStore.persistModel.mostRecentCall.args[0]
+          @model = DatabaseTransaction.prototype.persistModel.mostRecentCall.args[0]
 
       it "should include quoted text", ->
         expect(@model.body.indexOf('blockquote') > 0).toBe(true)
@@ -334,18 +337,18 @@ describe "DraftStore", ->
         runs ->
           DraftStore._onComposeReply({threadId: fakeThread.id, messageId: fakeMessage1.id, popout: true}).catch (error) -> throw new Error (error)
         waitsFor ->
-          DatabaseStore.persistModel.callCount > 0
+          DatabaseTransaction.prototype.persistModel.callCount > 0
         runs ->
-          @model = DatabaseStore.persistModel.mostRecentCall.args[0]
+          @model = DatabaseTransaction.prototype.persistModel.mostRecentCall.args[0]
           expect(Actions.composePopoutDraft).toHaveBeenCalledWith(@model.clientId)
 
       it "can popout a forward", ->
         runs ->
           DraftStore._onComposeForward({threadId: fakeThread.id, messageId: fakeMessage1.id, popout: true}).catch (error) -> throw new Error (error)
         waitsFor ->
-          DatabaseStore.persistModel.callCount > 0
+          DatabaseTransaction.prototype.persistModel.callCount > 0
         runs ->
-          @model = DatabaseStore.persistModel.mostRecentCall.args[0]
+          @model = DatabaseTransaction.prototype.persistModel.mostRecentCall.args[0]
           expect(Actions.composePopoutDraft).toHaveBeenCalledWith(@model.clientId)
 
     describe "_newMessageWithContext", ->
@@ -355,7 +358,7 @@ describe "DraftStore", ->
         @_callNewMessageWithContext = (context, attributesCallback, modelCallback) ->
           waitsForPromise ->
             DraftStore._newMessageWithContext(context, attributesCallback).then ->
-              model = DatabaseStore.persistModel.mostRecentCall.args[0]
+              model = DatabaseTransaction.prototype.persistModel.mostRecentCall.args[0]
               modelCallback(model) if modelCallback
 
       it "should create a new message", ->
@@ -828,7 +831,7 @@ describe "DraftStore", ->
 
       it "should give extensions a chance to customize the draft via ext.prepareNewDraft", ->
         received = null
-        spyOn(DatabaseStore, 'persistModel').andCallFake (draft) ->
+        spyOn(DatabaseTransaction.prototype, 'persistModel').andCallFake (draft) ->
           received = draft
           Promise.resolve()
         waitsForPromise ->
@@ -862,7 +865,7 @@ describe "DraftStore", ->
 
     describe "should correctly instantiate drafts for a wide range of mailto URLs", ->
       beforeEach ->
-        spyOn(DatabaseStore, 'persistModel').andCallFake (draft) ->
+        spyOn(DatabaseTransaction.prototype, 'persistModel').andCallFake (draft) ->
           Promise.resolve()
 
       links = [
@@ -948,7 +951,7 @@ describe "DraftStore", ->
           waitsForPromise ->
             DraftStore._onHandleMailtoLink({}, link).then ->
               expectedDraft = expected[idx]
-              received = DatabaseStore.persistModel.mostRecentCall.args[0]
+              received = DatabaseTransaction.prototype.persistModel.mostRecentCall.args[0]
               expect(received['subject']).toEqual(expectedDraft['subject'])
               expect(received['body']).toEqual(expectedDraft['body']) if expectedDraft['body']
               for attr in ['to', 'cc', 'bcc']

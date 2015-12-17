@@ -69,7 +69,9 @@ class SearchView extends ModelView
         obj = (new Thread).fromJSON(resultJSON)
         objects.push(obj)
 
-      DatabaseStore.persistModels(objects) if objects.length > 0
+      if objects.length > 0
+        DatabaseStore.inTransaction (t) ->
+          t.persistModels(objects)
 
       page.items = objects
       page.loading = false

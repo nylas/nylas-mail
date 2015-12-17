@@ -165,8 +165,8 @@ class DraftStoreProxy
     # underneath us
     inMemoryDraft = @_draft
 
-    DatabaseStore.atomically =>
-      DatabaseStore.findBy(Message, clientId: inMemoryDraft.clientId).then (draft) =>
+    DatabaseStore.inTransaction (t) =>
+      t.findBy(Message, clientId: inMemoryDraft.clientId).then (draft) =>
         # This can happen if we get a "delete" delta, or something else
         # strange happens. In this case, we'll use the @_draft we have in
         # memory to apply the changes to. On the `persistModel` in the
@@ -177,9 +177,9 @@ class DraftStoreProxy
         if not draft then draft = inMemoryDraft
 
         updatedDraft = @changes.applyToModel(draft)
-        return DatabaseStore.persistModel(updatedDraft).then =>
-          Actions.queueTask(new SyncbackDraftTask(@draftClientId))
-
+        return t.persistModel(updatedDraft)
+    .then =>
+      Actions.queueTask(new SyncbackDraftTask(@draftClientId))
 
 
 DraftStoreProxy.DraftChangeSet = DraftChangeSet

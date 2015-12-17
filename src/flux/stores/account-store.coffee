@@ -164,7 +164,6 @@ class AccountStore
   _importFakeData: (dir) =>
     fs = require 'fs-plus'
     path = require 'path'
-    DatabaseStore = require './database-store'
     Message = require '../models/message'
     Account = require '../models/account'
     Thread = require '../models/thread'
@@ -232,12 +231,14 @@ class AccountStore
       for filename in fs.readdirSync(downloadsDir)
         fs.copySync(path.join(downloadsDir, filename), path.join(NylasEnv.getConfigDirPath(), 'downloads', filename))
 
-    Promise.all([
-      DatabaseStore.persistModel(account),
-      DatabaseStore.persistModels(_.values(labels)),
-      DatabaseStore.persistModels(messages),
-      DatabaseStore.persistModels(threads)
-    ]).then =>
+    DatabaseStore.inTransaction (t) =>
+      Promise.all([
+        t.persistModel(account),
+        t.persistModels(_.values(labels)),
+        t.persistModels(messages),
+        t.persistModels(threads)
+      ])
+    .then =>
       Actions.selectAccount account.id
 
 module.exports = new AccountStore()

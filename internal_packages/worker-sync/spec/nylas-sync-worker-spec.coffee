@@ -1,5 +1,5 @@
 _ = require 'underscore'
-{Actions, DatabaseStore, Account, Thread} = require 'nylas-exports'
+{Actions, DatabaseStore, DatabaseTransaction, Account, Thread} = require 'nylas-exports'
 NylasLongConnection = require '../lib/nylas-long-connection'
 NylasSyncWorker = require '../lib/nylas-sync-worker'
 
@@ -16,7 +16,7 @@ describe "NylasSyncWorker", ->
       getThreads: (account, params, requestOptions) =>
         @apiRequests.push({account, model:'threads', params, requestOptions})
 
-    spyOn(DatabaseStore, 'persistJSONBlob').andReturn(Promise.resolve())
+    spyOn(DatabaseTransaction.prototype, 'persistJSONBlob').andReturn(Promise.resolve())
     spyOn(DatabaseStore, 'findJSONBlob').andCallFake (key) =>
       if key is "NylasSyncWorker:#{TEST_ACCOUNT_ID}"
         return Promise.resolve _.extend {}, {

@@ -15,17 +15,18 @@ class EventRSVPTask extends Task
     super
 
   performLocal: ->
-    DatabaseStore.find(Event, @event.id).then (e) =>
-      e ?= @event
-      @_previousParticipantsState = Utils.deepClone(e.participants)
-      participants = []
-      for p in e.participants
-        if p['email'] == @myEmail
-          p['status'] = @RSVPResponse
-        participants.push p
-      e.participants = participants
-      @event = e
-      DatabaseStore.persistModel(e)
+    DatabaseStore.inTransaction (t) =>
+      t.find(Event, @event.id).then (e) =>
+        e ?= @event
+        @_previousParticipantsState = Utils.deepClone(e.participants)
+        participants = []
+        for p in e.participants
+          if p['email'] == @myEmail
+            p['status'] = @RSVPResponse
+          participants.push p
+        e.participants = participants
+        @event = e
+        t.persistModel(e)
 
   performRemote: ->
     NylasAPI.makeRequest
@@ -42,10 +43,11 @@ class EventRSVPTask extends Task
     .catch APIError, (err) =>
       ##TODO event already accepted/declined/etc
       @event.participants = @_previousParticipantsState
-      DatabaseStore.persistModel(@event).then ->
-        return Promise.resolve(Task.Status.Failed)
-      .catch (err) ->
-        return Promise.resolve(Task.Status.Failed)
+      DatabaseStore.inTransaction (t) =>
+        t.persistModel(@event).then ->
+          return Promise.resolve(Task.Status.Failed)
+        .catch (err) ->
+          return Promise.resolve(Task.Status.Failed)
 
   onOtherError: -> Promise.resolve()
   onTimeoutError: -> Promise.resolve()

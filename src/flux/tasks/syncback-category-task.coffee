@@ -25,10 +25,11 @@ module.exports = class SyncbackCategoryTask extends Task
     if not @category
       return Promise.reject(new Error("Attempt to call SyncbackCategoryTask.performLocal without @category."))
 
-    if @_shouldChangeBackwards()
-      DatabaseStore.unpersistModel @category
-    else
-      DatabaseStore.persistModel @category
+    DatabaseStore.inTransaction (t) =>
+      if @_shouldChangeBackwards()
+        t.unpersistModel @category
+      else
+        t.persistModel @category
 
   performRemote: ->
     if @category instanceof Label
@@ -49,7 +50,8 @@ module.exports = class SyncbackCategoryTask extends Task
       # This is where we update the existing model with the newly
       # created serverId.
       @category.serverId = json.id
-      DatabaseStore.persistModel @category
+      DatabaseStore.inTransaction (t) =>
+        t.persistModel @category
     .then ->
       return Promise.resolve(Task.Status.Success)
     .catch APIError, (err) =>

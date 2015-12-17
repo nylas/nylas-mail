@@ -104,7 +104,9 @@ class MessageControls extends React.Component
       accountId: AccountStore.current().id
       body: @props.message.body
 
-    DatabaseStore.persistModel(draft).then =>
+    DatabaseStore.inTransaction (t) =>
+      t.persistModel(draft)
+    .then =>
       Actions.sendDraft(draft.clientId)
 
       dialog = remote.require('dialog')

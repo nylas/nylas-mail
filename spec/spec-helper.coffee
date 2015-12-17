@@ -21,10 +21,12 @@ ServiceHub = require 'service-hub'
 pathwatcher = require 'pathwatcher'
 {clipboard} = require 'electron'
 
-Account = require "../src/flux/models/account"
-AccountStore = require "../src/flux/stores/account-store"
-Contact = require '../src/flux/models/contact'
-{TaskQueue, ComponentRegistry} = require "nylas-exports"
+{Account,
+ Contact,
+ TaskQueue,
+ AccountStore,
+ DatabaseStore,
+ ComponentRegistry} = require "nylas-exports"
 
 NylasEnv.themes.loadBaseStylesheets()
 NylasEnv.themes.requireStylesheet '../static/jasmine'
@@ -111,6 +113,8 @@ beforeEach ->
   Grim.clearDeprecations() if isCoreSpec
   ComponentRegistry._clear()
   global.localStorage.clear()
+
+  DatabaseStore._transactionQueue = undefined
 
   TaskQueue._queue = []
   TaskQueue._completed = []

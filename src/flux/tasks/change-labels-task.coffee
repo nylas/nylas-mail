@@ -19,6 +19,7 @@ class ChangeLabelsTask extends ChangeMailTask
   constructor: ({@labelsToAdd, @labelsToRemove}={}) ->
     @labelsToAdd ?= []
     @labelsToRemove ?= []
+
     super
 
   label: -> "Applying labels…"
@@ -36,6 +37,9 @@ class ChangeLabelsTask extends ChangeMailTask
   isDependentTask: (other) -> other instanceof SyncbackCategoryTask
 
   performLocal: ->
+    if @messages.length
+      return Promise.reject(new Error("ChangeLabelsTask: N1 does not support viewing or changing labels on individual messages."))
+
     if @labelsToAdd.length is 0 and @labelsToRemove.length is 0
       return Promise.reject(new Error("ChangeLabelsTask: Must specify `labelsToAdd` or `labelsToRemove`"))
     if @threads.length > 0 and @messages.length > 0

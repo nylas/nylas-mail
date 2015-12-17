@@ -28,7 +28,8 @@ class CreateMetadataTask extends Task
   performLocal: ->
     return Promise.reject(new Error("Must pass a type")) unless @type?
     @metadatum = new Metadata({@type, @publicId, @key, @value})
-    return DatabaseStore.persistModel(@metadatum)
+    DatabaseStore.inTransaction (t) =>
+      t.persistModel(@metadatum)
 
   performRemote: ->
     new Promise (resolve, reject) =>
