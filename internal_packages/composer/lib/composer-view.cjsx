@@ -17,7 +17,6 @@ React = require 'react'
 {DropZone,
  RetinaImg,
  ScrollRegion,
- Contenteditable,
  InjectedComponent,
  KeyCommandsRegion,
  FocusTrackingRegion,
@@ -26,6 +25,7 @@ React = require 'react'
 FileUpload = require './file-upload'
 ImageFileUpload = require './image-file-upload'
 
+ComposerEditor = require './composer-editor'
 ExpandedParticipants = require './expanded-participants'
 CollapsedParticipants = require './collapsed-participants'
 
@@ -53,7 +53,7 @@ class ComposerView extends React.Component
     # have the parent scroll to a certain location. A parent component can
     # pass a callback that gets called when this composer wants to be
     # scrolled to.
-    onRequestScrollTo: React.PropTypes.func
+    scrollTo: React.PropTypes.func
 
   constructor: (@props) ->
     @state =
@@ -69,7 +69,6 @@ class ComposerView extends React.Component
       enabledFields: [] # Gets updated in @_initiallyEnabledFields
       showQuotedText: false
       uploads: FileUploadStore.uploadsForMessage(@props.draftClientId) ? []
-      composerExtensions: @_composerExtensions()
 
   componentWillMount: =>
     @_prepareForDraft(@props.draftClientId)
@@ -82,7 +81,6 @@ class ComposerView extends React.Component
     @_usubs = []
     @_usubs.push FileUploadStore.listen @_onFileUploadStoreChange
     @_usubs.push AccountStore.listen @_onAccountStoreChanged
-    @_usubs.push ExtensionRegistry.Composer.listen @_onExtensionsChanged
     @_applyFieldFocus()
 
   componentWillUnmount: =>
@@ -100,11 +98,6 @@ class ComposerView extends React.Component
     @_recoveredSelection = null if @_recoveredSelection?
 
     @_applyFieldFocus()
-
-  ## TODO add core composer extensions to refactor callback props out of
-  # Contenteditable
-  _composerExtensions: ->
-    ExtensionRegistry.Composer.extensions()
 
   _keymapHandlers: ->
     'composer:send-message': => @_sendDraft()
@@ -129,7 +122,7 @@ class ComposerView extends React.Component
         React.findDOMNode(@refs[@state.focusedField]).focus()
 
       if @state.focusedField is Fields.Body and not @_proxy.draftPristineBody()
-        @refs[Fields.Body].selectEnd()
+        @refs[Fields.Body].focusEditor()
 
   componentWillReceiveProps: (newProps) =>
     @_ignoreNextTrigger = false
@@ -244,7 +237,7 @@ class ComposerView extends React.Component
            ref="composeBody"
            onMouseUp={@_onMouseUpComposerBody}
            onMouseDown={@_onMouseDownComposerBody}>
-        {@_renderBody()}
+        {@_renderBodyRegions()}
         {@_renderFooterRegions()}
       </div>
     </div>
@@ -303,29 +296,44 @@ class ComposerView extends React.Component
                onChange={@_onChangeSubject}/>
       </div>
 
-  _renderBody: =>
+  _renderBodyRegions: =>
     <span ref="composerBodyWrap">
-      {@_renderBodyContenteditable()}
+      {@_renderEditor()}
       {@_renderQuotedTextControl()}
       {@_renderAttachments()}
     </span>
 
-  _renderBodyContenteditable: ->
-    <Contenteditable
-      ref={Fields.Body}
-      value={@_removeQuotedText(@state.body)}
-      onChange={@_onChangeBody}
-      onScrollTo={@props.onRequestScrollTo}
-      onFilePaste={@_onFilePaste}
-      onScrollToBottom={@_onScrollToBottom()}
-      extensions={[@_contenteditableHandlers()].concat(@state.composerExtensions)}
-      getComposerBoundingRect={@_getComposerBoundingRect}
-      initialSelectionSnapshot={@_recoveredSelection} />
+  _renderEditor: ->
+    exposedProps =
+      body: @_removeQuotedText(@state.body)
+      draftClientId: @props.draftClientId
+      parentActions: {
+        getComposerBoundingRect: @_getComposerBoundingRect
+        scrollTo: @props.scrollTo
+      }
+      initialSelectionSnapshot: @_recoveredSelection
+      onFocus: @_onEditorFocus
+      onFilePaste: @_onFilePaste
+      onBodyChanged: @_onBodyChanged
 
-  _contenteditableHandlers: =>
-    {
-      onFocus: => @setState(focusedField: Fields.Body)
-    }
+    # TODO Get rid of the unecessary required methods:
+    # getCurrentSelection and getPreviousSelection shouldn't be needed and
+    # undo/redo functionality should be refactored into ComposerEditor
+    # _onDOMMutated is just for testing purposes, refactor the tests
+    <InjectedComponent
+      ref={Fields.Body}
+      matching={role: "Composer:Editor"}
+      fallback={ComposerEditor}
+      requiredMethods={[
+        'focusEditor'
+        'getCurrentSelection'
+        'getPreviousSelection'
+        '_onDOMMutated'
+      ]}
+      exposedProps={exposedProps} />
+
+  _onEditorFocus: =>
+    @setState(focusedField: Fields.Body)
 
   # The contenteditable decides when to request a scroll based on the
   # position of the cursor and its relative distance to this composer
@@ -333,14 +341,6 @@ class ComposerView extends React.Component
   # this value.
   _getComposerBoundingRect: =>
     React.findDOMNode(@refs.composerWrap).getBoundingClientRect()
-
-  _onScrollToBottom: ->
-    if @props.onRequestScrollTo
-      return =>
-        @props.onRequestScrollTo
-          clientId: @_proxy.draft().clientId
-          position: ScrollRegion.ScrollPosition.Bottom
-    else return null
 
   _removeQuotedText: (html) =>
     if @state.showQuotedText then return html
@@ -487,7 +487,7 @@ class ComposerView extends React.Component
 
   _onMouseUpComposerBody: (event) =>
     if event.target is @_mouseDownTarget
-      @refs[Fields.Body].selectEnd()
+      @refs[Fields.Body].focusEditor()
     @_mouseDownTarget = null
 
   # When a user focuses the composer, it's possible that no input is
@@ -496,7 +496,7 @@ class ComposerView extends React.Component
   # erroneously trigger keyboard shortcuts.
   _onFocusIn: (event) =>
     return if DOMUtils.closest(event.target, DOMUtils.inputTypes())
-    @refs[Fields.Body].selectEnd()
+    @refs[Fields.Body].focusEditor()
 
   _onMouseMoveComposeBody: (event) =>
     if @_mouseComposeBody is "down" then @_mouseComposeBody = "move"
@@ -560,9 +560,6 @@ class ComposerView extends React.Component
     enabledFields.push Fields.Subject if @_shouldEnableSubject()
     enabledFields.push Fields.Body
     return enabledFields
-
-  _onExtensionsChanged: =>
-    @setState composerExtensions: @_composerExtensions()
 
   # When the account store changes, the From field may or may not still
   # be in scope. We need to make sure to update our enabled fields.
@@ -636,7 +633,7 @@ class ComposerView extends React.Component
   _onChangeSubject: (event) =>
     @_addToProxy(subject: event.target.value)
 
-  _onChangeBody: (event) =>
+  _onBodyChanged: (event) =>
     return unless @_proxy
 
     newBody = @_showQuotedText(event.target.value)
@@ -720,8 +717,8 @@ class ComposerView extends React.Component
     if bodyIsEmpty and not forwarded and not hasAttachment
       warnings.push('without a body')
 
-    # Check third party warnings added via DraftStore extensions
-    for extension in @state.composerExtensions
+    # Check third party warnings added via Composer extensions
+    for extension in ExtensionRegistry.Composer.extensions()
       continue unless extension.warningsForSending
       warnings = warnings.concat(extension.warningsForSending(draft))
 

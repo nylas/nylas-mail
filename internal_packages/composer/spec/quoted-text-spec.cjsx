@@ -9,10 +9,18 @@ ReactTestUtils = React.addons.TestUtils
 
 Fields = require '../lib/fields'
 Composer = require "../lib/composer-view"
-{DraftStore} = require 'nylas-exports'
+ComposerEditor = require '../lib/composer-editor'
+
+{DraftStore, ComponentRegistry} = require 'nylas-exports'
 
 describe "Composer Quoted Text", ->
   beforeEach ->
+    # TODO
+    # Extract ComposerEditor tests instead of rendering injected component
+    # here
+    ComposerEditor.containerRequired = false
+    ComponentRegistry.register(ComposerEditor, role: "Composer:Editor")
+
     @onChange = jasmine.createSpy('onChange')
     @htmlNoQuote = 'Test <strong>HTML</strong><br>'
     @htmlWithQuote = 'Test <strong>HTML</strong><br><blockquote class="gmail_quote">QUOTE</blockquote>'
@@ -28,6 +36,8 @@ describe "Composer Quoted Text", ->
 
   afterEach ->
     DraftStore._cleanupAllSessions()
+    ComposerEditor.containerRequired = undefined
+    ComponentRegistry.unregister(ComposerEditor)
 
   # Must be called with the test's scope
   setHTML = (newHTML) ->

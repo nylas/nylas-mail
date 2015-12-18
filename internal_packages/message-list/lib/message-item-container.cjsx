@@ -18,7 +18,7 @@ class MessageItemContainer extends React.Component
     collapsed: React.PropTypes.bool
     isLastMsg: React.PropTypes.bool
     isBeforeReplyArea: React.PropTypes.bool
-    onRequestScrollTo: React.PropTypes.func
+    scrollTo: React.PropTypes.func
 
   constructor: (@props) ->
     @state = @_getStateFromStores()
@@ -62,7 +62,7 @@ class MessageItemContainer extends React.Component
       mode: "inline"
       draftClientId: @props.message.clientId
       threadId: @props.thread.id
-      onRequestScrollTo: @props.onRequestScrollTo
+      scrollTo: @props.scrollTo
 
     <InjectedComponent ref="message"
                        matching={role: "Composer"}

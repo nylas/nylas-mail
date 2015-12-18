@@ -310,7 +310,7 @@ class MessageList extends React.Component
                               collapsed={collapsed}
                               isLastMsg={isLastMsg}
                               isBeforeReplyArea={isBeforeReplyArea}
-                              onRequestScrollTo={@_onChildScrollRequest} />
+                              scrollTo={@_scrollTo} />
       )
 
     if hasReplyArea
@@ -381,7 +381,7 @@ class MessageList extends React.Component
   #
   # If messageId and location are defined, that means we want to scroll
   # smoothly to the top of a particular message.
-  _onChildScrollRequest: ({clientId, rect, position}={}) =>
+  _scrollTo: ({clientId, rect, position}={}) =>
     return if @_draftScrollInProgress
     if clientId
       messageElement = @_getMessageContainer(clientId)

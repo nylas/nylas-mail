@@ -35,13 +35,11 @@ class Contenteditable extends React.Component
     # The current html state, as a string, of the contenteditable.
     value: React.PropTypes.string
 
-    initialSelectionSnapshot: React.PropTypes.object
+    # Initial content selection that was previously saved
+    initialSelectionSnapshot: React.PropTypes.object,
 
     # Handlers
     onChange: React.PropTypes.func.isRequired
-    # Passes an absolute top coordinate to scroll to.
-    onScrollTo: React.PropTypes.func
-    onScrollToBottom: React.PropTypes.func
     onFilePaste: React.PropTypes.func
 
     # A list of objects that extend {ContenteditableExtension}
@@ -549,7 +547,7 @@ class Contenteditable extends React.Component
       endNodeIndex: DOMUtils.getNodeIndex(context, selection.focusNode)
       isCollapsed: selection.isCollapsed
 
-    @_ensureSelectionVisible(selection)
+    @_onSelectionChanged(selection)
 
     @setInnerState
       selection: @_selection
@@ -564,53 +562,10 @@ class Contenteditable extends React.Component
       selection: @_selection
       editableFocused: true
 
-  # When the selectionState gets set by a parent (e.g. undo-ing and
-  # redo-ing) we need to make sure it's visible to the user.
-  #
-  # Unfortunately, we can't use the native `scrollIntoView` because it
-  # naively scrolls the whole window and doesn't know not to scroll if
-  # it's already in view. There's a new native method called
-  # `scrollIntoViewIfNeeded`, but this only works when the scroll
-  # container is a direct parent of the requested element. In this case
-  # the scroll container may be many levels up.
-  _ensureSelectionVisible: (selection) ->
-    # If our parent supports scroll to bottom, check for that
-    if @_shouldScrollToBottom(selection)
-      @props.onScrollToBottom()
-
-    # Don't bother computing client rects if no scroll method has been provided
-    else if @props.onScrollTo
-      rangeInScope = DOMUtils.getRangeInScope(@_editableNode())
-      return unless rangeInScope
-
-      rect = rangeInScope.getBoundingClientRect()
-      if DOMUtils.isEmptyBoudingRect(rect)
-        rect = DOMUtils.getSelectionRectFromDOM(selection)
-
-      if rect
-        @props.onScrollTo({rect})
-
+  _onSelectionChanged: (selection) ->
+    @props.onSelectionChanged(selection, @_editableNode())
     # The bounding client rect has changed
     @setInnerState editableNode: @_editableNode()
-
-  # As you're typing a lot of content and the cursor begins to scroll off
-  # to the bottom, we want to make it look like we're tracking your
-  # typing.
-  _shouldScrollToBottom: (selection) ->
-    (@props.onScrollToBottom and
-    DOMUtils.atEndOfContent(selection, @_editableNode()) and
-    @_bottomIsNearby())
-
-  # If the bottom of the container we're scrolling to is really far away
-  # from this contenteditable and your scroll position, we don't want to
-  # jump away. This can commonly happen if the composer has a very tall
-  # image attachment. The "send" button may be 1000px away from the bottom
-  # of the contenteditable. props.onScrollToBottom moves to the bottom of
-  # the "send" button.
-  _bottomIsNearby: ->
-    parentRect = @props.getComposerBoundingRect()
-    selfRect = @_editableNode().getBoundingClientRect()
-    return Math.abs(parentRect.bottom - selfRect.bottom) <= 250
 
   # We use global listeners to determine whether or not dragging is
   # happening. This is because dragging may stop outside the scope of
@@ -741,7 +696,7 @@ class Contenteditable extends React.Component
                                newEndNode,
                                @_selection.endOffset)
 
-    @_ensureSelectionVisible(selection)
+    @_onSelectionChanged(selection)
     @_setupListeners()
 
   # This needs to be in the contenteditable area because we need to first

@@ -57,6 +57,7 @@ class InjectedComponentSet extends React.Component
     className: React.PropTypes.string
     exposedProps: React.PropTypes.object
     containersRequired: React.PropTypes.bool
+    requiredMethods: React.PropTypes.arrayOf(React.PropTypes.string)
 
   @defaultProps:
     direction: 'row'
