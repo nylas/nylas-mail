@@ -277,7 +277,7 @@ DOMUtils =
     return (scope.contains(selection.anchorNode) and
             scope.contains(selection.focusNode))
 
-  isEmptyBoudingRect: (rect) ->
+  isEmptyBoundingRect: (rect) ->
     rect.top is 0 and rect.bottom is 0 and rect.left is 0 and rect.right is 0
 
   atEndOfContent: (selection, rootScope, containerScope) ->

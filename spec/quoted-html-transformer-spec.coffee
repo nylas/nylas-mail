@@ -256,7 +256,6 @@ describe "QuotedHTMLTransformer", ->
         <br></body>
         """
 
-
     it 'works with these manual test cases', ->
       for {before, after} in tests
         opts = keepIfWholeBodyIsQuote: true
@@ -273,6 +272,26 @@ describe "QuotedHTMLTransformer", ->
       expect0 = "<head></head><body>hello<br><br>world<br></body>"
       expect(QuotedHTMLTransformer.removeQuotedHTML(input0)).toEqual expect0
 
+    it 'works as expected when body tag inside the html', ->
+      input0 = """
+      <br><br><blockquote class="gmail_quote"
+        style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
+        On Dec 16 2015, at 7:08 pm, Juan Tejada &lt;juan@nylas.com&gt; wrote:
+        <br>
+
+
+      <meta content="text/html; charset=us-ascii" />
+
+      <body>
+      <h1 id="h2">h2</h1>
+      <p>he he hehehehehehe</p>
+      <p>dufjcasc</p>
+      </body>
+
+      </blockquote>
+      """
+      expect0 = "<head></head><body><br></body>"
+      expect(QuotedHTMLTransformer.removeQuotedHTML(input0)).toEqual expect0
 
 
   # We have a little utility method that you can manually uncomment to

@@ -41,14 +41,28 @@ class InjectedComponent extends React.Component
    - `exposedProps` (optional) An {Object} with props that will be passed to each
       item rendered into the set.
 
+   - `requiredMethods` (options) An {Array} with a list of methods that should be
+     implemented by the registered component instance. If these are not implemented,
+     an error will be thrown.
+
+   - `fallback` (optional) A {Component} to default to in case there are no matching
+     components in the ComponentRegistry
+
   ###
   @propTypes:
     matching: React.PropTypes.object.isRequired
     className: React.PropTypes.string
     exposedProps: React.PropTypes.object
+    fallback: React.PropTypes.func
+    requiredMethods: React.PropTypes.arrayOf(React.PropTypes.string)
+
+  @defaultProps:
+    requiredMethods: []
 
   constructor: (@props) ->
     @state = @_getStateFromStores()
+    @_verifyRequiredMethods()
+    @_setRequiredMethods(@props.requiredMethods)
 
   componentDidMount: =>
     @_componentUnlistener = ComponentRegistry.listen =>
@@ -61,6 +75,9 @@ class InjectedComponent extends React.Component
     if not _.isEqual(newProps.matching, @props?.matching)
       @setState(@_getStateFromStores(newProps))
 
+  componentDidUpdate: =>
+    @_setRequiredMethods(@props.requiredMethods)
+
   render: =>
     return <div></div> unless @state.component
 
@@ -69,7 +86,6 @@ class InjectedComponent extends React.Component
     className += " registered-region-visible" if @state.visible
 
     component = @state.component
-
     if component.containerRequired is false
       element = <component ref="inner" key={component.displayName} {...exposedProps} />
     else
@@ -96,6 +112,29 @@ class InjectedComponent extends React.Component
     # Note that our inner may not be populated, and it may not have a blur method
     @refs.inner.blur() if @refs.inner?.blur?
 
+  _setRequiredMethods: (methods) =>
+    methods.forEach (method) =>
+      Object.defineProperty(@, method,
+        configurable: true
+        enumerable: true
+        get: =>
+          if @refs.inner instanceof UnsafeComponent
+            @refs.inner.injected[method]?.bind(@refs.inner.injected)
+          else
+            @refs.inner[method]?.bind(@refs.inner)
+      )
+
+  _verifyRequiredMethods: =>
+    if @state.component?
+      component = @state.component
+      @props.requiredMethods.forEach (method) =>
+        isMethodDefined = @state.component.prototype[method]?
+        unless isMethodDefined
+          throw new Error(
+            "#{component.name} must implement method `#{method}` when registering
+            for #{JSON.stringify(@props.matching)}"
+          )
+
   _getStateFromStores: (props) =>
     props ?= @props
 
@@ -104,8 +143,12 @@ class InjectedComponent extends React.Component
       console.warn("There are multiple components available for \
                    #{JSON.stringify(props.matching)}. <InjectedComponent> is \
                    only rendering the first one.")
+    component = if components.length is 0
+      @props.fallback
+    else
+      components[0]
 
-    component: components[0]
+    component: component
     visible: ComponentRegistry.showComponentRegions()
 
 module.exports = InjectedComponent
