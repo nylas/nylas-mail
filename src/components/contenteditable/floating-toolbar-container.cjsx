@@ -189,7 +189,7 @@ class FloatingToolbarContainer extends React.Component
     else
       # return if @state.toolbarMode is "edit-link"
       rect = DOMUtils.getRangeInScope(props.editableNode)?.getBoundingClientRect()
-      if not rect or DOMUtils.isEmptyBoudingRect(rect)
+      if not rect or DOMUtils.isEmptyBoundingRect(rect)
         @setState
           toolbarVisible: false
           toolbarMode: "buttons"
