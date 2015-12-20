@@ -157,7 +157,7 @@ class WindowManager
   Feedback window
   ###
 
-  showFeedbackWindow: ({x, y, width, height, params}) ->
+  showFeedbackWindow: ({x, y, width, height, params}) =>
     if @feedbackWindow
       @feedbackWindow.show()
     else
@@ -177,11 +177,12 @@ class WindowManager
         event.preventDefault()
 
       # Disable window close, hide instead
-      w.on 'close', (event) ->
+      w.on 'close', (event) =>
         unless global.application.quitting
           event.preventDefault()
           w.hide()
-      w.on 'closed', (event) ->
+          @showMainWindow()
+      w.on 'closed', (event) =>
         @feedbackWindow = null
 
       w.webContents.on('new-window', onOpenURL)
