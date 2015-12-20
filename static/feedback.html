@@ -63,10 +63,6 @@
             window.onfocus = function(e) {
                 setNewMessages(false);
             }
-            // Prevent window close
-            window.onbeforeunload = function(e) {
-                e.returnValue = false;
-            };
 
             // Load the intercom widget.
             var w = window;
