@@ -6,5 +6,6 @@ Exec=<%= installDir %>/share/nylas/nylas %U
 Icon=<%= iconName %>
 Type=Application
 StartupNotify=true
+StartupWMClass=Nylas N1
 Categories=GNOME;GTK;Utility;EmailClient;Development;
 MimeType=text/plain;x-scheme-handler/mailto;x-scheme-handler/nylas;
