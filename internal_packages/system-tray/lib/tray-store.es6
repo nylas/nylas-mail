@@ -11,7 +11,7 @@ const {canvasWithSystemTrayIconAndText} = CanvasUtils;
 const BASE_ICON_PATH = path.join(__dirname, '..', 'assets', process.platform, 'ic-systemtray-nylas.png');
 const UNREAD_ICON_PATH = path.join(__dirname, '..', 'assets', process.platform, 'ic-systemtray-nylas-unread.png');
 
-const menuTemplate = [
+const _menuTemplate = [
   {
     label: 'New Message',
     click: ()=> ipcRenderer.send('command', 'application:new-message'),
@@ -29,15 +29,15 @@ const menuTemplate = [
   },
 ];
 
-if (process.platform === 'darwin') {
-  menuTemplate.unshift({
+if (process.platform !== 'win32') {
+  _menuTemplate.unshift({
     label: 'Open Inbox',
     click: ()=> ipcRenderer.send('command', 'application:show-main-window'),
   });
 }
 
 const _buildMenu = ()=> {
-  return Menu.buildFromTemplate(menuTemplate);
+  return Menu.buildFromTemplate(_menuTemplate);
 };
 
 class TrayStore extends NylasStore {
