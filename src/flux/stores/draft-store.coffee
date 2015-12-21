@@ -473,18 +473,31 @@ class DraftStore
     @sessionForClientId(draftClientId).then (session) =>
       @_runExtensionsBeforeSend(session)
 
-      # Immediately save any pending changes so we don't save after sending
+      # Immediately save any pending changes so we don't save after
+      # sending
       #
-      # It's important that we force commit the changes before sending.
-      # Once committed, we'll queue a `SyncbackDraftTask`. Since we may be
-      # sending a draft by its serverId, we need to make sure that the
-      # server has the latest changes. It's possible for the
-      # session.changes._pending to be empty if the last SyncbackDraftTask
-      # failed during its performRemote. When we send we should always try
-      # again.
-      session.changes.commit(force: true).then =>
+      # We do NOT queue a final {SyncbackDraftTask} before sending because
+      # we're going to send the full raw body with the Send are are about
+      # to delete the draft anyway.
+      #
+      # We do, however, need to ensure that all of the pending changes are
+      # committed to the Database since we'll look them up again just
+      # before send.
+      session.changes.commit(force: true, noSyncback: true).then =>
+
+        # We unfortunately can't give the SendDraftTask the raw draft JSON
+        # data because there may still be pending tasks (like a
+        # {FileUploadTask}) that will continue to update the draft data.
         task = new SendDraftTask(draftClientId, {fromPopout: @_isPopout()})
         Actions.queueTask(task)
+
+        # NOTE: We may be done with the session in this window, but there
+        # may still be {FileUploadTask}s and other pending draft mutations
+        # in the worker window.
+        #
+        # The send "pending" indicator in the main window is declaratively
+        # bound to the existence of a `@_draftSession`. We want to show
+        # the pending state immediately even as files are uploading.
         @_doneWithSession(session)
         NylasEnv.close() if @_isPopout()
 

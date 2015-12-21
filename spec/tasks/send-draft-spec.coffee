@@ -1,5 +1,4 @@
 _ = require 'underscore'
-
 {APIError,
  Actions,
  DatabaseStore,
@@ -13,12 +12,26 @@ _ = require 'underscore'
  NylasAPI,
  SoundRegistry} = require 'nylas-exports'
 
+DBt = DatabaseTransaction.prototype
+
 describe "SendDraftTask", ->
+  beforeEach ->
+    ## TODO FIXME: If we don't spy on DatabaseStore._query, then
+    # `DatabaseStore.inTransaction` will never complete and cause all
+    # tests that depend on transactions to hang.
+    #
+    # @_query("BEGIN IMMEDIATE TRANSACTION") never resolves because
+    # DatabaseStore._query never runs because the @_open flag is always
+    # false because we never setup the DB when `NylasEnv.inSpecMode` is
+    # true.
+    spyOn(DatabaseStore, '_query').andCallFake => Promise.resolve([])
+
   describe "isDependentTask", ->
-    it "should return true if there are SyncbackDraftTasks for the same draft", ->
+    it "is not dependent on any pending SyncbackDraftTasks", ->
       @draftA = new Message
         version: '1'
-        id: '1233123AEDF1'
+        clientId: 'localid-A'
+        serverId: '1233123AEDF1'
         accountId: 'A12ADE'
         subject: 'New Draft'
         draft: true
@@ -28,7 +41,8 @@ describe "SendDraftTask", ->
 
       @draftB = new Message
         version: '1'
-        id: '1233OTHERDRAFT'
+        clientId: 'localid-B'
+        serverId: '1233OTHERDRAFT'
         accountId: 'A12ADE'
         subject: 'New Draft'
         draft: true
@@ -40,128 +54,310 @@ describe "SendDraftTask", ->
       @saveB = new SyncbackDraftTask('localid-B')
       @sendA = new SendDraftTask('localid-A')
 
-      expect(@sendA.isDependentTask(@saveA)).toBe(true)
+      expect(@sendA.isDependentTask(@saveA)).toBe(false)
 
   describe "performLocal", ->
-    it "should throw an exception if the first parameter is not a clientId", ->
-      badTasks = [new SendDraftTask()]
-      goodTasks = [new SendDraftTask('localid-a')]
-      caught = []
-      succeeded = []
+    it "throws an error if we we don't pass a draftClientId", ->
+      badTask = new SendDraftTask()
+      badTask.performLocal()
+        .then ->
+          throw new Error("Shouldn't succeed")
+        .catch (err) ->
+          expect(err.message).toBe "Attempt to call SendDraftTask.performLocal without @draftClientId."
 
-      runs ->
-        [].concat(badTasks, goodTasks).forEach (task) ->
-          task.performLocal()
-          .then -> succeeded.push(task)
-          .catch (err) -> caught.push(task)
+    it "finds the message and saves a backup copy of it", ->
+      draft = new Message
+        clientId: "local-123"
+        serverId: "server-123"
+        draft: true
 
-      waitsFor ->
-        succeeded.length + caught.length == badTasks.length + goodTasks.length
-
-      runs ->
-        expect(caught).toEqual(badTasks)
-        expect(succeeded).toEqual(goodTasks)
+      spyOn(DatabaseStore, "findBy").andReturn Promise.resolve(draft)
+      task = new SendDraftTask('local-123')
+      waitsForPromise => task.performLocal().then =>
+        expect(task.backupDraft).toBeDefined()
+        expect(task.backupDraft.clientId).toBe "local-123"
+        expect(task.backupDraft.serverId).toBe "server-123"
+        expect(task.backupDraft).not.toBe draft # It's a clone
 
   describe "performRemote", ->
     beforeEach ->
+      @accountId = "a123"
       @draftClientId = "local-123"
       @serverMessageId = '1233123AEDF1'
-      @draft = new Message
-        version: 1
-        clientId: @draftClientId
-        accountId: 'A12ADE'
-        subject: 'New Draft'
-        draft: true
-        body: 'hello world'
-        to:
-          name: 'Dummy'
-          email: 'dummy@nylas.com'
 
-      response =
+      @response =
         version: 2
         id: @serverMessageId
-        account_id: 'A12ADE'
+        account_id: @accountId
         subject: 'New Draft'
         body: 'hello world'
         to:
           name: 'Dummy'
           email: 'dummy@nylas.com'
 
-      @task = new SendDraftTask(@draftClientId)
-
-
       spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
-        options.success?(response)
-        Promise.resolve(response)
-      spyOn(DatabaseStore, 'run').andCallFake (klass, id) =>
-        Promise.resolve(@draft)
-      spyOn(DatabaseTransaction.prototype, '_query').andCallFake ->
-        Promise.resolve([])
-      spyOn(DatabaseTransaction.prototype, 'unpersistModel').andCallFake (draft) ->
+        options.success?(@response)
+        Promise.resolve(@response)
+      spyOn(DBt, 'unpersistModel').andCallFake (draft) ->
         Promise.resolve()
-      spyOn(DatabaseTransaction.prototype, 'persistModel').andCallFake (draft) ->
+      spyOn(DBt, 'persistModel').andCallFake (draft) ->
         Promise.resolve()
       spyOn(SoundRegistry, "playSound")
       spyOn(Actions, "postNotification")
       spyOn(Actions, "sendDraftSuccess")
+      spyOn(NylasEnv, "emitError")
 
-    it "should notify the draft was sent", ->
-      waitsForPromise => @task.performRemote().then =>
-        args = Actions.sendDraftSuccess.calls[0].args[0]
-        expect(args.draftClientId).toBe @draftClientId
+    runFetchLatestDraftTests = ->
+      it "fetches the draft object from the DB", ->
+        waitsForPromise => @task._fetchLatestDraft().then (model) =>
+          expect(model).toBe @draft
+          expect(@task.draftAccountId).toBe @draft.accountId
+          expect(@task.draftServerId).toBe @draft.serverId
+          expect(@task.draftVersion).toBe @draft.version
 
-    it "get an object back on success", ->
-      waitsForPromise => @task.performRemote().then =>
-        args = Actions.sendDraftSuccess.calls[0].args[0]
-        expect(args.newMessage.id).toBe @serverMessageId
+      it "throws a `NotFoundError` if the model is blank", ->
+        spyOn(@task, "_notifyUserOfError")
+        spyOn(@task, "_permanentError").andCallThrough()
+        jasmine.unspy(DatabaseStore, "findBy")
+        spyOn(DatabaseStore, 'findBy').andReturn Promise.resolve(null)
+        waitsForPromise => @task.performRemote().then =>
+          expect(DBt.persistModel.callCount).toBe 1
+          expect(DBt.persistModel).toHaveBeenCalledWith(@backupDraft)
+          expect(@task._permanentError).toHaveBeenCalled()
 
-    it "should play a sound", ->
-      spyOn(NylasEnv.config, "get").andReturn true
-      waitsForPromise => @task.performRemote().then ->
-        expect(NylasEnv.config.get).toHaveBeenCalledWith("core.sending.sounds")
-        expect(SoundRegistry.playSound).toHaveBeenCalledWith("send")
+      it "throws a `NotFoundError` if findBy fails", ->
+        spyOn(@task, "_notifyUserOfError")
+        spyOn(@task, "_permanentError").andCallThrough()
+        jasmine.unspy(DatabaseStore, "findBy")
+        spyOn(DatabaseStore, 'findBy').andReturn Promise.reject(new Error("Problem"))
+        waitsForPromise => @task.performRemote().then =>
+          expect(DBt.persistModel.callCount).toBe 1
+          expect(DBt.persistModel).toHaveBeenCalledWith(@backupDraft)
+          expect(@task._permanentError).toHaveBeenCalled()
 
-    it "shouldn't play a sound if the config is disabled", ->
-      spyOn(NylasEnv.config, "get").andReturn false
-      waitsForPromise => @task.performRemote().then ->
-        expect(NylasEnv.config.get).toHaveBeenCalledWith("core.sending.sounds")
-        expect(SoundRegistry.playSound).not.toHaveBeenCalled()
+    # All of these are run in both the context of a saved draft and a new
+    # draft.
+    runMakeSendRequestTests = ->
+      it "makes a send request with the correct data", ->
+        @task.draftAccountId = @accountId
+        waitsForPromise => @task._makeSendRequest(@draft).then =>
+          expect(NylasAPI.makeRequest).toHaveBeenCalled()
+          reqArgs = NylasAPI.makeRequest.calls[0].args[0]
+          expect(reqArgs.accountId).toBe @accountId
+          expect(reqArgs.body).toEqual @draft.toJSON()
 
-    it "should start an API request to /send", ->
-      waitsForPromise =>
-        @task.performRemote().then =>
+      it "should pass returnsModel:false", ->
+        waitsForPromise => @task._makeSendRequest(@draft).then ->
+          expect(NylasAPI.makeRequest.calls.length).toBe(1)
+          options = NylasAPI.makeRequest.mostRecentCall.args[0]
+          expect(options.returnsModel).toBe(false)
+
+      it "should always send the draft body in the request body (joined attribute check)", ->
+        waitsForPromise =>
+          @task._makeSendRequest(@draft).then =>
+            expect(NylasAPI.makeRequest.calls.length).toBe(1)
+            options = NylasAPI.makeRequest.mostRecentCall.args[0]
+            expect(options.body.body).toBe('hello world')
+
+      it "should start an API request to /send", -> waitsForPromise =>
+        @task._makeSendRequest(@draft).then =>
           expect(NylasAPI.makeRequest.calls.length).toBe(1)
           options = NylasAPI.makeRequest.mostRecentCall.args[0]
           expect(options.path).toBe("/send")
-          expect(options.accountId).toBe(@draft.accountId)
           expect(options.method).toBe('POST')
 
-    it "should locally convert the draft to a message on send", ->
-      expect(@draft.clientId).toBe @draftClientId
-      expect(@draft.serverId).toBeUndefined()
-      waitsForPromise =>
-        @task.performRemote().then =>
-          expect(DatabaseTransaction.prototype.persistModel).toHaveBeenCalled()
-          model = DatabaseTransaction.prototype.persistModel.calls[0].args[0]
+      it "retries the task if 'Invalid message public id'", ->
+        jasmine.unspy(NylasAPI, "makeRequest")
+        spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
+          if options.body.reply_to_message_id
+            err = new APIError(body: "Invalid message public id")
+            Promise.reject(err)
+          else
+            options.success?(@response)
+            Promise.resolve(@response)
+
+        @draft.replyToMessageId = "reply-123"
+        @draft.threadId = "thread-123"
+        waitsForPromise => @task._makeSendRequest(@draft).then =>
+          expect(NylasAPI.makeRequest).toHaveBeenCalled()
+          expect(NylasAPI.makeRequest.callCount).toEqual 2
+          req1 = NylasAPI.makeRequest.calls[0].args[0]
+          req2 = NylasAPI.makeRequest.calls[1].args[0]
+          expect(req1.body.reply_to_message_id).toBe "reply-123"
+          expect(req1.body.thread_id).toBe "thread-123"
+
+          expect(req2.body.reply_to_message_id).toBe null
+          expect(req2.body.thread_id).toBe "thread-123"
+
+      it "retries the task if 'Invalid message public id'", ->
+        jasmine.unspy(NylasAPI, "makeRequest")
+        spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
+          if options.body.reply_to_message_id
+            err = new APIError(body: "Invalid thread")
+            Promise.reject(err)
+          else
+            options.success?(@response)
+            Promise.resolve(@response)
+
+        @draft.replyToMessageId = "reply-123"
+        @draft.threadId = "thread-123"
+        waitsForPromise => @task._makeSendRequest(@draft).then =>
+          expect(NylasAPI.makeRequest).toHaveBeenCalled()
+          expect(NylasAPI.makeRequest.callCount).toEqual 2
+          req1 = NylasAPI.makeRequest.calls[0].args[0]
+          req2 = NylasAPI.makeRequest.calls[1].args[0]
+          expect(req1.body.reply_to_message_id).toBe "reply-123"
+          expect(req1.body.thread_id).toBe "thread-123"
+
+          expect(req2.body.reply_to_message_id).toBe null
+          expect(req2.body.thread_id).toBe null
+
+    runSaveNewMessageTests = ->
+      it "should write the saved message to the database with the same client ID", ->
+        waitsForPromise =>
+          @task._saveNewMessage(@response).then =>
+            expect(DBt.persistModel).toHaveBeenCalled()
+            expect(DBt.persistModel.mostRecentCall.args[0].clientId).toEqual(@draftClientId)
+            expect(DBt.persistModel.mostRecentCall.args[0].serverId).toEqual(@serverMessageId)
+            expect(DBt.persistModel.mostRecentCall.args[0].draft).toEqual(false)
+
+    runNotifySuccess = ->
+      it "should notify the draft was sent", ->
+        waitsForPromise => @task.performRemote().then =>
+          args = Actions.sendDraftSuccess.calls[0].args[0]
+          expect(args.draftClientId).toBe @draftClientId
+
+      it "get an object back on success", ->
+        waitsForPromise => @task.performRemote().then =>
+          args = Actions.sendDraftSuccess.calls[0].args[0]
+          expect(args.newMessage.id).toBe @serverMessageId
+
+      it "should play a sound", ->
+        spyOn(NylasEnv.config, "get").andReturn true
+        waitsForPromise => @task.performRemote().then ->
+          expect(NylasEnv.config.get).toHaveBeenCalledWith("core.sending.sounds")
+          expect(SoundRegistry.playSound).toHaveBeenCalledWith("send")
+
+      it "shouldn't play a sound if the config is disabled", ->
+        spyOn(NylasEnv.config, "get").andReturn false
+        waitsForPromise => @task.performRemote().then ->
+          expect(NylasEnv.config.get).toHaveBeenCalledWith("core.sending.sounds")
+          expect(SoundRegistry.playSound).not.toHaveBeenCalled()
+
+    runIntegrativeWithErrors = ->
+      describe "when there are errors", ->
+        beforeEach ->
+          spyOn(@task, "_notifyUserOfError")
+          jasmine.unspy(NylasAPI, "makeRequest")
+
+        it "notifies of a permanent error of misc error types", ->
+          ## DB error
+          thrownError = null
+          jasmine.unspy(DBt, "persistModel")
+          spyOn(DBt, "persistModel").andCallFake =>
+            thrownError = new Error('db error')
+            throw thrownError
+          waitsForPromise =>
+            @task.performRemote().then (status) =>
+              expect(status[0]).toBe Task.Status.Failed
+              expect(status[1]).toBe thrownError
+              expect(@task._notifyUserOfError).toHaveBeenCalled()
+              expect(NylasEnv.emitError).toHaveBeenCalled()
+
+        it "notifies of a permanent error on 500 errors", ->
+          thrownError = new APIError(statusCode: 500, body: "err")
+          spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
+            Promise.reject(thrownError)
+          waitsForPromise => @task.performRemote().then (status) =>
+            expect(status[0]).toBe Task.Status.Failed
+            expect(status[1]).toBe thrownError
+            expect(@task._notifyUserOfError).toHaveBeenCalled()
+            expect(NylasEnv.emitError).not.toHaveBeenCalled()
+
+        it "notifies us and users of a permanent error on 400 errors", ->
+          thrownError = new APIError(statusCode: 400, body: "err")
+          spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
+            Promise.reject(thrownError)
+          waitsForPromise => @task.performRemote().then (status) =>
+            expect(status[0]).toBe Task.Status.Failed
+            expect(status[1]).toBe thrownError
+            expect(@task._notifyUserOfError).toHaveBeenCalled()
+            expect(NylasEnv.emitError).toHaveBeenCalled()
+
+        it "notifies of a permanent error on timeouts", ->
+          thrownError = new APIError(statusCode: NylasAPI.TimeoutErrorCode, body: "err")
+          spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
+            Promise.reject(thrownError)
+          waitsForPromise => @task.performRemote().then (status) =>
+            expect(status[0]).toBe Task.Status.Failed
+            expect(status[1]).toBe thrownError
+            expect(@task._notifyUserOfError).toHaveBeenCalled()
+            expect(NylasEnv.emitError).not.toHaveBeenCalled()
+
+        it "retries for other error types", ->
+          thrownError = new APIError(statusCode: 402, body: "err")
+          spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
+            Promise.reject(thrownError)
+          waitsForPromise => @task.performRemote().then (status) =>
+            expect(status).toBe Task.Status.Retry
+            expect(@task._notifyUserOfError).not.toHaveBeenCalled()
+            expect(NylasEnv.emitError).not.toHaveBeenCalled()
+
+        it "notifies the user that the required file upload failed", ->
+          fileUploadTask = new FileUploadTask('/dev/null', 'local-1234')
+          @task.onDependentTaskError(fileUploadTask, new Error("Oh no"))
+          expect(@task._notifyUserOfError).toHaveBeenCalled()
+          expect(@task._notifyUserOfError.calls.length).toBe 1
+
+    describe "with a new draft", ->
+      beforeEach ->
+        @draft = new Message
+          version: 1
+          clientId: @draftClientId
+          accountId: @accountId
+          subject: 'New Draft'
+          draft: true
+          body: 'hello world'
+        @task = new SendDraftTask(@draftClientId)
+        @backupDraft = @draft.clone()
+        @task.backupDraft = @backupDraft # Since performLocal doesn't run
+        spyOn(DatabaseStore, 'findBy').andReturn Promise.resolve(@draft)
+
+      it "can complete a full performRemote", -> waitsForPromise =>
+        @task.performRemote().then (status) ->
+          expect(status).toBe Task.Status.Success
+
+      runFetchLatestDraftTests.call(@)
+      runMakeSendRequestTests.call(@)
+      runSaveNewMessageTests.call(@)
+
+      it "shouldn't attempt to delete a draft", -> waitsForPromise =>
+        expect(@task.draftServerId).not.toBeDefined()
+        @task._deleteRemoteDraft().then =>
+          expect(NylasAPI.makeRequest).not.toHaveBeenCalled()
+
+      runNotifySuccess.call(@)
+      runIntegrativeWithErrors.call(@)
+
+      it "should locally convert the draft to a message on send", ->
+        expect(@draft.clientId).toBe @draftClientId
+        expect(@draft.serverId).toBeUndefined()
+        waitsForPromise => @task.performRemote().then =>
+          expect(DBt.persistModel).toHaveBeenCalled()
+          model = DBt.persistModel.calls[0].args[0]
           expect(model.clientId).toBe @draftClientId
           expect(model.serverId).toBe @serverMessageId
           expect(model.draft).toBe false
 
-    describe "when the draft has been saved", ->
-      it "should send the draft ID and version", ->
-        waitsForPromise =>
-          @task.performRemote().then =>
-            expect(NylasAPI.makeRequest.calls.length).toBe(1)
-            options = NylasAPI.makeRequest.mostRecentCall.args[0]
-            expect(options.body.version/1).toBe(1)
-            expect(options.body.draft_id).toBe(@draft.serverId)
 
-    describe "when the draft has not been saved", ->
+    describe "with an existing persisted draft", ->
       beforeEach ->
+        @draftServerId = 'server-123'
         @draft = new Message
-          serverId: null
+          version: 1
           clientId: @draftClientId
-          accountId: 'A12ADE'
+          serverId: @draftServerId
+          accountId: @accountId
           subject: 'New Draft'
           draft: true
           body: 'hello world'
@@ -169,134 +365,51 @@ describe "SendDraftTask", ->
             name: 'Dummy'
             email: 'dummy@nylas.com'
         @task = new SendDraftTask(@draftClientId)
+        @backupDraft = @draft.clone()
+        @task.backupDraft = @backupDraft # Since performLocal doesn't run
+        spyOn(DatabaseStore, 'findBy').andReturn Promise.resolve(@draft)
 
-      it "should send the draft JSON", ->
-        waitsForPromise =>
-          expectedJSON = @draft.toJSON()
-          @task.performRemote().then =>
-            expect(NylasAPI.makeRequest.calls.length).toBe(1)
-            options = NylasAPI.makeRequest.mostRecentCall.args[0]
-            expect(options.body).toEqual(expectedJSON)
+      it "can complete a full performRemote", -> waitsForPromise =>
+        @task.performRemote().then (status) ->
+          expect(status).toBe Task.Status.Success
 
-      it "should always send the draft body in the request body (joined attribute check)", ->
-        waitsForPromise =>
-          @task.performRemote().then =>
-            expect(NylasAPI.makeRequest.calls.length).toBe(1)
-            options = NylasAPI.makeRequest.mostRecentCall.args[0]
-            expect(options.body.body).toBe('hello world')
+      runFetchLatestDraftTests.call(@)
+      runMakeSendRequestTests.call(@)
+      runSaveNewMessageTests.call(@)
 
-    it "should pass returnsModel:false", ->
-      waitsForPromise =>
-        @task.performRemote().then ->
-          expect(NylasAPI.makeRequest.calls.length).toBe(1)
-          options = NylasAPI.makeRequest.mostRecentCall.args[0]
-          expect(options.returnsModel).toBe(false)
+      it "should make a request to delete a draft", ->
+        waitsForPromise => @task._fetchLatestDraft().then(@task._deleteRemoteDraft).then =>
+          expect(@task.draftServerId).toBe @draftServerId
+          expect(NylasAPI.makeRequest).toHaveBeenCalled()
+          expect(NylasAPI.makeRequest.callCount).toBe 1
+          req = NylasAPI.makeRequest.calls[0].args[0]
+          expect(req.path).toBe "/drafts/#{@draftServerId}"
+          expect(req.accountId).toBe @accountId
+          expect(req.method).toBe "DELETE"
+          expect(req.returnsModel).toBe false
 
-    it "should write the saved message to the database with the same client ID", ->
-      waitsForPromise =>
-        @task.performRemote().then =>
-          expect(DatabaseTransaction.prototype.persistModel).toHaveBeenCalled()
-          expect(DatabaseTransaction.prototype.persistModel.mostRecentCall.args[0].clientId).toEqual(@draftClientId)
-          expect(DatabaseTransaction.prototype.persistModel.mostRecentCall.args[0].serverId).toEqual('1233123AEDF1')
-          expect(DatabaseTransaction.prototype.persistModel.mostRecentCall.args[0].draft).toEqual(false)
+      it "should continue if the request failes", ->
+        jasmine.unspy(NylasAPI, "makeRequest")
+        spyOn(console, "error")
+        spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
+          err = new APIError(body: "Boo", statusCode: 500)
+          Promise.reject(err)
+        waitsForPromise => @task._fetchLatestDraft().then(@task._deleteRemoteDraft).then =>
+          expect(NylasAPI.makeRequest).toHaveBeenCalled()
+          expect(NylasAPI.makeRequest.callCount).toBe 1
+          expect(console.error).toHaveBeenCalled()
+        .catch =>
+          throw new Error("Shouldn't fail the promise")
 
-  describe "failing performRemote", ->
-    beforeEach ->
-      @draft = new Message
-        version: '1'
-        clientId: @draftClientId
-        accountId: 'A12ADE'
-        threadId: 'threadId'
-        replyToMessageId: 'replyToMessageId'
-        subject: 'New Draft'
-        body: 'body'
-        draft: true
-        to:
-          name: 'Dummy'
-          email: 'dummy@nylas.com'
-      @task = new SendDraftTask("local-1234")
-      spyOn(Actions, "dequeueTask")
-      spyOn(DatabaseTransaction.prototype, '_query').andCallFake ->
-        Promise.resolve([])
-      spyOn(DatabaseTransaction.prototype, 'unpersistModel').andCallFake (draft) ->
-        Promise.resolve()
-      spyOn(DatabaseTransaction.prototype, 'persistModel').andCallFake (draft) ->
-        Promise.resolve()
+      runNotifySuccess.call(@)
+      runIntegrativeWithErrors.call(@)
 
-    describe "when the server responds with `Invalid message public ID`", ->
-      it "should resend the draft without the reply_to_message_id key set", ->
-        spyOn(DatabaseStore, 'run').andCallFake =>
-          Promise.resolve(@draft)
-        spyOn(NylasAPI, 'makeRequest').andCallFake ({body, success, error}) =>
-          if body.reply_to_message_id
-            err = new APIError(body: "Invalid message public id", statusCode: 400)
-            error?(err)
-            return Promise.reject(err)
-          else
-            success?(body)
-            return Promise.resolve(body)
-
-        waitsForPromise =>
-          @task.performRemote().then =>
-            expect(NylasAPI.makeRequest.calls.length).toBe(2)
-            expect(NylasAPI.makeRequest.calls[1].args[0].body.thread_id).toBe('threadId')
-            expect(NylasAPI.makeRequest.calls[1].args[0].body.reply_to_message_id).toBe(null)
-
-    describe "when the server responds with `Invalid thread ID`", ->
-      it "should resend the draft without the thread_id or reply_to_message_id keys set", ->
-        spyOn(DatabaseStore, 'run').andCallFake => Promise.resolve(@draft)
-        spyOn(NylasAPI, 'makeRequest').andCallFake ({body, success, error}) =>
-          new Promise (resolve, reject) =>
-            if body.thread_id
-              err = new APIError(body: "Invalid thread public id", statusCode: 400)
-              error?(err)
-              reject(err)
-            else
-              success?(body)
-              resolve(body)
-
-        waitsForPromise =>
-          @task.performRemote().then =>
-            expect(NylasAPI.makeRequest.calls.length).toBe(2)
-            expect(NylasAPI.makeRequest.calls[1].args[0].body.thread_id).toBe(null)
-            expect(NylasAPI.makeRequest.calls[1].args[0].body.reply_to_message_id).toBe(null)
-          .catch (err) =>
-            console.log(err.trace)
-
-    it "throws an error if the draft can't be found", ->
-      spyOn(DatabaseStore, 'run').andCallFake (klass, clientId) ->
-        Promise.resolve()
-      waitsForPromise =>
-        @task.performRemote().catch (error) ->
-          expect(error.message).toBeDefined()
-
-    it "throws an error if the draft isn't saved", ->
-      spyOn(DatabaseStore, 'run').andCallFake (klass, clientId) ->
-        Promise.resolve(serverId: null)
-      waitsForPromise =>
-        @task.performRemote().catch (error) ->
-          expect(error.message).toBeDefined()
-
-    it "throws an error if the DB store has issues", ->
-      spyOn(DatabaseStore, 'run').andCallFake (klass, clientId) ->
-        Promise.reject("DB error")
-      waitsForPromise =>
-        @task.performRemote().catch (error) ->
-          expect(error).toBe "DB error"
-
-  describe "failing dependent task", ->
-    it "notifies the user that the required draft save failed", ->
-      task = new SendDraftTask("local-1234")
-      syncback = new SyncbackDraftTask('local-1234')
-      spyOn(task, "_notifyUserOfError")
-      task.onDependentTaskError(syncback, new Error("Oh no"))
-      expect(task._notifyUserOfError).toHaveBeenCalled()
-      expect(task._notifyUserOfError.calls.length).toBe 1
-
-    it "notifies the user that the required file upload failed", ->
-      task = new SendDraftTask("local-1234")
-      fileUploadTask = new FileUploadTask('/dev/null', 'local-1234')
-      spyOn(task, "_notifyUserOfError")
-      task.onDependentTaskError(fileUploadTask, new Error("Oh no"))
-      expect(task._notifyUserOfError).toHaveBeenCalled()
-      expect(task._notifyUserOfError.calls.length).toBe 1
+      it "should locally convert the existing draft to a message on send", ->
+        expect(@draft.clientId).toBe @draftClientId
+        expect(@draft.serverId).toBe "server-123"
+        waitsForPromise => @task.performRemote().then =>
+          expect(DBt.persistModel).toHaveBeenCalled()
+          model = DBt.persistModel.calls[0].args[0]
+          expect(model.clientId).toBe @draftClientId
+          expect(model.serverId).toBe @serverMessageId
+          expect(model.draft).toBe false

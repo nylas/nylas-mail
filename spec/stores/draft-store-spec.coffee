@@ -1,35 +1,35 @@
-File = require '../../src/flux/models/file'
-Thread = require '../../src/flux/models/thread'
-Message = require '../../src/flux/models/message'
-Contact = require '../../src/flux/models/contact'
+{File,
+ Utils,
+ Thread,
+ Actions,
+ Contact,
+ Message,
+ DraftStore,
+ AccountStore,
+ DatabaseStore,
+ SoundRegistry,
+ SendDraftTask,
+ DestroyDraftTask,
+ ComposerExtension,
+ ExtensionRegistry,
+ DatabaseTransaction,
+ SanitizeTransformer,
+ InlineStyleTransformer} = require 'nylas-exports'
+
 ModelQuery = require '../../src/flux/models/query'
-AccountStore = require '../../src/flux/stores/account-store'
-DatabaseStore = require '../../src/flux/stores/database-store'
-DatabaseTransaction = require '../../src/flux/stores/database-transaction'
-DraftStore = require '../../src/flux/stores/draft-store'
-ComposerExtension = require '../../src/extensions/composer-extension'
-SendDraftTask = require '../../src/flux/tasks/send-draft'
-DestroyDraftTask = require '../../src/flux/tasks/destroy-draft'
-SoundRegistry = require '../../src/sound-registry'
-Actions = require '../../src/flux/actions'
-Utils = require '../../src/flux/models/utils'
-ExtensionRegistry = require '../../src/extension-registry'
 
-InlineStyleTransformer = require '../../src/services/inline-style-transformer'
-SanitizeTransformer = require '../../src/services/sanitize-transformer'
-
-{ipcRenderer} = require 'electron'
 _ = require 'underscore'
+{ipcRenderer} = require 'electron'
 
+msgFromMe = null
 fakeThread = null
+fakeMessages = null
 fakeMessage1 = null
 fakeMessage2 = null
-msgFromMe = null
 msgWithReplyTo = null
-msgWithReplyToDuplicates = null
 messageWithStyleTags = null
-fakeMessages = null
 fakeMessageWithFiles = null
+msgWithReplyToDuplicates = null
 
 class TestExtension extends ComposerExtension
   @prepareNewDraft: (draft) ->
@@ -658,10 +658,11 @@ describe "DraftStore", ->
       DraftStore._draftSessions = {}
       DraftStore._draftsSending = {}
       @forceCommit = false
+      msg = new Message(clientId: draftClientId)
       proxy =
         prepare: -> Promise.resolve(proxy)
         teardown: ->
-        draft: -> {}
+        draft: -> msg
         changes:
           commit: ({force}={}) =>
             @forceCommit = force

@@ -50,6 +50,7 @@ describe "DraftChangeSet", ->
         expect(@changeSet.commit).toHaveBeenCalled()
 
   describe "commit", ->
+
     it "should resolve immediately if the pending set is empty", ->
       @changeSet._pending = {}
       waitsForPromise =>
@@ -213,6 +214,12 @@ describe "DraftStoreProxy", ->
           expect(Actions.queueTask).toHaveBeenCalled()
           task = Actions.queueTask.calls[0].args[0]
           expect(task.draftClientId).toBe "client-id"
+
+    it "doesn't queues a SyncbackDraftTask if no Syncback is passed", ->
+      spyOn(DatabaseStore, "findBy").andReturn(Promise.resolve(@draft))
+      waitsForPromise =>
+        @proxy.changes.commit({noSyncback: true}).then =>
+          expect(Actions.queueTask).not.toHaveBeenCalled()
 
     describe "when findBy does not return a draft", ->
       it "continues and persists it's local draft reference, so it is resaved and draft editing can continue", ->

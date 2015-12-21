@@ -61,7 +61,8 @@ class ModelView
     return -1 unless id
     for pageIdx, page of @_pages
       for item, itemIdx in page.items
-        return pageIdx * @_pageSize + itemIdx if item.id is id
+        if item.id is id or item.clientId is id
+          return pageIdx * @_pageSize + itemIdx
     return -1
 
   count: ->

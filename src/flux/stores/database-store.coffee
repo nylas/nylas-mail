@@ -447,7 +447,8 @@ class DatabaseStore extends NylasStore
   inTransaction: (fn) ->
     t = new DatabaseTransaction(@)
     @_transactionQueue ?= new PromiseQueue(1, Infinity)
-    @_transactionQueue.add -> t.execute(fn)
+    @_transactionQueue.add ->
+      t.execute(fn)
 
   # _accumulateAndTrigger is a guarded version of trigger that can accumulate changes.
   # This means that even if you're a bad person and call `persistModel` 100 times
