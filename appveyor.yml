@@ -28,18 +28,18 @@ install:
 
 # We need to extract the encrypted private ssh key to clone the submodule.
 - ps: |
-  if ($env:APPVEYOR_PULL_REQUEST_NUMBER) {
-    secure-file\tools\secure-file -decrypt build\resources\ssh\nylas-n1-ci-ssh-secure-file.enc -secret $env:DECRYPTION_PASSWORD
-    mv -Force build\resources\ssh\nylas-n1-ci-ssh-secure-file c:\users\appveyor\.ssh\id_rsa
-    git submodule init
+    if ($env:APPVEYOR_PULL_REQUEST_NUMBER) {
+      secure-file\tools\secure-file -decrypt build\resources\ssh\nylas-n1-ci-ssh-secure-file.enc -secret $env:DECRYPTION_PASSWORD
+      mv -Force build\resources\ssh\nylas-n1-ci-ssh-secure-file c:\users\appveyor\.ssh\id_rsa
+      git submodule init
 
-    # http://stackoverflow.com/questions/21002919/running-a-remote-powershell-script-with-a-git-command-in-it-results-in-nativecom
-    Start-Process -FilePath git.exe -ArgumentList 'submodule update'  -Wait -NoNewWindow
+      # http://stackoverflow.com/questions/21002919/running-a-remote-powershell-script-with-a-git-command-in-it-results-in-nativecom
+      Start-Process -FilePath git.exe -ArgumentList 'submodule update'  -Wait -NoNewWindow
 
-    secure-file\tools\secure-file -decrypt build\resources\nylas\encrypted_certificates\appveyor\win-nylas-n1.p12.enc -secret $env:DECRYPTION_PASSWORD
-    secure-file\tools\secure-file -decrypt build\resources\nylas\encrypted_certificates\appveyor\set_win_env.ps1.enc -secret $env:DECRYPTION_PASSWORD
-    . build\resources\nylas\encrypted_certificates\appveyor\set_win_env.ps1
-  }
+      secure-file\tools\secure-file -decrypt build\resources\nylas\encrypted_certificates\appveyor\win-nylas-n1.p12.enc -secret $env:DECRYPTION_PASSWORD
+      secure-file\tools\secure-file -decrypt build\resources\nylas\encrypted_certificates\appveyor\set_win_env.ps1.enc -secret $env:DECRYPTION_PASSWORD
+      . build\resources\nylas\encrypted_certificates\appveyor\set_win_env.ps1
+    }
 
 build_script:
 - ps: .\script\cibuild.ps1
