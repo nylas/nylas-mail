@@ -85,6 +85,45 @@ describe "Contact", ->
     expect(c3.displayFirstName()).toBe ""
     expect(c3.displayLastName()).toBe ""
 
+
+  it "properly parses names with @", ->
+    c1 = new Contact {name: "nyl@s"}
+    expect(c1.firstName()).toBe "Nyl@s"
+    expect(c1.lastName()).toBe ""
+
+    c1 = new Contact {name: "nyl@s@n1"}
+    expect(c1.firstName()).toBe "Nyl@s@n1"
+    expect(c1.lastName()).toBe ""
+
+    c2 = new Contact {name: "nyl@s nyl@s"}
+    expect(c2.firstName()).toBe "Nyl@s"
+    expect(c2.lastName()).toBe "Nyl@s"
+
+    c3 = new Contact {name: "nyl@s 2000"}
+    expect(c3.firstName()).toBe "Nyl@s"
+    expect(c3.lastName()).toBe "2000"
+
+    c4 = new Contact {name: " Ev@n Morikawa ", email: "evan@nylas.com"}
+    expect(c4.displayName()).toBe "Ev@n Morikawa"
+    expect(c4.displayFirstName()).toBe "Ev@n"
+    expect(c4.displayLastName()).toBe "Morikawa"
+
+    c5 = new Contact {name: "ev@n (Evan Morik@wa)"}
+    expect(c5.firstName()).toBe "Evan"
+    expect(c5.lastName()).toBe "Morik@wa"
+
+    c6 = new Contact {name: "ev@nylas.com", email: "ev@nylas.com"}
+    expect(c6.firstName()).toBe "Ev@nylas.com"
+    expect(c6.lastName()).toBe ""
+
+    c7 = new Contact {name: "evan@nylas.com"}
+    expect(c7.firstName()).toBe "Evan@nylas.com"
+    expect(c7.lastName()).toBe ""
+
+    c8 = new Contact {name: "Mike K@ylor via L@nkedIn"}
+    expect(c8.firstName()).toBe "Mike"
+    expect(c8.lastName()).toBe "K@ylor"
+
   it "should properly return `You` as the display name for the current user", ->
     c1 = new Contact {name: " Test Monkey", email: AccountStore.current().emailAddress}
     expect(c1.displayName()).toBe "You"
