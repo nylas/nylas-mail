@@ -199,7 +199,15 @@ class DatabaseView extends ModelView
       didMakeOptimisticChange = true
 
     for item in items
-      idx = @indexOfId(item.id)
+
+      # It's important that we check against an item's clientId to
+      # determine if it's in the set. Some item persistModel mutations
+      # change the serverId (but leave the clientId intact). If keyed off
+      # of the `id` then we would erroneously say that the item isn't in
+      # the set. This happens frequently in the DraftListStore when Draft
+      # items persist on the server and/or turn into Message items.
+      idx = @indexOfId(item.clientId)
+
       itemIsInSet = idx isnt -1
       itemShouldBeInSet = item.matches(@_matchers) and change.type isnt 'unpersist'
       indexes.push(idx)

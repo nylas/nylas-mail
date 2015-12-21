@@ -1,13 +1,15 @@
-Actions = require '../actions'
-DatabaseStore = require '../stores/database-store'
-Message = require '../models/message'
-{APIError} = require '../errors'
+_ = require 'underscore'
 Task = require './task'
-TaskQueue = require '../stores/task-queue'
-SyncbackDraftTask = require './syncback-draft'
-FileUploadTask = require './file-upload-task'
+Actions = require '../actions'
+Message = require '../models/message'
 NylasAPI = require '../nylas-api'
+TaskQueue = require '../stores/task-queue'
+{APIError} = require '../errors'
 SoundRegistry = require '../../sound-registry'
+DatabaseStore = require '../stores/database-store'
+FileUploadTask = require './file-upload-task'
+class NotFoundError extends Error
+  constructor: -> super
 
 module.exports =
 class SendDraftTask extends Task
@@ -22,95 +24,126 @@ class SendDraftTask extends Task
     other instanceof SendDraftTask and other.draftClientId is @draftClientId
 
   isDependentTask: (other) ->
-    (other instanceof SyncbackDraftTask and other.draftClientId is @draftClientId) or
     (other instanceof FileUploadTask and other.messageClientId is @draftClientId)
 
   onDependentTaskError: (task, err) ->
-    if task instanceof SyncbackDraftTask
-      msg = "Your message could not be sent because we could not save your draft. Please check your network connection and try again soon."
-    else if task instanceof FileUploadTask
+    if task instanceof FileUploadTask
       msg = "Your message could not be sent because a file failed to upload. Please try re-uploading your file and try again."
     @_notifyUserOfError(msg) if msg
 
   performLocal: ->
-    # When we send drafts, we don't update anything in the app until
-    # it actually succeeds. We don't want users to think messages have
-    # already sent when they haven't!
     if not @draftClientId
       return Promise.reject(new Error("Attempt to call SendDraftTask.performLocal without @draftClientId."))
-    Promise.resolve()
+
+    # It's possible that between a user requesting the draft to send and
+    # the queue eventualy getting around to the `performLocal`, the Draft
+    # object may have been deleted. This could be caused by a user
+    # accidentally hitting "delete" on the same draft in another popout
+    # window. If this happens, `performRemote` will fail when we try and
+    # look up the draft by its clientId.
+    #
+    # In this scenario, we don't want to send, but want to restore the
+    # draft and notify the user to try again. In order to safely do this
+    # we need to keep a backup to restore.
+    DatabaseStore.findBy(Message, clientId: @draftClientId).then (draftModel) =>
+      @backupDraft = draftModel.clone()
 
   performRemote: ->
-    # Fetch the latest draft data to make sure we make the request with the most
-    # recent draft version
-    DatabaseStore.findBy(Message, clientId: @draftClientId).include(Message.attributes.body).then (draft) =>
-      # The draft may have been deleted by another task. Nothing we can do.
-      @draft = draft
-      if not draft
-        return Promise.reject(new Error("We couldn't find the saved draft."))
+    @_fetchLatestDraft()
+    .then(@_makeSendRequest)
+    .then(@_saveNewMessage)
+    .then(@_deleteRemoteDraft)
+    .then(@_notifySuccess)
+    .catch(@_onError)
 
-      # Just before sending we ask the {DraftStoreProxy} to commit its
-      # changes. This will fire a {SyncbackDraftTask}. Since we will be
-      # sending the draft by its serverId, we must be ABSOLUTELY sure that
-      # the {SyncbackDraftTask} succeeded otherwise we will send an
-      # incomplete or obsolete message.
-      if draft.serverId
-        body =
-          draft_id: draft.serverId
-          version: draft.version
-      else
-        body = draft.toJSON()
+  _fetchLatestDraft: ->
+    DatabaseStore.findBy(Message, clientId: @draftClientId).then (draftModel) =>
+      @draftAccountId = draftModel.accountId
+      @draftServerId = draftModel.serverId
+      @draftVersion = draftModel.version
+      if not draftModel
+        throw new NotFoundError("#{@draftClientId} not found")
+      return draftModel
+    .catch (err) =>
+      throw new NotFoundError("#{@draftClientId} not found")
 
-      return @_send(body)
-
-  # Returns a promise which resolves when the draft is sent. There are several
-  # failure cases where this method may call itself, stripping bad fields out of
-  # the body. This promise only rejects when these changes have been tried.
-  _send: (body) ->
+  _makeSendRequest: (draftModel) =>
     NylasAPI.makeRequest
       path: "/send"
-      accountId: @draft.accountId
+      accountId: @draftAccountId
       method: 'POST'
-      body: body
+      body: draftModel.toJSON()
       timeout: 1000 * 60 * 5 # We cannot hang up a send - won't know if it sent
       returnsModel: false
-
-    .then (json) =>
-      # The JSON returned from the server will be the new Message.
-      #
-      # Our old draft may or may not have a serverId. We update the draft
-      # with whatever the server returned (which includes a serverId).
-      #
-      # We then save the model again (keyed by its clientId) to indicate
-      # that it is no longer a draft, but rather a Message (draft: false)
-      # with a valid serverId.
-      @draft = @draft.clone().fromJSON(json)
-      @draft.draft = false
-      DatabaseStore.inTransaction (t) =>
-        t.persistModel(@draft)
-      .then =>
-        if NylasEnv.config.get("core.sending.sounds")
-          SoundRegistry.playSound('send')
-        Actions.sendDraftSuccess
-          draftClientId: @draftClientId
-          newMessage: @draft
-
-        return Promise.resolve(Task.Status.Success)
-      .catch @_permanentError
-
-    .catch APIError, (err) =>
+    .catch (err) =>
+      tryAgainDraft = draftModel.clone()
+      # If the message you're "replying to" were deleted
       if err.message?.indexOf('Invalid message public id') is 0
-        body.reply_to_message_id = null
-        return @_send(body)
+        tryAgainDraft.replyToMessageId = null
+        return @_makeSendRequest(tryAgainDraft)
       else if err.message?.indexOf('Invalid thread') is 0
-        body.thread_id = null
-        body.reply_to_message_id = null
-        return @_send(body)
-      else if err.statusCode is 500
-        msg = "Your message could not be sent at this time. Please try again soon."
+        tryAgainDraft.threadId = null
+        tryAgainDraft.replyToMessageId = null
+        return @_makeSendRequest(tryAgainDraft)
+      else return Promise.reject(err)
+
+  # The JSON returned from the server will be the new Message.
+  #
+  # Our old draft may or may not have a serverId. We update the draft with
+  # whatever the server returned (which includes a serverId).
+  #
+  # We then save the model again (keyed by its client_id) to indicate that
+  # it is no longer a draft, but rather a Message (draft: false) with a
+  # valid serverId.
+  _saveNewMessage: (newMessageJSON) =>
+    @message = new Message().fromJSON(newMessageJSON)
+    @message.clientId = @draftClientId
+    @message.draft = false
+    return DatabaseStore.inTransaction (t) =>
+      t.persistModel(@message)
+
+  # We DON'T need to delete the local draft because we actually transmute
+  # it into a {Message} by setting the `draft` flat to `true` in the
+  # `_saveNewMessage` method.
+  #
+  # We DO, however, need to make sure that the remote draft has been
+  # cleaned up.
+  #
+  # Not all drafts will have a server component. Only those that have been
+  # persisted by a {SyncbackDraftTask} will have a `serverId`.
+  _deleteRemoteDraft: =>
+    return Promise.resolve() unless @draftServerId
+    NylasAPI.makeRequest
+      path: "/drafts/#{@draftServerId}"
+      accountId: @draftAccountId
+      method: "DELETE"
+      body: version: @draftVersion
+      returnsModel: false
+    .catch APIError, (err) =>
+      # If the draft failed to delete remotely, we don't really care. It
+      # shouldn't stop the send draft task from continuing.
+      console.error("Deleting the draft remotely failed", err)
+
+  _notifySuccess: =>
+    Actions.sendDraftSuccess
+      draftClientId: @draftClientId
+      newMessage: @message
+    if NylasEnv.config.get("core.sending.sounds")
+      SoundRegistry.playSound('send')
+    return Task.Status.Success
+
+  _onError: (err) =>
+    msg = "Your message could not be sent at this time. Please try again soon."
+    if err instanceof NotFoundError
+      msg = "The draft you are trying to send has been deleted. We have restored your draft. Please try and send again."
+      DatabaseStore.inTransaction (t) =>
+        t.persistModel(@backupDraft)
+      .then =>
+        return @_permanentError(err, msg)
+    else if err instanceof APIError
+      if err.statusCode is 500
         return @_permanentError(err, msg)
       else if err.statusCode in [400, 404]
-        msg = "Your message could not be sent at this time. Please try again soon."
         NylasEnv.emitError(new Error("Sending a message responded with #{err.statusCode}!"))
         return @_permanentError(err, msg)
       else if err.statusCode is NylasAPI.TimeoutErrorCode
@@ -118,6 +151,9 @@ class SendDraftTask extends Task
         return @_permanentError(err, msg)
       else
         return Promise.resolve(Task.Status.Retry)
+    else
+      NylasEnv.emitError(err)
+      return @_permanentError(err, msg)
 
   _permanentError: (err, msg) =>
     @_notifyUserOfError(msg)

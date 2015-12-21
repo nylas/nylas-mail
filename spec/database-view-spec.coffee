@@ -129,6 +129,26 @@ describe "DatabaseView", ->
         expect(@view.retrievePageMetadata).toHaveBeenCalled()
         expect(@view.retrievePageMetadata.calls[0].args[0]).toEqual('1')
 
+    describe "invalidateAfterDatabaseChange with serverIds", ->
+      beforeEach ->
+        @inbox = new Label(id: 'l-1', name: 'inbox', displayName: 'Inbox')
+        @a = new Thread(clientId: 'client-a', serverId: null, subject: 'a', labels:[@inbox], lastMessageReceivedTimestamp: new Date(1428526885604))
+
+        @view = new DatabaseView Thread,
+          matchers: [Thread.attributes.labels.contains('l-1')]
+        @view._pages =
+          "0":
+            items: [@a]
+            metadata: {'a': 'a-metadata'}
+            loaded: true
+        spyOn(@view, 'invalidateRetainedRange')
+
+      it "should replace items even when their serverId changes", ->
+        a = new Thread(@a)
+        a.serverId = "server-a"
+        @view.invalidateAfterDatabaseChange({objects:[a], type: 'persist'})
+        expect(@view.invalidateRetainedRange).not.toHaveBeenCalled()
+
     describe "invalidateAfterDatabaseChange", ->
       beforeEach ->
         @inbox = new Label(id: 'l-1', name: 'inbox', displayName: 'Inbox')
