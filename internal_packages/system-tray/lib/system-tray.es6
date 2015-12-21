@@ -11,6 +11,7 @@ class SystemTray {
     this._tray = new Tray(this._store.icon());
     this._tray.setToolTip(this._store.tooltip());
 
+    // Check in case there is no menu for the current platform
     const menu = this._store.menu();
     if (menu != null) this._tray.setContextMenu(menu);
 

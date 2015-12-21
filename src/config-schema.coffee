@@ -12,8 +12,8 @@ module.exports =
           systemTray:
             type: 'boolean'
             default: true
-            title: "Show icon in Mac OS X menu bar"
-            platforms: ['darwin']
+            title: "Show icon in menu bar"
+            platforms: ['darwin', 'linux']
           showImportant:
             type: 'boolean'
             default: true
