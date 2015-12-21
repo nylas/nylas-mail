@@ -20,8 +20,8 @@ deploy: off
 # We need to only clone the main module because our submodule requires the
 # encrypted ssh key to access submodules
 clone_depth: 1
-#build:
-#  verbosity: minimal
+build:
+  verbosity: minimal
 install:
 - ps: Install-Product node $env:NODE_VERSION $env:PLATFORM
 - ps: nuget install secure-file -ExcludeVersion
