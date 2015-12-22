@@ -206,6 +206,13 @@ class DatabaseView extends ModelView
       # of the `id` then we would erroneously say that the item isn't in
       # the set. This happens frequently in the DraftListStore when Draft
       # items persist on the server and/or turn into Message items.
+      #
+      # TODO
+      # This logic is duplicated across QuerySubscription#_optimisticallyUpdateModels
+      # and ModelView#indexOf
+      #
+      # This duplication should go away when we refactor/replace DatabaseView
+      # for using observables
       idx = @indexOfId(item.clientId)
 
       itemIsInSet = idx isnt -1

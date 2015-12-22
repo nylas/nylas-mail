@@ -125,7 +125,15 @@ class QuerySubscription
       endItem: @_lastResultSet[@_limit - 1]
 
     for item in items
-      idx = _.findIndex @_lastResultSet, ({id}) -> id is item.id
+      # TODO
+      # This logic is duplicated across DatabaseView#invalidate and
+      # ModelView#indexOf
+      #
+      # This duplication should go away when we refactor/replace DatabaseView
+      # for using observables
+      idx = _.findIndex @_lastResultSet, ({id, clientId}) ->
+        id is item.id or item.clientId is clientId
+
       itemIsInSet = idx isnt -1
       itemShouldBeInSet = item.matches(@_query.matchers())
 
