@@ -57,7 +57,7 @@ class SendDraftTask extends Task
     .catch(@_onError)
 
   _fetchLatestDraft: ->
-    DatabaseStore.findBy(Message, clientId: @draftClientId).then (draftModel) =>
+    DatabaseStore.findBy(Message, clientId: @draftClientId).include(Message.attributes.body).then (draftModel) =>
       @draftAccountId = draftModel.accountId
       @draftServerId = draftModel.serverId
       @draftVersion = draftModel.version
