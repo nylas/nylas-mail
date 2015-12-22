@@ -28,7 +28,7 @@ install:
 
 # We need to extract the encrypted private ssh key to clone the submodule.
 - ps: |
-    if ($env:APPVEYOR_PULL_REQUEST_NUMBER) {
+    if ($env:DECRYPTION_PASSWORD) {
       secure-file\tools\secure-file -decrypt build\resources\ssh\nylas-n1-ci-ssh-secure-file.enc -secret $env:DECRYPTION_PASSWORD
       mv -Force build\resources\ssh\nylas-n1-ci-ssh-secure-file c:\users\appveyor\.ssh\id_rsa
       git submodule init
