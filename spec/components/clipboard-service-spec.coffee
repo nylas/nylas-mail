@@ -5,7 +5,11 @@ fs = require 'fs'
 describe "ClipboardService", ->
   beforeEach ->
     @onFilePaste = jasmine.createSpy('onFilePaste')
+    @setInnerState = jasmine.createSpy('setInnerState')
     @clipboardService = new ClipboardService
+      data: {props: {@onFilePaste}}
+      methods: {@setInnerState}
+
     spyOn(document, 'execCommand')
 
   describe "when both html and plain text parts are present", ->

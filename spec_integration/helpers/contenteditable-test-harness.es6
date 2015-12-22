@@ -43,6 +43,14 @@ class ContenteditableTestHarness {
       anchorOffset = expectSel.anchorOffset || expectSel.offset || 0
       focusOffset = expectSel.focusOffset || expectSel.offset || 0
 
+      nodeData = (node) => {
+        if(node.nodeType === Node.TEXT_NODE) {
+          return node.data
+        } else {
+          return node.outerHTML
+        }
+      }
+
       selection = document.getSelection()
 
       return {
@@ -50,12 +58,12 @@ class ContenteditableTestHarness {
         focusNodeMatch: selection.focusNode === focusNode,
         anchorOffsetMatch: selection.anchorOffset === anchorOffset,
         focusOffsetMatch: selection.focusOffset === focusOffset,
-        expectedAnchorNode: anchorNode.outerHTML,
-        expectedFocusNode: focusNode.outerHTML,
+        expectedAnchorNode: nodeData(anchorNode),
+        expectedFocusNode: nodeData(focusNode),
         expectedAnchorOffset: anchorOffset,
         expectedFocusOffset: focusOffset,
-        actualAnchorNode: selection.anchorNode.outerHTML,
-        actualFocusNode: selection.focusNode.outerHTML,
+        actualAnchorNode: nodeData(selection.anchorNode),
+        actualFocusNode: nodeData(selection.focusNode),
         actualAnchorOffset: selection.anchorOffset,
         actualFocusOffset: selection.focusOffset,
       }

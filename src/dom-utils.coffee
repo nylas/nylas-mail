@@ -218,49 +218,6 @@ DOMUtils =
   getNodeIndex: (context, nodeToFind) =>
     DOMUtils.findSimilarNodes(context, nodeToFind).indexOf nodeToFind
 
-  # We need to break each node apart and cache since the `selection`
-  # object will mutate underneath us.
-  isSameSelection: (newSelection, oldSelection, context) =>
-    return true if not newSelection?
-    return false if not oldSelection
-    return false if not newSelection.anchorNode? or not newSelection.focusNode?
-
-    anchorIndex = DOMUtils.getNodeIndex(context, newSelection.anchorNode)
-    focusIndex = DOMUtils.getNodeIndex(context, newSelection.focusNode)
-
-    anchorEqual = newSelection.anchorNode.isEqualNode oldSelection.startNode
-    anchorIndexEqual = anchorIndex is oldSelection.startNodeIndex
-    focusEqual = newSelection.focusNode.isEqualNode oldSelection.endNode
-    focusIndexEqual = focusIndex is oldSelection.endNodeIndex
-    if not anchorEqual and not focusEqual
-      # This means the newSelection is the same, but just from the opposite
-      # direction. We don't care in this case, so check the reciprocal as
-      # well.
-      anchorEqual = newSelection.anchorNode.isEqualNode oldSelection.endNode
-      anchorIndexEqual = anchorIndex is oldSelection.endNodeIndex
-      focusEqual = newSelection.focusNode.isEqualNode oldSelection.startNode
-      focusIndexEqual = focusIndex is oldSelection.startndNodeIndex
-
-    anchorOffsetEqual = newSelection.anchorOffset == oldSelection.startOffset
-    focusOffsetEqual = newSelection.focusOffset == oldSelection.endOffset
-    if not anchorOffsetEqual and not focusOffsetEqual
-      # This means the newSelection is the same, but just from the opposite
-      # direction. We don't care in this case, so check the reciprocal as
-      # well.
-      anchorOffsetEqual = newSelection.anchorOffset == oldSelection.focusOffset
-      focusOffsetEqual = newSelection.focusOffset == oldSelection.anchorOffset
-
-    if (anchorEqual and
-        anchorIndexEqual and
-        anchorOffsetEqual and
-        focusEqual and
-        focusIndexEqual and
-        focusOffsetEqual)
-      return true
-    else
-      return false
-
-
   getRangeInScope: (scope) =>
     selection = document.getSelection()
     return null if not DOMUtils.selectionInScope(selection, scope)

@@ -197,12 +197,7 @@ class AccountStore
 
       for m in threadMessages
         m.accountId = account.id
-        for l in m.labels
-          l.accountId = account.id
-          unless l.id in labels
-            labels[l.id] = l
         threadParticipants = threadParticipants.concat(m.participants())
-        threadLabels = threadLabels.concat(m.labels)
         threadAttachment ||= m.files.length > 0
         threadUnread ||= m.unread
 
@@ -240,5 +235,6 @@ class AccountStore
       ])
     .then =>
       Actions.selectAccount account.id
+    .then -> new Promise (resolve, reject) -> setTimeout(resolve, 1000)
 
 module.exports = new AccountStore()
