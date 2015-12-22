@@ -71,13 +71,20 @@ describe "SendDraftTask", ->
         serverId: "server-123"
         draft: true
 
-      spyOn(DatabaseStore, "findBy").andReturn Promise.resolve(draft)
+      calledBody = "ERROR: The body wasn't included!"
+      spyOn(DatabaseStore, "findBy").andCallFake ->
+        then: -> throw new Error("You must include the body!")
+        include: (body) ->
+          calledBody = body
+          return Promise.resolve(draft)
+
       task = new SendDraftTask('local-123')
       waitsForPromise => task.performLocal().then =>
         expect(task.backupDraft).toBeDefined()
         expect(task.backupDraft.clientId).toBe "local-123"
         expect(task.backupDraft.serverId).toBe "server-123"
         expect(task.backupDraft).not.toBe draft # It's a clone
+        expect(calledBody).toBe Message.attributes.body
 
   describe "performRemote", ->
     beforeEach ->
@@ -118,8 +125,7 @@ describe "SendDraftTask", ->
       it "throws a `NotFoundError` if the model is blank", ->
         spyOn(@task, "_notifyUserOfError")
         spyOn(@task, "_permanentError").andCallThrough()
-        jasmine.unspy(DatabaseStore, "findBy")
-        spyOn(DatabaseStore, 'findBy').andReturn Promise.resolve(null)
+        @draftResolver = -> Promise.resolve(null)
         waitsForPromise => @task.performRemote().then =>
           expect(DBt.persistModel.callCount).toBe 1
           expect(DBt.persistModel).toHaveBeenCalledWith(@backupDraft)
@@ -128,8 +134,7 @@ describe "SendDraftTask", ->
       it "throws a `NotFoundError` if findBy fails", ->
         spyOn(@task, "_notifyUserOfError")
         spyOn(@task, "_permanentError").andCallThrough()
-        jasmine.unspy(DatabaseStore, "findBy")
-        spyOn(DatabaseStore, 'findBy').andReturn Promise.reject(new Error("Problem"))
+        @draftResolver = -> Promise.reject(new Error("Test Problem"))
         waitsForPromise => @task.performRemote().then =>
           expect(DBt.persistModel.callCount).toBe 1
           expect(DBt.persistModel).toHaveBeenCalledWith(@backupDraft)
@@ -321,7 +326,12 @@ describe "SendDraftTask", ->
         @task = new SendDraftTask(@draftClientId)
         @backupDraft = @draft.clone()
         @task.backupDraft = @backupDraft # Since performLocal doesn't run
-        spyOn(DatabaseStore, 'findBy').andReturn Promise.resolve(@draft)
+        @draftResolver = -> Promise.resolve(@draft)
+        @calledBody = "ERROR: The body wasn't included!"
+        spyOn(DatabaseStore, "findBy").andCallFake =>
+          include: (body) =>
+            @calledBody = body
+            return @draftResolver()
 
       it "can complete a full performRemote", -> waitsForPromise =>
         @task.performRemote().then (status) ->
@@ -367,7 +377,13 @@ describe "SendDraftTask", ->
         @task = new SendDraftTask(@draftClientId)
         @backupDraft = @draft.clone()
         @task.backupDraft = @backupDraft # Since performLocal doesn't run
-        spyOn(DatabaseStore, 'findBy').andReturn Promise.resolve(@draft)
+        @draftResolver = -> Promise.resolve(@draft)
+        @calledBody = "ERROR: The body wasn't included!"
+        spyOn(DatabaseStore, "findBy").andCallFake =>
+          then: -> throw new Error("You must include the body!")
+          include: (body) =>
+            @calledBody = body
+            return @draftResolver()
 
       it "can complete a full performRemote", -> waitsForPromise =>
         @task.performRemote().then (status) ->
