@@ -3,7 +3,8 @@ _ = require 'underscore'
 {RetinaImg,
  Flexbox,
  ConfigPropContainer,
- ScrollRegion} = require 'nylas-component-kit'
+ ScrollRegion,
+ KeyCommandsRegion}  = require 'nylas-component-kit'
 {PreferencesUIStore} = require 'nylas-exports'
 
 PreferencesSidebar = require './preferences-sidebar'
@@ -16,12 +17,36 @@ class PreferencesRoot extends React.Component
     @state = @getStateFromStores()
 
   componentDidMount: =>
+    React.findDOMNode(@).focus()
     @unlisteners = []
     @unlisteners.push PreferencesUIStore.listen =>
       @setState(@getStateFromStores())
 
   componentWillUnmount: =>
     unlisten() for unlisten in @unlisteners
+
+  _localHandlers: ->
+    stopPropagation = (e) -> e.stopPropagation()
+    # This prevents some basic commands from propagating to the threads list and
+    # producing unexpected results
+    #
+    # TODO This is a partial/temporary solution and should go away when we do the
+    # Keymap/Commands/Menu refactor
+    return {
+      'core:next-item': stopPropagation
+      'core:previous-item': stopPropagation
+      'core:select-up': stopPropagation
+      'core:select-down': stopPropagation
+      'core:select-item': stopPropagation
+      'core:remove-from-view': stopPropagation
+      'core:messages-page-up': stopPropagation
+      'core:messages-page-down': stopPropagation
+      'core:list-page-up': stopPropagation
+      'core:list-page-down': stopPropagation
+      'application:archive-item': stopPropagation
+      'application:delete-item': stopPropagation
+      'application:print-thread': stopPropagation
+    }
 
   getStateFromStores: =>
     tabs: PreferencesUIStore.tabs()
@@ -36,12 +61,14 @@ class PreferencesRoot extends React.Component
     else
       bodyElement = <div></div>
 
-    <Flexbox direction="row" className="preferences-wrap">
-      <PreferencesSidebar tabs={@state.tabs}
-                          selection={@state.selection} />
-      <ScrollRegion className="preferences-content">
-        <ConfigPropContainer>{bodyElement}</ConfigPropContainer>
-      </ScrollRegion>
-    </Flexbox>
+    <KeyCommandsRegion className="preferences-wrap" tabIndex="1" localHandlers={@_localHandlers()}>
+      <Flexbox direction="row">
+        <PreferencesSidebar tabs={@state.tabs}
+                            selection={@state.selection} />
+        <ScrollRegion className="preferences-content">
+          <ConfigPropContainer>{bodyElement}</ConfigPropContainer>
+        </ScrollRegion>
+      </Flexbox>
+    </KeyCommandsRegion>
 
 module.exports = PreferencesRoot

@@ -125,7 +125,8 @@ class KeyCommandsRegion extends React.Component
     @_localDisposable = null
 
   render: ->
-    <div className="key-commands-region #{@props.className}">
+    otherProps = _.omit(@props, _.keys(@constructor.propTypes))
+    <div className="key-commands-region #{@props.className}" {...otherProps}>
       {@props.children}
     </div>
 
