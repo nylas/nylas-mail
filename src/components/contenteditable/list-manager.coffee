@@ -2,22 +2,24 @@ _str = require 'underscore.string'
 {DOMUtils, ContenteditableExtension} = require 'nylas-exports'
 
 class ListManager extends ContenteditableExtension
-  @onContentChanged: (editableNode, selection) ->
-    if @_spaceEntered and @hasListStartSignature(selection)
-      @createList(null, selection)
+  @onContentChanged: (editor, mutations) ->
+    if @_spaceEntered and @hasListStartSignature(editor.currentSelection())
+      @createList(editor)
 
-  @onKeyDown: (editableNode, selection, event) ->
+    @_collapseAdjacentLists(editor)
+
+  @onKeyDown: (editor, event) ->
     @_spaceEntered = event.key is " "
     if DOMUtils.isInList()
       if event.key is "Backspace" and DOMUtils.atStartOfList()
         event.preventDefault()
-        @outdentListItem(selection)
-      else if event.key is "Tab" and selection.isCollapsed
+        @outdentListItem(editor)
+      else if event.key is "Tab" and editor.currentSelection().isCollapsed
         event.preventDefault()
         if event.shiftKey
-          @outdentListItem(selection)
+          @outdentListItem(editor)
         else
-          document.execCommand("indent")
+          editor.indent()
       else
         # Do nothing, let the event through.
         @originalInput = null
@@ -37,22 +39,21 @@ class ListManager extends ContenteditableExtension
     text = selection.anchorNode.textContent
     return @numberRegex().test(text) or @bulletRegex().test(text)
 
-  @createList: (event, selection) ->
-    text = selection.anchorNode?.textContent
+  @createList: (editor) ->
+    text = editor.currentSelection().anchorNode?.textContent
 
     if @numberRegex().test(text)
       @originalInput = text[0...3]
-      document.execCommand("insertOrderedList")
-      @removeListStarter(@numberRegex(), selection)
+      editor.insertOrderedList()
+      @removeListStarter(@numberRegex(), editor.currentSelection())
     else if @bulletRegex().test(text)
       @originalInput = text[0...2]
-      document.execCommand("insertUnorderedList")
-      @removeListStarter(@bulletRegex(), selection)
+      editor.insertUnorderedList()
+      @removeListStarter(@bulletRegex(), editor.currentSelection())
     else
       return
-    el = DOMUtils.closest(selection.anchorNode, "li")
+    el = DOMUtils.closest(editor.currentSelection().anchorNode, "li")
     DOMUtils.Mutating.removeEmptyNodes(el)
-    event?.preventDefault()
 
   @removeListStarter: (starterRegex, selection) ->
     el = DOMUtils.closest(selection.anchorNode, "li")
@@ -70,8 +71,8 @@ class ListManager extends ContenteditableExtension
   # From a list with content
   # Outent returns to <div>sometext</div>
   # We need to turn that into <div>-&nbsp;sometext</div>
-  @restoreOriginalInput: (selection) ->
-    node = selection.anchorNode
+  @restoreOriginalInput: (editor) ->
+    node = editor.currentSelection().anchorNode
     return unless node
     if node.nodeType is Node.TEXT_NODE
       node.textContent = @originalInput + node.textContent
@@ -83,17 +84,26 @@ class ListManager extends ContenteditableExtension
         textNode.textContent = @originalInput + textNode.textContent
 
     if @numberRegex().test(@originalInput)
-      DOMUtils.Mutating.moveSelectionToIndexInAnchorNode(selection, 3) # digit plus dot
+      DOMUtils.Mutating.moveSelectionToIndexInAnchorNode(editor.currentSelection(), 3) # digit plus dot
     if @bulletRegex().test(@originalInput)
-      DOMUtils.Mutating.moveSelectionToIndexInAnchorNode(selection, 2) # dash or star
+      DOMUtils.Mutating.moveSelectionToIndexInAnchorNode(editor.currentSelection(), 2) # dash or star
 
     @originalInput = null
 
-  @outdentListItem: (selection) ->
+  @outdentListItem: (editor) ->
     if @originalInput
-      document.execCommand("outdent")
-      @restoreOriginalInput(selection)
+      editor.outdent()
+      @restoreOriginalInput(editor)
     else
-      document.execCommand("outdent")
+      editor.outdent()
+
+  # If users ended up with two <ul> lists adjacent to each other, we
+  # collapse them into one. We leave adjacent <ol> lists intact in case
+  # the user wanted to restart the numbering sequence
+  @_collapseAdjacentLists: (editor) ->
+    els = editor.rootNode.querySelectorAll('ul, ol')
+
+    # This mutates the DOM in place.
+    DOMUtils.Mutating.collapseAdjacentElements(els)
 
 module.exports = ListManager

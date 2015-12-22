@@ -15,7 +15,9 @@ class SpellcheckComposerExtension extends ComposerExtension
   @onInput: (editableNode) =>
     @walkTree(editableNode)
 
-  @onShowContextMenu: (editableNode, selection, event, menu) =>
+  @onShowContextMenu: (editor, event, menu) =>
+    selection = editor.currentSelection()
+    editableNode = editor.rootNode
     range = DOMUtils.Mutating.getRangeAtAndSelectWord(selection, 0)
     word = range.toString()
     if @isMisspelled(word)

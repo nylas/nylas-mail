@@ -26,11 +26,6 @@ class FloatingToolbar extends React.Component
     visible: React.PropTypes.bool
 
     # A callback function we use to save the URL to the Contenteditable
-    #
-    # TODO: This only gets passed down because the Selection state must be
-    # manually maniuplated to apply the link to the appropriate text via
-    # the document.execcommand("createLink") command. This should get
-    # refactored with the Selection state.
     onSaveUrl: React.PropTypes.func
 
     # A callback so our parent can decide whether or not to hide when the

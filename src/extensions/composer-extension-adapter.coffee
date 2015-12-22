@@ -6,8 +6,8 @@ ComposerExtensionAdapter = (extension) ->
 
   if extension.onInput?
     origInput = extension.onInput
-    extension.onContentChanged = (editableNode, selection, mutations) ->
-      origInput(editableNode)
+    extension.onContentChanged = (editor, mutations) ->
+      origInput(editor.rootNode)
 
     extension.onInput = deprecate(
       "DraftStoreExtension.onInput",
@@ -18,12 +18,12 @@ ComposerExtensionAdapter = (extension) ->
 
   if extension.onTabDown?
     origKeyDown = extension.onKeyDown
-    extension.onKeyDown = (editableNode, selection, event) ->
+    extension.onKeyDown = (editor, event) ->
       if event.key is "Tab"
-        range = DOMUtils.getRangeInScope(editableNode)
-        extension.onTabDown(editableNode, range, event)
+        range = DOMUtils.getRangeInScope(editor.rootNode)
+        extension.onTabDown(editor.rootNode, range, event)
       else
-        origKeyDown?(event, editableNode, selection)
+        origKeyDown?(event, editor.rootNode, editor.currentSelection())
 
     extension.onKeyDown = deprecate(
       "DraftStoreExtension.onTabDown",
@@ -34,10 +34,10 @@ ComposerExtensionAdapter = (extension) ->
 
   if extension.onMouseUp?
     origOnClick = extension.onClick
-    extension.onClick = (editableNode, selection, event) ->
-      range = DOMUtils.getRangeInScope(editableNode)
-      extension.onMouseUp(editableNode, range, event)
-      origOnClick?(event, editableNode, selection)
+    extension.onClick = (editor, event) ->
+      range = DOMUtils.getRangeInScope(editor.rootNode)
+      extension.onMouseUp(editor.rootNode, range, event)
+      origOnClick?(event, editor.rootNode, editor.currentSelection())
 
     extension.onClick = deprecate(
       "DraftStoreExtension.onMouseUp",

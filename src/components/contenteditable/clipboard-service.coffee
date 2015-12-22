@@ -1,9 +1,19 @@
+ContenteditableService = require './contenteditable-service'
+
 {InlineStyleTransformer,
  SanitizeTransformer,
  Utils} = require 'nylas-exports'
 
-class ClipboardService
-  constructor: ({@onFilePaste}={}) ->
+class ClipboardService extends ContenteditableService
+  constructor: (args...) ->
+    super(args...)
+    @onFilePaste = @props.onFilePaste
+
+  setData: (args...) ->
+    super(args...)
+    @onFilePaste = @props.onFilePaste
+
+  eventHandlers: -> {@onPaste}
 
   onPaste: (event) =>
     return if event.clipboardData.items.length is 0

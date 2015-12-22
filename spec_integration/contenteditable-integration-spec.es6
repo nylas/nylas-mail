@@ -20,8 +20,6 @@ describe('Contenteditable Integration Spec', function() {
     }
   });
 
-
-
   describe('Manipulating Lists', () => {
     it("Creates ordered lists", (done)=> {
       this.ce.test({
@@ -77,6 +75,129 @@ describe('Contenteditable Integration Spec', function() {
       }).then(done).catch(done.fail)
     });
 
+  });
+
+  describe('When creating two items in a list', () => {
+    beforeEach(() => {
+      this.twoItemUl = ['-', 'Space', 'a', 'Return', 'b']
+      this.twoItemOl = ['1', ".", 'Space', 'a', 'Return', 'b']
+    });
+
+    it("creates two ordered items with enter at end", (done) => {
+      this.ce.test({
+        keys: this.twoItemUl,
+        expectedHTML: "<ul><li>a</li><li>b</li></ul>",
+        expectedSelectionResolver: (dom) => {
+          return {
+            node: dom.querySelectorAll("li")[1].childNodes[0],
+            offset: 1
+          }
+        }
+      }).then(done).catch(done.fail)
+    });
+
+    it("creates two bullet items with enter at end", (done) => {
+      this.ce.test({
+        keys: this.twoItemOl,
+        expectedHTML: "<ol><li>a</li><li>b</li></ol>",
+        expectedSelectionResolver: (dom) => {
+          return {
+            node: dom.querySelectorAll("li")[1].childNodes[0],
+            offset: 1
+          }
+        }
+      }).then(done).catch(done.fail)
+    });
+
+    it("outdents the first item when backspacing from the start", (done) => {
+      this.ce.test({
+        keys: this.twoItemOl.concat(['Up arrow', 'Left arrow', 'Back space']),
+        expectedHTML: '<span style="line-height: 1.4;">a</span><br><ol><li>b</li></ol>',
+        expectedSelectionResolver: (dom) => {
+          // NOTE: This is being serialized and run in the app process by
+          // Selenium
+          const {DOMUtils} = require('nylas-exports');
+          return {
+            node: DOMUtils.findFirstTextNode(dom),
+            offset: 0
+          }
+        }
+      }).then(done).catch(done.fail)
+    });
+
+    it("outdents the last item when backspacing from the start", (done) => {
+      this.ce.test({
+        keys: this.twoItemOl.concat(['Left arrow', 'Back space']),
+        expectedHTML: '<ol><li>a</li></ol><span style="line-height: 1.4;">b</span><br>',
+        expectedSelectionResolver: (dom) => {
+          const {DOMUtils} = require('nylas-exports');
+          return {
+            node: dom.querySelector('span').childNodes[0],
+            offset: 0
+          }
+        }
+      }).then(done).catch(done.fail)
+    });
+
+  //   xit "backspace from the start of the 1st item outdents", ->
+  //     @ce.keys @twoItemKeys.concat ['left', 'up', 'backspace']
+  //
+  //   xit "backspace from the start of the 2nd item outdents", ->
+  //     @ce.keys @twoItemKeys.concat ['left', 'backspace']
+  //
+  //   xit "shift-tab from the start of the 1st item outdents", ->
+  //     @ce.keys @twoItemKeys.concat ['left', 'up', 'shift-tab']
+  //
+  //   xit "shift-tab from the start of the 2nd item outdents", ->
+  //     @ce.keys @twoItemKeys.concat ['left', 'shift-tab']
+  //
+  //   xit "shift-tab from the end of the 1st item outdents", ->
+  //     @ce.keys @twoItemKeys.concat ['up', 'shift-tab']
+  //
+  //   xit "shift-tab from the end of the 2nd item outdents", ->
+  //     @ce.keys @twoItemKeys.concat ['shift-tab']
+  //
+  //   xit "backspace from the end of the 1st item doesn't outdent", ->
+  //     @ce.keys @twoItemKeys.concat ['up', 'backspace']
+  //
+  //   xit "backspace from the end of the 2nd item doesn't outdent", ->
+  //     @ce.keys @twoItemKeys.concat ['backspace']
+  });
+
+  describe('When auto-concatenating lists', () => {
+    beforeEach(() => {
+      this.threeItemUl = ['-', 'Space', 'a', 'Return', 'b', 'Return', 'c']
+      this.threeItemOl = ['1', ".", 'Space', 'a', 'Return', 'b', 'Return', 'c']
+      this.deleteMiddle = ['Up arrow', 'Back space', 'Back space', 'Back space']
+    });
+
+    it("concatenates adjacent unordered lists", (done) => {
+      this.ce.test({
+        keys: this.threeItemUl.concat(this.deleteMiddle),
+        expectedHTML: "<ul><li>a</li><li>c</li></ul>",
+        expectedSelectionResolver: (dom) => {
+          return {
+            node: dom.querySelectorAll("li")[0].childNodes[0],
+            offset: 1
+          }
+        }
+      }).then(done).catch(done.fail)
+    });
+
+    it("concatenates adjacent ordered lists", (done) => {
+      this.ce.test({
+        keys: this.threeItemOl.concat(this.deleteMiddle),
+        expectedHTML: "<ol><li>a</li><li>c</li></ol>",
+        expectedSelectionResolver: (dom) => {
+          return {
+            node: dom.querySelectorAll("li")[0].childNodes[0],
+            offset: 1
+          }
+        }
+      }).then(done).catch(done.fail)
+    });
+  });
+
   // describe "when creating two items in a list", ->
   //   beforeEach ->
   //     @twoItemKeys = ['-', 'Space', 'a', 'Return', 'b']
@@ -125,7 +246,6 @@ describe('Contenteditable Integration Spec', function() {
   //   it "returns to single level bullet on shift-tab", ->
   //     @ce.keys ['-', ' ', 'a', 'tab', 'shift-tab']
 
-  });
 
 
 
