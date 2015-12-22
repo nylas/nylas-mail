@@ -17,7 +17,7 @@ class ThreadTrashButton extends React.Component
     focusedMailViewFilter = FocusedMailViewStore.mailView()
     return false unless focusedMailViewFilter?.canTrashThreads()
 
-    <button className="btn btn-toolbar"
+    <button className="btn btn-toolbar btn-trash"
             style={order: -106}
             title="Move to Trash"
             onClick={@_onRemove}>
