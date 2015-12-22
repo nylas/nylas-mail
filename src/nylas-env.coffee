@@ -193,6 +193,8 @@ class NylasEnvConstructor extends Model
       @actionBridge = new ActionBridge(ipcRenderer)
 
     @commands = new CommandRegistry
+    @commands.attach(window)
+
     specMode = @inSpecMode()
     @packages = new PackageManager({devMode, configDirPath, resourcePath, safeMode, specMode})
     @styles = new StyleManager

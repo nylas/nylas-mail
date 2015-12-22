@@ -18,7 +18,7 @@
     "babel-core": "^5.8.21",
     "bluebird": "^2.9",
     "classnames": "1.2.1",
-    "clear-cut": "0.4.0",
+    "clear-cut": "^2.0.1",
     "coffee-react": "^2.0.0",
     "coffee-script": "1.10.0",
     "coffeestack": "^1.1",
