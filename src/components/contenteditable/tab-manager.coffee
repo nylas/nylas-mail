@@ -1,4 +1,4 @@
-{ContenteditableExtension} = require 'nylas-exports'
+{DOMUtils, ContenteditableExtension} = require 'nylas-exports'
 
 class TabManager extends ContenteditableExtension
   @onKeyDown: (editor, event) ->
