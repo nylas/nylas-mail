@@ -508,6 +508,9 @@ class Actions
   ###
   @recordUserEvent: ActionScopeWindow
 
+  @addMailRule: ActionScopeWindow
+  @updateMailRule: ActionScopeWindow
+  @deleteMailRule: ActionScopeWindow
 
 # Read the actions we declared on the dummy Actions object above
 # and translate them into Reflux Actions

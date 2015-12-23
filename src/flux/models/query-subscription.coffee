@@ -21,10 +21,18 @@ class QuerySubscription
     @_lastResultSet = null
     @_refetchResultSet()
 
+  query: =>
+    @_query
+
   addCallback: (callback) =>
     unless callback instanceof Function
       throw new Error("QuerySubscription:addCallback - expects a function, received #{callback}")
     @_callbacks.push(callback)
+
+    # If we already have data, send it to our new observer. Users always expect
+    # callbacks to be fired asynchronously, so wait a tick.
+    if @_lastResultSet
+      _.defer => @_invokeCallback(callback)
 
   hasCallback: (callback) =>
     @_callbacks.indexOf(callback) isnt -1
@@ -33,6 +41,9 @@ class QuerySubscription
     unless callback instanceof Function
       throw new Error("QuerySubscription:removeCallback - expects a function, received #{callback}")
     @_callbacks = _.without(@_callbacks, callback)
+
+  callbackCount: =>
+    @_callbacks.length
 
   applyChangeRecord: (record) =>
     return unless record.objectClass is @_query.objectClass()
@@ -211,8 +222,12 @@ class QuerySubscription
   _invokeCallbacks: =>
     set = [].concat(@_lastResultSet)
     resultForSet = @_query.formatResultObjects(set)
-
     @_callbacks.forEach (callback) =>
       callback(resultForSet)
+
+  _invokeCallback: (callback) =>
+    set = [].concat(@_lastResultSet)
+    resultForSet = @_query.formatResultObjects(set)
+    callback(resultForSet)
 
 module.exports = QuerySubscription

@@ -9,28 +9,39 @@ merge equivalent subscriptions, etc.
 ###
 class QuerySubscriptionPool
   constructor: ->
-    @_subscriptions = []
+    @_subscriptions = {}
+    @_setup()
 
   add: (query, options, callback) =>
-    @_setup() if @_subscriptions.length is 0
-
     callback._registrationPoint = @_formatRegistrationPoint((new Error).stack)
 
-    subscription = new QuerySubscription(query, options)
-    subscription.addCallback(callback)
-    @_subscriptions.push(subscription)
+    key = @_keyForQuery(query)
+    subscription = @_subscriptions[key]
+    if not subscription
+      subscription = new QuerySubscription(query, options)
+      @_subscriptions[key] = subscription
 
+    subscription.addCallback(callback)
     return =>
       subscription.removeCallback(callback)
-      @_subscriptions = _.without(@_subscriptions, subscription)
+      # We could be in the middle of an update that will remove and then re-add
+      # the exact same subscription. Keep around the cached set for one tick
+      # to see if that happens.
+      _.defer => @checkIfSubscriptionNeeded(subscription)
+
+  checkIfSubscriptionNeeded: (subscription) =>
+    return unless subscription.callbackCount() is 0
+    key = @_keyForQuery(subscription.query())
+    delete @_subscriptions[key]
 
   printSubscriptions: =>
-    @_subscriptions.forEach (sub) ->
-      console.log(sub._query.sql())
+    for key, subscription of @_subscriptions
+      console.log(key)
       console.group()
-      sub._callbacks.forEach (callback) ->
+      for callback in subscription._callbacks
         console.log("#{callback._registrationPoint}")
       console.groupEnd()
+    return
 
   _formatRegistrationPoint: (stack) ->
     stack = stack.split('\n')
@@ -44,12 +55,15 @@ class QuerySubscriptionPool
 
     return stack[ii..(ii + 4)].join('\n')
 
+  _keyForQuery: (query) =>
+    return query.sql()
+
   _setup: =>
     DatabaseStore = require '../stores/database-store'
     DatabaseStore.listen @_onChange
 
   _onChange: (record) =>
-    for subscription in @_subscriptions
+    for key, subscription of @_subscriptions
       subscription.applyChangeRecord(record)
 
 module.exports = new QuerySubscriptionPool()

@@ -35,12 +35,16 @@ class TaskQueueStatusStore extends NylasStore
   queue: ->
     @_queue
 
-  waitForPerformLocal: (task) ->
+  waitForPerformLocal: (task) =>
     new Promise (resolve, reject) =>
       @_waitingLocals.push({taskId: task.id, resolve: resolve})
 
-  waitForPerformRemote: (task) ->
+  waitForPerformRemote: (task) =>
     new Promise (resolve, reject) =>
       @_waitingRemotes.push({taskId: task.id, resolve: resolve})
+
+  tasksMatching: (type, matching = {}) ->
+    type = type.name unless _.isString(type)
+    @_queue.filter (task) -> task.constructor.name is type and _.isMatch(task, matching)
 
 module.exports = new TaskQueueStatusStore()

@@ -17,28 +17,28 @@ input[type="url"] {
   width: 100%;
   padding-left: @padding-xs-horizontal;
   padding-right: @padding-xs-horizontal;
-  font-size: @font-size-base;
   line-height: @line-height-computed;
   font-weight:400;
   background: @input-bg;
   color: @text-color;
 
+  border-radius: @border-radius-base;
+  border: 1px solid @input-border;
+
   &:disabled {
     background: fadeout(@input-bg, 40%);
   }
-
-  &.input-bordered {
-    border-radius: @border-radius-base;
-    border: 1px solid @input-border;
-  }
 }
-input[type="text"]:focus,
-input[type="email"]:focus, {
-  &.input-bordered {
+
+textarea,
+input[type="text"],
+input[type="email"] {
+  &:focus {
     border: 1px solid @accent-primary;
     box-shadow: 0 0 1.5px @accent-primary;
   }
 }
+
 body.platform-win32 {
   input[type="text"],
   input[type="email"],
@@ -54,9 +54,8 @@ body.platform-win32 {
   input[type="time"],
   input[type="url"] {
     border: 2px solid @input-border;
-    &.input-bordered {
-      border-radius: 0;
-    }
+    border-radius: 0;
+
     &:focus {
       box-shadow: 0 0 0;
       border: 2px solid darken(@input-border, 20%);

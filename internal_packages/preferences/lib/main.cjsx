@@ -29,6 +29,13 @@ module.exports =
       component: require './tabs/preferences-keymaps'
       order: 3
     })
+    PreferencesUIStore.registerPreferencesTab(new Cfg {
+      tabId: 'Mail Rules'
+      displayName: 'Mail Rules'
+      component: require './tabs/preferences-mail-rules'
+      componentRequiresAccount: true
+      order: 4
+    })
 
     WorkspaceStore.defineSheet 'Preferences', {},
       split: ['Preferences']

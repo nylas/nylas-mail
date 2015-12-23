@@ -152,12 +152,12 @@ class PreferencesAccountDetails extends Component {
 
         <EditableList
           showEditIcon
+          items={account.aliases}
           createInputProps={{placeholder: aliasPlaceholder}}
           onItemCreated={this._onAccountAliasCreated}
           onItemEdited={this._onAccountAliasUpdated}
-          onDeleteItem={this._onAccountAliasRemoved} >
-          {account.aliases}
-        </EditableList>
+          onDeleteItem={this._onAccountAliasRemoved} />
+
         {this._renderDefaultAliasSelector(account)}
       </div>
     );

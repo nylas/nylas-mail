@@ -105,6 +105,7 @@ class NylasExports
   @require "ChangeStarredTask", 'flux/tasks/change-starred-task'
   @require "CreateMetadataTask", 'flux/tasks/create-metadata-task'
   @require "DestroyMetadataTask", 'flux/tasks/destroy-metadata-task'
+  @require "ReprocessMailRulesTask", 'flux/tasks/reprocess-mail-rules-task'
 
   # Stores
   # These need to be required immediately since some Stores are
@@ -118,14 +119,18 @@ class NylasExports
   @require "WorkspaceStore", 'flux/stores/workspace-store'
   @require "DraftCountStore", 'flux/stores/draft-count-store'
   @require "FileUploadStore", 'flux/stores/file-upload-store'
+  @require "MailRulesStore", 'flux/stores/mail-rules-store'
   @require "ThreadCountsStore", 'flux/stores/thread-counts-store'
   @require "UnreadBadgeStore", 'flux/stores/unread-badge-store'
   @require "FileDownloadStore", 'flux/stores/file-download-store'
   @require "FocusedContentStore", 'flux/stores/focused-content-store'
   @require "FocusedMailViewStore", 'flux/stores/focused-mail-view-store'
   @require "FocusedContactsStore", 'flux/stores/focused-contacts-store'
-  @require "MessageBodyProcessor", 'flux/stores/message-body-processor'
   @require "PreferencesUIStore", 'flux/stores/preferences-ui-store'
+
+  @require "MessageBodyProcessor", 'flux/stores/message-body-processor'
+  @require "MailRulesTemplates", 'mail-rules-templates'
+  @require "MailRulesProcessor", 'mail-rules-processor'
 
   # Deprecated
   @requireDeprecated "DraftStoreExtension", 'flux/stores/draft-store-extension',

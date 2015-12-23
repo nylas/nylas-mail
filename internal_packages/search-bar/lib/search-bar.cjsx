@@ -34,7 +34,6 @@ class SearchBar extends React.Component
   render: =>
     inputValue = @_queryToString(@state.query)
     inputClass = classNames
-      'input-bordered': true
       'empty': inputValue.length is 0
 
     headerComponents = [

@@ -70,7 +70,11 @@ class ModelQuery
         if !attr
           msg = "Cannot create where clause `#{key}:#{value}`. #{key} is not an attribute of #{@_klass.name}"
           throw new Error msg
-        @_matchers.push(attr.equal(value))
+
+        if value instanceof Array
+          @_matchers.push(attr.in(value))
+        else
+          @_matchers.push(attr.equal(value))
     @
 
   # Public: Include specific joined data attributes in result objects.

@@ -30,7 +30,7 @@ class PreferencesSidebarItem extends React.Component
       "active": tabId is @props.selection.get('tabId')
       "has-subitems": subitems isnt false
 
-    <div key={tabId} className={classes} onClick={@_onClick}>
+    <div className={classes} onClick={@_onClick}>
       <DisclosureTriangle
         collapsed={@state.collapsed}
         visible={subitems isnt false}
@@ -86,6 +86,7 @@ class PreferencesSidebar extends React.Component
     <div className="preferences-sidebar">
       { @props.tabs.map (tabItem) =>
         <PreferencesSidebarItem
+          key={tabItem.tabId}
           tabItem={tabItem}
           accounts={@state.accounts}
           selection={@props.selection} />
