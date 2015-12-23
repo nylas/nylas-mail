@@ -79,7 +79,8 @@ class ActivitySidebar extends React.Component
     _.pairs(summary).map ([label, count]) ->
       <div className="item" key={label}>
         <div className="inner">
-          {label} <span className="count">({count})</span>
+          <span className="count">({new Number(count).toLocaleString()})</span>
+          {label}
         </div>
       </div>
 

@@ -5,17 +5,10 @@ class PreferencesAccountList extends Component {
 
   static propTypes = {
     accounts: PropTypes.array,
+    selected: PropTypes.object,
     onAddAccount: PropTypes.func.isRequired,
-    onAccountSelected: PropTypes.func.isRequired,
+    onSelectAccount: PropTypes.func.isRequired,
     onRemoveAccount: PropTypes.func.isRequired,
-  }
-
-  _onAccountSelected = (accountComp, idx)=> {
-    this.props.onAccountSelected(this.props.accounts[idx], idx);
-  }
-
-  _onRemoveAccount = (accountComp, idx)=> {
-    this.props.onRemoveAccount(this.props.accounts[idx], idx);
   }
 
   _renderAccount = (account)=> {
@@ -49,12 +42,12 @@ class PreferencesAccountList extends Component {
     return (
       <div className="account-list">
         <EditableList
-          allowEmptySelection={false}
+          items={this.props.accounts}
+          itemContent={this._renderAccount}
+          selected={this.props.selected}
           onCreateItem={this.props.onAddAccount}
-          onItemSelected={this._onAccountSelected}
-          onDeleteItem={this._onRemoveAccount}>
-          {this.props.accounts.map(this._renderAccount)}
-        </EditableList>
+          onSelectItem={this.props.onSelectAccount}
+          onDeleteItem={this.props.onRemoveAccount} />
       </div>
     );
   }

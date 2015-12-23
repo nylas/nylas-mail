@@ -166,6 +166,7 @@ class Message extends Model
     @to ||= []
     @cc ||= []
     @bcc ||= []
+    @from ||= []
     @replyTo ||= []
     @files ||= []
     @events ||= []

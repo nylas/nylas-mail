@@ -116,10 +116,6 @@ class CategoryStore extends NylasStore
   getStandardCategories: ->
     @_standardCategories
 
-  getUnhiddenStandardCategories: ->
-    @getStandardCategories().filter (c) ->
-      not _.contains @HiddenCategoryNames, c.name
-
   getHiddenCategories: ->
     @_hiddenCategories
 

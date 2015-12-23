@@ -1,145 +1,94 @@
 import React, {addons} from 'react/addons';
 import EditableList from '../../src/components/editable-list';
+import {renderIntoDocument} from '../nylas-test-utils'
 
 const {findDOMNode} = React;
 const {TestUtils: {
-  renderIntoDocument,
   findRenderedDOMComponentWithTag,
   findRenderedDOMComponentWithClass,
   scryRenderedDOMComponentsWithClass,
   Simulate,
 }} = addons;
+
+
 const makeList = (items = [], props = {})=> {
-  return renderIntoDocument(<EditableList {...props}>{items}</EditableList>);
+  return renderIntoDocument(<EditableList {...props} items={items}></EditableList>);
 };
 
 describe('EditableList', ()=> {
   describe('_onItemClick', ()=> {
-    it('calls onItemSelected', ()=> {
-      const onItemSelected = jasmine.createSpy('onItemSelected');
-      const list = makeList(['1', '2'], {onItemSelected});
+    it('calls onSelectItem', ()=> {
+      const onSelectItem = jasmine.createSpy('onSelectItem');
+      const list = makeList(['1', '2'], {onSelectItem});
       const item = scryRenderedDOMComponentsWithClass(list, 'editable-item')[0];
 
       Simulate.click(item);
 
-      expect(onItemSelected).toHaveBeenCalledWith('1', 0);
+      expect(onSelectItem).toHaveBeenCalledWith('1', 0);
     });
   });
 
   describe('_onItemEdit', ()=> {
-    it('enters editing mode when double click when item is not React Element', ()=> {
+    it('enters editing mode when double click', ()=> {
       const list = makeList(['1', '2']);
       spyOn(list, 'setState');
       const item = scryRenderedDOMComponentsWithClass(list, 'editable-item')[0];
 
       Simulate.doubleClick(item);
 
-      expect(list.setState).toHaveBeenCalledWith({editing: 0});
+      expect(list.setState).toHaveBeenCalledWith({editingIndex: 0});
     });
 
-    it('enters editing mode when edit icon clicked when item is not React Element', ()=> {
+    it('enters editing mode when edit icon clicked', ()=> {
       const list = makeList(['1', '2']);
       spyOn(list, 'setState');
       const editIcon = scryRenderedDOMComponentsWithClass(list, 'edit-icon')[0];
 
       Simulate.click(editIcon);
 
-      expect(list.setState).toHaveBeenCalledWith({editing: 0});
-    });
-
-    it('does not enters editing mode when item is React Element', ()=> {
-      const item = <div key="2"></div>;
-      const list = makeList(['1', item]);
-      spyOn(list, 'setState');
-      list._onItemEdit({}, item, 1);
-      expect(list.setState).not.toHaveBeenCalled();
+      expect(list.setState).toHaveBeenCalledWith({editingIndex: 0});
     });
   });
 
-  describe('_onListBlur', ()=> {
-    it('clears selection when requirements met', ()=> {
-      const list = makeList(['1', '2'], {allowEmptySelection: true});
-      const innerList = findRenderedDOMComponentWithClass(list, 'items-wrapper');
-      list._beganEditing = false;
-      spyOn(list, 'setState');
-
-      Simulate.blur(innerList);
-
-      expect(list.setState).toHaveBeenCalledWith({selected: null});
-    });
-
-    it('does not clear selection when entering edit mode', ()=> {
-      const list = makeList(['1', '2'], {allowEmptySelection: true});
-      const innerList = findRenderedDOMComponentWithClass(list, 'items-wrapper');
-      list._beganEditing = true;
-      spyOn(list, 'setState');
-
-      Simulate.blur(innerList);
-
-      expect(list.setState).not.toHaveBeenCalled();
-    });
-
-    it('does not clear selection when prop does not allow it', ()=> {
-      const list = makeList(['1', '2'], {allowEmptySelection: false});
-      const innerList = findRenderedDOMComponentWithClass(list, 'items-wrapper');
-      list._beganEditing = false;
-      spyOn(list, 'setState');
-
-      Simulate.blur(innerList);
-
-      expect(list.setState).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('_onListKeyDown', ()=> {
-    it('calls onItemSelected', ()=> {
-      const onItemSelected = jasmine.createSpy('onItemSelected');
-      const list = makeList(['1', '2'], {initialState: {selected: 0}, onItemSelected});
+  describe('core:previous-item / core:next-item', ()=> {
+    it('calls onSelectItem', ()=> {
+      const onSelectItem = jasmine.createSpy('onSelectItem');
+      const list = makeList(['1', '2'], {selected: '1', onSelectItem});
       const innerList = findRenderedDOMComponentWithClass(list, 'items-wrapper');
 
-      Simulate.keyDown(innerList, {key: 'ArrowDown'});
+      NylasEnv.commands.dispatch(React.findDOMNode(innerList), 'core:next-item');
 
-      expect(onItemSelected).toHaveBeenCalledWith('2', 1);
+      expect(onSelectItem).toHaveBeenCalledWith('2', 1);
     });
 
     it('does not select an item when at the bottom of the list and moves down', ()=> {
-      const onItemSelected = jasmine.createSpy('onItemSelected');
-      const list = makeList(['1', '2'], {initialState: {selected: 1}, onItemSelected});
+      const onSelectItem = jasmine.createSpy('onSelectItem');
+      const list = makeList(['1', '2'], {selected: '2', onSelectItem});
       const innerList = findRenderedDOMComponentWithClass(list, 'items-wrapper');
 
-      Simulate.keyDown(innerList, {key: 'ArrowDown'});
+      NylasEnv.commands.dispatch(React.findDOMNode(innerList), 'core:next-item');
 
-      expect(onItemSelected).not.toHaveBeenCalled();
+      expect(onSelectItem).not.toHaveBeenCalled();
     });
 
     it('does not select an item when at the top of the list and moves up', ()=> {
-      const onItemSelected = jasmine.createSpy('onItemSelected');
-      const list = makeList(['1', '2'], {initialState: {selected: 0}, onItemSelected});
+      const onSelectItem = jasmine.createSpy('onSelectItem');
+      const list = makeList(['1', '2'], {selected: '1', onSelectItem});
       const innerList = findRenderedDOMComponentWithClass(list, 'items-wrapper');
 
-      Simulate.keyDown(innerList, {key: 'ArrowUp'});
+      NylasEnv.commands.dispatch(React.findDOMNode(innerList), 'core:previous-item');
 
-      expect(onItemSelected).not.toHaveBeenCalled();
-    });
-
-    it('clears selection when esc pressed', ()=> {
-      const onItemSelected = jasmine.createSpy('onItemSelected');
-      const list = makeList(['1', '2'], {initialState: {selected: 0}, onItemSelected});
-      const innerList = findRenderedDOMComponentWithClass(list, 'items-wrapper');
-
-      Simulate.keyDown(innerList, {key: 'Escape'});
-
-      expect(onItemSelected).toHaveBeenCalledWith(undefined, null);
+      expect(onSelectItem).not.toHaveBeenCalled();
     });
 
     it('does not clear the selection when esc pressed but prop does not allow it', ()=> {
-      const onItemSelected = jasmine.createSpy('onItemSelected');
-      const list = makeList(['1', '2'], {initialState: {selected: 0}, allowEmptySelection: false, onItemSelected});
+      const onSelectItem = jasmine.createSpy('onSelectItem');
+      const list = makeList(['1', '2'], {selected: '1', allowEmptySelection: false, onSelectItem});
       const innerList = findRenderedDOMComponentWithClass(list, 'items-wrapper');
 
       Simulate.keyDown(innerList, {key: 'Escape'});
 
-      expect(onItemSelected).not.toHaveBeenCalled();
+      expect(onSelectItem).not.toHaveBeenCalled();
     });
   });
 
@@ -176,7 +125,7 @@ describe('EditableList', ()=> {
 
   describe('_renderItem', ()=> {
     const makeItem = (item, idx, state = {}, handlers = {})=> {
-      const list = makeList();
+      const list = makeList([], {initialState: state});
       return renderIntoDocument(
         list._renderItem(item, idx, state, handlers)
       );
@@ -197,7 +146,7 @@ describe('EditableList', ()=> {
     });
 
     it('renders correctly when item is selected', ()=> {
-      const item = findDOMNode(makeItem('item 1', 0, {selected: 0}));
+      const item = findDOMNode(makeItem('item 1', 0, {selected: 'item 1'}));
       expect(item.className.indexOf('selected')).not.toEqual(-1);
     });
 
@@ -205,7 +154,6 @@ describe('EditableList', ()=> {
       const item = findDOMNode(makeItem('item 1', 0));
       expect(item.className.indexOf('selected')).toEqual(-1);
       expect(item.className.indexOf('editable-item')).not.toEqual(-1);
-      expect(item.className.indexOf('component-item')).toEqual(-1);
       expect(item.childNodes[0].textContent).toEqual('item 1');
     });
 
@@ -213,7 +161,6 @@ describe('EditableList', ()=> {
       const item = findDOMNode(makeItem(<div></div>, 0));
       expect(item.className.indexOf('selected')).toEqual(-1);
       expect(item.className.indexOf('editable-item')).toEqual(-1);
-      expect(item.className.indexOf('component-item')).not.toEqual(-1);
       expect(item.childNodes[0].tagName).toEqual('DIV');
     });
 
@@ -222,7 +169,7 @@ describe('EditableList', ()=> {
       const onInputFocus = jasmine.createSpy('onInputFocus');
       const onInputKeyDown = jasmine.createSpy('onInputKeyDown');
 
-      const item = makeItem('item 1', 0, {editing: 0}, {onInputBlur, onInputFocus, onInputKeyDown});
+      const item = makeItem('item 1', 0, {editingIndex: 0}, {onInputBlur, onInputFocus, onInputKeyDown});
       const input = findRenderedDOMComponentWithTag(item, 'input');
 
       Simulate.focus(input);
@@ -268,14 +215,26 @@ describe('EditableList', ()=> {
     });
 
     it('renders delete button', ()=> {
+      const onSelectItem = jasmine.createSpy('onSelectItem');
       const onDeleteItem = jasmine.createSpy('onDeleteItem');
-      const list = makeList(['1', '2'], {initialState: {selected: 1}, onDeleteItem});
+      const list = makeList(['1', '2'], {selected: '2', onDeleteItem, onSelectItem});
       const button = scryRenderedDOMComponentsWithClass(list, 'btn-editable-list')[1];
 
       Simulate.click(button);
 
       expect(findDOMNode(button).textContent).toEqual('—');
       expect(onDeleteItem).toHaveBeenCalledWith('2', 1);
+    });
+
+    it('disables teh delete button when no item is selected', ()=> {
+      const onSelectItem = jasmine.createSpy('onSelectItem');
+      const onDeleteItem = jasmine.createSpy('onDeleteItem');
+      const list = makeList(['1', '2'], {selected: null, onDeleteItem, onSelectItem});
+      const button = scryRenderedDOMComponentsWithClass(list, 'btn-editable-list')[1];
+
+      Simulate.click(button);
+
+      expect(onDeleteItem).not.toHaveBeenCalledWith('2', 1);
     });
   });
 });

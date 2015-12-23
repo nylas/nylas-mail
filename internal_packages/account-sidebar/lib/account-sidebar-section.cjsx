@@ -57,7 +57,7 @@ class AccountSidebarSection extends React.Component
         <input
           type="text"
           tabIndex="1"
-          className="input-bordered add-item-input"
+          className="add-item-input"
           autoFocus={true}
           onKeyDown={_.partial @_onInputKeyDown, _, section}
           onBlur={@_onInputBlur}

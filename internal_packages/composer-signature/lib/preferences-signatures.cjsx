@@ -67,6 +67,7 @@ class PreferencesSignatures extends React.Component
 
   _renderEditableSignature: ->
     <Contenteditable
+       tabIndex={-1}
        ref="signatureInput"
        value={@state.currentSignature}
        onChange={@_onEditSignature}

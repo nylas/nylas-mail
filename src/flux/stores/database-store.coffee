@@ -161,7 +161,7 @@ class DatabaseStore extends NylasStore
       @_db.run("PRAGMA main.page_size = 8192;")
       @_db.run("PRAGMA main.cache_size = 20000;")
       @_db.run("PRAGMA main.synchronous = NORMAL;")
-      @_db.configure('busyTimeout', 5000)
+      @_db.configure('busyTimeout', 10000)
       @_db.on 'profile', (query, msec) =>
         if msec > 100
           @_prettyConsoleLog("#{msec}msec: #{query}")

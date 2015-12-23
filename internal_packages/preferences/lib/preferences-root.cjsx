@@ -21,6 +21,10 @@ class PreferencesRoot extends React.Component
     @unlisteners = []
     @unlisteners.push PreferencesUIStore.listen =>
       @setState(@getStateFromStores())
+    @_focusContent()
+
+  componentDidUpdate: =>
+    @_focusContent()
 
   componentWillUnmount: =>
     unlisten() for unlisten in @unlisteners
@@ -66,9 +70,17 @@ class PreferencesRoot extends React.Component
         <PreferencesSidebar tabs={@state.tabs}
                             selection={@state.selection} />
         <ScrollRegion className="preferences-content">
-          <ConfigPropContainer>{bodyElement}</ConfigPropContainer>
+          <ConfigPropContainer ref="content">
+            {bodyElement}
+          </ConfigPropContainer>
         </ScrollRegion>
       </Flexbox>
     </KeyCommandsRegion>
+
+  # Focus the first thing with a tabindex when we update.
+  # inside the content area. This makes it way easier to interact with prefs.
+  _focusContent: =>
+    React.findDOMNode(@refs.content).querySelector('[tabindex]')?.focus()
+
 
 module.exports = PreferencesRoot

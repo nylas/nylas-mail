@@ -45,4 +45,6 @@ class NylasComponentKit
   @loadFrom "GeneratedForm", "generated-form"
   @loadFrom "GeneratedFieldset", "generated-form"
 
+  @load "ScenarioEditor", 'scenario-editor'
+
 module.exports = new NylasComponentKit()
