@@ -28,8 +28,8 @@ session you receive in {::finalizeSessionBeforeSending} is for the same
 draft you previously received in {::warningsForSending}, etc.
 
 The ComposerExtension API does not currently expose any asynchronous or
-{Promise}-based APIs.  This will likely change in the future. If you have
-a use-case for a ComposerExtension that is not possible with the current
+{Promise}-based APIs, except for finalizeSessionBeforeSending. This will likely
+change in the future. If you havea use-case for a ComposerExtension that is not possible with the current
 API, please let us know.
 
 Section: Extensions
@@ -96,6 +96,8 @@ class ComposerExtension extends ContenteditableExtension
   the draft is sent. This method gives you an opportunity to make any
   final substitutions or changes after any {::warningsForSending} have
   been displayed.
+  If you want to perform asynchronous work, you this method can return a promise,
+  however, returning a Promise is not required.
 
   - `session`: A {DraftStoreProxy} for the draft.
 
@@ -110,7 +112,7 @@ class ComposerExtension extends ContenteditableExtension
       session.changes.add(body: clean)
   ```
   ###
-  @finalizeSessionBeforeSending: ({session}) ->
-    return
+  @finalizeSessionBeforeSending: (session) ->
+    return Promise.resolve(session)
 
 module.exports = ComposerExtension

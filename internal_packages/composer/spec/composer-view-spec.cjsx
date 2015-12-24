@@ -124,7 +124,7 @@ describe "ComposerView", ->
     # `componentWillMount`, we manually call sessionForClientId to make this
     # part of the test synchronous. We need to make the `then` block of the
     # sessionForClientId do nothing so `_setupSession` is not called twice!
-    spyOn(DraftStore, "sessionForClientId").andCallFake -> then: ->
+    spyOn(DraftStore, "sessionForClientId").andReturn then: -> then: ->
 
   useFullDraft = ->
     useDraft.call @,

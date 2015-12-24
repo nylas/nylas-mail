@@ -25,9 +25,10 @@ describe "SpellcheckComposerExtension", ->
         draft: ->
           body: expectedHTML
         changes:
-          add: jasmine.createSpy('add')
+          add: jasmine.createSpy('add').andReturn Promise.resolve()
 
-      SpellcheckComposerExtension.finalizeSessionBeforeSending({session})
-      expect(session.changes.add).toHaveBeenCalledWith(body: initialHTML)
+      waitsForPromise ->
+        SpellcheckComposerExtension.finalizeSessionBeforeSending(session).then ->
+          expect(session.changes.add).toHaveBeenCalledWith(body: initialHTML)
 
 module.exports = SpellcheckComposerExtension
