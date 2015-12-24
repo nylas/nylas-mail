@@ -191,16 +191,16 @@ body.platform-win32 {
     input {
       display: inline-block;
       padding: 13px 0 9px 0;
-      margin: 0 0 0 5px;
       min-width: 5em;
       background-color: transparent;
       border: none;
-    }
-    input {
+      margin: 0;
       &::-webkit-input-placeholder {
         color: @text-color-very-subtle;
       }
-      margin-left: 0;
+      &:focus {
+        box-shadow: none;
+      }
     }
   }
 
