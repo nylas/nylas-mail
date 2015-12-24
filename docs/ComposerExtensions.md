@@ -41,5 +41,6 @@ class ProductsExtension extends ComposerExtension
          bodyWithWarning = draft.body += "<br>This email \
          	contains competitor's product names \
         	or trademarks used in context."
-         session.changes.add(body: bodyWithWarning)
+         return session.changes.add(body: bodyWithWarning)
+      else return Promise.resolve()
 ```

@@ -123,7 +123,7 @@ class SpellcheckComposerExtension extends ComposerExtension
     body = session.draft().body
     clean = body.replace(/<\/?spelling[^>]*>/g, '')
     if body != clean
-      session.changes.add(body: clean)
+      return session.changes.add(body: clean)
 
 SpellcheckComposerExtension.SpellcheckCache = SpellcheckCache
 
