@@ -76,7 +76,7 @@ class Contact extends Model
     name = name[0...-1] if name[name.length - 1] in ['<', '(']
     name = name.trim()
     return new Contact
-      accountId: @id
+      accountId: undefined
       name: name
       email: email
 
@@ -98,7 +98,17 @@ class Contact extends Model
   # the account email, since it is case-insensitive and future-proof.
   isMe: ->
     AccountStore = require '../stores/account-store'
-    Utils.emailIsEquivalent(@email, AccountStore.current()?.emailAddress)
+    account = AccountStore.current()
+    return false unless account
+
+    if Utils.emailIsEquivalent(@email, account.emailAddress)
+      return true
+    
+    for alias in account.aliases
+      if Utils.emailIsEquivalent(@email, Contact.fromString(alias).email)
+        return true
+
+    return false
 
   # Returns a {String} display name.
   # - "You" if the contact is the current user

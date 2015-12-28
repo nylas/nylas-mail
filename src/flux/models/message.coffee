@@ -210,27 +210,23 @@ class Message extends Model
   # "reply all" to this message. This method takes into account whether the
   # message is from the current user, and also looks at the replyTo field.
   participantsForReplyAll: ->
-    to = []
-    cc = []
+    excludedFroms = @from.map (c) -> Utils.toEquivalentEmailForm(c.email)
+    excludeMeAndFroms = (cc) ->
+      _.reject cc, (p) ->
+        p.isMe() or _.contains(excludedFroms, Utils.toEquivalentEmailForm(p.email))
 
-    excluded = @from.map (c) -> Utils.toEquivalentEmailForm(c.email)
-    excluded.push(Utils.toEquivalentEmailForm(AccountStore.current().emailAddress))
-
-    filterCc = (cc) ->
-      return _.filter cc, (p) ->
-        !_.contains(excluded, Utils.toEquivalentEmailForm(p.email))
+    to = null
+    cc = null
 
     if @isFromMe()
       to = @to
-      cc = filterCc(@cc)
+      cc = excludeMeAndFroms(@cc)
     else
       if @replyTo.length
         to = @replyTo
       else
         to = @from
-
-      cc = [].concat(@to, @cc)
-      cc = filterCc(cc)
+      cc = excludeMeAndFroms([].concat(@to, @cc))
 
     to = _.uniq to, (p) -> Utils.toEquivalentEmailForm(p.email)
     cc = _.uniq cc, (p) -> Utils.toEquivalentEmailForm(p.email)

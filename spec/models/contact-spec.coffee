@@ -1,5 +1,6 @@
 Contact = require "../../src/flux/models/contact"
 AccountStore = require "../../src/flux/stores/account-store"
+Account = require "../../src/flux/models/account"
 
 contact_1 =
   name: "Evan Morikawa"
@@ -101,3 +102,16 @@ describe "Contact", ->
     it "is case insensitive", ->
       c1 = new Contact {email: AccountStore.current().emailAddress.toUpperCase()}
       expect(c1.isMe()).toBe(true)
+
+    it "also matches any aliases you've created", ->
+      jasmine.unspy(AccountStore, 'current')
+      spyOn(AccountStore, 'current').andCallFake ->
+        new Account
+          provider: "gmail"
+          aliases: ["Ben Other <ben22@nylas.com>"]
+          emailAddress: 'ben@nylas.com'
+
+      c1 = new Contact {email: 'ben22@nylas.com'}
+      expect(c1.isMe()).toBe(true)
+      c1 = new Contact {email: 'ben23@nylas.com'}
+      expect(c1.isMe()).toBe(false)
