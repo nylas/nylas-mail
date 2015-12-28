@@ -163,18 +163,20 @@ class MessageStore extends NylasStore
     # Override canBeUndone to return false so that we don't see undo
     # prompts (since this is a passive action vs. a user-triggered
     # action.)
-    loadedThreadId = @_thread?.id
-    return unless loadedThreadId
-    return if @_lastLoadedThreadId is loadedThreadId
-    @_lastLoadedThreadId = loadedThreadId
-    if @_thread.unread
-      markAsReadDelay = NylasEnv.config.get('core.reading.markAsReadDelay')
-      setTimeout =>
-        return unless loadedThreadId is @_thread?.id and @_thread.unread
-        t = new ChangeUnreadTask(thread: @_thread, unread: false)
-        t.canBeUndone = => false
-        Actions.queueTask(t)
-      , markAsReadDelay
+    return unless @_thread and @_thread.unread
+    return if @_lastLoadedThreadId is @_thread.id
+    @_lastLoadedThreadId = @_thread.id
+
+    markAsReadDelay = NylasEnv.config.get('core.reading.markAsReadDelay')
+    markAsReadId = @_thread.id
+    return if markAsReadDelay < 0
+
+    setTimeout =>
+      return unless markAsReadId is @_thread?.id and @_thread.unread
+      t = new ChangeUnreadTask(thread: @_thread, unread: false)
+      t.canBeUndone = => false
+      Actions.queueTask(t)
+    , markAsReadDelay
 
   _onToggleAllMessagesExpanded: =>
     if @hasCollapsedItems()
