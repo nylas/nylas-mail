@@ -4,8 +4,12 @@ path = require 'path'
 {Utils, MessageBodyProcessor} = require 'nylas-exports'
 AutoloadImagesActions = require './autoload-images-actions'
 
-# https://en.wikipedia.org/wiki/Comparison_of_web_browsers#Image_format_support
-ImagesRegexp = /(src[\s]*=[\s]*['"]+|:[\s]*url\()+([^"'\)]*)/gi
+# Match:
+# - any of the DOM attributes supporting images starting with a protocol
+#   (src, background, placeholder, icon, poster, or srcset)
+# - any url() value
+#
+ImagesRegexp = /((?:src|background|placeholder|icon|background|poster|srcset)\s*=\s*['"]?(?=\w*:\/\/)|:\s*url\()+([^"'\)]*)/gi
 
 class AutoloadImagesStore extends NylasStore
   constructor: ->
