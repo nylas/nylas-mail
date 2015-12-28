@@ -11,7 +11,7 @@ RegExpUtils =
   # See http://tools.ietf.org/html/rfc5322#section-3.4 and
   # https://tools.ietf.org/html/rfc6531 and
   # https://en.wikipedia.org/wiki/Email_address#Local_part
-  emailRegex: -> new RegExp(/([a-z.A-Z0-9%#_~$&*+;=:-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,63})/g)
+  emailRegex: -> new RegExp(/([a-z.A-Z0-9!#$%&'*+\-/=?^_`{|}~;:]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,63})/g)
 
   # https://regex101.com/r/zG7aW4/3
   imageTagRegex: -> /<img\s+[^>]*src="([^"]*)"[^>]*>/g
