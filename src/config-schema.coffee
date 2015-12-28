@@ -50,9 +50,9 @@ module.exports =
           markAsReadDelay:
             type: 'integer'
             default: 500
-            enum: [0, 500, 2000]
-            enumLabels: ['Instantly', '½ Second', '2 Seconds']
-            title: "Delay for marking messages as read"
+            enum: [0, 500, 2000, -1]
+            enumLabels: ['Instantly', 'After ½ Second', 'After 2 Seconds', 'Manually']
+            title: "When reading messages, mark as read"
           autoloadImages:
             type: 'boolean'
             default: true
