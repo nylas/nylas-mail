@@ -419,13 +419,40 @@ class DraftStore
     try
       urlString = decodeURI(urlString)
 
-    [whole, to, query] = /mailto:[//]?([^\?\&]*)[\?\&]?((.|\n|\r)*)/.exec(urlString)
+    [whole, to, queryString] = /mailto:[//]?([^\?\&]*)((.|\n|\r)*)/.exec(urlString)
 
-    query = require('querystring').parse(query)
+    # /many/ mailto links are malformed and do things like:
+    #   &body=https://github.com/atom/electron/issues?utf8=&q=is%3Aissue+is%3Aopen+123&subject=...
+    #   (note the unescaped ? and & in the URL).
+    #
+    # To account for these scenarios, we parse the query string manually and only
+    # split on params we expect to be there. (Jumping from &body= to &subject=
+    # in the above example.) We only decode values when they appear to be entirely
+    # URL encoded. (In the above example, decoding the body would cause the URL
+    # to fall apart.)
+    #
+    query = {}
     query.to = to
 
-    for key, val of query
-      query[key.toLowerCase()] = val
+    querySplit = /[&|?](subject|body|cc|to|from|bcc)+\s*=/gi
+
+    openKey = null
+    openValueStart = null
+
+    until match is null
+      match = querySplit.exec(queryString)
+      openValueEnd = match?.index || queryString.length
+
+      if openKey
+        value = queryString.substr(openValueStart, openValueEnd - openValueStart)
+        valueIsntEscaped = value.indexOf('?') isnt -1 or value.indexOf('&') isnt -1
+        try
+          value = decodeURIComponent(value) unless valueIsntEscaped
+        query[openKey] = value
+
+      if match
+        openKey = match[1].toLowerCase()
+        openValueStart = querySplit.lastIndex
 
     draft = new Message
       body: query.body || ''

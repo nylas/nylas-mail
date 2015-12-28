@@ -885,6 +885,7 @@ describe "DraftStore", ->
         'mailto:Reply <d+AORGpRdj0KXKUPBE1LoI0a30F10Ahj3wu3olS-aDk5_7K5Wu6WqqqG8t1HxxhlZ4KEEw3WmrSdtobgUq57SkwsYAH6tG57IrNqcQR0K6XaqLM2nGNZ22D2k@docs.google.com>?subject=Nilas%20Message%20to%20Customers',
         'mailto:email@address.com?&subject=test&body=type%20your%0Amessage%20here'
         'mailto:?body=type%20your%0D%0Amessage%0D%0Ahere'
+        'mailto:?subject=Issues%20%C2%B7%20atom/electron%20%C2%B7%20GitHub&body=https://github.com/atom/electron/issues?utf8=&q=is%253Aissue+is%253Aopen+123%0A%0A'
       ]
       expected = [
         new Message(),
@@ -944,6 +945,11 @@ describe "DraftStore", ->
         new Message(
           to: [],
           body: 'type your\r\nmessage\r\nhere'
+        ),
+        new Message(
+          to: [],
+          subject: 'Issues · atom/electron · GitHub'
+          body: 'https://github.com/atom/electron/issues?utf8=&q=is%3Aissue+is%3Aopen+123\n\n'
         )
       ]
 
