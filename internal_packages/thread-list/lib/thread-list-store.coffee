@@ -113,7 +113,7 @@ class ThreadListStore extends NylasStore
     accountMatcher = (m) ->
       m.attribute() is Thread.attributes.accountId and m.value() is accountId
 
-    return if @_view and _.find(@_view.matchers(), accountMatcher)
+    return if @_view instanceof DatabaseView and _.find(@_view.matchers(), accountMatcher)
     @createView()
 
   _onDataChanged: (change) ->
