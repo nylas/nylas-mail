@@ -140,7 +140,12 @@ class Contact extends Model
     name = @name
 
     # At this point, if the name is empty we'll use the email address
-    name = (@email || "") unless name && name.length
+    unless name && name.length
+      name = (@email || "")
+
+      # If the phrase has an '@', use everything before the @ sign
+      # Unless there that would result in an empty string.
+      name = name.split('@')[0] if name.indexOf('@') > 0
 
     # Take care of phrases like "evan (Evan Morikawa)" that should be displayed
     # as the contents of the parenthesis
@@ -149,10 +154,6 @@ class Contact extends Model
     # Take care of phrases like "Mike Kaylor via LinkedIn" that should be displayed
     # as the contents before the separator word. Do not break "Olivia"
     name = name.split(/(\svia\s)/i)[0]
-
-    # If the phrase has an '@', use everything before the @ sign
-    # Unless that would result in an empty string!
-    name = name.split('@')[0] if name.indexOf('@') > 0
 
     # Take care of whitespace
     name = name.trim()
