@@ -100,6 +100,7 @@ class MailRulesProcessor
         # We always pull the thread from the database, even though it may be in
         # `incoming.thread`, because rules may be modifying it as they run!
         DatabaseStore.find(Thread, message.threadId).then (thread) =>
+          return console.warn("Cannot find thread #{message.threadId} to process mail rules.") unless thread
           @_applyRuleToMessage(rule, message, thread)
 
   _checkRuleForMessage: (rule, message) =>
