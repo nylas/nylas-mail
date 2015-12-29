@@ -18,88 +18,74 @@ class TemplatesComposerExtension extends ComposerExtension {
     }
   }
 
-  static onClick(editableNode, range) {
-    const ref = range.startContainer;
-    let parent = (ref != null) ? ref.parentNode : undefined;
-    let parentCodeNode = null;
-
-    while (parent && parent !== editableNode) {
-      const ref1 = parent.classList;
-      if (((ref1 != null) ? ref1.contains('var') : undefined) && parent.tagName === 'CODE') {
-        parentCodeNode = parent;
-        break;
-      }
-      parent = parent.parentNode;
-    }
-
-    const isSinglePoint = range.startContainer === range.endContainer && range.startOffset === range.endOffset;
-
-    if (isSinglePoint && parentCodeNode) {
-      range.selectNode(parentCodeNode);
-      const selection = document.getSelection();
-      selection.removeAllRanges();
-      return selection.addRange(range);
+  static onClick(editor, event) {
+    var node = event.target;
+    if(node.nodeName === "CODE" && node.classList.contains("var") && node.classList.contains("empty")) {
+        editor.selectAllChildren(node)
     }
   }
 
-  static onTabDown(editableNode, selection, event) {
+  static onKeyDown(editor, event) {
+    const editableNode = editor.rootNode;
     if (event.key === 'Tab') {
-      const range = DOMUtils.getRangeInScope(editableNode);
-      if (event.shiftKey) {
-        this.onTabSelectNextVar(editableNode, range, event, -1);
-      }
-      this.onTabSelectNextVar(editableNode, range, event, 1);
-    }
-  }
+      const nodes = editableNode.querySelectorAll('code.var');
+      if(nodes.length>0) {
+        let sel = editor.currentSelection();
+        let found = false;
 
-  static onTabSelectNextVar(editableNode, range, event, delta) {
-    if (!range) { return; }
-
-    // Try to find the node that the selection range is
-    // currently intersecting with (inside, or around)
-    let parentCodeNode = null;
-    const nodes = editableNode.querySelectorAll('code.var');
-    for (let i = 0, node; i < nodes.length; i++) {
-      node = nodes[i];
-      if (range.intersectsNode(node)) {
-        parentCodeNode = node;
-      }
-    }
-
-    let selectNode = null;
-    if (parentCodeNode) {
-      if (range.startOffset === range.endOffset && parentCodeNode.classList.contains('empty')) {
-        // If the current node is empty and it's a single insertion point,
-        // select the current node rather than advancing to the next node
-        selectNode = parentCodeNode;
-      } else {
-        // advance to the next code node
-        const matches = editableNode.querySelectorAll('code.var');
-        let matchIndex = -1;
-        for (let idx = 0, match; idx < matches.length; idx++) {
-          match = matches[idx];
-          if (match === parentCodeNode) {
-            matchIndex = idx;
+        // First, try to find a <code> that the selection is within. If found,
+        // select the next/prev node if the selection ends at the end of the
+        // <code>'s text, otherwise select the <code>'s contents.
+        for (let i=0; i<nodes.length; i++) {
+          let node = nodes[i];
+          if(DOMUtils.selectionIsWithin(node)) {
+            let selIndex = editor.getSelectionTextIndex(node);
+            let length = DOMUtils.getIndexedTextContent(node).slice(-1)[0].end;
+            let nextIndex = i;
+            if(selIndex.endIndex === length)
+              nextIndex = event.shiftKey ? i-1 : i+1;
+            nextIndex = (nextIndex+nodes.length) % nodes.length; //allow wraparound in both directions
+            sel.selectAllChildren(nodes[nextIndex]);
+            found = true;
             break;
           }
         }
-        if (matchIndex !== -1 && matchIndex + delta >= 0 && matchIndex + delta < matches.length) {
-          selectNode = matches[matchIndex + delta];
+
+        // If we failed to find a <code> that the selection is within, select the
+        // nearest <code> before/after the selection (depending on shift).
+        if(!found) {
+          let treeWalker = document.createTreeWalker(editableNode, NodeFilter.SHOW_ELEMENT + NodeFilter.SHOW_TEXT);
+          let curIndex = 0, nextIndex = null;
+          while (node = treeWalker.nextNode()) {
+            if(sel.anchorNode === node || sel.focusNode === node)
+              break;
+            if(node.nodeName === "CODE" && node.classList.contains("var"))
+              curIndex++
+          }
+          nextIndex = event.shiftKey ? curIndex-1 : curIndex;
+          nextIndex = (nextIndex+nodes.length) % nodes.length; //allow wraparound in both directions
+          sel.selectAllChildren(nodes[nextIndex]);
+        }
+
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    }
+    else if(event.key === 'Enter') {
+      const nodes = editableNode.querySelectorAll('code.var');
+      for (let i=0; i<nodes.length; i++) {
+        if(DOMUtils.selectionStartsOrEndsIn(nodes[i])) {
+          event.preventDefault();
+          event.stopPropagation();
+          break;
         }
       }
     }
-
-    if (selectNode) {
-      range.selectNode(selectNode);
-      const selection = document.getSelection();
-      selection.removeAllRanges();
-      selection.addRange(range);
-      event.preventDefault();
-      event.stopPropagation();
-    }
   }
 
-  static onContentChanged(editableNode, selection) {
+  static onContentChanged(editor) {
+    editableNode = editor.rootNode;
+    selection = editor.currentSelection().rawSelection;
     const isWithinNode = (node)=> {
       let test = selection.baseNode;
       while (test !== editableNode) {
@@ -114,6 +100,7 @@ class TemplatesComposerExtension extends ComposerExtension {
       const result = [];
       for (let i = 0, codeTag; i < codeTags.length; i++) {
         codeTag = codeTags[i];
+        codeTag.textContent = codeTag.textContent; //sets node contents to just its textContent, strips HTML
         result.push((() => {
           if (selection.containsNode(codeTag) || isWithinNode(codeTag)) {
             return codeTag.classList.remove('empty');

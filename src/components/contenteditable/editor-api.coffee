@@ -1,3 +1,4 @@
+{DOMUtils} = require 'nylas-exports'
 ExtendedSelection = require './extended-selection'
 
 # An extended interface of execCommand
@@ -24,11 +25,23 @@ class EditorAPI
   constructor: (@rootNode) ->
     @_extendedSelection = new ExtendedSelection(@rootNode)
 
-  wrapSelection: ->
-    ## TODO
+  wrapSelection:(nodeName) ->
+    wrapped = DOMUtils.wrap(@_selection.getRangeAt(0), nodeName)
+    @select(wrapped)
     return @
 
+  regExpSelectorAll:(regex) ->
+    DOMUtils.regExpSelectorAll(@rootNode, regex)
+
   currentSelection: -> @_extendedSelection
+
+  whilePreservingSelection: (fn) ->
+    sel = @currentSelection().exportSelection()
+    fn()
+    @select(sel)
+
+  getSelectionTextIndex: (args...) -> @_extendedSelection.getSelectionTextIndex(args...)
+
 
   collapse: (args...) -> @_extendedSelection.collapse(args...); @
   collapseToStart: (args...) -> @_extendedSelection.collapseToStart(args...); @
@@ -37,6 +50,7 @@ class EditorAPI
   select: (args...) -> @_extendedSelection.select(args...); @
   selectEnd: (args...) -> @_extendedSelection.selectEnd(args...); @
   selectAllChildren: (args...) -> @_extendedSelection.selectAllChildren(args...); @
+  restoreSelectionByTextIndex: (args...) -> @_extendedSelection.restoreSelectionByTextIndex(args...); @
 
   backColor: (color) -> @_ec("backColor", false, color)
   bold: -> @_ec("bold", false)

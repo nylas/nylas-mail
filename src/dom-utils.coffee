@@ -466,4 +466,138 @@ DOMUtils =
 
     return 0
 
+  # Produces a list of indexed text contained within a given node. Returns a
+  # list of objects of the form:
+  #   {start, end, node, text}
+  #
+  # The text being indexed is intended to approximate the rendered content visible
+  # to the user. This includes the nodeValue of any text nodes, and "\n" for any
+  # DIV or BR elements.
+  getIndexedTextContent: (node) ->
+    items = []
+    treeWalker = document.createTreeWalker(node, NodeFilter.SHOW_ELEMENT + NodeFilter.SHOW_TEXT)
+    position = 0
+    while treeWalker.nextNode()
+      node = treeWalker.currentNode
+      if node.tagName is "BR" or node.nodeType is Node.TEXT_NODE or node.tagName is "DIV"
+        text = if node.nodeType is Node.TEXT_NODE then node.nodeValue else "\n"
+        item =
+          start: position
+          end: position + text.length
+          node: node
+          text: text
+        items.push(item)
+        position += text.length
+    return items
+
+  # Returns true if the inner range is fully contained within the outer range
+  rangeInRange: (inner, outer) ->
+    return outer.isPointInRange(inner.startContainer, inner.startOffset) and outer.isPointInRange(inner.endContainer, inner.endOffset)
+
+  # Returns true if the given ranges overlap
+  rangeOverlapsRange: (range1, range2) ->
+    return range2.isPointInRange(range1.startContainer, range1.startOffset) or range1.isPointInRange(range2.startContainer, range2.startOffset)
+
+  # Returns true if the first range starts or ends within the second range.
+  # Unlike rangeOverlapsRange, returns false if range2 is fully within range1.
+  rangeStartsOrEndsInRange: (range1, range2) ->
+    return range2.isPointInRange(range1.startContainer, range1.startOffset) or range2.isPointInRange(range1.endContainer, range1.endOffset)
+
+  # Accepts a Range or a Node, and returns true if the current selection starts
+  # or ends within it. Useful for knowing if a DOM modification will break the
+  # current selection.
+  selectionStartsOrEndsIn: (rangeOrNode) ->
+    selection = document.getSelection()
+    return false unless selection
+    if rangeOrNode instanceof Range
+      return @rangeStartsOrEndsInRange(selection.getRangeAt(0), rangeOrNode)
+    else if rangeOrNode instanceof Node
+      range = new Range()
+      range.selectNode(rangeOrNode)
+      return @rangeStartsOrEndsInRange(selection.getRangeAt(0), range)
+    else
+      return false
+
+  # Accepts a Range or a Node, and returns true if the current selection is fully
+  # contained within it.
+  selectionIsWithin: (rangeOrNode) ->
+    selection = document.getSelection()
+    return false unless selection
+    if rangeOrNode instanceof Range
+      return @rangeInRange(selection.getRangeAt(0), rangeOrNode)
+    else if rangeOrNode instanceof Node
+      range = new Range()
+      range.selectNode(rangeOrNode)
+      return @rangeInRange(selection.getRangeAt(0), range)
+    else
+      return false
+
+  # Finds all matches to a regex within a node's text content (including line
+  # breaks from DIVs and BRs, as \n), and returns a list of corresponding Range
+  # objects.
+  regExpSelectorAll: (node, regex) ->
+
+    # Generate a text representation of the node's content
+    nodeTextList = @getIndexedTextContent(node)
+    text = nodeTextList.map( ({text}) -> text ).join("")
+
+    # Build a list of range objects by looping over regex matches in the
+    # text content string, and then finding the node those match indexes
+    # point to.
+    ranges = []
+    listPosition = 0
+    while (result = regex.exec(text)) isnt null
+      from = result.index
+      to = regex.lastIndex
+      item = nodeTextList[listPosition]
+      range = document.createRange()
+
+      while from >= item.end
+        item = nodeTextList[++listPosition]
+      start = if item.node.nodeType is Node.TEXT_NODE then from - item.start else 0
+      range.setStart(item.node,start)
+
+      while to > item.end
+        item = nodeTextList[++listPosition]
+      end = if item.node.nodeType is Node.TEXT_NODE then to - item.start else 0
+      range.setEnd(item.node, end)
+
+      ranges.push(range)
+
+    return ranges
+
+  # Returns true if the given range is the sole content of a node with the given
+  # nodeName. If the range's parent has a different nodeName or contains any other
+  # content, returns false.
+  isWrapped: (range, nodeName) ->
+    return false unless range and nodeName
+    startNode = range.startContainer
+    endNode = range.endContainer
+    return false unless startNode.parentNode is endNode.parentNode # must have same parent
+    return false if startNode.previousSibling or endNode.nextSibling # selection must span all sibling nodes
+    return false if range.startOffset > 0 or range.endOffset < endNode.textContent.length # selection must span all text
+    return startNode.parentNode.nodeName is nodeName
+
+  # Modifies the DOM to wrap the given range with a new node, of name nodeName.
+  #
+  # If the range starts or ends in the middle of an node, that node will be split.
+  # This will likely break selections that contain any of the affected nodes.
+  wrap: (range, nodeName) ->
+    newNode = document.createElement(nodeName)
+    try
+      range.surroundContents(newNode)
+    catch
+      newNode.appendChild(range.extractContents())
+      range.insertNode(newNode)
+    return newNode
+
+  # Modifies the DOM to "unwrap" a given node, replacing that node with its contents.
+  # This may break selections containing the affected nodes.
+  unwrapNode: (node) ->
+    fragment = document.createDocumentFragment()
+    while (child = node.firstChild)
+      fragment.appendChild(child)
+    node.parentNode.replaceChild(fragment, node)
+    return fragment
+
 module.exports = DOMUtils

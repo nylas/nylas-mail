@@ -11,7 +11,6 @@ class TemplatePicker extends React.Component {
 
   constructor() {
     super();
-    TemplateStore.init();
     this.state = {
       searchValue: '',
       templates: TemplateStore.items(),
