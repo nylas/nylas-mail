@@ -419,7 +419,7 @@ class DraftStore
     try
       urlString = decodeURI(urlString)
 
-    [whole, to, queryString] = /mailto:[//]?([^\?\&]*)((.|\n|\r)*)/.exec(urlString)
+    [whole, to, queryString] = /mailto:\/*([^\?\&]*)((.|\n|\r)*)/.exec(urlString)
 
     # /many/ mailto links are malformed and do things like:
     #   &body=https://github.com/atom/electron/issues?utf8=&q=is%3Aissue+is%3Aopen+123&subject=...
