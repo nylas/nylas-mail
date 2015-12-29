@@ -69,6 +69,9 @@ class ChangeFolderTask extends ChangeMailTask
       @threads = _.compact(threads)
       @messages = _.compact(messages)
 
+      if not @folder
+        return Promise.reject(new Error("The specified folder could not be found."))
+
       # The base class does the heavy lifting and calls changesToModel
       return super
 

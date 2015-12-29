@@ -40,15 +40,12 @@ class DeveloperBarStore extends NylasStore
 
   longPollState: -> @_longPollState
 
-  longPollHistory: ->
-    # We can't use Utils.deepClone because the deltas contain circular references
-    # See delta.attributes._delta = delta
-    JSON.parse(JSON.stringify(@_longPollHistory))
+  longPollHistory: -> @_longPollHistory
 
   ########### PRIVATE ####################################################
 
   triggerThrottled: ->
-    @_triggerThrottled ?= _.throttle(@trigger, 100)
+    @_triggerThrottled ?= _.throttle(@trigger, 150)
     @_triggerThrottled()
 
   _setStoreDefaults: ->

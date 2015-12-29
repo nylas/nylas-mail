@@ -47,8 +47,9 @@ NotificationStore = Reflux.createStore
       @_removeNotification(notification)() if action.dismisses
     @listenTo Actions.postNotification, (data) =>
       @_postNotification(new Notification(data))
-    @listenTo Actions.multiWindowNotification, (data={}, context={}) =>
-      @_postNotification(new Notification(data)) if @_inWindowContext(context)
+    @listenTo Actions.dismissNotificationsMatching, (criteria) =>
+      @_notifications = _.reject @_notifications, (n) -> _.isMatch(n, criteria)
+      @trigger()
 
   ######### PUBLIC #######################################################
 
