@@ -58,6 +58,7 @@ class Contenteditable extends React.Component
     extensions: []
     spellcheck: true
     floatingToolbar: true
+    onSelectionChanged: =>
 
   coreServices: [MouseService, ClipboardService]
 
