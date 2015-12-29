@@ -131,14 +131,21 @@ module.exports =
     # Obtain the session for the current draft.
     DraftStore.sessionForClientId(draftClientId).then (session) =>
       draftHtml = session.draft().body
+      # Remove any quoted text at the end of the message
       text = QuotedHTMLTransformer.removeQuotedHTML(draftHtml)
 
-      # add the block
-      text += "<br/>"+@_createBlock(events,eventData)+"<br/>"
+      # Check for an N1 signature and split that off
+      sigIndex = text.indexOf('<div class="nylas-n1-signature">')
+      beforeSig = if sigIndex>-1 then text.slice(0,sigIndex) else text
+      afterSig = text.slice(beforeSig.length)
 
+      # Add the block and add back the signature if present
+      text = beforeSig+"<br/>"+@_createBlock(events,eventData)+"<br/>"+afterSig
+
+      # Add back any quoted text
       newDraftHtml = QuotedHTMLTransformer.appendQuotedHTML(text, draftHtml)
 
-      # update the draft
+      # Update the draft
       session.changes.add(body: newDraftHtml)
       session.changes.commit()
 
