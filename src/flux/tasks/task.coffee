@@ -257,7 +257,7 @@ class Task
   _handleRemoteError: (err, status) =>
     # Sometimes users just indicate that a task Failed, but don't provide
     # the error object
-    err ?= new Error("Unexpected error in #{Task.constructor.name}.performRemote")
+    err ?= new Error("Unspecified error in #{Task.constructor.name}.performRemote")
 
     if status isnt Task.Status.Failed
       @queueState.debugStatus = Task.DebugStatus.UncaughtError
