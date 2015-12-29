@@ -1,7 +1,7 @@
 path = require 'path'
 React = require 'react'
 FileUpload = require './file-upload'
-{RetinaImg, DraggableImg} = require 'nylas-component-kit'
+{RetinaImg} = require 'nylas-component-kit'
 
 class ImageFileUpload extends FileUpload
   @displayName: 'ImageFileUpload'
@@ -12,7 +12,7 @@ class ImageFileUpload extends FileUpload
   render: =>
     <div className="file-wrap file-image-wrap file-upload">
       <div className="file-action-icon" onClick={@_onClickRemove}>
-        <RetinaImg name="image-cancel-button.png"/>
+        <RetinaImg name="image-cancel-button.png" mode={RetinaImg.Mode.ContentPreserve}/>
       </div>
 
       <div className="file-preview">
@@ -20,12 +20,15 @@ class ImageFileUpload extends FileUpload
           <div className="file-name">{@props.uploadData.fileName}</div>
         </div>
 
-        <DraggableImg src={@props.uploadData.filePath} />
+        <img src={@props.uploadData.filePath} onDragStart={@_onDragStart}/>
       </div>
 
       <div className={"progress-bar-wrap state-#{@props.uploadData.state}"}>
         <span className="progress-foreground" style={@_uploadProgressStyle()}></span>
       </div>
     </div>
+
+  _onDragStart: (event) ->
+    event.preventDefault()
 
 module.exports = ImageFileUpload
