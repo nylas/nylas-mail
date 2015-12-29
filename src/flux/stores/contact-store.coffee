@@ -126,6 +126,7 @@ class ContactStore extends NylasStore
     if not NylasEnv.isMainWindow()
       # Returns a promise that resolves to the value of searchContacts
       return WindowBridge.runInMainWindow("ContactStore", "parseContactsInString", [contactString, options])
+
     detected = []
     emailRegex = RegExpUtils.emailRegex()
     lastMatchEnd = 0
@@ -133,6 +134,11 @@ class ContactStore extends NylasStore
     while (match = emailRegex.exec(contactString))
       email = match[0]
       name = null
+
+      startsWithQuote = email[0] in ['\'','"']
+      hasTrailingQuote = contactString[match.index+email.length] in ['\'','"']
+      if startsWithQuote and hasTrailingQuote
+        email = email[1..-1]
 
       hasLeadingParen  = contactString[match.index-1] in ['(','<']
       hasTrailingParen = contactString[match.index+email.length] in [')','>']

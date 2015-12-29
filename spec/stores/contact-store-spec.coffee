@@ -156,6 +156,9 @@ describe "ContactStore", ->
       # Single contact test cases
       "evan@nylas.com": [new Contact(name: "evan@nylas.com", email: "evan@nylas.com")]
       "Evan Morikawa": []
+      "'evan@nylas.com'": [new Contact(name: "evan@nylas.com", email: "evan@nylas.com")]
+      "\"evan@nylas.com\"": [new Contact(name: "evan@nylas.com", email: "evan@nylas.com")]
+      "'evan@nylas.com": [new Contact(name: "'evan@nylas.com", email: "'evan@nylas.com")]
       "Evan Morikawa <evan@nylas.com>": [new Contact(name: "Evan Morikawa", email: "evan@nylas.com")]
       "Evan Morikawa (evan@nylas.com)": [new Contact(name: "Evan Morikawa", email: "evan@nylas.com")]
       "spang (Christine Spang) <noreply+phabricator@nilas.com>": [new Contact(name: "spang (Christine Spang)", email: "noreply+phabricator@nilas.com")]
