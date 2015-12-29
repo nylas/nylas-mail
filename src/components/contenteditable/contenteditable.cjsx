@@ -195,7 +195,6 @@ class Contenteditable extends React.Component
       onBlur: @_onBlur
       onFocus: @_onFocus
       onKeyDown: @_onKeyDown
-      onClick: @_onClick
       onCompositionEnd: @_onCompositionEnd
       onCompositionStart: @_onCompositionStart
     return handlers
@@ -275,9 +274,6 @@ class Contenteditable extends React.Component
 
   _onKeyDown: (event) =>
     @dispatchEventToExtensions("onKeyDown", event)
-
-  _onClick: (event) =>
-    @dispatchEventToExtensions("onClick", event)
 
   # We must set the `inCompositionEvent` flag in addition to tearing down
   # the selecton listeners. While the composition event is in progress, we
