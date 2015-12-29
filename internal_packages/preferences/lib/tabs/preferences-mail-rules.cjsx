@@ -84,18 +84,19 @@ class PreferencesMailRules extends React.Component
       className="rule-list"
       showEditIcon={true}
       items={@state.rules}
-      itemContent={ (rule) ->
-        if rule.disabled
-          return <div className="item-rule-disabled">{rule.name}</div>
-        else
-          return rule.name
-      }
+      itemContent={@_renderListItemContent}
       onCreateItem={@_onAddRule}
       onDeleteItem={@_onDeleteRule}
       onItemEdited={@_onRuleNameEdited}
       selected={@state.selectedRule}
       onSelectItem={@_onSelectRule} />
 
+  _renderListItemContent: (rule) ->
+    if rule.disabled
+      return <div className="item-rule-disabled">{rule.name}</div>
+    else
+      return rule.name
+    
   _renderDetail: =>
     rule = @state.selectedRule
 
