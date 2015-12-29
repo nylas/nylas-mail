@@ -36,17 +36,20 @@ class InjectedComponent extends React.Component
       This set of descriptors is provided to {ComponentRegistry::findComponentsForDescriptor}
       to retrieve the component that will be displayed.
 
+   - `onComponentDidRender` (optional) Callback that will be called when the injected component
+      is successfully rendered onto the DOM.
+
    - `className` (optional) A {String} class name for the containing element.
 
    - `exposedProps` (optional) An {Object} with props that will be passed to each
       item rendered into the set.
 
+   - `fallback` (optional) A {Component} to default to in case there are no matching
+     components in the ComponentRegistry
+
    - `requiredMethods` (options) An {Array} with a list of methods that should be
      implemented by the registered component instance. If these are not implemented,
      an error will be thrown.
-
-   - `fallback` (optional) A {Component} to default to in case there are no matching
-     components in the ComponentRegistry
 
   ###
   @propTypes:
@@ -54,10 +57,12 @@ class InjectedComponent extends React.Component
     className: React.PropTypes.string
     exposedProps: React.PropTypes.object
     fallback: React.PropTypes.func
+    onComponentDidRender: React.PropTypes.func
     requiredMethods: React.PropTypes.arrayOf(React.PropTypes.string)
 
   @defaultProps:
     requiredMethods: []
+    onComponentDidRender: ->
 
   constructor: (@props) ->
     @state = @_getStateFromStores()
@@ -67,6 +72,7 @@ class InjectedComponent extends React.Component
   componentDidMount: =>
     @_componentUnlistener = ComponentRegistry.listen =>
       @setState(@_getStateFromStores())
+    @props.onComponentDidRender() if @state.component?.containerRequired is false
 
   componentWillUnmount: =>
     @_componentUnlistener() if @_componentUnlistener
@@ -77,6 +83,7 @@ class InjectedComponent extends React.Component
 
   componentDidUpdate: =>
     @_setRequiredMethods(@props.requiredMethods)
+    @props.onComponentDidRender() if @state.component?.containerRequired is false
 
   render: =>
     return <div></div> unless @state.component
@@ -89,7 +96,14 @@ class InjectedComponent extends React.Component
     if component.containerRequired is false
       element = <component ref="inner" key={component.displayName} {...exposedProps} />
     else
-      element = <UnsafeComponent ref="inner" component={component} key={component.displayName} {...exposedProps} />
+      element = (
+        <UnsafeComponent
+          ref="inner"
+          key={component.displayName}
+          component={component}
+          onComponentDidRender={@props.onComponentDidRender}
+          {...exposedProps} />
+      )
 
     if @state.visible
       <div className={className}>

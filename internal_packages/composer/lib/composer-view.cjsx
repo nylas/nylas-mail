@@ -12,6 +12,7 @@ React = require 'react'
  FileUploadStore,
  QuotedHTMLTransformer,
  FileDownloadStore,
+ FocusedContentStore,
  ExtensionRegistry} = require 'nylas-exports'
 
 {DropZone,
@@ -89,7 +90,7 @@ class ComposerView extends React.Component
     @_deleteDraftIfEmpty()
     usub() for usub in @_usubs
 
-  componentDidUpdate: =>
+  componentDidUpdate: (prevProps, prevState) =>
     # We want to use a temporary variable instead of putting this into the
     # state. This is because the selection is a transient property that
     # only needs to be applied once. It's not a long-living property of
@@ -97,6 +98,14 @@ class ComposerView extends React.Component
     # re-rendering.
     @_recoveredSelection = null if @_recoveredSelection?
 
+    # If the body changed, let's wait for the editor body to actually get rendered
+    # into the dom before applying focus.
+    # Since the editor is an InjectedComponent, when this function gets called
+    # the editor hasn't actually finished rendering, so we need to wait for that
+    # to happen by using the InjectedComponent's `onComponentDidRender` callback.
+    # See `_renderEditor`
+    bodyChanged = @state.body isnt prevState.body
+    return if bodyChanged
     @_applyFieldFocus()
 
   _keymapHandlers: ->
@@ -112,7 +121,7 @@ class ComposerView extends React.Component
     "composer:undo": @undo
     "composer:redo": @redo
 
-  _applyFieldFocus: ->
+  _applyFieldFocus: =>
     if @state.focusedField and @_lastFocusedField isnt @state.focusedField
       @_lastFocusedField = @state.focusedField
       return unless @refs[@state.focusedField]
@@ -121,8 +130,8 @@ class ComposerView extends React.Component
       else
         React.findDOMNode(@refs[@state.focusedField]).focus()
 
-      if @state.focusedField is Fields.Body and not @_proxy.draftPristineBody()
-        @refs[Fields.Body].focusEditor()
+      if @state.focusedField is Fields.Body
+        @_focusEditor()
 
   componentWillReceiveProps: (newProps) =>
     @_ignoreNextTrigger = false
@@ -324,6 +333,7 @@ class ComposerView extends React.Component
       ref={Fields.Body}
       matching={role: "Composer:Editor"}
       fallback={ComposerEditor}
+      onComponentDidRender={@_onEditorBodyDidRender}
       requiredMethods={[
         'focusEditor'
         'getCurrentSelection'
@@ -331,6 +341,12 @@ class ComposerView extends React.Component
         '_onDOMMutated'
       ]}
       exposedProps={exposedProps} />
+
+  _focusEditor: =>
+    @refs[Fields.Body].focusEditor()
+
+  _onEditorBodyDidRender: =>
+    @_applyFieldFocus()
 
   _onEditorFocus: =>
     @setState(focusedField: Fields.Body)
@@ -487,7 +503,7 @@ class ComposerView extends React.Component
 
   _onMouseUpComposerBody: (event) =>
     if event.target is @_mouseDownTarget
-      @refs[Fields.Body].focusEditor()
+      @_focusEditor()
     @_mouseDownTarget = null
 
   # When a user focuses the composer, it's possible that no input is
@@ -496,7 +512,7 @@ class ComposerView extends React.Component
   # erroneously trigger keyboard shortcuts.
   _onFocusIn: (event) =>
     return if DOMUtils.closest(event.target, DOMUtils.inputTypes())
-    @refs[Fields.Body].focusEditor()
+    @_focusEditor()
 
   _onMouseMoveComposeBody: (event) =>
     if @_mouseComposeBody is "down" then @_mouseComposeBody = "move"
@@ -534,7 +550,10 @@ class ComposerView extends React.Component
   _initiallyFocusedField: (draft) ->
     return Fields.To if draft.to.length is 0
     return Fields.Subject if (draft.subject ? "").trim().length is 0
-    return Fields.Body
+
+    shouldFocusBody = @props.mode isnt 'inline' or
+      (FocusedContentStore.didFocusUsingClick('thread') is true)
+    return Fields.Body if shouldFocusBody
 
   _verifyEnabledFields: (draft, state) ->
     enabledFields = @state.enabledFields.concat(state.enabledFields)

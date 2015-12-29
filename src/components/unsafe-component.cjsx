@@ -34,6 +34,10 @@ class UnsafeComponent extends React.Component
   ###
   @propTypes:
     component: React.PropTypes.func.isRequired
+    onComponentDidRender: React.PropTypes.func
+
+  @defaultProps:
+    onComponentDidRender: ->
 
   componentDidMount: =>
     @renderInjected()
@@ -54,7 +58,7 @@ class UnsafeComponent extends React.Component
       props = _.omit(@props, _.keys(@constructor.propTypes))
       component = @props.component
       element = <component key={name} {...props} />
-      @injected = React.render(element, node)
+      @injected = React.render(element, node, @props.onComponentDidRender)
     catch err
       if NylasEnv.inDevMode()
         console.error err
@@ -65,10 +69,12 @@ class UnsafeComponent extends React.Component
           stackEnd = stack.lastIndexOf('\n', stackEnd)
           stack = stack.substr(0,stackEnd)
 
-        element = <div className="unsafe-component-exception">
-          <div className="message">{@props.component.displayName} could not be displayed.</div>
-          <div className="trace">{stack}</div>
-        </div>
+        element = (
+          <div className="unsafe-component-exception">
+            <div className="message">{@props.component.displayName} could not be displayed.</div>
+            <div className="trace">{stack}</div>
+          </div>
+        )
       else
         ## TODO
         # Add some sort of notification code here that lets us know when
@@ -76,7 +82,7 @@ class UnsafeComponent extends React.Component
         #
         element = <div></div>
 
-    @injected = React.render(element, node)
+        @injected = React.render(element, node)
 
   unmountInjected: =>
     try

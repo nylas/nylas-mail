@@ -70,6 +70,7 @@ class FocusedContentStore
 
   _resetInstanceVars: =>
     @_focused = {}
+    @_focusedUsingClick = {}
     @_keyboardCursor = {}
     @_keyboardCursorEnabled = WorkspaceStore.layoutMode() is 'list'
 
@@ -87,11 +88,12 @@ class FocusedContentStore
     @_keyboardCursor[collection] = item
     @triggerAfterAnimationFrame({ impactsCollection: (c) -> c is collection })
 
-  _onFocus: ({collection, item}) =>
+  _onFocus: ({collection, item, usingClick}) =>
     throw new Error("focus() requires a collection") unless collection
     return if @_focused[collection]?.id is item?.id
 
     @_focused[collection] = item
+    @_focusedUsingClick[collection] = usingClick
     @_keyboardCursor[collection] = item if item
     @triggerAfterAnimationFrame({ impactsCollection: (c) -> c is collection })
 
@@ -154,6 +156,16 @@ class FocusedContentStore
   ###
   focusedId: (collection) =>
     @_focused[collection]?.id
+
+  ###
+  Public: Returns true if the item for the collection was focused via a click or
+  false otherwise.
+
+  - `collection` The {String} name of a collection. Standard collections are
+    listed above.
+  ###
+  didFocusUsingClick: (collection) =>
+    @_focusedUsingClick[collection] ? false
 
   ###
   Public: Returns the {Model} the keyboard is currently focused on

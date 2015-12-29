@@ -17,7 +17,7 @@ class MultiselectSplitInteractionHandler
     @dataView.selection.count() > 1
 
   onClick: (item) ->
-    Actions.setFocus({collection: @collection, item: item})
+    Actions.setFocus({collection: @collection, item: item, usingClick: true})
     @dataView.selection.clear()
     @_checkSelectionAndFocusConsistency()
 
