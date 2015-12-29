@@ -43,6 +43,8 @@ class InjectedComponentSet extends React.Component
    - `className` (optional) A {String} class name for the containing element.
    - `children` (optional) Any React elements rendered inside the InjectedComponentSet
       will always be displayed.
+   - `onComponentsDidRender` Callback that will be called when the injected component set
+      is successfully rendered onto the DOM.
    - `exposedProps` (optional) An {Object} with props that will be passed to each
       item rendered into the set.
    - `containersRequired` (optional). Pass false to optionally remove the containers
@@ -57,18 +59,21 @@ class InjectedComponentSet extends React.Component
     className: React.PropTypes.string
     exposedProps: React.PropTypes.object
     containersRequired: React.PropTypes.bool
-    requiredMethods: React.PropTypes.arrayOf(React.PropTypes.string)
+    onComponentsDidRender: React.PropTypes.func
 
   @defaultProps:
     direction: 'row'
     containersRequired: true
+    onComponentsDidRender: ->
 
   constructor: (@props) ->
     @state = @_getStateFromStores()
+    @_renderedComponents = new Set()
 
   componentDidMount: =>
     @_componentUnlistener = ComponentRegistry.listen =>
       @setState(@_getStateFromStores())
+    @props.onComponentsDidRender() if @props.containersRequired is false
 
   componentWillUnmount: =>
     @_componentUnlistener() if @_componentUnlistener
@@ -77,16 +82,26 @@ class InjectedComponentSet extends React.Component
     if newProps.location isnt @props?.location
       @setState(@_getStateFromStores(newProps))
 
+  componentDidUpdate: =>
+    @props.onComponentsDidRender() if @props.containersRequired is false
+
   render: =>
+    @_renderedComponents = new Set()
     flexboxProps = _.omit(@props, _.keys(@constructor.propTypes))
     flexboxClassName = @props.className ? ""
     exposedProps = @props.exposedProps ? {}
 
     elements = @state.components.map (component) =>
       if @props.containersRequired is false or component.containerRequired is false
-        <component key={component.displayName} {...exposedProps} />
+        return <component key={component.displayName} {...exposedProps} />
       else
-        <UnsafeComponent component={component} key={component.displayName} {...exposedProps} />
+        return (
+          <UnsafeComponent
+            key={component.displayName}
+            component={component}
+            onComponentDidRender={@_onComponentDidRender.bind(@, component.displayName)}
+            {...exposedProps} />
+        )
 
 
     if @state.visible
@@ -95,9 +110,14 @@ class InjectedComponentSet extends React.Component
       elements.push(<span key="_clear" style={clear:'both'}/>)
 
     <Flexbox className={flexboxClassName} {...flexboxProps}>
-        {elements}
-        {@props.children ? []}
+      {elements}
+      {@props.children ? []}
     </Flexbox>
+
+  _onComponentDidRender: (componentName) =>
+    @_renderedComponents.add(componentName)
+    if @_renderedComponents.size is @state.components.length
+      @props.onComponentsDidRender()
 
   _getStateFromStores: (props) =>
     props ?= @props

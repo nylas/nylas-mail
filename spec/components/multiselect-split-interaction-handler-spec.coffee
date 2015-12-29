@@ -54,9 +54,13 @@ describe "MultiselectSplitInteractionHandler", ->
     expect(@handler.shouldShowKeyboardCursor()).toEqual(true)
 
   describe "onClick", ->
-    it "should focus list items", ->
+    it "should focus the list item and indicate it was focused via click", ->
       @handler.onClick(@item)
-      expect(Actions.setFocus).toHaveBeenCalledWith({collection: @collection, item: @item})
+      expect(Actions.setFocus).toHaveBeenCalledWith({
+        collection: @collection
+        item: @item
+        usingClick: true
+      })
 
   describe "onMetaClick", ->
     describe "when there is currently a focused item", ->

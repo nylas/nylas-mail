@@ -15,6 +15,7 @@ ReactTestUtils = React.addons.TestUtils
  AccountStore,
  FileUploadStore,
  ContactStore,
+ FocusedContentStore,
  ComponentRegistry} = require "nylas-exports"
 
 {InjectedComponent} = require 'nylas-component-kit'
@@ -136,9 +137,9 @@ describe "ComposerView", ->
       body: "Hello <b>World</b><br/> This is a test"
       replyToMessageId: null
 
-  makeComposer = ->
+  makeComposer = (props={}) ->
     @composer = NylasTestUtils.renderIntoDocument(
-      <ComposerView draftClientId={DRAFT_CLIENT_ID} />
+      <ComposerView draftClientId={DRAFT_CLIENT_ID} {...props} />
     )
 
   describe "populated composer", ->
@@ -257,10 +258,22 @@ describe "ComposerView", ->
         makeComposer.call @
         expect(@composer.state.focusedField).toBe Fields.Subject
 
-      it "focuses the body otherwise", ->
+      it "focuses the body if the composer is not inline", ->
         useDraft.call @, to: [u1], subject: "Yo"
-        makeComposer.call @
+        makeComposer.call @, {mode: 'fullWindow'}
         expect(@composer.state.focusedField).toBe Fields.Body
+
+      it "focuses the body if the composer is inline and the thread was focused via a click", ->
+        spyOn(FocusedContentStore, 'didFocusUsingClick').andReturn true
+        useDraft.call @, to: [u1], subject: "Yo"
+        makeComposer.call @, {mode: 'inline'}
+        expect(@composer.state.focusedField).toBe Fields.Body
+
+      it "does not focus any field if the composer is inline and the thread was not focused via a click", ->
+        spyOn(FocusedContentStore, 'didFocusUsingClick').andReturn false
+        useDraft.call @, to: [u1], subject: "Yo"
+        makeComposer.call @, {mode: 'inline'}
+        expect(@composer.state.focusedField).toBeUndefined()
 
     describe "when deciding whether or not to enable the subject", ->
       it "enables the subject when the subject is empty", ->
@@ -355,27 +368,35 @@ describe "ComposerView", ->
         makeComposer.call(@)
         @composer.setState focusedField: Fields.Cc
         @body = @composer.refs[Fields.Body]
-        spyOn(@body, "focus")
         spyOn(React, "findDOMNode").andCallThrough()
+        spyOn(@composer, "_focusEditor")
         spyOn(@composer, "_applyFieldFocus").andCallThrough()
+        spyOn(@composer, "_onEditorBodyDidRender").andCallThrough()
+
+      it "does not apply focus if the focused field hasn't changed", ->
+        @composer._lastFocusedField = Fields.Body
+        @composer.setState focusedField: Fields.Body
+        expect(@composer._focusEditor).not.toHaveBeenCalled()
+        @composer._lastFocusedField = null
 
       it "can focus on the subject", ->
         @composer.setState focusedField: Fields.Subject
-        expect(@composer._applyFieldFocus.calls.length).toBe 1
+        expect(@composer._applyFieldFocus.calls.length).toBe 2
         expect(React.findDOMNode).toHaveBeenCalled()
         calls = _.filter React.findDOMNode.calls, (call) ->
           call.args[0].props.name == "subject"
         expect(calls.length).toBe 1
 
-      it "can focus on the body", ->
-        @composer.setState focusedField: Fields.Body
-        expect(@body.focus).toHaveBeenCalled()
-        expect(@body.focus.calls.length).toBe 1
+      it "focuses the body when the body changes only after it has been rendered", ->
+        @composer.setState focusedField: Fields.Body, body: 'new body'
+        expect(@composer._onEditorBodyDidRender).toHaveBeenCalled()
+        expect(@composer._applyFieldFocus.calls.length).toEqual 1
+        expect(@composer._focusEditor.calls.length).toBe 1
 
       it "ignores focuses to participant fields", ->
         @composer.setState focusedField: Fields.To
-        expect(@body.focus).not.toHaveBeenCalled()
-        expect(@composer._applyFieldFocus.calls.length).toBe 1
+        expect(@composer._focusEditor).not.toHaveBeenCalled()
+        expect(@composer._applyFieldFocus.calls.length).toBe 2
 
     describe "when participants are added during a draft update", ->
       it "shows the cc fields and bcc fields to ensure participants are never hidden", ->
