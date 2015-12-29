@@ -50,7 +50,7 @@ class TemplateStatusBar extends React.Component {
     if (this._draftUsesTemplate()) {
       return (
         <div className="template-status-bar">
-          Press "tab" to quickly fill in the blanks - highlighting will not be visible to recipients.
+          Press "tab" to quickly move between the blanks - highlighting will not be visible to recipients.
         </div>
       );
     }

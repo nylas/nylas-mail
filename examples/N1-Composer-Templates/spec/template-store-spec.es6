@@ -30,7 +30,7 @@ describe('TemplateStore', ()=> {
 
   it('should create the templates folder if it does not exist', ()=> {
     spyOn(fs, 'exists').andCallFake((path, callback)=> callback(false) );
-    TemplateStore.init(stubTemplatesDir);
+    TemplateStore._init(stubTemplatesDir);
     expect(fs.mkdir).toHaveBeenCalled();
   });
 
@@ -39,7 +39,7 @@ describe('TemplateStore', ()=> {
     spyOn(fs, 'exists').andCallFake((path, callback)=> { callback(true); });
     spyOn(fs, 'watch').andCallFake((path, callback)=> watchCallback = callback);
     spyOn(fs, 'readdir').andCallFake((path, callback)=> { callback(null, Object.keys(stubTemplateFiles)); });
-    TemplateStore.init(stubTemplatesDir);
+    TemplateStore._init(stubTemplatesDir);
     watchCallback();
     expect(TemplateStore.items()).toEqual(stubTemplates);
   });
@@ -57,7 +57,7 @@ describe('TemplateStore', ()=> {
         callback(null, []);
       }
     });
-    TemplateStore.init(stubTemplatesDir);
+    TemplateStore._init(stubTemplatesDir);
     expect(TemplateStore.items()).toEqual([]);
 
     watchFired = true;
@@ -71,7 +71,7 @@ describe('TemplateStore', ()=> {
       spyOn(fs, 'exists').andCallFake((path, callback)=> { callback(true); });
       spyOn(fs, 'watch').andCallFake((path, callback)=> watchCallback = callback);
       spyOn(fs, 'readdir').andCallFake((path, callback)=> { callback(null, Object.keys(stubTemplateFiles)); });
-      TemplateStore.init(stubTemplatesDir);
+      TemplateStore._init(stubTemplatesDir);
       watchCallback();
       const add = jasmine.createSpy('add');
       spyOn(DraftStore, 'sessionForClientId').andCallFake(()=> {
@@ -105,7 +105,7 @@ describe('TemplateStore', ()=> {
         const session = {draft() { return d; }};
         return Promise.resolve(session);
       });
-      TemplateStore.init(stubTemplatesDir);
+      TemplateStore._init(stubTemplatesDir);
     });
 
     it('should create a template with the given name and contents', ()=> {

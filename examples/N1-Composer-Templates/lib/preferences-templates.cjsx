@@ -2,20 +2,21 @@ _ = require 'underscore'
 {Contenteditable, RetinaImg, Flexbox} = require 'nylas-component-kit'
 {AccountStore, Utils, React} = require 'nylas-exports'
 TemplateStore = require './template-store'
+TemplateEditor = require './template-editor'
 
 class PreferencesTemplates extends React.Component
   @displayName: 'PreferencesTemplates'
 
   constructor: (@props) ->
-    TemplateStore.init()
     @_templateSaveQueue = {}
 
+    {templates, selectedTemplate, selectedTemplateName} = @_getStateFromStores()
     @state =
       editAsHTML: false
       editState: null
-      templates: []
-      selectedTemplate: null
-      selectedTemplateName: null
+      templates: templates
+      selectedTemplate: selectedTemplate
+      selectedTemplateName: selectedTemplateName
       contents: null
 
   componentDidMount: ->
@@ -36,7 +37,7 @@ class PreferencesTemplates extends React.Component
       )
 
   _saveTemplateNow: (name, contents, callback) =>
-    TemplateStore.saveTemplate(name, contents, false, callback)
+    TemplateStore.saveTemplate(name, contents, callback)
 
   _saveTemplateSoon: (name, contents) =>
     @_templateSaveQueue[name] = contents
@@ -58,24 +59,30 @@ class PreferencesTemplates extends React.Component
 
   _getStateFromStores: ->
     templates = TemplateStore.items()
-    selectedTemplate = @state.selectedTemplate
+    #selectedTemplate = _.findWhere(templates, {id: @state?.selectedTemplate?.id}) || templates[0]
+
+    selectedTemplate = @state?.selectedTemplate
+    # deleted
     if selectedTemplate? and selectedTemplate.id not in _.pluck(templates, "id")
       selectedTemplate = null
-    else if not selectedTemplate?
+    # none selected
+    else if not selectedTemplate
       selectedTemplate = if templates.length > 0 then templates[0] else null
     @_loadTemplateContents(selectedTemplate)
-    if selectedTemplate?
-      selectedTemplateName = @state.selectedTemplateName || selectedTemplate.name
+    if selectedTemplate
+      selectedTemplateName = @state?.selectedTemplateName || selectedTemplate.name
     return {templates, selectedTemplate, selectedTemplateName}
 
 
 
   # TEMPLATE CONTENT EDITING
+
   _onEditTemplate: (event) =>
     html = event.target.value
     @setState contents: html
     if @state.selectedTemplate?
       @_saveTemplateSoon(@state.selectedTemplate.name, html)
+
 
   _onSelectTemplate: (event) =>
     if @state.selectedTemplate?
@@ -103,6 +110,7 @@ class PreferencesTemplates extends React.Component
        ref="templateInput"
        value={@state.contents}
        onChange={@_onEditTemplate}
+       extensions={[TemplateEditor]}
        spellcheck={false} />
 
   _renderHTMLTemplate: ->
@@ -167,7 +175,7 @@ class PreferencesTemplates extends React.Component
       contents: ""
 
   _saveNewTemplate: =>
-    TemplateStore.saveTemplate(@state.selectedTemplateName, @state.contents, true, (template) =>
+    TemplateStore.writeTemplate(@state.selectedTemplateName, @state.contents, (template) =>
       @setState
         selectedTemplate: template
         editState: null
@@ -196,8 +204,22 @@ class PreferencesTemplates extends React.Component
         <RetinaImg name="icon-composer-trash.png" mode={RetinaImg.Mode.ContentIsMask} />
       </button>
 
+    editor =
+      <div>
+        <div className="template-wrap">
+          {if @state.editAsHTML then @_renderHTMLTemplate() else @_renderEditableTemplate()}
+        </div>
+        <span className="editor-note">
+          { if _.size(@_templateSaveQueue) > 0 then "Saving changes..." else "Changes saved." }
+        </span>
+        <span style={float:"right"}>{if @state.editState == null then deleteBtn else ""}</span>
+        <div className="toggle-mode" style={marginTop: "1em"}>
+          {@_renderModeToggle()}
+        </div>
+      </div>
+
     <div>
-    <section className="container-templates">
+    <section className="container-templates" style={if @state.editState is "new" then {marginBottom:50}}>
       <h2>Quick Replies</h2>
       {
         switch @state.editState
@@ -205,30 +227,21 @@ class PreferencesTemplates extends React.Component
           when "new" then @_renderCreateNew()
           else @_renderName()
       }
-      <div className="template-wrap">
-        {if @state.editAsHTML then @_renderHTMLTemplate() else @_renderEditableTemplate()}
-      </div>
-      <span className="editor-note">
-        { if _.size(@_templateSaveQueue) > 0 then "Saving changes..." else "Changes saved." }
-      </span>
-      <span style={float:"right"}>{if @state.editState == null then deleteBtn else ""}</span>
-      <div className="toggle-mode" style={marginTop: "1em"}>
-        {@_renderModeToggle()}
-      </div>
+      {if @state.editState isnt "new" then editor}
     </section>
 
     <section className="templates-instructions">
     <p>
-      The Quick Replies plugin lets you write preset templates to use as email responses. Replies can contain variables, which
-      you can quickly jump between and fill out when using the template.
+      The Quick Replies plugin allows you to create templated email replies. Replies can contain variables, which
+      you can quickly jump between and fill out when using the template. To create a variable, type a set of double curly
+      brackets wrapping the variable's name, like this: <strong>{"{{"}variable_name{"}}"}</strong>
     </p>
     <p>
-      Variables are defined as HTML &lt;code&gt; tags with class "var". You can include these by editing the raw HTML of the template and adding <code>&lt;code class="var"&gt;[content]&lt;/code&gt;</code>. Add
-      the "empty" class to make a region dark yellow and indicate that it should be filled in. When you send your message, &lt;code&gt;
-      tags are always stripped so the recipient never sees any highlighting.
+      In raw HTML, variables are defined as HTML &lt;code&gt; tags with class "var empty". Typing curly brackets creates a tag
+      automatically. The code tags are colored yellow to show the variable regions, but will be stripped out before the message is sent.
     </p>
     <p>
-      Templates live in the <strong>~/.nylas/templates</strong> directory on your computer. Each template
+      Reply templates live in the <strong>~/.nylas/templates</strong> directory on your computer. Each template
       is an HTML file - the name of the file is the name of the template, and its contents are the default message body.
     </p>
 

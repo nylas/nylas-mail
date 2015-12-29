@@ -100,6 +100,92 @@ class ExtendedSelection
       DOMUtils.findNodeByRegex(@scopeNode, arg)
       return
 
+  # Finds the start and end text index of the current selection relative
+  # to a given Node or Range. Returns an object of the form:
+  #   {startIndex, endIndex}
+  #
+  # Uses getIndexedTextContent to index the text, which accounts for line breaks
+  # from DIVs and BRs. For ranges, the index takes into account the start and end
+  # offsets of the range.
+  getSelectionTextIndex: (refRangeOrNode) ->
+    return null unless DOMUtils.selectionStartsOrEndsIn(refRangeOrNode)
+    sel = @rawSelection
+    return null unless sel
+    startIndex = null
+    endIndex = null
+    range = null
+    rangeOffset = 0
+    if refRangeOrNode instanceof Range
+      range = refRangeOrNode
+      parentNode = range.commonAncestorContainer
+    else
+      parentNode = refRangeOrNode
+
+    # If the selection is directly on the parent node, just return the
+    # selection offsets
+    if parentNode is sel.anchorNode
+      if range then rangeOffset = range.startOffset
+      startIndex = sel.anchorOffset-rangeOffset
+    if parentNode is sel.focusNode
+      if range then rangeOffset = range.startOffset
+      endIndex = sel.focusOffset-rangeOffset
+
+    if parentNode is sel.anchorNode and parentNode is sel.focusNode
+      return {startIndex, endIndex}
+
+    # Otherwise find the start and end index within a text representation of the
+    # parent node
+    for {node, start, end} in DOMUtils.getIndexedTextContent(parentNode)
+      if range?.startContainer is node
+        rangeOffset = start + range.startOffset
+      if sel.anchorNode is node
+        startIndex = start + sel.anchorOffset - rangeOffset
+      if sel.focusNode is node
+        endIndex = start + sel.focusOffset - rangeOffset
+    return {startIndex, endIndex}
+
+  # Sets the current selection to start and end at the specified indices, relative
+  # to the given Range or Node. This is the inverse of getSelectionByTextIndex.
+  #
+  # Uses getIndexedTextContent to index the text, which accounts for line breaks
+  # from DIVs and BRs. For ranges, the index takes into account the start and end
+  # offsets of the range.
+  restoreSelectionByTextIndex: (refRangeOrNode, startIndex, endIndex) ->
+    startNode = null
+    startOffset = null
+    endNode = null
+    endOffset = null
+    range = null
+    sel = @rawSelection
+    if refRangeOrNode instanceof Range
+      range = refRangeOrNode
+      parentNode = range.commonAncestorContainer
+    else
+      parentNode = refRangeOrNode
+
+    if parentNode.childNodes.length == 0 # text node
+      sel.setBaseAndExtent(parentNode, startIndex, parentNode, endIndex)
+
+    inRange = (range is null) # we're not in range yet, unless there is no range
+    items = DOMUtils.getIndexedTextContent(parentNode)
+    for {node, start, end},i in items
+      inRange = inRange or (range.startContainer is node)
+      atEnd = i==(items.length-1)
+      if not inRange
+        continue
+      if range?.startContainer is node
+        rangeOffset = start + range.startIndex
+        if startIndex? then startIndex += rangeOffset
+        if endIndex? then endIndex += rangeOffset
+      if startIndex? and startIndex >= start and (startIndex < end or atEnd and startIndex==end)
+        startNode = node
+        startOffset = startIndex - start
+      if endIndex? and endIndex >= start and (endIndex < end or atEnd and endIndex==end)
+        endNode = node
+        endOffset = endIndex - start
+    sel.setBaseAndExtent(startNode ? sel.anchorNode, startOffset ? sel.anchorOffset, endNode ? sel.focusNode, endOffset ? sel.focusOffset)
+
+
   Object.defineProperty @prototype, "anchorNode",
     get: -> @rawSelection.anchorNode
     set: -> throw @_errNoSet("anchorNode")
