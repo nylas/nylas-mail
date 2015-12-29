@@ -4,6 +4,14 @@ Reflux = require 'reflux'
 Actions = require '../actions'
 FileUploadTask = require '../tasks/file-upload-task'
 
+###
+TODO: This store uses a combination of Actions and it's own internal structures
+to keep track of uploads. It's difficult to ensure this state stays in sync as
+FileUploadTasks run.
+
+Instead, this store should observe the TaskQueueStatusStore and inspect
+FileUploadTasks themselves for state at any given moment. Refactor this!
+###
 module.exports =
 FileUploadStore = Reflux.createStore
   init: ->
@@ -91,10 +99,12 @@ FileUploadStore = Reflux.createStore
     @_fileUploadTrigger()
 
   _onAbortUpload: (uploadData) ->
+    delete @_fileUploads[uploadData.uploadTaskId]
     Actions.dequeueMatchingTask
       type: 'FileUploadTask',
       matching:
         id: uploadData.uploadTaskId
+    @trigger()
 
   _onLinkFileToUpload: ({file, uploadData}) ->
     @_linkedFiles[file.id] = uploadData
