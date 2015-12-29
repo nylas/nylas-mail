@@ -26,9 +26,9 @@ class DeveloperBarLongPollItem extends React.Component
     classname = "item"
     right = @props.item.cursor
 
-    if @props.item.ignoredBecause
+    if @props.ignoredBecause
       classname += " ignored"
-      right = @props.item.ignoredBecause + " - " + right
+      right = @props.ignoredBecause + " - " + right
 
     <div className={classname} onClick={ => @setState expanded: not @state?.expanded}>
       <div className="cursor">{right}</div>

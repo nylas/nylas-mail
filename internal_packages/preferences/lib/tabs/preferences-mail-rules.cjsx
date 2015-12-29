@@ -84,7 +84,12 @@ class PreferencesMailRules extends React.Component
       className="rule-list"
       showEditIcon={true}
       items={@state.rules}
-      itemContent={ (rule) -> rule.name }
+      itemContent={ (rule) ->
+        if rule.disabled
+          return <div className="item-rule-disabled">{rule.name}</div>
+        else
+          return rule.name
+      }
       onCreateItem={@_onAddRule}
       onDeleteItem={@_onDeleteRule}
       onItemEdited={@_onRuleNameEdited}
@@ -96,6 +101,7 @@ class PreferencesMailRules extends React.Component
 
     if rule
       <ScrollRegion className="rule-detail">
+        {@_renderDetailDisabledNotice()}
         <div className="inner">
           <span>If </span>
           <select value={rule.conditionMode} onChange={@_onRuleConditionModeEdited}>
@@ -121,6 +127,15 @@ class PreferencesMailRules extends React.Component
       <div className="rule-detail">
         <div className="no-selection">Create a rule or select one to get started</div>
       </div>
+
+  _renderDetailDisabledNotice: =>
+    return false unless @state.selectedRule.disabled
+    <div className="disabled-reason">
+      <button className="btn" onClick={@_onRuleEnabled}>Enable</button>
+      This rule has been disabled. Make sure the actions below are valid
+      and re-enable the rule.
+      <div>({@state.selectedRule.disabledReason})</div>
+    </div>
 
   _renderTasks: =>
     return false if @state.tasks.length is 0
@@ -169,6 +184,9 @@ class PreferencesMailRules extends React.Component
 
   _onRuleConditionModeEdited: (event) =>
     Actions.updateMailRule(@state.selectedRule.id, {conditionMode: event.target.value})
+
+  _onRuleEnabled: =>
+    Actions.updateMailRule(@state.selectedRule.id, {disabled: false, disabledReason: null})
 
   _onRulesChanged: =>
     next = @stateForAccount(@props.accountId)

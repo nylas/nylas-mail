@@ -6,6 +6,7 @@ Rx = require 'rx-lite'
 
 {Comparator, Template} = require './scenario-editor-models'
 
+SOURCE_SELECT_NULL = 'NULL'
 
 class SourceSelect extends React.Component
   @displayName: 'SourceSelect'
@@ -40,11 +41,21 @@ class SourceSelect extends React.Component
   render: =>
     options = @state.options
 
-    <select value={@props.value} onChange={@props.onChange}>
+    # The React <select> component won't select the correct option if the value
+    # is null or undefined - it just leaves the selection whatever it was in the
+    # previous render. To work around this, we coerce null/undefined to SOURCE_SELECT_NULL.
+
+    <select value={@props.value || SOURCE_SELECT_NULL} onChange={@_onChange}>
+      <option key={SOURCE_SELECT_NULL} value={SOURCE_SELECT_NULL}></option>
       { @state.options.map ({value, name}) =>
         <option key={value} value={value}>{name}</option>
       }
     </select>
+
+  _onChange: (event) =>
+    value = event.target.value
+    value = null if value is SOURCE_SELECT_NULL
+    @props.onChange(target: {value})
 
 class ScenarioEditorRow extends React.Component
   @displayName: 'ScenarioEditorRow'

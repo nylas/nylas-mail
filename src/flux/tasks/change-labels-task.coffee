@@ -56,10 +56,13 @@ class ChangeLabelsTask extends ChangeMailTask
       messages: DatabaseStore.modelify(Message, @messages)
 
     ).then ({labelsToAdd, labelsToRemove, threads, messages}) =>
+      if _.any([].concat(labelsToAdd, labelsToRemove), _.isUndefined)
+        return Promise.reject(new Error("One or more of the specified labels could not be found."))
+
       # Remove any objects we weren't able to find. This can happen pretty easily
       # if you undo an action and other things have happened.
-      @labelsToAdd = _.compact(labelsToAdd)
-      @labelsToRemove = _.compact(labelsToRemove)
+      @labelsToAdd = labelsToAdd
+      @labelsToRemove = labelsToRemove
       @threads = _.compact(threads)
       @messages = _.compact(messages)
 

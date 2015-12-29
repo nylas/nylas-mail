@@ -1,7 +1,9 @@
 _ = require 'underscore'
 {Message,
  Contact,
+ Thread,
  File,
+ DatabaseStore,
  TaskQueueStatusStore,
  Actions} = require 'nylas-exports'
 
@@ -142,14 +144,14 @@ describe "MailRulesProcessor", ->
     it "should queue tasks for messages", ->
       spyOn(TaskQueueStatusStore, 'waitForPerformLocal')
       spyOn(Actions, 'queueTask')
-
+      spyOn(DatabaseStore, 'findBy').andReturn(Promise.resolve({}))
       Tests.forEach ({rule}) =>
         TaskQueueStatusStore.waitForPerformLocal.reset()
         Actions.queueTask.reset()
 
-        messageSpy = jasmine.createSpy('message')
-        threadSpy = jasmine.createSpy('thread')
-        response = MailRulesProcessor._applyRuleToMessage(rule, messageSpy, threadSpy)
+        message = new Message({accountId: rule.accountId})
+        thread = new Thread({accountId: rule.accountId})
+        response = MailRulesProcessor._applyRuleToMessage(rule, message, thread)
         expect(response instanceof Promise).toBe(true)
 
         waitsForPromise =>

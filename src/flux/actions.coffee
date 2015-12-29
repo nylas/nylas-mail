@@ -79,7 +79,6 @@ class Actions
   @downloadStateChanged: ActionScopeGlobal
   @linkFileToUpload: ActionScopeGlobal
   @fileUploaded: ActionScopeGlobal
-  @multiWindowNotification: ActionScopeGlobal
   @sendDraftSuccess: ActionScopeGlobal
   @sendToAllWindows: ActionScopeGlobal
   @draftSendingFailed: ActionScopeGlobal
@@ -424,6 +423,8 @@ class Actions
   ###
   @postNotification: ActionScopeGlobal
 
+  @dismissNotificationsMatching: ActionScopeGlobal
+
   ###
   Public: Listen to this action to handle user interaction with notifications you
   published via `postNotification`.
@@ -511,6 +512,7 @@ class Actions
   @addMailRule: ActionScopeWindow
   @updateMailRule: ActionScopeWindow
   @deleteMailRule: ActionScopeWindow
+  @disableMailRule: ActionScopeWindow
 
 # Read the actions we declared on the dummy Actions object above
 # and translate them into Reflux Actions
