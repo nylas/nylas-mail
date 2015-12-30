@@ -95,16 +95,21 @@ function bootstrap() {
     env: apmEnv
   };
 
+  var integrationCommand = npmPath + npmFlags + 'install';
+  var integrationOptions = {cwd: path.resolve(__dirname, '..', 'spec_integration')};
+
   if (process.argv.indexOf('--no-quiet') === -1) {
     buildInstallCommand  += ' --loglevel error';
     npmInstallApmCommand    += ' --loglevel error';
     apmInstallCommand += ' --loglevel error';
+    integrationCommand += ' --loglevel error';
     apmDedupeCommand     += ' --quiet';
 
     npmDedupeNpmOptions.ignoreStderr = true;
     npmDedupeNpmOptions.ignoreStdout = true;
     buildInstallOptions.ignoreStdout = true;
     npmInstallApmOptions.ignoreStdout = true;
+    integrationOptions.ignoreStdout = true;
   }
 
   // apm ships with 32-bit node so make sure its native modules are compiled
@@ -144,9 +149,6 @@ function bootstrap() {
   var gruntCmd = ""
   var downloadElectronCmd = gruntPath + " download-electron --gruntfile build/Gruntfile.coffee"
   m7 += "     $ "+downloadElectronCmd
-
-  var integrationCommand = npmPath + npmFlags + 'install';
-  var integrationOptions = {cwd: path.resolve(__dirname, '..', 'spec_integration')};
 
   m8  = "\n\n---> Installing integration test modules\n\n"
   m8 += "     $ "+integrationCommand+" "+printArgs(integrationOptions)+"\n"
