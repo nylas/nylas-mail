@@ -100,7 +100,7 @@ TrackingBlacklist = [{
 
 class TrackingPixelsExtension extends MessageViewExtension
 
-  @formatMessageBody: (message) ->
+  @formatMessageBody: ({message}) ->
     return unless message.isFromMe()
 
     regex = RegExpUtils.imageTagRegex()

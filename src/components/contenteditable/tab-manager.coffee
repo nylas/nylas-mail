@@ -1,7 +1,7 @@
 {DOMUtils, ContenteditableExtension} = require 'nylas-exports'
 
 class TabManager extends ContenteditableExtension
-  @onKeyDown: (editor, event) ->
+  @onKeyDown: ({editor, event}) ->
     # This is a special case where we don't want to bubble up the event to
     # the keymap manager if the extension prevented the default behavior
     if event.defaultPrevented

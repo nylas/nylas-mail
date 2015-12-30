@@ -18,7 +18,7 @@ describe "AutoloadImagesExtension", ->
         spyOn(AutoloadImagesStore, 'shouldBlockImagesIn').andReturn(true)
         message =
           body: scenario.in
-        AutoloadImagesExtension.formatMessageBody(message)
+        AutoloadImagesExtension.formatMessageBody({message})
         expect(message.body == scenario.out).toBe(true)
 
 module.exports = AutoloadImagesExtension

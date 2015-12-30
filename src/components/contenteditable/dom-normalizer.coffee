@@ -9,7 +9,7 @@ class DOMNormalizer extends ContenteditableExtension
   # structures, a simple replacement of the DOM is not easy. There are a
   # variety of edge cases that we need to correct for and prepare both the
   # HTML and the selection to be serialized without error.
-  @onContentChanged: (editor, mutations) ->
+  @onContentChanged: ({editor, mutations}) ->
     @_cleanHTML(editor)
     @_cleanSelection(editor)
 

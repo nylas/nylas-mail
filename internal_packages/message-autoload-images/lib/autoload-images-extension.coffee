@@ -3,7 +3,7 @@ AutoloadImagesStore = require './autoload-images-store'
 
 class AutoloadImagesExtension extends MessageViewExtension
 
-  @formatMessageBody: (message) ->
+  @formatMessageBody: ({message}) ->
     if AutoloadImagesStore.shouldBlockImagesIn(message)
       message.body = message.body.replace AutoloadImagesStore.ImagesRegexp, (match, prefix, imageUrl) ->
         "#{prefix}#"

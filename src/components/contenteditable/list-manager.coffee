@@ -2,13 +2,13 @@ _str = require 'underscore.string'
 {DOMUtils, ContenteditableExtension} = require 'nylas-exports'
 
 class ListManager extends ContenteditableExtension
-  @onContentChanged: (editor, mutations) ->
+  @onContentChanged: ({editor, mutations}) ->
     if @_spaceEntered and @hasListStartSignature(editor.currentSelection())
       @createList(editor)
 
     @_collapseAdjacentLists(editor)
 
-  @onKeyDown: (editor, event) ->
+  @onKeyDown: ({editor, event}) ->
     @_spaceEntered = event.key is " "
     if DOMUtils.isInList()
       if event.key is "Backspace" and DOMUtils.atStartOfList()

@@ -1,7 +1,7 @@
 {ComposerExtension, AccountStore} = require 'nylas-exports'
 
 class SignatureComposerExtension extends ComposerExtension
-  @prepareNewDraft: (draft) ->
+  @prepareNewDraft: ({draft}) ->
     accountId = AccountStore.current().id
     signature = NylasEnv.config.get("nylas.account-#{accountId}.signature")
     return unless signature

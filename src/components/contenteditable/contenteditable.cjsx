@@ -81,7 +81,7 @@ class Contenteditable extends React.Component
 
   Edits made within the editing function will eventually fire _onDOMMutated
   ###
-  atomicEdit: (editingFunction, extraArgs...) =>
+  atomicEdit: (editingFunction, extraArgsObj={}) =>
     @_teardownListeners()
 
     editor = new EditorAPI(@_editableNode())
@@ -89,14 +89,14 @@ class Contenteditable extends React.Component
     if not editor.currentSelection().isInScope()
       editor.importSelection(@innerState.exportedSelection)
 
-    args = [editor, extraArgs...]
-    editingFunction.apply(null, args)
+    argsObj = _.extend(extraArgsObj, {editor})
+    editingFunction(argsObj)
 
     @_setupListeners()
 
   focus: => @_editableNode().focus()
 
-  selectEnd: => @atomicEdit (editor) -> editor.selectEnd()
+  selectEnd: => @atomicEdit ({editor}) -> editor.selectEnd()
 
 
   ########################################################################
@@ -202,7 +202,7 @@ class Contenteditable extends React.Component
   _keymapHandlers: ->
     atomicEditWrap = (command) =>
       (event) =>
-        @atomicEdit(((editor) -> editor[command]()), event)
+        @atomicEdit((({editor}) -> editor[command]()), event)
 
     keymapHandlers = {
       'contenteditable:bold': atomicEditWrap("bold")
@@ -253,7 +253,7 @@ class Contenteditable extends React.Component
     @setInnerState dragging: false if @innerState.dragging
     @setInnerState doubleDown: false if @innerState.doubleDown
 
-    @_runCallbackOnExtensions("onContentChanged", mutations)
+    @_runCallbackOnExtensions("onContentChanged", {mutations})
 
     @_saveSelectionState()
 
@@ -306,7 +306,7 @@ class Contenteditable extends React.Component
 
     menu = new Menu()
 
-    @dispatchEventToExtensions("onShowContextMenu", event, menu)
+    @dispatchEventToExtensions("onShowContextMenu", event, {menu})
     menu.append(new MenuItem({ label: 'Cut', role: 'cut'}))
     menu.append(new MenuItem({ label: 'Copy', role: 'copy'}))
     menu.append(new MenuItem({ label: 'Paste', role: 'paste'}))
@@ -320,9 +320,9 @@ class Contenteditable extends React.Component
   ############################# Extensions ###############################
   ########################################################################
 
-  _runCallbackOnExtensions: (method, args...) =>
+  _runCallbackOnExtensions: (method, argsObj={}) =>
     for extension in @props.extensions.concat(@coreExtensions)
-      @_runExtensionMethod(extension, method, args...)
+      @_runExtensionMethod(extension, method, argsObj)
 
   # Will execute the event handlers on each of the registerd and core
   # extensions In this context, event.preventDefault and
@@ -334,20 +334,21 @@ class Contenteditable extends React.Component
   # basically means preventing the core extension handlers from being
   # called.  If any of the extensions calls event.stopPropagation(), it
   # will prevent any other extension handlers from being called.
-  dispatchEventToExtensions: (method, event, args...) =>
+  dispatchEventToExtensions: (method, event, args={}) =>
+    argsObj = _.extend(args, {event})
     for extension in @props.extensions
       break if event?.isPropagationStopped()
-      @_runExtensionMethod(extension, method, event, args...)
+      @_runExtensionMethod(extension, method, argsObj)
 
     return if event?.defaultPrevented or event?.isPropagationStopped()
     for extension in @coreExtensions
       break if event?.isPropagationStopped()
-      @_runExtensionMethod(extension, method, event, args...)
+      @_runExtensionMethod(extension, method, argsObj)
 
-  _runExtensionMethod: (extension, method, args...) =>
+  _runExtensionMethod: (extension, method, argsObj={}) =>
     return if not extension[method]?
     editingFunction = extension[method].bind(extension)
-    @atomicEdit(editingFunction, args...)
+    @atomicEdit(editingFunction, argsObj)
 
 
   ########################################################################

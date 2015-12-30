@@ -28,7 +28,7 @@ class MessageViewExtension
   Public: Transform the message body HTML provided in `body` and return HTML
   that should be displayed for the message.
   ###
-  @formatMessageBody: (body) ->
+  @formatMessageBody: ({message}) ->
     return body
 
 module.exports = MessageViewExtension

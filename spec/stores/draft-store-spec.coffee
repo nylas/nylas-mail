@@ -32,7 +32,7 @@ fakeMessageWithFiles = null
 msgWithReplyToDuplicates = null
 
 class TestExtension extends ComposerExtension
-  @prepareNewDraft: (draft) ->
+  @prepareNewDraft: ({draft}) ->
     draft.body = "Edited by TestExtension!" + draft.body
 
 describe "DraftStore", ->
