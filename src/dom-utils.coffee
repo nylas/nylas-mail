@@ -600,4 +600,11 @@ DOMUtils =
     node.parentNode.replaceChild(fragment, node)
     return fragment
 
+  isDescendantOf: (node, matcher = -> false) ->
+    parent = node?.parentElement
+    while parent
+      return true if matcher(parent)
+      parent = parent.parentElement
+    false
+
 module.exports = DOMUtils
