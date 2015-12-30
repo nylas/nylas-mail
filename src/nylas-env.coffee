@@ -632,6 +632,14 @@ class NylasEnvConstructor extends Model
     dimensions = @getWindowDimensions()
     @savedState.windowDimensions = dimensions if @isValidDimensions(dimensions)
 
+  storeColumnWidth: ({id, width}) =>
+    @savedState.columnWidths ?= {}
+    @savedState.columnWidths[id] = width
+
+  getColumnWidth: (id) =>
+    @savedState.columnWidths ?= {}
+    @savedState.columnWidths[id]
+
   # Call this method when establishing a real application window.
   startRootWindow: ->
     @displayWindow()

@@ -66,6 +66,8 @@ class ResizableRegion extends React.Component
     @props.handle ?= ResizableHandle.Right
     @state =
       dragging: false
+      width: @props.initialWidth
+      height: @props.initialHeight
 
   render: =>
     if @props.handle.axis is 'horizontal'
@@ -88,8 +90,6 @@ class ResizableRegion extends React.Component
 
       if @state.height?
         containerStyle.height = @state.height
-      else if @props.initialHeight?
-        containerStyle.height = @props.initialHeight
       else
         containerStyle.flex = 1
 
