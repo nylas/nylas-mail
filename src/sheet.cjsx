@@ -16,8 +16,12 @@ class Sheet extends React.Component
     depth: React.PropTypes.number.isRequired
     onColumnSizeChanged: React.PropTypes.func
 
+  @defaultProps:
+    onColumnSizeChanged: ->
+
   @childContextTypes:
     sheetDepth: React.PropTypes.number
+
   getChildContext: =>
     sheetDepth: @props.depth
 
@@ -32,7 +36,7 @@ class Sheet extends React.Component
       @setState(@_getStateFromStores())
 
   componentDidUpdate: =>
-    @props.onColumnSizeChanged(@) if @props.onColumnSizeChanged
+    @props.onColumnSizeChanged(@)
     minWidth = 0
     minWidth += col.minWidth for col in @state.columns
     NylasEnv.setMinimumWidth(minWidth)
@@ -66,14 +70,16 @@ class Sheet extends React.Component
     </div>
 
   _columnFlexboxElements: =>
-    @state.columns.map ({maxWidth, minWidth, handle, location}, idx) =>
+    @state.columns.map (column, idx) =>
+      {maxWidth, minWidth, handle, location, width} = column
       if minWidth != maxWidth and maxWidth < FLEX
         <ResizableRegion key={"#{@props.data.id}:#{idx}"}
                          name={"#{@props.data.id}:#{idx}"}
                          className={"column-#{location.id}"}
                          style={height:'100%'}
                          data-column={idx}
-                         onResize={ => @props.onColumnSizeChanged(@) }
+                         onResize={@_onColumnResize.bind(@, column)}
+                         initialWidth={width}
                          minWidth={minWidth}
                          maxWidth={maxWidth}
                          handle={handle}>
@@ -96,6 +102,10 @@ class Sheet extends React.Component
                               style={style}
                               matching={location: location, mode: @state.mode}/>
 
+  _onColumnResize: (column, width) =>
+    NylasEnv.storeColumnWidth(id: column.location.id, width: width)
+    @props.onColumnSizeChanged(@)
+
   _getStateFromStores: =>
     state =
       mode: WorkspaceStore.layoutMode()
@@ -110,7 +120,8 @@ class Sheet extends React.Component
         entries = ComponentRegistry.findComponentsMatching({location: location, mode: state.mode})
         maxWidth = _.reduce entries, ((m,component) -> Math.min(component.containerStyles?.maxWidth ? 10000, m)), 10000
         minWidth = _.reduce entries, ((m,component) -> Math.max(component.containerStyles?.minWidth ? 0, m)), 0
-        col = {maxWidth, minWidth, location}
+        width = NylasEnv.getColumnWidth(location.id)
+        col = {maxWidth, minWidth, location, width}
         state.columns.push(col)
 
         if maxWidth > widestWidth

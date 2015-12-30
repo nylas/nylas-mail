@@ -18,7 +18,6 @@ MessageItemContainer = require './message-item-container'
  RetinaImg,
  MailLabel,
  ScrollRegion,
- ResizableRegion,
  MailImportantIcon,
  InjectedComponent,
  KeyCommandsRegion,
