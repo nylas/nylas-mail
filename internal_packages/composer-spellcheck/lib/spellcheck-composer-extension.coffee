@@ -12,10 +12,10 @@ class SpellcheckComposerExtension extends ComposerExtension
     SpellcheckCache[word] ?= spellchecker.isMisspelled(word)
     SpellcheckCache[word]
 
-  @onInput: (editableNode) =>
-    @walkTree(editableNode)
+  @onContentChanged: ({editor}) =>
+    @walkTree(editor.rootNode)
 
-  @onShowContextMenu: (editor, event, menu) =>
+  @onShowContextMenu: ({editor, event, menu}) =>
     selection = editor.currentSelection()
     editableNode = editor.rootNode
     range = DOMUtils.Mutating.getRangeAtAndSelectWord(selection, 0)
@@ -119,7 +119,7 @@ class SpellcheckComposerExtension extends ComposerExtension
     if selectionImpacted
       selection.setBaseAndExtent(selectionSnapshot.anchorNode, selectionSnapshot.anchorOffset, selectionSnapshot.focusNode, selectionSnapshot.focusOffset)
 
-  @finalizeSessionBeforeSending: (session) ->
+  @finalizeSessionBeforeSending: ({session}) ->
     body = session.draft().body
     clean = body.replace(/<\/?spelling[^>]*>/g, '')
     if body != clean

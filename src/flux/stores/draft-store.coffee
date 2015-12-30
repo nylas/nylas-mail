@@ -238,7 +238,7 @@ class DraftStore
     # Give extensions an opportunity to perform additional setup to the draft
     for extension in @extensions()
       continue unless extension.prepareNewDraft
-      extension.prepareNewDraft(draft)
+      extension.prepareNewDraft({draft})
 
     # Optimistically create a draft session and hand it the draft so that it
     # doesn't need to do a query for it a second from now when the composer wants it.
@@ -535,7 +535,7 @@ class DraftStore
   _runExtensionsBeforeSend: (session) ->
     for extension in @extensions()
       continue unless extension.finalizeSessionBeforeSending
-      extension.finalizeSessionBeforeSending(session)
+      extension.finalizeSessionBeforeSending({session})
 
   _onRemoveFile: ({file, messageClientId}) =>
     @sessionForClientId(messageClientId).then (session) ->

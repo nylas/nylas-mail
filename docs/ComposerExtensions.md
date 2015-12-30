@@ -27,7 +27,7 @@ This extension displays a warning before sending a draft that contains the names
 
 class ProductsExtension extends ComposerExtension
 
-   @warningsForSending: (draft) ->
+   @warningsForSending: ({draft}) ->
       words = ['acme', 'anvil', 'tunnel', 'rocket', 'dynamite']
       body = draft.body.toLowercase()
       for word in words
@@ -35,9 +35,9 @@ class ProductsExtension extends ComposerExtension
         	return ["with the word '#{word}'?"]
 	  return []
 
-   @finalizeSessionBeforeSending: (session) ->
+   @finalizeSessionBeforeSending: ({session}) ->
       draft = session.draft()
-      if @warningsForSending(draft)
+      if @warningsForSending({draft})
          bodyWithWarning = draft.body += "<br>This email \
          	contains competitor's product names \
         	or trademarks used in context."

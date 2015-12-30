@@ -29,4 +29,8 @@ RegExpUtils =
 
   looseStyleTag: -> /<style/gim
 
+  # Regular expression matching javasript function arguments:
+  # https://regex101.com/r/pZ6zF0/1
+  functionArgs: -> /\(\s*([^)]+?)\s*\)/
+
 module.exports = RegExpUtils

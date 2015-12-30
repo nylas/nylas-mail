@@ -47,7 +47,7 @@ class ComposerExtension extends ContenteditableExtension
   Returns a list of warning strings, or an empty array if no warnings need
   to be displayed.
   ###
-  @warningsForSending: (draft) ->
+  @warningsForSending: ({draft}) ->
     []
 
   ###
@@ -87,7 +87,7 @@ class ComposerExtension extends ContenteditableExtension
   valuable way, you should set `draft.pristine = false` so the draft
   saves, even if no further changes are made.
   ###
-  @prepareNewDraft: (draft) ->
+  @prepareNewDraft: ({draft}) ->
     return
 
   ###
@@ -103,14 +103,14 @@ class ComposerExtension extends ContenteditableExtension
 
   ```coffee
   # Remove any <code> tags found in the draft body
-  finalizeSessionBeforeSending: (session) ->
+  finalizeSessionBeforeSending: ({session}) ->
     body = session.draft().body
     clean = body.replace(/<\/?code[^>]*>/g, '')
     if body != clean
       session.changes.add(body: clean)
   ```
   ###
-  @finalizeSessionBeforeSending: (session) ->
+  @finalizeSessionBeforeSending: ({session}) ->
     return
 
 module.exports = ComposerExtension

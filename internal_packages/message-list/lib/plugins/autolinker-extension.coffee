@@ -3,7 +3,7 @@ Autolinker = require 'autolinker'
 
 class AutolinkerExtension extends MessageViewExtension
 
-  @formatMessageBody: (message) ->
+  @formatMessageBody: ({message}) ->
     # Apply the autolinker pass to make emails and links clickable
     message.body = Autolinker.link(message.body, {twitter: false})
 

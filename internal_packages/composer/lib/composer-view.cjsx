@@ -739,7 +739,7 @@ class ComposerView extends React.Component
     # Check third party warnings added via Composer extensions
     for extension in ExtensionRegistry.Composer.extensions()
       continue unless extension.warningsForSending
-      warnings = warnings.concat(extension.warningsForSending(draft))
+      warnings = warnings.concat(extension.warningsForSending({draft}))
 
     if warnings.length > 0 and not options.force
       response = dialog.showMessageBox(remote.getCurrentWindow(), {

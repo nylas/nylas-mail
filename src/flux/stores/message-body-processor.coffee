@@ -51,7 +51,7 @@ class MessageBodyProcessor
       continue unless extension.formatMessageBody
       virtual = message.clone()
       virtual.body = body
-      extension.formatMessageBody(virtual)
+      extension.formatMessageBody({message: virtual})
       body = virtual.body
 
     # Find inline images and give them a calculated CSS height based on

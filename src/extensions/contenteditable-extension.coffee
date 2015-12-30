@@ -64,7 +64,7 @@ class ContenteditableExtension
   reflect that it is no longer empty.
 
   ```coffee
-  onContentChanged: (editor, mutations) ->
+  onContentChanged: ({editor, mutations}) ->
     isWithinNode = (node) ->
       test = selection.baseNode
       while test isnt editableNode
@@ -78,9 +78,9 @@ class ContenteditableExtension
         codeTag.classList.remove('empty')
   ```
   ###
-  @onContentChanged: (editor, mutations) ->
+  @onContentChanged: ({editor, mutations}) ->
 
-  @onContentStoppedChanging: (editor, mutations) ->
+  @onContentStoppedChanging: ({editor, mutations}) ->
 
   ###
   Public: Override onBlur to mutate the contenteditable DOM node whenever the
@@ -91,7 +91,7 @@ class ContenteditableExtension
   methods for manipulating the selection and DOM
   - event: DOM event fired on the contenteditable
   ###
-  @onBlur: (editor, event) ->
+  @onBlur: ({editor, event}) ->
 
   ###
   Public: Override onFocus to mutate the contenteditable DOM node whenever the
@@ -102,7 +102,7 @@ class ContenteditableExtension
   methods for manipulating the selection and DOM
   - event: DOM event fired on the contenteditable
   ###
-  @onFocus: (editor, event) ->
+  @onFocus: ({editor, event}) ->
 
   ###
   Public: Override onClick to mutate the contenteditable DOM node whenever the
@@ -113,7 +113,7 @@ class ContenteditableExtension
   methods for manipulating the selection and DOM
   - event: DOM event fired on the contenteditable
   ###
-  @onClick: (editor, event) ->
+  @onClick: ({editor, event}) ->
 
   ###
   Public: Override onKeyDown to mutate the contenteditable DOM node whenever the
@@ -133,12 +133,11 @@ class ContenteditableExtension
   methods for manipulating the selection and DOM
   - event: DOM event fired on the contenteditable
   ###
-  @onKeyDown: (editor, event) ->
+  @onKeyDown: ({editor, event}) ->
 
   ###
-  Public: Override onInput to mutate the contenteditable DOM node whenever the
-  onInput event is fired on it.You may mutate the contenteditable in place, we
-  not expect any return value from this method.
+  Public: Override onShowContextMenu to add new menu items to the right click menu
+  inside the contenteditable.
 
   - editor: The {Editor} controller that provides a host of convenience
   methods for manipulating the selection and DOM
@@ -147,6 +146,6 @@ class ContenteditableExtension
   object you can mutate in order to add new [MenuItems](https://github.com/atom/electron/blob/master/docs/api/menu-item.md)
   to the context menu that will be displayed when you right click the contenteditable.
   ###
-  @onShowContextMenu: (editor, event, menu) ->
+  @onShowContextMenu: ({editor, event, menu}) ->
 
 module.exports = ContenteditableExtension

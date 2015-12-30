@@ -18,9 +18,9 @@ describe "SignatureComposerExtension", ->
           draft: true
           body: 'This is a another test.'
 
-        SignatureComposerExtension.prepareNewDraft(a)
+        SignatureComposerExtension.prepareNewDraft(draft: a)
         expect(a.body).toEqual('This is a test! <br/><div class="nylas-n1-signature"><div id="signature">This is my signature.</div></div><blockquote>Hello world</blockquote>')
-        SignatureComposerExtension.prepareNewDraft(b)
+        SignatureComposerExtension.prepareNewDraft(draft: b)
         expect(b.body).toEqual('This is a another test.<br/><div class="nylas-n1-signature"><div id="signature">This is my signature.</div></div>')
 
     describe "when a signature is not defined", ->
@@ -32,5 +32,5 @@ describe "SignatureComposerExtension", ->
         a = new Message
           draft: true
           body: 'This is a test! <blockquote>Hello world</blockquote>'
-        SignatureComposerExtension.prepareNewDraft(a)
+        SignatureComposerExtension.prepareNewDraft(draft: a)
         expect(a.body).toEqual('This is a test! <blockquote>Hello world</blockquote>')

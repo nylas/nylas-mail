@@ -94,7 +94,7 @@ class FloatingToolbarContainer extends React.Component
       onDoneWithLink={@_onDoneWithLink} />
 
   _onSaveUrl: (url, linkToModify) =>
-    @props.atomicEdit (editor) ->
+    @props.atomicEdit ({editor}) ->
       if linkToModify?
         equivalentNode = DOMUtils.findSimilarNodes(editor.rootNode, linkToModify)?[0]
         return unless equivalentNode?
@@ -118,8 +118,9 @@ class FloatingToolbarContainer extends React.Component
   # core actions and user-defined plugins. The FloatingToolbar simply
   # renders them.
   _toolbarButtonConfigs: ->
-    atomicEditWrap = (command) => (event) =>
-      @props.atomicEdit(((editor) -> editor[command]()), event)
+    atomicEditWrap = (command) =>
+      (event) =>
+        @props.atomicEdit((({editor}) -> editor[command]()), event)
 
     extensionButtonConfigs = []
     ExtensionRegistry.Composer.extensions().forEach (ext) ->

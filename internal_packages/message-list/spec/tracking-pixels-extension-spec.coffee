@@ -22,10 +22,10 @@ describe "TrackingPixelsExtension", ->
   it "should splice tracking pixels and only run on messages by the current user", ->
     message = new Message(body: testBody)
     spyOn(message, 'isFromMe').andCallFake -> false
-    TrackingPixelsExtension.formatMessageBody(message)
+    TrackingPixelsExtension.formatMessageBody({message})
     expect(message.body).toEqual(testBody)
 
     message = new Message(body: testBody)
     spyOn(message, 'isFromMe').andCallFake -> true
-    TrackingPixelsExtension.formatMessageBody(message)
+    TrackingPixelsExtension.formatMessageBody({message})
     expect(message.body).toEqual(testBodyProcessed)
