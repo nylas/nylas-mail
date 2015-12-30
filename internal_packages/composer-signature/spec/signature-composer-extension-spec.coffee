@@ -6,7 +6,7 @@ describe "SignatureComposerExtension", ->
   describe "prepareNewDraft", ->
     describe "when a signature is defined", ->
       beforeEach ->
-        @signature = "<div id='signature'>This is my signature.</div>"
+        @signature = '<div id="signature">This is my signature.</div>'
         spyOn(NylasEnv.config, 'get').andCallFake =>
           @signature
 
@@ -19,9 +19,9 @@ describe "SignatureComposerExtension", ->
           body: 'This is a another test.'
 
         SignatureComposerExtension.prepareNewDraft(a)
-        expect(a.body).toEqual("This is a test!<br/><div id='signature'>This is my signature.</div><blockquote>Hello world</blockquote>")
+        expect(a.body).toEqual('This is a test!<br/><div class="nylas-n1-signature"><div id="signature">This is my signature.</div></div><blockquote>Hello world</blockquote>')
         SignatureComposerExtension.prepareNewDraft(b)
-        expect(b.body).toEqual("This is a another test<br/><div id='signature'>This is my signature.</div>")
+        expect(b.body).toEqual('This is a another test<br/><div class="nylas-n1-signature"><div id="signature">This is my signature.</div></div>')
 
     describe "when a signature is not defined", ->
       beforeEach ->
