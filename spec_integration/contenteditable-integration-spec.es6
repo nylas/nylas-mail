@@ -1,7 +1,7 @@
 import N1Launcher from './helpers/n1-launcher';
 import ContenteditableTestHarness from './helpers/contenteditable-test-harness.es6';
 
-fdescribe('Contenteditable Integration Spec', function() {
+describe('Contenteditable Integration Spec', function() {
   beforeAll((done)=>{
     this.app = new N1Launcher(['--dev']);
     this.app.popoutComposerWindowReady().finally(done);
