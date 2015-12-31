@@ -1,0 +1,49 @@
+# Google Inbox specific core key-mappings
+
+'body':
+
+  ### Jumping ###
+  'i' : 'navigation:go-to-inbox'
+
+  ### Threadlist selection ###
+  'X': 'multiselect-list:select-all'
+
+  ### Navigation ###
+  'u': 'application:pop-sheet'
+  'k': 'core:previous-item'
+  'j': 'core:next-item'
+  'o': 'core:focus-item'
+  'p': 'message-list:previous-message'
+  'n': 'message-list:next-message'
+  
+  ### Application ###
+  'c': 'application:new-message'
+  '/': 'application:focus-search'
+  '.': 'application:change-category'
+
+  ### Actions ###
+  'x': 'core:select-item'
+  'y': 'core:remove-from-view' # Remove label 
+  'e': 'application:archive-item' 
+  'm': 'application:mute-conversation'
+  '!': 'application:report-as-spam'
+  '#': 'application:delete-item'
+  'r': 'application:reply'
+  'R': 'application:reply-new-window'
+  'a': 'application:reply-all'
+  'A': 'application:reply-all-new-window'
+  'f': 'application:forward'
+  'F': 'application:forward-new-window'
+  ']': 'application:remove-and-previous'
+  '}': 'application:remove-and-previous'
+  '[': 'application:remove-and-next'
+  '{': 'application:remove-and-next'
+
+  'z': 'core:undo'
+
+  # While not stock Inbox, we add the following standard keymaps that
+  # desktop application users would expect:
+  'cmdctrl-n' : 'application:new-message'
+  'cmdctrl-r' : 'application:reply'
+  'cmdctrl-R' : 'application:reply-all'
+  'cmdctrl-F' : 'application:forward'
