@@ -156,6 +156,7 @@ class TemplateStore extends NylasStore {
       return;
     }
     this.saveTemplate(name, contents, callback);
+    this.trigger(this);
   }
 
   _getTemplate(name, id) {
@@ -185,7 +186,6 @@ class TemplateStore extends NylasStore {
       }
       if(callback)
         callback(template);
-      this.trigger(this);
     });
   }
 

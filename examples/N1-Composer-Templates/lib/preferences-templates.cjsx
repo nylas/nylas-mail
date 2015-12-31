@@ -175,7 +175,7 @@ class PreferencesTemplates extends React.Component
       contents: ""
 
   _saveNewTemplate: =>
-    TemplateStore.writeTemplate(@state.selectedTemplateName, @state.contents, (template) =>
+    TemplateStore.saveNewTemplate(@state.selectedTemplateName, @state.contents, (template) =>
       @setState
         selectedTemplate: template
         editState: null

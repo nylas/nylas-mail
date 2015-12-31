@@ -18,11 +18,11 @@ class TemplateEditor extends ContenteditableExtension
         editor.whilePreservingSelection ->
           DOMUtils.unwrapNode(codeNode)
 
-#    # Attempt to sanitize spans that are needlessly created by contenteditable
-#    for span in editor.rootNode.querySelectorAll("span")
-#      if not span.className
-#        editor.whilePreservingSelection ->
-#          DOMUtils.unwrapNode(span)
+    # Attempt to sanitize spans that are needlessly created by contenteditable
+    for span in editor.rootNode.querySelectorAll("span")
+      if not span.className
+        editor.whilePreservingSelection ->
+          DOMUtils.unwrapNode(span)
 
     # Find all {{}} and wrap them in code nodes if they aren't already
     # Regex finds any {{ <contents> }} that doesn't contain {, }, or \n
