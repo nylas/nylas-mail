@@ -3,7 +3,7 @@
 class TemplateEditor extends ContenteditableExtension
 
 
-  @onContentChanged: (editor) ->
+  @onContentChanged: ({editor}) ->
 
     # Run through and remove all code nodes that are invalid
     codeNodes = editor.rootNode.querySelectorAll("code.var.empty")
@@ -39,7 +39,7 @@ class TemplateEditor extends ContenteditableExtension
           editor.restoreSelectionByTextIndex(codeNode, selIndex.startIndex, selIndex.endIndex)
 
 
-  @onKeyDown: (editor) ->
+  @onKeyDown: ({editor}) ->
     # Look for all existing code tags that we may have added before,
     # and remove any that now have invalid content (don't start with {{ and
     # end with }} as well as any that wrap the current selection
