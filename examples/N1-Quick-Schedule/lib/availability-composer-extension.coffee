@@ -7,7 +7,7 @@ class AvailabilityComposerExtension extends ComposerExtension
   # When subclassing the ComposerExtension, you can add your own custom logic
   # to execute before a draft is sent in the @finalizeSessionBeforeSending
   # method. Here, we're registering the events before we send the draft.
-  @finalizeSessionBeforeSending: (session) ->
+  @finalizeSessionBeforeSending: ({session}) ->
     body = session.draft().body
     participants = session.draft().participants()
     sender = session.draft().from
