@@ -151,7 +151,7 @@ describe 'ParticipantsTextField', ->
         inputs = [
           "Hello world I real. \n asd. garbage-man@nylas.com—he's cool Also 'recycling-guy@nylas.com'!",
           "garbage-man@nylas.com1WHOA I REALLY HATE DATA,recycling-guy@nylas.com",
-          "nils.com garbage-man@nylas.com @nylas.com nope@.com nope!recycling-guy@nylas.com HOLLA AT recycling-guy@nylas."
+          "nils.com garbage-man@nylas.com @nylas.com nope@.com nope! recycling-guy@nylas.com HOLLA AT recycling-guy@nylas."
         ]
 
         for input in inputs
