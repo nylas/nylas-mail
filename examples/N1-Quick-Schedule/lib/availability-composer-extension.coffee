@@ -21,6 +21,8 @@ class AvailabilityComposerExtension extends ComposerExtension
       serverUrl = "https://quickschedule.herokuapp.com/register-events"
       post({url: serverUrl, body: JSON.stringify(data)})
       .then (args) =>
+        if args[0].statusCode != 200
+          throw new Error()
         data = args[1]
         return data
       .catch (error) ->
