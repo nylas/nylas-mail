@@ -112,7 +112,7 @@ class ComposerExtension extends ContenteditableExtension
       session.changes.add(body: clean)
   ```
   ###
-  @finalizeSessionBeforeSending: (session) ->
+  @finalizeSessionBeforeSending: ({session}) ->
     return Promise.resolve(session)
 
 module.exports = ComposerExtension
