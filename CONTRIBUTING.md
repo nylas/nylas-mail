@@ -14,7 +14,7 @@ engine](https://github.com/nylas/sync-engine) repository.
 
 ### Getting Started
 
-First build N1 from source:
+First, clone and build N1 from source:
 
     git clone https://github.com/nylas/N1.git
     cd N1
