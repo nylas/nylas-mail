@@ -45,10 +45,11 @@ module.exports = (grunt) ->
         shellAppDir = grunt.config.get('nylasGruntConfig.shellAppDir')
         shellExePath = path.join(shellAppDir, 'nylas.exe')
 
+        year = new Date().getFullYear()
         strings =
           CompanyName: 'Nylas, Inc.'
           FileDescription: 'Nylas'
-          LegalCopyright: 'Copyright (C) 2014-2015 Nylas, Inc. All rights reserved'
+          LegalCopyright: "Copyright (C) 2014-#{year} Nylas, Inc. All rights reserved"
           ProductName: 'Nylas'
           ProductVersion: version
 
