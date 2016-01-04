@@ -1,3 +1,4 @@
+_ = require 'underscore'
 fs = require 'fs-plus'
 path = require 'path'
 request = require 'request'
@@ -112,3 +113,8 @@ module.exports = (grunt) ->
         grunt.log.writeln("Skipping. We don't operate on branch '#{branch}''")
         return false
     return true
+
+  fillTemplate: (templatePath, outputPath, data) ->
+    content = _.template(String(fs.readFileSync(templatePath)))(data)
+    grunt.file.write(outputPath, content)
+

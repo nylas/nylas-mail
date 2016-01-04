@@ -36,8 +36,12 @@ module.exports = (grunt) ->
     maintainer = 'Nylas Team <support@nylas.com>'
     installDir = '/usr'
     iconName = 'nylas'
+
+    appFileName = grunt.config.get('nylasGruntConfig.appFileName')
+    linuxShareDir = grunt.config.get('nylasGruntConfig.linuxShareDir')
+
     getInstalledSize buildDir, (error, installedSize) ->
-      data = {name, version, description, section, arch, maintainer, installDir, iconName, installedSize}
+      data = {name, version, description, section, arch, maintainer, installDir, iconName, installedSize, appFileName, linuxShareDir}
       controlFilePath = fillTemplate(path.join('build', 'resources', 'linux', 'debian', 'control'), data)
       desktopFilePath = fillTemplate(path.join('build', 'resources', 'linux', 'nylas.desktop'), data)
       icon = path.join('build', 'resources', 'nylas.png')

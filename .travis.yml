@@ -15,6 +15,7 @@ addons:
     - git
     - libgnome-keyring-dev
     - xvfb
+    - rpm
 
 branches:
   only:
