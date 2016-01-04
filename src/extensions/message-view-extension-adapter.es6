@@ -15,7 +15,7 @@ export default function adaptExtension(extension) {
   const original = extension.formatMessageBody;
   if (!original || !isUsingOutdatedAPI(original)) return extension;
   extension.formatMessageBody = ({message})=> {
-    original(message);
+    return original(message);
   };
   return extension;
 }

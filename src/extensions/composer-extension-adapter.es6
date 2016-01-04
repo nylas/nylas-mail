@@ -54,14 +54,13 @@ export function adaptContenteditableMethod(extension, method, original = extensi
     const firstArg = getFunctionArgs(original)[0];
     if (firstArg.includes('editor')) {
       deprecatedArgs = '(editor, ...)';
-      original(editor, eventOrMutations, ...extraArgs);
+      return original(editor, eventOrMutations, ...extraArgs);
     } else if (firstArg.includes('ev')) {
       deprecatedArgs = '(event, editableNode, selection, ...)';
-      original(eventOrMutations, editor.rootNode, editor.currentSelection(), ...extraArgs);
-    } else {
-      deprecatedArgs = '(editableNode, selection, ...)';
-      original(editor.rootNode, editor.currentSelection(), eventOrMutations, ...extraArgs);
+      return original(eventOrMutations, editor.rootNode, editor.currentSelection(), ...extraArgs);
     }
+    deprecatedArgs = '(editableNode, selection, ...)';
+    return original(editor.rootNode, editor.currentSelection(), eventOrMutations, ...extraArgs);
   };
 
   extension[method] = deprecate(
