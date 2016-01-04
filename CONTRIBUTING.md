@@ -6,11 +6,7 @@ If you've found a bug, try searching for similars issue before filing a new one.
 
 # Contributing to N1
 
-Note: You currently need an invitation code to use N1. You can request one
-[here](https://invite.nylas.com). If you reach out to our team, we can bump
-you to the front of the list so you can contribute to the project.
-
-The invitation flow allows us to control adoption of N1 and maintain a great
+The hosted sync engine allows us to control adoption of N1 and maintain a great
 experience for our users. However, the sync engine is 
 [open source](https://github.com/nylas/sync-engine) and you can set it
 up yourself to begin using N1 immediately. Follow instructions on the [sync
@@ -18,7 +14,7 @@ engine](https://github.com/nylas/sync-engine) repository.
 
 ### Getting Started
 
-Once you have an invitation code:
+First, clone and build N1 from source:
 
     git clone https://github.com/nylas/N1.git
     cd N1
@@ -34,8 +30,7 @@ Linux users on Debian 8 and Ubuntu 15.04 onward must also install libgcrypt11, w
 
     ./N1.sh --dev
 
-Once the app boots, you'll be prompted to enter your invitation code and
-email credentials.
+Once the app boots, you'll be prompted to enter your email credentials.
 
 
 ### Testing N1
