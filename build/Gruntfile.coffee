@@ -68,15 +68,10 @@ module.exports = (grunt) ->
   # This allows all subsequent paths to the relative to the root of the repo
   grunt.file.setBase(path.resolve('..'))
 
-  # Commented out because it was causing normal grunt message to dissapear
-  # for some reason.
-  # if not grunt.option('verbose')
-  #   grunt.log.writeln = (args...) -> grunt.log
-  #   grunt.log.write = (args...) -> grunt.log
-
   [major, minor, patch] = packageJson.version.split('.')
   tmpDir = os.tmpdir()
   appName = if process.platform is 'darwin' then 'Nylas N1.app' else 'Nylas'
+  appFileName = packageJson.name
   buildDir = grunt.option('build-dir') ? path.join(tmpDir, 'nylas-build')
   buildDir = path.resolve(buildDir)
   installDir = grunt.option('install-dir')
@@ -104,6 +99,13 @@ module.exports = (grunt) ->
 
   grunt.option('appDir', appDir)
   installDir = path.resolve(installDir)
+
+  if process.platform is "linux"
+    linuxBinDir = path.join(installDir, "bin")
+    linuxShareDir = path.join(installDir, "share", appFileName)
+  else
+    linuxBinDir = null
+    linuxShareDir = null
 
   cjsxConfig =
     glob_to_multiple:
@@ -204,7 +206,7 @@ module.exports = (grunt) ->
   grunt.initConfig
     pkg: grunt.file.readJSON('package.json')
 
-    nylasGruntConfig: {appDir, appName, symbolsDir, buildDir, contentsDir, installDir, shellAppDir}
+    nylasGruntConfig: {appDir, appName, appFileName, symbolsDir, buildDir, contentsDir, installDir, shellAppDir, linuxBinDir, linuxShareDir}
 
     docsOutputDir: 'docs/output'
 
@@ -387,8 +389,7 @@ module.exports = (grunt) ->
 
   else if process.platform is "linux"
     ciTasks.push('mkdeb')
-    # Only works on Fedora build machines
-    # ciTasks.push('mkrpm') if process.platform is 'linux'
+    ciTasks.push('mkrpm')
 
   else if process.platform is "win32"
     ciTasks.push('create-windows-installer:installer')
