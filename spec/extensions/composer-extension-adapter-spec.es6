@@ -129,10 +129,12 @@ describe('ComposerExtensionAdapter', ()=> {
       const extension = {
         finalizeSessionBeforeSending(sess) {
           methodSpy(sess);
+          return 'result';
         },
       };
       adapter.adaptComposerMethod(extension, 'finalizeSessionBeforeSending');
-      extension.finalizeSessionBeforeSending({session});
+      const res = extension.finalizeSessionBeforeSending({session});
+      expect(res).toEqual('result');
       expect(methodSpy).toHaveBeenCalledWith(session);
     });
 
@@ -142,10 +144,12 @@ describe('ComposerExtensionAdapter', ()=> {
       const extension = {
         warningsForSending(dr) {
           methodSpy(dr);
+          return 'result';
         },
       };
       adapter.adaptComposerMethod(extension, 'warningsForSending');
-      extension.warningsForSending({draft});
+      const res = extension.warningsForSending({draft});
+      expect(res).toEqual('result');
       expect(methodSpy).toHaveBeenCalledWith(draft);
     });
   });

@@ -29,11 +29,11 @@ export function adaptComposerMethod(extension, method) {
 
   if (method === 'finalizeSessionBeforeSending') {
     extension[method] = (argsObj)=> {
-      original(argsObj.session);
+      return original(argsObj.session);
     };
   } else {
     extension[method] = (argsObj)=> {
-      original(argsObj.draft);
+      return original(argsObj.draft);
     };
   }
 }
