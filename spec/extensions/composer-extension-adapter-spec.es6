@@ -72,7 +72,7 @@ describe('ComposerExtensionAdapter', ()=> {
     });
   });
 
-  describe('adaptMethod', ()=> {
+  describe('adaptContenteditableMethod', ()=> {
     it('adapts correctly when signature is (editor, ...)', ()=> {
       const methodSpy = jasmine.createSpy('methodSpy');
       const extension = {
@@ -80,7 +80,7 @@ describe('ComposerExtensionAdapter', ()=> {
           methodSpy(editor, ev, other);
         },
       };
-      adapter.adaptMethod(extension, 'method');
+      adapter.adaptContenteditableMethod(extension, 'method');
       extension.method({editor, event, extra});
       expect(methodSpy).toHaveBeenCalledWith(editor, event, extra);
     });
@@ -92,7 +92,7 @@ describe('ComposerExtensionAdapter', ()=> {
           methodSpy(ev, editableNode, sel, other);
         },
       };
-      adapter.adaptMethod(extension, 'method');
+      adapter.adaptContenteditableMethod(extension, 'method');
       extension.method({editor, event, extra});
       expect(methodSpy).toHaveBeenCalledWith(event, node, selection, extra);
     });
@@ -104,7 +104,7 @@ describe('ComposerExtensionAdapter', ()=> {
           methodSpy(editableNode, sel, ev, other);
         },
       };
-      adapter.adaptMethod(extension, 'method');
+      adapter.adaptContenteditableMethod(extension, 'method');
       extension.method({editor, event, extra});
       expect(methodSpy).toHaveBeenCalledWith(node, selection, event, extra);
     });
@@ -116,9 +116,37 @@ describe('ComposerExtensionAdapter', ()=> {
           methodSpy(editor, mutations);
         },
       };
-      adapter.adaptMethod(extension, 'method');
+      adapter.adaptContenteditableMethod(extension, 'method');
       extension.method({editor, mutations: []});
       expect(methodSpy).toHaveBeenCalledWith(editor, []);
+    });
+  });
+
+  describe('adaptComposerMethod', ()=> {
+    it('adapts correctly for finalizeSessionBeforeSending', ()=> {
+      const methodSpy = jasmine.createSpy('methodSpy');
+      const session = 'session';
+      const extension = {
+        finalizeSessionBeforeSending(sess) {
+          methodSpy(sess);
+        },
+      };
+      adapter.adaptComposerMethod(extension, 'finalizeSessionBeforeSending');
+      extension.finalizeSessionBeforeSending({session});
+      expect(methodSpy).toHaveBeenCalledWith(session);
+    });
+
+    it('adapts correctly for other composer extension methods', ()=> {
+      const methodSpy = jasmine.createSpy('methodSpy');
+      const draft = 'draft';
+      const extension = {
+        warningsForSending(dr) {
+          methodSpy(dr);
+        },
+      };
+      adapter.adaptComposerMethod(extension, 'warningsForSending');
+      extension.warningsForSending({draft});
+      expect(methodSpy).toHaveBeenCalledWith(draft);
     });
   });
 });
