@@ -3,7 +3,7 @@ import DOMUtils from '../dom-utils';
 import {deprecate} from '../deprecate-utils';
 import {getFunctionArgs} from './extension-utils';
 
-export function isUsingOutdatedAPI(func) {
+export function isUsingOutdatedContenteditableApi(func) {
   // Might not always be true, but it is our best guess
   const firstArg = getFunctionArgs(func)[0];
   if (func.length > 1) return true;  // Not using a named arguments hash
@@ -14,9 +14,33 @@ export function isUsingOutdatedAPI(func) {
   );
 }
 
-export function adaptMethod(extension, method, original = extension[method]) {
+export function isUsingOutdatedComposerApi(func) {
+  const firstArg = getFunctionArgs(func)[0];
+  return (
+    firstArg.includes('dr') ||
+    firstArg.includes('sess') ||
+    firstArg.includes('prox')
+  );
+}
+
+export function adaptComposerMethod(extension, method) {
+  const original = extension[method];
+  if (!original || !isUsingOutdatedComposerApi(original)) return;
+
+  if (method === 'finalizeSessionBeforeSending') {
+    extension[method] = (argsObj)=> {
+      original(argsObj.session);
+    };
+  } else {
+    extension[method] = (argsObj)=> {
+      original(argsObj.draft);
+    };
+  }
+}
+
+export function adaptContenteditableMethod(extension, method, original = extension[method]) {
   // Check if it is using old API
-  if (!original || !isUsingOutdatedAPI(original)) return;
+  if (!original || !isUsingOutdatedContenteditableApi(original)) return;
 
   let deprecatedArgs = '';
   extension[method] = (argsObj)=> {
@@ -50,7 +74,7 @@ export function adaptMethod(extension, method, original = extension[method]) {
 
 export function adaptOnInput(extension) {
   if (extension.onContentChanged != null) return;
-  adaptMethod(extension, 'onContentChanged', extension.onInput);
+  adaptContenteditableMethod(extension, 'onContentChanged', extension.onInput);
 }
 
 export function adaptOnTabDown(extension) {
@@ -93,7 +117,7 @@ export function adaptOnMouseUp(extension) {
 }
 
 export default function adaptExtension(extension) {
-  const standardMethods = [
+  const contenteditableMethods = [
     'onContentChanged',
     'onBlur',
     'onFocus',
@@ -101,14 +125,24 @@ export default function adaptExtension(extension) {
     'onKeyDown',
     'onShowContextMenu',
   ];
-  standardMethods.forEach(
-    method => adaptMethod(extension, method)
+  contenteditableMethods.forEach(
+    method => adaptContenteditableMethod(extension, method)
   );
 
-  // Special cases
+  // Special contenteditable cases
   adaptOnInput(extension);
   adaptOnTabDown(extension);
   adaptOnMouseUp(extension);
+
+
+  const composerMethods = [
+    'warningsForSending',
+    'prepareNewDraft',
+    'finalizeSessionBeforeSending',
+  ];
+  composerMethods.forEach(
+    method => adaptComposerMethod(extension, method)
+  );
 
   return extension;
 }
