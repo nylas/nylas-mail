@@ -4,32 +4,22 @@ React = require 'react'
  TaskFactory,
  FocusedMailViewStore} = require 'nylas-exports'
 
-class ThreadListQuickActions extends React.Component
-  @displayName: 'ThreadListQuickActions'
+class ThreadArchiveQuickAction extends React.Component
+  @displayName: 'ThreadArchiveQuickAction'
   @propTypes:
     thread: React.PropTypes.object
 
   render: =>
     mailViewFilter = FocusedMailViewStore.mailView()
     archive = null
-    remove = null
 
     if mailViewFilter?.canArchiveThreads()
       archive = <div key="archive"
                      title="Archive"
+                     style={{ order: 110 }}
                      className="btn action action-archive"
                      onClick={@_onArchive}></div>
-
-    if mailViewFilter?.canTrashThreads()
-      trash = <div key="remove"
-                   title="Trash"
-                   className='btn action action-trash'
-                   onClick={@_onRemove}></div>
-
-    <div className="inner">
-      {archive}
-      {trash}
-    </div>
+    return archive
 
   shouldComponentUpdate: (newProps, newState) ->
     newProps.thread.id isnt @props?.thread.id
@@ -43,6 +33,26 @@ class ThreadListQuickActions extends React.Component
     # Don't trigger the thread row click
     event.stopPropagation()
 
+class ThreadTrashQuickAction extends React.Component
+  @displayName: 'ThreadTrashQuickAction'
+  @propTypes:
+    thread: React.PropTypes.object
+
+  render: =>
+    mailViewFilter = FocusedMailViewStore.mailView()
+    trash = null
+
+    if mailViewFilter?.canTrashThreads()
+      trash = <div key="remove"
+                   title="Trash"
+                   style={{ order: 100 }}
+                   className='btn action action-trash'
+                   onClick={@_onRemove}></div>
+    return trash
+
+  shouldComponentUpdate: (newProps, newState) ->
+    newProps.thread.id isnt @props?.thread.id
+
   _onRemove: (event) =>
     task = TaskFactory.taskForMovingToTrash
       threads: [@props.thread]
@@ -52,4 +62,4 @@ class ThreadListQuickActions extends React.Component
     # Don't trigger the thread row click
     event.stopPropagation()
 
-module.exports = ThreadListQuickActions
+module.exports = { ThreadArchiveQuickAction, ThreadTrashQuickAction }
