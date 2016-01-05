@@ -96,8 +96,6 @@ class Contenteditable extends React.Component
 
   focus: => @_editableNode().focus()
 
-  selectEnd: => @atomicEdit ({editor}) -> editor.selectEnd()
-
 
   ########################################################################
   ########################### React Lifecycle ############################

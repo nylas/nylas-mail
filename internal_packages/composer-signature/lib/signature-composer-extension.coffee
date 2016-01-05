@@ -7,8 +7,12 @@ class SignatureComposerExtension extends ComposerExtension
     return unless signature
 
     insertionPoint = draft.body.indexOf('<blockquote')
+    signatureHTML = '<div class="nylas-n1-signature">' + signature + '</div>'
+
     if insertionPoint is -1
       insertionPoint = draft.body.length
-    draft.body = draft.body.slice(0, insertionPoint) + '<br/><div class="nylas-n1-signature">' + signature + "</div>" + draft.body.slice(insertionPoint)
+      signatureHTML = '<br/><br/>' + signatureHTML
+
+    draft.body = draft.body.slice(0, insertionPoint) + signatureHTML + draft.body.slice(insertionPoint)
 
 module.exports = SignatureComposerExtension

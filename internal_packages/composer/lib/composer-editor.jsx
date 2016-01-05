@@ -121,7 +121,43 @@ class ComposerEditor extends Component {
   }
 
   focus() {
-    this.refs.contenteditable.selectEnd();
+    // focus the composer and place the insertion point at the last text node of
+    // the body. Be sure to choose the last node /above/ the signature and any
+    // quoted text that is visible. (as in forwarded messages.)
+    //
+    this.refs.contenteditable.atomicEdit( ({editor})=> {
+      const walker = document.createTreeWalker(editor.rootNode, NodeFilter.SHOW_TEXT);
+      const nodesBelowUserBody = editor.rootNode.querySelectorAll('.nylas-n1-signature, .gmail_quote, blockquote');
+
+      let lastNode = null;
+      let node = walker.nextNode();
+
+      while (node != null) {
+        let belowUserBody = false;
+        for (let i = 0; i < nodesBelowUserBody.length; ++i) {
+          if (nodesBelowUserBody[i].contains(node)) {
+            belowUserBody = true;
+            break;
+          }
+        }
+        if (belowUserBody) {
+          break;
+        }
+        lastNode = node;
+        node = walker.nextNode();
+      }
+
+      editor.rootNode.focus();
+
+      if (lastNode) {
+        const range = document.createRange();
+        range.selectNodeContents(lastNode);
+        range.collapse(false);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+    });
   }
 
   /**

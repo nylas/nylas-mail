@@ -48,7 +48,6 @@ class EditorAPI
   collapseToEnd: (args...) -> @_extendedSelection.collapseToEnd(args...); @
   importSelection: (args...) -> @_extendedSelection.importSelection(args...); @
   select: (args...) -> @_extendedSelection.select(args...); @
-  selectEnd: (args...) -> @_extendedSelection.selectEnd(args...); @
   selectAllChildren: (args...) -> @_extendedSelection.selectAllChildren(args...); @
   restoreSelectionByTextIndex: (args...) -> @_extendedSelection.restoreSelectionByTextIndex(args...); @
 
