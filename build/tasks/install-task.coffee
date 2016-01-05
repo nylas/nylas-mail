@@ -8,6 +8,7 @@ module.exports = (grunt) ->
   {cp, mkdir, rm} = require('./task-helpers')(grunt)
 
   grunt.registerTask 'install', 'Install the built application', ->
+    appFileName = grunt.config.get('nylasGruntConfig.appFileName')
     installDir = grunt.config.get('nylasGruntConfig.installDir')
     shellAppDir = grunt.config.get('nylasGruntConfig.shellAppDir')
 
@@ -31,17 +32,17 @@ module.exports = (grunt) ->
       fs.renameSync(tempFolder, installDir)
 
     else
-      binDir = path.join(installDir, 'bin')
-      shareDir = path.join(installDir, 'share', 'nylas')
-      iconName = path.join(shareDir, 'resources', 'app', 'nylas.png')
+      linuxBinDir = path.join(installDir, 'bin')
+      linuxShareDir = path.join(installDir, 'share', 'nylas')
+      iconName = path.join(linuxShareDir, 'resources', 'app', 'nylas.png')
 
-      mkdir binDir
+      mkdir linuxBinDir
       # Note that `N1.sh` can't be renamed `nylas.sh` because `apm`
       # is currently hard-coded to call `N1.sh`
-      cp 'N1.sh', path.join(binDir, 'nylas')
-      rm shareDir
-      mkdir path.dirname(shareDir)
-      cp shellAppDir, shareDir
+      cp 'N1.sh', path.join(linuxBinDir, 'nylas')
+      rm linuxShareDir
+      mkdir path.dirname(linuxShareDir)
+      cp shellAppDir, linuxShareDir
 
       # Create nylas.desktop if installation not in temporary folder
       tmpDir = if process.env.TMPDIR? then process.env.TMPDIR else '/tmp'
@@ -50,13 +51,13 @@ module.exports = (grunt) ->
         desktopInstallFile = path.join(installDir, 'share', 'applications', 'nylas.desktop')
 
         {description} = grunt.file.readJSON('package.json')
-        iconName = path.join(shareDir, 'resources', 'app', 'nylas.png')
+        iconName = path.join(linuxShareDir, 'resources', 'app', 'nylas.png')
         installDir = path.join(installDir, '.') # To prevent "Exec=/usr/local//share/nylas/nylas"
-        template = _.template(String(fs.readFileSync(desktopFile)))
-        filled = template({description, installDir, iconName})
+        template = _.template(fs.readFileSync(desktopFile, 'utf8'))
+        filled = template({appFileName, description, installDir, iconName, linuxShareDir})
 
         grunt.file.write(desktopInstallFile, filled)
 
-      fs.chmodSync(path.join(shareDir, 'nylas'), "755")
+      fs.chmodSync(path.join(linuxShareDir, 'nylas'), "755")
 
     grunt.log.ok("Installed Nylas into #{installDir}")
