@@ -103,8 +103,9 @@ class NylasExports
   @require "ChangeUnreadTask", 'flux/tasks/change-unread-task'
   @require "SyncbackDraftTask", 'flux/tasks/syncback-draft'
   @require "ChangeStarredTask", 'flux/tasks/change-starred-task'
-  @require "CreateMetadataTask", 'flux/tasks/create-metadata-task'
-  @require "DestroyMetadataTask", 'flux/tasks/destroy-metadata-task'
+  @require "CreateModelTask", 'flux/tasks/create-model-task'
+  @require "UpdateModelTask", 'flux/tasks/update-model-task'
+  @require "DestroyModelTask", 'flux/tasks/destroy-model-task'
   @require "ReprocessMailRulesTask", 'flux/tasks/reprocess-mail-rules-task'
 
   # Stores

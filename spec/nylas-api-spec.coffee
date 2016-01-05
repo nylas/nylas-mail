@@ -7,9 +7,6 @@ DatabaseStore = require '../src/flux/stores/database-store'
 DatabaseTransaction = require '../src/flux/stores/database-transaction'
 
 describe "NylasAPI", ->
-  beforeEach ->
-    spyOn(DatabaseStore, '_query').andCallFake => Promise.resolve([])
-
   describe "handleModel404", ->
     it "should unpersist the model from the cache that was requested", ->
       model = new Thread(id: 'threadidhere')

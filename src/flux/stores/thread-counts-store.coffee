@@ -121,6 +121,8 @@ class ThreadCountsStore extends NylasStore
       # but we don't want to flood the db with expensive SELECT COUNT queries.
       _.delay(@_fetchCountsMissing, 3000)
       @_saveCountsSoon()
+    .catch (err) ->
+      console.warn(err)
 
     # This method is not intended to return a promise and it
     # could cause strange chaining.

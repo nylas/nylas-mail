@@ -15,16 +15,6 @@ _ = require 'underscore'
 DBt = DatabaseTransaction.prototype
 
 describe "SendDraftTask", ->
-  beforeEach ->
-    ## TODO FIXME: If we don't spy on DatabaseStore._query, then
-    # `DatabaseStore.inTransaction` will never complete and cause all
-    # tests that depend on transactions to hang.
-    #
-    # @_query("BEGIN IMMEDIATE TRANSACTION") never resolves because
-    # DatabaseStore._query never runs because the @_open flag is always
-    # false because we never setup the DB when `NylasEnv.inSpecMode` is
-    # true.
-    spyOn(DatabaseStore, '_query').andCallFake => Promise.resolve([])
 
   describe "isDependentTask", ->
     it "is not dependent on any pending SyncbackDraftTasks", ->

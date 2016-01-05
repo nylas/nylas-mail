@@ -29,7 +29,6 @@ describe "DestroyCategoryTask", ->
       category: category
 
   beforeEach ->
-    spyOn(DatabaseTransaction.prototype, '_query').andCallFake -> Promise.resolve([])
     spyOn(DatabaseTransaction.prototype, 'persistModel').andCallFake -> Promise.resolve()
 
   describe "performLocal", ->
