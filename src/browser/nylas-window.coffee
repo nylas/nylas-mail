@@ -5,11 +5,12 @@ url = require 'url'
 _ = require 'underscore'
 {EventEmitter} = require 'events'
 
+WindowIconPath = null
+
 module.exports =
 class NylasWindow
   _.extend @prototype, EventEmitter.prototype
 
-  @iconPath: path.resolve(__dirname, '..', '..', 'build', 'resources', 'nylas.png')
   @includeShellLoadTime: true
 
   browserWindow: null
@@ -58,7 +59,6 @@ class NylasWindow
       width: width
       height: height
       resizable: resizable ? true
-      icon: @constructor.iconPath
       webPreferences:
         directWrite: true
 
@@ -70,7 +70,11 @@ class NylasWindow
     # Don't set icon on Windows so the exe's ico will be used as window and
     # taskbar's icon. See https://github.com/atom/atom/issues/4811 for more.
     if process.platform is 'linux'
-      options.icon = @constructor.iconPath
+      unless WindowIconPath
+        WindowIconPath = path.resolve(__dirname, '..', '..', 'nylas.png')
+        unless fs.existsSync(WindowIconPath)
+          WindowIconPath = path.resolve(__dirname, '..', '..', 'build', 'resources', 'nylas.png')
+      options.icon = WindowIconPath
 
     @browserWindow = new BrowserWindow(options)
     global.application.windowManager.addWindow(this)
