@@ -39,7 +39,7 @@ cp "$ICON_FILE" "$TARGET/usr/share/pixmaps"
 mkdir -m $FILE_MODE -p "$TARGET/usr/share/icons/hicolor"
 for i in 256 128 64 32 16; do
   mkdir -p "$TARGET/usr/share/icons/hicolor/${i}x${i}/apps"
-  cp "icons/${i}.png" "$TARGET/usr/share/icons/hicolor/${i}x${i}/apps/nylas.png"
+  cp "$DEB_PATH/icons/${i}.png" "$TARGET/usr/share/icons/hicolor/${i}x${i}/apps/nylas.png"
 done
 
 # Copy generated LICENSE.md to /usr/share/doc/nylas/copyright
