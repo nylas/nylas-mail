@@ -38,7 +38,9 @@ module.exports = (grunt) ->
     iconName = 'nylas'
 
     appFileName = grunt.config.get('nylasGruntConfig.appFileName')
-    linuxShareDir = grunt.config.get('nylasGruntConfig.linuxShareDir')
+
+    # NOTE: For Debian packages we use /usr/share instead of /usr/local/share
+    linuxShareDir = path.join(installDir, "share", appFileName)
 
     getInstalledSize buildDir, (error, installedSize) ->
       data = {name, version, description, section, arch, maintainer, installDir, iconName, installedSize, appFileName, linuxShareDir}
