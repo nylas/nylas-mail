@@ -25,6 +25,8 @@ describe "Composer Quoted Text", ->
     @htmlNoQuote = 'Test <strong>HTML</strong><br>'
     @htmlWithQuote = 'Test <strong>HTML</strong><br><blockquote class="gmail_quote">QUOTE</blockquote>'
 
+    spyOn(Composer.prototype, "_prepareForDraft")
+
     @composer = ReactTestUtils.renderIntoDocument(<Composer draftClientId="unused"/>)
     @composer._proxy = trigger: ->
     spyOn(@composer, "_addToProxy")

@@ -87,6 +87,7 @@ describe "ComposerView", ->
 
   describe "A blank composer view", ->
     beforeEach ->
+      useDraft.call(@)
       @composer = ReactTestUtils.renderIntoDocument(
         <ComposerView draftClientId="test123" />
       )

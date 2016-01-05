@@ -37,7 +37,6 @@ class TestExtension extends ComposerExtension
 
 describe "DraftStore", ->
   beforeEach ->
-    spyOn(DatabaseTransaction.prototype, '_query').andCallFake -> Promise.resolve([])
     spyOn(NylasEnv, 'newWindow').andCallFake ->
     for id, session of DraftStore._draftSessions
       if session.teardown
@@ -671,6 +670,7 @@ describe "DraftStore", ->
       spyOn(DraftStore, "_doneWithSession").andCallThrough()
       spyOn(DraftStore, "trigger")
       spyOn(SoundRegistry, "playSound")
+      spyOn(Actions, "queueTask")
 
     it "plays a sound immediately when sending draft", ->
       spyOn(NylasEnv.config, "get").andReturn true
@@ -686,20 +686,14 @@ describe "DraftStore", ->
 
     it "sets the sending state when sending", ->
       spyOn(NylasEnv, "isMainWindow").andReturn true
-      spyOn(Actions, "queueTask").andCallThrough()
-      runs ->
-        DraftStore._onSendDraft(draftClientId)
-      waitsFor ->
-        Actions.queueTask.calls.length > 0
-      runs ->
-        expect(DraftStore.isSendingDraft(draftClientId)).toBe true
+      DraftStore._onSendDraft(draftClientId)
+      expect(DraftStore.isSendingDraft(draftClientId)).toBe true
 
     # Since all changes haven't been applied yet, we want to ensure that
     # no view of the draft renders the draft as if its sending, but with
     # the wrong text.
     it "does NOT trigger until the latest changes have been applied", ->
       spyOn(NylasEnv, "isMainWindow").andReturn true
-      spyOn(Actions, "queueTask").andCallThrough()
       runs ->
         DraftStore._onSendDraft(draftClientId)
         expect(DraftStore.trigger).not.toHaveBeenCalled()
@@ -743,7 +737,6 @@ describe "DraftStore", ->
         expect(NylasEnv.close).not.toHaveBeenCalled()
 
     it "forces a commit to happen before sending", ->
-      spyOn(Actions, "queueTask")
       runs ->
         DraftStore._onSendDraft(draftClientId)
       waitsFor ->
@@ -752,7 +745,6 @@ describe "DraftStore", ->
         expect(@forceCommit).toBe true
 
     it "queues a SendDraftTask", ->
-      spyOn(Actions, "queueTask")
       runs ->
         DraftStore._onSendDraft(draftClientId)
       waitsFor ->
@@ -768,7 +760,6 @@ describe "DraftStore", ->
       spyOn(NylasEnv, "getWindowType").andReturn "composer"
       spyOn(NylasEnv, "isMainWindow").andReturn false
       spyOn(NylasEnv, "close")
-      spyOn(Actions, "queueTask")
       runs ->
         DraftStore._onSendDraft(draftClientId)
       waitsFor ->

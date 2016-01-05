@@ -26,6 +26,7 @@ describe "DatabaseStore", ->
 
     # Note: We spy on _query and test all of the convenience methods that sit above
     # it. None of these tests evaluate whether _query works!
+    jasmine.unspy(DatabaseStore, "_query")
     spyOn(DatabaseStore, "_query").andCallFake (query, values=[], options={}) =>
       @performed.push({query: query, values: values})
       return Promise.resolve([])

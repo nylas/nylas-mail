@@ -17,6 +17,14 @@ describe "ThemeManager", ->
     spyOn(console, "warn")
     spyOn(console, "error")
     theme_dir = path.resolve(__dirname, '../internal_packages')
+
+    # Don't load ALL of our packages. Some packages may do very expensive
+    # and asynchronous things on require, including hitting the database.
+    packagePaths = [
+      path.resolve(__dirname, '../internal_packages/ui-light')
+      path.resolve(__dirname, '../internal_packages/ui-dark')
+    ]
+    spyOn(NylasEnv.packages, "getAvailablePackagePaths").andReturn packagePaths
     NylasEnv.packages.packageDirPaths.unshift(theme_dir)
     themeManager = new ThemeManager({packageManager: NylasEnv.packages, resourcePath, configDirPath})
 
@@ -33,7 +41,7 @@ describe "ThemeManager", ->
 
     it 'getLoadedThemes get all the loaded themes', ->
       themes = themeManager.getLoadedThemes()
-      expect(themes.length).toBeGreaterThan(2)
+      expect(themes.length).toEqual(2)
 
     it 'getActiveThemes get all the active themes', ->
       waitsForPromise ->

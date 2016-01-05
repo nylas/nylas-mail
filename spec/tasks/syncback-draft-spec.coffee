@@ -41,8 +41,6 @@ describe "SyncbackDraftTask", ->
       else if clientId is "missingDraftId" then Promise.resolve()
       else return Promise.resolve()
 
-    spyOn(DatabaseTransaction.prototype, "_query").andCallFake ->
-      Promise.resolve([])
     spyOn(DatabaseTransaction.prototype, "persistModel").andCallFake ->
       Promise.resolve()
 

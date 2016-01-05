@@ -246,9 +246,8 @@ class NylasEnvConstructor extends Model
 
       @emitter.emit 'did-throw-error', {message, url, line, column, originalError}
 
-    # Since Bluebird is the promise library, we can properly report
-    # unhandled errors from business logic inside promises.
-    Promise.longStackTraces() unless @inSpecMode()
+    if @inSpecMode() or @inDevMode()
+      Promise.longStackTraces()
 
     Promise.onPossiblyUnhandledRejection (error) =>
       error.stack = convertStackTrace(error.stack, sourceMapCache)
@@ -259,7 +258,7 @@ class NylasEnvConstructor extends Model
         return
 
       if @inSpecMode()
-        console.error(error.stack)
+        jasmine.getEnv().currentSpec.fail(error)
       else if @inDevMode()
         console.error(error.message, error.stack, error)
         @openDevTools()
