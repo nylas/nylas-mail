@@ -35,7 +35,6 @@ class NylasComponentKit
 
   @load "ScrollRegion", 'scroll-region'
   @load "ResizableRegion", 'resizable-region'
-  @load "FocusTrackingRegion", 'focus-tracking-region'
 
   @loadFrom "MailLabel", "mail-label"
   @loadFrom "LabelColorizer", "mail-label"

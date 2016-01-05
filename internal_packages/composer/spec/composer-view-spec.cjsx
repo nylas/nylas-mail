@@ -273,7 +273,7 @@ describe "ComposerView", ->
         spyOn(FocusedContentStore, 'didFocusUsingClick').andReturn false
         useDraft.call @, to: [u1], subject: "Yo"
         makeComposer.call @, {mode: 'inline'}
-        expect(@composer.state.focusedField).toBeUndefined()
+        expect(@composer.state.focusedField).toBe null
 
     describe "when deciding whether or not to enable the subject", ->
       it "enables the subject when the subject is empty", ->
@@ -369,33 +369,28 @@ describe "ComposerView", ->
         @composer.setState focusedField: Fields.Cc
         @body = @composer.refs[Fields.Body]
         spyOn(React, "findDOMNode").andCallThrough()
-        spyOn(@composer, "_focusEditor")
+        spyOn(@composer, "focus")
         spyOn(@composer, "_applyFieldFocus").andCallThrough()
         spyOn(@composer, "_onEditorBodyDidRender").andCallThrough()
 
       it "does not apply focus if the focused field hasn't changed", ->
         @composer._lastFocusedField = Fields.Body
         @composer.setState focusedField: Fields.Body
-        expect(@composer._focusEditor).not.toHaveBeenCalled()
+        expect(@composer.focus).not.toHaveBeenCalled()
         @composer._lastFocusedField = null
 
       it "can focus on the subject", ->
         @composer.setState focusedField: Fields.Subject
         expect(@composer._applyFieldFocus.calls.length).toBe 2
-        expect(React.findDOMNode).toHaveBeenCalled()
-        calls = _.filter React.findDOMNode.calls, (call) ->
-          call.args[0].props.name == "subject"
-        expect(calls.length).toBe 1
+        expect(React.findDOMNode).toHaveBeenCalledWith(@composer.refs[Fields.Subject])
 
       it "focuses the body when the body changes only after it has been rendered", ->
-        @composer.setState focusedField: Fields.Body, body: 'new body'
-        expect(@composer._onEditorBodyDidRender).toHaveBeenCalled()
+        @composer._onEditorBodyDidRender()
         expect(@composer._applyFieldFocus.calls.length).toEqual 1
-        expect(@composer._focusEditor.calls.length).toBe 1
 
       it "ignores focuses to participant fields", ->
         @composer.setState focusedField: Fields.To
-        expect(@composer._focusEditor).not.toHaveBeenCalled()
+        expect(@composer.focus).not.toHaveBeenCalled()
         expect(@composer._applyFieldFocus.calls.length).toBe 2
 
     describe "when participants are added during a draft update", ->

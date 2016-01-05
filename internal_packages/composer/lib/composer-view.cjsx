@@ -20,7 +20,6 @@ React = require 'react'
  ScrollRegion,
  InjectedComponent,
  KeyCommandsRegion,
- FocusTrackingRegion,
  InjectedComponentSet} = require 'nylas-component-kit'
 
 FileUpload = require './file-upload'
@@ -108,6 +107,9 @@ class ComposerView extends React.Component
     return if bodyChanged
     @_applyFieldFocus()
 
+  focus: =>
+    @_applyFieldFocus()
+
   _keymapHandlers: ->
     'composer:send-message': => @_sendDraft()
     'composer:delete-empty-draft': => @_deleteDraftIfEmpty()
@@ -122,16 +124,18 @@ class ComposerView extends React.Component
     "composer:redo": @redo
 
   _applyFieldFocus: =>
-    if @state.focusedField and @_lastFocusedField isnt @state.focusedField
-      @_lastFocusedField = @state.focusedField
-      return unless @refs[@state.focusedField]
-      if @refs[@state.focusedField].focus
-        @refs[@state.focusedField].focus()
-      else
-        React.findDOMNode(@refs[@state.focusedField]).focus()
+    @_applyFieldFocusTo(@state.focusedField)
 
-      if @state.focusedField is Fields.Body
-        @_focusEditor()
+  _applyFieldFocusTo: (fieldName) =>
+    return unless @refs[fieldName]
+
+    $el = React.findDOMNode(@refs[fieldName])
+    return if document.activeElement is $el or $el.contains(document.activeElement)
+
+    if @refs[fieldName].focus
+      @refs[fieldName].focus()
+    else
+      $el.focus()
 
   componentWillReceiveProps: (newProps) =>
     @_ignoreNextTrigger = false
@@ -170,25 +174,16 @@ class ComposerView extends React.Component
       @_proxy.changes.commit()
 
   render: ->
-    <KeyCommandsRegion localHandlers={@_keymapHandlers()} >
-      {@_renderComposerWrap()}
+    classes = "message-item-white-wrap composer-outer-wrap #{@props.className ? ""}"
+
+    <KeyCommandsRegion
+      localHandlers={@_keymapHandlers()}
+      className={classes}
+      onFocusIn={@_onFocusIn}
+      tabIndex="-1"
+      ref="composerWrap">
+      {@_renderComposer()}
     </KeyCommandsRegion>
-
-  _renderComposerWrap: =>
-    if @props.mode is "inline"
-      <FocusTrackingRegion className={@_wrapClasses()}
-                           ref="composerWrap"
-                           onFocusIn={@_onFocusIn}
-                           tabIndex="-1">
-        {@_renderComposer()}
-      </FocusTrackingRegion>
-    else
-      <div className={@_wrapClasses()} ref="composerWrap">
-        {@_renderComposer()}
-      </div>
-
-  _wrapClasses: =>
-    "message-item-white-wrap composer-outer-wrap #{@props.className ? ""}"
 
   _renderComposer: =>
     <DropZone className="composer-inner-wrap"
@@ -335,15 +330,12 @@ class ComposerView extends React.Component
       fallback={ComposerEditor}
       onComponentDidRender={@_onEditorBodyDidRender}
       requiredMethods={[
-        'focusEditor'
+        'focus'
         'getCurrentSelection'
         'getPreviousSelection'
         '_onDOMMutated'
       ]}
       exposedProps={exposedProps} />
-
-  _focusEditor: =>
-    @refs[Fields.Body].focusEditor()
 
   _onEditorBodyDidRender: =>
     @_applyFieldFocus()
@@ -503,7 +495,7 @@ class ComposerView extends React.Component
 
   _onMouseUpComposerBody: (event) =>
     if event.target is @_mouseDownTarget
-      @_focusEditor()
+      @setState(focusedField: Fields.Body)
     @_mouseDownTarget = null
 
   # When a user focuses the composer, it's possible that no input is
@@ -512,7 +504,7 @@ class ComposerView extends React.Component
   # erroneously trigger keyboard shortcuts.
   _onFocusIn: (event) =>
     return if DOMUtils.closest(event.target, DOMUtils.inputTypes())
-    @_focusEditor()
+    @setState(focusedField: @_initiallyFocusedField(@_proxy.draft()))
 
   _onMouseMoveComposeBody: (event) =>
     if @_mouseComposeBody is "down" then @_mouseComposeBody = "move"
@@ -551,9 +543,10 @@ class ComposerView extends React.Component
     return Fields.To if draft.to.length is 0
     return Fields.Subject if (draft.subject ? "").trim().length is 0
 
-    shouldFocusBody = @props.mode isnt 'inline' or
+    shouldFocusBody = @props.mode isnt 'inline' or draft.pristine or
       (FocusedContentStore.didFocusUsingClick('thread') is true)
     return Fields.Body if shouldFocusBody
+    return null
 
   _verifyEnabledFields: (draft, state) ->
     enabledFields = @state.enabledFields.concat(state.enabledFields)
