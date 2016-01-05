@@ -55,15 +55,6 @@ class ExtendedSelection
       throw @_errBadUsage()
     @setBaseAndExtent(fromNode, fromIndex, toNode, toIndex)
 
-  selectEnd: ->
-    range = document.createRange()
-    range.selectNodeContents(@scopeNode)
-    range.collapse(false)
-    @scopeNode.focus()
-    selection = window.getSelection()
-    selection.removeAllRanges()
-    selection.addRange(range)
-
   exportSelection: -> new ExportedSelection(@rawSelection, @scopeNode)
 
   # Since the last time we exported the selection, the DOM may have
