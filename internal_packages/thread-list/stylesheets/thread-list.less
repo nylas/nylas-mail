@@ -229,9 +229,6 @@
     height: 57px;
     margin: 9px 16px 0 16px;
   }
-  .action:last-child {
-    margin-right:40px;
-  }
   .action.action-archive {
     background: url(@archive-img) center no-repeat, @background-gradient;
   }
@@ -244,9 +241,6 @@ body.platform-win32 {
     .action {
       border: 0;
       margin: 9px 0 0 0;
-      &:last-child {
-        margin-right: 30px;
-      }
     }
     .action.action-archive {
       background: url(@archive-img) center no-repeat;
@@ -268,6 +262,9 @@ body.platform-win32 {
     width:300px;
     height:100%;
     left: -300px;
+    .thread-injected-quick-actions {
+      margin-right: 10px;
+    }
   }
 }
 

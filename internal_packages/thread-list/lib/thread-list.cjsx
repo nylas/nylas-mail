@@ -19,9 +19,9 @@ classNames = require 'classnames'
  CategoryStore,
  FocusedContentStore,
  FocusedMailViewStore} = require 'nylas-exports'
-
 ThreadListParticipants = require './thread-list-participants'
-ThreadListQuickActions = require './thread-list-quick-actions'
+{ThreadArchiveQuickAction,
+ ThreadTrashQuickAction} = require './thread-list-quick-actions'
 ThreadListStore = require './thread-list-store'
 ThreadListIcon = require './thread-list-icon'
 
@@ -137,7 +137,20 @@ class ThreadList extends React.Component
     c5 = new ListTabular.Column
       name: "HoverActions"
       resolver: (thread) =>
-        <ThreadListQuickActions thread={thread} />
+        <div className="inner">
+          <InjectedComponentSet
+            key="injected-component-set"
+            inline={true}
+            containersRequired={false}
+            children=
+            {[
+              <ThreadTrashQuickAction key="thread-trash-quick-action" thread={thread} />
+              <ThreadArchiveQuickAction key="thread-arhive-quick-action" thread={thread} />
+            ]}
+            matching={role: "ThreadListQuickAction"}
+            className="thread-injected-quick-actions"
+            exposedProps={thread: thread}/>
+        </div>
 
     @wideColumns = [c1, c2, c3, c4, c5]
 
