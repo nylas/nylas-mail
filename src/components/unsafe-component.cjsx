@@ -91,12 +91,25 @@ class UnsafeComponent extends React.Component
     catch err
 
   focus: =>
-    # Not forwarding event - just a method call
-    @injected.focus() if @injected.focus?
+    @_runInjectedDOMMethod('focus')
 
   blur: =>
-    # Not forwarding an event - just a method call
-    @injected.blur() if @injected.blur?
+    @_runInjectedDOMMethod('blur')
 
+  # Private: Attempts to run the DOM method, ie 'focus', on
+  # 1. Any implementation provided by the inner component
+  # 2. Any native implementation provided by the DOM
+  # 3. Ourselves, so that the method always has /some/ effect.
+  #
+  _runInjectedDOMMethod: (method) =>
+    target = null
+    if @injected and @injected[method]
+      target = @injected
+    else if @injected
+      target = React.findDOMNode(@injected)
+    else
+      target = React.findDOMNode(@)
+
+    target[method]?()
 
 module.exports = UnsafeComponent

@@ -120,7 +120,7 @@ class ComposerEditor extends Component {
     return this.refs.contenteditable.getPreviousSelection();
   }
 
-  focusEditor() {
+  focus() {
     this.refs.contenteditable.selectEnd();
   }
 

@@ -117,14 +117,26 @@ class InjectedComponent extends React.Component
       </div>
 
   focus: =>
-    # Not forwarding event - just a method call
-    # Note that our inner may not be populated, and it may not have a focus method
-    @refs.inner.focus() if @refs.inner?.focus?
+    @_runInnerDOMMethod('focus')
 
   blur: =>
-    # Not forwarding an event - just a method call
-    # Note that our inner may not be populated, and it may not have a blur method
-    @refs.inner.blur() if @refs.inner?.blur?
+    @_runInnerDOMMethod('blur')
+
+  # Private: Attempts to run the DOM method, ie 'focus', on
+  # 1. Any implementation provided by the inner component
+  # 2. Any native implementation provided by the DOM
+  # 3. Ourselves, so that the method always has /some/ effect.
+  #
+  _runInnerDOMMethod: (method) =>
+    target = null
+    if @refs.inner and @refs.inner[method]
+      target = @refs.inner
+    else if @refs.inner
+      target = React.findDOMNode(@refs.inner)
+    else
+      target = React.findDOMNode(@)
+
+    target[method]?()
 
   _setRequiredMethods: (methods) =>
     methods.forEach (method) =>
