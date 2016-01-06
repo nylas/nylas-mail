@@ -49,13 +49,13 @@ function setupWindow (loadSettings) {
   ModuleCache.add(loadSettings.resourcePath)
 
   // Start the crash reporter before anything else.
-  require('crash-reporter').start({
-    productName: 'N1',
-    companyName: 'Nylas',
-    // By explicitly passing the app version here, we could save the call
-    // of "require('remote').require('app').getVersion()".
-    extra: {_version: loadSettings.appVersion}
-  })
+  // require('crash-reporter').start({
+  //   productName: 'N1',
+  //   companyName: 'Nylas',
+  //   // By explicitly passing the app version here, we could save the call
+  //   // of "require('remote').require('app').getVersion()".
+  //   extra: {_version: loadSettings.appVersion}
+  // })
 
   setupVmCompatibility()
   setupCsonCache(CompileCache.getCacheDirectory())
@@ -77,33 +77,39 @@ function setupVmCompatibility () {
 
 
 window.onload = function() {
-  try {
-    var startTime = Date.now();
+  // wait for first frame, which will be blank
+  window.requestAnimationFrame(function() {
+    // wait for second frame, which is correct
+    window.requestAnimationFrame(function() {
+      try {
+        var startTime = Date.now();
 
-    var fs = require('fs');
-    var path = require('path');
+        var fs = require('fs');
+        var path = require('path');
 
-    // Skip "?loadSettings=".
-    var rawLoadSettings = decodeURIComponent(location.search.substr(14));
-    var loadSettings;
-    try {
-      loadSettings = JSON.parse(rawLoadSettings);
-    } catch (error) {
-      console.error("Failed to parse load settings: " + rawLoadSettings);
-      throw error;
-    }
+        // Skip "?loadSettings=".
+        var rawLoadSettings = decodeURIComponent(location.search.substr(14));
+        var loadSettings;
+        try {
+          loadSettings = JSON.parse(rawLoadSettings);
+        } catch (error) {
+          console.error("Failed to parse load settings: " + rawLoadSettings);
+          throw error;
+        }
 
-    if (loadSettings.loadingMessage) {
-      document.getElementById("application-loading-text-supplement").innerHTML = loadSettings.loadingMessage
-    }
+        if (loadSettings.loadingMessage) {
+          document.getElementById("application-loading-text-supplement").innerHTML = loadSettings.loadingMessage
+        }
 
-    // Normalize to make sure drive letter case is consistent on Windows
-    process.resourcesPath = path.normalize(process.resourcesPath);
+        // Normalize to make sure drive letter case is consistent on Windows
+        process.resourcesPath = path.normalize(process.resourcesPath);
 
-    setupWindow(loadSettings)
-    setLoadTime(Date.now() - startTime)
-  }
-  catch (error) {
-    handleSetupError(error)
-  }
+        setupWindow(loadSettings)
+        setLoadTime(Date.now() - startTime)
+      }
+      catch (error) {
+        handleSetupError(error)
+      }
+    });
+  });
 }
