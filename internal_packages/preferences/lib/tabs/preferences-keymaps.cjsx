@@ -32,6 +32,15 @@ DisplayedKeybindings = [
     ]
   },
   {
+    title: 'Composer',
+    items: [
+      ['composer:send-message', 'Send Message'],
+      ['composer:focus-to', 'Focus the To field'],
+      ['composer:show-and-focus-cc', 'Focus the Cc field'],
+      ['composer:show-and-focus-bcc', 'Focus the Bcc field']
+    ]
+  },
+  {
     title: 'Navigation',
     items: [
       ['application:pop-sheet', 'Return to conversation list'],
@@ -94,7 +103,7 @@ class PreferencesKeymaps extends React.Component
     bindings = {}
     for section in DisplayedKeybindings
       for [command, label] in section.items
-        bindings[command] = NylasEnv.keymaps.findKeyBindings(command: command, target: document.body) || []
+        bindings[command] = NylasEnv.keymaps.findKeyBindings(command: command) || []
     bindings
 
   render: =>
