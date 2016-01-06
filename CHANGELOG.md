@@ -1,5 +1,40 @@
 # N1 Changelog
 
+### 0.3.36 (1/5/16)
+
+- Features:
+  + Mail Rules: Create mail rules from the preferences that sort incoming mail.
+    You can also apply mail rules to your existing mail.
+  + Templates: The templates example plugin now includes a robust template editor,
+    better field jumping support, and many other improvements, and is now in ES6.
+  + Column Widths: The app now saves the state of columns between sessions.
+  + Mark As Read: You can now disable automatic "mark as read" behavior.
+
+- Development:
+  + Composer extensions have been overhauled to provide a better interface for developers.
+    For more details, ping @evan or @juan on Slack, or see the new Templates extension.
+  + Database transactions are now explicit and required for writing to the local cache.
+  + The quick actions area of the thread list is now an injectable region.
+  + You can now select the output of the test runner window.
+  + Travis now builds both 64-bit .rpm and .deb builds for Linux.
+
+- Fixes:
+  + Opening the feedback window no longer prevents the app from quitting.
+  + The QuickSchedule plugin can no longer send before saving the QuickSchedule event.
+  + Switching accounts while searching no longer throws off the account switcher.
+  + Emails sent from an alias now properly appear as "Me"
+  + Web fonts from remote servers are now permitted in message bodies.
+  + On Mac OS X and Linux, the system tray now includes an "Open Inbox" option
+  + On Mac OS X, the app closes correctly from fullscreen mode.
+  + On Linux, windows display the correct app icon.
+  + On Gnome Linux, the app now shows the correct icon.
+  + Google Inbox is now available as a keyboard shortcut preset.
+  + File uploads can be cancelled, even if you're offline.
+  + Dragging image uploads no longer causes duplicate attachments.
+  + Parsing of contacts with allowable special characters (eg: o'rielly@gmail.com) is more robust.
+  + The autoload images feature detects images more reliably.
+  + mailto:// parsing is more robust and supports poorly encoded body values.
+
 ### 0.3.32 (12/15/15)
 
 - Features:
