@@ -158,9 +158,9 @@ module.exports = (grunt) ->
         files = fs.readdirSync(buildDir)
         for file in files
           if path.extname(file) is '.deb'
-            uploadPromises.push uploadToS3(file, "#{fullVersion}/#{process.platform}/#{process.arch}/N1.deb")
+            uploadPromises.push uploadToS3(file, "#{fullVersion}/#{process.platform}-deb/#{process.arch}/N1.deb")
           if path.extname(file) is '.rpm'
-            uploadPromises.push uploadToS3(file, "#{fullVersion}/#{process.platform}/#{process.arch}/N1.rpm")
+            uploadPromises.push uploadToS3(file, "#{fullVersion}/#{process.platform}-rpm/#{process.arch}/N1.rpm")
 
       else
         grunt.fail.fatal "Unsupported platform: '#{process.platform}'"
