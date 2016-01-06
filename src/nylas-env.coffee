@@ -654,18 +654,16 @@ class NylasEnvConstructor extends Model
     @deserializeSheetContainer()
     @packages.activate()
     @keymaps.loadUserKeymap()
-    @requireUserInitScript() unless safeMode
     @menu.update()
 
-    @showRootWindow()
-
-    ipcRenderer.send('window-command', 'window:loaded')
-
-  showRootWindow: ->
+    @getCurrentWindow().hide()
     document.getElementById("application-loading-cover").remove()
     document.body.classList.add("window-loaded")
-    @restoreWindowDimensions()
-    @getCurrentWindow().setMinimumSize(875, 500)
+    window.requestAnimationFrame =>
+      window.requestAnimationFrame =>
+        @restoreWindowDimensions()
+        @getCurrentWindow().show()
+        ipcRenderer.send('window-command', 'window:loaded')
 
   registerCommands: ->
     {resourcePath} = @getLoadSettings()
@@ -866,17 +864,6 @@ class NylasEnvConstructor extends Model
 
   crashRenderProcess: ->
     process.crash()
-
-  getUserInitScriptPath: ->
-    initScriptPath = fs.resolve(@getConfigDirPath(), 'init', ['js', 'coffee'])
-    initScriptPath ? path.join(@getConfigDirPath(), 'init.coffee')
-
-  requireUserInitScript: ->
-    if userInitScriptPath = @getUserInitScriptPath()
-      try
-        require(userInitScriptPath) if fs.isFileSync(userInitScriptPath)
-      catch error
-        console.log(error)
 
   # Require the module with the given globals.
   #

@@ -85,6 +85,7 @@ class WindowManager
         center: true
         width: 640
         height: 396
+        minHeight: 396
         resizable: false
 
   ###
