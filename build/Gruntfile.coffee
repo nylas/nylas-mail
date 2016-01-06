@@ -399,3 +399,11 @@ module.exports = (grunt) ->
     ciTasks.push('publish-nylas-build')
 
   grunt.registerTask('ci', ciTasks)
+
+  defaultTasks = ['download-electron', 'build', 'set-version', 'generate-asar']
+  # We don't run `install` on linux because you need to run `sudo`.
+  # See docs/build-instructions/linux.md
+  # `sudo script/grunt install`
+  defaultTasks.push 'mkdmg' if process.platform is 'darwin'
+  defaultTasks.push 'install' unless process.platform is 'linux'
+  grunt.registerTask('default', defaultTasks)
