@@ -16,7 +16,7 @@ class ThreadArchiveQuickAction extends React.Component
     if mailViewFilter?.canArchiveThreads()
       archive = <div key="archive"
                      title="Archive"
-                     style={{ order: 110 }}
+                     style={{ order: 100 }}
                      className="btn action action-archive"
                      onClick={@_onArchive}></div>
     return archive
@@ -45,7 +45,7 @@ class ThreadTrashQuickAction extends React.Component
     if mailViewFilter?.canTrashThreads()
       trash = <div key="remove"
                    title="Trash"
-                   style={{ order: 100 }}
+                   style={{ order: 110 }}
                    className='btn action action-trash'
                    onClick={@_onRemove}></div>
     return trash
