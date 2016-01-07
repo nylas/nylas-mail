@@ -1,28 +1,16 @@
-PluginsView = require "./plugins-view"
-PluginsTabsView = require "./plugins-tabs-view"
-
 {ComponentRegistry,
+ PreferencesUIStore,
  WorkspaceStore} = require 'nylas-exports'
 
 module.exports =
 
   activate: (@state={}) ->
-    WorkspaceStore.defineSheet 'Plugins', {root: true, name: 'Plugins', supportedModes: ['list']},
-      list: ['RootSidebar', 'Plugins']
+    @preferencesTab = new PreferencesUIStore.TabItem
+      tabId: "Plugins"
+      displayName: "Plugins"
+      component: require "./preferences-plugins"
 
-    @sidebarItem = new WorkspaceStore.SidebarItem
-      sheet: WorkspaceStore.Sheet.Plugins
-      icon: 'plugins.png'
-      id: 'plugins'
-      name: 'Plugins'
-      section: 'Views'
-
-    WorkspaceStore.addSidebarItem(@sidebarItem)
-
-    ComponentRegistry.register PluginsView,
-      location: WorkspaceStore.Location.Plugins
+    PreferencesUIStore.registerPreferencesTab(@preferencesTab)
 
   deactivate: ->
-    ComponentRegistry.unregister(PluginsView)
-    ComponentRegistry.unregister(PluginsTabsView)
-    WorkspaceStore.undefineSheet('Plugins')
+    PreferencesUIStore.unregisterPreferencesTab(@preferencesTab.sectionId)

@@ -74,6 +74,39 @@ class Application
     @config = new Config({@configDirPath, @resourcePath})
     @config.load()
 
+    if not @config.get('core.disabledPackagesInitialized')
+      exampleNewNames = {
+        'N1-Quick-Schedule': 'quick-schedule',
+        'N1-Composer-Templates': 'composer-templates',
+        'N1-Composer-Translate': 'composer-translate',
+        'N1-Message-View-on-Github':'message-view-on-github',
+        'N1-Personal-Level-Indicators':'personal-level-indicators',
+        'N1-Phishing-Detection': 'phishing-detection',
+        'N1-Github-Contact-Card-Section': 'github-contact-card',
+      }
+      exampleOldNames = Object.keys(exampleNewNames)
+      examplesEnabled = []
+
+      if fs.existsSync(path.join(@configDirPath, 'packages'))
+        # Temporary: Find the examples that have been manually installed
+        packages = fs.readdirSync(path.join(@configDirPath, 'packages'))
+        examplesEnabled = packages.filter (packageName) ->
+          packageName in exampleOldNames and packageName[0] isnt '.'
+
+        # Move old installed examples to a deprecated folder
+        deprecatedPath = path.join(@configDirPath, 'packages-deprecated')
+        fs.mkdirSync(deprecatedPath) unless fs.existsSync(deprecatedPath)
+        examplesEnabled.forEach (dir) =>
+          prevPath = path.join(@configDirPath, 'packages', dir)
+          nextPath = path.join(deprecatedPath, dir)
+          fs.renameSync(prevPath, nextPath)
+
+      # Disable examples not specifically enabled
+      for oldName, newName of exampleNewNames
+        continue if oldName in examplesEnabled
+        @config.pushAtKeyPath('core.disabledPackages', newName)
+      @config.set('core.disabledPackagesInitialized', true)
+
     # Normally, you enter dev mode by passing the --dev command line flag.
     # But for developers using the compiled app, it's easier to toggle dev
     # mode from the menu and have it persist through relaunch.

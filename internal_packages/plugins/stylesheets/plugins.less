@@ -22,11 +22,6 @@
 }
 
 .plugins-view {
-  background: @background-off-primary;
-  position: absolute;
-  width:100%;
-  height:100%;
-
   .new-package {
     margin-bottom:50px;
   }
@@ -56,32 +51,36 @@
     margin-top:35px;
   }
   .package {
+    align-items: center;
     background: @background-primary;
     border: 1px solid @border-color-divider;
     margin-top:@padding-large-vertical;
     margin-bottom:@padding-large-vertical;
+    padding:@padding-large-vertical @padding-large-horizontal;
 
-    .padded {
-      padding:@padding-large-vertical @padding-large-horizontal @padding-large-vertical @padding-large-horizontal;
+    .icon {
+      padding-right: @padding-large-horizontal;
     }
-
-    .title {
-      color: @text-color-heading;
+    .info {
+      max-width: 380px;
       cursor: default;
-      margin:0;
-      font-size: @font-size-h4;
-      font-weight: @font-weight-normal;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .description {
-      padding-top:@padding-base-vertical;
-      color: @text-color-very-subtle;
-      font-size: @font-size-small;
+
+      .title {
+        color: @text-color-heading;
+        font-size: @font-size-h4;
+        font-weight: @font-weight-normal;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .description {
+        padding-top:@padding-base-vertical;
+        color: @text-color-very-subtle;
+        font-size: @font-size-small;
+      }
     }
     .actions {
-      float:right;
+      flex: 1;
       text-align: right;
       .btn {
         margin-left:@padding-small-horizontal;

@@ -1,0 +1,19 @@
+{
+  "name": "message-view-on-github",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "View on Github button",
+  "license": "GPL-3.0",
+
+  "title":"View on GitHub",
+  "description": "Adds a 'View On GitHub' button that appears when viewing GitHub emails.",
+  "icon": "./icon.png",
+  "isOptional": true,
+
+  "engines": {
+    "nylas": ">=0.3.0 <0.5.0"
+  },
+  "dependencies": {
+    "underscore": "^1.8.3"
+  }
+}
