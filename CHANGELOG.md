@@ -156,7 +156,7 @@
   + Keybindings: The Gmail keybinding set now supports all Gmail shortcuts
   + Quick Account Switching: Use Cmd-1, Cmd-2, etc. to switch accounts
   + ES6 JavaScript: You can now write N1 plugins using ES6 (Stage 0) JavaScript
-    - The "Templates" example plugin is now written in ES6
+    - The "Quick Replies" example plugin is now written in ES6
 
 - Fixes:
   + Mailto links with newline characters are now supported
