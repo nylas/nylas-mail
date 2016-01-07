@@ -26,6 +26,7 @@ We're working on building a plugin index that makes it super easy to add them to
 - [Taiga](http://noahbuscher.github.io/N1-Taiga/) -- Mailbox-inspired light theme
 - In development: [Ubuntu](https://github.com/ahmedlhanafy/Ubuntu-Ui-Theme-for-Nylas-N1)
 - In development: [Material](https://github.com/equinusocio/N1-Material) ([preview](https://twitter.com/MattiaAstorino/status/683348095770456064))
+- In development: [Predawn](https://github.com/adambmedia/N1-Predawn)
 
 ##### Composer
 - [Translate](https://github.com/nylas/N1/tree/master/examples/N1-Composer-Translate) -- Works with 10 languages
