@@ -146,33 +146,28 @@
       "external": true,
       "items": [
         {
-          "name": "Filters",
-          "link": "https://github.com/nylas/N1/tree/master/examples/N1-Filters",
-          "external": true
-        },
-        {
           "name": "Github Contact Cards",
-          "link": "https://github.com/nylas/N1/tree/master/examples/N1-Github-Contact-Card-Section",
+          "link": "https://github.com/nylas/N1/tree/master/internal_packages/github-contact-card",
           "external": true
         },
         {
           "name": "Personal Level Icons",
-          "link": "https://github.com/nylas/N1/tree/master/examples/N1-Personal-Level-Indicators",
+          "link": "https://github.com/nylas/N1/tree/master/internal_packages/personal-level-indicators",
           "external": true
         },
         {
           "name": "Phishing Detection",
-          "link": "https://github.com/nylas/N1/tree/master/examples/N1-Phishing-Detection",
+          "link": "https://github.com/nylas/N1/tree/master/internal_packages/phishing-detection",
           "external": true
         },
         {
           "name": "Translate",
-          "link": "https://github.com/nylas/N1/tree/master/examples/N1-Composer-Translate",
+          "link": "https://github.com/nylas/N1/tree/master/internal_packages/composer-translate",
           "external": true
         },
         {
           "name": "Quick Schedule",
-          "link": "https://github.com/nylas/N1/tree/master/examples/N1-Quick-Schedule",
+          "link": "https://github.com/nylas/N1/tree/master/internal_packages/quick-schedule",
           "external": true
         }
       ]
