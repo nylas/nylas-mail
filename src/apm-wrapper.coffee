@@ -22,6 +22,7 @@ class APMWrapper
     options ||= {}
     options.env =
       ATOM_API_URL: 'https://edgehill-packages.nylas.com/api'
+      ATOM_RESOURCE_PATH: NylasEnv.getLoadSettings().resourcePath
       ATOM_HOME: NylasEnv.getConfigDirPath()
 
     if process.platform is "win32"

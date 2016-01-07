@@ -1,0 +1,28 @@
+{
+  "name": "composer-translate",
+  "version": "0.2.0",
+  "main": "./lib/main",
+
+  "isOptional": true,
+  "isStarterPackage": true,
+
+  "title": "Translation",
+  "description": "Translate your drafts in the composer into other languages using the Yandex Translation API.",
+  "icon": "./icon.png",
+
+  "license": "GPL-3.0",
+  "engines": {
+    "nylas": ">=0.3.0 <0.5.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nylas/N1"
+  },
+  "windowTypes": {
+    "default": true,
+    "composer": true
+  },
+  "dependencies": {
+    "request": "^2.53"
+  }
+}
