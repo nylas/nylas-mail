@@ -1,6 +1,6 @@
 React = require 'react'
 _ = require 'underscore'
-
+{Flexbox} = require 'nylas-component-kit'
 PluginsActions = require './plugins-actions'
 
 class Package extends React.Component
@@ -16,7 +16,7 @@ class Package extends React.Component
     extras = []
 
     if @props.package.installed
-      if @props.package.category in ['user' ,'dev']
+      if @props.package.category in ['user' ,'dev', 'example']
         if @props.package.enabled
           actions.push <div className="btn btn-small" onClick={@_onDisablePackage}>Disable</div>
         else
@@ -31,7 +31,7 @@ class Package extends React.Component
     else
       actions.push <div className="btn btn-small" onClick={@_onInstallPackage}>Install</div>
 
-    {name, description} = @props.package
+    {name, description, title} = @props.package
 
     if @props.package.newerVersionAvailable
       extras.push(
@@ -41,14 +41,17 @@ class Package extends React.Component
         </div>
       )
 
-    <div className="package">
-      <div className="padded">
-        <div className="actions">{actions}</div>
-        <div className="title">{name}</div>
+    <Flexbox className="package" direction="row">
+      <div className="icon" style={flexShink: 0}>
+        <img src="nylas://#{@props.package.name}/#{@props.package.icon}" style={width:50} />
+      </div>
+      <div className="info">
+        <div className="title">{title ? name}</div>
         <div className="description">{description}</div>
       </div>
+      <div className="actions">{actions}</div>
       {extras}
-    </div>
+    </Flexbox>
 
   _onDisablePackage: =>
     PluginsActions.disablePackage(@props.package)

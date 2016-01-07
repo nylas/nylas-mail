@@ -138,11 +138,17 @@ PackagesStore = Reflux.createStore
 
   _onPackagesChanged: ->
     @_apm.getInstalled().then (packages) =>
-      for category in ['dev', 'user', 'core']
+      for category in ['dev', 'user']
         packages[category] = packages[category].filter ({theme}) -> not theme
         packages[category].forEach (pkg) =>
           pkg.category = category
           delete @_installing[pkg.name]
+
+      available = NylasEnv.packages.getAvailablePackageMetadata()
+      examples = available.filter ({isOptional}) -> isOptional
+      packages['example'] = examples.map (pkg) ->
+        _.extend({}, pkg, {installed: true, category: 'example'})
+
       @_installed = packages
       @trigger()
 
@@ -162,15 +168,8 @@ PackagesStore = Reflux.createStore
     @_apm.update(pkg, pkg.newerVersion)
 
   _onInstallPackage: ->
-    {resourcePath} = NylasEnv.getLoadSettings()
-    if resourcePath.indexOf('app.asar') != -1
-      starterPackagesPath = path.join(resourcePath,'..', 'app.asar.unpacked', 'examples')
-    else
-      starterPackagesPath = path.join(resourcePath, "examples")
-
     NylasEnv.showOpenDialog
       title: "Choose a Package Directory"
-      defaultPath: starterPackagesPath
       properties: ['openDirectory']
     , (filenames) =>
       return if not filenames or filenames.length is 0
