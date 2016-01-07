@@ -6,8 +6,8 @@
   "isOptional": true,
   "isStarterPackage": true,
 
-  "title": "Templates",
-  "description": "Create templates you can use to pre-fill the composer - never type the same email again!",
+  "title": "Quick Replies",
+  "description": "Create quick replies and templates you can use to pre-fill the composer - never type the same email again!",
   "icon": "./icon.png",
 
   "license": "GPL-3.0",
