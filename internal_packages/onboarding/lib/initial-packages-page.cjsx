@@ -3,52 +3,28 @@ path = require 'path'
 {RetinaImg, ConfigPropContainer} = require 'nylas-component-kit'
 {EdgehillAPI} = require 'nylas-exports'
 OnboardingActions = require './onboarding-actions'
-InitialPackagesStore = require './initial-packages-store'
-
-RunningPackageInstalls = 0
 
 class InstallButton extends React.Component
   constructor: (@props) ->
     @state =
-      installed: NylasEnv.packages.resolvePackagePath(@props.package.name)?
-      installing: false
+      installed: !NylasEnv.packages.isPackageDisabled(@props.package.name)
 
   render: =>
     classname = "btn btn-install"
-    classname += " installing" if @state.installing
     classname += " installed" if @state.installed
 
     <div className={classname} onClick={@_onInstall}></div>
 
   _onInstall: =>
-    return if @state.installing or @state.installed
-    return unless @props.package.path
-    RunningPackageInstalls += 1
-    @setState(installing: true)
-    NylasEnv.packages.installPackageFromPath @props.package.path, (err) =>
-      RunningPackageInstalls -= 1
-      @props.onPackageInstaled()
-      @setState({
-        installing: false
-        installed: NylasEnv.packages.resolvePackagePath(@props.package.name)?
-      })
+    NylasEnv.packages.enablePackage(@props.package.name)
+    @setState(installed: true)
 
 class InitialPackagesPage extends React.Component
   @displayName: "InitialPackagesPage"
 
   constructor: (@props) ->
-    @state = @getStateFromStores()
-
-  componentDidMount: =>
-    @unlisten = InitialPackagesStore.listen =>
-      @setState(@getStateFromStores())
-
-  componentWillUnmount: =>
-    @unlisten?()
-
-  getStateFromStores: =>
-    packages: InitialPackagesStore.starterPackages
-    error: InitialPackagesStore.lastError
+    @state =
+      packages: NylasEnv.packages.getAvailablePackageMetadata().filter ({isStarterPackage}) => isStarterPackage
 
   render: =>
     <div className="page opaque" style={width:900, height:650}>
@@ -63,12 +39,11 @@ class InitialPackagesPage extends React.Component
       </p>
 
       <div>
-        {@_renderError()}
         {@state.packages.map (item) =>
           <div className="initial-package" key={item.name}>
-            <img src={item.iconPath} style={width:50} />
+            <img src="nylas://#{item.name}/#{item.icon}" style={width:50} />
             <div className="install-container">
-              <InstallButton package={item} onPackageInstaled={@_onPackageInstaled} />
+              <InstallButton package={item} />
             </div>
             <div className="name">{item.title}</div>
             <div className="description">{item.description}</div>
@@ -78,30 +53,14 @@ class InitialPackagesPage extends React.Component
       <button className="btn btn-large btn-get-started btn-emphasis"
               style={marginTop: 15}
               onClick={@_onGetStarted}>
-        {@_renderStartSpinner()}
         Start Using N1
       </button>
     </div>
 
-  _renderError: =>
-    return false unless @state.error
-    <div className="error">{@state.error.toString()}</div>
-
-  _renderStartSpinner: =>
-    return false unless @state.waitingToGetStarted
-    <div className="spinner"></div>
-
   _onPrevPage: =>
     OnboardingActions.moveToPage('initial-preferences')
 
-  _onPackageInstaled: =>
-    if RunningPackageInstalls is 0 and @state.waitingToGetStarted
-      @_onGetStarted()
-
   _onGetStarted: =>
-    if RunningPackageInstalls > 0
-      @setState(waitingToGetStarted: true)
-    else
-      require('electron').ipcRenderer.send('account-setup-successful')
+    require('electron').ipcRenderer.send('account-setup-successful')
 
 module.exports = InitialPackagesPage

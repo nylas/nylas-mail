@@ -15,7 +15,7 @@ class PackageSet extends React.Component
     if packages.length is 0
       count = []
       packages.push(
-        <div className="empty">{@props.emptyText ? "No packages to display."}</div>
+        <div className="empty">{@props.emptyText ? "No plugins to display."}</div>
       )
 
     <div className="package-set">

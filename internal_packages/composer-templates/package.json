@@ -1,0 +1,25 @@
+{
+  "name": "composer-templates",
+  "version": "0.1.0",
+  "main": "./lib/main",
+
+  "isOptional": true,
+  "isStarterPackage": true,
+
+  "title": "Templates",
+  "description": "Create templates you can use to pre-fill the composer - never type the same email again!",
+  "icon": "./icon.png",
+
+  "license": "GPL-3.0",
+  "private": true,
+  "engines": {
+    "nylas": ">=0.3.0 <0.5.0"
+  },
+  "dependencies": {
+    "underscore": "^1.8"
+  },
+  "windowTypes": {
+    "default": true,
+    "composer": true
+  }
+}
