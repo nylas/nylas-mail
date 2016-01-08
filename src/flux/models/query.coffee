@@ -1,4 +1,5 @@
 {Matcher, AttributeJoinedData} = require '../attributes'
+QueryRange = require './query-range'
 Utils = require './utils'
 _ = require 'underscore'
 
@@ -44,11 +45,22 @@ class ModelQuery
     @_database || = require '../stores/database-store'
     @_matchers = []
     @_orders = []
-    @_range = {}
+    @_range = QueryRange.infinite()
     @_returnOne = false
+    @_returnIds = false
     @_includeJoinedData = []
     @_count = false
     @
+
+  clone: ->
+    q = new ModelQuery(@_klass, @_database).where(@_matchers).order(@_orders)
+    q._orders = [].concat(@_orders)
+    q._includeJoinedData = [].concat(@_includeJoinedData)
+    q._range = @_range.clone()
+    q._returnOne = @_returnOne
+    q._returnIds = @_returnIds
+    q._count = @_count
+    q
 
   # Public: Add one or more where clauses to the query
   #
@@ -132,6 +144,7 @@ class ModelQuery
   limit: (limit) ->
     @_assertNotFinalized()
     throw new Error("Cannot use limit > 2 with one()") if @_returnOne and limit > 1
+    @_range = @_range.clone()
     @_range.limit = limit
     @
 
@@ -143,7 +156,18 @@ class ModelQuery
   #
   offset: (offset) ->
     @_assertNotFinalized()
+    @_range = @_range.clone()
     @_range.offset = offset
+    @
+
+  # Public:
+  #
+  # A convenience method for setting both limit and offset given a desired page size.
+  #
+  page: (start, end, pageSize = 50, pagePadding = 100) ->
+    roundToPage = (n) -> Math.max(0, Math.floor(n / pageSize) * pageSize)
+    @offset(roundToPage(start - pagePadding))
+    @limit(roundToPage((end - start) + pagePadding * 2))
     @
 
   # Public: Set the `count` flag - instead of returning inflated models,
@@ -154,6 +178,10 @@ class ModelQuery
   count: ->
     @_assertNotFinalized()
     @_count = true
+    @
+
+  idsOnly: ->
+    @_returnIds = true
     @
 
   ###
@@ -179,6 +207,8 @@ class ModelQuery
 
     if @_count
       return result[0]['count'] / 1
+    else if @_returnIds
+      return result.map (row) -> row['id']
     else
       try
         objects = result.map (row) =>
@@ -206,6 +236,8 @@ class ModelQuery
 
     if @_count
       result = "COUNT(*) as count"
+    else if @_returnIds
+      result = "`#{@_klass.name}`.`id`"
     else
       result = "`#{@_klass.name}`.`data`"
       @_includeJoinedData.forEach (attr) =>

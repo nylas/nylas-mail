@@ -4,13 +4,13 @@ NylasStore = require 'nylas-store'
 {Thread,
  Message,
  Actions,
- SearchView,
- DatabaseView,
  DatabaseStore,
  WorkspaceStore,
  FocusedContentStore,
  TaskQueueStatusStore,
  FocusedMailViewStore} = require 'nylas-exports'
+
+ThreadListViewFactory = require './thread-list-view-factory'
 
 # Public: A mutable text container with undo/redo support and the ability
 # to annotate logical regions in the text.
@@ -18,7 +18,6 @@ class ThreadListStore extends NylasStore
   constructor: ->
     @_resetInstanceVars()
 
-    @listenTo DatabaseStore, @_onDataChanged
     @listenTo FocusedMailViewStore, @_onMailViewChanged
     @createView()
 
@@ -41,13 +40,17 @@ class ThreadListStore extends NylasStore
   view: ->
     @_view
 
+  createView: ->
+    mailViewFilter = FocusedMailViewStore.mailView()
+    return unless mailViewFilter
+
+    @setView(ThreadListViewFactory.viewForMailView(mailViewFilter))
+    Actions.setFocus(collection: 'thread', item: null)
+
   setView: (view) ->
     @_viewUnlisten() if @_viewUnlisten
     @_view = view
-
-    @_viewUnlisten = view.listen ->
-      @trigger(@)
-    ,@
+    @_viewUnlisten = view.listen(@_onViewDataChanged, @)
 
     # Set up a one-time listener to focus an item in the new view
     if WorkspaceStore.layoutMode() is 'split'
@@ -57,33 +60,6 @@ class ThreadListStore extends NylasStore
           unlisten()
 
     @trigger(@)
-
-  createView: ->
-    mailViewFilter = FocusedMailViewStore.mailView()
-    return unless mailViewFilter
-    {account} = mailViewFilter
-
-    if mailViewFilter.searchQuery
-      @setView(new SearchView(mailViewFilter.searchQuery, account?.accountId))
-    else
-      matchers = []
-      matchers.push Thread.attributes.accountId.equal(account.accountId) if account?
-      matchers = matchers.concat(mailViewFilter.matchers())
-
-      view = new DatabaseView Thread, {matchers}, (ids) =>
-        DatabaseStore.findAll(Message)
-        .where(Message.attributes.threadId.in(ids))
-        .where(Message.attributes.accountId.equal(account.accountId))
-        .then (messages) ->
-          messagesByThread = {}
-          for id in ids
-            messagesByThread[id] = []
-          for message in messages
-            messagesByThread[message.threadId].push message
-          messagesByThread
-      @setView(view)
-
-    Actions.setFocus(collection: 'thread', item: null)
 
   _onSelectRead: =>
     items = @_view.itemsCurrentlyInViewMatching (item) -> not item.unread
@@ -106,40 +82,30 @@ class ThreadListStore extends NylasStore
   _onMailViewChanged: ->
     @createView()
 
-  _onDataChanged: (change) ->
-    return unless @_view
-
-    if change.objectClass is Thread.name
+  _onViewDataChanged: ({previous, next} = {}) =>
+    if previous and next
       focusedId = FocusedContentStore.focusedId('thread')
       keyboardId = FocusedContentStore.keyboardCursorId('thread')
       viewModeAutofocuses = WorkspaceStore.layoutMode() is 'split' or WorkspaceStore.topSheet().root is true
 
-      focusedIndex = @_view.indexOfId(focusedId)
-      keyboardIndex = @_view.indexOfId(keyboardId)
+      focusedIndex = previous.offsetOfId(focusedId)
+      keyboardIndex = previous.offsetOfId(keyboardId)
 
       shiftIndex = (i) =>
-        if i > 0 and (@_view.get(i - 1)?.unread or i >= @_view.count())
+        if i > 0 and (next.modelAtOffset(i - 1)?.unread or i >= next.count())
           return i - 1
         else
           return i
 
-      @_view.invalidate({change: change, shallow: true})
-
-      focusedLost = focusedIndex >= 0 and @_view.indexOfId(focusedId) is -1
-      keyboardLost = keyboardIndex >= 0 and @_view.indexOfId(keyboardId) is -1
+      focusedLost = focusedIndex >= 0 and next.offsetOfId(focusedId) is -1
+      keyboardLost = keyboardIndex >= 0 and next.offsetOfId(keyboardId) is -1
 
       if viewModeAutofocuses and focusedLost
-        Actions.setFocus(collection: 'thread', item: @_view.get(shiftIndex(focusedIndex)))
+        Actions.setFocus(collection: 'thread', item: next.modelAtOffset(shiftIndex(focusedIndex)))
 
       if keyboardLost
-        Actions.setCursorPosition(collection: 'thread', item: @_view.get(shiftIndex(keyboardIndex)))
+        Actions.setCursorPosition(collection: 'thread', item: next.modelAtOffset(shiftIndex(keyboardIndex)))
 
-    if change.objectClass is Message.name
-      # Important: Until we optimize this so that it detects the set change
-      # and avoids a query, this should be defered since it's very unimportant
-      _.defer =>
-        threadIds = _.uniq _.map change.objects, (m) -> m.threadId
-        @_view.invalidateMetadataFor(threadIds)
-
+    @trigger(@)
 
 module.exports = new ThreadListStore()

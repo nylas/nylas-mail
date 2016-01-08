@@ -103,15 +103,12 @@ class EmptyState extends React.Component
 
   render: ->
     ContentComponent = ContentGeneric
-    messageOverride = null
 
-    if @props.dataView instanceof DatabaseView
-      if @props.dataView.klass is Message
-        messageOverride = "No messages to display."
-      if @state.layoutMode is 'list'
-        ContentComponent = ContentQuotes
-      if @state.syncing
-        messageOverride = "Please wait while we prepare your mailbox."
+    messageOverride = "Nothing to display."
+    if @state.layoutMode is 'list'
+      ContentComponent = ContentQuotes
+    if @state.syncing
+      messageOverride = "Please wait while we prepare your mailbox."
 
     classes = classNames
       'empty-state': true

@@ -120,7 +120,7 @@ class ListTabular extends React.Component
     # Expand the start/end so that you can advance the keyboard cursor fast and
     # we have items to move to and then scroll to.
     rangeStart = Math.max(0, rangeStart - 2)
-    rangeEnd = Math.min(rangeEnd + 2, @props.dataView.count())
+    rangeEnd = Math.min(rangeEnd + 2, @props.dataView.count() + 1)
 
     # Final sanity check to prevent needless work
     return if rangeStart is @state.renderedRangeStart and
@@ -140,7 +140,12 @@ class ListTabular extends React.Component
     innerStyles =
       height: @props.dataView.count() * @props.itemHeight
 
-    <ScrollRegion ref="container" onScroll={@onScroll} tabIndex="-1" className="list-container list-tabular" scrollTooltipComponent={@props.scrollTooltipComponent} >
+    <ScrollRegion
+      ref="container"
+      onScroll={@onScroll}
+      tabIndex="-1"
+      className="list-container list-tabular"
+      scrollTooltipComponent={@props.scrollTooltipComponent}>
       <div className="list-rows" style={innerStyles}>
         {@_rows()}
       </div>
