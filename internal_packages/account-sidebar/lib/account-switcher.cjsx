@@ -22,6 +22,7 @@ class AccountSwitcher extends React.Component
   componentDidMount: =>
     @unsubscribers = []
     @unsubscribers.push AccountStore.listen @_onStoreChange
+    @unsubscribers.push ThreadCountsStore.listen @_onStoreChange
 
     @dispose = Categories.forAllAccounts().sort().subscribe @_onCategoriesChanged
 
