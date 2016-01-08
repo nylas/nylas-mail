@@ -2,8 +2,8 @@ React = require 'react'
 path = require 'path'
 fs = require 'fs'
 _ = require 'underscore'
-{RetinaImg, Flexbox, ConfigPropContainer} = require 'nylas-component-kit'
-{EdgehillAPI} = require 'nylas-exports'
+{RetinaImg, Flexbox, ConfigPropContainer, NewsletterSignup} = require 'nylas-component-kit'
+{EdgehillAPI, AccountStore} = require 'nylas-exports'
 OnboardingActions = require './onboarding-actions'
 
 # NOTE: Temporarily copied from preferences module
@@ -99,6 +99,9 @@ class InitialPreferencesOptions extends React.Component
           <option key={template} value={template}>{template}</option>
         }
         </select>
+        <div style={paddingTop: 20}>
+          <NewsletterSignup emailAddress={@props.account.emailAddress} name={@props.account.name} />
+        </div>
       </div>
 
     </div>
@@ -108,11 +111,13 @@ class InitialPreferencesPage extends React.Component
   @displayName: "InitialPreferencesPage"
 
   render: =>
+    account = AccountStore.items()[0]
+
     <div className="page opaque" style={width:900, height:620}>
       <h1 style={paddingTop: 100}>Welcome to N1</h1>
       <h4 style={marginBottom: 70}>Let's set things up to your liking.</h4>
       <ConfigPropContainer>
-        <InitialPreferencesOptions account={@props.pageData.account} />
+        <InitialPreferencesOptions account={account} />
       </ConfigPropContainer>
       <button className="btn btn-large" style={marginBottom:60} onClick={@_onNextPage}>Looks Good!</button>
     </div>

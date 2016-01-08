@@ -32,14 +32,6 @@ class EdgehillAPI
     options.url ?= "#{@APIRoot}#{options.path}" if options.path
     options.body ?= {} unless options.formData
     options.json = true
-
-    auth = @_getCredentials()
-    if not options.auth and auth
-      options.auth =
-        user: auth.username
-        pass: auth.password
-        sendImmediately: true
-
     options.error ?= @_defaultErrorCallback
 
     # This is to provide functional closure for the variable.
@@ -62,12 +54,6 @@ class EdgehillAPI
             options.error(new APIError({error:error, response:response, body:body, requestOptions: options}))
           else
             options.success(body) if options.success
-
-  _getCredentials: ->
-    NylasEnv.config.get('edgehill.credentials')
-
-  _setCredentials: (credentials) ->
-    NylasEnv.config.set('edgehill.credentials', credentials)
 
   _defaultErrorCallback: (apiError) ->
     console.error(apiError)

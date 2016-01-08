@@ -35,7 +35,7 @@ class InitialPackagesPage extends React.Component
       <h1 style={paddingTop: 60, marginBottom: 20}>Explore plugins</h1>
       <p style={paddingBottom: 20}>
         Plugins lie at the heart of N1 and give it its powerful features.<br/>
-        Want to enable a few example plugins now? They'll be installed to <code>~/.nylas</code>
+        Want to enable a few example plugins now?
       </p>
 
       <div>
@@ -50,6 +50,7 @@ class InitialPackagesPage extends React.Component
           </div>
         }
       </div>
+
       <button className="btn btn-large btn-get-started btn-emphasis"
               style={marginTop: 15}
               onClick={@_onGetStarted}>
