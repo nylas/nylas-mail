@@ -7,7 +7,7 @@ describe "AccountSwitcher", ->
   switcher = null
 
   beforeEach ->
-    spyOn(AccountStore, "items").andCallFake ->
+    spyOn(AccountStore, "accounts").andCallFake ->
       [
         AccountStore.current(),
         {

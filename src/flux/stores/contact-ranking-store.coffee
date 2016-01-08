@@ -6,21 +6,29 @@ AccountStore = require './account-store'
 class ContactRankingStore extends NylasStore
 
   constructor: ->
-    @_value = null
-    @_accountId = null
+    @_values = {}
+    @_disposables = []
+    @listenTo AccountStore, @_onAccountsChanged
+    @_registerObservables(AccountStore.accounts())
 
-    {Accounts} = require 'nylas-observables'
-    Accounts.forCurrentId().flatMapLatest (accountId) =>
+  _registerObservables: (accounts) =>
+    @_disposables.forEach (disp) -> disp.dispose()
+    @_disposables = accounts.map ({accountId}) =>
       query = DatabaseStore.findJSONBlob("ContactRankingsFor#{accountId}")
       return Rx.Observable.fromQuery(query)
-    .subscribe (json) =>
-      @_value = if json? then json.value else null
-      @trigger()
+        .subscribe @_onRankingsChanged.bind(@, accountId)
 
-  value: ->
-    @_value
+  _onRankingsChanged: (accountId, json) =>
+    @_values[accountId] = if json? then json.value else null
+    @trigger()
+
+  _onAccountsChanged: =>
+    @_registerObservables(AccountStore.accounts())
+
+  valueFor: (accountId) ->
+    @_values[accountId]
 
   reset: ->
-    @_value = null
+    @_values = {}
 
 module.exports = new ContactRankingStore()

@@ -1,6 +1,7 @@
 _ = require 'underscore'
 Actions = require '../actions'
 AccountStore = require './account-store'
+FocusedMailViewStore = require './focused-mail-view-store'
 CategoryStore = require './category-store'
 MailViewFilter = require '../../mail-view-filter'
 NylasStore = require 'nylas-store'
@@ -61,9 +62,10 @@ class WorkspaceStore extends NylasStore
     'navigation:go-to-label'   : => ## TODO
 
   _setMailViewByName: (categoryName) ->
-    category = CategoryStore.getStandardCategory(categoryName)
+    account = FocusedMailViewStore.mailView()?.account
+    category = CategoryStore.getStandardCategory(account, categoryName)
     return unless category
-    view = MailViewFilter.forCategory(category)
+    view = MailViewFilter.forCategory(account, category)
     return unless view
     Actions.focusMailView(view)
 
@@ -71,9 +73,10 @@ class WorkspaceStore extends NylasStore
     Actions.selectRootSheet(@Sheet.Drafts)
 
   _selectAllView: ->
-    category = CategoryStore.getArchiveCategory()
+    account = FocusedMailViewStore.mailView()?.account
+    category = CategoryStore.getArchiveCategory(account)
     return unless category
-    view = MailViewFilter.forCategory(category)
+    view = MailViewFilter.forCategory(account, category)
     return unless view
     Actions.focusMailView(view)
 

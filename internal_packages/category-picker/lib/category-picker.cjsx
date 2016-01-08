@@ -33,15 +33,9 @@ class CategoryPicker extends React.Component
   @contextTypes:
     sheetDepth: React.PropTypes.number
 
-  componentDidMount: =>
-    @unsubscribers = []
-    @unsubscribers.push CategoryStore.listen @_onStoreChanged
-    @unsubscribers.push AccountStore.listen @_onStoreChanged
-
-    # If the threads we're picking categories for change, (like when they
-    # get their categories updated), we expect our parents to pass us new
-    # props. We don't listen to the DatabaseStore ourselves.
-
+  # If the threads we're picking categories for change, (like when they
+  # get their categories updated), we expect our parents to pass us new
+  # props. We don't listen to the DatabaseStore ourselves.
   componentWillReceiveProps: (nextProps) ->
     @setState @_recalculateState(nextProps)
 
@@ -53,7 +47,12 @@ class CategoryPicker extends React.Component
     "application:change-category": @_onOpenCategoryPopover
 
   render: =>
-    return <span></span> unless @_account
+    btnClasses = "btn btn-toolbar"
+    btnClasses += " btn-disabled" if @state.disabled
+    button = <button className={btnClasses} title={tooltip}>
+      <RetinaImg name={img} mode={RetinaImg.Mode.ContentIsMask}/>
+    </button>
+    return button if @state.disabled or not @_account?
 
     if @_account?.usesLabels()
       img = "toolbar-tag.png"
@@ -69,10 +68,6 @@ class CategoryPicker extends React.Component
       placeholder = ""
 
     if @state.isPopoverOpen then tooltip = ""
-
-    button = <button className="btn btn-toolbar" title={tooltip}>
-      <RetinaImg name={img} mode={RetinaImg.Mode.ContentIsMask}/>
-    </button>
 
     headerComponents = [
       <input type="text"
@@ -202,10 +197,10 @@ class CategoryPicker extends React.Component
     @refs.menu.setSelectedItem(null)
 
     if item.newCategoryItem
-      CategoryClass = AccountStore.current().categoryClass()
+      CategoryClass = @_account.categoryClass()
       category = new CategoryClass
         displayName: @state.searchValue,
-        accountId: AccountStore.current().id
+        accountId: @_account.id
 
       syncbackTask = new SyncbackCategoryTask({category})
       TaskQueueStatusStore.waitForPerformRemote(syncbackTask).then =>
@@ -230,9 +225,6 @@ class CategoryPicker extends React.Component
 
     @refs.popover.close()
 
-  _onStoreChanged: =>
-    @setState @_recalculateState(@props)
-
   _onSearchValueChange: (event) =>
     @setState @_recalculateState(@props, searchValue: event.target.value)
 
@@ -244,20 +236,21 @@ class CategoryPicker extends React.Component
     @setState isPopoverOpen: false
 
   _recalculateState: (props=@props, {searchValue}={}) =>
+    threads = @_threads(props)
+    @_account = AccountStore.accountForItems(threads)
+    return {disabled: true} unless @_account
+
     searchValue = searchValue ? @state?.searchValue ? ""
-    numThreads = @_threads(props).length
+    numThreads = threads.length
     if numThreads is 0
       return {categoryData: [], searchValue}
 
-    @_account = AccountStore.current()
-    return unless @_account
-
     if @_account.usesLabels()
-      categories = CategoryStore.getCategories()
+      categories = CategoryStore.categories(@_account)
     else
-      categories = CategoryStore.getStandardCategories()
+      categories = CategoryStore.standardCategories(@_account)
         .concat([{divider: true, id: "category-divider"}])
-        .concat(CategoryStore.getUserCategories())
+        .concat(CategoryStore.userCategories(@_account))
 
     usageCount = @_categoryUsageCount(props, categories)
 
@@ -278,7 +271,7 @@ class CategoryPicker extends React.Component
         id: "category-create-new"
       categoryData.push(newItemData)
 
-    return {categoryData, searchValue}
+    return {categoryData, searchValue, disabled: false}
 
   _categoryUsageCount: (props, categories) =>
     categoryUsageCount = {}
@@ -304,7 +297,8 @@ class CategoryPicker extends React.Component
     return (category.name not in hiddenCategories) and (category.id isnt currentCategoryId)
 
   _allInInbox: (usageCount, numThreads) ->
-    inbox = CategoryStore.getStandardCategory("inbox")
+    return unless @_account?
+    inbox = CategoryStore.getStandardCategory(@_account, "inbox")
     return false unless inbox
     return usageCount[inbox.id] is numThreads
 

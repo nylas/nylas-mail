@@ -1,6 +1,7 @@
 Reflux = require 'reflux'
 _ = require 'underscore'
 NylasStore = require 'nylas-store'
+FocusedMailViewStore = require './focused-mail-view-store'
 CategoryStore = require './category-store'
 ThreadCountsStore = require './thread-counts-store'
 
@@ -24,7 +25,8 @@ class UnreadBadgeStore extends NylasStore
     @_count
 
   _updateCount: =>
-    category = CategoryStore.getStandardCategory('inbox')
+    account = FocusedMailViewStore.mailView()?.account
+    category = CategoryStore.getStandardCategory(account, 'inbox')
     if category
       count = ThreadCountsStore.unreadCountForCategoryId(category.id) ? 0
     else

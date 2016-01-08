@@ -159,7 +159,4 @@ class FileUploadTask extends Task
     # http://stackoverflow.com/questions/12098713/upload-progress-request
     @req?.req?.connection?._bytesDispatched ? 0
 
-  _accountId: ->
-    AccountStore.current()?.id
-
 module.exports = FileUploadTask

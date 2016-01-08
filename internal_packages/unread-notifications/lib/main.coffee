@@ -34,7 +34,7 @@ module.exports =
     @stack = []
 
   _notifyOne: ({message, thread}) ->
-    account = _.find AccountStore.items(), (a) -> a.id is message.accountId
+    account = AccountStore.accountForId(message.accountId)
     from = message.from[0]?.displayName() ? "Unknown"
     title = from
     if message.subject and message.subject.length > 0
@@ -55,10 +55,8 @@ module.exports =
           Actions.sendQuickReply({thread, message}, response)
         else
           NylasEnv.displayWindow()
-          if AccountStore.current().id isnt thread.accountId
-            Actions.selectAccount(thread.accountId)
 
-          MailViewFilter filter = MailViewFilter.forCategory(thread.categoryNamed('inbox'))
+          MailViewFilter filter = MailViewFilter.forCategory(account, thread.categoryNamed('inbox'))
           Actions.focusMailView(filter)
           Actions.setFocus(collection: 'thread', item: thread)
 

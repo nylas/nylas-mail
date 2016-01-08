@@ -55,7 +55,7 @@ class AccountStore
     idx = _.findIndex submenu, ({type}) -> type is 'separator'
     return unless idx > 0
 
-    accountMenuItems = @items().map (item, idx) =>
+    accountMenuItems = @accounts().map (item, idx) =>
       {
         label: item.emailAddress,
         command: "application:select-account-#{idx}",
@@ -137,21 +137,33 @@ class AccountStore
   # Exposed Data
 
   # Public: Returns an {Array} of {Account} objects
-  items: =>
+  accounts: =>
     @_accounts
 
+  accountsForItems: (items) =>
+    accounts = {}
+    items.forEach ({accountId}) =>
+      accounts[accountId] ?= @accountForId(accountId)
+    _.values(accounts)
+
+  accountForItems: (items) =>
+    accounts = @accountsForItems(items)
+    return null if accounts.length > 1
+    return accounts[0]
+
   # Public: Returns the {Account} for the given email address, or null.
-  itemWithEmailAddress: (email) =>
+  accountForEmail: (email) =>
     _.find @_accounts, (account) ->
       Utils.emailIsEquivalent(email, account.emailAddress)
 
   # Public: Returns the {Account} for the given account id, or null.
-  itemWithId: (accountId) =>
+  accountForId: (accountId) =>
     _.find @_accounts, (account) ->
       accountId is account.accountId
 
   # Public: Returns the currently active {Account}.
   current: =>
+    throw new Error("I can't haz the account")
     @_accounts[@_index] || null
 
   # Private: This method is going away soon, do not rely on it.
@@ -173,7 +185,7 @@ class AccountStore
     threads = []
     messages = []
 
-    account = @itemWithEmailAddress('nora@nylas.com')
+    account = @accountForEmail('nora@nylas.com')
     unless account
       account = new Account()
       account.serverId = account.clientId

@@ -43,7 +43,8 @@ class EventHeader extends React.Component
     @_unlisten?()
 
   _myStatus: =>
-    myEmail = AccountStore.current()?.me().email
+    account = AccountStore.accountForId(@props.message.accountId)
+    myEmail = account?.me().email
     for p in @state.event.participants
       return p['status'] if p['email'] is myEmail
     return null
@@ -87,7 +88,7 @@ class EventHeader extends React.Component
     </div>
 
   _rsvp: (status) =>
-    Actions.queueTask(new EventRSVPTask(@state.event, status))
+    Actions.queueTask(new EventRSVPTask(@props.message, @state.event, status))
 
 
 module.exports = EventHeader

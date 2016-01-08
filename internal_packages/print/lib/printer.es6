@@ -9,6 +9,7 @@ class Printer {
 
   _printThread(thread, htmlContent) {
     if (!thread) throw new Error('Printing: No thread active!');
+    const account = AccountStore.accountForId(thread.accountId)
 
     // Get the <nylas-styles> tag present in the document
     const styleTag = document.getElementsByTagName('nylas-styles')[0];
@@ -23,8 +24,8 @@ class Printer {
     const win = new PrintWindow({
       subject: thread.subject,
       account: {
-        name: AccountStore.current().name,
-        email: AccountStore.current().emailAddress,
+        name: account.name,
+        email: account.emailAddress,
       },
       participants: thread.participants,
       styleTags: styleTag.innerHTML,

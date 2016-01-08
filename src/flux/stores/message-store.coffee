@@ -271,14 +271,14 @@ class MessageStore extends NylasStore
         @_itemsExpanded[item.id] = "default"
 
   _fetchMessages: ->
-    account = AccountStore.current()
+    account = AccountStore.accountForId(@_thread.accountId)
     NylasAPI.getCollection account.id, 'messages', {thread_id: @_thread.id}
 
   _fetchMessageIdFromAPI: (id) ->
     return if @_inflight[id]
 
     @_inflight[id] = true
-    account = AccountStore.current()
+    account = AccountStore.accountForId(@_thread.accountId)
     NylasAPI.makeRequest
       path: "/messages/#{id}"
       accountId: account.id

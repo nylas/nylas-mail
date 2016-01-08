@@ -31,7 +31,7 @@ remoteDraft = -> new Message _.extend {}, testData, {clientId: "local-id", serve
 
 describe "SyncbackDraftTask", ->
   beforeEach ->
-    spyOn(AccountStore, "itemWithEmailAddress").andCallFake (email) ->
+    spyOn(AccountStore, "accountForEmail").andCallFake (email) ->
       return new Account(clientId: 'local-abc123', serverId: 'abc123')
 
     spyOn(DatabaseStore, "run").andCallFake (query) ->

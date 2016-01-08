@@ -2,6 +2,7 @@ _ = require 'underscore'
 
 AccountStore = require './flux/stores/account-store'
 CategoryStore = require './flux/stores/category-store'
+CategoryHelpers = require './category-helpers'
 Thread = require './flux/models/thread'
 Actions = require './flux/actions'
 
@@ -12,25 +13,29 @@ class MailViewFilter
 
   # Factory Methods
 
-  @forCategory: (category) ->
-    new CategoryMailViewFilter(category)
+  @forCategory: (account, category) ->
+    new CategoryMailViewFilter(account, category)
 
-  @forStarred: ->
-    new StarredMailViewFilter()
+  @forStarred: (account) ->
+    new StarredMailViewFilter(account)
 
-  @forSearch: (query) ->
-    new SearchMailViewFilter(query)
+  @forSearch: (account, query) ->
+    new SearchMailViewFilter(account, query)
 
-  @forAll: ->
-    new AllMailViewFilter()
+  @forAll: (account) ->
+    new AllMailViewFilter(account)
+
+  @unified: ->
+    new UnifiedMailViewFilter()
 
   # Instance Methods
 
-  constructor: ->
+  constructor: (@account) ->
 
   isEqual: (other) ->
     return false unless other and @constructor.name is other.constructor.name
     return false if other.name isnt @name
+    return false if @account? and @account.accountId isnt other.account?.accountId
 
     matchers = @matchers() ? []
     otherMatchers = other.matchers() ? []
@@ -57,15 +62,15 @@ class MailViewFilter
   # Whether or not the current MailViewFilter can "archive" or "trash"
   # Subclasses should call `super` if they override these methods
   canArchiveThreads: ->
-    return false unless CategoryStore.getArchiveCategory()
+    return false unless CategoryStore.getArchiveCategory(@account)
     return true
 
   canTrashThreads: ->
-    return false unless CategoryStore.getTrashCategory()
+    return false unless CategoryStore.getTrashCategory(@account)
     return true
 
 class SearchMailViewFilter extends MailViewFilter
-  constructor: (@searchQuery) ->
+  constructor: (@account, @searchQuery) ->
     @
 
   isEqual: (other) ->
@@ -87,17 +92,13 @@ class SearchMailViewFilter extends MailViewFilter
     null
 
 class AllMailViewFilter extends MailViewFilter
-  constructor: ->
+  constructor: (@account) ->
     @name = "All"
     @iconName = "all-mail.png"
     @
 
-  isEqual: (other) ->
-    super(other) and other.searchQuery is @searchQuery
-
   matchers: ->
-    account = AccountStore.current()
-    [Thread.attributes.accountId.equal(account.id)]
+    [Thread.attributes.accountId.equal(@account.id)]
 
   canApplyToThreads: ->
     true
@@ -109,11 +110,11 @@ class AllMailViewFilter extends MailViewFilter
     false
 
   categoryId: ->
-    CategoryStore.getStandardCategory("all")?.id
+    CategoryStore.getStandardCategory(@account, "all")?.id
 
 
 class StarredMailViewFilter extends MailViewFilter
-  constructor: ->
+  constructor: (@account) ->
     @name = "Starred"
     @iconName = "starred.png"
     @
@@ -134,23 +135,21 @@ class StarredMailViewFilter extends MailViewFilter
 
 
 class CategoryMailViewFilter extends MailViewFilter
-  constructor: (cat) ->
-    @name = cat.displayName
-    @category = cat
+  constructor: (@account, @category) ->
+    @name = @category.displayName
 
-    if cat.name
-      @iconName = "#{cat.name}.png"
+    if @category.name
+      @iconName = "#{@category.name}.png"
     else
-      @iconName = CategoryStore.categoryIconName()
+      @iconName = CategoryHelpers.categoryIconName(@account)
 
     @
 
   matchers: ->
-    account = AccountStore.current()
     matchers = []
-    if account.usesLabels()
+    if @account.usesLabels()
       matchers.push Thread.attributes.labels.contains(@category.id)
-    else if account.usesFolders()
+    else if @account.usesFolders()
       matchers.push Thread.attributes.folders.contains(@category.id)
     matchers
 
@@ -158,7 +157,7 @@ class CategoryMailViewFilter extends MailViewFilter
     @category.id
 
   canApplyToThreads: ->
-    not (@category.name in CategoryStore.LockedCategoryNames)
+    not (@category.isLockedCategory())
 
   canArchiveThreads: ->
     return false if @category.name in ["archive", "all", "sent"]
@@ -169,10 +168,10 @@ class CategoryMailViewFilter extends MailViewFilter
     super
 
   applyToThreads: (threadsOrIds) ->
-    if AccountStore.current().usesLabels()
+    if @account.usesLabels()
       FocusedMailViewStore = require './flux/stores/focused-mail-view-store'
       currentLabel = FocusedMailViewStore.mailView().category
-      if currentLabel and not (currentLabel in CategoryStore.LockedCategoryNames)
+      if currentLabel and not (currentLabel.isLockedCategory())
         labelsToRemove = [currentLabel]
 
       ChangeLabelsTask = require './flux/tasks/change-labels-task'
@@ -187,5 +186,14 @@ class CategoryMailViewFilter extends MailViewFilter
         folder: @category
 
     Actions.queueTask(task)
+
+
+class UnifiedMailViewFilter extends MailViewFilter
+
+  matchers: ->
+    []
+
+  canApplyToThreads: ->
+    false
 
 module.exports = MailViewFilter

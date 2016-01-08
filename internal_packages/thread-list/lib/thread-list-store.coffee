@@ -7,7 +7,6 @@ NylasStore = require 'nylas-store'
  SearchView,
  DatabaseView,
  DatabaseStore,
- AccountStore,
  WorkspaceStore,
  FocusedContentStore,
  TaskQueueStatusStore,
@@ -20,7 +19,6 @@ class ThreadListStore extends NylasStore
     @_resetInstanceVars()
 
     @listenTo DatabaseStore, @_onDataChanged
-    @listenTo AccountStore, @_onAccountChanged
     @listenTo FocusedMailViewStore, @_onMailViewChanged
     @createView()
 
@@ -62,20 +60,20 @@ class ThreadListStore extends NylasStore
 
   createView: ->
     mailViewFilter = FocusedMailViewStore.mailView()
-    account = AccountStore.current()
-    return unless account and mailViewFilter
+    return unless mailViewFilter
+    {account} = mailViewFilter
 
     if mailViewFilter.searchQuery
-      @setView(new SearchView(mailViewFilter.searchQuery, account.id))
+      @setView(new SearchView(mailViewFilter.searchQuery, account?.accountId))
     else
       matchers = []
-      matchers.push Thread.attributes.accountId.equal(account.id)
+      matchers.push Thread.attributes.accountId.equal(account.accountId) if account?
       matchers = matchers.concat(mailViewFilter.matchers())
 
       view = new DatabaseView Thread, {matchers}, (ids) =>
         DatabaseStore.findAll(Message)
         .where(Message.attributes.threadId.in(ids))
-        .where(Message.attributes.accountId.equal(account.id))
+        .where(Message.attributes.accountId.equal(account.accountId))
         .then (messages) ->
           messagesByThread = {}
           for id in ids
@@ -106,14 +104,6 @@ class ThreadListStore extends NylasStore
   # Inbound Events
 
   _onMailViewChanged: ->
-    @createView()
-
-  _onAccountChanged: ->
-    accountId = AccountStore.current()?.id
-    accountMatcher = (m) ->
-      m.attribute() is Thread.attributes.accountId and m.value() is accountId
-
-    return if @_view instanceof DatabaseView and _.find(@_view.matchers(), accountMatcher)
     @createView()
 
   _onDataChanged: (change) ->

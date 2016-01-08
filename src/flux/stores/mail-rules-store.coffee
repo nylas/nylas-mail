@@ -90,8 +90,9 @@ class MailRulesStore extends NylasStore
 
   _onNotificationActionTaken: ({notification, action}) =>
     return unless NylasEnv.isMainWindow()
+    accountId = AccountStore.accounts()[0].accountId
     if action.id is 'mail-rule-failure:view-rules'
-      Actions.switchPreferencesTab('Mail Rules', {accountId: AccountStore.current().id})
+      Actions.switchPreferencesTab('Mail Rules', {accountId})
       Actions.openPreferences()
 
   _saveMailRules: =>

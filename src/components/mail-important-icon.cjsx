@@ -16,7 +16,8 @@ class MailImportantIcon extends React.Component
     @state = @getState()
 
   getState: =>
-    showing: AccountStore.current()?.usesImportantFlag() and NylasEnv.config.get('core.workspace.showImportant')
+    account = @_account()
+    showing: account?.usesImportantFlag() and NylasEnv.config.get('core.workspace.showImportant')
 
   componentDidMount: =>
     @subscription = NylasEnv.config.observe 'core.workspace.showImportant', =>
@@ -32,7 +33,7 @@ class MailImportantIcon extends React.Component
   render: =>
     return false unless @state.showing
 
-    importantId = CategoryStore.getStandardCategory('important')?.id
+    importantId = CategoryStore.getStandardCategory(@_account(), 'important')?.id
     return false unless importantId
 
     isImportant = _.findWhere(@props.thread.labels, {id: importantId})?
@@ -42,8 +43,11 @@ class MailImportantIcon extends React.Component
          title={if isImportant then "Mark as unimportant" else "Mark as important"}
          onClick={@_onToggleImportant}></div>
 
+  _account: =>
+    AccountStore.accountForId(@state.thread.accountId)
+
   _onToggleImportant: (event) =>
-    category = CategoryStore.getStandardCategory('important')
+    category = CategoryStore.getStandardCategory(@_account(), 'important')
     isImportant = _.findWhere(@props.thread.labels, {id: category.id})?
     threads = [@props.thread]
 

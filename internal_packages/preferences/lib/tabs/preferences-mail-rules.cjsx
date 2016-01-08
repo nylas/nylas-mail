@@ -39,7 +39,7 @@ class PreferencesMailRules extends React.Component
     @setState(newState)
 
   stateForAccount: (accountId) =>
-    account = AccountStore.itemWithId(accountId)
+    account = AccountStore.accountForId(accountId)
     rules = MailRulesStore.rulesForAccountId(accountId)
 
     return {
@@ -148,7 +148,7 @@ class PreferencesMailRules extends React.Component
             <RetinaImg name="sending-spinner.gif" width={18} mode={RetinaImg.Mode.ContentPreserve} />
           </div>
           <div>
-            <strong>{AccountStore.itemWithId(task.accountId).emailAddress}</strong>
+            <strong>{AccountStore.accountForId(task.accountId).emailAddress}</strong>
             {" — #{new Number(task.numberOfImpactedItems()).toLocaleString()} processed..."}
           </div>
           <div style={flex: 1}></div>

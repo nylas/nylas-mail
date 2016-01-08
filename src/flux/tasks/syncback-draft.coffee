@@ -113,7 +113,7 @@ class SyncbackDraftTask extends Task
     DatabaseStore.findBy(Message, clientId: @draftClientId).include(Message.attributes.body)
 
   checkDraftFromMatchesAccount: (draft) ->
-    account = AccountStore.itemWithEmailAddress(draft.from[0].email)
+    account = AccountStore.accountForEmail(draft.from[0].email)
     if draft.accountId is account.id
       return Promise.resolve(draft)
     else

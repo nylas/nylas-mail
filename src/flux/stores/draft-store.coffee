@@ -8,6 +8,7 @@ DraftStoreProxy = require './draft-store-proxy'
 DatabaseStore = require './database-store'
 AccountStore = require './account-store'
 ContactStore = require './contact-store'
+FocusedMailViewStore = require './focused-mail-view-store'
 
 SendDraftTask = require '../tasks/send-draft'
 DestroyDraftTask = require '../tasks/destroy-draft'
@@ -250,8 +251,6 @@ class DraftStore
       Promise.resolve(draftClientId: draft.clientId, draft: draft)
 
   _newMessageWithContext: (args, attributesCallback) =>
-    return unless AccountStore.current()
-
     # We accept all kinds of context. You can pass actual thread and message objects,
     # or you can pass Ids and we'll look them up. Passing the object is preferable,
     # and in most cases "the data is right there" anyway. Lookups add extra latency
@@ -289,8 +288,9 @@ class DraftStore
     return queries
 
   _constructDraft: ({attributes, thread}) =>
+    account = AccountStore.accountForId(thread.accountId)
     return new Message _.extend {}, attributes,
-      from: [@_getFromField(AccountStore.current())]
+      from: [@_getFromField(account)]
       date: (new Date)
       draft: true
       pristine: true
@@ -374,7 +374,8 @@ class DraftStore
       SanitizeTransformer.run(body, SanitizeTransformer.Preset.UnsafeOnly)
 
   _onPopoutBlankDraft: =>
-    account = AccountStore.current()
+    account = FocusedMailViewStore.mailView()?.account
+    # TODO Remove this when we add account selector inside composer
     return unless account
 
     draft = new Message
@@ -389,8 +390,6 @@ class DraftStore
       @_onPopoutDraftClientId(draftClientId, {newDraft: true})
 
   _onPopoutDraftClientId: (draftClientId, options = {}) =>
-    return unless AccountStore.current()
-
     if not draftClientId?
       throw new Error("DraftStore::onPopoutDraftId - You must provide a draftClientId")
 
@@ -413,7 +412,8 @@ class DraftStore
           windowProps: _.extend(options, {draftClientId})
 
   _onHandleMailtoLink: (event, urlString) =>
-    account = AccountStore.current()
+    account = FocusedMailViewStore.mailView()?.account
+    # TODO Remove this when we add account selector inside composer
     return unless account
 
     try

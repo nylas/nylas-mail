@@ -1,12 +1,10 @@
 NylasStore = require 'nylas-store'
 _ = require 'underscore'
-{CategoryStore,
- DatabaseStore,
- CategoryStore,
+{DatabaseStore,
  AccountStore,
+ CategoryStore,
  ThreadCountsStore,
  WorkspaceStore,
- DraftCountStore,
  Actions,
  Label,
  Folder,
@@ -15,15 +13,20 @@ _ = require 'underscore'
  FocusedMailViewStore,
  SyncbackCategoryTask,
  DestroyCategoryTask,
+ CategoryHelpers,
  Thread} = require 'nylas-exports'
 
 class AccountSidebarStore extends NylasStore
   constructor: ->
     @_sections = []
+    @_account = AccountStore.accounts()[0] # TODO Temporarily, should be null
     @_registerListeners()
-    @_refreshSections()
+    @_updateSections()
 
   ########### PUBLIC #####################################################
+
+  currentAccount: ->
+    @_account
 
   sections: ->
     @_sections
@@ -37,18 +40,25 @@ class AccountSidebarStore extends NylasStore
   ########### PRIVATE ####################################################
 
   _registerListeners: ->
-    @listenTo CategoryStore, @_refreshSections
-    @listenTo WorkspaceStore, @_refreshSections
-    @listenTo DraftCountStore, @_refreshSections
-    @listenTo ThreadCountsStore, @_refreshSections
+    @listenTo WorkspaceStore, @_updateSections
+    @listenTo CategoryStore, @_updateSections
+    @listenTo ThreadCountsStore, @_updateSections
     @listenTo FocusedMailViewStore, => @trigger()
-    @configSubscription = NylasEnv.config.observe('core.workspace.showUnreadForAllCategories', @_refreshSections)
+    @listenTo Actions.selectAccount, @_onSelectAccount
+    @configSubscription = NylasEnv.config.observe(
+      'core.workspace.showUnreadForAllCategories',
+      @_updateSections
+    )
 
-  _refreshSections: =>
-    account = AccountStore.current()
-    return unless account
+  _onSelectAccount: (accountId)=>
+    @_account = AccountStore.accountForId(accountId)
+    @trigger()
 
-    userCategories = CategoryStore.getUserCategories()
+  _updateSections: =>
+    # TODO As it is now, if the current account is null, we  will display the
+    # categories for all accounts.
+    # Update this to reflect UI decision for sidebar
+    userCategories = CategoryStore.userCategories(@_account)
     userCategoryItems = _.map(userCategories, @_sidebarItemForCategory)
 
     # Compute hierarchy for userCategoryItems using known "path" separators
@@ -83,12 +93,12 @@ class AccountSidebarStore extends NylasStore
 
     # Our drafts are displayed via the `DraftListSidebarItem` which
     # is loading into the `Drafts` Sheet.
-    standardCategories = CategoryStore.getStandardCategories()
+    standardCategories = CategoryStore.standardCategories(@_account)
     standardCategories = _.reject standardCategories, (category) =>
       category.name is "drafts"
 
     standardCategoryItems = _.map standardCategories, (cat) => @_sidebarItemForCategory(cat)
-    starredItem = @_sidebarItemForMailView('starred', MailViewFilter.forStarred())
+    starredItem = @_sidebarItemForMailView('starred', MailViewFilter.forStarred(@_account))
 
     # Find root views and add them to the bottom of the list (Drafts, etc.)
     standardItems = standardCategoryItems
@@ -113,9 +123,9 @@ class AccountSidebarStore extends NylasStore
         items: items
 
     @_sections.push
-      label: CategoryStore.categoryLabel()
+      label: CategoryHelpers.categoryLabel(@_account)
       items: userCategoryItemsHierarchical
-      iconName: CategoryStore.categoryIconName()
+      iconName: CategoryHelpers.categoryIconName(@_account)
       createItem: @_createCategory
       destroyItem: @_destroyCategory
 
@@ -131,14 +141,16 @@ class AccountSidebarStore extends NylasStore
     new WorkspaceStore.SidebarItem
       id: category.id,
       name: shortenedName || category.displayName
-      mailViewFilter: MailViewFilter.forCategory(category)
+      mailViewFilter: MailViewFilter.forCategory(@_account, category)
       unreadCount: @_itemUnreadCount(category)
 
   _createCategory: (displayName) ->
-    CategoryClass = AccountStore.current().categoryClass()
+    # TODO this needs an account param
+    return unless @_account?
+    CategoryClass = @_account.categoryClass()
     category = new CategoryClass
       displayName: displayName
-      accountId: AccountStore.current().id
+      accountId: @_account.id
     Actions.queueTask(new SyncbackCategoryTask({category}))
 
   _destroyCategory: (sidebarItem) ->

@@ -27,6 +27,10 @@ class SearchBar extends React.Component
   componentWillUnmount: =>
     usub() for usub in @usub
 
+  _account: ->
+    # TODO Pending Search refactor for unified inbox
+    FocusedMailViewStore.mailView()?.account
+
   _keymapHandlers: ->
     'application:focus-search': @_onFocusSearch
     'search-bar:escape-search': @_clearAndBlur
@@ -109,15 +113,15 @@ class SearchBar extends React.Component
     return [{all: str}]
 
   _onValueChange: (event) =>
-    Actions.searchQueryChanged(@_stringToQuery(event.target.value))
+    Actions.searchQueryChanged(@_stringToQuery(event.target.value), @_account())
     if (event.target.value is '')
       @_onClearSearch()
 
   _onSelectSuggestion: (item) =>
     if item.thread?
-      Actions.searchQueryCommitted([{all: "\"#{item.thread.subject}\""}])
+      Actions.searchQueryCommitted([{all: "\"#{item.thread.subject}\""}], @_account())
     else
-      Actions.searchQueryCommitted(item.value)
+      Actions.searchQueryCommitted(item.value, @_account())
 
   _onClearSearch: (event) =>
     if @state.committedQuery
@@ -142,7 +146,7 @@ class SearchBar extends React.Component
     , 150
 
   _doSearch: =>
-    Actions.searchQueryCommitted(@state.query)
+    Actions.searchQueryCommitted(@state.query, @_account())
 
   _onChange: => @setState @_getStateFromStores()
 

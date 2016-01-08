@@ -65,7 +65,7 @@ class Account extends Model
 
   fromJSON: (json) ->
     json["label"] ||= json[@constructor.attributes['emailAddress'].jsonKey]
-    super(json)
+    super
 
   # Returns a {Contact} model that represents the current user.
   me: ->

@@ -34,7 +34,7 @@ class WindowTitle extends React.Component
   render: ->
     <div className="window-title">{@state.title}</div>
 
-CategoryStore = null
+Category = null
 FocusedMailViewStore = null
 class ToolbarBack extends React.Component
   @displayName: 'ToolbarBack'
@@ -42,7 +42,7 @@ class ToolbarBack extends React.Component
   # These stores are only required when this Toolbar is actually needed.
   # This is because loading these stores has database side effects.
   constructor: (@props) ->
-    CategoryStore ?= require './flux/stores/category-store'
+    Category ?= require './flux/models/category'
     FocusedMailViewStore ?= require './flux/stores/focused-mail-view-store'
     @state =
       categoryName: FocusedMailViewStore.mailView()?.name
@@ -55,7 +55,7 @@ class ToolbarBack extends React.Component
     @_unsubscriber() if @_unsubscriber
 
   render: =>
-    if @state.categoryName is CategoryStore.AllMailName
+    if @state.categoryName is Category.AllMailName
       title = 'All Mail'
     else if @state.categoryName
       title = _str.titleize(@state.categoryName)

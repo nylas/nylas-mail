@@ -6,18 +6,11 @@ DatabaseStore = require '../flux/stores/database-store'
 
 AccountOperators = {}
 
-AccountObservables =
-  forCurrentId: ->
-    observable = Rx.Observable
-      .fromStore(AccountStore)
-      .map -> AccountStore.current()?.id
-      .distinctUntilChanged()
-    _.extend(observable, AccountOperators)
-    observable
+AccountObservables = {}
 
 CategoryOperators =
   sort: ->
-    @.map (categories) ->
+    obs = @.map (categories) ->
       return categories.sort (catA, catB) ->
         nameA = catA.displayName
         nameB = catB.displayName
@@ -28,25 +21,43 @@ CategoryOperators =
         nameB = "ZZZ"+nameB if nameB[0] is '['
 
         nameA.localeCompare(nameB)
+    _.extend(obs, CategoryOperators)
+
+  categoryFilter: (filter) ->
+    obs = @.map (categories) ->
+      return categories.filter filter
+    _.extend(obs, CategoryOperators)
 
 CategoryObservables =
-  forCurrentAccount: ->
-    observable = Rx.Observable.fromStore(AccountStore).flatMapLatest ->
-      return CategoryObservables.forAccount(AccountStore.current())
-    _.extend(observable, CategoryOperators)
-    observable
 
   forAllAccounts: =>
-    observable = Rx.Observable.fromQuery(DatabaseStore.findAll(categoryClass))
+    observable = Rx.Observable.fromStore(AccountStore).flatMapLatest ->
+      observables = AccountStore.accounts().map (account) ->
+        categoryClass = account.categoryClass()
+        Rx.Observable.fromQuery(DatabaseStore.findAll(categoryClass))
+      Rx.Observable.concat(observables)
     _.extend(observable, CategoryOperators)
     observable
 
   forAccount: (account) =>
     if account
       categoryClass = account.categoryClass()
-      observable = Rx.Observable.fromQuery(DatabaseStore.findAll(categoryClass).where(categoryClass.attributes.accountId.equal(account.id)))
+      observable = Rx.Observable.fromQuery(DatabaseStore.findAll(categoryClass)
+        .where(categoryClass.attributes.accountId.equal(account.id)))
     else
-      observable = Rx.Observable.from([])
+      observable = CategoryObservables.forAllAccounts()
+    _.extend(observable, CategoryOperators)
+    observable
+
+  standardForAccount: (account) =>
+    observable = Rx.Observable.fromConfig('core.workspace.showImportant')
+      .flatMapLatest (showImportant) =>
+        accountObservable = CategoryObservables.forAccount(account)
+        return accountObservable.categoryFilter (cat) ->
+          if showImportant is true
+            cat.isStandardCategory()
+          else
+            cat.isStandardCategory() and cat.name isnt 'important'
     _.extend(observable, CategoryOperators)
     observable
 
@@ -55,12 +66,28 @@ module.exports =
   Accounts: AccountObservables
 
 # Attach a few global helpers
+#
+Rx.Observable::last = ->
+  @takeLast(1).toArray()[0]
 
 Rx.Observable.fromStore = (store) =>
   return Rx.Observable.create (observer) =>
     unsubscribe = store.listen =>
       observer.onNext(store)
     observer.onNext(store)
+    return Rx.Disposable.create(unsubscribe)
+
+Rx.Observable.fromConfig = (configKey) =>
+  return Rx.Observable.create (observer) =>
+    disposable = NylasEnv.config.observe configKey, =>
+      observer.onNext(NylasEnv.config.get(configKey))
+    observer.onNext(NylasEnv.config.get(configKey))
+    return Rx.Disposable.create(disposable.dispose)
+
+Rx.Observable.fromAction = (action) =>
+  return Rx.Observable.create (observer) =>
+    unsubscribe = action.listen (args...) =>
+      observer.onNext(args...)
     return Rx.Disposable.create(unsubscribe)
 
 Rx.Observable.fromQuery = (query, options) =>
