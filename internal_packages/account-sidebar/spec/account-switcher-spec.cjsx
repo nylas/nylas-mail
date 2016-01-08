@@ -21,24 +21,6 @@ describe "AccountSwitcher", ->
       <AccountSwitcher />
     )
 
-  it "doesn't render the dropdown if nothing clicked", ->
-    openDropdown = TestUtils.scryRenderedDOMComponentsWithClass switcher, 'open'
-    expect(openDropdown.length).toBe 0
-
-  it "shows the dropdown on click", ->
-    toggler = TestUtils.findRenderedDOMComponentWithClass switcher, 'primary-item'
-    TestUtils.Simulate.click toggler
-    openDropdown = TestUtils.scryRenderedDOMComponentsWithClass switcher, 'open'
-    expect(openDropdown.length).toBe 1
-
-  it "hides the dropdown on blur", ->
-    toggler = TestUtils.findRenderedDOMComponentWithClass switcher, 'primary-item'
-    TestUtils.Simulate.click toggler
-    toggler = TestUtils.findRenderedDOMComponentWithClass switcher, 'primary-item'
-    TestUtils.Simulate.blur toggler
-    openDropdown = TestUtils.scryRenderedDOMComponentsWithClass switcher, 'open'
-    expect(openDropdown.length).toBe 0
-
   it "shows other accounts and the 'Add Account' button", ->
     toggler = TestUtils.findRenderedDOMComponentWithClass switcher, 'primary-item'
     TestUtils.Simulate.click toggler
