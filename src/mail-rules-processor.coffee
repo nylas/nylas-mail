@@ -33,7 +33,7 @@ MailRulesActions =
       return new ChangeLabelsTask(labelsToAdd: [important], threads: [thread])
 
   moveToTrash: (message, thread) ->
-    if AccountStore.itemWithId(thread.accountId).categoryClass() is Label
+    if AccountStore.accountForId(thread.accountId).categoryClass() is Label
       return MailRulesActions._applyStandardLabelRemovingInbox(message, thread, 'trash')
     else
       DatabaseStore.findBy(Folder, { name: 'trash', accountId: thread.accountId }).then (folder) ->

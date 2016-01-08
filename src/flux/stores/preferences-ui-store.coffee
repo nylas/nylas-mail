@@ -16,14 +16,10 @@ class PreferencesUIStore extends NylasStore
     @_tabs = Immutable.List()
     @_selection = Immutable.Map({
       tabId: null
-      accountId: AccountStore.current()?.id
+      accountId: AccountStore.accounts()[0].accountId
     })
 
     @_triggerDebounced ?= _.debounce(( => @trigger()), 20)
-
-    @listenTo AccountStore, =>
-      @_selection = @_selection.set('accountId', AccountStore.current()?.id)
-      @trigger()
 
     @listenTo Actions.switchPreferencesTab, (tabId, options = {}) =>
       @_selection = @_selection.set('tabId', tabId)

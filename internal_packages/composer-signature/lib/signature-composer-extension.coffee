@@ -2,7 +2,7 @@
 
 class SignatureComposerExtension extends ComposerExtension
   @prepareNewDraft: ({draft}) ->
-    accountId = AccountStore.current().id
+    accountId = draft.accountId
     signature = NylasEnv.config.get("nylas.account-#{accountId}.signature")
     return unless signature
 

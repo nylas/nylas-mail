@@ -2,6 +2,35 @@ _ = require 'underscore'
 Model = require './model'
 Attributes = require '../attributes'
 
+# We look for a few standard categories and display them in the Mailboxes
+# portion of the left sidebar. Note that these may not all be present on
+# a particular account.
+StandardCategoryNames = [
+  "inbox"
+  "important"
+  "sent"
+  "drafts"
+  "all"
+  "spam"
+  "archive"
+  "trash"
+]
+
+LockedCategoryNames = [
+  "sent"
+]
+
+HiddenCategoryNames = [
+  "sent"
+  "drafts"
+  "all"
+  "archive"
+  "starred"
+  "important"
+]
+
+AllMailName = "all"
+
 ###
 Private:
 This abstract class has only two concrete implementations:
@@ -35,6 +64,43 @@ class Category extends Model
     'isDeleted': Attributes.Boolean
       modelKey: 'isDeleted'
       jsonKey: 'is_deleted'
+
+  @Types:
+    Standard: 'standard'
+    Locked: 'locked'
+    User: 'user'
+    Hidden: 'hidden'
+
+  @StandardCategoryNames: StandardCategoryNames
+  @LockedCategoryNames: LockedCategoryNames
+  @HiddenCategoryNames: HiddenCategoryNames
+
+  constructor: ->
+    super
+    @_initCategoryTypes()
+
+  fromJSON: (json) ->
+    super
+    @_initCategoryTypes()
+    @
+
+  _initCategoryTypes: =>
+    @types = []
+    if not (@name in StandardCategoryNames) and not (@name in HiddenCategoryNames)
+      @types.push @constructor.Types.User
+    if @name in LockedCategoryNames
+      @types.push @constructor.Types.Hidden
+    if @name in StandardCategoryNames
+      @types.push @constructor.Types.Standard
+    if @name in HiddenCategoryNames
+      @types.push @constructor.Types.Hidden
+
+    for key, val of @constructor.Types
+      do (key, val) =>
+        Object.defineProperty @, "is#{key}Category",
+          enumerable: true
+          configurable: true
+          value: => val in @types
 
   hue: ->
     return 0 unless @displayName

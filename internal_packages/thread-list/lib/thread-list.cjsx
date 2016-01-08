@@ -113,9 +113,10 @@ class ThreadList extends React.Component
           attachment = <div className="thread-icon thread-icon-attachment"></div>
 
         currentCategoryId = FocusedMailViewStore.mailView()?.categoryId()
+        account = FocusedMailViewStore.mailView()?.account
 
         ignoredIds = [currentCategoryId]
-        ignoredIds.push(cat.id) for cat in CategoryStore.getHiddenCategories()
+        ignoredIds.push(cat.id) for cat in CategoryStore.hiddenCategories(account)
 
         for label in (thread.sortedLabels())
           continue if label.id in ignoredIds
@@ -309,8 +310,14 @@ class ThreadList extends React.Component
   _setImportant: (important) =>
     threads = @_threadsForKeyboardAction()
     return unless threads
-    return unless AccountStore.current()?.usesImportantFlag()
-    category = CategoryStore.getStandardCategory('important')
+
+    # TODO Can not apply to threads across more than one account for now
+    account = AccountStore.accountForItems(threads)
+    return unless account?
+
+    return unless account.usesImportantFlag()
+    return unless NylasEnv.config.get('core.workspace.showImportant')
+    category = CategoryStore.getStandardCategory(account, 'important')
     if important
       task = TaskFactory.taskForApplyingCategory({threads, category})
     else

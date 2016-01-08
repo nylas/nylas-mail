@@ -116,11 +116,11 @@ class Thread extends Model
     CategoryStore = require '../stores/category-store'
 
     isImportant = (l) -> l.name is 'important'
-    isStandardCategory = (l) -> l.name in CategoryStore.StandardCategoryNames
+    isStandardCategory = (l) -> l.isStandardCategory()
     isUnhiddenStandardLabel = (l) ->
       not isImportant(l) and \
       isStandardCategory(l) and\
-      l.name not in CategoryStore.HiddenCategoryNames
+      not (l.name.isHiddenCategory())
 
     importantLabel = _.find @labels, isImportant
     out = out.concat importantLabel if importantLabel

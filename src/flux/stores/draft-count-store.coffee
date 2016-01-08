@@ -1,6 +1,6 @@
 Reflux = require 'reflux'
 _ = require 'underscore'
-AccountStore = require './account-store'
+FocusedMailViewStore = require './focused-mail-view-store'
 DatabaseStore = require './database-store'
 DraftStore = require './draft-store'
 Actions = require '../actions'
@@ -19,8 +19,9 @@ if not NylasEnv.isMainWindow() and not NylasEnv.inSpecMode() then return
 
 DraftCountStore = Reflux.createStore
   init: ->
-    @listenTo AccountStore, @_onAccountChanged
+    @listenTo FocusedMailViewStore, @_onFocusedMailViewChanged
     @listenTo DraftStore, @_onDraftChanged
+    @_view = FocusedMailViewStore.mailView()
     @_count = null
     _.defer => @_fetchCount()
 
@@ -28,21 +29,24 @@ DraftCountStore = Reflux.createStore
   count: ->
     @_count
 
-  _onAccountChanged: ->
-    @_onDraftChanged()
+  _onFocusedMailViewChanged: ->
+    view = FocusedMailViewStore.mailView()
+    if view? and not(view.isEqual(@_view))
+      @_view = view
+      @_onDraftChanged()
 
   _onDraftChanged: ->
     @_fetchCountDebounced ?= _.debounce(@_fetchCount, 250)
     @_fetchCountDebounced()
 
   _fetchCount: ->
-    account = AccountStore.current()
-    return unless account
-
-    DatabaseStore.count(Message, [
+    account = @_view?.account
+    matchers = [
       Message.attributes.draft.equal(true)
-      Message.attributes.accountId.equal(account.id)
-    ]).then (count) =>
+    ]
+    matchers.push(Message.attributes.accountId.equal(account.accountId)) if account?
+
+    DatabaseStore.count(Message, matchers).then (count) =>
       return if @_count is count
       @_count = count
       @trigger()

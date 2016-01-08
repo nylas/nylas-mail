@@ -127,7 +127,7 @@ class AccountSwitcher extends React.Component
     @setState(showing: false)
 
   _getStateFromStores: =>
-    accounts: AccountStore.items()
-    account:  AccountStore.current()
+    accounts: AccountStore.accounts()
+    account:  AccountSidebarStore.currentAccount()
 
 module.exports = AccountSwitcher

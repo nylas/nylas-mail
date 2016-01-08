@@ -1,6 +1,7 @@
 fs = require 'fs'
 path = require 'path'
 Reflux = require 'reflux'
+Rx = require 'rx-lite'
 Actions = require '../actions'
 Contact = require '../models/contact'
 Utils = require '../models/utils'
@@ -37,15 +38,18 @@ class ContactStore extends NylasStore
 
   constructor: ->
     if NylasEnv.isMainWindow() or NylasEnv.inSpecMode()
-      @_contactCache = []
-      @_accountId = null
-
-      @listenTo DatabaseStore, @_onDatabaseChanged
-      @listenTo AccountStore, @_onAccountChanged
+      @_contactCache = {}
       @listenTo ContactRankingStore, @_sortContactsCacheWithRankings
-
-      @_accountId = AccountStore.current()?.id
+      @_registerObservers()
       @_refreshCache()
+
+  _registerObservers: =>
+    # TODO I'm a bit worried about how big a cache this might be
+    query = DatabaseStore.findAll(Contact)
+    @_disposable = Rx.Observable.fromQuery(query).subscribe(@_onContactsChanged)
+
+  _onContactsChanged: (contacts) =>
+    @_refreshCache(contacts)
 
   # Public: Search the user's contact list for the given search term.
   # This method compares the `search` string against each Contact's
@@ -59,7 +63,7 @@ class ContactStore extends NylasStore
   # Returns an {Array} of matching {Contact} models
   #
   searchContacts: (search, options={}) =>
-    {limit, noPromise} = options
+    {limit, noPromise, accountId} = options
     if not NylasEnv.isMainWindow()
       if noPromise
         throw new Error("We search Contacts in the Main window, which makes it impossible for this to be a noPromise method from this window")
@@ -97,7 +101,12 @@ class ContactStore extends NylasStore
       false
 
     matches = []
-    for contact in @_contactCache
+    contacts = if account?
+      @_contactCache[account.id]
+    else
+      _.flatten(_.values(@_contactCache))
+
+    for contact in contacts
       if matchFunction(contact)
         matches.push(contact)
         if matches.length is limit
@@ -122,7 +131,7 @@ class ContactStore extends NylasStore
     else return false
 
   parseContactsInString: (contactString, options={}) =>
-    {skipNameLookup} = options
+    {skipNameLookup, accountId} = options
     if not NylasEnv.isMainWindow()
       # Returns a promise that resolves to the value of searchContacts
       return WindowBridge.runInMainWindow("ContactStore", "parseContactsInString", [contactString, options])
@@ -153,7 +162,7 @@ class ContactStore extends NylasStore
       if (not name or name.length is 0) and not skipNameLookup
         # Look to see if we can find a name for this email address in the ContactStore.
         # Otherwise, just populate the name with the email address.
-        existing = @searchContacts(email, {limit:1, noPromise: true})[0]
+        existing = @searchContacts(email, {accountId: accountId, limit:1, noPromise: true})[0]
         if existing and existing.name
           name = existing.name
         else
@@ -174,42 +183,28 @@ class ContactStore extends NylasStore
 
     return Promise.resolve(detected)
 
-  __refreshCache: =>
-    return unless @_accountId
-
-    DatabaseStore.findAll(Contact).where(Contact.attributes.accountId.equal(@_accountId)).then (contacts=[]) =>
-      @_contactCache = contacts
-      @_sortContactsCacheWithRankings()
-      @trigger()
-    .catch (err) =>
-      console.warn("Request for Contacts failed. #{err}")
+  __refreshCache: (contacts) =>
+    contacts.forEach (contact) =>
+      @_contactCache[contact.accountId] ?= []
+      @_contactCache[contact.accountId].push(contact)
+    @_sortContactsCacheWithRankings()
+    @trigger()
     return true
 
   _refreshCache: _.debounce(ContactStore::__refreshCache, 100)
 
   _sortContactsCacheWithRankings: =>
-    rankings = ContactRankingStore.value()
-    return unless rankings
-    @_contactCache = _.sortBy @_contactCache, (contact) =>
-      - (rankings[contact.email.toLowerCase()] ? 0) / 1
-
-  _onDatabaseChanged: (change) =>
-    return unless change?.objectClass is Contact.name
-    @_refreshCache()
+    for accountId of @_contactCache
+      rankings = ContactRankingStore.valueFor(accountId)
+      continue unless rankings
+      @_contactCache[accountId] = _.sortBy(
+        @_contactCache[accountId],
+        (contact) => (- (rankings[contact.email.toLowerCase()] ? 0) / 1)
+      )
 
   _resetCache: =>
-    @_contactCache = []
+    @_contactCache = {}
     ContactRankingStore.reset()
     @trigger(@)
-
-  _onAccountChanged: =>
-    return if @_accountId is AccountStore.current()?.id
-    @_accountId = AccountStore.current()?.id
-
-    if @_accountId
-      @_refreshCache()
-    else
-      @_resetCache()
-
 
 module.exports = new ContactStore()

@@ -18,7 +18,7 @@ class PreferencesAccounts extends React.Component
     @unsubscribe?()
 
   getStateFromStores: =>
-    accounts: AccountStore.items()
+    accounts: AccountStore.accounts()
 
   _onAccountsChanged: =>
     @setState(@getStateFromStores())

@@ -51,9 +51,9 @@ class ChangeFolderTask extends ChangeMailTask
     if not @folder
       return Promise.reject(new Error("Must specify a `folder`"))
     if @threads.length > 0 and @messages.length > 0
-      return Promise.reject(new Error("ChangeLabelsTask: You can move `threads` or `messages` but not both"))
+      return Promise.reject(new Error("ChangeFoldersTask: You can move `threads` or `messages` but not both"))
     if @threads.length is 0 and @messages.length is 0
-      return Promise.reject(new Error("ChangeLabelsTask: You must provide a `threads` or `messages` Array of models or IDs."))
+      return Promise.reject(new Error("ChangeFoldersTask: You must provide a `threads` or `messages` Array of models or IDs."))
 
     # Convert arrays of IDs or models to models.
     # modelify returns immediately if no work is required

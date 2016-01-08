@@ -37,15 +37,16 @@ class FeedbackButton extends React.Component
     Screen = require('remote').require('screen')
     qs = require 'querystring'
 
-    account = AccountStore.current()
+    # TODO no more account for the feedback window
+    # account = AccountStore.current()
     params = qs.stringify({
-      name: account.name
-      email: account.emailAddress
-      accountId: account.id
-      accountProvider: account.provider
+      # name: account.name
+      # email: account.emailAddress
+      # accountId: account.id
+      # accountProvider: account.provider
       platform: process.platform
-      provider: account.displayProvider()
-      organizational_unit: account.organizationUnit
+      # provider: account.displayProvider()
+      # organizational_unit: account.organizationUnit
       version: NylasEnv.getVersion()
     })
 

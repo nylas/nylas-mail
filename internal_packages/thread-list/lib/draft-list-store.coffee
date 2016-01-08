@@ -24,19 +24,20 @@ class DraftListStore extends NylasStore
     @_view
 
   _createView: =>
-    account = AccountStore.current()
+    account = FocusedMailViewStore.mailView()?.account
 
     if @unlisten
       @unlisten()
       @_view = null
 
-    return unless account
+    matchers = [
+      Message.attributes.draft.equal(true)
+    ]
+    if account?
+      matchers.push(Message.attributes.accountId.equal(account.id))
 
     @_view = new DatabaseView Message,
-      matchers: [
-        Message.attributes.accountId.equal(account.id)
-        Message.attributes.draft.equal(true)
-      ],
+      matchers: matchers,
       includes: [Message.attributes.body]
       orders: [Message.attributes.date.descending()]
 

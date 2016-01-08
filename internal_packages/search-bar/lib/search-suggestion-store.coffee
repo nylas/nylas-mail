@@ -22,13 +22,15 @@ SearchSuggestionStore = Reflux.createStore
     @listenTo Actions.searchQueryCommitted, @onSearchQueryCommitted
     @listenTo Actions.searchBlurred, @onSearchBlurred
 
-  onSearchQueryChanged: (query) ->
+  onSearchQueryChanged: (query, account) ->
     @_query = query
+    @_account = account
     @trigger()
     _.defer => @_rebuildResults()
 
-  onSearchQueryCommitted: (query) ->
+  onSearchQueryCommitted: (query, account) ->
     @_query = query
+    @_account = accountId
     @_committedQuery = query
     @_clearResults()
 
@@ -45,7 +47,7 @@ SearchSuggestionStore = Reflux.createStore
     {key, val} = @queryKeyAndVal()
     return @_clearResults() unless key and val
 
-    ContactStore.searchContacts(val, limit:10).then (results) =>
+    ContactStore.searchContacts(val, accountId: @_account.id, limit:10).then (results) =>
       @_contactResults = results
       @_rebuildThreadResults()
       @_compileSuggestions()
@@ -61,7 +63,8 @@ SearchSuggestionStore = Reflux.createStore
     @_threadQueryInFlight = true
     DatabaseStore.findAll(Thread)
     .where(Thread.attributes.subject.like(val))
-    .where(Thread.attributes.accountId.equal(AccountStore.current().id))
+    # TODO This account check should be removed with the unified search refactor
+    .where(Thread.attributes.accountId.equal(@_account.id))
     .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
     .limit(4)
     .then (results) =>

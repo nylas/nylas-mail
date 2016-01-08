@@ -9,7 +9,8 @@ class PreferencesSignatures extends React.Component
   constructor: (@props) ->
     @_signatureSaveQueue = {}
 
-    selectedAccountId = AccountStore.current()?.id
+    # TODO check initally selected account
+    selectedAccountId = AccountStore.accounts()[0].id
     if selectedAccountId
       key = @_configKey(selectedAccountId)
       initialSig = @props.config.get(key)
@@ -18,7 +19,7 @@ class PreferencesSignatures extends React.Component
 
     @state =
       editAsHTML: false
-      accounts: AccountStore.items()
+      accounts: AccountStore.accounts()
       currentSignature: initialSig
       selectedAccountId: selectedAccountId
 
@@ -49,7 +50,7 @@ class PreferencesSignatures extends React.Component
     @setState @_getStateFromStores()
 
   _getStateFromStores: ->
-    accounts = AccountStore.items()
+    accounts = AccountStore.accounts()
     selectedAccountId = @state.selectedAccountId
     currentSignature = @state.currentSignature
     if not @state.selectedAccountId in _.pluck(accounts, "id")

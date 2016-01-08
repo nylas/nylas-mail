@@ -9,9 +9,9 @@ NylasAPI = require '../nylas-api'
 
 module.exports =
 class EventRSVPTask extends Task
-  constructor: (calendar_event, @RSVPResponse) ->
-    @myEmail = AccountStore.current()?.me().email.toLowerCase().trim()
-    @event = calendar_event
+  constructor: (@message, @event, @RSVPResponse) ->
+    account = AccountStore.accountForId(@message.accountId)
+    @myEmail = account?.me().email.toLowerCase().trim()
     super
 
   performLocal: ->

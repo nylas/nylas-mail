@@ -62,7 +62,7 @@ class InitialSyncActivity extends React.Component
   _expandedSyncState: ->
     accounts = []
     for acctId, state of @state.sync
-      account = _.findWhere(AccountStore.items(), id: acctId)
+      account = _.findWhere(AccountStore.accounts(), id: acctId)
       continue unless account
 
       modelStates = _.map state, (modelState, model) =>

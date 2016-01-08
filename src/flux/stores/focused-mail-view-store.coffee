@@ -2,7 +2,6 @@ NylasStore = require 'nylas-store'
 WorkspaceStore = require './workspace-store'
 MailViewFilter = require '../../mail-view-filter'
 CategoryStore = require './category-store'
-AccountStore = require './account-store'
 Actions = require '../actions'
 
 class FocusedMailViewStore extends NylasStore
@@ -26,22 +25,21 @@ class FocusedMailViewStore extends NylasStore
     Actions.searchQueryCommitted('')
     @_setMailView(filter)
 
-  _onSearchQueryCommitted: (query="") ->
+  _onSearchQueryCommitted: (query="", account) ->
     if typeof(query) != "string"
       query = query[0].all
 
     if query.trim().length > 0
       @_mailViewBeforeSearch ?= @_mailView
-      @_setMailView(MailViewFilter.forSearch(query))
+      @_setMailView(MailViewFilter.forSearch(account, query))
     else if query.trim().length is 0
       @_mailViewBeforeSearch ?= @_defaultMailView()
       @_setMailView(@_mailViewBeforeSearch)
       @_mailViewBeforeSearch = null
 
   _defaultMailView: ->
-    category = CategoryStore.getStandardCategory("inbox")
-    return null unless category
-    MailViewFilter.forCategory(category)
+    # TODO what should the default mail view be
+    MailViewFilter.unified()
 
   _setMailView: (filter) ->
     return if filter?.isEqual(@_mailView)

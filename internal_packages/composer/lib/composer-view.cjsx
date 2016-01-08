@@ -526,7 +526,7 @@ class ComposerView extends React.Component
       body: draft.body
       files: draft.files
       subject: draft.subject
-      account: AccountStore.itemWithId(draft.accountId)
+      account: AccountStore.accountForId(draft.accountId)
 
     if !@state.populated
       _.extend state,
@@ -580,12 +580,12 @@ class ComposerView extends React.Component
       @state.enabledFields.concat [Fields.From]
     else
       _.without(@state.enabledFields, Fields.From)
-    account = AccountStore.itemWithId @_proxy?.draft().accountId
+    account = AccountStore.accountForId @_proxy?.draft().accountId
     @setState {enabledFields, account}
 
   _shouldShowFromField: (draft) =>
     return false unless draft
-    account = AccountStore.itemWithId(draft.accountId)
+    account = AccountStore.accountForId(draft.accountId)
     return false unless account
     return account.aliases.length > 0
 

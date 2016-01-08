@@ -48,6 +48,9 @@ class MessageControls extends React.Component
     else
       return [reply, forward]
 
+  _account: =>
+    AccountStore.accountForId(@props.message.accountId)
+
   _dropdownMenu: (items) ->
     itemContent = (item) ->
       <span>
@@ -72,7 +75,7 @@ class MessageControls extends React.Component
 
   _replyType: =>
     emails = @props.message.to.map (item) -> item.email.toLowerCase().trim()
-    myEmail = AccountStore.current()?.me().email.toLowerCase().trim()
+    myEmail = @_account()?.me().email.toLowerCase().trim()
     if @props.message.cc.length is 0 and @props.message.to.length is 1 and emails[0] is myEmail
       return "reply"
     else return "reply-all"
@@ -96,12 +99,12 @@ class MessageControls extends React.Component
     {Contact, Message, DatabaseStore, AccountStore} = require 'nylas-exports'
 
     draft = new Message
-      from: [AccountStore.current().me()]
+      from: [@_account().me()]
       to: [new Contact(name: "Nylas Team", email: "feedback@nylas.com")]
       date: (new Date)
       draft: true
       subject: "Feedback - Message Display Issue (#{issueType})"
-      accountId: AccountStore.current().id
+      accountId: @_account().id
       body: @props.message.body
 
     DatabaseStore.inTransaction (t) =>

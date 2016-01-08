@@ -5,8 +5,6 @@ classNames = require 'classnames'
  WorkspaceStore,
  AccountStore,
  FocusedMailViewStore,
- ChangeLabelsTask,
- ChangeFolderTask,
  CategoryStore} = require 'nylas-exports'
 {RetinaImg, DropZone} = require 'nylas-component-kit'
 
