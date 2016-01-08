@@ -1,7 +1,8 @@
 React = require 'react'
-{Actions, AccountStore} = require("nylas-exports")
+{Actions, AccountStore, Label, ThreadCountsStore} = require("nylas-exports")
 crypto = require 'crypto'
 {RetinaImg} = require 'nylas-component-kit'
+{Categories} = require 'nylas-observables'
 classNames = require 'classnames'
 
 class AccountSwitcher extends React.Component
@@ -16,9 +17,12 @@ class AccountSwitcher extends React.Component
     @state = @_getStateFromStores()
     @state.showing = false
 
+    @_inboxCategoryCache = {}
+
   componentDidMount: =>
     @unsubscribers = []
     @unsubscribers.push AccountStore.listen @_onStoreChange
+    @unsubscribers.push Categories.forAllAccounts().sort().subscribe @_onCategoriesChanged
 
   componentWillUnmount: =>
     unsubscribe() for unsubscribe in @unsubscribers
@@ -26,16 +30,12 @@ class AccountSwitcher extends React.Component
   render: =>
     return false unless @state.account
 
-    classnames = ""
-    classnames += "open" if @state.showing
-
     <div id="account-switcher"
          tabIndex={-1}
          onBlur={@_onBlur}
-         ref="button"
-         className={classnames}>
-      {@_renderPrimaryItem()}
-      {@_renderDropdown()}
+         ref="button">
+      {@_renderAccounts()}
+      {@_renderNewAccountOption()}
     </div>
 
   _renderPrimaryItem: =>
@@ -53,9 +53,13 @@ class AccountSwitcher extends React.Component
       <div style={clear: "both"}></div>
     </div>
 
+  _renderAccounts: =>
+    @state.accounts.map(@_renderAccount)
+
   _renderAccount: (account) =>
     email = account.emailAddress.trim().toLowerCase()
     label = account.label.trim()
+    unreadCount = ThreadCountsStore.unreadCountForCategoryId @_inboxCategoryCache[account.serverId]
     classes = classNames
       "active": account is @state.account
       "item": true
@@ -63,6 +67,7 @@ class AccountSwitcher extends React.Component
 
     <div className={classes} onClick={ => @_onSwitchAccount(account)} key={email}>
       {@_renderGravatarForAccount(account)}
+      {@_renderUnreadCount(unreadCount)}
       <div className="name" style={lineHeight: "110%"}>{label}</div>
       <div style={clear: "both"}></div>
     </div>
@@ -104,11 +109,23 @@ class AccountSwitcher extends React.Component
                  mode={RetinaImg.Mode.ContentPreserve} />
     </div>
 
+  _renderUnreadCount: (unreadCount) =>
+    return false unless unreadCount
+    className = 'item-count-box inbox'
+    <div className={className}>{unreadCount}</div>
+
   _toggleDropdown: =>
     @setState showing: !@state.showing
 
   _onStoreChange: =>
     @setState @_getStateFromStores()
+
+  _onCategoriesChanged: (categories) =>
+    return unless categories
+
+    @_inboxCategoryCache = {}
+    for category in categories
+      @_inboxCategoryCache[category.accountId] = category.id if category.name is 'inbox'
 
   _onBlur: (e) =>
     target = e.nativeEvent.relatedTarget

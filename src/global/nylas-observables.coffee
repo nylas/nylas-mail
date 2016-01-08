@@ -37,7 +37,10 @@ CategoryObservables =
     observable
 
   forAllAccounts: =>
-    observable = Rx.Observable.fromQuery(DatabaseStore.findAll(categoryClass))
+    observable = Rx.Observable.fromStore(AccountStore).flatMapLatest ->
+      observables = for account in AccountStore.items()
+        Rx.Observable.fromQuery(DatabaseStore.findAll(account.categoryClass()))
+      Rx.Observable.concat(observables)
     _.extend(observable, CategoryOperators)
     observable
 

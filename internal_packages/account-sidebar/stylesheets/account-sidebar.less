@@ -129,6 +129,7 @@
 }
 
 #account-switcher {
+  background: lighten(@source-list-bg, 5%);
   border-bottom: 1px solid @border-color-divider;
 
   .primary-item {
@@ -151,23 +152,13 @@
   }
 
   .dropdown {
-    opacity: 0;
-    pointer-events: none;
-    transform:scale(1, 0.2);
-    transform-origin: top;
     transition: transform 125ms cubic-bezier(0.18, 0.89, 0.32, 1.12), opacity 100ms linear;
-    .inner {
-      opacity: 0;
-      transition: opacity 25ms linear;
-      transition-delay: 0;
-    }
     margin-top: -7px;
     background: lighten(@source-list-bg, 5%);
     border: 1px solid @border-color-divider;
     border-radius: @border-radius-base;
     border-top-left-radius: 0;
     border-top-right-radius: 0;
-    box-shadow:  0 2px 4px 0 rgba(0, 0, 0, 0.21);
 
     position: absolute;
     top: 54px;
@@ -183,6 +174,7 @@
     position: relative;
     margin-bottom: 0;
     display:block;
+
     .gravatar {
       background-size: 28px 28px;
       width: 28px;
@@ -201,17 +193,12 @@
     }
 
     padding: 6px 5px 0 14px;
+  }
 
-    &:first-child {
-      padding-top: 8px;
-      border-top-left-radius: @list-border-radius;
-      border-top-right-radius: @list-border-radius;
-    }
-    &:last-child {
-      padding-bottom: 2px;
-      border-bottom-left-radius: @list-border-radius;
-      border-bottom-right-radius: @list-border-radius;
-    }
+  .active {
+    border-left: 3px solid @component-active-color;
+
+    padding-left: 11px;
   }
 }
 body.platform-win32 {
@@ -229,25 +216,6 @@ body.platform-win32 {
     }
   }
 }
-
-
-#account-switcher.open {
-  .dropdown {
-    opacity: 1;
-    pointer-events: initial;
-    transform:scale(1, 1);
-    transform-origin: top;
-    .inner {
-      opacity: 1;
-      transition: opacity 50ms linear;
-      transition-delay: 50ms;
-    }
-  }
-  .toggle {
-    transform: rotateX(0deg);
-  }
-}
-
 
 #account-switcher {
   height: auto;
