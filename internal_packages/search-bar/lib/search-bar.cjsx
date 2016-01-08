@@ -29,7 +29,7 @@ class SearchBar extends React.Component
 
   _account: ->
     # TODO Pending Search refactor for unified inbox
-    FocusedMailViewStore.mailView()?.account
+    FocusedPerspectiveStore.current()?.account
 
   _keymapHandlers: ->
     'application:focus-search': @_onFocusSearch

@@ -9,24 +9,24 @@ Actions = require './flux/actions'
 # This is a class cluster. Subclasses are not for external use!
 # https://developer.apple.com/library/ios/documentation/General/Conceptual/CocoaEncyclopedia/ClassClusters/ClassClusters.html
 
-class MailViewFilter
+class MailboxPerspective
 
   # Factory Methods
 
   @forCategory: (account, category) ->
-    new CategoryMailViewFilter(account, category)
+    new CategoryMailboxPerspective(account, category)
 
   @forStarred: (account) ->
-    new StarredMailViewFilter(account)
+    new StarredMailboxPerspective(account)
 
   @forSearch: (account, query) ->
-    new SearchMailViewFilter(account, query)
+    new SearchMailboxPerspective(account, query)
 
   @forAll: (account) ->
-    new AllMailViewFilter(account)
+    new AllMailboxPerspective(account)
 
   @unified: ->
-    new UnifiedMailViewFilter()
+    new UnifiedMailboxPerspective()
 
   # Instance Methods
 
@@ -59,7 +59,7 @@ class MailViewFilter
   applyToThreads: (threadsOrIds) ->
     throw new Error("applyToThreads: Not implemented in base class.")
 
-  # Whether or not the current MailViewFilter can "archive" or "trash"
+  # Whether or not the current MailboxPerspective can "archive" or "trash"
   # Subclasses should call `super` if they override these methods
   canArchiveThreads: ->
     return false unless CategoryStore.getArchiveCategory(@account)
@@ -69,7 +69,7 @@ class MailViewFilter
     return false unless CategoryStore.getTrashCategory(@account)
     return true
 
-class SearchMailViewFilter extends MailViewFilter
+class SearchMailboxPerspective extends MailboxPerspective
   constructor: (@account, @searchQuery) ->
     @
 
@@ -91,7 +91,7 @@ class SearchMailViewFilter extends MailViewFilter
   categoryId: ->
     null
 
-class AllMailViewFilter extends MailViewFilter
+class AllMailboxPerspective extends MailboxPerspective
   constructor: (@account) ->
     @name = "All"
     @iconName = "all-mail.png"
@@ -113,7 +113,7 @@ class AllMailViewFilter extends MailViewFilter
     CategoryStore.getStandardCategory(@account, "all")?.id
 
 
-class StarredMailViewFilter extends MailViewFilter
+class StarredMailboxPerspective extends MailboxPerspective
   constructor: (@account) ->
     @name = "Starred"
     @iconName = "starred.png"
@@ -134,7 +134,7 @@ class StarredMailViewFilter extends MailViewFilter
     Actions.queueTask(task)
 
 
-class CategoryMailViewFilter extends MailViewFilter
+class CategoryMailboxPerspective extends MailboxPerspective
   constructor: (@account, @category) ->
     @name = @category.displayName
 
@@ -169,8 +169,8 @@ class CategoryMailViewFilter extends MailViewFilter
 
   applyToThreads: (threadsOrIds) ->
     if @account.usesLabels()
-      FocusedMailViewStore = require './flux/stores/focused-mail-view-store'
-      currentLabel = FocusedMailViewStore.mailView().category
+      FocusedPerspectiveStore = require './flux/stores/focused-perspective-store'
+      currentLabel = FocusedPerspectiveStore.current().category
       if currentLabel and not (currentLabel.isLockedCategory())
         labelsToRemove = [currentLabel]
 
@@ -188,7 +188,7 @@ class CategoryMailViewFilter extends MailViewFilter
     Actions.queueTask(task)
 
 
-class UnifiedMailViewFilter extends MailViewFilter
+class UnifiedMailboxPerspective extends MailboxPerspective
 
   matchers: ->
     []
@@ -196,4 +196,4 @@ class UnifiedMailViewFilter extends MailViewFilter
   canApplyToThreads: ->
     false
 
-module.exports = MailViewFilter
+module.exports = MailboxPerspective

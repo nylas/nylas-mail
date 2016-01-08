@@ -75,7 +75,7 @@ class NylasExports
   @require "Metadata", 'flux/models/metadata'
   @require "JSONBlob", 'flux/models/json-blob'
   @require "DatabaseObjectRegistry", "database-object-registry"
-  @require "MailViewFilter", 'mail-view-filter'
+  @require "MailboxPerspective", 'mailbox-perspective'
 
   # Exported so 3rd party packages can subclass Model
   @load "Model", 'flux/models/model'
@@ -125,7 +125,7 @@ class NylasExports
   @require "UnreadBadgeStore", 'flux/stores/unread-badge-store'
   @require "FileDownloadStore", 'flux/stores/file-download-store'
   @require "FocusedContentStore", 'flux/stores/focused-content-store'
-  @require "FocusedMailViewStore", 'flux/stores/focused-mail-view-store'
+  @require "FocusedPerspectiveStore", 'flux/stores/focused-perspective-store'
   @require "FocusedContactsStore", 'flux/stores/focused-contacts-store'
   @require "PreferencesUIStore", 'flux/stores/preferences-ui-store'
 

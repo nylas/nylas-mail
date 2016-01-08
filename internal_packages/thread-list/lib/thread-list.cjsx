@@ -18,7 +18,7 @@ classNames = require 'classnames'
  AccountStore,
  CategoryStore,
  FocusedContentStore,
- FocusedMailViewStore} = require 'nylas-exports'
+ FocusedPerspectiveStore} = require 'nylas-exports'
 ThreadListParticipants = require './thread-list-participants'
 {ThreadArchiveQuickAction,
  ThreadTrashQuickAction} = require './thread-list-quick-actions'
@@ -112,8 +112,8 @@ class ThreadList extends React.Component
         if thread.hasAttachments
           attachment = <div className="thread-icon thread-icon-attachment"></div>
 
-        currentCategoryId = FocusedMailViewStore.mailView()?.categoryId()
-        account = FocusedMailViewStore.mailView()?.account
+        currentCategoryId = FocusedPerspectiveStore.current()?.categoryId()
+        account = FocusedPerspectiveStore.current()?.account
 
         ignoredIds = [currentCategoryId]
         ignoredIds.push(cat.id) for cat in CategoryStore.hiddenCategories(account)
@@ -345,40 +345,40 @@ class ThreadList extends React.Component
     backspaceDelete = NylasEnv.config.get('core.reading.backspaceDelete')
     if threads
       if backspaceDelete
-        if FocusedMailViewStore.mailView().canTrashThreads()
+        if FocusedPerspectiveStore.current().canTrashThreads()
           removeMethod = TaskFactory.taskForMovingToTrash
         else
           return
       else
-        if FocusedMailViewStore.mailView().canArchiveThreads()
+        if FocusedPerspectiveStore.current().canArchiveThreads()
           removeMethod = TaskFactory.taskForArchiving
         else
           removeMethod = TaskFactory.taskForMovingToTrash
 
       task = removeMethod
         threads: threads
-        fromView: FocusedMailViewStore.mailView()
+        fromView: FocusedPerspectiveStore.current()
       Actions.queueTask(task)
 
     Actions.popSheet()
 
   _onArchiveItem: =>
-    return unless FocusedMailViewStore.mailView().canArchiveThreads()
+    return unless FocusedPerspectiveStore.current().canArchiveThreads()
     threads = @_threadsForKeyboardAction()
     if threads
       task = TaskFactory.taskForArchiving
         threads: threads
-        fromView: FocusedMailViewStore.mailView()
+        fromView: FocusedPerspectiveStore.current()
       Actions.queueTask(task)
     Actions.popSheet()
 
   _onDeleteItem: =>
-    return unless FocusedMailViewStore.mailView().canTrashThreads()
+    return unless FocusedPerspectiveStore.current().canTrashThreads()
     threads = @_threadsForKeyboardAction()
     if threads
       task = TaskFactory.taskForMovingToTrash
         threads: threads
-        fromView: FocusedMailViewStore.mailView()
+        fromView: FocusedPerspectiveStore.current()
       Actions.queueTask(task)
     Actions.popSheet()
 

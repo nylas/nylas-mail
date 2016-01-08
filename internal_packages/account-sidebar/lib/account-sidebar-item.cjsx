@@ -38,11 +38,11 @@ class AccountSidebarItem extends React.Component
         item={item}
         select={item.id is @props.selected?.id } />
 
-    else if item.mailViewFilter
+    else if item.mailboxPerspective
       <AccountSidebarMailViewItem
         item={item}
-        mailView={item.mailViewFilter}
-        select={item.mailViewFilter.isEqual(@props.selected)} />
+        perspective={item.mailboxPerspective}
+        select={item.mailboxPerspective.isEqual(@props.selected)} />
 
     else if item.sheet
       <SidebarSheetItem
@@ -51,7 +51,7 @@ class AccountSidebarItem extends React.Component
 
     else
       throw new Error("AccountSidebarItem: each item must have a \
-                       custom component, or a sheet or mailViewFilter")
+                       custom component, or a sheet or mailboxPerspective")
 
   _onShowContextMenu: =>
     item = @props.item

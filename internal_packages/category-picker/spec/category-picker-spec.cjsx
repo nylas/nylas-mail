@@ -14,7 +14,7 @@ CategoryPicker = require '../lib/category-picker'
  DatabaseStore,
  TaskFactory,
  SyncbackCategoryTask,
- FocusedMailViewStore,
+ FocusedPerspectiveStore,
  TaskQueueStatusStore} = require 'nylas-exports'
 
 describe 'CategoryPicker', ->
@@ -38,7 +38,7 @@ describe 'CategoryPicker', ->
 
     # By default we're going to set to "inbox". This has implications for
     # what categories get filtered out of the list.
-    f = FocusedMailViewStore
+    f = FocusedPerspectiveStore
     f._setMailView f._defaultMailView()
 
   setupForCreateNew = (orgUnit = "folder") ->

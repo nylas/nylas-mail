@@ -8,7 +8,7 @@ NylasStore = require 'nylas-store'
  WorkspaceStore,
  FocusedContentStore,
  TaskQueueStatusStore,
- FocusedMailViewStore} = require 'nylas-exports'
+ FocusedPerspectiveStore} = require 'nylas-exports'
 
 ThreadListViewFactory = require './thread-list-view-factory'
 
@@ -18,7 +18,7 @@ class ThreadListStore extends NylasStore
   constructor: ->
     @_resetInstanceVars()
 
-    @listenTo FocusedMailViewStore, @_onMailViewChanged
+    @listenTo FocusedPerspectiveStore, @_onMailViewChanged
     @createView()
 
     NylasEnv.commands.add "body",
@@ -31,7 +31,7 @@ class ThreadListStore extends NylasStore
     # has hot yet been populated from the database with the list of
     # categories and their corresponding ids. Once that is ready, the
     # CategoryStore will trigger, which will update the
-    # FocusedMailViewStore, which will cause us to create a new
+    # FocusedPerspectiveStore, which will cause us to create a new
     # @view.
 
   _resetInstanceVars: ->
@@ -41,10 +41,10 @@ class ThreadListStore extends NylasStore
     @_view
 
   createView: ->
-    mailViewFilter = FocusedMailViewStore.mailView()
-    return unless mailViewFilter
+    mailboxPerspective = FocusedPerspectiveStore.current()
+    return unless mailboxPerspective
 
-    @setView(ThreadListViewFactory.viewForMailView(mailViewFilter))
+    @setView(ThreadListViewFactory.viewForMailView(mailboxPerspective))
     Actions.setFocus(collection: 'thread', item: null)
 
   setView: (view) ->

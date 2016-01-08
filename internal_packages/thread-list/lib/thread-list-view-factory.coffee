@@ -70,14 +70,14 @@ _observableForThreadMessages = (id, initialModels) ->
 
 
 module.exports = ThreadListViewFactory =
-  viewForMailView: (mailViewFilter) =>
-    if mailViewFilter.searchQuery
-      ThreadListViewFactory.viewForSearch(mailViewFilter.searchQuery, mailViewFilter.account?.id)
+  viewForMailView: (mailboxPerspective) =>
+    if mailboxPerspective.searchQuery
+      ThreadListViewFactory.viewForSearch(mailboxPerspective.searchQuery, mailboxPerspective.account?.id)
     else
       matchers = []
-      if mailViewFilter.account
-        matchers.push Thread.attributes.accountId.equal(mailViewFilter.account.id)
-      matchers = matchers.concat(mailViewFilter.matchers())
+      if mailboxPerspective.account
+        matchers.push Thread.attributes.accountId.equal(mailboxPerspective.account.id)
+      matchers = matchers.concat(mailboxPerspective.matchers())
       query = DatabaseStore.findAll(Thread).where(matchers).limit(0)
       ThreadListViewFactory.viewForQuery(query)
 

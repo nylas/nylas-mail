@@ -24,7 +24,7 @@ class DraftListStore extends NylasStore
 
   _queryForCurrentAccount: =>
     matchers = [Message.attributes.draft.equal(true)]
-    account = FocusedMailViewStore.mailView()?.account
+    account = FocusedPerspectiveStore.current()?.account
 
     if account?
       matchers.push(Message.attributes.accountId.equal(account.id))

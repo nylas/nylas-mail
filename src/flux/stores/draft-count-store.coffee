@@ -1,6 +1,6 @@
 Reflux = require 'reflux'
 _ = require 'underscore'
-FocusedMailViewStore = require './focused-mail-view-store'
+FocusedPerspectiveStore = require './focused-perspective-store'
 DatabaseStore = require './database-store'
 DraftStore = require './draft-store'
 Actions = require '../actions'
@@ -19,9 +19,9 @@ if not NylasEnv.isMainWindow() and not NylasEnv.inSpecMode() then return
 
 DraftCountStore = Reflux.createStore
   init: ->
-    @listenTo FocusedMailViewStore, @_onFocusedMailViewChanged
+    @listenTo FocusedPerspectiveStore, @_onFocusedMailViewChanged
     @listenTo DraftStore, @_onDraftChanged
-    @_view = FocusedMailViewStore.mailView()
+    @_view = FocusedPerspectiveStore.current()
     @_count = null
     _.defer => @_fetchCount()
 
@@ -30,7 +30,7 @@ DraftCountStore = Reflux.createStore
     @_count
 
   _onFocusedMailViewChanged: ->
-    view = FocusedMailViewStore.mailView()
+    view = FocusedPerspectiveStore.current()
     if view? and not(view.isEqual(@_view))
       @_view = view
       @_onDraftChanged()
