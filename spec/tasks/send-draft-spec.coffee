@@ -314,6 +314,54 @@ describe "SendDraftTask", ->
           expect(@task._notifyUserOfError).toHaveBeenCalled()
           expect(@task._notifyUserOfError.calls.length).toBe 1
 
+        describe "checking the promise chain halts on errors", ->
+          beforeEach ->
+            spyOn(@task,"_makeSendRequest").andCallThrough()
+            spyOn(@task,"_saveNewMessage").andCallThrough()
+            spyOn(@task,"_deleteRemoteDraft").andCallThrough()
+            spyOn(@task,"_notifySuccess").andCallThrough()
+            spyOn(@task,"_onError").andCallThrough()
+
+            @expectBlockedChain = =>
+              expect(@task._makeSendRequest).toHaveBeenCalled()
+              expect(@task._saveNewMessage).not.toHaveBeenCalled()
+              expect(@task._deleteRemoteDraft).not.toHaveBeenCalled()
+              expect(@task._notifySuccess).not.toHaveBeenCalled()
+              expect(@task._onError).toHaveBeenCalled()
+
+          it "halts on 500s", ->
+            thrownError = new APIError(statusCode: 500, body: "err")
+            spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
+              Promise.reject(thrownError)
+            waitsForPromise => @task.performRemote().then (status) =>
+              @expectBlockedChain()
+
+          it "halts on 400s", ->
+            thrownError = new APIError(statusCode: 400, body: "err")
+            spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
+              Promise.reject(thrownError)
+            waitsForPromise => @task.performRemote().then (status) =>
+              @expectBlockedChain()
+
+          it "halts on other errors", ->
+            thrownError = new Error("oh no")
+            spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
+              Promise.reject(thrownError)
+            waitsForPromise => @task.performRemote().then (status) =>
+              @expectBlockedChain()
+
+          it "dosn't halt on success", ->
+            spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
+              options.success?(@response)
+              Promise.resolve(@response)
+            waitsForPromise => @task.performRemote().then (status) =>
+              expect(@task._makeSendRequest).toHaveBeenCalled()
+              expect(@task._saveNewMessage).toHaveBeenCalled()
+              expect(@task._deleteRemoteDraft).toHaveBeenCalled()
+              expect(@task._notifySuccess).toHaveBeenCalled()
+              expect(@task._onError).not.toHaveBeenCalled()
+
+
     describe "with a new draft", ->
       beforeEach ->
         @draft = new Message
