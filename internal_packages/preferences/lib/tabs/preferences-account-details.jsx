@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import React, {Component, PropTypes} from 'react';
-import {EditableList} from 'nylas-component-kit';
+import {EditableList, NewsletterSignup} from 'nylas-component-kit';
 import {RegExpUtils} from 'nylas-exports';
 
 class PreferencesAccountDetails extends Component {
@@ -159,6 +159,10 @@ class PreferencesAccountDetails extends Component {
           onDeleteItem={this._onAccountAliasRemoved} />
 
         {this._renderDefaultAliasSelector(account)}
+
+        <div className="newsletter">
+          <NewsletterSignup emailAddress={account.emailAddress} name={account.name} />
+        </div>
       </div>
     );
   }
