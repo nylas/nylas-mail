@@ -60,7 +60,8 @@ class TemplateStore extends NylasStore {
     }
   }
   unwatch() {
-    this._watcher.close();
+    if(this._watcher)
+      this._watcher.close();
     this._watcher = null;
   }
 
