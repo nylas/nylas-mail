@@ -1,5 +1,21 @@
 # N1 Changelog
 
+### 0.3.38 (1/8/16)
+
+- Features:
+ + You can now enable and disable bundled plugins from Preferences > Plugins,
+   and bundled plugin updates are delivered alongside N1 updates.
+ + You can now adjust the interface zoom from the workspace preferences.
+
+- Fixes:
+ + The Apple Mail keyboard shortcut for send is not correct.
+ + Composer keyboard shortcuts are shown in the shortcuts preferences.
+ + You can now unsubscribe from the N1 mailing list from the Account preferences.
+ + The message actions dropdown is now left aligned.
+ + Thread "Quick Actions" are now displayed in the correct order.
+ + Account names can no longer overflow the preferences sidebar.
+
+
 ### 0.3.36 (1/5/16)
 
 - Features:
