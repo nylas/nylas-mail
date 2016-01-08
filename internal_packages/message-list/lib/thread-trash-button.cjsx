@@ -3,7 +3,7 @@ React = require 'react'
 {Actions,
  DOMUtils,
  TaskFactory,
- FocusedMailViewStore} = require 'nylas-exports'
+ FocusedPerspectiveStore} = require 'nylas-exports'
 {RetinaImg} = require 'nylas-component-kit'
 
 class ThreadTrashButton extends React.Component
@@ -14,8 +14,8 @@ class ThreadTrashButton extends React.Component
     thread: React.PropTypes.object.isRequired
 
   render: =>
-    focusedMailViewFilter = FocusedMailViewStore.mailView()
-    return false unless focusedMailViewFilter?.canTrashThreads()
+    focusedMailboxPerspective = FocusedPerspectiveStore.current()
+    return false unless focusedMailboxPerspective?.canTrashThreads()
 
     <button className="btn btn-toolbar"
             style={order: -106}
@@ -28,7 +28,7 @@ class ThreadTrashButton extends React.Component
     return unless DOMUtils.nodeIsVisible(e.currentTarget)
     task = TaskFactory.taskForMovingToTrash
       threads: [@props.thread],
-      fromView: FocusedMailViewStore.mailView()
+      fromView: FocusedPerspectiveStore.current()
     Actions.queueTask(task)
     Actions.popSheet()
     e.stopPropagation()

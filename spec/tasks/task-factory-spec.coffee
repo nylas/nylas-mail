@@ -30,7 +30,7 @@
 #   describe "getRemovalTask", ->
 #     beforeEach ->
 #       spyOn(CategoryStore, "byId").andReturn({id: "inbox-id", name: "inbox"})
-#       @mailViewFilterStub = categoryId: -> "inbox-id"
+#       @mailboxPerspectiveStub = categoryId: -> "inbox-id"
 #       @categories = []
 #
 #       spyOn(CategoryStore, "getStandardCategory").andCallFake (cat) =>
@@ -51,7 +51,7 @@
 #         provider: "eas"
 #         organizationUnit: "label"
 #       @categories = ["all", "trash"]
-#       t = RemoveThreadHelper.getRemovalTask([], @mailViewFilterStub)
+#       t = RemoveThreadHelper.getRemovalTask([], @mailboxPerspectiveStub)
 #       expect(t instanceof ChangeLabelsTask).toBe true
 #       expect(t.labelsToRemove[0].name).toBe "inbox"
 #       expect(t.labelsToAdd[0].name).toBe "trash"
@@ -62,7 +62,7 @@
 #       spyOn(RemoveThreadHelper, "_currentAccount").andReturn new Account
 #         provider: "gmail"
 #         organizationUnit: "label"
-#       t = RemoveThreadHelper.getRemovalTask([], @mailViewFilterStub)
+#       t = RemoveThreadHelper.getRemovalTask([], @mailboxPerspectiveStub)
 #       expect(t instanceof ChangeLabelsTask).toBe true
 #       expect(t.labelsToRemove[0].name).toBe "inbox"
 #       expect(t.labelsToAdd[0].name).toBe "all"
@@ -73,7 +73,7 @@
 #       spyOn(RemoveThreadHelper, "_currentAccount").andReturn new Account
 #         provider: "eas"
 #         organizationUnit: "folder"
-#       t = RemoveThreadHelper.getRemovalTask([], @mailViewFilterStub)
+#       t = RemoveThreadHelper.getRemovalTask([], @mailboxPerspectiveStub)
 #       expect(t instanceof ChangeFolderTask).toBe true
 #       expect(t.folder.name).toBe "trash"
 #
@@ -83,6 +83,6 @@
 #       spyOn(RemoveThreadHelper, "_currentAccount").andReturn new Account
 #         provider: "gmail"
 #         organizationUnit: "folder"
-#       t = RemoveThreadHelper.getRemovalTask([], @mailViewFilterStub)
+#       t = RemoveThreadHelper.getRemovalTask([], @mailboxPerspectiveStub)
 #       expect(t instanceof ChangeFolderTask).toBe true
 #       expect(t.folder.name).toBe "archive"

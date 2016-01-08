@@ -14,7 +14,7 @@ React = require 'react'
  WorkspaceStore,
  SyncbackCategoryTask,
  TaskQueueStatusStore,
- FocusedMailViewStore} = require 'nylas-exports'
+ FocusedPerspectiveStore} = require 'nylas-exports'
 
 {Menu,
  Popover,
@@ -285,7 +285,7 @@ class CategoryPicker extends React.Component
 
   _isUserFacing: (allInInbox, category) =>
     hiddenCategories = []
-    currentCategoryId = FocusedMailViewStore.mailView()?.categoryId()
+    currentCategoryId = FocusedPerspectiveStore.current()?.categoryId()
 
     if @_account?.usesLabels()
       hiddenCategories = ["all", "drafts", "sent", "archive", "starred", "important"]

@@ -8,7 +8,7 @@ DraftStoreProxy = require './draft-store-proxy'
 DatabaseStore = require './database-store'
 AccountStore = require './account-store'
 ContactStore = require './contact-store'
-FocusedMailViewStore = require './focused-mail-view-store'
+FocusedPerspectiveStore = require './focused-perspective-store'
 
 SendDraftTask = require '../tasks/send-draft'
 DestroyDraftTask = require '../tasks/destroy-draft'
@@ -374,7 +374,7 @@ class DraftStore
       SanitizeTransformer.run(body, SanitizeTransformer.Preset.UnsafeOnly)
 
   _onPopoutBlankDraft: =>
-    account = FocusedMailViewStore.mailView()?.account
+    account = FocusedPerspectiveStore.current()?.account
     # TODO Remove this when we add account selector inside composer
     return unless account
 
@@ -412,7 +412,7 @@ class DraftStore
           windowProps: _.extend(options, {draftClientId})
 
   _onHandleMailtoLink: (event, urlString) =>
-    account = FocusedMailViewStore.mailView()?.account
+    account = FocusedPerspectiveStore.current()?.account
     # TODO Remove this when we add account selector inside composer
     return unless account
 

@@ -42,7 +42,7 @@ describe "AccountSidebarStore", ->
           {
             id: '1',
             name: 'Inbox',
-            mailViewFilter: {
+            mailboxPerspective: {
               name: 'Inbox',
               category: {
                 client_id: '1',
@@ -60,7 +60,7 @@ describe "AccountSidebarStore", ->
           {
             id: 'starred',
             name: 'Starred',
-            mailViewFilter: {
+            mailboxPerspective: {
               name: 'Starred',
               iconName: 'starred.png'
             },
@@ -71,7 +71,7 @@ describe "AccountSidebarStore", ->
           {
             id: '3',
             name: 'Sent',
-            mailViewFilter: {
+            mailboxPerspective: {
               name: 'Sent',
               category: {
                 client_id: '3',
@@ -89,7 +89,7 @@ describe "AccountSidebarStore", ->
           {
             id: '4',
             name: 'Important',
-            mailViewFilter: {
+            mailboxPerspective: {
               name: 'Important',
               category: {
                 client_id: '4',
@@ -123,7 +123,7 @@ describe "AccountSidebarStore", ->
           {
             id: 'a',
             name: 'A',
-            mailViewFilter: {
+            mailboxPerspective: {
               name: 'A',
               category: {
                 client_id: 'a',
@@ -136,7 +136,7 @@ describe "AccountSidebarStore", ->
               {
                 id: 'a+b',
                 name: 'B',
-                mailViewFilter: {
+                mailboxPerspective: {
                   name: 'A/B',
                   category: {
                     client_id: 'a+b',
@@ -149,7 +149,7 @@ describe "AccountSidebarStore", ->
                   {
                     id: 'a+b+c',
                     name: 'C',
-                    mailViewFilter: {
+                    mailboxPerspective: {
                       name: 'A/B/C',
                       category: {
                         client_id: 'a+b+c',
@@ -169,7 +169,7 @@ describe "AccountSidebarStore", ->
               {
                 id: 'a+d',
                 name: 'D',
-                mailViewFilter: {
+                mailboxPerspective: {
                   name: 'A.D',
                   category: {
                     client_id: 'a+d',
@@ -186,7 +186,7 @@ describe "AccountSidebarStore", ->
               {
                 id: 'a+e',
                 name: 'E',
-                mailViewFilter: {
+                mailboxPerspective: {
                   name: 'A\\E',
                   category: {
                     client_id: 'a+e',
@@ -203,7 +203,7 @@ describe "AccountSidebarStore", ->
               {
                 id: 'a+b-c',
                 name: 'B-C',
-                mailViewFilter: {
+                mailboxPerspective: {
                   name: 'A/B-C',
                   category: {
                     client_id: 'a+b-c',
@@ -223,7 +223,7 @@ describe "AccountSidebarStore", ->
           {
             id: 'b',
             name: 'B',
-            mailViewFilter: {
+            mailboxPerspective: {
               name: 'B',
               category: {
                 client_id: 'b',
@@ -236,7 +236,7 @@ describe "AccountSidebarStore", ->
               {
                 id: 'b+c',
                 name: 'C',
-                mailViewFilter: {
+                mailboxPerspective: {
                   name: 'B/C',
                   category: {
                     client_id: 'b+c',

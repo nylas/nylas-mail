@@ -9,8 +9,8 @@ _ = require 'underscore'
  Label,
  Folder,
  Message,
- MailViewFilter,
- FocusedMailViewStore,
+ MailboxPerspective,
+ FocusedPerspectiveStore,
  SyncbackCategoryTask,
  DestroyCategoryTask,
  CategoryHelpers,
@@ -33,7 +33,7 @@ class AccountSidebarStore extends NylasStore
 
   selected: ->
     if WorkspaceStore.rootSheet() is WorkspaceStore.Sheet.Threads
-      FocusedMailViewStore.mailView()
+      FocusedPerspectiveStore.current()
     else
       WorkspaceStore.rootSheet()
 
@@ -43,7 +43,7 @@ class AccountSidebarStore extends NylasStore
     @listenTo WorkspaceStore, @_updateSections
     @listenTo CategoryStore, @_updateSections
     @listenTo ThreadCountsStore, @_updateSections
-    @listenTo FocusedMailViewStore, => @trigger()
+    @listenTo FocusedPerspectiveStore, => @trigger()
     @listenTo Actions.selectAccount, @_onSelectAccount
     @configSubscription = NylasEnv.config.observe(
       'core.workspace.showUnreadForAllCategories',
@@ -98,7 +98,7 @@ class AccountSidebarStore extends NylasStore
       category.name is "drafts"
 
     standardCategoryItems = _.map standardCategories, (cat) => @_sidebarItemForCategory(cat)
-    starredItem = @_sidebarItemForMailView('starred', MailViewFilter.forStarred(@_account))
+    starredItem = @_sidebarItemForMailView('starred', MailboxPerspective.forStarred(@_account))
 
     # Find root views and add them to the bottom of the list (Drafts, etc.)
     standardItems = standardCategoryItems
@@ -135,13 +135,13 @@ class AccountSidebarStore extends NylasStore
     new WorkspaceStore.SidebarItem
       id: id,
       name: filter.name,
-      mailViewFilter: filter
+      mailboxPerspective: filter
 
   _sidebarItemForCategory: (category, shortenedName) =>
     new WorkspaceStore.SidebarItem
       id: category.id,
       name: shortenedName || category.displayName
-      mailViewFilter: MailViewFilter.forCategory(@_account, category)
+      mailboxPerspective: MailboxPerspective.forCategory(@_account, category)
       unreadCount: @_itemUnreadCount(category)
 
   _createCategory: (displayName) ->
@@ -154,7 +154,7 @@ class AccountSidebarStore extends NylasStore
     Actions.queueTask(new SyncbackCategoryTask({category}))
 
   _destroyCategory: (sidebarItem) ->
-    category = sidebarItem.mailViewFilter.category
+    category = sidebarItem.mailboxPerspective.category
     return if category.isDeleted is true
     Actions.queueTask(new DestroyCategoryTask({category}))
 

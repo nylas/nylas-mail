@@ -4,7 +4,7 @@ classNames = require 'classnames'
  Utils,
  WorkspaceStore,
  AccountStore,
- FocusedMailViewStore,
+ FocusedPerspectiveStore,
  CategoryStore} = require 'nylas-exports'
 {RetinaImg, DropZone} = require 'nylas-component-kit'
 
@@ -14,7 +14,7 @@ class AccountSidebarMailViewItem extends React.Component
   @propTypes:
     select: React.PropTypes.bool
     item: React.PropTypes.object.isRequired
-    mailView: React.PropTypes.object.isRequired
+    perspective: React.PropTypes.object.isRequired
 
   constructor: (@props) ->
     @state = {}
@@ -23,7 +23,7 @@ class AccountSidebarMailViewItem extends React.Component
     !Utils.isEqualReact(@props, nextProps) or !Utils.isEqualReact(@state, nextState)
 
   render: =>
-    isDeleted = @props.mailView?.category?.isDeleted is true
+    isDeleted = @props.perspective?.category?.isDeleted is true
 
     containerClass = classNames
       'item': true
@@ -33,7 +33,7 @@ class AccountSidebarMailViewItem extends React.Component
 
     <DropZone className={containerClass}
          onClick={@_onClick}
-         id={@props.mailView.id}
+         id={@props.perspective.id}
          shouldAcceptDrop={@_shouldAcceptDrop}
          onDragStateChange={ ({isDropping}) => @setState({isDropping}) }
          onDrop={@_onDrop}>
@@ -45,15 +45,15 @@ class AccountSidebarMailViewItem extends React.Component
   _renderUnreadCount: =>
     return false unless @props.item.unreadCount
     className = 'item-count-box '
-    className += @props.mailView.category?.name
+    className += @props.perspective.category?.name
     <div className={className}>{@props.item.unreadCount}</div>
 
   _renderIcon: ->
-    <RetinaImg name={@props.mailView.iconName} fallback={'folder.png'} mode={RetinaImg.Mode.ContentIsMask} />
+    <RetinaImg name={@props.perspective.iconName} fallback={'folder.png'} mode={RetinaImg.Mode.ContentIsMask} />
 
   _shouldAcceptDrop: (e) =>
-    return false if @props.mailView.isEqual(FocusedMailViewStore.mailView())
-    return false unless @props.mailView.canApplyToThreads()
+    return false if @props.perspective.isEqual(FocusedPerspectiveStore.current())
+    return false unless @props.perspective.canApplyToThreads()
     'nylas-thread-ids' in e.dataTransfer.types
 
   _onDrop: (e) =>
@@ -64,11 +64,11 @@ class AccountSidebarMailViewItem extends React.Component
       console.error("AccountSidebarMailViewItem onDrop: JSON parse #{err}")
     return unless ids
 
-    @props.mailView.applyToThreads(ids)
+    @props.perspective.applyToThreads(ids)
 
   _onClick: (event) =>
     event.preventDefault()
     Actions.selectRootSheet(WorkspaceStore.Sheet.Threads)
-    Actions.focusMailView(@props.mailView)
+    Actions.focusMailboxPerspective(@props.perspective)
 
 module.exports = AccountSidebarMailViewItem

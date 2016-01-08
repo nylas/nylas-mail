@@ -1,9 +1,9 @@
 _ = require 'underscore'
 Actions = require '../actions'
 AccountStore = require './account-store'
-FocusedMailViewStore = require './focused-mail-view-store'
+FocusedPerspectiveStore = require './focused-perspective-store'
 CategoryStore = require './category-store'
-MailViewFilter = require '../../mail-view-filter'
+MailboxPerspective = require '../../mailbox-perspective'
 NylasStore = require 'nylas-store'
 
 Sheet = {}
@@ -11,10 +11,10 @@ Location = {}
 SidebarItems = {}
 
 class WorkspaceSidebarItem
-  constructor: ({@id, @component, @icon, @name, @sheet, @mailViewFilter, @section, @children, @unreadCount}) ->
-    if not @sheet and not @mailViewFilter and not @component
+  constructor: ({@id, @component, @icon, @name, @sheet, @mailboxPerspective, @section, @children, @unreadCount}) ->
+    if not @sheet and not @mailboxPerspective and not @component
       throw new Error("WorkspaceSidebarItem: You must provide either a sheet \
-                       component, or a mailViewFilter for the sidebar item named #{@name}")
+                       component, or a mailboxPerspective for the sidebar item named #{@name}")
     @children ||= []
 
 ###
@@ -62,26 +62,26 @@ class WorkspaceStore extends NylasStore
     'navigation:go-to-label'   : => ## TODO
 
   _setMailViewByName: (categoryName) ->
-    account = FocusedMailViewStore.mailView()?.account
+    account = FocusedPerspectiveStore.current()?.account
     category = CategoryStore.getStandardCategory(account, categoryName)
     return unless category
-    view = MailViewFilter.forCategory(account, category)
+    view = MailboxPerspective.forCategory(account, category)
     return unless view
-    Actions.focusMailView(view)
+    Actions.focusMailboxPerspective(view)
 
   _selectDraftsSheet: ->
     Actions.selectRootSheet(@Sheet.Drafts)
 
   _selectAllView: ->
-    account = FocusedMailViewStore.mailView()?.account
+    account = FocusedPerspectiveStore.current()?.account
     category = CategoryStore.getArchiveCategory(account)
     return unless category
-    view = MailViewFilter.forCategory(account, category)
+    view = MailboxPerspective.forCategory(account, category)
     return unless view
-    Actions.focusMailView(view)
+    Actions.focusMailboxPerspective(view)
 
   _selectStarredView: ->
-    Actions.focusMailView MailViewFilter.forStarred()
+    Actions.focusMailboxPerspective MailboxPerspective.forStarred()
 
   _resetInstanceVars: =>
     @Location = Location = {}

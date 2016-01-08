@@ -1,7 +1,7 @@
 _ = require 'underscore'
 {Thread,
  Actions,
- MailViewFilter,
+ MailboxPerspective,
  AccountStore,
  CategoryStore,
  SoundRegistry,
@@ -56,8 +56,8 @@ module.exports =
         else
           NylasEnv.displayWindow()
 
-          MailViewFilter filter = MailViewFilter.forCategory(account, thread.categoryNamed('inbox'))
-          Actions.focusMailView(filter)
+          MailboxPerspective filter = MailboxPerspective.forCategory(account, thread.categoryNamed('inbox'))
+          Actions.focusMailboxPerspective(filter)
           Actions.setFocus(collection: 'thread', item: thread)
 
   _notifyMessages: ->

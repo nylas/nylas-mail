@@ -4,9 +4,9 @@ Attributes = require '../attributes'
 RegExpUtils = require '../../regexp-utils'
 _ = require 'underscore'
 
-# Only load the FocusedMailViewStore the first time we actually need it. This
+# Only load the FocusedPerspectiveStore the first time we actually need it. This
 # lets us safely require a `Contact` object without side effects.
-FocusedMailViewStore = null
+FocusedPerspectiveStore = null
 
 name_prefixes = {}
 name_suffixes = {}
@@ -97,8 +97,8 @@ class Contact extends Model
   # You should use this method instead of comparing the user's email address to
   # the account email, since it is case-insensitive and future-proof.
   isMe: ->
-    FocusedMailViewStore = require '../stores/focused-mail-view-store'
-    account = FocusedMailViewStore.mailView()?.account
+    FocusedPerspectiveStore = require '../stores/focused-perspective-store'
+    account = FocusedPerspectiveStore.current()?.account
     return false unless account
 
     if Utils.emailIsEquivalent(@email, account.emailAddress)

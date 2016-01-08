@@ -7,7 +7,7 @@ ThreadListStore = require './thread-list-store'
  TaskFactory,
  CategoryStore,
  FocusedContentStore,
- FocusedMailViewStore} = require "nylas-exports"
+ FocusedPerspectiveStore} = require "nylas-exports"
 
 class ThreadBulkArchiveButton extends React.Component
   @displayName: 'ThreadBulkArchiveButton'
@@ -17,8 +17,8 @@ class ThreadBulkArchiveButton extends React.Component
     selection: React.PropTypes.object.isRequired
 
   render: ->
-    mailViewFilter = FocusedMailViewStore.mailView()
-    return false unless mailViewFilter?.canArchiveThreads()
+    mailboxPerspective = FocusedPerspectiveStore.current()
+    return false unless mailboxPerspective?.canArchiveThreads()
 
     <button style={order:-107}
             className="btn btn-toolbar"
@@ -30,7 +30,7 @@ class ThreadBulkArchiveButton extends React.Component
   _onArchive: =>
     task = TaskFactory.taskForArchiving
       threads: @props.selection.items(),
-      fromView: FocusedMailViewStore.mailView()
+      fromView: FocusedPerspectiveStore.current()
     Actions.queueTask(task)
 
 class ThreadBulkTrashButton extends React.Component
@@ -41,8 +41,8 @@ class ThreadBulkTrashButton extends React.Component
     selection: React.PropTypes.object.isRequired
 
   render: ->
-    mailViewFilter = FocusedMailViewStore.mailView()
-    return false unless mailViewFilter?.canTrashThreads()
+    mailboxPerspective = FocusedPerspectiveStore.current()
+    return false unless mailboxPerspective?.canTrashThreads()
 
     <button style={order:-106}
             className="btn btn-toolbar"
@@ -54,7 +54,7 @@ class ThreadBulkTrashButton extends React.Component
   _onRemove: =>
     task = TaskFactory.taskForMovingToTrash
       threads: @props.selection.items(),
-      fromView: FocusedMailViewStore.mailView()
+      fromView: FocusedPerspectiveStore.current()
     Actions.queueTask(task)
 
 
