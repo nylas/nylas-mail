@@ -47,8 +47,8 @@ class Scrollbar extends React.Component
       @props.getScrollRegion()._recomputeDimensions(options)
     @_recomputeDimensions(options)
 
-  _recomputeDimensions: ({avoidForcingLayout}) =>
-    if not avoidForcingLayout
+  _recomputeDimensions: ({useCachedValues}) =>
+    if not useCachedValues
       trackNode = React.findDOMNode(@refs.track)
       return unless trackNode
       trackHeight = trackNode.clientHeight
@@ -152,11 +152,25 @@ class ScrollRegion extends React.Component
     @_mounted = true
     @recomputeDimensions()
 
+    @_heightObserver = new MutationObserver (mutations) =>
+      recompute = false
+      mutations.forEach (mutation) ->
+        recompute ||= !mutation.oldValue or mutation.oldValue.indexOf('height:') isnt -1
+      @recomputeDimensions({useCachedValues: false}) if recompute
+
+    @_heightObserver.observe(React.findDOMNode(@refs.content), {
+      subtree: true,
+      attributes: true,
+      attributeOldValue: true,
+      attributeFilter: ['style']
+    })
+
   componentWillReceiveProps: (props) =>
     if @shouldInvalidateScrollbarComponent(props)
       @_scrollbarComponent = null
 
   componentWillUnmount: =>
+    @_heightObserver.disconnect()
     @_mounted = false
 
   shouldComponentUpdate: (newProps, newState) =>
@@ -281,7 +295,7 @@ class ScrollRegion extends React.Component
     scrollbar._recomputeDimensions(options)
     @_recomputeDimensions(options)
 
-  _recomputeDimensions: ({avoidForcingLayout}) =>
+  _recomputeDimensions: ({useCachedValues}) =>
     return unless @refs.content
     contentNode = React.findDOMNode(@refs.content)
     return unless contentNode
@@ -292,7 +306,7 @@ class ScrollRegion extends React.Component
     # force the browser to immediately flush any DOM changes and compute the
     # height of the node. This hurts performance and also kind of unnecessary,
     # since it's unlikely these values will change while scrolling.
-    if avoidForcingLayout
+    if useCachedValues
       totalHeight = @state.totalHeight ? contentNode.scrollHeight
       trackHeight = @state.trackHeight ? contentNode.scrollHeight
       viewportHeight = @state.viewportHeight ? contentNode.clientHeight
@@ -317,11 +331,11 @@ class ScrollRegion extends React.Component
     # See Preferences > Signatures > textarea
     return unless event.target is React.findDOMNode(@refs.content)
 
-    if not @state.scrolling
+    if @state.scrolling
+      @recomputeDimensions({useCachedValues: true})
+    else
       @recomputeDimensions()
       @_setSharedState(scrolling: true)
-    else
-      @recomputeDimensions({avoidForcingLayout: true})
 
     @props.onScroll?(event)
 

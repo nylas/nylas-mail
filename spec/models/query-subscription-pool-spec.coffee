@@ -11,7 +11,7 @@ describe "QuerySubscriptionPool", ->
   describe "add", ->
     it "should add a new subscription with the callback", ->
       callback = jasmine.createSpy('callback')
-      QuerySubscriptionPool.add(@query, {}, callback)
+      QuerySubscriptionPool.add(@query, callback)
       expect(QuerySubscriptionPool._subscriptions[@queryKey]).toBeDefined()
 
       subscription = QuerySubscriptionPool._subscriptions[@queryKey]
@@ -19,7 +19,7 @@ describe "QuerySubscriptionPool", ->
 
     it "should yield database changes to the subscription", ->
       callback = jasmine.createSpy('callback')
-      QuerySubscriptionPool.add(@query, {}, callback)
+      QuerySubscriptionPool.add(@query, callback)
       subscription = QuerySubscriptionPool._subscriptions[@queryKey]
       spyOn(subscription, 'applyChangeRecord')
 
@@ -29,12 +29,12 @@ describe "QuerySubscriptionPool", ->
 
     describe "unsubscribe", ->
       it "should return an unsubscribe method", ->
-        expect(QuerySubscriptionPool.add(@query, {}, -> ) instanceof Function).toBe(true)
+        expect(QuerySubscriptionPool.add(@query, -> ) instanceof Function).toBe(true)
 
       it "should remove the callback from the subscription", ->
         cb = ->
 
-        unsub = QuerySubscriptionPool.add(@query, {}, cb)
+        unsub = QuerySubscriptionPool.add(@query, cb)
         subscription = QuerySubscriptionPool._subscriptions[@queryKey]
 
         expect(subscription.hasCallback(cb)).toBe(true)
@@ -42,7 +42,7 @@ describe "QuerySubscriptionPool", ->
         expect(subscription.hasCallback(cb)).toBe(false)
 
       it "should wait before removing th subscription to make sure it's not reused", ->
-        unsub = QuerySubscriptionPool.add(@query, {}, -> )
+        unsub = QuerySubscriptionPool.add(@query, -> )
         expect(QuerySubscriptionPool._subscriptions[@queryKey]).toBeDefined()
         unsub()
         expect(QuerySubscriptionPool._subscriptions[@queryKey]).toBeDefined()

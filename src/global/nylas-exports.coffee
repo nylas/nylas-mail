@@ -51,11 +51,12 @@ class NylasExports
   @load "EdgehillAPI", 'flux/edgehill-api'
 
   # The Database
-  @load "ModelView", 'flux/stores/model-view'
-  @load "SearchView", 'flux/stores/search-view'
-  @load "DatabaseView", 'flux/stores/database-view'
   @load "DatabaseStore", 'flux/stores/database-store'
   @load "DatabaseTransaction", 'flux/stores/database-transaction'
+  @load "QueryResultSet", 'flux/models/query-result-set'
+  @load "QueryResultSetView", 'flux/stores/query-result-set-view'
+  @load "QuerySubscription", 'flux/models/query-subscription'
+  @load "MutableQuerySubscription", 'flux/models/mutable-query-subscription'
   @load "QuerySubscriptionPool", 'flux/models/query-subscription-pool'
 
   # Database Objects
