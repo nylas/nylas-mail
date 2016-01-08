@@ -157,6 +157,7 @@ describe('TemplateStore', ()=> {
 
       it('should display an error if the draft has no subject', ()=> {
         spyOn(TemplateStore, '_displayError');
+        spyOn(fs, 'watch');
         runs(()=> {
           TemplateStore._onCreateTemplate({draftClientId: 'localid-nosubject'});
         });
