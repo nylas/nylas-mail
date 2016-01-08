@@ -22,10 +22,12 @@ class AccountSwitcher extends React.Component
   componentDidMount: =>
     @unsubscribers = []
     @unsubscribers.push AccountStore.listen @_onStoreChange
-    @unsubscribers.push Categories.forAllAccounts().sort().subscribe @_onCategoriesChanged
+
+    @dispose = Categories.forAllAccounts().sort().subscribe @_onCategoriesChanged
 
   componentWillUnmount: =>
     unsubscribe() for unsubscribe in @unsubscribers
+    @dispose?()
 
   render: =>
     return false unless @state.account

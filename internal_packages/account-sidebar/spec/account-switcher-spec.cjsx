@@ -1,7 +1,7 @@
 React = require 'react/addons'
 TestUtils = React.addons.TestUtils
 AccountSwitcher = require './../lib/account-switcher'
-{AccountStore} = require 'nylas-exports'
+{AccountStore, Label} = require 'nylas-exports'
 
 describe "AccountSwitcher", ->
   switcher = null
@@ -14,6 +14,7 @@ describe "AccountSwitcher", ->
           emailAddress: "dillon@nylas.com",
           provider: "exchange"
           label: "work"
+          categoryClass: -> Label
         }
       ]
 
@@ -22,12 +23,8 @@ describe "AccountSwitcher", ->
     )
 
   it "shows other accounts and the 'Add Account' button", ->
-    toggler = TestUtils.findRenderedDOMComponentWithClass switcher, 'primary-item'
-    TestUtils.Simulate.click toggler
-
-    dropdown = TestUtils.findRenderedDOMComponentWithClass switcher, "dropdown"
-    items = TestUtils.scryRenderedDOMComponentsWithClass dropdown, "secondary-item"
-    newAccountButton = TestUtils.scryRenderedDOMComponentsWithClass dropdown, "new-account-option"
+    items = TestUtils.scryRenderedDOMComponentsWithClass switcher, "secondary-item"
+    newAccountButton = TestUtils.scryRenderedDOMComponentsWithClass switcher, "new-account-option"
 
     expect(items.length).toBe 3
     expect(newAccountButton.length).toBe 1
