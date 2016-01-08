@@ -154,6 +154,11 @@ class WorkspaceSection extends React.Component
         keyPath="core.workspace.showUnreadForAllCategories"
         config={@props.config} />
 
+      <ConfigSchemaItem
+        configSchema={@props.configSchema.properties.workspace.properties.interfaceZoom}
+        keyPath="core.workspace.interfaceZoom"
+        config={@props.config} />
+
       <ThemeSelector />
 
       <h2>Layout</h2>
