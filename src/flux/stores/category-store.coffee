@@ -5,16 +5,6 @@ AccountStore = require './account-store'
 {Categories} = require 'nylas-observables'
 Rx = require 'rx-lite'
 
-_observables = (account) ->
-  {accountId} = account
-  categories = Categories.forAccount(account).sort()
-  return {
-    allCategories: categories
-    userCategories: categories.categoryFilter((cat) -> cat.isUserCategory())
-    hiddenCategories: categories.categoryFilter((cat) -> cat.isHiddenCategory())
-    standardCategories: Categories.standardForAccount(account).sort()
-  }
-
 class CategoryStore extends NylasStore
 
   constructor: ->
@@ -23,29 +13,28 @@ class CategoryStore extends NylasStore
 
     @listenTo AccountStore, @_onAccountsChanged
 
-  byId: (id) -> @_categoryCache[id]
+  byId: (account, categoryId) -> @categories(account)[categoryId]
 
   # Public: Returns an array of all categories for an account, both
   # standard and user generated. The items returned by this function will be
   # either {Folder} or {Label} objects.
   #
   categories: (account) ->
-    @_observables[account.id].allCategories.last()
+    @_categoryCache[account.id]
 
   # Public: Returns all of the standard categories for the current account.
   #
   standardCategories: (account) ->
-    @_observables[account.id].standardCategories.last()
+    _.values(@categories(account)).filter (cat) -> cat.isStandardCategory()
 
   hiddenCategories: (account) ->
-    @_observables[account.id].hiddenCategories.last()
+    _.values(@categories(account)).filter (cat) -> cat.isHiddenCategory()
 
   # Public: Returns all of the categories that are not part of the standard
   # category set.
   #
   userCategories: (account) ->
-    @_observables[account.id].userCategories.last()
-
+    _.values(@categories(account)).filter (cat) -> cat.isUserCategory()
 
   # Public: Returns the Folder or Label object for a standard category name and
   # for a given account.
@@ -78,19 +67,18 @@ class CategoryStore extends NylasStore
   _onAccountsChanged: ->
     @_setupObservables(AccountStore.accounts())
 
-  _onCategoriesChanged: (categories) =>
+  _onCategoriesChanged: (accountId, categories) =>
     return unless categories
-    @_categoryCache = {}
+    @_categoryCache[accountId] = {}
     for category in categories
-      @_categoryCache[category.id] = category
+      @_categoryCache[accountId][category.id] = category
     @trigger()
 
   _setupObservables: (accounts) =>
-    @_observables = {}
-    accounts.forEach (account) =>
-      @_observables[account.accountId] = _observables(account)
-
-    @_disposable?.dispose()
-    @_disposable = Categories.forAllAccounts().subscribe(@_onCategoriesChanged)
+    @_disposables ?= []
+    @_disposables.forEach (disp) -> disp.dispose()
+    @_disposables = accounts.map (account) =>
+      Categories.forAccount(account)
+        .subscribe(@_onCategoriesChanged.bind(@, account.id))
 
 module.exports = new CategoryStore()

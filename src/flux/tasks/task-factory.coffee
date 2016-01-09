@@ -21,7 +21,7 @@ class TaskFactory
     else
       labelsToRemove = []
       if exclusive
-        currentLabel = CategoryStore.byId(fromView?.categoryId())
+        currentLabel = CategoryStore.byId(account, fromView?.categoryId())
         currentLabel ?= CategoryStore.getStandardCategory(account, "inbox")
         labelsToRemove = [currentLabel]
 
@@ -42,7 +42,7 @@ class TaskFactory
     else
       labelsToAdd = []
       if exclusive
-        currentLabel = CategoryStore.byId(fromView?.categoryId())
+        currentLabel = CategoryStore.byId(account, fromView?.categoryId())
         currentLabel ?= CategoryStore.getStandardCategory(account, "inbox")
         labelsToAdd = [currentLabel]
 

@@ -95,7 +95,22 @@ class Category extends Model
     if @name in HiddenCategoryNames
       @types.push @constructor.Types.Hidden
 
+    # Define getter for isStandardCategory. Must take into account important
+    # setting
+    Object.defineProperty @, "isStandardCategory",
+      enumerable: true
+      configurable: true
+      value: (showImportant)=>
+        showImportant ?= NylasEnv.config.get('core.workspace.showImportant')
+        val = @constructor.Types.Standard
+        if showImportant is true
+          val in @types
+        else
+          val in @types and @name isnt 'important'
+
+    # Define getters for other category types
     for key, val of @constructor.Types
+      continue if val is @constructor.Types.Standard
       do (key, val) =>
         Object.defineProperty @, "is#{key}Category",
           enumerable: true

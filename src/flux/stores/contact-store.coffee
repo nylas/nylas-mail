@@ -184,6 +184,7 @@ class ContactStore extends NylasStore
     return Promise.resolve(detected)
 
   __refreshCache: (contacts) =>
+    return unless contacts
     contacts.forEach (contact) =>
       @_contactCache[contact.accountId] ?= []
       @_contactCache[contact.accountId].push(contact)
