@@ -70,6 +70,7 @@ class ComposerEditor extends Component {
     draftClientId: PropTypes.string,
     initialSelectionSnapshot: PropTypes.object,
     onFocus: PropTypes.func.isRequired,
+    onBlur: PropTypes.func.isRequired,
     onFilePaste: PropTypes.func.isRequired,
     onBodyChanged: PropTypes.func.isRequired,
     parentActions: PropTypes.shape({
@@ -85,6 +86,7 @@ class ComposerEditor extends Component {
     };
     this._coreExtension = {
       onFocus: props.onFocus,
+      onBlur: props.onBlur,
     };
   }
 
