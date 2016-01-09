@@ -269,8 +269,8 @@ class ComposerView extends React.Component
     @_onChangeFocusedField(enabledFields[newI])
 
   _onChangeFocusedField: (focusedField) =>
-    @setState {focusedField}
-    if focusedField in [Fields.To, Fields.Cc, Fields.Bcc]
+    @setState({focusedField})
+    if focusedField in Fields.ParticipantFields
       @_lastFocusedParticipantField = focusedField
 
   _onExpandParticipantFields: =>
@@ -296,7 +296,7 @@ class ComposerView extends React.Component
                ref={Fields.Subject}
                placeholder="Subject"
                value={@state.subject}
-               onFocus={ => @setState focusedField: Fields.Subject}
+               onFocus={ => @setState(focusedField: Fields.Subject) }
                onChange={@_onChangeSubject}/>
       </div>
 
@@ -316,7 +316,8 @@ class ComposerView extends React.Component
         scrollTo: @props.scrollTo
       }
       initialSelectionSnapshot: @_recoveredSelection
-      onFocus: @_onEditorFocus
+      onFocus: => @setState(focusedField: Fields.Body)
+      onBlur: => @setState(focusedField: null)
       onFilePaste: @_onFilePaste
       onBodyChanged: @_onBodyChanged
 
@@ -339,9 +340,6 @@ class ComposerView extends React.Component
 
   _onEditorBodyDidRender: =>
     @_applyFieldFocus()
-
-  _onEditorFocus: =>
-    @setState(focusedField: Fields.Body)
 
   # The contenteditable decides when to request a scroll based on the
   # position of the cursor and its relative distance to this composer
