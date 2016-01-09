@@ -2,7 +2,6 @@ NylasStore = require 'nylas-store'
 _ = require 'underscore'
 {DatabaseStore,
  AccountStore,
- CategoryStore,
  ThreadCountsStore,
  WorkspaceStore,
  Actions,
@@ -16,10 +15,14 @@ _ = require 'underscore'
  CategoryHelpers,
  Thread} = require 'nylas-exports'
 
+{Categories} = require 'nylas-observables'
+
 class AccountSidebarStore extends NylasStore
   constructor: ->
     @_sections = []
     @_account = AccountStore.accounts()[0] # TODO Temporarily, should be null
+    @_standardCategories = []
+    @_userCategories = []
     @_registerListeners()
     @_updateSections()
 
@@ -41,7 +44,6 @@ class AccountSidebarStore extends NylasStore
 
   _registerListeners: ->
     @listenTo WorkspaceStore, @_updateSections
-    @listenTo CategoryStore, @_updateSections
     @listenTo ThreadCountsStore, @_updateSections
     @listenTo FocusedPerspectiveStore, => @trigger()
     @listenTo Actions.selectAccount, @_onSelectAccount
@@ -50,16 +52,31 @@ class AccountSidebarStore extends NylasStore
       @_updateSections
     )
 
+  _registerObservables: ->
+    @_disposables ?= []
+    @_disposables.forEach (disp) -> disp.dispose()
+    @_disposables = [
+      Categories.standard(@_currentAccount).subscribe(@_onStandardCategoriesChanged),
+      Categories.user(@_currentAccount).subscribe(@_onUserCategoriesChanged)
+    ]
+
   _onSelectAccount: (accountId)=>
     @_account = AccountStore.accountForId(accountId)
+    @_registerObservables()
     @trigger()
+
+  _onStandardCategoriesChanged: (categories) ->
+    @_standardCategories = categories
+    @_updateSections()
+
+  _onUserCategoriesChanged: (categories) ->
+    @_userCategories = categories
+    @_updateSections()
 
   _updateSections: =>
     # TODO As it is now, if the current account is null, we  will display the
     # categories for all accounts.
     # Update this to reflect UI decision for sidebar
-    userCategories = CategoryStore.userCategories(@_account)
-    userCategoryItems = _.map(userCategories, @_sidebarItemForCategory)
 
     # Compute hierarchy for userCategoryItems using known "path" separators
     # NOTE: This code uses the fact that userCategoryItems is a sorted set, eg:
@@ -71,7 +88,7 @@ class AccountSidebarStore extends NylasStore
     #
     userCategoryItemsHierarchical = []
     userCategoryItemsSeen = {}
-    for category in userCategories
+    for category in @_userCategories
       # https://regex101.com/r/jK8cC2/1
       itemKey = category.displayName.replace(/[./\\]/g, '/')
 
@@ -93,8 +110,7 @@ class AccountSidebarStore extends NylasStore
 
     # Our drafts are displayed via the `DraftListSidebarItem` which
     # is loading into the `Drafts` Sheet.
-    standardCategories = CategoryStore.standardCategories(@_account)
-    standardCategories = _.reject standardCategories, (category) =>
+    standardCategories = _.reject @_standardCategories, (category) =>
       category.name is "drafts"
 
     standardCategoryItems = _.map standardCategories, (cat) => @_sidebarItemForCategory(cat)

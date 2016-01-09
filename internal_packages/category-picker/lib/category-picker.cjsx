@@ -22,37 +22,55 @@ React = require 'react'
  KeyCommandsRegion,
  LabelColorizer} = require 'nylas-component-kit'
 
+{Categories} = require 'nylas-observables'
+
 # This changes the category on one or more threads.
 class CategoryPicker extends React.Component
   @displayName: "CategoryPicker"
   @containerRequired: false
 
   constructor: (@props) ->
+    @_account = AccountStore.accountForItems(@_threads(@props))
+    @_categories = []
+    @_standardCategories = []
+    @_userCategories = []
     @state = _.extend @_recalculateState(@props), searchValue: ""
 
   @contextTypes:
     sheetDepth: React.PropTypes.number
 
+  componentDidMount: =>
+    @_registerObservables()
+
   # If the threads we're picking categories for change, (like when they
   # get their categories updated), we expect our parents to pass us new
   # props. We don't listen to the DatabaseStore ourselves.
   componentWillReceiveProps: (nextProps) ->
+    @_account = AccountStore.accountForItems(@_threads(nextProps))
+    @_registerObservables()
     @setState @_recalculateState(nextProps)
 
   componentWillUnmount: =>
-    return unless @unsubscribers
-    unsubscribe() for unsubscribe in @unsubscribers
+    @_unregisterObservables()
+
+  _registerObservables: =>
+    @_unregisterObservables()
+    @disposables = []
+    @disposables.push(
+      Categories.forAccount(@_account).subscribe(@_onCategoriesChanged)
+    )
+
+  _unregisterObservables: =>
+    return unless @disposables
+    disp.dispose() for disp in @disposables
 
   _keymapHandlers: ->
     "application:change-category": @_onOpenCategoryPopover
 
   render: =>
+    return <span></span> if @state.disabled or not @_account?
     btnClasses = "btn btn-toolbar"
     btnClasses += " btn-disabled" if @state.disabled
-    button = <button className={btnClasses} title={tooltip}>
-      <RetinaImg name={img} mode={RetinaImg.Mode.ContentIsMask}/>
-    </button>
-    return button if @state.disabled or not @_account?
 
     if @_account?.usesLabels()
       img = "toolbar-tag.png"
@@ -68,6 +86,12 @@ class CategoryPicker extends React.Component
       placeholder = ""
 
     if @state.isPopoverOpen then tooltip = ""
+
+    button = (
+      <button className={btnClasses} title={tooltip}>
+        <RetinaImg name={img} mode={RetinaImg.Mode.ContentIsMask}/>
+      </button>
+    )
 
     headerComponents = [
       <input type="text"
@@ -235,10 +259,15 @@ class CategoryPicker extends React.Component
   _onPopoverClosed: =>
     @setState isPopoverOpen: false
 
-  _recalculateState: (props=@props, {searchValue}={}) =>
-    threads = @_threads(props)
-    @_account = AccountStore.accountForItems(threads)
+  _onCategoriesChanged: (categories) =>
+    @_categories = categories
+    @_standardCategories = categories.filter (cat) -> cat.isStandardCategory()
+    @_userCategories = categories.filter (cat) -> cat.isUserCategory()
+    @setState @_recalculateState()
+
+  _recalculateState: (props = @props, {searchValue}={}) =>
     return {disabled: true} unless @_account
+    threads = @_threads(props)
 
     searchValue = searchValue ? @state?.searchValue ? ""
     numThreads = threads.length
@@ -246,11 +275,11 @@ class CategoryPicker extends React.Component
       return {categoryData: [], searchValue}
 
     if @_account.usesLabels()
-      categories = CategoryStore.categories(@_account)
+      categories = @_categories
     else
-      categories = CategoryStore.standardCategories(@_account)
+      categories = @_standardCategories
         .concat([{divider: true, id: "category-divider"}])
-        .concat(CategoryStore.userCategories(@_account))
+        .concat(@_userCategories)
 
     usageCount = @_categoryUsageCount(props, categories)
 

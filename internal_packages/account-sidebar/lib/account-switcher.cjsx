@@ -1,7 +1,8 @@
 React = require 'react'
+AccountSidebarStore = require './account-sidebar-store'
 {Actions, AccountStore} = require("nylas-exports")
-crypto = require 'crypto'
 {RetinaImg} = require 'nylas-component-kit'
+crypto = require 'crypto'
 classNames = require 'classnames'
 
 class AccountSwitcher extends React.Component

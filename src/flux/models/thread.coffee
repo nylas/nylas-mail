@@ -94,7 +94,7 @@ class Thread extends Model
     super(json)
 
   # Public: Returns true if the thread has a {Category} with the given
-  # name. Note, only `CategoryStore::standardCategories` have valid
+  # name. Note, only catgories of type `Category.Types.Standard` have valid
   # `names`
   #
   # * `id` A {String} {Category} name

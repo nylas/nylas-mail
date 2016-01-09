@@ -190,6 +190,9 @@ class CategoryMailboxPerspective extends MailboxPerspective
 
 class UnifiedMailboxPerspective extends MailboxPerspective
 
+  categoryId: ->
+    null
+
   matchers: ->
     []
 

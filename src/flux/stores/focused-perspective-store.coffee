@@ -1,5 +1,6 @@
 NylasStore = require 'nylas-store'
 WorkspaceStore = require './workspace-store'
+AccountStore = require './workspace-store'
 MailboxPerspective = require '../../mailbox-perspective'
 CategoryStore = require './category-store'
 Actions = require '../actions'
@@ -15,8 +16,11 @@ class FocusedPerspectiveStore extends NylasStore
   _onCategoryStoreChanged: ->
     if not @_current
       @_setPerspective(@_defaultPerspective())
-    else if @_current.categoryId() and not CategoryStore.byId(@_current.categoryId())
-      @_setPerspective(@_defaultPerspective())
+    else
+      account = @_current.account
+      catId   = @_current.categoryId()
+      if catId and not CategoryStore.byId(account, catId)
+        @_setPerspective(@_defaultPerspective())
 
   _onFocusMailView: (filter) =>
     return if filter.isEqual(@_current)
@@ -38,8 +42,12 @@ class FocusedPerspectiveStore extends NylasStore
       @_currentBeforeSearch = null
 
   _defaultPerspective: ->
-    # TODO what should the default mail view be
-    MailboxPerspective.unified()
+    # TODO Update unified MailboxPerspective
+    account = AccountStore.accounts()[0]
+    category = CategoryStore.getStandardCategory(account, "inbox")
+    return null unless category
+    MailViewFilter.forCategory(account, category)
+    # MailboxPerspective.unified()
 
   _setPerspective: (filter) ->
     return if filter?.isEqual(@_current)

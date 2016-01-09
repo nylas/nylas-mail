@@ -49,26 +49,28 @@ CategoryObservables =
     _.extend(observable, CategoryOperators)
     observable
 
-  standardForAccount: (account) =>
+  standard: (account) =>
     observable = Rx.Observable.fromConfig('core.workspace.showImportant')
       .flatMapLatest (showImportant) =>
-        accountObservable = CategoryObservables.forAccount(account)
-        return accountObservable.categoryFilter (cat) ->
-          if showImportant is true
-            cat.isStandardCategory()
-          else
-            cat.isStandardCategory() and cat.name isnt 'important'
+        return CategoryObservables.forAccount(account).sort()
+          .categoryFilter (cat) -> cat.isStandardCategory(showImportant)
     _.extend(observable, CategoryOperators)
     observable
+
+  user: (account) =>
+    CategoryObservables.forAccount(account).sort()
+      .categoryFilter (cat) -> cat.isUserCategory()
+
+  hidden: (account) =>
+    CategoryObservables.forAccount(account).sort()
+      .categoryFilter (cat) -> cat.isHiddenCategory()
+
 
 module.exports =
   Categories: CategoryObservables
   Accounts: AccountObservables
 
 # Attach a few global helpers
-#
-Rx.Observable::last = ->
-  @takeLast(1).toArray()[0]
 
 Rx.Observable.fromStore = (store) =>
   return Rx.Observable.create (observer) =>

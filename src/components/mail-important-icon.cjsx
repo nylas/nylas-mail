@@ -44,7 +44,7 @@ class MailImportantIcon extends React.Component
          onClick={@_onToggleImportant}></div>
 
   _account: =>
-    AccountStore.accountForId(@state.thread.accountId)
+    AccountStore.accountForId(@props.thread.accountId)
 
   _onToggleImportant: (event) =>
     category = CategoryStore.getStandardCategory(@_account(), 'important')
