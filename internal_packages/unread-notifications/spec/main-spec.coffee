@@ -19,6 +19,8 @@ describe "UnreadNotifications", ->
 
     spyOn(CategoryStore, "getStandardCategory").andReturn inbox
 
+    account = AccountStore.accounts()[0]
+
     @threadA = new Thread
       labels: [inbox]
     @threadB = new Thread
@@ -81,7 +83,7 @@ describe "UnreadNotifications", ->
     @msgFromMe = new Message
       unread: true
       date: new Date()
-      from: [AccountStore.current().me()]
+      from: [account.me()]
       subject: "A Sent Mail!"
       threadId: "A"
 
