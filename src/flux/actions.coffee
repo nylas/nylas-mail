@@ -146,13 +146,6 @@ class Actions
   @clearDeveloperConsole: ActionScopeWindow
 
   ###
-  Public: Select the provided account ID in the current window.
-
-  *Scope: Window*
-  ###
-  @selectAccount: ActionScopeWindow
-
-  ###
   Public: Remove the selected account
 
   *Scope: Window*
@@ -218,7 +211,7 @@ class Actions
   @setFocus: ActionScopeWindow
 
   ###
-  Public: Focus the interface on a specific {Category}.
+  Public: Focus the interface on a specific {MailboxPerspective}.
 
   *Scope: Window*
 
@@ -227,6 +220,14 @@ class Actions
   ```
   ###
   @focusMailboxPerspective: ActionScopeWindow
+
+  ###
+  Public: Focus the interface on the default mailbox perspective for the provided
+  account id.
+
+  *Scope: Window*
+  ###
+  @focusDefaultMailboxPerspectiveForAccount: ActionScopeWindow
 
   ###
   Public: If the message with the provided id is currently beign displayed in the

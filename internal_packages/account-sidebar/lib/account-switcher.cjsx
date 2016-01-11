@@ -118,7 +118,7 @@ class AccountSwitcher extends React.Component
     @setState(showing: false)
 
   _onSwitchAccount: (account) =>
-    Actions.selectAccount(account.id)
+    Actions.focusDefaultMailboxPerspectiveForAccount(account.id)
     @setState(showing: false)
 
   _onManageAccounts: =>

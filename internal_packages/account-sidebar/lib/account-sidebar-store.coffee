@@ -46,7 +46,6 @@ class AccountSidebarStore extends NylasStore
     @listenTo WorkspaceStore, @_updateSections
     @listenTo ThreadCountsStore, @_updateSections
     @listenTo FocusedPerspectiveStore, => @trigger()
-    @listenTo Actions.selectAccount, @_onSelectAccount
     @configSubscription = NylasEnv.config.observe(
       'core.workspace.showUnreadForAllCategories',
       @_updateSections
@@ -60,10 +59,10 @@ class AccountSidebarStore extends NylasStore
       Categories.user(@_currentAccount).subscribe(@_onUserCategoriesChanged)
     ]
 
-  _onSelectAccount: (accountId)=>
-    @_account = AccountStore.accountForId(accountId)
-    @_registerObservables()
-    @trigger()
+  # _onSelectAccount: (accountId)=>
+  #   @_account = AccountStore.accountForId(accountId)
+  #   @_registerObservables()
+  #   @trigger()
 
   _onStandardCategoriesChanged: (categories) ->
     @_standardCategories = categories
