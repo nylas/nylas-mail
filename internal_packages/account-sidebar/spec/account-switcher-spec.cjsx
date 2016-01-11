@@ -4,7 +4,7 @@ AccountSwitcher = require './../lib/account-switcher'
 AccountSidebarStore = require './../lib/account-sidebar-store'
 {AccountStore} = require 'nylas-exports'
 
-fdescribe "AccountSwitcher", ->
+describe "AccountSwitcher", ->
   switcher = null
 
   beforeEach ->
