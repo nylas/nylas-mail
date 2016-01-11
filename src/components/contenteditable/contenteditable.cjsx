@@ -13,6 +13,7 @@ ListManager = require './list-manager'
 MouseService = require './mouse-service'
 DOMNormalizer = require './dom-normalizer'
 ClipboardService = require './clipboard-service'
+BlockquoteManager = require './blockquote-manager'
 
 ###
 Public: A modern React-compatible contenteditable
@@ -62,7 +63,7 @@ class Contenteditable extends React.Component
 
   coreServices: [MouseService, ClipboardService]
 
-  coreExtensions: [DOMNormalizer, ListManager, TabManager]
+  coreExtensions: [DOMNormalizer, ListManager, TabManager, BlockquoteManager]
 
 
   ########################################################################
