@@ -163,7 +163,7 @@ class TemplateStore extends NylasStore {
 
   _getTemplate(name, id) {
     for (const template of this._items) {
-      if ((template.name === name || name === null) && (template.id === id || id === null)) {
+      if ((template.name === name || name == null) && (template.id === id || id == null)) {
         return template;
       }
     }
