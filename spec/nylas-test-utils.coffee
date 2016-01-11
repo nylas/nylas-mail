@@ -40,4 +40,18 @@ NylasTestUtils =
           document.body.removeChild(child)
           return
 
+  # Returns mock observable that triggers immediately and provides helper
+  # function to trigger later
+  mockObservable: (data, {dispose} = {}) ->
+    dispose ?= ->
+    func = ->
+    return {
+      subscribe: (fn) ->
+        func = fn
+        func(data)
+        return {dispose}
+      triggerNext: (nextData = data) ->
+        func(nextData)
+    }
+
 module.exports = NylasTestUtils

@@ -55,10 +55,9 @@ class CategoryPicker extends React.Component
 
   _registerObservables: =>
     @_unregisterObservables()
-    @disposables = []
-    @disposables.push(
+    @disposables = [
       Categories.forAccount(@_account).subscribe(@_onCategoriesChanged)
-    )
+    ]
 
   _unregisterObservables: =>
     return unless @disposables
