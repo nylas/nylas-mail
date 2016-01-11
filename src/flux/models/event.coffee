@@ -48,4 +48,10 @@ class Event extends Model
     delete @when.object
     @
 
+  participantForMe: =>
+    for p in @participants
+      if (new Contact(email: p.email)).isMe()
+        return p
+    return null
+
 module.exports = Event
