@@ -359,31 +359,6 @@ class Actions
   @destroyDraft: ActionScopeWindow
 
   ###
-  Public: Updates the search query in the app's main search bar with the provided query text.
-
-  *Scope: Window*
-
-  ```
-  Actions.searchQueryChanged("New Search Query")
-  ```
-  ###
-  @searchQueryChanged: ActionScopeWindow
-
-  ###
-  Public: Submits a search with the provided query text. Unlike `searchQueryChanged`, this
-  action immediately performs a search.
-
-  *Scope: Window*
-
-  ```
-  Actions.searchQueryCommitted("New Search Query")
-  ```
-  ###
-  @searchQueryCommitted: ActionScopeWindow
-  @searchWeightsChanged: ActionScopeWindow
-  @searchBlurred: ActionScopeWindow
-
-  ###
   Public: Submits the user's response to an RSVP event.
 
   *Scope: Window*

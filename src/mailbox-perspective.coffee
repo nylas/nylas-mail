@@ -136,6 +136,9 @@ class StarredMailboxPerspective extends MailboxPerspective
 
 class CategoryMailboxPerspective extends MailboxPerspective
   constructor: (@account, @category) ->
+    unless @category
+      throw new Error("CategoryMailboxPerspective: You msut provide a category")
+
     @name = @category.displayName
 
     if @category.name

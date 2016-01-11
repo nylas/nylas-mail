@@ -1,11 +1,14 @@
 Reflux = require 'reflux'
-{Actions,
- Contact,
+{Contact,
  Thread,
+ Actions,
  DatabaseStore,
  AccountStore,
+ FocusedPerspectiveStore,
  ContactStore} = require 'nylas-exports'
 _ = require 'underscore'
+
+SearchActions = require './search-actions'
 
 # Stores should closely match the needs of a particular part of the front end.
 # For example, we might create a "MessageStore" that observes this store
@@ -15,26 +18,41 @@ _ = require 'underscore'
 SearchSuggestionStore = Reflux.createStore
   init: ->
     @_query = ""
-    @_committedQuery = ""
     @_clearResults()
 
-    @listenTo Actions.searchQueryChanged, @onSearchQueryChanged
-    @listenTo Actions.searchQueryCommitted, @onSearchQueryCommitted
-    @listenTo Actions.searchBlurred, @onSearchBlurred
+    @listenTo FocusedPerspectiveStore, @_onPerspectiveChanged
+    @listenTo SearchActions.querySubmitted, @_onQuerySubmitted
+    @listenTo SearchActions.queryChanged, @_onQueryChanged
+    @listenTo SearchActions.searchBlurred, @_onSearchBlurred
 
-  onSearchQueryChanged: (query, account) ->
+  _onPerspectiveChanged: =>
+    @_query = FocusedPerspectiveStore.current()?.searchQuery ? ""
+    @trigger()
+
+  _onQueryChanged: (query) ->
     @_query = query
-    @_account = account
     @trigger()
     _.defer => @_rebuildResults()
 
-  onSearchQueryCommitted: (query, account) ->
+  _onQuerySubmitted: (query) ->
     @_query = query
-    @_account = accountId
-    @_committedQuery = query
+    perspective = FocusedPerspectiveStore.current()
+    account = perspective.account
+
+    if @_query.trim().length > 0
+      @_perspectiveBeforeSearch ?= perspective
+      Actions.focusMailboxPerspective(MailboxPerspective.forSearch(account, @_query))
+
+    else if @_query.trim().length is 0
+      if @_perspectiveBeforeSearch
+        Actions.focusMailboxPerspective(@_perspectiveBeforeSearch)
+        @_perspectiveBeforeSearch = null
+      else
+        Actions.focusDefaultMailboxPerspectiveForAccount(account)
+
     @_clearResults()
 
-  onSearchBlurred: ->
+  _onSearchBlurred: ->
     @_clearResults()
 
   _clearResults: ->
@@ -104,16 +122,6 @@ SearchSuggestionStore = Reflux.createStore
 
   query: -> @_query
 
-  queryKeyAndVal: ->
-    return {} unless @_query and @_query.length > 0
-    term = @_query[0]
-    key = Object.keys(term)[0]
-    val = term[key]
-    {key, val}
-
-  committedQuery: -> @_committedQuery
-
-  suggestions: ->
-    @_suggestions
+  suggestions: -> @_suggestions
 
 module.exports = SearchSuggestionStore

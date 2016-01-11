@@ -12,9 +12,8 @@ class FocusedPerspectiveStore extends NylasStore
     @listenTo CategoryStore, @_onCategoryStoreChanged
     @listenTo AccountStore, @_onAccountStoreChanged
 
-    @listenTo Actions.focusMailboxPerspective, @_onFocusMailView
+    @listenTo Actions.focusMailboxPerspective, @_onFocusPerspective
     @listenTo Actions.focusDefaultMailboxPerspectiveForAccount, @_onFocusAccount
-    @listenTo Actions.searchQueryCommitted, @_onSearchQueryCommitted
 
     @_onCategoryStoreChanged()
     @_setupFastAccountCommands()
@@ -34,11 +33,10 @@ class FocusedPerspectiveStore extends NylasStore
       if catId and not CategoryStore.byId(account, catId)
         @_setPerspective(@_defaultPerspective())
 
-  _onFocusMailView: (filter) =>
+  _onFocusPerspective: (filter) =>
     return if filter.isEqual(@_current)
     if WorkspaceStore.Sheet.Threads
       Actions.selectRootSheet(WorkspaceStore.Sheet.Threads)
-    Actions.searchQueryCommitted('')
     @_setPerspective(filter)
 
   _onFocusAccount: (accountId) =>
@@ -47,18 +45,6 @@ class FocusedPerspectiveStore extends NylasStore
     category = CategoryStore.getStandardCategory(account, "inbox")
     return unless category
     @_setPerspective(MailboxPerspective.forCategory(account, category))
-
-  _onSearchQueryCommitted: (query="", account) ->
-    if typeof(query) != "string"
-      query = query[0].all
-
-    if query.trim().length > 0
-      @_currentBeforeSearch ?= @_current
-      @_setPerspective(MailboxPerspective.forSearch(account, query))
-    else if query.trim().length is 0
-      @_currentBeforeSearch ?= @_defaultPerspective()
-      @_setPerspective(@_currentBeforeSearch)
-      @_currentBeforeSearch = null
 
   # TODO Update unified MailboxPerspective
   _defaultPerspective: (account = AccountStore.accounts()[0])->
