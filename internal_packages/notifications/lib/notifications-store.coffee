@@ -1,6 +1,6 @@
 _ = require 'underscore'
-Reflux = require 'reflux'
 {Actions} = require 'nylas-exports'
+NylasStore = require 'nylas-store'
 
 VERBOSE = false
 DISPLAY_TIME = 3000 # in ms
@@ -34,9 +34,8 @@ class Notification
   toString: ->
     "Notification.#{@constructor.name}(#{@tag})"
 
-module.exports =
-NotificationStore = Reflux.createStore
-  init: ->
+class NotificationStore extends NylasStore
+  constructor: ->
     @_flush()
 
     # The notification store listens for user interaction with notififcations
@@ -53,12 +52,12 @@ NotificationStore = Reflux.createStore
 
   ######### PUBLIC #######################################################
 
-  notifications: ->
+  notifications: =>
     console.log(JSON.stringify(@_notifications)) if VERBOSE
     sorted = _.sortBy(_.values(@_notifications), (n) -> -1*(n.creation + n.tag))
     _.reject sorted, (n) -> n.sticky
 
-  stickyNotifications: ->
+  stickyNotifications: =>
     console.log(JSON.stringify(@_notifications)) if VERBOSE
     sorted = _.sortBy(_.values(@_notifications), (n) -> -1*(n.creation + n.tag))
     _.filter sorted, (n) -> n.sticky
@@ -67,10 +66,10 @@ NotificationStore = Reflux.createStore
 
   ########### PRIVATE ####################################################
 
-  _flush: ->
+  _flush: =>
     @_notifications = {}
 
-  _postNotification: (notification) ->
+  _postNotification: (notification) =>
     console.log "Queue Notification.#{notification}" if VERBOSE
     @_notifications[notification.tag] = notification
     if notification.expiry?
@@ -94,5 +93,7 @@ NotificationStore = Reflux.createStore
 
   # If the window matches the given context then we can show a
   # notification.
-  _inWindowContext: (context={}) ->
+  _inWindowContext: (context={}) =>
     return true
+
+module.exports = new NotificationStore()
