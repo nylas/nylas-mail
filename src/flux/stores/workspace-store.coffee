@@ -36,7 +36,7 @@ class WorkspaceStore extends NylasStore
 
     @listenTo Actions.popSheet, @popSheet
     @listenTo Actions.pushSheet, @pushSheet
-    @listenTo Actions.searchQueryCommitted, @popToRootSheet
+    @listenTo Actions.focusMailboxPerspective, @popToRootSheet
 
     @_preferredLayoutMode = NylasEnv.config.get('core.workspace.mode')
     NylasEnv.config.observe 'core.workspace.mode', (mode) =>

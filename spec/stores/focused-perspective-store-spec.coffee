@@ -13,6 +13,7 @@ describe "FocusedPerspectiveStore", ->
   beforeEach ->
     spyOn(FocusedPerspectiveStore, 'trigger')
     FocusedPerspectiveStore._perspective = null
+    @account = AccountStore.accounts()[0]
 
   afterEach ->
     NylasEnv.testOrganizationUnit = null
@@ -28,51 +29,30 @@ describe "FocusedPerspectiveStore", ->
       it "should set the current category to Inbox when the current category no longer exists in the CategoryStore", ->
         otherAccountInbox = @inboxCategory.clone()
         otherAccountInbox.serverId = 'other-id'
-        FocusedPerspectiveStore._perspective = MailboxPerspective.forCategory(otherAccountInbox)
+        FocusedPerspectiveStore._perspective = MailboxPerspective.forCategory(@account, otherAccountInbox)
         FocusedPerspectiveStore._onCategoryStoreChanged()
         expect(FocusedPerspectiveStore.current().categoryId()).toEqual(@inboxCategory.id)
 
-    describe "_onSearchQueryCommitted", ->
-      it "should change to a search mail view when a search query is committed", ->
-        FocusedPerspectiveStore._onFocusMailView(@userFilter)
-        FocusedPerspectiveStore._onSearchQueryCommitted('bla')
-        expect(FocusedPerspectiveStore.trigger).toHaveBeenCalled()
-        expect(FocusedPerspectiveStore.current().isEqual(MailboxPerspective.forSearch('bla'))).toBe(true)
-
-      it "should restore the category that was previously focused and trigger when a search query is cleared", ->
-        FocusedPerspectiveStore._onFocusMailView(@userFilter)
-        FocusedPerspectiveStore._onSearchQueryCommitted('bla')
-        expect(FocusedPerspectiveStore.current().isEqual(MailboxPerspective.forSearch('bla'))).toBe(true)
-        FocusedPerspectiveStore._onSearchQueryCommitted('')
-        expect(FocusedPerspectiveStore.trigger).toHaveBeenCalled()
-        expect(FocusedPerspectiveStore.current().categoryId()).toEqual(@userCategory.id)
-
-    describe "_onFocusMailView", ->
+    describe "_onFocusPerspective", ->
       it "should focus the category and trigger when Actions.focusCategory is called", ->
-        FocusedPerspectiveStore._onFocusMailView(@userFilter)
+        FocusedPerspectiveStore._onFocusPerspective(@userFilter)
         expect(FocusedPerspectiveStore.trigger).toHaveBeenCalled()
         expect(FocusedPerspectiveStore.current().categoryId()).toEqual(@userCategory.id)
 
       it "should do nothing if the category is already focused", ->
-        FocusedPerspectiveStore._onFocusMailView(@inboxFilter)
-        spyOn(FocusedPerspectiveStore, '_setMailView')
-        FocusedPerspectiveStore._onFocusMailView(@inboxFilter)
-        expect(FocusedPerspectiveStore._setMailView).not.toHaveBeenCalled()
-
-      it "should clear existing searches if any other category is focused", ->
-        spyOn(Actions, 'searchQueryCommitted')
-        FocusedPerspectiveStore._onSearchQueryCommitted('bla')
-        FocusedPerspectiveStore._onFocusMailView(@userFilter)
-        expect(Actions.searchQueryCommitted).toHaveBeenCalledWith('')
+        FocusedPerspectiveStore._onFocusPerspective(@inboxFilter)
+        spyOn(FocusedPerspectiveStore, '_setPerspective')
+        FocusedPerspectiveStore._onFocusPerspective(@inboxFilter)
+        expect(FocusedPerspectiveStore._setPerspective).not.toHaveBeenCalled()
 
   describe 'when using labels', ->
     beforeEach ->
       NylasEnv.testOrganizationUnit = 'label'
 
       @inboxCategory = new Label(id: 'id-123', name: 'inbox', displayName: "INBOX")
-      @inboxFilter = MailboxPerspective.forCategory(@inboxCategory)
+      @inboxFilter = MailboxPerspective.forCategory(@account, @inboxCategory)
       @userCategory = new Label(id: 'id-456', name: null, displayName: "MyCategory")
-      @userFilter = MailboxPerspective.forCategory(@userCategory)
+      @userFilter = MailboxPerspective.forCategory(@account, @userCategory)
 
       spyOn(CategoryStore, "getStandardCategory").andReturn @inboxCategory
       spyOn(CategoryStore, "byId").andCallFake (id) =>
@@ -87,9 +67,9 @@ describe "FocusedPerspectiveStore", ->
       NylasEnv.testOrganizationUnit = 'folder'
 
       @inboxCategory = new Folder(id: 'id-123', name: 'inbox', displayName: "INBOX")
-      @inboxFilter = MailboxPerspective.forCategory(@inboxCategory)
+      @inboxFilter = MailboxPerspective.forCategory(@account, @inboxCategory)
       @userCategory = new Folder(id: 'id-456', name: null, displayName: "MyCategory")
-      @userFilter = MailboxPerspective.forCategory(@userCategory)
+      @userFilter = MailboxPerspective.forCategory(@account, @userCategory)
 
       spyOn(CategoryStore, "getStandardCategory").andReturn @inboxCategory
 

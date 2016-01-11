@@ -20,8 +20,8 @@ class CategoryStore extends NylasStore
   # either {Folder} or {Label} objects.
   #
   categories: (account) ->
-    if account?
-      @_categoryCache[account.id]
+    if account
+      @_categoryCache[account.id] ? {}
     else
       _.flatten(_.values(@_categoryCache))
 
