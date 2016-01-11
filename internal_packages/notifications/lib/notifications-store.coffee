@@ -44,7 +44,7 @@ NotificationStore = Reflux.createStore
     # your package should listen to notificationActionTaken and check the
     # notification and action objects.
     @listenTo Actions.notificationActionTaken, ({notification, action}) =>
-      @_removeNotification(notification)() if action.dismisses
+      @_removeNotification(notification) if action.dismisses
     @listenTo Actions.postNotification, (data) =>
       @_postNotification(new Notification(data))
     @listenTo Actions.dismissNotificationsMatching, (criteria) =>
@@ -75,14 +75,16 @@ NotificationStore = Reflux.createStore
     @_notifications[notification.tag] = notification
     if notification.expiry?
       timeoutVal = Math.max(0, notification.expiry - Date.now())
-      timeoutId = setTimeout(@_removeNotification(notification), timeoutVal)
+      timeoutId = setTimeout =>
+        @_removeNotification(notification)
+      , timeoutVal
       notification.timeoutId = timeoutId
 
     @trigger()
 
   # Returns a function for removing a particular notification. See usage
   # above in setTimeout()
-  _removeNotification: (notification) -> =>
+  _removeNotification: (notification) =>
     console.log "Removed #{notification}" if VERBOSE
 
     clearTimeout(notification.timeoutId) if notification.timeoutId
