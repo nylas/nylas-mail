@@ -7,14 +7,16 @@ ModelViewSelection = require '../src/flux/stores/model-view-selection'
 describe "ModelViewSelection", ->
   beforeEach ->
     @trigger = jasmine.createSpy('trigger')
+
     @items = []
     @items.push(new Thread(id: "#{ii}")) for ii in [0..99]
 
     @view = new ModelView()
-    @view._pages =
-      "0":
-        items: @items
-        loaded: true
+    @view.indexOfId = jasmine.createSpy('indexOfId').andCallFake (id) =>
+      _.findIndex(@items, _.matcher({id}))
+    @view.get = jasmine.createSpy('get').andCallFake (idx) =>
+      @items[idx]
+
     @selection = new ModelViewSelection(@view, @trigger)
 
   it "should initialize with an empty set", ->
