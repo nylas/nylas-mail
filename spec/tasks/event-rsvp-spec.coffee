@@ -35,7 +35,7 @@ describe "EventRSVPTask", ->
         "email": @myEmail,
         "status": 'noreply'}
       ]
-    @task = new EventRSVPTask(@event, "no")
+    @task = new EventRSVPTask(@event, @myEmail, "no")
 
   describe "performLocal", ->
     it "should mark our status as no", ->
@@ -82,7 +82,7 @@ describe "EventRSVPTask", ->
           "email": @myEmail,
           "status": 'noreply'}
         ]
-      @task = new EventRSVPTask(@event, "no")
+      @task = new EventRSVPTask(@event, @myEmail, "no")
       @task.performLocal()
       @task.performRemote()
       advanceClock()
