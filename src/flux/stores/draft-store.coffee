@@ -369,9 +369,9 @@ class DraftStore
       SanitizeTransformer.run(body, SanitizeTransformer.Preset.UnsafeOnly)
 
   _onPopoutBlankDraft: =>
-    account = FocusedPerspectiveStore.current()?.account
     # TODO Remove this when we add account selector inside composer
-    return unless account
+    account = FocusedPerspectiveStore.current()?.account
+    account ?= AccountStore.accounts()[0]
 
     draft = new Message
       body: ""
@@ -407,9 +407,9 @@ class DraftStore
           windowProps: _.extend(options, {draftClientId})
 
   _onHandleMailtoLink: (event, urlString) =>
-    account = FocusedPerspectiveStore.current()?.account
     # TODO Remove this when we add account selector inside composer
-    return unless account
+    account = FocusedPerspectiveStore.current()?.account
+    account ?= AccountStore.accounts()[0]
 
     try
       urlString = decodeURI(urlString)

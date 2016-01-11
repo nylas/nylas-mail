@@ -19,7 +19,7 @@ if not NylasEnv.isMainWindow() and not NylasEnv.inSpecMode() then return
 
 DraftCountStore = Reflux.createStore
   init: ->
-    @listenTo FocusedPerspectiveStore, @_onFocusedMailViewChanged
+    @listenTo FocusedPerspectiveStore, @_onFocusedPerspectiveChanged
     @listenTo DraftStore, @_onDraftChanged
     @_view = FocusedPerspectiveStore.current()
     @_count = null
@@ -29,7 +29,7 @@ DraftCountStore = Reflux.createStore
   count: ->
     @_count
 
-  _onFocusedMailViewChanged: ->
+  _onFocusedPerspectiveChanged: ->
     view = FocusedPerspectiveStore.current()
     if view? and not(view.isEqual(@_view))
       @_view = view
