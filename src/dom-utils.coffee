@@ -344,6 +344,18 @@ DOMUtils =
 
     return nodeList
 
+  findCharacter: (context, character) ->
+    node = null
+    index = null
+    treeWalker = document.createTreeWalker(context, NodeFilter.SHOW_TEXT)
+    while currentNode = treeWalker.nextNode()
+      i = currentNode.data.indexOf(character)
+      if i >= 0
+        node = currentNode
+        index = i
+        break
+    return {node, index}
+
   escapeHTMLCharacters: (text) ->
     map =
       '&': '&amp;',
@@ -606,5 +618,19 @@ DOMUtils =
       return true if matcher(parent)
       parent = parent.parentElement
     false
+
+  looksLikeBlockElement: (node) ->
+    return node.nodeName in ["BR", "P", "BLOCKQUOTE", "DIV", "TABLE"]
+
+  # When detecting if we're at the start of a "visible" line, we need to look
+  # for text nodes that have visible content in them.
+  looksLikeNonEmptyNode: (node) ->
+    textNode = DOMUtils.findFirstTextNode(node)
+    if textNode
+      if /^[\n ]*$/.test(textNode.data)
+        return false
+      else return true
+    else
+      return false
 
 module.exports = DOMUtils
