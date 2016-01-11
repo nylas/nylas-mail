@@ -9,7 +9,7 @@ class CategoryStore extends NylasStore
 
   constructor: ->
     @_categoryCache = {}
-    @_setupObservables(AccountStore.accounts())
+    @_registerObservables(AccountStore.accounts())
 
     @listenTo AccountStore, @_onAccountsChanged
 
@@ -20,7 +20,10 @@ class CategoryStore extends NylasStore
   # either {Folder} or {Label} objects.
   #
   categories: (account) ->
-    @_categoryCache[account.id]
+    if account?
+      @_categoryCache[account.id]
+    else
+      _.flatten(_.values(@_categoryCache))
 
   # Public: Returns all of the standard categories for the current account.
   #
@@ -65,7 +68,7 @@ class CategoryStore extends NylasStore
     @getStandardCategory(account, "trash")
 
   _onAccountsChanged: ->
-    @_setupObservables(AccountStore.accounts())
+    @_registerObservables(AccountStore.accounts())
 
   _onCategoriesChanged: (accountId, categories) =>
     return unless categories
@@ -74,7 +77,7 @@ class CategoryStore extends NylasStore
       @_categoryCache[accountId][category.id] = category
     @trigger()
 
-  _setupObservables: (accounts) =>
+  _registerObservables: (accounts) =>
     @_disposables ?= []
     @_disposables.forEach (disp) -> disp.dispose()
     @_disposables = accounts.map (account) =>

@@ -1,29 +1,34 @@
 AccountSidebarStore = require '../lib/account-sidebar-store'
-{Folder, WorkspaceStore, CategoryStore} = require 'nylas-exports'
+{Folder, WorkspaceStore, CategoryStore, AccountStore} = require 'nylas-exports'
+NylasEnv.testOrganizationUnit = 'folder'
 
 describe "AccountSidebarStore", ->
   describe "sections", ->
     it "should return the correct output", ->
-      NylasEnv.testOrganizationUnit = 'folder'
 
-      spyOn(CategoryStore, 'getStandardCategories').andCallFake ->
-        return [
-          new Folder(displayName:'Inbox', clientId: '1', name: 'inbox')
-          new Folder(displayName:'Sent', clientId: '3', name: 'sent')
-          new Folder(displayName:'Important', clientId: '4', name: 'important')
-        ]
+      account = AccountStore.accounts()[0]
+      account.organizationUnit = 'folder'
+      # Converting to JSON removes keys whose values are `undefined`,
+      # makes the output smaller and easier to visually compare.
+      jsonAcc = JSON.parse(JSON.stringify(account))
+      AccountSidebarStore._account = account
 
-      spyOn(CategoryStore, 'getUserCategories').andCallFake ->
-        return [
-          new Folder(displayName:'A', clientId: 'a')
-          new Folder(displayName:'B', clientId: 'b')
-          new Folder(displayName:'A/B', clientId: 'a+b')
-          new Folder(displayName:'A.D', clientId: 'a+d')
-          new Folder(displayName:'A\\E', clientId: 'a+e')
-          new Folder(displayName:'B/C', clientId: 'b+c')
-          new Folder(displayName:'A/B/C', clientId: 'a+b+c')
-          new Folder(displayName:'A/B-C', clientId: 'a+b-c')
-        ]
+      spyOn(CategoryStore, 'standardCategories').andReturn [
+        new Folder(displayName:'Inbox', clientId: '1', name: 'inbox')
+        new Folder(displayName:'Sent', clientId: '3', name: 'sent')
+        new Folder(displayName:'Important', clientId: '4', name: 'important')
+      ]
+
+      spyOn(CategoryStore, 'userCategories').andReturn [
+        new Folder(displayName:'A', clientId: 'a')
+        new Folder(displayName:'B', clientId: 'b')
+        new Folder(displayName:'A/B', clientId: 'a+b')
+        new Folder(displayName:'A.D', clientId: 'a+d')
+        new Folder(displayName:'A\\E', clientId: 'a+e')
+        new Folder(displayName:'B/C', clientId: 'b+c')
+        new Folder(displayName:'A/B/C', clientId: 'a+b+c')
+        new Folder(displayName:'A/B-C', clientId: 'a+b-c')
+      ]
 
       spyOn(WorkspaceStore, 'sidebarItems').andCallFake ->
         return [
@@ -51,6 +56,7 @@ describe "AccountSidebarStore", ->
                 id: '1'
               },
               iconName: 'inbox.png'
+              account: jsonAcc
             },
             children: [
 
@@ -63,6 +69,7 @@ describe "AccountSidebarStore", ->
             mailboxPerspective: {
               name: 'Starred',
               iconName: 'starred.png'
+              account: jsonAcc
             },
             children: [
 
@@ -80,6 +87,7 @@ describe "AccountSidebarStore", ->
                 id: '3'
               },
               iconName: 'sent.png'
+              account: jsonAcc
             },
             children: [
 
@@ -98,6 +106,7 @@ describe "AccountSidebarStore", ->
                 id: '4'
               },
               iconName: 'important.png'
+              account: jsonAcc
             },
             children: [
 
@@ -131,6 +140,7 @@ describe "AccountSidebarStore", ->
                 id: 'a'
               },
               iconName: 'folder.png'
+              account: jsonAcc
             },
             children: [
               {
@@ -144,6 +154,7 @@ describe "AccountSidebarStore", ->
                     id: 'a+b'
                   },
                   iconName: 'folder.png'
+                  account: jsonAcc
                 },
                 children: [
                   {
@@ -157,6 +168,7 @@ describe "AccountSidebarStore", ->
                         id: 'a+b+c'
                       },
                       iconName: 'folder.png'
+                      account: jsonAcc
                     },
                     children: [
 
@@ -177,6 +189,7 @@ describe "AccountSidebarStore", ->
                     id: 'a+d'
                   },
                   iconName: 'folder.png'
+                  account: jsonAcc
                 },
                 children: [
 
@@ -194,6 +207,7 @@ describe "AccountSidebarStore", ->
                     id: 'a+e'
                   },
                   iconName: 'folder.png'
+                  account: jsonAcc
                 },
                 children: [
 
@@ -211,6 +225,7 @@ describe "AccountSidebarStore", ->
                     id: 'a+b-c'
                   },
                   iconName: 'folder.png'
+                  account: jsonAcc
                 },
                 children: [
 
@@ -231,6 +246,7 @@ describe "AccountSidebarStore", ->
                 id: 'b'
               },
               iconName: 'folder.png'
+              account: jsonAcc
             },
             children: [
               {
@@ -244,6 +260,7 @@ describe "AccountSidebarStore", ->
                     id: 'b+c'
                   },
                   iconName: 'folder.png'
+                  account: jsonAcc
                 },
                 children: [
 
@@ -257,7 +274,7 @@ describe "AccountSidebarStore", ->
         iconName: 'folder.png'
       }]
 
-      AccountSidebarStore._refreshSections()
+      AccountSidebarStore._updateSections()
 
       # Converting to JSON removes keys whose values are `undefined`,
       # makes the output smaller and easier to visually compare.
