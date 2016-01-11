@@ -24,13 +24,13 @@ class MutableQueryResultSet extends QueryResultSet
     if range.limit < @_ids.length
       @_ids.length = Math.max(0, range.limit)
 
-    old = @_modelsHash
+    models = @models()
     @_modelsHash = {}
-    @_modelsHash[id] = old[id] for id in @ids()
+    @replaceModel(m) for m in models
 
   addModelsInRange: (rangeModels, range) ->
-    @addIdsInRange(_.pluck(rangeModels, 'id'), range)
-    @_modelsHash[m.id] = m for m in rangeModels
+    @addIdsInRange(_.pluck(rangeModels, 'clientId'), range)
+    @replaceModel(m) for m in rangeModels
 
   addIdsInRange: (rangeIds, range) ->
     if @_offset is null or range.isInfinite()
@@ -46,11 +46,12 @@ class MutableQueryResultSet extends QueryResultSet
       @_offset = Math.min(@_offset, range.offset)
 
   replaceModel: (item) ->
+    @_modelsHash[item.clientId] = item
     @_modelsHash[item.id] = item
 
   removeModelAtOffset: (item, offset) ->
     idx = offset - @_offset
-    delete @_modelsHash[item.id]
+    delete @_modelsHash[item.clientId]
     @_ids.splice(idx, 1)
 
 module.exports = MutableQueryResultSet

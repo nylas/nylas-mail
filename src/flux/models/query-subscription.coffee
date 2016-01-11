@@ -61,14 +61,14 @@ class QuerySubscription
 
     if record.type is 'unpersist'
       for item in record.objects
-        offset = @_set.offsetOfId(item.id)
+        offset = @_set.offsetOfId(item.clientId)
         if offset isnt -1
           @_set.removeModelAtOffset(item, offset)
           impactCount += 1
 
     else if record.type is 'persist'
       for item in record.objects
-        offset = @_set.offsetOfId(item.id)
+        offset = @_set.offsetOfId(item.clientId)
         itemIsInSet = offset isnt -1
         itemShouldBeInSet = item.matches(@_query.matchers())
 
@@ -82,7 +82,7 @@ class QuerySubscription
           impactCount += 1
 
         else if itemIsInSet
-          oldItem = @_set.modelWithId(item.id)
+          oldItem = @_set.modelWithId(item.clientId)
           @_set.replaceModel(item)
           impactCount += 1
           mustRefetchAllIds = true if @_itemSortOrderHasChanged(oldItem, item)
@@ -127,7 +127,7 @@ class QuerySubscription
       return unless version is @_version
       @_createResultAndTrigger()
 
-  _fetchRange: (range, {entireModels} = {}) =>
+  _fetchRange: (range, {entireModels} = {}) ->
     rangeQuery = undefined
 
     unless range.isInfinite()
