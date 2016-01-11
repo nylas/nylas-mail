@@ -13,16 +13,13 @@ _ = require 'underscore'
  SyncbackCategoryTask,
  DestroyCategoryTask,
  CategoryHelpers,
+ CategoryStore,
  Thread} = require 'nylas-exports'
-
-{Categories} = require 'nylas-observables'
 
 class AccountSidebarStore extends NylasStore
   constructor: ->
     @_sections = []
-    @_account = AccountStore.accounts()[0] # TODO Temporarily, should be null
-    @_standardCategories = []
-    @_userCategories = []
+    @_account = FocusedPerspectiveStore.current()?.account
     @_registerListeners()
     @_updateSections()
 
@@ -44,33 +41,19 @@ class AccountSidebarStore extends NylasStore
 
   _registerListeners: ->
     @listenTo WorkspaceStore, @_updateSections
+    @listenTo CategoryStore, @_updateSections
     @listenTo ThreadCountsStore, @_updateSections
-    @listenTo FocusedPerspectiveStore, => @trigger()
+    @listenTo FocusedPerspectiveStore, => @_onPerspectiveChanged
     @configSubscription = NylasEnv.config.observe(
       'core.workspace.showUnreadForAllCategories',
       @_updateSections
     )
 
-  _registerObservables: ->
-    @_disposables ?= []
-    @_disposables.forEach (disp) -> disp.dispose()
-    @_disposables = [
-      Categories.standard(@_currentAccount).subscribe(@_onStandardCategoriesChanged),
-      Categories.user(@_currentAccount).subscribe(@_onUserCategoriesChanged)
-    ]
-
-  # _onSelectAccount: (accountId)=>
-  #   @_account = AccountStore.accountForId(accountId)
-  #   @_registerObservables()
-  #   @trigger()
-
-  _onStandardCategoriesChanged: (categories) ->
-    @_standardCategories = categories
-    @_updateSections()
-
-  _onUserCategoriesChanged: (categories) ->
-    @_userCategories = categories
-    @_updateSections()
+  _onPerspectiveChanged: =>
+    account = FocusedPerspectiveStore.current()?.account
+    if account?.id isnt @_account?.id
+      @_uptdateSections()
+    @_trigger()
 
   _updateSections: =>
     # TODO As it is now, if the current account is null, we  will display the
@@ -87,7 +70,7 @@ class AccountSidebarStore extends NylasStore
     #
     userCategoryItemsHierarchical = []
     userCategoryItemsSeen = {}
-    for category in @_userCategories
+    for category in CategoryStore.userCategories(@_account)
       # https://regex101.com/r/jK8cC2/1
       itemKey = category.displayName.replace(/[./\\]/g, '/')
 
@@ -109,7 +92,7 @@ class AccountSidebarStore extends NylasStore
 
     # Our drafts are displayed via the `DraftListSidebarItem` which
     # is loading into the `Drafts` Sheet.
-    standardCategories = _.reject @_standardCategories, (category) =>
+    standardCategories = _.reject CategoryStore.standardCategories(@_account), (category) =>
       category.name is "drafts"
 
     standardCategoryItems = _.map standardCategories, (cat) => @_sidebarItemForCategory(cat)
