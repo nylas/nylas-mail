@@ -41,9 +41,8 @@ class FocusedPerspectiveStore extends NylasStore
       @_setPerspective(@_currentBeforeSearch)
       @_currentBeforeSearch = null
 
-  _defaultPerspective: ->
-    # TODO Update unified MailboxPerspective
-    account = AccountStore.accounts()[0]
+  # TODO Update unified MailboxPerspective
+  _defaultPerspective: (account = AccountStore.accounts()[0])->
     category = CategoryStore.getStandardCategory(account, "inbox")
     return null unless category
     MailboxPerspective.forCategory(account, category)

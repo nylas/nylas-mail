@@ -15,7 +15,10 @@ CategoryPicker = require '../lib/category-picker'
  TaskFactory,
  SyncbackCategoryTask,
  FocusedPerspectiveStore,
+ NylasTestUtils,
  TaskQueueStatusStore} = require 'nylas-exports'
+
+{Categories} = require 'nylas-observables'
 
 describe 'CategoryPicker', ->
   beforeEach ->
@@ -27,19 +30,27 @@ describe 'CategoryPicker', ->
   setupFor = (organizationUnit) ->
     NylasEnv.testOrganizationUnit = organizationUnit
     @categoryClass = if organizationUnit is "label" then Label else Folder
+    @account = {
+      id: TEST_ACCOUNT_ID
+      usesLabels: -> organizationUnit is "label"
+      usesFolders: -> organizationUnit isnt "label"
+      categoryClass: => @categoryClass
+    }
 
     @inboxCategory = new @categoryClass(id: 'id-123', name: 'inbox', displayName: "INBOX")
     @archiveCategory = new @categoryClass(id: 'id-456', name: 'archive', displayName: "ArCHIVe")
     @userCategory = new @categoryClass(id: 'id-789', name: null, displayName: "MyCategory")
 
-    spyOn(CategoryStore, "getStandardCategories").andReturn [ @inboxCategory, @archiveCategory ]
-    spyOn(CategoryStore, "getUserCategories").andReturn [ @userCategory ]
+    spyOn(Categories, "forAccount").andReturn NylasTestUtils.mockObservable(
+      [@inboxCategory, @archiveCategory, @userCategory]
+    )
     spyOn(CategoryStore, "getStandardCategory").andReturn @inboxCategory
+    spyOn(AccountStore, "accountForItems").andReturn @account
 
     # By default we're going to set to "inbox". This has implications for
     # what categories get filtered out of the list.
     f = FocusedPerspectiveStore
-    f._setMailView f._defaultMailView()
+    f._setPerspective f._defaultPerspective(@account)
 
   setupForCreateNew = (orgUnit = "folder") ->
     setupFor.call(@, orgUnit)
