@@ -6,9 +6,10 @@ contact_1 =
   name: "Evan Morikawa"
   email: "evan@nylas.com"
 
-account = AccountStore.accounts()[0]
-
 describe "Contact", ->
+
+  beforeEach ->
+    @account = AccountStore.accounts()[0]
 
   it "can be built via the constructor", ->
     c1 = new Contact contact_1
@@ -128,29 +129,29 @@ describe "Contact", ->
     expect(c8.lastName()).toBe "K@ylor"
 
   it "should properly return `You` as the display name for the current user", ->
-    c1 = new Contact {name: " Test Monkey", email: account.emailAddress}
+    c1 = new Contact {name: " Test Monkey", email: @account.emailAddress}
     expect(c1.displayName()).toBe "You"
     expect(c1.displayFirstName()).toBe "You"
     expect(c1.displayLastName()).toBe ""
 
   describe "isMe", ->
     it "returns true if the contact name matches the account email address", ->
-      c1 = new Contact {email: account.emailAddress}
+      c1 = new Contact {email: @account.emailAddress}
       expect(c1.isMe()).toBe(true)
       c1 = new Contact {email: 'ben@nylas.com'}
       expect(c1.isMe()).toBe(false)
 
     it "is case insensitive", ->
-      c1 = new Contact {email: account.emailAddress.toUpperCase()}
+      c1 = new Contact {email: @account.emailAddress.toUpperCase()}
       expect(c1.isMe()).toBe(true)
 
     it "also matches any aliases you've created", ->
-      jasmine.unspy(AccountStore, 'current')
-      spyOn(AccountStore, 'current').andCallFake ->
+      spyOn(AccountStore, 'accounts').andReturn [
         new Account
           provider: "gmail"
           aliases: ["Ben Other <ben22@nylas.com>"]
           emailAddress: 'ben@nylas.com'
+      ]
 
       c1 = new Contact {email: 'ben22@nylas.com'}
       expect(c1.isMe()).toBe(true)
