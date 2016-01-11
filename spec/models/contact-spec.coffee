@@ -6,6 +6,8 @@ contact_1 =
   name: "Evan Morikawa"
   email: "evan@nylas.com"
 
+account = AccountStore.accounts()[0]
+
 describe "Contact", ->
 
   it "can be built via the constructor", ->
@@ -126,20 +128,20 @@ describe "Contact", ->
     expect(c8.lastName()).toBe "K@ylor"
 
   it "should properly return `You` as the display name for the current user", ->
-    c1 = new Contact {name: " Test Monkey", email: AccountStore.current().emailAddress}
+    c1 = new Contact {name: " Test Monkey", email: account.emailAddress}
     expect(c1.displayName()).toBe "You"
     expect(c1.displayFirstName()).toBe "You"
     expect(c1.displayLastName()).toBe ""
 
   describe "isMe", ->
     it "returns true if the contact name matches the account email address", ->
-      c1 = new Contact {email: AccountStore.current().emailAddress}
+      c1 = new Contact {email: account.emailAddress}
       expect(c1.isMe()).toBe(true)
       c1 = new Contact {email: 'ben@nylas.com'}
       expect(c1.isMe()).toBe(false)
 
     it "is case insensitive", ->
-      c1 = new Contact {email: AccountStore.current().emailAddress.toUpperCase()}
+      c1 = new Contact {email: account.emailAddress.toUpperCase()}
       expect(c1.isMe()).toBe(true)
 
     it "also matches any aliases you've created", ->

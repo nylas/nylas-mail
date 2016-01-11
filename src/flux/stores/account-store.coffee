@@ -157,9 +157,8 @@ class AccountStore
       Utils.emailIsEquivalent(email, account.emailAddress)
 
   # Public: Returns the {Account} for the given account id, or null.
-  accountForId: (accountId) =>
-    _.find @_accounts, (account) ->
-      accountId is account.accountId
+  accountForId: (id) =>
+    _.findWhere(@_accounts, {id})
 
   # Public: Returns the currently active {Account}.
   current: =>

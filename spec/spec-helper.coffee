@@ -54,7 +54,7 @@ jasmine.getEnv().addEqualityTester(_.isEqual) # Use underscore's definition of e
 if process.env.JANKY_SHA1 and process.platform is 'win32'
   jasmine.getEnv().defaultTimeoutInterval = 60000
 else
-  jasmine.getEnv().defaultTimeoutInterval = 10000
+  jasmine.getEnv().defaultTimeoutInterval = 250
 
 specPackageName = null
 specPackagePath = null
@@ -147,15 +147,18 @@ beforeEach ->
   # prevent specs from modifying N1's menus
   spyOn(NylasEnv.menu, 'sendToBrowserProcess')
 
-  # Log in a fake user
-  spyOn(AccountStore, 'current').andCallFake ->
-    new Account
+  # Log in a fake user, and ensure that accountForId, etc. work
+  AccountStore._index = 0
+  AccountStore._accounts = [
+    new Account({
       provider: "gmail"
       name: TEST_ACCOUNT_NAME
       emailAddress: TEST_ACCOUNT_EMAIL
       organizationUnit: NylasEnv.testOrganizationUnit
       clientId: TEST_ACCOUNT_CLIENT_ID
       serverId: TEST_ACCOUNT_ID
+    })
+  ]
 
   # reset config before each spec; don't load or save from/to `config.json`
   spyOn(Config::, 'load')

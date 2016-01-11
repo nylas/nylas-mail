@@ -30,6 +30,7 @@ msgWithReplyTo = null
 messageWithStyleTags = null
 fakeMessageWithFiles = null
 msgWithReplyToDuplicates = null
+account = null
 
 class TestExtension extends ComposerExtension
   @prepareNewDraft: ({draft}) ->
@@ -57,14 +58,18 @@ describe "DraftStore", ->
           # requires us to add `advanceClock` blocks.
           _.defer -> DraftStore._onInlineStylesResult({}, body)
 
+      account = AccountStore.accounts()[0]
+
       fakeThread = new Thread
         id: 'fake-thread-id'
+        accountId: account.id
         subject: 'Fake Subject'
 
       fakeMessage1 = new Message
         id: 'fake-message-1'
+        accountId: account.id
         to: [new Contact(email: 'ben@nylas.com'), new Contact(email: 'evan@nylas.com')]
-        cc: [new Contact(email: 'mg@nylas.com'), new Contact(email: AccountStore.current().me().email)]
+        cc: [new Contact(email: 'mg@nylas.com'), account.me()]
         bcc: [new Contact(email: 'recruiting@nylas.com')]
         from: [new Contact(email: 'customer@example.com', name: 'Customer')]
         threadId: 'fake-thread-id'
@@ -74,6 +79,7 @@ describe "DraftStore", ->
 
       fakeMessage2 = new Message
         id: 'fake-message-2'
+        accountId: account.id
         to: [new Contact(email: 'customer@example.com')]
         from: [new Contact(email: 'ben@nylas.com')]
         threadId: 'fake-thread-id'
@@ -83,8 +89,9 @@ describe "DraftStore", ->
 
       fakeMessageWithFiles = new Message
         id: 'fake-message-with-files'
+        accountId: account.id
         to: [new Contact(email: 'ben@nylas.com'), new Contact(email: 'evan@nylas.com')]
-        cc: [new Contact(email: 'mg@nylas.com'), new Contact(email: AccountStore.current().me().email)]
+        cc: [new Contact(email: 'mg@nylas.com'), account.me()]
         bcc: [new Contact(email: 'recruiting@nylas.com')]
         from: [new Contact(email: 'customer@example.com', name: 'Customer')]
         files: [new File(filename: "test.jpg"), new File(filename: "test.pdj")]
@@ -95,10 +102,11 @@ describe "DraftStore", ->
 
       msgFromMe = new Message
         id: 'fake-message-3'
+        accountId: account.id
         to: [new Contact(email: '1@1.com'), new Contact(email: '2@2.com')]
         cc: [new Contact(email: '3@3.com'), new Contact(email: '4@4.com')]
         bcc: [new Contact(email: '5@5.com'), new Contact(email: '6@6.com')]
-        from: [new Contact(email: AccountStore.current().me().email)]
+        from: [account.me()]
         threadId: 'fake-thread-id'
         body: 'Fake Message 2'
         subject: 'Re: Fake Subject'
@@ -106,6 +114,7 @@ describe "DraftStore", ->
 
       msgWithReplyTo = new Message
         id: 'fake-message-reply-to'
+        accountId: account.id
         to: [new Contact(email: '1@1.com'), new Contact(email: '2@2.com')]
         cc: [new Contact(email: '3@3.com'), new Contact(email: '4@4.com')]
         bcc: [new Contact(email: '5@5.com'), new Contact(email: '6@6.com')]
@@ -118,6 +127,7 @@ describe "DraftStore", ->
 
       msgWithReplyToDuplicates = new Message
         id: 'fake-message-reply-to-duplicates'
+        accountId: account.id
         to: [new Contact(email: '1@1.com'), new Contact(email: '2@2.com')]
         cc: [new Contact(email: '1@1.com'), new Contact(email: '4@4.com')]
         from: [new Contact(email: 'reply-to@5.com')]
@@ -129,8 +139,9 @@ describe "DraftStore", ->
 
       messageWithStyleTags = new Message
         id: 'message-with-style-tags'
+        accountId: account.id
         to: [new Contact(email: 'ben@nylas.com'), new Contact(email: 'evan@nylas.com')]
-        cc: [new Contact(email: 'mg@nylas.com'), new Contact(email: AccountStore.current().me().email)]
+        cc: [new Contact(email: 'mg@nylas.com'), account.me()]
         bcc: [new Contact(email: 'recruiting@nylas.com')]
         from: [new Contact(email: 'customer@example.com', name: 'Customer')]
         threadId: 'fake-thread-id'
@@ -241,7 +252,7 @@ describe "DraftStore", ->
 
       it "should not include you when you were cc'd on the previous message", ->
         ccEmails = @model.cc.map (cc) -> cc.email
-        expect(ccEmails.indexOf(AccountStore.current().me().email)).toEqual(-1)
+        expect(ccEmails.indexOf(account.me().email)).toEqual(-1)
 
       it "should set the replyToMessageId to the previous message's ids", ->
         expect(@model.replyToMessageId).toEqual(fakeMessage1.id)
