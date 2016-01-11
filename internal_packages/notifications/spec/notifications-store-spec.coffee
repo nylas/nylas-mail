@@ -46,7 +46,7 @@ describe 'NotificationStore', ->
   it 'should unregister on removeNotification', ->
     Actions.postNotification({type: 'info', message: 'hi'})
     n = NotificationsStore.notifications()[0]
-    NotificationsStore._removeNotification(n)()
+    NotificationsStore._removeNotification(n)
     expect(NotificationsStore.notifications().length).toEqual 0
 
   describe "with a few notifications", ->
