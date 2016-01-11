@@ -1,6 +1,6 @@
 NylasStore = require 'nylas-store'
 WorkspaceStore = require './workspace-store'
-AccountStore = require './workspace-store'
+AccountStore = require './account-store'
 MailboxPerspective = require '../../mailbox-perspective'
 CategoryStore = require './category-store'
 Actions = require '../actions'
@@ -46,7 +46,7 @@ class FocusedPerspectiveStore extends NylasStore
     account = AccountStore.accounts()[0]
     category = CategoryStore.getStandardCategory(account, "inbox")
     return null unless category
-    MailViewFilter.forCategory(account, category)
+    MailboxPerspective.forCategory(account, category)
     # MailboxPerspective.unified()
 
   _setPerspective: (filter) ->

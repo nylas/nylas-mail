@@ -52,19 +52,19 @@ class TaskFactory
         labelsToAdd: labelsToAdd
 
   taskForArchiving: ({threads, fromView}) =>
-    category = @_archiveCategory()
+    category = @_getArchiveCategory(threads)
     @taskForApplyingCategory({threads, fromView, category, exclusive: true})
 
   taskForUnarchiving: ({threads, fromView}) =>
-    category = @_archiveCategory()
+    category = @_getArchiveCategory(threads)
     @taskForRemovingCategory({threads, fromView, category, exclusive: true})
 
   taskForMovingToTrash: ({threads, fromView}) =>
-    category = @_trashCategory()
+    category = @_getTrashCategory(threads)
     @taskForApplyingCategory({threads, fromView, category, exclusive: true})
 
   taskForMovingFromTrash: ({threads, fromView}) =>
-    category = @_trashCategory()
+    category = @_getTrashCategory(threads)
     @taskForRemovingCategory({threads, fromView, category, exclusive: true})
 
   taskForInvertingUnread: ({threads}) =>
@@ -75,12 +75,12 @@ class TaskFactory
     starred = _.every threads, (t) -> _.isMatch(t, {starred: false})
     return new ChangeStarredTask({threads, starred})
 
-  _archiveCategory: (threads) =>
+  _getArchiveCategory: (threads) =>
     account = AccountStore.accountForItems(threads)
     return unless account?
     CategoryStore.getArchiveCategory(account)
 
-  _trashCategory: (threads) =>
+  _getTrashCategory: (threads) =>
     account = AccountStore.accountForItems(threads)
     return unless account?
     CategoryStore.getTrashCategory(account)

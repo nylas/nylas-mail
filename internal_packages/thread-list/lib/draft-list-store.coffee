@@ -7,7 +7,7 @@ _ = require 'underscore'
  AccountStore,
  MutableQuerySubscription,
  QueryResultSetView,
- FocusedMailViewStore,
+ FocusedPerspectiveStore,
  DatabaseStore} = require 'nylas-exports'
 
 class DraftListStore extends NylasStore
