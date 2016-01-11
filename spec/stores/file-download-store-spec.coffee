@@ -1,4 +1,5 @@
 fs = require 'fs'
+path = require 'path'
 {shell} = require 'electron'
 NylasAPI = require '../../src/flux/nylas-api'
 File = require '../../src/flux/models/file'
@@ -66,6 +67,10 @@ describe "FileDownloadStore", ->
       f2 = new File(filename: '123.png', contentType: 'image/png', id: 'id2')
       expect(FileDownloadStore.pathForFile(f1)).toBe("/Users/testuser/.nylas/downloads/id1/123.png")
       expect(FileDownloadStore.pathForFile(f2)).toBe("/Users/testuser/.nylas/downloads/id2/123.png")
+
+    it "should escape the displayName if it contains path separator characters", ->
+      f1 = new File(filename: "static#{path.sep}b#{path.sep}a.jpg", contentType: 'image/png', id: 'id1')
+      expect(FileDownloadStore.pathForFile(f1)).toBe("/Users/testuser/.nylas/downloads/id1/static-b-a.jpg")
 
   describe "_checkForDownloadedFile", ->
     it "should return true if the file exists at the path and is the right size", ->
