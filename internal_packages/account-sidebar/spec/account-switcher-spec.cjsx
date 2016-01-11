@@ -1,21 +1,23 @@
 React = require 'react/addons'
 TestUtils = React.addons.TestUtils
 AccountSwitcher = require './../lib/account-switcher'
+AccountSidebarStore = require './../lib/account-sidebar-store'
 {AccountStore} = require 'nylas-exports'
 
-describe "AccountSwitcher", ->
+fdescribe "AccountSwitcher", ->
   switcher = null
 
   beforeEach ->
-    spyOn(AccountStore, "accounts").andCallFake ->
-      [
-        AccountStore.current(),
-        {
-          emailAddress: "dillon@nylas.com",
-          provider: "exchange"
-          label: "work"
-        }
-      ]
+    account = AccountStore.accounts()[0]
+    spyOn(AccountStore, "accounts").andReturn [
+      account,
+      {
+        emailAddress: "dillon@nylas.com",
+        provider: "exchange"
+        label: "work"
+      }
+    ]
+    spyOn(AccountSidebarStore, "currentAccount").andReturn account
 
     switcher = TestUtils.renderIntoDocument(
       <AccountSwitcher />
