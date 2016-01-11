@@ -3,6 +3,8 @@ fs = require 'fs'
 NylasAPI = require '../../src/flux/nylas-api'
 File = require '../../src/flux/models/file'
 FileDownloadStore = require '../../src/flux/stores/file-download-store'
+AccountStore = require '../../src/flux/stores/account-store'
+
 Download = FileDownloadStore.Download
 
 describe "FileDownloadStore.Download", ->
@@ -26,7 +28,8 @@ describe "FileDownloadStore.Download", ->
 
   describe "run", ->
     beforeEach ->
-      @download = new Download(fileId: '123', targetPath: 'test.png', filename: 'test.png')
+      account = AccountStore.accounts()[0]
+      @download = new Download(fileId: '123', targetPath: 'test.png', filename: 'test.png', accountId: account.id)
       @download.run()
       expect(NylasAPI.makeRequest).toHaveBeenCalled()
 
@@ -39,10 +42,19 @@ describe "FileDownloadStore.Download", ->
 
 describe "FileDownloadStore", ->
   beforeEach ->
+    account = AccountStore.accounts()[0]
+
     spyOn(shell, 'showItemInFolder')
     spyOn(shell, 'openItem')
-    @testfile = new File(filename: '123.png', contentType: 'image/png', id: "id", size: 100)
+    @testfile = new File({
+      accountId: account.id,
+      filename: '123.png',
+      contentType: 'image/png',
+      id: "id",
+      size: 100
+    })
     @testdownload = new Download({
+      accountId: account.id,
       state : 'unknown',
       fileId : 'id',
       percent : 0,

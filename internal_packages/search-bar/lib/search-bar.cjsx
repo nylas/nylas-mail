@@ -1,6 +1,8 @@
 React = require 'react/addons'
 classNames = require 'classnames'
-{Actions, WorkspaceStore, FocusedMailViewStore} = require 'nylas-exports'
+{Actions,
+ WorkspaceStore,
+ FocusedPerspectiveStore} = require 'nylas-exports'
 {Menu, RetinaImg, KeyCommandsRegion} = require 'nylas-component-kit'
 SearchSuggestionStore = require './search-suggestion-store'
 _ = require 'underscore'
