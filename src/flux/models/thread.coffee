@@ -120,7 +120,7 @@ class Thread extends Model
     isUnhiddenStandardLabel = (l) ->
       not isImportant(l) and \
       isStandardCategory(l) and\
-      not (l.name.isHiddenCategory())
+      not (l.isHiddenCategory())
 
     importantLabel = _.find @labels, isImportant
     out = out.concat importantLabel if importantLabel
