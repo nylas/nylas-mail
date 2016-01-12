@@ -131,10 +131,10 @@ class ComposerView extends React.Component
 
     $el = React.findDOMNode(@refs[fieldName])
     return if document.activeElement is $el or $el.contains(document.activeElement)
-
     if @refs[fieldName].focus
       @refs[fieldName].focus()
     else
+      $el.select()
       $el.focus()
 
   componentWillReceiveProps: (newProps) =>
