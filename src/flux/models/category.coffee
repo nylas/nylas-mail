@@ -5,29 +5,29 @@ Attributes = require '../attributes'
 # We look for a few standard categories and display them in the Mailboxes
 # portion of the left sidebar. Note that these may not all be present on
 # a particular account.
-StandardCategoryNames = [
-  "inbox"
-  "important"
-  "sent"
-  "drafts"
-  "all"
-  "spam"
-  "archive"
+StandardCategories = {
+  "inbox",
+  "important",
+  "sent",
+  "drafts",
+  "all",
+  "spam",
+  "archive",
   "trash"
-]
+}
 
-LockedCategoryNames = [
+LockedCategories = {
   "sent"
-]
+}
 
-HiddenCategoryNames = [
+HiddenCategories = {
   "sent"
   "drafts"
   "all"
   "archive"
   "starred"
   "important"
-]
+}
 
 AllMailName = "all"
 
@@ -71,51 +71,16 @@ class Category extends Model
     User: 'user'
     Hidden: 'hidden'
 
-  @StandardCategoryNames: StandardCategoryNames
-  @LockedCategoryNames: LockedCategoryNames
-  @HiddenCategoryNames: HiddenCategoryNames
+  @StandardCategoryNames: Object.keys(StandardCategories)
+  @LockedCategoryNames: Object.keys(LockedCategories)
+  @HiddenCategoryNames: Object.keys(HiddenCategories)
 
   constructor: ->
     super
-    @_initCategoryTypes()
 
   fromJSON: (json) ->
     super
-    @_initCategoryTypes()
     @
-
-  _initCategoryTypes: =>
-    @types = []
-    if not (@name in StandardCategoryNames) and not (@name in HiddenCategoryNames)
-      @types.push @constructor.Types.User
-    if @name in LockedCategoryNames
-      @types.push @constructor.Types.Hidden
-    if @name in StandardCategoryNames
-      @types.push @constructor.Types.Standard
-    if @name in HiddenCategoryNames
-      @types.push @constructor.Types.Hidden
-
-    # Define getter for isStandardCategory. Must take into account important
-    # setting
-    Object.defineProperty @, "isStandardCategory",
-      enumerable: true
-      configurable: true
-      value: (showImportant)=>
-        showImportant ?= NylasEnv.config.get('core.workspace.showImportant')
-        val = @constructor.Types.Standard
-        if showImportant is true
-          val in @types
-        else
-          val in @types and @name isnt 'important'
-
-    # Define getters for other category types
-    for key, val of @constructor.Types
-      continue if val is @constructor.Types.Standard
-      do (key, val) =>
-        Object.defineProperty @, "is#{key}Category",
-          enumerable: true
-          configurable: true
-          value: => val in @types
 
   hue: ->
     return 0 unless @displayName
@@ -124,5 +89,21 @@ class Category extends Model
       hue += @displayName.charCodeAt(i)
     hue = hue * (396.0/512.0)
     hue
+
+  isStandardCategory: (showImportant) ->
+    showImportant ?= NylasEnv.config.get('core.workspace.showImportant')
+    if showImportant is true
+      StandardCategories[@name]?
+    else
+      StandardCategories[@name]? and @name isnt 'important'
+
+  isLockedCategory: ->
+     LockedCategories[@name]?
+
+  isHiddenCategory: ->
+    HiddenCategories[@name]?
+
+  isUserCategory: ->
+    not @isStandardCategory() and not @isHiddenCategory()
 
 module.exports = Category
