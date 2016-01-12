@@ -70,7 +70,7 @@ _observableForThreadMessages = (id, initialModels) ->
 
 
 module.exports = ThreadListViewFactory =
-  viewForMailView: (mailboxPerspective) =>
+  viewForPerspective: (mailboxPerspective) =>
     if mailboxPerspective.searchQuery
       ThreadListViewFactory.viewForSearch(mailboxPerspective.searchQuery, mailboxPerspective.account?.id)
     else

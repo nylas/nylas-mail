@@ -18,7 +18,7 @@ class ThreadListStore extends NylasStore
   constructor: ->
     @_resetInstanceVars()
 
-    @listenTo FocusedPerspectiveStore, @_onMailViewChanged
+    @listenTo FocusedPerspectiveStore, @_onPerspectiveChanged
     @createView()
 
     NylasEnv.commands.add "body",
@@ -44,7 +44,7 @@ class ThreadListStore extends NylasStore
     mailboxPerspective = FocusedPerspectiveStore.current()
     return unless mailboxPerspective
 
-    @setView(ThreadListViewFactory.viewForMailView(mailboxPerspective))
+    @setView(ThreadListViewFactory.viewForPerspective(mailboxPerspective))
     Actions.setFocus(collection: 'thread', item: null)
 
   setView: (view) ->
@@ -79,7 +79,7 @@ class ThreadListStore extends NylasStore
 
   # Inbound Events
 
-  _onMailViewChanged: ->
+  _onPerspectiveChanged: ->
     @createView()
 
   _onViewDataChanged: ({previous, next} = {}) =>
