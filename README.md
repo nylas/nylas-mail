@@ -56,4 +56,4 @@ By default the N1 source points to our hosted version of the Nylas Sync Engine; 
 
 Have an idea for a package, or a feature you'd love to see in N1? Check out our
 [public Trello board](https://trello.com/b/hxsqB6vx/n1-open-source-roadmap)
-to contribute your thoughts and vote on existing ideas or see the [existing plugins and themes](http://github.com/nylas/n1-plugins).
+to contribute your thoughts and vote on existing ideas.
