@@ -72,9 +72,9 @@ class ExtendedSelection
   # focus node aka extent node).
   importSelection: (exportedSelection) ->
     return unless exportedSelection instanceof ExportedSelection
-    newAnchorNode = DOMUtils.findSimilarNodes(@scopeNode, exportedSelection.anchorNode)[exportedSelection.anchorNodeIndex]
+    newAnchorNode = DOMUtils.findSimilarNodeAtIndex(@scopeNode, exportedSelection.anchorNode, exportedSelection.anchorNodeIndex)
 
-    newFocusNode = DOMUtils.findSimilarNodes(@scopeNode, exportedSelection.focusNode)[exportedSelection.focusNodeIndex]
+    newFocusNode = DOMUtils.findSimilarNodeAtIndex(@scopeNode, exportedSelection.focusNode, exportedSelection.focusNodeIndex)
 
     @setBaseAndExtent(newAnchorNode,
                       exportedSelection.anchorOffset,

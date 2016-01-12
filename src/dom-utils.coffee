@@ -216,7 +216,7 @@ DOMUtils =
     return adjacent
 
   getNodeIndex: (context, nodeToFind) =>
-    DOMUtils.findSimilarNodes(context, nodeToFind).indexOf nodeToFind
+    DOMUtils.indexOfNodeInSimilarNodes(context, nodeToFind)
 
   getRangeInScope: (scope) =>
     selection = document.getSelection()
@@ -332,17 +332,35 @@ DOMUtils =
     # \u00a0 is &nbsp;
     node.data.replace(/\u00a0/g, "x").trim().length is 0
 
-  findSimilarNodes: (context, nodeToFind) ->
-    nodeList = []
+  indexOfNodeInSimilarNodes: (context, nodeToFind) ->
     if nodeToFind.isEqualNode(context)
-      nodeList.push(context)
-      return nodeList
+      return 0
+
     treeWalker = document.createTreeWalker context
+    idx = 0
     while treeWalker.nextNode()
       if treeWalker.currentNode.isEqualNode nodeToFind
-        nodeList.push(treeWalker.currentNode)
+        if treeWalker.currentNode.isSameNode nodeToFind
+          return idx
+        idx += 1
 
-    return nodeList
+    return -1
+
+  # This is an optimization of findSimilarNodes which avoids tons of extra work
+  # scanning a large DOM if all we're going to do is get item at index [0]. It
+  # returns once it has found the similar node at the index desired.
+  findSimilarNodeAtIndex: (context, nodeToFind, desiredIdx) ->
+    if desiredIdx is 0 and nodeToFind.isEqualNode(context)
+      return context
+
+    treeWalker = document.createTreeWalker context
+    idx = 0
+    while treeWalker.nextNode()
+      if treeWalker.currentNode.isEqualNode nodeToFind
+        return treeWalker.currentNode if desiredIdx is idx
+        idx += 1
+
+    return null
 
   findCharacter: (context, character) ->
     node = null
