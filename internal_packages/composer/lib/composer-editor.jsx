@@ -128,7 +128,7 @@ class ComposerEditor extends Component {
     // quoted text that is visible. (as in forwarded messages.)
     //
     this.refs.contenteditable.atomicEdit( ({editor})=> {
-      const walker = document.createTreeWalker(editor.rootNode, NodeFilter.SHOW_TEXT);
+      const walker = document.createTreeWalker(editor.rootNode, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT);
       const nodesBelowUserBody = editor.rootNode.querySelectorAll('.nylas-n1-signature, .gmail_quote, blockquote');
 
       let lastNode = null;
