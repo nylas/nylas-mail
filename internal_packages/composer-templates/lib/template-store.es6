@@ -106,7 +106,10 @@ class TemplateStore extends NylasStore {
       DraftStore.sessionForClientId(draftClientId).then((session) => {
         const draft = session.draft();
         const draftName = name ? name : draft.subject.replace(TemplateStore.INVALID_TEMPLATE_NAME_REGEX, '');
-        const draftContents = contents ? contents : QuotedHTMLTransformer.removeQuotedHTML(draft.body);
+        let draftContents = contents ? contents : QuotedHTMLTransformer.removeQuotedHTML(draft.body);
+
+        const sigIndex = draftContents.indexOf('<div class="nylas-n1-signature">');
+        draftContents = sigIndex>-1 ? draftContents.slice(0,sigIndex) : draftContents;
         if (!draftName || draftName.length === 0) {
           this._displayError('Give your draft a subject to name your template.');
         }
@@ -242,7 +245,7 @@ class TemplateStore extends NylasStore {
   }
 
   _onInsertTemplateId({templateId, draftClientId} = {}) {
-    this.getTemplateContents(templateId, (body) => {
+    this.getTemplateContents(templateId, (template_body) => {
       DraftStore.sessionForClientId(draftClientId).then((session)=> {
         let proceed = true;
         if (!session.draft().pristine) {
@@ -255,7 +258,11 @@ class TemplateStore extends NylasStore {
         }
 
         if (proceed) {
-          const draftHtml = QuotedHTMLTransformer.appendQuotedHTML(body, session.draft().body);
+          let draftContents = QuotedHTMLTransformer.removeQuotedHTML(session.draft().body);
+          const sigIndex = draftContents.indexOf('<div class="nylas-n1-signature">');
+          const signature = sigIndex>-1 ? draftContents.slice(sigIndex) : "";
+
+          const draftHtml = QuotedHTMLTransformer.appendQuotedHTML(template_body+signature, session.draft().body);
           session.changes.add({body: draftHtml});
         }
       });
