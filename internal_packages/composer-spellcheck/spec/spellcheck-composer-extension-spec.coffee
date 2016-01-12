@@ -16,7 +16,12 @@ describe "SpellcheckComposerExtension", ->
     it "correctly walks a DOM tree and surrounds mispelled words", ->
       dom = document.createElement('div')
       dom.innerHTML = initialHTML
-      SpellcheckComposerExtension.walkTree(dom)
+
+      editor =
+        rootNode: dom
+        whilePreservingSelection: (cb) -> cb()
+
+      SpellcheckComposerExtension.walkTree(editor)
       expect(dom.innerHTML).toEqual(expectedHTML)
 
   describe "finalizeSessionBeforeSending", ->
