@@ -89,4 +89,3 @@ describe "AccountStore", ->
 
     it "triggers", ->
       expect(@instance.trigger).toHaveBeenCalled()
-      expect(@instance.trigger.calls.length).toBe 1
