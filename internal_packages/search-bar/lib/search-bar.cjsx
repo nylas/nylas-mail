@@ -36,9 +36,8 @@ class SearchBar extends React.Component
     'search-bar:escape-search': @_clearAndBlur
 
   render: =>
-    inputValue = @_queryToString(@state.query)
     inputClass = classNames
-      'empty': inputValue.length is 0
+      'empty': @state.query.length is 0
 
     headerComponents = [
       <input type="text"
@@ -46,7 +45,7 @@ class SearchBar extends React.Component
              key="input"
              className={inputClass}
              placeholder="Search all email"
-             value={inputValue}
+             value={@state.query}
              onChange={@_onValueChange}
              onFocus={@_onFocus}
              onBlur={@_onBlur} />
@@ -96,23 +95,8 @@ class SearchBar extends React.Component
       'search-container': true
       'showing-suggestions': @state.suggestions?.length > 0
 
-  _queryToString: (query) =>
-    return "" unless query instanceof Array
-    str = ""
-    for term in query
-      for key,val of term
-        if key == "all"
-          str += val
-        else
-          str += val
-    str
-
-  _stringToQuery: (str) =>
-    return [] unless str
-    return [{all: str}]
-
   _onValueChange: (event) =>
-    SearchActions.queryChanged(@_stringToQuery(event.target.value))
+    SearchActions.queryChanged(event.target.value)
     if (event.target.value is '')
       @_onClearSearch()
 

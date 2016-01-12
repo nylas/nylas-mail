@@ -16,7 +16,7 @@ describe 'SearchBar', ->
     spyOn(SearchActions, "queryChanged")
     test = "::Hello: World::"
     ReactTestUtils.Simulate.change @input, target: value: test
-    expect(SearchActions.queryChanged).toHaveBeenCalledWith([all: test])
+    expect(SearchActions.queryChanged).toHaveBeenCalledWith(test)
 
   it 'preserves capitalization on searches', ->
     test = "HeLlO wOrLd"
