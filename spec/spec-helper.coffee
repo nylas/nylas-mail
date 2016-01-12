@@ -154,7 +154,7 @@ beforeEach ->
       provider: "gmail"
       name: TEST_ACCOUNT_NAME
       emailAddress: TEST_ACCOUNT_EMAIL
-      organizationUnit: NylasEnv.testOrganizationUnit
+      organizationUnit: NylasEnv.testOrganizationUnit || 'label'
       clientId: TEST_ACCOUNT_CLIENT_ID
       serverId: TEST_ACCOUNT_ID
     })

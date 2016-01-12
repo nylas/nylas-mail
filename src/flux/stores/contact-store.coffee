@@ -40,11 +40,12 @@ class ContactStore extends NylasStore
     if NylasEnv.isMainWindow() or NylasEnv.inSpecMode()
       @_contactCache = {}
       @listenTo ContactRankingStore, @_sortContactsCacheWithRankings
-      @_registerObservers()
+      @_registerObservables()
       @_refreshCache()
 
-  _registerObservers: =>
+  _registerObservables: =>
     # TODO I'm a bit worried about how big a cache this might be
+    @disposable?.dispose()
     query = DatabaseStore.findAll(Contact)
     @_disposable = Rx.Observable.fromQuery(query).subscribe(@_onContactsChanged)
 
@@ -62,6 +63,7 @@ class ContactStore extends NylasStore
   #
   # Returns an {Array} of matching {Contact} models
   #
+  # TODO pass accountId in all the appropriate places
   searchContacts: (search, options={}) =>
     {limit, noPromise, accountId} = options
     if not NylasEnv.isMainWindow()
@@ -101,8 +103,8 @@ class ContactStore extends NylasStore
       false
 
     matches = []
-    contacts = if account?
-      @_contactCache[account.id]
+    contacts = if accountId?
+      @_contactCache[accountId]
     else
       _.flatten(_.values(@_contactCache))
 

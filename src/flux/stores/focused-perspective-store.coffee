@@ -4,6 +4,7 @@ WorkspaceStore = require './workspace-store'
 AccountStore = require './account-store'
 Account = require '../models/account'
 MailboxPerspective = require '../../mailbox-perspective'
+MenuHelpers = require '../../menu-helpers'
 CategoryStore = require './category-store'
 Actions = require '../actions'
 

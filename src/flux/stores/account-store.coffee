@@ -1,7 +1,6 @@
 Actions = require '../actions'
 Account = require '../models/account'
 Utils = require '../models/utils'
-MenuHelpers = require '../../menu-helpers'
 DatabaseStore = require './database-store'
 _ = require 'underscore'
 
