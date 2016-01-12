@@ -23,7 +23,10 @@ class CategoryStore extends NylasStore
     if account
       @_categoryCache[account.id] ? {}
     else
-      _.flatten(_.values(@_categoryCache))
+      all = []
+      for accountId, categories of @_categoryCache
+        all = all.concat(_.values(categories))
+      all
 
   # Public: Returns all of the standard categories for the current account.
   #
