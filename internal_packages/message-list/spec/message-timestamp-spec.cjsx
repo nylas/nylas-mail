@@ -4,7 +4,7 @@ TestUtils = React.addons.TestUtils
 MessageTimestamp = require '../lib/message-timestamp'
 
 msgTime = ->
-  moment([2010, 1, 14, 15, 25, 50, 125]) # Feb 14, 2010 at 3:25pm
+  moment([2010, 1, 14, 15, 25, 50, 125]) # Feb 14, 2010 at 3:25 PM
 
 describe "MessageTimestamp", ->
   beforeEach ->
@@ -23,14 +23,14 @@ describe "MessageTimestamp", ->
 
   it "displays the time from messages shown today", ->
     now = msgTime().add(2, 'hours')
-    expect(@item._formattedDate(msgTime(), now)).toBe "3:25 pm"
+    expect(@item._formattedDate(msgTime(), now)).toBe "3:25 PM"
 
   it "displays the time from messages yesterday with the relative time if it's less than 36 hours ago", ->
     now = msgTime().add(21, 'hours')
-    expect(@item._formattedDate(msgTime(), now)).toBe "3:25 pm (21 hours ago)"
+    expect(@item._formattedDate(msgTime(), now)).toBe "3:25 PM (21 hours ago)"
 
     now = msgTime().add(30, 'hours')
-    expect(@item._formattedDate(msgTime(), now)).toBe "3:25 pm (a day ago)"
+    expect(@item._formattedDate(msgTime(), now)).toBe "3:25 PM (a day ago)"
 
   it "displays month, day for messages less than a year ago, but more than 24 hours ago", ->
     now = msgTime().add(2, 'months')
