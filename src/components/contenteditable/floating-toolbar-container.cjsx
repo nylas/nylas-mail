@@ -96,7 +96,7 @@ class FloatingToolbarContainer extends React.Component
   _onSaveUrl: (url, linkToModify) =>
     @props.atomicEdit ({editor}) ->
       if linkToModify?
-        equivalentNode = DOMUtils.findSimilarNodes(editor.rootNode, linkToModify)?[0]
+        equivalentNode = DOMUtils.findSimilarNodeAtIndex(editor.rootNode, linkToModify, 0)
         return unless equivalentNode?
         equivalentLinkText = DOMUtils.findFirstTextNode(equivalentNode)
         return if linkToModify.getAttribute?('href')?.trim() is url.trim()

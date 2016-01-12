@@ -224,7 +224,7 @@ class ScrollRegion extends React.Component
   scrollToRect: (rect, {position, settle, done} = {}) ->
     if rect instanceof Node
       throw new Error("ScrollRegion.scrollToRect: requires a rect. Maybe you meant scrollTo?")
-    if not rect.top or not rect.height
+    if not rect.top? or not rect.height?
       throw new Error("ScrollRegion.scrollToRect: requires a rect with `top` and `height` attributes.")
     @_scroll {position, settle, done}, => rect
 

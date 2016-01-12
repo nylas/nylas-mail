@@ -13,6 +13,7 @@ ListManager = require './list-manager'
 MouseService = require './mouse-service'
 DOMNormalizer = require './dom-normalizer'
 ClipboardService = require './clipboard-service'
+BlockquoteManager = require './blockquote-manager'
 
 ###
 Public: A modern React-compatible contenteditable
@@ -62,7 +63,7 @@ class Contenteditable extends React.Component
 
   coreServices: [MouseService, ClipboardService]
 
-  coreExtensions: [DOMNormalizer, ListManager, TabManager]
+  coreExtensions: [DOMNormalizer, ListManager, TabManager, BlockquoteManager]
 
 
   ########################################################################
@@ -122,7 +123,7 @@ class Contenteditable extends React.Component
 
   componentWillReceiveProps: (nextProps) =>
     if nextProps.initialSelectionSnapshot?
-      @_saveSelectionState(nextProps.initialSelectionSnapshot)
+      @_saveExportedSelection(nextProps.initialSelectionSnapshot)
 
   componentDidUpdate: =>
     @_restoreSelection()
@@ -253,7 +254,9 @@ class Contenteditable extends React.Component
 
     @_runCallbackOnExtensions("onContentChanged", {mutations})
 
-    @_saveSelectionState()
+    selection = new ExtendedSelection(@_editableNode())
+    if selection?.isInScope()
+      @_saveExportedSelection(selection.exportSelection())
 
     @props.onChange(target: {value: @_editableNode().innerHTML})
 
@@ -396,7 +399,22 @@ class Contenteditable extends React.Component
   getCurrentSelection: => @innerState.exportedSelection ? {}
   getPreviousSelection: => @innerState.previousExportedSelection ? {}
 
-  # Every time the cursor changes we need to save its location and state.
+  # We save an {ExportedSelection} to `innerState`.
+  #
+  # Whatever we set `innerState.exportedSelection` to will be implemented
+  # on the next `componentDidUpdate` by `_restoreSelection`
+  #
+  # We also allow props to manually set our `exportedSelection` state.
+  # This is useful in undo/redo situations when we want to revert the
+  # selection to where it was at a previous time.
+  #
+  # NOTE: The `exportedSelection` object may have `anchorNode` and
+  # `focusNode` references to similar, but not equal, DOMNodes than what
+  # we currently have rendered. Every time React re-renders the component
+  # we get new DOM objects. When the `exportedSelection` is re-imported
+  # during `_restoreSelection`, the `ExtendedSelection` class will attempt
+  # to find the appropriate DOM Nodes via the `similar nodes` conveience methods
+  # in DOMUtils.
   #
   # When React re-renders it doesn't restore the Selection. We need to do
   # this manually with `_restoreSelection`
@@ -407,29 +425,29 @@ class Contenteditable extends React.Component
   #
   # We also need to keep references to the previous selection state in
   # order for undo/redo to work properly.
-  _saveSelectionState: (exportedStateToSave=null) =>
-    extendedSelection = new ExtendedSelection(@_editableNode())
-    if exportedStateToSave
-      extendedSelection.importSelection(exportedStateToSave)
-    return unless extendedSelection?.isInScope()
-    return if (@innerState.exportedSelection?.isEqual(extendedSelection))
+  _saveExportedSelection: (exportedSelection) =>
+    return if (@innerState.exportedSelection?.isEqual(exportedSelection))
 
     @setInnerState
-      exportedSelection: extendedSelection.exportSelection()
+      exportedSelection: exportedSelection
       editableFocused: true
       previousExportedSelection: @innerState.exportedSelection
 
-    @_onSelectionChanged(extendedSelection)
-
-  _onSelectionChange: (event) => @_saveSelectionState()
+  # Every time the cursor changes we need to save its location and state.
+  # We update our cache every time the selection changes by listening to
+  # the `document` `selectionchange` event.
+  _onSelectionChange: (event) =>
+    selection = new ExtendedSelection(@_editableNode())
+    return unless selection?.isInScope()
+    @_saveExportedSelection(selection.exportSelection())
 
   _restoreSelection: =>
     return unless @_shouldRestoreSelection()
     @_teardownListeners()
-    extendedSelection = new ExtendedSelection(@_editableNode())
-    extendedSelection.importSelection(@innerState.exportedSelection)
-    if extendedSelection.isInScope()
-      @_onSelectionChanged(extendedSelection)
+    selection = new ExtendedSelection(@_editableNode())
+    selection.importSelection(@innerState.exportedSelection)
+    if selection.isInScope()
+      @_onSelectionChanged(selection)
     @_setupListeners()
 
   _shouldRestoreSelection: ->

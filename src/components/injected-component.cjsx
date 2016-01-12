@@ -127,27 +127,26 @@ class InjectedComponent extends React.Component
   # 2. Any native implementation provided by the DOM
   # 3. Ourselves, so that the method always has /some/ effect.
   #
-  _runInnerDOMMethod: (method) =>
+  _runInnerDOMMethod: (method, args...) =>
     target = null
-    if @refs.inner and @refs.inner[method]
+    if @refs.inner instanceof UnsafeComponent and @refs.inner.injected[method]?
+      target = @refs.inner.injected
+    else if @refs.inner and @refs.inner[method]?
       target = @refs.inner
     else if @refs.inner
       target = React.findDOMNode(@refs.inner)
     else
       target = React.findDOMNode(@)
 
-    target[method]?()
+    target[method].bind(target)(args...)
 
   _setRequiredMethods: (methods) =>
     methods.forEach (method) =>
       Object.defineProperty(@, method,
         configurable: true
         enumerable: true
-        get: =>
-          if @refs.inner instanceof UnsafeComponent
-            @refs.inner.injected[method]?.bind(@refs.inner.injected)
-          else
-            @refs.inner[method]?.bind(@refs.inner)
+        value: (args...)=>
+          @_runInnerDOMMethod(method, args...)
       )
 
   _verifyRequiredMethods: =>

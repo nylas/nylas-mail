@@ -29,24 +29,24 @@ We're working on building a plugin index that makes it super easy to add them to
 - In development: [Predawn](https://github.com/adambmedia/N1-Predawn)
 
 ##### Composer
-- [Translate](https://github.com/nylas/N1/tree/master/examples/N1-Composer-Translate) -- Works with 10 languages
-- [QuickSchedule](https://github.com/nylas/N1/tree/master/examples/N1-Quick-Schedule) -- Quickly schedule a meeting with someone
-- [Templates](https://github.com/nylas/N1/tree/master/examples/N1-Composer-Templates) -- Also sometimes known as "canned responses"
+- [Translate](https://github.com/nylas/N1/tree/master/internal_packages/composer-translate) -- Works with 10 languages
+- [QuickSchedule](https://github.com/nylas/N1/tree/master/internal_packages/quick-schedule) -- Quickly schedule a meeting with someone
+- [Templates](https://github.com/nylas/N1/tree/master/internal_packages/composer-templates) -- Also sometimes known as "canned responses"
 - [Jiffy](http://noahbuscher.github.io/N1-Jiffy/) -- Insert animated Gifs
 - In Development: [PGP Encryption](https://github.com/mbilker/email-pgp)
 
 ##### Sidebar
-- [GitHub info in Sidebar](https://github.com/nylas/N1/tree/master/examples/N1-Github-Contact-Card-Section)
+- [GitHub info in Sidebar](https://github.com/nylas/N1/tree/master/internal_packages/github-contact-card)
 
 ##### Navbar
-- [Open GitHub Issues](https://github.com/nylas/N1/tree/master/examples/N1-Message-View-on-Github)
+- [Open GitHub Issues](https://github.com/nylas/N1/tree/master/internal_packages/view-on-github)
 
 ##### Threadlist
-- [Personal-level indicators](https://github.com/nylas/N1/tree/master/examples/N1-Personal-Level-Indicators)
+- [Personal-level indicators](https://github.com/nylas/N1/tree/master/internal_packages/personal-level-indicators)
 - [Unsubscribe button](https://github.com/colinking/n1-unsubscribe)
 
 ##### Message View
-- [Phishing Detection](https://github.com/nylas/N1/tree/master/examples/N1-Phishing-Detection)
+- [Phishing Detection](https://github.com/nylas/N1/tree/master/internal_packages/phishing-detection)
 - [Squirt Speed Reader](https://github.com/HarleyKwyn/squirt-reader-N1-plugin/)
 
 # Running Locally

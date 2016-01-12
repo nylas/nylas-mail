@@ -126,7 +126,9 @@ FileDownloadStore = Reflux.createStore
   #
   pathForFile: (file) ->
     return undefined unless file
-    path.join(@_downloadDirectory, file.id, file.displayName())
+
+    filesafeName = file.displayName().replace(new RegExp(path.sep, 'g'), '-')
+    path.join(@_downloadDirectory, file.id, filesafeName)
 
   downloadDataForFile: (fileId) ->
     @_downloads[fileId]?.data()

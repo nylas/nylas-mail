@@ -45,8 +45,11 @@ class QuotedHTMLTransformer
       return doc.children[0].innerHTML
     else
       DOMUtils.Mutating.removeElements(quoteElements, options)
-      childNodes = doc.body.childNodes
 
+      # It's possible that the entire body was quoted text and we've removed everything.
+      return "<head></head><body></body>" unless doc.body
+
+      childNodes = doc.body.childNodes
       extraTailBrTags = []
       for i in [(childNodes.length - 1)..0] by -1
         curr = childNodes[i]

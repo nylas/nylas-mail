@@ -43,7 +43,7 @@ class TemplatePicker extends React.Component {
     });
   }
 
-  _onSearchValueChange() {
+  _onSearchValueChange = () => {
     const newSearch = event.target.value;
     return this.setState({
       searchValue: newSearch,
