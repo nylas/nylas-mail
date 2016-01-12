@@ -25,7 +25,7 @@ SearchSuggestionStore = Reflux.createStore
     @listenTo SearchActions.queryChanged, @_onQueryChanged
     @listenTo SearchActions.searchBlurred, @_onSearchBlurred
 
-  _onPerspectiveChanged: =>
+  _onPerspectiveChanged: ->
     @_query = FocusedPerspectiveStore.current()?.searchQuery ? ""
     @trigger()
 
