@@ -29,7 +29,7 @@ class MutableQueryResultSet extends QueryResultSet
     @replaceModel(m) for m in models
 
   addModelsInRange: (rangeModels, range) ->
-    @addIdsInRange(_.pluck(rangeModels, 'clientId'), range)
+    @addIdsInRange(_.pluck(rangeModels, 'id'), range)
     @replaceModel(m) for m in rangeModels
 
   addIdsInRange: (rangeIds, range) ->
@@ -52,6 +52,7 @@ class MutableQueryResultSet extends QueryResultSet
   removeModelAtOffset: (item, offset) ->
     idx = offset - @_offset
     delete @_modelsHash[item.clientId]
+    delete @_modelsHash[item.id]
     @_ids.splice(idx, 1)
 
 module.exports = MutableQueryResultSet
