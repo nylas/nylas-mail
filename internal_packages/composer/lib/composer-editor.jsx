@@ -70,6 +70,7 @@ class ComposerEditor extends Component {
     draftClientId: PropTypes.string,
     initialSelectionSnapshot: PropTypes.object,
     onFocus: PropTypes.func.isRequired,
+    onBlur: PropTypes.func.isRequired,
     onFilePaste: PropTypes.func.isRequired,
     onBodyChanged: PropTypes.func.isRequired,
     parentActions: PropTypes.shape({
@@ -85,6 +86,7 @@ class ComposerEditor extends Component {
     };
     this._coreExtension = {
       onFocus: props.onFocus,
+      onBlur: props.onBlur,
     };
   }
 
@@ -126,7 +128,7 @@ class ComposerEditor extends Component {
     // quoted text that is visible. (as in forwarded messages.)
     //
     this.refs.contenteditable.atomicEdit( ({editor})=> {
-      const walker = document.createTreeWalker(editor.rootNode, NodeFilter.SHOW_TEXT);
+      const walker = document.createTreeWalker(editor.rootNode, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT);
       const nodesBelowUserBody = editor.rootNode.querySelectorAll('.nylas-n1-signature, .gmail_quote, blockquote');
 
       let lastNode = null;

@@ -1,4 +1,5 @@
 fs = require 'fs'
+path = require 'path'
 {shell} = require 'electron'
 NylasAPI = require '../../src/flux/nylas-api'
 File = require '../../src/flux/models/file'

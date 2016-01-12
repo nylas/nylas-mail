@@ -29,6 +29,7 @@ class EventHeader extends React.Component
       @setState({event})
 
   componentDidMount: =>
+    # TODO: This should use observables!
     @_unlisten = DatabaseStore.listen (change) =>
       if @state.event and change.objectClass is Event.name
         updated = _.find change.objects, (o) => o.id is @state.event.id
@@ -41,13 +42,6 @@ class EventHeader extends React.Component
 
   componentWillUnmount: =>
     @_unlisten?()
-
-  _myStatus: =>
-    account = AccountStore.accountForId(@props.message.accountId)
-    myEmail = account?.me().email
-    for p in @state.event.participants
-      return p['status'] if p['email'] is myEmail
-    return null
 
   render: =>
     if @state.event?
@@ -75,12 +69,15 @@ class EventHeader extends React.Component
       <div></div>
 
   _renderEventActions: =>
+    me = @state.event.participantForMe()
+    return false unless me
+
     actions = [["yes", "Accept"], ["maybe", "Maybe"], ["no", "Decline"]]
 
     <div className="event-actions">
       {actions.map ([status, label]) =>
         classes = "btn-rsvp "
-        classes += status if @_myStatus() is status
+        classes += status if me.status is status
         <div key={status} className={classes} onClick={=> @_rsvp(status)}>
           {label}
         </div>
@@ -88,7 +85,7 @@ class EventHeader extends React.Component
     </div>
 
   _rsvp: (status) =>
-    Actions.queueTask(new EventRSVPTask(@props.message, @state.event, status))
-
+    me = @state.event.participantForMe()
+    Actions.queueTask(new EventRSVPTask(@state.event, me.email, status))
 
 module.exports = EventHeader

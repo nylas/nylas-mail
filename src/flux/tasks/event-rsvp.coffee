@@ -9,24 +9,20 @@ NylasAPI = require '../nylas-api'
 
 module.exports =
 class EventRSVPTask extends Task
-  constructor: (@message, @event, @RSVPResponse) ->
-    account = AccountStore.accountForId(@message.accountId)
-    @myEmail = account?.me().email.toLowerCase().trim()
+  constructor: (@event, @RSVPEmail, @RSVPResponse) ->
     super
 
   performLocal: ->
     DatabaseStore.inTransaction (t) =>
-      t.find(Event, @event.id).then (e) =>
-        e ?= @event
-        @_previousParticipantsState = Utils.deepClone(e.participants)
-        participants = []
-        for p in e.participants
-          if p['email'] == @myEmail
-            p['status'] = @RSVPResponse
-          participants.push p
-        e.participants = participants
-        @event = e
-        t.persistModel(e)
+      t.find(Event, @event.id).then (updated) =>
+        @event = updated ? @event
+        @_previousParticipantsState = Utils.deepClone(@event.participants)
+
+        for p in @event.participants
+          if p.email is @RSVPEmail
+            p.status = @RSVPResponse
+
+        t.persistModel(@event)
 
   performRemote: ->
     NylasAPI.makeRequest
@@ -38,16 +34,12 @@ class EventRSVPTask extends Task
         status: @RSVPResponse
       }
       returnsModel: true
-    .then =>
-      return Promise.resolve(Task.Status.Success)
+    .thenReturn(Task.Status.Success)
     .catch APIError, (err) =>
-      ##TODO event already accepted/declined/etc
       @event.participants = @_previousParticipantsState
       DatabaseStore.inTransaction (t) =>
-        t.persistModel(@event).then ->
-          return Promise.resolve(Task.Status.Failed)
-        .catch (err) ->
-          return Promise.resolve(Task.Status.Failed)
+        t.persistModel(@event)
+      .thenReturn(Task.Status.Failed)
 
   onOtherError: -> Promise.resolve()
   onTimeoutError: -> Promise.resolve()

@@ -256,6 +256,18 @@ describe "QuotedHTMLTransformer", ->
         <br></body>
         """
 
+
+    # Test 11: The <body> tag itself is just a quoted text block.
+    # I believe this is https://sentry.nylas.com/sentry/edgehill/group/8323/
+    tests.push
+      before: """
+        <body id="OLK_SRC_BODY_SECTION">
+          This entire thing is quoted text!
+        </body>
+        """
+      after: """<head></head><body></body>
+        """
+
     it 'works with these manual test cases', ->
       for {before, after} in tests
         opts = keepIfWholeBodyIsQuote: true
