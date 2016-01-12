@@ -72,6 +72,9 @@ describe "FileDownloadStore", ->
       f1 = new File(filename: "static#{path.sep}b#{path.sep}a.jpg", contentType: 'image/png', id: 'id1')
       expect(FileDownloadStore.pathForFile(f1)).toBe("/Users/testuser/.nylas/downloads/id1/static-b-a.jpg")
 
+      f1 = new File(filename: "my:file ? Windows /hates/ me :->.jpg", contentType: 'image/png', id: 'id1')
+      expect(FileDownloadStore.pathForFile(f1)).toBe("/Users/testuser/.nylas/downloads/id1/my-file - Windows -hates- me ---.jpg")
+
   describe "_checkForDownloadedFile", ->
     it "should return true if the file exists at the path and is the right size", ->
       f = new File(filename: '123.png', contentType: 'image/png', id: "id", size: 100)

@@ -33,4 +33,8 @@ RegExpUtils =
   # https://regex101.com/r/pZ6zF0/1
   functionArgs: -> /\(\s*([^)]+?)\s*\)/
 
+  illegialPathCharactersRegexp: ->
+    #https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx
+    /[\\\/:|?*><"]/g
+
 module.exports = RegExpUtils
