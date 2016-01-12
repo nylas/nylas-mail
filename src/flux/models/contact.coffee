@@ -2,6 +2,7 @@ Model = require './model'
 Utils = require './utils'
 Attributes = require '../attributes'
 RegExpUtils = require '../../regexp-utils'
+AccountStore = require '../stores/account-store'
 _ = require 'underscore'
 
 name_prefixes = {}
@@ -93,7 +94,6 @@ class Contact extends Model
   # You should use this method instead of comparing the user's email address to
   # the account email, since it is case-insensitive and future-proof.
   isMe: ->
-    AccountStore = require '../stores/account-store'
     for account in AccountStore.accounts()
       if Utils.emailIsEquivalent(@email, account.emailAddress)
         return true
