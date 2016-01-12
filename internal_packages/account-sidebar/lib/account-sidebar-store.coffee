@@ -43,7 +43,7 @@ class AccountSidebarStore extends NylasStore
     @listenTo WorkspaceStore, @_updateSections
     @listenTo CategoryStore, @_updateSections
     @listenTo ThreadCountsStore, @_updateSections
-    @listenTo FocusedPerspectiveStore, => @_onPerspectiveChanged
+    @listenTo FocusedPerspectiveStore, @_onPerspectiveChanged
     @configSubscription = NylasEnv.config.observe(
       'core.workspace.showUnreadForAllCategories',
       @_updateSections
@@ -52,8 +52,9 @@ class AccountSidebarStore extends NylasStore
   _onPerspectiveChanged: =>
     account = FocusedPerspectiveStore.current()?.account
     if account?.id isnt @_account?.id
-      @_uptdateSections()
-    @_trigger()
+      @_account = account
+      @_updateSections()
+    @trigger()
 
   _updateSections: =>
     # TODO As it is now, if the current account is null, we  will display the

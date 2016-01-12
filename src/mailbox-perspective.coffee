@@ -32,10 +32,14 @@ class MailboxPerspective
 
   constructor: (@account) ->
 
+  hasSameAccount: (other) ->
+    return true if (@account ? null) is (other.account ? null)
+    return @account?.id is other?.account?.id
+
   isEqual: (other) ->
     return false unless other and @constructor.name is other.constructor.name
     return false if other.name isnt @name
-    return false if @account? and @account.accountId isnt other.account?.accountId
+    return false unless @hasSameAccount(other)
 
     matchers = @matchers() ? []
     otherMatchers = other.matchers() ? []
@@ -148,8 +152,9 @@ class CategoryMailboxPerspective extends MailboxPerspective
 
     @
 
-  matchers: ->
+  matchers: =>
     matchers = []
+    return matchers unless @account?
     if @account.usesLabels()
       matchers.push Thread.attributes.labels.contains(@category.id)
     else if @account.usesFolders()
