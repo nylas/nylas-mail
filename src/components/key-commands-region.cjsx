@@ -100,12 +100,12 @@ class KeyCommandsRegion extends React.Component
     @state = {focused: false}
     @_goingout = false
 
-    @_in = (args...) =>
+    @_in = (event) =>
       @_goingout = false
-      @props.onFocusIn(args...) if @state.focused is false
+      @props.onFocusIn(event) if @state.focused is false
       @setState(focused: true)
 
-    @_out = =>
+    @_out = (event) =>
       @_goingout = true
       setTimeout =>
         return unless @_goingout
@@ -125,7 +125,9 @@ class KeyCommandsRegion extends React.Component
         # This prevents the strange effect of an input appearing to have focus
         # when the element receiving focus does not support selection (like a
         # div with tabIndex=-1)
-        document.getSelection().empty()
+        if event.relatedTarget and event.relatedTarget.tagName isnt 'INPUT'
+          document.getSelection().empty()
+
         @props.onFocusOut() if @state.focused is true
         @setState(focused: false)
         @_goingout = false
