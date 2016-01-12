@@ -10,6 +10,7 @@ Actions = require '../actions'
 
 class FocusedPerspectiveStore extends NylasStore
   constructor: ->
+    @_current = @_defaultPerspective()
     @listenTo CategoryStore, @_onCategoryStoreChanged
     @listenTo AccountStore, @_onAccountStoreChanged
 
@@ -32,13 +33,13 @@ class FocusedPerspectiveStore extends NylasStore
       account = @_current.account
       catId   = @_current.categoryId()
       if catId and not CategoryStore.byId(account, catId)
-        @_setPerspective(@_defaultPerspective())
+        @_setPerspective(@_defaultPerspective(account))
 
-  _onFocusPerspective: (filter) =>
-    return if filter.isEqual(@_current)
+  _onFocusPerspective: (perspective) =>
+    return if perspective.isEqual(@_current)
     if WorkspaceStore.Sheet.Threads
       Actions.selectRootSheet(WorkspaceStore.Sheet.Threads)
-    @_setPerspective(filter)
+    @_setPerspective(perspective)
 
   _onFocusAccount: (accountId) =>
     account = AccountStore.accountForId(accountId) unless account instanceof Account
@@ -54,9 +55,9 @@ class FocusedPerspectiveStore extends NylasStore
     return MailboxPerspective.forCategory(account, category)
     # MailboxPerspective.unified()
 
-  _setPerspective: (filter) ->
-    return if filter?.isEqual(@_current)
-    @_current = filter
+  _setPerspective: (perspective) ->
+    return if perspective?.isEqual(@_current)
+    @_current = perspective
     @trigger()
 
   _setupFastAccountCommands: ->
@@ -87,6 +88,7 @@ class FocusedPerspectiveStore extends NylasStore
 
   # Public Methods
 
-  current: -> @_current ? null
+  current: =>
+    @_current
 
 module.exports = new FocusedPerspectiveStore()
