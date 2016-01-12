@@ -329,14 +329,14 @@ describe "ComposerView", ->
         expect(@composer._shouldShowFromField()).toBe false
 
       it "disables if account has no aliases", ->
-        spyOn(AccountStore, 'itemWithId').andCallFake -> {id: 1, aliases: []}
+        spyOn(AccountStore, 'accountForId').andCallFake -> {id: 1, aliases: []}
         useDraft.call @, replyToMessageId: null, files: []
         makeComposer.call @
         expect(@composer.state.enabledFields).not.toContain Fields.From
 
       it "enables if it's a reply-to message", ->
         aliases = ['A <a@b.c']
-        spyOn(AccountStore, 'itemWithId').andCallFake -> {id: 1, aliases: aliases}
+        spyOn(AccountStore, 'accountForId').andCallFake -> {id: 1, aliases: aliases}
         useDraft.call @, replyToMessageId: "local-123", files: []
         makeComposer.call @
         expect(@composer.state.enabledFields).toContain Fields.From
@@ -344,7 +344,7 @@ describe "ComposerView", ->
       it "enables if requirements are met", ->
         a1 = new Account()
         a1.aliases = ['a1']
-        spyOn(AccountStore, 'itemWithId').andCallFake -> a1
+        spyOn(AccountStore, 'accountForId').andCallFake -> a1
         useDraft.call @, replyToMessageId: null, files: []
         makeComposer.call @
         expect(@composer.state.enabledFields).toContain Fields.From

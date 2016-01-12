@@ -1,11 +1,14 @@
 _ = require 'underscore'
-proxyquire = require 'proxyquire'
+Rx = require 'rx-lite'
+{NylasTestUtils} = require 'nylas-exports'
 Contact = require '../../src/flux/models/contact'
 NylasAPI = require '../../src/flux/nylas-api'
 ContactStore = require '../../src/flux/stores/contact-store'
 ContactRankingStore = require '../../src/flux/stores/contact-ranking-store'
 DatabaseStore = require '../../src/flux/stores/database-store'
 AccountStore = require '../../src/flux/stores/account-store'
+
+{mockObservable} = NylasTestUtils
 
 describe "ContactStore", ->
   beforeEach ->
@@ -32,38 +35,39 @@ describe "ContactStore", ->
   afterEach ->
     NylasEnv.testOrganizationUnit = null
 
-  describe "when the Account updates from null to valid", ->
+  describe "when Contacts change", ->
     beforeEach ->
       spyOn(ContactStore, "_refreshCache")
-      AccountStore.trigger()
+      spyOn(Rx.Observable, 'fromQuery').andReturn mockObservable([])
+      ContactStore._registerObservables()
 
     it "triggers a database fetch", ->
       expect(ContactStore._refreshCache.calls.length).toBe 1
 
   describe "ranking contacts", ->
     beforeEach ->
-      ContactStore._accountId = TEST_ACCOUNT_ID
-      @c1 = new Contact(name: "Evan A", email: "evanA@nylas.com")
-      @c2 = new Contact(name: "Evan B", email: "evanB@nylas.com")
-      @c3 = new Contact(name: "Evan C", email: "evanC@nylas.com")
-      @c4 = new Contact(name: "Ben", email: "ben@nylas.com")
-      spyOn(DatabaseStore, "findAll").andCallFake ->
-        where: -> Promise.resolve([@c3, @c1, @c2, @c4])
+      @accountId = TEST_ACCOUNT_ID
+      @c1 = new Contact({name: "Evan A", email: "evanA@nylas.com", @accountId})
+      @c2 = new Contact({name: "Evan B", email: "evanB@nylas.com", @accountId})
+      @c3 = new Contact({name: "Evan C", email: "evanC@nylas.com", @accountId})
+      @c4 = new Contact({name: "Ben", email: "ben@nylas.com"})
+      @contacts = [@c3, @c1, @c2, @c4]
 
     it "triggers a sort on a contact refresh", ->
       spyOn(ContactStore, "_sortContactsCacheWithRankings")
-      ContactStore.__refreshCache()
-      advanceClock(100)
+      ContactStore.__refreshCache(@contacts)
       expect(ContactStore._sortContactsCacheWithRankings).toHaveBeenCalled()
 
     it "sorts the contact cache by the rankings", ->
-      spyOn(ContactRankingStore, 'value').andReturn
+      spyOn(ContactRankingStore, 'valueFor').andReturn
         "evana@nylas.com": 10
         "evanb@nylas.com": 1
         "evanc@nylas.com": 0.1
-      ContactStore._contactCache = [@c3, @c1, @c2, @c4]
+      cache = {}
+      cache[@accountId] = [@c3, @c1, @c2, @c4]
+      ContactStore._contactCache = cache
       ContactStore._sortContactsCacheWithRankings()
-      expect(ContactStore._contactCache).toEqual [@c1, @c2, @c3, @c4]
+      expect(ContactStore._contactCache[@accountId]).toEqual [@c1, @c2, @c3, @c4]
 
   describe "when the Account updates but the ID doesn't change", ->
     it "does nothing", ->

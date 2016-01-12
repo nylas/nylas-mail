@@ -35,7 +35,7 @@ describe "EventRSVPTask", ->
         "email": @myEmail,
         "status": 'noreply'}
       ]
-    @task = new EventRSVPTask(@event, "no")
+    @task = new EventRSVPTask({accountId: TEST_ACCOUNT_ID}, @event, "no")
 
   describe "performLocal", ->
     it "should mark our status as no", ->
