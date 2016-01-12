@@ -538,7 +538,7 @@ DOMUtils =
   # current selection.
   selectionStartsOrEndsIn: (rangeOrNode) ->
     selection = document.getSelection()
-    return false unless selection
+    return false unless (selection and selection.rangeCount>0)
     if rangeOrNode instanceof Range
       return @rangeStartsOrEndsInRange(selection.getRangeAt(0), rangeOrNode)
     else if rangeOrNode instanceof Node
@@ -552,7 +552,7 @@ DOMUtils =
   # contained within it.
   selectionIsWithin: (rangeOrNode) ->
     selection = document.getSelection()
-    return false unless selection
+    return false unless (selection and selection.rangeCount>0)
     if rangeOrNode instanceof Range
       return @rangeInRange(selection.getRangeAt(0), rangeOrNode)
     else if rangeOrNode instanceof Node

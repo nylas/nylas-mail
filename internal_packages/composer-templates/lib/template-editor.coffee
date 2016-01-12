@@ -18,11 +18,21 @@ class TemplateEditor extends ContenteditableExtension
         editor.whilePreservingSelection ->
           DOMUtils.unwrapNode(codeNode)
 
-    # Attempt to sanitize spans that are needlessly created by contenteditable
-    for span in editor.rootNode.querySelectorAll("span")
-      if not span.className
+    # Attempt to sanitize extra nodes that may have been created by contenteditable on certain text editing
+    # operations (insertion/deletion of line breaks, etc.). These are generally <span>, but can also be
+    # <font>, <b>, and possibly others. The extra nodes often grab CSS styles from neighboring elements
+    # as inline style, including the yellow text from <code> nodes that we insert. This is contenteditable
+    # trying to be "smart" and preserve styles, which is very undesirable for the <code> node styles. The
+    # below code is a hack to prevent yellow text from appearing.
+    for node in editor.rootNode.querySelectorAll("*")
+      if not node.className and node.style.color == "#c79b11"
         editor.whilePreservingSelection ->
-          DOMUtils.unwrapNode(span)
+          DOMUtils.unwrapNode(node)
+
+    for node in editor.rootNode.querySelectorAll("font")
+      if node.color == "#c79b11"
+        editor.whilePreservingSelection ->
+          DOMUtils.unwrapNode(node)
 
     # Find all {{}} and wrap them in code nodes if they aren't already
     # Regex finds any {{ <contents> }} that doesn't contain {, }, or \n
@@ -38,17 +48,5 @@ class TemplateEditor extends ContenteditableExtension
         if selIndex?
           editor.restoreSelectionByTextIndex(codeNode, selIndex.startIndex, selIndex.endIndex)
 
-
-  @onKeyDown: ({editor}) ->
-    # Look for all existing code tags that we may have added before,
-    # and remove any that now have invalid content (don't start with {{ and
-    # end with }} as well as any that wrap the current selection
-
-    codeNodes = editor.rootNode.querySelectorAll("code.var.empty")
-    for codeNode in codeNodes
-      text = codeNode.textContent
-      if not text.startsWith("{{") or not text.endsWith("}}") or DOMUtils.selectionStartsOrEndsIn(codeNode)
-        editor.whilePreservingSelection ->
-          DOMUtils.unwrapNode(codeNode)
 
 module.exports = TemplateEditor
