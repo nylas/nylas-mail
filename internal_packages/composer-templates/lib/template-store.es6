@@ -147,6 +147,11 @@ class TemplateStore extends NylasStore {
   }
 
   saveNewTemplate(name, contents, callback) {
+    if(!name || name.length===0){
+      this._displayError('You must provide a template name.');
+      return;
+    }
+
     if (name.match(TemplateStore.INVALID_TEMPLATE_NAME_REGEX)) {
       this._displayError('Invalid template name! Names can only contain letters, numbers, spaces, dashes, and underscores.');
       return;
@@ -219,8 +224,12 @@ class TemplateStore extends NylasStore {
       this._displayError('Invalid template name! Names can only contain letters, numbers, spaces, dashes, and underscores.');
       return;
     }
+    if(newName.length===0){
+      this._displayError('You must provide a template name.');
+      return;
+    }
 
-    const newFilename = `${newName}.html`;
+      const newFilename = `${newName}.html`;
     const oldPath = path.join(this._templatesDir, `${oldName}.html`);
     const newPath = path.join(this._templatesDir, newFilename);
     fs.rename(oldPath, newPath, () => {

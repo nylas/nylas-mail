@@ -13,7 +13,7 @@ class PreferencesTemplates extends React.Component
     {templates, selectedTemplate, selectedTemplateName} = @_getStateFromStores()
     @state =
       editAsHTML: false
-      editState: null
+      editState: if templates.length==0 then "new" else null
       templates: templates
       selectedTemplate: selectedTemplate
       selectedTemplateName: selectedTemplateName
@@ -108,14 +108,14 @@ class PreferencesTemplates extends React.Component
   _renderEditableTemplate: ->
     <Contenteditable
        ref="templateInput"
-       value={@state.contents}
+       value={@state.contents || ""}
        onChange={@_onEditTemplate}
        extensions={[TemplateEditor]}
        spellcheck={false} />
 
   _renderHTMLTemplate: ->
     <textarea ref="templateHTMLInput"
-              value={@state.contents}
+              value={@state.contents || ""}
               onChange={@_onEditTemplate}/>
 
   _renderModeToggle: ->
@@ -164,8 +164,15 @@ class PreferencesTemplates extends React.Component
 
   # DELETE AND NEW
   _deleteTemplate: =>
+    numTemplates = @state.templates.length
     if @state.selectedTemplate?
       TemplateStore.deleteTemplate(@state.selectedTemplate.name)
+    if numTemplates==1
+      @setState
+        editState: "new"
+        selectedTemplate: null
+        selectedTemplateName: ""
+        contents: ""
 
   _startNewTemplate: =>
     @setState
@@ -175,7 +182,7 @@ class PreferencesTemplates extends React.Component
       contents: ""
 
   _saveNewTemplate: =>
-    TemplateStore.saveNewTemplate(@state.selectedTemplateName, @state.contents, (template) =>
+    TemplateStore.saveNewTemplate(@state.selectedTemplateName, @state.contents || "", (template) =>
       @setState
         selectedTemplate: template
         editState: null
@@ -190,10 +197,11 @@ class PreferencesTemplates extends React.Component
     @_loadTemplateContents(template)
 
   _renderCreateNew: ->
+    cancel = <button className="btn template-name-btn" onClick={@_cancelNewTemplate}>Cancel</button>
     <div className="section-title">
       Template Name: <input type="text" className="template-name-input" value={@state.selectedTemplateName} onChange={@_onEditName}/>
       <button className="btn btn-emphasis template-name-btn" onClick={@_saveNewTemplate}>Save</button>
-      <button className="btn template-name-btn" onClick={@_cancelNewTemplate}>Cancel</button>
+      {if @state.templates.length then cancel}
     </div>
 
 
@@ -218,6 +226,11 @@ class PreferencesTemplates extends React.Component
         </div>
       </div>
 
+    noTemplatesMessage =
+    <div className="template-status-bar no-templates-message">
+      You don't have any templates! Enter a template name and press Save to create one.
+    </div>
+
     <div>
     <section className="container-templates" style={if @state.editState is "new" then {marginBottom:50}}>
       <h2>Quick Replies</h2>
@@ -228,21 +241,22 @@ class PreferencesTemplates extends React.Component
           else @_renderName()
       }
       {if @state.editState isnt "new" then editor}
+      {if @state.editState is "new" then noTemplatesMessage}
     </section>
 
     <section className="templates-instructions">
     <p>
-      The Quick Replies plugin allows you to create templated email replies. Replies can contain variables, which
-      you can quickly jump between and fill out when using the template. To create a variable, type a set of double curly
+      The Quick Replies plugin allows you to create templated email replies, with variables that
+      you can quickly fill out inside your email message. To create a variable, type a set of double curly
       brackets wrapping the variable's name, like this: <strong>{"{{"}variable_name{"}}"}</strong>
+    </p>
+    <p>
+      Reply templates are saved in the <strong>~/.nylas/templates</strong> directory on your computer. Each template
+      is an HTML file - the name of the file is the name of the template, and its contents are the default message body.
     </p>
     <p>
       In raw HTML, variables are defined as HTML &lt;code&gt; tags with class "var empty". Typing curly brackets creates a tag
       automatically. The code tags are colored yellow to show the variable regions, but will be stripped out before the message is sent.
-    </p>
-    <p>
-      Reply templates live in the <strong>~/.nylas/templates</strong> directory on your computer. Each template
-      is an HTML file - the name of the file is the name of the template, and its contents are the default message body.
     </p>
 
     </section>
