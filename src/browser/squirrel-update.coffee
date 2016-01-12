@@ -95,7 +95,7 @@ getPath = (callback) ->
     else
       callback(new Error('Registry query for PATH failed'))
 
-# Add atom and apm to the PATH
+# Add N1 to the PATH
 #
 # This is done by adding .cmd shims to the root bin folder in the N1
 # install directory that point to the newly installed versions inside
@@ -110,19 +110,9 @@ addCommandsToPath = (callback) ->
     relativeN1ShPath = path.relative(binFolder, path.join(appFolder, 'resources', 'cli', 'N1.sh'))
     nylasShCommand = "#!/bin/sh\r\n\"$(dirname \"$0\")/#{relativeN1ShPath.replace(/\\/g, '/')}\" \"$@\""
 
-    apmCommandPath = path.join(binFolder, 'apm.cmd')
-    relativeApmPath = path.relative(binFolder, path.join(process.resourcesPath, 'app', 'apm', 'bin', 'apm.cmd'))
-    apmCommand = "@echo off\r\n\"%~dp0\\#{relativeApmPath}\" %*"
-
-    apmShCommandPath = path.join(binFolder, 'apm')
-    relativeApmShPath = path.relative(binFolder, path.join(appFolder, 'resources', 'cli', 'apm.sh'))
-    apmShCommand = "#!/bin/sh\r\n\"$(dirname \"$0\")/#{relativeApmShPath.replace(/\\/g, '/')}\" \"$@\""
-
     fs.writeFile nylasCommandPath, nylasCommand, ->
       fs.writeFile nylasShCommandPath, nylasShCommand, ->
-        fs.writeFile apmCommandPath, apmCommand, ->
-          fs.writeFile apmShCommandPath, apmShCommand, ->
-            callback()
+        callback()
 
   addBinToPath = (pathSegments, callback) ->
     pathSegments.push(binFolder)
@@ -141,7 +131,7 @@ addCommandsToPath = (callback) ->
       else
         callback()
 
-# Remove N1 and apm from the PATH
+# Remove N1 from the PATH
 removeCommandsFromPath = (callback) ->
   getPath (error, pathEnv) ->
     return callback(error) if error?
