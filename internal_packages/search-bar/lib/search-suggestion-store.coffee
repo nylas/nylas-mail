@@ -1,4 +1,5 @@
-Reflux = require 'reflux'
+_ = require 'underscore'
+NylasStore = require 'nylas-store'
 {Contact,
  Thread,
  Actions,
@@ -6,7 +7,6 @@ Reflux = require 'reflux'
  AccountStore,
  FocusedPerspectiveStore,
  ContactStore} = require 'nylas-exports'
-_ = require 'underscore'
 
 SearchActions = require './search-actions'
 
@@ -15,8 +15,9 @@ SearchActions = require './search-actions'
 # for changes in selectedThread, "DatabaseStore" for changes to the underlying database,
 # and vends up the array used for that view.
 
-SearchSuggestionStore = Reflux.createStore
-  init: ->
+class SearchSuggestionStore extends NylasStore
+
+  constructor: ->
     @_query = ""
     @_clearResults()
 
@@ -124,4 +125,4 @@ SearchSuggestionStore = Reflux.createStore
 
   suggestions: -> @_suggestions
 
-module.exports = SearchSuggestionStore
+module.exports = new SearchSuggestionStore()
