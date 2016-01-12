@@ -51,7 +51,7 @@ class CategoryStore extends NylasStore
     return null unless account?
     if not name in StandardCategoryNames
       throw new Error("'#{name}' is not a standard category")
-    return _.findWhere @standardCategories(account), {name}
+    return _.findWhere(@categories(account), {name})
 
   # Public: Returns the Folder or Label object that should be used for "Archive"
   # actions. On Gmail, this is the "all" label. On providers using folders, it
