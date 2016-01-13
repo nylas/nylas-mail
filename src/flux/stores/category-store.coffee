@@ -9,11 +9,14 @@ class CategoryStore extends NylasStore
 
   constructor: ->
     @_categoryCache = {}
+    @_standardCategories = {}
+    @_userCategories = {}
+    @_hiddenCategories = {}
     @_registerObservables(AccountStore.accounts())
-
     @listenTo AccountStore, @_onAccountsChanged
 
-  byId: (account, categoryId) -> @categories(account)[categoryId]
+  byId: (account, categoryId) ->
+    @categories(account)[categoryId]
 
   # Public: Returns an array of all categories for an account, both
   # standard and user generated. The items returned by this function will be
@@ -31,16 +34,21 @@ class CategoryStore extends NylasStore
   # Public: Returns all of the standard categories for the current account.
   #
   standardCategories: (account) ->
-    _.values(@categories(account)).filter (cat) -> cat.isStandardCategory()
+    return [] unless account
+    _.compact(
+      StandardCategoryNames.map (name) => @_standardCategories[account.id][name]
+    )
 
   hiddenCategories: (account) ->
-    _.values(@categories(account)).filter (cat) -> cat.isHiddenCategory()
+    return [] unless account
+    @_hiddenCategories[account.id]
 
   # Public: Returns all of the categories that are not part of the standard
   # category set.
   #
   userCategories: (account) ->
-    _.values(@categories(account)).filter (cat) -> cat.isUserCategory()
+    return [] unless account
+    @_userCategories[account.id]
 
   # Public: Returns the Folder or Label object for a standard category name and
   # for a given account.
@@ -71,20 +79,43 @@ class CategoryStore extends NylasStore
     @getStandardCategory(account, "trash")
 
   _onAccountsChanged: ->
-    @_registerObservables(AccountStore.accounts())
+    accounts = AccountStore.accounts()
+    @_removeStaleCategories(accounts)
+    @_registerObservables(accounts)
 
   _onCategoriesChanged: (accountId, categories) =>
     return unless categories
     @_categoryCache[accountId] = {}
+    @_standardCategories[accountId] = {}
+    @_userCategories[accountId] = []
+    @_hiddenCategories[accountId] = []
+
     for category in categories
       @_categoryCache[accountId][category.id] = category
+      if category.isStandardCategory()
+        @_standardCategories[accountId][category.name] = category
+      if category.isUserCategory()
+        @_userCategories[accountId].push(category)
+      if category.isHiddenCategory()
+        @_hiddenCategories[accountId].push(category)
     @trigger()
+
+  # Remove any category sets for removed accounts
+  # Will prevent memory leaks
+  _removeStaleCategories: (accounts) ->
+    accountIds = accounts.map (acc) -> acc.id
+    removedAccountIds = _.difference(_.keys(@_categoryCache), accountIds)
+    for accountId in removedAccountIds
+      delete @_categoryCache[accountId]
+      delete @_standardCategories[accountId]
+      delete @_userCategories[accountId]
+      delete @_hiddenCategories[accountId]
 
   _registerObservables: (accounts) =>
     @_disposables ?= []
     @_disposables.forEach (disp) -> disp.dispose()
     @_disposables = accounts.map (account) =>
-      Categories.forAccount(account)
+      Categories.forAccount(account).sort()
         .subscribe(@_onCategoriesChanged.bind(@, account.id))
 
 module.exports = new CategoryStore()
