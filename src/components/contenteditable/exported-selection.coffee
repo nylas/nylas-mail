@@ -35,7 +35,7 @@ class ExportedSelection
   and `endNodeIndex` fields via the `DOMUtils.getNodeIndex` method.
   ###
   isEqual: (otherSelection) ->
-    return false unless otherSelection?
+    return false unless otherSelection
     return false if @type isnt otherSelection.type
 
     return true if @type is 'None' and otherSelection.type is 'None'
