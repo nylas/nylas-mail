@@ -32,7 +32,7 @@ class TemplateStore extends NylasStore {
     this._registerListeners();
 
     this._templatesDir = templatesDir;
-    this._welcomeName = 'Welcome to Templates.html';
+    this._welcomeName = 'Welcome to Quick Replies.html';
     this._welcomePath = path.join(__dirname, '..', 'assets', this._welcomeName);
     this._watcher = null;
 
