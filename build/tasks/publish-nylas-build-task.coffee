@@ -62,21 +62,24 @@ module.exports = (grunt) ->
         return reject(err) if err
         resolve()
 
-  put = (localSource, destName) ->
+  put = (localSource, destName, options = {}) ->
     grunt.log.writeln ">> Uploading #{localSource} to S3…"
 
     write = grunt.log.writeln
     ext = path.extname(destName)
     lastPc = 0
 
+    params =
+      Key: destName
+      ACL: "public-read"
+      Bucket: "edgehill"
+
+    _.extend(params, options)
+
     new Promise (resolve, reject) ->
       uploader = s3Client.uploadFile
         localFile: localSource
-        s3Params:
-          Key: destName
-          ACL: "public-read"
-          Bucket: "edgehill"
-
+        s3Params: params
       uploader.on "error", (err) ->
         reject(err)
       uploader.on "progress", ->
@@ -158,9 +161,11 @@ module.exports = (grunt) ->
         files = fs.readdirSync(buildDir)
         for file in files
           if path.extname(file) is '.deb'
-            uploadPromises.push uploadToS3(file, "#{fullVersion}/#{process.platform}-deb/#{process.arch}/N1.deb")
+            uploadPromises.push uploadToS3(file, "#{fullVersion}/#{process.platform}-deb/#{process.arch}/N1.deb",
+                                           {"ContentType": "application/x-deb"})
           if path.extname(file) is '.rpm'
-            uploadPromises.push uploadToS3(file, "#{fullVersion}/#{process.platform}-rpm/#{process.arch}/N1.rpm")
+            uploadPromises.push uploadToS3(file, "#{fullVersion}/#{process.platform}-rpm/#{process.arch}/N1.rpm",
+                                           {"ContentType": "application/x-rpm"})
 
       else
         grunt.fail.fatal "Unsupported platform: '#{process.platform}'"
