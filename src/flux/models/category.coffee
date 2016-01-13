@@ -98,7 +98,7 @@ class Category extends Model
       StandardCategories[@name]? and @name isnt 'important'
 
   isLockedCategory: ->
-     LockedCategories[@name]?
+    LockedCategories[@name]?
 
   isHiddenCategory: ->
     HiddenCategories[@name]?
