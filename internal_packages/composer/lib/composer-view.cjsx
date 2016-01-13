@@ -751,6 +751,8 @@ class ComposerView extends React.Component
 
   _mentionsAttachment: (body) =>
     body = QuotedHTMLTransformer.removeQuotedHTML(body.toLowerCase().trim())
+    signatureIndex = body.indexOf('<div class="nylas-n1-signature">')
+    body = body[...signatureIndex] if signatureIndex isnt -1
     return body.indexOf("attach") >= 0
 
   _destroyDraft: =>
