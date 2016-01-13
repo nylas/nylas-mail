@@ -151,6 +151,9 @@ class NylasAPI
     else if env in ['local']
       @AppID = 'n/a'
       @APIRoot = 'http://localhost:5555'
+    else if env in ['custom']
+      @AppID = NylasEnv.config.get('env.AppID') or 'n/a'
+      @APIRoot = NylasEnv.config.get('env.APIRoot') or 'http://localhost:5555'
 
     current = {@AppID, @APIRoot, @APITokens}
 
