@@ -426,7 +426,7 @@ class Contenteditable extends React.Component
   # We also need to keep references to the previous selection state in
   # order for undo/redo to work properly.
   _saveExportedSelection: (exportedSelection) =>
-    return if (@innerState.exportedSelection?.isEqual(exportedSelection))
+    return if exportedSelection and exportedSelection.isEqual(@innerState.exportedSelection)
 
     @setInnerState
       exportedSelection: exportedSelection
