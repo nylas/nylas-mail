@@ -247,7 +247,7 @@ class PreferencesTemplates extends React.Component
     <section className="templates-instructions">
     <p>
       The Quick Replies plugin allows you to create templated email replies, with variables that
-      you can quickly fill out inside your email message. To create a variable, type a set of double curly
+      you can quickly fill in before sending your email message. To create a variable, type a set of double curly
       brackets wrapping the variable's name, like this: <strong>{"{{"}variable_name{"}}"}</strong>
     </p>
     <p>
