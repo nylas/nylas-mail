@@ -12,7 +12,7 @@ describe "SpellcheckComposerExtension", ->
     spyOn(SpellcheckComposerExtension, 'isMisspelled').andCallFake (word) ->
       spellings[word]
 
-  describe "walkTree", ->
+  describe "update", ->
     it "correctly walks a DOM tree and surrounds mispelled words", ->
       dom = document.createElement('div')
       dom.innerHTML = initialHTML
@@ -21,7 +21,7 @@ describe "SpellcheckComposerExtension", ->
         rootNode: dom
         whilePreservingSelection: (cb) -> cb()
 
-      SpellcheckComposerExtension.walkTree(editor)
+      SpellcheckComposerExtension.update(editor)
       expect(dom.innerHTML).toEqual(expectedHTML)
 
   describe "finalizeSessionBeforeSending", ->
