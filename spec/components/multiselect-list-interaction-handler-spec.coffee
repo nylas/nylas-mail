@@ -15,7 +15,7 @@ describe "MultiselectListInteractionHandler", ->
 
     data = [@item, @itemFocus, @itemAfterFocus, @itemKeyboardFocus, @itemAfterKeyboardFocus]
 
-    @dataView =
+    @dataSource =
       selection:
         toggle: jasmine.createSpy('toggle')
         expandTo: jasmine.createSpy('expandTo')
@@ -29,7 +29,7 @@ describe "MultiselectListInteractionHandler", ->
       count: -> data.length
 
     @collection = 'threads'
-    @handler = new MultiselectListInteractionHandler(@dataView, @collection)
+    @handler = new MultiselectListInteractionHandler(@dataSource, @collection)
     @isRootSheet = true
 
     spyOn(WorkspaceStore, 'topSheet').andCallFake => {root: @isRootSheet}
@@ -52,7 +52,7 @@ describe "MultiselectListInteractionHandler", ->
   describe "onMetaClick", ->
     it "shoud toggle selection", ->
       @handler.onMetaClick(@item)
-      expect(@dataView.selection.toggle).toHaveBeenCalledWith(@item)
+      expect(@dataSource.selection.toggle).toHaveBeenCalledWith(@item)
 
     it "should focus the keyboard on the clicked item", ->
       @handler.onMetaClick(@item)
@@ -61,7 +61,7 @@ describe "MultiselectListInteractionHandler", ->
   describe "onShiftClick", ->
     it "should expand selection", ->
       @handler.onShiftClick(@item)
-      expect(@dataView.selection.expandTo).toHaveBeenCalledWith(@item)
+      expect(@dataSource.selection.expandTo).toHaveBeenCalledWith(@item)
 
     it "should focus the keyboard on the clicked item", ->
       @handler.onShiftClick(@item)
@@ -77,13 +77,13 @@ describe "MultiselectListInteractionHandler", ->
       it "should toggle the selection of the keyboard item", ->
         @isRootSheet = true
         @handler.onSelect()
-        expect(@dataView.selection.toggle).toHaveBeenCalledWith(@itemKeyboardFocus)
+        expect(@dataSource.selection.toggle).toHaveBeenCalledWith(@itemKeyboardFocus)
 
     describe "on the thread view", ->
       it "should toggle the selection of the focused item", ->
         @isRootSheet = false
         @handler.onSelect()
-        expect(@dataView.selection.toggle).toHaveBeenCalledWith(@itemFocus)
+        expect(@dataSource.selection.toggle).toHaveBeenCalledWith(@itemFocus)
 
   describe "onShift", ->
     describe "on the root view", ->
@@ -96,7 +96,7 @@ describe "MultiselectListInteractionHandler", ->
 
       it "should walk selection if the select option is passed", ->
         @handler.onShift(1, select: true)
-        expect(@dataView.selection.walk).toHaveBeenCalledWith({current: @itemKeyboardFocus, next: @itemAfterKeyboardFocus})
+        expect(@dataSource.selection.walk).toHaveBeenCalledWith({current: @itemKeyboardFocus, next: @itemAfterKeyboardFocus})
 
     describe "on the thread view", ->
       beforeEach ->

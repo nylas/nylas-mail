@@ -5,7 +5,7 @@ _ = require 'underscore'
 
 module.exports =
 class MultiselectListInteractionHandler
-  constructor: (@dataView, @collection) ->
+  constructor: (@dataSource, @collection) ->
 
   cssClass: ->
     'handler-list'
@@ -20,35 +20,35 @@ class MultiselectListInteractionHandler
     Actions.setFocus({collection: @collection, item: item})
 
   onMetaClick: (item) ->
-    @dataView.selection.toggle(item)
+    @dataSource.selection.toggle(item)
     Actions.setCursorPosition({collection: @collection, item: item})
 
   onShiftClick: (item) ->
-    @dataView.selection.expandTo(item)
+    @dataSource.selection.expandTo(item)
     Actions.setCursorPosition({collection: @collection, item: item})
 
   onEnter: ->
     keyboardCursorId = FocusedContentStore.keyboardCursorId(@collection)
     if keyboardCursorId
-      item = @dataView.getById(keyboardCursorId)
+      item = @dataSource.getById(keyboardCursorId)
       Actions.setFocus({collection: @collection, item: item})
 
   onSelect: ->
     {id} = @_keyboardContext()
     return unless id
-    @dataView.selection.toggle(@dataView.getById(id))
+    @dataSource.selection.toggle(@dataSource.getById(id))
 
   onShift: (delta, options = {}) ->
     {id, action} = @_keyboardContext()
 
-    current = @dataView.getById(id)
-    index = @dataView.indexOfId(id)
-    index = Math.max(0, Math.min(index + delta, @dataView.count() - 1))
-    next = @dataView.get(index)
+    current = @dataSource.getById(id)
+    index = @dataSource.indexOfId(id)
+    index = Math.max(0, Math.min(index + delta, @dataSource.count() - 1))
+    next = @dataSource.get(index)
 
     action({collection: @collection, item: next})
     if options.select
-      @dataView.selection.walk({current, next})
+      @dataSource.selection.walk({current, next})
 
   _keyboardContext: ->
     if WorkspaceStore.topSheet().root

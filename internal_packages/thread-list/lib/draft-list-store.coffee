@@ -6,7 +6,7 @@ _ = require 'underscore'
  Actions,
  AccountStore,
  MutableQuerySubscription,
- QueryResultSetView,
+ ObservableListDataSource,
  FocusedPerspectiveStore,
  DatabaseStore} = require 'nylas-exports'
 
@@ -17,7 +17,7 @@ class DraftListStore extends NylasStore
     @subscription = new MutableQuerySubscription(@_queryForCurrentAccount(), {asResultSet: true})
     $resultSet = Rx.Observable.fromPrivateQuerySubscription('draft-list', @subscription)
 
-    @_view = new QueryResultSetView $resultSet, ({start, end}) =>
+    @_view = new ObservableListDataSource $resultSet, ({start, end}) =>
       @subscription.replaceQuery(@_queryForCurrentAccount().page(start, end))
 
   view: =>

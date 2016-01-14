@@ -29,11 +29,11 @@ Here's a quick look at standard components you can require from `nylas-component
 
 - **{RetinaImg}**: Replacement for standard `<img>` tags which automatically resolves the best version of the image for the user's display and can apply many image transforms.
 
-- **{ListTabular}**: Component for creating a list of items backed by a paginating ModelView.
+- **{ListTabular}**: Component for creating a list of items backed by a paginating ListDataSource.
 
 - **{MultiselectList}**: Component for creating a list that supports multi-selection. (Internally wraps ListTabular)
 
-- **{MultiselectActionBar}**: Component for creating a contextual toolbar that is activated when the user makes a selection on a ModelView.
+- **{MultiselectActionBar}**: Component for creating a contextual toolbar that is activated when the user makes a selection on a ListDataSource.
 
 - **{ResizableRegion}**: Component that renders it's children inside a resizable region with a draggable handle.
 

@@ -43,7 +43,7 @@ class MultiselectActionBar extends React.Component
   ###
   Public: React `props` supported by MultiselectActionBar:
 
-   - `dataStore` An instance of a {ModelView}.
+   - `dataStore` An instance of a {ListDataSource}.
    - `collection` The name of the collection. The collection name is used for the text
       that appears in the bar "1 thread selected" and is also used to find components
       in the component registry that should appear in the bar (`thread` => `thread:BulkAtion`)

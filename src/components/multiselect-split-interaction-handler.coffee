@@ -5,7 +5,7 @@ _ = require 'underscore'
 
 module.exports =
 class MultiselectSplitInteractionHandler
-  constructor: (@dataView, @collection) ->
+  constructor: (@dataSource, @collection) ->
 
   cssClass: ->
     'handler-split'
@@ -14,21 +14,21 @@ class MultiselectSplitInteractionHandler
     true
 
   shouldShowKeyboardCursor: ->
-    @dataView.selection.count() > 1
+    @dataSource.selection.count() > 1
 
   onClick: (item) ->
     Actions.setFocus({collection: @collection, item: item, usingClick: true})
-    @dataView.selection.clear()
+    @dataSource.selection.clear()
     @_checkSelectionAndFocusConsistency()
 
   onMetaClick: (item) ->
     @_turnFocusIntoSelection()
-    @dataView.selection.toggle(item)
+    @dataSource.selection.toggle(item)
     @_checkSelectionAndFocusConsistency()
 
   onShiftClick: (item) ->
     @_turnFocusIntoSelection()
-    @dataView.selection.expandTo(item)
+    @dataSource.selection.expandTo(item)
     @_checkSelectionAndFocusConsistency()
 
   onEnter: ->
@@ -40,39 +40,39 @@ class MultiselectSplitInteractionHandler
     if options.select
       @_turnFocusIntoSelection()
 
-    if @dataView.selection.count() > 0
-      selection = @dataView.selection
+    if @dataSource.selection.count() > 0
+      selection = @dataSource.selection
       keyboardId = FocusedContentStore.keyboardCursorId(@collection)
-      id = keyboardId ? @dataView.selection.top().id
+      id = keyboardId ? @dataSource.selection.top().id
       action = Actions.setCursorPosition
     else
       id = FocusedContentStore.focusedId(@collection)
       action = Actions.setFocus
 
-    current = @dataView.getById(id)
-    index = @dataView.indexOfId(id)
-    index = Math.max(0, Math.min(index + delta, @dataView.count() - 1))
-    next = @dataView.get(index)
+    current = @dataSource.getById(id)
+    index = @dataSource.indexOfId(id)
+    index = Math.max(0, Math.min(index + delta, @dataSource.count() - 1))
+    next = @dataSource.get(index)
 
     action({collection: @collection, item: next})
     if options.select
-      @dataView.selection.walk({current, next})
+      @dataSource.selection.walk({current, next})
 
     @_checkSelectionAndFocusConsistency()
 
   _turnFocusIntoSelection: ->
     focused = FocusedContentStore.focused(@collection)
     Actions.setFocus({collection: @collection, item: null})
-    @dataView.selection.add(focused)
+    @dataSource.selection.add(focused)
 
   _checkSelectionAndFocusConsistency: ->
     focused = FocusedContentStore.focused(@collection)
-    selection = @dataView.selection
+    selection = @dataSource.selection
 
     if focused and selection.count() > 0
-      @dataView.selection.add(focused)
+      @dataSource.selection.add(focused)
       Actions.setFocus({collection: @collection, item: null})
 
     if selection.count() is 1 and !focused
       Actions.setFocus({collection: @collection, item: selection.items()[0]})
-      @dataView.selection.clear()
+      @dataSource.selection.clear()
