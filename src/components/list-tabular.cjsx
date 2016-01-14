@@ -68,7 +68,7 @@ class ListTabular extends React.Component
   @displayName = 'ListTabular'
   @propTypes =
     columns: React.PropTypes.arrayOf(React.PropTypes.object).isRequired
-    dataView: React.PropTypes.object
+    dataSource: React.PropTypes.object
     itemPropsProvider: React.PropTypes.func
     itemHeight: React.PropTypes.number
     onSelect: React.PropTypes.func
@@ -93,7 +93,7 @@ class ListTabular extends React.Component
   componentDidUpdate: (prevProps, prevState) =>
     # If our view has been swapped out for an entirely different one,
     # reset our scroll position to the top.
-    if prevProps.dataView isnt @props.dataView
+    if prevProps.dataSource isnt @props.dataSource
       @refs.container.scrollTop = 0
 
     unless @updateRangeStateFiring
@@ -120,7 +120,7 @@ class ListTabular extends React.Component
     # Expand the start/end so that you can advance the keyboard cursor fast and
     # we have items to move to and then scroll to.
     rangeStart = Math.max(0, rangeStart - 2)
-    rangeEnd = Math.min(rangeEnd + 2, @props.dataView.count() + 1)
+    rangeEnd = Math.min(rangeEnd + 2, @props.dataSource.count() + 1)
 
     # Final sanity check to prevent needless work
     return if rangeStart is @state.renderedRangeStart and
@@ -128,7 +128,7 @@ class ListTabular extends React.Component
 
     @updateRangeStateFiring = true
 
-    @props.dataView.setRetainedRange
+    @props.dataSource.setRetainedRange
       start: rangeStart
       end: rangeEnd
 
@@ -138,7 +138,7 @@ class ListTabular extends React.Component
 
   render: =>
     innerStyles =
-      height: @props.dataView.count() * @props.itemHeight
+      height: @props.dataSource.count() * @props.itemHeight
 
     <ScrollRegion
       ref="container"
@@ -155,7 +155,7 @@ class ListTabular extends React.Component
     rows = []
 
     for idx in [@state.renderedRangeStart..@state.renderedRangeEnd-1]
-      item = @props.dataView.get(idx)
+      item = @props.dataSource.get(idx)
       continue unless item
 
       itemProps = {}

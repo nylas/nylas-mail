@@ -5,7 +5,7 @@ Rx = require 'rx-lite'
  DatabaseStore,
  QuerySubscription,
  QueryResultSet,
- QueryResultSetView,
+ ObservableListDataSource,
  MutableQuerySubscription} = require 'nylas-exports'
 
 PaginatingSearch = require './paginating-search'
@@ -85,7 +85,7 @@ module.exports = ThreadListViewFactory =
     search = new PaginatingSearch(terms, accountId)
     $resultSet = _flatMapJoiningMessages(search.observable())
 
-    return new QueryResultSetView $resultSet, ({start, end}) =>
+    return new ObservableListDataSource $resultSet, ({start, end}) =>
       search.setRange({start, end})
 
   viewForQuery: (query) =>
@@ -93,5 +93,5 @@ module.exports = ThreadListViewFactory =
     $resultSet = Rx.Observable.fromPrivateQuerySubscription('thread-list', subscription)
     $resultSet = _flatMapJoiningMessages($resultSet)
 
-    return new QueryResultSetView $resultSet, ({start, end}) =>
+    return new ObservableListDataSource $resultSet, ({start, end}) =>
       subscription.replaceQuery(query.clone().page(start, end))

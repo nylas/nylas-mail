@@ -69,7 +69,7 @@ class EmptyState extends React.Component
   @displayName = 'EmptyState'
   @propTypes =
     visible: React.PropTypes.bool.isRequired
-    dataView: React.PropTypes.object
+    dataSource: React.PropTypes.object
 
   constructor: (@props) ->
     @state =
@@ -85,9 +85,9 @@ class EmptyState extends React.Component
       @setState(active:true)
 
   shouldComponentUpdate: (nextProps, nextState) ->
-    # Avoid deep comparison of dataView, which is a very complex object
+    # Avoid deep comparison of dataSource, which is a very complex object
     return true if nextProps.visible isnt @props.visible
-    return true if nextProps.dataView isnt @props.dataView
+    return true if nextProps.dataSource isnt @props.dataSource
     return not _.isEqual(nextState, @state)
 
   componentWillUnmount: ->

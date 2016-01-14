@@ -16,7 +16,7 @@ MultiselectSplitInteractionHandler = require './multiselect-split-interaction-ha
 
 ###
 Public: MultiselectList wraps {ListTabular} and makes it easy to present a
-{ModelView} with selection support. It adds a checkbox column to the columns
+{ListDataSource} with selection support. It adds a checkbox column to the columns
 you provide, and also handles:
 
 - Command-clicking individual items
@@ -98,7 +98,7 @@ class MultiselectList extends React.Component
     otherProps = _.omit(@props, _.keys(@constructor.propTypes))
 
     className = @props.className
-    if @state.dataView and @state.handler
+    if @state.dataSource and @state.handler
       className += " " + @state.handler.cssClass()
 
       @itemPropsProvider ?= (item) =>
@@ -114,7 +114,7 @@ class MultiselectList extends React.Component
       if @props.emptyComponent
         emptyElement = <@props.emptyComponent
           visible={@state.loaded and @state.empty}
-          dataView={@state.dataView} />
+          dataSource={@state.dataSource} />
 
       spinnerElement = <Spinner visible={!@state.loaded and @state.empty} />
 
@@ -124,7 +124,7 @@ class MultiselectList extends React.Component
             ref="list"
             columns={@state.computedColumns}
             scrollTooltipComponent={@props.scrollTooltipComponent}
-            dataView={@state.dataView}
+            dataSource={@state.dataSource}
             itemPropsProvider={@itemPropsProvider}
             itemHeight={@props.itemHeight}
             onSelect={@_onClickItem}
@@ -157,12 +157,12 @@ class MultiselectList extends React.Component
 
   _onSelectAll: =>
     return unless @state.handler
-    items = @state.dataView.itemsCurrentlyInViewMatching -> true
-    @state.dataView.selection.set(items)
+    items = @state.dataSource.itemsCurrentlyInViewMatching -> true
+    @state.dataSource.selection.set(items)
 
   _onDeselect: =>
-    return unless @_visible() and @state.dataView
-    @state.dataView.selection.clear()
+    return unless @_visible() and @state.dataSource
+    @state.dataSource.selection.clear()
 
   _onShift: (delta, options = {}) =>
     return unless @state.handler
@@ -216,7 +216,7 @@ class MultiselectList extends React.Component
     else
       handler = new MultiselectSplitInteractionHandler(view, props.collection)
 
-    dataView: view
+    dataSource: view
     handler: handler
     columns: props.columns
     computedColumns: computedColumns

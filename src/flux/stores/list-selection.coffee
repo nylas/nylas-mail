@@ -2,10 +2,10 @@ Model = require '../models/model'
 _ = require 'underscore'
 
 module.exports =
-class ModelViewSelection
+class ListSelection
 
   constructor: (@_view, @trigger) ->
-    throw new Error("new ModelViewSelection(): You must provide a view.") unless @_view
+    throw new Error("new ListSelection(): You must provide a view.") unless @_view
     @_items = []
 
   count: ->

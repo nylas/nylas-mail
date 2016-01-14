@@ -70,7 +70,7 @@ describe "MutableQueryResultSet", ->
         'C': {id: 'C', clientId: 'C-local'},
       })
 
-  fdescribe "addIdsInRange", ->
+  describe "addIdsInRange", ->
     describe "when the set is currently empty", ->
       it "should set the result set to the provided one", ->
         @set = new MutableQueryResultSet()
