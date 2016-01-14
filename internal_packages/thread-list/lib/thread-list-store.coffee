@@ -16,52 +16,36 @@ ThreadListViewFactory = require './thread-list-view-factory'
 # to annotate logical regions in the text.
 class ThreadListStore extends NylasStore
   constructor: ->
-    @_resetInstanceVars()
-
     @listenTo FocusedPerspectiveStore, @_onPerspectiveChanged
-    @createView()
+    @createListDataSource()
 
-    # We can't create a @view on construction because the CategoryStore
-    # has hot yet been populated from the database with the list of
-    # categories and their corresponding ids. Once that is ready, the
-    # CategoryStore will trigger, which will update the
-    # FocusedPerspectiveStore, which will cause us to create a new
-    # @view.
+  dataSource: ->
+    @_dataSource
 
-  _resetInstanceVars: ->
-    @_lastQuery = null
-
-  view: ->
-    @_view
-
-  createView: ->
+  createListDataSource: ->
     mailboxPerspective = FocusedPerspectiveStore.current()
     return unless mailboxPerspective
 
-    @setView(ThreadListViewFactory.viewForPerspective(mailboxPerspective))
-    Actions.setFocus(collection: 'thread', item: null)
-
-  setView: (view) ->
-    @_viewUnlisten() if @_viewUnlisten
-    @_view = view
-    @_viewUnlisten = view.listen(@_onViewDataChanged, @)
+    @_dataSourceUnlisten() if @_dataSourceUnlisten
+    @_dataSource = ThreadListViewFactory.viewForPerspective(mailboxPerspective)
+    @_dataSourceUnlisten = @_dataSource.listen(@_onDataChanged, @)
 
     # Set up a one-time listener to focus an item in the new view
     if WorkspaceStore.layoutMode() is 'split'
-      unlisten = view.listen ->
-        if view.loaded()
-          Actions.setFocus(collection: 'thread', item: view.get(0))
+      unlisten = @_dataSource.listen =>
+        if @_dataSource.loaded()
+          Actions.setFocus(collection: 'thread', item: @_dataSource.get(0))
           unlisten()
 
     @trigger(@)
-
+    Actions.setFocus(collection: 'thread', item: null)
 
   # Inbound Events
 
   _onPerspectiveChanged: ->
-    @createView()
+    @createListDataSource()
 
-  _onViewDataChanged: ({previous, next} = {}) =>
+  _onDataChanged: ({previous, next} = {}) =>
     if previous and next
       focusedId = FocusedContentStore.focusedId('thread')
       keyboardId = FocusedContentStore.keyboardCursorId('thread')

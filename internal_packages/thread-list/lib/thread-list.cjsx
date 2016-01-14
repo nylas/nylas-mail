@@ -43,10 +43,10 @@ class ThreadList extends React.Component
     window.removeEventListener('resize', @_onResize, true)
 
   _shift: ({offset, afterRunning}) =>
-    view = ThreadListStore.view()
+    dataSource = ThreadListStore.dataSource()
     focusedId = FocusedContentStore.focusedId('thread')
-    focusedIdx = Math.min(view.count() - 1, Math.max(0, view.indexOfId(focusedId) + offset))
-    item = view.get(focusedIdx)
+    focusedIdx = Math.min(dataSource.count() - 1, Math.max(0, dataSource.indexOfId(focusedId) + offset))
+    item = dataSource.get(focusedIdx)
     afterRunning()
     Actions.setFocus(collection: 'thread', item: item)
 
@@ -116,8 +116,8 @@ class ThreadList extends React.Component
       event.preventDefault()
       return
 
-    if itemThreadId in ThreadListStore.view().selection.ids()
-      dragThreadIds = ThreadListStore.view().selection.ids()
+    if itemThreadId in ThreadListStore.dataSource().selection.ids()
+      dragThreadIds = ThreadListStore.dataSource().selection.ids()
     else
       dragThreadIds = [itemThreadId]
 
@@ -138,12 +138,12 @@ class ThreadList extends React.Component
       @setState(style: desired)
 
   _threadsForKeyboardAction: ->
-    return null unless ThreadListStore.view()
+    return null unless ThreadListStore.dataSource()
     focused = FocusedContentStore.focused('thread')
     if focused
       return [focused]
-    else if ThreadListStore.view().selection.count() > 0
-      return ThreadListStore.view().selection.items()
+    else if ThreadListStore.dataSource().selection.count() > 0
+      return ThreadListStore.dataSource().selection.items()
     else
       return null
 
@@ -209,7 +209,7 @@ class ThreadList extends React.Component
 
       task = removeMethod
         threads: threads
-        fromView: FocusedPerspectiveStore.current()
+        fromPerspective: FocusedPerspectiveStore.current()
       Actions.queueTask(task)
 
     Actions.popSheet()
@@ -220,7 +220,7 @@ class ThreadList extends React.Component
     if threads
       task = TaskFactory.taskForArchiving
         threads: threads
-        fromView: FocusedPerspectiveStore.current()
+        fromPerspective: FocusedPerspectiveStore.current()
       Actions.queueTask(task)
     Actions.popSheet()
 
@@ -230,28 +230,28 @@ class ThreadList extends React.Component
     if threads
       task = TaskFactory.taskForMovingToTrash
         threads: threads
-        fromView: FocusedPerspectiveStore.current()
+        fromPerspective: FocusedPerspectiveStore.current()
       Actions.queueTask(task)
     Actions.popSheet()
 
   _onSelectRead: =>
-    view = ThreadListStore.view()
-    items = view.itemsCurrentlyInViewMatching (item) -> not item.unread
-    view.selection.set(items)
+    dataSource = ThreadListStore.dataSource()
+    items = dataSource.itemsCurrentlyInViewMatching (item) -> not item.unread
+    dataSource.selection.set(items)
 
   _onSelectUnread: =>
-    view = ThreadListStore.view()
-    items = view.itemsCurrentlyInViewMatching (item) -> item.unread
-    view.selection.set(items)
+    dataSource = ThreadListStore.dataSource()
+    items = dataSource.itemsCurrentlyInViewMatching (item) -> item.unread
+    dataSource.selection.set(items)
 
   _onSelectStarred: =>
-    view = ThreadListStore.view()
-    items = view.itemsCurrentlyInViewMatching (item) -> item.starred
-    view.selection.set(items)
+    dataSource = ThreadListStore.dataSource()
+    items = dataSource.itemsCurrentlyInViewMatching (item) -> item.starred
+    dataSource.selection.set(items)
 
   _onSelectUnstarred: =>
-    view = ThreadListStore.view()
-    items = view.itemsCurrentlyInViewMatching (item) -> not item.starred
-    view.selection.set(items)
+    dataSource = ThreadListStore.dataSource()
+    items = dataSource.itemsCurrentlyInViewMatching (item) -> not item.starred
+    dataSource.selection.set(items)
 
 module.exports = ThreadList

@@ -27,7 +27,7 @@ class ThreadArchiveQuickAction extends React.Component
   _onArchive: (event) =>
     task = TaskFactory.taskForArchiving
       threads: [@props.thread]
-      fromView: FocusedPerspectiveStore.current()
+      fromPerspective: FocusedPerspectiveStore.current()
     Actions.queueTask(task)
 
     # Don't trigger the thread row click
@@ -56,7 +56,7 @@ class ThreadTrashQuickAction extends React.Component
   _onRemove: (event) =>
     task = TaskFactory.taskForMovingToTrash
       threads: [@props.thread]
-      fromView: FocusedPerspectiveStore.current()
+      fromPerspective: FocusedPerspectiveStore.current()
     Actions.queueTask(task)
 
     # Don't trigger the thread row click

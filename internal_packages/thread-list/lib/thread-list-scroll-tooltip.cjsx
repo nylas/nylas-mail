@@ -19,10 +19,10 @@ class ThreadListScrollTooltip extends React.Component
     @state?.idx isnt newState.idx
 
   setupForProps: (props) ->
-    idx = Math.floor(ThreadListStore.view().count() / @props.totalHeight * @props.viewportCenter)
+    idx = Math.floor(ThreadListStore.dataSource().count() / @props.totalHeight * @props.viewportCenter)
     @setState
       idx: idx
-      item: ThreadListStore.view().get(idx)
+      item: ThreadListStore.dataSource().get(idx)
 
   render: ->
     if @state.item

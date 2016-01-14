@@ -198,8 +198,8 @@ class MultiselectList extends React.Component
     state = @state ? {}
 
     layoutMode = WorkspaceStore.layoutMode()
-    view = props.dataStore?.view()
-    return {} unless view
+    dataSource = props.dataStore?.dataSource()
+    return {} unless dataSource
 
     # Do we need to re-compute columns? Don't do this unless we really have to,
     # it will cause a re-render of the entire ListTabular. To know whether our
@@ -213,19 +213,19 @@ class MultiselectList extends React.Component
       computedColumns = state.computedColumns
 
     if layoutMode is 'list'
-      handler = new MultiselectListInteractionHandler(view, props.collection)
+      handler = new MultiselectListInteractionHandler(dataSource, props.collection)
     else
-      handler = new MultiselectSplitInteractionHandler(view, props.collection)
+      handler = new MultiselectSplitInteractionHandler(dataSource, props.collection)
 
-    dataSource: view
+    dataSource: dataSource
     handler: handler
     columns: props.columns
     computedColumns: computedColumns
     layoutMode: layoutMode
-    selectedIds: view.selection.ids()
+    selectedIds: dataSource.selection.ids()
     focusedId: FocusedContentStore.focusedId(props.collection)
     keyboardCursorId: FocusedContentStore.keyboardCursorId(props.collection)
-    loaded: view.loaded()
-    empty: view.empty()
+    loaded: dataSource.loaded()
+    empty: dataSource.empty()
 
 module.exports = MultiselectList

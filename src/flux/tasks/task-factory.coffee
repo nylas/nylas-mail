@@ -8,7 +8,7 @@ CategoryStore = require '../stores/category-store'
 
 class TaskFactory
 
-  taskForApplyingCategory: ({threads, fromView, category, exclusive}) =>
+  taskForApplyingCategory: ({threads, fromPerspective, category, exclusive}) =>
     # TODO Can not apply to threads across more than one account for now
     account = AccountStore.accountForItems(threads)
     return unless account?
@@ -21,7 +21,7 @@ class TaskFactory
     else
       labelsToRemove = []
       if exclusive
-        currentLabel = CategoryStore.byId(account, fromView?.categoryId())
+        currentLabel = CategoryStore.byId(account, fromPerspective?.categoryId())
         currentLabel ?= CategoryStore.getStandardCategory(account, "inbox")
         labelsToRemove = [currentLabel]
 
@@ -30,7 +30,7 @@ class TaskFactory
         labelsToRemove: labelsToRemove
         labelsToAdd: [category]
 
-  taskForRemovingCategory: ({threads, fromView, category, exclusive}) =>
+  taskForRemovingCategory: ({threads, fromPerspective, category, exclusive}) =>
     # TODO Can not apply to threads across more than one account for now
     account = AccountStore.accountForItems(threads)
     return unless account?
@@ -42,7 +42,7 @@ class TaskFactory
     else
       labelsToAdd = []
       if exclusive
-        currentLabel = CategoryStore.byId(account, fromView?.categoryId())
+        currentLabel = CategoryStore.byId(account, fromPerspective?.categoryId())
         currentLabel ?= CategoryStore.getStandardCategory(account, "inbox")
         labelsToAdd = [currentLabel]
 
@@ -51,21 +51,21 @@ class TaskFactory
         labelsToRemove: [category]
         labelsToAdd: labelsToAdd
 
-  taskForArchiving: ({threads, fromView}) =>
+  taskForArchiving: ({threads, fromPerspective}) =>
     category = @_getArchiveCategory(threads)
-    @taskForApplyingCategory({threads, fromView, category, exclusive: true})
+    @taskForApplyingCategory({threads, fromPerspective, category, exclusive: true})
 
-  taskForUnarchiving: ({threads, fromView}) =>
+  taskForUnarchiving: ({threads, fromPerspective}) =>
     category = @_getArchiveCategory(threads)
-    @taskForRemovingCategory({threads, fromView, category, exclusive: true})
+    @taskForRemovingCategory({threads, fromPerspective, category, exclusive: true})
 
-  taskForMovingToTrash: ({threads, fromView}) =>
+  taskForMovingToTrash: ({threads, fromPerspective}) =>
     category = @_getTrashCategory(threads)
-    @taskForApplyingCategory({threads, fromView, category, exclusive: true})
+    @taskForApplyingCategory({threads, fromPerspective, category, exclusive: true})
 
-  taskForMovingFromTrash: ({threads, fromView}) =>
+  taskForMovingFromTrash: ({threads, fromPerspective}) =>
     category = @_getTrashCategory(threads)
-    @taskForRemovingCategory({threads, fromView, category, exclusive: true})
+    @taskForRemovingCategory({threads, fromPerspective, category, exclusive: true})
 
   taskForInvertingUnread: ({threads}) =>
     unread = _.every threads, (t) -> _.isMatch(t, {unread: false})

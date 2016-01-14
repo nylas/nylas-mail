@@ -30,7 +30,7 @@ class ThreadBulkArchiveButton extends React.Component
   _onArchive: =>
     task = TaskFactory.taskForArchiving
       threads: @props.selection.items(),
-      fromView: FocusedPerspectiveStore.current()
+      fromPerspective: FocusedPerspectiveStore.current()
     Actions.queueTask(task)
 
 class ThreadBulkTrashButton extends React.Component
@@ -54,7 +54,7 @@ class ThreadBulkTrashButton extends React.Component
   _onRemove: =>
     task = TaskFactory.taskForMovingToTrash
       threads: @props.selection.items(),
-      fromView: FocusedPerspectiveStore.current()
+      fromPerspective: FocusedPerspectiveStore.current()
     Actions.queueTask(task)
 
 
@@ -115,13 +115,13 @@ ThreadNavButtonMixin =
 
   isFirstThread: ->
     selectedId = FocusedContentStore.focusedId('thread')
-    ThreadListStore.view().get(0)?.id is selectedId
+    ThreadListStore.dataSource().get(0)?.id is selectedId
 
   isLastThread: ->
     selectedId = FocusedContentStore.focusedId('thread')
 
-    lastIndex = ThreadListStore.view().count() - 1
-    ThreadListStore.view().get(lastIndex)?.id is selectedId
+    lastIndex = ThreadListStore.dataSource().count() - 1
+    ThreadListStore.dataSource().get(lastIndex)?.id is selectedId
 
   componentWillUnmount: ->
     @_unsubscribe()
