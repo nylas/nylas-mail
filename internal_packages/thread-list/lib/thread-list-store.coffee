@@ -21,12 +21,6 @@ class ThreadListStore extends NylasStore
     @listenTo FocusedPerspectiveStore, @_onPerspectiveChanged
     @createView()
 
-    NylasEnv.commands.add "body",
-      'thread-list:select-read'     : @_onSelectRead
-      'thread-list:select-unread'   : @_onSelectUnread
-      'thread-list:select-starred'  : @_onSelectStarred
-      'thread-list:select-unstarred': @_onSelectUnstarred
-
     # We can't create a @view on construction because the CategoryStore
     # has hot yet been populated from the database with the list of
     # categories and their corresponding ids. Once that is ready, the
@@ -61,21 +55,6 @@ class ThreadListStore extends NylasStore
 
     @trigger(@)
 
-  _onSelectRead: =>
-    items = @_view.itemsCurrentlyInViewMatching (item) -> not item.unread
-    @_view.selection.set(items)
-
-  _onSelectUnread: =>
-    items = @_view.itemsCurrentlyInViewMatching (item) -> item.unread
-    @_view.selection.set(items)
-
-  _onSelectStarred: =>
-    items = @_view.itemsCurrentlyInViewMatching (item) -> item.starred
-    @_view.selection.set(items)
-
-  _onSelectUnstarred: =>
-    items = @_view.itemsCurrentlyInViewMatching (item) -> not item.starred
-    @_view.selection.set(items)
 
   # Inbound Events
 
