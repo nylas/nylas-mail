@@ -1,6 +1,6 @@
 React = require 'react'
 _ = require 'underscore'
-{Flexbox} = require 'nylas-component-kit'
+{Flexbox, RetinaImg} = require 'nylas-component-kit'
 PluginsActions = require './plugins-actions'
 
 class Package extends React.Component
@@ -14,6 +14,12 @@ class Package extends React.Component
   render: =>
     actions = []
     extras = []
+
+    if @props.package.icon
+      icon = <img src="nylas://#{@props.package.name}/#{@props.package.icon}" style={width:50} />
+    else
+      icon = <RetinaImg name="plugin-icon-default.png"/>
+
 
     if @props.package.installed
       if @props.package.category in ['user' ,'dev', 'example']
@@ -42,9 +48,7 @@ class Package extends React.Component
       )
 
     <Flexbox className="package" direction="row">
-      <div className="icon" style={flexShink: 0}>
-        <img src="nylas://#{@props.package.name}/#{@props.package.icon}" style={width:50} />
-      </div>
+      <div className="icon" style={flexShink: 0}>{icon}</div>
       <div className="info">
         <div className="title">{title ? name}</div>
         <div className="description">{description}</div>

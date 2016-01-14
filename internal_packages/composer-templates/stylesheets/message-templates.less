@@ -22,6 +22,7 @@
   border-radius: @border-radius-small;
   padding-top: @padding-small-vertical @padding-small-horizontal @padding-small-vertical @padding-small-horizontal;
   font-size: @font-size-small;
+  margin-bottom: 10px;
 }
 
 .compose-body,.container-templates .contenteditable {
@@ -42,6 +43,11 @@
 .container-templates {
   max-width: 640px;
 
+
+  .no-templates-message {
+    text-align: center;
+    margin-top: 50px;
+  }
 
   .template-wrap {
     position: relative;
@@ -112,7 +118,7 @@
 
   .template-name-btn {
     float: right;
-    margin: 6px;
+    margin: 0 6px;
   }
   .template-name-input {
     display: inline-block;

@@ -36,6 +36,10 @@ class EditorAPI
   currentSelection: -> @_extendedSelection
 
   whilePreservingSelection: (fn) ->
+    # We only preserve selection if the active element is actually within the
+    # contenteditable. Otherwise, we can unintentionally "steal" focus back if
+    # `whilePreservingSelection` is called by a plugin when we are not focused.
+    return fn() unless document.activeElement is @rootNode or @rootNode.contains(document.activeElement)
     sel = @currentSelection().exportSelection()
     fn()
     @select(sel)

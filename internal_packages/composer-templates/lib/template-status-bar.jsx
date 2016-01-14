@@ -32,7 +32,7 @@ class TemplateStatusBar extends React.Component {
 
   static containerStyles = {
     textAlign: 'center',
-    width: 530,
+    width: 580,
     margin: 'auto',
   }
 

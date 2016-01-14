@@ -128,7 +128,7 @@ class ComposerEditor extends Component {
     // quoted text that is visible. (as in forwarded messages.)
     //
     this.refs.contenteditable.atomicEdit( ({editor})=> {
-      const walker = document.createTreeWalker(editor.rootNode, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT);
+      const walker = document.createTreeWalker(editor.rootNode, NodeFilter.SHOW_TEXT);
       const nodesBelowUserBody = editor.rootNode.querySelectorAll('.nylas-n1-signature, .gmail_quote, blockquote');
 
       let lastNode = null;
@@ -159,6 +159,12 @@ class ComposerEditor extends Component {
         selection.removeAllRanges();
         selection.addRange(range);
       }
+    });
+  }
+
+  nativeFocus() {
+    this.refs.contenteditable.atomicEdit( ({editor})=> {
+      editor.rootNode.focus();
     });
   }
 

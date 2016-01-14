@@ -65,9 +65,11 @@ class AttachmentComponent extends React.Component
     <RetinaImg name="icon-attachment-download.png" mode={RetinaImg.Mode.ContentPreserve} />
 
   _onDragStart: (event) =>
-    path = FileDownloadStore.pathForFile(@props.file)
-    if fs.existsSync(path)
-      DownloadURL = "#{@props.file.contentType}:#{@props.file.displayName()}:file://#{path}"
+    filePath = FileDownloadStore.pathForFile(@props.file)
+    if fs.existsSync(filePath)
+      # Note: From trial and error, it appears that the second param /MUST/ be the
+      # same as the last component of the filePath URL, or the download fails.
+      DownloadURL = "#{@props.file.contentType}:#{path.basename(filePath)}:file://#{filePath}"
       event.dataTransfer.setData("DownloadURL", DownloadURL)
       event.dataTransfer.setData("text/nylas-file-url", DownloadURL)
     else

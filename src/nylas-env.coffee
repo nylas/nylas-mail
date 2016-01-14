@@ -575,7 +575,8 @@ class NylasEnvConstructor extends Model
     browserWindow = @getCurrentWindow()
     {x, y, width, height} = browserWindow.getBounds()
     maximized = browserWindow.isMaximized()
-    {x, y, width, height, maximized}
+    fullScreen = browserWindow.isFullScreen()
+    {x, y, width, height, maximized, fullScreen}
 
   # Set the dimensions of the window.
   #
@@ -627,6 +628,7 @@ class NylasEnvConstructor extends Model
       dimensions = @getDefaultWindowDimensions()
     @setWindowDimensions(dimensions)
     @maximize() if dimensions.maximized and process.platform isnt 'darwin'
+    @setFullScreen(true) if dimensions.fullScreen
 
   storeWindowDimensions: ->
     dimensions = @getWindowDimensions()
