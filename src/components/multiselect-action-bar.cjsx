@@ -108,9 +108,9 @@ class MultiselectActionBar extends React.Component
     </div>
 
   _renderActions: =>
-    return <div></div> unless @state.view
+    return <div></div> unless @state.dataSource
     <InjectedComponentSet matching={role:"#{@props.collection}:BulkAction"}
-                          exposedProps={selection: @state.view.selection, items: @state.items} />
+                          exposedProps={selection: @state.dataSource.selection, items: @state.items} />
 
   _label: =>
     if @state.items.length > 1
@@ -122,11 +122,11 @@ class MultiselectActionBar extends React.Component
 
   _getStateFromStores: (props) =>
     props ?= @props
-    view = props.dataStore.view()
-    items = view?.selection.items() ? []
+    dataSource = props.dataStore.dataSource()
+    items = dataSource?.selection.items() ? []
 
     return {
-      view: view
+      dataSource: dataSource
       items: items
     }
 
@@ -134,7 +134,7 @@ class MultiselectActionBar extends React.Component
     @setState(@_getStateFromStores())
 
   _onClearSelection: =>
-    @state.view.selection.clear()
+    @state.dataSource.selection.clear()
 
 
 module.exports = MultiselectActionBar

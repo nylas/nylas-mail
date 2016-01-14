@@ -76,7 +76,7 @@ class DraftList extends React.Component
   # Additional Commands
 
   _onRemoveFromView: =>
-    items = DraftListStore.view().selection.items()
+    items = DraftListStore.dataSource().selection.items()
     for item in items
       Actions.destroyDraft(item.clientId)
 
