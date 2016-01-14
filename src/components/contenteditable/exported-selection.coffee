@@ -9,12 +9,15 @@
 #
 class ExportedSelection
   constructor: (@rawSelection, @scopeNode) ->
-    @anchorNode = @rawSelection.anchorNode.cloneNode(true)
-    @anchorOffset = @rawSelection.anchorOffset
-    @anchorNodeIndex = DOMUtils.getNodeIndex(@scopeNode, @rawSelection.anchorNode)
-    @focusNode = @rawSelection.focusNode.cloneNode(true)
-    @focusOffset = @rawSelection.focusOffset
-    @focusNodeIndex = DOMUtils.getNodeIndex(@scopeNode, @rawSelection.focusNode)
+    @type = @rawSelection.type
+
+    unless @type is 'None'
+      @anchorNode = @rawSelection.anchorNode.cloneNode(true)
+      @anchorOffset = @rawSelection.anchorOffset
+      @anchorNodeIndex = DOMUtils.getNodeIndex(@scopeNode, @rawSelection.anchorNode)
+      @focusNode = @rawSelection.focusNode.cloneNode(true)
+      @focusOffset = @rawSelection.focusOffset
+      @focusNodeIndex = DOMUtils.getNodeIndex(@scopeNode, @rawSelection.focusNode)
     @isCollapsed = @rawSelection.isCollapsed
 
   ### Public: Tests for equality amongst exported selections
@@ -32,7 +35,10 @@ class ExportedSelection
   and `endNodeIndex` fields via the `DOMUtils.getNodeIndex` method.
   ###
   isEqual: (otherSelection) ->
-    return true if not otherSelection?
+    return false unless otherSelection
+    return false if @type isnt otherSelection.type
+
+    return true if @type is 'None' and otherSelection.type is 'None'
     return false if not otherSelection.anchorNode? or not otherSelection.focusNode?
 
     anchorIndex = DOMUtils.getNodeIndex(@scopeNode, otherSelection.anchorNode)

@@ -13,14 +13,17 @@ class NewsletterSignup extends React.Component
   constructor: (@props) ->
     @state = {status: 'Pending'}
 
+  componentWillReceiveProps: (nextProps) =>
+    @_onGetStatus(nextProps)
+
   componentDidMount: =>
     @_onGetStatus()
 
-  _onGetStatus: =>
+  _onGetStatus: (props = @props) =>
     @setState({status: 'Pending'})
     EdgehillAPI.request
       method: 'GET'
-      path: @_path()
+      path: @_path(props)
       success: (status) =>
         if status is 'Never Subscribed'
           @_onSubscribe()
@@ -49,8 +52,8 @@ class NewsletterSignup extends React.Component
       error: =>
         @setState({status: "Error"})
 
-  _path: =>
-    "/newsletter-subscription/#{encodeURIComponent(@props.emailAddress)}?name=#{encodeURIComponent(@props.name)}"
+  _path: (props = @props) =>
+    "/newsletter-subscription/#{encodeURIComponent(props.emailAddress)}?name=#{encodeURIComponent(props.name)}"
 
   render: =>
     <Flexbox direction='row' style={textAlign: 'left', height: 'auto'}>

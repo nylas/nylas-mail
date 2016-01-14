@@ -80,6 +80,7 @@ class AccountStore
       console.log JSON.stringify(json)
       throw new Error("Returned account data is invalid")
     return if @_tokens[json.id]
+    @_load()
     @_tokens[json.id] = json.auth_token
 
     account = (new Account).fromJSON(json)

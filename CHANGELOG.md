@@ -1,19 +1,35 @@
 # N1 Changelog
 
-### 0.3.38 (1/8/16)
+### 0.3.43 (1/12/16)
 
 - Features:
  + You can now enable and disable bundled plugins from Preferences > Plugins,
    and bundled plugin updates are delivered alongside N1 updates.
  + You can now adjust the interface zoom from the workspace preferences.
 
+- Development:
+ + Packages can now list a relative `icon` path in their package.json.
+
+- Composer Improvements:
+  + You can now reply inline by outdenting (pressing delete) in quoted text.
+  + The Apple Mail keyboard shortcut for send is now correct.
+  + Keyboard shortcuts are shown in the shortcuts preferences.
+  + Clicking beneath the message body now positions your cursor correctly.
+  + Tabbing to the body positions the cursor at the end of the draft reliably.
+  + Tabbing to the subject highlights it correctly.
+  + Copy & paste now preserves line breaks reliably
+  + Inserting a template into a draft will no longer remove your signature.
+
 - Fixes:
- + The Apple Mail keyboard shortcut for send is not correct.
- + Composer keyboard shortcuts are shown in the shortcuts preferences.
  + You can now unsubscribe from the N1 mailing list from the Account preferences.
  + The message actions dropdown is now left aligned.
  + Thread "Quick Actions" are now displayed in the correct order.
  + Account names can no longer overflow the preferences sidebar.
+ + On Windows, N1 restarts after installing an update.
+ + N1 now re-opens in fullscreen mode if it exited in fullscreen mode.
+ + Files with illegal filesystem characters can be dragged and dropped normally.
+ + Files with illegal filesystem characters now download and open correctly.
+ + The Event RSVP interface only appears if you are a participant on the event.
 
 
 ### 0.3.36 (1/5/16)

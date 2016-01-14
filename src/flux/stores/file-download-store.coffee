@@ -9,6 +9,7 @@ _ = require 'underscore'
 Actions = require '../actions'
 progress = require 'request-progress'
 NylasAPI = require '../nylas-api'
+RegExpUtils = require '../../regexp-utils'
 
 Promise.promisifyAll(fs)
 
@@ -127,7 +128,7 @@ FileDownloadStore = Reflux.createStore
   pathForFile: (file) ->
     return undefined unless file
 
-    filesafeName = file.displayName().replace(new RegExp(path.sep, 'g'), '-')
+    filesafeName = file.displayName().replace(RegExpUtils.illegalPathCharactersRegexp(), '-')
     path.join(@_downloadDirectory, file.id, filesafeName)
 
   downloadDataForFile: (fileId) ->

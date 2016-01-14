@@ -332,6 +332,7 @@ class ComposerView extends React.Component
       onComponentDidRender={@_onEditorBodyDidRender}
       requiredMethods={[
         'focus'
+        'nativeFocus'
         'getCurrentSelection'
         'getPreviousSelection'
         '_onDOMMutated'
@@ -493,7 +494,10 @@ class ComposerView extends React.Component
 
   _onMouseUpComposerBody: (event) =>
     if event.target is @_mouseDownTarget
-      @setState(focusedField: Fields.Body)
+      # We don't set state directly here because we want the native
+      # contenteditable focus behavior. When the contenteditable gets focused
+      # the focused field state will be properly set via editor.onFocus
+      @refs[Fields.Body].nativeFocus()
     @_mouseDownTarget = null
 
   # When a user focuses the composer, it's possible that no input is
@@ -747,6 +751,8 @@ class ComposerView extends React.Component
 
   _mentionsAttachment: (body) =>
     body = QuotedHTMLTransformer.removeQuotedHTML(body.toLowerCase().trim())
+    signatureIndex = body.indexOf('<div class="nylas-n1-signature">')
+    body = body[...signatureIndex] if signatureIndex isnt -1
     return body.indexOf("attach") >= 0
 
   _destroyDraft: =>

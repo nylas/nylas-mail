@@ -2,6 +2,8 @@ nylas: arch-dependent-file-in-usr-share
 nylas: changelog-file-missing-in-native-package
 nylas: copyright-file-contains-full-apache-2-license
 nylas: copyright-should-refer-to-common-license-file-for-apache-2
+nylas: copyright-should-refer-to-common-license-file-for-lgpl
 nylas: embedded-library
 nylas: package-installs-python-bytecode
 nylas: unstripped-binary-or-object
+nylas: extra-license-file

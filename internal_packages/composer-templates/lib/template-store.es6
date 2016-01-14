@@ -32,7 +32,7 @@ class TemplateStore extends NylasStore {
     this._registerListeners();
 
     this._templatesDir = templatesDir;
-    this._welcomeName = 'Welcome to Templates.html';
+    this._welcomeName = 'Welcome to Quick Replies.html';
     this._welcomePath = path.join(__dirname, '..', 'assets', this._welcomeName);
     this._watcher = null;
 
@@ -106,7 +106,10 @@ class TemplateStore extends NylasStore {
       DraftStore.sessionForClientId(draftClientId).then((session) => {
         const draft = session.draft();
         const draftName = name ? name : draft.subject.replace(TemplateStore.INVALID_TEMPLATE_NAME_REGEX, '');
-        const draftContents = contents ? contents : QuotedHTMLTransformer.removeQuotedHTML(draft.body);
+        let draftContents = contents ? contents : QuotedHTMLTransformer.removeQuotedHTML(draft.body);
+
+        const sigIndex = draftContents.indexOf('<div class="nylas-n1-signature">');
+        draftContents = sigIndex > -1 ? draftContents.slice(0, sigIndex) : draftContents;
         if (!draftName || draftName.length === 0) {
           this._displayError('Give your draft a subject to name your template.');
         }
@@ -147,6 +150,11 @@ class TemplateStore extends NylasStore {
   }
 
   saveNewTemplate(name, contents, callback) {
+    if (!name || name.length === 0) {
+      this._displayError('You must provide a template name.');
+      return;
+    }
+
     if (name.match(TemplateStore.INVALID_TEMPLATE_NAME_REGEX)) {
       this._displayError('Invalid template name! Names can only contain letters, numbers, spaces, dashes, and underscores.');
       return;
@@ -219,6 +227,10 @@ class TemplateStore extends NylasStore {
       this._displayError('Invalid template name! Names can only contain letters, numbers, spaces, dashes, and underscores.');
       return;
     }
+    if (newName.length === 0) {
+      this._displayError('You must provide a template name.');
+      return;
+    }
 
     const newFilename = `${newName}.html`;
     const oldPath = path.join(this._templatesDir, `${oldName}.html`);
@@ -233,7 +245,7 @@ class TemplateStore extends NylasStore {
   }
 
   _onInsertTemplateId({templateId, draftClientId} = {}) {
-    this.getTemplateContents(templateId, (body) => {
+    this.getTemplateContents(templateId, (templateBody) => {
       DraftStore.sessionForClientId(draftClientId).then((session)=> {
         let proceed = true;
         if (!session.draft().pristine) {
@@ -246,7 +258,11 @@ class TemplateStore extends NylasStore {
         }
 
         if (proceed) {
-          const draftHtml = QuotedHTMLTransformer.appendQuotedHTML(body, session.draft().body);
+          const draftContents = QuotedHTMLTransformer.removeQuotedHTML(session.draft().body);
+          const sigIndex = draftContents.indexOf('<div class="nylas-n1-signature">');
+          const signature = sigIndex > -1 ? draftContents.slice(sigIndex) : '';
+
+          const draftHtml = QuotedHTMLTransformer.appendQuotedHTML(templateBody + signature, session.draft().body);
           session.changes.add({body: draftHtml});
         }
       });

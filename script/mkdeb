@@ -50,6 +50,9 @@ cp "$TARGET/usr/share/nylas/resources/LICENSE.md" "$TARGET/usr/share/doc/nylas/c
 mkdir -m $FILE_MODE -p "$TARGET/usr/share/lintian/overrides"
 cp "$ROOT/build/resources/linux/debian/lintian-overrides" "$TARGET/usr/share/lintian/overrides/nylas"
 
+# Remove group write from all files
+chmod -R g-w "$TARGET";
+
 # Remove executable bit from .node files
 find "$TARGET" -type f -name "*.node" -exec chmod a-x {} \;
 

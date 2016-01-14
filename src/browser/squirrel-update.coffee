@@ -54,11 +54,23 @@ spawnSetx = (args, callback) ->
 spawnUpdate = (args, callback) ->
   spawn(updateDotExe, args, callback)
 
+isAscii = (text) ->
+  index = 0
+  while index < text.length
+    return false if text.charCodeAt(index) > 127
+    index++
+  true
+
 # Get the user's PATH environment variable registry value.
 getPath = (callback) ->
   spawnReg ['query', environmentKeyPath, '/v', 'Path'], (error, stdout) ->
     if error?
       if error.code is 1
+        # FIXME Don't overwrite path when reading value is disabled
+        # https://github.com/atom/atom/issues/5092
+        if stdout.indexOf('ERROR: Registry editing has been disabled by your administrator.') isnt -1
+          return callback(error)
+
         # The query failed so the Path does not exist yet in the registry
         return callback(null, '')
       else
@@ -74,9 +86,64 @@ getPath = (callback) ->
     segments = lines[lines.length - 1]?.split('    ')
     if segments[1] is 'Path' and segments.length >= 3
       pathEnv = segments?[3..].join('    ')
-      callback(null, pathEnv)
+      if isAscii(pathEnv)
+        callback(null, pathEnv)
+      else
+        # FIXME Don't corrupt non-ASCII PATH values
+        # https://github.com/atom/atom/issues/5063
+        callback(new Error('PATH contains non-ASCII values'))
     else
       callback(new Error('Registry query for PATH failed'))
+
+# Add N1 to the PATH
+#
+# This is done by adding .cmd shims to the root bin folder in the N1
+# install directory that point to the newly installed versions inside
+# the versioned app directories.
+addCommandsToPath = (callback) ->
+  installCommands = (callback) ->
+    nylasCommandPath = path.join(binFolder, 'N1.cmd')
+    relativeN1Path = path.relative(binFolder, path.join(appFolder, 'resources', 'cli', 'N1.cmd'))
+    nylasCommand = "@echo off\r\n\"%~dp0\\#{relativeN1Path}\" %*"
+
+    nylasShCommandPath = path.join(binFolder, 'N1')
+    relativeN1ShPath = path.relative(binFolder, path.join(appFolder, 'resources', 'cli', 'N1.sh'))
+    nylasShCommand = "#!/bin/sh\r\n\"$(dirname \"$0\")/#{relativeN1ShPath.replace(/\\/g, '/')}\" \"$@\""
+
+    fs.writeFile nylasCommandPath, nylasCommand, ->
+      fs.writeFile nylasShCommandPath, nylasShCommand, ->
+        callback()
+
+  addBinToPath = (pathSegments, callback) ->
+    pathSegments.push(binFolder)
+    newPathEnv = pathSegments.join(';')
+    spawnSetx(['Path', newPathEnv], callback)
+
+  installCommands (error) ->
+    return callback(error) if error?
+
+    getPath (error, pathEnv) ->
+      return callback(error) if error?
+
+      pathSegments = pathEnv.split(/;+/).filter (pathSegment) -> pathSegment
+      if pathSegments.indexOf(binFolder) is -1
+        addBinToPath(pathSegments, callback)
+      else
+        callback()
+
+# Remove N1 from the PATH
+removeCommandsFromPath = (callback) ->
+  getPath (error, pathEnv) ->
+    return callback(error) if error?
+
+    pathSegments = pathEnv.split(/;+/).filter (pathSegment) ->
+      pathSegment and pathSegment isnt binFolder
+    newPathEnv = pathSegments.join(';')
+
+    if pathEnv isnt newPathEnv
+      spawnSetx(['Path', newPathEnv], callback)
+    else
+      callback()
 
 # Create a desktop and start menu shortcut by using the command line API
 # provided by Squirrel's Update.exe
@@ -123,15 +190,18 @@ exports.handleStartupEvent = (app, squirrelCommand) ->
   switch squirrelCommand
     when '--squirrel-install'
       createShortcuts ->
-        app.quit()
+        addCommandsToPath ->
+          app.quit()
       true
     when '--squirrel-updated'
       updateShortcuts ->
-        app.quit()
+        addCommandsToPath ->
+          app.quit()
       true
     when '--squirrel-uninstall'
       removeShortcuts ->
-        app.quit()
+        removeCommandsFromPath ->
+          app.quit()
       true
     when '--squirrel-obsolete'
       app.quit()
