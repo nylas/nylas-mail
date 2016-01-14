@@ -141,7 +141,7 @@ class QuerySubscription
     rangeQuery ?= @_query
 
     DatabaseStore.run(rangeQuery, {format: false}).then (results) =>
-      @_set = null unless @_set?.range().intersects(range)
+      @_set = null unless @_set?.range().isContiguousWith(range)
       @_set ?= new MutableQueryResultSet()
 
       if entireModels
