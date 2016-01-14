@@ -37,6 +37,7 @@ class MultiselectList extends React.Component
     itemHeight: React.PropTypes.number.isRequired
     scrollTooltipComponent: React.PropTypes.func
     emptyComponent: React.PropTypes.func
+    keymapHandlers: React.PropTypes.object
     onDoubleClick: React.PropTypes.func
 
   constructor: (@props) ->
@@ -73,19 +74,21 @@ class MultiselectList extends React.Component
     @unsubscribers.push WorkspaceStore.listen @_onChange
     @unsubscribers.push FocusedContentStore.listen @_onChange
 
-  _keymapHandlers: ->
-    'core:focus-item': => @_onEnter()
-    'core:select-item': => @_onSelect()
-    'core:next-item': => @_onShift(1)
-    'core:previous-item': => @_onShift(-1)
-    'core:select-down': => @_onShift(1, {select: true})
-    'core:select-up': => @_onShift(-1, {select: true})
-    'core:list-page-up': => @_onScrollByPage(-1)
-    'core:list-page-down': => @_onScrollByPage(1)
-    'application:pop-sheet': => @_onDeselect()
-    'multiselect-list:select-all': @_onSelectAll
-    'multiselect-list:select-all': @_onSelectAll
-    'multiselect-list:deselect-all': => @_onDeselect()
+  _globalKeymapHandlers: ->
+    _.extend({}, @props.keymapHandlers, {
+      'core:focus-item': => @_onEnter()
+      'core:select-item': => @_onSelect()
+      'core:next-item': => @_onShift(1)
+      'core:previous-item': => @_onShift(-1)
+      'core:select-down': => @_onShift(1, {select: true})
+      'core:select-up': => @_onShift(-1, {select: true})
+      'core:list-page-up': => @_onScrollByPage(-1)
+      'core:list-page-down': => @_onScrollByPage(1)
+      'application:pop-sheet': => @_onDeselect()
+      'multiselect-list:select-all': @_onSelectAll
+      'multiselect-list:select-all': @_onSelectAll
+      'multiselect-list:deselect-all': => @_onDeselect()
+    })
 
   render: =>
     # IMPORTANT: DO NOT pass inline functions as props. _.isEqual thinks these
@@ -116,9 +119,7 @@ class MultiselectList extends React.Component
           visible={@state.loaded and @state.empty}
           dataSource={@state.dataSource} />
 
-      spinnerElement = <Spinner visible={!@state.loaded and @state.empty} />
-
-      <KeyCommandsRegion globalHandlers={@_keymapHandlers()} className="multiselect-list">
+      <KeyCommandsRegion globalHandlers={@_globalKeymapHandlers()} className="multiselect-list">
         <div className={className} {...otherProps}>
           <ListTabular
             ref="list"
@@ -129,7 +130,7 @@ class MultiselectList extends React.Component
             itemHeight={@props.itemHeight}
             onSelect={@_onClickItem}
             onDoubleClick={@props.onDoubleClick} />
-          {spinnerElement}
+          <Spinner visible={!@state.loaded and @state.empty} />
           {emptyElement}
         </div>
       </KeyCommandsRegion>
