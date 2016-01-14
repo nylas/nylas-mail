@@ -4,8 +4,8 @@ class QueryRange
 
   @rangeWithUnion: (a, b) ->
     return QueryRange.infinite() if a.isInfinite() or b.isInfinite()
-    if not a.intersects(b)
-      throw new Error('You cannot union ranges which do not overlap.')
+    if not a.isContiguousWith(b)
+      throw new Error('You cannot union ranges which do not touch or intersect.')
 
     new QueryRange
       start: Math.min(a.start, b.start)
@@ -48,7 +48,9 @@ class QueryRange
   isEqual: (b) ->
     return @start is b.start and @end is b.end
 
-  intersects: (b) ->
+  # Returns true if joining the two ranges would not result in empty space.
+  # ie: they intersect or touch
+  isContiguousWith: (b) ->
     return true if @isInfinite() or b.isInfinite()
     return @start <= b.start <= @end or @start <= b.end <= @end
 

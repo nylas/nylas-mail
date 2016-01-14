@@ -70,7 +70,7 @@ describe "MutableQueryResultSet", ->
         'C': {id: 'C', clientId: 'C-local'},
       })
 
-  describe "addIdsInRange", ->
+  fdescribe "addIdsInRange", ->
     describe "when the set is currently empty", ->
       it "should set the result set to the provided one", ->
         @set = new MutableQueryResultSet()
@@ -101,10 +101,13 @@ describe "MutableQueryResultSet", ->
           @set.addIdsInRange(['0', '1', '2'], new QueryRange(offset: 2, limit: 3))
         .not.toThrow()
 
-      it "should throw an exception if the range provided and the ids provided are different lengths", ->
-        expect =>
-          @set.addIdsInRange(['F', 'G', 'H'], new QueryRange(offset: 10, limit: 5))
-        .toThrow()
+      it "should work if the IDs array is shorter than the result range they represent (addition)", ->
+        @set.addIdsInRange(['F', 'G', 'H'], new QueryRange(offset: 10, limit: 5))
+        expect(@set.ids()).toEqual(['A','B','C','D','E', 'F', 'G', 'H'])
+
+      it "should work if the IDs array is shorter than the result range they represent (replacement)", ->
+        @set.addIdsInRange(['A', 'B', 'C'], new QueryRange(offset: 5, limit: 5))
+        expect(@set.ids()).toEqual(['A','B','C'])
 
       it "should correctly add ids (trailing) and update the offset", ->
         @set.addIdsInRange(['F', 'G', 'H'], new QueryRange(offset: 10, limit: 3))

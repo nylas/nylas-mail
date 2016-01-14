@@ -53,7 +53,7 @@ class MutableQueryResultSet extends QueryResultSet
         existingBefore = @_ids.slice(0, range.offset - @_offset)
 
       existingAfter = []
-      if currentEnd > rangeIdsEnd
+      if rangeIds.length is range.limit and currentEnd > rangeIdsEnd
         existingAfter = @_ids.slice(rangeIdsEnd - @_offset)
 
       @_ids = [].concat(existingBefore, rangeIds, existingAfter)
