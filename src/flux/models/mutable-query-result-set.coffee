@@ -21,8 +21,11 @@ class MutableQueryResultSet extends QueryResultSet
     if range.offset > @_offset
       @_ids = @_ids.slice(range.offset - @_offset)
       @_offset = range.offset
-    if range.limit < @_ids.length
-      @_ids.length = Math.max(0, range.limit)
+
+    rangeEnd = range.offset + range.limit
+    selfEnd = @_offset + @_ids.length
+    if (rangeEnd < selfEnd)
+      @_ids.length = Math.max(0, rangeEnd - @_offset)
 
     models = @models()
     @_modelsHash = {}
@@ -37,15 +40,27 @@ class MutableQueryResultSet extends QueryResultSet
       @_ids = rangeIds
       @_offset = range.offset
     else
-      if range.end < @_offset - 1
-        throw new Error("You can only add adjacent values (#{range.end} < #{@_offset - 1})")
-      if range.offset > @_offset + @_ids.length
-        throw new Error("You can only add adjacent values (#{range.offset} > #{@_offset + @_ids.length})")
+      currentEnd = @_offset + @_ids.length
+      rangeIdsEnd = range.offset + rangeIds.length
 
-      @_ids = [].concat(@_ids.slice(0, Math.max(range.offset - @_offset, 0)), rangeIds, @_ids.slice(Math.max(range.end - @_offset, 0)))
+      if rangeIdsEnd < @_offset
+        throw new Error("addIdsInRange: You can only add adjacent values (#{rangeIdsEnd} < #{@_offset})")
+      if range.offset > currentEnd
+        throw new Error("addIdsInRange: You can only add adjacent values (#{range.offset} > #{currentEnd})")
+
+      existingBefore = []
+      if range.offset > @_offset
+        existingBefore = @_ids.slice(0, range.offset - @_offset)
+
+      existingAfter = []
+      if currentEnd > rangeIdsEnd
+        existingAfter = @_ids.slice(rangeIdsEnd - @_offset)
+
+      @_ids = [].concat(existingBefore, rangeIds, existingAfter)
       @_offset = Math.min(@_offset, range.offset)
 
   replaceModel: (item) ->
+    return unless item
     @_modelsHash[item.clientId] = item
     @_modelsHash[item.id] = item
 
