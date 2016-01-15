@@ -1,20 +1,18 @@
 _ = require 'underscore'
 Rx = require 'rx-lite'
 
-{NylasAPI,
- Thread,
- MutableQuerySubscription,
- DatabaseStore} = require 'nylas-exports'
+NylasAPI = require './flux/nylas-api'
+DatabaseStore = require './flux/stores/database-store'
+Thread = require './flux/models/thread'
+MutableQuerySubscription = require './flux/models/mutable-query-subscription'
 
-class PaginatingSearch
+class SearchSubscription extends MutableQuerySubscription
 
   constructor: (@_terms, @_accountId) ->
-    @_version = 0
-    @subscription = new MutableQuerySubscription(null, {asResultSet: true})
-    _.defer => @retrievePage(0)
+    super(null, {asResultSet: true})
 
-  observable: =>
-    Rx.Observable.fromPrivateQuerySubscription('search-results', @subscription)
+    @_version = 0
+    _.defer => @retrievePage(0)
 
   terms: =>
     @_terms
@@ -24,7 +22,7 @@ class PaginatingSearch
     @_version += 1
     @retrievePage(0)
 
-  setRange: (range) =>
+  replaceRange: (range) =>
     @retrievePage(Math.floor(range.start / 100))
 
   # Accessing Data
@@ -41,6 +39,6 @@ class PaginatingSearch
     .then (threads) =>
       return unless @_version is version
       query = DatabaseStore.findAll(Thread).where(id: _.pluck(threads, 'id'))
-      @subscription.replaceQuery(query)
+      @replaceQuery(query)
 
-module.exports = PaginatingSearch
+module.exports = SearchSubscription

@@ -10,7 +10,7 @@ NylasStore = require 'nylas-store'
  TaskQueueStatusStore,
  FocusedPerspectiveStore} = require 'nylas-exports'
 
-ThreadListViewFactory = require './thread-list-view-factory'
+ThreadListDataSource = require './thread-list-data-source'
 
 # Public: A mutable text container with undo/redo support and the ability
 # to annotate logical regions in the text.
@@ -19,15 +19,14 @@ class ThreadListStore extends NylasStore
     @listenTo FocusedPerspectiveStore, @_onPerspectiveChanged
     @createListDataSource()
 
-  dataSource: ->
+  dataSource: =>
     @_dataSource
 
-  createListDataSource: ->
+  createListDataSource: =>
     mailboxPerspective = FocusedPerspectiveStore.current()
-    return unless mailboxPerspective
+    @_dataSource = new ThreadListDataSource(mailboxPerspective.threads())
 
-    @_dataSourceUnlisten() if @_dataSourceUnlisten
-    @_dataSource = ThreadListViewFactory.viewForPerspective(mailboxPerspective)
+    @_dataSourceUnlisten?()
     @_dataSourceUnlisten = @_dataSource.listen(@_onDataChanged, @)
 
     # Set up a one-time listener to focus an item in the new view
@@ -42,7 +41,7 @@ class ThreadListStore extends NylasStore
 
   # Inbound Events
 
-  _onPerspectiveChanged: ->
+  _onPerspectiveChanged: =>
     @createListDataSource()
 
   _onDataChanged: ({previous, next} = {}) =>

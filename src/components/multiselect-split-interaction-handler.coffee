@@ -1,11 +1,11 @@
 _ = require 'underscore'
 {Actions,
- WorkspaceStore,
- FocusedContentStore} = require 'nylas-exports'
+ WorkspaceStore} = require 'nylas-exports'
 
 module.exports =
 class MultiselectSplitInteractionHandler
-  constructor: (@dataSource, @collection) ->
+  constructor: (@props) ->
+    {@onFocusItem, @onSetCursorPosition} = @props
 
   cssClass: ->
     'handler-split'
@@ -13,22 +13,25 @@ class MultiselectSplitInteractionHandler
   shouldShowFocus: ->
     true
 
+  shouldShowCheckmarks: ->
+    false
+
   shouldShowKeyboardCursor: ->
-    @dataSource.selection.count() > 1
+    @props.dataSource.selection.count() > 1
 
   onClick: (item) ->
-    Actions.setFocus({collection: @collection, item: item, usingClick: true})
-    @dataSource.selection.clear()
+    @onFocusItem(item)
+    @props.dataSource.selection.clear()
     @_checkSelectionAndFocusConsistency()
 
   onMetaClick: (item) ->
     @_turnFocusIntoSelection()
-    @dataSource.selection.toggle(item)
+    @props.dataSource.selection.toggle(item)
     @_checkSelectionAndFocusConsistency()
 
   onShiftClick: (item) ->
     @_turnFocusIntoSelection()
-    @dataSource.selection.expandTo(item)
+    @props.dataSource.selection.expandTo(item)
     @_checkSelectionAndFocusConsistency()
 
   onEnter: ->
@@ -40,39 +43,39 @@ class MultiselectSplitInteractionHandler
     if options.select
       @_turnFocusIntoSelection()
 
-    if @dataSource.selection.count() > 0
-      selection = @dataSource.selection
-      keyboardId = FocusedContentStore.keyboardCursorId(@collection)
-      id = keyboardId ? @dataSource.selection.top().id
-      action = Actions.setCursorPosition
+    if @props.dataSource.selection.count() > 0
+      selection = @props.dataSource.selection
+      keyboardId = @props.keyboardCursorId
+      id = keyboardId ? @props.dataSource.selection.top().id
+      action = @onSetCursorPosition
     else
-      id = FocusedContentStore.focusedId(@collection)
-      action = Actions.setFocus
+      id = @props.focusedId
+      action = @onFocusItem
 
-    current = @dataSource.getById(id)
-    index = @dataSource.indexOfId(id)
-    index = Math.max(0, Math.min(index + delta, @dataSource.count() - 1))
-    next = @dataSource.get(index)
+    current = @props.dataSource.getById(id)
+    index = @props.dataSource.indexOfId(id)
+    index = Math.max(0, Math.min(index + delta, @props.dataSource.count() - 1))
+    next = @props.dataSource.get(index)
 
-    action({collection: @collection, item: next})
+    action(next)
     if options.select
-      @dataSource.selection.walk({current, next})
+      @props.dataSource.selection.walk({current, next})
 
     @_checkSelectionAndFocusConsistency()
 
   _turnFocusIntoSelection: ->
-    focused = FocusedContentStore.focused(@collection)
-    Actions.setFocus({collection: @collection, item: null})
-    @dataSource.selection.add(focused)
+    focused = @props.focused
+    @onFocusItem(null)
+    @props.dataSource.selection.add(focused)
 
   _checkSelectionAndFocusConsistency: ->
-    focused = FocusedContentStore.focused(@collection)
-    selection = @dataSource.selection
+    focused = @props.focused
+    selection = @props.dataSource.selection
 
     if focused and selection.count() > 0
-      @dataSource.selection.add(focused)
-      Actions.setFocus({collection: @collection, item: null})
+      @props.dataSource.selection.add(focused)
+      @onFocusItem(null)
 
     if selection.count() is 1 and !focused
-      Actions.setFocus({collection: @collection, item: selection.items()[0]})
-      @dataSource.selection.clear()
+      @onFocusItem(selection.items()[0])
+      @props.dataSource.selection.clear()

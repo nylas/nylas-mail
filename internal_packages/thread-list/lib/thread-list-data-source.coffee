@@ -1,14 +1,11 @@
+_ = require 'underscore'
 Rx = require 'rx-lite'
-{Thread,
- Message,
- AccountStore,
- DatabaseStore,
- QuerySubscription,
- QueryResultSet,
- ObservableListDataSource,
- MutableQuerySubscription} = require 'nylas-exports'
 
-PaginatingSearch = require './paginating-search'
+{ObservableListDataSource,
+ DatabaseStore,
+ Message,
+ QueryResultSet,
+ QuerySubscription} = require 'nylas-exports'
 
 _flatMapJoiningMessages = ($threadsResultSet) =>
   # DatabaseView leverages `QuerySubscription` for threads /and/ for the
@@ -69,29 +66,10 @@ _observableForThreadMessages = (id, initialModels) ->
   Rx.Observable.fromPrivateQuerySubscription('message-'+id, subscription)
 
 
-module.exports = ThreadListViewFactory =
-  viewForPerspective: (mailboxPerspective) =>
-    if mailboxPerspective.searchQuery
-      ThreadListViewFactory.viewForSearch(mailboxPerspective.searchQuery, mailboxPerspective.account?.id)
-    else
-      matchers = []
-      if mailboxPerspective.account
-        matchers.push Thread.attributes.accountId.equal(mailboxPerspective.account.id)
-      matchers = matchers.concat(mailboxPerspective.matchers())
-      query = DatabaseStore.findAll(Thread).where(matchers).limit(0)
-      ThreadListViewFactory.viewForQuery(query)
+class ThreadListDataSource extends ObservableListDataSource
+  constructor: (subscription) ->
+    $resultSetObservable = Rx.Observable.fromPrivateQuerySubscription('thread-list', subscription)
+    $resultSetObservable = _flatMapJoiningMessages($resultSetObservable)
+    super($resultSetObservable, subscription.replaceRange)
 
-  viewForSearch: (terms, accountId) =>
-    search = new PaginatingSearch(terms, accountId)
-    $resultSet = _flatMapJoiningMessages(search.observable())
-
-    return new ObservableListDataSource $resultSet, ({start, end}) =>
-      search.setRange({start, end})
-
-  viewForQuery: (query) =>
-    subscription = new MutableQuerySubscription(query, {asResultSet: true})
-    $resultSet = Rx.Observable.fromPrivateQuerySubscription('thread-list', subscription)
-    $resultSet = _flatMapJoiningMessages($resultSet)
-
-    return new ObservableListDataSource $resultSet, ({start, end}) =>
-      subscription.replaceQuery(query.clone().page(start, end))
+module.exports = ThreadListDataSource

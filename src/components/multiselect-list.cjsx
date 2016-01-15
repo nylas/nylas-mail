@@ -6,7 +6,6 @@ Spinner = require './spinner'
 {Actions,
  Utils,
  WorkspaceStore,
- FocusedContentStore,
  AccountStore} = require 'nylas-exports'
 {KeyCommandsRegion} = require 'nylas-component-kit'
 EventEmitter = require('events').EventEmitter
@@ -29,10 +28,9 @@ class MultiselectList extends React.Component
   @displayName = 'MultiselectList'
 
   @propTypes =
+    dataSource: React.PropTypes.object.isRequired
     className: React.PropTypes.string.isRequired
-    collection: React.PropTypes.string.isRequired
     columns: React.PropTypes.array.isRequired
-    dataStore: React.PropTypes.object.isRequired
     itemPropsProvider: React.PropTypes.func.isRequired
     itemHeight: React.PropTypes.number.isRequired
     scrollTooltipComponent: React.PropTypes.func
@@ -53,8 +51,8 @@ class MultiselectList extends React.Component
     @setState(@_getStateFromStores(newProps))
 
   componentDidUpdate: (prevProps, prevState) =>
-    if prevState.focusedId isnt @state.focusedId or
-       prevState.keyboardCursorId isnt @state.keyboardCursorId
+    if prevProps.focusedId isnt @props.focusedId or
+       prevProps.keyboardCursorId isnt @props.keyboardCursorId
 
       item = React.findDOMNode(@).querySelector(".focused")
       item ?= React.findDOMNode(@).querySelector(".keyboard-cursor")
@@ -70,9 +68,7 @@ class MultiselectList extends React.Component
 
   setupForProps: (props) =>
     @unsubscribers = []
-    @unsubscribers.push props.dataStore.listen @_onChange
     @unsubscribers.push WorkspaceStore.listen @_onChange
-    @unsubscribers.push FocusedContentStore.listen @_onChange
 
   _globalKeymapHandlers: ->
     _.extend({}, @props.keymapHandlers, {
@@ -85,8 +81,7 @@ class MultiselectList extends React.Component
       'core:list-page-up': => @_onScrollByPage(-1)
       'core:list-page-down': => @_onScrollByPage(1)
       'application:pop-sheet': => @_onDeselect()
-      'multiselect-list:select-all': @_onSelectAll
-      'multiselect-list:select-all': @_onSelectAll
+      'multiselect-list:select-all': => @_onSelectAll()
       'multiselect-list:deselect-all': => @_onDeselect()
     })
 
@@ -101,7 +96,7 @@ class MultiselectList extends React.Component
     otherProps = _.omit(@props, _.keys(@constructor.propTypes))
 
     className = @props.className
-    if @state.dataSource and @state.handler
+    if @props.dataSource and @state.handler
       className += " " + @state.handler.cssClass()
 
       @itemPropsProvider ?= (item) =>
@@ -109,15 +104,16 @@ class MultiselectList extends React.Component
         props.className ?= ''
         props.className += " " + classNames
           'selected': item.id in @state.selectedIds
-          'focused': @state.handler.shouldShowFocus() and item.id is @state.focusedId
-          'keyboard-cursor': @state.handler.shouldShowKeyboardCursor() and item.id is @state.keyboardCursorId
+          'focused': @state.handler.shouldShowFocus() and item.id is @props.focusedId
+          'keyboard-cursor': @state.handler.shouldShowKeyboardCursor() and item.id is @props.keyboardCursorId
+        props['data-item-id'] = item.id
         props
 
       emptyElement = []
       if @props.emptyComponent
         emptyElement = <@props.emptyComponent
           visible={@state.loaded and @state.empty}
-          dataSource={@state.dataSource} />
+          dataSource={@props.dataSource} />
 
       <KeyCommandsRegion globalHandlers={@_globalKeymapHandlers()} className="multiselect-list">
         <div className={className} {...otherProps}>
@@ -125,11 +121,12 @@ class MultiselectList extends React.Component
             ref="list"
             columns={@state.computedColumns}
             scrollTooltipComponent={@props.scrollTooltipComponent}
-            dataSource={@state.dataSource}
+            dataSource={@props.dataSource}
             itemPropsProvider={@itemPropsProvider}
             itemHeight={@props.itemHeight}
             onSelect={@_onClickItem}
             onDoubleClick={@props.onDoubleClick} />
+
           <Spinner visible={!@state.loaded and @state.empty} />
           {emptyElement}
         </div>
@@ -159,11 +156,11 @@ class MultiselectList extends React.Component
   _onSelectAll: =>
     return unless @state.handler
     items = @state.dataSource.itemsCurrentlyInViewMatching -> true
-    @state.dataSource.selection.set(items)
+    @props.dataSource.selection.set(items)
 
   _onDeselect: =>
-    return unless @_visible() and @state.dataSource
-    @state.dataSource.selection.clear()
+    return unless @_visible() and @props.dataSource
+    @props.dataSource.selection.clear()
 
   _onShift: (delta, options = {}) =>
     return unless @state.handler
@@ -198,8 +195,6 @@ class MultiselectList extends React.Component
     state = @state ? {}
 
     layoutMode = WorkspaceStore.layoutMode()
-    dataSource = props.dataStore?.dataSource()
-    return {} unless dataSource
 
     # Do we need to re-compute columns? Don't do this unless we really have to,
     # it will cause a re-render of the entire ListTabular. To know whether our
@@ -213,19 +208,23 @@ class MultiselectList extends React.Component
       computedColumns = state.computedColumns
 
     if layoutMode is 'list'
-      handler = new MultiselectListInteractionHandler(dataSource, props.collection)
+      handler = new MultiselectListInteractionHandler(props)
     else
-      handler = new MultiselectSplitInteractionHandler(dataSource, props.collection)
+      handler = new MultiselectSplitInteractionHandler(props)
 
-    dataSource: dataSource
     handler: handler
     columns: props.columns
     computedColumns: computedColumns
     layoutMode: layoutMode
-    selectedIds: dataSource.selection.ids()
-    focusedId: FocusedContentStore.focusedId(props.collection)
-    keyboardCursorId: FocusedContentStore.keyboardCursorId(props.collection)
-    loaded: dataSource.loaded()
-    empty: dataSource.empty()
+    selectedIds: props.dataSource.selection.ids()
+    loaded: props.dataSource.loaded()
+    empty: props.dataSource.empty()
+
+  # Public Methods
+
+  itemIdAtPoint: (x, y) ->
+    item = document.elementFromPoint(event.clientX, event.clientY).closest('.list-item')
+    return null unless item
+    return item.dataset.itemId
 
 module.exports = MultiselectList

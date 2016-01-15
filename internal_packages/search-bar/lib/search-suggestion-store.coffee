@@ -6,6 +6,7 @@ NylasStore = require 'nylas-store'
  DatabaseStore,
  AccountStore,
  FocusedPerspectiveStore,
+ MailboxPerspective,
  ContactStore} = require 'nylas-exports'
 
 SearchActions = require './search-actions'
@@ -18,7 +19,7 @@ SearchActions = require './search-actions'
 class SearchSuggestionStore extends NylasStore
 
   constructor: ->
-    @_query = ""
+    @_searchQuery = ""
     @_clearResults()
 
     @listenTo FocusedPerspectiveStore, @_onPerspectiveChanged
@@ -26,25 +27,25 @@ class SearchSuggestionStore extends NylasStore
     @listenTo SearchActions.queryChanged, @_onQueryChanged
     @listenTo SearchActions.searchBlurred, @_onSearchBlurred
 
-  _onPerspectiveChanged: ->
-    @_query = FocusedPerspectiveStore.current()?.searchQuery ? ""
+  _onPerspectiveChanged: =>
+    @_searchQuery = FocusedPerspectiveStore.current()?.searchQuery ? ""
     @trigger()
 
-  _onQueryChanged: (query) ->
-    @_query = query
+  _onQueryChanged: (query) =>
+    @_searchQuery = query
     @trigger()
     _.defer => @_rebuildResults()
 
-  _onQuerySubmitted: (query) ->
-    @_query = query
+  _onQuerySubmitted: (query) =>
+    @_searchQuery = query
     perspective = FocusedPerspectiveStore.current()
     account = perspective.account
 
-    if @_query.trim().length > 0
+    if @_searchQuery.trim().length > 0
       @_perspectiveBeforeSearch ?= perspective
-      Actions.focusMailboxPerspective(MailboxPerspective.forSearch(account, @_query))
+      Actions.focusMailboxPerspective(MailboxPerspective.forSearch(account, @_searchQuery))
 
-    else if @_query.trim().length is 0
+    else if @_searchQuery.trim().length is 0
       if @_perspectiveBeforeSearch
         Actions.focusMailboxPerspective(@_perspectiveBeforeSearch)
         @_perspectiveBeforeSearch = null
@@ -53,55 +54,58 @@ class SearchSuggestionStore extends NylasStore
 
     @_clearResults()
 
-  _onSearchBlurred: ->
+  _onSearchBlurred: =>
     @_clearResults()
 
-  _clearResults: ->
+  _clearResults: =>
     @_threadResults = null
     @_contactResults = null
     @_suggestions = []
     @trigger()
 
-  _rebuildResults: ->
-    {key, val} = @queryKeyAndVal()
-    return @_clearResults() unless key and val
+  _rebuildResults: =>
+    return @_clearResults() unless @_searchQuery
 
-    ContactStore.searchContacts(val, accountId: @_account.id, limit:10).then (results) =>
+    account = FocusedPerspectiveStore.current().account
+    ContactStore.searchContacts(@_searchQuery, accountId: account.id, limit:10).then (results) =>
       @_contactResults = results
       @_rebuildThreadResults()
       @_compileSuggestions()
 
-  _rebuildThreadResults: ->
-    {key, val} = @queryKeyAndVal()
-    return @_threadResults = [] unless val
+  _rebuildThreadResults: =>
+    return @_threadResults = [] unless @_searchQuery
+
+    terms = @_searchQuery
+    account = FocusedPerspectiveStore.current().account
 
     # Don't update thread results if a previous query is still running, it'll
     # just make performance even worse. When the old result comes in, re-run
     return if @_threadQueryInFlight
 
+    databaseQuery = DatabaseStore.findAll(Thread)
+      .where(Thread.attributes.subject.like(terms))
+      .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
+      .limit(4)
+
+    if account
+      databaseQuery.where(Thread.attributes.accountId.equal(account.id))
+
     @_threadQueryInFlight = true
-    DatabaseStore.findAll(Thread)
-    .where(Thread.attributes.subject.like(val))
-    # TODO This account check should be removed with the unified search refactor
-    .where(Thread.attributes.accountId.equal(@_account.id))
-    .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
-    .limit(4)
-    .then (results) =>
+    databaseQuery.then (results) =>
       @_threadQueryInFlight = false
-      if val is @queryKeyAndVal().val
+      if terms is @_searchQuery
         @_threadResults = results
         @_compileSuggestions()
       else
         @_rebuildThreadResults()
 
-  _compileSuggestions: ->
-    {key, val} = @queryKeyAndVal()
-    return unless key and val
+  _compileSuggestions: =>
+    return unless @_searchQuery
 
     @_suggestions = []
     @_suggestions.push
-      label: "Message Contains: #{val}"
-      value: [{"all": val}]
+      label: "Message Contains: #{@_searchQuery}"
+      value: @_searchQuery
 
     if @_threadResults?.length
       @_suggestions.push
@@ -115,14 +119,14 @@ class SearchSuggestionStore extends NylasStore
       _.each @_contactResults, (contact) =>
         @_suggestions.push
           contact: contact
-          value: [{"all": contact.email}]
+          value: contact.email
 
     @trigger()
 
   # Exposed Data
 
-  query: -> @_query
+  query: => @_searchQuery
 
-  suggestions: -> @_suggestions
+  suggestions: => @_suggestions
 
 module.exports = new SearchSuggestionStore()

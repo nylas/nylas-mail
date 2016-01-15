@@ -5,6 +5,7 @@ WorkspaceStore = require './workspace-store'
 DatabaseStore = require './database-store'
 Actions = require '../actions'
 Thread = require '../models/thread'
+Model = require '../models/model'
 
 {Listener, Publisher} = require '../modules/reflux-coffee'
 CoffeeHelpers = require '../coffee-helpers'
@@ -82,6 +83,7 @@ class FocusedContentStore
     @trigger({ impactsCollection: -> true })
 
   _onFocusKeyboard: ({collection, item}) =>
+    throw new Error("focusKeyboard() requires a Model or null") if item and not (item instanceof Model)
     throw new Error("focusKeyboard() requires a collection") unless collection
     return if @_keyboardCursor[collection]?.id is item?.id
 
@@ -89,6 +91,7 @@ class FocusedContentStore
     @triggerAfterAnimationFrame({ impactsCollection: (c) -> c is collection })
 
   _onFocus: ({collection, item, usingClick}) =>
+    throw new Error("focus() requires a Model or null") if item and not (item instanceof Model)
     throw new Error("focus() requires a collection") unless collection
     return if @_focused[collection]?.id is item?.id
 
