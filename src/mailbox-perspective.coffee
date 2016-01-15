@@ -2,6 +2,9 @@ _ = require 'underscore'
 
 AccountStore = require './flux/stores/account-store'
 CategoryStore = require './flux/stores/category-store'
+DatabaseStore = require './flux/stores/database-store'
+SearchSubscription = require './search-subscription'
+MutableQuerySubscription = require './flux/models/mutable-query-subscription'
 CategoryHelpers = require './category-helpers'
 Thread = require './flux/models/thread'
 Actions = require './flux/actions'
@@ -27,6 +30,14 @@ class MailboxPerspective
 
   @unified: ->
     new UnifiedMailboxPerspective()
+
+  threads: ->
+    matchers = []
+    if @account
+      matchers.push Thread.attributes.accountId.equal(@account.id)
+    matchers = matchers.concat(@matchers())
+    query = DatabaseStore.findAll(Thread).where(matchers).limit(0)
+    return new MutableQuerySubscription(query, {asResultSet: true})
 
   # Instance Methods
 
@@ -94,6 +105,9 @@ class SearchMailboxPerspective extends MailboxPerspective
 
   categoryId: ->
     null
+
+  threads: ->
+    new SearchSubscription(@searchQuery, @account?.id)
 
 class AllMailboxPerspective extends MailboxPerspective
   constructor: (@account) ->
@@ -194,7 +208,6 @@ class CategoryMailboxPerspective extends MailboxPerspective
         folder: @category
 
     Actions.queueTask(task)
-
 
 class UnifiedMailboxPerspective extends MailboxPerspective
 

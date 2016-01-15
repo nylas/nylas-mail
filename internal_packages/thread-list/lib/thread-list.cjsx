@@ -2,9 +2,7 @@ _ = require 'underscore'
 React = require 'react'
 classNames = require 'classnames'
 
-{ListTabular,
- MultiselectList,
- KeyCommandsRegion} = require 'nylas-component-kit'
+{MultiselectList, FluxContainer} = require 'nylas-component-kit'
 
 {Actions,
  Thread,
@@ -20,6 +18,7 @@ classNames = require 'classnames'
 ThreadListColumns = require './thread-list-columns'
 ThreadListScrollTooltip = require './thread-list-scroll-tooltip'
 ThreadListStore = require './thread-list-store'
+FocusContainer = require './focus-container'
 EmptyState = require './empty-state'
 
 
@@ -55,10 +54,10 @@ class ThreadList extends React.Component
     'application:archive-item': @_onArchiveItem
     'application:delete-item': @_onDeleteItem
     'application:star-item': @_onStarItem
-    'application:mark-important': @_onMarkImportantItem
-    'application:mark-unimportant': @_onMarkUnimportantItem
-    'application:mark-as-unread': @_onMarkUnreadItem
-    'application:mark-as-read': @_onMarkReadItem
+    'application:mark-important': => @_onSetImportant(true)
+    'application:mark-unimportant': => @_onSetImportant(false)
+    'application:mark-as-unread': => @_onSetUnread(true)
+    'application:mark-as-read': => @_onSetUnread(false)
     'application:remove-and-previous': =>
       @_shift(offset: 1, afterRunning: @_onRemoveFromView)
     'application:remove-and-next': =>
@@ -70,48 +69,39 @@ class ThreadList extends React.Component
 
   render: ->
     if @state.style is 'wide'
-      <MultiselectList
-        dataStore={ThreadListStore}
-        columns={ThreadListColumns.Wide}
-        itemPropsProvider={@_threadPropsProvider}
-        itemHeight={39}
-        className="thread-list"
-        scrollTooltipComponent={ThreadListScrollTooltip}
-        emptyComponent={EmptyState}
-        keymapHandlers={@_keymapHandlers()}
-        onDragStart={@_onDragStart}
-        onDragEnd={@_onDragEnd}
-        draggable="true"
-        collection="thread" />
-    else if @state.style is 'narrow'
-      <MultiselectList
-        dataStore={ThreadListStore}
-        columns={ThreadListColumns.Narrow}
-        itemPropsProvider={@_threadPropsProvider}
-        itemHeight={90}
-        className="thread-list thread-list-narrow"
-        scrollTooltipComponent={ThreadListScrollTooltip}
-        emptyComponent={EmptyState}
-        keymapHandlers={@_keymapHandlers()}
-        onDragStart={@_onDragStart}
-        onDragEnd={@_onDragEnd}
-        draggable="true"
-        collection="thread" />
+      columns = ThreadListColumns.Wide
+      itemHeight = 39
     else
-      <div></div>
+      columns = ThreadListColumns.Narrow
+      itemHeight = 90
 
-  _threadIdAtPoint: (x, y) ->
-    item = document.elementFromPoint(event.clientX, event.clientY).closest('.list-item')
-    return null unless item
-    return item.dataset.threadId
+    <FluxContainer
+      stores=[ThreadListStore]
+      getStateFromStores={ ->
+        dataSource: ThreadListStore.dataSource()
+      }>
+      <FocusContainer collection="thread">
+        <MultiselectList
+          ref="list"
+          columns={columns}
+          itemPropsProvider={@_threadPropsProvider}
+          itemHeight={itemHeight}
+          className="thread-list thread-list-#{@state.style}"
+          scrollTooltipComponent={ThreadListScrollTooltip}
+          emptyComponent={EmptyState}
+          keymapHandlers={@_keymapHandlers()}
+          onDragStart={@_onDragStart}
+          onDragEnd={@_onDragEnd}
+          draggable="true" />
+      </FocusContainer>
+    </FluxContainer>
 
   _threadPropsProvider: (item) ->
     className: classNames
       'unread': item.unread
-    'data-thread-id': item.id
 
   _onDragStart: (event) =>
-    itemThreadId = @_threadIdAtPoint(event.clientX, event.clientY)
+    itemThreadId = @refs.list.itemIdAtPoint(event.clientX, event.clientY)
     unless itemThreadId
       event.preventDefault()
       return
@@ -153,13 +143,7 @@ class ThreadList extends React.Component
     task = TaskFactory.taskForInvertingStarred({threads})
     Actions.queueTask(task)
 
-  _onMarkImportantItem: =>
-    @_setImportant(true)
-
-  _onMarkUnimportantItem: =>
-    @_setImportant(false)
-
-  _setImportant: (important) =>
+  _onSetImportant: (important) =>
     threads = @_threadsForKeyboardAction()
     return unless threads
 
@@ -177,13 +161,7 @@ class ThreadList extends React.Component
 
     Actions.queueTask(task)
 
-  _onMarkReadItem: =>
-    @_setUnread(false)
-
-  _onMarkUnreadItem: =>
-    @_setUnread(true)
-
-  _setUnread: (unread) =>
+  _onSetUnread: (unread) =>
     threads = @_threadsForKeyboardAction()
     return unless threads
     task = new ChangeUnreadTask

@@ -11,6 +11,7 @@ Actions = require '../actions'
 class FocusedPerspectiveStore extends NylasStore
   constructor: ->
     @_current = @_defaultPerspective()
+
     @listenTo CategoryStore, @_onCategoryStoreChanged
     @listenTo AccountStore, @_onAccountStoreChanged
 
