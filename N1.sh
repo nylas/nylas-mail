@@ -22,5 +22,5 @@ if [ ! -e "$ELECTRON_PATH" ]; then
   exit 1
 fi
 
-$ELECTRON_PATH --executed-from="$(pwd)" --pid=$$ "$@" $N1_PATH
+$ELECTRON_PATH --executed-from="$(pwd)" --pid=$$ $N1_PATH "$@"
 exit $?
