@@ -1,4 +1,5 @@
 React = require 'react'
+_ = require 'underscore'
 {ipcRenderer, dialog, remote} = require 'electron'
 {RetinaImg} = require 'nylas-component-kit'
 {EdgehillAPI, NylasAPI, APIError, Actions} = require 'nylas-exports'
@@ -88,12 +89,59 @@ class AccountSettingsPage extends React.Component
       settings[field] = event.target.checked
     else
       settings[field] = formatter(event.target.value)
+
+    setting_field = _.find(@state.provider.settings, ((e) -> return e['name'] == field))
+
+    # If the field defines an isValid method, try to validate
+    # the input.
+    if setting_field?.isValid?
+      if not setting_field.isValid(event.target.value)
+        errorFields = _.uniq(@state.errorFieldNames.concat Array(field))
+        @setState({errorFieldNames: errorFields})
+      else
+        errorFields = _.uniq((x for x in @state.errorFieldNames when x != field))
+        @setState({errorFieldNames: errorFields})
+
     @setState({settings})
+
+  _noFormErrors: =>
+    allFields = @state.provider.fields.concat(@state.provider.settings || [])
+    fieldsOnThisPage = allFields.filter(@_fieldOnCurrentPage)
+    fieldNames = _.pluck(fieldsOnThisPage, 'name')
+    return _.intersection(fieldNames, @state.errorFieldNames).length == 0
+
+  _fieldRequired: (f) =>
+    return f?.required == true
+
+  _allRequiredFieldsFilled: =>
+    allFields = @state.provider.fields.concat(@state.provider.settings || [])
+    requiredFields = allFields.filter(@_fieldOnCurrentPage).filter(@_fieldRequired)
+    fields = _.extend(@state.fields, @state.settings)
+
+    for field in requiredFields
+      fieldName = field['name']
+      if not (fieldName of fields) or fields[fieldName] == ''
+        return false
+
+    return true
 
   _onValueChanged: (event) =>
     field = event.target.dataset.field
     fields = @state.fields
     fields[field] = event.target.value
+
+    provider_field = _.find(@state.provider.fields, ((e) -> return e['name'] == field))
+
+    # If the field defines an isValid method, try to validate
+    # the input.
+    if provider_field?.isValid?
+      if not provider_field.isValid(event.target.value)
+        errorFields = _.uniq(@state.errorFieldNames.concat [field])
+        @setState({errorFieldNames: errorFields})
+      else
+        errorFields = _.uniq((x for x in @state.errorFieldNames when x != field))
+        @setState({errorFieldNames: errorFields})
+
     @setState({fields})
 
   _onFieldKeyPress: (event) =>
@@ -180,14 +228,23 @@ class AccountSettingsPage extends React.Component
   _renderButton: =>
     pages = @state.provider.pages || []
     if pages.length > @state.pageNumber+1
-      <button className="btn btn-large btn-gradient" type="button" onClick={@_onNextButton}>Continue</button>
+      # We're not on the last page.
+      if @_noFormErrors() and @_allRequiredFieldsFilled()
+        <button className="btn btn-large btn-gradient" type="button" onClick={@_onNextButton}>Continue</button>
+      else
+        # Disable the "Continue" button if the fields haven't been filled correctly.
+        <button className="btn btn-large btn-gradient btn-disabled" type="button">Continue</button>
     else if @state.provider.name isnt 'gmail'
       if @state.tryingToAuthenticate
         <button className="btn btn-large btn-disabled btn-add-account-spinning" type="button">
           <RetinaImg name="sending-spinner.gif" width={15} height={15} mode={RetinaImg.Mode.ContentPreserve} /> Adding account&hellip;
         </button>
       else
-        <button className="btn btn-large btn-gradient btn-add-account" type="button" onClick={@_onSubmit}>Add account</button>
+        if @_noFormErrors() and @_allRequiredFieldsFilled()
+          <button className="btn btn-large btn-gradient btn-add-account" type="button" onClick={@_onSubmit}>Add account</button>
+        else
+          # Disable the "Add Account" button if the fields haven't been filled correctly.
+          <button className="btn btn-large btn-gradient btn-add-account btn-disabled" type="button">Add account</button>
 
   _onNextButton: (event) =>
     @setState(pageNumber: @state.pageNumber + 1)
