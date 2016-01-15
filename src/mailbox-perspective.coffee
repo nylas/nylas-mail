@@ -16,41 +16,36 @@ class MailboxPerspective
 
   # Factory Methods
 
-  @forCategory: (account, category) ->
-    new CategoryMailboxPerspective(account, category)
+  @forCategory: (accountIds, category) ->
+    new CategoryMailboxPerspective([category])
 
-  @forStarred: (account) ->
-    new StarredMailboxPerspective(account)
+  @forCategories: (accountIds, categories) ->
+    new CategoryMailboxPerspective(categories)
 
-  @forSearch: (account, query) ->
-    new SearchMailboxPerspective(account, query)
+  @forStarred: (accountIds) ->
+    new StarredMailboxPerspective(accountIds)
 
-  @forAll: (account) ->
-    new AllMailboxPerspective(account)
+  @forSearch: (accountIds, query) ->
+    new SearchMailboxPerspective(accountIds, query)
 
-  @unified: ->
-    new UnifiedMailboxPerspective()
+  @forAll: (accountIds) ->
+    new AllMailboxPerspective(accountIds)
 
   threads: ->
-    matchers = []
-    if @account
-      matchers.push Thread.attributes.accountId.equal(@account.id)
-    matchers = matchers.concat(@matchers())
+    matchers = [@matchers()]
+    matchers.push Thread.attributes.accountId.in(@accountIds) if @accountIds
+
     query = DatabaseStore.findAll(Thread).where(matchers).limit(0)
     return new MutableQuerySubscription(query, {asResultSet: true})
 
   # Instance Methods
 
-  constructor: (@account) ->
-
-  hasSameAccount: (other) ->
-    return true if (@account ? null) is (other.account ? null)
-    return @account?.id is other?.account?.id
+  constructor: (@accountIds) ->
 
   isEqual: (other) ->
     return false unless other and @constructor.name is other.constructor.name
-    return false if other.name isnt @name
-    return false unless @hasSameAccount(other)
+    return false unless other.name is @name
+    return false unless _.isEqual(@accountIds, other.accountIds)
 
     matchers = @matchers() ? []
     otherMatchers = other.matchers() ? []
@@ -77,15 +72,17 @@ class MailboxPerspective
   # Whether or not the current MailboxPerspective can "archive" or "trash"
   # Subclasses should call `super` if they override these methods
   canArchiveThreads: ->
-    return false unless CategoryStore.getArchiveCategory(@account)
+    for aid in @accountIds
+      return false unless CategoryStore.getArchiveCategory(AccountStore.accountForId(aid))
     return true
 
   canTrashThreads: ->
-    return false unless CategoryStore.getTrashCategory(@account)
+    for aid in @accountIds
+      return false unless CategoryStore.getTrashCategory(AccountStore.accountForId(aid))
     return true
 
 class SearchMailboxPerspective extends MailboxPerspective
-  constructor: (@account, @searchQuery) ->
+  constructor: (@accountIds, @searchQuery) ->
     @
 
   isEqual: (other) ->
@@ -103,20 +100,20 @@ class SearchMailboxPerspective extends MailboxPerspective
   canTrashThreads: ->
     false
 
-  categoryId: ->
+  categoryIds: ->
     null
 
   threads: ->
-    new SearchSubscription(@searchQuery, @account?.id)
+    new SearchSubscription(@searchQuery, @accountIds)
 
 class AllMailboxPerspective extends MailboxPerspective
-  constructor: (@account) ->
+  constructor: (@accountIds) ->
     @name = "All"
     @iconName = "all-mail.png"
     @
 
   matchers: ->
-    [Thread.attributes.accountId.equal(@account.id)]
+    [Thread.attributes.accountId.in(@accountIds)]
 
   canApplyToThreads: ->
     true
@@ -127,12 +124,13 @@ class AllMailboxPerspective extends MailboxPerspective
   canTrashThreads: ->
     false
 
-  categoryId: ->
-    CategoryStore.getStandardCategory(@account, "all")?.id
+  categoryIds: ->
+    @accountIds.map (aid) ->
+      CategoryStore.getStandardCategory(AccountStore.accountForId(aid), "all")?.id
 
 
 class StarredMailboxPerspective extends MailboxPerspective
-  constructor: (@account) ->
+  constructor: (@accountIds) ->
     @name = "Starred"
     @iconName = "starred.png"
     @
@@ -140,7 +138,7 @@ class StarredMailboxPerspective extends MailboxPerspective
   matchers: ->
     [Thread.attributes.starred.equal(true)]
 
-  categoryId: ->
+  categoryIds: ->
     null
 
   canApplyToThreads: ->
@@ -153,71 +151,68 @@ class StarredMailboxPerspective extends MailboxPerspective
 
 
 class CategoryMailboxPerspective extends MailboxPerspective
-  constructor: (@account, @category) ->
-    unless @category
-      throw new Error("CategoryMailboxPerspective: You msut provide a category")
+  constructor: (@categories) ->
+    unless @categories instanceof Array
+      throw new Error("CategoryMailboxPerspective: You must provide a `categories` array")
 
-    @name = @category.displayName
+    @accountIds = _.uniq(_.pluck(@categories, 'accountId'))
 
-    if @category.name
-      @iconName = "#{@category.name}.png"
+    # Note: We pick the display name and icon assuming that you won't create a
+    # perspective with Inbox and Sent or anything crazy like that... todo?
+    @name = @categories[0].displayName
+    if @category[0].name
+      @iconName = "#{@category[0].name}.png"
     else
-      @iconName = CategoryHelpers.categoryIconName(@account)
+      @iconName = CategoryHelpers.categoryIconName(@accountIds[0])
 
     @
 
   matchers: =>
-    matchers = []
-    return matchers unless @account?
-    if @account.usesLabels()
-      matchers.push Thread.attributes.labels.contains(@category.id)
-    else if @account.usesFolders()
-      matchers.push Thread.attributes.folders.contains(@category.id)
+    matchers.push Thread.attributes.labels.containsAny(@categoryIds())
     matchers
 
-  categoryId: ->
-    @category.id
+  categoryIds: ->
+    _.pluck(@categories, 'id')
 
   canApplyToThreads: ->
-    not (@category.isLockedCategory())
+    not _.any @categories, (c) -> c.isLockedCategory()
 
   canArchiveThreads: ->
-    return false if @category.name in ["archive", "all", "sent"]
+    for cat in @categories
+      return false if cat.name in ["archive", "all", "sent"]
     super
 
   canTrashThreads: ->
-    return false if @category.name in ["trash"]
+    for cat in @categories
+      return false if cat.name in ["trash"]
     super
 
   applyToThreads: (threadsOrIds) ->
-    if @account.usesLabels()
-      FocusedPerspectiveStore = require './flux/stores/focused-perspective-store'
-      currentLabel = FocusedPerspectiveStore.current().category
-      if currentLabel and not (currentLabel.isLockedCategory())
-        labelsToRemove = [currentLabel]
+    # TODO:
+    # categoryToApplyForAccount = {}
+    # for cat in @categories
+    #   categoryToApplyForAccount[cat.accountId] = cat
+    #
+    # @categories.forEach (cat) ->
+    #
+    # if @account.usesLabels()
+    #   FocusedPerspectiveStore = require './flux/stores/focused-perspective-store'
+    #   currentLabel = FocusedPerspectiveStore.current().category
+    #   if currentLabel and not (currentLabel.isLockedCategory())
+    #     labelsToRemove = [currentLabel]
+    #
+    #   ChangeLabelsTask = require './flux/tasks/change-labels-task'
+    #   task = new ChangeLabelsTask
+    #     threads: threadsOrIds
+    #     labelsToAdd: [@category]
+    #     labelsToRemove: labelsToRemove
+    # else
+    #   ChangeFolderTask = require './flux/tasks/change-folder-task'
+    #   task = new ChangeFolderTask
+    #     threads: threadsOrIds
+    #     folder: @category
+    #
+    # Actions.queueTask(task)
 
-      ChangeLabelsTask = require './flux/tasks/change-labels-task'
-      task = new ChangeLabelsTask
-        threads: threadsOrIds
-        labelsToAdd: [@category]
-        labelsToRemove: labelsToRemove
-    else
-      ChangeFolderTask = require './flux/tasks/change-folder-task'
-      task = new ChangeFolderTask
-        threads: threadsOrIds
-        folder: @category
-
-    Actions.queueTask(task)
-
-class UnifiedMailboxPerspective extends MailboxPerspective
-
-  categoryId: ->
-    null
-
-  matchers: ->
-    []
-
-  canApplyToThreads: ->
-    false
 
 module.exports = MailboxPerspective
