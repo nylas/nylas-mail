@@ -1,5 +1,5 @@
 {
-  "name": "phishing",
+  "name": "phishing-detection",
   "version": "0.2.1",
   "main": "./lib/main",
   "license": "GPL-3.0",
