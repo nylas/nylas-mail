@@ -24,20 +24,20 @@ describe "FocusedPerspectiveStore", ->
         FocusedPerspectiveStore._perspective = null
         FocusedPerspectiveStore._onCategoryStoreChanged()
         expect(FocusedPerspectiveStore.current()).not.toBe(null)
-        expect(FocusedPerspectiveStore.current().categoryId()).toEqual(@inboxCategory.id)
+        expect(FocusedPerspectiveStore.current().category().id).toEqual(@inboxCategory.id)
 
       it "should set the current category to Inbox when the current category no longer exists in the CategoryStore", ->
         otherAccountInbox = @inboxCategory.clone()
         otherAccountInbox.serverId = 'other-id'
         FocusedPerspectiveStore._perspective = MailboxPerspective.forCategory(@account, otherAccountInbox)
         FocusedPerspectiveStore._onCategoryStoreChanged()
-        expect(FocusedPerspectiveStore.current().categoryId()).toEqual(@inboxCategory.id)
+        expect(FocusedPerspectiveStore.current().category().id).toEqual(@inboxCategory.id)
 
     describe "_onFocusPerspective", ->
       it "should focus the category and trigger when Actions.focusCategory is called", ->
         FocusedPerspectiveStore._onFocusPerspective(@userFilter)
         expect(FocusedPerspectiveStore.trigger).toHaveBeenCalled()
-        expect(FocusedPerspectiveStore.current().categoryId()).toEqual(@userCategory.id)
+        expect(FocusedPerspectiveStore.current().category().id).toEqual(@userCategory.id)
 
       it "should do nothing if the category is already focused", ->
         FocusedPerspectiveStore._onFocusPerspective(@inboxFilter)

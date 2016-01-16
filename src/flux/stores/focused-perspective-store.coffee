@@ -32,8 +32,9 @@ class FocusedPerspectiveStore extends NylasStore
       @_setPerspective(@_defaultPerspective())
     else
       account = @_current.account
-      catId   = @_current.categoryId()
-      if catId and not CategoryStore.byId(account, catId)
+      catId   = @_current.category()?.id
+      currentCategoryWasDeleted = catId and not CategoryStore.byId(account, catId)
+      if currentCategoryWasDeleted
         @_setPerspective(@_defaultPerspective(account))
 
   _onFocusPerspective: (perspective) =>

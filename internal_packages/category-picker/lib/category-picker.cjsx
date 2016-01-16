@@ -313,7 +313,7 @@ class CategoryPicker extends React.Component
 
   _isUserFacing: (allInInbox, category) =>
     hiddenCategories = []
-    currentCategoryId = FocusedPerspectiveStore.current()?.categoryId()
+    currentCategoryId = FocusedPerspectiveStore.current()?.category()?.id
 
     if @_account?.usesLabels()
       hiddenCategories = ["all", "drafts", "sent", "archive", "starred", "important"]

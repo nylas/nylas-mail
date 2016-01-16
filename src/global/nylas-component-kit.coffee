@@ -33,6 +33,8 @@ class NylasComponentKit
   @load "ConfigPropContainer", "config-prop-container"
   @load "DisclosureTriangle", "disclosure-triangle"
   @load "EditableList", "editable-list"
+  @load "OutlineViewItem", "outline-view-item"
+  @load "OutlineView", "outline-view"
 
   @load "ScrollRegion", 'scroll-region'
   @load "ResizableRegion", 'resizable-region'
