@@ -1,6 +1,5 @@
 _ = require 'underscore'
 
-AccountStore = require './flux/stores/account-store'
 CategoryStore = require './flux/stores/category-store'
 DatabaseStore = require './flux/stores/database-store'
 SearchSubscription = require './search-subscription'
@@ -62,8 +61,8 @@ class MailboxPerspective
 
     true
 
-  categoryId: ->
-    throw new Error("categoryId: Not implemented in base class.")
+  category: ->
+    throw new Error("category: Not implemented in base class.")
 
   matchers: ->
     throw new Error("matchers: Not implemented in base class.")
@@ -84,6 +83,7 @@ class MailboxPerspective
     return false unless CategoryStore.getTrashCategory(@account)
     return true
 
+
 class SearchMailboxPerspective extends MailboxPerspective
   constructor: (@account, @searchQuery) ->
     @
@@ -103,7 +103,7 @@ class SearchMailboxPerspective extends MailboxPerspective
   canTrashThreads: ->
     false
 
-  categoryId: ->
+  category: ->
     null
 
   threads: ->
@@ -114,6 +114,9 @@ class AllMailboxPerspective extends MailboxPerspective
     @name = "All"
     @iconName = "all-mail.png"
     @
+
+  category: ->
+    CategoryStore.getStandardCategory(@account, "all")
 
   matchers: ->
     [Thread.attributes.accountId.equal(@account.id)]
@@ -127,9 +130,6 @@ class AllMailboxPerspective extends MailboxPerspective
   canTrashThreads: ->
     false
 
-  categoryId: ->
-    CategoryStore.getStandardCategory(@account, "all")?.id
-
 
 class StarredMailboxPerspective extends MailboxPerspective
   constructor: (@account) ->
@@ -137,11 +137,11 @@ class StarredMailboxPerspective extends MailboxPerspective
     @iconName = "starred.png"
     @
 
+  category: ->
+    null
+
   matchers: ->
     [Thread.attributes.starred.equal(true)]
-
-  categoryId: ->
-    null
 
   canApplyToThreads: ->
     true
@@ -153,40 +153,40 @@ class StarredMailboxPerspective extends MailboxPerspective
 
 
 class CategoryMailboxPerspective extends MailboxPerspective
-  constructor: (@account, @category) ->
-    unless @category
+  constructor: (@account, @_category) ->
+    unless @_category
       throw new Error("CategoryMailboxPerspective: You msut provide a category")
 
-    @name = @category.displayName
+    @name = @_category.displayName
 
-    if @category.name
-      @iconName = "#{@category.name}.png"
+    if @_category.name
+      @iconName = "#{@_category.name}.png"
     else
       @iconName = CategoryHelpers.categoryIconName(@account)
 
     @
 
+  category: ->
+    @_category
+
   matchers: =>
     matchers = []
     return matchers unless @account?
     if @account.usesLabels()
-      matchers.push Thread.attributes.labels.contains(@category.id)
+      matchers.push Thread.attributes.labels.contains(@_category.id)
     else if @account.usesFolders()
-      matchers.push Thread.attributes.folders.contains(@category.id)
+      matchers.push Thread.attributes.folders.contains(@_category.id)
     matchers
 
-  categoryId: ->
-    @category.id
-
   canApplyToThreads: ->
-    not (@category.isLockedCategory())
+    not (@_category.isLockedCategory())
 
   canArchiveThreads: ->
-    return false if @category.name in ["archive", "all", "sent"]
+    return false if @_category.name in ["archive", "all", "sent"]
     super
 
   canTrashThreads: ->
-    return false if @category.name in ["trash"]
+    return false if @_category.name in ["trash"]
     super
 
   applyToThreads: (threadsOrIds) ->
@@ -199,19 +199,25 @@ class CategoryMailboxPerspective extends MailboxPerspective
       ChangeLabelsTask = require './flux/tasks/change-labels-task'
       task = new ChangeLabelsTask
         threads: threadsOrIds
-        labelsToAdd: [@category]
+        labelsToAdd: [@_category]
         labelsToRemove: labelsToRemove
     else
       ChangeFolderTask = require './flux/tasks/change-folder-task'
       task = new ChangeFolderTask
         threads: threadsOrIds
-        folder: @category
+        folder: @_category
 
     Actions.queueTask(task)
 
 class UnifiedMailboxPerspective extends MailboxPerspective
 
-  categoryId: ->
+  constructor: ->
+    @name = 'All Accounts'
+    # TODO change
+    @iconName = 'folder.png'
+    @
+
+  category: ->
     null
 
   matchers: ->
