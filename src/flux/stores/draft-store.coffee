@@ -370,7 +370,7 @@ class DraftStore
 
   _onPopoutBlankDraft: =>
     # TODO Remove this when we add account selector inside composer
-    account = FocusedPerspectiveStore.current()?.account
+    account = FocusedPerspectiveStore.current().account
     account ?= AccountStore.accounts()[0]
 
     draft = new Message
@@ -408,7 +408,7 @@ class DraftStore
 
   _onHandleMailtoLink: (event, urlString) =>
     # TODO Remove this when we add account selector inside composer
-    account = FocusedPerspectiveStore.current()?.account
+    account = FocusedPerspectiveStore.current().account
     account ?= AccountStore.accounts()[0]
 
     try

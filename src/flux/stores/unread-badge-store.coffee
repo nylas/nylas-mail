@@ -25,7 +25,7 @@ class UnreadBadgeStore extends NylasStore
     @_count
 
   _updateCount: =>
-    account = FocusedPerspectiveStore.current()?.account
+    account = FocusedPerspectiveStore.current().account
     category = CategoryStore.getStandardCategory(account, 'inbox')
     if category
       count = ThreadCountsStore.unreadCountForCategoryId(category.id) ? 0
