@@ -103,18 +103,13 @@ class Thread extends Model
       ['CREATE INDEX IF NOT EXISTS ThreadListIndex ON Thread(account_id, last_message_received_timestamp DESC, id)']
 
   fromJSON: (json) ->
-    if json['labels']
-      @_jsonCategoryType = 'labels'
-    else
-      @_jsonCategoryType = 'folders'
-    json['categories'] = json[@_jsonCategoryType]
     super(json)
 
-  toJSON: (options) ->
-    json = super(options)
-    json[@_jsonCategoryType] = json['categories']
-    delete json['categories']
-    json
+    value = json['labels'] ? json['folders']
+    if value and not @categories
+      @categories = @constructor.attributes.categories.fromJSON(value)
+
+    @
 
   # Public: Returns true if the thread has a {Category} with the given
   # name. Note, only catgories of type `Category.Types.Standard` have valid
@@ -122,15 +117,7 @@ class Thread extends Model
   #
   # * `id` A {String} {Category} name
   #
-  categoryNamed: (name) ->
-    return null unless name
-    for folder in (@folders ? [])
-      return folder if folder.name is name
-    for label in (@labels ? [])
-      return label if label.name is name
-    return null
-  labelNamed: (name) -> @categoryNamed(name)?
-  folderNamed: (name) -> @categoryNamed(name)?
+  categoryNamed: (name) -> return _.findWhere(@categories, {name})
 
   sortedLabels: ->
     return [] unless @labels
