@@ -45,6 +45,7 @@ class ModelQuery
     @_database || = require '../stores/database-store'
     @_matchers = []
     @_orders = []
+    @_distinct = false
     @_range = QueryRange.infinite()
     @_returnOne = false
     @_returnIds = false
@@ -57,10 +58,15 @@ class ModelQuery
     q._orders = [].concat(@_orders)
     q._includeJoinedData = [].concat(@_includeJoinedData)
     q._range = @_range.clone()
+    q._distinct = @_distinct
     q._returnOne = @_returnOne
     q._returnIds = @_returnIds
     q._count = @_count
     q
+
+  distinct: ->
+    @_distinct = true
+    @
 
   # Public: Add one or more where clauses to the query
   #
@@ -74,6 +80,8 @@ class ModelQuery
     if matchers instanceof Matcher
       @_matchers.push(matchers)
     else if matchers instanceof Array
+      for m in matchers
+        throw new Error("You must provide instances of `Matcher`") unless m instanceof Matcher
       @_matchers = @_matchers.concat(matchers)
     else if matchers instanceof Object
       # Support a shorthand format of {id: '123', accountId: '123'}
@@ -250,7 +258,9 @@ class ModelQuery
       limit = ""
     if @_range.offset?
       limit += " OFFSET #{@_range.offset}"
-    "SELECT #{result} FROM `#{@_klass.name}` #{@_whereClause()} #{order} #{limit}"
+
+    distinct = if @_distinct then ' DISTINCT' else ''
+    "SELECT#{distinct} #{result} FROM `#{@_klass.name}` #{@_whereClause()} #{order} #{limit}"
 
   _whereClause: ->
     joins = []

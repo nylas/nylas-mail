@@ -74,4 +74,9 @@ class AttributeCollection extends Attribute
     throw (new Error "AttributeCollection::contains (#{@modelKey}) - this field cannot be queried against.") unless @queryable
     new Matcher(@, 'contains', val)
 
+  containsAny: (vals) ->
+    throw (new Error "AttributeCollection::contains (#{@modelKey}) - you must provide a value") unless vals?
+    throw (new Error "AttributeCollection::contains (#{@modelKey}) - this field cannot be queried against.") unless @queryable
+    new Matcher(@, 'containsAny', vals)
+
 module.exports = AttributeCollection

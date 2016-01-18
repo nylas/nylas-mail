@@ -27,7 +27,7 @@ class AccountSidebarStore extends NylasStore
 
   constructor: ->
     @_sections = {}
-    @_account = FocusedPerspectiveStore.current()?.account
+    @_account = AccountStore.accounts()[0]#.current()?.account
     @_registerListeners()
     @_updateAccountsSection()
     @_updateSections()

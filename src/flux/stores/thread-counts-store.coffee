@@ -7,8 +7,7 @@ AccountStore = require './account-store'
 DatabaseStore = require './database-store'
 Actions = require '../actions'
 Thread = require '../models/thread'
-Folder = require '../models/folder'
-Label = require '../models/label'
+Category = require '../models/category'
 WindowBridge = require '../../window-bridge'
 
 JSONBlobKey = 'UnreadCounts-V2'
@@ -19,15 +18,12 @@ class CategoryDatabaseMutationObserver
   beforeDatabaseChange: (query, {type, objects, objectIds, objectClass}) =>
     if objectClass is Thread.name
       idString = "'" + objectIds.join("','") +  "'"
-      Promise.props
-        labelData: query("SELECT `Thread`.id as id, `Thread-Label`.`value` as catId FROM `Thread` INNER JOIN `Thread-Label` ON `Thread`.`id` = `Thread-Label`.`id` WHERE `Thread`.id IN (#{idString}) AND `Thread`.unread = 1", [])
-        folderData: query("SELECT `Thread`.id as id, `Thread-Folder`.`value` as catId FROM `Thread` INNER JOIN `Thread-Folder` ON `Thread`.`id` = `Thread-Folder`.`id` WHERE `Thread`.id IN (#{idString}) AND `Thread`.unread = 1", [])
-      .then ({labelData, folderData}) =>
+      query("SELECT `Thread`.id as id, `Thread-Category`.`value` as catId FROM `Thread` INNER JOIN `Thread-Category` ON `Thread`.`id` = `Thread-Category`.`id` WHERE `Thread`.id IN (#{idString}) AND `Thread`.unread = 1", [])
+      .then (categoryData) =>
         categories = {}
-        for collection in [labelData, folderData]
-          for {id, catId} in collection
-            categories[catId] ?= 0
-            categories[catId] -= 1
+        for {id, catId} in categoryData
+          categories[catId] ?= 0
+          categories[catId] -= 1
         Promise.resolve({categories})
     else
       Promise.resolve()
@@ -68,11 +64,8 @@ class ThreadCountsStore extends NylasStore
 
     if NylasEnv.isWorkWindow()
       DatabaseStore.findJSONBlob(JSONBlobKey).then(@_onCountsBlobRead)
-      Rx.Observable.combineLatest(
-        Rx.Observable.fromQuery(DatabaseStore.findAll(Label)),
-        Rx.Observable.fromQuery(DatabaseStore.findAll(Folder))
-      ).subscribe ([labels, folders]) =>
-        @_categories = [].concat(labels, folders)
+      Rx.Observable.fromQuery(DatabaseStore.findAll(Category)).subscribe (categories) =>
+        @_categories = [].concat(categories)
         @_fetchCountsMissing()
 
     else
@@ -137,17 +130,10 @@ class ThreadCountsStore extends NylasStore
     @trigger()
 
   _fetchCountForCategory: (cat) =>
-    if cat instanceof Label
-      categoryAttribute = Thread.attributes.labels
-    else if cat instanceof Folder
-      categoryAttribute = Thread.attributes.folders
-    else
-      throw new Error("Unexpected category class")
-
     DatabaseStore.count(Thread, [
+      Thread.attributes.categories.contains(cat.id),
       Thread.attributes.accountId.equal(cat.accountId),
       Thread.attributes.unread.equal(true),
-      categoryAttribute.contains(cat.id)
     ])
 
 module.exports = new ThreadCountsStore

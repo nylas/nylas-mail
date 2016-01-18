@@ -1,7 +1,6 @@
 _ = require 'underscore'
 
-Label = require './label'
-Folder = require './folder'
+Category = require './category'
 Model = require './model'
 Contact = require './contact'
 Actions = require '../actions'
@@ -61,15 +60,10 @@ class Thread extends Model
       queryable: true
       modelKey: 'version'
 
-    'folders': Attributes.Collection
+    'categories': Attributes.Collection
       queryable: true
-      modelKey: 'folders'
-      itemClass: Folder
-
-    'labels': Attributes.Collection
-      queryable: true
-      modelKey: 'labels'
-      itemClass: Label
+      modelKey: 'categories'
+      itemClass: Category
 
     'participants': Attributes.Collection
       modelKey: 'participants'
@@ -83,6 +77,24 @@ class Thread extends Model
       modelKey: 'lastMessageReceivedTimestamp'
       jsonKey: 'last_message_received_timestamp'
 
+  Object.defineProperty @prototype, "labels",
+    enumerable: false
+    get: -> @categories
+    set: (v) -> @categories = v
+
+  Object.defineProperty @prototype, "folders",
+    enumerable: false
+    get: -> @categories
+    set: (v) -> @categories = v
+
+  Object.defineProperty @attributes, "labels",
+    enumerable: false
+    get: -> @categories
+
+  Object.defineProperty @attributes, "folders",
+    enumerable: false
+    get: -> @categories
+
   @naturalSortOrder: ->
     Thread.attributes.lastMessageReceivedTimestamp.descending()
 
@@ -91,7 +103,18 @@ class Thread extends Model
       ['CREATE INDEX IF NOT EXISTS ThreadListIndex ON Thread(account_id, last_message_received_timestamp DESC, id)']
 
   fromJSON: (json) ->
+    if json['labels']
+      @_jsonCategoryType = 'labels'
+    else
+      @_jsonCategoryType = 'folders'
+    json['categories'] = json[@_jsonCategoryType]
     super(json)
+
+  toJSON: (options) ->
+    json = super(options)
+    json[@_jsonCategoryType] = json['categories']
+    delete json['categories']
+    json
 
   # Public: Returns true if the thread has a {Category} with the given
   # name. Note, only catgories of type `Category.Types.Standard` have valid

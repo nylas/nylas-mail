@@ -89,14 +89,6 @@ class Account extends Model
   usesFolders: ->
     @organizationUnit is "folder"
 
-  categoryClass: ->
-    if @usesLabels()
-      return require './label'
-    else if @usesFolders()
-      return require './folder'
-    else
-      return null
-
   # Public: Returns the localized, properly capitalized provider name,
   # like Gmail, Exchange, or Outlook 365
   displayProvider: ->

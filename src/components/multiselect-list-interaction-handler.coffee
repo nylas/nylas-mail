@@ -5,43 +5,43 @@ _ = require 'underscore'
 module.exports =
 class MultiselectListInteractionHandler
   constructor: (@props) ->
-    {@onFocusItemItem, @onSetCursorPosition} = @props
+    {@onFocusItem, @onSetCursorPosition} = @props
 
-  cssClass: ->
+  cssClass: =>
     'handler-list'
 
-  shouldShowFocus: ->
+  shouldShowFocus: =>
     false
 
-  shouldShowCheckmarks: ->
+  shouldShowCheckmarks: =>
     true
 
-  shouldShowKeyboardCursor: ->
+  shouldShowKeyboardCursor: =>
     true
 
-  onClick: (item) ->
+  onClick: (item) =>
     @onFocusItem(item)
 
-  onMetaClick: (item) ->
+  onMetaClick: (item) =>
     @props.dataSource.selection.toggle(item)
     @onSetCursorPosition(item)
 
-  onShiftClick: (item) ->
+  onShiftClick: (item) =>
     @props.dataSource.selection.expandTo(item)
     @onSetCursorPosition(item)
 
-  onEnter: ->
+  onEnter: =>
     keyboardCursorId = @props.keyboardCursorId
     if keyboardCursorId
       item = @props.dataSource.getById(keyboardCursorId)
       @onFocusItem(item)
 
-  onSelect: ->
+  onSelect: =>
     {id} = @_keyboardContext()
     return unless id
     @props.dataSource.selection.toggle(@props.dataSource.getById(id))
 
-  onShift: (delta, options = {}) ->
+  onShift: (delta, options = {}) =>
     {id, action} = @_keyboardContext()
 
     current = @props.dataSource.getById(id)
@@ -53,7 +53,7 @@ class MultiselectListInteractionHandler
     if options.select
       @props.dataSource.selection.walk({current, next})
 
-  _keyboardContext: ->
+  _keyboardContext: =>
     if WorkspaceStore.topSheet().root
       {id: @props.keyboardCursorId, action: @onSetCursorPosition}
     else

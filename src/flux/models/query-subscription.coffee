@@ -156,8 +156,9 @@ class QuerySubscription
       console.warn("QuerySubscription: tried to publish a result set missing models.")
       return
 
-    unless _.uniq(@_set.ids()).length is @_set.count()
-      throw new Error("")
+    ids = @_set.ids()
+    unless _.uniq(ids).length is ids.length
+      throw new Error("QuerySubscription: result set contains duplicate ids.")
 
     if @_options.asResultSet
       @_lastResult = @_set.immutableClone()

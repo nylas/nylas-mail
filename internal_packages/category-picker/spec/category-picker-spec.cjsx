@@ -5,8 +5,7 @@ CategoryPicker = require '../lib/category-picker'
 {Popover} = require 'nylas-component-kit'
 
 {Utils,
- Label,
- Folder,
+ Category,
  Thread,
  Actions,
  AccountStore,
@@ -29,17 +28,15 @@ describe 'CategoryPicker', ->
 
   setupFor = (organizationUnit) ->
     NylasEnv.testOrganizationUnit = organizationUnit
-    @categoryClass = if organizationUnit is "label" then Label else Folder
     @account = {
       id: TEST_ACCOUNT_ID
       usesLabels: -> organizationUnit is "label"
       usesFolders: -> organizationUnit isnt "label"
-      categoryClass: => @categoryClass
     }
 
-    @inboxCategory = new @categoryClass(id: 'id-123', name: 'inbox', displayName: "INBOX")
-    @archiveCategory = new @categoryClass(id: 'id-456', name: 'archive', displayName: "ArCHIVe")
-    @userCategory = new @categoryClass(id: 'id-789', name: null, displayName: "MyCategory")
+    @inboxCategory = new Category(id: 'id-123', name: 'inbox', displayName: "INBOX")
+    @archiveCategory = new Category(id: 'id-456', name: 'archive', displayName: "ArCHIVe")
+    @userCategory = new Category(id: 'id-789', name: null, displayName: "MyCategory")
 
     spyOn(Categories, "forAccount").andReturn NylasTestUtils.mockObservable(
       [@inboxCategory, @archiveCategory, @userCategory]
@@ -168,7 +165,7 @@ describe 'CategoryPicker', ->
         expect(Actions.queueTask).toHaveBeenCalled()
         syncbackTask = Actions.queueTask.calls[0].args[0]
         newCategory  = syncbackTask.category
-        expect(newCategory instanceof @categoryClass).toBe(true)
+        expect(newCategory instanceof Category).toBe(true)
         expect(newCategory.displayName).toBe "teSTing!"
         expect(newCategory.accountId).toBe TEST_ACCOUNT_ID
 
