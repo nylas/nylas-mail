@@ -123,13 +123,13 @@ class ComponentRegistry
     if not descriptor?
       throw new Error("ComponentRegistry.findComponentsMatching called without descriptor")
 
-    cacheKey = JSON.stringify(descriptor)
-    return @_cache[cacheKey] if @_cache[cacheKey]
-
     {locations, modes, roles} = @_pluralizeDescriptor(descriptor)
 
     if not locations and not modes and not roles
       throw new Error("ComponentRegistry.findComponentsMatching called with an empty descriptor")
+
+    cacheKey = JSON.stringify({locations, modes, roles})
+    return [].concat(@_cache[cacheKey]) if @_cache[cacheKey]
 
     # Made into a convenience function because default
     # values (`[]`) are necessary and it was getting messy.
@@ -148,7 +148,8 @@ class ComponentRegistry
 
     results = _.map entries, (entry) -> entry.component
     @_cache[cacheKey] = results
-    return results
+
+    return [].concat(results)
 
   triggerDebounced: _.debounce(( -> @trigger(@)), 1)
 

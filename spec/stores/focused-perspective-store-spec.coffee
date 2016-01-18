@@ -24,20 +24,20 @@ describe "FocusedPerspectiveStore", ->
         FocusedPerspectiveStore._perspective = null
         FocusedPerspectiveStore._onCategoryStoreChanged()
         expect(FocusedPerspectiveStore.current()).not.toBe(null)
-        expect(FocusedPerspectiveStore.current().category().id).toEqual(@inboxCategory.id)
+        expect(FocusedPerspectiveStore.current().categories()).toEqual([@inboxCategory])
 
       it "should set the current category to Inbox when the current category no longer exists in the CategoryStore", ->
         otherAccountInbox = @inboxCategory.clone()
         otherAccountInbox.serverId = 'other-id'
-        FocusedPerspectiveStore._perspective = MailboxPerspective.forCategory(@account, otherAccountInbox)
+        FocusedPerspectiveStore._perspective = MailboxPerspective.forCategory(otherAccountInbox)
         FocusedPerspectiveStore._onCategoryStoreChanged()
-        expect(FocusedPerspectiveStore.current().category().id).toEqual(@inboxCategory.id)
+        expect(FocusedPerspectiveStore.current().categories()).toEqual([@inboxCategory])
 
     describe "_onFocusPerspective", ->
       it "should focus the category and trigger when Actions.focusCategory is called", ->
         FocusedPerspectiveStore._onFocusPerspective(@userFilter)
         expect(FocusedPerspectiveStore.trigger).toHaveBeenCalled()
-        expect(FocusedPerspectiveStore.current().category().id).toEqual(@userCategory.id)
+        expect(FocusedPerspectiveStore.current().categories()).toEqual([@userCategory])
 
       it "should do nothing if the category is already focused", ->
         FocusedPerspectiveStore._onFocusPerspective(@inboxFilter)
@@ -50,9 +50,9 @@ describe "FocusedPerspectiveStore", ->
       NylasEnv.testOrganizationUnit = 'label'
 
       @inboxCategory = new Label(id: 'id-123', name: 'inbox', displayName: "INBOX")
-      @inboxFilter = MailboxPerspective.forCategory(@account, @inboxCategory)
+      @inboxFilter = MailboxPerspective.forCategory(@inboxCategory)
       @userCategory = new Label(id: 'id-456', name: null, displayName: "MyCategory")
-      @userFilter = MailboxPerspective.forCategory(@account, @userCategory)
+      @userFilter = MailboxPerspective.forCategory(@userCategory)
 
       spyOn(CategoryStore, "getStandardCategory").andReturn @inboxCategory
       spyOn(CategoryStore, "byId").andCallFake (id) =>
@@ -67,9 +67,9 @@ describe "FocusedPerspectiveStore", ->
       NylasEnv.testOrganizationUnit = 'folder'
 
       @inboxCategory = new Folder(id: 'id-123', name: 'inbox', displayName: "INBOX")
-      @inboxFilter = MailboxPerspective.forCategory(@account, @inboxCategory)
+      @inboxFilter = MailboxPerspective.forCategory(@inboxCategory)
       @userCategory = new Folder(id: 'id-456', name: null, displayName: "MyCategory")
-      @userFilter = MailboxPerspective.forCategory(@account, @userCategory)
+      @userFilter = MailboxPerspective.forCategory(@userCategory)
 
       spyOn(CategoryStore, "getStandardCategory").andReturn @inboxCategory
 

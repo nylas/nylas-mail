@@ -7,39 +7,39 @@ class MultiselectSplitInteractionHandler
   constructor: (@props) ->
     {@onFocusItem, @onSetCursorPosition} = @props
 
-  cssClass: ->
+  cssClass: =>
     'handler-split'
 
-  shouldShowFocus: ->
+  shouldShowFocus: =>
     true
 
-  shouldShowCheckmarks: ->
+  shouldShowCheckmarks: =>
     false
 
-  shouldShowKeyboardCursor: ->
+  shouldShowKeyboardCursor: =>
     @props.dataSource.selection.count() > 1
 
-  onClick: (item) ->
+  onClick: (item) =>
     @onFocusItem(item)
     @props.dataSource.selection.clear()
     @_checkSelectionAndFocusConsistency()
 
-  onMetaClick: (item) ->
+  onMetaClick: (item) =>
     @_turnFocusIntoSelection()
     @props.dataSource.selection.toggle(item)
     @_checkSelectionAndFocusConsistency()
 
-  onShiftClick: (item) ->
+  onShiftClick: (item) =>
     @_turnFocusIntoSelection()
     @props.dataSource.selection.expandTo(item)
     @_checkSelectionAndFocusConsistency()
 
-  onEnter: ->
+  onEnter: =>
 
-  onSelect: ->
+  onSelect: =>
     @_checkSelectionAndFocusConsistency()
 
-  onShift: (delta, options) ->
+  onShift: (delta, options) =>
     if options.select
       @_turnFocusIntoSelection()
 
@@ -63,12 +63,12 @@ class MultiselectSplitInteractionHandler
 
     @_checkSelectionAndFocusConsistency()
 
-  _turnFocusIntoSelection: ->
+  _turnFocusIntoSelection: =>
     focused = @props.focused
     @onFocusItem(null)
     @props.dataSource.selection.add(focused)
 
-  _checkSelectionAndFocusConsistency: ->
+  _checkSelectionAndFocusConsistency: =>
     focused = @props.focused
     selection = @props.dataSource.selection
 

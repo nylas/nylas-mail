@@ -32,9 +32,10 @@ class FocusedPerspectiveStore extends NylasStore
       @_setPerspective(@_defaultPerspective())
     else
       account = @_current.account
-      catId   = @_current.category()?.id
-      currentCategoryWasDeleted = catId and not CategoryStore.byId(account, catId)
-      if currentCategoryWasDeleted
+      cats   = @_current.categories()
+      catExists = (cat) -> CategoryStore.byId(cat.accountId, cat.id)
+
+      if cats and not _.every(cats, catExists)
         @_setPerspective(@_defaultPerspective(account))
 
   _onFocusPerspective: (perspective) =>
@@ -48,14 +49,13 @@ class FocusedPerspectiveStore extends NylasStore
     return unless account
     category = CategoryStore.getStandardCategory(account, "inbox")
     return unless category
-    @_setPerspective(MailboxPerspective.forCategory(account, category))
+    @_setPerspective(MailboxPerspective.forCategory(category))
 
-  # TODO Update unified MailboxPerspective
-  _defaultPerspective: (account = AccountStore.accounts()[0])->
+  _defaultPerspective: (account = AccountStore.accounts()[0]) ->
+    return MailboxPerspective.forNothing() unless account
     category = CategoryStore.getStandardCategory(account, "inbox")
-    return null unless category
-    return MailboxPerspective.forCategory(account, category)
-    # MailboxPerspective.unified()
+    return MailboxPerspective.forNothing() unless category
+    return MailboxPerspective.forCategory(category)
 
   _setPerspective: (perspective) ->
     return if perspective?.isEqual(@_current)

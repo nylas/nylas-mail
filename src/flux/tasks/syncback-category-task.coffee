@@ -1,7 +1,5 @@
 CategoryStore = require '../stores/category-store'
 DatabaseStore = require '../stores/database-store'
-Label = require '../models/label'
-Folder = require '../models/folder'
 {generateTempId} = require '../models/utils'
 Task = require './task'
 NylasAPI = require '../nylas-api'
@@ -13,10 +11,7 @@ module.exports = class SyncbackCategoryTask extends Task
     super
 
   label: ->
-    if @category instanceof Label
-      "Creating new label..."
-    else
-      "Creating new folder..."
+    "Creating new #{@category.displayType()}..."
 
   performLocal: ->
     # When we send drafts, we don't update anything in the app until
@@ -32,7 +27,7 @@ module.exports = class SyncbackCategoryTask extends Task
         t.persistModel @category
 
   performRemote: ->
-    if @category instanceof Label
+    if AccountStore.accountForId(@category.accountId).usesLabels()
       path = "/labels"
     else
       path = "/folders"
@@ -51,7 +46,7 @@ module.exports = class SyncbackCategoryTask extends Task
       # created serverId.
       @category.serverId = json.id
       DatabaseStore.inTransaction (t) =>
-        t.persistModel @category
+        t.persistModel(@category)
     .then ->
       return Promise.resolve(Task.Status.Success)
     .catch APIError, (err) =>

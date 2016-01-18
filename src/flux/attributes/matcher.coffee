@@ -59,6 +59,13 @@ class Matcher
         # Assumes that `value` is an array of items
         !!_.find value, (x) =>
           @val == x?.id || @val == x || @val?.id == x || @val?.id == x?.id
+      when 'containsAny'
+        # You can provide an ID or an object, and an array of IDs or an array of objects
+        # Assumes that `value` is an array of items
+        _.some @val, (subvalue) =>
+          !!_.find value, (x) =>
+            subvalue == x?.id || subvalue == x || subvalue?.id == x || subvalue?.id == x?.id
+
       when 'startsWith' then return value.startsWith(@val)
       when 'like' then value.search(new RegExp(".*#{@val}.*", "gi")) >= 0
       else
@@ -66,7 +73,7 @@ class Matcher
 
   joinSQL: (klass) ->
     switch @comparator
-      when 'contains'
+      when 'contains', 'containsAny'
         joinTable = tableNameForJoin(klass, @attr.itemClass)
         return "INNER JOIN `#{joinTable}` AS `M#{@muid}` ON `M#{@muid}`.`id` = `#{klass.name}`.`id`"
       else
@@ -86,7 +93,9 @@ class Matcher
       escaped = 0
     else if val instanceof Array
       escapedVals = []
-      escapedVals.push("'#{v.replace(/'/g, '\\\'')}'") for v in val
+      for v in val
+        throw new Error("#{@attr.jsonKey} value #{v} must be a string.") unless _.isString(v)
+        escapedVals.push("'#{v.replace(/'/g, '\\\'')}'")
       escaped = "(#{escapedVals.join(',')})"
     else
       escaped = val
@@ -96,6 +105,8 @@ class Matcher
         return " RAISE `TODO`; "
       when 'contains'
         return "`M#{@muid}`.`value` = #{escaped}"
+      when 'containsAny'
+        return "`M#{@muid}`.`value` IN #{escaped}"
       else
         return "`#{klass.name}`.`#{@attr.jsonKey}` #{@comparator} #{escaped}"
 

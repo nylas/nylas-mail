@@ -1,5 +1,6 @@
 _ = require 'underscore'
 
+AccountStore = require './flux/stores/account-store'
 CategoryStore = require './flux/stores/category-store'
 DatabaseStore = require './flux/stores/database-store'
 SearchSubscription = require './search-subscription'
@@ -14,216 +15,203 @@ Actions = require './flux/actions'
 class MailboxPerspective
 
   # Factory Methods
+  @forNothing: ->
+    new EmptyMailboxPerspective()
 
-  @forCategory: (account, category) ->
-    new CategoryMailboxPerspective(account, category)
+  @forCategory: (category) ->
+    new CategoryMailboxPerspective([category])
 
-  @forStarred: (account) ->
-    new StarredMailboxPerspective(account)
+  @forCategories: (categories) ->
+    new CategoryMailboxPerspective(categories)
 
-  @forSearch: (account, query) ->
-    new SearchMailboxPerspective(account, query)
+  @forStarred: (accountIds) ->
+    new StarredMailboxPerspective(accountIds)
 
-  @forAll: (account) ->
-    new AllMailboxPerspective(account)
+  @forSearch: (accountIds, query) ->
+    new SearchMailboxPerspective(accountIds, query)
 
-  @unified: ->
-    new UnifiedMailboxPerspective()
-
-  threads: ->
-    matchers = []
-    if @account
-      matchers.push Thread.attributes.accountId.equal(@account.id)
-    matchers = matchers.concat(@matchers())
-    query = DatabaseStore.findAll(Thread).where(matchers).limit(0)
-    return new MutableQuerySubscription(query, {asResultSet: true})
+  @forAll: (accountIds) ->
+    categories = accountIds.map (aid) ->
+      CategoryStore.getStandardCategory(aid, "all")
+    new CategoryMailboxPerspective(_.compact(categories))
 
   # Instance Methods
 
-  constructor: (@account) ->
+  constructor: (@accountIds) ->
+    unless @accountIds instanceof Array and _.every(@accountIds, _.isString)
+      throw new Error("#{@constructor.name}: You must provide an array of string `accountIds`")
+    @
 
-  hasSameAccount: (other) ->
-    return true if (@account ? null) is (other.account ? null)
-    return @account?.id is other?.account?.id
-
-  isEqual: (other) ->
-    return false unless other and @constructor.name is other.constructor.name
-    return false if other.name isnt @name
-    return false unless @hasSameAccount(other)
-
-    matchers = @matchers() ? []
-    otherMatchers = other.matchers() ? []
-    return false if otherMatchers.length isnt matchers.length
-
-    for idx in [0...matchers.length]
-      if matchers[idx].value() isnt otherMatchers[idx].value()
-        return false
-
+  isEqual: (other) =>
+    return false unless other and @constructor is other.constructor
+    return false unless other.name is @name
+    return false unless _.isEqual(@accountIds, other.accountIds)
     true
 
-  category: ->
-    throw new Error("category: Not implemented in base class.")
+  categories: =>
+    []
 
-  matchers: ->
-    throw new Error("matchers: Not implemented in base class.")
+  threads: =>
+    throw new Error("threads: Not implemented in base class.")
 
-  canApplyToThreads: ->
+  canApplyToThreads: =>
     throw new Error("canApplyToThreads: Not implemented in base class.")
 
-  applyToThreads: (threadsOrIds) ->
+  applyToThreads: (threadsOrIds) =>
     throw new Error("applyToThreads: Not implemented in base class.")
 
   # Whether or not the current MailboxPerspective can "archive" or "trash"
   # Subclasses should call `super` if they override these methods
-  canArchiveThreads: ->
-    return false unless CategoryStore.getArchiveCategory(@account)
+  canArchiveThreads: =>
+    for aid in @accountIds
+      return false unless CategoryStore.getArchiveCategory(AccountStore.accountForId(aid))
     return true
 
-  canTrashThreads: ->
-    return false unless CategoryStore.getTrashCategory(@account)
+  canTrashThreads: =>
+    for aid in @accountIds
+      return false unless CategoryStore.getTrashCategory(AccountStore.accountForId(aid))
     return true
-
 
 class SearchMailboxPerspective extends MailboxPerspective
-  constructor: (@account, @searchQuery) ->
+  constructor: (@accountIds, @searchQuery) ->
+    super(@accountIds)
+
+    unless _.isString(@searchQuery)
+      throw new Error("SearchMailboxPerspective: Expected a `string` search query")
+
     @
 
-  isEqual: (other) ->
+  isEqual: (other) =>
     super(other) and other.searchQuery is @searchQuery
 
-  matchers: ->
-    null
+  threads: =>
+    new SearchSubscription(@searchQuery, @accountIds)
 
-  canApplyToThreads: ->
+  canApplyToThreads: =>
     false
 
-  canArchiveThreads: ->
+  canArchiveThreads: =>
     false
 
-  canTrashThreads: ->
-    false
-
-  category: ->
-    null
-
-  threads: ->
-    new SearchSubscription(@searchQuery, @account?.id)
-
-class AllMailboxPerspective extends MailboxPerspective
-  constructor: (@account) ->
-    @name = "All"
-    @iconName = "all-mail.png"
-    @
-
-  category: ->
-    CategoryStore.getStandardCategory(@account, "all")
-
-  matchers: ->
-    [Thread.attributes.accountId.equal(@account.id)]
-
-  canApplyToThreads: ->
-    true
-
-  canArchiveThreads: ->
-    false
-
-  canTrashThreads: ->
+  canTrashThreads: =>
     false
 
 
 class StarredMailboxPerspective extends MailboxPerspective
-  constructor: (@account) ->
+  constructor: (@accountIds) ->
+    super(@accountIds)
     @name = "Starred"
     @iconName = "starred.png"
     @
 
-  category: ->
-    null
+  threads: =>
+    query = DatabaseStore.findAll(Thread).where([
+      Thread.attributes.accountId.in(@accountIds),
+      Thread.attributes.starred.equal(true)
+    ]).limit(0)
 
-  matchers: ->
-    [Thread.attributes.starred.equal(true)]
+    return new MutableQuerySubscription(query, {asResultSet: true})
 
-  canApplyToThreads: ->
+  canApplyToThreads: =>
     true
 
-  applyToThreads: (threadsOrIds) ->
+  applyToThreads: (threadsOrIds) =>
     ChangeStarredTask = require './flux/tasks/change-starred-task'
     task = new ChangeStarredTask({threads:threadsOrIds, starred: true})
     Actions.queueTask(task)
 
 
-class CategoryMailboxPerspective extends MailboxPerspective
-  constructor: (@account, @_category) ->
-    unless @_category
-      throw new Error("CategoryMailboxPerspective: You msut provide a category")
-
-    @name = @_category.displayName
-
-    if @_category.name
-      @iconName = "#{@_category.name}.png"
-    else
-      @iconName = CategoryHelpers.categoryIconName(@account)
-
-    @
-
-  category: ->
-    @_category
-
-  matchers: =>
-    matchers = []
-    return matchers unless @account?
-    if @account.usesLabels()
-      matchers.push Thread.attributes.labels.contains(@_category.id)
-    else if @account.usesFolders()
-      matchers.push Thread.attributes.folders.contains(@_category.id)
-    matchers
-
-  canApplyToThreads: ->
-    not (@_category.isLockedCategory())
-
-  canArchiveThreads: ->
-    return false if @_category.name in ["archive", "all", "sent"]
-    super
-
-  canTrashThreads: ->
-    return false if @_category.name in ["trash"]
-    super
-
-  applyToThreads: (threadsOrIds) ->
-    if @account.usesLabels()
-      FocusedPerspectiveStore = require './flux/stores/focused-perspective-store'
-      currentLabel = FocusedPerspectiveStore.current().category
-      if currentLabel and not (currentLabel.isLockedCategory())
-        labelsToRemove = [currentLabel]
-
-      ChangeLabelsTask = require './flux/tasks/change-labels-task'
-      task = new ChangeLabelsTask
-        threads: threadsOrIds
-        labelsToAdd: [@_category]
-        labelsToRemove: labelsToRemove
-    else
-      ChangeFolderTask = require './flux/tasks/change-folder-task'
-      task = new ChangeFolderTask
-        threads: threadsOrIds
-        folder: @_category
-
-    Actions.queueTask(task)
-
-class UnifiedMailboxPerspective extends MailboxPerspective
-
+class EmptyMailboxPerspective extends MailboxPerspective
   constructor: ->
-    @name = 'All Accounts'
-    # TODO change
-    @iconName = 'folder.png'
+
+  threads: =>
+    query = DatabaseStore.findAll(Thread).where(accountId: -1).limit(0)
+    return new MutableQuerySubscription(query, {asResultSet: true})
+
+  canApplyToThreads: =>
+    false
+
+  canArchiveThreads: =>
+    false
+
+  canTrashThreads: =>
+    false
+
+  applyToThreads: (threadsOrIds) =>
+
+
+class CategoryMailboxPerspective extends MailboxPerspective
+  constructor: (@_categories) ->
+    super(_.uniq(_.pluck(@_categories, 'accountId')))
+
+    if @_categories.length is 0
+      throw new Error("CategoryMailboxPerspective: You must provide at least one category.")
+
+    # Note: We pick the display name and icon assuming that you won't create a
+    # perspective with Inbox and Sent or anything crazy like that... todo?
+    @name = @_categories[0].displayName
+    if @_categories[0].name
+      @iconName = "#{@_categories[0].name}.png"
+    else
+      @iconName = CategoryHelpers.categoryIconName(@accountIds[0])
+
     @
 
-  category: ->
-    null
+  isEqual: (other) =>
+    super(other) and _.isEqual(@categories(), other.categories())
 
-  matchers: ->
-    []
+  threads: =>
+    query = DatabaseStore
+      .findAll(Thread)
+      .where([Thread.attributes.categories.containsAny(_.pluck(@categories(), 'id'))])
+      .limit(0)
 
-  canApplyToThreads: ->
-    false
+    query.distinct() if @categories().length > 1
+
+    return new MutableQuerySubscription(query, {asResultSet: true})
+
+  categories: =>
+    @_categories
+
+  canApplyToThreads: =>
+    not _.any @_categories, (c) -> c.isLockedCategory()
+
+  canArchiveThreads: =>
+    for cat in @_categories
+      return false if cat.name in ["archive", "all", "sent"]
+    super
+
+  canTrashThreads: =>
+    for cat in @_categories
+      return false if cat.name in ["trash"]
+    super
+
+  applyToThreads: (threadsOrIds) =>
+    # TODO:
+    # categoryToApplyForAccount = {}
+    # for cat in @_categories
+    #   categoryToApplyForAccount[cat.accountId] = cat
+    #
+    # @_categories.forEach (cat) ->
+    #
+    # if @account.usesLabels()
+    #   FocusedPerspectiveStore = require './flux/stores/focused-perspective-store'
+    #   currentLabel = FocusedPerspectiveStore.current().category
+    #   if currentLabel and not (currentLabel.isLockedCategory())
+    #     labelsToRemove = [currentLabel]
+    #
+    #   ChangeLabelsTask = require './flux/tasks/change-labels-task'
+    #   task = new ChangeLabelsTask
+    #     threads: threadsOrIds
+    #     labelsToAdd: [@category]
+    #     labelsToRemove: labelsToRemove
+    # else
+    #   ChangeFolderTask = require './flux/tasks/change-folder-task'
+    #   task = new ChangeFolderTask
+    #     threads: threadsOrIds
+    #     folder: @category
+    #
+    # Actions.queueTask(task)
+
 
 module.exports = MailboxPerspective

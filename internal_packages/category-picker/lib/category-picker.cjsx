@@ -220,8 +220,7 @@ class CategoryPicker extends React.Component
     @refs.menu.setSelectedItem(null)
 
     if item.newCategoryItem
-      CategoryClass = @_account.categoryClass()
-      category = new CategoryClass
+      category = new Category
         displayName: @state.searchValue,
         accountId: @_account.id
 
@@ -313,7 +312,8 @@ class CategoryPicker extends React.Component
 
   _isUserFacing: (allInInbox, category) =>
     hiddenCategories = []
-    currentCategoryId = FocusedPerspectiveStore.current()?.category()?.id
+    currentCategories = FocusedPerspectiveStore.current().categories() ? []
+    currentCategoryIds = _.pluck(currentCategories, 'id')
 
     if @_account?.usesLabels()
       hiddenCategories = ["all", "drafts", "sent", "archive", "starred", "important"]
@@ -322,7 +322,7 @@ class CategoryPicker extends React.Component
     else if @_account?.usesFolders()
       hiddenCategories = ["drafts", "sent"]
 
-    return (category.name not in hiddenCategories) and (category.id isnt currentCategoryId)
+    return (category.name not in hiddenCategories) and not (category.id in currentCategoryIds)
 
   _allInInbox: (usageCount, numThreads) ->
     return unless @_account?

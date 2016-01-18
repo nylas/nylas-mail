@@ -1,6 +1,6 @@
 DatabaseStore = require '../stores/database-store'
-Label = require '../models/label'
-Folder = require '../models/folder'
+AccountStore = require '../stores/account-store'
+Category = require '../models/category'
 Task = require './task'
 ChangeFolderTask = require './change-folder-task'
 ChangeLabelTask = require './change-labels-task'
@@ -14,11 +14,7 @@ class DestroyCategoryTask extends Task
     super
 
   label: ->
-    name = @category.displayName
-    if @category instanceof Label
-      "Deleting label #{name}..."
-    else
-      "Deleting folder #{name}..."
+    "Deleting #{@category.displayType()} #{@category.displayName}..."
 
   isDependentTask: (other) ->
     (other instanceof ChangeFolderTask) or
@@ -39,7 +35,7 @@ class DestroyCategoryTask extends Task
     if not @category.serverId
       return Promise.reject(new Error("Attempt to call DestroyCategoryTask.performRemote without @category.serverId."))
 
-    if @category instanceof Label
+    if AccountStore.accountForId(@category.accountId).usesLabels()
       path = "/labels/#{@category.serverId}"
     else
       path = "/folders/#{@category.serverId}"
@@ -66,14 +62,12 @@ class DestroyCategoryTask extends Task
       else
         return Promise.resolve(Task.Status.Retry)
 
+  _displayType: ->
+
   _notifyUserOfError: (category = @category) ->
     displayName = category.displayName
-    displayType = if category instanceof Label
-      'label'
-    else
-      'folder'
 
-    msg = "The #{displayType} #{displayName} could not be deleted."
+    msg = "The #{category.displayType()} #{displayName} could not be deleted."
     if displayType is 'folder'
       msg += " Make sure the folder you want to delete is empty before deleting it."
 
