@@ -75,6 +75,11 @@ class Category extends Model
   @LockedCategoryNames: Object.keys(LockedCategories)
   @HiddenCategoryNames: Object.keys(HiddenCategories)
 
+  @additionalSQLiteConfig:
+    setup: ->
+      ['CREATE INDEX IF NOT EXISTS CategoryNameIndex ON Category(account_id,name)',
+       'CREATE UNIQUE INDEX IF NOT EXISTS CategoryClientIndex ON Category(client_id)']
+
   constructor: ->
     super
 
