@@ -19,7 +19,7 @@ _ = require 'underscore'
 class AccountSidebarStore extends NylasStore
   constructor: ->
     @_sections = []
-    @_account = FocusedPerspectiveStore.current()?.account
+    @_account = AccountStore.accounts()[0]
     @_registerListeners()
     @_updateSections()
 
@@ -97,7 +97,9 @@ class AccountSidebarStore extends NylasStore
       category.name is "drafts"
 
     standardCategoryItems = _.map standardCategories, (cat) => @_sidebarItemForCategory(cat)
-    starredItem = @_sidebarItemForMailView('starred', MailboxPerspective.forStarred(@_account))
+
+    starredPerspective = MailboxPerspective.forStarred([@_account.id])
+    starredItem = @_sidebarItemForMailView('starred', starredPerspective)
 
     # Find root views and add them to the bottom of the list (Drafts, etc.)
     standardItems = standardCategoryItems
@@ -140,14 +142,13 @@ class AccountSidebarStore extends NylasStore
     new WorkspaceStore.SidebarItem
       id: category.id,
       name: shortenedName || category.displayName
-      mailboxPerspective: MailboxPerspective.forCategory(@_account, category)
+      mailboxPerspective: MailboxPerspective.forCategory(category)
       unreadCount: @_itemUnreadCount(category)
 
   _createCategory: (displayName) ->
     # TODO this needs an account param
     return unless @_account?
-    CategoryClass = @_account.categoryClass()
-    category = new CategoryClass
+    category = new Category
       displayName: displayName
       accountId: @_account.id
     Actions.queueTask(new SyncbackCategoryTask({category}))

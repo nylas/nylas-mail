@@ -1,9 +1,13 @@
 _ = require 'underscore'
 NylasStore = require 'nylas-store'
 AccountStore = require './account-store'
+Account = require '../models/account'
 {StandardCategoryNames} = require '../models/category'
 {Categories} = require 'nylas-observables'
 Rx = require 'rx-lite'
+
+asAccount = (a) -> if a instanceof Account then a else AccountStore.accountForId(a)
+asAccountId = (a) -> if a instanceof Account then a.id else a
 
 class CategoryStore extends NylasStore
 
@@ -12,19 +16,22 @@ class CategoryStore extends NylasStore
     @_standardCategories = {}
     @_userCategories = {}
     @_hiddenCategories = {}
-    @_registerObservables(AccountStore.accounts())
-    @listenTo AccountStore, @_onAccountsChanged
 
-  byId: (account, categoryId) ->
-    @categories(account)[categoryId]
+    @_disposable = Categories
+      .forAllAccounts()
+      .sort()
+      .subscribe(@_onCategoriesChanged)
+
+  byId: (accountOrId, categoryId) ->
+    @categories(accountOrId)[categoryId]
 
   # Public: Returns an array of all categories for an account, both
   # standard and user generated. The items returned by this function will be
   # either {Folder} or {Label} objects.
   #
-  categories: (account) ->
-    if account
-      @_categoryCache[account.id] ? {}
+  categories: (accountOrId = null) ->
+    if accountOrId
+      @_categoryCache[asAccountId(accountOrId)] ? {}
     else
       all = []
       for accountId, categories of @_categoryCache
@@ -33,89 +40,76 @@ class CategoryStore extends NylasStore
 
   # Public: Returns all of the standard categories for the current account.
   #
-  standardCategories: (account) ->
-    return [] unless account
-    _.compact(
-      StandardCategoryNames.map (name) => @_standardCategories[account.id][name]
-    )
+  standardCategories: (accountOrId) ->
+    return [] unless accountOrId
+    @_standardCategories[asAccountId(accountOrId)]
 
-  hiddenCategories: (account) ->
-    return [] unless account
-    @_hiddenCategories[account.id]
+  hiddenCategories: (accountOrId) ->
+    return [] unless accountOrId
+    @_hiddenCategories[asAccountId(accountOrId)]
 
   # Public: Returns all of the categories that are not part of the standard
   # category set.
   #
-  userCategories: (account) ->
-    return [] unless account
-    @_userCategories[account.id]
+  userCategories: (accountOrId) ->
+    return [] unless accountOrId
+    @_userCategories[asAccountId(accountOrId)]
 
   # Public: Returns the Folder or Label object for a standard category name and
   # for a given account.
   # ('inbox', 'drafts', etc.) It's possible for this to return `null`.
   # For example, Gmail likely doesn't have an `archive` label.
   #
-  getStandardCategory: (account, name) ->
-    return null unless account?
-    if not name in StandardCategoryNames
+  getStandardCategory: (accountOrId, name) ->
+    return null unless accountOrId
+
+    unless name in StandardCategoryNames
       throw new Error("'#{name}' is not a standard category")
-    return _.findWhere(@categories(account), {name})
+
+    return _.findWhere(@_standardCategories[asAccountId(accountOrId)], {name})
 
   # Public: Returns the Folder or Label object that should be used for "Archive"
   # actions. On Gmail, this is the "all" label. On providers using folders, it
   # returns any available "Archive" folder, or null if no such folder exists.
   #
-  getArchiveCategory: (account) ->
-    return null unless account
+  getArchiveCategory: (accountOrId) ->
+    return null unless accountOrId
+    account = asAccount(accountOrId)
+
     if account.usesFolders()
-      return @getStandardCategory(account, "archive")
+      return @getStandardCategory(account.id, "archive")
     else
-      return @getStandardCategory(account, "all")
+      return @getStandardCategory(account.id, "all")
 
   # Public: Returns the Folder or Label object taht should be used for
   # "Move to Trash", or null if no trash folder exists.
   #
-  getTrashCategory: (account) ->
-    @getStandardCategory(account, "trash")
+  getTrashCategory: (accountOrId) ->
+    @getStandardCategory(accountOrId, "trash")
 
-  _onAccountsChanged: ->
-    accounts = AccountStore.accounts()
-    @_removeStaleCategories(accounts)
-    @_registerObservables(accounts)
+  _onCategoriesChanged: (categories) =>
+    @_categoryCache = {}
+    for cat in categories
+      @_categoryCache[cat.accountId] ?= {}
+      @_categoryCache[cat.accountId][cat.id] = cat
 
-  _onCategoriesChanged: (accountId, categories) =>
-    return unless categories
-    @_categoryCache[accountId] = {}
-    @_standardCategories[accountId] = {}
-    @_userCategories[accountId] = []
-    @_hiddenCategories[accountId] = []
+    filteredByAccount = (fn) ->
+      result = {}
+      for cat in categories
+        continue unless fn(cat)
+        result[cat.accountId] ?= []
+        result[cat.accountId].push(cat)
+      result
 
-    for category in categories
-      @_categoryCache[accountId][category.id] = category
-      if category.isStandardCategory()
-        @_standardCategories[accountId][category.name] = category
-      if category.isUserCategory()
-        @_userCategories[accountId].push(category)
-      if category.isHiddenCategory()
-        @_hiddenCategories[accountId].push(category)
+    @_standardCategories = filteredByAccount (cat) -> cat.isStandardCategory()
+    @_userCategories = filteredByAccount (cat) -> cat.isUserCategory()
+    @_hiddenCategories = filteredByAccount (cat) -> cat.isHiddenCategory()
+
+    # Ensure standard categories are always sorted in the correct order
+    for accountId, items of @_standardCategories
+      @_standardCategories[accountId].sort (a, b) ->
+        StandardCategoryNames.indexOf(a.name) - StandardCategoryNames.indexOf(b.name)
+
     @trigger()
-
-  # Remove any category sets for removed accounts
-  # Will prevent memory leaks
-  _removeStaleCategories: (accounts) ->
-    accountIds = accounts.map (acc) -> acc.id
-    removedAccountIds = _.difference(_.keys(@_categoryCache), accountIds)
-    for accountId in removedAccountIds
-      delete @_categoryCache[accountId]
-      delete @_standardCategories[accountId]
-      delete @_userCategories[accountId]
-      delete @_hiddenCategories[accountId]
-
-  _registerObservables: (accounts) =>
-    @_disposables ?= []
-    @_disposables.forEach (disp) -> disp.dispose()
-    @_disposables = accounts.map (account) =>
-      Categories.forAccount(account).sort()
-        .subscribe(@_onCategoriesChanged.bind(@, account.id))
 
 module.exports = new CategoryStore()

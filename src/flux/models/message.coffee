@@ -3,9 +3,9 @@ moment = require 'moment'
 
 File = require './file'
 Utils = require './utils'
-Folder = require './folder'
 Model = require './model'
 Event = require './event'
+Category = require './category'
 Contact = require './contact'
 Attributes = require '../attributes'
 AccountStore = require '../stores/account-store'
@@ -146,7 +146,7 @@ class Message extends Model
 
     'folder': Attributes.Object
       modelKey: 'folder'
-      itemClass: Folder
+      itemClass: Category
 
 
   @naturalSortOrder: ->

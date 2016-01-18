@@ -66,7 +66,7 @@ class WorkspaceStore extends NylasStore
     account = FocusedPerspectiveStore.current()?.account
     category = CategoryStore.getStandardCategory(account, categoryName)
     return unless category
-    view = MailboxPerspective.forCategory(account, category)
+    view = MailboxPerspective.forCategory(category)
     return unless view
     Actions.focusMailboxPerspective(view)
 
@@ -74,15 +74,15 @@ class WorkspaceStore extends NylasStore
     Actions.selectRootSheet(@Sheet.Drafts)
 
   _selectAllView: ->
-    account = FocusedPerspectiveStore.current()?.account
-    category = CategoryStore.getArchiveCategory(account)
-    return unless category
-    view = MailboxPerspective.forCategory(account, category)
-    return unless view
+    accountIds = FocusedPerspectiveStore.current().accountIds
+    categories = accountIds.map (aid) -> CategoryStore.getArchiveCategory(aid)
+
+    view = MailboxPerspective.forCategories(categories)
     Actions.focusMailboxPerspective(view)
 
   _selectStarredView: ->
-    Actions.focusMailboxPerspective MailboxPerspective.forStarred()
+    accountIds = FocusedPerspectiveStore.current().accountIds
+    Actions.focusMailboxPerspective MailboxPerspective.forStarred(accountIds)
 
   _resetInstanceVars: =>
     @Location = Location = {}

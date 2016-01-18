@@ -73,7 +73,7 @@ class Matcher
 
   joinSQL: (klass) ->
     switch @comparator
-      when 'contains'
+      when 'contains', 'containsAny'
         joinTable = tableNameForJoin(klass, @attr.itemClass)
         return "INNER JOIN `#{joinTable}` AS `M#{@muid}` ON `M#{@muid}`.`id` = `#{klass.name}`.`id`"
       else
@@ -93,7 +93,9 @@ class Matcher
       escaped = 0
     else if val instanceof Array
       escapedVals = []
-      escapedVals.push("'#{v.replace(/'/g, '\\\'')}'") for v in val
+      for v in val
+        throw new Error("#{@attr.jsonKey} value #{v} must be a string.") unless _.isString(v)
+        escapedVals.push("'#{v.replace(/'/g, '\\\'')}'")
       escaped = "(#{escapedVals.join(',')})"
     else
       escaped = val
@@ -106,7 +108,7 @@ class Matcher
       when 'containsAny'
         return "`M#{@muid}`.`value` IN #{escaped}"
       else
-        return "`#{klass.tableName}`.`#{@attr.jsonKey}` #{@comparator} #{escaped}"
+        return "`#{klass.name}`.`#{@attr.jsonKey}` #{@comparator} #{escaped}"
 
 
 Matcher.muid = 0

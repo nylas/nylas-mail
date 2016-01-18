@@ -15,7 +15,7 @@ DatabaseTransaction = require './database-transaction'
 
 {ipcRenderer} = require 'electron'
 
-DatabaseVersion = 16
+DatabaseVersion = 17
 DatabasePhase =
   Setup: 'setup'
   Ready: 'ready'

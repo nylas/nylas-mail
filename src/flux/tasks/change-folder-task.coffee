@@ -1,6 +1,5 @@
 _ = require 'underscore'
 Task = require './task'
-Folder = require '../models/folder'
 Thread = require '../models/thread'
 Message = require '../models/message'
 DatabaseStore = require '../stores/database-store'
@@ -30,9 +29,7 @@ class ChangeFolderTask extends ChangeMailTask
       "Moving to folder…"
 
   description: ->
-    folderText = ""
-    if @folder instanceof Folder
-      folderText = " to #{@folder.displayName}"
+    folderText = " to #{@folder.displayName}"
 
     if @threads.length > 0
       if @threads.length > 1
@@ -58,7 +55,7 @@ class ChangeFolderTask extends ChangeMailTask
     # Convert arrays of IDs or models to models.
     # modelify returns immediately if no work is required
     Promise.props(
-      folder: DatabaseStore.modelify(Folder, [@folder])
+      folder: DatabaseStore.modelify(Category, [@folder])
       threads: DatabaseStore.modelify(Thread, @threads)
       messages: DatabaseStore.modelify(Message, @messages)
 
