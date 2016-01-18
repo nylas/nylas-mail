@@ -5,7 +5,8 @@
  DestroyCategoryTask,
  Actions} = require 'nylas-exports'
 _ = require 'underscore'
-AccountSidebarActions = require './account-sidebar-actions'
+{OutlineViewItem} = require 'nylas-component-kit'
+
 
 class MailboxPerspectiveSidebarItem
 
@@ -16,7 +17,6 @@ class MailboxPerspectiveSidebarItem
     @name = @shortenedName ? @mailboxPerspective.name
     @iconName = @mailboxPerspective.iconName
     @dataTransferType = 'nylas-thread-ids'
-<<<<<<< HEAD
     @counterStyle = OutlineViewItem.CounterStyles.Alt if @mailboxPerspective.isInbox()
 
     # Sidenote: I think treating the sidebar items as dumb bundles of data is a

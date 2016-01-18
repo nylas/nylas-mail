@@ -2,12 +2,12 @@
 
 class AccountSidebarSection
 
-  constructor: ({@label, @iconName, @items} = {}) ->
+  constructor: ({@title, @iconName, @items} = {}) ->
 
 
 class CategorySidebarSection extends AccountSidebarSection
 
-  constructor: ({@label, @iconName, @account, @items} = {}) ->
+  constructor: ({@title, @iconName, @account, @items} = {}) ->
 
   onCreateItem: (displayName) =>
     return unless @account
