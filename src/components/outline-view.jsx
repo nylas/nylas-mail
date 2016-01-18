@@ -10,17 +10,15 @@ class OutlineView extends Component {
   static displayName = 'OutlineView'
 
   static propTypes = {
-    label: PropTypes.string,
+    title: PropTypes.string,
     iconName: PropTypes.string,
     items: PropTypes.array,
-    collapsible: PropTypes.bool,
     onToggleCollapsed: PropTypes.func,
     onCreateItem: PropTypes.func,
   }
 
   static defaultProps = {
     title: '',
-    collapsible: false,
     items: [],
   }
 
@@ -47,19 +45,19 @@ class OutlineView extends Component {
     if (event.key === 'Escape') {
       this.setState({showCreateInput: false});
     }
-    if (['Enter', 'Return'].include(event.key)) {
+    if (_.includes(['Enter', 'Return'], event.key)) {
       this.props.onCreateItem(event.target.value);
       this.setState({showCreateInput: false});
     }
   }
 
   _renderCreateButton() {
-    const label = this.props.label;
+    const title = this.props.title;
     return (
       <div
         className="add-item-button"
         onMouseDown={this._onCreateButtonMouseDown}
-        onMouseUp={this._onCreateButtonClicked.bind(this, label)}>
+        onMouseUp={this._onCreateButtonClicked.bind(this, title)}>
         <RetinaImg
           url="nylas://account-sidebar/assets/icon-sidebar-addcategory@2x.png"
           style={{height: 14, width: 14}}
@@ -68,16 +66,16 @@ class OutlineView extends Component {
     );
   }
 
-  _renderCreateInput(section = this.props) {
-    const label = _str.decapitalize(section.label.slice(0, section.label.length - 1));
-    const placeholder = `Create new ${label}`;
+  _renderCreateInput(props = this.props) {
+    const title = _str.decapitalize(props.title.slice(0, props.title.length - 1));
+    const placeholder = `Create new ${title}`;
     return (
       <span className="item-container">
         <div className="item add-item-container">
           <DisclosureTriangle collapsed={false} visible={false} />
           <div className="icon">
             <RetinaImg
-              name={section.iconName}
+              name={props.iconName}
               fallback="folder.png"
               mode={RetinaImg.Mode.ContentIsMask} />
           </div>
@@ -108,7 +106,7 @@ class OutlineView extends Component {
 
     return (
       <section className="nylas-outline-view">
-        <div className="heading">{this.props.label}</div>
+        <div className="heading">{this.props.title}</div>
         {allowCreate ? this._renderCreateButton() : void 0}
         {allowCreate && showInput ? this._renderCreateInput() : void 0}
         {this._renderItems()}

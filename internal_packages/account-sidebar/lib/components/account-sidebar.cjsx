@@ -1,7 +1,8 @@
-React = require 'react'
 _ = require 'underscore'
+React = require 'react'
 {OutlineView, ScrollRegion} = require 'nylas-component-kit'
 AccountSidebarStore = require '../account-sidebar-store'
+
 
 class AccountSidebar extends React.Component
   @displayName: 'AccountSidebar'
@@ -35,7 +36,7 @@ class AccountSidebar extends React.Component
       <OutlineView key={section.label} {...section} />
 
   render: =>
-    <ScrollRegion style={flex:1} id="account-sidebar">
+    <ScrollRegion className="account-sidebar" >
       <div className="account-sidebar-sections">
         {@_renderSections()}
       </div>

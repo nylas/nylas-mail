@@ -16,7 +16,8 @@ class MailboxPerspectiveSidebarItem
     @name = @shortenedName ? @mailboxPerspective.name
     @iconName = @mailboxPerspective.iconName
     @dataTransferType = 'nylas-thread-ids'
-    @useAltCountStyle = true if @mailboxPerspective.isInbox()
+<<<<<<< HEAD
+    @counterStyle = OutlineViewItem.CounterStyles.Alt if @mailboxPerspective.isInbox()
 
     # Sidenote: I think treating the sidebar items as dumb bundles of data is a
     # good idea. `count` /shouldn't/ be a function since if it's value changes,
@@ -29,9 +30,9 @@ class MailboxPerspectiveSidebarItem
     #    { count: X, isSelected: false, isDeleted: true}...
     #
     @count = @_count()
-    @isSelected = @_isSelected()
-    @isDeleted = @_isDeleted()
-    @isCollapsed = @_isCollapsed()
+    @selected = @_isSelected()
+    @deleted = @_isDeleted()
+    @collapsed = @_isCollapsed()
 
     @
 
@@ -55,8 +56,8 @@ class MailboxPerspectiveSidebarItem
   onToggleCollapsed: =>
     return unless @children.length > 0
     key = "core.accountSidebarCollapsed.#{@id}"
-    @isCollapsed = not @_isCollapsed()
-    NylasEnv.config.set(key, @isCollapsed)
+    @collapsed = not @_isCollapsed()
+    NylasEnv.config.set(key, @collapsed)
 
   onDelete: =>
     return if @category?.isDeleted is true
@@ -76,20 +77,16 @@ class MailboxPerspectiveSidebarItem
   onSelect: =>
     Actions.selectRootSheet(WorkspaceStore.Sheet.Threads)
     Actions.focusMailboxPerspective(@mailboxPerspective)
-    AccountSidebarActions.selectItem()
 
 
 class SheetSidebarItem
 
   constructor: (@name, @iconName, @sheet) ->
     @id = @sheet?.id ? @name
-
-  isSelected: =>
-    WorkspaceStore.rootSheet().id is @id
+    @selected = WorkspaceStore.rootSheet().id is @id
 
   onSelect: =>
     Actions.selectRootSheet(@sheet)
-    AccountSidebarActions.selectItem()
 
 
 class DraftListSidebarItem extends SheetSidebarItem

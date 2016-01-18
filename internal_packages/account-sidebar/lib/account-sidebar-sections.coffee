@@ -9,7 +9,7 @@ class CategorySidebarSection extends AccountSidebarSection
 
   constructor: ({@label, @iconName, @account, @items} = {}) ->
 
-  onCreateItem: (displayName) ->
+  onCreateItem: (displayName) =>
     return unless @account
     CategoryClass = @account.categoryClass()
     category = new CategoryClass

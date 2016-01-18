@@ -20,8 +20,10 @@ import React, {Component, PropTypes} from 'react';
  * @param {string} props.className - CSS class to be applied to component
  * @param {array} props.items - Items to be rendered by the list
  * @param {function} props.itemContent - A function that returns a component
-          or string for each item. To be editable, itemContent must be a string.
-          If no function is provided, each value in `items` is coerced to a string.
+ * or string for each item. To be editable, itemContent must be a string.
+ * If no function is provided, each value in `items` is coerced to a string.
+ * @param {(string|object)} props.selected - The selected item. This prop is
+ * optional unless uou want to control the selection externally.
  * @param {boolean} props.showEditIcon - Determines wether to show edit icon
  * button on selected items
  * @param {object} props.createInputProps - Props object to be passed on to
