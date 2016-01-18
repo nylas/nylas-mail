@@ -15,7 +15,6 @@ _ = require 'underscore'
  CategorySidebarSection} = require './account-sidebar-sections'
 {DraftListSidebarItem,
  MailboxPerspectiveSidebarItem} = require './account-sidebar-items'
-AccountSidebarActions = require './account-sidebar-actions'
 
 
 Sections = {
@@ -51,7 +50,6 @@ class AccountSidebarStore extends NylasStore
     @listenTo DraftCountStore, @_updateSections
     @listenTo CategoryStore, @_updateSections
     @listenTo FocusedPerspectiveStore, @_onPerspectiveChanged
-    @listenTo AccountSidebarActions.selectItem, @_updateSections
     @configSubscription = NylasEnv.config.observe(
       'core.workspace.showUnreadForAllCategories',
       @_updateSections
@@ -81,7 +79,7 @@ class AccountSidebarStore extends NylasStore
 
   _updateAccountsSection: =>
     @_sections[Sections.Accounts] = new AccountSidebarSection(
-      label: 'Accounts'
+      title: 'Accounts'
       items: []
     )
 
@@ -102,7 +100,7 @@ class AccountSidebarStore extends NylasStore
     items.push(draftsItem)
 
     @_sections[Sections.Mailboxes] = new AccountSidebarSection(
-      label: 'Mailboxes'
+      title: 'Mailboxes'
       items: items
     )
 
@@ -141,7 +139,7 @@ class AccountSidebarStore extends NylasStore
       seenItems[itemKey] = item
 
     @_sections[Sections.Categories] = new CategorySidebarSection(
-      label: CategoryHelpers.categoryLabel(@_account)
+      title: CategoryHelpers.categoryLabel(@_account)
       iconName: CategoryHelpers.categoryIconName(@_account)
       account: @_account
       items: items
