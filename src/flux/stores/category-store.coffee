@@ -41,19 +41,16 @@ class CategoryStore extends NylasStore
   # Public: Returns all of the standard categories for the current account.
   #
   standardCategories: (accountOrId) ->
-    return [] unless accountOrId
-    @_standardCategories[asAccountId(accountOrId)]
+    @_standardCategories[asAccountId(accountOrId)] ? []
 
   hiddenCategories: (accountOrId) ->
-    return [] unless accountOrId
-    @_hiddenCategories[asAccountId(accountOrId)]
+    @_hiddenCategories[asAccountId(accountOrId)] ? []
 
   # Public: Returns all of the categories that are not part of the standard
   # category set.
   #
   userCategories: (accountOrId) ->
-    return [] unless accountOrId
-    @_userCategories[asAccountId(accountOrId)]
+    @_userCategories[asAccountId(accountOrId)] ? []
 
   # Public: Returns the Folder or Label object for a standard category name and
   # for a given account.

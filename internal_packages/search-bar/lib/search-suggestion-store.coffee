@@ -28,7 +28,7 @@ class SearchSuggestionStore extends NylasStore
     @listenTo SearchActions.searchBlurred, @_onSearchBlurred
 
   _onPerspectiveChanged: =>
-    @_searchQuery = FocusedPerspectiveStore.current()?.searchQuery ? ""
+    @_searchQuery = FocusedPerspectiveStore.current().searchQuery ? ""
     @trigger()
 
   _onQueryChanged: (query) =>

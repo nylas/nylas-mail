@@ -13,7 +13,7 @@ class ThreadArchiveButton extends React.Component
     thread: React.PropTypes.object.isRequired
 
   render: =>
-    return false unless FocusedPerspectiveStore.current()?.canArchiveThreads()
+    return false unless FocusedPerspectiveStore.current().canArchiveThreads()
 
     <button className="btn btn-toolbar btn-archive"
             style={order: -107}
