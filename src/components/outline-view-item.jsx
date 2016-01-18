@@ -4,6 +4,12 @@ import DisclosureTriangle from './disclosure-triangle';
 import DropZone from './drop-zone';
 import RetinaImg from './retina-img';
 
+
+const CounterStyles = {
+  Default: 'def',
+  Alt: 'alt',
+}
+
 class OutlineViewItem extends Component {
   static displayName = 'OutlineView'
 
@@ -13,11 +19,11 @@ class OutlineViewItem extends Component {
     name: PropTypes.string.isRequired,
     iconName: PropTypes.string.isRequired,
     count: PropTypes.number,
-    useAltCountStyle: PropTypes.bool,
+    counterStyle: PropTypes.string,
     dataTransferType: PropTypes.string,
-    isCollapsed: PropTypes.bool,
-    isDeleted: PropTypes.bool,
-    isSelected: PropTypes.bool,
+    collapsed: PropTypes.bool,
+    deleted: PropTypes.bool,
+    selected: PropTypes.bool,
     shouldAcceptDrop: PropTypes.func,
     onToggleCollapsed: PropTypes.func,
     onDrop: PropTypes.func,
@@ -28,10 +34,11 @@ class OutlineViewItem extends Component {
   static defaultProps = {
     children: [],
     count: 0,
-    useAltCountStyle: false,
-    isCollapsed: false,
-    isDeleted: false,
-    isSelected: false,
+    counterStyle: CounterStyles.Default,
+    dataTransferType: '',
+    collapsed: false,
+    deleted: false,
+    selected: false,
     shouldAcceptDrop: ()=> false,
     onToggleCollapsed: ()=> {},
     onDrop: ()=> {},
@@ -59,15 +66,20 @@ class OutlineViewItem extends Component {
     }
   }
 
+  static CounterStyles = CounterStyles;
+
+
+  // Handlers
+
   _onShowContextMenu = ()=> {
     const item = this.props;
-    const label = item.name;
+    const name = item.name;
     const {remote} = require('electron');
     const {Menu, MenuItem} = remote.require('electron');
 
     const menu = new Menu();
     menu.append(new MenuItem({
-      label: `Delete ${label}`,
+      name: `Delete ${name}`,
       click: ()=> {
         item.onDelete(item.id);
       },
@@ -97,11 +109,14 @@ class OutlineViewItem extends Component {
     this.props.onSelect(this.props.id);
   }
 
+
+  // Renderers
+
   _renderCount(item = this.props) {
     if (!item.count) return <span></span>;
     const className = classnames({
       'item-count-box': true,
-      'alt-count': item.useAltCountStyle === true,
+      'alt-count': item.counterStyle === CounterStyles.Alt,
     });
     return <div className={className}>{item.count}</div>;
   }
@@ -118,9 +133,9 @@ class OutlineViewItem extends Component {
   _renderItem(item = this.props, state = this.state) {
     const containerClass = classnames({
       'item': true,
-      'selected': item.isSelected,
+      'selected': item.selected,
       'dropping': state.isDropping,
-      'deleted': item.isDeleted,
+      'deleted': item.deleted,
     });
 
     return (
@@ -139,7 +154,7 @@ class OutlineViewItem extends Component {
   }
 
   _renderChildren(item = this.props) {
-    if (item.children.length > 0 && !item.isCollapsed) {
+    if (item.children.length > 0 && !item.collapsed) {
       return (
         <section key={`${item.id}-children`}>
           {item.children.map(
@@ -157,7 +172,7 @@ class OutlineViewItem extends Component {
       <div>
         <span className="item-container">
           <DisclosureTriangle
-            collapsed={item.isCollapsed}
+            collapsed={item.collapsed}
             visible={item.children.length > 0}
             onToggleCollapsed={item.onToggleCollapsed} />
           {this._renderItem()}
