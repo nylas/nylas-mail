@@ -38,19 +38,19 @@ class SearchSuggestionStore extends NylasStore
 
   _onQuerySubmitted: (query) =>
     @_searchQuery = query
-    perspective = FocusedPerspectiveStore.current()
-    account = perspective.account
+    current = FocusedPerspectiveStore.current()
 
     if @_searchQuery.trim().length > 0
-      @_perspectiveBeforeSearch ?= perspective
-      Actions.focusMailboxPerspective(MailboxPerspective.forSearch(account, @_searchQuery))
+      @_perspectiveBeforeSearch ?= current
+      next = MailboxPerspective.forSearch(current.accountIds, @_searchQuery)
+      Actions.focusMailboxPerspective(next)
 
     else if @_searchQuery.trim().length is 0
       if @_perspectiveBeforeSearch
         Actions.focusMailboxPerspective(@_perspectiveBeforeSearch)
         @_perspectiveBeforeSearch = null
       else
-        Actions.focusDefaultMailboxPerspectiveForAccount(account)
+        Actions.focusDefaultMailboxPerspectiveForAccount(current.accountIds[0])
 
     @_clearResults()
 

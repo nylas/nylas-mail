@@ -2,8 +2,7 @@ _ = require 'underscore'
 
 Task = require './flux/tasks/task'
 Actions = require './flux/actions'
-Label = require './flux/models/label'
-Folder = require './flux/models/folder'
+Category = require './flux/models/category'
 Thread = require './flux/models/thread'
 Message = require './flux/models/message'
 AccountStore = require './flux/stores/account-store'
@@ -25,7 +24,7 @@ information about the current view. Maybe after the unified inbox refactor...
 ###
 MailRulesActions =
   markAsImportant: (message, thread) ->
-    DatabaseStore.findBy(Label, {
+    DatabaseStore.findBy(Category, {
       name: 'important',
       accountId: thread.accountId
     }).then (important) ->
@@ -33,10 +32,10 @@ MailRulesActions =
       return new ChangeLabelsTask(labelsToAdd: [important], threads: [thread])
 
   moveToTrash: (message, thread) ->
-    if AccountStore.accountForId(thread.accountId).categoryClass() is Label
+    if AccountStore.accountForId(thread.accountId).usesLabels()
       return MailRulesActions._applyStandardLabelRemovingInbox(message, thread, 'trash')
     else
-      DatabaseStore.findBy(Folder, { name: 'trash', accountId: thread.accountId }).then (folder) ->
+      DatabaseStore.findBy(Category, { name: 'trash', accountId: thread.accountId }).then (folder) ->
         return Promise.reject(new Error("The folder could not be found.")) unless folder
         return new ChangeFolderTask(folder: folder, threads: [thread])
 
@@ -48,13 +47,13 @@ MailRulesActions =
 
   changeFolder: (message, thread, value) ->
     return Promise.reject(new Error("A folder is required.")) unless value
-    DatabaseStore.findBy(Folder, { id: value, accountId: thread.accountId }).then (folder) ->
+    DatabaseStore.findBy(Category, { id: value, accountId: thread.accountId }).then (folder) ->
       return Promise.reject(new Error("The folder could not be found.")) unless folder
       return new ChangeFolderTask(folder: folder, threads: [thread])
 
   applyLabel: (message, thread, value) ->
     return Promise.reject(new Error("A label is required.")) unless value
-    DatabaseStore.findBy(Label, { id: value, accountId: thread.accountId }).then (label) ->
+    DatabaseStore.findBy(Category, { id: value, accountId: thread.accountId }).then (label) ->
       return Promise.reject(new Error("The label could not be found.")) unless label
       return new ChangeLabelsTask(labelsToAdd: [label], threads: [thread])
 
@@ -65,8 +64,8 @@ MailRulesActions =
 
   _applyStandardLabelRemovingInbox: (message, thread, value) ->
     Promise.props(
-      inbox: DatabaseStore.findBy(Label, { name: 'inbox', accountId: thread.accountId })
-      newLabel: DatabaseStore.findBy(Label, { name: value, accountId: thread.accountId })
+      inbox: DatabaseStore.findBy(Category, { name: 'inbox', accountId: thread.accountId })
+      newLabel: DatabaseStore.findBy(Category, { name: value, accountId: thread.accountId })
     ).then ({inbox, newLabel}) ->
       return Promise.reject(new Error("Could not find `inbox` or `#{value}` label")) unless inbox and newLabel
       return new ChangeLabelsTask

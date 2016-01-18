@@ -1,5 +1,6 @@
 Rx = require 'rx-lite'
 _ = require 'underscore'
+Category = require '../flux/models/category'
 QuerySubscriptionPool = require '../flux/models/query-subscription-pool'
 AccountStore = require '../flux/stores/account-store'
 DatabaseStore = require '../flux/stores/database-store'
@@ -31,21 +32,15 @@ CategoryOperators =
 CategoryObservables =
 
   forAllAccounts: =>
-    observable = Rx.Observable.fromStore(AccountStore).flatMapLatest ->
-      observables = AccountStore.accounts().map (account) ->
-        categoryClass = account.categoryClass()
-        Rx.Observable.fromQuery(DatabaseStore.findAll(categoryClass))
-      Rx.Observable.concat(observables)
+    observable = Rx.Observable.fromQuery(DatabaseStore.findAll(Category))
     _.extend(observable, CategoryOperators)
     observable
 
   forAccount: (account) =>
     if account
-      categoryClass = account.categoryClass()
-      observable = Rx.Observable.fromQuery(DatabaseStore.findAll(categoryClass)
-        .where(categoryClass.attributes.accountId.equal(account.id)))
+      observable = Rx.Observable.fromQuery(DatabaseStore.findAll(Category).where(accountId: account.id))
     else
-      observable = CategoryObservables.forAllAccounts()
+      observable = Rx.Observable.fromQuery(DatabaseStore.findAll(Category))
     _.extend(observable, CategoryOperators)
     observable
 

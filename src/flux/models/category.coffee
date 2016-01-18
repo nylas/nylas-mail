@@ -82,6 +82,12 @@ class Category extends Model
     super
     @
 
+  displayType: ->
+    if AccountStore.accountForId(@category.accountId).usesLabels()
+      return 'label'
+    else
+      return 'folder'
+
   hue: ->
     return 0 unless @displayName
     hue = 0

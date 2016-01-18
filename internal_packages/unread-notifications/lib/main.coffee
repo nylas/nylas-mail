@@ -56,7 +56,7 @@ module.exports =
         else
           NylasEnv.displayWindow()
 
-          MailboxPerspective filter = MailboxPerspective.forCategory(account, thread.categoryNamed('inbox'))
+          filter = MailboxPerspective.forCategory(thread.categoryNamed('inbox'))
           Actions.focusMailboxPerspective(filter)
           Actions.setFocus(collection: 'thread', item: thread)
 
