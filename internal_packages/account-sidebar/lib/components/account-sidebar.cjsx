@@ -2,8 +2,6 @@ React = require 'react'
 _ = require 'underscore'
 {OutlineView, ScrollRegion} = require 'nylas-component-kit'
 AccountSidebarStore = require '../account-sidebar-store'
-SidebarSection = require './sidebar-section'
-
 
 class AccountSidebar extends React.Component
   @displayName: 'AccountSidebar'

@@ -4,6 +4,7 @@ AccountStore = require './flux/stores/account-store'
 CategoryStore = require './flux/stores/category-store'
 DatabaseStore = require './flux/stores/database-store'
 SearchSubscription = require './search-subscription'
+ThreadCountsStore = require './flux/stores/thread-counts-store'
 MutableQuerySubscription = require './flux/models/mutable-query-subscription'
 CategoryHelpers = require './category-helpers'
 Thread = require './flux/models/thread'
@@ -54,6 +55,9 @@ class MailboxPerspective
   threads: =>
     throw new Error("threads: Not implemented in base class.")
 
+  threadUnreadCount: =>
+    0
+
   canApplyToThreads: =>
     throw new Error("canApplyToThreads: Not implemented in base class.")
 
@@ -71,6 +75,9 @@ class MailboxPerspective
     for aid in @accountIds
       return false unless CategoryStore.getTrashCategory(AccountStore.accountForId(aid))
     return true
+
+  isInbox: =>
+    false
 
 class SearchMailboxPerspective extends MailboxPerspective
   constructor: (@accountIds, @searchQuery) ->
@@ -170,8 +177,17 @@ class CategoryMailboxPerspective extends MailboxPerspective
 
     return new MutableQuerySubscription(query, {asResultSet: true})
 
+  threadUnreadCount: =>
+    sum = 0
+    for cat in @_categories
+      sum += ThreadCountsStore.unreadCountForCategoryId(cat.id)
+    sum
+
   categories: =>
     @_categories
+
+  isInbox: =>
+    @_categories[0].name is 'inbox'
 
   canApplyToThreads: =>
     not _.any @_categories, (c) -> c.isLockedCategory()

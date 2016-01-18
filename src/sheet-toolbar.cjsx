@@ -45,11 +45,11 @@ class ToolbarBack extends React.Component
     Category ?= require './flux/models/category'
     FocusedPerspectiveStore ?= require './flux/stores/focused-perspective-store'
     @state =
-      categoryName: FocusedPerspectiveStore.current()?.name
+      categoryName: FocusedPerspectiveStore.current().name
 
   componentDidMount: =>
     @_unsubscriber = FocusedPerspectiveStore.listen =>
-      @setState(categoryName: FocusedPerspectiveStore.current()?.name)
+      @setState(categoryName: FocusedPerspectiveStore.current().name)
 
   componentWillUnmount: =>
     @_unsubscriber() if @_unsubscriber
