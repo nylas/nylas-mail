@@ -1,6 +1,7 @@
 NylasStore = require 'nylas-store'
 _ = require 'underscore'
 {DatabaseStore,
+ AccountStore,
  ThreadCountsStore,
  DraftCountStore,
  WorkspaceStore,
@@ -27,7 +28,8 @@ class AccountSidebarStore extends NylasStore
 
   constructor: ->
     @_sections = {}
-    @_account = AccountStore.accounts()[0]#.current()?.account
+    @_account = AccountStore.accounts()[0] # TODO Just to prevent a crash at launch
+#    @_account = FocusedPerspectiveStore.current().account
     @_registerListeners()
     @_updateAccountsSection()
     @_updateSections()
@@ -61,7 +63,7 @@ class AccountSidebarStore extends NylasStore
 
   # TODO this needs to change
   _onPerspectiveChanged: =>
-    account = FocusedPerspectiveStore.current()?.account
+    account = FocusedPerspectiveStore.current().account
     if account?.id isnt @_account?.id
       @_account = account
       @_updateSections()
@@ -84,14 +86,15 @@ class AccountSidebarStore extends NylasStore
     )
 
   _updateMailboxesSection: =>
+    return unless @_account
+
     # Drafts are displayed via a `DraftListSidebarItem`
     standardCategories = CategoryStore.standardCategories(@_account)
     items = _.reject(standardCategories, (cat) => cat.name is "drafts")
       .map (cat) =>
-        perspective = MailboxPerspective.forCategory(@_account, cat)
-        new MailboxPerspectiveSidebarItem(perspective)
+        new MailboxPerspectiveSidebarItem(MailboxPerspective.forCategory(cat))
 
-    starredItem = new MailboxPerspectiveSidebarItem(MailboxPerspective.forStarred(@_account))
+    starredItem = new MailboxPerspectiveSidebarItem(MailboxPerspective.forStarred([@_account.id]))
     draftsItem = new DraftListSidebarItem('Drafts', 'drafts.png', WorkspaceStore.Sheet.Drafts)
 
     # Order correctly: Inbox, Starred, rest... , Drafts
@@ -104,6 +107,8 @@ class AccountSidebarStore extends NylasStore
     )
 
   _updateCategoriesSection: =>
+    return unless @_account
+
     # Compute hierarchy for user categories using known "path" separators
     # NOTE: This code uses the fact that userCategoryItems is a sorted set, eg:
     #

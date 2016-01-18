@@ -4,38 +4,49 @@
  DraftCountStore,
  DestroyCategoryTask,
  Actions} = require 'nylas-exports'
+_ = require 'underscore'
 AccountSidebarActions = require './account-sidebar-actions'
-
 
 class MailboxPerspectiveSidebarItem
 
   constructor: (@mailboxPerspective, @shortenedName, @children = []) ->
-    @category = @mailboxPerspective.category()
+    category = @mailboxPerspective.categories()[0]
 
-    @id = @category?.id ? @mailboxPerspective.name
+    @id = category?.id ? @mailboxPerspective.name
     @name = @shortenedName ? @mailboxPerspective.name
     @iconName = @mailboxPerspective.iconName
-    @count = @_count()
     @dataTransferType = 'nylas-thread-ids'
-    @useAltCountStyle = true if @category?.name is 'inbox'
+    @useAltCountStyle = true if @mailboxPerspective.isInbox()
 
+    # Sidenote: I think treating the sidebar items as dumb bundles of data is a
+    # good idea. `count` /shouldn't/ be a function since if it's value changes,
+    # it wouldn't trigger a refresh or anything. It'd just be confusing if it
+    # could change. But making these all classes makes it feel like you should
+    # call these methods externally.
+    #
+    # Might be good to make a factory that returns OutlineViewItemModels instead
+    # of having classes here. eg: AccountSidebar.itemForPerspective(p) returns
+    #    { count: X, isSelected: false, isDeleted: true}...
+    #
+    @count = @_count()
     @isSelected = @_isSelected()
+    @isDeleted = @_isDeleted()
     @isCollapsed = @_isCollapsed()
-    @isDeleted = @category?.isDeleted is true
+
+    @
 
   _count: =>
     unreadCountEnabled = NylasEnv.config.get('core.workspace.showUnreadForAllCategories')
-    if @category and (@category.name is 'inbox' or unreadCountEnabled)
-      return ThreadCountsStore.unreadCountForCategoryId(@category.id)
+    if @mailboxPerspective.isInbox() or unreadCountEnabled
+      return @mailboxPerspective.threadUnreadCount()
     return 0
 
-  _isSelected: ->
-    if WorkspaceStore.rootSheet() is WorkspaceStore.Sheet.Threads
-      current = FocusedPerspectiveStore.current()
-      return (
-        @id is current?.category()?.id or
-        @id is current?.name
-      )
+  _isSelected: =>
+    (WorkspaceStore.rootSheet() is WorkspaceStore.Sheet.Threads and
+     FocusedPerspectiveStore.current().isEqual(@mailboxPerspective))
+
+  _isDeleted: =>
+    _.any @mailboxPerspective.categories(), (c) -> c.isDeleted
 
   _isCollapsed: =>
     key = "core.accountSidebarCollapsed.#{@id}"
@@ -70,9 +81,11 @@ class MailboxPerspectiveSidebarItem
 
 class SheetSidebarItem
 
-  constructor: (@name, @iconName, @sheet, @count) ->
+  constructor: (@name, @iconName, @sheet) ->
     @id = @sheet?.id ? @name
-    @isSelected = WorkspaceStore.rootSheet().id is @id
+
+  isSelected: =>
+    WorkspaceStore.rootSheet().id is @id
 
   onSelect: =>
     Actions.selectRootSheet(@sheet)
@@ -83,7 +96,9 @@ class DraftListSidebarItem extends SheetSidebarItem
 
   constructor: ->
     super
-    @count = DraftCountStore.count()
+
+  count: ->
+    DraftCountStore.count()
 
 
 module.exports = {
