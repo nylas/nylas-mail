@@ -8,7 +8,7 @@ MutableQuerySubscription = require './flux/models/mutable-query-subscription'
 
 class SearchSubscription extends MutableQuerySubscription
 
-  constructor: (@_terms, @_accountId) ->
+  constructor: (@_terms, @_accountIds) ->
     super(null, {asResultSet: true})
 
     @_version = 0
@@ -30,15 +30,21 @@ class SearchSubscription extends MutableQuerySubscription
   retrievePage: (idx) =>
     version = @_version += 1
 
-    NylasAPI.makeRequest
-      method: 'GET'
-      path: "/threads/search?q=#{encodeURIComponent(@_terms)}"
-      accountId: @_accountId
-      json: true
-      returnsModel: true
-    .then (threads) =>
+    requests = @_accountIds.map (aid) =>
+      NylasAPI.makeRequest
+        method: 'GET'
+        path: "/threads/search?q=#{encodeURIComponent(@_terms)}"
+        accountId: aid
+        json: true
+        returnsModel: true
+
+    Promise.all(requests).then (resultArrays) =>
       return unless @_version is version
-      query = DatabaseStore.findAll(Thread).where(id: _.pluck(threads, 'id'))
+      resultIds = []
+      for resultArray in resultArrays
+        resultIds = resultIds.concat _.pluck(resultArray, 'id')
+
+      query = DatabaseStore.findAll(Thread).where(id: resultIds).order(Thread.attributes.lastMessageReceivedTimestamp.descending())
       @replaceQuery(query)
 
 module.exports = SearchSubscription
