@@ -29,6 +29,7 @@ We're working on building a plugin index that makes it super easy to add them to
 - In development: [Ubuntu](https://github.com/ahmedlhanafy/Ubuntu-Ui-Theme-for-Nylas-N1)
 - In development: [Material](https://github.com/equinusocio/N1-Material) ([preview](https://twitter.com/MattiaAstorino/status/683348095770456064))
 - In Development: [Ido](https://github.com/edipox/n1-ido) -- Polymail-inspired theme
+- In Development: [Wattenberger](https://github.com/Wattenberger/Nylas-N1-theme)
 
 ##### Composer
 - [Translate](https://github.com/nylas/N1/tree/master/internal_packages/composer-translate) -- Works with 10 languages
