@@ -23,28 +23,26 @@ class SearchSubscription extends MutableQuerySubscription
     @retrievePage(0)
 
   replaceRange: (range) =>
-    @retrievePage(Math.floor(range.start / 100))
+    # TODO
 
   # Accessing Data
 
   retrievePage: (idx) =>
     version = @_version += 1
+    resultIds = []
 
-    requests = @_accountIds.map (aid) =>
+    @_accountIds.forEach (aid) =>
       NylasAPI.makeRequest
         method: 'GET'
         path: "/threads/search?q=#{encodeURIComponent(@_terms)}"
         accountId: aid
         json: true
         returnsModel: true
+      .then (threads) =>
+        return unless @_version is version
 
-    Promise.all(requests).then (resultArrays) =>
-      return unless @_version is version
-      resultIds = []
-      for resultArray in resultArrays
-        resultIds = resultIds.concat _.pluck(resultArray, 'id')
-
-      query = DatabaseStore.findAll(Thread).where(id: resultIds).order(Thread.attributes.lastMessageReceivedTimestamp.descending())
-      @replaceQuery(query)
+        resultIds = resultIds.concat _.pluck(threads, 'id')
+        query = DatabaseStore.findAll(Thread).where(id: resultIds).order(Thread.attributes.lastMessageReceivedTimestamp.descending())
+        @replaceQuery(query)
 
 module.exports = SearchSubscription
