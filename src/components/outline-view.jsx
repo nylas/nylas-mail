@@ -6,6 +6,7 @@ import RetinaImg from './retina-img';
 import OutlineViewItem from './outline-view-item';
 
 
+// TODO Docs
 class OutlineView extends Component {
   static displayName = 'OutlineView'
 
@@ -25,6 +26,9 @@ class OutlineView extends Component {
   state = {
     showCreateInput: false,
   }
+
+
+  // Handlers
 
   _onCreateButtonMouseDown = ()=> {
     this._clickingCreateButton = true;
@@ -50,6 +54,9 @@ class OutlineView extends Component {
       this.setState({showCreateInput: false});
     }
   }
+
+
+  // Renderers
 
   _renderCreateButton() {
     const title = this.props.title;
@@ -84,7 +91,7 @@ class OutlineView extends Component {
             type="text"
             tabIndex="1"
             className="add-item-input"
-            onKeyDown={_.partial(this._onInputKeyDown, _, section)}
+            onKeyDown={this._onInputKeyDown}
             onBlur={this._onInputBlur}
             placeholder={placeholder}/>
         </div>
@@ -94,9 +101,7 @@ class OutlineView extends Component {
 
   _renderItems() {
     return this.props.items.map(item => (
-      <OutlineViewItem
-        key={item.id}
-        {...item} />
+      <OutlineViewItem key={item.id} item={item} />
     ));
   }
 

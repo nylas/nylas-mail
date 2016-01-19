@@ -38,7 +38,7 @@ class CategoryStore extends NylasStore
         all = all.concat(_.values(categories))
       all
 
-  # Public: Returns all of the standard categories for the current account.
+  # Public: Returns all of the standard categories for the given account.
   #
   standardCategories: (accountOrId) ->
     @_standardCategories[asAccountId(accountOrId)] ? []

@@ -1,7 +1,7 @@
 React = require 'react/addons'
 TestUtils = React.addons.TestUtils
-AccountSwitcher = require './../lib/account-switcher'
-AccountSidebarStore = require './../lib/account-sidebar-store'
+AccountSwitcher = require './../lib/components/account-switcher'
+SidebarStore = require './../lib/sidebar-store'
 {AccountStore} = require 'nylas-exports'
 
 describe "AccountSwitcher", ->
@@ -17,7 +17,7 @@ describe "AccountSwitcher", ->
         label: "work"
       }
     ]
-    spyOn(AccountSidebarStore, "currentAccount").andReturn account
+    spyOn(SidebarStore, "currentAccount").andReturn account
 
     switcher = TestUtils.renderIntoDocument(
       <AccountSwitcher />

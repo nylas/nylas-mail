@@ -1,5 +1,5 @@
 React = require 'react'
-AccountSidebarStore = require './account-sidebar-store'
+SidebarStore = require '../sidebar-store'
 {Actions, AccountStore} = require("nylas-exports")
 {RetinaImg} = require 'nylas-component-kit'
 crypto = require 'crypto'
@@ -129,6 +129,6 @@ class AccountSwitcher extends React.Component
 
   _getStateFromStores: =>
     accounts: AccountStore.accounts()
-    account:  AccountSidebarStore.currentAccount()
+    account:  SidebarStore.currentAccount()
 
 module.exports = AccountSwitcher
