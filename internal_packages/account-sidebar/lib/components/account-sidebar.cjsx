@@ -1,7 +1,7 @@
 _ = require 'underscore'
 React = require 'react'
 {OutlineView, ScrollRegion} = require 'nylas-component-kit'
-AccountSidebarStore = require '../account-sidebar-store'
+SidebarStore = require '../sidebar-store'
 
 
 class AccountSidebar extends React.Component
@@ -17,7 +17,7 @@ class AccountSidebar extends React.Component
 
   componentDidMount: =>
     @unsubscribers = []
-    @unsubscribers.push AccountSidebarStore.listen @_onStoreChange
+    @unsubscribers.push SidebarStore.listen @_onStoreChange
 
   componentWillUnmount: =>
     unsubscribe() for unsubscribe in @unsubscribers
@@ -26,19 +26,21 @@ class AccountSidebar extends React.Component
     @setState @_getStateFromStores()
 
   _getStateFromStores: =>
-    sections: [
-      AccountSidebarStore.mailboxesSection()
-      AccountSidebarStore.categoriesSection()
-    ]
+    standardSection: SidebarStore.standardSection()
+    userSections: SidebarStore.userSections()
 
-  _renderSections: =>
-    @state.sections.map (section) =>
-      <OutlineView key={section.label} {...section} />
+  _renderUserSections: (sections) =>
+    sections.map (section) =>
+      <OutlineView key={section.title} {...section} />
 
   render: =>
+    standardSection = @state.standardSection
+    userSections = @state.userSections
+
     <ScrollRegion className="account-sidebar" >
       <div className="account-sidebar-sections">
-        {@_renderSections()}
+        <OutlineView {...standardSection} />
+        {@_renderUserSections(userSections)}
       </div>
     </ScrollRegion>
 

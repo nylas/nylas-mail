@@ -160,7 +160,7 @@ class CategoryMailboxPerspective extends MailboxPerspective
     if @_categories[0].name
       @iconName = "#{@_categories[0].name}.png"
     else
-      @iconName = CategoryHelpers.categoryIconName(@accountIds[0])
+      @iconName = CategoryHelpers.categoryIconName(AccountStore.accountForId(@accountIds[0]))
 
     @
 

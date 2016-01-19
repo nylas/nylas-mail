@@ -1,10 +1,12 @@
-Reflux = require 'reflux'
 _ = require 'underscore'
-FocusedPerspectiveStore = require './focused-perspective-store'
-DatabaseStore = require './database-store'
-DraftStore = require './draft-store'
+Rx = require 'rx-lite'
+NylasStore = require 'nylas-store'
 Actions = require '../actions'
 Message = require '../models/message'
+Account = require '../models/account'
+DatabaseStore = require './database-store'
+AccountStore = require './account-store'
+FocusedPerspectiveStore = require './focused-perspective-store'
 
 ###
 Public: The DraftCountStore exposes a simple API for getting the number of
@@ -17,38 +19,34 @@ The DraftCountStore is only available in the main window.
 
 if not NylasEnv.isMainWindow() and not NylasEnv.inSpecMode() then return
 
-DraftCountStore = Reflux.createStore
-  init: ->
-    @listenTo FocusedPerspectiveStore, @_onFocusedPerspectiveChanged
-    @listenTo DraftStore, @_onDraftChanged
-    @_view = FocusedPerspectiveStore.current()
-    @_count = null
-    _.defer => @_fetchCount()
+class DraftCountStore extends NylasStore
 
-  # Public: Returns the number of drafts in the user's mailbox
-  count: ->
-    @_count
+  constructor: ->
+    @_counts = {}
+    @_total = 0
+    @_disposable = Rx.Observable.fromQuery(
+      DatabaseStore.findAll(Message).where([Message.attributes.draft.equal(true)])
+    ).subscribe(@_onDraftsChanged)
 
-  _onFocusedPerspectiveChanged: ->
-    view = FocusedPerspectiveStore.current()
-    if view? and not(view.isEqual(@_view))
-      @_view = view
-      @_onDraftChanged()
+  totalCount: ->
+    @_total
 
-  _onDraftChanged: ->
-    @_fetchCountDebounced ?= _.debounce(@_fetchCount, 250)
-    @_fetchCountDebounced()
+  # Public: Returns the number of drafts for the given account
+  count: (accountOrId)->
+    return 0 unless accountOrId
+    accountId = if accountOrId instanceof Account
+      accountOrId.id
+    else
+      accountOrId
+    @_counts[accountId]
 
-  _fetchCount: ->
-    account = @_view?.account
-    matchers = [
-      Message.attributes.draft.equal(true)
-    ]
-    matchers.push(Message.attributes.accountId.equal(account.accountId)) if account?
+  _onDraftsChanged: (drafts) =>
+    @_total = 0
+    @_counts = {}
+    for account in AccountStore.accounts()
+      @_counts[account.id] = _.where(drafts, accountId: account.id).length
+      @_total += @_counts[account.id]
+    @trigger()
 
-    DatabaseStore.count(Message, matchers).then (count) =>
-      return if @_count is count
-      @_count = count
-      @trigger()
 
-module.exports = DraftCountStore
+module.exports = new DraftCountStore()

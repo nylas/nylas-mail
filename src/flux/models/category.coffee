@@ -88,6 +88,7 @@ class Category extends Model
     @
 
   displayType: ->
+    AccountStore = require '../stores/account-store'
     if AccountStore.accountForId(@category.accountId).usesLabels()
       return 'label'
     else
