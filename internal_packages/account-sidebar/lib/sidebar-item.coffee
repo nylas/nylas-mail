@@ -28,6 +28,11 @@ isItemCollapsed = (id) ->
   key = "core.accountSidebarCollapsed.#{id}"
   NylasEnv.config.get(key)
 
+toggleItemCollapsed = (item) ->
+  return unless item.children.length > 0
+  key = "core.accountSidebarCollapsed.#{item.id}"
+  NylasEnv.config.set(key, not item.collapsed)
+
 
 class SidebarItem
 
@@ -57,10 +62,7 @@ class SidebarItem
       counterStyle: counterStyle
       dataTransferType: dataTransferType
       onDelete: onDeleteItem
-      onToggleCollapsed: (item) ->
-        return unless item.children.length > 0
-        key = "core.accountSidebarCollapsed.#{item.id}"
-        NylasEnv.config.set(key, not item.collapsed)
+      onToggleCollapsed: toggleItemCollapsed
       onDrop: (item, ids) ->
         return unless ids
         item.perspective.applyToThreads(ids)
@@ -87,8 +89,7 @@ class SidebarItem
     id += "-#{opts.name}" if opts.name
     @forPerspective(id, perspective, opts)
 
-  @forSheet: (name, iconName, sheet, count, children = []) ->
-    id = sheet?.id ? name
+  @forSheet: (id, name, iconName, sheet, count, children = []) ->
     return {
       id,
       name,
@@ -96,19 +97,22 @@ class SidebarItem
       count,
       sheet,
       children,
+      collapsed: isItemCollapsed(id)
+      onToggleCollapsed: toggleItemCollapsed
       onSelect: (item) ->
         Actions.selectRootSheet(item.sheet)
     }
 
   @forDrafts: ({accountId, name, children} = {}) ->
+    id = 'Drafts'
+    id += "-#{name}" if name
     sheet = WorkspaceStore.Sheet.Drafts
     iconName = 'drafts.png'
-    name ?= 'Drafts'
     count = if accountId?
       DraftCountStore.count(accountId)
     else
       DraftCountStore.totalCount()
-    @forSheet(name, iconName, sheet, count)
+    @forSheet(id, name ? id, iconName, sheet, count, children)
 
 
 module.exports = SidebarItem
