@@ -99,7 +99,4 @@ class Account extends Model
     else
       return @provider
 
-  usesImportantFlag: ->
-    @provider is 'gmail'
-
 module.exports = Account
