@@ -1,6 +1,7 @@
 _ = require 'underscore'
 Task = require './task'
 Thread = require '../models/thread'
+Category = require '../models/category'
 Message = require '../models/message'
 DatabaseStore = require '../stores/database-store'
 ChangeMailTask = require './change-mail-task'
