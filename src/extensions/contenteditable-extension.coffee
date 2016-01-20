@@ -148,4 +148,73 @@ class ContenteditableExtension
   ###
   @onShowContextMenu: ({editor, event, menu}) ->
 
+  ###
+  Public: Override `keyCommandHandlers` to declaratively map keyboard
+  commands to callbacks.
+
+  Return an object keyed by the command name whose values are the
+  callbacks.
+
+  Callbacks are automatically bound to the Contenteditable context and
+  passed `({editor, event})` as its argument.
+
+  New commands are defined in keymap.cson files.
+  ###
+  @keyCommandHandlers: =>
+
+  ###
+  Public: Override `toolbarButtons` to declaratively add your own button
+  to the composer's toolbar.
+
+  - toolbarState: The current state of the Toolbar and Composer. This is
+  Read only.
+
+  Must return an array of objects obeying the following spec:
+    - className: A string class name
+    - onClick: Callback to fire when your button is clicked. The callback
+    is automatically bound to the editor and will get passed an single
+    object with the following args.
+      - editor - The {Editor} controller for manipulating the DOM
+      - event - The click Event object
+    - tooltip: A string to display when users hover over your button
+    - iconUrl: A url for the icon.
+  ###
+  @toolbarButtons: ({toolbarState}) ->
+
+  ###
+  Public: Override `toolbarComponentConfig` to declaratively show your own
+  toolbar when certain conditions are met.
+
+  If you want to hide your toolbar component, return null.
+
+  If you want to display your toolbar, then return an object with the
+  signature indicated below.
+
+  This methods gets called anytime the `toolbarState` changes. Since
+  `toolbarState` includes the current value of the Selection and any
+  objects a user is hovering over, you should expect it to change very
+  frequently.
+
+  - toolbarState: The current state of the Toolbar and Composer. This is
+  Read only.
+    - dragging
+    - doubleDown
+    - hoveringOver
+    - editableNode
+    - exportedSelection
+    - extensions
+    - atomicEdit
+
+  Must return an object with the following signature
+    - component: A React component or null.
+    - props: Props to be passed into your custom Component
+    - locationRefNode: Anything (usually a DOM Node) that responds to
+    `getBoundingClientRect`. This is used to determine where to display
+    your component.
+    - width: The width of your component. This is necessary because when
+    your component is displayed in the {FloatingToolbar}, the position is
+    pre-computed based on the absolute width of the item.
+  ###
+  @toolbarComponentConfig: ({toolbarState}) ->
+
 module.exports = ContenteditableExtension

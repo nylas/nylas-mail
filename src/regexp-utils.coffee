@@ -1,3 +1,4 @@
+_ = require('underscore')
 RegExpUtils =
 
   # It's important that the regex be wrapped in parens, otherwise
@@ -18,6 +19,14 @@ RegExpUtils =
 
   # https://regex101.com/r/zG7aW4/3
   imageTagRegex: -> /<img\s+[^>]*src="([^"]*)"[^>]*>/g
+
+  punctuation: ({exclude}={}) ->
+    exclude ?= []
+    punctuation = [ '.', ',', '\\/', '#', '!', '$', '%', '^', '&', '*',
+      ';', ':', '{', '}', '=', '\\-', '_', '`', '~', '(', ')', '@', '+',
+      '?', '>', '<', '\\[', '\\]', '+' ]
+    punctuation = _.difference(punctuation, exclude).join('')
+    return new RegExp("[#{punctuation}]", 'g')
 
   # This tests for valid schemes as per RFC 3986
   # We need both http: https: and mailto: and a variety of other schemes.

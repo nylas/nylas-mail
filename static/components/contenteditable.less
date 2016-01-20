@@ -10,6 +10,10 @@
 
   div[contenteditable], .contenteditable {
     flex: 1;
+
+    a:hover {
+      cursor: text;
+    }
   }
 
   spelling.misspelled {
@@ -30,9 +34,7 @@
 
     transition-duration: .15s;
     transition-property: opacity, margin;
-    opacity: 0;
-    visibility: hidden;
-    margin-top: 3px;
+    margin-top: 0;
 
     &.toolbar-visible {
       opacity: 1;

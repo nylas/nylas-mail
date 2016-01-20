@@ -82,7 +82,6 @@
 
   ### Advanced formatting commands ###
   'cmdctrl-&': 'contenteditable:numbered-list'
-  'cmdctrl-#': 'contenteditable:numbered-list'
   'cmdctrl-*': 'contenteditable:bulleted-list'
   'cmdctrl-(': 'contenteditable:quote'
 

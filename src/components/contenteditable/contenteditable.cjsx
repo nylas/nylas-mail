@@ -3,17 +3,21 @@ React = require 'react'
 
 {Utils, DOMUtils} = require 'nylas-exports'
 {KeyCommandsRegion} = require 'nylas-component-kit'
-FloatingToolbarContainer = require './floating-toolbar-container'
+FloatingToolbar = require './floating-toolbar'
 
 EditorAPI = require './editor-api'
 ExtendedSelection = require './extended-selection'
 
 TabManager = require './tab-manager'
+LinkManager = require './link-manager'
 ListManager = require './list-manager'
 MouseService = require './mouse-service'
 DOMNormalizer = require './dom-normalizer'
 ClipboardService = require './clipboard-service'
 BlockquoteManager = require './blockquote-manager'
+ToolbarButtonManager = require './toolbar-button-manager'
+EmphasisFormattingExtension = require './emphasis-formatting-extension'
+ParagraphFormattingExtension = require './paragraph-formatting-extension'
 
 ###
 Public: A modern React-compatible contenteditable
@@ -63,12 +67,20 @@ class Contenteditable extends React.Component
 
   coreServices: [MouseService, ClipboardService]
 
-  coreExtensions: [DOMNormalizer, ListManager, TabManager, BlockquoteManager]
+  coreExtensions: [
+    ToolbarButtonManager
+    ListManager
+    TabManager
+    EmphasisFormattingExtension
+    ParagraphFormattingExtension
+    LinkManager
+    BlockquoteManager
+    DOMNormalizer
+  ]
 
-
-  ########################################################################
-  ########################### Public Methods #############################
-  ########################################################################
+  ######################################################################
+  ########################### Public Methods ###########################
+  ######################################################################
 
   ### Public: perform an editing operation on the Contenteditable
 
@@ -91,28 +103,40 @@ class Contenteditable extends React.Component
       editor.importSelection(@innerState.exportedSelection)
 
     argsObj = _.extend(extraArgsObj, {editor})
-    editingFunction(argsObj)
+
+    try
+      editingFunction(argsObj)
+    catch error
+      NylasEnv.emitError(error)
 
     @_setupListeners()
 
   focus: => @_editableNode().focus()
 
 
-  ########################################################################
-  ########################### React Lifecycle ############################
-  ########################################################################
+  ######################################################################
+  ########################## React Lifecycle ###########################
+  ######################################################################
 
   constructor: (@props) ->
-    @innerState = {}
+    @state = {}
+    @innerState = {
+      dragging: false
+      doubleDown: false
+      hoveringOver: false # see {MouseService}
+      editableNode: null
+      exportedSelection: null
+      previousExportedSelection: null
+    }
     @_mutationObserver = new MutationObserver(@_onDOMMutated)
 
   componentWillMount: =>
     @_setupServices()
 
   componentDidMount: =>
+    @setInnerState editableNode: @_editableNode()
     @_setupListeners()
     @_mutationObserver.observe(@_editableNode(), @_mutationConfig())
-    @setInnerState editableNode: @_editableNode()
 
   # When we have a composition event in progress, we should not update
   # because otherwise our composition event will be blown away.
@@ -123,16 +147,16 @@ class Contenteditable extends React.Component
 
   componentWillReceiveProps: (nextProps) =>
     if nextProps.initialSelectionSnapshot?
-      @_saveExportedSelection(nextProps.initialSelectionSnapshot)
+      @setInnerState
+        exportedSelection: nextProps.initialSelectionSnapshot
+        previousExportedSelection: @innerState.exportedSelection
 
   componentDidUpdate: =>
     @_restoreSelection()
     @_refreshServices()
     @_mutationObserver.disconnect()
     @_mutationObserver.observe(@_editableNode(), @_mutationConfig())
-    @setInnerState
-      links: @_editableNode().querySelectorAll("*[href]")
-      editableNode: @_editableNode()
+    @setInnerState editableNode: @_editableNode()
 
   componentWillUnmount: =>
     @_mutationObserver.disconnect()
@@ -140,8 +164,10 @@ class Contenteditable extends React.Component
     @_teardownServices()
 
   setInnerState: (innerState={}) =>
+    return if _.isMatch(@innerState, innerState)
     @innerState = _.extend @innerState, innerState
-    @refs["toolbarController"]?.componentWillReceiveInnerProps(innerState)
+    if @_broadcastInnerStateToToolbar
+      @refs["toolbarController"]?.componentWillReceiveInnerProps(@innerState)
     @_refreshServices()
 
   _setupServices: ->
@@ -157,9 +183,9 @@ class Contenteditable extends React.Component
     service.teardown() for service in @_services
 
 
-  ########################################################################
-  ############################### Render #################################
-  ########################################################################
+  ######################################################################
+  ############################## Render ################################
+  ######################################################################
 
   render: =>
     <KeyCommandsRegion className="contenteditable-container"
@@ -176,20 +202,24 @@ class Contenteditable extends React.Component
 
   _renderFloatingToolbar: ->
     return unless @props.floatingToolbar
-    <FloatingToolbarContainer
-        ref="toolbarController" atomicEdit={@atomicEdit} />
+    <FloatingToolbar
+        ref="toolbarController"
+        atomicEdit={@atomicEdit}
+        extensions={@_extensions()} />
 
   _editableNode: =>
     React.findDOMNode(@refs.contenteditable)
 
 
-  ########################################################################
-  ############################ Listener Setup ############################
-  ########################################################################
+  ######################################################################
+  ########################### Listener Setup ###########################
+  ######################################################################
 
   _eventHandlers: =>
     handlers = {}
     _.extend(handlers, service.eventHandlers()) for service in @_services
+
+    # NOTE: See {MouseService} for more handlers
     handlers = _.extend handlers,
       onBlur: @_onBlur
       onFocus: @_onFocus
@@ -198,29 +228,38 @@ class Contenteditable extends React.Component
       onCompositionStart: @_onCompositionStart
     return handlers
 
-  _keymapHandlers: ->
-    atomicEditWrap = (command) =>
-      (event) =>
-        @atomicEdit((({editor}) -> editor[command]()), event)
-
-    keymapHandlers = {
-      'contenteditable:bold': atomicEditWrap("bold")
-      'contenteditable:italic': atomicEditWrap("italic")
-      'contenteditable:indent': atomicEditWrap("indent")
-      'contenteditable:outdent': atomicEditWrap("outdent")
-      'contenteditable:underline': atomicEditWrap("underline")
-      'contenteditable:numbered-list': atomicEditWrap("insertOrderedList")
-      'contenteditable:bulleted-list': atomicEditWrap("insertUnorderedList")
-    }
-
+  # This extracts extensions keymap handlers and binds them to be called
+  # through `atomicEdit`. This exposes the `{editor, event}` props to any
+  # keyCommandHandlers callbacks.
+  _boundExtensionKeymapHandlers: ->
+    keymapHandlers = {}
+    @_extensions().forEach (extension) =>
+      return unless _.isFunction(extension.keyCommandHandlers)
+      try
+        extensionHandlers = extension.keyCommandHandlers.call(extension)
+        _.each extensionHandlers, (handler, command) =>
+          keymapHandlers[command] = (event) =>
+            @atomicEdit(handler, {event})
+      catch error
+        NylasEnv.emitError(error)
     return keymapHandlers
 
+  # NOTE: Keymaps are now broken apart into individual extensions. See the
+  # `EmphasisFormattingExtension`, `ParagraphFormattingExtension`,
+  # `ListManager`, and `LinkManager` for examples of extensions listening
+  # to keymaps.
+  _keymapHandlers: ->
+    defaultKeymaps = {}
+    return _.extend(defaultKeymaps, @_boundExtensionKeymapHandlers())
+
   _setupListeners: =>
-    document.addEventListener("selectionchange", @_onSelectionChange)
+    @_broadcastInnerStateToToolbar = true
+    document.addEventListener("selectionchange", @_saveSelection)
     @_editableNode().addEventListener('contextmenu', @_onShowContextMenu)
 
   _teardownListeners: =>
-    document.removeEventListener("selectionchange", @_onSelectionChange)
+    @_broadcastInnerStateToToolbar = false
+    document.removeEventListener("selectionchange", @_saveSelection)
     @_editableNode().removeEventListener('contextmenu', @_onShowContextMenu)
 
   # https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
@@ -233,9 +272,9 @@ class Contenteditable extends React.Component
     characterDataOldValue: true
 
 
-  ########################################################################
-  ############################ Event Handlers ############################
-  ########################################################################
+  ######################################################################
+  ########################### Event Handlers ###########################
+  ######################################################################
 
   # Every time the contents of the contenteditable DOM node change, the
   # `_onDOMMutated` event gets fired.
@@ -251,15 +290,22 @@ class Contenteditable extends React.Component
     @_mutationObserver.disconnect()
     @setInnerState dragging: false if @innerState.dragging
     @setInnerState doubleDown: false if @innerState.doubleDown
+    @_broadcastInnerStateToToolbar = false
 
     @_runCallbackOnExtensions("onContentChanged", {mutations})
 
-    selection = new ExtendedSelection(@_editableNode())
-    if selection?.isInScope()
-      @_saveExportedSelection(selection.exportSelection())
+    # NOTE: The DOMNormalizer should be the last extension to run. This
+    # will ensure that when we extract our innerHTML and re-set it during
+    # the next render the contents should look identical.
+    #
+    # Also, remember that our selection listeners have been turned off.
+    # It's very likely that one of our callbacks mutated the DOM and the
+    # selection. We need to be sure to re-save the selection.
+    @_saveSelection()
 
     @props.onChange(target: {value: @_editableNode().innerHTML})
 
+    @_broadcastInnerStateToToolbar = true
     @_mutationObserver.observe(@_editableNode(), @_mutationConfig())
     return
 
@@ -267,10 +313,8 @@ class Contenteditable extends React.Component
     @setInnerState dragging: false
     return if @_editableNode().parentElement.contains event.relatedTarget
     @dispatchEventToExtensions("onBlur", event)
-    @setInnerState editableFocused: false
 
   _onFocus: (event) =>
-    @setInnerState editableFocused: true
     @dispatchEventToExtensions("onFocus", event)
 
   _onKeyDown: (event) =>
@@ -317,12 +361,15 @@ class Contenteditable extends React.Component
     menu.popup(remote.getCurrentWindow())
 
 
-  ########################################################################
-  ############################# Extensions ###############################
-  ########################################################################
+  ######################################################################
+  ############################ Extensions ##############################
+  ######################################################################
+
+  _extensions: ->
+    @props.extensions.concat(@coreExtensions)
 
   _runCallbackOnExtensions: (method, argsObj={}) =>
-    for extension in @props.extensions.concat(@coreExtensions)
+    for extension in @_extensions()
       @_runExtensionMethod(extension, method, argsObj)
 
   # Will execute the event handlers on each of the registerd and core
@@ -352,9 +399,9 @@ class Contenteditable extends React.Component
     @atomicEdit(editingFunction, argsObj)
 
 
-  ########################################################################
-  ############################## Selection ###############################
-  ########################################################################
+  ######################################################################
+  ############################# Selection ##############################
+  ######################################################################
   # Saving and restoring a selection is difficult with React.
   #
   # React only handles Input and Textarea elements:
@@ -396,50 +443,62 @@ class Contenteditable extends React.Component
   #
   # http://www.w3.org/TR/selection-api/#selectstart-event
 
-  getCurrentSelection: => @innerState.exportedSelection ? {}
-  getPreviousSelection: => @innerState.previousExportedSelection ? {}
+  ## TODO DEPRECATE ME: This is only necessary because Undo/Redo is still
+  #part of the composer and not a core part of the Contenteditable.
+  getCurrentSelection: => @innerState.exportedSelection
+  getPreviousSelection: => @innerState.previousExportedSelection
 
-  # We save an {ExportedSelection} to `innerState`.
+  # Every time the selection changes we save its state.
   #
-  # Whatever we set `innerState.exportedSelection` to will be implemented
-  # on the next `componentDidUpdate` by `_restoreSelection`
+  # In an ideal world, the selection state, much like the body, would
+  # behave like any other controlled React input: onchange we'd notify our
+  # parent, they'd update our props, and we'd re-render.
   #
-  # We also allow props to manually set our `exportedSelection` state.
-  # This is useful in undo/redo situations when we want to revert the
-  # selection to where it was at a previous time.
+  # Unfortunately, Selection is not something React natively keeps track
+  # of in its virtual DOM, the performance would be terrible if we
+  # re-rendered on every selection change (think about dragging a
+  # selection), and having every user of `<Contenteditable>` need to
+  # remember to deal with, save, and set the Selection object is a pain.
   #
-  # NOTE: The `exportedSelection` object may have `anchorNode` and
-  # `focusNode` references to similar, but not equal, DOMNodes than what
-  # we currently have rendered. Every time React re-renders the component
-  # we get new DOM objects. When the `exportedSelection` is re-imported
-  # during `_restoreSelection`, the `ExtendedSelection` class will attempt
-  # to find the appropriate DOM Nodes via the `similar nodes` conveience methods
-  # in DOMUtils.
+  # To counter this we save local instance copies of the Selection.
   #
-  # When React re-renders it doesn't restore the Selection. We need to do
-  # this manually with `_restoreSelection`
+  # First of all we wrap the native Selection object in an
+  # [ExtendedSelection} object. This is a pure extension and has all
+  # standard methods.
   #
-  # As a performance optimization, we don't attach this to React `state`.
-  # Since re-rendering generates new DOM objects on the heap, testing for
-  # selection equality is expensive and requires a full tree walk.
+  # We then save out 3 types of selections on `innerState` for us to use
+  # later:
   #
-  # We also need to keep references to the previous selection state in
-  # order for undo/redo to work properly.
-  _saveExportedSelection: (exportedSelection) =>
-    return if exportedSelection and exportedSelection.isEqual(@innerState.exportedSelection)
-
-    @setInnerState
-      exportedSelection: exportedSelection
-      editableFocused: true
-      previousExportedSelection: @innerState.exportedSelection
-
-  # Every time the cursor changes we need to save its location and state.
-  # We update our cache every time the selection changes by listening to
-  # the `document` `selectionchange` event.
-  _onSelectionChange: (event) =>
+  # 1. `selectionSnapshot` - This is accessed by any sub-components of
+  # the Contenteditable such as the `<FloatingToolbar>` and its
+  # extensions.
+  #
+  # It is slightly different from an `exportedSelection` in that the
+  # anchorNode property points to an attached DOM reference and not the
+  # clone of a node. This is necessary for extensions to be able to
+  # traverse the actual current DOM from the anchorNode. The
+  # `exportedSelection`'s, cloned nodes don't have parentNOdes.
+  #
+  # This is crucially not a reference to the `rawSelection` object,
+  # because the anchorNodes of that may change from underneath us at any
+  # time.
+  #
+  # 2. `exportedSelection` - This is an {ExportedSelection} object and is
+  # used to restore the selection even after the DOM has changed. When our
+  # component re-renders the actual DOM objects on the heap will be
+  # different. An {ExportedSelection} contains counting indicies we use to
+  # re-find the correct DOM Nodes in the new document.
+  #
+  # 3. `previousExportedSelection` - This is used for undo / redo so when
+  # you revert to a previous state, the selection updates as well.
+  _saveSelection: =>
     selection = new ExtendedSelection(@_editableNode())
     return unless selection?.isInScope()
-    @_saveExportedSelection(selection.exportSelection())
+
+    @setInnerState
+      selectionSnapshot: selection.selectionSnapshot()
+      exportedSelection: selection.exportSelection()
+      previousExportedSelection: @innerState.exportedSelection
 
   _restoreSelection: =>
     return unless @_shouldRestoreSelection()

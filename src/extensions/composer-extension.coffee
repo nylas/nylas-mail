@@ -50,30 +50,30 @@ class ComposerExtension extends ContenteditableExtension
   @warningsForSending: ({draft}) ->
     []
 
-  ###
-  Public: declare an icon to be displayed in the composer's toolbar (where
-  bold, italic, underline, etc are).
-
-  You must return an object that contains the following properties:
-
-  - `mutator`: A function that's called when your toolbar button is
-  clicked. The mutator will be passed: `(contenteditableDOM, selection,
-  event)`.  It will be executed in a wrapped transaction block where it is
-  safe to mutate the DOM and the selection object.
-
-  - `className`: The button will already have the `btn` and `toolbar-btn`
-  classes.
-
-  - `tooltip`: A one or two word description of what your icon does
-
-  - `iconUrl`: The url of your icon. It should be in the `nylas://`
-  scheme.  For example: `nylas://your-package-name/assets/my-icon@2x.png`.
-  Note, we will downsample your image by 2x (for Retina screens), so make
-  sure it's twice the resolution. The icon should be black and white. We
-  will directly pass the `url` prop of a {RetinaImg}
-  ###
-  @composerToolbar: ->
-    return
+  # ###
+  # Public: declare an icon to be displayed in the composer's toolbar (where
+  # bold, italic, underline, etc are).
+  #
+  # You must return an object that contains the following properties:
+  #
+  # - `mutator`: A function that's called when your toolbar button is
+  # clicked. The mutator will be passed: `(contenteditableDOM, selection,
+  # event)`.  It will be executed in a wrapped transaction block where it is
+  # safe to mutate the DOM and the selection object.
+  #
+  # - `className`: The button will already have the `btn` and `toolbar-btn`
+  # classes.
+  #
+  # - `tooltip`: A one or two word description of what your icon does
+  #
+  # - `iconUrl`: The url of your icon. It should be in the `nylas://`
+  # scheme.  For example: `nylas://your-package-name/assets/my-icon@2x.png`.
+  # Note, we will downsample your image by 2x (for Retina screens), so make
+  # sure it's twice the resolution. The icon should be black and white. We
+  # will directly pass the `url` prop of a {RetinaImg}
+  # ###
+  # @composerToolbar: ->
+  #   return
 
   ###
   Public: Override prepareNewDraft to modify a brand new draft before it
