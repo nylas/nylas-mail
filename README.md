@@ -42,7 +42,7 @@ We're working on building a plugin index that makes it super easy to add them to
 - [GitHub info in Sidebar](https://github.com/nylas/N1/tree/master/internal_packages/github-contact-card)
 
 ##### Navbar
-- [Open GitHub Issues](https://github.com/nylas/N1/tree/master/internal_packages/view-on-github)
+- [Open GitHub Issues](https://github.com/nylas/N1/tree/master/internal_packages/message-view-on-github)
 
 ##### Threadlist
 - [Personal-level indicators](https://github.com/nylas/N1/tree/master/internal_packages/personal-level-indicators)
