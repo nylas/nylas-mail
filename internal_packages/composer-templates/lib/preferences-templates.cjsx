@@ -241,7 +241,7 @@ class PreferencesTemplates extends React.Component
           else @_renderName()
       }
       {if @state.editState isnt "new" then editor}
-      {if @state.editState is "new" then noTemplatesMessage}
+      {if @state.templates.length==0 then noTemplatesMessage}
     </section>
 
     <section className="templates-instructions">
