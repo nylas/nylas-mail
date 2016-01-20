@@ -274,7 +274,7 @@ class AccountSettingsPage extends React.Component
       method: 'POST'
       body: data
       returnsModel: false
-      timeout: 30000
+      timeout: 60000
       auth:
         user: ''
         pass: ''
@@ -288,7 +288,7 @@ class AccountSettingsPage extends React.Component
       EdgehillAPI.request
         path: "/connect/nylas"
         method: "POST"
-        timeout: 30000
+        timeout: 60000
         body: json
         success: @_onAccountReceived
         error: @_onNetworkError
