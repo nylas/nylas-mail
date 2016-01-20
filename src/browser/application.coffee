@@ -343,9 +343,6 @@ class Application
     ipcMain.on 'new-window', (event, options) =>
       @windowManager.newWindow(options)
 
-    ipcMain.on 'show-feedback-window', (event, options) =>
-      @windowManager.showFeedbackWindow(options)
-
     ipcMain.on 'register-hot-window', (event, options) =>
       @windowManager.registerHotWindow(options)
 
