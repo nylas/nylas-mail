@@ -153,46 +153,6 @@ class WindowManager
 
       @newWindow(options)
 
-  ###
-  Feedback window
-  ###
-
-  showFeedbackWindow: ({x, y, width, height, params}) =>
-    if @feedbackWindow
-      @feedbackWindow.show()
-    else
-      @feedbackWindow = w = new BrowserWindow
-        nodeIntegration: false
-        webPreferences:
-          webSecurity:false
-        x: x
-        y: y
-        width: width,
-        height: height,
-        title: 'Feedback'
-
-      onOpenURL = (event, href) ->
-        {shell} = require 'electron'
-        shell.openExternal(href)
-        event.preventDefault()
-
-      # Disable window close, hide instead
-      w.on 'close', (event) =>
-        unless global.application.quitting
-          event.preventDefault()
-          w.hide()
-          @showMainWindow()
-      w.on 'closed', (event) =>
-        @feedbackWindow = null
-
-      w.webContents.on('new-window', onOpenURL)
-
-      w.webContents.on('will-navigate', onOpenURL)
-
-      url = require('path').join(@resourcePath, 'static', 'feedback.html')
-      w.loadURL("file://#{url}?#{params}")
-      w.show()
-
   # Makes a new window appear of a certain `windowType`.
   #
   # In almost all cases, instead of booting up a new window from scratch,
