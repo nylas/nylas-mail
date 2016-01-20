@@ -270,7 +270,8 @@ class NylasEnvConstructor extends Model
       @emitError(error)
 
   emitError: (error) ->
-    console.error(error) unless @inSpecMode()
+    console.error(error.message) unless @inSpecMode()
+    console.error(error.stack) unless @inSpecMode()
     eventObject = {message: error.message, originalError: error}
     @emitter.emit('will-throw-error', eventObject)
     @emit('uncaught-error', error.message, null, null, null, error)

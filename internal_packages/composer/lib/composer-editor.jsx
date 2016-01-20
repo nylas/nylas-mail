@@ -1,5 +1,5 @@
 import React, {Component, PropTypes} from 'react';
-import {ExtensionRegistry, DOMUtils} from 'nylas-exports';
+import {ContenteditableExtension, ExtensionRegistry, DOMUtils} from 'nylas-exports';
 import {ScrollRegion, Contenteditable} from 'nylas-component-kit';
 
 /**
@@ -26,6 +26,7 @@ import {ScrollRegion, Contenteditable} from 'nylas-component-kit';
  * @param {props.onBodyChanged} props.onBodyChanged
  * @class ComposerEditor
  */
+
 class ComposerEditor extends Component {
   static displayName = 'ComposerEditor'
 
@@ -84,10 +85,17 @@ class ComposerEditor extends Component {
     this.state = {
       extensions: ExtensionRegistry.Composer.extensions(),
     };
-    this._coreExtension = {
-      onFocus: props.onFocus,
-      onBlur: props.onBlur,
-    };
+
+    class ComposerFocusManager extends ContenteditableExtension {
+      static onFocus() {
+        return props.onFocus();
+      }
+      static onBlur() {
+        return props.onBlur();
+      }
+    }
+
+    this._coreExtension = ComposerFocusManager;
   }
 
   componentDidMount() {

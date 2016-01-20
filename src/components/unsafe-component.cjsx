@@ -1,4 +1,5 @@
 React = require 'react'
+{Utils} = require 'nylas-exports'
 _ = require 'underscore'
 
 ###
@@ -41,6 +42,10 @@ class UnsafeComponent extends React.Component
 
   componentDidMount: =>
     @renderInjected()
+
+  shouldComponentUpdate: (nextProps, nextState) =>
+    not Utils.isEqualReact(nextProps, @props) or
+    not Utils.isEqualReact(nextState, @state)
 
   componentDidUpdate: =>
     @renderInjected()
