@@ -14,7 +14,8 @@ RegExpUtils =
   emailRegex: -> new RegExp(/([a-z.A-Z0-9!#$%&'*+\-/=?^_`{|}~;:]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,63})/g)
 
   # http://stackoverflow.com/a/16463966
-  domainRegex: -> new RegExp(/^(?!:\/\/)([a-zA-Z0-9]+\.)?[a-zA-Z0-9][a-zA-Z0-9-]+\.[a-zA-Z]{2,11}?$/i)
+  # http://www.regexpal.com/?fam=93928
+  domainRegex: -> new RegExp(/^(?!:\/\/)([a-zA-Z0-9-_]+\.)*[a-zA-Z0-9][a-zA-Z0-9-_]+\.[a-zA-Z]{2,11}?/i)
 
   # https://regex101.com/r/zG7aW4/3
   imageTagRegex: -> /<img\s+[^>]*src="([^"]*)"[^>]*>/g
