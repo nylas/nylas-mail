@@ -16,7 +16,7 @@ class FocusedPerspectiveStore extends NylasStore
     @listenTo AccountStore, @_onAccountStoreChanged
 
     @listenTo Actions.focusMailboxPerspective, @_onFocusPerspective
-    @listenTo Actions.focusDefaultMailboxPerspectiveForAccount, @_onFocusAccount
+    @listenTo Actions.focusDefaultMailboxPerspectiveForAccounts, @_onFocusAccounts
 
     @_onCategoryStoreChanged()
     @_setupFastAccountCommands()
@@ -28,15 +28,16 @@ class FocusedPerspectiveStore extends NylasStore
     @_setupFastAccountMenu()
 
   _onCategoryStoreChanged: ->
-    if not @_current
+    if @_current.isEqual(MailboxPerspective.forNothing())
       @_setPerspective(@_defaultPerspective())
     else
-      account = @_current.account
-      cats   = @_current.categories()
-      catExists = (cat) -> CategoryStore.byId(cat.accountId, cat.id)
+      accountIds = @_current.accountIds
+      categories = @_current.categories()
+      catExists  = (cat) -> CategoryStore.byId(cat.accountId, cat.id)
+      categoryHasBeenDeleted = categories and not _.every(categories, catExists)
 
-      if cats and not _.every(cats, catExists)
-        @_setPerspective(@_defaultPerspective(account))
+    if categoryHasBeenDeleted
+      @_setPerspective(@_defaultPerspective(accountIds))
 
   _onFocusPerspective: (perspective) =>
     return if perspective.isEqual(@_current)
@@ -44,18 +45,13 @@ class FocusedPerspectiveStore extends NylasStore
       Actions.selectRootSheet(WorkspaceStore.Sheet.Threads)
     @_setPerspective(perspective)
 
-  _onFocusAccount: (accountId) =>
-    account = AccountStore.accountForId(accountId) unless account instanceof Account
-    return unless account
-    category = CategoryStore.getStandardCategory(account, "inbox")
-    return unless category
-    @_setPerspective(MailboxPerspective.forCategory(category))
+  _onFocusAccounts: (accountsOrIds) =>
+    return unless accountsOrIds
+    @_setPerspective(MailboxPerspective.forInbox(accountsOrIds))
 
-  _defaultPerspective: (account = AccountStore.accounts()[0]) ->
-    return MailboxPerspective.forNothing() unless account
-    category = CategoryStore.getStandardCategory(account, "inbox")
-    return MailboxPerspective.forNothing() unless category
-    return MailboxPerspective.forCategory(category)
+  _defaultPerspective: (accounts = AccountStore.accounts()) ->
+    return MailboxPerspective.forNothing() unless accounts.length > 0
+    return MailboxPerspective.forInbox(accounts)
 
   _setPerspective: (perspective) ->
     return if perspective?.isEqual(@_current)
@@ -64,9 +60,13 @@ class FocusedPerspectiveStore extends NylasStore
 
   _setupFastAccountCommands: ->
     commands = {}
-    [0..8].forEach (index) =>
+    allKey = "application:select-account-0"
+    commands[allKey] = => @_onFocusAccounts(AccountStore.accounts())
+    [1..8].forEach (index) =>
+      account = AccountStore.accounts()[index - 1]
+      return unless account
       key = "application:select-account-#{index}"
-      commands[key] = => @_onFocusAccount(AccountStore.accounts()[index])
+      commands[key] = => @_onFocusAccounts([account])
     NylasEnv.commands.add('body', commands)
 
   _setupFastAccountMenu: ->
@@ -77,14 +77,18 @@ class FocusedPerspectiveStore extends NylasStore
     idx = _.findIndex submenu, ({type}) -> type is 'separator'
     return unless idx > 0
 
-    accountMenuItems = AccountStore.accounts().map (item, idx) =>
-      {
-        label: item.emailAddress,
-        command: "application:select-account-#{idx}",
-        account: true
-      }
+    menuItems = [{
+      label: 'All Accounts'
+      command: "application:select-account-0"
+      account: true
+    }]
+    menuItems = menuItems.concat AccountStore.accounts().map((item, idx) =>
+      label: item.emailAddress,
+      command: "application:select-account-#{idx + 1}",
+      account: true
+    )
 
-    submenu.splice(idx + 1, 0, accountMenuItems...)
+    submenu.splice(idx + 1, 0, menuItems...)
     windowMenu.submenu = submenu
     NylasEnv.menu.update()
 

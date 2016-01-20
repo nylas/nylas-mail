@@ -20,21 +20,29 @@ class MailboxPerspective
     new EmptyMailboxPerspective()
 
   @forCategory: (category) ->
+    return @forNothing() unless category
     new CategoryMailboxPerspective([category])
 
   @forCategories: (categories) ->
+    return @forNothing() if categories.length is 0
     new CategoryMailboxPerspective(categories)
 
-  @forStarred: (accountIds) ->
-    new StarredMailboxPerspective(accountIds)
+  @forStandardCategories: (accountsOrIds, names...) ->
+    categories = CategoryStore.getStandardCategories(accountsOrIds, names...)
+    @forCategories(categories)
 
-  @forSearch: (accountIds, query) ->
-    new SearchMailboxPerspective(accountIds, query)
+  @forStarred: (accountsOrIds) ->
+    new StarredMailboxPerspective(accountsOrIds)
 
-  @forAll: (accountIds) ->
-    categories = accountIds.map (aid) ->
-      CategoryStore.getStandardCategory(aid, "all")
-    new CategoryMailboxPerspective(_.compact(categories))
+  @forSearch: (accountsOrIds, query) ->
+    new SearchMailboxPerspective(accountsOrIds, query)
+
+  @forInbox: (accountsOrIds) =>
+    @forStandardCategories(accountsOrIds, 'inbox')
+
+  @forAll: (accountsOrIds) =>
+    @forStandardCategories(accountsOrIds, 'all')
+
 
   # Instance Methods
 
@@ -130,6 +138,7 @@ class StarredMailboxPerspective extends MailboxPerspective
 
 class EmptyMailboxPerspective extends MailboxPerspective
   constructor: ->
+    @accountIds = []
 
   threads: =>
     query = DatabaseStore.findAll(Thread).where(accountId: -1).limit(0)

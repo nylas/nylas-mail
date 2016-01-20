@@ -50,7 +50,7 @@ class SearchSuggestionStore extends NylasStore
         Actions.focusMailboxPerspective(@_perspectiveBeforeSearch)
         @_perspectiveBeforeSearch = null
       else
-        Actions.focusDefaultMailboxPerspectiveForAccount(current.accountIds[0])
+        Actions.focusDefaultMailboxPerspectiveForAccounts([current.accountIds[0]])
 
     @_clearResults()
 

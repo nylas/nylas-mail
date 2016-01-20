@@ -1,9 +1,13 @@
 React = require 'react'
-SidebarStore = require '../sidebar-store'
-{Actions, AccountStore} = require("nylas-exports")
+{Actions} = require("nylas-exports")
 {RetinaImg} = require 'nylas-component-kit'
 crypto = require 'crypto'
 classNames = require 'classnames'
+
+
+ItemTypes = {
+  "Unified"
+}
 
 class AccountSwitcher extends React.Component
   @displayName: 'AccountSwitcher'
@@ -13,62 +17,69 @@ class AccountSwitcher extends React.Component
     minWidth: 165
     maxWidth: 210
 
+  @propTypes:
+    accounts: React.PropTypes.array.isRequired
+    focusedAccounts: React.PropTypes.array.isRequired
+
   constructor: (@props) ->
-    @state = @_getStateFromStores()
-    @state.showing = false
+    @state =
+      showing: false
 
-  componentDidMount: =>
-    @unsubscribers = []
-    @unsubscribers.push AccountStore.listen @_onStoreChange
+  # Helpers
 
-  componentWillUnmount: =>
-    unsubscribe() for unsubscribe in @unsubscribers
+  _makeItem: ({id, label, emailAddress, provider} = {}) =>
+    id ?= ItemTypes.Unified
+    label ?= "All Accounts"
+    email = emailAddress ? ""
+    iconName = provider ? 'imap'
+    accounts = if id is ItemTypes.Unified
+      @props.accounts
+    else
+      [id]
 
-  render: =>
-    return false unless @state.account
+    return {id, label, email, iconName, accounts}
 
-    classnames = ""
-    classnames += "open" if @state.showing
+  _selectedItem: =>
+    if @props.focusedAccounts.length > 1
+      @_makeItem()
+    else
+      @_makeItem(@props.focusedAccounts[0])
 
-    <div id="account-switcher"
-         tabIndex={-1}
-         onBlur={@_onBlur}
-         ref="button"
-         className={classnames}>
-      {@_renderPrimaryItem()}
-      {@_renderDropdown()}
-    </div>
+  _toggleDropdown: =>
+    @setState showing: !@state.showing
 
-  _renderPrimaryItem: =>
-    label = @state.account.label.trim()
-    <div className="item primary-item" onClick={@_toggleDropdown}>
-      {@_renderGravatarForAccount(@state.account)}
-      <div style={float: 'right', marginTop: -2}>
-        <RetinaImg className="toggle"
-                   name="account-switcher-dropdown.png"
-                   mode={RetinaImg.Mode.ContentDark} />
-      </div>
-      <div className="name" style={lineHeight: "110%"}>
-        {label}
-      </div>
-      <div style={clear: "both"}></div>
-    </div>
 
-  _renderAccount: (account) =>
-    email = account.emailAddress.trim().toLowerCase()
-    label = account.label.trim()
+  # Handlers
+
+  _onBlur: (e) =>
+    target = e.nativeEvent.relatedTarget
+    if target? and React.findDOMNode(@refs.button).contains(target)
+      return
+    @setState(showing: false)
+
+  _onSwitchAccount: (item) =>
+    Actions.focusDefaultMailboxPerspectiveForAccounts(item.accounts)
+    @setState(showing: false)
+
+  _onManageAccounts: =>
+    Actions.switchPreferencesTab('Accounts')
+    Actions.openPreferences()
+
+    @setState(showing: false)
+
+  _renderItem: (item) =>
     classes = classNames
-      "active": account is @state.account
+      "active": item.id is @_selectedItem().id
       "item": true
       "secondary-item": true
 
-    <div className={classes} onClick={ => @_onSwitchAccount(account)} key={email}>
-      {@_renderGravatarForAccount(account)}
-      <div className="name" style={lineHeight: "110%"}>{label}</div>
+    <div key={item.email} className={classes} onClick={@_onSwitchAccount.bind(@, item)}>
+      {@_renderGravatar(item)}
+      <div className="name" style={lineHeight: "110%"}>{item.label}</div>
       <div style={clear: "both"}></div>
     </div>
 
-  _renderNewAccountOption: =>
+  _renderManageAccountsItem: =>
     <div className="item secondary-item new-account-option"
          onClick={@_onManageAccounts}
          tabIndex={999}>
@@ -84,51 +95,58 @@ class AccountSwitcher extends React.Component
       <div style={clear: "both"}></div>
     </div>
 
-  _renderDropdown: =>
+  _renderDropdown: (items) =>
     <div className="dropdown">
       <div className="inner">
-        {@state.accounts.map(@_renderAccount)}
-        {@_renderNewAccountOption()}
+        {items.map(@_renderItem)}
+        {@_renderManageAccountsItem()}
       </div>
     </div>
 
-  _renderGravatarForAccount: (account) =>
-    email = account.emailAddress.trim().toLowerCase()
-    hash = crypto.createHash('md5').update(email, 'utf8').digest('hex')
-    url = "url(http://www.gravatar.com/avatar/#{hash}?d=blank&s=56)"
+  _renderGravatar: ({email, iconName}) =>
+    if email
+      hash = crypto.createHash('md5').update(email, 'utf8').digest('hex')
+      url = "url(http://www.gravatar.com/avatar/#{hash}?d=blank&s=56)"
+    else
+      url = ''
 
     <div style={float: 'left', position: "relative"}>
       <div className="gravatar" style={backgroundImage:url}></div>
-      <RetinaImg name={"ic-settings-account-#{account.provider}@2x.png"}
+      <RetinaImg name={"ic-settings-account-#{iconName}@2x.png"}
                  style={width: 28, height: 28, marginTop: -10}
                  fallback="ic-settings-account-imap.png"
                  mode={RetinaImg.Mode.ContentPreserve} />
     </div>
 
-  _toggleDropdown: =>
-    @setState showing: !@state.showing
+  _renderPrimaryItem: (item) =>
+    <div className="item primary-item" onClick={@_toggleDropdown}>
+      {@_renderGravatar(item)}
+      <div style={float: 'right', marginTop: -2}>
+        <RetinaImg className="toggle"
+                   name="account-switcher-dropdown.png"
+                   mode={RetinaImg.Mode.ContentDark} />
+      </div>
+      <div className="name" style={lineHeight: "110%"}>
+        {item.label}
+      </div>
+      <div style={clear: "both"}></div>
+    </div>
 
-  _onStoreChange: =>
-    @setState @_getStateFromStores()
+  render: =>
+    return <span /> unless @props.focusedAccounts
+    classnames = ""
+    classnames += "open" if @state.showing
+    selected = @_selectedItem()
+    items = [@_makeItem()].concat @props.accounts.map(@_makeItem)
 
-  _onBlur: (e) =>
-    target = e.nativeEvent.relatedTarget
-    if target? and React.findDOMNode(@refs.button).contains(target)
-      return
-    @setState(showing: false)
+    <div id="account-switcher"
+         tabIndex={-1}
+         onBlur={@_onBlur}
+         ref="button"
+         className={classnames}>
+      {@_renderPrimaryItem(selected)}
+      {@_renderDropdown(items)}
+    </div>
 
-  _onSwitchAccount: (account) =>
-    Actions.focusDefaultMailboxPerspectiveForAccount(account.id)
-    @setState(showing: false)
-
-  _onManageAccounts: =>
-    Actions.switchPreferencesTab('Accounts')
-    Actions.openPreferences()
-
-    @setState(showing: false)
-
-  _getStateFromStores: =>
-    accounts: AccountStore.accounts()
-    account:  SidebarStore.currentAccount()
 
 module.exports = AccountSwitcher

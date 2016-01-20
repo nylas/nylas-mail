@@ -12,7 +12,6 @@ _ = require 'underscore'
  CategoryStore} = require 'nylas-exports'
 
 SidebarSection = require './sidebar-section'
-SidebarActions = require './sidebar-actions'
 
 Sections = {
   "Standard",
@@ -23,10 +22,17 @@ class SidebarStore extends NylasStore
 
   constructor: ->
     @_sections = {}
-    # @_account = AccountStore.accounts()[0]
-    @_account = FocusedPerspectiveStore.current().account
+    @_sections[Sections.Standard] = {}
+    @_sections[Sections.User] = []
     @_registerListeners()
     @_updateSections()
+
+  accounts: ->
+    AccountStore.accounts()
+
+  focusedAccounts: ->
+    accountIds = FocusedPerspectiveStore.current().accountIds
+    accountIds.map((accId) -> AccountStore.accountForId(accId))
 
   standardSection: ->
     @_sections[Sections.Standard]
@@ -35,7 +41,6 @@ class SidebarStore extends NylasStore
     @_sections[Sections.User]
 
   _registerListeners: ->
-    @listenTo SidebarActions.selectAccount, @_onAccountSelected
     @listenTo AccountStore, @_updateSections
     @listenTo WorkspaceStore, @_updateSections
     @listenTo ThreadCountsStore, @_updateSections
@@ -52,13 +57,9 @@ class SidebarStore extends NylasStore
     )
     return
 
-  _onAccountSelected: (account) =>
-    if @_account isnt account
-      @_account = account
-      @_updateSections()
-
   _updateSections: =>
-    accounts = if @_account? then [@_account] else AccountStore.accounts()
+    accounts = @focusedAccounts()
+
     @_sections[Sections.Standard] = SidebarSection.standardSectionForAccounts(accounts)
     @_sections[Sections.User] = accounts.map (acc) ->
       SidebarSection.forUserCategories(acc)

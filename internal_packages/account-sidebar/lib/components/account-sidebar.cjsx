@@ -1,6 +1,7 @@
 _ = require 'underscore'
 React = require 'react'
 {OutlineView, ScrollRegion} = require 'nylas-component-kit'
+AccountSwitcher = require './account-switcher'
 SidebarStore = require '../sidebar-store'
 
 
@@ -26,23 +27,27 @@ class AccountSidebar extends React.Component
     @setState @_getStateFromStores()
 
   _getStateFromStores: =>
-    standardSection: SidebarStore.standardSection()
+    accounts: SidebarStore.accounts()
+    focusedAccounts: SidebarStore.focusedAccounts()
     userSections: SidebarStore.userSections()
+    standardSection: SidebarStore.standardSection()
 
   _renderUserSections: (sections) =>
     sections.map (section) =>
       <OutlineView key={section.title} {...section} />
 
   render: =>
-    standardSection = @state.standardSection
-    userSections = @state.userSections
+    {accounts, focusedAccounts, userSections, standardSection} = @state
 
-    <ScrollRegion className="account-sidebar" >
-      <div className="account-sidebar-sections">
-        <OutlineView {...standardSection} />
-        {@_renderUserSections(userSections)}
-      </div>
-    </ScrollRegion>
+    <div style={height: '100%'}>
+      <AccountSwitcher accounts={accounts} focusedAccounts={focusedAccounts} />
+      <ScrollRegion className="account-sidebar" >
+        <div className="account-sidebar-sections">
+          <OutlineView {...standardSection} />
+          {@_renderUserSections(userSections)}
+        </div>
+      </ScrollRegion>
+    </div>
 
 
 module.exports = AccountSidebar
