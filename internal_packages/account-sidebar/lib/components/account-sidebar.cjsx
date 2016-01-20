@@ -1,6 +1,6 @@
 _ = require 'underscore'
 React = require 'react'
-{OutlineView, ScrollRegion} = require 'nylas-component-kit'
+{OutlineView, ScrollRegion, Flexbox} = require 'nylas-component-kit'
 AccountSwitcher = require './account-switcher'
 SidebarStore = require '../sidebar-store'
 
@@ -39,15 +39,15 @@ class AccountSidebar extends React.Component
   render: =>
     {accounts, focusedAccounts, userSections, standardSection} = @state
 
-    <div style={height: '100%'}>
+    <Flexbox direction="column" style={order: 0, flexShrink: 1, flex: 1}>
       <AccountSwitcher accounts={accounts} focusedAccounts={focusedAccounts} />
-      <ScrollRegion className="account-sidebar" >
+      <ScrollRegion className="account-sidebar" style={order: 2}>
         <div className="account-sidebar-sections">
           <OutlineView {...standardSection} />
           {@_renderUserSections(userSections)}
         </div>
       </ScrollRegion>
-    </div>
+    </Flexbox>
 
 
 module.exports = AccountSidebar
