@@ -65,6 +65,16 @@ class CategoryStore extends NylasStore
 
     return _.findWhere(@_standardCategories[asAccountId(accountOrId)], {name})
 
+  getStandardCategories: (accountsOrIds, names...) ->
+    if Array.isArray(accountsOrIds)
+      res = []
+      for accOrId in accountsOrIds
+        cats = names.map((name) => @getStandardCategory(accOrId, name))
+        res = res.concat(_.compact(cats))
+      res
+    else
+      names.map((name) => @getStandardCategory(accountsOrIds, name))
+
   # Public: Returns the Folder or Label object that should be used for "Archive"
   # actions. On Gmail, this is the "all" label. On providers using folders, it
   # returns any available "Archive" folder, or null if no such folder exists.

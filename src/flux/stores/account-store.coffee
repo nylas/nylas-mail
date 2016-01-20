@@ -32,7 +32,7 @@ class AccountStore
       newAccountIds = _.keys(_.omit(updatedTokens, _.keys(@_tokens)))
       @_load()
       if newAccountIds.length > 0
-        Actions.focusDefaultMailboxPerspectiveForAccount(newAccountIds[0])
+        Actions.focusDefaultMailboxPerspectiveForAccounts([newAccountIds[0]])
     if NylasEnv.isComposerWindow()
       NylasEnv.config.observe saveObjectsKey, => @_load()
 
@@ -88,7 +88,7 @@ class AccountStore
     @_save()
 
     @trigger()
-    Actions.focusDefaultMailboxPerspectiveForAccount(account.id)
+    Actions.focusDefaultMailboxPerspectiveForAccounts([account.id])
 
   # Exposed Data
 
@@ -200,7 +200,7 @@ class AccountStore
         t.persistModels(threads)
       ])
     .then =>
-      Actions.focusDefaultMailboxPerspectiveForAccount(account.id)
+      Actions.focusDefaultMailboxPerspectiveForAccounts([account.id])
     .then -> new Promise (resolve, reject) -> setTimeout(resolve, 1000)
 
 module.exports = new AccountStore()

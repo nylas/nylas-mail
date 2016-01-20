@@ -1,5 +1,6 @@
 _ = require 'underscore'
 {Actions,
+ AccountStore,
  SyncbackCategoryTask,
  DestroyCategoryTask,
  CategoryHelpers,
@@ -17,13 +18,14 @@ class SidebarSection
     }
 
   @standardSectionForAccount: (account) ->
+    return @empty('Mailboxes') if CategoryStore.categories().length is 0
     cats = CategoryStore.standardCategories(account)
     items = _
       .reject(cats, (cat) -> cat.name is 'drafts')
       .map (cat) => SidebarItem.forCategories([cat])
 
     starredItem = SidebarItem.forStarred([account.id])
-    draftsItem = SidebarItem.forDrafts(accountId: account.id)
+    draftsItem = SidebarItem.forDrafts({accountId: account.id})
 
     # Order correctly: Inbox, Starred, rest... , Drafts
     items.splice(1, 0, starredItem)
@@ -39,31 +41,27 @@ class SidebarSection
     return @empty('Mailboxes') if CategoryStore.categories().length is 0
     return @standardSectionForAccount(accounts[0]) if accounts.length is 1
 
-    # TODO Decide standard items for the unified case
-    inboxItem = SidebarItem.forCategories(
-      (accounts.map (acc)-> CategoryStore.getStandardCategory(acc, 'inbox')),
-      children: accounts.map (acc) ->
-        cat = CategoryStore.getStandardCategory(acc, 'inbox')
+    standardNames = [
+      'inbox',
+      'sent',
+      ['archive', 'all'],
+      'trash'
+    ]
+    items = []
+
+    for names in standardNames
+      names = if Array.isArray(names) then names else [names]
+      categories = CategoryStore.getStandardCategories(accounts, names...)
+      continue if categories.length is 0
+
+      children = accounts.map (acc) ->
+        cat = _.first(_.compact(
+          names.map((name) -> CategoryStore.getStandardCategory(acc, name))
+        ))
         SidebarItem.forCategories([cat], name: acc.label)
-    )
-    sentItem = SidebarItem.forCategories(
-      (accounts.map (acc)-> CategoryStore.getStandardCategory(acc, 'sent')),
-      children: accounts.map (acc) ->
-        cat = CategoryStore.getStandardCategory(acc, 'sent')
-        SidebarItem.forCategories([cat], name: acc.label)
-    )
-    archiveItem = SidebarItem.forCategories(
-      (accounts.map (acc)-> CategoryStore.getArchiveCategory(acc)),
-      children: accounts.map (acc) ->
-        cat = CategoryStore.getArchiveCategory(acc)
-        SidebarItem.forCategories([cat], name: acc.label)
-    )
-    trashItem = SidebarItem.forCategories(
-      (accounts.map (acc)-> CategoryStore.getTrashCategory(acc)),
-      children: accounts.map (acc) ->
-        cat = CategoryStore.getTrashCategory(acc)
-        SidebarItem.forCategories([cat], name: acc.label)
-    )
+
+      items.push SidebarItem.forCategories(categories, {children})
+
     starredItem = SidebarItem.forStarred(_.pluck(accounts, 'id'),
       children: accounts.map (acc) -> SidebarItem.forStarred([acc.id], name: acc.label)
     )
@@ -72,14 +70,9 @@ class SidebarSection
         SidebarItem.forDrafts(accountId: acc.id, name: acc.label)
     )
 
-    items = [
-      inboxItem
-      starredItem
-      sentItem
-      archiveItem
-      trashItem
-      draftsItem
-    ]
+    # Order correctly: Inbox, Starred, rest... , Drafts
+    items.splice(1, 0, starredItem)
+    items.push(draftsItem)
 
     return {
       title: 'Mailboxes'

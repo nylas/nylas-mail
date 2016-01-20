@@ -52,7 +52,7 @@ describe "AccountStore", ->
         "auth_token": "auth-123"
         "organization_unit": "label"
       @instance = new @constructor
-      spyOn(Actions, 'focusDefaultMailboxPerspectiveForAccount')
+      spyOn(Actions, 'focusDefaultMailboxPerspectiveForAccounts')
       spyOn(@instance, "trigger")
       @instance.addAccountFromJSON(@json)
 
@@ -69,7 +69,7 @@ describe "AccountStore", ->
       expect(NylasEnv.config.set.calls.length).toBe 2
 
     it "selects the account", ->
-      expect(Actions.focusDefaultMailboxPerspectiveForAccount).toHaveBeenCalledWith("1234")
+      expect(Actions.focusDefaultMailboxPerspectiveForAccounts).toHaveBeenCalledWith(["1234"])
 
     it "triggers", ->
       expect(@instance.trigger).toHaveBeenCalled()
