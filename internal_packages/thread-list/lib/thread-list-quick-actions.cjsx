@@ -25,10 +25,10 @@ class ThreadArchiveQuickAction extends React.Component
     newProps.thread.id isnt @props?.thread.id
 
   _onArchive: (event) =>
-    task = TaskFactory.taskForArchiving
+    tasks = TaskFactory.tasksForArchiving
       threads: [@props.thread]
       fromPerspective: FocusedPerspectiveStore.current()
-    Actions.queueTask(task)
+    Actions.queueTasks(tasks)
 
     # Don't trigger the thread row click
     event.stopPropagation()
@@ -54,10 +54,10 @@ class ThreadTrashQuickAction extends React.Component
     newProps.thread.id isnt @props?.thread.id
 
   _onRemove: (event) =>
-    task = TaskFactory.taskForMovingToTrash
+    tasks = TaskFactory.tasksForMovingToTrash
       threads: [@props.thread]
       fromPerspective: FocusedPerspectiveStore.current()
-    Actions.queueTask(task)
+    Actions.queueTasks(tasks)
 
     # Don't trigger the thread row click
     event.stopPropagation()

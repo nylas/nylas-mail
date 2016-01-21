@@ -76,14 +76,14 @@ class TaskQueue
 
     @_restoreQueue()
 
-    @listenTo(Actions.queueTask,              @enqueue)
-    @listenTo(Actions.undoTaskId,             @enqueueUndoOfTaskId)
-    @listenTo(Actions.dequeueTask,            @dequeue)
-    @listenTo(Actions.dequeueAllTasks,        @dequeueAll)
-    @listenTo(Actions.dequeueMatchingTask,    @dequeueMatching)
-
-    @listenTo(Actions.clearDeveloperConsole,  @clearCompleted)
-
+    @listenTo Actions.queueTask, @enqueue
+    @listenTo Actions.queueTasks, (tasks) =>
+      @enqueue(t) for t in tasks
+    @listenTo Actions.undoTaskId, @enqueueUndoOfTaskId
+    @listenTo Actions.dequeueTask, @dequeue
+    @listenTo Actions.dequeueAllTasks, @dequeueAll
+    @listenTo Actions.dequeueMatchingTask, @dequeueMatching
+    @listenTo Actions.clearDeveloperConsole,  @clearCompleted
     @listenTo Actions.longPollConnected, =>
       @_processQueue()
 

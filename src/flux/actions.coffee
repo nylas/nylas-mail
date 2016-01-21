@@ -90,6 +90,14 @@ class Actions
   ###
   @queueTask: ActionScopeWorkWindow
 
+  ###
+  Public: Queue multiple {Task} objects to the {TaskQueue}, which should be
+  undone as a single user action.
+
+  *Scope: Work Window*
+  ###
+  @queueTasks: ActionScopeWorkWindow
+
   @undoTaskId: ActionScopeWorkWindow
 
   ###

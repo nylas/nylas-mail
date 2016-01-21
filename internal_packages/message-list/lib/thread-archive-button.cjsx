@@ -24,10 +24,10 @@ class ThreadArchiveButton extends React.Component
 
   _onArchive: (e) =>
     return unless DOMUtils.nodeIsVisible(e.currentTarget)
-    task = TaskFactory.taskForArchiving
+    tasks = TaskFactory.tasksForArchiving
       threads: [@props.thread],
       fromPerspective: FocusedPerspectiveStore.current()
-    Actions.queueTask(task)
+    Actions.queueTasks(tasks)
     Actions.popSheet()
     e.stopPropagation()
 

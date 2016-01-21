@@ -8,27 +8,43 @@ CategoryStore = require '../stores/category-store'
 
 class TaskFactory
 
-  taskForApplyingCategory: ({threads, fromPerspective, category, exclusive}) =>
-    # TODO Can not apply to threads across more than one account for now
-    account = AccountStore.accountForItems(threads)
-    return unless account?
+  tasksForApplyingCategories: ({threads, categoriesToRemove, categoryToAdd}) =>
+    byAccount = {}
+    tasks = []
 
-    if account.usesFolders()
-      return null unless category
-      return new ChangeFolderTask
-        folder: category
-        threads: threads
-    else
-      labelsToRemove = []
-      if exclusive
-        currentLabel = fromPerspective?.category()
-        currentLabel ?= CategoryStore.getStandardCategory(account, "inbox")
-        labelsToRemove = [currentLabel]
+    for thread in threads
+      accountId = thread.accountId
+      byAccount[accountId] ?=
+        categoriesToRemove: categoriesToRemove?(accountId) ? []
+        categoryToAdd: categoryToAdd(accountId)
+        threads: []
+      byAccount[accountId].threads.push(thread)
 
-      return new ChangeLabelsTask
-        threads: threads
-        labelsToRemove: labelsToRemove
-        labelsToAdd: [category]
+    for accountId, {categoryToAdd, categoriesToRemove, threads} of byAccount
+      continue unless categoryToAdd and categoriesToRemove
+
+      account = AccountStore.accountForId(accountId)
+      if account.usesFolders()
+        tasks.push new ChangeFolderTask
+          folder: categoryToAdd
+          threads: threads
+      else
+        tasks.push new ChangeLabelsTask
+          threads: threads
+          labelsToRemove: categoriesToRemove
+          labelsToAdd: [categoryToAdd]
+
+    return tasks
+
+  taskForApplyingCategory: ({threads, category}) =>
+    tasks = @tasksForApplyingCategories
+      threads: threads
+      categoryToAdd: (accountId) -> category
+
+    if tasks.length > 1
+      throw new Error("taskForApplyingCategory: Threads must be from the same account.")
+
+    return tasks[0]
 
   taskForRemovingCategory: ({threads, fromPerspective, category, exclusive}) =>
     # TODO Can not apply to threads across more than one account for now
@@ -51,21 +67,17 @@ class TaskFactory
         labelsToRemove: [category]
         labelsToAdd: labelsToAdd
 
-  taskForArchiving: ({threads, fromPerspective}) =>
-    category = @_getArchiveCategory(threads)
-    @taskForApplyingCategory({threads, fromPerspective, category, exclusive: true})
+  tasksForArchiving: ({threads, fromPerspective}) =>
+    @tasksForApplyingCategories
+      threads: threads,
+      categoriesToRemove: (accountId) -> _.filter(fromPerspective.categories(), _.matcher({accountId}))
+      categoryToAdd: (accountId) -> CategoryStore.getArchiveCategory(accountId)
 
-  taskForUnarchiving: ({threads, fromPerspective}) =>
-    category = @_getArchiveCategory(threads)
-    @taskForRemovingCategory({threads, fromPerspective, category, exclusive: true})
-
-  taskForMovingToTrash: ({threads, fromPerspective}) =>
-    category = @_getTrashCategory(threads)
-    @taskForApplyingCategory({threads, fromPerspective, category, exclusive: true})
-
-  taskForMovingFromTrash: ({threads, fromPerspective}) =>
-    category = @_getTrashCategory(threads)
-    @taskForRemovingCategory({threads, fromPerspective, category, exclusive: true})
+  tasksForMovingToTrash: ({threads, fromPerspective}) =>
+    @tasksForApplyingCategories
+      threads: threads,
+      categoriesToRemove: (accountId) -> _.filter(fromPerspective.categories(), _.matcher({accountId}))
+      categoryToAdd: (accountId) -> CategoryStore.getTrashCategory(accountId)
 
   taskForInvertingUnread: ({threads}) =>
     unread = _.every threads, (t) -> _.isMatch(t, {unread: false})
@@ -74,15 +86,5 @@ class TaskFactory
   taskForInvertingStarred: ({threads}) =>
     starred = _.every threads, (t) -> _.isMatch(t, {starred: false})
     return new ChangeStarredTask({threads, starred})
-
-  _getArchiveCategory: (threads) =>
-    account = AccountStore.accountForItems(threads)
-    return unless account?
-    CategoryStore.getArchiveCategory(account)
-
-  _getTrashCategory: (threads) =>
-    account = AccountStore.accountForItems(threads)
-    return unless account?
-    CategoryStore.getTrashCategory(account)
 
 module.exports = new TaskFactory

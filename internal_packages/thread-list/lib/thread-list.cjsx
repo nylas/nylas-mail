@@ -176,19 +176,19 @@ class ThreadList extends React.Component
     if threads
       if backspaceDelete
         if FocusedPerspectiveStore.current().canTrashThreads()
-          removeMethod = TaskFactory.taskForMovingToTrash
+          removeMethod = TaskFactory.tasksForMovingToTrash
         else
           return
       else
         if FocusedPerspectiveStore.current().canArchiveThreads()
-          removeMethod = TaskFactory.taskForArchiving
+          removeMethod = TaskFactory.tasksForArchiving
         else
-          removeMethod = TaskFactory.taskForMovingToTrash
+          removeMethod = TaskFactory.tasksForMovingToTrash
 
-      task = removeMethod
+      tasks = removeMethod
         threads: threads
         fromPerspective: FocusedPerspectiveStore.current()
-      Actions.queueTask(task)
+      Actions.queueTasks(tasks)
 
     Actions.popSheet()
 
@@ -196,20 +196,20 @@ class ThreadList extends React.Component
     return unless FocusedPerspectiveStore.current().canArchiveThreads()
     threads = @_threadsForKeyboardAction()
     if threads
-      task = TaskFactory.taskForArchiving
+      tasks = TaskFactory.tasksForArchiving
         threads: threads
         fromPerspective: FocusedPerspectiveStore.current()
-      Actions.queueTask(task)
+      Actions.queueTasks(tasks)
     Actions.popSheet()
 
   _onDeleteItem: =>
     return unless FocusedPerspectiveStore.current().canTrashThreads()
     threads = @_threadsForKeyboardAction()
     if threads
-      task = TaskFactory.taskForMovingToTrash
+      tasks = TaskFactory.tasksForMovingToTrash
         threads: threads
         fromPerspective: FocusedPerspectiveStore.current()
-      Actions.queueTask(task)
+      Actions.queueTasks(tasks)
     Actions.popSheet()
 
   _onSelectRead: =>

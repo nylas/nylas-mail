@@ -233,7 +233,7 @@ class ModelQuery
 
   formatResultObjects: (objects) ->
     return objects[0] if @_returnOne
-    return objects
+    return [].concat(objects)
 
   # Query SQL Building
 

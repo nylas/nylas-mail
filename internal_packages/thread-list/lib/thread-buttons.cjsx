@@ -28,10 +28,10 @@ class ThreadBulkArchiveButton extends React.Component
     </button>
 
   _onArchive: =>
-    task = TaskFactory.taskForArchiving
+    tasks = TaskFactory.tasksForArchiving
       threads: @props.selection.items(),
       fromPerspective: FocusedPerspectiveStore.current()
-    Actions.queueTask(task)
+    Actions.queueTasks(tasks)
 
 class ThreadBulkTrashButton extends React.Component
   @displayName: 'ThreadBulkTrashButton'
@@ -52,10 +52,10 @@ class ThreadBulkTrashButton extends React.Component
     </button>
 
   _onRemove: =>
-    task = TaskFactory.taskForMovingToTrash
+    tasks = TaskFactory.tasksForMovingToTrash
       threads: @props.selection.items(),
       fromPerspective: FocusedPerspectiveStore.current()
-    Actions.queueTask(task)
+    Actions.queueTasks(tasks)
 
 
 class ThreadBulkStarButton extends React.Component
