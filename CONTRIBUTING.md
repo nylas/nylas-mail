@@ -7,7 +7,7 @@ If you've found a bug, try searching for similars issue before filing a new one.
 # Contributing to N1
 
 The hosted sync engine allows us to control adoption of N1 and maintain a great
-experience for our users. However, the sync engine is 
+experience for our users. However, the sync engine is
 [open source](https://github.com/nylas/sync-engine) and you can set it
 up yourself to begin using N1 immediately. Follow instructions on the [sync
 engine](https://github.com/nylas/sync-engine) repository.
@@ -24,7 +24,7 @@ Read the [getting started guides](http://nylas.com/N1/docs/).
 
 See [Windows instructions here](https://github.com/nylas/N1/blob/master/docs/Windows.md)
 
-Linux users on Debian 8 and Ubuntu 15.04 onward must also install libgcrypt11, which Electron depends on. 
+Linux users on Debian 8 and Ubuntu 15.04 onward must also install libgcrypt11, which Electron depends on.
 
 ### Running N1
 
@@ -104,7 +104,12 @@ however, the Sync Engine is open source and you can run it yourself.
 
    Replace `env: "production"` with `env: "local"` at the top level of the config.
    This tells N1 to look at `localhost:5555` for the sync engine. If you've deployed
-   the sync engine elsewhere, you'll need to edit `nylas-api.coffee`.
+   the sync engine elsewhere, add the following block beneath `env: "local"`:
+
+   ```
+   syncEngine:
+     APIRoot: http://mysite.com:5555
+   ```
 
    Copy the JSON array of accounts returned from the Sync Engine's `/accounts`
    endpoint (ex. `http://localhost:5555/accounts`) into the config file at the
