@@ -8,7 +8,6 @@ _ = require 'underscore'
  MailboxPerspective,
  FocusedPerspectiveStore,
  DestroyCategoryTask,
- CategoryHelpers,
  CategoryStore} = require 'nylas-exports'
 
 SidebarSection = require './sidebar-section'
@@ -59,10 +58,15 @@ class SidebarStore extends NylasStore
 
   _updateSections: =>
     accounts = @focusedAccounts()
+    multiAccount = accounts.length > 1
 
     @_sections[Sections.Standard] = SidebarSection.standardSectionForAccounts(accounts)
     @_sections[Sections.User] = accounts.map (acc) ->
-      SidebarSection.forUserCategories(acc)
+      opts = {}
+      if multiAccount
+        opts.title = acc.label
+        opts.collapsible = true
+      SidebarSection.forUserCategories(acc, opts)
     @trigger()
 
 

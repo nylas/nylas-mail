@@ -6,7 +6,6 @@ DatabaseStore = require './flux/stores/database-store'
 SearchSubscription = require './search-subscription'
 ThreadCountsStore = require './flux/stores/thread-counts-store'
 MutableQuerySubscription = require './flux/models/mutable-query-subscription'
-CategoryHelpers = require './category-helpers'
 Thread = require './flux/models/thread'
 Actions = require './flux/actions'
 
@@ -169,7 +168,7 @@ class CategoryMailboxPerspective extends MailboxPerspective
     if @_categories[0].name
       @iconName = "#{@_categories[0].name}.png"
     else
-      @iconName = CategoryHelpers.categoryIconName(AccountStore.accountForId(@accountIds[0]))
+      @iconName = AccountStore.accountForId(@accountIds[0]).categoryIcon()
 
     @
 
