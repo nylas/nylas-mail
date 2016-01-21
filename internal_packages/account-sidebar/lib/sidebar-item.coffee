@@ -57,7 +57,7 @@ class SidebarItem
       children: children
       perspective: perspective
       selected: isItemSelected(perspective)
-      collapsed: isItemCollapsed(id)
+      collapsed: isItemCollapsed(id) ? true
       deleted: isItemDeleted(perspective)
       counterStyle: counterStyle
       dataTransferType: dataTransferType
@@ -89,7 +89,7 @@ class SidebarItem
     id += "-#{opts.name}" if opts.name
     @forPerspective(id, perspective, opts)
 
-  @forSheet: (id, name, iconName, sheet, count, children = []) ->
+  @forSheet: (id, name, iconName, sheet, count, collapsed, children = []) ->
     return {
       id,
       name,
@@ -97,13 +97,13 @@ class SidebarItem
       count,
       sheet,
       children,
-      collapsed: isItemCollapsed(id)
+      collapsed: isItemCollapsed(id) ? true
       onToggleCollapsed: toggleItemCollapsed
       onSelect: (item) ->
         Actions.selectRootSheet(item.sheet)
     }
 
-  @forDrafts: ({accountId, name, children} = {}) ->
+  @forDrafts: ({accountId, name, children, collapsed} = {}) ->
     id = 'Drafts'
     id += "-#{name}" if name
     sheet = WorkspaceStore.Sheet.Drafts
@@ -112,7 +112,7 @@ class SidebarItem
       DraftCountStore.count(accountId)
     else
       DraftCountStore.totalCount()
-    @forSheet(id, name ? id, iconName, sheet, count, children)
+    @forSheet(id, name ? id, iconName, sheet, count, collapsed, children)
 
 
 module.exports = SidebarItem
