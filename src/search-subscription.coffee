@@ -11,7 +11,7 @@ class SearchSubscription extends MutableQuerySubscription
   constructor: (@_terms, @_accountIds) ->
     super(null, {asResultSet: true})
 
-    @_version = 0
+    @_termsVersion = 0
     _.defer => @retrievePage(0)
 
   terms: =>
@@ -19,7 +19,7 @@ class SearchSubscription extends MutableQuerySubscription
 
   setTerms: (terms) =>
     @_terms = terms
-    @_version += 1
+    @_termsVersion += 1
     @retrievePage(0)
 
   replaceRange: (range) =>
@@ -28,7 +28,8 @@ class SearchSubscription extends MutableQuerySubscription
   # Accessing Data
 
   retrievePage: (idx) =>
-    version = @_version += 1
+    termsVersion = @_termsVersion += 1
+    resultCount = 0
     resultIds = []
 
     @_accountIds.forEach (aid) =>
@@ -39,10 +40,14 @@ class SearchSubscription extends MutableQuerySubscription
         json: true
         returnsModel: true
       .then (threads) =>
-        return unless @_version is version
-
+        return unless @_termsVersion is termsVersion
+        resultCount += 1
         resultIds = resultIds.concat _.pluck(threads, 'id')
-        query = DatabaseStore.findAll(Thread).where(id: resultIds).order(Thread.attributes.lastMessageReceivedTimestamp.descending())
-        @replaceQuery(query)
+
+        # Don't emit a "result" until we have at least one thread to display.
+        # Otherwise it will show "No Results Found"
+        if resultIds.length > 0 or resultCount is @_accountIds.length
+          query = DatabaseStore.findAll(Thread).where(id: resultIds).order(Thread.attributes.lastMessageReceivedTimestamp.descending())
+          @replaceQuery(query)
 
 module.exports = SearchSubscription
