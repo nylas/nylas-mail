@@ -26,10 +26,11 @@ We're working on building a plugin index that makes it super easy to add them to
 - [Taiga](http://noahbuscher.github.io/N1-Taiga/) -- Mailbox-inspired light theme
 - [Predawn](https://github.com/adambmedia/N1-Predawn)
 - [ElementaryOS](https://github.com/edipox/elementary-nylas)
-- In development: [Ubuntu](https://github.com/ahmedlhanafy/Ubuntu-Ui-Theme-for-Nylas-N1)
-- In development: [Material](https://github.com/equinusocio/N1-Material) ([preview](https://twitter.com/MattiaAstorino/status/683348095770456064))
-- In Development: [Ido](https://github.com/edipox/n1-ido) -- Polymail-inspired theme
-- In Development: [Wattenberger](https://github.com/Wattenberger/Nylas-N1-theme)
+- [Ubuntu](https://github.com/ahmedlhanafy/Ubuntu-Ui-Theme-for-Nylas-N1)
+- [Material](https://github.com/equinusocio/N1-Material) ([preview](https://twitter.com/MattiaAstorino/status/683348095770456064))
+- [Ido](https://github.com/edipox/n1-ido) -- Polymail-inspired theme
+- [Wattenberger](https://github.com/Wattenberger/Nylas-N1-theme)
+- [Solarized Dark](https://github.com/NSHenry/N1-Solarized-Dark)
 
 ##### Composer
 - [Translate](https://github.com/nylas/N1/tree/master/internal_packages/composer-translate) -- Works with 10 languages
