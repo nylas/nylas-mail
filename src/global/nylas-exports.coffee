@@ -156,6 +156,7 @@ class NylasExports
   @load "DOMUtils", 'dom-utils'
   @load "CanvasUtils", 'canvas-utils'
   @load "RegExpUtils", 'regexp-utils'
+  @load "MenuHelpers", 'menu-helpers'
   @load "MessageUtils", 'flux/models/message-utils'
   @load "NylasSpellchecker", 'nylas-spellchecker'
 

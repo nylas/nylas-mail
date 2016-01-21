@@ -1,8 +1,9 @@
 React = require 'react'
-{Actions} = require("nylas-exports")
-{RetinaImg} = require 'nylas-component-kit'
 crypto = require 'crypto'
 classNames = require 'classnames'
+{Actions} = require 'nylas-exports'
+{RetinaImg} = require 'nylas-component-kit'
+SidebarActions = require '../sidebar-actions'
 
 
 ItemTypes = {
@@ -27,7 +28,8 @@ class AccountSwitcher extends React.Component
 
   # Helpers
 
-  _makeItem: ({id, label, emailAddress, provider} = {}) =>
+  _makeItem: (account = {}) =>
+    {id, label, emailAddress, provider} = account
     id ?= ItemTypes.Unified
     label ?= "All Accounts"
     email = emailAddress ? ""
@@ -35,7 +37,7 @@ class AccountSwitcher extends React.Component
     accounts = if id is ItemTypes.Unified
       @props.accounts
     else
-      [id]
+      [account]
 
     return {id, label, email, iconName, accounts}
 
@@ -58,7 +60,7 @@ class AccountSwitcher extends React.Component
     @setState(showing: false)
 
   _onSwitchAccount: (item) =>
-    Actions.focusDefaultMailboxPerspectiveForAccounts(item.accounts)
+    SidebarActions.focusAccounts(item.accounts)
     @setState(showing: false)
 
   _onManageAccounts: =>

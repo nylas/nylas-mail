@@ -1,16 +1,15 @@
 NylasStore = require 'nylas-store'
 _ = require 'underscore'
-{DatabaseStore,
+{Actions,
  AccountStore,
  ThreadCountsStore,
  DraftCountStore,
  WorkspaceStore,
- MailboxPerspective,
  FocusedPerspectiveStore,
- DestroyCategoryTask,
  CategoryStore} = require 'nylas-exports'
 
 SidebarSection = require './sidebar-section'
+SidebarActions = require './sidebar-actions'
 
 Sections = {
   "Standard",
@@ -23,6 +22,7 @@ class SidebarStore extends NylasStore
     @_sections = {}
     @_sections[Sections.Standard] = {}
     @_sections[Sections.User] = []
+    @_focusedAccounts = @accounts()
     @_registerListeners()
     @_updateSections()
 
@@ -30,8 +30,7 @@ class SidebarStore extends NylasStore
     AccountStore.accounts()
 
   focusedAccounts: ->
-    accountIds = FocusedPerspectiveStore.current().accountIds
-    accountIds.map((accId) -> AccountStore.accountForId(accId))
+    @_focusedAccounts
 
   standardSection: ->
     @_sections[Sections.Standard]
@@ -40,12 +39,13 @@ class SidebarStore extends NylasStore
     @_sections[Sections.User]
 
   _registerListeners: ->
+    @listenTo SidebarActions.focusAccounts, @_onAccountsFocused
+    @listenTo FocusedPerspectiveStore, @_updateSections
     @listenTo AccountStore, @_updateSections
     @listenTo WorkspaceStore, @_updateSections
     @listenTo ThreadCountsStore, @_updateSections
     @listenTo DraftCountStore, @_updateSections
     @listenTo CategoryStore, @_updateSections
-    @listenTo FocusedPerspectiveStore, @_updateSections
     @configSubscription = NylasEnv.config.observe(
       'core.workspace.showUnreadForAllCategories',
       @_updateSections
@@ -56,8 +56,13 @@ class SidebarStore extends NylasStore
     )
     return
 
-  _updateSections: =>
-    accounts = @focusedAccounts()
+  _onAccountsFocused: (accounts) =>
+    Actions.focusDefaultMailboxPerspectiveForAccounts(accounts)
+    @_focusedAccounts = accounts
+    @_updateSections()
+
+  _updateSections: () =>
+    accounts = @_focusedAccounts
     multiAccount = accounts.length > 1
 
     @_sections[Sections.Standard] = SidebarSection.standardSectionForAccounts(accounts)
