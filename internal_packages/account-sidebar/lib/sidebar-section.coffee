@@ -8,6 +8,16 @@ _ = require 'underscore'
 SidebarItem = require './sidebar-item'
 
 
+isSectionCollapsed = (id) ->
+  key = "core.accountSidebarCollapsed.#{id}Section"
+  collapsed = NylasEnv.config.get(key)
+
+toggleSectionCollapsed = (section) ->
+  key = "core.accountSidebarCollapsed.#{section.title}Section"
+  return unless section
+  NylasEnv.config.set(key, not section.collapsed)
+
+
 class SidebarSection
 
   @empty: (title)->
@@ -113,13 +123,9 @@ class SidebarSection
 
 
     title ?= account.categoryLabel()
+    collapsed = isSectionCollapsed(title)
     if collapsible
-      collapseKey = "core.accountSidebarCollapsed.#{title}Section"
-      collapsed = NylasEnv.config.get(collapseKey)
-      onToggleCollapsed = (section) =>
-        return unless section
-        NylasEnv.config.set(collapseKey, not section.collapsed)
-
+      onToggleCollapsed = toggleSectionCollapsed
 
     return {
       title: title
