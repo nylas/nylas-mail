@@ -20,7 +20,7 @@ class LinkManager extends ContenteditableExtension
   # something new.
   @onContentChanged: ({editor, mutations}) =>
     sel = editor.currentSelection()
-    if sel.isCollapsed
+    if sel.anchorNode and sel.isCollapsed
       node = sel.anchorNode
       sibling = node.previousSibling
 
@@ -31,6 +31,7 @@ class LinkManager extends ContenteditableExtension
       return if /^\s+/.test(node.data)
       return if RegExpUtils.punctuation(exclude: ['\\-', '_']).test(node.data[0])
 
+      node.splitText(1) if node.data.length > 1
       sibling.appendChild(node)
       sibling.normalize()
       text = DOMUtils.findLastTextNode(sibling)
@@ -63,8 +64,8 @@ class LinkManager extends ContenteditableExtension
 
   @_linkWidth: (linkToModify) ->
     href = linkToModify?.getAttribute?('href') ? ""
-    WIDTH_PER_CHAR = 11
-    return Math.max(href.length * WIDTH_PER_CHAR, 210)
+    WIDTH_PER_CHAR = 8
+    return Math.max(href.length * WIDTH_PER_CHAR + 95, 210)
 
   @_linkAtCursor: (toolbarState) ->
     if toolbarState.selectionSnapshot.isCollapsed
@@ -73,7 +74,12 @@ class LinkManager extends ContenteditableExtension
     else
       anchor = toolbarState.selectionSnapshot.anchorNode
       focus = toolbarState.selectionSnapshot.anchorNode
-      return DOMUtils.closest(anchor, 'n1-prompt-link') and DOMUtils.closest(focus, 'n1-prompt-link')
+      aPrompt = DOMUtils.closest(anchor, 'n1-prompt-link')
+      fPrompt = DOMUtils.closest(focus, 'n1-prompt-link')
+      if aPrompt and fPrompt and aPrompt is fPrompt
+        aTag = DOMUtils.closest(aPrompt, 'a')
+        return aTag ? aPrompt
+      else return null
 
   ## TODO FIXME: Unfortunately, the keyCommandHandler fires before the
   # Contentedtiable onKeyDown.
@@ -107,7 +113,7 @@ class LinkManager extends ContenteditableExtension
 
   @_onSaveUrl: ({editor, url, linkToModify}) ->
     if linkToModify?
-      equivalentNode = DOMUtils.findSimilarNodesAtIndex(editor.rootNode, linkToModify, 0)?[0]
+      equivalentNode = DOMUtils.findSimilarNodeAtIndex(editor.rootNode, linkToModify, 0)
       return unless equivalentNode?
       equivalentLinkText = DOMUtils.findFirstTextNode(equivalentNode)
       return if linkToModify.getAttribute?('href')?.trim() is url.trim()

@@ -100,7 +100,7 @@ class Contenteditable extends React.Component
     editor = new EditorAPI(@_editableNode())
 
     if not editor.currentSelection().isInScope()
-      editor.importSelection(@innerState.exportedSelection)
+      @_restoreSelection()
 
     argsObj = _.extend(extraArgsObj, {editor})
 
@@ -152,7 +152,7 @@ class Contenteditable extends React.Component
         previousExportedSelection: @innerState.exportedSelection
 
   componentDidUpdate: =>
-    @_restoreSelection()
+    @_restoreSelection() if @_shouldRestoreSelectionOnUpdate()
     @_refreshServices()
     @_mutationObserver.disconnect()
     @_mutationObserver.observe(@_editableNode(), @_mutationConfig())
@@ -192,7 +192,7 @@ class Contenteditable extends React.Component
                        localHandlers={@_keymapHandlers()}>
       {@_renderFloatingToolbar()}
 
-      <div className="contenteditable"
+      <div className="contenteditable no-open-link-events"
            ref="contenteditable"
            contentEditable
            spellCheck={false}
@@ -493,6 +493,7 @@ class Contenteditable extends React.Component
   # you revert to a previous state, the selection updates as well.
   _saveSelection: =>
     selection = new ExtendedSelection(@_editableNode())
+    console.trace()
     return unless selection?.isInScope()
 
     @setInnerState
@@ -501,7 +502,6 @@ class Contenteditable extends React.Component
       previousExportedSelection: @innerState.exportedSelection
 
   _restoreSelection: =>
-    return unless @_shouldRestoreSelection()
     @_teardownListeners()
     selection = new ExtendedSelection(@_editableNode())
     selection.importSelection(@innerState.exportedSelection)
@@ -509,9 +509,16 @@ class Contenteditable extends React.Component
       @_onSelectionChanged(selection)
     @_setupListeners()
 
-  _shouldRestoreSelection: ->
+  # When the component updates, the selection may have changed from our
+  # last known saved position. This can happen for a couple of reasons:
+  #
+  # 1. Some sister-component (like the LinkEditor) grabbed the selection.
+  # 2. A sister-component that used to have the selection was unmounted
+  # causing the selection to be null or the document
+  _shouldRestoreSelectionOnUpdate: ->
     (not @innerState.dragging) and
-    document.activeElement is @_editableNode()
+    (document.activeElement is @_editableNode() or
+    not @_editableNode().parentNode.contains(document.activeElement))
 
   _onSelectionChanged: (selection) ->
     @props.onSelectionChanged(selection, @_editableNode())

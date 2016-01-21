@@ -18,6 +18,9 @@ class LinkEditor extends React.Component
     @state =
       urlInputValue: @_initialUrl() ? ""
 
+  componentWillReceiveProps: (newProps) ->
+    @setState urlInputValue: @_initialUrl(newProps)
+
   componentDidMount: ->
     if @props.focusOnMount
       React.findDOMNode(@refs["urlInput"]).focus()

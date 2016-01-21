@@ -102,12 +102,11 @@ class FloatingToolbar extends React.Component
 
   _getStateFromProps: (props) ->
     toolbarComponentState = @_getToolbarComponentData(props)
-    locationRefNode = toolbarComponentState.toolbarLocationRef
-    if locationRefNode
-      positionState = @_calculatePositionState(props, locationRefNode)
+    if toolbarComponentState.toolbarLocationRef
+      positionState = @_calculatePositionState(props, toolbarComponentState)
     else positionState = {}
 
-    return _.extend {}, positionState, toolbarComponentState
+    return _.extend {}, toolbarComponentState, positionState
 
   # If this returns a `null` component, that means we don't want to show
   # anything.
@@ -135,10 +134,10 @@ class FloatingToolbar extends React.Component
 
   @CONTENT_PADDING: 15
 
-  _calculatePositionState: (props, locationRefNode) =>
+  _calculatePositionState: (props, {toolbarLocationRef, toolbarWidth}) =>
     editableNode = props.editableNode
 
-    referenceRect = locationRefNode.getBoundingClientRect()
+    referenceRect = toolbarLocationRef.getBoundingClientRect()
 
     if not editableNode or not referenceRect or DOMUtils.isEmptyBoundingRect(referenceRect)
       return {toolbarTop: 0, toolbarLeft: 0, editAreaWidth: 0, toolbarPos: 'above'}
@@ -158,9 +157,12 @@ class FloatingToolbar extends React.Component
       calcTop = referenceRect.top - editArea.top + referenceRect.height + TOP_PADDING + 4
       toolbarPos = "below"
 
+    maxWidth = editArea.width - FloatingToolbar.CONTENT_PADDING * 2
+
     return {
       toolbarTop: calcTop
       toolbarLeft: calcLeft
+      toolbarWidth: Math.min(maxWidth, toolbarWidth)
       editAreaWidth: editArea.width
       toolbarPos: toolbarPos
     }
@@ -180,7 +182,7 @@ class FloatingToolbar extends React.Component
     return styles
 
   _toolbarLeft: =>
-    max = @state.editAreaWidth - @state.toolbarWidth - FloatingToolbar.CONTENT_PADDING
+    max = Math.max(@state.editAreaWidth - @state.toolbarWidth - FloatingToolbar.CONTENT_PADDING, FloatingToolbar.CONTENT_PADDING)
     left = Math.min(Math.max(@state.toolbarLeft - @state.toolbarWidth/2, FloatingToolbar.CONTENT_PADDING), max)
     return left
 
