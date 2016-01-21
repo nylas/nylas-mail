@@ -78,7 +78,13 @@ class QueryResultSet
     @_modelsHash[id]
 
   offsetOfId: (id) ->
-    idx = _.findIndex @models(), (m) -> m.id is id or m.clientId is id
+    idx = @_ids.indexOf(id)
+
+    # If we can't find the item, try to match against client ids as well. Some
+    # items in the models() array may not be loaded, but we can try our best.
+    if idx is -1
+      idx = _.findIndex @models(), (m) -> m and (m.id is id or m.clientId is id)
+
     return -1 if idx is -1
     return @_offset + idx
 
