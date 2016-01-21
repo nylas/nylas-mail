@@ -493,7 +493,6 @@ class Contenteditable extends React.Component
   # you revert to a previous state, the selection updates as well.
   _saveSelection: =>
     selection = new ExtendedSelection(@_editableNode())
-    console.trace()
     return unless selection?.isInScope()
 
     @setInnerState
