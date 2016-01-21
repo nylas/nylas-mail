@@ -88,7 +88,9 @@ class QuerySubscription
           mustRefetchAllIds = true if @_itemSortOrderHasChanged(oldItem, item)
 
     if impactCount > 0
-      @_set = null if mustRefetchAllIds
+      if mustRefetchAllIds
+        @log("Clearing result set - mustRefetchAllIds")
+        @_set = null
       @update()
 
   _itemSortOrderHasChanged: (old, updated) ->
@@ -101,6 +103,9 @@ class QuerySubscription
         return true
 
     return false
+
+  log: (msg) =>
+    console.log(msg) if @_query._klass.name is 'Thread'
 
   update: =>
     version = @_version += 1
@@ -116,18 +121,23 @@ class QuerySubscription
       entireModels = not @_set or @_set.modelCacheCount() is 0
 
     Promise.each ranges, (range) =>
-      return unless version is @_version
-      @_fetchRange(range, {entireModels})
+      return @log("Update (#{version}) - Cancelled @ Step 0") unless version is @_version
+      @log("Update (#{version}) - Fetching range #{range}")
+      @_fetchRange(range, {entireModels, version})
     .then =>
-      return unless version is @_version
+      return @log("Update (#{version}) - Cancelled @ Step 1") unless version is @_version
       ids = @_set.ids().filter (id) => not @_set.modelWithId(id)
-      return if ids.length is 0
-      return DatabaseStore.findAll(@_query._klass, {id: ids}).then(@_appendToModelCache)
+      return @log("Update (#{version}) - No missing Ids") if ids.length is 0
+      @log("Update (#{version}) - Fetching missing Ids: #{ids}")
+      return DatabaseStore.findAll(@_query._klass, {id: ids}).then (models) =>
+        @log("Update (#{version}) - Fetched missing Ids")
+        @_set.replaceModel(m) for m in models
     .then =>
-      return unless version is @_version
+      return @log("Update (#{version}) - Cancelled @ Step 2") unless version is @_version
+      @log("Update (#{version}) - Triggering...")
       @_createResultAndTrigger()
 
-  _fetchRange: (range, {entireModels} = {}) ->
+  _fetchRange: (range, {entireModels, version} = {}) ->
     rangeQuery = undefined
 
     unless range.isInfinite()
@@ -141,7 +151,12 @@ class QuerySubscription
     rangeQuery ?= @_query
 
     DatabaseStore.run(rangeQuery, {format: false}).then (results) =>
-      @_set = null unless @_set?.range().isContiguousWith(range)
+      if version and version isnt @_version
+        return @log("Update (#{version}) - fetchRange Cancelled")
+
+      unless @_set?.range().isContiguousWith(range)
+        @log("Clearing result set - #{range} isnt contiguous with #{@_set?.range()}")
+        @_set = null
       @_set ?= new MutableQueryResultSet()
 
       if entireModels
