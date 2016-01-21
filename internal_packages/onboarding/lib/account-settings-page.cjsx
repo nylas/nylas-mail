@@ -57,50 +57,57 @@ class AccountSettingsPage extends React.Component
 
   render: ->
     <div className="page account-setup">
-
       <div className="logo-container">
-        <RetinaImg name={@state.provider.header_icon} mode={RetinaImg.Mode.ContentPreserve} className="logo"/>
+        <RetinaImg
+          name={@state.provider.header_icon}
+          mode={RetinaImg.Mode.ContentPreserve}
+          className="logo"/>
       </div>
 
       {@_renderTitle()}
 
       <div className="back" onClick={@_fireMoveToPrevPage}>
-        <RetinaImg name="onboarding-back.png"
-                   mode={RetinaImg.Mode.ContentPreserve}/>
+        <RetinaImg
+          name="onboarding-back.png"
+          mode={RetinaImg.Mode.ContentPreserve}/>
       </div>
+
       {@_renderErrorMessage()}
+
       <form className="settings">
         {@_renderFields()}
         {@_renderSettings()}
         {@_renderButton()}
       </form>
-
     </div>
 
   _onSettingsChanged: (event) =>
-    field = event.target.dataset.field
-    format = event.target.dataset.format
-    int_formatter = (a) ->
+    # NOTE: This code is largely duplicated in _onValueChanged. TODO Fix!
+    {field, format} = event.target.dataset
+    intFormatter = (a) ->
       i = parseInt(a)
       if isNaN(i) then "" else i
-    formatter = if format is 'integer' then int_formatter else (a) -> a
+    formatter = if format is 'integer' then intFormatter else (a) -> a
     settings = @state.settings
     if event.target.type is 'checkbox'
       settings[field] = event.target.checked
     else
       settings[field] = formatter(event.target.value)
 
-    setting_field = _.find(@state.provider.settings, ((e) -> return e['name'] == field))
+    settingField = _.findWhere(@state.provider.settings, {name: field})
 
     # If the field defines an isValid method, try to validate
     # the input.
-    if setting_field?.isValid?
-      if not setting_field.isValid(event.target.value)
-        errorFields = _.uniq(@state.errorFieldNames.concat Array(field))
-        @setState({errorFieldNames: errorFields})
+    if settingField
+      valueIsValid = not settingField.isValid? or settingField.isValid(event.target.value)
+      valueIsPresent = event.target.value and event.target.value.length > 0
+      valueIsRequired = settingField.required is true
+
+      if (not valueIsPresent and valueIsRequired) or (valueIsPresent and not valueIsValid)
+        errorFields = _.uniq(@state.errorFieldNames.concat([field]))
       else
-        errorFields = _.uniq((x for x in @state.errorFieldNames when x != field))
-        @setState({errorFieldNames: errorFields})
+        errorFields = _.uniq(_.without(@state.errorFieldNames, field))
+      @setState({errorFieldNames: errorFields})
 
     @setState({settings})
 
@@ -116,7 +123,7 @@ class AccountSettingsPage extends React.Component
   _allRequiredFieldsFilled: =>
     allFields = @state.provider.fields.concat(@state.provider.settings || [])
     requiredFields = allFields.filter(@_fieldOnCurrentPage).filter(@_fieldRequired)
-    fields = _.extend(@state.fields, @state.settings)
+    fields = _.extend({}, @state.fields, @state.settings)
 
     for field in requiredFields
       fieldName = field['name']
@@ -126,28 +133,32 @@ class AccountSettingsPage extends React.Component
     return true
 
   _onValueChanged: (event) =>
+    # NOTE: This code is largely duplicated in _onSettingsChanged. TODO Fix!
     field = event.target.dataset.field
     fields = @state.fields
     fields[field] = event.target.value
 
-    provider_field = _.find(@state.provider.fields, ((e) -> return e['name'] == field))
+    providerField = _.find(@state.provider.fields, ((e) -> return e['name'] == field))
 
     # If the field defines an isValid method, try to validate
     # the input.
-    if provider_field?.isValid?
-      if not provider_field.isValid(event.target.value)
-        errorFields = _.uniq(@state.errorFieldNames.concat [field])
-        @setState({errorFieldNames: errorFields})
+    if providerField
+      valueIsValid = not providerField.isValid? or providerField.isValid(event.target.value)
+      valueIsPresent = event.target.value and event.target.value.length > 0
+      valueIsRequired = providerField.required is true
+
+      if (not valueIsPresent and valueIsRequired) or (valueIsPresent and not valueIsValid)
+        errorFields = _.uniq(@state.errorFieldNames.concat([field]))
       else
-        errorFields = _.uniq((x for x in @state.errorFieldNames when x != field))
-        @setState({errorFieldNames: errorFields})
+        errorFields = _.uniq(_.without(@state.errorFieldNames, field))
+      @setState({errorFieldNames: errorFields})
 
     @setState({fields})
 
   _onFieldKeyPress: (event) =>
     if event.key in ['Enter', 'Return']
       pages = @state.provider.pages || []
-      if pages.length > @state.pageNumber+1
+      if pages.length > @state.pageNumber + 1
         @_onNextButton()
       else
         @_onSubmit()
@@ -155,7 +166,7 @@ class AccountSettingsPage extends React.Component
   _renderTitle: =>
     if @state.provider.name is 'gmail'
       <h2>
-        Sign in to {@state.provider.displayName} in your browser.
+        Sign in to Google in<br/>your browser.
       </h2>
     else if @state.provider.pages?.length > 0
       <h2>
@@ -227,30 +238,33 @@ class AccountSettingsPage extends React.Component
 
   _renderButton: =>
     pages = @state.provider.pages || []
-    if pages.length > @state.pageNumber+1
+
+    if pages.length > @state.pageNumber + 1
       # We're not on the last page.
       if @_noFormErrors() and @_allRequiredFieldsFilled()
-        <button className="btn btn-large btn-gradient" type="button" onClick={@_onNextButton}>Continue</button>
+        <button className="btn btn-large btn-gradient" onClick={@_onNextButton}>Continue</button>
       else
         # Disable the "Continue" button if the fields haven't been filled correctly.
-        <button className="btn btn-large btn-gradient btn-disabled" type="button">Continue</button>
+        <button className="btn btn-large btn-gradient btn-disabled">Continue</button>
     else if @state.provider.name isnt 'gmail'
       if @state.tryingToAuthenticate
-        <button className="btn btn-large btn-disabled btn-add-account-spinning" type="button">
+        <button className="btn btn-large btn-disabled btn-add-account-spinning">
           <RetinaImg name="sending-spinner.gif" width={15} height={15} mode={RetinaImg.Mode.ContentPreserve} /> Adding account&hellip;
         </button>
       else
         if @_noFormErrors() and @_allRequiredFieldsFilled()
-          <button className="btn btn-large btn-gradient btn-add-account" type="button" onClick={@_onSubmit}>Add account</button>
+          <button className="btn btn-large btn-gradient btn-add-account" onClick={@_onSubmit}>Add account</button>
         else
           # Disable the "Add Account" button if the fields haven't been filled correctly.
-          <button className="btn btn-large btn-gradient btn-add-account btn-disabled" type="button">Add account</button>
+          <button className="btn btn-large btn-gradient btn-add-account btn-disabled">Add account</button>
 
   _onNextButton: (event) =>
+    return unless @_noFormErrors() and @_allRequiredFieldsFilled()
     @setState(pageNumber: @state.pageNumber + 1)
     @_resize()
 
   _onSubmit: (event) =>
+    return unless @_noFormErrors() and @_allRequiredFieldsFilled()
     return if @state.tryingToAuthenticate
 
     data = settings: {}
@@ -316,7 +330,7 @@ class AccountSettingsPage extends React.Component
       provider: @state.provider.name
     })
 
-    if errorMessage == "Invite code required"
+    if errorMessage is "Invite code required"
       choice = dialog.showMessageBox(remote.getCurrentWindow(), {
         type: 'info',
         buttons: ['Okay'],
@@ -324,9 +338,10 @@ class AccountSettingsPage extends React.Component
         message: 'Due to a large number of sign-ups this week, you’ll need an invitation code to add another account! Visit http://invite.nylas.com/ to grab one, or hold tight!'
       })
       OnboardingActions.moveToPage("token-auth")
-    if errorMessage == "Invalid invite code"
-      # delay?
+
+    if errorMessage is "Invalid invite code"
       OnboardingActions.moveToPage("token-auth")
+
     pageNumber = @state.pageNumber
     errorFieldNames = err.body?.missing_fields || err.body?.missing_settings
 
@@ -378,11 +393,11 @@ class AccountSettingsPage extends React.Component
   _resize: =>
     setTimeout( =>
       @props.onResize?()
-    ,10)
+    , 10)
 
   _fireMoveToPrevPage: =>
     if @state.pageNumber > 0
-      @setState(pageNumber: @state.pageNumber-1)
+      @setState(pageNumber: @state.pageNumber - 1)
       @_resize()
     else
       OnboardingActions.moveToPreviousPage()
