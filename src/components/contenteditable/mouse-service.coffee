@@ -22,6 +22,9 @@ class MouseService extends ContenteditableService
     # Note: Related to composer-view#_onClickComposeBody
     event.stopPropagation()
 
+    ## NOTE: We can't use event.preventDefault() here for <a> tags because
+    # the window-event-handler.coffee file has already caught the event.
+
   # We use global listeners to determine whether or not dragging is
   # happening. This is because dragging may stop outside the scope of
   # this element. Note that the `dragstart` and `dragend` events don't
