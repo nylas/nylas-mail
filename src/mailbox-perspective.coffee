@@ -181,7 +181,12 @@ class CategoryMailboxPerspective extends MailboxPerspective
       .where([Thread.attributes.categories.containsAny(_.pluck(@categories(), 'id'))])
       .limit(0)
 
-    query.distinct() if @categories().length > 1
+    if @_categories.length > 1 and @accountIds.length < @_categories.length
+      # The user has multiple categories in the same account selected, which
+      # means our result set could contain multiple copies of the same threads
+      # (since we do an inner join) and we need SELECT DISTINCT. Note that this
+      # can be /much/ slower and we shouldn't do it if we know we don't need it.
+      query.distinct()
 
     return new MutableQuerySubscription(query, {asResultSet: true})
 
