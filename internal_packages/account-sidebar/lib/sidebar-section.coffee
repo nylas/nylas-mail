@@ -3,7 +3,6 @@ _ = require 'underscore'
  AccountStore,
  SyncbackCategoryTask,
  DestroyCategoryTask,
- CategoryHelpers,
  CategoryStore,
  Category} = require 'nylas-exports'
 SidebarItem = require './sidebar-item'
@@ -80,7 +79,7 @@ class SidebarSection
     }
 
 
-  @forUserCategories: (account) ->
+  @forUserCategories: (account, {title, collapsible} = {}) ->
     return unless account
     # Compute hierarchy for user categories using known "path" separators
     # NOTE: This code uses the fact that userCategoryItems is a sorted set, eg:
@@ -112,10 +111,22 @@ class SidebarSection
         items.push(item)
       seenItems[itemKey] = item
 
+
+    title ?= account.categoryLabel()
+    if collapsible
+      collapseKey = "core.accountSidebarCollapsed.#{title}Section"
+      collapsed = NylasEnv.config.get(collapseKey)
+      onToggleCollapsed = (section) =>
+        return unless section
+        NylasEnv.config.set(collapseKey, not section.collapsed)
+
+
     return {
-      title: CategoryHelpers.categoryLabel(account)
-      iconName: CategoryHelpers.categoryIconName(account)
+      title: title
+      iconName: account.categoryIcon()
       items: items
+      collapsed: collapsed
+      onToggleCollapsed: onToggleCollapsed
       onCreateItem: (displayName) ->
         category = new Category
           displayName: displayName
