@@ -20,7 +20,7 @@ Providers = [
     icon: 'ic-settings-account-eas.png'
     header_icon: 'setup-icon-provider-exchange.png'
     color: '#1ea2a3'
-    pages: ['Set up your Exchange account', 'Advanced settings']
+    pages: ['Set up your email account', 'Exchange settings']
     fields: [
       {
         name: 'name'
