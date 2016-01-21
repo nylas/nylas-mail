@@ -24,33 +24,32 @@
     font-size: @font-size-smaller;
     padding-left:@padding-small-horizontal;
     padding-top:@padding-small-horizontal;
+    padding-right: @padding-xs-horizontal;
     letter-spacing: -0.2px;
 
     span:first-child {
-      max-width: 85px;
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
     }
 
     .add-item-button {
-      margin-left: @padding-xs-horizontal;
       margin-left: @padding-small-horizontal;
+      margin-right: @padding-small-horizontal;
       cursor: pointer;
       img {background: @text-color-very-subtle; }
     }
 
     .collapse-button {
       cursor: pointer;
-      visibility: hidden;
+      display: none;
       min-width: 30px;
       margin-left: auto;
-      margin-right: @padding-small-horizontal;
     }
 
     &:hover {
       .collapse-button {
-        visibility: visible;
+        display: inherit;
       }
     }
   }
