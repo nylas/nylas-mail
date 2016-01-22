@@ -14,7 +14,7 @@ class NewsletterSignup extends React.Component
     @state = {status: 'Pending'}
 
   componentWillReceiveProps: (nextProps) =>
-    @_onGetStatus(nextProps)
+    @_onGetStatus(nextProps) if not _.isEqual(@props, nextProps)
 
   componentDidMount: =>
     @_onGetStatus()
