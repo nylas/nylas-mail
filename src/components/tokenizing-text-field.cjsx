@@ -268,7 +268,7 @@ class TokenizingTextField extends React.Component
   render: =>
     {Menu} = require 'nylas-component-kit'
 
-    classes = classNames _.extend (@props.menuClassSet ? {}),
+    classes = classNames _.extend {}, (@props.menuClassSet ? {}),
       "tokenizing-field": true
       "native-key-bindings": true
       "focused": @state.focus

@@ -23,7 +23,7 @@ class Flexbox extends React.Component
     style: React.PropTypes.object
 
   render: ->
-    style = _.extend (@props.style || {}),
+    style = _.extend {}, (@props.style || {}),
       'flexDirection': @props.direction,
       'position':'relative'
       'display': 'flex'

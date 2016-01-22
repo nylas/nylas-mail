@@ -1,5 +1,20 @@
 # N1 Changelog
 
+### 0.3.45 (1/21/16)
+
+- Fixes:
+ + The blue "Help" button in the app is smaller and goes to support.nylas.com.
+   Thanks to everyone who sent in feedback via Intercom. We'd still love to
+   hear from you on the community Slack channel!
+ + When linking new accounts, there is more validation on the form fields
+ + The newsletter checkbox now works properly when switching accounts.
+ + The "Welcome" template in the QuickSchedule package has been updated.
+ + N1 no longer generates errors installing on Ubuntu 14 and 15.
+ + AM/PM capitalization has been standardized.
+ + You can no longer accidentally select message timestamps.
+ + We've increased the timeout for Exchange authentication, because it can
+   actually take more than 30s to do Exchange AutoDiscovery.
+
 ### 0.3.43 (1/12/16)
 
 - Features:
