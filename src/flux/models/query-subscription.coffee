@@ -178,7 +178,7 @@ class QuerySubscription
     if @_options.asResultSet
       @_lastResult = @_set.immutableClone()
     else
-      @_lastResult = @_query.formatResultObjects(@_set.models())
+      @_lastResult = @_query.formatResult(@_set.models())
 
     @_callbacks.forEach (callback) =>
       callback(@_lastResult)
