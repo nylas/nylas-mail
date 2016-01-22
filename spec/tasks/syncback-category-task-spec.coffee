@@ -1,4 +1,6 @@
 {NylasAPI,
+ Category,
+ AccountStore,
  DatabaseStore,
  SyncbackCategoryTask,
  DatabaseTransaction} = require "nylas-exports"
@@ -13,6 +15,12 @@ describe "SyncbackCategoryTask", ->
 
     nameOf = (fn) ->
       fn.calls[0].args[0].body.display_name
+
+    makeAccount = ({usesFolders, usesLabels} = {}) ->
+      spyOn(AccountStore, "accountForId").andReturn {
+        usesFolders: -> usesFolders
+        usesLabels: -> usesLabels
+      }
 
     makeTask = ->
       category = new Category
@@ -29,26 +37,31 @@ describe "SyncbackCategoryTask", ->
       spyOn(DatabaseTransaction.prototype, "persistModel")
 
     it "sends API req to /labels if the account uses labels", ->
+      makeAccount(usesLabels: true)
       task = makeTask()
       task.performRemote({})
       expect(pathOf(NylasAPI.makeRequest)).toBe "/labels"
 
     it "sends API req to /folders if the account uses folders", ->
+      makeAccount(usesFolders: true)
       task = makeTask()
       task.performRemote({})
       expect(pathOf(NylasAPI.makeRequest)).toBe "/folders"
 
     it "sends the account id", ->
+      makeAccount()
       task = makeTask()
       task.performRemote({})
       expect(accountIdOf(NylasAPI.makeRequest)).toBe "account 123"
 
     it "sends the display name in the body", ->
+      makeAccount()
       task = makeTask()
       task.performRemote({})
       expect(nameOf(NylasAPI.makeRequest)).toBe "important emails"
 
     it "adds server id to the category, then saves the category", ->
+      makeAccount()
       waitsForPromise ->
         task = makeTask()
         task.performRemote({})
