@@ -147,6 +147,7 @@ class NylasExports
 
   # React Components
   @get "React", -> require 'react' # Our version of React for 3rd party use
+  @get "Reflux", -> require 'reflux'
   @load "ReactRemote", 'react-remote/react-remote-parent'
   @load "ComponentRegistry", 'component-registry'
   @load "PriorityUICoordinator", 'priority-ui-coordinator'
