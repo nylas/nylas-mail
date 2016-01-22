@@ -81,6 +81,19 @@ describe('Contenteditable Integration Spec', function() {
       }).then(done).catch(done.fail);
     });
 
+    it("Doesn't create unordered lists with dash when it's not at the start of the composer", (done) => {
+      this.ce.test({
+        keys: ['asdf', 'Space', 'Back space', '-', 'Space'],
+        expectedHTML: `<spelling class="misspelled">asdf</spelling>-&nbsp;`,
+        expectedSelectionResolver: (dom) => {
+          return {
+            node: dom.childNodes[1],
+            offset: 2,
+          };
+        },
+      }).then(done).catch(done.fail);
+    });
+
     it('Undoes unordered list creation with backspace', (done) => {
       this.ce.test({
         keys: ['-', 'Space', 'Back space'],
@@ -192,6 +205,7 @@ describe('Contenteditable Integration Spec', function() {
         expectedSelectionResolver: (dom) => {
           return {
             node: dom.querySelectorAll('li')[0].childNodes[0],
+            offset: 1
           };
         },
       }).then(done).catch(done.fail);
@@ -204,6 +218,7 @@ describe('Contenteditable Integration Spec', function() {
         expectedSelectionResolver: (dom) => {
           return {
             node: dom.querySelectorAll('li')[0].childNodes[0],
+            offset: 1
           };
         },
       }).then(done).catch(done.fail);

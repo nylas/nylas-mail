@@ -40,8 +40,11 @@ class ListManager extends ContenteditableExtension
     return false unless selection?.anchorNode
     return false if not selection.isCollapsed
 
-    text = selection.anchorNode.textContent
-    return @numberRegex().test(text) or @bulletRegex().test(text)
+    sibling = selection.anchorNode.previousElementSibling
+    if not sibling or DOMUtils.looksLikeBlockElement(sibling)
+      text = selection.anchorNode.textContent
+      return @numberRegex().test(text) or @bulletRegex().test(text)
+    else return false
 
   @createList: (editor) ->
     text = editor.currentSelection().anchorNode?.textContent
