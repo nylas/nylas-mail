@@ -212,9 +212,9 @@ class ThreadList extends React.Component
     'application:mark-as-unread': @_onMarkUnreadItem
     'application:mark-as-read': @_onMarkReadItem
     'application:remove-and-previous': =>
-      @_shift(offset: 1, afterRunning: @_onRemoveFromView)
-    'application:remove-and-next': =>
       @_shift(offset: -1, afterRunning: @_onRemoveFromView)
+    'application:remove-and-next': =>
+      @_shift(offset: 1, afterRunning: @_onRemoveFromView)
 
   render: ->
     <KeyCommandsRegion globalHandlers={@_keymapHandlers()}
