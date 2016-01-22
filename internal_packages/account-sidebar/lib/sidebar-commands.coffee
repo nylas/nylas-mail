@@ -5,15 +5,22 @@ SidebarActions = require './sidebar-actions'
 
 class SidebarCommands
 
+  @_focusAccounts: (accounts) ->
+    SidebarActions.focusAccounts(accounts)
+    NylasEnv.show() unless NylasEnv.isVisible()
+
   @_registerCommands: ->
     commands = {}
+
     allKey = "application:select-account-0"
-    commands[allKey] = => SidebarActions.focusAccounts(AccountStore.accounts())
+    commands[allKey] = @_focusAccounts.bind(@, AccountStore.accounts())
+
     [1..8].forEach (index) =>
       account = AccountStore.accounts()[index - 1]
       return unless account
       key = "application:select-account-#{index}"
-      commands[key] = => SidebarActions.focusAccounts([account])
+      commands[key] = @_focusAccounts.bind(@, [account])
+
     NylasEnv.commands.add('body', commands)
 
   @_registerMenuItems: ->
