@@ -20,6 +20,7 @@ class SearchSuggestionStore extends NylasStore
 
   constructor: ->
     @_searchQuery = ""
+    @_searchSuggestionsVersion = 1
     @_clearResults()
 
     @listenTo FocusedPerspectiveStore, @_onPerspectiveChanged
@@ -40,17 +41,14 @@ class SearchSuggestionStore extends NylasStore
     @_searchQuery = query
     current = FocusedPerspectiveStore.current()
 
-    if @_searchQuery.trim().length > 0
+    if @queryPopulated()
       @_perspectiveBeforeSearch ?= current
-      next = MailboxPerspective.forSearch(current.accountIds, @_searchQuery)
+      next = MailboxPerspective.forSearch(current.accountIds, @_searchQuery.trim())
       Actions.focusMailboxPerspective(next)
 
-    else if @_searchQuery.trim().length is 0
-      if @_perspectiveBeforeSearch
-        Actions.focusMailboxPerspective(@_perspectiveBeforeSearch)
-        @_perspectiveBeforeSearch = null
-      else
-        Actions.focusDefaultMailboxPerspectiveForAccounts([current.accountIds[0]])
+    else if FocusedPerspectiveStore.current().searchQuery
+      Actions.focusMailboxPerspective(@_perspectiveBeforeSearch)
+      @_perspectiveBeforeSearch = null
 
     @_clearResults()
 
@@ -58,65 +56,66 @@ class SearchSuggestionStore extends NylasStore
     @_clearResults()
 
   _clearResults: =>
-    @_threadResults = null
-    @_contactResults = null
+    @_searchSuggestionsVersion = 1
+    @_threadResults = []
+    @_contactResults = []
     @_suggestions = []
     @trigger()
 
   _rebuildResults: =>
-    return @_clearResults() unless @_searchQuery
+    return @_clearResults() unless @queryPopulated()
+    @_searchSuggestionsVersion += 1
+    @_fetchThreadResults()
+    @_fetchContactResults()
 
-    account = FocusedPerspectiveStore.current().account
-    ContactStore.searchContacts(@_searchQuery, accountId: account.id, limit:10).then (results) =>
-      @_contactResults = results
-      @_rebuildThreadResults()
-      @_compileSuggestions()
+  _fetchContactResults: =>
+    version = @_searchSuggestionsVersion
+    ContactStore.searchContacts(@_searchQuery, limit:10).then (contacts) =>
+      return unless version is @_searchSuggestionsVersion
+      @_contactResults = contacts
+      @_compileResults()
 
-  _rebuildThreadResults: =>
-    return @_threadResults = [] unless @_searchQuery
-
-    terms = @_searchQuery
-    account = FocusedPerspectiveStore.current().account
-
-    # Don't update thread results if a previous query is still running, it'll
-    # just make performance even worse. When the old result comes in, re-run
-    return if @_threadQueryInFlight
+  _fetchThreadResults: =>
+    return if @_fetchingThreadResultsVersion
+    @_fetchingThreadResultsVersion = @_searchSuggestionsVersion
 
     databaseQuery = DatabaseStore.findAll(Thread)
-      .where(Thread.attributes.subject.like(terms))
+      .where(Thread.attributes.subject.like(@_searchQuery))
       .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
       .limit(4)
 
-    if account
-      databaseQuery.where(Thread.attributes.accountId.equal(account.id))
+    accountIds = FocusedPerspectiveStore.current().accountIds
+    if accountIds instanceof Array
+      databaseQuery.where(Thread.attributes.accountId.in(accountIds))
 
-    @_threadQueryInFlight = true
     databaseQuery.then (results) =>
-      @_threadQueryInFlight = false
-      if terms is @_searchQuery
+      # We've fetched the latest thread results - display them!
+      if @_searchSuggestionsVersion is @_fetchingThreadResultsVersion
+        @_fetchingThreadResultsVersion = null
         @_threadResults = results
-        @_compileSuggestions()
-      else
-        @_rebuildThreadResults()
+        @_compileResults()
+      # We're behind and need to re-run the search for the latest results
+      else if @_searchSuggestionsVersion > @_fetchingThreadResultsVersion
+        @_fetchThreadResults()
 
-  _compileSuggestions: =>
-    return unless @_searchQuery
+      @_fetchingThreadResultsVersion = null
 
+  _compileResults: =>
     @_suggestions = []
+
     @_suggestions.push
       label: "Message Contains: #{@_searchQuery}"
       value: @_searchQuery
 
-    if @_threadResults?.length
+    if @_threadResults.length
       @_suggestions.push
         divider: 'Threads'
-      _.each @_threadResults, (thread) =>
-        @_suggestions.push({thread: thread})
+      @_suggestions.push({thread}) for thread in @_threadResults
 
-    if @_contactResults?.length
+    if @_contactResults.length
       @_suggestions.push
         divider: 'People'
-      _.each @_contactResults, (contact) =>
+      for contact in @_contactResults
         @_suggestions.push
           contact: contact
           value: contact.email
@@ -126,6 +125,8 @@ class SearchSuggestionStore extends NylasStore
   # Exposed Data
 
   query: => @_searchQuery
+
+  queryPopulated: => @_searchQuery and @_searchQuery.trim().length > 0
 
   suggestions: => @_suggestions
 

@@ -107,7 +107,7 @@ class SearchBar extends React.Component
       SearchActions.querySubmitted(item.value)
 
   _onClearSearch: (event) =>
-    SearchActions.querySubmitted(null)
+    SearchActions.querySubmitted("")
 
   _clearAndBlur: =>
     @_onClearSearch()
