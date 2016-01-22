@@ -231,9 +231,10 @@ class ModelQuery
         throw new Error("Query could not parse the database result. Query: #{@sql()}, Error: #{jsonError.toString()}")
       return objects
 
-  formatResultObjects: (objects) ->
-    return objects[0] if @_returnOne
-    return [].concat(objects)
+  formatResult: (inflated) ->
+    return inflated[0] if @_returnOne
+    return inflated if @_count
+    return [].concat(inflated)
 
   # Query SQL Building
 

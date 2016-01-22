@@ -101,7 +101,7 @@ describe "ModelQuery", ->
       q.where({accountId: 'abcd'}).count()
 
       raw = [{count:"12"}]
-      expect(q.formatResultObjects(q.inflateResult(raw))).toBe(12)
+      expect(q.formatResult(q.inflateResult(raw))).toBe(12)
 
   describe "sql", ->
     beforeEach ->
