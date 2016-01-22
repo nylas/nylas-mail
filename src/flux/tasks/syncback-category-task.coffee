@@ -1,5 +1,6 @@
 CategoryStore = require '../stores/category-store'
 DatabaseStore = require '../stores/database-store'
+AccountStore = require '../stores/account-store'
 {generateTempId} = require '../models/utils'
 Task = require './task'
 NylasAPI = require '../nylas-api'

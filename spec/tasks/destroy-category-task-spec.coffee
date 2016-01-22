@@ -1,6 +1,8 @@
 {DestroyCategoryTask,
  NylasAPI,
  Task,
+ Category,
+ AccountStore,
  APIError,
  Category,
  DatabaseStore,
@@ -19,6 +21,11 @@ describe "DestroyCategoryTask", ->
   nameOf = (fn) ->
     fn.calls[0].args[0].body.display_name
 
+  makeAccount = ({usesFolders, usesLabels} = {}) ->
+    spyOn(AccountStore, "accountForId").andReturn {
+      usesFolders: -> usesFolders
+      usesLabels: -> usesLabels
+    }
   makeTask = ->
     category = new Category
       displayName: "important emails"
@@ -69,27 +76,32 @@ describe "DestroyCategoryTask", ->
         spyOn(NylasAPI, "makeRequest").andCallFake -> Promise.resolve("null")
 
       it "sends API req to /labels if user uses labels", ->
+        makeAccount(usesLabels: true)
         task = makeTask()
         task.performRemote()
         expect(pathOf(NylasAPI.makeRequest)).toBe "/labels/server-444"
 
       it "sends API req to /folders if user uses folders", ->
+        makeAccount(usesFolders: true)
         task = makeTask()
         task.performRemote()
         expect(pathOf(NylasAPI.makeRequest)).toBe "/folders/server-444"
 
       it "sends DELETE request", ->
+        makeAccount()
         task = makeTask()
         task.performRemote()
         expect(methodOf(NylasAPI.makeRequest)).toBe "DELETE"
 
       it "sends the account id", ->
+        makeAccount()
         task = makeTask()
         task.performRemote()
         expect(accountIdOf(NylasAPI.makeRequest)).toBe "account 123"
 
     describe "when request fails", ->
       beforeEach ->
+        makeAccount()
         spyOn(NylasEnv, 'emitError')
         spyOn(NylasAPI, 'makeRequest').andCallFake ->
           Promise.reject(new APIError({statusCode: 403}))
