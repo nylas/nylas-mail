@@ -1,0 +1,100 @@
+@import "ui-variables";
+
+.container-mail-rules {
+  .rule-list {
+    position: relative;
+    height: inherit;
+    width: inherit;
+
+    .items-wrapper {
+      min-width:200px;
+      height: 350px;
+    }
+    .item-rule-disabled {
+      color: @error-color;
+      padding: 4px 10px;
+      border-bottom: 1px solid @border-color-divider;
+    }
+    .selected .item-rule-disabled {
+      color: @component-active-bg;
+    }
+  }
+  .rule-detail {
+    flex: 1;
+    cursor: default;
+    background-color: @background-secondary;
+    border: 1px solid @border-color-divider;
+    border-left: 0;
+
+    .disabled-reason {
+      padding: @padding-base-vertical * 2 @padding-base-vertical * 2;
+      background-color: fade(@background-color-error, 30%);
+      border-bottom: 1px solid @background-color-error;
+      margin-bottom: @padding-base-vertical;
+      .btn {
+        margin-left:@padding-base-horizontal * 2;
+        float:right;
+      }
+    }
+    .inner {
+      padding: @padding-base-vertical @padding-base-horizontal;
+    }
+    .no-selection {
+      color: @text-color-very-subtle;
+      text-align: center;
+      padding:100px;
+    }
+
+    .well {
+      background-color: @background-primary;
+      border: 1px solid @border-color-divider;
+      margin: @padding-base-vertical 0;
+      font-size:0.9em;
+
+      .well-row {
+        padding: @padding-base-vertical @padding-base-horizontal;
+        border-bottom: 1px solid @border-color-divider;
+        select, input {
+          margin:@padding-base-vertical / 4 @padding-base-horizontal / 2;
+          &:first-child {
+            margin-left: 0;
+          }
+          &:last-child {
+            margin-right: 0;
+          }
+        }
+        select {
+          max-width:170px;
+        }
+        input {
+          width:200px;
+        }
+        .actions {
+          white-space: nowrap;
+          vertical-align: middle;
+          .btn {
+            padding: 0;
+            padding-top: 3px;
+            padding-bottom: 6px;
+            border-radius: 100%;
+            text-align: center;
+            margin-left:10px;
+            margin-top:1px;
+            width:24px;
+          }
+        }
+      }
+      .well-row:last-child {
+        border-bottom: none;
+      }
+    }
+  }
+  .footer {
+    border-top:1px solid @border-color-divider;
+    background-color: @background-secondary;
+    padding: @padding-base-vertical*3 @padding-base-horizontal;
+    .btn {
+      margin-right: @padding-base-horizontal;
+    }
+  }
+}

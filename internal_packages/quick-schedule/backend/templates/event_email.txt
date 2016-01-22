@@ -1,0 +1,5 @@
+{{ event.title }}
+Location:
+{{ event.location }}
+Description:
+{{ event.description }}

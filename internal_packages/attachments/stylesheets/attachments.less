@@ -1,0 +1,185 @@
+@import "ui-variables";
+@import "ui-mixins";
+
+.file-wrap {
+  cursor: default;
+  display: inline-block;
+  position: relative;
+  font-size: @font-size-small;
+  margin: 0 0 @spacing-standard @spacing-standard;
+  width: calc(~"50% - 23px");
+  min-width: 320px;
+  -webkit-user-drag: element;
+
+  .inner {
+    border-radius: 4px;
+    color: @text-color;
+    background: @background-off-primary;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.09);
+    padding: 13px @spacing-standard 13px @spacing-standard;
+    height:54px;
+  }
+
+  &:hover {
+    cursor: default;
+    .inner {
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.18);
+    }
+  }
+
+  &.file-upload {
+    .file-name {
+      color: @text-color-very-subtle;
+      .uploading {
+        color: @text-color;
+      }
+    }
+  }
+
+  .progress-bar-wrap {
+    display: none;
+
+    &.state-downloading, &.state-started, &.state-progress {
+      display: block;
+    }
+
+    &.state-completed, &.state-success {
+      display: block;
+      .progress-foreground { background: @background-color-success; }
+    }
+
+    &.state-aborted, &.state-failed {
+      display: block;
+      .progress-foreground { background: @background-color-error; }
+    }
+
+    .progress-foreground {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      height: 2px;
+      width: 0; // Changed by React
+      z-index: 3;
+      display: block;
+      background: @progress-bar-fill;
+      border-bottom-left-radius:4px;
+      transition: width .3s linear;
+
+    }
+    .progress-background {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      height: 2px;
+      width: 100%;
+      z-index: 2;
+      display: block;
+      background: @progress-bar-background;
+      border-bottom-left-radius:4px;
+      border-bottom-right-radius:4px;
+    }
+  }
+
+  .file-icon {
+    margin-right: 10px;
+    flex-shrink:0;
+  }
+  .file-name {
+    font-weight: @font-weight-medium;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .file-action-icon {
+    margin-left: 10px;
+    flex-shrink:0;
+  }
+}
+
+.file-wrap.file-image-wrap {
+  position: relative;
+  text-align: center;
+  display:inline-block;
+  vertical-align: top;
+  margin-bottom: @spacing-standard;
+  margin-right: @spacing-standard;
+  margin-left: @spacing-standard;
+  width: initial;
+  max-width: calc(~"100% - 30px");
+
+  .progress-foreground,
+  .progress-foreground {
+    bottom: -2px;
+  }
+  .progress-background {
+    bottom: -2px;
+  }
+
+  .file-action-icon, .file-name-container, .file-name {
+    display: none;
+  }
+  &:hover {
+    .file-action-icon, .file-name-container, .file-name {
+      display: block;
+    }
+  }
+
+  .file-action-icon {
+    position: absolute;
+    z-index: 2;
+    right: -8px;
+    top: -8px;
+    width: 26px;
+    border-radius: 0 0 0 3px;
+  }
+
+  .file-preview {
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+
+    .file-name-container {
+      cursor: default;
+      position: absolute;
+      bottom: 0;
+      top: 0;
+      z-index: 2;
+      width: 100%;
+      height:100%;
+      min-height:300px;
+      background: linear-gradient(to top, rgba(0,0,0,0.75) 0%,rgba(0,0,0,0) 23%);
+      vertical-align:bottom;
+
+      // Important! file-name-container is on top of the image and prevents you from dragging it.
+      pointer-events: none;
+
+      .file-name {
+        color: @white;
+        left: @spacing-standard;
+        right: @spacing-standard;
+        bottom: @spacing-standard;
+        text-align:left;
+        position: absolute;
+        z-index: 3;
+      }
+    }
+
+    img {
+      position: relative;
+      z-index: 1;
+      max-width: 100%;
+      background: url(../static/images/attachments/transparency-background.png) top left repeat;
+      background-size:8px;
+    }
+  }
+
+}
+
+body.platform-win32 {
+  .file-wrap {
+    .inner {
+      border-radius: 0;
+    }
+  }
+}

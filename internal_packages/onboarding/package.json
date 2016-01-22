@@ -1,0 +1,17 @@
+{
+  "name": "onboarding",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "The sign in experience",
+  "license": "GPL-3.0",
+  "private": true,
+  "engines": {
+    "nylas": "*"
+  },
+  "dependencies": {
+    "async": "^0.9"
+  },
+  "windowTypes": {
+    "onboarding": true
+  }
+}

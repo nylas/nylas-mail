@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -e
+
+# Runs script/grunt docs and moves the output to gh-pages branch
+# This overwrites whatever is in gh-pages
+mkdir docs/output
+script/grunt docs
+git checkout gh-pages --quiet
+cp -rf docs/output/* docs  # Place all of the html in its proper place
+mv -f docs/sidebar.json _data # Move sidebar.json to appropriate folder
+rm -f docs/api.json  # Remove unecessary file
+rm -rf docs/output
+
+git add .
+printf "Now commit the changes! \n\n"
+git status

@@ -1,0 +1,13 @@
+Hi folks
+
+What is the best way to clear a Riak bucket of all key, values after 
+running a test?
+I am currently using the Java HTTP API.
+
+-Abhishek Kona
+
+
+_______________________________________________
+riak-users mailing list
+riak-users@lists.basho.com
+http://lists.basho.com/mailman/listinfo/riak-users_lists.basho.com

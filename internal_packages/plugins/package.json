@@ -1,0 +1,14 @@
+{
+  "name": "plugins",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Plugins",
+  "license": "GPL-3.0",
+  "private": true,
+  "engines": {
+    "nylas": "*"
+  },
+  "dependencies": {
+    "moment": "^2.8"
+  }
+}

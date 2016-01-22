@@ -1,0 +1,105 @@
+@import 'variables/ui-variables';
+@import 'ui-variables';
+
+.ignore-in-parent-frame {
+  // ----- Font Families -----
+  @font-face {
+    font-family: 'Nylas-Pro';
+    font-style: normal;
+    font-weight: 200;
+    src: url('nylas://nylas-private-fonts/fonts/Nylas-Pro-Thin.otf');
+  }
+
+  @font-face {
+    font-family: 'Nylas-Pro';
+    font-style: normal;
+    font-weight: 300;
+    src: url('nylas://nylas-private-fonts/fonts/Nylas-Pro-Blond.otf');
+  }
+
+  @font-face {
+    font-family: 'Nylas-Pro';
+    font-style: normal;
+    font-weight: 400;
+    src: url('nylas://nylas-private-fonts/fonts/Nylas-Pro-Normal.otf');
+  }
+
+  @font-face {
+    font-family: 'Nylas-Pro';
+    font-style: normal;
+    font-weight: 500;
+    src: url('nylas://nylas-private-fonts/fonts/Nylas-Pro-Medium.otf');
+  }
+
+  @font-face {
+    font-family: 'Nylas-Pro';
+    font-style: normal;
+    font-weight: 600;
+    src: url('nylas://nylas-private-fonts/fonts/Nylas-Pro-SemiBold.otf');
+  }
+
+  // Pro-SemiBold doesn't render emoji properly. Override the emjoi unicode
+  // block so that it uses the "Normal" weight even at font-weight:600.
+  @font-face {
+    font-family: 'Nylas-Pro';
+    font-style: normal;
+    font-weight: 600;
+    src: url('nylas://nylas-private-fonts/fonts/Nylas-Pro-Normal.otf'), Helvetica, sans-serif;
+    unicode-range: U+1F300-1F5FF, U+1F600-1F64F, U+1F680-1F6FF, U+2600-26FF;
+  }
+
+  html, body {
+    font-family: "Nylas-Pro", "Helvetica", "Lucidia Grande", sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: @text-color;
+    background-color: transparent !important;
+    border: 0;
+    margin: 0;
+    padding: 0;
+
+    -webkit-text-size-adjust: auto;
+    word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;
+  }
+
+  strong, b, .bold {
+    font-weight: 600;
+  }
+
+  body {
+    padding: 0;
+    margin: auto;
+    max-width: 840px;
+    overflow-y: hidden;
+    word-break: break-word;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a {
+    color: @text-color-link;
+  }
+
+  a:hover {
+    color: @text-color-link-hover;
+  }
+
+  a:visited {
+    color: darken(@text-color-link, 10%);
+  }
+  a img {
+    border-bottom: 0;
+  }
+
+  body.heightDetermined {
+    overflow-y: hidden;
+  }
+
+  div,pre {
+    max-width: 100%;
+  }
+
+  img {
+    border: 0;
+  }
+
+}

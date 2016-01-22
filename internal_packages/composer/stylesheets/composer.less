@@ -1,0 +1,340 @@
+// The ui-variables file is provided by base themes provided by N1.
+@import "ui-variables";
+@import "ui-mixins";
+@import "buttons";
+
+@compose-width: 800px;
+@compose-min-height: 150px;
+
+body.platform-win32 {
+  .composer-inner-wrap {
+    .composer-action-bar-wrap {
+      .btn {
+        height: 30px;
+        padding-top: 1px;
+      }
+    }
+    .composer-drop-cover {
+      border-radius: 0;
+    }
+    input, input:focus {
+      border: 0;
+    }
+  }
+}
+
+.composer-inner-wrap {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  .composer-drop-cover {
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    z-index: 1000;
+    background: rgba(255,255,255,0.7);
+    border-radius: @border-radius-base;
+    border: 4px dashed lighten(@gray, 30%);
+    text-align: center;
+    line-height:2.3em;
+
+    .centered {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      color: lighten(@gray, 20%);
+      font-weight: 500;
+      font-size:1.1em;
+      img { margin: auto; display:block; margin-bottom:20px; background-color: lighten(@gray, 20%); }
+    }
+  }
+
+  .composer-action-bar-wrap {
+    position: relative;
+    width: 100%;
+    background: transparent;
+    border-bottom: 0;
+
+    .btn {
+      // Yes, 4px taller than in the rest of the app: https://phab.nylas.com/T2418
+      height:28px;
+    }
+    .composer-action-bar-content {
+      display:flex;
+      margin: 0 auto;
+      flex-direction:row;
+      max-width: @compose-width;
+      padding: @spacing-standard;
+
+      > * {
+        margin-left: @spacing-standard / 2;
+        margin-right: @spacing-standard / 2;
+      }
+    }
+  }
+
+  .composer-content-wrap {
+    padding: 0;
+    flex: 1;
+    display: flex;
+    position: relative;
+    flex-flow: column;
+  }
+
+  .composer-centered {
+    display:flex;
+    position: relative;
+    flex-direction: column;
+    flex: 1;
+    width: 100%;
+    max-width: @compose-width;
+    margin: 0 auto;
+    padding-top:@spacing-standard;
+  }
+  .text-actions {
+    text-align: right;
+    line-height: 1.4;
+    position: relative;
+    top: -3px;
+  }
+
+  .header-action {
+    color: @text-color-very-subtle;
+    img.content-mask { background-color: @text-color-very-subtle; }
+    font-size: @font-size-small;
+    padding-left: 1em;
+    &:hover {
+      color: @text-color-link;
+      img.content-mask { background-color: @text-color-link; }
+      cursor: default;
+    }
+  }
+
+  .composer-participant-actions {
+    position: relative;
+    float: right;
+    z-index: 2;
+    cursor: default;
+    padding-right: @spacing-standard + @spacing-half;
+    padding-left: @spacing-standard;
+    padding-top: 12px;
+  }
+
+  input, textarea {
+    color: @text-color;
+    position: relative;
+    display: block;
+    background: inherit;
+    width: 100%;
+    resize: none;
+    border: none;
+  }
+
+  .composer-field-label {
+    color: @text-color-very-subtle;
+    float: left;
+    padding-top: 6px;
+    display: block;
+  }
+
+  .collapsed-composer-participants {
+    position: relative;
+    margin: 0 23px;
+    border-bottom: 1px solid @border-color-divider;
+    flex-shrink:0;
+    color: @text-color-very-subtle;
+    padding: 16px 0 10px 0;
+
+    .collapsed-contact {
+      padding-right: 0.25em;
+      color: @text-color;
+      &:after {
+        content: ","
+      }
+      &:last-child:after {
+        content: ""
+      }
+    }
+
+    .num-remaining.token {
+      color: @text-color;
+      padding-right: 12px;
+      margin-left: 0;
+      padding-top: 6px;
+      padding-bottom: 6px;
+    }
+
+    .num-remaining-wrap {
+      position: absolute;
+      right: 0;
+      z-index: 2;
+      top: 9px;
+      .show-more-fade {
+        position: absolute;
+        width: 220px;
+        height: 37px;
+        right: 0;
+        top: 0;
+        background: linear-gradient(to right, fade(@background-primary, 0%) 0%, fade(@background-primary, 100%) 40%);
+      }
+    }
+  }
+
+  .compose-subject-wrap {
+    position: relative;
+    margin: 0 23px;
+    border-bottom: 1px solid @border-color-divider;
+    flex-shrink:0;
+
+    input {
+      display: inline-block;
+      padding: 13px 0 9px 0;
+      min-width: 5em;
+      background-color: transparent;
+      border: none;
+      margin: 0;
+      &::-webkit-input-placeholder {
+        color: @text-color-very-subtle;
+      }
+      &:focus {
+        box-shadow: none;
+      }
+    }
+  }
+
+  .compose-body-scroll {
+    position:initial;
+    .scroll-region-content .scroll-region-content-inner {
+      min-height: 100%;
+      display: flex;
+    }
+  }
+
+  .compose-body {
+    flex: 1;
+    cursor: text;
+    overflow: auto;
+    position: relative;
+    margin: 0 8px;
+
+    .quoted-text-control {
+      margin: @spacing-standard;
+      margin-top:0;
+    }
+
+    div[contenteditable] {
+      min-height: @compose-min-height;
+      padding: 20px @spacing-standard 0 @spacing-standard;
+    }
+  }
+
+  .composer-footer-region {
+    cursor: default;
+    &:hover {
+      cursor: default;
+    }
+  }
+
+  // TODO FIXME DRY From stylesheets/message-list.less
+  .attachments-area {
+    padding: 0;
+    margin: 0;
+  }
+}
+
+// Overrides for the full-window popout composer
+.composer-full-window {
+  width: 100%;
+  height: 100%;
+
+  .composer-outer-wrap {
+    width: 100%;
+    height: 100%;
+  }
+
+  .composer-inner-wrap {
+
+    .composer-action-bar-wrap {
+      background: darken(@background-primary, 1%);
+      border-top: 1px solid darken(@background-primary, 8%);
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.03);
+    }
+
+    .composer-action-bar-content {
+      padding: 8px 0.5px;
+    }
+
+    .compose-body {
+      margin-bottom: 0;
+      position: relative;
+    }
+
+  }
+
+  .compose-body {
+    div[contenteditable] {
+      min-height: @line-height-computed;
+    }
+  }
+
+  .from-picker {
+    &:hover {
+      cursor: default;
+    }
+  }
+}
+
+// Overrides for the composer in a message-list
+#message-list {
+  .message-item-wrap {
+    .message-item-white-wrap.composer-outer-wrap {
+      background: mix(@background-primary, #ffbb00, 96%);
+    }
+    .message-item-white-wrap.composer-outer-wrap.focused {
+      box-shadow: 0 0 0.5px rgba(0, 0, 0, 0.28), 0 1px 1.5px rgba(0, 0, 0, 0.08), 0 0 3px @accent-primary;
+      background-color: @background-primary;
+    }
+  }
+}
+
+
+//////////////////////////////////
+// participants-text-field.cjsx //
+//////////////////////////////////
+.composer-participant-field {
+  position: relative;
+  padding: 8px 0 0 0;
+  margin: 0 8+@spacing-standard;
+  flex-shrink: 0;
+  border-bottom: 1px solid @border-color-divider;
+  min-height: 49px;
+  color: @text-color;
+
+  .button-dropdown {
+    margin-left: 10px;
+    &:hover {
+      .primary-item,
+      .only-item {
+        border-radius: 4px;
+      }
+    }
+    .secondary-items {
+      border-radius: 4px;
+    }
+  }
+
+  .participant {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+
+    .participant-primary {
+      font-weight: @font-weight-semi-bold;
+    }
+    .participant-secondary {
+      color: @text-color-very-subtle;
+    }
+  }
+}

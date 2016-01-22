@@ -1,0 +1,100 @@
+@import "ui-variables";
+
+.nylas-editable-list {
+
+  .items-wrapper .selected.editing,
+  &:focus .items-wrapper .selected {
+    color: @component-active-bg;
+    background-color: @component-active-color;
+  }
+
+  .items-wrapper {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid @border-secondary-bg;
+    background-color: @background-primary;
+    height: 90px;
+    font-size: 0.9em;
+
+    .selected {
+      background-color: fade(desaturate(@component-active-color, 100%), 70%);
+      color: @component-active-bg;
+    }
+
+    .edit-icon {
+      display: none;
+      cursor: pointer;
+    }
+
+    .editable-item {
+      padding: (@padding-small-vertical - 1) @padding-small-horizontal;
+      cursor: default;
+      border-bottom: 1px solid @border-color-divider;
+      flex-shrink: 0;
+
+      &.selected.with-edit-icon {
+        display: flex;
+        align-items: center;
+        padding-right: 20px;
+
+        img.edit-icon {
+          display: inline;
+          background-color: @component-active-bg;
+          margin-left: auto;
+        }
+      }
+
+      &>input {
+        border: none;
+        padding: 0;
+        color: @component-active-bg;
+        background: transparent;
+        font-size: inherit;
+        line-height: 1.5;
+      }
+      ::-webkit-input-placeholder {
+        color: @text-color-inverse-very-subtle;
+      }
+    }
+
+    .create-item-input {
+      &>input {
+        padding: (@padding-small-vertical - 1) @padding-small-horizontal;
+        border: none;
+        border-bottom: 1px solid @border-color-divider;
+        font-size: inherit;
+      }
+      ::-webkit-input-placeholder {
+        font-style: italic;
+      }
+    }
+  }
+
+  .buttons-wrapper {
+    display: flex;
+    border: 1px solid @border-secondary-bg;
+    border-top: none;
+    background-color: @background-secondary;
+
+    .btn-editable-list {
+      display: flex;
+      justify-content: center;
+      height: 25px;
+      width: 25px;
+      border-right: 1px solid @border-secondary-bg;
+      font-size: 1em;
+      cursor: default;
+      color: @text-color-subtle;
+
+      &.btn-disabled {
+        background-color: transparent;
+        opacity: 0.4;
+      }
+      &:active {
+        cursor: default;
+        background-color: darken(@btn-default-bg-color, 9%);
+        box-shadow: inset 0 1px 0.5px rgba(0, 0, 0, 0.21);
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "attachments",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "View attachments on messages",
+  "license": "GPL-3.0",
+  "private": true,
+  "engines": {
+    "nylas": "*"
+  },
+  "dependencies": {
+  },
+  "windowTypes": {
+    "default": true,
+    "composer": true
+  }
+}

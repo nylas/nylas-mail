@@ -1,0 +1,10 @@
+{
+  "organization_unit": "folder",
+  "account_id": "accountid1234",
+  "auth_token": "nope",
+  "object": "account",
+  "provider": "eas",
+  "email_address": "test@nylas.com",
+  "id": "accountid1234",
+  "name": "Nylas Test"
+}

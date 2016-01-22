@@ -1,0 +1,21 @@
+@import "ui-variables";
+
+.unsafe-component-exception {
+  padding: @padding-base-vertical @padding-base-horizontal;
+
+  background-color: rgba(255, 0, 0, 0.1);
+  color: rgba(160,50,50, 1);
+
+  .message {
+    font-weight: @font-weight-semi-bold;
+    -webkit-user-select:text;
+  }
+  .trace {
+    font-size:0.9em;
+    white-space:pre;
+    max-height:100px;
+    overflow:hidden;
+    text-overflow: ellipsis;
+    -webkit-user-select:text;
+  }
+}

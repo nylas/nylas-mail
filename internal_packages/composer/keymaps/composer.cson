@@ -1,0 +1,16 @@
+'.composer-outer-wrap, .composer-outer-wrap input, .composer-outer-wrap
+div[contenteditable]':
+  'cmdctrl-T'    : 'composer:focus-to'
+  'cmdctrl-C'    : 'composer:show-and-focus-cc'
+  'cmdctrl-B'    : 'composer:show-and-focus-bcc'
+  'cmdctrl-F'    : 'composer:show-and-focus-from'
+  'cmdctrl-enter': 'composer:send-message'
+  'cmdctrl-z'    : 'composer:undo'
+  'cmdctrl-Z'    : 'composer:redo'
+  'cmdctrl-y'    : 'composer:redo'
+
+'.composer-outer-wrap':
+  'delete': 'composer:no-op'
+
+'.composer-outer-wrap, .composer-outer-wrap div[contenteditable]':
+  'escape': 'composer:delete-empty-draft'

@@ -1,0 +1,16 @@
+{
+  "name": "worker-sync",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Mail sync classes for the worker window",
+  "license": "GPL-3.0",
+  "private": true,
+  "engines": {
+    "nylas": "*"
+  },
+  "dependencies": {
+  },
+  "windowTypes": {
+    "work": true
+  }
+}

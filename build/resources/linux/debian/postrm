@@ -1,0 +1,58 @@
+#!/bin/sh
+# Remove the Nylas repository.
+# Copyright (c) 2009 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license.
+
+set -e
+action="$1"
+
+# Only do complete clean-up on purge.
+if [ "$action" != "purge" ] ; then
+  exit 0
+fi
+
+APT_GET="`which apt-get 2> /dev/null`"
+APT_CONFIG="`which apt-config 2> /dev/null`"
+
+# Parse apt configuration and return requested variable value.
+apt_config_val() {
+  APTVAR="$1"
+  if [ -x "$APT_CONFIG" ]; then
+    "$APT_CONFIG" dump | sed -e "/^$APTVAR /"'!d' -e "s/^$APTVAR \"\(.*\)\".*/\1/"
+  fi
+}
+
+uninstall_key() {
+  APT_KEY="`which apt-key 2> /dev/null`"
+  if [ -x "$APT_KEY" ]; then
+    # don't fail if the key wasn't found
+    "$APT_KEY" rm 7D0ACF4A >/dev/null 2>&1 || true
+  fi
+}
+
+# Set variables for the locations of the apt sources lists.
+find_apt_sources() {
+  APTDIR=$(apt_config_val Dir)
+  APTETC=$(apt_config_val 'Dir::Etc')
+  APT_SOURCES="$APTDIR$APTETC$(apt_config_val 'Dir::Etc::sourcelist')"
+  APT_SOURCESDIR="$APTDIR$APTETC$(apt_config_val 'Dir::Etc::sourceparts')"
+}
+
+# Remove a repository from the apt sources.
+# Returns:
+# 0 - successfully removed, or not configured
+# 1 - failed to remove
+clean_sources_lists() {
+  find_apt_sources
+
+  if [ -d "$APT_SOURCESDIR" ]; then
+    rm -f "$APT_SOURCESDIR/nylas.list"
+  fi
+
+  return 0
+}
+
+uninstall_key
+clean_sources_lists
+
+exit 0

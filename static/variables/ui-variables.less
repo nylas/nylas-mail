@@ -1,0 +1,453 @@
+// Color abstraction hierarchy:
+// 1. Hex code (#428bca)
+// 2. Common color name (@blue)
+// 3. Generic color descriptor (@accent-primary, @background-primary)
+// --------
+// 4. Generic usage descriptor (@input-background, @button-background)
+// 5. Application-specific usage (@unread-label-background)
+
+// Typography abstraction hierarchy
+// 1. Font-face (Nylas-Pro)
+// 2. Common name (@bold, @italic)
+// 3. Generic font descriptor mixins (.bold, .italic, .h1, .h2)
+// --------
+// 4. Generic usage descriptor (.btn-text, .p-body)
+// 5. Application-specific usage (.message-list-h1)
+
+//=============================== Colors ===============================//
+//== Brand colors
+@nylas-yellow:      #D5DC28;
+@nylas-yellow-dark: #A0C23A;
+@nylas-green:       #5CB346;
+@nylas-green-dark:  #078E46;
+@nylas-blue:        #11A1A2;
+@nylas-blue-dark:   #0F7982;
+@nylas-black:       #313435;
+@nylas-gray:        #434648;
+
+//== Generic colors
+@black:        @nylas-black;
+@gray-base:    #0a0b0c;
+@gray-darker:  lighten(@gray-base, 13.5%); // #222
+@gray-dark:    lighten(@gray-base, 20%);   // #333
+@gray:         lighten(@gray-base, 33.5%); // #555
+@gray-light:   lighten(@gray-base, 46.7%); // #777
+@gray-lighter: lighten(@gray-base, 92.5%); // #eee
+@white:        #ffffff;
+
+@blue:         #419bf9;
+@blue-dark:    #3187e1;
+
+//== Color descriptors
+@accent-primary:      @blue;
+@accent-primary-dark: @blue-dark;
+@accent-secondary:    @nylas-yellow;
+
+@background-primary:     #ffffff;
+@background-off-primary: #fdfdfd;
+@background-secondary:   #f6f6f6;
+@background-tertiary:    #6d7987;
+@background-selected:    @light-blue;
+
+@border-primary-bg: darken(@background-primary, 10%);
+@border-secondary-bg: darken(@background-secondary, 10%);
+@border-tertiary-bg: darken(@background-tertiary, 10%);
+@border-color-divider: @border-secondary-bg;
+
+@info-color:    @blue-dark;
+@success-color: @nylas-green;
+@warning-color: #f0ad4e;
+@error-color:   #d9534f;
+@danger-color:  #d9534f;
+
+
+//============================= Typography =============================//
+
+// ----- Colors -----
+@text-color:         @black;
+@text-color-subtle:  fadeout(@text-color, 20%);
+@text-color-very-subtle:  fadeout(@text-color, 50%);
+@text-color-inverse: @white;
+@text-color-inverse-subtle:  fadeout(@text-color-inverse, 20%);
+@text-color-inverse-very-subtle:  fadeout(@text-color-inverse, 50%);
+@text-color-alert:  #e64d65;
+
+@text-color-heading: @nylas-gray;
+
+@text-color-link:        @blue;
+@text-color-link-hover:  @blue-dark;
+@text-color-link-active: @blue-dark;
+
+@text-color-selected:  @text-color-inverse;
+@text-color-highlight: @text-color;
+
+@text-color-info:        @info-color;
+@text-color-success:     @success-color;
+@text-color-warning:     @warning-color;
+@text-color-error:       @error-color;
+@text-color-destructive: @danger-color;
+
+@font-family-sans-serif:  "Nylas-Pro", "Helvetica", sans-serif;
+@font-family-sans-serif:  "Nylas-Pro", "Helvetica", sans-serif;
+@font-family-serif:       Georgia, "Times New Roman", Times, serif;
+@font-family-monospace:   Menlo, Monaco, Consolas, "Courier New", monospace;
+
+@font-family-base:        @font-family-sans-serif;
+@font-family:             @font-family-base;
+@font-family-heading:     @font-family-sans-serif;
+
+// ----- Font Weights -----
+@font-weight-blond:       300;
+@font-weight-normal:      400;
+@font-weight-medium:      500;
+@font-weight-semi-bold:   600;
+@headings-font-weight:    600;
+
+// ----- Font Sizes -----
+@font-size-base:          15px;
+
+@font-size-tiny:          @font-size-base * 0.70; // 10.5px
+@font-size-smaller:       @font-size-base * 0.80; // 12px
+@font-size-small:         @font-size-base * 0.93; // 14px
+@font-size:               @font-size-base;        // 15px
+@font-size-large:         @font-size-base * 1.06; // 16px
+@font-size-larger:        @font-size-base * 1.20; // 18px
+
+@font-size-h1:            @font-size-base * 1.6;  // 24px
+@font-size-h2:            @font-size-base * 1.6;  // 24px
+@font-size-h3:            @font-size-base * 1.4;  // 24px
+@font-size-h4:            @font-size-base * 1.25; // 18px
+@font-size-h5:            @font-size-base;
+@font-size-h6:            @font-size-base * 0.85; // 12px
+
+// ----- Line Height -----
+@line-height-base:         1.5; // 22.5/15
+@line-height-computed:     floor((@font-size-base * @line-height-base)); // ~20px
+@line-height-heading:      1.1;
+
+
+//============================ Iconography =============================//
+// Specify custom location and filename of the included Glyphicons icon
+// font. Useful for those including Bootstrap via Bower.
+
+//** Load fonts from this directory.
+@icon-font-path:          "../fonts/";
+//** File name for all font files.
+@icon-font-name:          "glyphicons-halflings-regular";
+//** Element ID within SVG icon file.
+@icon-font-svg-id:        "glyphicons_halflingsregular";
+
+
+//============================== Spacing ===============================//
+// Define common padding and border radius sizes and more. Values based on
+// 14px text and 1.428 line-height (~20px to start).
+
+@spacing-standard:          @font-size-base;
+
+@spacing-quarter:           @spacing-standard * 0.25;
+@spacing-half:              @spacing-standard * 0.5;
+@spacing-three-quarters:    @spacing-standard * 0.75;
+
+@spacing-sub-double:        @spacing-standard * 1.75;
+@spacing-double:            @spacing-standard * 2;
+@spacing-super-double:      @spacing-standard * 2.25;
+
+
+@padding-base-vertical:     6px;
+@padding-base-horizontal:   12px;
+
+@padding-large-vertical:    10px;
+@padding-large-horizontal:  16px;
+
+@padding-small-vertical:    5px;
+@padding-small-horizontal:  10px;
+
+@padding-xs-vertical:       1px;
+@padding-xs-horizontal:     5px;
+
+@line-height-large:         @line-height-computed * 1.3;
+@line-height-small:         @line-height-computed * 0.95;
+
+@border-radius-base:        4px;
+@border-radius-large:       6px;
+@border-radius-small:       3px;
+
+
+//============================== Shadows ===============================//
+@standard-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.21);
+@standard-shadow-up: 0 -1px 4px 0 rgba(0, 0, 0, 0.21);
+
+//=============================== Buttons ==============================//
+
+@btn-shadow: @standard-shadow;
+
+@btn-default-bg-color:    @background-primary;
+@btn-default-text-color:  @text-color;
+
+@btn-action-bg-color:     @success-color;
+@btn-action-text-color:   @text-color;
+
+@btn-emphasis-bg-color:   #5b90fb;
+@btn-emphasis-text-color: @text-color-inverse;
+
+@btn-danger-bg-color:     @danger-color;
+@btn-danger-text-color:   @text-color-inverse;
+
+//=============================== Dropdowns ============================//
+
+@dropdown-default-bg-color:     @background-primary;
+@dropdown-default-text-color:   @text-color;
+@dropdown-default-border-color: fadeout(@border-color, 10%);
+
+//=============================== Inputs ===============================//
+
+//** `<input>` background color
+@input-bg:                       #fff;
+//** `<input disabled>` background color
+@input-bg-disabled:              @gray-lighter;
+
+@input-background-color: white;
+
+@input-border-color: fadeout(@border-color, 10%);
+@input-border-color-blurred: desaturate(@input-border-color, 100%);
+
+@input-tint-color: fade(@background-selected, 10%);
+@input-tint-color-hover: fade(@input-tint-color, 30%);
+@input-tint-color-blurred: desaturate(@input-tint-color, 100%);
+
+
+@input-accessory-color-hover: @light-blue;
+@input-accessory-color: @gray-light;
+@input-cancel-color: @red;
+
+//** Text color for `<input>`s
+@input-color:                    @gray;
+//** `<input>` border color
+@input-border:                   #ccc;
+
+// TODO: Rename `@input-border-radius` to `@input-border-radius-base` in v4
+//** Default `.form-control` border radius
+@input-border-radius:            @border-radius-base;
+//** Large `.form-control` border radius
+@input-border-radius-large:      @border-radius-large;
+//** Small `.form-control` border radius
+@input-border-radius-small:      @border-radius-small;
+
+//** Border color for inputs on focus
+@input-border-focus:             #66afe9;
+
+//** Placeholder text color
+@input-color-placeholder:        #999;
+
+//** Default `.form-control` height
+@input-height-base:              (@line-height-computed + (@padding-base-vertical * 2) + 2);
+//** Large `.form-control` height
+@input-height-large:             (ceil(@font-size-large * @line-height-large) + (@padding-large-vertical * 2) + 2);
+//** Small `.form-control` height
+@input-height-small:             (floor(@font-size-small * @line-height-small) + (@padding-small-vertical * 2) + 2);
+
+//** Background color for textual input addons
+@input-group-addon-bg:           @gray-lighter;
+//** Border color for textual input addons
+@input-group-addon-border-color: @input-border;
+
+
+//=============================== Z-Index ==============================//
+//-- Z-index master list
+//
+// Warning: Avoid customizing these values. They're used for a bird's eye
+// view of components dependent on the z-axis and are designed to all work
+// together.
+//
+// Note: These variables are not generated into the Customizer.
+
+@zindex-navbar:            1000;
+@zindex-dropdown:          1000;
+@zindex-popover:           1060;
+@zindex-tooltip:           1070;
+@zindex-navbar-fixed:      1030;
+@zindex-modal:             1040;
+
+
+
+//** Global color for active items (e.g., navs or dropdowns).
+@component-active-color:        @accent-primary-dark;
+//** Global background color for active items (e.g., navs or dropdowns).
+@component-active-bg:           @background-primary;
+
+@component-secondary-active-bg: @background-primary;
+
+//== Source List (used in Sidebar, iTunes-style)
+//
+// ##
+
+//** Background color on `.list-group-item`
+@source-list-bg:                 @panel-background-color;
+//** Background color of active list items
+@source-list-active-bg:          @panel-background-color;
+//** Text color of active list items
+@source-list-active-color:       @component-active-color;
+
+//== List
+//
+//##
+
+//** Background color on `.list-group-item`
+@list-bg:                 #fff;
+//** `.list-item` border color
+@list-border:             #ddd;
+//** List group border radius
+@list-border-radius:      @border-radius-base;
+
+//** Background color of single list items on hover
+@list-hover-bg:           darken(@list-bg, 4%);
+
+//** Text color of active list items
+@list-focused-color:       @list-bg;
+//** Background color of active list items
+@list-focused-bg:          @component-active-color;
+//** Border color of active list elements
+@list-focused-border:      @list-focused-bg;
+//** Text color for content within active list items
+@list-focused-color-muted:  lighten(@list-focused-bg, 40%);
+
+//** Text color of active list items
+@list-selected-color:       inherit;
+//** Background color of active list items
+@list-selected-bg:          mix(@component-active-color, @list-bg, 17%);
+//** Border color of active list elements
+@list-selected-border:      mix(@component-active-color, @list-bg, 50%);
+//** Text color for content within active list items
+@list-selected-color-muted: lighten(@list-selected-bg, 40%);
+
+//** Text color of disabled list items
+@list-disabled-color:      @gray-light;
+//** Background color of disabled list items
+@list-disabled-bg:         @gray-lighter;
+//** Text color for content within disabled list items
+@list-disabled-text-color: @list-disabled-color;
+
+
+//** Abbreviations and acronyms border color
+@abbr-border-color:           @gray-light;
+//** Blockquote small color
+@blockquote-small-color:      @gray-light;
+//** Blockquote font size
+@blockquote-font-size:        (@font-size-base * 1.25);
+//** Blockquote border color
+@blockquote-border-color:     @gray-lighter;
+
+
+
+//== Form states and alerts
+//
+//## Define colors for form feedback states and, by default, alerts.
+
+@state-success-text:             #3c763d;
+@state-success-bg:               #dff0d8;
+@state-success-border:           darken(spin(@state-success-bg, -10), 5%);
+
+@state-info-text:                #31708f;
+@state-info-bg:                  #d9edf7;
+@state-info-border:              darken(spin(@state-info-bg, -10), 7%);
+
+@state-warning-text:             #8a6d3b;
+@state-warning-bg:               #fcf8e3;
+@state-warning-border:           darken(spin(@state-warning-bg, -10), 5%);
+
+@state-danger-text:              #a94442;
+@state-danger-bg:                #f2dede;
+@state-danger-border:            darken(spin(@state-danger-bg, -10), 5%);
+
+/////
+
+// -------------
+// EVERYTHING BELOW THIS NEEDS TO BE DEPRECATED OR MOVED ABOVE THIS
+// old stuff
+// -------------
+
+// Private
+//
+// Do not use these colors outside of this file.
+// You should choose variables based on the role of your
+// interface elements. In other themes, @light-blue may
+// not be light or blue.
+
+@PANTONE-340-UP:     #00ac6f;
+@PANTONE-7704-UP:    #009ec4;
+@PANTONE-7547-UP:    #3c505f;
+@PANTONE-296-UP:     #003c56;
+@PANTONE-421-UP:     #b4babd;
+@PANTONE-Red-032-UP: #f15f4b;
+@PANTONE-326-UP:     #3bbeb4;
+@PANTONE-Process-Black-UP: #231f20;
+@PANTONE-Cool-Gray-1-UP:   #e1e0dc;
+
+@green:      @PANTONE-340-UP;
+@light-blue: @PANTONE-7704-UP;
+@blue-gray:  @PANTONE-7547-UP;
+@dark-blue:  @PANTONE-296-UP;
+@light-gray: @PANTONE-421-UP;
+@red:        @PANTONE-Red-032-UP;
+@teal:       @PANTONE-326-UP;
+@black:      @PANTONE-Process-Black-UP;
+@cool-gray:  @PANTONE-Cool-Gray-1-UP;
+
+@blue-grey:  @blue-gray;
+@light-grey: @light-gray;
+
+// Public
+//
+// Use these variables in your packages. Choose the variable
+// that best matches the role of the element you are styling.
+
+// TEXT
+
+@unread-color: @blue; //!
+@action-color: @green;
+
+@progress-bar-fill: @light-blue;
+@progress-bar-background: @light-gray;
+
+@background-color-info: @light-blue;
+@background-color-success: @green;
+@background-color-warning: #ff4800;
+@background-color-error: @red;
+@background-color-pending: @light-gray;
+
+@background-gradient: linear-gradient(to top, rgba(241,241,241,0.75) 0%,
+rgba(253,253,253,0.75) 100%);
+
+@base-border-color: darken(@background-primary, 15%);
+@border-color: darken(@background-primary, 15%);
+@border-color-subtle: darken(@background-primary, 8%);
+
+// Inputs
+
+// Menus
+
+@menu-divider-color: @light-gray;
+@menu-item-color-hover: fade(@background-selected, 10%);
+@menu-item-color-selected: @background-selected;
+@menu-text-color-selected: @text-color-inverse;
+
+// Sizes
+
+@disclosure-arrow-size: 12px;
+@input-font-size: 14px;
+
+@component-padding: 10px;
+@component-icon-padding: 5px;
+@component-icon-size: 16px;
+@component-line-height: 25px;
+@component-border-radius: 2px;
+
+
+
+@body-bg: @white;
+//== Panels and Sidebars
+@panel-background-color: @gray-lighter;
+@toolbar-background-color: darken(@white, 17.5%);
+
+// Helpers for Specs - Do Not Remove
+@spec-test-variable: rgb(152,123,0);

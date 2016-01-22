@@ -1,0 +1,102 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
+</head>
+<body>
+Test 123<br/><br><br >
+
+<blockquote ><blockquote>Quote level 2</blockquote></blockquote>
+
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
+On Jul 6 2015, at 12:34 pm, spang@nylas.com &lt;spang@nylas.com&gt; wrote: <br>
+Karim, Michael and I just discussed this. I'll send you a redwood docs diff later today to speed this along. Here's the summary for now.
+<div><br>
+</div>
+<div>We agreed on:<br>
+- add a param to the create/update APIs for events instead of creating a new API<br>
+- no body customization for now<br>
+- sending notifications defaults to `false`<br>
+</div>
+<div><br>
+</div>
+<div>Differences from what we discussed:</div>
+<div>- call the parameter `notify_participants` instead of `send_notifications` (it's more explicit about who is getting notified)</div>
+<div>- only fail if <i>event creation fails,</i>&nbsp;not if the notifications fail to send*</div>
+<div>- to make failure happen less often, we should validate event participants' email addresses and reject requests with bad email addresses as invalid</div>
+<div>- on Google, use the `sendNotifications` parameter in the calendar API instead of sending out event notifications ourself, for consistency with expectations and increased reliability</div>
+<div><br>
+</div>
+<div>* We can document that we make a best-effort to deliver notifications, but they may not always succeed. This is a tiny edge case and it shouldn't come up very often, so we shouldn't cause clients to complicate their logic because of it.</div>
+<div><br>
+</div>
+<div>Please include the code for both create and update in your updated diff. It doesn't make sense to ship create only without update, and most of the code is there already.</div>
+<div><br>
+</div>
+<div>Samples:</div>
+<div><br>
+</div>
+<div>POST /n/&lt;ns-id&gt;/events?notify_participants=true -d '{ ... }'</div>
+<div>PUT /n/&lt;ns-id&gt;/events?notify_participants=true -d '{ ... }'</div>
+<div><br>
+</div>
+<div>Let's ship this and see what Lever thinks.<br>
+</div>
+<div><br>
+</div>
+<br>
+<br>
+<blockquote class="gmail_quote" style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
+On Jul 6 2015, at 9:55 am, Karim Hamidou &lt;karim@nylas.com&gt; wrote: <br>
+<div>Christine,</div>
+<div><br>
+</div>
+<div>Here are my notes about the quick chat we had.</div>
+<div><br>
+</div>
+<div>1. We need an invite sending API. We could either:</div>
+<div>- add a parameter to the event creation/update API to send emails to the participants</div>
+<div>- or have a separate invite sending endpoint.</div>
+<div><br>
+</div>
+<div>We chose to go with the former, because it's simpler.</div>
+<div><br>
+</div>
+<div>2. <b>How would this work?</b>&nbsp;When creating/updating/deleting an event, an API user can set the `send_notifications` parameter to `true`. In this case, the API will generate an event invite email and will send it to the participants.&nbsp;<br>
+</div>
+<div><br>
+</div>
+<div><span style="font-size: 15.9px; line-height: 1.4; background-color: inherit;">Example: curl -X POST http://localhost:5555/n/namespace_id/events?send_notifications=true &nbsp;&quot;{ title: 'test event', start: ... }&quot;</span><br>
+</div>
+<div><span style="font-size: 15.9px; line-height: 1.4; background-color: inherit;"><br>
+</span></div>
+<div><span style="font-size: 15.9px; line-height: 1.4; background-color: inherit;">3.
+<b>Error handling. &nbsp;</b>Invite sending can fail in a variety of ways because we're sending emails. Because API users need to know if an message went through or not, the API behaves a bit like the synchronous sending API.&nbsp;</span></div>
+<div><span style="font-size: 15.9px; line-height: 1.4; background-color: inherit;"><br>
+</span></div>
+<div><span style="font-size: 15.9px; line-height: 1.4; background-color: inherit;">Here's what happens when a user creates an event with send_notifications=true:</span><br>
+</div>
+<div><span style="font-size: 15.9px; line-height: 1.4; background-color: inherit;">1. We create the event in the db</span></div>
+<div><span style="font-size: 15.9px; line-height: 1.4; background-color: inherit;">2. We try sending emails</span></div>
+<div><span style="font-size: 15.9px; line-height: 1.4; background-color: inherit;">3. If it failed, we delete the event from the db and return the SMTP error.</span></div>
+<div><span style="font-size: 15.9px; line-height: 1.4; background-color: inherit;"><br>
+</span></div>
+<div>Of course API users can try re-sending the same invite as often as they wish.</div>
+<div><br>
+</div>
+<div>4. <b>Limitations:</b></div>
+<div><b>- </b>it's not possible to define a custom body (though we could have define an ad-hoc `invite_body` field in the event JSON that could be used only for invite sending)</div>
+<div>- no support for attached files&nbsp;</div>
+<div><br>
+</div>
+<div>Did I forget anything?</div>
+<div><br>
+</div>
+<div>k</div>
+<div><span style="font-size: 15.9px; line-height: 1.4; background-color: inherit;"><b><br>
+</b></span></div>
+<div><br>
+</div>
+</blockquote>
+</blockquote>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "ui-light",
+  "displayName": "Light",
+  "theme": "ui",
+  "version": "0.1.0",
+  "description": "The N1 Client Theme",
+  "license": "GPL-3.0",
+  "engines": {
+    "nylas": "*"
+  },
+  "private": true
+}

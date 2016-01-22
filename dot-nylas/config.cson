@@ -1,0 +1,10 @@
+'global':
+  'core':
+    'themes': [
+      'ui-light'
+    ]
+    'disabledPackages': [
+      "calendar-bar"
+    ]
+  'updateLevel': 'patch'
+  'env': 'production'

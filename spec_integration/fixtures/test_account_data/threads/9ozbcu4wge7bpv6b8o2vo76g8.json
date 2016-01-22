@@ -1,0 +1,165 @@
+[
+    {
+        "account_id": "1nqpfzd0l7djj2xhega8i3iyc",
+        "bcc": [],
+        "body": "<div dir=\"ltr\">I see my house!</div><div class=\"gmail_extra\"><br><div class=\"gmail_quote\">On Fri, Oct 2, 2015 at 1:55 PM, Ben Bitdiddle <span dir=\"ltr\">&lt;<a href=\"mailto:matt.murdock@gmail.com\" target=\"_blank\">matt.murdock@gmail.com</a>&gt;</span> wrote:<br><blockquote class=\"gmail_quote\" style=\"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex\"><div dir=\"ltr\">That is epic.</div><div class=\"HOEnZb\"><div class=\"h5\"><div class=\"gmail_extra\"><br><div class=\"gmail_quote\">On Fri, Oct 2, 2015 at 1:54 PM, Ben Bitdiddle <span dir=\"ltr\">&lt;<a href=\"mailto:ben@nylas.com\" target=\"_blank\">ben@nylas.com</a>&gt;</span> wrote:<br><blockquote class=\"gmail_quote\" style=\"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex\">\n\n\n\n<div>\nFor those of you not here, you&#39;re missing out!\n<div><br>\n</div>\n<div>Only San Francisco has sunsets like this.</div>\n</div>\n\n</blockquote></div><br></div>\n</div></div></blockquote></div><br></div>",
+        "cc": [],
+        "date": 1443819336,
+        "events": [],
+        "files": [],
+        "from": [
+            {
+                "email": "nylanaut@gmail.com",
+                "name": "Nyla S."
+            }
+        ],
+        "id": "1cl0z0aluk8lc36ggf76bla7j",
+        "labels": [
+            {
+                "display_name": "Important",
+                "id": "cpimvyt4yhzgif0vxjytvafy4",
+                "name": "important"
+            },
+            {
+                "display_name": "Inbox",
+                "id": "88i72euk07ody1d0c8m8c7qk7",
+                "name": "inbox"
+            },
+            {
+                "display_name": "All Mail",
+                "id": "er7ed7zo00k3itzn5f39hmlnr",
+                "name": "all"
+            }
+        ],
+        "object": "message",
+        "reply_to": [],
+        "snippet": "I see my house! On Fri, Oct 2, 2015 at 1:55 PM, Ben Bitdiddle <matt.murdock@gmail.com> wrote: That is epic. On Fri, Oct 2, 2015 at 1:54 PM, Ben Bitdiddle <ben@nylas.com> wrote: For those of you n",
+        "starred": false,
+        "subject": "Re: Sunset on the roof",
+        "thread_id": "9ozbcu4wge7bpv6b8o2vo76g8",
+        "to": [
+            {
+                "email": "matt.murdock@gmail.com",
+                "name": "Ben Bitdiddle"
+            }
+        ],
+        "unread": false
+    },
+    {
+        "account_id": "1nqpfzd0l7djj2xhega8i3iyc",
+        "bcc": [],
+        "body": "<div dir=\"ltr\">That is epic.</div><div class=\"gmail_extra\"><br><div class=\"gmail_quote\">On Fri, Oct 2, 2015 at 1:54 PM, Ben Bitdiddle <span dir=\"ltr\">&lt;<a href=\"mailto:ben@nylas.com\" target=\"_blank\">ben@nylas.com</a>&gt;</span> wrote:<br><blockquote class=\"gmail_quote\" style=\"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex\">\n\n\n\n<div>\nFor those of you not here, you&#39;re missing out!\n<div><br>\n</div>\n<div>Only San Francisco has sunsets like this.</div>\n</div>\n\n</blockquote></div><br></div>",
+        "cc": [
+            {
+                "email": "nylanaut@gmail.com",
+                "name": "Nyla S."
+            }
+        ],
+        "date": 1443819324,
+        "events": [],
+        "files": [],
+        "from": [
+            {
+                "email": "matt.murdock@gmail.com",
+                "name": "Ben Bitdiddle"
+            }
+        ],
+        "id": "bjp8wy7rm8dtltz4hc0f22209",
+        "labels": [
+            {
+                "display_name": "All Mail",
+                "id": "er7ed7zo00k3itzn5f39hmlnr",
+                "name": "all"
+            },
+            {
+                "display_name": "Sent Mail",
+                "id": "2j6ppmtwcwnedo56rzqsesty",
+                "name": "sent"
+            },
+            {
+                "display_name": "Important",
+                "id": "cpimvyt4yhzgif0vxjytvafy4",
+                "name": "important"
+            }
+        ],
+        "object": "message",
+        "reply_to": [],
+        "snippet": "That is epic. On Fri, Oct 2, 2015 at 1:54 PM, Ben Bitdiddle <ben@nylas.com> wrote: For those of you not here, you're missing out! Only San Francisco has sunsets like this.",
+        "starred": false,
+        "subject": "Re: Sunset on the roof",
+        "thread_id": "9ozbcu4wge7bpv6b8o2vo76g8",
+        "to": [
+            {
+                "email": "ben@nylas.com",
+                "name": "Ben Bitdiddle"
+            }
+        ],
+        "unread": true
+    },
+    {
+        "account_id": "1nqpfzd0l7djj2xhega8i3iyc",
+        "bcc": [],
+        "body": "<html>\n<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=us-ascii\">\n</head>\n<body>\nFor those of you not here, you're missing out!\n<div><br>\n</div>\n<div>Only San Francisco has sunsets like this.</div>\n</body>\n</html>",
+        "cc": [
+            {
+                "email": "matt.murdock@gmail.com",
+                "name": "Ben Bitdiddle"
+            }
+        ],
+        "date": 1443819282,
+        "events": [],
+        "files": [
+            {
+                "content_id": "AB1F96D93F07B14AB10E1B34D264CA0F@nylas.com",
+                "content_type": "image/jpeg",
+                "filename": "IMG_0112.JPG",
+                "id": "dsap6c1llryrmmnioy3s96sxf",
+                "size": 359605
+            },
+            {
+                "content_id": "EC9038D05158514FB4D8EA053D1D0B15@nylas.com",
+                "content_type": "image/jpeg",
+                "filename": "IMG_0113.JPG",
+                "id": "5l5awsc35ul7a8su2pq3jiz64",
+                "size": 1965621
+            }
+        ],
+        "from": [
+            {
+                "email": "ben@nylas.com",
+                "name": "Ben Bitdiddle"
+            }
+        ],
+        "id": "3lobjkxwk4ydo66it73vvjolw",
+        "labels": [
+            {
+                "display_name": "All Mail",
+                "id": "er7ed7zo00k3itzn5f39hmlnr",
+                "name": "all"
+            },
+            {
+                "display_name": "Inbox",
+                "id": "88i72euk07ody1d0c8m8c7qk7",
+                "name": "inbox"
+            },
+            {
+                "display_name": "Important",
+                "id": "cpimvyt4yhzgif0vxjytvafy4",
+                "name": "important"
+            }
+        ],
+        "object": "message",
+        "reply_to": [],
+        "snippet": "For those of you not here, you're missing out! Only San Francisco has sunsets like this.",
+        "starred": false,
+        "subject": "Sunset on the roof",
+        "thread_id": "9ozbcu4wge7bpv6b8o2vo76g8",
+        "to": [
+            {
+                "email": "nylanaut@gmail.com",
+                "name": "Nyla S."
+            }
+        ],
+        "unread": false
+    }
+]

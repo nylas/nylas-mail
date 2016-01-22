@@ -1,0 +1,37 @@
+@import "ui-variables";
+
+.sidebar-github-profile {
+  a{ text-decoration: none; }
+
+  .logo {
+    float: left;
+    width:15px;
+    height:15px;
+    opacity:0.4;
+    margin-right: @spacing-half;
+  }
+
+  .repo {
+    padding-left: @spacing-standard;
+    border-left:1px solid @border-color-divider;
+    margin-left: @spacing-standard/2;
+    font-size: @font-size-smaller;
+    a {
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .stars {
+      float:right;
+      margin-left:@spacing-standard;
+    }
+  }
+
+  h2 {
+    font-size: 11px;
+    font-weight: @font-weight-semi-bold;
+    text-transform: uppercase;
+    color: @text-color-very-subtle;
+    border-bottom: 1px solid @border-color-divider;
+    margin: 2em 0 1em 0;
+  }
+}

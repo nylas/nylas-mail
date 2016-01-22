@@ -1,0 +1,215 @@
+@import "ui-variables";
+@import "ui-mixins";
+
+// Preferences Specific
+
+.preferences-wrap {
+  input[type=checkbox] {margin: 0 7px 0 0; position: relative; top: -1px; }
+  input[type=radio] {margin: 0 7px 0 0; position: relative; top: -1px; }
+  select { margin: 4px 0 0 8px; }
+
+  height: 100%;
+  background-color: @background-primary;
+  color: @text-color;
+
+  section:first-child h2:first-child {
+    margin-top:0;
+  }
+
+  section section h2 {
+    font-size:120%;
+  }
+
+  section {
+    padding-bottom: @padding-base-vertical;
+    .item {
+      padding-top: @padding-small-vertical;
+      padding-bottom: @padding-small-vertical;
+    }
+  }
+
+  .preferences-sidebar {
+    background: @background-secondary;
+    border-right: 1px solid @border-color-divider;
+    flex: 1;
+    max-width:350px;
+    min-width:200px;
+    height: 100%;
+
+    .item {
+      border-bottom: 1px solid @border-color-divider;
+      cursor: default;
+
+      &.active {
+        background: @background-primary;
+
+        &:not(.has-subitems) {
+          border-right:3px solid @component-active-color;
+          .name {
+            color: @component-active-color;
+          }
+        }
+        .subitem.active {
+          background: @background-primary;
+          border-right:3px solid @component-active-color;
+          color: @component-active-color;
+        }
+      }
+
+      .disclosure-triangle {
+        float: left;
+        padding-top:16px;
+      }
+
+      .name {
+        padding: @padding-large-vertical @padding-large-horizontal;
+      }
+
+      .subitems {
+        padding-left: 0;
+        box-shadow: inset 0 2px 1px rgba(0, 0, 0, 0.15);
+        background: darken(@background-secondary, 3%);
+        list-style-type: none;
+        font-size: 0.95em;
+        margin: 0;
+
+        .subitem {
+          padding: @padding-large-vertical * 0.8 @padding-large-horizontal + 4;
+          border-top: 1px solid @border-color-divider;
+          border-right:3px solid transparent;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          padding-right: 8px;
+        }
+      }
+    }
+  }
+
+  .preferences-content {
+    flex: 4;
+    &>.scroll-region-content {
+      padding: @padding-large-vertical*3 @padding-large-horizontal * 3;
+    }
+  }
+
+  .appearance-mode-switch {
+    max-width:400px;
+    text-align: right;
+
+    .appearance-mode {
+      background-color: @background-off-primary;;
+      border-radius: 10px;
+      border: 1px solid @background-tertiary;
+      text-align: center;
+      flex: 1;
+      padding:25px;
+      padding-bottom:9px;
+      margin-right:10px;
+      margin-bottom:7px;
+      margin-top:0;
+      img {
+        background-color: @background-tertiary;
+      }
+      div {
+        margin-top: 15px;
+        text-transform: capitalize;
+        cursor: default;
+      }
+      &:last-child {
+        margin-right:0;
+      }
+    }
+    .appearance-mode.active {
+      border:1px solid @component-active-color;
+      color: @component-active-color;
+      img { background-color: @component-active-color; }
+    }
+  }
+
+  .container-keymaps {
+    max-width: 450px;
+
+    .col-left {
+      text-align: right;
+      flex: 1;
+      margin-right: 20px;
+    }
+    .col-right {
+      text-align: left;
+      flex: 1;
+      select {
+          width: 75%;
+      }
+    }
+
+    .shortcut-presets {
+      padding: 5px 0 20px 0;
+    }
+
+    .shortcut-section-title {
+      border-bottom:1px solid @border-color-divider;
+      margin: @padding-large-vertical * 1.5 0;
+    }
+
+    .shortcut {
+      padding: 3px 0;
+      color: @text-color-very-subtle;
+      .shortcut-value {
+        font-family: monospace;
+        font-weight: 600;
+        color: @text-color;
+        .then {
+          font-family: @font-family-base;
+          color: @text-color-very-subtle;
+          font-weight: 400;
+          font-size: 0.9em;
+          padding-left:3px;
+          padding-right:3px;
+        }
+        &:after {
+          content: ", "
+        }
+        &:last-child:after {
+          content: "";
+        }
+      }
+    }
+  }
+
+  .platform-note {
+    padding: @padding-base-vertical @padding-base-horizontal;
+    background: fade(@black, 4%);
+    border-left:3px solid @info-color;
+    margin:@padding-base-vertical 0;
+    font-size:0.95em;
+    &:before {
+      color: @info-color;
+      font-weight:600;
+      content: "NOTE: ";
+    }
+  }
+  .platform-linux-only {
+    display: none;
+  }
+}
+
+body.platform-win32 {
+  .preferences-wrap {
+    .well {
+      border-radius: 0;
+    }
+    .container-appearance {
+      .appearance-mode {
+        border-radius: 0;
+      }
+    }
+  }
+}
+
+body.platform-linux {
+  .preferences-wrap {
+    .platform-linux-only {
+      display: block;
+    }
+  }
+}

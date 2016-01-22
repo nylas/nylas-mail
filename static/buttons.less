@@ -1,0 +1,208 @@
+@import "ui-variables";
+@import "ui-mixins";
+
+button, html input[type="button"] {
+  cursor: default;
+  &:hover, &:active {
+    cursor: default;
+  }
+}
+
+body.platform-win32 {
+  .btn {
+    .windows-btn-bg;
+    .windows-btn-border;
+
+    &.btn-action {
+      border: 2px solid darken(@btn-action-bg-color, 10%);
+      &:hover {
+        background: @btn-action-bg-color;
+      }
+    }
+
+    &.btn-emphasis {
+      background: @btn-emphasis-bg-color;
+      border: 0;
+
+      &:hover {
+        border-radius: 0;
+        background: darken(@btn-emphasis-bg-color, 10%);
+      }
+    }
+
+    &.btn-emphasis:active {
+      background: @btn-emphasis-bg-color;
+      box-shadow: 0 0 0;
+    }
+
+    &.btn-danger, .btn-destructive {
+      background: @btn-danger-bg-color;
+      border: 0;
+      &:hover {
+        border-radius: 0;
+        background: darken(@btn-danger-bg-color, 10%);
+      }
+    }
+  }
+}
+
+.btn {
+  padding: 0.33em 1em;
+  border-radius: @border-radius-base;
+  border: 0;
+  cursor: default;
+  display:inline-block;
+  color:      @btn-default-text-color;
+  img.content-mask { background-color:@btn-default-text-color; }
+  .btn-gradient;
+
+  // Use 4 box shadows to create a 0.5px hairline around the button, and another
+  // for the actual shadow. Pending https://code.google.com/p/chromium/issues/detail?id=236371
+  // Yes, 1px border looks really bad on retina.
+  box-shadow: 0 0.5px 0 rgba(0,0,0,0.15), 0 -0.5px 0 rgba(0,0,0,0.15), 0.5px 0 0 rgba(0,0,0,0.15), -0.5px 0 0 rgba(0,0,0,0.15), 0 1px 1px rgba(0, 0, 0, 0.15);
+
+  height: auto;
+  line-height: 1;
+
+  &:active {
+    cursor: default;
+    background-color: darken(@btn-default-bg-color, 9%);
+    box-shadow: 0 0.5px 0 rgba(0,0,0,0.15), 0 -0.5px 0 rgba(0,0,0,0.15), 0.5px 0 0 rgba(0,0,0,0.15), -0.5px 0 0 rgba(0,0,0,0.15), 0 -1px 1px rgba(0, 0, 0, 0.21);
+  }
+  &:focus {
+    outline: none
+  }
+
+  font-size: @font-size-base;
+  &.btn-smaller {
+    font-size: @font-size-smaller;
+  }
+  &.btn-small {
+    font-size: @font-size-small;
+  }
+  &.btn-large {
+    font-size: @font-size-large;
+    padding: 0.5em 1.3em;
+  }
+  &.btn-larger {
+    font-size: @font-size-larger;
+    padding: 0.66em 1.6em;
+  }
+
+  &.btn-action {
+    color:      @btn-action-text-color;
+    background: @btn-action-bg-color;
+    img.content-mask { background-color:@btn-action-text-color; }
+  }
+
+  &.btn-emphasis {
+    position: relative;
+    color: @btn-emphasis-text-color;
+    font-weight: @font-weight-medium;
+
+    img.content-mask { background-color:@btn-emphasis-text-color; }
+
+    background: linear-gradient(to bottom, #6bb1f9 0%, #0a80ff 100%);
+    box-shadow: none;
+    border: 1px solid darken(@btn-emphasis-bg-color, 7%);
+
+    &:before {
+      content: ' ';
+      width: calc(~"100% + 2px");
+      height: calc(~"100% + 2px");
+      border-radius: 5px;
+      padding: 0;
+      top: -1px;
+      left: -1px;
+      position: absolute;
+      z-index: -1;
+      background: linear-gradient(to bottom, #4ca2f9 0%, #015cff 100%);
+    }
+  }
+
+  &.btn-emphasis:active {
+    background-image: -webkit-gradient(linear, left top, left bottom, from(darken(@btn-emphasis-bg-color,10%)), to(darken(@btn-emphasis-bg-color, 4%)));
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.21);
+  }
+
+  &.btn-text {
+    font-size: 13px;
+    padding: 2px 14px 2px 7px;
+    .text {
+      position: relative;
+      top: 1px;
+      margin-left: 6px;
+    }
+  }
+
+  &.btn-danger, .btn-destructive {
+    color:      @btn-danger-text-color;
+    background: @btn-danger-bg-color;
+    img.content-mask { background-color:@btn-danger-text-color; }
+  }
+}
+
+.btn-toolbar {
+  height: 24px;
+  padding: 2px 13px;
+  &.narrow {
+    padding: 2px 9px;
+  }
+}
+
+.btn-gradient {
+  background: -webkit-gradient(linear, left top, left bottom, from(@btn-default-bg-color), to(darken(@btn-default-bg-color, 4.5%)));
+}
+.btn-gradient:active {
+  background: -webkit-gradient(linear, left top, left bottom, from(darken(@btn-default-bg-color, 9%)), to(darken(@btn-default-bg-color, 13.5%)));
+}
+.btn-disabled {
+  color:      fadeout(@btn-default-text-color, 40%);
+  background: fadeout(@btn-default-bg-color, 15%);
+  box-shadow: 0 0.5px 0 rgba(0,0,0,0.15), 0 -0.5px 0 rgba(0,0,0,0.15), 0.5px 0 0 rgba(0,0,0,0.15), -0.5px 0 0 rgba(0,0,0,0.15);
+  &:active {
+    background: fadeout(@btn-default-bg-color, 15%);
+    box-shadow: 0 0.5px 0 rgba(0,0,0,0.15), 0 -0.5px 0 rgba(0,0,0,0.15), 0.5px 0 0 rgba(0,0,0,0.15), -0.5px 0 0 rgba(0,0,0,0.15);
+  }
+}
+
+.btn-icon {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  color: @text-color-subtle;
+  img.content-mask { background-color:@text-color-subtle; }
+  margin-right: 10px;
+  outline: none !important;
+  font-size: 20px;
+
+  &:last-child {
+    margin-right: 0;
+  }
+
+  &.inverse {
+    color: @text-color-inverse;
+    img.content-mask { background-color:@text-color-inverse; }
+
+    &:hover {
+      color: white;
+    }
+
+    &:active {
+      color: @text-color-inverse;
+      img.content-mask { background-color:@text-color-inverse; }
+    }
+  }
+
+  &:hover {
+    cursor: default;
+    color: @text-color-link;
+    img.content-mask { background-color:@text-color-link; }
+    box-shadow: none;
+  }
+  &:active {
+    color: @text-color-link-active;
+    img.content-mask { background-color:@text-color-link-active; }
+    box-shadow: none;
+  }
+}

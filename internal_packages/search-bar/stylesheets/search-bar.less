@@ -1,0 +1,82 @@
+@import "ui-variables";
+@import "ui-mixins";
+
+.search-bar {
+  position: relative;
+  order: -100;
+  overflow: visible;
+  z-index: 100;
+  width:450px;
+  margin-top: (50px - 30px) / 2;
+  margin-left: 12px;
+  margin-right: 12px;
+
+  .menu .header-container {
+    padding:0;
+    height:30px;
+    background-color: transparent;
+    border:none;
+
+    input {
+      padding-left: 30px;
+      padding-right: 26px;
+      width: 100%;
+      height: 30px;
+    }
+    input.empty {
+      text-align: left;
+    }
+    input.empty:focus {
+      text-align: left;
+    }
+  }
+
+  .menu .footer-container {
+    border:none;
+  }
+  .menu .content-container {
+    position: absolute;
+    z-index: 2;
+    width: 100%;
+
+    box-shadow: @standard-shadow;
+
+    .item {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .search-container {
+    position: relative;
+
+    &.showing-suggestions {
+      .suggestions { display: inherit; }
+      .clear {
+        color: @input-accessory-color;
+        display: inherit;
+      }
+    }
+    &.showing-query {
+      .clear { display: inherit; }
+    }
+  }
+
+  .search-accessory {
+
+    &.search {
+      position: absolute;
+      top: floor(40px - 16px)/2;
+      left: @padding-base-horizontal;
+    }
+
+    &.clear {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      color: @input-accessory-color;
+      display: none;
+    }
+  }
+}

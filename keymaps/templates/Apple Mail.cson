@@ -1,0 +1,12 @@
+# Note: For a menu item to have a keyboard equiavalent, it needs
+# to be listed in this file.
+
+'body':
+  'cmdctrl-n' : 'application:new-message'
+  'cmdctrl-r' : 'application:reply'
+  'cmdctrl-R' : 'application:reply-all'
+  'cmdctrl-F' : 'application:forward'
+  'cmdctrl-alt-f': 'application:focus-search'
+  'cmdctrl-shift-D': 'composer:send-message'
+  'cmdctrl-V': 'application:change-category'
+  'cmdctrl-e'   : 'application:archive-item'

@@ -1,0 +1,72 @@
+@import "ui-variables";
+
+.contact-card-fullcontact {
+  padding-bottom: 0;
+  order: 1;
+  flex-shrink: 0;
+
+  color: @text-color;
+  -webkit-user-select:text;
+  img.content-mask { background-color: @text-color; }
+
+  h1.name {
+    font-size: 20px;
+    font-weight: @font-weight-normal;
+    margin: 0;
+    padding: 0.6em 0 0.4em 0;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
+  .profile-photo {
+    max-width: 42px;
+    max-height: 42px;
+    display: block;
+    float: right;
+    margin-left: @spacing-standard;
+  }
+
+  .header {
+    &:before, &:after { content: " "; display: table; }
+    &:after { clear: both; }
+  }
+
+  .subheader {
+    color: @text-color-subtle;
+    padding: 0 0 @spacing-standard 0;
+    font-size: @font-size-smaller;
+  }
+
+  .email {
+    word-break: break-all;
+  }
+}
+
+.social-profiles {
+  border-top: 1px solid @border-color-divider;
+  padding-top: 7px;
+}
+.social-profile {
+  margin-top: 0.5em;
+  .social-icon {
+    margin-top: 6px;
+    float: left;
+  }
+  .social-link {
+    padding-left: @spacing-double;
+    font-size: @font-size-smaller;
+    a {
+      text-decoration: none;
+    }
+  }
+}
+
+.sidebar-extra-info {
+  font-size: 12px;
+  font-weight: @font-weight-medium;
+  color: @text-color-subtle;
+}
+.sidebar-no-info {
+  font-size: @font-size-smaller;
+  color: fade(@text-color, 30%);
+}

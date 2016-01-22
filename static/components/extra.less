@@ -1,0 +1,104 @@
+@import "ui-variables";
+@import "ui-mixins";
+
+.quoted-text-control {
+  color: @text-color-very-subtle;
+  display: inline-block;
+  border: 1px solid fade(@text-color-very-subtle, 15%);
+  border-radius: 3px;
+  line-height: 10px;
+  padding: 6px 10px;
+  font-weight: 600;
+  font-size: @font-size-smaller;
+  margin: 5px 0 3px 0;
+
+  &:hover {
+    cursor: pointer;
+    color: @text-color-subtle;
+    border: 1px solid fade(@text-color-subtle, 35%);
+  }
+
+  .dots {
+    display: inline-block;
+    font-size: @font-size-smaller * 0.8;
+    top:-1px;
+    position:relative;
+    padding-right:8px;
+  }
+}
+
+body.platform-win32 {
+  .quoted-text-control {
+    .windows-btn-bg;
+    .windows-btn-border;
+    &:hover {
+      color: @text-color-very-subtle;
+      .windows-btn-border;
+    }
+  }
+  .mail-label {
+    border-radius: 0;
+  }
+}
+
+.mail-label {
+  font-size: 0.9em;
+  padding: 2px 8px;
+  margin-right: 6px;
+  flex-shrink: 0;
+  border-radius: 3px;
+  display: inline-block;
+  cursor:default;
+  line-height: 22px;
+  -webkit-user-select: none;
+}
+.mail-label.removable {
+  padding-left:12px;
+  padding-right:4px;
+  .inner {
+    position: relative;
+    left:0;
+    transition: left 0.05s linear;
+  }
+  .x {
+    opacity: 0;
+    left:-4px;
+    top:-3px;
+    position: relative;
+    display:inline-block;
+    transition: opacity 0.05s ease-in;
+  }
+}
+.mail-label.removable:hover {
+  .inner {
+    left:-6px;
+  }
+  .x {
+    opacity: 1;
+  }
+}
+
+
+.mail-important-icon {
+  width:16px;
+  height:16px;
+  vertical-align: middle;
+  display:inline-block;
+  background-repeat: no-repeat;
+  background-position:center;
+  background-image:url(../static/images/important/Icon-Important-Hover@2x.png);
+  background-size: 16px;
+}
+.mail-important-icon.active {
+  background-image:url(../static/images/important/Icon-Important-Active@2x.png);
+  background-size: 16px;
+}
+.mail-important-icon:hover {
+  background-image:url(../static/images/important/Icon-Important-HoverActive@2x.png);
+  background-size: 16px;
+}
+.mail-important-icon.active:hover {
+  background-image:url(../static/images/important/Icon-Important-Active@2x.png);
+  background-size: 16px;
+  -webkit-filter: brightness(90%);
+}

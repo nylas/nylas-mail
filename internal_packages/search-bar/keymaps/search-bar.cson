@@ -1,0 +1,2 @@
+'.search-bar input':
+  'escape': 'search-bar:escape-search'

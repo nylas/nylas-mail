@@ -1,0 +1,27 @@
+# Your keymap
+#
+# N1 keymaps work in conjunction with the {KeyCommandsRegion} React
+# component.
+#
+# A key, or sequence of keys is first mapped to a "command".
+#
+# The "command" is then mapped to a callback function within your React
+# component or store.
+#
+# The keyboard -> command mapping is defined in this `.cson` file. Each
+# mapping is scoped under the component that it applies to by matching the
+# root-level CSS class of that component.
+#
+# Any global, top-level mappings are scoped under the `body` selector.
+#
+# For example:
+#
+# 'body':
+#   'ctrl-c': 'application:new-message'
+#
+# '.my-custom-package':
+#   'ctrl-p': 'myPackage:customAction'
+#
+# This file uses CoffeeScript Object Notation (CSON).
+# If you are unfamiliar with CSON, you can read more about it here:
+# https://github.com/bevry/cson#what-is-cson

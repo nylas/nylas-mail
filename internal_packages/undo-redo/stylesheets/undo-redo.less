@@ -1,0 +1,77 @@
+@import "ui-variables";
+@import "ui-mixins";
+
+.undo-redo-manager {
+  position: absolute;
+  bottom: 10px;
+  z-index: 100;
+  width:100%;
+  text-align: center;
+  pointer-events: none;
+}
+.undo-redo {
+  height: 45px;
+  display:inline-block;
+  padding-top: 12px;
+  opacity: 0.9;
+  border-radius: @border-radius-base;
+  background: @gray-darker;
+  white-space:nowrap;
+  cursor:default;
+  pointer-events: initial;
+  display: inline-flex;
+  flex-direction:row;
+  max-width:90%;
+
+  .undo-redo-message-wrapper {
+    flex: 1;
+    flex-shrink: 1;
+    margin-left: 16px;
+    margin-right: 30px;
+    color: @background-primary;
+    overflow:hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+  }
+
+  .undo-redo-action-wrapper {
+    flex-shrink: 0;
+    margin-right: 15px;
+    white-space:nowrap;
+
+    img {
+      background-color: @background-primary;
+    }
+    .undo-redo-action-text {
+      margin-left: 5px;
+      color: @background-primary;
+    }
+  }
+}
+body.platform-win32 {
+  .undo-redo {
+    border-radius: 0;
+  }
+}
+
+.undo-redo-item-enter {
+  opacity: 0.01;
+  transform: translate3d(0, 10px, 0);
+  transition: all .15s ease-out;
+}
+
+.undo-redo-item-enter.undo-redo-item-enter-active {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.undo-redo-item-leave {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition: all .15s ease-in;
+}
+
+.undo-redo-item-leave.undo-redo-item-leave-active {
+  transform: translate3d(0, 10px, 0);
+  opacity: 0.01;
+}

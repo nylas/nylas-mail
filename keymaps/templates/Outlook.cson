@@ -1,0 +1,18 @@
+# Note: For a menu item to have a keyboard equiavalent, it needs
+# to be listed in this file.
+
+'body':
+  # Windows email-specific menu items
+  'cmdctrl-shift-v': 'application:change-category' # Outlook
+  'F3':              'application:focus-search'
+  'cmdctrl-e':       'application:focus-search'
+  'cmdctrl-f':       'application:forward'
+  'cmdctrl-shift-v': 'application:change-category'
+  'cmdctrl-d':       'application:delete-item'
+  'alt-backspace':   'core:undo'
+  'alt-s':           'composer:send-message'
+  'cmdctrl-r':       'application:reply'
+  'cmdctrl-shift-r': 'application:reply-all'
+  'cmdctrl-n' :      'application:new-message'
+  'cmdctrl-shift-m': 'application:new-message'
+  'cmdctrl-enter':   'send'

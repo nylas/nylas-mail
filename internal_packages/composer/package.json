@@ -1,0 +1,19 @@
+{
+  "name": "composer",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Nylas Composer Component",
+  "license": "GPL-3.0",
+  "private": true,
+  "scripts": {
+  },
+  "engines": {
+    "nylas": "*"
+  },
+  "dependencies": {
+  },
+  "windowTypes": {
+    "default": true,
+    "composer": true
+  }
+}

@@ -1,0 +1,11 @@
+# Note: Only put keymaps in here that apply to Linux ONLY
+#
+# Most cross-platform issues can be resolved by using the special N1
+# `cmdctrl` extension before you keymap. This will automatically default
+# to using the `cmd` key on Mac and `ctrl` key on Windows.
+
+# Linux email-specific menu items
+'body':
+  'ctrl-insert': 'core:copy'
+  'shift-insert': 'core:paste'
+  'F11': 'window:toggle-full-screen'

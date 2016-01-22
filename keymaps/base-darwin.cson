@@ -1,0 +1,12 @@
+# Note: Only put keymaps in here that apply to Mac ONLY
+#
+# Most cross-platform issues can be resolved by using the special N1
+# `cmdctrl` extension before you keymap. This will automatically default
+# to using the `cmd` key on Mac and `ctrl` key on Windows.
+
+'body':
+  'cmd-m': 'application:minimize'
+  'cmd-h': 'application:hide'
+  'cmd-alt-h': 'application:hide-other-applications'
+  'cmd-ctrl-f': 'window:toggle-full-screen'
+  'alt-cmd-ctrl-m': 'application:zoom'

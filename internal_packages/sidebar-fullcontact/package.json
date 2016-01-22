@@ -1,0 +1,13 @@
+{
+  "name": "sidebar-fullcontact",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "View user data on the sidebar via fullcontact",
+  "license": "GPL-3.0",
+  "private": true,
+  "engines": {
+    "nylas": "*"
+  },
+  "dependencies": {
+  }
+}

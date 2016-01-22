@@ -1,0 +1,224 @@
+@import "ui-variables";
+
+.developer-bar {
+  -webkit-font-smoothing: auto;
+  background-color: rgba(80,80,80,1);
+  border-top:1px solid rgba(0,0,0,0.7);
+  color:white;
+  font-size:12px;
+  display:flex;
+  flex-direction:column;
+  height:100%;
+
+  .controls {
+    z-index:2;
+    background-color: rgba(80,80,80,1);
+    position: relative;
+    min-height:30px;
+    -webkit-app-region: drag;
+    .btn-container {
+      -webkit-app-region: no-drag;
+    }
+  }
+
+  .footer {
+    padding:2px;
+    input.filter {
+      margin-left: 4px;
+      padding: 2px;
+      color:black;
+      vertical-align: middle;
+      width: 400px;
+    }
+  }
+  .section-content {
+    position: relative;
+    z-index: 1;
+  }
+  .queue-buttons {
+    position: relative;
+    z-index: 1;
+  }
+  .btn {
+    padding: 5px;
+    font-size: 13px;
+    line-height: 15px;
+    height: 25px;
+    background: rgba(60,60,60,1);
+    color: white;
+  }
+
+  .btn:hover {
+    background: rgba(40,40,40,1);
+  }
+
+  .fa-caret-square-o-down,
+  .fa-caret-square-o-up {
+    display:inline-block;
+    width:20px;
+    height:20px;
+    float:left;
+    margin:7px;
+    margin-bottom:0;
+    font-size:18px;
+  }
+
+  .btn-container {
+    padding:3px;
+  }
+
+  .activity-status-bubble {
+    border-radius:6px;
+    display:inline-block;
+    margin-right:5px;
+    margin-top:-2px;
+    width:11px;
+    height:11px;
+    vertical-align: middle;
+
+    &.state-connecting {
+      background-color:#aff2a7;
+    }
+    &.state-connected,
+    &.state-running {
+      background-color:#94E864;
+    }
+    &.state-paused,
+    &.state-idle,
+    &.state-retrying, {
+      background-color:gray;
+    }
+  }
+
+  .expanded-section {
+    clear:both;
+    flex: 1;
+    border-top:1px solid black;
+    padding-top:8px;
+    padding-bottom:8px;
+    overflow-y: scroll;
+    background-color: rgba(0,0,0,0.5);
+    font-family: monospace;
+    -webkit-user-select:auto;
+
+    &.queue {
+      padding: 0;
+      .btn { float:right; z-index: 10; }
+      hr {
+        margin: 1em 0;
+      }
+    }
+    .item {
+      overflow-x: hidden;
+      text-overflow: ellipsis;
+    }
+
+    &.curl-history {
+      .item {
+        padding-left:8px;
+        padding-right:8px;
+        padding-bottom:3px;
+      }
+      .timestamp {
+        color: rgba(255,255,255,0.5);
+      }
+      .error-code {
+        background-color:#740000;
+      }
+      .item.status-code-500,
+      .item.status-code-501,
+      .item.status-code-502,
+      .item.status-code-503,
+      .item.status-code-504,
+      .item.status-code-400,
+      .item.status-code-404,
+      .item.status-code-409 {
+        background-color:#740000;
+      }
+      .code {
+        float:right;
+        clear:right;
+        opacity: 0.5;
+      }
+      a {
+        padding-right:4px;
+        border-bottom: 0;
+      }
+      a:hover {
+        border-bottom: 0;
+        text-decoration: none;
+        background-color: #003845;
+        color: white;
+      }
+    }
+
+
+    &.long-polling {
+      .item {
+        padding-left:8px;
+        padding-right:8px;
+        padding-bottom:3px;
+
+        .cursor {
+          float:right;
+          clear:right;
+          opacity: 0.5;
+        }
+
+        &:hover {
+          cursor: pointer;
+          background-color: rgba(255,255,255,0.2);
+        }
+
+        .payload {
+          color: burlywood;
+        }
+      }
+      .item.ignored {
+        opacity: 0.5;
+      }
+    }
+  }
+
+  .task {
+    padding: 0.5em 1em 0.5em 1.5em;
+    margin: 2px 0;
+
+    &:hover {
+      cursor: pointer;
+      background-color: rgba(255,255,255,0.2);
+    }
+
+    position: relative;
+    &:before {
+      content: " ";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 10px;
+      height: 100%;
+      background: @background-color-pending;
+    }
+
+    &.task-queued{
+      &.task-is-processing:before {
+        background: @background-color-info;
+      }
+    }
+
+    &.task-completed{
+      &.task-local-error:before, &.task-remote-error:before {
+        background: @background-color-error;
+      }
+      &.task-completed.task-success:before {
+        background: @background-color-success;
+      }
+    }
+
+    .task-details { display: none; }
+    &.task-expanded{
+      .task-details { display: block; }
+    }
+
+  }
+}

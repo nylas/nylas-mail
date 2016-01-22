@@ -1,0 +1,79 @@
+# Gmail-specific core key-mappings
+
+'body':
+
+  ### Jumping ###
+  'g i' : 'navigation:go-to-inbox'
+  'g s' : 'navigation:go-to-starred'
+  'g t' : 'navigation:go-to-sent'
+  'g d' : 'navigation:go-to-drafts'
+  'g a' : 'navigation:go-to-all'
+  'g c' : 'navigation:go-to-contacts'
+  'g k' : 'navigation:go-to-tasks'
+  'g l' : 'navigation:go-to-label'
+
+  ### Threadlist selection ###
+  '* a': 'multiselect-list:select-all'
+  '* n': 'multiselect-list:deselect-all'
+  '* r': 'thread-list:select-read'
+  '* u': 'thread-list:select-unread'
+  '* s': 'thread-list:select-starred'
+  '* t': 'thread-list:select-unstarred'
+
+  ### Navigation ###
+  'u': 'application:pop-sheet'
+  'k': 'core:previous-item'
+  'j': 'core:next-item'
+  'o': 'core:focus-item'
+  'p': 'message-list:previous-message'
+  'n': 'message-list:next-message'
+
+  ### Application ###
+  'c': 'application:new-message'
+  'd': 'application:new-message'
+  '/': 'application:focus-search'
+  '.': 'application:more-actions'
+  'l': 'application:change-category'
+  'v': 'application:change-category'
+  '?': 'application:open-help'
+
+  ### Actions ###
+  ',': 'application:focus-toolbar'
+  'x': 'core:select-item'
+  's': 'application:star-item'
+  'y': 'core:remove-from-view' # Remove label
+  'e': 'application:archive-item'
+  'm': 'application:mute-conversation'
+  '!': 'application:report-as-spam'
+  '#': 'application:delete-item'
+
+  'r': 'application:reply'
+  'R': 'application:reply-new-window'
+  'a': 'application:reply-all'
+  'A': 'application:reply-all-new-window'
+  'f': 'application:forward'
+  'F': 'application:forward-new-window'
+
+  ']': 'application:remove-and-previous'
+  '}': 'application:remove-and-previous'
+  '[': 'application:remove-and-next'
+  '{': 'application:remove-and-next'
+
+  'z': 'core:undo'
+
+  'I': 'application:mark-as-read'
+  'U': 'application:mark-as-unread'
+  '_': 'application:mark-as-unread' # Mark unread from the selected message
+  '+': 'application:mark-important'
+  '=': 'application:mark-important'
+  '-': 'application:mark-unimportant'
+
+  ';': 'message-list:expand-all'
+  ':': 'message-list:collapse-all'
+
+  # While not stock Gmail, we add the following standard keymaps that
+  # desktop application users would expect:
+  'cmdctrl-n' : 'application:new-message'
+  'cmdctrl-r' : 'application:reply'
+  'cmdctrl-R' : 'application:reply-all'
+  'cmdctrl-F' : 'application:forward'

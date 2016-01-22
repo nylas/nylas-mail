@@ -1,0 +1,78 @@
+@import "ui-variables";
+
+
+body.platform-win32 {
+  .category-picker {
+    margin-left: 0;
+  }
+}
+
+.category-picker {
+  margin-left: @spacing-three-quarters;
+  .popover {
+  }
+
+  .menu {
+    background: @background-secondary;
+
+    .header-container {
+      border-bottom: 0;
+    }
+
+    .item.divider {
+      background-color: #e0e0e0;
+      margin: 4px 0;
+      height: 2px;
+      padding: 0;
+    }
+
+  }
+
+  .btn.btn-toolbar {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .check-wrap {
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    display: inline-block;
+    position: relative;
+    flex-shrink: 0;
+    top: 2px;
+  }
+
+  .item {
+    img.content-mask {
+      position: relative;
+      top:3px;
+      background-color: @text-color-subtle;
+    }
+  }
+  .item.selected, .item.active {
+    img.content-mask {
+      background-color: @text-color-inverse;
+    }
+  }
+
+  img.check-img {
+    position: absolute;
+  }
+
+  .category-item {
+    font-size: 14px;
+    display: flex;
+  }
+
+  .category-create-new-tag {
+    flex-shrink: 0;
+  }
+
+  .category-display-name {
+    display: inline-block;
+    margin-left: 10px;
+    margin-right: 5px;
+    word-break: break-word;
+  }
+}

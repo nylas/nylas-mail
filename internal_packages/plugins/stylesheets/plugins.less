@@ -1,0 +1,97 @@
+@import "ui-variables";
+@import "ui-mixins";
+
+.plugins-view-tabs {
+  color:  @text-color-subtle;
+  list-style-type: none;
+  padding-left:0;
+  cursor:default;
+
+  li {
+    padding:@padding-large-vertical @padding-large-horizontal @padding-large-vertical @padding-large-horizontal;
+    border-bottom: 1px solid @border-color-divider;
+
+    &.active {
+      background: @source-list-active-bg;
+      color: @source-list-active-color;
+      img.colorfill {
+        background: @source-list-active-color;
+      }
+    }
+  }
+}
+
+.plugins-view {
+  .new-package {
+    margin-bottom:50px;
+  }
+
+  .installed, .explore {
+    overflow-y:scroll;
+    padding-left: @padding-large-horizontal;
+    height:100%;
+
+    .inner {
+      max-width:600px;
+    }
+
+    input {
+      margin-top:@padding-large-vertical;
+      margin-bottom:@padding-large-vertical;
+      padding:4px;
+      box-sizing: border-box;
+    }
+    .empty {
+      color: @text-color-very-subtle;
+      margin-bottom:@padding-large-vertical * 2;
+    }
+  }
+
+  .package-set {
+    margin-top:35px;
+  }
+  .package {
+    align-items: center;
+    background: @background-primary;
+    border: 1px solid @border-color-divider;
+    margin-top:@padding-large-vertical;
+    margin-bottom:@padding-large-vertical;
+    padding:@padding-large-vertical @padding-large-horizontal;
+
+    .icon {
+      padding-right: @padding-large-horizontal;
+    }
+    .info {
+      max-width: 380px;
+      cursor: default;
+
+      .title {
+        color: @text-color-heading;
+        font-size: @font-size-h4;
+        font-weight: @font-weight-normal;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .description {
+        padding-top:@padding-base-vertical;
+        color: @text-color-very-subtle;
+        font-size: @font-size-small;
+      }
+    }
+    .actions {
+      flex: 1;
+      text-align: right;
+      .btn {
+        margin-left:@padding-small-horizontal;
+      }
+    }
+    .update-info {
+      background: fade(@accent-primary, 10%);
+      line-height: @line-height-computed * 1.1;
+      .btn {
+        float: right;
+      }
+    }
+  }
+}

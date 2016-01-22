@@ -1,0 +1,759 @@
+@import "ui-variables";
+
+@checkSize: 136px;
+
+@-webkit-keyframes fadein {
+  from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@-webkit-keyframes bounce {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+@-webkit-keyframes fill {
+  0% { opacity: 0; border-width: @checkSize / 2; }
+  25% { opacity: 1; }
+  100% { opacity: 1; border-width: 0; }
+}
+
+.page-frame {
+  background-color: @gray-lighter;
+  -webkit-animation: fadein 0.8s;
+  text-align: center;
+  display: inline-block;
+
+  h1 {
+    font-weight: 100;
+    font-size: 40pt;
+    margin:0;
+  }
+
+  h2 {
+    line-height: 1.3em;
+  }
+
+  h4 {
+    font-weight: 400;
+    font-size: 20pt;
+  }
+
+  iframe, webview {
+    position: absolute;
+    width:100%;
+    height:100%;
+    left:0;
+    top:0;
+    border:0;
+  }
+
+  .logo-container {
+    width: 117px;
+    height: 117px;
+    display: inline-block;
+    padding-top: 30px;
+    box-sizing: content-box;
+  }
+
+  .btn-add-account {
+    width: 140px;
+    transition: width 150ms ease-in-out;
+  }
+  .btn-add-account-spinning {
+    width: 200px;
+    img { vertical-align: top; margin-right: 5px; }
+  }
+  .prompt {
+    color:#5D5D5D;
+    font-size:1.07em;
+    font-weight:300;
+    margin-top:20px;
+    margin-bottom:14px;
+  }
+
+  form {
+    padding-right:25px;
+    padding-left:25px;
+  }
+
+  input {
+    display:block;
+    padding:10px;
+    width:100%;
+    margin-bottom:20px;
+    background-color: #F5F5F5;
+    text-align: center;
+  }
+
+  .environment-selector {
+    opacity:0.1;
+    width:292px;
+    margin: 0 auto 20px auto;
+    select {
+      width:100%;
+    }
+  }
+
+  .page-container {
+    z-index: 10;
+    position: absolute;
+    top: 0;
+
+    // Before you `git blame`, hear me out. We want the .page to be
+    // centered in the window, even if the window is transitioning to a smaller
+    // size to show a smaller page. transform:translateX(-50%) would be perfect,
+    // but can result in text aliasing, so we need margin:auto. But that won't
+    // work if the necessary margin is less than zero. So we pad the container
+    // out, such that the .page inside can be centered with positive margin.
+
+    // (Please don't break, it looks bad when our logo goes to the top left
+    // when the user chooses a sign-in method.)
+    left: -50%;
+    width: 200%;
+  }
+
+  .page {
+    margin:auto;
+
+    &.account-choose {
+      padding-top: 45px;
+    }
+    &.account-setup {
+      padding: 0 15px;
+      width: 330px
+    }
+    &.opaque {
+      background-color: @gray-lighter;
+    }
+  }
+
+  .page-gradient {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 200px;
+    z-index: 5;
+    transition: background 0.3s ease-in-out;
+    &.under {
+      z-index: 0;
+    }
+  }
+
+  .page-background {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+  }
+
+  .quit {
+    position: fixed;
+    z-index: 100;
+    top: 1px;
+    left: 6px;
+  }
+
+  .back,
+  .dismiss {
+    position: fixed;
+    top:25px;
+    left:25px;
+  }
+
+  .alpha-fade-enter {
+    opacity: 0.01;
+    transition: all .15s ease-out;
+  }
+
+  .alpha-fade-enter.alpha-fade-enter-active {
+    opacity: 1;
+  }
+  .alpha-fade-leave {
+    opacity: 1;
+    transition: all .15s ease-in;
+  }
+
+  .alpha-fade-leave.alpha-fade-leave-active {
+    opacity: 0.01;
+  }
+
+  .check {
+    width: @checkSize;
+    height: @checkSize;
+    background: #e5e5e5;
+    border-radius:50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    box-shadow: 0 -4px 4px 0 rgba(255, 255, 255, 0.75), inset 0 4px 4px 0 rgba(0, 0, 0, 0.08);
+
+    &:before {
+      content: "";
+      position: absolute;
+      border-radius:50%;
+      top: 9%;
+      left: 9%;
+      right: 9%;
+      bottom: 9%;
+      box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.08);
+    }
+
+    &:after {
+      content: "";
+      position: absolute;
+      border-radius:50%;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      opacity: 0;
+      background-color: #60b247;
+      border-width: 0;
+      border-color: #e5e5e5;
+      border-style: solid;
+      -webkit-animation: fill 0.5s forwards;
+      -webkit-animation-delay: 0.8s;
+    }
+
+    .check-icon {
+      position: absolute;
+      z-index: 3;
+      top: 31%;
+      left: 28%;
+      width: 45%;
+      fill: white;
+      -webkit-animation: bounce 0.4s forwards;
+      -webkit-animation-delay: 1.9s;
+    }
+  }
+
+  .errormsg {
+    color: #A33;
+    margin-bottom:5px;
+  }
+
+  form.settings {
+    padding: 0 20px;
+    padding-bottom: 20px;
+
+    input {
+      padding: 8px;
+      display: inline-block;
+      width: 100%;
+      margin-bottom: 10px;
+      background: #FFF;
+      color: #333;
+      text-align: left;
+      border: 1px solid #AAA;
+
+      &::-webkit-input-placeholder {
+        color: #C6C6C6;
+      }
+
+      &:disabled {
+        background: fadeout(@input-bg, 40%);
+      }
+    }
+    input[type=checkbox] {
+      width: initial;
+      margin-right: 5px;
+    }
+
+    input.error {
+      border: 1px solid #A33;
+    }
+
+    label {
+      display: inline-block;
+      width: 100%;
+      color: #888;
+      text-align: left;
+    }
+
+    label.half {
+      width: 50%;
+    }
+
+    label.checkbox {
+      text-align: center;
+    }
+
+    .btn {
+      margin-top:8px;
+    }
+  }
+
+  .appearance-mode {
+    background-color:#f7f9f9;
+    border-radius: 10px;
+    border: 1px solid #c6c7c7;
+    text-align: center;
+    flex: 1;
+    padding:9px;
+    padding-top:10px;
+    margin:10px;
+    margin-top:0;
+    img {
+      background-color: #c6c7c7;
+    }
+    div {
+      margin-top: 10px;
+      text-transform: capitalize;
+      cursor: default;
+    }
+  }
+  .appearance-mode.active {
+    border:1px solid @component-active-color;
+    color: @component-active-color;
+    img { background-color: @component-active-color; }
+  }
+}
+
+.page.account-choose {
+  width: 388px;
+  height: 688px;
+
+  .caption {
+    font-size: 17px;
+    color: rgba(0,0,0,0.56);
+  }
+
+  .provider-name {
+    font-size: 20px;
+    font-weight: 300;
+    color: rgba(0,0,0,0.7);
+  }
+
+  .provider {
+    text-align: left;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    cursor: default;
+    line-height: 70px;
+
+    .icon-container {
+      width: 50px;
+      height: 50px;
+      display: inline-block;
+      box-sizing: content-box;
+      padding: 0 25px 0 25px;
+      vertical-align: top;
+    }
+  }
+  .provider:hover{
+    background: rgba(255,255,255,0.7);
+  }
+}
+
+.page.token-auth.token-auth-enabled {
+  height: auto;
+  padding-bottom:25px;
+}
+.page.token-auth{
+  width: 388px;
+  min-height: 500px;
+  position: relative;
+
+  padding-top: 50px;
+  img.logo.content-mask {
+    background-color: rgba(255,255,255,0.4);
+  }
+
+  .caption {
+    font-size: 17px;
+    color: rgba(0,0,0,0.56);
+  }
+
+  .token-label {
+    max-width: 75%;
+  }
+
+  input {
+    display:block;
+    padding:10px;
+    width:75%;
+    margin: 0 auto 20px auto;
+    background-color: #F5F5F5;
+    text-align: center;
+  }
+
+  input.error {
+    border: 1px solid #A33;
+  }
+}
+
+.initial-package {
+  display:block;
+  margin:auto;
+  margin-top:10px;
+  margin-bottom:10px;
+  width:550px;
+  padding:15px;
+  border:1px solid #e1e1e1;
+  text-align:left;
+  cursor: default;
+  img {
+    float:left;
+    margin: 12px;
+    margin-left: 5px;
+    margin-right: 20px;
+  }
+  .name {
+    font-size:20px;
+  }
+  .description {
+    font-size:14px;
+    max-width:500px;
+  }
+
+  .install-container {
+    width: 90px;
+    float: right;
+    text-align: right;
+  }
+  .btn-install {
+    display:inline-block;
+    width: 70px;
+    margin: 24px;
+    margin-right: 7px;
+    margin-left: 14px;
+    height: 24px;
+    color: @text-color;
+    transition: width 150ms ease-in-out, color 150ms ease-in-out;
+  }
+  .btn-install:after {
+    content: "Install";
+  }
+  .btn-install.installing {
+    width: 32px;
+    color: transparent;
+    background: url('nylas://onboarding/assets/installing-spinner.gif') center no-repeat;
+    background-size: 18px;
+    box-shadow: none;
+  }
+  .btn-install.installed {
+    width: 32px;
+    height: 32px;
+    margin-top: 20px;
+    color: transparent;
+    background: url('nylas://onboarding/assets/green_check@2x.png') center no-repeat;
+    background-size: 27px;
+    box-shadow: none;
+  }
+  .btn-install.installed:after,
+  .btn-install.installing:after {
+    content: "";
+  }
+}
+
+.btn-get-started .spinner {
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  display:inline-block;
+  margin-right:6px;
+  background: url('nylas://onboarding/assets/get-started-spinner.gif') center no-repeat;
+  background-size: 16px;
+}
+
+.welcome-page {
+  width: 675px;
+  height: 480px;
+  display: flex;
+  flex-direction: column;
+
+  @-webkit-keyframes slideIn {
+    from {
+      transform: translate3d(20,0,0);
+      opacity: 0;
+    }
+    to {
+      transform: translate3d(0,0,0);
+      opacity: 1;
+    }
+  }
+
+  a {
+    color: rgba(255,255,255,0.7);
+    border-bottom: 1px solid rgba(255,255,255,0.7);
+    &:hover {
+      cursor: default;
+      color: white;
+      border-bottom: 1px solid white;
+    }
+  }
+
+  .steps-container {
+    position: relative;
+    flex: 1;
+  }
+
+  .step-wrap {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transition: all 0.3s;
+    z-index: 1;
+
+    opacity: 0;
+    &.active {
+      opacity: 1;
+      z-index: 3;
+    }
+  }
+
+  .footer {
+    text-align: center;
+    background: #ececec;
+    border-top: 1px solid #d4d4d4;
+
+    .btn-continue {
+      font-size: 18px;
+      font-weight: 300;
+      margin: 20px 0;
+      padding: 12px 0;
+      width: 296px;
+    }
+    .btn-back {
+      color: rgba(0,0,0,0.4);
+      &:hover {
+        color: rgba(0,0,0,0.7);
+        cursor: default;
+      }
+      position: absolute;
+      left: 20px;
+      bottom: 30px;
+    }
+  }
+
+  p.hero-text {
+    font-weight: 200;
+    -webkit-font-smoothing: subpixel-antialiased;
+  }
+  p.sub-text {
+    font-size: 17px;
+    font-weight: 300;
+  }
+
+  .nylas-wash-light-bg {
+    background-image: linear-gradient(to bottom, rgba(236,236,236,0) 0%, rgba(236,236,236,1) 88%), linear-gradient(to right, rgba(213,224,0,0.47) 0%,rgba(88,182,63,0.47) 50%,rgba(12,162,163,0.47) 100%);
+    color: white;
+  }
+
+  .nylas-wash-bg {
+    background: rgba(101, 191, 191, 0.44);
+    background-image: linear-gradient(to right, rgba(213,224,0,0.35) 0%,rgba(88,182,63,0.35) 50%,rgba(12,162,163,0.35) 100%);
+    color: white;
+  }
+
+  .nylas-static-wash-bg {
+    background-image: linear-gradient(to right, rgba(162,210,128,1) 0%,rgba(113,193,154,1) 50%,rgba(89,187,187,1) 100%);
+    color: white;
+  }
+
+  .nylas-dark-bg {
+    background: rgba(58, 68, 74, 1);
+    color: rgba(255,255,255,0.7);
+    .sub-text {
+      color: rgba(255,255,255,0.5);
+    }
+  }
+
+  .nylas-blue-wash-bg {
+    background-image: linear-gradient(to right, rgba(79,186,151,1) 0%,rgba(113,193,154,1) 50%,rgba(34,172,187,1) 100%);
+    color: white;
+  }
+
+  .step-0-wrap {
+    .nylas-static-wash-bg;
+
+    .hero-text {
+      font-size: 34px;
+      line-height: 41px;
+    }
+
+    img.icons.content-mask {
+      background-color: rgba(255,255,255,0.7);
+    }
+  }
+
+  .step-1-wrap {
+    .nylas-dark-bg;
+
+    .hero-text {
+      font-size: 29px;
+    }
+    .gear-outer-container {
+      background: #69767f;
+      border: 1px solid #161f25;
+      width: 210px;
+      height: 210px;
+      margin: 20px auto;
+      border-radius: 105px;
+    }
+    .gear-container {
+      position: relative;
+      background: #182025;
+      border: 4px solid #161f25;
+      width: 204px;
+      height: 204px;
+      margin: 3px auto;
+      border-radius: 102px;
+      overflow: hidden;
+      // http://stackoverflow.com/questions/5736503/how-to-make-css3-rounded-corners-hide-overflow-in-chrome-opera
+      -webkit-mask-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAA5JREFUeNpiYGBgAAgwAAAEAAGbA+oJAAAAAElFTkSuQmCC);
+    }
+
+    &.active {
+      @keyframes rotate {
+        from { transform: rotate(0deg); }
+          to { transform: rotate(720deg); }
+      }
+      @keyframes rotate-2 {
+        from { transform: rotate(7deg); }
+          to { transform: rotate(727deg); }
+      }
+
+      .gear-large {
+        animation: rotate 20s ease-in-out;
+        animation-iteration-count: infinite;
+      }
+      .gear-large-0{
+        animation-name: rotate-2;
+        animation-direction: reverse;
+      }
+    }
+
+    .gear-large {
+      position: absolute;
+    }
+
+    .gear-large-0 {
+      left: 50%;
+      top: 50%;
+      margin-left: -150px;
+      margin-top: -150px;
+      transform: rotate(7deg);
+    }
+    .gear-large-1 {
+      left: -147px;
+      top: -147px;
+    }
+    .gear-large-2 {
+      right: -147px;
+      top: -147px;
+    }
+    .gear-large-3 {
+      left: 50%;
+      margin-left: -148px;
+      bottom: -226px;
+    }
+
+    .gear-small {
+      position: absolute;
+      top: 470px;
+      left: 390px;
+    }
+    .wrench {
+      position: absolute;
+      right: 310px;
+      top: 370px;
+    }
+  }
+
+  .step-2-wrap {
+    .nylas-blue-wash-bg;
+    .cell-wrap {
+      width: 514px;
+      margin: 30px auto 0 auto;
+    }
+
+    .cell {
+      width: 242px;
+      background: rgba(247, 251, 251, 0.25);
+      border-radius: 10px;
+      box-shadow: 0 1px 1px rgba(0,0,0,0.09), inset 0 0 1px rgba(255,255,255,0.15);
+      padding: 30px 0;
+
+      p {
+        margin-top: 1em;
+        color: rgba(255,255,255,0.9);
+        font-size: 17px;
+        line-height: 24px;
+      }
+      a {
+        margin-top: 1em;
+      }
+    }
+
+    .hero-text {
+      font-size: 27px;
+    }
+  }
+
+  .nav-bubbles {
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    margin-left: -24px;
+    display: flex;
+    width: 48px;
+  }
+  .nav-bubble {
+    margin: 4px;
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    background-color: rgba(255,255,255,0.2);
+    &:hover {
+      background-color: rgba(255,255,255,0.4);
+    }
+    &.active {
+      background-color: rgba(255,255,255,0.7);
+    }
+  }
+}
+
+body.platform-win32 {
+  .page-frame {
+    .alpha-fade-enter {
+      transition: all .01s ease-out;
+    }
+    .alpha-fade-leave {
+      transition: opacity .01s ease-in;
+    }
+  }
+  .initial-package {
+    .btn-install {
+      height: auto;
+    }
+    .btn-install:after {
+      content: "Install";
+    }
+    .btn-install.installing {
+      height: 32px;
+      border: 0;
+      &:hover {
+        background: url('nylas://onboarding/assets/installing-spinner.gif') center no-repeat;
+        background-size: 18px;
+      }
+    }
+    .btn-install.installed {
+      border: 0;
+      height: 32px;
+      &:hover {
+        background: url('nylas://onboarding/assets/green_check@2x.png') center no-repeat;
+        background-size: 27px;
+      }
+    }
+    .btn-install.installed:after,
+    .btn-install.installing:after {
+      content: "";
+    }
+  }
+
+}

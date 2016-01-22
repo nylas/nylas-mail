@@ -1,0 +1,23 @@
+{
+  "name": "phishing-detection",
+  "version": "0.2.1",
+  "main": "./lib/main",
+  "license": "GPL-3.0",
+
+  "title": "Phishing Detection",
+  "description": "Warns you when an email specifies a reply-to address which is not the from address.",
+  "icon": "./icon.png",
+  "isOptional": true,
+
+  "engines": {
+    "nylas": ">=0.3.0 <0.5.0"
+  },
+  "windowTypes": {
+    "default": true,
+    "composer": true
+  },
+  "dependencies": {
+    "request": "^2.53",
+    "underscore": "*"
+  }
+}

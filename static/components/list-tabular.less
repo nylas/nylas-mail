@@ -1,0 +1,222 @@
+@import "ui-variables";
+
+.selection-bar-absolute-enter {
+  opacity: 0;
+  .inner {
+    top: -100%;
+  }
+}
+
+.selection-bar-absolute-enter.selection-bar-absolute-enter-active {
+  opacity: 1;
+  .inner {
+    top:0;
+  }
+}
+
+.selection-bar-absolute-leave {
+  opacity: 1;
+  .inner {
+    top:0;
+  }
+}
+
+.selection-bar-absolute-leave.selection-bar-absolute-leave-active {
+  opacity: 0;
+  .inner {
+    top: -100%;
+  }
+}
+
+.sheet-toolbar .selection-bar {
+  // This item sits in the toolbar and takes up all the remaining
+  // space from the toolbar-spacer divs, but flex-shrink means that
+  // it shrinks before any other element when not enough space is available.
+
+  // This is important because the spacers will prevent items from being clickable,
+  // (webkit-app-region:drag) even if we're covering them up. We need to make them
+  // 0px wide!
+
+  width: 100%;
+  flex-shrink:100;
+  height:49px;
+  z-index: 10000;
+  -webkit-app-region: drag;
+
+  .absolute {
+    position: absolute;
+    left: -1px;
+    right:-1px;
+    top: 0;
+    height:49px;
+    border-left:1px solid @border-color-divider;
+    border-right:1px solid @border-color-divider;
+    background-color: @background-primary;
+    transition: opacity 0.2s ease-in-out;
+
+    .inner {
+      position: absolute;
+      width: 100%;
+      display:flex;
+      -webkit-app-region: no-drag;
+      transition: top 0.2s ease-in-out;
+
+      .centered {
+        flex: 1;
+        cursor:default;
+        text-align: center;
+        color:@text-color-subtle;
+        padding-top: 15px;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        -webkit-app-region: drag;
+      }
+    }
+  }
+}
+
+
+.list-container {
+  .list-item {
+    font-size: @font-size-base;
+    line-height: @line-height-computed;
+    color: @text-color;
+    background: @list-bg;
+
+    &:hover {
+      background: darken(@list-bg, 5%);
+    }
+
+    &.selected {
+      background: @list-selected-bg;
+      color: @list-selected-color;
+      .list-column {
+        border-bottom: 1px solid @list-selected-border;
+      }
+    }
+
+    &.focused {
+      background: @list-focused-bg;
+      color: @list-focused-color;
+      .list-column {
+        border-bottom: 1px solid @list-focused-border;
+      }
+    }
+  }
+}
+
+body.is-blurred {
+  .list-container {
+    .list-item {
+      &.selected {
+        background: fadeout(desaturate(@list-selected-bg, 100%), 65%);
+        color: @text-color;
+        .list-column {
+          border-bottom: 1px solid fadeout(desaturate(@list-selected-border, 100%), 65%);
+        }
+      }
+
+      &.focused {
+        background: fadeout(desaturate(@list-focused-bg, 100%), 65%);
+        color: @text-color;
+        .list-column {
+          border-bottom: 1px solid fadeout(desaturate(@list-focused-border, 100%), 65%);
+        }
+      }
+    }
+  }
+}
+
+.list-tabular {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+
+  .list-tabular-item {
+    position: relative;
+    width: 100%;
+    display: flex;
+    &:hover {
+      cursor: default;
+    }
+
+    &.keyboard-cursor {
+      .list-column:first-child {
+        border-left:4px solid @list-focused-bg;
+        padding-left:8px;
+      }
+    }
+
+    &.selected {
+      .checkmark .inner {
+        background-color: @accent-primary;
+        background-image: url(images/thread-list/checkbox-checkmark@2x.png);
+        border:none;
+        border-radius: 2px;
+      }
+    }
+
+    &.selected.focused {
+      .checkmark .inner {
+        background-color: @list-bg;
+        background-image: url(images/thread-list/checkbox-checkmark-activerow@2x.png);
+        border:none;
+        border-radius: 2px;
+      }
+    }
+    &.focused {
+      .checkmark .inner {
+        border:1px solid @accent-primary;
+      }
+    }
+
+    .checkmark {
+      padding: 12px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      .inner {
+        width:14px;
+        height:14px;
+        border:1px solid @list-border;
+        border-radius: 2px;
+        background: transparent;
+        background-size: 12px 9px;
+        background-repeat: no-repeat;
+        background-position: center;
+      }
+    }
+  }
+
+  .list-column {
+    // The width is set by React.
+    display: inline-block;
+    padding: @padding-base-vertical @padding-base-horizontal @padding-base-vertical @padding-base-horizontal;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    border-bottom: 1px solid @list-border;
+
+    &:last-child {
+      text-align: right;
+    }
+  }
+
+  .list-headers {
+    display: flex;
+    position: absolute;
+    width: 100%;
+    top: 0;
+    position: absolute;
+    background: fade(@list-bg,90%);
+    font-size: @font-size-base;
+    line-height: @font-size-base * 1.6;
+    height:@font-size-base * 2;
+    z-index: 3;
+  }
+
+  .list-header {
+  }
+
+}

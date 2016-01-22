@@ -1,0 +1,392 @@
+@import "ui-variables";
+@import "ui-mixins";
+
+@scrollbar-margin: 8px;
+
+// MIXINS
+
+.inverseContent() {
+  // Note: these styles are also applied below
+  // subpixel antialiasing looks awful against dark background colors
+  -webkit-font-smoothing: antialiased;
+
+  color: @text-color-inverse;
+
+  .participants {
+    .unread-true {
+      font-weight: @font-weight-normal;
+    }
+  }
+  .subject {
+    font-weight: @font-weight-normal;
+  }
+
+  .thread-icon, .draft-icon, .mail-important-icon {
+    -webkit-filter: brightness(600%) grayscale(100%);
+  }
+
+  .mail-label {
+    // Note - these !important styles override values set by a style tag
+    // since the color of the label is detemined programatically.
+    background: none !important;
+    box-shadow: 0 0.5px 0 @text-color-inverse, 0 -0.5px 0 @text-color-inverse, 0.5px 0 0 @text-color-inverse, -0.5px 0 0 @text-color-inverse !important;
+    -webkit-filter: brightness(600%) grayscale(100%);
+  }
+
+}
+
+// STYLES
+
+*:focus, input:focus {
+  outline:none;
+}
+
+.thread-list, .draft-list {
+  order: 3;
+  flex: 1;
+  position:absolute;
+  width:100%;
+  height:100%;
+  -webkit-font-smoothing: subpixel-antialiased;
+
+  .list-item {
+    background-color: darken(@background-primary, 2%);
+  }
+
+  .list-column {
+    border-bottom: 1px solid fade(@list-border, 60%);
+  }
+
+  .mail-important-icon {
+    margin-top:1px;
+    margin-left:6px;
+    padding: 12px;
+    vertical-align: initial;
+    &:not(.active) {
+      visibility: hidden;
+    }
+  }
+
+  .message-count {
+    color: @text-color-inverse;
+    background: @background-tertiary;
+    padding: 4px 6px 2px 6px;
+    margin-left: 1em;
+  }
+
+  .draft-icon {
+    margin-top:8px;
+    margin-left:10px;
+    flex-shrink: 0;
+    object-fit: contain;
+  }
+
+  .participants {
+    font-size:   @font-size-small;
+    text-overflow: ellipsis;
+    text-align: left;
+    overflow: hidden;
+    position: relative;
+    top:2px;
+  }
+
+  .details {
+    display:flex;
+    .subject {
+      font-size:   @font-size-small;
+      font-weight: @font-weight-normal;
+      padding-right: @padding-base-horizontal;
+      position: relative;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      top:2px;
+
+      // Shrink, but only after snippet has shrunk
+      flex-shrink:0.1;
+    }
+    .snippet {
+      font-size:   @font-size-small;
+      font-weight: @font-weight-normal;
+      position: relative;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      opacity: 0.62;
+      top:2px;
+      flex: 1;
+    }
+    .thread-icon {
+      margin-right:@padding-base-horizontal;
+      margin-left:@padding-base-horizontal;
+    }
+  }
+
+  .timestamp {
+    font-size:   @font-size-small;
+    font-weight: @font-weight-normal;
+    position: relative;
+    top:2px;
+    text-align: right;
+    min-width:70px;
+    margin-right:@scrollbar-margin;
+    display:inline-block;
+    opacity: 0.62;
+  }
+
+  .unread:not(.focused):not(.selected) {
+    background-color: @background-primary;
+    &:hover {
+      background: darken(@background-primary, 2%);
+    }
+    .snippet {
+      color: @text-color-subtle;
+    }
+    .list-column {
+      border-bottom: 1px solid @list-border;
+    }
+  }
+
+  .unread:not(.focused) {
+    // Never show any unread styles when the thread is focused.
+    // It will be marked as read and the delay from focus=>read
+    // is noticeable.
+    .subject {
+      font-weight: @font-weight-semi-bold;
+    }
+    .participants {
+      .unread-true {
+        font-weight: @font-weight-semi-bold;
+      }
+    }
+  }
+
+  .focused {
+    .inverseContent;
+  }
+
+  .thread-injected-icons {
+    vertical-align: top;
+    line-height: 26px;
+  }
+  .thread-icon {
+    width:26px;
+    height:26px;
+    flex-shrink:0;
+    background-size: 15px;
+    display:inline-block;
+    background-repeat: no-repeat;
+    background-position:center;
+
+    &.thread-icon-attachment {
+      background-image:url(../static/images/thread-list/icon-attachment-@2x.png);
+      margin-right:0;
+      margin-left:0;
+    }
+    &.thread-icon-unread {
+      background-image:url(../static/images/thread-list/icon-unread-@2x.png);
+    }
+    &.thread-icon-replied {
+      background-image:url(../static/images/thread-list/icon-replied-@2x.png);
+    }
+    &.thread-icon-forwarded {
+      background-image:url(../static/images/thread-list/icon-forwarded-@2x.png);
+    }
+    &.thread-icon-star {
+      background-size: 16px;
+      background-image:url(../static/images/thread-list/icon-star-@2x.png);
+    }
+  }
+  .star-button {
+    font-size: 16px;
+    .fa-star {
+      color: rgb(239, 209, 0);
+      &:hover {
+        cursor: pointer;
+        color: rgb(220,220,220);
+      }
+    }
+    .fa-star-o {
+      color: rgb(220,220,220);
+      &:hover {
+        cursor: pointer;
+        color: rgb(239, 209, 0);
+      }
+    }
+  }
+}
+
+
+// quick actions
+@archive-img: "../static/images/thread-list-quick-actions/ic-quick-button-archive@2x.png";
+@trash-img: "../static/images/thread-list-quick-actions/ic-quick-button-trash@2x.png";
+
+.thread-list .list-item .list-column-HoverActions {
+  display:none;
+  .action {
+    display:inline-block;
+    background-size: 100%;
+    zoom:0.5;
+    width: 81px;
+    height: 57px;
+    margin: 9px 16px 0 16px;
+  }
+  .action.action-archive {
+    background: url(@archive-img) center no-repeat, @background-gradient;
+  }
+  .action.action-trash {
+    background: url(@trash-img) center no-repeat, @background-gradient;
+  }
+}
+body.platform-win32 {
+  .thread-list .list-item .list-column-HoverActions {
+    .action {
+      border: 0;
+      margin: 9px 0 0 0;
+    }
+    .action.action-archive {
+      background: url(@archive-img) center no-repeat;
+    }
+    .action.action-trash {
+      background: url(@trash-img) center no-repeat;
+    }
+  }
+}
+.thread-list .list-item:hover .list-column-HoverActions {
+  width: 0;
+  padding: 0;
+  display:block;
+  overflow: visible;
+  height:100%;
+
+  .inner {
+    position:relative;
+    width:300px;
+    height:100%;
+    left: -300px;
+    .thread-injected-quick-actions {
+      margin-right: 10px;
+    }
+  }
+}
+
+.thread-list .list-item:hover .list-column-HoverActions .inner {
+  background-image: -webkit-linear-gradient(left, fade(darken(@list-bg, 5%), 0%) 0%, darken(@list-bg, 5%) 50%, darken(@list-bg, 5%) 100%);
+}
+
+.thread-list .list-item.selected:hover .list-column-HoverActions .inner {
+  background-image: -webkit-linear-gradient(left, fade(@list-selected-bg, 0%) 0%, @list-selected-bg 50%, @list-selected-bg 100%);
+}
+
+.thread-list .list-item.focused:hover .list-column-HoverActions .inner {
+  background-image: -webkit-linear-gradient(left, fade(@list-focused-bg, 0%) 0%, @list-focused-bg 50%, @list-focused-bg 100%);
+  .action {
+    -webkit-filter: invert(100%) brightness(300%);
+  }
+  .action.action-archive {
+    background: url(@archive-img) center no-repeat;
+  }
+  .action.action-trash {
+    background: url(@trash-img) center no-repeat;
+  }
+}
+
+
+// stars
+
+.thread-list .thread-icon-star:hover
+{
+  background-image:url(../static/images/thread-list/icon-star-@2x.png);
+  background-size: 16px;
+  -webkit-filter: brightness(90%);
+}
+.thread-list .list-item:hover .thread-icon-none:hover {
+  background-image:url(../static/images/thread-list/icon-star-action-hover-@2x.png);
+  background-size: 16px;
+}
+.thread-list .list-item:hover .thread-icon-none {
+  background-image:url(../static/images/thread-list/icon-star-hover-@2x.png);
+  background-size: 16px;
+}
+.thread-list .list-item:hover .mail-important-icon {
+  visibility: inherit;
+}
+.thread-list .thread-icon-star-on-hover:hover {
+  background-image:url(../static/images/thread-list/icon-star-hover-@2x.png);
+  background-size: 16px;
+}
+
+.thread-list-narrow {
+  .timestamp {
+    order: 100;
+  }
+  .participants {
+    font-size: @font-size-base;
+  }
+  .thread-icon {
+    margin-right:4px;
+  }
+
+  .mail-important-icon {
+    margin-top:1px;
+    margin-left:1px;
+    float:left;
+    padding: 12px;
+    vertical-align: initial;
+  }
+
+  .subject {
+    font-size: @font-size-base;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+    padding-top:2px;
+    padding-bottom:2px;
+    margin-left:30px;
+    margin-right:@scrollbar-margin;
+  }
+  .snippet {
+    font-size: @font-size-small;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    opacity: 0.7;
+    text-align: left;
+    margin-left:30px;
+    margin-right:@scrollbar-margin;
+  }
+}
+
+// selection looks like focus in split mode
+
+.thread-list.handler-split {
+  .list-item {
+    &.selected {
+      background: @list-focused-bg;
+      color: @list-focused-color;
+      .inverseContent;
+    }
+  }
+  .list-item.selected:hover .list-column-HoverActions .inner {
+    background-image: -webkit-linear-gradient(left, fade(@list-focused-bg, 0%) 0%, @list-focused-bg 50%, @list-focused-bg 100%);
+    .action {
+      -webkit-filter: invert(100%) brightness(300%);
+    }
+    .action.action-archive {
+      background: url(@archive-img) center no-repeat;
+    }
+    .action.action-trash {
+      background: url(@trash-img) center no-repeat;
+    }
+  }
+}
+body.is-blurred {
+  .thread-list.handler-split {
+    .list-item {
+      &.selected {
+        background: fadeout(desaturate(@list-focused-bg, 100%), 65%);
+        color: @text-color;
+        .list-column {
+          border-bottom: 1px solid fadeout(desaturate(@list-focused-border, 100%), 65%);
+        }
+      }
+    }
+  }
+}

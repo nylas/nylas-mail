@@ -1,0 +1,19 @@
+{
+  "name": "nylas-spectron",
+  "description": "N1 Spectron Test Suite",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nylas/N1.git"
+  },
+  "scripts": {
+    "test": "jasmine JASMINE_CONFIG_PATH=./jasmine/config.json"
+  },
+  "license": "GPL-3.0",
+  "dependencies": {
+    "bluebird": "^3.0.5",
+    "babel-core": "^5.8.21",
+    "jasmine": "^2.3.2",
+    "spectron": "^0.34.1",
+    "chalk": "^1.1"
+  }
+}

@@ -1,0 +1,39 @@
+Name:           <%= name %>
+Version:        <%= version %>
+Release:        0.1%{?dist}
+Summary:        <%= description %>
+License:        Proprietary
+URL:            https://nylas.com/N1
+AutoReqProv:    no # Avoid libchromiumcontent.so missing dependency
+
+%description
+<%= description %>
+
+%install
+mkdir -p %{buildroot}<%= linuxShareDir %>
+cp -r <%= contentsDir %>/* %{buildroot}<%= linuxShareDir %>
+
+mkdir -p %{buildroot}<%= linuxBinDir %>/
+
+cp N1.sh %{buildroot}<%= linuxBinDir %>/<%= appFileName %>
+chmod 755 %{buildroot}<%= linuxBinDir %>/<%= appFileName %>
+
+mkdir -p %{buildroot}/usr/local/share/applications/
+mv nylas.desktop %{buildroot}/usr/local/share/applications/
+
+for s in 16 32 64 128 256 512; do
+    mkdir -p %{buildroot}/usr/local/share/icons/hicolor/${s}x${s}/apps
+    cp -p <%= buildDir %>/icons/${s}.png \
+               %{buildroot}/usr/local/share/icons/hicolor/${s}x${s}/apps/<%= iconName %>.png
+done
+
+%files
+<%= linuxBinDir %>/<%= appFileName %>
+<%= linuxShareDir %>/
+/usr/local/share/applications/nylas.desktop
+/usr/local/share/icons/hicolor/16x16/apps/<%= iconName %>.png
+/usr/local/share/icons/hicolor/32x32/apps/<%= iconName %>.png
+/usr/local/share/icons/hicolor/64x64/apps/<%= iconName %>.png
+/usr/local/share/icons/hicolor/128x128/apps/<%= iconName %>.png
+/usr/local/share/icons/hicolor/256x256/apps/<%= iconName %>.png
+/usr/local/share/icons/hicolor/512x512/apps/<%= iconName %>.png

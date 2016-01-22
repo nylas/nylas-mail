@@ -1,0 +1,108 @@
+# This is the core set of universal, cross-platform keymaps. This is
+# extended in the following places:
+#
+# 1. keymaps/base.cson - (This file) Core, universal keymaps across all platforms
+# 2. keymaps/base-darwin.cson - Any universal mac-only keymaps
+# 3. keymaps/base-win32.cson - Any universal windows-only keymaps
+# 4. keymaps/base-darwin.cson - Any universal linux-only keymaps
+# 5. keymaps/templates/Gmail.cson - Gmail key bindings for all platforms
+# 6. keymaps/templates/Outlook.cson - Outlook key bindings for all platforms
+# 7. keymaps/templates/Apple Mail.cson - Mac Mail key bindings for all platforms
+# 8. some/package/keymaps/package.cson - Keymaps for a specific package
+# 9. ~/.nylas/keymap.cson - Custom user-specific overrides
+#
+# NOTE: We have a special N1 extension called `cmdctrl` that automatically
+# uses `cmd` on mac and `ctrl` on windows and linux. This covers most
+# cross-platform cases. For truely platform-specific features, use the
+# platform keymap extensions.
+
+'body':
+  ### Core system commands. ###
+  # These have their default effects, but map to
+  # commands to allow for custom interactions.
+  'cmdctrl-z': 'core:undo'
+  'cmdctrl-Z': 'core:redo'
+  'cmdctrl-y': 'core:redo'
+  'shift-delete': 'core:cut'
+  'cmdctrl-x': 'core:cut'
+  'cmdctrl-c': 'core:copy'
+  'cmdctrl-v': 'core:paste'
+  'cmdctrl-shift-v': 'core:paste-and-match-style'
+  'cmdctrl-a': 'core:select-all'
+
+  'up'         : 'core:previous-item'
+  'down'       : 'core:next-item'
+  'left'       : 'core:move-left'
+  'right'      : 'core:move-right'
+  'shift-up'   : 'core:select-up'
+  'shift-down' : 'core:select-down'
+  'shift-left' : 'core:select-left'
+  'shift-right': 'core:select-right'
+
+  ### Core application commands. ###
+  'cmdctrl-q' : 'application:quit'
+  'cmdctrl-w' : 'window:close'
+  'cmdctrl-p' : 'application:print-thread'
+
+  ### Universal N1 commands. ###
+  'enter'    : 'core:focus-item'
+  'delete'   : 'core:remove-from-view'
+  'escape'   : 'application:pop-sheet'
+  'backspace': 'core:remove-from-view'
+  'cmdctrl-,': 'application:open-preferences'
+
+  'pageup'        : 'core:messages-page-up'
+  'pagedown'      : 'core:messages-page-down'
+  'shift-pageup'  : 'core:list-page-up'
+  'shift-pagedown': 'core:list-page-down'
+
+  'cmdctrl-1': 'application:select-account-0'
+  'cmdctrl-2': 'application:select-account-1'
+  'cmdctrl-3': 'application:select-account-2'
+  'cmdctrl-4': 'application:select-account-3'
+  'cmdctrl-5': 'application:select-account-4'
+  'cmdctrl-6': 'application:select-account-5'
+  'cmdctrl-7': 'application:select-account-6'
+  'cmdctrl-8': 'application:select-account-7'
+  'cmdctrl-9': 'application:select-account-8'
+
+  ### N1 developer commands. ###
+  'cmdctrl-alt-l': 'window:reload'
+  'cmdctrl-alt-i': 'window:toggle-dev-tools'
+  'cmdctrl-alt-w': 'application:show-work-window'
+  'cmdctrl-alt-s': 'application:run-all-specs'
+  'cmdctrl-alt-p': 'application:run-package-specs'
+
+'body *[contenteditable].contenteditable':
+  ### Basic formatting commands ###
+  'cmdctrl-u': 'contenteditable:underline'
+  'cmdctrl-b': 'contenteditable:bold'
+  'cmdctrl-i': 'contenteditable:italic'
+  'cmdctrl-k': 'contenteditable:insert-link'
+
+  ### Advanced formatting commands ###
+  'cmdctrl-&': 'contenteditable:numbered-list'
+  'cmdctrl-*': 'contenteditable:bulleted-list'
+  'cmdctrl-(': 'contenteditable:quote'
+
+  'cmdctrl-[': 'contenteditable:outdent'
+  'cmdctrl-]': 'contenteditable:indent'
+
+  'cmdctrl-L': 'contenteditable:align-left'
+  'cmdctrl-E': 'contenteditable:align-center'
+  'cmdctrl-R': 'contenteditable:align-right'
+
+  'cmdctrl-,': 'contenteditable:set-right-to-left'
+  'cmdctrl-.': 'contenteditable:set-left-to-right'
+
+  'cmdctrl-\\': 'contenteditable:remove-formatting'
+
+  'cmdctrl-%': 'contenteditable:previous-font'
+  'cmdctrl-^': 'contenteditable:next-font'
+  'cmdctrl-+': 'contenteditable:increase-text-size'
+  'cmdctrl--': 'contenteditable:decrease-text-size'
+
+  ### Custom Property Navigating ###
+  'cmdctrl-;': 'contenteditable:previous-selection'
+  "cmdctrl-'": 'contenteditable:next-selection'
+  'cmdctrl-m': 'contenteditable:open-spelling-suggestions'

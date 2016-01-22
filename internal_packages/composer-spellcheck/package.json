@@ -1,0 +1,17 @@
+{
+  "name": "composer-spellcheck",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "A small extension to the draft store that implements spellcheck",
+  "license": "GPL-3.0",
+  "private": true,
+  "engines": {
+    "nylas": "*"
+  },
+  "windowTypes": {
+    "default": true,
+    "composer": true
+  },
+  "dependencies": {
+  }
+}

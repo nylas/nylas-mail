@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Personal Level Icon</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h1 id="personal-level-icon">Personal Level Icon</h1>
+<p>Show an icon for each thread to indicate whether you’re the only recipient,
+one of many recipients, or a member of a mailing list.</p>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Access core components by requiring <code>nylas-exports</code>.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>{Utils, DraftStore, React} = <span class="hljs-built_in">require</span> <span class="hljs-string">'nylas-exports'</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Access N1 React components by requiring <code>nylas-component-kit</code>.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>{RetinaImg} = <span class="hljs-built_in">require</span> <span class="hljs-string">'nylas-component-kit'</span>
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PersonalLevelIcon</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span></span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Note: You should assign a new displayName to avoid naming
+conflicts when injecting your item</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-property">@displayName</span>: <span class="hljs-string">'PersonalLevelIcon'</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>In the constructor, we’re setting the component’s initial state.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">constructor</span>: <span class="hljs-function"><span class="hljs-params">(<span class="hljs-property">@props</span>)</span> -&gt;</span>
+    <span class="hljs-property">@state</span> =
+      <span class="hljs-attribute">level</span>: <span class="hljs-property">@_calculateLevel</span>(<span class="hljs-property">@props</span>.thread)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>React components’ <code>render</code> methods return a virtual DOM element to render.
+The returned DOM fragment is a result of the component’s <code>state</code> and
+<code>props</code>. In that sense, <code>render</code> methods are deterministic.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">render</span>: <span class="hljs-function">=&gt;</span>
+    React.createElement(<span class="hljs-string">"div"</span>, {<span class="hljs-string">"className"</span>: <span class="hljs-string">"personal-level-icon"</span>},
+      (<span class="hljs-property">@_renderIcon</span>())
+    )</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>Some application logic which is specific to this package to decide which
+character to render.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">_renderIcon</span>: <span class="hljs-function">=&gt;</span>
+    <span class="hljs-keyword">switch</span> <span class="hljs-property">@state</span>.level
+      <span class="hljs-keyword">when</span> <span class="hljs-number">0</span> <span class="hljs-keyword">then</span> <span class="hljs-string">""</span>
+      <span class="hljs-keyword">when</span> <span class="hljs-number">1</span> <span class="hljs-keyword">then</span> <span class="hljs-string">"\u3009"</span>
+      <span class="hljs-keyword">when</span> <span class="hljs-number">2</span> <span class="hljs-keyword">then</span> <span class="hljs-string">"\u300b"</span>
+      <span class="hljs-keyword">when</span> <span class="hljs-number">3</span> <span class="hljs-keyword">then</span> <span class="hljs-string">"\u21ba"</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>Some more application logic which is specific to this package to decide
+what level of personalness is related to the <code>thread</code>.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">_calculateLevel</span>: <span class="hljs-function"><span class="hljs-params">(thread)</span> =&gt;</span>
+<span class="hljs-function">    <span class="hljs-title">hasMe</span> = <span class="hljs-params">(thread.participants.filter (p) -&gt; p.isMe())</span>.<span class="hljs-title">length</span> &gt; 0
+    <span class="hljs-title">numOthers</span> = <span class="hljs-title">thread</span>.<span class="hljs-title">participants</span>.<span class="hljs-title">length</span> - <span class="hljs-title">hasMe</span>
+    <span class="hljs-title">if</span> <span class="hljs-title">not</span> <span class="hljs-title">hasMe</span>
+      <span class="hljs-title">return</span> 0
+    <span class="hljs-title">if</span> <span class="hljs-title">numOthers</span> &gt; 1
+      <span class="hljs-title">return</span> 1
+    <span class="hljs-title">if</span> <span class="hljs-title">numOthers</span> <span class="hljs-title">is</span> 1
+      <span class="hljs-title">return</span> 2
+    <span class="hljs-title">else</span>
+      <span class="hljs-title">return</span> 3
+
+<span class="hljs-title">module</span>.<span class="hljs-title">exports</span> = <span class="hljs-title">PersonalLevelIcon</span>
+
+</span></pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

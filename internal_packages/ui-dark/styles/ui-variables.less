@@ -1,0 +1,54 @@
+@gray-base:    #ffffff;
+@gray-darker:  darken(@gray-base, 13.5%); // #222
+@gray-dark:    darken(@gray-base, 20%);   // #333
+@gray:         darken(@gray-base, 33.5%); // #555
+@gray-light:   darken(@gray-base, 46.7%); // #777
+@gray-lighter: darken(@gray-base, 92.5%); // #eee
+@white:        #0a0b0c;
+
+@background-primary:     #313131;
+@background-off-primary: #282828;
+@background-secondary:   #222;
+@background-tertiary:    #6d7987;
+
+@btn-default-bg-color:      #404040;
+@dropdown-default-bg-color: #404040;
+@accent-primary:            #5AA8FA;
+@accent-primary-dark:       lighten(#3087E1, 10%);
+
+@text-color:                      #C2C2C2;
+@text-color-subtle:               fadeout(@text-color, 20%);
+@text-color-very-subtle:          fadeout(@text-color, 40%);
+@text-color-inverse:              white;
+@text-color-inverse-subtle:       fadeout(@text-color-inverse, 20%);
+@text-color-inverse-very-subtle:  fadeout(@text-color-inverse, 50%);
+@text-color-heading:              #FFF;
+
+@border-primary-bg:     lighten(@background-primary, 10%);
+@border-secondary-bg:   lighten(@background-secondary, 10%);
+@border-tertiary-bg:    lighten(@background-tertiary, 10%);
+@border-color-divider:  @border-secondary-bg;
+
+@input-bg:              #242424;
+@input-border:          @border-color-divider;
+
+@list-bg:               #333;
+@list-border:           #383838;
+
+@list-selected-color:   @text-color-inverse;
+
+@toolbar-background-color: @background-secondary;
+
+.thread-icon:not(.thread-icon-unread):not(.thread-icon-star) {
+  -webkit-filter: invert(100%);
+}
+img.content-dark {
+  -webkit-filter: invert(100%);
+}
+img.content-light {
+  -webkit-filter: invert(100%);
+}
+
+.popover {
+  border: 1px solid @border-primary-bg;
+}

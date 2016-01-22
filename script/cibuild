@@ -1,0 +1,15 @@
+#!/bin/sh
+# N1 Jenkins must run a shell script.
+#
+# We also set the Keychain credentials inside of Jenkins Credentials
+# instead of plain text files.
+#
+# The credentials for the Keychain are availble via the Jenkins-injected
+# KEYCHAIN_ACCESS environment variable.
+
+set -e
+
+echo "---> $(npm --version)"
+echo "---> $(node --version)"
+script/bootstrap
+build/node_modules/.bin/grunt ci --gruntfile build/Gruntfile.coffee --stack --no-color;

@@ -1,0 +1,15 @@
+I get proper rendering as well.
+
+Sent from a magnificent torch of pixels
+
+On Dec 16, 2011, at 12:47 PM, Corey Donohoe
+<reply@reply.github.com>
+wrote:
+
+> Was this caching related or fixed already?  I get proper rendering here.
+>
+> ![](https://img.skitch.com/20111216-m9munqjsy112yqap5cjee5wr6c.jpg)
+>
+> ---
+> Reply to this email directly or view it on GitHub:
+> https://github.com/github/github/issues/2278#issuecomment-3182418

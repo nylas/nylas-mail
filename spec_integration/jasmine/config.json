@@ -1,0 +1,9 @@
+{
+  "spec_dir": ".",
+  "spec_files": [
+    "**/*-spec.{js,es6,es,jsx}"
+  ],
+  "helpers": [
+    "jasmine/bootstrap.js"
+  ]
+}

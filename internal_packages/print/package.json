@@ -1,0 +1,11 @@
+{
+  "name": "print",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Print",
+  "license": "GPL-3.0",
+  "private": true,
+  "engines": {
+    "nylas": "*"
+  }
+}

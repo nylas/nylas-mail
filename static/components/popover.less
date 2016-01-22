@@ -1,0 +1,54 @@
+@import "ui-variables";
+
+.popover-container {
+  display:inline-block;
+  position:relative;
+}
+
+.popover {
+  display: flex;
+  max-height:400px;
+  background-color: @background-primary;
+  border-radius: @border-radius-base;
+  box-shadow: 0 0.5px 0 rgba(0, 0, 0, 0.15), 0 -0.5px 0 rgba(0, 0, 0, 0.15), 0.5px 0 0 rgba(0, 0, 0, 0.15), -0.5px 0 0 rgba(0, 0, 0, 0.15), 0 4px 7px rgba(0,0,0,0.15), inset 0 0 1px rgba(0,0,0,0.5);
+
+  .menu {
+    z-index:1;
+    position: relative;
+    .content-container {
+      background: none;
+    }
+    .header-container {
+      border-top-left-radius: @border-radius-base;
+      border-top-right-radius: @border-radius-base;
+      background: none;
+    }
+    .footer-container {
+      border-bottom-left-radius: @border-radius-base;
+      border-bottom-right-radius: @border-radius-base;
+      background: none;
+
+      .item:last-child:hover {
+          border-bottom-left-radius: @border-radius-base;
+          border-bottom-right-radius: @border-radius-base;
+      }
+    }
+  }
+
+  .popover-pointer {
+    -webkit-mask-image: url('images/tooltip/tooltip-bg-pointer@2x.png');
+    background-color: @background-primary;
+  }
+}
+
+body.platform-win32 {
+  .popover {
+    border-radius: 0;
+  }
+  .menu {
+    .header-container,
+    .footer-container {
+      border-radius: 0;
+    }
+  }
+}

@@ -1,0 +1,61 @@
+#!/bin/bash
+# mkdeb version arch control-file-path desktop-file-path icon-file-path sources-file-path deb-file-path
+
+set -e
+
+SCRIPT=`readlink -f "$0"`
+ROOT=`readlink -f $(dirname $SCRIPT)/..`
+cd $ROOT
+
+VERSION="$1"
+ARCH="$2"
+CONTROL_FILE="$3"
+DESKTOP_FILE="$4"
+ICON_FILE="$5"
+POSTINST_FILE="$6"
+POSTRM_FILE="$7"
+DEB_PATH="$8"
+FILE_MODE=755
+
+TARGET_ROOT="`mktemp -d`"
+chmod $FILE_MODE "$TARGET_ROOT"
+TARGET="$TARGET_ROOT/nylas-$VERSION-$ARCH"
+
+mkdir -m $FILE_MODE -p "$TARGET/usr"
+env INSTALL_PREFIX="$TARGET/usr" script/grunt install
+
+mkdir -m $FILE_MODE -p "$TARGET/DEBIAN"
+cp "$CONTROL_FILE" "$TARGET/DEBIAN/control"
+
+cp "$POSTINST_FILE" "$TARGET/DEBIAN/postinst"
+cp "$POSTRM_FILE" "$TARGET/DEBIAN/postrm"
+
+mkdir -m $FILE_MODE -p "$TARGET/usr/share/applications"
+cp "$DESKTOP_FILE" "$TARGET/usr/share/applications"
+
+mkdir -m $FILE_MODE -p "$TARGET/usr/share/pixmaps"
+cp "$ICON_FILE" "$TARGET/usr/share/pixmaps"
+
+mkdir -m $FILE_MODE -p "$TARGET/usr/share/icons/hicolor"
+for i in 256 128 64 32 16; do
+  mkdir -p "$TARGET/usr/share/icons/hicolor/${i}x${i}/apps"
+  cp "$DEB_PATH/icons/${i}.png" "$TARGET/usr/share/icons/hicolor/${i}x${i}/apps/nylas.png"
+done
+
+# Copy generated LICENSE.md to /usr/share/doc/nylas/copyright
+mkdir -m $FILE_MODE -p "$TARGET/usr/share/doc/nylas"
+cp "$TARGET/usr/share/nylas/resources/LICENSE.md" "$TARGET/usr/share/doc/nylas/copyright"
+
+# Add lintian overrides
+mkdir -m $FILE_MODE -p "$TARGET/usr/share/lintian/overrides"
+cp "$ROOT/build/resources/linux/debian/lintian-overrides" "$TARGET/usr/share/lintian/overrides/nylas"
+
+# Remove group write from all files
+chmod -R g-w "$TARGET";
+
+# Remove executable bit from .node files
+find "$TARGET" -type f -name "*.node" -exec chmod a-x {} \;
+
+fakeroot dpkg-deb -b "$TARGET"
+mv "$TARGET_ROOT/nylas-$VERSION-$ARCH.deb" "$DEB_PATH"
+rm -rf "$TARGET_ROOT"

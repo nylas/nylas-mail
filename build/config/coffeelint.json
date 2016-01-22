@@ -1,0 +1,20 @@
+{
+  "max_line_length": {
+    "level": "ignore"
+  },
+  "no_empty_param_list": {
+    "level": "error"
+  },
+  "arrow_spacing": {
+    "level": "error"
+  },
+  "no_unnecessary_fat_arrows": {
+    "level": "ignore"
+  },
+  "no_interpolation_in_single_quotes": {
+    "level": "error"
+  },
+  "no_debugger": {
+    "level": "error"
+  }
+}
