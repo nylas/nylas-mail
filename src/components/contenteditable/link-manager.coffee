@@ -115,9 +115,8 @@ class LinkManager extends ContenteditableExtension
     if linkToModify?
       equivalentNode = DOMUtils.findSimilarNodeAtIndex(editor.rootNode, linkToModify, 0)
       return unless equivalentNode?
-      equivalentLinkText = DOMUtils.findFirstTextNode(equivalentNode)
       return if linkToModify.getAttribute?('href')?.trim() is url.trim()
-      toSelect = equivalentLinkText
+      toSelect = equivalentNode
     else
       # When atomicEdit gets run, the exportedSelection is already restored to
       # the last saved exportedSelection state. Any operation we perform will

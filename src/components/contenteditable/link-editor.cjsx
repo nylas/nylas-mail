@@ -1,4 +1,5 @@
 React = require 'react/addons'
+{RegExpUtils} = require 'nylas-exports'
 
 class LinkEditor extends React.Component
   @displayName = "LinkEditor"
@@ -95,7 +96,12 @@ class LinkEditor extends React.Component
     @props.onDoneWithLink()
 
   _initialUrl: (props=@props) =>
-    props.linkToModify?.getAttribute('href')
+    initialUrl = props.linkToModify?.getAttribute('href')
+    if not initialUrl
+      if RegExpUtils.urlRegex().test(props.linkToModify?.textContent ? "")
+        initialUrl = props.linkToModify.textContent
+
+    return initialUrl
 
 
 module.exports = LinkEditor
