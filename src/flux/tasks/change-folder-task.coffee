@@ -30,7 +30,9 @@ class ChangeFolderTask extends ChangeMailTask
       "Moving to folder…"
 
   description: ->
-    folderText = " to #{@folder.displayName}"
+    folderText = ""
+    if @folder instanceof Category
+      folderText = " to #{@folder.displayName}"
 
     if @threads.length > 0
       if @threads.length > 1
