@@ -39,20 +39,24 @@ class ExtendedSelection
     return @
 
   selectAt: (at) ->
-    nodeAt = @findSelectableNodeAt(at)
-    @setBaseAndExtent(nodeAt, 0, nodeAt, (nodeAt.length ? 0))
+    nodeAt = @findNodeAt(at)
+    range = new Range()
+    range.selectNode(nodeAt)
+    @rawSelection.removeAllRanges()
+    @rawSelection.addRange(range)
+    return @
 
   selectRange: (range) ->
     @setBaseAndExtent(range.startContainer, range.startOffset, range.endContainer, range.endOffset)
 
   selectFromTo: (from, to) ->
-    fromNode = @findSelectableNodeAt(from)
-    toNode = @findSelectableNodeAt(to)
+    fromNode = @findNodeAt(from)
+    toNode = @findNodeAt(to)
     @setBaseAndExtent(fromNode, 0, toNode, (toNode.length ? 0))
 
   selectFromToWithIndex: (from, fromIndex, to, toIndex) ->
-    fromNode = @findSelectableNodeAt(from)
-    toNode = @findSelectableNodeAt(to)
+    fromNode = @findNodeAt(from)
+    toNode = @findNodeAt(to)
     if (not _.isNumber(fromIndex)) or (not _.isNumber(toIndex))
       throw @_errBadUsage()
     @setBaseAndExtent(fromNode, fromIndex, toNode, toIndex)
@@ -97,7 +101,7 @@ class ExtendedSelection
                       newFocusNode,
                       exportedSelection.focusOffset)
 
-  findSelectableNodeAt: (arg) ->
+  findNodeAt: (arg) ->
     node = null
     if arg instanceof Node
       node = arg
@@ -107,12 +111,7 @@ class ExtendedSelection
       ## TODO
       node = DOMUtils.findNodeByRegex(@scopeNode, arg)
 
-    # Normally, selections are designed to work on TextNodes, but you
-    # query by Elements. If an Element has just one textNode, we'll use
-    # that. If an Element has multiple children, it's ambiguous and we
-    # won't attempt to find the Text Node for you.
-    textNode = DOMUtils.findOnlyChildTextNode(node)
-    if textNode then return textNode else return node
+    return node
 
   # Finds the start and end text index of the current selection relative
   # to a given Node or Range. Returns an object of the form:

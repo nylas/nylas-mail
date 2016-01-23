@@ -16,7 +16,14 @@ RegExpUtils =
 
   # http://stackoverflow.com/a/16463966
   # http://www.regexpal.com/?fam=93928
+  # NOTE: This does not match full urls with `http` protocol components.
   domainRegex: -> new RegExp(/^(?!:\/\/)([a-zA-Z0-9-_]+\.)*[a-zA-Z0-9][a-zA-Z0-9-_]+\.[a-zA-Z]{2,11}?/i)
+
+  # Test cases: https://regex101.com/r/pD7iS5/2
+  # http://daringfireball.net/2010/07/improved_regex_for_matching_urls
+  # https://mathiasbynens.be/demo/url-regex
+  # This is the Gruber Regex.
+  urlRegex: -> new RegExp(/^\b((?:https?:\/\/|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))$/)
 
   # https://regex101.com/r/zG7aW4/3
   imageTagRegex: -> /<img\s+[^>]*src="([^"]*)"[^>]*>/g
