@@ -11,7 +11,7 @@ Fields = require '../lib/fields'
 Composer = require "../lib/composer-view"
 ComposerEditor = require '../lib/composer-editor'
 
-{DraftStore, ComponentRegistry} = require 'nylas-exports'
+{Message, DraftStore, ComponentRegistry} = require 'nylas-exports'
 
 describe "Composer Quoted Text", ->
   beforeEach ->
@@ -27,8 +27,12 @@ describe "Composer Quoted Text", ->
 
     spyOn(Composer.prototype, "_prepareForDraft")
 
+    @draft = new Message(draft: true, clientId: "client-123")
+
     @composer = ReactTestUtils.renderIntoDocument(<Composer draftClientId="unused"/>)
-    @composer._proxy = trigger: ->
+    @composer._proxy =
+      trigger: ->
+      draft: => @draft
     spyOn(@composer, "_addToProxy")
 
     spyOn(@composer, "_setupSession")

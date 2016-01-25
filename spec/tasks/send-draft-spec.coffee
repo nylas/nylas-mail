@@ -74,6 +74,8 @@ describe "SendDraftTask", ->
         expect(task.backupDraft.clientId).toBe "local-123"
         expect(task.backupDraft.serverId).toBe "server-123"
         expect(task.backupDraft).not.toBe draft # It's a clone
+        expect(task.replyToMessageId).not.toBeDefined()
+        expect(task.threadId).not.toBeDefined()
         expect(calledBody).toBe Message.attributes.body
 
   describe "performRemote", ->
