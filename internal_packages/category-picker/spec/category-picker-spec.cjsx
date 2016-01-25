@@ -20,7 +20,7 @@ CategoryPicker = require '../lib/category-picker'
 
 {Categories} = require 'nylas-observables'
 
-fdescribe 'CategoryPicker', ->
+describe 'CategoryPicker', ->
   beforeEach ->
     CategoryStore._categoryCache = {}
 
