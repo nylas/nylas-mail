@@ -3,6 +3,8 @@ DatabaseStore = require '../stores/database-store'
 QueryRange = require './query-range'
 MutableQueryResultSet = require './mutable-query-result-set'
 
+verbose = false
+
 class QuerySubscription
   constructor: (@_query, @_options = {}) ->
     @_set = null
@@ -105,6 +107,7 @@ class QuerySubscription
     return false
 
   log: (msg) =>
+    return unless verbose
     console.log(msg) if @_query._klass.name is 'Thread'
 
   update: =>

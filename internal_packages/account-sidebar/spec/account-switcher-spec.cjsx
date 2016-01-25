@@ -9,7 +9,7 @@ describe "AccountSwitcher", ->
 
   beforeEach ->
     account = AccountStore.accounts()[0]
-    spyOn(AccountStore, "accounts").andReturn [
+    accounts = [
       account,
       {
         emailAddress: "dillon@nylas.com",
@@ -17,10 +17,8 @@ describe "AccountSwitcher", ->
         label: "work"
       }
     ]
-    spyOn(SidebarStore, "currentAccount").andReturn account
-
     switcher = TestUtils.renderIntoDocument(
-      <AccountSwitcher />
+      <AccountSwitcher accounts={accounts} focusedAccounts={[account]} />
     )
 
   it "doesn't render the dropdown if nothing clicked", ->
@@ -49,5 +47,6 @@ describe "AccountSwitcher", ->
     items = TestUtils.scryRenderedDOMComponentsWithClass dropdown, "secondary-item"
     newAccountButton = TestUtils.scryRenderedDOMComponentsWithClass dropdown, "new-account-option"
 
-    expect(items.length).toBe 3
+     # The unified Inbox item, then both accounts, then the manage item
+    expect(items.length).toBe 4
     expect(newAccountButton.length).toBe 1
