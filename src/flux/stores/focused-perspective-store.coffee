@@ -11,7 +11,6 @@ class FocusedPerspectiveStore extends NylasStore
     @_current = @_defaultPerspective()
 
     @listenTo CategoryStore, @_onCategoryStoreChanged
-    @listenTo AccountStore, @_onAccountStoreChanged
 
     @listenTo Actions.focusMailboxPerspective, @_onFocusPerspective
     @listenTo Actions.focusDefaultMailboxPerspectiveForAccounts, @_onFocusAccounts
@@ -19,9 +18,6 @@ class FocusedPerspectiveStore extends NylasStore
     @_onCategoryStoreChanged()
 
   # Inbound Events
-
-  _onAccountStoreChanged: ->
-    @_setupFastAccountMenu()
 
   _onCategoryStoreChanged: ->
     if @_current.isEqual(MailboxPerspective.forNothing())
