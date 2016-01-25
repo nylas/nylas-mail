@@ -31,9 +31,9 @@ describe "DatabaseSetupQueryBuilder", ->
       expected = [
         'CREATE TABLE IF NOT EXISTS `TestModel` (id TEXT PRIMARY KEY,data BLOB,client_id TEXT,server_id TEXT)',
         'CREATE UNIQUE INDEX IF NOT EXISTS `TestModel_id` ON `TestModel` (`id`)',
-        'CREATE TABLE IF NOT EXISTS `TestModel-Label` (id TEXT KEY, `value` TEXT)'
-        'CREATE INDEX IF NOT EXISTS `TestModel_Label_id` ON `TestModel-Label` (`id` ASC)'
-        'CREATE UNIQUE INDEX IF NOT EXISTS `TestModel_Label_val_id` ON `TestModel-Label` (`value` ASC, `id` ASC)',
+        'CREATE TABLE IF NOT EXISTS `TestModel-Category` (id TEXT KEY, `value` TEXT)'
+        'CREATE INDEX IF NOT EXISTS `TestModel_Category_id` ON `TestModel-Category` (`id` ASC)'
+        'CREATE UNIQUE INDEX IF NOT EXISTS `TestModel_Category_val_id` ON `TestModel-Category` (`value` ASC, `id` ASC)',
       ]
       for query,i in queries
         expect(query).toBe(expected[i])

@@ -1,4 +1,4 @@
-Label = require '../../src/flux/models/label'
+Category = require '../../src/flux/models/category'
 Model = require '../../src/flux/models/model'
 Attributes = require '../../src/flux/attributes'
 
@@ -66,10 +66,10 @@ TestModel.configureWithCollectionAttribute = ->
       queryable: true
       modelKey: 'serverId'
       jsonKey: 'server_id'
-    'labels': Attributes.Collection
+    'categories': Attributes.Collection
       queryable: true
-      modelKey: 'labels'
-      itemClass: Label
+      modelKey: 'categories'
+      itemClass: Category
 
 
 TestModel.configureWithJoinedDataAttribute = ->
