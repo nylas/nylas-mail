@@ -36,12 +36,14 @@ class QueryResultSet
   constructor: (other = {}) ->
     @_modelsHash = other._modelsHash ? {}
     @_offset = other._offset ? null
+    @_query = other._query ? null
     @_ids = other._ids ? []
 
   clone: ->
     new @constructor({
       _ids: [].concat(@_ids)
       _modelsHash: _.extend({}, @_modelsHash)
+      _query: @_query
       _offset: @_offset
     })
 
@@ -50,6 +52,9 @@ class QueryResultSet
 
   range: ->
     new QueryRange(offset: @_offset, limit: @_ids.length)
+
+  query: ->
+    @_query
 
   count: ->
     @_ids.length

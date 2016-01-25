@@ -7,6 +7,7 @@ class ListDataSource
 
   constructor: ->
     @_emitter = new EventEmitter()
+    @_cleanedup = false
     @selection = new ListSelection(@, @trigger)
     @
 
@@ -16,10 +17,18 @@ class ListDataSource
     @_emitter.emit('trigger', arg)
 
   listen: (callback, bindContext) ->
+    if @_cleanedup is true
+      throw new Error("ListDataSource: You cannot listen again after removing the last listener. This is an implementation detail.")
+
     eventHandler = ->
       callback.apply(bindContext, arguments)
     @_emitter.addListener('trigger', eventHandler)
-    return => @_emitter.removeListener('trigger', eventHandler)
+
+    return =>
+      @_emitter.removeListener('trigger', eventHandler)
+      if @_emitter.listenerCount('trigger') is 0
+        @_cleanedup = true
+        @cleanup()
 
   loaded: ->
     throw new Error("ListDataSource base class does not implement loaded()")
@@ -44,3 +53,6 @@ class ListDataSource
 
   setRetainedRange: ({start, end}) ->
     throw new Error("ListDataSource base class does not implement setRetainedRange()")
+
+  cleanup: ->
+    @selection.cleanup()

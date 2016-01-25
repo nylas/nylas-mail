@@ -294,11 +294,15 @@ class ModelQuery
   # Private: Marks the object as final, preventing any changes to the where
   # clauses, orders, etc.
   finalize: ->
+    return if @_finalized
+
     if @_orders.length is 0
       natural = @_klass.naturalSortOrder()
       @_orders.push(natural) if natural
+
     if @_returnOne and not @_range.limit
       @limit(1)
+
     @_finalized = true
     @
 

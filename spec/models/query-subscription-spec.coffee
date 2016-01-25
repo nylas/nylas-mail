@@ -96,14 +96,14 @@ describe "QuerySubscription", ->
         mustUpdate: true
         mustRefetchAllIds: true
       },{
-        name: 'Item saved - does not match query clauses'
+        name: 'Item saved - does not match query clauses, offset > 0'
         change:
           objectClass: Thread.name
           objects: [new Thread(accountId: 'b', clientId: '5', lastMessageReceivedTimestamp: 5)]
           type: 'persist'
         nextModels: 'unchanged'
-        mustUpdate: false
-        mustRefetchAllIds: false
+        mustUpdate: true
+        mustRefetchAllIds: true
       },{
         name: 'Item saved - matches query clauses'
         change:

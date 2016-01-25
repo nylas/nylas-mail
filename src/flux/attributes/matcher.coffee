@@ -46,28 +46,33 @@ class Matcher
     @val
 
   evaluate: (model) ->
-    value = model[@attr.modelKey]
-    value = value() if value instanceof Function
+    modelValue = model[@attr.modelKey]
+    modelValue = modelValue() if modelValue instanceof Function
+    matcherValue = @val
+
+    # Given an array of strings or models, and a string or model search value,
+    # will find if a match exists.
+    modelArrayContainsValue = (array, searchItem) ->
+      asId = (v) -> if v and v.id then v.id else v
+      search = asId(searchItem)
+      for item in array
+        return true if asId(item) == search
+      return false
 
     switch @comparator
-      when '=' then return value == @val
-      when '<' then return value < @val
-      when '>' then return value > @val
-      when 'in' then return value in @val
+      when '=' then return modelValue == matcherValue
+      when '<' then return modelValue < matcherValue
+      when '>' then return modelValue > matcherValue
+      when 'in' then return modelValue in matcherValue
       when 'contains'
-        # You can provide an ID or an object, and an array of IDs or an array of objects
-        # Assumes that `value` is an array of items
-        !!_.find value, (x) =>
-          @val == x?.id || @val == x || @val?.id == x || @val?.id == x?.id
-      when 'containsAny'
-        # You can provide an ID or an object, and an array of IDs or an array of objects
-        # Assumes that `value` is an array of items
-        _.some @val, (subvalue) =>
-          !!_.find value, (x) =>
-            subvalue == x?.id || subvalue == x || subvalue?.id == x || subvalue?.id == x?.id
+        !!modelArrayContainsValue(modelValue, matcherValue)
 
-      when 'startsWith' then return value.startsWith(@val)
-      when 'like' then value.search(new RegExp(".*#{@val}.*", "gi")) >= 0
+      when 'containsAny'
+        _.any matcherValue, (submatcherValue) ->
+          !!modelArrayContainsValue(modelValue, submatcherValue)
+
+      when 'startsWith' then return modelValue.startsWith(matcherValue)
+      when 'like' then modelValue.search(new RegExp(".*#{matcherValue}.*", "gi")) >= 0
       else
         throw new Error("Matcher.evaulate() not sure how to evaluate @{@attr.modelKey} with comparator #{@comparator}")
 

@@ -89,6 +89,13 @@ class QuerySubscription
           impactCount += 1
           mustRefetchAllIds = true if @_itemSortOrderHasChanged(oldItem, item)
 
+      # If we're not at the top of the result set, we can't be sure whether an
+      # item previously matched the set and doesn't anymore, impacting the items
+      # in the query range. We need to refetch IDs to be sure our set is correct.
+      if @_query.range().offset > 0 and impactCount < record.objects.length
+        impactCount += 1
+        mustRefetchAllIds = true
+
     if impactCount > 0
       if mustRefetchAllIds
         @log("Clearing result set - mustRefetchAllIds")
@@ -179,6 +186,7 @@ class QuerySubscription
       throw new Error("QuerySubscription: result set contains duplicate ids.")
 
     if @_options.asResultSet
+      @_set.setQuery(@_query)
       @_lastResult = @_set.immutableClone()
     else
       @_lastResult = @_query.formatResult(@_set.models())
