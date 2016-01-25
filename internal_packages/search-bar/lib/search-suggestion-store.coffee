@@ -96,9 +96,10 @@ class SearchSuggestionStore extends NylasStore
         @_compileResults()
       # We're behind and need to re-run the search for the latest results
       else if @_searchSuggestionsVersion > @_fetchingThreadResultsVersion
+        @_fetchingThreadResultsVersion = null
         @_fetchThreadResults()
-
-      @_fetchingThreadResultsVersion = null
+      else
+        @_fetchingThreadResultsVersion = null
 
   _compileResults: =>
     @_suggestions = []
