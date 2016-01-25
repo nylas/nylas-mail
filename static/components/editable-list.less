@@ -51,6 +51,10 @@
         background: transparent;
         font-size: inherit;
         line-height: 1.5;
+        border-radius: 0;
+        &:focus {
+          box-shadow: none;
+        }
       }
       ::-webkit-input-placeholder {
         color: @text-color-inverse-very-subtle;
@@ -63,6 +67,10 @@
         border: none;
         border-bottom: 1px solid @border-color-divider;
         font-size: inherit;
+        border-radius: 0;
+        &:focus {
+          box-shadow: none;
+        }
       }
       ::-webkit-input-placeholder {
         font-style: italic;
