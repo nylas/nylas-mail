@@ -110,6 +110,7 @@ describe "ComposerView", ->
   DRAFT_CLIENT_ID = "local-123"
   useDraft = (draftAttributes={}) ->
     @draft = new Message _.extend({draft: true, body: ""}, draftAttributes)
+    @draft.clientId = DRAFT_CLIENT_ID
     draft = @draft
     proxy = draftStoreProxyStub(DRAFT_CLIENT_ID, @draft)
     @proxy = proxy
@@ -426,8 +427,8 @@ describe "ComposerView", ->
       it "shows an error if there are no recipients", ->
         useDraft.call @, subject: "no recipients"
         makeComposer.call(@)
-        @composer._sendDraft()
-        expect(Actions.sendDraft).not.toHaveBeenCalled()
+        status = @composer._isValidDraft()
+        expect(status).toBe false
         expect(@dialog.showMessageBox).toHaveBeenCalled()
         dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
         expect(dialogArgs.detail).toEqual("You need to provide one or more recipients before sending the message.")
@@ -438,8 +439,8 @@ describe "ComposerView", ->
           subject: 'hello world!'
           to: [new Contact(email: 'lol', name: 'lol')]
         makeComposer.call(@)
-        @composer._sendDraft()
-        expect(Actions.sendDraft).not.toHaveBeenCalled()
+        status = @composer._isValidDraft()
+        expect(status).toBe false
         expect(@dialog.showMessageBox).toHaveBeenCalled()
         dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
         expect(dialogArgs.detail).toEqual("lol is not a valid email address - please remove or edit it before sending.")
@@ -457,8 +458,8 @@ describe "ComposerView", ->
 
           spyOn(@composer._proxy, 'draftPristineBody').andCallFake -> pristineBody
 
-          @composer._sendDraft()
-          expect(Actions.sendDraft).not.toHaveBeenCalled()
+          status = @composer._isValidDraft()
+          expect(status).toBe false
           expect(@dialog.showMessageBox).toHaveBeenCalled()
           dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
           expect(dialogArgs.buttons).toEqual ['Send Anyway', 'Cancel']
@@ -469,8 +470,8 @@ describe "ComposerView", ->
             subject: "Fwd: Hello World"
             body: "<br><br><blockquote class='gmail_quote'>This is my quoted text!</blockquote>"
           makeComposer.call(@)
-          @composer._sendDraft()
-          expect(Actions.sendDraft).toHaveBeenCalled()
+          status = @composer._isValidDraft()
+          expect(status).toBe true
 
         it "does not warn if the user has attached a file", ->
           useDraft.call @,
@@ -479,38 +480,40 @@ describe "ComposerView", ->
             body: ""
             files: [f1]
           makeComposer.call(@)
-          @composer._sendDraft()
-          expect(Actions.sendDraft).toHaveBeenCalled()
+          status = @composer._isValidDraft()
+          expect(status).toBe true
           expect(@dialog.showMessageBox).not.toHaveBeenCalled()
 
       it "shows a warning if there's no subject", ->
         useDraft.call @, to: [u1], subject: ""
         makeComposer.call(@)
-        @composer._sendDraft()
-        expect(Actions.sendDraft).not.toHaveBeenCalled()
+        status = @composer._isValidDraft()
+        expect(status).toBe false
         expect(@dialog.showMessageBox).toHaveBeenCalled()
         dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
         expect(dialogArgs.buttons).toEqual ['Send Anyway', 'Cancel']
 
       it "doesn't show a warning if requirements are satisfied", ->
         useFullDraft.apply(@); makeComposer.call(@)
-        @composer._sendDraft()
-        expect(Actions.sendDraft).toHaveBeenCalled()
+        status = @composer._isValidDraft()
+        expect(status).toBe true
         expect(@dialog.showMessageBox).not.toHaveBeenCalled()
 
       describe "Checking for attachments", ->
         warn = (body) ->
           useDraft.call @, subject: "Subject", to: [u1], body: body
-          makeComposer.call(@); @composer._sendDraft()
-          expect(Actions.sendDraft).not.toHaveBeenCalled()
+          makeComposer.call(@)
+          status = @composer._isValidDraft()
+          expect(status).toBe false
           expect(@dialog.showMessageBox).toHaveBeenCalled()
           dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
           expect(dialogArgs.buttons).toEqual ['Send Anyway', 'Cancel']
 
         noWarn = (body) ->
           useDraft.call @, subject: "Subject", to: [u1], body: body
-          makeComposer.call(@); @composer._sendDraft()
-          expect(Actions.sendDraft).toHaveBeenCalled()
+          makeComposer.call(@)
+          status = @composer._isValidDraft()
+          expect(status).toBe true
           expect(@dialog.showMessageBox).not.toHaveBeenCalled()
 
         it "warns", -> warn.call(@, "Check out the attached file")
@@ -528,31 +531,32 @@ describe "ComposerView", ->
           to: [u1]
           body: "Check out attached file"
           files: [f1]
-        makeComposer.call(@); @composer._sendDraft()
-        expect(Actions.sendDraft).toHaveBeenCalled()
+        makeComposer.call(@)
+        status = @composer._isValidDraft()
+        expect(status).toBe true
         expect(@dialog.showMessageBox).not.toHaveBeenCalled()
 
       it "bypasses the warning if force bit is set", ->
         useDraft.call @, to: [u1], subject: ""
         makeComposer.call(@)
-        @composer._sendDraft(force: true)
-        expect(Actions.sendDraft).toHaveBeenCalled()
+        status = @composer._isValidDraft(force: true)
+        expect(status).toBe true
         expect(@dialog.showMessageBox).not.toHaveBeenCalled()
 
       it "sends when you click the send button", ->
         useFullDraft.apply(@); makeComposer.call(@)
-        sendBtn = React.findDOMNode(@composer.refs.sendButton)
-        ReactTestUtils.Simulate.click sendBtn
+        sendBtn = @composer.refs.sendActionButton
+        sendBtn.primaryClick()
         expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_CLIENT_ID)
         expect(Actions.sendDraft.calls.length).toBe 1
 
       it "doesn't send twice if you double click", ->
         useFullDraft.apply(@); makeComposer.call(@)
-        sendBtn = React.findDOMNode(@composer.refs.sendButton)
-        ReactTestUtils.Simulate.click sendBtn
+        sendBtn = @composer.refs.sendActionButton
+        sendBtn.primaryClick()
         @isSending = true
         DraftStore.trigger()
-        ReactTestUtils.Simulate.click sendBtn
+        sendBtn.primaryClick()
         expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_CLIENT_ID)
         expect(Actions.sendDraft.calls.length).toBe 1
 
@@ -764,9 +768,12 @@ describe "ComposerView", ->
       spyOn(Actions, "sendDraft").andCallThrough()
       useFullDraft.call(@)
       makeComposer.call(@)
-      @composer._sendDraft()
-      @composer._sendDraft()
-      expect(Actions.sendDraft.calls.length).toBe 1
+
+      firstStatus = @composer._isValidDraft()
+      expect(firstStatus).toBe true
+      Actions.sendDraft(DRAFT_CLIENT_ID)
+      secondStatus = @composer._isValidDraft()
+      expect(secondStatus).toBe false
 
     it "doesn't send twice in the main window", ->
       spyOn(Actions, "queueTask")
@@ -774,6 +781,9 @@ describe "ComposerView", ->
       spyOn(NylasEnv, "isMainWindow").andReturn true
       useFullDraft.call(@)
       makeComposer.call(@)
-      @composer._sendDraft()
-      @composer._sendDraft()
-      expect(Actions.sendDraft.calls.length).toBe 1
+      firstStatus = @composer._isValidDraft()
+      expect(firstStatus).toBe true
+      Actions.sendDraft(DRAFT_CLIENT_ID)
+      secondStatus = @composer._isValidDraft()
+      expect(secondStatus).toBe false
+

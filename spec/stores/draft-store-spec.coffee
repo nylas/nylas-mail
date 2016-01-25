@@ -9,9 +9,11 @@
  DatabaseStore,
  SoundRegistry,
  SendDraftTask,
+ ChangeMailTask,
  DestroyDraftTask,
  ComposerExtension,
  ExtensionRegistry,
+ FocusedContentStore,
  DatabaseTransaction,
  SanitizeTransformer,
  InlineStyleTransformer} = require 'nylas-exports'
@@ -657,7 +659,7 @@ describe "DraftStore", ->
       DraftStore._draftSessions = {}
       DraftStore._draftsSending = {}
       @forceCommit = false
-      msg = new Message(clientId: draftClientId)
+      msg = new Message(clientId: draftClientId, threadId: "thread-123", replyToMessageId: "message-123")
       proxy =
         prepare: -> Promise.resolve(proxy)
         teardown: ->
@@ -744,6 +746,28 @@ describe "DraftStore", ->
       runs ->
         expect(@forceCommit).toBe true
 
+    it "includes the threadId", ->
+      runs ->
+        DraftStore._onSendDraft(draftClientId)
+      waitsFor ->
+        DraftStore._doneWithSession.calls.length > 0
+      runs ->
+        expect(Actions.queueTask).toHaveBeenCalled()
+        task = Actions.queueTask.calls[0].args[0]
+        expect(task instanceof SendDraftTask).toBe true
+        expect(task.threadId).toBe "thread-123"
+
+    it "includes the replyToMessageId", ->
+      runs ->
+        DraftStore._onSendDraft(draftClientId)
+      waitsFor ->
+        DraftStore._doneWithSession.calls.length > 0
+      runs ->
+        expect(Actions.queueTask).toHaveBeenCalled()
+        task = Actions.queueTask.calls[0].args[0]
+        expect(task instanceof SendDraftTask).toBe true
+        expect(task.replyToMessageId).toBe "message-123"
+
     it "queues a SendDraftTask", ->
       runs ->
         DraftStore._onSendDraft(draftClientId)
@@ -754,20 +778,6 @@ describe "DraftStore", ->
         task = Actions.queueTask.calls[0].args[0]
         expect(task instanceof SendDraftTask).toBe true
         expect(task.draftClientId).toBe draftClientId
-        expect(task.fromPopout).toBe false
-
-    it "queues a SendDraftTask with popout info", ->
-      spyOn(NylasEnv, "getWindowType").andReturn "composer"
-      spyOn(NylasEnv, "isMainWindow").andReturn false
-      spyOn(NylasEnv, "close")
-      runs ->
-        DraftStore._onSendDraft(draftClientId)
-      waitsFor ->
-        DraftStore._doneWithSession.calls.length > 0
-      runs ->
-        expect(Actions.queueTask).toHaveBeenCalled()
-        task = Actions.queueTask.calls[0].args[0]
-        expect(task.fromPopout).toBe true
 
     it "resets the sending state if there's an error", ->
       spyOn(NylasEnv, "isMainWindow").andReturn false
@@ -778,17 +788,44 @@ describe "DraftStore", ->
 
     it "displays a popup in the main window if there's an error", ->
       spyOn(NylasEnv, "isMainWindow").andReturn true
+      spyOn(FocusedContentStore, "focused").andReturn(id: "t1")
       remote = require('remote')
       dialog = remote.require('dialog')
       spyOn(dialog, "showMessageBox")
+      spyOn(Actions, "composePopoutDraft")
       DraftStore._draftsSending[draftClientId] = true
-      Actions.draftSendingFailed({errorMessage: "boohoo", draftClientId})
+      Actions.draftSendingFailed({threadId: 't1', errorMessage: "boohoo", draftClientId})
       advanceClock(200)
       expect(DraftStore.isSendingDraft(draftClientId)).toBe false
       expect(DraftStore.trigger).toHaveBeenCalledWith(draftClientId)
       expect(dialog.showMessageBox).toHaveBeenCalled()
       dialogArgs = dialog.showMessageBox.mostRecentCall.args[1]
       expect(dialogArgs.detail).toEqual("boohoo")
+      expect(Actions.composePopoutDraft).not.toHaveBeenCalled
+
+    it "re-opens the draft if you're not looking at the thread", ->
+      spyOn(NylasEnv, "isMainWindow").andReturn true
+      spyOn(FocusedContentStore, "focused").andReturn(id: "t1")
+      spyOn(Actions, "composePopoutDraft")
+      DraftStore._draftsSending[draftClientId] = true
+      Actions.draftSendingFailed({threadId: 't2', errorMessage: "boohoo", draftClientId})
+      advanceClock(200)
+      expect(Actions.composePopoutDraft).toHaveBeenCalled
+      call = Actions.composePopoutDraft.calls[0]
+      expect(call.args[0]).toBe draftClientId
+      expect(call.args[1]).toEqual {errorMessage: "boohoo"}
+
+    it "re-opens the draft if there is no thread id", ->
+      spyOn(NylasEnv, "isMainWindow").andReturn true
+      spyOn(Actions, "composePopoutDraft")
+      DraftStore._draftsSending[draftClientId] = true
+      spyOn(FocusedContentStore, "focused").andReturn(null)
+      Actions.draftSendingFailed({errorMessage: "boohoo", draftClientId})
+      advanceClock(200)
+      expect(Actions.composePopoutDraft).toHaveBeenCalled
+      call = Actions.composePopoutDraft.calls[0]
+      expect(call.args[0]).toBe draftClientId
+      expect(call.args[1]).toEqual {errorMessage: "boohoo"}
 
   describe "session teardown", ->
     beforeEach ->

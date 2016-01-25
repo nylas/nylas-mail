@@ -26,6 +26,7 @@ FileUpload = require './file-upload'
 ImageFileUpload = require './image-file-upload'
 
 ComposerEditor = require './composer-editor'
+SendActionButton = require './send-action-button'
 ExpandedParticipants = require './expanded-participants'
 CollapsedParticipants = require './collapsed-participants'
 
@@ -111,7 +112,7 @@ class ComposerView extends React.Component
     @_applyFieldFocus()
 
   _keymapHandlers: ->
-    'composer:send-message': => @_sendDraft()
+    'composer:send-message': => @_onPrimarySend()
     'composer:delete-empty-draft': => @_deleteDraftIfEmpty()
     'composer:show-and-focus-bcc': =>
       @_onAdjustEnabledFields(show: [Fields.Bcc])
@@ -468,9 +469,9 @@ class ComposerView extends React.Component
 
       <div style={order: 0, flex: 1} />
 
-      <button className="btn btn-toolbar btn-emphasis btn-text btn-send" style={order: -100}
-              ref="sendButton"
-              onClick={@_sendDraft}><RetinaImg name="icon-composer-send.png" mode={RetinaImg.Mode.ContentIsMask} /><span className="text">Send</span></button>
+      <SendActionButton draft={@_proxy?.draft()}
+                        ref="sendActionButton"
+                        isValidDraft={@_isValidDraft} />
 
     </InjectedComponentSet>
 
@@ -687,14 +688,14 @@ class ComposerView extends React.Component
 
     @_saveToHistory(selections) unless source.fromUndoManager
 
-  _sendDraft: (options = {}) =>
-    return unless @_proxy
+  _isValidDraft: (options = {}) =>
+    return false unless @_proxy
 
     # We need to check the `DraftStore` because the `DraftStore` is
     # immediately and synchronously updated as soon as this function
     # fires. Since `setState` is asynchronous, if we used that as our only
     # check, then we might get a false reading.
-    return if DraftStore.isSendingDraft(@props.draftClientId)
+    return false if DraftStore.isSendingDraft(@props.draftClientId)
 
     draft = @_proxy.draft()
     remote = require('remote')
@@ -714,7 +715,7 @@ class ComposerView extends React.Component
         message: 'Cannot Send',
         detail: dealbreaker
       })
-      return
+      return false
 
     bodyIsEmpty = draft.body is @_proxy.draftPristineBody()
     forwarded = Utils.isForwardedMessage(draft)
@@ -744,10 +745,13 @@ class ComposerView extends React.Component
         detail: "Send #{warnings.join(' and ')}?"
       })
       if response is 0 # response is button array index
-        @_sendDraft({force: true})
-      return
+        return @_isValidDraft({force: true})
+      else return false
 
-    Actions.sendDraft(@props.draftClientId)
+    return true
+
+  _onPrimarySend: ->
+    @refs["sendActionButton"].primaryClick()
 
   _mentionsAttachment: (body) =>
     body = QuotedHTMLTransformer.removeQuotedHTML(body.toLowerCase().trim())

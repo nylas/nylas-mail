@@ -14,7 +14,7 @@ class NotFoundError extends Error
 module.exports =
 class SendDraftTask extends Task
 
-  constructor: (@draftClientId, {@fromPopout}={}) ->
+  constructor: (@draftClientId, {@threadId, @replyToMessageId}={}) ->
     super
 
   label: ->
@@ -161,7 +161,8 @@ class SendDraftTask extends Task
     return Promise.resolve([Task.Status.Failed, err])
 
   _notifyUserOfError: (msg) =>
-    if @fromPopout
-      Actions.composePopoutDraft(@draftClientId, {errorMessage: msg})
-    else
-      Actions.draftSendingFailed({draftClientId: @draftClientId, errorMessage: msg})
+    Actions.draftSendingFailed({
+      threadId: @threadId
+      draftClientId: @draftClientId,
+      errorMessage: msg
+    })

@@ -80,6 +80,12 @@ module.exports =
             enum: ['reply', 'reply-all']
             enumLabels: ['Reply', 'Reply All']
             title: "Default reply behavior"
+          defaultSendType:
+            type: 'string'
+            default: 'send'
+            enum: ['send', 'send-and-archive']
+            enumLabels: ['Send', 'Send and Archive']
+            title: "Default send behavior"
       notifications:
         type: 'object'
         properties:
