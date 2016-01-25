@@ -95,7 +95,7 @@ class Contenteditable extends React.Component
   Edits made within the editing function will eventually fire _onDOMMutated
   ###
   atomicEdit: (editingFunction, extraArgsObj={}) =>
-    @_teardownListeners()
+    @_teardownNonMutationListeners()
 
     editor = new EditorAPI(@_editableNode())
 
@@ -109,7 +109,7 @@ class Contenteditable extends React.Component
     catch error
       NylasEnv.emitError(error)
 
-    @_setupListeners()
+    @_setupNonMutationListeners()
 
   focus: => @_editableNode().focus()
 
@@ -135,7 +135,7 @@ class Contenteditable extends React.Component
 
   componentDidMount: =>
     @setInnerState editableNode: @_editableNode()
-    @_setupListeners()
+    @_setupNonMutationListeners()
     @_mutationObserver.observe(@_editableNode(), @_mutationConfig())
 
   # When we have a composition event in progress, we should not update
@@ -160,7 +160,7 @@ class Contenteditable extends React.Component
 
   componentWillUnmount: =>
     @_mutationObserver.disconnect()
-    @_teardownListeners()
+    @_teardownNonMutationListeners()
     @_teardownServices()
 
   setInnerState: (innerState={}) =>
@@ -252,12 +252,12 @@ class Contenteditable extends React.Component
     defaultKeymaps = {}
     return _.extend(defaultKeymaps, @_boundExtensionKeymapHandlers())
 
-  _setupListeners: =>
+  _setupNonMutationListeners: =>
     @_broadcastInnerStateToToolbar = true
     document.addEventListener("selectionchange", @_saveSelection)
     @_editableNode().addEventListener('contextmenu', @_onShowContextMenu)
 
-  _teardownListeners: =>
+  _teardownNonMutationListeners: =>
     @_broadcastInnerStateToToolbar = false
     document.removeEventListener("selectionchange", @_saveSelection)
     @_editableNode().removeEventListener('contextmenu', @_onShowContextMenu)
@@ -333,13 +333,19 @@ class Contenteditable extends React.Component
   # composition event starts. Without the `_inCompositionEvent` flag
   # stopping the re-render, the asynchronous update request will cause us
   # to re-render and blow away our newly started 2nd composition event.
+  #
+  # While we're in a composition event it's important that `_onDOMMutated`
+  # still get fired so the selection gets updated and the latest body
+  # saved for the next render. However, we want to disable any plugins
+  # since they may inadvertently kill the composition editor by mutating
+  # the DOM.
   _onCompositionStart: =>
     @_inCompositionEvent = true
-    @_teardownListeners()
+    @_teardownNonMutationListeners()
 
   _onCompositionEnd: =>
     @_inCompositionEvent = false
-    @_setupListeners()
+    @_setupNonMutationListeners()
 
   _onShowContextMenu: (event) =>
     @refs["toolbarController"]?.forceClose()
@@ -394,6 +400,7 @@ class Contenteditable extends React.Component
       @_runExtensionMethod(extension, method, argsObj)
 
   _runExtensionMethod: (extension, method, argsObj={}) =>
+    return if @_inCompositionEvent
     return if not extension[method]?
     editingFunction = extension[method].bind(extension)
     @atomicEdit(editingFunction, argsObj)
@@ -501,12 +508,12 @@ class Contenteditable extends React.Component
       previousExportedSelection: @innerState.exportedSelection
 
   _restoreSelection: =>
-    @_teardownListeners()
+    @_teardownNonMutationListeners()
     selection = new ExtendedSelection(@_editableNode())
     selection.importSelection(@innerState.exportedSelection)
     if selection.isInScope()
       @_onSelectionChanged(selection)
-    @_setupListeners()
+    @_setupNonMutationListeners()
 
   # When the component updates, the selection may have changed from our
   # last known saved position. This can happen for a couple of reasons:
