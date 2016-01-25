@@ -119,7 +119,7 @@ class Thread extends Model
   #
   categoryNamed: (name) -> return _.findWhere(@categories, {name})
 
-  sortedLabels: ->
+  sortedCategories: ->
     return [] unless @labels
     out = []
 

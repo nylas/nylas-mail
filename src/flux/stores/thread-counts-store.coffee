@@ -35,11 +35,9 @@ class CategoryDatabaseMutationObserver
       if type is 'persist'
         for thread in objects
           continue unless thread.unread
-          for collection in ['labels', 'folders']
-            if thread[collection]
-              for cat in thread[collection]
-                categories[cat.id] ?= 0
-                categories[cat.id] += 1
+          for cat in thread.categories
+            categories[cat.id] ?= 0
+            categories[cat.id] += 1
 
       for key, val of categories
         delete categories[key] if val is 0

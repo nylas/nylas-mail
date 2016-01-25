@@ -70,7 +70,7 @@ c3 = new ListTabular.Column
     ignoredIds = _.pluck(currentCategories, 'id')
     ignoredIds.push(cat.id) for cat in CategoryStore.hiddenCategories(account)
 
-    for label in (thread.sortedLabels())
+    for label in (thread.sortedCategories())
       continue if label.id in ignoredIds
       c3LabelComponentCache[label.id] ?= <MailLabel label={label} key={label.id} />
       labels.push c3LabelComponentCache[label.id]

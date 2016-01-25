@@ -2,7 +2,7 @@ _ = require 'underscore'
 Contact = require '../../../src/flux/models/contact'
 Message = require '../../../src/flux/models/message'
 Thread = require '../../../src/flux/models/thread'
-Label = require '../../../src/flux/models/label'
+Category = require '../../../src/flux/models/category'
 CategoryStore = require '../../../src/flux/stores/category-store'
 DatabaseStore = require '../../../src/flux/stores/database-store'
 AccountStore = require '../../../src/flux/stores/account-store'
@@ -14,17 +14,17 @@ describe "UnreadNotifications", ->
   beforeEach ->
     Main.activate()
 
-    inbox = new Label(id: "l1", name: "inbox", displayName: "Inbox")
-    archive = new Label(id: "l2", name: "archive", displayName: "Archive")
+    inbox = new Category(id: "l1", name: "inbox", displayName: "Inbox")
+    archive = new Category(id: "l2", name: "archive", displayName: "Archive")
 
     spyOn(CategoryStore, "getStandardCategory").andReturn inbox
 
     account = AccountStore.accounts()[0]
 
     @threadA = new Thread
-      labels: [inbox]
+      categories: [inbox]
     @threadB = new Thread
-      labels: [archive]
+      categories: [archive]
 
     @msg1 = new Message
       unread: true
