@@ -14,12 +14,13 @@ CategoryPicker = require '../lib/category-picker'
  TaskFactory,
  SyncbackCategoryTask,
  FocusedPerspectiveStore,
+ MailboxPerspective,
  NylasTestUtils,
  TaskQueueStatusStore} = require 'nylas-exports'
 
 {Categories} = require 'nylas-observables'
 
-describe 'CategoryPicker', ->
+fdescribe 'CategoryPicker', ->
   beforeEach ->
     CategoryStore._categoryCache = {}
 
@@ -34,9 +35,9 @@ describe 'CategoryPicker', ->
       usesFolders: -> organizationUnit isnt "label"
     }
 
-    @inboxCategory = new Category(id: 'id-123', name: 'inbox', displayName: "INBOX")
-    @archiveCategory = new Category(id: 'id-456', name: 'archive', displayName: "ArCHIVe")
-    @userCategory = new Category(id: 'id-789', name: null, displayName: "MyCategory")
+    @inboxCategory = new Category(id: 'id-123', name: 'inbox', displayName: "INBOX", accountId: TEST_ACCOUNT_ID)
+    @archiveCategory = new Category(id: 'id-456', name: 'archive', displayName: "ArCHIVe", accountId: TEST_ACCOUNT_ID)
+    @userCategory = new Category(id: 'id-789', name: null, displayName: "MyCategory", accountId: TEST_ACCOUNT_ID)
 
     spyOn(Categories, "forAccount").andReturn NylasTestUtils.mockObservable(
       [@inboxCategory, @archiveCategory, @userCategory]
@@ -46,13 +47,13 @@ describe 'CategoryPicker', ->
 
     # By default we're going to set to "inbox". This has implications for
     # what categories get filtered out of the list.
-    f = FocusedPerspectiveStore
-    f._setPerspective f._defaultPerspective(@account)
+    spyOn(FocusedPerspectiveStore, 'current').andCallFake =>
+      MailboxPerspective.forCategory(@inboxCategory)
 
   setupForCreateNew = (orgUnit = "folder") ->
     setupFor.call(@, orgUnit)
 
-    @testThread = new Thread(id: 't1', subject: "fake")
+    @testThread = new Thread(id: 't1', subject: "fake", accountId: TEST_ACCOUNT_ID)
     @picker = ReactTestUtils.renderIntoDocument(
       <CategoryPicker thread={@testThread} />
     )
@@ -68,7 +69,7 @@ describe 'CategoryPicker', ->
     beforeEach ->
       setupFor.call(@, "folder")
 
-      @testThread = new Thread(id: 't1', subject: "fake")
+      @testThread = new Thread(id: 't1', subject: "fake", accountId: TEST_ACCOUNT_ID)
       @picker = ReactTestUtils.renderIntoDocument(
         <CategoryPicker thread={@testThread} />
       )
@@ -77,11 +78,15 @@ describe 'CategoryPicker', ->
       data = @picker.state.categoryData
       # NOTE: The inbox category is not included here because it's the
       # currently focused category, which gets filtered out of the list.
+      expect(data.length).toBe 3
+
       expect(data[0].id).toBe "id-456"
       expect(data[0].name).toBe "archive"
       expect(data[0].category).toBe @archiveCategory
+
       expect(data[1].divider).toBe true
       expect(data[1].id).toBe "category-divider"
+
       expect(data[2].id).toBe "id-789"
       expect(data[2].name).toBeUndefined()
       expect(data[2].category).toBe @userCategory
@@ -178,7 +183,7 @@ describe 'CategoryPicker', ->
             resolveSave = resolve
 
         spyOn(DatabaseStore, "findBy").andCallFake (klass, {clientId}) ->
-          expect(klass).toBe(Folder)
+          expect(klass).toBe(Category)
           expect(typeof clientId).toBe("string")
           Promise.resolve(category)
 

@@ -2,8 +2,7 @@ _ = require 'underscore'
 React = require 'react'
 
 {Utils,
- Label,
- Folder,
+ Category,
  Thread,
  Actions,
  TaskQueue,
