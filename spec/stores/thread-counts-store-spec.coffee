@@ -3,8 +3,7 @@ DatabaseStore = require '../../src/flux/stores/database-store'
 DatabaseTransaction = require '../../src/flux/stores/database-transaction'
 ThreadCountsStore = require '../../src/flux/stores/thread-counts-store'
 Thread = require '../../src/flux/models/thread'
-Folder = require '../../src/flux/models/folder'
-Label = require '../../src/flux/models/label'
+Category = require '../../src/flux/models/category'
 Matcher = require '../../src/flux/attributes/matcher'
 WindowBridge = require '../../src/window-bridge'
 
@@ -66,10 +65,10 @@ describe "ThreadCountsStore", ->
   describe "_fetchCountsMissing", ->
     beforeEach ->
       ThreadCountsStore._categories = [
-        new Label(id: "l1", name: "inbox", displayName: "Inbox", accountId: 'a1'),
-        new Label(id: "l2", name: "archive", displayName: "Archive", accountId: 'a1'),
-        new Label(id: "l3", displayName: "Happy Days", accountId: 'a1'),
-        new Label(id: "l4", displayName: "Sad Days", accountId: 'a1')
+        new Category(id: "l1", name: "inbox", displayName: "Inbox", accountId: 'a1'),
+        new Category(id: "l2", name: "archive", displayName: "Archive", accountId: 'a1'),
+        new Category(id: "l3", displayName: "Happy Days", accountId: 'a1'),
+        new Category(id: "l4", displayName: "Sad Days", accountId: 'a1')
       ]
       ThreadCountsStore._deltas =
         l1: 10
@@ -138,23 +137,15 @@ describe "ThreadCountsStore", ->
           expect(ThreadCountsStore._fetchCountsMissing).not.toHaveBeenCalled()
 
   describe "_fetchCountForCategory", ->
-    it "should make the appropriate label or folder database query", ->
+    it "should make the appropriate category database query", ->
       spyOn(DatabaseStore, 'count')
       Matcher.muid = 0
-      ThreadCountsStore._fetchCountForCategory(new Label(id: 'l1', accountId: 'a1'))
+      ThreadCountsStore._fetchCountForCategory(new Category(id: 'l1', accountId: 'a1'))
       Matcher.muid = 0
       expect(DatabaseStore.count).toHaveBeenCalledWith(Thread, [
+        Thread.attributes.categories.contains('l1'),
         Thread.attributes.accountId.equal('a1'),
         Thread.attributes.unread.equal(true),
-        Thread.attributes.labels.contains('l1')
-      ])
-      Matcher.muid = 0
-      ThreadCountsStore._fetchCountForCategory(new Folder(id: 'l1', accountId: 'a1'))
-      Matcher.muid = 0
-      expect(DatabaseStore.count).toHaveBeenCalledWith(Thread, [
-        Thread.attributes.accountId.equal('a1'),
-        Thread.attributes.unread.equal(true),
-        Thread.attributes.folders.contains('l1')
       ])
 
   describe "_saveCounts", ->
@@ -185,23 +176,25 @@ describe "ThreadCountsStore", ->
 
 describe "CategoryDatabaseMutationObserver", ->
   beforeEach ->
-    @label1 = new Label(id: "l1", name: "inbox", displayName: "Inbox")
-    @label2 = new Label(id: "l2", name: "archive", displayName: "Archive")
-    @label3 = new Label(id: "l3", displayName: "Happy Days")
-    @label4 = new Label(id: "l4", displayName: "Sad Days")
+    @category1 = new Category(id: "l1", name: "inbox", displayName: "Inbox")
+    @category2 = new Category(id: "l2", name: "archive", displayName: "Archive")
+    @category3 = new Category(id: "l3", displayName: "Happy Days")
+    @category4 = new Category(id: "l4", displayName: "Sad Days")
 
+    # Values here are the "after" state. Below, the spy on the query returns the
+    # "current" state.
     @threadA = new Thread
       id: "A"
       unread: true
-      labels: [@label1, @label4]
+      categories: [@category1, @category4]
     @threadB = new Thread
       id: "B"
       unread: true
-      labels: [@label3]
+      categories: [@category3]
     @threadC = new Thread
       id: "C"
       unread: false
-      labels: [@label1, @label3]
+      categories: [@category1, @category3]
 
   describe "given a set of modifying models", ->
     scenarios = [{
@@ -220,7 +213,7 @@ describe "CategoryDatabaseMutationObserver", ->
         }
       }]
     scenarios.forEach ({type, expected}) ->
-      it "should call countsDidChange with the folder / label membership deltas (#{type})", ->
+      it "should call countsDidChange with the category membership deltas (#{type})", ->
         queryResolves = []
         query = jasmine.createSpy('query').andCallFake =>
           new Promise (resolve, reject) ->
@@ -235,16 +228,14 @@ describe "CategoryDatabaseMutationObserver", ->
           objectIds: [@threadA.id, @threadB.id, @threadC.id]
           objectClass: Thread.name
         })
-        expect(query.callCount).toBe(2)
-        expect(query.calls[0].args[0]).toEqual("SELECT `Thread`.id as id, `Thread-Label`.`value` as catId FROM `Thread` INNER JOIN `Thread-Label` ON `Thread`.`id` = `Thread-Label`.`id` WHERE `Thread`.id IN ('A','B','C') AND `Thread`.unread = 1")
-        expect(query.calls[1].args[0]).toEqual("SELECT `Thread`.id as id, `Thread-Folder`.`value` as catId FROM `Thread` INNER JOIN `Thread-Folder` ON `Thread`.`id` = `Thread-Folder`.`id` WHERE `Thread`.id IN ('A','B','C') AND `Thread`.unread = 1")
+        expect(query.callCount).toBe(1)
+        expect(query.calls[0].args[0]).toEqual("SELECT `Thread`.id as id, `Thread-Category`.`value` as catId FROM `Thread` INNER JOIN `Thread-Category` ON `Thread`.`id` = `Thread-Category`.`id` WHERE `Thread`.id IN ('A','B','C') AND `Thread`.unread = 1")
         queryResolves[0]([
-          {id: @threadA.id, catId: @label1.id},
-          {id: @threadA.id, catId: @label3.id},
-          {id: @threadB.id, catId: @label2.id},
-          {id: @threadB.id, catId: @label3.id},
+          {id: @threadA.id, catId: @category1.id},
+          {id: @threadA.id, catId: @category3.id},
+          {id: @threadB.id, catId: @category2.id},
+          {id: @threadB.id, catId: @category3.id},
         ])
-        queryResolves[1]([])
 
         waitsForPromise =>
           beforePromise.then (result) =>
