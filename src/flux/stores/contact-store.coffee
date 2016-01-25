@@ -38,8 +38,11 @@ class ContactStore extends NylasStore
   constructor: ->
     if NylasEnv.isMainWindow() or NylasEnv.inSpecMode()
       @_contactCache = []
-      @listenTo ContactRankingStore, @_sortContactsCacheWithRankings
+      @_registerListeners()
       @_registerObservables()
+
+  _registerListeners: ->
+    @listenTo ContactRankingStore, @_sortContactsCacheWithRankings
 
   _registerObservables: =>
     # TODO I'm a bit worried about how big a cache this might be
