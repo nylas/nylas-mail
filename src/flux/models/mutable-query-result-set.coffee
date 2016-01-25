@@ -9,6 +9,7 @@ class MutableQueryResultSet extends QueryResultSet
     set = new QueryResultSet({
       _ids: [].concat(@_ids)
       _modelsHash: _.extend({}, @_modelsHash)
+      _query: @_query
       _offset: @_offset
     })
     Object.freeze(set)
@@ -69,5 +70,9 @@ class MutableQueryResultSet extends QueryResultSet
     delete @_modelsHash[item.clientId]
     delete @_modelsHash[item.id]
     @_ids.splice(idx, 1)
+
+  setQuery: (query) ->
+    @_query = query.clone()
+    @_query.finalize()
 
 module.exports = MutableQueryResultSet

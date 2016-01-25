@@ -22,7 +22,7 @@ class ObservableListDataSource extends ListDataSource
     @_resultSet = null
     @_resultDesiredLast = null
 
-    $resultSetObservable.subscribe (nextResultSet) =>
+    @_subscription = $resultSetObservable.subscribe (nextResultSet) =>
       if nextResultSet.range().end is @_resultDesiredLast
         @_countEstimate = Math.max(@_countEstimate, nextResultSet.range().end + 1)
       else
@@ -31,7 +31,12 @@ class ObservableListDataSource extends ListDataSource
       previousResultSet = @_resultSet
       @_resultSet = nextResultSet
 
-      @selection.updateModelReferences(@_resultSet.models())
+      # If the result set is derived from a query, remove any items in the selection
+      # that do not match the query. This ensures that items "removed from the view"
+      # are removed from the selection.
+      query = nextResultSet.query()
+      @selection.removeItemsNotMatching(query.matchers()) if query
+
       @trigger({previous: previousResultSet, next: nextResultSet})
 
   setRetainedRange: ({start, end}) ->
@@ -63,6 +68,10 @@ class ObservableListDataSource extends ListDataSource
   itemsCurrentlyInViewMatching: (matchFn) ->
     return [] unless @_resultSet
     @_resultSet.models().filter(matchFn)
+
+  cleanup: ->
+    @_subscription?.dispose()
+    super
 
 
 module.exports = ObservableListDataSource

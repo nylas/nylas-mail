@@ -54,34 +54,43 @@ describe "ListSelection", ->
 
   describe "remove", ->
     beforeEach ->
-      @selection.set([@items[2], @items[4]])
+      @selection.set([@items[2], @items[4], @items[7]])
 
     it "should do nothing if called without a valid item", ->
       @selection.remove(null)
       @selection.remove(undefined)
       @selection.remove(false)
-      expect(@selection.ids()).toEqual(['2', '4'])
+      expect(@selection.ids()).toEqual(['2', '4', '7'])
 
     it "should remove the item from the set", ->
       @selection.remove(@items[2])
-      expect(@selection.ids()).toEqual(['4'])
+      expect(@selection.ids()).toEqual(['4', '7'])
 
-    it "should throw an exception if the item passed is not a model", ->
+    it "should throw an exception if any item passed is not a model", ->
       expect( => @selection.remove('hi')).toThrow()
+
+    it "should accept an array of models as well as a single item", ->
+      @selection.remove([@items[2], @items[4]])
+      expect(@selection.ids()).toEqual(['7'])
 
     it "should trigger", ->
       @selection.remove()
       expect(@trigger).toHaveBeenCalled()
 
-  describe "updateModelReferences", ->
+  describe "_applyChangeRecord", ->
     it "should replace items in the selection with the matching provided items, if present", ->
       @selection.set([@items[2], @items[4], @items[7]])
       expect(@selection.items()[0]).toBe(@items[2])
-
       expect(@selection.items()[0].subject).toBe(undefined)
       newItem2 = new Thread(id: '2', subject:'Hello world!')
-      @selection.updateModelReferences([newItem2])
+      @selection._applyChangeRecord({objectClass: 'Thread', objects: [newItem2], type: 'persist'})
       expect(@selection.items()[0].subject).toBe('Hello world!')
+
+    it "should rremove items in the selection if type is unpersist", ->
+      @selection.set([@items[2], @items[4], @items[7]])
+      newItem2 = new Thread(id: '2', subject:'Hello world!')
+      @selection._applyChangeRecord({objectClass: 'Thread', objects: [newItem2], type: 'unpersist'})
+      expect(@selection.ids()).toEqual(['4', '7'])
 
   describe "toggle", ->
     beforeEach ->

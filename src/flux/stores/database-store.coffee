@@ -89,6 +89,9 @@ class DatabaseStore extends NylasStore
     @_open = false
     @_waiting = []
 
+    @setupEmitter()
+    @_emitter.setMaxListeners(100)
+
     if NylasEnv.inSpecMode()
       @_databasePath = path.join(NylasEnv.getConfigDirPath(),'edgehill.test.db')
     else
