@@ -145,10 +145,6 @@ class Task
   @Status: TaskStatus
   @DebugStatus: TaskDebugStatus
 
-  # A constant that can be returned by `onDependentTaskError` to prevent
-  # this task from being dequeued
-  @DO_NOT_DEQUEUE_ME = "DO_NOT_DEQUEUE_ME"
-
   # Public: Override the constructor to pass initial args to your Task and
   # initialize instance variables.
   #
@@ -454,27 +450,6 @@ class Task
   #
   # Returns `true` (is dependent on) or `false` (is not dependent on)
   isDependentTask: (other) -> false
-
-  # Public: called when a dependency errors out
-  #
-  # - `task` An instance of the dependent {Task} that errored.
-  # - `err` The Error object (if any)
-  #
-  # If a dependent task (anything for which {Task::isDependentTask} returns
-  # true) resolves with `Task.Status.Failed`, then this method will be
-  # called.
-  #
-  # This is an opportunity to cleanup or notify users of the error.
-  #
-  # By default, since a dependency failed, **this task will be dequeued**
-  #
-  # However, if you return the special `Task.DO_NOT_DEQUEUE_ME` constant,
-  # this task will not get dequeued and processed in turn.
-  #
-  # Returns if you return the `Task.DO_NOT_DEQUEUE_ME` constant, then this
-  # task will not get dequeued. Any other return value (including `false`)
-  # will proceed with the default behavior and dequeue this task.
-  onDependentTaskError: (task, err) ->
 
   # Public: determines which other tasks this one should dequeue.
   #

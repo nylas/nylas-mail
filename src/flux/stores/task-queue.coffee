@@ -203,12 +203,9 @@ class TaskQueue
     responses = _.filter responses, (r) -> r?
 
     responses.forEach (resp) =>
-      if resp.returnValue is Task.DO_NOT_DEQUEUE_ME
-        return
-      else
-        resp.downstreamTask.queueState.status = Task.Status.Continue
-        resp.downstreamTask.queueState.debugStatus = Task.DebugStatus.DequeuedDependency
-        @dequeue(resp.downstreamTask)
+      resp.downstreamTask.queueState.status = Task.Status.Continue
+      resp.downstreamTask.queueState.debugStatus = Task.DebugStatus.DequeuedDependency
+      @dequeue(resp.downstreamTask)
 
   # Recursively notifies tasks of dependent errors
   _notifyOfDependentError: (failedTask, err) ->

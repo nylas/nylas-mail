@@ -512,16 +512,8 @@ class DraftStore
       # We do, however, need to ensure that all of the pending changes are
       # committed to the Database since we'll look them up again just
       # before send.
-      session.changes.commit(force: true, noSyncback: true).then =>
-        draft = session.draft()
-        # We unfortunately can't give the SendDraftTask the raw draft JSON
-        # data because there may still be pending tasks (like a
-        # {FileUploadTask}) that will continue to update the draft data.
-        opts =
-          threadId: draft.threadId
-          replyToMessageId: draft.replyToMessageId
-
-        task = new SendDraftTask(draftClientId, opts)
+      session.changes.commit(noSyncback: true).then =>
+        task = new SendDraftTask(session.draft())
         Actions.queueTask(task)
 
         # NOTE: We may be done with the session in this window, but there

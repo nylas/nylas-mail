@@ -31,11 +31,6 @@ class SyncbackDraftTask extends Task
     other.draftClientId is @draftClientId and
     other.creationDate <= @creationDate
 
-  # We want to wait for other SyncbackDraftTasks to run, but we don't want
-  # to get dequeued if they fail.
-  onDependentTaskError: ->
-    return Task.DO_NOT_DEQUEUE_ME
-
   performLocal: ->
     # SyncbackDraftTask does not do anything locally. You should persist your changes
     # to the local database directly or using a DraftStoreProxy, and then queue a
@@ -120,15 +115,14 @@ class SyncbackDraftTask extends Task
       DestroyDraftTask = require './destroy-draft'
       destroy = new DestroyDraftTask(draftId: existingAccountDraft.id)
       promise = TaskQueueStatusStore.waitForPerformLocal(destroy).then =>
-        @detatchFromRemoteID(existingAccountDraft, acct.id).then (newAccountDraft) =>
-          Promise.resolve(newAccountDraft)
+        @cloneIntoAccount(existingAccountDraft, acct.id)
       Actions.queueTask(destroy)
       return promise
 
-  detatchFromRemoteID: (draft, newAccountId = null) ->
+  cloneIntoAccount: (draft, accountId) ->
     return Promise.resolve() unless draft
     newDraft = new Message(draft)
-    newDraft.accountId = newAccountId if newAccountId
+    newDraft.accountId = accountId
 
     delete newDraft.serverId
     delete newDraft.version
