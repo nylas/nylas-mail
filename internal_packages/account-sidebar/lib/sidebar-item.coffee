@@ -8,7 +8,7 @@ _ = require 'underscore'
 
 
 idForCategories = (categories) ->
-  categories.map((cat) -> cat.id).join('-')
+  _.pluck(categories, 'id').join('-')
 
 countForItem = (perspective) ->
   unreadCountEnabled = NylasEnv.config.get('core.workspace.showUnreadForAllCategories')
