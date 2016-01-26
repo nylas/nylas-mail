@@ -94,7 +94,6 @@ class NylasExports
   # we know how to deserialized saved or IPC-sent tasks.
   @require "EventRSVPTask", 'flux/tasks/event-rsvp'
   @require "SendDraftTask", 'flux/tasks/send-draft'
-  @require "FileUploadTask", 'flux/tasks/file-upload-task'
   @require "DestroyDraftTask", 'flux/tasks/destroy-draft'
   @require "ChangeMailTask", 'flux/tasks/change-mail-task'
   @require "ChangeLabelsTask", 'flux/tasks/change-labels-task'

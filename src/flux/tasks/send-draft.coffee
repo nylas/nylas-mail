@@ -12,7 +12,7 @@ DatabaseStore = require '../stores/database-store'
 
 class MultiRequestProgressMonitor
 
-  constructor: =>
+  constructor: ->
     @_requests = {}
     @_expected = {}
 
@@ -72,7 +72,7 @@ class SendDraftTask extends Task
         started: (req) =>
           @_progress.add(filepath, req)
         timeout: 20 * 60 * 1000
-      .finally: =>
+      .finally =>
         @_progress.remove(filepath)
       .then (file) =>
         @draft.files.push(file)
