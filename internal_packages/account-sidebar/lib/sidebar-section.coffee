@@ -34,7 +34,7 @@ class SidebarSection
       .map (cat) => SidebarItem.forCategories([cat])
 
     starredItem = SidebarItem.forStarred([account.id])
-    draftsItem = SidebarItem.forDrafts({accountId: account.id})
+    draftsItem = SidebarItem.forDrafts([account.id])
 
     # Order correctly: Inbox, Starred, rest... , Drafts
     items.splice(1, 0, starredItem)

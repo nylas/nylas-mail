@@ -24,16 +24,16 @@ class DraftList extends React.Component
       <FocusContainer collection="draft">
         <MultiselectList
           columns={DraftListColumns.Wide}
-          commands={@_keymapHandlers()}
           onDoubleClick={@_onDoubleClick}
           emptyComponent={EmptyState}
+          keymapHandlers={@_keymapHandlers()}
           itemPropsProvider={ -> {} }
           itemHeight={39}
           className="draft-list" />
       </FocusContainer>
     </FluxContainer>
 
-  _keymapHandlers: ->
+  _keymapHandlers: =>
     'core:remove-from-view': @_onRemoveFromView
 
   _onDoubleClick: (item) =>
