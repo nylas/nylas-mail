@@ -219,17 +219,13 @@ describe "TaskQueue", ->
       expect(task.queueState.isProcessing).toBe true
 
   describe "handling task runRemote task errors", ->
-    spyAACallback = jasmine.createSpy("onDependentTaskError")
     spyBBRemote = jasmine.createSpy("performRemote")
-    spyBBCallback = jasmine.createSpy("onDependentTaskError")
     spyCCRemote = jasmine.createSpy("performRemote")
-    spyCCCallback = jasmine.createSpy("onDependentTaskError")
 
     beforeEach ->
       testError = new Error("Test Error")
       @testError = testError
       class TaskAA extends Task
-        onDependentTaskError: spyAACallback
         performRemote: ->
           # We reject instead of `throw` because jasmine thinks this
           # `throw` is in the context of the test instead of the context
@@ -238,22 +234,12 @@ describe "TaskQueue", ->
 
       class TaskBB extends Task
         isDependentTask: (other) -> other instanceof TaskAA
-        onDependentTaskError: spyBBCallback
         performRemote: spyBBRemote
-
-      class TaskCC extends Task
-        isDependentTask: (other) -> other instanceof TaskBB
-        onDependentTaskError: (task, err) ->
-          spyCCCallback(task, err)
-          return Task.DO_NOT_DEQUEUE_ME
-        performRemote: spyCCRemote
 
       @taskAA = new TaskAA
       @taskAA.queueState.localComplete = true
       @taskBB = new TaskBB
       @taskBB.queueState.localComplete = true
-      @taskCC = new TaskCC
-      @taskCC.queueState.localComplete = true
 
       spyOn(TaskQueue, 'trigger')
 
@@ -267,30 +253,3 @@ describe "TaskQueue", ->
           expect(TaskQueue.dequeue).toHaveBeenCalledWith(@taskAA)
           expect(spyAACallback).not.toHaveBeenCalled()
           expect(@taskAA.queueState.remoteError.message).toBe "Test Error"
-
-    it "calls `onDependentTaskError` on dependent tasks", ->
-      spyOn(TaskQueue, 'dequeue').andCallThrough()
-      TaskQueue._queue = [@taskAA, @taskBB, @taskCC]
-      waitsForPromise =>
-        TaskQueue._processTask(@taskAA).then =>
-          expect(TaskQueue.dequeue.calls.length).toBe 2
-          # NOTE: The recursion goes depth-first. The leafs are called
-          # first
-          expect(TaskQueue.dequeue.calls[0].args[0]).toBe @taskBB
-          expect(TaskQueue.dequeue.calls[1].args[0]).toBe @taskAA
-          expect(spyAACallback).not.toHaveBeenCalled()
-          expect(spyBBCallback).toHaveBeenCalledWith(@taskAA, @testError)
-          expect(@taskAA.queueState.remoteError.message).toBe "Test Error"
-          expect(@taskBB.queueState.status).toBe Task.Status.Continue
-          expect(@taskBB.queueState.debugStatus).toBe Task.DebugStatus.DequeuedDependency
-
-    it "dequeues all dependent tasks except those that return `Task.DO_NOT_DEQUEUE_ME` from their callbacks", ->
-      spyOn(TaskQueue, 'dequeue').andCallThrough()
-      TaskQueue._queue = [@taskAA, @taskBB, @taskCC]
-      waitsForPromise =>
-        TaskQueue._processTask(@taskAA).then =>
-          expect(TaskQueue._queue).toEqual [@taskCC]
-          expect(spyCCCallback).toHaveBeenCalledWith(@taskBB, @testError)
-          expect(@taskCC.queueState.status).toBe null
-          expect(@taskCC.queueState.debugStatus).toBe Task.DebugStatus.JustConstructed
-
