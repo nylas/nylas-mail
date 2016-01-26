@@ -86,7 +86,7 @@ class FileUploadStore extends NylasStore
       throw new Error "You need to pass the ID of the message (draft) this Action refers to"
 
   _getFileStats: ({messageClientId, filePath}) ->
-    fs.stat originPath, (err, stats) =>
+    fs.stat filePath, (err, stats) =>
       if err
         reject("#{filePath} could not be found, or has invalid file permissions.")
       else
