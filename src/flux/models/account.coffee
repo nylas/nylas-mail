@@ -81,7 +81,7 @@ class Account extends Model
   meUsingAlias: (alias) ->
     Contact = require './contact'
     return @me() unless alias
-    return Contact.fromString(alias)
+    return Contact.fromString(alias, accountId: @id)
 
   usesLabels: ->
     @organizationUnit is "label"

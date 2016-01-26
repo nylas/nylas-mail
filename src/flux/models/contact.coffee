@@ -63,7 +63,7 @@ class Contact extends Model
     setup: ->
       ['CREATE INDEX IF NOT EXISTS ContactEmailIndex ON Contact(account_id,email)']
 
-  @fromString: (string) ->
+  @fromString: (string, {accountId} = {}) ->
     emailRegex = RegExpUtils.emailRegex()
     match = emailRegex.exec(string)
     if emailRegex.exec(string)
@@ -73,7 +73,7 @@ class Contact extends Model
     name = name[0...-1] if name[name.length - 1] in ['<', '(']
     name = name.trim()
     return new Contact
-      accountId: undefined
+      accountId: accountId
       name: name
       email: email
 

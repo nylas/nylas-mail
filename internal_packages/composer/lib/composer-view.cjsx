@@ -62,10 +62,11 @@ class ComposerView extends React.Component
       to: []
       cc: []
       bcc: []
+      from: []
       body: ""
       files: []
       subject: ""
-      account: null
+      accounts: []
       focusedField: Fields.To # Gets updated in @_initiallyFocusedField
       enabledFields: [] # Gets updated in @_initiallyEnabledFields
       showQuotedText: false
@@ -223,7 +224,7 @@ class ComposerView extends React.Component
           from={@state.from}
           ref="expandedParticipants"
           mode={@props.mode}
-          account={@state.account}
+          accounts={@state.accounts}
           focusedField={@state.focusedField}
           enabledFields={@state.enabledFields}
           onPopoutComposer={@_onPopoutComposer}
@@ -529,7 +530,7 @@ class ComposerView extends React.Component
       body: draft.body
       files: draft.files
       subject: draft.subject
-      account: AccountStore.accountForId(draft.accountId)
+      accounts: @_getAccounts()
 
     if !@state.populated
       _.extend state,
@@ -576,21 +577,25 @@ class ComposerView extends React.Component
     enabledFields.push Fields.Body
     return enabledFields
 
+  _getAccounts: =>
+    if @props.mode is 'inline'
+      [AccountStore.accountForId(@_proxy.draft().accountId)]
+    else
+      AccountStore.accounts()
+
   # When the account store changes, the From field may or may not still
   # be in scope. We need to make sure to update our enabled fields.
   _onAccountStoreChanged: =>
+    accounts = @_getAccounts()
     enabledFields = if @_shouldShowFromField(@_proxy?.draft())
       @state.enabledFields.concat [Fields.From]
     else
       _.without(@state.enabledFields, Fields.From)
-    account = AccountStore.accountForId @_proxy?.draft().accountId
-    @setState {enabledFields, account}
+    @setState {enabledFields, accounts}
 
   _shouldShowFromField: (draft) =>
-    return false unless draft
-    account = AccountStore.accountForId(draft.accountId)
-    return false unless account
-    return account.aliases.length > 0
+    return true if draft
+    return false
 
   _shouldEnableSubject: =>
     return false unless @_proxy

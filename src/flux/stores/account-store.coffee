@@ -116,6 +116,21 @@ class AccountStore
   accountForId: (id) =>
     _.findWhere(@_accounts, {id})
 
+  aliases: () =>
+    aliases = []
+    for acc in @_accounts
+      aliases.push(acc.me())
+      for alias in acc.aliases
+        aliasContact = acc.meUsingAlias(alias)
+        aliasContact.isAlias = true
+        aliases.push(aliasContact)
+    return aliases
+
+  aliasesFor: (accountsOrIds) =>
+    ids = accountsOrIds.map (accOrId) ->
+      if accOrId instanceof Account then accOrId.id else accOrId
+    @aliases().filter((contact) -> contact.accountId in ids)
+
   # Public: Returns the currently active {Account}.
   current: =>
     throw new Error("I can't haz the account")
