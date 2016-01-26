@@ -33,8 +33,6 @@ class FocusedPerspectiveStore extends NylasStore
 
   _onFocusPerspective: (perspective) =>
     return if perspective.isEqual(@_current)
-    if WorkspaceStore.Sheet.Threads
-      Actions.selectRootSheet(WorkspaceStore.Sheet.Threads)
     @_setPerspective(perspective)
 
   _onFocusAccounts: (accountsOrIds) =>

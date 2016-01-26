@@ -9,11 +9,10 @@ NylasStore = require 'nylas-store'
  FocusedContentStore,
  TaskQueueStatusStore,
  FocusedPerspectiveStore} = require 'nylas-exports'
+{ListTabular} = require 'nylas-component-kit'
 
 ThreadListDataSource = require './thread-list-data-source'
 
-# Public: A mutable text container with undo/redo support and the ability
-# to annotate logical regions in the text.
 class ThreadListStore extends NylasStore
   constructor: ->
     @listenTo FocusedPerspectiveStore, @_onPerspectiveChanged
@@ -23,18 +22,22 @@ class ThreadListStore extends NylasStore
     @_dataSource
 
   createListDataSource: =>
-    mailboxPerspective = FocusedPerspectiveStore.current()
-    @_dataSource = new ThreadListDataSource(mailboxPerspective.threads())
-
     @_dataSourceUnlisten?()
-    @_dataSourceUnlisten = @_dataSource.listen(@_onDataChanged, @)
+    @_dataSource = null
 
-    # Set up a one-time listener to focus an item in the new view
-    if WorkspaceStore.layoutMode() is 'split'
-      unlisten = @_dataSource.listen =>
-        if @_dataSource.loaded()
-          Actions.setFocus(collection: 'thread', item: @_dataSource.get(0))
-          unlisten()
+    threadsSubscription = FocusedPerspectiveStore.current().threads()
+    if threadsSubscription
+      @_dataSource = new ThreadListDataSource(threadsSubscription)
+      @_dataSourceUnlisten = @_dataSource.listen(@_onDataChanged, @)
+
+      # Set up a one-time listener to focus an item in the new view
+      if WorkspaceStore.layoutMode() is 'split'
+        unlisten = @_dataSource.listen =>
+          if @_dataSource.loaded()
+            Actions.setFocus(collection: 'thread', item: @_dataSource.get(0))
+            unlisten()
+    else
+      @_dataSource = new ListTabular.DataSource.Empty()
 
     @trigger(@)
     Actions.setFocus(collection: 'thread', item: null)

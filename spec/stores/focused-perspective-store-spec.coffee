@@ -40,7 +40,7 @@ describe "FocusedPerspectiveStore", ->
       expect(FocusedPerspectiveStore.current().categories()).toEqual([@inboxCategory])
 
   describe "_onFocusPerspective", ->
-    it "should focus the category and trigger when Actions.focusCategory is called", ->
+    it "should focus the category and trigger", ->
       FocusedPerspectiveStore._onFocusPerspective(@userFilter)
       expect(FocusedPerspectiveStore.trigger).toHaveBeenCalled()
       expect(FocusedPerspectiveStore.current().categories()).toEqual([@userCategory])

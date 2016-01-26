@@ -74,9 +74,8 @@ class SidebarSection
     starredItem = SidebarItem.forStarred(_.pluck(accounts, 'id'),
       children: accounts.map (acc) -> SidebarItem.forStarred([acc.id], name: acc.label)
     )
-    draftsItem = SidebarItem.forDrafts(
-      children: accounts.map (acc) ->
-        SidebarItem.forDrafts(accountId: acc.id, name: acc.label)
+    draftsItem = SidebarItem.forDrafts(_.pluck(accounts, 'id'),
+      children: accounts.map (acc) -> SidebarItem.forDrafts([acc.id], name: acc.label)
     )
 
     # Order correctly: Inbox, Starred, rest... , Drafts

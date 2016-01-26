@@ -5,7 +5,8 @@ Message = require '../models/message'
 QuerySubscriptionPool = require '../models/query-subscription-pool'
 QuerySubscription = require '../models/query-subscription'
 MutableQuerySubscription = require '../models/mutable-query-subscription'
-ListDataSource = require './list-data-source'
+
+{ListTabular} = require 'nylas-component-kit'
 
 ###
 This class takes an observable which vends QueryResultSets and adapts it so that
@@ -14,7 +15,7 @@ you can make it the data source of a MultiselectList.
 When the MultiselectList is refactored to take an Observable, this class should
 go away!
 ###
-class ObservableListDataSource extends ListDataSource
+class ObservableListDataSource extends ListTabular.DataSource
 
   constructor: ($resultSetObservable, @_setRetainedRange) ->
     super

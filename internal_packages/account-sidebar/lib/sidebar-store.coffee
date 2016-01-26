@@ -3,7 +3,6 @@ _ = require 'underscore'
 {Actions,
  AccountStore,
  ThreadCountsStore,
- DraftCountStore,
  WorkspaceStore,
  FocusedPerspectiveStore,
  CategoryStore} = require 'nylas-exports'
@@ -44,8 +43,8 @@ class SidebarStore extends NylasStore
     @listenTo AccountStore, @_updateSections
     @listenTo WorkspaceStore, @_updateSections
     @listenTo ThreadCountsStore, @_updateSections
-    @listenTo DraftCountStore, @_updateSections
     @listenTo CategoryStore, @_updateSections
+
     @configSubscription = NylasEnv.config.observe(
       'core.workspace.showUnreadForAllCategories',
       @_updateSections
