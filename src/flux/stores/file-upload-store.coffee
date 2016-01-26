@@ -1,6 +1,8 @@
 _ = require 'underscore'
 fs = require 'fs'
-Reflux = require 'reflux'
+path = require 'path'
+mkdirp = require 'mkdirp'
+NylasStore = require 'nylas-store'
 Actions = require '../actions'
 FileUploadTask = require '../tasks/file-upload-task'
 
@@ -12,49 +14,63 @@ FileUploadTasks run.
 Instead, this store should observe the TaskQueueStatusStore and inspect
 FileUploadTasks themselves for state at any given moment. Refactor this!
 ###
-module.exports =
-FileUploadStore = Reflux.createStore
-  init: ->
-    # From Views
-    @listenTo Actions.attachFile, @_onAttachFile
-    @listenTo Actions.attachFilePath, @_onAttachFilePath
-    @listenTo Actions.abortUpload, @_onAbortUpload
 
-    # From Tasks
-    @listenTo Actions.uploadStateChanged, @_onUploadStateChanged
-    @listenTo Actions.linkFileToUpload, @_onLinkFileToUpload
-    @listenTo Actions.fileUploaded, @_onFileUploaded
-    @listenTo Actions.fileAborted, @_onFileAborted
+UPLOAD_DIR = path.join(NylasEnv.getConfigDirPath(), 'uploads')
+
+class Upload
+
+  constructor: (@messageClientId, @originPath, @stats, @uploadDir = UPLOAD_DIR) ->
+    @id = Utils.generateTempId()
+    @filename = path.basename(@originPath)
+    @targetDir = path.join(@uploadDir, @messageClientId, @id)
+    @targetPath = path.join(@targetDir, @filename)
+    @size = @stats.size
+
+
+class FileUploadStore extends NylasStore
+
+  constructor: ->
+    @listenTo Actions.selectFileForUpload, @_onSelectFileForUpload
+    @listenTo Actions.attachFile, @_onAttachFile
+    @listenTo Actions.removeFileFromUpload, @_onRemoveUpload
 
     # We don't save uploads to the DB, we keep it in memory in the store.
     # The key is the messageClientId. The value is a hash of paths and
     # corresponding upload data.
     @_fileUploads = {}
-    @_linkedFiles = {}
-
-
-  ######### PUBLIC #######################################################
+    mkdirp(UPLOAD_DIR)
 
   uploadsForMessage: (messageClientId) ->
-    if not messageClientId? then return []
-    _.filter @_fileUploads, (uploadData, uploadKey) ->
-      uploadData.messageClientId is messageClientId
+    @_fileUploads[messageClientId]
 
-  linkedUpload: (file) -> @_linkedFiles[file.id]
-
-
-  ########### PRIVATE ####################################################
-
-  _onAttachFile: ({messageClientId}) ->
+  _onSelectFileForUpload: ({messageClientId}) ->
     @_verifyId(messageClientId)
-
-    # When the dialog closes, it triggers `Actions.pathsToOpen`
+    # When the dialog closes, it triggers `Actions.attachFile`
     NylasEnv.showOpenDialog {properties: ['openFile', 'multiSelections']}, (pathsToOpen) ->
       return if not pathsToOpen?
       pathsToOpen = [pathsToOpen] if _.isString(pathsToOpen)
 
-      pathsToOpen.forEach (path) ->
-        Actions.attachFilePath({messageClientId, path})
+      pathsToOpen.forEach (filePath) ->
+        Actions.attachFile({messageClientId, filePath})
+
+  _onAttachFile: ({messageClientId, filePath}) ->
+    @_verifyId(messageClientId)
+    @_getFileStats({messageClientId, filePath})
+    .then(@_makeUpload)
+    .then(@_verifyUpload)
+    .then(@_prepareTargetDir)
+    .then(@_copyUpload)
+    .then(@_saveUpload)
+    .catch(@_onAttachFileError)
+
+  _onRemoveUpload: (upload) ->
+    return unless (@_fileUploads[upload.messageClientId] ? []).length > 0
+    @_deleteUpload(upload)
+    .then (upload) =>
+      uploads = @_fileUploads[upload.messageClientId]
+      uploads = _.reject(uploads, ({id}) -> id is upload.id)
+      @trigger()
+    .catch(@_onAttachFileError)
 
   _onAttachFileError: (message) ->
     remote = require('remote')
@@ -65,59 +81,65 @@ FileUploadStore = Reflux.createStore
       message: 'Cannot Attach File',
       detail: message
 
-  _onAttachFilePath: ({messageClientId, path}) ->
-    @_verifyId(messageClientId)
-    fs.stat path, (err, stats) =>
-      filename = require('path').basename(path)
-      if err
-        @_onAttachFileError("#{filename} could not be found, or has invalid file permissions.")
-      else if stats.isDirectory()
-        @_onAttachFileError("#{filename} is a directory. Try compressing it and attaching it again.")
-      else if stats.size > 25 * 1000000
-        @_onAttachFileError("#{filename} cannot be attached because it is larger than 25MB.")
-      else
-        Actions.queueTask(new FileUploadTask(path, messageClientId))
-
-  # Receives:
-  #   uploadData:
-  #     uploadTaskId - A unique id
-  #     messageClientId - The clientId of the message (draft) we're uploading to
-  #     filePath - The full absolute local system file path
-  #     fileSize - The size in bytes
-  #     fileName - The basename of the file
-  #     bytesUploaded - Current number of bytes uploaded
-  #     state - one of "pending" "started" "progress" "completed" "aborted" "failed"
-  _onUploadStateChanged: (uploadData) ->
-    @_fileUploads[uploadData.uploadTaskId] = uploadData
-    @_fileUploadTrigger ?= _.throttle =>
-      @trigger()
-    , 250
-
-    # Note: We throttle file upload updates, because they cause a significant refresh
-    # of the composer and when many uploads are running there can be a ton of state
-    # changes firing. (To test: drag and drop 20 files onto composer, watch performance.)
-    @_fileUploadTrigger()
-
-  _onAbortUpload: (uploadData) ->
-    delete @_fileUploads[uploadData.uploadTaskId]
-    Actions.dequeueMatchingTask
-      type: 'FileUploadTask',
-      matching:
-        id: uploadData.uploadTaskId
-    @trigger()
-
-  _onLinkFileToUpload: ({file, uploadData}) ->
-    @_linkedFiles[file.id] = uploadData
-    @trigger()
-
-  _onFileUploaded: ({file, uploadData}) ->
-    delete @_fileUploads[uploadData.uploadTaskId]
-    @trigger()
-
-  _onFileAborted: (uploadData) ->
-    delete @_fileUploads[uploadData.uploadTaskId]
-    @trigger()
-
   _verifyId: (messageClientId) ->
     if messageClientId.blank?
       throw new Error "You need to pass the ID of the message (draft) this Action refers to"
+
+  _getFileStats: ({messageClientId, filePath}) ->
+    fs.stat originPath, (err, stats) =>
+      if err
+        reject("#{filePath} could not be found, or has invalid file permissions.")
+      else
+        resolve({messageClientId, filePath, stats})
+
+  _makeUpload: ({messageClientId, filePath, stats}) ->
+    Promise.resolve(new Upload(messageClientId, filePath, stats))
+
+  _verifyUpload: (upload) ->
+    return new Promise (resolve, reject) ->
+      {stats} = upload
+      if stats.isDirectory()
+        reject("#{filename} is a directory. Try compressing it and attaching it again.")
+      else if stats.size > 25 * 1000000
+        reject("#{filename} cannot be attached because it is larger than 25MB.")
+      else
+        resolve(upload)
+        # Actions.queueTask(new FileUploadTask(path, messageClientId))
+
+  _prepareTargetDir: (upload) =>
+    return new Promise (resolve, reject) ->
+      mkdirp upload.targetDir, (err) ->
+        if err
+          reject("Error creating folder for upload: `#{upload.filename}`")
+        else
+          resolve(upload)
+
+  _copyUpload: (upload) ->
+    return new Promise (resolve, reject) =>
+      {originPath, targetPath} = upload
+      readStream = fs.createReadStream(originPath)
+      writeStream = fs.createWriteStream(targetPath)
+
+      readStream.on 'error', ->
+        reject("Error while reading file from #{originPath}")
+      writeStream.on 'error', ->
+        reject("Error while writing file #{upload.filename}")
+      readStream.on 'end', ->
+        resolve(upload)
+      readStream.pipe(writeStream)
+
+  _deleteUpload: (upload) ->
+    return new Promise (resolve, reject) ->
+      fs.unlink upload.targetPath, (err) ->
+        reject("Error removing file #{upload.filename}") if err
+        fs.rmdir upload.targetDir, (err) ->
+          reject("Error removing file #{upload.filename}") if err
+          resolve(upload)
+
+  _saveUpload: (upload) =>
+    @_fileUploads[upload.messageClientId] ?= []
+    @_fileUploads[upload.messageClientId].push(upload)
+    @trigger()
+
+
+module.exports = new FileUploadStore()
