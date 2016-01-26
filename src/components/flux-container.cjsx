@@ -10,9 +10,7 @@ class FluxContainer extends React.Component
 
   constructor: (@props) ->
     @_unlisteners = []
-
-  componentWillMount: ->
-    @setState(@props.getStateFromStores())
+    @state = @props.getStateFromStores()
 
   componentDidMount: ->
     @setupListeners()

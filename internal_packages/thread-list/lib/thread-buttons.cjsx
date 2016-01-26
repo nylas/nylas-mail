@@ -32,6 +32,7 @@ class ThreadBulkArchiveButton extends React.Component
       threads: @props.selection.items(),
       fromPerspective: FocusedPerspectiveStore.current()
     Actions.queueTasks(tasks)
+    return
 
 class ThreadBulkTrashButton extends React.Component
   @displayName: 'ThreadBulkTrashButton'
@@ -56,6 +57,7 @@ class ThreadBulkTrashButton extends React.Component
       threads: @props.selection.items(),
       fromPerspective: FocusedPerspectiveStore.current()
     Actions.queueTasks(tasks)
+    return
 
 
 class ThreadBulkStarButton extends React.Component
@@ -79,6 +81,7 @@ class ThreadBulkStarButton extends React.Component
   _onStar: =>
     task = TaskFactory.taskForInvertingStarred(threads: @props.selection.items())
     Actions.queueTask(task)
+    return
 
 
 class ThreadBulkToggleUnreadButton extends React.Component
@@ -103,6 +106,7 @@ class ThreadBulkToggleUnreadButton extends React.Component
   _onClick: =>
     task = TaskFactory.taskForInvertingUnread(threads: @props.selection.items())
     Actions.queueTask(task)
+    return
 
 
 ThreadNavButtonMixin =

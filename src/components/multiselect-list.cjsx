@@ -174,8 +174,7 @@ class MultiselectList extends React.Component
           event.stopPropagation()
         <div className="checkmark" onClick={toggle}><div className="inner"></div></div>
 
-  _getStateFromStores: (props) =>
-    props ?= @props
+  _getStateFromStores: (props = @props) =>
     state = @state ? {}
 
     layoutMode = WorkspaceStore.layoutMode()

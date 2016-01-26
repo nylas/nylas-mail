@@ -22,5 +22,6 @@ class DraftDeleteButton extends React.Component
     for item in @props.selection.items()
       Actions.queueTask(new DestroyDraftTask(draftClientId: item.clientId))
     @props.selection.clear()
+    return
 
 module.exports = {DraftDeleteButton}

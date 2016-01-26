@@ -50,7 +50,7 @@ class MultiselectActionBar extends React.Component
   ###
   @propTypes:
     collection: React.PropTypes.string.isRequired
-    dataStore: React.PropTypes.object.isRequired
+    dataSource: React.PropTypes.object.isRequired
 
   constructor: (@props) ->
     @state = @_getStateFromStores()
@@ -68,13 +68,13 @@ class MultiselectActionBar extends React.Component
     @teardownForProps()
 
   teardownForProps: =>
-    return unless @unsubscribers
-    unsubscribe() for unsubscribe in @unsubscribers
+    return unless @_unsubscribers
+    unsubscribe() for unsubscribe in @_unsubscribers
 
   setupForProps: (props) =>
-    @unsubscribers = []
-    @unsubscribers.push props.dataStore.listen @_onChange
-    @unsubscribers.push WorkspaceStore.listen @_onChange
+    @_unsubscribers = []
+    @_unsubscribers.push WorkspaceStore.listen @_onChange
+    @_unsubscribers.push @props.dataSource.listen @_onChange
 
   shouldComponentUpdate: (nextProps, nextState) =>
     not Utils.isEqualReact(nextProps, @props) or
@@ -108,9 +108,9 @@ class MultiselectActionBar extends React.Component
     </div>
 
   _renderActions: =>
-    return <div></div> unless @state.dataSource
+    return <div></div> unless @props.dataSource
     <InjectedComponentSet matching={role:"#{@props.collection}:BulkAction"}
-                          exposedProps={selection: @state.dataSource.selection, items: @state.items} />
+                          exposedProps={selection: @props.dataSource.selection, items: @state.items} />
 
   _label: =>
     if @state.items.length > 1
@@ -120,21 +120,14 @@ class MultiselectActionBar extends React.Component
     else
       ""
 
-  _getStateFromStores: (props) =>
-    props ?= @props
-    dataSource = props.dataStore.dataSource()
-    items = dataSource?.selection.items() ? []
-
-    return {
-      dataSource: dataSource
-      items: items
-    }
+  _getStateFromStores: (props = @props) =>
+    items: props.dataSource.selection.items() ? []
 
   _onChange: =>
     @setState(@_getStateFromStores())
 
   _onClearSelection: =>
-    @state.dataSource.selection.clear()
+    @props.dataSource.selection.clear()
 
 
 module.exports = MultiselectActionBar
