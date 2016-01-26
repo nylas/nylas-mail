@@ -4,7 +4,6 @@ path = require 'path'
 mkdirp = require 'mkdirp'
 NylasStore = require 'nylas-store'
 Actions = require '../actions'
-FileUploadTask = require '../tasks/file-upload-task'
 
 ###
 TODO: This store uses a combination of Actions and it's own internal structures

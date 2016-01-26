@@ -11,8 +11,6 @@ Task = require './task'
 Message = require '../models/message'
 Account = require '../models/account'
 
-FileUploadTask = require './file-upload-task'
-
 # MutateDraftTask
 
 module.exports =

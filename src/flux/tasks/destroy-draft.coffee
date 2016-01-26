@@ -7,7 +7,6 @@ NylasAPI = require '../nylas-api'
 
 SyncbackDraftTask = require './syncback-draft'
 SendDraftTask = require './send-draft'
-FileUploadTask = require './file-upload-task'
 
 module.exports =
 class DestroyDraftTask extends Task
@@ -17,8 +16,7 @@ class DestroyDraftTask extends Task
     if @draftClientId
       (other instanceof DestroyDraftTask and other.draftClientId is @draftClientId) or
       (other instanceof SyncbackDraftTask and other.draftClientId is @draftClientId) or
-      (other instanceof SendDraftTask and other.draftClientId is @draftClientId) or
-      (other instanceof FileUploadTask and other.messageClientId is @draftClientId)
+      (other instanceof SendDraftTask and other.draftClientId is @draftClientId)
     else if @draftId
       (other instanceof DestroyDraftTask and other.draftClientId is @draftClientId)
     else
