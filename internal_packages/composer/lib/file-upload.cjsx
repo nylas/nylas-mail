@@ -11,18 +11,13 @@ class FileUpload extends React.Component
   render: =>
     <div className={"file-wrap file-upload"}>
       <div className="inner">
-        <div className={"progress-bar-wrap state-#{@props.uploadData.state}"}>
-          <span className="progress-background"></span>
-          <span className="progress-foreground" style={@_uploadProgressStyle()}></span>
-        </div>
-
         <Flexbox direction="row" style={alignItems: 'center'}>
           <RetinaImg className="file-icon"
                      fallback="file-fallback.png"
                      mode={RetinaImg.Mode.ContentPreserve}
                      name="file-#{@_extension()}.png"/>
           <span className="file-name">
-            <span className="uploading">Uploading:</span>&nbsp;{@_basename()}
+            <span className="uploading">{@props.upload.filename}</span>
           </span>
           <div className="file-action-icon" onClick={@_onClickRemove}>
             <RetinaImg name="remove-attachment.png" mode={RetinaImg.Mode.ContentDark} />
@@ -31,20 +26,10 @@ class FileUpload extends React.Component
       </div>
     </div>
 
-  _uploadProgressStyle: =>
-    if @props.uploadData.fileSize <= 0
-      percent = 0
-    else
-      percent = Math.min(1, (@props.uploadData.bytesUploaded / @props.uploadData.fileSize)) * 100
-    width: "#{percent}%"
-
   _onClickRemove: =>
-    Actions.abortUpload @props.uploadData
-
-  _basename: =>
-    path.basename(@props.uploadData.filePath)
+    Actions.removeFileFromUpload @props.upload.messageClientId, @props.upload.id
 
   _extension: =>
-    path.extname(@_basename())[1..-1]
+    path.extname(@props.upload.filename)[1..-1]
 
 module.exports = FileUpload

@@ -74,11 +74,7 @@ class Actions
   ###
   @didPassivelyReceiveNewModels: ActionScopeGlobal
 
-  @uploadStateChanged: ActionScopeGlobal
-  @fileAborted: ActionScopeGlobal
   @downloadStateChanged: ActionScopeGlobal
-  @linkFileToUpload: ActionScopeGlobal
-  @fileUploaded: ActionScopeGlobal
   @sendDraftSuccess: ActionScopeGlobal
   @sendToAllWindows: ActionScopeGlobal
   @draftSendingFailed: ActionScopeGlobal
@@ -450,13 +446,12 @@ class Actions
   # File Actions
   # Some file actions only need to be processed in their current window
   @attachFile: ActionScopeWindow
-  @attachFilePath: ActionScopeWindow
-  @abortUpload: ActionScopeWindow
+  @selectFileForUpload: ActionScopeWindow
+  @removeFileFromUpload: ActionScopeWindow
   @fetchAndOpenFile: ActionScopeWindow
   @fetchAndSaveFile: ActionScopeWindow
   @fetchFile: ActionScopeWindow
   @abortFetchFile: ActionScopeWindow
-  @fileDownloaded: ActionScopeWindow
 
   ###
   Public: Pop the current sheet off the Sheet stack maintained by the {WorkspaceStore}.

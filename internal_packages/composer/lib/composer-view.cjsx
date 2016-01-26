@@ -166,8 +166,7 @@ class ComposerView extends React.Component
 
   _preloadImages: (files=[]) ->
     files.forEach (file) ->
-      uploadData = FileUploadStore.linkedUpload(file)
-      if not uploadData? and Utils.shouldDisplayAsImage(file)
+      if Utils.shouldDisplayAsImage(file)
         Actions.fetchFile(file)
 
   _teardownForDraft: =>
@@ -380,27 +379,25 @@ class ComposerView extends React.Component
     </div>
 
   _renderAttachments: ->
-    renderSubset = (arr, attachmentRole, UploadComponent) =>
-      arr.map (fileOrUpload) =>
-        if fileOrUpload instanceof File
-          @_attachmentComponent(fileOrUpload, attachmentRole)
-        else
-          <UploadComponent key={fileOrUpload.uploadTaskId} uploadData={fileOrUpload} />
-
     <div className="attachments-area">
-      {renderSubset(@_nonImages(), 'Attachment', FileUpload)}
-      {renderSubset(@_images(), 'Attachment:Image', ImageFileUpload)}
+      {@_renderFileAttachments()}
+      {@_renderUploadAttachments()}
     </div>
 
-  _attachmentComponent: (file, role="Attachment") =>
-    targetPath = FileUploadStore.linkedUpload(file)?.filePath
-    if not targetPath
-      targetPath = FileDownloadStore.pathForFile(file)
+  _renderFileAttachments: ->
+    nonImageFiles = @_nonImageFiles(@state.files).map((file) ->
+      @_renderFileAttachment(file, "Attachment")
+    )
+    imageFiles = @_imageFiles(@state.files).map((file) ->
+      @_renderFileAttachment(file, "Attachment:Image")
+    )
+    nonImageFiles.concat(imageFiles)
 
+  _renderFileAttachment: (file, role) ->
     props =
       file: file
       removable: true
-      targetPath: targetPath
+      targetPath: FileDownloadStore.pathForFile(file)
       messageClientId: @props.draftClientId
 
     if role is "Attachment"
@@ -413,42 +410,20 @@ class ComposerView extends React.Component
                        className={className}
                        exposedProps={props} />
 
-  _fileSort: (fileOrUpload) ->
-    if fileOrUpload.object is "file"
-      # There will only be an entry in the `linkedUpload` if the file had
-      # finished uploading in this session. We may well have files that
-      # already existed on a draft that don't have any uploadData
-      # associated with them.
-      uploadData = FileUploadStore.linkedUpload(fileOrUpload)
-    else
-      uploadData = fileOrUpload
+  _renderUploadAttachments: ->
+    nonImageUploads = @_nonImageFiles(@state.uploads).map((upload) ->
+      <FileUpload key={upload.id} upload={upload} />
+    )
+    imageUploads = @_imageFiles(@state.uploads).map((upload) ->
+      <ImageUpload key={upload.id} upload={upload} />
+    )
+    nonImageUploads.concat(imageUploads)
 
-    if not uploadData
-      sortOrder = 0
-    else
-      sortOrder = (uploadData.startDate / 1) + 1.0 / (uploadData.startId/1)
+  _imageFiles: (files) ->
+    _.filter(files, Utils.shouldDisplayAsImage)
 
-    return sortOrder
-
-  _images: ->
-    _.sortBy _.filter(@_uploadsAndFiles(), Utils.shouldDisplayAsImage), @_fileSort
-
-  _nonImages: ->
-    _.sortBy _.reject(@_uploadsAndFiles(), Utils.shouldDisplayAsImage), @_fileSort
-
-  _uploadsAndFiles: ->
-    # When uploads finish, they stay attached to the object at 100%
-    # completion. Eventually the DB trigger will make its way to a window
-    # and the files will appear on the draft.
-    #
-    # In this case we want to show the file instead of the upload
-    uploads = _.filter @state.uploads, (upload) =>
-      for file in @state.files
-        linkedUpload = FileUploadStore.linkedUpload(file)
-        return false if linkedUpload and linkedUpload.uploadTaskId is upload.uploadTaskId
-      return true
-
-    _.compact(uploads.concat(@state.files))
+  _nonImageFiles: (files) ->
+    _.reject(files, Utils.shouldDisplayAsImage)
 
   _onFileUploadStoreChange: =>
     @setState uploads: FileUploadStore.uploadsForMessage(@props.draftClientId)
@@ -466,7 +441,7 @@ class ComposerView extends React.Component
 
       <button className="btn btn-toolbar btn-attach" style={order: 50}
               title="Attach file"
-              onClick={@_attachFile}><RetinaImg name="icon-composer-attachment.png" mode={RetinaImg.Mode.ContentIsMask} /></button>
+              onClick={@_selectFileForUpload}><RetinaImg name="icon-composer-attachment.png" mode={RetinaImg.Mode.ContentIsMask} /></button>
 
       <div style={order: 0, flex: 1} />
 
@@ -606,9 +581,11 @@ class ComposerView extends React.Component
     else return true
 
   _shouldAcceptDrop: (event) =>
+    # TODO
     # Ensure that you can't pick up a file and drop it on the same draft
     existingFilePaths = @state.files.map (f) ->
-      FileUploadStore.linkedUpload(f)?.filePath
+      FileDownloadStore.pathForFile(f)
+    existingFilePaths = existingFilePaths.concat(@state.uploads.map (f)-> f.targetPath)
 
     nonNativeFilePath = @_nonNativeFilePathForDrop(event)
     if nonNativeFilePath and nonNativeFilePath in existingFilePaths
@@ -638,14 +615,14 @@ class ComposerView extends React.Component
   _onDrop: (e) =>
     # Accept drops of real files from other applications
     for file in e.dataTransfer.files
-      Actions.attachFilePath({path: file.path, messageClientId: @props.draftClientId})
+      Actions.attachFile({filePath: file.path, messageClientId: @props.draftClientId})
 
     # Accept drops from attachment components / images within the app
     if (uri = @_nonNativeFilePathForDrop(e))
-      Actions.attachFilePath({path: uri, messageClientId: @props.draftClientId})
+      Actions.attachFile({filePath: uri, messageClientId: @props.draftClientId})
 
   _onFilePaste: (path) =>
-    Actions.attachFilePath({path: path, messageClientId: @props.draftClientId})
+    Actions.attachFile({filePath: path, messageClientId: @props.draftClientId})
 
   _onChangeParticipants: (changes={}) =>
     @_addToProxy(changes)
@@ -767,8 +744,8 @@ class ComposerView extends React.Component
   _destroyDraft: =>
     Actions.destroyDraft(@props.draftClientId)
 
-  _attachFile: =>
-    Actions.attachFile({messageClientId: @props.draftClientId})
+  _selectFileForUpload: =>
+    Actions.selectFileForUpload({messageClientId: @props.draftClientId})
 
   undo: (event) =>
     event.preventDefault()
