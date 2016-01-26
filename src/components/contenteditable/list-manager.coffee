@@ -2,6 +2,10 @@ _str = require 'underscore.string'
 {DOMUtils, ContenteditableExtension} = require 'nylas-exports'
 
 class ListManager extends ContenteditableExtension
+  @keyCommandHandlers: =>
+    "contenteditable:numbered-list": @_insertNumberedList
+    "contenteditable:bulleted-list": @_insertBulletedList
+
   @onContentChanged: ({editor, mutations}) ->
     if @_spaceEntered and @hasListStartSignature(editor.currentSelection())
       @createList(editor)
@@ -36,8 +40,11 @@ class ListManager extends ContenteditableExtension
     return false unless selection?.anchorNode
     return false if not selection.isCollapsed
 
-    text = selection.anchorNode.textContent
-    return @numberRegex().test(text) or @bulletRegex().test(text)
+    sibling = selection.anchorNode.previousElementSibling
+    if not sibling or DOMUtils.looksLikeBlockElement(sibling)
+      text = selection.anchorNode.textContent
+      return @numberRegex().test(text) or @bulletRegex().test(text)
+    else return false
 
   @createList: (editor) ->
     text = editor.currentSelection().anchorNode?.textContent
@@ -98,6 +105,8 @@ class ListManager extends ContenteditableExtension
       editor.insertOrderedList() if ordered is true
       editor.insertUnorderedList() if not ordered
 
+  @_insertNumberedList: ({editor}) -> editor.insertOrderedList()
+  @_insertBulletedList: ({editor}) -> editor.insertUnorderedList()
 
   @outdentListItem: (editor) ->
     if @originalInput

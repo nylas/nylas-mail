@@ -128,12 +128,14 @@ describe "ThreadCountsStore", ->
 
       describe "when a count fails", ->
         it "should not immediately try to count any other categories", ->
+          spyOn(console, "warn")
           ThreadCountsStore._fetchCountsMissing()
           spyOn(ThreadCountsStore, '_fetchCountsMissing')
           spyOn(console, 'error')
           advanceClock()
           @countReject(new Error("Oh man something really bad."))
           advanceClock()
+          expect(console.warn).toHaveBeenCalled()
           expect(ThreadCountsStore._fetchCountsMissing).not.toHaveBeenCalled()
 
   describe "_fetchCountForCategory", ->
@@ -165,7 +167,6 @@ describe "ThreadCountsStore", ->
       })
 
     it "should persist the new counts to the database", ->
-      spyOn(DatabaseStore, '_query').andCallFake -> Promise.resolve([])
       spyOn(DatabaseTransaction.prototype, 'persistJSONBlob')
       runs =>
         ThreadCountsStore._saveCounts()

@@ -59,9 +59,9 @@ class ThreadList extends React.Component
     'application:mark-as-unread': => @_onSetUnread(true)
     'application:mark-as-read': => @_onSetUnread(false)
     'application:remove-and-previous': =>
-      @_shift(offset: 1, afterRunning: @_onRemoveFromView)
-    'application:remove-and-next': =>
       @_shift(offset: -1, afterRunning: @_onRemoveFromView)
+    'application:remove-and-next': =>
+      @_shift(offset: 1, afterRunning: @_onRemoveFromView)
     'thread-list:select-read': @_onSelectRead
     'thread-list:select-unread': @_onSelectUnread
     'thread-list:select-starred': @_onSelectStarred

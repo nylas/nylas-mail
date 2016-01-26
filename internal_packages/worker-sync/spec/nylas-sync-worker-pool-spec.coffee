@@ -102,7 +102,6 @@ describe "NylasSyncWorkerPool", ->
         "id": @thread.id,
         "timestamp": "2015-08-26T17:36:45.297Z"
 
-      spyOn(DatabaseTransaction.prototype, '_query').andCallFake -> Promise.resolve([])
       spyOn(DatabaseTransaction.prototype, 'unpersistModel')
 
     it "should resolve if the object cannot be found", ->

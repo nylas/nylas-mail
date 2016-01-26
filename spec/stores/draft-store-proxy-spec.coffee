@@ -128,6 +128,7 @@ describe "DraftStoreProxy", ->
 
   describe "teardown", ->
     it "should mark the session as destroyed", ->
+      spyOn(DraftStoreProxy.prototype, "prepare")
       proxy = new DraftStoreProxy('client-id')
       proxy.teardown()
       expect(proxy._destroyed).toEqual(true)
@@ -135,11 +136,12 @@ describe "DraftStoreProxy", ->
   describe "prepare", ->
     beforeEach ->
       @draft = new Message(draft: true, body: '123', clientId: 'client-id')
+      spyOn(DraftStoreProxy.prototype, "prepare")
       @proxy = new DraftStoreProxy('client-id')
       spyOn(@proxy, '_setDraft')
-      spyOn(DatabaseStore, 'run').andCallFake =>
+      spyOn(DatabaseStore, 'run').andCallFake (modelQuery) =>
         Promise.resolve(@draft)
-      @proxy._draftPromise = null
+      jasmine.unspy(DraftStoreProxy.prototype, "prepare")
 
     it "should call setDraft with the retrieved draft", ->
       waitsForPromise =>
@@ -174,7 +176,6 @@ describe "DraftStoreProxy", ->
       @proxy = new DraftStoreProxy('client-id', @draft)
 
       spyOn(DatabaseTransaction.prototype, "persistModel").andReturn Promise.resolve()
-      spyOn(DatabaseTransaction.prototype, "_query").andReturn Promise.resolve()
       spyOn(Actions, "queueTask").andReturn Promise.resolve()
 
     it "should ignore the update unless it applies to the current draft", ->

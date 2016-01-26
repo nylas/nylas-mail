@@ -484,10 +484,6 @@ class Actions
   ###
   @pushSheet: ActionScopeWindow
 
-  @metadataError: ActionScopeWindow
-  @metadataCreated: ActionScopeWindow
-  @metadataDestroyed: ActionScopeWindow
-
   ###
   Public: Publish a user event to any analytics services linked to N1.
   ###

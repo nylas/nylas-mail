@@ -76,7 +76,7 @@ class Spinner extends React.Component
       "spinner-cover": true
       "hidden": @state.hidden
 
-    style = _.extend @props.style ? {},
+    style = _.extend {}, (@props.style ? {}),
       'position':'absolute'
       'display': if @state.hidden then "none" else "block"
       'top': '0'
@@ -96,7 +96,7 @@ class Spinner extends React.Component
       'hidden': @state.hidden
       'paused': @state.paused
 
-    style = _.extend @props.style ? {},
+    style = _.extend {}, (@props.style ? {}),
       'position':'absolute'
       'left': '50%'
       'top': '50%'

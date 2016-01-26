@@ -17,6 +17,7 @@ class ExtendedSelection
     @scopeNode.contains(@anchorNode) and
     @scopeNode.contains(@focusNode)
 
+  # Public: Conveniently select nodes.
   select: (args...) ->
     if args.length is 0
       throw @_errBadUsage()
@@ -35,10 +36,15 @@ class ExtendedSelection
       @selectFromToWithIndex(args...)
     else if args.length >= 5
       throw @_errBadUsage()
+    return @
 
   selectAt: (at) ->
     nodeAt = @findNodeAt(at)
-    @setBaseAndExtent(nodeAt, 0, nodeAt, (nodeAt.length ? 0))
+    range = new Range()
+    range.selectNode(nodeAt)
+    @rawSelection.removeAllRanges()
+    @rawSelection.addRange(range)
+    return @
 
   selectRange: (range) ->
     @setBaseAndExtent(range.startContainer, range.startOffset, range.endContainer, range.endOffset)
@@ -56,6 +62,20 @@ class ExtendedSelection
     @setBaseAndExtent(fromNode, fromIndex, toNode, toIndex)
 
   exportSelection: -> new ExportedSelection(@rawSelection, @scopeNode)
+
+  # A selectionSnapshot is slightly different from an {ExportedSelection}.
+  # An {ExportedSelection} maintains clones of the nodes (which don't have
+  # parentNodes nor are attached to the dcoument). An {ExportedSelection}
+  # also contains counting indices for future restoration.
+  #
+  # This is necessary since references to `rawSelection` can have its
+  # anchorNodes change out from underneath it as the selection changes.
+  selectionSnapshot: ->
+    anchorNode: @rawSelection.anchorNode
+    anchorOffset: @rawSelection.anchorOffset
+    focusNode: @rawSelection.focusNode
+    focusOffset: @rawSelection.focusOffset
+    isCollapsed: @rawSelection.isCollapsed
 
   # Since the last time we exported the selection, the DOM may have
   # completely changed due to a re-render. To the user it may look
@@ -82,14 +102,16 @@ class ExtendedSelection
                       exportedSelection.focusOffset)
 
   findNodeAt: (arg) ->
+    node = null
     if arg instanceof Node
-      return arg
+      node = arg
     else if _.isString(arg)
-      return @scopeNode.querySelector(arg)
+      node = @scopeNode.querySelector(arg)
     else if _.isRegExp(arg)
       ## TODO
-      DOMUtils.findNodeByRegex(@scopeNode, arg)
-      return
+      node = DOMUtils.findNodeByRegex(@scopeNode, arg)
+
+    return node
 
   # Finds the start and end text index of the current selection relative
   # to a given Node or Range. Returns an object of the form:

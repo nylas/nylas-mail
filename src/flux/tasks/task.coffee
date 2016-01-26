@@ -270,6 +270,29 @@ class Task
     return Promise.reject(err)
 
   ########################################################################
+  ########################## HELPER METHODS ##############################
+  ########################################################################
+
+  validateRequiredFields: (fields=[]) =>
+    for field in fields
+      if not this[field]? then throw new Error("Must pass #{field}")
+
+  # Most tasks that interact with a RESTful API will want to behave in a
+  # similar way. We retry on temproary API error codes and permenantly
+  # fail on others.
+  apiErrorHandler: (err={}) =>
+    {PermanentErrorCodes} = require '../nylas-api'
+    {APIError} = require '../errors'
+
+    if err instanceof APIError
+      if err.statusCode in PermanentErrorCodes
+        return Promise.resolve([Task.Status.Failed, err])
+      else
+        return Promise.resolve(Task.Status.Retry)
+    else
+      return Promise.resolve([Task.Status.Failed, err])
+
+  ########################################################################
   ######################## METHODS TO OVERRIDE ###########################
   ########################################################################
 

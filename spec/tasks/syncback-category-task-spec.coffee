@@ -33,7 +33,6 @@ describe "SyncbackCategoryTask", ->
     beforeEach ->
       spyOn(NylasAPI, "makeRequest").andCallFake ->
         Promise.resolve(id: "server-444")
-      spyOn(DatabaseTransaction.prototype, "_query").andCallFake => Promise.resolve([])
       spyOn(DatabaseTransaction.prototype, "persistModel")
 
     it "sends API req to /labels if the account uses labels", ->

@@ -28,10 +28,10 @@ class MessageTimestamp extends React.Component
       diff = now.diff(msgDate, 'days', true)
       isSameDay = now.isSame(msgDate, 'days')
       if diff < 1 and isSameDay
-        return msgDate.format "h:mm a"
+        return msgDate.format "h:mm A"
       if diff < 1.5 and not isSameDay
         timeAgo = msgDate.from now
-        monthAndDay = msgDate.format "h:mm a"
+        monthAndDay = msgDate.format "h:mm A"
         return monthAndDay + " (" + timeAgo + ")"
       if diff >= 1.5 and diff < 365
         return msgDate.format "MMM D"
