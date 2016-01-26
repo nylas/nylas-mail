@@ -316,6 +316,14 @@ DOMUtils =
       else continue
     return null
 
+  # Only looks down node trees with one child for a text node.
+  # Returns null if there's no single text node
+  findOnlyChildTextNode: (node) ->
+    return null unless node
+    return node if node.nodeType is Node.TEXT_NODE
+    return null if node.childNodes.length > 1
+    return DOMUtils.findOnlyChildTextNode(node.childNodes[0])
+
   findFirstTextNode: (node) ->
     return null unless node
     return node if node.nodeType is Node.TEXT_NODE
@@ -623,12 +631,24 @@ DOMUtils =
 
   # Modifies the DOM to "unwrap" a given node, replacing that node with its contents.
   # This may break selections containing the affected nodes.
+  # We don't use `document.createFragment` because the returned `fragment`
+  # would be empty and useless after its children get replaced.
   unwrapNode: (node) ->
-    fragment = document.createDocumentFragment()
-    while (child = node.firstChild)
-      fragment.appendChild(child)
-    node.parentNode.replaceChild(fragment, node)
-    return fragment
+    return node if node.childNodes.length is 0
+    replacedNodes = []
+    parent = node.parentNode
+    return node if not parent?
+
+    lastChild = _.last(node.childNodes)
+    replacedNodes.unshift(lastChild)
+    parent.replaceChild(lastChild, node)
+
+    while child = _.last(node.childNodes)
+      replacedNodes.unshift(child)
+      parent.insertBefore(child, lastChild)
+      lastChild = child
+
+    return replacedNodes
 
   isDescendantOf: (node, matcher = -> false) ->
     parent = node?.parentElement

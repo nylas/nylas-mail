@@ -3,7 +3,7 @@ Thread = require '../../src/flux/models/thread'
 FocusedContentStore = require '../../src/flux/stores/focused-content-store'
 Actions = require '../../src/flux/actions'
 
-testThread = new Thread(id: '123', accountId: 'abc')
+testThread = new Thread(id: '123', accountId: TEST_ACCOUNT_ID)
 
 describe "FocusedContentStore", ->
   describe "onSetFocus", ->

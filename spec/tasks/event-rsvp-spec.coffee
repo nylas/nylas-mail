@@ -12,7 +12,6 @@ _ = require 'underscore'
 describe "EventRSVPTask", ->
   beforeEach ->
     spyOn(DatabaseStore, 'find').andCallFake => Promise.resolve(@event)
-    spyOn(DatabaseTransaction.prototype, '_query').andCallFake -> Promise.resolve([])
     spyOn(DatabaseTransaction.prototype, 'persistModel').andCallFake -> Promise.resolve()
     @myName = "Ben Tester"
     @myEmail = "tester@nylas.com"

@@ -13,8 +13,13 @@
     "react/prop-types": [2, {"ignore": ["children"]}],
     "eqeqeq": [2, "smart"],
     "id-length": [0],
+    "object-curly-spacing": [0],
+    "no-console": [0],
     "no-loop-func": [0],
     "new-cap": [2, {"capIsNew": false}],
-    "no-shadow": [1]
-  }
+    "no-shadow": [1],
+    "quotes": [0],
+    "semi": [0]
+  },
+  "parser": "babel-eslint"
 }

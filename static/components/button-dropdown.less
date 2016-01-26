@@ -25,6 +25,44 @@
     }
   }
 
+  &.dropdown-btn-emphasis {
+    .primary-item,
+    .secondary-picker,
+    .only-item {
+      .btn.btn-emphasis;
+    }
+  }
+
+  &.dropdown-btn-text {
+    .primary-item,
+    .secondary-picker,
+    .only-item {
+      .btn.btn-text;
+      height: 28px;
+      line-height: 1;
+    }
+    .primary-item, .only-item {
+      padding-top: 5px;
+    }
+    .secondary-picker {
+      padding: 4px 8px 2px 8px;
+    }
+    .secondary-items {
+      .menu {
+        .item {
+          font-size: 13px;
+          padding: 6px 11px;
+          &:first-child {
+            padding-top: 6px;
+          }
+          &:last-child {
+            padding-bottom: 6px;
+          }
+        }
+      }
+    }
+  }
+
   .primary-item,
   .only-item {
     padding: 0.33em 1em;
@@ -129,6 +167,34 @@ body.platform-win32 {
     .secondary-picker,
     .secondary-items {
       border-radius: 0;
+    }
+    &.dropdown-btn-emphasis {
+      .primary-item,
+      .secondary-picker,
+      .only-item {
+        border: 0;
+        background: @btn-emphasis-bg-color;
+        &:hover {
+          border-radius: 0;
+          background: darken(@btn-emphasis-bg-color, 10%);
+        }
+        &:active {
+          background: @btn-emphasis-bg-color;
+          box-shadow: 0 0 0;
+        }
+      }
+    }
+    &.dropdown-btn-text {
+      .primary-item,
+      .secondary-picker,
+      .only-item {
+        .btn.btn-text;
+        padding-top: 5px;
+        height: 28px;
+      }
+      .secondary-picker {
+        padding: 4px 8px 2px 8px;
+      }
     }
   }
 }

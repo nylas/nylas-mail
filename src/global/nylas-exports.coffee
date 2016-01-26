@@ -104,8 +104,9 @@ class NylasExports
   @require "ChangeUnreadTask", 'flux/tasks/change-unread-task'
   @require "SyncbackDraftTask", 'flux/tasks/syncback-draft'
   @require "ChangeStarredTask", 'flux/tasks/change-starred-task'
-  @require "CreateMetadataTask", 'flux/tasks/create-metadata-task'
-  @require "DestroyMetadataTask", 'flux/tasks/destroy-metadata-task'
+  @require "CreateModelTask", 'flux/tasks/create-model-task'
+  @require "UpdateModelTask", 'flux/tasks/update-model-task'
+  @require "DestroyModelTask", 'flux/tasks/destroy-model-task'
   @require "ReprocessMailRulesTask", 'flux/tasks/reprocess-mail-rules-task'
 
   # Stores
@@ -144,8 +145,12 @@ class NylasExports
   @require "ComposerExtension", 'extensions/composer-extension'
   @require "MessageViewExtension", 'extensions/message-view-extension'
 
-  # React Components
+  # Libraries
   @get "React", -> require 'react' # Our version of React for 3rd party use
+  @get "Reflux", -> require 'reflux'
+  @get "Rx", -> require 'rx-lite'
+
+  # React Components
   @load "ReactRemote", 'react-remote/react-remote-parent'
   @load "ComponentRegistry", 'component-registry'
   @load "PriorityUICoordinator", 'priority-ui-coordinator'

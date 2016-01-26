@@ -1,11 +1,17 @@
 {DOMUtils, ContenteditableExtension} = require 'nylas-exports'
 
 class BlockquoteManager extends ContenteditableExtension
+  @keyCommandHandlers: ->
+    "contenteditable:quote": @_onCreateBlockquote
+
   @onKeyDown: ({editor, event}) ->
     if event.key is "Backspace"
       if @_isInBlockquote(editor) and @_isAtStartOfLine(editor)
         editor.outdent()
         event.preventDefault()
+
+  @_onCreateBlockquote: ({editor, event}) ->
+    editor.formatBlock("BLOCKQUOTE")
 
   @_isInBlockquote: (editor) ->
     sel = editor.currentSelection()

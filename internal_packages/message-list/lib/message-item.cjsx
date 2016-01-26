@@ -95,7 +95,7 @@ class MessageItem extends React.Component
       {@_renderHeaderSideItems()}
 
       <div className="message-header-right">
-        <MessageTimestamp className="message-time selectable"
+        <MessageTimestamp className="message-time"
                           isDetailed={@state.detailedHeaders}
                           date={@props.message.date} />
 

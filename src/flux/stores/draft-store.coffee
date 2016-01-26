@@ -9,6 +9,7 @@ DatabaseStore = require './database-store'
 AccountStore = require './account-store'
 ContactStore = require './contact-store'
 FocusedPerspectiveStore = require './focused-perspective-store'
+FocusedContentStore = require './focused-content-store'
 
 SendDraftTask = require '../tasks/send-draft'
 DestroyDraftTask = require '../tasks/destroy-draft'
@@ -505,10 +506,15 @@ class DraftStore
       # committed to the Database since we'll look them up again just
       # before send.
       session.changes.commit(force: true, noSyncback: true).then =>
+        draft = session.draft()
         # We unfortunately can't give the SendDraftTask the raw draft JSON
         # data because there may still be pending tasks (like a
         # {FileUploadTask}) that will continue to update the draft data.
-        task = new SendDraftTask(draftClientId, {fromPopout: @_isPopout()})
+        opts =
+          threadId: draft.threadId
+          replyToMessageId: draft.replyToMessageId
+
+        task = new SendDraftTask(draftClientId, opts)
         Actions.queueTask(task)
 
         # NOTE: We may be done with the session in this window, but there
@@ -536,17 +542,23 @@ class DraftStore
       files = _.reject files, (f) -> f.id is file.id
       session.changes.add({files}, immediate: true)
 
-  _onDraftSendingFailed: ({draftClientId, errorMessage}) ->
+  _onDraftSendingFailed: ({draftClientId, threadId, errorMessage}) ->
     @_draftsSending[draftClientId] = false
     @trigger(draftClientId)
     if NylasEnv.isMainWindow()
       # We delay so the view has time to update the restored draft. If we
       # don't delay the modal may come up in a state where the draft looks
       # like it hasn't been restored or has been lost.
-      _.delay ->
-        NylasEnv.showErrorDialog(errorMessage)
+      _.delay =>
+        @_notifyUserOfError({draftClientId, threadId, errorMessage})
       , 100
 
+  _notifyUserOfError: ({draftClientId, threadId, errorMessage}) ->
+    focusedThread = FocusedContentStore.focused('thread')
+    if threadId and focusedThread?.id is threadId
+      NylasEnv.showErrorDialog(errorMessage)
+    else
+      Actions.composePopoutDraft(draftClientId, {errorMessage})
 
 # Deprecations
 store = new DraftStore()

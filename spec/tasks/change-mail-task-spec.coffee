@@ -50,7 +50,6 @@ describe "ChangeMailTask", ->
 
     spyOn(DatabaseTransaction.prototype, 'persistModels').andReturn(Promise.resolve())
     spyOn(DatabaseTransaction.prototype, 'persistModel').andReturn(Promise.resolve())
-    spyOn(DatabaseTransaction.prototype, '_query').andReturn(Promise.resolve([]))
 
   it "leaves subclasses to implement changesToModel", ->
     task = new ChangeMailTask()
