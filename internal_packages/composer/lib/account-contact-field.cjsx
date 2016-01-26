@@ -1,5 +1,6 @@
-React = require 'react'
 _ = require 'underscore'
+React = require 'react'
+classnames = require 'classnames'
 
 {AccountStore} = require 'nylas-exports'
 {Menu, ButtonDropdown} = require 'nylas-component-kit'
@@ -9,41 +10,52 @@ class AccountContactField extends React.Component
 
   @propTypes:
     value: React.PropTypes.object
-    account: React.PropTypes.object,
+    accounts: React.PropTypes.array.isRequired
     onChange: React.PropTypes.func.isRequired
 
-  render: =>
-    <div className="composer-participant-field">
-      <div className="composer-field-label">{"From:"}</div>
-      {@_renderFromPicker()}
-    </div>
+  _onChooseContact: (contact) =>
+    accountId = contact.accountId
+    from = [contact]
+    @props.onChange({accountId, from})
+    @refs.dropdown.toggleDropdown()
 
-  _renderFromPicker: ->
-    if @props.account? && @props.value?
-      label = @props.value.toString()
-      if @props.account.aliases.length is 0
-        return @_renderAccountSpan(label)
-      return <ButtonDropdown
+  _renderAccountSelector: ->
+    return <span /> unless @props.value
+    label = @props.value.toString()
+    multipleAccounts = @props.accounts.length > 1
+    hasAliases = @props.accounts[0]?.aliases.length > 0
+    if multipleAccounts or hasAliases
+      <ButtonDropdown
         ref="dropdown"
         bordered={false}
         primaryItem={<span>{label}</span>}
-        menu={@_renderAliasesMenu(@props.account)}/>
+        menu={@_renderAccounts(@props.accounts)} />
     else
-      return @_renderAccountSpan("Please select an account")
+      @_renderAccountSpan(label)
 
-  _renderAliasesMenu: (account) =>
+  _renderMenuItem: (contact) =>
+    className = classnames(
+      'contact': true
+      'is-alias': contact.isAlias
+    )
+    <span className={className}>{contact.toString()}</span>
+
+  _renderAccounts: (accounts) =>
+    items = AccountStore.aliasesFor(accounts)
     <Menu
-      items={[account.me().toString()].concat account.aliases}
-      itemKey={ (alias) -> alias }
-      itemContent={ (alias) -> alias }
-      onSelect={@_onChooseAlias.bind(@, account)} />
+      items={items}
+      itemKey={(contact) -> contact.id}
+      itemContent={@_renderMenuItem}
+      onSelect={@_onChooseContact} />
 
   _renderAccountSpan: (label) ->
     <span className="from-picker" style={position: "relative", top: 6, left: "0.5em"}>{label}</span>
 
-  _onChooseAlias: (account, alias) =>
-    @props.onChange(account.meUsingAlias(alias))
-    @refs.dropdown.toggleDropdown()
+  render: =>
+    <div className="composer-participant-field">
+      <div className="composer-field-label">From:</div>
+      {@_renderAccountSelector()}
+    </div>
 
 
 module.exports = AccountContactField

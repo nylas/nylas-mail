@@ -18,7 +18,7 @@ class ExpandedParticipants extends React.Component
     from: React.PropTypes.array
 
     # The account to which the current draft belongs
-    account: React.PropTypes.object
+    accounts: React.PropTypes.array
 
     # Either "fullwindow" or "inline"
     mode: React.PropTypes.string
@@ -46,6 +46,7 @@ class ExpandedParticipants extends React.Component
     cc: []
     bcc: []
     from: []
+    accounts: []
     enabledFields: []
 
   constructor: (@props={}) ->
@@ -144,9 +145,9 @@ class ExpandedParticipants extends React.Component
         <AccountContactField
           key="from"
           ref={Fields.From}
-          onChange={ (me) => @props.onChangeParticipants(from: [me]) }
+          onChange={({accountId, from}) => @props.onChangeParticipants({accountId, from})}
           onFocus={ => @props.onChangeFocusedField(Fields.From) }
-          account={@props.account}
+          accounts={@props.accounts}
           value={@props.from?[0]} />
       )
 

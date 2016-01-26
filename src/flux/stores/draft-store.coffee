@@ -369,10 +369,19 @@ class DraftStore
     InlineStyleTransformer.run(body).then (body) =>
       SanitizeTransformer.run(body, SanitizeTransformer.Preset.UnsafeOnly)
 
+  _getAccountForNewMessage: =>
+    defAccountId = NylasEnv.config.get('core.sending.defaultAccountIdForSend')
+    if defAccountId?
+      AccountStore.accountForId(defAccountId)
+    else
+      focusedAccountId = FocusedPerspectiveStore.current().accountIds[0]
+      if focusedAccountId
+        AccountStore.accountForId(focusedAccountId)
+      else
+        AccountStore.accounts()[0]
+
   _onPopoutBlankDraft: =>
-    # TODO Remove this when we add account selector inside composer
-    account = FocusedPerspectiveStore.current().account
-    account ?= AccountStore.accounts()[0]
+    account = @_getAccountForNewMessage()
 
     draft = new Message
       body: ""
@@ -408,9 +417,7 @@ class DraftStore
           windowProps: _.extend(options, {draftClientId})
 
   _onHandleMailtoLink: (event, urlString) =>
-    # TODO Remove this when we add account selector inside composer
-    account = FocusedPerspectiveStore.current().account
-    account ?= AccountStore.accounts()[0]
+    account = @_getAccountForNewMessage()
 
     try
       urlString = decodeURI(urlString)
