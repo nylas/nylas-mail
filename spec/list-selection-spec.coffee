@@ -1,8 +1,10 @@
 _ = require 'underscore'
 
-Thread = require '../src/flux/models/thread'
-ListDataSource = require '../src/flux/stores/list-data-source'
-ListSelection = require '../src/flux/stores/list-selection'
+{Thread} = require 'nylas-exports'
+{ListTabular} = require 'nylas-component-kit'
+
+ListDataSource = ListTabular.DataSource
+ListSelection = ListTabular.Selection
 
 describe "ListSelection", ->
   beforeEach ->

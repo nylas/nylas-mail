@@ -2,9 +2,7 @@ _ = require 'underscore'
 EventEmitter = require('events').EventEmitter
 ListSelection = require './list-selection'
 
-module.exports =
 class ListDataSource
-
   constructor: ->
     @_emitter = new EventEmitter()
     @_cleanedup = false
@@ -17,6 +15,8 @@ class ListDataSource
     @_emitter.emit('trigger', arg)
 
   listen: (callback, bindContext) ->
+    unless callback instanceof Function
+      throw new Error("ListDataSource: You must pass a function to `listen`")
     if @_cleanedup is true
       throw new Error("ListDataSource: You cannot listen again after removing the last listener. This is an implementation detail.")
 
@@ -56,3 +56,17 @@ class ListDataSource
 
   cleanup: ->
     @selection.cleanup()
+
+class EmptyListDataSource extends ListDataSource
+  loaded: -> true
+  empty: -> true
+  get: (idx) -> null
+  getById: (id) -> null
+  indexOfId: (id) -> -1
+  count: -> 0
+  itemsCurrentlyInViewMatching: (matchFn) -> []
+  setRetainedRange: ({start, end}) ->
+
+ListDataSource.Empty = EmptyListDataSource
+
+module.exports = ListDataSource

@@ -1,42 +1,44 @@
 NylasStore = require 'nylas-store'
-Reflux = require 'reflux'
 Rx = require 'rx-lite'
 _ = require 'underscore'
 {Message,
- Actions,
- AccountStore,
  MutableQuerySubscription,
  ObservableListDataSource,
  FocusedPerspectiveStore,
  DatabaseStore} = require 'nylas-exports'
+{ListTabular} = require 'nylas-component-kit'
 
 class DraftListStore extends NylasStore
   constructor: ->
-    @listenTo AccountStore, @_onAccountChanged
+    @listenTo FocusedPerspectiveStore, @_onPerspectiveChanged
+    @_createListDataSource()
 
-    @subscription = new MutableQuerySubscription(@_queryForCurrentAccount(), {asResultSet: true})
-    $resultSet = Rx.Observable.fromPrivateQuerySubscription('draft-list', @subscription)
+  dataSource: =>
+    @_dataSource
 
-    @_view = new ObservableListDataSource $resultSet, ({start, end}) =>
-      @subscription.replaceQuery(@_queryForCurrentAccount().page(start, end))
+  # Inbound Events
 
-  view: =>
-    @_view
+  _onPerspectiveChanged: =>
+    @_createListDataSource()
 
-  _queryForCurrentAccount: =>
-    matchers = [Message.attributes.draft.equal(true)]
-    account = FocusedPerspectiveStore.current().account
+  # Internal
 
-    if account?
-      matchers.push(Message.attributes.accountId.equal(account.id))
+  _createListDataSource: =>
+    mailboxPerspective = FocusedPerspectiveStore.current()
 
-    query = DatabaseStore.findAll(Message)
-      .include(Message.attributes.body)
-      .order(Message.attributes.date.descending())
-      .where(matchers)
-      .page(0, 1)
+    if mailboxPerspective.drafts
+      query = DatabaseStore.findAll(Message)
+        .include(Message.attributes.body)
+        .order(Message.attributes.date.descending())
+        .where(draft: true, accountId: mailboxPerspective.accountIds)
+        .page(0, 1)
 
-  _onAccountChanged: =>
-    @subscription.replaceQuery(@_queryForCurrentAccount())
+      subscription = new MutableQuerySubscription(query, {asResultSet: true})
+      $resultSet = Rx.Observable.fromPrivateQuerySubscription('draft-list', subscription)
+      @_dataSource = new ObservableListDataSource($resultSet, subscription.replaceRange)
+    else
+      @_dataSource = new ListTabular.DataSource.Empty()
+
+    @trigger(@)
 
 module.exports = new DraftListStore()

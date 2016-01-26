@@ -118,7 +118,6 @@ class NylasExports
   @require "ContactStore", 'flux/stores/contact-store'
   @require "CategoryStore", 'flux/stores/category-store'
   @require "WorkspaceStore", 'flux/stores/workspace-store'
-  @require "DraftCountStore", 'flux/stores/draft-count-store'
   @require "FileUploadStore", 'flux/stores/file-upload-store'
   @require "MailRulesStore", 'flux/stores/mail-rules-store'
   @require "ThreadCountsStore", 'flux/stores/thread-counts-store'

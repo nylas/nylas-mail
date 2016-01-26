@@ -18,6 +18,9 @@ class MailboxPerspective
   @forNothing: ->
     new EmptyMailboxPerspective()
 
+  @forDrafts: (accountsOrIds) ->
+    new DraftsMailboxPerspective(accountsOrIds)
+
   @forCategory: (category) ->
     return @forNothing() unless category
     new CategoryMailboxPerspective([category])
@@ -110,6 +113,20 @@ class SearchMailboxPerspective extends MailboxPerspective
   canTrashThreads: =>
     false
 
+
+class DraftsMailboxPerspective extends MailboxPerspective
+  constructor: (@accountIds) ->
+    super(@accountIds)
+    @name = "Drafts"
+    @iconName = "drafts.png"
+    @drafts = true # The DraftListStore looks for this
+    @
+
+  threads: =>
+    null
+
+  canApplyToThreads: =>
+    false
 
 class StarredMailboxPerspective extends MailboxPerspective
   constructor: (@accountIds) ->

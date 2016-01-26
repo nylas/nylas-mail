@@ -1,68 +1,15 @@
 _ = require 'underscore'
 React = require 'react/addons'
 ScrollRegion = require './scroll-region'
+Spinner = require './spinner'
 {Utils} = require 'nylas-exports'
+
+ListDataSource = require './list-data-source'
+ListSelection = require './list-selection'
+ListTabularItem = require './list-tabular-item'
 
 class ListColumn
   constructor: ({@name, @resolver, @flex, @width}) ->
-
-class ListTabularItem extends React.Component
-  @displayName = 'ListTabularItem'
-  @propTypes =
-    metrics: React.PropTypes.object
-    columns: React.PropTypes.arrayOf(React.PropTypes.object).isRequired
-    item: React.PropTypes.object.isRequired
-    itemProps: React.PropTypes.object
-    onSelect: React.PropTypes.func
-    onClick: React.PropTypes.func
-    onDoubleClick: React.PropTypes.func
-
-  # DO NOT DELETE unless you know what you're doing! This method cuts
-  # React.Perf.wasted-time from ~300msec to 20msec by doing a deep
-  # comparison of props before triggering a re-render.
-  shouldComponentUpdate: (nextProps, nextState) =>
-    if not Utils.isEqualReact(@props.item, nextProps.item) or @props.columns isnt nextProps.columns
-      @_columnCache = null
-      return true
-    if not Utils.isEqualReact(_.omit(@props, 'item'), _.omit(nextProps, 'item'))
-      return true
-    false
-
-  render: =>
-    className = "list-item list-tabular-item #{@props.itemProps?.className}"
-    props = _.omit(@props.itemProps ? {}, 'className')
-
-    # It's expensive to compute the contents of columns (format timestamps, etc.)
-    # We only do it if the item prop has changed.
-    @_columnCache ?= @_columns()
-
-    <div {...props} className={className} onClick={@_onClick} style={position:'absolute', top: @props.metrics.top, width:'100%', height:@props.metrics.height, overflow: 'hidden'}>
-      {@_columnCache}
-    </div>
-
-  _columns: =>
-    names = {}
-    for column in (@props.columns ? [])
-      if names[column.name]
-        console.warn("ListTabular: Columns do not have distinct names, will cause React error! `#{column.name}` twice.")
-      names[column.name] = true
-
-      <div key={column.name}
-           displayName={column.name}
-           style={_.pick(column, ['flex', 'width'])}
-           className="list-column list-column-#{column.name}">
-        {column.resolver(@props.item, @)}
-      </div>
-
-  _onClick: (event) =>
-    @props.onSelect?(@props.item, event)
-
-    @props.onClick?(@props.item, event)
-    if @_lastClickTime? and Date.now() - @_lastClickTime < 350
-      @props.onDoubleClick?(@props.item, event)
-
-    @_lastClickTime = Date.now()
-
 
 class ListTabular extends React.Component
   @displayName = 'ListTabular'
@@ -79,16 +26,42 @@ class ListTabular extends React.Component
     if not @props.itemHeight
       throw new Error("ListTabular: You must provide an itemHeight - raising to avoid divide by zero errors.")
 
-    @state =
-      renderedRangeStart: -1
-      renderedRangeEnd: -1
+    @state = @buildStateForRange(start: -1, end: -1)
 
   componentDidMount: =>
     window.addEventListener('resize', @onWindowResize, true)
+    @setupDataSource(@props.dataSource)
     @updateRangeState()
 
   componentWillUnmount: =>
     window.removeEventListener('resize', @onWindowResize, true)
+    @_unlisten?()
+
+  componentWillReceiveProps: (nextProps) =>
+    if nextProps.dataSource isnt @props.dataSource
+      @setupDataSource(nextProps.dataSource)
+      @setState(@buildStateForRange(dataSource: nextProps.dataSource))
+
+  setupDataSource: (dataSource) =>
+    @_unlisten?()
+    @_unlisten = dataSource.listen =>
+      @setState(@buildStateForRange())
+
+  buildStateForRange: ({dataSource, start, end} = {}) =>
+    start ?= @state.renderedRangeStart
+    end ?= @state.renderedRangeEnd
+    dataSource ?= @props.dataSource
+
+    items = {}
+    [start..end].forEach (idx) =>
+      items[idx] = dataSource.get(idx)
+
+    renderedRangeStart: start
+    renderedRangeEnd: end
+    count: dataSource.count()
+    loaded: dataSource.loaded()
+    empty: dataSource.empty()
+    items: items
 
   componentDidUpdate: (prevProps, prevState) =>
     # If our view has been swapped out for an entirely different one,
@@ -120,7 +93,7 @@ class ListTabular extends React.Component
     # Expand the start/end so that you can advance the keyboard cursor fast and
     # we have items to move to and then scroll to.
     rangeStart = Math.max(0, rangeStart - 2)
-    rangeEnd = Math.min(rangeEnd + 2, @props.dataSource.count() + 1)
+    rangeEnd = Math.min(rangeEnd + 2, @state.count + 1)
 
     # Final sanity check to prevent needless work
     return if rangeStart is @state.renderedRangeStart and
@@ -132,46 +105,45 @@ class ListTabular extends React.Component
       start: rangeStart
       end: rangeEnd
 
-    @setState
-      renderedRangeStart: rangeStart
-      renderedRangeEnd: rangeEnd
+    @setState(@buildStateForRange(start: rangeStart, end: rangeEnd))
 
   render: =>
     innerStyles =
-      height: @props.dataSource.count() * @props.itemHeight
+      height: @state.count * @props.itemHeight
 
-    <ScrollRegion
-      ref="container"
-      onScroll={@onScroll}
-      tabIndex="-1"
-      className="list-container list-tabular"
-      scrollTooltipComponent={@props.scrollTooltipComponent}>
-      <div className="list-rows" style={innerStyles}>
-        {@_rows()}
-      </div>
-    </ScrollRegion>
+    emptyElement = false
+    if @props.emptyComponent
+      emptyElement = <@props.emptyComponent visible={@state.loaded and @state.empty} />
+
+    <div className={@props.className}>
+      <ScrollRegion
+        ref="container"
+        onScroll={@onScroll}
+        tabIndex="-1"
+        className="list-container list-tabular"
+        scrollTooltipComponent={@props.scrollTooltipComponent}>
+        <div className="list-rows" style={innerStyles}>
+          {@_rows()}
+        </div>
+      </ScrollRegion>
+      <Spinner visible={!@state.loaded and @state.empty} />
+      {emptyElement}
+    </div>
 
   _rows: =>
-    rows = []
+    [@state.renderedRangeStart..@state.renderedRangeEnd-1].map (idx) =>
+      item = @state.items[idx]
+      return false unless item
 
-    for idx in [@state.renderedRangeStart..@state.renderedRangeEnd-1]
-      item = @props.dataSource.get(idx)
-      continue unless item
-
-      itemProps = {}
-      if @props.itemPropsProvider
-        itemProps = @props.itemPropsProvider(item)
-
-      rows.push <ListTabularItem key={item.id ? idx}
-                               item={item}
-                               itemProps={itemProps}
-                               metrics={top: idx * @props.itemHeight, height: @props.itemHeight}
-                               columns={@props.columns}
-                               onSelect={@props.onSelect}
-                               onClick={@props.onClick}
-                               onReorder={@props.onReorder}
-                               onDoubleClick={@props.onDoubleClick} />
-    rows
+      <ListTabularItem key={item.id ? idx}
+                       item={item}
+                       itemProps={@props.itemPropsProvider?(item) ? {}}
+                       metrics={top: idx * @props.itemHeight, height: @props.itemHeight}
+                       columns={@props.columns}
+                       onSelect={@props.onSelect}
+                       onClick={@props.onClick}
+                       onReorder={@props.onReorder}
+                       onDoubleClick={@props.onDoubleClick} />
 
   # Public: Scroll to the DOM node provided.
   #
@@ -185,5 +157,7 @@ class ListTabular extends React.Component
 
 ListTabular.Item = ListTabularItem
 ListTabular.Column = ListColumn
+ListTabular.Selection = ListSelection
+ListTabular.DataSource = ListDataSource
 
 module.exports = ListTabular

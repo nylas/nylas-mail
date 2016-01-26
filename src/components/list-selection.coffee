@@ -1,14 +1,19 @@
-Model = require '../models/model'
-DatabaseStore = require './database-store'
 _ = require 'underscore'
+
+Model = require '../flux/models/model'
+DatabaseStore = require '../flux/stores/database-store'
 
 module.exports =
 class ListSelection
 
-  constructor: (@_view, @trigger) ->
+  constructor: (@_view, callback) ->
     throw new Error("new ListSelection(): You must provide a view.") unless @_view
     @_unlisten = DatabaseStore.listen(@_applyChangeRecord, @)
+    @_caches = {}
     @_items = []
+    @trigger = =>
+      @_caches = {}
+      callback()
 
   cleanup: ->
     @_unlisten()
@@ -17,7 +22,9 @@ class ListSelection
     @_items.length
 
   ids: ->
-    _.pluck(@_items, 'id')
+    # ListTabular asks for ids /a lot/. Cache this value and clear it on trigger.
+    @_caches['ids'] ?= _.pluck(@_items, 'id')
+    @_caches['ids']
 
   items: -> _.clone(@_items)
 

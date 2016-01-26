@@ -32,11 +32,7 @@ class MultiselectList extends React.Component
     className: React.PropTypes.string.isRequired
     columns: React.PropTypes.array.isRequired
     itemPropsProvider: React.PropTypes.func.isRequired
-    itemHeight: React.PropTypes.number.isRequired
-    scrollTooltipComponent: React.PropTypes.func
-    emptyComponent: React.PropTypes.func
     keymapHandlers: React.PropTypes.object
-    onDoubleClick: React.PropTypes.func
 
   constructor: (@props) ->
     @state = @_getStateFromStores()
@@ -103,33 +99,21 @@ class MultiselectList extends React.Component
         props = @props.itemPropsProvider(item)
         props.className ?= ''
         props.className += " " + classNames
-          'selected': item.id in @state.selectedIds
+          'selected': item.id in @props.dataSource.selection.ids()
           'focused': @state.handler.shouldShowFocus() and item.id is @props.focusedId
           'keyboard-cursor': @state.handler.shouldShowKeyboardCursor() and item.id is @props.keyboardCursorId
         props['data-item-id'] = item.id
         props
 
-      emptyElement = []
-      if @props.emptyComponent
-        emptyElement = <@props.emptyComponent
-          visible={@state.loaded and @state.empty}
-          dataSource={@props.dataSource} />
-
       <KeyCommandsRegion globalHandlers={@_globalKeymapHandlers()} className="multiselect-list">
-        <div className={className} {...otherProps}>
-          <ListTabular
-            ref="list"
-            columns={@state.computedColumns}
-            scrollTooltipComponent={@props.scrollTooltipComponent}
-            dataSource={@props.dataSource}
-            itemPropsProvider={@itemPropsProvider}
-            itemHeight={@props.itemHeight}
-            onSelect={@_onClickItem}
-            onDoubleClick={@props.onDoubleClick} />
-
-          <Spinner visible={!@state.loaded and @state.empty} />
-          {emptyElement}
-        </div>
+        <ListTabular
+          ref="list"
+          className={className}
+          columns={@state.computedColumns}
+          dataSource={@props.dataSource}
+          itemPropsProvider={@itemPropsProvider}
+          onSelect={@_onClickItem}
+          {...otherProps} />
       </KeyCommandsRegion>
     else
       <div className={className} {...otherProps}>
@@ -216,9 +200,6 @@ class MultiselectList extends React.Component
     columns: props.columns
     computedColumns: computedColumns
     layoutMode: layoutMode
-    selectedIds: props.dataSource.selection.ids()
-    loaded: props.dataSource.loaded()
-    empty: props.dataSource.empty()
 
   # Public Methods
 
