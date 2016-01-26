@@ -74,7 +74,7 @@ class MultiselectActionBar extends React.Component
   setupForProps: (props) =>
     @_unsubscribers = []
     @_unsubscribers.push WorkspaceStore.listen @_onChange
-    @_unsubscribers.push @props.dataSource.listen @_onChange
+    @_unsubscribers.push props.dataSource.listen @_onChange
 
   shouldComponentUpdate: (nextProps, nextState) =>
     not Utils.isEqualReact(nextProps, @props) or
