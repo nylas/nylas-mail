@@ -229,7 +229,7 @@ class Application
     @setDatabasePhase('close')
     @windowManager.closeAllWindows()
 
-    loadingMessage = "We need to rebuild your mailbox to support new features.<br/>Please wait a few moments while we re-sync your mail."
+    loadingMessage = "Please wait while we prepare new features."
     @_deleteDatabase =>
       @setDatabasePhase('setup')
       @openWindowsForTokenState(loadingMessage)
