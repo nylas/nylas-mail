@@ -530,7 +530,7 @@ class ComposerView extends React.Component
       body: draft.body
       files: draft.files
       subject: draft.subject
-      accounts: @_getAccounts()
+      accounts: @_getAccountsForSend()
 
     if !@state.populated
       _.extend state,
@@ -577,8 +577,8 @@ class ComposerView extends React.Component
     enabledFields.push Fields.Body
     return enabledFields
 
-  _getAccounts: =>
-    if @props.mode is 'inline'
+  _getAccountsForSend: =>
+    if @_proxy.draft()?.replyToMessageId?
       [AccountStore.accountForId(@_proxy.draft().accountId)]
     else
       AccountStore.accounts()
@@ -586,7 +586,7 @@ class ComposerView extends React.Component
   # When the account store changes, the From field may or may not still
   # be in scope. We need to make sure to update our enabled fields.
   _onAccountStoreChanged: =>
-    accounts = @_getAccounts()
+    accounts = @_getAccountsForSend()
     enabledFields = if @_shouldShowFromField(@_proxy?.draft())
       @state.enabledFields.concat [Fields.From]
     else
