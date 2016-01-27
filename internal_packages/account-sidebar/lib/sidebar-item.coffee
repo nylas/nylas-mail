@@ -60,15 +60,26 @@ class SidebarItem
       dataTransferType: 'nylas-thread-ids'
       onDelete: onDeleteItem
       onToggleCollapsed: toggleItemCollapsed
-      onDrop: (item, ids) ->
+      onDrop: (item, event) ->
+        jsonString = event.dataTransfer.getData(item.dataTransferType)
+        ids = null
+        try
+          ids = JSON.parse(jsonString);
+        catch err
+          console.error('OutlineViewItem onDrop: JSON parse #{err}');
         return unless ids
         item.perspective.applyToThreads(ids)
       shouldAcceptDrop: (item, event) ->
-        perspective = item.perspective
-        return false unless perspective
-        return false if perspective.isEqual(FocusedPerspectiveStore.current())
-        return false unless perspective.canApplyToThreads()
-        item.dataTransferType in event.dataTransfer.types
+        target = item.perspective
+        current = FocusedPerspectiveStore.current()
+
+        return false unless target
+        return false if target.isEqual(current)
+        return false unless _.isEqual(target.accountIds, current.accountIds)
+        return false unless target.canApplyToThreads()
+
+        return item.dataTransferType in event.dataTransfer.types
+
       onSelect: (item) ->
         Actions.selectRootSheet(WorkspaceStore.Sheet.Threads)
         Actions.focusMailboxPerspective(item.perspective)

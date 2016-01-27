@@ -64,8 +64,9 @@ class OutlineViewItem extends Component {
   _runCallback = (method, ...args)=> {
     const item = this.props.item;
     if (item[method]) {
-      item[method](item, ...args);
+      return item[method](item, ...args);
     }
+    return undefined;
   }
 
 
@@ -76,17 +77,7 @@ class OutlineViewItem extends Component {
   }
 
   _onDrop = (event)=> {
-    const item = this.props.item;
-    const jsonString = event.dataTransfer.getData(item.dataTransferType);
-    let ids;
-    try {
-      ids = JSON.parse(jsonString);
-    } catch (err) {
-      console.error('OutlineViewItem onDrop: JSON parse #{err}');
-    }
-    if (!ids) return;
-
-    this._runCallback('onDrop', ids);
+    this._runCallback('onDrop', event);
   }
 
   _onToggleCollapsed = ()=> {
@@ -103,7 +94,7 @@ class OutlineViewItem extends Component {
   }
 
   _shouldAcceptDrop = (event)=> {
-    this._runCallback('shouldAcceptDrop', event);
+    return this._runCallback('shouldAcceptDrop', event);
   }
 
   _onShowContextMenu = ()=> {

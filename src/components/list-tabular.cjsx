@@ -108,6 +108,8 @@ class ListTabular extends React.Component
     @setState(@buildStateForRange(start: rangeStart, end: rangeEnd))
 
   render: =>
+    otherProps = _.omit(@props, _.keys(@constructor.propTypes))
+
     innerStyles =
       height: @state.count * @props.itemHeight
 
@@ -122,7 +124,7 @@ class ListTabular extends React.Component
         tabIndex="-1"
         className="list-container list-tabular"
         scrollTooltipComponent={@props.scrollTooltipComponent}>
-        <div className="list-rows" style={innerStyles}>
+        <div className="list-rows" style={innerStyles} {...otherProps}>
           {@_rows()}
         </div>
       </ScrollRegion>
