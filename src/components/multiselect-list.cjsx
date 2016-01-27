@@ -139,7 +139,7 @@ class MultiselectList extends React.Component
 
   _onSelectAll: =>
     return unless @state.handler
-    items = @state.dataSource.itemsCurrentlyInViewMatching -> true
+    items = @props.dataSource.itemsCurrentlyInViewMatching -> true
     @props.dataSource.selection.set(items)
 
   _onDeselect: =>
