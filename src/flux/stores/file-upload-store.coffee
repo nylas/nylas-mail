@@ -36,12 +36,13 @@ class FileUploadStore extends NylasStore
     @_fileUploads = @_getFileUploadsFromFs()
 
   uploadsForMessage: (messageClientId) ->
-    @_fileUploads[messageClientId] ? []
+    [].concat(@_fileUploads[messageClientId] ? [])
 
 
   # Handlers
 
   _onDataChanged: (change) =>
+    return unless NylasEnv.isMainWindow()
     return unless change.objectClass is Message.name and change.type is 'unpersist'
     change.objects.forEach (message) =>
       uploads = @_fileUploads[message.clientId]
@@ -164,7 +165,7 @@ class FileUploadStore extends NylasStore
       fs.unlink upload.targetPath, (err) ->
         reject("Error removing file #{upload.filename}") if err
         fs.rmdir upload.targetDir, (err) ->
-          reject("Error removing file #{upload.filename}") if err
+          reject("Error removing directory for file #{upload.filename}") if err
           resolve(upload)
 
   _saveUpload: (upload) =>
