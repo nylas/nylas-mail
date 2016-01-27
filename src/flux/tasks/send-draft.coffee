@@ -37,8 +37,6 @@ module.exports =
 class SendDraftTask extends Task
 
   constructor: (@draft, @uploads) ->
-    @_progress = new MultiRequestProgressMonitor()
-    Object.defineProperty(@, 'progress', { get: -> @_progress.value() })
     super
 
   label: ->
@@ -63,8 +61,11 @@ class SendDraftTask extends Task
     .catch(@_onError)
 
   _uploadAttachments: =>
+    @_progress = new MultiRequestProgressMonitor()
+    Object.defineProperty(@, 'progress', { get: -> @_progress.value() })
+
     Promise.all @uploads.map ({targetPath, size}) =>
-      NylasAPI.makeRequest
+      NylasAPI.makeRequest(
         path: "/files"
         accountId: @draft.accountId
         method: "POST"
@@ -77,10 +78,12 @@ class SendDraftTask extends Task
         started: (req) =>
           @_progress.add(targetPath, size, req)
         timeout: 20 * 60 * 1000
+      )
+      .then((file) =>
+        @draft.files.push(file)
+      )
       .finally =>
         @_progress.remove(targetPath)
-      .then (file) =>
-        @draft.files.push(file)
 
   _sendAndCreateMessage: =>
     NylasAPI.makeRequest
