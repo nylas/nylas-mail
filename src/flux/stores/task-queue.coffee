@@ -49,9 +49,9 @@ if @_thread && @_thread.unread
 
 ```coffee
 Actions.dequeueMatchingTask({
-  type: 'FileUploadTask',
+  type: 'DestroyCategoryTask',
   matching: {
-    filePath: uploadData.filePath
+    categoryId: 'bla'
   }
 })
 ```

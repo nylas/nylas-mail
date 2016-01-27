@@ -499,9 +499,6 @@ class Task
   # Public: code to run if someone tries to dequeue your task while it is
   # in flight.
   #
-  # For example, the {FileUploadTask} implements `cancel` to `abort` the
-  # http request if someone dequeues it. Once `abort`ed, an error is
-  # thrown in `performRemote` and handled accordingly.
   cancel: ->
 
   # Public: (optional) A string displayed to users when your task is run.

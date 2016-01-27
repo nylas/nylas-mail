@@ -5,15 +5,6 @@ mkdirp = require 'mkdirp'
 NylasStore = require 'nylas-store'
 Actions = require '../actions'
 
-###
-TODO: This store uses a combination of Actions and it's own internal structures
-to keep track of uploads. It's difficult to ensure this state stays in sync as
-FileUploadTasks run.
-
-Instead, this store should observe the TaskQueueStatusStore and inspect
-FileUploadTasks themselves for state at any given moment. Refactor this!
-###
-
 UPLOAD_DIR = path.join(NylasEnv.getConfigDirPath(), 'uploads')
 
 class Upload
@@ -40,7 +31,7 @@ class FileUploadStore extends NylasStore
     mkdirp(UPLOAD_DIR)
 
   uploadsForMessage: (messageClientId) ->
-    @_fileUploads[messageClientId]
+    @_fileUploads[messageClientId] ? []
 
   _onSelectFileForUpload: ({messageClientId}) ->
     @_verifyId(messageClientId)
@@ -87,23 +78,21 @@ class FileUploadStore extends NylasStore
   _getFileStats: ({messageClientId, filePath}) ->
     fs.stat filePath, (err, stats) =>
       if err
-        reject("#{filePath} could not be found, or has invalid file permissions.")
+        Promise.reject("#{filePath} could not be found, or has invalid file permissions.")
       else
-        resolve({messageClientId, filePath, stats})
+        Promise.resolve({messageClientId, filePath, stats})
 
   _makeUpload: ({messageClientId, filePath, stats}) ->
     Promise.resolve(new Upload(messageClientId, filePath, stats))
 
   _verifyUpload: (upload) ->
-    return new Promise (resolve, reject) ->
-      {stats} = upload
-      if stats.isDirectory()
-        reject("#{filename} is a directory. Try compressing it and attaching it again.")
-      else if stats.size > 25 * 1000000
-        reject("#{filename} cannot be attached because it is larger than 25MB.")
-      else
-        resolve(upload)
-        # Actions.queueTask(new FileUploadTask(path, messageClientId))
+    {stats} = upload
+    if stats.isDirectory()
+      Promise.reject("#{filename} is a directory. Try compressing it and attaching it again.")
+    else if stats.size > 25 * 1000000
+      Promise.reject("#{filename} cannot be attached because it is larger than 25MB.")
+    else
+      Promise.resolve(upload)
 
   _prepareTargetDir: (upload) =>
     return new Promise (resolve, reject) ->

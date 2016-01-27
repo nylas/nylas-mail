@@ -74,16 +74,6 @@ describe 'FileUploadStore', ->
       expect(Actions.queueTask).not.toHaveBeenCalled()
       expect(FileUploadStore._onAttachFileError).toHaveBeenCalled()
 
-  describe 'when an uploading file is aborted', ->
-    it "dequeues the matching task", ->
-      spyOn(Actions, "dequeueMatchingTask")
-      Actions.abortUpload(@uploadData)
-      expect(Actions.dequeueMatchingTask).toHaveBeenCalled()
-      arg = Actions.dequeueMatchingTask.calls[0].args[0]
-      expect(arg).toEqual
-        type: "FileUploadTask"
-        matching: id: @uploadData.uploadTaskId
-
   describe 'when upload state changes', ->
     it 'updates the uploadData', ->
       Actions.uploadStateChanged(@uploadData)
