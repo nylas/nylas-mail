@@ -110,7 +110,10 @@ class AccountStore
   # Public: Returns the {Account} for the given email address, or null.
   accountForEmail: (email) =>
     _.find @_accounts, (account) ->
-      Utils.emailIsEquivalent(email, account.emailAddress)
+      return true if Utils.emailIsEquivalent(email, account.emailAddress)
+      for alias in account.aliases
+        return true if Utils.emailIsEquivalent(email, alias)
+      return false
 
   # Public: Returns the {Account} for the given account id, or null.
   accountForId: (id) =>

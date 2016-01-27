@@ -553,7 +553,7 @@ class ComposerView extends React.Component
     return enabledFields
 
   _getAccountsForSend: =>
-    if @_proxy.draft()?.replyToMessageId?
+    if @_proxy.draft()?.replyToMessageId
       [AccountStore.accountForId(@_proxy.draft().accountId)]
     else
       AccountStore.accounts()

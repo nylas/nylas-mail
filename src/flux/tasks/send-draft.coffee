@@ -3,12 +3,14 @@ fs = require 'fs'
 path = require 'path'
 Task = require './task'
 Actions = require '../actions'
+File = require '../models/file'
 Message = require '../models/message'
 NylasAPI = require '../nylas-api'
 TaskQueue = require '../stores/task-queue'
 {APIError} = require '../errors'
 SoundRegistry = require '../../sound-registry'
 DatabaseStore = require '../stores/database-store'
+AccountStore = require '../stores/account-store'
 
 class MultiRequestProgressMonitor
 
@@ -51,7 +53,7 @@ class SendDraftTask extends Task
     unless @uploads and @uploads instanceof Array
       return Promise.reject(new Error("SendDraftTask - must be provided an array of uploads."))
 
-    account = AccountStore.accountForEmail(@draft.from[0])
+    account = AccountStore.accountForEmail(@draft.from[0].email)
     unless account
       return Promise.reject(new Error("SendDraftTask - you can only send drafts from a configured account."))
 
@@ -99,7 +101,9 @@ class SendDraftTask extends Task
         timeout: 20 * 60 * 1000
       .finally =>
         progress.remove(targetPath)
-      .then (file) =>
+      .then (rawResponseString) =>
+        json = JSON.parse(rawResponseString)
+        file = (new File).fromJSON(json[0])
         @uploads.splice(@uploads.indexOf(upload), 1)
         @draft.files.push(file)
 
@@ -128,11 +132,11 @@ class SendDraftTask extends Task
         return Promise.reject(err)
 
     .then (newMessageJSON) =>
-      @message = new Message().fromJSON(newMessageJSON)
-      @message.clientId = @draft.clientId
-      @message.draft = false
+      message = new Message().fromJSON(newMessageJSON)
+      message.clientId = @draft.clientId
+      message.draft = false
       DatabaseStore.inTransaction (t) =>
-        t.persistModel(@message)
+        t.persistModel(message)
 
   # We DON'T need to delete the local draft because we turn it into a message
   # by writing the new message into the database with the same clientId.
@@ -156,8 +160,7 @@ class SendDraftTask extends Task
 
   _onSuccess: =>
     Actions.sendDraftSuccess
-      draftClientId: @draftClientId
-      newMessage: @message
+      draftClientId: @draft.clientId
 
     # Play the sending sound
     if NylasEnv.config.get("core.sending.sounds")
@@ -182,8 +185,8 @@ class SendDraftTask extends Task
 
     else
       Actions.draftSendingFailed
-        threadId: @threadId
-        draftClientId: @draftClientId,
+        threadId: @draft.threadId
+        draftClientId: @draft.clientId,
         errorMessage: msg
       NylasEnv.emitError(err)
       return Promise.resolve([Task.Status.Failed, err])

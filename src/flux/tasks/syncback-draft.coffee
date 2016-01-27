@@ -42,7 +42,7 @@ class SyncbackDraftTask extends Task
     @getLatestLocalDraft().then (draft) =>
       return Promise.resolve() unless draft
 
-      @checkDraftFromMatchesAccount()
+      @checkDraftFromMatchesAccount(draft)
       .then(@saveDraft)
       .then(@updateLocalDraft)
       .thenReturn(Task.Status.Success)
@@ -98,9 +98,10 @@ class SyncbackDraftTask extends Task
         returnsModel: false
 
       draft.accountId = account.id
-      draft.serverId = null
-      draft.version = null
-      draft.threadId = null
-      draft.replyToMessageId = null
+      delete draft.serverId
+      delete draft.version
+      delete draft.threadId
+      delete draft.replyToMessageId
       DatabaseStore.inTransaction (t) =>
         t.persistModel(draft)
+      .thenReturn(draft)

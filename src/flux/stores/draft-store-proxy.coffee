@@ -44,7 +44,7 @@ class DraftChangeSet
       @commit()
     else
       clearTimeout(@_timer) if @_timer
-      @_timer = setTimeout(@commit, 30000)
+      @_timer = setTimeout(@commit, 3000)
 
   commit: ({noSyncback}={}) =>
     @_commitChain = @_commitChain.finally =>
