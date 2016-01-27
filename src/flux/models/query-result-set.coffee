@@ -96,7 +96,7 @@ class QueryResultSet
     if @_idToIndexHash is null
       @buildIdToIndexHash()
 
-    if @_idToIndexHash[id]
+    if @_idToIndexHash[id] isnt undefined
       return @_idToIndexHash[id] + @_offset
     else
       return -1

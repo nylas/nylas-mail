@@ -1,5 +1,6 @@
 _ = require 'underscore'
 
+TaskFactory = require './flux/tasks/task-factory'
 AccountStore = require './flux/stores/account-store'
 CategoryStore = require './flux/stores/category-store'
 DatabaseStore = require './flux/stores/database-store'
@@ -233,31 +234,14 @@ class CategoryMailboxPerspective extends MailboxPerspective
     super
 
   applyToThreads: (threadsOrIds) =>
-    # TODO:
-    # categoryToApplyForAccount = {}
-    # for cat in @_categories
-    #   categoryToApplyForAccount[cat.accountId] = cat
-    #
-    # @_categories.forEach (cat) ->
-    #
-    # if @account.usesLabels()
-    #   FocusedPerspectiveStore = require './flux/stores/focused-perspective-store'
-    #   currentLabel = FocusedPerspectiveStore.current().category
-    #   if currentLabel and not (currentLabel.isLockedCategory())
-    #     labelsToRemove = [currentLabel]
-    #
-    #   ChangeLabelsTask = require './flux/tasks/change-labels-task'
-    #   task = new ChangeLabelsTask
-    #     threads: threadsOrIds
-    #     labelsToAdd: [@category]
-    #     labelsToRemove: labelsToRemove
-    # else
-    #   ChangeFolderTask = require './flux/tasks/change-folder-task'
-    #   task = new ChangeFolderTask
-    #     threads: threadsOrIds
-    #     folder: @category
-    #
-    # Actions.queueTask(task)
+    FocusedPerspectiveStore = require './flux/stores/focused-perspective-store'
+    currentCategories = FocusedPerspectiveStore.current().categories()
 
+    DatabaseStore.modelify(Thread, threadsOrIds).then (threads) =>
+      tasks = TaskFactory.tasksForApplyingCategories
+        threads: threads
+        categoriesToRemove: (accountId) -> _.filter(currentCategories, _.matcher({accountId}))
+        categoryToAdd: (accountId) => _.findWhere(@_categories, {accountId})
+      Actions.queueTasks(tasks)
 
 module.exports = MailboxPerspective
