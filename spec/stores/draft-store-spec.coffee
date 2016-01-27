@@ -7,6 +7,7 @@
  DraftStore,
  AccountStore,
  DatabaseStore,
+ FileUploadStore,
  SoundRegistry,
  SendDraftTask,
  ChangeMailTask,
@@ -667,22 +668,25 @@ describe "DraftStore", ->
   describe "sending a draft", ->
     draftClientId = "local-123"
     beforeEach ->
+      @draft = new Message(clientId: draftClientId, threadId: "thread-123", replyToMessageId: "message-123")
+      @uploads = ['stub']
       DraftStore._draftSessions = {}
       DraftStore._draftsSending = {}
       @forceCommit = false
-      msg = new Message(clientId: draftClientId, threadId: "thread-123", replyToMessageId: "message-123")
       proxy =
         prepare: -> Promise.resolve(proxy)
         teardown: ->
-        draft: -> msg
+        draft: => @draft
         changes:
           commit: ({force}={}) =>
             @forceCommit = force
             Promise.resolve()
+
       DraftStore._draftSessions[draftClientId] = proxy
       spyOn(DraftStore, "_doneWithSession").andCallThrough()
       spyOn(DraftStore, "trigger")
       spyOn(SoundRegistry, "playSound")
+      spyOn(FileUploadStore, "uploadsForMessage").andReturn(@uploads)
       spyOn(Actions, "queueTask")
 
     it "plays a sound immediately when sending draft", ->
@@ -749,15 +753,7 @@ describe "DraftStore", ->
       runs ->
         expect(NylasEnv.close).not.toHaveBeenCalled()
 
-    it "forces a commit to happen before sending", ->
-      runs ->
-        DraftStore._onSendDraft(draftClientId)
-      waitsFor ->
-        DraftStore._doneWithSession.calls.length > 0
-      runs ->
-        expect(@forceCommit).toBe true
-
-    it "includes the threadId", ->
+    it "queues the correct SendDraftTask", ->
       runs ->
         DraftStore._onSendDraft(draftClientId)
       waitsFor ->
@@ -766,18 +762,8 @@ describe "DraftStore", ->
         expect(Actions.queueTask).toHaveBeenCalled()
         task = Actions.queueTask.calls[0].args[0]
         expect(task instanceof SendDraftTask).toBe true
-        expect(task.threadId).toBe "thread-123"
-
-    it "includes the replyToMessageId", ->
-      runs ->
-        DraftStore._onSendDraft(draftClientId)
-      waitsFor ->
-        DraftStore._doneWithSession.calls.length > 0
-      runs ->
-        expect(Actions.queueTask).toHaveBeenCalled()
-        task = Actions.queueTask.calls[0].args[0]
-        expect(task instanceof SendDraftTask).toBe true
-        expect(task.replyToMessageId).toBe "message-123"
+        expect(task.draft).toBe @draft
+        expect(task.uploads).toBe @uploads
 
     it "queues a SendDraftTask", ->
       runs ->
