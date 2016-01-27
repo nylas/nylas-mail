@@ -76,7 +76,7 @@ class NylasSpellchecker
   getAvailableDictionaries: ->
     if process.platform is 'linux'
       arr = spellchecker.getAvailableDictionaries()
-      if not "en_US" in arr
+      if "en_US" not in arr
         arr.push('en_US') # Installed by default in node-spellchecker's vendor directory
       arr
     else
