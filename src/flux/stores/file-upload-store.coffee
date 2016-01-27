@@ -5,14 +5,16 @@ mkdirp = require 'mkdirp'
 NylasStore = require 'nylas-store'
 Actions = require '../actions'
 Utils = require '../models/utils'
+Message = require '../models/message'
+DatabaseStore = require './database-store'
 
 
 UPLOAD_DIR = path.join(NylasEnv.getConfigDirPath(), 'uploads')
 
 class Upload
 
-  constructor: (@messageClientId, @originPath, @stats, @uploadDir = UPLOAD_DIR) ->
-    @id = Utils.generateTempId()
+  constructor: (@messageClientId, @originPath, @stats, @id, @uploadDir = UPLOAD_DIR) ->
+    @id ?= Utils.generateTempId()
     @filename = path.basename(@originPath)
     @draftUploadDir = path.join(@uploadDir, @messageClientId)
     @targetDir = path.join(@draftUploadDir, @id)
@@ -23,30 +25,38 @@ class Upload
 class FileUploadStore extends NylasStore
 
   constructor: ->
-    @listenTo Actions.selectFileForUpload, @_onSelectFileForUpload
-    @listenTo Actions.attachFile, @_onAttachFile
-    @listenTo Actions.removeFileFromUpload, @_onRemoveUpload
+    @listenTo Actions.selectAttachment, @_onSelectAttachment
+    @listenTo Actions.addAttachment, @_onAddAttachment
+    @listenTo Actions.removeAttachment, @_onRemoveAttachment
+    @listenTo DatabaseStore, @_onDataChanged
 
-    # We don't save uploads to the DB, we keep it in memory in the store.
-    # The key is the messageClientId. The value is a hash of paths and
-    # corresponding upload data.
-    @_fileUploads = {}
-    mkdirp(UPLOAD_DIR)
+    mkdirp.sync(UPLOAD_DIR)
+    @_fileUploads = @_getFileUploadsFromFs()
 
   uploadsForMessage: (messageClientId) ->
     @_fileUploads[messageClientId] ? []
 
-  _onSelectFileForUpload: ({messageClientId}) ->
+
+  # Handlers
+
+  _onDataChanged: (change) =>
+    return unless change.objectClass is Message.name and change.type is 'unpersist'
+    change.objects.forEach (message) =>
+      uploads = @_fileUploads[message.clientId]
+      if uploads?
+        uploads.forEach (upload) => @_onRemoveAttachment(upload)
+
+  _onSelectAttachment: ({messageClientId}) ->
     @_verifyId(messageClientId)
-    # When the dialog closes, it triggers `Actions.attachFile`
+    # When the dialog closes, it triggers `Actions.addAttachment`
     NylasEnv.showOpenDialog {properties: ['openFile', 'multiSelections']}, (pathsToOpen) ->
       return if not pathsToOpen?
       pathsToOpen = [pathsToOpen] if _.isString(pathsToOpen)
 
       pathsToOpen.forEach (filePath) ->
-        Actions.attachFile({messageClientId, filePath})
+        Actions.addAttachment({messageClientId, filePath})
 
-  _onAttachFile: ({messageClientId, filePath}) ->
+  _onAddAttachment: ({messageClientId, filePath}) ->
     @_verifyId(messageClientId)
     @_getFileStats({messageClientId, filePath})
     .then(@_makeUpload)
@@ -56,7 +66,7 @@ class FileUploadStore extends NylasStore
     .then(@_saveUpload)
     .catch(@_onAttachFileError)
 
-  _onRemoveUpload: (upload) ->
+  _onRemoveAttachment: (upload) ->
     return unless (@_fileUploads[upload.messageClientId] ? []).length > 0
     @_deleteUpload(upload)
     .then (upload) =>
@@ -76,6 +86,29 @@ class FileUploadStore extends NylasStore
       buttons: ['OK'],
       message: 'Cannot Attach File',
       detail: message
+
+  # Helpers
+
+  _getTempIdDirsFor: (path) ->
+    fs.readdirSync(path).filter((dir) -> Utils.isTempId(dir))
+
+  _getFileUploadsFromFs: (rootDir = UPLOAD_DIR)->
+    # TODO This function makes my eyes hurt. Refactor
+    uploads = {}
+    dirs = @_getTempIdDirsFor(rootDir)
+    for messageClientId in dirs
+      uploads[messageClientId] = []
+      messageDir = path.join(rootDir, messageClientId)
+      uploadIds = @_getTempIdDirsFor(messageDir)
+      for uploadId in uploadIds
+        uploadDir = path.join(messageDir, uploadId)
+        for filename in fs.readdirSync(uploadDir)
+          uploadPath = path.join(uploadDir, filename)
+          stats = fs.statSync(uploadPath)
+          uploads[messageClientId].push(
+            new Upload(messageClientId, uploadPath, stats, uploadId)
+          )
+    return uploads
 
   _verifyId: (messageClientId) ->
     if messageClientId.blank?
