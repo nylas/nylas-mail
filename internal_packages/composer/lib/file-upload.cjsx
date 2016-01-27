@@ -27,7 +27,7 @@ class FileUpload extends React.Component
     </div>
 
   _onClickRemove: =>
-    Actions.removeFileFromUpload @props.upload.messageClientId, @props.upload.id
+    Actions.removeFileFromUpload @props.upload
 
   _extension: =>
     path.extname(@props.upload.filename)[1..-1]

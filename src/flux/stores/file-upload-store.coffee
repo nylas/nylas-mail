@@ -4,6 +4,8 @@ path = require 'path'
 mkdirp = require 'mkdirp'
 NylasStore = require 'nylas-store'
 Actions = require '../actions'
+Utils = require '../models/utils'
+
 
 UPLOAD_DIR = path.join(NylasEnv.getConfigDirPath(), 'uploads')
 
@@ -12,7 +14,8 @@ class Upload
   constructor: (@messageClientId, @originPath, @stats, @uploadDir = UPLOAD_DIR) ->
     @id = Utils.generateTempId()
     @filename = path.basename(@originPath)
-    @targetDir = path.join(@uploadDir, @messageClientId, @id)
+    @draftUploadDir = path.join(@uploadDir, @messageClientId)
+    @targetDir = path.join(@draftUploadDir, @id)
     @targetPath = path.join(@targetDir, @filename)
     @size = @stats.size
 
@@ -57,8 +60,11 @@ class FileUploadStore extends NylasStore
     return unless (@_fileUploads[upload.messageClientId] ? []).length > 0
     @_deleteUpload(upload)
     .then (upload) =>
-      uploads = @_fileUploads[upload.messageClientId]
+      {messageClientId} = upload
+      uploads = @_fileUploads[messageClientId]
       uploads = _.reject(uploads, ({id}) -> id is upload.id)
+      @_fileUploads[messageClientId] = uploads
+      fs.rmdir(upload.draftUploadDir) if uploads.length is 0
       @trigger()
     .catch(@_onAttachFileError)
 
@@ -76,11 +82,12 @@ class FileUploadStore extends NylasStore
       throw new Error "You need to pass the ID of the message (draft) this Action refers to"
 
   _getFileStats: ({messageClientId, filePath}) ->
-    fs.stat filePath, (err, stats) =>
-      if err
-        Promise.reject("#{filePath} could not be found, or has invalid file permissions.")
-      else
-        Promise.resolve({messageClientId, filePath, stats})
+    return new Promise (resolve, reject) ->
+      fs.stat filePath, (err, stats) =>
+        if err
+          reject("#{filePath} could not be found, or has invalid file permissions.")
+        else
+          resolve({messageClientId, filePath, stats})
 
   _makeUpload: ({messageClientId, filePath, stats}) ->
     Promise.resolve(new Upload(messageClientId, filePath, stats))
