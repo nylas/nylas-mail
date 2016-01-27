@@ -31,6 +31,7 @@ class QueryResultSet
       throw new Error("setByApplyingModels: A hash of models is required.")
     set = set.clone()
     set._modelsHash = models
+    set._idToIndexHash = null
     set
 
   constructor: (other = {}) ->
@@ -38,11 +39,13 @@ class QueryResultSet
     @_offset = other._offset ? null
     @_query = other._query ? null
     @_ids = other._ids ? []
+    @_idToIndexHash = other._idToIndexHash ? null
 
   clone: ->
     new @constructor({
       _ids: [].concat(@_ids)
       _modelsHash: _.extend({}, @_modelsHash)
+      _idToIndexHash: _.extend({}, @_idToIndexHash)
       _query: @_query
       _offset: @_offset
     })
@@ -82,15 +85,20 @@ class QueryResultSet
   modelWithId: (id) ->
     @_modelsHash[id]
 
+  buildIdToIndexHash: ->
+    @_idToIndexHash = {}
+    for id, idx in @_ids
+      @_idToIndexHash[id] = idx
+      model = @_modelsHash[id]
+      @_idToIndexHash[model.clientId] = idx if model
+
   offsetOfId: (id) ->
-    idx = @_ids.indexOf(id)
+    if @_idToIndexHash is null
+      @buildIdToIndexHash()
 
-    # If we can't find the item, try to match against client ids as well. Some
-    # items in the models() array may not be loaded, but we can try our best.
-    if idx is -1
-      idx = _.findIndex @models(), (m) -> m and (m.id is id or m.clientId is id)
-
-    return -1 if idx is -1
-    return @_offset + idx
+    if @_idToIndexHash[id]
+      return @_idToIndexHash[id] + @_offset
+    else
+      return -1
 
 module.exports = QueryResultSet

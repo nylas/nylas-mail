@@ -30,6 +30,7 @@ class MutableQueryResultSet extends QueryResultSet
 
     models = @models()
     @_modelsHash = {}
+    @_idToIndexHash = null
     @replaceModel(m) for m in models
 
   addModelsInRange: (rangeModels, range) ->
@@ -39,6 +40,7 @@ class MutableQueryResultSet extends QueryResultSet
   addIdsInRange: (rangeIds, range) ->
     if @_offset is null or range.isInfinite()
       @_ids = rangeIds
+      @_idToIndexHash = null
       @_offset = range.offset
     else
       currentEnd = @_offset + @_ids.length
@@ -58,18 +60,21 @@ class MutableQueryResultSet extends QueryResultSet
         existingAfter = @_ids.slice(rangeIdsEnd - @_offset)
 
       @_ids = [].concat(existingBefore, rangeIds, existingAfter)
+      @_idToIndexHash = null
       @_offset = Math.min(@_offset, range.offset)
 
   replaceModel: (item) ->
     return unless item
     @_modelsHash[item.clientId] = item
     @_modelsHash[item.id] = item
+    @_idToIndexHash = null
 
   removeModelAtOffset: (item, offset) ->
     idx = offset - @_offset
     delete @_modelsHash[item.clientId]
     delete @_modelsHash[item.id]
     @_ids.splice(idx, 1)
+    @_idToIndexHash = null
 
   setQuery: (query) ->
     @_query = query.clone()
