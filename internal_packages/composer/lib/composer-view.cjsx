@@ -415,7 +415,7 @@ class ComposerView extends React.Component
       <FileUpload key={upload.id} upload={upload} />
     )
     imageUploads = @_imageFiles(@state.uploads).map((upload) ->
-      <ImageUpload key={upload.id} upload={upload} />
+      <ImageFileUpload key={upload.id} upload={upload} />
     )
     nonImageUploads.concat(imageUploads)
 
