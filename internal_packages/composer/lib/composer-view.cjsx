@@ -441,7 +441,7 @@ class ComposerView extends React.Component
 
       <button className="btn btn-toolbar btn-attach" style={order: 50}
               title="Attach file"
-              onClick={@_selectFileForUpload}><RetinaImg name="icon-composer-attachment.png" mode={RetinaImg.Mode.ContentIsMask} /></button>
+              onClick={@_selectAttachment}><RetinaImg name="icon-composer-attachment.png" mode={RetinaImg.Mode.ContentIsMask} /></button>
 
       <div style={order: 0, flex: 1} />
 
@@ -506,6 +506,7 @@ class ComposerView extends React.Component
       files: draft.files
       subject: draft.subject
       accounts: @_getAccountsForSend()
+      uploads: FileUploadStore.uploadsForMessage(@props.draftClientId) ? []
 
     if !@state.populated
       _.extend state,
@@ -615,14 +616,14 @@ class ComposerView extends React.Component
   _onDrop: (e) =>
     # Accept drops of real files from other applications
     for file in e.dataTransfer.files
-      Actions.attachFile({filePath: file.path, messageClientId: @props.draftClientId})
+      Actions.addAttachment({filePath: file.path, messageClientId: @props.draftClientId})
 
     # Accept drops from attachment components / images within the app
     if (uri = @_nonNativeFilePathForDrop(e))
-      Actions.attachFile({filePath: uri, messageClientId: @props.draftClientId})
+      Actions.addAttachment({filePath: uri, messageClientId: @props.draftClientId})
 
   _onFilePaste: (path) =>
-    Actions.attachFile({filePath: path, messageClientId: @props.draftClientId})
+    Actions.addAttachment({filePath: path, messageClientId: @props.draftClientId})
 
   _onChangeParticipants: (changes={}) =>
     @_addToProxy(changes)
@@ -744,8 +745,8 @@ class ComposerView extends React.Component
   _destroyDraft: =>
     Actions.destroyDraft(@props.draftClientId)
 
-  _selectFileForUpload: =>
-    Actions.selectFileForUpload({messageClientId: @props.draftClientId})
+  _selectAttachment: =>
+    Actions.selectAttachment({messageClientId: @props.draftClientId})
 
   undo: (event) =>
     event.preventDefault()

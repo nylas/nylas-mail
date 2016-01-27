@@ -169,7 +169,7 @@ class SendDraftTask extends Task
     # Remove attachments we were waiting to upload
     # Call the Action to do this
     for upload in @uploads
-      Actions.removeFileFromUpload(upload.messageClientId, upload.id)
+      Actions.removeAttachment(upload.messageClientId, upload.id)
 
     return Promise.resolve(Task.Status.Success)
 
