@@ -12,7 +12,7 @@ class NylasSpellchecker
   isLanguageAvailable: (lang) =>
     return false unless lang
     dicts = @getAvailableDictionaries()
-    return (lang in dicts) or (lang.replace('_', '-') in dicts) or (lang.replace('-', '_') in dicts)
+    return (lang in dicts) or (lang.split(/[-_]/)[0] in dicts) or (lang.replace('_', '-') in dicts) or (lang.replace('-', '_') in dicts)
 
   isSpelledCorrectly: (args...) => not @isMisspelled(args...)
 
