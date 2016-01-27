@@ -140,6 +140,7 @@ class QuerySubscription
       return @log("Update (#{version}) - No missing Ids") if ids.length is 0
       @log("Update (#{version}) - Fetching missing Ids: #{ids}")
       return DatabaseStore.findAll(@_query._klass, {id: ids}).then (models) =>
+        return @log("Update (#{version}) - Cancelled @ Step 1.5") unless version is @_version
         @log("Update (#{version}) - Fetched missing Ids")
         @_set.replaceModel(m) for m in models
     .then =>
