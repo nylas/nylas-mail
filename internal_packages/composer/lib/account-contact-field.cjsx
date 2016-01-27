@@ -14,9 +14,7 @@ class AccountContactField extends React.Component
     onChange: React.PropTypes.func.isRequired
 
   _onChooseContact: (contact) =>
-    accountId = contact.accountId
-    from = [contact]
-    @props.onChange({accountId, from})
+    @props.onChange({from: [contact]})
     @refs.dropdown.toggleDropdown()
 
   _renderAccountSelector: ->

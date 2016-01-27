@@ -145,7 +145,7 @@ class ExpandedParticipants extends React.Component
         <AccountContactField
           key="from"
           ref={Fields.From}
-          onChange={({accountId, from}) => @props.onChangeParticipants({accountId, from})}
+          onChange={({from}) => @props.onChangeParticipants({from})}
           onFocus={ => @props.onChangeFocusedField(Fields.From) }
           accounts={@props.accounts}
           value={@props.from?[0]} />
