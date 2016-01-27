@@ -52,6 +52,8 @@ class SendDraftTask extends Task
       return Promise.reject(new Error("SendDraftTask - must be provided a draft."))
     unless @uploads and @uploads instanceof Array
       return Promise.reject(new Error("SendDraftTask - must be provided an array of uploads."))
+    unless @draft.from[0]
+      return Promise.reject(new Error("SendDraftTask - you must populate `from` before sending."))
 
     account = AccountStore.accountForEmail(@draft.from[0].email)
     unless account
@@ -65,8 +67,10 @@ class SendDraftTask extends Task
 
     if account.id isnt @draft.accountId
       @draft.accountId = account.id
-      @draft.replyToMessageId = null
-      @draft.threadId = null
+      delete @draft.serverId
+      delete @draft.version
+      delete @draft.threadId
+      delete @draft.replyToMessageId
 
     Promise.resolve()
 
@@ -174,19 +178,16 @@ class SendDraftTask extends Task
     return Promise.resolve(Task.Status.Success)
 
   _onError: (err) =>
-    msg = "Your message could not be sent at this time. Please try again soon."
+    # OUTBOX COMING SOON!
+
+    msg = "Your message could not be sent. Check your network connection and try again."
     if err instanceof APIError and err.statusCode is NylasAPI.TimeoutErrorCode
       msg = "We lost internet connection just as we were trying to send your message! Please wait a little bit to see if it went through. If not, check your internet connection and try sending again."
 
-    recoverableStatusCodes = [400, 404, 500, NylasAPI.TimeoutErrorCode]
+    Actions.draftSendingFailed
+      threadId: @draft.threadId
+      draftClientId: @draft.clientId,
+      errorMessage: msg
+    NylasEnv.emitError(err)
 
-    if err instanceof APIError and err.statusCode in recoverableStatusCodes
-      return Promise.resolve(Task.Status.Retry)
-
-    else
-      Actions.draftSendingFailed
-        threadId: @draft.threadId
-        draftClientId: @draft.clientId,
-        errorMessage: msg
-      NylasEnv.emitError(err)
-      return Promise.resolve([Task.Status.Failed, err])
+    return Promise.resolve([Task.Status.Failed, err])

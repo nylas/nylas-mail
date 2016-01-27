@@ -466,6 +466,7 @@ class Task
   # Returns `true` (should dequeue) or `false` (should not dequeue)
   shouldDequeueOtherTask: (other) -> false
 
+  onDependentTaskError: (other, error) ->
 
   ##### UNDO / REDO METHODS #####
 

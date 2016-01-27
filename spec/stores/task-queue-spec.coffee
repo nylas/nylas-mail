@@ -251,5 +251,4 @@ describe "TaskQueue", ->
       waitsForPromise =>
         TaskQueue._processTask(@taskAA).then =>
           expect(TaskQueue.dequeue).toHaveBeenCalledWith(@taskAA)
-          expect(spyAACallback).not.toHaveBeenCalled()
           expect(@taskAA.queueState.remoteError.message).toBe "Test Error"
