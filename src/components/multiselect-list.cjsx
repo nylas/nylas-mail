@@ -122,7 +122,7 @@ class MultiselectList extends React.Component
 
   _onClickItem: (item, event) =>
     return unless @state.handler
-    if event.metaKey
+    if event.metaKey || event.ctrlKey
       @state.handler.onMetaClick(item)
     else if event.shiftKey
       @state.handler.onShiftClick(item)
