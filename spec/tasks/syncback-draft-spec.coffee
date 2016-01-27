@@ -163,8 +163,8 @@ describe "SyncbackDraftTask", ->
       @task = new SyncbackDraftTask("removeDraftId")
       spyOn(@task, "getLatestLocalDraft").andCallFake -> Promise.resolve(remoteDraft())
 
-    [500, 400, 0].forEach (code) ->
-      it "Fails on #{code} errors when we're PUT-ing", ->
+    NylasAPI.PermanentErrorCodes.forEach (code) ->
+      it "fails on API status code #{code}", ->
         stubAPI(code, "PUT")
         waitsForPromise =>
           @task.performRemote().then ([status, err]) =>
@@ -173,8 +173,15 @@ describe "SyncbackDraftTask", ->
             expect(@task.getLatestLocalDraft.calls.length).toBe 1
             expect(err.statusCode).toBe code
 
-    it "Fails on unknown errors", ->
-      spyOn(NylasAPI, "makeRequest").andCallFake -> Promise.reject(new APIError())
+    [NylasAPI.TimeoutErrorCode].forEach (code) ->
+      it "retries on status code #{code}", ->
+        stubAPI(code, "PUT")
+        waitsForPromise =>
+          @task.performRemote().then (status) =>
+            expect(status).toBe Task.Status.Retry
+
+    it "fails on other JavaScript errors", ->
+      spyOn(NylasAPI, "makeRequest").andCallFake -> Promise.reject(new TypeError())
       waitsForPromise =>
         @task.performRemote().then ([status, err]) =>
           expect(status).toBe Task.Status.Failed
