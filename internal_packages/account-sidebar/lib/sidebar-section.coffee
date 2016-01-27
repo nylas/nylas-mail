@@ -27,8 +27,12 @@ class SidebarSection
     }
 
   @standardSectionForAccount: (account) ->
-    return @empty('Mailboxes') if CategoryStore.categories().length is 0
+    if not account
+      throw new Error("standardSectionForAccount: You must pass an account.")
+
     cats = CategoryStore.standardCategories(account)
+    return @empty('Mailboxes') if cats.length is 0
+
     items = _
       .reject(cats, (cat) -> cat.name is 'drafts')
       .map (cat) => SidebarItem.forCategories([cat])
@@ -63,11 +67,13 @@ class SidebarSection
       categories = CategoryStore.getStandardCategories(accounts, names...)
       continue if categories.length is 0
 
-      children = accounts.map (acc) ->
+      children = []
+      accounts.forEach (acc) ->
         cat = _.first(_.compact(
           names.map((name) -> CategoryStore.getStandardCategory(acc, name))
         ))
-        SidebarItem.forCategories([cat], name: acc.label)
+        return unless cat
+        children.push(SidebarItem.forCategories([cat], name: acc.label))
 
       items.push SidebarItem.forCategories(categories, {children})
 
