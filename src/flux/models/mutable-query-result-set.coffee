@@ -12,7 +12,6 @@ class MutableQueryResultSet extends QueryResultSet
       _query: @_query
       _offset: @_offset
     })
-    Object.freeze(set)
     Object.freeze(set._ids)
     Object.freeze(set._modelsHash)
     set
