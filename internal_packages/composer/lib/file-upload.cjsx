@@ -26,7 +26,8 @@ class FileUpload extends React.Component
       </div>
     </div>
 
-  _onClickRemove: =>
+  _onClickRemove: (event) =>
+    event.preventDefault()
     Actions.removeAttachment @props.upload
 
   _extension: =>

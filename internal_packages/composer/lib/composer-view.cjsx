@@ -70,7 +70,7 @@ class ComposerView extends React.Component
       focusedField: Fields.To # Gets updated in @_initiallyFocusedField
       enabledFields: [] # Gets updated in @_initiallyEnabledFields
       showQuotedText: false
-      uploads: FileUploadStore.uploadsForMessage(@props.draftClientId) ? []
+      uploads: FileUploadStore.uploadsForMessage(@props.draftClientId)
 
   componentWillMount: =>
     @_prepareForDraft(@props.draftClientId)
@@ -506,7 +506,7 @@ class ComposerView extends React.Component
       files: draft.files
       subject: draft.subject
       accounts: @_getAccountsForSend()
-      uploads: FileUploadStore.uploadsForMessage(@props.draftClientId) ? []
+      uploads: FileUploadStore.uploadsForMessage(@props.draftClientId)
 
     if !@state.populated
       _.extend state,
