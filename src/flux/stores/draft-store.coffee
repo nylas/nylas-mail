@@ -10,6 +10,7 @@ AccountStore = require './account-store'
 ContactStore = require './contact-store'
 FocusedPerspectiveStore = require './focused-perspective-store'
 FocusedContentStore = require './focused-content-store'
+FileUploadStore = require './file-upload-store'
 
 SendDraftTask = require '../tasks/send-draft'
 DestroyDraftTask = require '../tasks/destroy-draft'
@@ -513,17 +514,11 @@ class DraftStore
       # committed to the Database since we'll look them up again just
       # before send.
       session.changes.commit(noSyncback: true).then =>
-        task = new SendDraftTask(session.draft())
-        Actions.queueTask(task)
-
-        # NOTE: We may be done with the session in this window, but there
-        # may still be {FileUploadTask}s and other pending draft mutations
-        # in the worker window.
-        #
-        # The send "pending" indicator in the main window is declaratively
-        # bound to the existence of a `@_draftSession`. We want to show
-        # the pending state immediately even as files are uploading.
+        draft = session.draft()
+        uploads = FileUploadStore.uploadsForMessage(draft.clientId)
+        Actions.queueTask(new SendDraftTask(draft, uploads))
         @_doneWithSession(session)
+
         NylasEnv.close() if @_isPopout()
 
   _isPopout: ->

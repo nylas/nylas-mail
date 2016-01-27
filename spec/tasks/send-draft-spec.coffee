@@ -8,7 +8,6 @@ _ = require 'underscore'
  TaskQueue,
  SendDraftTask,
  SyncbackDraftTask,
- FileUploadTask,
  NylasAPI,
  SoundRegistry} = require 'nylas-exports'
 
@@ -299,12 +298,6 @@ describe "SendDraftTask", ->
             expect(status).toBe Task.Status.Retry
             expect(@task._notifyUserOfError).not.toHaveBeenCalled()
             expect(NylasEnv.emitError).not.toHaveBeenCalled()
-
-        it "notifies the user that the required file upload failed", ->
-          fileUploadTask = new FileUploadTask('/dev/null', 'local-1234')
-          @task.onDependentTaskError(fileUploadTask, new Error("Oh no"))
-          expect(@task._notifyUserOfError).toHaveBeenCalled()
-          expect(@task._notifyUserOfError.calls.length).toBe 1
 
         describe "checking the promise chain halts on errors", ->
           beforeEach ->

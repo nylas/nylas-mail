@@ -16,17 +16,17 @@ class MultiRequestProgressMonitor
     @_requests = {}
     @_expected = {}
 
-  add: (filepath, request) =>
+  add: (filepath, filesize, request) =>
     @_requests[filepath] = request
-    @_expected[filepath] = fs.statSync(filepath)["size"] ? 0
+    @_expected[filepath] = filesize ? fs.statSync(filepath)["size"] ? 0
 
   remove: (filepath) =>
     delete @_requests[filepath]
     delete @_expected[filepath]
 
-  progress: =>
+  value: =>
     sent = 0
-    expected = 0
+    expected = 1
     for filepath, req of @_requests
       sent += @req?.req?.connection?._bytesDispatched ? 0
       expected += @_expected[filepath]
@@ -36,8 +36,9 @@ class MultiRequestProgressMonitor
 module.exports =
 class SendDraftTask extends Task
 
-  constructor: (@draft, @attachmentPaths) ->
+  constructor: (@draft, @uploads) ->
     @_progress = new MultiRequestProgressMonitor()
+    Object.defineProperty(@, 'progress', { get: -> @_progress.value() })
     super
 
   label: ->
@@ -47,18 +48,22 @@ class SendDraftTask extends Task
     other instanceof SendDraftTask and other.draft.clientId is @draft.clientId
 
   performLocal: ->
-    return Promise.reject(new Error("SendDraftTask must be provided a draft.")) unless @draft
+    unless @draft and @draft instanceof Message
+      return Promise.reject(new Error("SendDraftTask must be provided a draft."))
+    unless @uploads and @uploads instanceof Array
+      return Promise.reject(new Error("SendDraftTask must be provided an array of uploads."))
+
     Promise.resolve()
 
   performRemote: ->
     @_uploadAttachments()
     .then(@_sendAndCreateMessage)
-    .then(@_deleteDraft)
+    .then(@_deleteRemoteDraft)
     .then(@_onSuccess)
     .catch(@_onError)
 
   _uploadAttachments: =>
-    Promise.all @attachmentPaths.map (filepath) =>
+    Promise.all @uploads.map ({targetPath, size}) =>
       NylasAPI.makeRequest
         path: "/files"
         accountId: @draft.accountId
@@ -66,14 +71,14 @@ class SendDraftTask extends Task
         json: false
         formData:
           file: # Must be named `file` as per the Nylas API spec
-            value: fs.createReadStream(filepath)
+            value: fs.createReadStream(targetPath)
             options:
-              filename: path.basename(filepath)
+              filename: path.basename(targetPath)
         started: (req) =>
-          @_progress.add(filepath, req)
+          @_progress.add(targetPath, size, req)
         timeout: 20 * 60 * 1000
       .finally =>
-        @_progress.remove(filepath)
+        @_progress.remove(targetPath)
       .then (file) =>
         @draft.files.push(file)
 
@@ -82,7 +87,7 @@ class SendDraftTask extends Task
       path: "/send"
       accountId: @draft.accountId
       method: 'POST'
-      body: draftModel.toJSON()
+      body: @draft.toJSON()
       timeout: 1000 * 60 * 5 # We cannot hang up a send - won't know if it sent
       returnsModel: false
 
@@ -139,7 +144,9 @@ class SendDraftTask extends Task
       SoundRegistry.playSound('send')
 
     # Remove attachments we were waiting to upload
-    @attachmentPaths.forEach(fs.unlink)
+    # Call the Action to do this
+    for upload in @uploads
+      Actions.removeFileFromUpload(upload.messageClientId, upload.id)
 
     return Promise.resolve(Task.Status.Success)
 
