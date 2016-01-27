@@ -385,10 +385,10 @@ class ComposerView extends React.Component
     </div>
 
   _renderFileAttachments: ->
-    nonImageFiles = @_nonImageFiles(@state.files).map((file) ->
+    nonImageFiles = @_nonImageFiles(@state.files).map((file) =>
       @_renderFileAttachment(file, "Attachment")
     )
-    imageFiles = @_imageFiles(@state.files).map((file) ->
+    imageFiles = @_imageFiles(@state.files).map((file) =>
       @_renderFileAttachment(file, "Attachment:Image")
     )
     nonImageFiles.concat(imageFiles)
@@ -582,15 +582,8 @@ class ComposerView extends React.Component
     else return true
 
   _shouldAcceptDrop: (event) =>
-    # TODO
     # Ensure that you can't pick up a file and drop it on the same draft
-    existingFilePaths = @state.files.map (f) ->
-      FileDownloadStore.pathForFile(f)
-    existingFilePaths = existingFilePaths.concat(@state.uploads.map (f)-> f.targetPath)
-
     nonNativeFilePath = @_nonNativeFilePathForDrop(event)
-    if nonNativeFilePath and nonNativeFilePath in existingFilePaths
-      return false
 
     hasNativeFile = event.dataTransfer.files.length > 0
     hasNonNativeFilePath = nonNativeFilePath isnt null
