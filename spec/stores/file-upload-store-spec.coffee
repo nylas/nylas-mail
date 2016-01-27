@@ -1,101 +1,189 @@
 File = require '../../src/flux/models/file'
 Actions = require '../../src/flux/actions'
 FileUploadStore = require '../../src/flux/stores/file-upload-store'
+{Upload} = FileUploadStore
 fs = require 'fs'
 
 msgId = "local-123"
 fpath = "/foo/bar/test123.jpg"
+fDir = "/foo/bar"
+uploadDir = "/uploads"
+filename = "test123.jpg"
+argsObj = {messageClientId: msgId, filePath: fpath}
 
 describe 'FileUploadStore', ->
   beforeEach ->
-    @file = new File
-      id: "id_123"
-      filename: "test123.jpg"
-      size: 12345
-    @uploadData =
-      uploadTaskId: 123
-      messageClientId: msgId
-      filePath: fpath
-      fileSize: 12345
-
+    FileUploadStore._fileUploads = {}
     spyOn(NylasEnv, "showOpenDialog").andCallFake (props, callback) ->
       callback(fpath)
 
-    spyOn(Actions, "queueTask")
 
-  describe 'attachFile', ->
+  describe 'selectAttachment', ->
     it "throws if no messageClientId is provided", ->
-      expect( -> Actions.attachFile()).toThrow()
+      expect( -> Actions.selectAttachment()).toThrow()
 
-    it "throws if the message id is blank", ->
-      spyOn(Actions, "attachFilePath")
-      spyOn(fs, 'stat').andCallFake (path, callback) ->
-        callback(null, {size: 1234, isDirectory: -> false})
+    it "throws if messageClientId is blank", ->
+      expect( -> Actions.selectAttachment("")).toThrow()
 
-      Actions.attachFile(messageClientId: msgId)
+    it "dispatches action to attach file", ->
+      spyOn(Actions, "addAttachment")
+
+      Actions.selectAttachment(messageClientId: msgId)
       expect(NylasEnv.showOpenDialog).toHaveBeenCalled()
-      expect(Actions.attachFilePath).toHaveBeenCalled()
-      args = Actions.attachFilePath.calls[0].args[0]
+      expect(Actions.addAttachment).toHaveBeenCalled()
+      args = Actions.addAttachment.calls[0].args[0]
       expect(args.messageClientId).toBe msgId
-      expect(args.path).toBe fpath
+      expect(args.filePath).toBe fpath
 
-  describe 'attachFilePath', ->
+
+  describe 'addAttachment', ->
+    beforeEach ->
+      @upload = new Upload(msgId, fpath, {size: 1234, isDirectory: -> false}, 'u1', uploadDir)
+      spyOn(FileUploadStore, '_getFileStats').andCallFake -> Promise.resolve()
+      spyOn(FileUploadStore, '_makeUpload').andCallFake -> Promise.resolve()
+      spyOn(FileUploadStore, '_verifyUpload').andCallFake -> Promise.resolve()
+      spyOn(FileUploadStore, '_prepareTargetDir').andCallFake -> Promise.resolve()
+      spyOn(FileUploadStore, '_copyUpload').andCallFake => Promise.resolve(@upload)
+      spyOn(FileUploadStore, '_saveUpload').andCallThrough()
+      spyOn(FileUploadStore, 'trigger')
+
     it "throws if no messageClientId or path is provided", ->
-      expect( -> Actions.attachFilePath()).toThrow()
+      expect( -> Actions.addAttachment()).toThrow()
 
-    it 'Creates a new file upload task', ->
+    it "executes the required steps and triggers", ->
+      waitsForPromise ->
+        FileUploadStore._onAddAttachment(argsObj)
+
+      runs =>
+        expect(FileUploadStore._getFileStats).toHaveBeenCalled()
+        expect(FileUploadStore._makeUpload).toHaveBeenCalled()
+        expect(FileUploadStore._verifyUpload).toHaveBeenCalled()
+        expect(FileUploadStore._prepareTargetDir).toHaveBeenCalled()
+        expect(FileUploadStore._copyUpload).toHaveBeenCalled()
+        expect(FileUploadStore._saveUpload).toHaveBeenCalled()
+        expect(FileUploadStore.trigger).toHaveBeenCalled()
+        expect(FileUploadStore.uploadsForMessage(msgId)).toEqual [@upload]
+
+
+  describe 'removeAttachment', ->
+    beforeEach ->
+      @upload = new Upload(msgId, fpath, {size: 1234, isDirectory: -> false}, 'u1', uploadDir)
+      spyOn(FileUploadStore, '_deleteUpload').andCallFake => Promise.resolve(@upload)
+      spyOn(FileUploadStore, 'trigger')
+      spyOn(fs, 'rmdir')
+
+    it 'does nothing if msgId does not exist', ->
+      waitsForPromise =>
+        FileUploadStore._onRemoveAttachment(messageClientId: 'xyz')
+        .then ->
+          expect(FileUploadStore.trigger).not.toHaveBeenCalled()
+
+    it 'removes upload correctly', ->
+      FileUploadStore._fileUploads[msgId] = [{id: 'u2'}, @upload]
+      waitsForPromise =>
+        FileUploadStore._onRemoveAttachment(@upload)
+        .then ->
+          expect(FileUploadStore.uploadsForMessage(msgId)).toEqual [{id: 'u2'}]
+          expect(fs.rmdir).not.toHaveBeenCalled()
+          expect(FileUploadStore.trigger).toHaveBeenCalled()
+
+    it 'removes upload and removes directory if no more uploads left dor message', ->
+      FileUploadStore._fileUploads[msgId] = [@upload]
+      waitsForPromise =>
+        FileUploadStore._onRemoveAttachment(@upload)
+        .then ->
+          expect(FileUploadStore.uploadsForMessage(msgId)).toEqual []
+          expect(fs.rmdir).toHaveBeenCalled()
+          expect(FileUploadStore.trigger).toHaveBeenCalled()
+
+
+  describe '_getFileUploadsFromFs', ->
+    # TODO
+
+
+  describe '_getFileStats', ->
+
+    it 'returns the correct stats', ->
       spyOn(fs, 'stat').andCallFake (path, callback) ->
         callback(null, {size: 1234, isDirectory: -> false})
-      Actions.attachFilePath
-        messageClientId: msgId
-        path: fpath
-      expect(Actions.queueTask).toHaveBeenCalled()
-      t = Actions.queueTask.calls[0].args[0]
-      expect(t.filePath).toBe fpath
-      expect(t.messageClientId).toBe msgId
+      waitsForPromise ->
+        FileUploadStore._getFileStats(argsObj)
+        .then ({stats}) ->
+          expect(stats.size).toEqual 1234
+          expect(stats.isDirectory()).toBe false
 
-    it 'displays an error if the file path given is a directory', ->
-      spyOn(FileUploadStore, '_onAttachFileError')
+    it 'throws when there is an error reading the file', ->
       spyOn(fs, 'stat').andCallFake (path, callback) ->
-        callback(null, {size: 1234, isDirectory: -> true})
-      Actions.attachFilePath
-        messageClientId: msgId
-        path: fpath
-      expect(Actions.queueTask).not.toHaveBeenCalled()
-      expect(FileUploadStore._onAttachFileError).toHaveBeenCalled()
+        callback("Error!", null)
+      waitsForPromise ->
+        FileUploadStore._getFileStats(argsObj)
+        .then -> throw new Error('It should fail.')
+        .catch (msg) ->
+          expect(msg.indexOf(fpath)).toBe 0
 
-    it 'displays an error if the file is more than 25MB', ->
-      spyOn(FileUploadStore, '_onAttachFileError')
-      spyOn(fs, 'stat').andCallFake (path, callback) ->
-        callback(null, {size: 25*1000000+1, isDirectory: -> true})
-      Actions.attachFilePath
-        messageClientId: msgId
-        path: fpath
-      expect(Actions.queueTask).not.toHaveBeenCalled()
-      expect(FileUploadStore._onAttachFileError).toHaveBeenCalled()
 
-  describe 'when upload state changes', ->
-    it 'updates the uploadData', ->
-      Actions.uploadStateChanged(@uploadData)
-      expect(FileUploadStore._fileUploads[123]).toBe @uploadData
+  describe '_verifyUpload', ->
 
-  describe 'when a file has been uploaded', ->
-    it 'adds removes from uploads', ->
-      FileUploadStore._fileUploads[123] = @uploadData
-      Actions.fileUploaded
-        file: @file
-        uploadData: @uploadData
-      expect(FileUploadStore._fileUploads[123]).not.toBeDefined()
+    it 'throws if upload is a directory', ->
+      upload = new Upload(msgId, fpath, {isDirectory: -> true})
+      waitsForPromise ->
+        FileUploadStore._verifyUpload(upload)
+        .then -> throw new Error('It should fail.')
+        .catch (msg) ->
+          expect(msg.indexOf(filename + ' is a directory')).toBe 0
 
-    it 'adds to the linked files', ->
-      FileUploadStore._fileUploads[123] = @uploadData
-      Actions.linkFileToUpload
-        file: @file
-        uploadData: @uploadData
-      expect(FileUploadStore._linkedFiles["id_123"]).toBe @uploadData
+    it 'throws if the file is more than 25MB', ->
+      upload = new Upload(msgId, fpath, {size: 25*1000000+1, isDirectory: -> false})
+      waitsForPromise ->
+        FileUploadStore._verifyUpload(upload)
+        .then -> throw new Error('It should fail.')
+        .catch (msg) ->
+          expect(msg.indexOf(filename + ' cannot')).toBe 0
 
-  describe 'when a file has been aborted', ->
-    it 'removes it from the uploads', ->
-      FileUploadStore._fileUploads[123] = @uploadData
-      Actions.fileAborted(@uploadData)
-      expect(FileUploadStore._fileUploads[123]).not.toBeDefined()
+    it 'resolves otherwise', ->
+      upload = new Upload(msgId, fpath, {size: 1234, isDirectory: -> false})
+      waitsForPromise ->
+        FileUploadStore._verifyUpload(upload)
+        .then (up)-> expect(up.id).toBe upload.id
+
+
+  describe '_copyUpload', ->
+
+    beforeEach ->
+      stream = require 'stream'
+      @upload = new Upload(msgId, fpath, {size: 1234, isDirectory: -> false}, null, uploadDir)
+      @readStream = stream.Readable()
+      @writeStream = stream.Writable()
+      spyOn(@readStream, 'pipe')
+      spyOn(fs, 'createReadStream').andReturn @readStream
+      spyOn(fs, 'createWriteStream').andReturn @writeStream
+
+    it 'copies the file correctly', ->
+      waitsForPromise =>
+        promise = FileUploadStore._copyUpload(@upload)
+        @readStream.emit 'end'
+        promise.then (up) =>
+          expect(fs.createReadStream).toHaveBeenCalledWith(fpath)
+          expect(fs.createWriteStream).toHaveBeenCalledWith(@upload.targetPath)
+          expect(@readStream.pipe).toHaveBeenCalledWith(@writeStream)
+          expect(up.id).toEqual @upload.id
+
+    it 'throws when there is an error on the read stream', ->
+      waitsForPromise =>
+        promise = FileUploadStore._copyUpload(@upload)
+        @readStream.emit 'error'
+        promise
+        .then => throw new Error('It should fail.')
+        .catch (msg) =>
+          expect(msg).not.toBeUndefined()
+
+    it 'throws when there is an error on the write stream', ->
+      waitsForPromise =>
+        promise = FileUploadStore._copyUpload(@upload)
+        @writeStream.emit 'error'
+        promise
+        .then => throw new Error('It should fail.')
+        .catch (msg) =>
+          expect(msg).not.toBeUndefined()
+
+

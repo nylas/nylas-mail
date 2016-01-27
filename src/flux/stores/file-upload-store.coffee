@@ -24,6 +24,8 @@ class Upload
 
 class FileUploadStore extends NylasStore
 
+  Upload: Upload
+
   constructor: ->
     @listenTo Actions.selectAttachment, @_onSelectAttachment
     @listenTo Actions.addAttachment, @_onAddAttachment
@@ -67,7 +69,7 @@ class FileUploadStore extends NylasStore
     .catch(@_onAttachFileError)
 
   _onRemoveAttachment: (upload) ->
-    return unless (@_fileUploads[upload.messageClientId] ? []).length > 0
+    return Promise.resolve() unless (@_fileUploads[upload.messageClientId] ? []).length > 0
     @_deleteUpload(upload)
     .then (upload) =>
       {messageClientId} = upload
@@ -86,6 +88,7 @@ class FileUploadStore extends NylasStore
       buttons: ['OK'],
       message: 'Cannot Attach File',
       detail: message
+
 
   # Helpers
 
@@ -111,7 +114,7 @@ class FileUploadStore extends NylasStore
     return uploads
 
   _verifyId: (messageClientId) ->
-    if messageClientId.blank?
+    unless messageClientId
       throw new Error "You need to pass the ID of the message (draft) this Action refers to"
 
   _getFileStats: ({messageClientId, filePath}) ->
@@ -126,7 +129,7 @@ class FileUploadStore extends NylasStore
     Promise.resolve(new Upload(messageClientId, filePath, stats))
 
   _verifyUpload: (upload) ->
-    {stats} = upload
+    {filename, stats} = upload
     if stats.isDirectory()
       Promise.reject("#{filename} is a directory. Try compressing it and attaching it again.")
     else if stats.size > 25 * 1000000
@@ -168,6 +171,7 @@ class FileUploadStore extends NylasStore
     @_fileUploads[upload.messageClientId] ?= []
     @_fileUploads[upload.messageClientId].push(upload)
     @trigger()
+    Promise.resolve()
 
 
 module.exports = new FileUploadStore()
