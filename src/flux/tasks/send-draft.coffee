@@ -47,9 +47,24 @@ class SendDraftTask extends Task
 
   performLocal: ->
     unless @draft and @draft instanceof Message
-      return Promise.reject(new Error("SendDraftTask must be provided a draft."))
+      return Promise.reject(new Error("SendDraftTask - must be provided a draft."))
     unless @uploads and @uploads instanceof Array
-      return Promise.reject(new Error("SendDraftTask must be provided an array of uploads."))
+      return Promise.reject(new Error("SendDraftTask - must be provided an array of uploads."))
+
+    account = AccountStore.accountForEmail(@draft.from[0])
+    unless account
+      return Promise.reject(new Error("SendDraftTask - you can only send drafts from a configured account."))
+
+    if @draft.serverId
+      @deleteAfterSending =
+        accountId: @draft.accountId
+        serverId: @draft.serverId
+        version: @draft.version
+
+    if account.id isnt @draft.accountId
+      @draft.accountId = account.id
+      @draft.replyToMessageId = null
+      @draft.threadId = null
 
     Promise.resolve()
 
@@ -61,29 +76,32 @@ class SendDraftTask extends Task
     .catch(@_onError)
 
   _uploadAttachments: =>
-    @_progress = new MultiRequestProgressMonitor()
-    Object.defineProperty(@, 'progress', { get: -> @_progress.value() })
+    progress = new MultiRequestProgressMonitor()
+    Object.defineProperty(@, 'progress', { get: -> progress.value() })
 
-    Promise.all @uploads.map ({targetPath, size}) =>
-      NylasAPI.makeRequest(
+    Promise.all @uploads.map (upload) =>
+      {targetPath, size} = upload
+
+      formData =
+        file: # Must be named `file` as per the Nylas API spec
+          value: fs.createReadStream(targetPath)
+          options:
+            filename: path.basename(targetPath)
+
+      NylasAPI.makeRequest
         path: "/files"
         accountId: @draft.accountId
         method: "POST"
         json: false
-        formData:
-          file: # Must be named `file` as per the Nylas API spec
-            value: fs.createReadStream(targetPath)
-            options:
-              filename: path.basename(targetPath)
+        formData: formData
         started: (req) =>
-          @_progress.add(targetPath, size, req)
+          progress.add(targetPath, size, req)
         timeout: 20 * 60 * 1000
-      )
-      .then((file) =>
-        @draft.files.push(file)
-      )
       .finally =>
-        @_progress.remove(targetPath)
+        progress.remove(targetPath)
+      .then (file) =>
+        @uploads.splice(@uploads.indexOf(upload), 1)
+        @draft.files.push(file)
 
   _sendAndCreateMessage: =>
     NylasAPI.makeRequest
@@ -122,15 +140,14 @@ class SendDraftTask extends Task
   # We DO, need to make sure that the remote draft has been cleaned up.
   #
   _deleteRemoteDraft: =>
-    # Return if the draft hasn't been saved server-side (has no `serverId`).
-    return Promise.resolve() unless @draft.serverId
+    return Promise.resolve() unless @deleteAfterSending
+    {accountId, version, serverId} = @deleteAfterSending
 
     NylasAPI.makeRequest
-      path: "/drafts/#{@draft.serverId}"
-      accountId: @draft.accountId
+      path: "/drafts/#{serverId}"
+      accountId: accountId
       method: "DELETE"
-      body:
-        version: @draft.version
+      body: {version}
       returnsModel: false
     .catch APIError, (err) =>
       # If the draft failed to delete remotely, we don't really care. It
