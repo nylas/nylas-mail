@@ -44,7 +44,9 @@ describe "SendDraftTask", ->
           expect(err.message).toBe "SendDraftTask - must be provided a draft."
 
     it "throws an error if we we don't pass uploads", ->
-      badTask = new SendDraftTask(new Message(), null)
+      message = new Message()
+      message.uploads = null
+      badTask = new SendDraftTask(message)
       badTask.performLocal()
         .then ->
           throw new Error("Shouldn't succeed")
@@ -277,8 +279,8 @@ describe "SendDraftTask", ->
           subject: 'New Draft'
           draft: true
           body: 'hello world'
-        @uploads = []
-        @task = new SendDraftTask(@draft, @uploads)
+          uploads: []
+        @task = new SendDraftTask(@draft)
         @calledBody = "ERROR: The body wasn't included!"
         spyOn(DatabaseStore, "findBy").andCallFake =>
           include: (body) =>
@@ -317,8 +319,8 @@ describe "SendDraftTask", ->
           to:
             name: 'Dummy'
             email: 'dummy@nylas.com'
-        @uploads = []
-        @task = new SendDraftTask(@draft, @uploads)
+          uploads: []
+        @task = new SendDraftTask(@draft)
         @calledBody = "ERROR: The body wasn't included!"
         spyOn(DatabaseStore, "findBy").andCallFake =>
           then: -> throw new Error("You must include the body!")
