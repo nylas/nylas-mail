@@ -64,7 +64,7 @@ class MailboxPerspective
     []
 
   category: =>
-    return null unless @categories().length isnt 0
+    return null unless @categories().length is 1
     return @categories()[0]
 
   threads: =>

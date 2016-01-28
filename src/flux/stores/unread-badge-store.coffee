@@ -2,15 +2,14 @@ Reflux = require 'reflux'
 _ = require 'underscore'
 NylasStore = require 'nylas-store'
 FocusedPerspectiveStore = require './focused-perspective-store'
-CategoryStore = require './category-store'
 ThreadCountsStore = require './thread-counts-store'
 
 class UnreadBadgeStore extends NylasStore
 
   constructor: ->
-    @_count = 0
+    @_count = FocusedPerspectiveStore.current().threadUnreadCount()
 
-    @listenTo CategoryStore, @_updateCount
+    @listenTo FocusedPerspectiveStore, @_updateCount
     @listenTo ThreadCountsStore, @_updateCount
     NylasEnv.config.observe 'core.notifications.unreadBadge', (val) =>
       if val is true
@@ -25,18 +24,13 @@ class UnreadBadgeStore extends NylasStore
     @_count
 
   _updateCount: =>
-    account = FocusedPerspectiveStore.current().account
-    category = CategoryStore.getStandardCategory(account, 'inbox')
-    if category
-      count = ThreadCountsStore.unreadCountForCategoryId(category.id) ? 0
-    else
-      count = 0
-
-    return if @_count is count
-
-    @_count = count
-    @_setBadgeForCount()
-    @trigger()
+    current = FocusedPerspectiveStore.current()
+    if current.isInbox()
+      count = current.threadUnreadCount()
+      return if @_count is count
+      @_count = count
+      @_setBadgeForCount()
+      @trigger()
 
   _setBadgeForCount: =>
     return unless NylasEnv.config.get('core.notifications.unreadBadge')
