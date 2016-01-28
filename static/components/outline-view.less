@@ -54,19 +54,6 @@
     }
   }
 
-  .add-item-container {
-    align-items: center;
-
-    .add-item-input {
-      order: 2;
-      font-size: @font-size-small;
-      margin-left: @padding-small-horizontal * 0.3;
-      height: 22px;
-      padding-left: 0;
-      text-indent: @padding-small-horizontal * 0.55;
-      width: 85%;
-    }
-  }
 
   .item-container {
     display:flex;
@@ -131,10 +118,19 @@
       color: @source-list-active-color;
       img.content-mask { background-color: @source-list-active-color; }
     }
-    &.deleted {
-      opacity: 0.5;
-    }
+    &.editing {
+      align-items: center;
 
+      .item-input {
+        order: 2;
+        font-size: @font-size-small;
+        margin-left: @padding-small-horizontal * 0.3;
+        height: 22px;
+        padding-left: 0;
+        text-indent: @padding-small-horizontal * 0.55;
+        width: 85%;
+      }
+    }
     &:hover {
       cursor: default;
     }

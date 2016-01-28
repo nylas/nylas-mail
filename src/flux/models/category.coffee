@@ -87,9 +87,9 @@ class Category extends Model
     super
     @
 
-  displayType: ->
+  displayType: =>
     AccountStore = require '../stores/account-store'
-    if AccountStore.accountForId(@category.accountId).usesLabels()
+    if AccountStore.accountForId(@accountId).usesLabels()
       return 'label'
     else
       return 'folder'

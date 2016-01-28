@@ -1,7 +1,4 @@
-import _ from 'underscore';
-import _str from 'underscore.string';
 import React, {Component, PropTypes} from 'react';
-import DisclosureTriangle from './disclosure-triangle';
 import RetinaImg from './retina-img';
 import OutlineViewItem from './outline-view-item';
 
@@ -15,7 +12,7 @@ class OutlineView extends Component {
     iconName: PropTypes.string,
     items: PropTypes.array,
     collapsed: PropTypes.bool,
-    onCreateItem: PropTypes.func,
+    onItemCreated: PropTypes.func,
     onToggleCollapsed: PropTypes.func,
   }
 
@@ -40,25 +37,20 @@ class OutlineView extends Component {
     this.setState({showCreateInput: !this.state.showCreateInput});
   }
 
-  _onInputBlur = ()=> {
-    if (!this._clickingCreateButton) {
-      this.setState({showCreateInput: false});
-    }
-  }
-
-  _onInputKeyDown = (event)=> {
-    if (event.key === 'Escape') {
-      this.setState({showCreateInput: false});
-    }
-    if (_.includes(['Enter', 'Return'], event.key)) {
-      this.props.onCreateItem(event.target.value);
-      this.setState({showCreateInput: false});
-    }
-  }
-
   _onToggleCollapsed = ()=> {
     if (this.props.onToggleCollapsed) {
       this.props.onToggleCollapsed(this.props);
+    }
+  }
+
+  _onItemCreated = (item, value)=> {
+    this.setState({showCreateInput: false});
+    this.props.onItemCreated(value)
+  }
+
+  _onCreateInputCleared = ()=> {
+    if (!this._clickingCreateButton) {
+      this.setState({showCreateInput: false});
     }
   }
 
@@ -66,29 +58,17 @@ class OutlineView extends Component {
   // Renderers
 
   _renderCreateInput(props = this.props) {
-    const title = _str.decapitalize(props.title.slice(0, props.title.length - 1));
-    const placeholder = `Create new ${title}`;
-    return (
-      <span className="item-container">
-        <div className="item add-item-container">
-          <DisclosureTriangle collapsed={false} visible={false} />
-          <div className="icon">
-            <RetinaImg
-              name={props.iconName}
-              fallback="folder.png"
-              mode={RetinaImg.Mode.ContentIsMask} />
-          </div>
-          <input
-            autoFocus
-            type="text"
-            tabIndex="1"
-            className="add-item-input"
-            onKeyDown={this._onInputKeyDown}
-            onBlur={this._onInputBlur}
-            placeholder={placeholder}/>
-        </div>
-      </span>
-    );
+    const item = {
+      id: `add-item-${props.title}`,
+      name: '',
+      children: [],
+      editing: true,
+      iconName: props.iconName,
+      onEdited: this._onItemCreated,
+      inputPlaceholder: 'Create new item',
+      onInputCleared: this._onCreateInputCleared,
+    }
+    return <OutlineViewItem item={item} />;
   }
 
   _renderCreateButton() {
@@ -147,7 +127,7 @@ class OutlineView extends Component {
   render() {
     const collapsible = this.props.onToggleCollapsed;
     const collapsed = this.props.collapsed;
-    const allowCreate = this.props.onCreateItem != null && !collapsed;
+    const allowCreate = this.props.onItemCreated != null && !collapsed;
 
     return (
       <section className="nylas-outline-view">

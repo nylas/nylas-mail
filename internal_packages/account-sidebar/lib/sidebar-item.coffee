@@ -2,6 +2,7 @@ _ = require 'underscore'
 {WorkspaceStore,
  MailboxPerspective,
  FocusedPerspectiveStore,
+ SyncbackCategoryTask,
  DestroyCategoryTask,
  Actions} = require 'nylas-exports'
 {OutlineViewItem} = require 'nylas-component-kit'
@@ -32,19 +33,25 @@ toggleItemCollapsed = (item) ->
   key = "core.accountSidebarCollapsed.#{item.id}"
   NylasEnv.config.set(key, not item.collapsed)
 
+onDeleteItem = (item) ->
+  # TODO Delete multiple categories at once
+  return if item.deleted is true
+  category = item.perspective.category()
+  return unless category
+
+  Actions.queueTask(new DestroyCategoryTask({category}))
+
+onEditItem = (item, value) ->
+  return if item.deleted is true
+  category = item.perspective.category()
+  return unless category
+  Actions.queueTask(new SyncbackCategoryTask({category, displayName: value}))
+
 
 class SidebarItem
 
   @forPerspective: (id, perspective, opts = {}) ->
     counterStyle = OutlineViewItem.CounterStyles.Alt if perspective.isInbox()
-
-    if opts.deletable
-      onDeleteItem = (item) ->
-        # TODO Delete multiple categories at once
-        return if item.perspective.categories.length > 1
-        return if item.deleted is true
-        category = item.perspective.categories[0]
-        Actions.queueTask(new DestroyCategoryTask({category: category}))
 
     return _.extend({
       id: id
@@ -53,12 +60,13 @@ class SidebarItem
       iconName: perspective.iconName
       children: []
       perspective: perspective
+      className: if isItemDeleted(perspective) then 'deleted' else ''
       selected: isItemSelected(perspective)
       collapsed: isItemCollapsed(id) ? true
-      deleted: isItemDeleted(perspective)
       counterStyle: counterStyle
       dataTransferType: 'nylas-thread-ids'
-      onDelete: onDeleteItem
+      onDelete: if opts.deletable then onDeleteItem else undefined
+      onEdited: if opts.editable then onEditItem else undefined
       onToggleCollapsed: toggleItemCollapsed
       onDrop: (item, event) ->
         jsonString = event.dataTransfer.getData(item.dataTransferType)
@@ -89,6 +97,8 @@ class SidebarItem
   @forCategories: (categories = [], opts = {}) ->
     id = idForCategories(categories)
     perspective = MailboxPerspective.forCategories(categories)
+    opts.deletable = true
+    opts.editable = true
     @forPerspective(id, perspective, opts)
 
   @forStarred: (accountIds, opts = {}) ->

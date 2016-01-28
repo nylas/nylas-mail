@@ -62,8 +62,6 @@ class DestroyCategoryTask extends Task
       else
         return Promise.resolve(Task.Status.Retry)
 
-  _displayType: ->
-
   _notifyUserOfError: (category = @category) ->
     displayName = category.displayName
 
