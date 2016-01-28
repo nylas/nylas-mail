@@ -8,12 +8,14 @@ ThreadToggleUnreadButton = require '../lib/thread-toggle-unread-button'
 
 test_thread = (new Thread).fromJSON({
   "id" : "thread_12345"
+  "account_id": TEST_ACCOUNT_ID
   "subject" : "Subject 12345"
   "starred": false
 })
 
 test_thread_starred = (new Thread).fromJSON({
   "id" : "thread_starred_12345"
+  "account_id": TEST_ACCOUNT_ID
   "subject" : "Subject 12345"
   "starred": true
 })
@@ -42,7 +44,7 @@ describe "MessageToolbarItem marking as unread", ->
   markUnreadBtn = null
 
   beforeEach ->
-    thread = new Thread(id: "thread-id-lol-123")
+    thread = new Thread(id: "thread-id-lol-123", accountId: TEST_ACCOUNT_ID)
     markUnreadBtn = ReactTestUtils.renderIntoDocument(
       <ThreadToggleUnreadButton thread={thread} />
     )
@@ -61,4 +63,3 @@ describe "MessageToolbarItem marking as unread", ->
     ReactTestUtils.Simulate.click React.findDOMNode(markUnreadBtn).childNodes[0]
 
     expect(Actions.popSheet).toHaveBeenCalled()
-

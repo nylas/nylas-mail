@@ -118,6 +118,7 @@ describe "MessageItem", ->
 
     @thread = new Thread
       id: 'thread-111'
+      accountId: TEST_ACCOUNT_ID
 
     @threadParticipants = [user_1, user_2, user_3, user_4]
 

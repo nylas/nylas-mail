@@ -160,7 +160,8 @@ draftMessages = [
 test_thread = (new Thread).fromJSON({
   "id": "12345"
   "id" : "thread_12345"
-  "subject" : "Subject 12345"
+  "subject" : "Subject 12345",
+  "account_id" : TEST_ACCOUNT_ID
 })
 
 describe "MessageList", ->
@@ -188,7 +189,7 @@ describe "MessageList", ->
       MessageStore._items = testMessages
       MessageStore._expandItemsToDefault()
       MessageStore.trigger(MessageStore)
-      @messageList.setState currentThread: test_thread
+      @messageList.setState(currentThread: test_thread)
 
       NylasTestUtils.loadKeymap("keymaps/base")
 
@@ -285,12 +286,14 @@ describe "MessageList", ->
         @replyToMessage = new Message
           id: "reply-id",
           threadId: test_thread.id
+          accountId : TEST_ACCOUNT_ID
           date: new Date()
         @draft = new Message
           id: "666",
           draft: true,
           date: new Date()
           replyToMessage: @replyToMessage.id
+          accountId : TEST_ACCOUNT_ID
 
         spyOn(@messageList, '_focusDraft')
         spyOn(@replyToMessage, 'participantsForReplyAll').andCallFake ->

@@ -53,7 +53,7 @@ describe 'CategoryPicker', ->
   setupForCreateNew = (orgUnit = "folder") ->
     setupFor.call(@, orgUnit)
 
-    @testThread = new Thread(id: 't1', subject: "fake", accountId: TEST_ACCOUNT_ID)
+    @testThread = new Thread(id: 't1', subject: "fake", accountId: TEST_ACCOUNT_ID, categories: [])
     @picker = ReactTestUtils.renderIntoDocument(
       <CategoryPicker thread={@testThread} />
     )
@@ -69,7 +69,7 @@ describe 'CategoryPicker', ->
     beforeEach ->
       setupFor.call(@, "folder")
 
-      @testThread = new Thread(id: 't1', subject: "fake", accountId: TEST_ACCOUNT_ID)
+      @testThread = new Thread(id: 't1', subject: "fake", accountId: TEST_ACCOUNT_ID, categories: [])
       @picker = ReactTestUtils.renderIntoDocument(
         <CategoryPicker thread={@testThread} />
       )
