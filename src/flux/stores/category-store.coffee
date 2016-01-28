@@ -6,8 +6,13 @@ Account = require '../models/account'
 {Categories} = require 'nylas-observables'
 Rx = require 'rx-lite'
 
-asAccount = (a) -> if a instanceof Account then a else AccountStore.accountForId(a)
-asAccountId = (a) -> if a instanceof Account then a.id else a
+asAccount = (a) ->
+  throw new Error("You must pass an Account or Account Id") unless a
+  if a instanceof Account then a else AccountStore.accountForId(a)
+
+asAccountId = (a) ->
+  throw new Error("You must pass an Account or Account Id") unless a
+  if a instanceof Account then a.id else a
 
 class CategoryStore extends NylasStore
 
@@ -17,7 +22,11 @@ class CategoryStore extends NylasStore
     @_userCategories = {}
     @_hiddenCategories = {}
 
-    @_disposable = Categories
+    NylasEnv.config.observe 'core.workspace.showImportant', =>
+      return unless @_categoryResult
+      @_onCategoriesChanged(@_categoryResult)
+
+    Categories
       .forAllAccounts()
       .sort()
       .subscribe(@_onCategoriesChanged)
@@ -95,6 +104,7 @@ class CategoryStore extends NylasStore
     @getStandardCategory(accountOrId, "trash")
 
   _onCategoriesChanged: (categories) =>
+    @_categoryResult = categories
     @_categoryCache = {}
     for cat in categories
       @_categoryCache[cat.accountId] ?= {}

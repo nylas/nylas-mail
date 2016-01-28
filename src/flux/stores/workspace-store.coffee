@@ -55,12 +55,13 @@ class WorkspaceStore extends NylasStore
     'navigation:go-to-label'   : => ## TODO
 
   _setMailViewByName: (categoryName) ->
-    account = FocusedPerspectiveStore.current().account
-    category = CategoryStore.getStandardCategory(account, categoryName)
-    return unless category
-    view = MailboxPerspective.forCategory(category)
-    return unless view
-    Actions.focusMailboxPerspective(view)
+    accountIds = FocusedPerspectiveStore.current().accountIds
+    categories = accountIds.map (aid) -> CategoryStore.getStandardCategory(aid, categoryName)
+    categories = _.compact(categories)
+
+    if categories.length > 0
+      view = MailboxPerspective.forCategories(categories)
+      Actions.focusMailboxPerspective(view)
 
   _selectDraftsSheet: ->
     Actions.selectRootSheet(@Sheet.Drafts)
