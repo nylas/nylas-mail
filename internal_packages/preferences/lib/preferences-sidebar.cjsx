@@ -34,7 +34,7 @@ class PreferencesSidebarItem extends React.Component
       <DisclosureTriangle
         collapsed={@state.collapsed}
         visible={subitems isnt false}
-        onToggleCollapsed={@_onClick} />
+        onCollapseToggled={@_onClick} />
       <div className="name">{displayName}</div>
       {subitemsComponent}
     </div>

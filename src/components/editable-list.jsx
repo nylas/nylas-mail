@@ -43,7 +43,7 @@ class EditableList extends Component {
 
   /**
    * If provided, this function will be called when the add button is clicked,
-   * and will prevent an input to add items to be created inside the list
+   * and will prevent an input to be added at the end of the list
    * @callback props.onCreateItem
    */
   /**

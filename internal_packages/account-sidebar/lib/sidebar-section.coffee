@@ -12,7 +12,7 @@ isSectionCollapsed = (id) ->
   key = "core.accountSidebarCollapsed.#{id}Section"
   collapsed = NylasEnv.config.get(key)
 
-toggleSectionCollapsed = (section) ->
+toggleSectionCollapse = (section) ->
   key = "core.accountSidebarCollapsed.#{section.title}Section"
   return unless section
   NylasEnv.config.set(key, not section.collapsed)
@@ -130,14 +130,14 @@ class SidebarSection
     title ?= account.categoryLabel()
     collapsed = isSectionCollapsed(title)
     if collapsible
-      onToggleCollapsed = toggleSectionCollapsed
+      onCollapseToggled = toggleSectionCollapse
 
     return {
       title: title
       iconName: account.categoryIcon()
       items: items
       collapsed: collapsed
-      onToggleCollapsed: onToggleCollapsed
+      onCollapseToggled: onCollapseToggled
       onItemCreated: (displayName) ->
         return unless displayName
         category = new Category

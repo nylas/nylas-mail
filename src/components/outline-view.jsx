@@ -3,17 +3,52 @@ import RetinaImg from './retina-img';
 import OutlineViewItem from './outline-view-item';
 
 
-// TODO Docs
+/**
+ * Renders a section that contains a list of {@link OutlineViewItem}s. These items can
+ * be arbitrarily nested. See docs for {@link OutlineViewItem}.
+ * An OutlineView behaves like a controlled React component, with callbacks for
+ * collapsing and creating items, and respective props for their value. Is it up
+ * to the parent component to determine the state of the OutlineView.
+ *
+ * This component resembles OS X's default OutlineView or Sourcelist
+ *
+ * OutlineView supports:
+ * - Collapsing and uncollapsing
+ * - Adding new items to the outline view
+ *
+ * @param {object} props - props for OutlineView
+ * @param {string} props.title - Title to display
+ * @param {string} props.iconName - Icon name to use when displaying input to
+ * add a new item. See {@link RetinaImg} for further reference.
+ * @param {array} props.items - Array of strings or numbers to display as {@link
+ * OutlineViewItem}s
+ * @param {boolean} props.collapsed - Whether the OutlineView is collapsed or
+ * not
+ * @param {props.onItemCreated} props.onItemCreated
+ * @param {props.onCollapseToggled} props.onCollapseToggled
+ * @class OutlineView
+ */
 class OutlineView extends Component {
   static displayName = 'OutlineView'
 
+  /**
+   * If provided, this function will be called when an item has been created.
+   * @callback props.onItemCreated
+   * @param {string} value - The value for the created item
+   */
+  /**
+   * If provided, this function will be called when the user clicks the action
+   * to collapse or uncollapse the OutlineView
+   * @callback props.onCollapseToggled
+   * @param {object} props - The entire props object for this OutlineView
+   */
   static propTypes = {
     title: PropTypes.string,
     iconName: PropTypes.string,
     items: PropTypes.array,
     collapsed: PropTypes.bool,
     onItemCreated: PropTypes.func,
-    onToggleCollapsed: PropTypes.func,
+    onCollapseToggled: PropTypes.func,
   }
 
   static defaultProps = {
@@ -38,8 +73,8 @@ class OutlineView extends Component {
   }
 
   _onToggleCollapsed = ()=> {
-    if (this.props.onToggleCollapsed) {
-      this.props.onToggleCollapsed(this.props);
+    if (this.props.onCollapseToggled) {
+      this.props.onCollapseToggled(this.props);
     }
   }
 
@@ -125,7 +160,7 @@ class OutlineView extends Component {
   }
 
   render() {
-    const collapsible = this.props.onToggleCollapsed;
+    const collapsible = this.props.onCollapseToggled;
     const collapsed = this.props.collapsed;
     const allowCreate = this.props.onItemCreated != null && !collapsed;
 
