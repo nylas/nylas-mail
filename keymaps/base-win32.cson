@@ -5,7 +5,4 @@
 # to using the `cmd` key on Mac and `ctrl` key on Windows.
 
 'body':
-  'ctrl-alt-l': 'window:reload'
-  'ctrl-alt-i': 'window:toggle-dev-tools'
-  'ctrl-alt-w': 'application:show-work-window'
   'F11': 'window:toggle-full-screen'
