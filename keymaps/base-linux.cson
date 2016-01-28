@@ -9,3 +9,10 @@
   'ctrl-insert': 'core:copy'
   'shift-insert': 'core:paste'
   'F11': 'window:toggle-full-screen'
+
+  ### N1 developer commands. ###
+  'cmdctrl-alt-l': 'window:reload'
+  'cmdctrl-alt-i': 'window:toggle-dev-tools'
+  'cmdctrl-alt-w': 'application:show-work-window'
+  'cmdctrl-alt-s': 'application:run-all-specs'
+  'cmdctrl-alt-p': 'application:run-package-specs'
