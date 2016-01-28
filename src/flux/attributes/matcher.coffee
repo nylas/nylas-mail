@@ -115,7 +115,38 @@ class Matcher
       else
         return "`#{klass.name}`.`#{@attr.jsonKey}` #{@comparator} #{escaped}"
 
+class OrCompositeMatcher extends Matcher
+  constructor: (@children) ->
+    @
+
+  attribute: =>
+    null
+
+  value: =>
+    null
+
+  evaluate: (model) =>
+    for matcher in @children
+      return true if matcher.evaluate(model)
+    return false
+
+  joinSQL: (klass) =>
+    joins = []
+    for matcher in @children
+      join = matcher.joinSQL(klass)
+      joins.push(join) if join
+    if joins.length
+      return joins.join(" ")
+    else
+      return false
+
+  whereSQL: (klass) =>
+    wheres = []
+    for matcher in @children
+      wheres.push(matcher.whereSQL(klass))
+    return "(" + wheres.join(" OR ") + ")"
 
 Matcher.muid = 0
+Matcher.Or = OrCompositeMatcher
 
 module.exports = Matcher

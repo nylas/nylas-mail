@@ -23,7 +23,6 @@ DatabasePhase =
 
 DEBUG_TO_LOG = false
 DEBUG_QUERY_PLANS = NylasEnv.inDevMode()
-DEBUG_MISSING_ACCOUNT_ID = false
 
 BEGIN_TRANSACTION = 'BEGIN TRANSACTION'
 COMMIT = 'COMMIT'
@@ -244,8 +243,6 @@ class DatabaseStore extends NylasStore
         fn = 'run'
 
       if query.indexOf("SELECT ") is 0
-        if DEBUG_MISSING_ACCOUNT_ID and query.indexOf("`account_id`") is -1
-          @_prettyConsoleLog("QUERY does not specify accountId: #{query}")
         if DEBUG_QUERY_PLANS
           @_db.all "EXPLAIN QUERY PLAN #{query}", values, (err, results=[]) =>
             str = results.map((row) -> row.detail).join('\n') + " for " + query

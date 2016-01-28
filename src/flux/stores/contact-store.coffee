@@ -8,52 +8,25 @@ Utils = require '../models/utils'
 NylasStore = require 'nylas-store'
 RegExpUtils = require '../../regexp-utils'
 DatabaseStore = require './database-store'
+AccountStore = require './account-store'
 ContactRankingStore = require './contact-ranking-store'
 _ = require 'underscore'
 
 WindowBridge = require '../../window-bridge'
 
 ###
-Public: ContactStore maintains an in-memory cache of the user's address
-book, making it easy to build autocompletion functionality and resolve
-the names associated with email addresses.
-
-## Listening for Changes
-
-The ContactStore monitors the {DatabaseStore} for changes to {Contact} models
-and triggers when contacts have changed, allowing your stores and components
-to refresh data based on the ContactStore.
-
-```coffee
-@unsubscribe = ContactStore.listen(@_onContactsChanged, @)
-
-_onContactsChanged: ->
-  # refresh your contact results
-```
+Public: ContactStore provides convenience methods for searching contacts and
+formatting contacts. When Contacts become editable, this store will be expanded
+with additional actions.
 
 Section: Stores
 ###
 class ContactStore extends NylasStore
 
   constructor: ->
-    if NylasEnv.isMainWindow() or NylasEnv.inSpecMode()
-      @_contactCache = []
-      @_registerListeners()
-      @_registerObservables()
-
-  _registerListeners: ->
-    @listenTo ContactRankingStore, @_sortContactsCacheWithRankings
-
-  _registerObservables: =>
-    # TODO I'm a bit worried about how big a cache this might be
-    @disposable?.dispose()
-    query = DatabaseStore.findAll(Contact)
-    @_disposable = Rx.Observable.fromQuery(query).subscribe(@_onContactsChanged)
-
-  _onContactsChanged: (contacts) =>
-    @_contactCache = [].concat(contacts)
-    @_sortContactsCacheWithRankings()
-    @trigger()
+    @_rankedContacts = []
+    @listenTo ContactRankingStore, => @_updateRankedContactCache()
+    @_updateRankedContactCache()
 
   # Public: Search the user's contact list for the given search term.
   # This method compares the `search` string against each Contact's
@@ -67,55 +40,45 @@ class ContactStore extends NylasStore
   # Returns an {Array} of matching {Contact} models
   #
   searchContacts: (search, options={}) =>
-    {limit, noPromise} = options
-    if not NylasEnv.isMainWindow()
-      if noPromise
-        throw new Error("We search Contacts in the Main window, which makes it impossible for this to be a noPromise method from this window")
-      # Returns a promise that resolves to the value of searchContacts
-      return WindowBridge.runInMainWindow("ContactStore", "searchContacts", [search, options])
-
-    if not search or search.length is 0
-      if noPromise
-        return []
-      else
-        return Promise.resolve([])
-
+    {limit} = options
     limit ?= 5
     limit = Math.max(limit, 0)
+
     search = search.toLowerCase()
+    accountCount = AccountStore.accounts().length
 
-    matchFunction = (contact) ->
-      # For the time being, we never return contacts that are missing
-      # email addresses
-      return false unless contact.email
-      # - email (bengotow@gmail.com)
-      # - email domain (test@bengotow.com)
-      # - name parts (Ben, Go)
-      # - name full (Ben Gotow)
-      #   (necessary so user can type more than first name ie: "Ben Go")
-      if contact.email
-        i = contact.email.toLowerCase().indexOf(search)
-        return true if i is 0 or i is contact.email.indexOf('@') + 1
-      if contact.name
-        return true if contact.name.toLowerCase().indexOf(search) is 0
+    return Promise.resolve([]) if not search or search.length is 0
 
-      name = contact.name?.toLowerCase() ? ""
-      for namePart in name.split(/\s/)
-        return true if namePart.indexOf(search) is 0
-      false
+    # Search ranked contacts which are stored in order in memory
+    results = []
+    for contact in @_rankedContacts
+      if (contact.email.toLowerCase().indexOf(search) isnt -1 or
+          contact.name.toLowerCase().indexOf(search) isnt -1)
+        results.push(contact)
+      if results.length is limit
+        return Promise.resolve(results)
 
-    matches = []
+    # If we haven't found enough items in memory, query for more from the
+    # database. Note that we ask for LIMIT * accountCount because we want to
+    # return contacts with distinct email addresses, and the same contact
+    # could exist in every account. Rather than make SQLite do a SELECT DISTINCT
+    # (which is very slow), we just ask for more items.
+    query = DatabaseStore.findAll(Contact).whereAny([
+      Contact.attributes.name.like(search),
+      Contact.attributes.email.like(search)
+    ])
+    query.limit(limit * accountCount)
+    query.then (queryResults) =>
+      existingEmails = _.pluck(results, 'email')
 
-    for contact in @_contactCache
-      if matchFunction(contact)
-        matches.push(contact)
-        if matches.length is limit
-          break
+      # remove query results that were already found in ranked contacts
+      queryResults = _.reject queryResults, (c) -> c.email in existingEmails
+      queryResults = @_distinctByEmail(queryResults)
 
-    if noPromise
-      return matches
-    else
-      return Promise.resolve(matches)
+      results = results.concat(queryResults)
+      results.length = limit if results.length > limit
+
+      return Promise.resolve(results)
 
   # Public: Returns true if the contact provided is a {Contact} instance and
   # contains a properly formatted email address.
@@ -132,9 +95,6 @@ class ContactStore extends NylasStore
 
   parseContactsInString: (contactString, options={}) =>
     {skipNameLookup} = options
-    if not NylasEnv.isMainWindow()
-      # Returns a promise that resolves to the value of searchContacts
-      return WindowBridge.runInMainWindow("ContactStore", "parseContactsInString", [contactString, options])
 
     detected = []
     emailRegex = RegExpUtils.emailRegex()
@@ -159,37 +119,56 @@ class ContactStore extends NylasStore
           nameStart = i+1 if i+1 > nameStart
         name = contactString.substr(nameStart, match.index - 1 - nameStart).trim()
 
-      if (not name or name.length is 0) and not skipNameLookup
-        # Look to see if we can find a name for this email address in the ContactStore.
-        # Otherwise, just populate the name with the email address.
-        existing = @searchContacts(email, {limit:1, noPromise: true})[0]
-        if existing and existing.name
-          name = existing.name
-        else
-          name = email
-
       # The "nameStart" for the next match must begin after lastMatchEnd
       lastMatchEnd = match.index+email.length
       if hasTrailingParen
         lastMatchEnd += 1
 
-      if name
-        # If the first and last character of the name are quotation marks, remove them
-        [first,...,last] = name
-        if first in ['"', "'"] and last in ['"', "'"]
-          name = name[1...-1]
+      if not name or name.length is 0
+        name = email
+
+      # If the first and last character of the name are quotation marks, remove them
+      [firstChar,...,lastChar] = name
+      if firstChar in ['"', "'"] and lastChar in ['"', "'"]
+        name = name[1...-1]
 
       detected.push(new Contact({email, name}))
 
-    return Promise.resolve(detected)
+    if skipNameLookup
+      return Promise.resolve(detected)
 
-  _sortContactsCacheWithRankings: =>
+    Promise.all detected.map (contact) =>
+      return contact if contact.name isnt contact.email
+      @searchContacts(contact.email, {limit: 1}).then ([match]) =>
+        return match if match and match.email is contact.email
+        return contact
+
+  _updateRankedContactCache: =>
     rankings = ContactRankingStore.valuesForAllAccounts()
-    @_contactCache = _.sortBy @_contactCache, (contact) =>
-      (- (rankings[contact.email.toLowerCase()] ? 0) / 1)
+    emails = Object.keys(rankings)
+
+    if emails.length is 0
+      @_rankedContacts = []
+      return
+
+    DatabaseStore.findAll(Contact, {email: emails}).then (contacts) =>
+      contacts = @_distinctByEmail(contacts)
+      for contact in contacts
+        contact._rank = (- (rankings[contact.email.toLowerCase()] ? 0) / 1)
+      @_rankedContacts = _.sortBy contacts, (contact) -> contact._rank
+
+  _distinctByEmail: (contacts) =>
+    # remove query results that are duplicates, prefering ones that have names
+    uniq = {}
+    for contact in contacts
+      key = contact.email.toLowerCase()
+      existing = uniq[key]
+      if not existing or (not existing.name or existing.name is existing.email)
+        uniq[key] = contact
+    _.values(uniq)
 
   _resetCache: =>
-    @_contactCache = {}
+    @_rankedContacts = []
     ContactRankingStore.reset()
     @trigger(@)
 

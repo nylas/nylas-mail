@@ -97,6 +97,11 @@ class ModelQuery
           @_matchers.push(attr.equal(value))
     @
 
+  whereAny: (matchers) ->
+    @_assertNotFinalized()
+    @_matchers.push(new Matcher.Or(matchers))
+    @
+
   # Public: Include specific joined data attributes in result objects.
   # - `attr` A {AttributeJoinedData} that you want to be populated in
   #  the returned models. Note: This results in a LEFT OUTER JOIN.
