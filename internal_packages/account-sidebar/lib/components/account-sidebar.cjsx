@@ -11,7 +11,7 @@ class AccountSidebar extends React.Component
   @containerRequired: false
   @containerStyles:
     minWidth: 165
-    maxWidth: 210
+    maxWidth: 250
 
   constructor: (@props) ->
     @state = @_getStateFromStores()

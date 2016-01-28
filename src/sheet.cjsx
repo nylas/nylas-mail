@@ -73,16 +73,17 @@ class Sheet extends React.Component
     @state.columns.map (column, idx) =>
       {maxWidth, minWidth, handle, location, width} = column
       if minWidth != maxWidth and maxWidth < FLEX
-        <ResizableRegion key={"#{@props.data.id}:#{idx}"}
-                         name={"#{@props.data.id}:#{idx}"}
-                         className={"column-#{location.id}"}
-                         style={height:'100%'}
-                         data-column={idx}
-                         onResize={@_onColumnResize.bind(@, column)}
-                         initialWidth={width}
-                         minWidth={minWidth}
-                         maxWidth={maxWidth}
-                         handle={handle}>
+        <ResizableRegion
+          key={"#{@props.data.id}:#{idx}"}
+          name={"#{@props.data.id}:#{idx}"}
+          className={"column-#{location.id}"}
+          style={height:'100%'}
+          data-column={idx}
+          onResize={@_onColumnResize.bind(@, column)}
+          initialWidth={width}
+          minWidth={minWidth}
+          maxWidth={maxWidth}
+          handle={handle}>
           <InjectedComponentSet direction="column" matching={location: location, mode: @state.mode}/>
         </ResizableRegion>
       else
