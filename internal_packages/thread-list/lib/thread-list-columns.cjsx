@@ -65,10 +65,9 @@ c3 = new ListTabular.Column
       attachment = <div className="thread-icon thread-icon-attachment"></div>
 
     currentCategories = FocusedPerspectiveStore.current().categories() ? []
-    account = FocusedPerspectiveStore.current().account
 
-    ignoredIds = _.pluck(currentCategories, 'id')
-    ignoredIds.push(cat.id) for cat in CategoryStore.hiddenCategories(account)
+    ignored = [].concat(currentCategories, CategoryStore.hiddenCategories(thread.accountId))
+    ignoredIds = _.pluck(ignored, 'id')
 
     for label in (thread.sortedCategories())
       continue if label.id in ignoredIds
