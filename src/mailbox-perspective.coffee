@@ -73,8 +73,9 @@ class MailboxPerspective
   threadUnreadCount: =>
     0
 
-  canApplyToThreads: =>
-    throw new Error("canApplyToThreads: Not implemented in base class.")
+  canApplyToThreads: (targetAccountIds) =>
+    targetIdsInCurrent = _.difference(targetAccountIds, @accountIds).length is 0
+    return targetIdsInCurrent
 
   applyToThreads: (threadsOrIds) =>
     throw new Error("applyToThreads: Not implemented in base class.")
@@ -149,7 +150,7 @@ class StarredMailboxPerspective extends MailboxPerspective
     return new MutableQuerySubscription(query, {asResultSet: true})
 
   canApplyToThreads: =>
-    true
+    super
 
   applyToThreads: (threadsOrIds) =>
     ChangeStarredTask = require './flux/tasks/change-starred-task'
@@ -224,7 +225,7 @@ class CategoryMailboxPerspective extends MailboxPerspective
     @_categories[0].name is 'inbox'
 
   canApplyToThreads: =>
-    not _.any @_categories, (c) -> c.isLockedCategory()
+    super and not _.any @_categories, (c) -> c.isLockedCategory()
 
   canArchiveThreads: =>
     for cat in @_categories

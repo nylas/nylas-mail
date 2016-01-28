@@ -4,7 +4,8 @@ _ = require 'underscore'
  FocusedPerspectiveStore,
  SyncbackCategoryTask,
  DestroyCategoryTask,
- Actions} = require 'nylas-exports'
+ Actions,
+ Utils} = require 'nylas-exports'
 {OutlineViewItem} = require 'nylas-component-kit'
 
 
@@ -65,27 +66,24 @@ class SidebarItem
       selected: isItemSelected(perspective)
       collapsed: isItemCollapsed(id) ? true
       counterStyle: counterStyle
-      dataTransferType: 'nylas-thread-ids'
+      dataTransferType: 'nylas-threads-data'
       onDelete: if opts.deletable then onDeleteItem else undefined
       onEdited: if opts.editable then onEditItem else undefined
       onToggleCollapsed: toggleItemCollapsed
       onDrop: (item, event) ->
         jsonString = event.dataTransfer.getData(item.dataTransferType)
-        ids = null
-        try
-          ids = JSON.parse(jsonString);
-        catch err
-          console.error('OutlineViewItem onDrop: JSON parse #{err}');
-        return unless ids
-        item.perspective.applyToThreads(ids)
+        data = Utils.jsonParse(jsonString)
+        return unless data
+        item.perspective.applyToThreads(data.threadIds)
       shouldAcceptDrop: (item, event) ->
         target = item.perspective
         current = FocusedPerspectiveStore.current()
-
+        jsonString = event.dataTransfer.getData(item.dataTransferType)
+        data = Utils.jsonParse(jsonString)
+        return false unless data
         return false unless target
         return false if target.isEqual(current)
-        return false unless _.isEqual(target.accountIds, current.accountIds)
-        return false unless target.canApplyToThreads()
+        return false unless target.canApplyToThreads(data.accountIds)
 
         return item.dataTransferType in event.dataTransfer.types
 
