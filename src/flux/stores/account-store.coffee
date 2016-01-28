@@ -119,7 +119,7 @@ class AccountStore
   accountForId: (id) =>
     _.findWhere(@_accounts, {id})
 
-  aliases: () =>
+  aliases: =>
     aliases = []
     for acc in @_accounts
       aliases.push(acc.me())

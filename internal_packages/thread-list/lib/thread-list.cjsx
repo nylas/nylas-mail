@@ -77,9 +77,7 @@ class ThreadList extends React.Component
 
     <FluxContainer
       stores=[ThreadListStore]
-      getStateFromStores={ ->
-        dataSource: ThreadListStore.dataSource()
-      }>
+      getStateFromStores={ -> dataSource: ThreadListStore.dataSource() }>
       <FocusContainer collection="thread">
         <MultiselectList
           ref="list"

@@ -60,7 +60,7 @@ class SidebarStore extends NylasStore
     @_focusedAccounts = accounts
     @_updateSections()
 
-  _updateSections: () =>
+  _updateSections: =>
     accounts = @_focusedAccounts
     multiAccount = accounts.length > 1
 

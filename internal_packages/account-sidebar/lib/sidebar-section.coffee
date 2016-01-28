@@ -20,7 +20,7 @@ toggleSectionCollapsed = (section) ->
 
 class SidebarSection
 
-  @empty: (title)->
+  @empty: (title) ->
     return {
       title,
       items: []
