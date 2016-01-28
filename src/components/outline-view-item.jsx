@@ -149,7 +149,8 @@ class OutlineViewItem extends Component {
     }
   }
 
-  _onShowContextMenu = ()=> {
+  _onShowContextMenu = (event)=> {
+    event.stopPropagation()
     const item = this.props.item;
     const name = item.name;
     const {remote} = require('electron');
