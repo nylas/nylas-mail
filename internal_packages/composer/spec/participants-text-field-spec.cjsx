@@ -99,12 +99,8 @@ describe 'ParticipantsTextField', ->
 
     it "should use the name of an existing contact in the ContactStore if possible", ->
       spyOn(ContactStore, 'searchContacts').andCallFake (val, options={}) ->
-        if options.noPromise
-          return [participant3] if val is participant3.email
-          return []
-        else
-          return Promise.resolve([participant3]) if val is participant3.email
-          return Promise.resolve([])
+        return Promise.resolve([participant3]) if val is participant3.email
+        return Promise.resolve([])
 
       @expectInputToYield participant3.email,
         to: [participant1, participant2, participant3]
@@ -113,12 +109,8 @@ describe 'ParticipantsTextField', ->
 
     it "should not allow the same contact to appear multiple times", ->
       spyOn(ContactStore, 'searchContacts').andCallFake (val, options={}) ->
-        if options.noPromise
-          return [participant2] if val is participant2.email
-          return []
-        else
-          return Promise.resolve([participant2]) if val is participant2.email
-          return Promise.resolve([])
+        return Promise.resolve([participant2]) if val is participant2.email
+        return Promise.resolve([])
 
       @expectInputToYield participant2.email,
         to: [participant1, participant2]

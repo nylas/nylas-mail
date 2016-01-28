@@ -35,18 +35,6 @@ describe "ContactStore", ->
   afterEach ->
     NylasEnv.testOrganizationUnit = null
 
-  describe "when Contacts change", ->
-    beforeEach ->
-      spyOn(ContactStore, "_sortContactsCacheWithRankings")
-      spyOn(Rx.Observable, 'fromQuery').andReturn mockObservable([1, 2])
-      ContactStore._registerObservables()
-
-    it "updates the contact cache", ->
-      expect(ContactStore._contactCache).toEqual [1, 2]
-
-    it "sorts the contacts", ->
-      expect(ContactStore._sortContactsCacheWithRankings).toHaveBeenCalled()
-
   describe "ranking contacts", ->
     beforeEach ->
       @accountId = TEST_ACCOUNT_ID
@@ -56,29 +44,24 @@ describe "ContactStore", ->
       @c4 = new Contact({name: "Ben", email: "ben@nylas.com"})
       @contacts = [@c3, @c1, @c2, @c4]
 
-    it "triggers a sort on a contact refresh", ->
-      spyOn(ContactStore, "_sortContactsCacheWithRankings")
-      ContactStore._onContactsChanged(@contacts)
-      expect(ContactStore._sortContactsCacheWithRankings).toHaveBeenCalled()
-
-    it "sorts the contact cache by the rankings", ->
+    it "queries for, and sorts, contacts present in the rankings", ->
       spyOn(ContactRankingStore, 'valuesForAllAccounts').andReturn
         "evana@nylas.com": 10
         "evanb@nylas.com": 1
         "evanc@nylas.com": 0.1
-      cache = {}
-      cache = [@c3, @c1, @c2, @c4]
-      ContactStore._contactCache = cache
-      ContactStore._sortContactsCacheWithRankings()
-      expect(ContactStore._contactCache).toEqual [@c1, @c2, @c3, @c4]
+
+      spyOn(DatabaseStore, 'findAll').andCallFake =>
+        Promise.resolve([@c3, @c1, @c2, @c4])
+
+      waitsForPromise =>
+        ContactStore._updateRankedContactCache().then =>
+          expect(ContactStore._rankedContacts).toEqual [@c1, @c2, @c3, @c4]
 
   describe "when ContactRankings change", ->
-
-    it "sorts the contact cache", ->
-      spyOn(ContactStore, "_sortContactsCacheWithRankings")
-      ContactStore._registerListeners()
+    it "re-generates the ranked contact cache", ->
+      spyOn(ContactStore, "_updateRankedContactCache")
       ContactRankingStore.trigger()
-      expect(ContactStore._sortContactsCacheWithRankings).toHaveBeenCalled()
+      expect(ContactStore._updateRankedContactCache).toHaveBeenCalled()
 
   describe "when searching for a contact", ->
     beforeEach ->
@@ -89,42 +72,49 @@ describe "ContactStore", ->
       @c5 = new Contact(name: "Fins", email: "fins@nylas.com")
       @c6 = new Contact(name: "Fill", email: "fill@nylas.com")
       @c7 = new Contact(name: "Fin", email: "fin@nylas.com")
-      ContactStore._contactCache = [@c1,@c2,@c3,@c4,@c5,@c6,@c7]
+      ContactStore._rankedContacts = [@c1,@c2,@c3,@c4,@c5,@c6,@c7]
 
     it "can find by first name", ->
-      results = ContactStore.searchContacts("First", noPromise: true)
-      expect(results.length).toBe 2
-      expect(results[0]).toBe @c2
-      expect(results[1]).toBe @c3
+      waitsForPromise =>
+        ContactStore.searchContacts("First").then (results) =>
+          expect(results.length).toBe 2
+          expect(results[0]).toBe @c2
+          expect(results[1]).toBe @c3
 
     it "can find by last name", ->
-      results = ContactStore.searchContacts("Last", noPromise: true)
-      expect(results.length).toBe 1
-      expect(results[0]).toBe @c3
+      waitsForPromise =>
+        ContactStore.searchContacts("Last").then (results) =>
+          expect(results.length).toBe 1
+          expect(results[0]).toBe @c3
 
     it "can find by email", ->
-      results = ContactStore.searchContacts("1test", noPromise: true)
-      expect(results.length).toBe 1
-      expect(results[0]).toBe @c1
+      waitsForPromise =>
+        ContactStore.searchContacts("1test").then (results) =>
+          expect(results.length).toBe 1
+          expect(results[0]).toBe @c1
 
     it "is case insensitive", ->
-      results = ContactStore.searchContacts("FIrsT", noPromise: true)
-      expect(results.length).toBe 2
-      expect(results[0]).toBe @c2
-      expect(results[1]).toBe @c3
+      waitsForPromise =>
+        ContactStore.searchContacts("FIrsT").then (results) =>
+          expect(results.length).toBe 2
+          expect(results[0]).toBe @c2
+          expect(results[1]).toBe @c3
 
     it "only returns the number requested", ->
-      results = ContactStore.searchContacts("FIrsT", limit: 1, noPromise: true)
-      expect(results.length).toBe 1
-      expect(results[0]).toBe @c2
+      waitsForPromise =>
+        ContactStore.searchContacts("FIrsT", limit: 1).then (results) =>
+          expect(results.length).toBe 1
+          expect(results[0]).toBe @c2
 
     it "returns no more than 5 by default", ->
-      results = ContactStore.searchContacts("fi", noPromise: true)
-      expect(results.length).toBe 5
+      waitsForPromise =>
+        ContactStore.searchContacts("fi").then (results) =>
+          expect(results.length).toBe 5
 
     it "can return more than 5 if requested", ->
-      results = ContactStore.searchContacts("fi", limit: 6, noPromise: true)
-      expect(results.length).toBe 6
+      waitsForPromise =>
+        ContactStore.searchContacts("fi", limit: 6).then (results) =>
+          expect(results.length).toBe 6
 
   describe 'isValidContact', ->
     it "should return true for a variety of valid contacts", ->

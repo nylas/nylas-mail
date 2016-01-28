@@ -61,7 +61,7 @@ class Contact extends Model
 
   @additionalSQLiteConfig:
     setup: ->
-      ['CREATE INDEX IF NOT EXISTS ContactEmailIndex ON Contact(account_id,email)']
+      ['CREATE INDEX IF NOT EXISTS ContactEmailIndex ON Contact(email)']
 
   @fromString: (string, {accountId} = {}) ->
     emailRegex = RegExpUtils.emailRegex()
