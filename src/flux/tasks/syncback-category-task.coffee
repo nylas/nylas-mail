@@ -8,23 +8,32 @@ NylasAPI = require '../nylas-api'
 
 module.exports = class SyncbackCategoryTask extends Task
 
-  constructor: ({@category}={}) ->
+  constructor: ({@category, @displayName}={}) ->
     super
 
   label: ->
-    "Creating new #{@category.displayType()}..."
+    if @category.serverId
+      "Updating #{@category.displayType()}..."
+    else
+      "Creating new #{@category.displayType()}..."
 
   performLocal: ->
-    # When we send drafts, we don't update anything in the app until
-    # it actually succeeds. We don't want users to think messages have
-    # already sent when they haven't!
     if not @category
       return Promise.reject(new Error("Attempt to call SyncbackCategoryTask.performLocal without @category."))
 
+    isUpdating = @category.serverId
+
     DatabaseStore.inTransaction (t) =>
-      if @_shouldChangeBackwards()
-        t.unpersistModel @category
+      if @_isReverting
+        if isUpdating
+          @category.displayName = @_initialDisplayName
+          t.persistModel @category
+        else
+          t.unpersistModel @category
       else
+        if isUpdating and @displayName
+          @_initialDisplayName = @category.displayName
+          @category.displayName = @displayName
         t.persistModel @category
 
   performRemote: ->
@@ -33,9 +42,14 @@ module.exports = class SyncbackCategoryTask extends Task
     else
       path = "/folders"
 
+    if @category.serverId
+      method = 'PUT'
+    else
+      method = 'POST'
+
     NylasAPI.makeRequest
       path: path
-      method: 'POST'
+      method: method
       accountId: @category.accountId
       body:
         display_name: @category.displayName
@@ -58,5 +72,3 @@ module.exports = class SyncbackCategoryTask extends Task
       else
         return Promise.resolve(Task.Status.Retry)
 
-  _shouldChangeBackwards: ->
-    @_isReverting

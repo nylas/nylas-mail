@@ -10,7 +10,7 @@ async = require 'async'
 # A 0 code is when an error returns without a status code. These are
 # things like "ESOCKETTIMEDOUT"
 TimeoutErrorCode = 0
-PermanentErrorCodes = [400, 403, 404, 500]
+PermanentErrorCodes = [400, 403, 404, 405, 500]
 CancelledErrorCode = -123
 SampleTemporaryErrorCode = 504
 

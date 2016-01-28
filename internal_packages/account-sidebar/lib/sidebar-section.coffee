@@ -138,7 +138,7 @@ class SidebarSection
       items: items
       collapsed: collapsed
       onToggleCollapsed: onToggleCollapsed
-      onCreateItem: (displayName) ->
+      onItemCreated: (displayName) ->
         category = new Category
           displayName: displayName
           accountId: account.id

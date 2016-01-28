@@ -22,6 +22,9 @@ class Upload
     @size = @stats.size
 
 
+# TODO
+# Attach uploads to message object instead of keeping them in this cache
+# Prevents the need to keep local cache in sync between windows
 class FileUploadStore extends NylasStore
 
   Upload: Upload

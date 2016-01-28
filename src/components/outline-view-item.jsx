@@ -1,3 +1,4 @@
+import _ from 'underscore';
 import classnames from 'classnames';
 import React, {Component, PropTypes} from 'react';
 import DisclosureTriangle from './disclosure-triangle';
@@ -17,6 +18,7 @@ class OutlineViewItem extends Component {
 
   static propTypes = {
     item: PropTypes.shape({
+      className: PropTypes.string,
       id: PropTypes.string.isRequired,
       children: PropTypes.array.isRequired,
       name: PropTypes.string.isRequired,
@@ -24,24 +26,38 @@ class OutlineViewItem extends Component {
       count: PropTypes.number,
       counterStyle: PropTypes.string,
       dataTransferType: PropTypes.string,
+      inputPlaceholder: PropTypes.string,
       collapsed: PropTypes.bool,
-      deleted: PropTypes.bool,
+      editing: PropTypes.bool,
       selected: PropTypes.bool,
       shouldAcceptDrop: PropTypes.func,
       onToggleCollapsed: PropTypes.func,
+      onInputCleared: PropTypes.func,
       onDrop: PropTypes.func,
       onSelect: PropTypes.func,
       onDelete: PropTypes.func,
+      onEdited: PropTypes.func,
     }).isRequired,
   }
 
-  state = {
-    isDropping: false,
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      isDropping: false,
+      editing: props.item.editing || false,
+    }
   }
 
   componentDidMount() {
-    if (this.props.item.onDelete) {
+    if (this._shouldShowContextMenu()) {
       React.findDOMNode(this).addEventListener('contextmenu', this._onShowContextMenu);
+    }
+  }
+
+  componentWillReceiveProps(newProps) {
+    if (newProps.editing) {
+      this.setState({editing: newProps.editing});
     }
   }
 
@@ -51,7 +67,7 @@ class OutlineViewItem extends Component {
   }
 
   componentWillUnmount() {
-    if (this.props.item.onDelete) {
+    if (this._shouldShowContextMenu()) {
       React.findDOMNode(this).removeEventListener('contextmenu', this._onShowContextMenu);
     }
   }
@@ -67,6 +83,19 @@ class OutlineViewItem extends Component {
       return item[method](item, ...args);
     }
     return undefined;
+  }
+
+  _shouldShowContextMenu = ()=> {
+    return this.props.item.onDelete != null || this.props.item.onEdited != null;
+  }
+
+  _shouldAcceptDrop = (event)=> {
+    return this._runCallback('shouldAcceptDrop', event);
+  }
+
+  _clearEditingState = (event)=> {
+    this.setState({editing: false});
+    this._runCallback('onInputCleared', event);
   }
 
 
@@ -93,8 +122,26 @@ class OutlineViewItem extends Component {
     this._runCallback('onDelete');
   }
 
-  _shouldAcceptDrop = (event)=> {
-    return this._runCallback('shouldAcceptDrop', event);
+  _onEdited = (value)=> {
+    this._runCallback('onEdited', value);
+  }
+
+  _onEdit = ()=> {
+    this.setState({editing: true});
+  }
+
+  _onInputBlur = (event)=> {
+    this._clearEditingState(event);
+  }
+
+  _onInputKeyDown = (event)=> {
+    if (event.key === 'Escape') {
+      this._clearEditingState(event);
+    }
+    if (_.includes(['Enter', 'Return'], event.key)) {
+      this._onEdited(event.target.value);
+      this._clearEditingState(event);
+    }
   }
 
   _onShowContextMenu = ()=> {
@@ -102,12 +149,21 @@ class OutlineViewItem extends Component {
     const name = item.name;
     const {remote} = require('electron');
     const {Menu, MenuItem} = remote.require('electron');
-
     const menu = new Menu();
-    menu.append(new MenuItem({
-      label: `Delete ${name}`,
-      click: this._onDelete,
-    }));
+
+    if (this.props.item.onEdited) {
+      menu.append(new MenuItem({
+        label: `Edit ${name}`,
+        click: this._onEdit,
+      }));
+    }
+
+    if (this.props.item.onDelete) {
+      menu.append(new MenuItem({
+        label: `Delete ${name}`,
+        click: this._onDelete,
+      }));
+    }
     menu.popup(remote.getCurrentWindow());
   }
 
@@ -125,11 +181,31 @@ class OutlineViewItem extends Component {
 
   _renderIcon(item = this.props.item) {
     return (
-      <RetinaImg
-        name={item.iconName}
-        fallback={'folder.png'}
-        mode={RetinaImg.Mode.ContentIsMask} />
+      <div className="icon">
+        <RetinaImg
+          name={item.iconName}
+          fallback={'folder.png'}
+          mode={RetinaImg.Mode.ContentIsMask} />
+      </div>
     );
+  }
+
+  _renderItemContent(item = this.props.item, state = this.state) {
+    if (state.editing) {
+      const placeholder = item.inputPlaceholder || '';
+      return (
+        <input
+          autoFocus
+          type="text"
+          tabIndex="1"
+          className="item-input"
+          placeholder={placeholder}
+          defaultValue={item.name}
+          onBlur={this._onInputBlur}
+          onKeyDown={this._onInputKeyDown} />
+      );
+    }
+    return <div className="name">{item.name}</div>;
   }
 
   _renderItem(item = this.props.item, state = this.state) {
@@ -137,20 +213,22 @@ class OutlineViewItem extends Component {
       'item': true,
       'selected': item.selected,
       'dropping': state.isDropping,
-      'deleted': item.deleted,
+      'editing': state.editing,
+      [item.className]: item.className,
     });
 
     return (
       <DropZone
-        className={containerClass}
-        onClick={this._onClick}
         id={item.id}
+        className={containerClass}
+        onDrop={this._onDrop}
+        onClick={this._onClick}
+        onDoubleClick={this._onEdit}
         shouldAcceptDrop={this._shouldAcceptDrop}
-        onDragStateChange={this._onDragStateChange}
-        onDrop={this._onDrop}>
+        onDragStateChange={this._onDragStateChange} >
         {this._renderCount()}
-        <div className="icon">{this._renderIcon()}</div>
-        <div className="name">{item.name}</div>
+        {this._renderIcon()}
+        {this._renderItemContent()}
       </DropZone>
     );
   }

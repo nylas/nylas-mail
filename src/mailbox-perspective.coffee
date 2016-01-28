@@ -63,6 +63,10 @@ class MailboxPerspective
   categories: =>
     []
 
+  category: =>
+    return null unless @categories().length isnt 0
+    return @categories()[0]
+
   threads: =>
     throw new Error("threads: Not implemented in base class.")
 
