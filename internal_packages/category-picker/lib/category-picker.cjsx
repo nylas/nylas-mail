@@ -301,7 +301,7 @@ class CategoryPicker extends React.Component
 
   _categoryUsageCount: (props, categories) =>
     categoryUsageCount = {}
-    _.flatten(@_threads(props).map(@_threadCategories)).forEach (category) ->
+    _.flatten(_.pluck(@_threads(props), 'categories')).forEach (category) ->
       categoryUsageCount[category.id] ?= 0
       categoryUsageCount[category.id] += 1
     return categoryUsageCount
@@ -338,13 +338,6 @@ class CategoryPicker extends React.Component
     item.usage = usageCount[category.id] ? 0
     item.numThreads = numThreads
     item
-
-  _threadCategories: (thread) =>
-    if @_account.usesLabels()
-      return (thread.labels ? [])
-    else if @_account.usesFolders()
-      return (thread.folders ? [])
-    else throw new Error("Invalid organizationUnit")
 
   _threads: (props = @props) =>
     if props.items then return (props.items ? [])

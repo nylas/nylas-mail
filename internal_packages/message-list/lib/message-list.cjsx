@@ -8,6 +8,7 @@ MessageItemContainer = require './message-item-container'
  Message,
  DraftStore,
  MessageStore,
+ AccountStore,
  DatabaseStore,
  WorkspaceStore,
  ChangeLabelsTask,
@@ -244,6 +245,8 @@ class MessageList extends React.Component
       </div>
 
   _renderLabels: =>
+    account = AccountStore.accountForId(@state.currentThread.accountId)
+    return false unless account.usesLabels()
     labels = @state.currentThread.sortedCategories()
     labels = _.reject labels, (l) -> l.name is 'important'
     labels.map (label) =>

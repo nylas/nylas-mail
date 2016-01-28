@@ -35,7 +35,7 @@ class DatabaseSetupQueryBuilder
 
     # Identify collection attributes that can be matched against. These require
     # JOIN tables. (Right now the only one of these is Thread.folders or
-    # Thread.labels)
+    # Thread.categories)
     collectionAttributes = _.filter attributes, (attr) ->
       attr.queryable && attr instanceof AttributeCollection
     collectionAttributes.forEach (attribute) ->

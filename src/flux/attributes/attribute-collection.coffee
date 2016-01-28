@@ -15,7 +15,7 @@ join table associating the ID of the model with the IDs of models in the collect
 Collection attributes have an additional clause builder, `contains`:
 
 ```coffee
-DatabaseStore.findAll(Thread).where([Thread.attributes.labels.contains('inbox')])
+DatabaseStore.findAll(Thread).where([Thread.attributes.categories.contains('inbox')])
 ```
 
 This is equivalent to writing the following SQL:
