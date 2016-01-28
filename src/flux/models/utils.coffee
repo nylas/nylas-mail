@@ -496,3 +496,13 @@ Utils =
         fn.executing = true
         fn.apply(@, [fnFinished, fnReinvoked, arguments...])
     fnRun
+
+  # Parse json without throwing an error. Logs a sensible message to indicate
+  # the error occurred while parsing
+  jsonParse: (jsonString) =>
+    data = null
+    try
+      data = JSON.parse(jsonString)
+    catch err
+      console.error("JSON parse error: #{err}")
+    return data

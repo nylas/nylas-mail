@@ -106,17 +106,26 @@ class ThreadList extends React.Component
       event.preventDefault()
       return
 
-    if itemThreadId in ThreadListStore.dataSource().selection.ids()
-      dragThreadIds = ThreadListStore.dataSource().selection.ids()
+    dataSource = ThreadListStore.dataSource()
+    if itemThreadId in dataSource.selection.ids()
+      dragThreadIds = dataSource.selection.ids()
     else
       dragThreadIds = [itemThreadId]
+
+    dragAccountIds = dragThreadIds.map (threadId) -> dataSource.getById(threadId).accountId
+    dragAccountIds = _.uniq(dragAccountIds)
+
+    dragData = {
+      accountIds: dragAccountIds,
+      threadIds: dragThreadIds
+    }
 
     event.dataTransfer.effectAllowed = "move"
     event.dataTransfer.dragEffect = "move"
 
     canvas = CanvasUtils.canvasWithThreadDragImage(dragThreadIds.length)
     event.dataTransfer.setDragImage(canvas, 10, 10)
-    event.dataTransfer.setData('nylas-thread-ids', JSON.stringify(dragThreadIds))
+    event.dataTransfer.setData('nylas-threads-data', JSON.stringify(dragData))
     return
 
   _onDragEnd: (event) =>
