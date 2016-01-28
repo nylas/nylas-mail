@@ -1,6 +1,6 @@
 React = require 'react'
 {RetinaImg, Flexbox} = require 'nylas-component-kit'
-{LaunchServices, AccountStore} = require 'nylas-exports'
+{LaunchServices, SystemStartService, AccountStore} = require 'nylas-exports'
 ConfigSchemaItem = require './config-schema-item'
 
 class DefaultMailClientItem extends React.Component
@@ -25,6 +25,37 @@ class DefaultMailClientItem extends React.Component
     else
       @setState(defaultClient: true)
       @_services.registerForURLScheme('mailto')
+    event.target.blur()
+
+class LaunchSystemStartItem extends React.Component
+  constructor: (@props) ->
+    @state = {
+      available: false
+      launchOnStart: false
+    }
+    @_service = new SystemStartService()
+
+  componentDidMount: ->
+    @_service.checkAvailability().then (available) =>
+      @setState {available}
+      return if not available
+      @_service.doesLaunchOnSystemStart().then (launchOnStart) =>
+        @setState({launchOnStart})
+
+  render: =>
+    return false if not @state.available
+    <div className="item">
+      <input type="checkbox" id="launch-on-start" checked={@state.launchOnStart} onChange={@_toggleLaunchOnStart}/>
+      <label htmlFor="launch-on-start">Launch on system start</label>
+    </div>
+
+  _toggleLaunchOnStart: (event) =>
+    if @state.launchOnStart is true
+      @setState(launchOnStart: false)
+      @_service.dontLaunchOnSystemStart()
+    else
+      @setState(launchOnStart: true)
+      @_service.configureToLaunchOnSystemStart()
     event.target.blur()
 
 class AppearanceModeSwitch extends React.Component
@@ -138,6 +169,8 @@ class WorkspaceSection extends React.Component
     <section>
       <h2>Workspace</h2>
       <DefaultMailClientItem />
+
+      <LaunchSystemStartItem />
 
       <ConfigSchemaItem
         configSchema={@props.configSchema.properties.workspace.properties.systemTray}

@@ -182,6 +182,7 @@ class NylasExports
 
   # Process Internals
   @load "LaunchServices", 'launch-services'
+  @load "SystemStartService", 'system-start-service'
   @load "BufferedProcess", 'buffered-process'
   @get "APMWrapper", -> require('../apm-wrapper')
 
