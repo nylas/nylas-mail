@@ -94,7 +94,6 @@ describe 'FileUploadStore', ->
           expect(@session.changes.add).toHaveBeenCalledWith uploads: []
           expect(fs.rmdir).toHaveBeenCalled()
 
-
   describe '_getFileStats', ->
 
     it 'returns the correct stats', ->
