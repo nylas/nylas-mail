@@ -38,7 +38,7 @@ class MultiRequestProgressMonitor
 module.exports =
 class SendDraftTask extends Task
 
-  constructor: (@draft, @uploads) ->
+  constructor: (@draft) ->
     super
 
   label: ->
@@ -50,7 +50,7 @@ class SendDraftTask extends Task
   performLocal: ->
     unless @draft and @draft instanceof Message
       return Promise.reject(new Error("SendDraftTask - must be provided a draft."))
-    unless @uploads and @uploads instanceof Array
+    unless @draft.uploads and @draft.uploads instanceof Array
       return Promise.reject(new Error("SendDraftTask - must be provided an array of uploads."))
     unless @draft.from[0]
       return Promise.reject(new Error("SendDraftTask - you must populate `from` before sending."))
@@ -85,7 +85,7 @@ class SendDraftTask extends Task
     progress = new MultiRequestProgressMonitor()
     Object.defineProperty(@, 'progress', { get: -> progress.value() })
 
-    Promise.all @uploads.map (upload) =>
+    Promise.all @draft.uploads.map (upload) =>
       {targetPath, size} = upload
 
       formData =
@@ -108,7 +108,7 @@ class SendDraftTask extends Task
       .then (rawResponseString) =>
         json = JSON.parse(rawResponseString)
         file = (new File).fromJSON(json[0])
-        @uploads.splice(@uploads.indexOf(upload), 1)
+        @draft.uploads.splice(@draft.uploads.indexOf(upload), 1)
         @draft.files.push(file)
 
   _sendAndCreateMessage: =>
@@ -172,8 +172,8 @@ class SendDraftTask extends Task
 
     # Remove attachments we were waiting to upload
     # Call the Action to do this
-    for upload in @uploads
-      Actions.removeAttachment(upload.messageClientId, upload.id)
+    for upload in @draft.uploads
+      Actions.removeAttachment(upload)
 
     return Promise.resolve(Task.Status.Success)
 

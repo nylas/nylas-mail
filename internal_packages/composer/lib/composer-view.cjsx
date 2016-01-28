@@ -65,12 +65,12 @@ class ComposerView extends React.Component
       from: []
       body: ""
       files: []
+      uploads: []
       subject: ""
       accounts: []
       focusedField: Fields.To # Gets updated in @_initiallyFocusedField
       enabledFields: [] # Gets updated in @_initiallyEnabledFields
       showQuotedText: false
-      uploads: FileUploadStore.uploadsForMessage(@props.draftClientId)
 
   componentWillMount: =>
     @_prepareForDraft(@props.draftClientId)
@@ -81,7 +81,6 @@ class ComposerView extends React.Component
 
   componentDidMount: =>
     @_usubs = []
-    @_usubs.push FileUploadStore.listen @_onFileUploadStoreChange
     @_usubs.push AccountStore.listen @_onAccountStoreChanged
     @_applyFieldFocus()
 
@@ -425,9 +424,6 @@ class ComposerView extends React.Component
   _nonImageFiles: (files) ->
     _.reject(files, Utils.shouldDisplayAsImage)
 
-  _onFileUploadStoreChange: =>
-    @setState uploads: FileUploadStore.uploadsForMessage(@props.draftClientId)
-
   _renderActionsRegion: =>
     return <div></div> unless @props.draftClientId
 
@@ -504,9 +500,9 @@ class ComposerView extends React.Component
       from: draft.from
       body: draft.body
       files: draft.files
+      uploads: draft.uploads
       subject: draft.subject
       accounts: @_getAccountsForSend()
-      uploads: FileUploadStore.uploadsForMessage(@props.draftClientId)
 
     if !@state.populated
       _.extend state,
