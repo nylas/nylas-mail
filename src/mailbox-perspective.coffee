@@ -73,12 +73,28 @@ class MailboxPerspective
   threadUnreadCount: =>
     0
 
-  canApplyToThreads: (targetAccountIds) =>
-    targetIdsInCurrent = _.difference(targetAccountIds, @accountIds).length is 0
-    return targetIdsInCurrent
+  # Public:
+  # - accountIds {Array} Array of unique account ids associated with the threads
+  # that want to be included in this perspective
+  #
+  # Returns true if the accountIds are part of the current ids, or false
+  # otherwise. This means that it checks if I am moving trying to move threads
+  # betwee the same set of accounts:
+  #
+  # E.g.:
+  # perpective = Starred for accountIds: a1, a2
+  # thread1 has accountId a3
+  # thread2 has accountId a2
+  #
+  # perspective.canReceiveThreads([a2, a3]) -> false -> I cant move those threads to Starred
+  # perspective.canReceiveThreads([a2]) -> true -> I can move that thread to # Starred
+  canReceiveThreads: (accountIds) =>
+    return false unless accountIds and accountIds.length > 0
+    incomingIdsInCurrent = _.difference(accountIds, @accountIds).length is 0
+    return incomingIdsInCurrent
 
-  applyToThreads: (threadsOrIds) =>
-    throw new Error("applyToThreads: Not implemented in base class.")
+  receiveThreads: (threadsOrIds) =>
+    throw new Error("receiveThreads: Not implemented in base class.")
 
   # Whether or not the current MailboxPerspective can "archive" or "trash"
   # Subclasses should call `super` if they override these methods
@@ -110,7 +126,7 @@ class SearchMailboxPerspective extends MailboxPerspective
   threads: =>
     new SearchSubscription(@searchQuery, @accountIds)
 
-  canApplyToThreads: =>
+  canReceiveThreads: =>
     false
 
   canArchiveThreads: =>
@@ -131,7 +147,7 @@ class DraftsMailboxPerspective extends MailboxPerspective
   threads: =>
     null
 
-  canApplyToThreads: =>
+  canReceiveThreads: =>
     false
 
 class StarredMailboxPerspective extends MailboxPerspective
@@ -149,10 +165,10 @@ class StarredMailboxPerspective extends MailboxPerspective
 
     return new MutableQuerySubscription(query, {asResultSet: true})
 
-  canApplyToThreads: =>
+  canReceiveThreads: =>
     super
 
-  applyToThreads: (threadsOrIds) =>
+  receiveThreads: (threadsOrIds) =>
     ChangeStarredTask = require './flux/tasks/change-starred-task'
     task = new ChangeStarredTask({threads:threadsOrIds, starred: true})
     Actions.queueTask(task)
@@ -166,7 +182,7 @@ class EmptyMailboxPerspective extends MailboxPerspective
     query = DatabaseStore.findAll(Thread).where(accountId: -1).limit(0)
     return new MutableQuerySubscription(query, {asResultSet: true})
 
-  canApplyToThreads: =>
+  canReceiveThreads: =>
     false
 
   canArchiveThreads: =>
@@ -175,7 +191,7 @@ class EmptyMailboxPerspective extends MailboxPerspective
   canTrashThreads: =>
     false
 
-  applyToThreads: (threadsOrIds) =>
+  receiveThreads: (threadsOrIds) =>
 
 
 class CategoryMailboxPerspective extends MailboxPerspective
@@ -224,7 +240,7 @@ class CategoryMailboxPerspective extends MailboxPerspective
   isInbox: =>
     @_categories[0].name is 'inbox'
 
-  canApplyToThreads: =>
+  canReceiveThreads: =>
     super and not _.any @_categories, (c) -> c.isLockedCategory()
 
   canArchiveThreads: =>
@@ -237,10 +253,13 @@ class CategoryMailboxPerspective extends MailboxPerspective
       return false if cat.name in ["trash"]
     super
 
-  applyToThreads: (threadsOrIds) =>
+  receiveThreads: (threadsOrIds) =>
     FocusedPerspectiveStore = require './flux/stores/focused-perspective-store'
     currentCategories = FocusedPerspectiveStore.current().categories()
 
+    # TODO
+    # This assumes that the we don't have more than one category per accountId
+    # attached to this perspective
     DatabaseStore.modelify(Thread, threadsOrIds).then (threads) =>
       tasks = TaskFactory.tasksForApplyingCategories
         threads: threads

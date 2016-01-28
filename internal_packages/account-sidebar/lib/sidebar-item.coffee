@@ -74,7 +74,7 @@ class SidebarItem
         jsonString = event.dataTransfer.getData(item.dataTransferType)
         data = Utils.jsonParse(jsonString)
         return unless data
-        item.perspective.applyToThreads(data.threadIds)
+        item.perspective.receiveThreads(data.threadIds)
       shouldAcceptDrop: (item, event) ->
         target = item.perspective
         current = FocusedPerspectiveStore.current()
@@ -83,7 +83,7 @@ class SidebarItem
         return false unless data
         return false unless target
         return false if target.isEqual(current)
-        return false unless target.canApplyToThreads(data.accountIds)
+        return false unless target.canReceiveThreads(data.accountIds)
 
         return item.dataTransferType in event.dataTransfer.types
 
