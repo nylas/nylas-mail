@@ -113,7 +113,8 @@ class Application
     if @config.get('devMode')
       @devMode = true
 
-    @windowManager = new WindowManager({@resourcePath, @configDirPath, @config, @devMode, @safeMode})
+    initializeInBackground = options.background ? false
+    @windowManager = new WindowManager({@resourcePath, @configDirPath, @config, @devMode, @safeMode, initializeInBackground})
     @autoUpdateManager = new AutoUpdateManager(@version, @config, @specMode)
     @applicationMenu = new ApplicationMenu(@version)
     @_databasePhase = 'setup'

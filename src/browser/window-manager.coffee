@@ -6,7 +6,7 @@ NylasWindow = require './nylas-window'
 
 class WindowManager
 
-  constructor: ({@devMode, @safeMode, @resourcePath, @configDirPath, @config}) ->
+  constructor: ({@devMode, @safeMode, @resourcePath, @configDirPath, @config, @initializeInBackground}) ->
     @_windows = []
     @_mainWindow = null
     @_workWindow = null
@@ -79,6 +79,7 @@ class WindowManager
         neverClose: true
         mainWindow: true
         windowType: 'default'
+        initializeInBackground: @initializeInBackground
         # The position and resizable bit gets reset when the window
         # finishes loading. This represents the state of our "loading"
         # window.

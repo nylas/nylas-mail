@@ -644,9 +644,10 @@ class NylasEnvConstructor extends Model
 
   # Call this method when establishing a real application window.
   startRootWindow: ->
-    @displayWindow()
+    {safeMode, windowType, initializeInBackground} = @getLoadSettings()
 
-    {safeMode, windowType} = @getLoadSettings()
+    @displayWindow() unless initializeInBackground
+
     @registerCommands()
     @loadConfig()
     @keymaps.loadBundledKeymaps()
