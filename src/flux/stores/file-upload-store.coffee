@@ -17,8 +17,7 @@ class Upload
   constructor: (@messageClientId, @originPath, @stats, @id, @uploadDir = UPLOAD_DIR) ->
     @id ?= Utils.generateTempId()
     @filename = path.basename(@originPath)
-    @draftUploadDir = path.join(@uploadDir, @messageClientId)
-    @targetDir = path.join(@draftUploadDir, @id)
+    @targetDir = path.join(@uploadDir, @messageClientId, @id)
     @targetPath = path.join(@targetDir, @filename)
     @size = @stats.size
 
@@ -41,9 +40,15 @@ class FileUploadStore extends NylasStore
     return unless NylasEnv.isMainWindow()
     return unless change.objectClass is Message.name and change.type is 'unpersist'
     change.objects.forEach (message) =>
+      messageDir = "#{UPLOAD_DIR}/#{message.clientId}"
       uploads = message.uploads
-      if uploads?
-        uploads.forEach (upload) => @_onRemoveAttachment(upload)
+
+      if uploads and uploads.length > 0
+        Promise.all(uploads.map (upload) => @_deleteUpload(upload))
+        .then ->
+          fs.rmdir(messageDir)
+        .catch (err) ->
+          console.warn(err)
 
   _onSelectAttachment: ({messageClientId}) ->
     @_verifyId(messageClientId)
@@ -69,14 +74,15 @@ class FileUploadStore extends NylasStore
   _onRemoveAttachment: (upload) ->
     return unless NylasEnv.isMainWindow()
     return Promise.resolve() unless upload
+    {messageClientId} = upload
     @_deleteUpload(upload)
     .then (upload) =>
-      {messageClientId} = upload
       DraftStore.sessionForClientId(messageClientId)
     .then (session) =>
       uploads = session.draft().uploads
       uploads = _.reject(uploads, ({id}) -> id is upload.id)
-      fs.rmdir(upload.draftUploadDir) if uploads.length is 0
+      if uploads.length is 0
+        fs.rmdir("#{UPLOAD_DIR}/#{messageClientId}")
       session.changes.add({uploads})
     .catch(@_onAttachFileError)
 
