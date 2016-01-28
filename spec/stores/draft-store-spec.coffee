@@ -7,7 +7,6 @@
  DraftStore,
  AccountStore,
  DatabaseStore,
- FileUploadStore,
  SoundRegistry,
  SendDraftTask,
  ChangeMailTask,
@@ -671,7 +670,7 @@ describe "DraftStore", ->
         clientId: "local-123",
         threadId: "thread-123",
         replyToMessageId: "message-123"
-      @uploads = ['stub']
+        uploads: ['stub']
       DraftStore._draftSessions = {}
       DraftStore._draftsSending = {}
       @forceCommit = false
@@ -688,7 +687,6 @@ describe "DraftStore", ->
       spyOn(DraftStore, "_doneWithSession").andCallThrough()
       spyOn(DraftStore, "trigger")
       spyOn(SoundRegistry, "playSound")
-      spyOn(FileUploadStore, "uploadsForMessage").andReturn(@uploads)
       spyOn(Actions, "queueTask")
 
     it "plays a sound immediately when sending draft", ->
@@ -765,7 +763,6 @@ describe "DraftStore", ->
         task = Actions.queueTask.calls[0].args[0]
         expect(task instanceof SendDraftTask).toBe true
         expect(task.draft).toBe @draft
-        expect(task.uploads).toBe @uploads
 
     it "queues a SendDraftTask", ->
       runs ->
