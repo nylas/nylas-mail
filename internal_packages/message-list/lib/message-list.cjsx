@@ -183,7 +183,7 @@ class MessageList extends React.Component
     Actions.composeForward(thread: @state.currentThread)
 
   render: =>
-    if not @state.currentThread?
+    if not @state.currentThread
       return <div className="message-list" id="message-list"></div>
 
     wrapClass = classNames
@@ -214,7 +214,7 @@ class MessageList extends React.Component
     </KeyCommandsRegion>
 
   _renderSubject: ->
-    subject = @state.currentThread?.subject
+    subject = @state.currentThread.subject
     subject = "(No Subject)" if not subject or subject.length is 0
 
     <div className="message-subject-wrap">

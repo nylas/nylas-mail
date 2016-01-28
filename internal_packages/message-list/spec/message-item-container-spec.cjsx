@@ -15,10 +15,10 @@ MessageItemContainer = proxyquire '../lib/message-item-container',
 
 {InjectedComponent} = require 'nylas-component-kit'
 
-testThread = new Thread(id: "t1")
+testThread = new Thread(id: "t1", accountId: TEST_ACCOUNT_ID)
 testClientId = "local-id"
-testMessage = new Message(id: "m1", draft: false, unread: true)
-testDraft = new Message(id: "d1", draft: true, unread: true)
+testMessage = new Message(id: "m1", draft: false, unread: true, accountId: TEST_ACCOUNT_ID)
+testDraft = new Message(id: "d1", draft: true, unread: true, accountId: TEST_ACCOUNT_ID)
 
 describe 'MessageItemContainer', ->
 

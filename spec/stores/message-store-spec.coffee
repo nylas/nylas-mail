@@ -7,10 +7,10 @@ DatabaseStore = require '../../src/flux/stores/database-store'
 ChangeUnreadTask = require '../../src/flux/tasks/change-unread-task'
 Actions = require '../../src/flux/actions'
 
-testThread = new Thread(id: '123')
-testMessage1 = new Message(id: 'a', body: '123', files: [])
-testMessage2 = new Message(id: 'b', body: '123', files: [])
-testMessage3 = new Message(id: 'c', body: '123', files: [])
+testThread = new Thread(id: '123', accountId: TEST_ACCOUNT_ID)
+testMessage1 = new Message(id: 'a', body: '123', files: [], accountId: TEST_ACCOUNT_ID)
+testMessage2 = new Message(id: 'b', body: '123', files: [], accountId: TEST_ACCOUNT_ID)
+testMessage3 = new Message(id: 'c', body: '123', files: [], accountId: TEST_ACCOUNT_ID)
 
 describe "MessageStore", ->
   describe "when the receiving focus changes from the FocusedContentStore", ->
