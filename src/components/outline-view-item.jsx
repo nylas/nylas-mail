@@ -5,17 +5,109 @@ import DisclosureTriangle from './disclosure-triangle';
 import DropZone from './drop-zone';
 import RetinaImg from './retina-img';
 
-
+/**
+ * Enum for counter styles
+ * @readonly
+ * @enum {string}
+ */
 const CounterStyles = {
   Default: 'def',
   Alt: 'alt',
 };
 
 
-// TODO Docs
+/**
+ * Renders an item that may contain more arbitrarily nested items
+ * This component resembles OS X's default OutlineView or Sourcelist
+ *
+ * An OutlineViewItem behaves like a controlled React component; it controls no
+ * state internally. All of the desired state must be passed in through props.
+ *
+ *
+ * OutlineView handles:
+ * - Collapsing and uncollapsing
+ * - Editing value for item
+ * - Deleting item
+ * - Selecting the item
+ * - Displaying an associated count
+ * - Dropping elements
+ *
+ * @param {object} props - props for OutlineViewItem
+ * @param {object} props.item - props for OutlineViewItem
+ * @param {string} props.item.id - Unique id for the item.
+ * @param {string} props.item.name - Name to display
+ * @param {string} props.item.className - Extra classes to add to the item
+ * @param {string} props.item.iconName - Icon name for icon. See {@link RetinaImg} for further reference.
+ * @param {array} props.item.children - Array of children of the same type to be
+ * displayed.
+ * @param {number} props.item.count - Count to display. If falsy, wont display a
+ * count.
+ * @param {CounterStyles} props.item.counterStyle - One of the possible
+ * CounterStyles
+ * @param {string} props.item.inputPlaceholder - Placehodler to use when editing
+ * item
+ * @param {boolean} props.item.collapsed - Whether the OutlineViewItem is collapsed or
+ * not
+ * @param {boolean} props.item.editing - Whether the OutlineViewItem is being
+ * edited
+ * @param {boolean} props.item.selected - Whether the OutlineViewItem is selected
+ * @param {props.item.shouldAcceptDrop} props.item.shouldAcceptDrop
+ * @param {props.item.onCollapseToggled} props.item.onCollapseToggled
+ * @param {props.item.onInputCleared} props.item.onInputCleared
+ * @param {props.item.onDrop} props.item.onDrop
+ * @param {props.item.onSelect} props.item.onSelect
+ * @param {props.item.onDelete} props.item.onDelete
+ * @param {props.item.onEdited} props.item.onEdited
+ * @class OutlineViewItem
+ */
 class OutlineViewItem extends Component {
   static displayName = 'OutlineView'
 
+  /**
+   * If provided, this function will be called when receiving a drop. It must
+   * return true if it should accept it or false otherwise.
+   * @callback props.item.shouldAcceptDrop
+   * @param {object} item - The current item
+   * @param {object} event - The drag event
+   * @return {boolean}
+   */
+  /**
+   * If provided, this function will be called when the action to collapse or
+   * uncollapse the OutlineViewItem is executed.
+   * @callback props.item.onCollapseToggled
+   * @param {object} item - The current item
+   */
+  /**
+   * If provided, this function will be called when the editing input is cleared
+   * via Esc key, blurring, or submiting the edit.
+   * @callback props.item.onInputCleared
+   * @param {object} item - The current item
+   * @param {object} event - The associated event
+   */
+  /**
+   * If provided, this function will be called when an element is dropped in the
+   * item
+   * @callback props.item.onDrop
+   * @param {object} item - The current item
+   * @param {object} event - The associated event
+   */
+  /**
+   * If provided, this function will be called when the item is selected
+   * @callback props.item.onSelect
+   * @param {object} item - The current item
+   */
+  /**
+   * If provided, this function will be called when the the delete action is
+   * executed
+   * @callback props.item.onDelete
+   * @param {object} item - The current item
+   */
+  /**
+   * If provided, this function will be called when the item is edited
+   * @callback props.item.onEdited
+   * @param {object} item - The current item
+   * @param {string} value - The new value
+   */
   static propTypes = {
     item: PropTypes.shape({
       className: PropTypes.string,
@@ -25,13 +117,12 @@ class OutlineViewItem extends Component {
       iconName: PropTypes.string.isRequired,
       count: PropTypes.number,
       counterStyle: PropTypes.string,
-      dataTransferType: PropTypes.string,
       inputPlaceholder: PropTypes.string,
       collapsed: PropTypes.bool,
       editing: PropTypes.bool,
       selected: PropTypes.bool,
       shouldAcceptDrop: PropTypes.func,
-      onToggleCollapsed: PropTypes.func,
+      onCollapseToggled: PropTypes.func,
       onInputCleared: PropTypes.func,
       onDrop: PropTypes.func,
       onSelect: PropTypes.func,
@@ -109,8 +200,8 @@ class OutlineViewItem extends Component {
     this._runCallback('onDrop', event);
   }
 
-  _onToggleCollapsed = ()=> {
-    this._runCallback('onToggleCollapsed');
+  _onCollapseToggled = ()=> {
+    this._runCallback('onCollapseToggled');
   }
 
   _onClick = (event)=> {
@@ -262,7 +353,7 @@ class OutlineViewItem extends Component {
           <DisclosureTriangle
             collapsed={item.collapsed}
             visible={item.children.length > 0}
-            onToggleCollapsed={this._onToggleCollapsed} />
+            onCollapseToggled={this._onCollapseToggled} />
           {this._renderItem()}
         </span>
         {this._renderChildren()}
