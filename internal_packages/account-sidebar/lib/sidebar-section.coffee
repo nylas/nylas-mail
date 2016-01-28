@@ -139,6 +139,7 @@ class SidebarSection
       collapsed: collapsed
       onToggleCollapsed: onToggleCollapsed
       onItemCreated: (displayName) ->
+        return unless displayName
         category = new Category
           displayName: displayName
           accountId: account.id

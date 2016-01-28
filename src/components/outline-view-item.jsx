@@ -130,6 +130,11 @@ class OutlineViewItem extends Component {
     this.setState({editing: true});
   }
 
+  _onInputFocus = (event)=> {
+    const input = event.target;
+    input.selectionStart = input.selectionEnd = input.value.length;
+  }
+
   _onInputBlur = (event)=> {
     this._clearEditingState(event);
   }
@@ -202,6 +207,7 @@ class OutlineViewItem extends Component {
           placeholder={placeholder}
           defaultValue={item.name}
           onBlur={this._onInputBlur}
+          onFocus={this._onInputFocus}
           onKeyDown={this._onInputKeyDown} />
       );
     }
