@@ -894,87 +894,87 @@ describe "DraftStore", ->
           Promise.resolve()
 
       links = [
-        # 'mailto:'
-        # 'mailto://bengotow@gmail.com'
+        'mailto:'
+        'mailto://bengotow@gmail.com'
         'mailto:bengotow@gmail.com'
-        # 'mailto:?subject=%1z2a', # fails uriDecode
-        # 'mailto:?subject=%52z2a', # passes uriDecode
-        # 'mailto:?subject=Martha Stewart',
-        # 'mailto:?subject=Martha Stewart&cc=cc@nylas.com',
-        # 'mailto:bengotow@gmail.com&subject=Martha Stewart&cc=cc@nylas.com',
-        # 'mailto:bengotow@gmail.com?subject=Martha%20Stewart&cc=cc@nylas.com&bcc=bcc@nylas.com',
-        # 'mailto:bengotow@gmail.com?subject=Martha%20Stewart&cc=cc@nylas.com&bcc=Ben <bcc@nylas.com>',
-        # 'mailto:Ben Gotow <bengotow@gmail.com>,Shawn <shawn@nylas.com>?subject=Yes this is really valid',
-        # 'mailto:Ben%20Gotow%20<bengotow@gmail.com>,Shawn%20<shawn@nylas.com>?subject=Yes%20this%20is%20really%20valid',
-        # 'mailto:Reply <d+AORGpRdj0KXKUPBE1LoI0a30F10Ahj3wu3olS-aDk5_7K5Wu6WqqqG8t1HxxhlZ4KEEw3WmrSdtobgUq57SkwsYAH6tG57IrNqcQR0K6XaqLM2nGNZ22D2k@docs.google.com>?subject=Nilas%20Message%20to%20Customers',
-        # 'mailto:email@address.com?&subject=test&body=type%20your%0Amessage%20here'
-        # 'mailto:?body=type%20your%0D%0Amessage%0D%0Ahere'
-        # 'mailto:?subject=Issues%20%C2%B7%20atom/electron%20%C2%B7%20GitHub&body=https://github.com/atom/electron/issues?utf8=&q=is%253Aissue+is%253Aopen+123%0A%0A'
+        'mailto:?subject=%1z2a', # fails uriDecode
+        'mailto:?subject=%52z2a', # passes uriDecode
+        'mailto:?subject=Martha Stewart',
+        'mailto:?subject=Martha Stewart&cc=cc@nylas.com',
+        'mailto:bengotow@gmail.com&subject=Martha Stewart&cc=cc@nylas.com',
+        'mailto:bengotow@gmail.com?subject=Martha%20Stewart&cc=cc@nylas.com&bcc=bcc@nylas.com',
+        'mailto:bengotow@gmail.com?subject=Martha%20Stewart&cc=cc@nylas.com&bcc=Ben <bcc@nylas.com>',
+        'mailto:Ben Gotow <bengotow@gmail.com>,Shawn <shawn@nylas.com>?subject=Yes this is really valid',
+        'mailto:Ben%20Gotow%20<bengotow@gmail.com>,Shawn%20<shawn@nylas.com>?subject=Yes%20this%20is%20really%20valid',
+        'mailto:Reply <d+AORGpRdj0KXKUPBE1LoI0a30F10Ahj3wu3olS-aDk5_7K5Wu6WqqqG8t1HxxhlZ4KEEw3WmrSdtobgUq57SkwsYAH6tG57IrNqcQR0K6XaqLM2nGNZ22D2k@docs.google.com>?subject=Nilas%20Message%20to%20Customers',
+        'mailto:email@address.com?&subject=test&body=type%20your%0Amessage%20here'
+        'mailto:?body=type%20your%0D%0Amessage%0D%0Ahere'
+        'mailto:?subject=Issues%20%C2%B7%20atom/electron%20%C2%B7%20GitHub&body=https://github.com/atom/electron/issues?utf8=&q=is%253Aissue+is%253Aopen+123%0A%0A'
       ]
       expected = [
-        # new Message(),
-        # new Message(
-        #   to: [new Contact(name: 'bengotow@gmail.com', email: 'bengotow@gmail.com')]
-        # ),
+        new Message(),
         new Message(
           to: [new Contact(name: 'bengotow@gmail.com', email: 'bengotow@gmail.com')]
         ),
-        # new Message(
-        #   subject: '%1z2a'
-        # ),
-        # new Message(
-        #   subject: 'Rz2a'
-        # ),
-        # new Message(
-        #   subject: 'Martha Stewart'
-        # ),
-        # new Message(
-        #   cc: [new Contact(name: 'cc@nylas.com', email: 'cc@nylas.com')],
-        #   subject: 'Martha Stewart'
-        # ),
-        # new Message(
-        #   to: [new Contact(name: 'bengotow@gmail.com', email: 'bengotow@gmail.com')],
-        #   cc: [new Contact(name: 'cc@nylas.com', email: 'cc@nylas.com')],
-        #   subject: 'Martha Stewart'
-        # ),
-        # new Message(
-        #   to: [new Contact(name: 'bengotow@gmail.com', email: 'bengotow@gmail.com')],
-        #   cc: [new Contact(name: 'cc@nylas.com', email: 'cc@nylas.com')],
-        #   bcc: [new Contact(name: 'bcc@nylas.com', email: 'bcc@nylas.com')],
-        #   subject: 'Martha Stewart'
-        # ),
-        # new Message(
-        #   to: [new Contact(name: 'bengotow@gmail.com', email: 'bengotow@gmail.com')],
-        #   cc: [new Contact(name: 'cc@nylas.com', email: 'cc@nylas.com')],
-        #   bcc: [new Contact(name: 'Ben', email: 'bcc@nylas.com')],
-        #   subject: 'Martha Stewart'
-        # ),
-        # new Message(
-        #   to: [new Contact(name: 'Ben Gotow', email: 'bengotow@gmail.com'), new Contact(name: 'Shawn', email: 'shawn@nylas.com')],
-        #   subject: 'Yes this is really valid'
-        # ),
-        # new Message(
-        #   to: [new Contact(name: 'Ben Gotow', email: 'bengotow@gmail.com'), new Contact(name: 'Shawn', email: 'shawn@nylas.com')],
-        #   subject: 'Yes this is really valid'
-        # ),
-        # new Message(
-        #   to: [new Contact(name: 'Reply', email: 'd+AORGpRdj0KXKUPBE1LoI0a30F10Ahj3wu3olS-aDk5_7K5Wu6WqqqG8t1HxxhlZ4KEEw3WmrSdtobgUq57SkwsYAH6tG57IrNqcQR0K6XaqLM2nGNZ22D2k@docs.google.com')],
-        #   subject: 'Nilas Message to Customers'
-        # ),
-        # new Message(
-        #   to: [new Contact(name: 'email@address.com', email: 'email@address.com')],
-        #   subject: 'test'
-        #   body: 'type your\nmessage here'
-        # ),
-        # new Message(
-        #   to: [],
-        #   body: 'type your\r\nmessage\r\nhere'
-        # ),
-        # new Message(
-        #   to: [],
-        #   subject: 'Issues · atom/electron · GitHub'
-        #   body: 'https://github.com/atom/electron/issues?utf8=&q=is%3Aissue+is%3Aopen+123\n\n'
-        # )
+        new Message(
+          to: [new Contact(name: 'bengotow@gmail.com', email: 'bengotow@gmail.com')]
+        ),
+        new Message(
+          subject: '%1z2a'
+        ),
+        new Message(
+          subject: 'Rz2a'
+        ),
+        new Message(
+          subject: 'Martha Stewart'
+        ),
+        new Message(
+          cc: [new Contact(name: 'cc@nylas.com', email: 'cc@nylas.com')],
+          subject: 'Martha Stewart'
+        ),
+        new Message(
+          to: [new Contact(name: 'bengotow@gmail.com', email: 'bengotow@gmail.com')],
+          cc: [new Contact(name: 'cc@nylas.com', email: 'cc@nylas.com')],
+          subject: 'Martha Stewart'
+        ),
+        new Message(
+          to: [new Contact(name: 'bengotow@gmail.com', email: 'bengotow@gmail.com')],
+          cc: [new Contact(name: 'cc@nylas.com', email: 'cc@nylas.com')],
+          bcc: [new Contact(name: 'bcc@nylas.com', email: 'bcc@nylas.com')],
+          subject: 'Martha Stewart'
+        ),
+        new Message(
+          to: [new Contact(name: 'bengotow@gmail.com', email: 'bengotow@gmail.com')],
+          cc: [new Contact(name: 'cc@nylas.com', email: 'cc@nylas.com')],
+          bcc: [new Contact(name: 'Ben', email: 'bcc@nylas.com')],
+          subject: 'Martha Stewart'
+        ),
+        new Message(
+          to: [new Contact(name: 'Ben Gotow', email: 'bengotow@gmail.com'), new Contact(name: 'Shawn', email: 'shawn@nylas.com')],
+          subject: 'Yes this is really valid'
+        ),
+        new Message(
+          to: [new Contact(name: 'Ben Gotow', email: 'bengotow@gmail.com'), new Contact(name: 'Shawn', email: 'shawn@nylas.com')],
+          subject: 'Yes this is really valid'
+        ),
+        new Message(
+          to: [new Contact(name: 'Reply', email: 'd+AORGpRdj0KXKUPBE1LoI0a30F10Ahj3wu3olS-aDk5_7K5Wu6WqqqG8t1HxxhlZ4KEEw3WmrSdtobgUq57SkwsYAH6tG57IrNqcQR0K6XaqLM2nGNZ22D2k@docs.google.com')],
+          subject: 'Nilas Message to Customers'
+        ),
+        new Message(
+          to: [new Contact(name: 'email@address.com', email: 'email@address.com')],
+          subject: 'test'
+          body: 'type your\nmessage here'
+        ),
+        new Message(
+          to: [],
+          body: 'type your\r\nmessage\r\nhere'
+        ),
+        new Message(
+          to: [],
+          subject: 'Issues · atom/electron · GitHub'
+          body: 'https://github.com/atom/electron/issues?utf8=&q=is%3Aissue+is%3Aopen+123\n\n'
+        )
       ]
 
       links.forEach (link, idx) ->
