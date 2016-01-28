@@ -8,9 +8,7 @@ class ThreadSelectionBar extends React.Component
   render: =>
     <FluxContainer
       stores={[ThreadListStore]}
-      getStateFromStores={ ->
-        dataSource: ThreadListStore.dataSource()
-      }>
+      getStateFromStores={ -> dataSource: ThreadListStore.dataSource() }>
       <MultiselectActionBar
         className="thread-list"
         collection="thread" />

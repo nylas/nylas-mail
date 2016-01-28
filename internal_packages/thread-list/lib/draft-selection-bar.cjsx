@@ -8,9 +8,7 @@ class DraftSelectionBar extends React.Component
   render: =>
     <FluxContainer
       stores={[DraftListStore]}
-      getStateFromStores={ ->
-        dataSource: DraftListStore.dataSource()
-      }>
+      getStateFromStores={ -> dataSource: DraftListStore.dataSource() }>
       <MultiselectActionBar
         className="draft-list"
         collection="draft" />

@@ -18,9 +18,7 @@ class DraftList extends React.Component
   render: =>
     <FluxContainer
       stores=[DraftListStore]
-      getStateFromStores={ ->
-        dataSource: DraftListStore.dataSource()
-      }>
+      getStateFromStores={ -> dataSource: DraftListStore.dataSource() }>
       <FocusContainer collection="draft">
         <MultiselectList
           columns={DraftListColumns.Wide}

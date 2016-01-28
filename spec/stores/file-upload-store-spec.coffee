@@ -137,7 +137,7 @@ describe 'FileUploadStore', ->
       upload = new Upload(msgId, fpath, {size: 1234, isDirectory: -> false})
       waitsForPromise ->
         FileUploadStore._verifyUpload(upload)
-        .then (up)-> expect(up.id).toBe upload.id
+        .then (up) -> expect(up.id).toBe upload.id
 
 
   describe '_copyUpload', ->
@@ -178,5 +178,3 @@ describe 'FileUploadStore', ->
         .then => throw new Error('It should fail.')
         .catch (msg) =>
           expect(msg).not.toBeUndefined()
-
-
