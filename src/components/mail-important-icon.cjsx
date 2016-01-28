@@ -53,7 +53,7 @@ class MailImportantIcon extends React.Component
   render: =>
     return false unless @state.visible
 
-    isImportant = @state.categoryId and _.findWhere(@props.thread.labels, {id: @state.categoryId})?
+    isImportant = @state.categoryId and _.findWhere(@props.thread.categories, {id: @state.categoryId})?
 
     classes = classNames
       'mail-important-icon': true

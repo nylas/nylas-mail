@@ -25,7 +25,7 @@ query.then (thread) ->
 
 ```coffee
 query = DatabaseStore.findAll(Thread)
-query.where([Thread.attributes.labels.contains('label-id')])
+query.where([Thread.attributes.categories.contains('label-id')])
      .order([Thread.attributes.lastMessageReceivedTimestamp.descending()])
      .limit(100).offset(50)
      .then (threads) ->
