@@ -198,8 +198,7 @@ class CategoryMailboxPerspective extends MailboxPerspective
     super(other) and _.isEqual(@categories(), other.categories())
 
   threads: =>
-    query = DatabaseStore
-      .findAll(Thread)
+    query = DatabaseStore.findAll(Thread)
       .where([Thread.attributes.categories.containsAny(_.pluck(@categories(), 'id'))])
       .limit(0)
 
