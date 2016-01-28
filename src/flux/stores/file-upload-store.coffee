@@ -6,6 +6,7 @@ NylasStore = require 'nylas-store'
 Actions = require '../actions'
 Utils = require '../models/utils'
 Message = require '../models/message'
+DraftStore = require './draft-store'
 DatabaseStore = require './database-store'
 
 
@@ -22,9 +23,6 @@ class Upload
     @size = @stats.size
 
 
-# TODO
-# Attach uploads to message object instead of keeping them in this cache
-# Prevents the need to keep local cache in sync between windows
 class FileUploadStore extends NylasStore
 
   Upload: Upload
@@ -36,11 +34,6 @@ class FileUploadStore extends NylasStore
     @listenTo DatabaseStore, @_onDataChanged
 
     mkdirp.sync(UPLOAD_DIR)
-    @_fileUploads = @_getFileUploadsFromFs()
-
-  uploadsForMessage: (messageClientId) ->
-    [].concat(@_fileUploads[messageClientId] ? [])
-
 
   # Handlers
 
@@ -48,7 +41,7 @@ class FileUploadStore extends NylasStore
     return unless NylasEnv.isMainWindow()
     return unless change.objectClass is Message.name and change.type is 'unpersist'
     change.objects.forEach (message) =>
-      uploads = @_fileUploads[message.clientId]
+      uploads = message.uploads
       if uploads?
         uploads.forEach (upload) => @_onRemoveAttachment(upload)
 
@@ -63,6 +56,7 @@ class FileUploadStore extends NylasStore
         Actions.addAttachment({messageClientId, filePath})
 
   _onAddAttachment: ({messageClientId, filePath}) ->
+    return unless NylasEnv.isMainWindow()
     @_verifyId(messageClientId)
     @_getFileStats({messageClientId, filePath})
     .then(@_makeUpload)
@@ -73,20 +67,23 @@ class FileUploadStore extends NylasStore
     .catch(@_onAttachFileError)
 
   _onRemoveAttachment: (upload) ->
-    return Promise.resolve() unless (@_fileUploads[upload.messageClientId] ? []).length > 0
+    return unless NylasEnv.isMainWindow()
+    return Promise.resolve() unless upload
     @_deleteUpload(upload)
     .then (upload) =>
       {messageClientId} = upload
-      uploads = @_fileUploads[messageClientId]
+      DraftStore.sessionForClientId(messageClientId)
+    .then (session) =>
+      uploads = session.draft().uploads
       uploads = _.reject(uploads, ({id}) -> id is upload.id)
-      @_fileUploads[messageClientId] = uploads
       fs.rmdir(upload.draftUploadDir) if uploads.length is 0
-      @trigger()
+      session.changes.add({uploads})
     .catch(@_onAttachFileError)
 
   _onAttachFileError: (message) ->
     remote = require('remote')
     dialog = remote.require('dialog')
+    console.error(message)
     dialog.showMessageBox
       type: 'info',
       buttons: ['OK'],
@@ -95,27 +92,6 @@ class FileUploadStore extends NylasStore
 
 
   # Helpers
-
-  _getTempIdDirsFor: (path) ->
-    fs.readdirSync(path).filter((dir) -> Utils.isTempId(dir))
-
-  _getFileUploadsFromFs: (rootDir = UPLOAD_DIR)->
-    # TODO This function makes my eyes hurt. Refactor
-    uploads = {}
-    dirs = @_getTempIdDirsFor(rootDir)
-    for messageClientId in dirs
-      uploads[messageClientId] = []
-      messageDir = path.join(rootDir, messageClientId)
-      uploadIds = @_getTempIdDirsFor(messageDir)
-      for uploadId in uploadIds
-        uploadDir = path.join(messageDir, uploadId)
-        for filename in fs.readdirSync(uploadDir)
-          uploadPath = path.join(uploadDir, filename)
-          stats = fs.statSync(uploadPath)
-          uploads[messageClientId].push(
-            new Upload(messageClientId, uploadPath, stats, uploadId)
-          )
-    return uploads
 
   _verifyId: (messageClientId) ->
     unless messageClientId
@@ -172,10 +148,9 @@ class FileUploadStore extends NylasStore
           resolve(upload)
 
   _saveUpload: (upload) =>
-    @_fileUploads[upload.messageClientId] ?= []
-    @_fileUploads[upload.messageClientId].push(upload)
-    @trigger()
-    Promise.resolve()
-
+    DraftStore.sessionForClientId(upload.messageClientId)
+    .then (session) =>
+      uploads = session.draft().uploads.concat [upload]
+      session.changes.add({uploads})
 
 module.exports = new FileUploadStore()

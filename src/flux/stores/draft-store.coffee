@@ -10,7 +10,6 @@ AccountStore = require './account-store'
 ContactStore = require './contact-store'
 FocusedPerspectiveStore = require './focused-perspective-store'
 FocusedContentStore = require './focused-content-store'
-FileUploadStore = require './file-upload-store'
 
 SendDraftTask = require '../tasks/send-draft'
 DestroyDraftTask = require '../tasks/destroy-draft'
@@ -515,8 +514,7 @@ class DraftStore
       # before send.
       session.changes.commit(noSyncback: true).then =>
         draft = session.draft()
-        uploads = FileUploadStore.uploadsForMessage(draft.clientId)
-        Actions.queueTask(new SendDraftTask(draft, uploads))
+        Actions.queueTask(new SendDraftTask(draft))
         @_doneWithSession(session)
 
         NylasEnv.close() if @_isPopout()

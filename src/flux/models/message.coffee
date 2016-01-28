@@ -103,6 +103,10 @@ class Message extends Model
       modelKey: 'files'
       itemClass: File
 
+    'uploads': Attributes.Object
+      queryable: false
+      modelKey: 'uploads'
+
     'unread': Attributes.Boolean
       queryable: true
       modelKey: 'unread'
@@ -169,6 +173,7 @@ class Message extends Model
     @from ||= []
     @replyTo ||= []
     @files ||= []
+    @uploads ||= []
     @events ||= []
     @
 

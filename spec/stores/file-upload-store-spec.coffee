@@ -1,8 +1,9 @@
-File = require '../../src/flux/models/file'
-Actions = require '../../src/flux/actions'
-FileUploadStore = require '../../src/flux/stores/file-upload-store'
-{Upload} = FileUploadStore
 fs = require 'fs'
+{Message,
+ Actions,
+ FileUploadStore,
+ DraftStore} = require 'nylas-exports'
+{Upload} = FileUploadStore
 
 msgId = "local-123"
 fpath = "/foo/bar/test123.jpg"
@@ -12,11 +13,19 @@ filename = "test123.jpg"
 argsObj = {messageClientId: msgId, filePath: fpath}
 
 describe 'FileUploadStore', ->
+
   beforeEach ->
-    FileUploadStore._fileUploads = {}
+    @draft = new Message()
+    @session =
+      changes:
+        add: jasmine.createSpy('session.changes.add')
+      draft: => @draft
+    spyOn(NylasEnv, "isMainWindow").andReturn true
+    spyOn(FileUploadStore, "_onAttachFileError").andCallFake (msg) ->
+      throw new Error(msg)
     spyOn(NylasEnv, "showOpenDialog").andCallFake (props, callback) ->
       callback(fpath)
-
+    spyOn(DraftStore, "sessionForClientId").andCallFake => Promise.resolve @session
 
   describe 'selectAttachment', ->
     it "throws if no messageClientId is provided", ->
@@ -45,10 +54,9 @@ describe 'FileUploadStore', ->
       spyOn(FileUploadStore, '_prepareTargetDir').andCallFake -> Promise.resolve()
       spyOn(FileUploadStore, '_copyUpload').andCallFake => Promise.resolve(@upload)
       spyOn(FileUploadStore, '_saveUpload').andCallThrough()
-      spyOn(FileUploadStore, 'trigger')
 
     it "throws if no messageClientId or path is provided", ->
-      expect( -> Actions.addAttachment()).toThrow()
+      expect(-> Actions.addAttachment()).toThrow()
 
     it "executes the required steps and triggers", ->
       waitsForPromise ->
@@ -61,44 +69,30 @@ describe 'FileUploadStore', ->
         expect(FileUploadStore._prepareTargetDir).toHaveBeenCalled()
         expect(FileUploadStore._copyUpload).toHaveBeenCalled()
         expect(FileUploadStore._saveUpload).toHaveBeenCalled()
-        expect(FileUploadStore.trigger).toHaveBeenCalled()
-        expect(FileUploadStore.uploadsForMessage(msgId)).toEqual [@upload]
+        expect(@session.changes.add).toHaveBeenCalledWith({uploads: [@upload]})
 
 
   describe 'removeAttachment', ->
     beforeEach ->
       @upload = new Upload(msgId, fpath, {size: 1234, isDirectory: -> false}, 'u1', uploadDir)
       spyOn(FileUploadStore, '_deleteUpload').andCallFake => Promise.resolve(@upload)
-      spyOn(FileUploadStore, 'trigger')
       spyOn(fs, 'rmdir')
 
-    it 'does nothing if msgId does not exist', ->
-      waitsForPromise =>
-        FileUploadStore._onRemoveAttachment(messageClientId: 'xyz')
-        .then ->
-          expect(FileUploadStore.trigger).not.toHaveBeenCalled()
-
     it 'removes upload correctly', ->
-      FileUploadStore._fileUploads[msgId] = [{id: 'u2'}, @upload]
+      @draft.uploads = [{id: 'u2'}, @upload]
       waitsForPromise =>
         FileUploadStore._onRemoveAttachment(@upload)
-        .then ->
-          expect(FileUploadStore.uploadsForMessage(msgId)).toEqual [{id: 'u2'}]
+        .then =>
+          expect(@session.changes.add).toHaveBeenCalledWith uploads: [{id: 'u2'}]
           expect(fs.rmdir).not.toHaveBeenCalled()
-          expect(FileUploadStore.trigger).toHaveBeenCalled()
 
     it 'removes upload and removes directory if no more uploads left dor message', ->
-      FileUploadStore._fileUploads[msgId] = [@upload]
+      @draft.uploads = [@upload]
       waitsForPromise =>
         FileUploadStore._onRemoveAttachment(@upload)
-        .then ->
-          expect(FileUploadStore.uploadsForMessage(msgId)).toEqual []
+        .then =>
+          expect(@session.changes.add).toHaveBeenCalledWith uploads: []
           expect(fs.rmdir).toHaveBeenCalled()
-          expect(FileUploadStore.trigger).toHaveBeenCalled()
-
-
-  describe '_getFileUploadsFromFs', ->
-    # TODO
 
 
   describe '_getFileStats', ->
