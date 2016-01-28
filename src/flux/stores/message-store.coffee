@@ -211,7 +211,7 @@ class MessageStore extends NylasStore
     loadedThreadId = @_thread.id
 
     query = DatabaseStore.findAll(Message)
-    query.where(threadId: loadedThreadId, accountId: @_thread.accountId)
+    query.where(threadId: loadedThreadId)
     query.include(Message.attributes.body)
     query.then (items) =>
       # Check to make sure that our thread is still the thread we were
