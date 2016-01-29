@@ -109,9 +109,10 @@ class Thread extends Model
     if value
       @categories = @constructor.attributes.categories.fromJSON(value)
 
-    if @participants
-      for contact in @participants
-        contact.accountId = @accountId
+    for attr in ['participants', 'categories']
+      value = @[attr]
+      continue unless value and value instanceof Array
+      item.accountId = @accountId for item in value
 
     @
 

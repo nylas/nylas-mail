@@ -5,6 +5,7 @@ _ = require 'underscore'
  AccountStore,
  CategoryStore,
  SoundRegistry,
+ FocusedPerspectiveStore,
  NativeNotifications,
  DatabaseStore} = require 'nylas-exports'
 
@@ -56,9 +57,14 @@ module.exports =
         else
           NylasEnv.displayWindow()
 
-          filter = MailboxPerspective.forCategory(thread.categoryNamed('inbox'))
+        currentCategories = FocusedPerspectiveStore.current().categories()
+        desiredCategory = thread.categoryNamed('inbox')
+
+        return unless desiredCategory
+        unless desiredCategory.id in _.pluck(currentCategories, 'id')
+          filter = MailboxPerspective.forCategory(desiredCategory)
           Actions.focusMailboxPerspective(filter)
-          Actions.setFocus(collection: 'thread', item: thread)
+        Actions.setFocus(collection: 'thread', item: thread)
 
   _notifyMessages: ->
     if @stack.length >= 5
