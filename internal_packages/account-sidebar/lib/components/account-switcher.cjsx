@@ -139,7 +139,10 @@ class AccountSwitcher extends React.Component
     classnames = ""
     classnames += "open" if @state.showing
     selected = @_selectedItem()
-    items = [@_makeItem()].concat @props.accounts.map(@_makeItem)
+    if @props.accounts.length is 1
+      items = @props.accounts.map(@_makeItem)
+    else
+      items = [@_makeItem()].concat @props.accounts.map(@_makeItem)
 
     <div id="account-switcher"
          tabIndex={-1}
